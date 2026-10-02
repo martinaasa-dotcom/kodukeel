@@ -1,3 +1,4 @@
+import { sayLine } from "@/lib/estonian/sayIt";
 import { prisma } from "@/lib/db";
 import { CASES } from "@/lib/estonian/cases";
 import { caseFits, caseQuestionFor } from "@/lib/estonian/caseQuestion";
@@ -73,6 +74,8 @@ export interface TargetQuestion {
    * word is asking for (`lib/estonian/plainAsk.ts`). Null on a meaning question.
    */
   caseKey: string | null;
+  /** The one-line ask on a case question, `Say “with the bird”`. Null on a meaning question. */
+  say: string | null;
   options: string[];
   answer: number;
 }
@@ -140,7 +143,7 @@ export async function targetRound(ownerId: string, scope: ModuleScope | null = n
     usedLemmas.add(lexeme.lemma);
     questions.push({
       cardId: card.id, kind: "meaning", lemma: lexeme.lemma,
-      question: null, caseEt: null, caseKey: null,
+      question: null, caseEt: null, caseKey: null, say: null,
       options: picked.options, answer: picked.answer,
     });
   }
@@ -171,6 +174,8 @@ export async function targetRound(ownerId: string, scope: ModuleScope | null = n
 export function caseQuestion(
   lexeme: {
     lemma: string;
+    /** The English gloss, so the ask can say "with the bird" rather than "with it". */
+    translation?: string | null;
     semanticTypes: string | null;
     forms: readonly { formType: string | null; morphCode: string | null; value: string }[];
   },
@@ -241,6 +246,7 @@ export function caseQuestion(
     question: caseQuestionFor(spec, subject),
     caseEt: grammarTerm(spec.key)?.et ?? spec.et,
     caseKey: spec.key,
+    say: sayLine(spec.key, lexeme.translation ?? null, subject),
     options: picked.options,
     answer: picked.answer,
   };

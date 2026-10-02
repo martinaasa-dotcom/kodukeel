@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { CaseQuestion } from "@/components/CaseQuestion";
-import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, Ear, Sparkles, X } from "lucide-react";
 import { completeLesson } from "@/app/actions";
@@ -717,21 +716,13 @@ function StepCard({
               flash round's own arrangement: this had the ask at 14px in
               `--ink-2` above the word, so what the learner was being asked to
               produce was fainter than the word they were producing it from. */}
-          <div className="flex flex-wrap items-center gap-3">
-            <Et className="text-3xl font-bold leading-tight">{step.lemma}</Et>
-            <span style={{ color: "var(--ink-2)" }}>{step.gloss}</span>
-          </div>
-          <span className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
-            {plainAskLine(step.caseKey) ?? `Put it in the ${step.caseName}`}
-          </span>
-          <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-            <span lang="et">{step.caseName}</span>
-            {", "}
-            <CaseQuestion question={step.question} inline />
+          <Et className="text-3xl font-bold leading-tight">{step.lemma}</Et>
+          <span data-say className="text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
+            {step.say}
           </span>
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
-            ariaLabel={`${step.lemma}, ${plainAskLine(step.caseKey) ?? step.caseName}`}
+            ariaLabel={`${step.lemma}, ${step.say}`}
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)}
           />
           {hint}
@@ -741,6 +732,12 @@ function StepCard({
             </Button>
           )}
           {checked && <Verdict ok={checked.ok} note={checked.note} />}
+          {/* The ending's name, once the answer is in, as the thing to keep. */}
+          {checked && (
+            <span className="text-sm" style={{ color: "var(--ink-2)" }}>
+              That ending is the <span lang="et" className="font-semibold">{step.caseName}</span>.
+            </span>
+          )}
           {checked && <Continue onNext={onNext} />}
         </Card>
       );

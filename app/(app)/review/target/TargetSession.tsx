@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { Crosshair, Timer, Trophy } from "lucide-react";
-import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Page, StatTile } from "@/components/ui";
 import { useFeedbackSound } from "@/components/AudioPrefs";
@@ -212,20 +211,13 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
 
       <div key={question.lemma + index} className="quest-card mt-8 flex flex-col items-center gap-2 text-center">
         <FitText as="p" text={question.lemma} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
-        {question.question ? (
-          <>
-            <p lang="et" className="text-xl font-semibold" style={{ color: "var(--blush-ink)" }}>
-              {question.question}
-            </p>
-            {/* The question word is what an Estonian says; the line under it is
-                what it means, for somebody who has not learned that yet. Kept
-                to one line, since this round is timed. */}
-            {question.caseKey && plainAskLine(question.caseKey) && (
-              <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                {plainAskLine(question.caseKey)}
-              </p>
-            )}
-          </>
+        {question.say ? (
+          // One instruction and nothing else: this round is timed, and the
+          // question word, its meaning and the case's name were three lines of
+          // grammar to read before a tap. The name is in the note after.
+          <p className="text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
+            {question.say}
+          </p>
         ) : (
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>What does it mean?</p>
         )}

@@ -2,8 +2,6 @@
 
 import { useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
-import { questionInEnglish } from "@/lib/estonian/cases";
-import { CaseQuestion } from "@/components/CaseQuestion";
 import { Check, CircleAlert, Loader2, PenLine } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -13,7 +11,7 @@ import { hintLadder } from "@/lib/questions/hints";
 import { caseByKey } from "@/lib/estonian/cases";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
-import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
+import { sayPhrase } from "@/lib/estonian/sayIt";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import type { GradedSentence } from "@/lib/tutor/grader";
 import type { WithholdReason } from "@/lib/tutor/verify";
@@ -94,6 +92,11 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   /* The way back to the word before this one. See `lib/ux/lookBack.ts`. */
   const look = useLookBack();
   const finished = !prompt;
+  // What the sentence has to say, `in the room`, and whether that already
+  // carries the word's meaning so its gloss need not be printed twice.
+  const phrase = prompt ? sayPhrase(prompt.caseKey, prompt.translation) ?? prompt.caseEt : "";
+  const firstSense = prompt?.translation.split(/[,;(]/)[0]?.trim().toLowerCase() ?? "";
+  const saysGloss = firstSense.length > 0 && phrase.toLowerCase().includes(firstSense);
 
   /*
     THE WAY OUT OF BEING STUCK, AND WHAT IT IS ABOUT.
@@ -252,52 +255,24 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
         </div>
 
         <div className="round-pad px-6">
+          {/*
+            ONE INSTRUCTION: the word, and what the sentence has to say with it.
+            This was the word and its gloss, then "How do you say this when
+            something is inside it?", then the case's Estonian name and its
+            question, which is four lines of grammar standing between a learner
+            and a sentence. "in the room" is the whole of what the ending means,
+            and the case's name is on the verdict, where it is worth keeping.
+          */}
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             Use{" "}
             <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
               {prompt.lemma}
-            </strong>{" "}
-            <span style={{ color: "var(--ink-3)" }}>({prompt.translation})</span> in a sentence.
+            </strong>
+            {!saysGloss && <span style={{ color: "var(--ink-3)" }}> ({prompt.translation})</span>} in a sentence that says
           </p>
-          {/*
-            The ask, then what it is called. This led with `seesütlev` at 24px
-            in the accent and put the question and the English name in grey
-            underneath, which is three names and no instruction: somebody who
-            has not met the word `seesütlev` had nothing on the screen telling
-            them what sentence to write. `plainAsk` is the one table of what a
-            case means in plain English, and the names stay on the card as the
-            cross-reference they have always been.
-          */}
-          {plainAsk(prompt.caseKey) ? (
-            <>
-              <p className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
-                {plainAskLine(prompt.caseKey)}
-              </p>
-              {/* The Estonian name carries the line's `lang`, since it is the
-                  part a screen reader has to pronounce as Estonian and the part
-                  `smoke-interact.mjs` reads the task off; the English name is
-                  marked back as English inside it. */}
-              <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-                {prompt.caseEt}, {prompt.caseQuestion}
-                {/* What the question is asking rather than the Latin name,
-                    which was the only English on this line and the one word
-                    here nobody can cash in. The Latin name is on the grammar
-                    page for the ending, labelled. */}
-                {questionInEnglish(prompt.caseQuestion) && (
-                  <span lang="en">, {questionInEnglish(prompt.caseQuestion)}</span>
-                )}
-              </p>
-            </>
-          ) : (
-            <>
-              <p lang="et" className="mt-1 text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-                {prompt.caseEt}
-              </p>
-              <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-                <CaseQuestion question={prompt.caseQuestion} inline />
-              </p>
-            </>
-          )}
+          <p data-say className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
+            “{phrase}”
+          </p>
 
           <div className="mt-6">
             <label htmlFor="sentence" className="label-xs block" style={{ color: "var(--ink-3)" }}>
@@ -337,7 +312,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
             <p role="alert" className="mt-3 text-sm" style={{ color: "var(--again-ink)" }}>{error}</p>
           )}
 
-          {marked && <Feedback marked={marked} />}
+          {marked && <Feedback caseName={prompt.caseEt} marked={marked} />}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
@@ -384,7 +359,7 @@ function writeRating(formCheck: Marked["formCheck"]): 1 | 2 | 3 {
   return formCheck.used ? 3 : formCheck.usedAnotherForm ? 2 : 1;
 }
 
-function Feedback({ marked }: { marked: Marked }) {
+function Feedback({ marked, caseName }: { marked: Marked; caseName: string }) {
   const { formCheck, graded, quotaMessage, withheld, withheldReason } = marked;
 
   return (
@@ -399,6 +374,11 @@ function Feedback({ marked }: { marked: Marked }) {
             : formCheck.usedAnotherForm
               ? "Right word, but not the ending we asked for. Look at how it ends."
               : "The word we asked for isn't in your sentence. Try working it in."}
+          {/* The ending's name, once the answer is in: here it is the thing to
+              remember, where before the answer it was a thing to decode. */}
+          <span className="mt-1 block text-sm">
+            That ending is the <span lang="et" className="font-semibold">{caseName}</span>.
+          </span>
         </p>
       </div>
 
