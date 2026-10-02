@@ -754,8 +754,10 @@ export function subjectOf(word: FlashWord): CaseSubject {
  * `caseQuestionFor`'s job; everything else is the same on every word and comes
  * off the one table in `lib/srs/slots.ts`.
  */
-export function caseLabel(word: FlashWord, slot: string): string {
+export function caseLabel(_word: FlashWord, slot: string): string {
   const spec = caseByKey(slot);
   if (!spec) return slotLabel(slot);
-  return `${spec.et}, ${caseQuestionFor(spec, subjectOf(word))}`;
+  // The name alone: the question words beside it were a second name for the
+  // same thing, and the screen says what the case means in English instead.
+  return spec.et;
 }

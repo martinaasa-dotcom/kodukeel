@@ -10721,12 +10721,13 @@ check("a case's Latin name has a closed list of readers", () => {
 check("a hint a deck already holds does not name its case in Latin", () => {
   const table = "lib/copy/caseHint.ts";
   assert.ok(existsSync(table), "the reading of a stored card hint has gone");
-  // It says what the case asks rather than what an English grammar calls it,
-  // and it reads the one table rather than keeping a second list of names.
+  // It says what the ending means rather than what an English grammar calls
+  // it, `<name>: the “with” ending`, through the one helper every screen reads
+  // after an answer, and it reads the one table rather than a second list.
   assert.match(
     code(table),
-    /\bquestionEn\b/,
-    "the stored hint is no longer rewritten to the question the case answers",
+    /\bendingName\(/,
+    "the stored hint is no longer rewritten to what the ending means",
   );
   assert.match(code(table), /\bCASES\b/, "caseHint.ts keeps a case list of its own");
 
@@ -10898,8 +10899,9 @@ check("a screen that prints a case question says what it is asking", () => {
     );
   }
   // A floor, because a regex that stops matching is a check that passes
-  // having asked nothing: five screens print one today.
-  assert.ok(found >= 4, `expected the screens that print a case question, found ${found}`);
+  // having asked nothing. Three screens print one today: Target stopped, since
+  // it asks in one plain line and names the ending after the answer instead.
+  assert.ok(found >= 3, `expected the screens that print a case question, found ${found}`);
 });
 
 /**
@@ -26762,7 +26764,7 @@ check("every round says what is about to happen before it happens", () => {
     child element and so is not mounted: no clock has started and no clip has
     played behind the screen somebody is reading. Five rounds already opened
     on a start screen of their own, which is the same thing arrived at
-    earlier, and those read `BriefingLines` so the wording still comes off one
+    earlier, and those read `BriefingSteps` so the wording still comes off one
     table rather than each round answering "what is this" in its own words.
 
     The haystack is a page that renders a session, read through `code()` so a
@@ -26787,7 +26789,7 @@ check("every round says what is about to happen before it happens", () => {
     */
     const named = [...page.matchAll(/<([A-Z][A-Za-z]*Session)\b/g)].map((m) => m[1]);
     const drawn = named.some((name) =>
-      COMPONENTS.concat(APP).some((f) => f.endsWith(`${name}.tsx`) && /<BriefingLines\b/.test(code(f))),
+      COMPONENTS.concat(APP).some((f) => f.endsWith(`${name}.tsx`) && /<BriefingSteps\b/.test(code(f))),
     );
     if (!drawn) missing.push(key);
   }
@@ -26818,7 +26820,7 @@ check("every round says what is about to happen before it happens", () => {
   */
   const ids = new Set(Object.keys(BRIEFINGS));
   for (const file of ALL) {
-    for (const m of code(file).matchAll(/<(?:BeforeYouStart|BriefingLines)\b[^>]*?\bid="([^"]+)"/g)) {
+    for (const m of code(file).matchAll(/<(?:BeforeYouStart|BriefingSteps)\b[^>]*?\bid="([^"]+)"/g)) {
       assert.ok(ids.has(m[1]!), `${file} asks for a briefing called "${m[1]}" that lib/copy/briefings.ts does not hold`);
     }
   }

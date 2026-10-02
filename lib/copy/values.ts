@@ -208,23 +208,6 @@ export function nounFor(n: number, one: string, many = `${one}s`): string {
 }
 
 /**
- * A list read the way a person reads one aloud, with "and" before the last
- * item rather than another comma.
- *
- * `practises(scene).join(", ")` had two callers and both had the same fault:
- * a plain comma join turned two items into something that reads as one, "a
- * word off your card, the polite you", which looks like the second half is
- * describing the first, as though the card itself were the polite you. "and"
- * before the last item is what a sentence needs to say two separate things
- * are both required.
- */
-export function joinWithAnd(items: readonly string[]): string {
-  if (items.length <= 1) return items[0] ?? "";
-  if (items.length === 2) return `${items[0]} and ${items[1]}`;
-  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
-}
-
-/**
  * A small count said as a word, the way the prose around it counts.
  *
  * Five files kept a table of their own, reaching three, seven, ten and
@@ -257,7 +240,7 @@ export function SpelledCount(n: number): string {
 /**
  * The same reading, for a list of alternatives rather than a list of
  * requirements: an errand's `where` is a set of places any one of which
- * would do, and joined on `joinWithAnd` it reads as a place you would have
+ * would do, and joined on "and" it reads as a place you would have
  * to visit all of. "Work, a party" is two options; "Work and a party" is an
  * itinerary.
  */

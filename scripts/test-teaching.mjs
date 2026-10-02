@@ -761,7 +761,7 @@ if (await box.count()) {
   // the key the price of even seeing what they were about to ask.
   const shown = await dialog.locator("[data-handed-over]").innerText().catch(() => "");
   check("with no key, Anu still shows the question that was handed over",
-    /keep getting this form wrong|Explain/.test(shown), shown.slice(0, 60));
+    /keep getting (?:this form|the \S+ of ".+") wrong|Explain/.test(shown), shown.slice(0, 60));
   absent(1, "a model key, so there is no box to prefill");
 }
 await page.keyboard.press("Escape");

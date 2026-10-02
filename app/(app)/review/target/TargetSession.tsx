@@ -1,8 +1,8 @@
 "use client";
 
+import { endingName } from "@/lib/estonian/plainAsk";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
-import { questionInEnglish } from "@/lib/estonian/cases";
 import { Crosshair, Timer, Trophy } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Page, StatTile } from "@/components/ui";
@@ -10,7 +10,7 @@ import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { TargetQuestion } from "@/lib/progress/target";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
-import { BriefingLines } from "@/components/round/Briefing";
+import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useModuleFocus } from "@/components/course/moduleFocus";
@@ -157,10 +157,10 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
           , up to ten times this.
         </>}
       >
-        <p>
-          <BriefingLines id="target" /> When all four are the same word, the little question word
-          is your only clue.
-        </p>
+        <BriefingSteps
+          id="target"
+          more="When all four are the same word, the little question word is your only clue."
+        />
       </RoundStart>
     );
   }
@@ -273,14 +273,11 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
         {answered && question.caseEt && (
         <>
           <span lang="et" className="font-semibold">{question.options[question.answer]}</span>
-          {" is the "}
-          <span lang="et" className="font-semibold">{question.caseEt}</span>
-          {question.question && (
-            <>
-              , which answers <span lang="et">{question.question}</span>
-              {questionInEnglish(question.question) && <> ({questionInEnglish(question.question)})</>}
-            </>
-          )}
+          {", "}
+          {/* The ending's name and the one word it means, nothing more. */}
+          {question.caseKey && endingName(question.caseKey)
+            ? <span lang="et">{endingName(question.caseKey)}</span>
+            : <span lang="et" className="font-semibold">{question.caseEt}</span>}
         </>
         )}
       </p>

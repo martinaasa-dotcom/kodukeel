@@ -219,7 +219,9 @@ async function answer(typed) {
   if (!slot && ASK_LINES[0].test(text)) slot = "saying it";
   return {
     right: /That's it/.test(text),
-    told: form && slot ? `${slot}: ${form}` : "",
+    // Joined on an arrow, since a case's name now carries a colon of its own
+    // (`alalütlev: the “onto” ending`).
+    told: form && slot ? `${slot} -> ${form}` : "",
     text,
   };
 }
@@ -273,7 +275,7 @@ check(
   worth asserting on its own: a learner who refreshes has not lost their place.
 */
 const first = await answer("zzz zzz zzz");
-const [firstLabel, firstForm] = first.told.split(/:\s+/);
+const [firstLabel, firstForm] = first.told.split(" -> ");
 const firstWord = wordOf(first.text);
 
 check("a wrong answer is told what the form is", Boolean(firstLabel && firstForm), first.told);
@@ -342,7 +344,7 @@ for (let i = 0; i < 12; i++) {
   for (const line of ASK_LINES) if (line.test(state.text)) shapes.add(line.source);
 
   const marked = await answer("zzz zzz zzz");
-  const [label] = marked.told.split(/:\s+/);
+  const [label] = marked.told.split(" -> ");
   if (label) slotsAsked.add(label.trim());
   learned.set(`${wordOf(state.text)}|${label}`, marked.told);
 

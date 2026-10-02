@@ -9722,7 +9722,7 @@ saying nothing is about to happen is the app talking to itself.
 **Five rounds already had one, so they read the table rather than being given a second screen.**
 The three with a clock, the picture board and the daily quest each open on a card saying what they
 are with a Start under it, which is this rule arrived at earlier one round at a time. Putting a
-briefing in front of one of those is a press for nothing, so they draw `BriefingLines` and keep
+briefing in front of one of those is a press for nothing, so they draw `BriefingSteps` and keep
 everything that is a fact about this sitting rather than about the round: how long the clock runs,
 how many cards are loaded, the personal best, and the learner's own weakest endings on the quest,
 which are the reason to press rather than the thing about to happen.
@@ -11586,7 +11586,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `LookBackCard`, `forgetLast`, `shownAs`, `buildSlotIndex`, `readSlot`, `PointExamples`,
 `isRefusedSentence`, `REFUSED_SENTENCES`, `refusalFor`, `refusalMatcher`, `refusedSentenceCards`, `enRefused`,
 `mayFillEnglish`,
-`data-point-examples`, `BeforeYouStart`, `BriefingLines`, `BRIEFINGS`, `startRound`,
+`data-point-examples`, `BeforeYouStart`, `BriefingSteps`, `BRIEFINGS`, `startRound`,
 `OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`, `tonightSteps`, `useModuleSteps`,
 `ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`, `withoutFarewell`,
 `withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`.

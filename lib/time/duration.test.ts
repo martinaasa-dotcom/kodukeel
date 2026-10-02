@@ -31,6 +31,13 @@ describe("a duration on its way to a screen", () => {
   });
 });
 
+describe("an hour figure past ten", () => {
+  it("drops the tenth nobody measured", () => {
+    expect(formatDuration(72.9)).toBe("73 h");
+    expect(formatDuration(8.06)).toBe("8.1 h");
+  });
+});
+
 describe("how long one answer took", () => {
   it("keeps a tenth where a tenth is the whole signal", () => {
     // 2.4 against 3.8 is the difference the pace panel exists to show.
