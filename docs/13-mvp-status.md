@@ -2652,3 +2652,61 @@ taken literally or reversed (`Pill tuleb pika ilu peale` had become "every cloud
 lining"), lines cut off after two words, dashes carried over, and Latin case names. A few dozen
 lines nobody could read with confidence were left alone and are worth a native speaker's eye; the
 reviewers' notes list them. The Estonian was not changed anywhere.
+
+## 45. The thirty-ninth pass: one evening walked on a phone, and every seam it crossed
+
+**Walked rather than read.** A beginner was taken from the landing page through first run and two
+evenings of the module at 390px, then through Practice, the dictionary, Progress, Settings and a
+conversation at 1280. Everything below was found by pressing it.
+
+**A tap does not leave a hover behind.** A phone fakes `:hover` on whatever was last tapped, and
+every hover written by hand in the stylesheet painted an option nearly the way a chosen one is
+painted, so the card that arrived under the finger after "Continue" looked already answered. Every
+hand-written hover now sits inside `@media (hover: hover)`, held by
+`scripts/invariants/a-hover-does-not-latch-on-touch.ts`.
+
+**First run stays inside first run.** The plan's empty state no longer links out to Settings, the
+days-a-week chips sit on one row, and the plan counts the evening: on the course, a study day is at
+least the fifteen minutes an evening takes, and the deck screen says the daily goal is part of them
+rather than a second job (`minutesPerStudyDay`).
+
+**One way on, on a phone.** The module's bar is one slim row: the way out, where you are, a quiet
+"Next step" and the way back to tonight's list. The named "Next, step 2: Match" is drawn where a
+round ends on a phone as well, and the bar's own button stands down while it is on screen. The room
+under a step clears Anu's button as well as the bar. And a round's next press is brought into view
+after an answer by measurement rather than `scrollIntoView`, because the card is `overflow-hidden`
+and Chromium clipped the scroll margin to it, so nothing moved (`useKeepInView`).
+
+**The evening hangs together.** A word met on the ladder is not "New word" again in the closing
+review, and the closing review has its own briefing. "That's tonight done" survived only the render
+that happened to finish the evening; the bar asking for tonight's steps as the round ended was
+enough to send the learner straight to evening two, and an integration test now holds it.
+
+**Nothing reads the answer out.** The listening round's play button was labelled with the word it
+plays, and on cards that ask for a word, the star, the put-aside button and the hint each named it
+to a screen reader; the flash round printed "sina: right 29 times" under its own question. All of
+them say "this word" until the answer is in (`wordName`), with two invariants. A gap whose gloss
+carries a qualifier keeps it beside the marked English, because "**You**? No, him." is `sina` and
+`teie` both and only "(one person)" says which.
+
+**The rounds say what happened.** Match and the sprint had their own cross out of the round,
+inside the module too, under a label the invariant did not read; both use `EndSession` and the
+invariant reads any "End" label. A first round no longer calls itself a new personal best. Tähed's
+"in a row" counts first tries only, a solved word says how it went rather than "here it is", and
+the finish says what happens to the words that took two goes. The flash round's briefing stopped
+promising five ways and five right answers, and "adverb" is no longer printed under "thank you".
+
+**The rest of the app agrees with the course.** Today hides "your next unit" while the course is
+on, and a beginner's game of the day is a round the module itself deals at A1, with an ear test on
+Saturday where the full week has a crossword built from words they have not met. The Learn page,
+with nothing ready, points at tonight's module. Practice says word ordering starts at A2 rather
+than "34 ready", Situations tells an A1 learner the course brings conversations in at A2, Progress
+says the cases start at A2, and the part list on the course screen counts its rows instead of
+repeating evening numbers. A conversation with no model says what that means for the learner
+rather than that an AI key is missing. Under a word found outright, the dictionary no longer lists
+"exa-mina-tion" and "se-mina-r" as other matches for `mina`.
+
+**Still open.** The course screen lights Today in the rail while its steps light Learn, which are
+two agreed decisions that read as one inconsistency. Doing two evenings in one day leaves the
+second closing round little to ask, since the day's new cards are spent. A pronoun's case table
+still shows gaps where the dictionary holds no plural (`mina`'s nominative plural).

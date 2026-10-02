@@ -609,6 +609,32 @@ describe("a finished evening stays finished", () => {
     expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).daysDone).toBe(1);
   });
 
+  /*
+    The render that proves an evening is very often not the one the learner
+    reads it on: the module's bar asks for tonight's steps as the closing round
+    ends, that reading saves both derived steps, and the course screen opened a
+    moment later found the evening whole by its ticks and started on the next
+    one. It said "learn tonight's 6 new words" a minute after the fifth answer
+    rather than "that's tonight done".
+  */
+  it("still says tonight is done to the render after the one that proved it", async () => {
+    const one = PROGRAMME.days[0]!;
+    await finish(one);
+    const later = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(later.current?.day.index).toBe(2);
+    expect(later.finishedToday).toBe(true);
+    expect(later.eveningDoneToday).toBe(true);
+  });
+
+  it("does not say tonight is done about an evening finished last night", async () => {
+    const one = PROGRAMME.days[0]!;
+    await finish(one);
+    const tomorrow = new Date(NOW.getTime() + 24 * 3600_000);
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, tomorrow);
+    expect(reading.current?.day.index).toBe(2);
+    expect(reading.finishedToday).toBe(false);
+  });
+
   it("saves nothing on a day nobody has pressed a step of", async () => {
     const one = PROGRAMME.days[0]!;
     await deck(one.words, 1);

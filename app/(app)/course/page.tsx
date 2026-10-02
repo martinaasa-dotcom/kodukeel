@@ -469,10 +469,15 @@ export default async function CoursePage({
             evenings used to be five rows reading the same title with "1 of 5"
             to "5 of 5" after it, which made a nineteen-evening part look like a
             list of repeats. The dots say how many evenings and which are done;
-            the numbers say where in the part they fall.
+            the line under the title says where in the part they fall.
+
+            The badge counts the rows, one to seven, rather than repeating the
+            first evening's number: 1, 2, 3, 5, 8, 12, 15 down the side of an
+            ordered list reads as a list with items missing, and the evening is
+            already printed in words one line down.
           */}
           <ol className="mt-4 grid gap-x-4 gap-y-0.5 sm:grid-cols-2">
-            {courseRuns(programme.days).map((run) => {
+            {courseRuns(programme.days).map((run, ordinal) => {
               const first = run[0]!;
               const last = run[run.length - 1]!;
               const state = last.index < day.index ? "done" : first.index <= day.index ? "now" : "ahead";
@@ -490,7 +495,7 @@ export default async function CoursePage({
                           : state === "now" ? "var(--accent-deep)" : "var(--ink-3)",
                       }}
                     >
-                      {state === "done" ? <Check size={11} /> : first.index}
+                      {state === "done" ? <Check size={11} /> : ordinal + 1}
                     </span>
                     {/*
                       The number is its own column and the title wraps inside

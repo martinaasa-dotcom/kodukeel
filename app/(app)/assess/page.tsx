@@ -9,6 +9,7 @@ import { PlanPanel, levelLabel } from "@/components/assessment/PlanPanel";
 import { ResultPanel } from "@/components/assessment/ResultPanel";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor, standingFor } from "@/lib/progress/plan";
+import { programmeFor } from "@/lib/progress/course";
 import { DATE_AND_TIME, DateText } from "@/components/DateText";
 import { Explain } from "@/components/Explain";
 import { firstParams } from "@/lib/ux/queryParam";
@@ -62,13 +63,15 @@ export default async function AssessPage({
     handed. The pace is what the log says they do, read once here rather than
     inside the panel, which stays free of the database.
   */
-  const [latest, history, goals, clock, standing, pace] = await Promise.all([
+  const [latest, history, goals, clock, standing, pace, programme] = await Promise.all([
     latestFor(ownerId),
     historyFor(ownerId, 10),
     goalsFor(ownerId),
     learnerDayClock(ownerId),
     standingFor(ownerId),
     measuredPaceFor(ownerId),
+    // Whether an evening of the course is what a day here is (`minutesPerStudyDay`).
+    programmeFor(ownerId),
   ]);
 
   const result: Placement | null = latest
@@ -125,7 +128,13 @@ export default async function AssessPage({
 
         <div>
           <SectionTitle hint="counted in hours of study">What this means for your goal</SectionTitle>
-          <PlanPanel standing={standing} goals={goals} dailyGoal={goals.dailyGoal} pace={pace} />
+          <PlanPanel
+            standing={standing}
+            goals={goals}
+            dailyGoal={goals.dailyGoal}
+            onCourse={programme !== null}
+            pace={pace}
+          />
         </div>
 
         {history.length > 1 && (

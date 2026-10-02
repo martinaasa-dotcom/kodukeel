@@ -29,6 +29,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Board, BoardSkeleton } from "./Board";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { lemmasByCardLexeme } from "@/lib/dict/facts";
+import { courseLevelFor } from "@/lib/progress/level";
 import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, Stat } from "@/components/ui";
 import { NO_VALUE } from "@/lib/copy/values";
 import { formatHour } from "@/lib/time/clock";
@@ -45,7 +46,12 @@ export default async function ProgressPage() {
   const now = new Date();
   // Every figure below is a fact about a *day*, and this page renders on the
   // server, whose midnight is the deployment's. See lib/time/day.ts.
-  const [clock, snapshot] = await Promise.all([learnerDayClock(ownerId), deckSnapshot(ownerId, now)]);
+  const [clock, snapshot, level] = await Promise.all([
+    learnerDayClock(ownerId), deckSnapshot(ownerId, now),
+    // Which level the course is teaching, for what the case panel says while
+    // it is empty: at A1 there are no case cards to answer, by design.
+    courseLevelFor(ownerId),
+  ]);
 
   const [summary, units, reviews, deck, caseReviews, shieldRow, readiness, outside] = await Promise.all([
     dailySummary(ownerId, now, clock),
@@ -306,10 +312,24 @@ export default async function ProgressPage() {
                 <WeakestCases
                   cases={cases}
                   empty={
-                    <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                      You haven&rsquo;t answered any case cards yet. To start, add a unit with nouns in it from{" "}
-                      <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>Learn</Link>.
-                    </p>
+                    /*
+                      Said off where the course is. A1 asks for no case at all
+                      and leaves the endings to A2, so "add a unit with nouns"
+                      sent a beginner off to do something that would not have
+                      filled this panel.
+                    */
+                    level === "A1" ? (
+                      <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                        The cases start at A2. Until then the course gives you words and phrases, and
+                        this fills in once you&rsquo;re putting endings on them.
+                      </p>
+                    ) : (
+                      <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                        You haven&rsquo;t answered any case cards yet. They come with the units that put
+                        endings on nouns, in{" "}
+                        <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>Learn</Link>.
+                      </p>
+                    )
                   }
                 />
                 {/*
@@ -402,7 +422,7 @@ export default async function ProgressPage() {
               </Card>
             </section>
             <section className="flex flex-col">
-              <SectionTitle hint={`${pathKnown} of ${pathTotal}`}>How many words you know</SectionTitle>
+              <SectionTitle hint={`${pathKnown} of the course's ${pathTotal}`}>How many words you know</SectionTitle>
               <Card className="flex-1">
                 <ul className="flex flex-col gap-2">
                   {CEFR_LEVELS.map((level) => {

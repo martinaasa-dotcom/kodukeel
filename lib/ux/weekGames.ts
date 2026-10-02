@@ -66,6 +66,48 @@ export const WEEK_GAMES: readonly FeaturedGame[] = [
 ];
 
 /**
+ * THE SAME WEEK FOR SOMEBODY THE COURSE HAS NOT TAKEN TO THE CASES YET.
+ *
+ * The table above is a week for a learner with endings to practise, and four
+ * of its rows are about endings or need them: the quest drills the weakest
+ * case, Target and the sprint are "a quick burst of endings", and a
+ * conversation needs the asking-and-offering words the course reaches at A2.
+ * On a beginner's first Friday Today said "a quick burst of endings on the
+ * clock" to somebody who had met five words and no case at all, which is the
+ * app suggesting the one thing its own course has decided they are not ready
+ * for. A1 teaches words and phrases and leaves the cases to A2 (CLAUDE.md, "A1
+ * is vocabulary and phrases"), so until then the week is the rounds the
+ * module itself deals at A1, plus Sõnad, which keeps its Monday, and an ear
+ * test on Saturday where the full week has the crossword.
+ *
+ * Nothing is hidden by it, exactly as above: every round is still on
+ * /practice. What changes is only what Today leads with.
+ */
+export const FIRST_LEVEL_WEEK: readonly FeaturedGame[] = [
+  { href: "/review/flashcards", why: "A quiet round on the words you've met, typed from their meaning." },
+  { href: "/sonad", why: "A fresh word to guess every morning. Monday's a good day to start." },
+  { href: "/review/letters", why: "Unscramble a word you've met. Every letter has its place." },
+  { href: "/review/listening", why: "Midweek, train your ear: hear a word and pick what it means." },
+  { href: "/review/match", why: "Pairs against the clock, and a personal best to beat." },
+  { href: "/review/speaking", why: "It's Friday: say this week's words out loud, then hear them said." },
+  /* Not the crossword: it is filled from the dictionary at the learner's band,
+     and a beginner two evenings in has met eleven words of it. Long or short
+     needs no vocabulary at all, only an ear, which is the thing a first month
+     is short of. */
+  { href: "/review/pairs", why: "Long sound or short? A Saturday ear test, no words needed." },
+];
+
+/**
+ * Which week a learner gets: the beginner's until their course reaches A2,
+ * where the cases start, and the full one after. The level is the course's
+ * own (`courseLevelFor`), which reads a learner nothing has placed as A1, and
+ * a caller that passes none gets the full week.
+ */
+function weekFor(level?: string | null): readonly FeaturedGame[] {
+  return level === "A1" || level === "pre-A1" ? FIRST_LEVEL_WEEK : WEEK_GAMES;
+}
+
+/**
  * What today's row is called, off the table that owns the name.
  *
  * A mode's title where the href is a mode, and a destination's label where
@@ -76,13 +118,14 @@ export function featuredTitle(href: string): string | undefined {
   return modeAt(href)?.title ?? DESTINATIONS.find((d) => d.href === href)?.label;
 }
 
-/** Today's. */
-export function gameOn(weekday: Weekday): FeaturedGame {
-  return WEEK_GAMES[weekday] ?? WEEK_GAMES[0]!;
+/** Today's, for a learner at this level. */
+export function gameOn(weekday: Weekday, level?: string | null): FeaturedGame {
+  const week = weekFor(level);
+  return week[weekday] ?? week[0]!;
 }
 
 /** Tomorrow's, which is half of what makes a week have a shape. */
-export function gameAfter(weekday: Weekday): { game: FeaturedGame; weekday: string } {
+export function gameAfter(weekday: Weekday, level?: string | null): { game: FeaturedGame; weekday: string } {
   const next = ((weekday + 1) % 7) as Weekday;
-  return { game: gameOn(next), weekday: WEEKDAY_LONG[next] ?? "" };
+  return { game: gameOn(next, level), weekday: WEEKDAY_LONG[next] ?? "" };
 }

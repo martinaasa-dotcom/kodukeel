@@ -6,7 +6,8 @@ import { distanceLine, foundHours, project, type MeasuredPace } from "@/lib/asse
 import { assessReadiness, type Evidence, type Feedback, type ReadinessSignals } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
 import type { DayClock } from "@/lib/time/day";
-import { minutesForCards } from "@/lib/stats/pace";
+import { minutesPerStudyDay } from "@/lib/stats/pace";
+import { programmeFor } from "./course";
 import { standingFor } from "./plan";
 
 /**
@@ -153,9 +154,12 @@ export async function examCountdown(
     alongside because the distance line needs it and neither read needs the
     other.
   */
-  const [signals, standing] = await Promise.all([
+  const [signals, standing, programme] = await Promise.all([
     gathered ?? readinessSignals(ownerId, snapshot),
     standingFor(ownerId),
+    // On the course a day here is the evening, which the plan panel counts
+    // too (`minutesPerStudyDay`), so the two screens quote one distance.
+    programmeFor(ownerId),
   ]);
   const readiness = assessReadiness(signals);
 
@@ -178,7 +182,7 @@ export async function examCountdown(
   const plan = project({
     standing,
     to: target.band,
-    minutesPerDay: minutesForCards(goals.dailyGoal),
+    minutesPerDay: minutesPerStudyDay(goals.dailyGoal, programme !== null),
     daysPerWeek: goals.daysPerWeek,
     weeksAvailable: weeksUntil(goals.deadline, now),
     found: foundHours(reasonsFor(goals.reason)),

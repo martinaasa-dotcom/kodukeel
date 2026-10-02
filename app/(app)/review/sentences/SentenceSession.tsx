@@ -257,7 +257,7 @@ export function SentenceSession(
               level check. The sentence in front of it was this app telling
               somebody who has just finished why the round was worth doing. */}
         </div>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={attempts} label="Built" tone="accent" />
           <StatTile value={`${accuracy}%`} label="First time" tone={accuracy >= 70 ? "sky" : "butter"} />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />

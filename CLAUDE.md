@@ -6122,10 +6122,17 @@ element `ModuleScope` builds. The first pass kept the bar and moved it to the en
 lit whichever row the step's path lived under, which was not what was agreed and was reported as
 such. The steps come off `tonightSteps`, a Server Action reading `courseReading`, because the marker
 is an address and the client may not import the course build; `ModuleScope` wraps the rail as well
-as the page for it. A phone keeps its bar for now, and the in-page Next stands down there, since two
-buttons for one press is one too many. On a phone Anu stands off the bar's measured height
-(`--module-bar`). The drill at the foot of a reading still stands down, and so does every round's
-own door. Asserted in `scripts/test-invariants.ts` and walked in `scripts/test-module.mjs`.
+as the page for it. On a phone the bar stays and is **one slim row**: the way out, where you are in
+the evening, a quiet "Next step" and the way back to tonight's list. The in-page "Next, step 3:
+Match" is drawn on a phone too, because it is where a learner's eyes are when a round ends, and
+**the bar's own "Next step" stands down while it is on the screen**, which is what one button for
+one press means; `ModuleNext` says so through `onShown`. It used to be the other way round, a
+second "Continue" on the bar while the card's own Continue sat under it, which on a 390px screen was
+two yellow buttons a thumb apart saying different things. On a phone Anu stands off the bar's
+measured height (`--module-bar`), and the room under a step clears her button as well as the bar,
+so a round's Continue never comes to rest under her. The drill at the foot of a reading still
+stands down, and so does every round's own door. Asserted in `scripts/test-invariants.ts` and
+walked in `scripts/test-module.mjs`.
 
 **The phone bar goes by the hook a conversation already uses.** `body:has(.module-step)
 [data-chrome="dock"]` reads the same marks `.scene-room` hides by, deliberately: two sets of marks

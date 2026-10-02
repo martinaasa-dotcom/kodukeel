@@ -518,7 +518,28 @@ export async function withChoices(
   const firstEvering = rows.some((r) => r.state === 0)
     ? prisma.review.findFirst({ where: { ownerId }, select: { id: true } }).then((row) => row === null)
     : Promise.resolve(false);
-  const [reach, starred, firstCardEver] = await Promise.all([reaching, starring, firstEvering]);
+  /*
+    WHICH OF THE UNSEEN CARDS BELONG TO A WORD ALREADY MET ON ANOTHER CARD.
+
+    The ladder teaches a word through its recognition card, so its production
+    card is still New on the evening the word was learned, and the closing
+    round introduced it again as a "New word" two minutes after it was typed.
+    A word with any card past New has been met; its unseen cards are asked
+    rather than taught. Owner-scoped and keyed on the batch's own unseen
+    words, so it reads a handful of rows, started beside the other three.
+  */
+  const unseenWords = [...new Set(
+    rows.filter((r) => r.state === 0 && r.lexemeId).map((r) => r.lexemeId as string),
+  )];
+  const meeting = unseenWords.length > 0
+    ? prisma.card.findMany({
+      where: { ownerId, lexemeId: { in: unseenWords }, state: { not: 0 } },
+      select: { lexemeId: true },
+    }).then((met) => new Set(met.map((m) => m.lexemeId).filter((id): id is string => !!id)))
+    : Promise.resolve(new Set<string>());
+  const [reach, starred, firstCardEver, metWords] = await Promise.all([
+    reaching, starring, firstEvering, meeting,
+  ]);
   const [glossed, contrasts] = await Promise.all([
     withGlosses(
       rows.map((c) => toReviewCard(c, glossLanguage, reach, firstCardEver)), ownerId,
@@ -528,9 +549,12 @@ export async function withChoices(
   const cards = glossed.map((card, i) => {
     const contrast = contrasts.get(i);
     const withContrast = contrast ? { ...card, contrast } : card;
-    return withContrast.lexemeId && starred.has(withContrast.lexemeId)
-      ? { ...withContrast, starred: true }
+    const withMet = withContrast.isNew && withContrast.lexemeId && metWords.has(withContrast.lexemeId)
+      ? { ...withContrast, wordMet: true }
       : withContrast;
+    return withMet.lexemeId && starred.has(withMet.lexemeId)
+      ? { ...withMet, starred: true }
+      : withMet;
   });
 
   /*

@@ -673,6 +673,22 @@ export async function courseReading(
   }
 
   /*
+    AND A DAY ANOTHER RENDER FINISHED IS STILL FINISHED. The derived steps are
+    saved the moment a render proves them (`latchDerived`), and the render that
+    proves the closing round is very often not this screen's: the module's own
+    bar asks for tonight's steps as the round ends, so by the time the learner
+    presses "Finish tonight" the day in play is already whole by its ticks,
+    the loop above starts on the next day, and nothing here had finished
+    anything. Measured on the first evening: the course opened on evening two,
+    "Learn tonight's 6 new words", a minute after the fifth answer. A day
+    reached that is whole, with nothing ticked on the one after it, is the day
+    that finished; whether that was today is the same question as below.
+  */
+  if (!justFinished && standing.current && standing.current.day.index > reached.index) {
+    justFinished = reached.id;
+  }
+
+  /*
     "Come back tomorrow" is a claim about a day that finished *today*, so it is
     read off the day this render just settled rather than off the first day of
     the programme, which is where it used to be read and which made the

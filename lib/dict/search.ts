@@ -409,7 +409,25 @@ export function rankCandidates(candidates: Candidate[], query: string, limit = 4
       || a.hit.lemma.localeCompare(b.hit.lemma, "et")
       || bySubstance(a.hit, b.hit));
 
-  return scored.slice(0, limit).map(({ hit, matchedAs }) => ({
+  /*
+    AND ONCE THE WORD ITSELF HAS BEEN FOUND, THE STRAY LETTERS ARE NOT MATCHES.
+
+    A mid-word substring is the right net while nothing better has turned up,
+    since a learner who half remembers a word is helped by anything containing
+    what they typed. Under a word found outright it is noise: `mina` came back
+    over "19 other matches" made of exa-mina-tion, cri-mina-l, ter-mina-l and
+    se-mina-r, none of them anything to do with "I". So where the best hit is
+    one the app would vouch for, an English gloss has to contain the query as
+    a word or start with it, and an Estonian lemma containing it has to end
+    in it, which is a compound built on the word (`õpperaamat` for `raamat`)
+    rather than a coincidence of spelling.
+  */
+  const confident = (scored[0]?.score ?? 0) >= VOUCHED_SCORE;
+  const kept = confident
+    ? scored.filter((r) => r.score >= 50 || (r.score === 30 && fold(r.hit.lemma).endsWith(folded)))
+    : scored;
+
+  return kept.slice(0, limit).map(({ hit, matchedAs }) => ({
     id: hit.id,
     lemma: hit.lemma,
     translation: hit.translation,

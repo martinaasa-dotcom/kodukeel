@@ -302,6 +302,17 @@ export function gapCue(
   const cue = readableHint(hint)?.trim();
   if (!cue) return null;
   if (!marked) return cue;
+  /*
+    A GLOSS WITH A QUALIFIER IN IT SAYS WHAT THE SENTENCE CANNOT. "You (one
+    person)" and "you (several people, or one politely)" are `sina` and
+    `teie`, and the English line of `Sina? Ei, tema.` is "You? No, him.": the
+    mark lands on "you", the qualifier is gone with the gloss, and the gap
+    has two right answers with one of them marked wrong. Measured on the
+    second evening of the course. The course writes a qualifier precisely
+    where one English word covers two Estonian ones, so where the cue carries
+    one it stays beside the marked line.
+  */
+  if (/\([^)]+\)/.test(cue)) return cue;
   const word = lemma?.trim();
   return word && mentions(cue, word) ? word : null;
 }

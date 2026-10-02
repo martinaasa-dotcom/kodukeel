@@ -722,7 +722,10 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
 
               <div>
                 <SectionTitle hint="be honest, the plan is built on it">Days a week you will really practice</SectionTitle>
-                <ChoiceGroup ariaLabel="Days a week you will really practice">
+                {/* Six to a row, always: wrapped as free chips, the 7 fell onto a
+                    line of its own at 390, which reads as a seventh option the
+                    app forgot about rather than the end of the week. */}
+                <ChoiceGroup ariaLabel="Days a week you will really practice" className="grid max-w-sm grid-cols-6 gap-2">
                   {[2, 3, 4, 5, 6, 7].map((days) => (
                     <ChoiceChip key={days} even selected={daysPerWeek === days} onSelect={() => setDaysPerWeek(days)}>
                       {days}
@@ -748,7 +751,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                   </Note>
                 </div>
               )}
-              <PlanPanel standing={standing} goals={goals} dailyGoal={goal} compact />
+              {/* On the course, which first run always opens: the plan counts
+                  the evening it is about to promise on the next screen. */}
+              <PlanPanel standing={standing} goals={goals} dailyGoal={goal} onCourse compact />
             </div>
           </section>
         )}
@@ -972,11 +977,19 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               So it says both: what the pace buys, and what it costs, with the
               number for this learner's own deck rather than a general warning.
             */}
+            {/*
+              AND NO SECOND FIGURE FOR HOW LONG A NIGHT IS. This opened "5
+              minutes a day" under a card that had just said every evening is
+              about fifteen, which is two answers to one question on one screen.
+              The review goal is part of the evening, so it is said as cards and
+              the evening keeps its minutes.
+            */}
             <p className="mt-2.5 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {minutesFor(goal)} minutes a day, {daysPerWeek} days a week. That&rsquo;s {goal} cards to
-              answer, not {goal} new ones. About nine in ten will be words you&rsquo;ve already met,
-              coming back just as you start to forget them. These {counted(deck.cards, "card")} take
-              roughly {counted(weeksToLearn(deck.cards, goal, daysPerWeek), "week")} to work through this way.
+              That&rsquo;s {goal} cards to answer a day, not {goal} new ones, and on a course evening
+              they&rsquo;re part of the fifteen minutes. About nine in ten will be words you&rsquo;ve
+              already met, coming back just as you start to forget them. These{" "}
+              {counted(deck.cards, "card")} take roughly{" "}
+              {counted(weeksToLearn(deck.cards, goal, daysPerWeek), "week")} to work through this way.
               A faster setting really does get you through them sooner, but it makes every
               evening longer for the next year too. Pick the one you&rsquo;d still open on a bad
               Wednesday.

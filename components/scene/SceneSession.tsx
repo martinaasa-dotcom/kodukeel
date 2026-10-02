@@ -1584,8 +1584,12 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         >
           <Info size={15} aria-hidden className="mt-0.5" style={{ color: "var(--ink-3)" }} />
           <span>
+            {/* Said for the learner rather than the operator: "no AI key is
+                set up" is a fact about the deployment nobody reading it can
+                act on, and what it changes for them is that the other side
+                keeps to its lines. */}
             {note
-              ?? "No AI key is set up, so they speak from lines prepared for this scene."}
+              ?? "They speak from lines written for this scene, so they stick closer to the card than a person would."}
           </span>
         </p>
       )}

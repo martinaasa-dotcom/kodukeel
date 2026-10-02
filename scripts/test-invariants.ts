@@ -6640,19 +6640,30 @@ check("nobody opts back out of the wrapping default", () => {
 });
 
 /*
-  A ROW OF STAT TILES IS TWO ACROSS ON A PHONE.
+  A ROW OF STAT TILES FITS A PHONE, AND WHAT MAKES THREE ACROSS FIT IS SAID.
 
   `overflow-wrap: anywhere` is what keeps a long word inside its box, and the
-  price of it is that a box too narrow for a word breaks the word. Three
-  StatTiles across a 360px screen leave each label about eighty pixels, and
-  `label-xs` is uppercase and tracked, so "ACCURACY" and "ATTEMPTED" came out
-  as ACCURA/CY and ATTEMPT/ED on the letters, listening, sprint, quest and
-  target summaries, measured in a browser; two across, every one of them
-  holds a line. Four rounds had already found this and use
-  `grid-cols-2 … sm:grid-cols-3`, which is why this is a rule rather than a
-  fix: the other five were the same row written before somebody looked.
+  price of it is that a box too narrow for a word breaks the word. When this
+  was written the tile's label was `label-xs`, uppercase and tracked, so three
+  across a 360px screen broke ACCURACY and ATTEMPTED mid-word and the rule was
+  two across. The tile has since been redrawn with its label in sentence case
+  at `text-sm`, and two across left every three-tile summary as two tiles and
+  an orphan, which reads as a row that lost a tile.
+
+  Measured at 360 with a `gap-2`: a tile is 101px, "Accuracy" is 71 of the 75
+  its label has and sits on one line, and "100%" is 75 of 75. So three across
+  is allowed on exactly those terms, and both are held: the row's gap at the
+  narrowest width is `gap-2`, and the tile's label is not the tracked capitals
+  that made the old rule necessary. A row of four or more is still two across
+  on a phone, which is what the class list says when it does not name three.
 */
-check("a row of stat tiles is two across on a phone, never three", () => {
+check("a row of stat tiles fits a phone: three across only with a narrow gap and a sentence-case label", () => {
+  const tile = code("components/ui.tsx");
+  const body = tile.slice(tile.indexOf("export function StatTile"));
+  assert.ok(
+    !/label-xs|uppercase/.test(body.slice(0, body.indexOf("</div>\n  );"))),
+    "StatTile's label is tracked capitals again, so three tiles across a 360px phone break their labels mid-word",
+  );
   let rows = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     if (!file.endsWith(".tsx")) continue;
@@ -6660,12 +6671,16 @@ check("a row of stat tiles is two across on a phone, never three", () => {
     for (const found of src.matchAll(/className="([^"]*)"[^>]*>\s*<StatTile\b/g)) {
       rows += 1;
       const classes = found[1]!.split(/\s+/);
+      if (!classes.includes("grid-cols-3")) continue;
+      const line = src.slice(0, found.index).split("\n").length;
       assert.ok(
-        !classes.includes("grid-cols-3"),
-        `${file}:${src.slice(0, found.index).split("\n").length} lays StatTiles three across at every width; ` +
-        "a label like ACCURACY breaks mid-word at 360px. Use grid-cols-2 sm:grid-cols-3, or " +
-        "grid-cols-2 @sm:grid-cols-3 inside an @container where the row sits in a column narrower than the window.",
+        classes.includes("gap-2"),
+        `${file}:${line} lays StatTiles three across without gap-2, so at 360px a tile is under the 101px its label and figure were measured in`,
       );
+      const after = src.slice(found.index! + found[0].length - "<StatTile".length);
+      const close = after.search(/<\/div>/);
+      const count = (after.slice(0, close).match(/<StatTile\b/g) ?? []).length;
+      assert.ok(count <= 3, `${file}:${line} lays ${count} StatTiles in a row of three columns, so they wrap to an orphan`);
     }
   }
   assert.ok(rows >= 15, `only ${rows} StatTile rows found, so this check stopped looking`);
@@ -24431,8 +24446,12 @@ check("a round's own way out stands down inside a module", () => {
 
   for (const file of rounds) {
     const src = code(file);
+    /* Any cross labelled "End", not one spelling of it: Match said "End
+       round" and the sprint "End sprint", both linking to Today, and a check
+       reading "End session" alone let both stand in the middle of a module
+       evening as a door out of it. */
     assert.ok(
-      !/aria-label="End session"/.test(src),
+      !/aria-label="End\b/.test(src),
       `${file} draws its own cross. Use EndSession, which stands down inside a module`,
     );
     /* The third way out, and the one nobody counted the first time: a card's

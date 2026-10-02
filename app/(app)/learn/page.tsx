@@ -12,6 +12,7 @@ import { NamedIcon } from "@/components/icons";
 import { Chip, Meter, Page, SectionTitle } from "@/components/ui";
 import { learnCounts } from "@/lib/progress/learn";
 import { learnerModuleScope } from "@/lib/progress/moduleScope";
+import { programmeFor } from "@/lib/progress/course";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { Explain } from "@/components/Explain";
 
@@ -42,7 +43,7 @@ export default async function LearnPage() {
     promising twelve words waiting, over a round the module then holds back,
     reads as a counting fault rather than as a rule.
   */
-  const [[snapshot, units], placement, counts] = await Promise.all([
+  const [[snapshot, units], placement, counts, programme] = await Promise.all([
     /*
       Each chain waits only on the answer it needs: the path is read off the
       deck, and the counts off where the module has taken the learner. They
@@ -51,6 +52,9 @@ export default async function LearnPage() {
     deckSnapshot(ownerId).then(async (snap) => [snap, await pathWithProgress(ownerId, snap)] as const),
     courseLevelFor(ownerId),
     learnerModuleScope(ownerId).then((taught) => learnCounts(ownerId, undefined, taught?.lemmas ?? null)),
+    /* Whether a planned course is handing this learner their words, which
+       decides what the card says when none are waiting. */
+    programmeFor(ownerId),
   ]);
 
   const doneIds = new Set(units.filter((u) => u.state === "done").map((u) => u.unit.id));
@@ -100,7 +104,12 @@ export default async function LearnPage() {
         map is under it: a learner who wants to pick reads on, and one who
         wants to learn presses the button.
       */}
-      <LearnCard waiting={counts.waiting} started={counts.started} phrases={counts.phrases} />
+      <LearnCard
+        waiting={counts.waiting}
+        started={counts.started}
+        phrases={counts.phrases}
+        onCourse={programme !== null}
+      />
 
       {/*
         THE COURSE IS A LIST, AND THE LIST IS ALL IT NEEDS.
@@ -364,12 +373,21 @@ export default async function LearnPage() {
  * which is why this says so rather than offering a dead button.
  */
 function LearnCard({
-  waiting, started, phrases,
+  waiting, started, phrases, onCourse,
 }: {
   waiting: number;
   started: number;
   /** The same two counts, over the fixed phrases (`Tere!`, `Kuidas läheb?`) rather than words. */
   phrases: { waiting: number; started: number };
+  /**
+   * Whether the planned course is handing this learner their words.
+   *
+   * With nothing waiting, the card said "No new words yet. Open a unit below",
+   * to somebody whose course had just taught them tonight's five and planned
+   * tomorrow's: the honest answer is where the next ones come from, and that
+   * is the module, so that is what it says and where its button goes.
+   */
+  onCourse: boolean;
 }) {
   const ready = waiting + started;
   const phrasesReady = phrases.waiting + phrases.started;
@@ -382,7 +400,9 @@ function LearnCard({
             {ready > 0 ? "Tonight\u2019s new words" : "New words"}
           </p>
           <h2 className="font-display mt-3 text-4xl font-bold leading-[1] md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-            {ready > 0 ? <>{batch} words are waiting for you</> : <>No new words yet</>}
+            {ready > 0
+              ? <>{batch} words are waiting for you</>
+              : onCourse ? <>They come with each evening</> : <>No new words yet</>}
           </h2>
           {/*
             One line for what happens next, where there used to be two chips of
@@ -393,6 +413,11 @@ function LearnCard({
             <p className="mt-3 max-w-[48ch] text-md" style={{ color: "var(--ink-2)" }}>
               Meet each one, pick what it means, then fit it back into a sentence.
               {started > 0 && <> You&apos;re already part way through {started}.</>}
+            </p>
+          ) : onCourse ? (
+            <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>
+              Your course hands you a few new words each evening, in an order where each one
+              builds on the last. Or open any unit below to meet its words now.
             </p>
           ) : (
             <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>
@@ -426,6 +451,11 @@ function LearnCard({
           {ready > 0 && (
             <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap sm:w-auto">
               Learn {batch} words <ArrowRight size={17} aria-hidden />
+            </ButtonLink>
+          )}
+          {ready === 0 && onCourse && (
+            <ButtonLink href="/course" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap sm:w-auto">
+              Open tonight&rsquo;s module <ArrowRight size={17} aria-hidden />
             </ButtonLink>
           )}
         </div>
