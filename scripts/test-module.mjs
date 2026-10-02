@@ -402,7 +402,23 @@ try {
     await page.goto(readingAt, { waitUntil: "domcontentloaded" });
     await page.waitForSelector("main h1", { timeout: 20_000 });
     await page.waitForSelector("[data-reading-end] button", { timeout: 10_000 }).catch(() => {});
-    const end = await page.locator("[data-reading-end]").innerText().catch(() => "");
+    /* Waited for as text rather than read once. CI read this as empty nine
+       milliseconds before the next check found the same element drawn and
+       holding the page's last line, so the element was there and a render
+       was still settling under it: a single read races that, and a failure
+       here should mean the sentence never arrived. Read off the DOM rather
+       than through a strict locator, which throws while two copies of the
+       tree briefly coexist and reports that as an empty sentence. */
+    await page
+      .waitForFunction(
+        () => [...document.querySelectorAll("[data-reading-end]")].some((e) => /end of the page/.test(e.innerText)),
+        undefined,
+        { timeout: 10_000 },
+      )
+      .catch(() => {});
+    const end = await page.evaluate(() =>
+      [...document.querySelectorAll("[data-reading-end]")].map((e) => e.innerText).find((t) => t.trim()) ?? "",
+    );
     check(
       "the reading says where it ends and which step of the evening it is",
       /end of the page/.test(end) && /step \d+ of \d+/i.test(end),
