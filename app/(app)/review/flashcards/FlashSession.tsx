@@ -31,6 +31,8 @@ import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { FitText } from "@/components/FitText";
+import { CaseLabel } from "@/components/CaseLabel";
+import { caseLabelOf } from "@/lib/copy/caseLabel";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
@@ -537,6 +539,8 @@ function SlotLine({ task }: { task: FlashPrompt }) {
   const plain = phrase
     ? task.shape === "build" ? `Write a sentence with “${phrase}”.` : `Say “${phrase}”`
     : null;
+  /* A case is drawn as one label, never its name and question joined here. */
+  const named = slotCase(task);
   return (
     <div className="mt-5">
       {plain ? (
@@ -547,6 +551,10 @@ function SlotLine({ task }: { task: FlashPrompt }) {
             {plain}
           </p>
         </>
+      ) : named ? (
+        <p className="text-lg">
+          <CaseLabel label={named} />
+        </p>
       ) : (
         <>
           <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
@@ -559,6 +567,11 @@ function SlotLine({ task }: { task: FlashPrompt }) {
       )}
     </div>
   );
+}
+
+/** The case a task's label names, as parts for `CaseLabel`, or null for any other slot. */
+function slotCase(task: FlashPrompt) {
+  return caseByKey(task.slot) ? caseLabelOf(task.label) : null;
 }
 
 /**

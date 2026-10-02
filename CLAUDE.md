@@ -6044,12 +6044,33 @@ level `openingPartFor` names wherever that is another level, and leaves a part o
 where it is. The closing round opened the whole queue, due cards from anywhere in the deck plus ten
 new ones, for a step that needs five answers; inside a module its due read is narrowed to the taught
 words (`dueWhere`'s `only`, read by the round and by `lib/progress/closing.ts` alike) and it stops at
-`MODULE_SESSION`, which reverses "what is due is due whatever taught it" for the module and keeps it
-on the daily path. And the past-tense page opened the past of every verb, when `juhtusin` has to be
+`MODULE_SESSION`. (The daily path kept "what is due is due whatever taught it" until the next
+paragraph reversed it there too.) And the past-tense page opened the past of every verb, when `juhtusin` has to be
 learned for its own verb and nothing had ever shown it: a form no rule reaches (`LEARNED_PER_VERB`,
 the simple past and the polite imperative) is asked inside the module only for a verb an evening
 has already shown it for. Operator's call, asserted in
 `scripts/invariants/the-module-asks-what-it-taught.ts`.
+
+**Review repeats what the module has taught, and never teaches, on the daily path as much as in
+the module.** A learner on the second evening of A1 opened Review and was asked `tool` with
+"allative" in a pill under it: a case card an old deck had carried in, under a Latin name this app
+has taken off every screen, on a case no A1 evening reads. Two faults. The daily path held its *new*
+cards to the module and let every *due* card through, on the argument that holding one back
+overwrites the scheduler; the operator's call reverses that, and it is written down so it is not
+re-litigated: review is learned information repeated, never anything new. `reviewable` in
+`lib/course/scope.ts` is the one question, asked of every card Review shows, due or new, and of
+every card Today counts as due, so "6 due" never sits over an empty round. A word this app chose is
+asked once the module has taught it, and a word the learner went and got is theirs; the *form* is
+held on every card whoever chose the word, so a case card waits for its case page, a verb card for
+the page or the evening that showed the part, and a gap for a sentence of taught spellings. The
+words and the case are narrowed in the query (`taughtWhere`), so a deck full of old cards cannot
+fill the read with rows that are then refused. A card held back keeps its schedule untouched and is
+asked the evening the module reaches it; nothing is deleted. A case card built before `targetCase`
+existed names its case on the front alone, and read as no case it passed every gate, so
+`caseFromFront` reads it and a case card nothing can place is refused. And a stored front is read
+through `readableFront` on the way to every screen, which turns `tool → allative` into
+`tool → millele? kuhu?` without touching the row. Asserted in
+`scripts/invariants/review-repeats-only-what-was-taught.ts`.
 
 **Whatever the module asks, it has shown first, and the past is where that needed a step of its
 own.** The operator's rule, in their words: whatever you show and want practice on needs to be

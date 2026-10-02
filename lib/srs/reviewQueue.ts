@@ -24,6 +24,7 @@ import type { Prisma } from "@prisma/client";
 
 import { LADDER_CARD_TYPE, LADDER_STATES } from "@/lib/learn/ladder";
 import { APP_CHOSE } from "@/lib/srs/sources";
+import type { ModuleScope } from "@/lib/course/scope";
 
 /**
  * WHICH UNSEEN CARDS OF A WORD MAY BE SERVED, WHICH IS THE ONES LEARN HAS
@@ -213,4 +214,26 @@ export function unseenWhere(
  */
 export function roomFor(shownDue: number): number {
   return Math.max(0, Math.min(NEW_PER_SESSION, MAX_SESSION - shownDue));
+}
+
+/**
+ * THE HALF OF `reviewable` A QUERY CAN ASK, for the daily path's due read.
+ *
+ * A word this app chose is asked once the module has taught it, and a case
+ * card only for a case whose page has been read. What is left, a verb's part
+ * and a sentence's words, is `reviewable`'s to ask of each row, since no
+ * column holds it. Narrowed here so a deck of old cards cannot fill the read
+ * with rows the page then refuses, which would leave a learner with work due
+ * and an empty round. Nothing for a learner not following the module.
+ */
+export function taughtWhere(scope: ModuleScope | null): Prisma.CardWhereInput {
+  if (!scope) return {};
+  const cases = [...scope.cases];
+  return {
+    AND: [
+      { OR: [{ source: { notIn: [...APP_CHOSE] } }, { lexeme: { lemma: { in: [...scope.lemmas] } } }] },
+      { NOT: { cardType: "CASE_FORM", targetCase: { notIn: cases } } },
+      ...(cases.includes("GENITIVE") ? [] : [{ NOT: { cardType: "GRADATION" } }]),
+    ],
+  };
 }

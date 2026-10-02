@@ -5,7 +5,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ChevronDown } from "lucide-react";
 import { CASES } from "@/lib/estonian/cases";
 import { caseQuestionFor, type CaseSubject } from "@/lib/estonian/caseQuestion";
-import { CaseQuestion } from "@/components/CaseQuestion";
+import { CaseLabel } from "@/components/CaseLabel";
 import { caseFromMorphCode, VERB_GROUP_LABELS, verbSlot, type VerbSlot } from "@/lib/estonian/morph";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { Speak } from "@/components/Speak";
@@ -138,10 +138,9 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
                       under the name now, in both languages, and the
                       Latin name is on the reference page for anybody reading an
                       English grammar. */}
-                  <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="block font-semibold hover:underline" style={{ color: "var(--ink)" }}>
-                    {spec.et}
+                  <Link href={`/grammar/${spec.key.toLowerCase()}`} className="block hover:underline">
+                    <CaseLabel label={{ et: spec.et, question: caseQuestionFor(spec, subject) }} className="text-sm" />
                   </Link>
-                  <CaseQuestion inline className="block text-xs" question={caseQuestionFor(spec, subject)} />
                 </td>
                 <td className="px-3 py-2"><Cell values={singular[spec.key] ? valuesFor(forms, singular[spec.key]!) : []} /></td>
                 <td className="px-3 py-2"><Cell values={plural[spec.key] ? valuesFor(forms, plural[spec.key]!) : []} /></td>
@@ -166,8 +165,7 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
               {spec.key === "ILLATIVE" && shortIllative.length > 0 && (
                 <tr style={{ borderTop: "1px solid var(--rule-soft)" }}>
                   <td className="px-3 py-2" style={{ color: "var(--ink-2)" }}>
-                    <span lang="et" className="block font-semibold" style={{ color: "var(--ink)" }}>lühike sisseütlev</span>
-                    <CaseQuestion inline className="block text-xs" question="kuhu?" />
+                    <CaseLabel label={{ et: "lühike sisseütlev", question: "kuhu?" }} className="text-sm" />
                   </td>
                   <td className="px-3 py-2"><Cell values={shortIllative} /></td>
                   <td className="px-3 py-2"><span style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span></td>

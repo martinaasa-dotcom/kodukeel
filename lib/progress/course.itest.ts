@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { PROGRAMMES, MEET_STEP, REVIEW_STEP } from "@/lib/course";
 import { CLOSING_REVIEW, closingProgress, courseReading, dayIsInPlay, ladderReading } from "@/lib/progress/course";
 import { recordCourseLevel } from "@/lib/progress/level";
+import { restartPart } from "@/lib/progress/courseReset";
 import { dayClock } from "@/lib/time/day";
 
 /**
@@ -762,5 +763,40 @@ describe("the reading at the hand-off", () => {
     }
     const verdict = await ladderReading(OWNER, PROGRAMME, NOW);
     expect(verdict).toEqual({ kind: "hold", because: "accuracy", seen: 0.5, bar: 0.7 });
+  });
+});
+
+/*
+  A LEVEL CHANGE STARTS THE PART OVER, AND THE PART CAN THEN BE WALKED AGAIN.
+  The first version read past a restarted part's old ticks by the time they
+  were written, which looked right and left every one of them holding its
+  unique key: pressing the same step on the restarted evening wrote nothing,
+  so that evening could never be finished. `restartPart` clears them instead.
+*/
+describe("a part started over", () => {
+  it("opens on its first evening and takes the same tick again", async () => {
+    const [one, two] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!];
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    await tick(one.id, ticked(one), EVENING);
+    await review(CLOSING_REVIEW, new Date(EVENING.getTime() + 60_000));
+    await tick(two.id, ticked(two).slice(0, 1), new Date(EVENING.getTime() + 120_000));
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(2);
+
+    const other = PROGRAMMES[1]!;
+    await prisma.courseStep.create({ data: { ownerId: OWNER, programmeId: other.id, dayId: other.days[0]!.id, stepId: "read" } });
+
+    await restartPart(OWNER, PROGRAMME.id);
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(1);
+    // Another part's ticks are not this part's to clear.
+    expect(await prisma.courseStep.count({ where: { ownerId: OWNER, programmeId: other.id } })).toBe(1);
+
+    const step = ticked(one)[0]!;
+    await prisma.courseStep.upsert({
+      where: { ownerId_programmeId_dayId_stepId: { ownerId: OWNER, programmeId: PROGRAMME.id, dayId: one.id, stepId: step } },
+      update: {},
+      create: { ownerId: OWNER, programmeId: PROGRAMME.id, dayId: one.id, stepId: step },
+    });
+    expect(await prisma.courseStep.count({ where: { ownerId: OWNER, programmeId: PROGRAMME.id } })).toBe(1);
   });
 });

@@ -4545,6 +4545,33 @@ input[data-hop][data-hop-end="cw-land"] { animation: cw-land 0.34s cubic-bezier(
 @media print { .night { background: none !important; } }
 
 /*
+  A case named beside its question, drawn as one unit (components/CaseLabel.tsx).
+  The name in a soft pill, the question in the line's own ink, the English
+  reading quiet after it; no separator is drawn, so nothing is typed between
+  the pieces on any screen. It wraps between pieces and never inside one.
+*/
+.case-label { display: inline; position: relative; }
+/* Positioned so the screen-reader separators, which are absolutely placed,
+   stay inside the label rather than escaping a table's own scroller and
+   widening the page. */
+/* Plain inline runs rather than a flex row, so a label wraps the way a
+   sentence does and breaks a long word the way the body does. As an
+   inline-flex row with whole runs it set a min-content floor wider than the
+   choice buttons, cards and rows it sits in, and spilled over their borders. */
+.case-label > * + * { margin-inline-start: 0.5em; }
+.case-label-name {
+  font-weight: 600;
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  border-radius: 9999px;
+  padding: 0.0625em 0.6em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.case-label-ask { font-weight: 500; color: var(--ink); }
+.case-label-means { color: var(--ink-3); }
+
+/*
   A PART OF THE DEBRIEF IS A PANEL, NOT A HEADING AND SOME LOOSE LINES.
 
   What to try next, what got done, how it went, the words it needed and the

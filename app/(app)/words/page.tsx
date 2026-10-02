@@ -1,4 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { readableFront } from "@/lib/copy/caseHint";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { ButtonLink } from "@/components/Button";
@@ -47,7 +48,7 @@ export default async function WordsPage() {
   const rows: CardRow[] = cards.map((c) => ({
     id: c.id,
     cardType: c.cardType,
-    front: c.front,
+    front: readableFront(c.front),
     back: c.back,
     lemma: c.lexeme?.lemma ?? null,
     cefr: c.lexeme?.cefr ?? null,

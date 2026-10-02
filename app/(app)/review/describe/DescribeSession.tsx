@@ -3,7 +3,7 @@
 import { PARTS } from "@/lib/copy/values";
 import { useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
-import { CaseQuestion } from "@/components/CaseQuestion";
+import { CaseLabel } from "@/components/CaseLabel";
 import { Check, CircleAlert, Loader2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -303,14 +303,9 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
             </strong>{" "}
             <span style={{ color: "var(--ink-3)" }}>({prompt.askTranslation})</span> in the
           </p>
-          <p lang="et" className="mt-1 text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-            {prompt.caseEt}
-          </p>
-          {/* What the question asks, rather than the Latin name, which was the
-              only English on the line and is the one word here a learner
-              cannot cash in. See `lib/estonian/cases.ts`. */}
-          <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-            <CaseQuestion question={prompt.caseQuestion} inline />
+          {/* The case and the question it answers, drawn as one label. */}
+          <p className="mt-2 text-lg">
+            <CaseLabel label={{ et: prompt.caseEt, question: prompt.caseQuestion }} />
           </p>
 
           <div className="mt-6">

@@ -8,6 +8,8 @@ import {
 } from "@/lib/settings/store";
 import { dayClock, type DayClock } from "@/lib/time/day";
 import { isLearningWord, LADDER_CARD_TYPE } from "@/lib/learn/ladder";
+import { reviewable } from "@/lib/course/scope";
+import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
 
 /**
  * One read of "where is this learner", shared by Today, the path, the progress
@@ -111,7 +113,12 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
       // `cardType` rides along for the ladder count: which card a word is
       // being learned on is a fact about the card type (lib/learn/ladder.ts),
       // and asking for it separately would be a second read of the same rows.
-      select: { state: true, due: true, suspended: true, lexemeId: true, cardType: true },
+      // `source`, `targetCase`, `slot` and `front` are what `reviewable` reads,
+      // so the count Today prints is the round Review will actually ask.
+      select: {
+        state: true, due: true, suspended: true, lexemeId: true, cardType: true,
+        source: true, targetCase: true, slot: true, front: true,
+      },
     }),
     /*
       Which words this learner has put aside, which the counts below have to
@@ -125,7 +132,11 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
     // here rather than on the line below keeps the round trips at one.
     gradedLemmas(),
   ]);
-  const entries = await lemmasByCardLexeme(cards.map((card) => card.lexemeId));
+  const [entries, taught] = await Promise.all([
+    lemmasByCardLexeme(cards.map((card) => card.lexemeId)),
+    learnerModuleScope(ownerId),
+  ]);
+  const spellings = await moduleSpellings(taught);
 
   const perLemma = new Map<string, { total: number; known: number }>();
   let dueCount = 0;
@@ -163,7 +174,16 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
           if (!onLadder.has(card.lexemeId ?? "")) newForPractice++;
         }
       // The same line the review queue draws, for the reason `dueCount` gives.
-      } else if (card.due <= now && !ladderCard) dueCount++;
+      //
+      // And only a card Review may ask: one the module has not taught waits,
+      // so counting it would promise "6 due" over an empty round.
+      } else if (card.due <= now && !ladderCard && reviewable(taught, {
+        ...card,
+        lexeme: card.lexemeId === null ? null : (() => {
+          const lemma = entries.get(card.lexemeId)?.lemma;
+          return lemma ? { lemma } : null;
+        })(),
+      }, spellings)) dueCount++;
     }
     const lemma = card.lexemeId === null ? undefined : entries.get(card.lexemeId)?.lemma;
     if (!lemma) continue;

@@ -20,6 +20,8 @@ import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { readableHint } from "@/lib/copy/caseHint";
+import { caseLabelOf } from "@/lib/copy/caseLabel";
+import { CaseLabel } from "@/components/CaseLabel";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
@@ -829,6 +831,15 @@ export function ReviewSession({
     case in Latin as well, and that name is the only English on the reveal.
   */
   const revealedHint = card ? readableHint(card.hint) : null;
+  /*
+    A CASE IS DRAWN AS ONE THING. A bare case card names its case twice, once
+    after the arrow and once in the hint, and both were strings joined with a
+    comma (`alaleütlev , millele? kuhu?`). Read as parts, the case is drawn
+    once, by `CaseLabel`, and the hint line under it says only what else it
+    held, which on a case card is nothing.
+  */
+  const cueCase = caseLabelOf(cue);
+  const revealedCase = caseLabelOf(revealedHint);
 
   // Draining the queue is the provider's job, not this screen's — it has to keep
   // happening on pages that are not a review session. Here we only report it.
@@ -1635,16 +1646,21 @@ export function ReviewSession({
             screen and wrapped the word onto two lines. The word is what the
             card is about; what to do with it sits under it, small.
           */}
-          {ask !== "intro" && split && !card.say && (
-            <span
-              lang="et"
-              data-front-tail
-              className="rounded-full px-3 py-1 text-sm font-semibold"
-              style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-            >
-              {split.tail}
-            </span>
-          )}
+          {ask !== "intro" && split && !card.say && (() => {
+            const asked = cueCase ?? caseLabelOf(split.tail);
+            return asked ? (
+              <span data-front-tail><CaseLabel label={asked} className="text-sm" /></span>
+            ) : (
+              <span
+                lang="et"
+                data-front-tail
+                className="rounded-full px-3 py-1 text-sm font-semibold"
+                style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+              >
+                {split.tail}
+              </span>
+            );
+          })()}
 
           {/*
             WHAT THE CARD IS ASKING, BEFORE WHAT IT IS CALLED.
@@ -1689,8 +1705,15 @@ export function ReviewSession({
             rule: the gloss goes where the sentence took its place, the word
             never does, and an unmarked line keeps both.
           */}
-          {cue && !answerShown && !card.say && (
-            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{cue}</p>
+          {cue && !answerShown && !card.say && !(cueCase && split) && (
+            <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+              {cueCase ? (
+                <>
+                  {cueCase.rest && <>{cueCase.rest} </>}
+                  <CaseLabel label={cueCase} />
+                </>
+              ) : cue}
+            </p>
           )}
 
           {ask === "type" && !verdict && (
@@ -1953,7 +1976,14 @@ export function ReviewSession({
                   the naming rule rather than a repeat, and `revealedHint` is
                   that name with the Latin one off it. */}
               {revealedHint && !isGap(card) && (
-                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{revealedHint}</p>
+                <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+                  {revealedCase ? (
+                    <>
+                      {revealedCase.rest && <>{revealedCase.rest} </>}
+                      <CaseLabel label={revealedCase} />
+                    </>
+                  ) : revealedHint}
+                </p>
               )}
             </>
           )}

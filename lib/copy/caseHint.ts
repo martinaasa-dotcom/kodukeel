@@ -66,3 +66,53 @@ export function readableHint(raw: string | null | undefined): string | null {
   // stored, spacing and all.
   return raw.includes("·") ? parts.join(SEP) : raw;
 }
+
+/**
+ * A STORED CARD FRONT AS A LEARNER SHOULD READ IT.
+ *
+ * The oldest decks hold case cards whose front is `tool → allative`: the word,
+ * an arrow and the Latin name of the case, written by a builder that predates
+ * every rule about naming a case. Nothing rewrites a `Card` row until the seed
+ * runs `repairCaseFronts`, so a learner on the second evening of A1 read
+ * "allative" in a pill under `tool`, which is the one English word this app
+ * has taken off every screen, on the card that had no business being asked at
+ * all. It was reported from exactly there.
+ *
+ * The tail is read the way `readableHint` reads a hint: a part that is exactly
+ * a case's Latin name, with or without its article, becomes the Estonian
+ * question that case answers, `millele? kuhu?`, which is what the builder has
+ * written on such a front ever since. Anything else comes back byte for byte,
+ * so a sentence front, a conjugation label and a government card are untouched.
+ * Display only: `Card.front` is never rewritten here.
+ */
+const QUESTION_BY_LATIN: ReadonlyMap<string, string> = new Map(
+  CASES.map((c) => [
+    c.en.toLowerCase(),
+    [c.asksThing, c.asksWhere].filter(Boolean).join(" "),
+  ]),
+);
+
+export function readableFront(front: string): string {
+  const at = front.indexOf("→");
+  if (at < 0) return front;
+  const tail = front.slice(at + 1).trim().toLowerCase().replace(/^the\s+/, "");
+  const question = QUESTION_BY_LATIN.get(tail);
+  return question ? `${front.slice(0, at).trimEnd()} → ${question}` : front;
+}
+
+/**
+ * The case a bare front names after its arrow, by any name it was ever
+ * written in: the Latin one an old builder used, the Estonian one, or the
+ * question the case answers. Null where the tail names none of them.
+ */
+export function caseFromFront(front: string): string | null {
+  const at = front.indexOf("\u2192");
+  if (at < 0) return null;
+  const tail = front.slice(at + 1).trim().toLowerCase().replace(/^the\s+/, "");
+  if (!tail) return null;
+  for (const c of CASES) {
+    const names = [c.en.toLowerCase(), c.et, c.question.toLowerCase(), c.asksThing, c.asksPerson];
+    if (names.some((n) => n && (tail === n || tail.startsWith(`${n} `) || tail.startsWith(`${n},`)))) return c.key;
+  }
+  return null;
+}

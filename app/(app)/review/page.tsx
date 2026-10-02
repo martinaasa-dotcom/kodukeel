@@ -16,12 +16,11 @@ import { spaceSiblings } from "@/lib/srs/queue";
 import { readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { ReviewSession } from "./ReviewSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
-import { cardWithin, moduleScopeFrom } from "@/lib/course/scope";
+import { moduleScopeFrom, reviewable } from "@/lib/course/scope";
 import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
-import { isAppsChoice } from "@/lib/srs/sources";
 import {
   MAX_SESSION, MODULE_SESSION, NEW_CANDIDATES, dueWhere, meetingFirst, notOnLadder, pastTheLadder,
-  roomFor, unseenWhere,
+  roomFor, taughtWhere, unseenWhere,
 } from "@/lib/srs/reviewQueue";
 import { include, withChoices, type CardRow } from "./cards";
 import { firstParams } from "@/lib/ux/queryParam";
@@ -70,17 +69,18 @@ export default async function ReviewPage({
     re-litigated: the planned module is the record of what somebody has been
     taught, and nothing is introduced on the daily path ahead of it.
 
-    ON THE DAILY PATH, WHAT IS DUE IS STILL DUE WHATEVER TAUGHT IT. (Inside the
-    module it is not, since the operator's second call: the closing round asks
-    only what the module has taught, and stops at `MODULE_SESSION`.) A card already answered has a
-    schedule, FSRS decides when it comes back, and holding one out because the
-    module has not caught up would be this app overwriting a schedule it
-    presents as the scheduler's. Only the new cards are gated, because only a
-    new card is the app teaching something.
+    AND WHAT IS DUE IS HELD TOO, which reverses what this paragraph used to
+    say. "What is due is due whatever taught it" let an old deck ask a
+    beginner on the second evening of A1 for `tool` in the alaleütlev, and the
+    operator's call is that review only ever repeats what the module has
+    taught: a card it has not reached keeps its schedule and waits for the
+    evening that teaches it. See `reviewable` in lib/course/scope.ts.
 
-    And only over the app's own material. A word somebody looked up,
-    photographed or pasted in is theirs, and refusing to teach a word they went
-    and got would be the gate deciding something nobody asked it to. `APP_CHOSE`
+    The word is gated only over the app's own material. A word somebody looked
+    up, photographed or pasted in is theirs, and refusing it would be the gate
+    deciding something nobody asked it to. The form is gated on every card,
+    theirs included: a case nobody has read is new information whoever chose
+    the word. `APP_CHOSE`
     rather than the complement of `YOUR_OWN_SOURCES`, for the reason written
     beside it: `DICTIONARY` is a column that cannot say whose idea a word was,
     and the cost of guessing wrong here is a word never taught.
@@ -90,8 +90,10 @@ export default async function ReviewPage({
     the biggest query on this page does not depend on it. `moduleReached` asks
     the settings row and the level, and only then the ticks, so awaiting it
     outright put two sequential round trips in front of the due list on the one
-    page whose daily job is to open fast. In flight beside the due read it
-    costs the page one round trip rather than two.
+    page whose daily job is to open fast. It is still started here, beside the
+    settings read, and the due read now waits on it, because what is due is
+    narrowed by what the module has taught: a round trip is the price of never
+    asking a learner something they were not shown.
   */
   const taughtPromise = scope ? Promise.resolve(scope) : learnerModuleScope(ownerId);
   const theirOwnToo = scope === null;
@@ -227,14 +229,28 @@ export default async function ReviewPage({
     either. The level read is the fourth because `atLevelFirst` needs it and
     neither of the queries does.
   */
+  /*
+    AND WHAT IS DUE IS HELD TO WHAT THE MODULE HAS TAUGHT, LIKE EVERYTHING ELSE.
+
+    This page used to let a due card through whatever had taught it, on the
+    argument that holding one back overwrites the scheduler. The operator's
+    call reverses that, and it was reported off this screen: a beginner on the
+    second evening of A1 was asked `tool` in the alaleütlev by a card an old
+    deck had carried in. Review repeats what somebody has learned and never
+    teaches; a card the module has not reached keeps its schedule untouched
+    and waits for the evening that teaches it (`reviewable`). The words are
+    narrowed in the query, so a deck of old cards cannot fill the window with
+    rows that are then refused, and the forms are asked of each card below.
+  */
+  const taughtFirst = await taughtPromise;
   const [taught, due, totalCards, level, mode] = await Promise.all([
-    taughtPromise,
+    taughtFirst,
     prisma.card.findMany({
       // What is due, and the one thing that is due and may not be asked here:
       // see `dueWhere`, which the module's own closing count reads too. Opened
       // from the module, only the words the module has taught: its closing
       // round is a quick review of the evening, not the whole deck's backlog.
-      where: dueWhere(ownerId, now, scope?.lemmas ?? null),
+      where: { AND: [dueWhere(ownerId, now, scope?.lemmas ?? null), taughtWhere(taughtFirst)] },
       /*
         The id settles a tie, which `lib/progress/learn.ts` already does on the
         same table for the reason given there: a word's cards are written in
@@ -244,7 +260,9 @@ export default async function ReviewPage({
         anyway, and the same move `bySubstance` makes in lib/dict/search.ts.
       */
       orderBy: [{ due: "asc" }, { id: "asc" }],
-      take: MAX_SESSION,
+      // Twice the session, because `reviewable` below refuses the cards whose
+      // form the module has not shown, which no query can read.
+      take: MAX_SESSION * 2,
       include,
     }),
     prisma.card.count({ where: { ownerId } }),
@@ -302,15 +320,14 @@ export default async function ReviewPage({
     left in the queue for standalone review and the module's own round asks
     what the module has taught (`cardWithin`).
   */
-  const within = (card: CardRow) => cardWithin(scope, card, spellings);
+  const within = (card: CardRow) => reviewable(taught, card, spellings);
   /*
     The same question asked of a card about to be introduced. `within` is the
     module's own round and reaches the due list as well; this one reaches the
     new cards alone and is what the daily path is held to.
   */
-  const introducible = (card: CardRow) =>
-    (theirOwnToo && !isAppsChoice(card.source)) || cardWithin(taught, card, spellings);
-  const dueWithin = due.filter(within);
+  const introducible = (card: CardRow) => reviewable(taught, card, spellings);
+  const dueWithin = due.filter(within).slice(0, MAX_SESSION);
   const spaced = spaceSiblings(dueWithin, (card) => card.lexemeId);
 
   /*

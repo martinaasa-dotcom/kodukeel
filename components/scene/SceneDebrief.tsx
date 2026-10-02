@@ -18,6 +18,8 @@ import type { SceneReview } from "@/lib/scenes/review";
 import type { SceneRecap } from "@/lib/scenes/recap";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { NextStep } from "@/components/round/RoundExit";
+import { CaseLabel } from "@/components/CaseLabel";
+import { caseLabelOf } from "@/lib/copy/caseLabel";
 
 /** So "words your conversations needed" is a query and never a counter (ADR-014). */
 export const SCENE_SOURCE = "SCENE";
@@ -377,9 +379,13 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                     `They understood you anyway. It needed ${note.what}.`
                   )}
                 </p>
-                {note.term && (
+                {note.term && (caseLabelOf(note.term) ? (
+                  <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+                    <CaseLabel label={caseLabelOf(note.term)!} />
+                  </p>
+                ) : (
                   <p className="text-xs" lang="et" style={{ color: "var(--ink-3)" }}>{note.term}</p>
-                )}
+                ))}
                 {note.body && (
                   <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>{note.body}</p>
                 )}

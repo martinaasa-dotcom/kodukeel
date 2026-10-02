@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { readableFront } from "@/lib/copy/caseHint";
 import { plainPhrase } from "@/lib/copy/values";
 import { parseExamples, sentenceEnglish, teachingSentence } from "@/lib/dict/examples";
 import { authoredFor, isAuthored } from "@/lib/dict/authored";
@@ -296,7 +297,7 @@ function toReviewCard(
   return {
     id: c.id,
     cardType: c.cardType,
-    front: c.front,
+    front: readableFront(c.front),
     back: c.back,
     hint: c.hint,
     targetCase: c.targetCase,
