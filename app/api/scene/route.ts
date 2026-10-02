@@ -542,7 +542,17 @@ export async function POST(request: Request) {
     with "I don't know". The conversation is over, so what is owed is the
     goodbye and nothing in front of it.
   */
-  const shrugOwed = wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain && !isOver(scene, state);
+  /*
+    A RUN WITH A MODEL BEHIND IT NEVER SHRUGS. `Ei tea.` is the keyless
+    answer to a question nothing in the scene could answer, and in a run that
+    composes it was said in front of the bank's line whenever the model's line
+    did not get through: a receptionist asked whether to bring the cat said
+    "I don't know" and goodbye. Where a model answers, the question is its to
+    answer, and where its line does not get through the bank's line is said
+    without a shrug in front of it.
+  */
+  const composing = draw?.lines === "composed" && sceneProviders().length > 0;
+  const shrugOwed = !composing && wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain && !isOver(scene, state);
 
   /*
     WHAT THIS PERSON KNOWS, FOR THE MODEL. Every value on the card, the
@@ -568,7 +578,7 @@ export async function POST(request: Request) {
     any: askedNow !== null,
     money: askedNow !== null && asksPrice(turnSaid, context.lexicon),
   });
-  const established = establishedBy(state, card);
+  const established = establishedBy(state, card, scene.beats);
   const facts = factsFor(card, scene.beats, held);
   /*
     AND WHAT THE LEARNER JUST SAID IS A TOPIC A LINE MAY BE ABOUT. The gate
@@ -704,6 +714,7 @@ export async function POST(request: Request) {
       ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives)
       : null,
     met: state.done.length,
+    metLast: last?.met ?? [],
     /*
       Whether this is the learner's first sight of the beat now being spoken,
       which is what the break in time is printed on: a scene that walks
@@ -833,7 +844,12 @@ export async function POST(request: Request) {
     if (shrugOwed) aside = shrug(context.lexicon);
     return answer(reply(null));
   }
-  if (!wantsFreshLine(turns.length > 0 ? response : null, heard, progress.reading)) {
+  /*
+    And in a run that composes, every turn gets a line written for it. Saying
+    the last line again, which is what a turn handed back or a turn in English
+    gets keyless, read in every transcript as the other side repeating itself.
+  */
+  if (!composing && !wantsFreshLine(turns.length > 0 ? response : null, heard, progress.reading)) {
     if (shrugOwed) aside = shrug(context.lexicon);
     return answer(reply(null));
   }
@@ -1229,6 +1245,8 @@ export async function POST(request: Request) {
         agenda,
         settled,
         established,
+        /* A closing beat where the learner is still asking, so the goodbye waits. */
+        stillTalking: beat.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, FAREWELLS),
         /*
           AND WHAT HAPPENED TO THEIR TURN, WHICH IS WHY A MISS IS WORTH A CALL AT
           ALL. Without it a model asked to compose after a miss writes the
@@ -1455,6 +1473,7 @@ async function compose(
     settled?: readonly string[];
     /** What the run has established and nothing may undo (`ComposeAsk.established`). */
     established?: readonly string[];
+    stillTalking?: boolean;
     /** The run so far, both sides, alternating. Empty on the opening line. */
     conversation: readonly ChatMessage[];
     avoid: readonly string[];

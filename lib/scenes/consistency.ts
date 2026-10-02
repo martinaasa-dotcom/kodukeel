@@ -50,9 +50,13 @@ export function buildConsistencySystemPrompt(): string {
   return [
     "You check one line in an Estonian role-play before a language learner sees it.",
     "The line is what the other person (a shop assistant, a receptionist, an interviewer and so on) says next.",
-    "Answer one question: does the line contradict or quietly go back on anything this person has already said in the conversation or anything listed as established, or does it reveal or settle something listed as coming later, when the learner has not asked for it?",
+    "Answer one question: is there a problem with this line? The main problems: it contradicts or quietly goes back on anything this person has already said in the conversation or anything listed as established, or it reveals or settles something listed as coming later when the learner has not asked for it.",
     "Examples of a problem: saying something is possible after saying it is not; a different time, price, place or amount from one already said; offering something the person said they do not have; naming a figure or making an offer that is listed as coming later.",
-    "Not a problem: answering the learner's question, reacting to what they said, repeating or rephrasing something already said, or asking again for something still needed. Do not judge the Estonian itself.",
+    "Also a problem: ignoring a question the learner just asked.",
+    "Never a problem: going with what the learner says about where they are or what has happened, even where a scene note says otherwise; saying goodbye back when the learner says goodbye.",
+    "Also a problem, and only when you are certain: an Estonian grammar error any native speaker would notice at once (a wrong ending on an adjective beside its noun, a verb that does not agree with its subject), or a phrase no native speaker would ever say. Do not object to ordinary style or word choice.",
+    "Also a problem: stepping out of the role to tell the learner what to say next.",
+    "Not a problem: answering the learner's question, reacting to what they said, repeating or rephrasing something already said, or asking again for something still needed.",
     "Reply with a JSON object only, no prose around it: {\"ok\": true or false, \"why\": \"one short sentence of English\"}.",
   ].join("\n");
 }
@@ -65,7 +69,7 @@ export function buildConsistencyUserPrompt(ask: ConsistencyAsk): string {
     ...(ask.facts.length > 0 ? [`What the other person knows: ${ask.facts.join("; ")}`] : []),
     ...(ask.later.length > 0 ? [`Coming later, not to be revealed or settled yet unless asked: ${ask.later.join("; ")}`] : []),
     `The line to check: ${JSON.stringify(ask.line)}`,
-    "Does this line contradict what was said or established, or run ahead of what comes later?",
+    "Is there a problem with this line?",
   ].join("\n");
 }
 

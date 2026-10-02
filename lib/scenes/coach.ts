@@ -52,8 +52,19 @@ export const NUDGE_AFTER = 2;
  * a line of English saying so would be the app filling the screen to look
  * helpful.
  */
-export function coachFor(beat: BeatSpec, card: RoleCard | null): string | null {
-  for (const { need } of leafNeeds(beat.needs)) {
+export function coachFor(
+  beat: BeatSpec,
+  card: RoleCard | null,
+  /**
+   * Which of the beat's requirements the last turn met. A hint is for what is
+   * still missing: told the interviewer was waiting for a question, a learner
+   * who had just asked two (about music and lunch) was handed "try asking them
+   * something", when what was missing was the pay.
+   */
+  met: readonly boolean[] = [],
+): string | null {
+  for (const { need, index } of leafNeeds(beat.needs)) {
+    if (met[index]) continue;
     const said = hintFor(need, card);
     if (said) return said;
   }

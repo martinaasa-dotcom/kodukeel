@@ -602,7 +602,26 @@ export function readTurn(
     counter to make, and with nothing marked met, because a turn that
     declined is not evidence the learner produced the word the beat wanted.
   */
-  if (beat.counter && spoken.some((word) => context.negators.has(word))) {
+  /*
+    AND A NO SOMEWHERE ELSE IN THE TURN IS NOT A NO TO THE OFFER. Offered
+    15:30, a learner wrote `Kell 15:30 on okei. ... Mu kass on haige ka, ta ei
+    söö.` and was answered with the second offer, because the `ei` about the
+    cat was read as turning the time down. A turn is a no only where nothing
+    in it accepts the offer outside a clause that carries a negator.
+  */
+  const accepts = found.some((hit) => {
+    if (!hit) return false;
+    if (hit === YES) return true;
+    const spelled = new Set([hit.word, ...(hit.slip ? words(hit.slip.said) : [])].map((w) => w.toLowerCase()));
+    return clausesOf(text.replace(/(\d)[:.](\d)/g, "$1\u2236$2")).some((clause) => {
+      const said = words(clause);
+      // Digits are not words to `words()`, so a time or a number is found in the clause's own text.
+      const raw = clause.replace(/\u2236/g, ":").toLowerCase();
+      const holds = said.some((word) => spelled.has(word)) || [...spelled].some((s) => /\d/.test(s) && raw.includes(s));
+      return holds && !said.some((word) => context.negators.has(word));
+    });
+  });
+  if (beat.counter && !accepts && spoken.some((word) => context.negators.has(word))) {
     return shape("declined", {
       met: beat.needs.map(() => false), missing: beat.needs.map((_, i) => i),
       matched: [], satisfiedBy: [], slips: [], substituted: [], chose: [],

@@ -186,6 +186,13 @@ export interface ComposeAsk {
    */
   readonly established?: readonly string[];
   /**
+   * The learner's last turn on a closing beat asked or told something rather
+   * than saying goodbye. A receptionist said "see you tomorrow, goodbye" to a
+   * patient still asking whether to bring the cat; the critic counted every
+   * one of these as a conversation ended too early.
+   */
+  readonly stillTalking?: boolean;
+  /**
    * WHAT JUST HAPPENED TO THEIR TURN, IN ENGLISH, WHERE IT IS NOT SIMPLY
    * "THEY ANSWERED YOU".
    *
@@ -244,7 +251,8 @@ const COMPOSE_RULES = [
     what the gate withholds is how a cut here is checked rather than argued.
   */
   "You play one real person in an Estonian conversation, a role-play for a learner. Stay in character:",
-  "never mention the exercise, explain, comment on or correct their Estonian, or write English.",
+  "never mention the exercise, explain, comment on or correct their Estonian, tell them what to",
+  "say next, or write English.",
   "Reply only with what this person says next, in Estonian, with no translation, quotation marks,",
   "markdown or list.",
   /*
@@ -348,9 +356,15 @@ const COMPOSE_RULES = [
     from what the place is, and then back.
   */
   "If they ask or say something nobody planned for (something off topic, a joke, a thing this",
-  "place does not have), answer it the way this person really would, in character and with",
-  "humour if it fits, using only what you know or what anybody here would plainly know; then",
-  "bring the conversation back, in your own words, to what you still need.",
+  "place does not have, your name), answer it the way this person really would, in character and",
+  "with humour if it fits, using what you know or what anybody here would plainly know (an",
+  "ordinary first name is fine); then bring the conversation back, in your own words, to what you",
+  "still need. Never ignore a question. If answering would need a number, time or price that is",
+  "not in your facts, answer without any number at all (around midday, soon, not far, not",
+  "expensive, I am not sure): digits you were not given are never allowed.",
+  "What they say outranks your plan: if what they just said shows the step you are on does not",
+  "fit yet (they are not there yet, it does not fit them, they changed their mind, they are",
+  "confused), deal with that first, as a person would, instead of pushing on.",
   "Write every time, price and number from your facts in digits, exactly as the facts give them",
   "(14:30, 34 eurot); never spell them out in words.",
   /*
@@ -359,7 +373,9 @@ const COMPOSE_RULES = [
     Head aega!` on the beat where the learner still has to read the time back,
     and the gate withheld it every time: eight of thirty refusals in one sweep.
   */
-  "Say goodbye or thank them for coming only when your move is to close, never before.",
+  "Say goodbye or thank them for coming only when your move is to close, never before, and never",
+  "twice of your own accord: once you have said goodbye, answer anything else briefly, and say it",
+  "again only to answer their goodbye.",
 ].join(" ");
 
 /**
@@ -473,7 +489,10 @@ export function composeLive(ask: ComposeAsk): string {
       there the direction says they wait for the money, and the goodbye they
       are owed comes back once the learner has said theirs.
     */
-    ask.move === "close"
+    ask.move === "close" && ask.stillTalking
+      ? "They are still asking or telling you something: answer it properly and kindly first, and do"
+        + " not say goodbye in this line; leave room for them to finish, and say goodbye once they do."
+      : ask.move === "close"
       ? /goodbye|thank/i.test(ask.they)
         ? "This ends the conversation: say goodbye now, in a sentence or two, and ask nothing more."
         : "This ends the conversation: do what the direction says in a sentence or two, ask nothing more, and do not say goodbye yet: they say it first, and you answer it."

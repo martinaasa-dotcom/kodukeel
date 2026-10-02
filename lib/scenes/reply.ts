@@ -157,6 +157,8 @@ export interface ReplyInput {
   readonly offer?: string | null;
   /** How many beats have been met, which is what rotates the acknowledgment. */
   readonly met: number;
+  /** Which of the beat's requirements the last turn met, so a hint names only what is missing. */
+  readonly metLast?: readonly boolean[];
   /**
    * Whether the learner is arriving at `beat` for the first time: no turn of
    * this run has been taken on it yet.
@@ -487,8 +489,15 @@ export function heldNumbers(card: RoleCard | null, held: ReadonlySet<string>): S
  * let go alike, because the other side said it either way.
  */
 export function establishedBy(
-  state: Pick<SceneState, "hurdle" | "hurdles">,
+  state: Pick<SceneState, "hurdle" | "hurdles"> & Partial<Pick<SceneState, "beat" | "done">>,
   card: RoleCard | null,
+  /**
+   * The scene's beats, for the breaks in time it has already passed
+   * (`BeatSpec.meanwhile`). A clerk told nothing about "twenty minutes later,
+   * your number comes up" told the learner, back at the desk, that the wait
+   * would be about ten minutes.
+   */
+  beats: readonly BeatSpec[] = [],
 ): string[] {
   const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
   const seen = new Set<string>();
@@ -503,6 +512,16 @@ export function establishedBy(
       return prop?.english ?? prop?.value ?? whole;
     }));
   }
+  beats.forEach((beat, at) => {
+    if (!beat.meanwhile) return;
+    const reached = (state.beat !== undefined && at <= state.beat) || (state.done ?? []).includes(beat.id);
+    if (!reached) return;
+    const said = beat.meanwhile.replace(/\{(\w+)\}/g, (whole, slot: string) => {
+      const prop = card ? propBySlot(card, slot) : undefined;
+      return prop?.english ?? prop?.value ?? whole;
+    });
+    out.push(`The scene moved on, written to the learner: "${said}" If what they say shows otherwise, go with them.`);
+  });
   return out;
 }
 
@@ -845,6 +864,19 @@ export function composeNote(
     said above this line, so what the model is for here is the second half: ask
     again, warmly, so a turn nobody could read does not end in a dead stop.
   */
+  /*
+    Their own words handed back, and a turn in English. Keyless both get the
+    line again; a person checks what was meant or helps them say it.
+  */
+  if (reading === "echo") {
+    return "They said back your own words, most likely to check them or to buy time. Confirm"
+      + " briefly and kindly what you meant, in other words, and carry on." + question;
+  }
+  if (reading === "english") {
+    return "They wrote in English. Show you understood what they meant, answer it in simple"
+      + " Estonian, and give them the Estonian word they were missing inside your sentence so they"
+      + " can use it next time. Do not reply in English." + question;
+  }
   if (reading === "unrecognised") {
     return "The dictionary could not read what they wrote, which is often a misspelling, a wrong"
       + " ending or a nearly-right word that a native speaker would still follow. If, in this"
@@ -1087,7 +1119,12 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       `ma lahen shop` is owed `Poodi.` in a way that somebody who said it
       right is not.
     */
-    const worth = input.recast || input.english || brief;
+    /*
+      Not in front of a composed line, unless it is a correction: the line was
+      written with the turn in front of it and takes the word up itself, so
+      the word said back first is the other side saying it twice.
+    */
+    const worth = input.recast || input.english || (brief && !composed);
     const echo = worth && input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) ? input.echo : null;
     if (echo) {
       out.push({
@@ -1265,7 +1302,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     return out;
   }
   if (input.tries === NUDGE_AFTER && !advancing(response) && !composed) {
-    const hint = coachFor(beat, card);
+    const hint = coachFor(beat, card, input.metLast ?? []);
     if (hint) out.push({ text: hint, provenance: "coach" });
   }
 

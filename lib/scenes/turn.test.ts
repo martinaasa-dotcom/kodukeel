@@ -795,6 +795,13 @@ describe("a no on an offer that has a counter", () => {
     expect(readTurn("14:30", offer, ctx).reading).toBe("complete");
   });
 
+  it("does not read a no about something else as a no to the offer", () => {
+    // The `ei` is about the cat; the time was accepted in its own clause.
+    expect(readTurn("14:30 on hea. Kass ei söö.", offer, ctx).reading).not.toBe("declined");
+    // A no in the clause that names the time is still a no.
+    expect(readTurn("14:30 ei sobi", offer, ctx).reading).toBe("declined");
+  });
+
   /*
     A no and a question in one breath is owed an answer. `declined` wrote
     `asked: null` and `wantsEnglish: false` over whatever the turn said, so

@@ -538,7 +538,7 @@ export function whyWithheld(verdict: Verdict | null, move?: string): string | un
     verbless question again and the turn fell to the bank.
   */
   const reasons: Record<Exclude<Check, "vouching" | "stretch">, string> = {
-    facts: "it stated a number, a time or a price that is not among the facts you were given; you may only ever say those, and in digits, exactly as the facts give them",
+    facts: "it stated a number, a time or a price that is not among the facts you were given; you may only ever say those, and in digits, exactly as the facts give them. If they asked about something you have no figure for, still answer it, but without any number at all",
     giveaway: "it said the very form you are waiting for them to produce, which would hand them the answer",
     ahead: "it told them something you are keeping for later in the conversation (a figure, a time or a price you only reach further on); do not mention it yet, unless they ask for it",
 

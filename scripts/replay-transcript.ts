@@ -129,7 +129,7 @@ async function main() {
         any: askedNow !== null,
         money: askedNow !== null && asksPrice(words(last?.said ?? ""), context.lexicon),
       });
-      const established = establishedBy(state, inPlay);
+      const established = establishedBy(state, inPlay, scene.beats);
       const agenda = scene.beats.slice(state.beat).filter((b) => !state.done.includes(b.id))
         .filter((b) => b.move !== "close" || b.id === spokenFor.id)
         .map((b) => stageFor(b, inPlay, b.id === spokenFor.id ? new Set() : held));
@@ -185,6 +185,7 @@ async function main() {
       offer: (response === "help" || response === "moveOn") && answered
         ? offerFor(answered, inPlay, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null,
       met: state.done.length,
+      metLast: last?.met ?? [],
       arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
       choice: answered ? choiceOf({

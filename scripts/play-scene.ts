@@ -385,7 +385,7 @@ async function play(sceneId: string) {
       any: askedNow !== null,
       money: askedNow !== null && asksPrice(words(last?.said ?? ""), context.lexicon),
     });
-    const established = establishedBy(state, card);
+    const established = establishedBy(state, card, scene.beats);
     const facts = factsFor(card, scene.beats, held);
 
     let line = null;
@@ -501,6 +501,7 @@ async function play(sceneId: string) {
             // This beat's own, as the route hands them: ask the same thing, in your own words.
             asked: (context.scripted.get(spokenFor.id) ?? []).slice(0, 2),
             agenda, settled, established,
+            stillTalking: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, FAREWELLS),
             // And what happened to the turn, which is the route's own wording.
             note: composeNote(
               turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, askedNow,
@@ -522,7 +523,7 @@ async function play(sceneId: string) {
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, card, context.lexicon) ?? cheap;
       // A composed line answered what was asked; otherwise a landed question nothing answered gets the shrug.
       if (line.provenance === "composed") aside = null;
-      else if (wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain) aside = shrug(context.lexicon);
+      else if (LINKS.length === 0 && wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain) aside = shrug(context.lexicon);
     }
     const lines = replyFor({
       beat: speaking, answered: turns.length ? answered : null, response: turns.length ? response : null,
@@ -532,6 +533,7 @@ async function play(sceneId: string) {
       aside, offer: (response === "help" || response === "moveOn") && answered
         ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null,
       met: state.done.length,
+      metLast: last?.met ?? [],
       arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
       choice: answered ? choiceOf({
