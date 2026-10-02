@@ -2396,7 +2396,11 @@
     display: grid; gap: 0.55rem 1.5rem; font-size: var(--text-sm);
     color: var(--stage-ink-2); max-width: 44rem;
   }
-  @media (min-width: 640px) { .hero-claims { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  /* One column at every width. Two put "6,221 words, 39,970 forms, and not
+     one of them made up by AI" on two or three lines beside "Free, and it
+     works offline" on one, which is a set read across a row with one member
+     a different shape, the fault the climb's legend was reported for. Stacked,
+     each claim takes the line it needs and the list reads down. */
 
   /* The machine: one real word turning through its cases, on a sticker. */
   .hero-machine { min-width: 0; display: flex; justify-content: center; }

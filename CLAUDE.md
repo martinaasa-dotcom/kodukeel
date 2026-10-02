@@ -10505,6 +10505,18 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   same two moves: `flex-nowrap` on a marker and a short label, or `items-start` with the marker nudged
   to the first line where a label may run to two. Its first run found the course strip, an exam option,
   the mode tiles and the frequency lists.
+- **Relatives wrap alike: a set of labels sits one line each, or none of it does.** The
+  climb on Today printed its legend as "13 you've shown you know" on one line and "993 counted from
+  your level, not tested yet" on two, and the marker rule above passed it, because the second line
+  began under the label rather than under the swatch. So `test-containment.mjs` asks a third question
+  of siblings sharing a parent and a class (a marker row, a chip, a legend key): where every member is
+  label length, under 60 characters, either all sit on one line or none of them may, side by side or
+  stacked. A set holding anything longer is content and is left alone: a checklist of sentences, an
+  answer option carrying its English, a tile with a title and a description. The fix is a shorter label with `whitespace-nowrap` on each key, never a narrower font. The
+  legend only draws where a level is credited, which the fixture never is, so the sweep writes a
+  declared B1 for one load of Today at each width and puts back what was there. The landing page's
+  claims went to one column in the same pass, because two put one claim on three lines beside one on
+  one, which is the same fault in sentences rather than labels.
 - **A word set large shrinks; it is never broken.** The body's `overflow-wrap: anywhere` is right
   for a paragraph and wrong at display size: the landing page's hero card, the first thing a
   stranger sees, drew `raamatusse` as `raamatuss / e`. Nothing caught it, for three reasons worth

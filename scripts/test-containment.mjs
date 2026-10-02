@@ -64,7 +64,7 @@ import { revealAnswer } from "./lib/review.mjs";
 import { ensureLetterBar, ensureWordGloss } from "./lib/prefs.mjs";
 import { startRound } from "./lib/briefing.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
-import { resolveDatabaseUrl } from "./lib/local-db.mjs";
+import { requireLocalDatabase, resolveDatabaseUrl } from "./lib/local-db.mjs";
 
 const B = baseUrl();
 
@@ -1310,6 +1310,7 @@ function relatives() {
   const wrapped = [];
   const unlike = [];
   const unbalanced = [];
+  const unevenly = [];
   const shown = (el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true })
     && (el.getBoundingClientRect().width > 0.5 || el.getBoundingClientRect().height > 0.5);
   const named = (el) => {
@@ -1405,6 +1406,82 @@ function relatives() {
     }
   }
 
+  /*
+    HOW MANY LINES AN ELEMENT'S WORDS ARE DRAWN ON, counted off the glyphs
+    rather than the box: a box is as tall as its tallest child, and a marker or
+    a padded chip makes one line look like two. Tops within a few pixels are
+    one line, because a bold count beside a lighter word sits a pixel apart.
+  */
+  const linesOf = (el) => {
+    const tops = [];
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      if (!n.textContent.trim()) continue;
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      for (const r of range.getClientRects()) {
+        if (r.width < 1 || r.height < 1) continue;
+        if (!tops.some((t) => Math.abs(t - r.top) <= 4)) tops.push(r.top);
+      }
+    }
+    return tops.length;
+  };
+
+  /*
+    RELATIVES WRAP ALIKE OR NOT AT ALL.
+
+    Reported off the climb on Today: two legend keys, "13 you've shown you
+    know" on one line and "993 counted from your level, not tested yet" on two,
+    the second breaking inside itself while the first sat whole. Every check
+    above passed it, because the second line started under the label rather
+    than under the marker, nothing was cut off and no word broke. What is wrong
+    is the relation: things drawn as a set are read as a set, and one of them
+    taking two lines where its siblings take one reads as a different kind of
+    thing. So among siblings sharing a parent and a class that are drawn as
+    pieces of a set (a row led by a marker, or an inline box such as a chip or a
+    legend key) and short enough to be labels, every one under `LABEL_CHARS`,
+    either all sit on one line or none of them may. A label that wraps can
+    always be said shorter or given a line of its own, which is what the report
+    asked for, whether the set sits side by side or stacks.
+
+    A set holding anything longer is content rather than labels and is left
+    alone: a checklist of reasons, an answer option carrying its English, a tile
+    with a title and a description. Those wrap where the sentence is long, and
+    a rule demanding they match would be waived on its first run.
+  */
+  const LABEL_CHARS = 60;
+  const pieces = new Map();
+  const asPiece = (el) => {
+    const cls = el.getAttribute("class");
+    if (!cls || !el.parentElement || !(el.textContent || "").trim() || !shown(el)) return;
+    const list = pieces.get(el.parentElement) ?? new Map();
+    const same = list.get(cls) ?? new Set();
+    same.add(el);
+    list.set(cls, same);
+    pieces.set(el.parentElement, list);
+  };
+  for (const r of rows) asPiece(r.el);
+  for (const el of document.querySelectorAll("body *")) {
+    if (el.closest("[aria-hidden='true'], .sr-only, table, svg")) continue;
+    const d = getComputedStyle(el).display;
+    if (d === "inline-flex" || d === "inline-block" || d === "inline-grid") asPiece(el);
+  }
+  for (const list of pieces.values()) {
+    for (const set of list.values()) {
+      if (set.size < 2) continue;
+      const counted = [...set].map((el) => ({
+        el,
+        n: linesOf(el),
+        chars: (el.textContent || "").trim().replace(/\s+/g, " ").length,
+      }));
+      if (!counted.every((c) => c.chars <= LABEL_CHARS)) continue;
+      const odd = counted.find((c) => c.n > 1);
+      if (odd && counted.some((c) => c.n === 1)) {
+        unevenly.push(`${named(odd.el)} takes ${odd.n} lines where a relative takes one`);
+      }
+    }
+  }
+
   // Relatives: rows sharing a parent and a class.
   const groups = new Map();
   for (const r of rows) {
@@ -1435,8 +1512,9 @@ function relatives() {
     wrapped: [...new Set(wrapped)].length,
     unlike: [...new Set(unlike)].length,
     unbalanced: [...new Set(unbalanced)].length,
+    unevenly: [...new Set(unevenly)].length,
     rows: rows.length,
-    say: { wrapped: first(wrapped), unlike: first(unlike), unbalanced: first(unbalanced) },
+    say: { wrapped: first(wrapped), unlike: first(unlike), unbalanced: first(unbalanced), unevenly: first(unevenly) },
   };
 }
 
@@ -1599,6 +1677,7 @@ async function measure(page, label, atLeast = 25) {
   check(`no label wraps under its own marker on ${label}`, kin.wrapped === 0, kin.say.wrapped);
   check(`relatives sit alike, marker to label, on ${label}`, kin.unlike === 0, kin.say.unlike);
   check(`every mark beside a heading is balanced against it on ${label}`, kin.unbalanced === 0, kin.say.unbalanced);
+  check(`a set of labels sits one line each or none of it does, on ${label}`, kin.unevenly === 0, kin.say.unevenly);
   /*
     The middot is on no screen, and this is the half the source check cannot
     reach: a hint or a government string stored in somebody's deck before the
@@ -1715,6 +1794,43 @@ async function paperBeingSat(ctx, at) {
   await page.waitForTimeout(700);
   await measure(page, `the A2 paper ${at}`);
   await page.close();
+}
+
+/*
+  TODAY FOR SOMEBODY WHO SAID WHAT LEVEL THEY HOLD.
+
+  The climb on Today draws a second band and a two-key legend only where a
+  level below the learner's own is credited rather than checked, and the
+  fixture holds no level, so the sweep had never seen either. That is where
+  one legend key was reported wrapping onto two lines while its sibling sat on
+  one. A declared B1 is written for the length of one page load, timestamped
+  now so it outranks anything measured, and the rows that were there before
+  are put back whatever happened in between, because every suite after this
+  one reads the same learner.
+*/
+const LOCAL_OWNER = "local-single-user";
+async function creditedToday(ctx, at) {
+  const prisma = newPrismaClient(requireLocalDatabase("write a declared level and put back what was there"));
+  const keys = ["cefrPlacement", "cefrPlacementAt"];
+  const before = await prisma.setting.findMany({ where: { ownerId: LOCAL_OWNER, key: { in: keys } } });
+  const page = await ctx.newPage();
+  try {
+    for (const [key, value] of [["cefrPlacement", "B1"], ["cefrPlacementAt", new Date().toISOString()]]) {
+      await prisma.setting.upsert({
+        where: { ownerId_key: { ownerId: LOCAL_OWNER, key } },
+        update: { value },
+        create: { ownerId: LOCAL_OWNER, key, value },
+      });
+    }
+    await page.goto(`${B}/`, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await ready(page, 30000);
+    await measure(page, `Today with a level held ${at}`);
+  } finally {
+    await page.close();
+    await prisma.setting.deleteMany({ where: { ownerId: LOCAL_OWNER, key: { in: keys } } });
+    if (before.length) await prisma.setting.createMany({ data: before });
+    await prisma.$disconnect();
+  }
 }
 
 /*
@@ -1901,6 +2017,7 @@ for (const width of WIDTHS) {
   await sweep(ctx, `at ${width}`);
   await openedWelcome(ctx, `at ${width}`);
   await paperBeingSat(ctx, `at ${width}`);
+  await creditedToday(ctx, `at ${width}`);
   if (width !== 768) await askedForStates(ctx, `at ${width}`);
 
   await ctx.close();
