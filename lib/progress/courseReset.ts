@@ -76,3 +76,20 @@ export async function resetCourseProgress(
   for (const ownerId of stale) forgetSettings(ownerId);
   return { ticks: steps.count, programmes: settings.count };
 }
+
+/**
+ * One learner, one part: what a level change does to the part it opens.
+ *
+ * Changing level starts the module over on the first evening of the new
+ * level's opening part, and the day somebody is on is derived from their
+ * ticks (ADR-014), so a part walked before would otherwise reopen at its old
+ * furthest evening. Those ticks go, and only those: every other part's ticks,
+ * and the review log they were earned on, stay. It is this module rather than
+ * a filter on when a tick was written, because a tick kept and ignored still
+ * holds its unique key, so pressing the same step again on the restarted
+ * part wrote nothing and the evening could never be finished.
+ */
+export async function restartPart(ownerId: string, programmeId: string): Promise<number> {
+  const gone = await prisma.courseStep.deleteMany({ where: { ownerId, programmeId } });
+  return gone.count;
+}

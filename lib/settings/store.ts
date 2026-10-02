@@ -318,16 +318,6 @@ export const SETTING_KEYS = {
    * and the module screen still names it.
    */
   adaptSnoozedUntil: "adaptSnoozedUntil",
-  /**
-   * When the learner's course last started over, as an instant.
-   *
-   * Changing level puts the module back at the first evening of the new
-   * level's opening part, and the day somebody is on is derived from their
-   * ticks (ADR-014), so a part walked before would otherwise reopen at its old
-   * furthest tick. Ticks written before this are kept, since `CourseStep` is
-   * append-only, and are simply not read as progress (`lib/progress/course.ts`).
-   */
-  courseFrom: "courseFrom",
 } as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];

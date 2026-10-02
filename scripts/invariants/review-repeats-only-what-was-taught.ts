@@ -57,9 +57,11 @@ export default function reviewRepeatsOnlyWhatWasTaught(kit: InvariantKit) {
  *
  * Reported right after the above: having changed level, the learner still had
  * eighteen cards due and the module resumed an old evening. A level change
- * moves the course to the new level's opening part and writes `courseFrom`,
- * and progress reads only ticks after it, so the part opens on its first
- * evening and Review (held to the module) shrinks to what that start taught.
+ * moves the course to the new level's opening part and clears that part's own
+ * ticks (`restartPart`), so it opens on its first evening and Review (held to
+ * the module) shrinks to what that start taught. Clearing rather than reading
+ * past them by date, because a tick kept and ignored still holds its unique
+ * key: pressing the same step again on the restarted part wrote nothing.
  */
 function aNewLevelStartsOver({ check, code }: InvariantKit) {
   check("changing level restarts the module on the new level's first evening", () => {
@@ -70,12 +72,10 @@ function aNewLevelStartsOver({ check, code }: InvariantKit) {
     assert.match(body, /const before = await courseLevelFor\(ownerId\);[\s\S]*recordCourseLevel/,
       "setCourseLevel no longer reads the level it is changing from");
     assert.match(body, /before !== parsed\.data/, "a level change no longer restarts the course");
-    assert.match(body, /SETTING_KEYS\.courseFrom, now\.toISOString\(\)/, "a level change no longer marks where the course restarts");
-    const course = code("lib/progress/course.ts");
-    const ticks = course.slice(course.indexOf("const ticksFor"), course.indexOf("const ticksFor") + 600);
-    assert.match(ticks, /courseFrom\(ownerId\)[\s\S]*createdAt: \{ gte: from \}/,
-      "progress counts ticks from before the course last started over");
-    assert.match(code("lib/progress/adapt.ts"), /courseFrom\(ownerId\)/,
-      "a part walked before a restart still blocks a move into it");
+    assert.match(body, /restartPart\(ownerId, opening\.id\)/, "a level change no longer restarts the part it opens");
+    const reset = code("lib/progress/courseReset.ts");
+    const fn = reset.slice(reset.indexOf("export async function restartPart"));
+    assert.match(fn.slice(0, 400), /courseStep\.deleteMany\(\{ where: \{ ownerId, programmeId \} \}\)/,
+      "restartPart clears more than one learner's ticks on one part");
   });
 }

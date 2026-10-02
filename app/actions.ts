@@ -36,7 +36,7 @@ import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { editExamples } from "@/lib/dict/editExamples";
 import { requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
-import { resetCourseProgress } from "@/lib/progress/courseReset";
+import { resetCourseProgress, restartPart } from "@/lib/progress/courseReset";
 import {
   PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
   patchFitsCategory,
@@ -2552,9 +2552,9 @@ export async function setCourseLevel(level: string) {
     and it was reported as wrong by somebody who had just changed level: the
     module resumed an old evening and Review still held eighteen cards from
     the course they had left. Changing level is a fresh start, so the course
-    moves to the first part of the new level and `courseFrom` is written: ticks
-    before it are kept (`CourseStep` is append-only) and are no longer read as
-    progress, so the part opens on its first evening. Review follows on its
+    moves to the first part of the new level and that part's own ticks are
+    cleared (`restartPart`), so it opens on its first evening. Every other
+    part's ticks and the whole review log stay. Review follows on its
     own, because it asks only what the module has taught (`reviewable`), and a
     card held back keeps its schedule for the evening that reaches it.
     Re-picking the level already held is not asking to start again and moves
@@ -2564,7 +2564,7 @@ export async function setCourseLevel(level: string) {
   if (current && (before !== parsed.data || current.level !== opening.level)) {
     await Promise.all([
       writeSetting(ownerId, SETTING_KEYS.programme, opening.id),
-      writeSetting(ownerId, SETTING_KEYS.courseFrom, now.toISOString()),
+      restartPart(ownerId, opening.id),
       writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
       writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
     ]);
