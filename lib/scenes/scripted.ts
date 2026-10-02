@@ -167,7 +167,16 @@ export function sceneBeats(scene: SceneSpec): BeatSpec[] {
     met. Without this the answer was either said as the beat's opening line,
     before anybody had asked, or never.
   */
-  const answers = scene.beats
+  /*
+    AND ONE PER CURVEBALL WHOSE ONLY WAY OUT IS TO ASK. Told the time had gone,
+    or that it could not be done today, or to go somewhere first, the learner
+    is told to ask, asks, and is owed what any person would say next. A
+    curveball that takes a question among other answers (`faster`,
+    `wrong-price`) is not one: there the question is one way through of
+    several, and the price is answered off the card.
+  */
+  const asking = hurdles.filter((beat) => beat.needs.length === 1 && beat.needs[0]!.kind === "question");
+  const answers = [...scene.beats, ...asking]
     /*
       Every beat that asks the learner for a question and does not say that
       the move after it is the answer. `answeredNext` is the four where it

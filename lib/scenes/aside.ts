@@ -276,7 +276,16 @@ export function priceOffCard(card: RoleCard | null, lexicon: Lexicon, said = "")
 function whenOffCard(card: RoleCard | null, lexicon: Lexicon): SpokenLine | null {
   if (!card) return null;
   const pieces: string[] = [];
-  const day = card.props.find((prop) => prop.theirs && prop.lemmas.length > 0);
+  /*
+    THE DAY IS THE ONE FACT OF THEIRS WRITTEN WITH NO DIGITS. This took the
+    first prop of theirs carrying a lemma, which was the weekday until the
+    price curveball dealt a second price as theirs: a price carries its number
+    words as lemmas, so a clerk asked "when?" at a counter answered `Kuuel.`,
+    "at six", off the new price. A weekday is dealt with no literal at all and
+    a price, a time and a number each carry digits, which also holds for a
+    draw stored before `price` was marked on the prop.
+  */
+  const day = card.props.find((prop) => prop.theirs && !prop.price && prop.literal.length === 0 && prop.lemmas.length > 0);
   if (day) {
     const form = day.lemmas[0] ? lexicon.caseForm.get(caseKeyFor(day.lemmas[0], "ADESSIVE")) : undefined;
     if (form) pieces.push(form);

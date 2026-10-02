@@ -179,6 +179,15 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     stands: "The time they first wanted is gone. Never offer it again or say it is still free.",
     says: "The time you wanted has already gone.",
     out: "Ask them what other times they've got.",
+    /*
+      A CURVEBALL WHOSE WAY OUT IS A QUESTION OWES THE QUESTION AN ANSWER.
+      The learner did as the objective said and asked, and the other side,
+      with nothing banked for it, said `Ei tea.` or the refusal again: told
+      the time had gone, asked what else there was, and told "I don't know".
+      `sceneBeats` makes an answer beat for each of these three, the bank
+      holds it, and the composer is handed the same sentence.
+    */
+    answer: "They say a later time is still free.",
     needs: [{ kind: "question" }],
   },
   {
@@ -289,6 +298,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     stands: "What they came for cannot be done today. Never say or suggest that it can: anything you still need is now about when it will be possible, not today.",
     says: "What you came for can't be done today.",
     out: "Ask what they can do instead, or when it'll be possible.",
+    answer: "They say it will be possible another day, not today.",
     needs: [{ kind: "question" }],
   },
   {
@@ -364,6 +374,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     stands: "You sent them somewhere else first. Do not act as though that step was not needed.",
     says: "They send you somewhere else first, before they can help.",
     out: "Ask them where that is.",
+    answer: "They say it's right next door.",
     needs: [{ kind: "question" }],
   },
 ];

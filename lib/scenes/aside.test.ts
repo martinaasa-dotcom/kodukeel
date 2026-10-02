@@ -22,6 +22,7 @@ const ENTRIES: DictEntry[] = [
   { lemma: "euro", pos: "NOUN", cefr: "A1", parts: { NOM_SG: "euro", GEN_SG: "euro", PART_SG: "eurot" }, usages: [] },
   { lemma: "hind", pos: "NOUN", cefr: "A1", parts: { NOM_SG: "hind", GEN_SG: "hinna", PART_SG: "hinda" }, usages: [] },
   { lemma: "palju", pos: "ADVERB", cefr: "A1", parts: {}, usages: [] },
+  { lemma: "kuus", pos: "NUMERAL", cefr: "A1", parts: { NOM_SG: "kuus", GEN_SG: "kuue", PART_SG: "kuut" }, usages: [] },
 ];
 const LEX = buildLexicon(ENTRIES);
 
@@ -65,6 +66,16 @@ describe("a question the scene did not anticipate", () => {
     const line = asideFor(input({ asked: "millal", spoken: ["millal"] }));
     expect(line?.text).toBe("Teisipäeval kell 14:30.");
     expect(line?.provenance).toBe("attested");
+  });
+
+  it("never reads the new price as the day: it is theirs and it has a word, and it is not a day", () => {
+    const price = { slot: "price2", card: "What it costs now.", literal: ["6"], lemmas: ["kuus"], shown: ["6 €"], value: "6", price: true as const, theirs: true as const };
+    const time = CARD.props[0]!;
+    const day = CARD.props[1]!;
+    // A clerk asked "when?" answered `Kuuel.`, "at six", off the price.
+    expect(asideFor(input({ asked: "millal", spoken: ["millal"], card: { you: "You.", props: [price, time] } }))?.text).toBe("Kell 14:30.");
+    expect(asideFor(input({ asked: "millal", spoken: ["millal"], card: { you: "You.", props: [price, time, day] } }))?.text).toBe("Teisipäeval kell 14:30.");
+    expect(asideFor(input({ asked: "millal", spoken: ["millal"], card: { you: "You.", props: [price] }, answered: ASKS_FOR_QUESTION }))?.text).not.toBe("Kuuel.");
   });
 
   it("answers a question after directions with more of the directions", () => {
