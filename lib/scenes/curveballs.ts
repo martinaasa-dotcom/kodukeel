@@ -73,6 +73,18 @@ export interface CurveballSpec {
    * scene's own props, checked in the catalog test.
    */
   readonly replaces?: readonly (readonly [from: string, to: string])[];
+  /**
+   * WHAT STAYS TRUE ONCE IT HAS BEEN SAID, FROM THE OTHER SIDE'S VIEW, IN
+   * ENGLISH. May carry `{slot}`.
+   *
+   * A curveball that changes the situation changes it for the rest of the
+   * run, and the scene's later beats do not know: at a bus window the other
+   * side said the bus would not leave tonight and, two turns later, sold a
+   * ticket for tonight. Every curveball raised is handed to the composer as a
+   * fact it may not go back on (`establishedBy`). Absent where nothing about
+   * the situation changed: a queue, a switch to English, a faster voice.
+   */
+  readonly stands?: string;
   /** English. The way out, printed beside it, because a trap is not difficulty. */
   readonly out: string;
   /**
@@ -155,6 +167,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "missing-document",
     move: "ask",
     cost: 2,
+    stands: "You asked them for a document they do not have. Do not pretend they handed it over.",
     says: "They ask for something you were never given.",
     out: "Tell them you don't have it.",
     needs: [{ kind: "negation" }],
@@ -163,6 +176,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "slot-gone",
     move: "refuse",
     cost: 2,
+    stands: "The time they first wanted is gone. Never offer it again or say it is still free.",
     says: "The time you wanted has already gone.",
     out: "Ask them what other times they've got.",
     needs: [{ kind: "question" }],
@@ -171,6 +185,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "misheard",
     move: "confirm",
     cost: 3,
+    stands: "You misheard them once. Once they correct you, use their word, never the one you misheard.",
     says: "They've misheard you and caught a different word that sounds like yours.",
     out: "Tell them no, that's not it, and say your word again.",
     needs: [{ kind: "negation" }],
@@ -271,6 +286,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "not-possible",
     move: "refuse",
     cost: 3,
+    stands: "What they came for cannot be done today. Never say or suggest that it can: anything you still need is now about when it will be possible, not today.",
     says: "What you came for can't be done today.",
     out: "Ask what they can do instead, or when it'll be possible.",
     needs: [{ kind: "question" }],
@@ -296,6 +312,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "wrong-price",
     move: "confirm",
     cost: 2,
+    stands: "The price is {price2} euros now, not what they were told. Never go back to the old price.",
     says: "The price isn't what you were told.",
     /*
       A CURVEBALL THAT CHANGES A FACT CARRIES THE FACT. This said "the amount
@@ -344,6 +361,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "place-instruction",
     move: "instruct",
     cost: 2,
+    stands: "You sent them somewhere else first. Do not act as though that step was not needed.",
     says: "They send you somewhere else first, before they can help.",
     out: "Ask them where that is.",
     needs: [{ kind: "question" }],

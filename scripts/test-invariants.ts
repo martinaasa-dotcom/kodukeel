@@ -18261,10 +18261,10 @@ check("every free provider the app would ask, a measuring script can ask too", (
   for (const file of ["scripts/lib/sceneDraft.ts", "scripts/play-scene.ts"]) {
     const text = code(file);
     if (!/max_tokens/.test(text)) continue;
-    // The composer's budget for a line, the judge's for a verdict, and never a number of the script's.
+    // The composer's budget for a line, the judge's and the consistency check's for a verdict, and never a number of the script's.
     assert.doesNotMatch(
       text,
-      /max_tokens: (?!SCENE_REPLY_TOKENS|JUDGE_REPLY_TOKENS)/,
+      /max_tokens: (?!SCENE_REPLY_TOKENS|JUDGE_REPLY_TOKENS|CONSISTENCY_REPLY_TOKENS)/,
       `${file} asks for a max_tokens of its own. A thinking model spends its budget in a ` +
       "reasoning field and writes the line after it, so a tight cap returns a sentence cut " +
       "off mid-word and the gate withholds every one, which reads as a model that cannot " +

@@ -16,21 +16,24 @@ import {
   MAX_TURNS, MAX_TURN_CHARS, alsoDoneOf, clockInPlay, concededOf, growDictionary, knowing, moneyInPlay, readDraw,
   replay, sceneContext, sceneVouch,
 } from "@/lib/progress/scene";
-import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, parseJudgement } from "@/lib/scenes/judge";
+import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, earlierLines, parseJudgement } from "@/lib/scenes/judge";
+import {
+  CONSISTENCY_REPLY_TOKENS, buildConsistencySystemPrompt, buildConsistencyUserPrompt, parseConsistency,
+} from "@/lib/scenes/consistency";
 import { leafNeeds } from "@/lib/scenes/types";
 import { FAREWELLS, sceneById } from "@/lib/scenes/catalogue";
 import { ASKS_ON } from "@/lib/scenes/curveballs";
 import { saysGoodbye } from "@/lib/scenes/casual";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import {
-  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, factsFor, replyFor,
+  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, heldBack, heldNumbers, replyFor,
   stageFor, wantsAsideFor, wantsFreshLine,
 } from "@/lib/scenes/reply";
 import { dealtNumbers } from "@/lib/scenes/props";
 import { composeLive, composeSystem } from "@/lib/scenes/prompt";
 import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 import { courseLevelFor } from "@/lib/progress/level";
-import { asideFor, asideOwed, asksToHearAgain, shrug } from "@/lib/scenes/aside";
+import { asideFor, asideOwed, asksPrice, asksToHearAgain, shrug } from "@/lib/scenes/aside";
 import { choiceOf } from "@/lib/scenes/choice";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
 import { offerFor } from "@/lib/scenes/grades";
@@ -280,6 +283,13 @@ export async function POST(request: Request) {
             goal: judged.goal, they: judged.they, said: lastSent.said,
             reading: await readingOf(lastSent.said),
             /*
+              The line they were answering and the turns before it, so a turn
+              that is clear to anybody standing there is read as the answer to
+              the question just asked rather than as a sentence on its own.
+            */
+            heard: lastRead.heard,
+            earlier: earlierLines(before.turns, MAX_CONTEXT_TURNS, MAX_CONTEXT_CHARS),
+            /*
               What the card dealt for this beat, so the judge knows what the
               goal's value is and that another value of the same kind counts:
               the card is the learner's, and they may change what is on it.
@@ -347,6 +357,8 @@ export async function POST(request: Request) {
           buildJudgeUserPrompt({
             goal: ahead.goal, they: ahead.they, said: lastSent.said,
             reading: await readingOf(lastSent.said),
+            heard: landedOn?.heard,
+            earlier: earlierLines(state.turns.slice(0, -1), MAX_CONTEXT_TURNS, MAX_CONTEXT_CHARS),
             dealt: leafNeeds(ahead.needs).flatMap(({ need }) => {
               if (need.kind !== "datum" || !draw?.card) return [];
               const prop = draw.card.props.find((one) => one.slot === need.slot && !one.theirs);
@@ -540,7 +552,24 @@ export async function POST(request: Request) {
     a number the gate withholds. The card is the one in play, so a changed
     price is the new price.
   */
-  const facts = factsFor(card, scene.beats);
+  /*
+    WHAT THIS PERSON HOLDS FOR LATER, AND WHAT THE RUN HAS ESTABLISHED.
+
+    A value of theirs that the scene says only at a beat still ahead is kept
+    back until then (`heldBack`): told the wage from the first line, an
+    interviewer named it while asking about experience, and the learner's own
+    objective later asked about a figure already on the screen. A question
+    releases it, since a question is owed an answer. And a curveball that
+    changed the situation stays changed (`establishedBy`): a bus that is not
+    leaving tonight is not leaving tonight when the learner asks for beer.
+  */
+  const turnSaid = words(last?.said ?? "");
+  const held = heldBack(scene.beats, card, state, standing ?? speaking ?? null, {
+    any: askedNow !== null,
+    money: askedNow !== null && asksPrice(turnSaid, context.lexicon),
+  });
+  const established = establishedBy(state, card);
+  const facts = factsFor(card, scene.beats, held);
   /*
     AND WHAT THE LEARNER JUST SAID IS A TOPIC A LINE MAY BE ABOUT. The gate
     holds a composed line to the beat's own words, which is right for a line
@@ -841,7 +870,7 @@ export async function POST(request: Request) {
     .slice(state.beat)
     .filter((b) => !state.done.includes(b.id))
     .filter((b) => b.move !== "close" || b.id === beat?.id)
-    .map((b) => stageFor(b, card));
+    .map((b) => stageFor(b, card, b.id === beat?.id ? new Set() : held));
   const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, card));
   /*
     And what the scene says the answer to the learner's question is, where it
@@ -969,6 +998,17 @@ export async function POST(request: Request) {
       ]),
       times: clockInPlay(card, context.lexicon),
       money: moneyInPlay(card, context.lexicon),
+      /*
+        The numbers of what this person keeps for later (`ahead`), less any
+        spelling another value in play shares and any number the learner
+        typed, since saying those back is not news.
+      */
+      held: (() => {
+        const kept = heldNumbers(card, held);
+        const open = heldNumbers(card, new Set((card?.props ?? []).map((p) => p.slot).filter((slot) => !held.has(slot))));
+        const typed = new Set(state.turns.flatMap((turn) => turn.said.match(/\d{1,2}[:.]\d{2}|\d+/g) ?? []));
+        return new Set([...kept].filter((n) => !open.has(n) && !typed.has(n)));
+      })(),
     }),
     topic: new Set<string>([...(context.topic.get(beat.id) ?? []), ...theirs]),
     hasFiniteVerb: context.hasFiniteVerb,
@@ -1131,6 +1171,20 @@ export async function POST(request: Request) {
         what this answers, off the course and the forms list.
       */
       vouch: (spellings) => sceneVouch(context, spellings),
+      /*
+        AND A LINE THE GATE PASSED STILL HAS TO KEEP TO WHAT WAS SAID. Only
+        once the conversation has said something to keep to: the opening line
+        has nothing behind it to contradict.
+      */
+      ...(conversation.length > 0 ? {
+        review: (candidate: string) => reviewLine(ownerId, {
+          conversation: conversation.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
+          established,
+          facts,
+          later: agenda.slice(1),
+          line: candidate,
+        }),
+      } : {}),
       compose: (avoid, because) => compose(chain, {
         ownerId,
         outcome,
@@ -1174,6 +1228,7 @@ export async function POST(request: Request) {
         asked: (context.scripted.get(beat.id) ?? []).slice(0, 2),
         agenda,
         settled,
+        established,
         /*
           AND WHAT HAPPENED TO THEIR TURN, WHICH IS WHY A MISS IS WORTH A CALL AT
           ALL. Without it a model asked to compose after a miss writes the
@@ -1285,6 +1340,46 @@ function textField(value: unknown, max: number): string {
   return typeof value === "string" ? clip(value, max) : "";
 }
 
+/**
+ * WHETHER A LINE THE GATE PASSED KEEPS TO WHAT THIS PERSON HAS SAID, asked of
+ * the grader chain and metered as a GRADER call like the judge
+ * (`lib/scenes/consistency.ts`). Returns why it does not, or null.
+ *
+ * FAILS OPEN, which is the opposite of the ledger and is right here: the line
+ * has passed every check that can be stated mechanically, so a spent
+ * allowance, a missing key or a reply nobody can read costs this check and
+ * not the conversation.
+ */
+async function reviewLine(
+  ownerId: string,
+  ask: Parameters<typeof buildConsistencyUserPrompt>[0],
+): Promise<string | null> {
+  if (resolveProviders({ purpose: "grader" }).length === 0) return null;
+  const decision = await authoriseCall(ownerId, "GRADER");
+  if (!decision.allowed || !decision.reservation) return null;
+  const reserved = decision.reservation;
+  const booking = turnBooking(reserved);
+  try {
+    const result = await callChainForJson(
+      resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed }),
+      buildConsistencySystemPrompt(),
+      buildConsistencyUserPrompt(ask),
+      CONSISTENCY_REPLY_TOKENS,
+    );
+    const settles = booking.settle();
+    after(() => recordUsage({
+      ownerId, kind: "GRADER", provider: result.config.name, model: result.config.model,
+      inputTokens: result.usage.inputTokens, outputTokens: result.usage.outputTokens, reservation: settles,
+    }));
+    const verdict = parseConsistency(result.text);
+    return verdict && !verdict.ok ? (verdict.why || "it did not keep to what was already said") : null;
+  } catch (error) {
+    if (!booking.settled) after(() => releaseReservation(reserved));
+    reportError(error, { at: "api/scene/consistency", ownerId });
+    return null;
+  }
+}
+
 /** Who is behind the desk, off the run's own row rather than out of a request. */
 function personaOf(transcript: string): PersonaSpec | undefined {
   try {
@@ -1358,6 +1453,8 @@ async function compose(
     /** What they still need, in order, and what is already settled (`ComposeAsk`). */
     agenda?: readonly string[];
     settled?: readonly string[];
+    /** What the run has established and nothing may undo (`ComposeAsk.established`). */
+    established?: readonly string[];
     /** The run so far, both sides, alternating. Empty on the opening line. */
     conversation: readonly ChatMessage[];
     avoid: readonly string[];

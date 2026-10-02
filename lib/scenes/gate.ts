@@ -47,8 +47,8 @@ import { switchesRegisterAt } from "./curveballs";
  * added the run looked exactly the same and said nothing about it.
  */
 export const CHECKS = [
-  "shape", "vouching", "register", "government", "facts", "agreement", "topic", "giveaway",
-  "stretch", "clause", "infinitive", "negation", "farewell", "question",
+  "shape", "vouching", "register", "government", "facts", "ahead", "agreement", "topic", "giveaway",
+  "stretch", "clause", "infinitive", "consistency", "negation", "farewell", "question",
 ] as const;
 
 /**
@@ -247,6 +247,19 @@ export interface GateContext {
    * this run dealt no numbers, and then any digit at all is invented.
    */
   readonly dealt?: ReadonlySet<string>;
+  /**
+   * NUMBERS THIS PERSON HOLDS AND HAS NOT REACHED YET (`heldBack`), as they
+   * may be written.
+   *
+   * `dealt` asks whether a number is one the run made, which a wage held for
+   * the offer is: so the interviewer said the pay while still asking about
+   * experience, and the learner's next objective, to ask what the pay is,
+   * asked about a figure already on the screen. A digit run here is a fact
+   * said before its beat, and the line is withheld for it (`ahead`). The
+   * caller leaves out any spelling another value in play shares, and every
+   * number the learner has typed, since saying those back is not news.
+   */
+  readonly held?: ReadonlySet<string>;
   /**
    * The clock, where this run deals one: every form of the word a time is told
    * with, every hour word there is, and the hours this card actually named.
@@ -491,6 +504,15 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   */
   if (invented(text, context.dealt) || inventedHour(tokens, context.times) || inventedPrice(tokens, context.money)) {
     failed.push("facts");
+  }
+
+  /*
+    AND A NUMBER IT HOLDS FOR LATER IS NOT ONE TO SAY NOW. Whole runs against
+    whole runs, like `invented`, so `1550` is not found inside `15500`.
+  */
+  if (context.held && context.held.size > 0) {
+    const runs = text.match(/\d{1,2}[:.]\d{2}|\d+/g) ?? [];
+    if (runs.some((run) => context.held!.has(run))) failed.push("ahead");
   }
 
   return { failed, unknown, stretched };

@@ -20,7 +20,7 @@ import {
 import { planRun } from "../lib/scenes/run";
 import { seedFrom } from "../lib/random/seeded";
 import { feltAt, replyFor, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, wantsAsideFor } from "../lib/scenes/reply";
-import { asideFor, asideOwed, asksToHearAgain, shrug } from "../lib/scenes/aside";
+import { asideFor, asideOwed, asksPrice, asksToHearAgain, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { sceneLine } from "../lib/scenes/line";
 import { PERSONAS } from "../lib/scenes/personas";
@@ -30,7 +30,7 @@ import { choiceOf } from "../lib/scenes/choice";
 import { words } from "../lib/scenes/lexicon";
 import { shippedDictionary } from "./lib/dictionary";
 import { dealtNumbers, type RoleCard } from "../lib/scenes/props";
-import { stageFor, composeNote } from "../lib/scenes/reply";
+import { stageFor, composeNote, establishedBy, factsFor, heldBack, heldNumbers } from "../lib/scenes/reply";
 import { isKnownForm } from "../lib/dict/forms";
 import { askLine, chain as providerChain, HARNESS_LEVEL } from "./lib/sceneDraft";
 import type { Level } from "../lib/collections/syllabus";
@@ -124,21 +124,34 @@ async function main() {
         ...(t.heard ? [{ role: "assistant" as const, content: t.heard }] : []),
         { role: "user" as const, content: t.said },
       ]);
-      const agenda = scene.beats.slice(state.beat).filter((b) => !state.done.includes(b.id)).map((b) => stageFor(b, inPlay));
+      // What this person holds for later and what the run has established, as the route reads them.
+      const held = heldBack(scene.beats, inPlay, state, spokenFor, {
+        any: askedNow !== null,
+        money: askedNow !== null && asksPrice(words(last?.said ?? ""), context.lexicon),
+      });
+      const established = establishedBy(state, inPlay);
+      const agenda = scene.beats.slice(state.beat).filter((b) => !state.done.includes(b.id))
+        .filter((b) => b.move !== "close" || b.id === spokenFor.id)
+        .map((b) => stageFor(b, inPlay, b.id === spokenFor.id ? new Set() : held));
       const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, inPlay));
       const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, inPlay) : null;
       const handing = (response === "help" || response === "moveOn") && answered
         ? offerFor(answered, inPlay, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null;
-      const facts = (inPlay?.props ?? []).map((prop) => {
-        const value = prop.english ?? prop.shown[0] ?? prop.value;
-        return `${prop.card.replace(/\.$/, "")}: ${value}${prop.theirs ? " (yours to tell them)" : " (on the learner's card)"}`;
-      });
+      const facts = factsFor(inPlay, scene.beats, held);
       const deviated = Boolean(askedNow) || last?.reading === "offtarget" || last?.reading === "incomplete";
       const theirs = deviated ? words(last?.said ?? "").filter((w) => context.lexicon.forms.has(w) || marking.marker.known?.(w)) : [];
       const beatFor = spokenFor;
       const cheap = await sceneLine({
         beat: beatFor, lexicon: context.lexicon,
-        gate: { ...context.gate, dealt: dealtNumbers(inPlay), times: clockInPlay(inPlay, context.lexicon) },
+        gate: {
+          ...context.gate, dealt: dealtNumbers(inPlay), times: clockInPlay(inPlay, context.lexicon),
+          held: (() => {
+            const kept = heldNumbers(inPlay, held);
+            const open = heldNumbers(inPlay, new Set((inPlay?.props ?? []).map((p) => p.slot).filter((slot) => !held.has(slot))));
+            const typed = new Set(state.turns.flatMap((t) => t.said.match(/\d{1,2}[:.]\d{2}|\d+/g) ?? []));
+            return new Set([...kept].filter((n) => !open.has(n) && !typed.has(n)));
+          })(),
+        },
         pool: (askedNow || handing) && LINKS.length > 0 ? [] : context.pool.get(beatFor.id) ?? [],
         topic: new Set([...(context.topic.get(beatFor.id) ?? []), ...theirs]),
         hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
@@ -147,7 +160,7 @@ async function main() {
         vouch: (spellings: readonly string[]) => vouchOf(context.lexicon, spellings),
         ...(LINKS.length > 0 ? {
           compose: (avoid: readonly string[], because?: string) => askLine(LINKS, {
-            move: beatFor.move, they: stageFor(beatFor, inPlay), reading: "", facts, because, agenda, settled,
+            move: beatFor.move, they: stageFor(beatFor, inPlay), reading: "", facts, because, agenda, settled, established,
             examples: [...context.scripted.entries()].filter(([id]) => id !== beatFor.id).flatMap(([, l]) => l.slice(0, 1)).slice(0, 6),
             asked: (context.scripted.get(beatFor.id) ?? []).slice(0, 2),
             note: composeNote(turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, askedNow, { offer: handing, answer: anticipated }),

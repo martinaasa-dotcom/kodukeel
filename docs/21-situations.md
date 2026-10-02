@@ -4993,3 +4993,45 @@ being told what it has already said. Run the critic before and after the next ch
 **The review.** `lib/scenes/recap.ts` counts the run and quotes the learner; "A note from Anu" is a
 model's short note on it, checked word by word against the conversation, with a sentence dropped
 rather than the note withheld where one reaches for a form nobody said.
+
+## §75 The other side keeps its word, keeps its figures for later, and hears what was meant
+
+Reported off two scenes in one sitting. A job interviewer named the salary while still asking about
+experience, so the learner's next objective, "ask what the pay is", asked about a figure already on
+the screen. A ticket seller said the bus would not leave tonight, was asked `Oi kurat, kas teil õlut
+on?`, and answered that there was no beer but the learner could get on the bus. And a turn that was
+wrong on purpose, and plain to anybody standing there, was refused. Four changes, and each is about
+every scene rather than the two reported.
+
+**A figure is kept for its beat** (`heldBack` in `lib/scenes/reply.ts`). A value on the other side's
+card that the scene says only at a beat still ahead is labelled "not yet" in the facts the model is
+handed, named rather than filled in the agenda it reads, and withheld by a new gate check, `ahead`,
+if a composed line states it anyway. A question releases it, since a question is owed an answer: a
+question about money releases a price, any question releases the rest.
+
+**What a curveball changed stays changed** (`CurveballSpec.stands`, `establishedBy`). The five
+curveballs that alter the situation (`not-possible`, `slot-gone`, `wrong-price`,
+`missing-document`, `place-instruction`) and `misheard` each say what stays true afterwards, from
+the other side's view, and every one this run raised is handed to the composer above the agenda as a
+fact it may not go back on. The rules open with consistency: nothing said is quietly undone, a
+question nobody planned for is answered in character from what the place plainly is, and a choice is
+offered only between things the person can actually give.
+
+**And a line the gate passed is read once more for logic** (`lib/scenes/consistency.ts`). One
+question on the grader chain, metered as a GRADER call: does this line contradict what was said or
+established, or settle something listed as coming later. A yes withholds it and the retry is told
+why in the reviewer's words; a reply nobody can read, a spent allowance or no key is read as no
+objection, since the line has passed every check that can be stated mechanically.
+
+**The judge reads a turn in its conversation.** It is handed the Estonian line the learner was
+answering and the turns before it, and told to read the turn as a kind native speaker there would:
+a misspelling, a nearly-right word, a right stem with the wrong ending and broken order all count
+where the meaning is plain. The composer's note for a turn the dictionary could not read now tells it
+that such a turn is often exactly that, and to check what was meant rather than say it did not
+understand. And picking one of two options the other side offered (`hommikul või pärastlõunal?`,
+answered `homme hommikul`) is an answer rather than an echo (`isEcho` in `lib/scenes/turn.ts`).
+
+**What it does not fix.** A keyless run speaks from the bank, and a banked line for a later beat
+was drafted against the beat alone: after `not-possible` it can still sell a ticket for today. The
+consistency rules reach a composed line and no other.
+

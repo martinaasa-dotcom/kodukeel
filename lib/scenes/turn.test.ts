@@ -1171,6 +1171,16 @@ describe("hello and goodbye the way people say them", () => {
   });
 });
 
+describe("answering a choice in its own words", () => {
+  it("is picking one, never an echo, and only the whole choice handed back is", () => {
+    const choose = beat({ needs: [{ kind: "lemma", oneOf: ["valu"] }], shape: "word" });
+    const picked = readTurn("mul on valu", choose, context({ previous: "Mul on valu või palavik?" }));
+    expect(picked.reading).not.toBe("echo");
+    const handedBack = readTurn("valu või palavik", choose, context({ previous: "Mul on valu või palavik?" }));
+    expect(handedBack.reading).toBe("echo");
+  });
+});
+
 describe("answering a yes-or-no question in its own words", () => {
   it("is an answer, never an echo", () => {
     const seen = readTurn("valu on", beat({ needs: [{ kind: "lemma", oneOf: ["valu"] }], shape: "word" }), context({ previous: "Kas valu on?" }));

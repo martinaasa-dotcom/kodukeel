@@ -298,6 +298,12 @@ export interface LineRequest {
    */
   readonly compose?: (avoid: readonly string[], because?: string) => Promise<string | null>;
   /**
+   * Asks whether a line the gate has passed goes back on anything already
+   * said or runs ahead of the agenda (`lib/scenes/consistency.ts`), and says
+   * why where it does. Null is no objection. Absent, nothing is asked.
+   */
+  readonly review?: (line: string) => Promise<string | null>;
+  /**
    * Whether this run speaks its model-written lines live or out of the bank.
    *
    * **Required rather than optional**, for the reason `scripted` and
@@ -436,9 +442,13 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
     */
     const attempts: (string | null)[] = [];
     const verdicts: (Verdict | null)[] = [];
+    /* What the consistency check said about the last line, said to the retry in its own words. */
+    let objection: string | null = null;
     for (let n = 0; n < MAX_COMPOSE_ATTEMPTS; n += 1) {
       const last = verdicts.at(-1) ?? null;
-      let line = await request.compose(retryNote(last), whyWithheld(last, request.beat.move));
+      const why = [whyWithheld(last, request.beat.move), objection].filter(Boolean).join(": ");
+      let line = await request.compose(retryNote(last), why || undefined);
+      objection = null;
       let verdict = await judge(line);
       /*
         A line held back for its goodbye alone keeps everything before it:
@@ -450,6 +460,15 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
         const trimmed = withoutFarewell(line, request.beat, gate);
         const again = trimmed ? await judge(trimmed) : null;
         if (trimmed && again && passes(again)) { line = trimmed; verdict = again; }
+      }
+      /*
+        AND A LINE THE GATE PASSED STILL HAS TO KEEP TO WHAT WAS SAID. Asked
+        only of a line that passed, since a line the gate withholds is retried
+        anyway and a second opinion on it is a call for nothing.
+      */
+      if (line && verdict && passes(verdict) && request.review) {
+        objection = await request.review(line);
+        if (objection) verdict = { ...verdict, failed: ["consistency"] };
       }
       attempts.push(line);
       verdicts.push(verdict);
@@ -521,6 +540,8 @@ export function whyWithheld(verdict: Verdict | null, move?: string): string | un
   const reasons: Record<Exclude<Check, "vouching" | "stretch">, string> = {
     facts: "it stated a number, a time or a price that is not among the facts you were given; you may only ever say those, and in digits, exactly as the facts give them",
     giveaway: "it said the very form you are waiting for them to produce, which would hand them the answer",
+    ahead: "it told them something you are keeping for later in the conversation (a figure, a time or a price you only reach further on); do not mention it yet, unless they ask for it",
+
     topic: "it was not about what you are doing at this moment, or about what they just said",
     // The ceiling is read off the gate rather than typed, so the retry is told
     // the limit the gate will actually apply to the line it writes next.
@@ -535,6 +556,7 @@ export function whyWithheld(verdict: Verdict | null, move?: string): string | un
       : move === "ask"
         ? `it was the wrong shape: your move is to ask, so the line holds your question, punctuated and unformatted, at most ${MAX_SENTENCES} sentences and ${MAX_COMPOSED_WORDS} words`
         : `it was the wrong shape: your move gives them something and asks them nothing, so leave out every question, even a check like "is that clear?"; punctuated and unformatted, at most ${MAX_SENTENCES} sentences and ${MAX_COMPOSED_WORDS} words`,
+    consistency: "it went back on something you had already said in this conversation, or told them something you keep for later",
     agreement: "its subject and its verb did not agree in person",
     infinitive: "it put the ma-infinitive where the da-infinitive belongs",
     negation: "a verb after the negator kept its personal ending",

@@ -25,6 +25,30 @@
  * the subject or said nothing to the point did not.
  */
 
+import { clip } from "@/lib/copy/clip";
+
+/** One line of the conversation, as the judge and the consistency check read it. */
+export interface SaidLine {
+  readonly role: "them" | "learner";
+  readonly text: string;
+}
+
+/**
+ * The last few lines of the conversation before a turn, both sides, so a turn
+ * is read as the answer to what was just asked rather than as a sentence on
+ * its own.
+ */
+export function earlierLines(
+  turns: readonly { readonly said: string; readonly heard?: string }[],
+  maxTurns: number,
+  maxChars: number,
+): SaidLine[] {
+  return turns.slice(-maxTurns).flatMap((turn) => [
+    ...(turn.heard ? [{ role: "them" as const, text: clip(turn.heard, maxChars) }] : []),
+    { role: "learner" as const, text: clip(turn.said, maxChars) },
+  ]);
+}
+
 export interface JudgeAsk {
   /** The beat's goal, English, as the learner saw it. */
   readonly goal: string;
@@ -40,6 +64,19 @@ export interface JudgeAsk {
   readonly reading: string;
   /** Values the role card dealt that this beat is about, English-labelled, if any. */
   readonly dealt: readonly string[];
+  /**
+   * WHAT THE OTHER PERSON ACTUALLY SAID, IN ESTONIAN, AND THE TURNS BEFORE IT.
+   *
+   * The judge was told the stage direction in English and the learner's turn,
+   * and nothing about the conversation it belonged to: a learner who wrote
+   * something wrong on purpose, perfectly clear to anybody standing there, was
+   * refused, because a sentence with a wrong word read on its own is a
+   * sentence with a wrong word, and the same sentence read as the answer to
+   * the question just asked is the answer. Optional so a harness that has no
+   * conversation still builds the prompt it built before.
+   */
+  readonly heard?: string;
+  readonly earlier?: readonly SaidLine[];
 }
 
 export interface Judgement {
@@ -65,12 +102,18 @@ export function buildJudgeSystemPrompt(): string {
     "Be strict about substance: asking a question instead, changing the subject, answering something else, saying only hello, or saying nothing to the point is not done.",
     "The learner's card gives them a value to say, and it is only a suggestion. If the goal asks for a value from the card and they stated a different value of the same kind (another destination, day, time, drink or number), that is done. Only a turn that states no such value at all is not done.",
     "A turn that answers the question in one word, in the wrong grammatical form, with a typo, or in English, is done if the thing was said.",
+    "Read it as a kind native speaker standing there would, with the conversation in mind: a misspelled word, a wrong word that sounds or looks like the right one, a word built on the right stem with the wrong ending, broken word order or missing words all count when a native speaker in this situation would understand what was meant. If you can tell what they meant and it does the thing, it is done.",
     "Reply with a JSON object only, no prose around it: {\"done\": true or false, \"why\": \"one short sentence\"}.",
   ].join("\n");
 }
 
 export function buildJudgeUserPrompt(ask: JudgeAsk): string {
   const lines = [
+    ...(ask.earlier && ask.earlier.length > 0
+      ? ["The conversation so far, oldest first:",
+        ...ask.earlier.map((line) => `${line.role === "them" ? "Other person" : "Learner"}: ${JSON.stringify(line.text)}`)]
+      : []),
+    ...(ask.heard ? [`What the other person had just said, in Estonian: ${JSON.stringify(ask.heard)}`] : []),
     `What the other person had just done: ${ask.they}`,
     `The learner's goal for this turn: ${ask.goal}`,
     ...(ask.dealt.length > 0

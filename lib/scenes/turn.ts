@@ -36,6 +36,7 @@ import { clausesOf, words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
 import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
 import { numberFromText, timeFromText, type SlotKind } from "./props";
+import { CHOICE_WORD } from "./choice";
 import { leafNeeds, type BeatSpec, type Requirement } from "./types";
 
 /**
@@ -1425,6 +1426,14 @@ function isEcho(spoken: readonly string[], previous: string): boolean {
     back.
   */
   if (said[0] === "kas") return false;
+  /*
+    AND PICKING ONE OF TWO IS ANSWERING. Offered `hommikul või pärastlõunal?`,
+    a learner who wrote `homme hommikul` chose, and every word of it was in
+    the line they were answering, so the rule read the choice as parroting
+    and the other side asked again. A line that offers a choice is answered
+    with its own words; only handing the whole choice back is an echo.
+  */
+  if (said.includes(CHOICE_WORD) && !spoken.includes(CHOICE_WORD)) return false;
   const heard = new Set(said);
   return spoken.every((word) => heard.has(word));
 }

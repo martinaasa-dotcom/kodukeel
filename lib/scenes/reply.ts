@@ -379,7 +379,12 @@ export function cardChosen(
  * it, at which point `cardAfterHurdles` and `cardInPlay` have already stood
  * it in under the original slot and it is told as that.
  */
-export function factsFor(card: RoleCard | null, beats: readonly BeatSpec[]): string[] {
+export function factsFor(
+  card: RoleCard | null,
+  beats: readonly BeatSpec[],
+  /** Values of theirs the scene says later (`heldBack`), labelled so the model keeps them. */
+  held: ReadonlySet<string> = new Set(),
+): string[] {
   if (!card) return [];
   const reserve = new Set<string>();
   for (const beat of beats) for (const [, to] of beat.counter?.replaces ?? []) reserve.add(to);
@@ -389,8 +394,116 @@ export function factsFor(card: RoleCard | null, beats: readonly BeatSpec[]): str
     .map((prop) => {
       const value = prop.english ?? prop.shown[0] ?? prop.value;
       const label = prop.card.replace(/\.$/, "");
-      return `${label}: ${value}${prop.theirs ? " (yours to tell them)" : " (on the learner's card)"}`;
+      const whose = !prop.theirs
+        ? " (on the learner's card)"
+        : held.has(prop.slot)
+          ? " (yours, but NOT YET: keep it until your move comes to it or they ask for it)"
+          : " (yours to tell them)";
+      return `${label}: ${value}${whose}`;
     });
+}
+
+/**
+ * Every card slot a beat names, in its stage directions or in a line it says.
+ */
+export function slotsOf(beat: BeatSpec): Set<string> {
+  const out = new Set<string>();
+  const texts = [beat.they, beat.answer ?? "", beat.counter?.they ?? "", beat.meanwhile ?? ""];
+  for (const text of texts) for (const match of text.matchAll(/\{(\w+)\}/g)) out.add(match[1]!);
+  for (const part of [...(beat.says ?? []), ...(beat.counter?.says ?? [])]) {
+    if ("slot" in part && part.slot) out.add(part.slot);
+  }
+  return out;
+}
+
+/**
+ * WHAT THIS PERSON KNOWS AND HAS NOT REACHED YET, WHICH IS NOT THE SAME AS
+ * WHAT THEY MAY SAY.
+ *
+ * A job interview's card deals the wage the interviewer offers, and the model
+ * was told it from the first line as "yours to tell them". It told it: the
+ * pay came up while the interviewer was still asking about experience, and
+ * three turns later the learner's objective still read "ask what the pay is",
+ * about a figure already on the screen. A person holding a figure they will
+ * offer later does not open with it. So a value of theirs that the scene says
+ * only at a beat still ahead is held back until that beat is in play or done,
+ * and `heldNumbers` is what the gate withholds for it (`ahead`).
+ *
+ * Released early by exactly one thing, the learner asking for it: a question
+ * about money releases a price, and any question releases the rest, because a
+ * question is owed an answer and a held fact is still a fact.
+ */
+export function heldBack(
+  beats: readonly BeatSpec[],
+  card: RoleCard | null,
+  state: Pick<SceneState, "beat" | "done" | "hurdle" | "hurdles">,
+  speaking: BeatSpec | null,
+  asked: { readonly any: boolean; readonly money: boolean } = { any: false, money: false },
+): Set<string> {
+  const held = new Set<string>();
+  if (!card) return held;
+  const spoken = new Set<string>();
+  const ahead = new Set<string>();
+  beats.forEach((beat, at) => {
+    const slots = slotsOf(beat);
+    const reached = at <= state.beat || state.done.includes(beat.id) || beat.id === speaking?.id;
+    for (const slot of slots) (reached ? spoken : ahead).add(slot);
+  });
+  if (speaking) for (const slot of slotsOf(speaking)) spoken.add(slot);
+  // A curveball that changed a value has said it, both the old and the new.
+  const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
+  for (const id of raised) for (const pair of curveballById(id)?.replaces ?? []) for (const slot of pair) spoken.add(slot);
+  for (const prop of card.props) {
+    if (!prop.theirs || spoken.has(prop.slot) || !ahead.has(prop.slot)) continue;
+    const money = prop.price === true;
+    if (asked.money && money) continue;
+    if (asked.any && !money) continue;
+    held.add(prop.slot);
+  }
+  return held;
+}
+
+/** Every digit spelling a held value could be written in, for the gate's `ahead` check. */
+export function heldNumbers(card: RoleCard | null, held: ReadonlySet<string>): Set<string> {
+  const out = new Set<string>();
+  for (const prop of card?.props ?? []) {
+    if (!held.has(prop.slot)) continue;
+    for (const value of prop.literal) if (/\d/.test(value)) out.add(value);
+  }
+  return out;
+}
+
+/**
+ * WHAT THIS CONVERSATION HAS ALREADY ESTABLISHED, WHICH NOTHING SAID LATER MAY
+ * UNDO.
+ *
+ * At a bus window the other side said the bus would not leave tonight, the
+ * learner asked whether they had beer, and the reply was that there was no
+ * beer but they could get on the bus: the curveball had been dealt with, the
+ * scene's next beat was selling a ticket for tonight, and nothing in front of
+ * the model said that tonight was off. A curveball that changes the situation
+ * says what stays true after it (`CurveballSpec.stands`), and every one this
+ * run raised is handed to the model as a fact it may not go back on, met or
+ * let go alike, because the other side said it either way.
+ */
+export function establishedBy(
+  state: Pick<SceneState, "hurdle" | "hurdles">,
+  card: RoleCard | null,
+): string[] {
+  const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const id of raised) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const stands = curveballById(id)?.stands;
+    if (!stands) continue;
+    out.push(stands.replace(/\{(\w+)\}/g, (whole, slot: string) => {
+      const prop = card ? propBySlot(card, slot) : undefined;
+      return prop?.english ?? prop?.value ?? whole;
+    }));
+  }
+  return out;
 }
 
 /**
@@ -723,9 +836,12 @@ export function composeNote(
     again, warmly, so a turn nobody could read does not end in a dead stop.
   */
   if (reading === "unrecognised") {
-    return "You could not make out what they said. Ask again for the same thing, gently and in"
-      + " your own words, as a person who did not catch something does. Do not tell them their"
-      + " Estonian is wrong and do not give up on the question.";
+    return "The dictionary could not read what they wrote, which is often a misspelling, a wrong"
+      + " ending or a nearly-right word that a native speaker would still follow. If, in this"
+      + " situation, you can tell roughly what they meant, show it: say back what you think they"
+      + " meant as a quick check, the way a person does, and go on from there. Only if you"
+      + " genuinely cannot tell, ask again for the same thing, gently and in your own words. Do"
+      + " not tell them their Estonian is wrong and do not give up on the question.";
   }
   return question ? question.trim() : undefined;
 }
@@ -1261,8 +1377,18 @@ function sayAgainWanted(
  * filled in. `{time}` becomes the time this run dealt, so a stage direction
  * for an offer offers the time on the learner's own card rather than "a time".
  */
-export function stageFor(beat: BeatSpec, card: RoleCard | null): string {
+export function stageFor(
+  beat: BeatSpec,
+  card: RoleCard | null,
+  /**
+   * Values held for later (`heldBack`), named rather than filled: an agenda
+   * that reads "they offer 1550 euros" three beats early is an invitation to
+   * say 1550 now.
+   */
+  held: ReadonlySet<string> = new Set(),
+): string {
   return beat.they.replace(/\{(\w+)\}/g, (whole, slot: string) => {
+    if (held.has(slot)) return "(the figure you keep for then)";
     const prop = card ? propBySlot(card, slot) : undefined;
     // A drawn word is named in English inside an English sentence, where the caller supplied one.
     return prop?.english ?? prop?.value ?? whole;

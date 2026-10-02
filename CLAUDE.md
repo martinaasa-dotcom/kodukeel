@@ -9561,6 +9561,19 @@ learner is trying to say, a model writes the learner's line (§32). Measured aft
 twenty.
 
 
+**The other side keeps its word, and keeps a figure for its beat.** An interviewer named the
+salary while still asking about experience, and a ticket seller who had said no bus would leave
+tonight told a learner asking for beer that they could get on the bus. A value of theirs the scene
+says at a later beat is held back (`heldBack`): labelled "not yet" in the facts, named rather than
+filled in the agenda, and withheld by the gate's `ahead` check if a composed line says it anyway,
+until that beat or a question releases it. A curveball that changes the situation says what stays
+true (`CurveballSpec.stands`) and every one raised is handed to the composer as established
+(`establishedBy`). A line the gate passed is asked once more, on the grader chain and metered,
+whether it contradicts what was said or settles something early (`lib/scenes/consistency.ts`); it
+fails open, since the line has already passed every mechanical check. The judge is handed the line
+the learner was answering and the turns before it, and reads a turn as a native speaker standing
+there would. `docs/21-situations.md` §75.
+
 **The judge had never run, and nothing said so.** In `/api/scene` the hoisted `readingOf` read a
 `let readOnce` declared about seven hundred lines below the first call to it, so every judge call
 threw "Cannot access 'readOnce' before initialization" inside a `catch` that treated a throw as "the
