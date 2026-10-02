@@ -23,10 +23,15 @@ import { NOT_REACHED } from "@/lib/copy/values";
  * on: a row that vanishes with no word about whether it worked is worse than
  * a slower one that says.
  */
-export function DeepenButton({ group, label }: {
+export function DeepenButton({ group, label, variant = "primary" }: {
   group: FrequencyGroup;
   /** What the button says when there is work to do. */
   label?: string;
+  /**
+   * Quiet beside "Start the round", loud where it is the only way on. One
+   * loud action per card is `Button`'s own rule.
+   */
+  variant?: "primary" | "secondary";
 }) {
   const [note, setNote] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -44,7 +49,7 @@ export function DeepenButton({ group, label }: {
 
   return (
     <div className="flex flex-col gap-2">
-      <Button type="button" variant="primary" onClick={add} disabled={pending}>
+      <Button type="button" variant={variant} onClick={add} disabled={pending}>
         <Plus size={15} aria-hidden />
         {pending ? "Adding…" : label ?? `Add the next ${COMMON_BATCH}`}
       </Button>
