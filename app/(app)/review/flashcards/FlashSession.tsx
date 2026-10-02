@@ -1,5 +1,6 @@
 "use client";
 
+import { endingName } from "@/lib/estonian/plainAsk";
 import { PARTS } from "@/lib/copy/values";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert } from "lucide-react";
@@ -633,8 +634,10 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         */}
         {isForm(task.slot) && (
           <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-            <span lang="et" data-flash-slot="">{task.label}</span>
-            {english && <>, {english}</>}
+            {/* A case says its name and the one word it means, `alalütlev: the
+                “onto” ending`, rather than its name and its questions twice. */}
+            <span lang="et" data-flash-slot="">{endingName(task.slot) ?? task.label}</span>
+            {!endingName(task.slot) && english && <>, {english}</>}
           </p>
         )}
       </div>

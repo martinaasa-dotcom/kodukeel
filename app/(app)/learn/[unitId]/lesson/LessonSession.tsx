@@ -1,5 +1,6 @@
 "use client";
 
+import { endingName } from "@/lib/estonian/plainAsk";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -735,7 +736,7 @@ function StepCard({
           {/* The ending's name, once the answer is in, as the thing to keep. */}
           {checked && (
             <span className="text-sm" style={{ color: "var(--ink-2)" }}>
-              That ending is the <span lang="et" className="font-semibold">{step.caseName}</span>.
+              <span lang="et">{endingName(step.caseKey) ?? step.caseName}</span>
             </span>
           )}
           {checked && <Continue onNext={onNext} />}

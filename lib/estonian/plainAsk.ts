@@ -1,3 +1,5 @@
+import { caseByKey } from "./cases";
+
 /**
  * WHAT A SLOT IS ASKING FOR, IN THE WORDS SOMEBODY WOULD USE OUT LOUD.
  *
@@ -174,4 +176,45 @@ export function sayShort(slot: string): string | null {
 export function plainAskLine(slot: string): string | null {
   const phrase = sayShort(slot);
   return phrase ? `Say “${phrase}”` : null;
+}
+
+/*
+  THE NAME OF AN ENDING, AFTER THE ANSWER, IN THE FEWEST WORDS.
+
+  Once the answer is on the screen the card names the ending, so the learner
+  has something to call it, by the Estonian name their class uses. It used to
+  print that name, then the two questions the case answers in Estonian, then
+  the same two in English, and a learner asked for that to be simpler too. The
+  name and the one English word it means is enough: "<name>: the “with”
+  ending". The name is read off `CASES`, so this file still types no Estonian.
+*/
+
+/** The one English word each case means, for naming it after the answer. */
+const ENDING_WORD: Readonly<Record<string, string>> = {
+  GENITIVE: "of",
+  PARTITIVE: "some of",
+  ILLATIVE: "into",
+  INESSIVE: "in",
+  ELATIVE: "out of",
+  ALLATIVE: "onto, or to",
+  ADESSIVE: "on, or has",
+  ABLATIVE: "off, or from",
+  TRANSLATIVE: "becoming",
+  TERMINATIVE: "up to",
+  ESSIVE: "as",
+  ABESSIVE: "without",
+  COMITATIVE: "with",
+};
+
+/**
+ * `<name>: the “with” ending`, or null for a slot that is not a case.
+ *
+ * The nominative is the plain word rather than an ending, so it says so.
+ */
+export function endingName(slot: string): string | null {
+  const spec = caseByKey(slot);
+  if (!spec) return null;
+  if (spec.key === "NOMINATIVE") return `${spec.et}: the plain word`;
+  const word = ENDING_WORD[spec.key];
+  return word ? `${spec.et}: the “${word}” ending` : spec.et;
 }

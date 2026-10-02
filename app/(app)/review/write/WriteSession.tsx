@@ -1,5 +1,6 @@
 "use client";
 
+import { endingName } from "@/lib/estonian/plainAsk";
 import { useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, CircleAlert, Loader2, PenLine } from "lucide-react";
@@ -312,7 +313,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
             <p role="alert" className="mt-3 text-sm" style={{ color: "var(--again-ink)" }}>{error}</p>
           )}
 
-          {marked && <Feedback caseName={prompt.caseEt} marked={marked} />}
+          {marked && <Feedback caseName={endingName(prompt.caseKey) ?? prompt.caseEt} marked={marked} />}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
@@ -377,7 +378,7 @@ function Feedback({ marked, caseName }: { marked: Marked; caseName: string }) {
           {/* The ending's name, once the answer is in: here it is the thing to
               remember, where before the answer it was a thing to decode. */}
           <span className="mt-1 block text-sm">
-            That ending is the <span lang="et" className="font-semibold">{caseName}</span>.
+            <span lang="et">{caseName}</span>.
           </span>
         </p>
       </div>
