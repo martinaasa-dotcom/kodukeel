@@ -55,7 +55,16 @@ export function WordExceptions({ exceptions }: { exceptions: readonly WordExcept
 }
 
 /** One departure: what it is called, what the form is, and what to do with it. */
-export function ExceptionNote({ exception: ex }: { exception: WordException }) {
+export function ExceptionNote({ exception: ex, explained = false }: {
+  exception: WordException;
+  /**
+   * The page around it already says what this kind of exception is. On a
+   * kind's own page the same paragraph under every one of 144 words was the
+   * page's lead printed 144 times, which is a wall of text made of one
+   * sentence; there the note is the form and its name, and nothing else.
+   */
+  explained?: boolean;
+}) {
   const note = KIND_NOTES[ex.kind];
   const ask = plainAskLine(ex.slot);
 
@@ -86,9 +95,11 @@ export function ExceptionNote({ exception: ex }: { exception: WordException }) {
         <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>{ask}</p>
       )}
 
-      <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {note.what}
-      </p>
+      {!explained && (
+        <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          {note.what}
+        </p>
+      )}
 
       <AlsoRight
         short={ex.forms[0] ?? null}

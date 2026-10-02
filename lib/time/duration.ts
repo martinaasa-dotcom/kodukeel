@@ -43,7 +43,11 @@ function unitFor(hours: number): Unit {
 function amountIn(hours: number, unit: Unit): number {
   return unit === "min"
     ? Math.round(hours * MINUTES_PER_HOUR)
-    : Math.round(hours * 10) / 10;
+    /* A tenth of an hour is the signal below ten and noise above it:
+       "72.9 to 100 h" printed a decimal nobody measured and was long enough
+       to break its own unit onto a second line of a stat tile. The rule is
+       `formatAnswerTime`'s below, one unit up. */
+    : hours >= 10 ? Math.round(hours) : Math.round(hours * 10) / 10;
 }
 
 function label(amount: number, unit: Unit, style: DurationStyle): string {

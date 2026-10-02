@@ -26,7 +26,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 import { WayOut } from "@/components/round/RoundExit";
-import { BriefingLines } from "@/components/round/Briefing";
+import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart } from "@/components/round/RoundStart";
 import { FitText } from "@/components/FitText";
 
@@ -363,7 +363,7 @@ export function QuestSession({
           , up to ten times this.
         </>}
       >
-        <p><BriefingLines id="quest" /></p>
+        <BriefingSteps id="quest" />
         {/*
           The chart is why the round is worth pressing: this learner's own
           weakest endings, each a bar as long as how often it comes out right.

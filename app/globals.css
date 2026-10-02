@@ -4543,3 +4543,23 @@ input[data-hop][data-hop-end="cw-land"] { animation: cw-land 0.34s cubic-bezier(
    clip. */
 .night.night-open { overflow: visible; }
 @media print { .night { background: none !important; } }
+
+/*
+  A PART OF THE DEBRIEF IS A PANEL, NOT A HEADING AND SOME LOOSE LINES.
+
+  What to try next, what got done, how it went, the words it needed and the
+  one thing to work on were five small grey labels over plain text, stacked
+  between a night card and a grid of tiles, and the middle of the screen read
+  as a document rather than as the rest of the app. Each is the surface every
+  card here sits on, so the screen is one set of objects from top to bottom.
+*/
+.recap-panel {
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-xl);
+  box-shadow: var(--depth);
+  padding: 1.25rem 1.25rem 1.375rem;
+}
+@media (min-width: 768px) {
+  .recap-panel { padding: 1.5rem 1.75rem 1.625rem; }
+}

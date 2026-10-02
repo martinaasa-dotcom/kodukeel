@@ -100,13 +100,16 @@ export default async function ExceptionKindPage({ params }: { params: Promise<{ 
         ) : (
           <section>
             <SectionTitle hint={counted(group.entries.length, "word")}>Learn these one by one</SectionTitle>
-            <ul className="flex flex-col gap-3">
+            {/* Two across from `md`: with the paragraph gone each card is a
+                word, its form and a line, and a single column of those is a
+                long scroll of mostly empty width. */}
+            <ul className="grid gap-3 xl:grid-cols-2">
               {group.entries.map((entry) => {
                 const exception = entry.exceptions.find((e) => e.kind === group.kind);
                 if (!exception) return null;
                 return (
-                  <li key={entry.id}>
-                    <Card>
+                  <li key={entry.id} className="flex">
+                    <Card className="w-full">
                       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
                         <Link
                           href={`/dictionary?q=${encodeURIComponent(entry.lemma)}`}
@@ -125,7 +128,7 @@ export default async function ExceptionKindPage({ params }: { params: Promise<{ 
                         </span>
                       </div>
                       <div className="mt-3">
-                        <ExceptionNote exception={exception} />
+                        <ExceptionNote exception={exception} explained />
                       </div>
                       {/*
                         The rest of what this word does, where it does more than

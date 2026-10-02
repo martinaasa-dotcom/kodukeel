@@ -26756,7 +26756,7 @@ check("every round says what is about to happen before it happens", () => {
     child element and so is not mounted: no clock has started and no clip has
     played behind the screen somebody is reading. Five rounds already opened
     on a start screen of their own, which is the same thing arrived at
-    earlier, and those read `BriefingLines` so the wording still comes off one
+    earlier, and those read `BriefingSteps` so the wording still comes off one
     table rather than each round answering "what is this" in its own words.
 
     The haystack is a page that renders a session, read through `code()` so a
@@ -26781,7 +26781,7 @@ check("every round says what is about to happen before it happens", () => {
     */
     const named = [...page.matchAll(/<([A-Z][A-Za-z]*Session)\b/g)].map((m) => m[1]);
     const drawn = named.some((name) =>
-      COMPONENTS.concat(APP).some((f) => f.endsWith(`${name}.tsx`) && /<BriefingLines\b/.test(code(f))),
+      COMPONENTS.concat(APP).some((f) => f.endsWith(`${name}.tsx`) && /<BriefingSteps\b/.test(code(f))),
     );
     if (!drawn) missing.push(key);
   }
@@ -26812,7 +26812,7 @@ check("every round says what is about to happen before it happens", () => {
   */
   const ids = new Set(Object.keys(BRIEFINGS));
   for (const file of ALL) {
-    for (const m of code(file).matchAll(/<(?:BeforeYouStart|BriefingLines)\b[^>]*?\bid="([^"]+)"/g)) {
+    for (const m of code(file).matchAll(/<(?:BeforeYouStart|BriefingSteps)\b[^>]*?\bid="([^"]+)"/g)) {
       assert.ok(ids.has(m[1]!), `${file} asks for a briefing called "${m[1]}" that lib/copy/briefings.ts does not hold`);
     }
   }

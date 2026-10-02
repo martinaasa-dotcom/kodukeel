@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
  * THE SCREEN A TIMED ROUND OR A BOARD OPENS ON, DRAWN ONCE.
  *
  * Five rounds carry a start screen of their own rather than a briefing in
- * front of them (see `BriefingLines` in ./Briefing.tsx), and each had drawn it
+ * front of them (see `BriefingSteps` in ./Briefing.tsx), and each had drawn it
  * its own way: a mint wash on one, butter on the next, a bare icon and a
  * paragraph on the third. They are one moment, the same one the briefing is,
  * so they are one drawing and it is the briefing's: a night panel, the round's

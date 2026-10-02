@@ -12,7 +12,7 @@ import { Empty, Page, Stat } from "@/components/ui";
 import { shuffle } from "@/lib/random/shuffle";
 import { OPTION_CLASS } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
-import { BriefingLines } from "@/components/round/Briefing";
+import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 
 export interface MatchPair {
@@ -213,7 +213,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
           </Button>
         }
       >
-        <p><BriefingLines id="match" /> Get a pair right first time and it counts as a good review of that word.</p>
+        <BriefingSteps id="match" more="A pair right first time counts as a good review of that word." />
       </RoundStart>
     );
   }

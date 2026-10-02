@@ -19,7 +19,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapMeaning } from "@/lib/copy/gapMeaning";
 import { WayOut } from "@/components/round/RoundExit";
-import { BriefingLines } from "@/components/round/Briefing";
+import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { FitText } from "@/components/FitText";
@@ -187,10 +187,10 @@ export function SprintSession({
           , up to ten times this.
         </>}
       >
-        <p>
-          <BriefingLines id="sprint" /> {ADVANCE_KEY_LABEL} flips the card. Press it again if you got it,
-          or Backspace if you missed it.
-        </p>
+        <BriefingSteps
+          id="sprint"
+          more={<>{ADVANCE_KEY_LABEL} flips the card. Press it again if you got it, or Backspace if you missed it.</>}
+        />
       </RoundStart>
     );
   }

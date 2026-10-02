@@ -10,7 +10,7 @@ import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { TargetQuestion } from "@/lib/progress/target";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { WayOut } from "@/components/round/RoundExit";
-import { BriefingLines } from "@/components/round/Briefing";
+import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useModuleFocus } from "@/components/course/moduleFocus";
@@ -157,10 +157,10 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
           , up to ten times this.
         </>}
       >
-        <p>
-          <BriefingLines id="target" /> When all four are the same word, the little question word
-          is your only clue.
-        </p>
+        <BriefingSteps
+          id="target"
+          more="When all four are the same word, the little question word is your only clue."
+        />
       </RoundStart>
     );
   }

@@ -119,20 +119,7 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
             {count.n} {plural} in this round
           </p>
         )}
-        <ol className="round-brief-gap flex flex-col gap-2 text-left">
-          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-2.5 sm:px-3.5" style={{ background: "rgb(255 255 255 / 0.06)", border: "1px solid rgb(255 255 255 / 0.1)" }}>
-            <span aria-hidden className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full" style={{ background: "var(--sky)", color: "var(--on-hue)" }}>
-              <Eye size={14} />
-            </span>
-            <span className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{brief.what}</span>
-          </li>
-          <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-2.5 sm:px-3.5" style={{ background: "rgb(255 255 255 / 0.1)", border: "1px solid rgb(255 255 255 / 0.16)" }}>
-            <span aria-hidden className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full" style={{ background: "var(--cta)", color: "var(--on-hue)" }}>
-              <MousePointerClick size={14} />
-            </span>
-            <span className="text-sm font-semibold leading-relaxed" style={{ color: "var(--ink)" }}>{brief.you}</span>
-          </li>
-        </ol>
+        <BriefingSteps what={brief.what} you={brief.you} className="round-brief-gap" />
         <div className="round-brief-gap flex justify-center">
           <Button
             variant="primary"
@@ -148,24 +135,44 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
 }
 
 /**
- * The same two sentences, for a round that already opens on a screen of its
- * own.
+ * The two marked steps on their own: what arrives on the screen beside an eye,
+ * and what the learner does about it beside a pointer.
  *
- * Five rounds had one before this existed: the three with a clock, the
- * picture board and the daily quest each draw a card saying what they are
- * and offering a Start. Putting a briefing in front of one of those is two
- * screens before the round, which is a press for nothing, so they read the
- * table here instead and the wording is still one table's. What stays theirs
- * is everything that is a fact about this sitting rather than about the
- * round: how long the clock runs, how many cards are loaded, the personal
- * best.
+ * The briefing draws them, and so do the start screens a timed round or a
+ * board opens on, which used to put the same two sentences in one centred
+ * paragraph with a third sentence run on after them. On a night panel a
+ * paragraph is the one thing that reads as a wall; two marked steps are what
+ * every other round opens on, so the four that differed now look the same.
+ * `more` is a fact about this round that belongs with what to do, such as
+ * which key flips a card, and it rides at the end of the second step.
  */
-export function BriefingLines({ id, className = "" }: { id: BriefingId; className?: string }) {
-  const brief = briefingFor(id);
-  if (!brief) return null;
+export function BriefingSteps({ id, what, you, more, className = "" }: {
+  id?: BriefingId;
+  what?: string;
+  you?: string;
+  more?: ReactNode;
+  className?: string;
+}) {
+  const brief = id ? briefingFor(id) : null;
+  const first = what ?? brief?.what;
+  const second = you ?? brief?.you;
+  if (!first || !second) return null;
   return (
-    <span className={className} data-briefing-lines={id}>
-      {brief.what} {brief.you}
-    </span>
+    <ol className={`flex flex-col gap-2 text-left ${className}`} data-briefing-lines={id}>
+      <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-2.5 sm:px-3.5" style={{ background: "rgb(255 255 255 / 0.06)", border: "1px solid rgb(255 255 255 / 0.1)" }}>
+        <span aria-hidden className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full" style={{ background: "var(--sky)", color: "var(--on-hue)" }}>
+          <Eye size={14} />
+        </span>
+        <span className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{first}</span>
+      </li>
+      <li className="flex items-start gap-3 rounded-[var(--r-lg)] px-3 py-2.5 sm:px-3.5" style={{ background: "rgb(255 255 255 / 0.1)", border: "1px solid rgb(255 255 255 / 0.16)" }}>
+        <span aria-hidden className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full" style={{ background: "var(--cta)", color: "var(--on-hue)" }}>
+          <MousePointerClick size={14} />
+        </span>
+        <span className="text-sm font-semibold leading-relaxed" style={{ color: "var(--ink)" }}>
+          {second}{more && <> {more}</>}
+        </span>
+      </li>
+    </ol>
   );
 }

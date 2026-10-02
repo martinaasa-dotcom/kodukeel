@@ -301,7 +301,9 @@ export function retentionReading(
       // answered by reading the case up. The copy pass that took the figures
       // out of these strings took the second cause with them, on the one
       // branch where a learner most needs to be told there is more than one.
-      advice: "That usually means too many new words at once, or words you met before their grammar made sense. Ease off new words for a week, and read up on whichever case keeps turning up in the list below.",
+      // Both causes still, in half the words: it was seven lines in a narrow
+      // column on Progress, which is a paragraph where a reading belongs.
+      advice: "Usually too many new words at once, or words met before their grammar. Ease off for a week and read up on the case that keeps going wrong.",
     };
   }
 

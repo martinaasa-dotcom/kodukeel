@@ -42,6 +42,13 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
       title="Leech clinic"
       lead="The words that just won't stick, and a good guess at why."
     >
+      <p className="-mt-2 mb-3 flex items-center gap-2 text-sm" style={{ color: "var(--ink-3)" }}>
+        <span aria-hidden className="inline-flex items-end gap-0.5">
+          <span className="h-2.5 w-2 rounded-[2px]" style={{ background: "var(--again)" }} />
+          <span className="h-1 w-2 rounded-[2px]" style={{ background: "var(--good)" }} />
+        </span>
+        Each mark is one try, oldest first. A tall one is a miss.
+      </p>
       <div className="flex flex-col gap-4">
         {items.map((leech) => {
           const state = handled[leech.cardId];
@@ -182,8 +189,9 @@ function Timeline({ history }: { history: { rating: number; at: string }[] }) {
         })}
       </div>
       <p className="mt-1.5 text-2xs" style={{ color: "var(--ink-3)" }}>
-        Missed {failures} {failures === 1 ? "time" : "times"} in the last {shown.length} tries.
-        The tall marks are the misses.
+        {/* The count is the caption; how to read the marks is said once, over
+            the list, rather than under every card in it. */}
+        Missed {failures} of the last {shown.length}.
       </p>
     </div>
   );

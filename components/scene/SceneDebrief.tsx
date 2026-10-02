@@ -235,7 +235,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         </section>
       )}
       {recap.nextTime.length > 0 && (
-        <section data-recap-next>
+        <section data-recap-next className="recap-panel">
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Try next time</h3>
           <ul className="flex flex-col gap-2">
             {recap.nextTime.map((tip) => (
@@ -251,7 +251,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         </section>
       )}
 
-      <section>
+      <section className="recap-panel">
         {/*
           The heading follows the list. "What you got done" over six unticked
           rows is a heading arguing with what is under it, and the run where
@@ -279,7 +279,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       </section>
 
       {hurdles.length > 0 && (
-        <section>
+        <section className="recap-panel">
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>What went wrong on the way</h3>
           {/*
             The curveballs this run drew, and whether each was dealt with.
@@ -306,7 +306,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         </section>
       )}
 
-      <section>
+      <section className="recap-panel">
         <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>How it went</h3>
         {/*
           The lead is the sentence a learner takes away, and it is about being
@@ -390,7 +390,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       </section>
 
       {gaps.length > 0 && (
-        <section>
+        <section className="recap-panel">
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
             Words this conversation needed
           </h3>
@@ -419,7 +419,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       )}
 
       {missed && drill && (
-        <section>
+        <section className="recap-panel">
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>A drill for what was left</h3>
           {/*
             NAMED HERE ONLY WHERE THERE IS A DRILL TO NAME IT FOR.
