@@ -294,7 +294,11 @@ const again = await question();
   The word is the part that has to hold: the slot is a function of its own
   unchanged history, so the same word first means the same slot asked.
 */
-const named = again.text.includes(firstLabel ?? "\u0000");
+// And the plain instruction, `Say “onto France”`, which is what an inflect
+// card leads with now: the form's name is printed after the answer instead.
+const sayOf = (text) => text.match(/(?:Say|Write a sentence with) “[^”]+”/)?.[0] ?? null;
+const named = again.text.includes(firstLabel ?? "\u0000")
+  || (sayOf(first.text) !== null && sayOf(first.text) === sayOf(again.text));
 const heard = /type the form you hear/i.test(again.text);
 const sameQuestion = wordOf(again.text) === firstWord && (named || heard);
 check("a reload comes back to the same question", sameQuestion,

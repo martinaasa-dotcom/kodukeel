@@ -11,7 +11,7 @@ import { Card, KeyCap, Note, SectionTitle, Stack } from "@/components/ui";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { caseByKey } from "@/lib/estonian/cases";
 import { CASE_GROUPS, caseReference } from "@/lib/estonian/grammar";
-import { plainAskLine } from "@/lib/estonian/plainAsk";
+import { sayLine } from "@/lib/estonian/sayIt";
 import type { CaseWalk, WalkForm, WalkSentence, WalkWord } from "@/lib/progress/caseWalk";
 import { endingOptions } from "@/lib/questions/caseEndings";
 import { rng, seedFrom } from "@/lib/random/seeded";
@@ -879,7 +879,7 @@ function YourTurn({ word }: { word: WalkWord }) {
 
   const done = at >= asks.length - 1 && picked !== null;
   const ref = caseReference(form.key);
-  const ask = plainAskLine(form.key);
+  const ask = sayLine(form.key, word.translation);
 
   const next = () => {
     setPicked(null);

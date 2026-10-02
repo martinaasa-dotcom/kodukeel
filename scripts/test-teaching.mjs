@@ -319,7 +319,7 @@ check("and the other spelling is named beside it rather than hidden",
 
 // The last act asks for an ending and marks the answer itself.
 await page.getByRole("button", { name: /Try one yourself/ }).click();
-const asked = page.locator("main").getByText(/^How do you say this/);
+const asked = page.locator("main").getByText(/^Say “/);
 check("the last act asks in words a beginner can act on", (await asked.count()) > 0);
 await page.keyboard.press("1");
 const verdict = (await page.locator("[role=status]").first().innerText()).trim();
