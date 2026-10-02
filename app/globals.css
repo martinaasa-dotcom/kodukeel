@@ -4527,7 +4527,11 @@ input[data-hop][data-hop-end="cw-land"] { animation: cw-land 0.34s cubic-bezier(
   column-gap: 0.5em;
   row-gap: 0.25em;
 }
-.case-label > * { white-space: nowrap; }
+/* The name and the question each stay whole; the English reading wraps at its
+   spaces, because nowrap on a long reading is a min-content floor that pushed
+   the exam paper 25px past a 390px phone. */
+.case-label { max-width: 100%; min-width: 0; }
+.case-label-name, .case-label-ask { white-space: nowrap; }
 .case-label-name {
   font-weight: 600;
   color: var(--accent-deep);

@@ -390,7 +390,7 @@ export function QuestSession({
                     ) : (
                       <span lang="et" className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{c.et}</span>
                     )}
-                    <span className="tnum text-sm font-semibold" style={{ color: "var(--ink)" }}>
+                    <span className="tnum shrink-0 whitespace-nowrap text-sm font-semibold" style={{ color: "var(--ink)" }}>
                       {c.accuracy}% right
                     </span>
                   </div>
