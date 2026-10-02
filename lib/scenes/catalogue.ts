@@ -1016,7 +1016,7 @@ const CAFE: SceneSpec = {
     { id: "served", when: ["greet", "order", "size", "bill", "close"], says: "You've got your drink, you've paid, and you made the bus." },
     { id: "served-quiet", when: ["order", "bill"], says: "You got your drink and you paid. Not much was said, and in a café that's fine." },
     { id: "out", when: ["greet", "order"], says: "They'd run out of it today. You asked for what you wanted, and that was your part done." },
-    { id: "left", when: [], says: "You left without ordering. The bus was coming anyway." },
+    { id: "left", when: [], says: "You left the counter before it was done. People do, and the café will be there tomorrow." },
   ],
 };
 
@@ -1381,7 +1381,7 @@ const RESTAURANT: SceneSpec = {
     { id: "fed", when: ["greet", "order", "contents", "drink", "bill", "close"], says: "You ate, you knew what was in it, and you paid. That's a whole evening out in Estonian." },
     { id: "fed-quiet", when: ["order", "drink", "bill"], says: "You ate and you paid. You never found out what was in it, and that's fine." },
     { id: "kitchen-closed", when: ["greet", "order"], says: "The kitchen had stopped serving hot food. You ordered like a regular, and that was your part done." },
-    { id: "left", when: [], says: "You left before ordering. There's a place round the corner, and you can always come back." },
+    { id: "left", when: [], says: "You left the table early. There's a place round the corner, and you can always come back." },
   ],
 };
 

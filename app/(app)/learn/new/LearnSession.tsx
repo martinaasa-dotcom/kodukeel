@@ -21,12 +21,15 @@ import { useOffline } from "@/components/OfflineProvider";
 import { useResumeCard } from "@/components/useResumeCard";
 import { prefetchClip } from "@/lib/audio/clip";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
+import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
+import { SameMeaning } from "@/components/round/SameMeaning";
 import { BLANK } from "@/lib/estonian/cloze";
 import { splitOnForm } from "@/lib/dict/examples";
 import { sameSpelling } from "@/lib/copy/values";
 import { enqueueGrade } from "@/lib/offline/db";
 import { LEARN_BATCH, ratingFor, rungOf, tally, type Outcome, type Rung } from "@/lib/learn/ladder";
 import type { LearnScheduling, LearnWord } from "@/lib/progress/learn";
+import type { ContrastWord } from "@/lib/progress/contrast";
 import { grade, type RatingValue } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
@@ -79,6 +82,13 @@ interface Result {
   /** The answer, for a screen that has to show what was right. */
   expected: string;
   note: string;
+  /**
+   * A second right word, where the learner typed one: another entry that
+   * means what this word's gloss says. Shown as right, graded Hard, and the
+   * panel becomes a short lesson on how the two differ. See
+   * `lib/questions/neighbours.ts`.
+   */
+  neighbour?: ContrastWord;
 }
 
 const RUNG_LABEL: Record<Rung, string> = {
@@ -487,7 +497,7 @@ export function LearnSession({
   const send = useCallback(async (outcome: Outcome, shown: Result) => {
     if (!word || busy) return;
     setBusy(true);
-    if (outcome !== "right" && outcome !== "known") hints.noteMiss();
+    if (outcome !== "right" && outcome !== "known" && !shown.neighbour) hints.noteMiss();
     /*
       A HINT IS PAID FOR, AND THIS IS WHERE IT IS PAID.
 
@@ -557,7 +567,9 @@ export function LearnSession({
     scheduled.current.set(word.cardId, after);
     const moved = { ...rungs, [word.cardId]: rungOf(after.state, after.learningSteps) };
     setAnswered((n) => n + 1);
-    if (rating >= 3) setRight((n) => n + 1);
+    // A second right word is right, whatever it was graded: the round's own
+    // tally may not say "0 of 1 right" under a panel saying it worked.
+    if (rating >= 3 || shown.neighbour) setRight((n) => n + 1);
 
     // A claim moves on at once, because it was itself the press. Every
     // answer keeps its screen until the learner presses Continue or the
@@ -593,6 +605,24 @@ export function LearnSession({
     if (!word || busy || phase === "feedback") return;
     const expected = word.gap ? word.gap.answer : word.lemma;
     const check = checkAnswer(typed, expected, "et", word.gap?.rivals ?? []);
+    /*
+      A SECOND RIGHT WORD IS RIGHT. Where the rung asks for the word from its
+      meaning and the learner typed another word that means it, nobody in
+      Tallinn would have stopped them, so neither does this: it is right,
+      graded Hard because the word this card is about has not been shown yet,
+      and the panel says how the two differ. Asked only where the marker said
+      no, so a near miss on the word itself stays the slip it is. Never on a
+      gap, which asks for a form of this word in a sentence.
+    */
+    const neighbour = !word.gap && check.verdict === "wrong" && word.contrast
+      ? typedNeighbour(typed, word.contrast.neighbours)
+      : null;
+    if (neighbour) {
+      setVerdict({ verdict: "correct", expected: check.expected, note: "", suggestedRating: NEIGHBOUR_RATING });
+      cheer(true);
+      void send("near", { outcome: "right", expected: check.expected, note: "", neighbour });
+      return;
+    }
     setVerdict(check);
     const won = check.verdict === "correct";
     cheer(countsAsRecalled(check.verdict));
@@ -604,6 +634,10 @@ export function LearnSession({
 
   /** Whether the gap is waiting for the miss to be typed again. */
   const needsRetype = phase === "feedback" && rung === "gap" && result?.outcome === "wrong" && !retypeOk;
+  /** A second right word was typed: the panel is a lesson, and it waits to be read. */
+  const sameMeaning = phase === "feedback" && result?.neighbour && word?.contrast
+    ? { typed: result.neighbour, own: word.contrast.own }
+    : null;
 
   /**
    * The marker's note with the answer marked inside it, or nothing.
@@ -1196,7 +1230,13 @@ export function LearnSession({
             </>
           )}
 
-          {phase === "feedback" && result && (
+          {sameMeaning && word && (
+            <div className="mt-2 w-full max-w-md">
+              <SameMeaning typed={sameMeaning.typed} own={sameMeaning.own} canTranslate={word.canTranslate} />
+            </div>
+          )}
+
+          {phase === "feedback" && result && !sameMeaning && (
             /* The panel that says how it went, in a live region like every
                other round's. The ladder is where a word is met for the first
                time, so this is the one panel a learner most needs read back. */

@@ -2418,6 +2418,32 @@ the marking back. The flip survives where there is genuinely nothing to compare:
 whose answer is a gloss rather than a form, and speaking, where ADR-018 says the learner is the only
 judge there is.
 
+**A second right word is right, and the card says how the two differ.** A production card
+showing "to begin (something)" asked for `alustama` and answered `hakkama` with "Not quite", a
+retype and Again, which told somebody who had said the thing in the word most people reach for
+that they could not say it. `lib/questions/neighbours.ts` finds the entries sharing a sense with
+the prompt and the same part of speech, read generously as the next paragraph says. The review card asks only where the marker said no, draws a right verdict and
+`components/round/SameMeaning.tsx` under it: both glosses and one recorded sentence of each, the
+dictionary's own, with no Estonian written. **Graded Hard, never Good** (`NEIGHBOUR_RATING`): the
+learner produced *a* right word and has not shown the card's own, and `Review` is append-only. The
+index lives in `lib/dict/neighbourFacts.ts` rather than `facts.ts`, because the deck builder reads
+`facts.ts` and the sense relation may only be read to accept.
+
+**And it is generous, on both screens that ask a word from its meaning.** The first version kept
+only the pairs that meet on both words' first sense and refused two qualifiers that differ, which
+kept "chair" off the word for whoever chairs a meeting and also refused `sai` typed for "bread
+(dark)", a word anybody at a counter would have understood. The operator's call is the other way:
+refusing a right word costs somebody's confidence, crediting a near one costs a card coming back a
+little sooner, and the panel prints both glosses and a sentence of each, so a pair that only
+overlaps a little is *shown* overlapping a little rather than claimed to be the same. So any sense
+of the prompt against any sense of the other word, past an article, a slash or an "or"
+(`looseSenses`), qualifiers ranked rather than refused, and a slip of the hand on the second word
+forgiven by the same `checkAnswer` that forgives one on the first. The part of speech is the one
+line kept, since `abi` typed for "to help" is a different answer. Measured over the shipped
+dictionary, no word reaches eight neighbours. `lib/progress/contrast.ts` is the one builder and the
+Learn ladder's typed rung reads it too, never on a gap, which asks for a form of this word in a
+sentence.
+
 **Being stuck has a way out now, and it costs something.** A learner drove the Learn ladder, met a
 word ninety seconds earlier, was shown an empty box and a Check button, and had nothing to do but
 guess or leave. Two things were missing and they are different. Nothing on the screen said that
@@ -5269,7 +5295,8 @@ sentence made of words given by then, against 55, and 241 of 245 at A2, against 
 written sentence is what lets the module's gap rung ask at all. **Where they may go is the half that keeps the
 amendment narrow**: the Learn ladder, the review card's first meeting and the unit lesson, which are
 the screens that introduce a word, and no exam, level check, scene, card builder or borrowed pool,
-since each says its Estonian was recorded; the invariant is a closed list of three readers.
+since each says its Estonian was recorded; the invariant is a closed list of readers, the fourth
+being the lesson drawn when a learner types a second right word, which introduces that word.
 `WordIntro` shows an A1 word a written sentence and still no recorded one, the flag is required on
 its prop, and the ladder's gap rung returns at A1 on a written sentence where the gap is not a case,
 since A1 asks for none. Adding a row is `npm run check:authored` until it prints nothing, then a
@@ -5613,11 +5640,25 @@ is built against.
 no day pointer column and there is not going to be one (ADR-014): the day in play is the furthest
 one carrying a tick, worked out on each render. Two of every day's steps are proved by the review
 log, meeting the words leaves a mark on every one of their cards and the closing round is answers
-graded after that day's own ticks, and those are never written anywhere. The rest cannot be,
+graded after that day's own ticks, and no press may write those. The rest cannot be proved,
 because a `Review` row carries no note of which mode wrote it and a round of Match and a flip of the
 same card are one row. Those are ticked by the learner, `CourseStep` is append-only with a unique
 key so a second press is a no-op, and **the screen says which kind each one is** rather than
 implying the app watched.
+
+**And a derived step, once proved, is saved, because finished has to stay finished.** It was read
+afresh off the deck on every render and written nowhere, so it could be true on the module screen
+and false a minute later on Today: a learner finished every step, saw the evening done, opened Today
+and read 75 percent with "meet the words" waiting again, more than once. "The words are met" is a
+fact about cards, and anything that put one of the day's words back at New took a finished evening
+back: a word put aside coming back when its wait ended, or a second recognition card built because
+the builder deduplicated on the card's *front* and a deck built before a spelling fix holds an
+older front. `latchDerived` writes the row the moment the server has proved the step, on a day the
+learner has pressed a step of and no other (a row on the day after would move `dayReached` and take
+"That's tonight done" with it), and those rows never open the closing round's window, which reads
+pressed ticks alone. The meet step is read per word rather than per card, and recognition and
+production are one per word whatever their front (`ONE_PER_WORD`), so the copy is not built either.
+No client may write a derived row: `markCourseStep` and `advanceCourseStep` still refuse one.
 
 **And a step nobody can press has to be one the app can still finish.** The two derived steps ask
 for evidence, and the closing one asked for five answers whatever the round behind it had left to
@@ -5627,8 +5668,8 @@ with no press anywhere on it that could move it: the step is derived, so `markCo
 `advanceCourseStep` both refuse it a row, correctly. Reported off a real module. A derived step is
 finished by the evidence it asks for **or by there being no more evidence to be had**, so the ask
 is `min(CLOSING_REVIEW, graded + what is left)` and a closing round with nothing to ask is a
-closing round done. Nothing is stored for it (ADR-014): what is left is read off the deck on each
-render like every other figure here.
+closing round done. What is left is read off the deck on each render like every other figure
+here, and the step is saved once it holds, like the meet step above.
 
 **And it is read off the queue's own clauses rather than beside them.** A count computed near the
 review page and not out of it is two readings of one question, and the one that is wrong is the one
@@ -10517,6 +10558,18 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   same two moves: `flex-nowrap` on a marker and a short label, or `items-start` with the marker nudged
   to the first line where a label may run to two. Its first run found the course strip, an exam option,
   the mode tiles and the frequency lists.
+- **Relatives wrap alike: a set of labels sits one line each, or none of it does.** The
+  climb on Today printed its legend as "13 you've shown you know" on one line and "993 counted from
+  your level, not tested yet" on two, and the marker rule above passed it, because the second line
+  began under the label rather than under the swatch. So `test-containment.mjs` asks a third question
+  of siblings sharing a parent and a class (a marker row, a chip, a legend key): where every member is
+  label length, under 60 characters, either all sit on one line or none of them may, side by side or
+  stacked. A set holding anything longer is content and is left alone: a checklist of sentences, an
+  answer option carrying its English, a tile with a title and a description. The fix is a shorter label with `whitespace-nowrap` on each key, never a narrower font. The
+  legend only draws where a level is credited, which the fixture never is, so the sweep writes a
+  declared B1 for one load of Today at each width and puts back what was there. The landing page's
+  claims went to one column in the same pass, because two put one claim on three lines beside one on
+  one, which is the same fault in sentences rather than labels.
 - **A word set large shrinks; it is never broken.** The body's `overflow-wrap: anywhere` is right
   for a paragraph and wrong at display size: the landing page's hero card, the first thing a
   stranger sees, drew `raamatusse` as `raamatuss / e`. Nothing caught it, for three reasons worth

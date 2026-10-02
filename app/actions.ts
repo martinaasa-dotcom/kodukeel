@@ -80,7 +80,7 @@ import { asRestoredMeasurement } from "@/lib/security/restoredMeasurement";
 import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
-import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
+import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
   DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, programmeById,
 } from "@/lib/course";
@@ -318,7 +318,12 @@ async function addCardsFor(
       */
       deferredDues(tx, owner, [lexemeId], now),
     ]);
-    const seen = new Set(existing.map((c) => `${c.cardType}|${c.front}`));
+    /* A recognition or production card is one per word whatever its front
+       says, or a deck built before a spelling fix gains a second copy at New
+       (`ONE_PER_WORD` in lib/srs/deck.ts). */
+    const seen = new Set(existing.flatMap((c) => ONE_PER_WORD.has(c.cardType)
+      ? [`${c.cardType}|${c.front}`, `${c.cardType}|*`]
+      : [`${c.cardType}|${c.front}`]));
 
     const generated = generateCards(
       {
@@ -327,7 +332,7 @@ async function addCardsFor(
         borrowed: borrowed.get(lexemeId) ?? [],
         plainest: plainerFirst(lexeme.cefr, reach),
       }, types,
-    ).filter((c) => !seen.has(`${c.cardType}|${c.front}`));
+    ).filter((c) => !seen.has(`${c.cardType}|${c.front}`) && !seen.has(`${c.cardType}|*`));
     if (generated.length === 0) return 0;
 
     await tx.card.createMany({

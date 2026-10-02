@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { SYLLABUS } from "@/lib/collections/syllabus";
-import { addUnitsToDeck, planUnits, previewUnits } from "./deck";
+import { addPlanToDeck, addUnitsToDeck, planLemmas, planUnits, previewUnits } from "./deck";
 import { sharedPrompts } from "@/lib/collections/senses";
 import { acceptedAnswers } from "@/lib/estonian/answer";
 
@@ -42,6 +42,35 @@ async function wipe() {
 
 beforeEach(wipe);
 afterAll(async () => { await wipe(); await prisma.$disconnect(); });
+
+describe("one card per word for the two word-level types", () => {
+  /*
+    A deck built before a spelling fix holds a recognition card whose front no
+    longer matches what the builder writes. Deduplicated on the front, adding
+    the word again built a second recognition card at New, and the planned
+    module reads "the words are met" off exactly those cards: an evening
+    finished minutes earlier read three quarters done.
+  */
+  it("does not build a second recognition card when the front has changed", async () => {
+    const lemma = planUnits([UNIT.id]).lemmas[0]!;
+    const lexeme = await prisma.lexeme.findFirst({ where: { lemma }, select: { id: true } });
+    expect(lexeme, "run `npm run db:seed` first").not.toBeNull();
+    await prisma.card.create({
+      data: {
+        ownerId: MINE, lexemeId: lexeme!.id, cardType: "RECOGNITION",
+        front: "an older spelling", back: "y", state: 2,
+        due: new Date(), stability: 1, difficulty: 1, elapsedDays: 0,
+        scheduledDays: 0, reps: 1, lapses: 0, learningSteps: 0,
+      },
+    });
+    await addPlanToDeck(MINE, planLemmas([lemma], ["RECOGNITION", "PRODUCTION"]), "COURSE");
+    const cards = await prisma.card.findMany({
+      where: { ownerId: MINE, lexeme: { lemma } }, select: { cardType: true },
+    });
+    expect(cards.filter((c) => c.cardType === "RECOGNITION")).toHaveLength(1);
+    expect(cards.filter((c) => c.cardType === "PRODUCTION")).toHaveLength(1);
+  });
+});
 
 describe("addUnitsToDeck", () => {
   /**

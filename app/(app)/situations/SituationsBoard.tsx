@@ -105,7 +105,7 @@ export function SituationsBoard({ tiles, firstPick }: {
         </ChoiceGroup>
 
         <div className="@container">
-          <ul className="grid gap-4 @lg:grid-cols-2 @3xl:grid-cols-3">
+          <ul className="grid gap-x-4 gap-y-5 @lg:grid-cols-2 @3xl:grid-cols-3">
             {shown.map((tile) => <Tile key={tile.id} tile={tile} />)}
           </ul>
         </div>
@@ -195,14 +195,29 @@ function Stage({ tile, turn, onAnother }: {
   );
 }
 
+/*
+  A TILE IS SIX ROWS, AND EVERY TILE IN A ROW SHARES THEM.
+
+  It was a flex column with the facts pushed down by `mt-auto`, so only the
+  last line agreed across a row: a title that wrapped to two lines pushed its
+  own place and chips down, and its neighbours' did not. Measured at 1280,
+  three tiles side by side had their place lines 29px apart and their chips
+  75px apart. Each tile spans `TILE_ROWS` rows of the list's own grid now and
+  takes them as a subgrid, so the drawing, the kind, the title, the place, the
+  chips and the facts each start on one line across the whole row, whatever
+  any one of them wraps to. The list item is a subgrid too, rather than
+  `display: contents`, because that drops list semantics in some browsers.
+*/
+const TILE_ROWS = "row-span-6";
+
 function Tile({ tile }: { tile: SituationTile }) {
   const hue = hueOf(tile.kind);
   const kind = KINDS.find((k) => k.id === tile.kind)!;
   return (
-    <li className="situation-in">
+    <li className={`situation-in grid grid-rows-subgrid gap-y-0 ${TILE_ROWS}`}>
       <Link
         href={`/situations/${tile.id}`}
-        className="situation-tile lift flex h-full flex-col rounded-[var(--r-xl)] border"
+        className={`situation-tile lift grid grid-rows-subgrid gap-y-2 rounded-[var(--r-xl)] border pb-5 ${TILE_ROWS}`}
         style={{ background: `var(--${hue}-soft)`, borderColor: "var(--edge)" }}
       >
         <div className="situation-window">
@@ -214,30 +229,32 @@ function Tile({ tile }: { tile: SituationTile }) {
             </span>
           )}
         </div>
-        <div className="flex flex-1 flex-col gap-2 px-5 pb-5 pt-4">
-          {/* The kind in words as well as in the tint, since a hue is never the
-              only thing saying which. */}
-          <p className="label-xs inline-flex items-center gap-2" style={{ color: toneInk(hue) }}>
-            <span aria-hidden className="situation-dot" style={{ background: `var(--${hue})` }} />
-            {kind.label}
-          </p>
-          <h3 className="text-lg font-bold leading-snug tracking-tight">{tile.title}</h3>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{tile.place}</p>
-          {tile.chips.length > 0 && (
-            <ul className="flex flex-wrap gap-1.5" aria-label="What it practices">
-              {tile.chips.map((c) => (
-                <li
-                  key={c.text}
-                  lang={c.et ? "et" : undefined}
-                  className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                  style={{ background: "var(--surface)", color: toneInk(hue) }}
-                >
-                  {c.text}
-                </li>
-              ))}
-            </ul>
-          )}
-          <p className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-2 text-xs font-semibold" style={{ color: "var(--ink-2)" }}>
+        {/* The kind in words as well as in the tint, since a hue is never the
+            only thing saying which. */}
+        <p className="label-xs inline-flex items-center gap-2 self-end px-5 pt-2" style={{ color: toneInk(hue) }}>
+          <span aria-hidden className="situation-dot" style={{ background: `var(--${hue})` }} />
+          {kind.label}
+        </p>
+        <h3 className="px-5 text-lg font-bold leading-snug tracking-tight">{tile.title}</h3>
+        <p className="px-5 text-sm" style={{ color: "var(--ink-2)" }}>{tile.place}</p>
+        {tile.chips.length > 0 ? (
+          <ul className="flex flex-wrap content-start gap-1.5 px-5 pt-1" aria-label="What it practices">
+            {tile.chips.map((c) => (
+              <li
+                key={c.text}
+                lang={c.et ? "et" : undefined}
+                className="situation-chip text-xs font-semibold"
+                style={{ color: toneInk(hue) }}
+              >
+                {c.text}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <span aria-hidden />
+        )}
+        <div className="flex flex-col gap-1 px-5 pt-2" data-facts>
+          <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold" style={{ color: "var(--ink-2)" }}>
             <Facts tile={tile} />
           </p>
           {tile.last && (
