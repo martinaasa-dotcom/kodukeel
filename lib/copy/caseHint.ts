@@ -1,4 +1,5 @@
 import { CASES } from "@/lib/estonian/cases";
+import { endingName } from "@/lib/estonian/plainAsk";
 
 /**
  * A STORED CARD HINT AS A LEARNER SHOULD READ IT.
@@ -36,8 +37,15 @@ import { CASES } from "@/lib/estonian/cases";
  * nothing about the other, so the reading is the whole name and the two lines
  * match one for one.
  */
+/*
+ * AND THEN SIMPLER STILL. The question pair was right and it was still two
+ * languages and three questions under one answer, and a learner asked for it
+ * to be simpler. A hint naming a case reads as the ending's name and the one
+ * English word it means now, `endingName`'s `<name>: the “with” ending`, which
+ * is the same line every other screen prints after an answer.
+ */
 const BY_LATIN: ReadonlyMap<string, string> = new Map(
-  CASES.map((c) => [c.en.toLowerCase(), c.questionEn]),
+  CASES.map((c) => [c.en.toLowerCase(), c.key]),
 );
 
 /**
@@ -49,14 +57,12 @@ const SEP = ", ";
 
 export function readableHint(raw: string | null | undefined): string | null {
   if (!raw) return null;
-  let changed = false;
-  const parts = raw.split(/·|, /).map((part) => {
-    const named = BY_LATIN.get(part.trim().toLowerCase().replace(/^the\s+/, ""));
-    if (!named) return part;
-    changed = true;
-    return named;
-  });
+  const parts = raw.split(/·|, /).map((part) => part.trim());
+  for (const part of parts) {
+    const key = BY_LATIN.get(part.toLowerCase().replace(/^the\s+/, ""));
+    if (key) return endingName(key);
+  }
   // Nothing to say about this hint, so it reaches the screen exactly as it was
   // stored, spacing and all.
-  return changed || raw.includes("·") ? parts.map((p) => p.trim()).join(SEP) : raw;
+  return raw.includes("·") ? parts.join(SEP) : raw;
 }

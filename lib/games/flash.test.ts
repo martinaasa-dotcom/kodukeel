@@ -457,16 +457,16 @@ describe("the local cases", () => {
     expect(keys).not.toContain("ILLATIVE");
     expect(keys).not.toContain("INESSIVE");
 
-    // And the question is the one a horse answers, without the place adverb:
-    // `kus?` is answered by two cases, so a card wanting one of them cannot
-    // print it.
+    // And the label is the ending's name alone, with no place adverb: `kus?`
+    // is answered by two cases, so a card wanting one of them cannot print it,
+    // and the question words beside the name were reported as clutter.
     const task = flashTask({
       word: hobune,
       slot: askableSlots(hobune).find((s) => s.slot === "ADESSIVE")!,
       cardId: "card-1",
       step: 0,
     })!;
-    expect(task.label).toContain("kellel?");
+    expect(task.label).toBe("alalütlev");
     expect(task.label).not.toContain("kus?");
     expect(task.accepted).toContain("hobusel");
   });
