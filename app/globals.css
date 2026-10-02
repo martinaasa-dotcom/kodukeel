@@ -4519,25 +4519,20 @@ input[data-hop][data-hop-end="cw-land"] { animation: cw-land 0.34s cubic-bezier(
   reading quiet after it; no separator is drawn, so nothing is typed between
   the pieces on any screen. It wraps between pieces and never inside one.
 */
-.case-label {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: inherit;
-  column-gap: 0.5em;
-  row-gap: 0.25em;
-}
-/* The name and the question each stay whole; the English reading wraps at its
-   spaces, because nowrap on a long reading is a min-content floor that pushed
-   the exam paper 25px past a 390px phone. */
-.case-label { max-width: 100%; min-width: 0; }
-.case-label-name, .case-label-ask { white-space: nowrap; }
+.case-label { display: inline; }
+/* Plain inline runs rather than a flex row, so a label wraps the way a
+   sentence does and breaks a long word the way the body does. As an
+   inline-flex row with whole runs it set a min-content floor wider than the
+   choice buttons, cards and rows it sits in, and spilled over their borders. */
+.case-label > * + * { margin-inline-start: 0.5em; }
 .case-label-name {
   font-weight: 600;
   color: var(--accent-deep);
   background: var(--accent-soft);
   border-radius: 999px;
   padding: 0.0625em 0.6em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 .case-label-ask { font-weight: 500; color: var(--ink); }
 .case-label-means { color: var(--ink-3); }
