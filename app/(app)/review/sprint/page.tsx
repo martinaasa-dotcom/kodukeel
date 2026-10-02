@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { readableFront } from "@/lib/copy/caseHint";
 import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
@@ -93,7 +94,7 @@ export default async function SprintPage({
   );
   const sprintCards: SprintCard[] = shuffled.map((c) => ({
     id: c.id,
-    front: c.front,
+    front: readableFront(c.front),
     back: c.back,
     lemma: c.lexeme ? plainPhrase(c.lexeme.lemma, c.lexeme.pos) : null,
     lexemeId: c.lexemeId,

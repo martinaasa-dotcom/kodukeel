@@ -21,15 +21,18 @@ import { useOffline } from "@/components/OfflineProvider";
 import { useResumeCard } from "@/components/useResumeCard";
 import { prefetchClip } from "@/lib/audio/clip";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
+import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
+import { SameMeaning } from "@/components/round/SameMeaning";
 import { BLANK } from "@/lib/estonian/cloze";
 import { splitOnForm } from "@/lib/dict/examples";
 import { sameSpelling } from "@/lib/copy/values";
 import { enqueueGrade } from "@/lib/offline/db";
 import { LEARN_BATCH, ratingFor, rungOf, tally, type Outcome, type Rung } from "@/lib/learn/ladder";
 import type { LearnScheduling, LearnWord } from "@/lib/progress/learn";
+import type { ContrastWord } from "@/lib/progress/contrast";
 import { grade, type RatingValue } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
-import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState } from "@/lib/ux/verdict";
+import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -79,6 +82,13 @@ interface Result {
   /** The answer, for a screen that has to show what was right. */
   expected: string;
   note: string;
+  /**
+   * A second right word, where the learner typed one: another entry that
+   * means what this word's gloss says. Shown as right, graded Hard, and the
+   * panel becomes a short lesson on how the two differ. See
+   * `lib/questions/neighbours.ts`.
+   */
+  neighbour?: ContrastWord;
 }
 
 const RUNG_LABEL: Record<Rung, string> = {
@@ -279,17 +289,16 @@ export function LearnSession({
   */
   const scheduled = useRef(new Map<string, LearnScheduling>());
   /*
-    A right answer stays on the screen for `VERDICT_PAUSE_MS` and then moves
-    on by itself. The timer is held so that Enter or the button during the
-    pause moves on once rather than twice.
+    NOTHING HERE MOVES ON BY ITSELF.
+
+    A right answer used to stay up for a fixed pause and then advance on a
+    timer, with the button disabled meanwhile and Enter swallowed by the
+    answer box that still had focus. A learner on the daily module reported
+    exactly that: Enter did nothing and Continue could not be pressed, so
+    the screen was in charge of when they had finished reading. Every
+    verdict now waits for the learner, however long they take, and the
+    button and the advance key are live the whole time.
   */
-  const autoNext = useRef<number | null>(null);
-  // A round left mid-pause — closing the tab, navigating away, the queue
-  // itself running out under the timer — must not let it fire `advance` on a
-  // component that is no longer there to hold the state it updates.
-  useEffect(() => {
-    return () => { if (autoNext.current !== null) window.clearTimeout(autoNext.current); };
-  }, []);
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const run = useRef(0);
@@ -405,7 +414,6 @@ export function LearnSession({
    * sighting a retrieval rather than a re-read.
    */
   const advance = useCallback((updated: Record<string, Rung>) => {
-    if (autoNext.current !== null) { window.clearTimeout(autoNext.current); autoNext.current = null; }
     /*
       One choke point, so the record cannot fall behind the ladder: every rung
       leaves the seat through here, and what is kept is what was on the screen
@@ -459,7 +467,6 @@ export function LearnSession({
    * The seat always holds `queue[0]`, so dropping the head is the whole of it.
    */
   const putAside = useCallback((note: string) => {
-    if (autoNext.current !== null) { window.clearTimeout(autoNext.current); autoNext.current = null; }
     const rest = queue.slice(1);
     const nowId = rest[0];
     setQueue(rest);
@@ -490,7 +497,7 @@ export function LearnSession({
   const send = useCallback(async (outcome: Outcome, shown: Result) => {
     if (!word || busy) return;
     setBusy(true);
-    if (outcome !== "right" && outcome !== "known") hints.noteMiss();
+    if (outcome !== "right" && outcome !== "known" && !shown.neighbour) hints.noteMiss();
     /*
       A HINT IS PAID FOR, AND THIS IS WHERE IT IS PAID.
 
@@ -560,19 +567,17 @@ export function LearnSession({
     scheduled.current.set(word.cardId, after);
     const moved = { ...rungs, [word.cardId]: rungOf(after.state, after.learningSteps) };
     setAnswered((n) => n + 1);
-    if (rating >= 3) setRight((n) => n + 1);
+    // A second right word is right, whatever it was graded: the round's own
+    // tally may not say "0 of 1 right" under a panel saying it worked.
+    if (rating >= 3 || shown.neighbour) setRight((n) => n + 1);
 
-    // A claim moves on at once. A clean hit shows itself first, green, for
-    // long enough to be seen, then moves on by itself. A miss keeps its
-    // screen, because the correction is the one moment in a round worth
-    // stopping for, and at the gap it waits to be typed again.
+    // A claim moves on at once, because it was itself the press. Every
+    // answer keeps its screen until the learner presses Continue or the
+    // advance key: a hit so it can be read, a miss because the correction is
+    // the one moment in a round worth stopping for, and at the gap it waits
+    // to be typed again.
     if (outcome === "known") advance(moved);
-    else {
-      setRungs(moved); setResult(shown); setPhase("feedback");
-      if (outcome === "right") {
-        autoNext.current = window.setTimeout(() => { autoNext.current = null; advance(moved); }, VERDICT_PAUSE_MS);
-      }
-    }
+    else { setRungs(moved); setResult(shown); setPhase("feedback"); }
     } finally {
       setBusy(false);
     }
@@ -600,6 +605,24 @@ export function LearnSession({
     if (!word || busy || phase === "feedback") return;
     const expected = word.gap ? word.gap.answer : word.lemma;
     const check = checkAnswer(typed, expected, "et", word.gap?.rivals ?? []);
+    /*
+      A SECOND RIGHT WORD IS RIGHT. Where the rung asks for the word from its
+      meaning and the learner typed another word that means it, nobody in
+      Tallinn would have stopped them, so neither does this: it is right,
+      graded Hard because the word this card is about has not been shown yet,
+      and the panel says how the two differ. Asked only where the marker said
+      no, so a near miss on the word itself stays the slip it is. Never on a
+      gap, which asks for a form of this word in a sentence.
+    */
+    const neighbour = !word.gap && check.verdict === "wrong" && word.contrast
+      ? typedNeighbour(typed, word.contrast.neighbours)
+      : null;
+    if (neighbour) {
+      setVerdict({ verdict: "correct", expected: check.expected, note: "", suggestedRating: NEIGHBOUR_RATING });
+      cheer(true);
+      void send("near", { outcome: "right", expected: check.expected, note: "", neighbour });
+      return;
+    }
     setVerdict(check);
     const won = check.verdict === "correct";
     cheer(countsAsRecalled(check.verdict));
@@ -611,6 +634,10 @@ export function LearnSession({
 
   /** Whether the gap is waiting for the miss to be typed again. */
   const needsRetype = phase === "feedback" && rung === "gap" && result?.outcome === "wrong" && !retypeOk;
+  /** A second right word was typed: the panel is a lesson, and it waits to be read. */
+  const sameMeaning = phase === "feedback" && result?.neighbour && word?.contrast
+    ? { typed: result.neighbour, own: word.contrast.own }
+    : null;
 
   /**
    * The marker's note with the answer marked inside it, or nothing.
@@ -650,11 +677,10 @@ export function LearnSession({
     if (again.verdict === "correct") {
       setRetypeOk(true);
       setRetypeNote(null);
-      autoNext.current = window.setTimeout(() => { autoNext.current = null; advance(rungs); }, VERDICT_PAUSE_MS);
     } else {
       setRetypeNote("Not quite. Copy the word above exactly, letter for letter.");
     }
-  }, [word, result, retyped, retypeOk, advance, rungs]);
+  }, [word, result, retyped, retypeOk]);
 
   /*
     The digits pick an option, exactly as they do in review, and Enter carries
@@ -1171,7 +1197,7 @@ export function LearnSession({
                 <EstonianInput
                   value={typed}
                   onChange={setTyped}
-                  onEnter={answerGap}
+                  onEnter={phase === "feedback" ? carryOn : answerGap}
                   autoFocus
                   ariaLabel={word.gap ? "The word that goes in the gap" : "The Estonian word"}
                   placeholder="Type in Estonian"
@@ -1204,7 +1230,13 @@ export function LearnSession({
             </>
           )}
 
-          {phase === "feedback" && result && (
+          {sameMeaning && word && (
+            <div className="mt-2 w-full max-w-md">
+              <SameMeaning typed={sameMeaning.typed} own={sameMeaning.own} canTranslate={word.canTranslate} />
+            </div>
+          )}
+
+          {phase === "feedback" && result && !sameMeaning && (
             /* The panel that says how it went, in a live region like every
                other round's. The ladder is where a word is met for the first
                time, so this is the one panel a learner most needs read back. */
@@ -1329,9 +1361,10 @@ export function LearnSession({
               <Button
                 variant="primary"
                 onClick={needsRetype ? checkRetype : carryOn}
-                disabled={busy || retypeOk || result?.outcome === "right"}
+                disabled={busy}
               >
-                {needsRetype ? "Check it again" : result?.outcome === "right" ? uiText("Õige!", "Correct!") : "Got it"}
+                {needsRetype ? "Check it again" : "Continue"}
+                <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
               {rung === "gap" && result?.outcome !== "right" && (
                 <SuggestFix

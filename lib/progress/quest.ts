@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { readableFront } from "@/lib/copy/caseHint";
 import { caseAccuracy } from "@/lib/stats/history";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { acceptedAnswers } from "@/lib/estonian/answer";
@@ -164,7 +165,7 @@ export async function questFor(ownerId: string): Promise<Quest> {
     weakCases: weak.map((c) => ({ grammCase: c.grammCase, accuracy: c.accuracy })),
     cards: chosen.map((c) => ({
       id: c.id,
-      front: c.front,
+      front: readableFront(c.front),
       back: c.back,
       hint: c.hint,
       lemma: c.lexeme?.lemma ?? null,

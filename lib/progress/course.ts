@@ -24,11 +24,13 @@ import {
  *
  * Which day somebody is on is the furthest one carrying a tick (`dayReached`),
  * and a step is finished in one of two ways. Two of them the review log proves
- * on its own and they are never written anywhere: meeting the day's words
- * leaves a mark on every one of their cards, and the closing review is answers
- * graded after that day's last tick. The rest are ticked on the course screen
- * and land in `CourseStep`, append-only, one row, the unique key making a
- * second press a no-op rather than a second row.
+ * on its own and no press may write them: meeting the day's words leaves a
+ * mark on every one of their cards, and the closing review is answers graded
+ * after that day's last pressed tick. Once proved they are saved by this
+ * module (`latchDerived`), because a finished step that a later change to the
+ * deck could take back is not finished. The rest are ticked on the course
+ * screen and land in `CourseStep`, append-only, one row, the unique key making
+ * a second press a no-op rather than a second row.
  *
  * The whole reading is five queries whatever the size of the programme and
  * whatever evening somebody is on, which is the same rule `classRoster` states
@@ -158,9 +160,23 @@ interface Ticks {
    * finished day stays finished.
    */
   lastAt: Map<string, Date>;
+  /**
+   * The steps a learner pressed, per day, without the derived ones this
+   * reading saved itself (`latchDerived`). Those are a record that the log
+   * proved a step once, and a day carrying nothing but them has not been
+   * opened by anybody: see `latchDerived` for why that line matters.
+   */
+  pressed: Map<string, Set<string>>;
   /** When every tick was written, oldest first, for the run of evenings. */
   at: Date[];
 }
+
+/**
+ * The two steps the review log proves. Their rows are written by this module
+ * alone (`latchDerived`), never by a press, and they never move the closing
+ * round's window: `lastAt` reads pressed steps only.
+ */
+const DERIVED_STEPS: ReadonlySet<string> = new Set([MEET_STEP, REVIEW_STEP]);
 
 /**
  * Every tick this learner has written for this programme.
@@ -180,16 +196,26 @@ const ticksFor = cache(async (ownerId: string, programme: Programme): Promise<Ti
     orderBy: [{ createdAt: "asc" }, { stepId: "asc" }],
   });
   const byDay = new Map<string, Set<string>>();
+  const pressed = new Map<string, Set<string>>();
   const lastAt = new Map<string, Date>();
   const at = rows.map((row) => row.createdAt);
   for (const row of rows) {
     const set = byDay.get(row.dayId) ?? new Set<string>();
     set.add(row.stepId);
     byDay.set(row.dayId, set);
+    /*
+      A saved derived step is a record, not a press: it may not open the
+      closing round's window, or saving "the words are met" halfway through
+      an evening would move the window past the answers already given.
+    */
+    if (DERIVED_STEPS.has(row.stepId)) continue;
+    const own = pressed.get(row.dayId) ?? new Set<string>();
+    own.add(row.stepId);
+    pressed.set(row.dayId, own);
     // The rows arrive oldest first, so the last one written wins.
     lastAt.set(row.dayId, row.createdAt);
   }
-  return { byDay, lastAt, at };
+  return { byDay, pressed, lastAt, at };
 });
 
 /**
@@ -336,7 +362,7 @@ const metWordsFor = cache(async (ownerId: string, joined: string): Promise<boole
         ownerId, suspended: false, cardType: LADDER_CARD_TYPE,
         lexeme: { lemma: { in: [...words] } },
       },
-      select: { state: true, lexemeId: true },
+      select: { state: true, lexemeId: true, lexeme: { select: { lemma: true } } },
     }),
     deferredWordIds(ownerId),
   ]);
@@ -349,7 +375,25 @@ const metWordsFor = cache(async (ownerId: string, joined: string): Promise<boole
     action may write a row for it. The learner said not tonight; the step
     takes them at their word, and the word returns when its wait ends.
   */
-  if (cards.length > 0) return cards.every((c) => c.state !== 0 || (c.lexemeId !== null && aside.has(c.lexemeId)));
+  /*
+    PER WORD, NOT PER CARD. A word is met when one of its ladder cards has
+    left New, and a second copy of it at New is not the word un-met. That copy
+    used to be all it took: the dictionary can hold a lemma twice, and a deck
+    built before a spelling fix holds a card whose front no longer matches
+    what the builder writes, so pressing "Meet the words" again added a fresh
+    card at New beside the one already answered, and an evening finished
+    minutes earlier read three quarters done. Reported off a real module.
+  */
+  if (cards.length > 0) {
+    const met = new Set<string>();
+    const held = new Set<string>();
+    for (const c of cards) {
+      const word = c.lexeme?.lemma ?? c.lexemeId ?? "";
+      held.add(word);
+      if (c.state !== 0 || (c.lexemeId !== null && aside.has(c.lexemeId))) met.add(word);
+    }
+    return [...held].every((word) => met.has(word));
+  }
   /*
     AND A DAY WHOSE WORDS THIS DEPLOYMENT'S DICTIONARY HOLDS NONE OF IS MET.
 
@@ -494,7 +538,51 @@ async function withDerivedSteps(
     && graded >= await closingNeeded(ownerId, programme, day, graded, now)) {
     withDerived.add(REVIEW_STEP);
   }
+  await latchDerived(ownerId, programme, ticks, day, withDerived);
   return withDerived;
+}
+
+/**
+ * A STEP THE LOG HAS PROVED ONCE STAYS PROVED.
+ *
+ * The two derived steps used to be read afresh on every render and saved
+ * nowhere, so they could be true on the module screen and false a minute
+ * later on Today: "the words are met" is a fact about cards, and anything
+ * that adds a fresh card for one of the day's words at New took the step
+ * back. A learner finished every step, saw the evening done, opened Today
+ * and read 75 percent, with the first step waiting to be done again.
+ * Finishing a step is a thing that happened, and a thing that happened is
+ * written down.
+ *
+ * Written here rather than by a press, so the rule `markCourseStep` and
+ * `advanceCourseStep` keep is unchanged: no client may tick a derived step.
+ * The server writes the row only after proving the step itself, and the row
+ * is idempotent on the unique key, so a second render writes nothing.
+ *
+ * ONLY ON A DAY SOMEBODY HAS PRESSED A STEP OF. The day reached is the
+ * furthest day carrying a tick, so a saved row on the day after the one
+ * finished would move the course onto it and take "That's tonight done"
+ * with it. A day with a pressed step is already the day reached, so a row
+ * there moves nothing. And the rows never open the closing round's window,
+ * since `lastAt` reads pressed steps alone.
+ */
+async function latchDerived(
+  ownerId: string, programme: Programme, ticks: Ticks, day: CourseDay, done: ReadonlySet<string>,
+): Promise<void> {
+  if (!ticks.pressed.get(day.id)?.size) return;
+  const have = ticks.byDay.get(day.id) ?? new Set<string>();
+  const fresh = day.steps
+    .filter((step) => DERIVED_STEPS.has(step.id) && done.has(step.id) && !have.has(step.id))
+    .map((step) => step.id);
+  if (fresh.length === 0) return;
+  await prisma.courseStep.createMany({
+    data: fresh.map((stepId) => ({ ownerId, programmeId: programme.id, dayId: day.id, stepId })),
+    skipDuplicates: true,
+  });
+  // The render's own copy, so the rest of it reads what was just written.
+  const set = ticks.byDay.get(day.id) ?? new Set<string>();
+  for (const id of fresh) set.add(id);
+  ticks.byDay.set(day.id, set);
 }
 
 export interface CourseReading extends ProgrammeStanding {
@@ -606,7 +694,7 @@ export async function courseReading(
     midnight and answers arrived since. Asked only on that path, which is two
     counts on a render that has just advanced a day.
   */
-  if (!finishedToday && lastTick && justFinished && !ticks.byDay.get(justFinished)?.has(REVIEW_STEP)) {
+  if (!finishedToday && lastTick && justFinished && !ticks.pressed.get(justFinished)?.has(REVIEW_STEP)) {
     const [before, since] = await Promise.all([
       gradedBetween(ownerId, lastTick, midnight),
       gradedSince(ownerId, midnight),
@@ -650,6 +738,9 @@ export async function closingProgress(
 ): Promise<{ graded: number; needed: number }> {
   const ticks = await ticksFor(ownerId, programme);
   const day = dayById(programme, dayId);
+  /* A closing round the log already proved, and saved, is finished, whatever
+     the deck says now. See `latchDerived`. */
+  if (ticks.byDay.get(dayId)?.has(REVIEW_STEP)) return { graded: CLOSING_REVIEW, needed: CLOSING_REVIEW };
   const graded = await closingGraded(ownerId, ticks, dayId);
   /* The same number the step itself is finished against, or the list would
      promise five answers while the reading behind it settles for two. That

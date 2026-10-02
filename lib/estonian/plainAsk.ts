@@ -1,3 +1,5 @@
+import { caseByKey } from "./cases";
+
 /**
  * WHAT A SLOT IS ASKING FOR, IN THE WORDS SOMEBODY WOULD USE OUT LOUD.
  *
@@ -110,14 +112,109 @@ export function plainAsk(slot: string): string | null {
   return CLAUSES[slot] ?? null;
 }
 
-/**
- * The whole question, ready to print above a box.
- *
- * "this" rather than the word itself, because the word is already at the top of
- * the card in both languages and this module holds no Estonian to put there.
- */
-export function plainAskLine(slot: string): string | null {
-  const clause = plainAsk(slot);
-  return clause ? `How do you say this ${clause}?` : null;
+/*
+  SAY IT, IN THE FEWEST WORDS THAT ARE TRUE.
+
+  "lind", then "millega?", then "How do you say this when something is done
+  with it?", then "kaasaütlev, with whom? with what?" is four lines for one
+  instruction, and a learner reported the card as busy and wordy for no reason.
+  They said what the card should say, and it is the whole of this section: the
+  ending means "with", so ask for "with it", and where the screen holds the
+  word's gloss, "with the bird" (`lib/estonian/sayIt.ts`, which adds the gloss
+  and is kept apart because it reads the dictionary's sense table, which the
+  modules that mark answers may not reach). The Estonian name goes after the
+  answer, where it is the thing to remember rather than a thing to decode.
+*/
+
+/** The short phrase per case where there is no gloss to put in it. */
+export const CASE_SHORT: Readonly<Record<string, string>> = {
+  NOMINATIVE: "the plain word",
+  GENITIVE: "of it",
+  PARTITIVE: "some of it",
+  ILLATIVE: "into it",
+  INESSIVE: "in it",
+  ELATIVE: "out of it",
+  ALLATIVE: "onto it, or to someone",
+  ADESSIVE: "on it, or someone has it",
+  ABLATIVE: "off it, or from someone",
+  TRANSLATIVE: "becoming it",
+  TERMINATIVE: "up to it",
+  ESSIVE: "as it",
+  ABESSIVE: "without it",
+  COMITATIVE: "with it",
+};
+
+/** Verb slots said without the verb, for a screen that holds no gloss. */
+export const VERB_SHORT: Readonly<Record<string, string>> = {
+  IndPrSg1: "I …, now",
+  IndPrSg3: "he/she …, now",
+  IndPrPl1: "we …, now",
+  IndPrPs_: "don't …",
+  IndIpfSg1: "I …, in the past",
+  IndIpfSg3: "he/she …, in the past",
+  KndPrSg1: "I would …",
+  ImpPrSg2: "do it! (to a friend)",
+  ImpPrPl2: "do it! (politely)",
+  Inf: "to …",
+  PtsPtPs: "has done it",
+  PtsPtIps: "was done, by nobody named",
+  PtsPrPs: "the one doing it",
+};
+
+/** The short phrase for a slot with no word in it, or null for a question about meaning. */
+export function sayShort(slot: string): string | null {
+  return CASE_SHORT[slot] ?? VERB_SHORT[slot] ?? null;
 }
 
+/**
+ * The whole instruction, ready to print above a box: `Say “with it”`.
+ *
+ * This was "How do you say this when something is done with it?", eleven words
+ * for two. A screen holding the word's gloss reads `sayLine` in
+ * `lib/estonian/sayIt.ts` instead, which says "with the bird".
+ */
+export function plainAskLine(slot: string): string | null {
+  const phrase = sayShort(slot);
+  return phrase ? `Say “${phrase}”` : null;
+}
+
+/*
+  THE NAME OF AN ENDING, AFTER THE ANSWER, IN THE FEWEST WORDS.
+
+  Once the answer is on the screen the card names the ending, so the learner
+  has something to call it, by the Estonian name their class uses. It used to
+  print that name, then the two questions the case answers in Estonian, then
+  the same two in English, and a learner asked for that to be simpler too. The
+  name and the one English word it means is enough: "<name>: the “with”
+  ending". The name is read off `CASES`, so this file still types no Estonian.
+*/
+
+/** The one English word each case means, for naming it after the answer. */
+const ENDING_WORD: Readonly<Record<string, string>> = {
+  GENITIVE: "of",
+  PARTITIVE: "some of",
+  ILLATIVE: "into",
+  INESSIVE: "in",
+  ELATIVE: "out of",
+  ALLATIVE: "onto, or to",
+  ADESSIVE: "on, or has",
+  ABLATIVE: "off, or from",
+  TRANSLATIVE: "becoming",
+  TERMINATIVE: "up to",
+  ESSIVE: "as",
+  ABESSIVE: "without",
+  COMITATIVE: "with",
+};
+
+/**
+ * `<name>: the “with” ending`, or null for a slot that is not a case.
+ *
+ * The nominative is the plain word rather than an ending, so it says so.
+ */
+export function endingName(slot: string): string | null {
+  const spec = caseByKey(slot);
+  if (!spec) return null;
+  if (spec.key === "NOMINATIVE") return `${spec.et}: the plain word`;
+  const word = ENDING_WORD[spec.key];
+  return word ? `${spec.et}: the “${word}” ending` : spec.et;
+}

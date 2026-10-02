@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { PROGRAMMES, MEET_STEP, REVIEW_STEP } from "@/lib/course";
 import { CLOSING_REVIEW, closingProgress, courseReading, dayIsInPlay, ladderReading } from "@/lib/progress/course";
 import { recordCourseLevel } from "@/lib/progress/level";
+import { restartPart } from "@/lib/progress/courseReset";
 import { dayClock } from "@/lib/time/day";
 
 /**
@@ -515,6 +516,107 @@ describe("the day an action may write about", () => {
   });
 });
 
+/*
+  A FINISHED STEP STAYS FINISHED, WHATEVER HAPPENS TO THE DECK AFTERWARDS.
+
+  Reported more than once off a real module: every step done, the evening
+  shown as finished, and then Today read 75 percent with "meet the words"
+  waiting to be done again. The two derived steps were re-read off the deck on
+  every render and saved nowhere, so anything that put one of the day's words
+  back at New took a finished evening back. Each test below finishes an
+  evening, then does one of those things to the deck, and asks again.
+*/
+describe("a finished evening stays finished", () => {
+  async function finish(day: (typeof PROGRAMME.days)[number]) {
+    await deck(day.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    await tick(day.id, ticked(day), EVENING);
+    await review(CLOSING_REVIEW, new Date(EVENING.getTime() + 60_000));
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone).toBe(1);
+    expect(reading.current?.day.index).toBe(2);
+  }
+
+  it("saves both derived steps the moment the evening is proved", async () => {
+    const one = PROGRAMME.days[0]!;
+    await finish(one);
+    const saved = await prisma.courseStep.findMany({
+      where: { ownerId: OWNER, dayId: one.id, stepId: { in: [MEET_STEP, REVIEW_STEP] } },
+      select: { stepId: true },
+    });
+    expect(saved.map((r) => r.stepId).sort()).toEqual([MEET_STEP, REVIEW_STEP].sort());
+  });
+
+  it("does not go back when a second copy of a word arrives at New", async () => {
+    const one = PROGRAMME.days[0]!;
+    await finish(one);
+    // The shape a deck built before a spelling fix gets on a second build.
+    const card = await prisma.card.findFirst({
+      where: { ownerId: OWNER, cardType: "RECOGNITION" }, select: { lexemeId: true },
+    });
+    await prisma.card.create({
+      data: {
+        ownerId: OWNER, lexemeId: card!.lexemeId, cardType: "RECOGNITION",
+        front: "a different front", back: "y", state: 0,
+        due: new Date(), stability: 0, difficulty: 0, elapsedDays: 0,
+        scheduledDays: 0, reps: 0, lapses: 0, learningSteps: 0,
+      },
+    });
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone).toBe(1);
+    expect(reading.current?.day.index).toBe(2);
+  });
+
+  it("does not go back when a word put aside comes back", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
+    await prisma.card.update({ where: { id: card!.id }, data: { state: 0 } });
+    const aside = await prisma.deferral.create({
+      data: {
+        ownerId: OWNER, lexemeId: card!.lexemeId!, lemma: "x", reason: "SOON",
+        untilAt: new Date(Date.now() + 3 * 24 * 3600_000),
+      },
+      select: { id: true },
+    });
+    await reviewable(CLOSING_REVIEW);
+    await tick(one.id, ticked(one), EVENING);
+    await review(CLOSING_REVIEW, new Date(EVENING.getTime() + 60_000));
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).daysDone).toBe(1);
+
+    // The wait ends: the word is New and due again, and the evening was done.
+    await prisma.deferral.update({ where: { id: aside.id }, data: { wokenAt: new Date() } });
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone).toBe(1);
+    expect(reading.current?.day.index).toBe(2);
+  });
+
+  it("does not let a saved step move the closing round's window", async () => {
+    /*
+      The meet step is saved as soon as it is proved, which is partway through
+      the evening, with the server's own clock. If that row opened the closing
+      round's window, the answers given before it would stop counting.
+    */
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    await tick(one.id, ticked(one), EVENING);
+    await review(2, new Date(EVENING.getTime() + 60_000));
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).daysDone).toBe(0);
+    expect(await prisma.courseStep.count({ where: { ownerId: OWNER, stepId: MEET_STEP } })).toBe(1);
+
+    await review(CLOSING_REVIEW - 2, new Date(EVENING.getTime() + 120_000));
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).daysDone).toBe(1);
+  });
+
+  it("saves nothing on a day nobody has pressed a step of", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(await prisma.courseStep.count({ where: { ownerId: OWNER } })).toBe(0);
+  });
+});
+
 describe("the closing round's own counter", () => {
   it("counts up to what the day needs and no further", async () => {
     const one = PROGRAMME.days[0]!;
@@ -552,8 +654,8 @@ describe("the closing round's own counter", () => {
     const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.daysDone).toBe(1);
     expect(reading.current?.day.index).toBe(2);
-    /* And nothing was written for it: the step is still derived (ADR-014). */
-    expect(await prisma.courseStep.count({ where: { ownerId: OWNER, stepId: REVIEW_STEP } })).toBe(0);
+    /* And it is saved, so a deck that changes later cannot take it back. */
+    expect(await prisma.courseStep.count({ where: { ownerId: OWNER, stepId: REVIEW_STEP } })).toBe(1);
   });
 
   it("still asks for all five where the round has five to give", async () => {
@@ -661,5 +763,40 @@ describe("the reading at the hand-off", () => {
     }
     const verdict = await ladderReading(OWNER, PROGRAMME, NOW);
     expect(verdict).toEqual({ kind: "hold", because: "accuracy", seen: 0.5, bar: 0.7 });
+  });
+});
+
+/*
+  A LEVEL CHANGE STARTS THE PART OVER, AND THE PART CAN THEN BE WALKED AGAIN.
+  The first version read past a restarted part's old ticks by the time they
+  were written, which looked right and left every one of them holding its
+  unique key: pressing the same step on the restarted evening wrote nothing,
+  so that evening could never be finished. `restartPart` clears them instead.
+*/
+describe("a part started over", () => {
+  it("opens on its first evening and takes the same tick again", async () => {
+    const [one, two] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!];
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
+    await tick(one.id, ticked(one), EVENING);
+    await review(CLOSING_REVIEW, new Date(EVENING.getTime() + 60_000));
+    await tick(two.id, ticked(two).slice(0, 1), new Date(EVENING.getTime() + 120_000));
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(2);
+
+    const other = PROGRAMMES[1]!;
+    await prisma.courseStep.create({ data: { ownerId: OWNER, programmeId: other.id, dayId: other.days[0]!.id, stepId: "read" } });
+
+    await restartPart(OWNER, PROGRAMME.id);
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(1);
+    // Another part's ticks are not this part's to clear.
+    expect(await prisma.courseStep.count({ where: { ownerId: OWNER, programmeId: other.id } })).toBe(1);
+
+    const step = ticked(one)[0]!;
+    await prisma.courseStep.upsert({
+      where: { ownerId_programmeId_dayId_stepId: { ownerId: OWNER, programmeId: PROGRAMME.id, dayId: one.id, stepId: step } },
+      update: {},
+      create: { ownerId: OWNER, programmeId: PROGRAMME.id, dayId: one.id, stepId: step },
+    });
+    expect(await prisma.courseStep.count({ where: { ownerId: OWNER, programmeId: PROGRAMME.id } })).toBe(1);
   });
 });

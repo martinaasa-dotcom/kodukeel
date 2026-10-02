@@ -319,7 +319,7 @@ check("and the other spelling is named beside it rather than hidden",
 
 // The last act asks for an ending and marks the answer itself.
 await page.getByRole("button", { name: /Try one yourself/ }).click();
-const asked = page.locator("main").getByText(/^How do you say this/);
+const asked = page.locator("main").getByText(/^Say “/);
 check("the last act asks in words a beginner can act on", (await asked.count()) > 0);
 await page.keyboard.press("1");
 const verdict = (await page.locator("[role=status]").first().innerText()).trim();
@@ -761,7 +761,7 @@ if (await box.count()) {
   // the key the price of even seeing what they were about to ask.
   const shown = await dialog.locator("[data-handed-over]").innerText().catch(() => "");
   check("with no key, Anu still shows the question that was handed over",
-    /keep getting this form wrong|Explain/.test(shown), shown.slice(0, 60));
+    /keep getting (?:this form|the \S+ of ".+") wrong|Explain/.test(shown), shown.slice(0, 60));
   absent(1, "a model key, so there is no box to prefill");
 }
 await page.keyboard.press("Escape");

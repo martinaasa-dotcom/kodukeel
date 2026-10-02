@@ -36,7 +36,7 @@ import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { editExamples } from "@/lib/dict/editExamples";
 import { requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
-import { resetCourseProgress } from "@/lib/progress/courseReset";
+import { resetCourseProgress, restartPart } from "@/lib/progress/courseReset";
 import {
   PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
   patchFitsCategory,
@@ -80,7 +80,7 @@ import { asRestoredMeasurement } from "@/lib/security/restoredMeasurement";
 import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/lib/progress/restoreRows";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
-import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
+import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
   DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, programmeById,
 } from "@/lib/course";
@@ -318,7 +318,12 @@ async function addCardsFor(
       */
       deferredDues(tx, owner, [lexemeId], now),
     ]);
-    const seen = new Set(existing.map((c) => `${c.cardType}|${c.front}`));
+    /* A recognition or production card is one per word whatever its front
+       says, or a deck built before a spelling fix gains a second copy at New
+       (`ONE_PER_WORD` in lib/srs/deck.ts). */
+    const seen = new Set(existing.flatMap((c) => ONE_PER_WORD.has(c.cardType)
+      ? [`${c.cardType}|${c.front}`, `${c.cardType}|*`]
+      : [`${c.cardType}|${c.front}`]));
 
     const generated = generateCards(
       {
@@ -327,7 +332,7 @@ async function addCardsFor(
         borrowed: borrowed.get(lexemeId) ?? [],
         plainest: plainerFirst(lexeme.cefr, reach),
       }, types,
-    ).filter((c) => !seen.has(`${c.cardType}|${c.front}`));
+    ).filter((c) => !seen.has(`${c.cardType}|${c.front}`) && !seen.has(`${c.cardType}|*`));
     if (generated.length === 0) return 0;
 
     await tx.card.createMany({
@@ -2523,6 +2528,8 @@ export async function setCourseLevel(level: string) {
   if (!parsed.success) return { ok: false as const, error: "Pick a level from the list." };
 
   const now = new Date();
+  // Asked before the write, since what changed is the whole question below.
+  const before = await courseLevelFor(ownerId);
   await recordCourseLevel(ownerId, parsed.data, now);
 
   /*
@@ -2534,20 +2541,35 @@ export async function setCourseLevel(level: string) {
     nobody had shown them, under a screen that said A1. It was reported off
     exactly that card. So where the level now opens on a different level of
     the ladder than the part in play, the course moves to the first part of it,
-    the way an accepted move on the module screen does. A part of the same
-    level is left where it is, because re-picking A1 halfway through A1 is not
-    asking to start again. Ticks belong to their part, so nothing is lost:
-    going back to a part picks up where its own ticks left off. "off" is a
+    the way an accepted move on the module screen does. Re-picking the level
+    already held is not asking to start again. "off" is a
     learner who picks their own evenings and is never put back on the course.
   */
+  /*
+    AND A NEW LEVEL STARTS THE MODULE OVER, ON ITS FIRST EVENING.
+
+    "Going back to a part picks up where its own ticks left off" was the rule,
+    and it was reported as wrong by somebody who had just changed level: the
+    module resumed an old evening and Review still held eighteen cards from
+    the course they had left. Changing level is a fresh start, so the course
+    moves to the first part of the new level and that part's own ticks are
+    cleared (`restartPart`), so it opens on its first evening. Every other
+    part's ticks and the whole review log stay. Review follows on its
+    own, because it asks only what the module has taught (`reviewable`), and a
+    card held back keeps its schedule for the evening that reaches it.
+    Re-picking the level already held is not asking to start again and moves
+    nothing.
+  */
   const [current, opening] = await Promise.all([programmeFor(ownerId), openingPartFor(ownerId)]);
-  if (current && current.level !== opening.level) {
+  if (current && (before !== parsed.data || current.level !== opening.level)) {
     await Promise.all([
       writeSetting(ownerId, SETTING_KEYS.programme, opening.id),
+      restartPart(ownerId, opening.id),
       writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
       writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
     ]);
     revalidatePath("/course");
+    revalidatePath("/course/learn");
   }
 
   /*

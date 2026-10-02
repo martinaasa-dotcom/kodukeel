@@ -15,7 +15,8 @@
  *   - each beat is named by what the learner does on it (`BEAT_TAGS`),
  *     "booking a time" or "asking to try it on", rather than by the kind of
  *     value it asks for;
- *   - a case is named the way a class names it with what it means beside it;
+ *   - a case is how a task is done rather than the task, so it is named only
+ *     where a beat has no tag, which `practises.test.ts` makes never;
  *   - the register is named only where it is the exception, which is the one
  *     scene played with a friend; and
  *   - the tile orders its chips by how few scenes share them (`distinctive`),
@@ -31,13 +32,24 @@ import { leafNeeds, type SceneSpec } from "./types";
 /**
  * What the learner does on each beat, keyed `scene:beat`, in English and as a
  * phrase that finishes "You will practise ...". Every beat but the hello and
- * the goodbye has one, or carries a case (which names itself below), and
- * `practises.test.ts` fails on a beat with neither: a beat that falls back to
- * the kind of value it asks for ("a word off your card", "asking a
- * question") is the label every scene shares and this table exists to
- * replace.
+ * the goodbye has one, and `practises.test.ts` fails on a beat without: a beat
+ * that falls back to the kind of value it asks for ("a word off your card",
+ * "asking a question") is the label every scene shares and this table exists
+ * to replace.
+ *
+ * A BEAT THAT ASKS FOR A CASE STILL NEEDS ONE. The rule used to let a case
+ * stand in for a tag, so the milk mission, whose every beat asks for an
+ * ending, had none, and its tile was the one tile on the board reading
+ * "sisseütlev (into)" where every other said what you would be doing. A
+ * case is how the task is done, not the task, so it is named only on a beat
+ * with no tag, which the test makes a beat that does not exist.
  */
 export const BEAT_TAGS: Readonly<Record<string, string>> = {
+  "poodi-piima:going": "saying where you're off to",
+  "poodi-piima:inside": "saying where you are now",
+  "poodi-piima:item": "saying what you came for",
+  "poodi-piima:back": "saying you're heading home",
+
   "arsti-aeg:reason": "saying what's wrong",
   "arsti-aeg:where": "saying where it hurts",
   "arsti-aeg:since": "saying when it started",
@@ -128,16 +140,16 @@ export function practises(scene: SceneSpec): string[] {
   const add = (label: string) => { if (!seen.has(label)) { seen.add(label); out.push(label); } };
   for (const beat of scene.beats) {
     if (FRAME_MOVES.has(beat.move)) continue;
-    // A case names itself, the way a class names it with what it means,
-    // because a scene built on endings is practising those endings.
+    const tag = BEAT_TAGS[`${scene.id}:${beat.id}`];
+    if (tag) { add(tag); continue; }
+    // Only a beat with no task named falls back to its case, the way a class
+    // names it with what it means. The test keeps this branch unreached.
     for (const { need } of leafNeeds(beat.needs)) {
       if (need.kind !== "case") continue;
       const spec = CASES.find((c) => c.key === need.grammCase);
       const note = CASE_NOTES.find((n) => n.key === need.grammCase);
       if (spec) add(note ? `${spec.et} (${note.plain})` : spec.et);
     }
-    const tag = BEAT_TAGS[`${scene.id}:${beat.id}`];
-    if (tag) add(tag);
   }
   // The exception, never the rule: nearly every scene is held in the formal
   // you, so naming it on each one says nothing.

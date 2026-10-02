@@ -192,9 +192,23 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
       {/* Each number says what it is rather than naming a state: "assumed"
           beside a count of words read as though that count were all the app
           had taken on trust, when the solid part is what it has confirmed. */}
+      {/*
+        ONE LINE EACH, AND THE SAME FOR BOTH.
+
+        The pair is a legend, and a legend whose second key breaks onto a line
+        of its own under its first is read as two different kinds of thing. It
+        was reported off exactly that: "13 you've shown you know" on one line
+        and "993 counted from your level, not tested yet" on two, at the width
+        of a phone card. So each key is `whitespace-nowrap` and short enough to
+        fit a 360px card whole, the row wraps between keys and never inside
+        one, and `test-containment.mjs` fails on relatives where one wraps and
+        another does not. "Not tested yet" went because the swatch beside it
+        and the word "counted" already say it, and the disclosure below says it
+        at length.
+      */}
       {assumed > 0 && (
         <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm" style={{ color: "var(--ink-2)" }}>
-          <span className="inline-flex items-center gap-2">
+          <span className="inline-flex items-center gap-2 whitespace-nowrap">
             <span
               aria-hidden
               className="h-2.5 w-4 shrink-0 rounded-full"
@@ -202,13 +216,13 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
             />
             <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{verified}</span> you&apos;ve shown you know</span>
           </span>
-          <span className="inline-flex items-center gap-2">
+          <span className="inline-flex items-center gap-2 whitespace-nowrap">
             <span
               aria-hidden
               className="h-2.5 w-4 shrink-0 rounded-full"
               style={{ background: HATCH }}
             />
-            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{assumed}</span> counted from your level, not tested yet</span>
+            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{assumed}</span> counted from your level</span>
           </span>
         </p>
       )}

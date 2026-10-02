@@ -8,7 +8,7 @@ import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { caseAnswer, shownForms, stemsFrom } from "@/lib/estonian/derive";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { caseIndex, tidyForm } from "@/lib/estonian/whichCase";
-import { plainAsk } from "@/lib/estonian/plainAsk";
+import { sayShort } from "@/lib/estonian/plainAsk";
 import { looksLikeSentence } from "@/lib/estonian/writing";
 import { attestedForms, conjugationAnswer } from "@/lib/srs/cards";
 import { CONJUGATION_SLOTS, isFormSlot, slotLabel } from "@/lib/srs/slots";
@@ -707,19 +707,20 @@ export function askLine(task: FlashTask): string {
  */
 export function plainAskFor(task: Pick<FlashTask, "shape" | "slot">): string | null {
   if (task.shape === "recall") return null;
-  const clause = plainAsk(task.slot);
-  if (!clause) return null;
   /*
     And nothing for `gap` and `heard`, which is a decision rather than a gap in
     the table. Those two shapes exist because the *sentence* is what says which
-    form is wanted, which is the thing a learner has to do in a conversation,
-    and a clause naming the form beside the gap answers the question the gap is
-    asking. They are already legible: a sentence with a hole in it and a
-    meaning beside it is not a screen anybody has to decode.
+    form is wanted, and a line naming the form beside the gap answers the
+    question the gap is asking.
   */
   if (task.shape === "gap" || task.shape === "heard") return null;
-  if (task.shape === "build") return `Write a sentence using it ${clause}.`;
-  return `How do you say this ${clause}?`;
+  // One instruction in the fewest words: `Say “with it”`, and on the screen,
+  // which holds the gloss, `Say “with the bird”` (`sayLine` in sayIt.ts). The
+  // form's name is printed after the answer, where it is the thing to remember.
+  const phrase = sayShort(task.slot);
+  if (!phrase) return null;
+  if (task.shape === "build") return `Write a sentence with “${phrase}”.`;
+  return `Say “${phrase}”`;
 }
 
 /** True where the slot is a grammatical form rather than a question about meaning. */
@@ -753,8 +754,10 @@ export function subjectOf(word: FlashWord): CaseSubject {
  * `caseQuestionFor`'s job; everything else is the same on every word and comes
  * off the one table in `lib/srs/slots.ts`.
  */
-export function caseLabel(word: FlashWord, slot: string): string {
+export function caseLabel(_word: FlashWord, slot: string): string {
   const spec = caseByKey(slot);
   if (!spec) return slotLabel(slot);
-  return `${spec.et}, ${caseQuestionFor(spec, subjectOf(word))}`;
+  // The name alone: the question words beside it were a second name for the
+  // same thing, and the screen says what the case means in English instead.
+  return spec.et;
 }

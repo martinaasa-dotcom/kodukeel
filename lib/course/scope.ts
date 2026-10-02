@@ -30,6 +30,8 @@ import { readableSentence } from "./build";
 import { BLANK, sentenceTiles } from "@/lib/estonian/cloze";
 import { CASES } from "@/lib/estonian/cases";
 import { conjugationSlotFromFront } from "@/lib/srs/slots";
+import { isAppsChoice } from "@/lib/srs/sources";
+import { caseFromFront } from "@/lib/copy/caseHint";
 import type { CourseDay, Programme } from "./types";
 
 export interface ModuleScope {
@@ -169,6 +171,7 @@ export function formsTonight(scope: ModuleScope): { verbs: readonly string[]; po
 
 const isCaseKey = (slot: string): boolean => CASES.some((c) => c.key === slot);
 
+
 /**
  * Whether a card in the learner's deck may be asked inside the module.
  *
@@ -189,7 +192,13 @@ export function cardWithin(
 ): boolean {
   if (!scope) return true;
   if (card.cardType === "CASE_FORM" || card.cardType === "GRADATION") {
-    if (!caseWithin(scope, card.targetCase ?? (card.cardType === "GRADATION" ? "GENITIVE" : null))) return false;
+    // A case card always asks a case. One built before `targetCase` was
+    // written names its case only on the front (`tool → allative`), and read
+    // as no case at all it passed every gate: so the front is read, and a
+    // case card nothing can place is refused rather than waved through.
+    const caseKey = card.targetCase
+      ?? (card.cardType === "GRADATION" ? "GENITIVE" : caseFromFront(card.front));
+    if (!caseKey || !caseWithin(scope, caseKey)) return false;
   }
   // A verb card is about a part of the verb, and the past on the first
   // evening of A2 is three evenings before the page that teaches it.
@@ -229,4 +238,46 @@ export function sentenceWithin(scope: ModuleScope | null, spellings: ReadonlySet
  */
 export function lemmaFilter(scope: ModuleScope | null): { lemma: { in: string[] } } | Record<never, never> {
   return scope ? { lemma: { in: [...scope.lemmas] } } : {};
+}
+
+/**
+ * WHETHER REVIEW MAY ASK THIS CARD AT ALL, FOR A LEARNER FOLLOWING THE MODULE.
+ *
+ * Review repeats what somebody has learned and never teaches anything new.
+ * That was true of the new cards on the daily path and false of the due ones:
+ * "what is due is due whatever taught it" let a deck built before the module
+ * existed ask a beginner on the second evening of A1 for `tool` in the
+ * alaleütlev, a case no evening had shown, under a Latin name nobody uses. It
+ * was reported from exactly there, and the operator's call is written down
+ * here so it is not re-litigated: a card is asked on Review only where the
+ * module has taught what the card asks.
+ *
+ * Two questions. The word: a word this app chose (`APP_CHOSE`) is asked once
+ * the module has taught it, and a word the learner went and got themselves is
+ * theirs and needs no evening. The form: every card, whoever chose its word,
+ * asks only a case whose page has been read, a part of a verb the module has
+ * shown, and a sentence made of taught spellings, which is `cardWithin`. A
+ * card held back keeps its schedule untouched and is asked the evening the
+ * module reaches it; nothing is deleted.
+ *
+ * Null scope is a learner not following the module, and everything passes.
+ */
+export function reviewable(
+  scope: ModuleScope | null,
+  card: Parameters<typeof cardWithin>[1] & { source: string },
+  spellings: ReadonlySet<string> | null,
+): boolean {
+  if (!scope) return true;
+  if (isAppsChoice(card.source) && !(card.lexeme && taughtSet(scope).has(card.lexeme.lemma))) return false;
+  return cardWithin(scope, card, spellings);
+}
+
+const TAUGHT = new WeakMap<readonly string[], ReadonlySet<string>>();
+function taughtSet(scope: ModuleScope): ReadonlySet<string> {
+  let set = TAUGHT.get(scope.lemmas);
+  if (!set) {
+    set = new Set(scope.lemmas);
+    TAUGHT.set(scope.lemmas, set);
+  }
+  return set;
 }

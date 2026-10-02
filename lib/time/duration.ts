@@ -43,7 +43,11 @@ function unitFor(hours: number): Unit {
 function amountIn(hours: number, unit: Unit): number {
   return unit === "min"
     ? Math.round(hours * MINUTES_PER_HOUR)
-    : Math.round(hours * 10) / 10;
+    /* A tenth of an hour is the signal below ten and noise above it:
+       "72.9 to 100 h" printed a decimal nobody measured and was long enough
+       to break its own unit onto a second line of a stat tile. The rule is
+       `formatAnswerTime`'s below, one unit up. */
+    : hours >= 10 ? Math.round(hours) : Math.round(hours * 10) / 10;
 }
 
 function label(amount: number, unit: Unit, style: DurationStyle): string {
@@ -61,26 +65,6 @@ export function formatDuration(hours: number, style: DurationStyle = "short"): s
   const safe = Math.max(0, hours);
   const unit = unitFor(safe);
   return write(amountIn(safe, unit), unit, style);
-}
-
-/**
- * A range, with the unit said once at the end.
- *
- * The unit follows the larger end, since that is the figure a reader anchors
- * on, and then steps back down if that would print the smaller end as a zero
- * it is not. That guard is the whole reason this takes both ends at once: the
- * note under the plan's verdict reached "roughly 0 to 0 hours a week" on a
- * real figure, which is a sentence that argues with the paragraph around it.
- */
-export function formatDurationRange(low: number, high: number, style: DurationStyle = "short"): string {
-  const lo = Math.max(0, low);
-  const hi = Math.max(0, high);
-  let unit = unitFor(Math.max(lo, hi));
-  if (unit === "h" && lo > 0 && amountIn(lo, "h") === 0) unit = "min";
-
-  const from = amountIn(lo, unit);
-  const to = amountIn(hi, unit);
-  return from === to ? write(from, unit, style) : `${from} to ${write(to, unit, style)}`;
 }
 
 

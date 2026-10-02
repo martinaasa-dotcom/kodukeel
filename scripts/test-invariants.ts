@@ -2736,9 +2736,12 @@ check("a case reading is one table, holds no Estonian, and reaches the screen ma
     .flatMap((dir) => sourceFiles(dir))
     .filter((file) => file !== table && !/\.i?test\.tsx?$/.test(file))
     .filter((file) => /caseReading\(/.test(code(file)));
+  // And `sayIt`, which turns the same phrase into the ask a card leads with,
+  // `Say “with the bird”`: the instruction and the walkthrough's reading of
+  // the built word are one phrase, so they cannot disagree about an ending.
   assert.deepEqual(
     readers,
-    ["lib/estonian/caseBuild.ts", "lib/estonian/formReading.ts"],
+    ["lib/estonian/caseBuild.ts", "lib/estonian/formReading.ts", "lib/estonian/sayIt.ts"],
     "a second module composes what a word in a case means in English",
   );
   assert.deepEqual(
@@ -10438,7 +10441,7 @@ check("a screen that asks for a form reads the plain table rather than only nami
     const source = code(file);
     assert.match(
       source,
-      /plainAsk\w*\(/,
+      /plainAsk\w*\(|\bsay(?:Line|Phrase)\(|\.say\b/,
       `${file} asks a learner for a named form and never says in plain English what it wants`,
     );
   }
@@ -10669,6 +10672,9 @@ check("a case's Latin name has a closed list of readers", () => {
       government string.
     */
     "lib/copy/caseHint.ts": "recognises the stored Latin name so a screen can print the question instead",
+    // The same latitude for the parts a screen draws through `CaseLabel`: a
+    // stored hint naming its case in Latin is read as that case, never printed.
+    "lib/copy/caseLabel.ts": "recognises a stored Latin name so CaseLabel draws the Estonian one instead",
   };
   // `spec.en`, `c.en`, `caseByKey(x)?.en`: the member access, not the word,
   // which is the anchor the check below this one already argues for.
@@ -10715,12 +10721,13 @@ check("a case's Latin name has a closed list of readers", () => {
 check("a hint a deck already holds does not name its case in Latin", () => {
   const table = "lib/copy/caseHint.ts";
   assert.ok(existsSync(table), "the reading of a stored card hint has gone");
-  // It says what the case asks rather than what an English grammar calls it,
-  // and it reads the one table rather than keeping a second list of names.
+  // It says what the ending means rather than what an English grammar calls
+  // it, `<name>: the “with” ending`, through the one helper every screen reads
+  // after an answer, and it reads the one table rather than a second list.
   assert.match(
     code(table),
-    /\bquestionEn\b/,
-    "the stored hint is no longer rewritten to the question the case answers",
+    /\bendingName\(/,
+    "the stored hint is no longer rewritten to what the ending means",
   );
   assert.match(code(table), /\bCASES\b/, "caseHint.ts keeps a case list of its own");
 
@@ -10875,7 +10882,8 @@ check("a screen that prints a case question says what it is asking", () => {
   // `{spec.question}`, `{item.caseQuestion}`, `{question}`. Deliberately the
   // whole word before the brace, so `{question.letter}` in the minimal-pairs
   // round, which is a letter rather than a case, is not swept in.
-  const PRINTS = /lang="et"[^>]*>\s*\{[^{}]*\b(caseQuestion|question)\}/;
+  // `<Words text={label.question} />` is the label printing it a word per run.
+  const PRINTS = /lang="et"[^>]*>\s*(?:<Words text=)?\{[^{}]*\b(caseQuestion|question)\}/;
   const READS = /questionInEnglish|<CaseQuestion|\bquestionEn\b|plainAsk/;
   let found = 0;
   for (const file of [...APP, ...COMPONENTS]) {
@@ -10891,8 +10899,9 @@ check("a screen that prints a case question says what it is asking", () => {
     );
   }
   // A floor, because a regex that stops matching is a check that passes
-  // having asked nothing: five screens print one today.
-  assert.ok(found >= 4, `expected the screens that print a case question, found ${found}`);
+  // having asked nothing. Three screens print one today: Target stopped, since
+  // it asks in one plain line and names the ending after the answer instead.
+  assert.ok(found >= 3, `expected the screens that print a case question, found ${found}`);
 });
 
 /**
@@ -13504,9 +13513,9 @@ check("the verdict band and the found-hours sentence read one figure", () => {
     between(code("lib/assessment/plan.ts"), "export function foundHours"), /FOUND_HOURS_PER_WEEK/,
     "foundHours no longer starts from the baseline, so a learner with no exposure is told their week holds nothing",
   );
-  const verdictLine = plan.slice(plan.indexOf("const verdict: Verdict"), plan.indexOf("const verdict: Verdict") + 300);
-  assert.match(verdictLine, /found\.high/, "the verdict band no longer reads the most the learner's week holds");
-  assert.match(verdictLine, /other\.low/, "the verdict band stopped being drawn at the near end of the distance");
+  const verdictLine = plan.slice(plan.indexOf("const otherAbout"), plan.indexOf("const otherAbout") + 300);
+  assert.match(verdictLine, /about\(found\)/, "the verdict band no longer reads the middle of what the learner's week holds");
+  assert.match(verdictLine, /about\(other\)/, "the verdict band stopped being drawn at the middle, which is the one figure screens quote");
   assert.match(verdictLine, /COMMIT_HOURS_PER_WEEK/, "the verdict band no longer reads the commitment ceiling");
   const panel = code("components/assessment/PlanPanel.tsx");
   assert.doesNotMatch(
@@ -13517,7 +13526,7 @@ check("the verdict band and the found-hours sentence read one figure", () => {
     panel, /FOUND_HOURS_PER_WEEK/,
     "PlanPanel quotes the baseline constant rather than the learner's own found hours",
   );
-  assert.match(panel, /plan\.weeksWithFound/, "PlanPanel no longer quotes the weeks the projection computed");
+  assert.match(panel, /plan\.weeksAbout/, "PlanPanel no longer quotes the weeks the projection computed");
   assert.match(panel, /plan\.found\b/, "PlanPanel no longer quotes the found hours the verdict was drawn against");
 });
 
@@ -13689,19 +13698,19 @@ check("the exam hub prints the plan's distance off the plan's own projection", (
   const readsDistance: Record<string, string> = {
     // The plan's own screen. Its note under the verdict is the long form of
     // the sentence `distanceLine` shortens for Today and the hub, over the same
-    // projection's `found` and `weeksWithFound`, with the way out spelled out.
+    // projection's `found` and `weeksAbout`, with the way out spelled out.
     "components/assessment/PlanPanel.tsx": "the plan's own panel",
   };
   const readers = ALL.filter((f) =>
     f !== "lib/assessment/plan.ts" && !/\.(i)?test\.tsx?$/.test(f)
-    && /\.weeksWithFound\b/.test(code(f)));
-  assert.ok(readers.length >= 1, "nothing reads weeksWithFound any more, so this check stopped looking");
+    && /\.weeksAbout\b/.test(code(f)));
+  assert.ok(readers.length >= 1, "nothing reads weeksAbout any more, so this check stopped looking");
   assert.deepEqual(
     readers.filter((f) => !readsDistance[f] && !code(f).includes("distanceLine(")), [],
-    "a screen writes its own sentence over weeksWithFound rather than reading distanceLine",
+    "a screen writes its own sentence over weeksAbout rather than reading distanceLine",
   );
   for (const f of Object.keys(readsDistance)) {
-    assert.ok(readers.includes(f), `${f} no longer reads weeksWithFound, so its exemption is a parking space`);
+    assert.ok(readers.includes(f), `${f} no longer reads weeksAbout, so its exemption is a parking space`);
   }
 });
 
@@ -20822,7 +20831,7 @@ check("learn teaches a word and practice drills it, never both at once", () => {
 
   const review = code("app/(app)/review/page.tsx");
   assert.match(
-    review, /where: dueWhere\(ownerId, now[,)]/,
+    review, /where: (?:\{ AND: \[)?dueWhere\(ownerId, now[,)]/,
     "the review queue reads its own due clause rather than the shared one",
   );
   assert.match(
@@ -23568,7 +23577,7 @@ check("every round a rotation can deal reads the module's scope off its address"
   assert.ok(reads >= 12, `only ${reads} round pages read the scope; the table has more rounds than that`);
   // And the closing review reads it too, since it is the last step of every evening.
   assert.match(code("app/(app)/review/page.tsx"), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
-  assert.match(code("app/(app)/review/page.tsx"), /cardWithin\(/, "the closing review stopped holding a case card to the case pages read");
+  assert.match(code("app/(app)/review/page.tsx"), /reviewable\(/, "the closing review stopped holding a case card to the case pages read");
 });
 
 /*
@@ -23634,27 +23643,29 @@ check("the daily review introduces nothing the module has not taught", () => {
     "the daily review no longer falls back to the learner's own standing when it was not opened from the module",
   );
   /*
-    And it is in flight beside the due read rather than awaited in front of
-    it: resolving the standing is two reads deep, and this is the page whose
-    daily job is to open fast.
+    It is awaited in front of the due read now, which reverses what this check
+    used to hold: what is due is narrowed by what the module has taught, so the
+    read cannot start before the standing is known. Started beside the
+    settings read, so it costs one round trip rather than two.
   */
   assert.match(
-    page, /const \[taught, due,/,
-    "the module standing is resolved before the due list rather than beside it, which costs the daily path two round trips",
+    page, /const taughtFirst = await taughtPromise;[\s\S]*taughtWhere\(taughtFirst\)/,
+    "the due read on the daily path is no longer narrowed to what the module has taught",
   );
   assert.match(
     page, /taught\?\.lemmas|taught\.lemmas/,
     "the new-card window stopped being narrowed to what the module has taught",
   );
   assert.match(
-    page, /cardWithin\(taught,/,
+    page, /const introducible = \(card: CardRow\) => reviewable\(taught,/,
     "a card about to be introduced is no longer asked whether the module has taught what it is made of",
   );
-  // And the due list is still the scheduler's: gated on the module-opened
-  // scope alone, never on the standing.
+  // And the due list is held to the standing too, which is the operator's
+  // reversal of "what is due is due whatever taught it": review only repeats
+  // what the module has taught (`reviewable`).
   assert.match(
-    page, /const within = \(card: CardRow\) => cardWithin\(scope,/,
-    "the due list is being held to the learner's module standing, which is the scheduler's decision to make",
+    page, /const within = \(card: CardRow\) => reviewable\(taught,/,
+    "the due list is no longer held to what the module has taught",
   );
 });
 
@@ -26753,7 +26764,7 @@ check("every round says what is about to happen before it happens", () => {
     child element and so is not mounted: no clock has started and no clip has
     played behind the screen somebody is reading. Five rounds already opened
     on a start screen of their own, which is the same thing arrived at
-    earlier, and those read `BriefingLines` so the wording still comes off one
+    earlier, and those read `BriefingSteps` so the wording still comes off one
     table rather than each round answering "what is this" in its own words.
 
     The haystack is a page that renders a session, read through `code()` so a
@@ -26778,7 +26789,7 @@ check("every round says what is about to happen before it happens", () => {
     */
     const named = [...page.matchAll(/<([A-Z][A-Za-z]*Session)\b/g)].map((m) => m[1]);
     const drawn = named.some((name) =>
-      COMPONENTS.concat(APP).some((f) => f.endsWith(`${name}.tsx`) && /<BriefingLines\b/.test(code(f))),
+      COMPONENTS.concat(APP).some((f) => f.endsWith(`${name}.tsx`) && /<BriefingSteps\b/.test(code(f))),
     );
     if (!drawn) missing.push(key);
   }
@@ -26809,7 +26820,7 @@ check("every round says what is about to happen before it happens", () => {
   */
   const ids = new Set(Object.keys(BRIEFINGS));
   for (const file of ALL) {
-    for (const m of code(file).matchAll(/<(?:BeforeYouStart|BriefingLines)\b[^>]*?\bid="([^"]+)"/g)) {
+    for (const m of code(file).matchAll(/<(?:BeforeYouStart|BriefingSteps)\b[^>]*?\bid="([^"]+)"/g)) {
       assert.ok(ids.has(m[1]!), `${file} asks for a briefing called "${m[1]}" that lib/copy/briefings.ts does not hold`);
     }
   }

@@ -219,7 +219,9 @@ async function answer(typed) {
   if (!slot && ASK_LINES[0].test(text)) slot = "saying it";
   return {
     right: /That's it/.test(text),
-    told: form && slot ? `${slot}: ${form}` : "",
+    // Joined on an arrow, since a case's name now carries a colon of its own
+    // (`alalütlev: the “onto” ending`).
+    told: form && slot ? `${slot} -> ${form}` : "",
     text,
   };
 }
@@ -273,7 +275,7 @@ check(
   worth asserting on its own: a learner who refreshes has not lost their place.
 */
 const first = await answer("zzz zzz zzz");
-const [firstLabel, firstForm] = first.told.split(/:\s+/);
+const [firstLabel, firstForm] = first.told.split(" -> ");
 const firstWord = wordOf(first.text);
 
 check("a wrong answer is told what the form is", Boolean(firstLabel && firstForm), first.told);
@@ -294,7 +296,14 @@ const again = await question();
   The word is the part that has to hold: the slot is a function of its own
   unchanged history, so the same word first means the same slot asked.
 */
-const named = again.text.includes(firstLabel ?? "\u0000");
+// And the plain instruction, `Say “onto France”`, which is what an inflect
+// card leads with now: the form's name is printed after the answer instead.
+const sayOf = (text) => text.match(/(?:Say|Write a sentence with) “[^”]+”/)?.[0] ?? null;
+// And on a gap card with an English line, the gapped sentence itself: the
+// form's name is not printed there, since the line already says which form.
+const gapOf = (text) => text.match(/[^\n]*____[^\n]*/)?.[0]?.trim() ?? null;
+const same = (read) => read(opening.text) !== null && read(opening.text) === read(again.text);
+const named = again.text.includes(firstLabel ?? "\u0000") || same(sayOf) || same(gapOf);
 const heard = /type the form you hear/i.test(again.text);
 const sameQuestion = wordOf(again.text) === firstWord && (named || heard);
 check("a reload comes back to the same question", sameQuestion,
@@ -335,7 +344,7 @@ for (let i = 0; i < 12; i++) {
   for (const line of ASK_LINES) if (line.test(state.text)) shapes.add(line.source);
 
   const marked = await answer("zzz zzz zzz");
-  const [label] = marked.told.split(/:\s+/);
+  const [label] = marked.told.split(" -> ");
   if (label) slotsAsked.add(label.trim());
   learned.set(`${wordOf(state.text)}|${label}`, marked.told);
 

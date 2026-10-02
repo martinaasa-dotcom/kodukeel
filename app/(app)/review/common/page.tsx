@@ -82,10 +82,10 @@ export default async function CommonRoundsPage() {
                   which is a hue's fill carrying text, and axe measured it under
                   4.5 (docs/14-design-system.md: every hue has an ink).
                 */}
+                <DeepenButton group={group.key} variant="secondary" />
                 <ButtonLink href={`/review/common/${group.slug}`} variant="primary">
                   Start the round
                 </ButtonLink>
-                <DeepenButton group={group.key} />
               </div>
             </Card>
           );

@@ -20,6 +20,7 @@ import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { FitText } from "@/components/FitText";
+import { CaseLabel } from "@/components/CaseLabel";
 
 export interface GovernmentQuestion {
   /** The card this question practices, when the verb is already in the deck. */
@@ -289,16 +290,11 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                   <KeyCap>{i + 1}</KeyCap>
                   <span className={`min-w-0 ${!revealed && struck.includes(option) ? "line-through" : ""}`}>
                     {!revealed && struck.includes(option) && <span className="sr-only">Ruled out by a hint. </span>}
-                    {/* The question leads because the dictionary records
-                        government as the question a verb answers, and because
-                        that is how the answer is said out loud: "aitama" takes
-                        "keda?", not "the partitive". */}
-                    <span lang="et" className="block text-base font-medium">{spec?.question}</span>
-                    {/* And what that is asking, because a list of question
-                        words is a list of Estonian to somebody who has not met
-                        them: see `lib/estonian/cases.ts`. */}
-                    <span className="block text-xs">{questionInEnglish(spec?.question)}</span>
-                    <span lang="et" className="block text-xs" style={{ color: "var(--ink-3)" }}>{spec?.et}</span>
+                    {/* The case and the question it answers, drawn as one
+                        label: the dictionary records government as the question
+                        a verb answers ("aitama" takes "keda?"), and the label
+                        carries that question with what it asks. */}
+                    {spec ? <CaseLabel label={spec} className="text-base" /> : null}
                   </span>
                   {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label="Right" />}
                 </button>

@@ -2418,6 +2418,32 @@ the marking back. The flip survives where there is genuinely nothing to compare:
 whose answer is a gloss rather than a form, and speaking, where ADR-018 says the learner is the only
 judge there is.
 
+**A second right word is right, and the card says how the two differ.** A production card
+showing "to begin (something)" asked for `alustama` and answered `hakkama` with "Not quite", a
+retype and Again, which told somebody who had said the thing in the word most people reach for
+that they could not say it. `lib/questions/neighbours.ts` finds the entries sharing a sense with
+the prompt and the same part of speech, read generously as the next paragraph says. The review card asks only where the marker said no, draws a right verdict and
+`components/round/SameMeaning.tsx` under it: both glosses and one recorded sentence of each, the
+dictionary's own, with no Estonian written. **Graded Hard, never Good** (`NEIGHBOUR_RATING`): the
+learner produced *a* right word and has not shown the card's own, and `Review` is append-only. The
+index lives in `lib/dict/neighbourFacts.ts` rather than `facts.ts`, because the deck builder reads
+`facts.ts` and the sense relation may only be read to accept.
+
+**And it is generous, on both screens that ask a word from its meaning.** The first version kept
+only the pairs that meet on both words' first sense and refused two qualifiers that differ, which
+kept "chair" off the word for whoever chairs a meeting and also refused `sai` typed for "bread
+(dark)", a word anybody at a counter would have understood. The operator's call is the other way:
+refusing a right word costs somebody's confidence, crediting a near one costs a card coming back a
+little sooner, and the panel prints both glosses and a sentence of each, so a pair that only
+overlaps a little is *shown* overlapping a little rather than claimed to be the same. So any sense
+of the prompt against any sense of the other word, past an article, a slash or an "or"
+(`looseSenses`), qualifiers ranked rather than refused, and a slip of the hand on the second word
+forgiven by the same `checkAnswer` that forgives one on the first. The part of speech is the one
+line kept, since `abi` typed for "to help" is a different answer. Measured over the shipped
+dictionary, no word reaches eight neighbours. `lib/progress/contrast.ts` is the one builder and the
+Learn ladder's typed rung reads it too, never on a gap, which asks for a form of this word in a
+sentence.
+
 **Being stuck has a way out now, and it costs something.** A learner drove the Learn ladder, met a
 word ninety seconds earlier, was shown an empty box and a Check button, and had nothing to do but
 guess or leave. Two things were missing and they are different. Nothing on the screen said that
@@ -4807,13 +4833,26 @@ a screen belongs. And the verdict band was drawn at ten hours a week measured ag
 week, so 335 of the 704 combinations a learner could click said "It fits, but only with study
 outside this app" over a sentence putting the date three years out. Both read
 `FOUND_HOURS_PER_WEEK` now, and the band and the note are drawn against one `found`, which makes
-those two sentences the same claim rather than two answers to one question. The band sits at the
-near end of the distance, on purpose and after first sitting at the far one: a learner who reached
-the last level in the fewer hours is the one who reaches the next in the fewer, so "it fits" means
-the near end of the range lands inside the date, and the note prints the whole range under it. A deadline already gone is its
+those two sentences the same claim rather than two answers to one question. The band sat at the
+near end of the distance for a while and sits at the middle now, below. A deadline already gone is its
 own verdict rather than a division by no time: it used to floor at one week and print "in 0 weeks
 your daily goal puts in about 0.4 of those hours" over a note asking for 1 099 hours a week. Two
 invariants and an exhaustive sweep of every combination in `plan.test.ts` hold all three.
+
+**And a screen quotes one figure, never the range, which moved the band to the middle.** Every
+estimate was printed as both ends, "13 to 22 months", "880 to 1170 hours", and it was reported as
+an app that does not know: the width is honest about other people's averages and says nothing a
+learner can plan with. The model keeps both ends, because the published hours are ranges, and
+every screen quotes the middle, `about` in `lib/assessment/plan.ts`, worded "about". `weeksAbout`
+is that middle for the weeks, and it is what the distance line, the plan panel's note and the
+landing calculator print. **The verdict moved with it**, from the near end to the same middle:
+drawn at the near end it said "it fits" over a headline figure that did not fit, once the screens
+stopped printing the near end beside it, so the headline and the number are one claim again. It
+costs one stated case, abroad with a textbook from a guessed B1 to B2 in a year, which reads
+"possible" rather than "tight" now; the middle is the honest figure for somebody deciding to do
+this. `formatDurationRange` is deleted rather than left unread, and
+`scripts/invariants/an-estimate-is-one-figure.ts` fails on a plan screen printing `${low} to
+${high}` again.
 
 **And the unit is part of the number.** All of that arithmetic was then printed in hours to one
 decimal place, which at the top of the range is fine and at the bottom is a different quantity: a
@@ -4821,8 +4860,7 @@ daily goal of ten cards three days a week is nine minutes, and it read `0.2h`, w
 The shortfall note was worse, since it rounds a figure the panel only shows when it is above zero:
 `0.0218` hours a week still to find printed as "roughly 0 to 0 hours a week", under a headline
 saying there was study left to do. `lib/time/duration.ts` is the one module that units a stretch
-of study, minutes below an hour and hours above, with a range stepping back down a unit rather
-than rounding its smaller end to a zero it is not. It lives in `lib/time/` and not in `clock.ts`,
+of study, minutes below an hour and hours above, never rounding a real figure to a zero it is not. It lives in `lib/time/` and not in `clock.ts`,
 because a duration is not a time of day and the 24-hour rule has nothing to say about it. Two
 spellings, `min` for a tile and `minutes` for a sentence, since the same figure is read in both.
 The invariant is that the pace never reaches a screen except through that module, and `weeksNeeded`
@@ -5257,7 +5295,8 @@ sentence made of words given by then, against 55, and 241 of 245 at A2, against 
 written sentence is what lets the module's gap rung ask at all. **Where they may go is the half that keeps the
 amendment narrow**: the Learn ladder, the review card's first meeting and the unit lesson, which are
 the screens that introduce a word, and no exam, level check, scene, card builder or borrowed pool,
-since each says its Estonian was recorded; the invariant is a closed list of three readers.
+since each says its Estonian was recorded; the invariant is a closed list of readers, the fourth
+being the lesson drawn when a learner types a second right word, which introduces that word.
 `WordIntro` shows an A1 word a written sentence and still no recorded one, the flag is required on
 its prop, and the ladder's gap rung returns at A1 on a written sentence where the gap is not a case,
 since A1 asks for none. Adding a row is `npm run check:authored` until it prints nothing, then a
@@ -5601,11 +5640,25 @@ is built against.
 no day pointer column and there is not going to be one (ADR-014): the day in play is the furthest
 one carrying a tick, worked out on each render. Two of every day's steps are proved by the review
 log, meeting the words leaves a mark on every one of their cards and the closing round is answers
-graded after that day's own ticks, and those are never written anywhere. The rest cannot be,
+graded after that day's own ticks, and no press may write those. The rest cannot be proved,
 because a `Review` row carries no note of which mode wrote it and a round of Match and a flip of the
 same card are one row. Those are ticked by the learner, `CourseStep` is append-only with a unique
 key so a second press is a no-op, and **the screen says which kind each one is** rather than
 implying the app watched.
+
+**And a derived step, once proved, is saved, because finished has to stay finished.** It was read
+afresh off the deck on every render and written nowhere, so it could be true on the module screen
+and false a minute later on Today: a learner finished every step, saw the evening done, opened Today
+and read 75 percent with "meet the words" waiting again, more than once. "The words are met" is a
+fact about cards, and anything that put one of the day's words back at New took a finished evening
+back: a word put aside coming back when its wait ended, or a second recognition card built because
+the builder deduplicated on the card's *front* and a deck built before a spelling fix holds an
+older front. `latchDerived` writes the row the moment the server has proved the step, on a day the
+learner has pressed a step of and no other (a row on the day after would move `dayReached` and take
+"That's tonight done" with it), and those rows never open the closing round's window, which reads
+pressed ticks alone. The meet step is read per word rather than per card, and recognition and
+production are one per word whatever their front (`ONE_PER_WORD`), so the copy is not built either.
+No client may write a derived row: `markCourseStep` and `advanceCourseStep` still refuse one.
 
 **And a step nobody can press has to be one the app can still finish.** The two derived steps ask
 for evidence, and the closing one asked for five answers whatever the round behind it had left to
@@ -5615,8 +5668,8 @@ with no press anywhere on it that could move it: the step is derived, so `markCo
 `advanceCourseStep` both refuse it a row, correctly. Reported off a real module. A derived step is
 finished by the evidence it asks for **or by there being no more evidence to be had**, so the ask
 is `min(CLOSING_REVIEW, graded + what is left)` and a closing round with nothing to ask is a
-closing round done. Nothing is stored for it (ADR-014): what is left is read off the deck on each
-render like every other figure here.
+closing round done. What is left is read off the deck on each render like every other figure
+here, and the step is saved once it holds, like the meet step above.
 
 **And it is read off the queue's own clauses rather than beside them.** A count computed near the
 review page and not out of it is two readings of one question, and the one that is wrong is the one
@@ -5991,12 +6044,33 @@ level `openingPartFor` names wherever that is another level, and leaves a part o
 where it is. The closing round opened the whole queue, due cards from anywhere in the deck plus ten
 new ones, for a step that needs five answers; inside a module its due read is narrowed to the taught
 words (`dueWhere`'s `only`, read by the round and by `lib/progress/closing.ts` alike) and it stops at
-`MODULE_SESSION`, which reverses "what is due is due whatever taught it" for the module and keeps it
-on the daily path. And the past-tense page opened the past of every verb, when `juhtusin` has to be
+`MODULE_SESSION`. (The daily path kept "what is due is due whatever taught it" until the next
+paragraph reversed it there too.) And the past-tense page opened the past of every verb, when `juhtusin` has to be
 learned for its own verb and nothing had ever shown it: a form no rule reaches (`LEARNED_PER_VERB`,
 the simple past and the polite imperative) is asked inside the module only for a verb an evening
 has already shown it for. Operator's call, asserted in
 `scripts/invariants/the-module-asks-what-it-taught.ts`.
+
+**Review repeats what the module has taught, and never teaches, on the daily path as much as in
+the module.** A learner on the second evening of A1 opened Review and was asked `tool` with
+"allative" in a pill under it: a case card an old deck had carried in, under a Latin name this app
+has taken off every screen, on a case no A1 evening reads. Two faults. The daily path held its *new*
+cards to the module and let every *due* card through, on the argument that holding one back
+overwrites the scheduler; the operator's call reverses that, and it is written down so it is not
+re-litigated: review is learned information repeated, never anything new. `reviewable` in
+`lib/course/scope.ts` is the one question, asked of every card Review shows, due or new, and of
+every card Today counts as due, so "6 due" never sits over an empty round. A word this app chose is
+asked once the module has taught it, and a word the learner went and got is theirs; the *form* is
+held on every card whoever chose the word, so a case card waits for its case page, a verb card for
+the page or the evening that showed the part, and a gap for a sentence of taught spellings. The
+words and the case are narrowed in the query (`taughtWhere`), so a deck full of old cards cannot
+fill the read with rows that are then refused. A card held back keeps its schedule untouched and is
+asked the evening the module reaches it; nothing is deleted. A case card built before `targetCase`
+existed names its case on the front alone, and read as no case it passed every gate, so
+`caseFromFront` reads it and a case card nothing can place is refused. And a stored front is read
+through `readableFront` on the way to every screen, which turns `tool → allative` into
+`tool → millele? kuhu?` without touching the row. Asserted in
+`scripts/invariants/review-repeats-only-what-was-taught.ts`.
 
 **Whatever the module asks, it has shown first, and the past is where that needed a step of its
 own.** The operator's rule, in their words: whatever you show and want practice on needs to be
@@ -9673,7 +9747,7 @@ saying nothing is about to happen is the app talking to itself.
 **Five rounds already had one, so they read the table rather than being given a second screen.**
 The three with a clock, the picture board and the daily quest each open on a card saying what they
 are with a Start under it, which is this rule arrived at earlier one round at a time. Putting a
-briefing in front of one of those is a press for nothing, so they draw `BriefingLines` and keep
+briefing in front of one of those is a press for nothing, so they draw `BriefingSteps` and keep
 everything that is a fact about this sitting rather than about the round: how long the clock runs,
 how many cards are loaded, the personal best, and the learner's own weakest endings on the quest,
 which are the reason to press rather than the thing about to happen.
@@ -10530,6 +10604,18 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   same two moves: `flex-nowrap` on a marker and a short label, or `items-start` with the marker nudged
   to the first line where a label may run to two. Its first run found the course strip, an exam option,
   the mode tiles and the frequency lists.
+- **Relatives wrap alike: a set of labels sits one line each, or none of it does.** The
+  climb on Today printed its legend as "13 you've shown you know" on one line and "993 counted from
+  your level, not tested yet" on two, and the marker rule above passed it, because the second line
+  began under the label rather than under the swatch. So `test-containment.mjs` asks a third question
+  of siblings sharing a parent and a class (a marker row, a chip, a legend key): where every member is
+  label length, under 60 characters, either all sit on one line or none of them may, side by side or
+  stacked. A set holding anything longer is content and is left alone: a checklist of sentences, an
+  answer option carrying its English, a tile with a title and a description. The fix is a shorter label with `whitespace-nowrap` on each key, never a narrower font. The
+  legend only draws where a level is credited, which the fixture never is, so the sweep writes a
+  declared B1 for one load of Today at each width and puts back what was there. The landing page's
+  claims went to one column in the same pass, because two put one claim on three lines beside one on
+  one, which is the same fault in sentences rather than labels.
 - **A word set large shrinks; it is never broken.** The body's `overflow-wrap: anywhere` is right
   for a paragraph and wrong at display size: the landing page's hero card, the first thing a
   stranger sees, drew `raamatusse` as `raamatuss / e`. Nothing caught it, for three reasons worth
@@ -11467,7 +11553,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `requireAdminId`, `upsertLexemeWithForms`, `PLACES`, `QUICK_MODES`, `naturalSentence`,
 `PAPER_SIZE`, `bandsAround`, `aroundFirst`, `recordCourseLevel`, `decisiveItems`,
 `VOICE_RULES`, `findTells`, `useNavMarker`, `travelKeyframes`, `--nav-marker-bg`,
-`FOUND_HOURS_PER_WEEK`, `appHoursPerWeek`, `readIdentity`, `boundedTransport`, `gapFrom`,
+`FOUND_HOURS_PER_WEEK`, `appHoursPerWeek`, `weeksAbout`, `readIdentity`, `boundedTransport`, `gapFrom`,
 `explainGap`, `ESTONIAN_WORD`, `formatDuration`, `alsoGoverned`, `teachingSentence`,
 `splitOnForm`, `inTeachingOrder`, `SELF_GRADES`, `DrillLink`, `lockDeck`, `caseReviewsFor`,
 `alsoRight`, `shownForms`, `spellingFor`, `repairCardSpelling`, `ALWAYS_CAPITAL`, `SIDES`,
@@ -11525,7 +11611,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `LookBackCard`, `forgetLast`, `shownAs`, `buildSlotIndex`, `readSlot`, `PointExamples`,
 `isRefusedSentence`, `REFUSED_SENTENCES`, `refusalFor`, `refusalMatcher`, `refusedSentenceCards`, `enRefused`,
 `mayFillEnglish`,
-`data-point-examples`, `BeforeYouStart`, `BriefingLines`, `BRIEFINGS`, `startRound`,
+`data-point-examples`, `BeforeYouStart`, `BriefingSteps`, `BRIEFINGS`, `startRound`,
 `OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`, `tonightSteps`, `useModuleSteps`,
 `ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`, `withoutFarewell`,
 `withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`.

@@ -1,19 +1,26 @@
 import { describe, expect, it } from "vitest";
 import { SCENES } from "./catalogue";
 import { BEAT_TAGS, distinctive, practises } from "./practises";
-import { leafNeeds } from "./types";
+import { CASES } from "@/lib/estonian/cases";
 
 describe("what a scene practises", () => {
-  it("names every beat but the hello and the goodbye by what the learner does, or by its case", () => {
+  it("names every beat but the hello and the goodbye by what the learner does, case or no case", () => {
     const missing: string[] = [];
     for (const scene of SCENES) {
       for (const beat of scene.beats) {
         if (beat.move === "greet" || beat.move === "close") continue;
-        const hasCase = leafNeeds(beat.needs).some(({ need }) => need.kind === "case");
-        if (!hasCase && !BEAT_TAGS[`${scene.id}:${beat.id}`]) missing.push(`${scene.id}:${beat.id}`);
+        if (!BEAT_TAGS[`${scene.id}:${beat.id}`]) missing.push(`${scene.id}:${beat.id}`);
       }
     }
     expect(missing).toEqual([]);
+  });
+
+  it("tells a tile what needs doing, never only which endings it asks for", () => {
+    const caseNames = new Set(CASES.map((c) => c.et));
+    for (const scene of SCENES) {
+      const chips = distinctive(scene, SCENES);
+      expect(chips.filter((c) => caseNames.has(c.split(" (")[0]!)), scene.id).toEqual([]);
+    }
   });
 
   it("never names a beat no scene has", () => {

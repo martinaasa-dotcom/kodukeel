@@ -25,7 +25,7 @@ export default function theModuleAsksWhatItTaught({ check, code }: InvariantKit)
     assert.match(review, /dueWhere\(ownerId, now, scope\?\.lemmas \?\? null\)/, "the review page reads the whole deck's due cards inside a module");
     assert.match(review, /scope \? queued\.slice\(0, MODULE_SESSION\)/, "the module's closing round is no longer capped");
     // The count the step keeps has to be drawn over the same narrowed read.
-    assert.match(code("lib/progress/closing.ts"), /dueWhere\(ownerId, now, scope\.lemmas\)/, "the closing count reads a wider queue than the round shows");
+    assert.match(code("lib/progress/closing.ts"), /dueWhere\(ownerId, now, scope\.lemmas\), taughtWhere\(scope\)/, "the closing count reads a wider queue than the round shows");
   });
 
   check("a verb form learned verb by verb is asked inside the module only once an evening showed it", () => {

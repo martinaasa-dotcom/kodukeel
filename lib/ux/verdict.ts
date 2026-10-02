@@ -24,24 +24,14 @@
 
 export type Verdict = "right" | "nearly" | "wrong";
 
-/**
- * How long a marked answer stays on the screen before the next card comes.
- *
- * A right pick and a right typed answer used to move on after 420 ms, which
- * is under the time it takes to look from the option you pressed to the tint
- * it turned: a learner reported the card "flashing away" before they knew
- * whether they had it. It went to 1,100 ms for that, and a second learner
- * reported the same thing again: long enough to register the tint has
- * changed color is not long enough to read the word it changed on, and a
- * card met for the first time carries a gloss and a sentence worth a second
- * look. Three seconds and a bit was that reading time, and the operator then
- * asked for five seconds more on top of it, right answers included: the
- * reveal is where the sentence, its English and the hint are all on the
- * screen at once, and it was still going before anybody had looked them over.
- * So the pause is a reading pause rather than a blink, and Enter or the
- * button on the card moves on sooner for anybody who has finished reading.
+/*
+ * There is no pause constant here, and that is the decision. A marked answer
+ * used to move on after a fixed delay, 420 ms, then 1,100, then 8,300, each
+ * raised because a learner reported the card going before they had read it.
+ * The fourth report was a learner in the daily module unable to press
+ * Continue or use Enter while the timer ran. A verdict waits for the learner
+ * now, however long they take (`scripts/invariants/the-learner-moves-on.ts`).
  */
-export const VERDICT_PAUSE_MS = 8300;
 
 /** The class a panel, a chip or a self-grade button wears for a verdict. */
 export const VERDICT_CLASS: Record<Verdict, string> = {
