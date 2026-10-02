@@ -270,9 +270,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                These answers build your plan on the level check page: roughly how many hours your
-                target level takes, how many your daily goal covers, and how many you&rsquo;ll want
-                to find outside the app. Change them whenever your life does.
+                Your plan is built from these. Change them whenever your life does.
               </p>
               <GoalsPanel current={goals} />
               <p className="mt-5 text-sm" style={{ color: "var(--ink-3)" }}>

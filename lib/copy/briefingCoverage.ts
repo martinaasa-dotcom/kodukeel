@@ -6,7 +6,7 @@
  * they are supposed to do, which they press through before any of it is
  * drawn. `lib/copy/briefings.ts` is the copy and `components/round/Briefing.tsx`
  * is the two ways a round satisfies it: `BeforeYouStart`, which is wired at
- * the page so the round is not mounted behind it, and `BriefingLines`, which
+ * the page so the round is not mounted behind it, and `BriefingSteps`, which
  * is the same two sentences read into a start screen a round already had.
  *
  * It needed an exception list because it needed a sweep, and it needed a

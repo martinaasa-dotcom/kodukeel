@@ -290,11 +290,11 @@ export function offerParts(offer: AdaptOffer, effects: LeanEffects): OfferText {
   }
 
   const lead = offer.reading.because === "misses"
-    ? "Quite a few of your recent answers have been misses. That usually means this part is a step ahead of you for now, not that anything's wrong with how you learn."
-    : `Lately you've been getting ${seen} out of a hundred right. That usually means this part is a step ahead of you for now, not that anything's wrong with how you learn.`;
+    ? "A lot of recent answers have been misses. This part is a step ahead of you for now, and that's normal."
+    : `Lately you've been getting ${seen} out of a hundred right. This part is a step ahead of you for now, and that's normal.`;
   const move = offer.move;
   if (!move) {
-    return { lead, advice: "Your reviews already know which words are slipping away. Give them a few days and this will turn around.", lean };
+    return { lead, advice: "Your reviews will bring back the words that are slipping. Give it a few days.", lean };
   }
   if (move.kind === "down") {
     const below = move.to.level;
@@ -303,7 +303,7 @@ export function offerParts(offer: AdaptOffer, effects: LeanEffects): OfferText {
       : `Going over ${below} first will make this part much easier.`;
     return {
       lead,
-      advice: `${first} Much of it will feel familiar, and that's the idea: it's a refresher. This part waits for you afterwards, right where you left it.`,
+      advice: `${first} It's a refresher, and this part waits for you afterwards.`,
       lean,
     };
   }
