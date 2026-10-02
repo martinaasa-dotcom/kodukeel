@@ -809,9 +809,19 @@ export function composeNote(
       + " last. Never tell them you did not understand: they answered you." + question;
   }
   if (reading === "offtarget" && (response === "narrow" || response === "repeat")) {
-    return "What they just said is real Estonian and does not answer what you asked."
-      + " Answer what they actually said first, in one short natural sentence, and then ask"
-      + " again for the same thing in your own words. Never tell them you did not understand"
+    /*
+      AND NOT A QUESTION THEY HAVE ALREADY ANSWERED. A waiter whose move is to
+      ask whether the meal was good was told "jah, oli hea" and went on asking
+      it three times in different words, because this said to ask again: the
+      beat was waiting on something else (the learner asking for the bill),
+      which the waiter cannot ask for. Where the conversation already holds the
+      answer, the person takes it and leaves the door open instead.
+    */
+    return "What they just said is real Estonian and does not do what you are waiting for."
+      + " Answer what they actually said first, in one short natural sentence. Then, if they have"
+      + " not yet answered your question anywhere in this conversation, ask again for the same"
+      + " thing in your own words; if they have, never ask it again, and instead leave the"
+      + " conversation open for them, as this person naturally would. Never tell them you did not understand"
       + " them, and never comment on their Estonian: you understood them, they answered"
       + " something else." + question;
   }

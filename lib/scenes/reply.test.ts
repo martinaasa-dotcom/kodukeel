@@ -408,7 +408,7 @@ describe("a turn that was understood and missed the point", () => {
   */
   it("asks the model, because answering what they said is the whole of what is owed", () => {
     expect(wantsFreshLine("narrow", "Kus teil valutab?", "offtarget")).toBe(true);
-    expect(composeNote("narrow", "offtarget")).toMatch(/does not answer what you asked/);
+    expect(composeNote("narrow", "offtarget")).toMatch(/does not do what you are waiting for/);
     expect(composeNote("narrow", "offtarget")).toMatch(/[Nn]ever tell them you did not understand/);
   });
 
@@ -928,7 +928,7 @@ describe("a question asked on a turn that missed", () => {
 
   it("tells the model a question was asked, on a hit and on a miss alike", () => {
     expect(composeNote("answer", "complete", false, "mis")).toMatch(/answer it first/);
-    expect(composeNote("narrow", "offtarget", false, "mis")).toMatch(/does not answer what you asked/);
+    expect(composeNote("narrow", "offtarget", false, "mis")).toMatch(/does not do what you are waiting for/);
     expect(composeNote("narrow", "offtarget", false, "mis")).toMatch(/answer it first/);
     expect(composeNote("answer", "complete", false, null)).toBeUndefined();
   });
