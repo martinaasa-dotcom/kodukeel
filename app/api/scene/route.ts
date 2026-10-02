@@ -552,7 +552,7 @@ export async function POST(request: Request) {
     without a shrug in front of it.
   */
   const composing = draw?.lines === "composed" && sceneProviders().length > 0;
-  const shrugOwed = !composing && wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain && !isOver(scene, state);
+  const shrugOwed = wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain && !isOver(scene, state) && !composing;
 
   /*
     WHAT THIS PERSON KNOWS, FOR THE MODEL. Every value on the card, the

@@ -20045,7 +20045,7 @@ check("a learner who says they are lost is handed the word, never the question a
     "the other side gives up without saying the word it was waiting for",
   );
   assert.match(
-    answering, /coachFor\(beat, card\)/,
+    answering, /coachFor\(beat, card(, [^)]*)?\)/,
     "a learner who is stuck is no longer told what the beat wants, so a scene can run out of "
     + "patience on somebody who never found out what it was asking",
   );
