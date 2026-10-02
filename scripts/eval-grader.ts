@@ -51,6 +51,10 @@ import { verifyComment } from "../lib/tutor/verify";
 import { estimateCostMicros } from "../lib/usage/pricing";
 import { CASES } from "../lib/estonian/cases";
 import type { ProviderConfig } from "../lib/tutor/provider";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it counts a rate over samples, and a sample replayed is not a second sample.
+installMeter({ replay: false });
 
 
 type Entry = {

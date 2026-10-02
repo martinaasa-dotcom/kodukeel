@@ -489,6 +489,28 @@ about a mechanical second opinion. An entry goes in when somebody who speaks the
 that sentence and said so, and the report button on every screen that draws one is the door a
 learner reaches it through.
 
+**And then the operator asked for scenes to run as cheaply as they can be made to, and four faults
+were most of the bill.** Read off Google's own cache listing and its 429s on 2026-10-02
+(`docs/21-situations.md` §77). The harnesses were the largest spender and nothing capped them:
+thirteen rounds of `scripts/critic-scenes.ts` took `gemini-3.8-flash` past its 10,000 requests a day.
+Every script that reaches a paid model installs `scripts/lib/meter.ts`, asserted, which prices every
+call off the ledger's table, refuses past `--budget` so a run finishes on the bank and says it is
+partial, prints what it spent, and answers a byte-identical question from `.cache/model-replay/`
+(`--fresh` skips it; a Gemini call off a cache entry is replayed inside `geminiCache.ts` before any
+entry is made, through `setReplayRecord`, which nothing in the app sets). A model past its quota was
+still asked first and had an entry written for it before every refusal: `lib/tutor/exhausted.ts`
+believes a 429 for as long as its `RetryInfo` says, and a link marked out gets no request and no
+entry. Every instance wrote its own copy of one prompt: an entry carries `cacheTag`, a digest of its
+model and prompt, a miss adopts a live entry off Google's free listing before it writes one, and
+concurrent misses wait on one write through `singleFlight`. **And the model is asked only where a
+person is needed** (`lib/scenes/onRails.ts`): real Estonian that missed, a question nothing prepared
+answers, news, a goodbye after news, and a turn six or more words past the answer. Everything else
+answers from the bank, which cut the turns that reach the model from 88 to 36 for a clean learner
+and from 94 to 61 for a curious one over every scene. **`SCENE_MODELS` leads on the Lite now**, the
+operator's call on §61's own numbers, with the flash as its backup, and an entry lives five minutes
+rather than ten. Where an earlier paragraph here says the flash is the primary or that every beat
+composes, this one supersedes it.
+
 **The scene prompt was cut by a fifth and then held on Google's side, which is the saving the
 endpoint could not give.** The rules block was 594 tokens for twenty rules and is 498 saying the
 same twenty; the pitch voices and the per-turn boilerplate went the same way, and the whole prompt

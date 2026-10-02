@@ -4993,3 +4993,73 @@ being told what it has already said. Run the critic before and after the next ch
 **The review.** `lib/scenes/recap.ts` counts the run and quotes the learner; "A note from Anu" is a
 model's short note on it, checked word by word against the conversation, with a sentence dropped
 rather than the note withheld where one reaches for a form nobody said.
+
+## §77 What a conversation costs, and four faults that were most of the bill
+
+The operator reported the Gemini credits running out on scenes and asked for them to run as cheaply as
+they can be made to. Read off Google's own `cachedContents` listing and the 429s it answered with on
+2026-10-02, four faults were most of the bill, and none of them was visible to a test.
+
+**The harnesses were the largest spender and nothing capped them.** The app is metered by its ledger
+and capped at $2 a day for scenes. `scripts/critic-scenes.ts` plays ninety conversations a round with
+a model playing the learner, a model composing, a judge on every miss and a flash critic on every
+transcript, each conversation in its own process; thirteen rounds that day took `gemini-3.8-flash`
+past its quota of 10,000 requests a day, and a fourteenth was scheduled. Every script that reaches a
+paid model now installs `scripts/lib/meter.ts`, asserted: it prices every call off
+`lib/usage/pricing.ts`, refuses calls past `--budget` (default $1 a run, $3 for the critic, split
+among its children) so a run finishes on the bank and says it is partial, prints what it spent, and
+answers a byte-identical question from `.cache/model-replay/`. A Gemini call off a cache entry is
+replayed inside `lib/tutor/geminiCache.ts`, before any entry is made, so a fully replayed round costs
+nothing at all. Driven with the network stubbed: a first run bought two lines and an entry for
+$0.0010, an identical second run made no request of any kind.
+
+**A model out of quota was still asked first, and paid for before it refused.** The cached path makes
+an entry before it asks for a line, so every new prompt wrote 2,600 tokens into Google's cache for a
+model that then answered 429, asked the plain transport on the same link, was refused again, and only
+then reached the Lite, which made its own entry. The listing that evening held 180 live entries, every
+prompt twice, one of each pair for a model that could not answer. `lib/tutor/exhausted.ts` believes a
+429 for as long as its `RetryInfo` says; a model marked out is walked past before anything is spent on
+it, gets no entry written, and a cached-path refusal goes straight to the next link.
+
+**Every instance wrote its own copy of the same prompt.** The entry map is per process, so a learner
+whose turns landed on three instances paid three writes, and the listing showed one prompt held nine
+times at once. An entry now carries a tag that is a digest of its model and prompt (`cacheTag`), a
+miss reads Google's free listing and adopts a live entry with that tag before it writes one, and two
+turns missing together wait on one write through `singleFlight`.
+
+**The model was asked on turns the bank already answered.** Since ADR-025 amendment 1 every beat with
+content composed. `lib/scenes/onRails.ts` keeps the model for the turns only a person can answer:
+real Estonian that missed, a question neither the card nor the bank answers, news, a goodbye after
+news, and a turn that said six or more words beyond the answer. A clean answer, a curveball, a
+counter-offer, a word handed to somebody stuck, a late answer and an anticipated question all answer
+from the bank, which is what a keyless deployment has always said on the same turn. Counted over all
+fifteen scenes by `npm run play:scenes`, which now asks the same rule and prints the tally:
+
+| Learner style | Turns the model was asked before | Turns it is asked now |
+| --- | --- | --- |
+| clean | 88 | 36 |
+| sloppy | 92 | 40 |
+| curious | 94 | 61 |
+
+**And the composer leads on the Lite, on the operator's instruction.** `SCENE_MODELS` is
+`gemini-3.1-flash-lite` and then `gemini-3.8-flash`: a third of the price per token, 19 percent of
+drafts withheld against 8, which three attempts turn into the bank on under one turn in a hundred.
+§61 is the measurement and its cost is the one it named, that the flash reacts where the Lite asks
+and stops; the rule above is what spends the model only on the turns that need a reaction. Turning it
+back is one line.
+
+**Two things were measured and left alone.** Google's implicit cache, which would need no entry and
+no storage, served 8,166 of an 11,197-token prompt on a repeat and none of the real 2,000-token scene
+prompt at 20, 45 or 90 seconds, so it does not reach a prompt this size. And the per-turn half of the
+prompt is about 370 tokens of instructions and 150 of conversation against a cached 2,050, which makes
+it about half of what a call costs now; the instructions were measured into shape over several runs,
+so moving them is a measured change rather than a tidy-up. What did move is the entry's life, from ten
+minutes to five, because with two to four reads a run the idle tail was a real share of what an entry
+cost on the Lite, which holds at $1.00 a million an hour against $0.25 to read.
+
+**What a conversation costs now, roughly.** On the Lite with its prompt held: about $0.00025 a call,
+2.5 to 4 calls a run at 1.2 attempts each, one shared entry at about $0.0008 with its storage, a judge
+call at $0.0002 on a miss, and Anu's note at $0.0007. About $0.003 a conversation, against roughly
+$0.01 to $0.015 before on the flash with an entry per instance. Those figures are arithmetic over the
+measured token counts and the price table, not a reading of the ledger, which this session could not
+reach; `npm run report:spend` on the deployment is the reading.

@@ -27,6 +27,10 @@ import { buildLexicon, formsOf, withExtras, words, type DictEntry, type Lexicon 
 import { fits, isQuestion, spokenLine, topicForms, unknownWords, type Line } from "../lib/scenes/retrieval";
 import type { BeatSpec, SceneSpec } from "../lib/scenes/types";
 import { shippedDictionary } from "./lib/dictionary";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
+installMeter({ replay: true });
 
 const arg = (name: string, fallback: number) => {
   const i = process.argv.indexOf(`--${name}`);

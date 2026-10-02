@@ -333,7 +333,7 @@ describe("a chain built for a purpose", () => {
     vi.stubEnv("GEMINI_SCENE_MODEL", "gemini-3.5-flash-lite");
     expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual([...SCENE_MODELS]);
     expect(sceneProviders().map((c) => c.model)).toEqual([...SCENE_MODELS]);
-    expect(SCENE_MODELS).toEqual(["gemini-3.8-flash", "gemini-3.1-flash-lite"]);
+    expect(SCENE_MODELS).toEqual(["gemini-3.1-flash-lite", "gemini-3.8-flash"]);
   });
 
   it("prices the scene model as a paid model, because the account is paid", () => {

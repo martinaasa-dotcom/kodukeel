@@ -35,6 +35,10 @@ import { isKnownForm } from "../lib/dict/forms";
 import { askLine, chain as providerChain, HARNESS_LEVEL } from "./lib/sceneDraft";
 import type { Level } from "../lib/collections/syllabus";
 import type { Lexicon } from "../lib/scenes/lexicon";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
+installMeter({ replay: true });
 
 const rows: Row[] = shippedDictionary().map((e) => ({
   id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr, parts: e.parts,

@@ -32,6 +32,7 @@ import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 import { courseLevelFor } from "@/lib/progress/level";
 import { asideFor, asideOwed, asksToHearAgain, shrug } from "@/lib/scenes/aside";
 import { choiceOf } from "@/lib/scenes/choice";
+import { extraWordsOf, needsComposer } from "@/lib/scenes/onRails";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
 import { offerFor } from "@/lib/scenes/grades";
 import { gateFor } from "@/lib/scenes/gate";
@@ -266,7 +267,7 @@ export async function POST(request: Request) {
       && lastRead.met.some((ok) => !ok),
   );
   if (judgeable && lastSent && lastRead && judged) {
-    const decision = resolveProviders({ purpose: "grader" }).length > 0
+    const decision = resolveProviders({ purpose: "grader", answering: true }).length > 0
       ? await authoriseCall(ownerId, "GRADER")
       : null;
     if (decision?.allowed && decision.reservation) {
@@ -333,7 +334,7 @@ export async function POST(request: Request) {
         beat ahead is exactly where such a word tends to belong.
       */
       && words(lastSent.said).some((word) => !context.lexicon.forms.has(word) && !context.lexicon.folded.has(fold(word)))
-      && resolveProviders({ purpose: "grader" }).length > 0,
+      && resolveProviders({ purpose: "grader", answering: true }).length > 0,
   );
   if (askAhead && lastSent && ahead) {
     const decision = await authoriseCall(ownerId, "GRADER");
@@ -785,7 +786,7 @@ export async function POST(request: Request) {
     chain is what will be asked, and a turn a model actually wrote replaces it
     with the one that answered (`composedBy`).
   */
-  const head = sceneProviders()[0];
+  const head = sceneProviders({ answering: true })[0];
   const composer = head ? { label: head.label, model: head.model, primary: head.model === SCENE_MODELS[0] } : null;
   const answer = async (lines: readonly SpokenLine[], extra: Record<string, unknown> = {}) =>
     Response.json({ ...progress, composer, lines: await glossedLines(lines), ...extra }, { headers: NO_STORE });
@@ -1038,13 +1039,44 @@ export async function POST(request: Request) {
   if (cheap.provenance === "attested" && !shrugOwed && !handing && !askedNow && !closingOnNews) return answer(reply(cheap));
 
   /*
+    AND NOT WHERE THE CONVERSATION IS ON RAILS (`lib/scenes/onRails.ts`). The
+    learner answered what they were asked, in the words the beat expected, and
+    the other side's whole job is to take it and ask the next thing, which the
+    bank's line does with the learner's own word said back in front of it. A
+    model on that turn was a paid paraphrase of the line underneath it, so it is
+    kept for the turns that need a person: a miss, a question, news, a word
+    being handed over, a curveball, a late answer, a goodbye after news, and a
+    learner who said a good deal more than the answer.
+  */
+  const needsPerson = needsComposer({
+    turns: turns.length,
+    reading: progress.reading,
+    landed: landedNow,
+    // Asked, and nothing on the card or in the bank answered it (`asideFor`).
+    unanswered: askedNow !== null && aside === null,
+    news: feltAt(answered, turns.length > 0 ? response : null) !== undefined,
+    closingOnNews,
+    extraWords: extraWordsOf(words(last?.said ?? ""), last?.produced, last?.matched),
+    bankHasLine: move.provenance !== "fallback",
+  });
+  if (!needsPerson) {
+    if (shrugOwed) aside = shrug(context.lexicon);
+    return answer(reply(move));
+  }
+
+  /*
     THE BOOKING IS PER TURN, because a call is what the ledger counts. Booking
     once when the run opened was the first version of this and it is the burst
     limiter's own arithmetic broken: a conversation is a dozen turns, and one
     `CALL` row in front of twelve settlements is eleven calls the allowance
     never saw.
   */
-  const decision = sceneProviders().length > 0
+  /*
+    Only where a link is still answering: a chain whose every model has said
+    "not until later" (`lib/tutor/exhausted.ts`) books nothing, asks nothing
+    and answers from the bank, which is where a keyless deployment lives.
+  */
+  const decision = sceneProviders({ answering: true }).length > 0
     ? await authoriseCall(ownerId, "SCENE")
     : null;
 

@@ -48,6 +48,7 @@ import {
 import { asideFor, asideOwed, asksToHearAgain, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { sceneLine } from "../lib/scenes/line";
+import { extraWordsOf, needsComposer } from "../lib/scenes/onRails";
 import { PERSONAS } from "../lib/scenes/personas";
 import { answerBeatId, sceneBeats } from "../lib/scenes/scripted";
 import { reviewOf } from "../lib/scenes/review";
@@ -63,6 +64,10 @@ import type { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { dealtNumbers } from "../lib/scenes/props";
 import { askLine, COMPOSE_USAGE, chain as providerChain, vouchOf, HARNESS_LEVEL } from "./lib/sceneDraft";
 import type { Level } from "../lib/collections/syllabus";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
+installMeter({ replay: true });
 
 const arg = (name: string) => { const i = process.argv.indexOf(`--${name}`); return i >= 0 ? process.argv[i + 1] : undefined; };
 const only = arg("scene");
@@ -111,6 +116,8 @@ const JUDGE_LINKS = modelDown && process.env.GROQ_API_KEY
   }]
   : LINKS;
 const COMPOSE_STATUS = new Map<string, number>();
+/** Turns the route would hand to the model, against turns it answers from the bank (`needsComposer`). */
+const RAILS = { person: 0, bank: 0, courtesy: 0 };
 
 
 const askModel = (
@@ -398,7 +405,7 @@ async function play(sceneId: string) {
       const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
       const handing = (response === "help" || response === "moveOn") && answered
         ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null;
-      const cheap = await sceneLine({
+      const ladder = {
         beat: spokenFor, lexicon: context.lexicon,
         // This run's dealt numbers, so the gate's `facts` check is the one the route runs.
         gate: {
@@ -476,7 +483,25 @@ async function play(sceneId: string) {
           }, talk);
           },
         } : {}),
+      };
+      /*
+        THE ROUTE'S RULE FOR WHETHER THIS TURN NEEDS A PERSON (`lib/scenes/onRails.ts`),
+        read off the same facts, so a transcript asks the model on the turns the app
+        asks it on and the tally at the end says how many that was.
+      */
+      const bank = await sceneLine({ ...ladder, mode: "scripted" as const });
+      const needsPerson = needsComposer({
+        turns: turns.length, reading: last?.reading ?? null, landed: landedNow,
+        unanswered: askedNow !== null && aside === null,
+        news: feltAt(answered, turns.length ? response : null) !== undefined,
+        closingOnNews: spokenFor.move === "close" && last !== null && !saysGoodbye(last.said, FAREWELLS),
+        extraWords: extraWordsOf(words(last?.said ?? ""), last?.produced, last?.matched),
+        bankHasLine: bank.provenance !== "fallback" || datumLine(spokenFor, card, context.lexicon) !== null,
       });
+      RAILS[needsPerson ? "person" : "bank"] += 1;
+      // A courtesy off the dictionary was never sent to the model, so it is no saving.
+      if (!needsPerson && bank.provenance === "attested") RAILS.courtesy += 1;
+      const cheap = needsPerson ? await sceneLine(ladder) : bank;
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, card, context.lexicon) ?? cheap;
       // A composed line answered what was asked; otherwise a landed question nothing answered gets the shrug.
       if (line.provenance === "composed") aside = null;
@@ -543,6 +568,12 @@ async function play(sceneId: string) {
 
 (async () => {
   for (const scene of SCENES) if (!only || scene.id === only) await play(scene.id);
+  /* How many turns the route would hand to the model, keyless or not (`lib/scenes/onRails.ts`). */
+  const turnsSeen = RAILS.person + RAILS.bank;
+  if (turnsSeen > 0) {
+    console.log(`\nA person was needed on ${RAILS.person} of ${turnsSeen} turns; ${RAILS.bank} answered from the bank`
+      + `, ${RAILS.bank - RAILS.courtesy} of them turns the model used to be asked on.`);
+  }
   /*
     Who answered and who did not, so a run that composed nothing says so rather
     than reading as a clean keyless run. On a free tier a refusal is the

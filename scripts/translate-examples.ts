@@ -60,6 +60,10 @@ import { estonianNotCopied } from "../lib/dict/copiedWords";
 import { openWithFallback, resolveProviders } from "../lib/tutor/provider";
 import { readExpanded } from "./lib/expandedFile";
 import { isRefusedSentence } from "../lib/dict/refused";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it keeps its own record of every answer it was given (`.translate-cache/`).
+installMeter({ replay: false });
 
 /**
  * The expansion's own shape for a sentence, which is not the database's.
