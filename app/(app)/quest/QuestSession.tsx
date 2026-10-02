@@ -384,13 +384,13 @@ export function QuestSession({
             <ul className="mt-4 flex flex-col gap-4">
               {aimed.map((c) => (
                 <li key={c.key}>
-                  <div className="flex items-baseline justify-between gap-3">
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                     {c.question ? (
                       <CaseLabel label={{ et: c.et, question: c.question }} className="text-md" />
                     ) : (
                       <span lang="et" className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{c.et}</span>
                     )}
-                    <span className="tnum shrink-0 whitespace-nowrap text-sm font-semibold" style={{ color: "var(--ink)" }}>
+                    <span className="tnum whitespace-nowrap text-sm font-semibold" style={{ color: "var(--ink)" }}>
                       {c.accuracy}% right
                     </span>
                   </div>

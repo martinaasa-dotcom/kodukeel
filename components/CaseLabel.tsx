@@ -1,5 +1,7 @@
 "use client";
 
+import { Fragment } from "react";
+
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { useCaseGloss } from "@/components/CaseGloss";
 import type { CaseLabelParts } from "@/lib/copy/caseLabel";
@@ -33,9 +35,9 @@ export function CaseLabel({ label, className = "", reading = true }: {
   const english = reading === "always" || (reading && wantsGloss) ? questionInEnglish(label.question) : null;
   return (
     <span className={`case-label ${className}`} data-case-label>
-      <span lang="et" className="case-label-name">{label.et}</span>
+      <span lang="et" className="case-label-name"><Words text={label.et} /></span>
       <span className="sr-only">{", "}</span>
-      <span lang="et" className="case-label-ask">{label.question}</span>
+      <span lang="et" className="case-label-ask"><Words text={label.question} /></span>
       {english && (
         <>
           <span className="sr-only">{", "}</span>
@@ -43,5 +45,23 @@ export function CaseLabel({ label, className = "", reading = true }: {
         </>
       )}
     </span>
+  );
+}
+
+/**
+ * Each word its own unbreakable run, joined by ordinary spaces. A label sits in
+ * flex rows, grid cells and table cells that squeeze it to its narrowest, and
+ * under the body's `overflow-wrap: anywhere` that drew `kelles?` across two
+ * lines. A run per word keeps the narrowest a label can be at its longest word
+ * rather than its whole question, so it still wraps between words.
+ */
+function Words({ text }: { text: string }) {
+  const words = text.split(/\s+/).filter(Boolean);
+  return (
+    <>
+      {words.map((word, i) => (
+        <Fragment key={i}>{i > 0 && " "}<span className="whitespace-nowrap">{word}</span></Fragment>
+      ))}
+    </>
   );
 }

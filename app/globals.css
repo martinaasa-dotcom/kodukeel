@@ -4519,7 +4519,10 @@ input[data-hop][data-hop-end="cw-land"] { animation: cw-land 0.34s cubic-bezier(
   reading quiet after it; no separator is drawn, so nothing is typed between
   the pieces on any screen. It wraps between pieces and never inside one.
 */
-.case-label { display: inline; }
+.case-label { display: inline; position: relative; }
+/* Positioned so the screen-reader separators, which are absolutely placed,
+   stay inside the label rather than escaping a table's own scroller and
+   widening the page. */
 /* Plain inline runs rather than a flex row, so a label wraps the way a
    sentence does and breaks a long word the way the body does. As an
    inline-flex row with whole runs it set a min-content floor wider than the
