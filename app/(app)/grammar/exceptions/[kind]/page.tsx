@@ -103,7 +103,7 @@ export default async function ExceptionKindPage({ params }: { params: Promise<{ 
             {/* Two across from `md`: with the paragraph gone each card is a
                 word, its form and a line, and a single column of those is a
                 long scroll of mostly empty width. */}
-            <ul className="grid gap-3 md:grid-cols-2">
+            <ul className="grid gap-3 xl:grid-cols-2">
               {group.entries.map((entry) => {
                 const exception = entry.exceptions.find((e) => e.kind === group.kind);
                 if (!exception) return null;
