@@ -1345,13 +1345,15 @@ export async function POST(request: Request) {
         check and is what a critic flagged most after a turn went nowhere.
       */
       review: async (candidate: string) => {
-        if (repeatsItself(candidate, state.turns.flatMap((turn) => (turn.heard ? [turn.heard] : [])))) {
+        const said = [...state.turns.flatMap((turn) => (turn.heard ? [turn.heard] : [])), ...(preBreak ? [preBreak.text] : [])];
+        if (repeatsItself(candidate, said)) {
           return "it repeats, word for word, something you already said; say something new that answers what they just said";
         }
-        return conversation.length > 0
+        const talk = preBreak ? [...conversation, { role: "assistant" as const, content: preBreak.text }] : conversation;
+        return talk.length > 0
           ? reviewLine(ownerId, {
             who: `${scene.title}. ${scene.place}. ${persona?.who ?? ""}`.trim(),
-            conversation: conversation.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
+            conversation: talk.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
             established,
             moved,
             facts,
@@ -1360,7 +1362,21 @@ export async function POST(request: Request) {
           })
           : null;
       },
-      compose: (avoid, because) => compose(chain, { ...ask(because), conversation, avoid }),
+      /*
+        After an answer written before a break in time, the move is written
+        knowing it: that answer is the last thing this person said, and the
+        line does not answer or react to the question again. Without it every
+        crossing said the answer twice, once on each side of the break.
+      */
+      compose: (avoid, because) => compose(chain, {
+        ...ask(because),
+        ...(preBreak ? {
+          note: "You have just answered what they asked, in the line before the break above; do not answer it or react to it again. Now make your move.",
+          feel: undefined,
+        } : {}),
+        conversation: preBreak ? [...conversation, { role: "assistant" as const, content: preBreak.text }] : conversation,
+        avoid,
+      }),
     });
   } catch (error) {
     reportError(error, { at: "api/scene/compose", ownerId });

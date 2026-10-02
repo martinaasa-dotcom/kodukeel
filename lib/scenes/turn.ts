@@ -666,8 +666,20 @@ export function readTurn(
   */
   const wantsNo = beat.needs.some((need) =>
     need.kind === "negation" || (need.kind === "anyOf" && need.of.some((o) => o.kind === "negation")));
-  const metByBarePolarity = found.every((hit) =>
-    hit === null || hit === YES || BARE_POLARITY.has((hit as Hit).word));
+  /*
+    A question the beat asked for counts as something said where the turn
+    holds a question that is not itself the "I don't follow": told nobody
+    could come this week, a tenant wrote `ma ei saa aru... aga when saab keegi
+    tulla?`, which asks exactly what the beat wanted, and was read as lost
+    and answered with the refusal word for word.
+  */
+  const asksReally = (text.match(/[^.!?]*\?/g) ?? []).some((one) => {
+    const said = words(one);
+    return said.length > 0 && !isLost(said, context);
+  });
+  const metByBarePolarity = found.every((hit, i) =>
+    hit === null || BARE_POLARITY.has((hit as Hit).word)
+    || (hit === YES && !(beat.needs[i]?.kind === "question" && asksReally)));
   if ((missing.length === beat.needs.length || metByBarePolarity) && !wantsNo && isLost(spoken, context)) {
     return shape("lost");
   }

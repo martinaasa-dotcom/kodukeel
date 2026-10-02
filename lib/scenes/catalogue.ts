@@ -2257,6 +2257,7 @@ const CLOTHES: SceneSpec = {
     {
       id: "sobib",
       goal: "Come out of the fitting room and say whether it fits.",
+      meanwhile: "A few minutes later, you come out of the fitting room wearing it.",
       they: "They ask how it went.",
       feel: "glad",
       move: "ask",

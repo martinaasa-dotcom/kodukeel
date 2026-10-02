@@ -1047,7 +1047,7 @@ export function governmentSuspect(tokens: readonly string[], context: GateContex
     return clausesOf(text).map((clause) => words(clause)).filter((clause) => clause.length > 0)
       .some((clause) => governmentSuspect(clause, context));
   }
-  const lower = tokens.map((t) => t.toLowerCase());
+  const lower = withoutPhrases(tokens.map((t) => t.toLowerCase()), context);
   /*
     EVERY GOVERNED VERB IN THE LINE, NOT THE FIRST ONE FOUND. `Buss sõidab
     jaama. Pilet maksab kaks eurot.` holds two, and reading the first the
@@ -1093,6 +1093,26 @@ export function governmentSuspect(tokens: readonly string[], context: GateContex
     const at = lower.findIndex((t) => finite(t) && !g.forms.has(t));
     return suspectFor(g, lower, context) && (at < 0 || suspectFor(g, lower.slice(at + 1), context));
   });
+}
+
+/**
+ * A clause with the course's own set phrases taken out. `Ma ütlesin lihtsalt
+ * tere hommikust` holds the elative `hommikust`, and the elative is not what
+ * `ütlema` governs, so a friend repeating their own greeting was withheld six
+ * times in one run. A phrase the course teaches whole is one thing said, not
+ * a noun in a case beside the verb.
+ */
+function withoutPhrases(lower: readonly string[], context: GateContext): string[] {
+  const phrases = [...context.lexicon.byLemma.keys()]
+    .map((lemma) => words(lemma))
+    .filter((phrase) => phrase.length > 1);
+  const drop = new Set<number>();
+  for (const phrase of phrases) {
+    for (let at = 0; at + phrase.length <= lower.length; at += 1) {
+      if (phrase.every((word, i) => lower[at + i] === word)) for (let i = 0; i < phrase.length; i += 1) drop.add(at + i);
+    }
+  }
+  return drop.size === 0 ? [...lower] : lower.filter((_, i) => !drop.has(i));
 }
 
 /**

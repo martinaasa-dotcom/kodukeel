@@ -930,6 +930,13 @@ describe("a learner who says they are not following", () => {
     expect(readTurn("Mul on valu, aga ma ei tea", beat(), ctx).reading).toBe("complete");
   });
 
+  it("is not read where the turn also asks the question a question beat wanted", () => {
+    const asking = beat({ needs: [{ kind: "question" }], shape: "sentence" });
+    expect(readTurn("Ma ei saa aru. Aga millal saab?", asking, ctx).reading).not.toBe("lost");
+    // A question mark on the lost phrase alone is still being lost.
+    expect(readTurn("Ma ei saa aru?", asking, ctx).reading).toBe("lost");
+  });
+
   it("advances nothing, because saying you are lost is not an answer", () => {
     expect(advances(readTurn("ma ei tea", beat(), ctx).reading)).toBe(false);
   });

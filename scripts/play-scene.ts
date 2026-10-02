@@ -482,7 +482,7 @@ async function play(sceneId: string) {
         // The route's consistency check, on the judge's link, once there is a conversation to keep to.
         ...(JUDGE_LINKS.length > 0 ? {
           review: async (candidate: string) => {
-            if (repeatsItself(candidate, state.turns.flatMap((t) => (t.heard ? [t.heard] : [])))) {
+            if (repeatsItself(candidate, [...state.turns.flatMap((t) => (t.heard ? [t.heard] : [])), ...(preBreak ? [preBreak.text] : [])])) {
               if (process.argv.includes("--drafts")) console.log(`      ~ repeats itself (${spokenFor.id})`);
               return "it repeats, word for word, something you already said; say something new that answers what they just said";
             }
@@ -497,7 +497,8 @@ async function play(sceneId: string) {
                   { role: "system", content: buildConsistencySystemPrompt() },
                   { role: "user", content: buildConsistencyUserPrompt({
                     who: `${scene.title}. ${scene.place}. ${persona.who}`,
-                    conversation: talk.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
+                    conversation: [...talk, ...(preBreak ? [{ role: "assistant" as const, content: preBreak.text }] : [])]
+                      .map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
                     established, moved: reviewMoved, facts, later: agenda.slice(1), line: candidate,
                   }) },
                 ],
@@ -547,7 +548,7 @@ async function play(sceneId: string) {
               .filter(([id]) => !id.includes(":"))
               .flatMap(([, lines]) => lines.slice(0, 1))
               .slice(0, 6),
-          }, talk);
+          }, preBreak ? [...talk, { role: "assistant" as const, content: preBreak.text }] : talk);
           },
         } : {}),
       };
@@ -563,7 +564,11 @@ async function play(sceneId: string) {
         reviewMoved = sceneMovedOn({ beat: state.beat - 1 }, card, scene.beats);
         const pre = await sceneLine({ ...request, beat: { ...request.beat, move: "confirm" as const, meanwhile: undefined }, pool: [], scripted: [] });
         if (pre.provenance === "composed") preBreak = pre;
-        composeOver = {};
+        // The move is written knowing what was just answered, as the route writes it.
+        composeOver = preBreak ? {
+          note: "You have just answered what they asked, in the line before the break above; do not answer it or react to it again. Now make your move.",
+          feel: undefined,
+        } : {};
         reviewMoved = moved;
       }
       const cheap = await sceneLine(request);

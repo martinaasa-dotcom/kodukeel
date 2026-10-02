@@ -295,6 +295,12 @@ describe("the government check", () => {
     expect(governmentSuspect(["meeldib", "aidata", "tuppa"], { ...finite, governed: [{ ...ctx.governed[0]!, forms: new Set(["aidata"]) }] })).toBe(true);
   });
 
+  it("leaves a phrase the course teaches whole out of the count", () => {
+    // `tuppa` is the illative, which `aitama` does not govern, unless it is part of a set phrase.
+    expect(governmentSuspect(["ta", "aitab", "tuppa"], ctx)).toBe(true);
+    expect(governmentSuspect(["ta", "aitab", "tuppa", "minna"], { ...ctx, lexicon: withHeadwords(["tuppa minna"]) })).toBe(false);
+  });
+
   it("says nothing about a line with no governed word, or with no nominal", () => {
     expect(governmentSuspect(["ta", "on", "toas"], ctx)).toBe(false);
     expect(governmentSuspect(["ta", "aitab"], ctx)).toBe(false);
