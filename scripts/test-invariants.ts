@@ -13507,9 +13507,9 @@ check("the verdict band and the found-hours sentence read one figure", () => {
     between(code("lib/assessment/plan.ts"), "export function foundHours"), /FOUND_HOURS_PER_WEEK/,
     "foundHours no longer starts from the baseline, so a learner with no exposure is told their week holds nothing",
   );
-  const verdictLine = plan.slice(plan.indexOf("const verdict: Verdict"), plan.indexOf("const verdict: Verdict") + 300);
-  assert.match(verdictLine, /found\.high/, "the verdict band no longer reads the most the learner's week holds");
-  assert.match(verdictLine, /other\.low/, "the verdict band stopped being drawn at the near end of the distance");
+  const verdictLine = plan.slice(plan.indexOf("const otherAbout"), plan.indexOf("const otherAbout") + 300);
+  assert.match(verdictLine, /about\(found\)/, "the verdict band no longer reads the middle of what the learner's week holds");
+  assert.match(verdictLine, /about\(other\)/, "the verdict band stopped being drawn at the middle, which is the one figure screens quote");
   assert.match(verdictLine, /COMMIT_HOURS_PER_WEEK/, "the verdict band no longer reads the commitment ceiling");
   const panel = code("components/assessment/PlanPanel.tsx");
   assert.doesNotMatch(
@@ -13520,7 +13520,7 @@ check("the verdict band and the found-hours sentence read one figure", () => {
     panel, /FOUND_HOURS_PER_WEEK/,
     "PlanPanel quotes the baseline constant rather than the learner's own found hours",
   );
-  assert.match(panel, /plan\.weeksWithFound/, "PlanPanel no longer quotes the weeks the projection computed");
+  assert.match(panel, /plan\.weeksAbout/, "PlanPanel no longer quotes the weeks the projection computed");
   assert.match(panel, /plan\.found\b/, "PlanPanel no longer quotes the found hours the verdict was drawn against");
 });
 
@@ -13692,19 +13692,19 @@ check("the exam hub prints the plan's distance off the plan's own projection", (
   const readsDistance: Record<string, string> = {
     // The plan's own screen. Its note under the verdict is the long form of
     // the sentence `distanceLine` shortens for Today and the hub, over the same
-    // projection's `found` and `weeksWithFound`, with the way out spelled out.
+    // projection's `found` and `weeksAbout`, with the way out spelled out.
     "components/assessment/PlanPanel.tsx": "the plan's own panel",
   };
   const readers = ALL.filter((f) =>
     f !== "lib/assessment/plan.ts" && !/\.(i)?test\.tsx?$/.test(f)
-    && /\.weeksWithFound\b/.test(code(f)));
-  assert.ok(readers.length >= 1, "nothing reads weeksWithFound any more, so this check stopped looking");
+    && /\.weeksAbout\b/.test(code(f)));
+  assert.ok(readers.length >= 1, "nothing reads weeksAbout any more, so this check stopped looking");
   assert.deepEqual(
     readers.filter((f) => !readsDistance[f] && !code(f).includes("distanceLine(")), [],
-    "a screen writes its own sentence over weeksWithFound rather than reading distanceLine",
+    "a screen writes its own sentence over weeksAbout rather than reading distanceLine",
   );
   for (const f of Object.keys(readsDistance)) {
-    assert.ok(readers.includes(f), `${f} no longer reads weeksWithFound, so its exemption is a parking space`);
+    assert.ok(readers.includes(f), `${f} no longer reads weeksAbout, so its exemption is a parking space`);
   }
 });
 

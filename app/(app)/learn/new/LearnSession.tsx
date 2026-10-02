@@ -32,7 +32,7 @@ import type { LearnScheduling, LearnWord } from "@/lib/progress/learn";
 import type { ContrastWord } from "@/lib/progress/contrast";
 import { grade, type RatingValue } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
-import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState } from "@/lib/ux/verdict";
+import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -289,17 +289,16 @@ export function LearnSession({
   */
   const scheduled = useRef(new Map<string, LearnScheduling>());
   /*
-    A right answer stays on the screen for `VERDICT_PAUSE_MS` and then moves
-    on by itself. The timer is held so that Enter or the button during the
-    pause moves on once rather than twice.
+    NOTHING HERE MOVES ON BY ITSELF.
+
+    A right answer used to stay up for a fixed pause and then advance on a
+    timer, with the button disabled meanwhile and Enter swallowed by the
+    answer box that still had focus. A learner on the daily module reported
+    exactly that: Enter did nothing and Continue could not be pressed, so
+    the screen was in charge of when they had finished reading. Every
+    verdict now waits for the learner, however long they take, and the
+    button and the advance key are live the whole time.
   */
-  const autoNext = useRef<number | null>(null);
-  // A round left mid-pause — closing the tab, navigating away, the queue
-  // itself running out under the timer — must not let it fire `advance` on a
-  // component that is no longer there to hold the state it updates.
-  useEffect(() => {
-    return () => { if (autoNext.current !== null) window.clearTimeout(autoNext.current); };
-  }, []);
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const run = useRef(0);
@@ -415,7 +414,6 @@ export function LearnSession({
    * sighting a retrieval rather than a re-read.
    */
   const advance = useCallback((updated: Record<string, Rung>) => {
-    if (autoNext.current !== null) { window.clearTimeout(autoNext.current); autoNext.current = null; }
     /*
       One choke point, so the record cannot fall behind the ladder: every rung
       leaves the seat through here, and what is kept is what was on the screen
@@ -469,7 +467,6 @@ export function LearnSession({
    * The seat always holds `queue[0]`, so dropping the head is the whole of it.
    */
   const putAside = useCallback((note: string) => {
-    if (autoNext.current !== null) { window.clearTimeout(autoNext.current); autoNext.current = null; }
     const rest = queue.slice(1);
     const nowId = rest[0];
     setQueue(rest);
@@ -574,17 +571,13 @@ export function LearnSession({
     // tally may not say "0 of 1 right" under a panel saying it worked.
     if (rating >= 3 || shown.neighbour) setRight((n) => n + 1);
 
-    // A claim moves on at once. A clean hit shows itself first, green, for
-    // long enough to be seen, then moves on by itself. A miss keeps its
-    // screen, because the correction is the one moment in a round worth
-    // stopping for, and at the gap it waits to be typed again.
+    // A claim moves on at once, because it was itself the press. Every
+    // answer keeps its screen until the learner presses Continue or the
+    // advance key: a hit so it can be read, a miss because the correction is
+    // the one moment in a round worth stopping for, and at the gap it waits
+    // to be typed again.
     if (outcome === "known") advance(moved);
-    else {
-      setRungs(moved); setResult(shown); setPhase("feedback");
-      if (outcome === "right") {
-        autoNext.current = window.setTimeout(() => { autoNext.current = null; advance(moved); }, VERDICT_PAUSE_MS);
-      }
-    }
+    else { setRungs(moved); setResult(shown); setPhase("feedback"); }
     } finally {
       setBusy(false);
     }
@@ -684,11 +677,10 @@ export function LearnSession({
     if (again.verdict === "correct") {
       setRetypeOk(true);
       setRetypeNote(null);
-      autoNext.current = window.setTimeout(() => { autoNext.current = null; advance(rungs); }, VERDICT_PAUSE_MS);
     } else {
       setRetypeNote("Not quite. Copy the word above exactly, letter for letter.");
     }
-  }, [word, result, retyped, retypeOk, advance, rungs]);
+  }, [word, result, retyped, retypeOk]);
 
   /*
     The digits pick an option, exactly as they do in review, and Enter carries
@@ -1205,7 +1197,7 @@ export function LearnSession({
                 <EstonianInput
                   value={typed}
                   onChange={setTyped}
-                  onEnter={answerGap}
+                  onEnter={phase === "feedback" ? carryOn : answerGap}
                   autoFocus
                   ariaLabel={word.gap ? "The word that goes in the gap" : "The Estonian word"}
                   placeholder="Type in Estonian"
@@ -1369,9 +1361,10 @@ export function LearnSession({
               <Button
                 variant="primary"
                 onClick={needsRetype ? checkRetype : carryOn}
-                disabled={busy || retypeOk || (result?.outcome === "right" && !sameMeaning)}
+                disabled={busy}
               >
-                {needsRetype ? "Check it again" : result?.outcome === "right" && !sameMeaning ? uiText("Õige!", "Correct!") : "Got it"}
+                {needsRetype ? "Check it again" : "Continue"}
+                <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
               {rung === "gap" && result?.outcome !== "right" && (
                 <SuggestFix

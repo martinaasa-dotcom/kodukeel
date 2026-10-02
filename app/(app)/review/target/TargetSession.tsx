@@ -15,6 +15,7 @@ import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { shotSeconds } from "@/lib/games/target";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { FitText } from "@/components/FitText";
 
 
@@ -29,7 +30,7 @@ import { FitText } from "@/components/FitText";
  * one of them is multiplied by the pace the learner set (`lib/games/target.ts`).
  *
  * A MISS COSTS THE SHOT AND NOT THE ROUND. The right answer is shown, the
- * clock resets, and the next question comes. Ending a round on the first wrong
+ * clock resets, and the next question comes when the player presses on. Ending a round on the first wrong
  * answer would make this a test, and the deck already has three of those; what
  * this is for is speed on things the learner half knows.
  *
@@ -79,15 +80,25 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
       void grade(question.cardId, right ? 3 : 1, Date.now() - shownAt.current, question.caseKey ?? undefined);
     }
 
-    // A hit moves on quickly; a miss holds, because the correction is the one
-    // moment in a round worth slowing down for.
-    window.setTimeout(() => {
-      setPicked(null);
-      setLeft(shotSeconds(right ? hits + 1 : hits, multiplier));
-      shownAt.current = Date.now();
-      setIndex((i) => i + 1);
-    }, right ? 480 : 1500);
-  }, [question, picked, sound, hits, multiplier, grade]);
+  }, [question, picked, sound, grade]);
+
+  /*
+    THE NEXT SHOT WAITS FOR THE PLAYER.
+
+    It used to come on a timer, half a second after a hit and a second and a
+    half after a miss, which put the round in charge of when somebody had
+    finished reading the correction. The clock is the shot, not the gap
+    between shots: it stops the moment an answer is picked and starts again
+    only when Continue or the advance key is pressed. `hits` has already
+    counted this shot, so the next allowance is read off it directly.
+  */
+  const next = useCallback(() => {
+    if (picked === null) return;
+    setPicked(null);
+    setLeft(shotSeconds(hits, multiplier));
+    shownAt.current = Date.now();
+    setIndex((i) => i + 1);
+  }, [picked, hits, multiplier]);
 
   useEffect(() => {
     if (phase !== "running" || picked !== null) return;
@@ -103,12 +114,16 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
     if (phase !== "running") return;
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (picked !== null) {
+        if (isAdvanceKey(e)) { e.preventDefault(); next(); }
+        return;
+      }
       const n = Number(e.key);
       if (n >= 1 && n <= (question?.options.length ?? 0)) { e.preventDefault(); answer(n - 1); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, question, answer]);
+  }, [phase, question, answer, picked, next]);
 
   if (phase === "ready") {
     return (
@@ -269,6 +284,15 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
         </>
         )}
       </p>
+
+      {answered && (
+        <div className="mt-5 flex justify-center">
+          <Button variant="primary" size="lg" onClick={next}>
+            Continue
+            <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
