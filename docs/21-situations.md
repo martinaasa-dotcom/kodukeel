@@ -615,8 +615,13 @@ a card**. An abandoned scene writes nothing, exactly as an abandoned round does.
 
 ## 13. The screen
 
-**Choosing one.** A list of scenes at and around the learner's level, each showing the place, what
-you would be trying to get done, and how long it takes. The difficulty dial sits on the scene, not
+**Choosing one.** The chooser leads with one situation on the night stage the conversation itself
+is lit by: one the learner has not played, or the one played longest ago, picked on the server, with
+"Another one" to be offered a different one. Under it every scene is a tile in the tint of its kind
+of place (`lib/scenes/kinds.ts`: food and shopping, health and offices, getting around, people and
+work), the kind named in words as well as in the hue, with a filter by kind above them. Each tile
+shows the room, the place, what it practises, how many things there are to get done and how long it
+takes. No scene has a band of its own: how the other side talks is chosen on the briefing. The difficulty dial sits on the scene, not
 in Settings, because it is a decision about this conversation rather than a preference about the
 app, and because somebody who found the last one hard should be able to turn it down at the moment
 they feel that rather than two screens away.
