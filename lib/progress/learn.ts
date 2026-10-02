@@ -10,6 +10,8 @@ import { unitIntroducing } from "@/lib/collections/syllabus";
 import { decoyOptions, decoysAmong, everydaySpellings, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { starredAmong } from "@/lib/progress/stars";
+import { contrastsFor, type Contrast } from "@/lib/progress/contrast";
+import { acceptedAnswers } from "@/lib/estonian/answer";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { parseExamples, teachingSentence, usableExamples } from "@/lib/dict/examples";
@@ -143,6 +145,14 @@ export interface LearnWord {
   alsoSaid: string | null;
   /** Whether this deployment has a model to ask for the whole line in English. */
   canTranslate: boolean;
+  /**
+   * The other words that mean what this word's gloss says, and this one
+   * beside them, for the typed rung that asks for the word from its meaning.
+   * A learner who types one of them is told it works and shown how the two
+   * differ, rather than "not quite". Null where no other word shares a sense.
+   * See `lib/questions/neighbours.ts`.
+   */
+  contrast: Contrast | null;
   /**
    * The same sentence with the word taken out of it.
    *
@@ -638,10 +648,27 @@ export async function learnBatch(
         because the batch is assembled here and a second read would be a second
         answer.
   */
-  const [wholePool, reach, starred] = await Promise.all([
+  /*
+    And the other words that mean what each prompt says, so a learner who
+    types one of them on the typed rung is told it works rather than "not
+    quite". One query for the batch, through the builder the review card
+    reads, so the two screens asking a word from its meaning take the same
+    words. It needs the reach, so it chains off that read rather than
+    waiting behind the other two.
+  */
+  const reaching = sentenceReach();
+  const [wholePool, reach, starred, contrasts] = await Promise.all([
     decoyOptions(),
-    sentenceReach(),
+    reaching,
     starredAmong(ownerId, rows.map((row) => row.lexeme!.id)),
+    reaching.then((r) => contrastsFor(
+      rows.map((row) => ({
+        lexemeId: row.lexeme!.id,
+        lexeme: row.lexeme!,
+        accepted: acceptedAnswers(row.lexeme!.lemma, "et"),
+      })),
+      r,
+    )),
   ]);
 
   /*
@@ -653,7 +680,7 @@ export async function learnBatch(
   */
   const pool = decoysAmong(wholePool, taughtWords ? [...taughtWords] : null, CHOICES);
 
-  const words = rows.map((row) => {
+  const words = rows.map((row, index) => {
     const lexeme = row.lexeme!;
     const { sentence, gap } = sentenceAndGap(lexeme, reach, readable);
     const equivalent = equivalentIn(lexeme, glossLanguage);
@@ -696,6 +723,7 @@ export async function learnBatch(
       canTranslate: resolveProvider() !== null,
       gap,
       choices: picked ? picked.options : null,
+      contrast: contrasts.get(index) ?? null,
       starred: starred.has(lexeme.id),
       rung: rungOf(row.state, row.learningSteps),
       scheduling: schedulingOf(row),
