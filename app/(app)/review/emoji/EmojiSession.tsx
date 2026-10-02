@@ -130,7 +130,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
   if (phase === "ready") {
     return (
       <RoundStart
-        icon={<Grid2x2 size={34} aria-hidden />}
+        icon={<Grid2x2 size={26} aria-hidden />}
         title="Picture match"
         lead={boardLead(pairs)}
         hue="blush"

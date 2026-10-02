@@ -615,8 +615,13 @@ a card**. An abandoned scene writes nothing, exactly as an abandoned round does.
 
 ## 13. The screen
 
-**Choosing one.** A list of scenes at and around the learner's level, each showing the place, what
-you would be trying to get done, and how long it takes. The difficulty dial sits on the scene, not
+**Choosing one.** The chooser leads with one situation on the night stage the conversation itself
+is lit by: one the learner has not played, or the one played longest ago, picked on the server, with
+"Another one" to be offered a different one. Under it every scene is a tile in the tint of its kind
+of place (`lib/scenes/kinds.ts`: food and shopping, health and offices, getting around, people and
+work), the kind named in words as well as in the hue, with a filter by kind above them. Each tile
+shows the room, the place, what it practises, how many things there are to get done and how long it
+takes. No scene has a band of its own: how the other side talks is chosen on the briefing. The difficulty dial sits on the scene, not
 in Settings, because it is a decision about this conversation rather than a preference about the
 app, and because somebody who found the last one hard should be able to turn it down at the moment
 they feel that rather than two screens away.
@@ -4956,3 +4961,35 @@ symptom reads as disbelief.
 somebody who had just confirmed what he asked. Estonian answers a polar question with its verb, so
 the echo rule stands down where the line heard opens with `kas`, which is the one-word reading the
 acknowledgments already make. Found by replaying the landlord scene for the feeling above.
+
+## §74 No model is better than a bad one, the judge runs, and a conversation ends in a review
+
+**The fallback came out.** On 2026-09-28 the Gemini balance ran out and every conversation was
+composed on Groq's qwen, which opened a job interview with `Tere! Koti lauale ja istuge, palun.`
+The operator's call is that the bank is better than that. A scene composes on `SCENE_MODELS`, then
+the bounded Anthropic tail, then nothing, and the conversation names the model once at the top, with
+a warning where it is a backup and a stronger one where the other side is speaking only from
+prepared lines.
+
+**A sweep found the rest.** `scripts/critic-scenes.ts` plays every scene against simulated learners
+and has a second model list the moments the other side stops making sense. 180 conversations gave
+124 such moments: 38 repeats, 24 conversations ended early, 19 unnatural lines, 12 contradictions,
+11 non-sequiturs, 11 questions ignored, 6 stalls and 3 misreadings. What this pass fixed:
+
+- the judge threw on every call (a `let` in a temporal dead zone), so no turn was ever conceded;
+  it runs now, and an invariant holds the route to it;
+- a line withheld only for its goodbye is trimmed and judged again (`withoutFarewell`), so the
+  confirm beat stops falling back to a bare `Kell 14:30.`;
+- a learner's goodbye is not answered with `Ei tea.`, and a shop waiting to be paid does not say
+  goodbye first;
+- the slow-down curveball accepts `aeglaselt`, `aeglane`, `rääkima` and `uuesti`; `their-order`
+  fires only after the learner has jumped ahead; a mid-scene goodbye has to be a real one.
+
+**What it did not fix, measured and still open.** The repeats and the early endings are the two
+largest classes and neither was re-measured after these fixes. The contradictions are the
+character changing a policy between turns (the receipt at the shop), which is the composer not
+being told what it has already said. Run the critic before and after the next change to either.
+
+**The review.** `lib/scenes/recap.ts` counts the run and quotes the learner; "A note from Anu" is a
+model's short note on it, checked word by word against the conversation, with a sentence dropped
+rather than the note withheld where one reaches for a form nobody said.

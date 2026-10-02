@@ -82,7 +82,9 @@ export function SituationsBoard({ tiles, firstPick }: {
       <section aria-labelledby="all-heading" className="flex flex-col gap-4">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h2 id="all-heading" className="text-xl font-bold tracking-tight">Every situation</h2>
-          <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+          {/* The count is what a filter press announces, never the list itself:
+              a live region round fifteen tiles reads every one of them out. */}
+          <p className="text-sm" style={{ color: "var(--ink-3)" }} aria-live="polite">
             {shown.length === tiles.length ? `${tiles.length} places` : `${shown.length} of ${tiles.length}`}
           </p>
         </div>
@@ -103,7 +105,7 @@ export function SituationsBoard({ tiles, firstPick }: {
         </ChoiceGroup>
 
         <div className="@container">
-          <ul className="grid gap-4 @lg:grid-cols-2 @3xl:grid-cols-3" aria-live="polite">
+          <ul className="grid gap-4 @lg:grid-cols-2 @3xl:grid-cols-3">
             {shown.map((tile) => <Tile key={tile.id} tile={tile} />)}
           </ul>
         </div>

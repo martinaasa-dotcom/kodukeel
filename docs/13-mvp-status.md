@@ -2591,7 +2591,35 @@ append-only ticks and there is no way to walk one again yet. A learner who start
 struggles gets the lean and a sentence, not a move.
 
 
-## 42. The thirty-sixth pass: every sentence read aloud, and the English under the Estonian
+## 42. The thirty-sixth pass: conversations without a bad fallback, and a review at the end
+
+**No Groq in a conversation.** When the Gemini balance ran out, conversations were composed on a
+Groq model whose Estonian passed the gate and was not a person talking. A scene now composes on
+Gemini, then the bounded Anthropic tail, then plays its prepared lines, and says at the top which
+of those is answering.
+
+**The judge works.** The step that credits a turn the dictionary could not read had thrown on every
+call since it was written. It runs now, and an invariant stops the same fault returning.
+
+**A conversation ends in a review.** What got done, the learner's own best lines, a note per turn,
+what to try next time, and a short note from Anu, checked so that no Estonian in it is invented.
+
+**Still open.** A sweep of 180 simulated conversations found repeats and early endings as the two
+largest faults; this pass fixed several causes but did not re-measure them
+(`docs/21-situations.md` §74).
+
+## 43. The thirty-seventh pass: the Situations chooser is a place to browse
+
+**It was fifteen identical cards under slabs of night, in alphabetical order**, and it was reported
+as looking terrible. It leads now with one situation on the conversation's own night stage, one not
+yet played or the one played longest ago, with "Another one" and a gold "Step in". Under it the
+scenes are tiles in the tint of their kind of place, the room drawn on the tint, with a filter by
+kind. `lib/scenes/kinds.ts` is the table of kinds and is checked both ways against the catalogue, so
+a new scene without a kind fails the unit suite rather than landing under the wrong filter.
+"Where the people are" is one panel of outbound links, and the line saying nothing you write is
+about you stays on the page. `docs/21-situations.md` §13 describes it.
+
+## 44. The thirty-eighth pass: every sentence read aloud, and the English under the Estonian
 
 **The copy was accurate and nobody talked like it.** It was reported off the landing page's "Who it
 is for" and then off the course itself: `Learn the words your job runs on` and `The doing words, in their
