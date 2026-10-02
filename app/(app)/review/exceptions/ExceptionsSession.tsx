@@ -30,6 +30,8 @@ import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { FitText } from "@/components/FitText";
+import { CaseLabel } from "@/components/CaseLabel";
+import { caseLabelOf } from "@/lib/copy/caseLabel";
 
 /**
  * THE ROUND: MEET IT, TYPE IT, USE IT.
@@ -368,9 +370,7 @@ function Meeting({ task }: { task: ExceptionTask }) {
                 one time hearing it is worth more than reading it. */}
             <SpeakPair text={task.accepted[0] ?? task.lemma} autoplay />
           </div>
-          <p lang="et" className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-            {task.label}
-          </p>
+          <SlotLabel label={task.label} className="mt-1 text-xs" />
         </div>
       )}
 
@@ -511,10 +511,10 @@ function Asking({ task }: { task: ExceptionTask }) {
             <p className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
               {plain}
             </p>
-            <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-              {task.label}
-            </p>
+            <SlotLabel label={task.label} className="mt-1.5 text-sm" />
           </>
+        ) : caseLabelOf(task.label) ? (
+          <SlotLabel label={task.label} className="text-lg" />
         ) : (
           <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
             {task.label}
@@ -561,9 +561,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         >
           {task.accepted.join(PARTS)}
         </p>
-        <p lang="et" className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-          {task.label}
-        </p>
+        <SlotLabel label={task.label} className="mt-1 text-xs" />
       </div>
 
       {task.rung === "use" && task.sentence && (
@@ -597,5 +595,23 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
 
       <MoreOnThis task={task} className="mt-1.5 text-xs" />
     </div>
+  );
+}
+
+/**
+ * What the round calls the form it asks for, in the quiet line under a word.
+ * A case is drawn as one label by `CaseLabel`, never its name and question
+ * joined here; any other slot (a verb form) prints as it is named.
+ */
+function SlotLabel({ label, className }: { label: string; className: string }) {
+  const named = caseLabelOf(label);
+  return named ? (
+    <p className={className} style={{ color: "var(--ink-3)" }}>
+      <CaseLabel label={named} />
+    </p>
+  ) : (
+    <p lang="et" className={className} style={{ color: "var(--ink-3)" }}>
+      {label}
+    </p>
   );
 }

@@ -29,6 +29,8 @@ import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { FitText } from "@/components/FitText";
+import { CaseLabel } from "@/components/CaseLabel";
+import { caseLabelOf } from "@/lib/copy/caseLabel";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
@@ -527,6 +529,8 @@ function Question({
 function SlotLine({ task }: { task: FlashPrompt }) {
   const english = asksInEnglish(task.slot);
   const plain = plainAskFor(task);
+  /* A case is drawn as one label, never its name and question joined here. */
+  const named = slotCase(task);
   return (
     <div className="mt-5">
       {plain ? (
@@ -534,11 +538,21 @@ function SlotLine({ task }: { task: FlashPrompt }) {
           <p className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
             {plain}
           </p>
-          <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-            {task.label}
-            {english && <span lang="en">, {english}</span>}
-          </p>
+          {named ? (
+            <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
+              <CaseLabel label={named} />
+            </p>
+          ) : (
+            <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
+              {task.label}
+              {english && <span lang="en">, {english}</span>}
+            </p>
+          )}
         </>
+      ) : named ? (
+        <p className="text-lg">
+          <CaseLabel label={named} />
+        </p>
       ) : (
         <>
           <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
@@ -551,6 +565,11 @@ function SlotLine({ task }: { task: FlashPrompt }) {
       )}
     </div>
   );
+}
+
+/** The case a task's label names, as parts for `CaseLabel`, or null for any other slot. */
+function slotCase(task: FlashPrompt) {
+  return caseByKey(task.slot) ? caseLabelOf(task.label) : null;
 }
 
 /**
@@ -626,8 +645,14 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         */}
         {isForm(task.slot) && (
           <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-            <span lang="et" data-flash-slot="">{task.label}</span>
-            {english && <>, {english}</>}
+            {slotCase(task) ? (
+              <span data-flash-slot=""><CaseLabel label={slotCase(task)!} /></span>
+            ) : (
+              <>
+                <span lang="et" data-flash-slot="">{task.label}</span>
+                {english && <>, {english}</>}
+              </>
+            )}
           </p>
         )}
       </div>

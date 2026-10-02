@@ -18,7 +18,7 @@ import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { parseGovernment, readableGovernment } from "@/lib/estonian/government";
 import { caseByKey } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
-import { CaseQuestion } from "@/components/CaseQuestion";
+import { CaseLabel } from "@/components/CaseLabel";
 import { availableCardTypes, CARD_TYPES, type CardType } from "@/lib/srs/cards";
 import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
@@ -106,7 +106,7 @@ export interface EntryView {
  * them what the form is for.
  *
  * So a nominal part carries its question, read off `lib/estonian/cases.ts`,
- * and `CaseQuestion` draws it exactly as the table does. The number is written
+ * and `CaseLabel` draws it exactly as the table does. The number is written
  * here rather than in that table, because `ainsus` and `mitmus` are a fact
  * about this row and not about the case.
  */
@@ -809,9 +809,12 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                     replaced the caps was no more use to the reader who had met
                     neither. A verb part has no question and keeps its English.
                   */}
-                  <span lang="et" className="label-xs mt-1.5 block" style={{ color: "var(--ink-3)", textTransform: "none" }}>{label.et}</span>
-                  {label.question && (
-                    <CaseQuestion question={label.question} className="mt-0.5 block text-2xs" inline />
+                  {label.question ? (
+                    <span className="mt-1.5 block text-2xs">
+                      <CaseLabel label={{ et: label.et, question: label.question }} />
+                    </span>
+                  ) : (
+                    <span lang="et" className="label-xs mt-1.5 block" style={{ color: "var(--ink-3)", textTransform: "none" }}>{label.et}</span>
                   )}
                   {label.en && (
                     <span className="mt-0.5 block text-2xs italic" style={{ color: "var(--ink-3)" }}>{label.en}</span>
@@ -884,14 +887,13 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                           use it. It has to be here too, because a deployment
                           with no Ekilex key only ever renders this one, and
                           without the link its case table is a dead end. The
-                          question the case answers sits under its name, in
-                          both languages (`components/CaseQuestion.tsx`), where
+                          question the case answers sits beside its name, in
+                          both languages (`components/CaseLabel.tsx`), where
                           it used to be a fourth column that made every row
                           two lines tall. */}
-                      <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="block font-semibold hover:underline" style={{ color: "var(--ink)" }}>
-                        {spec.et}
+                      <Link href={`/grammar/${spec.key.toLowerCase()}`} className="block hover:underline">
+                        <CaseLabel label={{ et: spec.et, question: caseQuestionFor(spec, subjectOf(entry)) }} className="text-sm" />
                       </Link>
-                      <CaseQuestion inline className="block text-xs" question={caseQuestionFor(spec, subjectOf(entry))} />
                     </td>
                     {/* Both illatives, where the word has both. `tuppa` and
                         `toasse` are one answer to one question and a course

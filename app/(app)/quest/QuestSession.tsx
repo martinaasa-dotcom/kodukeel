@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CaseQuestion } from "@/components/CaseQuestion";
+import { CaseLabel } from "@/components/CaseLabel";
+import { caseLabelOf } from "@/lib/copy/caseLabel";
 import { Flame, Target, Timer, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { useOffline } from "@/components/OfflineProvider";
@@ -124,6 +125,7 @@ export function QuestSession({
     where the cue carries one, never the gloss a second time (`gapCue`).
   */
   const cue = card ? gapCue({ hint: card.hint, lemma: card.lemma, marked: meaning?.marked ?? false }) : null;
+  const cueCase = caseLabelOf(cue);
   const exhausted = cards.length > 0 && attempted >= cards.length;
 
   /*
@@ -367,7 +369,7 @@ export function QuestSession({
         {/*
           The chart is why the round is worth pressing: this learner's own
           weakest endings, each a bar as long as how often it comes out right.
-          The name leads, the question it answers sits under it.
+          The name and the question it answers lead, drawn as one label.
         */}
         {aimed.length > 0 && (
           <section
@@ -383,7 +385,11 @@ export function QuestSession({
               {aimed.map((c) => (
                 <li key={c.key}>
                   <div className="flex items-baseline justify-between gap-3">
-                    <span lang="et" className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{c.et}</span>
+                    {c.question ? (
+                      <CaseLabel label={{ et: c.et, question: c.question }} className="text-md" />
+                    ) : (
+                      <span lang="et" className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{c.et}</span>
+                    )}
                     <span className="tnum text-sm font-semibold" style={{ color: "var(--ink)" }}>
                       {c.accuracy}% right
                     </span>
@@ -394,9 +400,6 @@ export function QuestSession({
                       style={{ width: `${Math.max(3, c.accuracy)}%`, background: "var(--accent)" }}
                     />
                   </span>
-                  {c.question && (
-                    <CaseQuestion question={c.question} className="mt-1 block text-sm" inline />
-                  )}
                 </li>
               ))}
             </ul>
@@ -489,7 +492,16 @@ export function QuestSession({
           */}
           {meaning && !revealed && <GapMeaning meaning={meaning} className="text-sm leading-snug" />}
           {cue && !revealed && (
-            <p className="text-sm" style={{ color: "var(--ink-3)" }}>{cue}</p>
+            <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+              {/* A stored hint naming a case is drawn as one label, the way
+                  the review card draws it, never as the string it was stored as. */}
+              {cueCase ? (
+                <>
+                  {cueCase.rest && <>{cueCase.rest} </>}
+                  <CaseLabel label={cueCase} />
+                </>
+              ) : cue}
+            </p>
           )}
 
           {card.choices ? (

@@ -60,7 +60,8 @@ await startRound(page);
 // Read the task off the page and look the required form up in the dictionary,
 // so the test does not hard-code Estonian morphology of its own.
 const lemma = (await page.locator("strong").first().textContent())?.trim() ?? "";
-const caseName = (await page.locator("p[lang=\"et\"]").first().textContent())?.trim() ?? "";
+// The case is drawn by CaseLabel, whose name run is its own element.
+const caseName = (await page.locator(".case-label-name").first().textContent())?.trim() ?? "";
 check("writing sets a task", lemma.length > 0 && caseName.length > 0, `${lemma} → ${caseName}`);
 
 // A sentence containing the *headword* rather than the required form: the

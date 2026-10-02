@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { CaseQuestion } from "@/components/CaseQuestion";
+import { CaseLabel } from "@/components/CaseLabel";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, Ear, Sparkles, X } from "lucide-react";
@@ -725,9 +726,7 @@ function StepCard({
             {plainAskLine(step.caseKey) ?? `Put it in the ${step.caseName}`}
           </span>
           <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-            <span lang="et">{step.caseName}</span>
-            {", "}
-            <CaseQuestion question={step.question} inline />
+            <CaseLabel label={{ et: step.caseName, question: step.question }} />
           </span>
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus

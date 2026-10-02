@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { CaseQuestion } from "@/components/CaseQuestion";
+import { CaseLabel } from "@/components/CaseLabel";
 import { ChevronRight, Puzzle, Sparkles, Target, TriangleAlert } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
@@ -275,9 +275,7 @@ export default async function GrammarIndexPage() {
                           grammar says the second, so both have to be findable
                           and neither has any business being the headline. */}
                       <span className="mt-auto pt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-                        <span lang="et">{ref.spec.et}</span>
-                        {", "}
-                        <CaseQuestion question={ref.spec.question} inline />
+                        <CaseLabel label={ref.spec} />
                       </span>
                     </Link>
                   </li>

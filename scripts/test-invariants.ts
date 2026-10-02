@@ -10669,6 +10669,9 @@ check("a case's Latin name has a closed list of readers", () => {
       government string.
     */
     "lib/copy/caseHint.ts": "recognises the stored Latin name so a screen can print the question instead",
+    // The same latitude for the parts a screen draws through `CaseLabel`: a
+    // stored hint naming its case in Latin is read as that case, never printed.
+    "lib/copy/caseLabel.ts": "recognises a stored Latin name so CaseLabel draws the Estonian one instead",
   };
   // `spec.en`, `c.en`, `caseByKey(x)?.en`: the member access, not the word,
   // which is the anchor the check below this one already argues for.

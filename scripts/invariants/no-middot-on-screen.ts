@@ -22,6 +22,8 @@ import type { InvariantKit } from "../lib/invariantKit";
  */
 const READERS = new Set([
   "lib/copy/caseHint.ts",
+  // Reads a stored hint written with a dot between its parts, so CaseLabel draws none.
+  "lib/copy/caseLabel.ts",
   "lib/estonian/government.ts",
   "lib/srs/slots.ts",
 ]);

@@ -25,6 +25,7 @@ import {
 import { SKILL_ET, SKILL_LABEL } from "@/lib/exam/types";
 import { answeredIn, clearSitting, loadSitting, saveSitting, type SavedSitting } from "./resume";
 import { Explain } from "@/components/Explain";
+import { CaseLabel } from "@/components/CaseLabel";
 
 /**
  * Sitting the paper.
@@ -951,14 +952,14 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
             <span className="font-semibold" lang="et">{item.lemma}</span>
             <span style={{ color: "var(--ink-3)" }}> {item.translation}</span>
             <span className="ml-2">
-              in the <span lang="et">{item.caseEt}</span>
-              <span lang="et" style={{ color: "var(--accent-deep)" }}> {item.caseQuestion}</span>
-              {/* What that asks, rather than the Latin name. The paper is
+              in the{" "}
+              {/* The name, the question and what that asks, as one label, with
+                  the reading always on rather than the Latin name. The paper is
                   marked on the form the candidate writes, so saying which form
                   is wanted in words they have met gives nothing away; being
                   unable to read the instruction is not the thing being
                   measured. See `lib/estonian/cases.ts`. */}
-              <span style={{ color: "var(--ink-3)" }}> {questionInEnglish(item.caseQuestion)}</span>
+              <CaseLabel label={{ et: item.caseEt, question: item.caseQuestion }} reading="always" />
             </span>
           </p>
           <Options
@@ -991,7 +992,7 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
             options={item.options.map((o) => ({
               value: o.key,
               label: o.et,
-              hint: [o.question, questionInEnglish(o.question)].filter(Boolean).join(", "),
+              caseLabel: o.question ? { et: o.et, question: o.question } : undefined,
             }))}
             selected={response?.kind === "chosen" ? response.value : null}
             onSelect={(value) => onAnswer({ kind: "chosen", value })}
@@ -1008,14 +1009,14 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
             <span className="font-semibold" lang="et">{item.lemma}</span>
             <span style={{ color: "var(--ink-3)" }}> {item.translation}</span>
             <span className="ml-2">
-              in the <span lang="et">{item.caseEt}</span>
-              <span lang="et" style={{ color: "var(--accent-deep)" }}> {item.caseQuestion}</span>
-              {/* What that asks, rather than the Latin name. The paper is
+              in the{" "}
+              {/* The name, the question and what that asks, as one label, with
+                  the reading always on rather than the Latin name. The paper is
                   marked on the form the candidate writes, so saying which form
                   is wanted in words they have met gives nothing away; being
                   unable to read the instruction is not the thing being
                   measured. See `lib/estonian/cases.ts`. */}
-              <span style={{ color: "var(--ink-3)" }}> {questionInEnglish(item.caseQuestion)}</span>
+              <CaseLabel label={{ et: item.caseEt, question: item.caseQuestion }} reading="always" />
             </span>
           </p>
           <EstonianInput
@@ -1183,7 +1184,13 @@ function Audible({ item, number, response, canPlay, onAnswer, slow, children }: 
 /** A radio group that looks like a set of cards and behaves like a radio group. */
 function Options({ name, options, selected, onSelect, columns, english }: {
   name: string;
-  options: { value: string; label: string; hint?: string }[];
+  options: {
+    value: string;
+    label: string;
+    hint?: string;
+    /** A case named beside its question, drawn as one label rather than a label and a hint. */
+    caseLabel?: { et: string; question: string };
+  }[];
   selected: string | null;
   onSelect: (value: string) => void;
   columns?: boolean;
@@ -1220,11 +1227,17 @@ function Options({ name, options, selected, onSelect, columns, english }: {
               className="mt-0.5 size-4 shrink-0 accent-[var(--accent)]"
             />
             <span className="min-w-0">
-              <span lang={english ? undefined : "et"}>
-                {option.label}
-              </span>
-              {option.hint && (
-                <span className="ml-2 text-xs" style={{ color: "var(--ink-3)" }}>{option.hint}</span>
+              {option.caseLabel ? (
+                <CaseLabel label={option.caseLabel} reading="always" />
+              ) : (
+                <>
+                  <span lang={english ? undefined : "et"}>
+                    {option.label}
+                  </span>
+                  {option.hint && (
+                    <span className="ml-2 text-xs" style={{ color: "var(--ink-3)" }}>{option.hint}</span>
+                  )}
+                </>
               )}
             </span>
           </label>

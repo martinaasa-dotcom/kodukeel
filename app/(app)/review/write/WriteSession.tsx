@@ -2,8 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
-import { questionInEnglish } from "@/lib/estonian/cases";
-import { CaseQuestion } from "@/components/CaseQuestion";
+import { CaseLabel } from "@/components/CaseLabel";
 import { Check, CircleAlert, Loader2, PenLine } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -273,30 +272,17 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
               <p className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
                 {plainAskLine(prompt.caseKey)}
               </p>
-              {/* The Estonian name carries the line's `lang`, since it is the
-                  part a screen reader has to pronounce as Estonian and the part
-                  `smoke-interact.mjs` reads the task off; the English name is
-                  marked back as English inside it. */}
-              <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-                {prompt.caseEt}, {prompt.caseQuestion}
-                {/* What the question is asking rather than the Latin name,
-                    which was the only English on this line and the one word
-                    here nobody can cash in. The Latin name is on the grammar
-                    page for the ending, labelled. */}
-                {questionInEnglish(prompt.caseQuestion) && (
-                  <span lang="en">, {questionInEnglish(prompt.caseQuestion)}</span>
-                )}
+              {/* The names stay on the card as the cross-reference, drawn as
+                  one label by `CaseLabel` rather than a name and a question
+                  joined with a comma here. */}
+              <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
+                <CaseLabel label={{ et: prompt.caseEt, question: prompt.caseQuestion }} />
               </p>
             </>
           ) : (
-            <>
-              <p lang="et" className="mt-1 text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-                {prompt.caseEt}
-              </p>
-              <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-                <CaseQuestion question={prompt.caseQuestion} inline />
-              </p>
-            </>
+            <p className="mt-2 text-lg">
+              <CaseLabel label={{ et: prompt.caseEt, question: prompt.caseQuestion }} />
+            </p>
           )}
 
           <div className="mt-6">

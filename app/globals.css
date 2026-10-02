@@ -4512,3 +4512,28 @@ input[data-hop][data-hop-end="cw-land"] { animation: cw-land 0.34s cubic-bezier(
    clip. */
 .night.night-open { overflow: visible; }
 @media print { .night { background: none !important; } }
+
+/*
+  A case named beside its question, drawn as one unit (components/CaseLabel.tsx).
+  The name in a soft pill, the question in the line's own ink, the English
+  reading quiet after it; no separator is drawn, so nothing is typed between
+  the pieces on any screen. It wraps between pieces and never inside one.
+*/
+.case-label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: inherit;
+  column-gap: 0.5em;
+  row-gap: 0.25em;
+}
+.case-label > * { white-space: nowrap; }
+.case-label-name {
+  font-weight: 600;
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 0.0625em 0.6em;
+}
+.case-label-ask { font-weight: 500; color: var(--ink); }
+.case-label-means { color: var(--ink-3); }

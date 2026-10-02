@@ -2,6 +2,9 @@ import { Chip } from "@/components/ui";
 import { KIND_NOTES, type WordException } from "@/lib/estonian/exceptions";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { slotLabel } from "@/lib/srs/slots";
+import { caseLabelFor } from "@/lib/copy/caseLabel";
+import { caseByKey } from "@/lib/estonian/cases";
+import { CaseLabel } from "@/components/CaseLabel";
 
 /**
  * WHERE ONE WORD DEPARTS FROM THE PATTERN, ON THE ENTRY FOR THAT WORD.
@@ -58,6 +61,8 @@ export function WordExceptions({ exceptions }: { exceptions: readonly WordExcept
 export function ExceptionNote({ exception: ex }: { exception: WordException }) {
   const note = KIND_NOTES[ex.kind];
   const ask = plainAskLine(ex.slot);
+  /* A case is drawn as one label, its name beside its question, never joined here. */
+  const named = caseLabelFor(ex.slot, caseByKey(ex.slot)?.question);
 
   return (
     <div
@@ -74,9 +79,13 @@ export function ExceptionNote({ exception: ex }: { exception: WordException }) {
         ) : (
           <span className="text-md font-bold" style={{ color: "var(--ink)" }}>{note.title}</span>
         )}
-        <span lang="et" className="text-xs" style={{ color: "var(--ink-3)" }}>
-          {slotLabel(ex.slot)}
-        </span>
+        {named ? (
+          <CaseLabel label={named} className="text-xs" />
+        ) : (
+          <span lang="et" className="text-xs" style={{ color: "var(--ink-3)" }}>
+            {slotLabel(ex.slot)}
+          </span>
+        )}
         {ex.note && (
           <Chip tone="hard" caseSensitive>{ex.note}</Chip>
         )}

@@ -7,6 +7,7 @@ import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { DrillLink } from "@/components/DrillLink";
 import { Speak } from "@/components/Speak";
 import { CaseQuestion } from "@/components/CaseQuestion";
+import { CaseLabel } from "@/components/CaseLabel";
 import { Card, KeyCap, Note, SectionTitle, Stack } from "@/components/ui";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { caseByKey } from "@/lib/estonian/cases";
@@ -318,9 +319,11 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
               >
                 <span className="flex w-full items-baseline justify-between gap-2">
                   <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                    <span lang="et">{ref?.spec.et}</span>
-                    {", "}
-                    <CaseQuestion question={form.question} inline />
+                    {ref ? (
+                      <CaseLabel label={{ et: ref.spec.et, question: form.question }} />
+                    ) : (
+                      <CaseQuestion question={form.question} inline />
+                    )}
                   </span>
                   {n === at && <Check size={14} aria-hidden style={{ color: "var(--accent-deep)" }} />}
                 </span>
@@ -478,13 +481,11 @@ function FormPanel({ word, form, sentence, canTranslate }: {
       {/*
         The name a class uses and the question it answers, with what that
         question asks. No Latin: "the genitive" is a translation of a
-        translation to somebody who has met neither name, and `CaseQuestion`
-        is the one drawing of the half they can act on.
+        translation to somebody who has met neither name, and `CaseLabel`
+        is the one drawing of a name beside its question.
       */}
       <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-        <span lang="et">{ref.spec.et}</span>
-        {", "}
-        <CaseQuestion question={form.question} inline />
+        <CaseLabel label={{ et: ref.spec.et, question: form.question }} />
       </p>
       {sentence && <Attested sentence={sentence} lemma={word.lemma} canTranslate={canTranslate} />}
     </Card>
@@ -744,9 +745,7 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <span className="text-xl font-bold" style={{ color: "var(--accent-deep)" }}>{ref.plain}</span>
             <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-              <span lang="et">{ref.spec.et}</span>
-              {", "}
-              <CaseQuestion question={form.question} inline />
+              <CaseLabel label={{ et: ref.spec.et, question: form.question }} />
             </span>
           </div>
           <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>

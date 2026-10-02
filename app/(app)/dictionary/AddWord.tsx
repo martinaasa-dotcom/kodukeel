@@ -10,7 +10,7 @@ import { NO_VALUE, NOT_REACHED } from "@/lib/copy/values";
 import { hasNoFields } from "@/lib/dict/pos";
 import { caseByKey } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
-import { CaseQuestion } from "@/components/CaseQuestion";
+import { CaseLabel } from "@/components/CaseLabel";
 
 /**
  * THE BOXES ARE NAMED THE WAY A LESSON NAMES THEM.
@@ -256,12 +256,10 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
             {fields.map(([key, label, example]) => (
               <label key={key} className="flex flex-col gap-1">
                 <span className="text-2xs" style={{ color: "var(--ink-3)" }}>
-                  <span lang="et">{label.et}</span>
-                  {label.question && (
-                    <>
-                      {" "}
-                      <CaseQuestion question={label.question} inline />
-                    </>
+                  {label.question ? (
+                    <CaseLabel label={{ et: label.et, question: label.question }} />
+                  ) : (
+                    <span lang="et">{label.et}</span>
                   )}
                 </span>
                 <input

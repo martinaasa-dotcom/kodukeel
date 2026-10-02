@@ -13,7 +13,7 @@ import { ButtonLink } from "@/components/Button";
 import { PrintButton } from "@/components/PrintButton";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { caseByKey } from "@/lib/estonian/cases";
-import { CaseQuestion } from "@/components/CaseQuestion";
+import { CaseLabel } from "@/components/CaseLabel";
 
 export const dynamic = "force-dynamic";
 
@@ -248,7 +248,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                         pupil who has only ever heard `omastav` in the lesson
                         this sheet belongs to cannot cash it, and the pupil who
                         has met neither is no better off. What a board says is
-                        the Estonian name and the question under it, so that is
+                        the Estonian name and the question beside it, so that is
                         what a column is headed, with the reading of the
                         question as the English. `lib/estonian/cases.ts` is the
                         one table both halves come off.
@@ -259,8 +259,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                           className="border-b px-2 py-2 text-left text-xs font-semibold"
                           style={{ borderColor: "var(--ink-3)", color: "var(--ink-2)" }}
                         >
-                          <span lang="et" className="block">{et}</span>
-                          <CaseQuestion question={question} className="font-normal" inline />
+                          <CaseLabel label={{ et, question }} />
                         </th>
                       ))}
                     </tr>
