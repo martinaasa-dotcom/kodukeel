@@ -4553,7 +4553,7 @@ input[data-hop][data-hop-end="cw-land"] { animation: cw-land 0.34s cubic-bezier(
   font-weight: 600;
   color: var(--accent-deep);
   background: var(--accent-soft);
-  border-radius: 999px;
+  border-radius: 9999px;
   padding: 0.0625em 0.6em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
