@@ -194,7 +194,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
   if (phase === "ready") {
     return (
       <RoundStart
-        icon={<Timer size={34} aria-hidden />}
+        icon={<Timer size={26} aria-hidden />}
         title="Match"
         lead="Clear the board as fast as you can."
         hue="sky"

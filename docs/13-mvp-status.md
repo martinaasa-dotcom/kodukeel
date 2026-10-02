@@ -2590,3 +2590,20 @@ and never offers a part the learner has already walked, since a part's progress 
 append-only ticks and there is no way to walk one again yet. A learner who started at A1.1 and
 struggles gets the lean and a sentence, not a move.
 
+
+## 42. The thirty-sixth pass: conversations without a bad fallback, and a review at the end
+
+**No Groq in a conversation.** When the Gemini balance ran out, conversations were composed on a
+Groq model whose Estonian passed the gate and was not a person talking. A scene now composes on
+Gemini, then the bounded Anthropic tail, then plays its prepared lines, and says at the top which
+of those is answering.
+
+**The judge works.** The step that credits a turn the dictionary could not read had thrown on every
+call since it was written. It runs now, and an invariant stops the same fault returning.
+
+**A conversation ends in a review.** What got done, the learner's own best lines, a note per turn,
+what to try next time, and a short note from Anu, checked so that no Estonian in it is invented.
+
+**Still open.** A sweep of 180 simulated conversations found repeats and early endings as the two
+largest faults; this pass fixed several causes but did not re-measure them
+(`docs/21-situations.md` §74).

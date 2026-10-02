@@ -9561,6 +9561,38 @@ learner is trying to say, a model writes the learner's line (§32). Measured aft
 twenty.
 
 
+**The judge had never run, and nothing said so.** In `/api/scene` the hoisted `readingOf` read a
+`let readOnce` declared about seven hundred lines below the first call to it, so every judge call
+threw "Cannot access 'readOnce' before initialization" inside a `catch` that treated a throw as "the
+judge said no". The step that credits a learner who did what the beat asked in words the dictionary
+did not expect (ADR-025 amendment 2) had been switched off in production since it was written, and
+every test passed, because a hoisted function is a legal call and a temporal dead zone is a runtime
+fact. The `let` is declared first in the handler now, and
+`scripts/invariants/the-scene-judge-can-run.ts` fails on any hoisted function in that route reading a
+`let` before its declaration, made to fail on the old route. A `catch` that reads a crash as a
+verdict is the shape to look for in any route that asks a model a yes-or-no question.
+
+**A line withheld only for saying goodbye keeps the rest of itself.** The model reached for `Head
+aega!` at the end of a confirmation, `farewell` withheld the whole line three times running, and the
+learner read the bare card line `Kell 14:30.` in place of a person confirming an appointment.
+`withoutFarewell` in `lib/scenes/gate.ts` takes out the sentences that say goodbye and the composer
+judges what is left again, so the check stays exactly as strict and only the salvage is new. And a
+`close` beat whose direction does not say goodbye (the clothes shop waiting to be paid) is told to
+do what it says and let the learner say goodbye first, while nobody answers a goodbye with `Ei tea.`
+any more (`shrugOwed` reads `isOver`).
+
+**A conversation ends in a review, and the review holds no Estonian of its own.**
+`lib/scenes/recap.ts` is counted off the run: a headline that leads on what got done, four counts,
+up to three moments quoting the learner's own words, a note on every turn and up to three things to
+try next time. It gives no grade and writes no Estonian. **"A note from Anu"** is the one part a
+model writes (`lib/scenes/coachNote.ts`, `/api/scene/note`): what went well and one thing to
+practise, on the grader chain and metered, asked once the review is already on the screen. Every
+Estonian word in it has to be one the conversation or the dictionary's own recasts hold
+(`verifyVerdict`), and **only the sentence carrying an unverified form is dropped**
+(`withoutUnverified`), where the exam's composition note is withheld whole: the exam note is about
+one piece of writing, and this is two or three independent remarks. No unverified word reaches the
+learner either way (ADR-005).
+
 **Sõnad has seven tries and two clues, and both clues arrive late on purpose.** Six for six is the
 English game's ratio and not its game: Estonian has nine vowels where English is deducing among
 five, so a guesser who has placed the consonants can still be choosing between three words on the
@@ -11470,7 +11502,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `mayFillEnglish`,
 `data-point-examples`, `BeforeYouStart`, `BriefingLines`, `BRIEFINGS`, `startRound`,
 `OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`, `tonightSteps`, `useModuleSteps`,
-`ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`.
+`ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`, `withoutFarewell`,
+`withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

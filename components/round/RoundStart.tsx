@@ -30,35 +30,35 @@ export function RoundStart({ icon, title, lead, children, chips, actions, footno
   hue?: "cta" | "blush" | "accent" | "sky";
 }) {
   return (
-    <div className="mx-auto max-w-xl px-4 py-10 sm:px-5 md:py-16">
-      <div className="night pop-in rounded-[var(--r-xl)] border px-5 py-9 text-center sm:px-8 md:px-10 md:py-11">
+    <div className="round-brief mx-auto max-w-lg px-4 sm:px-5">
+      <div className="round-brief-panel night pop-in rounded-[var(--r-xl)] border text-center">
         <span
           aria-hidden
-          className="round-start-disk float mx-auto grid h-20 w-20 place-items-center rounded-full"
+          className="round-start-disk float mx-auto grid h-14 w-14 place-items-center rounded-full"
           style={{ background: `var(--${hue})`, color: "var(--on-hue)" }}
         >
           {icon}
         </span>
         <h1
-          className="font-display mt-6 text-4xl font-bold leading-[1.02] tracking-tight md:text-5xl"
+          className="round-brief-title round-brief-gap font-display font-bold tracking-tight"
           style={{ color: "var(--ink)", textWrap: "balance" }}
         >
           {title}
         </h1>
         {lead && (
-          <p className="mt-2 text-md font-semibold" style={{ color: "var(--cta)" }}>{lead}</p>
+          <p className="mt-1.5 text-base font-semibold" style={{ color: "var(--cta)" }}>{lead}</p>
         )}
         {children && (
-          <div className="mx-auto mt-5 flex max-w-[46ch] flex-col gap-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          <div className="round-brief-gap mx-auto flex max-w-[46ch] flex-col gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {children}
           </div>
         )}
         {chips && (
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">{chips}</div>
+          <div className="round-brief-gap flex flex-wrap items-center justify-center gap-2">{chips}</div>
         )}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">{actions}</div>
+        <div className="round-brief-gap flex flex-wrap items-center justify-center gap-3">{actions}</div>
         {footnote && (
-          <p className="mt-5 text-sm" style={{ color: "var(--ink-3)" }}>{footnote}</p>
+          <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>{footnote}</p>
         )}
       </div>
     </div>
@@ -69,7 +69,7 @@ export function RoundStart({ icon, title, lead, children, chips, actions, footno
 export function RoundChip({ icon, children }: { icon?: ReactNode; children: ReactNode }) {
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold"
+      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold"
       style={{ background: "rgb(255 255 255 / 0.08)", border: "1px solid rgb(255 255 255 / 0.14)", color: "var(--ink)" }}
     >
       {icon}

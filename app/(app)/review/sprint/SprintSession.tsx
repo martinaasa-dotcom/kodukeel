@@ -158,7 +158,7 @@ export function SprintSession({
     }
     return (
       <RoundStart
-        icon={<Timer size={34} aria-hidden />}
+        icon={<Timer size={26} aria-hidden />}
         title="Case Sprint"
         lead={`You've got ${roundLength(seconds)}. Go as fast as you can.`}
         chips={<>

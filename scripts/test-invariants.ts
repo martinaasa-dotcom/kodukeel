@@ -24363,7 +24363,13 @@ check("the module frame is mounted once in the shell, keeps the rail and Anu, an
   const exit = code("components/round/RoundExit.tsx");
   assert.match(exit, /if \(focus\) return opening \? null : <div className=\{className\}>\{next\}<\/div>/,
     "`WayOut` no longer draws tonight's Next inside a module, so a round finishes with no way on");
-  for (const page of ["app/(app)/grammar/topic/[id]/page.tsx", "app/(app)/grammar/[caseKey]/page.tsx"]) {
+  for (const page of [
+    "app/(app)/grammar/topic/[id]/page.tsx",
+    "app/(app)/grammar/[caseKey]/page.tsx",
+    // The past-forms step is a reading too, and shipped without its Next: the
+    // learner finished the three taps and had nothing to press.
+    "app/(app)/course/forms/page.tsx",
+  ]) {
     assert.match(code(page), /<ReadingEnd \/>/, `${page} stopped ending on tonight's Next inside a module`);
   }
   assert.match(code("components/scene/SceneDebrief.tsx"), /<NextStep \/>/,
