@@ -5613,11 +5613,25 @@ is built against.
 no day pointer column and there is not going to be one (ADR-014): the day in play is the furthest
 one carrying a tick, worked out on each render. Two of every day's steps are proved by the review
 log, meeting the words leaves a mark on every one of their cards and the closing round is answers
-graded after that day's own ticks, and those are never written anywhere. The rest cannot be,
+graded after that day's own ticks, and no press may write those. The rest cannot be proved,
 because a `Review` row carries no note of which mode wrote it and a round of Match and a flip of the
 same card are one row. Those are ticked by the learner, `CourseStep` is append-only with a unique
 key so a second press is a no-op, and **the screen says which kind each one is** rather than
 implying the app watched.
+
+**And a derived step, once proved, is saved, because finished has to stay finished.** It was read
+afresh off the deck on every render and written nowhere, so it could be true on the module screen
+and false a minute later on Today: a learner finished every step, saw the evening done, opened Today
+and read 75 percent with "meet the words" waiting again, more than once. "The words are met" is a
+fact about cards, and anything that put one of the day's words back at New took a finished evening
+back: a word put aside coming back when its wait ended, or a second recognition card built because
+the builder deduplicated on the card's *front* and a deck built before a spelling fix holds an
+older front. `latchDerived` writes the row the moment the server has proved the step, on a day the
+learner has pressed a step of and no other (a row on the day after would move `dayReached` and take
+"That's tonight done" with it), and those rows never open the closing round's window, which reads
+pressed ticks alone. The meet step is read per word rather than per card, and recognition and
+production are one per word whatever their front (`ONE_PER_WORD`), so the copy is not built either.
+No client may write a derived row: `markCourseStep` and `advanceCourseStep` still refuse one.
 
 **And a step nobody can press has to be one the app can still finish.** The two derived steps ask
 for evidence, and the closing one asked for five answers whatever the round behind it had left to
@@ -5627,8 +5641,8 @@ with no press anywhere on it that could move it: the step is derived, so `markCo
 `advanceCourseStep` both refuse it a row, correctly. Reported off a real module. A derived step is
 finished by the evidence it asks for **or by there being no more evidence to be had**, so the ask
 is `min(CLOSING_REVIEW, graded + what is left)` and a closing round with nothing to ask is a
-closing round done. Nothing is stored for it (ADR-014): what is left is read off the deck on each
-render like every other figure here.
+closing round done. What is left is read off the deck on each render like every other figure
+here, and the step is saved once it holds, like the meet step above.
 
 **And it is read off the queue's own clauses rather than beside them.** A count computed near the
 review page and not out of it is two readings of one question, and the one that is wrong is the one
