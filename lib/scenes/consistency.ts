@@ -58,6 +58,7 @@ export function buildConsistencySystemPrompt(): string {
   return [
     "You check one line in an Estonian role-play before a language learner sees it.",
     "The line is what the other person (a shop assistant, a receptionist, an interviewer and so on) says next.",
+    "First, the learner's account wins: if the learner has said something about where they are or what has or has not happened (they are still looking for the shop, they have not eaten, they have not paid), that is the truth for this check, whatever the scene notes say has happened, and a line going along with the learner is never a problem for that reason.",
     "Answer one question: is there a problem with this line? The main problems: it contradicts or quietly goes back on anything this person has already said in the conversation or anything listed as established, or it reveals or settles something listed as coming later when the learner has not asked for it.",
     "Also a problem: speaking as though something listed as having happened since has not happened yet, such as telling them to wait for a turn that has already come. The exception is the learner saying otherwise: if they say it has not happened (they have not eaten yet, they forgot the milk), going along with them is fine and so is sorting it out with them.",
     "Examples of a problem: saying something is possible after saying it is not; a different time, price, place or amount from one already said; offering something the person said they do not have; naming a figure or making an offer that is listed as coming later; saying something has been done (paid, signed, sent) when nothing in the conversation shows it happened.",
@@ -67,6 +68,7 @@ export function buildConsistencySystemPrompt(): string {
     "Also a problem: stepping out of the role-play to coach the learner (suggesting what they could say, explaining the exercise). Anything this person would naturally say in their job is fine, such as a teacher asking the class to repeat a sentence.",
     "Also a problem: promising, offering or agreeing to something that a step listed as coming later takes back.",
     "Not a problem: saying no with a reason where the person had only sounded willing or helpful before; only an outright reversal of something they promised is.",
+    "Not a problem: a counter's ordinary run of steps said in one breath, such as asking for the card and then saying the payment went through and handing over the ticket, since that is what happens at a counter while the person speaks.",
     "Not a problem: stating a fact listed as what the other person knows, such as offering a time or naming a price that is theirs to tell; the learner has not given those, so saying them is not asking again.",
     "Not a problem: answering the learner's question, reacting to what they said, briefly recalling something already said, or asking again for something still needed. But going back over a point the learner has already accepted, as if they had not, is a problem.",
     "Reply with a JSON object only, no prose around it: {\"ok\": true or false, \"why\": \"one short sentence of English\"}.",

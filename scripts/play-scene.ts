@@ -33,7 +33,7 @@
  */
 import { FAREWELLS, SCENES, sceneById } from "../lib/scenes/catalogue";
 import { ASKS_ON } from "../lib/scenes/curveballs";
-import { saysGoodbye } from "../lib/scenes/casual";
+import { saysGoodbye, LEAVING } from "../lib/scenes/casual";
 import {
   MAX_TURNS, acceptFromRows, clockInPlay, contextFromRows, knowing, moneyInPlay, replay, sceneLemmas, type Row,
   type StoredDraw,
@@ -427,7 +427,7 @@ async function play(sceneId: string) {
         && answered !== spokenFor && !state.turns.some((t) => t.beatId === spokenFor.id) && LINKS.length > 0;
       const request = {
         // A closing beat where the learner is still asking is gated as one that may not say goodbye.
-        beat: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, FAREWELLS)
+        beat: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, [...FAREWELLS, ...LEAVING])
           ? { ...spokenFor, move: "confirm" as const } : spokenFor,
         lexicon: context.lexicon,
         // This run's dealt numbers, so the gate's `facts` check is the one the route runs.
@@ -448,7 +448,7 @@ async function play(sceneId: string) {
           does in the route: a question on the way out, or a word to hand over,
           is composed rather than answered `Ei tea. Head aega!`
         */
-        pool: (askedNow || handing || (spokenFor.move === "close" && last !== null && !saysGoodbye(last.said, FAREWELLS)))
+        pool: (askedNow || handing || (spokenFor.move === "close" && last !== null && !saysGoodbye(last.said, [...FAREWELLS, ...LEAVING])))
           && LINKS.length > 0 ? [] : context.pool.get(spokenFor.id) ?? [],
         /*
           THE LEARNER'S OWN WORDS ARE ON TOPIC, AS THE ROUTE READS THEM. The
@@ -531,7 +531,7 @@ async function play(sceneId: string) {
             // This beat's own, as the route hands them: ask the same thing, in your own words.
             asked: (context.scripted.get(spokenFor.id) ?? []).slice(0, 2),
             agenda, settled, established, moved,
-            stillTalking: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, FAREWELLS),
+            stillTalking: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, [...FAREWELLS, ...LEAVING]),
             // And what happened to the turn, which is the route's own wording.
             note: composeNote(
               turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, preBreak ? null : askedNow,

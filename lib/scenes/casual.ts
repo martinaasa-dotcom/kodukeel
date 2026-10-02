@@ -57,6 +57,15 @@ export const CASUAL = {
 export const CLOSING_WORDS = ["nägemiseni", "kohtumiseni", "hüvasti"] as const;
 
 /**
+ * What a learner says on their way out that is not a farewell the course
+ * teaches: a customer who wrote "aitäh, näeme veel!" and asked one last thing
+ * was answered as somebody still at the counter, with the goodbye held back
+ * for them to say first. Read off the learner's turn and never the other
+ * side's line, since a landlord's `näeme teisipäeval` is a plan, not a leaving.
+ */
+export const LEAVING = ["näeme veel", "näeme hiljem", "head päeva", "ilusat päeva", ...CLOSING_WORDS] as const;
+
+/**
  * How long a turn may be and still be read as a bare leave-taking.
  *
  * `Head aega!` is credited anywhere in a turn because a scene names it; a word

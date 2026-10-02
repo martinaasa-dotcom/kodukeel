@@ -23,7 +23,7 @@ import {
 import { leafNeeds } from "@/lib/scenes/types";
 import { FAREWELLS, sceneById } from "@/lib/scenes/catalogue";
 import { ASKS_ON } from "@/lib/scenes/curveballs";
-import { saysGoodbye } from "@/lib/scenes/casual";
+import { saysGoodbye, LEAVING } from "@/lib/scenes/casual";
 import { isSpokenEstonian, sceneLine, unwrapLine, type SpokenLine } from "@/lib/scenes/line";
 import {
   cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, heldBack, heldNumbers, sceneMovedOn, replyFor,
@@ -1017,7 +1017,7 @@ export async function POST(request: Request) {
     A closing beat where the learner is still asking: the goodbye waits, so
     the line is gated as a line that may not say it (`farewell`).
   */
-  const stillTalking = beat.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, FAREWELLS);
+  const stillTalking = beat.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, [...FAREWELLS, ...LEAVING]);
   const shared = {
     beat: stillTalking ? { ...beat, move: "confirm" as const } : beat,
     lexicon: context.lexicon,
@@ -1128,7 +1128,7 @@ export async function POST(request: Request) {
     where the learner's last turn was not itself a goodbye, the model is asked
     to react and wrap up, and the farewell stays the net.
   */
-  const closingOnNews = beat.move === "close" && last !== null && !saysGoodbye(last.said, FAREWELLS);
+  const closingOnNews = beat.move === "close" && last !== null && !saysGoodbye(last.said, [...FAREWELLS, ...LEAVING]);
   if (cheap.provenance === "attested" && !shrugOwed && !handing && !askedNow && !closingOnNews) return answer(reply(cheap));
 
   /*

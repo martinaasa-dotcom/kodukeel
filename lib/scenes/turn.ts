@@ -431,7 +431,7 @@ export function readTurn(
     only shape that refuses.
   */
   const found = beat.needs
-    .map((need) => satisfies(need, text, spoken, context))
+    .map((need) => (asksWhich(need, text, spoken, context) ? null : satisfies(need, text, spoken, context)))
     .map((hit) => (negatedIn(hit, text, beat, context) ? null : hit));
   const met = found.map((hit) => hit !== null);
   const missing = met.flatMap((ok, i) => (ok ? [] : [i]));
@@ -777,6 +777,20 @@ const ANSWER_WORDS = 2;
  * `kohvi`, which mean one thing.
  */
 const BARE_POLARITY = new Set(["jah", "ei"]);
+
+/**
+ * WHETHER THE TURN ASKS WHICH, RATHER THAN CHOOSING. Asked large or small, a
+ * learner wrote `small või large?`, which names both and picks neither, and
+ * the English for one of them met the beat: the drink was served before
+ * anybody had said which. Two of a requirement's options in one turn with an
+ * "or" between them is the learner putting the question back.
+ */
+function asksWhich(need: Requirement, text: string, spoken: readonly string[], context: TurnContext): boolean {
+  if (need.kind !== "lemma" || need.oneOf.length < 2) return false;
+  if (!spoken.some((word) => word === "või" || word === "or")) return false;
+  const named = need.oneOf.filter((option) => satisfies({ ...need, oneOf: [option] }, text, spoken, context) !== null);
+  return named.length >= 2;
+}
 
 /** A requirement met by something other than a word: a question mark, small talk. */
 const YES = "\u0001";

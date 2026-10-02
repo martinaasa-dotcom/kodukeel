@@ -569,6 +569,16 @@ describe("reading a turn", () => {
   });
 });
 
+describe("a turn that puts the either-or back", () => {
+  const choosing = beat({ needs: [{ kind: "lemma", oneOf: ["tuba", "valu"] }], shape: "word" });
+  it("is not a choice where it names both with an or between them", () => {
+    expect(readTurn("tuba või valu?", choosing, context()).reading).not.toBe("complete");
+  });
+  it("is still a choice where it names one", () => {
+    expect(readTurn("tuba, palun", choosing, context()).reading).toBe("complete");
+  });
+});
+
 describe("a fact the learner changed on their own card", () => {
   /*
     The card deals a value so the learner has something to say, and it is not
