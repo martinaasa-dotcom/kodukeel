@@ -1659,14 +1659,24 @@
     no gap between them, and the pill's own surface is opaque. Starting it
     under the pill's own midline leaves only the tail visible, which is the
     part that was doing the work.
+
+    AND THEN IT RISES BEHIND THE BAR'S FADE, SO THE SLIVER ABOVE THE PILL IS
+    COVERED. Starting at the midline left the fade's own last few pixels, the
+    part going transparent, as the only thing between the bar and the pill,
+    and a learner's gold bubble scrolling through showed as a gold strip right
+    above the card: measured at about 280 gold pixels in that gap in both
+    themes. It starts behind the solid part of the fade now (`.scene-top` is
+    above this in the stacking order), so its top edge is hidden under ground
+    of the same colour and there is no seam for the slab fault to come back
+    through; it is solid to the pill's foot and fades under it as before.
   */
   .scene-sticky:not([open])::before {
     content: "";
     position: absolute;
-    inset: 50% 0 -0.9rem;
+    inset: calc(-0.5 * var(--scene-fade, 1.25rem)) 0 -0.9rem;
     z-index: -1;
     pointer-events: none;
-    background: linear-gradient(var(--ground) 62%, transparent);
+    background: linear-gradient(var(--ground) calc(100% - 0.9rem), transparent);
   }
 
   /*
