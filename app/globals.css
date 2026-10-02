@@ -3645,7 +3645,7 @@
      rather than a half-height. */
   .situation-chip {
     background: var(--surface);
-    border-radius: 0.625rem;
+    border-radius: var(--r-sm);
     padding: 0.1875rem 0.625rem;
     line-height: 1.35;
   }
