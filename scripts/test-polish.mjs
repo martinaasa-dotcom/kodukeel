@@ -125,8 +125,12 @@ const cardFront = (await page.locator("main").textContent()) ?? "";
 // tag under it, so the arrow is no longer on the screen: the tag is read off
 // its own hook rather than off the joined text of the card.
 const frontTail = ((await page.locator("[data-front-tail]").first().textContent({ timeout: 1000 }).catch(() => null)) ?? "").trim();
+// And since a bare form card asks with one plain line, `Say “of the garden”`,
+// that line in place of the tag is the same question put more plainly.
+const sayAsk = ((await page.locator("[data-say]").first().textContent({ timeout: 1000 }).catch(() => null)) ?? "").trim();
 const gradationAsk = drilledCase === "genitive"
-  && (/^(kelle\? ?)?(kelle\?|mille\?)$/.test(frontTail) || /→ (kelle\?|mille\?)/.test(cardFront));
+  && (/^(kelle\? ?)?(kelle\?|mille\?)$/.test(frontTail) || /→ (kelle\?|mille\?)/.test(cardFront)
+    || /^Say “/.test(sayAsk));
 check("and asks for it in a sentence with a gap, never by its Latin name",
   (cardFront.includes("____") || gradationAsk) && !new RegExp(`→ ${drilledCase}`, "i").test(cardFront)
     && !new RegExp(`^${drilledCase}$`, "i").test(frontTail),

@@ -23,7 +23,7 @@ import { markForm, type FlashMark } from "@/lib/games/flash";
 import { departureLine, rungLine, type ExceptionTask } from "@/lib/games/exceptions";
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { AlsoRight } from "@/components/WordExceptions";
-import { plainAskLine } from "@/lib/estonian/plainAsk";
+import { sayLine } from "@/lib/estonian/sayIt";
 import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
@@ -446,7 +446,7 @@ function MoreOnThis({ task, className }: { task: ExceptionTask; className?: stri
 
 /** The two rungs that ask for something: cold, then inside a sentence. */
 function Asking({ task }: { task: ExceptionTask }) {
-  const plain = plainAskLine(task.slot);
+  const plain = sayLine(task.slot, task.translation);
 
   if (task.rung === "use") {
     return (
@@ -508,11 +508,9 @@ function Asking({ task }: { task: ExceptionTask }) {
       <div className="mt-5">
         {plain ? (
           <>
+            {/* One instruction. The form's name is on the answer. */}
             <p className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
               {plain}
-            </p>
-            <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-              {task.label}
             </p>
           </>
         ) : (

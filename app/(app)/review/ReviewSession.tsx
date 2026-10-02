@@ -152,6 +152,14 @@ export interface ReviewCard {
    * card whose sentence has not been translated yet.
    */
   sentenceEn: string | null;
+  /**
+   * The one line a bare form card asks with, `Say “with the bird”`, or null.
+   *
+   * Where this is set it replaces the question word, the plain clause and the
+   * form's name before the answer: one instruction rather than four lines of
+   * grammar. The name comes back after the answer, as the thing to remember.
+   */
+  say: string | null;
   /** Whether this deployment has a model that could translate the sentence. */
   canTranslate: boolean;
 }
@@ -209,7 +217,7 @@ function shownAs(card: ReviewCard, met: boolean): Omit<SeenCard, "key"> {
       : TYPE_LABEL[card.cardType] ?? card.cardType,
     question: met ? word : sizedBlank(card.front, card.back),
     answer: met ? card.intro?.gloss ?? card.back : card.back,
-    note: met ? null : plainAsk(slotAsked(card)) ? plainAskLine(slotAsked(card)) : null,
+    note: met ? null : card.say ?? (plainAsk(slotAsked(card)) ? plainAskLine(slotAsked(card)) : null),
     questionLang: met ? "et" : estonianSide(card.cardType, "front") ? "et" : "en",
     answerLang: met ? "en" : estonianSide(card.cardType, "back") ? "et" : "en",
     speak: speakable,
@@ -1585,7 +1593,7 @@ export function ReviewSession({
             screen and wrapped the word onto two lines. The word is what the
             card is about; what to do with it sits under it, small.
           */}
-          {ask !== "intro" && split && (
+          {ask !== "intro" && split && !card.say && (
             <span
               lang="et"
               data-front-tail
@@ -1608,7 +1616,17 @@ export function ReviewSession({
             question stays where it was, the name stays where it was, and
             somebody who has not met `seesütlev` yet can still answer the card.
           */}
-          {(isGap(card) ? answerShown : !answerShown) && plainAsk(slotAsked(card)) && (
+          {ask !== "intro" && card.say && !answerShown && (
+            <p
+              data-say
+              className="rounded-full px-4 py-1.5 text-lg font-semibold"
+              style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+            >
+              {card.say}
+            </p>
+          )}
+
+          {!card.say && (isGap(card) ? answerShown : !answerShown) && plainAsk(slotAsked(card)) && (
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
               {plainAskLine(slotAsked(card))}
             </p>
@@ -1629,7 +1647,7 @@ export function ReviewSession({
             rule: the gloss goes where the sentence took its place, the word
             never does, and an unmarked line keeps both.
           */}
-          {cue && !answerShown && (
+          {cue && !answerShown && !card.say && (
             <p className="text-xs" style={{ color: "var(--ink-3)" }}>{cue}</p>
           )}
 

@@ -1,10 +1,10 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import {
-  CUMULATIVE_HOURS, FACTS, countedBySkill, foundHours, project, sustainableNewCardsPerDay,
+  CUMULATIVE_HOURS, FACTS, about, countedBySkill, foundHours, project, sustainableNewCardsPerDay,
   type MeasuredPace, type Projection, type Standing,
 } from "@/lib/assessment/plan";
 import { describeSituation, reasonsFor, targetByBand, weeksUntil, type Goals, type Reason } from "@/lib/assessment/goals";
-import { formatDuration, formatDurationRange } from "@/lib/time/duration";
+import { formatDuration } from "@/lib/time/duration";
 import { minutesForCards } from "@/lib/stats/pace";
 import { PRE_A1, type Band, type Level } from "@/lib/assessment/types";
 import { ChevronRight } from "lucide-react";
@@ -19,7 +19,9 @@ import { Explain } from "@/components/Explain";
  * trivia; a level, a goal and a deadline together are a plan, and the useful
  * thing an app can do with them is arithmetic nobody enjoys: this many hours,
  * at your pace that is this many weeks, which is or is not before the date you
- * gave. Every number carries where it came from, and the ranges stay ranges.
+ * gave. Every number carries where it came from, and each is one figure: the
+ * middle of the model's range, said as "about". Two ends read as an app that
+ * does not know, and the width says nothing a learner can plan with.
  *
  * It never tells a learner they cannot do something. It tells them what the
  * published hours say, what their own pace covers, what their week already
@@ -39,16 +41,14 @@ export function levelLabel(level: Level | null): string {
 }
 
 /**
- * A range, with the unit left off when the tile above it already says it.
+ * One figure, the middle of a range, with the unit left off when the tile
+ * above it already says it.
  *
- * The unit used to be interpolated unconditionally, so the two tiles that pass
- * an empty one rendered "880 to 1170 " with a space hanging off the end of the
- * number.
+ * Both ends used to be printed, "880 to 1170", which a reader took as the
+ * app not knowing. The model keeps the range; the screen says the middle.
  */
-function range(low: number, high: number, unit: string, step = 1): string {
-  const a = Math.round(low / step) * step;
-  const b = Math.round(high / step) * step;
-  const body = a === b ? `${a}` : `${a} to ${b}`;
+function central(low: number, high: number, unit: string, step = 1): string {
+  const body = `${Math.round((low + high) / 2 / step) * step}`;
   return unit ? `${body} ${unit}` : body;
 }
 
@@ -56,12 +56,10 @@ function range(low: number, high: number, unit: string, step = 1): string {
  * Hours, to the nearest ten.
  *
  * The table is in tens because a finer figure would be false precision over
- * published averages, and the skill by skill mean divides by three, so a
- * measured learner was shown "667 to 953 hours": the same claim, dressed as
- * a measurement. The tens are put back on the way to the screen.
+ * published averages, and the skill by skill mean divides by three.
  */
-function hoursRange(low: number, high: number, unit: string): string {
-  return range(low, high, unit, 10);
+function hoursAbout(low: number, high: number, unit: string): string {
+  return central(low, high, unit, 10);
 }
 
 /**
@@ -89,7 +87,7 @@ function hours1(n: number): number {
  */
 function verdictFor(plan: Projection): { tone: "neutral" | "good" | "warn"; headline: string } {
   const allIn = plan.otherHoursPerWeek
-    ? formatDurationRange(plan.appHoursPerWeek + plan.otherHoursPerWeek.low, plan.appHoursPerWeek + plan.otherHoursPerWeek.high, "long")
+    ? formatDuration(plan.appHoursPerWeek + about(plan.otherHoursPerWeek), "long")
     : formatDuration(plan.appHoursPerWeek, "long");
   switch (plan.verdict) {
     case "arrived": return { tone: "good", headline: "By this measure, you're already there." };
@@ -182,7 +180,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatTile
-          value={plan.hours.low === 0 ? "0" : hoursRange(plan.hours.low, plan.hours.high, "")}
+          value={plan.hours.high === 0 ? "0" : hoursAbout(plan.hours.low, plan.hours.high, "")}
           label="Study hours to go"
           tone="accent"
           hint={guessed ? "from published figures, with room for a guessed level"
@@ -200,8 +198,8 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
             is the whole plan in one figure. */}
         <StatTile
           value={plan.otherHoursPerWeek
-            ? formatDurationRange(plan.appHoursPerWeek + plan.otherHoursPerWeek.low, plan.appHoursPerWeek + plan.otherHoursPerWeek.high)
-            : plan.weeksOnAppAlone.low === 0 ? "0" : range(plan.weeksOnAppAlone.low, plan.weeksOnAppAlone.high, "")}
+            ? formatDuration(plan.appHoursPerWeek + about(plan.otherHoursPerWeek))
+            : plan.weeksOnAppAlone.high === 0 ? "0" : central(plan.weeksOnAppAlone.low, plan.weeksOnAppAlone.high, "")}
           label={plan.otherHoursPerWeek ? "Each week, all told" : "Weeks with just this app"}
           tone="blush"
           hint={plan.otherHoursPerWeek ? "here and elsewhere, to make your date" : "set a date to see hours a week"}
@@ -253,7 +251,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
         <Card>
           <SectionTitle hint="what the numbers assume">How we worked it out</SectionTitle>
         <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          Getting to {target} from scratch takes an English speaker roughly {range(CUMULATIVE_HOURS[target].low, CUMULATIVE_HOURS[target].high, "hours")} of
+          Getting to {target} from scratch takes an English speaker about {hoursAbout(CUMULATIVE_HOURS[target].low, CUMULATIVE_HOURS[target].high, "hours")} of
           study. Estonian takes longer than French or Spanish, and most of the extra time comes in
           the middle: the cases and the gradation make A2 to B1 the longest step. B1 to B2 is closer
           to any other language, once the grammar underneath is working. These are averages from
@@ -264,7 +262,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
             ? bySkill
               ? "Your level was measured, and your skills came out at different levels. So the distance is the average of what each skill still has to cover, not the distance from your overall level."
               : "Your level was measured, so we didn't pad the distance for a guess."
-            : "Your level is your own estimate, so the far end of the range allows for you being half a level lower than you think. Take the level check and that padding goes."}{" "}
+            : "Your level is your own estimate, so the figure allows for you being half a level lower than you think. Take the level check and that padding goes."}{" "}
           {plan.paceSource === "measured"
             ? `Your pace comes from what you actually did here over the last ${weeksWord(plan.paceWeeks)}, not from what you said you'd do.`
             : plan.paceSource === "lapsed"
@@ -378,17 +376,17 @@ function situation(reasons: readonly Reason[]): string | null {
  */
 function foundNote(plan: Projection, reasons: readonly Reason[]): string {
   const other = plan.otherHoursPerWeek!;
-  const need = formatDurationRange(other.low, other.high, "long");
-  const lands = range(plan.weeksWithFound.low, plan.weeksWithFound.high, "weeks");
+  const need = formatDuration(about(other), "long");
+  const lands = `${plan.weeksAbout} weeks`;
   const where = situation(reasons);
-  const held = formatDurationRange(plan.found.low, plan.found.high, "long");
+  const held = formatDuration(about(plan.found), "long");
   if (plan.verdict === "short") {
     return `That's more than most weeks can hold on top of everything else. At ${held} a week beyond this app, it's about ${lands} away. Move your date to then, or raise the daily goal, and the plan works again.`;
   }
   if (where) {
-    return `Put in roughly ${need} a week of Estonian beyond this app and you'll make your date. You ${where}, which usually gives you ${held} a week without booking anything, so most of it is already there.`;
+    return `Put in about ${need} a week of Estonian beyond this app and you'll make your date. You ${where}, which usually gives you ${held} a week without booking anything, so most of it is already there.`;
   }
-  return `Put in roughly ${need} a week of Estonian beyond this app and you'll make your date: a class, a conversation partner, reading, a film without subtitles. A normal week has room for ${held} of that, and at that pace you're about ${lands} away.`;
+  return `Put in about ${need} a week of Estonian beyond this app and you'll make your date: a class, a conversation partner, reading, a film without subtitles. A normal week has room for ${held} of that, and at that pace you're about ${lands} away.`;
 }
 
 function sentence(
@@ -402,11 +400,11 @@ function sentence(
     return `You're already at ${to} or above. Pick a higher target, or keep your reviews ticking over and take the check again in a couple of months.`;
   }
   const qualifier = why.guessed
-    ? " That level is your own estimate, so the far end allows for you starting half a level lower."
+    ? " That level is your own estimate, so the figure allows for you starting half a level lower."
     : why.bySkill
       ? " Your skills came out at different levels, so we counted the distance skill by skill."
       : "";
-  const distance = `Going from ${from} to ${to} usually takes ${hoursRange(plan.hours.low, plan.hours.high, "hours")} of study.${qualifier}`;
+  const distance = `Going from ${from} to ${to} takes about ${hoursAbout(plan.hours.low, plan.hours.high, "hours")} of study.${qualifier}`;
   const pace = formatDuration(plan.appHoursPerWeek, "long");
   const covers = plan.paceSource === "measured"
     ? `You've spent about ${pace} a week here over the last ${weeksWord(plan.paceWeeks)}, so that's the pace we're using`
@@ -446,16 +444,15 @@ function sentence(
  */
 function DistanceBar({ plan }: { plan: Projection }) {
   if (plan.weeksAvailable === null || plan.appHoursAvailable === null || plan.hours.high <= 0) return null;
-  const total = plan.hours.high;
+  const total = about(plan.hours);
   const app = Math.min(plan.appHoursAvailable, total);
-  const week = Math.min(plan.found.low * plan.weeksAvailable, total - app);
+  const week = Math.min(about(plan.found) * plan.weeksAvailable, total - app);
   const share = (h: number) => `${Math.max(0, (h / total) * 100)}%`;
-  const nearEnd = (plan.hours.low / total) * 100;
   const segments = [
     { key: "app", label: "In this app, by your date", hours: app, fill: "var(--accent)" },
     { key: "week", label: "The rest of your week", hours: week, fill: "var(--sky)" },
   ].filter((segment) => segment.hours > 0);
-  const left = Math.max(0, plan.hours.low - app - week);
+  const left = Math.max(0, total - app - week);
   return (
     <div className="mt-5">
       <div aria-hidden className="relative h-3 overflow-hidden rounded-full" style={{ background: "var(--surface)" }}>
@@ -464,8 +461,6 @@ function DistanceBar({ plan }: { plan: Projection }) {
             <span key={segment.key} className="h-full" style={{ width: share(segment.hours), minWidth: 4, background: segment.fill }} />
           ))}
         </div>
-        {/* Where the level starts to be within reach: the near end of the range. */}
-        <span className="absolute inset-y-0 w-0.5" style={{ left: `${nearEnd}%`, background: "var(--ink-3)" }} />
       </div>
       <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
         {segments.map((segment) => (

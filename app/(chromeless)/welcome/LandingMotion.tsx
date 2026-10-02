@@ -169,11 +169,11 @@ export function PlanCalculator() {
     found: foundHours(chosen),
   });
 
-  const weeks = plan.weeksWithFound;
+  const weeks = plan.weeksAbout;
   const arrived = plan.verdict === "arrived";
-  const span = weeks.high < 12
-    ? `${weeks.low === weeks.high ? weeks.low : `${weeks.low} to ${weeks.high}`} weeks`
-    : `${monthsOf(weeks.low)} to ${monthsOf(weeks.high)} months`;
+  const span = weeks < 12
+    ? `${weeks} ${weeks === 1 ? "week" : "weeks"}`
+    : `${monthsOf(weeks)} ${monthsOf(weeks) === 1 ? "month" : "months"}`;
 
   const toggle = (id: string) =>
     setReasons((now) => (now.includes(id) ? now.filter((r) => r !== id) : [...now, id]));
