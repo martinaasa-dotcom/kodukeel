@@ -9574,6 +9574,18 @@ fails open, since the line has already passed every mechanical check. The judge 
 the learner was answering and the turns before it, and reads a turn as a native speaker standing
 there would. `docs/21-situations.md` §75.
 
+**A critic reads every scene, and a failed critic call is not a clean result.**
+`scripts/critic-scenes.ts` plays each scene against a model playing an offtrack, confused or chatty
+learner and has a second model list where the other side stopped making sense; it went from 34 faults
+over 45 conversations to 7. The changes it drove are in the machine rather than in one scene: a break
+in time counts only once reached and the learner's account of it wins, no beat past an unreached break
+is credited from a distance, a question asked on the way into a break is answered before it, a
+withheld line keeps whatever part of it was sound (`withoutFarewell`, `beforeHeld`, `SAFE_RETRY`), and
+four checks stopped refusing correct Estonian (a possessive `teie`, an infinitive's case, a set phrase,
+a name). And a critic call that fails is retried and reported as not judged: the thirteenth pass
+printed "0 issues over 90 conversations" on the day the key's quota ran out, and every one of those
+was a call that never came back. `docs/21-situations.md` §76.
+
 **The judge had never run, and nothing said so.** In `/api/scene` the hoisted `readingOf` read a
 `let readOnce` declared about seven hundred lines below the first call to it, so every judge call
 threw "Cannot access 'readOnce' before initialization" inside a `catch` that treated a throw as "the

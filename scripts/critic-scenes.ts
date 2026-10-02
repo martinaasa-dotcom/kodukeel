@@ -20,7 +20,7 @@
  * spends Gemini credit, about a tenth of a cent a turn.
  */
 import { spawn } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { SCENES } from "../lib/scenes/catalogue";
 
 const arg = (name: string) => { const i = process.argv.indexOf(`--${name}`); return i >= 0 ? process.argv[i + 1] : undefined; };
@@ -71,21 +71,33 @@ const CRITIC = [
   "Reply with JSON only: {\"issues\": [{\"turn\": <1-based index of the THEM line>, \"kind\": \"...\", \"line\": \"the THEM line\", \"why\": \"one short sentence\"}]}. An empty list if there are none.",
 ].join("\n");
 
-async function critique(text: string): Promise<Issue[]> {
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: CRITIC }] },
-      contents: [{ role: "user", parts: [{ text }] }],
-      generationConfig: { maxOutputTokens: 1500, responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 0 } },
-    }),
-  }).catch(() => null);
-  if (!res || !res.ok) return [];
-  const data = await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
-  try {
-    const parsed = JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}") as { issues?: Issue[] };
-    return parsed.issues ?? [];
-  } catch { return []; }
+/**
+ * The critic's reading of one transcript, or null where it gave none.
+ *
+ * A failed call used to read as no issues, so a run where the critic was
+ * rate-limited reported a perfect score: round 13 printed "0 issues over 90
+ * conversations" and nothing said whether anybody had read them. A failure is
+ * retried, then counted and printed as unjudged, and never as clean.
+ */
+async function critique(text: string): Promise<Issue[] | null> {
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 2000 * 2 ** attempt));
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: CRITIC }] },
+        contents: [{ role: "user", parts: [{ text }] }],
+        generationConfig: { maxOutputTokens: 1500, responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 0 } },
+      }),
+    }).catch(() => null);
+    if (!res || !res.ok) continue;
+    const data = await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+    try {
+      const parsed = JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text ?? "") as { issues?: Issue[] };
+      if (Array.isArray(parsed.issues)) return parsed.issues;
+    } catch { /* retried */ }
+  }
+  return null;
 }
 
 (async () => {
@@ -94,14 +106,24 @@ async function critique(text: string): Promise<Issue[]> {
     for (const kind of kinds) for (let seed = 1; seed <= seeds; seed += 1) jobs.push({ scene: scene.id, kind, seed });
   }
   const results: { job: typeof jobs[number]; text: string; issues: Issue[] }[] = [];
+  const unjudged: string[] = [];
+  /* `--rejudge <dir>` reads conversations a previous `--raw` kept instead of playing them again. */
+  const rejudge = arg("rejudge");
   let next = 0;
   await Promise.all(Array.from({ length: PARALLEL }, async () => {
     while (next < jobs.length) {
       const job = jobs[next++]!;
-      const played = await play(job.scene, job.kind, job.seed);
-      if (raw) writeFileSync(`${raw}/${job.scene}-${job.kind}-${job.seed}.log`, played);
+      const played = rejudge
+        ? readFileSync(`${rejudge}/${job.scene}-${job.kind}-${job.seed}.log`, "utf8")
+        : await play(job.scene, job.kind, job.seed);
+      if (raw && !rejudge) writeFileSync(`${raw}/${job.scene}-${job.kind}-${job.seed}.log`, played);
       const text = transcript(played);
       const issues = await critique(text);
+      if (issues === null) {
+        unjudged.push(`${job.scene} ${job.kind} #${job.seed}`);
+        console.log(`${job.scene} ${job.kind} #${job.seed}: NOT JUDGED (the critic did not answer)`);
+        continue;
+      }
       results.push({ job, text, issues });
       console.log(`${job.scene} ${job.kind} #${job.seed}: ${issues.length} issue(s)`);
     }
@@ -120,6 +142,7 @@ async function critique(text: string): Promise<Issue[]> {
   }
   writeFileSync(out, lines.join("\n"));
   console.log(`\n${total} issues over ${results.length} conversations`);
+  if (unjudged.length > 0) console.log(`NOT JUDGED: ${unjudged.length} (${unjudged.join(", ")}), so this is not a clean run`);
   for (const [k, n] of [...byKind].sort((a, b) => b[1] - a[1])) console.log(`  ${k}: ${n}`);
   console.log(`report: ${out}`);
 })();

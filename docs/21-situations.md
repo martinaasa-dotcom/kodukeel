@@ -5035,3 +5035,44 @@ answered `homme hommikul`) is an answer rather than an echo (`isEcho` in `lib/sc
 was drafted against the beat alone: after `not-possible` it can still sell a ticket for today. The
 consistency rules reach a composed line and no other.
 
+
+## §76 A critic reads every scene, and what thirteen passes of it changed
+
+`scripts/critic-scenes.ts` plays each scene against a model playing the learner (offtrack, confused
+and chatty) and has a second model list every moment the other side stopped making sense. It counted
+34 faults over 45 conversations on the first pass and 7 on the twelfth. Every change below is in the
+machine rather than in one scene, and each was traced to the line that caused it through `--raw`.
+
+**A failed line falls back less often, and less far.** After three attempts the composer is asked once
+more for a plain reaction and the move (`SAFE_RETRY`), before the bank. A line held back for its
+goodbye keeps the rest of itself (`withoutFarewell`), and one held back for naming a figure kept for
+later keeps its reaction with the beat's prepared move after it (`beforeHeld`); both run on every
+attempt, the last plain one included. A line that only repeats this person's own earlier sentences is
+refused before the reviewer is asked (`repeatsItself`).
+
+**A break in time is a fact the learner may overrule.** The composer and the reviewer are both told
+what the scene has moved on to (`sceneMovedOn`), and both are told the learner's account wins: if they
+say they have not eaten or are still on the street, a line going along with them is right. A break
+counts only once the conversation reaches it, and no beat past an unreached break is credited from a
+distance, by the cascade or by the look-ahead, so a diner asking what the soup cost does not skip the
+meal. A turn that asks something on its way into a break gets its answer written first, as things
+stood, and the move after the break is written knowing that answer, so it is not said twice.
+
+**Four checks stopped refusing good lines.** The agreement check reads an ambiguous pronoun as a
+possessive unless a person of a verb follows it (`teie jaoks`). The case check holds an infinitive
+only to what follows the verb carrying the person (`Mulle meeldib siin töötada`) and leaves a phrase
+the course teaches whole out of the count (`tere hommikust`); measured on `eval:scene --part-b`, good
+lines withheld stay at 2 of 495 and errors caught go from 143 to 142. A word written with a capital
+in the middle of a sentence is a name (`Minu nimi on Tiit.`), and every form of a word the learner
+used counts as on topic. The translative joined the cases an adjunct takes freely (`igaks juhuks`).
+
+**And the marker reads three more turns the way a person would.** A question on a beat that wanted
+one counts as asked even where the turn also says the learner does not follow. Two of a beat's
+options with an "or" between them is the learner asking which, not choosing. An offer that a learner
+calls short (`natuke vähe`) is a no, and a learner leaving with a casual goodbye (`näeme veel`) is
+answered with one.
+
+**What the critic cannot see.** It is a model reading a transcript, so it misses what it does not
+notice and occasionally flags a reasonable line. And a failed call used to read as no issues: the
+thirteenth pass printed "0 issues over 90 conversations" on a day the key's quota had run out. A call
+that fails is retried and then reported as not judged, and never counted as clean.
