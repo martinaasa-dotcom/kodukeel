@@ -525,6 +525,7 @@ export function composeLive(ask: ComposeAsk): string {
     ask.move === "close" && ask.stillTalking
       ? "They are still asking or telling you something: answer it properly and kindly first, and do"
         + " not say goodbye in this line; leave room for them to finish, and say goodbye once they do."
+        + " Never tell them what to say, and never quote a goodbye for them to use."
         + " If they have just said goodbye themselves, answer them and then say goodbye back."
       : ask.move === "close" && !/goodbye/i.test(ask.they) && /thank/i.test(ask.they)
       ? "This ends your part of the conversation: thank them warmly and do what the direction says,"

@@ -20521,7 +20521,7 @@ check("a scene's agreement check can see the person its scenes are in", () => {
     + "ordinary line with `teie` in it is refused",
   );
   assert.match(
-    gate, /if \(!next \|\| isPerson\(next, context\)\) return false;/,
+    gate, /return !!next && !isPerson\(next, context\);/,
     "the possessive reading no longer errs toward the subject where the next word is a verb, so "
     + "`te soovid` is read as a possessive and the fault this exists for goes unremarked",
   );

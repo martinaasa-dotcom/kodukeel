@@ -556,6 +556,28 @@ export function withoutFarewell(text: string, beat: BeatSpec, context: GateConte
 }
 
 /**
+ * THE LINE CUT SHORT BEFORE THE FIRST SENTENCE NAMING A FIGURE IT HOLDS FOR
+ * LATER, OR NULL WHERE THAT LEAVES NOTHING.
+ *
+ * An interviewer asked about lunch with colleagues answered the lunch question
+ * and then named the wage, three times running, while the beat was the
+ * learner asking about it: every draft was withheld for `ahead`, and the bank
+ * line that stood in ignored the lunch question altogether. Everything from
+ * the figure on goes, since the sentences after it are about it ("does that
+ * suit you?"), and what is left is the model's own reaction to what was said,
+ * gated again with the beat's prepared move after it.
+ */
+export function beforeHeld(text: string, context: GateContext): string | null {
+  if (!context.held || context.held.size === 0) return null;
+  const sentences = text.match(/[^.!?]+[.!?]*\s*/g) ?? [];
+  const first = sentences.findIndex((sentence) =>
+    (sentence.match(/\d{1,2}[:.]\d{2}|\d+/g) ?? []).some((run) => context.held!.has(run)));
+  if (first <= 0) return null;
+  const line = sentences.slice(0, first).join("").trim();
+  return line.length > 0 ? line : null;
+}
+
+/**
  * WHETHER THE LINE SAYS GOODBYE ON A BEAT THAT IS NOT THE GOODBYE.
  *
  * Each farewell is matched as a consecutive run of its own words, never as a
@@ -719,8 +741,14 @@ function onTopic(
 function possessive(word: string, clause: readonly string[], context: GateContext): boolean {
   if (context.subjects?.get(word)?.sure !== false) return false;
   const next = clause[clause.indexOf(word) + 1];
-  if (!next || isPerson(next, context)) return false;
-  return context.lexicon.forms.has(next);
+  /*
+    A word the scene's own list does not hold is still not a verb person: the
+    persons table is the scene's, so a line reaching past the list with
+    `teie jaoks`, `teie nimega` or `Teie eine maksab` was read as a subject
+    beside a verb of another person and withheld, five correct lines in one
+    critic run. Only a person of a verb straight after makes it the subject.
+  */
+  return !!next && !isPerson(next, context);
 }
 
 /** Whether a spelling is one of the persons of a verb the scene holds. */
@@ -1027,7 +1055,23 @@ export function governmentSuspect(tokens: readonly string[], context: GateContex
   const ownWord = (t: string, lemma: string) => context.lexicon.byLemma.has(t) && t !== lemma;
   const present = context.governed.filter((g) => lower.some((t) => g.forms.has(t) && !ownWord(t, g.lemma)));
   if (present.length === 0) return false;
-  return present.every((word) => suspectFor(word, lower, context));
+  /*
+    WHAT STANDS BEFORE THE VERB THAT CARRIES THE PERSON IS THAT VERB'S.
+    `Mulle meeldib siin väga töötada` holds `töötama` and an allative, and the
+    allative is `meeldima`'s, whose government a scene that does not teach it
+    never hands in: an interviewer's line was withheld three times on it. A
+    governed verb found only in a form that is not a person, after a finite
+    verb that is not one of its own, takes its complement after that verb
+    (`hakkas kooli minema`), so only what follows can condemn the line, and
+    the whole clause can still clear it. Excusing the
+    whole clause instead cost 21 of 143 real errors on `eval:scene --part-b`.
+  */
+  const finite = (t: string) => isPerson(t, context) || Boolean(context.hasFiniteVerb?.(t));
+  return present.every((g) => {
+    if (lower.some((t) => g.forms.has(t) && finite(t))) return suspectFor(g, lower, context);
+    const at = lower.findIndex((t) => finite(t) && !g.forms.has(t));
+    return suspectFor(g, lower, context) && (at < 0 || suspectFor(g, lower.slice(at + 1), context));
+  });
 }
 
 /**

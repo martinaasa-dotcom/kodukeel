@@ -218,7 +218,13 @@ export interface ReplyInput {
  */
 export function datumLine(beat: BeatSpec, card: RoleCard | null, lexicon?: Lexicon): SpokenLine | null {
   if (!beat.says || beat.says.length === 0 || !card) return null;
-  const mark = beat.move === "ask" || beat.move === "offer" ? "?" : ".";
+  /*
+    An offer is a question where it is a bare value (`Kell 13:30?`) and a
+    statement where it is a sentence: `Palk on 1636 eurot kuus?` read as an
+    interviewer unsure of their own figure, and a critic said so.
+  */
+  const sentence = beat.says.some((part) => "verb" in part && Boolean(part.verb));
+  const mark = beat.move === "ask" || (beat.move === "offer" && !sentence) ? "?" : ".";
   return partsLine(beat.says, { card, lexicon, mark });
 }
 
@@ -527,8 +533,14 @@ export function sceneMovedOn(
   const out: string[] = [];
   beats.forEach((beat, at) => {
     if (!beat.meanwhile) return;
-    const reached = (state.beat !== undefined && at <= state.beat) || (state.done ?? []).includes(beat.id);
-    if (!reached) return;
+    /*
+      Reached by the conversation, never credited from a distance: a learner
+      who asked the price in their first turn had the bill beat credited, and
+      its break ("your drink's on the counter") was handed over as having
+      happened, so every line asking which size they wanted was withheld as
+      going back on it. The break is printed on arrival and nowhere else.
+    */
+    if (state.beat === undefined || at > state.beat) return;
     const said = beat.meanwhile.replace(/\{(\w+)\}/g, (whole, slot: string) => {
       const prop = card ? propBySlot(card, slot) : undefined;
       return prop?.english ?? prop?.value ?? whole;

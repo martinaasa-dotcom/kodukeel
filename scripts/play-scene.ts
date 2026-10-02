@@ -393,7 +393,11 @@ async function play(sceneId: string) {
     let line = null;
     // A curveball said in English is said in English, never composed (the route's rule).
     const speaksEnglish = Boolean(standing && hurdleSpec(state)?.said);
-    if (spokenFor && !(spokenFor.awaits && !standing) && !speaksEnglish) {
+    // A person waiting still answers what they are asked, where a model writes the line (the route's rule).
+    const reading = state.turns.at(-1)?.reading ?? null;
+    const waitingAnswers = LINKS.length > 0 && !standing
+      && (askedNow !== null || reading === "lost" || reading === "offtarget");
+    if (spokenFor && !(spokenFor.awaits && !standing && !waitingAnswers) && !speaksEnglish) {
       /*
         The route's ladder, including composition where `--compose` is on. The
         conversation goes in as messages, both sides, oldest first, exactly as

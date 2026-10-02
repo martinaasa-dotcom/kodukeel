@@ -215,6 +215,15 @@ describe("the scripted rung", () => {
     expect(line).toEqual({ text: "Kas teil on valu?", provenance: "scripted" });
   });
 
+  it("keeps the reaction of a line that named a figure held for later, with the prepared move after it", async () => {
+    const line = await sceneLine(request({
+      gate: { ...GATE, held: new Set(["1636"]) },
+      scripted: ["Kas teil on valu?"],
+      compose: async () => "Valu on. 1636 on. Kas on?",
+    }));
+    expect(line).toEqual({ text: "Valu on. Kas teil on valu?", provenance: "composed", stretched: [] });
+  });
+
   it("passes over a scripted line this run has already used", async () => {
     const line = await sceneLine(request({
       scripted: ["Kas teil on valu?", "Kus on valu?"],

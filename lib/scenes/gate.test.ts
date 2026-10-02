@@ -287,6 +287,14 @@ describe("the government check", () => {
     expect(governmentSuspect(["ta", "aitab", "tuba", "ta", "aitab", "tuppa"], ctx, "Ta aitab tuba. Ta aitab tuppa.")).toBe(true);
   });
 
+  it("does not hold an infinitive to what stands before the verb carrying the person", () => {
+    // `Tuppa meeldib aidata`: the illative is before `meeldib`, whose government is not in hand.
+    const finite = context({ ...ctx, hasFiniteVerb: (w: string) => w === "meeldib" });
+    expect(governmentSuspect(["tuppa", "meeldib", "aidata"], { ...finite, governed: [{ ...ctx.governed[0]!, forms: new Set(["aidata"]) }] })).toBe(false);
+    // After it, the infinitive's own complement still has to be one it governs.
+    expect(governmentSuspect(["meeldib", "aidata", "tuppa"], { ...finite, governed: [{ ...ctx.governed[0]!, forms: new Set(["aidata"]) }] })).toBe(true);
+  });
+
   it("says nothing about a line with no governed word, or with no nominal", () => {
     expect(governmentSuspect(["ta", "on", "toas"], ctx)).toBe(false);
     expect(governmentSuspect(["ta", "aitab"], ctx)).toBe(false);
@@ -571,6 +579,8 @@ describe("a verb that does not agree with its subject", () => {
       which is the fault this whole module is built against.
     */
     expect(disagrees("Kas te nime tead?", ctx)).toBe(false);
+    // A word the scene's list does not hold after it is still not a verb.
+    expect(disagrees("Tulen teie jaoks homme.", ctx)).toBe(false);
   });
 });
 

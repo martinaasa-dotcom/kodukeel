@@ -847,7 +847,16 @@ export async function POST(request: Request) {
     A beat the other side opens with nothing: they said their piece and are
     waiting, so no line is built and the screen prints what they are doing.
   */
-  if (!spokenFor || (spokenFor.awaits && !standing)) {
+  /*
+    A PERSON WAITING STILL ANSWERS WHAT THEY ARE ASKED. A beat that opens with
+    nothing printed no line at all, so a learner at a street corner who asked
+    "is `vasakule` left?" got silence, and then the directions word for word.
+    In a run that composes, a turn that asked something, or one that said it
+    was lost or missed, is answered; the move itself is still to wait.
+  */
+  const waitingAnswers = composing && !standing
+    && (askedNow !== null || progress.reading === "lost" || progress.reading === "offtarget");
+  if (!spokenFor || (spokenFor.awaits && !standing && !waitingAnswers)) {
     if (shrugOwed) aside = shrug(context.lexicon);
     return answer(reply(null));
   }

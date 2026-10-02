@@ -25,7 +25,7 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import {
-  MAX_COMPOSED_WORDS, MAX_SENTENCES, passes, runGate, withoutFarewell, type Check, type GateContext, type Verdict,
+  MAX_COMPOSED_WORDS, MAX_SENTENCES, beforeHeld, passes, runGate, withoutFarewell, type Check, type GateContext, type Verdict,
 } from "./gate";
 import { answerForms, fits, type Line } from "./retrieval";
 import { words, type Lexicon } from "./lexicon";
@@ -433,6 +433,32 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
       const vouched = request.vouch ? await request.vouch(words(line)) : undefined;
       return runGate(line, request.beat, vouched ? { ...gate, vouched: (w) => vouched.has(w) } : gate);
     };
+    /*
+      A line held back for its goodbye alone keeps everything before it: the
+      goodbye comes off and the rest is gated again, which costs a comparison
+      where a retry costs a call and usually writes the goodbye a second time
+      (`withoutFarewell`). And a line held back for naming a figure kept for
+      later keeps its reaction: what comes before the figure, with the beat's
+      prepared move after it (`beforeHeld`). Asked of every attempt, the last
+      plain one included, since that is the one with nothing behind it but
+      the bank.
+    */
+    const salvage = async (line: string | null, verdict: Verdict | null) => {
+      if (line && verdict && !passes(verdict) && verdict.failed.includes("farewell")) {
+        const trimmed = withoutFarewell(line, request.beat, gate);
+        const again = trimmed ? await judge(trimmed) : null;
+        if (trimmed && again && passes(again)) return { line: trimmed, verdict: again };
+      }
+      if (line && verdict && !passes(verdict) && verdict.failed.includes("ahead")) {
+        const reaction = beforeHeld(line, gate);
+        const move = turned(request.scripted, request.rotate).find((text) => !request.used.has(text))
+          ?? request.scripted[0];
+        const joined = reaction && move ? `${reaction} ${move}` : null;
+        const again = joined ? await judge(joined) : null;
+        if (joined && again && passes(again)) return { line: joined, verdict: again };
+      }
+      return { line, verdict };
+    };
 
     /*
       THREE ATTEMPTS RATHER THAN TWO, BECAUSE THE ALTERNATIVE IS THE BANK AND
@@ -460,17 +486,7 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
       let line = await request.compose(retryNote(last), why || undefined);
       objection = null;
       let verdict = await judge(line);
-      /*
-        A line held back for its goodbye alone keeps everything before it:
-        the goodbye comes off and the rest is gated again, which costs a
-        comparison where a retry costs a call and usually writes the goodbye
-        a second time (`withoutFarewell`).
-      */
-      if (line && verdict && !passes(verdict) && verdict.failed.includes("farewell")) {
-        const trimmed = withoutFarewell(line, request.beat, gate);
-        const again = trimmed ? await judge(trimmed) : null;
-        if (trimmed && again && passes(again)) { line = trimmed; verdict = again; }
-      }
+      ({ line, verdict } = await salvage(line, verdict));
       /*
         AND A LINE THE GATE PASSED STILL HAS TO KEEP TO WHAT WAS SAID. Asked
         only of a line that passed, since a line the gate withholds is retried
@@ -497,10 +513,12 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
       for this turn.
     */
     const last = verdicts.at(-1) ?? null;
-    const line = await request.compose(retryNote(last), [
+    const drafted = await request.compose(retryNote(last), [
       whyWithheld(last, request.beat.move), objection, SAFE_RETRY,
     ].filter(Boolean).join(": "));
-    let verdict = await judge(line);
+    const salvaged = await salvage(drafted, await judge(drafted));
+    const line = salvaged.line;
+    let verdict = salvaged.verdict;
     if (line && verdict && passes(verdict) && request.review) {
       const objected = await request.review(line);
       if (objected) verdict = { ...verdict, failed: ["consistency"] };

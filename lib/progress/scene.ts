@@ -1477,6 +1477,8 @@ export function replay(
         one. The offer is said, and the learner's yes is read against it then.
       */
       if (next.move === "offer" && !offerAlreadyMade(next, draw, heard)) break;
+      // Nor across a break in time: the meal has to be eaten before the bill (the look-ahead's rule).
+      if (next.meanwhile) break;
       const read = readTurn(said, next, marker);
       /*
         A judge may have said this same turn met the next beat too, in a word
@@ -1530,8 +1532,17 @@ export function replay(
       front.
     */
     if (!state.hurdle && !isOver(context.scene, state)) {
+      /*
+        AND NOTHING IS CREDITED ACROSS A BREAK IN TIME NOT YET REACHED. A beat
+        that opens on "you've eaten, the waiter comes back" is about after the
+        meal: a diner asking what the soup cost met the bill beat from two
+        beats away, the meal was skipped and the waiter asked how the food had
+        been. Every beat from the first unreached break on waits for it.
+      */
+      const fence = context.scene.beats.findIndex((b, at) => at > state.beat && Boolean(b.meanwhile));
       for (let at = 0; at < context.scene.beats.length; at += 1) {
         if (at === state.beat) continue;
+        if (fence >= 0 && at >= fence) break;
         const other = context.scene.beats[at]!;
         if (other.move === "close" || state.done.includes(other.id)) continue;
         /*
