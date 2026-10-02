@@ -86,6 +86,12 @@ const NEGATORS = ["ei", "mitte"] as const;
  * scene whose units do not teach one simply has no forms of it.
  */
 const ASKING = ["küsima", "otsima"];
+/**
+ * What says an offer is short: `natuke vähe` to a wage is a no, and read by
+ * the requirements alone the figure quoted beside it accepted the offer. A
+ * lemma request against the course, asked only where a beat has a counter.
+ */
+const TOO_LITTLE = ["vähe"];
 const REGISTER_PRONOUN = { teie: "teie", sina: "sina" } as const;
 
 export interface SceneContext {
@@ -429,6 +435,7 @@ export function sceneLemmas(scene: SceneSpec): Set<string> {
       for (let n = prop.min; n <= prop.max; n += 1) for (const w of numberWords(String(n))) lemmas.add(w);
     }
   }
+  if (scene.beats.some((beat) => beat.counter)) for (const lemma of TOO_LITTLE) lemmas.add(lemma);
   lemmas.add(FALLBACK_PHRASE);
   return lemmas;
 }
@@ -486,6 +493,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
     questionWords: formsOfUnit(rows, QUESTION_UNIT),
     askingForms: formsOfLemmas(rows, ASKING),
     negators: formsOfLemmas(rows, NEGATORS),
+    tooLittle: formsOfLemmas(rows, TOO_LITTLE),
     registerForms: formsOfLemmas(rows, [REGISTER_PRONOUN[scene.register]]),
     hasFiniteVerb,
   };

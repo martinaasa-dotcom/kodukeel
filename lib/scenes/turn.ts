@@ -238,6 +238,8 @@ export interface TurnContext {
   readonly askingForms: ReadonlySet<string>;
   /** Every form of the negator. */
   readonly negators: ReadonlySet<string>;
+  /** Every form of the words that say an offer is short (`vähe`), read on a beat with a counter. */
+  readonly tooLittle?: ReadonlySet<string>;
   /** Every form of the pronoun this scene's register expects. */
   readonly registerForms: ReadonlySet<string>;
   /** Prop slot to every spelling that counts as that value, off the role card. */
@@ -621,7 +623,17 @@ export function readTurn(
       return holds && !said.some((word) => context.negators.has(word));
     });
   });
-  if (beat.counter && !accepts && spoken.some((word) => context.negators.has(word))) {
+  /*
+    AND "A BIT LITTLE" IS A NO WITHOUT A NEGATOR. Offered 1636 a month, a
+    learner wrote `sa ütlesid 1636? See on... natuke vähe`, the figure met the
+    beat, and the interviewer said goodbye to somebody who had just asked for
+    more. A clause saying the offer is short declines it, unless it is negated.
+  */
+  const short = Boolean(context.tooLittle) && clausesOf(text).some((clause) => {
+    const said = words(clause);
+    return said.some((word) => context.tooLittle!.has(word)) && !said.some((word) => context.negators.has(word));
+  });
+  if (beat.counter && (short || (!accepts && spoken.some((word) => context.negators.has(word))))) {
     return shape("declined", {
       met: beat.needs.map(() => false), missing: beat.needs.map((_, i) => i),
       matched: [], satisfiedBy: [], slips: [], substituted: [], chose: [],

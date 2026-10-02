@@ -795,6 +795,12 @@ describe("a no on an offer that has a counter", () => {
     expect(readTurn("14:30", offer, ctx).reading).toBe("complete");
   });
 
+  it("reads an offer called short as a no, even with its figure quoted back", () => {
+    const short = context({ data: new Map([["time", new Set(["14:30"])]]), tooLittle: new Set(["vähe"]) });
+    expect(readTurn("14:30? See on natuke vähe.", offer, short).reading).toBe("declined");
+    expect(readTurn("14:30 on hea. See ei ole vähe.", offer, short).reading).not.toBe("declined");
+  });
+
   it("does not read a no about something else as a no to the offer", () => {
     // The `ei` is about the cat; the time was accepted in its own clause.
     expect(readTurn("14:30 on hea. Kass ei söö.", offer, ctx).reading).not.toBe("declined");

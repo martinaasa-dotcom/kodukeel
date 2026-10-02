@@ -262,6 +262,7 @@ describe("the government check", () => {
       ["toas", new Set(["INESSIVE"])],
       ["toa", new Set(["GENITIVE"])],
       ["tuppa", new Set(["ILLATIVE"])],
+      ["homseks", new Set(["TRANSLATIVE"])],
     ]),
   });
 
@@ -276,6 +277,8 @@ describe("the government check", () => {
   it("says nothing about an adjunct, since a place, a time or an instrument goes with any verb", () => {
     // `toas` is the inessive: where it happened, which is not what `aitama` governs and not a fault.
     expect(governmentSuspect(["ta", "aitab", "toas"], ctx)).toBe(false);
+    // A purpose or a span of time, `homseks` or `igaks juhuks`, goes with any verb too.
+    expect(governmentSuspect(["ta", "aitab", "homseks"], ctx)).toBe(false);
   });
 
   it("reads a line of several sentences one clause at a time", () => {

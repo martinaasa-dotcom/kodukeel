@@ -193,6 +193,12 @@ export interface ComposeAsk {
    */
   readonly stillTalking?: boolean;
   /**
+   * The breaks in time the scene has passed (`sceneMovedOn`), as the learner
+   * was shown them. The scene's guess at what happened, which the learner may
+   * contradict, so said apart from what is established.
+   */
+  readonly moved?: readonly string[];
+  /**
    * How many times this move has already been made in the run. A waiter whose
    * move was "ask if you enjoyed it" asked it three times in different words
    * to a learner who had answered twice and was waiting on something else.
@@ -370,6 +376,9 @@ const COMPOSE_RULES = [
   "still need. Never ignore a question. If they ask something your facts do not cover (when you",
   "close, how far it is), give a plausible, ordinary answer that fits everything already said;",
   "never change a price, time or number your facts give, and never invent a price.",
+  "If they answer several things at once, so the conversation jumps ahead, bridge it naturally:",
+  "do the steps in between in a few words (bring the item, write it down, hand it over) before",
+  "your move, so nothing happens that was never set up.",
   "What they say outranks your plan: if what they just said shows the step you are on does not",
   "fit yet (they are not there yet, it does not fit them, they changed their mind, they are",
   "confused), deal with that first, as a person would, instead of pushing on.",
@@ -516,6 +525,7 @@ export function composeLive(ask: ComposeAsk): string {
     ask.move === "close" && ask.stillTalking
       ? "They are still asking or telling you something: answer it properly and kindly first, and do"
         + " not say goodbye in this line; leave room for them to finish, and say goodbye once they do."
+        + " If they have just said goodbye themselves, answer them and then say goodbye back."
       : ask.move === "close" && !/goodbye/i.test(ask.they) && /thank/i.test(ask.they)
       ? "This ends your part of the conversation: thank them warmly and do what the direction says,"
         + " in a sentence or two. Do not say goodbye, since nobody is leaving, and ask nothing more."
@@ -543,6 +553,10 @@ export function composeLive(ask: ComposeAsk): string {
       : "",
     ask.established && ask.established.length > 0
       ? `Already established in this conversation, true from now on whatever comes next: ${ask.established.join(" ")}`
+      : "",
+    ask.moved && ask.moved.length > 0
+      ? `The scene has moved on, as the learner was told: ${ask.moved.map((m) => `"${m}"`).join(" ")}`
+        + " Take it as what has happened, unless what they say shows otherwise: then go with them."
       : "",
     ask.settled && ask.settled.length > 0
       ? `Already settled, never asked again: ${ask.settled.join("; ")}.`

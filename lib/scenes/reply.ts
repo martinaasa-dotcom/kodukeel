@@ -489,15 +489,8 @@ export function heldNumbers(card: RoleCard | null, held: ReadonlySet<string>): S
  * let go alike, because the other side said it either way.
  */
 export function establishedBy(
-  state: Pick<SceneState, "hurdle" | "hurdles"> & Partial<Pick<SceneState, "beat" | "done">>,
+  state: Pick<SceneState, "hurdle" | "hurdles">,
   card: RoleCard | null,
-  /**
-   * The scene's beats, for the breaks in time it has already passed
-   * (`BeatSpec.meanwhile`). A clerk told nothing about "twenty minutes later,
-   * your number comes up" told the learner, back at the desk, that the wait
-   * would be about ten minutes.
-   */
-  beats: readonly BeatSpec[] = [],
 ): string[] {
   const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
   const seen = new Set<string>();
@@ -512,6 +505,26 @@ export function establishedBy(
       return prop?.english ?? prop?.value ?? whole;
     }));
   }
+  return out;
+}
+
+/**
+ * THE BREAKS IN TIME THE SCENE HAS PASSED, SEPARATELY FROM WHAT IS ESTABLISHED.
+ *
+ * A scene break is the scene's guess at what the learner did between two
+ * beats ("You've eaten, the waiter comes back"), and the learner can say
+ * otherwise. Listed under "true from now on whatever comes next" with "go
+ * with them" beside it, the model held to the break and told a learner who
+ * had not eaten yet that their plate was empty. And without it at all, a
+ * clerk told nothing about "twenty minutes later, your number comes up" told
+ * the learner, back at the desk, that the wait would be about ten minutes.
+ */
+export function sceneMovedOn(
+  state: Partial<Pick<SceneState, "beat" | "done">>,
+  card: RoleCard | null,
+  beats: readonly BeatSpec[],
+): string[] {
+  const out: string[] = [];
   beats.forEach((beat, at) => {
     if (!beat.meanwhile) return;
     const reached = (state.beat !== undefined && at <= state.beat) || (state.done ?? []).includes(beat.id);
@@ -520,7 +533,7 @@ export function establishedBy(
       const prop = card ? propBySlot(card, slot) : undefined;
       return prop?.english ?? prop?.value ?? whole;
     });
-    out.push(`The scene moved on, written to the learner: "${said}" If what they say shows otherwise, go with them.`);
+    out.push(said);
   });
   return out;
 }
@@ -810,8 +823,9 @@ export function composeNote(
     time for something the scene has given up on.
   */
   if (extra.again) {
-    return "They asked you to say that again. Say the same thing once more, more slowly and in"
-      + " simpler words, not word for word, and kindly.";
+    return "They asked you to say that again. Say your last line once more, more slowly and in"
+      + " simpler words, not word for word, and kindly. Add nothing it did not say, and do not"
+      + " explain a word that was not in it; you may answer anything else they asked as well.";
   }
   if (response === "moveOn") {
     return "You have asked for something a few times and not got it. Let it go the way a"

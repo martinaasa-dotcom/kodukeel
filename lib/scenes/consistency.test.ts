@@ -228,3 +228,13 @@ describe("a number nobody dealt, on a question that is not about money", () => {
     expect(runGate("Palk on 1550 eurot.", BEAT, { ...base, freeNumbers: true }).failed).not.toContain("facts");
   });
 });
+
+describe("a scrap of formatting in the line", () => {
+  it("withholds an unpaired straight quote or a backslash, and passes a paired quote", () => {
+    // The baseline passes the shape, so a fault below is the quote and nothing else.
+    expect(runGate("Kas palk on hea?", BEAT, GATE).failed).not.toContain("shape");
+    expect(runGate('Kas palk on hea"?', BEAT, GATE).failed).toContain("shape");
+    expect(runGate("Kas palk on hea\\?", BEAT, GATE).failed).toContain("shape");
+    expect(runGate('Kas palk on "hea"?', BEAT, GATE).failed).not.toContain("shape");
+  });
+});

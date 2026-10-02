@@ -930,7 +930,13 @@ function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boole
   return sentences >= 1 && sentences <= MAX_SENTENCES
     // A closing quote may follow the stop, Estonian's own `“` included.
     && /[.!?]["“”»]?$/.test(trimmed)
-    && !/[*_`#[\]]/.test(text)
+    && !/[*_`#[\]\\]/.test(text)
+    /*
+      A QUOTE MARK THAT OPENS NOTHING IS A SCRAP OF THE MODEL'S OWN FORMATTING.
+      A stairwell line came back ending `".`, which no person writes: straight
+      quotes have to pair, and a backslash is never Estonian.
+    */
+    && (text.match(/"/g) ?? []).length % 2 === 0
     && tokens.length > 0
     && tokens.length <= MAX_COMPOSED_WORDS
     /*
@@ -1024,8 +1030,15 @@ export function governmentSuspect(tokens: readonly string[], context: GateContex
   return present.every((word) => suspectFor(word, lower, context));
 }
 
-/** The cases an adverbial of manner, place or time takes with any verb. */
-const ADJUNCT_CASES: ReadonlySet<CaseKey> = new Set<CaseKey>(["COMITATIVE", "INESSIVE", "ADESSIVE", "ABESSIVE"]);
+/**
+ * The cases an adverbial of manner, place or time takes with any verb.
+ *
+ * The translative joined them when a friend on the phone said `võta igaks
+ * juhuks uus pakk`, "take a new pack just in case", and was withheld three
+ * times: `igaks juhuks`, `homseks` and `kolmeks päevaks` are a purpose or a
+ * span of time, and go with any verb in the language.
+ */
+const ADJUNCT_CASES: ReadonlySet<CaseKey> = new Set<CaseKey>(["COMITATIVE", "INESSIVE", "ADESSIVE", "ABESSIVE", "TRANSLATIVE"]);
 
 function suspectFor(word: GovernedWord, lower: readonly string[], context: GateContext): boolean {
 

@@ -572,7 +572,7 @@ export function whyWithheld(verdict: Verdict | null, move?: string): string | un
   const reasons: Record<Exclude<Check, "vouching" | "stretch">, string> = {
     facts: "it stated a number, a time or a price that is not among the facts you were given; say only those, in digits, exactly as the facts give them, and never invent a price",
     giveaway: "it said the very form you are waiting for them to produce, which would hand them the answer",
-    ahead: "it told them something you are keeping for later in the conversation (a figure, a time or a price you only reach further on); do not mention it yet, unless they ask for it",
+    ahead: "it named a figure you are keeping for later in the conversation; leave every amount, price and offer out of this line completely, and do not offer anything; if the conversation is stuck you may ask whether they have a question about it, with no figure",
 
     topic: "it was not about what you are doing at this moment, or about what they just said",
     // The ceiling is read off the gate rather than typed, so the retry is told

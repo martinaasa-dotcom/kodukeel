@@ -26,7 +26,7 @@ import { ASKS_ON } from "@/lib/scenes/curveballs";
 import { saysGoodbye } from "@/lib/scenes/casual";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import {
-  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, heldBack, heldNumbers, replyFor,
+  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, heldBack, heldNumbers, sceneMovedOn, replyFor,
   stageFor, wantsAsideFor, wantsFreshLine,
 } from "@/lib/scenes/reply";
 import { dealtNumbers } from "@/lib/scenes/props";
@@ -584,7 +584,8 @@ export async function POST(request: Request) {
     any: askedNow !== null,
     money: askedNow !== null && asksPrice(turnSaid, context.lexicon),
   });
-  const established = establishedBy(state, card, scene.beats);
+  const established = establishedBy(state, card);
+  const moved = sceneMovedOn(state, card, scene.beats);
   const facts = factsFor(card, scene.beats, held);
   /*
     AND WHAT THE LEARNER JUST SAID IS A TOPIC A LINE MAY BE ABOUT. The gate
@@ -716,7 +717,7 @@ export async function POST(request: Request) {
       beat they were answering, not the one coming next: they are stuck on
       the question they were asked.
     */
-    offer: (response === "help" || response === "moveOn") && answered
+    offer: !composing && (response === "help" || response === "moveOn") && answered
       ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives)
       : null,
     met: state.done.length,
@@ -1038,7 +1039,7 @@ export async function POST(request: Request) {
         typed, since saying those back is not news.
       */
       // A question that is not about money may be answered with a number nobody dealt.
-      freeNumbers: askedNow !== null && !asksPrice(turnSaid, context.lexicon),
+      freeNumbers: askedNow !== null,
       held: (() => {
         const kept = heldNumbers(card, held);
         const open = heldNumbers(card, new Set((card?.props ?? []).map((p) => p.slot).filter((slot) => !held.has(slot))));
@@ -1222,8 +1223,10 @@ export async function POST(request: Request) {
         }
         return conversation.length > 0
           ? reviewLine(ownerId, {
+            who: `${scene.title}. ${scene.place}. ${persona?.who ?? ""}`.trim(),
             conversation: conversation.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
             established,
+            moved,
             facts,
             later: agenda.slice(1),
             line: candidate,
@@ -1274,6 +1277,7 @@ export async function POST(request: Request) {
         agenda,
         settled,
         established,
+        moved,
         /* A closing beat where the learner is still asking, so the goodbye waits. */
         stillTalking,
         /*
@@ -1504,6 +1508,7 @@ async function compose(
     settled?: readonly string[];
     /** What the run has established and nothing may undo (`ComposeAsk.established`). */
     established?: readonly string[];
+    moved?: readonly string[];
     stillTalking?: boolean;
     madeBefore?: number;
     /** The run so far, both sides, alternating. Empty on the opening line. */

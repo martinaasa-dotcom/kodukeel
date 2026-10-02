@@ -42,7 +42,7 @@ import { planRun } from "../lib/scenes/run";
 import { seedFrom } from "../lib/random/seeded";
 import {
   replyFor, composeNote, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, factsFor, stageFor,
-  establishedBy, heldBack, heldNumbers,
+  establishedBy, heldBack, heldNumbers, sceneMovedOn,
   wantsAsideFor,
   feltAt,
 } from "../lib/scenes/reply";
@@ -386,7 +386,8 @@ async function play(sceneId: string) {
       any: askedNow !== null,
       money: askedNow !== null && asksPrice(words(last?.said ?? ""), context.lexicon),
     });
-    const established = establishedBy(state, card, scene.beats);
+    const established = establishedBy(state, card);
+    const moved = sceneMovedOn(state, card, scene.beats);
     const facts = factsFor(card, scene.beats, held);
 
     let line = null;
@@ -424,7 +425,7 @@ async function play(sceneId: string) {
           ...context.gate, dealt: dealtNumbers(card ?? draw.card),
           times: clockInPlay(card ?? draw.card, context.lexicon),
           money: moneyInPlay(card ?? draw.card, context.lexicon),
-          freeNumbers: askedNow !== null && !asksPrice(words(last?.said ?? ""), context.lexicon),
+          freeNumbers: askedNow !== null,
           held: (() => {
             const kept = heldNumbers(card, held);
             const open = heldNumbers(card, new Set((card?.props ?? []).map((p) => p.slot).filter((slot) => !held.has(slot))));
@@ -481,8 +482,9 @@ async function play(sceneId: string) {
                 messages: [
                   { role: "system", content: buildConsistencySystemPrompt() },
                   { role: "user", content: buildConsistencyUserPrompt({
+                    who: `${scene.title}. ${scene.place}. ${persona.who}`,
                     conversation: talk.map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
-                    established, facts, later: agenda.slice(1), line: candidate,
+                    established, moved, facts, later: agenda.slice(1), line: candidate,
                   }) },
                 ],
               }),
@@ -513,7 +515,7 @@ async function play(sceneId: string) {
             examples: [],
             // This beat's own, as the route hands them: ask the same thing, in your own words.
             asked: (context.scripted.get(spokenFor.id) ?? []).slice(0, 2),
-            agenda, settled, established,
+            agenda, settled, established, moved,
             stillTalking: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, FAREWELLS),
             // And what happened to the turn, which is the route's own wording.
             note: composeNote(
@@ -544,7 +546,7 @@ async function play(sceneId: string) {
       reading: last?.reading ?? null, line, heard, said: last?.said ?? null, card, translates: persona.translates, askedForEnglish: last?.wantsEnglish === true,
       acknowledges: persona.acknowledges, echo: last?.matched?.[0] ?? null,
       recast: Boolean(last?.slips?.some((s) => s.form && s.form === last?.matched?.[0])),
-      aside, offer: (response === "help" || response === "moveOn") && answered
+      aside, offer: LINKS.length === 0 && (response === "help" || response === "moveOn") && answered
         ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null,
       met: state.done.length,
       metLast: last?.met ?? [],

@@ -25,10 +25,18 @@
  */
 
 export interface ConsistencyAsk {
+  /**
+   * Who is speaking and where: the scene, the place and the character, in
+   * English. Without it a language teacher asking the class to repeat a
+   * sentence was refused as stepping out of the role.
+   */
+  readonly who?: string;
   /** The conversation so far, oldest first. */
   readonly conversation: readonly { readonly role: "them" | "learner"; readonly text: string }[];
   /** What this run has established and may not be undone (`establishedBy`), English. */
   readonly established: readonly string[];
+  /** What has happened in the scene since it began, English (`sceneMovedOn`): time passing, a place changing. */
+  readonly moved?: readonly string[];
   /** What this person knows off the cards, English (`factsFor`). */
   readonly facts: readonly string[];
   /** What this person still needs later in the conversation, English, never to be settled early. */
@@ -51,13 +59,15 @@ export function buildConsistencySystemPrompt(): string {
     "You check one line in an Estonian role-play before a language learner sees it.",
     "The line is what the other person (a shop assistant, a receptionist, an interviewer and so on) says next.",
     "Answer one question: is there a problem with this line? The main problems: it contradicts or quietly goes back on anything this person has already said in the conversation or anything listed as established, or it reveals or settles something listed as coming later when the learner has not asked for it.",
+    "Also a problem: speaking as though something listed as having happened since has not happened yet, such as telling them to wait for a turn that has already come.",
     "Examples of a problem: saying something is possible after saying it is not; a different time, price, place or amount from one already said; offering something the person said they do not have; naming a figure or making an offer that is listed as coming later.",
-    "Also a problem: ignoring a question the learner just asked.",
+    "Also a problem: ignoring a question the learner just asked; asking again for something the learner already gave, answered or agreed to; offering again what they already accepted.",
     "Never a problem: going with what the learner says about where they are or what has happened, even where a scene note says otherwise; saying goodbye back when the learner says goodbye.",
     "Also a problem, and only when you are certain: an Estonian grammar error any native speaker would notice at once (a wrong ending on an adjective beside its noun, a verb that does not agree with its subject), or a phrase no native speaker would ever say. Do not object to ordinary style or word choice.",
     "Also a problem: stepping out of the role-play to coach the learner (suggesting what they could say, explaining the exercise). Anything this person would naturally say in their job is fine, such as a teacher asking the class to repeat a sentence.",
     "Also a problem: promising, offering or agreeing to something that a step listed as coming later takes back.",
     "Not a problem: saying no with a reason where the person had only sounded willing or helpful before; only an outright reversal of something they promised is.",
+    "Not a problem: stating a fact listed as what the other person knows, such as offering a time or naming a price that is theirs to tell; the learner has not given those, so saying them is not asking again.",
     "Not a problem: answering the learner's question, reacting to what they said, repeating or rephrasing something already said, or asking again for something still needed.",
     "Reply with a JSON object only, no prose around it: {\"ok\": true or false, \"why\": \"one short sentence of English\"}.",
   ].join("\n");
@@ -65,10 +75,12 @@ export function buildConsistencySystemPrompt(): string {
 
 export function buildConsistencyUserPrompt(ask: ConsistencyAsk): string {
   return [
+    ...(ask.who ? [`Who is speaking, and where: ${ask.who}`] : []),
     "The conversation so far, oldest first:",
     ...ask.conversation.map((line) => `${line.role === "them" ? "Other person" : "Learner"}: ${JSON.stringify(line.text)}`),
     ...(ask.established.length > 0 ? [`Established, true from now on: ${ask.established.join(" ")}`] : []),
-    ...(ask.facts.length > 0 ? [`What the other person knows: ${ask.facts.join("; ")}`] : []),
+    ...(ask.moved && ask.moved.length > 0 ? [`What has happened since, and is now true: ${ask.moved.join(" ")}`] : []),
+    ...(ask.facts.length > 0 ? [`What the other person knows, theirs to say when it fits (the learner has not said these): ${ask.facts.join("; ")}`] : []),
     ...(ask.later.length > 0 ? [`Coming later, not to be revealed or settled yet unless asked: ${ask.later.join("; ")}`] : []),
     `The line to check: ${JSON.stringify(ask.line)}`,
     "Is there a problem with this line?",

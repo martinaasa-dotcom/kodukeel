@@ -30,7 +30,7 @@ import { choiceOf } from "../lib/scenes/choice";
 import { words } from "../lib/scenes/lexicon";
 import { shippedDictionary } from "./lib/dictionary";
 import { dealtNumbers, type RoleCard } from "../lib/scenes/props";
-import { stageFor, composeNote, establishedBy, factsFor, heldBack, heldNumbers } from "../lib/scenes/reply";
+import { stageFor, composeNote, establishedBy, factsFor, heldBack, heldNumbers, sceneMovedOn } from "../lib/scenes/reply";
 import { isKnownForm } from "../lib/dict/forms";
 import { askLine, chain as providerChain, HARNESS_LEVEL } from "./lib/sceneDraft";
 import type { Level } from "../lib/collections/syllabus";
@@ -129,7 +129,8 @@ async function main() {
         any: askedNow !== null,
         money: askedNow !== null && asksPrice(words(last?.said ?? ""), context.lexicon),
       });
-      const established = establishedBy(state, inPlay, scene.beats);
+      const established = establishedBy(state, inPlay);
+      const moved = sceneMovedOn(state, inPlay, scene.beats);
       if (argv.includes("--debug-held")) console.log(`      ~ held: ${[...held].join(",")} beat=${state.beat} speaking=${spokenFor.id}`);
       const agenda = scene.beats.slice(state.beat).filter((b) => !state.done.includes(b.id))
         .filter((b) => b.move !== "close" || b.id === spokenFor.id)
@@ -161,7 +162,7 @@ async function main() {
         vouch: (spellings: readonly string[]) => vouchOf(context.lexicon, spellings),
         ...(LINKS.length > 0 ? {
           compose: (avoid: readonly string[], because?: string) => askLine(LINKS, {
-            move: beatFor.move, they: stageFor(beatFor, inPlay), reading: "", facts, because, agenda, settled, established,
+            move: beatFor.move, they: stageFor(beatFor, inPlay), reading: "", facts, because, agenda, settled, established, moved,
             examples: [...context.scripted.entries()].filter(([id]) => id !== beatFor.id).flatMap(([, l]) => l.slice(0, 1)).slice(0, 6),
             asked: (context.scripted.get(beatFor.id) ?? []).slice(0, 2),
             note: composeNote(turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, askedNow, { offer: handing, answer: anticipated }),
