@@ -252,6 +252,14 @@ export interface DaySpec {
    */
   sceneAgain?: true;
   /**
+   * What the conversation is, in English, for the step's own name: "Buying a
+   * bus ticket" rather than "Have the conversation" on every evening that has
+   * one. Worked out by the builder, which may read the scene catalogue, so
+   * this file stays small for the client screens that import it, the way
+   * `readTitle` does.
+   */
+  sceneTitle?: string;
+  /**
    * Verbs whose learned-per-verb forms tonight shows: the simple past and,
    * once the imperative page is read, the polite imperative.
    *
@@ -567,7 +575,9 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: TALK_STEP,
       kind: "talk",
-      title: spec.sceneAgain ? "Have the conversation again, at your level" : "Have the conversation",
+      title: spec.sceneAgain
+        ? `${spec.sceneTitle ?? "The conversation"}, again at your level`
+        : spec.sceneTitle ?? "Have the conversation",
       why: spec.sceneAgain
         ? "You've had this one before. Tonight they talk to you the way they'd talk to anybody, and you've got far more to say back."
         : "Somebody wants something from you, and only Estonian will do. This is what all those words were for.",

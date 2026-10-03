@@ -333,8 +333,13 @@ describe("what a day reads and where it goes", () => {
     }
     expect(first.size).toBe(SCENES.length);
     for (const [scene, n] of times) expect(n, `${scene} is had ${n} times`).toBeLessThanOrEqual(2);
-    const step = DAYS.find(({ day }) => day.sceneAgain)!.day.steps.find((s) => s.kind === "talk")!;
-    expect(step.title).toMatch(/again/);
+    // And the step names the conversation, the way a reading step names its page.
+    for (const { day } of DAYS) {
+      if (!day.scene) continue;
+      const step = day.steps.find((s) => s.kind === "talk")!;
+      expect(step.title.startsWith(SCENES.find((s) => s.id === day.scene)!.title), day.id).toBe(true);
+      expect(/again/.test(step.title), day.id).toBe(Boolean(day.sceneAgain));
+    }
   });
 
   it("has a conversation in every part from the first one that can carry one", () => {

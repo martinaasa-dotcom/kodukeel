@@ -2844,7 +2844,8 @@ answer with. Seven come back a level up, each on the unit closest to what it reh
 neighbor on the stairs with the people in your life, the bus ticket with public life, the doctor
 with health, the job interview with working life, the language course with academic writing, the
 landlord with register, the phone call with the wider world), and the step says it is a second
-time. `course.test.ts` holds every part from the first conversation on to having one, and a
+time. Every conversation step names its conversation now too, "Buying a bus ticket" rather than
+"Have the conversation", the way a reading step names its page. `course.test.ts` holds every part from the first conversation on to having one, and a
 second time to a level up.
 
 **The nominalisation page shows the doer in front.** "The doer goes in front, in the form that

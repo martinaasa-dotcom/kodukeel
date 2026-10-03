@@ -18,6 +18,7 @@ import { grammarTerm } from "@/lib/estonian/terms";
 import { isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
 import { spellable } from "@/lib/games/letters";
 import { SCENES } from "@/lib/collections/scenes";
+import { sceneById as conversationById } from "@/lib/scenes/catalogue";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { PARTS, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, type PartSpec } from "./plan";
@@ -721,7 +722,13 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
             ? withForms(dealt, spec.level, ledger.taught(), days.at(-1)?.practice ?? [])
             : dealt,
           ...(forms.length > 0 ? { forms } : {}),
-          ...(last && scene ? { scene, ...(ledger.talk(scene) ? { sceneAgain: true as const } : {}) } : {}),
+          ...(last && scene
+            ? {
+              scene,
+              ...(conversationById(scene) ? { sceneTitle: conversationById(scene)!.title } : {}),
+              ...(ledger.talk(scene) ? { sceneAgain: true as const } : {}),
+            }
+            : {}),
         },
         days.length + 1,
         { n: n + 1, of: chunks.length },
