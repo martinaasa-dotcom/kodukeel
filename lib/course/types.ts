@@ -243,6 +243,15 @@ export interface DaySpec {
   /** A conversation to have at the end, where one fits. A scene id. */
   scene?: string;
   /**
+   * Whether an earlier evening already had this conversation.
+   *
+   * B2 and C1 come back to a few of them, because a run is pitched at the
+   * learner's own level and the same counter at C1 is a different
+   * conversation: the other side talks the way they would to anybody. The
+   * step says it is a second time, the way a page read again does.
+   */
+  sceneAgain?: true;
+  /**
    * Verbs whose learned-per-verb forms tonight shows: the simple past and,
    * once the imperative page is read, the polite imperative.
    *
@@ -558,8 +567,10 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: TALK_STEP,
       kind: "talk",
-      title: "Have the conversation",
-      why: "Somebody wants something from you, and only Estonian will do. This is what all those words were for.",
+      title: spec.sceneAgain ? "Have the conversation again, at your level" : "Have the conversation",
+      why: spec.sceneAgain
+        ? "You've had this one before. Tonight they talk to you the way they'd talk to anybody, and you've got far more to say back."
+        : "Somebody wants something from you, and only Estonian will do. This is what all those words were for.",
       href: `/situations/${spec.scene}`,
       minutes: TALK_MINUTES,
       derived: false,

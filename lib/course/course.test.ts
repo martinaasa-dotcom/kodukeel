@@ -3,6 +3,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { SCENES } from "@/lib/scenes/catalogue";
 import { SYLLABUS, unitById } from "@/lib/collections/syllabus";
+import { BAND_ORDER } from "@/lib/collections/levels";
 import { modeAt } from "@/lib/ux/modes";
 import {
   ACTIVITIES, type ActivitySpec, DAY_MINUTES, DEFAULT_PROGRAMME, MAX_DAY_WORDS, MINUTES_PER_WORD,
@@ -306,10 +307,41 @@ describe("what a day reads and where it goes", () => {
     }
   });
 
-  it("uses every conversation the app has, once", () => {
-    const used = DAYS.map(({ day }) => day.scene).filter(Boolean);
-    expect(new Set(used).size, "a conversation is opened by two evenings").toBe(used.length);
-    expect(new Set(used).size).toBe(SCENES.length);
+  /*
+    EVERY CONVERSATION THE APP HAS, AND A SECOND TIME ONLY WHERE IT IS A
+    DIFFERENT CONVERSATION. A run is pitched at the learner's level, so a
+    scene met at A2 and again at C1 is two conversations; met twice at one
+    level it is the same one, and an evening spent repeating it is an
+    evening taken from something new. So a second time is a level up from
+    the first, at most twice per scene, and the step says so.
+  */
+  it("uses every conversation the app has, and comes back to one only a level up", () => {
+    const first = new Map<string, string>();
+    const times = new Map<string, number>();
+    for (const { day } of DAYS) {
+      if (!day.scene) continue;
+      times.set(day.scene, (times.get(day.scene) ?? 0) + 1);
+      const met = first.get(day.scene);
+      if (met === undefined) {
+        first.set(day.scene, day.level);
+        expect(day.sceneAgain, `${day.id} calls its first ${day.scene} a second time`).toBeUndefined();
+        continue;
+      }
+      expect(day.sceneAgain, `${day.id} has ${day.scene} again and does not say so`).toBe(true);
+      expect(BAND_ORDER.indexOf(day.level), `${day.id} repeats ${day.scene} at the level it met it`)
+        .toBeGreaterThan(BAND_ORDER.indexOf(met));
+    }
+    expect(first.size).toBe(SCENES.length);
+    for (const [scene, n] of times) expect(n, `${scene} is had ${n} times`).toBeLessThanOrEqual(2);
+    const step = DAYS.find(({ day }) => day.sceneAgain)!.day.steps.find((s) => s.kind === "talk")!;
+    expect(step.title).toMatch(/again/);
+  });
+
+  it("has a conversation in every part from the first one that can carry one", () => {
+    const parts = PROGRAMMES.filter((p) => p.days.some((d) => d.scene));
+    const firstWith = PROGRAMMES.indexOf(parts[0]!);
+    const without = PROGRAMMES.slice(firstWith).filter((p) => !p.days.some((d) => d.scene)).map((p) => p.id);
+    expect(without).toEqual([]);
   });
 
   /*

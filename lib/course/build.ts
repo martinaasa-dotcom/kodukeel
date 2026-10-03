@@ -446,6 +446,14 @@ export class Ledger {
   /** Verbs with a stored past, taught and not yet shown, in teaching order. */
   private formsWaiting: string[] = [];
   private readonly formsShown = new Set<string>();
+  private readonly talked = new Set<string>();
+
+  /** A conversation dealt, and whether an earlier evening already dealt it. */
+  talk(scene: string): boolean {
+    const before = this.talked.has(scene);
+    this.talked.add(scene);
+    return before;
+  }
 
   /** A word handed over, with what the harvest holds for it. */
   /** Whether an earlier evening has already taught this word. */
@@ -713,7 +721,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
             ? withForms(dealt, spec.level, ledger.taught(), days.at(-1)?.practice ?? [])
             : dealt,
           ...(forms.length > 0 ? { forms } : {}),
-          ...(last && scene ? { scene } : {}),
+          ...(last && scene ? { scene, ...(ledger.talk(scene) ? { sceneAgain: true as const } : {}) } : {}),
         },
         days.length + 1,
         { n: n + 1, of: chunks.length },
