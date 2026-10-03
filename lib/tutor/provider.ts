@@ -21,6 +21,7 @@
  * than one naming none.
  */
 import { geminiCachedReply } from "./geminiCache";
+import { liveLinks, noteRefusal } from "./exhausted";
 import { reportError } from "@/lib/observability/report";
 import { estimateTokens } from "@/lib/usage/pricing";
 
@@ -211,6 +212,15 @@ export interface ChainOptions {
    * the one place already holding a transaction open to find out.
    */
   allowFallback?: boolean;
+  /**
+   * Only the links that have not said "not until later" (`lib/tutor/exhausted.ts`).
+   *
+   * For a caller asking whether anything would answer right now before it
+   * books a call: a chain whose every model is out of its daily quota is
+   * configured and still answers nobody, and booking a call against it is a
+   * reservation handed back a second later.
+   */
+  answering?: boolean;
 }
 
 /**
@@ -501,6 +511,18 @@ export const VISION_MODEL = "gemini-3.1-flash-lite";
   second is charged at a known rate, and the Groq link still stands behind
   both for the day the Gemini key itself stops answering.
 */
+/*
+  AND IT WAS TURNED ROUND FOR A DAY AND TURNED BACK, BY THE OPERATOR. On
+  2026-10-02 the Lite led, on price. The next day the production ledger put
+  every model call the app had made in a month at $0.27, and a curious run
+  showed the Lite doing on the hard turns what §61 measured, asking and
+  stopping where the flash reacts, and saying things a person would not (a
+  landlord with no time this week offering Thursday in the same breath). The
+  flash costs about a third of a cent more a conversation, and the operator's
+  words were that good is not good enough. So the flash leads again and the
+  Lite is its backup, for the minute the flash is out of quota, which
+  `lib/tutor/exhausted.ts` walks past without asking.
+*/
 export const SCENE_MODELS = ["gemini-3.8-flash", "gemini-3.1-flash-lite"] as const;
 
 /*
@@ -614,7 +636,7 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
         });
       }
     }
-    return chain;
+    return options.answering ? liveLinks(chain) : chain;
   }
   const chain: ProviderConfig[] = [];
   /*
@@ -672,7 +694,7 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
       label: "OpenAI",
     });
   }
-  return chain;
+  return options.answering ? liveLinks(chain) : chain;
 }
 
 /**
@@ -1004,6 +1026,18 @@ export async function openWithFallback(
   cacheSystem = false,
 ): Promise<OpenStream> {
   if (chain.length === 0) throw new TutorError("There's no AI set up on this site yet, so this part can't answer. Everything else still works.", 503);
+  /*
+    A LINK THAT SAID "NOT UNTIL LATER" IS WALKED PAST BEFORE ANYTHING IS SPENT
+    ON IT (`lib/tutor/exhausted.ts`). On the cached path that is the difference
+    between a turn and a turn plus a cache entry written for a model that was
+    about to refuse it, which is what every scene turn paid on the evening the
+    primary's daily quota ran out.
+  */
+  const answering = liveLinks(chain);
+  if (answering.length === 0) {
+    throw new TutorError(`${chain[0]!.label} is getting too many requests right now. Give it a moment.`, 429);
+  }
+  chain = answering;
 
   for (let i = 0; i < chain.length; i += 1) {
     const config = chain[i]!;
@@ -1063,6 +1097,13 @@ async function cachedGeminiStream(
       next link is somebody else's key.
     */
     if (error instanceof TutorError && error.status === 401) throw error;
+    /*
+      Nor can it fix a provider that is out of quota or credit: the plain
+      transport on the same link is the same model on the same account, and
+      asking it again was a second refused request on every attempt. The walk
+      takes it from here, to the next link.
+    */
+    if (error instanceof TutorError && (error.status === 429 || error.status === 402)) throw error;
     return null;
   }
 }
@@ -1365,6 +1406,8 @@ async function assertOk(res: Response, config: ProviderConfig) {
     throw new TutorError(`${config.label} didn't accept the API key. Check it in your .env file.`, 401);
   }
   if (res.status === 429) {
+    // Believed for as long as it says (`lib/tutor/exhausted.ts`), so the next turn walks past it.
+    noteRefusal(config, detail, res.headers.get("retry-after"));
     throw new TutorError(
       `${config.label} is getting too many requests for this model right now, so give it a ` +
       `moment. Free models get slowed down a lot. For a lasting fix, set GROQ_MODEL or ` +
@@ -1591,6 +1634,9 @@ export async function completeWithImage(
   if (chain.length === 0) throw new TutorError("There's no AI set up on this site yet, so this part can't answer. Everything else still works.", 503);
 
   let last: unknown = null;
+  // Walked past where it said "not until later" (`lib/tutor/exhausted.ts`), unless nothing else is left.
+  const live = liveLinks(chain);
+  if (live.length > 0) chain = live;
   for (let i = 0; i < chain.length; i += 1) {
     const config = chain[i]!;
     try {

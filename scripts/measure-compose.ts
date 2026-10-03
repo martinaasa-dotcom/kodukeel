@@ -43,6 +43,10 @@ import { priceFor } from "../lib/usage/pricing";
 import { DEFAULT_KIND_BUDGETS } from "../lib/usage/quota";
 import { shippedDictionary } from "./lib/dictionary";
 import { HARNESS_LEVEL } from "./lib/sceneDraft";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
+installMeter({ replay: true });
 
 /** Measured on these prompts. See the header. */
 const CHARS_PER_TOKEN = { estonianList: 3.64, prose: 4.1 };

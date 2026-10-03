@@ -266,7 +266,7 @@ export async function POST(request: Request) {
       && lastRead.met.some((ok) => !ok),
   );
   if (judgeable && lastSent && lastRead && judged) {
-    const decision = resolveProviders({ purpose: "grader" }).length > 0
+    const decision = resolveProviders({ purpose: "grader", answering: true }).length > 0
       ? await authoriseCall(ownerId, "GRADER")
       : null;
     if (decision?.allowed && decision.reservation) {
@@ -333,7 +333,7 @@ export async function POST(request: Request) {
         beat ahead is exactly where such a word tends to belong.
       */
       && words(lastSent.said).some((word) => !context.lexicon.forms.has(word) && !context.lexicon.folded.has(fold(word)))
-      && resolveProviders({ purpose: "grader" }).length > 0,
+      && resolveProviders({ purpose: "grader", answering: true }).length > 0,
   );
   if (askAhead && lastSent && ahead) {
     const decision = await authoriseCall(ownerId, "GRADER");
@@ -785,7 +785,7 @@ export async function POST(request: Request) {
     chain is what will be asked, and a turn a model actually wrote replaces it
     with the one that answered (`composedBy`).
   */
-  const head = sceneProviders()[0];
+  const head = sceneProviders({ answering: true })[0];
   const composer = head ? { label: head.label, model: head.model, primary: head.model === SCENE_MODELS[0] } : null;
   const answer = async (lines: readonly SpokenLine[], extra: Record<string, unknown> = {}) =>
     Response.json({ ...progress, composer, lines: await glossedLines(lines), ...extra }, { headers: NO_STORE });
@@ -1044,7 +1044,12 @@ export async function POST(request: Request) {
     `CALL` row in front of twelve settlements is eleven calls the allowance
     never saw.
   */
-  const decision = sceneProviders().length > 0
+  /*
+    Only where a link is still answering: a chain whose every model has said
+    "not until later" (`lib/tutor/exhausted.ts`) books nothing, asks nothing
+    and answers from the bank, which is where a keyless deployment lives.
+  */
+  const decision = sceneProviders({ answering: true }).length > 0
     ? await authoriseCall(ownerId, "SCENE")
     : null;
 

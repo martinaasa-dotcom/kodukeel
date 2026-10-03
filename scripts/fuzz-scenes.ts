@@ -29,6 +29,10 @@ import { isSpokenEstonian, sceneLine } from "../lib/scenes/line";
 import { PERSONAS } from "../lib/scenes/personas";
 import { sceneBeats } from "../lib/scenes/scripted";
 import { dealtNumbers } from "../lib/scenes/props";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
+installMeter({ replay: true });
 
 /** How the route reads a number out of a turn: a clock time or a run of digits. */
 const NUMBERS = /\d{1,2}[:.]\d{2}|\d+/g;

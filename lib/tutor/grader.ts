@@ -3,6 +3,7 @@ import { questionInEnglish } from "@/lib/estonian/cases";
 import { estimateTokens } from "@/lib/usage/pricing";
 import { VOICE_RULES } from "@/lib/copy/voice";
 import { humanizeReply } from "./humanize";
+import { liveLinks, noteRefusal } from "./exhausted";
 import {
   anthropicHeaders, billedOutput, openAiCompatible, TutorError, type ProviderConfig, type UsageReport,
 } from "./provider";
@@ -235,8 +236,15 @@ export async function callChainForJson(
   maxTokens = JSON_REPLY_TOKENS,
 ): Promise<{ text: string; usage: UsageReport; config: ProviderConfig }> {
   let last: unknown = null;
-  for (let i = 0; i < chain.length; i += 1) {
-    const config = chain[i]!;
+  /*
+    Only the links that have not said "not until later" (`lib/tutor/exhausted.ts`):
+    a model past its daily quota answers every call with the same 429, and
+    asking it first on every verdict is a request and a wait for nothing.
+  */
+  const live = liveLinks(chain);
+  if (live.length === 0) throw new TutorError("We couldn't get that marked just now. Try again in a moment.", 429);
+  for (let i = 0; i < live.length; i += 1) {
+    const config = live[i]!;
     try {
       const { text, usage } = await callForJson(config, system, user, maxTokens);
       return { text, usage, config };
@@ -244,7 +252,7 @@ export async function callChainForJson(
       last = error;
       // A rejected key is a configuration mistake no amount of walking fixes.
       const fatal = error instanceof TutorError && error.status === 401;
-      if (fatal || i === chain.length - 1) throw error;
+      if (fatal || i === live.length - 1) throw error;
     }
   }
   throw last instanceof Error ? last : new TutorError("We couldn't get that marked just now. Try again in a moment.", 502);
@@ -298,7 +306,10 @@ async function callForJson(
       }),
       signal: AbortSignal.timeout(45_000),
     });
-    if (!res.ok) throw new TutorError(`${config.label} returned ${res.status}.`, res.status);
+    if (!res.ok) {
+      if (res.status === 429) noteRefusal(config, await res.text().catch(() => ""), res.headers.get("retry-after"));
+      throw new TutorError(`${config.label} returned ${res.status}.`, res.status);
+    }
     const body = await res.json() as {
       content?: { type: string; text?: string }[];
       usage?: { input_tokens?: number; output_tokens?: number; cache_read_input_tokens?: number; cache_creation_input_tokens?: number };
@@ -357,7 +368,11 @@ async function callForJson(
       }),
       signal: AbortSignal.timeout(45_000),
     });
-    if (!res.ok) throw new TutorError(`${config.label} returned ${res.status}.`, res.status);
+    if (!res.ok) {
+      // A refusal that says how long it lasts is believed for that long (`exhausted.ts`).
+      if (res.status === 429) noteRefusal(config, await res.text().catch(() => ""), res.headers.get("retry-after"));
+      throw new TutorError(`${config.label} returned ${res.status}.`, res.status);
+    }
     const body = await res.json() as {
       choices?: { message?: { content?: string } }[];
       usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };

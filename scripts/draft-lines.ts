@@ -67,6 +67,10 @@ import {
   ANSWERED, REFUSALS, answerForms, chain, compose, keylessContext, lacksFiniteVerb,
 } from "./lib/sceneDraft";
 import type { BeatSpec } from "../lib/scenes/types";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because asking again is how it gets a different draft.
+installMeter({ replay: false });
 
 /** How many lines a beat is drafted up to. Three is enough variety for one run, and few enough to read. */
 const WANT = 3;

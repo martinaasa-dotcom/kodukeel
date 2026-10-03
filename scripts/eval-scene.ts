@@ -50,6 +50,10 @@ import {
   ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, HARNESS_LEVEL, askLine, chain, gateContext, sceneEntries, sceneLemmas, sceneLexicon,
   routeGate, wrongRegisterForms, type Allowlist,
 } from "./lib/sceneDraft";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it counts a rate over samples, and a sample replayed is not a second sample.
+installMeter({ replay: false });
 
 const arg = (name: string, fallback: number) => {
   const i = process.argv.indexOf(`--${name}`);

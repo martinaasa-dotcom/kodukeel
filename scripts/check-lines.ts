@@ -21,6 +21,10 @@ import { gateFor, runGate } from "../lib/scenes/gate";
 import { words } from "../lib/scenes/lexicon";
 import { beatById } from "../lib/scenes/scripted";
 import { answerForms, keylessContext, lacksFiniteVerb } from "./lib/sceneDraft";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
+installMeter({ replay: true });
 
 const file = process.argv[2];
 if (!file) {
