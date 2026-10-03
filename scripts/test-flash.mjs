@@ -108,7 +108,7 @@ async function mainText(wanted, budgetMs = 8000) {
       `startRound` looks for a bounded moment and then decides the round opened
       cold; on a busy runner the briefing can land after that, and this loop then
       spent its whole budget reading the briefing and handed back text with no
-      question in it, which `wordOf` reads as an empty word. Seen in CI as
+      question in it, which reads as no word at all. Seen in CI as
       "a reload comes back to the same question (aitama olevik · ta -> )".
     */
     if (await page.locator("[data-briefing-start]").count()) await startRound(page);
@@ -143,18 +143,20 @@ async function question() {
     if (/^your (answer|sentence)$/im.test(text)) break;
     await page.waitForTimeout(150);
   } while (Date.now() < until);
-  return { text, hasBox: (await page.locator("#answer").count()) > 0 };
+  return { text, hasBox: (await page.locator("#answer").count()) > 0, word: await wordOnCard() };
 }
 
 /**
  * Which word the question is about.
  *
- * Read off the standing line at the foot of the card rather than the question,
- * because the question does not always name it: a gap prints the sentence and
- * the meaning, and the point of that shape is that the lemma is not on screen.
+ * Read off the card's `data-flash-word` rather than any line on it, because
+ * no line names the word before the answer on the shapes that ask for it: a
+ * gap prints the sentence and the meaning, a plain ask prints the meaning, and
+ * the standing line under the card says "This word" until the answer is in,
+ * so a screen reader is not read the answer by the round's own furniture.
  */
-function wordOf(text) {
-  return text.match(/^(.+?): right \d+/m)?.[1]?.trim() ?? "";
+async function wordOnCard() {
+  return (await page.locator("[data-flash-word]").first().getAttribute("data-flash-word").catch(() => null)) ?? "";
 }
 
 /** Whether the question on screen wants a sentence rather than a form. */
@@ -223,6 +225,7 @@ async function answer(typed) {
     // (`alalütlev: the “onto” ending`).
     told: form && slot ? `${slot} -> ${form}` : "",
     text,
+    word: await wordOnCard(),
   };
 }
 
@@ -276,7 +279,7 @@ check(
 */
 const first = await answer("zzz zzz zzz");
 const [firstLabel, firstForm] = first.told.split(" -> ");
-const firstWord = wordOf(first.text);
+const firstWord = first.word;
 
 check("a wrong answer is told what the form is", Boolean(firstLabel && firstForm), first.told);
 
@@ -305,9 +308,9 @@ const gapOf = (text) => text.match(/[^\n]*____[^\n]*/)?.[0]?.trim() ?? null;
 const same = (read) => read(opening.text) !== null && read(opening.text) === read(again.text);
 const named = again.text.includes(firstLabel ?? "\u0000") || same(sayOf) || same(gapOf);
 const heard = /type the form you hear/i.test(again.text);
-const sameQuestion = wordOf(again.text) === firstWord && (named || heard);
+const sameQuestion = again.word === firstWord && (named || heard);
 check("a reload comes back to the same question", sameQuestion,
-  `${firstWord} ${firstLabel} -> ${wordOf(again.text)}`);
+  `${firstWord} ${firstLabel} -> ${again.word}`);
 
 let rights = 0;
 let slipped = false;
@@ -346,7 +349,7 @@ for (let i = 0; i < 12; i++) {
   const marked = await answer("zzz zzz zzz");
   const [label] = marked.told.split(" -> ");
   if (label) slotsAsked.add(label.trim());
-  learned.set(`${wordOf(state.text)}|${label}`, marked.told);
+  learned.set(`${state.word}|${label}`, marked.told);
 
   const next = page.getByRole("button", { name: /^Next/ });
   if (!(await next.count())) break;

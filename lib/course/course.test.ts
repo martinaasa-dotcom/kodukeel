@@ -3,6 +3,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { SCENES } from "@/lib/scenes/catalogue";
 import { SYLLABUS, unitById } from "@/lib/collections/syllabus";
+import { BAND_ORDER } from "@/lib/collections/levels";
 import { modeAt } from "@/lib/ux/modes";
 import {
   ACTIVITIES, type ActivitySpec, DAY_MINUTES, DEFAULT_PROGRAMME, MAX_DAY_WORDS, MINUTES_PER_WORD,
@@ -10,7 +11,7 @@ import {
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
-  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING,
+  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING, CASE_ROUNDS, PAGE_ROUND, newWordsIn,
 } from "./index";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { readFileSync } from "node:fs";
@@ -306,10 +307,46 @@ describe("what a day reads and where it goes", () => {
     }
   });
 
-  it("uses every conversation the app has, once", () => {
-    const used = DAYS.map(({ day }) => day.scene).filter(Boolean);
-    expect(new Set(used).size, "a conversation is opened by two evenings").toBe(used.length);
-    expect(new Set(used).size).toBe(SCENES.length);
+  /*
+    EVERY CONVERSATION THE APP HAS, AND A SECOND TIME ONLY WHERE IT IS A
+    DIFFERENT CONVERSATION. A run is pitched at the learner's level, so a
+    scene met at A2 and again at C1 is two conversations; met twice at one
+    level it is the same one, and an evening spent repeating it is an
+    evening taken from something new. So a second time is a level up from
+    the first, at most twice per scene, and the step says so.
+  */
+  it("uses every conversation the app has, and comes back to one only a level up", () => {
+    const first = new Map<string, string>();
+    const times = new Map<string, number>();
+    for (const { day } of DAYS) {
+      if (!day.scene) continue;
+      times.set(day.scene, (times.get(day.scene) ?? 0) + 1);
+      const met = first.get(day.scene);
+      if (met === undefined) {
+        first.set(day.scene, day.level);
+        expect(day.sceneAgain, `${day.id} calls its first ${day.scene} a second time`).toBeUndefined();
+        continue;
+      }
+      expect(day.sceneAgain, `${day.id} has ${day.scene} again and does not say so`).toBe(true);
+      expect(BAND_ORDER.indexOf(day.level), `${day.id} repeats ${day.scene} at the level it met it`)
+        .toBeGreaterThan(BAND_ORDER.indexOf(met));
+    }
+    expect(first.size).toBe(SCENES.length);
+    for (const [scene, n] of times) expect(n, `${scene} is had ${n} times`).toBeLessThanOrEqual(2);
+    // And the step names the conversation, the way a reading step names its page.
+    for (const { day } of DAYS) {
+      if (!day.scene) continue;
+      const step = day.steps.find((s) => s.kind === "talk")!;
+      expect(step.title.startsWith(SCENES.find((s) => s.id === day.scene)!.title), day.id).toBe(true);
+      expect(/again/.test(step.title), day.id).toBe(Boolean(day.sceneAgain));
+    }
+  });
+
+  it("has a conversation in every part from the first one that can carry one", () => {
+    const parts = PROGRAMMES.filter((p) => p.days.some((d) => d.scene));
+    const firstWith = PROGRAMMES.indexOf(parts[0]!);
+    const without = PROGRAMMES.slice(firstWith).filter((p) => !p.days.some((d) => d.scene)).map((p) => p.id);
+    expect(without).toEqual([]);
   });
 
   /*
@@ -383,6 +420,67 @@ describe("what a day reads and where it goes", () => {
         const games = could.filter((key) => ACTIVITIES[key].kind === "game");
         if (could.length <= 2 || games.length <= 1) return;
         expect(day.practice.join("+"), `${day.id}`).not.toBe(before);
+      });
+    }
+  });
+
+  /*
+    AN EVENING THAT READS A CASE PRACTISES IT. The rotation deals neighbours
+    whatever the page was, and the forms step took the drill's place on most
+    of A2's case evenings, so the evening that read the elative drilled the
+    past of five unrelated verbs. Wherever a round that asks a case off the
+    word's own forms is on the level's rotation and the words can carry it,
+    a case evening deals one, and no case evening carries the forms step.
+  */
+  it("practises the case an evening reads, where a round can ask it", () => {
+    let walked = 0;
+    for (const { programme, day } of DAYS) {
+      if (!day.grammarCase && !(day.grammar && builtOnACase(day.grammar))) continue;
+      expect(day.forms ?? [], `${day.id} reads a case and shows the past`).toEqual([]);
+      const could = supportedRounds(programme.level, taughtBy(programme, day.index))
+        .filter((key) => CASE_ROUNDS.has(key));
+      if (could.length === 0) continue;
+      walked += 1;
+      const own = day.grammar ? PAGE_ROUND[day.grammar] : undefined;
+      expect(
+        day.practice.some((key) => CASE_ROUNDS.has(key) || key === own),
+        `${day.id} reads ${day.grammarCase ?? day.grammar}`,
+      ).toBe(true);
+    }
+    expect(walked).toBeGreaterThan(15);
+  });
+
+  /*
+    A PAGE IS READ ONCE A LEVEL, AND A SECOND LOOK SAYS SO. A1 read the
+    present tense four times as tonight's reading; across levels a page may
+    come back, and its step says it is a second look.
+  */
+  it("reads a page once a level, and names a page read at an earlier level as read again", () => {
+    const seenAt = new Map<string, string>();
+    for (const { programme, day } of DAYS) {
+      const page = day.grammarCase ?? day.grammar;
+      if (!page) continue;
+      const step = day.steps.find((s) => s.kind === "read")!;
+      const before = seenAt.get(page);
+      expect(before === programme.level, `${day.id} reads ${page} twice at ${programme.level}`).toBe(false);
+      expect(/ again$/.test(step.title), `${day.id} ${step.title}`).toBe(before !== undefined);
+      expect(step.title, day.id).not.toBe("Read how tonight's words work");
+      seenAt.set(page, programme.level);
+    }
+  });
+
+  /*
+    AND THE PAST IS SHOWN EVERY OTHER EVENING, NOT EVERY EVENING. Sixteen of
+    A2's first twenty-one evenings were the same forms step in a row, which
+    is a fortnight of one drill under another name.
+  */
+  it("never shows the past two evenings running inside a part", () => {
+    for (const programme of PROGRAMMES) {
+      programme.days.forEach((day, at) => {
+        if (at === 0 || !day.forms?.length) return;
+        const last = programme === PROGRAMMES.at(-1) && at === programme.days.length - 1;
+        if (last) return;
+        expect(programme.days[at - 1]!.forms?.length ?? 0, day.id).toBe(0);
       });
     }
   });
@@ -1109,3 +1207,55 @@ describe("the ledger counts a word taught twice once", () => {
     expect(supportsRound("government", taught)).toBe(false);
   });
 });
+
+describe("an evening says how many of its words are new", () => {
+  /*
+    The object and government units drill verbs the course gave long before,
+    on purpose, and the first two evenings of B1 were six of them each under
+    "Learn tonight's 6 new words".
+  */
+  const walked = PROGRAMMES.flatMap((p) => p.days);
+
+  it("marks a word again exactly where an earlier evening taught it", () => {
+    const seen = new Set<string>();
+    let again = 0;
+    for (const d of walked) {
+      expect([...(d.again ?? [])].sort(), d.id).toEqual(d.words.filter((w) => seen.has(w)).sort());
+      again += d.again?.length ?? 0;
+      for (const w of d.words) seen.add(w);
+    }
+    expect(again).toBeGreaterThan(0);
+  });
+
+  it("titles the meet step by what is new, and goes over an evening of words met before", () => {
+    for (const d of walked) {
+      const meet = d.steps.find((s) => s.id === MEET_STEP)!;
+      const fresh = newWordsIn(d);
+      if (fresh === 0) expect(meet.title, d.id).toBe(`Go over tonight's ${d.words.length} words`);
+      else expect(meet.title, d.id).toContain(`${fresh} new word`);
+      expect(meet.title, d.id).not.toMatch(/\b0 new/);
+    }
+    expect(walked.some((d) => newWordsIn(d) === 0)).toBe(true);
+  });
+});
+
+describe("a forms evening does not use up a drill's turn", () => {
+  /*
+    The forms step takes the drill's place every other evening from A2 up,
+    and B2's rotation paired `write` with Tähed and `describe` with the
+    sprint, both of which fell on forms evenings every time: over B2's 45
+    evenings the writing round came up three times and Describe once.
+  */
+  it("takes the drill from its own place on the rotation", () => {
+    const [, drillOfPair1] = rounds("B2", 1, false);
+    expect(rounds("B2", 0, false, undefined, false, [], 1)[1]).toBe(drillOfPair1);
+  });
+
+  it("deals writing and Describe at B2 on more than a handful of evenings", () => {
+    const b2 = PROGRAMMES.filter((p) => p.level === "B2").flatMap((p) => p.days);
+    const count = (key: string) => b2.filter((d) => d.practice.includes(key as never)).length;
+    expect(count("write")).toBeGreaterThanOrEqual(5);
+    expect(count("describe")).toBeGreaterThanOrEqual(3);
+  });
+});
+

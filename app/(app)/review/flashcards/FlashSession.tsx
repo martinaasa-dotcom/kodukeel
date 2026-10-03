@@ -1,7 +1,7 @@
 "use client";
 
 import { endingName } from "@/lib/estonian/plainAsk";
-import { PARTS } from "@/lib/copy/values";
+import { PARTS, partOfSpeechCue, wordName } from "@/lib/copy/values";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -18,7 +18,6 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { splitOnForm } from "@/lib/dict/examples";
-import { sayPhrase } from "@/lib/estonian/sayIt";
 import { askLine, isForm, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { hintLadder } from "@/lib/questions/hints";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -26,7 +25,7 @@ import { useHints } from "@/components/round/useHints";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
-import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
+import { VERDICT_CLASS, verdictLine, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -36,6 +35,13 @@ import { caseLabelOf } from "@/lib/copy/caseLabel";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
+  /**
+   * What the form says in English, `to the teacher`, worked out on the server
+   * where the word's kind is known: asked here it read "onto it, or to
+   * someone" for every person, since the outside endings read differently for
+   * a person and a thing.
+   */
+  say: string | null;
   progress: { correct: number; needCorrect: number; slots: number; needSlots: number };
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
@@ -94,6 +100,10 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     the one thing that has to survive: the round is about the word.
   */
   const shape = task?.shape === "heard" && heardLost ? "inflect" : task?.shape;
+  /* What the corner controls and the line under the card call the word: two
+     shapes print it as the question and three ask for it, and those three
+     say "this word" until the answer is marked (`wordName`). */
+  const named = task ? wordName(task.lemma, shape === "inflect" || shape === "build" || mark !== null) : "";
 
   /*
     THE WAY OUT OF BEING STUCK, ON THE ROUND THAT ASKS THE HARDEST QUESTIONS.
@@ -293,6 +303,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
+        /* Which word this is, for `scripts/test-flash.mjs`, which used to read
+           it off the line under the card. That line says "This word" until
+           the answer is in (`wordName`), and an attribute is read by no
+           screen reader. */
+        data-flash-word={task.lemma}
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
@@ -310,12 +325,12 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           {/* The corner of the card, which is where somebody looks for this the
               moment a word turns out to be worth keeping. */}
           <div className="shrink-0">
-            <StarWord lexemeId={task.lexemeId} starred={task.starred} label={task.lemma} />
+            <StarWord lexemeId={task.lexemeId} starred={task.starred} label={named} />
           </div>
         </div>
 
         <div className="round-pad px-6">
-          <Question task={task} shape={shape ?? task.shape} onNoAudio={() => setHeardLost(true)} />
+          <Question task={task} shape={shape ?? task.shape} answered={!!mark} onNoAudio={() => setHeardLost(true)} />
 
           <div className="mt-7">
             <label htmlFor="answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>
@@ -358,7 +373,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
                   taken={hints.taken}
                   onTake={hints.take}
                   open={hints.open}
-                  label={task.lemma}
+                  label={named}
                 />
               </div>
             )}
@@ -390,15 +405,15 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
 
-      <Standing task={task} />
+      <Standing task={task} named={named} />
     </div>
   );
 }
 
 /** What the learner is looking at, which is a different thing in each shape. */
 function Question({
-  task, shape, onNoAudio,
-}: { task: FlashPrompt; shape: FlashTask["shape"]; onNoAudio: () => void }) {
+  task, shape, answered, onNoAudio,
+}: { task: FlashPrompt; shape: FlashTask["shape"]; answered: boolean; onNoAudio: () => void }) {
   const meaning = (
     <p className="text-base" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
   );
@@ -412,9 +427,11 @@ function Question({
         <p className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
           {task.translation}
         </p>
-        <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-          {task.pos.toLowerCase()}
-        </p>
+        {partOfSpeechCue(task.pos) && (
+          <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
+            {partOfSpeechCue(task.pos)}
+          </p>
+        )}
       </div>
     );
   }
@@ -458,7 +475,10 @@ function Question({
           if (!meaning && !cue) return null;
           return (
             <div className="mt-4">
-              {meaning && <GapMeaning meaning={meaning} />}
+              {/* Until the answer is in: the feedback under it prints the
+                  sentence whole and what it says, and this line above it
+                  was the English a second time. */}
+              {meaning && !answered && <GapMeaning meaning={meaning} />}
               {cue && (
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
                   The missing word means <strong style={{ color: "var(--ink)" }}>{cue}</strong>.
@@ -535,7 +555,7 @@ function SlotLine({ task }: { task: FlashPrompt }) {
   const english = asksInEnglish(task.slot);
   // `plainAskFor` decides whether this shape gets a line at all; the line
   // itself carries the word's gloss here, where the screen holds it.
-  const phrase = plainAskFor(task) ? sayPhrase(task.slot, task.translation) : null;
+  const phrase = plainAskFor(task) ? task.say : null;
   const plain = phrase
     ? task.shape === "build" ? `Write a sentence with “${phrase}”.` : `Say “${phrase}”`
     : null;
@@ -613,9 +633,10 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         {mark.right
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
+        {/* Said once, where the note opens on the verdict: see `verdictLine`. */}
         <p className="text-base">
-          <strong className="font-semibold">{head}.</strong>
-          {mark.note && <> {mark.note}</>}
+          <strong className="font-semibold">{verdictLine(head, mark.note).strong}</strong>
+          {verdictLine(head, mark.note).rest}
         </p>
       </div>
 
@@ -706,14 +727,14 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
 }
 
 /** How far this word is from being done, which is the thing the round moves. */
-function Standing({ task }: { task: FlashPrompt }) {
+function Standing({ task, named }: { task: FlashPrompt; named: string }) {
   const { correct, needCorrect, slots, needSlots } = task.progress;
   const pct = Math.round(
     Math.min(1, Math.min(correct / needCorrect, slots / Math.max(1, needSlots))) * 100,
   );
   return (
     <div className="mt-4">
-      <Meter pct={pct} label={`${task.lemma} toward mastered`} />
+      <Meter pct={pct} label={`${named} toward mastered`} />
       {/*
           Two facts, and each carries its target only while it is unmet. It read
           "6 of 5 right" on the first word of the first real round, which is a
@@ -722,7 +743,7 @@ function Standing({ task }: { task: FlashPrompt }) {
           about, and it is what the sentence has to say plainly.
         */}
       <p className="mt-2 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-        <span lang="et">{task.lemma}</span>:{" "}
+        {named === task.lemma ? <span lang="et">{task.lemma}</span> : "This word"}:{" "}
         {correct >= needCorrect
           ? `right ${correct} times`
           : `right ${correct} of ${needCorrect} times`}

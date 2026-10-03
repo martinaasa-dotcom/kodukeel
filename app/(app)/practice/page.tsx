@@ -15,6 +15,8 @@ import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
 import { Empty, Page, SectionTitle, Stack, toneInk } from "@/components/ui";
+import { courseLevelFor } from "@/lib/progress/level";
+import { BUILD_FROM, maySortWords } from "@/lib/collections/levels";
 
 export const metadata = { title: "Practice" };
 
@@ -28,7 +30,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function PracticePage() {
   const ownerId = await requireUserId();
-  const [snapshot, settings, sentenceReady, words, decks] = await Promise.all([
+  const [snapshot, settings, sentenceReady, words, decks, level] = await Promise.all([
     deckSnapshot(ownerId),
     readSettings(ownerId, [SETTING_KEYS.sprintBest, SETTING_KEYS.matchBest, SETTING_KEYS.roundPace]),
     /*
@@ -65,6 +67,9 @@ export default async function PracticePage() {
     // The learner's own named shelves, so a deck built anywhere in the app is
     // reachable as a round right here rather than only from `/words/decks`.
     listDecks(ownerId),
+    // The band the sentences round itself asks, so the tile cannot count
+    // sentences ready on a round that will open on "from A2".
+    courseLevelFor(ownerId),
   ]);
 
   const sprintBest = numberSetting(settings[SETTING_KEYS.sprintBest], 0);
@@ -108,7 +113,9 @@ export default async function PracticePage() {
   const live: Record<string, string | undefined> = {
     "/review/sprint": sprintBest > 0 ? `Best: ${sprintBest}` : undefined,
     "/review/match": matchBest > 0 ? `Best: ${matchBest}s` : undefined,
-    "/review/sentences": sentenceCount > 0 ? `${sentenceCount} ready` : undefined,
+    /* "34 ready" on a round that answers an A1 learner with "word order
+       starts at A2" is the tile and the round disagreeing about one press. */
+    "/review/sentences": !maySortWords(level) ? `From ${BUILD_FROM}` : sentenceCount > 0 ? `${sentenceCount} ready` : undefined,
     "/review/dictation": dictationCount > 0 ? `${dictationCount} ready` : undefined,
   };
   /*

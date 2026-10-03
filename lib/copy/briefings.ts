@@ -58,12 +58,33 @@ export const BRIEFINGS = {
     you: "Type your answer where there's a box. Where there isn't, think of it, turn the card over and say whether you had it.",
     action: "Start reviewing",
   },
-  flashcards: {
-    title: "Your words, asked five ways",
+  /*
+    THE SAME ROUND, OPENED AS THE LAST STEP OF AN EVENING.
+
+    Read inside a module, "Words you've met before, back just as you're about
+    to forget them" was said about words met ten minutes earlier, and "fill a
+    gap in a real sentence" to a beginner the course asks for no gap at all.
+    What the round is there is the evening's own look back, and it ends the
+    evening.
+  */
+  closing: {
+    title: "Tonight's words, one more time",
     what:
-      "Words you already know, asked for their meaning, dropped into a gap, read out for you to " +
-      "type, or handed to you to build a sentence around.",
-    you: "Type each answer and check it. Get a word right five times and it's done for today.",
+      "A few quick questions on the words you've just learned, and any older ones that are due today.",
+    you: "Type your answer where there's a box, or pick one where there's a choice. Then the evening's done.",
+    action: "Start",
+  },
+  /* What a word is asked depends on how well it has settled (`lib/games/flash.ts`),
+     so a beginner's first round is "how do you say this" five times over and
+     the title may not promise five ways. It said "get a word right five times
+     and it's done for today" too, which is the mastery bar rather than the
+     round: a round asks each word once. */
+  flashcards: {
+    title: "Your words, asked a new way",
+    what:
+      "Words you've already met, one at a time: from their meaning, as a form in a sentence, " +
+      "read out to you, or for a sentence of your own, depending on how well each has settled.",
+    you: "Type each answer and check it. Each time a word comes back right, it's asked a harder way next time.",
     action: "Start",
   },
   common: {
@@ -145,8 +166,8 @@ export const BRIEFINGS = {
   listening: {
     title: "Hear a word, pick what it means",
     what:
-      "One word at a time, read out loud, with four meanings to choose from. You won't see it " +
-      "written until you've answered.",
+      "One word at a time, read out loud by a different voice each time, with four meanings to " +
+      "choose from. You won't see it written until you've answered.",
     /* Four is `WRONG + 1` in `lib/questions/distractors.ts`, and a card the
        pool cannot give three wrong answers for is dropped rather than shown
        with fewer, so the number is exact rather than a usual case. The test
@@ -156,8 +177,10 @@ export const BRIEFINGS = {
   },
   match: {
     title: "Match the pairs",
-    what: "Estonian words in one column, their meanings in the other, all jumbled up.",
-    you: "Tap one on each side to pair them. The clock runs until the board is empty.",
+    /* The board deals words and meanings into one grid, Estonian on the lilac
+       tiles, so "one column each" described a layout the round does not draw. */
+    what: "Estonian words and their meanings, all mixed up together on one board.",
+    you: "Tap a word, then its meaning, to pair them. The clock runs until the board is empty.",
     action: "Start",
   },
   pairs: {

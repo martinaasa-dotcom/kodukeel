@@ -5,16 +5,19 @@ import { SCENES, SCENE_LEMMAS, sceneLevel } from "@/lib/collections/scenes";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { ASKABLE_CASES, taskFor, type DescribeTask, type SceneWord } from "@/lib/games/describe";
 import { parseExamples, sentenceContaining, sentenceWords, type Example, type Rank } from "@/lib/dict/examples";
-import { sentenceReach } from "@/lib/dict/facts";
+import { recordsCase } from "@/lib/dict/recorded";
+import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { naturalSentence } from "@/lib/estonian/cloze";
+import { stemsFromParts } from "@/lib/estonian/derive";
+import { caseIndex } from "@/lib/estonian/whichCase";
 import { looksLikeSentence } from "@/lib/estonian/writing";
 import { sceneAnswerFor } from "@/lib/collections/sceneAnswers";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { shuffle } from "@/lib/random/shuffle";
 import { caseAccuracy } from "@/lib/stats/history";
-import { caseWithin, type ModuleScope } from "@/lib/course/scope";
+import { caseWithin, tonightFirst, tonightsCase, type ModuleScope } from "@/lib/course/scope";
 
 /**
  * WHICH SCENES THIS LEARNER IS ASKED ABOUT, AND WHICH CASE EACH ONE ASKS FOR.
@@ -75,6 +78,8 @@ export async function describeRound(
       id: true, lemma: true, translation: true, cefr: true, pos: true, provenance: true,
       // Which local cases the word takes: see lib/estonian/caseQuestion.ts.
       semanticTypes: true,
+      // Which of its forms a sentence records, for choosing the case below.
+      examples: true,
       forms: { select: { formType: true, value: true } },
     },
     orderBy: [{ lemma: "asc" }, { id: "asc" }],
@@ -84,13 +89,14 @@ export async function describeRound(
   for (const row of oneEntryPerLemma(rows, SCENE_LEMMAS)) entry.set(row.lemma, row);
 
   const bands = new Set(bandsAround(level));
-  const [reviews, deck] = await Promise.all([
+  const [reviews, deck, borrowed] = await Promise.all([
     caseReviewsFor(ownerId),
     prisma.card.findMany({
       where: { ownerId, suspended: false, lexemeId: { in: rows.map((r) => r.id) } },
       select: { id: true, lexemeId: true, cardType: true },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     }),
+    borrowedSentences(),
   ]);
 
   /*
@@ -181,25 +187,92 @@ export async function describeRound(
     ? ASKABLE_CASES.filter((c) => caseWithin(scope, c))
     : ASKABLE_CASES;
   if (readCases.length === 0) return [];
-  const priority = [
+  const ranked = [
     ...weak.filter((c) => readCases.includes(c)),
     ...shuffle(readCases.filter((c) => !weak.includes(c))),
   ];
-  const prompts: DescribePrompt[] = [];
-  let cursor = 0;
+  /*
+    And inside the module, the case tonight's reading was about on every
+    other scene (`tonightFirst`): the cursor walks this list one scene at a
+    time, so the case appears once per pair rather than once per round.
+  */
+  const tonight = ranked.find((c) => c === tonightsCase(scope));
+  const others = ranked.filter((c) => c !== tonight);
+  const priority = tonight
+    ? (others.length > 0 ? tonightFirst([...others.map(() => tonight), ...others], (c) => c === tonight) : [tonight])
+    : ranked;
+  /*
+    AND EACH CASE ON A WORD SOMEBODY HAS WRITTEN IN IT, WHEREVER THE ROUND HAS
+    THE CHOICE.
 
-  for (const candidate of candidates) {
-    if (prompts.length >= size) break;
+    Every case the rule builds is Estonian, and not every one is something
+    anybody writes about the picture: a C1 evening opened a market scene on
+    "Write one sentence with sibul that says becoming an onion". So the walk
+    above still decides which case each picture asks, slot by slot, and what
+    moved is which picture and which of its three words carries it: one where a
+    sentence records that case of that word (`recordsCase`) is taken first.
 
-    let task: DescribeTask | null = null;
-    for (let step = 0; step < priority.length; step++) {
-      const caseKey = priority[(cursor + step) % priority.length]!;
-      task = taskFor(candidate.scene, candidate.words, candidate.askIndex, caseKey);
-      if (task) { cursor = (cursor + step + 1) % priority.length; break; }
+    The cases a round is *for*, the learner's weakest and tonight's, are asked
+    whatever the word. A case drawn only to vary the round gives way to the
+    next such case that somebody has written down, and never to a pointed one,
+    or the terminative evening asked the terminative five times running where
+    it had always woven it through the cases before it. Only where no varying
+    case is recorded on any picture left is one asked the old way.
+  */
+  const pointed = new Set<string>([...weak, ...(tonight ? [tonight] : [])]);
+  const recorded = (task: DescribeTask) => {
+    const row = entry.get(task.words[task.askIndex]!.lemma);
+    if (!row) return false;
+    const parts: Record<string, string> = {};
+    for (const form of row.forms) parts[form.formType] = form.value;
+    return recordsCase(
+      caseIndex(stemsFromParts(parts)), task.caseKey, task.accepted,
+      parseExamples(row.examples), borrowed.get(row.id) ?? [],
+    );
+  };
+
+  const used = new Set<Candidate>();
+  /** The first picture left that can ask this case, on a recorded word if `strict`. */
+  const pick = (caseKey: (typeof priority)[number], strict: boolean): DescribePrompt | null => {
+    for (const candidate of candidates) {
+      if (used.has(candidate)) continue;
+      // The word with a card first, then the other two, for a recorded form.
+      const order = strict
+        ? [candidate.askIndex, ...candidate.words.map((_, i) => i).filter((i) => i !== candidate.askIndex)]
+        : [candidate.askIndex];
+      for (const askIndex of order) {
+        const task = taskFor(candidate.scene, candidate.words, askIndex, caseKey);
+        if (!task || (strict && !recorded(task))) continue;
+        used.add(candidate);
+        return { task, cardId: cardFor.get(entry.get(task.words[askIndex]!.lemma)!.id) ?? null };
+      }
     }
-    if (!task) continue;
+    return null;
+  };
 
-    prompts.push({ task, cardId: candidate.cardId });
+  const prompts: DescribePrompt[] = [];
+  const at = (i: number) => priority[i % priority.length]!;
+  for (let slot = 0; prompts.length < size && slot < size + priority.length; slot++) {
+    const intended = at(slot);
+    let prompt: DescribePrompt | null = null;
+    if (pointed.has(intended)) {
+      prompt = pick(intended, true) ?? pick(intended, false);
+    } else {
+      // A case this round has not asked yet before one it has, so a round
+      // that gave way four times is not four times "with the".
+      const asked = new Set(prompts.map((p) => p.task.caseKey));
+      for (const fresh of [true, false]) {
+        for (let step = 0; step < priority.length && !prompt; step++) {
+          const key = at(slot + step);
+          if (!pointed.has(key) && asked.has(key) !== fresh) prompt = pick(key, true);
+        }
+      }
+      prompt ??= pick(intended, false);
+    }
+    // A case no picture left can ask at all: the next one that can, as before.
+    for (let step = 1; step < priority.length && !prompt; step++) prompt = pick(at(slot + step), false);
+    if (!prompt) break;
+    prompts.push(prompt);
   }
 
   return prompts;

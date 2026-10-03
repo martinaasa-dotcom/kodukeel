@@ -41,3 +41,56 @@ describe("the cascade in replay", () => {
     expect(state.done).not.toContain("offer");
   });
 });
+
+/*
+  A TURN READ IN FRONT OF A CURVEBALL STILL ANSWERS WHAT ELSE IT SAYS.
+
+  Told the price had changed, a learner at the ticket window wrote that they
+  would like a bus ticket to the hospital. The ticket was met behind the
+  curveball, and the turn stopped there: the clerk asked where they were going
+  on the next three turns. The path through a curveball now walks on and looks
+  ahead exactly as the ordinary path does.
+*/
+describe("a turn read in front of a curveball", () => {
+  const rows: Row[] = shippedDictionary().map((e) => ({
+    id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr, parts: e.parts,
+    extraForms: e.extraForms, usages: e.usages, government: e.government, gloss: e.gloss,
+  }));
+  const scene = sceneById("bussipilet")!;
+  const context = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), "B2");
+  const run = planRun(scene, "hurdle-cascade", "B2", "textbook");
+  const at = scene.beats.findIndex((b) => b.id === "want");
+  const draw = {
+    persona: run.persona.id, card: run.card, curveballs: [{ id: "wrong-price" as const, at }],
+    lines: "scripted" as const, patience: run.patience,
+  };
+
+  const play = (said: readonly string[]) => {
+    const turns: { beatId: string; said: string; helped: boolean; heard: string }[] = [];
+    let state = replay(context, draw, []).state;
+    for (const one of said) {
+      turns.push({ beatId: scene.beats[state.beat]?.id ?? "", said: one, helped: false, heard: "" });
+      state = replay(context, draw, turns).state;
+    }
+    return state;
+  };
+
+  it("does not read asking the price as having paid", () => {
+    const asked = play(["Tere!", "Ma tahaksin osta ühe pileti haiglasse.", "Kell üheksa.", "Kui palju see maksab?"]);
+    expect(asked.done).not.toContain("pay");
+    const paid = play(["Tere!", "Ma tahaksin osta ühe pileti haiglasse.", "Kell üheksa.", "Kaardiga."]);
+    expect(paid.done).toContain("pay");
+  });
+
+  it("takes the new price with a hästi", () => {
+    const state = play(["Tere!", "Hästi."]);
+    expect(state.hurdles).toEqual([expect.objectContaining({ id: "wrong-price", met: true })]);
+  });
+
+  it("credits the destination said in the same breath as the ticket", () => {
+    expect(at).toBeGreaterThan(0);
+    const state = play(["Tere!", "Ma tahaksin osta ühe pileti haiglasse."]);
+    expect(state.done).toEqual(expect.arrayContaining(["want", "to"]));
+    expect(scene.beats[state.beat]?.id).toBe("when");
+  });
+});

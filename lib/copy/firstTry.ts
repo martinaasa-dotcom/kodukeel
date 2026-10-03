@@ -22,7 +22,10 @@
  * until it stops being read and takes the screen's other sentences with it.
  * This is offered on a learner's *first* production of a word and on no other
  * ask, so a word carries it once in its life and a screen carries it only while
- * something on it is genuinely new.
+ * something on it is genuinely new. And once a round, which is the screens'
+ * half (`components/round/useOncePerRound.ts`): an evening's five new words are
+ * five first productions, and the same line over five boxes in a row is the
+ * small print this was written not to be.
  *
  * THE SAME LINE AT EVERY LEVEL, which is a decision rather than an omission.
  * The request that prompted it named A1, and A1 is where nearly every ask is a

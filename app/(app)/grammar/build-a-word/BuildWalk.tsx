@@ -878,7 +878,9 @@ function YourTurn({ word }: { word: WalkWord }) {
 
   const done = at >= asks.length - 1 && picked !== null;
   const ref = caseReference(form.key);
-  const ask = sayLine(form.key, word.translation);
+  // The row's own reading where it has one, which knows `mees` is a person:
+  // asked blind, the outside endings read "onto it, or to someone" for him.
+  const ask = form.reading ? `Say “${form.reading}”` : sayLine(form.key, word.translation);
 
   const next = () => {
     setPicked(null);

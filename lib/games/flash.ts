@@ -1,5 +1,5 @@
 import { plainPhrase, sameSpelling, PARTS } from "@/lib/copy/values";
-import { sentenceContaining, type Example } from "@/lib/dict/examples";
+import { lentFor, sentenceContaining, type Example } from "@/lib/dict/examples";
 import { checkAnswer } from "@/lib/estonian/answer";
 import { CASES, caseByKey } from "@/lib/estonian/cases";
 import { caseFits, caseQuestionFor, type CaseSubject } from "@/lib/estonian/caseQuestion";
@@ -7,7 +7,7 @@ import { buildCloze, mentions } from "@/lib/estonian/cloze";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { caseAnswer, shownForms, stemsFrom } from "@/lib/estonian/derive";
 import { gapForms } from "@/lib/estonian/gapForms";
-import { caseIndex, tidyForm } from "@/lib/estonian/whichCase";
+import { caseIndex, readCase, tidyForm } from "@/lib/estonian/whichCase";
 import { sayShort } from "@/lib/estonian/plainAsk";
 import { looksLikeSentence } from "@/lib/estonian/writing";
 import { attestedForms, conjugationAnswer } from "@/lib/srs/cards";
@@ -361,10 +361,25 @@ function sentenceFor(word: FlashWord, slot: FlashSlot): { et: string; en: string
   // cut. Most of the dictionary's entries carry no usage at all.
   if (word.examples.length === 0) return null;
   const hideable = gapForms(word);
+  /*
+    AND A CASE IS ASKED OUT OF A SENTENCE ONLY WHERE THE SPELLING IS THAT CASE
+    AND NO OTHER. `aadressi` is the short sisseütlev, the omastav and the
+    osastav at once, and the round played `Ma ei tea tema praegust aadressi.`
+    to ask for the sisseütlev, then marked a learner who heard the object of
+    "I don't know" down as having missed "into the address". The card builder
+    has refused that shape since it was found (`readCase`, exactly one case or
+    no card), and this is the same rule for the same reason.
+  */
+  const cases = CASES.some((c) => c.key === slot.slot) ? caseIndex(stemsFrom(word.forms)) : null;
   for (const form of [slot.value, slot.alsoRight]) {
     if (!form) continue;
     if (!hideable.has(form.trim().toLowerCase())) continue;
-    const example = sentenceContaining([...word.examples], form);
+    if (cases) {
+      const verdict = readCase(cases, form);
+      if (verdict.kind !== "one" || verdict.key !== slot.slot) continue;
+    }
+    // A loan only on the spelling it was lent for (`Example.via`).
+    const example = sentenceContaining(word.examples.filter((e) => lentFor(e, form)), form);
     if (!example) continue;
     /*
       The gap builder is what decides, not a substring: it refuses a sentence

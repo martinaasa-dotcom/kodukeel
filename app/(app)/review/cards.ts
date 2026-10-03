@@ -21,6 +21,7 @@ import {
 import { caseFormChoices, verbFormChoices } from "@/lib/questions/caseChoices";
 import { acceptedAnswers } from "@/lib/estonian/answer";
 import { stemsFrom } from "@/lib/estonian/derive";
+import { gapForms } from "@/lib/estonian/gapForms";
 import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
@@ -307,6 +308,8 @@ function toReviewCard(
     // Filled in by `withChoices` from the forms it already reads, for the same
     // reason `choices` is: the query is paid by the sessions that need it.
     rivals: [],
+    // Filled in by `withChoices` from the same forms, on a production card.
+    kin: [],
     // Filled in by `withChoices`, which reads the whole session's stars in one
     // query. A card mapped without that read is drawn unstarred, which is what
     // a session with nothing starred looks like anyway.
@@ -408,7 +411,8 @@ type HeldForms = { formType: string; value: string; morphCode: string | null }[]
 
 async function formsForCases(rows: CardRow[]): Promise<Map<string, HeldForms>> {
   const ids = [...new Set(
-    rows.filter((r) => wantsFormChoices(toReviewCard(r, "en")) && r.lexemeId).map((r) => r.lexemeId!),
+    rows.filter((r) => (wantsFormChoices(toReviewCard(r, "en")) || r.cardType === "PRODUCTION") && r.lexemeId)
+      .map((r) => r.lexemeId!),
   )];
   if (ids.length === 0) return new Map();
 
@@ -518,7 +522,28 @@ export async function withChoices(
   const firstEvering = rows.some((r) => r.state === 0)
     ? prisma.review.findFirst({ where: { ownerId }, select: { id: true } }).then((row) => row === null)
     : Promise.resolve(false);
-  const [reach, starred, firstCardEver] = await Promise.all([reaching, starring, firstEvering]);
+  /*
+    WHICH OF THE UNSEEN CARDS BELONG TO A WORD ALREADY MET ON ANOTHER CARD.
+
+    The ladder teaches a word through its recognition card, so its production
+    card is still New on the evening the word was learned, and the closing
+    round introduced it again as a "New word" two minutes after it was typed.
+    A word with any card past New has been met; its unseen cards are asked
+    rather than taught. Owner-scoped and keyed on the batch's own unseen
+    words, so it reads a handful of rows, started beside the other three.
+  */
+  const unseenWords = [...new Set(
+    rows.filter((r) => r.state === 0 && r.lexemeId).map((r) => r.lexemeId as string),
+  )];
+  const meeting = unseenWords.length > 0
+    ? prisma.card.findMany({
+      where: { ownerId, lexemeId: { in: unseenWords }, state: { not: 0 } },
+      select: { lexemeId: true },
+    }).then((met) => new Set(met.map((m) => m.lexemeId).filter((id): id is string => !!id)))
+    : Promise.resolve(new Set<string>());
+  const [reach, starred, firstCardEver, metWords] = await Promise.all([
+    reaching, starring, firstEvering, meeting,
+  ]);
   const [glossed, contrasts] = await Promise.all([
     withGlosses(
       rows.map((c) => toReviewCard(c, glossLanguage, reach, firstCardEver)), ownerId,
@@ -528,9 +553,12 @@ export async function withChoices(
   const cards = glossed.map((card, i) => {
     const contrast = contrasts.get(i);
     const withContrast = contrast ? { ...card, contrast } : card;
-    return withContrast.lexemeId && starred.has(withContrast.lexemeId)
-      ? { ...withContrast, starred: true }
+    const withMet = withContrast.isNew && withContrast.lexemeId && metWords.has(withContrast.lexemeId)
+      ? { ...withContrast, wordMet: true }
       : withContrast;
+    return withMet.lexemeId && starred.has(withMet.lexemeId)
+      ? { ...withMet, starred: true }
+      : withMet;
   });
 
   /*
@@ -541,6 +569,21 @@ export async function withChoices(
   const held = await formsForCases(rows);
   const withForms = cards.map((card, i) => {
     const lexemeId = rows[i]?.lexemeId;
+    /*
+      A PRODUCTION CARD ASKS FOR THE WORD, SO ANOTHER FORM OF IT IS THE WORD.
+      Off the same forms, through `gapForms`, so a person of a verb and a case
+      of a noun are spellings of it as surely as the stored parts are. Never a
+      spelling the back already takes, since that one is simply right.
+    */
+    if (card.cardType === "PRODUCTION") {
+      const forms = lexemeId ? held.get(lexemeId) : undefined;
+      const lexeme = rows[i]?.lexeme;
+      if (!forms || !lexeme) return card;
+      const accepted = new Set(acceptedAnswers(card.back, "et").map((a) => a.trim().toLowerCase()));
+      const kin = [...gapForms({ lemma: lexeme.lemma, pos: lexeme.pos, forms }).keys()]
+        .filter((form) => !accepted.has(form));
+      return { ...card, kin };
+    }
     if (!wantsFormChoices(card) || !lexemeId) return card;
     const forms = held.get(lexemeId);
     const lemma = rows[i]?.lexeme?.lemma;

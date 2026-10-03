@@ -214,3 +214,30 @@ export function caseReading(key: CaseKey, gloss: string, subject: CaseSubject): 
     ? shape.replace("a %", `${article(noun)} ${noun}`)
     : shape.replace("%", noun);
 }
+
+/**
+ * WHAT A SENTENCE IS ASKED TO SAY, for a screen that asks for a whole one.
+ *
+ * Not a reading of the form, and never printed as one, which is why it is not
+ * `caseReading`: a task that asks for a sentence has room a single-form card
+ * does not, because the learner supplies the rest of it.
+ *
+ * The osastav has no one-phrase reading (above), and the writing round fell
+ * back to "some of it", so a learner read "Use poeg in a sentence that says
+ * some of it", which is a portion of a son. A sentence has an honest frame for
+ * it: the object of "looking for", which Estonian always puts in this case
+ * (`Ma otsin poega`), and for an adjective "looking for something pleasant",
+ * which is `midagi meeldivat`. And an adjective is not a thing anybody is
+ * inside or with, so "of the pleasant" became "of a pleasant one", which is
+ * the adjective agreeing with a noun the learner chooses.
+ */
+export function sentenceAsk(key: CaseKey, gloss: string, pos: string, subject: CaseSubject): string | null {
+  const noun = nounIn(gloss);
+  if (!noun) return null;
+  if (pos === "ADJECTIVE") {
+    if (key === "PARTITIVE") return `looking for something ${noun}`;
+    return caseReading(key, `${noun} one`, subject);
+  }
+  if (key === "PARTITIVE") return `looking for the ${noun}`;
+  return caseReading(key, gloss, subject);
+}

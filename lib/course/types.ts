@@ -212,6 +212,12 @@ export interface DaySpec {
    */
   words: readonly string[];
   /**
+   * Which of those an earlier evening already taught, where any did. The
+   * object and government units drill verbs the course gave long before, on
+   * purpose, so an evening can be six words and none of them new.
+   */
+  again?: readonly string[];
+  /**
    * The one point today turns on, read on the reference page before the rounds.
    *
    * Two fields rather than one because the reference has two shapes of page
@@ -224,10 +230,35 @@ export interface DaySpec {
   grammar?: string;
   /** A case key, upper case, as `lib/estonian/cases.ts` spells it. */
   grammarCase?: string;
+  /**
+   * What the reading step is called, which names the page: `Read about the
+   * -s ending, "in"` rather than the same sentence on every evening, so the rail
+   * listing tonight says what tonight is about. Worked out by the builder,
+   * which may read the grammar tables, so this file stays small enough for
+   * the client screens that import it.
+   */
+  readTitle?: string;
   /** Activity keys, in the order the day does them. */
   practice: readonly ActivityKey[];
   /** A conversation to have at the end, where one fits. A scene id. */
   scene?: string;
+  /**
+   * Whether an earlier evening already had this conversation.
+   *
+   * B2 and C1 come back to a few of them, because a run is pitched at the
+   * learner's own level and the same counter at C1 is a different
+   * conversation: the other side talks the way they would to anybody. The
+   * step says it is a second time, the way a page read again does.
+   */
+  sceneAgain?: true;
+  /**
+   * What the conversation is, in English, for the step's own name: "Buying a
+   * bus ticket" rather than "Have the conversation" on every evening that has
+   * one. Worked out by the builder, which may read the scene catalogue, so
+   * this file stays small for the client screens that import it, the way
+   * `readTitle` does.
+   */
+  sceneTitle?: string;
   /**
    * Verbs whose learned-per-verb forms tonight shows: the simple past and,
    * once the imperative page is read, the polite imperative.
@@ -438,6 +469,15 @@ export const ordinaryWords = (level: string): number =>
  * a day whose closing round is optional is a course that teaches a fortnight
  * of words and keeps none of them.
  */
+/** How many of an evening's words no earlier evening taught. */
+export function newWordsIn(spec: Pick<DaySpec, "words" | "again">): number {
+  return spec.words.length - (spec.again?.length ?? 0);
+}
+
+function counted(n: number, noun: string): string {
+  return `${n} ${noun}${n === 1 ? "" : "s"}`;
+}
+
 export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): CourseDay {
   const steps: CourseStep[] = [];
   const perWord = MINUTES_PER_WORD[spec.level] ?? MINUTES_PER_WORD.A1!;
@@ -450,13 +490,23 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     sentence arrives with A2.
   */
   const atA1 = spec.level === "A1";
+  const fresh = newWordsIn(spec);
+  const met = spec.words.length - fresh;
   steps.push({
     id: MEET_STEP,
     kind: "meet",
-    title: `Learn tonight's ${spec.words.length} new words`,
-    why: atA1
-      ? "Hear each word and see what it means. A few minutes later you pick it out of four, and that's what makes it stay."
-      : "See what each word means, pick it out of four a little later, then type it into a real Estonian sentence.",
+    title: fresh === 0
+      ? `Go over tonight's ${spec.words.length} words`
+      : met === 0
+        ? `Learn tonight's ${counted(fresh, "new word")}`
+        : `Learn tonight's ${counted(fresh, "new word")}, and ${met} from earlier`,
+    // "From earlier in the course" rather than "you've met": somebody placed
+    // at B1 had the levels below counted, not walked.
+    why: fresh === 0
+      ? "Every one of these is from earlier in the course. Tonight they come back for what the page is about."
+      : atA1
+        ? "Hear each word and see what it means. A few minutes later you pick it out of four, and that's what makes it stay."
+        : "See what each word means, pick it out of four a little later, then type it into a real Estonian sentence.",
     href: "/course/learn",
     minutes: Math.max(1, Math.round(spec.words.length * perWord)),
     derived: true,
@@ -479,8 +529,10 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: READ_STEP,
       kind: "read",
-      title: "Read how tonight's words work",
-      why: "One short page on the grammar behind tonight's words, with three quick questions at the end to try it.",
+      title: spec.readTitle ?? "Read how tonight's words work",
+      // Not "three quick questions at the end": only the pages with a table of
+      // forms end in them, and a page about word order or politeness has none.
+      why: "One short page on the grammar behind tonight's words, shown in real sentences.",
       href: reads,
       minutes: READ_MINUTES,
       derived: false,
@@ -523,8 +575,12 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: TALK_STEP,
       kind: "talk",
-      title: "Have the conversation",
-      why: "Somebody wants something from you, and only Estonian will do. This is what all those words were for.",
+      title: spec.sceneAgain
+        ? `${spec.sceneTitle ?? "The conversation"}, again at your level`
+        : spec.sceneTitle ?? "Have the conversation",
+      why: spec.sceneAgain
+        ? "You've had this one before. Tonight they talk to you the way they'd talk to anybody, and you've got far more to say back."
+        : "Somebody wants something from you, and only Estonian will do. This is what all those words were for.",
       href: `/situations/${spec.scene}`,
       minutes: TALK_MINUTES,
       derived: false,

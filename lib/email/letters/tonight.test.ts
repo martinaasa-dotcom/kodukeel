@@ -47,3 +47,22 @@ describe("the evening letter's second line", () => {
     expect(texts(base({ name: "Mari", day: { ...base().day, steps } })).join(" ")).toContain("Mari, this is Kodus, at home.");
   });
 });
+
+describe("an evening with no new words", () => {
+  /* The object and government units bring back verbs the course taught before. */
+  const unstarted = [{ title: "Go over the words", minutes: 6, done: false }];
+
+  it("does not promise zero new words, in the subject or the heading", () => {
+    const letter = tonightLetter(base({ day: { ...base().day, newWords: 0, steps: unstarted } }));
+    expect(letter.subject).toBe("Back to Kodus tonight");
+    const headings = letter.blocks.flatMap((b) => ("text" in b && b.t === "heading" ? [b.text] : []));
+    expect(headings.join(" ")).toContain("Words you know, put to work tonight");
+    expect(JSON.stringify(letter)).not.toMatch(/Zero new/);
+  });
+
+  it("says one new word in the singular", () => {
+    const letter = tonightLetter(base({ day: { ...base().day, newWords: 1, steps: unstarted } }));
+    expect(letter.subject).toBe("One new word tonight");
+  });
+});
+

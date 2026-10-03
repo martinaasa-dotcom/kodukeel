@@ -421,11 +421,13 @@ function StepCard({
     onAnswer(lemma, kind, i === answer);
   };
 
-  const checkTyped = (expected: string, lemma: string, kind: string, rivals: readonly string[] = []) => {
+  const checkTyped = (
+    expected: string, lemma: string, kind: string, rivals: readonly string[] = [], kin: readonly string[] = [],
+  ) => {
     // Once marked, the box's Enter is "carry on": `Continue` leaves a key
     // from the box alone, because that is also the key that marked it.
     if (checked) { onNext(); return; }
-    const result = checkAnswer(typed, expected, "et", rivals);
+    const result = checkAnswer(typed, expected, "et", rivals, kin);
     const ok = countsAsRecalled(result.verdict);
     setChecked({ ok, note: result.note || (ok ? "Correct." : `The answer is “${result.expected}”.`) });
     // A hint is paid for: see the block above and `lib/questions/hints.ts`.
@@ -582,11 +584,11 @@ function StepCard({
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel="Your answer in Estonian"
-            onEnter={() => checkTyped(step.lemma, step.lemma, step.kind)}
+            onEnter={() => checkTyped(step.lemma, step.lemma, step.kind, [], step.kin)}
           />
           {hint}
           {!checked && (
-            <Button variant="primary" onClick={() => checkTyped(step.lemma, step.lemma, step.kind)} className="self-start">
+            <Button variant="primary" onClick={() => checkTyped(step.lemma, step.lemma, step.kind, [], step.kin)} className="self-start">
               Check
             </Button>
           )}

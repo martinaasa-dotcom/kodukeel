@@ -117,7 +117,17 @@ function subjectFor(input: TonightInput): string {
       ? `One step left in ${input.day.title}`
       : `${SpelledCount(left)} steps left in ${input.day.title}`;
   }
-  return `${SpelledCount(input.day.newWords)} new words tonight`;
+  return newWordsLine(input.day.newWords) ?? `Back to ${input.day.title} tonight`;
+}
+
+/**
+ * "Five new words tonight", or nothing on an evening whose words were all
+ * taught before: the object and government units bring back verbs on purpose,
+ * and "Zero new words tonight" is a sentence nobody would write.
+ */
+function newWordsLine(n: number): string | null {
+  if (n <= 0) return null;
+  return `${SpelledCount(n)} new ${n === 1 ? "word" : "words"} tonight`;
 }
 
 /**
@@ -162,7 +172,10 @@ export function tonightLetter(input: TonightInput): Letter {
         `. The rest is right where you left it.`,
     });
   } else {
-    blocks.push({ t: "heading", text: `${SpelledCount(day.newWords)} new words tonight, in about ${left} minutes.` });
+    blocks.push({
+      t: "heading",
+      text: `${newWordsLine(day.newWords) ?? "Words you know, put to work tonight"}, in about ${left} minutes.`,
+    });
     blocks.push({
       t: "text",
       text:

@@ -18,6 +18,7 @@ import { useAudioPrefs } from "@/components/AudioPrefs";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { useKeepInView } from "@/components/round/useKeepInView";
 
 /**
  * A different speaker for each word, the way the examination's listening part
@@ -92,6 +93,8 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
   const condition = card ? conditionFor(card.reps, index, hearing, false) : undefined;
   const finished = !card;
   const answered = selected !== null;
+  /* The Continue under the options, brought into view once there is one. */
+  const footer = useKeepInView<HTMLDivElement>(answered ? index : null);
 
   /*
     THE WAY OUT OF BEING STUCK, WHERE THE ANSWERS ARE ALREADY ON THE SCREEN.
@@ -186,11 +189,18 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
           <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
             That&rsquo;s the round done
           </h1>
+          {/* Said off how it went. "Tubli töö" over nought right was praise
+              for something that did not happen, which a learner sees through
+              at once and then stops believing the screen when it is true. */}
           <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-            Tubli töö. You heard every word in this round.
+            {accuracy >= 80
+              ? <><span lang="et">Tubli töö.</span> You caught {correct} of {attempted} by ear.</>
+              : accuracy >= 40
+                ? <>{correct} of {attempted} by ear. The ones you missed come back sooner, which is what they need.</>
+                : <>Picking a word out by ear is the hard part, and it gets easier fast. The ones you missed come back sooner.</>}
           </p>
         </div>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={correct} label="Right" tone="accent" />
           <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "sky" : "butter"} />
           <StatTile value={attempted} label="Words heard" tone="sky" />
@@ -270,8 +280,13 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
               </>
             ) : (
               <>
+                {/* Labelled by what it does rather than by the default, which
+                    names the word: the one round whose whole question is a
+                    word heard and never written was reading the answer out to
+                    a screen reader before anybody had picked. */}
                 <Speak
                   text={card.lemma}
+                  label="Play the word"
                   size={30}
                   voice={voice.id}
                   condition={condition}
@@ -295,7 +310,10 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                 <Speak text={card.lemma} voice={voice.id} label={`Hear "${card.lemma}" clearly`} />
               </div>
               <p className="text-2xs" style={{ color: "var(--ink-3)" }}>
-                {condition ? describeHearing(voice.name, condition) : `Read by ${voice.name}.`} The next word has a different voice.
+                {/* Who read it, and where the delivery was not a quiet room,
+                    how. That the next word is a different voice is said once,
+                    in the briefing, rather than under every card. */}
+                {condition ? describeHearing(voice.name, condition) : `Read by ${voice.name}.`}
               </p>
             </div>
           )}
@@ -346,7 +364,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         )}
 
         {answered && (
-          <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+          <div ref={footer} className="dock-clear border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
             {/* Takes the focus, because the option that had it has just been
                 disabled and a disabled button hands the caret to the page. */}
             <Button variant="primary" size="lg" className="w-full" autoFocus onClick={next}>

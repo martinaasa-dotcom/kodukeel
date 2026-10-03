@@ -109,8 +109,8 @@ export type PointPins = Readonly<Record<string, readonly PinnedExample[]>>;
 export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   olema: {
     "The verb you'll use in every conversation, and it's irregular": [
-      { lemma: "sünnipäev", et: "Mul on täna sünnipäev.", form: "on", slot: "VERB:IndPrSg3" },
-      { lemma: "väga", et: "Te olete väga sarnased.", form: "olete", slot: "VERB:IndPrPl2" },
+      { lemma: "kurb", et: "Olen natuke kurb.", form: "Olen", slot: "VERB:IndPrSg1" },
+      { lemma: "õde", et: "Nad on õde ja vend.", form: "on", slot: "VERB:IndPrPl3" },
     ],
     "For \"I have\", you say \"at me is\", with -l on the owner": [
       { lemma: "oma", et: "Mul on oma maja.", form: "Mul", slot: "CASE:ADESSIVE" },
@@ -369,6 +369,12 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     "An adjective gives a noun for the quality, like \"kindness\"": [
       { lemma: "sõprus", et: "Meid seob ammune sõprus.", form: "sõprus", slot: "CASE:NOMINATIVE" },
       { lemma: "rikkus", et: "Ega rikkus pole häbiasi.", form: "rikkus", slot: "CASE:NOMINATIVE" },
+    ],
+  },
+  nominalisation: {
+    "The doer goes in front, in the form that means \"whose\"": [
+      { lemma: "käitumine", et: "Tarbijate käitumine on enamasti ennustatav.", form: "Tarbijate", slot: "CASE:GENITIVE" },
+      { lemma: "allianss", et: "Alliansi laienemine on olnud edukas.", form: "Alliansi", slot: "CASE:GENITIVE" },
     ],
   },
   "word-order": {
@@ -767,8 +773,6 @@ export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
     "it says two forms are interchangeable, which needs the same sentence said both ways",
   "topic:nominalisation|One noun stands in for a whole \"that\" or \"when\" clause":
     "the point is the clause it replaces, so you'd need both versions, not just the result",
-  "topic:nominalisation|The doer goes in front, in the form that means \"whose\"":
-    "it only makes sense next to the clause it was rewritten from, and no recorded sentence comes with that",
   "topic:nominalisation|Standard in academic, legal and official writing":
     "it's about which kind of writing the shape belongs to, and the dictionary doesn't record where a sentence was written",
   "topic:punctuation|A comma before \"that\" or \"because\", pause or no pause":

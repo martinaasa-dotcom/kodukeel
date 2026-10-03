@@ -85,6 +85,18 @@ export interface CurveballSpec {
   readonly needs: readonly Requirement[];
   /** The band below which this one is never drawn. */
   readonly from?: "B2";
+  /**
+   * WHAT THE LEARNER HAS TO HAVE SAID BEFORE THIS CAN HAPPEN.
+   *
+   * A curveball was placed on any beat after the greeting, and three of them
+   * answer something the learner has not yet said there. At a ticket window
+   * the clerk answered `Tere!` with "it costs 2 euros now", before anybody had
+   * asked for a ticket. `request` keeps one behind the first thing the learner
+   * asks for, and `time` behind the first beat where they say a time, since
+   * "the time you wanted has gone" needs a time to have been wanted. A scene
+   * with no such beat never draws it.
+   */
+  readonly follows?: "request" | "time";
   /** Whether it changes the persona rather than asking for a turn. */
   readonly silent?: true;
   /**
@@ -163,6 +175,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "slot-gone",
     move: "refuse",
     cost: 2,
+    follows: "time",
     says: "The time you wanted has already gone.",
     out: "Ask them what other times they've got.",
     needs: [{ kind: "question" }],
@@ -271,6 +284,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "not-possible",
     move: "refuse",
     cost: 3,
+    follows: "request",
     says: "What you came for can't be done today.",
     out: "Ask what they can do instead, or when it'll be possible.",
     needs: [{ kind: "question" }],
@@ -296,6 +310,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "wrong-price",
     move: "confirm",
     cost: 2,
+    follows: "request",
     says: "The price isn't what you were told.",
     /*
       A CURVEBALL THAT CHANGES A FACT CARRIES THE FACT. This said "the amount
@@ -321,7 +336,8 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       it reads as letting it go.
     */
     out: "Ask about it, or say whether that price is all right with you.",
-    needs: [{ kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["jah", "ei", "hea"] }] }],
+    // `hästi` too: "Hästi, sobib." is how anybody takes a new price, and was read as off the point.
+    needs: [{ kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["jah", "ei", "hea", "hästi"] }] }],
   },
   {
     id: "queue",
@@ -423,6 +439,10 @@ export interface DrawnCurveball {
  * `prefer` is the persona's leans, which is how an agenda becomes something
  * that happens rather than a label on a card: the one following the form draws
  * `their-order`, the brisk one draws `faster`.
+ *
+ * `notBefore` is the first beat a curveball may stand in front of, from its
+ * `follows` and the scene's own beats (`run.ts`); one that has nowhere left to
+ * go is passed over rather than ending the draw.
  */
 export function drawCurveballs(
   admits: readonly CurveballId[],
@@ -432,6 +452,7 @@ export function drawCurveballs(
   random: () => number,
   avoid: ReadonlySet<string> = new Set(),
   prefer: readonly CurveballId[] = [],
+  notBefore: (id: CurveballId) => number = () => 1,
 ): DrawnCurveball[] {
   const gap = 2;
   const pool = CURVEBALLS
@@ -476,8 +497,12 @@ export function drawCurveballs(
     if (spent + candidate.cost > budget) continue;
     if (candidate.cost >= DEAR && dear >= 1 && budget < ORDINARY) continue;
 
-    const at = placeFor(beats, drawn, gap, random);
-    if (at === null) break;
+    const from = Math.max(1, notBefore(candidate.id));
+    const at = placeFor(beats, drawn, gap, random, from);
+    if (at === null) {
+      if (from > 1) continue;
+      break;
+    }
 
     drawn.push(stale.has(candidate.id)
       ? { id: candidate.id, at, repeated: true }
@@ -495,10 +520,11 @@ function placeFor(
   drawn: readonly DrawnCurveball[],
   gap: number,
   random: () => number,
+  from = 1,
 ): number | null {
   const free: number[] = [];
   // From 1, never 0: the greeting is answered before anything goes wrong.
-  for (let at = 1; at < beats; at += 1) {
+  for (let at = from; at < beats; at += 1) {
     if (drawn.every((d) => Math.abs(d.at - at) > gap)) free.push(at);
   }
   if (free.length === 0) return null;

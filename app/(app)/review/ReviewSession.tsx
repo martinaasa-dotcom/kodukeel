@@ -27,11 +27,11 @@ import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
 import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
-import { BLANK, filledSentence, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
+import { BLANK, filledSentence, mentions, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
 import { SameMeaning } from "@/components/round/SameMeaning";
-import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
+import { partOfSpeechCue, SAME_SPELLING, sameSpelling, wordName } from "@/lib/copy/values";
 import { enqueueGrade, readStashedSession, stashSession, takeFromOutbox } from "@/lib/offline/db";
 import { undoOutcome } from "@/lib/offline/outbox";
 import { useOffline } from "@/components/OfflineProvider";
@@ -53,6 +53,8 @@ import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/Lo
 import { type SeenCard } from "@/lib/ux/lookBack";
 import { FitText } from "@/components/FitText";
 import { Lettered } from "@/components/HeroLetters";
+import { useKeepInView } from "@/components/round/useKeepInView";
+import { useOncePerRound } from "@/components/round/useOncePerRound";
 
 export interface ReviewCard {
   id: string;
@@ -88,9 +90,32 @@ export interface ReviewCard {
    * answer is English.
    */
   rivals: string[];
+  /**
+   * Every other spelling of the word, on a card asking for the word from its
+   * meaning. There another form is the word recalled rather than a miss:
+   * `usaldada` typed for "to trust" is the other infinitive, which the marker
+   * says, where the slip rule called it one letter out of `usaldama`.
+   *
+   * Empty on every other card, and on a session stashed before this existed.
+   */
+  kin: string[];
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
   isNew: boolean;
+  /**
+   * Whether the learner has already met this word on another of its cards.
+   *
+   * A word is taught on the Learn ladder through its recognition card alone:
+   * met, picked out of four, then typed. Its production card is still New
+   * afterwards, so the closing round of the same evening introduced it again
+   * as a "New word", with the meeting screen, the "ask me later" button and
+   * the line saying it is fine not to know it yet, about a word typed two
+   * minutes earlier. Read on the server off the word's other cards, so it is
+   * a fact about the learner rather than about this session. Optional only
+   * for a session stashed offline before the field existed, which reads as
+   * not met and keeps the meeting, which is the safe direction.
+   */
+  wordMet?: boolean;
   /**
    * What to show the first time this word is met, assembled by the page out of
    * the dictionary. Null on a card that has been seen, and on the rare card
@@ -419,6 +444,14 @@ function wordKey(card: ReviewCard): string {
   return card.intro?.lemma ?? card.lemma ?? card.id;
 }
 
+/**
+ * The hint a production card is asked over, which is its part of speech, with
+ * the one label that says nothing held back (`partOfSpeechCue`).
+ */
+function shownHint(card: ReviewCard): string | null {
+  return card.cardType === "PRODUCTION" ? partOfSpeechCue(card.hint) : card.hint;
+}
+
 function askFor(card: ReviewCard, mode: ReviewMode, met: ReadonlySet<string>): Ask {
   /*
     A card you have never seen cannot be recalled, only met. Asking someone to
@@ -438,7 +471,7 @@ function askFor(card: ReviewCard, mode: ReviewMode, met: ReadonlySet<string>): A
     So the meeting writes nothing, and the card comes back a few places later
     as the question it would ordinarily be. That retrieval is the grade.
   */
-  if (card.isNew && !met.has(wordKey(card))) return "intro";
+  if (card.isNew && !card.wordMet && !met.has(wordKey(card))) return "intro";
 
   /*
     A CARD THIS APP CAN MARK IS NEVER MARKED BY THE LEARNER.
@@ -732,6 +765,17 @@ export function ReviewSession({
     wrong the same way.
   */
   const answerShown = revealed || ask === "intro";
+  /* The name the card's corner controls give the word: its own where the card
+     shows it, and `UNNAMED_WORD` on a card whose question is the word, until
+     the answer is in (`wordName`). */
+  const named = card
+    ? wordName(card.lemma ?? card.front, answerShown || !card.lemma || mentions(card.front, card.lemma))
+    : "";
+  /* The footer's next press, brought into view once the card has answered
+     (`useKeepInView`): a verdict grows the card past the fold on a phone. */
+  const footer = useKeepInView<HTMLDivElement>(
+    card && ask !== "intro" && (revealed || verdict || chosen !== null) ? `${index}:${verdict ? "v" : chosen ?? "r"}` : null,
+  );
 
   /*
     THE WAY OUT OF BEING STUCK, ON THE DAILY PATH.
@@ -793,10 +837,12 @@ export function ReviewSession({
     flag and the lapses are the card's own count, so a word that has already
     been round the houses does not get told it is fine not to know it.
   */
-  const firstTry = card !== undefined && ask === "type" && isFirstProduction({
-    produced: hints.missed + card.scheduling.reps + card.scheduling.lapses,
+  const firstTry = useOncePerRound(card !== undefined && ask === "type" && isFirstProduction({
+    /* A word already typed on the ladder has been produced, whatever this
+       particular card's own count says. */
+    produced: hints.missed + card.scheduling.reps + card.scheduling.lapses + (card.wordMet ? 1 : 0),
     typed: true,
-  });
+  }), card?.id ?? null);
 
   /*
     WHAT THE SENTENCE AROUND THE GAP SAYS, ON THE QUESTION.
@@ -824,13 +870,13 @@ export function ReviewSession({
     gap is the headword and never the gloss twice (`gapCue`). Every other card
     keeps its cue whole, since there is no sentence to have taken its place.
   */
-  const cue = card ? gapCue({ hint: card.hint, lemma: card.lemma, marked: meaning?.marked ?? false }) : null;
+  const cue = card ? gapCue({ hint: shownHint(card), lemma: card.lemma, marked: meaning?.marked ?? false }) : null;
   /*
     And the reveal prints the same hint through the same reading, resolved here
     rather than in the markup: a hint stored before the sentence rule names its
     case in Latin as well, and that name is the only English on the reveal.
   */
-  const revealedHint = card ? readableHint(card.hint) : null;
+  const revealedHint = card ? readableHint(shownHint(card)) : null;
   /*
     A CASE IS DRAWN AS ONE THING. A bare case card names its case twice, once
     after the arrow and once in the hint, and both were strings joined with a
@@ -1123,7 +1169,7 @@ export function ReviewSession({
   const checkTyped = useCallback(() => {
     if (!card || verdict) return;
     const language = card.cardType === "RECOGNITION" ? "en" : "et";
-    const marked = checkAnswer(typed, card.back, language, card.rivals);
+    const marked = checkAnswer(typed, card.back, language, card.rivals, card.kin);
     /*
       A SECOND RIGHT WORD IS RIGHT. Asked only where the marker said no, so a
       clean hit, a dropped diacritic and a typo of the card's own word all keep
@@ -1144,7 +1190,7 @@ export function ReviewSession({
     }
     // A right answer waits for its own button now, exactly like a miss: see
     // the note beside `scheduled` on why nothing here times out any more.
-    // Anything short of an outright hit (`diacritics`, `typo`, `wrong`) still
+    // Anything short of an outright hit (`diacritics`, `typo`, `form`, `wrong`) still
     // asks for a retype, which is the learner still doing the thing being
     // timed, so the clock keeps running for those — only a clean hit stops it
     // here, matching `needsRetype`'s own reading of `verdict.verdict`.
@@ -1157,7 +1203,7 @@ export function ReviewSession({
   const checkRetype = useCallback(() => {
     if (!card || !verdict || retypeOk) return;
     const language = card.cardType === "RECOGNITION" ? "en" : "et";
-    const again = checkAnswer(retyped, card.back, language, card.rivals);
+    const again = checkAnswer(retyped, card.back, language, card.rivals, card.kin);
     if (again.verdict === "correct") {
       setRetypeOk(true);
       setRetypeNote(null);
@@ -1436,7 +1482,7 @@ export function ReviewSession({
           </div>
         </Lettered>
 
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={done} label="Reviewed" tone="accent" />
           <StatTile value={`${accuracy}%`} label="Recalled" tone={accuracy >= 85 ? "sky" : "butter"} />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
@@ -1562,7 +1608,7 @@ export function ReviewSession({
           {/* Two chips at the most, and both about this card. What narrowed the
               session is said once, above, rather than on every card of it. */}
           <Chip tone="accent">{TYPE_LABEL[card.cardType] ?? card.cardType}</Chip>
-          {card.isNew && <Chip tone="good">{card.intro?.isPhrase ? "New phrase" : "New word"}</Chip>}
+          {card.isNew && !card.wordMet && <Chip tone="good">{card.intro?.isPhrase ? "New phrase" : "New word"}</Chip>}
           <div className="ml-auto flex items-center gap-1">
             {card.lemma && (
               <FullEntry lemma={card.lemma} />
@@ -1573,7 +1619,7 @@ export function ReviewSession({
               <StarWord
                 lexemeId={card.lexemeId}
                 starred={card.starred}
-                label={card.lemma ?? card.front}
+                label={named}
               />
             )}
             {/* And beside it, the other thing somebody wants to do with a word
@@ -1584,7 +1630,7 @@ export function ReviewSession({
               <TooComplicated
                 key={card.lexemeId}
                 lexemeId={card.lexemeId}
-                label={card.lemma ?? card.front}
+                label={named}
                 context="/review"
                 onDone={putAside}
               />
@@ -1747,7 +1793,7 @@ export function ReviewSession({
                 taken={hints.taken}
                 onTake={hints.take}
                 open={hints.open && ask === "type"}
-                label={card.lemma ?? card.front}
+                label={named}
               />
             </>
           )}
@@ -1895,7 +1941,7 @@ export function ReviewSession({
               taken={hints.taken}
               onTake={hints.take}
               open={hints.open}
-              label={card.lemma ?? card.front}
+              label={named}
             />
           )}
 
@@ -1995,7 +2041,7 @@ export function ReviewSession({
           {(answerShown || chosen) && <WhyRow card={card} alsoRight={verdict?.neighbour?.lemma} />}
         </div>
 
-        <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+        <div ref={footer} className="dock-clear border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {/*
             WHO DECIDES WHETHER THE ANSWER WAS RIGHT.
 

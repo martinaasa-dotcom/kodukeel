@@ -281,6 +281,34 @@ describe("checkAnswer — another form of the same word", () => {
   });
 });
 
+describe("checkAnswer — the right word in another form", () => {
+  /*
+    Asked for "to trust", `usaldada` is the verb and the other infinitive,
+    and the slip rule called it one letter out of `usaldama`. Nothing was
+    mistyped: on a card asking what the word is, another form is the word
+    recalled and the citation form missed.
+  */
+  const kin = ["usaldada", "usaldan", "usaldas", "usaldanud"];
+
+  it("is nearly, says so, and does not call it a slip", () => {
+    const out = checkAnswer("usaldada", "usaldama", "et", [], kin);
+    expect(out.verdict).toBe("form");
+    expect(out.suggestedRating).toBe(2);
+    expect(countsAsRecalled(out.verdict)).toBe(true);
+    expect(out.note).toBe("Right word, in another form. This one wanted “usaldama”.");
+  });
+
+  it("leaves the word itself, a real slip and a different word alone", () => {
+    expect(checkAnswer("usaldama", "usaldama", "et", [], kin).verdict).toBe("correct");
+    expect(checkAnswer("usaldamaa", "usaldama", "et", [], kin).verdict).toBe("typo");
+    expect(checkAnswer("tülitsema", "usaldama", "et", [], kin).verdict).toBe("wrong");
+  });
+
+  it("lets a case card's rival win, since there another form is the wrong answer", () => {
+    expect(checkAnswer("toast", "toas", "et", ["toast"], ["toast"]).verdict).toBe("wrong");
+  });
+});
+
 /*
   WHICH NOTES NAME THE FORM, WHICH IS WHAT LETS A PANEL SAY IT ONCE.
 

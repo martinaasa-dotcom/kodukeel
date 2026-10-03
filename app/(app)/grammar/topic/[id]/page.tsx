@@ -161,6 +161,17 @@ export default async function TopicPage({
     ? await verbExamples(ownerId, only ? 1 : 4, only ? [only] : scope?.lemmas)
     : [];
 
+  const table = shown && verbs.length > 0 && (
+    <section>
+      <SectionTitle hint={only ? "all six, straight from the dictionary" : verbs.some((v) => v.inDeck) ? "verbs from your deck first" : "from the dictionary"}>
+        {only ? "The six persons" : "On real verbs"}
+      </SectionTitle>
+      <VerbTable verbs={verbs} show={shown} />
+    </section>
+  );
+  /* The taps sit under the table they ask about, wherever the table is. */
+  const tryIt = shown && verbs.length > 0 && <TryIt asks={verbAsks(verbs, shown)} />;
+
   return (
     <Page
       eyebrow="Reference"
@@ -216,6 +227,18 @@ export default async function TopicPage({
           </Card>
         )}
 
+        {/*
+          A VERB THAT IS LEARNED AS SIX WORDS LEADS WITH THE SIX. The page about
+          `olema` is read on the third evening of the course, titled "I am, you
+          are, this is", and it opened on the construction for "have" and kept
+          the six forms for the foot of the page, so a beginner met `Mul on`
+          three screens before `olen`. Where a page's table is one verb that no
+          rule reaches, the table is the lesson and the points are what it is
+          used for; everywhere else the rule comes first and the table shows it.
+        */}
+        {only && table}
+        {only && tryIt}
+
         <section>
           <SectionTitle>What it is for</SectionTitle>
           <ul className="mt-2 flex flex-col gap-2">
@@ -241,14 +264,7 @@ export default async function TopicPage({
           </span>
         </Note>
 
-        {shown && verbs.length > 0 && (
-          <section>
-            <SectionTitle hint={only ? "all six, straight from the dictionary" : verbs.some((v) => v.inDeck) ? "verbs from your deck first" : "from the dictionary"}>
-              {only ? "The six persons" : "On real verbs"}
-            </SectionTitle>
-            <VerbTable verbs={verbs} show={shown} />
-          </section>
-        )}
+        {!only && table}
 
         {/*
           THE TABLE ASKS BACK. Three taps on the forms just shown, nothing
@@ -257,7 +273,7 @@ export default async function TopicPage({
           Built on the server off the same rows the table drew, so the
           question and the table cannot disagree about a form.
         */}
-        {shown && verbs.length > 0 && <TryIt asks={verbAsks(verbs, shown)} />}
+        {!only && tryIt}
 
         {/* The units that teach it and the drill that asks about it, which a
             module step may not carry: see the header. */}

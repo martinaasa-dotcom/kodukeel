@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueueGrades } from "@/components/round/useGrade";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Timer, Trophy, X } from "lucide-react";
+import { Timer, Trophy } from "lucide-react";
 import { recordMatchGrades, recordMatchTime } from "@/app/actions";
 import { useOffline } from "@/components/OfflineProvider";
 import { Button, ButtonLink } from "@/components/Button";
@@ -11,7 +10,7 @@ import { Confetti } from "@/components/Confetti";
 import { Empty, Page, Stat } from "@/components/ui";
 import { shuffle } from "@/lib/random/shuffle";
 import { OPTION_CLASS } from "@/lib/ux/verdict";
-import { WayOut } from "@/components/round/RoundExit";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 
@@ -227,8 +226,11 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
           All matched up.
         </h1>
         <p className="mt-2 flex items-center gap-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {isNewBest && <Trophy size={17} aria-hidden style={{ color: "var(--hard-ink)" }} />}
-          {isNewBest ? "That's a new personal best." : best > 0 ? `Your best so far is ${best}s.` : "Your first time is on the board. Now try to beat it."}
+          {/* A first round beats nothing, so it is the time on the board
+              rather than a record. `best` is what the page read before this
+              round, and nought means there was none. */}
+          {isNewBest && best > 0 && <Trophy size={17} aria-hidden style={{ color: "var(--hard-ink)" }} />}
+          {best === 0 ? "That's your first time on the board, and the one to beat." : isNewBest ? "That's a new personal best." : `Your best so far is ${best}s.`}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-[var(--r-lg)] border p-6"
@@ -254,14 +256,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
           and the round itself did not. */}
       <h1 className="sr-only">Match</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link
-          href="/"
-          aria-label="End round"
-          className="press flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
-          style={{ color: "var(--ink-3)" }}
-        >
-          <X size={18} aria-hidden />
-        </Link>
+        <EndSession label="End round" />
         <div
           className="tnum flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold"
           style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}

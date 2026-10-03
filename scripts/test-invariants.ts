@@ -1963,6 +1963,9 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // Asks which cases a word can build a card for at all, as a set. No
     // sentence it could pick reaches a screen, only whether one exists.
     "lib/srs/retire.ts": "asks which cases a word can build, as a set, and picks no sentence",
+    // Asks whether a form is recorded in any sentence at all, to lead a round
+    // with a word said in that case. Which sentence it is never reaches a screen.
+    "app/(app)/review/write/page.tsx": "asks whether a form is recorded in a sentence, and picks none",
   };
 
   /* The pure builders, which take the rank as a field rather than reading it. */
@@ -2739,13 +2742,21 @@ check("a case reading is one table, holds no Estonian, and reaches the screen ma
   // And `sayIt`, which turns the same phrase into the ask a card leads with,
   // `Say “with the bird”`: the instruction and the walkthrough's reading of
   // the built word are one phrase, so they cannot disagree about an ending.
+  // And the case reference's own table, so the three questions under it ask
+  // what the ending means ("which one says in the cup?") rather than which
+  // word wears the case's name: it carries the reading as a field to the page
+  // and composes nothing of its own. And the module sprint's case ask, which
+  // reads it only to refuse a word with no honest frame, then asks `sayIt`.
   assert.deepEqual(
     readers,
-    ["lib/estonian/caseBuild.ts", "lib/estonian/formReading.ts", "lib/estonian/sayIt.ts"],
+    [
+      "lib/estonian/caseBuild.ts", "lib/estonian/formReading.ts", "lib/estonian/sayIt.ts",
+      "lib/progress/caseExamples.ts", "lib/questions/caseAsk.ts",
+    ],
     "a second module composes what a word in a case means in English",
   );
   assert.deepEqual(
-    readers.filter((file) => !file.startsWith("lib/estonian/")),
+    readers.filter((file) => !file.startsWith("lib/")),
     [],
     "a screen works out for itself what an ending means in English",
   );
@@ -6640,19 +6651,30 @@ check("nobody opts back out of the wrapping default", () => {
 });
 
 /*
-  A ROW OF STAT TILES IS TWO ACROSS ON A PHONE.
+  A ROW OF STAT TILES FITS A PHONE, AND WHAT MAKES THREE ACROSS FIT IS SAID.
 
   `overflow-wrap: anywhere` is what keeps a long word inside its box, and the
-  price of it is that a box too narrow for a word breaks the word. Three
-  StatTiles across a 360px screen leave each label about eighty pixels, and
-  `label-xs` is uppercase and tracked, so "ACCURACY" and "ATTEMPTED" came out
-  as ACCURA/CY and ATTEMPT/ED on the letters, listening, sprint, quest and
-  target summaries, measured in a browser; two across, every one of them
-  holds a line. Four rounds had already found this and use
-  `grid-cols-2 … sm:grid-cols-3`, which is why this is a rule rather than a
-  fix: the other five were the same row written before somebody looked.
+  price of it is that a box too narrow for a word breaks the word. When this
+  was written the tile's label was `label-xs`, uppercase and tracked, so three
+  across a 360px screen broke ACCURACY and ATTEMPTED mid-word and the rule was
+  two across. The tile has since been redrawn with its label in sentence case
+  at `text-sm`, and two across left every three-tile summary as two tiles and
+  an orphan, which reads as a row that lost a tile.
+
+  Measured at 360 with a `gap-2`: a tile is 101px, "Accuracy" is 71 of the 75
+  its label has and sits on one line, and "100%" is 75 of 75. So three across
+  is allowed on exactly those terms, and both are held: the row's gap at the
+  narrowest width is `gap-2`, and the tile's label is not the tracked capitals
+  that made the old rule necessary. A row of four or more is still two across
+  on a phone, which is what the class list says when it does not name three.
 */
-check("a row of stat tiles is two across on a phone, never three", () => {
+check("a row of stat tiles fits a phone: three across only with a narrow gap and a sentence-case label", () => {
+  const tile = code("components/ui.tsx");
+  const body = tile.slice(tile.indexOf("export function StatTile"));
+  assert.ok(
+    !/label-xs|uppercase/.test(body.slice(0, body.indexOf("</div>\n  );"))),
+    "StatTile's label is tracked capitals again, so three tiles across a 360px phone break their labels mid-word",
+  );
   let rows = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     if (!file.endsWith(".tsx")) continue;
@@ -6660,12 +6682,16 @@ check("a row of stat tiles is two across on a phone, never three", () => {
     for (const found of src.matchAll(/className="([^"]*)"[^>]*>\s*<StatTile\b/g)) {
       rows += 1;
       const classes = found[1]!.split(/\s+/);
+      if (!classes.includes("grid-cols-3")) continue;
+      const line = src.slice(0, found.index).split("\n").length;
       assert.ok(
-        !classes.includes("grid-cols-3"),
-        `${file}:${src.slice(0, found.index).split("\n").length} lays StatTiles three across at every width; ` +
-        "a label like ACCURACY breaks mid-word at 360px. Use grid-cols-2 sm:grid-cols-3, or " +
-        "grid-cols-2 @sm:grid-cols-3 inside an @container where the row sits in a column narrower than the window.",
+        classes.includes("gap-2"),
+        `${file}:${line} lays StatTiles three across without gap-2, so at 360px a tile is under the 101px its label and figure were measured in`,
       );
+      const after = src.slice(found.index! + found[0].length - "<StatTile".length);
+      const close = after.search(/<\/div>/);
+      const count = (after.slice(0, close).match(/<StatTile\b/g) ?? []).length;
+      assert.ok(count <= 3, `${file}:${line} lays ${count} StatTiles in a row of three columns, so they wrap to an orphan`);
     }
   }
   assert.ok(rows >= 15, `only ${rows} StatTile rows found, so this check stopped looking`);
@@ -19125,7 +19151,8 @@ check("a question the scene did not anticipate is answered before the move", () 
   const turn = code("lib/scenes/turn.ts");
   assert.match(turn, /readonly asked: string \| null/, "Evidence no longer says whether the learner asked something");
   const reply = code("lib/scenes/reply.ts");
-  assert.match(reply, /if \(aside\) out\.push\(\{ \.\.\.aside, reaction: true \}\)/, "replyFor no longer says the aside first");
+  // A guard may stand beside it (an answer the curveball's line restates stands down), never in place of it.
+  assert.match(reply, /if \(aside(?: && ![A-Za-z]+)?\) out\.push\(\{ \.\.\.aside, reaction: true \}\)/, "replyFor no longer says the aside first");
   /*
     The plain acknowledgment stands down under an aside, since "Ei tea.
     Hästi." is two reactions contradicting each other. The learner's own word
@@ -23376,9 +23403,25 @@ check("a derived step asks for no more evidence than the app can supply", () => 
     nought and the evening cannot be finished by any press either.
   */
   assert.match(
-    reading, /prisma\.lexeme\.count/,
+    reading, /toMeet\.size === 0\) return true/,
     "the meet step cannot be finished on a deployment whose dictionary holds none of the "
     + "day's words, and nothing a learner presses can tick it",
+  );
+
+  /*
+    AND IT ASKS FOR EVERY WORD THE DICTIONARY HOLDS, NOT EVERY WORD THE DECK
+    HAPPENS TO. Read off the cards that existed, two words already answered
+    from the frequency list ticked a five-word evening before Start, and the
+    press that builds the other three went with it, so they were never taught.
+  */
+  assert.match(
+    reading, /prisma\.lexeme\.findMany\(\{ where: \{ lemma: \{ in: \[\.\.\.words\] \} \}/,
+    "the meet step does not ask which of the day's words the dictionary holds",
+  );
+  assert.match(
+    reading, /\[\.\.\.toMeet\]\.every\(/,
+    "the meet step is finished by the words the deck holds rather than the words the dictionary does, "
+    + "so an evening whose other words were met elsewhere ticks before its new ones are taught",
   );
 });
 
@@ -24432,8 +24475,12 @@ check("a round's own way out stands down inside a module", () => {
 
   for (const file of rounds) {
     const src = code(file);
+    /* Any cross labelled "End", not one spelling of it: Match said "End
+       round" and the sprint "End sprint", both linking to Today, and a check
+       reading "End session" alone let both stand in the middle of a module
+       evening as a door out of it. */
     assert.ok(
-      !/aria-label="End session"/.test(src),
+      !/aria-label="End\b/.test(src),
       `${file} draws its own cross. Use EndSession, which stands down inside a module`,
     );
     /* The third way out, and the one nobody counted the first time: a card's

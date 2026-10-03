@@ -139,7 +139,7 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
  * Which conversation belongs to which unit, on the last evening of it.
  *
  * All fifteen the app has, each on the unit whose words it needs and none
- * before the words exist. A scene declares the units it may draw on, and
+ * before the words exist, and seven of them a second time a level up (below). A scene declares the units it may draw on, and
  * `course.test.ts` checks that every unit it declares has been taught by the
  * time the programme opens it, which is the whole of what makes a conversation
  * at this point fair rather than a wall.
@@ -171,6 +171,24 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
     the first free evening after it that is not already carrying one.
   */
   "vaba-aeg": "riidepood",
+  /*
+    AND B1, B2 AND C1 COME BACK TO SEVEN OF THEM, because the fifteen thin
+    out above A2 and C1 used to go six weeks without a single conversation,
+    in a course whose whole point is the conversation somebody has outside
+    it. Nothing about the scene changes and everything about the run does: a
+    run is pitched at the learner's own level (`lib/scenes/pitch.ts`), so the
+    clerk who asked a beginner one short question at a time talks to a C1
+    speaker the way they would to anybody, and the learner has a year of
+    words to answer with. Each sits on the unit closest to what it rehearses,
+    and the step says it is a second time (`DaySpec.sceneAgain`).
+  */
+  inimsuhted: "trepikoda",
+  uhiskond: "bussipilet",
+  tervishoid: "arsti-aeg",
+  toomaailm: "toovestlus",
+  akadeemiline: "keeletund",
+  register: "uuri-remont",
+  rahvusvaheline: "helistamine",
 };
 
 /**

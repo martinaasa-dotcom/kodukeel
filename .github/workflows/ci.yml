@@ -631,7 +631,16 @@ jobs:
       # dependency or say here, in writing, why it is unreachable. Do not lower
       # a number.
       - run: npm audit --omit=dev --audit-level=high
-      - run: npm audit --audit-level=high
+      # THE DEV HALF IS THE SAME GATE WITH THE WRITING THE RULE ABOVE ASKS FOR.
+      # On 2026-10-03 an advisory landed against every release of `braces`
+      # there is, reached only through eslint-config-next's glob of this
+      # repository's own lint config: no fix to take and nothing a user sends
+      # reaching it. `npm audit` cannot waive one advisory, so
+      # scripts/check-audit.mjs is that command plus a short list of advisories
+      # waived by id, each with why it is unreachable, each failing again the
+      # day a newer release of its package is published or the advisory leaves
+      # the tree. Every other high or critical advisory fails as before.
+      - run: node scripts/check-audit.mjs
       # THE OTHER SUPPLY CHAIN QUESTION, WHICH `npm audit` HAS NO OPINION ON.
       #
       # A licence is the thing nobody thinks to check until the answer is

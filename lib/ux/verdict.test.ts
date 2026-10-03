@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  OPTION_CLASS, VERDICT_CLASS, VERDICT_INK, optionState, verdictOfCheck, verdictOfRating,
+  OPTION_CLASS, VERDICT_CLASS, VERDICT_INK, optionState, verdictLine, verdictOfCheck, verdictOfRating,
 } from "./verdict";
 
 /**
@@ -30,6 +30,7 @@ describe("the verdict vocabulary", () => {
     expect(verdictOfCheck("correct")).toBe("right");
     expect(verdictOfCheck("diacritics")).toBe("nearly");
     expect(verdictOfCheck("typo")).toBe("nearly");
+    expect(verdictOfCheck("form")).toBe("nearly");
     expect(verdictOfCheck("wrong")).toBe("wrong");
   });
 
@@ -38,5 +39,18 @@ describe("the verdict vocabulary", () => {
     expect(optionState(true, false)).toBe("right");
     expect(optionState(false, true)).toBe("wrong");
     expect(optionState(false, false)).toBe("other");
+  });
+});
+
+describe("verdictLine", () => {
+  it("says the verdict once where the note already opens on it", () => {
+    expect(verdictLine("Not quite", "Not quite, it's “aadressini”")).toEqual({
+      strong: "Not quite", rest: ", it's “aadressini”",
+    });
+  });
+
+  it("leads with the head and a stop where the note opens some other way, or there is none", () => {
+    expect(verdictLine("Nearly", "That is the seesütlev.")).toEqual({ strong: "Nearly.", rest: " That is the seesütlev." });
+    expect(verdictLine("That's it", null)).toEqual({ strong: "That's it.", rest: "" });
   });
 });

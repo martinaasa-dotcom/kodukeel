@@ -1,7 +1,7 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Card, Meter, SectionTitle, StatTile } from "@/components/ui";
 import {
-  MASTERY_CORRECT, MASTERY_LABEL, MASTERY_ORDER, type Mastery,
+  MASTERY_CORRECT, MASTERY_LABEL, MASTERY_ORDER, MASTERY_SLOTS, type Mastery,
 } from "@/lib/srs/mastery";
 import { slotShort } from "@/lib/srs/slots";
 import { wordsAt, type MasteredWord } from "@/lib/progress/mastery";
@@ -57,7 +57,11 @@ export function MasteryBoard({
           ))}
         </div>
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-          A word counts as mastered once you get it right {MASTERY_CORRECT} times, in three different forms.
+          {/* "Three different forms" is the bar for a word that has three; `yes` and
+              `thank you` have one, and the counter asks of a word only what it can
+              carry (`lib/srs/mastery.ts`), so the sentence says so too. */}
+          A word counts as mastered once you get it right {MASTERY_CORRECT} times, in up to{" "}
+          {MASTERY_SLOTS} different forms if it has them.
         </p>
       </Card>
 

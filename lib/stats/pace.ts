@@ -1,5 +1,6 @@
 import type { DayClock } from "@/lib/time/day";
 import { MIN_PACE_WEEKS, type MeasuredPace } from "@/lib/assessment/plan";
+import { DAY_MINUTES } from "@/lib/course/types";
 
 /**
  * HOW MUCH OF THIS APP A LEARNER ACTUALLY DOES, READ OFF THE LOG.
@@ -74,6 +75,24 @@ export function minutesForCards(cards: number, cardsPerMinute: number | null = n
     ? Math.min(MAX_CARDS_PER_MINUTE, Math.max(MIN_CARDS_PER_MINUTE, cardsPerMinute))
     : DEFAULT_CARDS_PER_MINUTE;
   return Math.max(1, Math.round(Math.max(0, cards) / rate));
+}
+
+/**
+ * HOW LONG A STUDY DAY IN THIS APP IS, FOR THE PLAN'S ARITHMETIC.
+ *
+ * Two figures had been promising two different evenings on one screen. First
+ * run said every evening of the course is "about fifteen minutes", and two
+ * paragraphs further down the plan worked out the weeks from the daily review
+ * goal, fifteen cards at six a minute, which is five: so the same learner was
+ * told "15 minutes a night" and "25 minutes a week in this app", and the hours
+ * left to find elsewhere were inflated by everything the evening itself puts
+ * in. On the course, a study day is the evening, or the review goal where that
+ * is longer; off it, the review goal is all the app plans. One function, so
+ * the plan panel, first run and the countdown cannot answer this two ways.
+ */
+export function minutesPerStudyDay(dailyGoal: number, onCourse: boolean): number {
+  const reviews = minutesForCards(dailyGoal);
+  return onCourse ? Math.max(DAY_MINUTES, reviews) : reviews;
 }
 
 /**

@@ -402,7 +402,7 @@ export default async function ReviewPage({
     : [null, null, 0];
 
   return (
-    <BeforeYouStart id="review" ready={cards.length > 0} count={{ n: cards.length, noun: "card" }}>
+    <BeforeYouStart id={scope ? "closing" : "review"} ready={cards.length > 0} count={{ n: cards.length, noun: "card" }}>
         <ReviewSession
         cards={cards}
         totalCards={totalCards}

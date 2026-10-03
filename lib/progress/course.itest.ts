@@ -83,6 +83,10 @@ async function deck(words: readonly string[], state: number) {
         front: "x", back: "y", state,
         due: new Date(), stability: 0, difficulty: 0, elapsedDays: 0,
         scheduledDays: 0, reps: 0, lapses: 0, learningSteps: 0,
+        /* Built before the evenings below, on the test's clock rather than the
+           machine's: a card made after an evening's last tick is the next
+           evening begun, which is a reading of its own. */
+        createdAt: new Date(NOW.getTime() - 30 * 24 * 3600_000),
       },
     });
   }
@@ -242,6 +246,27 @@ describe("which day is current", () => {
     expect(reading.current?.done.has(MEET_STEP)).toBe(false);
   });
 
+  it("does not tick on the words already held while the rest of the evening is not in the deck", async () => {
+    /*
+      Two of an evening's words in from the frequency list, both long since
+      answered: the step read as done before anybody pressed Start, and the
+      press that builds the other three went with it.
+    */
+    const words = [...new Set(PROGRAMME.days[0]!.words)];
+    await deck(words.slice(0, 2), 2);
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(false);
+    await deck(words.slice(2), 1);
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(true);
+  });
+
+  it("meets a word whose card the leech clinic suspended, since Start will not rebuild it", async () => {
+    const words = PROGRAMME.days[0]!.words;
+    await deck(words, 1);
+    const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true } });
+    await prisma.card.update({ where: { id: card!.id }, data: { state: 0, suspended: true } });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.done.has(MEET_STEP)).toBe(true);
+  });
+
   it("proves the closing round off answers given after the evening's own ticks", async () => {
     const one = PROGRAMME.days[0]!;
     await deck(one.words, 1);
@@ -255,6 +280,33 @@ describe("which day is current", () => {
     expect(reading.finishedToday).toBe(true);
     /* And one evening ticked tonight is a run of one, read off the same rows. */
     expect(reading.eveningsInARow).toBe(1);
+  });
+
+  it("draws the next evening, not last night's, once its words are being met", async () => {
+    /*
+      "Start the next one now", three words met, back to the module: the
+      screen said "That's tonight done" over an evening half begun, because
+      meeting words ticks nothing.
+    */
+    const [one, two] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!];
+    await deck(one.words, 1);
+    await tick(one.id, ticked(one), EVENING);
+    await review(CLOSING_REVIEW, new Date(EVENING.getTime() + 60_000));
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).finishedToday).toBe(true);
+
+    const word = await prisma.lexeme.findFirst({ where: { lemma: { in: [...two.words] } }, select: { id: true } });
+    await prisma.card.create({
+      data: {
+        ownerId: OWNER, lexemeId: word!.id, cardType: "RECOGNITION", front: "x", back: "y", state: 0,
+        due: NOW, stability: 0, difficulty: 0, elapsedDays: 0, scheduledDays: 0, reps: 0, lapses: 0,
+        learningSteps: 0, createdAt: new Date(EVENING.getTime() + 30 * 60_000),
+      },
+    });
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.id).toBe(two.id);
+    expect(reading.finishedToday).toBe(false);
+    /* The evening letter's question is a different one, and it was finished. */
+    expect(reading.eveningDoneToday).toBe(true);
   });
 
   it("says the evening is done today when its closing round finished this morning", async () => {
@@ -607,6 +659,32 @@ describe("a finished evening stays finished", () => {
 
     await review(CLOSING_REVIEW - 2, new Date(EVENING.getTime() + 120_000));
     expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).daysDone).toBe(1);
+  });
+
+  /*
+    The render that proves an evening is very often not the one the learner
+    reads it on: the module's bar asks for tonight's steps as the closing round
+    ends, that reading saves both derived steps, and the course screen opened a
+    moment later found the evening whole by its ticks and started on the next
+    one. It said "learn tonight's 6 new words" a minute after the fifth answer
+    rather than "that's tonight done".
+  */
+  it("still says tonight is done to the render after the one that proved it", async () => {
+    const one = PROGRAMME.days[0]!;
+    await finish(one);
+    const later = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(later.current?.day.index).toBe(2);
+    expect(later.finishedToday).toBe(true);
+    expect(later.eveningDoneToday).toBe(true);
+  });
+
+  it("does not say tonight is done about an evening finished last night", async () => {
+    const one = PROGRAMME.days[0]!;
+    await finish(one);
+    const tomorrow = new Date(NOW.getTime() + 24 * 3600_000);
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, tomorrow);
+    expect(reading.current?.day.index).toBe(2);
+    expect(reading.finishedToday).toBe(false);
   });
 
   it("saves nothing on a day nobody has pressed a step of", async () => {

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { readFileSync } from "node:fs";
 
-import { bothLocalSetsOrdinary, isAnimate, semanticCategory, semanticGroup } from "./semantics";
+import { bothLocalSetsOrdinary, isAnimate, semanticCategory, semanticGroup, kindStated } from "./semantics";
 
 /*
   PINNED AGAINST REAL ENTRIES, NOT AGAINST INVENTED CODES.
@@ -147,5 +147,16 @@ describe("semanticCategory", () => {
     expect(semanticCategory("VERB_toituma")).toBe("eating or drinking");
     expect(semanticCategory(["VERB_suhtlus"])).toBe("talking");
     expect(semanticCategory("VERB_tegevus")).toBeNull();
+  });
+});
+
+describe("kindStated", () => {
+  it("is true for a being or a thing and false for a property code alone or for nothing", () => {
+    expect(kindStated("koht_hoone")).toBe(true);
+    expect(kindStated("in_roll")).toBe(true);
+    expect(kindStated("omadus")).toBe(false);
+    expect(kindStated("omadus omadus_kval")).toBe(false);
+    expect(kindStated("omadus ese")).toBe(true);
+    expect(kindStated(null)).toBe(false);
   });
 });

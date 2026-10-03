@@ -414,7 +414,7 @@ export function QuestSession({
     return (
       <Page title="Daily quest" lead="That's today's quest done.">
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
-          <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid w-full grid-cols-3 gap-2 sm:gap-3">
             <StatTile value={correct} label="Right" tone="sky" />
             <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 70 ? "sky" : "butter"} />
             <StatTile value={bestStreak} label="Best run" tone="blush" />

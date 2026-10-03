@@ -2652,3 +2652,294 @@ taken literally or reversed (`Pill tuleb pika ilu peale` had become "every cloud
 lining"), lines cut off after two words, dashes carried over, and Latin case names. A few dozen
 lines nobody could read with confidence were left alone and are worth a native speaker's eye; the
 reviewers' notes list them. The Estonian was not changed anywhere.
+
+## 45. The thirty-ninth pass: one evening walked on a phone, and every seam it crossed
+
+**Walked rather than read.** A beginner was taken from the landing page through first run and two
+evenings of the module at 390px, then through Practice, the dictionary, Progress, Settings and a
+conversation at 1280. Everything below was found by pressing it.
+
+**A tap does not leave a hover behind.** A phone fakes `:hover` on whatever was last tapped, and
+every hover written by hand in the stylesheet painted an option nearly the way a chosen one is
+painted, so the card that arrived under the finger after "Continue" looked already answered. Every
+hand-written hover now sits inside `@media (hover: hover)`, held by
+`scripts/invariants/a-hover-does-not-latch-on-touch.ts`.
+
+**First run stays inside first run.** The plan's empty state no longer links out to Settings, the
+days-a-week chips sit on one row, and the plan counts the evening: on the course, a study day is at
+least the fifteen minutes an evening takes, and the deck screen says the daily goal is part of them
+rather than a second job (`minutesPerStudyDay`).
+
+**One way on, on a phone.** The module's bar is one slim row: the way out, where you are, a quiet
+"Next step" and the way back to tonight's list. The named "Next, step 2: Match" is drawn where a
+round ends on a phone as well, and the bar's own button stands down while it is on screen. The room
+under a step clears Anu's button as well as the bar. And a round's next press is brought into view
+after an answer by measurement rather than `scrollIntoView`, because the card is `overflow-hidden`
+and Chromium clipped the scroll margin to it, so nothing moved (`useKeepInView`).
+
+**The evening hangs together.** A word met on the ladder is not "New word" again in the closing
+review, and the closing review has its own briefing. "That's tonight done" survived only the render
+that happened to finish the evening; the bar asking for tonight's steps as the round ended was
+enough to send the learner straight to evening two, and an integration test now holds it.
+
+**Nothing reads the answer out.** The listening round's play button was labelled with the word it
+plays, and on cards that ask for a word, the star, the put-aside button and the hint each named it
+to a screen reader; the flash round printed "sina: right 29 times" under its own question. All of
+them say "this word" until the answer is in (`wordName`), with two invariants. A gap whose gloss
+carries a qualifier keeps it beside the marked English, because "**You**? No, him." is `sina` and
+`teie` both and only "(one person)" says which.
+
+**The rounds say what happened.** Match and the sprint had their own cross out of the round,
+inside the module too, under a label the invariant did not read; both use `EndSession` and the
+invariant reads any "End" label. A first round no longer calls itself a new personal best. Tähed's
+"in a row" counts first tries only, a solved word says how it went rather than "here it is", and
+the finish says what happens to the words that took two goes. The flash round's briefing stopped
+promising five ways and five right answers, and "adverb" is no longer printed under "thank you".
+
+**The rest of the app agrees with the course.** Today hides "your next unit" while the course is
+on, and a beginner's game of the day is a round the module itself deals at A1, with an ear test on
+Saturday where the full week has a crossword built from words they have not met. The Learn page,
+with nothing ready, points at tonight's module. Practice says word ordering starts at A2 rather
+than "34 ready", Situations tells an A1 learner the course brings conversations in at A2, Progress
+says the cases start at A2, and the part list on the course screen counts its rows instead of
+repeating evening numbers. A conversation with no model says what that means for the learner
+rather than that an AI key is missing. Under a word found outright, the dictionary no longer lists
+"exa-mina-tion" and "se-mina-r" as other matches for `mina`.
+
+**Still open.** The course screen lights Today in the rail while its steps light Learn, which are
+two agreed decisions that read as one inconsistency. Doing two evenings in one day leaves the
+second closing round little to ask, since the day's new cards are spent. A pronoun's case table
+still shows gaps where the dictionary holds no plural (`mina`'s nominative plural).
+
+## 46. The fortieth pass: an evening that reads a case practises it
+
+**Walked rather than read, at three points of the ladder.** A scratch helper put the local learner
+on the third evening of A1 and the tenth of A2 with every earlier evening ticked and its words in
+the deck, and each step was opened from the module.
+
+**The page about "to be" leads with the six forms.** It is read on the evening titled "I am, you
+are, this is" and opened on the construction for "have", with `olen` three screens down. Where a
+page's table is one verb no rule reaches, the table and its three taps lead and the points follow,
+and the first point's examples show `olen` and `nad on` rather than a second "have".
+
+**A2 stopped being one drill.** The past forms step took the drill on sixteen of A2.1's twenty-one
+evenings; it is every other evening now and never on a case evening, and a case evening deals a
+round that asks the case (`onTheCase`). Target, writing, Describe and the module's case sprint lead
+with the case the evening read, and the sprint, which inside the module had no case in it at all,
+asks a noun's production card in one of the cases read, by meaning.
+
+**A page is read once a level.** It was once a part, so A1 read the present tense four times and
+"to be" three, each presented as tonight's reading; a page that comes back at a later level says
+"again" on its step. **The reading step names its page** ("Read about the -s ending, "in"", `Read "Talking about now"`),
+so tonight's list says what tonight is about, and no longer promises three questions on a page that
+has none. **The case page asks by meaning**: "vanus means age. Which one says in the age?" rather
+than which word wears a case's name. **No place case is phrased in English for a word whose kind
+the dictionary has not stated** (`kindStated`), which is how "in the acquaintance" went; and the
+writing round leads with a form a lexicographer recorded in a sentence. The conjugation table, the
+government round and minimal pairs no longer open on a tally of nought out of nought.
+
+**Government asks what comes after the verb**, since the verb answers nothing, and its note about a
+second governed case no longer tells a learner they picked it: none of them is ever an option, and
+`õpetama` takes the alaleütlev for whom in the very sentence printed above the note. The page on
+government and the object rule count as case evenings, and the government page's evening drills
+government (`onThePage`). **The picture round asks what the sentence says** ("out of the
+hospital"), the writing round's phrase, with the case's name on the verdict.
+
+
+## 47. The forty-first pass: a B1 evening walked from the start
+
+**An evening's words are met when every one the dictionary holds is met.** The meet step asked
+whether the cards that existed had all been answered, which is the same question only until
+somebody already holds some of tonight's words. Two of a B1 evening's five had come in from
+elsewhere and were long since answered, so the step read as done before anybody pressed Start, the
+press that builds the other three went with it, and `abielu`, `usaldama` and `tülitsema` were never
+taught. A word the dictionary holds and the deck does not is a word still to meet; a word the
+dictionary does not hold still cannot block the evening, and a card the leech clinic suspended
+counts as met, since Start will not rebuild it.
+
+**And an evening begun is the one the module screen draws.** "Come back tomorrow" stood until a step
+of the next day was ticked, and meeting its words ticks nothing, so a learner who pressed "start the
+next one now", met three words and went back was shown last night's "That's tonight done". The next
+day's words given cards since the last tick is that evening begun. The evening letter's own question,
+whether an evening was finished today, is unchanged.
+
+**The right word in another form is said to be that.** Asked for "to trust", `usaldada` is the verb
+and the other infinitive, and the slip rule called it one letter out of `usaldama`: "So close". A
+card that asks for the word from its meaning now hands the marker the word's other spellings
+(`checkAnswer`'s `kin`), and a match reads "Right word, in another form. This one wanted
+“usaldama”.", graded as nearly. A case card's rivals still win, since there another form is the
+wrong answer. The writing round's miss names the form it wanted, both spellings where a case has
+two, and the course-fit card says "every answer right" rather than "100 out of a hundred".
+
+**A round the module deals leads with tonight.** Match, Listening, Tähed, Speaking and the sprint
+filled themselves due cards first and then whatever had lapsed, so a B1 evening's Match put
+tonight's three new words on a board with `aitäh`, `palun` and `tere hommikust`: a learner standing
+at B1 always has an A1 greeting somewhere near due. Inside the module each leads with tonight's
+words and then the evenings just before (`recentLemmas`, `byRecency`), and fills from the rest only
+once those run out; opened from Practice, nothing changed.
+
+**An evening says how many of its words are new.** Sixty-eight times across the ladder an evening
+names a word an earlier one taught, and on purpose: the object and government units drill verbs the
+course gave long before, so the first two evenings of B1 were six such verbs each under "Learn
+tonight's 6 new words". The builder records them (`DaySpec.again`), and the meet step says "Learn
+tonight's 3 new words, and 2 from earlier" or, where none is new, "Go over tonight's 6 words"; the
+module card's figure and the evening letter count the new ones, and the letter no longer has a way
+to say "zero new words tonight".
+
+**Target asks an ending on the evenings it is dealt.** The builder deals it once four case pages have
+been read, counting the genitive and the partitive, and its question builder skipped both, so A2's
+adessive evening, having read the genitive, the inessive, the elative, the partitive and the
+adessive, had three cases to build four options from and asked thirty meaning questions and not
+one ending. The genitive and the partitive are endings to aim at too, read off the stored stems;
+only the nominative, which is the word in the prompt, is left out.
+
+**The dictionary's add panel is on top of the entry it opens over.** `.night` isolates its own
+stacking context, so the panel's `z-40` counted only inside the header, and the case labels on the
+cards of forms below, which are `position: relative`, painted over it: on `aed` and `Saksamaa`
+the panel's Add button sat under "mitmus" and "osastav" and could not be pressed. Found because
+`test-decks.mjs` picks its word by card id and drew one of them in CI; the header stacks at `z-10`
+now, and the suite asks where its click will land before it clicks.
+
+**Every drill on a level's rotation gets its turn.** The forms step takes the drill's place every
+other evening from A2 up, and the rotation's drill was read off the same counter as its game, so
+whichever drills were paired with the games on forms evenings were skipped every time they came
+round: B2 paired the writing round with Tähed and Describe with the sprint, and over its 45
+evenings dealt writing three times and Describe once. The drill's place on the rotation now
+advances only on an evening that deals a drill: B2 writes on seven evenings and describes on four.
+
+## 48. The forty-second pass: what B2 and C1 practise, and the endings for "on"
+
+**The deck asks the "on" endings of a thing, where its sentence uses them.** A case card is a
+sentence a lexicographer wrote, and it still read the older rule that a thing takes the inside
+trio, which was written when a card was built from morphology and nothing else could say which
+trio to drill. So `Söök on laual`, `Pane raamat lauale`, `Käin tööl`, `Talunik müüb turul piima`,
+`Ärkasin kell viis hommikul` and `Lähen juulis puhkusele` were never asked, and the whole of the
+deck's adessive was a person having something: 73 adessive cards, 63 allative and 21 ablative over
+the shipped dictionary. A noun that is a thing now takes whichever trio its sentence uses
+(`sentenceLocalCases`), and `readCase` still decides that the sentence uses that case and no
+other: 391, 314 and 80. A person still never gets the inside trio, a word that is a being and a
+place still gets neither, and an adjective is left alone, because its `-lt` is the adverb
+(`lõplikult`, `kergelt`) and reading it as an ablative teaches a case that is not there. A bare
+ask, Target and the writing round have no sentence to settle anything and keep `caseFits`.
+`npm run audit:sense` asks a deck card the same question, and the deck audit only ever removes an
+inside ending on a word known to take the outside trio, so none of these is condemned.
+
+**And a sentence lent from another word is gapped only on the spelling it was lent for.** Reading
+the new cards found two faults in the borrowed pool, both older than this pass. The course teaches
+`peal`, `kõrval`, `vahel` and `kohal` as postpositions, and they claimed only their own spelling,
+so `laua pealt` and `minu kõrvale` were lent to `pea` and `kõrv` as the ablative of a head and the
+allative of an ear; an adverb in `-l` now claims `-le` and `-lt` too, and one in `-s` claims
+`-st`. And a loan never recorded why it was made: `Peas valitses tühjus, nagu käsipidur olnuks
+peal` is lent to `pea` for `Peas`, and the builder cut `peal` out of it as well. `Example.via` is
+the spellings a loan was made for and `lentFor` holds the deck builder and the flash round to
+them. What is left is a postposition the course does not teach (`puu otsas`, `aastasadade
+jooksul`), which is the residual the claim index already names.
+
+**B1, B2 and C1 have their conversations back.** The fifteen scenes thin out above A2, so B1.1 had
+none, B2 had one and C1 went six weeks without a single conversation, in a course whose whole
+point is the conversation somebody has outside it. A run is pitched at the learner's own level, so
+the same counter at C1 is a different conversation: the clerk who asked a beginner one short
+question at a time talks the way they would to anybody, and the learner has a year of words to
+answer with. Seven come back a level up, each on the unit closest to what it rehearses (the
+neighbor on the stairs with the people in your life, the bus ticket with public life, the doctor
+with health, the job interview with working life, the language course with academic writing, the
+landlord with register, the phone call with the wider world), and the step says it is a second
+time. Every conversation step names its conversation now too, "Buying a bus ticket" rather than
+"Have the conversation", the way a reading step names its page. `course.test.ts` holds every part from the first conversation on to having one, and a
+second time to a level up.
+
+**The nominalisation page shows the doer in front.** "The doer goes in front, in the form that
+means whose" was answered with a reason saying it only makes sense beside the clause it was
+rewritten from, and `Tarbijate käitumine on enamasti ennustatav` shows it on its own. It carries
+that and `Alliansi laienemine on olnud edukas` now, both verified as genitives against the
+dictionary's own forms.
+
+**Describe's caption is a list.** "A picture of house, door and window" wanted articles a gloss
+cannot supply, `a water` and `a bread` among them; "In the picture: house, door, window" needs none.
+
+**Walking out of a level is holding it.** Finishing a part and pressing on wrote the next part and
+never the level, so a learner who walked the course from the first evening was still a beginner to
+everything that reads one: the speed a recording plays at (0.6 of the voice), the band a
+conversation opens at, Anu's briefing and the bands the standalone rounds draw from, all still A1
+on the first evening of C1. Found by opening the C1 conversation above and reading "Your level is
+A1" on its briefing. Moving from the last part of a level into the first of the next records the
+level walked out of (`levelHeldOnHandOff`), one step up and never down, so a jump in Settings to
+a part far above writes nothing and neither does going back to refresh one.
+
+**The writing round asks what a person would write.** It set a task for every local case the
+morphology permits, and a B2 evening opened on "Use aadress in a sentence that says into the
+address", which is the rule's form and nothing anybody sends a letter to: a weak case and tonight's
+case both outranked the tier that put recorded forms first. A local case is now set only where a
+sentence records the form, the word's own or one lent for that very spelling. Three more readings
+were wrong in the same screen. The outside endings of a person read "onto it, or to someone",
+because the phrase was worked out in the browser, which did not know `laps` is a child; it is worked
+out on the server now, here and on the flash round and Describe, and build-a-word reads its own row.
+The osastav read "some of it", a portion of a son, and a sentence has an honest frame for it, the
+object of looking for (`Ma otsin poega`), or "looking for something pleasant" for an adjective. And
+an adjective's other cases read "of the pleasant", which is "of the pleasant one" now
+(`sentenceAsk`).
+
+**A gap says what its sentence means once.** Walked on a C1 evening, the ladder's gap printed
+`That's an exaggeration!` under `See on ?!` and again under `See on liialdus!` once it was answered,
+a hand's width apart: the line under the question stayed while the reveal under it printed the
+sentence whole with its English. The review card, the sprint, the quest and the lesson took the
+question's line away at that point and the ladder, the flash round and the exceptions round did
+not. All seven do now, and an invariant reads the guard on every `GapMeaning`.
+
+**The inessive evening practises the inessive.** Its writing round asked "of the man", "of the
+daughter", "of the son" and on through six genitives, and never the case the evening had just read.
+It read two hundred cards ordered on lapses alone, which tie on nearly every card in a learner's
+first months, so Postgres chose the words, and it chose a block of people, none of whom take the
+inside endings. The cut ends on the id now, and inside the module the round reads tonight's words
+and the evenings just before as every other module round does: the inessive evening teaches
+animals and the two before it the forest, the sea, the lake and the river, which is where the
+inessive is said, and the round asks "in the river", "in the lake", "in the sea".
+
+**Describe asks a case on a word somebody has written in it.** A C1 evening opened a market scene on
+"Write one sentence with sibul that says becoming an onion", and the next round asked "into the
+yarn". Which case each picture asks is decided exactly as before, slot by slot, with tonight's case
+woven through the ones read before it; what moved is which picture and which of its three words
+carries it. A word where a sentence records that case is taken first (`recordsCase`), a case drawn
+only to vary the round gives way to another that is recorded and not yet asked, and the learner's
+weakest and tonight's are asked whatever the word. Measured on a C1 round: "to the woman", "with
+the onion", "out of the stone", "in the cinema", "the child has it".
+
+**Recorded means that case and no other.** "Into the yarn" got through a recorded-form test,
+because the short illative of `lõng` is `lõnga`, which is also its genitive and its partitive, and
+any sentence about yarn holds one of those. `recordsCase` counts a spelling only where `readCase`
+names exactly the case asked, so a short illative spelled like the genitive records nothing and its
+long form has to be found instead. The writing round reads it too.
+
+**A turn read in front of a curveball still answers what else it says.** The B2 bus ticket, walked:
+told the price had changed, a learner wrote `Ma tahaksin osta ühe bussipileti haiglasse`, the
+ticket was met behind the curveball, and the turn stopped there. The clerk asked where they were
+going on the next three turns. The ordinary path walks on to the next beat a turn meets and
+credits a beat it answers further along; the path through a curveball did neither, and does both
+now (`replay`'s `further`).
+
+**And a price change comes after somebody asked for something.** The same run opened with the
+clerk answering `Tere!` with "it costs 2 euros now". A curveball was placed on any beat after the
+greeting, and three of them answer what the learner has not said yet there: a changed price and
+"that can't be done today" follow the first thing asked for, and "the time you wanted has gone"
+follows the first beat where a time is said (`CurveballSpec.follows`, `notBeforeIn`). A scene with
+no such beat never draws one. Every scene is played over sixty seeds a difficulty to hold it.
+
+**Asking what a ticket costs is not paying for it.** Played on: at "card or cash?" the learner asked
+`Kui palju see maksab?` and the pay beat ticked, because it took any form of `maksma`, and the
+verb that means "I'm paying" is the verb that means "it costs". Off that beat now; the café's and
+the pharmacy's, where it is "I'd like to pay", keep it. The price curveball's way out says "say
+whether that price is all right with you", and `Hästi, sobib.` was off the point because only `jah`,
+`ei` and `hea` counted; `hästi` does now (`sobima` is taught a level after some of the scenes that
+admit it). And asked the price in the turn that raised the change, the clerk said `See maksab 2
+eurot.` and then `See maksab nüüd 2 eurot.`: an answer stating a figure the curveball's own line is
+about to state stands down.
+
+**The C1 government round drills the verbs C1 just taught.** It dealt `tutvuma` and eleven more A1 to
+B1 verbs on an evening that follows `lähtuma`, `tulenema`, `seonduma`, `piirduma` and `tuginema`,
+which are what a government drill is for at that level. Inside the module it read the taught
+governed verbs easiest first and two hundred deep, and by C1 the course has taught more than two
+hundred, so the ones it had just taught were the ones cut. It reads them uncut there and leads with
+the most recent. The conjugation table had the same shape, a shuffle of every verb since A1 cut
+alphabetically at a hundred and twenty on an evening pinned to it for its new verbs, and leads with
+them now. Every round the module can deal is held to leading with the words it taught last or to a
+written reason it does not, and six carry one.

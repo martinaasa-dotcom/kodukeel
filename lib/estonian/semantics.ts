@@ -173,6 +173,18 @@ export function semanticGroup(codes: readonly string[] | string | null | undefin
   return real.some(isMixedCode) ? "MIXED" : "ANIMATE";
 }
 
+/**
+ * Whether the codes say what kind of thing a word is, rather than only what
+ * it is like. A noun classified by a property code alone carries the code of
+ * an adjective sense: `tuttav` is taught as "acquaintance" and the Institute's
+ * primary sense is "familiar", so its `omadus` says nothing about whether an
+ * acquaintance is somebody or something. A screen that phrases a place case
+ * in English ("in the house") asks this before it phrases one.
+ */
+export function kindStated(codes: readonly string[] | string | null | undefined): boolean {
+  return codesOf(codes).some((code) => !code.startsWith("omadus"));
+}
+
 /** True only where the dictionary says so, and says nothing against it. */
 export function isAnimate(codes: readonly string[] | string | null | undefined): boolean {
   return semanticGroup(codes) === "ANIMATE";

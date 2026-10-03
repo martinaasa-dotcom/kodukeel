@@ -5,7 +5,7 @@ import {
 } from "@/lib/assessment/plan";
 import { describeSituation, reasonsFor, targetByBand, weeksUntil, type Goals, type Reason } from "@/lib/assessment/goals";
 import { formatDuration } from "@/lib/time/duration";
-import { minutesForCards } from "@/lib/stats/pace";
+import { minutesForCards, minutesPerStudyDay } from "@/lib/stats/pace";
 import { PRE_A1, type Band, type Level } from "@/lib/assessment/types";
 import { ChevronRight } from "lucide-react";
 import { Card, Note, SectionTitle, StatTile } from "@/components/ui";
@@ -100,11 +100,18 @@ function verdictFor(plan: Projection): { tone: "neutral" | "good" | "warn"; head
   }
 }
 
-export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new Date(), compact = false }: {
+export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, now = new Date(), compact = false }: {
   /** Where the learner is, and whether a paper measured it or they guessed. */
   standing: Standing;
   goals: Goals;
   dailyGoal: number;
+  /**
+   * Whether the planned course is giving them an evening, which is what a day
+   * in this app then is (`minutesPerStudyDay`). Required, so a caller that has
+   * not thought about it does not quietly plan five minutes a night for
+   * somebody who was just told fifteen.
+   */
+  onCourse: boolean;
   /** What the review log says they actually do. Null before there is one. */
   pace?: MeasuredPace | null;
   now?: Date;
@@ -129,17 +136,26 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
     return (
       <Card>
         <SectionTitle>Your plan</SectionTitle>
+        {/*
+          In first run the question is directly above this card, so the card
+          points at it rather than at Settings: a link out of the wizard on its
+          third screen left a stranger on a page full of options with no way
+          back to the step they were on, and nothing saved.
+        */}
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          Pick a level to aim for and we&apos;ll work out how long it&apos;ll take: roughly how many hours
-          of study, how many your daily goal covers, and how many you&apos;ll need to find elsewhere.
+          {compact ? "Pick a level to aim for above" : "Pick a level to aim for"} and we&apos;ll work out how long
+          it&apos;ll take: roughly how many hours of study, how many your evenings here cover, and how
+          many you&apos;ll need to find elsewhere.
         </p>
-        <Link
-          href="/settings#goals"
-          className="mt-4 inline-block text-sm underline underline-offset-2"
-          style={{ color: "var(--accent-deep)" }}
-        >
-          Set a goal
-        </Link>
+        {!compact && (
+          <Link
+            href="/settings#goals"
+            className="mt-4 inline-block text-sm underline underline-offset-2"
+            style={{ color: "var(--accent-deep)" }}
+          >
+            Set a goal
+          </Link>
+        )}
       </Card>
     );
   }
@@ -148,7 +164,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
   const plan = project({
     standing,
     to: target,
-    minutesPerDay: minutesFor(dailyGoal),
+    minutesPerDay: minutesPerStudyDay(dailyGoal, onCourse),
     daysPerWeek: goals.daysPerWeek,
     weeksAvailable: weeks,
     /*
@@ -173,7 +189,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
           {verdict.headline}
         </p>
         <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {sentence(plan, weeks, levelLabel(from), target, { guessed, bySkill })}
+          {sentence(plan, weeks, levelLabel(from), target, { guessed, bySkill, onCourse })}
         </p>
         <DistanceBar plan={plan} />
       </Card>
@@ -191,7 +207,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
           value={formatDuration(plan.appHoursPerWeek)}
           label="In this app, each week"
           tone="sky"
-          hint={paceHint(plan, goals, dailyGoal)}
+          hint={paceHint(plan, goals, dailyGoal, onCourse)}
         />
         {/* What the date asks for, all in, rather than how long the app alone
             would take: the second is a number nobody can act on and the first
@@ -348,10 +364,13 @@ function weeksWord(weeks: number | null): string {
 }
 
 /** The small print under the pace tile: what the figure is a figure of. */
-function paceHint(plan: Projection, goals: Goals, dailyGoal: number): string {
+function paceHint(plan: Projection, goals: Goals, dailyGoal: number, onCourse: boolean): string {
   if (plan.paceSource === "measured") return `measured over your last ${weeksWord(plan.paceWeeks)}`;
   if (plan.paceSource === "lapsed") return "your own estimate, as you haven't reviewed lately";
-  return `${minutesFor(dailyGoal)} minutes, ${goals.daysPerWeek} days`;
+  const minutes = minutesPerStudyDay(dailyGoal, onCourse);
+  return onCourse
+    ? `a ${minutes}-minute evening, ${goals.daysPerWeek} days`
+    : `${minutes} minutes, ${goals.daysPerWeek} days`;
 }
 
 /**
@@ -394,7 +413,7 @@ function sentence(
   weeks: number | null,
   from: string,
   to: Band,
-  why: { guessed: boolean; bySkill: boolean },
+  why: { guessed: boolean; bySkill: boolean; onCourse: boolean },
 ): string {
   if (plan.verdict === "arrived") {
     return `You're already at ${to} or above. Pick a higher target, or keep your reviews ticking over and take the check again in a couple of months.`;
@@ -422,16 +441,23 @@ function sentence(
     return `${distance} ${covers}. Pick a date that's still ahead of you and we can plan again.`;
   }
   const covered = hours1(plan.appHoursAvailable ?? 0);
-  const whose = plan.paceSource === "measured" ? "your real pace" : plan.paceSource === "lapsed" ? "the pace you said" : "your daily goal";
+  const whose = plan.paceSource === "measured" ? "your real pace"
+    : plan.paceSource === "lapsed" ? "the pace you said"
+      : why.onCourse ? "your evenings here" : "your daily goal";
   if (plan.verdict === "comfortable") {
-    return `${distance} In ${weeks} weeks ${whose} alone puts in about ${covered} hours, which covers it.`;
+    return `${distance} In ${weeks} weeks ${whose} alone ${puts(whose)} in about ${covered} hours, which covers it.`;
   }
   const rest = plan.verdict === "tight"
     ? "The rest can come from a class, some reading and the Estonian around you. That fits into a normal week."
     : plan.verdict === "possible"
       ? "The rest means real work beyond this app, every week. People who put that in do get there."
       : "The rest is more than most weeks can hold on top of everything else, so either the date or the pace needs to move.";
-  return `${distance} In ${weeks} weeks ${whose} puts in about ${covered} of those hours. ${rest}`;
+  return `${distance} In ${weeks} weeks ${whose} ${puts(whose)} in about ${covered} of those hours. ${rest}`;
+}
+
+/** "puts" or "put", since "your evenings" is the one plural subject. */
+function puts(subject: string): string {
+  return /evenings/.test(subject) ? "put" : "puts";
 }
 
 /**

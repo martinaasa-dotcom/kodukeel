@@ -1399,9 +1399,11 @@
     `dock-pad` is the phone bar's measured height spent as padding under the
     page, and it is nought inside a conversation because a conversation draws
     no phone bar and ends in a panel that is the foot of the screen. A step of
-    tonight's module draws something there instead on a phone: the way on,
-    pinned, which is exactly what the last card of a reading and the box a conversation is
-    answered in would otherwise sit under.
+    tonight's module draws something there instead on a phone: where you are
+    in the evening, pinned, which is exactly what the last card of a reading
+    and the box a conversation is answered in would otherwise sit under. It
+    measures itself (`--module-bar`), so the room under the page is the bar's
+    own height rather than a figure typed to match it.
 
     Written after the conversation's own rather than beside the rule that hides
     the website, because the two selectors have the same weight and a
@@ -1411,24 +1413,18 @@
     the window and the bar is drawn over the bottom of it.
   */
   @media (max-width: 767px) {
-    body:has(.module-step) .dock-pad { padding-bottom: 8rem; }
-    body:has(.module-step) .dock-clear { scroll-margin-bottom: 8rem; }
+    /* Anu sits in the corner above the bar for the whole evening, which is
+       the room the button a round moves on with comes to rest in: measured at
+       390 on the listening step, her button covered the right end of the
+       card's Continue. So the room under a step clears her as well as the
+       bar, her button and its gap above the bar being 4.25rem, and a
+       scroll that brings that button into view stops above her too. */
+    body:has(.module-step) .dock-pad { padding-bottom: calc(var(--module-bar, 6rem) + 5rem); }
+    body:has(.module-step) .dock-clear { scroll-margin-bottom: calc(var(--module-bar, 6rem) + 4.5rem); }
     /* Anu stands clear of the bar that takes the phone bar's place, off its
        measured height (`--module-bar`, written by the bar itself), exactly as
        she stands clear of the phone bar everywhere else. */
-    body:has(.module-step) .anu-fab { bottom: calc(var(--module-bar, 10.5rem) + 0.5rem); }
-  }
-
-  /*
-    On a phone the bar is two rows, the step count beside the cross and the two
-    buttons under it, so it takes more of the foot of the screen than one row
-    does. The same rule as above with the second row's height added, and
-    written before the short-screen block below so a phone on its side, which
-    is wide enough for one row, still takes that block's figure.
-  */
-  @media (max-width: 639px) {
-    body:has(.module-step) .dock-pad { padding-bottom: 10.5rem; }
-    body:has(.module-step) .dock-clear { scroll-margin-bottom: 10.5rem; }
+    body:has(.module-step) .anu-fab { bottom: calc(var(--module-bar, 6rem) + 0.5rem); }
   }
 
   /*
@@ -1443,12 +1439,12 @@
 
     The meter goes first, because it is the one thing on the bar that says
     nothing the caption does not: "step 3 of 5" is the same fact in words, and
-    it is already `aria-hidden`. What stays is the caption, the way back and
-    the way on, which is what the bar is.
+    it is already `aria-hidden`. What stays is the caption and the two ways
+    back, which is what the bar is.
   */
   @media (max-height: 560px) and (max-width: 767px) {
-    body:has(.module-step) .dock-pad { padding-bottom: 5.5rem; }
-    body:has(.module-step) .dock-clear { scroll-margin-bottom: 5.5rem; }
+    body:has(.module-step) .dock-pad { padding-bottom: calc(var(--module-bar, 4.5rem) + 1rem); }
+    body:has(.module-step) .dock-clear { scroll-margin-bottom: calc(var(--module-bar, 4.5rem) + 0.5rem); }
     .module-step { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
     .module-step .module-bar { padding: 0.5rem 0.75rem; }
     .module-step .module-meter { display: none; }
@@ -2441,7 +2437,7 @@
     -webkit-backdrop-filter: blur(18px) saturate(1.3);
     transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .hero-word:hover .hero-word-card { transform: translateY(-4px); }
+  @media (hover: hover) { .hero-word:hover .hero-word-card { transform: translateY(-4px); } }
   /* The card is a button now: no chrome of its own, the card is the control. */
   .hero-word-press {
     display: block; width: 100%; padding: 0; border: 0; background: none;
@@ -2685,7 +2681,7 @@
     centre instead, so hovering can only gain contact, and the shadow alone
     already carries most of what "lifted" reads as.
   */
-  .lift:hover { transform: scale(1.012); border-color: color-mix(in srgb, var(--ink) 18%, transparent); }
+  @media (hover: hover) { .lift:hover { transform: scale(1.012); border-color: color-mix(in srgb, var(--ink) 18%, transparent); } }
   .lift:active { transform: scale(0.995); }
   .press:active { transform: translateY(1px) scale(0.985); }
 
@@ -2701,7 +2697,7 @@
   .key {
     box-shadow: none;
   }
-  .key:hover:not(:disabled) { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 22%, transparent); }
+  @media (hover: hover) { .key:hover:not(:disabled) { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 22%, transparent); } }
   .key:active:not(:disabled) { transform: scale(0.98); }
   .key-paper { border-color: color-mix(in srgb, var(--ink) 11%, transparent); }
   @media (prefers-reduced-motion: reduce) {
@@ -2748,11 +2744,13 @@
     in every direction at once, so it can only gain area under the pointer,
     never lose it, and the lift still reads through the shadow.
   */
-  .choice-btn:hover:not(:disabled) {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-    transform: scale(1.015);
-    box-shadow: var(--depth-sm);
+  @media (hover: hover) {
+    .choice-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      transform: scale(1.015);
+      box-shadow: var(--depth-sm);
+    }
   }
   .choice-btn:active:not(:disabled) { transform: translateY(0) scale(0.99); box-shadow: none; }
 
@@ -2893,11 +2891,13 @@
     box-shadow: var(--shadow-accent);
     font-weight: 700;
   }
-  .choice-chip[data-on]:hover:not(:disabled) {
-    background: var(--accent-deep);
-    border-color: transparent;
-    box-shadow: var(--shadow-accent);
-    filter: brightness(1.08);
+  @media (hover: hover) {
+    .choice-chip[data-on]:hover:not(:disabled) {
+      background: var(--accent-deep);
+      border-color: transparent;
+      box-shadow: var(--shadow-accent);
+      filter: brightness(1.08);
+    }
   }
 
   /*
@@ -2911,9 +2911,11 @@
     border-color: var(--accent);
     box-shadow: inset 0 0 0 1px var(--accent);
   }
-  .choice-card[data-on]:hover:not(:disabled) {
-    border-color: var(--accent);
-    box-shadow: inset 0 0 0 1.5px var(--accent), var(--shadow);
+  @media (hover: hover) {
+    .choice-card[data-on]:hover:not(:disabled) {
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 1.5px var(--accent), var(--shadow);
+    }
   }
 
   /*
@@ -2984,9 +2986,11 @@
     transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .explain[open] > summary::before { transform: rotate(45deg); }
-  .explain > summary:hover {
-    background-color: var(--raised);
-    color: var(--ink-2);
+  @media (hover: hover) {
+    .explain > summary:hover {
+      background-color: var(--raised);
+      color: var(--ink-2);
+    }
   }
   @media (pointer: coarse) {
     .explain > summary { min-height: 44px; }
@@ -2997,9 +3001,11 @@
     transition-duration: 160ms;
     transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .tap-tint:hover:not(:disabled):not([aria-disabled="true"]) {
-    transform: translateY(-1px);
-    background-color: var(--raised);
+  @media (hover: hover) {
+    .tap-tint:hover:not(:disabled):not([aria-disabled="true"]) {
+      transform: translateY(-1px);
+      background-color: var(--raised);
+    }
   }
   .tap-tint:active:not(:disabled) { transform: translateY(1px) scale(0.99); }
 
@@ -3030,9 +3036,11 @@
     transform-origin: left center;
     transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .brand-tap:hover .brand-mark,
   .brand-tap:focus-visible .brand-mark {
     transform: scale(1.035);
+  }
+  @media (hover: hover) {
+    .brand-tap:hover .brand-mark { transform: scale(1.035); }
   }
 
   .fade-up { animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -3190,9 +3198,11 @@
     transition: scale 220ms cubic-bezier(0.34, 1.56, 0.64, 1),
       rotate 220ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 160ms ease;
   }
-  .letter-key:hover:not(:disabled) {
-    scale: 1.12;
-    animation: letter-wiggle 480ms ease-in-out;
+  @media (hover: hover) {
+    .letter-key:hover:not(:disabled) {
+      scale: 1.12;
+      animation: letter-wiggle 480ms ease-in-out;
+    }
   }
   .letter-key:active:not(:disabled) { scale: 0.94; }
   .pop-in { animation: pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
@@ -3424,10 +3434,12 @@
     color: var(--ink);
     animation: cafe-in 360ms calc(var(--i, 0) * 70ms) cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  .cafe-pick:hover:not(:disabled) {
-    border-color: var(--cta);
-    background: color-mix(in srgb, var(--cta) 16%, transparent);
-    box-shadow: 0 0 0 1px var(--cta);
+  @media (hover: hover) {
+    .cafe-pick:hover:not(:disabled) {
+      border-color: var(--cta);
+      background: color-mix(in srgb, var(--cta) 16%, transparent);
+      box-shadow: 0 0 0 1px var(--cta);
+    }
   }
   .cafe-pick:focus-visible { outline: 3px solid var(--cta); outline-offset: 2px; }
   .cafe-done {
@@ -3578,7 +3590,7 @@
       grad-sweep 9s ease-in-out calc(var(--w, 0ms) + 1.2s) infinite;
   }
   .feature-icon { transform-origin: 50% 50%; }
-  .lift:hover .feature-icon { animation: letter-wiggle 520ms ease-in-out; }
+  @media (hover: hover) { .lift:hover .feature-icon { animation: letter-wiggle 520ms ease-in-out; } }
   .anu-hop { animation: anu-hop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .anu-say { animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; transform-origin: 90% 100%; }
 
@@ -3635,9 +3647,9 @@
     width: 0.625rem; height: 0.625rem; border-radius: 9999px;
   }
   .situation-shuffle { color: var(--ink) !important; border-color: rgb(255 255 255 / 0.18) !important; }
-  .situation-shuffle:hover { background: rgb(255 255 255 / 0.1) !important; }
+  @media (hover: hover) { .situation-shuffle:hover { background: rgb(255 255 255 / 0.1) !important; } }
   .situation-shuffle svg { transition: transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1); }
-  .situation-shuffle:hover svg { transform: rotate(-12deg) scale(1.1); }
+  @media (hover: hover) { .situation-shuffle:hover svg { transform: rotate(-12deg) scale(1.1); } }
 
   .situation-window {
     position: relative;
@@ -3660,8 +3672,8 @@
     transition: transform 420ms cubic-bezier(0.34, 1.4, 0.64, 1);
     transform-origin: 50% 90%;
   }
-  .situation-tile:hover .situation-window > svg,
   .situation-tile:focus-visible .situation-window > svg { transform: translateY(-3px) scale(1.05); }
+  @media (hover: hover) { .situation-tile:hover .situation-window > svg { transform: translateY(-3px) scale(1.05); } }
   /* A chip may wrap to two lines on a narrow tile, and a full pill around two
      lines reads as a lozenge rather than a label, so the radius is a corner
      rather than a half-height. */

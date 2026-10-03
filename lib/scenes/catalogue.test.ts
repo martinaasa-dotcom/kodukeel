@@ -266,6 +266,22 @@ describe("the scene catalog", () => {
     Without this the catalog drifts into a list of situations somebody thought
     sounded useful, which is the failure mode that has no test.
   */
+  /*
+    A CURVEBALL MAY NOT BE A BEAT THE SCENE ALREADY HAS. The stairwell chats
+    about the weather as one of its own beats and also admitted the small-talk
+    curveball, so a learner on the stairs was asked about the weather twice.
+  */
+  it("throws no curveball that asks for a beat the scene already has", () => {
+    let checked = 0;
+    for (const scene of SCENES) {
+      const chatsAboutWeather = scene.beats.some((b) => b.topic?.includes("ilm"));
+      if (!chatsAboutWeather) continue;
+      checked += 1;
+      expect(scene.curveballs, scene.id).not.toContain("small-talk");
+    }
+    expect(checked).toBeGreaterThan(0);
+  });
+
   it("tests a unit it draws on", () => {
     for (const scene of SCENES) {
       expect(unitById(scene.tests), `${scene.id} tests ${scene.tests}`).toBeDefined();

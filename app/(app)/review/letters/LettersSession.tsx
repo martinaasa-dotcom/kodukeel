@@ -69,13 +69,13 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
 
   const settled = useCallback((solved: boolean, misses: number) => {
     setAttempted((a) => a + 1);
-    if (solved) {
-      setCorrect((c) => c + 1);
-      if (misses === 0) setFirstTry((f) => f + 1);
-      setStreak((s) => s + 1);
-    } else {
-      setStreak(0);
-    }
+    if (solved) setCorrect((c) => c + 1);
+    if (solved && misses === 0) setFirstTry((f) => f + 1);
+    /* "In a row" means first time, every time. A word put back together on
+       the second go after a shake is solved and is not the run going on: it
+       used to count, so the chip read "3 in a row" over a word the board had
+       just shaken and half filled in. */
+    setStreak((s) => (solved && misses === 0 ? s + 1 : 0));
   }, []);
 
   /*
@@ -127,16 +127,20 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
           <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
             <Mascot size={68} mood="cheer" className="float mx-auto" />
             <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-              Every word spelled
+              {correct === attempted ? "Every word spelled" : `${correct} of ${attempted} spelled`}
             </h1>
             <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
+              {/* What happens to the rest, rather than advice to go and hear
+                  them again on a screen with nothing to press: a word that
+                  took two goes was graded Hard and one the board had to show
+                  was graded Again, so both come round sooner on their own. */}
               {firstTry === attempted && attempted > 0
                 ? "Every one on the first try. You know these letters now."
-                : "Tubli. The ones that took two goes are worth hearing once more."}
+                : `Tubli. ${firstTry} of ${attempted} on the first try, and the others come back a little sooner in your reviews.`}
             </p>
           </div>
         </Lettered>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={firstTry} label="First time" tone="sky" />
           <StatTile value={`${accuracy}%`} label="Spelled" tone={accuracy >= 85 ? "sky" : "butter"} />
           <StatTile value={attempted} label="Words" tone="sky" />
@@ -313,7 +317,13 @@ function Board({ word, streak, correct, onSettled, onNext }: {
           />
         </div>
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          {answered ? "Here it is, letter by letter." : "Put the letters in order. Tap the speaker as often as you like."}
+          {/* Said for the way it went, since "here it is" over a word the
+              learner has just built reads as the board giving it away. */}
+          {!answered
+            ? "Put the letters in order. Tap the speaker as often as you like."
+            : verdict === "right" ? "Spelled right first time."
+              : verdict === "nearly" ? "You got there on the second go."
+                : "Here it is, letter by letter."}
         </p>
 
         {/* THE ROW. One slot per letter, filled as tiles land. Wearing the

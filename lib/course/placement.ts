@@ -89,5 +89,32 @@ export function creditedThrough(held: Level | null, working: Level | null): Leve
   return levelBefore(working) ?? null;
 }
 
+/**
+ * WHAT WALKING OUT OF A LEVEL SAYS SOMEBODY HOLDS, OR NOTHING TO WRITE.
+ *
+ * Finishing a part and pressing on wrote the part and never the level, so a
+ * learner who walked the course from the first evening was still a beginner
+ * to everything that reads one: the speed a recording plays at, the band a
+ * conversation opens at, Anu's briefing and the bands the standalone rounds
+ * draw from, all of it still pitched at A1 on the first evening of C1. Moving
+ * from the last part of a level into the first of the next is the learner
+ * walking out of that level, so they hold it, as a level check or the picker
+ * in Settings would have said; the module's own hand-off warning is still what
+ * says whether the log agrees, and a level is still theirs to change.
+ *
+ * Only ever up and only one step: a jump in Settings to a part far above is
+ * somebody looking, not somebody who has walked anything, and going back down
+ * to refresh a level says nothing about what they hold. And never A1, which
+ * cannot be written as held: a declared A1 reads as "just starting" (above),
+ * and a beginner who finished A1 is already read as A1 by everything that asks.
+ */
+export function levelHeldOnHandOff(
+  from: Level, to: Level, held: Level | null,
+): Level | null {
+  if (levelAfter(from) !== to || from === "A1") return null;
+  if (held !== null && LEVELS.indexOf(held) >= LEVELS.indexOf(from)) return null;
+  return from;
+}
+
 const isLadderLevel = (value: string): value is Level =>
   (LEVELS as readonly string[]).includes(value);

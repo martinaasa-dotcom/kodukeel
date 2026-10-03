@@ -85,6 +85,25 @@ export function claimIndex(entries: readonly BorrowEntry[]): Map<string, Set<str
     // `ajasin` claims `ajas`; `lugesin` claims `luges`. Over-reach is the safe
     // direction here, since a claim only ever refuses.
     if (past && past.toLocaleLowerCase("et").endsWith("in")) claim(past.slice(0, -2), entry.key);
+    /*
+      AND A POSTPOSITION CLAIMS THE TWO SPELLINGS ITS OWN ENDINGS MAKE. The
+      course teaches `peal`, `kõrval`, `vahel` and `kohal` as headwords, and
+      `laua pealt`, `minu kõrvale` and `nõgeste vahelt` are those same words
+      going from and to; unclaimed, they were lent to `pea`, `kõrv` and
+      `vahe` as the ablative of a head and the allative of an ear. An adverb in
+      `-l` claims `-le` and `-lt`, and one in `-s` claims `-st` (`juures`,
+      `juurest`). A claim that is not a word refuses nothing, which is why this
+      may over-reach.
+    */
+    if (entry.pos === "ADVERB" && entry.forms.length === 0) {
+      const word = entry.lemma.trim().toLocaleLowerCase("et");
+      if (/[^l]l$/.test(word)) {
+        claim(`${word}e`, entry.key);
+        claim(`${word.slice(0, -1)}lt`, entry.key);
+      } else if (/[^s]s$/.test(word)) {
+        claim(`${word}t`, entry.key);
+      }
+    }
   }
   return claims;
 }
@@ -98,6 +117,9 @@ export function claimIndex(entries: readonly BorrowEntry[]): Map<string, Set<str
 export function borrowSentences(entries: readonly BorrowEntry[]): Map<string, Example[]> {
   const claims = claimIndex(entries);
   const out = new Map<string, Example[]>();
+  // Which spellings each loan was made for, so a sentence lent for `Peas` is
+  // never gapped on the `peal` beside it. See `Example.via`.
+  const via = new Map<string, Map<string, Set<string>>>();
 
   for (const owner of entries) {
     // A sentence is offered only where it passes the gate its own headword
@@ -115,6 +137,11 @@ export function borrowSentences(entries: readonly BorrowEntry[]): Map<string, Ex
         const held = out.get(key) ?? [];
         held.push(example);
         out.set(key, held);
+        const lent = via.get(key) ?? new Map<string, Set<string>>();
+        const words = lent.get(example.et.toLocaleLowerCase("et")) ?? new Set<string>();
+        words.add(word);
+        lent.set(example.et.toLocaleLowerCase("et"), words);
+        via.set(key, lent);
       }
     }
   }
@@ -140,7 +167,10 @@ export function borrowSentences(entries: readonly BorrowEntry[]): Map<string, Ex
       (Number(Boolean(b.en)) - Number(Boolean(a.en)))
       || (a.et.length - b.et.length)
       || a.et.localeCompare(b.et, "et"));
-    out.set(key, unique.slice(0, MAX_BORROWED));
+    const lent = via.get(key);
+    out.set(key, unique.slice(0, MAX_BORROWED).map((e) => ({
+      ...e, via: [...(lent?.get(e.et.toLocaleLowerCase("et")) ?? [])],
+    })));
   }
   return out;
 }

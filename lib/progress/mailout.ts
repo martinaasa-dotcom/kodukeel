@@ -32,6 +32,7 @@ import type { Candidate } from "@/lib/email/schedule";
 import { AWAY_DAYS, UNCAPPED } from "@/lib/email/schedule";
 import { exactWeeksUntil } from "@/lib/assessment/goals";
 import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
+import { newWordsIn } from "@/lib/course/types";
 import { courseLevelFor } from "@/lib/progress/level";
 import { examCountdown } from "@/lib/progress/countdown";
 import { EVIDENCE_NOTE } from "@/lib/exam/readiness";
@@ -1171,7 +1172,7 @@ export async function letterInputFor(
         subtitle: current.day.subtitle,
         part: current.day.part,
         canDo: current.day.canDo,
-        newWords: current.day.words.length,
+        newWords: newWordsIn(current.day),
         steps: current.day.steps.map((step) => ({
           title: step.title,
           minutes: step.minutes,

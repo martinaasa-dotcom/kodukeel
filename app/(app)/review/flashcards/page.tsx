@@ -3,7 +3,8 @@ import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples, type Example } from "@/lib/dict/examples";
 import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
-import { askableSlots, flashTask, hasSentence, type FlashWord } from "@/lib/games/flash";
+import { askableSlots, flashTask, hasSentence, subjectOf, type FlashWord } from "@/lib/games/flash";
+import { sayPhrase } from "@/lib/estonian/sayIt";
 import { masteryFor, type MasteredWord } from "@/lib/progress/mastery";
 import { MASTERY_CORRECT, MASTERY_ORDER } from "@/lib/srs/mastery";
 import { slotOfCard } from "@/lib/srs/slots";
@@ -276,6 +277,9 @@ function promptFor(
 
   return {
     ...task,
+    // Worked out here, where the word's kind is known: on the screen the
+    // outside endings read "onto it, or to someone" for every person.
+    say: sayPhrase(task.slot, task.translation, subjectOf(source)),
     progress: {
       correct: word.verdict.correct,
       needCorrect: MASTERY_CORRECT,

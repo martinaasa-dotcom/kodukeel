@@ -88,11 +88,12 @@ export function verdictOfRating(rating: number): Verdict {
 }
 
 /**
- * `checkAnswer`'s four readings as three verdicts. A dropped diacritic and a
- * one-letter slip are both the word, nearly, which is what `countsAsRecalled`
- * already says about them one module over.
+ * `checkAnswer`'s five readings as three verdicts. A dropped diacritic, a
+ * one-letter slip and the right word in another form are all the word,
+ * nearly, which is what `countsAsRecalled` already says about them one module
+ * over.
  */
-export function verdictOfCheck(check: "correct" | "diacritics" | "typo" | "wrong"): Verdict {
+export function verdictOfCheck(check: "correct" | "diacritics" | "typo" | "form" | "wrong"): Verdict {
   if (check === "correct") return "right";
   if (check === "wrong") return "wrong";
   return "nearly";
@@ -113,7 +114,7 @@ export function verdictOfCheck(check: "correct" | "diacritics" | "typo" | "wrong
  * A dictation's five readings as three verdicts.
  *
  * NOT `verdictOfCheck`, WHICH ANSWERS ABOUT A DIFFERENT UNION. `checkAnswer`
- * has four readings and a dictation has five: `spacing` is a sentence written
+ * has its own five and a dictation has these five: `spacing` is a sentence written
  * as one word or split in the wrong place, and `close` is a word or two out of
  * a whole sentence, and neither exists on a single-form answer. Both are the
  * middle, for the reason the other two middles are: the learner had it, nearly.
@@ -137,3 +138,19 @@ export function verdictOfCredit(credit: number): Verdict {
   if (credit > 0) return "nearly";
   return "wrong";
 }
+
+/**
+ * A verdict's bold opening and the rest of its line, without saying it twice.
+ *
+ * The marker's note often opens on the verdict already ("Not quite, it's
+ * aadressini"), and a round that printed its own head in front of it read
+ * "Not quite. Not quite, it's aadressini." Where the note opens that way the
+ * bold part is the note's own opening; elsewhere it is the head and a stop.
+ */
+export function verdictLine(head: string, note: string | null | undefined): { strong: string; rest: string } {
+  if (note && note.toLowerCase().startsWith(head.toLowerCase())) {
+    return { strong: note.slice(0, head.length), rest: note.slice(head.length) };
+  }
+  return { strong: `${head}.`, rest: note ? ` ${note}` : "" };
+}
+

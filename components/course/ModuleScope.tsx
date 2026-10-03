@@ -22,10 +22,11 @@ import { ModuleContext, ModuleNextContext, ModuleStepsContext, type ModuleStepRo
  * they had visibly just read.
  *
  * So a step opened from the module has one way on, and pressing it ticks the
- * step and opens the next one in the same press. On a phone it is pinned to the
- * foot of the screen where the phone bar was. On a desktop there is no bar at
- * all: the way on is "Next" where the step ends, on a round's finish screen and
- * at the foot of a reading, and nothing floats over the middle of a round.
+ * step and opens the next one in the same press. It is "Next" where the step
+ * ends, on a round's finish screen and at the foot of a reading, at every
+ * width, and nothing that moves the evening on floats over the middle of a
+ * round. A phone keeps a slim bar where its tab bar was, saying which step this
+ * is and holding the way back to the list.
  *
  * AND THE RAIL AND ANU STAY. The first version took the whole website off the
  * screen, rail, phone bar and tutor's button, and it was reported the other
@@ -69,12 +70,18 @@ export function ModuleScope({ children }: { children: ReactNode }) {
   const params = useSearchParams();
   const focus = readFocus(params.get(MODULE_PARAM));
   const steps = useTonight(focus);
+  /*
+    Whether the step's own end is on the screen, which is the one moment the
+    phone bar's quiet way past the step has nothing left to do: the named
+    "Next" is drawn in the page, and two buttons for one press is one too many.
+  */
+  const [atEnd, setAtEnd] = useState(false);
   return (
     <ModuleContext.Provider value={focus}>
       <ModuleStepsContext.Provider value={steps}>
-        <ModuleNextContext.Provider value={focus ? <ModuleNext focus={focus} steps={steps} /> : null}>
+        <ModuleNextContext.Provider value={focus ? <ModuleNext focus={focus} steps={steps} onShown={setAtEnd} /> : null}>
           {children}
-          {focus && <ModuleBar focus={focus} />}
+          {focus && <ModuleBar focus={focus} atEnd={atEnd} />}
         </ModuleNextContext.Provider>
       </ModuleStepsContext.Provider>
     </ModuleContext.Provider>
@@ -159,24 +166,60 @@ function useCarryOn(focus: ModuleFocus) {
 }
 
 /**
- * THE WAY ON WHERE A STEP ENDS, ON A DESKTOP.
+ * THE WAY ON, WHERE A STEP ENDS, AT EVERY WIDTH.
  *
  * Drawn by whoever reaches the end: a round's finish screen through `WayOut`,
  * the foot of a reading page through `ReadingEnd` and a conversation's debrief
- * through `NextStep`. It names where it goes, "Next, step 3: Match", because a button that only says "Continue" is a
- * button whose destination you find out by pressing it, and the rail beside it
- * already lists the evening by name.
+ * through `NextStep`. It names where it goes, "Next, step 3: Match", because a
+ * button that only says "Continue" is a button whose destination you find out
+ * by pressing it, and the rail beside it already lists the evening by name.
  *
- * A phone keeps its bar for now and this stands down there, since two buttons
- * doing one thing on one screen is one too many.
+ * IT USED TO STAND DOWN ON A PHONE, where the bar pinned to the foot of the
+ * screen carried the way on instead, and that bar was the fault. Its yellow
+ * "Continue" sat under every screen of every step, so a beginner on the Learn
+ * ladder read two "Continue" buttons on one card, the card's own (the next
+ * word) and the bar's (skip the step), and the bar's was the one drawn over
+ * the card's: measured at 390, the round's own button was a sliver showing
+ * above the bar after every answer. So the way on is here on a phone too, at
+ * the one moment it is the thing to press, and the bar is where you are and
+ * the way back to the list.
  */
-function ModuleNext({ focus, steps }: { focus: ModuleFocus; steps: readonly ModuleStepRow[] }) {
+function ModuleNext({ focus, steps, onShown }: {
+  focus: ModuleFocus;
+  steps: readonly ModuleStepRow[];
+  onShown: (shown: boolean) => void;
+}) {
   const { carryOn, pending, failed } = useCarryOn(focus);
+  /*
+    ON THE SCREEN, NOT MERELY ON THE PAGE. The bar's quiet "Next step" steps
+    aside while this is in view, so the two are never on one screen; and only
+    then, because a reading drew this at the foot of a page several screens
+    long and a bar that gave up its button the moment the page mounted left
+    somebody at the top of it with no way on at all.
+  */
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = box.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      onShown(true);
+      return () => onShown(false);
+    }
+    /* The bar is drawn over the foot of the window, so a Next sitting under
+       it is not on the screen yet: the bottom of the window is moved up by
+       the bar's own measured height. */
+    const bar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--module-bar")) || 0;
+    const seen = new IntersectionObserver(
+      ([entry]) => onShown(Boolean(entry?.isIntersecting)),
+      { rootMargin: `0px 0px -${Math.round(bar)}px 0px` },
+    );
+    seen.observe(el);
+    return () => { seen.disconnect(); onShown(false); };
+  }, [onShown]);
   const at = steps.findIndex((s) => s.id === focus.stepId);
   const next = at >= 0 ? steps[at + 1] : undefined;
   const last = focus.n >= focus.of;
   return (
-    <div data-module-next="" className="hidden w-full flex-col items-center gap-2 md:flex">
+    <div ref={box} data-module-next="" className="dock-clear flex w-full flex-col items-center gap-2">
       <Button variant="primary" size="lg" onClick={carryOn} disabled={pending}>
         {last ? (
           <>Finish tonight <ArrowRight size={16} aria-hidden /></>
@@ -187,11 +230,6 @@ function ModuleNext({ focus, steps }: { focus: ModuleFocus; steps: readonly Modu
           </>
         )}
       </Button>
-      {focus.derived && (
-        <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          Answering is what ticks this step off. This button just takes you to the next one.
-        </p>
-      )}
       {failed && (
         <p role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>
           {failed} Nothing has changed.
@@ -202,22 +240,26 @@ function ModuleNext({ focus, steps }: { focus: ModuleFocus; steps: readonly Modu
 }
 
 /**
- * The one way on, pinned to the foot of the screen.
+ * WHERE YOU ARE IN TONIGHT, PINNED TO THE FOOT OF A PHONE.
  *
- * The primary is last in its row, which is this app's rule about a row of
- * buttons everywhere else: the accent one sits where a thumb and a reading eye
- * both end up. What is to its left is not a second choice about tonight, it is
- * the way back to the list, which is still inside the module.
+ * Step three of five, a way back to the list, and a door out of the evening.
+ * It carried the way on as well, a yellow "Continue" under every screen of
+ * every step, and that is what was taken off it: a button which skips the step
+ * looked exactly like the button which answers the card above it, and on the
+ * Learn ladder the two sat a thumb apart with the same word on them. The way
+ * on is drawn where a step ends now (`ModuleNext`), on a phone as on a
+ * desktop, and somebody who wants to leave a step half done has the list.
  *
- * A DERIVED STEP IS PRESSED PAST RATHER THAN TICKED, and the bar says so
- * rather than letting the press imply a row was written. The closing round and
- * meeting the words are read off the learner's own answers, so somebody who
- * walks out of either half way is still looking at an unfinished step when
- * they reach the list, and being told that here is better than finding it out
- * there. Which steps those are is the day's own business, so the frame is told
- * rather than guessing from the step id.
+ * WHAT IS LEFT OF THE OLD BUTTON IS A QUIET WAY PAST THE STEP, because there
+ * is a real reason to want one: a listening round on a bus with no headphones.
+ * It is a ghost named for what it does, "Next step", beside the yellow button
+ * on a card rather than a second yellow "Continue" over it, and it goes the
+ * moment the step's own end is drawn, where the named "Next" is the one press.
+ *
+ * One row at every phone width, which is also what gives the screen back: the
+ * bar was two rows and a caption, a fifth of an 844px phone held for good.
  */
-function ModuleBar({ focus }: { focus: ModuleFocus }) {
+function ModuleBar({ focus, atEnd }: { focus: ModuleFocus; atEnd: boolean }) {
   const { carryOn, pending, failed } = useCarryOn(focus);
 
   /*
@@ -312,9 +354,9 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
       const settled = document.querySelector<HTMLElement>("#main h1");
       /* Unless the learner has started on the new screen, in which case they
          have the caret and are not to be interrupted a second after arriving.
-         The press they came in on does not count: that button is in this bar,
-         and measured across a navigation it is the body that holds the caret
-         afterwards anyway. */
+         The press they came in on does not count: that button was on the
+         screen being left, and measured across a navigation it is the body
+         that holds the caret afterwards anyway. */
       const onTheScreen = document.activeElement instanceof HTMLElement
         && document.getElementById("main")?.contains(document.activeElement);
       if (settled && !onTheScreen) announce(settled);
@@ -322,8 +364,6 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
     raf = requestAnimationFrame(settle);
     return () => cancelAnimationFrame(raf);
   }, [focus.stepId]);
-
-  const last = focus.n >= focus.of;
 
   return (
     /*
@@ -361,34 +401,22 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
         }}
       >
         {/*
-          One row where there is room for it and two on a phone: the two
-          buttons wrap onto a row of their own rather than squeezing the step
-          count into a column of single letters, which is what one row did at
-          360 once the cross joined it. `ml-auto` keeps them on the right on
-          either row, so the way on stays where a thumb ends up.
+          ONE ROW: the door out at the left, where the weakest choice in a row
+          sits in this app, where you are in the middle, and the way back to
+          the list at the right.
         */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="flex items-center gap-2">
           {/*
             AND ONE DOOR BACK INTO THE APP, BECAUSE A ROOM WITH NO WAY OUT IS A
             TRAP RATHER THAN A FOCUS.
 
-            Everything else that leaves is gone on purpose, and the way back to
-            the list is still inside the evening. What was missing is the press
-            for somebody whose evening has ended: the doorbell went, the bus
-            stop arrived, or they simply want the dictionary. Taking them to the
-            list first and making them find the rail from there is two presses
-            to do the one thing a person expects a cross in a corner to do.
-
-            So it is at the far left, where the weakest choice in a row sits in
-            this app, drawn as a cross and a word rather than a button, so it is
-            findable and never competes with the way on. It goes to Today,
-            which is the app's own front door, and it asks nothing: every step
-            already ticked is stored, and the module is where they left it.
-            The word goes at phone width and the cross stays, since the name in
-            `aria-label` begins with the word a sighted reader sees.
-
-            The whole bar is a phone's only: from the width the rail appears
-            at, the rail's own Today is this door and "Next" is the way on.
+            The press for somebody whose evening has ended: the doorbell went,
+            the bus stop arrived, or they simply want the dictionary. It goes to
+            Today, which is the app's own front door, and it asks nothing: every
+            step already ticked is stored, and the module is where they left it.
+            Drawn as a cross and a word rather than a button, so it is findable
+            and never competes with anything; the word goes at phone width and
+            the name in `aria-label` begins with the word a sighted reader sees.
 
             `data-module-leave` is what `scripts/test-module.mjs` reads to tell
             this door, which is deliberate, from a door a round left open.
@@ -403,7 +431,7 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
             <X size={16} aria-hidden />
             <span className="hidden sm:inline">Leave</span>
           </Link>
-          <div className="min-w-[7rem] flex-1">
+          <div className="min-w-[4rem] flex-1">
             <p className="label-xs whitespace-nowrap" style={{ color: "var(--ink-3)" }}>
               Step {focus.n} of {focus.of}
             </p>
@@ -421,37 +449,20 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
             </div>
           </div>
           {/*
-            THE QUIET WAY BACK TO THE LIST. It goes to the module's own screen
-            rather than to Today, because leaving a step is not leaving the
-            evening: the list is where the rest of tonight is, and
-            an app that answered "I am done with this bit" with its home page
-            would be the exit this frame exists to remove.
+            THE WAY BACK TO THE LIST. It goes to the module's own screen rather
+            than to Today, because leaving a step is not leaving the evening:
+            the list is where the rest of tonight is, and where a step can be
+            ticked or skipped by hand.
           */}
-          <div className="ml-auto flex shrink-0 items-center gap-2 whitespace-nowrap">
-            <ButtonLink href={MODULE_HOME} variant="ghost">
-              <ListChecks size={15} aria-hidden /> Tonight
-            </ButtonLink>
-            <Button variant="primary" onClick={carryOn} disabled={pending}>
-              {last ? "Finish" : "Continue"} <ArrowRight size={15} aria-hidden />
+          {!atEnd && (
+            <Button variant="ghost" onClick={carryOn} disabled={pending} className="shrink-0">
+              {focus.n >= focus.of ? "Finish" : "Next step"}
             </Button>
-          </div>
+          )}
+          <ButtonLink href={MODULE_HOME} variant="secondary" className="shrink-0">
+            <ListChecks size={15} aria-hidden /> Tonight
+          </ButtonLink>
         </div>
-        {/*
-          AND A STEP THE LOG FINISHES SAYS SO BEFORE IT IS PRESSED PAST.
-
-          Meeting the words and the closing round are read off the learner's
-          own answers and this press writes nothing for either, so somebody who
-          walks out of one half way meets an unfinished step when they reach
-          the list. That surprise is the shape of the thing this whole change
-          was reported as, one room over, and one line here is cheaper than
-          finding it out there. The same fact the list states, in the tense of
-          somebody standing on the step.
-        */}
-        {focus.derived && (
-          <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Answering is what ticks this step off. This button just takes you to the next one.
-          </p>
-        )}
         {failed && (
           <p role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>
             {failed} You&apos;re still on this step.

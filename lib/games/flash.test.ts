@@ -298,6 +298,33 @@ describe("flashTask", () => {
     expect(shapesFor(pori, illative)).toEqual(["inflect", "build"]);
   });
 
+  it("cuts no sentence for a case whose spelling there is also another case", () => {
+    /*
+      `aadressi` is the short sisseütlev, the omastav and the osastav at
+      once, and the round played `Ma ei tea tema praegust aadressi.`, the
+      object of "I don't know", to ask for "into the address".
+    */
+    const aadress: FlashWord = {
+      lexemeId: "lex-aadress", lemma: "aadress", translation: "address", pos: "NOUN",
+      semanticTypes: "koht",
+      forms: [
+        { formType: "NOM_SG", value: "aadress" },
+        { formType: "GEN_SG", value: "aadressi" },
+        { formType: "PART_SG", value: "aadressi" },
+        { formType: "ILL_SG_SHORT", value: "aadressi" },
+      ],
+      examples: [
+        { et: "Ma ei tea tema praegust aadressi.", source: "EKILEX" },
+        { et: "Viga oli aadressis.", source: "EKILEX" },
+      ],
+    };
+    const slot = (key: string) => askableSlots(aadress).find((s) => s.slot === key)!;
+    expect(shapesFor(aadress, slot("ILLATIVE"))).not.toContain("gap");
+    expect(shapesFor(aadress, slot("ILLATIVE"))).not.toContain("heard");
+    // A spelling no other case shares is still cut, which is the rule's other half.
+    expect(shapesFor(aadress, slot("INESSIVE"))).toContain("gap");
+  });
+
   it("hides the sentence on the heard shape and keeps it for the reveal", () => {
     const task = taskFor(TUBA, "INESSIVE", 1)!;
     expect(task.shape).toBe("heard");
