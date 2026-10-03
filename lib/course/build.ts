@@ -650,13 +650,20 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         what it teaches to be shown on.
       */
       const ladderEnd = last && PARTS.at(-1)?.id === spec.id && unitId === spec.units.at(-1);
+      /* A page built on a case is a case evening too: the object rule and
+         government are about which ending a noun takes, and an evening that
+         read one drilled verb pasts beside it. */
+      const caseEvening = Boolean(reading.grammarCase || (reading.grammar && builtOnACase(reading.grammar)));
       const forms = (last && scene)
-        || (!ladderEnd && (reading.grammarCase || (days.at(-1)?.forms?.length ?? 0) > 0))
+        || (!ladderEnd && (caseEvening || (days.at(-1)?.forms?.length ?? 0) > 0))
         ? []
         : ledger.showForms();
-      const dealt = onTheCase(
-        rounds(spec.level, turn, verbs && n % 2 === 0, ledger.taught(), verbs, days.at(-1)?.practice ?? []),
-        reading.grammarCase, spec.level, ledger.taught(), days.at(-1)?.practice ?? [],
+      const dealt = onThePage(
+        onTheCase(
+          rounds(spec.level, turn, verbs && n % 2 === 0, ledger.taught(), verbs, days.at(-1)?.practice ?? []),
+          caseEvening, spec.level, ledger.taught(), days.at(-1)?.practice ?? [],
+        ),
+        reading.grammar, spec.level, ledger.taught(),
       );
       days.push(day(
         {
@@ -714,10 +721,10 @@ export const CASE_ROUNDS: ReadonlySet<ActivityKey> = new Set(["target", "write",
  * drill on it, or a ledger that supports none yet, keeps what it was dealt.
  */
 export function onTheCase(
-  dealt: readonly ActivityKey[], grammarCase: string | undefined, level: string, taught: Taught,
+  dealt: readonly ActivityKey[], caseEvening: boolean, level: string, taught: Taught,
   before: readonly ActivityKey[] = [],
 ): ActivityKey[] {
-  if (!grammarCase) return [...dealt];
+  if (!caseEvening) return [...dealt];
   const rotation = ROTATION[level] ?? ROTATION.A1!;
   const drills = rotation.filter((key) =>
     ACTIVITIES[key].kind === "drill" && CASE_ROUNDS.has(key) && supportsRound(key, taught, level));
@@ -735,6 +742,22 @@ export function onTheCase(
     if (game) return out.map((key) => (ACTIVITIES[key].kind === "game" ? game : key));
   }
   return out;
+}
+
+/**
+ * The round a topic page is about, where there is exactly one: the page on
+ * verbs that demand an ending and the government drill, which asks that very
+ * thing. Read on the evening the page is, it is the drill.
+ */
+export const PAGE_ROUND: Readonly<Record<string, ActivityKey>> = { government: "government" };
+
+/** An evening that reads a page with a round of its own plays that round as its drill. */
+export function onThePage(
+  dealt: readonly ActivityKey[], page: string | undefined, level: string, taught: Taught,
+): ActivityKey[] {
+  const own = page ? PAGE_ROUND[page] : undefined;
+  if (!own || dealt.includes(own) || !supportsRound(own, taught, level)) return [...dealt];
+  return dealt.map((key) => (ACTIVITIES[key].kind === ACTIVITIES[own].kind ? own : key));
 }
 
 /**

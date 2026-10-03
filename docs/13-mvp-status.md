@@ -2735,6 +2735,13 @@ so tonight's list says what tonight is about, and no longer promises three quest
 has none. **The case page asks by meaning**: "vanus means age. Which one says in the age?" rather
 than which word wears a case's name. **No place case is phrased in English for a word whose kind
 the dictionary has not stated** (`kindStated`), which is how "in the acquaintance" went; and the
-writing round leads with a form a lexicographer recorded in a sentence. The conjugation table no
-longer opens on "0 of 0 tables perfect".
+writing round leads with a form a lexicographer recorded in a sentence. The conjugation table, the
+government round and minimal pairs no longer open on a tally of nought out of nought.
+
+**Government asks what comes after the verb**, since the verb answers nothing, and its note about a
+second governed case no longer tells a learner they picked it: none of them is ever an option, and
+`õpetama` takes the alaleütlev for whom in the very sentence printed above the note. The page on
+government and the object rule count as case evenings, and the government page's evening drills
+government (`onThePage`). **The picture round asks what the sentence says** ("out of the
+hospital"), the writing round's phrase, with the case's name on the verdict.
 

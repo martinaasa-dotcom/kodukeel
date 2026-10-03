@@ -1,5 +1,6 @@
 "use client";
 
+import { sayPhrase } from "@/lib/estonian/sayIt";
 import { PARTS } from "@/lib/copy/values";
 import { useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
@@ -112,6 +113,11 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   const startedAt = useRef(Date.now());
 
   const prompt = prompts[index];
+  // What the sentence has to say, `out of the hospital`, the writing round's
+  // own phrase, and whether it already carries the word's meaning.
+  const phrase = prompt ? sayPhrase(prompt.caseKey, prompt.askTranslation) : null;
+  const firstSense = prompt?.askTranslation.split(/[,;(]/)[0]?.trim().toLowerCase() ?? "";
+  const saysGloss = !!phrase && firstSense.length > 0 && phrase.toLowerCase().includes(firstSense);
   const finished = !prompt;
   /* The way back to the picture before this one. See `lib/ux/lookBack.ts`. */
   const look = useLookBack();
@@ -296,17 +302,43 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
             </span>
           </p>
 
-          <p className="mt-7 text-sm" style={{ color: "var(--ink-2)" }}>
-            Write one sentence about this, with{" "}
-            <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
-              {prompt.askLemma}
-            </strong>{" "}
-            <span style={{ color: "var(--ink-3)" }}>({prompt.askTranslation})</span> in the
-          </p>
-          {/* The case and the question it answers, drawn as one label. */}
-          <p className="mt-2 text-lg">
-            <CaseLabel label={{ et: prompt.caseEt, question: prompt.caseQuestion }} />
-          </p>
+          {/*
+            WHAT THE SENTENCE HAS TO SAY, NOT WHAT THE CASE IS CALLED. The
+            writing round made this change first and its own comment has the
+            argument: the case's name and its question are lines of grammar
+            standing between a learner and a sentence, and "out of the
+            hospital" is the whole of what the ending means. The name is on
+            the verdict, where it is worth keeping, and where no honest phrase
+            fits the label stands in as before.
+          */}
+          {phrase ? (
+            <>
+              <p className="mt-7 text-sm" style={{ color: "var(--ink-2)" }}>
+                Write one sentence about this, with{" "}
+                <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
+                  {prompt.askLemma}
+                </strong>
+                {!saysGloss && <span style={{ color: "var(--ink-3)" }}> ({prompt.askTranslation})</span>}, that says
+              </p>
+              <p data-say className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
+                “{phrase}”
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mt-7 text-sm" style={{ color: "var(--ink-2)" }}>
+                Write one sentence about this, with{" "}
+                <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
+                  {prompt.askLemma}
+                </strong>{" "}
+                <span style={{ color: "var(--ink-3)" }}>({prompt.askTranslation})</span> in the
+              </p>
+              {/* The case and the question it answers, drawn as one label. */}
+              <p className="mt-2 text-lg">
+                <CaseLabel label={{ et: prompt.caseEt, question: prompt.caseQuestion }} />
+              </p>
+            </>
+          )}
 
           <div className="mt-6">
             <label htmlFor="sentence" className="label-xs block" style={{ color: "var(--ink-3)" }}>

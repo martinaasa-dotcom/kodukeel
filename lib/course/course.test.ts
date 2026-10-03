@@ -10,7 +10,7 @@ import {
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
-  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING, CASE_ROUNDS,
+  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING, CASE_ROUNDS, PAGE_ROUND,
 } from "./index";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { readFileSync } from "node:fs";
@@ -398,13 +398,17 @@ describe("what a day reads and where it goes", () => {
   it("practises the case an evening reads, where a round can ask it", () => {
     let walked = 0;
     for (const { programme, day } of DAYS) {
-      if (!day.grammarCase) continue;
+      if (!day.grammarCase && !(day.grammar && builtOnACase(day.grammar))) continue;
       expect(day.forms ?? [], `${day.id} reads a case and shows the past`).toEqual([]);
       const could = supportedRounds(programme.level, taughtBy(programme, day.index))
         .filter((key) => CASE_ROUNDS.has(key));
       if (could.length === 0) continue;
       walked += 1;
-      expect(day.practice.some((key) => CASE_ROUNDS.has(key)), `${day.id} reads ${day.grammarCase}`).toBe(true);
+      const own = day.grammar ? PAGE_ROUND[day.grammar] : undefined;
+      expect(
+        day.practice.some((key) => CASE_ROUNDS.has(key) || key === own),
+        `${day.id} reads ${day.grammarCase ?? day.grammar}`,
+      ).toBe(true);
     }
     expect(walked).toBeGreaterThan(15);
   });

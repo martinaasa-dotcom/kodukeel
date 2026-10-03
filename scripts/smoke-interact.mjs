@@ -120,7 +120,7 @@ if ((await options.count()) === 0) {
   await app.getByRole("button", { name: /^Next/ }).click();
   await page.waitForTimeout(400);
   check("Next advances to a new question",
-    (await app.getByText(/Which question does it answer/i).count()) > 0);
+    (await app.getByText(/Which question comes after it/i).count()) > 0);
 }
 
 // ── Cloze: paste a passage built from the learner's own deck ─────────────────

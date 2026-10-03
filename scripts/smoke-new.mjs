@@ -94,7 +94,7 @@ for (const [route, name] of ROUTES) {
 await page.goto(`${BASE}/review/government`, { waitUntil: "networkidle" });
 await startRound(page);
 check("government drill has real questions",
-  (await page.getByText(/Which question does it answer/i).count()) > 0);
+  (await page.getByText(/Which question comes after it/i).count()) > 0);
 // Assert the rule, not three case names. The distractors are drawn from the
 // cases the learner's own deck actually governs, so a legitimate round can
 // offer four cases and name none of the three that used to be hard-coded here.
