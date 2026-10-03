@@ -416,8 +416,18 @@ export function propBySlot(card: RoleCard, slot: string): DrawnProp | undefined 
  * for it (`cardAfterHurdles`): once the price has changed, the price is the
  * new one, and a card read through that swap carries it under the same slot.
  */
+/*
+ * AND WHERE THE ONLY PRICE IS THEIRS, THAT ONE. A clothes shop deals the price
+ * as the shop's own fact, said when the learner asks rather than printed on
+ * their card, so asked "how much?" with no model the assistant found no price
+ * of the learner's and said `Ei tea.` at the till. The other side's price is
+ * the answer wherever the learner holds none; where they hold one, a second
+ * price of theirs is the price curveball's and is stood in only once it is
+ * raised (`cardAfterHurdles`).
+ */
 export function priceOnCard(card: RoleCard | null): DrawnProp | undefined {
-  return card?.props.find((prop) => prop.price && !prop.theirs);
+  return card?.props.find((prop) => prop.price && !prop.theirs)
+    ?? card?.props.find((prop) => prop.price && prop.theirs);
 }
 
 /**

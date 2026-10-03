@@ -415,6 +415,17 @@ export function offerFor(
     `Alustama?`, `Ostma?`). The thing the question is about is a noun on the
     same list, `Buss?`, `Koht?`, `Keel?`, `Päev?`.
   */
+  /*
+    AND WHERE ASKING IS THE WHOLE OF THE BEAT, THE QUESTION WORD IS THE HELP.
+    The rule above keeps a question word away from a beat that asked one, and
+    a beat whose only requirement is a question is the other way round: told
+    nobody could come this week and to ask when somebody could, a lost tenant
+    was handed `Remont?`, and `Millal?` is what they were trying to say. Only
+    a question word the beat's own topic names.
+  */
+  const asking = beat.needs.length === 1 && beat.needs[0]!.kind === "question";
+  const ask = asking ? beat.topic.find((lemma) => questionWords.has(lemma)) : undefined;
+  if (ask) return ask;
   const pointer = beat.topic.find((lemma) => !questionWords.has(lemma) && !verbs.has(lemma));
   return pointer ?? null;
 }

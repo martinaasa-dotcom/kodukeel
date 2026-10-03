@@ -94,7 +94,7 @@ export type Requirement =
   | { readonly kind: "question" }
   /** The negator. */
   | { readonly kind: "negation" }
-  /** A form of the pronoun the scene's register expects. */
+  /** A form of the pronoun the scene's register expects, or any turn in Estonian. */
   | { readonly kind: "register" }
   /** Small talk. Never fails, and exists so a beat can be colour. */
   | { readonly kind: "any" }

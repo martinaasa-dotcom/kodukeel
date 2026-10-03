@@ -43,12 +43,12 @@ import { seedFrom } from "../lib/random/seeded";
 import {
   replyFor, composeNote, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, factsFor, stageFor,
   establishedBy, heldBack, heldNumbers, sceneMovedOn,
-  wantsAsideFor,
+  wantsAsideFor, sayableAfterHurdles,
   feltAt,
 } from "../lib/scenes/reply";
 import { asideFor, asideOwed, asksPrice, asksToHearAgain, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
-import { sceneLine } from "../lib/scenes/line";
+import { isSaid, sceneLine } from "../lib/scenes/line";
 import { PERSONAS } from "../lib/scenes/personas";
 import { answerBeatId, sceneBeats } from "../lib/scenes/scripted";
 import { reviewOf } from "../lib/scenes/review";
@@ -370,7 +370,9 @@ async function play(sceneId: string) {
     const landedNow = response === "answer" || response === "counter" || elsewhere > 0;
     // A real question on a missed turn is answered off the card too, as the route does.
     const wantsAside = wantsAsideFor(askedNow, turns.length ? response : null, last?.reading ?? null, elsewhere > 0);
-    const fresh = (id: string | undefined) => (id ? context.scripted.get(id) ?? [] : []).filter((t) => !used.has(t));
+    const bank = (id: string | undefined): readonly string[] =>
+      id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators) : [];
+    const fresh = (id: string | undefined) => bank(id).filter((t) => !used.has(t));
     const asking = {
       asked: askedNow, spoken: words(last?.said ?? ""), said: last?.said ?? "", answered, card, lexicon: context.lexicon,
       more: fresh(answered?.id), answers: answered ? fresh(answerBeatId(answered)) : [], missed: !landedNow,
@@ -467,7 +469,7 @@ async function play(sceneId: string) {
             .flatMap((forms) => [...forms]),
         ]),
         hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
-        scripted: context.scripted.get(spokenFor.id) ?? [], used,
+        scripted: bank(spokenFor.id), used,
         // Where this run starts reading a beat's own lines, as the route does.
         rotate: seedFrom(`${scene.id}:${run.seed}`),
         /*
@@ -529,7 +531,7 @@ async function play(sceneId: string) {
             // In the cached half, as the route sends them (`ComposeScene.voice`).
             examples: [],
             // This beat's own, as the route hands them: ask the same thing, in your own words.
-            asked: (context.scripted.get(spokenFor.id) ?? []).slice(0, 2),
+            asked: (bank(spokenFor.id)).slice(0, 2),
             agenda, settled, established, moved,
             stillTalking: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, [...FAREWELLS, ...LEAVING]),
             // And what happened to the turn, which is the route's own wording.
@@ -597,7 +599,7 @@ async function play(sceneId: string) {
       }) : null,
       hurdle: standing ? {
         beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said,
-        then: ASKS_ON.has(hurdleSpec(state)?.id ?? "") ? (context.scripted.get(beat?.id ?? "") ?? []).find((t) => !used.has(t)) ?? null : null,
+        then: ASKS_ON.has(hurdleSpec(state)?.id ?? "") ? fresh(beat?.id)[0] ?? null : null,
       } : null,
     });
     if (last) {
@@ -614,7 +616,8 @@ async function play(sceneId: string) {
       if (l.provenance === "attested" || l.provenance === "scripted") used.add(l.text);
     }
     const move = [...lines].reverse().find((l) => !l.reaction);
-    if (move && move.provenance !== "unspoken") heard = move.text;
+    // As `moveIn` in `components/scene/SceneSession.tsx`: a move not said aloud leaves nothing to say again.
+    if (move) heard = isSaid(move.provenance) ? move.text : "";
     if (isOver(scene, state)) {
       console.log(`   -> over: ${state.done.join(", ")}`);
       const review = reviewOf(scene, state);

@@ -539,6 +539,17 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
   */
   const scripted = turned(request.scripted, request.rotate).find((text) => !request.used.has(text));
   if (scripted) return { text: scripted, provenance: "scripted" };
+  /*
+    AND WHERE EVERY LINE FOR THE BEAT HAS BEEN SAID, ONE IS SAID AGAIN. A
+    curveball can carry the beat's question straight on after it (`ASKS_ON`),
+    which spends the beat's line before the beat is reached; asked to slow
+    down, the shop assistant then had nothing left and the screen printed the
+    English stage direction in place of the question. Repeating your own
+    question is what a person does, and it is marked as said again.
+  */
+  // Not on a beat with a line off the card: the caller says that one (`datumLine`), which is the price at the till.
+  const repeated = request.beat.says ? undefined : turned(request.scripted, request.rotate)[0];
+  if (repeated) return { text: repeated, provenance: "again" };
 
   return fallbackLine(request.fallback, withheld);
 }

@@ -9149,7 +9149,7 @@ check("the other side talks like a person: short pronouns, feelings, and hello i
   assert.match(prompt, /short forms of[\s\S]{0,40}the pronouns/, "the prompt no longer asks for the everyday pronouns");
   assert.match(prompt, /Have feelings and show them/, "the prompt no longer asks the other side to react to what was said");
   for (const file of [
-    "app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts",
+    "app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/lib/keylessPlay.ts",
     "scripts/eval-thinking.ts", "scripts/measure-compose.ts",
   ]) {
     const src = code(file);
@@ -9183,7 +9183,7 @@ check("the other side talks like a person: short pronouns, feelings, and hello i
     the allowance runs out.
   */
   assert.match(code("lib/scenes/reply.ts"), /const felt = feltAt\(answered, response\)/, "the keyless reply no longer feels the beat's news");
-  for (const file of ["app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts"]) {
+  for (const file of ["app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/lib/keylessPlay.ts"]) {
     assert.match(code(file), /feel: feltAt\(answered,/, `${file} composes without telling the model what the turn was to this person`);
   }
   assert.match(prompt, /ask\.feel === "sorry"/, "the prompt no longer reads the beat's feeling");
@@ -9272,7 +9272,7 @@ check("the other side talks at the run's band, and every composer says which ban
   assert.match(code("lib/scenes/bank.test.ts"), /fitsPitch\(row\.text, row\.level\)/, "the bank test no longer holds a pitched row to its band");
   const callers = [
     "app/api/scene/route.ts", "scripts/eval-composers.ts", "scripts/eval-thinking.ts",
-    "scripts/measure-compose.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts",
+    "scripts/measure-compose.ts", "scripts/play-scene.ts", "scripts/lib/keylessPlay.ts",
   ];
   for (const file of callers) {
     const source = code(file);
@@ -18762,7 +18762,9 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   // The close beat after a learner's news is the one courtesy the model answers (`closingOnNews`).
   assert.match(route, /if \(cheap\.provenance === "attested" && !shrugOwed && !handing && !askedNow && !closingOnNews\) return/,
     "the route no longer answers a courtesy off the dictionary before asking a model to paraphrase it");
-  assert.match(route, /scripted: context\.scripted\.get\(beat\.id\)/, "the route no longer hands the ladder the bank");
+  assert.match(route, /scripted: bank\(beat\.id\)/, "the route no longer hands the ladder the bank");
+  assert.match(route, /const bank = [\s\S]{0,200}?sayableAfterHurdles\(context\.scripted\.get\(id\)/,
+    "the route's bank no longer reads the scene's own lines, less what a curveball has made untrue");
 
   assert.match(
     code("components/scene/SceneSession.tsx"),
@@ -19673,8 +19675,13 @@ check("a learner who says they are lost is handed the word, never the question a
   const turn = code("lib/scenes/turn.ts");
   assert.match(turn, /\| "lost"/, "the marker no longer reads a learner saying they are not following");
   assert.match(
-    turn, /!wantsNo && isLost\(spoken, context\)/,
+    turn, /\(!wantsNo \|\| lostOnly\) && isLost\(spoken, context\)/,
     "the lost reading no longer stands down on a beat that wanted a no, where ei is the answer",
+  );
+  // And it stands down only where a no is said apart from the lost phrase: `ma ei tea` alone is lost, `ei` alone is the answer.
+  assert.match(
+    turn, /const lostOnly = spoken\.filter\(\(word\) => context\.negators\.has\(word\)\)\.length <= 1;/,
+    "a beat that wanted a no reads `ma ei tea` as the answer again",
   );
   assert.match(
     code("lib/scenes/catalogue.ts"), /export const LOST = \{/,
@@ -19715,7 +19722,7 @@ check("a learner who says they are lost is handed the word, never the question a
     The first version handed the model "Tell them you would like a ticket" as
     settled, and it answered the next turn as the customer (§70).
   */
-  for (const file of ["app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts"]) {
+  for (const file of ["app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/lib/keylessPlay.ts"]) {
     assert.doesNotMatch(
       code(file), /settled = [^\n]*\.goal\)/,
       `${file} hands the model the learner's goals as what is settled, which it reads as its own lines`,
@@ -20286,7 +20293,7 @@ check("a beat answered out of order is credited, and never asked twice", () => {
     + "beat twice",
   );
   assert.match(
-    replay, /if \(also\.reading !== "complete" \|\| !addsEvidence\(also, spent\)\) continue;/,
+    replay, /if \(also\.reading !== "complete" \|\| !addsEvidence\(also, spent\) \|\| also\.substituted\.length > 0\) continue;/,
     "the look-ahead credits a beat on a coincidence: it has to be met outright, with a word this "
     + "turn has not already spent",
   );
@@ -20564,7 +20571,7 @@ check("a composed line is shown how its own beat is asked", () => {
     + "again or is not steered by it at all",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /asked: \(context\.scripted\.get\(beat\.id\) \?\? \[\]\)/,
+    code("app/api/scene/route.ts"), /asked: bank\(beat\.id\)\.slice\(0, 2\)/,
     "the scene route stopped handing the composer this beat's own lines",
   );
 });

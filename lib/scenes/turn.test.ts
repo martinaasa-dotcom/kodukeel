@@ -429,6 +429,48 @@ describe("reading a turn", () => {
     expect(seen.reading).toBe("english");
   });
 
+  /*
+    THE FORMS LIST VOUCHES `i`, `do`, `is` AND `sorry` AS RARE ESTONIAN
+    SPELLINGS, which the test context above does not, so the test above passed
+    while the app read almost no English sentence as English. With the list
+    the way production widens it: an English sentence is English, an English
+    "I don't understand" is a learner who is lost, and asking whether they
+    speak English in English is asking for English.
+  */
+  it("reads English as English even where the forms list vouches some of its words", () => {
+    const formsList = new Set(["sorry", "i", "do", "is", "ok", "no"]);
+    const widened = context({ known: (word) => formsList.has(word) || LEX.forms.has(word) });
+    expect(readTurn("Sorry, what do you mean?", beat(), widened).reading).toBe("english");
+    expect(readTurn("Sorry, I don't understand.", beat(), widened).reading).toBe("lost");
+    const asking = readTurn("Do you speak English?", beat(), widened);
+    expect(asking.reading).toBe("english");
+    expect(asking.wantsEnglish).toBe(true);
+    // Not a greeting, because one of its words is also an Estonian spelling.
+    const hello = beat({ id: "greet", move: "greet", topic: ["tere"], needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    expect(readTurn("Do you speak English?", hello, widened).reading).not.toBe("complete");
+    // And an Estonian turn with one English word in it is still Estonian.
+    expect(readTurn("Mul on valu, sorry", beat(), widened).reading).toBe("complete");
+  });
+
+  it("takes any turn in Estonian as answering in Estonian, and English as not", () => {
+    const switched = beat({ id: "hurdle:english", needs: [{ kind: "register" }] });
+    const estonian = new Set(["ma", "räägin", "eesti", "keelt", "i", "do"]);
+    const widened = context({ known: (word) => estonian.has(word) || LEX.forms.has(word) });
+    expect(readTurn("Ma räägin eesti keelt.", switched, widened).missing).toEqual([]);
+    expect(readTurn("teie", switched, widened).missing).toEqual([]);
+    expect(readTurn("I do not know what you mean", switched, widened).missing).toEqual([0]);
+  });
+
+  it("never takes a request for English as the question a beat asked for", () => {
+    const far = beat({ id: "far", goal: "Ask if it's far.", needs: [{ kind: "question" }] });
+    for (const said of ["Do you speak English?", "Kas te räägite inglise keelt?"]) {
+      const seen = readTurn(said, far, context());
+      expect(seen.missing, said).toEqual([0]);
+      expect(seen.wantsEnglish, said).toBe(true);
+    }
+    expect(readTurn("Kas see on kaugel?", far, context()).missing).toEqual([]);
+  });
+
   it("does not read a loan word inside an Estonian turn as English", () => {
     /*
       One English function word is a slip; two with nothing vouched is a turn in
@@ -931,9 +973,19 @@ describe("a learner who says they are not following", () => {
     expect(readTurn("ma tean", beat(), ctx).reading).not.toBe("lost");
   });
 
-  it("is never read on a beat that wanted a no, where ei is the answer", () => {
+  /*
+    On a beat that wanted a no, `ei` is the answer and is never read as a cry
+    for help. "I don't know" is not a no, though: misheard and told to say that
+    is not it, `ma ei tea` was read as the correction and the other side
+    apologised to somebody who was lost. So the phrase alone is lost there too,
+    and a no said beside it is a no.
+  */
+  it("reads ei as the answer on a beat that wanted a no, and I don't know as lost", () => {
     const refusing = beat({ needs: [{ kind: "negation" }], shape: "word" });
-    expect(readTurn("ma ei tea", refusing, ctx).reading).toBe("complete");
+    expect(readTurn("ei", refusing, ctx).reading).toBe("complete");
+    expect(readTurn("ei ole", refusing, ctx).reading).toBe("complete");
+    expect(readTurn("ei, ma ei tea", refusing, ctx).reading).toBe("complete");
+    expect(readTurn("ma ei tea", refusing, ctx).reading).toBe("lost");
   });
 
   it("is never read on a turn that answered the question, whatever else is in it", () => {

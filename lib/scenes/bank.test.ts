@@ -8,6 +8,7 @@ import { words } from "./lexicon";
 import { curveballById } from "./curveballs";
 import { answerBeatId, beatById, scriptable, scriptedFor, sceneBeats } from "./scripted";
 import { answerForms, keylessContext, lacksFiniteVerb } from "../../scripts/lib/sceneDraft";
+import { sayableAfterHurdles } from "./reply";
 import { fitsPitch } from "./pitch";
 import { LEVELS } from "@/lib/collections/syllabus";
 
@@ -254,5 +255,33 @@ describe("the answers to the questions a beat asks for", () => {
         expect(scriptedFor(scene, answer!).length, `${scene.id}/${beat.id} waits and the bank holds no answer`).toBeGreaterThan(0);
       }
     }
+  });
+});
+
+/*
+  A CURVEBALL THAT UNSAYS A WORD MAY NOT LEAVE A BEAT WITH NOTHING TO SAY.
+  `not-possible` holds back a prepared line saying "today" once it is raised,
+  and the restaurant's recommendation had only two lines, both with "today" in
+  them: with the curveball raised, the screen printed the English stage
+  direction where the waiter's line should be.
+*/
+describe("the lines a curveball leaves standing", () => {
+  it("leave every beat of every scene that admits it a line to say", () => {
+    const lexicon = { byLemma: new Map<string, ReadonlySet<string>>() } as unknown as Parameters<typeof sayableAfterHurdles>[2];
+    const negators = new Set(["ei", "pole", "mitte"]);
+    let checked = 0;
+    for (const scene of SCENES) {
+      for (const id of scene.curveballs) {
+        if (!curveballById(id)?.unsays) continue;
+        const state = { hurdle: null, hurdles: [{ id, beat: 1, met: true }] };
+        for (const beat of scene.beats) {
+          const rows = scriptedFor(scene, beat);
+          if (rows.length === 0) continue;
+          checked += 1;
+          expect(sayableAfterHurdles(rows, state, lexicon, negators).length, `${scene.id}/${beat.id} after ${id}`).toBeGreaterThan(0);
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(20);
   });
 });

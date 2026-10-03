@@ -583,6 +583,33 @@ export function cardAfterHurdles(card: RoleCard | null, state: Pick<SceneState, 
 }
 
 /**
+ * The prepared lines that can still be said, given what the run's curveballs
+ * have changed (`CurveballSpec.unsays`). A line naming an unsaid word is held
+ * back unless the line also carries a negator, since `Täna me seda ei tee.`
+ * agrees with "not today" and `Võtke seda täna õhtul.` contradicts it.
+ */
+export function sayableAfterHurdles(
+  lines: readonly string[],
+  state: Pick<SceneState, "hurdle" | "hurdles">,
+  lexicon: Lexicon,
+  negators: ReadonlySet<string>,
+): readonly string[] {
+  const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
+  const unsaid = new Set<string>();
+  for (const id of raised) {
+    for (const lemma of curveballById(id)?.unsays ?? []) {
+      unsaid.add(lemma);
+      for (const form of lexicon.byLemma.get(lemma) ?? []) unsaid.add(form);
+    }
+  }
+  if (unsaid.size === 0) return lines;
+  return lines.filter((line) => {
+    const said = words(line);
+    return !said.some((word) => unsaid.has(word)) || said.some((word) => negators.has(word));
+  });
+}
+
+/**
  * Whether a question the learner asked is owed something before the move.
  *
  * ON A TURN THAT LANDED, ALWAYS. And on a turn that missed, where the question

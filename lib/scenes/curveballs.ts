@@ -66,6 +66,14 @@ export interface CurveballSpec {
    */
   readonly answer?: string;
   /**
+   * Lemmas a prepared line may no longer say, from the moment this is raised,
+   * except in a clause that negates them. A line in the bank was drafted
+   * against its beat alone, so after "it can't be done today" the pharmacy's
+   * banked `Võtke seda täna õhtul.` still told a learner to take it tonight.
+   * A composed line has `stands` for this; a banked one has only this.
+   */
+  readonly unsays?: readonly string[];
+  /**
    * Which of the card's values this curveball stands another in for, from
    * the moment it is raised: the price the learner was told gives way to the
    * price the other side has now, so every later line and every answer to
@@ -299,6 +307,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     says: "What you came for can't be done today.",
     out: "Ask what they can do instead, or when it'll be possible.",
     answer: "They say it will be possible another day, not today.",
+    unsays: ["täna"],
     needs: [{ kind: "question" }],
   },
   {

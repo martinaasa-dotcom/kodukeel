@@ -162,6 +162,17 @@ describe("a question about the price", () => {
       .toBe("See maksab 5 eurot.");
   });
 
+  it("is the shop's own price where the learner holds none, and never the changed price beside the learner's", () => {
+    const theirs = { slot: "price", card: "What it costs.", literal: ["5"], lemmas: ["viis"], shown: ["5 €"], value: "5", price: true as const, theirs: true as const };
+    // A clothes shop says its price at the till: asked, the assistant said `Ei tea.`.
+    expect(asideFor(input({ asked: "kas", spoken: ["kas", "hind"], card: { ...CARD, props: [...CARD.props, theirs] } }))?.text)
+      .toBe("See maksab 5 eurot.");
+    // Beside the learner's own price, theirs is the curveball's and waits for it.
+    const changed = { ...theirs, slot: "price2", literal: ["2"], value: "2", shown: ["2 €"], lemmas: ["kaks"] };
+    expect(asideFor(input({ asked: "kui", spoken: ["kui", "palju"], card: { ...PRICED, props: [...PRICED.props, changed] } }))?.text)
+      .toBe("See maksab 5 eurot.");
+  });
+
   it("is nothing where the scene deals no price, so the question falls through as before", () => {
     expect(asideFor(input({ asked: "kui", spoken: ["kui", "palju"] }))).toBeNull();
     expect(priceOffCard(CARD, LEX)).toBeNull();

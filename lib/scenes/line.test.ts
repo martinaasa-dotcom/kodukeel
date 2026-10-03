@@ -257,13 +257,21 @@ describe("the scripted rung", () => {
     }
   });
 
-  it("reaches the repair phrase only once the bank is empty too", async () => {
-    const line = await sceneLine(request({
+  /*
+    A bank whose every line has been said says one again rather than nothing:
+    a curveball that carries the beat's question straight on spends its line
+    early, and the screen printed the English stage direction instead. The
+    repair phrase is reached only where the bank never held a line.
+  */
+  it("says the beat's own line again once the bank is spent, and reaches the repair phrase only with no bank", async () => {
+    const spent = await sceneLine(request({
       scripted: ["Kas teil on valu?"],
       used: new Set(["Kas teil on valu?"]),
       compose: async () => null,
     }));
-    expect(line.provenance).toBe("fallback");
+    expect(spent).toEqual({ text: "Kas teil on valu?", provenance: "again" });
+    const none = await sceneLine(request({ scripted: [], compose: async () => null }));
+    expect(none.provenance).toBe("fallback");
   });
 
 });

@@ -1,5 +1,5 @@
 import type { Feel } from "@/lib/scenes/types";
-import { feltAt } from "@/lib/scenes/reply";
+import { feltAt, sayableAfterHurdles } from "@/lib/scenes/reply";
 import { after } from "next/server";
 import { seedFrom } from "@/lib/random/seeded";
 import { requireUserId } from "@/lib/auth/session";
@@ -501,8 +501,14 @@ export async function POST(request: Request) {
   const askedNow = last?.asked ?? null;
   const landedNow = response === "answer" || response === "counter" || elsewhere > 0;
   const wantsAside = wantsAsideFor(askedNow, turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0);
-  const fresh = (id: string | undefined) =>
-    (id ? context.scripted.get(id) ?? [] : []).filter((text) => !used.has(text));
+  /*
+    The prepared lines for a beat, less any a curveball this run raised has
+    made untrue (`sayableAfterHurdles`): after "it can't be done today" the
+    bank still held "take it tonight".
+  */
+  const bank = (id: string | undefined): readonly string[] =>
+    id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators) : [];
+  const fresh = (id: string | undefined) => bank(id).filter((text) => !used.has(text));
   const asking = {
     asked: askedNow,
     spoken: words(last?.said ?? ""),
@@ -1067,7 +1073,7 @@ export async function POST(request: Request) {
     topic: new Set<string>([...(context.topic.get(beat.id) ?? []), ...theirs]),
     hasFiniteVerb: context.hasFiniteVerb,
     fallback: context.fallback,
-    scripted: context.scripted.get(beat.id) ?? [],
+    scripted: bank(beat.id),
     /*
       THE RUN'S OWN CHOICE, READ BACK OFF THE DRAW AND NEVER RE-DECIDED HERE.
       A run opened with a key composes for the whole of its length and one
@@ -1267,7 +1273,7 @@ export async function POST(request: Request) {
           start, it wrote `Kust alustaksite tööd?`, which asks where. The bank
           holds the same beat asked properly by somebody who read it.
         */
-        asked: (context.scripted.get(beat.id) ?? []).slice(0, 2),
+        asked: bank(beat.id).slice(0, 2),
         agenda,
         settled,
         established,

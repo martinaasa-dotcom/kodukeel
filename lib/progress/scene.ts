@@ -1376,13 +1376,22 @@ export function replay(
         curveball is written down as let go rather than dealt with: "they sped
         up and you carried on" is true and is worth reading afterwards.
       */
-      const ignored = evidence.reading !== "complete" && beatToo.reading === "complete";
+      /*
+        Met in the beat's own words, never through a second word for the same
+        thing: `Mis aeg siis sobib?` asked after "that time has gone" met the
+        floor beat behind it on `aeg`, a "time" like `kord`, and the landlord
+        never asked which floor (the cascade's rule below, one path up).
+      */
+      const behind = beatToo.reading === "complete" && beatToo.substituted.length === 0
+        // And an offer the other side has not made yet is not taken behind a curveball either (the cascade's rule).
+        && !(beat.move === "offer" && !offerAlreadyMade(beat, draw, heardNow));
+      const ignored = evidence.reading !== "complete" && behind;
       ({ state, response } = ignored
         ? letGo(state)
         : advanceHurdle(context.scene, state, evidence, said, heardNow));
       previous = heardNow;
       if (response !== "answer") continue;
-      if (beatToo.reading !== "complete") continue;
+      if (!behind) continue;
       /*
         The turn cleared the curveball and answered the beat behind it, which
         is only true where it met the beat with a word the curveball did not
@@ -1490,6 +1499,16 @@ export function replay(
       const more = vouchedAhead ? concede(read, read.missing) : read;
       if (more.reading !== "complete") break;
       if (!vouchedAhead && !addsEvidence(more, spent)) break;
+      /*
+        AND A SECOND WORD FOR THE SAME THING ANSWERS THE QUESTION THAT WAS
+        ASKED, NOT ONE NOBODY HAS ASKED YET. A synonym meets a requirement
+        because the learner was plainly answering it (`lib/dict/synonyms.ts`),
+        and read against a beat further on that is a guess on English glosses:
+        `aeg` and `kord` are both "time", so a tenant asking `Mis aeg siis
+        sobib?` was credited with saying which floor, and the landlord never
+        asked.
+      */
+      if (!vouchedAhead && more.substituted.length > 0) break;
       for (const word of more.satisfiedBy) spent.add(word);
       ({ state, response } = advance(context.scene, state, more, said, false, heard));
     }
@@ -1531,7 +1550,15 @@ export function replay(
       pointer still does not move, so the beat in front is still the beat in
       front.
     */
-    if (!state.hurdle && !isOver(context.scene, state)) {
+    /*
+      AND NOT FROM A TURN THAT SAID IT WAS NOT FOLLOWING. `Ma ei tea.` to a
+      waiter's hello was read against "how many of you?" further on, `ma` is
+      a form of `mina`, which answers it, and the waiter skipped the question
+      and offered the lost learner `Üks?`. A turn read as lost, as English,
+      as an echo or as nothing anybody could read answered nothing else.
+    */
+    const answeringAnything = !["lost", "english", "echo", "unrecognised"].includes(evidence.reading);
+    if (!state.hurdle && !isOver(context.scene, state) && answeringAnything) {
       /*
         AND NOTHING IS CREDITED ACROSS A BREAK IN TIME NOT YET REACHED. A beat
         that opens on "you've eaten, the waiter comes back" is about after the
@@ -1556,7 +1583,8 @@ export function replay(
         */
         if (other.move === "offer" && at > state.beat && !offerAlreadyMade(other, draw, heard)) continue;
         const also = readTurn(said, other, marker);
-        if (also.reading !== "complete" || !addsEvidence(also, spent)) continue;
+        // Not through a second word for the same thing, for the cascade's reason.
+        if (also.reading !== "complete" || !addsEvidence(also, spent) || also.substituted.length > 0) continue;
         for (const word of also.satisfiedBy) spent.add(word);
         state = creditAhead(state, also, other, said, heard);
         elsewhere += 1;
