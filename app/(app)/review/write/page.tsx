@@ -3,12 +3,16 @@ import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { writingTasksFor } from "@/lib/estonian/writing";
+import { mentions } from "@/lib/estonian/cloze";
+import { parseExamples } from "@/lib/dict/examples";
+import { isLocalCase } from "@/lib/estonian/caseQuestion";
+import { kindStated } from "@/lib/estonian/semantics";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { WriteSession, type WritingPrompt } from "./WriteSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
-import { caseWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
+import { caseWithin, lemmaFilter, moduleScopeFrom, tonightFirst, tonightsCase } from "@/lib/course/scope";
 import { CASES } from "@/lib/estonian/cases";
 import { caseAsked } from "@/lib/srs/slots";
 
@@ -98,11 +102,26 @@ export default async function WritePage({
   );
 
   const pool: Omit<WritingPrompt, "starred">[] = [];
+  /*
+    The prompts whose form a lexicographer has recorded in a sentence, which
+    is the one signal this page has that the word is said in that case at
+    all. "Use sünniaeg in a sentence that says in the date of birth" is a
+    form the rule builds and nobody writes, and it led a round once tonight's
+    case was put first; a recorded form leads now and an unrecorded one is
+    still asked, behind it, because a word with no sentences is not a wrong
+    word.
+  */
+  const recorded = new WeakSet<object>();
   for (const lexeme of lexemes) {
+    const sentences = parseExamples(lexeme.examples);
     for (const task of writingTasksFor(lexeme)) {
       const cardId = cardFor.get(lexeme.id);
       if (!cardId) continue;
       if (!caseWithin(scope, task.caseKey)) continue;
+      // A place case is phrased in English on this screen ("in the house"),
+      // so it is asked only of a word whose kind the dictionary has stated:
+      // see `kindStated`, which is why "in the acquaintance" went.
+      if (isLocalCase(task.caseKey) && !kindStated(lexeme.semanticTypes)) continue;
       pool.push({
         cardId,
         lexemeId: lexeme.id,
@@ -115,17 +134,21 @@ export default async function WritePage({
         provenance: task.provenance,
         weak: weakCases.has(task.caseKey),
       });
+      if (sentences.some((e) => mentions(e.et, task.targetForm))) recorded.add(pool.at(-1)!);
     }
   }
 
-  // Weak cases first, then shuffled, so a round is varied but pointed. Two
-  // shuffles rather than one sort keyed on `Math.random() - (weak ? 1 : 0)`:
-  // same distribution, and it says what it does instead of leaving the reader
-  // to notice that [-1, 0) and [0, 1) cannot interleave.
-  const shuffled = [
-    ...shuffle(pool.filter((p) => p.weak)),
-    ...shuffle(pool.filter((p) => !p.weak)),
-  ];
+  // Weak cases first and a recorded form before an unrecorded one, each tier
+  // shuffled on its own, so a round is varied but pointed: a shuffle per tier
+  // rather than one sort keyed on random numbers, which says what it does.
+  // And inside the module, the case tonight's reading was about woven through
+  // the front of it (`tonightFirst`), so the page just read is the page used.
+  const tonight = tonightsCase(scope);
+  const tier = (p: (typeof pool)[number]) => (p.weak ? 0 : 2) + (recorded.has(p) ? 0 : 1);
+  const shuffled = tonightFirst(
+    [0, 1, 2, 3].flatMap((t) => shuffle(pool.filter((p) => tier(p) === t))),
+    (p) => p.caseKey === tonight,
+  );
 
   // At most one prompt per word, so a round is six different words.
   const seen = new Set<string>();

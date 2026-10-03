@@ -35,6 +35,13 @@ export interface SprintCard {
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
   cardType: string;
+  /**
+   * Inside the module, the case a word card is asked in instead, by meaning:
+   * `Say "in the house"` under the word, and the case as the slot it grades.
+   * Null on an ordinary card. See `lib/questions/caseAsk.ts`.
+   */
+  ask: string | null;
+  slot: string | null;
   /** What this card's sentence means, where the dictionary already holds it. */
   sentenceEn: string | null;
   /**
@@ -120,7 +127,7 @@ export function SprintSession({
     if (!card || busy || phase !== "running") return;
     setBusy(true);
     const duration = Date.now() - shownAt.current;
-    await grade(card.id, rating, duration);
+    await grade(card.id, rating, duration, card.slot ?? undefined);
     setAttempted((a) => a + 1);
     if (rating === 3) setCorrect((c) => c + 1);
     setIndex((i) => i + 1);
@@ -287,6 +294,10 @@ export function SprintSession({
             cards and no calls. What is left is the context, and a sprint is
             the round with the least time to work it out from nothing.
           */}
+          {card.ask && (
+            <p className="text-lg" style={{ color: "var(--ink-2)" }}>{card.ask}</p>
+          )}
+
           {!revealed && meaning && <GapMeaning meaning={meaning} className="text-sm leading-snug" />}
 
           {revealed && (

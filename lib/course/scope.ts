@@ -91,6 +91,43 @@ export function caseWithin(scope: ModuleScope | null, caseKey: string | null | u
 }
 
 /**
+ * The case tonight's reading was about, or nothing.
+ *
+ * An evening that reads the elative and then plays a round spread evenly over
+ * every case read since A2 began has read the page and practised something
+ * else: the elative is one case in eight on the board, and the learner who
+ * has just been told what `-st` means is asked it about once. So the case
+ * rounds lead with this one inside the module, and the cases read before it
+ * are still asked behind it, since a round about one case alone is a list of
+ * one ending typed six times.
+ */
+export function tonightsCase(scope: ModuleScope | null): string | null {
+  return scope?.day.grammarCase ?? null;
+}
+
+/** How much of a case round leads with tonight's case, where it can. */
+export const TONIGHT_SHARE = 0.5;
+
+/**
+ * A round's order with tonight's items woven through the front of it: one of
+ * tonight's, one of the rest, and so on until either runs out, so about half
+ * the head of the round is tonight's case and the other half keeps the cases
+ * before it alive. Order within each half is the caller's, so a round that
+ * shuffled or ranked its pool keeps that.
+ */
+export function tonightFirst<T>(items: readonly T[], isTonight: (item: T) => boolean): T[] {
+  const tonight = items.filter(isTonight);
+  if (tonight.length === 0) return [...items];
+  const rest = items.filter((item) => !isTonight(item));
+  const out: T[] = [];
+  for (let i = 0; i < Math.max(tonight.length, rest.length); i++) {
+    if (i < tonight.length) out.push(tonight[i]!);
+    if (i < rest.length) out.push(rest[i]!);
+  }
+  return out;
+}
+
+/**
  * The page a verb slot waits for, by the opening of its morph code.
  *
  * `IndPr` is the present and the negative (`IndPrPs_`, `ei loe`), which the

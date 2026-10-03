@@ -5,7 +5,7 @@ import { caseFits, caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { decoyOptions, decoysAmong } from "@/lib/dict/facts";
-import { caseWithin, lemmaFilter, type ModuleScope } from "@/lib/course/scope";
+import { caseWithin, lemmaFilter, TONIGHT_SHARE, tonightsCase, type ModuleScope } from "@/lib/course/scope";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import {
   bandOf, differentMeaning, differentText, formNearness, glossNearness, glossOption,
@@ -226,7 +226,15 @@ export function caseQuestion(
   }
   if (built.length < OPTIONS) return null;
 
-  const [asked, ...others] = shuffle(built);
+  /*
+    Inside the module, the case tonight's reading was about is asked on about
+    half the questions where this word can be asked it (`TONIGHT_SHARE`), and
+    the other half keeps the cases read before it alive.
+  */
+  const order = shuffle(built);
+  const tonight = tonightsCase(scope);
+  const lead = tonight && Math.random() < TONIGHT_SHARE ? order.find((b) => b.key === tonight) : undefined;
+  const [asked, ...others] = lead ? [lead, ...order.filter((b) => b !== lead)] : order;
   if (!asked) return null;
 
   const picked = pickOptions({

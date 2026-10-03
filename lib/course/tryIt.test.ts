@@ -99,6 +99,18 @@ describe("the case table asks back", () => {
     if (stemmed) expect(stemmed.yes).toContain("It's xo with s on the end.");
   });
 
+  it("asks by what the form means where the page has a reading for it, and names the case in the answer", () => {
+    const read = rows.map((r) => ({ ...r, reading: `in the ${r.translation}` }));
+    const asks = caseAsks(read, "seesütlev", "s", fixed);
+    expect(asks).toHaveLength(TRY_IT_ASKS);
+    for (const ask of asks) {
+      const word = read.find((r) => r.form === ask.answer)!;
+      expect(ask.prompt).toContain(`"in the ${word.translation}"`);
+      expect(ask.prompt).not.toContain("seesütlev");
+      expect(ask.yes).toContain("seesütlev");
+    }
+  });
+
   it("never asks about a form spelled like the word itself, and asks nothing on a thin table", () => {
     const thin = [{ lemma: "xa", translation: "a", genitive: "xa", form: "xa" }, ...rows.slice(0, 2)];
     expect(caseAsks(thin, "nimetav", "", fixed)).toEqual([]);

@@ -224,6 +224,14 @@ export interface DaySpec {
   grammar?: string;
   /** A case key, upper case, as `lib/estonian/cases.ts` spells it. */
   grammarCase?: string;
+  /**
+   * What the reading step is called, which names the page: `Read about the
+   * -s ending, "in"` rather than the same sentence on every evening, so the rail
+   * listing tonight says what tonight is about. Worked out by the builder,
+   * which may read the grammar tables, so this file stays small enough for
+   * the client screens that import it.
+   */
+  readTitle?: string;
   /** Activity keys, in the order the day does them. */
   practice: readonly ActivityKey[];
   /** A conversation to have at the end, where one fits. A scene id. */
@@ -479,8 +487,10 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: READ_STEP,
       kind: "read",
-      title: "Read how tonight's words work",
-      why: "One short page on the grammar behind tonight's words, with three quick questions at the end to try it.",
+      title: spec.readTitle ?? "Read how tonight's words work",
+      // Not "three quick questions at the end": only the pages with a table of
+      // forms end in them, and a page about word order or politeness has none.
+      why: "One short page on the grammar behind tonight's words, shown in real sentences.",
       href: reads,
       minutes: READ_MINUTES,
       derived: false,

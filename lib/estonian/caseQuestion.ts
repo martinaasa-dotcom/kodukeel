@@ -109,6 +109,11 @@ export function localCasesFor(subject: CaseSubject): readonly CaseKey[] {
 /** Every local case, either set. */
 const LOCAL: readonly CaseKey[] = [...INSIDE_CASES, ...OUTSIDE_CASES];
 
+/** One of the six cases whose set depends on what kind of thing a word is. */
+export function isLocalCase(key: string): boolean {
+  return (LOCAL as readonly string[]).includes(key);
+}
+
 /**
  * Is this a case worth asking this word about?
  *

@@ -6012,8 +6012,10 @@ on four consecutive evenings, the numbers read the numerals page on five, and be
 impersonal was read nineteen times by nine units: a reading the learner did last night, put in front
 of them again as tonight's step, is the step they skip past and then stop trusting. `readingPlan` is
 one page an evening, each page a unit declares once in the unit and in the order its author wrote
-them, none that an earlier unit of the same part has already read; an evening past the end of the
-list reads nothing, which the fifteen-minute test allows
+them, none that an earlier unit of the same level has already read (it was the same part, and A1
+read the present tense four times across its parts); a page read at an earlier level comes back
+with "again" on its step, since a second look is worth having and worth saying; an evening past
+the end of the list reads nothing, which the fifteen-minute test allows
 at every level now rather than at A1 alone. The scene evening takes no page off the plan, since
 the conversation replaces the reading (`day()`): the first version handed it one, counted it read
 in the ledger, and showed it to nobody, so a round on the evening after was dealt a case nobody had
@@ -6087,6 +6089,18 @@ evenings have shown so far (`formsThrough`), and `slotWithin` asks a verb's past
 it, which needs the caller to say which verb: `cardWithin` reads the card's lexeme, the flash round
 passes its word, and a caller that cannot say gets a no. `course.test.ts` walks every evening and
 holds every taught verb with a stored past to being shown exactly once, after the page.
+
+**And the past is shown every other evening, never on an evening that read a case.** Written as
+"every evening after the page", the forms step took the drill's place on sixteen of A2's first
+twenty-one evenings in a row, so the evening that read the elative drilled the past of five verbs it
+had nothing to do with. The queue waits on a case evening and on the evening after a forms
+evening, the ladder's last evening flushes what is left, and every taught verb is still shown.
+**A case evening practises its case**: `onTheCase` swaps the drill for a round that asks a case off
+the word's own forms (`CASE_ROUNDS`, Target, writing and Describe) where neither dealt round does,
+and those rounds, and the module's case sprint, lead with tonight's case (`tonightsCase`,
+`tonightFirst`). The sprint was not a case round inside the module at all: a module deck holds a
+word's meaning and spelling, so it was word flips under the name "Case Sprint", and a production
+card of a noun is now asked one of the cases read, by meaning (`caseAskFor`, `Say "in the house"`).
 
 **A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
 decision made in advance and it was handing the learner straight back to the ordinary website the

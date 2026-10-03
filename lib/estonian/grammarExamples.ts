@@ -109,8 +109,8 @@ export type PointPins = Readonly<Record<string, readonly PinnedExample[]>>;
 export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   olema: {
     "The verb you'll use in every conversation, and it's irregular": [
-      { lemma: "sünnipäev", et: "Mul on täna sünnipäev.", form: "on", slot: "VERB:IndPrSg3" },
-      { lemma: "väga", et: "Te olete väga sarnased.", form: "olete", slot: "VERB:IndPrPl2" },
+      { lemma: "kurb", et: "Olen natuke kurb.", form: "Olen", slot: "VERB:IndPrSg1" },
+      { lemma: "õde", et: "Nad on õde ja vend.", form: "on", slot: "VERB:IndPrPl3" },
     ],
     "For \"I have\", you say \"at me is\", with -l on the owner": [
       { lemma: "oma", et: "Mul on oma maja.", form: "Mul", slot: "CASE:ADESSIVE" },

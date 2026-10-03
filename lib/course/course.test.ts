@@ -10,7 +10,7 @@ import {
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
-  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING,
+  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING, CASE_ROUNDS,
 } from "./index";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { readFileSync } from "node:fs";
@@ -383,6 +383,63 @@ describe("what a day reads and where it goes", () => {
         const games = could.filter((key) => ACTIVITIES[key].kind === "game");
         if (could.length <= 2 || games.length <= 1) return;
         expect(day.practice.join("+"), `${day.id}`).not.toBe(before);
+      });
+    }
+  });
+
+  /*
+    AN EVENING THAT READS A CASE PRACTISES IT. The rotation deals neighbours
+    whatever the page was, and the forms step took the drill's place on most
+    of A2's case evenings, so the evening that read the elative drilled the
+    past of five unrelated verbs. Wherever a round that asks a case off the
+    word's own forms is on the level's rotation and the words can carry it,
+    a case evening deals one, and no case evening carries the forms step.
+  */
+  it("practises the case an evening reads, where a round can ask it", () => {
+    let walked = 0;
+    for (const { programme, day } of DAYS) {
+      if (!day.grammarCase) continue;
+      expect(day.forms ?? [], `${day.id} reads a case and shows the past`).toEqual([]);
+      const could = supportedRounds(programme.level, taughtBy(programme, day.index))
+        .filter((key) => CASE_ROUNDS.has(key));
+      if (could.length === 0) continue;
+      walked += 1;
+      expect(day.practice.some((key) => CASE_ROUNDS.has(key)), `${day.id} reads ${day.grammarCase}`).toBe(true);
+    }
+    expect(walked).toBeGreaterThan(15);
+  });
+
+  /*
+    A PAGE IS READ ONCE A LEVEL, AND A SECOND LOOK SAYS SO. A1 read the
+    present tense four times as tonight's reading; across levels a page may
+    come back, and its step says it is a second look.
+  */
+  it("reads a page once a level, and names a page read at an earlier level as read again", () => {
+    const seenAt = new Map<string, string>();
+    for (const { programme, day } of DAYS) {
+      const page = day.grammarCase ?? day.grammar;
+      if (!page) continue;
+      const step = day.steps.find((s) => s.kind === "read")!;
+      const before = seenAt.get(page);
+      expect(before === programme.level, `${day.id} reads ${page} twice at ${programme.level}`).toBe(false);
+      expect(/ again$/.test(step.title), `${day.id} ${step.title}`).toBe(before !== undefined);
+      expect(step.title, day.id).not.toBe("Read how tonight's words work");
+      seenAt.set(page, programme.level);
+    }
+  });
+
+  /*
+    AND THE PAST IS SHOWN EVERY OTHER EVENING, NOT EVERY EVENING. Sixteen of
+    A2's first twenty-one evenings were the same forms step in a row, which
+    is a fortnight of one drill under another name.
+  */
+  it("never shows the past two evenings running inside a part", () => {
+    for (const programme of PROGRAMMES) {
+      programme.days.forEach((day, at) => {
+        if (at === 0 || !day.forms?.length) return;
+        const last = programme === PROGRAMMES.at(-1) && at === programme.days.length - 1;
+        if (last) return;
+        expect(programme.days[at - 1]!.forms?.length ?? 0, day.id).toBe(0);
       });
     }
   });

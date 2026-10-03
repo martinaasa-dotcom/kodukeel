@@ -2710,3 +2710,31 @@ rather than that an AI key is missing. Under a word found outright, the dictiona
 two agreed decisions that read as one inconsistency. Doing two evenings in one day leaves the
 second closing round little to ask, since the day's new cards are spent. A pronoun's case table
 still shows gaps where the dictionary holds no plural (`mina`'s nominative plural).
+
+## 46. The fortieth pass: an evening that reads a case practises it
+
+**Walked rather than read, at three points of the ladder.** A scratch helper put the local learner
+on the third evening of A1 and the tenth of A2 with every earlier evening ticked and its words in
+the deck, and each step was opened from the module.
+
+**The page about "to be" leads with the six forms.** It is read on the evening titled "I am, you
+are, this is" and opened on the construction for "have", with `olen` three screens down. Where a
+page's table is one verb no rule reaches, the table and its three taps lead and the points follow,
+and the first point's examples show `olen` and `nad on` rather than a second "have".
+
+**A2 stopped being one drill.** The past forms step took the drill on sixteen of A2.1's twenty-one
+evenings; it is every other evening now and never on a case evening, and a case evening deals a
+round that asks the case (`onTheCase`). Target, writing, Describe and the module's case sprint lead
+with the case the evening read, and the sprint, which inside the module had no case in it at all,
+asks a noun's production card in one of the cases read, by meaning.
+
+**A page is read once a level.** It was once a part, so A1 read the present tense four times and
+"to be" three, each presented as tonight's reading; a page that comes back at a later level says
+"again" on its step. **The reading step names its page** ("Read about the -s ending, "in"", `Read "Talking about now"`),
+so tonight's list says what tonight is about, and no longer promises three questions on a page that
+has none. **The case page asks by meaning**: "vanus means age. Which one says in the age?" rather
+than which word wears a case's name. **No place case is phrased in English for a word whose kind
+the dictionary has not stated** (`kindStated`), which is how "in the acquaintance" went; and the
+writing round leads with a form a lexicographer recorded in a sentence. The conjugation table no
+longer opens on "0 of 0 tables perfect".
+

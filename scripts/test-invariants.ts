@@ -1963,6 +1963,9 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // Asks which cases a word can build a card for at all, as a set. No
     // sentence it could pick reaches a screen, only whether one exists.
     "lib/srs/retire.ts": "asks which cases a word can build, as a set, and picks no sentence",
+    // Asks whether a form is recorded in any sentence at all, to lead a round
+    // with a word said in that case. Which sentence it is never reaches a screen.
+    "app/(app)/review/write/page.tsx": "asks whether a form is recorded in a sentence, and picks none",
   };
 
   /* The pure builders, which take the rank as a field rather than reading it. */
@@ -2739,13 +2742,21 @@ check("a case reading is one table, holds no Estonian, and reaches the screen ma
   // And `sayIt`, which turns the same phrase into the ask a card leads with,
   // `Say “with the bird”`: the instruction and the walkthrough's reading of
   // the built word are one phrase, so they cannot disagree about an ending.
+  // And the case reference's own table, so the three questions under it ask
+  // what the ending means ("which one says in the cup?") rather than which
+  // word wears the case's name: it carries the reading as a field to the page
+  // and composes nothing of its own. And the module sprint's case ask, which
+  // reads it only to refuse a word with no honest frame, then asks `sayIt`.
   assert.deepEqual(
     readers,
-    ["lib/estonian/caseBuild.ts", "lib/estonian/formReading.ts", "lib/estonian/sayIt.ts"],
+    [
+      "lib/estonian/caseBuild.ts", "lib/estonian/formReading.ts", "lib/estonian/sayIt.ts",
+      "lib/progress/caseExamples.ts", "lib/questions/caseAsk.ts",
+    ],
     "a second module composes what a word in a case means in English",
   );
   assert.deepEqual(
-    readers.filter((file) => !file.startsWith("lib/estonian/")),
+    readers.filter((file) => !file.startsWith("lib/")),
     [],
     "a screen works out for itself what an ending means in English",
   );

@@ -530,8 +530,13 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span>
-          {tablesRight} of {index + (revealed ? 1 : 0)} tables perfect
-          {question.shape === "type" ? <>, {ADVANCE_KEY_LABEL} moves down the table</> : <>, tap a form to place it</>}
+          {/* A tally of nought out of nought is not a score, it is noise
+              under the first table, so the line opens on the instruction and
+              the count arrives with the first table checked. */}
+          {index + (revealed ? 1 : 0) > 0 && <>{tablesRight} of {index + (revealed ? 1 : 0)} tables perfect, </>}
+          {question.shape === "type"
+            ? <>{ADVANCE_KEY_LABEL} moves down the table</>
+            : index + (revealed ? 1 : 0) > 0 ? <>tap a form to place it</> : <>Tap a form to place it</>}
         </span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>

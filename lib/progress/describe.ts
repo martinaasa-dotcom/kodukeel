@@ -14,7 +14,7 @@ import { oneEntryPerLemma } from "@/lib/dict/search";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { shuffle } from "@/lib/random/shuffle";
 import { caseAccuracy } from "@/lib/stats/history";
-import { caseWithin, type ModuleScope } from "@/lib/course/scope";
+import { caseWithin, tonightFirst, tonightsCase, type ModuleScope } from "@/lib/course/scope";
 
 /**
  * WHICH SCENES THIS LEARNER IS ASKED ABOUT, AND WHICH CASE EACH ONE ASKS FOR.
@@ -181,10 +181,20 @@ export async function describeRound(
     ? ASKABLE_CASES.filter((c) => caseWithin(scope, c))
     : ASKABLE_CASES;
   if (readCases.length === 0) return [];
-  const priority = [
+  const ranked = [
     ...weak.filter((c) => readCases.includes(c)),
     ...shuffle(readCases.filter((c) => !weak.includes(c))),
   ];
+  /*
+    And inside the module, the case tonight's reading was about on every
+    other scene (`tonightFirst`): the cursor walks this list one scene at a
+    time, so the case appears once per pair rather than once per round.
+  */
+  const tonight = ranked.find((c) => c === tonightsCase(scope));
+  const others = ranked.filter((c) => c !== tonight);
+  const priority = tonight
+    ? (others.length > 0 ? tonightFirst([...others.map(() => tonight), ...others], (c) => c === tonight) : [tonight])
+    : ranked;
   const prompts: DescribePrompt[] = [];
   let cursor = 0;
 
