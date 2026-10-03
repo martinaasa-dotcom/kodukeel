@@ -2799,3 +2799,10 @@ cards of forms below, which are `position: relative`, painted over it: on `aed` 
 the panel's Add button sat under "mitmus" and "osastav" and could not be pressed. Found because
 `test-decks.mjs` picks its word by card id and drew one of them in CI; the header stacks at `z-10`
 now, and the suite asks where its click will land before it clicks.
+
+**Every drill on a level's rotation gets its turn.** The forms step takes the drill's place every
+other evening from A2 up, and the rotation's drill was read off the same counter as its game, so
+whichever drills were paired with the games on forms evenings were skipped every time they came
+round: B2 paired the writing round with Tähed and Describe with the sprint, and over its 45
+evenings dealt writing three times and Describe once. The drill's place on the rotation now
+advances only on an evening that deals a drill: B2 writes on seven evenings and describes on four.

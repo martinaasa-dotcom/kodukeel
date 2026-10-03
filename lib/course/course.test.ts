@@ -1202,3 +1202,23 @@ describe("an evening says how many of its words are new", () => {
   });
 });
 
+describe("a forms evening does not use up a drill's turn", () => {
+  /*
+    The forms step takes the drill's place every other evening from A2 up,
+    and B2's rotation paired `write` with Tähed and `describe` with the
+    sprint, both of which fell on forms evenings every time: over B2's 45
+    evenings the writing round came up three times and Describe once.
+  */
+  it("takes the drill from its own place on the rotation", () => {
+    const [, drillOfPair1] = rounds("B2", 1, false);
+    expect(rounds("B2", 0, false, undefined, false, [], 1)[1]).toBe(drillOfPair1);
+  });
+
+  it("deals writing and Describe at B2 on more than a handful of evenings", () => {
+    const b2 = PROGRAMMES.filter((p) => p.level === "B2").flatMap((p) => p.days);
+    const count = (key: string) => b2.filter((d) => d.practice.includes(key as never)).length;
+    expect(count("write")).toBeGreaterThanOrEqual(5);
+    expect(count("describe")).toBeGreaterThanOrEqual(3);
+  });
+});
+

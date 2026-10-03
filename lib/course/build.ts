@@ -373,12 +373,26 @@ export function rounds(
    * than refused, since early in a level the supported rounds may be one.
    */
   avoid: readonly ActivityKey[] = [],
+  /**
+   * Where the drill half of the rotation stands, which is not always `at`.
+   *
+   * An evening that shows the past forms deals no drill, the forms step takes
+   * its place, and that is every other evening from A2 up. Read off `at`
+   * alone, the drill paired with the game on those evenings was skipped every
+   * time it came round: B2's rotation pairs `write` with Tähed and `describe`
+   * with the sprint, both fell on forms evenings, and over the 45 evenings of
+   * B2 the writing round came up three times and Describe once. The builder
+   * advances this only on an evening that deals a drill, so each drill on the
+   * rotation gets its turn.
+   */
+  drillAt: number = at,
 ): ActivityKey[] {
   const rotation = ROTATION[level] ?? ROTATION.A1!;
-  const first = rotation[(at * 2) % rotation.length]!;
-  const second = rotation[(at * 2 + 1) % rotation.length]!;
-  const game = ACTIVITIES[first].kind === "game" ? first : second;
-  const other = game === first ? second : first;
+  const pair = (n: number) => [rotation[(n * 2) % rotation.length]!, rotation[(n * 2 + 1) % rotation.length]!];
+  const [first, second] = pair(at);
+  const game = ACTIVITIES[first!].kind === "game" ? first! : second!;
+  const drills = pair(drillAt);
+  const other = drills.find((key) => ACTIVITIES[key].kind !== "game") ?? (game === first ? second! : first!);
   /*
     The stand-in is the next round of the same kind along the rotation that
     the ledger does support, so it still alternates with the evening: early
@@ -590,6 +604,8 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
   /* The rotation walks the whole part rather than restarting per unit, or the
      first evening of every unit would be the same pair for a fortnight. */
   let turn = 0;
+  /* And the drill half separately, since a forms evening deals no drill (see `rounds`). */
+  let drillTurn = 0;
 
   for (const unitId of spec.units) {
     const unit = unitById(unitId);
@@ -672,7 +688,10 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         : ledger.showForms();
       const dealt = onThePage(
         onTheCase(
-          rounds(spec.level, turn, verbs && n % 2 === 0, ledger.taught(), verbs, days.at(-1)?.practice ?? []),
+          rounds(
+            spec.level, turn, verbs && n % 2 === 0, ledger.taught(), verbs, days.at(-1)?.practice ?? [],
+            drillTurn,
+          ),
           caseEvening, spec.level, ledger.taught(), days.at(-1)?.practice ?? [],
         ),
         reading.grammar, spec.level, ledger.taught(),
@@ -700,6 +719,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         { n: n + 1, of: chunks.length },
       ));
       turn += 1;
+      if (forms.length === 0 && !(last && scene)) drillTurn += 1;
     });
   }
 
