@@ -41,6 +41,12 @@ export interface WritingPrompt {
    * a client could forge reaches the log.
    */
   targetForm: string;
+  /**
+   * Every spelling that is right, joined the way a card's back is, which is
+   * what a miss names: the illative is `tuppa / toasse`, and naming one of a
+   * pair the marker takes would tell somebody who wrote the other one wrong.
+   */
+  shown: string;
   provenance: "ekilex" | "derived";
   weak: boolean;
   /** Whether this word is already one of the learner's favorites. */
@@ -316,7 +322,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
           {marked && (
             <Feedback
               caseName={endingName(prompt.caseKey) ?? prompt.caseEt}
-              form={prompt.targetForm}
+              form={prompt.shown}
               marked={marked}
             />
           )}

@@ -7,6 +7,8 @@ import { mentions } from "@/lib/estonian/cloze";
 import { parseExamples } from "@/lib/dict/examples";
 import { isLocalCase } from "@/lib/estonian/caseQuestion";
 import { kindStated } from "@/lib/estonian/semantics";
+import { shownForms } from "@/lib/estonian/derive";
+import { PARTS } from "@/lib/copy/values";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { WriteSession, type WritingPrompt } from "./WriteSession";
@@ -131,6 +133,7 @@ export default async function WritePage({
         caseEt: task.caseEt,
         caseQuestion: task.caseQuestion,
         targetForm: task.targetForm,
+        shown: shownForms({ singular: task.targetForm, alsoRight: task.alsoRight }).join(PARTS),
         provenance: task.provenance,
         weak: weakCases.has(task.caseKey),
       });
