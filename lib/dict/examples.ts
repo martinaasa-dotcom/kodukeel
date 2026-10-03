@@ -48,6 +48,25 @@ export interface Example {
    */
   enRefused?: boolean;
   source: ExampleSource;
+  /**
+   * ON A SENTENCE LENT FROM ANOTHER HEADWORD, THE SPELLINGS THAT JUSTIFIED THE
+   * LOAN, and the only ones it may be gapped on. Never stored; set by
+   * `lib/dict/borrow.ts`. `Peas valitses tühjus, nagu käsipidur olnuks peal`
+   * is lent to `pea` for `Peas`, and gapping `peal` out of it as the adessive
+   * of a head taught a postposition as a case. See `lentFor`.
+   */
+  via?: readonly string[];
+}
+
+/**
+ * May this sentence be gapped on this spelling?
+ *
+ * Always for a word's own sentence. For a loan, only on a spelling the loan was
+ * made for, every word of a multi-word answer (`ei loe`) checked against it.
+ */
+export function lentFor(example: Pick<Example, "via">, answer: string): boolean {
+  if (!example.via) return true;
+  return answer.trim().toLocaleLowerCase("et").split(/\s+/).some((word) => example.via!.includes(word));
 }
 
 /** Sentences outside this range are unusable: a fragment, or a paragraph. */

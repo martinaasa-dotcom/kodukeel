@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { CASES, caseByKey } from "./cases";
-import { caseFits, caseLabelFor, caseQuestionFor, localCasesFor } from "./caseQuestion";
+import {
+  caseFits, caseFitsInSentence, caseLabelFor, caseQuestionFor, localCasesFor, sentenceLocalCases,
+} from "./caseQuestion";
 import { INSIDE_CASES, OUTSIDE_CASES } from "./place";
 
 const horse = { lemma: "hobune", semanticTypes: "loom", nomSg: "hobune" };
@@ -73,6 +75,30 @@ describe("caseFits", () => {
       expect(caseFits(spec.key, horse), spec.key).toBe(true);
       expect(caseFits(spec.key, room), spec.key).toBe(true);
     }
+  });
+});
+
+describe("which local cases a recorded sentence may settle", () => {
+  it("lets a thing's sentence use either trio, since the sentence has said which", () => {
+    expect([...sentenceLocalCases(room, "NOUN")].sort()).toEqual([...INSIDE_CASES, ...OUTSIDE_CASES].sort());
+    expect(caseFitsInSentence("ADESSIVE", room, "NOUN")).toBe(true);
+    expect(caseFits("ADESSIVE", room)).toBe(false);
+  });
+
+  it("gives a person, a -maa word and a mixed one exactly what it had", () => {
+    expect(sentenceLocalCases(teacher, "NOUN")).toEqual(OUTSIDE_CASES);
+    expect(sentenceLocalCases(germany, "NOUN")).toEqual(OUTSIDE_CASES);
+    expect(sentenceLocalCases(police, "NOUN")).toEqual([]);
+    expect(caseFitsInSentence("INESSIVE", teacher, "NOUN")).toBe(false);
+  });
+
+  it("widens nothing for an adjective, whose -lt is the adverb", () => {
+    expect(sentenceLocalCases(room, "ADJECTIVE")).toEqual(INSIDE_CASES);
+    expect(caseFitsInSentence("ABLATIVE", room, "ADJECTIVE")).toBe(false);
+  });
+
+  it("still asks nothing of a word with no singular", () => {
+    for (const spec of CASES) expect(caseFitsInSentence(spec.key, glasses, "NOUN"), spec.key).toBe(false);
   });
 });
 

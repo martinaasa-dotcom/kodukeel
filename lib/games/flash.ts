@@ -1,5 +1,5 @@
 import { plainPhrase, sameSpelling, PARTS } from "@/lib/copy/values";
-import { sentenceContaining, type Example } from "@/lib/dict/examples";
+import { lentFor, sentenceContaining, type Example } from "@/lib/dict/examples";
 import { checkAnswer } from "@/lib/estonian/answer";
 import { CASES, caseByKey } from "@/lib/estonian/cases";
 import { caseFits, caseQuestionFor, type CaseSubject } from "@/lib/estonian/caseQuestion";
@@ -378,7 +378,8 @@ function sentenceFor(word: FlashWord, slot: FlashSlot): { et: string; en: string
       const verdict = readCase(cases, form);
       if (verdict.kind !== "one" || verdict.key !== slot.slot) continue;
     }
-    const example = sentenceContaining([...word.examples], form);
+    // A loan only on the spelling it was lent for (`Example.via`).
+    const example = sentenceContaining(word.examples.filter((e) => lentFor(e, form)), form);
     if (!example) continue;
     /*
       The gap builder is what decides, not a substring: it refuses a sentence

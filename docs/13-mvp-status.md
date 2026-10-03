@@ -2806,3 +2806,52 @@ whichever drills were paired with the games on forms evenings were skipped every
 round: B2 paired the writing round with Tähed and Describe with the sprint, and over its 45
 evenings dealt writing three times and Describe once. The drill's place on the rotation now
 advances only on an evening that deals a drill: B2 writes on seven evenings and describes on four.
+
+## 48. The forty-second pass: what B2 and C1 practise, and the endings for "on"
+
+**The deck asks the "on" endings of a thing, where its sentence uses them.** A case card is a
+sentence a lexicographer wrote, and it still read the older rule that a thing takes the inside
+trio, which was written when a card was built from morphology and nothing else could say which
+trio to drill. So `Söök on laual`, `Pane raamat lauale`, `Käin tööl`, `Talunik müüb turul piima`,
+`Ärkasin kell viis hommikul` and `Lähen juulis puhkusele` were never asked, and the whole of the
+deck's adessive was a person having something: 73 adessive cards, 63 allative and 21 ablative over
+the shipped dictionary. A noun that is a thing now takes whichever trio its sentence uses
+(`sentenceLocalCases`), and `readCase` still decides that the sentence uses that case and no
+other: 391, 314 and 80. A person still never gets the inside trio, a word that is a being and a
+place still gets neither, and an adjective is left alone, because its `-lt` is the adverb
+(`lõplikult`, `kergelt`) and reading it as an ablative teaches a case that is not there. A bare
+ask, Target and the writing round have no sentence to settle anything and keep `caseFits`.
+`npm run audit:sense` asks a deck card the same question, and the deck audit only ever removes an
+inside ending on a word known to take the outside trio, so none of these is condemned.
+
+**And a sentence lent from another word is gapped only on the spelling it was lent for.** Reading
+the new cards found two faults in the borrowed pool, both older than this pass. The course teaches
+`peal`, `kõrval`, `vahel` and `kohal` as postpositions, and they claimed only their own spelling,
+so `laua pealt` and `minu kõrvale` were lent to `pea` and `kõrv` as the ablative of a head and the
+allative of an ear; an adverb in `-l` now claims `-le` and `-lt` too, and one in `-s` claims
+`-st`. And a loan never recorded why it was made: `Peas valitses tühjus, nagu käsipidur olnuks
+peal` is lent to `pea` for `Peas`, and the builder cut `peal` out of it as well. `Example.via` is
+the spellings a loan was made for and `lentFor` holds the deck builder and the flash round to
+them. What is left is a postposition the course does not teach (`puu otsas`, `aastasadade
+jooksul`), which is the residual the claim index already names.
+
+**B1, B2 and C1 have their conversations back.** The fifteen scenes thin out above A2, so B1.1 had
+none, B2 had one and C1 went six weeks without a single conversation, in a course whose whole
+point is the conversation somebody has outside it. A run is pitched at the learner's own level, so
+the same counter at C1 is a different conversation: the clerk who asked a beginner one short
+question at a time talks the way they would to anybody, and the learner has a year of words to
+answer with. Seven come back a level up, each on the unit closest to what it rehearses (the
+neighbor on the stairs with the people in your life, the bus ticket with public life, the doctor
+with health, the job interview with working life, the language course with academic writing, the
+landlord with register, the phone call with the wider world), and the step says it is a second
+time. `course.test.ts` holds every part from the first conversation on to having one, and a
+second time to a level up.
+
+**The nominalisation page shows the doer in front.** "The doer goes in front, in the form that
+means whose" was answered with a reason saying it only makes sense beside the clause it was
+rewritten from, and `Tarbijate käitumine on enamasti ennustatav` shows it on its own. It carries
+that and `Alliansi laienemine on olnud edukas` now, both verified as genitives against the
+dictionary's own forms.
+
+**Describe's caption is a list.** "A picture of house, door and window" wanted articles a gloss
+cannot supply, `a water` and `a bread` among them; "In the picture: house, door, window" needs none.
