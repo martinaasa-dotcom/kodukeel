@@ -5397,10 +5397,11 @@ scripted learners, each run three ways (keyless; keyed with a run opened to spea
 composing against a stubbed model that answers deterministically from the prompt it is handed, fails
 on some calls, and has the judge and the consistency check answer by a hash). Every reply, every
 prompt sent to the model, every judge and consistency question and every ledger event was written
-down before the change and after it: 16,503 turns, 16,768 asks of the model with 609 lines getting
-through (184 of the asks for an answer before a break in time), 36 turns where no model answered at
-all, 2,376 judge and consistency questions and 204 words sent to grow the dictionary. The two records
-are identical byte for byte.
+down before the change and after it, with run ids derived from the scene and the learner so the two
+runs rotate their lines alike: 16,519 turns, 16,813 asks of the model with 641 lines getting through
+(181 of the asks for an answer before a break in time), 33 turns where no model answered at all,
+2,364 judge and consistency questions and 219 words sent to grow the dictionary. The two records, 70,677
+lines each, are identical byte for byte.
 
 **What did change is the harnesses, which is the point.** They now print what the route says. The
 keyless sweep at B1 still raises no flags over its 4,456 conversations, and 56 lines of its
