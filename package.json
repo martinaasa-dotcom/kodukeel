@@ -63,6 +63,7 @@
     "play:scenes": "tsx scripts/play-scene.ts",
     "replay:scene": "tsx scripts/replay-transcript.ts",
     "sweep:fallback": "tsx scripts/sweep-fallback.ts",
+    "critic:scenes": "tsx scripts/critic-scenes.ts",
     "probe:turns": "tsx scripts/probe-turns.ts",
     "eval:scene": "tsx scripts/eval-scene.ts",
     "eval:composers": "tsx scripts/eval-composers.ts",

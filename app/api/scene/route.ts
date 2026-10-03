@@ -1110,7 +1110,17 @@ export async function POST(request: Request) {
     cases include the ledger refusing and the provider timing out, and a net
     assembled at that point is a net assembled while somebody is waiting.
   */
-  const cheap = await sceneLine({ ...shared, pool: context.pool.get(beat.id) ?? [] });
+  /*
+    THE NET IS THE BEAT AS IT IS, NOT AS THE MODEL IS TOLD IT. `stillTalking`
+    hands a closing beat to the composer as a `confirm`, so a model asked
+    something on the way out answers it and leaves the goodbye to the learner.
+    The cheap ladder was handed the same relabelled beat, and a `confirm` does
+    not take `Head aega!`, so with no model behind the run a learner who asked
+    "kui kaua?" as they were leaving read the stage direction "They say
+    goodbye." in English and nothing in Estonian, turn after turn (the keyless
+    critic, `kaebus`). The courtesy is the net, as the paragraph below says.
+  */
+  const cheap = await sceneLine({ ...shared, beat, pool: context.pool.get(beat.id) ?? [] });
   const dealt = cheap.provenance === "fallback" ? datumLine(beat, card, context.lexicon) : null;
   const move = cheap.provenance !== "fallback" ? cheap : dealt ?? cheap;
 

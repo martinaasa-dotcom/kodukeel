@@ -9671,6 +9671,26 @@ fact. The `let` is declared first in the handler now, and
 `let` before its declaration, made to fail on the old route. A `catch` that reads a crash as a
 verdict is the shape to look for in any route that asks a model a yes-or-no question.
 
+**The no-model path is swept in every scene, because it is what a learner meets when the model is
+not there.** On 2026-10-02 the critic's own runs used up the Flash model's daily allowance, so for the
+rest of that day the scenes composed on the Lite model and then fell to the bank. `npm run
+sweep:fallback` plays every scene with no model, against eight scripted learners, with every admitted
+curveball raised at every beat: 5,040 conversations, fourteen detectors for what nobody does. It went
+from 2,488 flags to 9, each read and left. A critic round over that path, judged by the Lite model so
+it spends none of the composer's allowance, found the rest:
+- a reference number or a clock time read as a price;
+- the time read back whenever "kell" appeared anywhere;
+- the shrug said four times in one conversation;
+- "ma ei saa" read as lost;
+- the closing beat handed to the keyless net relabelled the way the composer hears it, so a learner
+  who asked something on the way out read "They say goodbye." in English instead of `Head aega!`.
+  The sweep's loop never had the relabelling, so a fault the critic shows is replayed through `npm
+  run replay:scene` before it is believed or dismissed.
+
+**And Google's daily allowance is per project, not per key**, so a key made for evaluation inside the
+production project spends the learners' day. Evaluations run on a project of their own.
+`docs/21-situations.md` §77.
+
 **A line withheld only for saying goodbye keeps the rest of itself.** The model reached for `Head
 aega!` at the end of a confirmation, `farewell` withheld the whole line three times running, and the
 learner read the bare card line `Kell 14:30.` in place of a person confirming an appointment.
@@ -11655,6 +11675,8 @@ npm run report:impact    # people, study, retention and conversations outside th
 npm run report:spend     # what the models cost, by kind, model and day, off the ledger (--days)
 npm run measure:scenes   # how much of a conversation the dictionary can already carry
 npm run play:scenes      # every scene played keyless as a sloppy or curious learner; read the transcripts (--scene, --style)
+npm run sweep:fallback   # every scene, keyless, eight scripted learners and every curveball at every beat; read the flags (--scene)
+npm run critic:scenes    # a model learner plays each scene and a second model lists the faults (--model-down, --critic-model)
 npm run replay:scene     # one reported transcript, keyless, through the app's own ladder (--scene, --curveball id@beat, --say ...)
 npm run probe:turns      # what the marker makes of sentences a real person would type; hunt the !! lines
 npm run eval:scene       # what a model reaches for in a scene, and what the gate withholds (three runs so far; read the ranked list)

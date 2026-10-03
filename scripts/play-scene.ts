@@ -427,10 +427,11 @@ async function play(sceneId: string) {
       let preBreak: Awaited<ReturnType<typeof sceneLine>> | null = null;
       const crossing = askedNow !== null && !standing && speaking === spokenFor && Boolean(spokenFor.meanwhile)
         && answered !== spokenFor && !state.turns.some((t) => t.beatId === spokenFor.id) && LINKS.length > 0;
+      const stillTalking = spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, [...FAREWELLS, ...LEAVING]);
       const request = {
-        // A closing beat where the learner is still asking is gated as one that may not say goodbye.
-        beat: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, [...FAREWELLS, ...LEAVING])
-          ? { ...spokenFor, move: "confirm" as const } : spokenFor,
+        // A closing beat where the learner is still asking is composed as one that may not say goodbye;
+        // with no model there is nothing to compose, and the goodbye is the line (the route's net).
+        beat: stillTalking && LINKS.length > 0 ? { ...spokenFor, move: "confirm" as const } : spokenFor,
         lexicon: context.lexicon,
         // This run's dealt numbers, so the gate's `facts` check is the one the route runs.
         gate: {
@@ -573,7 +574,11 @@ async function play(sceneId: string) {
         } : {};
         reviewMoved = moved;
       }
-      const cheap = await sceneLine(request);
+      let cheap = await sceneLine(request);
+      // Where the model's line did not get through, the route's net is the closing beat as it is.
+      if (cheap.provenance === "fallback" && request.beat !== spokenFor) {
+        cheap = await sceneLine({ ...request, beat: spokenFor, pool: context.pool.get(spokenFor.id) ?? [], compose: undefined, mode: "scripted" });
+      }
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, card, context.lexicon) ?? cheap;
       // A composed line answered what was asked; otherwise a landed question nothing answered gets the shrug.
       if (line.provenance === "composed") aside = preBreak;

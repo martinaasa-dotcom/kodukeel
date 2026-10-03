@@ -5076,3 +5076,93 @@ answered with one.
 notice and occasionally flags a reasonable line. And a failed call used to read as no issues: the
 thirteenth pass printed "0 issues over 90 conversations" on a day the key's quota had run out. A call
 that fails is retried and then reported as not judged, and never counted as clean.
+
+## §77 The no-model path, swept in every scene, and what the quota taught
+
+**Why it was swept.** The bank is what a deployment with no key, a spent allowance or a model that
+will not answer falls to. On 2026-10-02 the critic's own runs used up the Flash model's daily
+allowance, so for the rest of that day every conversation on the same Google project composed on the
+Lite model and then fell to the bank. A conversation on the bank is one a learner meets, so every
+scene's bank was checked rather than the one that had been reported.
+
+**`npm run sweep:fallback` is the check.** It plays every scene with no model against eight scripted
+learners: plain, one who asks things, one off the point, one who is lost, one in English, one who says
+no, one who leaves early and one who gives the wrong answer. Each is played with no curveball and with
+every curveball the scene admits raised at every beat. That is 5,040 conversations in about two
+minutes, through `scripts/lib/keylessPlay.ts`, the route's own loop with the model rungs taken out;
+`npm run replay:scene` reads a reported transcript through the same loop. Fourteen detectors name
+what nobody does:
+- a shrug at a question the card answers;
+- "sorry?" to an answer;
+- thanks for a question;
+- goodbye before the scene is over;
+- hello in the middle;
+- a number the card never dealt;
+- an English line;
+- a stage direction drawn where a line should be;
+- the same line after the turn landed;
+- one line three times;
+- "today" after "not today";
+- a scene that never ends.
+
+The first run raised 2,488 flags. The last raised 9, and each was read and left as it is: a goodbye
+said by both sides, a greeting beat that takes any Estonian by design, and "speak more slowly" said
+back under the curveball that speeds the other side up.
+
+**What it found was in the machine, not in a scene.**
+- A curveball that changes the situation now takes the bank lines it made untrue out of the bank
+  (`unsays`, `sayableAfterHurdles`), so "take it tonight" is not said after "it can't be done today".
+- A curveball that leaves asking as the only way out has banked answers (`answer:hurdle:*`).
+- A second word for the same thing no longer credits a beat from a distance.
+- "Do you speak English?" no longer meets a beat that wanted a question.
+- An English turn is no longer read as Estonian because two words are spelled alike.
+- "Ma ei tea" is read as lost rather than as the answer to a yes-or-no question.
+- A beat whose prepared lines are spent says its question again rather than the repair phrase.
+
+**Then a critic read it.** `npm run critic:scenes -- --model-down --critic-model
+gemini-3.1-flash-lite` plays sixty conversations with no model, against a model learner who is off
+the point, confused, chatty or half in English, and has the Lite model list where the other side
+stopped making sense. The judge being the Lite model is the point: a round over the no-model path
+spends none of the composer's allowance.
+
+It found 278 issues. 105 of them were one line, "Ei tea.", said to small talk tucked into an answer
+that had already landed. Five faults were mechanical and are fixed:
+- A reference number or a clock time was read as a price. A figure is now a number beside a euro, a
+  euro sign, or a turn that is only the number.
+- The time was read back whenever "kell" appeared anywhere in the turn. It now has to be in the
+  sentence the question mark ends.
+- A fact this run has already said is confirmed with "Jah." alone.
+- The shrug is said once a conversation.
+- "Ma ei saa" is lost only beside "aru" or in a turn of three words, and "please speak more slowly"
+  is never shrugged at.
+
+The rerun found 254. Non-sequiturs fell from 80 to 44, and questions counted as ignored rose from 41
+to 51: where the second and third "Ei tea." used to be, the other side now just makes its move. The
+learner is a model too, so both runs carry noise of their own. What the critic still flags is a
+question nobody wrote an answer for, and nothing without a model can answer small talk. That is the
+argument for keeping the model up.
+
+**And reading it found one fault the sweep could not see.** When the learner is still asking things,
+the route hands the closing beat to the composer as a `confirm`, so a model answers the question and
+leaves the goodbye to the learner. The cheap ladder was handed the same relabelled beat, and a
+`confirm` does not take `Head aega!`. So with no model, a learner who asked something on the way out
+read the stage direction "They say goodbye." in English, turn after turn. The sweep's loop never had
+the relabelling, so it could not see the fault; the critic's harness did. The net is now handed the
+beat as it is, and an invariant holds both halves
+(`scripts/invariants/the-keyless-net-is-the-beat-as-it-is.ts`). The lesson is about the instruments:
+three copies of the conversation loop are three chances to measure a conversation the app does not
+have, so a fault the critic shows is replayed through `npm run replay:scene` before it is believed or
+dismissed.
+
+**The quota is per project, not per key.** Google counts requests per model per day across every
+key in a Cloud project, and resets at midnight Pacific. On this project's tier, Flash allows 10,000 a
+day. A key created for evaluation inside the production project spends the learners' day. So
+evaluations run on a project of their own. The app's own caps (`AI_DAILY_USD_SCENE`,
+`AI_DAILY_USD_GLOBAL`) bind before Google's at their defaults, and the two are raised together or
+not at all. The tiers that lift Google's limit:
+- Tier 2, after $100 paid and three days from the first payment;
+- Tier 3, after $1,000 paid and thirty days;
+- a quota increase can also be asked for on Google's form.
+
+What the app does when a model says its allowance is spent is the quota breaker's business, built in
+its own pass.
