@@ -137,3 +137,19 @@ export function verdictOfCredit(credit: number): Verdict {
   if (credit > 0) return "nearly";
   return "wrong";
 }
+
+/**
+ * A verdict's bold opening and the rest of its line, without saying it twice.
+ *
+ * The marker's note often opens on the verdict already ("Not quite, it's
+ * aadressini"), and a round that printed its own head in front of it read
+ * "Not quite. Not quite, it's aadressini." Where the note opens that way the
+ * bold part is the note's own opening; elsewhere it is the head and a stop.
+ */
+export function verdictLine(head: string, note: string | null | undefined): { strong: string; rest: string } {
+  if (note && note.toLowerCase().startsWith(head.toLowerCase())) {
+    return { strong: note.slice(0, head.length), rest: note.slice(head.length) };
+  }
+  return { strong: `${head}.`, rest: note ? ` ${note}` : "" };
+}
+

@@ -26,7 +26,7 @@ import { useHints } from "@/components/round/useHints";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
-import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
+import { VERDICT_CLASS, verdictLine, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -624,9 +624,10 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         {mark.right
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
+        {/* Said once, where the note opens on the verdict: see `verdictLine`. */}
         <p className="text-base">
-          <strong className="font-semibold">{head}.</strong>
-          {mark.note && <> {mark.note}</>}
+          <strong className="font-semibold">{verdictLine(head, mark.note).strong}</strong>
+          {verdictLine(head, mark.note).rest}
         </p>
       </div>
 
