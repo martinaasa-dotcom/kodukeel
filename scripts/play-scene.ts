@@ -31,41 +31,24 @@
  * question the beat did not ask for. Reading the sloppy and curious runs is
  * how the marker's tolerance and the asides were shaped.
  */
-import { FAREWELLS, SCENES, sceneById } from "../lib/scenes/catalogue";
-import { ASKS_ON } from "../lib/scenes/curveballs";
-import { asksSlower, saysGoodbye, LEAVING } from "../lib/scenes/casual";
-import {
-  MAX_TURNS, acceptFromRows, clockInPlay, contextFromRows, knowing, moneyInPlay, replay, sceneLemmas, type Row,
-  type StoredDraw,
-} from "../lib/progress/scene";
+import { SCENES, sceneById } from "../lib/scenes/catalogue";
+import { MAX_TURNS, acceptFromRows, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
+import { planTurn, speakTurn } from "../lib/progress/sceneTurn";
+import { harnessModel } from "./lib/keylessPlay";
 import { seedFrom } from "../lib/random/seeded";
-import {
-  replyFor, composeNote, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, factsFor, stageFor,
-  establishedBy, heldBack, heldNumbers, sceneMovedOn,
-  wantsAsideFor, sayableAfterHurdles, timesAnswered,
-  feltAt,
-} from "../lib/scenes/reply";
-import { asideFor, asideOwed, asksToHearAgain, priceAsked, shrug } from "../lib/scenes/aside";
-import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
-import { isSaid, sceneLine } from "../lib/scenes/line";
+import { currentBeat, hurdleBeat, isOver } from "../lib/scenes/state";
+import { isSaid } from "../lib/scenes/line";
 import { PERSONAS } from "../lib/scenes/personas";
-import { answerBeatId, sceneBeats } from "../lib/scenes/scripted";
 import { reviewOf } from "../lib/scenes/review";
-import { offerFor } from "../lib/scenes/grades";
-import { choiceOf } from "../lib/scenes/choice";
 import { caseKeyFor, words } from "../lib/scenes/lexicon";
 import { leafNeeds, type BeatSpec } from "../lib/scenes/types";
 import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, parseJudgement } from "../lib/scenes/judge";
-import {
-  CONSISTENCY_REPLY_TOKENS, buildConsistencySystemPrompt, buildConsistencyUserPrompt, parseConsistency, repeatsItself,
-} from "../lib/scenes/consistency";
+import { CONSISTENCY_REPLY_TOKENS, buildConsistencySystemPrompt, buildConsistencyUserPrompt, parseConsistency } from "../lib/scenes/consistency";
 import { propBySlot } from "../lib/scenes/props";
 import { fold } from "../lib/estonian/fold";
 import { shippedDictionary } from "./lib/dictionary";
-import type { composeLive, composeSystem } from "../lib/scenes/prompt";
-import { dealtNumbers } from "../lib/scenes/props";
-import { askLine, COMPOSE_USAGE, chain as providerChain, vouchOf, HARNESS_LEVEL } from "./lib/sceneDraft";
+import { COMPOSE_USAGE, chain as providerChain, vouchOf, HARNESS_LEVEL } from "./lib/sceneDraft";
 import type { Level } from "../lib/collections/syllabus";
 import { installMeter } from "./lib/meter";
 
@@ -121,21 +104,28 @@ const JUDGE_LINKS = modelDown && process.env.GROQ_API_KEY
 const COMPOSE_STATUS = new Map<string, number>();
 
 
-const askModel = (
-  ask: Parameters<typeof composeLive>[0],
-  scene: Parameters<typeof composeSystem>[0],
-  said: readonly { role: "user" | "assistant"; content: string }[],
-) => askLine(
-  LINKS, ask, scene, said,
-  (why) => COMPOSE_STATUS.set(why, (COMPOSE_STATUS.get(why) ?? 0) + 1),
-  /*
-    What the model wrote, before the gate reads it, because the printed
-    conversation shows only what survived. Whether a withheld line was a good
-    sentence with one word out of scope or a paragraph of English is the whole
-    question when deciding which model to put in front.
-  */
-  (line) => { if (process.argv.includes("--drafts")) console.log(`      ~ drafted: ${line}`); },
-);
+/**
+ * The route's consistency check (`reviewLine`), asked of the judge's link
+ * rather than of the grader chain, and failing open the way the route's does.
+ */
+async function consistencyOnJudge(ask: Parameters<typeof buildConsistencyUserPrompt>[0]): Promise<string | null> {
+  const link = JUDGE_LINKS[0]!;
+  const res = await fetch(link.url, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
+    body: JSON.stringify({
+      model: link.model, max_tokens: CONSISTENCY_REPLY_TOKENS,
+      messages: [
+        { role: "system", content: buildConsistencySystemPrompt() },
+        { role: "user", content: buildConsistencyUserPrompt(ask) },
+      ],
+    }),
+  }).catch(() => null);
+  const text = res && res.ok ? ((await res.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "" : "";
+  const verdict = parseConsistency(text);
+  if (verdict && !verdict.ok) console.log(`      ~ inconsistent: ${verdict.why}`);
+  return verdict && !verdict.ok ? (verdict.why || "it did not keep to what was already said") : null;
+}
 
 const rows: Row[] = shippedDictionary().map((e) => ({
   id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr, parts: e.parts,
@@ -356,262 +346,41 @@ async function play(sceneId: string) {
         ({ state, response, elsewhere } = replay(marking, draw, turns));
       }
     }
-    const beat = currentBeat(scene, state);
-    const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
-    const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
-    // The card as the other side knows it: counters and changed facts stood in, as the route reads it.
-    const card = cardChosen(
-      cardAfterHurdles(cardInPlay(draw.card, scene.beats, state.countered), state),
-      state.turns,
-      (lemma) => context.marker.englishFor?.get(lemma)?.[0],
-    );
-    const last = state.turns[state.turns.length - 1] ?? null;
-    // See app/api/scene/route.ts: `scene.beats` has never heard of a hurdle.
-    const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
-    const spokenFor = standing ?? speaking ?? (answered?.move === "close" ? answered : undefined);
-
-    const askedNow = last?.asked ?? null;
-    const landedNow = response === "answer" || response === "counter" || elsewhere > 0;
-    // A real question on a missed turn is answered off the card too, as the route does.
-    const wantsAside = wantsAsideFor(askedNow, turns.length ? response : null, last?.reading ?? null, elsewhere > 0);
-    const bank = (id: string | undefined): readonly string[] =>
-      id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators, scene) : [];
-    const fresh = (id: string | undefined) => bank(id).filter((t) => !used.has(t));
-    const asking = {
-      asked: askedNow, spoken: words(last?.said ?? ""), said: last?.said ?? "", answered, card, lexicon: context.lexicon,
-      more: fresh(answered?.id), answers: answered ? fresh(answerBeatId(answered)) : [], missed: !landedNow, already: used,
-    };
-    // A run that composes says none of the keyless answers beside the model's line (the route's rule).
-    let aside = wantsAside && LINKS.length === 0 ? asideFor(asking) : null;
-    // "Sorry, what?" gets the line again, never the shrug (the route's rule).
-    const hearAgain = asksToHearAgain(words(last?.said ?? ""), context.marker.questionWords, context.lexicon);
-    if (LINKS.length === 0 && wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" as const };
-    // What this person knows off the card, in English, as the route hands it to the model.
-    // What this person holds for later and what the run has established, as the route reads them.
-    const held = heldBack(scene.beats, card, state, standing ?? speaking ?? null, {
-      any: askedNow !== null,
-      money: askedNow !== null && priceAsked(last?.said ?? "", context.lexicon) !== null,
+    /*
+      THE ROUTE'S OWN REPLY, PLANNED AND SPOKEN BY THE ROUTE'S OWN FUNCTIONS
+      (`lib/progress/sceneTurn.ts`), with `--compose` handing the model step
+      the links in place of the ledger's chain. This loop is the client and
+      the printer, and nothing in it decides what the other side says.
+    */
+    const plan = planTurn({
+      scene, context: marking, draw, state, response, elsewhere, taken: turns.length, used, persona,
+      composing: LINKS.length > 0,
+      rotate: seedFrom(`${scene.id}:${run.seed}`),
+      level,
     });
-    const established = establishedBy(state, card);
-    const moved = sceneMovedOn(state, card, scene.beats);
-    const facts = factsFor(card, scene.beats, held);
-
-    let line = null;
-    // A curveball said in English is said in English, never composed (the route's rule).
-    const speaksEnglish = Boolean(standing && hurdleSpec(state)?.said);
-    // A person waiting still answers what they are asked, where a model writes the line (the route's rule).
-    const reading = state.turns.at(-1)?.reading ?? null;
-    const waitingAnswers = LINKS.length > 0 && !standing
-      && (askedNow !== null || reading === "lost" || reading === "offtarget");
-    if (spokenFor && !(spokenFor.awaits && !standing && !waitingAnswers) && !speaksEnglish) {
+    const { lines } = await speakTurn(plan, LINKS.length > 0 ? harnessModel(LINKS, {
+      vouch: (spellings) => vouchOf(context.lexicon, spellings),
+      // The route's consistency check, on the judge's link, once there is a conversation to keep to.
+      ...(JUDGE_LINKS.length > 0 ? { consistency: consistencyOnJudge } : {}),
+      onStatus: (why) => COMPOSE_STATUS.set(why, (COMPOSE_STATUS.get(why) ?? 0) + 1),
       /*
-        The route's ladder, including composition where `--compose` is on. The
-        conversation goes in as messages, both sides, oldest first, exactly as
-        the route sends it, because a line drafted against the beat alone is the
-        thing the amendment was written to stop.
+        What the model wrote, before the gate reads it, because the printed
+        conversation shows only what survived. Whether a withheld line was a
+        good sentence with one word out of scope or a paragraph of English is
+        the whole question when deciding which model to put in front.
       */
-      const talk = state.turns.slice(-6).flatMap((t) => [
-        ...(t.heard ? [{ role: "assistant" as const, content: t.heard }] : []),
-        { role: "user" as const, content: t.said },
-      ]);
-      // The person's own agenda and what is settled, as the route hands them to the model.
-      const agenda = scene.beats.slice(state.beat).filter((b) => !state.done.includes(b.id))
-        .filter((b) => b.move !== "close" || b.id === spokenFor.id)
-        .map((b) => {
-          const stage = stageFor(b, card, b.id === spokenFor.id ? new Set() : held);
-          return b.move === "refuse" && b.id !== spokenFor.id ? `(you will turn this down) ${stage}` : stage;
-        });
-      const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, card));
-      const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
-      const handing = (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null;
-      // The route's answer before a break in time: overrides for the one extra draft.
-      let composeOver: Partial<Parameters<typeof composeLive>[0]> = {};
-      let reviewMoved = moved;
-      let preBreak: Awaited<ReturnType<typeof sceneLine>> | null = null;
-      const crossing = askedNow !== null && !standing && speaking === spokenFor && Boolean(spokenFor.meanwhile)
-        && answered !== spokenFor && !state.turns.some((t) => t.beatId === spokenFor.id) && LINKS.length > 0;
-      const stillTalking = spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, [...FAREWELLS, ...LEAVING]);
-      const request = {
-        // A closing beat where the learner is still asking is composed as one that may not say goodbye;
-        // with no model there is nothing to compose, and the goodbye is the line (the route's net).
-        beat: stillTalking && LINKS.length > 0 ? { ...spokenFor, move: "confirm" as const } : spokenFor,
-        lexicon: context.lexicon,
-        // This run's dealt numbers, so the gate's `facts` check is the one the route runs.
-        gate: {
-          ...context.gate, dealt: dealtNumbers(card ?? draw.card),
-          times: clockInPlay(card ?? draw.card, context.lexicon),
-          money: moneyInPlay(card ?? draw.card, context.lexicon),
-          freeNumbers: askedNow !== null,
-          held: (() => {
-            const kept = heldNumbers(card, held);
-            const open = heldNumbers(card, new Set((card?.props ?? []).map((p) => p.slot).filter((slot) => !held.has(slot))));
-            const typed = new Set(state.turns.flatMap((t) => t.said.match(/\d{1,2}[:.]\d{2}|\d+/g) ?? []));
-            return new Set([...kept].filter((n) => !open.has(n) && !typed.has(n)));
-          })(),
-        },
-        /*
-          The courtesy rung stands down where the turn needs answering, as it
-          does in the route: a question on the way out, or a word to hand over,
-          is composed rather than answered `Ei tea. Head aega!`
-        */
-        pool: (askedNow || handing || (spokenFor.move === "close" && last !== null && !saysGoodbye(last.said, [...FAREWELLS, ...LEAVING])))
-          && LINKS.length > 0 ? [] : context.pool.get(spokenFor.id) ?? [],
-        /*
-          THE LEARNER'S OWN WORDS ARE ON TOPIC, AS THE ROUTE READS THEM. The
-          route adds every word of the last turn the dictionary vouched to the
-          beat's topic, so a line that takes up what the learner said is not
-          withheld for it; this harness gated on the beat's words alone, and
-          reported `topic` refusals the app never makes (§53's rule about a
-          harness measuring a conversation the app does not have).
-        */
-        topic: new Set<string>([
-          ...(context.topic.get(spokenFor.id) ?? []),
-          ...words(last?.said ?? "").filter((word) => context.lexicon.forms.has(word) || marking.marker.known?.(word)),
-          // Every form of a word they used, as the route reads it.
-          ...[...context.lexicon.byLemma.values()]
-            .filter((forms) => words(last?.said ?? "").some((word) => forms.has(word)))
-            .flatMap((forms) => [...forms]),
-        ]),
-        hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
-        scripted: bank(spokenFor.id), used,
-        // Where this run starts reading a beat's own lines, as the route does.
-        rotate: seedFrom(`${scene.id}:${run.seed}`),
-        /*
-          The same question the route asks (`sceneVouch`), minus the course
-          read that needs a database: is this spelling Estonian at all. Without
-          it this harness plays a scene whose other side may only say the few
-          hundred lemmas its units declare, which is not the app.
-        */
-        vouch: (spellings: readonly string[]) => vouchOf(context.lexicon, spellings),
-        // The harness composes when it has a link, exactly as a run does.
-        mode: LINKS.length > 0 ? ("composed" as const) : ("scripted" as const),
-        // The route's consistency check, on the judge's link, once there is a conversation to keep to.
-        ...(JUDGE_LINKS.length > 0 ? {
-          review: async (candidate: string) => {
-            if (repeatsItself(candidate, [...state.turns.flatMap((t) => (t.heard ? [t.heard] : [])), ...(preBreak ? [preBreak.text] : [])])) {
-              if (process.argv.includes("--drafts")) console.log(`      ~ repeats itself (${spokenFor.id})`);
-              return "it repeats, word for word, something you already said; say something new that answers what they just said";
-            }
-            if (talk.length === 0) return null;
-            const link = JUDGE_LINKS[0]!;
-            const res = await fetch(link.url, {
-              method: "POST",
-              headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
-              body: JSON.stringify({
-                model: link.model, max_tokens: CONSISTENCY_REPLY_TOKENS,
-                messages: [
-                  { role: "system", content: buildConsistencySystemPrompt() },
-                  { role: "user", content: buildConsistencyUserPrompt({
-                    who: `${scene.title}. ${scene.place}. ${persona.who}`,
-                    conversation: [...talk, ...(preBreak ? [{ role: "assistant" as const, content: preBreak.text }] : [])]
-                      .map((m) => ({ role: m.role === "assistant" ? "them" as const : "learner" as const, text: m.content })),
-                    established, moved: reviewMoved, facts, later: agenda.slice(1), line: candidate,
-                  }) },
-                ],
-              }),
-            }).catch(() => null);
-            const text = res && res.ok ? ((await res.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "" : "";
-            const verdict = parseConsistency(text);
-            if (verdict && !verdict.ok) console.log(`      ~ inconsistent (${spokenFor.id}): ${verdict.why}`);
-            return verdict && !verdict.ok ? verdict.why || "inconsistent" : null;
-          },
-        } : {}),
-        ...(LINKS.length > 0 ? {
-          compose: (avoid: readonly string[], because?: string) => {
-            /*
-              Why the last draft was withheld, which is what the retry is told
-              (`whyWithheld`) and what a reader of the transcript needs beside
-              the draft: 126 drafts for 69 lines on the first live run of the
-              fallback said nothing about which check took the other 57.
-            */
-            // The beat beside the reason, or a refusal cannot be read against what was asked for.
-            if (because && process.argv.includes("--drafts")) console.log(`      ~ withheld (${spokenFor.id}): ${because}`);
-            return askModel({
-            move: spokenFor.move,
-            they: stageFor(spokenFor, card),
-            reading: "",
-            facts,
-            because,
-            // In the cached half, as the route sends them (`ComposeScene.voice`).
-            examples: [],
-            // This beat's own, as the route hands them: ask the same thing, in your own words.
-            asked: (bank(spokenFor.id)).slice(0, 2),
-            agenda, settled, established, moved,
-            stillTalking: spokenFor.move === "close" && askedNow !== null && last !== null && !saysGoodbye(last.said, [...FAREWELLS, ...LEAVING]),
-            // And what happened to the turn, which is the route's own wording.
-            note: composeNote(
-              turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, preBreak ? null : askedNow,
-              { offer: handing, answer: anticipated, again: hearAgain && heard !== null },
-            ),
-            madeBefore: state.turns.filter((t) => t.beatId === spokenFor.id).length,
-            feel: feltAt(answered, turns.length > 0 ? response : null),
-            ...composeOver,
-            avoid,
-          }, {
-            scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,
-            register: scene.register, words: context.lexicon.spoken,
-            voice: [...context.scripted.entries()]
-              .filter(([id]) => !id.includes(":"))
-              .flatMap(([, lines]) => lines.slice(0, 1))
-              .slice(0, 6),
-          }, preBreak ? [...talk, { role: "assistant" as const, content: preBreak.text }] : talk);
-          },
-        } : {}),
-      };
-      if (crossing) {
-        composeOver = {
-          move: "confirm",
-          they: "They answer what the learner has just asked, as things stand right now.",
-          moved: sceneMovedOn({ beat: state.beat - 1 }, card, scene.beats),
-          asked: [],
-          agenda: [],
-          note: "They have just asked you something: answer it briefly and kindly, as things stand right now. Make no other move and ask nothing; something is about to happen.",
-        };
-        reviewMoved = sceneMovedOn({ beat: state.beat - 1 }, card, scene.beats);
-        const pre = await sceneLine({ ...request, beat: { ...request.beat, move: "confirm" as const, meanwhile: undefined }, pool: [], scripted: [] });
-        if (pre.provenance === "composed") preBreak = pre;
-        // The move is written knowing what was just answered, as the route writes it.
-        composeOver = preBreak ? {
-          note: "You have just answered what they asked, in the line before the break above; do not answer it or react to it again. Now make your move.",
-          feel: undefined,
-        } : {};
-        reviewMoved = moved;
-      }
-      let cheap = await sceneLine(request);
-      // Where the model's line did not get through, the route's net is the closing beat as it is.
-      if (cheap.provenance === "fallback" && request.beat !== spokenFor) {
-        cheap = await sceneLine({ ...request, beat: spokenFor, pool: context.pool.get(spokenFor.id) ?? [], compose: undefined, mode: "scripted" });
-      }
-      line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, card, context.lexicon) ?? cheap;
-      // A composed line answered what was asked; otherwise a landed question nothing answered gets the shrug.
-      if (line.provenance === "composed") aside = preBreak;
-      else if (preBreak) aside = preBreak;
-      else if (LINKS.length === 0 && wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain && !asksSlower(words(last?.said ?? ""))) aside = shrug(asking);
-    }
-    const lines = replyFor({
-      beat: speaking, answered: turns.length ? answered : null, response: turns.length ? response : null,
-      reading: last?.reading ?? null, line, heard, said: last?.said ?? null, card, translates: persona.translates, askedForEnglish: last?.wantsEnglish === true,
-      acknowledges: persona.acknowledges, echo: last?.matched?.[0] ?? null,
-      recast: Boolean(last?.slips?.some((s) => s.form && s.form === last?.matched?.[0])),
-      aside, offer: LINKS.length === 0 && (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null,
-      met: state.done.length,
-      metLast: last?.met ?? [],
-      arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
-      tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
-      answeredTimes: timesAnswered(state.turns, heard),
-      choice: answered ? choiceOf({
-        beat: answered, card: card ?? draw.card, lexicon: context.lexicon,
-        dealt: new Map(scene.props.flatMap((p) =>
-          p.kind === "word" || p.kind === "weekday" ? [[p.slot, p.oneOf] as const] : [])),
-        roll: state.turns.length, met: last?.met ?? [],
-      }) : null,
-      hurdle: standing ? {
-        beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said,
-        then: ASKS_ON.has(hurdleSpec(state)?.id ?? "") ? fresh(beat?.id)[0] ?? null : null,
-      } : null,
-    });
+      onDraft: (drafted) => { if (process.argv.includes("--drafts")) console.log(`      ~ drafted: ${drafted}`); },
+      /*
+        Why the last draft was withheld, which is what the retry is told
+        (`whyWithheld`) and what a reader of the transcript needs beside the
+        draft, with the beat beside the reason, or a refusal cannot be read
+        against what was asked for.
+      */
+      onAsk: (beatId, because) => {
+        if (because && process.argv.includes("--drafts")) console.log(`      ~ withheld (${beatId}): ${because}`);
+      },
+    }) : undefined);
+    const { last, standing, current: beat, card } = plan;
     if (last) {
       const notes = [
         ...(last.slips ?? []).map((s) => `${s.kind}: ${s.said}${s.form ? ` > ${s.form}` : ""}`),

@@ -9776,6 +9776,23 @@ allowance, found the rest:
 
 `docs/21-situations.md` §78; the quota and the harness meter are §77.
 
+**And the reply is assembled once, so a harness measures the conversation the app has.** Everything
+between marking a turn and answering it (which beat the reply is for, the card in play, whether a
+question gets a fact off the card or a shrug, whether a line is built at all, and what a model is
+handed) lived in the scene route and was copied into `scripts/lib/keylessPlay.ts`,
+`scripts/play-scene.ts` and `scripts/fuzz-scenes.ts`. The copies had drifted from the route in more
+than a dozen places: the sweep built a fresh line where the route says the last line again, shrugged
+at a scene that was over and never where the route builds no line, and the fuzzer never passed how
+often a line had been heard. `lib/progress/sceneTurn.ts` is the one assembly: `planTurn` is what a
+reply is planned from, `speakTurn` walks the keyless rungs and hands the model step to its caller,
+and `composeTurn` is what a model is asked. The route keeps only what needs a socket or a ledger.
+Moving it changed nothing the route says, shown by driving the real handler through 1,350
+conversations, keyless, keyed with a scripted run and composing against a stubbed model, and diffing
+every reply, prompt and ledger event byte for byte before and after. The harnesses did change, which
+is the point: the first unified `play:scenes` showed the clothes shop reading `kas hind?` as an echo,
+which the route has always done and the old copy hid. An invariant fails on any other file calling
+the pieces a reply is assembled from (`docs/21-situations.md` §79).
+
 **A line withheld only for saying goodbye keeps the rest of itself.** The model reached for `Head
 aega!` at the end of a confirmation, `farewell` withheld the whole line three times running, and the
 learner read the bare card line `Kell 14:30.` in place of a person confirming an appointment.
@@ -11719,7 +11736,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `data-point-examples`, `BeforeYouStart`, `BriefingSteps`, `BRIEFINGS`, `startRound`,
 `OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`, `tonightSteps`, `useModuleSteps`,
 `ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`, `withoutFarewell`,
-`withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`, `shrugFits`, `priceAsked`, `SAYS_FIRST`, `isFarewell`.
+`withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`, `shrugFits`, `priceAsked`, `SAYS_FIRST`, `isFarewell`,
+`planTurn`, `speakTurn`, `composeTurn`, `harnessModel`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
