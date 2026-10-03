@@ -3024,6 +3024,13 @@ alike. For a learner the module holds, a tile and the stage say "Your course bri
 later" where a unit is still ahead (`unitsThrough`), the stage opens on one the course has reached,
 and "Another one" prefers those. Nothing is locked.
 
+**And the evenings were walked rather than reasoned about.** A script played every step of seven
+evenings in a browser (A1.1 evenings 1 and 3, A2.1 evenings 2 and 10, A2.2 evening 7, B1.1 evening 5
+and C1.1 evening 3), answering as a learner roughly would, and listed every Estonian word on screen
+that the course had not taught by that evening. No round, question or review asked one. What it found
+was the reading step's example sentences, which are attested and printed with their English, so they
+teach rather than ask: the residual this file already names, now measured rather than assumed.
+
 **What stays outside it, on purpose.** Minimal pairs asks which of two spellings was heard and needs
 no vocabulary, so it still draws from the dictionary. The leech clinic reports the learner's own
 history and is not narrowed. And a curveball that switches the other side to English is said again
