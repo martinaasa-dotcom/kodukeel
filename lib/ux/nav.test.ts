@@ -208,7 +208,10 @@ describe("litRow", () => {
     expect(litRow(CORE, "/grammar/exceptions")).toBe("/dictionary");
     expect(litRow(CORE, "/review/sprint")).toBe("/practice");
     expect(litRow(CORE, "/words/mastery")).toBe("/progress");
-    expect(litRow(CORE, "/course")).toBe("/");
+    // The evening's list lights the row its steps light, so pressing a step
+    // does not move the rail's marker to another place.
+    expect(litRow(CORE, "/course")).toBe("/learn");
+    expect(litRow(CORE, "/course/forms")).toBe("/learn");
     expect(litRow(CORE, "/")).toBe("/");
   });
 

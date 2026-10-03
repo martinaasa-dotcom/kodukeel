@@ -76,8 +76,9 @@ export interface Destination {
    *     dictionary rather than a place beside it, and the screen somebody is
    *     standing on when they want a list of words to learn is the one with a
    *     search box on it.
-   *   - `/course` — the planned evening, which the card at the top of Today
-   *     opens, so Today is its home row.
+   *   - `/course` — the planned evening, which is where the Learn row goes
+   *     and is the list every one of its steps hangs under, so Learn is its
+   *     home row. The card at the top of Today opens it too.
    *   - `/situations` — a conversation is one more way of using a word, and
    *     it is on Practice beside the rounds.
    *   - `/calendar` — how the weeks are going, so it is under Progress; a
@@ -142,18 +143,22 @@ export const SECTIONS: NavSection[] = [
         other way of asking a word you already know already lived.
       */
       /*
-        THE PLANNED EVENING IS THE CARD AT THE TOP OF TODAY.
+        THE PLANNED EVENING LIVES UNDER LEARN.
 
         It had a row of its own under Today, and the row and the card said the
-        same thing twice on the one screen everybody opens. The card is the
-        biggest thing on that screen and is where the evening starts, so Today
-        is this page's home row and lights while a learner is inside it.
+        same thing twice on the one screen everybody opens, so it went inside
+        Today. That made the list light Today while every step on it lit
+        Learn, with tonight's steps hung under that row
+        (`components/Sidebar.tsx`), so pressing a step moved the rail's marker
+        from one row to another for a screen that had not changed place. The
+        evening is the course and Learn is the course's row, so Learn lights on
+        the list as it does on each step. Today's card still opens it.
       */
       {
         href: "/course", label: "Today's module", blurb: "Tonight's words and games, already picked for you",
         icon: "CalendarCheck", tone: "accent",
         keywords: "course planned programme a1 module day guided plan lesson schedule step by step",
-        within: "/",
+        within: "/learn",
       },
       {
         href: "/learn", label: "Learn", blurb: "New words, five at a time, straight from the course",
