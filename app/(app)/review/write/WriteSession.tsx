@@ -313,7 +313,13 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
             <p role="alert" className="mt-3 text-sm" style={{ color: "var(--again-ink)" }}>{error}</p>
           )}
 
-          {marked && <Feedback caseName={endingName(prompt.caseKey) ?? prompt.caseEt} marked={marked} />}
+          {marked && (
+            <Feedback
+              caseName={endingName(prompt.caseKey) ?? prompt.caseEt}
+              form={prompt.targetForm}
+              marked={marked}
+            />
+          )}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
@@ -360,7 +366,7 @@ function writeRating(formCheck: Marked["formCheck"]): 1 | 2 | 3 {
   return formCheck.used ? 3 : formCheck.usedAnotherForm ? 2 : 1;
 }
 
-function Feedback({ marked, caseName }: { marked: Marked; caseName: string }) {
+function Feedback({ marked, caseName, form }: { marked: Marked; caseName: string; form: string }) {
   const { formCheck, graded, quotaMessage, withheld, withheldReason } = marked;
 
   return (
@@ -370,11 +376,13 @@ function Feedback({ marked, caseName }: { marked: Marked; caseName: string }) {
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
         <p className="text-base">
+          {/* A miss names the form, since the box is closed by now and "try
+              working it in" offered a second go the screen did not have. */}
           {formCheck.used
             ? "Yes, that's the right ending."
             : formCheck.usedAnotherForm
-              ? "Right word, but not the ending we asked for. Look at how it ends."
-              : "The word we asked for isn't in your sentence. Try working it in."}
+              ? <>Right word, but not the ending we asked for. It&rsquo;s <strong lang="et">{form}</strong>.</>
+              : <>The word we asked for isn&rsquo;t in your sentence. It&rsquo;s <strong lang="et">{form}</strong>.</>}
           {/* The ending's name, once the answer is in: here it is the thing to
               remember, where before the answer it was a thing to decode. */}
           <span className="mt-1 block text-sm">
