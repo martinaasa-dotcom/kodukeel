@@ -1281,6 +1281,14 @@ describe("answering a yes-or-no question in its own words", () => {
     const still = readTurn("valu on", beat({ needs: [{ kind: "lemma", oneOf: ["palavik"] }] }), context({ previous: "Valu on." }));
     expect(still.reading).toBe("echo");
   });
+
+  it("is an answer when the yes-or-no question is not the line's first sentence", () => {
+    const price = beat({ needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["hind"] }], shape: "word" });
+    const line = "Palun! Kas teie soovite maksta? Kas te teate, kui palju raha see maksab ja mis on selle hind?";
+    expect(readTurn("kas hind?", price, context({ previous: line })).reading).not.toBe("echo");
+    // A line with no yes-or-no question in it is still handed back when its own words are.
+    expect(readTurn("selle hind", price, context({ previous: "Palun! Mis on selle hind?" })).reading).toBe("echo");
+  });
 });
 
 /*

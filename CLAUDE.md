@@ -9778,6 +9778,17 @@ is the point: the first unified `play:scenes` showed the clothes shop reading `k
 which the route has always done and the old copy hid. An invariant fails on any other file calling
 the pieces a reply is assembled from (`docs/21-situations.md` §79).
 
+**And a banked line may not ask the learner's question.** The first thing the unified harness
+showed had two halves. The echo rule read a turn made of a polar question's words as an answer only
+where the `kas` opened the line, and the clothes shop's till line opened `Palun!`, so `kas hind?` was
+answered `Ma ei saa aru`; any sentence opening with `kas` counts now. And that line was the
+customer's: the drafter wrote the shop assistant asking what the shop's own coat costs, every word
+the scene's and on topic, so the gate passed it and a learner reaching the till had nothing left to
+ask. A beat whose needs include a question is the learner's to ask, and `asksTheirQuestion` refuses
+a banked line holding a question built from the words that question needs, in the drafter and in
+`bank.test.ts`; over the whole bank it named those rows and no others. It does not reach a composed
+line, which is a gate check waiting on a measurement (`docs/21-situations.md` §80).
+
 **A line withheld only for saying goodbye keeps the rest of itself.** The model reached for `Head
 aega!` at the end of a confirmation, `farewell` withheld the whole line three times running, and the
 learner read the bare card line `Kell 14:30.` in place of a person confirming an appointment.
@@ -11722,7 +11733,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`, `tonightSteps`, `useModuleSteps`,
 `ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`, `withoutFarewell`,
 `withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`, `shrugFits`, `priceAsked`, `SAYS_FIRST`, `isFarewell`,
-`planTurn`, `speakTurn`, `composeTurn`, `harnessModel`.
+`planTurn`, `speakTurn`, `composeTurn`, `harnessModel`, `asksTheirQuestion`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
