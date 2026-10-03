@@ -47,6 +47,8 @@ export interface SituationTile {
   readonly lesson: string | null;
   readonly plays: number;
   readonly last: string | null;
+  /** The learner's course has not yet taught the words this one draws on. */
+  readonly early: boolean;
 }
 
 export function SituationsBoard({ tiles, firstPick }: {
@@ -67,8 +69,11 @@ export function SituationsBoard({ tiles, firstPick }: {
     // Never the same one twice running, and unplayed ones first while any are
     // left, which is the same preference the server opened on.
     const others = tiles.filter((t) => t.id !== featured.id);
-    const fresh = others.filter((t) => t.plays === 0);
-    const pool = fresh.length > 0 ? fresh : others;
+    // And ones the course has reached before ones it has not.
+    const reached = others.filter((t) => !t.early);
+    const near = reached.length > 0 ? reached : others;
+    const fresh = near.filter((t) => t.plays === 0);
+    const pool = fresh.length > 0 ? fresh : near;
     const next = pool[Math.floor(Math.random() * pool.length)];
     if (!next) return;
     setPick(next.id);
@@ -159,7 +164,9 @@ function Stage({ tile, turn, onAnother }: {
               <span aria-hidden className="situation-dot" style={{ background: `var(--${kind.hue})` }} />
               {kind.label}
             </span>
-            <span>{tile.plays === 0 ? "One you have not tried" : "Worth another go"}</span>
+            <span>
+              {tile.early ? "Your course brings this one in later" : tile.plays === 0 ? "One you have not tried" : "Worth another go"}
+            </span>
           </p>
           <h2 id="pick-heading" className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">
             {tile.title}
@@ -259,6 +266,9 @@ function Tile({ tile }: { tile: SituationTile }) {
           </p>
           {tile.last && (
             <p className="text-xs" style={{ color: "var(--ink-3)" }}>Last time: {tile.last}</p>
+          )}
+          {tile.early && (
+            <p className="text-xs" style={{ color: "var(--ink-3)" }}>Your course brings this one in later</p>
           )}
         </div>
       </Link>

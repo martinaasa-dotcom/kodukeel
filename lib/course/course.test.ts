@@ -10,7 +10,7 @@ import {
   ACTIVITIES, type ActivitySpec, DAY_MINUTES, DEFAULT_PROGRAMME, MAX_DAY_WORDS, MINUTES_PER_WORD,
   READ_MINUTES, TALK_MINUTES,
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
-  programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
+  programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, unitsThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
   WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING, CASE_ROUNDS, PAGE_ROUND, newWordsIn,
 } from "./index";
@@ -306,6 +306,25 @@ describe("what a day reads and where it goes", () => {
       const early = scene.units.filter((u) => !met.has(u));
       expect(early, `${day.id} opens ${day.scene} before ${early.join(", ")}`).toEqual([]);
     }
+  });
+
+  /*
+    AND THE SAME ANSWER FROM OUTSIDE THE MODULE. The Situations list says
+    which conversations the course has not reached yet off `unitsThrough`, so
+    a scene the module deals tonight may never read as "later" there.
+  */
+  it("counts every unit a dealt conversation needs as met by the evening that deals it", () => {
+    let dealt = 0;
+    for (const programme of PROGRAMMES) {
+      for (const day of programme.days) {
+        if (!day.scene) continue;
+        dealt += 1;
+        const met = new Set(unitsThrough(programme, day.index));
+        const scene = SCENES.find((s) => s.id === day.scene)!;
+        expect(scene.units.filter((u) => !met.has(u)), day.id).toEqual([]);
+      }
+    }
+    expect(dealt).toBeGreaterThan(10);
   });
 
   /*
