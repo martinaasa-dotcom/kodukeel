@@ -260,6 +260,13 @@ export interface DaySpec {
    */
   sceneTitle?: string;
   /**
+   * How long the conversation takes, which is the figure its own card and
+   * briefing print (`minutesFor` in `lib/scenes/run.ts`), so the module step
+   * and the screen it opens say one number. Worked out by the builder for the
+   * reason `sceneTitle` is.
+   */
+  sceneMinutes?: number;
+  /**
    * Verbs whose learned-per-verb forms tonight shows: the simple past and,
    * once the imperative page is read, the polite imperative.
    *
@@ -402,12 +409,18 @@ export const READ_MINUTES = 2;
 export const ROUND_MINUTES = 3;
 
 /**
- * A conversation, which replaces the reading and both rounds rather than
- * joining them.
+ * What an evening budgets for a conversation, which replaces the reading and
+ * both rounds rather than joining them.
  *
- * Ten minutes is seven to ten turns with the reading and the thinking in
- * between, and it is deliberately the same as `READ_MINUTES` plus two rounds,
- * so an evening with a conversation in it is the same evening.
+ * It is deliberately the same as `READ_MINUTES` plus two rounds, so an evening
+ * with a conversation in it carries the same words as any other. The step
+ * itself prints the conversation's own length (`DaySpec.sceneMinutes`), the
+ * figure its card and briefing print, and for the typical scene of seven
+ * exchanges that is this budget. A shorter scene makes the evening a minute or
+ * two shorter and a longer one a minute or two longer, inside the two either
+ * side the course test allows. Absorbing that in the word count instead would
+ * move every day id after the first conversation, which is what a learner's
+ * ticks point at.
  */
 export const TALK_MINUTES = READ_MINUTES + ROUND_MINUTES * 2;
 
@@ -516,7 +529,8 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     A CONVERSATION REPLACES THE READING AND BOTH ROUNDS RATHER THAN JOINING
     THEM, which is what keeps the evening fifteen minutes on the night it
     happens. `TALK_MINUTES` is defined as exactly what it displaces, so the two
-    shapes of evening cost the same and carry the same number of new words. It
+    shapes of evening carry the same number of new words, and the step prints
+    the conversation's own length, which is within a minute or two of it. It
     was written the other way first and the conversation evening came out at
     twenty-three minutes, half as long again as every other.
   */
@@ -582,7 +596,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
         ? "You've had this one before. Tonight they talk to you the way they'd talk to anybody, and you've got far more to say back."
         : "Somebody wants something from you, and only Estonian will do. This is what all those words were for.",
       href: `/situations/${spec.scene}`,
-      minutes: TALK_MINUTES,
+      minutes: spec.sceneMinutes ?? TALK_MINUTES,
       derived: false,
     });
   }

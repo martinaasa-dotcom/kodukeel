@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
-import { SCENES } from "@/lib/scenes/catalogue";
+import { SCENES, sceneById as conversationById } from "@/lib/scenes/catalogue";
+import { minutesFor } from "@/lib/scenes/run";
 import { SYLLABUS, unitById } from "@/lib/collections/syllabus";
 import { BAND_ORDER } from "@/lib/collections/levels";
 import { modeAt } from "@/lib/ux/modes";
 import {
   ACTIVITIES, type ActivitySpec, DAY_MINUTES, DEFAULT_PROGRAMME, MAX_DAY_WORDS, MINUTES_PER_WORD,
-  READ_MINUTES,
+  READ_MINUTES, TALK_MINUTES,
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
@@ -989,7 +990,15 @@ describe("what a day reads and where it goes", () => {
         evening around; thirteen is that promise kept.
       */
       const reads = day.steps.some((s) => s.kind === "read" || s.kind === "talk");
-      const floor = reads ? DAY_MINUTES - 2 : DAY_MINUTES - 2 - READ_MINUTES;
+      /*
+        And a conversation shorter than the slot it took makes the evening
+        shorter by that much, for the same reason: the step says what the
+        conversation takes, and the café is five exchanges. Nothing is padded
+        in to make up the difference.
+      */
+      const talk = day.steps.find((s) => s.kind === "talk");
+      const short = talk ? Math.max(0, TALK_MINUTES - talk.minutes) : 0;
+      const floor = (reads ? DAY_MINUTES - 2 : DAY_MINUTES - 2 - READ_MINUTES) - short;
       expect(day.minutes, `${day.id} claims ${day.minutes} minutes`)
         .toBeGreaterThanOrEqual(floor);
       expect(day.minutes, `${day.id} claims ${day.minutes} minutes`)
@@ -1001,15 +1010,28 @@ describe("what a day reads and where it goes", () => {
     A conversation replaces the reading and both rounds rather than joining
     them. Written the other way first, the conversation evening came out at
     twenty-three minutes against fifteen for every other.
+
+    And the step says the conversation's own length, which is what its card
+    and its briefing say: the module listed every conversation at the budget
+    it replaces while the briefing it opened said "about 5 min" for the same
+    sitting. The budget still decides the words, so the two shapes of evening
+    carry the same number, and the length is within a couple of minutes of it.
   */
-  it("spends the same fixed minutes on a conversation as on a reading and two rounds", () => {
-    const talk = DAYS.find(({ day }) => day.scene)!.day;
+  it("spends on a conversation what the conversation takes, in place of a reading and two rounds", () => {
+    const talks = DAYS.filter(({ day }) => day.scene);
+    expect(talks.length).toBeGreaterThan(10);
     const ordinary = DAYS.find(({ day }) => !day.scene && day.steps.some((s) => s.kind === "read"))!.day;
-    const fixed = (d: typeof talk) =>
+    const fixed = (d: typeof ordinary) =>
       d.steps.filter((s) => s.id !== MEET_STEP).reduce((n, s) => n + s.minutes, 0);
-    expect(fixed(talk)).toBe(fixed(ordinary));
-    expect(talk.steps.some((s) => s.kind === "read"), "a talking evening also reads").toBe(false);
-    expect(talk.steps.some((s) => s.kind === "game" || s.kind === "drill")).toBe(false);
+    for (const { day: talk } of talks) {
+      const step = talk.steps.find((s) => s.kind === "talk")!;
+      expect(step.minutes, `${talk.id} lists ${talk.scene} at a figure its briefing does not print`)
+        .toBe(minutesFor(conversationById(talk.scene!)!));
+      expect(Math.abs(step.minutes - TALK_MINUTES), `${talk.id} talks for ${step.minutes}`).toBeLessThanOrEqual(2);
+      expect(Math.abs(fixed(talk) - fixed(ordinary)), talk.id).toBeLessThanOrEqual(2);
+      expect(talk.steps.some((s) => s.kind === "read"), "a talking evening also reads").toBe(false);
+      expect(talk.steps.some((s) => s.kind === "game" || s.kind === "drill")).toBe(false);
+    }
   });
 
   it("gives every step in a day its own id", () => {
