@@ -1223,7 +1223,7 @@ in it. The lemma is there because `Lexeme.examples` is a JSON column rather than
 lookup by text would read the whole dictionary; the test asserts the sentence really is one of that
 entry's usages, which caught 28 lemmas guessed wrong on the way in.
 
-**Every one of the 168 points is answered, 125 with sentences and 43 with a written reason, and
+**Every one of the 168 points is answered, 126 with sentences and 42 with a written reason, and
 every one of the 125 carries two**, and
 the check is that none is answered with neither. A floor on how many are pinned would let a point
 arrive with no example, no reason and nothing to say so, which is the state this replaced: the
@@ -1231,7 +1231,7 @@ screen draws nothing either way, so an unpinned point and a point nobody has tho
 identical. Two rather than one is the ask, and it is asserted flat rather than as a majority: it was
 "most of them" while fourteen points carried one, and a floor with nothing under it is the parking
 space `senses.test.ts` records becoming one, so those fourteen would have stayed at one for as long
-as the majority held. The 43 are one shape three times over and it is worth naming, because it is the argument
+as the majority held. The 42 are one shape three times over and it is worth naming, because it is the argument
 for not stretching: **a point claiming a contrast, a frequency, or a fact about the system cannot be
 shown by one sentence.** "New information tends to go last" needs the same sentence in two orders;
 "Officialese, which is its own much-mocked style" needs the plain version beside it; "Which words
@@ -1274,7 +1274,7 @@ loads, through the app's own derivation rather than any reading of endings, so a
 on it; a topic page's points are moods and tenses and nothing in the file says which, so a pin there
 carries `slot`. The verdict has four values rather than two and only `wrong` fails, which is
 `readCase`'s discipline: `jooksid` is the simple past of `jooksma` and the conditional of `jooma`,
-the sentence decides which, and that is a parse this file cannot make. 162 of the 250 pins verify,
+the sentence decides which, and that is a parse this file cannot make. 162 of the 252 pins verify,
 `shared` is Estonian's own syncretism and `unknown` is a slot the dictionary does not store, which
 is every converb and every quotative. `npm run audit:pins` is where all of it is read rather than
 counted, for the reason `eval:scene` prints a ranked list, and it was the reading that found the
@@ -6039,8 +6039,10 @@ on four consecutive evenings, the numbers read the numerals page on five, and be
 impersonal was read nineteen times by nine units: a reading the learner did last night, put in front
 of them again as tonight's step, is the step they skip past and then stop trusting. `readingPlan` is
 one page an evening, each page a unit declares once in the unit and in the order its author wrote
-them, none that an earlier unit of the same part has already read; an evening past the end of the
-list reads nothing, which the fifteen-minute test allows
+them, none that an earlier unit of the same level has already read (it was the same part, and A1
+read the present tense four times across its parts); a page read at an earlier level comes back
+with "again" on its step, since a second look is worth having and worth saying; an evening past
+the end of the list reads nothing, which the fifteen-minute test allows
 at every level now rather than at A1 alone. The scene evening takes no page off the plan, since
 the conversation replaces the reading (`day()`): the first version handed it one, counted it read
 in the ledger, and showed it to nobody, so a round on the evening after was dealt a case nobody had
@@ -6115,6 +6117,18 @@ it, which needs the caller to say which verb: `cardWithin` reads the card's lexe
 passes its word, and a caller that cannot say gets a no. `course.test.ts` walks every evening and
 holds every taught verb with a stored past to being shown exactly once, after the page.
 
+**And the past is shown every other evening, never on an evening that read a case.** Written as
+"every evening after the page", the forms step took the drill's place on sixteen of A2's first
+twenty-one evenings in a row, so the evening that read the elative drilled the past of five verbs it
+had nothing to do with. The queue waits on a case evening and on the evening after a forms
+evening, the ladder's last evening flushes what is left, and every taught verb is still shown.
+**A case evening practises its case**: `onTheCase` swaps the drill for a round that asks a case off
+the word's own forms (`CASE_ROUNDS`, Target, writing and Describe) where neither dealt round does,
+and those rounds, and the module's case sprint, lead with tonight's case (`tonightsCase`,
+`tonightFirst`). The sprint was not a case round inside the module at all: a module deck holds a
+word's meaning and spelling, so it was word flips under the name "Case Sprint", and a production
+card of a noun is now asked one of the cases read, by meaning (`caseAskFor`, `Say "in the house"`).
+
 **A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
 decision made in advance and it was handing the learner straight back to the ordinary website the
 moment they pressed a step: a rail down the left, a bar along the bottom of a phone, a button in the
@@ -6149,10 +6163,17 @@ element `ModuleScope` builds. The first pass kept the bar and moved it to the en
 lit whichever row the step's path lived under, which was not what was agreed and was reported as
 such. The steps come off `tonightSteps`, a Server Action reading `courseReading`, because the marker
 is an address and the client may not import the course build; `ModuleScope` wraps the rail as well
-as the page for it. A phone keeps its bar for now, and the in-page Next stands down there, since two
-buttons for one press is one too many. On a phone Anu stands off the bar's measured height
-(`--module-bar`). The drill at the foot of a reading still stands down, and so does every round's
-own door. Asserted in `scripts/test-invariants.ts` and walked in `scripts/test-module.mjs`.
+as the page for it. On a phone the bar stays and is **one slim row**: the way out, where you are in
+the evening, a quiet "Next step" and the way back to tonight's list. The in-page "Next, step 3:
+Match" is drawn on a phone too, because it is where a learner's eyes are when a round ends, and
+**the bar's own "Next step" stands down while it is on the screen**, which is what one button for
+one press means; `ModuleNext` says so through `onShown`. It used to be the other way round, a
+second "Continue" on the bar while the card's own Continue sat under it, which on a 390px screen was
+two yellow buttons a thumb apart saying different things. On a phone Anu stands off the bar's
+measured height (`--module-bar`), and the room under a step clears her button as well as the bar,
+so a round's Continue never comes to rest under her. The drill at the foot of a reading still
+stands down, and so does every round's own door. Asserted in `scripts/test-invariants.ts` and
+walked in `scripts/test-module.mjs`.
 
 **The phone bar goes by the hook a conversation already uses.** `body:has(.module-step)
 [data-chrome="dock"]` reads the same marks `.scene-room` hides by, deliberately: two sets of marks

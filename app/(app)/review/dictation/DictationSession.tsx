@@ -242,7 +242,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
             Three tiles say how it went, which is what the screen is for.
           */}
         </div>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={done} label="Written" tone="accent" />
           <StatTile value={`${accuracy}%`} label="Word perfect" tone={accuracy >= 50 ? "sky" : "butter"} />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />

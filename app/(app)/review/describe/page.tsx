@@ -3,6 +3,7 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { CASES } from "@/lib/estonian/cases";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
+import { sayPhrase } from "@/lib/estonian/sayIt";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { courseLevelFor } from "@/lib/progress/level";
 import { describeRound } from "@/lib/progress/describe";
@@ -72,6 +73,11 @@ export default async function DescribePage({
       askIndex: task.askIndex,
       askLemma: asked.lemma,
       askTranslation: asked.translation,
+      say: sayPhrase(task.caseKey, asked.translation, {
+        lemma: asked.lemma,
+        semanticTypes: asked.semanticTypes,
+        nomSg: asked.forms.find((f) => f.formType === "NOM_SG")?.value ?? null,
+      }),
       caseKey: task.caseKey,
       // What a hint uncovers. The marking stays on the route: see the field.
       targetForm: task.accepted[0] ?? null,

@@ -18,6 +18,8 @@ import {
   repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks,
 } from "./repair";
 import { generateCards, isBareCaseFront } from "@/lib/srs/cards";
+import { borrowSentences } from "@/lib/dict/borrow";
+import { parseExamples } from "@/lib/dict/examples";
 import { acceptedAnswers } from "@/lib/estonian/answer";
 import { plainPhrase } from "@/lib/copy/values";
 
@@ -277,7 +279,19 @@ describe("repairCaseFronts", () => {
     const found = await aSentencedWord();
     if (!found) return;
     const { row } = found;
-    const cases = new Set(generateCards(row, ["CASE_FORM"]).map((c) => c.targetCase));
+    /*
+      With the pool the repair itself reads, or "no sentence carries it" is
+      asked of the word's own sentences while the repair answers it from the
+      whole dictionary: `aasta` carries no comitative of its own and borrows
+      `Eelarve paisub iga aastaga.`
+    */
+    const all = await prisma.lexeme.findMany({
+      select: { id: true, lemma: true, pos: true, examples: true, forms: { select: { formType: true, value: true, morphCode: true } } },
+    });
+    const pool = borrowSentences(all.map((r) => ({
+      key: r.id, lemma: r.lemma, pos: r.pos, forms: r.forms, examples: parseExamples(r.examples),
+    }))).get(row.id) ?? [];
+    const cases = new Set(generateCards({ ...row, borrowed: pool }, ["CASE_FORM"]).map((c) => c.targetCase));
     const missing = ["COMITATIVE", "TRANSLATIVE", "ESSIVE", "ABESSIVE", "TERMINATIVE"]
       .find((key) => !cases.has(key));
     if (!missing) return;

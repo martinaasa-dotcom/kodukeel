@@ -25,7 +25,7 @@ import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
 import { SameMeaning } from "@/components/round/SameMeaning";
 import { BLANK } from "@/lib/estonian/cloze";
 import { splitOnForm } from "@/lib/dict/examples";
-import { sameSpelling } from "@/lib/copy/values";
+import { sameSpelling, wordName } from "@/lib/copy/values";
 import { enqueueGrade } from "@/lib/offline/db";
 import { LEARN_BATCH, ratingFor, rungOf, tally, type Outcome, type Rung } from "@/lib/learn/ladder";
 import type { LearnScheduling, LearnWord } from "@/lib/progress/learn";
@@ -43,6 +43,8 @@ import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { type SeenCard } from "@/lib/ux/lookBack";
 import { FitText } from "@/components/FitText";
+import { useKeepInView } from "@/components/round/useKeepInView";
+import { useOncePerRound } from "@/components/round/useOncePerRound";
 
 /**
  * THE LEARN LADDER, DRIVEN.
@@ -98,11 +100,18 @@ const RUNG_LABEL: Record<Rung, string> = {
   kept: "Learned for now",
 };
 
-/** How far up the ladder a word is, drawn as three steps. */
+/**
+ * How far up the ladder a word is, drawn as three steps.
+ *
+ * Not on a phone, where the chip beside it already names the rung in words and
+ * the three dashes were what pushed the star and the "too complicated" button
+ * onto a second row of their own, leaving an empty band across the top of
+ * every card at 390.
+ */
 function Ladder({ rung }: { rung: Rung }) {
   const filled = rung === "meet" ? 1 : rung === "choice" ? 2 : 3;
   return (
-    <span className="inline-flex items-center gap-1" aria-hidden>
+    <span className="hidden items-center gap-1 sm:inline-flex" aria-hidden>
       {[0, 1, 2].map((i) => (
         <span
           key={i}
@@ -379,10 +388,10 @@ export function LearnSession({
     no lapses. A word carries this line once in its life, which is what keeps it
     from becoming the small print under every box (`lib/copy/firstTry.ts`).
   */
-  const firstTry = word !== undefined && rung === "gap" && isFirstProduction({
+  const firstTry = useOncePerRound(word !== undefined && rung === "gap" && isFirstProduction({
     produced: hints.missed + word.scheduling.lapses,
     typed: true,
-  });
+  }), word?.cardId ?? null);
 
   useEffect(() => { rememberWord(word ? { id: word.cardId } : undefined); }, [rememberWord, word]);
 
@@ -597,14 +606,15 @@ export function LearnSession({
     void send(won ? "right" : "wrong", {
       outcome: won ? "right" : "wrong",
       expected: word.gloss,
-      note: won ? "" : `You chose ${option}.`,
+      note: won ? "" : `You picked “${option}”.`,
     });
   }, [word, busy, phase, cheer, send]);
 
   const answerGap = useCallback(() => {
     if (!word || busy || phase === "feedback") return;
     const expected = word.gap ? word.gap.answer : word.lemma;
-    const check = checkAnswer(typed, expected, "et", word.gap?.rivals ?? []);
+    // On the gap another form is the wrong answer; asked from the meaning, it is the word.
+    const check = checkAnswer(typed, expected, "et", word.gap?.rivals ?? [], word.gap ? [] : word.kin);
     /*
       A SECOND RIGHT WORD IS RIGHT. Where the rung asks for the word from its
       meaning and the learner typed another word that means it, nobody in
@@ -642,16 +652,17 @@ export function LearnSession({
   /**
    * The marker's note with the answer marked inside it, or nothing.
    *
-   * `checkAnswer` writes a note that names the form on three of its four
-   * readings (`Not quite, it's "X".`, `So close, the word is "X".`, `That is
-   * another form of the word. This one wanted "X".`), and on the fourth it
-   * names the letters instead. The panel below prints the answer on its own
+   * `checkAnswer` writes a note that names the form on every reading but the
+   * dropped diacritic (`Not quite, it's "X".`, `So close, the word is "X".`,
+   * `That is another form of the word. This one wanted "X".`, `Right word, in
+   * another form. This one wanted "X".`), and on that one it names the letters
+   * instead. The panel below prints the answer on its own
    * line only where the note leaves it unsaid, so `splitOnForm` is asked the
    * question rather than the panel guessing from the verdict: a note that
    * grows or loses the form is answered correctly the day it changes.
    *
    * The gap rung only. The choice rung's answer is an English gloss and its
-   * note is `You chose X`, so the two are never the same claim, and marking a
+   * note is `You picked “X”`, so the two are never the same claim, and marking a
    * gloss `lang="et"` would tell a screen reader to say an English word with
    * Estonian phonology.
    */
@@ -733,6 +744,10 @@ export function LearnSession({
     return () => window.removeEventListener("keydown", onKey);
   }, [phase, rung, word, met, pick, carryOn, look, showMeetIntro, showAnswerIntro]);
 
+  /* The card's own Continue, brought into view once an answer is marked: the
+     verdict grows the card past the fold on a phone (`useKeepInView`). */
+  const footer = useKeepInView<HTMLDivElement>(phase === "feedback" && word ? `${word.cardId}:${rung}` : null);
+
   if (total === 0) {
     return (
       <Page title="Learn">
@@ -809,7 +824,7 @@ export function LearnSession({
           </p>
         </div>
 
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={counts.kept} label="Learned" tone="sky" />
           <StatTile value={counts.staying} label="Still learning" tone="butter" />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
@@ -897,8 +912,12 @@ export function LearnSession({
             Now it&rsquo;s your turn
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            Same {nouns}. This time you tell us what each one means, or put it back into the
-            sentence it came from.
+            {/* Said the way this batch will ask it: a beginner's words have no
+                sentence to go back into, so the top rung there asks for the
+                word itself, and promising a sentence would be a promise the
+                next screen breaks. */}
+            Same {nouns}. First you pick what each one means, then you
+            {initial.some((w) => w.gap) ? " put it back into the sentence it came from." : " type it yourself, in Estonian."}
           </p>
         </div>
         <div className="mt-8 flex justify-center">
@@ -937,6 +956,10 @@ export function LearnSession({
     : null;
 
   const progress = total > 0 ? ((total - left) / total) * 100 : 0;
+  /* The top rung asks for the word itself, so until it is answered the
+     controls in the card's corner and the hint call it "this word" rather
+     than reading the answer out (`wordName`). */
+  const named = word ? wordName(word.lemma, rung !== "gap" || phase === "feedback") : "";
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
@@ -967,21 +990,25 @@ export function LearnSession({
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-5 py-3.5" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent">
-            {rung === "meet" && word.isPhrase ? "New phrase" : RUNG_LABEL[rung]}
+            {/* With no sentence to put it in, the top rung asks for the word
+                itself from its meaning, which is what the chip says. */}
+            {rung === "meet" && word.isPhrase
+              ? "New phrase"
+              : rung === "gap" && !word.gap ? "Say it in Estonian" : RUNG_LABEL[rung]}
           </Chip>
           <Ladder rung={rung} />
           <div className="ml-auto flex items-center gap-1">
             <FullEntry lemma={word.lemma} />
             {/* The corner of the card, which is where somebody looks for this
                 the moment a word turns out to be worth keeping. */}
-            <StarWord lexemeId={word.lexemeId} starred={word.starred} label={word.lemma} />
+            <StarWord lexemeId={word.lexemeId} starred={word.starred} label={named} />
             {/* And its opposite number. A word met for the first time is the
                 likeliest one in the app to be beyond somebody, and the only
                 answers the ladder offers are about how well they recalled it. */}
             <TooComplicated
               key={word.lexemeId}
               lexemeId={word.lexemeId}
-              label={word.lemma}
+              label={named}
               context="/learn/new"
               onDone={putAside}
             />
@@ -1072,7 +1099,7 @@ export function LearnSession({
                   taken={hints.taken}
                   onTake={hints.take}
                   open={hints.open}
-                  label={word.lemma}
+                  label={named}
                 />
               )}
             </>
@@ -1174,7 +1201,10 @@ export function LearnSession({
                       printed in context, so the cue above drops the gloss and
                       keeps the word.
                     */}
-                    {gapLine && <GapMeaning meaning={gapLine} className="mt-1.5 text-sm leading-snug" />}
+                    {/* Until the answer is in. The reveal under it prints the
+                        whole sentence and what it says, so leaving this line
+                        standing above it printed the English twice. */}
+                    {gapLine && phase === "ask" && <GapMeaning meaning={gapLine} className="mt-1.5 text-sm leading-snug" />}
                   </div>
                 </div>
               ) : (
@@ -1210,7 +1240,7 @@ export function LearnSession({
                   taken={hints.taken}
                   onTake={hints.take}
                   open={hints.open}
-                  label={word.lemma}
+                  label={named}
                 />
               )}
               {/*
@@ -1355,7 +1385,7 @@ export function LearnSession({
           )}
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-3 border-t px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+        <div ref={footer} className="dock-clear flex flex-wrap items-center justify-center gap-3 border-t px-5 py-4 empty:hidden" style={{ borderColor: "var(--rule-soft)" }}>
           {phase === "feedback" ? (
             <>
               <Button

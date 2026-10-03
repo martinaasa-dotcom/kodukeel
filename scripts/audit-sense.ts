@@ -19,7 +19,10 @@
  *   1. A local case a word does not take. Estonian has two sets and a word
  *      takes one: `toas` for a room, `hobusel` for a horse, `Saksamaal` for a
  *      country. `caseFits` is the answer and `lib/estonian/semantics.ts` is
- *      where the fact comes from.
+ *      where the fact comes from. A deck card is cut from a recorded sentence,
+ *      which has already said whether a thing is in or on something, so it is
+ *      asked `caseFitsInSentence` instead: `Söök on laual` is a thing in the
+ *      outside trio and is Estonian, and `õpetajas` on a person still is not.
  *   2. A question word for the wrong kind of thing. A horse is a `kes`, so a
  *      card asking `hobune → millega?` is asking with the interrogative for a
  *      thing. `caseQuestionFor` is the answer.
@@ -51,7 +54,7 @@ import { dictionaryRows, type DictionaryRow } from "./lib/dictionary";
 import { generateCards, availableCardTypes, type LexemeForCards } from "../lib/srs/cards";
 import { writingTasksFor } from "../lib/estonian/writing";
 import { CASES } from "../lib/estonian/cases";
-import { caseFits, type CaseSubject } from "../lib/estonian/caseQuestion";
+import { caseFits, caseFitsInSentence, type CaseSubject } from "../lib/estonian/caseQuestion";
 import { naturalSentence, nominalOpener } from "../lib/estonian/cloze";
 import { parseExamples, usableExamples } from "../lib/dict/examples";
 import { semanticGroup } from "../lib/estonian/semantics";
@@ -83,6 +86,8 @@ function check(
   word: CaseSubject,
   question: string | null,
   caseKey: CaseKey | null,
+  /** The part of speech, where the case was settled by a recorded sentence. */
+  sentenced: string | null = null,
 ): void {
   asked++;
   const group = semanticGroup(word.semanticTypes);
@@ -102,7 +107,8 @@ function check(
     });
   }
 
-  if (caseKey && !caseFits(caseKey, word)) {
+  const fits = (key: CaseKey) => sentenced ? caseFitsInSentence(key, word, sentenced) : caseFits(key, word);
+  if (caseKey && !fits(caseKey)) {
     const why = word.nomSg && word.nomSg !== word.lemma
       ? `${word.lemma} has no singular (the dictionary holds ${word.nomSg})`
       : `${word.lemma} is ${group.toLowerCase()}`;
@@ -171,7 +177,10 @@ for (const entry of entries) {
     if (card.cardType === "CASE_FORM" || card.cardType === "GRADATION") {
       // The front is `lemma → question`; the question is what is checked.
       const question = card.front.split("→")[1]?.trim() ?? null;
-      check(`card ${card.cardType} ${entry.lemma}`, word, question, card.targetCase as CaseKey | null);
+      check(
+        `card ${card.cardType} ${entry.lemma}`, word, question, card.targetCase as CaseKey | null,
+        card.cardType === "CASE_FORM" ? entry.pos : null,
+      );
     }
     if (card.cardType === "CLOZE") {
       const full = card.front.replace(/_{2,}/, card.back);

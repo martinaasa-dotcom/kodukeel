@@ -428,6 +428,88 @@ describe("generateCards — CASE_FORM", () => {
   });
 
   /*
+    A THING TAKES WHICHEVER TRIO ITS SENTENCE USES. A table is somewhere you
+    put things as often as anything is inside one, and the sentence has already
+    said which; reading the inside-only rule into the sentence builder threw
+    away `Söök on laual` and every "on" sentence the dictionary records.
+  */
+  it("asks the on endings of a thing where its sentence uses them", () => {
+    const laud = {
+      ...bed, id: "laud", lemma: "laud", translation: "table", semanticTypes: "ese",
+      examples: JSON.stringify([
+        { et: "Söök on laual.", source: "EKILEX" },
+        { et: "Pane raamat lauale.", source: "EKILEX" },
+      ]),
+      forms: [
+        { formType: "NOM_SG", value: "laud", morphCode: "SgN" },
+        { formType: "GEN_SG", value: "laua", morphCode: "SgG" },
+        { formType: "PART_SG", value: "lauda", morphCode: "SgP" },
+      ],
+    };
+    const cards = generateCards(laud, ["CASE_FORM"]);
+    expect(cards.map((c) => [c.targetCase, c.back])).toEqual(
+      expect.arrayContaining([["ADESSIVE", "laual"], ["ALLATIVE", "lauale"]]),
+    );
+  });
+
+  it("still never asks a person for the inside endings, whatever a sentence holds", () => {
+    const opetaja = {
+      ...bed, id: "õpetaja", lemma: "õpetaja", translation: "teacher", semanticTypes: "in_elukutse",
+      examples: JSON.stringify([
+        { et: "Ma pettusin õpetajas.", source: "EKILEX" },
+        { et: "Andsin raamatu õpetajale.", source: "EKILEX" },
+      ]),
+      forms: [
+        { formType: "NOM_SG", value: "õpetaja", morphCode: "SgN" },
+        { formType: "GEN_SG", value: "õpetaja", morphCode: "SgG" },
+        { formType: "PART_SG", value: "õpetajat", morphCode: "SgP" },
+      ],
+    };
+    const cases = generateCards(opetaja, ["CASE_FORM"]).map((c) => c.targetCase);
+    expect(cases).toContain("ALLATIVE");
+    expect(cases).not.toContain("INESSIVE");
+  });
+
+  // `-lt` on an adjective is the adverb, and reading it as a case teaches one that is not there.
+  it("does not read an adjective's adverb as its ablative", () => {
+    const loplik = {
+      ...bed, id: "lõplik", lemma: "lõplik", translation: "final", pos: "ADJECTIVE",
+      semanticTypes: "omadus_kval",
+      examples: JSON.stringify([{ et: "Leek lämbus lõplikult.", source: "EKILEX" }]),
+      forms: [
+        { formType: "NOM_SG", value: "lõplik", morphCode: "SgN" },
+        { formType: "GEN_SG", value: "lõpliku", morphCode: "SgG" },
+        { formType: "PART_SG", value: "lõplikku", morphCode: "SgP" },
+      ],
+    };
+    expect(generateCards(loplik, ["CASE_FORM"])).toEqual([]);
+  });
+
+  /*
+    A LOAN IS GAPPED ONLY ON THE SPELLING IT WAS LENT FOR. This sentence is
+    lent to `pea` for `Peas`, and the `peal` beside it is the adverb, so a card
+    cutting `peal` out of it as the adessive of a head taught a postposition as
+    a case. Both arms, since the guard is only worth anything where the other
+    spelling really would have been gapped.
+  */
+  it("gaps a borrowed sentence only on the spelling it was lent for", () => {
+    const pea = {
+      ...bed, id: "pea", lemma: "pea", translation: "head", semanticTypes: "kehaosa", examples: null,
+      forms: [
+        { formType: "NOM_SG", value: "pea", morphCode: "SgN" },
+        { formType: "GEN_SG", value: "pea", morphCode: "SgG" },
+        { formType: "PART_SG", value: "pead", morphCode: "SgP" },
+        { formType: "ILL_SG_SHORT", value: "pähe", morphCode: "SgAdt" },
+      ],
+    };
+    const et = "Peas valitses tühjus, nagu käsipidur olnuks peal.";
+    const lent = generateCards({ ...pea, borrowed: [{ et, en: null, source: "EKILEX", via: ["peas"] }] }, ["CASE_FORM"]);
+    expect(lent.map((c) => c.targetCase)).toEqual(["INESSIVE"]);
+    const unmarked = generateCards({ ...pea, borrowed: [{ et, en: null, source: "EKILEX" }] }, ["CASE_FORM"]);
+    expect(unmarked.map((c) => c.targetCase)).toContain("ADESSIVE");
+  });
+
+  /*
     AND THE CHECKLIST ASKS THE BUILDER RATHER THAN THE MORPHOLOGY. Left as
     "does it have a genitive stem" this advertised a case card on 4,664 words
     and built one on 914: the unit page lists the type, no card appears, and

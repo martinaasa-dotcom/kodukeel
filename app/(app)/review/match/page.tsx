@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
+import { RECENT_WORDS, byRecency, lemmaFilter, moduleScopeFrom, recentLemmas } from "@/lib/course/scope";
 import { MatchSession, type MatchPair } from "./MatchSession";
 
 export const metadata = { title: "Match" };
@@ -50,7 +50,21 @@ export default async function MatchPage({
     are due, so the two are asked at once rather than one after the other. Each
     `await` here is a round trip to a pooler in another region.
   */
-  const [due, settings] = await Promise.all([
+  const [recent, due, settings] = await Promise.all([
+    /*
+      AND INSIDE THE MODULE IT LEADS WITH TONIGHT, then the evenings just
+      before it (`recentLemmas`). Due cards first put tonight's three new words
+      on a B1 board beside five A1 greetings, because a learner standing at B1
+      always has an `aitäh` somewhere near due.
+    */
+    scope
+      ? prisma.card.findMany({
+          where: { ...base, state: { not: 0 }, lexeme: { lemma: { in: recentLemmas(scope) } } },
+          orderBy: { id: "asc" },
+          take: RECENT_WORDS * 2,
+          include,
+        })
+      : Promise.resolve([]),
     prisma.card.findMany({
       where: { ...base, due: { lte: now }, state: { not: 0 } },
       orderBy: { due: "asc" },
@@ -60,7 +74,9 @@ export default async function MatchPage({
     readSettings(ownerId, [SETTING_KEYS.matchBest]),
   ]);
 
-  let pool = due;
+  const led = scope ? byRecency(scope, recent, (c) => c.lexeme?.lemma) : [];
+  const ledIds = new Set(led.map((c) => c.id));
+  let pool = [...led, ...due.filter((c) => !ledIds.has(c.id))];
   if (pool.length < PAIRS) {
     const seen = new Set(pool.map((c) => c.id));
     const rest = await prisma.card.findMany({

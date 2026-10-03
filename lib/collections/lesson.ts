@@ -221,6 +221,11 @@ export interface TypeStep extends StepBase {
   kind: "type";
   lemma: string;
   gloss: string;
+  /**
+   * The word's other spellings: asked from its meaning, another form of it is
+   * the word recalled rather than one letter out (`checkAnswer`'s `kin`).
+   */
+  kin: readonly string[];
 }
 export interface ListenStep extends StepBase {
   kind: "listen";
@@ -1030,6 +1035,7 @@ export function planLesson(input: LessonInput): LessonStep[] {
 
   const typeLane = (block: readonly LessonWord[]) => block.map((word): LessonStep => ({
     id: nextId("type"), kind: "type", lemma: word.lemma, gloss: word.gloss,
+    kin: [...gapFormsFromParts(word).keys()].filter((form) => form !== word.lemma.trim().toLowerCase()),
   }));
 
   // One round per block, plus the rounds the lag needs to drain: the last block

@@ -208,7 +208,9 @@ export default async function TodayPage() {
     game, that is the round; on the seventh the quest is, and only then is the
     weakest case worth the query behind it.
   */
-  const featured = gameOn(weekdayOf(summary.dayKey));
+  /* Off the course's own level: a beginner's week has no endings in it, since
+     the course leaves the cases to A2 (lib/ux/weekGames.ts). */
+  const featured = gameOn(weekdayOf(summary.dayKey), placement);
   const questDay = featured.href === "/quest" && shows(stage, "quest");
   const [word, collection, weakest, outside, ladder] = await Promise.all([
     shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement) : null,
@@ -811,7 +813,15 @@ export default async function TodayPage() {
     ? <WordOfDayCard word={word} collection={collection} canTranslate={resolveProvider() !== null} />
     : null;
 
-  const nextCard = shows(stage, "next") && nextUnit ? (
+  /*
+    NOT WHERE THE COURSE IS ON. The module at the top of this page is the next
+    unit, already planned to the evening, and a second card offering the same
+    words as a lesson was two answers to "what do I learn next" on one screen:
+    on a beginner's first night it showed the module's own unit half full
+    (the deck holds its cards from first run) under "Pick up where you left
+    off", about words they had not yet met. Off the course, it is the answer.
+  */
+  const nextCard = shows(stage, "next") && nextUnit && !programme ? (
 
     <Card>
       <SectionTitle hint={nextUnit.unit.cefr}>Your next unit</SectionTitle>
@@ -873,7 +883,7 @@ export default async function TodayPage() {
   */
   const featuredMode = modeAt(featured.href);
   const featuredName = featuredTitle(featured.href);
-  const tomorrow = gameAfter(weekdayOf(summary.dayKey));
+  const tomorrow = gameAfter(weekdayOf(summary.dayKey), placement);
   const gameCard = featuredName && featured.href !== "/quest" ? (
     <Card>
       <SectionTitle hint={WEEKDAY_LONG[weekdayOf(summary.dayKey)]}>

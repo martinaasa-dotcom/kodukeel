@@ -181,6 +181,15 @@ describe("gapCue: a marked sentence replaces the gloss and never the word", () =
     expect(gapCue({ hint: "doctor", lemma: null, marked: false })).toBe("doctor");
   });
 
+  it("keeps a gloss whose qualifier draws a line the marked word cannot", () => {
+    // `Sina? Ei, tema.` is "You? No, him." and `Teie? Ei, tema.` is "You? No,
+    // her.": the mark lands on "you" in both, so the qualifier is the only
+    // thing on the card saying which of the two is wanted.
+    expect(gapCue({ hint: "you (one person)", lemma: null, marked: true })).toBe("you (one person)");
+    expect(gapCue({ hint: "sina, you (one person)", lemma: "sina", marked: true })).toBe("sina, you (one person)");
+    expect(gapCue({ hint: "you", lemma: null, marked: true })).toBeNull();
+  });
+
   it("has nothing to say about a card with no cue", () => {
     expect(gapCue({ hint: null, lemma: "film", marked: true })).toBeNull();
     expect(gapCue({ hint: "   ", lemma: "film", marked: false })).toBeNull();

@@ -109,6 +109,11 @@ export function localCasesFor(subject: CaseSubject): readonly CaseKey[] {
 /** Every local case, either set. */
 const LOCAL: readonly CaseKey[] = [...INSIDE_CASES, ...OUTSIDE_CASES];
 
+/** One of the six cases whose set depends on what kind of thing a word is. */
+export function isLocalCase(key: string): boolean {
+  return (LOCAL as readonly string[]).includes(key);
+}
+
 /**
  * Is this a case worth asking this word about?
  *
@@ -128,6 +133,46 @@ export function caseFits(key: CaseKey, subject: CaseSubject): boolean {
   if (!hasSingular(subject)) return false;
   if (!LOCAL.includes(key)) return true;
   return localCasesFor(subject).includes(key);
+}
+
+/**
+ * WHICH LOCAL CASES A RECORDED SENTENCE MAY ASK OF A WORD.
+ *
+ * `localCasesFor` gives a thing the inside trio, and that rule was written for
+ * a card built out of morphology alone, where nothing but the rule could say
+ * which trio to drill. A case card is a sentence now (`lib/srs/cards.ts`), and
+ * a sentence a lexicographer wrote has already said which: `Söök on laual`,
+ * `Pane raamat lauale`, `Käin tööl`, `Talunik müüb turul piima`, `Ärkasin kell
+ * viis hommikul`. A table is something you put things on as often as anything
+ * is something you are inside, and the "on" endings are among the commonest in
+ * the language, so reading the rule into the sentence builder threw away
+ * nearly eight hundred of the sentences a learner most needs, and the deck's
+ * whole adessive was a person having something.
+ *
+ * So for a **noun** that is a thing, a sentence may settle either trio, and
+ * `readCase` in the builder still decides that the sentence uses that case and
+ * no other. A person keeps the outside trio alone, because `õpetajasse` is the
+ * fault this module exists to stop and one sentence that happens to hold
+ * `temas` does not make it a pattern worth drilling; a word the Institute
+ * called a being and a place keeps none, for `localCasesFor`'s reason; and an
+ * adjective keeps what it had, since its `-lt` is the adverb (`lõplikult`,
+ * `kergelt`) and reading that as an ablative teaches a case that is not there.
+ *
+ * Only the sentence builder may ask this. A bare ask, a target or a writing
+ * task has no sentence to settle anything, and `caseFits` is still the whole
+ * answer for those.
+ */
+export function sentenceLocalCases(subject: CaseSubject, pos: string): readonly CaseKey[] {
+  const set = localCasesFor(subject);
+  if (pos !== "NOUN" || !set.includes("INESSIVE")) return set;
+  return LOCAL;
+}
+
+/** `caseFits`, for a case a recorded sentence is about to settle. See above. */
+export function caseFitsInSentence(key: CaseKey, subject: CaseSubject, pos: string): boolean {
+  if (!hasSingular(subject)) return false;
+  if (!LOCAL.includes(key)) return true;
+  return sentenceLocalCases(subject, pos).includes(key);
 }
 
 /**

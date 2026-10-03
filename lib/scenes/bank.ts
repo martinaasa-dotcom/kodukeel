@@ -422,8 +422,6 @@ export const BANK: readonly ScriptedLine[] = [
   { scene: "trepikoda", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-09-06" },
   { scene: "trepikoda", beat: "hurdle:misheard", text: "Kas te olete Soomest või Rootsist?", model: "authored", draftedAt: "2026-09-05" },
   { scene: "trepikoda", beat: "hurdle:misheard", text: "Kas teie vend või sõber elab siin?", model: "authored", draftedAt: "2026-09-05" },
-  { scene: "trepikoda", beat: "hurdle:small-talk", text: "Kuidas ilm täna on?", model: "authored", draftedAt: "2026-09-05" },
-  { scene: "trepikoda", beat: "hurdle:small-talk", text: "Täna on ilus ilm, eks?", model: "authored", draftedAt: "2026-09-06" },
   { scene: "trepikoda", beat: "new", text: "Kas te elate nüüd siin?", model: "authored", draftedAt: "2026-09-05" },
   { scene: "trepikoda", beat: "new", text: "Kas te olete siin uus?", model: "authored", draftedAt: "2026-09-05" },
   { scene: "trepikoda", beat: "weather", text: "Täna on ilus ilm.", model: "authored", draftedAt: "2026-09-05" },

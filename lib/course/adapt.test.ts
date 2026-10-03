@@ -4,7 +4,7 @@ import { findTells } from "@/lib/copy/voice";
 import { LEVELS } from "@/lib/collections/syllabus";
 import {
   FLYING_ACCURACY, FLYING_EVIDENCE, ADAPT_MIN_EVIDENCE, STRUGGLING_ACCURACY, STRUGGLING_MISSES,
-  adaptOffer, adaptReading, leanSentence, moveLabel, offerBody, offerTitle, tiltFor, tiltedLevel,
+  adaptOffer, adaptReading, leanSentence, moveLabel, offerBody, offerParts, offerTitle, tiltFor, tiltedLevel,
   type AdaptPosition, type AdaptReading, type PartRef,
 } from "./adapt";
 import { PROGRAMMES } from "./index";
@@ -180,5 +180,14 @@ describe("what the lean is said to be doing", () => {
   it("keeps a card honest about a lean that moved nothing", () => {
     const offer = adaptOffer(struggling, at({ part: ladder[0]! }))!;
     expect(offerBody(offer, { pace: false, talk: false })).not.toMatch(/slower|simpler/);
+  });
+});
+
+describe("the flying card's figure", () => {
+  it("says every answer rather than a hundred out of a hundred", () => {
+    const offer = adaptOffer({ kind: "flying", accuracy: 1 }, at({ part: firstOf("B1") }))!;
+    expect(offerParts(offer, both).lead).toBe("Lately you've been getting every answer right.");
+    const nearly = adaptOffer(flying, at({ part: firstOf("B1") }))!;
+    expect(offerParts(nearly, both).lead).toContain("95 out of a hundred");
   });
 });

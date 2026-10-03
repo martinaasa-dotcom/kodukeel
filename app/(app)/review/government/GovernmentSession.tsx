@@ -259,8 +259,11 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             </p>
           )}
 
+          {/* The verb answers nothing: the question is the one its object
+              answers, which is how a class writes it on the board
+              (`õpetama keda? mida?`), so that is what is asked. */}
           <p className="mt-5 text-sm" style={{ color: "var(--ink-2)" }}>
-            Which question does it answer?
+            Which question comes after it?
           </p>
         </div>
 
@@ -342,24 +345,27 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                 : `${question.lemma} takes the ${question.answerEt}${questionInEnglish(question.answerQuestion) ? `, the one that asks ${questionInEnglish(question.answerQuestion)}` : ""}. English gives you no hint here, so learn the two together.`}
             </p>
             {/*
-              A verb often governs more than one case, in different senses.
-              Those are true of it, so they are kept out of the options rather
-              than offered as wrong answers, and saying so here is the useful
-              half: a learner who was reaching for one of them was not wrong,
-              they were thinking of the other sense.
+              A verb often governs more than one case. Those are true of it, so
+              they are kept out of the options rather than offered as wrong
+              answers, and this names them. It used to say the learner had
+              picked one of them and was "thinking of the other meaning",
+              which was never true, since none of them is ever an option, and
+              half the time there is no other meaning either: `õpetama` takes
+              the alaleütlev for whom you teach in the very sentence above,
+              beside the osastav for what. So it says what is true of both
+              shapes: another part of the sentence, or another sense.
             */}
             {question.alsoGoverned.length > 0 && (
               <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-                It takes{" "}
+                It can also take{" "}
                 {question.alsoGoverned.map((key, i) => (
                   <span key={key}>
                     {i > 0 && (i === question.alsoGoverned.length - 1 ? " and " : ", ")}
                     the <span lang="et">{caseLabel(key)?.et}</span>
+                    {caseLabel(key)?.question && <>, <span lang="et">{caseLabel(key)?.question}</span></>}
                   </span>
-                ))}{" "}
-                {question.alsoGoverned.length === 1
-                  ? "too, when it means something else. Picking that wasn't wrong. You were just thinking of the other meaning."
-                  : "too, when it means something else. Picking one of those wasn't wrong. You were just thinking of another meaning."}
+                ))}
+                , for another part of the sentence or in another sense.
               </p>
             )}
 
@@ -401,7 +407,11 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         )}
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{correct}/{index + (revealed ? 1 : 0)} right, press 1 to 4 to answer</span>
+        <span>
+          {index + (revealed ? 1 : 0) > 0
+            ? <>{correct}/{index + (revealed ? 1 : 0)} right, press 1 to 4 to answer</>
+            : <>Press 1 to 4 to answer</>}
+        </span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>

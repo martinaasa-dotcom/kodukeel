@@ -19,10 +19,10 @@
  * Pure: no React, no Next, no Prisma, no clock. `recency` comes in as data.
  */
 import { rng, seedFrom } from "@/lib/random/seeded";
-import { BUDGETS, drawCurveballs, type Difficulty, type DrawnCurveball } from "./curveballs";
+import { BUDGETS, curveballById, drawCurveballs, type CurveballId, type Difficulty, type DrawnCurveball } from "./curveballs";
 import { drawPersona, patienceFor, type PersonaSpec } from "./personas";
 import { drawCard, type RoleCard } from "./props";
-import type { SceneSpec } from "./types";
+import { leafNeeds, type SceneSpec } from "./types";
 
 /** What the last few runs of this scene used, so this one does not repeat it. */
 export interface Recency {
@@ -111,7 +111,7 @@ export function planRun(
   */
   const curveballs = drawCurveballs(
     scene.curveballs, scene.beats.length, BUDGETS[difficulty], level, random,
-    recent.curveballs, persona.leans,
+    recent.curveballs, persona.leans, notBeforeIn(scene),
   );
 
   const repeats = [
@@ -130,6 +130,25 @@ export function planRun(
     curveballs,
     patience: scene.beats.map((beat) => patienceFor(beat.patience, persona)),
     repeats,
+  };
+}
+
+/**
+ * The first beat each curveball may stand in front of, read off its `follows`
+ * and this scene's beats: behind the first thing the learner asks for, or
+ * behind the first beat where they say a time. Where the scene has no such
+ * beat the answer is past its end, so the curveball is never drawn there.
+ */
+export function notBeforeIn(scene: SceneSpec): (id: CurveballId) => number {
+  const past = scene.beats.length;
+  const request = scene.beats.findIndex((beat, i) => i > 0 && beat.move !== "greet");
+  const timeSlots = new Set(scene.props.filter((prop) => prop.kind === "time").map((prop) => prop.slot));
+  const time = scene.beats.findIndex((beat) =>
+    leafNeeds(beat.needs).some(({ need }) => need.kind === "datum" && timeSlots.has(need.slot)));
+  const after = { request: request < 0 ? past : request + 1, time: time < 0 ? past : time + 1 };
+  return (id) => {
+    const follows = curveballById(id)?.follows;
+    return follows ? after[follows] : 1;
   };
 }
 

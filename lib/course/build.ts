@@ -13,10 +13,12 @@
  */
 
 import { CASES } from "@/lib/estonian/cases";
-import { grammarTopic } from "@/lib/estonian/grammar";
+import { CASE_NOTES, grammarTopic } from "@/lib/estonian/grammar";
+import { grammarTerm } from "@/lib/estonian/terms";
 import { isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
 import { spellable } from "@/lib/games/letters";
 import { SCENES } from "@/lib/collections/scenes";
+import { sceneById as conversationById } from "@/lib/scenes/catalogue";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { PARTS, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, type PartSpec } from "./plan";
@@ -104,10 +106,24 @@ export function reads(
 }
 
 /** A declared grammar name as the page it opens: a case page, a topic page, or nothing the reference carries. */
-function readingFor(name: string): Pick<DaySpec, "grammar" | "grammarCase"> {
+function readingFor(name: string): Pick<DaySpec, "grammar" | "grammarCase" | "readTitle"> {
   const asCase = name.toUpperCase();
-  if (CASE_KEYS.has(asCase)) return { grammarCase: asCase };
-  return grammarTopic(name) ? { grammar: name } : {};
+  if (CASE_KEYS.has(asCase)) return { grammarCase: asCase, readTitle: caseReadTitle(asCase) };
+  const topic = grammarTopic(name);
+  return topic ? { grammar: name, readTitle: `Read "${topic.title}"` } : {};
+}
+
+/**
+ * A case page's step, named the way the page leads: the ending and what it
+ * means, or for the three stored forms, which carry no single ending, the
+ * name a class uses for it (`lib/estonian/terms.ts`).
+ */
+function caseReadTitle(key: string): string | undefined {
+  const note = CASE_NOTES.find((n) => n.key === key);
+  const spec = CASES.find((c) => c.key === key);
+  if (!note || !spec) return undefined;
+  const name = spec.suffix ? `the -${spec.suffix} ending` : grammarTerm(spec.key)?.et ?? spec.et;
+  return `Read about ${name}, "${note.plain}"`;
 }
 
 /**
@@ -358,12 +374,26 @@ export function rounds(
    * than refused, since early in a level the supported rounds may be one.
    */
   avoid: readonly ActivityKey[] = [],
+  /**
+   * Where the drill half of the rotation stands, which is not always `at`.
+   *
+   * An evening that shows the past forms deals no drill, the forms step takes
+   * its place, and that is every other evening from A2 up. Read off `at`
+   * alone, the drill paired with the game on those evenings was skipped every
+   * time it came round: B2's rotation pairs `write` with Tähed and `describe`
+   * with the sprint, both fell on forms evenings, and over the 45 evenings of
+   * B2 the writing round came up three times and Describe once. The builder
+   * advances this only on an evening that deals a drill, so each drill on the
+   * rotation gets its turn.
+   */
+  drillAt: number = at,
 ): ActivityKey[] {
   const rotation = ROTATION[level] ?? ROTATION.A1!;
-  const first = rotation[(at * 2) % rotation.length]!;
-  const second = rotation[(at * 2 + 1) % rotation.length]!;
-  const game = ACTIVITIES[first].kind === "game" ? first : second;
-  const other = game === first ? second : first;
+  const pair = (n: number) => [rotation[(n * 2) % rotation.length]!, rotation[(n * 2 + 1) % rotation.length]!];
+  const [first, second] = pair(at);
+  const game = ACTIVITIES[first!].kind === "game" ? first! : second!;
+  const drills = pair(drillAt);
+  const other = drills.find((key) => ACTIVITIES[key].kind !== "game") ?? (game === first ? second! : first!);
   /*
     The stand-in is the next round of the same kind along the rotation that
     the ledger does support, so it still alternates with the evening: early
@@ -417,8 +447,21 @@ export class Ledger {
   /** Verbs with a stored past, taught and not yet shown, in teaching order. */
   private formsWaiting: string[] = [];
   private readonly formsShown = new Set<string>();
+  private readonly talked = new Set<string>();
+
+  /** A conversation dealt, and whether an earlier evening already dealt it. */
+  talk(scene: string): boolean {
+    const before = this.talked.has(scene);
+    this.talked.add(scene);
+    return before;
+  }
 
   /** A word handed over, with what the harvest holds for it. */
+  /** Whether an earlier evening has already taught this word. */
+  knows(lemma: string): boolean {
+    return this.lemmas.has(lemma);
+  }
+
   teach(lemma: string, pos: string): void {
     // Read before `lemmas.add` below: a word taught again in a later part is not a second word.
     const fresh = !this.lemmas.has(lemma);
@@ -436,6 +479,25 @@ export class Ledger {
     for (const form of Object.values(word.parts)) this.spellings.add(form.toLowerCase());
     for (const extra of word.extraForms) this.spellings.add(extra.value.toLowerCase());
     if (!this.readable) this.pending.push(...word.usages);
+  }
+
+  private readonly readAtLevel = new Map<string, Set<string>>();
+
+  /** The pages read so far at a level, by the names a unit lists them under. */
+  pagesReadAt(level: string): Set<string> {
+    return new Set(this.readAtLevel.get(level) ?? []);
+  }
+
+  /** A page read at a level, by the name a unit lists it under. */
+  noteReadAt(level: string, name: string): void {
+    const pages = this.readAtLevel.get(level) ?? new Set<string>();
+    pages.add(name);
+    this.readAtLevel.set(level, pages);
+  }
+
+  /** Whether an earlier evening has read this page already. */
+  hasRead(reads: Pick<DaySpec, "grammar" | "grammarCase">): boolean {
+    return reads.grammarCase ? this.cases.has(reads.grammarCase) : !!reads.grammar && this.topics.has(reads.grammar);
   }
 
   /** A page read, which counts on the evening it is read. */
@@ -540,12 +602,19 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
   */
   const perDay = ordinaryWords(spec.level);
   const taught = new Set<string>();
-  /* A page read once in a part is not read again by a later unit of it. */
-  const readInPart = new Set<string>();
+  /*
+    A page read once in a level is not read again by a later unit of it. It
+    was once per part, and A1 read the present tense four times and "to be"
+    three, the same page with the same words presented as tonight's reading;
+    across levels a page comes back, and its step says so ("again").
+  */
+  const readInPart = ledger.pagesReadAt(spec.level);
   const days: CourseDay[] = [];
   /* The rotation walks the whole part rather than restarting per unit, or the
      first evening of every unit would be the same pair for a fortnight. */
   let turn = 0;
+  /* And the drill half separately, since a forms evening deals no drill (see `rounds`). */
+  let drillTurn = 0;
 
   for (const unitId of spec.units) {
     const unit = unitById(unitId);
@@ -572,20 +641,70 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         meeting the words is the first step of the evening and the reading
         the second, and the rounds come after both.
       */
+      /*
+        AND A WORD AN EARLIER EVENING TAUGHT IS NOT A NEW WORD. The object and
+        government units drill verbs the course gave long before, on purpose,
+        and the first two evenings of B1 were six of them each under "Learn
+        tonight's 6 new words". Read before tonight's words are taught.
+      */
+      const again = chunk.filter((lemma) => ledger.knows(lemma));
       for (const lemma of chunk) {
         const entry = unit.vocabulary.find((v) => v.lemma === lemma);
         if (entry) ledger.teach(entry.lemma, entry.pos);
       }
       const name = last && scene ? undefined : plan[nextPage++];
-      const reading = name ? readingFor(name) : {};
+      const fresh = name ? readingFor(name) : {};
+      /*
+        A PAGE READ AT AN EARLIER LEVEL SAYS SO. The plan reads a page once per
+        part, and a unit at B1 may list a page somebody read at A1: the
+        conditional, politeness, the partitive. Same page, same words, and a
+        step that called it tonight's reading as though it were new reads as
+        the app having forgotten. It is still worth reading, and the step says
+        it is a second look.
+      */
+      const reading = fresh.readTitle && ledger.hasRead(fresh)
+        ? { ...fresh, readTitle: `${fresh.readTitle} again` }
+        : fresh;
       ledger.read(reading);
-      if (name) readInPart.add(name);
+      if (name) {
+        readInPart.add(name);
+        ledger.noteReadAt(spec.level, name);
+      }
       /*
         A conversation evening shows nothing, since the conversation replaces
         the reading and both rounds; the queue waits for the next evening.
+
+        AND NEITHER DOES AN EVENING THAT READ A CASE, OR ONE STRAIGHT AFTER A
+        FORMS EVENING. The forms step takes the drill's place, and written as
+        "every evening after the page" it took it on sixteen evenings of A2's
+        first twenty-one in a row: the evening that read the elative drilled
+        the past of five unrelated verbs and nothing about the elative at
+        all, and a fortnight of one drill is homework under another name. A
+        case read tonight is drilled tonight, and the past is shown every
+        other evening, which still reaches every taught verb well before the
+        top of the ladder (`course.test.ts` holds that). The ladder's own
+        last evening is the one exception, since there is no other evening for
+        what it teaches to be shown on.
       */
-      const forms = last && scene ? [] : ledger.showForms();
-      const dealt = rounds(spec.level, turn, verbs && n % 2 === 0, ledger.taught(), verbs, days.at(-1)?.practice ?? []);
+      const ladderEnd = last && PARTS.at(-1)?.id === spec.id && unitId === spec.units.at(-1);
+      /* A page built on a case is a case evening too: the object rule and
+         government are about which ending a noun takes, and an evening that
+         read one drilled verb pasts beside it. */
+      const caseEvening = Boolean(reading.grammarCase || (reading.grammar && builtOnACase(reading.grammar)));
+      const forms = (last && scene)
+        || (!ladderEnd && (caseEvening || (days.at(-1)?.forms?.length ?? 0) > 0))
+        ? []
+        : ledger.showForms();
+      const dealt = onThePage(
+        onTheCase(
+          rounds(
+            spec.level, turn, verbs && n % 2 === 0, ledger.taught(), verbs, days.at(-1)?.practice ?? [],
+            drillTurn,
+          ),
+          caseEvening, spec.level, ledger.taught(), days.at(-1)?.practice ?? [],
+        ),
+        reading.grammar, spec.level, ledger.taught(),
+      );
       days.push(day(
         {
           id: `${spec.id}-${String(days.length + 1).padStart(2, "0")}`,
@@ -595,6 +714,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
           unitId,
           level: spec.level,
           words: chunk,
+          ...(again.length > 0 ? { again } : {}),
           ...reading,
           // The table on the unit's first evening and every other one after,
           // so a unit of verbs is still conjugated and still has its other drill.
@@ -602,12 +722,19 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
             ? withForms(dealt, spec.level, ledger.taught(), days.at(-1)?.practice ?? [])
             : dealt,
           ...(forms.length > 0 ? { forms } : {}),
-          ...(last && scene ? { scene } : {}),
+          ...(last && scene
+            ? {
+              scene,
+              ...(conversationById(scene) ? { sceneTitle: conversationById(scene)!.title } : {}),
+              ...(ledger.talk(scene) ? { sceneAgain: true as const } : {}),
+            }
+            : {}),
         },
         days.length + 1,
         { n: n + 1, of: chunks.length },
       ));
       turn += 1;
+      if (forms.length === 0 && !(last && scene)) drillTurn += 1;
     });
   }
 
@@ -619,6 +746,66 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
     blurb: spec.blurb,
     days,
   };
+}
+
+/**
+ * The rounds that ask a case off the word's own forms, which inside the
+ * module lead with the case tonight's reading was about (`tonightsCase`).
+ * The sprint is not one: it turns over the deck's cards, and a module's deck
+ * holds a word's meaning and its spelling, so on a module evening it asks no
+ * ending at all.
+ */
+export const CASE_ROUNDS: ReadonlySet<ActivityKey> = new Set(["target", "write", "describe"]);
+
+/**
+ * AN EVENING THAT READS A CASE PRACTISES IT.
+ *
+ * The rotation deals two neighbours whatever the reading was, so an evening
+ * that read the partitive could play Match and take a dictation and never
+ * once be asked for the case it had just been told about; across A2 that was
+ * most of the case evenings. Where neither round asks a case, the drill goes
+ * to the next case drill along the rotation that the words can carry, one
+ * last night did not deal where there is a choice. A rotation with no case
+ * drill on it, or a ledger that supports none yet, keeps what it was dealt.
+ */
+export function onTheCase(
+  dealt: readonly ActivityKey[], caseEvening: boolean, level: string, taught: Taught,
+  before: readonly ActivityKey[] = [],
+): ActivityKey[] {
+  if (!caseEvening) return [...dealt];
+  const rotation = ROTATION[level] ?? ROTATION.A1!;
+  const drills = rotation.filter((key) =>
+    ACTIVITIES[key].kind === "drill" && CASE_ROUNDS.has(key) && supportsRound(key, taught, level));
+  const drill = drills.find((key) => !before.includes(key)) ?? drills[0];
+  const out = dealt.some((key) => CASE_ROUNDS.has(key)) || !drill
+    ? [...dealt]
+    : dealt.map((key) => (ACTIVITIES[key].kind === "drill" ? drill : key));
+  /* And not last night's pair again, which the swap can make where last
+     night was a case evening too: the game moves on along the rotation,
+     a case game first where the words can carry one. */
+  if (out.length === before.length && out.every((key) => before.includes(key))) {
+    const games = rotation.filter((key) =>
+      ACTIVITIES[key].kind === "game" && !before.includes(key) && supportsRound(key, taught, level));
+    const game = games.find((key) => CASE_ROUNDS.has(key)) ?? games[0];
+    if (game) return out.map((key) => (ACTIVITIES[key].kind === "game" ? game : key));
+  }
+  return out;
+}
+
+/**
+ * The round a topic page is about, where there is exactly one: the page on
+ * verbs that demand an ending and the government drill, which asks that very
+ * thing. Read on the evening the page is, it is the drill.
+ */
+export const PAGE_ROUND: Readonly<Record<string, ActivityKey>> = { government: "government" };
+
+/** An evening that reads a page with a round of its own plays that round as its drill. */
+export function onThePage(
+  dealt: readonly ActivityKey[], page: string | undefined, level: string, taught: Taught,
+): ActivityKey[] {
+  const own = page ? PAGE_ROUND[page] : undefined;
+  if (!own || dealt.includes(own) || !supportsRound(own, taught, level)) return [...dealt];
+  return dealt.map((key) => (ACTIVITIES[key].kind === ACTIVITIES[own].kind ? own : key));
 }
 
 /**

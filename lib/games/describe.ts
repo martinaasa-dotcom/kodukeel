@@ -219,8 +219,11 @@ export function pictureLabel(glosses: readonly string[]): string {
     return senses.length === 2 ? `${senses[0]} or ${senses[1]}` : senses[0] ?? "";
   }).filter(Boolean);
   if (things.length === 0) return "";
-  const list = things.length === 1
-    ? things[0]!
-    : `${things.slice(0, -1).join(", ")} and ${things[things.length - 1]}`;
-  return `A picture of ${list}.`;
+  /*
+    A caption's list rather than a sentence, because a sentence wants an
+    article and a gloss does not say which: "A picture of house, door and
+    window" read as broken English, and "a water" or "a bread" is what a
+    letter rule would put in front of the mass nouns half the pictures are.
+  */
+  return `In the picture: ${things.join(", ")}.`;
 }

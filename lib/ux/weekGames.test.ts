@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { modeAt } from "./modes";
 import { WEEKDAY_LONG, type Weekday } from "./schedule";
 import { DESTINATIONS } from "./nav";
-import { featuredTitle, gameAfter, gameOn, WEEK_GAMES } from "./weekGames";
+import { featuredTitle, FIRST_LEVEL_WEEK, gameAfter, gameOn, WEEK_GAMES } from "./weekGames";
 
 /**
  * The table, and the two things about it that can rot.
@@ -22,7 +22,7 @@ describe("the week's games", () => {
   });
 
   it("names a mode or a place this app has, every day", () => {
-    for (const featured of WEEK_GAMES) {
+    for (const featured of [...WEEK_GAMES, ...FIRST_LEVEL_WEEK]) {
       const known = modeAt(featured.href) ?? DESTINATIONS.find((d) => d.href === featured.href);
       expect(known, `${featured.href} is neither a practice mode nor a destination`).toBeDefined();
       expect(featuredTitle(featured.href), featured.href).toBeTruthy();
@@ -40,7 +40,7 @@ describe("the week's games", () => {
   });
 
   it("says why, in a line", () => {
-    for (const featured of WEEK_GAMES) {
+    for (const featured of [...WEEK_GAMES, ...FIRST_LEVEL_WEEK]) {
       expect(featured.why.length).toBeGreaterThan(0);
       // A card's worth, not a paragraph. The reader-copy sweep caps a body at
       // 100 and this sits in the same kind of slot.
@@ -54,5 +54,29 @@ describe("the week's games", () => {
     // And wraps, which is the one case an off-by-one gets wrong.
     expect(gameAfter(6).weekday).toBe("Sunday");
     expect(gameAfter(6).game.href).toBe(gameOn(0).href);
+  });
+
+  /*
+    A beginner's week offers nothing about endings, since the course leaves
+    the cases to A2, and no conversation, since a scene needs the words A2
+    teaches for asking and offering. Every day is still a different round, and
+    Sõnad keeps its Monday, since it marks a guess by its letters rather than by
+    knowing the word.
+  */
+  it("gives a beginner a week of rounds the course deals at A1", () => {
+    expect(FIRST_LEVEL_WEEK).toHaveLength(7);
+    expect(new Set(FIRST_LEVEL_WEEK.map((g) => g.href)).size).toBe(7);
+    for (const href of ["/quest", "/review/target", "/review/sprint", "/situations", "/review/describe"]) {
+      expect(FIRST_LEVEL_WEEK.some((g) => g.href === href), href).toBe(false);
+    }
+    for (let day = 0; day < 7; day++) {
+      expect(gameOn(day as Weekday, "A1")).toBe(FIRST_LEVEL_WEEK[day]);
+      expect(gameOn(day as Weekday, "B1")).toBe(WEEK_GAMES[day]);
+    }
+    expect(gameOn(1, "A1").href).toBe(gameOn(1, "B1").href);
+    // A crossword is filled from the band's dictionary, which a beginner has
+    // barely started, so Saturday is an ear test instead.
+    expect(FIRST_LEVEL_WEEK.some((g) => g.href === "/crossword")).toBe(false);
+    expect(gameAfter(4, "A1").game.href).toBe(FIRST_LEVEL_WEEK[5]!.href);
   });
 });

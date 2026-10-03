@@ -346,3 +346,39 @@ export const CAPTION_MAX = 110;
  * learner for it.
  */
 export const NOT_REACHED = "That didn't get through to us. Give it a moment and try again.";
+
+/**
+ * WHAT THE CONTROLS IN A CARD'S CORNER CALL A WORD THE CARD IS ASKING FOR.
+ *
+ * The star, the put-aside button and the hint button each name the word in
+ * their accessible label ("Favorite sina"), which is right on a card that
+ * already shows it and is the answer read out on a card whose question is the
+ * word: a production card over "you (one person)" told a screen reader
+ * "Favorite sina" and "Get a hint for sina" before anything was typed, and
+ * the flash round printed "sina: right 29 times" under its own question. So
+ * until the word is on the screen those say this instead. Listening and
+ * dictation already held their star back for the same reason; this is the
+ * rule for the rounds where the control has to stay.
+ */
+export const UNNAMED_WORD = "this word";
+
+/** The word's name once it is on the screen, and `UNNAMED_WORD` until then. */
+export function wordName(lemma: string, onScreen: boolean): string {
+  return onScreen ? lemma : UNNAMED_WORD;
+}
+
+/**
+ * The part of speech a word is asked over, or nothing.
+ *
+ * Except "adverb", which in this dictionary is not a claim about word class:
+ * every word that does not inflect is filed as one, because the label decides
+ * which cards a word can make (CLAUDE.md, the connectives). So "hello",
+ * "thank you" and "yes" were each asked over the word "adverb", which a
+ * learner reads as the app being wrong about English, and none of them is
+ * ambiguous without it. A noun, a verb and an adjective keep theirs, because
+ * "human, adjective" is the one thing telling `inimlik` from `inimene`.
+ */
+export function partOfSpeechCue(pos: string | null | undefined): string | null {
+  const said = pos?.trim().toLowerCase();
+  return said && said !== "adverb" ? said : null;
+}

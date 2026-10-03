@@ -1241,7 +1241,16 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     }
   }
 
-  if (aside) out.push({ ...aside, reaction: true });
+  /*
+    AND NOT A FIGURE THE CURVEBALL IS ABOUT TO STATE. Asked the price in the
+    turn that raised the price change, the clerk said `See maksab 2 eurot.`
+    and then `See maksab nüüd 2 eurot.`, which is one fact said twice: the
+    curveball's line already answers the question, so the answer stands down.
+  */
+  const figures = aside?.text.match(/\d+/g) ?? [];
+  const statedNext = Boolean(input.hurdle?.line) && figures.length > 0
+    && figures.every((n) => new RegExp(`(^|\\D)${n}(\\D|$)`).test(input.hurdle!.line!.text));
+  if (aside && !statedNext) out.push({ ...aside, reaction: true });
 
   /*
     THEY LET IT GO IN ESTONIAN, NOT IN A STAGE DIRECTION. Running out of

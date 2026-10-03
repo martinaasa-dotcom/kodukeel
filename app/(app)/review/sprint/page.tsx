@@ -10,7 +10,10 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { shuffle } from "@/lib/random/shuffle";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { roundPaceFrom, secondsFor, SPRINT_SECONDS } from "@/lib/ux/roundClock";
-import { cardWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
+import {
+  RECENT_WORDS, TONIGHT_SHARE, byRecency, cardWithin, lemmaFilter, moduleScopeFrom, recentLemmas, tonightsCase,
+} from "@/lib/course/scope";
+import { caseAskFor, type CaseAsk } from "@/lib/questions/caseAsk";
 import { moduleSpellings } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Case Sprint" };
@@ -18,6 +21,14 @@ export const metadata = { title: "Case Sprint" };
 export const dynamic = "force-dynamic";
 
 const POOL_SIZE = 40;
+
+/* What a card's word brings with it: the sentence's English for a gap, and,
+   inside the module, the forms and the kind of thing it is, which is what a
+   case ask is built from (`lib/questions/caseAsk.ts`). */
+const LEXEME_SELECT = {
+  lemma: true, translation: true, examples: true, pos: true, semanticTypes: true,
+  forms: { select: { formType: true, morphCode: true, value: true } },
+} as const;
 
 
 /**
@@ -51,24 +62,35 @@ export default async function SprintPage({
     SETTING_KEYS.sprintBest, SETTING_KEYS.roundPace,
   ]);
 
-  const [spellings, due] = await Promise.all([
+  const [spellings, recent, due] = await Promise.all([
     moduleSpellings(scope),
+    /* Inside the module it leads with tonight and the evenings just before, as Match does. */
+    scope
+      ? prisma.card.findMany({
+          where: { ownerId, suspended: false, state: { not: 0 }, lexeme: { lemma: { in: recentLemmas(scope) } } },
+          orderBy: { id: "asc" },
+          take: RECENT_WORDS * 3,
+          include: { lexeme: { select: LEXEME_SELECT } },
+        })
+      : Promise.resolve([]),
     prisma.card.findMany({
       where: { ownerId, suspended: false, due: { lte: now }, state: { not: 0 }, ...scoped },
       orderBy: { due: "asc" },
       take: POOL_SIZE,
-      include: { lexeme: { select: { lemma: true, translation: true, examples: true, pos: true } } },
+      include: { lexeme: { select: LEXEME_SELECT } },
     }),
   ]);
 
-  let cards = due;
+  const led = scope ? byRecency(scope, recent, (c) => c.lexeme?.lemma) : [];
+  const ledIds = new Set(led.map((c) => c.id));
+  let cards = [...led, ...due.filter((c) => !ledIds.has(c.id))].slice(0, POOL_SIZE);
   if (cards.length < POOL_SIZE) {
     const seenIds = new Set(cards.map((c) => c.id));
     const weak = await prisma.card.findMany({
       where: { ownerId, suspended: false, lapses: { gt: 0 }, id: { notIn: [...seenIds] }, ...scoped },
       orderBy: { lapses: "desc" },
       take: POOL_SIZE - cards.length,
-      include: { lexeme: { select: { lemma: true, translation: true, examples: true, pos: true } } },
+      include: { lexeme: { select: LEXEME_SELECT } },
     });
     cards = [...cards, ...weak];
   }
@@ -80,7 +102,7 @@ export default async function SprintPage({
       where: { ownerId, suspended: false, state: { not: 0 }, id: { notIn: [...seenIds] }, ...scoped },
       orderBy: [{ due: "asc" }, { id: "asc" }],
       take: POOL_SIZE - cards.length,
-      include: { lexeme: { select: { lemma: true, translation: true, examples: true, pos: true } } },
+      include: { lexeme: { select: LEXEME_SELECT } },
     });
     cards = [...cards, ...met];
   }
@@ -92,29 +114,73 @@ export default async function SprintPage({
   const starred = await starredAmong(
     ownerId, shuffled.map((c) => c.lexemeId).filter((id): id is string => !!id),
   );
-  const sprintCards: SprintCard[] = shuffled.map((c) => ({
-    id: c.id,
-    front: readableFront(c.front),
-    back: c.back,
-    lemma: c.lexeme ? plainPhrase(c.lexeme.lemma, c.lexeme.pos) : null,
-    lexemeId: c.lexemeId,
-    starred: !!c.lexemeId && starred.has(c.lexemeId),
-    cardType: c.cardType,
-    /*
-      A gap-fronted card is a whole recorded sentence with one word taken out,
-      and sprint draws whatever is due, so the fastest round in the app was
-      also one of the places a sentence went past with nothing to say what it
-      meant. The shipped line and no call here (`ask="never"` on the session),
-      because forty cards in a minute is forty calls against the deployment's
-      own daily cap for a reader who is racing past them.
-    */
-    sentenceEn: c.front.includes(BLANK) && c.lexeme
-      ? sentenceEnglish(parseExamples(c.lexeme.examples), filledSentence(c.front, c.back))
-      : null,
-    // Not drawn, and read: it is how `gapMeaning` knows which word of the
-    // English sentence is the one the gap is asking for.
-    hint: c.hint,
-  }));
+  /*
+    INSIDE THE MODULE A WORD CARD BECOMES A CASE, WHERE ONE HAS BEEN READ.
+
+    A module learner's deck holds a word's meaning and its spelling, since the
+    module adds those two and asks the forms in its rounds, so a sprint drawn
+    off it was word flips under the name "Case Sprint" on the very evening that
+    read the inessive. A production card of a noun is asked one of the cases
+    the module has read instead, tonight's about half the time, phrased by what
+    it means: the word, `Say "in the house"`, and `majas` behind the flip.
+    Graded onto that card with the case as its slot, the way the writing round
+    grades a sentence, so the mastery count sees the facet that was practised.
+  */
+  const tonight = tonightsCase(scope);
+  const caseAsks = new Map<string, CaseAsk>();
+  if (scope && scope.cases.length > 0) {
+    for (const c of shuffled) {
+      if (c.cardType !== "PRODUCTION" || c.lexeme?.pos !== "NOUN" || !c.lexeme.translation) continue;
+      const ask = caseAskFor(
+        { ...c.lexeme, translation: c.lexeme.translation }, scope.cases, tonight, TONIGHT_SHARE,
+      );
+      if (ask) caseAsks.set(c.id, ask);
+    }
+  }
+
+  const sprintCards: SprintCard[] = shuffled.map((c) => {
+    const asked = caseAsks.get(c.id);
+    if (asked && c.lexeme) {
+      return {
+        id: c.id,
+        front: plainPhrase(c.lexeme.lemma, c.lexeme.pos),
+        back: asked.answer,
+        ask: asked.ask,
+        slot: asked.caseKey,
+        lemma: plainPhrase(c.lexeme.lemma, c.lexeme.pos),
+        lexemeId: c.lexemeId,
+        starred: !!c.lexemeId && starred.has(c.lexemeId),
+        cardType: "CASE_FORM",
+        sentenceEn: null,
+        hint: null,
+      };
+    }
+    return {
+      id: c.id,
+      front: readableFront(c.front),
+      back: c.back,
+      ask: null,
+      slot: null,
+      lemma: c.lexeme ? plainPhrase(c.lexeme.lemma, c.lexeme.pos) : null,
+      lexemeId: c.lexemeId,
+      starred: !!c.lexemeId && starred.has(c.lexemeId),
+      cardType: c.cardType,
+      /*
+        A gap-fronted card is a whole recorded sentence with one word taken out,
+        and sprint draws whatever is due, so the fastest round in the app was
+        also one of the places a sentence went past with nothing to say what it
+        meant. The shipped line and no call here (`ask="never"` on the session),
+        because forty cards in a minute is forty calls against the deployment's
+        own daily cap for a reader who is racing past them.
+      */
+      sentenceEn: c.front.includes(BLANK) && c.lexeme
+        ? sentenceEnglish(parseExamples(c.lexeme.examples), filledSentence(c.front, c.back))
+        : null,
+      // Not drawn, and read: it is how `gapMeaning` knows which word of the
+      // English sentence is the one the gap is asking for.
+      hint: c.hint,
+    };
+  });
 
   // Through the store, not straight at the table: the keys live there, and so
   // does the one settings read this request has already made. Both in one

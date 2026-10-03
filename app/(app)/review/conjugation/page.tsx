@@ -9,7 +9,7 @@ import { Empty, Page } from "@/components/ui";
 import { shuffle } from "@/lib/random/shuffle";
 import { ConjugationSession, type ConjugationQuestion, type Shape, type Tense } from "./ConjugationSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
-import { moduleScopeFrom, slotWithin } from "@/lib/course/scope";
+import { byRecency, moduleScopeFrom, recentLemmas, slotWithin } from "@/lib/course/scope";
 
 export const metadata = { title: "Conjugation" };
 
@@ -116,19 +116,38 @@ export default async function ConjugationPage({
     if (!cardFor.has(c.lexemeId) || c.cardType === "CONJUGATION") cardFor.set(c.lexemeId, c.id);
   }
   const owned = [...cardFor.keys()];
-  const mine = owned.length
-    ? await prisma.lexeme.findMany({
-        where: { id: { in: owned }, pos: "VERB", ...scoped },
-        // Ordered because it is cut, and shuffled afterwards anyway: the cut
-        // decides which of a large deck's verbs are eligible at all.
-        orderBy: [{ lemma: "asc" }, { id: "asc" }],
-        select,
-        take: CANDIDATES,
-      })
-    : [];
+  const [mine, recent] = owned.length
+    ? await Promise.all([
+        prisma.lexeme.findMany({
+          where: { id: { in: owned }, pos: "VERB", ...scoped },
+          // Ordered because it is cut, and shuffled afterwards anyway: the cut
+          // decides which of a large deck's verbs are eligible at all.
+          orderBy: [{ lemma: "asc" }, { id: "asc" }],
+          select,
+          take: CANDIDATES,
+        }),
+        /*
+          INSIDE THE MODULE, THE VERBS TAUGHT MOST RECENTLY, whatever the cut
+          above reached. An evening is pinned to this table because its unit
+          is mostly verbs, and the table was a shuffle of every verb taught
+          since A1 cut alphabetically at a hundred and twenty, so the verbs the
+          evening had just taught were seldom the ones on it.
+        */
+        scope
+          ? prisma.lexeme.findMany({
+              where: { id: { in: owned }, pos: "VERB", lemma: { in: recentLemmas(scope) } },
+              orderBy: { id: "asc" },
+              select,
+            })
+          : Promise.resolve([]),
+      ])
+    : [[], []];
 
+  const led = scope ? byRecency(scope, recent, (v) => v.lemma) : [];
+  const ledIds = new Set(led.map((v) => v.id));
   const ordered = [
-    ...shuffle(mine),
+    ...led,
+    ...shuffle(mine.filter((v) => !ledIds.has(v.id))),
     ...shuffle(banded.filter((v) => !cardFor.has(v.id))),
   ];
 

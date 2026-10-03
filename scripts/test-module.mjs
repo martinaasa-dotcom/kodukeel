@@ -264,17 +264,25 @@ try {
       A reading ends on its own "Next", which is the desktop's way on and is
       pressed as a learner presses it. A round's "Next" is on its finish
       screen, which this walk does not play to, so the press there goes to the
-      phone bar's button: the same press through the same action, one element
-      over, and the phone half of this suite shows that button on a screen.
+      phone bar's quiet "Next step": the same press through the same action,
+      one element over, and the phone half of this suite shows that button on
+      a screen.
     */
     const readingNext = page.locator("[data-reading-end] button");
+    /* And a round that has nothing to deal on this fixture ends at once, on
+       its empty state, which draws the named Next in the page; the bar's
+       button steps aside while that one is on the screen, so it is the one
+       pressed. */
+    const pageNext = page.locator("[data-module-next] button").first();
     if (await readingNext.isVisible().catch(() => false)) {
       check(`the reading ends on a named Next  (${here})`, /Next, step \d+|Finish tonight/.test(await readingNext.innerText()));
       await readingNext.click();
+    } else if (await pageNext.isVisible().catch(() => false)) {
+      await pageNext.click();
     } else {
       /* By text rather than role: a hidden button is out of the accessibility
          tree, which is what `getByRole` reads. */
-      await page.locator(".module-step button", { hasText: /Continue|Finish/ }).evaluate((b) => b.click());
+      await page.locator(".module-step button", { hasText: /Next step|Finish/ }).evaluate((b) => b.click());
     }
     await page.waitForFunction((u) => location.href !== u, was, { timeout: 30_000 });
     await page.waitForSelector("main h1", { timeout: 30_000 });
@@ -565,20 +573,28 @@ try {
         && (await unplugged.locator("#main").innerText().catch(() => "")).trim().length > 0,
     );
 
-    await unplugged.locator(".module-step").getByRole("button", { name: /Continue|Finish/ })
-      .click().catch(() => {});
+    /* Whichever way on is on the screen: the bar's quiet "Next step", or the
+       named "Next" where the step ends, which the bar stands aside for while
+       it is in view. A short screen, which a step drawn offline often is, has
+       its end in view from the start, so on that screen the bar carries none. */
+    const wayOn = unplugged.locator("[data-module-next] button").first();
+    const pressIn = (await wayOn.isVisible().catch(() => false))
+      ? wayOn
+      : unplugged.locator(".module-step").getByRole("button", { name: /Next step|Finish/ });
+    await pressIn.click().catch(() => {});
     await unplugged.waitForTimeout(4_000);
     const left = await unplugged.evaluate(() => ({
       bar: !!document.querySelector(".module-step"),
       main: (document.querySelector("#main")?.textContent || "").trim().length,
-      live: [...document.querySelectorAll(".module-step button")]
-        .some((b) => /Continue|Finish/.test(b.textContent || "") && !b.disabled),
+      live: [...document.querySelectorAll(".module-step button, [data-module-next] button")]
+        .some((b) => /Next|Finish/.test(b.textContent || "") && !b.disabled
+          && b.getBoundingClientRect().height > 0),
     }));
     check("and pressing on with it gone leaves the room standing", left.bar && left.main > 0, JSON.stringify(left));
     check("with the way on still pressable", left.live, JSON.stringify(left));
     check(
       "and says the step was not ticked",
-      /didn.t reach us|did not reach the server/i.test(await unplugged.locator(".module-step").innerText().catch(() => "")),
+      /didn.t reach us|did not reach the server/i.test(await unplugged.locator("body").innerText().catch(() => "")),
     );
   } finally {
     await dark.setOffline(false);

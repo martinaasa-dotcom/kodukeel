@@ -56,6 +56,38 @@ describe("claimIndex", () => {
     const claims = claimIndex([aeg, ajama]);
     expect(claims.get("ajas")).toEqual(new Set(["aeg", "ajama"]));
   });
+
+  /*
+    A POSTPOSITION IS A HEADWORD WITH NO FORMS, so it claimed its own spelling
+    and nothing else: `laua pealt` and `minu kõrvale` were lent to `pea` and
+    `kõrv` as the ablative of a head and the allative of an ear.
+  */
+  it("claims a postposition's own headword and the spellings its endings make", () => {
+    const pea = entry({
+      lemma: "pea", pos: "NOUN",
+      forms: [{ formType: "NOM_SG", value: "pea" }, { formType: "GEN_SG", value: "pea" }, { formType: "PART_SG", value: "pead" }],
+    });
+    const claims = claimIndex([pea, entry({ lemma: "peal", pos: "ADVERB" }), entry({ lemma: "juures", pos: "ADVERB" })]);
+    for (const spelling of ["peal", "peale", "pealt"]) {
+      expect(claims.get(spelling), spelling).toEqual(new Set(["pea", "peal"]));
+    }
+    expect(claims.get("juures")).toEqual(new Set(["juures"]));
+    expect(claims.get("juurest")).toEqual(new Set(["juures"]));
+  });
+
+  it("records the spelling a loan was made for, and not one two words claim", () => {
+    const pea = entry({
+      lemma: "pea", pos: "NOUN",
+      forms: [{ formType: "NOM_SG", value: "pea" }, { formType: "GEN_SG", value: "pea" }, { formType: "PART_SG", value: "pead" }],
+    });
+    const kasipidur = entry({
+      lemma: "käsipidur", pos: "NOUN",
+      forms: [{ formType: "NOM_SG", value: "käsipidur" }],
+      examples: [{ et: "Peas valitses tühjus, nagu käsipidur olnuks peal.", en: null, source: "EKILEX" }],
+    });
+    const lent = borrowSentences([pea, entry({ lemma: "peal", pos: "ADVERB" }), kasipidur]).get("pea") ?? [];
+    expect(lent.map((e) => e.via)).toEqual([["peas"]]);
+  });
 });
 
 describe("borrowSentences", () => {

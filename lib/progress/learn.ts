@@ -122,6 +122,12 @@ export interface LearnWord {
    * lexicographer: the one kind an A1 word is shown with.
    */
   sentence: { et: string; en: string | null; form: string | null; authored: boolean } | null;
+  /**
+   * The word's other spellings, for the rung that asks for the word from its
+   * meaning: `usaldada` typed for "to trust" is the right word in another
+   * form, which the marker says, rather than one letter out of `usaldama`.
+   */
+  kin: readonly string[];
   /** The word's own band, so `WordIntro` can decide whether to show that sentence at all. */
   cefr: string | null;
   /** Whether this is the very first word the learner has ever met, anywhere in the app. */
@@ -407,6 +413,7 @@ function sentenceAndGap(
         : explainForm(word, cloze.answer);
       return {
         sentence: { et: example.et, en: example.en ?? null, form: taught.form, authored },
+        kin: kinOf(hideable, lexeme.lemma),
         gap: {
           text: cloze.text, answer: cloze.answer, full: cloze.full,
           en, fullEn: example.en ?? null, hint: cue, explanation,
@@ -421,8 +428,15 @@ function sentenceAndGap(
     sentence: taught
       ? { et: taught.example.et, en: taught.example.en ?? null, form: taught.form, authored }
       : null,
+    kin: kinOf(hideable, lexeme.lemma),
     gap: null,
   };
+}
+
+/** Every spelling of the word but its own, for the typed rung's marker (`checkAnswer`'s `kin`). */
+function kinOf(hideable: ReadonlyMap<string, unknown>, lemma: string): string[] {
+  const own = lemma.trim().toLowerCase();
+  return [...hideable.keys()].filter((form) => form !== own);
 }
 
 /**
@@ -682,7 +696,7 @@ export async function learnBatch(
 
   const words = rows.map((row, index) => {
     const lexeme = row.lexeme!;
-    const { sentence, gap } = sentenceAndGap(lexeme, reach, readable);
+    const { sentence, gap, kin } = sentenceAndGap(lexeme, reach, readable);
     const equivalent = equivalentIn(lexeme, glossLanguage);
 
     /*
@@ -714,6 +728,7 @@ export async function learnBatch(
       equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
       isPhrase: isPhrase(lexeme.pos),
       sentence,
+      kin,
       cefr: lexeme.cefr,
       // Filled below, once for the whole batch.
       firstCardEver: false as boolean,

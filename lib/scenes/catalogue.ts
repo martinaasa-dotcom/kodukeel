@@ -1233,7 +1233,12 @@ const TICKET: SceneSpec = {
           */
           { kind: "case", lemma: "kaart", grammCase: "COMITATIVE" },
           { kind: "case", lemma: "raha", grammCase: "COMITATIVE" },
-          { kind: "lemma", oneOf: ["jah", "ei", "maksma"] },
+          /*
+            Not `maksma`: "card or cash?" is not answered by "I'm paying",
+            and any form of the verb met it, so `Kui palju see maksab?`,
+            asking what the ticket costs, was read as having paid.
+          */
+          { kind: "lemma", oneOf: ["jah", "ei"] },
         ],
       }],
       required: true,
@@ -1529,7 +1534,9 @@ const NEIGHBOR: SceneSpec = {
       means: { naine: "wife", mees: "husband" },
     },
   ],
-  curveballs: ["small-talk", "faster", "english", "interrupted", "misheard"],
+  /* Not "small-talk": the weather is a beat of this scene already, so the
+     curveball asked about it a second time on the same stairs. */
+  curveballs: ["faster", "english", "interrupted", "misheard"],
   beats: [
     {
       id: "greet",

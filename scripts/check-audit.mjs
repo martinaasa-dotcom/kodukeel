@@ -1,112 +1,104 @@
 #!/usr/bin/env node
 /**
- * The dependency audit over the whole tree, with every exception written down
- * beside its reason.
+ * `npm audit --audit-level=high` over the whole tree, dev included, with the
+ * one thing `npm audit` cannot do: an advisory nobody can fix yet, waived in
+ * writing.
  *
- * `npm audit --audit-level=high` cannot except one advisory, so an advisory
- * with no patched release anywhere fails every pull request until upstream
- * publishes one. That happened on 2026-10-03 with GHSA-vfj7-8cjw-p6xm in
- * `braces`, red on main and on every branch, about a package that reaches only
- * the lint tooling. The workflow's own rule is to fix the dependency or say in
- * writing why it is unreachable, never to lower the number, and this file is
- * the writing: an advisory listed here does not fail the run, and every other
- * high or critical one still does.
+ * The workflow's rule is "if either cannot pass, fix the dependency or say
+ * here, in writing, why it is unreachable. Do not lower a number." Saying it in
+ * a comment does not make a command pass, and a gate red on every pull request
+ * for an advisory with no patched release is the gate people learn to click
+ * past, which is the outcome that rule was written against. So the saying is
+ * here, as data, and it is held to three things:
  *
- * EACH ENTRY IS CHECKED BOTH WAYS, SO IT CANNOT BECOME A PARKING SPACE. It
- * fails when the advisory is no longer in the tree, because an exception for
- * nothing is a standing permission for whatever arrives under that id next.
- * And it fails when the registry holds a release outside the advisory's
- * vulnerable range, because then the dependency can be fixed rather than
- * excused. That second half asks the registry, so a run that cannot reach it
- * fails rather than passing on no answer.
+ * - **It names one advisory**, by id, never a package or a severity, so the
+ *   next advisory against the same package still fails.
+ * - **It says why it cannot be reached**, in a sentence somebody can check.
+ * - **It ends by itself.** A waiver records the latest release of the package
+ *   at the time it was written; the day a newer release is published this
+ *   fails and says to take the fix. And a waiver that matches nothing fails
+ *   too, so one that has done its job cannot stay behind as a standing
+ *   permission.
  *
- * WHAT THIS DOES NOT EXCUSE is the production tree. `npm audit --omit=dev
- * --audit-level=high` runs beside this in CI with no exceptions at all, so an
- * excepted advisory that ever reaches what ships fails there.
+ * Every other high or critical advisory fails exactly as the plain command did.
  */
 import { execFileSync } from "node:child_process";
 
-const EXCEPTED = new Map([
-  [
-    "GHSA-vfj7-8cjw-p6xm",
-    "braces <=3.0.3, with no patched release published. Reached only through the lint plugin " +
-      "(eslint-config-next > @next/eslint-plugin-next > fast-glob > micromatch > braces), " +
-      "which expands glob patterns written in this repository's own config. Nothing a learner " +
-      "sends reaches it, and it is not in the production tree, which the gate beside this one asserts.",
-  ],
-]);
+/** Advisories nobody can fix yet, each with why it cannot be reached. */
+const WAIVED = {
+  "GHSA-vfj7-8cjw-p6xm": {
+    package: "braces",
+    latest: "3.0.3",
+    why:
+      "Stack exhaustion on a deeply nested brace pattern, in every release of braces there is " +
+      "(<=3.0.3, and 3.0.3 is the latest). It is in the tree once, under eslint-config-next -> " +
+      "@next/eslint-plugin-next -> fast-glob -> micromatch, which globs the pages directories " +
+      "this repository's own lint config names. Nothing a user sends reaches it, it runs only " +
+      "while somebody lints, and it ships in no build.",
+  },
+};
 
-/** The versions outside a vulnerable range, as a range npm can ask for, or null where it cannot be read. */
-function outside(range) {
-  const atMost = /^<=\s*(\S+)$/.exec(range.trim());
-  if (atMost) return `>${atMost[1]}`;
-  const below = /^<\s*(\S+)$/.exec(range.trim());
-  if (below) return `>=${below[1]}`;
-  return null;
-}
+const BLOCKING = new Set(["high", "critical"]);
 
-function npm(args) {
+function audit() {
   try {
-    return execFileSync("npm", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    return JSON.parse(execFileSync("npm", ["audit", "--json"], { encoding: "utf8", maxBuffer: 64 << 20 }));
   } catch (error) {
     // npm audit exits non-zero whenever it finds anything, with the report on stdout.
-    if (args[0] === "audit" && error.stdout) return error.stdout;
+    if (error.stdout) return JSON.parse(error.stdout);
     throw error;
   }
 }
 
-const report = JSON.parse(npm(["audit", "--json"]));
-const blocking = [];
-const seen = new Map();
-for (const vuln of Object.values(report.vulnerabilities ?? {})) {
-  for (const via of vuln.via) {
-    if (typeof via !== "object") continue;
-    const id = via.url?.split("/").pop();
-    if (!id || !["high", "critical"].includes(via.severity)) continue;
-    seen.set(id, via);
-    if (!EXCEPTED.has(id)) blocking.push(`${via.severity}  ${via.name} ${via.range}  ${via.url}`);
+const report = audit();
+const vulnerabilities = report.vulnerabilities ?? {};
+
+/** Every advisory id a vulnerable package is there because of, through its chain. */
+function advisoriesOf(name, seen = new Set()) {
+  if (seen.has(name)) return new Set();
+  seen.add(name);
+  const out = new Set();
+  for (const via of vulnerabilities[name]?.via ?? []) {
+    if (typeof via === "string") for (const id of advisoriesOf(via, seen)) out.add(id);
+    else out.add(String(via.url ?? via.source).split("/").pop());
+  }
+  return out;
+}
+
+const failures = [];
+const used = new Set();
+
+for (const [name, vulnerability] of Object.entries(vulnerabilities)) {
+  if (!BLOCKING.has(vulnerability.severity)) continue;
+  const ids = [...advisoriesOf(name)];
+  const unwaived = ids.filter((id) => !(id in WAIVED));
+  ids.filter((id) => id in WAIVED).forEach((id) => used.add(id));
+  if (ids.length === 0 || unwaived.length > 0) {
+    failures.push(`${name} (${vulnerability.severity}): ${unwaived.join(", ") || "no advisory named"}`);
   }
 }
 
-for (const [id, why] of EXCEPTED) {
-  const via = seen.get(id);
-  if (!via) {
-    blocking.push(`${id} is excepted in scripts/check-audit.mjs and is no longer in the tree: take the entry out`);
+for (const [id, waiver] of Object.entries(WAIVED)) {
+  if (!used.has(id)) {
+    failures.push(`${id} is waived and no longer in the tree: take the waiver out of scripts/check-audit.mjs`);
     continue;
   }
-  const wanted = outside(via.range);
-  if (wanted === null) {
-    blocking.push(`${id} has a vulnerable range this check cannot read (${via.range}): decide by hand whether a fix exists`);
-    continue;
+  const latest = execFileSync("npm", ["view", waiver.package, "version"], { encoding: "utf8" }).trim();
+  if (latest !== waiver.latest) {
+    failures.push(
+      `${waiver.package} ${latest} is out, after ${waiver.latest} when ${id} was waived: `
+      + "if it fixes the advisory, take it and remove the waiver; if not, record the new release",
+    );
   }
-  let patched;
-  try {
-    patched = npm(["view", `${via.name}@${wanted}`, "version", "--json"]).trim();
-  } catch (error) {
-    // The registry answers "nothing published in that range" as a 404 naming
-    // the range, which is the answer this asks for. Anything else is no answer.
-    let said = null;
-    try {
-      said = JSON.parse(error.stdout ?? "").error ?? null;
-    } catch {
-      said = null;
-    }
-    if (said?.code === "E404" && /^No match found for version/.test(said.summary ?? "")) {
-      patched = "";
-    } else {
-      blocking.push(`${id}: could not ask the registry whether ${via.name}@${wanted} exists (${said?.summary ?? error.message.split("\n")[0]})`);
-      continue;
-    }
-  }
-  if (patched !== "" && patched !== "[]") {
-    blocking.push(`${id}: ${via.name}@${wanted} is published (${patched}), so this can be fixed rather than excepted`);
-    continue;
-  }
-  console.log(`excepted  ${id}: ${why}`);
 }
 
-if (blocking.length > 0) {
-  console.error(blocking.join("\n"));
+for (const [id, waiver] of Object.entries(WAIVED)) {
+  if (used.has(id)) console.log(`waived ${id} (${waiver.package}): ${waiver.why}`);
+}
+
+if (failures.length > 0) {
+  console.error(`\n${failures.length} advisory problem(s) at high or above:`);
+  for (const failure of failures) console.error(`  ${failure}`);
   process.exit(1);
 }
-console.log("No high or critical advisory outside the written exceptions.");
+console.log("\nNo unwaived advisory at high or above.");

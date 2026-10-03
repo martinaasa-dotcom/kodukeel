@@ -739,7 +739,12 @@ if ((await featured.count()) === 0) {
 } else {
   const inCard = page.locator("a").filter({ hasNotText: "Every mode" });
   const hrefs = await inCard.evaluateAll((els) => els.map((e) => e.getAttribute("href")));
-  const modes = ["/sonad", "/crossword", "/review/target", "/review/match", "/review/sprint"];
+  /* Both weeks, since which one Today leads with is the learner's level:
+     `FIRST_LEVEL_WEEK` until the course reaches the cases, `WEEK_GAMES` after. */
+  const modes = [
+    "/sonad", "/crossword", "/review/target", "/review/match", "/review/sprint", "/situations",
+    "/review/flashcards", "/review/letters", "/review/listening", "/review/speaking", "/review/pairs",
+  ];
   check("the game of the day links to a round this app has",
     modes.some((m) => hrefs.includes(m)));
   check("and says what is on tomorrow",
@@ -799,7 +804,7 @@ if ((await box.count()) === 0) {
   check("the picture is three characters and none of them is announced as an image",
     (await page.locator("p [aria-hidden='true']").first().innerText()).trim().split(/\s+/).length === 3);
   check("and a screen reader is told the same three things in English",
-    (await page.locator(".sr-only").filter({ hasText: /^A picture of/ }).count()) > 0);
+    (await page.locator(".sr-only").filter({ hasText: /^In the picture: / }).count()) > 0);
 
   // A sentence with none of the scene's words in it: the mark is certain and
   // the reveal names what was in the picture.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CASES } from "./cases";
-import { caseReading } from "./caseReading";
+import { caseReading, sentenceAsk } from "./caseReading";
 import type { CaseSubject } from "./caseQuestion";
 
 // The two shapes the table draws apart, out of the Institute's own codes: a
@@ -121,5 +121,21 @@ describe("caseReading", () => {
       caseReading(spec.key, "man", person),
     ]);
     for (const reading of readings) expect(reading ?? "").not.toMatch(/[õäöüšž]/i);
+  });
+});
+
+describe("sentenceAsk", () => {
+  const thing = { lemma: "x", semanticTypes: "ese", nomSg: "x" };
+  // For a sentence in the osastav, where "some of it" was a portion of a son.
+  it("asks for the object of looking for, never a portion", () => {
+    expect(sentenceAsk("PARTITIVE", "son", "NOUN", thing)).toBe("looking for the son");
+    expect(sentenceAsk("PARTITIVE", "bread (dark)", "NOUN", thing)).toBe("looking for the bread");
+    expect(sentenceAsk("PARTITIVE", "twilight before rising of the sun", "NOUN", thing)).toBeNull();
+  });
+
+  it("asks an adjective as one agreeing with a noun the learner picks", () => {
+    expect(sentenceAsk("PARTITIVE", "pleasant", "ADJECTIVE", thing)).toBe("looking for something pleasant");
+    expect(sentenceAsk("GENITIVE", "pleasant", "ADJECTIVE", thing)).toBe("of the pleasant one");
+    expect(sentenceAsk("INESSIVE", "pleasant", "ADJECTIVE", thing)).toBe("in the pleasant one");
   });
 });

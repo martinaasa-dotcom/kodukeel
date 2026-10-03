@@ -1,6 +1,6 @@
 import { PARTS, plainPhrase } from "@/lib/copy/values";
 import { caseByKey } from "@/lib/estonian/cases";
-import { caseFits, caseQuestionFor, localCasesFor } from "@/lib/estonian/caseQuestion";
+import { caseFits, caseFitsInSentence, caseQuestionFor, sentenceLocalCases } from "@/lib/estonian/caseQuestion";
 import { BLANK, buildCloze, mentions, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { readableGovernment } from "@/lib/estonian/government";
 import { grammarTerm } from "@/lib/estonian/terms";
@@ -9,7 +9,7 @@ import { ekilexCodeOf, numberFromMorphCode } from "@/lib/estonian/morph";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { caseIndex, readCase } from "@/lib/estonian/whichCase";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
-import { parseExamples, usableExamples, type Example, type Rank } from "@/lib/dict/examples";
+import { lentFor, parseExamples, usableExamples, type Example, type Rank } from "@/lib/dict/examples";
 import { CONJUGATION_SLOTS, type ConjugationSlot } from "@/lib/srs/slots";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -421,7 +421,13 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
         const stems = stemsFrom(lex.forms);
         const index = caseIndex(stems);
 
-        for (const key of [...localCasesFor(subject), ...DRILL_CASES]) {
+        /*
+          AND A THING TAKES WHICHEVER TRIO ITS SENTENCE USES. `laud` is
+          somewhere you put things as often as somewhere anything is inside,
+          and a sentence a lexicographer wrote has already said which, so the
+          outside trio is tried too. See `sentenceLocalCases`.
+        */
+        for (const key of [...sentenceLocalCases(subject, lex.pos), ...DRILL_CASES]) {
           /*
             AND NOTHING AT ALL FOR A WORD WITH NO SINGULAR. Nineteen entries
             are headed by a plural because that is the only number the word
@@ -430,7 +436,7 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
             refuses every case for those, the comitative included, since
             `jõuludega` is how you say it and `jõuluga` is a form of `jõul`.
           */
-          if (!caseFits(key, subject)) continue;
+          if (!caseFitsInSentence(key, subject, lex.pos)) continue;
           /*
             THE ANSWER SIDE IS WHAT THE DICTIONARY ATTESTS.
 
@@ -455,7 +461,8 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
 
           for (const example of sentences) {
             const cloze = buildCloze(example.et, answer.accepted);
-            if (!cloze) continue;
+            // A loan is gapped only on the spelling it was lent for (`Example.via`).
+            if (!cloze || !lentFor(example, cloze.answer)) continue;
             // The sentence has to be about this case and no other.
             const verdict = readCase(index, cloze.answer);
             if (verdict.kind !== "one" || verdict.key !== key) continue;
@@ -600,7 +607,7 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
           if (!forms) continue;
           for (const example of sentences) {
             const cloze = buildCloze(example.et, forms.plain);
-            if (!cloze) continue;
+            if (!cloze || !lentFor(example, cloze.answer)) continue;
             const key = cloze.answer.toLocaleLowerCase("et");
             const before = cloze.full.slice(0, cloze.index);
             const ei = /(^|[^\p{L}])ei\s+$/iu.exec(before);

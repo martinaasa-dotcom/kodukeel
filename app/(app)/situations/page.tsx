@@ -88,6 +88,20 @@ export default async function SituationsPage() {
       lead="Practise real conversations: someone wants something from you, and you sort it out in Estonian."
     >
       <Stack>
+        {/*
+          SAID TO A BEGINNER, BECAUSE THE COURSE HAS A VIEW. No evening of A1
+          deals a conversation: every scene needs the words for asking and
+          offering, which A2 teaches first. A learner on their second evening
+          who opens this page was being offered fifteen of them with nothing
+          to say they are early, and finds out by being stuck at a counter.
+          Nothing is locked; the run is pitched at their level either way.
+        */}
+        {learnerLevel === "A1" && (
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+            Your course brings these in at A2, once you have the words for asking. Try one now if you like:
+            the other side keeps it simple.
+          </p>
+        )}
         {tiles.length === 0 ? (
           /*
             The empty state is a door rather than an explanation, and its body

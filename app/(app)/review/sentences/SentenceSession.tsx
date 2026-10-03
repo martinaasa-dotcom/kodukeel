@@ -257,7 +257,7 @@ export function SentenceSession(
               level check. The sentence in front of it was this app telling
               somebody who has just finished why the round was worth doing. */}
         </div>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={attempts} label="Built" tone="accent" />
           <StatTile value={`${accuracy}%`} label="First time" tone={accuracy >= 70 ? "sky" : "butter"} />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
@@ -453,7 +453,8 @@ export function SentenceSession(
       )}
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{correct} of {attempts} first time</span>
+        {/* Nothing on the first sentence: "0 of 0" is a tally of nothing. */}
+        {attempts > 0 && <span>{correct} of {attempts} first time</span>}
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>

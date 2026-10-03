@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { caseFits } from "@/lib/estonian/caseQuestion";
+import { caseReading } from "@/lib/estonian/caseReading";
 import { parseExamples, sentenceContaining } from "@/lib/dict/examples";
 import { sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
@@ -63,6 +64,13 @@ export interface CaseExample {
    * gap-fill card: exactly one case is spelled that way, or nothing is claimed.
    */
   unmistakable: boolean;
+  /**
+   * The word in this case in plain English, "in the cup", or null where no
+   * frame fits honestly (`lib/estonian/caseReading.ts`). The page's own
+   * questions ask by it, because what an ending means is what the page is
+   * for and the case's name is the one thing on it a learner has to look up.
+   */
+  reading: string | null;
 }
 
 const PRINCIPAL_FORM_TYPE: Partial<Record<CaseKey, string>> = {
@@ -297,6 +305,11 @@ function toExample(
     sentence: toSentence(found),
     sentenceForm: shown,
     unmistakable: verdict?.kind === "one" && verdict.key === key,
+    reading: caseReading(key, lex.translation, {
+      lemma: lex.lemma,
+      semanticTypes: lex.semanticTypes,
+      nomSg: lex.forms.find((f) => f.formType === "NOM_SG")?.value ?? null,
+    }),
   };
 }
 

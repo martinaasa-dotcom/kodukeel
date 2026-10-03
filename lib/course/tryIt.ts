@@ -43,6 +43,11 @@ export interface TryItCaseWord {
   readonly genitive: string | null;
   /** The word in the case the page is about. */
   readonly form: string;
+  /**
+   * That form in plain English, "in the cup", where a frame fits. With one the
+   * question asks for the meaning and the case's name moves to the answer.
+   */
+  readonly reading?: string | null;
 }
 
 export interface TryItAsk {
@@ -230,8 +235,17 @@ export function caseAsks(
     const stem = word.genitive && ending && word.form.endsWith(ending)
       ? ` It's ${word.genitive} with ${ending} on the end.`
       : "";
+    /*
+      BY MEANING WHERE IT CAN BE. "Which one is vanus, age, in the seesütlev?"
+      asks a learner to recognise a word and a name, and the name is the one
+      thing on the page they have to look up; "Which one says in the cup?"
+      asks what the ending does, which is what the page was for, and the four
+      options are still four words in that case, so the stem still decides.
+    */
     asks.push({
-      prompt: `Which one is ${word.lemma}, ${word.translation}, in the ${caseNameEt}?`,
+      prompt: word.reading
+        ? `${word.lemma} means ${word.translation}. Which one says "${word.reading}"?`
+        : `Which one is ${word.lemma}, ${word.translation}, in the ${caseNameEt}?`,
       about: word.lemma,
       options,
       answer: word.form,

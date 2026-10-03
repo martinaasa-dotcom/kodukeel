@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
-import { Timer, Trophy, X } from "lucide-react";
+import { Timer, Trophy } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { recordSprintScore } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -13,12 +13,12 @@ import { StarWord } from "@/components/StarWord";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
-import { counted } from "@/lib/copy/values";
-import { BLANK, filledSentence } from "@/lib/estonian/cloze";
+import { counted, wordName } from "@/lib/copy/values";
+import { BLANK, filledSentence, mentions } from "@/lib/estonian/cloze";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapMeaning } from "@/lib/copy/gapMeaning";
-import { WayOut } from "@/components/round/RoundExit";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { useModuleFocus } from "@/components/course/moduleFocus";
@@ -35,6 +35,13 @@ export interface SprintCard {
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
   cardType: string;
+  /**
+   * Inside the module, the case a word card is asked in instead, by meaning:
+   * `Say "in the house"` under the word, and the case as the slot it grades.
+   * Null on an ordinary card. See `lib/questions/caseAsk.ts`.
+   */
+  ask: string | null;
+  slot: string | null;
   /** What this card's sentence means, where the dictionary already holds it. */
   sentenceEn: string | null;
   /**
@@ -120,7 +127,7 @@ export function SprintSession({
     if (!card || busy || phase !== "running") return;
     setBusy(true);
     const duration = Date.now() - shownAt.current;
-    await grade(card.id, rating, duration);
+    await grade(card.id, rating, duration, card.slot ?? undefined);
     setAttempted((a) => a + 1);
     if (rating === 3) setCorrect((c) => c + 1);
     setIndex((i) => i + 1);
@@ -163,7 +170,7 @@ export function SprintSession({
         lead={`You've got ${roundLength(seconds)}. Go as fast as you can.`}
         chips={<>
           <RoundChip>{counted(cards.length, "card")} loaded</RoundChip>
-          <RoundChip icon={<Trophy size={14} aria-hidden />}>Personal best {best}</RoundChip>
+          {best > 0 && <RoundChip icon={<Trophy size={14} aria-hidden />}>Personal best {best}</RoundChip>}
         </>}
         actions={<Button variant="primary" size="lg" className="px-10" onClick={start}>Start the clock</Button>}
         footnote={<>
@@ -206,12 +213,12 @@ export function SprintSession({
               Time&rsquo;s up!
             </h1>
             <p className="mt-2 flex items-center justify-center gap-2 text-base" style={{ color: "var(--ink-2)" }}>
-              {isNewBest && <Trophy size={17} aria-hidden style={{ color: "var(--butter-ink)" }} />}
-              {isNewBest ? "That's a new personal best." : `Your best so far is ${best}.`}
+              {isNewBest && best > 0 && <Trophy size={17} aria-hidden style={{ color: "var(--butter-ink)" }} />}
+              {best === 0 ? "Your first sprint, so that's the score to beat." : isNewBest ? "That's a new personal best." : `Your best so far is ${best}.`}
             </p>
           </div>
         </Lettered>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
           <StatTile value={correct} label="Score" tone="accent" />
           <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "sky" : "butter"} />
           <StatTile value={attempted} label="Cards seen" tone="sky" />
@@ -233,14 +240,7 @@ export function SprintSession({
           and the round itself did not. */}
       <h1 className="sr-only">Case sprint</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link
-          href="/"
-          aria-label="End sprint"
-          className="press flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
-          style={{ color: "var(--ink-3)" }}
-        >
-          <X size={18} aria-hidden />
-        </Link>
+        <EndSession label="End sprint" />
         <div
           className="tnum flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold"
           style={{ background: secondsLeft <= 10 ? "var(--blush-soft)" : "var(--raised)", color: secondsLeft <= 10 ? "var(--blush-ink)" : "var(--ink-2)" }}
@@ -260,7 +260,11 @@ export function SprintSession({
           {/* The corner of the card, which is where somebody looks for this the
               moment a word turns out to be worth keeping. */}
           {card.lexemeId && (
-            <StarWord lexemeId={card.lexemeId} starred={card.starred} label={card.lemma ?? card.front} />
+            <StarWord
+              lexemeId={card.lexemeId}
+              starred={card.starred}
+              label={wordName(card.lemma ?? card.front, revealed || !card.lemma || mentions(card.front, card.lemma))}
+            />
           )}
         </div>
 
@@ -290,6 +294,10 @@ export function SprintSession({
             cards and no calls. What is left is the context, and a sprint is
             the round with the least time to work it out from nothing.
           */}
+          {card.ask && (
+            <p className="text-lg" style={{ color: "var(--ink-2)" }}>{card.ask}</p>
+          )}
+
           {!revealed && meaning && <GapMeaning meaning={meaning} className="text-sm leading-snug" />}
 
           {revealed && (

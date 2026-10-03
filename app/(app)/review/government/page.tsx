@@ -15,7 +15,7 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import type { CaseKey } from "@/lib/estonian/types";
 import { shuffle } from "@/lib/random/shuffle";
 import { resolveProvider } from "@/lib/tutor/provider";
-import { moduleScopeFrom } from "@/lib/course/scope";
+import { byRecency, moduleScopeFrom, recentLemmas } from "@/lib/course/scope";
 
 export const metadata = { title: "Verb government" };
 
@@ -87,7 +87,15 @@ export default async function GovernmentPage({
         pos: "VERB", government: { not: null },
         ...(scope ? { lemma: { in: [...scope.lemmas] } } : { cefr: { in: [...bandsAround(level)] } }),
       },
-      ...verbs,
+      select: verbs.select,
+      orderBy: verbs.orderBy,
+      /*
+        Uncut inside the module, where the taught list is the bound: easiest
+        first and two hundred deep, a C1 evening's round was A1 and A2 verbs,
+        because the course had taught more than two hundred governed verbs by
+        then and the ones it had just taught were the ones cut.
+      */
+      ...(scope ? {} : { take: verbs.take }),
     }),
     prisma.card.findMany({
       where: { ownerId, lexemeId: { not: null } },
@@ -155,10 +163,22 @@ export default async function GovernmentPage({
     and it is not what the line says, and the reader has to work out that the
     ranges are disjoint before they can believe it.
   */
-  const ordered = [
-    ...shuffle(parsed.filter((p) => mine.has(p.v.id))),
-    ...shuffle(parsed.filter((p) => !mine.has(p.v.id))),
-  ].slice(0, ROUND);
+  /*
+    Inside the module it leads with the verbs taught most recently, as every
+    other module round does (`recentLemmas`): `lähtuma`, `tuginema` and
+    `piirduma` on the C1 evening that follows them, and the older verbs behind.
+  */
+  const recent = scope ? new Set(recentLemmas(scope)) : null;
+  const ordered = (recent
+    ? [
+        ...byRecency(scope!, parsed.filter((p) => recent.has(p.v.lemma)), (p) => p.v.lemma),
+        ...shuffle(parsed.filter((p) => !recent.has(p.v.lemma))),
+      ]
+    : [
+        ...shuffle(parsed.filter((p) => mine.has(p.v.id))),
+        ...shuffle(parsed.filter((p) => !mine.has(p.v.id))),
+      ]
+  ).slice(0, ROUND);
 
   /*
     A question is dropped rather than padded when there is no honest set of

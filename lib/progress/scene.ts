@@ -1359,6 +1359,140 @@ export function replay(
     const marker = { ...context.marker, data, dataLemmas, previous: heardNow };
 
     /*
+      EVERYTHING ELSE ONE TURN ANSWERED, after the beat it was aimed at: the
+      beats it meets in order from there, and a beat further along or one the
+      other side gave up on, credited where it stands. Both paths reach it, the
+      ordinary one and the one through a curveball, which is the half that was
+      missing: told the price had changed, a learner wrote `Ma tahaksin osta
+      ühe bussipileti haiglasse`, the ticket was met behind the curveball, the
+      turn stopped there, and the clerk asked where they were going three times
+      running. `spent` is the words this turn has already used.
+    */
+    const further = (spent: Set<string>, heard: string, answering = true) => {
+      while (response === "answer" || response === "moveOn") {
+        state = raiseHurdle(context.scene, state, drawn);
+        if (state.hurdle || response === "moveOn") break;
+        const next = currentBeat(context.scene, state);
+        if (!next) break;
+        /*
+          AN OFFER IS MADE BY THE OTHER SIDE ON ITS OWN BEAT, SO THE CASCADE STOPS
+          IN FRONT OF IT, for the reason the look-ahead below passes over one. The
+          guard was written there and not here: answering "since when?" with
+          `neljapäevast. Kas homme sobib?` walked on into the offer beat, the
+          `sobib` accepted an appointment the receptionist had not proposed, and
+          the next line read a time back to somebody who had never been offered
+          one. The offer is said, and the learner's yes is read against it then.
+        */
+        if (next.move === "offer" && !offerAlreadyMade(next, draw, heard)) break;
+        // Nor across a break in time: the meal has to be eaten before the bill (the look-ahead's rule).
+        if (next.meanwhile) break;
+        const read = readTurn(said, next, marker);
+        /*
+          A judge may have said this same turn met the next beat too, in a word
+          the dictionary could not read (`alsoDone`). Then the beat is conceded
+          whole, and the two-words rule stands down, since a concession carries
+          no word to weigh.
+        */
+        const vouchedAhead = sent.alsoDone?.includes(next.id) && read.reading !== "complete";
+        const more = vouchedAhead ? concede(read, read.missing) : read;
+        if (more.reading !== "complete") break;
+        if (!vouchedAhead && !addsEvidence(more, spent)) break;
+        /*
+          AND A SECOND WORD FOR THE SAME THING ANSWERS THE QUESTION THAT WAS
+          ASKED, NOT ONE NOBODY HAS ASKED YET. A synonym meets a requirement
+          because the learner was plainly answering it (`lib/dict/synonyms.ts`),
+          and read against a beat further on that is a guess on English glosses:
+          `aeg` and `kord` are both "time", so a tenant asking `Mis aeg siis
+          sobib?` was credited with saying which floor, and the landlord never
+          asked.
+        */
+        if (!vouchedAhead && more.substituted.length > 0) break;
+        for (const word of more.satisfiedBy) spent.add(word);
+        ({ state, response } = advance(context.scene, state, more, said, false, heard));
+      }
+      /*
+        AND A BEAT FURTHER DOWN THE SCENE IS CREDITED WHERE IT STANDS.
+
+        The cascade above walks forward while each beat in turn is met, and stops
+        at the first that is not, which is a person who can only hear things in
+        order. Told "where are you going", somebody says `poodi, piima ostma`:
+        that answers the beat in front of them and the one two along, with the
+        beat between them still to come. The friend who heard it does not ask
+        what they are buying later on.
+
+        The pointer does not move, so the beats in between are still asked and
+        the scene keeps its shape; `moveOn` walks past a beat already answered.
+        The same two guards as the cascade, because they are what stop this
+        crediting a beat on a coincidence: the turn has to meet it outright, and
+        it has to meet it with a word this turn has not already spent. The
+        farewell is left alone, since saying goodbye mid-scene has a rule of its
+        own that moves the pointer rather than crediting from a distance.
+      */
+      /*
+        AND A BEAT THE OTHER SIDE HAD ALREADY GIVEN UP ON IS CREDITED TOO, WHICH
+        IS THE SAME RULE POINTED THE ONE WAY IT DID NOT REACH.
+
+        This walk started at `state.beat + 1`, so it could only ever see what was
+        still to come. A beat that ran out of patience sits *behind* the pointer
+        and is deliberately not `done`, and nothing read a turn against it again:
+        asked which floor they live on, a learner who was refused twice watched
+        the neighbor give up and ask where they were from, typed `3`, and was
+        told `Vabandust!` The digit was the right answer to the question before
+        and the app had stopped listening for it fifteen seconds earlier. They
+        reported the module as having no clue what they were saying.
+
+        An objective the learner did not meet is still one the debrief has to be
+        able to say they did not meet, and that is untouched: what changes is
+        that answering late is answering. The three guards are the forward
+        walk's own and are what stop this crediting a coincidence, and the
+        pointer still does not move, so the beat in front is still the beat in
+        front.
+      */
+      if (!state.hurdle && !isOver(context.scene, state) && answering) {
+        /*
+          AND NOTHING IS CREDITED ACROSS A BREAK IN TIME NOT YET REACHED. A beat
+          that opens on "you've eaten, the waiter comes back" is about after the
+          meal: a diner asking what the soup cost met the bill beat from two
+          beats away, the meal was skipped and the waiter asked how the food had
+          been. Every beat from the first unreached break on waits for it.
+        */
+        const fence = context.scene.beats.findIndex((b, at) => at > state.beat && Boolean(b.meanwhile));
+        for (let at = 0; at < context.scene.beats.length; at += 1) {
+          if (at === state.beat) continue;
+          if (fence >= 0 && at >= fence) break;
+          const other = context.scene.beats[at]!;
+          if (other.move === "close" || state.done.includes(other.id)) continue;
+          /*
+            AND AN OFFER NOBODY HAS MADE YET CANNOT BE TAKEN. An offer beat is met
+            by a yes, "suits me", or the figure said back, and every one of those
+            is a word a learner says for other reasons before the offer comes:
+            `ma olen hea projektiga` two beats before the wage was named carried
+            `hea`, the look-ahead credited the offer from a distance, and the
+            interviewer never named the figure at all. Behind the pointer the
+            offer has been made, and taking it late is taking it.
+          */
+          if (other.move === "offer" && at > state.beat && !offerAlreadyMade(other, draw, heard)) continue;
+          /*
+            AND NOTHING IS TAKEN THAT THE OTHER SIDE HAS NOT YET SAID. A beat whose
+            move is to explain, refuse or correct carries its line to the learner,
+            and its requirement is the learner's reply to it: at the pharmacy a
+            learner who mentioned the price in their first turn met "tell them
+            you'll take it and pay" two beats early, so the pharmacist never said
+            how to take the medicine, and the learner who then asked how often was
+            told `Nägemist!`. The offer guard above is this rule for one move.
+          */
+          if (SAYS_FIRST.has(other.move) && at > state.beat) continue;
+          const also = readTurn(said, other, marker);
+          // Not through a second word for the same thing, for the cascade's reason.
+          if (also.reading !== "complete" || !addsEvidence(also, spent) || also.substituted.length > 0) continue;
+          for (const word of also.satisfiedBy) spent.add(word);
+          state = creditAhead(state, also, other, said, heard);
+          elsewhere += 1;
+        }
+      }
+    };
+
+    /*
       A CURVEBALL STANDS IN FRONT OF THE BEAT. While one is up, the turn is
       read against what the curveball asks for and the beat waits; the turn
       that clears it is then read against the beat as well, because "Mul ei
@@ -1380,7 +1514,7 @@ export function replay(
         Met in the beat's own words, never through a second word for the same
         thing: `Mis aeg siis sobib?` asked after "that time has gone" met the
         floor beat behind it on `aeg`, a "time" like `kord`, and the landlord
-        never asked which floor (the cascade's rule below, one path up).
+        never asked which floor (the cascade's rule, in `further` above).
       */
       const behind = beatToo.reading === "complete" && beatToo.substituted.length === 0
         // And an offer the other side has not made yet is not taken behind a curveball either (the cascade's rule).
@@ -1399,7 +1533,8 @@ export function replay(
       */
       if (!ignored && !addsEvidence(beatToo, new Set(evidence.satisfiedBy))) continue;
       ({ state, response } = advance(context.scene, state, beatToo, said, Boolean(sent.helped), heardNow));
-      state = raiseHurdle(context.scene, state, drawn);
+      if (response !== "answer" && response !== "moveOn") state = raiseHurdle(context.scene, state, drawn);
+      further(new Set([...(ignored ? [] : evidence.satisfiedBy), ...beatToo.satisfiedBy]), heardNow);
       continue;
     }
 
@@ -1470,86 +1605,6 @@ export function replay(
       already spent travel down the cascade, so one word cannot buy two
       beats either.
     */
-    const spent = new Set(evidence.satisfiedBy);
-    while (response === "answer" || response === "moveOn") {
-      state = raiseHurdle(context.scene, state, drawn);
-      if (state.hurdle || response === "moveOn") break;
-      const next = currentBeat(context.scene, state);
-      if (!next) break;
-      /*
-        AN OFFER IS MADE BY THE OTHER SIDE ON ITS OWN BEAT, SO THE CASCADE STOPS
-        IN FRONT OF IT, for the reason the look-ahead below passes over one. The
-        guard was written there and not here: answering "since when?" with
-        `neljapäevast. Kas homme sobib?` walked on into the offer beat, the
-        `sobib` accepted an appointment the receptionist had not proposed, and
-        the next line read a time back to somebody who had never been offered
-        one. The offer is said, and the learner's yes is read against it then.
-      */
-      if (next.move === "offer" && !offerAlreadyMade(next, draw, heard)) break;
-      // Nor across a break in time: the meal has to be eaten before the bill (the look-ahead's rule).
-      if (next.meanwhile) break;
-      const read = readTurn(said, next, marker);
-      /*
-        A judge may have said this same turn met the next beat too, in a word
-        the dictionary could not read (`alsoDone`). Then the beat is conceded
-        whole, and the two-words rule stands down, since a concession carries
-        no word to weigh.
-      */
-      const vouchedAhead = sent.alsoDone?.includes(next.id) && read.reading !== "complete";
-      const more = vouchedAhead ? concede(read, read.missing) : read;
-      if (more.reading !== "complete") break;
-      if (!vouchedAhead && !addsEvidence(more, spent)) break;
-      /*
-        AND A SECOND WORD FOR THE SAME THING ANSWERS THE QUESTION THAT WAS
-        ASKED, NOT ONE NOBODY HAS ASKED YET. A synonym meets a requirement
-        because the learner was plainly answering it (`lib/dict/synonyms.ts`),
-        and read against a beat further on that is a guess on English glosses:
-        `aeg` and `kord` are both "time", so a tenant asking `Mis aeg siis
-        sobib?` was credited with saying which floor, and the landlord never
-        asked.
-      */
-      if (!vouchedAhead && more.substituted.length > 0) break;
-      for (const word of more.satisfiedBy) spent.add(word);
-      ({ state, response } = advance(context.scene, state, more, said, false, heard));
-    }
-    /*
-      AND A BEAT FURTHER DOWN THE SCENE IS CREDITED WHERE IT STANDS.
-
-      The cascade above walks forward while each beat in turn is met, and stops
-      at the first that is not, which is a person who can only hear things in
-      order. Told "where are you going", somebody says `poodi, piima ostma`:
-      that answers the beat in front of them and the one two along, with the
-      beat between them still to come. The friend who heard it does not ask
-      what they are buying later on.
-
-      The pointer does not move, so the beats in between are still asked and
-      the scene keeps its shape; `moveOn` walks past a beat already answered.
-      The same two guards as the cascade, because they are what stop this
-      crediting a beat on a coincidence: the turn has to meet it outright, and
-      it has to meet it with a word this turn has not already spent. The
-      farewell is left alone, since saying goodbye mid-scene has a rule of its
-      own that moves the pointer rather than crediting from a distance.
-    */
-    /*
-      AND A BEAT THE OTHER SIDE HAD ALREADY GIVEN UP ON IS CREDITED TOO, WHICH
-      IS THE SAME RULE POINTED THE ONE WAY IT DID NOT REACH.
-
-      This walk started at `state.beat + 1`, so it could only ever see what was
-      still to come. A beat that ran out of patience sits *behind* the pointer
-      and is deliberately not `done`, and nothing read a turn against it again:
-      asked which floor they live on, a learner who was refused twice watched
-      the neighbor give up and ask where they were from, typed `3`, and was
-      told `Vabandust!` The digit was the right answer to the question before
-      and the app had stopped listening for it fifteen seconds earlier. They
-      reported the module as having no clue what they were saying.
-
-      An objective the learner did not meet is still one the debrief has to be
-      able to say they did not meet, and that is untouched: what changes is
-      that answering late is answering. The three guards are the forward
-      walk's own and are what stop this crediting a coincidence, and the
-      pointer still does not move, so the beat in front is still the beat in
-      front.
-    */
     /*
       AND NOT FROM A TURN THAT SAID IT WAS NOT FOLLOWING. `Ma ei tea.` to a
       waiter's hello was read against "how many of you?" further on, `ma` is
@@ -1557,49 +1612,7 @@ export function replay(
       and offered the lost learner `Üks?`. A turn read as lost, as English,
       as an echo or as nothing anybody could read answered nothing else.
     */
-    const answeringAnything = !["lost", "english", "echo", "unrecognised"].includes(evidence.reading);
-    if (!state.hurdle && !isOver(context.scene, state) && answeringAnything) {
-      /*
-        AND NOTHING IS CREDITED ACROSS A BREAK IN TIME NOT YET REACHED. A beat
-        that opens on "you've eaten, the waiter comes back" is about after the
-        meal: a diner asking what the soup cost met the bill beat from two
-        beats away, the meal was skipped and the waiter asked how the food had
-        been. Every beat from the first unreached break on waits for it.
-      */
-      const fence = context.scene.beats.findIndex((b, at) => at > state.beat && Boolean(b.meanwhile));
-      for (let at = 0; at < context.scene.beats.length; at += 1) {
-        if (at === state.beat) continue;
-        if (fence >= 0 && at >= fence) break;
-        const other = context.scene.beats[at]!;
-        if (other.move === "close" || state.done.includes(other.id)) continue;
-        /*
-          AND AN OFFER NOBODY HAS MADE YET CANNOT BE TAKEN. An offer beat is met
-          by a yes, "suits me", or the figure said back, and every one of those
-          is a word a learner says for other reasons before the offer comes:
-          `ma olen hea projektiga` two beats before the wage was named carried
-          `hea`, the look-ahead credited the offer from a distance, and the
-          interviewer never named the figure at all. Behind the pointer the
-          offer has been made, and taking it late is taking it.
-        */
-        if (other.move === "offer" && at > state.beat && !offerAlreadyMade(other, draw, heard)) continue;
-        /*
-          AND NOTHING IS TAKEN THAT THE OTHER SIDE HAS NOT YET SAID. A beat whose
-          move is to explain, refuse or correct carries its line to the learner,
-          and its requirement is the learner's reply to it: at the pharmacy a
-          learner who mentioned the price in their first turn met "tell them
-          you'll take it and pay" two beats early, so the pharmacist never said
-          how to take the medicine, and the learner who then asked how often was
-          told `Nägemist!`. The offer guard above is this rule for one move.
-        */
-        if (SAYS_FIRST.has(other.move) && at > state.beat) continue;
-        const also = readTurn(said, other, marker);
-        // Not through a second word for the same thing, for the cascade's reason.
-        if (also.reading !== "complete" || !addsEvidence(also, spent) || also.substituted.length > 0) continue;
-        for (const word of also.satisfiedBy) spent.add(word);
-        state = creditAhead(state, also, other, said, heard);
-        elsewhere += 1;
-      }
-    }
+    further(new Set(evidence.satisfiedBy), heard, !["lost", "english", "echo", "unrecognised"].includes(evidence.reading));
     previous = heard;
   }
   return { state, response, elsewhere };

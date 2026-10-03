@@ -82,7 +82,7 @@ import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
-  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, programmeById,
+  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, levelHeldOnHandOff, programmeById,
 } from "@/lib/course";
 import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
@@ -4046,7 +4046,23 @@ export async function setProgramme(value: string) {
   if (wanted !== "off" && wanted !== "" && !programmeById(wanted)) {
     return { ok: false as const, error: "We couldn't find that course." };
   }
-  await writeSetting(ownerId, SETTING_KEYS.programme, wanted || DEFAULT_PROGRAMME.id);
+  /*
+    AND WALKING OUT OF A LEVEL IS HOLDING IT. Finishing a part wrote the next
+    part and never the level, so a learner who walked the course from the
+    first evening was still a beginner to the pace a recording plays at and
+    the band a conversation opens at, all the way to C1. Read before the
+    write, since what is being left is the part stored now; one step up and
+    never down (`levelHeldOnHandOff`).
+  */
+  const [from, standing] = await Promise.all([programmeFor(ownerId), courseStandingFor(ownerId)]);
+  const to = programmeById(wanted);
+  const held = from && to
+    ? levelHeldOnHandOff(from.level, to.level, standing?.held ?? null)
+    : null;
+  await Promise.all([
+    writeSetting(ownerId, SETTING_KEYS.programme, wanted || DEFAULT_PROGRAMME.id),
+    held ? recordCourseLevel(ownerId, held) : Promise.resolve(),
+  ]);
   revalidatePath("/course");
   revalidatePath("/");
   revalidatePath("/settings");

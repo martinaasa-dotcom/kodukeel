@@ -12,7 +12,6 @@ import { hintLadder } from "@/lib/questions/hints";
 import { caseByKey } from "@/lib/estonian/cases";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
-import { sayPhrase } from "@/lib/estonian/sayIt";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import type { GradedSentence } from "@/lib/tutor/grader";
 import type { WithholdReason } from "@/lib/tutor/verify";
@@ -41,8 +40,21 @@ export interface WritingPrompt {
    * a client could forge reaches the log.
    */
   targetForm: string;
+  /**
+   * Every spelling that is right, joined the way a card's back is, which is
+   * what a miss names: the illative is `tuppa / toasse`, and naming one of a
+   * pair the marker takes would tell somebody who wrote the other one wrong.
+   */
+  shown: string;
   provenance: "ekilex" | "derived";
   weak: boolean;
+  /**
+   * What the sentence has to say, `to the child`, worked out on the server
+   * where the word's kind is known. Worked out here it read `onto it, or to
+   * someone` for every person, since the outside endings read differently for
+   * a person and a thing.
+   */
+  say: string | null;
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
 }
@@ -95,7 +107,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   const finished = !prompt;
   // What the sentence has to say, `in the room`, and whether that already
   // carries the word's meaning so its gloss need not be printed twice.
-  const phrase = prompt ? sayPhrase(prompt.caseKey, prompt.translation) ?? prompt.caseEt : "";
+  const phrase = prompt ? prompt.say ?? prompt.caseEt : "";
   const firstSense = prompt?.translation.split(/[,;(]/)[0]?.trim().toLowerCase() ?? "";
   const saysGloss = firstSense.length > 0 && phrase.toLowerCase().includes(firstSense);
 
@@ -313,7 +325,13 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
             <p role="alert" className="mt-3 text-sm" style={{ color: "var(--again-ink)" }}>{error}</p>
           )}
 
-          {marked && <Feedback caseName={endingName(prompt.caseKey) ?? prompt.caseEt} marked={marked} />}
+          {marked && (
+            <Feedback
+              caseName={endingName(prompt.caseKey) ?? prompt.caseEt}
+              form={prompt.shown}
+              marked={marked}
+            />
+          )}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
@@ -360,7 +378,7 @@ function writeRating(formCheck: Marked["formCheck"]): 1 | 2 | 3 {
   return formCheck.used ? 3 : formCheck.usedAnotherForm ? 2 : 1;
 }
 
-function Feedback({ marked, caseName }: { marked: Marked; caseName: string }) {
+function Feedback({ marked, caseName, form }: { marked: Marked; caseName: string; form: string }) {
   const { formCheck, graded, quotaMessage, withheld, withheldReason } = marked;
 
   return (
@@ -370,11 +388,13 @@ function Feedback({ marked, caseName }: { marked: Marked; caseName: string }) {
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
         <p className="text-base">
+          {/* A miss names the form, since the box is closed by now and "try
+              working it in" offered a second go the screen did not have. */}
           {formCheck.used
             ? "Yes, that's the right ending."
             : formCheck.usedAnotherForm
-              ? "Right word, but not the ending we asked for. Look at how it ends."
-              : "The word we asked for isn't in your sentence. Try working it in."}
+              ? <>Right word, but not the ending we asked for. It&rsquo;s <strong lang="et">{form}</strong>.</>
+              : <>The word we asked for isn&rsquo;t in your sentence. It&rsquo;s <strong lang="et">{form}</strong>.</>}
           {/* The ending's name, once the answer is in: here it is the thing to
               remember, where before the answer it was a thing to decode. */}
           <span className="mt-1 block text-sm">

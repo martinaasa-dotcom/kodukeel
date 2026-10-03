@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import { LEVELS } from "@/lib/collections/syllabus";
 import { PROGRAMMES } from "./index";
-import { creditedThrough, heldLevel, levelAfter, levelBefore, startingLevel } from "./placement";
+import {
+  creditedThrough, heldLevel, levelAfter, levelBefore, levelHeldOnHandOff, startingLevel,
+} from "./placement";
 
 /*
   WHERE A NAMED LEVEL OPENS THE COURSE.
@@ -92,5 +94,24 @@ describe("what the climb counts", () => {
         if (through !== null) expect(LEVELS.indexOf(through)).toBeLessThan(LEVELS.indexOf(working));
       }
     }
+  });
+});
+
+describe("what walking out of a level says somebody holds", () => {
+  it("holds the level they walked out of, once they cross into the next", () => {
+    expect(levelHeldOnHandOff("A2", "B1", null)).toBe("A2");
+    expect(levelHeldOnHandOff("B2", "C1", "A2")).toBe("B2");
+  });
+
+  it("writes nothing inside a level, going down, or for a jump of more than one", () => {
+    expect(levelHeldOnHandOff("B1", "B1", null)).toBeNull();
+    expect(levelHeldOnHandOff("B1", "A2", null)).toBeNull();
+    expect(levelHeldOnHandOff("A2", "B2", null)).toBeNull();
+  });
+
+  it("never lowers what they already hold, and never writes A1", () => {
+    expect(levelHeldOnHandOff("A2", "B1", "B2")).toBeNull();
+    expect(levelHeldOnHandOff("A2", "B1", "A2")).toBeNull();
+    expect(levelHeldOnHandOff("A1", "A2", null)).toBeNull();
   });
 });
