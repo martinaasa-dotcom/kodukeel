@@ -392,10 +392,20 @@ exactly one origin for the verifier cookie, the session cookie and the callback 
 **Attack.** Something in `node_modules` is exploitable.
 
 **Control.** The `audit` job in CI runs `npm audit` in full as a record, then gates twice: `npm audit
---omit=dev --audit-level=high` is the promise about what is deployed, and `npm audit
---audit-level=high` is the promise about what a contributor runs. Both currently pass. They got there
-by clearing the chains with `overrides` in `package.json` and a minor vitest upgrade, rather than by
-moving the bar, and the workflow says in writing that the number is not to be lowered.
+--omit=dev --audit-level=high` is the promise about what is deployed, and `npm run check:audit` is
+the promise about what a contributor runs. They got there by clearing the chains with `overrides` in
+`package.json` and a minor vitest upgrade, rather than by moving the bar, and the workflow says in
+writing that the number is not to be lowered.
+
+The second gate carries one written waiver and says so. On 2026-10-03 GHSA-vfj7-8cjw-p6xm arrived
+against every release of `braces` there is, reached only through the lint plugin
+(`eslint-config-next` down to `micromatch`), and `npm audit --audit-level=high` cannot waive one
+advisory, so it was red on main and every branch with nothing any of them could change.
+`scripts/check-audit.mjs` is the same gate with each waiver named by advisory id and written beside
+its reason. Each one fails again when the advisory leaves the tree or when its package publishes a
+release newer than the one recorded, so it cannot outlive the reason it was granted for. The
+deployed gate takes no waivers, so a waived advisory that ever reached the production tree would
+fail there. An invariant holds all of that, and was made to fail on each part.
 
 Two things sat beside that and were missing. Nothing **updated** anything: knowing about an advisory
 and having it patched are different states, and on a project with one maintainer they drift apart
@@ -544,7 +554,7 @@ npm test                 # unit suite, hermetic: no database, no network, no clo
 npm run test:invariants  # the asserted rules, including every security one above
 npm run check:secrets    # scans a built tree for credential shapes
 npm audit --omit=dev --audit-level=high
-npm audit --audit-level=high
+npm run check:audit      # the whole tree, each written waiver expiring on its own
 ```
 
 To reproduce the credential canary CI runs, build with a marked value in each server variable and

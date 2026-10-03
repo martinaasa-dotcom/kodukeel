@@ -48,6 +48,24 @@ export const CASUAL = {
 } as const;
 
 /**
+ * THE ONE-WORD LEAVE-TAKINGS THAT MEAN NOTHING ELSE, AS WHOLE PHRASES FOR THE
+ * GATE. A line on a beat that is not the goodbye is withheld for saying one,
+ * and the gate knew only the two the course teaches, so `Kohtumiseni!` ended a
+ * phone call mid-question with every check green. Words that are also hello
+ * (`tsau`) are left out, since a line may open on one.
+ */
+export const CLOSING_WORDS = ["nägemiseni", "kohtumiseni", "hüvasti"] as const;
+
+/**
+ * What a learner says on their way out that is not a farewell the course
+ * teaches: a customer who wrote "aitäh, näeme veel!" and asked one last thing
+ * was answered as somebody still at the counter, with the goodbye held back
+ * for them to say first. Read off the learner's turn and never the other
+ * side's line, since a landlord's `näeme teisipäeval` is a plan, not a leaving.
+ */
+export const LEAVING = ["näeme veel", "näeme hiljem", "head päeva", "ilusat päeva", ...CLOSING_WORDS] as const;
+
+/**
  * How long a turn may be and still be read as a bare leave-taking.
  *
  * `Head aega!` is credited anywhere in a turn because a scene names it; a word
@@ -87,4 +105,34 @@ export function saysGoodbye(said: string, farewells: readonly string[]): boolean
     return parts.length > 0 && text.includes(` ${fold(parts.join(" "))} `);
   });
   return named || casualBye(spoken) !== null;
+}
+
+/**
+ * HOW A LEARNER ASKS THE OTHER SIDE TO SLOW DOWN OR SAY IT AGAIN.
+ *
+ * `rääkige aeglasemalt` is the single most useful sentence a learner owns, as
+ * the course says where it teaches `aeglaselt`, and a scene answered it with
+ * `Ei tea.`: the request rode in a turn with a question mark, the turn had met
+ * its beat, and nothing the scene could say about the card answered "could you
+ * speak more slowly?". That is a shrug at somebody asking for help, which the
+ * keyless critic flagged in every scene a confused learner played.
+ *
+ * ACCEPT ONLY, in `CASUAL`'s two halves and for its reason. The Estonian half
+ * is what people say, the comparative the course does not store among it, and
+ * every entry is a spelling the forms list vouches for, asserted. `korda` is
+ * deliberately not here: it is "repeat!" and also `kaks korda`, "twice", which
+ * is how a pharmacist says how often to take something. What it changes is
+ * small and safe: such a turn is never shrugged at, and nothing about how it is
+ * marked or graded moves.
+ */
+export const AGAIN = {
+  et: ["aeglasemalt", "aeglaselt", "korrake", "korrata", "kordaksite", "kordate"],
+  other: ["slowly", "slower", "repeat", "langsamer", "медленнее"],
+} as const;
+
+const AGAIN_WORDS = new Set([...AGAIN.et, ...AGAIN.other].map(fold));
+
+/** Whether the turn asks the other side to slow down or say it again. */
+export function asksSlower(spoken: readonly string[]): boolean {
+  return spoken.some((word) => AGAIN_WORDS.has(fold(word)));
 }

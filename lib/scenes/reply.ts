@@ -30,21 +30,32 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
-import { FALLBACK_PHRASE, FEELINGS, REACTIONS } from "./catalogue";
+import { FALLBACK_PHRASE, FAREWELLS, FEELINGS, REACTIONS } from "./catalogue";
 import type { Feel } from "./types";
 import { CHOICE_WORD } from "./choice";
 import { coachFor, NUDGE_AFTER } from "./coach";
 import type { Check } from "./gate";
 import { fallbackLine, type SpokenLine } from "./line";
 import { caseKeyFor, words, type Lexicon } from "./lexicon";
+import { BANK } from "./bank";
 
 /** How long a line may be and still be said again word for word (see `recital`). */
 export const REPEAT_WORDS = 10;
+
+/**
+ * How many of these turns were answering `heard`, which is `answeredTimes`.
+ * One reading for the route and both harnesses, so the count a learner is
+ * asked by and the count a sweep measures cannot differ.
+ */
+export function timesAnswered(turns: readonly { readonly heard?: string }[], heard: string | null): number {
+  if (!heard) return 0;
+  return turns.filter((turn) => turn.heard === heard).length;
+}
 import { propBySlot, restated, type DrawnProp, type RoleCard } from "./props";
 import { CURVEBALLS, curveballById } from "./curveballs";
 import type { Response, SceneState, TurnRecord } from "./state";
 import type { TurnReading } from "./turn";
-import { leafNeeds, type BeatSpec, type SaysPart } from "./types";
+import { leafNeeds, type BeatSpec, type SaysPart, type SceneSpec } from "./types";
 
 export interface ReplyInput {
   /** The beat the other side speaks on now, after the turn was read. Undefined once the scene is over. */
@@ -157,6 +168,8 @@ export interface ReplyInput {
   readonly offer?: string | null;
   /** How many beats have been met, which is what rotates the acknowledgment. */
   readonly met: number;
+  /** Which of the beat's requirements the last turn met, so a hint names only what is missing. */
+  readonly metLast?: readonly boolean[];
   /**
    * Whether the learner is arriving at `beat` for the first time: no turn of
    * this run has been taken on it yet.
@@ -174,6 +187,14 @@ export interface ReplyInput {
    * mid-conversation. Absent on the opening line.
    */
   readonly tries?: number;
+  /**
+   * How many of this run's turns, the one just taken included, were answering
+   * the very line that would be said again (`timesAnswered`). Not `tries`,
+   * which counts turns on one beat: a question carried on behind a curveball
+   * (`hurdle.then`) is answered on the curveball's turns, so the learner can
+   * have heard it three times while the beat behind it has had one turn.
+   */
+  readonly answeredTimes?: number;
   /**
    * The beat's question narrowed to two, where one could be built
    * (`lib/scenes/choice.ts`). Offered instead of asking the same thing again,
@@ -216,7 +237,13 @@ export interface ReplyInput {
  */
 export function datumLine(beat: BeatSpec, card: RoleCard | null, lexicon?: Lexicon): SpokenLine | null {
   if (!beat.says || beat.says.length === 0 || !card) return null;
-  const mark = beat.move === "ask" || beat.move === "offer" ? "?" : ".";
+  /*
+    An offer is a question where it is a bare value (`Kell 13:30?`) and a
+    statement where it is a sentence: `Palk on 1636 eurot kuus?` read as an
+    interviewer unsure of their own figure, and a critic said so.
+  */
+  const sentence = beat.says.some((part) => "verb" in part && Boolean(part.verb));
+  const mark = beat.move === "ask" || (beat.move === "offer" && !sentence) ? "?" : ".";
   return partsLine(beat.says, { card, lexicon, mark });
 }
 
@@ -379,7 +406,12 @@ export function cardChosen(
  * it, at which point `cardAfterHurdles` and `cardInPlay` have already stood
  * it in under the original slot and it is told as that.
  */
-export function factsFor(card: RoleCard | null, beats: readonly BeatSpec[]): string[] {
+export function factsFor(
+  card: RoleCard | null,
+  beats: readonly BeatSpec[],
+  /** Values of theirs the scene says later (`heldBack`), labelled so the model keeps them. */
+  held: ReadonlySet<string> = new Set(),
+): string[] {
   if (!card) return [];
   const reserve = new Set<string>();
   for (const beat of beats) for (const [, to] of beat.counter?.replaces ?? []) reserve.add(to);
@@ -389,8 +421,152 @@ export function factsFor(card: RoleCard | null, beats: readonly BeatSpec[]): str
     .map((prop) => {
       const value = prop.english ?? prop.shown[0] ?? prop.value;
       const label = prop.card.replace(/\.$/, "");
-      return `${label}: ${value}${prop.theirs ? " (yours to tell them)" : " (on the learner's card)"}`;
+      const whose = !prop.theirs
+        ? " (on the learner's card)"
+        : held.has(prop.slot)
+          ? " (yours, but NOT YET: keep it until your move comes to it or they ask for it)"
+          : " (yours to tell them)";
+      return `${label}: ${value}${whose}`;
     });
+}
+
+/**
+ * Every card slot a beat names, in its stage directions or in a line it says.
+ */
+export function slotsOf(beat: BeatSpec): Set<string> {
+  const out = new Set<string>();
+  const texts = [beat.they, beat.answer ?? "", beat.counter?.they ?? "", beat.meanwhile ?? ""];
+  for (const text of texts) for (const match of text.matchAll(/\{(\w+)\}/g)) out.add(match[1]!);
+  for (const part of [...(beat.says ?? []), ...(beat.counter?.says ?? [])]) {
+    if ("slot" in part && part.slot) out.add(part.slot);
+  }
+  return out;
+}
+
+/**
+ * WHAT THIS PERSON KNOWS AND HAS NOT REACHED YET, WHICH IS NOT THE SAME AS
+ * WHAT THEY MAY SAY.
+ *
+ * A job interview's card deals the wage the interviewer offers, and the model
+ * was told it from the first line as "yours to tell them". It told it: the
+ * pay came up while the interviewer was still asking about experience, and
+ * three turns later the learner's objective still read "ask what the pay is",
+ * about a figure already on the screen. A person holding a figure they will
+ * offer later does not open with it. So a value of theirs that the scene says
+ * only at a beat still ahead is held back until that beat is in play or done,
+ * and `heldNumbers` is what the gate withholds for it (`ahead`).
+ *
+ * Released early by exactly one thing, the learner asking for it: a question
+ * about money releases a price, and any question releases the rest, because a
+ * question is owed an answer and a held fact is still a fact.
+ */
+export function heldBack(
+  beats: readonly BeatSpec[],
+  card: RoleCard | null,
+  state: Pick<SceneState, "beat" | "done" | "hurdle" | "hurdles">,
+  speaking: BeatSpec | null,
+  asked: { readonly any: boolean; readonly money: boolean } = { any: false, money: false },
+): Set<string> {
+  const held = new Set<string>();
+  if (!card) return held;
+  const spoken = new Set<string>();
+  const ahead = new Set<string>();
+  beats.forEach((beat, at) => {
+    const slots = slotsOf(beat);
+    const reached = at <= state.beat || state.done.includes(beat.id) || beat.id === speaking?.id;
+    for (const slot of slots) (reached ? spoken : ahead).add(slot);
+  });
+  if (speaking) for (const slot of slotsOf(speaking)) spoken.add(slot);
+  // A curveball that changed a value has said it, both the old and the new.
+  const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
+  for (const id of raised) for (const pair of curveballById(id)?.replaces ?? []) for (const slot of pair) spoken.add(slot);
+  for (const prop of card.props) {
+    if (!prop.theirs || spoken.has(prop.slot) || !ahead.has(prop.slot)) continue;
+    const money = prop.price === true;
+    if (asked.money && money) continue;
+    if (asked.any && !money) continue;
+    held.add(prop.slot);
+  }
+  return held;
+}
+
+/** Every digit spelling a held value could be written in, for the gate's `ahead` check. */
+export function heldNumbers(card: RoleCard | null, held: ReadonlySet<string>): Set<string> {
+  const out = new Set<string>();
+  for (const prop of card?.props ?? []) {
+    if (!held.has(prop.slot)) continue;
+    for (const value of prop.literal) if (/\d/.test(value)) out.add(value);
+  }
+  return out;
+}
+
+/**
+ * WHAT THIS CONVERSATION HAS ALREADY ESTABLISHED, WHICH NOTHING SAID LATER MAY
+ * UNDO.
+ *
+ * At a bus window the other side said the bus would not leave tonight, the
+ * learner asked whether they had beer, and the reply was that there was no
+ * beer but they could get on the bus: the curveball had been dealt with, the
+ * scene's next beat was selling a ticket for tonight, and nothing in front of
+ * the model said that tonight was off. A curveball that changes the situation
+ * says what stays true after it (`CurveballSpec.stands`), and every one this
+ * run raised is handed to the model as a fact it may not go back on, met or
+ * let go alike, because the other side said it either way.
+ */
+export function establishedBy(
+  state: Pick<SceneState, "hurdle" | "hurdles">,
+  card: RoleCard | null,
+): string[] {
+  const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const id of raised) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const stands = curveballById(id)?.stands;
+    if (!stands) continue;
+    out.push(stands.replace(/\{(\w+)\}/g, (whole, slot: string) => {
+      const prop = card ? propBySlot(card, slot) : undefined;
+      return prop?.english ?? prop?.value ?? whole;
+    }));
+  }
+  return out;
+}
+
+/**
+ * THE BREAKS IN TIME THE SCENE HAS PASSED, SEPARATELY FROM WHAT IS ESTABLISHED.
+ *
+ * A scene break is the scene's guess at what the learner did between two
+ * beats ("You've eaten, the waiter comes back"), and the learner can say
+ * otherwise. Listed under "true from now on whatever comes next" with "go
+ * with them" beside it, the model held to the break and told a learner who
+ * had not eaten yet that their plate was empty. And without it at all, a
+ * clerk told nothing about "twenty minutes later, your number comes up" told
+ * the learner, back at the desk, that the wait would be about ten minutes.
+ */
+export function sceneMovedOn(
+  state: Partial<Pick<SceneState, "beat" | "done">>,
+  card: RoleCard | null,
+  beats: readonly BeatSpec[],
+): string[] {
+  const out: string[] = [];
+  beats.forEach((beat, at) => {
+    if (!beat.meanwhile) return;
+    /*
+      Reached by the conversation, never credited from a distance: a learner
+      who asked the price in their first turn had the bill beat credited, and
+      its break ("your drink's on the counter") was handed over as having
+      happened, so every line asking which size they wanted was withheld as
+      going back on it. The break is printed on arrival and nowhere else.
+    */
+    if (state.beat === undefined || at > state.beat) return;
+    const said = beat.meanwhile.replace(/\{(\w+)\}/g, (whole, slot: string) => {
+      const prop = card ? propBySlot(card, slot) : undefined;
+      return prop?.english ?? prop?.value ?? whole;
+    });
+    out.push(said);
+  });
+  return out;
 }
 
 /**
@@ -426,6 +602,71 @@ export function cardAfterHurdles(card: RoleCard | null, state: Pick<SceneState, 
 }
 
 /**
+ * The prepared lines that can still be said, given what the run's curveballs
+ * have changed (`CurveballSpec.unsays`). A line naming an unsaid word is held
+ * back unless the line also carries a negator, since `Täna me seda ei tee.`
+ * agrees with "not today" and `Võtke seda täna õhtul.` contradicts it.
+ *
+ * Handed the scene, it also keeps a mishearing to what was just said
+ * (`aboutWhatWasSaid`). Every caller hands it over: the route and both
+ * harnesses pick a line through here, so the rule cannot hold in one of them.
+ */
+export function sayableAfterHurdles(
+  lines: readonly string[],
+  state: Pick<SceneState, "hurdle" | "hurdles">,
+  lexicon: Lexicon,
+  negators: ReadonlySet<string>,
+  scene?: SceneSpec,
+): readonly string[] {
+  const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
+  const unsaid = new Set<string>();
+  for (const id of raised) {
+    for (const lemma of curveballById(id)?.unsays ?? []) {
+      unsaid.add(lemma);
+      for (const form of lexicon.byLemma.get(lemma) ?? []) unsaid.add(form);
+    }
+  }
+  const kept = unsaid.size === 0 ? lines : lines.filter((line) => {
+    const said = words(line);
+    return !said.some((word) => unsaid.has(word)) || said.some((word) => negators.has(word));
+  });
+  return scene ? aboutWhatWasSaid(kept, state, scene) : kept;
+}
+
+/**
+ * A MISHEARING IS OF SOMETHING ALREADY SAID. A curveball whose banked lines
+ * each say which beat they are about (`ScriptedLine.about`) says, while it
+ * stands, a line about the beat just answered: the corner shop's misheard
+ * lines are about where the learner is going and about what they bought, and
+ * said in front of the wrong beat one asked about milk nobody had mentioned.
+ * The planner stands such a curveball only straight after one of those beats
+ * (`fitsIn`), so the first choice always has a line; a run planned before that
+ * falls back to a line about a beat already behind it, and then to the lot.
+ * Lines that are not that curveball's own are left as they are.
+ */
+function aboutWhatWasSaid(
+  lines: readonly string[],
+  state: Pick<SceneState, "hurdle">,
+  scene: SceneSpec,
+): readonly string[] {
+  const hurdle = state.hurdle;
+  if (!hurdle) return lines;
+  const rows = BANK.filter((row) => row.scene === scene.id && row.beat === `hurdle:${hurdle.id}` && row.about);
+  if (rows.length === 0) return lines;
+  const aboutOf = new Map(rows.map((row) => [row.text, row.about!]));
+  const behind = scene.beats.slice(0, hurdle.beat).map((beat) => beat.id);
+  const others = lines.filter((line) => !aboutOf.has(line));
+  for (const fits of [
+    (about: string) => about === behind.at(-1),
+    (about: string) => behind.includes(about),
+  ]) {
+    const own = lines.filter((line) => aboutOf.has(line) && fits(aboutOf.get(line)!));
+    if (own.length > 0) return [...own, ...others];
+  }
+  return lines;
+}
+
+/**
  * Whether a question the learner asked is owed something before the move.
  *
  * ON A TURN THAT LANDED, ALWAYS. And on a turn that missed, where the question
@@ -438,6 +679,12 @@ export function cardAfterHurdles(card: RoleCard | null, state: Pick<SceneState, 
  * question again. A person answers the question and then asks again. What is
  * different on a miss is what may answer it, which is `asideFor`'s `missed`:
  * a fact off the card, and never the shrug.
+ *
+ * AND ON THE TURN THEIR PATIENCE RUNS OUT. Giving up on a beat is not a
+ * reason to ignore a direct question: the same learner asked "you said the
+ * price is different, what is it now?" on the turn the clerk gave up on how
+ * they were paying, and was handed `Kaart?` and `Nägemist!`, the price never
+ * said. The price is said, and the goodbye waits for them (`replyFor`).
  */
 export function wantsAsideFor(
   asked: string | null,
@@ -449,7 +696,7 @@ export function wantsAsideFor(
   if (!asked) return false;
   if (response === "answer" || response === "counter" || landed) return true;
   const missed = reading === "offtarget" || reading === "incomplete";
-  return missed && (response === "narrow" || response === "repeat");
+  return missed && (response === "narrow" || response === "repeat" || response === "moveOn");
 }
 
 /**
@@ -646,6 +893,8 @@ export function composeNote(
      * anticipated is answered from the scene rather than guessed at.
      */
     readonly answer?: string | null;
+    /** They asked to hear the last line again ("vabandust, mida?"). */
+    readonly again?: boolean;
   } = {},
 ): string | undefined {
   /*
@@ -675,6 +924,11 @@ export function composeNote(
     already moved to the next thing; the model is told so, or it asks a fourth
     time for something the scene has given up on.
   */
+  if (extra.again) {
+    return "They asked you to say that again. Say your last line once more, more slowly and in"
+      + " simpler words, not word for word, and kindly. Add nothing it did not say, and do not"
+      + " explain a word that was not in it; you may answer anything else they asked as well.";
+  }
   if (response === "moveOn") {
     return "You have asked for something a few times and not got it. Let it go the way a"
       + " person does, without any reproach, and carry on to the next thing you need."
@@ -696,9 +950,19 @@ export function composeNote(
       + " last. Never tell them you did not understand: they answered you." + question;
   }
   if (reading === "offtarget" && (response === "narrow" || response === "repeat")) {
-    return "What they just said is real Estonian and does not answer what you asked."
-      + " Answer what they actually said first, in one short natural sentence, and then ask"
-      + " again for the same thing in your own words. Never tell them you did not understand"
+    /*
+      AND NOT A QUESTION THEY HAVE ALREADY ANSWERED. A waiter whose move is to
+      ask whether the meal was good was told "jah, oli hea" and went on asking
+      it three times in different words, because this said to ask again: the
+      beat was waiting on something else (the learner asking for the bill),
+      which the waiter cannot ask for. Where the conversation already holds the
+      answer, the person takes it and leaves the door open instead.
+    */
+    return "What they just said is real Estonian and does not do what you are waiting for."
+      + " Answer what they actually said first, in one short natural sentence. Then, if they have"
+      + " not yet answered your question anywhere in this conversation, ask again for the same"
+      + " thing in your own words; if they have, never ask it again, and instead leave the"
+      + " conversation open for them, as this person naturally would. Never tell them you did not understand"
       + " them, and never comment on their Estonian: you understood them, they answered"
       + " something else." + question;
   }
@@ -722,10 +986,26 @@ export function composeNote(
     said above this line, so what the model is for here is the second half: ask
     again, warmly, so a turn nobody could read does not end in a dead stop.
   */
+  /*
+    Their own words handed back, and a turn in English. Keyless both get the
+    line again; a person checks what was meant or helps them say it.
+  */
+  if (reading === "echo") {
+    return "They said back your own words, most likely to check them or to buy time. Confirm"
+      + " briefly and kindly what you meant, in other words, and carry on." + question;
+  }
+  if (reading === "english") {
+    return "They wrote in English. Show you understood what they meant, answer it in simple"
+      + " Estonian, and give them the Estonian word they were missing inside your sentence so they"
+      + " can use it next time. Do not reply in English." + question;
+  }
   if (reading === "unrecognised") {
-    return "You could not make out what they said. Ask again for the same thing, gently and in"
-      + " your own words, as a person who did not catch something does. Do not tell them their"
-      + " Estonian is wrong and do not give up on the question.";
+    return "The dictionary could not read what they wrote, which is often a misspelling, a wrong"
+      + " ending or a nearly-right word that a native speaker would still follow. If, in this"
+      + " situation, you can tell roughly what they meant, show it: say back what you think they"
+      + " meant as a quick check, the way a person does, and go on from there. Only if you"
+      + " genuinely cannot tell, ask again for the same thing, gently and in your own words. Do"
+      + " not tell them their Estonian is wrong and do not give up on the question.";
   }
   return question ? question.trim() : undefined;
 }
@@ -805,6 +1085,30 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     where nothing did, which is the keyless deployment.
   */
   const composed = line?.provenance === "composed";
+  /*
+    AT THE CLOSING BEAT, WHAT IS SAID AGAIN IS THE GOODBYE. A question on the
+    way out is answered and the goodbye waits (below), so the last move the
+    learner heard can be an earlier beat's: asked again, it was the price
+    said a third time to somebody who only had the goodbye left to say.
+  */
+  const waited = beat?.move === "close" && line !== null && line.provenance !== "fallback" && !composed
+    && !(heard !== null && isFarewell(heard, beat));
+  const again = waited ? line.text : heard;
+  // And a goodbye that was waiting is said for the first time, as itself, not as said again.
+  const sayAgainLine = (): SpokenLine => (again === heard || !line ? saidAgain(again!) : line);
+
+  /*
+    How often this question has been put to them, counted on the line as well
+    as the beat, since a question waiting behind a curveball is heard on the
+    curveball's turns: in the shop, asked whether they wanted to try it on, a
+    learner heard the question with the hurry, again after a miss, again after
+    asking for it slower, and a fourth time after one more miss, on a beat that
+    had had a single turn. Past `NUDGE_AFTER` the question is put another way
+    the bank holds (`another`, below), on a turn that was lost as on one that
+    missed.
+  */
+  const asked = Math.max(input.tries ?? 0, input.answeredTimes ?? 0);
+  const otherWay = asked >= NUDGE_AFTER && again === heard ? input.others?.[0] ?? null : null;
 
   if (response === "help") {
     const word = input.offer;
@@ -816,8 +1120,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       one breath. A composed line hands the word over inside the sentence.
     */
     if (composed) out.push(line!);
-    else if (heard && heard !== offered?.text) out.push(saidAgain(heard));
-    else if (!heard && beat) out.push(stage(stageFor(beat, card)));
+    else if (again && !(offered && beat?.move === "close" ? isFarewell(offered.text, beat) : again === offered?.text)) {
+      out.push(otherWay ? { text: otherWay, provenance: "scripted" } : sayAgainLine());
+    } else if (!again && beat) out.push(stage(stageFor(beat, card)));
     return out;
   }
 
@@ -961,7 +1266,12 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       `ma lahen shop` is owed `Poodi.` in a way that somebody who said it
       right is not.
     */
-    const worth = input.recast || input.english || brief;
+    /*
+      Not in front of a composed line, a correction included: the line was
+      written with the turn in front of it and takes the word up itself, and a
+      bare word first ("Tahtma.") read as the other side blurting a lemma.
+    */
+    const worth = !composed && (input.recast || input.english || brief);
     const echo = worth && input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) ? input.echo : null;
     if (echo) {
       out.push({
@@ -1069,9 +1379,16 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     greeting ("nobody says `Tere!` twice in one breath"); this is the same
     guard for the beat that ends the scene rather than moves past it.
   */
+  /*
+    AND NOT TWO GOODBYES IN ONE BREATH, WHATEVER THEIR WORDS. The guard above
+    compared the text, so the offered `Head aega` and then `Nägemist!` passed
+    it as two different lines, and the keyless critic read a shop assistant
+    saying goodbye twice in a row as somebody hurrying a customer out.
+  */
   if (!beat) {
-    const said = out.at(-1)?.text.toLowerCase();
-    if (answered?.move === "close" && line && line.provenance !== "fallback" && line.text.toLowerCase() !== said) {
+    const last = out.at(-1)?.text;
+    if (answered?.move === "close" && line && line.provenance !== "fallback"
+        && line.text.toLowerCase() !== last?.toLowerCase() && !(last !== undefined && isFarewell(last, answered))) {
       out.push(line);
     }
     return out;
@@ -1091,7 +1408,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     else if (input.hurdle.line && input.hurdle.line.provenance !== "fallback") out.push(input.hurdle.line);
     else out.push(stage(stageFor(input.hurdle.beat, card)));
     const last = out[out.length - 1];
-    if (input.hurdle.then && last && last.provenance !== "again" && last.provenance !== "composed" && last.text !== input.hurdle.then) {
+    /*
+      AND THE GOODBYE IS NOT CARRIED ON. Somebody in a hurry still asks the
+      question that was waiting, but at the closing beat what was waiting is
+      the goodbye, and said behind the curveball it ends the conversation
+      before the learner has answered either: `Räägi kohe. Head aega!` from a
+      friend on the phone, then `Head aega!` again after the learner asked them
+      to slow down, and a third time at the end. The goodbye waits until the
+      curveball is dealt with, as it waits for a question on the way out.
+    */
+    if (input.hurdle.then && beat.move !== "close" && last && last.provenance !== "again"
+        && last.provenance !== "composed" && last.text !== input.hurdle.then) {
       out.push({ text: input.hurdle.then, provenance: "scripted" });
     }
     if (response === "english" && (input.translates || input.askedForEnglish)) {
@@ -1142,13 +1469,28 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     which the hint below is not, so the app steps out only where no choice
     could be built.
   */
+  /*
+    A QUESTION ON THE WAY OUT IS ANSWERED, AND THE GOODBYE IS LEFT TO THE
+    LEARNER. The composer is told this (`stillTalking` hands it the closing
+    beat as a `confirm`), and with no model behind the run the net said the
+    answer and then `Head aega!` in the same breath: a learner who asked the
+    price at the counter read the price and a goodbye before they had paid,
+    which the keyless critic counted as the commonest premature end. A person
+    who has answered a question stops and lets the other one finish, so where
+    something answered them the move waits; where nothing could, the goodbye
+    is the only thing left to say and is said. A learner who said goodbye
+    with the question met this beat, so the scene is over and the branch
+    above says it back.
+  */
+  if (beat.move === "close" && aside) return out;
+
   const narrowed = input.tries === NUDGE_AFTER && !advancing(response) && !composed ? input.choice : null;
   if (narrowed) {
     out.push({ text: narrowed, provenance: "attested", from: CHOICE_WORD });
     return out;
   }
   if (input.tries === NUDGE_AFTER && !advancing(response) && !composed) {
-    const hint = coachFor(beat, card);
+    const hint = coachFor(beat, card, input.metLast ?? []);
     if (hint) out.push({ text: hint, provenance: "coach" });
   }
 
@@ -1158,7 +1500,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     themselves rather than rephrasing. A fresh line where there is one;
     otherwise the same line once more; otherwise what they did, in English.
   */
-  const sayAgain = sayAgainWanted(response, reading, heard);
+  const sayAgain = sayAgainWanted(response, reading, again);
   /*
     AND THE FOURTH TIME OF ASKING IS NOT THE SECOND.
 
@@ -1179,7 +1521,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     the bank holds only the one line, `others` is empty and the behaviour is
     exactly what it was: this can never invent a way of asking.
   */
-  const another = sayAgain && (input.tries ?? 0) >= NUDGE_AFTER ? input.others?.[0] ?? null : null;
+  const another = sayAgain ? otherWay : null;
   /*
     AND A LINE A MODEL WROTE FOR THIS TURN BEATS THE TURN BEFORE IT, ALWAYS.
 
@@ -1203,8 +1545,18 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     own line for this beat, the scene's line is said instead: the same question,
     short, which is what a person who was not answered actually says.
   */
-  const recital = sayAgain && heard !== null && words(heard).length > REPEAT_WORDS
-    && line !== null && line.provenance !== "fallback" && line.text !== heard;
+  /*
+    And only where the scene's line really is the short one. The shop's two
+    ways of asking what somebody wants are eleven and twelve words, so each was
+    "too long to say twice" and swapped for the other, and the question came
+    back in an older wording than the one the learner had just heard, three
+    times in four turns. A substitute no shorter than the line it replaces is
+    the same recital in different words; past that, `another` and the verbatim
+    repeat below decide, as for any other line.
+  */
+  const recital = sayAgain && again !== null && words(again).length > REPEAT_WORDS
+    && line !== null && line.provenance !== "fallback" && line.text !== again
+    && words(line.text).length < words(again).length;
   if (fresh) {
     out.push(fresh);
   } else if (recital) {
@@ -1212,11 +1564,11 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   } else if (another) {
     out.push({ text: another, provenance: "scripted" });
   } else if (sayAgain) {
-    out.push(saidAgain(heard));
+    out.push(sayAgainLine());
   } else if (line && line.provenance !== "fallback") {
     out.push(line);
-  } else if (heard && response !== "answer" && response !== "moveOn" && response !== "counter") {
-    out.push(saidAgain(heard));
+  } else if (again && response !== "answer" && response !== "moveOn" && response !== "counter") {
+    out.push(sayAgainLine());
   } else {
     out.push(stage(stageFor(beat, card), line?.withheld));
   }
@@ -1231,6 +1583,18 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   }
 
   return out;
+}
+
+/**
+ * Whether a line is a goodbye: one of the course's farewells, or a word the
+ * closing beat takes as one, compared on its letters so `Head aega` offered
+ * with a question mark is the same goodbye as `Head aega!`.
+ */
+function isFarewell(text: string, close: BeatSpec): boolean {
+  const letters = (s: string) => (s.match(/\p{L}+/gu) ?? []).join(" ").toLowerCase();
+  const said = letters(text);
+  const goodbyes = [...FAREWELLS, ...leafNeeds(close.needs).flatMap(({ need }) => (need.kind === "lemma" ? need.oneOf : []))];
+  return said.length > 0 && goodbyes.some((bye) => letters(bye) === said);
 }
 
 /**
@@ -1286,8 +1650,18 @@ function sayAgainWanted(
  * filled in. `{time}` becomes the time this run dealt, so a stage direction
  * for an offer offers the time on the learner's own card rather than "a time".
  */
-export function stageFor(beat: BeatSpec, card: RoleCard | null): string {
+export function stageFor(
+  beat: BeatSpec,
+  card: RoleCard | null,
+  /**
+   * Values held for later (`heldBack`), named rather than filled: an agenda
+   * that reads "they offer 1550 euros" three beats early is an invitation to
+   * say 1550 now.
+   */
+  held: ReadonlySet<string> = new Set(),
+): string {
   return beat.they.replace(/\{(\w+)\}/g, (whole, slot: string) => {
+    if (held.has(slot)) return "(the figure you keep for then)";
     const prop = card ? propBySlot(card, slot) : undefined;
     // A drawn word is named in English inside an English sentence, where the caller supplied one.
     return prop?.english ?? prop?.value ?? whole;

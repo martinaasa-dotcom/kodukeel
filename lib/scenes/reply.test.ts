@@ -5,7 +5,7 @@ import { NUDGE_AFTER } from "./coach";
 import { fallbackLine, type SpokenLine } from "./line";
 import {
   cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, factsFor, partsLine, feltAt, replyFor,
-  reaction, saidAgain, stageFor, wantsAsideFor, wantsFreshLine,
+  reaction, saidAgain, stageFor, timesAnswered, wantsAsideFor, wantsFreshLine,
   type ReplyInput,
 } from "./reply";
 import { caseKeyFor, type Lexicon } from "./lexicon";
@@ -408,7 +408,7 @@ describe("a turn that was understood and missed the point", () => {
   */
   it("asks the model, because answering what they said is the whole of what is owed", () => {
     expect(wantsFreshLine("narrow", "Kus teil valutab?", "offtarget")).toBe(true);
-    expect(composeNote("narrow", "offtarget")).toMatch(/does not answer what you asked/);
+    expect(composeNote("narrow", "offtarget")).toMatch(/does not do what you are waiting for/);
     expect(composeNote("narrow", "offtarget")).toMatch(/[Nn]ever tell them you did not understand/);
   });
 
@@ -588,6 +588,46 @@ describe("a question the scene did not anticipate", () => {
     const lines = replyFor(input({ answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", aside, line: NOTHING }));
     expect(texts(lines)).not.toContain(aside.text);
     expect(texts(lines)).toContain(FALLBACK_PHRASE);
+  });
+});
+
+describe("a question asked on the way out", () => {
+  const CLOSE: BeatSpec = { ...ASK, id: "close", move: "close", they: "They say goodbye.", needs: [{ kind: "lemma", oneOf: ["Head aega!"] }] };
+  const BYE: SpokenLine = { text: "Head aega!", provenance: "attested" };
+  const price: SpokenLine = { text: "Jah, see maksab 4 eurot.", provenance: "attested" };
+
+  /*
+    A learner who asked the price at the counter read the price and a goodbye
+    before they had paid: the keyless critic's commonest premature end. What
+    answered them is said, and the goodbye waits for them.
+  */
+  it("is answered, and the goodbye is left to the learner", () => {
+    const lines = replyFor(input({ answered: ASK, beat: CLOSE, line: BYE, aside: price, said: "Kas see maksab 4 eurot?" }));
+    expect(texts(lines)).toEqual([price.text]);
+  });
+
+  it("says the goodbye where nothing could answer, since it is all there is left to say", () => {
+    const lines = replyFor(input({ answered: ASK, beat: CLOSE, line: BYE, said: "Kas bussis on wifi?" }));
+    expect(texts(lines)).toContain(BYE.text);
+  });
+
+  // Their goodbye met the closing beat, so the scene is over and the goodbye is said back.
+  it("says it back where the learner said goodbye with the question", () => {
+    const lines = replyFor(input({ answered: CLOSE, beat: undefined, line: BYE, aside: price, said: "Kas see maksab 4 eurot? Head aega!" }));
+    expect(texts(lines)).toEqual([price.text, BYE.text]);
+  });
+
+  /*
+    The farewell offered when patience ran out, and then the scene's own
+    closing line in other words, was a shop assistant saying goodbye twice in
+    a row. The old guard compared the text and let `Nägemist!` through.
+  */
+  it("is never two goodbyes in one breath, whatever their words", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: undefined, response: "moveOn", reading: "offtarget",
+      line: { text: "Nägemist!", provenance: "attested" }, offer: "Head aega",
+    }));
+    expect(texts(lines).filter((text) => /aega|nägemist/i.test(text))).toHaveLength(1);
   });
 });
 
@@ -945,6 +985,8 @@ describe("a question asked on a turn that missed", () => {
     expect(wantsAsideFor("kui", "narrow", "complete", true)).toBe(true);
     expect(wantsAsideFor("mis", "wait", "fragment")).toBe(false);
     expect(wantsAsideFor(null, "answer", "complete")).toBe(false);
+    // And on the turn their patience ran out, which is no reason to ignore a direct question.
+    expect(wantsAsideFor("mis", "moveOn", "offtarget")).toBe(true);
   });
 
   it("is answered, and then the question is put again, with no sorry in front of it", () => {
@@ -957,7 +999,7 @@ describe("a question asked on a turn that missed", () => {
 
   it("tells the model a question was asked, on a hit and on a miss alike", () => {
     expect(composeNote("answer", "complete", false, "mis")).toMatch(/answer it first/);
-    expect(composeNote("narrow", "offtarget", false, "mis")).toMatch(/does not answer what you asked/);
+    expect(composeNote("narrow", "offtarget", false, "mis")).toMatch(/does not do what you are waiting for/);
     expect(composeNote("narrow", "offtarget", false, "mis")).toMatch(/answer it first/);
     expect(composeNote("answer", "complete", false, null)).toBeUndefined();
   });
@@ -1117,5 +1159,77 @@ describe("a line a model wrote for this turn", () => {
     expect(composeNote("help", "lost", false, null, { offer: "pea" })).toMatch(/"pea"/);
     expect(composeNote("answer", "complete", false, "kui", { answer: "They say it costs 5 euros now." }))
       .toMatch(/What you say when asked this: They say it costs 5 euros now\./);
+  });
+});
+
+describe("a curveball standing at the goodbye", () => {
+  const hurdle: BeatSpec = {
+    ...ASK, id: "hurdle:faster", goal: "Answer them, or ask them to slow down.",
+    they: "They speed up.", needs: [{ kind: "any" }],
+  };
+  const CLOSE: BeatSpec = { ...ASK, id: "close", move: "close", they: "They say goodbye.", needs: [{ kind: "lemma", oneOf: ["Head aega!"] }] };
+  const hurry: SpokenLine = { text: "Räägi kohe.", provenance: "scripted" };
+
+  it("does not say the goodbye behind it, which would end the call before the learner has answered", () => {
+    const lines = replyFor(input({ answered: ASK, beat: CLOSE, hurdle: { beat: hurdle, line: hurry, then: "Head aega!" } }));
+    expect(texts(lines)).not.toContain("Head aega!");
+    expect(lines.at(-1)).toEqual(hurry);
+  });
+
+  it("and still carries the waiting question on anywhere else, as somebody in a hurry does", () => {
+    const lines = replyFor(input({ answered: GREET, beat: ASK, hurdle: { beat: hurdle, line: hurry, then: "Kus teil valutab?" } }));
+    expect(texts(lines).slice(-2)).toEqual(["Räägi kohe.", "Kus teil valutab?"]);
+  });
+});
+
+describe("a long line said again", () => {
+  const long = "Kuidas ma saan teid aidata, millist riiet te meie poest soovite?";
+  const longer = "Kuidas ma saan teid aidata, millist riiet te meie poest osta soovite?";
+  const miss = { answered: ASK, beat: ASK, response: "narrow" as const, reading: "offtarget" as const, heard: long, tries: 1 };
+
+  it("is swapped for the scene's own line where that one is shorter", () => {
+    const short: SpokenLine = { text: "Mida te soovite?", provenance: "scripted" };
+    expect(replyFor(input({ ...miss, line: short })).at(-1)).toEqual(short);
+  });
+
+  it("and not for one that is as long, which is the same recital in an older wording", () => {
+    const lines = replyFor(input({ ...miss, line: { text: longer, provenance: "scripted" } }));
+    expect(lines.at(-1)).toEqual({ text: long, provenance: "again" });
+  });
+});
+
+describe("a line the learner has already heard twice", () => {
+  const heard = "Kas teie soovite seda riiet proovida?";
+  const other = "Kas te tahate seda proovida?";
+
+  it("is put the other way the bank holds, counted on the line rather than the beat", () => {
+    // One turn on this beat, but the question was carried on behind a curveball and heard on its turns too.
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", heard, line: NOTHING,
+      tries: 1, answeredTimes: NUDGE_AFTER + 1, others: [other],
+    }));
+    expect(lines.at(-1)).toEqual({ text: other, provenance: "scripted" });
+  });
+
+  it("on a turn that said they were lost as on one that missed", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "help", reading: "lost", heard, line: NOTHING, offer: "jah",
+      tries: 1, answeredTimes: NUDGE_AFTER + 1, others: [other],
+    }));
+    expect(lines.at(-1)).toEqual({ text: other, provenance: "scripted" });
+  });
+
+  it("and is said again as it was while it has been heard once", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "help", reading: "lost", heard, line: NOTHING, offer: "jah",
+      tries: 1, answeredTimes: 1, others: [other],
+    }));
+    expect(lines.at(-1)).toEqual({ text: heard, provenance: "again" });
+  });
+
+  it("is counted off the turns that answered it, the route's and the harnesses' one reading", () => {
+    const turns = [{ heard }, { heard: "Tere!" }, { heard }, {}];
+    expect(timesAnswered(turns, heard)).toBe(2);
+    expect(timesAnswered(turns, null)).toBe(0);
   });
 });

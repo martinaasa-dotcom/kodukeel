@@ -36,6 +36,7 @@ import { clausesOf, words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
 import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
 import { numberFromText, timeFromText, type SlotKind } from "./props";
+import { CHOICE_WORD } from "./choice";
 import { leafNeeds, type BeatSpec, type Requirement } from "./types";
 
 /**
@@ -237,6 +238,8 @@ export interface TurnContext {
   readonly askingForms: ReadonlySet<string>;
   /** Every form of the negator. */
   readonly negators: ReadonlySet<string>;
+  /** Every form of the words that say an offer is short (`vähe`), read on a beat with a counter. */
+  readonly tooLittle?: ReadonlySet<string>;
   /** Every form of the pronoun this scene's register expects. */
   readonly registerForms: ReadonlySet<string>;
   /** Prop slot to every spelling that counts as that value, off the role card. */
@@ -354,8 +357,25 @@ const ENGLISH = new Set([
   "not", "of", "on", "or", "please", "she", "sorry", "that", "the", "there",
   "they", "this", "to", "was", "we", "what", "when", "where", "who", "why",
   "will", "with", "would", "you", "your",
+  // As `words()` keeps them, apostrophe and all, and the verbs a learner reaches for when stuck.
+  "don't", "can't", "i'm", "it's", "what's", "understand", "speak", "english", "mean", "know",
+  "again", "slowly", "slower", "repeat",
 ]);
 const ENGLISH_FLOOR = 2;
+/*
+  The two that are also among the commonest words of Estonian, `on` ("is")
+  and `me` ("we"), which count as neither language: `Mul on valu, sorry` is an
+  Estonian turn with one English word in it.
+*/
+const BOTH_LANGUAGES = new Set(["on", "me"]);
+/*
+  "I DON'T UNDERSTAND" IN ENGLISH IS THE SAME THING SAID. `LOST` is the
+  course's own phrase, and a learner who has not got that far writes it in the
+  language they have: read as an ordinary turn, the other side said "got it"
+  and asked the same thing again. A negator beside `understand` or `follow`.
+*/
+const ENGLISH_NOT = new Set(["don't", "dont", "not", "can't", "cannot", "didn't", "didnt"]);
+const ENGLISH_LOST = new Set(["understand", "follow"]);
 
 /**
  * ONE WORD YOU RECOGNISED IS NOT "I DID NOT CATCH THAT".
@@ -427,9 +447,19 @@ export function readTurn(
     a yes about this. A negator before the word inside its own clause is the
     only shape that refuses.
   */
+  /*
+    "DO YOU SPEAK ENGLISH?" IS NOT THE QUESTION THE BEAT ASKED FOR. A question
+    requirement is met by the question mark, which is right for `Homme?` and
+    wrong for a learner asking for English: told to ask whether it was far,
+    they asked whether the other side spoke English and were answered that it
+    was near. A question met by its mark alone, in a turn asking for English,
+    is the request rather than the question.
+  */
+  const asksForEnglish = spoken.includes(ASK_ENGLISH) || spoken.includes("english");
   const found = beat.needs
-    .map((need) => satisfies(need, text, spoken, context))
-    .map((hit) => (negatedIn(hit, text, beat, context) ? null : hit));
+    .map((need) => (asksWhich(need, text, spoken, context) ? null : satisfies(need, text, spoken, context)))
+    .map((hit) => (negatedIn(hit, text, beat, context) ? null : hit))
+    .map((hit, i) => (asksForEnglish && hit === YES && beat.needs[i]?.kind === "question" ? null : hit));
   const met = found.map((hit) => hit !== null);
   const missing = met.flatMap((ok, i) => (ok ? [] : [i]));
   /*
@@ -468,7 +498,8 @@ export function readTurn(
   */
   const questionWord = spoken.find((word) => context.questionWords.has(word)) ?? null;
   const asked = questionWord ?? (text.includes("?") ? "?" : null);
-  const wantsEnglish = spoken.includes(ASK_ENGLISH);
+  // `Kas sa räägid inglise keelt?`, and the same thing asked in English.
+  const wantsEnglish = asksForEnglish;
   /*
     THREE COPIES OF THIS LITERAL AND ONE HAD ALREADY DRIFTED. The casual
     greeting, the casual goodbye and `declined` each wrote all eleven fields
@@ -553,8 +584,13 @@ export function readTurn(
     `casualHello` is the short list of what people actually say
     (`lib/scenes/casual.ts`), read to accept and never to answer.
   */
+  /*
+    AND A SENTENCE IN ENGLISH IS NOT A GREETING because one of its words is
+    also a rare Estonian spelling: "do you speak English?" is a question, and
+    "hello" is caught by name above it.
+  */
   const casualGreeting = beat.move === "greet" && missing.length > 0 && !isLost(spoken, context)
-    && (caughtSomething(marked) || casualHello(spoken) !== null);
+    && (casualHello(spoken) !== null || (caughtSomething(marked) && !isEnglish(spoken, marked)));
   if (casualGreeting) {
     return shape("complete", {
       met: beat.needs.map(() => true), missing: [], matched: [], satisfiedBy: [], slips: [],
@@ -601,7 +637,36 @@ export function readTurn(
     counter to make, and with nothing marked met, because a turn that
     declined is not evidence the learner produced the word the beat wanted.
   */
-  if (beat.counter && spoken.some((word) => context.negators.has(word))) {
+  /*
+    AND A NO SOMEWHERE ELSE IN THE TURN IS NOT A NO TO THE OFFER. Offered
+    15:30, a learner wrote `Kell 15:30 on okei. ... Mu kass on haige ka, ta ei
+    söö.` and was answered with the second offer, because the `ei` about the
+    cat was read as turning the time down. A turn is a no only where nothing
+    in it accepts the offer outside a clause that carries a negator.
+  */
+  const accepts = found.some((hit) => {
+    if (!hit) return false;
+    if (hit === YES) return true;
+    const spelled = new Set([hit.word, ...(hit.slip ? words(hit.slip.said) : [])].map((w) => w.toLowerCase()));
+    return clausesOf(text.replace(/(\d)[:.](\d)/g, "$1\u2236$2")).some((clause) => {
+      const said = words(clause);
+      // Digits are not words to `words()`, so a time or a number is found in the clause's own text.
+      const raw = clause.replace(/\u2236/g, ":").toLowerCase();
+      const holds = said.some((word) => spelled.has(word)) || [...spelled].some((s) => /\d/.test(s) && raw.includes(s));
+      return holds && !said.some((word) => context.negators.has(word));
+    });
+  });
+  /*
+    AND "A BIT LITTLE" IS A NO WITHOUT A NEGATOR. Offered 1636 a month, a
+    learner wrote `sa ütlesid 1636? See on... natuke vähe`, the figure met the
+    beat, and the interviewer said goodbye to somebody who had just asked for
+    more. A clause saying the offer is short declines it, unless it is negated.
+  */
+  const short = Boolean(context.tooLittle) && clausesOf(text).some((clause) => {
+    const said = words(clause);
+    return said.some((word) => context.tooLittle!.has(word)) && !said.some((word) => context.negators.has(word));
+  });
+  if (beat.counter && (short || (!accepts && spoken.some((word) => context.negators.has(word))))) {
     return shape("declined", {
       met: beat.needs.map(() => false), missing: beat.needs.map((_, i) => i),
       matched: [], satisfiedBy: [], slips: [], substituted: [], chose: [],
@@ -634,9 +699,29 @@ export function readTurn(
   */
   const wantsNo = beat.needs.some((need) =>
     need.kind === "negation" || (need.kind === "anyOf" && need.of.some((o) => o.kind === "negation")));
-  const metByBarePolarity = found.every((hit) =>
-    hit === null || hit === YES || BARE_POLARITY.has((hit as Hit).word));
-  if ((missing.length === beat.needs.length || metByBarePolarity) && !wantsNo && isLost(spoken, context)) {
+  /*
+    A question the beat asked for counts as something said where the turn
+    holds a question that is not itself the "I don't follow": told nobody
+    could come this week, a tenant wrote `ma ei saa aru... aga when saab keegi
+    tulla?`, which asks exactly what the beat wanted, and was read as lost
+    and answered with the refusal word for word.
+  */
+  const asksReally = (text.match(/[^.!?]*\?/g) ?? []).some((one) => {
+    const said = words(one);
+    return said.length > 0 && !isLost(said, context);
+  });
+  const metByBarePolarity = found.every((hit, i) =>
+    hit === null || BARE_POLARITY.has((hit as Hit).word)
+    || (hit === YES && !(beat.needs[i]?.kind === "question" && asksReally)));
+  /*
+    AND ON A BEAT THAT WANTED A NO, "I DON'T KNOW" IS STILL NOT ONE. Misheard
+    and told to say that is not it, a learner who wrote `Ma ei tea.` was read
+    as having said no, and the other side apologised for mishearing and went
+    on. The `ei` there belongs to the phrase, so a turn that is lost and holds
+    no other negator is lost; `Ei, ma ei tea` says no as well and is a no.
+  */
+  const lostOnly = spoken.filter((word) => context.negators.has(word)).length <= 1;
+  if ((missing.length === beat.needs.length || metByBarePolarity) && (!wantsNo || lostOnly) && isLost(spoken, context)) {
     return shape("lost");
   }
 
@@ -733,6 +818,20 @@ const ANSWER_WORDS = 2;
  * `kohvi`, which mean one thing.
  */
 const BARE_POLARITY = new Set(["jah", "ei"]);
+
+/**
+ * WHETHER THE TURN ASKS WHICH, RATHER THAN CHOOSING. Asked large or small, a
+ * learner wrote `small või large?`, which names both and picks neither, and
+ * the English for one of them met the beat: the drink was served before
+ * anybody had said which. Two of a requirement's options in one turn with an
+ * "or" between them is the learner putting the question back.
+ */
+function asksWhich(need: Requirement, text: string, spoken: readonly string[], context: TurnContext): boolean {
+  if (need.kind !== "lemma" || need.oneOf.length < 2) return false;
+  if (!spoken.some((word) => word === "või" || word === "or")) return false;
+  const named = need.oneOf.filter((option) => satisfies({ ...need, oneOf: [option] }, text, spoken, context) !== null);
+  return named.length >= 2;
+}
 
 /** A requirement met by something other than a word: a question mark, small talk. */
 const YES = "\u0001";
@@ -1201,8 +1300,19 @@ function satisfies(
       return text.includes("?") || exact(context.questionWords) || exact(context.askingForms) ? YES : null;
     case "negation":
       return exact(context.negators) ? YES : null;
-    case "register":
-      return exact(context.registerForms) ? YES : null;
+    /*
+      THE PRONOUN, OR ANY TURN IN ESTONIAN. Its one user is the curveball
+      where the other side switches to English, whose way out is "answer in
+      Estonian anyway", and the pronoun alone refused a learner who did just
+      that: `Ma räägin eesti keelt.` was answered with the English line again,
+      three times. Estonian here is a word the language vouches for that is
+      not one of English's own commonest, in a turn that is not English.
+    */
+    case "register": {
+      if (exact(context.registerForms)) return YES;
+      const marked = spoken.map((word) => ({ word, vouched: isEstonian(word, context) }));
+      return !isEnglish(spoken, marked) && marked.some((w) => w.vouched && !ENGLISH.has(w.word)) ? YES : null;
+    }
     /*
       The first option that is met, and the word that met it, so the other
       side can repeat `Sobib.` back the way it repeats `Poodi.`
@@ -1345,13 +1455,19 @@ function negatedIn(
  * the rule gives after `ei`, so `ei tea` and `ei saa aru` are caught and
  * `ma tean` is not.
  *
- * What it deliberately over-reaches on is `ei saa` without `aru`, which is
- * "I cannot" rather than "I do not understand". Both are a learner in
- * trouble on a beat where nothing else was met, and the cost of reading one
- * as the other is that they are offered the word they needed anyway.
+ * `ei saa` without `aru` is "I cannot" rather than "I do not understand",
+ * and it used to be read as lost on the argument that both are a learner in
+ * trouble. The keyless critic found the cost: a shopkeeper offered a time,
+ * the learner wrote "homme ma ei saa, sest ma töötan siis" ("I can't
+ * tomorrow, I'm working"), and was handed the word `Kell?` as though they had
+ * said they were not following. That is a person declining, in good
+ * Estonian. So `saama` negated is read as lost only beside `aru`, which is
+ * the word the course's own phrase ends on, or in a turn too short to be
+ * anything else ("ei saa").
  */
 function isLost(spoken: readonly string[], context: TurnContext): boolean {
   const said = new Set(spoken);
+  if (spoken.some((word) => ENGLISH_LOST.has(word)) && spoken.some((word) => ENGLISH_NOT.has(word))) return true;
   for (const phrase of LOST.phrases) {
     const parts = words(phrase);
     if (parts.length > 0 && parts.every((word) => said.has(word))) return true;
@@ -1359,9 +1475,16 @@ function isLost(spoken: readonly string[], context: TurnContext): boolean {
   if (!spoken.some((word) => context.negators.has(word))) return false;
   return LOST.verbs.some((lemma) => {
     const negated = context.lexicon.persons.get(lemma)?.get("IndPrPs_");
-    return negated !== undefined && said.has(negated);
+    if (negated === undefined || !said.has(negated)) return false;
+    return lemma !== CANNOT || (UNDERSTAND !== undefined && said.has(UNDERSTAND)) || spoken.length <= SHORT_LOST;
   });
 }
+
+/** The verb whose negation is also "I cannot", and the word that makes it "I don't understand". */
+const CANNOT = "saama";
+const UNDERSTAND = words(LOST.phrases[0]).at(-1);
+/** A turn this short with `ei saa` in it has nowhere else to put the meaning. */
+const SHORT_LOST = 3;
 
 /**
  * A place name in the turn, as written: a capitalised word of three letters or
@@ -1397,9 +1520,20 @@ function isEstonian(word: string, context: TurnContext): boolean {
 }
 
 /** Two English function words and nothing the scene's list could vouch for. */
+/*
+  A TURN IN ENGLISH IS ONE WHERE ENGLISH OUTNUMBERS ESTONIAN, NOT ONE WITH NO
+  ESTONIAN IN IT AT ALL. This asked that nothing in the turn was vouched, and
+  the forms list vouches `i`, `do`, `is`, `sorry` and `ok` as rare Estonian
+  spellings, so almost no English sentence was ever read as English: "Sorry,
+  I don't understand. Do you speak English?" met a greeting at a café counter
+  and was answered `Ei tea.` What counts as Estonian here is a vouched word
+  that is not one of English's own commonest, and the two that are both count
+  as neither.
+*/
 function isEnglish(spoken: readonly string[], marked: readonly TurnWord[]): boolean {
-  if (marked.some((w) => w.vouched)) return false;
-  return spoken.filter((word) => ENGLISH.has(word)).length >= ENGLISH_FLOOR;
+  const english = spoken.filter((word) => ENGLISH.has(word) && !BOTH_LANGUAGES.has(word)).length;
+  const estonian = marked.filter((w) => w.vouched && !ENGLISH.has(w.word)).length;
+  return english >= ENGLISH_FLOOR && english > estonian;
 }
 
 /**
@@ -1425,6 +1559,14 @@ function isEcho(spoken: readonly string[], previous: string): boolean {
     back.
   */
   if (said[0] === "kas") return false;
+  /*
+    AND PICKING ONE OF TWO IS ANSWERING. Offered `hommikul või pärastlõunal?`,
+    a learner who wrote `homme hommikul` chose, and every word of it was in
+    the line they were answering, so the rule read the choice as parroting
+    and the other side asked again. A line that offers a choice is answered
+    with its own words; only handing the whole choice back is an echo.
+  */
+  if (said.includes(CHOICE_WORD) && !spoken.includes(CHOICE_WORD)) return false;
   const heard = new Set(said);
   return spoken.every((word) => heard.has(word));
 }

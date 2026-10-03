@@ -4994,6 +4994,89 @@ being told what it has already said. Run the critic before and after the next ch
 model's short note on it, checked word by word against the conversation, with a sentence dropped
 rather than the note withheld where one reaches for a form nobody said.
 
+## §75 The other side keeps its word, keeps its figures for later, and hears what was meant
+
+Reported off two scenes in one sitting. A job interviewer named the salary while still asking about
+experience, so the learner's next objective, "ask what the pay is", asked about a figure already on
+the screen. A ticket seller said the bus would not leave tonight, was asked `Oi kurat, kas teil õlut
+on?`, and answered that there was no beer but the learner could get on the bus. And a turn that was
+wrong on purpose, and plain to anybody standing there, was refused. Four changes, and each is about
+every scene rather than the two reported.
+
+**A figure is kept for its beat** (`heldBack` in `lib/scenes/reply.ts`). A value on the other side's
+card that the scene says only at a beat still ahead is labelled "not yet" in the facts the model is
+handed, named rather than filled in the agenda it reads, and withheld by a new gate check, `ahead`,
+if a composed line states it anyway. A question releases it, since a question is owed an answer: a
+question about money releases a price, any question releases the rest.
+
+**What a curveball changed stays changed** (`CurveballSpec.stands`, `establishedBy`). The five
+curveballs that alter the situation (`not-possible`, `slot-gone`, `wrong-price`,
+`missing-document`, `place-instruction`) and `misheard` each say what stays true afterwards, from
+the other side's view, and every one this run raised is handed to the composer above the agenda as a
+fact it may not go back on. The rules open with consistency: nothing said is quietly undone, a
+question nobody planned for is answered in character from what the place plainly is, and a choice is
+offered only between things the person can actually give.
+
+**And a line the gate passed is read once more for logic** (`lib/scenes/consistency.ts`). One
+question on the grader chain, metered as a GRADER call: does this line contradict what was said or
+established, or settle something listed as coming later. A yes withholds it and the retry is told
+why in the reviewer's words; a reply nobody can read, a spent allowance or no key is read as no
+objection, since the line has passed every check that can be stated mechanically.
+
+**The judge reads a turn in its conversation.** It is handed the Estonian line the learner was
+answering and the turns before it, and told to read the turn as a kind native speaker there would:
+a misspelling, a nearly-right word, a right stem with the wrong ending and broken order all count
+where the meaning is plain. The composer's note for a turn the dictionary could not read now tells it
+that such a turn is often exactly that, and to check what was meant rather than say it did not
+understand. And picking one of two options the other side offered (`hommikul või pärastlõunal?`,
+answered `homme hommikul`) is an answer rather than an echo (`isEcho` in `lib/scenes/turn.ts`).
+
+**What it does not fix.** A keyless run speaks from the bank, and a banked line for a later beat
+was drafted against the beat alone: after `not-possible` it can still sell a ticket for today. The
+consistency rules reach a composed line and no other.
+
+
+## §76 A critic reads every scene, and what thirteen passes of it changed
+
+`scripts/critic-scenes.ts` plays each scene against a model playing the learner (offtrack, confused
+and chatty) and has a second model list every moment the other side stopped making sense. It counted
+34 faults over 45 conversations on the first pass and 7 on the twelfth. Every change below is in the
+machine rather than in one scene, and each was traced to the line that caused it through `--raw`.
+
+**A failed line falls back less often, and less far.** After three attempts the composer is asked once
+more for a plain reaction and the move (`SAFE_RETRY`), before the bank. A line held back for its
+goodbye keeps the rest of itself (`withoutFarewell`), and one held back for naming a figure kept for
+later keeps its reaction with the beat's prepared move after it (`beforeHeld`); both run on every
+attempt, the last plain one included. A line that only repeats this person's own earlier sentences is
+refused before the reviewer is asked (`repeatsItself`).
+
+**A break in time is a fact the learner may overrule.** The composer and the reviewer are both told
+what the scene has moved on to (`sceneMovedOn`), and both are told the learner's account wins: if they
+say they have not eaten or are still on the street, a line going along with them is right. A break
+counts only once the conversation reaches it, and no beat past an unreached break is credited from a
+distance, by the cascade or by the look-ahead, so a diner asking what the soup cost does not skip the
+meal. A turn that asks something on its way into a break gets its answer written first, as things
+stood, and the move after the break is written knowing that answer, so it is not said twice.
+
+**Four checks stopped refusing good lines.** The agreement check reads an ambiguous pronoun as a
+possessive unless a person of a verb follows it (`teie jaoks`). The case check holds an infinitive
+only to what follows the verb carrying the person (`Mulle meeldib siin töötada`) and leaves a phrase
+the course teaches whole out of the count (`tere hommikust`); measured on `eval:scene --part-b`, good
+lines withheld stay at 2 of 495 and errors caught go from 143 to 142. A word written with a capital
+in the middle of a sentence is a name (`Minu nimi on Tiit.`), and every form of a word the learner
+used counts as on topic. The translative joined the cases an adjunct takes freely (`igaks juhuks`).
+
+**And the marker reads three more turns the way a person would.** A question on a beat that wanted
+one counts as asked even where the turn also says the learner does not follow. Two of a beat's
+options with an "or" between them is the learner asking which, not choosing. An offer that a learner
+calls short (`natuke vähe`) is a no, and a learner leaving with a casual goodbye (`näeme veel`) is
+answered with one.
+
+**What the critic cannot see.** It is a model reading a transcript, so it misses what it does not
+notice and occasionally flags a reasonable line. And a failed call used to read as no issues: the
+thirteenth pass printed "0 issues over 90 conversations" on a day the key's quota had run out. A call
+that fails is retried and then reported as not judged, and never counted as clean.
+
 ## §77 What a conversation costs, and four faults that were most of the bill
 
 The operator reported the Gemini credits running out on scenes and asked for them to run as cheaply as
@@ -5103,3 +5186,177 @@ tokens held, 1,090 sent, 24 out) and a conversation of seven or eight composed t
 with its entry, judge and note, against $0.0016 to $0.0025 on the Lite on rails. What did not move is
 everything about the bill that was real: the quota breaker, the shared entries, and a harness that
 buys nothing without a budget and shares a day's ceiling.
+
+## §78 The no-model path, swept in every scene, and what the quota taught
+
+**Why it was swept.** The bank is what a deployment with no key, a spent allowance or a model that
+will not answer falls to. On 2026-10-02 the harnesses used up the Flash model's daily allowance
+(§77), so for the rest of that day every conversation on the same Google project composed on the Lite
+model and then fell to the bank. A conversation on the bank is one a learner meets, so every
+scene's bank was checked rather than the one that had been reported.
+
+**`npm run sweep:fallback` is the check.** It plays every scene with no model against eight scripted
+learners: plain, one who asks things, one off the point, one who is lost, one in English, one who says
+no, one who leaves early and one who gives the wrong answer. Each is played with no curveball and with
+every curveball the scene admits raised at every beat. That is 5,040 conversations in about two
+minutes, through `scripts/lib/keylessPlay.ts`, the route's own loop with the model rungs taken out;
+`npm run replay:scene` reads a reported transcript through the same loop. Fourteen detectors name
+what nobody does:
+- a shrug at a question the card answers;
+- "sorry?" to an answer;
+- thanks for a question;
+- goodbye before the scene is over;
+- hello in the middle;
+- a number the card never dealt;
+- an English line;
+- a stage direction drawn where a line should be;
+- the same line after the turn landed;
+- one line three times;
+- "today" after "not today";
+- a scene that never ends.
+
+The first run raised 2,488 flags. The last raised 9, and each was read and left as it is: a goodbye
+said by both sides, a greeting beat that takes any Estonian by design, and "speak more slowly" said
+back under the curveball that speeds the other side up.
+
+**What it found was in the machine, not in a scene.**
+- A curveball that changes the situation now takes the bank lines it made untrue out of the bank
+  (`unsays`, `sayableAfterHurdles`), so "take it tonight" is not said after "it can't be done today".
+- A curveball that leaves asking as the only way out has banked answers (`answer:hurdle:*`).
+- A second word for the same thing no longer credits a beat from a distance.
+- "Do you speak English?" no longer meets a beat that wanted a question.
+- An English turn is no longer read as Estonian because two words are spelled alike.
+- "Ma ei tea" is read as lost rather than as the answer to a yes-or-no question.
+- A beat whose prepared lines are spent says its question again rather than the repair phrase.
+
+**Then a critic read it.** `npm run critic:scenes -- --model-down --critic-model
+gemini-3.1-flash-lite` plays sixty conversations with no model, against a model learner who is off
+the point, confused, chatty or half in English, and has the Lite model list where the other side
+stopped making sense. The judge being the Lite model is the point: a round over the no-model path
+spends none of the composer's allowance.
+
+It found 278 issues. 105 of them were one line, "Ei tea.", said to small talk tucked into an answer
+that had already landed. Five faults were mechanical and are fixed:
+- A reference number or a clock time was read as a price. A figure is now a number beside a euro, a
+  euro sign, or a turn that is only the number.
+- The time was read back whenever "kell" appeared anywhere in the turn. It now has to be in the
+  sentence the question mark ends.
+- A fact this run has already said is confirmed with "Jah." alone.
+- The shrug is said once a conversation.
+- "Ma ei saa" is lost only beside "aru" or in a turn of three words, and "please speak more slowly"
+  is never shrugged at.
+
+The rerun found 254. Non-sequiturs fell from 80 to 44, and questions counted as ignored rose from 41
+to 51: where the second and third "Ei tea." used to be, the other side now just makes its move. The
+learner is a model too, so both runs carry noise of their own. What the critic still flags is a
+question nobody wrote an answer for, and nothing without a model can answer small talk. That is the
+argument for keeping the model up.
+
+**Then "Ei tea." was held to the questions it answers.** In the 254 it was still said in 47 of the 60
+conversations, and most of those were replies to yes-or-no questions it does not answer: a shop
+assistant asked whether they sell ice cream, a neighbor asked how long they have lived there, a
+learner checking `Homme?`. `shrugFits` lets it answer only a question asking for information
+(`Kus on postkontor?`, `Mis kell on?`) or a "do you know...?", and never a question about the person
+asked (`Kuidas teie nimi on?`), read a sentence at a time so a statement in front of the question
+does not decide it. It errs toward silence, since a missed shrug costs nothing and the move is said
+either way. Three more faults came out of the next round, each mechanical:
+- The price was answered wherever a money word stood. A learner at a returns desk who said what
+  they had paid and asked for their money back was told the price. `priceAsked` reads the question
+  clause, so "Kas ma saan raha tagasi?" is not a price question and "Kas see maksab?" is, and the
+  figure is read from that clause alone. The same rule decides whether a price held for a later
+  beat is released.
+- With no model, a question on the way out was answered and then `Head aega!` followed in the same
+  breath. Now the answer is said and the goodbye waits for the learner, which is what the composer
+  is told. Where nothing could answer, the goodbye is still said, since it is all that is left. A
+  goodbye that waited is said as itself when it comes, not as "said again", and two goodbyes in
+  different words are never said in one breath.
+- A beat that explains, refuses or corrects was credited from a distance. At the pharmacy, a
+  learner who mentioned the price in their first turn met "pay" two beats early, so how to take the
+  medicine was never said, and asking how often got `Nägemist!`. Those beats now wait for their own
+  line, the same rule the offer beat already had.
+
+The rerun found 228 over 59 conversations (one was not judged): "Ei tea." said 16 times rather than
+47, unkind lines 19 to 6, stalls 30 to 11. Premature ends rose from 23 to 36. The round before
+these fixes ran on a harness that, with no model, said nothing in Estonian at a closing beat while
+the learner was still asking. The closing beat now says its goodbye, and the critic counts a
+goodbye the learner was not ready for. The sweep is at the same nine flags.
+
+**And reading it found one fault the sweep could not see.** When the learner is still asking things,
+the route hands the closing beat to the composer as a `confirm`, so a model answers the question and
+leaves the goodbye to the learner. The cheap ladder was handed the same relabelled beat, and a
+`confirm` does not take `Head aega!`. So with no model, a learner who asked something on the way out
+read the stage direction "They say goodbye." in English, turn after turn. The sweep's loop never had
+the relabelling, so it could not see the fault; the critic's harness did. The net is now handed the
+beat as it is, and an invariant holds both halves
+(`scripts/invariants/the-keyless-net-is-the-beat-as-it-is.ts`). The lesson is about the instruments:
+three copies of the conversation loop are three chances to measure a conversation the app does not
+have, so a fault the critic shows is replayed through `npm run replay:scene` before it is believed or
+dismissed.
+
+**The quota is per project, not per key.** Google counts requests per model per day across every
+key in a Cloud project, and resets at midnight Pacific. On this project's tier, Flash allows 10,000 a
+day. A key created for evaluation inside the production project spends the learners' day. So
+evaluations run on a project of their own. The app's own caps (`AI_DAILY_USD_SCENE`,
+`AI_DAILY_USD_GLOBAL`) bind before Google's at their defaults, and the two are raised together or
+not at all. The tiers that lift Google's limit:
+- Tier 2, after $100 paid and three days from the first payment;
+- Tier 3, after $1,000 paid and thirty days;
+- a quota increase can also be asked for on Google's form.
+
+What the app does when a model says its allowance is spent, and how the harnesses are held to a
+budget and a day's ceiling, is §77. One thing that section cannot fix is worth saying here. At 00:34
+UTC on 2026-10-03 the Flash model refused with its daily limit spent and a retry of 23 hours 26
+minutes, and nothing in this pass had called it: both critic rounds here used only the Lite model and
+Groq. A meter in the repository caps what this repository's scripts spend. It cannot see another key
+in the same project. And Google's page says the day resets at midnight Pacific, which a retry of 23
+hours at that hour does not match. So read the project's own usage page before deciding which caller
+spent the day.
+
+**And then the nine were fixed, and the sweep was run at every band.** The nine flags left above had
+been read and left as they were. Read again, every one was a fault, and none was in a scene:
+- A curveball at the goodbye carried the goodbye straight on, so a friend in a hurry said `Räägi kohe.
+  Head aega!` before the learner had answered either, then `Head aega!` again after they asked them
+  to slow down. The goodbye now waits until the curveball is dealt with.
+- The rule that a long line is not recited twice swapped in "the scene's own line, short", and the
+  clothes shop's two ways of asking what somebody wants are eleven and twelve words. Each was swapped
+  for the other, so the question came back in an older wording. A substitute now has to be shorter.
+- The rule that the fourth asking uses another banked wording counted turns on the beat, and a
+  question carried on behind a curveball is heard on the curveball's turns. "Do you want to try it
+  on?" was asked four times running on a beat that had had one turn. It counts the times the learner
+  heard that line (`timesAnswered`), on a turn that was lost as on one that missed.
+- When every line for a beat had been said, the ladder repeated the first in the rotation rather than
+  the one just heard. It repeats the newest.
+- The clothes shop's four "in a hurry" lines told the learner to put the clothes down and pay, and the
+  corner shop's two drafted ones to take the bread and milk. `faster` can stand in front of the first
+  question, so those were false there. They were replaced, and `bank.test.ts` holds every `faster`
+  line to naming nothing a later beat asks for.
+
+The sweep had only ever run at A2. Run at the other four bands it found what A2 could not show. The
+clothes shop's lines are pitched band by band, with almost no unpitched net, and a run read only its
+own band and that net. At B1 that left beats with nothing to say, and at B2 and C1 every beat. With
+no model, a learner there read English stage directions where the assistant should have spoken:
+2,761 flags at B2. `scriptedFor` now reads the run's own band, then the net, then plainer bands
+nearest first, and a harder band only for a beat nothing else covers, since a line pitched below a
+learner is one they can follow. The bank tests hold every band now rather than the bank as a whole.
+
+**A mishearing is of something just said.** `misheard` could stand straight after the greeting, and
+the friend on the phone answered `Tere!` with `Kas sa ostad piima või vett?`, about milk nobody had
+mentioned. Each misheard line is about one beat by design, so the row now says which
+(`ScriptedLine.about`). The planner stands the curveball only straight after one of those beats
+(`fitsIn`), and the line said is one about the beat just answered (`sayableAfterHurdles`, which now
+takes the scene from every caller). The sweep stands curveballs only where the planner can, so it no
+longer measures conversations nobody can have.
+
+**Two more came out of reading the harnesses rather than the flags.** Neither is something the
+sweep's detectors could name, which is why transcripts are read and not only counted.
+- The clothes shop's till waits for the learner to ask the price, and its banked answer said
+  `See maksab kakskümmend eurot.` to a learner whose card had dealt 33. "Holds no digit" could not see
+  a figure spelled out. A beat that says a fact off the card now answers the question it waits for
+  with that fact (`asideFor`), its answer beat carries the beat's `says` so nothing can be banked for
+  it, and `bank.test.ts` refuses any banked line naming an amount of money.
+- In the reported ticket-window transcript, the learner asked what the new price was on the turn the
+  clerk's patience ran out, and was handed `Kaart?` and `Nägemist!` with the price never said. A
+  question is now owed an answer on that turn too (`wantsAsideFor`), from the card and never the
+  shrug, and the goodbye waits for the learner's next turn.
+
+Measured after all of it: 4,456 conversations at each of A1, A2, B1, B2 and C1, and no flags at any.

@@ -46,7 +46,7 @@ import { NEW_WORDS } from "./gate";
 import { MAX_COMPOSED_WORDS } from "./gate";
 import { pitchFor } from "./pitch";
 import type { Level } from "@/lib/collections/syllabus/types";
-import type { Feel } from "./types";
+import { QUESTION_SHAPE, type Feel, type MoveKind } from "./types";
 
 /** What is the same on every turn of one run, and therefore what is worth caching. */
 export interface ComposeScene {
@@ -176,6 +176,35 @@ export interface ComposeAsk {
    */
   readonly settled?: readonly string[];
   /**
+   * WHAT THIS CONVERSATION HAS ESTABLISHED, WHICH NOTHING LATER MAY UNDO.
+   *
+   * Off the curveballs this run raised (`establishedBy`): told the bus would
+   * not leave tonight, a learner asked for beer and was told there was none
+   * but they could get on the bus. The model had the conversation in front of
+   * it and still followed the scene's next beat, which sells a ticket for
+   * tonight, so what changed is said as a fact that outranks the agenda.
+   */
+  readonly established?: readonly string[];
+  /**
+   * The learner's last turn on a closing beat asked or told something rather
+   * than saying goodbye. A receptionist said "see you tomorrow, goodbye" to a
+   * patient still asking whether to bring the cat; the critic counted every
+   * one of these as a conversation ended too early.
+   */
+  readonly stillTalking?: boolean;
+  /**
+   * The breaks in time the scene has passed (`sceneMovedOn`), as the learner
+   * was shown them. The scene's guess at what happened, which the learner may
+   * contradict, so said apart from what is established.
+   */
+  readonly moved?: readonly string[];
+  /**
+   * How many times this move has already been made in the run. A waiter whose
+   * move was "ask if you enjoyed it" asked it three times in different words
+   * to a learner who had answered twice and was waiting on something else.
+   */
+  readonly madeBefore?: number;
+  /**
    * WHAT JUST HAPPENED TO THEIR TURN, IN ENGLISH, WHERE IT IS NOT SIMPLY
    * "THEY ANSWERED YOU".
    *
@@ -234,7 +263,8 @@ const COMPOSE_RULES = [
     what the gate withholds is how a cut here is checked rather than argued.
   */
   "You play one real person in an Estonian conversation, a role-play for a learner. Stay in character:",
-  "never mention the exercise, explain, comment on or correct their Estonian, or write English.",
+  "never mention the exercise, explain, comment on or correct their Estonian, tell them what to",
+  "say next, or write English.",
   "Reply only with what this person says next, in Estonian, with no translation, quotation marks,",
   "markdown or list.",
   /*
@@ -279,7 +309,8 @@ const COMPOSE_RULES = [
   "Go with the unexpected: a different place, time, day, thing or number from the one you had in",
   "mind is now the fact. If they change the subject or ask something, answer it first, even",
   "briefly, then return to what you still need, in your own words, without reproach. Never put",
-  "the same question the same way twice: rephrase it or narrow it to a choice of two. After a",
+  "the same question the same way twice: rephrase it or narrow it to a choice of two things you",
+  "can actually give, never options you would then have to turn down. After a",
   "couple of tries without an answer, let it go gracefully, say what you will do instead, and",
   "move on.",
   /*
@@ -288,11 +319,14 @@ const COMPOSE_RULES = [
     is said to the person rather than to the words.
   */
   "They are learning: expect a wrong ending, a missing letter or word, a word in English or out",
-  "of place. Work out what they meant and answer that. Do not repeat a question they have",
+  "of place, a wrong word that sounds or looks like the right one, or a word built on the right",
+  "stem. Read it the way a kind native speaker in this situation would: if a person standing here",
+  "would get what they meant, you get it too, so answer that and carry on; never pretend not to",
+  "understand something a native speaker would. Do not repeat a question they have",
   "answered, and do not quiz them. They should leave more confident, never feeling stupid or",
   "misunderstood: a one-word answer, a wrong ending or an answer you had to work out is still an",
   "answer. Say you did not understand only when you genuinely could not, then kindly, without",
-  "blame, offering a choice to pick from.",
+  "blame, offering a choice to pick from. Where they made an effort, let it show that it worked.",
   /*
     AND THE LIST IS WHAT THEY HAVE BEEN TAUGHT, NOT THE LIMIT OF THE LANGUAGE:
     `vouching` holds every word to the forms list and `stretch` holds the line
@@ -313,6 +347,41 @@ const COMPOSE_RULES = [
     out, each one a second call paid for the same line. A beginner reads
     `34 eurot` and `14:30` faster than either spelling, too.
   */
+  /*
+    AND WHAT THIS PERSON HAS SAID STAYS SAID. Two faults a learner reported in
+    one sitting: an interviewer named the salary while still asking about
+    experience, so the learner's next objective asked about a figure already
+    on the screen; and a ticket seller said the bus would not leave tonight,
+    was asked for beer, and said there was none but they could get on the bus.
+    Both are a model following its agenda past what it had already said or
+    not yet reached, and both are said here as the rule above every other.
+  */
+  "Stay consistent, always. Everything you have said in this conversation stays true: never",
+  "contradict it or quietly go back on it (a time, a price, a place, what is or is not possible,",
+  "what you have or do not have). If something you still need no longer fits what you said, fit",
+  "it to what you said. Never invent a new fact that changes the situation to answer a question.",
+  "Do not run ahead: anything you keep for later (a figure, an offer, a decision) is said only",
+  "when your move comes to it or they ask for it, never earlier. Your later steps are what will",
+  "happen: never promise, offer or agree to anything now that one of them takes back (if a later",
+  "step refuses something, do not offer it now; just take note of what they want).",
+  /*
+    And the question nobody wrote a beat for, which is most of what a learner
+    throws at a role-play to see if it holds. Answered in character, briefly,
+    from what the place is, and then back.
+  */
+  "If they ask or say something nobody planned for (something off topic, a joke, a thing this",
+  "place does not have, your name), answer it the way this person really would, in character and",
+  "with humour if it fits, using what you know or what anybody here would plainly know (an",
+  "ordinary first name is fine); then bring the conversation back, in your own words, to what you",
+  "still need. Never ignore a question. If they ask something your facts do not cover (when you",
+  "close, how far it is), give a plausible, ordinary answer that fits everything already said;",
+  "never change a price, time or number your facts give, and never invent a price.",
+  "If they answer several things at once, so the conversation jumps ahead, bridge it naturally:",
+  "do the steps in between in a few words (bring the item, write it down, hand it over) before",
+  "your move, so nothing happens that was never set up.",
+  "What they say outranks your plan: if what they just said shows the step you are on does not",
+  "fit yet (they are not there yet, it does not fit them, they changed their mind, they are",
+  "confused), deal with that first, as a person would, instead of pushing on.",
   "Write every time, price and number from your facts in digits, exactly as the facts give them",
   "(14:30, 34 eurot); never spell them out in words.",
   /*
@@ -321,7 +390,9 @@ const COMPOSE_RULES = [
     Head aega!` on the beat where the learner still has to read the time back,
     and the gate withheld it every time: eight of thirty refusals in one sweep.
   */
-  "Say goodbye or thank them for coming only when your move is to close, never before.",
+  "Say goodbye or thank them for coming only when your move is to close, never before, and never",
+  "twice of your own accord: once you have said goodbye, answer anything else briefly, and say it",
+  "again only to answer their goodbye.",
 ].join(" ");
 
 /**
@@ -422,6 +493,22 @@ export function composeLive(ask: ComposeAsk): string {
       ? "Ask them and stop: do not answer your own question or say the learner's line."
       : "",
     /*
+      AND A MOVE THAT GIVES SOMETHING ASKS NOTHING. The gate refuses a
+      question on these moves, because the learner's job on the next turn is
+      to ask (what else is possible, where that is, what the word means), and
+      a refusal that ends "does Wednesday suit you?" has done it for them.
+      Told only "your move gives them something", models wrote that question
+      three times in a row and the turn fell to a prepared line.
+    */
+    ask.move !== "close" && QUESTION_SHAPE[ask.move as MoveKind] === "forbidden"
+      ? ask.move === "refuse"
+        ? "Your move is to say no: say it kindly, with the reason, and stop. Do not offer another"
+          + " option or ask anything at all, not even whether something else would suit them;"
+          + " what happens next is for them to ask."
+        : "Your move is to tell them something: say it and stop, with no question at all, not even"
+          + " a check like whether that is clear or suits them."
+      : "",
+    /*
       AND A CLOSE IS THE GOODBYE, SAID NOW. Told "they say goodbye", the
       fallback went on with the conversation instead, `Kas te õpite juba
       kaua?`, `Kontor on siin, samas hoones`, ten of the seventeen lines
@@ -435,10 +522,22 @@ export function composeLive(ask: ComposeAsk): string {
       there the direction says they wait for the money, and the goodbye they
       are owed comes back once the learner has said theirs.
     */
-    ask.move === "close"
+    ask.move === "close" && ask.stillTalking
+      ? "They are still asking or telling you something: answer it properly and kindly first, and do"
+        + " not say goodbye in this line; leave room for them to finish, and say goodbye once they do."
+        + " Never tell them what to say, and never quote a goodbye for them to use."
+        + " If they have just said goodbye themselves, answer them and then say goodbye back."
+      : ask.move === "close" && !/goodbye/i.test(ask.they) && /thank/i.test(ask.they)
+      ? "This ends your part of the conversation: thank them warmly and do what the direction says,"
+        + " in a sentence or two. Do not say goodbye, since nobody is leaving, and ask nothing more."
+      : ask.move === "close"
       ? /goodbye|thank/i.test(ask.they)
         ? "This ends the conversation: say goodbye now, in a sentence or two, and ask nothing more."
         : "This ends the conversation: do what the direction says in a sentence or two, ask nothing more, and do not say goodbye yet: they say it first, and you answer it."
+      : "",
+    ask.move === "close" && !ask.stillTalking
+      ? "If anything is still open (a question of theirs unanswered, a payment not made), finish it"
+        + " first in this line, naturally, before the goodbye."
       : "",
     /*
       AND THE CONVERSATION HAS ALREADY BEGUN ON EVERY BEAT BUT THE FIRST. The
@@ -448,6 +547,17 @@ export function composeLive(ask: ComposeAsk): string {
     */
     ask.move !== "greet"
       ? "You have already greeted each other, so do not greet them again."
+      : "",
+    (ask.madeBefore ?? 0) >= 2
+      ? "You have already made this move more than once in this conversation. Do not make it again"
+        + " in any words: respond to what they just said, and leave room for them with something new."
+      : "",
+    ask.established && ask.established.length > 0
+      ? `Already established in this conversation, true from now on whatever comes next: ${ask.established.join(" ")}`
+      : "",
+    ask.moved && ask.moved.length > 0
+      ? `The scene has moved on, as the learner was told: ${ask.moved.map((m) => `"${m}"`).join(" ")}`
+        + " Take it as what has happened, unless what they say shows otherwise: then go with them."
       : "",
     ask.settled && ask.settled.length > 0
       ? `Already settled, never asked again: ${ask.settled.join("; ")}.`

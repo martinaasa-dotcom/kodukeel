@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, type DictEntry } from "./lexicon";
 import { CHECKS, type GateContext } from "./gate";
-import { MAX_COMPOSE_ATTEMPTS, pickAttested, sceneLine, whyWithheld, type LineRequest } from "./line";
+import { MAX_COMPOSE_ATTEMPTS, SAFE_RETRY, pickAttested, sceneLine, unwrapLine, whyWithheld, type LineRequest } from "./line";
 import { topicForms } from "./retrieval";
 import type { BeatSpec } from "./types";
 
@@ -111,12 +111,15 @@ describe("the ladder", () => {
     expect(seen[1], "the retry was not told which word failed").toContain("peavalu");
   });
 
-  it("stops after MAX_COMPOSE_ATTEMPTS, not before and not after", async () => {
+  it("stops after MAX_COMPOSE_ATTEMPTS and one plain last try, not before and not after", async () => {
     let asked = 0;
+    const told: (string | undefined)[] = [];
     const line = await sceneLine(request({
-      compose: async () => { asked += 1; return "Kas teil on peavalu?"; },
+      compose: async (_avoid, because) => { asked += 1; told.push(because); return "Kas teil on peavalu?"; },
     }));
-    expect(asked).toBe(MAX_COMPOSE_ATTEMPTS);
+    expect(asked).toBe(MAX_COMPOSE_ATTEMPTS + 1);
+    // The last try is told to keep it plain.
+    expect(told.at(-1)).toContain(SAFE_RETRY);
     expect(line.provenance).toBe("fallback");
   });
 
@@ -200,8 +203,8 @@ describe("the scripted rung", () => {
       compose: async () => { asked++; return null; },
     }));
     expect(line).toEqual({ text: "Kas teil on valu?", provenance: "scripted" });
-    // Asked MAX_COMPOSE_ATTEMPTS times, and only then the net.
-    expect(asked).toBe(MAX_COMPOSE_ATTEMPTS);
+    // Asked MAX_COMPOSE_ATTEMPTS times and once plainly, and only then the net.
+    expect(asked).toBe(MAX_COMPOSE_ATTEMPTS + 1);
   });
 
   it("says the banked line where the gate withheld what the model wrote", async () => {
@@ -210,6 +213,15 @@ describe("the scripted rung", () => {
       compose: async () => "Kas teil on kõhuvalu ja peavalu?",
     }));
     expect(line).toEqual({ text: "Kas teil on valu?", provenance: "scripted" });
+  });
+
+  it("keeps the reaction of a line that named a figure held for later, with the prepared move after it", async () => {
+    const line = await sceneLine(request({
+      gate: { ...GATE, held: new Set(["1636"]) },
+      scripted: ["Kas teil on valu?"],
+      compose: async () => "Valu on. 1636 on. Kas on?",
+    }));
+    expect(line).toEqual({ text: "Valu on. Kas teil on valu?", provenance: "composed", stretched: [] });
   });
 
   it("passes over a scripted line this run has already used", async () => {
@@ -245,13 +257,32 @@ describe("the scripted rung", () => {
     }
   });
 
-  it("reaches the repair phrase only once the bank is empty too", async () => {
-    const line = await sceneLine(request({
+  /*
+    A bank whose every line has been said says one again rather than nothing:
+    a curveball that carries the beat's question straight on spends its line
+    early, and the screen printed the English stage direction instead. The
+    repair phrase is reached only where the bank never held a line.
+  */
+  it("says the beat's own line again once the bank is spent, and reaches the repair phrase only with no bank", async () => {
+    const spent = await sceneLine(request({
       scripted: ["Kas teil on valu?"],
       used: new Set(["Kas teil on valu?"]),
       compose: async () => null,
     }));
-    expect(line.provenance).toBe("fallback");
+    expect(spent).toEqual({ text: "Kas teil on valu?", provenance: "again" });
+    const none = await sceneLine(request({ scripted: [], compose: async () => null }));
+    expect(none.provenance).toBe("fallback");
+  });
+
+  it("and the one said again is the one said last, not the first in the rotation", async () => {
+    // The phone shop said both of its lines once, and repeated the older one to somebody who had just heard the newer.
+    const bank = ["Jah, meil on see.", "Jah, see on meil siin."];
+    for (const rotate of [0, 1, 2, 3]) {
+      const line = await sceneLine(request({
+        scripted: bank, rotate, used: new Set(["Tere!", ...bank]), compose: async () => null,
+      }));
+      expect(line).toEqual({ text: "Jah, see on meil siin.", provenance: "again" });
+    }
   });
 
 });
@@ -374,5 +405,13 @@ describe("what a retry is told", () => {
     expect(line.provenance).toBe("composed");
     expect(heard[0]).toBeUndefined();
     expect(heard[1]).toMatch(/number, a time or a price/);
+  });
+});
+
+describe("unwrapLine", () => {
+  it("takes off a pair of quotes that wraps the whole line and nothing else", () => {
+    expect(unwrapLine('"Kas teil on valu?"')).toBe("Kas teil on valu?");
+    expect(unwrapLine('"Suur" tähendab big. Kas see on kõik?')).toBe('"Suur" tähendab big. Kas see on kõik?');
+    expect(unwrapLine("„Suur“ tähendab *big*.")).toBe("„Suur“ tähendab big.");
   });
 });

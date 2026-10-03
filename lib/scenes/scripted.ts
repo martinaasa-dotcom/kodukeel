@@ -2,7 +2,7 @@ import { BANK } from "./bank";
 import { curveballById } from "./curveballs";
 import { hurdleBeat } from "./state";
 import { leafNeeds, type BeatSpec, type SceneSpec } from "./types";
-import type { Level } from "@/lib/collections/syllabus/types";
+import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 
 /**
  * LINES WRITTEN BEFORE ANYBODY PLAYED, AND WHICH BEATS MAY HAVE ONE.
@@ -60,6 +60,17 @@ export interface ScriptedLine {
    * keyless deployment meets the A1 lines and never the C1 ones.
    */
   readonly level?: Level;
+  /**
+   * THE BEAT A CURVEBALL'S LINE IS ABOUT, for a curveball whose lines each are.
+   *
+   * A mishearing is of something somebody just said, so `Kas sa ostad piima
+   * või vett?` is a line about the beat where milk was asked for and is true
+   * nowhere else: in front of "where are you going?" it asked about milk
+   * nobody had mentioned. A curveball whose rows carry this stands only
+   * straight after one of those beats (`fitsIn` in `run.ts`) and says a row
+   * about the beat just answered (`sayableAfterHurdles`).
+   */
+  readonly about?: string;
 }
 
 /**
@@ -133,15 +144,32 @@ export function scriptedFor(scene: SceneSpec, beat: BeatSpec, level?: Level): re
   const rows = BANK.filter((row) => row.scene === scene.id && row.beat === beat.id);
   if (level === undefined) return rows.map((row) => row.text);
   /*
-    This band's own lines lead and the unpitched ones follow; another band's
-    are never said. The ladder walks the pool in order and passes over what
-    this run has used, so a beat with two A1 lines says both before it falls
-    to a line drafted at no band, and a beat with none at A1 still has a line.
+    This band's own lines lead and the unpitched ones follow. The ladder walks
+    the pool in order and passes over what this run has used, so a beat with
+    two A1 lines says both before it falls to a line drafted at no band, and a
+    beat with none at A1 still has a line.
+
+    AND THEN A PLAINER BAND'S, NEAREST FIRST, AND A HARDER ONE ONLY WHERE THERE
+    IS NOTHING ELSE. This said "another band's are never said", which held for
+    every scene whose net is the unpitched rows and failed the one drafted band
+    by band: the clothes shop holds no unpitched line for most of its beats and
+    none at B2 or C1 for any, so with no model a B2 learner read "They ask what
+    size you need." in English where the assistant should have spoken, on every
+    beat, and at A2 the shop had one way of asking whether you want to try it
+    on, said four times running. A line pitched below a learner is one they can
+    follow; a stage direction is the conversation stopping. A harder band's
+    line is the last resort and is reached only by a beat no plainer line
+    exists for, since saying it again is kinder than saying it harder.
   */
-  return [
-    ...rows.filter((row) => row.level === level),
+  const at = LEVELS.indexOf(level);
+  const band = (one: Level) => rows.filter((row) => row.level === one);
+  const pool = [
+    ...band(level),
     ...rows.filter((row) => row.level === undefined),
-  ].map((row) => row.text);
+    ...LEVELS.slice(0, Math.max(0, at)).reverse().flatMap(band),
+  ];
+  const harder = pool.length === 0 ? LEVELS.slice(at + 1).flatMap(band) : [];
+  return [...pool, ...harder].map((row) => row.text);
 }
 
 /**
@@ -167,7 +195,16 @@ export function sceneBeats(scene: SceneSpec): BeatSpec[] {
     met. Without this the answer was either said as the beat's opening line,
     before anybody had asked, or never.
   */
-  const answers = scene.beats
+  /*
+    AND ONE PER CURVEBALL WHOSE ONLY WAY OUT IS TO ASK. Told the time had gone,
+    or that it could not be done today, or to go somewhere first, the learner
+    is told to ask, asks, and is owed what any person would say next. A
+    curveball that takes a question among other answers (`faster`,
+    `wrong-price`) is not one: there the question is one way through of
+    several, and the price is answered off the card.
+  */
+  const asking = hurdles.filter((beat) => beat.needs.length === 1 && beat.needs[0]!.kind === "question");
+  const answers = [...scene.beats, ...asking]
     /*
       Every beat that asks the learner for a question and does not say that
       the move after it is the answer. `answeredNext` is the four where it
@@ -192,6 +229,15 @@ export function sceneBeats(scene: SceneSpec): BeatSpec[] {
       they: beat.answer ?? "They answer the question they were just asked, briefly, and no more.",
       move: "confirm",
       topic: beat.topic,
+      /*
+        AND WHERE THE BEAT SAYS A FACT OFF THE CARD, SO DOES ITS ANSWER. The
+        clothes shop waits at the till for the learner to ask the price, and
+        the price is dealt per run: banked, the answer said `kakskümmend eurot`
+        to a learner whose card said 33. The answer is the beat's own line off
+        the card (`asideFor`), and carrying `says` is what tells the bank and
+        its tests that nothing may be banked for it.
+      */
+      ...(beat.says ? { says: beat.says } : {}),
       needs: [],
       required: false,
       patience: 0,
