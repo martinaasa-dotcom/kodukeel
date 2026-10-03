@@ -494,8 +494,9 @@ were most of the bill.** Read off Google's own cache listing and its 429s on 202
 (`docs/21-situations.md` §77). The harnesses were the largest spender and nothing capped them:
 thirteen rounds of `scripts/critic-scenes.ts` took `gemini-3.8-flash` past its 10,000 requests a day.
 Every script that reaches a paid model installs `scripts/lib/meter.ts`, asserted, which prices every
-call off the ledger's table, refuses past `--budget` so a run finishes on the bank and says it is
-partial, prints what it spent, and answers a byte-identical question from `.cache/model-replay/`
+call off the ledger's table, **buys nothing unless it is handed a `--budget`**, refuses past it so a
+run finishes on the bank and says it is partial, holds every run on a machine to one day's ceiling
+(`KODUKEEL_DAY_BUDGET_USD`, two dollars), prints what it spent, and answers a byte-identical question from `.cache/model-replay/`
 (`--fresh` skips it; a Gemini call off a cache entry is replayed inside `geminiCache.ts` before any
 entry is made, through `setReplayRecord`, which nothing in the app sets). A model past its quota was
 still asked first and had an entry written for it before every refusal: `lib/tutor/exhausted.ts`
@@ -509,7 +510,12 @@ answers from the bank, which cut the turns that reach the model from 88 to 36 fo
 and from 94 to 61 for a curious one over every scene. **`SCENE_MODELS` leads on the Lite now**, the
 operator's call on §61's own numbers, with the flash as its backup, and an entry lives five minutes
 rather than ten. Where an earlier paragraph here says the flash is the primary or that every beat
-composes, this one supersedes it.
+composes, this one supersedes it. **And the deployment's own ledger says the app was never the bill**:
+every model call it made for the month to 2026-10-02 came to $0.27, and a conversation measures at
+about a quarter of a cent, while the same key ran out of the flash's 10,000 requests in a day on
+harnesses. So a session does not run a harness against a paid model without a budget it can state,
+and the limit that holds across sessions is a quota on the key's own Google project, which is the
+operator's to set (§77).
 
 **The scene prompt was cut by a fifth and then held on Google's side, which is the saving the
 endpoint could not give.** The rules block was 594 tokens for twenty rules and is 498 saying the

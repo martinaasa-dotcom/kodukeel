@@ -5006,8 +5006,9 @@ a model playing the learner, a model composing, a judge on every miss and a flas
 transcript, each conversation in its own process; thirteen rounds that day took `gemini-3.8-flash`
 past its quota of 10,000 requests a day, and a fourteenth was scheduled. Every script that reaches a
 paid model now installs `scripts/lib/meter.ts`, asserted: it prices every call off
-`lib/usage/pricing.ts`, refuses calls past `--budget` (default $1 a run, $3 for the critic, split
-among its children) so a run finishes on the bank and says it is partial, prints what it spent, and
+`lib/usage/pricing.ts`, buys nothing unless it is given a `--budget` and refuses calls past it (the
+critic splits its budget among its children) so a run finishes on the bank and says it is partial,
+holds every run on one machine to a day's ceiling, prints what it spent, and
 answers a byte-identical question from `.cache/model-replay/`. A Gemini call off a cache entry is
 replayed inside `lib/tutor/geminiCache.ts`, before any entry is made, so a fully replayed round costs
 nothing at all. Driven with the network stubbed: a first run bought two lines and an entry for
@@ -5057,9 +5058,31 @@ so moving them is a measured change rather than a tidy-up. What did move is the 
 minutes to five, because with two to four reads a run the idle tail was a real share of what an entry
 cost on the Lite, which holds at $1.00 a million an hour against $0.25 to read.
 
-**What a conversation costs now, roughly.** On the Lite with its prompt held: about $0.00025 a call,
-2.5 to 4 calls a run at 1.2 attempts each, one shared entry at about $0.0008 with its storage, a judge
-call at $0.0002 on a miss, and Anu's note at $0.0007. About $0.003 a conversation, against roughly
-$0.01 to $0.015 before on the flash with an entry per instance. Those figures are arithmetic over the
-measured token counts and the price table, not a reading of the ledger, which this session could not
-reach; `npm run report:spend` on the deployment is the reading.
+**What a conversation costs now, measured.** Every scene played once by the curious learner, live on
+the Lite with its prompt held, with nothing replayed: 65 composer calls and four entries across fifteen
+conversations for $0.024, which is $0.0016 a conversation with the entries in it. A call is about
+3,150 tokens in, 2,060 of them off the entry, and 24 out; the 1,090 that are not held (the
+conversation and the per-turn block) are now three quarters of what a call costs. Add a judge call at
+about $0.0002 on a miss and Anu's note at about $0.0007, and a conversation is around $0.0025, against
+roughly $0.01 to $0.015 before on the flash with an entry per instance.
+
+**And then the deployment's own ledger was read, and the bill was never the app.** `UsageEvent` for the
+month to 2026-10-02, read off the production database: every model call the app made, to every
+learner, for every purpose, came to **$0.27**, of which Situations was about a hundred calls. On the
+same key, the same day, `gemini-3.8-flash` was refused for having used its 10,000 requests. Those
+requests were the development harnesses, run by sessions on the key the cloud environment carries,
+and none of them books a row. So the meter's default became the lever that matters: a run buys
+nothing unless it is handed a `--budget`, and every run on a machine shares a day's ceiling
+(`KODUKEEL_DAY_BUDGET_USD`, two dollars by default), written to `.cache/model-spend/` one line a call
+so concurrent children add up. A machine is one session; the ceiling that holds across every session
+is a quota on the key's own Google project, which is the operator's to set, or a separate key for
+development with its own.
+
+**The one trade left open is the Lite against the flash on the turns that remain.** With the model
+asked only where a person is needed, every call it makes is a hard turn, and the curious run shows
+what the Lite does with some of them: a landlord saying nobody has time this week and then offering
+Thursday at 17:30, a waiter saying goodbye and then offering a table by the window. §61 measured the
+flash reacting where the Lite asks and stops. At the prices on file the flash would cost about a
+quarter of a cent more a conversation, so at the traffic the ledger shows the difference is pennies a
+month, and turning it back is the one line in `SCENE_MODELS`. It stays on the Lite because the
+operator asked for the cheapest, and this paragraph is the price of that.

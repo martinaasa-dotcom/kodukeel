@@ -30,10 +30,13 @@ const meter = installMeter({ replay: true });
   The whole run's budget, split: four fifths shared evenly among the
   conversations, each child held to its share through the environment, and the
   rest for the critic's own reading. A child past its share finishes on the
-  bank and says so, so a round cut short is never read as a clean one.
+  bank and says so, so a round cut short is never read as a clean one. With no
+  `--budget` the round buys nothing at all, which is the meter's default and
+  the reason for it: thirteen rounds of this on 2026-10-02 were most of a day's
+  Google bill, against $0.27 for a month of the app's own learners.
 */
 const budgetAt = process.argv.indexOf("--budget");
-const budget = Number((budgetAt >= 0 ? process.argv[budgetAt + 1] : undefined) ?? process.env.KODUKEEL_BUDGET_USD ?? DEFAULT_BUDGET_USD * 3);
+const budget = Number((budgetAt >= 0 ? process.argv[budgetAt + 1] : undefined) ?? process.env.KODUKEEL_BUDGET_USD ?? DEFAULT_BUDGET_USD);
 const children = { usd: 0, refused: 0 };
 let jobCount = 0;
 

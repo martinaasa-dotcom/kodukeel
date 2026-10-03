@@ -73,4 +73,24 @@ export default function situationsSpendOnlyWhereAPersonIsNeeded({ check, code, A
     const bare = spenders.filter((f) => !/\binstallMeter\(\{ replay: (?:true|false) \}\)/.test(code(`scripts/${f}`)));
     assert.deepEqual(bare, [], `these reach a paid model with nothing counting or capping what they spend: ${bare.join(", ")}`);
   });
+
+  /*
+    A harness buys nothing unless somebody named a number, and every run on a
+    machine shares one day. The month's ledger put the app's own learners at
+    $0.27 against a key that ran out of ten thousand requests in a day, so the
+    default is what decides the bill, and a default of a dollar a run was
+    thirteen dollars on the day a session ran thirteen rounds.
+  */
+  check("a harness buys nothing without a stated budget, and its runs share a day's ceiling", () => {
+    const meter = code("scripts/lib/meter.ts");
+    assert.ok(/export const DEFAULT_BUDGET_USD = 0;/.test(meter), "a harness run spends by default again; the default budget has to be nothing");
+    const day = /export const DEFAULT_DAY_BUDGET_USD = (\d+(?:\.\d+)?);/.exec(meter);
+    assert.ok(day && Number(day[1]) > 0 && Number(day[1]) <= 5, "the day ceiling is missing, or set past five dollars");
+    const over = /const over = \(\)[^]*?\n  \};/.exec(meter)?.[0] ?? "";
+    assert.ok(/spentTodayMicros\(\)/.test(over) && /budgetMicros/.test(over),
+      "a call is no longer checked against both the run's budget and the machine's day");
+    assert.ok(/appendFileSync\(dayFile/.test(meter), "a paid call is no longer written to the shared day log, so runs stop adding up");
+    const critic = code("scripts/critic-scenes.ts");
+    assert.ok(!/DEFAULT_BUDGET_USD \*/.test(critic), "the critic scales the default budget up again, so a round with no --budget spends");
+  });
 }

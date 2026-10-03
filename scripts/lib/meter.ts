@@ -23,12 +23,30 @@
  *    replayed is not a second sample; `--fresh` and `--replay` turn it either
  *    way for one run.
  *
- * 2. BUDGET. A run stops buying once it has spent `--budget` dollars (default
- *    `DEFAULT_BUDGET_USD`, or `KODUKEEL_BUDGET_USD`, which is how the critic
- *    hands each child its share). Past it a call is refused with a 402, which
- *    the chain reads as a provider out of credit, so the run finishes on the
- *    bank, keyless, and the summary says how many calls were refused. A run
+ * 2. BUDGET. A run buys nothing unless it is told how much it may spend:
+ *    `--budget` dollars, or `KODUKEEL_BUDGET_USD`, which is how the critic
+ *    hands each child its share. The default is nothing, and that is the
+ *    point. The production ledger for the month to 2026-10-02 shows every
+ *    model call the app made, to every learner, costing $0.27 in all, while
+ *    the same key ran out of `gemini-3.8-flash`'s ten thousand requests in a
+ *    day: the bill was the harnesses. A dollar a run by default made spending
+ *    the thing that happens when nobody thinks about it, and thirteen runs is
+ *    thirteen dollars. Past the budget a call is refused with a 402, which the
+ *    chain reads as a provider out of credit, so the run finishes on the bank,
+ *    keyless, and the summary says how many calls were refused and why. A run
  *    that was cut short is never a clean result.
+ *
+ *    AND EVERY RUN ON THIS MACHINE SHARES ONE DAY. A budget per run does not
+ *    stop the fourteenth run, so each paid call is appended to
+ *    `.cache/model-spend/<UTC day>.log` and a call that would start past
+ *    `KODUKEEL_DAY_BUDGET_USD` (default `DEFAULT_DAY_BUDGET_USD`) is refused
+ *    whatever the run's own budget says. Appended rather than rewritten, one
+ *    line a call, because the critic runs its children at once and a file
+ *    each of them read, added to and wrote back would lose their sums to one
+ *    another. It is one machine's day and not the account's: sessions run in
+ *    separate containers, so the ceiling that holds across all of them is the
+ *    one Google enforces on the key (a quota set on its project), which is
+ *    the operator's to set and is written down in CLAUDE.md.
  *
  * 3. THE BILL. On exit, one line: what was spent, on how many calls, how many
  *    the record answered free, and how many the budget refused, priced off
@@ -36,16 +54,20 @@
  *    critic adds up its children's lines.
  */
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { cacheStorageAsInputTokens, estimateCostMicros, estimateTokens } from "../../lib/usage/pricing";
 import { costOf, isModelCall, modelOf, namesCacheEntry, replayKeyOf, spentIn } from "../../lib/usage/harnessSpend";
 import { CACHE_TTL_SECONDS, isCacheEntryUrl, setReplayRecord } from "../../lib/tutor/geminiCache";
 
-/** What one run may spend where nobody said otherwise: about forty fresh conversations on the scene model. */
-export const DEFAULT_BUDGET_USD = 1;
+/** What one run may spend where nobody said otherwise: nothing. Spending is a number somebody chose. */
+export const DEFAULT_BUDGET_USD = 0;
+
+/** What every run on one machine may spend in a UTC day, added together, where nobody said otherwise. */
+export const DEFAULT_DAY_BUDGET_USD = 2;
 
 const REPLAY_DIR = join(process.cwd(), ".cache", "model-replay");
+const SPEND_DIR = join(process.cwd(), ".cache", "model-spend");
 const SUMMARY = "Model spend:";
 
 export interface Meter {
@@ -54,6 +76,9 @@ export interface Meter {
   replayed: number;
   refused: number;
   budgetMicros: number;
+  dayBudgetMicros: number;
+  /** Which ceiling refused the last call this run was refused, so the summary says why. */
+  refusedBy: "run" | "day" | null;
   replay: boolean;
 }
 
@@ -88,6 +113,29 @@ function keep(key: string, text: string, type: string): void {
   }
 }
 
+function dayFile(now: Date): string {
+  return join(SPEND_DIR, `${now.toISOString().slice(0, 10)}.log`);
+}
+
+/** What every run on this machine has spent today, in millionths of a dollar, off the shared log. */
+export function spentTodayMicros(now: Date = new Date()): number {
+  try {
+    return readFileSync(dayFile(now), "utf8").split("\n").reduce((sum, line) => sum + (Number(line) || 0), 0);
+  } catch {
+    return 0;
+  }
+}
+
+function noteSpend(micros: number): void {
+  if (micros <= 0) return;
+  try {
+    mkdirSync(SPEND_DIR, { recursive: true });
+    appendFileSync(dayFile(new Date()), `${Math.round(micros)}\n`);
+  } catch {
+    // A line that could not be written loosens the day's ceiling by one call; it never fails the call.
+  }
+}
+
 /**
  * Patches this process's `fetch`. `replay` is the script's own default; the
  * command line wins. Returns the meter so a script can read it, which the
@@ -101,9 +149,12 @@ export function installMeter(defaults: { replay: boolean }): Readonly<Meter> {
     : process.argv.includes("--replay") || process.env.KODUKEEL_REPLAY === "1"
       ? true
       : process.env.KODUKEEL_REPLAY === "0" ? false : defaults.replay;
+  const day = Number(process.env.KODUKEEL_DAY_BUDGET_USD ?? DEFAULT_DAY_BUDGET_USD);
   const meter: Meter = {
     spentMicros: 0, calls: 0, replayed: 0, refused: 0,
     budgetMicros: Math.round((Number.isFinite(asked) && asked >= 0 ? asked : DEFAULT_BUDGET_USD) * 1e6),
+    dayBudgetMicros: Math.round((Number.isFinite(day) && day >= 0 ? day : DEFAULT_DAY_BUDGET_USD) * 1e6),
+    refusedBy: null,
     replay,
   };
   installed = meter;
@@ -120,10 +171,19 @@ export function installMeter(defaults: { replay: boolean }): Readonly<Meter> {
   }
 
   const real = globalThis.fetch.bind(globalThis);
-  const over = () => meter.spentMicros >= meter.budgetMicros;
+  const over = (): boolean => {
+    if (meter.spentMicros >= meter.budgetMicros) meter.refusedBy = "run";
+    else if (spentTodayMicros() >= meter.dayBudgetMicros) meter.refusedBy = "day";
+    else return false;
+    return true;
+  };
   const refuse = () => {
     meter.refused += 1;
-    return new Response(JSON.stringify({ error: { message: "The harness budget for this run is spent." } }), { status: 402 });
+    return new Response(JSON.stringify({ error: { message: "The harness budget is spent." } }), { status: 402 });
+  };
+  const spend = (micros: number) => {
+    meter.spentMicros += micros;
+    noteSpend(micros);
   };
 
   globalThis.fetch = async (input: string | URL | Request, init: RequestInit = {}) => {
@@ -139,7 +199,7 @@ export function installMeter(defaults: { replay: boolean }): Readonly<Meter> {
         const made = await res.clone().json().catch(() => ({})) as { usageMetadata?: { totalTokenCount?: number } };
         const tokens = made.usageMetadata?.totalTokenCount ?? 0;
         const model = modelOf(url, body);
-        meter.spentMicros += estimateCostMicros(model, tokens + cacheStorageAsInputTokens(model, tokens, CACHE_TTL_SECONDS), 0);
+        spend(estimateCostMicros(model, tokens + cacheStorageAsInputTokens(model, tokens, CACHE_TTL_SECONDS), 0));
       }
       return res;
     }
@@ -162,9 +222,7 @@ export function installMeter(defaults: { replay: boolean }): Readonly<Meter> {
     const text = await res.text();
     const spent = spentIn(text);
     const model = modelOf(url, body);
-    meter.spentMicros += spent
-      ? costOf(model, spent)
-      : estimateCostMicros(model, estimateTokens(body), estimateTokens(text));
+    spend(spent ? costOf(model, spent) : estimateCostMicros(model, estimateTokens(body), estimateTokens(text)));
     if (res.ok && key) keep(key, text, res.headers.get("content-type") ?? "application/json");
     return new Response(text, { status: res.status, statusText: res.statusText, headers: res.headers });
   };
@@ -173,10 +231,23 @@ export function installMeter(defaults: { replay: boolean }): Readonly<Meter> {
     if (meter.calls + meter.replayed + meter.refused === 0) return;
     const parts = [`${meter.calls} calls`];
     if (meter.replayed > 0) parts.push(`${meter.replayed} answered from the replay record`);
-    if (meter.refused > 0) parts.push(`${meter.refused} refused at the $${(meter.budgetMicros / 1e6).toFixed(2)} budget, so this run is partial`);
+    if (meter.refused > 0) parts.push(refusalNote(meter));
     console.log(`\n${SUMMARY} $${(meter.spentMicros / 1e6).toFixed(4)} (${parts.join(", ")}).`);
   });
   return meter;
+}
+
+/** Why a run was refused, in the words the summary line prints and the critic reads back (`/(\d+) refused/`). */
+export function refusalNote(meter: Pick<Meter, "refused" | "refusedBy" | "budgetMicros" | "dayBudgetMicros">): string {
+  if (meter.refusedBy === "day") {
+    return `${meter.refused} refused at this machine's $${(meter.dayBudgetMicros / 1e6).toFixed(2)} day ceiling `
+      + "(KODUKEEL_DAY_BUDGET_USD), so this run is partial";
+  }
+  if (meter.budgetMicros === 0) {
+    return `${meter.refused} refused because no budget was given, so this run is partial; `
+      + "pass --budget with the dollars it may spend";
+  }
+  return `${meter.refused} refused at the $${(meter.budgetMicros / 1e6).toFixed(2)} budget, so this run is partial`;
 }
 
 /** Reads the summary line a child printed, for a parent adding up its children (`critic-scenes.ts`). */
