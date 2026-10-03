@@ -19151,7 +19151,8 @@ check("a question the scene did not anticipate is answered before the move", () 
   const turn = code("lib/scenes/turn.ts");
   assert.match(turn, /readonly asked: string \| null/, "Evidence no longer says whether the learner asked something");
   const reply = code("lib/scenes/reply.ts");
-  assert.match(reply, /if \(aside\) out\.push\(\{ \.\.\.aside, reaction: true \}\)/, "replyFor no longer says the aside first");
+  // A guard may stand beside it (an answer the curveball's line restates stands down), never in place of it.
+  assert.match(reply, /if \(aside(?: && ![A-Za-z]+)?\) out\.push\(\{ \.\.\.aside, reaction: true \}\)/, "replyFor no longer says the aside first");
   /*
     The plain acknowledgment stands down under an aside, since "Ei tea.
     Hästi." is two reactions contradicting each other. The learner's own word

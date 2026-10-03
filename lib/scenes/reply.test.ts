@@ -826,6 +826,17 @@ describe("a curveball in the way", () => {
     const lines = replyFor(input({ answered: ASK, hurdle: { beat: hurdle, line: null, said: "Sorry, what was that?" } }));
     expect(lines.at(-1)).toEqual({ text: "Sorry, what was that?", provenance: "english" });
   });
+
+  it("is not preceded by an answer stating the figure it is about to state", () => {
+    // Paid by card and asked the price, in the turn that raised the price change.
+    const changed: SpokenLine = { text: "See maksab nüüd 2 eurot.", provenance: "attested" };
+    const asked: SpokenLine = { text: "See maksab 2 eurot.", provenance: "attested" };
+    const lines = replyFor(input({ answered: ASK, aside: asked, hurdle: { beat: hurdle, line: changed } }));
+    expect(texts(lines)).toEqual([changed.text]);
+    // A figure the curveball does not state is still answered.
+    const other: SpokenLine = { text: "See maksab 6 eurot.", provenance: "attested" };
+    expect(texts(replyFor(input({ answered: ASK, aside: other, hurdle: { beat: hurdle, line: changed } })))).toEqual([other.text, changed.text]);
+  });
 });
 
 describe("a second offer", () => {

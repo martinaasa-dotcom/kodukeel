@@ -75,6 +75,18 @@ describe("a turn read in front of a curveball", () => {
     return state;
   };
 
+  it("does not read asking the price as having paid", () => {
+    const asked = play(["Tere!", "Ma tahaksin osta ühe pileti haiglasse.", "Kell üheksa.", "Kui palju see maksab?"]);
+    expect(asked.done).not.toContain("pay");
+    const paid = play(["Tere!", "Ma tahaksin osta ühe pileti haiglasse.", "Kell üheksa.", "Kaardiga."]);
+    expect(paid.done).toContain("pay");
+  });
+
+  it("takes the new price with a hästi", () => {
+    const state = play(["Tere!", "Hästi."]);
+    expect(state.hurdles).toEqual([expect.objectContaining({ id: "wrong-price", met: true })]);
+  });
+
   it("credits the destination said in the same breath as the ticket", () => {
     expect(at).toBeGreaterThan(0);
     const state = play(["Tere!", "Ma tahaksin osta ühe pileti haiglasse."]);

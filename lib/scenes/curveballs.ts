@@ -336,7 +336,8 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
       it reads as letting it go.
     */
     out: "Ask about it, or say whether that price is all right with you.",
-    needs: [{ kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["jah", "ei", "hea"] }] }],
+    // `hästi` too: "Hästi, sobib." is how anybody takes a new price, and was read as off the point.
+    needs: [{ kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["jah", "ei", "hea", "hästi"] }] }],
   },
   {
     id: "queue",

@@ -2923,3 +2923,13 @@ greeting, and three of them answer what the learner has not said yet there: a ch
 "that can't be done today" follow the first thing asked for, and "the time you wanted has gone"
 follows the first beat where a time is said (`CurveballSpec.follows`, `notBeforeIn`). A scene with
 no such beat never draws one. Every scene is played over sixty seeds a difficulty to hold it.
+
+**Asking what a ticket costs is not paying for it.** Played on: at "card or cash?" the learner asked
+`Kui palju see maksab?` and the pay beat ticked, because it took any form of `maksma`, and the
+verb that means "I'm paying" is the verb that means "it costs". Off that beat now; the café's and
+the pharmacy's, where it is "I'd like to pay", keep it. The price curveball's way out says "say
+whether that price is all right with you", and `Hästi, sobib.` was off the point because only `jah`,
+`ei` and `hea` counted; `hästi` does now (`sobima` is taught a level after some of the scenes that
+admit it). And asked the price in the turn that raised the change, the clerk said `See maksab 2
+eurot.` and then `See maksab nüüd 2 eurot.`: an answer stating a figure the curveball's own line is
+about to state stands down.
