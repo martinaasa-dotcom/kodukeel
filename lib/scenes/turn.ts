@@ -1455,10 +1455,15 @@ function negatedIn(
  * the rule gives after `ei`, so `ei tea` and `ei saa aru` are caught and
  * `ma tean` is not.
  *
- * What it deliberately over-reaches on is `ei saa` without `aru`, which is
- * "I cannot" rather than "I do not understand". Both are a learner in
- * trouble on a beat where nothing else was met, and the cost of reading one
- * as the other is that they are offered the word they needed anyway.
+ * `ei saa` without `aru` is "I cannot" rather than "I do not understand",
+ * and it used to be read as lost on the argument that both are a learner in
+ * trouble. The keyless critic found the cost: a shopkeeper offered a time,
+ * the learner wrote "homme ma ei saa, sest ma töötan siis" ("I can't
+ * tomorrow, I'm working"), and was handed the word `Kell?` as though they had
+ * said they were not following. That is a person declining, in good
+ * Estonian. So `saama` negated is read as lost only beside `aru`, which is
+ * the word the course's own phrase ends on, or in a turn too short to be
+ * anything else ("ei saa").
  */
 function isLost(spoken: readonly string[], context: TurnContext): boolean {
   const said = new Set(spoken);
@@ -1470,9 +1475,16 @@ function isLost(spoken: readonly string[], context: TurnContext): boolean {
   if (!spoken.some((word) => context.negators.has(word))) return false;
   return LOST.verbs.some((lemma) => {
     const negated = context.lexicon.persons.get(lemma)?.get("IndPrPs_");
-    return negated !== undefined && said.has(negated);
+    if (negated === undefined || !said.has(negated)) return false;
+    return lemma !== CANNOT || (UNDERSTAND !== undefined && said.has(UNDERSTAND)) || spoken.length <= SHORT_LOST;
   });
 }
+
+/** The verb whose negation is also "I cannot", and the word that makes it "I don't understand". */
+const CANNOT = "saama";
+const UNDERSTAND = words(LOST.phrases[0]).at(-1);
+/** A turn this short with `ei saa` in it has nowhere else to put the meaning. */
+const SHORT_LOST = 3;
 
 /**
  * A place name in the turn, as written: a capitalised word of three letters or

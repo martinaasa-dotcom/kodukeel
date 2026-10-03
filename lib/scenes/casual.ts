@@ -106,3 +106,33 @@ export function saysGoodbye(said: string, farewells: readonly string[]): boolean
   });
   return named || casualBye(spoken) !== null;
 }
+
+/**
+ * HOW A LEARNER ASKS THE OTHER SIDE TO SLOW DOWN OR SAY IT AGAIN.
+ *
+ * `rääkige aeglasemalt` is the single most useful sentence a learner owns, as
+ * the course says where it teaches `aeglaselt`, and a scene answered it with
+ * `Ei tea.`: the request rode in a turn with a question mark, the turn had met
+ * its beat, and nothing the scene could say about the card answered "could you
+ * speak more slowly?". That is a shrug at somebody asking for help, which the
+ * keyless critic flagged in every scene a confused learner played.
+ *
+ * ACCEPT ONLY, in `CASUAL`'s two halves and for its reason. The Estonian half
+ * is what people say, the comparative the course does not store among it, and
+ * every entry is a spelling the forms list vouches for, asserted. `korda` is
+ * deliberately not here: it is "repeat!" and also `kaks korda`, "twice", which
+ * is how a pharmacist says how often to take something. What it changes is
+ * small and safe: such a turn is never shrugged at, and nothing about how it is
+ * marked or graded moves.
+ */
+export const AGAIN = {
+  et: ["aeglasemalt", "aeglaselt", "korrake", "korrata", "kordaksite", "kordate"],
+  other: ["slowly", "slower", "repeat", "langsamer", "медленнее"],
+} as const;
+
+const AGAIN_WORDS = new Set([...AGAIN.et, ...AGAIN.other].map(fold));
+
+/** Whether the turn asks the other side to slow down or say it again. */
+export function asksSlower(spoken: readonly string[]): boolean {
+  return spoken.some((word) => AGAIN_WORDS.has(fold(word)));
+}

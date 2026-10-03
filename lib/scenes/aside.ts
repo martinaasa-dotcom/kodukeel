@@ -33,7 +33,7 @@
 import { ASIDES } from "./catalogue";
 import type { SpokenLine } from "./line";
 import { caseKeyFor, type Lexicon } from "./lexicon";
-import { priceOnCard, type RoleCard } from "./props";
+import { CLOCK_LEMMA, numberWords, priceOnCard, timeFromText, type RoleCard } from "./props";
 import { partsLine } from "./reply";
 import { leafNeeds, type BeatSpec, type MoveKind } from "./types";
 
@@ -69,6 +69,14 @@ export interface AsideInput {
    * sentence, and it is the one a learner who asked the price was owed.
    */
   readonly missed?: boolean;
+  /**
+   * The lines the other side has already said this run, which is `used` on
+   * the route and in the harnesses. A learner checking a fact a second time
+   * ("so it's 17 euros?") is answered `Jah.`, because the whole price line
+   * again reads as somebody who did not hear them. The keyless critic counted
+   * one pharmacist saying the price three times in four turns.
+   */
+  readonly already?: ReadonlySet<string>;
 }
 
 /** Question words that ask about a place, a time, a price. Keys, not vocabulary. */
@@ -154,8 +162,8 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     off the card and the dictionary's case table, and it is withheld whole
     where a part is missing, like every other line said off the card.
   */
-  if (asksPrice(spoken, lexicon) || (asked === "?" && /\d/.test(input.said ?? ""))) {
-    const price = priceOffCard(card, lexicon, input.said ?? "");
+  if (asksPrice(spoken, lexicon) || (asked === "?" && /\d/.test(input.said ?? "")) || /\d\s*€|€\s*\d/.test(input.said ?? "")) {
+    const price = priceOffCard(card, lexicon, input.said ?? "", input.already);
     if (price) return price;
   }
 
@@ -164,10 +172,17 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     run dealt, in the shape an offer already takes: the weekday in the
     adessive off the case table, and the clock time as the card spells it.
     Only where the card holds one, and then whole.
+
+    THE CLOCK HAS TO BE IN THE QUESTION, NOT ANYWHERE IN THE TURN. This read
+    `kell` wherever it stood, so "Kell 15:30 on super. Kas ma pean ID-kaardi
+    kaasa võtma?" was answered `Kell 15:30.`: the learner had agreed to the
+    time and asked about something else, and the receptionist read the time
+    back to them twice in a row. A question about the time names `millal`, or
+    asks `mis kell`, or carries `kell` inside the sentence the mark ends.
   */
-  if (TIME.has(asked) || (asked === "mis" && spoken.includes("kell")) || spoken.includes("kell")) {
+  if (TIME.has(asked) || (asked === "mis" && spoken.includes(CLOCK_LEMMA)) || clockAsked(input.said, spoken)) {
     const when = whenOffCard(card, lexicon);
-    if (when) return when;
+    if (when) return confirmed(when, timeNamed(input.said, card), input.already, lexicon);
   }
 
   /*
@@ -210,9 +225,20 @@ function wantsQuestion(beat: BeatSpec): boolean {
   return leafNeeds(beat.needs).some(({ need }) => need.kind === "question");
 }
 
-/** `Ei tea.`, off the course: what a stranger says to a question they cannot answer. */
-export function shrug(lexicon: Lexicon): SpokenLine | null {
-  return partsLine(ASIDES.unknown, { lexicon, mark: "." });
+/**
+ * `Ei tea.`, off the course: what a stranger says to a question they cannot answer.
+ *
+ * ONCE A CONVERSATION, AND THEN NOTHING. It was said to every question the
+ * scene could not answer, so a chatty learner who tucked small talk into four
+ * answers in a row met `Ei tea.` four times, which the keyless critic counted
+ * as the commonest fault left on the no-model path (105 of 278). A person who
+ * has said they do not know once and is asked something else beside the point
+ * gets on with what they were doing; saying it again is the machine showing.
+ * `already` is the run's own `used`, so a shrug said this run is not said again.
+ */
+export function shrug(lexicon: Lexicon, already: ReadonlySet<string>): SpokenLine | null {
+  const line = partsLine(ASIDES.unknown, { lexicon, mark: "." });
+  return line && already.has(line.text) ? null : line;
 }
 
 /**
@@ -249,7 +275,7 @@ export function asksPrice(spoken: readonly string[], lexicon: Lexicon): boolean 
  * and the shorter `5 eurot.` stands in where the lexicon cannot supply the
  * longer one, so a thin lexicon costs a verb and never the answer.
  */
-export function priceOffCard(card: RoleCard | null, lexicon: Lexicon, said = ""): SpokenLine | null {
+export function priceOffCard(card: RoleCard | null, lexicon: Lexicon, said = "", already?: ReadonlySet<string>): SpokenLine | null {
   const price = priceOnCard(card);
   if (!price) return null;
   const unit = { lemma: "euro", grammCase: "PARTITIVE" as const };
@@ -265,12 +291,83 @@ export function priceOffCard(card: RoleCard | null, lexicon: Lexicon, said = "")
     dealt number, so `15` is not `5`. Both words are the course's own and the
     price line is the same one, lowercased into the second half.
   */
-  const runs: readonly string[] = said.match(/\d+/g) ?? [];
-  if (runs.length === 0) return line;
-  const word = runs.includes(price.value) ? "jah" : "ei";
-  const yes = partsLine([{ lemma: word }], { lexicon, mark: "." });
-  if (!yes) return line;
-  return { ...line, text: `${yes.text.slice(0, -1)}, ${line.text.charAt(0).toLowerCase()}${line.text.slice(1)}` };
+  /*
+    AND THE FIGURE HAS TO BE A PRICE, NOT ANY DIGITS IN THE TURN. This read
+    every digit run, so a learner who gave their reference number at a counter
+    (`KK-3218`) was told `Ei, see maksab 17 eurot.`, and one who checked the
+    departure time (`Kell 19:30?`) and then the fare in words (`Neli eurot?`)
+    was corrected about a fare they had right. A figure is a number with a euro
+    after it or a euro sign on it, or a turn that is nothing but the number.
+  */
+  return confirmed(line, figureNamed(said, lexicon, price.value), already, lexicon);
+}
+
+/**
+ * Whether the learner named this figure as a price: true, false where they
+ * named another, null where they named none. A number counts only with a euro
+ * form after it, a euro sign on it, or standing alone, so a clock time, a
+ * reference code and `üks pilet` are none of them a price.
+ */
+function figureNamed(said: string, lexicon: Lexicon, value: string): boolean | null {
+  const euros = lexicon.byLemma.get("euro") ?? new Set<string>();
+  const tokens = said.toLowerCase().split(/\s+/)
+    .map((token) => token.replace(/^[^\p{L}\p{N}€]+|[^\p{L}\p{N}€]+$/gu, ""))
+    .filter(Boolean);
+  const spelled = new Map<string, number>();
+  for (let n = 0; n <= 10; n += 1) {
+    const lemma = numberWords(String(n))[0];
+    for (const form of (lemma ? lexicon.byLemma.get(lemma) : undefined) ?? []) spelled.set(form, n);
+  }
+  const isEuro = (token: string | undefined) => token !== undefined && (euros.has(token) || token === "€" || token === "eur");
+  const named: number[] = [];
+  for (let at = 0; at < tokens.length; at += 1) {
+    const token = tokens[at]!;
+    const digits = /^€?(\d+)(?:[.,]\d+)?(€?)$/.exec(token);
+    const signed = digits !== null && (token.startsWith("€") || digits[2] === "€");
+    const figure = digits ? Number(digits[1]) : spelled.get(token);
+    if (figure === undefined) continue;
+    if (signed || isEuro(tokens[at + 1]) || tokens.length === 1) named.push(figure);
+  }
+  if (named.length === 0) return null;
+  return named.includes(Number(value));
+}
+
+/**
+ * A fact answered yes or no where the learner said it back as a question, and
+ * `Jah.` alone where they are checking a fact this run has already said: the
+ * whole line again reads as somebody who did not hear them.
+ */
+function confirmed(line: SpokenLine, named: boolean | null, already: ReadonlySet<string> | undefined, lexicon: Lexicon): SpokenLine {
+  if (named === null) return line;
+  const word = partsLine([{ lemma: named ? "jah" : "ei" }], { lexicon, mark: "." });
+  if (!word) return line;
+  const body = line.text.replace(/[.!?]+$/, "").toLowerCase();
+  if (named && [...(already ?? [])].some((text) => text.toLowerCase().includes(body))) return { ...word, provenance: line.provenance };
+  return { ...line, text: `${word.text.slice(0, -1)}, ${line.text.charAt(0).toLowerCase()}${line.text.slice(1)}` };
+}
+
+/** The sentences of a turn that end on a question mark. */
+function questionsIn(said: string): string[] {
+  return said.split(/(?<=[?.!])\s+/).map((part) => part.trim()).filter((part) => part.endsWith("?"));
+}
+
+/** Whether a question in the turn is about the clock: `kell` inside a sentence the mark ends. */
+function clockAsked(said: string | undefined, spoken: readonly string[]): boolean {
+  if (!said) return spoken.includes(CLOCK_LEMMA) && spoken.length <= 3;
+  return questionsIn(said).some((question) => question.toLowerCase().split(/[^\p{L}]+/u).includes(CLOCK_LEMMA));
+}
+
+/**
+ * Whether a question in the turn names the time on the card: true, false
+ * where it names another, null where it names none. Read with the same
+ * `timeFromText` the marker accepts a spoken time with.
+ */
+function timeNamed(said: string | undefined, card: RoleCard | null): boolean | null {
+  const time = card?.props.find((prop) => /^\d{1,2}:\d{2}$/.test(prop.value));
+  if (!said || !time) return null;
+  const named = questionsIn(said).map((question) => timeFromText(question, { from: 0, to: 23 })).filter((t): t is string => t !== null);
+  if (named.length === 0) return null;
+  return named.includes(time.value.padStart(5, "0"));
 }
 
 function whenOffCard(card: RoleCard | null, lexicon: Lexicon): SpokenLine | null {

@@ -120,14 +120,41 @@ describe("a question the scene did not anticipate", () => {
     const asking = input({ asked: "miks", spoken: ["miks"], more: [] });
     expect(asideFor(asking)).toBeNull();
     expect(asideOwed(asking)).toBe(true);
-    const line = shrug(LEX);
+    const line = shrug(LEX, new Set());
     expect(line?.text).toBe("Ei tea.");
     expect(line?.provenance).toBe("attested");
   });
 
   it("withholds the shrug whole where the verb cannot be derived", () => {
     const thin = buildLexicon(ENTRIES.filter((e) => e.lemma !== "teadma"));
-    expect(shrug(thin)).toBeNull();
+    expect(shrug(thin, new Set())).toBeNull();
+  });
+
+  /*
+    A chatty learner who tucked small talk into four answers met `Ei tea.`
+    four times, the commonest fault the keyless critic found. Once a run, and
+    then the other side gets on with what they were doing.
+  */
+  it("shrugs once a conversation and not again", () => {
+    expect(shrug(LEX, new Set(["Tere!"]))?.text).toBe("Ei tea.");
+    expect(shrug(LEX, new Set(["Tere!", "Ei tea."]))).toBeNull();
+  });
+
+  /*
+    "Kell 15:30 on super. Kas ma pean ID-kaardi kaasa võtma?" was answered
+    `Kell 15:30.`, twice: the time read back to somebody who had agreed to it
+    and asked about something else.
+  */
+  it("answers the time only where the question is about the clock", () => {
+    const agreed = input({ asked: "kas", spoken: ["kell", "on", "hea", "kas", "ma", "pean", "midagi", "tooma"], said: "Kell 14:30 on hea. Kas ma pean midagi tooma?" });
+    expect(asideFor(agreed)?.text).not.toBe("Teisipäeval kell 14:30.");
+    expect(asideFor(input({ asked: "?", spoken: ["kell"], said: "Kell?", more: [] }))?.text).toBe("Teisipäeval kell 14:30.");
+  });
+
+  it("answers a time the learner checks with yes or no, and yes alone where it has been said", () => {
+    expect(asideFor(input({ asked: "?", spoken: ["kell"], said: "Kell 14:30?", more: [] }))?.text).toBe("Jah, teisipäeval kell 14:30.");
+    expect(asideFor(input({ asked: "?", spoken: ["kell"], said: "Kell 16:00?", more: [] }))?.text).toBe("Ei, teisipäeval kell 14:30.");
+    expect(asideFor(input({ asked: "?", spoken: ["kell"], said: "Kell 14:30?", more: [], already: new Set(["Teisipäeval kell 14:30."]) }))?.text).toBe("Jah.");
   });
 });
 
@@ -190,6 +217,31 @@ describe("a question about the price", () => {
       .toBe("Ei, see maksab 5 eurot.");
     expect(asideFor(input({ asked: "?", spoken: [], said: "15?", card: PRICED }))?.text)
       .toBe("Ei, see maksab 5 eurot.");
+  });
+
+  /*
+    A reference number at a counter (`KK-3218`) was read as a price and the
+    learner was told `Ei, see maksab 17 eurot.`; a departure time checked
+    before the fare was read the same way. A figure is a number with a euro
+    after it, a euro sign on it, or a turn that is nothing but the number.
+  */
+  it("reads a figure as a price only beside a euro, so a code or a clock time is not one", () => {
+    expect(asideFor(input({ asked: "kui", spoken: ["mu", "number", "on", "kk", "kui", "palju"], said: "Mu number on KK-3218, kui palju?", card: PRICED }))?.text)
+      .toBe("See maksab 5 eurot.");
+    expect(asideFor(input({ asked: "kas", spoken: ["kell", "kas", "see", "maksab"], said: "Kell 19:30. Kas see maksab?", card: PRICED }))?.text)
+      .toBe("See maksab 5 eurot.");
+    expect(asideFor(input({ asked: "kas", spoken: ["kaks", "piletit", "kas", "see", "maksab"], said: "2 piletit, kas see maksab?", card: PRICED }))?.text)
+      .toBe("See maksab 5 eurot.");
+    expect(asideFor(input({ asked: "kas", spoken: ["kas", "5€"], said: "Kas 5€?", card: PRICED }))?.text)
+      .toBe("Jah, see maksab 5 eurot.");
+  });
+
+  it("reads a price said in words, and says yes alone to a price this run has already said", () => {
+    const SIX: RoleCard = { ...CARD, props: [...CARD.props, { slot: "price", card: "What it costs.", literal: ["6"], lemmas: ["kuus"], shown: ["6 €"], value: "6", price: true }] };
+    expect(asideFor(input({ asked: "kas", spoken: ["kuus", "eurot"], said: "Kuus eurot?", card: SIX }))?.text).toBe("Jah, see maksab 6 eurot.");
+    expect(asideFor(input({ asked: "kas", spoken: ["kas", "eurot"], said: "Kas 6 eurot?", card: SIX, already: new Set(["Jah, see maksab 6 eurot."]) }))?.text).toBe("Jah.");
+    // Asked again without a figure, the price is said again: they asked.
+    expect(asideFor(input({ asked: "kui", spoken: ["kui", "palju"], said: "Kui palju?", card: SIX, already: new Set(["See maksab 6 eurot."]) }))?.text).toBe("See maksab 6 eurot.");
   });
 
   it("on a turn that missed, only a fact may answer", () => {

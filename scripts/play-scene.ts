@@ -33,7 +33,7 @@
  */
 import { FAREWELLS, SCENES, sceneById } from "../lib/scenes/catalogue";
 import { ASKS_ON } from "../lib/scenes/curveballs";
-import { saysGoodbye, LEAVING } from "../lib/scenes/casual";
+import { asksSlower, saysGoodbye, LEAVING } from "../lib/scenes/casual";
 import {
   MAX_TURNS, acceptFromRows, clockInPlay, contextFromRows, knowing, moneyInPlay, replay, sceneLemmas, type Row,
   type StoredDraw,
@@ -375,7 +375,7 @@ async function play(sceneId: string) {
     const fresh = (id: string | undefined) => bank(id).filter((t) => !used.has(t));
     const asking = {
       asked: askedNow, spoken: words(last?.said ?? ""), said: last?.said ?? "", answered, card, lexicon: context.lexicon,
-      more: fresh(answered?.id), answers: answered ? fresh(answerBeatId(answered)) : [], missed: !landedNow,
+      more: fresh(answered?.id), answers: answered ? fresh(answerBeatId(answered)) : [], missed: !landedNow, already: used,
     };
     // A run that composes says none of the keyless answers beside the model's line (the route's rule).
     let aside = wantsAside && LINKS.length === 0 ? asideFor(asking) : null;
@@ -578,7 +578,7 @@ async function play(sceneId: string) {
       // A composed line answered what was asked; otherwise a landed question nothing answered gets the shrug.
       if (line.provenance === "composed") aside = preBreak;
       else if (preBreak) aside = preBreak;
-      else if (LINKS.length === 0 && wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain) aside = shrug(context.lexicon);
+      else if (LINKS.length === 0 && wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain && !asksSlower(words(last?.said ?? ""))) aside = shrug(context.lexicon, used);
     }
     const lines = replyFor({
       beat: speaking, answered: turns.length ? answered : null, response: turns.length ? response : null,

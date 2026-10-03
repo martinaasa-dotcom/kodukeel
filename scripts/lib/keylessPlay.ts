@@ -17,6 +17,7 @@ import {
 import { seedFrom } from "../../lib/random/seeded";
 import { feltAt, replyFor, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, sayableAfterHurdles, wantsAsideFor } from "../../lib/scenes/reply";
 import { asideFor, asideOwed, asksPrice, asksToHearAgain, shrug } from "../../lib/scenes/aside";
+import { asksSlower } from "../../lib/scenes/casual";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver, type SceneState } from "../../lib/scenes/state";
 import { ASKS_ON } from "../../lib/scenes/curveballs";
 import { sceneLine } from "../../lib/scenes/line";
@@ -115,7 +116,7 @@ export async function playScripted(options: PlayOptions): Promise<Event[]> {
     const fresh = (id: string | undefined) => bank(id).filter((t) => !used.has(t));
     const asking = {
       asked: askedNow, spoken: words(last?.said ?? ""), said: last?.said ?? "", answered, card: inPlay, lexicon: context.lexicon,
-      more: fresh(answered?.id), answers: answered ? fresh(answerBeatId(answered)) : [], missed: !landedNow,
+      more: fresh(answered?.id), answers: answered ? fresh(answerBeatId(answered)) : [], missed: !landedNow, already: used,
     };
     let aside = wantsAside ? asideFor(asking) : null;
     // "Sorry, what?" gets the line again, never the shrug (the route's rule).
@@ -180,7 +181,7 @@ export async function playScripted(options: PlayOptions): Promise<Event[]> {
       });
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, inPlay, context.lexicon) ?? cheap;
       if (line.provenance === "composed") aside = null;
-      else if (wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain) aside = shrug(context.lexicon);
+      else if (wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain && !asksSlower(words(last?.said ?? ""))) aside = shrug(context.lexicon, used);
     }
     const lines = replyFor({
       beat: speaking, answered: turns.length ? answered : null, response: turns.length ? response : null,

@@ -974,6 +974,17 @@ describe("a learner who says they are not following", () => {
   });
 
   /*
+    `ei saa` is "I cannot" as well as half of "I don't understand". A learner
+    declining a time ("homme ma ei saa, sest ma töötan siis") was handed the
+    beat's word as though they had said they were not following.
+  */
+  it("reads ei saa as lost only beside aru or in a turn too short to mean anything else", () => {
+    expect(readTurn("homme ma ei saa, sest ma töötan siis", beat(), ctx).reading).not.toBe("lost");
+    expect(readTurn("ei saa aru, vabandust", beat(), ctx).reading).toBe("lost");
+    expect(readTurn("ma ei saa", beat(), ctx).reading).toBe("lost");
+  });
+
+  /*
     On a beat that wanted a no, `ei` is the answer and is never read as a cry
     for help. "I don't know" is not a no, though: misheard and told to say that
     is not it, `ma ei tea` was read as the correction and the other side

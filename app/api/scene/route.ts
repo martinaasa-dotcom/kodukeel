@@ -23,7 +23,7 @@ import {
 import { leafNeeds } from "@/lib/scenes/types";
 import { FAREWELLS, sceneById } from "@/lib/scenes/catalogue";
 import { ASKS_ON } from "@/lib/scenes/curveballs";
-import { saysGoodbye, LEAVING } from "@/lib/scenes/casual";
+import { asksSlower, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
 import { isSpokenEstonian, sceneLine, unwrapLine, type SpokenLine } from "@/lib/scenes/line";
 import {
   cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, heldBack, heldNumbers, sceneMovedOn, replyFor,
@@ -519,6 +519,7 @@ export async function POST(request: Request) {
     more: fresh(answered?.id),
     answers: answered ? fresh(answerBeatId(answered)) : [],
     missed: !landedNow,
+    already: used,
   };
   /*
     Whether this run composes. In one that does, the model answers what was
@@ -564,7 +565,14 @@ export async function POST(request: Request) {
     answer, and where its line does not get through the bank's line is said
     without a shrug in front of it.
   */
-  const shrugOwed = wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain && !isOver(scene, state) && !composing;
+  /*
+    AND "PLEASE SPEAK MORE SLOWLY" IS A REQUEST FOR HELP, NOT A QUESTION TO
+    SHRUG AT. It rides in a turn with a question mark often enough that a
+    confused learner who had met the beat and asked the other side to slow
+    down was answered `Ei tea.` (`asksSlower`).
+  */
+  const slower = asksSlower(words(last?.said ?? ""));
+  const shrugOwed = wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain && !slower && !isOver(scene, state) && !composing;
 
   /*
     WHAT THIS PERSON KNOWS, FOR THE MODEL. Every value on the card, the
@@ -871,7 +879,7 @@ export async function POST(request: Request) {
   const waitingAnswers = composing && !standing
     && (askedNow !== null || progress.reading === "lost" || progress.reading === "offtarget");
   if (!spokenFor || (spokenFor.awaits && !standing && !waitingAnswers)) {
-    if (shrugOwed) aside = shrug(context.lexicon);
+    if (shrugOwed) aside = shrug(context.lexicon, used);
     return answer(reply(null));
   }
   /*
@@ -880,7 +888,7 @@ export async function POST(request: Request) {
     gets keyless, read in every transcript as the other side repeating itself.
   */
   if (!composing && !wantsFreshLine(turns.length > 0 ? response : null, heard, progress.reading)) {
-    if (shrugOwed) aside = shrug(context.lexicon);
+    if (shrugOwed) aside = shrug(context.lexicon, used);
     return answer(reply(null));
   }
   /*
@@ -890,7 +898,7 @@ export async function POST(request: Request) {
     asking rather than switching, and the whole point is that they switched.
   */
   if (standing && hurdleSpec(state)?.said) {
-    if (shrugOwed) aside = shrug(context.lexicon);
+    if (shrugOwed) aside = shrug(context.lexicon, used);
     return answer(reply(null));
   }
   const beat = spokenFor;
@@ -1162,7 +1170,7 @@ export async function POST(request: Request) {
       time used to be answered with the repair phrase where a perfectly good
       line was sitting one variable away.
     */
-    if (shrugOwed) aside = shrug(context.lexicon);
+    if (shrugOwed) aside = shrug(context.lexicon, used);
     return answer(reply(move), { composed: false, note: decision?.message ?? null });
   }
   /*
@@ -1387,7 +1395,7 @@ export async function POST(request: Request) {
   } catch (error) {
     reportError(error, { at: "api/scene/compose", ownerId });
     if (!booking.settled) after(() => releaseReservation(reservation));
-    if (shrugOwed) aside = shrug(context.lexicon);
+    if (shrugOwed) aside = shrug(context.lexicon, used);
     return answer(reply(move), { composed: false });
   }
 
@@ -1399,7 +1407,7 @@ export async function POST(request: Request) {
     an ordinary one here rather than an error.
   */
   if (line.provenance !== "composed") {
-    if (shrugOwed) aside = shrug(context.lexicon);
+    if (shrugOwed) aside = shrug(context.lexicon, used);
     if (preBreak) aside = preBreak;
     /*
       Where no link answered at all the learner is told, once per turn it
