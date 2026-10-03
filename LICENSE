@@ -57,6 +57,14 @@ terms set by the people who made it:
       https://github.com/KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex
       https://github.com/Filosoft/vabamorf
 
+  Which word a spelling is
+      `prisma/data/homographs.json` is Vabamorf's reading, LGPL, of the
+      words in the dictionary's own sentences: which spellings belong to
+      more than one word, and which word each sentence means. Built by
+      `scripts/build-homographs.ts`. It decides only which sentences a word
+      may borrow, and holds no form, gloss or sentence of its own.
+      https://github.com/Filosoft/vabamorf
+
   Synthesised speech
       From TartuNLP at the University of Tartu, fetched at runtime and
       cached. Not redistributed as part of this repository.

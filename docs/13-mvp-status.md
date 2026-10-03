@@ -2943,3 +2943,48 @@ the most recent. The conjugation table had the same shape, a shuffle of every ve
 alphabetically at a hundred and twenty on an evening pinned to it for its new verbs, and leads with
 them now. Every round the module can deal is held to leading with the words it taught last or to a
 written reason it does not, and six carry one.
+
+## 49. The forty-third pass: the three left open
+
+**A sentence is lent for a spelling only to the word that sentence means.** §48 left one hole in
+the borrowed pool: a spelling only one of the dictionary's six thousand entries claims was taken to
+be that entry's, and the language is a hundred and fifty thousand words. So `aastasadade jooksul`
+was a card for the adessive of `jooks`, "on the run", where `jooksul` is the postposition "during";
+`puu otsas`, `kapi küljes` and `tormi kätte` the same way; and further out `Rong väljub Tapa
+jaamast` was a card for the imperative of `tapma`, `Lükkasin teki kõrvale` for the imperative of
+`tekkima`, `Mu passi tähtaeg` for "watch!" and `Eestis on ahmi kohatud` for "gulp!". Measured over
+the shipped dictionary, 177 case cards gapped a spelling that is also a headword of its own.
+
+Refusing every such spelling was tried first and cost far more than it saved: the lexicon also
+gives `arstiks` to a rare verb `arstima` and `filmis` to `filmima`, so it took `Õpin ülikoolis
+arstiks` with `aastasadade jooksul`, 271 cards of which about one in seven was wrong. What separates
+them is the sentence, so `npm run homographs` asks Vabamorf two things, with guessing off for the
+first: which spellings in the dictionary's sentences belong to more than one word (2,503 of
+29,377), and, with its disambiguator over each sentence, which word every one of them is there
+(10,546 places). A loan for such a spelling goes only to the word its sentence means
+(`lib/dict/homographs.ts`, `lendable`). That removes 73 cards, about 62 of them wrong, and 9 more
+are rebuilt from another sentence. A word's own sentences are never checked, because a
+lexicographer filed them under it. A verb and its own participle count as one word, or `mängivad`
+would stop lending its conjugation card. The first word of a sentence is read in lower case,
+because read as written `Metsast saadavad hüved` came back as the surname Mets.
+
+**What it cannot see, written down.** The disambiguator leaves both readings where the sentence
+does not settle them (`soos`: in a bog, or in a gender) and misreads a few (`õel`, read as "at the
+sister"), and those loans stand. Requiring a single reading was measured too: it takes 50 more
+cards, about 45 of them good, nearly all a word beside its own variant (`talv` and `tali`, `poeg`
+and `poja`). A sentence a live Ekilex lookup brought in after the build has no reading, so an
+ambiguous spelling in it is not lent at all. And it misses a few the other way (`Mida ma sulle
+poest toon?` read as the noun "tone"), which costs a card rather than teaching a wrong one.
+
+**A conversation says one length everywhere.** Its tile and briefing said "about 5 min" off
+forty-five seconds an exchange, and the module listed the same conversation at 8, the slot an
+evening gives every conversation whatever its length. It is a minute an exchange now and one more
+for the card before and the review after (`minutesFor`), and the module step prints that figure
+(`DaySpec.sceneMinutes`), so the shop is 7 on the tile, the briefing and the evening. The slot still
+decides the words, so no day id moved, and an evening with a short conversation is honestly a
+minute or two shorter.
+
+**The evening's list lights Learn, as every step on it does.** It lived inside Today, so the rail's
+marker sat on Today on the list and jumped to Learn the moment a step was pressed, on a screen that
+had not changed place. It lives inside Learn now, which is where the course is and where Today's
+card and Learn's button both lead.

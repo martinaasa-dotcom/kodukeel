@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { borrowSentences, claimIndex, type BorrowEntry } from "./borrow";
+import type { Homographs } from "./homographs";
 
 /*
   The rule a word borrows by, exercised on the words that produced it. `aeg`
@@ -111,6 +112,42 @@ describe("borrowSentences", () => {
       "Kas ravimit on veel?",
       "Ta võttis ravimit kolm korda päevas kogu pika haiguse ajal.",
     ]);
+  });
+
+  /*
+    A spelling only `jooks` claims among these entries is still not only
+    `jooks`'s in the language: `aastasadade jooksul` is the postposition
+    "during". Where the language gives a spelling to more than one word, a
+    sentence is lent for it only to the word the sentence means, and not at
+    all where nobody read the sentence.
+  */
+  it("lends a spelling the language gives to two words only to the word its sentence means", () => {
+    const jooks = entry({
+      lemma: "jooks", pos: "NOUN",
+      forms: [{ formType: "NOM_SG", value: "jooks" }, { formType: "GEN_SG", value: "jooksu" }],
+    });
+    const kultuur = entry({
+      lemma: "kultuur", pos: "NOUN",
+      examples: [
+        { et: "Aastasadade jooksul kujunenud kultuur.", en: null, source: "EKILEX" },
+        { et: "Ta võitis jooksul medali.", en: null, source: "EKILEX" },
+        { et: "Pärast jooksul puhkasime.", en: null, source: "EKILEX" },
+      ],
+    });
+    const read: Record<string, string[]> = {
+      "Aastasadade jooksul kujunenud kultuur.": ["jooksul"],
+      "Ta võitis jooksul medali.": ["jooks"],
+    };
+    const homographs: Homographs = {
+      spellings: new Set(["jooksul"]),
+      reading: (sentence, spelling) => (spelling === "jooksul" ? read[sentence] : undefined),
+    };
+    const lent = borrowSentences([jooks, kultuur], homographs).get("jooks")?.map((e) => e.et);
+    expect(lent).toEqual(["Ta võitis jooksul medali."]);
+    // And with nothing marked ambiguous, all three were lent: the refusal is
+    // the reading, not the fixture.
+    const none: Homographs = { spellings: new Set(), reading: () => undefined };
+    expect(borrowSentences([jooks, kultuur], none).get("jooks")).toHaveLength(3);
   });
 
   it("lends nothing a learner typed, and nothing that is not a sentence", () => {
