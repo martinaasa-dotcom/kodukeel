@@ -28,7 +28,13 @@ const kinds = (arg("kinds") ?? "shy,chatty,offtrack,confused,english,good").spli
 const seeds = Number(arg("seeds") ?? "1");
 const only = arg("scene");
 const out = arg("out") ?? "critic-report.md";
-const extra = process.argv.includes("--model-down") ? ["--model-down"] : [];
+/*
+  `--model <id>` pins the composer to one link of the scene chain, as play-scene
+  takes it: on a day the first link's allowance is spent, the composed path can
+  still be read on the link production has fallen to.
+*/
+const pin = arg("model");
+const extra = [...(process.argv.includes("--model-down") ? ["--model-down"] : []), ...(pin ? ["--model", pin] : [])];
 const PARALLEL = Number(arg("parallel") ?? "6");
 /*
   `--critic-model` reads with another model, for a day the default one's quota
@@ -138,7 +144,7 @@ async function critique(text: string): Promise<Issue[] | null> {
   for (const r of results) for (const i of r.issues) byKind.set(i.kind, (byKind.get(i.kind) ?? 0) + 1);
   const total = results.reduce((n, r) => n + r.issues.length, 0);
   const lines = [
-    `# Scene critic: ${results.length} conversations, ${total} issues${extra.length ? " (model down)" : ""}, read by ${CRITIC_MODEL}`,
+    `# Scene critic: ${results.length} conversations, ${total} issues${process.argv.includes("--model-down") ? " (model down)" : ""}${pin ? `, composed on ${pin}` : ""}, read by ${CRITIC_MODEL}`,
     "", ...[...byKind].sort((a, b) => b[1] - a[1]).map(([k, n]) => `- ${k}: ${n}`), "",
   ];
   for (const r of results.sort((a, b) => a.job.scene.localeCompare(b.job.scene))) {
