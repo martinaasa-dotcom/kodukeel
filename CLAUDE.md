@@ -1223,7 +1223,7 @@ in it. The lemma is there because `Lexeme.examples` is a JSON column rather than
 lookup by text would read the whole dictionary; the test asserts the sentence really is one of that
 entry's usages, which caught 28 lemmas guessed wrong on the way in.
 
-**Every one of the 168 points is answered, 125 with sentences and 43 with a written reason, and
+**Every one of the 168 points is answered, 126 with sentences and 42 with a written reason, and
 every one of the 125 carries two**, and
 the check is that none is answered with neither. A floor on how many are pinned would let a point
 arrive with no example, no reason and nothing to say so, which is the state this replaced: the
@@ -1231,7 +1231,7 @@ screen draws nothing either way, so an unpinned point and a point nobody has tho
 identical. Two rather than one is the ask, and it is asserted flat rather than as a majority: it was
 "most of them" while fourteen points carried one, and a floor with nothing under it is the parking
 space `senses.test.ts` records becoming one, so those fourteen would have stayed at one for as long
-as the majority held. The 43 are one shape three times over and it is worth naming, because it is the argument
+as the majority held. The 42 are one shape three times over and it is worth naming, because it is the argument
 for not stretching: **a point claiming a contrast, a frequency, or a fact about the system cannot be
 shown by one sentence.** "New information tends to go last" needs the same sentence in two orders;
 "Officialese, which is its own much-mocked style" needs the plain version beside it; "Which words
@@ -1274,7 +1274,7 @@ loads, through the app's own derivation rather than any reading of endings, so a
 on it; a topic page's points are moods and tenses and nothing in the file says which, so a pin there
 carries `slot`. The verdict has four values rather than two and only `wrong` fails, which is
 `readCase`'s discipline: `jooksid` is the simple past of `jooksma` and the conditional of `jooma`,
-the sentence decides which, and that is a parse this file cannot make. 162 of the 250 pins verify,
+the sentence decides which, and that is a parse this file cannot make. 162 of the 252 pins verify,
 `shared` is Estonian's own syncretism and `unknown` is a slot the dictionary does not store, which
 is every converb and every quotative. `npm run audit:pins` is where all of it is read rather than
 counted, for the reason `eval:scene` prints a ranked list, and it was the reading that found the

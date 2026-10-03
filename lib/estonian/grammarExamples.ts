@@ -371,6 +371,12 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "rikkus", et: "Ega rikkus pole häbiasi.", form: "rikkus", slot: "CASE:NOMINATIVE" },
     ],
   },
+  nominalisation: {
+    "The doer goes in front, in the form that means \"whose\"": [
+      { lemma: "käitumine", et: "Tarbijate käitumine on enamasti ennustatav.", form: "Tarbijate", slot: "CASE:GENITIVE" },
+      { lemma: "allianss", et: "Alliansi laienemine on olnud edukas.", form: "Alliansi", slot: "CASE:GENITIVE" },
+    ],
+  },
   "word-order": {
     "Endings show who did what, so the order is free to show emphasis": [
       { lemma: "talv", et: "Talvel sadas palju lund.", form: "Talvel", slot: "CASE:ADESSIVE" },
@@ -767,8 +773,6 @@ export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
     "it says two forms are interchangeable, which needs the same sentence said both ways",
   "topic:nominalisation|One noun stands in for a whole \"that\" or \"when\" clause":
     "the point is the clause it replaces, so you'd need both versions, not just the result",
-  "topic:nominalisation|The doer goes in front, in the form that means \"whose\"":
-    "it only makes sense next to the clause it was rewritten from, and no recorded sentence comes with that",
   "topic:nominalisation|Standard in academic, legal and official writing":
     "it's about which kind of writing the shape belongs to, and the dictionary doesn't record where a sentence was written",
   "topic:punctuation|A comma before \"that\" or \"because\", pause or no pause":
