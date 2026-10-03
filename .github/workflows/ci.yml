@@ -630,8 +630,18 @@ jobs:
       # about what a contributor runs. If either cannot pass, fix the
       # dependency or say here, in writing, why it is unreachable. Do not lower
       # a number.
+      #
+      # AND THE WRITING IS A FILE, BECAUSE `npm audit` CANNOT EXCEPT ONE
+      # ADVISORY. On 2026-10-03 GHSA-vfj7-8cjw-p6xm arrived in `braces` with no
+      # patched release, reached only through the lint plugin, and the second
+      # gate went red on main and on every branch with nothing any of them
+      # could change. `scripts/check-audit.mjs` is that gate with each
+      # exception written beside its reason, and each one fails again the
+      # moment the advisory leaves the tree or a fixed release is published.
+      # The first gate takes no exceptions at all, so nothing excepted there
+      # can ever reach what ships.
       - run: npm audit --omit=dev --audit-level=high
-      - run: npm audit --audit-level=high
+      - run: npm run check:audit
       # THE OTHER SUPPLY CHAIN QUESTION, WHICH `npm audit` HAS NO OPINION ON.
       #
       # A licence is the thing nobody thinks to check until the answer is
