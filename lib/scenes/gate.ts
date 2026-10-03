@@ -47,8 +47,8 @@ import { switchesRegisterAt } from "./curveballs";
  * added the run looked exactly the same and said nothing about it.
  */
 export const CHECKS = [
-  "shape", "vouching", "register", "government", "facts", "agreement", "topic", "giveaway",
-  "stretch", "clause", "infinitive", "negation", "farewell", "question",
+  "shape", "vouching", "register", "government", "facts", "ahead", "agreement", "topic", "giveaway",
+  "stretch", "clause", "infinitive", "consistency", "negation", "farewell", "question",
 ] as const;
 
 /**
@@ -248,6 +248,27 @@ export interface GateContext {
    */
   readonly dealt?: ReadonlySet<string>;
   /**
+   * NUMBERS THIS PERSON HOLDS AND HAS NOT REACHED YET (`heldBack`), as they
+   * may be written.
+   *
+   * `dealt` asks whether a number is one the run made, which a wage held for
+   * the offer is: so the interviewer said the pay while still asking about
+   * experience, and the learner's next objective, to ask what the pay is,
+   * asked about a figure already on the screen. A digit run here is a fact
+   * said before its beat, and the line is withheld for it (`ahead`). The
+   * caller leaves out any spelling another value in play shares, and every
+   * number the learner has typed, since saying those back is not news.
+   */
+  readonly held?: ReadonlySet<string>;
+  /**
+   * The learner asked something this turn that is not about money, so a
+   * number the card did not deal may be the honest answer (what time the
+   * shop closes, how far it is). The clock and digit checks stand down for
+   * that line; a price still has to be one the card dealt, and the
+   * consistency check still holds the line to everything said.
+   */
+  readonly freeNumbers?: boolean;
+  /**
    * The clock, where this run deals one: every form of the word a time is told
    * with, every hour word there is, and the hours this card actually named.
    *
@@ -422,6 +443,18 @@ export function passes(verdict: Verdict): boolean {
  * a further try with the failing words named, and a retry told about one
  * problem out of two comes back with the other.
  */
+/** The words written with a capital somewhere other than the start of a sentence, lower-cased. */
+function namesIn(text: string): Set<string> {
+  const out = new Set<string>();
+  for (const sentence of text.split(/[.!?]+/)) {
+    const tokens = sentence.match(/[\p{L}-]+/gu) ?? [];
+    for (const token of tokens.slice(1)) {
+      if (/^\p{Lu}\p{Ll}/u.test(token)) out.add(token.toLowerCase());
+    }
+  }
+  return out;
+}
+
 export function runGate(text: string, beat: BeatSpec, context: GateContext): Verdict {
   const failed: Check[] = [];
   const tokens = words(text);
@@ -446,7 +479,16 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     account for, through the scene, the course and the forms list.
   */
   const vouched = context.vouched ?? ((word: string) => context.lexicon.forms.has(word));
-  const unknown = tokens.filter((word) => !vouched(word));
+  /*
+    A NAME IS NOT A WORD TO VOUCH FOR. Asked "what is your name?", a neighbour
+    answering `Minu nimi on Tiit.` was withheld four times running, because no
+    list holds a first name, and the learner's question went unanswered. A word
+    written with a capital in the middle of a sentence is read as a name and
+    left out of both vouching and the stretch budget; a made-up word mid-line is
+    lower case, so this opens no door to one.
+  */
+  const names = namesIn(text);
+  const unknown = tokens.filter((word) => !vouched(word) && !names.has(word));
   if (unknown.length > 0) failed.push("vouching");
 
   /*
@@ -456,7 +498,7 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     word to notice rather than a word that stops the conversation.
   */
   // Counted as different words: a line saying one new word twice holds one.
-  const stretched = [...new Set(tokens.filter((word) => !context.lexicon.forms.has(word)))];
+  const stretched = [...new Set(tokens.filter((word) => !context.lexicon.forms.has(word) && !names.has(word)))];
   if (stretched.length > NEW_WORDS) failed.push("stretch");
 
   if (tokens.some((word) => context.wrongRegister.has(word))) failed.push("register");
@@ -489,8 +531,26 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     exists to find Estonian words and drops digits on the way past, which is
     exactly why nothing here could see this before.
   */
-  if (invented(text, context.dealt) || inventedHour(tokens, context.times) || inventedPrice(tokens, context.money)) {
+  const loose = context.freeNumbers === true;
+  /*
+    Freed numbers are never prices: a digit run straight before a form of the
+    unit has to be one the card dealt, whatever the learner asked.
+  */
+  const digitPrice = loose && Boolean(context.money) && (text.match(/\d+(?=\s+\p{L}+)/gu) ?? []).some((run) => {
+    const after = text.slice(text.indexOf(run) + run.length).trim().split(/\s+/)[0]?.toLowerCase().replace(/[^\p{L}]/gu, "");
+    return Boolean(after && context.money!.unit.has(after) && !(context.dealt ?? new Set()).has(run));
+  });
+  if ((!loose && (invented(text, context.dealt) || inventedHour(tokens, context.times))) || inventedPrice(tokens, context.money) || digitPrice) {
     failed.push("facts");
+  }
+
+  /*
+    AND A NUMBER IT HOLDS FOR LATER IS NOT ONE TO SAY NOW. Whole runs against
+    whole runs, like `invented`, so `1550` is not found inside `15500`.
+  */
+  if (context.held && context.held.size > 0) {
+    const runs = text.match(/\d{1,2}[:.]\d{2}|\d+/g) ?? [];
+    if (runs.some((run) => context.held!.has(run))) failed.push("ahead");
   }
 
   return { failed, unknown, stretched };
@@ -513,6 +573,28 @@ export function withoutFarewell(text: string, beat: BeatSpec, context: GateConte
   const kept = sentences.filter((sentence) => !saysGoodbye(words(sentence), beat, context));
   if (kept.length === sentences.length) return null;
   const line = kept.join("").trim();
+  return line.length > 0 ? line : null;
+}
+
+/**
+ * THE LINE CUT SHORT BEFORE THE FIRST SENTENCE NAMING A FIGURE IT HOLDS FOR
+ * LATER, OR NULL WHERE THAT LEAVES NOTHING.
+ *
+ * An interviewer asked about lunch with colleagues answered the lunch question
+ * and then named the wage, three times running, while the beat was the
+ * learner asking about it: every draft was withheld for `ahead`, and the bank
+ * line that stood in ignored the lunch question altogether. Everything from
+ * the figure on goes, since the sentences after it are about it ("does that
+ * suit you?"), and what is left is the model's own reaction to what was said,
+ * gated again with the beat's prepared move after it.
+ */
+export function beforeHeld(text: string, context: GateContext): string | null {
+  if (!context.held || context.held.size === 0) return null;
+  const sentences = text.match(/[^.!?]+[.!?]*\s*/g) ?? [];
+  const first = sentences.findIndex((sentence) =>
+    (sentence.match(/\d{1,2}[:.]\d{2}|\d+/g) ?? []).some((run) => context.held!.has(run)));
+  if (first <= 0) return null;
+  const line = sentences.slice(0, first).join("").trim();
   return line.length > 0 ? line : null;
 }
 
@@ -680,8 +762,14 @@ function onTopic(
 function possessive(word: string, clause: readonly string[], context: GateContext): boolean {
   if (context.subjects?.get(word)?.sure !== false) return false;
   const next = clause[clause.indexOf(word) + 1];
-  if (!next || isPerson(next, context)) return false;
-  return context.lexicon.forms.has(next);
+  /*
+    A word the scene's own list does not hold is still not a verb person: the
+    persons table is the scene's, so a line reaching past the list with
+    `teie jaoks`, `teie nimega` or `Teie eine maksab` was read as a subject
+    beside a verb of another person and withheld, five correct lines in one
+    critic run. Only a person of a verb straight after makes it the subject.
+  */
+  return !!next && !isPerson(next, context);
 }
 
 /** Whether a spelling is one of the persons of a verb the scene holds. */
@@ -891,7 +979,13 @@ function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boole
   return sentences >= 1 && sentences <= MAX_SENTENCES
     // A closing quote may follow the stop, Estonian's own `“` included.
     && /[.!?]["“”»]?$/.test(trimmed)
-    && !/[*_`#[\]]/.test(text)
+    && !/[*_`#[\]\\]/.test(text)
+    /*
+      A QUOTE MARK THAT OPENS NOTHING IS A SCRAP OF THE MODEL'S OWN FORMATTING.
+      A stairwell line came back ending `".`, which no person writes: straight
+      quotes have to pair, and a backslash is never Estonian.
+    */
+    && (text.match(/"/g) ?? []).length % 2 === 0
     && tokens.length > 0
     && tokens.length <= MAX_COMPOSED_WORDS
     /*
@@ -953,7 +1047,7 @@ export function governmentSuspect(tokens: readonly string[], context: GateContex
     return clausesOf(text).map((clause) => words(clause)).filter((clause) => clause.length > 0)
       .some((clause) => governmentSuspect(clause, context));
   }
-  const lower = tokens.map((t) => t.toLowerCase());
+  const lower = withoutPhrases(tokens.map((t) => t.toLowerCase()), context);
   /*
     EVERY GOVERNED VERB IN THE LINE, NOT THE FIRST ONE FOUND. `Buss sõidab
     jaama. Pilet maksab kaks eurot.` holds two, and reading the first the
@@ -982,11 +1076,54 @@ export function governmentSuspect(tokens: readonly string[], context: GateContex
   const ownWord = (t: string, lemma: string) => context.lexicon.byLemma.has(t) && t !== lemma;
   const present = context.governed.filter((g) => lower.some((t) => g.forms.has(t) && !ownWord(t, g.lemma)));
   if (present.length === 0) return false;
-  return present.every((word) => suspectFor(word, lower, context));
+  /*
+    WHAT STANDS BEFORE THE VERB THAT CARRIES THE PERSON IS THAT VERB'S.
+    `Mulle meeldib siin väga töötada` holds `töötama` and an allative, and the
+    allative is `meeldima`'s, whose government a scene that does not teach it
+    never hands in: an interviewer's line was withheld three times on it. A
+    governed verb found only in a form that is not a person, after a finite
+    verb that is not one of its own, takes its complement after that verb
+    (`hakkas kooli minema`), so only what follows can condemn the line, and
+    the whole clause can still clear it. Excusing the
+    whole clause instead cost 21 of 143 real errors on `eval:scene --part-b`.
+  */
+  const finite = (t: string) => isPerson(t, context) || Boolean(context.hasFiniteVerb?.(t));
+  return present.every((g) => {
+    if (lower.some((t) => g.forms.has(t) && finite(t))) return suspectFor(g, lower, context);
+    const at = lower.findIndex((t) => finite(t) && !g.forms.has(t));
+    return suspectFor(g, lower, context) && (at < 0 || suspectFor(g, lower.slice(at + 1), context));
+  });
 }
 
-/** The cases an adverbial of manner, place or time takes with any verb. */
-const ADJUNCT_CASES: ReadonlySet<CaseKey> = new Set<CaseKey>(["COMITATIVE", "INESSIVE", "ADESSIVE", "ABESSIVE"]);
+/**
+ * A clause with the course's own set phrases taken out. `Ma ütlesin lihtsalt
+ * tere hommikust` holds the elative `hommikust`, and the elative is not what
+ * `ütlema` governs, so a friend repeating their own greeting was withheld six
+ * times in one run. A phrase the course teaches whole is one thing said, not
+ * a noun in a case beside the verb.
+ */
+function withoutPhrases(lower: readonly string[], context: GateContext): string[] {
+  const phrases = [...context.lexicon.byLemma.keys()]
+    .map((lemma) => words(lemma))
+    .filter((phrase) => phrase.length > 1);
+  const drop = new Set<number>();
+  for (const phrase of phrases) {
+    for (let at = 0; at + phrase.length <= lower.length; at += 1) {
+      if (phrase.every((word, i) => lower[at + i] === word)) for (let i = 0; i < phrase.length; i += 1) drop.add(at + i);
+    }
+  }
+  return drop.size === 0 ? [...lower] : lower.filter((_, i) => !drop.has(i));
+}
+
+/**
+ * The cases an adverbial of manner, place or time takes with any verb.
+ *
+ * The translative joined them when a friend on the phone said `võta igaks
+ * juhuks uus pakk`, "take a new pack just in case", and was withheld three
+ * times: `igaks juhuks`, `homseks` and `kolmeks päevaks` are a purpose or a
+ * span of time, and go with any verb in the language.
+ */
+const ADJUNCT_CASES: ReadonlySet<CaseKey> = new Set<CaseKey>(["COMITATIVE", "INESSIVE", "ADESSIVE", "ABESSIVE", "TRANSLATIVE"]);
 
 function suspectFor(word: GovernedWord, lower: readonly string[], context: GateContext): boolean {
 

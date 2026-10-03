@@ -56,6 +56,20 @@ describe("the curveball catalog", () => {
     }
   });
 
+  /*
+    A WAY OUT THAT IS A QUESTION IS OWED AN ANSWER. Told the time had gone and
+    to ask what else there was, a learner asked and was told `Ei tea.`, since
+    nothing said what the other side answers. `sceneBeats` makes an answer
+    beat for each of these and the bank test holds every scene to a line for
+    it; this holds the catalog to saying what that line is about.
+  */
+  it("says what they answer wherever asking is the only way out", () => {
+    const asking = CURVEBALLS.filter((ball) => ball.move && ball.needs.length === 1 && ball.needs[0]!.kind === "question");
+    expect(asking).toHaveLength(3);
+    expect(asking.map((ball) => ball.id).sort()).toEqual(["not-possible", "place-instruction", "slot-gone"]);
+    for (const ball of asking) expect(ball.answer, `${ball.id} tells them to ask and never says what is answered`).toBeTruthy();
+  });
+
   it("has one entry per id and no id without an entry", () => {
     expect(new Set(ALL).size).toBe(CURVEBALLS.length);
     for (const id of ALL) expect(curveballById(id)?.id).toBe(id);

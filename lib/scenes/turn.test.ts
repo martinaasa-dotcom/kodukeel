@@ -429,6 +429,48 @@ describe("reading a turn", () => {
     expect(seen.reading).toBe("english");
   });
 
+  /*
+    THE FORMS LIST VOUCHES `i`, `do`, `is` AND `sorry` AS RARE ESTONIAN
+    SPELLINGS, which the test context above does not, so the test above passed
+    while the app read almost no English sentence as English. With the list
+    the way production widens it: an English sentence is English, an English
+    "I don't understand" is a learner who is lost, and asking whether they
+    speak English in English is asking for English.
+  */
+  it("reads English as English even where the forms list vouches some of its words", () => {
+    const formsList = new Set(["sorry", "i", "do", "is", "ok", "no"]);
+    const widened = context({ known: (word) => formsList.has(word) || LEX.forms.has(word) });
+    expect(readTurn("Sorry, what do you mean?", beat(), widened).reading).toBe("english");
+    expect(readTurn("Sorry, I don't understand.", beat(), widened).reading).toBe("lost");
+    const asking = readTurn("Do you speak English?", beat(), widened);
+    expect(asking.reading).toBe("english");
+    expect(asking.wantsEnglish).toBe(true);
+    // Not a greeting, because one of its words is also an Estonian spelling.
+    const hello = beat({ id: "greet", move: "greet", topic: ["tere"], needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    expect(readTurn("Do you speak English?", hello, widened).reading).not.toBe("complete");
+    // And an Estonian turn with one English word in it is still Estonian.
+    expect(readTurn("Mul on valu, sorry", beat(), widened).reading).toBe("complete");
+  });
+
+  it("takes any turn in Estonian as answering in Estonian, and English as not", () => {
+    const switched = beat({ id: "hurdle:english", needs: [{ kind: "register" }] });
+    const estonian = new Set(["ma", "räägin", "eesti", "keelt", "i", "do"]);
+    const widened = context({ known: (word) => estonian.has(word) || LEX.forms.has(word) });
+    expect(readTurn("Ma räägin eesti keelt.", switched, widened).missing).toEqual([]);
+    expect(readTurn("teie", switched, widened).missing).toEqual([]);
+    expect(readTurn("I do not know what you mean", switched, widened).missing).toEqual([0]);
+  });
+
+  it("never takes a request for English as the question a beat asked for", () => {
+    const far = beat({ id: "far", goal: "Ask if it's far.", needs: [{ kind: "question" }] });
+    for (const said of ["Do you speak English?", "Kas te räägite inglise keelt?"]) {
+      const seen = readTurn(said, far, context());
+      expect(seen.missing, said).toEqual([0]);
+      expect(seen.wantsEnglish, said).toBe(true);
+    }
+    expect(readTurn("Kas see on kaugel?", far, context()).missing).toEqual([]);
+  });
+
   it("does not read a loan word inside an Estonian turn as English", () => {
     /*
       One English function word is a slip; two with nothing vouched is a turn in
@@ -566,6 +608,16 @@ describe("reading a turn", () => {
       expect(advances(reading), `${reading} advanced a scene`).toBe(false);
     }
     expect(advances("complete")).toBe(true);
+  });
+});
+
+describe("a turn that puts the either-or back", () => {
+  const choosing = beat({ needs: [{ kind: "lemma", oneOf: ["tuba", "valu"] }], shape: "word" });
+  it("is not a choice where it names both with an or between them", () => {
+    expect(readTurn("tuba või valu?", choosing, context()).reading).not.toBe("complete");
+  });
+  it("is still a choice where it names one", () => {
+    expect(readTurn("tuba, palun", choosing, context()).reading).toBe("complete");
   });
 });
 
@@ -795,6 +847,19 @@ describe("a no on an offer that has a counter", () => {
     expect(readTurn("14:30", offer, ctx).reading).toBe("complete");
   });
 
+  it("reads an offer called short as a no, even with its figure quoted back", () => {
+    const short = context({ data: new Map([["time", new Set(["14:30"])]]), tooLittle: new Set(["vähe"]) });
+    expect(readTurn("14:30? See on natuke vähe.", offer, short).reading).toBe("declined");
+    expect(readTurn("14:30 on hea. See ei ole vähe.", offer, short).reading).not.toBe("declined");
+  });
+
+  it("does not read a no about something else as a no to the offer", () => {
+    // The `ei` is about the cat; the time was accepted in its own clause.
+    expect(readTurn("14:30 on hea. Kass ei söö.", offer, ctx).reading).not.toBe("declined");
+    // A no in the clause that names the time is still a no.
+    expect(readTurn("14:30 ei sobi", offer, ctx).reading).toBe("declined");
+  });
+
   /*
     A no and a question in one breath is owed an answer. `declined` wrote
     `asked: null` and `wantsEnglish: false` over whatever the turn said, so
@@ -908,13 +973,41 @@ describe("a learner who says they are not following", () => {
     expect(readTurn("ma tean", beat(), ctx).reading).not.toBe("lost");
   });
 
-  it("is never read on a beat that wanted a no, where ei is the answer", () => {
+  /*
+    `ei saa` is "I cannot" as well as half of "I don't understand". A learner
+    declining a time ("homme ma ei saa, sest ma töötan siis") was handed the
+    beat's word as though they had said they were not following.
+  */
+  it("reads ei saa as lost only beside aru or in a turn too short to mean anything else", () => {
+    expect(readTurn("homme ma ei saa, sest ma töötan siis", beat(), ctx).reading).not.toBe("lost");
+    expect(readTurn("ei saa aru, vabandust", beat(), ctx).reading).toBe("lost");
+    expect(readTurn("ma ei saa", beat(), ctx).reading).toBe("lost");
+  });
+
+  /*
+    On a beat that wanted a no, `ei` is the answer and is never read as a cry
+    for help. "I don't know" is not a no, though: misheard and told to say that
+    is not it, `ma ei tea` was read as the correction and the other side
+    apologised to somebody who was lost. So the phrase alone is lost there too,
+    and a no said beside it is a no.
+  */
+  it("reads ei as the answer on a beat that wanted a no, and I don't know as lost", () => {
     const refusing = beat({ needs: [{ kind: "negation" }], shape: "word" });
-    expect(readTurn("ma ei tea", refusing, ctx).reading).toBe("complete");
+    expect(readTurn("ei", refusing, ctx).reading).toBe("complete");
+    expect(readTurn("ei ole", refusing, ctx).reading).toBe("complete");
+    expect(readTurn("ei, ma ei tea", refusing, ctx).reading).toBe("complete");
+    expect(readTurn("ma ei tea", refusing, ctx).reading).toBe("lost");
   });
 
   it("is never read on a turn that answered the question, whatever else is in it", () => {
     expect(readTurn("Mul on valu, aga ma ei tea", beat(), ctx).reading).toBe("complete");
+  });
+
+  it("is not read where the turn also asks the question a question beat wanted", () => {
+    const asking = beat({ needs: [{ kind: "question" }], shape: "sentence" });
+    expect(readTurn("Ma ei saa aru. Aga millal saab?", asking, ctx).reading).not.toBe("lost");
+    // A question mark on the lost phrase alone is still being lost.
+    expect(readTurn("Ma ei saa aru?", asking, ctx).reading).toBe("lost");
   });
 
   it("advances nothing, because saying you are lost is not an answer", () => {
@@ -1168,6 +1261,16 @@ describe("hello and goodbye the way people say them", () => {
 
   it("does not end a scene on a casual word said at another beat", () => {
     expect(readTurn("ciao", beat(), context()).reading).not.toBe("complete");
+  });
+});
+
+describe("answering a choice in its own words", () => {
+  it("is picking one, never an echo, and only the whole choice handed back is", () => {
+    const choose = beat({ needs: [{ kind: "lemma", oneOf: ["valu"] }], shape: "word" });
+    const picked = readTurn("mul on valu", choose, context({ previous: "Mul on valu või palavik?" }));
+    expect(picked.reading).not.toBe("echo");
+    const handedBack = readTurn("valu või palavik", choose, context({ previous: "Mul on valu või palavik?" }));
+    expect(handedBack.reading).toBe("echo");
   });
 });
 

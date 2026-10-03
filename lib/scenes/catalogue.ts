@@ -536,9 +536,15 @@ const LANDLORD: SceneSpec = {
         place while refusing `Neljal korrusel`, which is the answer. The rooms
         are the ones the `kodu` unit teaches, since somebody ringing about a
         flat says which room by its name.
+
+        AND `kord` CAME OFF THE LIST THIS COMMENT SAYS IT IS NOT ON. It stayed
+        as an option, and a second word for the same thing meets a requirement
+        (`lib/dict/synonyms.ts`): `kord` and `aeg` are both "time", so a tenant
+        asking `Mis aeg siis sobib?` was read as having said which floor, and
+        the landlord never asked.
       */
       topic: ["ruum", "korrus", "tuba", "köök"],
-      needs: [{ kind: "lemma", oneOf: ["korrus", "ruum", "tuba", "köök", "kord"] }],
+      needs: [{ kind: "lemma", oneOf: ["korrus", "ruum", "tuba", "köök"] }],
       choice: ["tuba", "köök"],
       required: true,
       patience: 2,
@@ -561,7 +567,7 @@ const LANDLORD: SceneSpec = {
       they: "They sigh. Nobody can come this week.",
       answer: "They say somebody can come soon, then offer a day and a time.",
       move: "refuse",
-      topic: ["remont", "aeg", "nädal", "üür"],
+      topic: ["remont", "aeg", "nädal", "üür", "millal"],
       needs: [{ kind: "question" }],
       required: true,
       patience: 2,
@@ -703,7 +709,14 @@ const COUNTER: SceneSpec = {
       they: "They ask for the paper that goes with it.",
       move: "ask",
       topic: ["dokument", "allkiri", "arve", "konto", "number"],
-      needs: [{ kind: "lemma", oneOf: ["dokument", "allkiri", "arve", "konto"] }],
+      /*
+        A YES OR A NO IS THE ANSWER THE GOAL ASKS FOR. "Say you've brought it,
+        or that you haven't" took only the name of a paper, so `Jah, see on
+        siin` and `Ei, mul ei ole` were both refused, and a learner who had
+        not brought it had no way to say so. `jah` leads, since the first
+        word is what a stuck learner is handed.
+      */
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["jah", "dokument", "allkiri", "arve", "konto"] }, { kind: "negation" }] }],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -738,7 +751,7 @@ const COUNTER: SceneSpec = {
       they: "They take the form and read the details back to you.",
       answer: "They tell you how long it'll be until the form is ready.",
       move: "confirm",
-      topic: ["aeg", "päev", "nädal", "avaldus"],
+      topic: ["aeg", "päev", "nädal", "avaldus", "millal"],
       needs: [{ kind: "question" }],
       required: true,
       patience: 2,
@@ -1812,7 +1825,7 @@ const COURSE: SceneSpec = {
     {
       id: "word",
       goal: "They used a word you don't know. Ask what it means, or ask them to say it again.",
-      they: "They use a word you don't know and just carry on.",
+      they: "They carry on with the lesson, using a less common word you probably don't know yet, and don't explain it.",
       answer: "They say the word again, slowly, and explain it with other Estonian words.",
       move: "instruct",
       topic: ["sõna", "lause", "harjutus", "näide", "kordama"],
@@ -2096,7 +2109,8 @@ const COMPLAINT: SceneSpec = {
         `Kuidas telefon teil katki läks?` was withheld as off topic for the
         same reason.
       */
-      needs: [{ kind: "datum", slot: "item" }, { kind: "lemma", oneOf: ["probleem", "viga", "katki", "halb", "kahju", "töötama", "vana"] }],
+      // `katki` first, because the first option is the word a stuck learner is handed and "broken" is what anybody says.
+      needs: [{ kind: "datum", slot: "item" }, { kind: "lemma", oneOf: ["katki", "viga", "probleem", "halb", "kahju", "töötama", "vana"] }],
       required: true,
       patience: 3,
       shape: "sentence",
@@ -2137,10 +2151,17 @@ const COMPLAINT: SceneSpec = {
     {
       id: "insist",
       goal: "They've said no. Stay polite and don't give up: ask what they can do, or say you'd like to make a complaint.",
-      they: "They say that's not possible.",
+      they: "They say what you asked for isn't possible here today.",
       move: "refuse",
       topic: ["saama", "võimalus", "lahendus", "kaebus"],
-      needs: [{ kind: "lemma", oneOf: ["kaebus", "kaebama", "lahendus", "hüvitis", "probleem", "klient"] }],
+      /*
+        ASKING WHAT THEY CAN DO IS THE FIRST WAY THROUGH THE GOAL NAMES, AND
+        IT WAS NOT ONE. `Mida te saate teha?` met nothing here, so a learner
+        who did exactly what the objective said first was refused. A question
+        is a way through now, and is answered.
+      */
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["kaebus", "kaebama", "lahendus", "hüvitis", "probleem", "klient"] }, { kind: "question" }] }],
+      answer: "They say they can repair it, or you can write a complaint.",
       required: false,
       patience: 2,
       shape: "sentence",
@@ -2264,6 +2285,7 @@ const CLOTHES: SceneSpec = {
     {
       id: "sobib",
       goal: "Come out of the fitting room and say whether it fits.",
+      meanwhile: "A few minutes later, you come out of the fitting room wearing it.",
       they: "They ask how it went.",
       feel: "glad",
       move: "ask",

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { lemmasOfForm } from "@/lib/dict/forms";
-import { CASUAL, CASUAL_BYE_WORDS, casualBye, casualHello, saysGoodbye } from "./casual";
+import { AGAIN, CASUAL, CASUAL_BYE_WORDS, asksSlower, casualBye, casualHello, saysGoodbye } from "./casual";
 
 describe("casual greetings", () => {
   /*
@@ -10,7 +10,7 @@ describe("casual greetings", () => {
     not Estonian and the list would refuse it for the right reason.
   */
   it("names only Estonian the forms list vouches for", async () => {
-    for (const word of [...CASUAL.hello.et, ...CASUAL.bye.et]) {
+    for (const word of [...CASUAL.hello.et, ...CASUAL.bye.et, ...AGAIN.et]) {
       expect((await lemmasOfForm(word)).length, word).toBeGreaterThan(0);
     }
   });
@@ -50,5 +50,18 @@ describe("saysGoodbye", () => {
     expect(saysGoodbye("aitäh", FAREWELLS)).toBe(false);
     expect(saysGoodbye("Aitäh väga!", FAREWELLS)).toBe(false);
     expect(saysGoodbye("tsau, kuhu ma pean minema?", FAREWELLS)).toBe(false);
+  });
+});
+
+describe("asksSlower", () => {
+  it("hears a request to slow down or repeat, in either language", () => {
+    expect(asksSlower(["palun", "rääkige", "aeglasemalt"])).toBe(true);
+    expect(asksSlower(["kas", "te", "saate", "korrata"])).toBe(true);
+    expect(asksSlower(["please", "repeat"])).toBe(true);
+    expect(asksSlower(["slowly", "please"])).toBe(true);
+  });
+  it("does not hear twice-a-day or an ordinary answer as one", () => {
+    expect(asksSlower(["kaks", "korda", "päevas"])).toBe(false);
+    expect(asksSlower(["ma", "lähen", "poodi"])).toBe(false);
   });
 });

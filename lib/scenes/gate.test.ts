@@ -262,6 +262,7 @@ describe("the government check", () => {
       ["toas", new Set(["INESSIVE"])],
       ["toa", new Set(["GENITIVE"])],
       ["tuppa", new Set(["ILLATIVE"])],
+      ["homseks", new Set(["TRANSLATIVE"])],
     ]),
   });
 
@@ -276,12 +277,28 @@ describe("the government check", () => {
   it("says nothing about an adjunct, since a place, a time or an instrument goes with any verb", () => {
     // `toas` is the inessive: where it happened, which is not what `aitama` governs and not a fault.
     expect(governmentSuspect(["ta", "aitab", "toas"], ctx)).toBe(false);
+    // A purpose or a span of time, `homseks` or `igaks juhuks`, goes with any verb too.
+    expect(governmentSuspect(["ta", "aitab", "homseks"], ctx)).toBe(false);
   });
 
   it("reads a line of several sentences one clause at a time", () => {
     // The illative belongs to a sentence with no governed verb in it, so the verb in the first is not held to it.
     expect(governmentSuspect(["ta", "aitab", "tuba", "ma", "lähen", "tuppa"], ctx, "Ta aitab tuba. Ma lähen tuppa.")).toBe(false);
     expect(governmentSuspect(["ta", "aitab", "tuba", "ta", "aitab", "tuppa"], ctx, "Ta aitab tuba. Ta aitab tuppa.")).toBe(true);
+  });
+
+  it("does not hold an infinitive to what stands before the verb carrying the person", () => {
+    // `Tuppa meeldib aidata`: the illative is before `meeldib`, whose government is not in hand.
+    const finite = context({ ...ctx, hasFiniteVerb: (w: string) => w === "meeldib" });
+    expect(governmentSuspect(["tuppa", "meeldib", "aidata"], { ...finite, governed: [{ ...ctx.governed[0]!, forms: new Set(["aidata"]) }] })).toBe(false);
+    // After it, the infinitive's own complement still has to be one it governs.
+    expect(governmentSuspect(["meeldib", "aidata", "tuppa"], { ...finite, governed: [{ ...ctx.governed[0]!, forms: new Set(["aidata"]) }] })).toBe(true);
+  });
+
+  it("leaves a phrase the course teaches whole out of the count", () => {
+    // `tuppa` is the illative, which `aitama` does not govern, unless it is part of a set phrase.
+    expect(governmentSuspect(["ta", "aitab", "tuppa"], ctx)).toBe(true);
+    expect(governmentSuspect(["ta", "aitab", "tuppa", "minna"], { ...ctx, lexicon: withHeadwords(["tuppa minna"]) })).toBe(false);
   });
 
   it("says nothing about a line with no governed word, or with no nominal", () => {
@@ -518,6 +535,11 @@ describe("a verb that does not agree with its subject", () => {
     expect(runGate("Kas sa oled toas?", beat(), ctx).failed).not.toContain("agreement");
   });
 
+  it("reads a capital in the middle of a sentence as a name, and vouches for nothing else", () => {
+    expect(runGate("Kas sa tuled, Tiit?", beat(), ctx).failed).not.toContain("vouching");
+    expect(runGate("Kas sa tuled, tiit?", beat(), ctx).failed).toContain("vouching");
+  });
+
   it("says nothing about a clause whose verb belongs to another one", () => {
     /*
       `Ma ei tea, kus see on.` is a first person beside a third and is right:
@@ -568,6 +590,8 @@ describe("a verb that does not agree with its subject", () => {
       which is the fault this whole module is built against.
     */
     expect(disagrees("Kas te nime tead?", ctx)).toBe(false);
+    // A word the scene's list does not hold after it is still not a verb.
+    expect(disagrees("Tulen teie jaoks homme.", ctx)).toBe(false);
   });
 });
 

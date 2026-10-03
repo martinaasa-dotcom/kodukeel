@@ -94,7 +94,7 @@ export type Requirement =
   | { readonly kind: "question" }
   /** The negator. */
   | { readonly kind: "negation" }
-  /** A form of the pronoun the scene's register expects. */
+  /** A form of the pronoun the scene's register expects, or any turn in Estonian. */
   | { readonly kind: "register" }
   /** Small talk. Never fails, and exists so a beat can be colour. */
   | { readonly kind: "any" }
@@ -128,6 +128,22 @@ export function leafNeeds(
   return needs.flatMap((need, index) =>
     need.kind === "anyOf" ? need.of.map((leaf) => ({ need: leaf, index })) : [{ need, index }],
   );
+}
+
+/**
+ * The words a beat asks the learner for, as lemmas: a lemma it names, the word
+ * a case is asked of, and every value a card can deal for a word it wants.
+ * What a line from somebody else may only name once the conversation has
+ * reached this beat, since before then nobody has said it.
+ */
+export function askedLemmas(scene: SceneSpec, beat: BeatSpec): string[] {
+  return leafNeeds(beat.needs).flatMap(({ need }) => {
+    if (need.kind === "lemma") return [...need.oneOf];
+    if (need.kind === "case") return [need.lemma];
+    if (need.kind !== "datum") return [];
+    const prop = scene.props.find((one) => one.slot === need.slot);
+    return prop && (prop.kind === "word" || prop.kind === "weekday") ? [...prop.oneOf] : [];
+  });
 }
 
 /**

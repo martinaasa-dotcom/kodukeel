@@ -90,3 +90,15 @@ describe("the hint the app gives", () => {
     expect(NUDGE_AFTER).toBeGreaterThan(1);
   });
 });
+
+describe("the hint names what is still missing", () => {
+  it("passes over a requirement the last turn met", () => {
+    const pay: BeatSpec = {
+      ...BEAT, id: "pay", move: "ask",
+      needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["palk", "raha"] }],
+    };
+    // They asked a question and never named the pay: the hint is about the pay.
+    expect(coachFor(pay, null, [true, false])).toContain("palk");
+    expect(coachFor(pay, null, [true, true])).toBeNull();
+  });
+});

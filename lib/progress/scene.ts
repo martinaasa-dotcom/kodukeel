@@ -52,7 +52,7 @@ import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
 import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
 import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
-import { saysGoodbye } from "@/lib/scenes/casual";
+import { saysGoodbye, CLOSING_WORDS } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
 
 /**
@@ -86,6 +86,12 @@ const NEGATORS = ["ei", "mitte"] as const;
  * scene whose units do not teach one simply has no forms of it.
  */
 const ASKING = ["küsima", "otsima"];
+/**
+ * What says an offer is short: `natuke vähe` to a wage is a no, and read by
+ * the requirements alone the figure quoted beside it accepted the offer. A
+ * lemma request against the course, asked only where a beat has a counter.
+ */
+const TOO_LITTLE = ["vähe"];
 const REGISTER_PRONOUN = { teie: "teie", sina: "sina" } as const;
 
 export interface SceneContext {
@@ -429,6 +435,7 @@ export function sceneLemmas(scene: SceneSpec): Set<string> {
       for (let n = prop.min; n <= prop.max; n += 1) for (const w of numberWords(String(n))) lemmas.add(w);
     }
   }
+  if (scene.beats.some((beat) => beat.counter)) for (const lemma of TOO_LITTLE) lemmas.add(lemma);
   lemmas.add(FALLBACK_PHRASE);
   return lemmas;
 }
@@ -486,6 +493,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
     questionWords: formsOfUnit(rows, QUESTION_UNIT),
     askingForms: formsOfLemmas(rows, ASKING),
     negators: formsOfLemmas(rows, NEGATORS),
+    tooLittle: formsOfLemmas(rows, TOO_LITTLE),
     registerForms: formsOfLemmas(rows, [REGISTER_PRONOUN[scene.register]]),
     hasFiniteVerb,
   };
@@ -516,7 +524,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
         beat that is not the goodbye (`saysGoodbye`). Resolved here for the
         reason the question words are: the gate holds no Estonian.
       */
-      farewells: FAREWELLS.map(words),
+      farewells: [...FAREWELLS.map(words), ...CLOSING_WORDS.map((word) => [word])],
     },
     marker,
     pool: poolsFor(scene, rows),
@@ -1360,7 +1368,7 @@ export function replay(
       turn stopped there, and the clerk asked where they were going three times
       running. `spent` is the words this turn has already used.
     */
-    const further = (spent: Set<string>, heard: string) => {
+    const further = (spent: Set<string>, heard: string, answering = true) => {
       while (response === "answer" || response === "moveOn") {
         state = raiseHurdle(context.scene, state, drawn);
         if (state.hurdle || response === "moveOn") break;
@@ -1376,6 +1384,8 @@ export function replay(
           one. The offer is said, and the learner's yes is read against it then.
         */
         if (next.move === "offer" && !offerAlreadyMade(next, draw, heard)) break;
+        // Nor across a break in time: the meal has to be eaten before the bill (the look-ahead's rule).
+        if (next.meanwhile) break;
         const read = readTurn(said, next, marker);
         /*
           A judge may have said this same turn met the next beat too, in a word
@@ -1387,6 +1397,16 @@ export function replay(
         const more = vouchedAhead ? concede(read, read.missing) : read;
         if (more.reading !== "complete") break;
         if (!vouchedAhead && !addsEvidence(more, spent)) break;
+        /*
+          AND A SECOND WORD FOR THE SAME THING ANSWERS THE QUESTION THAT WAS
+          ASKED, NOT ONE NOBODY HAS ASKED YET. A synonym meets a requirement
+          because the learner was plainly answering it (`lib/dict/synonyms.ts`),
+          and read against a beat further on that is a guess on English glosses:
+          `aeg` and `kord` are both "time", so a tenant asking `Mis aeg siis
+          sobib?` was credited with saying which floor, and the landlord never
+          asked.
+        */
+        if (!vouchedAhead && more.substituted.length > 0) break;
         for (const word of more.satisfiedBy) spent.add(word);
         ({ state, response } = advance(context.scene, state, more, said, false, heard));
       }
@@ -1428,9 +1448,18 @@ export function replay(
         pointer still does not move, so the beat in front is still the beat in
         front.
       */
-      if (!state.hurdle && !isOver(context.scene, state)) {
+      if (!state.hurdle && !isOver(context.scene, state) && answering) {
+        /*
+          AND NOTHING IS CREDITED ACROSS A BREAK IN TIME NOT YET REACHED. A beat
+          that opens on "you've eaten, the waiter comes back" is about after the
+          meal: a diner asking what the soup cost met the bill beat from two
+          beats away, the meal was skipped and the waiter asked how the food had
+          been. Every beat from the first unreached break on waits for it.
+        */
+        const fence = context.scene.beats.findIndex((b, at) => at > state.beat && Boolean(b.meanwhile));
         for (let at = 0; at < context.scene.beats.length; at += 1) {
           if (at === state.beat) continue;
+          if (fence >= 0 && at >= fence) break;
           const other = context.scene.beats[at]!;
           if (other.move === "close" || state.done.includes(other.id)) continue;
           /*
@@ -1443,8 +1472,19 @@ export function replay(
             offer has been made, and taking it late is taking it.
           */
           if (other.move === "offer" && at > state.beat && !offerAlreadyMade(other, draw, heard)) continue;
+          /*
+            AND NOTHING IS TAKEN THAT THE OTHER SIDE HAS NOT YET SAID. A beat whose
+            move is to explain, refuse or correct carries its line to the learner,
+            and its requirement is the learner's reply to it: at the pharmacy a
+            learner who mentioned the price in their first turn met "tell them
+            you'll take it and pay" two beats early, so the pharmacist never said
+            how to take the medicine, and the learner who then asked how often was
+            told `Nägemist!`. The offer guard above is this rule for one move.
+          */
+          if (SAYS_FIRST.has(other.move) && at > state.beat) continue;
           const also = readTurn(said, other, marker);
-          if (also.reading !== "complete" || !addsEvidence(also, spent)) continue;
+          // Not through a second word for the same thing, for the cascade's reason.
+          if (also.reading !== "complete" || !addsEvidence(also, spent) || also.substituted.length > 0) continue;
           for (const word of also.satisfiedBy) spent.add(word);
           state = creditAhead(state, also, other, said, heard);
           elsewhere += 1;
@@ -1470,13 +1510,22 @@ export function replay(
         curveball is written down as let go rather than dealt with: "they sped
         up and you carried on" is true and is worth reading afterwards.
       */
-      const ignored = evidence.reading !== "complete" && beatToo.reading === "complete";
+      /*
+        Met in the beat's own words, never through a second word for the same
+        thing: `Mis aeg siis sobib?` asked after "that time has gone" met the
+        floor beat behind it on `aeg`, a "time" like `kord`, and the landlord
+        never asked which floor (the cascade's rule, in `further` above).
+      */
+      const behind = beatToo.reading === "complete" && beatToo.substituted.length === 0
+        // And an offer the other side has not made yet is not taken behind a curveball either (the cascade's rule).
+        && !(beat.move === "offer" && !offerAlreadyMade(beat, draw, heardNow));
+      const ignored = evidence.reading !== "complete" && behind;
       ({ state, response } = ignored
         ? letGo(state)
         : advanceHurdle(context.scene, state, evidence, said, heardNow));
       previous = heardNow;
       if (response !== "answer") continue;
-      if (beatToo.reading !== "complete") continue;
+      if (!behind) continue;
       /*
         The turn cleared the curveball and answered the beat behind it, which
         is only true where it met the beat with a word the curveball did not
@@ -1556,11 +1605,21 @@ export function replay(
       already spent travel down the cascade, so one word cannot buy two
       beats either.
     */
-    further(new Set(evidence.satisfiedBy), heard);
+    /*
+      AND NOT FROM A TURN THAT SAID IT WAS NOT FOLLOWING. `Ma ei tea.` to a
+      waiter's hello was read against "how many of you?" further on, `ma` is
+      a form of `mina`, which answers it, and the waiter skipped the question
+      and offered the lost learner `Üks?`. A turn read as lost, as English,
+      as an echo or as nothing anybody could read answered nothing else.
+    */
+    further(new Set(evidence.satisfiedBy), heard, !["lost", "english", "echo", "unrecognised"].includes(evidence.reading));
     previous = heard;
   }
   return { state, response, elsewhere };
 }
+
+/** Moves whose line the learner has to hear before they can answer it, so none is met from a distance. */
+const SAYS_FIRST: ReadonlySet<BeatSpec["move"]> = new Set(["instruct", "refuse", "correct"]);
 
 /**
  * WHETHER THE OTHER SIDE HAS ALREADY MADE THIS OFFER, IN A LINE OF ITS OWN.

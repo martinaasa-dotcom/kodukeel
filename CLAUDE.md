@@ -9683,6 +9683,31 @@ learner is trying to say, a model writes the learner's line (§32). Measured aft
 twenty.
 
 
+**The other side keeps its word, and keeps a figure for its beat.** An interviewer named the
+salary while still asking about experience, and a ticket seller who had said no bus would leave
+tonight told a learner asking for beer that they could get on the bus. A value of theirs the scene
+says at a later beat is held back (`heldBack`): labelled "not yet" in the facts, named rather than
+filled in the agenda, and withheld by the gate's `ahead` check if a composed line says it anyway,
+until that beat or a question releases it. A curveball that changes the situation says what stays
+true (`CurveballSpec.stands`) and every one raised is handed to the composer as established
+(`establishedBy`). A line the gate passed is asked once more, on the grader chain and metered,
+whether it contradicts what was said or settles something early (`lib/scenes/consistency.ts`); it
+fails open, since the line has already passed every mechanical check. The judge is handed the line
+the learner was answering and the turns before it, and reads a turn as a native speaker standing
+there would. `docs/21-situations.md` §75.
+
+**A critic reads every scene, and a failed critic call is not a clean result.**
+`scripts/critic-scenes.ts` plays each scene against a model playing an offtrack, confused or chatty
+learner and has a second model list where the other side stopped making sense; it went from 34 faults
+over 45 conversations to 7. The changes it drove are in the machine rather than in one scene: a break
+in time counts only once reached and the learner's account of it wins, no beat past an unreached break
+is credited from a distance, a question asked on the way into a break is answered before it, a
+withheld line keeps whatever part of it was sound (`withoutFarewell`, `beforeHeld`, `SAFE_RETRY`), and
+four checks stopped refusing correct Estonian (a possessive `teie`, an infinitive's case, a set phrase,
+a name). And a critic call that fails is retried and reported as not judged: the thirteenth pass
+printed "0 issues over 90 conversations" on the day the key's quota ran out, and every one of those
+was a call that never came back. `docs/21-situations.md` §76.
+
 **The judge had never run, and nothing said so.** In `/api/scene` the hoisted `readingOf` read a
 `let readOnce` declared about seven hundred lines below the first call to it, so every judge call
 threw "Cannot access 'readOnce' before initialization" inside a `catch` that treated a throw as "the
@@ -9693,6 +9718,48 @@ fact. The `let` is declared first in the handler now, and
 `scripts/invariants/the-scene-judge-can-run.ts` fails on any hoisted function in that route reading a
 `let` before its declaration, made to fail on the old route. A `catch` that reads a crash as a
 verdict is the shape to look for in any route that asks a model a yes-or-no question.
+
+**The no-model path is swept in every scene, because it is what a learner meets when the model is
+not there.** On 2026-10-02 the harnesses used up the Flash model's daily allowance (§77), so for the
+rest of that day the scenes composed on the Lite model and then fell to the bank. `npm run
+sweep:fallback` plays every scene with no model, against eight scripted learners, with every admitted
+curveball raised wherever the planner can stand it: 4,456 conversations a band, fourteen detectors for
+what nobody does. It went from 2,488 flags to none, at every band from A1 to C1. The last nine were
+faults rather than noise, and so was what the other bands showed:
+- a curveball at the goodbye carried the goodbye straight on, before the learner had answered;
+- a long line was "shortened" to another long one in an older wording, and the fourth asking counted
+  turns on the beat rather than times the line was heard (`timesAnswered`);
+- the clothes shop's "in a hurry" lines told the learner to pay at the first question, so a `faster`
+  line may name nothing a later beat asks for;
+- its lines are pitched band by band, so at B2 a learner read English on every beat: `scriptedFor`
+  falls to plainer bands, and a harder one only where nothing else exists;
+- a mishearing stood after the greeting and asked about milk nobody had mentioned: its rows say which
+  beat they are about (`ScriptedLine.about`), the planner stands it only after one (`fitsIn`), and the
+  line said is about the beat just answered;
+- the clothes shop's till answered with a banked `kakskümmend eurot` whatever the card dealt: a beat
+  that says a fact off the card answers with that fact, and no banked line may name an amount;
+- a question asked on the turn the other side gave up on a beat went unanswered (`wantsAsideFor`).
+
+A critic round over that path, judged by the Lite model so it spends none of the composer's
+allowance, found the rest:
+- a reference number or a clock time read as a price;
+- the time read back whenever "kell" appeared anywhere;
+- the shrug said four times in one conversation, and said to yes-or-no questions it does not answer:
+  `Ei tea.` now answers a question asking for information or a "do you know...?", and never one about
+  the person asked (`shrugFits`);
+- the price said wherever a money word stood, so "can I have my money back?" got the price
+  (`priceAsked` reads the question clause);
+- a question on the way out answered and `Head aega!` said in the same breath: the goodbye now waits
+  for the learner where something answered them;
+- a beat that explains, refuses or corrects credited from a distance, so the pharmacist never said
+  how to take the medicine;
+- "ma ei saa" read as lost;
+- the closing beat handed to the keyless net relabelled the way the composer hears it, so a learner
+  who asked something on the way out read "They say goodbye." in English instead of `Head aega!`.
+  The sweep's loop never had the relabelling, so a fault the critic shows is replayed through `npm
+  run replay:scene` before it is believed or dismissed.
+
+`docs/21-situations.md` §78; the quota and the harness meter are §77.
 
 **A line withheld only for saying goodbye keeps the rest of itself.** The model reached for `Head
 aega!` at the end of a confirmation, `farewell` withheld the whole line three times running, and the
@@ -11637,7 +11704,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `data-point-examples`, `BeforeYouStart`, `BriefingSteps`, `BRIEFINGS`, `startRound`,
 `OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`, `tonightSteps`, `useModuleSteps`,
 `ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`, `withoutFarewell`,
-`withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`.
+`withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`, `shrugFits`, `priceAsked`, `SAYS_FIRST`, `isFarewell`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
@@ -11678,6 +11745,8 @@ npm run report:impact    # people, study, retention and conversations outside th
 npm run report:spend     # what the models cost, by kind, model and day, off the ledger (--days)
 npm run measure:scenes   # how much of a conversation the dictionary can already carry
 npm run play:scenes      # every scene played keyless as a sloppy or curious learner; read the transcripts (--scene, --style)
+npm run sweep:fallback   # every scene, keyless, eight scripted learners and every curveball at every beat; read the flags (--scene)
+npm run critic:scenes    # a model learner plays each scene and a second model lists the faults (--model-down, --critic-model)
 npm run replay:scene     # one reported transcript, keyless, through the app's own ladder (--scene, --curveball id@beat, --say ...)
 npm run probe:turns      # what the marker makes of sentences a real person would type; hunt the !! lines
 npm run eval:scene       # what a model reaches for in a scene, and what the gate withholds (three runs so far; read the ranked list)

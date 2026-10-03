@@ -20,7 +20,7 @@
  * spends Gemini credit, about a tenth of a cent a turn.
  */
 import { spawn } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { SCENES } from "../lib/scenes/catalogue";
 import { DEFAULT_BUDGET_USD, installMeter, spendIn } from "./lib/meter";
 
@@ -45,15 +45,34 @@ const kinds = (arg("kinds") ?? "shy,chatty,offtrack,confused,english,good").spli
 const seeds = Number(arg("seeds") ?? "1");
 const only = arg("scene");
 const out = arg("out") ?? "critic-report.md";
-const extra = process.argv.includes("--model-down") ? ["--model-down"] : [];
+/*
+  `--model <id>` pins the composer to one link of the scene chain, as play-scene
+  takes it: on a day the first link's allowance is spent, the composed path can
+  still be read on the link production has fallen to.
+*/
+const pin = arg("model");
+const extra = [...(process.argv.includes("--model-down") ? ["--model-down"] : []), ...(pin ? ["--model", pin] : [])];
 const PARALLEL = Number(arg("parallel") ?? "6");
+/*
+  `--critic-model` reads with another model, for a day the default one's quota
+  is spent: the no-model path (`--model-down`) can still be judged on the Lite
+  model while the composer's own quota recovers. Say which in the report.
+*/
+const CRITIC_MODEL = arg("critic-model") ?? "gemini-3.8-flash";
+/*
+  `--raw <dir>` keeps every conversation as play-scene printed it, drafts and
+  withheld reasons included, so a flagged line can be traced to the rung that
+  wrote it and to why the model's own attempts did not get through.
+*/
+const raw = arg("raw");
+if (raw) mkdirSync(raw, { recursive: true });
 
 interface Issue { turn: number; kind: string; line: string; why: string }
 
 function play(scene: string, kind: string, seed: number): Promise<string> {
   return new Promise((resolve) => {
     const share = ((budget * 0.8) / Math.max(1, jobCount)).toFixed(4);
-    const child = spawn("npx", ["tsx", "scripts/play-scene.ts", "--compose", "--scene", scene, "--learner", kind, "--seed", String(seed), ...extra], {
+    const child = spawn("npx", ["tsx", "scripts/play-scene.ts", "--compose", "--scene", scene, "--learner", kind, "--seed", String(seed), ...(raw ? ["--drafts"] : []), ...extra], {
       env: { ...process.env, KODUKEEL_BUDGET_USD: share, KODUKEEL_REPLAY: meter.replay ? "1" : "0" },
     });
     let text = "";
@@ -83,25 +102,38 @@ const CRITIC = [
   "contradiction (contradicts an earlier line or the facts), premature-end (ends or says goodbye before the conversation's business is done),",
   "stall (the conversation is stuck and does not move on after the learner has clearly answered), misunderstood (treats a clear answer as not understood),",
   "unnatural (Estonian a native speaker would never say, or wrong), unkind (anything that could make a learner feel stupid).",
+  "Saying something again because the learner asked to hear it again, or asked the same thing again, is not a repeat.",
   "Do NOT flag the learner's own mistakes, and do not flag THEM for being simple or short. Ignore lines in English that start with 'Tip:' (app hints) and scene directions.",
   "Reply with JSON only: {\"issues\": [{\"turn\": <1-based index of the THEM line>, \"kind\": \"...\", \"line\": \"the THEM line\", \"why\": \"one short sentence\"}]}. An empty list if there are none.",
 ].join("\n");
 
-async function critique(text: string): Promise<Issue[]> {
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: CRITIC }] },
-      contents: [{ role: "user", parts: [{ text }] }],
-      generationConfig: { maxOutputTokens: 1500, responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 0 } },
-    }),
-  }).catch(() => null);
-  if (!res || !res.ok) return [];
-  const data = await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
-  try {
-    const parsed = JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}") as { issues?: Issue[] };
-    return parsed.issues ?? [];
-  } catch { return []; }
+/**
+ * The critic's reading of one transcript, or null where it gave none.
+ *
+ * A failed call used to read as no issues, so a run where the critic was
+ * rate-limited reported a perfect score: round 13 printed "0 issues over 90
+ * conversations" and nothing said whether anybody had read them. A failure is
+ * retried, then counted and printed as unjudged, and never as clean.
+ */
+async function critique(text: string): Promise<Issue[] | null> {
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 2000 * 2 ** attempt));
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${CRITIC_MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: CRITIC }] },
+        contents: [{ role: "user", parts: [{ text }] }],
+        generationConfig: { maxOutputTokens: 1500, responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 0 } },
+      }),
+    }).catch(() => null);
+    if (!res || !res.ok) continue;
+    const data = await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+    try {
+      const parsed = JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text ?? "") as { issues?: Issue[] };
+      if (Array.isArray(parsed.issues)) return parsed.issues;
+    } catch { /* retried */ }
+  }
+  return null;
 }
 
 (async () => {
@@ -111,12 +143,24 @@ async function critique(text: string): Promise<Issue[]> {
   }
   jobCount = jobs.length;
   const results: { job: typeof jobs[number]; text: string; issues: Issue[] }[] = [];
+  const unjudged: string[] = [];
+  /* `--rejudge <dir>` reads conversations a previous `--raw` kept instead of playing them again. */
+  const rejudge = arg("rejudge");
   let next = 0;
   await Promise.all(Array.from({ length: PARALLEL }, async () => {
     while (next < jobs.length) {
       const job = jobs[next++]!;
-      const text = transcript(await play(job.scene, job.kind, job.seed));
+      const played = rejudge
+        ? readFileSync(`${rejudge}/${job.scene}-${job.kind}-${job.seed}.log`, "utf8")
+        : await play(job.scene, job.kind, job.seed);
+      if (raw && !rejudge) writeFileSync(`${raw}/${job.scene}-${job.kind}-${job.seed}.log`, played);
+      const text = transcript(played);
       const issues = await critique(text);
+      if (issues === null) {
+        unjudged.push(`${job.scene} ${job.kind} #${job.seed}`);
+        console.log(`${job.scene} ${job.kind} #${job.seed}: NOT JUDGED (the critic did not answer)`);
+        continue;
+      }
       results.push({ job, text, issues });
       console.log(`${job.scene} ${job.kind} #${job.seed}: ${issues.length} issue(s)`);
     }
@@ -125,7 +169,7 @@ async function critique(text: string): Promise<Issue[]> {
   for (const r of results) for (const i of r.issues) byKind.set(i.kind, (byKind.get(i.kind) ?? 0) + 1);
   const total = results.reduce((n, r) => n + r.issues.length, 0);
   const lines = [
-    `# Scene critic: ${results.length} conversations, ${total} issues${extra.length ? " (model down)" : ""}`,
+    `# Scene critic: ${results.length} conversations, ${total} issues${process.argv.includes("--model-down") ? " (model down)" : ""}${pin ? `, composed on ${pin}` : ""}, read by ${CRITIC_MODEL}`,
     "", ...[...byKind].sort((a, b) => b[1] - a[1]).map(([k, n]) => `- ${k}: ${n}`), "",
   ];
   for (const r of results.sort((a, b) => a.job.scene.localeCompare(b.job.scene))) {
@@ -135,6 +179,7 @@ async function critique(text: string): Promise<Issue[]> {
   }
   writeFileSync(out, lines.join("\n"));
   console.log(`\n${total} issues over ${results.length} conversations`);
+  if (unjudged.length > 0) console.log(`NOT JUDGED: ${unjudged.length} (${unjudged.join(", ")}), so this is not a clean run`);
   for (const [k, n] of [...byKind].sort((a, b) => b[1] - a[1])) console.log(`  ${k}: ${n}`);
   console.log(`report: ${out}`);
   /* What the whole round cost, the conversations and the critic together, and whether any was cut short. */

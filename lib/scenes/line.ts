@@ -25,7 +25,7 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import {
-  MAX_COMPOSED_WORDS, MAX_SENTENCES, passes, runGate, withoutFarewell, type Check, type GateContext, type Verdict,
+  MAX_COMPOSED_WORDS, MAX_SENTENCES, beforeHeld, passes, runGate, withoutFarewell, type Check, type GateContext, type Verdict,
 } from "./gate";
 import { answerForms, fits, type Line } from "./retrieval";
 import { words, type Lexicon } from "./lexicon";
@@ -41,6 +41,16 @@ import type { BeatSpec } from "./types";
  * seconds a live provider takes to answer twice more.
  */
 export const MAX_COMPOSE_ATTEMPTS = 3;
+
+/**
+ * What the last attempt is told: the plainest line that still answers the
+ * person. It is a brief rather than a template, and the line is gated and
+ * reviewed like any other.
+ */
+export const SAFE_RETRY = "this is your last try, so keep it plain: one or two short, simple sentences"
+  + " in everyday words from your list; first a brief, natural reaction to exactly what they just said"
+  + " (answer it if they asked something), then your move; no numbers your facts do not give unless they asked,"
+  + " no goodbye unless your move is to close";
 
 /** Where a line came from. Printed beside it, every time (ADR-025). */
 export type Provenance =
@@ -298,6 +308,12 @@ export interface LineRequest {
    */
   readonly compose?: (avoid: readonly string[], because?: string) => Promise<string | null>;
   /**
+   * Asks whether a line the gate has passed goes back on anything already
+   * said or runs ahead of the agenda (`lib/scenes/consistency.ts`), and says
+   * why where it does. Null is no objection. Absent, nothing is asked.
+   */
+  readonly review?: (line: string) => Promise<string | null>;
+  /**
    * Whether this run speaks its model-written lines live or out of the bank.
    *
    * **Required rather than optional**, for the reason `scripted` and
@@ -417,6 +433,32 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
       const vouched = request.vouch ? await request.vouch(words(line)) : undefined;
       return runGate(line, request.beat, vouched ? { ...gate, vouched: (w) => vouched.has(w) } : gate);
     };
+    /*
+      A line held back for its goodbye alone keeps everything before it: the
+      goodbye comes off and the rest is gated again, which costs a comparison
+      where a retry costs a call and usually writes the goodbye a second time
+      (`withoutFarewell`). And a line held back for naming a figure kept for
+      later keeps its reaction: what comes before the figure, with the beat's
+      prepared move after it (`beforeHeld`). Asked of every attempt, the last
+      plain one included, since that is the one with nothing behind it but
+      the bank.
+    */
+    const salvage = async (line: string | null, verdict: Verdict | null) => {
+      if (line && verdict && !passes(verdict) && verdict.failed.includes("farewell")) {
+        const trimmed = withoutFarewell(line, request.beat, gate);
+        const again = trimmed ? await judge(trimmed) : null;
+        if (trimmed && again && passes(again)) return { line: trimmed, verdict: again };
+      }
+      if (line && verdict && !passes(verdict) && verdict.failed.includes("ahead")) {
+        const reaction = beforeHeld(line, gate);
+        const move = turned(request.scripted, request.rotate).find((text) => !request.used.has(text))
+          ?? request.scripted[0];
+        const joined = reaction && move ? `${reaction} ${move}` : null;
+        const again = joined ? await judge(joined) : null;
+        if (joined && again && passes(again)) return { line: joined, verdict: again };
+      }
+      return { line, verdict };
+    };
 
     /*
       THREE ATTEMPTS RATHER THAN TWO, BECAUSE THE ALTERNATIVE IS THE BANK AND
@@ -436,20 +478,23 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
     */
     const attempts: (string | null)[] = [];
     const verdicts: (Verdict | null)[] = [];
+    /* What the consistency check said about the last line, said to the retry in its own words. */
+    let objection: string | null = null;
     for (let n = 0; n < MAX_COMPOSE_ATTEMPTS; n += 1) {
       const last = verdicts.at(-1) ?? null;
-      let line = await request.compose(retryNote(last), whyWithheld(last, request.beat.move));
+      const why = [whyWithheld(last, request.beat.move), objection].filter(Boolean).join(": ");
+      let line = await request.compose(retryNote(last), why || undefined);
+      objection = null;
       let verdict = await judge(line);
+      ({ line, verdict } = await salvage(line, verdict));
       /*
-        A line held back for its goodbye alone keeps everything before it:
-        the goodbye comes off and the rest is gated again, which costs a
-        comparison where a retry costs a call and usually writes the goodbye
-        a second time (`withoutFarewell`).
+        AND A LINE THE GATE PASSED STILL HAS TO KEEP TO WHAT WAS SAID. Asked
+        only of a line that passed, since a line the gate withholds is retried
+        anyway and a second opinion on it is a call for nothing.
       */
-      if (line && verdict && !passes(verdict) && verdict.failed.includes("farewell")) {
-        const trimmed = withoutFarewell(line, request.beat, gate);
-        const again = trimmed ? await judge(trimmed) : null;
-        if (trimmed && again && passes(again)) { line = trimmed; verdict = again; }
+      if (line && verdict && passes(verdict) && request.review) {
+        objection = await request.review(line);
+        if (objection) verdict = { ...verdict, failed: ["consistency"] };
       }
       attempts.push(line);
       verdicts.push(verdict);
@@ -457,7 +502,31 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
         return { text: line, provenance: "composed", stretched: verdict.stretched };
       }
     }
-    withheld = verdicts.at(-1)?.failed ?? [];
+    /*
+      ONE LAST, NARROW ATTEMPT BEFORE THE BANK. A prepared line was drafted
+      against the beat alone, so when it stands in for a turn the model could
+      not write, it ignores what the learner just said: read over a full pass
+      of every scene, two thirds of what a critic flagged was a prepared line
+      or a canned piece said after three attempts had been withheld. A plain
+      reaction and the move, checked like every other line, is nearly always
+      something the gate and the reviewer pass, and it is still a line written
+      for this turn.
+    */
+    const last = verdicts.at(-1) ?? null;
+    const drafted = await request.compose(retryNote(last), [
+      whyWithheld(last, request.beat.move), objection, SAFE_RETRY,
+    ].filter(Boolean).join(": "));
+    const salvaged = await salvage(drafted, await judge(drafted));
+    const line = salvaged.line;
+    let verdict = salvaged.verdict;
+    if (line && verdict && passes(verdict) && request.review) {
+      const objected = await request.review(line);
+      if (objected) verdict = { ...verdict, failed: ["consistency"] };
+    }
+    if (line && verdict && passes(verdict)) {
+      return { text: line, provenance: "composed", stretched: verdict.stretched };
+    }
+    withheld = verdict?.failed ?? last?.failed ?? [];
   }
 
   /*
@@ -470,6 +539,25 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
   */
   const scripted = turned(request.scripted, request.rotate).find((text) => !request.used.has(text));
   if (scripted) return { text: scripted, provenance: "scripted" };
+  /*
+    AND WHERE EVERY LINE FOR THE BEAT HAS BEEN SAID, ONE IS SAID AGAIN. A
+    curveball can carry the beat's question straight on after it (`ASKS_ON`),
+    which spends the beat's line before the beat is reached; asked to slow
+    down, the shop assistant then had nothing left and the screen printed the
+    English stage direction in place of the question. Repeating your own
+    question is what a person does, and it is marked as said again.
+  */
+  /*
+    And the one said last, not the first in the rotation. The phone shop's two
+    lines were said once each, and the one said again was the older one, so a
+    learner who had just heard `Jah, see on meil siin.` read `Jah, meil on
+    see.` a third time. `used` is in the order things were said, in the route
+    as in the harnesses, so the last of this beat's lines in it is the newest.
+  */
+  const newest = [...request.used].filter((text) => request.scripted.includes(text)).at(-1);
+  // Not on a beat with a line off the card: the caller says that one (`datumLine`), which is the price at the till.
+  const repeated = request.beat.says ? undefined : newest ?? turned(request.scripted, request.rotate)[0];
+  if (repeated) return { text: repeated, provenance: "again" };
 
   return fallbackLine(request.fallback, withheld);
 }
@@ -519,8 +607,10 @@ export function whyWithheld(verdict: Verdict | null, move?: string): string | un
     verbless question again and the turn fell to the bank.
   */
   const reasons: Record<Exclude<Check, "vouching" | "stretch">, string> = {
-    facts: "it stated a number, a time or a price that is not among the facts you were given; you may only ever say those, and in digits, exactly as the facts give them",
+    facts: "it stated a number, a time or a price that is not among the facts you were given; say only those, in digits, exactly as the facts give them, and never invent a price",
     giveaway: "it said the very form you are waiting for them to produce, which would hand them the answer",
+    ahead: "it named a figure you are keeping for later in the conversation; leave every amount, price and offer out of this line completely, and do not offer anything; if the conversation is stuck you may ask whether they have a question about it, with no figure",
+
     topic: "it was not about what you are doing at this moment, or about what they just said",
     // The ceiling is read off the gate rather than typed, so the retry is told
     // the limit the gate will actually apply to the line it writes next.
@@ -535,6 +625,7 @@ export function whyWithheld(verdict: Verdict | null, move?: string): string | un
       : move === "ask"
         ? `it was the wrong shape: your move is to ask, so the line holds your question, punctuated and unformatted, at most ${MAX_SENTENCES} sentences and ${MAX_COMPOSED_WORDS} words`
         : `it was the wrong shape: your move gives them something and asks them nothing, so leave out every question, even a check like "is that clear?"; punctuated and unformatted, at most ${MAX_SENTENCES} sentences and ${MAX_COMPOSED_WORDS} words`,
+    consistency: "it went back on something you had already said in this conversation, or told them something you keep for later",
     agreement: "its subject and its verb did not agree in person",
     infinitive: "it put the ma-infinitive where the da-infinitive belongs",
     negation: "a verb after the negator kept its personal ending",
@@ -580,4 +671,19 @@ export function pickAttested(request: LineRequest): SpokenLine | null {
     if (verdict.ok) return { text: line.text, provenance: "attested", from: line.lemma };
   }
   return null;
+}
+
+/**
+ * A composed line with the quotation marks a model sometimes wraps it in taken
+ * off, and only those, with any emphasis asterisks round a word. The harness stripped a quote at either end on its own,
+ * so `"Suur" tähendab big.` lost its opening mark, read as a stray quote, and
+ * was withheld three times. A pair is taken off only where it is the whole
+ * line, with no other quotation mark inside.
+ */
+export function unwrapLine(text: string): string {
+  // And emphasis marks round a word, which the screen would print as asterisks.
+  const line = text.trim().replace(/\*{1,2}([^*\n]+?)\*{1,2}/g, "$1");
+  const quote = /^["'«„“](.*)["'»“”]$/su.exec(line);
+  if (!quote || /["«»„“”]/u.test(quote[1]!)) return line;
+  return quote[1]!.trim();
 }

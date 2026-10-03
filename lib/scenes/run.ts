@@ -23,6 +23,7 @@ import { BUDGETS, curveballById, drawCurveballs, type CurveballId, type Difficul
 import { drawPersona, patienceFor, type PersonaSpec } from "./personas";
 import { drawCard, type RoleCard } from "./props";
 import { leafNeeds, type SceneSpec } from "./types";
+import { BANK } from "./bank";
 
 /** What the last few runs of this scene used, so this one does not repeat it. */
 export interface Recency {
@@ -111,7 +112,7 @@ export function planRun(
   */
   const curveballs = drawCurveballs(
     scene.curveballs, scene.beats.length, BUDGETS[difficulty], level, random,
-    recent.curveballs, persona.leans, notBeforeIn(scene),
+    recent.curveballs, persona.leans, notBeforeIn(scene), fitsIn(scene),
   );
 
   const repeats = [
@@ -149,6 +150,27 @@ export function notBeforeIn(scene: SceneSpec): (id: CurveballId) => number {
   return (id) => {
     const follows = curveballById(id)?.follows;
     return follows ? after[follows] : 1;
+  };
+}
+
+/**
+ * Where a curveball whose lines are each about one beat may stand: straight
+ * after one of those beats, so what it says is about what was just said
+ * (`ScriptedLine.about`). Every other curveball fits anywhere `notBeforeIn`
+ * allows. Read off the bank, which is where the lines are, so a line added
+ * about another beat is a place the curveball can stand without anybody
+ * editing this.
+ */
+export function fitsIn(scene: SceneSpec): (id: CurveballId, at: number) => boolean {
+  const about = new Map<string, Set<string>>();
+  for (const row of BANK) {
+    if (row.scene !== scene.id || !row.about || !row.beat.startsWith("hurdle:")) continue;
+    const id = row.beat.slice("hurdle:".length);
+    about.set(id, new Set([...(about.get(id) ?? []), row.about]));
+  }
+  return (id, at) => {
+    const beats = about.get(id);
+    return !beats || beats.has(scene.beats[at - 1]?.id ?? "");
   };
 }
 

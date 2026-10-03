@@ -458,16 +458,26 @@ describe("the word the other side offers", () => {
     expect(beat.topic).toContain(offerFor(beat));
   });
 
+  // A beat that wants a value off the card, which is where the question word would be the question said back.
+  const VALUE = { kind: "datum", slot: "to" } as const;
   it("never points at the question word they were just asked", () => {
-    const beat = { ...SCENE.beats[2]!, topic: ["kuhu", "aeg"] };
+    const beat = { ...SCENE.beats[2]!, needs: [VALUE], topic: ["kuhu", "aeg"] };
     expect(offerFor(beat, null, new Set(["kuhu"]))).toBe("aeg");
+  });
+
+  /* Told to ask when somebody could come, a lost tenant was handed `Remont?`. */
+  it("hands over the question word where asking is the whole of the beat", () => {
+    const beat = { ...SCENE.beats[2]!, needs: [{ kind: "question" } as const], topic: ["remont", "aeg", "millal"] };
+    expect(offerFor(beat, null, new Set(["millal", "kuhu"]))).toBe("millal");
+    // And a topic naming none keeps its pointer.
+    expect(offerFor({ ...beat, topic: ["remont"] }, null, new Set(["millal"]))).toBe("remont");
   });
 
   /* `Sõitma?` was handed to a learner stuck on where they were travelling. */
   it("never points with a bare infinitive", () => {
-    const beat = { ...SCENE.beats[2]!, topic: ["kuhu", "sõitma", "buss"] };
+    const beat = { ...SCENE.beats[2]!, needs: [VALUE], topic: ["kuhu", "sõitma", "buss"] };
     expect(offerFor(beat, null, new Set(["kuhu"]), [], new Set(["sõitma"]))).toBe("buss");
-    const verbsOnly = { ...SCENE.beats[2]!, topic: ["sõitma"] };
+    const verbsOnly = { ...SCENE.beats[2]!, needs: [VALUE], topic: ["sõitma"] };
     expect(offerFor(verbsOnly, null, new Set(), [], new Set(["sõitma"]))).toBeNull();
   });
 
