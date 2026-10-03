@@ -804,7 +804,7 @@ if ((await box.count()) === 0) {
   check("the picture is three characters and none of them is announced as an image",
     (await page.locator("p [aria-hidden='true']").first().innerText()).trim().split(/\s+/).length === 3);
   check("and a screen reader is told the same three things in English",
-    (await page.locator(".sr-only").filter({ hasText: /^A picture of/ }).count()) > 0);
+    (await page.locator(".sr-only").filter({ hasText: /^In the picture: / }).count()) > 0);
 
   // A sentence with none of the scene's words in it: the mark is certain and
   // the reveal names what was in the picture.
