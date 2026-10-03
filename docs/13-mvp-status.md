@@ -2878,3 +2878,34 @@ The osastav read "some of it", a portion of a son, and a sentence has an honest 
 object of looking for (`Ma otsin poega`), or "looking for something pleasant" for an adjective. And
 an adjective's other cases read "of the pleasant", which is "of the pleasant one" now
 (`sentenceAsk`).
+
+**A gap says what its sentence means once.** Walked on a C1 evening, the ladder's gap printed
+`That's an exaggeration!` under `See on ?!` and again under `See on liialdus!` once it was answered,
+a hand's width apart: the line under the question stayed while the reveal under it printed the
+sentence whole with its English. The review card, the sprint, the quest and the lesson took the
+question's line away at that point and the ladder, the flash round and the exceptions round did
+not. All seven do now, and an invariant reads the guard on every `GapMeaning`.
+
+**The inessive evening practises the inessive.** Its writing round asked "of the man", "of the
+daughter", "of the son" and on through six genitives, and never the case the evening had just read.
+It read two hundred cards ordered on lapses alone, which tie on nearly every card in a learner's
+first months, so Postgres chose the words, and it chose a block of people, none of whom take the
+inside endings. The cut ends on the id now, and inside the module the round reads tonight's words
+and the evenings just before as every other module round does: the inessive evening teaches
+animals and the two before it the forest, the sea, the lake and the river, which is where the
+inessive is said, and the round asks "in the river", "in the lake", "in the sea".
+
+**Describe asks a case on a word somebody has written in it.** A C1 evening opened a market scene on
+"Write one sentence with sibul that says becoming an onion", and the next round asked "into the
+yarn". Which case each picture asks is decided exactly as before, slot by slot, with tonight's case
+woven through the ones read before it; what moved is which picture and which of its three words
+carries it. A word where a sentence records that case is taken first (`recordsCase`), a case drawn
+only to vary the round gives way to another that is recorded and not yet asked, and the learner's
+weakest and tonight's are asked whatever the word. Measured on a C1 round: "to the woman", "with
+the onion", "out of the stone", "in the cinema", "the child has it".
+
+**Recorded means that case and no other.** "Into the yarn" got through a recorded-form test,
+because the short illative of `lõng` is `lõnga`, which is also its genitive and its partitive, and
+any sentence about yarn holds one of those. `recordsCase` counts a spelling only where `readCase`
+names exactly the case asked, so a short illative spelled like the genitive records nothing and its
+long form has to be found instead. The writing round reads it too.

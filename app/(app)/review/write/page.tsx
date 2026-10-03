@@ -5,19 +5,22 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { writingTasksFor } from "@/lib/estonian/writing";
 import { sayPhrase } from "@/lib/estonian/sayIt";
 import { sentenceAsk } from "@/lib/estonian/caseReading";
-import { mentions } from "@/lib/estonian/cloze";
-import { lentFor, parseExamples } from "@/lib/dict/examples";
+import { parseExamples } from "@/lib/dict/examples";
+import { recordsCase } from "@/lib/dict/recorded";
+import { caseIndex } from "@/lib/estonian/whichCase";
 import { borrowedSentences } from "@/lib/dict/facts";
 import { isLocalCase } from "@/lib/estonian/caseQuestion";
 import { kindStated } from "@/lib/estonian/semantics";
-import { shownForms } from "@/lib/estonian/derive";
+import { shownForms, stemsFromParts } from "@/lib/estonian/derive";
 import { PARTS } from "@/lib/copy/values";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { WriteSession, type WritingPrompt } from "./WriteSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
-import { caseWithin, lemmaFilter, moduleScopeFrom, tonightFirst, tonightsCase } from "@/lib/course/scope";
+import {
+  RECENT_WORDS, byRecency, caseWithin, lemmaFilter, moduleScopeFrom, recentLemmas, tonightFirst, tonightsCase,
+} from "@/lib/course/scope";
 import { CASES } from "@/lib/estonian/cases";
 import { caseAsked } from "@/lib/srs/slots";
 
@@ -45,25 +48,55 @@ export default async function WritePage({
   // Opened from the module, taught words in taught cases. See lib/course/scope.ts.
   const scope = moduleScopeFrom(await searchParams);
 
-  const cards = await prisma.card.findMany({
+  const cardSelect = { id: true, lexemeId: true, lapses: true, cardType: true } as const;
+  const [general, recent] = await Promise.all([
+    prisma.card.findMany({
+      /*
+        state: { not: 0 } is what makes "everything here is a word they have
+        already met" above true rather than aspirational: `lapses desc` does not
+        reliably push a brand-new card to the back, because a word that has
+        never been reviewed and a word that has been reviewed and never gotten
+        wrong both carry `lapses: 0`, and on a deck thinner than the take a
+        never-met word could be asked to write a sentence with a form it was
+        never shown. The same rule sprint, speaking, listening and Match already
+        apply to their own pools.
+      */
+      where: {
+        ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 },
+        ...(scope ? { lexeme: lemmaFilter(scope) } : {}),
+      },
+      select: cardSelect,
+      /*
+        Ending on the id, because `lapses` ties on nearly every card a learner
+        holds in their first months, and a cut at two hundred on a tie is the
+        plan choosing the words. It chose a block of people on the A2 evening
+        about the inessive, none of whom take the inside endings, and the round
+        asked "of the man" six times and the evening's own case never.
+      */
+      orderBy: [{ lapses: "desc" }, { id: "asc" }],
+      take: 200,
+    }),
     /*
-      state: { not: 0 } is what makes "everything here is a word they have
-      already met" above true rather than aspirational: `lapses desc` does not
-      reliably push a brand-new card to the back, because a word that has
-      never been reviewed and a word that has been reviewed and never gotten
-      wrong both carry `lapses: 0`, and on a deck thinner than the take a
-      never-met word could be asked to write a sentence with a form it was
-      never shown. The same rule sprint, speaking, listening and Match already
-      apply to their own pools.
+      INSIDE THE MODULE, TONIGHT'S WORDS AND THE EVENINGS JUST BEFORE, whatever
+      the cut above reached, which is the rule every other module round keeps
+      (`recentLemmas`). Tonight's case is usually carried by them: the inessive
+      evening teaches animals and the two before it the forest, the sea and the
+      lake, which are where the inessive is said.
     */
-    where: {
-      ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 },
-      ...(scope ? { lexeme: lemmaFilter(scope) } : {}),
-    },
-    select: { id: true, lexemeId: true, lapses: true, cardType: true },
-    orderBy: { lapses: "desc" },
-    take: 200,
-  });
+    scope
+      ? prisma.card.findMany({
+          where: {
+            ownerId, suspended: false, state: { not: 0 },
+            lexeme: { lemma: { in: recentLemmas(scope) } },
+          },
+          select: cardSelect,
+          orderBy: { id: "asc" },
+          take: RECENT_WORDS * 4,
+        })
+      : Promise.resolve([]),
+  ]);
+  const led = new Set(recent.map((c) => c.id));
+  const cards = [...recent, ...general.filter((c) => !led.has(c.id))];
 
   /*
     The card this exercise is really practicing.
@@ -131,10 +164,12 @@ export default async function WritePage({
   for (const lexeme of lexemes) {
     const sentences = parseExamples(lexeme.examples);
     const lent = borrowed.get(lexeme.id) ?? [];
-    const said = (form: string | null) => !!form && (
-      sentences.some((e) => mentions(e.et, form))
-      || lent.some((e) => lentFor(e, form) && mentions(e.et, form))
-    );
+    const parts: Record<string, string> = {};
+    for (const form of lexeme.forms) parts[form.formType] ??= form.value;
+    const index = caseIndex(stemsFromParts(parts));
+    // A spelling the word wears in another case too records nothing: see `recordsCase`.
+    const said = (key: (typeof CASES)[number]["key"], forms: readonly (string | null)[]) =>
+      recordsCase(index, key, forms, sentences, lent);
     const subject = {
       lemma: lexeme.lemma,
       semanticTypes: lexeme.semanticTypes,
@@ -148,7 +183,7 @@ export default async function WritePage({
       // so it is asked only of a word whose kind the dictionary has stated:
       // see `kindStated`, which is why "in the acquaintance" went.
       if (isLocalCase(task.caseKey) && !kindStated(lexeme.semanticTypes)) continue;
-      if (isLocalCase(task.caseKey) && !said(task.targetForm) && !said(task.alsoRight)) continue;
+      if (isLocalCase(task.caseKey) && !said(task.caseKey, [task.targetForm, task.alsoRight])) continue;
       pool.push({
         cardId,
         lexemeId: lexeme.id,
@@ -167,7 +202,7 @@ export default async function WritePage({
         say: sentenceAsk(task.caseKey, task.translation, lexeme.pos, subject)
           ?? sayPhrase(task.caseKey, task.translation, subject),
       });
-      if (said(task.targetForm) || said(task.alsoRight)) recorded.add(pool.at(-1)!);
+      if (said(task.caseKey, [task.targetForm, task.alsoRight])) recorded.add(pool.at(-1)!);
     }
   }
 
@@ -178,8 +213,12 @@ export default async function WritePage({
   // the front of it (`tonightFirst`), so the page just read is the page used.
   const tonight = tonightsCase(scope);
   const tier = (p: (typeof pool)[number]) => (p.weak ? 0 : 2) + (recorded.has(p) ? 0 : 1);
+  // Inside the module each tier leads with the words taught most recently, as
+  // every other module round does.
+  const order = (items: typeof pool) =>
+    scope ? byRecency(scope, shuffle(items), (p) => p.lemma) : shuffle(items);
   const shuffled = tonightFirst(
-    [0, 1, 2, 3].flatMap((t) => shuffle(pool.filter((p) => tier(p) === t))),
+    [0, 1, 2, 3].flatMap((t) => order(pool.filter((p) => tier(p) === t))),
     (p) => p.caseKey === tonight,
   );
 
