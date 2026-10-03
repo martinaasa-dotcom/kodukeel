@@ -5411,3 +5411,36 @@ first thing the unified `play:scenes` showed was a fault the old copy had been h
 shop, a learner who asks `kas hind?` after the assistant's line naming the price is read as handing
 the line back (an echo) and is answered `Ma ei saa aru` and the same line again. The route has always
 done that. It is fixed in the change after this one, because this one changes nothing the app says.
+
+## §80 What the unified harnesses showed first
+
+**A yes-or-no question need not open the line.** `isEcho` in `lib/scenes/turn.ts` reads a turn made
+only of the words of the line it answers as that line handed back, with one exception: Estonian answers
+a `kas` question with the question's own words, so a turn made of a polar question's words is an
+answer to it. The exception read the line's first word alone, and a line that opens with a courtesy
+(`Palun! Kas te soovite maksta?`) holds its question second. In the clothes shop a learner who asked
+`kas hind?` at the till was answered `Ma ei saa aru` and the same line again. Any sentence of the line
+that opens with `kas` counts now. Played again, the same turn reads as a question and is answered with
+the price off the card.
+
+**And the line it was answering was the customer's.** The banked lines under that turn had the shop
+assistant asking the customer what the shop's own coat costs: `Kas te teate, kui palju raha see maksab
+ja mis on selle hind?` and `Kas saate öelda, kui palju see maksab?`, and a third, `Kas te soovite
+teada, kui palju see maksab?`, took the question out of the learner's mouth. Every word in them is the
+scene's and on topic, so the gate passed all three, and a learner who reached the till had nothing left
+to ask. A beat whose needs include a question is the learner's to ask, so `asksTheirQuestion` in
+`scripts/lib/sceneDraft.ts` refuses a banked line holding a question built from the words that question
+needs. Read over the whole bank it names those three rows and no others, out of the 68 on such beats.
+The drafter refuses such a line on the way in and drops one already banked, and `bank.test.ts` fails on
+one, made to fail on the bank as it was.
+
+Swept keyless at B1 before and after, the flags stay at none over 4,456 conversations and fourteen of
+the fifteen scenes play exactly as they did. The clothes shop is the one that moves: the customer's
+question was said 378 times across its transcripts and is said nowhere now, the till falls to the
+plainer A1 lines (`Kas te soovite selle osta? Hind on väga hea.`), and no turn there is read as an
+echo any more, where five were.
+
+**What it does not reach is a composed line.** The live gate holds no such check, so a model composing
+the till line could still ask the learner's question. Whether it should is a measurement on the paid
+model, whose daily allowance is spent until it resets, so it waits for that measurement rather than
+going in unmeasured.

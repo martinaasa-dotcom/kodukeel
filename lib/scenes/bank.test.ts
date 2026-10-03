@@ -9,7 +9,7 @@ import { curveballById } from "./curveballs";
 import { fitsIn, notBeforeIn } from "./run";
 import { askedLemmas } from "./types";
 import { answerBeatId, beatById, scriptable, scriptedFor, sceneBeats } from "./scripted";
-import { answerForms, keylessContext, lacksFiniteVerb } from "../../scripts/lib/sceneDraft";
+import { answerForms, asksTheirQuestion, keylessContext, lacksFiniteVerb } from "../../scripts/lib/sceneDraft";
 import { sayableAfterHurdles } from "./reply";
 import { fitsPitch } from "./pitch";
 import { LEVELS } from "@/lib/collections/syllabus";
@@ -75,6 +75,20 @@ describe("the scripted bank", () => {
       const beat = beatById(scene, row.beat)!;
       expect(lacksFiniteVerb(row.text, beat), `${row.scene}/${row.beat}: "${row.text}" has no finite verb`).toBe(false);
     }
+  });
+
+  it("never asks the question the learner is there to ask", () => {
+    // The shop assistant asking the customer what the shop's own coat costs, which passes every gate check.
+    const contexts = new Map(SCENES.map((scene) => [scene.id, keylessContext(scene)]));
+    let asking = 0;
+    for (const row of BANK) {
+      const scene = sceneById(row.scene)!;
+      const beat = beatById(scene, row.beat)!;
+      if (beat.needs.some((need) => need.kind === "question")) asking += 1;
+      expect(asksTheirQuestion(row.text, beat, contexts.get(scene.id)!.lexicon), `${row.scene}/${row.beat}: "${row.text}" asks the learner's question`)
+        .toBe(false);
+    }
+    expect(asking, "no row sits on a beat where the learner asks, so this asks nothing").toBeGreaterThan(40);
   });
 
   it("holds no digit, no dash and never the way out", () => {

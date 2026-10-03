@@ -64,8 +64,9 @@ import { BANK } from "../lib/scenes/bank";
 import { beatById, sceneBeats, scriptable, type ScriptedLine } from "../lib/scenes/scripted";
 import { words } from "../lib/scenes/lexicon";
 import {
-  ANSWERED, REFUSALS, answerForms, chain, compose, keylessContext, lacksFiniteVerb,
+  ANSWERED, REFUSALS, answerForms, asksTheirQuestion, chain, compose, keylessContext, lacksFiniteVerb,
 } from "./lib/sceneDraft";
+import type { Lexicon } from "../lib/scenes/lexicon";
 import type { BeatSpec } from "../lib/scenes/types";
 import { installMeter } from "./lib/meter";
 
@@ -94,7 +95,7 @@ const OUT = "lib/scenes/bank.ts";
 
 /** A line the gate should not even be asked about. */
 function refused(
-  text: string, fallback: string, answers: ReadonlySet<string>, beat: BeatSpec, level?: Level,
+  text: string, fallback: string, answers: ReadonlySet<string>, beat: BeatSpec, lexicon: Lexicon, level?: Level,
 ): string | null {
   if (/\d/.test(text)) return "digit";
   if (level) { const why = fitsPitch(text, level); if (why) return `over the band: ${why}`; }
@@ -103,6 +104,7 @@ function refused(
   if (!/[.?!]$/.test(text.trim())) return "no end";
   if (words(text).some((word) => answers.has(word))) return "gives the answer away";
   if (lacksFiniteVerb(text, beat)) return "no finite verb";
+  if (asksTheirQuestion(text, beat, lexicon)) return "asks the learner's question";
   return null;
 }
 
@@ -128,7 +130,7 @@ async function main() {
     if (!scene || !beat || !context || !scriptable(scene, beat)) { dropped++; note("dropped: no such beat"); return false; }
     const verdict = runGate(row.text, beat, gateFor(row.beat, context.gate));
     if (!passes(verdict)) { dropped++; note(`dropped: gate ${verdict.failed.join("/")}`); return false; }
-    const why = refused(row.text, FALLBACK_PHRASE, answerForms(beat, context.lexicon), beat, row.level);
+    const why = refused(row.text, FALLBACK_PHRASE, answerForms(beat, context.lexicon), beat, context.lexicon, row.level);
     if (why) { dropped++; note(`dropped: ${why}`); return false; }
     return true;
   });
@@ -192,7 +194,7 @@ async function main() {
               if (second) { asked++; candidate = second; verdict = runGate(candidate.text, beat, gateFor(beat.id, gate)); }
             }
             if (!passes(verdict)) { withheld++; for (const c of verdict.failed) note(`gate: ${c}`); continue; }
-            const why = refused(candidate.text, FALLBACK_PHRASE, answerForms(beat, lexicon), beat, level);
+            const why = refused(candidate.text, FALLBACK_PHRASE, answerForms(beat, lexicon), beat, lexicon, level);
             if (why) { withheld++; note(why); continue; }
             const key = `${scene.id}|${beat.id}|${candidate.text.toLowerCase()}`;
             if (seen.has(key)) { note("duplicate"); continue; }

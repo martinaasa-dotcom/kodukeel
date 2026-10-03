@@ -1560,6 +1560,17 @@ function isEcho(spoken: readonly string[], previous: string): boolean {
   */
   if (said[0] === "kas") return false;
   /*
+    AND THE YES-OR-NO QUESTION NEED NOT BE THE LINE'S FIRST SENTENCE. A line
+    that opens with a courtesy (`Palun! Kas te soovite maksta?`) holds its
+    question second, and read off the line's first word alone, a learner
+    using that question's own words was read as handing the line back: in
+    the clothes shop `kas hind?` was answered `Ma ei saa aru` and the same
+    line again. Any sentence of the line that opens with `kas` is a polar
+    question, and a turn made of its words is an answer to it.
+  */
+  const polar = previous.split(/(?<=[.!?])\s+/).map((sentence) => words(sentence)).filter((sentence) => sentence[0] === "kas");
+  if (polar.some((sentence) => spoken.every((word) => sentence.includes(word)))) return false;
+  /*
     AND PICKING ONE OF TWO IS ANSWERING. Offered `hommikul või pärastlõunal?`,
     a learner who wrote `homme hommikul` chose, and every word of it was in
     the line they were answering, so the rule read the choice as parroting

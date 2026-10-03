@@ -322,6 +322,35 @@ export function lacksFiniteVerb(text: string, beat: BeatSpec): boolean {
   return !tokens.some((word) => FINITE_VERB_FORMS.has(word));
 }
 
+/**
+ * Whether a drafted line asks the question the learner is there to ask.
+ *
+ * A beat whose needs include a question is the learner's to ask: at the
+ * clothes shop's till they are waited on to ask what it costs. The model
+ * drafting the shop's side there wrote the customer's line instead, "Kas
+ * saate öelda, kui palju see maksab?" and "Kas te teate, kui palju raha see
+ * maksab ja mis on selle hind?", the shop assistant asking the customer the price of the
+ * shop's own coat. It passed every check in the gate, because every word is
+ * the scene's and it is on topic, and it reached a learner who then had
+ * nothing to ask. So on such a beat a question in the line may not be made
+ * of the words the learner's own question needs: a question about something
+ * else ("Kas te soovite selle osta?") is the other side's to ask and stays.
+ *
+ * Read over the whole bank on 2026-10-03 it named those rows and no others,
+ * out of the 68 on beats where the learner asks.
+ */
+export function asksTheirQuestion(text: string, beat: BeatSpec, lexicon: Lexicon): boolean {
+  if (!beat.needs.some((need) => need.kind === "question")) return false;
+  const theirs = new Set(
+    beat.needs
+      .flatMap((need) => need.kind === "lemma" ? need.oneOf : need.kind === "case" ? [need.lemma] : [])
+      .flatMap((lemma) => [...(lexicon.byLemma.get(lemma) ?? [])]),
+  );
+  return text.split(/(?<=[.!?])\s+/)
+    .filter((sentence) => sentence.trim().endsWith("?"))
+    .some((sentence) => words(sentence).some((word) => theirs.has(word)));
+}
+
 /** The gate's context for one scene, built from the shipped dictionary rather than a database. */
 const QUESTION_WORDS: ReadonlySet<string> = new Set(
   (unitById("kusisonad")?.lemmas ?? []).flatMap((lemma) => {
