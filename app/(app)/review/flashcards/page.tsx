@@ -67,8 +67,9 @@ export default async function FlashcardsPage({
   const readable = sentenceWithin(scope, await moduleSpellings(scope));
 
   const words = await masteryFor(ownerId);
+  const taught = scope ? new Set(scope.lemmas) : null;
   const unfinished = words.filter((w) => w.verdict.mastery !== "mastered")
-    .filter((w) => !scope || scope.lemmas.includes(w.lemma));
+    .filter((w) => !taught || taught.has(w.lemma));
 
   if (unfinished.length === 0) {
     return (

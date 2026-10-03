@@ -3017,6 +3017,12 @@ nothing yet and is told so rather than handed the dictionary, and on such a morn
 Tähed in the puzzle's place. Sõnad has a six-letter word from the fourth evening of A1. A learner the
 module has never held keeps the dictionary at their band, as before.
 
+**The Situations list says which conversations the course has not reached.** The module deals a
+conversation only once every unit it draws on has been taught, and the list offered all fifteen
+alike. For a learner the module holds, a tile and the stage say "Your course brings this one in
+later" where a unit is still ahead (`unitsThrough`), the stage opens on one the course has reached,
+and "Another one" prefers those. Nothing is locked.
+
 **What stays outside it, on purpose.** Minimal pairs asks which of two spellings was heard and needs
 no vocabulary, so it still draws from the dictionary. The leech clinic reports the learner's own
 history and is not narrowed. And a curveball that switches the other side to English is said again

@@ -58,14 +58,16 @@ export default async function ExceptionsRoundPage({
   const params = firstParams(await searchParams);
   const { kind } = params;
   // Opened from the module, the words are the taught ones. See lib/course/scope.ts.
-  const scope = await practiceScope(ownerId, params);
   const wanted = kind && (EXCEPTION_KINDS as readonly string[]).includes(kind.toUpperCase())
     ? kind.toUpperCase()
     : null;
 
-  const [level, index] = await Promise.all([courseLevelFor(ownerId), exceptionIndex()]);
+  const [scope, level, index] = await Promise.all([
+    practiceScope(ownerId, params), courseLevelFor(ownerId), exceptionIndex(),
+  ]);
+  const taught = scope ? new Set(scope.lemmas) : null;
   const near = index.filter(
-    (row) => (scope ? scope.lemmas.includes(row.lemma) : isAround(row.cefr, level))
+    (row) => (taught ? taught.has(row.lemma) : isAround(row.cefr, level))
       && (!wanted || row.exceptions.some((e) => e.kind === wanted)),
   );
 
