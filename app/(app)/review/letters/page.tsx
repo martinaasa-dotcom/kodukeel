@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
-import { lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
+import { RECENT_WORDS, byRecency, lemmaFilter, moduleScopeFrom, recentLemmas } from "@/lib/course/scope";
 import { spellable, tilesFor } from "@/lib/games/letters";
 import { shuffle } from "@/lib/random/shuffle";
 import { LettersSession, type LettersWord } from "./LettersSession";
@@ -62,13 +62,26 @@ export default async function LettersPage({
   };
   const select = { lexeme: { select: { lemma: true, translation: true } } };
 
-  const due = await prisma.card.findMany({
-    where: { ...where, due: { lte: now } },
-    orderBy: [{ due: "asc" }, { id: "asc" }],
-    take: POOL,
-    include: select,
-  });
-  let cards = due;
+  const [recent, due] = await Promise.all([
+    /* Inside the module it leads with tonight and the evenings just before, as Match does. */
+    scope
+      ? prisma.card.findMany({
+          where: { ...where, lexeme: { ...where.lexeme, lemma: { in: recentLemmas(scope) } } },
+          orderBy: { id: "asc" },
+          take: RECENT_WORDS * 2,
+          include: select,
+        })
+      : Promise.resolve([]),
+    prisma.card.findMany({
+      where: { ...where, due: { lte: now } },
+      orderBy: [{ due: "asc" }, { id: "asc" }],
+      take: POOL,
+      include: select,
+    }),
+  ]);
+  const led = scope ? byRecency(scope, recent, (c) => c.lexeme?.lemma) : [];
+  const ledIds = new Set(led.map((c) => c.id));
+  let cards = [...led, ...due.filter((c) => !ledIds.has(c.id))];
   if (cards.length < POOL) {
     const seen = new Set(cards.map((c) => c.id));
     const rest = await prisma.card.findMany({
@@ -81,7 +94,9 @@ export default async function LettersPage({
   }
 
   const playable = cards.filter((c) => c.lexeme && spellable(c.lexeme.lemma));
-  const picked = shuffle(playable).slice(0, ROUND);
+  // Inside the module the round is the most recent playable words, shuffled
+  // among themselves; outside it, any of the pool.
+  const picked = scope ? shuffle(playable.slice(0, ROUND)) : shuffle(playable).slice(0, ROUND);
   const starred = await starredAmong(
     ownerId, picked.map((c) => c.lexemeId).filter((id): id is string => !!id),
   );

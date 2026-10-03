@@ -10,7 +10,9 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { shuffle } from "@/lib/random/shuffle";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { roundPaceFrom, secondsFor, SPRINT_SECONDS } from "@/lib/ux/roundClock";
-import { cardWithin, lemmaFilter, moduleScopeFrom, TONIGHT_SHARE, tonightsCase } from "@/lib/course/scope";
+import {
+  RECENT_WORDS, TONIGHT_SHARE, byRecency, cardWithin, lemmaFilter, moduleScopeFrom, recentLemmas, tonightsCase,
+} from "@/lib/course/scope";
 import { caseAskFor, type CaseAsk } from "@/lib/questions/caseAsk";
 import { moduleSpellings } from "@/lib/progress/moduleScope";
 
@@ -60,8 +62,17 @@ export default async function SprintPage({
     SETTING_KEYS.sprintBest, SETTING_KEYS.roundPace,
   ]);
 
-  const [spellings, due] = await Promise.all([
+  const [spellings, recent, due] = await Promise.all([
     moduleSpellings(scope),
+    /* Inside the module it leads with tonight and the evenings just before, as Match does. */
+    scope
+      ? prisma.card.findMany({
+          where: { ownerId, suspended: false, state: { not: 0 }, lexeme: { lemma: { in: recentLemmas(scope) } } },
+          orderBy: { id: "asc" },
+          take: RECENT_WORDS * 3,
+          include: { lexeme: { select: LEXEME_SELECT } },
+        })
+      : Promise.resolve([]),
     prisma.card.findMany({
       where: { ownerId, suspended: false, due: { lte: now }, state: { not: 0 }, ...scoped },
       orderBy: { due: "asc" },
@@ -70,7 +81,9 @@ export default async function SprintPage({
     }),
   ]);
 
-  let cards = due;
+  const led = scope ? byRecency(scope, recent, (c) => c.lexeme?.lemma) : [];
+  const ledIds = new Set(led.map((c) => c.id));
+  let cards = [...led, ...due.filter((c) => !ledIds.has(c.id))].slice(0, POOL_SIZE);
   if (cards.length < POOL_SIZE) {
     const seenIds = new Set(cards.map((c) => c.id));
     const weak = await prisma.card.findMany({

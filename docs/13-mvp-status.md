@@ -2770,3 +2770,10 @@ card that asks for the word from its meaning now hands the marker the word's oth
 “usaldama”.", graded as nearly. A case card's rivals still win, since there another form is the
 wrong answer. The writing round's miss names the form it wanted, both spellings where a case has
 two, and the course-fit card says "every answer right" rather than "100 out of a hundred".
+
+**A round the module deals leads with tonight.** Match, Listening, Tähed, Speaking and the sprint
+filled themselves due cards first and then whatever had lapsed, so a B1 evening's Match put
+tonight's three new words on a board with `aitäh`, `palun` and `tere hommikust`: a learner standing
+at B1 always has an A1 greeting somewhere near due. Inside the module each leads with tonight's
+words and then the evenings just before (`recentLemmas`, `byRecency`), and fills from the rest only
+once those run out; opened from Practice, nothing changed.

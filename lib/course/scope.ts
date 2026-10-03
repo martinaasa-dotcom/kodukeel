@@ -128,6 +128,45 @@ export function tonightFirst<T>(items: readonly T[], isTonight: (item: T) => boo
 }
 
 /**
+ * How many of the most recently taught words a round inside the module leads
+ * with: tonight's and roughly the last week of evenings at any level.
+ */
+export const RECENT_WORDS = 40;
+
+/**
+ * THE WORDS THE MODULE TAUGHT MOST RECENTLY, TONIGHT'S FIRST.
+ *
+ * A round the module deals is about tonight. Filled the way a round opened
+ * from Practice is, due cards first and then whatever lapsed, a B1 evening's
+ * Match put tonight's three new words on a board with `aitäh`, `palun` and
+ * `tere hommikust`, because a learner standing at B1 holds a deck of A1
+ * greetings that are always somewhere near due. So the round leads with these
+ * and fills from the rest only once they run out.
+ */
+export function recentLemmas(scope: ModuleScope, n = RECENT_WORDS): string[] {
+  /*
+    Tonight's words named first rather than read off the end of `lemmas`,
+    which keeps a word where it was first taught: `tuttav` is on an A1 evening
+    and again on a B1 one, so read off the list alone the B1 evening's own
+    word sat nine hundred places back.
+  */
+  return [...new Set([...scope.day.words, ...[...scope.lemmas].reverse()])].slice(0, n);
+}
+
+/**
+ * Rows in the order their words were taught, most recent first, so a round
+ * leads with tonight and works back. Rows whose word the list does not hold
+ * keep their own order behind them.
+ */
+export function byRecency<T>(
+  scope: ModuleScope, rows: readonly T[], lemmaOf: (row: T) => string | null | undefined,
+): T[] {
+  const rank = new Map(recentLemmas(scope, Number.MAX_SAFE_INTEGER).map((lemma, i) => [lemma, i]));
+  const at = (row: T) => rank.get(lemmaOf(row) ?? "") ?? Number.MAX_SAFE_INTEGER;
+  return rows.map((row, i) => ({ row, i })).sort((a, b) => at(a.row) - at(b.row) || a.i - b.i).map((x) => x.row);
+}
+
+/**
  * The page a verb slot waits for, by the opening of its morph code.
  *
  * `IndPr` is the present and the negative (`IndPrPs_`, `ei loe`), which the

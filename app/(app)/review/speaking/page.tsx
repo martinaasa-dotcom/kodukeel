@@ -6,7 +6,7 @@ import { plainerFirst } from "@/lib/dict/plainness";
 import { naturalSentence } from "@/lib/estonian/cloze";
 import { starredAmong } from "@/lib/progress/stars";
 import { SpeakingSession, type SpeakingCard } from "./SpeakingSession";
-import { lemmaFilter, moduleScopeFrom, sentenceWithin } from "@/lib/course/scope";
+import { RECENT_WORDS, byRecency, lemmaFilter, moduleScopeFrom, recentLemmas, sentenceWithin } from "@/lib/course/scope";
 import { moduleSpellings } from "@/lib/progress/moduleScope";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
@@ -48,7 +48,16 @@ export default async function SpeakingPage({
     lexeme: { select: { lemma: true, translation: true, examples: true, cefr: true } },
   } as const;
 
-  const [due, reach] = await Promise.all([
+  const [recent, due, reach] = await Promise.all([
+    /* Inside the module it leads with tonight and the evenings just before, as Match does. */
+    scope
+      ? prisma.card.findMany({
+          where: { ...base, state: { not: 0 }, lexeme: { lemma: { in: recentLemmas(scope) } } },
+          orderBy: { id: "asc" },
+          take: RECENT_WORDS * 2,
+          include,
+        })
+      : Promise.resolve([]),
     prisma.card.findMany({
       where: { ...base, due: { lte: now }, state: { not: 0 } },
       orderBy: { due: "asc" },
@@ -62,7 +71,9 @@ export default async function SpeakingPage({
     sentenceReach(),
   ]);
 
-  let pool = due;
+  const led = scope ? byRecency(scope, recent, (c) => c.lexeme?.lemma) : [];
+  const ledIds = new Set(led.map((c) => c.id));
+  let pool = [...led, ...due.filter((c) => !ledIds.has(c.id))].slice(0, ROUND);
   if (pool.length < ROUND) {
     const seen = new Set(pool.map((c) => c.id));
     const rest = await prisma.card.findMany({

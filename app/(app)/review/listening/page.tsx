@@ -9,7 +9,7 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
 import { decoyOptions, decoysAmong } from "@/lib/dict/facts";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
+import { RECENT_WORDS, byRecency, lemmaFilter, moduleScopeFrom, recentLemmas } from "@/lib/course/scope";
 import {
   bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
 } from "@/lib/questions/distractors";
@@ -51,14 +51,31 @@ export default async function ListeningPage({
   const scope = moduleScopeFrom(await searchParams);
   const scoped = scope ? { lexeme: lemmaFilter(scope) } : {};
 
-  const due = await prisma.card.findMany({
-    where: { ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null }, due: { lte: now }, state: { not: 0 }, ...scoped },
-    orderBy: { due: "asc" },
-    take: POOL_SIZE,
-    include: { lexeme: { select: { lemma: true, translation: true, pos: true, cefr: true } } },
-  });
+  const include = { lexeme: { select: { lemma: true, translation: true, pos: true, cefr: true } } } as const;
+  const [recent, due] = await Promise.all([
+    /* Inside the module it leads with tonight and the evenings just before, as Match does. */
+    scope
+      ? prisma.card.findMany({
+          where: {
+            ownerId, suspended: false, cardType: "RECOGNITION", state: { not: 0 },
+            lexeme: { lemma: { in: recentLemmas(scope) } },
+          },
+          orderBy: { id: "asc" },
+          take: RECENT_WORDS * 2,
+          include,
+        })
+      : Promise.resolve([]),
+    prisma.card.findMany({
+      where: { ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null }, due: { lte: now }, state: { not: 0 }, ...scoped },
+      orderBy: { due: "asc" },
+      take: POOL_SIZE,
+      include,
+    }),
+  ]);
 
-  let cards = due;
+  const led = scope ? byRecency(scope, recent, (c) => c.lexeme?.lemma).slice(0, POOL_SIZE) : [];
+  const ledIds = new Set(led.map((c) => c.id));
+  let cards = [...led, ...due.filter((c) => !ledIds.has(c.id))].slice(0, POOL_SIZE);
   if (cards.length < POOL_SIZE) {
     const seenIds = new Set(cards.map((c) => c.id));
     const weak = await prisma.card.findMany({

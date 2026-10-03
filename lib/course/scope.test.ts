@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PROGRAMMES } from "./index";
-import { reviewable, scopeFor, tonightFirst, tonightsCase } from "./scope";
+import { byRecency, recentLemmas, reviewable, scopeFor, tonightFirst, tonightsCase } from "./scope";
 import { caseFromFront } from "@/lib/copy/caseHint";
 import { CASES } from "@/lib/estonian/cases";
 
@@ -101,3 +101,24 @@ describe("tonight's case first", () => {
     expect(tonightsCase(null)).toBeNull();
   });
 });
+
+describe("the words taught most recently", () => {
+  /* A B1 evening's Match was tonight's three words and five A1 greetings. */
+  const b1 = PROGRAMMES.find((p) => p.level === "B1")!;
+  const day = b1.days[3]!;
+  const scope = scopeFor(b1, day);
+
+  it("leads with tonight's words and works back through the evenings before", () => {
+    const recent = recentLemmas(scope, 20);
+    expect(recent).toHaveLength(20);
+    expect(recent.slice(0, day.words.length).sort()).toEqual([...day.words].sort());
+    expect(recent).not.toContain("aitäh");
+  });
+
+  it("orders rows by how recently their word was taught, keeping the rest behind in order", () => {
+    const [last, earlier] = [day.words.at(-1)!, b1.days[0]!.words[0]!];
+    const rows = ["aitäh", earlier, "nobody", last].map((lemma) => ({ lemma }));
+    expect(byRecency(scope, rows, (r) => r.lemma).map((r) => r.lemma)).toEqual([last, earlier, "aitäh", "nobody"]);
+  });
+});
+
