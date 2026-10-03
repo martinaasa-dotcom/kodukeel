@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { dictionaryRows } from "../../scripts/lib/dictionary";
-import { usableExamples } from "@/lib/dict/examples";
+import { shippedPool } from "../../scripts/lib/examPool";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
 import { assemblePaper } from "./assemble";
-import type { Paper, PoolWord } from "./paper";
-import { POOL_SIZE, drawStablePool, eligibleFor, poolForSeed } from "./pool";
+import type { Paper } from "./paper";
+import { POOL_SIZE, drawStablePool, eligibleFor } from "./pool";
 import { buildReport } from "./report";
 import { markPaper } from "./score";
 import { freshSeed, numberedSeed } from "./seed";
@@ -14,28 +14,16 @@ import { freshSeed, numberedSeed } from "./seed";
   Over the shipped dictionary rather than a fixture, because what this asserts
   is that a numbered paper is the same paper on two evenings, and a fixture of
   forty invented words is too small for a draw to have anything to disagree
-  about. Drawn the way the app draws, through `poolForSeed`.
+  about. Drawn the way the app draws, through `shippedPool`, which is
+  `poolForSeed` and the course words the paper's tasks are about.
 */
 const entries = dictionaryRows();
 const WORD_ORDER = orderContextFrom(entries);
 const ordered = [...entries].sort((a, b) =>
   `${a.lemma}|${a.pos}` < `${b.lemma}|${b.pos}` ? -1 : `${a.lemma}|${a.pos}` > `${b.lemma}|${b.pos}` ? 1 : 0);
-const byId = new Map<string, (typeof ordered)[number]>(ordered.map((e) => [`${e.lemma}|${e.pos}`, e] as const));
 
 function paperFor(seed: string): Paper {
-  const rows = ordered.filter((e) => eligibleFor("B1", e.cefr ?? null)).map((e) => ({ id: `${e.lemma}|${e.pos}`, cefr: e.cefr ?? null }));
-  const pool: PoolWord[] = poolForSeed(rows, "B1", seed).map((id) => {
-    const e = byId.get(id)!;
-    return {
-      lexemeId: id, lemma: e.lemma, translation: e.translation, pos: e.pos, cefr: e.cefr,
-      semanticTypes: e.semanticTypes ?? null,
-      forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null, morphName: null })),
-      examples: usableExamples((e.examples ?? []).map((x) => ({ et: x.et, en: x.en ?? null, source: "EKILEX" as const })))
-        .map((x) => ({ et: x.et, en: x.en ?? null })),
-      government: e.government, cardId: null,
-    };
-  });
-  return assemblePaper("B1", pool, seed, WORD_ORDER);
+  return assemblePaper("B1", shippedPool("B1", seed), seed, WORD_ORDER);
 }
 
 const questions = (paper: Paper) =>

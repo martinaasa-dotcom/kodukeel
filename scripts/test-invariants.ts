@@ -6935,7 +6935,7 @@ check("a question never fills itself with free eliminations", () => {
   // And the ranking may not become a filter. A question the dictionary can
   // fill has to stay askable, which is what keeps a thin section honest.
   const distractors = code("lib/questions/distractors.ts");
-  assert.match(distractors, /wrong\.length < WRONG/, "the picker stopped refusing what it cannot fill");
+  assert.match(distractors, /wrong\.length < WRONG(_HERE)?\)/, "the picker stopped refusing what it cannot fill");
 });
 
 check("a placement question is answered in Estonian, not about it", () => {

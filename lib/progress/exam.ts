@@ -3,7 +3,7 @@ import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { gradedLemmas, lemmaCountsByLevel } from "@/lib/dict/facts";
 import { caseByKey } from "@/lib/estonian/cases";
 import { caseAccuracy, matureRecall, REVIEW_STATE } from "@/lib/stats/history";
-import { type PoolWord, type Paper } from "@/lib/exam/paper";
+import { planLemmas, type PoolWord, type Paper } from "@/lib/exam/paper";
 import { assemblePaper } from "@/lib/exam/assemble";
 import { eligibleFor, eligibleLevels, poolForSeed } from "@/lib/exam/pool";
 import { numberedOf, seedIssuedAt } from "@/lib/exam/seed";
@@ -113,7 +113,25 @@ export async function examPool(ownerId: string, level: ExamLevel, seed: string):
     of the questions inside it are not the same walk; `lib/exam/paper.ts` is
     the one module that keeps a private shuffle, and this is not it.
   */
-  const drawn = poolForSeed(ids, level, seed);
+  const sampled = poolForSeed(ids, level, seed);
+
+  /*
+    And the course words the paper's written and spoken tasks are about. The
+    topics are a function of the seed alone (`planLemmas`), so a rebuilt paper
+    fetches the same words, and they are held to the same rules as the draw:
+    eligible at this level, never a model's, and in the dictionary when the
+    paper was issued. A topic's words are a few dozen in several thousand, and
+    left to the draw a B1 pool held four or five of them, which is how a story
+    about your family came to require `ayatollah`.
+  */
+  const wanted = planLemmas(level, seed);
+  const topical = wanted.length === 0 ? [] : await prisma.lexeme.findMany({
+    where: { AND: [eligible, { lemma: { in: wanted } }] },
+    select: { id: true },
+    orderBy: { id: "asc" },
+  });
+  const inDraw = new Set(sampled);
+  const drawn = [...sampled, ...topical.map((row) => row.id).filter((id) => !inDraw.has(id))];
 
   const rows = await prisma.lexeme.findMany({
     where: { id: { in: drawn } },

@@ -56,13 +56,22 @@ export interface Textual {
   readonly text: string;
 }
 
-/** How many wrong answers a question carries. Four options, one of them right. */
+/**
+ * How many wrong answers a question carries unless it says otherwise. Four
+ * options, one of them right.
+ *
+ * The state examination sets three options on most of its choice questions
+ * and four on the B2 gapped text, so the exam asks for the count its paper
+ * sets (`count`). Every other caller takes four, which is what they always
+ * had.
+ */
 const WRONG = 3;
 
 /**
- * The right answer and three wrong ones, in a random order.
+ * The right answer and the wrong ones, three unless `count` says otherwise,
+ * in a random order.
  *
- * Returns null rather than padding when the pool cannot supply three that are
+ * Returns null rather than padding when the pool cannot supply enough that are
  * genuinely wrong. A question with two right answers marks a learner wrong for
  * being right, which is the one thing a placement check may never do, and it
  * is the reason nearness is a ranking rather than a filter: the candidates
@@ -77,8 +86,11 @@ export function pickOptions<T extends Textual>(input: {
   distinct: (a: string, b: string) => boolean;
   /** Higher is harder to cross out. Ties are broken by the shuffle. */
   nearness: (candidate: T, answer: T) => number;
+  /** How many options in all, the right one included. Four unless said. */
+  count?: number;
 }): { options: string[]; answer: number } | null {
   const { answer, candidates, rng, distinct, nearness } = input;
+  const WRONG_HERE = Math.max(1, (input.count ?? WRONG + 1) - 1);
 
   // Shuffled before it is sorted, and the sort is stable, so options that are
   // equally near come up in a different order for every seed. Without that a
@@ -105,9 +117,9 @@ export function pickOptions<T extends Textual>(input: {
     if (!distinct(c.text, answer.text)) continue;
     if (wrong.some((w) => !distinct(w.text, c.text))) continue;
     wrong.push(c);
-    if (wrong.length === WRONG) break;
+    if (wrong.length === WRONG_HERE) break;
   }
-  if (wrong.length < WRONG) return null;
+  if (wrong.length < WRONG_HERE) return null;
 
   const options = shuffle([answer, ...wrong], rng).map((o) => o.text);
   return { options, answer: options.indexOf(answer.text) };

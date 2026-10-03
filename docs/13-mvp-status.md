@@ -2943,3 +2943,40 @@ the most recent. The conjugation table had the same shape, a shuffle of every ve
 alphabetically at a hundred and twenty on an evening pinned to it for its new verbs, and leads with
 them now. Every round the module can deal is held to leading with the words it taught last or to a
 written reason it does not, and six carry one.
+
+## 49. The forty-third pass: the mock exam is each level's own paper
+
+**The paper was one shape at five sizes, and the real one is four different papers.** Read against
+the Board's own page on 2026-10-03, the mock got the minutes and the points right and most of what
+happens inside them wrong. Every level wrote "a message" and "a text", where A2 starts from a
+business card, B2 asks for a letter in a register and C1 for a neutral summary of figures and an
+opinion text with a ceiling. Every recording played twice, where B2's short clips and C1's
+conversation play once. Every question offered four options, where nearly every real one offers
+three. Every level spoke into a microphone about a word list, where B1 agrees a decision and makes a
+phone call and C1 gives a presentation after three minutes to prepare. And two figures had moved
+since the 2017 specifications the spec was written from: B1 writing is 35 minutes and B2 listening
+35 to 40. `lib/exam/spec.ts` holds each level's plan now, task by task, with the count, plays,
+options, genres, word lengths and spoken shape the Board publishes, and says on the briefing, part
+by part, what the real paper sets that this one cannot. `docs/16-exam.md` has the tables.
+
+**A text is about something.** The words a written task asked for were any five off the front of the
+pool, so a B1 story about your family had to use "ayatollah", "wolf" and "flee", an A2 business card
+put a doctor in a café, and a speaking card on travel offered a homophobic slur. Tasks now take a
+topic from the real paper's list (`lib/exam/briefs.ts`), the words come from the course units that
+teach that topic and are fetched beside the pool (`planLemmas`), a card pairs a job with where it is
+done, and a word unfit to hand anybody is refused by its sense whatever its band. The B2 and C1
+summaries are written from a table of figures that says it is made up.
+
+**Three task shapes the real paper sets and this one did not.** Gaps filled from a word bank, with
+the spares the level's paper has (two at B1, one at B2). A heard sentence printed with a word
+missing. And true or false against a recording, where the false statement is the nearest other
+sentence a candidate could have heard.
+
+**What made the paper hard to trust.** An answered count that counted a brief chosen and nothing
+written. A bank that said one spare where there were two. A note on a true statement saying what
+the recording said, which was the statement. A picture prompt promising questions "under it" that
+appear after recording. A table whose row labels wrapped. "How it compares with last time" on a
+first paper. Each is fixed. The result now groups the wrong answers by part and task, prints the
+question each one was, and folds the blanks away. And because the server rebuilds a paper from its
+seed to mark it, a paper begun before this pass is refused with a sentence saying so
+(`PAPER_FORMAT`) rather than marked against questions nobody was asked.

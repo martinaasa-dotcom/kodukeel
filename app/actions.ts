@@ -112,7 +112,7 @@ import { recordCourseLevel } from "@/lib/progress/level";
 import { REPLAY_BATCH, isClientReviewId } from "@/lib/offline/outbox";
 import { paperFor as examPaperFor, recordAttempt, sittingOf } from "@/lib/progress/exam";
 import { gradesFrom, markPaper, type Response as ExamResponse } from "@/lib/exam/score";
-import { isExamLevel } from "@/lib/exam/spec";
+import { isExamLevel, PAPER_FORMAT } from "@/lib/exam/spec";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { safeMessage } from "@/lib/observability/report";
 
@@ -4564,11 +4564,10 @@ const ExamResponseSchema = z.union([
   z.object({ kind: z.literal("typed"), value: z.string().max(400) }),
   z.object({ kind: z.literal("ordered"), value: z.array(z.string().max(80)).max(24) }),
   /*
-    `variant` is which of the second writing task's two briefs the learner
-    chose, a story or a personal letter, exactly as the real paper offers.
-    Optional because it says nothing about the marks: both briefs are marked on
-    length and on the words the task named, so this travels only so the result
-    can show which one was answered.
+    `variant` is which of a writing task's briefs the learner chose, a story or
+    a personal letter, a note or a description, exactly as the real paper
+    offers. Each brief names words of its own, so the marker reads the chosen
+    brief's; any brief is worth the same, so a forged one buys nothing.
   */
   z.object({
     kind: z.literal("composed"),
@@ -4590,6 +4589,8 @@ const MAX_EXAM_RESPONSES = 1_000;
 const ExamSubmissionSchema = z.object({
   level: z.string().regex(/^[ABC][12]$/),
   seed: z.string().min(1).max(64),
+  /** Which version of the builders set the paper. See `PAPER_FORMAT`. */
+  format: z.number().int().nonnegative().optional(),
   startedAt: z.number().int().nonnegative(),
   responses: z.record(z.string().max(40), ExamResponseSchema),
 });
@@ -4627,8 +4628,24 @@ export async function submitExam(input: unknown) {
   }
   const parsed = ExamSubmissionSchema.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "Something about that paper didn't come through properly, so it wasn't marked." };
-  const { level, seed, startedAt, responses } = parsed.data;
+  const { level, seed, startedAt, responses, format } = parsed.data;
   if (!isExamLevel(level)) return { ok: false as const, error: "There's no paper at that level." };
+
+  /*
+    A PAPER SET BY OTHER CODE IS NOT MARKED AGAINST THIS CODE'S QUESTIONS. The
+    server rebuilds the paper from its seed to mark it (ADR-022), and a sitting
+    started before the builders changed would be marked against questions the
+    candidate never saw. Saying so is the honest answer; a score off the wrong
+    paper is the worst mark this app could give.
+  */
+  if (format !== PAPER_FORMAT) {
+    return {
+      ok: false as const,
+      error:
+        "The exam was updated while you were sitting this paper, so it can't be marked against the " +
+        "questions you answered. Nothing was saved. Start a fresh paper to sit the current version.",
+    };
+  }
 
   // A paper handed in once is answered with its own result, whatever arrives
   // the second time (`sittingOf`).

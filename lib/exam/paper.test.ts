@@ -4,6 +4,9 @@ import {
   seedFrom, sentencesFrom, type PoolWord,
 } from "./paper";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
+import { courseWords } from "@/lib/collections/syllabus";
+import { shippedPool } from "../../scripts/lib/examPool";
+import { CARD_JOBS } from "./briefs";
 import { PARTS } from "@/lib/copy/values";
 
 /* No dictionary behind the paper, so every sentence keeps the one order the
@@ -108,10 +111,20 @@ describe("choosing what a level may be examined on", () => {
     expect(eligibleWords(words, "C1")[0]?.lemma).toBe("hard");
   });
 
-  it("keeps untagged entries out of the two lowest papers and lets them into B1", () => {
+  it("keeps untagged entries out of every paper below C1", () => {
     const untagged = [word({ lemma: "x", lexemeId: "1", cefr: null })];
     expect(eligibleWords(untagged, "A2")).toHaveLength(0);
-    expect(eligibleWords(untagged, "B1")).toHaveLength(1);
+    expect(eligibleWords(untagged, "B1")).toHaveLength(0);
+    expect(eligibleWords(untagged, "B2")).toHaveLength(0);
+    expect(eligibleWords(untagged, "C1")).toHaveLength(1);
+  });
+
+  it("never offers a word nobody would put on a paper, whatever its band", () => {
+    const words = [
+      word({ lemma: "ok", lexemeId: "1", translation: "house" }),
+      word({ lemma: "no", lexemeId: "2", translation: "corpse, dead body" }),
+    ];
+    expect(eligibleWords(words, "B1").map((w) => w.lemma)).toEqual(["ok"]);
   });
 });
 
@@ -160,15 +173,15 @@ describe("hiding a word in its own sentence", () => {
 });
 
 describe("building a paper", () => {
-  const paper = buildPaper("B1", pool(40), "seed-one", WORD_ORDER);
+  const paper = buildPaper("B1", pool(80), "seed-one", WORD_ORDER);
 
   it("is reproducible from its seed, which is what makes a reload safe", () => {
-    const again = buildPaper("B1", pool(40), "seed-one", WORD_ORDER);
+    const again = buildPaper("B1", pool(80), "seed-one", WORD_ORDER);
     expect(JSON.stringify(again)).toEqual(JSON.stringify(paper));
   });
 
   it("is a different paper under a different seed", () => {
-    const other = buildPaper("B1", pool(40), "seed-two", WORD_ORDER);
+    const other = buildPaper("B1", pool(80), "seed-two", WORD_ORDER);
     expect(JSON.stringify(other)).not.toEqual(JSON.stringify(paper));
   });
 
@@ -196,7 +209,7 @@ describe("building a paper", () => {
   });
 
   it("writes no Estonian of its own: every sentence came out of the pool", () => {
-    const attested = new Set(pool(40).flatMap((w) => w.examples.map((e) => e.et)));
+    const attested = new Set(pool(80).flatMap((w) => w.examples.map((e) => e.et)));
     for (const part of paper.parts) {
       for (const task of part.tasks) {
         for (const item of task.items) {
@@ -213,7 +226,7 @@ describe("building a paper", () => {
   });
 
   it("offers a gap question only real forms to choose between", () => {
-    const known = new Set(pool(40).flatMap(formsOf).map((f) => f.toLowerCase()));
+    const known = new Set(pool(80).flatMap(formsOf).map((f) => f.toLowerCase()));
     const gaps = paper.parts
       .flatMap((p) => p.tasks)
       .flatMap((t) => t.items)
@@ -251,7 +264,7 @@ describe("building a paper", () => {
   });
 });
 
-describe("the two written tasks", () => {
+describe("the two written tasks, on a fixture", () => {
   const paper = buildPaper("B1", pool(40), "written-seed", WORD_ORDER);
   const writing = partOf(paper, "writing");
   const message = writing?.tasks.find((t) => t.spec.kind === "message")?.items[0];
@@ -260,39 +273,112 @@ describe("the two written tasks", () => {
   it("sets the short message with a situation and the points it has to cover", () => {
     expect(message?.kind).toBe("message");
     if (message?.kind !== "message") return;
-    expect(message.scenario.length).toBeGreaterThan(0);
-    expect(message.cover.length).toBeGreaterThan(1);
-    expect(message.minWords).toBeGreaterThan(0);
+    expect(message.variants).toHaveLength(1);
+    expect(message.variants[0]!.prompt.length).toBeGreaterThan(10);
+    expect(message.variants[0]!.cover.length).toBeGreaterThan(1);
+    expect(message.minWords).toBe(50);
   });
 
-  it("offers the second task the two briefs the real paper offers", () => {
+  it("offers the second task the two briefs the real paper offers, on one topic", () => {
     expect(compose?.kind).toBe("compose");
     if (compose?.kind !== "compose") return;
-    expect(compose.variants).toHaveLength(2);
-    // Both have to be answerable from the same topic, since the choice may not
-    // change what the answer is worth: it is marked on length and on the words.
-    expect(compose.variants[0]?.prompt).toContain(compose.topic);
-    expect(compose.variants[1]?.prompt).toContain(compose.topic);
+    expect(compose.variants.map((v) => v.genre)).toEqual(["story", "personal-letter"]);
+    expect(compose.variants[0]!.topic).toBe(compose.variants[1]!.topic);
+    expect(compose.variants[0]!.prompt).toContain(compose.variants[0]!.topic);
+    expect(compose.minWords).toBeGreaterThan(message?.kind === "message" ? message.minWords : 0);
+  });
+});
+
+/*
+  On the shipped dictionary, drawn the way the app draws a pool, because the
+  words a task asks for are the course's words on its topic, and a fixture of
+  invented lemmas holds none of them: every assertion about them would be over
+  an empty list.
+*/
+describe("what the written and spoken tasks ask for, on the shipped dictionary", () => {
+  const SEEDS = ["topic-1", "topic-2", "topic-3"];
+  const papers = (["A2", "B1", "B2", "C1"] as const).flatMap((level) =>
+    SEEDS.map((seed) => ({ level, seed, paper: buildPaper(level, shippedPool(level, seed), seed, WORD_ORDER) })));
+  const written = papers.flatMap(({ paper }) => paper.parts.flatMap((p) => p.tasks).flatMap((t) => t.items)
+    .filter((i): i is Extract<typeof i, { kind: "message" | "compose" }> => i.kind === "message" || i.kind === "compose"));
+  const spoken = papers.flatMap(({ paper }) => paper.parts.flatMap((p) => p.tasks).flatMap((t) => t.items)
+    .filter((i): i is Extract<typeof i, { kind: "speak" }> => i.kind === "speak"));
+
+  it("asks every text for words, and every word is one the course teaches on that text's topic", () => {
+    const course = new Set<string>(courseWords().map((w) => `${w.lemma}|${w.pos}`));
+    expect(written.length).toBe(papers.length * 2);
+    let asked = 0;
+    for (const item of written) {
+      for (const variant of item.variants) {
+        expect(variant.mustUse.length, `${variant.label} asks for no words`).toBeGreaterThan(0);
+        // The business card asks for its own job and workplace, checked below.
+        if (variant.exhibit?.layout === "card") continue;
+        for (const w of variant.mustUse) {
+          asked++;
+          expect(course.has(`${w.lemma}|${w.pos}`), `${w.lemma} is not a course word`).toBe(true);
+        }
+      }
+    }
+    expect(asked).toBeGreaterThan(80);
   });
 
-  it("writes no Estonian into either brief: every word asked for came from the pool", () => {
-    const lemmas = new Set(pool(40).map((w) => w.lemma));
-    for (const item of [message, compose]) {
-      if (item?.kind !== "message" && item?.kind !== "compose") continue;
-      for (const word of item.mustUse) expect(lemmas.has(word.lemma)).toBe(true);
+  it("never asks two texts on one paper for the same word, unless they share a topic", () => {
+    let papersChecked = 0;
+    for (const { paper } of papers) {
+      const items = paper.parts.flatMap((p) => p.tasks).flatMap((t) => t.items)
+        .filter((i): i is Extract<typeof i, { kind: "message" | "compose" }> => i.kind === "message" || i.kind === "compose");
+      const asked = items.flatMap((item) => [...new Set(item.variants.flatMap((v) => v.mustUse.map((w) => w.lexemeId)))]);
+      expect(new Set(asked).size).toBe(asked.length);
+      papersChecked++;
+    }
+    expect(papersChecked).toBe(12);
+  });
+
+  it("puts a job beside the place it is done on the A2 business card", () => {
+    const pairs = new Set(CARD_JOBS.map((p) => `${p.job}|${p.place}`));
+    const cards = written.flatMap((i) => i.variants).flatMap((v) => (v.exhibit?.layout === "card" ? [v.exhibit] : []));
+    expect(cards.length).toBe(SEEDS.length);
+    for (const card of cards) expect(pairs.has(`${card.job.lemma}|${card.workplace.lemma}`)).toBe(true);
+  });
+
+  it("hands the B2 and C1 summaries a table of figures", () => {
+    const tables = written.flatMap((i) => i.variants)
+      .filter((v) => v.genre === "data-comment" || v.genre === "data-summary");
+    expect(tables.length).toBe(SEEDS.length * 2);
+    for (const v of tables) expect(v.exhibit?.layout).toBe("table");
+  });
+
+  it("caps the C1 opinion text, and no other", () => {
+    for (const { level, paper } of papers) {
+      for (const task of paper.parts.flatMap((p) => p.tasks)) {
+        for (const item of task.items) {
+          if (item.kind !== "message" && item.kind !== "compose") continue;
+          expect(item.maxWords).toBe(level === "C1" && item.kind === "compose" ? 260 : null);
+        }
+      }
     }
   });
 
-  it("does not ask the same word of both texts", () => {
-    if (message?.kind !== "message" || compose?.kind !== "compose") return;
-    const asked = [...message.mustUse, ...compose.mustUse].map((w) => w.lexemeId);
-    expect(new Set(asked).size).toBe(asked.length);
+  it("puts the level's number of spares in a word bank, and every answer in it", () => {
+    let banks = 0;
+    for (const { level, paper } of papers) {
+      for (const task of paper.parts.flatMap((p) => p.tasks)) {
+        if (task.spec.kind !== "gap-bank" || task.items.length === 0) continue;
+        banks++;
+        const labels = (task.choices ?? []).map((c) => c.label);
+        expect(labels.length, `${level} bank`).toBe(task.items.length + (task.spec.spares ?? 0));
+        for (const item of task.items) if (item.kind === "gap-bank") expect(labels).toContain(item.answer);
+      }
+    }
+    expect(banks).toBe(SEEDS.length * 2);
   });
 
-  it("asks the message for fewer words than the composition, being a message", () => {
-    if (message?.kind !== "message" || compose?.kind !== "compose") return;
-    expect(message.mustUse.length).toBeLessThan(compose.mustUse.length);
-    expect(message.minWords).toBeLessThan(compose.minWords);
+  it("gives each spoken task the card its shape needs, and words on its topic", () => {
+    expect(spoken.length).toBe(papers.length * 2);
+    for (const item of spoken) {
+      expect(item.card.shape).toBe(item.shape);
+      expect(item.ideas.length, `${item.shape} on ${item.topic} offers no words`).toBeGreaterThan(0);
+    }
   });
 });
 

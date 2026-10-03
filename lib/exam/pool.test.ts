@@ -10,11 +10,13 @@ describe("the exam pool rule", () => {
     expect(eligibleFor("B1", "A1")).toBe(true);
   });
 
-  it("takes an ungraded entry from B1 up and never below it", () => {
-    // The rule examPool had inline: the untagged tail is mostly above B1.
+  it("takes an ungraded entry at C1 alone", () => {
+    // The untagged tail is the Wiktionary expansion's rare words, which a B1
+    // paper met as `ajatolla`. Only the C1 paper may meet a word nobody banded.
     expect(eligibleFor("A1", null)).toBe(false);
     expect(eligibleFor("A2", null)).toBe(false);
-    expect(eligibleFor("B1", null)).toBe(true);
+    expect(eligibleFor("B1", null)).toBe(false);
+    expect(eligibleFor("B2", null)).toBe(false);
     expect(eligibleFor("C1", null)).toBe(true);
   });
 

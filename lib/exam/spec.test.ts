@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   BANDS, BREAK_MINUTES, EXAM_LEVELS, LISTEN_PLAYS, OFFICIAL_LEVELS, PASS_PCT,
-  READ_QUESTIONS_SECONDS, bandFor, isExamLevel, lengthsFor, speakingCriteria, specFor,
-  writtenMinutes,
+  READ_QUESTIONS_SECONDS, bandFor, isExamLevel, speakingCriteria, specFor, tasksOf,
+  writtenMinutes, type ExamLevel,
 } from "./spec";
 import { SKILLS } from "./types";
 
@@ -61,7 +61,7 @@ describe("the writing part, which is two pieces of writing", () => {
     const writing = specFor("B1").parts.find((p) => p.skill === "writing");
     const stands = writing?.tasks.map((t) => t.standsFor).join(" ") ?? "";
     expect(stands).toContain("teate koostamine");
-    expect(stands).toContain("loovkirjutamine");
+    expect(stands).toContain("isiklik kiri");
   });
 
   it("says out loud that the two accuracy drills are not tasks the real paper sets", () => {
@@ -110,12 +110,28 @@ describe("the writing part, which is two pieces of writing", () => {
     }
   });
 
-  it("asks for a shorter message than composition at every level", () => {
+  it("asks for a shorter first text than second at every level", () => {
     for (const level of EXAM_LEVELS) {
-      const { messageWords, composeWords } = lengthsFor(level);
-      expect(messageWords).toBeGreaterThan(0);
-      expect(messageWords).toBeLessThan(composeWords);
+      const [first] = tasksOf(specFor(level), "message");
+      const [second] = tasksOf(specFor(level), "compose");
+      expect(first?.minWords).toBeGreaterThan(0);
+      expect(first!.minWords!).toBeLessThan(second!.minWords!);
     }
+  });
+
+  it("sets the genres each level's paper names", () => {
+    const genres = (level: ExamLevel) =>
+      [...tasksOf(specFor(level), "message"), ...tasksOf(specFor(level), "compose")].map((t) => t.genres);
+    expect(genres("A2")).toEqual([["card"], ["note", "description"]]);
+    expect(genres("B1")).toEqual([["note"], ["story", "personal-letter"]]);
+    expect(genres("B2")).toEqual([["letter-semiformal", "letter-informal"], ["data-comment", "argument"]]);
+    expect(genres("C1")).toEqual([["data-summary"], ["opinion"]]);
+  });
+
+  it("caps the C1 opinion text at 260 words, which the real paper means", () => {
+    const [opinion] = tasksOf(specFor("C1"), "compose");
+    expect(opinion?.minWords).toBe(220);
+    expect(opinion?.maxWords).toBe(260);
   });
 });
 
@@ -145,23 +161,64 @@ describe("the shape of each paper", () => {
       Object.fromEntries(specFor(level).parts.map((p) => [p.skill, p.minutes]));
 
     expect(minutes("A2")).toEqual({ writing: 30, listening: 30, reading: 50, speaking: 15 });
-    expect(minutes("B1")).toEqual({ writing: 30, listening: 35, reading: 50, speaking: 15 });
-    expect(minutes("B2")).toEqual({ writing: 80, listening: 35, reading: 70, speaking: 20 });
+    expect(minutes("B1")).toEqual({ writing: 35, listening: 35, reading: 50, speaking: 15 });
+    expect(minutes("B2")).toEqual({ writing: 80, listening: 40, reading: 70, speaking: 20 });
     expect(minutes("C1")).toEqual({ writing: 90, listening: 45, reading: 60, speaking: 20 });
   });
 
   it("adds up the written half, which is what somebody plans an evening around", () => {
-    // B2 is three hours and five minutes of written paper.
-    expect(writtenMinutes(specFor("B2"))).toBe(185);
+    // B2 is three hours and ten minutes of written paper.
+    expect(writtenMinutes(specFor("B2"))).toBe(190);
   });
 
   it("asks for a longer text at every step up", () => {
-    const lengths = EXAM_LEVELS.map((l) => lengthsFor(l).composeWords);
+    const lengths = EXAM_LEVELS.map((l) => tasksOf(specFor(l), "compose")[0]!.minWords!);
     for (let i = 1; i < lengths.length; i++) {
       expect(lengths[i]!).toBeGreaterThan(lengths[i - 1]!);
     }
-    // The C1 paper's second writing task runs to about 260 words.
-    expect(lengthsFor("C1").composeWords).toBe(260);
+  });
+
+  it("sets the real paper's question counts where the shape exists", () => {
+    // B1 reading is 9, 6, 10 and 8 questions, 33 in all, and so is this.
+    const reading = specFor("B1").parts.find((p) => p.skill === "reading")!;
+    expect(reading.tasks.map((t) => t.items)).toEqual([9, 6, 10, 8]);
+    const listening = specFor("B1").parts.find((p) => p.skill === "listening")!;
+    expect(listening.tasks.map((t) => t.items)).toEqual([7, 6, 8, 9]);
+  });
+
+  it("offers three options where the real paper does, and four on the B2 gapped text", () => {
+    for (const level of EXAM_LEVELS) {
+      for (const task of [...tasksOf(specFor(level), "gap-choice"), ...tasksOf(specFor(level), "listen-choose")]) {
+        expect(task.options).toBe(level === "B2" && task.kind === "gap-choice" ? 4 : 3);
+      }
+    }
+  });
+
+  it("puts as many spares in a word bank as the level's paper does", () => {
+    // B1 says only that there are more options than gaps; B2 says one fits nowhere.
+    const spares = (level: ExamLevel) => tasksOf(specFor(level), "gap-bank").map((t) => t.spares);
+    expect(spares("B1")).toEqual([2]);
+    expect(spares("B2")).toEqual([1]);
+    expect(tasksOf(specFor("B2"), "gap-bank")[0]!.instruction).toMatch(/one is left over/);
+  });
+
+  it("plays the B2 short clips and the C1 conversation once, and everything else twice", () => {
+    const once = (level: ExamLevel) =>
+      specFor(level).parts.flatMap((p) => p.tasks).filter((t) => t.plays === 1).map((t) => t.id);
+    expect(once("A2")).toEqual([]);
+    expect(once("B1")).toEqual([]);
+    expect(once("B2")).toEqual(["l1"]);
+    expect(once("C1")).toEqual(["l2"]);
+  });
+
+  it("gives the B2 and C1 talks the preparation time the real paper gives", () => {
+    expect(tasksOf(specFor("B2"), "speak")[0]?.prepSeconds).toBe(120);
+    expect(tasksOf(specFor("C1"), "speak")[0]?.prepSeconds).toBe(180);
+  });
+
+  it("says what the real part sets that this one cannot, where it cannot", () => {
+    expect(specFor("C1").parts.find((p) => p.skill === "listening")?.notSet).toMatch(/lecture/);
+    expect(specFor("B1").parts.find((p) => p.skill === "reading")?.notSet).toMatch(/article/);
   });
 
   it("makes every task worth at least one mark", () => {
@@ -213,20 +270,28 @@ describe("the pass mark and the bands", () => {
 
 describe("the self-marked spoken part", () => {
   it("hands back one criterion per mark", () => {
-    expect(speakingCriteria(4)).toHaveLength(4);
-    expect(speakingCriteria(9)).toHaveLength(9);
+    expect(speakingCriteria("picture", 4)).toHaveLength(4);
+    expect(speakingCriteria("presentation", 8)).toHaveLength(8);
   });
 
   it("never returns none, however small the ask", () => {
-    expect(speakingCriteria(0).length).toBeGreaterThan(0);
-    expect(speakingCriteria(-3).length).toBeGreaterThan(0);
+    expect(speakingCriteria("phone", 0).length).toBeGreaterThan(0);
+    expect(speakingCriteria("phone", -3).length).toBeGreaterThan(0);
   });
 
-  it("has enough criteria for the longest paper", () => {
-    const most = Math.max(
-      ...EXAM_LEVELS.flatMap((l) =>
-        specFor(l).parts.filter((p) => p.skill === "speaking").flatMap((p) => p.tasks.map((t) => t.raw))),
-    );
-    expect(speakingCriteria(most)).toHaveLength(most);
+  it("has a criterion for every mark of every spoken task, on that task's own list", () => {
+    for (const level of EXAM_LEVELS) {
+      for (const task of tasksOf(specFor(level), "speak")) {
+        expect(speakingCriteria(task.shape!, task.raw)).toHaveLength(task.raw);
+      }
+    }
+  });
+
+  it("sets each level's own spoken tasks", () => {
+    const shapes = (level: ExamLevel) => tasksOf(specFor(level), "speak").map((t) => t.shape);
+    expect(shapes("A2")).toEqual(["picture", "idea-card"]);
+    expect(shapes("B1")).toEqual(["agree", "phone"]);
+    expect(shapes("B2")).toEqual(["talk", "debate"]);
+    expect(shapes("C1")).toEqual(["presentation", "discussion"]);
   });
 });

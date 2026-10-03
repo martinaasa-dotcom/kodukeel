@@ -451,9 +451,6 @@ const CAPTION_EXEMPT = new Set([
   // The setup guide, which is a screen whose whole subject is the
   // instructions: hiding them behind a press hides the screen.
   "app/(app)/settings/SetupGuide.tsx",
-  // "Record something first." A refusal to mark an empty attempt, on the
-  // screen that would otherwise score nothing.
-  "app/(app)/exam/[level]/ExamSession.tsx",
   // "Fill in what you know. The omastav alone unlocks all eleven regular
   // cases." How to fill the form it sits inside.
   "app/(app)/dictionary/AddWord.tsx",

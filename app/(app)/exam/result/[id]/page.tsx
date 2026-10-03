@@ -17,6 +17,8 @@ import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Meter, Note, Page, Ring, SectionTitle } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { AnuReading } from "./AnuReading";
+import { Explain } from "@/components/Explain";
+import type { ItemMark } from "@/lib/exam/score";
 import { SelfCheck } from "./SelfCheck";
 import { SELF_CHECK, isWrittenKind } from "@/lib/exam/selfCheck";
 import { writtenSampleFor } from "@/lib/exam/official";
@@ -145,7 +147,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
 
       {(previous || best === null || result.pct > best) && (
         <section className="mb-10">
-          <SectionTitle>How it compares with last time</SectionTitle>
+          <SectionTitle>{previous ? "How it compares with last time" : "Where you start from"}</SectionTitle>
           <ul className="grid gap-3 md:grid-cols-2">
             {previous && moved !== null && (
               <Card as="li" tone={moved >= 0 ? "sky" : "blush"}>
@@ -174,11 +176,14 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
               <Card as="li" tone="accent">
                 <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--ink)" }}>
                   <Trophy size={16} aria-hidden />
-                  Your best {result.level} yet
+                  {/* "Your best yet" over a first attempt at one percent is a
+                      cheer for a number nobody would cheer, so a first paper is
+                      called what it is. */}
+                  {best === null ? `Your first ${result.level} paper` : `Your best ${result.level} yet`}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {best === null
-                    ? "Your first paper at this level, so this is the score to beat."
+                    ? `${result.pct} percent is the score to beat next time.`
                     : `Better than anything you've sat at this level. Your old best was ${best} percent.`}
                 </p>
               </Card>
@@ -379,47 +384,62 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
         {report.missed.length === 0 ? (
           <Note tone="good">None. You got every question right.</Note>
         ) : (
-          <ul className="grid gap-2">
-            {report.missed.map((mark) => {
-              // Three question shapes answer in English. Tagging those Estonian
-              // had a screen reader pronounce "cheese" as an Estonian word.
-              const et = mark.language !== "en";
+          /*
+            BY TASK, WITH THE QUESTION. A flat list of answer chips said "you
+            wrote kassi, the answer was kassil" with no sentence to say why,
+            forty lines long on a thin attempt, most of them blanks. So each
+            task is a group headed by its own title, every wrong answer shows
+            the sentence or the word it was asked about, and the blanks fold
+            into one line per task that opens on the answers.
+          */
+          <div className="grid gap-6">
+            {result.parts.map((part) => {
+              const tasks = part.tasks
+                .map((task) => ({
+                  task,
+                  wrong: task.marks.filter((m) => !m.correct && m.available > 0),
+                }))
+                .filter(({ wrong }) => wrong.length > 0);
+              if (tasks.length === 0) return null;
               return (
-              <Card as="li" key={mark.itemId} className="!py-3">
-                {/* The answer and what was written, each in the palette's own
-                    word for it (lib/ux/verdict.ts), with an icon beside each
-                    so a hue is never the only thing carrying the difference.
-                    This list used to be two bare coloured words on a card,
-                    which is how no other marked list in the app is drawn. */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className={`${VERDICT_CLASS.right} inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-2 py-1 text-md`}
-                    lang={et ? "et" : undefined}
-                  >
-                    <Check size={14} aria-label="The answer" />
-                    {mark.expected}
-                  </span>
-                  <span className="text-sm" style={{ color: "var(--ink-3)" }}>you wrote</span>
-                  <span
-                    /* The same step as the answer beside it. These two chips
-                       are one object said twice and were 17px and 13.5px, so
-                       the word the candidate got wrong was set smaller than
-                       the word they were after, on the screen they read to
-                       find out what went wrong. */
-                    className={`${VERDICT_CLASS.wrong} inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-2 py-1 text-md`}
-                    lang={et && mark.given ? "et" : undefined}
-                  >
-                    <X size={14} aria-label="Your answer" />
-                    {mark.given || NO_VALUE}
-                  </span>
+                <div key={part.skill}>
+                  <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
+                    {part.label} <span lang="et">{SKILL_ET[part.skill]}</span>
+                  </p>
+                  <ul className="grid gap-4">
+                    {tasks.map(({ task, wrong }) => {
+                      const blank = wrong.filter((m) => m.given === "" && m.note === "Left blank.");
+                      const answered = wrong.filter((m) => !blank.includes(m));
+                      return (
+                        <li key={task.taskId}>
+                          <p className="mb-2 text-md font-semibold" style={{ color: "var(--ink)" }}>{task.title}</p>
+                          <ul className="grid gap-2">
+                            {answered.map((mark) => <WrongAnswer key={mark.itemId} mark={mark} />)}
+                          </ul>
+                          {blank.length > 0 && (
+                            <div className={answered.length > 0 ? "mt-2" : ""}>
+                              <Explain label={blank.length === 1 ? "One left blank, and its answer" : `${blank.length} left blank, and their answers`}>
+                                <ul className="grid gap-1.5">
+                                  {blank.map((mark) => (
+                                    <li key={mark.itemId} className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                                      {mark.prompt && <span lang="et" className="mr-2">{mark.prompt}</span>}
+                                      <span className="font-semibold" style={{ color: "var(--sky-ink)" }} lang={mark.language === "et" ? "et" : undefined}>
+                                        {mark.expected}
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </Explain>
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
-                {mark.note && (
-                  <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{mark.note}</p>
-                )}
-              </Card>
               );
             })}
-          </ul>
+          </div>
         )}
         {report.missed.length > 0 && (
           <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -515,5 +535,45 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
         <Link href="/exam" className="underline underline-offset-4">Back to the exam hub</Link>
       </p>
     </Page>
+  );
+}
+
+/** One wrong answer, under the question it answered. */
+function WrongAnswer({ mark }: { mark: ItemMark }) {
+  // Three question shapes answer in English. Tagging those Estonian had a
+  // screen reader pronounce "cheese" as an Estonian word.
+  const et = mark.language !== "en";
+  return (
+    <Card as="li" className="!py-3">
+      {mark.prompt && (
+        <p className="mb-2 text-md leading-relaxed" style={{ color: "var(--ink)" }} lang={mark.promptLanguage === "en" ? undefined : "et"}>
+          {mark.prompt}
+        </p>
+      )}
+      {/* The answer and what was written, each in the palette's own word for
+          it (lib/ux/verdict.ts), with an icon beside each so a hue is never
+          the only thing carrying the difference. */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span
+          className={`${VERDICT_CLASS.right} inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-2 py-1 text-md`}
+          lang={et ? "et" : undefined}
+        >
+          <Check size={14} aria-label="The answer" />
+          {mark.expected}
+        </span>
+        <span className="text-sm" style={{ color: "var(--ink-3)" }}>you wrote</span>
+        <span
+          /* The same step as the answer beside it: one object said twice. */
+          className={`${VERDICT_CLASS.wrong} inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-2 py-1 text-md`}
+          lang={et && mark.given ? "et" : undefined}
+        >
+          <X size={14} aria-label="Your answer" />
+          {mark.given || NO_VALUE}
+        </span>
+      </div>
+      {mark.note && (
+        <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{mark.note}</p>
+      )}
+    </Card>
   );
 }

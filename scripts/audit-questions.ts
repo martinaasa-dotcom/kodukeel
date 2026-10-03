@@ -178,8 +178,13 @@ const REACHES: Record<string, number> = {
     shape to examining four, three of them the ones that print the case in
     Estonian or the word beside its English. It found nothing, which is worth
     writing down: the exam builder was already right.
+
+    Then 1,230 when the paper was rebuilt against the published task types:
+    a gap filled from a bank and a heard sentence with a word missing are both
+    searched, and a choice offers the three options the real paper prints
+    rather than four everywhere. Measured, not scaled.
   */
-  exam: 760,
+  exam: 1_230,
   // 627 while a `heard` item was skipped outright; the listening items are
   // asked the "also right" question now and counted. The placement draws a
   // fixed number of items per band, so this one does not move with the
@@ -397,10 +402,20 @@ const EXAM_SHOWS: Record<string, readonly string[]> = {
   // case answers, all printed above the options or the box.
   "form-choice": ["lemma", "translation", "caseEt", "caseQuestion"],
   "case-form": ["lemma", "translation", "caseEt", "caseQuestion"],
+  // A sentence with a gap, under a bank of words printed once for the task.
+  // The bank holds every answer by design, as a matching task's list does; what
+  // would be a fault is the sentence itself still carrying the word.
+  "gap-bank": ["sentence"],
+  // The heard sentence printed with a word taken out. The recording is what
+  // carries the answer, and the printed line may not.
+  "listen-gap": ["sentence"],
 };
 const NOTHING_TO_SEARCH = new Set([
   "dictation", "listen-choose", "order", "compose", "message", "speak",
   "match-usage", "government",
+  // A sentence printed against a recording and the answer is true or false:
+  // there is no word to give away, only whether the two are the same sentence.
+  "listen-truefalse",
 ]);
 
 /*

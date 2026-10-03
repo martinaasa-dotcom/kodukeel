@@ -85,6 +85,15 @@ export interface ItemMark {
    */
   language: "et" | "en";
   /**
+   * What the question put in front of the candidate, where a line can say it:
+   * the sentence with its gap, or the word and the case asked for. The result
+   * page prints it above the answers, because "you gave `kassi`, the answer was
+   * `kassil`" means nothing without the sentence it was a gap in.
+   */
+  prompt?: string;
+  /** Which language `prompt` is in: the sentence asked about, or a written task's English brief. */
+  promptLanguage?: "et" | "en";
+  /**
    * The learner's own text, kept only for the composition.
    *
    * Every other item's answer fits in `given`. A composition does not, and the
@@ -105,7 +114,7 @@ export interface ItemMark {
  * never fixes them.
  */
 function acceptsSlips(kind: ExamItem["kind"]): boolean {
-  return kind === "dictation";
+  return kind === "dictation" || kind === "listen-gap";
 }
 
 /**
@@ -168,7 +177,8 @@ function markChosen(item: ExamItem, expected: string, chosen: string, shown: str
     correct,
     expected: shown,
     given: chosen,
-    note: correct ? "" : "Not the one.",
+    // The two answers side by side say it; "not the one" under every row said it a third time.
+    note: "",
     cardId: item.cardId,
     lexemeId: item.lexemeId,
     lemma: item.lemma,
@@ -209,32 +219,60 @@ export function markItem(
     became an absent part that could not fail the paper. On anything else it
     is a blank.
   */
-  if (response.kind === "unheard" && item.kind !== "dictation" && item.kind !== "listen-choose") {
+  if (response.kind === "unheard" && !heard(item)) {
     return markItem(item, BLANK_RESPONSE, marksPerItem, choices);
   }
 
   if (response.kind === "unheard") {
     return {
       itemId: item.id, scored: 0, available: 0, correct: false,
-      expected: expectedOf(item), given: "", language: languageOf(item),
+      expected: expectedOf(item), given: "", language: languageOf(item), prompt: promptOf(item),
       note: "The recording wouldn't play, so we left this question out of your marks.",
       cardId: null, lexemeId: item.lexemeId, lemma: item.lemma, recalled: false,
     };
   }
 
+  if (response.kind === "blank" && (item.kind === "message" || item.kind === "compose" || item.kind === "speak")) {
+    // A text or a recording left alone is marked by its own rule, which says why it scored nothing.
+    return item.kind === "speak" ? markSpeak(item, response, marksPerItem) : markWritten(item, "", marksPerItem, 0);
+  }
+
   if (response.kind === "blank") {
     return scale({
-      itemId: item.id, scored: 0, available: 1, correct: false,
+      itemId: item.id, scored: 0, available: 1, correct: false, prompt: promptOf(item),
       expected: expectedOf(item), given: "", note: "Left blank.", language: languageOf(item),
       cardId: item.cardId, lexemeId: item.lexemeId, lemma: item.lemma, recalled: false,
     });
   }
 
+  const mark = markAnswered(item, response, marksPerItem, scale, choices);
+  return { ...mark, prompt: mark.prompt ?? promptOf(item) };
+}
+
+/** Whether an item is a recording, the only kind of question that can fail to play. */
+function heard(item: ExamItem): boolean {
+  return item.kind === "dictation" || item.kind === "listen-choose"
+    || item.kind === "listen-gap" || item.kind === "listen-truefalse";
+}
+
+function markAnswered(
+  item: ExamItem,
+  response: Response,
+  marksPerItem: number,
+  scale: (mark: ItemMark) => ItemMark,
+  choices?: { id: string; label: string }[],
+): ItemMark {
   switch (item.kind) {
     case "match-usage": {
       const chosen = response.kind === "chosen" ? response.value : "";
       const mark = scale(markChosen(item, item.answer, chosen, item.lemma));
       return { ...mark, given: choices?.find((c) => c.id === chosen)?.label ?? "" };
+    }
+
+    case "gap-bank": {
+      const chosen = response.kind === "chosen" ? response.value : "";
+      const mark = scale(markChosen(item, item.answer, chosen, item.answer));
+      return { ...mark, given: choices?.find((c) => c.id === chosen)?.label ?? chosen };
     }
 
     case "gap-choice":
@@ -245,6 +283,22 @@ export function markItem(
         item.answer,
         response.kind === "chosen" ? response.value : "",
         item.answer,
+      ));
+
+    case "listen-truefalse": {
+      const chosen = response.kind === "chosen" ? response.value : "";
+      const said = (v: string) => (v === "true" ? "True" : v === "false" ? "False" : "");
+      return scale({
+        ...markChosen(item, item.answer, chosen, said(item.answer)),
+        given: said(chosen),
+        note: chosen !== item.answer && item.answer === "false" ? `The recording said: ${item.audio}` : "",
+        language: "en",
+      });
+    }
+
+    case "listen-gap":
+      return scale(markTyped(
+        item, item.answer, response.kind === "typed" ? response.value : "", acceptsSlips(item.kind),
       ));
 
     case "government": {
@@ -333,7 +387,12 @@ export function markItem(
 
     case "message":
     case "compose":
-      return markWritten(item, response.kind === "composed" ? response.value : "", marksPerItem);
+      return markWritten(
+        item,
+        response.kind === "composed" ? response.value : "",
+        marksPerItem,
+        response.kind === "composed" ? response.variant ?? 0 : 0,
+      );
 
     case "speak":
       return markSpeak(item, response, marksPerItem);
@@ -358,30 +417,57 @@ export const COMPOSE_LENGTH_SHARE = 0.6;
 /** The written tasks are marked identically: the message and the composition. */
 type WrittenItem = Extract<ExamItem, { kind: "compose" | "message" }>;
 
+/**
+ * How much of the length mark a text earns.
+ *
+ * Pro rata up to the minimum, and full from there. Where the real paper sets
+ * a ceiling, which the C1 opinion text does ("220–260 sõna, mitte rohkem"),
+ * a text that runs over it loses the mark in proportion: 300 words against a
+ * ceiling of 260 keeps 260 three hundredths of it. The real paper's examiners
+ * stop reading at the limit, and a mock that let a candidate run on freely
+ * would be rehearsing a habit that costs marks in the hall.
+ */
+export function lengthShare(words: number, minWords: number, maxWords: number | null): number {
+  const reached = minWords === 0 ? 1 : Math.min(1, words / minWords);
+  return maxWords && words > maxWords ? Math.min(reached, maxWords / words) : reached;
+}
+
 function markWritten(
   item: WrittenItem,
   text: string,
   marks: number,
+  variant: number,
 ): ItemMark {
+  const brief = item.variants[variant] ?? item.variants[0];
+  const mustUse = brief?.mustUse ?? [];
   const written = wordsOf(text);
-  const lengthPct = item.minWords === 0 ? 1 : Math.min(1, written.length / item.minWords);
+  const lengthPct = lengthShare(written.length, item.minWords, item.maxWords);
 
-  const used = item.mustUse.filter((w) => usesRequiredWord(w, text));
-  const wordsPct = item.mustUse.length === 0 ? 1 : used.length / item.mustUse.length;
+  const used = mustUse.filter((w) => usesRequiredWord(w, text));
+  const wordsPct = mustUse.length === 0 ? 1 : used.length / mustUse.length;
 
-  const share = lengthPct * COMPOSE_LENGTH_SHARE + wordsPct * (1 - COMPOSE_LENGTH_SHARE);
-  const missing = item.mustUse.filter((w) => !used.includes(w)).map((w) => w.lemma);
+  // Nothing written is nothing to mark, whatever the share of no words used.
+  const share = written.length === 0 ? 0 : lengthPct * COMPOSE_LENGTH_SHARE + wordsPct * (1 - COMPOSE_LENGTH_SHARE);
+  const missing = mustUse.filter((w) => !used.includes(w)).map((w) => w.lemma);
+  const range = item.maxWords ? `${item.minWords} to ${item.maxWords} words` : `${item.minWords} words or more`;
+  const over = item.maxWords !== null && written.length > item.maxWords;
 
   return {
     itemId: item.id,
     scored: Math.round(share * marks * 100) / 100,
     available: marks,
     correct: share >= 0.6,
-    expected: `${item.minWords} words, using ${item.mustUse.map((w) => w.lemma).join(", ")}`,
+    expected: mustUse.length > 0 ? `${range}, using ${mustUse.map((w) => w.lemma).join(", ")}` : range,
     given: `${written.length} words`,
     language: "en",
     raw: text.trim(),
-    note: missing.length > 0 ? `You didn't use ${missing.join(", ")}.` : "",
+    prompt: brief ? `${brief.label}: ${brief.prompt}` : undefined,
+    promptLanguage: "en",
+    note: [
+      written.length === 0 ? "Nothing was written." : "",
+      over ? `That's over the limit of ${item.maxWords} words, which costs length marks.` : "",
+      written.length > 0 && missing.length > 0 ? `You didn't use ${missing.join(", ")}.` : "",
+    ].filter(Boolean).join(" "),
     cardId: null,
     lexemeId: item.lexemeId,
     lemma: item.lemma,
@@ -411,7 +497,7 @@ function markSpeak(
     percent. Worked out here exactly as the screen works it out, and only
     that many ticks are read.
   */
-  const criteria = speakingCriteria(marks).length;
+  const criteria = speakingCriteria(item.shape, marks).length;
   const met = spoken?.recorded ? spoken.criteria.slice(0, criteria).filter((c) => c === true).length : 0;
   const scored = Math.round((met / criteria) * marks * 100) / 100;
   return {
@@ -423,6 +509,8 @@ function markSpeak(
     given: spoken?.recorded ? `${met} of ${criteria}, marked by you` : "No recording",
     language: "en",
     note: spoken?.recorded ? "" : "There's no recording, so this task scores nothing.",
+    prompt: item.prompt,
+    promptLanguage: "en",
     cardId: null,
     lexemeId: item.lexemeId,
     lemma: item.lemma,
@@ -437,6 +525,7 @@ function languageOf(item: ExamItem): "et" | "en" {
     // on the option the candidate pressed; it was "en" while the mark printed
     // the Latin name, and the flag is what puts `lang` on the line.
     case "gloss-choice":
+    case "listen-truefalse":
     case "message":
     case "compose":
     case "speak": return "en";
@@ -444,10 +533,29 @@ function languageOf(item: ExamItem): "et" | "en" {
   }
 }
 
+/** What the question showed, for the result page to print above the answers. */
+function promptOf(item: ExamItem): string | undefined {
+  switch (item.kind) {
+    case "match-usage":
+    case "gap-choice":
+    case "gap-bank":
+    case "listen-gap": return item.sentence;
+    case "listen-truefalse": return item.statement;
+    case "case-form":
+    case "form-choice": return `${item.lemma}, ${item.caseEt} (${item.caseQuestion})`;
+    case "government": return item.lemma;
+    case "gloss-choice": return item.word;
+    default: return undefined;
+  }
+}
+
 function expectedOf(item: ExamItem): string {
   switch (item.kind) {
     case "match-usage": return item.lemma;
+    case "listen-truefalse": return item.answer === "true" ? "True" : "False";
     case "gap-choice":
+    case "gap-bank":
+    case "listen-gap":
     case "listen-choose":
     case "dictation":
     case "case-form":
@@ -456,7 +564,7 @@ function expectedOf(item: ExamItem): string {
     case "form-choice": return item.answer;
     case "government": return item.options.find((o) => o.key === item.answer)?.et ?? item.answer;
     case "message":
-    case "compose": return `${item.minWords} words`;
+    case "compose": return item.maxWords ? `${item.minWords} to ${item.maxWords} words` : `${item.minWords} words or more`;
     case "speak": return "a recording";
   }
 }
