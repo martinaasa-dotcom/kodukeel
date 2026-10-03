@@ -1566,7 +1566,7 @@ function BusinessCard({ card }: { card: Extract<Exhibit, { layout: "card" }> }) 
   return (
     <figure
       aria-label="The business card"
-      className="mt-3 max-w-sm rounded-[var(--r-lg)] border px-5 py-4"
+      className="@container mt-3 max-w-sm rounded-[var(--r-lg)] border px-5 py-4"
       style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth)" }}
     >
       <p className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>{card.name}</p>
@@ -1574,17 +1574,21 @@ function BusinessCard({ card }: { card: Extract<Exhibit, { layout: "card" }> }) 
         <span lang="et">{card.job.lemma}</span>
         <span className="ml-2 text-sm font-normal" style={{ color: "var(--ink-3)" }}>{card.job.translation}</span>
       </p>
-      <dl className="mt-3 grid gap-1 text-sm" style={{ gridTemplateColumns: "auto 1fr", columnGap: "0.75rem", color: "var(--ink-2)" }}>
-        <dt style={{ color: "var(--ink-3)" }}>Works at</dt>
+      {/* Label beside value where the card has room, and above it where it
+          does not: an e-mail address beside its label on a phone is broken
+          across two lines, and an address is the one thing on a card that
+          has to be copied out exactly. */}
+      <dl className="mt-3 grid grid-cols-1 gap-x-3 text-sm @xs:grid-cols-[auto_1fr] @xs:gap-y-1" style={{ color: "var(--ink-2)" }}>
+        <dt className="mt-1.5 first:mt-0 @xs:mt-0" style={{ color: "var(--ink-3)" }}>Works at</dt>
         <dd>
           <span lang="et" style={{ color: "var(--ink)" }}>{card.workplace.lemma}</span>
           <span className="ml-2" style={{ color: "var(--ink-3)" }}>{card.workplace.translation}</span>
         </dd>
-        <dt style={{ color: "var(--ink-3)" }}>Town</dt>
+        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>Town</dt>
         <dd style={{ color: "var(--ink)" }}>{card.city}</dd>
-        <dt style={{ color: "var(--ink-3)" }}>Open</dt>
+        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>Open</dt>
         <dd style={{ color: "var(--ink)" }}>{card.hours}</dd>
-        <dt style={{ color: "var(--ink-3)" }}>E-mail</dt>
+        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>E-mail</dt>
         <dd className="min-w-0" style={{ color: "var(--ink)" }}>{card.email}</dd>
       </dl>
     </figure>
