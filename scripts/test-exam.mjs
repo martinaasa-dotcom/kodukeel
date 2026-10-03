@@ -42,8 +42,12 @@ page.on("console", (m) => {
 
   And 66 rather than 58: the numbered papers and one part sat on its own are
   eight checks more, all of them reached on the state CI seeds.
+
+  And 76 once each level became its own paper: the business card at A2, and a
+  B2 paper walked to its spoken part, with the letters, the table of figures,
+  the clips heard once and the talk's preparation time.
 */
-const { check, absent, done } = suite("The mock examination", { floor: 66 });
+const { check, absent, done } = suite("The mock examination", { floor: 76 });
 
 // ── The hub ──────────────────────────────────────────────────────────────────
 
@@ -143,9 +147,11 @@ const brief = await page.locator("body").innerText();
 check("the briefing names the four parts with their minutes and points",
   /kirjutamine/.test(brief) && /min/.test(brief) && /points/.test(brief));
 
+// Every task says what it stands for on the real paper, or that it is not a
+// task the real paper sets at all.
+const declared = (brief.match(/On the real paper:|Not a task the real paper sets/g) ?? []).length;
 check("every task says which official task it stands in for",
-  (brief.match(/stands for/g) ?? []).length >= 6,
-  `${(brief.match(/stands for/g) ?? []).length} declared`);
+  declared >= 10, `${declared} declared`);
 
 check("the briefing says the spoken part is marked by the learner",
   /you mark the spoken part yourself/i.test(brief));
@@ -275,20 +281,29 @@ const writingBody = await page.locator("body").innerText();
 // Case-insensitively: the task headings are `label-xs`, which uppercases, and
 // `innerText` reports what is rendered rather than what is in the markup.
 const taskHeadings = (await page.locator("h2, h3").allInnerTexts()).join(" ").toLowerCase();
-check("the writing part opens with the short message the real paper opens with",
-  /teate koostamine/i.test(brief) &&
-  taskHeadings.indexOf("write a short message") < taskHeadings.indexOf("write a text"),
+// Each level opens its writing part with its own task, and A2's is the
+// business card: a text about the person on it, not a message.
+check("the writing part opens with the task the real A2 paper opens with",
+  /info ülekanne/i.test(brief) &&
+  taskHeadings.includes("business card") &&
+  taskHeadings.indexOf("business card") < taskHeadings.indexOf("note or a description"),
   taskHeadings);
+
+check("the business card is drawn as a card, with the details the text needs",
+  (await page.getByRole("figure", { name: /business card/i }).count()) === 1
+    && /Works at/.test(writingBody) && /E-mail/.test(writingBody));
 
 check("the message names the points it has to cover, as the real task does",
   /Write a note|Write an e-mail|Write a message/i.test(writingBody));
 
 check("the second writing task offers the choice the real paper offers",
   (await page.getByRole("radiogroup", { name: /Which to write/i }).count()) > 0 &&
-  /personal letter/i.test(writingBody));
+  /A note/.test(writingBody) && /A description/.test(writingBody));
 
-check("it declares that the two grammar drills are not tasks the real paper sets",
-  (brief.match(/not a task the real paper sets/gi) ?? []).length === 2,
+// Three at A2: the two grammar drills, and the sentence order task that
+// stands in for the questions on a text this app can't write.
+check("it declares the tasks that are not on the real paper, the two grammar drills among them",
+  (brief.match(/not a task the real paper sets/gi) ?? []).length === 3,
   `${(brief.match(/not a task the real paper sets/gi) ?? []).length} declared`);
 
 // The words a written task names are ticked off as they are used, by the same
@@ -302,7 +317,7 @@ check("a written task counts the words it asked for, and starts at none of them"
   that writing one of the words actually moves the count: a screen that promised
   a mark the server was not going to give would be worse than no screen at all.
 */
-const wordChips = page.locator("p", { hasText: /Use every one of these/ }).first();
+const wordChips = page.locator('xpath=//p[contains(., "Use every one of these")]/following-sibling::p[1]').first();
 const firstWord = (await wordChips.locator('span[lang="et"]').first().innerText()).trim();
 const firstArea = page.locator("textarea").first();
 /*
@@ -362,7 +377,7 @@ check("the recordings open once the pause is skipped",
   (await page.locator('button[aria-label*="Play recording"]:disabled').count()) === 0);
 
 check("each recording is worth two plays and says how many are left",
-  /2 of 2 plays left/.test(unlocked) && /plays 2 times and no more/i.test(brief));
+  /2 of 2 plays left/.test(unlocked) && /plays twice and no more/i.test(brief));
 
 await answerAndAdvance(false);
 check("the reading part follows", (await page.locator("h1").innerText()).includes("Reading"));
@@ -433,6 +448,57 @@ if (!landed) {
     /Papers you've sat/i.test(await page.locator("body").innerText()) &&
     (await page.getByText(/percent, (pass|not a pass)/).count()) > 0);
 }
+
+// ── A paper above A2 is its own paper ────────────────────────────────────────
+
+/*
+  Every level used to be one shape at a different size: write a message, write
+  a text, hear everything twice, speak about a word list. The B2 paper is the
+  one that differs most, so it is opened here and walked to its spoken part.
+*/
+await page.goto(`${B}/exam/B2?seed=${SUITE}-b2`, { waitUntil: "networkidle" });
+const b2Brief = await page.locator("body").innerText();
+
+check("the B2 briefing says which recordings are heard only once, as the real paper plays them",
+  /heard once/i.test(b2Brief));
+
+check("the B2 writing part opens with the letter the real paper opens with",
+  /poolametlik või mitteametlik kiri/.test(b2Brief));
+
+await page.getByRole("button", { name: "Start the clock" }).click();
+await page.waitForTimeout(600);
+const b2Writing = await page.locator("body").innerText();
+
+check("both B2 writing tasks offer the real paper's choice",
+  (await page.getByRole("radiogroup", { name: /Which to write/i }).count()) === 2
+    && ["A semi-formal letter", "An informal letter", "A summary with your comment", "An argument"]
+      .every((label) => b2Writing.includes(label)));
+
+await page.getByText("A summary with your comment", { exact: true }).click();
+await page.waitForTimeout(250);
+check("the summary is written from a table of figures that says it is made up",
+  (await page.getByRole("table").count()) > 0
+    && /made up for practice/i.test(await page.locator("body").innerText()));
+
+await answerAndAdvance(false);
+await unlockRecordings();
+await page.waitForTimeout(300);
+check("the B2 short clips play once, and say so on the recording",
+  /Plays once\./.test(await page.locator("body").innerText()));
+
+await answerAndAdvance(false);
+await answerAndAdvance(false);
+const b2Speaking = await page.locator("body").innerText();
+check("the B2 spoken part is its own two tasks, a talk and a debate",
+  /Give a one minute talk/i.test(b2Speaking) && /Discuss, argue and decide/i.test(b2Speaking));
+
+check("the talk gives the two minutes to prepare the real paper gives, with room for notes",
+  /2 minutes to prepare/.test(b2Speaking)
+    && (await page.getByRole("button", { name: /Start preparing/ }).count()) > 0
+    && /You may use notes on the real day too/.test(b2Speaking));
+
+check("the talk's card may be swapped once, as the real one may",
+  /lets you swap your card once/.test(b2Speaking));
 
 // ── A numbered paper, one part at a time ─────────────────────────────────────
 

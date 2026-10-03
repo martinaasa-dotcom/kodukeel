@@ -3321,9 +3321,24 @@ check("the paper's pool is drawn from its own seed, not from what was read last"
     rule, /shuffle\(\[\.\.\.orderedIds\], rng\(seedFrom\(`pool:\$\{level\}:\$\{seed\}`\)\)\)/,
     "the pool rule no longer shuffles on the paper's own seed",
   );
+  /*
+    The measurement and the unit suites draw through one helper,
+    `scripts/lib/examPool.ts`, which is `examPool` over the shipped file: the
+    rule's draw and then the topical words the paper's tasks are about. A copy
+    in each that left the second half out built papers whose writing tasks had
+    nothing on topic to ask for, so both halves are asked of the helper and of
+    the app alike.
+  */
   const measure = code("scripts/measure-exam-volume.ts");
-  assert.match(measure, /poolForSeed\(/, "measure:exam-volume builds a pool the app does not draw");
+  const shared = code("scripts/lib/examPool.ts");
+  assert.ok(
+    /poolForSeed\(/.test(measure) || (/shippedPool\(/.test(measure) && /poolForSeed\(/.test(shared)),
+    "measure:exam-volume builds a pool the app does not draw",
+  );
   assert.match(measure, /eligibleFor\(level/, "measure:exam-volume stopped filtering the pool to the level");
+  assert.match(shared, /eligibleFor\(level/, "the shared exam pool stopped filtering to the level");
+  assert.match(pool, /planLemmas\(level, seed\)/, "the exam pool no longer fetches the words its tasks are about");
+  assert.match(shared, /planLemmas\(level, seed\)/, "the shared exam pool draws a paper the app never builds, with no topical words");
   /*
     And a word added mid-sitting does not reach it. The shuffle walks the whole
     eligible set, so one more row reorders the draw, and the paper that marks
@@ -6935,7 +6950,7 @@ check("a question never fills itself with free eliminations", () => {
   // And the ranking may not become a filter. A question the dictionary can
   // fill has to stay askable, which is what keeps a thin section honest.
   const distractors = code("lib/questions/distractors.ts");
-  assert.match(distractors, /wrong\.length < WRONG/, "the picker stopped refusing what it cannot fill");
+  assert.match(distractors, /wrong\.length < WRONG(_HERE)?\)/, "the picker stopped refusing what it cannot fill");
 });
 
 check("a placement question is answered in Estonian, not about it", () => {

@@ -31,7 +31,7 @@ import { SITTING_KEY_PREFIX } from "@/lib/offline/forget";
  * failure than the one this fixes.
  */
 export interface SavedSitting {
-  v: 1;
+  v: 2;
   level: string;
   seed: string;
   /** Which part they had reached. */
@@ -46,7 +46,14 @@ export interface SavedSitting {
   savedAt: number;
 }
 
-const VERSION = 1;
+/*
+  Raised to 2 when the paper's builders changed (`PAPER_FORMAT` 2): a sitting
+  saved against the old questions holds answers keyed to item ids that now name
+  different questions, and restoring them would put one paper's answers on
+  another. Dropped rather than restored, which costs a half-finished sitting
+  once and never a wrong mark.
+*/
+const VERSION = 2;
 
 /** Prefixed so a sign-out can find every unfinished paper without knowing its seed. */
 function keyFor(level: string, seed: string): string {
@@ -91,5 +98,25 @@ export function clearSitting(level: string, seed: string): void {
 
 /** How many questions a saved sitting has answers for, for the resume card. */
 export function answeredIn(sitting: SavedSitting): number {
-  return Object.values(sitting.responses).filter((r) => r && r.kind !== "blank").length;
+  return Object.values(sitting.responses).filter((r) => hasAnswer(r)).length;
+}
+
+/**
+ * Whether a response is an answer rather than a box touched.
+ *
+ * Choosing which brief to write sends a composition with nothing in it, and a
+ * question cleared after typing leaves an empty string, so counting responses
+ * said "3 of 11 answered" over a paper with nothing written on it.
+ */
+export function hasAnswer(response: Response | undefined): boolean {
+  if (!response) return false;
+  switch (response.kind) {
+    case "blank": return false;
+    case "chosen": return response.value !== "";
+    case "typed":
+    case "composed": return response.value.trim() !== "";
+    case "ordered": return response.value.length > 0;
+    case "spoken": return response.recorded;
+    case "unheard": return true;
+  }
 }

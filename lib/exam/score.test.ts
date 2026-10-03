@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { buildPaper, type PoolWord } from "./paper";
+import { buildPaper, type ExamItem, type PoolWord } from "./paper";
 import {
-  BLANK_RESPONSE, allMarks, gradesFrom, markItem, markPaper, type Response,
+  BLANK_RESPONSE, allMarks, gradesFrom, lengthShare, markItem, markPaper, type Response,
 } from "./score";
 import { PASS_PCT } from "./spec";
 import { REPLAY_BATCH } from "@/lib/offline/outbox";
@@ -50,7 +50,9 @@ function perfect(paper: ReturnType<typeof buildPaper>): Map<string, Response> {
             out.set(item.id, { kind: "chosen", value: item.answer });
             break;
           case "gap-choice":
+          case "gap-bank":
           case "listen-choose":
+          case "listen-truefalse":
             out.set(item.id, { kind: "chosen", value: item.answer });
             break;
           case "government":
@@ -58,6 +60,7 @@ function perfect(paper: ReturnType<typeof buildPaper>): Map<string, Response> {
             break;
           case "case-form":
           case "dictation":
+          case "listen-gap":
             out.set(item.id, { kind: "typed", value: item.answer });
             break;
           case "order":
@@ -71,7 +74,7 @@ function perfect(paper: ReturnType<typeof buildPaper>): Map<string, Response> {
             out.set(item.id, {
               kind: "composed",
               value: [
-                ...item.mustUse.map((w) => w.lemma),
+                ...item.variants[0]!.mustUse.map((w) => w.lemma),
                 ...Array.from({ length: item.minWords }, (_, i) => `word${i}`),
               ].join(" "),
             });
@@ -170,7 +173,10 @@ describe("a paper just under the pass mark", () => {
           ...compose,
           spec: { ...compose.spec, raw: 25, items: 1 },
           shortfall: 0,
-          items: [{ ...compose.items[0]!, id: `c${i}`, minWords, mustUse: [] }],
+          items: [{
+            ...compose.items[0]!, id: `c${i}`, minWords, maxWords: null,
+            variants: (compose.items[0] as Extract<ExamItem, { kind: "compose" }>).variants.map((v) => ({ ...v, mustUse: [] })),
+          }],
         }],
       })),
     } as typeof built;
@@ -196,10 +202,24 @@ describe("a paper just under the pass mark", () => {
 
 describe("what one answer is worth", () => {
   const paper = buildPaper("B1", pool(60), "item-seed", WORD_ORDER);
-  const dictation = paper.parts
-    .flatMap((p) => p.tasks)
-    .flatMap((t) => t.items)
-    .find((i) => i.kind === "dictation")!;
+  /*
+    Built here rather than found on the paper: the listening part sets its
+    gap task from sentences, and the word dictation is only its fallback, so a
+    paper built from a pool with sentences in it holds no dictation at all.
+  */
+  const dictation: ExamItem = {
+    id: "dictation-0", lexemeId: "lex-0", lemma: "sõna", translation: "word", cardId: null,
+    kind: "dictation", answer: "Täna õhtul läheme jõe äärde jalutama.", words: 6, unit: "sentence",
+  };
+  /** The written items with a word of the pool's to use, since the fixture's words teach no topic. */
+  const withWords = <T extends Extract<ExamItem, { kind: "message" | "compose" }>>(item: T): T => {
+    const source = pool(60)[5]!;
+    const word = {
+      lemma: source.lemma, translation: source.translation, lexemeId: source.lexemeId, pos: source.pos,
+      forms: source.forms.map((f) => ({ formType: f.formType, value: f.value })),
+    };
+    return { ...item, variants: item.variants.map((v) => ({ ...v, mustUse: [word] })) };
+  };
 
   it("forgives a missed diacritic in a dictation, as the real marking scheme does", () => {
     const withoutDiacritics = dictation.kind === "dictation"
@@ -281,18 +301,23 @@ describe("what one answer is worth", () => {
       .flatMap((t) => t.items)
       .find((i) => i.kind === "message")!;
     if (message.kind !== "message") throw new Error("expected a message");
+    const asked = withWords(message);
 
     const full = [
-      ...message.mustUse.map((w) => w.lemma),
-      ...Array.from({ length: message.minWords }, (_, i) => `w${i}`),
+      ...asked.variants[0]!.mustUse.map((w) => w.lemma),
+      ...Array.from({ length: asked.minWords }, (_, i) => `w${i}`),
     ].join(" ");
-    expect(markItem(message, { kind: "composed", value: full }, 8).scored).toBe(8);
+    expect(markItem(asked, { kind: "composed", value: full }, 8).scored).toBe(8);
 
-    // Nothing written scores nothing, and the points it did not cover are named
-    // rather than left to be guessed at from a number.
-    const blank = markItem(message, { kind: "composed", value: "" }, 8);
+    // Nothing written scores nothing, and says so rather than listing words
+    // nobody had a chance to use.
+    const blank = markItem(asked, { kind: "composed", value: "" }, 8);
     expect(blank.scored).toBe(0);
-    expect(blank.note).toContain(message.mustUse[0]?.lemma ?? "");
+    expect(blank.note).toBe("Nothing was written.");
+
+    // A text that leaves a word out is told which.
+    const short = markItem(asked, { kind: "composed", value: "w0 w1 w2" }, 8);
+    expect(short.note).toContain(asked.variants[0]!.mustUse[0]!.lemma);
   });
 
   it("marks the two briefs of the second task identically, whichever was chosen", () => {
@@ -338,16 +363,62 @@ describe("what one answer is worth", () => {
       .flatMap((t) => t.items)
       .find((i) => i.kind === "compose")!;
     if (compose.kind !== "compose") throw new Error("expected a composition");
+    const asked = withWords(compose);
     /*
       The comitative, built the way Estonian builds it, off the genitive stem
       this fixture gives every word. It used to append `ga` to the lemma, which
       is not a form of anything: the old prefix rule passed it because the first
       three letters matched, so this check was passing for the wrong reason.
     */
-    const inflected = compose.mustUse.map((w) => `${w.lemma}aga`).join(" ");
-    const padded = `${inflected} ${Array.from({ length: compose.minWords }, () => "x").join(" ")}`;
-    const mark = markItem(compose, { kind: "composed", value: padded }, 12);
+    const inflected = asked.variants[0]!.mustUse.map((w) => `${w.lemma}aga`).join(" ");
+    expect(inflected.length).toBeGreaterThan(0);
+    const padded = `${inflected} ${Array.from({ length: asked.minWords }, () => "x").join(" ")}`;
+    const mark = markItem(asked, { kind: "composed", value: padded }, 12);
     expect(mark.note).toBe("");
+  });
+
+  it("marks the chosen brief's words, not the first brief's", () => {
+    const compose = paper.parts.flatMap((p) => p.tasks).flatMap((t) => t.items).find((i) => i.kind === "compose")!;
+    if (compose.kind !== "compose") throw new Error("expected a composition");
+    const words = pool(60).slice(10, 12).map((w) => ({
+      lemma: w.lemma, translation: w.translation, lexemeId: w.lexemeId, pos: w.pos,
+      forms: w.forms.map((f) => ({ formType: f.formType, value: f.value })),
+    }));
+    const two = { ...compose, variants: [
+      { ...compose.variants[0]!, mustUse: [words[0]!] },
+      { ...compose.variants[1]!, mustUse: [words[1]!] },
+    ] };
+    const text = `${words[1]!.lemma} ${Array.from({ length: two.minWords }, () => "x").join(" ")}`;
+    expect(markItem(two, { kind: "composed", value: text, variant: 1 }, 12).scored).toBe(12);
+    expect(markItem(two, { kind: "composed", value: text, variant: 0 }, 12).scored).toBeLessThan(12);
+  });
+
+  it("takes length marks off a text that runs past the ceiling, in proportion", () => {
+    expect(lengthShare(240, 220, 260)).toBe(1);
+    expect(lengthShare(260, 220, 260)).toBe(1);
+    expect(lengthShare(325, 220, 260)).toBeCloseTo(0.8);
+    expect(lengthShare(110, 220, 260)).toBeCloseTo(0.5);
+    expect(lengthShare(500, 100, null)).toBe(1);
+  });
+
+  it("forgives a slip in a listening gap the way the spec does, and not a wrong word", () => {
+    const gap: ExamItem = {
+      id: "gap-0", lexemeId: "lex-0", lemma: "kool", translation: "school", cardId: null,
+      kind: "listen-gap", sentence: "Ta õpib ____.", full: "Ta õpib ülikoolis.", answer: "ülikoolis",
+    };
+    expect(markItem(gap, { kind: "typed", value: "ulikoolis" }, 1).correct).toBe(true);
+    expect(markItem(gap, { kind: "typed", value: "ülikool" }, 1).correct).toBe(false);
+  });
+
+  it("marks true or false against the line, and says what was said when the line was false", () => {
+    const item: ExamItem = {
+      id: "tf-0", lexemeId: "lex-0", lemma: "kool", translation: "school", cardId: null,
+      kind: "listen-truefalse", audio: "Ta õpib ülikoolis.", statement: "Ta töötab koolis.", answer: "false",
+    };
+    expect(markItem(item, { kind: "chosen", value: "false" }, 1).correct).toBe(true);
+    const wrong = markItem(item, { kind: "chosen", value: "true" }, 1);
+    expect(wrong.correct).toBe(false);
+    expect(wrong.note).toContain("Ta õpib ülikoolis.");
   });
 });
 
@@ -395,7 +466,7 @@ describe("which language an answer is in", () => {
   it("tags the English answers as English, so they are not set in Estonian", () => {
     for (const item of items) {
       const mark = markItem(item, BLANK_RESPONSE, 1);
-      const english = ["government", "gloss-choice", "message", "compose", "speak"].includes(item.kind);
+      const english = ["government", "gloss-choice", "listen-truefalse", "message", "compose", "speak"].includes(item.kind);
       expect(mark.language === "en").toBe(english);
     }
   });

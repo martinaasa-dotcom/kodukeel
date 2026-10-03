@@ -22,11 +22,11 @@
  * exactly as audit-questions.ts does.
  */
 import { dictionaryRows } from "./lib/dictionary";
-import { fillRate, type PoolWord } from "../lib/exam/paper";
+import { fillRate } from "../lib/exam/paper";
 import { assemblePaper } from "../lib/exam/assemble";
 import { numberedSeed, PAPERS_PER_LEVEL } from "../lib/exam/seed";
-import { POOL_SIZE, eligibleFor, poolForSeed } from "../lib/exam/pool";
-import { usableExamples } from "../lib/dict/examples";
+import { POOL_SIZE, eligibleFor } from "../lib/exam/pool";
+import { shippedPool } from "./lib/examPool";
 import { orderContextFrom } from "../lib/estonian/wordOrder";
 import { EXAM_LEVELS } from "../lib/exam/spec";
 
@@ -35,30 +35,17 @@ import { EXAM_LEVELS } from "../lib/exam/spec";
 
   The first version handed `buildPaper` the whole dictionary at every level, so
   an A1 paper was built out of C1 words and every level read full. The app
-  filters to the level, shuffles on the paper's seed and keeps `POOL_SIZE`
-  (`lib/exam/pool.ts`, the rule `lib/progress/exam.ts` reads too), and it keeps
-  only the sentences `usableExamples` keeps. The one difference left is the
-  order the draw starts from: the app shuffles database ids and this shuffles
-  (lemma, pos), so the seed picks a different five hundred, from the same set,
-  by the same rule. Fill rates are comparable; a single seed's paper is not.
+  filters to the level, shuffles on the paper's seed, keeps `POOL_SIZE`, and
+  then fetches the course words the paper's written and spoken tasks are about
+  (`lib/progress/exam.ts`). `shippedPool` is that draw over the shipped file,
+  shared with the unit tests, so the measurement and the suites cannot draw it
+  two ways. The one difference left is the order the draw starts from: the app
+  shuffles database ids and this shuffles (lemma, pos), so the seed picks a
+  different five hundred, from the same set, by the same rule. Fill rates are
+  comparable; a single seed's paper is not.
 */
 const entries = dictionaryRows();
-const asPool = (e: (typeof entries)[number]): PoolWord => ({
-  lexemeId: `${e.lemma}|${e.pos}`, lemma: e.lemma, translation: e.translation, pos: e.pos, cefr: e.cefr,
-  semanticTypes: e.semanticTypes ?? null,
-  forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null, morphName: null })),
-  examples: usableExamples((e.examples ?? []).map((x) => ({ et: x.et, en: x.en ?? null, source: "EKILEX" as const }))).map((x) => ({ et: x.et, en: x.en ?? null })),
-  government: e.government, cardId: null,
-});
-const ordered = [...entries].sort((a, b) =>
-  `${a.lemma}|${a.pos}` < `${b.lemma}|${b.pos}` ? -1 : `${a.lemma}|${a.pos}` > `${b.lemma}|${b.pos}` ? 1 : 0);
 const WORD_ORDER = orderContextFrom(entries);
-const byKey = new Map<string, (typeof entries)[number]>(entries.map((e) => [`${e.lemma}|${e.pos}`, e] as const));
-const poolFor = (level: (typeof EXAM_LEVELS)[number], seed: string): PoolWord[] =>
-  poolForSeed(
-    ordered.filter((e) => eligibleFor(level, e.cefr ?? null)).map((e) => ({ id: `${e.lemma}|${e.pos}`, cefr: e.cefr ?? null })),
-    level, seed,
-  ).map((id) => asPool(byKey.get(id)!));
 
 /*
   THE NUMBERED SET IS WHAT A LEARNER IS OFFERED, SO `--numbered` MEASURES THAT.
@@ -92,7 +79,7 @@ for (const level of EXAM_LEVELS) {
 
   for (let s = 0; s < SEEDS; s++) {
     const seed = seedAt(s);
-    const paper = assemblePaper(level, poolFor(level, seed), seed, WORD_ORDER);
+    const paper = assemblePaper(level, shippedPool(level, seed), seed, WORD_ORDER);
     const rate = fillRate(paper);
     rates.push(rate);
     if (paper.thin) thin++;
@@ -134,7 +121,7 @@ for (const level of EXAM_LEVELS) {
   const min = Math.min(...rates);
   const max = Math.max(...rates);
 
-  const eligible = ordered.filter((e) => eligibleFor(level, e.cefr ?? null)).length;
+  const eligible = entries.filter((e) => eligibleFor(level, e.cefr ?? null)).length;
   console.log(`== ${level} ==  (${eligible} eligible entries, pool of ${Math.min(eligible, POOL_SIZE)} per paper)`);
   console.log(`  fill rate: mean ${mean.toFixed(1)}%, min ${min}%, max ${max}%`);
   console.log(`  thin papers (any shortfall): ${thin}/${SEEDS}`);

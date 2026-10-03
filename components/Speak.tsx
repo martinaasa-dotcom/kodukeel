@@ -191,9 +191,11 @@ export function Speak({
  * lone button.
  */
 export function SpeakPair({
-  text, label, slowLabel, disabled, onPlay, onUnavailable, size = 15, className = "", autoplay,
+  text, label, slowLabel, disabled, onPlay, onUnavailable, size = 15, className = "", autoplay, voice,
 }: {
   text: string;
+  /** A voice other than the learner's own, as on `Speak`; both halves read in it. */
+  voice?: string;
   label?: string;
   slowLabel?: string;
   disabled?: boolean;
@@ -227,6 +229,7 @@ export function SpeakPair({
         onPlay={onPlay}
         onUnavailable={lost}
         autoplay={autoplay}
+        voice={voice}
         className={`${half} px-2.5 py-1.5`}
         style={{ color: "var(--ink-2)" }}
       />
@@ -239,6 +242,7 @@ export function SpeakPair({
         disabled={disabled}
         onPlay={onPlay}
         onUnavailable={lost}
+        voice={voice}
         className={`${half} gap-1 whitespace-nowrap px-2.5 py-1.5 text-xs font-semibold`}
         style={{ color: "var(--ink-3)" }}
       >

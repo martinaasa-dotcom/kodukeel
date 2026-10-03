@@ -1,6 +1,6 @@
 "use client";
 
-import { OPENING_CONVERSATION } from "@/lib/exam/warmUp";
+import { openingConversation } from "@/lib/exam/warmUp";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { useRouter } from "next/navigation";
@@ -16,14 +16,15 @@ import { Recorder } from "@/components/Recorder";
 import { Speak, SpeakPair } from "@/components/Speak";
 import { Card, Chip, Meter, Note, SectionTitle } from "@/components/ui";
 import { partOf } from "@/lib/exam/paper";
-import type { ExamItem, ExamTask, MustUseWord, Paper } from "@/lib/exam/paper";
+import type { ExamItem, ExamTask, Exhibit, MustUseWord, Paper, SpeakCard } from "@/lib/exam/paper";
 import type { Response } from "@/lib/exam/score";
 import { usesRequiredWord, wordsOf } from "@/lib/exam/written";
 import {
   BREAK_MINUTES, LISTEN_PLAYS, PASS_PCT, READ_QUESTIONS_SECONDS, speakingCriteria, writtenMinutes,
 } from "@/lib/exam/spec";
 import { SKILL_ET, SKILL_LABEL } from "@/lib/exam/types";
-import { answeredIn, clearSitting, loadSitting, saveSitting, type SavedSitting } from "./resume";
+import { VOICES } from "@/lib/audio/voice";
+import { answeredIn, clearSitting, hasAnswer, loadSitting, saveSitting, type SavedSitting } from "./resume";
 import { Explain } from "@/components/Explain";
 import { CaseLabel } from "@/components/CaseLabel";
 
@@ -151,7 +152,7 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
   const answered = useMemo(() => {
     if (!part) return 0;
     return part.tasks.reduce(
-      (sum, task) => sum + task.items.filter((item) => responses[item.id]).length,
+      (sum, task) => sum + task.items.filter((item) => hasAnswer(responses[item.id])).length,
       0,
     );
   }, [part, responses]);
@@ -163,6 +164,7 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
     const result = await submitExam({
       level: paper.level,
       seed: paper.seed,
+      format: paper.format,
       startedAt: startedAt.current,
       responses,
     }).catch(() => null);
@@ -221,6 +223,7 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
   if (breakUntil !== null) {
     return (
       <Break
+        level={paper.level}
         until={breakUntil}
         now={now}
         nextLabel={part.spec.label}
@@ -431,9 +434,10 @@ function formatRemaining(seconds: number): string {
  * number, and the screen says so. It can be ended early, and the clock on the
  * spoken part does not start until it is.
  */
-function Break({ until, now, nextLabel, onResume }: {
-  until: number; now: number; nextLabel: string; onResume: () => void;
+function Break({ level, until, now, nextLabel, onResume }: {
+  level: Paper["level"]; until: number; now: number; nextLabel: string; onResume: () => void;
 }) {
+  const prompts = openingConversation(level);
   const left = Math.max(0, Math.round((until - now) / 1000));
   const over = left === 0;
 
@@ -481,7 +485,7 @@ function Break({ until, now, nextLabel, onResume }: {
           Estonian now. Nobody&apos;s listening and nothing&apos;s marked.
         </p>
         <ul className="mt-3 flex list-disc flex-col gap-1 pl-5 text-sm" style={{ color: "var(--ink-2)" }}>
-          {OPENING_CONVERSATION.map((line) => <li key={line}>{line}</li>)}
+          {prompts.map((line) => <li key={line}>{line}</li>)}
         </ul>
       </div>
 
@@ -515,6 +519,24 @@ function Fact({ icon, hue, title, children }: { icon: ReactNode; hue: "butter" |
       </div>
     </div>
   );
+}
+
+/**
+ * What a task stands in for, as a sentence.
+ *
+ * Most tasks name the official task they imitate; the two drills and the word
+ * order task say they are not a task the real paper sets, and "stands for not
+ * a task the real paper sets" is what the old list printed.
+ */
+function onTheRealPaper(standsFor: string): string {
+  return /^not a task/.test(standsFor)
+    ? `${standsFor.charAt(0).toUpperCase()}${standsFor.slice(1)}.`
+    : `On the real paper: ${standsFor}.`;
+}
+
+/** How many listening tasks play their recordings only once. */
+function heardOnce(paper: Paper): number {
+  return paper.parts.flatMap((p) => p.tasks).filter((t) => t.spec.plays === 1).length;
 }
 
 /**
@@ -637,26 +659,30 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
                 const times = part.tasks.filter((t) => t.spec.title === task.spec.title && t.spec.standsFor === task.spec.standsFor).length;
                 return (
                 <li key={task.spec.id} className="border-t pt-2.5 text-sm leading-relaxed" style={{ borderColor: "var(--rule-soft)", color: "var(--ink-2)" }}>
-                  <span className="font-semibold" style={{ color: "var(--ink)" }}>{task.spec.title}</span>
-                  {times > 1 && <span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{` × ${times}`}</span>}
-                  <span style={{ color: "var(--ink-3)" }}>
-                    {", "}stands for {task.spec.standsFor}
+                  <span className="block font-semibold" style={{ color: "var(--ink)" }}>
+                    {task.spec.title}
+                    {times > 1 && <span className="tnum">{` × ${times}`}</span>}
+                    {task.spec.plays === 1 && <span style={{ color: "var(--ink-3)" }}>, heard once</span>}
                   </span>
+                  <span className="block" style={{ color: "var(--ink-3)" }}>{onTheRealPaper(task.spec.standsFor)}</span>
                   {task.fallbackFrom && (
-                    <span style={{ color: "var(--butter-ink)" }}>
-                      {", "}made from single words, not full sentences, since we don&apos;t have a
-                      recorded sentence for this one yet
+                    <span className="block" style={{ color: "var(--butter-ink)" }}>
+                      Set in a simpler shape this time, because the dictionary didn&apos;t have the
+                      sentences the real task needs.
                     </span>
                   )}
                   {task.shortfall > 0 && (
-                    <span style={{ color: "var(--blush-ink)" }}>
-                      {", "}{task.shortfallReason}
-                    </span>
+                    <span className="block" style={{ color: "var(--blush-ink)" }}>{task.shortfallReason}</span>
                   )}
                 </li>
                 );
               })}
             </ul>
+            {part.spec.notSet && (
+              <p className="mt-3 border-t pt-2.5 text-sm leading-relaxed" style={{ borderColor: "var(--rule-soft)", color: "var(--ink-3)" }}>
+                {part.spec.notSet}
+              </p>
+            )}
           </li>
         ))}
       </ul>
@@ -711,17 +737,12 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
         </Fact>
         )}
         {partOf(paper, "listening") && (
-        <Fact icon={<Headphones size={18} />} hue="blush" title="Two plays per recording">
-          Each recording plays {LISTEN_PLAYS} times and no more, just like the real exam. Every
-          listening task gives you {READ_QUESTIONS_SECONDS} seconds to read the questions before
-          the audio starts.
-          {/* A fact about the C1 paper, printed unconditionally, so the A2
-              briefing carried a caveat about a paper the candidate is not
-              sitting. */}
-          {paper.level === "C1" && (
-            <> The real C1 paper plays one task only once. We don&apos;t do that here, so this
-            listening part is a little easier than the real thing.</>
-          )}
+        <Fact icon={<Headphones size={18} />} hue="blush" title={heardOnce(paper) > 0 ? "Some recordings play once" : "Two plays per recording"}>
+          {heardOnce(paper) > 0
+            ? `Most recordings play twice, but one task plays each recording only once, as the real ${paper.level} paper does. `
+            : `Each recording plays ${LISTEN_PLAYS === 2 ? "twice" : `${LISTEN_PLAYS} times`} and no more, as on the real exam. `}
+          Every listening task gives you time to read its questions before the audio unlocks, and
+          the recordings are read by different voices, as the real ones are.
         </Fact>
         )}
         <Fact icon={<WifiOff size={18} />} hue="sky" title="Sit it with a connection">
@@ -767,6 +788,27 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
 
 // ── One task ─────────────────────────────────────────────────────────────────
 
+/** Item shapes that are a recording, and so have plays to count and a pause before them. */
+type HeardItem = Extract<ExamItem, { kind: "dictation" | "listen-choose" | "listen-gap" | "listen-truefalse" }>;
+
+function isHeard(item: ExamItem): item is HeardItem {
+  return item.kind === "dictation" || item.kind === "listen-choose"
+    || item.kind === "listen-gap" || item.kind === "listen-truefalse";
+}
+
+/**
+ * The voice a recording is read in.
+ *
+ * The real listening part is read by several people, men and women, and a
+ * learner who has only heard one voice say a word has learned that voice. So
+ * each question has a voice of its own, the same one for both plays, and the
+ * walk through the list is offset per task so two tasks do not open on the
+ * same speaker.
+ */
+function voiceFor(task: number, item: number): string {
+  return VOICES[(task * 3 + item) % VOICES.length]!.id;
+}
+
 function TaskBlock({ task, number, responses, onAnswer, frozen }: {
   task: ExamTask;
   number: number;
@@ -775,52 +817,64 @@ function TaskBlock({ task, number, responses, onAnswer, frozen }: {
   /** The part's time has gone, so nothing here should still be counting down. */
   frozen: boolean;
 }) {
-  const audible = task.items.some(
-    (item) => item.kind === "dictation" || item.kind === "listen-choose",
-  );
+  const audible = task.items.some(isHeard);
+  const pause = task.spec.readSeconds ?? READ_QUESTIONS_SECONDS;
+  const plays = task.spec.plays ?? LISTEN_PLAYS;
   /*
     The pause before a listening task, which every specification describes and
     which this app did not have: the recordings used to be playable the instant
     the part opened, so the first one arrived while the learner was still finding
     out what they were being asked. Skippable, because the point is to teach the
-    shape of the part rather than to make somebody sit out half a minute they
-    have already used.
+    shape of the part rather than to make somebody sit out time they have
+    already used. Its length is the level's own where the specification gives
+    one: a minute at B2, ten seconds a question on the clips heard once.
   */
   const [reading, setReading] = useState(audible);
-  const [left, setLeft] = useState(READ_QUESTIONS_SECONDS);
+  const [left, setLeft] = useState(pause);
 
   useEffect(() => {
     if (!reading || frozen) return;
-    const ends = Date.now() + READ_QUESTIONS_SECONDS * 1000;
+    const ends = Date.now() + pause * 1000;
     const timer = window.setInterval(() => {
       const seconds = Math.max(0, Math.round((ends - Date.now()) / 1000));
       setLeft(seconds);
       if (seconds === 0) setReading(false);
     }, 250);
     return () => window.clearInterval(timer);
-  }, [reading, frozen]);
+  }, [reading, frozen, pause]);
+
+  /*
+    A matching task and a word bank share one list of answers, so it is
+    printed once, above the questions, with a letter beside each entry, which is
+    how the real paper lays both out. It used to be printed again under every
+    sentence, eight copies of one list down a screen.
+  */
+  const lettered = task.items.length > 0 && (task.spec.kind === "match-usage" || task.spec.kind === "gap-bank")
+    && (task.choices?.length ?? 0) > 0;
+  const bank = lettered ? task.choices! : [];
+  const chosenElsewhere = (itemId: string) => new Set(
+    task.items
+      .filter((other) => other.id !== itemId)
+      .map((other) => responses[other.id])
+      .flatMap((r) => (r?.kind === "chosen" ? [r.value] : [])),
+  );
 
   return (
-    <section className="mb-8">
-      <SectionTitle hint={`${task.spec.raw} marks`}>
+    <section className="mb-10">
+      <SectionTitle hint={`${task.spec.raw} ${task.spec.raw === 1 ? "mark" : "marks"}`}>
         Task {number}: {task.spec.title}
       </SectionTitle>
       <p className="mb-4 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
         {task.spec.instruction}
       </p>
 
-      {/*
-        Only while the pause is running. Once it is over the task's own
-        instruction has already said how many plays there are, and a second
-        notice saying it again is a line of furniture above every listening
-        question on the paper.
-      */}
       {audible && reading && task.items.length > 0 && (
         <div className="mb-4">
           <Note tone="hard">
             <Ear size={14} className="mr-1.5 inline" aria-hidden />
             Read the questions first. The recordings unlock in{" "}
-            <span className="tnum font-semibold">{left}</span> seconds, just like on the real exam.
+            <span className="tnum font-semibold">{left}</span> seconds, as on the real exam.{" "}
+            {plays === 1 ? "Each one plays once." : `Each one plays ${plays === 2 ? "twice" : `${plays} times`}.`}
             <span className="mt-3 flex">
               <Button variant="ghost" size="sm" onClick={() => setReading(false)}>
                 I&apos;ve read them, unlock the recordings
@@ -836,6 +890,8 @@ function TaskBlock({ task, number, responses, onAnswer, frozen }: {
         </div>
       )}
 
+      {lettered && <Bank entries={bank} glossed={task.spec.kind === "match-usage"} />}
+
       {task.items.length === 0 ? (
         <Note tone="neutral">
           We couldn&apos;t set anything for this task, so it carries no marks. The part is marked
@@ -850,9 +906,11 @@ function TaskBlock({ task, number, responses, onAnswer, frozen }: {
                   item={item}
                   number={index + 1}
                   marks={task.spec.raw}
-                  choices={task.choices}
+                  bank={lettered ? { entries: bank, taken: chosenElsewhere(item.id) } : undefined}
                   response={responses[item.id]}
                   canPlay={!reading}
+                  plays={plays}
+                  voice={voiceFor(number, index)}
                   onAnswer={(next) => onAnswer(item.id, next)}
                 />
               </Card>
@@ -864,36 +922,74 @@ function TaskBlock({ task, number, responses, onAnswer, frozen }: {
   );
 }
 
+/** A, B, C, and on past Z if a bank ever ran that long. */
+function letterOf(index: number): string {
+  return index < 26 ? String.fromCharCode(65 + index) : String(index + 1);
+}
+
+/** The shared list of a matching task or a word bank, printed once with its letters. */
+function Bank({ entries, glossed }: { entries: { id: string; label: string; gloss: string }[]; glossed: boolean }) {
+  return (
+    <div
+      className="mb-4 rounded-[var(--r-lg)] border px-4 py-3"
+      style={{ borderColor: "var(--edge)", background: "var(--raised)" }}
+    >
+      <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
+        {glossed ? "The words" : "The word bank"}
+      </p>
+      <ul className="grid gap-x-6 gap-y-1.5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 11rem), 1fr))" }}>
+        {entries.map((entry, index) => (
+          <li key={entry.id} className="flex items-baseline gap-2 text-md">
+            <span className="tnum w-5 shrink-0 font-bold" style={{ color: "var(--accent-deep)" }}>{letterOf(index)}</span>
+            <span className="min-w-0">
+              <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{entry.label}</span>
+              {glossed && entry.gloss && (
+                <span className="ml-2 text-sm" style={{ color: "var(--ink-3)" }}>{entry.gloss}</span>
+              )}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 // ── One question ─────────────────────────────────────────────────────────────
 
-function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }: {
+function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, onAnswer }: {
   item: ExamItem;
   number: number;
   /** The marks this task carries, which is how many criteria the spoken task offers. */
   marks: number;
-  choices?: { id: string; label: string; gloss: string }[];
+  /** The shared bank, and the letters other questions have already taken. */
+  bank?: { entries: { id: string; label: string; gloss: string }[]; taken: Set<string> };
   response: Response | undefined;
   /** False while the task's reading pause is still running. */
   canPlay: boolean;
+  plays: number;
+  voice: string;
   onAnswer: (response: Response) => void;
 }) {
   const stem = (
     <span className="label-xs mr-2 shrink-0" style={{ color: "var(--ink-3)" }}>{number}</span>
   );
+  const chosen = response?.kind === "chosen" ? response.value : null;
 
   switch (item.kind) {
     case "match-usage":
+    case "gap-bank":
       return (
         <div>
           <p className="mb-3 text-md leading-relaxed" style={{ color: "var(--ink)" }} lang="et">
             {stem}{item.sentence}
           </p>
-          <Options
+          <LetterPick
             name={item.id}
-            options={(choices ?? []).map((c) => ({ value: c.id, label: c.label, hint: c.gloss }))}
-            selected={response?.kind === "chosen" ? response.value : null}
+            question={number}
+            entries={bank?.entries ?? []}
+            taken={bank?.taken ?? new Set()}
+            selected={chosen}
             onSelect={(value) => onAnswer({ kind: "chosen", value })}
-            columns
           />
         </div>
       );
@@ -907,21 +1003,59 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
           <Options
             name={item.id}
             options={item.options.map((value) => ({ value, label: value }))}
-            selected={response?.kind === "chosen" ? response.value : null}
+            selected={chosen}
             onSelect={(value) => onAnswer({ kind: "chosen", value })}
-            columns
           />
         </div>
       );
 
     case "listen-choose":
       return (
-        <Audible item={item} number={number} response={response} canPlay={canPlay} onAnswer={onAnswer}>
+        <Audible text={item.answer} number={number} response={response} canPlay={canPlay} plays={plays} voice={voice} onAnswer={onAnswer}
+          lead={item.unit === "word" ? "One word. Play it, then choose what you heard." : "Play it, then choose what you heard."}>
           <Options
             name={item.id}
             options={item.options.map((value) => ({ value, label: value }))}
-            selected={response?.kind === "chosen" ? response.value : null}
+            selected={chosen}
             onSelect={(value) => onAnswer({ kind: "chosen", value })}
+          />
+        </Audible>
+      );
+
+    case "listen-gap":
+      return (
+        <Audible text={item.full} number={number} response={response} canPlay={canPlay} plays={plays} voice={voice} onAnswer={onAnswer}
+          lead="Play it, and write the missing word.">
+          <p className="mb-3 text-md leading-relaxed" style={{ color: "var(--ink)" }} lang="et">{item.sentence}</p>
+          <EstonianInput
+            value={response?.kind === "typed" ? response.value : ""}
+            onChange={(value) => onAnswer({ kind: "typed", value })}
+            ariaLabel={`Recording ${number}, the missing word`}
+            placeholder="The missing word"
+          />
+        </Audible>
+      );
+
+    case "listen-truefalse":
+      return (
+        <Audible text={item.audio} number={number} response={response} canPlay={canPlay} plays={plays} voice={voice} onAnswer={onAnswer}
+          lead="Play it, then say whether the line below is what it said.">
+          <blockquote
+            className="mb-3 rounded-[var(--r)] border-l-4 px-4 py-2.5 text-md leading-relaxed"
+            style={{ borderColor: "var(--accent)", background: "var(--raised)", color: "var(--ink)" }}
+            lang="et"
+          >
+            {item.statement}
+          </blockquote>
+          <Options
+            name={item.id}
+            options={[
+              { value: "true", label: "True, that's what it said" },
+              { value: "false", label: "False, it said something else" },
+            ]}
+            selected={chosen}
+            onSelect={(value) => onAnswer({ kind: "chosen", value })}
+            english
           />
         </Audible>
       );
@@ -936,9 +1070,8 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
           <Options
             name={item.id}
             options={item.options.map((value) => ({ value, label: value }))}
-            selected={response?.kind === "chosen" ? response.value : null}
+            selected={chosen}
             onSelect={(value) => onAnswer({ kind: "chosen", value })}
-            columns
             english
           />
         </div>
@@ -965,9 +1098,8 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
           <Options
             name={item.id}
             options={item.options.map((value) => ({ value, label: value }))}
-            selected={response?.kind === "chosen" ? response.value : null}
+            selected={chosen}
             onSelect={(value) => onAnswer({ kind: "chosen", value })}
-            columns
           />
         </div>
       );
@@ -994,9 +1126,9 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
               label: o.et,
               caseLabel: o.question ? { et: o.et, question: o.question } : undefined,
             }))}
-            selected={response?.kind === "chosen" ? response.value : null}
+            selected={chosen}
             onSelect={(value) => onAnswer({ kind: "chosen", value })}
-            columns
+            stacked
           />
         </div>
       );
@@ -1030,7 +1162,8 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
 
     case "dictation":
       return (
-        <Audible item={item} number={number} response={response} canPlay={canPlay} onAnswer={onAnswer} slow>
+        <Audible text={item.answer} number={number} response={response} canPlay={canPlay} plays={plays} voice={voice} onAnswer={onAnswer} slow
+          lead={item.unit === "word" ? "One word. Write it down." : `${item.words} words. Write them down.`}>
           <EstonianInput
             value={response?.kind === "typed" ? response.value : ""}
             onChange={(value) => onAnswer({ kind: "typed", value })}
@@ -1051,17 +1184,9 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
       );
 
     case "message":
-      return (
-        <MessageQuestion
-          item={item}
-          text={response?.kind === "composed" ? response.value : ""}
-          onWrite={(value) => onAnswer({ kind: "composed", value })}
-        />
-      );
-
     case "compose":
       return (
-        <ComposeQuestion
+        <WrittenQuestion
           item={item}
           response={response?.kind === "composed" ? response : null}
           onWrite={(value, variant) => onAnswer({ kind: "composed", value, variant })}
@@ -1090,13 +1215,17 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
  * server leaves it out of the marks entirely. The learner is told, in the same
  * words the result will use.
  */
-function Audible({ item, number, response, canPlay, onAnswer, slow, children }: {
-  item: Extract<ExamItem, { kind: "dictation" | "listen-choose" }>;
+function Audible({ text, number, response, canPlay, plays, voice, onAnswer, slow, lead, children }: {
+  /** What is played, which is not always what is answered. */
+  text: string;
   number: number;
   response: Response | undefined;
   canPlay: boolean;
+  plays: number;
+  voice: string;
   onAnswer: (response: Response) => void;
   slow?: boolean;
+  lead: string;
   children: ReactNode;
 }) {
   const [gone, setGone] = useState(false);
@@ -1108,7 +1237,7 @@ function Audible({ item, number, response, canPlay, onAnswer, slow, children }: 
     costs nothing and takes the unheard path below instead.
   */
   const [played, setPlayed] = useState(0);
-  const spent = played >= LISTEN_PLAYS;
+  const spent = played >= plays;
   const unheard = gone || response?.kind === "unheard";
 
   const lose = () => {
@@ -1131,118 +1260,181 @@ function Audible({ item, number, response, canPlay, onAnswer, slow, children }: 
 
   return (
     <div>
-      <p className="mb-3 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm" style={{ color: "var(--ink-2)" }}>
         <span className="label-xs" style={{ color: "var(--ink-3)" }}>{number}</span>
         {slow ? (
           <SpeakPair
-            text={item.answer}
+            text={text}
             label={`Play recording ${number}`}
             slowLabel={`Play recording ${number} slowly`}
             disabled={!canPlay || spent}
+            voice={voice}
             onPlay={() => setPlayed((n) => n + 1)}
             onUnavailable={lose}
           />
         ) : (
           <Speak
-            text={item.answer}
+            text={text}
             label={`Play recording ${number}`}
             disabled={!canPlay || spent}
+            voice={voice}
             onPlay={() => setPlayed((n) => n + 1)}
             onUnavailable={lose}
           />
         )}
-        <span>
-          {item.unit === "word"
-            ? "One word."
-            : item.kind === "dictation"
-              ? `${item.words} words.`
-              : "Play it, then choose what you heard."}
-          {" "}
-          {/*
-            Nothing per question while the pause is running: the task says once,
-            at the top, that the recordings are shut, and repeating it on all
-            sixteen questions of a listening part is noise where the answer
-            options need to be readable.
-          */}
-          {canPlay && (
-            <span
-              className="tnum"
-              style={{ color: spent ? "var(--blush-ink)" : "var(--ink-3)" }}
-            >
-              {spent
-                ? "Both plays used, same as the real exam. Answer with what you heard."
-                : `${LISTEN_PLAYS - played} of ${LISTEN_PLAYS} plays left.`}
-            </span>
-          )}
-        </span>
-      </p>
+        <span className="min-w-0">{lead}</span>
+        {/*
+          Nothing per question while the pause is running: the task says once,
+          at the top, that the recordings are shut, and repeating it on every
+          question of a listening part is noise where the options need to be
+          readable.
+        */}
+        {canPlay && (
+          <span
+            className="tnum whitespace-nowrap"
+            style={{ color: spent ? "var(--blush-ink)" : "var(--ink-3)" }}
+          >
+            {spent
+              ? plays === 1 ? "Played. Answer with what you heard." : "Plays used up. Answer with what you heard."
+              : plays === 1 ? "Plays once." : `${plays - played} of ${plays} plays left.`}
+          </span>
+        )}
+      </div>
       {children}
     </div>
   );
 }
 
+/**
+ * How a set of options is laid out, from how many there are and how long.
+ *
+ * Three short forms in a row and four in a square, because that is how a
+ * printed paper sets them and a column of four one-word buttons down a desktop
+ * screen reads as a form rather than a question. Anything long enough to wrap
+ * goes one to a line, so no option is the odd one out by being the only one on
+ * two lines. Measured against the room the list has (`@container`), not the
+ * window, since at 768 the rail leaves this list about 340px.
+ */
+function optionLayout(labels: readonly string[], stacked?: boolean): string {
+  const longest = Math.max(0, ...labels.map((l) => l.length));
+  if (labels.length === 2 && longest <= 32 && !stacked) return "grid gap-2 @md:grid-cols-2";
+  if (stacked || longest > 24) return "grid gap-2";
+  if (labels.length === 3 && longest <= 14) return "grid gap-2 @md:grid-cols-3";
+  if (labels.length === 4 && longest <= 14) return "grid gap-2 @xs:grid-cols-2 @2xl:grid-cols-4";
+  if (labels.length === 2) return "grid gap-2 @md:grid-cols-2";
+  return "grid gap-2 @lg:grid-cols-2";
+}
+
 /** A radio group that looks like a set of cards and behaves like a radio group. */
-function Options({ name, options, selected, onSelect, columns, english }: {
+function Options({ name, options, selected, onSelect, english, stacked }: {
   name: string;
   options: {
     value: string;
     label: string;
-    hint?: string;
     /** A case named beside its question, drawn as one label rather than a label and a hint. */
     caseLabel?: { et: string; question: string };
   }[];
   selected: string | null;
   onSelect: (value: string) => void;
-  columns?: boolean;
-  /** The options are English glosses rather than Estonian, so do not tag them. */
+  /** The options are English rather than Estonian, so do not tag them. */
   english?: boolean;
+  /** One to a line whatever their length, for options that carry a second line. */
+  stacked?: boolean;
 }) {
   return (
-    /* Columns come from the room the list has, not from the window: at 768
-       the rail leaves this list about 340px, and `sm:grid-cols-2` split that
-       into two columns narrow enough to draw "kellest" a few letters a line.
-       `.choice-grid` is the rule Settings already learned this on. */
-    <div className={columns ? "choice-grid" : "grid gap-2"} role="radiogroup">
-      {options.map((option) => {
-        const active = selected === option.value;
+    <div className="@container">
+      <div className={optionLayout(options.map((o) => o.label), stacked)} role="radiogroup">
+        {options.map((option) => {
+          const active = selected === option.value;
+          return (
+            <label
+              key={option.value}
+              className="choice-btn flex min-h-[44px] cursor-pointer items-start gap-3 rounded-[var(--r)] border px-3 py-2.5 text-md"
+              style={active ? {
+                borderColor: "var(--accent)",
+                "--choice-bg": "var(--accent-soft)",
+                color: "var(--accent-deep)",
+              } as React.CSSProperties : { color: "var(--ink)" }}
+            >
+              <input
+                type="radio"
+                name={name}
+                value={option.value}
+                checked={active}
+                onChange={() => onSelect(option.value)}
+                /* Level with the first line of the label, however many lines it
+                   runs to, so a two-line option puts its radio where a one-line
+                   neighbour does rather than halfway down its own text. */
+                className="mt-1 size-4 shrink-0 accent-[var(--accent)]"
+              />
+              <span className="min-w-0">
+                {option.caseLabel ? (
+                  <CaseLabel label={option.caseLabel} reading="always" />
+                ) : (
+                  <span lang={english ? undefined : "et"}>{option.label}</span>
+                )}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A letter for one gap or one sentence, out of the shared list above it.
+ *
+ * Letters, as the real paper uses, because a list of eight words printed under
+ * each of eight sentences is a wall. A letter another question already took is
+ * drawn as taken, dashed and quiet, and stays pressable: the real paper lets
+ * you change your mind, and so does this.
+ */
+function LetterPick({ name, question, entries, taken, selected, onSelect }: {
+  name: string;
+  question: number;
+  entries: { id: string; label: string }[];
+  taken: Set<string>;
+  selected: string | null;
+  onSelect: (value: string) => void;
+}) {
+  const picked = entries.find((e) => e.id === selected);
+  return (
+    <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label={`Answer for ${question}`}>
+      {entries.map((entry, index) => {
+        const active = selected === entry.id;
+        const elsewhere = !active && taken.has(entry.id);
         return (
           <label
-            key={option.value}
-            className="choice-btn flex min-h-[44px] cursor-pointer items-start gap-3 rounded-[var(--r)] border px-3 py-2.5 text-sm"
+            key={entry.id}
+            className="choice-btn grid size-11 shrink-0 cursor-pointer place-items-center rounded-[var(--r)] border text-md font-bold"
             style={active ? {
               borderColor: "var(--accent)",
-              background: "var(--accent-soft)",
+              "--choice-bg": "var(--accent-soft)",
               color: "var(--accent-deep)",
+            } as React.CSSProperties : elsewhere ? {
+              borderStyle: "dashed",
+              color: "var(--ink-3)",
             } : { color: "var(--ink)" }}
           >
             <input
               type="radio"
               name={name}
-              value={option.value}
+              value={entry.id}
               checked={active}
-              onChange={() => onSelect(option.value)}
-              /* Level with the first line of the label, however many lines it
-                 runs to, so a two-line option puts its radio where a one-line
-                 neighbour does rather than halfway down its own text. */
-              className="mt-0.5 size-4 shrink-0 accent-[var(--accent)]"
+              onChange={() => onSelect(entry.id)}
+              className="sr-only"
             />
-            <span className="min-w-0">
-              {option.caseLabel ? (
-                <CaseLabel label={option.caseLabel} reading="always" />
-              ) : (
-                <>
-                  <span lang={english ? undefined : "et"}>
-                    {option.label}
-                  </span>
-                  {option.hint && (
-                    <span className="ml-2 text-xs" style={{ color: "var(--ink-3)" }}>{option.hint}</span>
-                  )}
-                </>
-              )}
-            </span>
+            <span aria-hidden>{letterOf(index)}</span>
+            <span className="sr-only" lang="et">{`${letterOf(index)}, ${entry.label}${elsewhere ? ", already used" : ""}`}</span>
           </label>
         );
       })}
+      {picked && (
+        <span className="ml-1 text-md font-semibold" style={{ color: "var(--accent-deep)" }} lang="et" aria-hidden>
+          {picked.label}
+        </span>
+      )}
     </div>
   );
 }
@@ -1320,82 +1512,195 @@ function RequiredWords({ words, text }: { words: MustUseWord[]; text: string }) 
   const used = words.filter((word) => usesRequiredWord(word, text)).length;
 
   return (
-    <p className="mt-2 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-      <span>
-        Use every one of these{" "}
-        <span className="tnum" style={{ color: used === words.length ? "var(--sky-ink)" : "var(--ink-3)" }}>
+    <div className="mt-3">
+      <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+        Use every one of these, in whatever form your sentence needs.{" "}
+        <span className="tnum font-semibold" style={{ color: used === words.length ? "var(--sky-ink)" : "var(--ink-3)" }}>
           {used} of {words.length} used
         </span>
-      </span>
-      {words.map((word) => {
-        const done = usesRequiredWord(word, text);
-        return (
-          // `wrap`, because this chip carries a full dictionary gloss rather
-          // than a label, and a gloss is as long as the word needs.
-          <Chip key={word.lexemeId} tone={done ? "good" : "neutral"} caseSensitive>
-            <span lang="et">{word.lemma}</span>
-            <span>{word.translation}</span>
-          </Chip>
-        );
-      })}
-    </p>
+      </p>
+      <p className="mt-2 flex flex-wrap items-center gap-2">
+        {words.map((word) => {
+          const done = usesRequiredWord(word, text);
+          return (
+            <Chip key={word.lexemeId} tone={done ? "good" : "neutral"} caseSensitive>
+              {done && <Check size={12} aria-hidden />}
+              <span lang="et">{word.lemma}</span>
+              <span>{word.translation}</span>
+            </Chip>
+          );
+        })}
+      </p>
+    </div>
   );
 }
 
 /** How far a written answer is through the length that carries its marks. */
-function LengthMeter({ text, minWords }: { text: string; minWords: number }) {
+function LengthMeter({ text, minWords, maxWords }: { text: string; minWords: number; maxWords: number | null }) {
   const words = wordsOf(text).length;
   const there = words >= minWords;
+  const over = maxWords !== null && words > maxWords;
+  const target = maxWords ? `${minWords} to ${maxWords}` : `${minWords}`;
   return (
     <>
       <div className="mt-2">
         <Meter
           pct={minWords === 0 ? 100 : Math.min(100, (words / minWords) * 100)}
-          label={`${words} of ${minWords} words written`}
-          tone={there ? "var(--sky)" : "var(--accent)"}
+          label={`${words} of ${target} words written`}
+          tone={over ? "var(--blush)" : there ? "var(--sky)" : "var(--accent)"}
           height={4}
         />
       </div>
-      <p className="mt-2 text-xs" style={{ color: there ? "var(--sky-ink)" : "var(--ink-3)" }}>
-        {words} of {minWords} words{there ? ". That's enough" : ""}. Most of the mark here is for
-        length, and the rest is for using the words above. Half the length still earns about half
-        the marks. No machine judges your Estonian.
+      <p className="mt-2 text-sm" style={{ color: over ? "var(--blush-ink)" : there ? "var(--sky-ink)" : "var(--ink-3)" }}>
+        <span className="tnum">{words}</span> of {target} words.{" "}
+        {over
+          ? `That's over the limit, which costs length marks, as on the real paper. Cut it back to ${maxWords}.`
+          : there ? "That's long enough." : "Half the length still earns about half the length marks."}
       </p>
     </>
   );
 }
 
+/** A business card, for the A2 information transfer. */
+function BusinessCard({ card }: { card: Extract<Exhibit, { layout: "card" }> }) {
+  return (
+    <figure
+      aria-label="The business card"
+      className="@container mt-3 max-w-sm rounded-[var(--r-lg)] border px-5 py-4"
+      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth)" }}
+    >
+      <p className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>{card.name}</p>
+      <p className="mt-0.5 text-md font-semibold" style={{ color: "var(--accent-deep)" }}>
+        <span lang="et">{card.job.lemma}</span>
+        <span className="ml-2 text-sm font-normal" style={{ color: "var(--ink-3)" }}>{card.job.translation}</span>
+      </p>
+      {/* Label beside value where the card has room, and above it where it
+          does not: an e-mail address beside its label on a phone is broken
+          across two lines, and an address is the one thing on a card that
+          has to be copied out exactly. */}
+      <dl className="mt-3 grid grid-cols-1 gap-x-3 text-sm @xs:grid-cols-[auto_1fr] @xs:gap-y-1" style={{ color: "var(--ink-2)" }}>
+        <dt className="mt-1.5 first:mt-0 @xs:mt-0" style={{ color: "var(--ink-3)" }}>Works at</dt>
+        <dd>
+          <span lang="et" style={{ color: "var(--ink)" }}>{card.workplace.lemma}</span>
+          <span className="ml-2" style={{ color: "var(--ink-3)" }}>{card.workplace.translation}</span>
+        </dd>
+        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>Town</dt>
+        <dd style={{ color: "var(--ink)" }}>{card.city}</dd>
+        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>Open</dt>
+        <dd style={{ color: "var(--ink)" }}>{card.hours}</dd>
+        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>E-mail</dt>
+        <dd className="min-w-0" style={{ color: "var(--ink)" }}>{card.email}</dd>
+      </dl>
+    </figure>
+  );
+}
+
+/** Two columns of figures, for the summaries at B2 and C1. */
+function FigureTable({ table }: { table: Extract<Exhibit, { layout: "table" }> }) {
+  return (
+    <figure className="mt-3">
+      <figcaption className="mb-2">
+        <span className="block text-md font-semibold" style={{ color: "var(--ink)" }}>{table.title}</span>
+        <span className="text-sm" style={{ color: "var(--ink-3)" }}>
+          In {table.unit}. These figures are made up for practice, so don&apos;t quote them as facts.
+        </span>
+      </figcaption>
+      <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)" }}>
+        <table className="w-full min-w-[320px] text-sm">
+          <thead>
+            <tr style={{ background: "var(--raised)" }}>
+              <th scope="col" className="px-3 py-2 text-left font-semibold" style={{ color: "var(--ink-2)" }}><span className="sr-only">Group</span></th>
+              {table.columns.map((column) => (
+                <th key={column} scope="col" className="tnum whitespace-nowrap px-3 py-2 text-right font-semibold" style={{ color: "var(--ink-2)" }}>{column}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {table.rows.map((row) => (
+              <tr key={row.label} className="border-t" style={{ borderColor: "var(--rule-soft)" }}>
+                <th scope="row" className="whitespace-nowrap px-3 py-2 text-left font-normal" style={{ color: "var(--ink)" }}>{row.label}</th>
+                {row.values.map((value, i) => (
+                  <td key={i} className="tnum px-3 py-2 text-right" style={{ color: "var(--ink)" }}>{value}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </figure>
+  );
+}
+
 /**
- * The short message, which is the task the real writing part opens with.
+ * Either written task: a brief, or a choice of briefs, and a text to write.
  *
- * `teate koostamine`: a situation, and the points the message has to cover. The
- * points are printed because the real task prints them and somebody practicing
- * this needs to learn to answer all three; they are not marked, and the screen
- * says so rather than implying a machine read them.
+ * Where the real paper offers a choice ("kas a) jutt etteantud teemal, või b)
+ * isiklik kiri"), so does this. Each brief carries its own words, and switching
+ * keeps the text: somebody who has written eighty words and then decides it is
+ * really a letter should not lose them.
  */
-function MessageQuestion({ item, text, onWrite }: {
-  item: Extract<ExamItem, { kind: "message" }>;
-  text: string;
-  onWrite: (next: string) => void;
+function WrittenQuestion({ item, response, onWrite }: {
+  item: Extract<ExamItem, { kind: "message" | "compose" }>;
+  response: Extract<Response, { kind: "composed" }> | null;
+  onWrite: (next: string, variant: number) => void;
 }) {
+  const text = response?.value ?? "";
+  const chosen = Math.min(response?.variant ?? 0, item.variants.length - 1);
+  const brief = item.variants[chosen];
+  if (!brief) return null;
+
   return (
     <div>
-      <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>{item.prompt}</p>
-      <ul className="mt-2 grid gap-1 text-sm" style={{ color: "var(--ink-2)" }}>
-        {item.cover.map((point) => (
+      {item.variants.length > 1 && (
+        <div className="mb-4">
+          <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Choose one to write</p>
+          <div className="@container">
+            <div className="grid gap-2 @md:grid-cols-2" role="radiogroup" aria-label="Which to write">
+              {item.variants.map((variant, index) => (
+                <label
+                  key={variant.label}
+                  className="choice-btn flex min-h-[44px] cursor-pointer items-center gap-3 rounded-[var(--r)] border px-3 py-2.5 text-md font-semibold"
+                  style={chosen === index ? {
+                    borderColor: "var(--accent)",
+                    "--choice-bg": "var(--accent-soft)",
+                    color: "var(--accent-deep)",
+                  } as React.CSSProperties : { color: "var(--ink)" }}
+                >
+                  <input
+                    type="radio"
+                    name={`${item.id}-variant`}
+                    checked={chosen === index}
+                    onChange={() => onWrite(text, index)}
+                    className="size-4 shrink-0 accent-[var(--accent)]"
+                  />
+                  {variant.label}
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>{brief.prompt}</p>
+      {brief.exhibit?.layout === "card" && <BusinessCard card={brief.exhibit} />}
+      {brief.exhibit?.layout === "table" && <FigureTable table={brief.exhibit} />}
+
+      <p className="label-xs mt-4" style={{ color: "var(--ink-3)" }}>Cover every point</p>
+      <ul className="mt-1.5 grid gap-1 text-md" style={{ color: "var(--ink-2)" }}>
+        {brief.cover.map((point) => (
           <li key={point} className="flex items-start gap-2">
-            <Check size={14} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--accent-deep)" }} />
+            <Check size={15} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--accent-deep)" }} />
             {point}
           </li>
         ))}
       </ul>
-      <RequiredWords words={item.mustUse} text={text} />
+      <RequiredWords words={brief.mustUse} text={text} />
 
       <textarea
         value={text}
-        onChange={(event) => onWrite(event.target.value)}
-        rows={5}
-        aria-label={`Write ${item.scenario}`}
+        onChange={(event) => onWrite(event.target.value, chosen)}
+        rows={item.kind === "compose" || item.minWords >= 100 ? 10 : 6}
+        aria-label={`${brief.label}: ${brief.prompt}`}
         placeholder="Write in Estonian."
         className="field-lg mt-3 w-full text-md leading-relaxed"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
@@ -1404,82 +1709,179 @@ function MessageQuestion({ item, text, onWrite }: {
       <div className="under-field">
         <DiacriticBar />
       </div>
-      <LengthMeter text={text} minWords={item.minWords} />
-      <Explain label="Why we don't mark this">
-        Read it back and check you&apos;ve covered all three points yourself. We&apos;d have to
-        judge your Estonian to check it for you, and we never do that.
+      <LengthMeter text={text} minWords={item.minWords} maxWords={item.maxWords} />
+      <Explain label="How this is marked">
+        Six marks in ten are for the length, and four for using the words listed. Read it back and
+        check you&apos;ve covered every point yourself: we&apos;d have to judge your Estonian to
+        check it for you, and nothing here does that. On the real paper an examiner marks how well
+        you wrote, which these marks can&apos;t see.
       </Explain>
     </div>
   );
 }
 
-/** The free writing task. Length and the named words are what carry the marks. */
-function ComposeQuestion({ item, response, onWrite }: {
-  item: Extract<ExamItem, { kind: "compose" }>;
-  response: Extract<Response, { kind: "composed" }> | null;
-  onWrite: (next: string, variant: number) => void;
+/** What the card in front of a speaking task says, by shape. */
+function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
+  /** Unique to the item, for the presentation's radio group. */
+  name: string;
+  card: SpeakCard;
+  /** The presentation topic chosen, of the two. */
+  topic: number;
+  onTopic: (index: number) => void;
+  swapped: boolean;
+  onSwap: () => void;
 }) {
-  const text = response?.value ?? "";
-  const chosen = response?.variant ?? 0;
-  const ref = useRef<HTMLTextAreaElement>(null);
-  const brief = item.variants?.[chosen] ?? item.variants?.[0];
+  const box = "mt-3 rounded-[var(--r-lg)] border px-4 py-3";
+  const boxStyle = { borderColor: "var(--edge)", background: "var(--raised)" };
+  const heading = (text: string) => <p className="label-xs mb-1.5" style={{ color: "var(--ink-3)" }}>{text}</p>;
+  const list = (items: readonly string[], numbered = false) => {
+    const List = numbered ? "ol" : "ul";
+    return (
+      <List className={`${numbered ? "list-decimal" : "list-disc"} grid gap-1 pl-5 text-md`} style={{ color: "var(--ink)" }}>
+        {items.map((line) => <li key={line}>{line}</li>)}
+      </List>
+    );
+  };
 
-  return (
-    <div>
-      {/*
-        The choice the real paper offers: "kas a) jutt etteantud teemal, või
-        b) isiklik kiri". Both are marked identically here, on length and on the
-        words the task named, so picking one changes what you write and not what
-        it is worth. Switching keeps the text: somebody who has written eighty
-        words and then decides it is really a letter should not lose them.
-      */}
-      {item.variants && item.variants.length > 1 && (
-        <div className="mb-3 flex flex-wrap gap-2" role="radiogroup" aria-label="Which to write">
-          {item.variants.map((variant, index) => (
-            <label
-              key={variant.label}
-              className="choice-btn flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[var(--r)] border px-3 py-2 text-sm"
-              style={chosen === index ? {
-                borderColor: "var(--accent)",
-                background: "var(--accent-soft)",
-                color: "var(--accent-deep)",
-              } : { color: "var(--ink)" }}
-            >
-              <input
-                type="radio"
-                name={`${item.id}-variant`}
-                checked={chosen === index}
-                onChange={() => onWrite(text, index)}
-                className="size-4 shrink-0 accent-[var(--accent)]"
-              />
-              {variant.label}
-            </label>
-          ))}
+  switch (card.shape) {
+    case "picture":
+      return (
+        <div className={box} style={boxStyle}>
+          {heading(card.situation)}
+          <p className="flex flex-wrap gap-4 text-5xl leading-none" role="img" aria-label={card.situation}>
+            {card.emoji.map((e) => <span key={e} aria-hidden>{e}</span>)}
+          </p>
         </div>
-      )}
+      );
+    case "idea-card":
+      return (
+        <div className={box} style={boxStyle}>
+          {heading(`Idea card: ${card.about}`)}
+          <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>Ask about</p>
+          {list(card.ask)}
+        </div>
+      );
+    case "agree":
+      return (
+        <>
+          <div className={box} style={boxStyle}>
+            {heading("The examiner asks")}
+            {list(card.questions, true)}
+          </div>
+          <div className={box} style={boxStyle}>
+            {heading("Then decide together")}
+            <p className="text-md" style={{ color: "var(--ink)" }}>{card.situation}</p>
+            <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>The choices: {card.alternatives.join(", ")}.</p>
+          </div>
+        </>
+      );
+    case "phone":
+      return (
+        <div className="grid gap-3 @container">
+          <div className={box} style={boxStyle}>
+            {heading(`Your call: you ring ${card.call}`)}
+            <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>Find out</p>
+            {list(card.find)}
+          </div>
+          <div className={box} style={boxStyle}>
+            {heading(`Their call: you're ${card.answerAs}`)}
+            <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>Answer with these facts</p>
+            {list(card.facts)}
+          </div>
+        </div>
+      );
+    case "talk": {
+      const showing = swapped && card.swap ? card.swap : card;
+      return (
+        <div className={box} style={boxStyle}>
+          {heading("Your topic card")}
+          <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{showing.task}</p>
+          {card.swap && (
+            <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
+              {swapped
+                ? "You've swapped your card. The real paper lets you do that once."
+                : "The real paper lets you swap your card once, if the topic doesn't suit you."}{" "}
+              {!swapped && (
+                <button type="button" onClick={onSwap} className="tap-tint font-semibold underline" style={{ color: "var(--accent-deep)" }}>
+                  Swap it
+                </button>
+              )}
+            </p>
+          )}
+        </div>
+      );
+    }
+    case "debate":
+      return (
+        <>
+          <div className={box} style={boxStyle}>
+            {heading("The examiner asks")}
+            {list(card.questions, true)}
+          </div>
+          <div className={box} style={boxStyle}>
+            {heading("Then debate this")}
+            <p className="text-md" style={{ color: "var(--ink)" }}>{card.situation}</p>
+            <div className="@container mt-3">
+              <div className="grid gap-3 @md:grid-cols-2">
+                {card.sides.map((side) => (
+                  <div key={side.label} className="rounded-[var(--r)] border px-3 py-2.5" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
+                    <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{side.label}</p>
+                    {list(side.points)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      );
+    case "presentation":
+      return (
+        <div className={box} style={boxStyle}>
+          {heading("Choose one topic")}
+          <div className="grid gap-2" role="radiogroup" aria-label="Your topic">
+            {card.topics.map((option, index) => (
+              <label
+                key={option}
+                className="choice-btn flex min-h-[44px] cursor-pointer items-start gap-3 rounded-[var(--r)] border px-3 py-2.5 text-md"
+                style={topic === index ? {
+                  borderColor: "var(--accent)",
+                  "--choice-bg": "var(--accent-soft)",
+                  color: "var(--accent-deep)",
+                } as React.CSSProperties : { color: "var(--ink)" }}
+              >
+                <input type="radio" name={name} checked={topic === index} onChange={() => onTopic(index)} className="mt-1 size-4 shrink-0 accent-[var(--accent)]" />
+                <span className="min-w-0">{option}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      );
+    case "discussion":
+      return (
+        <div className={box} style={boxStyle}>
+          {heading("The question")}
+          <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{card.question}</p>
+          <p className="mb-1.5 mt-3 text-sm" style={{ color: "var(--ink-2)" }}>Thoughts on the card</p>
+          {list(card.thoughts)}
+        </div>
+      );
+  }
+}
 
-      <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>
-        {brief?.prompt ?? item.prompt}
-      </p>
-      <RequiredWords words={item.mustUse} text={text} />
+/** The questions an examiner asks once a candidate has spoken, by shape. */
+function followUpsOf(card: SpeakCard, swapped: boolean): string[] {
+  switch (card.shape) {
+    case "picture": return card.questions;
+    case "talk": return [swapped && card.swap ? card.swap.followUp : card.followUp];
+    case "presentation": return card.followUps;
+    default: return [];
+  }
+}
 
-      <textarea
-        ref={ref}
-        value={text}
-        onChange={(event) => onWrite(event.target.value, chosen)}
-        rows={10}
-        aria-label={`Write about ${item.topic}`}
-        placeholder="Write in Estonian."
-        className="field-lg mt-3 w-full text-md leading-relaxed"
-        style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
-        lang="et"
-      />
-      <div className="under-field">
-        <DiacriticBar />
-      </div>
-      <LengthMeter text={text} minWords={item.minWords} />
-    </div>
-  );
+function formatSeconds(seconds: number): string {
+  if (seconds === 60) return "a minute";
+  if (seconds === 90) return "a minute and a half";
+  return seconds > 60 && seconds % 60 === 0 ? `${seconds / 60} minutes` : `${seconds} seconds`;
 }
 
 /** Record, listen back, mark yourself. Nothing here scores a recording. */
@@ -1490,9 +1892,23 @@ function SpeakQuestion({ item, marks, response, onMark }: {
   onMark: (next: Response) => void;
 }) {
   // One criterion per mark, so ticking six of eight really is six marks of eight.
-  const criteria = speakingCriteria(marks);
+  const criteria = speakingCriteria(item.shape, marks);
   const ticked = response?.criteria ?? criteria.map(() => false);
   const recorded = response?.recorded ?? false;
+  const [topic, setTopic] = useState(0);
+  const [swapped, setSwapped] = useState(false);
+  const [notes, setNotes] = useState("");
+  /** Epoch ms the preparation ends, once it has been started. */
+  const [prepEnds, setPrepEnds] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+  const preparing = prepEnds !== null && now < prepEnds;
+  const followUps = followUpsOf(item.card, swapped);
+
+  useEffect(() => {
+    if (prepEnds === null) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 500);
+    return () => window.clearInterval(timer);
+  }, [prepEnds]);
 
   const update = (next: Partial<{ recorded: boolean; criteria: boolean[] }>) => {
     onMark({
@@ -1505,22 +1921,81 @@ function SpeakQuestion({ item, marks, response, onMark }: {
   return (
     <div>
       <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>{item.prompt}</p>
-      <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-        Aim for about {item.seconds} seconds.
-      </p>
-      <p className="mt-2 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-        <span>Ideas to talk about:</span>
-        {item.ideas.map((idea) => (
-          <Chip key={idea.lexemeId} caseSensitive>
-            <span lang="et">{idea.lemma}</span>
-            <span>{idea.translation}</span>
-          </Chip>
-        ))}
-      </p>
+      <SpeakCardView name={`${item.id}-topic`} card={item.card} topic={topic} onTopic={setTopic} swapped={swapped} onSwap={() => setSwapped(true)} />
+
+      {item.ideas.length > 0 && (
+        <div className="mt-3">
+          <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>Words you might use</p>
+          <p className="flex flex-wrap items-center gap-2">
+            {item.ideas.map((idea) => (
+              <Chip key={idea.lexemeId} caseSensitive>
+                <span lang="et">{idea.lemma}</span>
+                <span>{idea.translation}</span>
+              </Chip>
+            ))}
+          </p>
+        </div>
+      )}
+
+      {/*
+        The preparation the B2 and C1 papers give, with notes allowed, as they
+        are on the day. The notes stay on this screen and go nowhere: nothing
+        stores them and nothing reads them.
+      */}
+      {item.prepSeconds > 0 && (
+        <div className="mt-4 rounded-[var(--r-lg)] border px-4 py-3" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>
+              {prepEnds === null
+                ? `${formatSeconds(item.prepSeconds)} to prepare`
+                : preparing
+                  ? <span role="timer" className="tnum">{formatRemaining(Math.max(0, Math.round((prepEnds - now) / 1000)))} to prepare</span>
+                  : "Time to speak"}
+            </p>
+            {prepEnds === null && (
+              <Button variant="secondary" size="sm" onClick={() => { setNow(Date.now()); setPrepEnds(Date.now() + item.prepSeconds * 1000); }}>
+                <Clock size={14} aria-hidden /> Start preparing
+              </Button>
+            )}
+          </div>
+          <label className="mt-3 block">
+            <span className="text-sm" style={{ color: "var(--ink-2)" }}>
+              Notes, if you want them. You may use notes on the real day too. These aren&apos;t kept.
+            </span>
+            <textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              rows={3}
+              className="field mt-1.5 w-full text-md"
+              style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
+              lang="et"
+            />
+          </label>
+          <p className="sr-only" aria-live="polite">{prepEnds !== null && !preparing ? "Preparation time is over. Time to speak." : ""}</p>
+        </div>
+      )}
 
       <div className="mt-4">
+        <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>
+          Speak for about {formatSeconds(item.seconds)}.
+        </p>
         <Recorder targetSeconds={item.seconds} onRecorded={() => update({ recorded: true })} />
       </div>
+
+      {recorded && followUps.length > 0 && (
+        <div className="mt-4 rounded-[var(--r-lg)] border px-4 py-3" style={{ borderColor: "var(--edge)", background: "var(--raised)" }}>
+          <p className="label-xs mb-1.5" style={{ color: "var(--ink-3)" }}>
+            Then the examiner asks
+          </p>
+          <ol className="grid list-decimal gap-1 pl-5 text-md" style={{ color: "var(--ink)" }}>
+            {followUps.map((q) => <li key={q}>{q}</li>)}
+          </ol>
+          <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>Answer out loud. You can record your answer too.</p>
+          <div className="mt-3">
+            <Recorder targetSeconds={30} />
+          </div>
+        </div>
+      )}
 
       <fieldset className="mt-5">
         <legend className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
@@ -1530,9 +2005,9 @@ function SpeakQuestion({ item, marks, response, onMark }: {
           {criteria.map((criterion, index) => (
             <label
               key={criterion}
-              className="choice-btn flex min-h-[44px] cursor-pointer items-center gap-3 rounded-[var(--r)] px-3 py-2 text-sm"
+              className="choice-btn flex min-h-[44px] cursor-pointer items-center gap-3 rounded-[var(--r)] px-3 py-2 text-md"
               /* Chosen is accent here as it is on every other option in this
-                 paper: a tick is a selection, and mint is what a marked answer
+                 paper: a tick is a selection, and sky is what a marked answer
                  wears, which nothing on the spoken part can be (ADR-018). */
               style={ticked[index]
                 ? { "--choice-bg": "var(--accent-soft)", borderColor: "var(--accent)", color: "var(--accent-deep)" } as React.CSSProperties
@@ -1554,7 +2029,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
           ))}
         </div>
         {!recorded && (
-          <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+          <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
             Record something first, then tick what you managed. There&apos;s nothing to judge
             until you&apos;ve spoken.
           </p>

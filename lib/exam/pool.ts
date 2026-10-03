@@ -25,11 +25,16 @@ export function eligibleLevels(level: ExamLevel): string[] {
 }
 
 /**
- * Whether an entry may be in the pool. From B1 up an ungraded entry is in, since
- * the untagged tail is mostly above B1; below it only a graded word is.
+ * Whether an entry may be in the pool. An ungraded entry is in at C1 alone.
+ *
+ * It was in from B1, on the argument that the untagged tail is mostly above
+ * B1, and the untagged tail is the Wiktionary expansion's: rare words, terms
+ * of art and usages a lexicographer recorded for a reader of Estonian rather
+ * than a learner of it. A B1 paper read `ajatolla` and a usage about medieval
+ * tax law. The C1 paper is the one that may meet a word nobody banded.
  */
 export function eligibleFor(level: ExamLevel, cefr: string | null): boolean {
-  if (cefr === null) return (RANK[level] ?? 2) >= RANK.B1!;
+  if (cefr === null) return (RANK[level] ?? 2) >= RANK.C1!;
   return eligibleLevels(level).includes(cefr);
 }
 
