@@ -9287,10 +9287,20 @@ check("the other side talks at the run's band, and every composer says which ban
     code("app/api/scene/route.ts"), /sceneContext\(scene\.id, level\)/,
     "the scene route builds its context for no band, so the bank's pitched lines are never read first",
   );
+  /*
+    And then plainer bands, nearest first, and a harder one only where nothing
+    else exists. "Never another band's" held for every scene whose net is the
+    unpitched rows and failed the one drafted band by band: with no model, a B2
+    learner in the clothes shop read English stage directions on every beat.
+  */
   const scripted = code("lib/scenes/scripted.ts");
   assert.match(
-    scripted, /rows\.filter\(\(row\) => row\.level === level\),\s*\.\.\.rows\.filter\(\(row\) => row\.level === undefined\)/,
-    "scriptedFor no longer leads with the run's own band and falls to the unpitched rows",
+    scripted, /const harder = pool\.length === 0 \? LEVELS\.slice\(at \+ 1\)\.flatMap\(band\) : \[\];/,
+    "scriptedFor reaches a harder band's line while its own, the unpitched or a plainer one exists",
+  );
+  assert.match(
+    scripted, /\.\.\.band\(level\),\s*\.\.\.rows\.filter\(\(row\) => row\.level === undefined\),\s*\.\.\.LEVELS\.slice\(0, Math\.max\(0, at\)\)\.reverse\(\)\.flatMap\(band\),/,
+    "scriptedFor no longer leads with the run's own band, then the unpitched rows, then plainer bands nearest first",
   );
   const draft = code("scripts/draft-lines.ts");
   assert.match(draft, /fitsPitch\(/, "the drafter no longer refuses a pitched line that runs past its band");

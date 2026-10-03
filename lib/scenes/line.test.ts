@@ -274,6 +274,17 @@ describe("the scripted rung", () => {
     expect(none.provenance).toBe("fallback");
   });
 
+  it("and the one said again is the one said last, not the first in the rotation", async () => {
+    // The phone shop said both of its lines once, and repeated the older one to somebody who had just heard the newer.
+    const bank = ["Jah, meil on see.", "Jah, see on meil siin."];
+    for (const rotate of [0, 1, 2, 3]) {
+      const line = await sceneLine(request({
+        scripted: bank, rotate, used: new Set(["Tere!", ...bank]), compose: async () => null,
+      }));
+      expect(line).toEqual({ text: "Jah, see on meil siin.", provenance: "again" });
+    }
+  });
+
 });
 
 /**

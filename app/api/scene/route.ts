@@ -26,7 +26,7 @@ import { ASKS_ON } from "@/lib/scenes/curveballs";
 import { asksSlower, saysGoodbye, LEAVING } from "@/lib/scenes/casual";
 import { isSpokenEstonian, sceneLine, unwrapLine, type SpokenLine } from "@/lib/scenes/line";
 import {
-  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, heldBack, heldNumbers, sceneMovedOn, replyFor,
+  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, heldBack, heldNumbers, sceneMovedOn, replyFor, timesAnswered,
   stageFor, wantsAsideFor, wantsFreshLine,
 } from "@/lib/scenes/reply";
 import { dealtNumbers } from "@/lib/scenes/props";
@@ -507,7 +507,7 @@ export async function POST(request: Request) {
     bank still held "take it tonight".
   */
   const bank = (id: string | undefined): readonly string[] =>
-    id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators) : [];
+    id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators, context.scene) : [];
   const fresh = (id: string | undefined) => bank(id).filter((text) => !used.has(text));
   const asking = {
     asked: askedNow,
@@ -757,6 +757,8 @@ export async function POST(request: Request) {
       or not the machine spent a try on it.
     */
     tries: answered ? state.turns.filter((turn) => turn.beatId === answered.id).length : 0,
+    // And how often they have heard the line itself, which a question carried on behind a curveball reaches first (`timesAnswered`).
+    answeredTimes: timesAnswered(state.turns, heard),
     /*
       The beat's other banked lines, so a question that has already been put
       twice and narrowed once can be put a different way rather than a fourth

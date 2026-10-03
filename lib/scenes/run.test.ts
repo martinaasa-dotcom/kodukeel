@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SCENES, sceneById } from "./catalogue";
+import { BANK } from "./bank";
 import { BUDGETS, curveballById, type Difficulty } from "./curveballs";
 import { PERSONAS, patienceFor, personaById, voicesAreReal } from "./personas";
 import { curveballAt, minutesFor, planRun, RECENCY_WINDOW, type Recency } from "./run";
@@ -232,5 +233,28 @@ describe("where a curveball may stand", () => {
       }
     }
     expect(constrained).toBeGreaterThan(100);
+  });
+
+  /*
+    A mishearing is of something just said. It stood straight after the
+    greeting and asked about milk nobody had mentioned, so a curveball whose
+    lines each name the beat they are about (`ScriptedLine.about`) stands only
+    straight after one of those beats, over every scene and many runs.
+  */
+  it("and a mishearing only straight after a beat one of its lines is about", () => {
+    let drawn = 0;
+    for (const scene of SCENES.filter((s) => s.curveballs.includes("misheard"))) {
+      const about = new Set(BANK.filter((row) => row.scene === scene.id && row.beat === "hurdle:misheard").map((row) => row.about));
+      for (let i = 0; i < 80; i++) {
+        for (const difficulty of ["ordinary", "bad"] as Difficulty[]) {
+          const run = planRun(scene, `misheard-${i}`, "B2", difficulty);
+          for (const one of run.curveballs.filter((c) => c.id === "misheard")) {
+            drawn++;
+            expect(about.has(scene.beats[one.at - 1]?.id), `${scene.id}: misheard in front of ${scene.beats[one.at]?.id}`).toBe(true);
+          }
+        }
+      }
+    }
+    expect(drawn).toBeGreaterThan(50);
   });
 });

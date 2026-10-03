@@ -216,6 +216,14 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     move: "confirm",
     cost: 3,
     stands: "You misheard them once. Once they correct you, use their word, never the one you misheard.",
+    /*
+      A MISHEARING NEEDS SOMETHING SAID WORTH MISHEARING. Placed anywhere from
+      the second beat, it stood straight after the greeting, and the friend on
+      the phone answered `Tere!` with `Kas sa ostad piima või vett?`, a word
+      nobody had said yet. Each of its banked lines says which beat it is
+      about (`ScriptedLine.about`), so it stands only straight after one of
+      those (`fitsIn`) and says a line about the beat just answered.
+    */
     says: "They've misheard you and caught a different word that sounds like yours.",
     out: "Tell them no, that's not it, and say your word again.",
     needs: [{ kind: "negation" }],
@@ -480,7 +488,8 @@ export interface DrawnCurveball {
  *
  * `notBefore` is the first beat a curveball may stand in front of, from its
  * `follows` and the scene's own beats (`run.ts`); one that has nowhere left to
- * go is passed over rather than ending the draw.
+ * go is passed over rather than ending the draw. `fits` narrows that to the
+ * beats its lines can be said in front of (`fitsIn`), on the same terms.
  */
 export function drawCurveballs(
   admits: readonly CurveballId[],
@@ -491,6 +500,7 @@ export function drawCurveballs(
   avoid: ReadonlySet<string> = new Set(),
   prefer: readonly CurveballId[] = [],
   notBefore: (id: CurveballId) => number = () => 1,
+  fits: (id: CurveballId, at: number) => boolean = () => true,
 ): DrawnCurveball[] {
   const gap = 2;
   const pool = CURVEBALLS
@@ -536,7 +546,7 @@ export function drawCurveballs(
     if (candidate.cost >= DEAR && dear >= 1 && budget < ORDINARY) continue;
 
     const from = Math.max(1, notBefore(candidate.id));
-    const at = placeFor(beats, drawn, gap, random, from);
+    const at = placeFor(beats, drawn, gap, random, from, (one) => fits(candidate.id, one));
     if (at === null) {
       if (from > 1) continue;
       break;
@@ -559,11 +569,12 @@ function placeFor(
   gap: number,
   random: () => number,
   from = 1,
+  fits: (at: number) => boolean = () => true,
 ): number | null {
   const free: number[] = [];
   // From 1, never 0: the greeting is answered before anything goes wrong.
   for (let at = from; at < beats; at += 1) {
-    if (drawn.every((d) => Math.abs(d.at - at) > gap)) free.push(at);
+    if (fits(at) && drawn.every((d) => Math.abs(d.at - at) > gap)) free.push(at);
   }
   if (free.length === 0) return null;
   return free[Math.floor(random() * free.length)] ?? null;

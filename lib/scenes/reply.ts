@@ -37,14 +37,25 @@ import { coachFor, NUDGE_AFTER } from "./coach";
 import type { Check } from "./gate";
 import { fallbackLine, type SpokenLine } from "./line";
 import { caseKeyFor, words, type Lexicon } from "./lexicon";
+import { BANK } from "./bank";
 
 /** How long a line may be and still be said again word for word (see `recital`). */
 export const REPEAT_WORDS = 10;
+
+/**
+ * How many of these turns were answering `heard`, which is `answeredTimes`.
+ * One reading for the route and both harnesses, so the count a learner is
+ * asked by and the count a sweep measures cannot differ.
+ */
+export function timesAnswered(turns: readonly { readonly heard?: string }[], heard: string | null): number {
+  if (!heard) return 0;
+  return turns.filter((turn) => turn.heard === heard).length;
+}
 import { propBySlot, restated, type DrawnProp, type RoleCard } from "./props";
 import { CURVEBALLS, curveballById } from "./curveballs";
 import type { Response, SceneState, TurnRecord } from "./state";
 import type { TurnReading } from "./turn";
-import { leafNeeds, type BeatSpec, type SaysPart } from "./types";
+import { leafNeeds, type BeatSpec, type SaysPart, type SceneSpec } from "./types";
 
 export interface ReplyInput {
   /** The beat the other side speaks on now, after the turn was read. Undefined once the scene is over. */
@@ -176,6 +187,14 @@ export interface ReplyInput {
    * mid-conversation. Absent on the opening line.
    */
   readonly tries?: number;
+  /**
+   * How many of this run's turns, the one just taken included, were answering
+   * the very line that would be said again (`timesAnswered`). Not `tries`,
+   * which counts turns on one beat: a question carried on behind a curveball
+   * (`hurdle.then`) is answered on the curveball's turns, so the learner can
+   * have heard it three times while the beat behind it has had one turn.
+   */
+  readonly answeredTimes?: number;
   /**
    * The beat's question narrowed to two, where one could be built
    * (`lib/scenes/choice.ts`). Offered instead of asking the same thing again,
@@ -587,12 +606,17 @@ export function cardAfterHurdles(card: RoleCard | null, state: Pick<SceneState, 
  * have changed (`CurveballSpec.unsays`). A line naming an unsaid word is held
  * back unless the line also carries a negator, since `Täna me seda ei tee.`
  * agrees with "not today" and `Võtke seda täna õhtul.` contradicts it.
+ *
+ * Handed the scene, it also keeps a mishearing to what was just said
+ * (`aboutWhatWasSaid`). Every caller hands it over: the route and both
+ * harnesses pick a line through here, so the rule cannot hold in one of them.
  */
 export function sayableAfterHurdles(
   lines: readonly string[],
   state: Pick<SceneState, "hurdle" | "hurdles">,
   lexicon: Lexicon,
   negators: ReadonlySet<string>,
+  scene?: SceneSpec,
 ): readonly string[] {
   const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
   const unsaid = new Set<string>();
@@ -602,11 +626,44 @@ export function sayableAfterHurdles(
       for (const form of lexicon.byLemma.get(lemma) ?? []) unsaid.add(form);
     }
   }
-  if (unsaid.size === 0) return lines;
-  return lines.filter((line) => {
+  const kept = unsaid.size === 0 ? lines : lines.filter((line) => {
     const said = words(line);
     return !said.some((word) => unsaid.has(word)) || said.some((word) => negators.has(word));
   });
+  return scene ? aboutWhatWasSaid(kept, state, scene) : kept;
+}
+
+/**
+ * A MISHEARING IS OF SOMETHING ALREADY SAID. A curveball whose banked lines
+ * each say which beat they are about (`ScriptedLine.about`) says, while it
+ * stands, a line about the beat just answered: the corner shop's misheard
+ * lines are about where the learner is going and about what they bought, and
+ * said in front of the wrong beat one asked about milk nobody had mentioned.
+ * The planner stands such a curveball only straight after one of those beats
+ * (`fitsIn`), so the first choice always has a line; a run planned before that
+ * falls back to a line about a beat already behind it, and then to the lot.
+ * Lines that are not that curveball's own are left as they are.
+ */
+function aboutWhatWasSaid(
+  lines: readonly string[],
+  state: Pick<SceneState, "hurdle">,
+  scene: SceneSpec,
+): readonly string[] {
+  const hurdle = state.hurdle;
+  if (!hurdle) return lines;
+  const rows = BANK.filter((row) => row.scene === scene.id && row.beat === `hurdle:${hurdle.id}` && row.about);
+  if (rows.length === 0) return lines;
+  const aboutOf = new Map(rows.map((row) => [row.text, row.about!]));
+  const behind = scene.beats.slice(0, hurdle.beat).map((beat) => beat.id);
+  const others = lines.filter((line) => !aboutOf.has(line));
+  for (const fits of [
+    (about: string) => about === behind.at(-1),
+    (about: string) => behind.includes(about),
+  ]) {
+    const own = lines.filter((line) => aboutOf.has(line) && fits(aboutOf.get(line)!));
+    if (own.length > 0) return [...own, ...others];
+  }
+  return lines;
 }
 
 /**
@@ -622,6 +679,12 @@ export function sayableAfterHurdles(
  * question again. A person answers the question and then asks again. What is
  * different on a miss is what may answer it, which is `asideFor`'s `missed`:
  * a fact off the card, and never the shrug.
+ *
+ * AND ON THE TURN THEIR PATIENCE RUNS OUT. Giving up on a beat is not a
+ * reason to ignore a direct question: the same learner asked "you said the
+ * price is different, what is it now?" on the turn the clerk gave up on how
+ * they were paying, and was handed `Kaart?` and `Nägemist!`, the price never
+ * said. The price is said, and the goodbye waits for them (`replyFor`).
  */
 export function wantsAsideFor(
   asked: string | null,
@@ -633,7 +696,7 @@ export function wantsAsideFor(
   if (!asked) return false;
   if (response === "answer" || response === "counter" || landed) return true;
   const missed = reading === "offtarget" || reading === "incomplete";
-  return missed && (response === "narrow" || response === "repeat");
+  return missed && (response === "narrow" || response === "repeat" || response === "moveOn");
 }
 
 /**
@@ -1034,6 +1097,19 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   // And a goodbye that was waiting is said for the first time, as itself, not as said again.
   const sayAgainLine = (): SpokenLine => (again === heard || !line ? { text: again!, provenance: "again" } : line);
 
+  /*
+    How often this question has been put to them, counted on the line as well
+    as the beat, since a question waiting behind a curveball is heard on the
+    curveball's turns: in the shop, asked whether they wanted to try it on, a
+    learner heard the question with the hurry, again after a miss, again after
+    asking for it slower, and a fourth time after one more miss, on a beat that
+    had had a single turn. Past `NUDGE_AFTER` the question is put another way
+    the bank holds (`another`, below), on a turn that was lost as on one that
+    missed.
+  */
+  const asked = Math.max(input.tries ?? 0, input.answeredTimes ?? 0);
+  const otherWay = asked >= NUDGE_AFTER && again === heard ? input.others?.[0] ?? null : null;
+
   if (response === "help") {
     const word = input.offer;
     const offered = word ? { ...reaction(word, "?"), provenance: "offered" as const } : null;
@@ -1045,7 +1121,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     */
     if (composed) out.push(line!);
     else if (again && !(offered && beat?.move === "close" ? isFarewell(offered.text, beat) : again === offered?.text)) {
-      out.push(sayAgainLine());
+      out.push(otherWay ? { text: otherWay, provenance: "scripted" } : sayAgainLine());
     } else if (!again && beat) out.push(stage(stageFor(beat, card)));
     return out;
   }
@@ -1332,7 +1408,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     else if (input.hurdle.line && input.hurdle.line.provenance !== "fallback") out.push(input.hurdle.line);
     else out.push(stage(stageFor(input.hurdle.beat, card)));
     const last = out[out.length - 1];
-    if (input.hurdle.then && last && last.provenance !== "again" && last.provenance !== "composed" && last.text !== input.hurdle.then) {
+    /*
+      AND THE GOODBYE IS NOT CARRIED ON. Somebody in a hurry still asks the
+      question that was waiting, but at the closing beat what was waiting is
+      the goodbye, and said behind the curveball it ends the conversation
+      before the learner has answered either: `Räägi kohe. Head aega!` from a
+      friend on the phone, then `Head aega!` again after the learner asked them
+      to slow down, and a third time at the end. The goodbye waits until the
+      curveball is dealt with, as it waits for a question on the way out.
+    */
+    if (input.hurdle.then && beat.move !== "close" && last && last.provenance !== "again"
+        && last.provenance !== "composed" && last.text !== input.hurdle.then) {
       out.push({ text: input.hurdle.then, provenance: "scripted" });
     }
     if (response === "english" && (input.translates || input.askedForEnglish)) {
@@ -1435,7 +1521,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     the bank holds only the one line, `others` is empty and the behaviour is
     exactly what it was: this can never invent a way of asking.
   */
-  const another = sayAgain && (input.tries ?? 0) >= NUDGE_AFTER ? input.others?.[0] ?? null : null;
+  const another = sayAgain ? otherWay : null;
   /*
     AND A LINE A MODEL WROTE FOR THIS TURN BEATS THE TURN BEFORE IT, ALWAYS.
 
@@ -1459,8 +1545,18 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     own line for this beat, the scene's line is said instead: the same question,
     short, which is what a person who was not answered actually says.
   */
+  /*
+    And only where the scene's line really is the short one. The shop's two
+    ways of asking what somebody wants are eleven and twelve words, so each was
+    "too long to say twice" and swapped for the other, and the question came
+    back in an older wording than the one the learner had just heard, three
+    times in four turns. A substitute no shorter than the line it replaces is
+    the same recital in different words; past that, `another` and the verbatim
+    repeat below decide, as for any other line.
+  */
   const recital = sayAgain && again !== null && words(again).length > REPEAT_WORDS
-    && line !== null && line.provenance !== "fallback" && line.text !== again;
+    && line !== null && line.provenance !== "fallback" && line.text !== again
+    && words(line.text).length < words(again).length;
   if (fresh) {
     out.push(fresh);
   } else if (recital) {

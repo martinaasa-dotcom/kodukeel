@@ -9723,9 +9723,25 @@ verdict is the shape to look for in any route that asks a model a yes-or-no ques
 not there.** On 2026-10-02 the harnesses used up the Flash model's daily allowance (§77), so for the
 rest of that day the scenes composed on the Lite model and then fell to the bank. `npm run
 sweep:fallback` plays every scene with no model, against eight scripted learners, with every admitted
-curveball raised at every beat: 5,040 conversations, fourteen detectors for what nobody does. It went
-from 2,488 flags to 9, each read and left. A critic round over that path, judged by the Lite model so
-it spends none of the composer's allowance, found the rest:
+curveball raised wherever the planner can stand it: 4,456 conversations a band, fourteen detectors for
+what nobody does. It went from 2,488 flags to none, at every band from A1 to C1. The last nine were
+faults rather than noise, and so was what the other bands showed:
+- a curveball at the goodbye carried the goodbye straight on, before the learner had answered;
+- a long line was "shortened" to another long one in an older wording, and the fourth asking counted
+  turns on the beat rather than times the line was heard (`timesAnswered`);
+- the clothes shop's "in a hurry" lines told the learner to pay at the first question, so a `faster`
+  line may name nothing a later beat asks for;
+- its lines are pitched band by band, so at B2 a learner read English on every beat: `scriptedFor`
+  falls to plainer bands, and a harder one only where nothing else exists;
+- a mishearing stood after the greeting and asked about milk nobody had mentioned: its rows say which
+  beat they are about (`ScriptedLine.about`), the planner stands it only after one (`fitsIn`), and the
+  line said is about the beat just answered;
+- the clothes shop's till answered with a banked `kakskümmend eurot` whatever the card dealt: a beat
+  that says a fact off the card answers with that fact, and no banked line may name an amount;
+- a question asked on the turn the other side gave up on a beat went unanswered (`wantsAsideFor`).
+
+A critic round over that path, judged by the Lite model so it spends none of the composer's
+allowance, found the rest:
 - a reference number or a clock time read as a price;
 - the time read back whenever "kell" appeared anywhere;
 - the shrug said four times in one conversation, and said to yes-or-no questions it does not answer:

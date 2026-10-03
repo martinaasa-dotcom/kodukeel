@@ -6,6 +6,8 @@ import { POOL } from "../../scripts/lib/sceneDraft";
 import { passes, gateFor, runGate } from "./gate";
 import { words } from "./lexicon";
 import { curveballById } from "./curveballs";
+import { fitsIn, notBeforeIn } from "./run";
+import { askedLemmas } from "./types";
 import { answerBeatId, beatById, scriptable, scriptedFor, sceneBeats } from "./scripted";
 import { answerForms, keylessContext, lacksFiniteVerb } from "../../scripts/lib/sceneDraft";
 import { sayableAfterHurdles } from "./reply";
@@ -91,6 +93,25 @@ describe("the scripted bank", () => {
     names, since `scriptedFor` reads rows by it and a typo there is a row no
     run ever says.
   */
+  /*
+    A price is dealt per run and said off the card, so a banked line naming one
+    is wrong on every run that dealt anything else. "Holds no digit" could not
+    see it spelled out: the clothes shop's till answered `See maksab
+    kakskümmend eurot.` to a learner whose card said 33.
+  */
+  it("names no amount of money, since every price is dealt per run", () => {
+    let checked = 0;
+    for (const scene of SCENES) {
+      const { lexicon } = keylessContext(scene);
+      const euro = new Set([...(lexicon.byLemma.get("euro") ?? []), "euro", "eurot"].map((form) => form.toLowerCase()));
+      for (const row of BANK.filter((r) => r.scene === scene.id)) {
+        checked += 1;
+        expect(words(row.text).some((word) => euro.has(word)), `${scene.id}/${row.beat}: "${row.text}" names an amount of money`).toBe(false);
+      }
+    }
+    expect(checked).toBeGreaterThan(300);
+  });
+
   it("holds every pitched row inside its own band, and names only bands the course has", () => {
     for (const row of BANK) {
       if (row.level === undefined) continue;
@@ -99,18 +120,34 @@ describe("the scripted bank", () => {
     }
   });
 
-  it("reads a run's own band first and never another band's", () => {
-    const shop = sceneById("poodi-piima")!;
-    const beat = shop.beats[1]!;
-    const all = scriptedFor(shop, beat);
-    for (const level of LEVELS) {
-      const mine = scriptedFor(shop, beat, level);
-      const rows = BANK.filter((row) => row.scene === shop.id && row.beat === beat.id);
-      const own = rows.filter((row) => row.level === level).map((row) => row.text);
-      const unpitched = rows.filter((row) => row.level === undefined).map((row) => row.text);
-      expect(mine).toEqual([...own, ...unpitched]);
-      for (const text of mine) expect(all).toContain(text);
+  /*
+    A run's own band leads, then the unpitched net, then plainer bands nearest
+    first, and a harder band only for a beat nothing else holds a line for.
+    The clothes shop is the scene that needed the last two: drafted band by
+    band with almost no unpitched rows, it had nothing at B2 or C1, and with
+    no model a learner there read English stage directions on every beat.
+  */
+  it("reads a run's own band first, then the net, then plainer bands, and a harder one only where nothing else exists", () => {
+    let harderUsed = 0;
+    for (const scene of SCENES) {
+      for (const beat of sceneBeats(scene)) {
+        const rows = BANK.filter((row) => row.scene === scene.id && row.beat === beat.id);
+        if (!scriptable(scene, beat)) continue;
+        for (const level of LEVELS) {
+          const at = LEVELS.indexOf(level);
+          const own = rows.filter((row) => row.level === level).map((row) => row.text);
+          const unpitched = rows.filter((row) => row.level === undefined).map((row) => row.text);
+          const plainer = LEVELS.slice(0, at).reverse().flatMap((one) => rows.filter((row) => row.level === one).map((row) => row.text));
+          const harder = LEVELS.slice(at + 1).flatMap((one) => rows.filter((row) => row.level === one).map((row) => row.text));
+          const mine = scriptedFor(scene, beat, level);
+          const before = [...own, ...unpitched, ...plainer];
+          expect(mine, `${scene.id}/${beat.id} at ${level}`).toEqual(before.length > 0 ? before : harder);
+          if (before.length === 0 && harder.length > 0) harderUsed += 1;
+        }
+      }
     }
+    // A harder band's line is the last resort; if it becomes the ordinary case, the bank needs plainer lines.
+    expect(harderUsed).toBeLessThan(5);
   });
 
   it("says who drafted each line and when", () => {
@@ -171,10 +208,13 @@ describe("the scripted bank", () => {
         if (beat.patience <= 1) continue;
         if (beat.topic.some((lemma) => phrases.has(lemma)) || beat.says) continue;
         if (!scriptable(scene, beat) || beat.awaits) continue;
-        expect(
-          scriptedFor(scene, beat).length,
-          `${scene.id}/${beat.id} is asked ${beat.patience} times and has one line, so the second ask repeats it verbatim`,
-        ).toBeGreaterThan(1);
+        // At every band a run can be at, since a run reads its own band's lines and not the whole bank's.
+        for (const level of LEVELS) {
+          expect(
+            scriptedFor(scene, beat, level).length,
+            `${scene.id}/${beat.id} is asked ${beat.patience} times and has one line at ${level}, so the second ask repeats it verbatim`,
+          ).toBeGreaterThan(1);
+        }
       }
     }
   });
@@ -236,10 +276,13 @@ describe("the scripted bank", () => {
           `sceneBeats` makes no answer beat for those, so there is nothing
           left here to waive.
         */
-        expect(
-          scriptedFor(scene, beat).length,
-          `${scene.id}/${beat.id} has no line, so keyless it is English`,
-        ).toBeGreaterThan(0);
+        // At every band: a beat whose lines are all another band's used to be English at this one.
+        for (const level of LEVELS) {
+          expect(
+            scriptedFor(scene, beat, level).length,
+            `${scene.id}/${beat.id} has no line at ${level}, so keyless it is English`,
+          ).toBeGreaterThan(0);
+        }
       }
     }
   });
@@ -283,5 +326,62 @@ describe("the lines a curveball leaves standing", () => {
       }
     }
     expect(checked).toBeGreaterThan(20);
+  });
+});
+
+/*
+  A CURVEBALL'S LINE IS SAID WHEREVER THE CURVEBALL CAN STAND, so it may not
+  talk about what the conversation has not reached. The clothes shop's "in a
+  hurry" lines all said to put the clothes down and pay, and the corner shop's
+  two drafted ones to take the bread and milk; `faster` can stand in front of
+  the first question, where nothing has been chosen and nothing is being paid
+  for. A mishearing is held to the same rule at runtime instead
+  (`sayableAfterHurdles`), since its lines are about one beat each by design,
+  and what is asserted for it is that wherever it can stand one is left.
+*/
+describe("the lines a curveball says while it stands", () => {
+  it("say only that they are in a hurry, which is true in front of any beat", () => {
+    let checked = 0;
+    for (const scene of SCENES.filter((s) => s.curveballs.includes("faster"))) {
+      const { lexicon } = keylessContext(scene);
+      const from = notBeforeIn(scene)("faster");
+      const reached = new Set(scene.beats.slice(0, from + 1).flatMap((beat) => askedLemmas(scene, beat)));
+      // Not the goodbye: `Head aega!` holds `aega`, and a hurry has nothing to do with the farewell.
+      const later = scene.beats.slice(from + 1).filter((beat) => beat.move !== "close")
+        .flatMap((beat) => askedLemmas(scene, beat)).filter((lemma) => !reached.has(lemma));
+      const spelled = new Map(later.flatMap((lemma) => [lemma, ...(lexicon.byLemma.get(lemma) ?? [])].map((form) => [form.toLowerCase(), lemma] as const)));
+      for (const row of BANK.filter((r) => r.scene === scene.id && r.beat === "hurdle:faster")) {
+        checked += 1;
+        const named = words(row.text).filter((word) => spelled.has(word)).map((word) => spelled.get(word));
+        expect(named, `${scene.id}: "${row.text}" names what a later beat asks for`).toEqual([]);
+      }
+    }
+    expect(checked).toBeGreaterThan(20);
+  });
+
+  it("leave a mishearing a line about the beat just answered, wherever the planner can stand one", () => {
+    let checked = 0;
+    for (const scene of SCENES.filter((s) => s.curveballs.includes("misheard"))) {
+      const { lexicon } = keylessContext(scene);
+      const beat = sceneBeats(scene).find((b) => b.id === "hurdle:misheard")!;
+      const pool = scriptedFor(scene, beat);
+      const rows = BANK.filter((row) => row.scene === scene.id && row.beat === "hurdle:misheard");
+      for (const row of rows) {
+        const about = scene.beats.find((b) => b.id === row.about);
+        expect(about, `${scene.id}: "${row.text}" does not say which beat it is about`).toBeDefined();
+        expect(["greet", "close"], `${scene.id}: "${row.text}" is about the ${about?.move}`).not.toContain(about?.move);
+      }
+      const fits = fitsIn(scene);
+      const places = scene.beats.map((_, at) => at).filter((at) => at >= notBeforeIn(scene)("misheard") && fits("misheard", at));
+      expect(places.length, `${scene.id} admits a mishearing and has nowhere to stand one`).toBeGreaterThan(0);
+      for (const at of places) {
+        checked += 1;
+        const state = { hurdle: { id: "misheard" as const, beat: at, tries: 0 }, hurdles: [] };
+        const said = sayableAfterHurdles(pool, state, lexicon, new Set(["ei", "pole", "mitte"]), scene)[0];
+        const just = scene.beats[at - 1]!.id;
+        expect(rows.find((row) => row.text === said)?.about, `${scene.id}: in front of ${scene.beats[at]!.id} it says "${said}"`).toBe(just);
+      }
+    }
+    expect(checked).toBeGreaterThan(10);
   });
 });

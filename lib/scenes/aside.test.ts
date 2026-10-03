@@ -235,6 +235,16 @@ describe("a question about the price", () => {
       .toBe("See maksab 5 eurot.");
   });
 
+  it("is the card's price at a beat that waits to be asked it, and never a figure the bank wrote down", () => {
+    // The clothes shop waits at the till for the learner to ask; its banked answer said twenty euros to a card that said 33.
+    const till: BeatSpec = { ...ASKS_FOR_QUESTION, id: "hind", move: "offer", says: [{ slot: "price" }, { lemma: "euro" }] };
+    const line = asideFor(input({
+      asked: "kas", spoken: ["kas", "hind"], said: "kas hind?", card: PRICED, answered: till,
+      answers: ["Jah, see hind on õige. See maksab kakskümmend eurot."],
+    }));
+    expect(line?.text).toBe("See maksab 5 eurot.");
+  });
+
   it("is the shop's own price where the learner holds none, and never the changed price beside the learner's", () => {
     const theirs = { slot: "price", card: "What it costs.", literal: ["5"], lemmas: ["viis"], shown: ["5 €"], value: "5", price: true as const, theirs: true as const };
     // A clothes shop says its price at the till: asked, the assistant said `Ei tea.`.

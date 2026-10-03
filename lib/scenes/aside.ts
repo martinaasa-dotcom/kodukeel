@@ -119,6 +119,21 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     was asked rather than guessing from the question word.
   */
   if (answered && wantsQuestion(answered) && !input.missed) {
+    /*
+      A beat that says a fact off the card answers with that fact, which is
+      dealt per run and so can never be banked: at the clothes shop's till the
+      banked answer said `kakskümmend eurot` to a learner whose card said 33.
+      The price is answered as any price question is (`priceOffCard`), so a
+      learner checking a figure is told yes or no, and any other fact is the
+      beat's own line built off the card.
+    */
+    if (answered.says?.some((part) => "slot" in part)) {
+      const price = priceOnCard(card);
+      const fact = price && answered.says.some((part) => "slot" in part && part.slot === price.slot)
+        ? priceOffCard(card, lexicon, input.said ?? spoken.join(" "), input.already)
+        : partsLine(answered.says, { card, lexicon, mark: "." });
+      if (fact) return fact;
+    }
     const banked = input.answers[0];
     /*
       AND WHERE THE BANK HOLDS NONE, THIS RETURNED NOTHING AND SAID NOTHING

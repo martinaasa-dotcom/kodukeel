@@ -15,7 +15,7 @@ import {
   clockInPlay, knowing, replay, type SceneContext, type StoredDraw,
 } from "../../lib/progress/scene";
 import { seedFrom } from "../../lib/random/seeded";
-import { feltAt, replyFor, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, sayableAfterHurdles, wantsAsideFor } from "../../lib/scenes/reply";
+import { feltAt, replyFor, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, sayableAfterHurdles, timesAnswered, wantsAsideFor } from "../../lib/scenes/reply";
 import { asideFor, asideOwed, asksToHearAgain, priceAsked, shrug } from "../../lib/scenes/aside";
 import { asksSlower } from "../../lib/scenes/casual";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver, type SceneState } from "../../lib/scenes/state";
@@ -112,7 +112,7 @@ export async function playScripted(options: PlayOptions): Promise<Event[]> {
     const landedNow = response === "answer" || response === "counter" || elsewhere > 0;
     const wantsAside = wantsAsideFor(askedNow, turns.length ? response : null, last?.reading ?? null, elsewhere > 0);
     const bank = (id: string | undefined): readonly string[] =>
-      id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators) : [];
+      id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators, scene) : [];
     const fresh = (id: string | undefined) => bank(id).filter((t) => !used.has(t));
     const asking = {
       asked: askedNow, spoken: words(last?.said ?? ""), said: last?.said ?? "", answered, card: inPlay, lexicon: context.lexicon,
@@ -195,6 +195,7 @@ export async function playScripted(options: PlayOptions): Promise<Event[]> {
       metLast: last?.met ?? [],
       arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
+      answeredTimes: timesAnswered(state.turns, heard),
       choice: answered ? choiceOf({
         beat: answered, card: inPlay, lexicon: context.lexicon,
         dealt: new Map(scene.props.flatMap((p) => p.kind === "word" || p.kind === "weekday" ? [[p.slot, p.oneOf] as const] : [])),

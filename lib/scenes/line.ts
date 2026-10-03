@@ -547,8 +547,16 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
     English stage direction in place of the question. Repeating your own
     question is what a person does, and it is marked as said again.
   */
+  /*
+    And the one said last, not the first in the rotation. The phone shop's two
+    lines were said once each, and the one said again was the older one, so a
+    learner who had just heard `Jah, see on meil siin.` read `Jah, meil on
+    see.` a third time. `used` is in the order things were said, in the route
+    as in the harnesses, so the last of this beat's lines in it is the newest.
+  */
+  const newest = [...request.used].filter((text) => request.scripted.includes(text)).at(-1);
   // Not on a beat with a line off the card: the caller says that one (`datumLine`), which is the price at the till.
-  const repeated = request.beat.says ? undefined : turned(request.scripted, request.rotate)[0];
+  const repeated = request.beat.says ? undefined : newest ?? turned(request.scripted, request.rotate)[0];
   if (repeated) return { text: repeated, provenance: "again" };
 
   return fallbackLine(request.fallback, withheld);

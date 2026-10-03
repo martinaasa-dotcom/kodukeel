@@ -21,7 +21,7 @@ import { join } from "node:path";
 import { SCENES, sceneById } from "../lib/scenes/catalogue";
 import { curveballById } from "../lib/scenes/curveballs";
 import { acceptFromRows, contextFromRows, sceneLemmas, type Row, type StoredDraw } from "../lib/progress/scene";
-import { planRun } from "../lib/scenes/run";
+import { fitsIn, notBeforeIn, planRun } from "../lib/scenes/run";
 import { caseKeyFor, type Lexicon } from "../lib/scenes/lexicon";
 import { leafNeeds, type BeatSpec, type SceneSpec } from "../lib/scenes/types";
 import { propBySlot, type RoleCard } from "../lib/scenes/props";
@@ -186,10 +186,13 @@ async function sweepScene(scene: SceneSpec) {
   const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
   const run = planRun(scene, "sweep", level, "textbook");
   const cases: { id: string | null; at: number }[] = [{ id: null, at: 0 }];
+  // Every place the planner can stand one (`notBeforeIn` and `fitsIn`, what `drawCurveballs` reads), and only those.
+  const notBefore = notBeforeIn(scene);
+  const fits = fitsIn(scene);
   for (const id of scene.curveballs) {
     const spec = curveballById(id);
     if (!spec || spec.silent) continue;
-    for (let at = 1; at < scene.beats.length; at++) cases.push({ id, at });
+    for (let at = Math.max(1, notBefore(id)); at < scene.beats.length; at++) if (fits(id, at)) cases.push({ id, at });
   }
   const flags: Flag[] = [];
   let conversations = 0;

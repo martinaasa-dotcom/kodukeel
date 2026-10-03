@@ -5311,3 +5311,52 @@ Groq. A meter in the repository caps what this repository's scripts spend. It ca
 in the same project. And Google's page says the day resets at midnight Pacific, which a retry of 23
 hours at that hour does not match. So read the project's own usage page before deciding which caller
 spent the day.
+
+**And then the nine were fixed, and the sweep was run at every band.** The nine flags left above had
+been read and left as they were. Read again, every one was a fault, and none was in a scene:
+- A curveball at the goodbye carried the goodbye straight on, so a friend in a hurry said `Räägi kohe.
+  Head aega!` before the learner had answered either, then `Head aega!` again after they asked them
+  to slow down. The goodbye now waits until the curveball is dealt with.
+- The rule that a long line is not recited twice swapped in "the scene's own line, short", and the
+  clothes shop's two ways of asking what somebody wants are eleven and twelve words. Each was swapped
+  for the other, so the question came back in an older wording. A substitute now has to be shorter.
+- The rule that the fourth asking uses another banked wording counted turns on the beat, and a
+  question carried on behind a curveball is heard on the curveball's turns. "Do you want to try it
+  on?" was asked four times running on a beat that had had one turn. It counts the times the learner
+  heard that line (`timesAnswered`), on a turn that was lost as on one that missed.
+- When every line for a beat had been said, the ladder repeated the first in the rotation rather than
+  the one just heard. It repeats the newest.
+- The clothes shop's four "in a hurry" lines told the learner to put the clothes down and pay, and the
+  corner shop's two drafted ones to take the bread and milk. `faster` can stand in front of the first
+  question, so those were false there. They were replaced, and `bank.test.ts` holds every `faster`
+  line to naming nothing a later beat asks for.
+
+The sweep had only ever run at A2. Run at the other four bands it found what A2 could not show. The
+clothes shop's lines are pitched band by band, with almost no unpitched net, and a run read only its
+own band and that net. At B1 that left beats with nothing to say, and at B2 and C1 every beat. With
+no model, a learner there read English stage directions where the assistant should have spoken:
+2,761 flags at B2. `scriptedFor` now reads the run's own band, then the net, then plainer bands
+nearest first, and a harder band only for a beat nothing else covers, since a line pitched below a
+learner is one they can follow. The bank tests hold every band now rather than the bank as a whole.
+
+**A mishearing is of something just said.** `misheard` could stand straight after the greeting, and
+the friend on the phone answered `Tere!` with `Kas sa ostad piima või vett?`, about milk nobody had
+mentioned. Each misheard line is about one beat by design, so the row now says which
+(`ScriptedLine.about`). The planner stands the curveball only straight after one of those beats
+(`fitsIn`), and the line said is one about the beat just answered (`sayableAfterHurdles`, which now
+takes the scene from every caller). The sweep stands curveballs only where the planner can, so it no
+longer measures conversations nobody can have.
+
+**Two more came out of reading the harnesses rather than the flags.** Neither is something the
+sweep's detectors could name, which is why transcripts are read and not only counted.
+- The clothes shop's till waits for the learner to ask the price, and its banked answer said
+  `See maksab kakskümmend eurot.` to a learner whose card had dealt 33. "Holds no digit" could not see
+  a figure spelled out. A beat that says a fact off the card now answers the question it waits for
+  with that fact (`asideFor`), its answer beat carries the beat's `says` so nothing can be banked for
+  it, and `bank.test.ts` refuses any banked line naming an amount of money.
+- In the reported ticket-window transcript, the learner asked what the new price was on the turn the
+  clerk's patience ran out, and was handed `Kaart?` and `Nägemist!` with the price never said. A
+  question is now owed an answer on that turn too (`wantsAsideFor`), from the card and never the
+  shrug, and the goodbye waits for the learner's next turn.
+
+Measured after all of it: 4,456 conversations at each of A1, A2, B1, B2 and C1, and no flags at any.

@@ -43,7 +43,7 @@ import { seedFrom } from "../lib/random/seeded";
 import {
   replyFor, composeNote, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, factsFor, stageFor,
   establishedBy, heldBack, heldNumbers, sceneMovedOn,
-  wantsAsideFor, sayableAfterHurdles,
+  wantsAsideFor, sayableAfterHurdles, timesAnswered,
   feltAt,
 } from "../lib/scenes/reply";
 import { asideFor, asideOwed, asksToHearAgain, priceAsked, shrug } from "../lib/scenes/aside";
@@ -375,7 +375,7 @@ async function play(sceneId: string) {
     // A real question on a missed turn is answered off the card too, as the route does.
     const wantsAside = wantsAsideFor(askedNow, turns.length ? response : null, last?.reading ?? null, elsewhere > 0);
     const bank = (id: string | undefined): readonly string[] =>
-      id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators) : [];
+      id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators, scene) : [];
     const fresh = (id: string | undefined) => bank(id).filter((t) => !used.has(t));
     const asking = {
       asked: askedNow, spoken: words(last?.said ?? ""), said: last?.said ?? "", answered, card, lexicon: context.lexicon,
@@ -600,6 +600,7 @@ async function play(sceneId: string) {
       metLast: last?.met ?? [],
       arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
+      answeredTimes: timesAnswered(state.turns, heard),
       choice: answered ? choiceOf({
         beat: answered, card: card ?? draw.card, lexicon: context.lexicon,
         dealt: new Map(scene.props.flatMap((p) =>

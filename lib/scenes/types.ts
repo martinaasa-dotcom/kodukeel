@@ -131,6 +131,22 @@ export function leafNeeds(
 }
 
 /**
+ * The words a beat asks the learner for, as lemmas: a lemma it names, the word
+ * a case is asked of, and every value a card can deal for a word it wants.
+ * What a line from somebody else may only name once the conversation has
+ * reached this beat, since before then nobody has said it.
+ */
+export function askedLemmas(scene: SceneSpec, beat: BeatSpec): string[] {
+  return leafNeeds(beat.needs).flatMap(({ need }) => {
+    if (need.kind === "lemma") return [...need.oneOf];
+    if (need.kind === "case") return [need.lemma];
+    if (need.kind !== "datum") return [];
+    const prop = scene.props.find((one) => one.slot === need.slot);
+    return prop && (prop.kind === "word" || prop.kind === "weekday") ? [...prop.oneOf] : [];
+  });
+}
+
+/**
  * One piece of a line said off the card. A lemma is printed as the dictionary
  * spells it; a slot is printed as the value the card dealt, or, where a case
  * is named, as the dictionary's form of the drawn word in that case.
