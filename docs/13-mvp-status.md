@@ -2933,3 +2933,13 @@ whether that price is all right with you", and `Hästi, sobib.` was off the poin
 admit it). And asked the price in the turn that raised the change, the clerk said `See maksab 2
 eurot.` and then `See maksab nüüd 2 eurot.`: an answer stating a figure the curveball's own line is
 about to state stands down.
+
+**The C1 government round drills the verbs C1 just taught.** It dealt `tutvuma` and eleven more A1 to
+B1 verbs on an evening that follows `lähtuma`, `tulenema`, `seonduma`, `piirduma` and `tuginema`,
+which are what a government drill is for at that level. Inside the module it read the taught
+governed verbs easiest first and two hundred deep, and by C1 the course has taught more than two
+hundred, so the ones it had just taught were the ones cut. It reads them uncut there and leads with
+the most recent. The conjugation table had the same shape, a shuffle of every verb since A1 cut
+alphabetically at a hundred and twenty on an evening pinned to it for its new verbs, and leads with
+them now. Every round the module can deal is held to leading with the words it taught last or to a
+written reason it does not, and six carry one.
