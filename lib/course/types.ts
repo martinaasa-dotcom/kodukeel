@@ -482,9 +482,11 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
       ? `Go over tonight's ${spec.words.length} words`
       : met === 0
         ? `Learn tonight's ${counted(fresh, "new word")}`
-        : `Learn tonight's ${counted(fresh, "new word")}, with ${met} you've met`,
+        : `Learn tonight's ${counted(fresh, "new word")}, and ${met} from earlier`,
+    // "From earlier in the course" rather than "you've met": somebody placed
+    // at B1 had the levels below counted, not walked.
     why: fresh === 0
-      ? "You've met all of these on earlier evenings. Tonight they come back for what the page is about."
+      ? "Every one of these is from earlier in the course. Tonight they come back for what the page is about."
       : atA1
         ? "Hear each word and see what it means. A few minutes later you pick it out of four, and that's what makes it stay."
         : "See what each word means, pick it out of four a little later, then type it into a real Estonian sentence.",

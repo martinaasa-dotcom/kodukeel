@@ -1190,7 +1190,7 @@ export function ReviewSession({
     }
     // A right answer waits for its own button now, exactly like a miss: see
     // the note beside `scheduled` on why nothing here times out any more.
-    // Anything short of an outright hit (`diacritics`, `typo`, `wrong`) still
+    // Anything short of an outright hit (`diacritics`, `typo`, `form`, `wrong`) still
     // asks for a retype, which is the learner still doing the thing being
     // timed, so the clock keeps running for those — only a clean hit stops it
     // here, matching `needsRetype`'s own reading of `verdict.verdict`.

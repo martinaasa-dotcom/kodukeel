@@ -2782,7 +2782,7 @@ once those run out; opened from Practice, nothing changed.
 names a word an earlier one taught, and on purpose: the object and government units drill verbs the
 course gave long before, so the first two evenings of B1 were six such verbs each under "Learn
 tonight's 6 new words". The builder records them (`DaySpec.again`), and the meet step says "Learn
-tonight's 3 new words, with 2 you've met" or, where none is new, "Go over tonight's 6 words"; the
+tonight's 3 new words, and 2 from earlier" or, where none is new, "Go over tonight's 6 words"; the
 module card's figure and the evening letter count the new ones, and the letter no longer has a way
 to say "zero new words tonight".
 
