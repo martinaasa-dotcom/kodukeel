@@ -98,14 +98,6 @@ function post(body: string) {
   }));
 }
 
-/*
-  An answer that also tells them something, which is a turn a person answers
-  (`lib/scenes/onRails.ts`): a clean "Ma lähen poodi." is answered from the
-  bank since the composer was kept for the turns that need one, and books
-  nothing, which the last test asks.
-*/
-const CHATTY = "Ma lähen poodi, sest kodus ei ole täna üldse piima ega leiba ja lapsed on näljased.";
-
 describe("/api/scene with a body that is not what the screen sends", () => {
   it("refuses a run id that is not a string rather than throwing", async () => {
     const res = await post(JSON.stringify({ runId: { toString: 1 }, turns: [] }));
@@ -133,7 +125,7 @@ describe("/api/scene with a body that is not what the screen sends", () => {
     flags.glossFails = true;
     const res = await post(JSON.stringify({
       runId: opened!.runId,
-      turns: [{ beatId: "greet", said: "Tere!" }, { beatId: "going", said: CHATTY }],
+      turns: [{ beatId: "greet", said: "Tere!" }, { beatId: "going", said: "Ma lähen poodi." }],
     })).catch(() => null);
     // Let the deferred releases run.
     await new Promise((resolve) => setTimeout(resolve, 20));
@@ -152,7 +144,7 @@ describe("/api/scene with a body that is not what the screen sends", () => {
     flags.line = "Blorptastik zzqqvörk mrrhnääl?";
     const res = await post(JSON.stringify({
       runId: opened!.runId,
-      turns: [{ beatId: "greet", said: "Tere!" }, { beatId: "going", said: CHATTY }],
+      turns: [{ beatId: "greet", said: "Tere!" }, { beatId: "going", said: "Ma lähen poodi." }],
     }));
     await new Promise((resolve) => setTimeout(resolve, 20));
     expect(res.status).toBe(200);
@@ -163,26 +155,5 @@ describe("/api/scene with a body that is not what the screen sends", () => {
     expect(flags.settled.slice(1).every((s) => s.micros === 0)).toBe(true);
     // Three completions were bought, so nothing is handed back as though none were.
     expect(flags.released).toBe(0);
-  });
-
-  it("answers a clean answer from the bank, booking nothing and asking nobody", async () => {
-    const opened = await beginRun({
-      ownerId: OWNER, sceneId: "poodi-piima", level: "A1", difficulty: "textbook", lines: "composed",
-    });
-    expect(opened).not.toBeNull();
-    flags.keyed = true;
-    flags.line = "Kuhu sa lähed?";
-    const res = await post(JSON.stringify({
-      runId: opened!.runId,
-      turns: [{ beatId: "greet", said: "Tere!" }, { beatId: "going", said: "Ma lähen poodi." }],
-    }));
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(res.status).toBe(200);
-    expect(flags.booked).toBe(0);
-    const body = await res.json() as { lines: { text: string; provenance: string }[]; composed?: boolean };
-    expect(body.composed).not.toBe(true);
-    // A line was said, and it was not the repair phrase.
-    expect(body.lines.some((line) => line.provenance === "scripted" || line.provenance === "attested")).toBe(true);
-    expect(body.lines.some((line) => line.provenance === "fallback")).toBe(false);
   });
 });

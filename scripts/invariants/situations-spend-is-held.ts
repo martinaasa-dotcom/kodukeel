@@ -4,32 +4,21 @@ import { readdirSync } from "node:fs";
 import type { InvariantKit } from "../lib/invariantKit";
 
 /**
- * WHAT A CONVERSATION COSTS IS DECIDED IN FOUR PLACES, AND EACH IS HELD HERE.
+ * WHAT A CONVERSATION COSTS IS DECIDED IN THREE PLACES, AND EACH IS HELD HERE.
  *
- * On 2026-10-02 the Gemini bill was traced to four faults, each of them silent
- * and each invisible to every test until then: the scene route asked the model
- * on turns the bank already answered; a model past its daily quota was still
- * asked first, and had a cache entry written for it before every refusal; each
- * server instance and each harness process wrote its own copy of the same
- * prompt into Google's cache; and the harnesses spent on the same key with
- * nothing capping or counting them. `docs/21-situations.md` §77 has the
- * figures. A fix that a later edit can quietly undo is a fix for one release.
+ * On 2026-10-02 the Gemini bill was traced to faults that were each silent and
+ * each invisible to every test until then: a model past its daily quota was
+ * still asked first, and had a cache entry written for it before every
+ * refusal; each server instance and each harness process wrote its own copy of
+ * the same prompt into Google's cache; and the harnesses spent on the same key
+ * with nothing capping or counting them. `docs/21-situations.md` §77 has the
+ * figures. A fourth, asking the model only on the turns the bank could not
+ * answer, was made and then taken out on 2026-10-03, because the ledger put
+ * the whole app at pennies and the turns it saved were the ones where the
+ * other side reacts to what the learner said (§77). A fix that a later edit
+ * can quietly undo is a fix for one release.
  */
-export default function situationsSpendOnlyWhereAPersonIsNeeded({ check, code, ALL }: InvariantKit) {
-  check("the scene route asks whether a turn needs a person before it books a call, and the harness asks the same", () => {
-    const route = code("app/api/scene/route.ts");
-    const asks = route.indexOf("needsComposer(");
-    const books = route.indexOf('authoriseCall(ownerId, "SCENE")');
-    assert.ok(asks > 0, "the scene route no longer asks `needsComposer`, so every on-rails turn books the model again");
-    assert.ok(books > asks, "the scene route books a SCENE call before asking whether the turn needs a person");
-    assert.ok(
-      /if\s*\(\s*!needsPerson\s*\)\s*\{[^}]*return answer\(reply\(move\)\)/.test(route),
-      "a turn that does not need a person has to be answered from the bank (`reply(move)`) without a booking",
-    );
-    assert.ok(code("scripts/play-scene.ts").includes("needsComposer("),
-      "play-scene composes on turns the route answers from the bank, so its transcripts measure a conversation the app does not have");
-  });
-
+export default function situationsSpendIsHeld({ check, code, ALL }: InvariantKit) {
   check("a model that has said not until later gets no call and no cache entry", () => {
     const cache = code("lib/tutor/geminiCache.ts");
     const guard = cache.indexOf("if (isExhausted(config))");

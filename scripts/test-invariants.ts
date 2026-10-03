@@ -12314,6 +12314,7 @@ const GONE_ON_PURPOSE: Record<string, string> = {
   "lib/gamification/": "CLAUDE.md says it may not come back, with XP and the quests",
   "lib/anu/client.ts": "docs/06-anu-tutor.md says the page used to show it and why it stopped",
   "lib/copy/tour.ts": "CLAUDE.md records it going with /guide",
+  "lib/scenes/onRails.ts": "docs/21-situations.md §77 records it being tried for cost and taken back for the experience",
 };
 
 check("every path the documentation names exists, or is named because it is gone", () => {
@@ -27805,6 +27806,7 @@ check("every source file a comment in the code cites is one that exists", () => 
     "lib/copy/tour.ts": "the first-run tour's screen list, named where its deletion is recorded",
     "scripts/x.mjs": "a placeholder standing for any suite in a sentence about how CI names them",
     "lib/anu/client.ts": "the documentation-path check's own list of paths named because they are gone",
+    "lib/scenes/onRails.ts": "the documentation-path check's own list, where its being taken back is recorded",
   };
   const haystack = [...ALL, ...sourceFiles("scripts", /\.(ts|mjs)$/), "prisma/schema.prisma"];
   let cited = 0;

@@ -70,15 +70,14 @@ const BASE = "https://generativelanguage.googleapis.com/v1beta";
  * term whether or not the entry is read, so the term is money spent holding a
  * prompt nobody may compose against again.
  *
- * FIVE MINUTES, WHERE IT WAS TEN. Ten was set when every turn of a scene asked
- * the model and an entry was read a dozen times; since `lib/scenes/onRails.ts`
- * a run asks two to four times, and the tail after its last read became a
- * real share of what the entry cost. On the Lite, which holds at $1.00 a
- * million an hour against $0.25 to read, ten idle minutes of a 2,000-token
- * prompt are two thirds of a write. The life still slides while a run keeps
- * talking (`EXTEND_BELOW_MS`), so a conversation with a long pause in it pays
- * one rewrite at worst, and fifteen minutes of storage cost what a rewrite
- * does.
+ * FIVE MINUTES, WHERE IT WAS TEN. What an entry costs after a conversation
+ * ends is its idle tail, storage nobody reads, and the life slides while a
+ * run keeps talking (`EXTEND_BELOW_MS`), so a shorter term costs a talking
+ * run nothing and halves the tail. Measured on 2026-10-02, with a run asking
+ * two to four times, ten idle minutes of a 2,000-token prompt held on the
+ * Lite were two thirds of a write. A run now asks on every turn again, which
+ * makes the slide do more of the work and the tail no longer: a conversation
+ * with a long pause in it pays one rewrite at worst.
  */
 export const CACHE_TTL_SECONDS = 300;
 

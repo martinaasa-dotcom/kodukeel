@@ -5086,3 +5086,20 @@ flash reacting where the Lite asks and stops. At the prices on file the flash wo
 quarter of a cent more a conversation, so at the traffic the ledger shows the difference is pennies a
 month, and turning it back is the one line in `SCENE_MODELS`. It stays on the Lite because the
 operator asked for the cheapest, and this paragraph is the price of that.
+
+**And then both cost decisions on the app's side were taken back, the next day, on the operator's
+word that good is not good enough.** The ledger is the reason they could be. It puts the app at
+pennies a month, so the two savings made on the app's side bought almost nothing and each cost the
+thing a learner notices. `lib/scenes/onRails.ts` is deleted. The turns it answered from the bank
+were the commonest ones: a clean answer, a word handed over, a curveball, a late answer and a
+question the scene had planned for. On each of them the composed line is the other side reacting to
+what the learner said, which is what §70 built. The bank's line is the acknowledgment rotation and
+the next question. And `SCENE_MODELS` leads on `gemini-3.8-flash` again, with the Lite behind it
+for the minute the flash is out. That minute is real: on 2026-10-03 the flash answered every call
+of a run with a 429 and a `RetryInfo` of nearly twenty-four hours, because something on the same
+key had used its 10,000 requests again, and the run composed on the Lite throughout without a turn
+falling to the bank. Priced off the table at the flash's rates, a call is about $0.0011 (2,060
+tokens held, 1,090 sent, 24 out) and a conversation of seven or eight composed turns is about a cent
+with its entry, judge and note, against $0.0016 to $0.0025 on the Lite on rails. What did not move is
+everything about the bill that was real: the quota breaker, the shared entries, and a harness that
+buys nothing without a budget and shares a day's ceiling.

@@ -32,7 +32,6 @@ import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 import { courseLevelFor } from "@/lib/progress/level";
 import { asideFor, asideOwed, asksToHearAgain, shrug } from "@/lib/scenes/aside";
 import { choiceOf } from "@/lib/scenes/choice";
-import { extraWordsOf, needsComposer } from "@/lib/scenes/onRails";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
 import { offerFor } from "@/lib/scenes/grades";
 import { gateFor } from "@/lib/scenes/gate";
@@ -1037,32 +1036,6 @@ export async function POST(request: Request) {
   */
   const closingOnNews = beat.move === "close" && last !== null && !saysGoodbye(last.said, FAREWELLS);
   if (cheap.provenance === "attested" && !shrugOwed && !handing && !askedNow && !closingOnNews) return answer(reply(cheap));
-
-  /*
-    AND NOT WHERE THE CONVERSATION IS ON RAILS (`lib/scenes/onRails.ts`). The
-    learner answered what they were asked, in the words the beat expected, and
-    the other side's whole job is to take it and ask the next thing, which the
-    bank's line does with the learner's own word said back in front of it. A
-    model on that turn was a paid paraphrase of the line underneath it, so it is
-    kept for the turns that need a person: a miss, a question, news, a word
-    being handed over, a curveball, a late answer, a goodbye after news, and a
-    learner who said a good deal more than the answer.
-  */
-  const needsPerson = needsComposer({
-    turns: turns.length,
-    reading: progress.reading,
-    landed: landedNow,
-    // Asked, and nothing on the card or in the bank answered it (`asideFor`).
-    unanswered: askedNow !== null && aside === null,
-    news: feltAt(answered, turns.length > 0 ? response : null) !== undefined,
-    closingOnNews,
-    extraWords: extraWordsOf(words(last?.said ?? ""), last?.produced, last?.matched),
-    bankHasLine: move.provenance !== "fallback",
-  });
-  if (!needsPerson) {
-    if (shrugOwed) aside = shrug(context.lexicon);
-    return answer(reply(move));
-  }
 
   /*
     THE BOOKING IS PER TURN, because a call is what the ledger counts. Booking

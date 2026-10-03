@@ -512,20 +512,18 @@ export const VISION_MODEL = "gemini-3.1-flash-lite";
   both for the day the Gemini key itself stops answering.
 */
 /*
-  AND THEN THE ORDER WAS TURNED ROUND, ON PRICE, BY THE OPERATOR. On
-  2026-10-02 the operator asked for scenes to run as cheaply as they can be
-  made to, and the paragraph above already holds the measurement that decides
-  it: the Lite reads as a person at a third of the primary's price per draft,
-  and was withheld on 19 percent of drafts against 8, which with three
-  attempts a turn falls to the bank on under one turn in a hundred. Per line
-  that reaches the screen it is about two and a half times cheaper. What it
-  costs is the thing §61 named, that the flash reacts to the learner where the
-  Lite tends to ask and stop, which is why `lib/scenes/onRails.ts` keeps the
-  model for exactly the turns that need a reaction and nothing else. The flash
-  stays as the second link, for the minute the Lite is out, so a backup is the
-  better model rather than none. Turning it back is this one line.
+  AND IT WAS TURNED ROUND FOR A DAY AND TURNED BACK, BY THE OPERATOR. On
+  2026-10-02 the Lite led, on price. The next day the production ledger put
+  every model call the app had made in a month at $0.27, and a curious run
+  showed the Lite doing on the hard turns what §61 measured, asking and
+  stopping where the flash reacts, and saying things a person would not (a
+  landlord with no time this week offering Thursday in the same breath). The
+  flash costs about a third of a cent more a conversation, and the operator's
+  words were that good is not good enough. So the flash leads again and the
+  Lite is its backup, for the minute the flash is out of quota, which
+  `lib/tutor/exhausted.ts` walks past without asking.
 */
-export const SCENE_MODELS = ["gemini-3.1-flash-lite", "gemini-3.8-flash"] as const;
+export const SCENE_MODELS = ["gemini-3.8-flash", "gemini-3.1-flash-lite"] as const;
 
 /*
  * There is no scene fallback on Groq any longer. `SCENE_FALLBACK_MODEL` was
