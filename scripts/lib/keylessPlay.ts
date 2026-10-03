@@ -11,25 +11,17 @@
  * Keyless unless `links` is handed in, which is what the app does on a day no
  * model answers: the other side speaks from the bank, the card and the course.
  */
+import { knowing, replay, type SceneContext, type StoredDraw } from "../../lib/progress/scene";
 import {
-  clockInPlay, knowing, replay, type SceneContext, type StoredDraw,
-} from "../../lib/progress/scene";
+  composeTurn, planTurn, speakTurn, type ComposeIO, type Composition, type ModelTurn,
+} from "../../lib/progress/sceneTurn";
 import { seedFrom } from "../../lib/random/seeded";
-import { feltAt, replyFor, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, sayableAfterHurdles, timesAnswered, wantsAsideFor } from "../../lib/scenes/reply";
-import { asideFor, asideOwed, asksToHearAgain, priceAsked, shrug } from "../../lib/scenes/aside";
-import { asksSlower } from "../../lib/scenes/casual";
-import { currentBeat, hurdleBeat, hurdleSpec, isOver, type SceneState } from "../../lib/scenes/state";
-import { ASKS_ON } from "../../lib/scenes/curveballs";
-import { sceneLine } from "../../lib/scenes/line";
+import { isOver, type SceneState } from "../../lib/scenes/state";
 import { PERSONAS } from "../../lib/scenes/personas";
-import { answerBeatId, sceneBeats } from "../../lib/scenes/scripted";
-import { offerFor } from "../../lib/scenes/grades";
-import { choiceOf } from "../../lib/scenes/choice";
-import { words, type Lexicon } from "../../lib/scenes/lexicon";
-import { dealtNumbers, type RoleCard } from "../../lib/scenes/props";
-import { stageFor, composeNote, establishedBy, factsFor, heldBack, heldNumbers, sceneMovedOn } from "../../lib/scenes/reply";
 import { isKnownForm } from "../../lib/dict/forms";
 import { askLine, type Link } from "./sceneDraft";
+import type { Lexicon } from "../../lib/scenes/lexicon";
+import type { RoleCard } from "../../lib/scenes/props";
 import type { Level } from "../../lib/collections/syllabus";
 import type { BeatSpec, SceneSpec } from "../../lib/scenes/types";
 import { isSaid, type SpokenLine } from "../../lib/scenes/line";
@@ -96,117 +88,22 @@ export async function playScripted(options: PlayOptions): Promise<Event[]> {
   for (let n = 0; n <= maxTurns; n++) {
     const marking = await knowing(context, turns.map((t) => t.said));
     const { state, response, elsewhere } = replay(marking, draw, turns);
-    const beat = currentBeat(scene, state);
-    const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
-    const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
-    const inPlay = cardChosen(
-      cardAfterHurdles(cardInPlay(draw.card, scene.beats, state.countered), state),
-      state.turns,
-      (lemma) => context.marker.englishFor?.get(lemma)?.[0],
-    );
-    const last = state.turns[state.turns.length - 1] ?? null;
-    const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
-    const spokenFor = standing ?? speaking ?? (answered?.move === "close" ? answered : undefined);
-
-    const askedNow = last?.asked ?? null;
-    const landedNow = response === "answer" || response === "counter" || elsewhere > 0;
-    const wantsAside = wantsAsideFor(askedNow, turns.length ? response : null, last?.reading ?? null, elsewhere > 0);
-    const bank = (id: string | undefined): readonly string[] =>
-      id ? sayableAfterHurdles(context.scripted.get(id) ?? [], state, context.lexicon, context.marker.negators, scene) : [];
-    const fresh = (id: string | undefined) => bank(id).filter((t) => !used.has(t));
-    const asking = {
-      asked: askedNow, spoken: words(last?.said ?? ""), said: last?.said ?? "", answered, card: inPlay, lexicon: context.lexicon,
-      more: fresh(answered?.id), answers: answered ? fresh(answerBeatId(answered)) : [], missed: !landedNow, already: used,
-    };
-    let aside = wantsAside ? asideFor(asking) : null;
-    // "Sorry, what?" gets the line again, never the shrug (the route's rule).
-    const hearAgain = asksToHearAgain(words(last?.said ?? ""), context.marker.questionWords, context.lexicon);
-    if (wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" as const };
-
-    let line: SpokenLine | null = null;
-    const speaksEnglish = Boolean(standing && hurdleSpec(state)?.said);
-    if (spokenFor && !(spokenFor.awaits && !standing) && !speaksEnglish) {
-      const talk = state.turns.slice(-6).flatMap((t) => [
-        ...(t.heard ? [{ role: "assistant" as const, content: t.heard }] : []),
-        { role: "user" as const, content: t.said },
-      ]);
-      // What this person holds for later and what the run has established, as the route reads them.
-      const held = heldBack(scene.beats, inPlay, state, spokenFor, {
-        any: askedNow !== null,
-        money: askedNow !== null && priceAsked(last?.said ?? "", context.lexicon) !== null,
-      });
-      const established = establishedBy(state, inPlay);
-      const moved = sceneMovedOn(state, inPlay, scene.beats);
-      const agenda = scene.beats.slice(state.beat).filter((b) => !state.done.includes(b.id))
-        .filter((b) => b.move !== "close" || b.id === spokenFor.id)
-        .map((b) => stageFor(b, inPlay, b.id === spokenFor.id ? new Set() : held));
-      const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, inPlay));
-      const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, inPlay) : null;
-      const handing = (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, inPlay, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null;
-      const facts = factsFor(inPlay, scene.beats, held);
-      const deviated = Boolean(askedNow) || last?.reading === "offtarget" || last?.reading === "incomplete";
-      const theirs = deviated ? words(last?.said ?? "").filter((w) => context.lexicon.forms.has(w) || marking.marker.known?.(w)) : [];
-      const beatFor = spokenFor;
-      const cheap = await sceneLine({
-        beat: beatFor, lexicon: context.lexicon,
-        gate: {
-          ...context.gate, dealt: dealtNumbers(inPlay), times: clockInPlay(inPlay, context.lexicon),
-          held: (() => {
-            const kept = heldNumbers(inPlay, held);
-            const open = heldNumbers(inPlay, new Set((inPlay?.props ?? []).map((p) => p.slot).filter((slot) => !held.has(slot))));
-            const typed = new Set(state.turns.flatMap((t) => t.said.match(/\d{1,2}[:.]\d{2}|\d+/g) ?? []));
-            return new Set([...kept].filter((x) => !open.has(x) && !typed.has(x)));
-          })(),
-        },
-        pool: (askedNow || handing) && links.length > 0 ? [] : context.pool.get(beatFor.id) ?? [],
-        topic: new Set([...(context.topic.get(beatFor.id) ?? []), ...theirs]),
-        hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
-        scripted: bank(beatFor.id), used,
-        rotate: seedFrom(`${scene.id}:${options.runSeed}`), mode: links.length > 0 ? "composed" : "scripted",
-        vouch: (spellings: readonly string[]) => vouchOf(context.lexicon, spellings),
-        ...(links.length > 0 ? {
-          compose: (avoid: readonly string[], because?: string) => askLine(links, {
-            move: beatFor.move, they: stageFor(beatFor, inPlay), reading: "", facts, because, agenda, settled, established, moved,
-            examples: [...context.scripted.entries()].filter(([id]) => id !== beatFor.id).flatMap(([, l]) => l.slice(0, 1)).slice(0, 6),
-            asked: (bank(beatFor.id)).slice(0, 2),
-            note: composeNote(turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, askedNow, { offer: handing, answer: anticipated }),
-            feel: feltAt(answered, turns.length > 0 ? response : null),
-            avoid,
-          }, {
-            scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,
-            register: scene.register, words: context.lexicon.spoken,
-          }, talk, () => {}, (l) => options.onDraft?.(l)),
-        } : {}),
-      });
-      line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, inPlay, context.lexicon) ?? cheap;
-      if (line.provenance === "composed") aside = null;
-      else if (wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain && !asksSlower(words(last?.said ?? ""))) aside = shrug(asking);
-    }
-    const lines = replyFor({
-      beat: speaking, answered: turns.length ? answered : null, response: turns.length ? response : null,
-      reading: last?.reading ?? null, line, heard, said: last?.said ?? null, card: inPlay, translates: persona.translates,
-      askedForEnglish: last?.wantsEnglish === true, acknowledges: persona.acknowledges, echo: last?.matched?.[0] ?? null,
-      recast: Boolean(last?.slips?.some((s) => s.form && s.form === last?.matched?.[0])),
-      aside, landed: elsewhere > 0,
-      offer: (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, inPlay, context.marker.questionWords, last?.met ?? [], context.lexicon.infinitives) : null,
-      met: state.done.length,
-      metLast: last?.met ?? [],
-      arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
-      tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
-      answeredTimes: timesAnswered(state.turns, heard),
-      choice: answered ? choiceOf({
-        beat: answered, card: inPlay, lexicon: context.lexicon,
-        dealt: new Map(scene.props.flatMap((p) => p.kind === "word" || p.kind === "weekday" ? [[p.slot, p.oneOf] as const] : [])),
-        roll: state.turns.length, met: last?.met ?? [],
-      }) : null,
-      // The question waiting behind a curveball that carries straight on with it (`ASKS_ON`), as the route passes it.
-      hurdle: standing ? {
-        beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said,
-        then: ASKS_ON.has(hurdleSpec(state)?.id ?? "") ? fresh(speaking?.id)[0] ?? null : null,
-      } : null,
+    /*
+      THE ROUTE'S OWN REPLY, PLANNED AND SPOKEN BY THE ROUTE'S OWN FUNCTIONS
+      (`lib/progress/sceneTurn.ts`). This loop is the client: it sends the
+      turns, keeps what was said and what was heard, and nothing else.
+    */
+    const plan = planTurn({
+      scene, context: marking, draw, state, response, elsewhere, taken: turns.length, used, persona,
+      composing: draw.lines === "composed" && links.length > 0,
+      rotate: seedFrom(`${scene.id}:${options.runSeed}`),
+      level,
     });
+    const { lines } = await speakTurn(plan, links.length > 0
+      ? harnessModel(links, { vouch: (spellings) => vouchOf(context.lexicon, spellings), onDraft: options.onDraft })
+      : undefined);
+    const { last, standing, current: beat } = plan;
+    const inPlay = plan.card;
     if (last) {
       events.push({
         kind: "read", reading: last.reading, response: String(response), patience: state.patience,
@@ -229,6 +126,43 @@ export async function playScripted(options: PlayOptions): Promise<Event[]> {
     turns.push({ beatId: target.id, said, helped: false, heard });
   }
   return events;
+}
+
+/**
+ * THE MODEL STEP OF A TURN, AS THE ROUTE TAKES IT, ON THE LINKS A HARNESS WAS
+ * HANDED. The route books the call in the ledger first; a harness measuring
+ * against a developer's own key has nobody's allowance to book against, so
+ * the step is the same `composeTurn` with the links in place of the chain.
+ */
+export function harnessModel(
+  links: readonly Link[],
+  options: {
+    readonly vouch: ComposeIO["vouch"];
+    readonly consistency?: ComposeIO["consistency"];
+    readonly onStatus?: (why: string) => void;
+    readonly onDraft?: (line: string) => void;
+    /** Each ask, with why the attempt before it was withheld where one was. */
+    readonly onAsk?: (beatId: string, because: string | undefined) => void;
+  },
+): (turn: ModelTurn) => Promise<Composition> {
+  return async ({ plan, line }) => {
+    let written: Awaited<ReturnType<typeof composeTurn>>;
+    try {
+      written = await composeTurn(plan, line, {
+        compose: (ask, conversation, avoid) => {
+          options.onAsk?.(line.beat.id, ask.because);
+          return askLine(links, { ...ask, avoid }, ask, conversation, options.onStatus, options.onDraft);
+        },
+        consistency: options.consistency,
+        vouch: options.vouch,
+      });
+    } catch {
+      return { kind: "none" };
+    }
+    return written.line.provenance === "composed"
+      ? { kind: "composed", line: written.line, preBreak: written.preBreak }
+      : { kind: "withheld", line: written.line, preBreak: written.preBreak };
+  };
 }
 
 /** A conversation as `replay:scene` has always printed it. */

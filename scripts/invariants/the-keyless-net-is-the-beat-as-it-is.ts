@@ -19,14 +19,15 @@ import type { InvariantKit } from "../lib/invariantKit";
  */
 export default function theKeylessNetIsTheBeatAsItIs({ check, code }: InvariantKit) {
   check("the scene route's keyless net is handed the beat, not the composer's relabelled one", () => {
-    const route = code("app/api/scene/route.ts");
-    assert.match(route, /beat:\s*stillTalking\s*\?\s*\{\s*\.\.\.beat,\s*move:\s*"confirm"/, "the composer no longer hears a closing beat as a confirm while the learner is still asking");
-    const cheap = /const cheap = await sceneLine\(\{([^}]*)\}\)/.exec(route);
-    assert.ok(cheap, "the route's cheap ladder call was not found; the pattern stopped matching");
+    // The reply is assembled once, for the route and every harness (`lib/progress/sceneTurn.ts`).
+    const turn = code("lib/progress/sceneTurn.ts");
+    assert.match(turn, /beat:\s*stillTalking\s*\?\s*\{\s*\.\.\.beat,\s*move:\s*"confirm"/, "the composer no longer hears a closing beat as a confirm while the learner is still asking");
+    const cheap = /const cheap = await sceneLine\(\{([^}]*)\}\)/.exec(turn);
+    assert.ok(cheap, "the cheap ladder call was not found; the pattern stopped matching");
     const args = cheap[1]!;
     // `beat` as a property of its own after the spread, shorthand or not: `beat.id` inside a value is not one.
-    const after = args.slice(args.indexOf("...shared")).split(",").map((part) => part.trim());
-    assert.ok(/\.\.\.shared\b/.test(args) && after.some((part) => /^beat(?:\s*:\s*beat)?$/.test(part)),
-      "the cheap ladder takes `shared` without naming `beat` after it, so it inherits the composer's relabelled closing beat");
+    const after = args.slice(args.indexOf("...line.request")).split(",").map((part) => part.trim());
+    assert.ok(/\.\.\.line\.request\b/.test(args) && after.some((part) => /^beat(?:\s*:\s*(?:line\.)?beat)?$/.test(part)),
+      "the cheap ladder takes the composer's request without naming `beat` after it, so it inherits the relabelled closing beat");
   });
 }

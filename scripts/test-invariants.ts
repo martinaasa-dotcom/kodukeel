@@ -9148,7 +9148,7 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
     "starts asking halfway through and changes voice mid-conversation",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /mode: draw\?\.lines \?\? "scripted"/,
+    code("lib/progress/sceneTurn.ts"), /mode: draw\?\.lines \?\? "scripted"/,
     "the route decides for itself whether to compose instead of reading the run's own choice",
   );
   assert.match(
@@ -9175,8 +9175,7 @@ check("the other side talks like a person: short pronouns, feelings, and hello i
   assert.match(prompt, /short forms of[\s\S]{0,40}the pronouns/, "the prompt no longer asks for the everyday pronouns");
   assert.match(prompt, /Have feelings and show them/, "the prompt no longer asks the other side to react to what was said");
   for (const file of [
-    "app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/lib/keylessPlay.ts",
-    "scripts/eval-thinking.ts", "scripts/measure-compose.ts",
+    "lib/progress/sceneTurn.ts", "scripts/eval-thinking.ts", "scripts/measure-compose.ts",
   ]) {
     const src = code(file);
     assert.match(src, /words: context\.lexicon\.spoken/, `${file} hands the model a list other than the spoken one`);
@@ -9209,7 +9208,8 @@ check("the other side talks like a person: short pronouns, feelings, and hello i
     the allowance runs out.
   */
   assert.match(code("lib/scenes/reply.ts"), /const felt = feltAt\(answered, response\)/, "the keyless reply no longer feels the beat's news");
-  for (const file of ["app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/lib/keylessPlay.ts"]) {
+  // The reply is assembled once, for the route and every harness (`lib/progress/sceneTurn.ts`).
+  for (const file of ["lib/progress/sceneTurn.ts"]) {
     assert.match(code(file), /feel: feltAt\(answered,/, `${file} composes without telling the model what the turn was to this person`);
   }
   assert.match(prompt, /ask\.feel === "sorry"/, "the prompt no longer reads the beat's feeling");
@@ -9307,8 +9307,8 @@ check("the other side talks at the run's band, and every composer says which ban
   assert.match(draft, /compose\(scene, beat, lemmas, undefined, links, withhold, level\)/, "the drafter no longer drafts for a band");
   assert.match(code("lib/scenes/bank.test.ts"), /fitsPitch\(row\.text, row\.level\)/, "the bank test no longer holds a pitched row to its band");
   const callers = [
-    "app/api/scene/route.ts", "scripts/eval-composers.ts", "scripts/eval-thinking.ts",
-    "scripts/measure-compose.ts", "scripts/play-scene.ts", "scripts/lib/keylessPlay.ts",
+    "lib/progress/sceneTurn.ts", "scripts/eval-composers.ts", "scripts/eval-thinking.ts",
+    "scripts/measure-compose.ts",
   ];
   for (const file of callers) {
     const source = code(file);
@@ -18791,16 +18791,26 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
     "a scripted line is no longer passed over once used, so a beat can repeat itself",
   );
 
-  const route = code("app/api/scene/route.ts");
-  const netAt = route.indexOf("const cheap = await sceneLine");
-  const bookAt = route.indexOf('authoriseCall(ownerId, "SCENE")');
-  assert.ok(netAt > 0 && bookAt > 0 && netAt < bookAt,
+  /*
+    The reply is assembled once, for the route and every harness
+    (`lib/progress/sceneTurn.ts`): the net is worked out there before the
+    model step is handed over, and the route books its call inside that step.
+  */
+  const turnModule = code("lib/progress/sceneTurn.ts");
+  const netAt = turnModule.indexOf("const cheap = await sceneLine");
+  const modelAt = turnModule.indexOf("await model(");
+  assert.ok(netAt > 0 && modelAt > 0 && netAt < modelAt,
+    "the model step is handed over before the net is worked out, so the net is assembled while somebody is waiting");
+  const sceneRouteCode = code("app/api/scene/route.ts");
+  const speakAt = sceneRouteCode.indexOf("speakTurn(plan");
+  const bookAt = sceneRouteCode.indexOf('authoriseCall(ownerId, "SCENE")');
+  assert.ok(speakAt > 0 && bookAt > 0 && speakAt < bookAt,
     "the route books a call before working out what it would say without one, so the net is assembled while somebody is waiting");
   // The close beat after a learner's news is the one courtesy the model answers (`closingOnNews`).
-  assert.match(route, /if \(cheap\.provenance === "attested" && !shrugOwed && !handing && !askedNow && !closingOnNews\) return/,
+  assert.match(turnModule, /if \(cheap\.provenance === "attested" && !plan\.shrugOwed && !line\.handing && !plan\.askedNow && !line\.closingOnNews\) \{?\s*return/,
     "the route no longer answers a courtesy off the dictionary before asking a model to paraphrase it");
-  assert.match(route, /scripted: bank\(beat\.id\)/, "the route no longer hands the ladder the bank");
-  assert.match(route, /const bank = [\s\S]{0,200}?sayableAfterHurdles\(context\.scripted\.get\(id\)/,
+  assert.match(turnModule, /scripted: bank\(beat\.id\)/, "the route no longer hands the ladder the bank");
+  assert.match(turnModule, /const bank = [\s\S]{0,200}?sayableAfterHurdles\(context\.scripted\.get\(id\)/,
     "the route's bank no longer reads the scene's own lines, less what a curveball has made untrue");
 
   assert.match(
@@ -18882,9 +18892,9 @@ check("the repair move is only used on a turn nobody understood", () => {
     "lib/scenes/line.ts is deciding what the other side says about a turn again; the ladder knows nothing about the turn",
   );
 
-  const route = code("app/api/scene/route.ts");
+  const route = code("lib/progress/sceneTurn.ts");
   assert.match(
-    route, /replyFor\(\{[\s\S]{0,400}?reading: progress\.reading/,
+    route, /replyFor\(\{[\s\S]{0,400}?\breading,/,
     "the scene route no longer hands replyFor the reading it marked, so the repair " +
     "move can be printed at somebody who was understood",
   );
@@ -18950,7 +18960,7 @@ check("the repair move is only used on a turn nobody understood", () => {
     "no curveball declares that it switches pronoun, so the register check refuses its own line again",
   );
   for (const file of [
-    "app/api/scene/route.ts", "scripts/check-lines.ts", "scripts/draft-lines.ts", "lib/scenes/bank.test.ts",
+    "lib/progress/sceneTurn.ts", "scripts/check-lines.ts", "scripts/draft-lines.ts", "lib/scenes/bank.test.ts",
   ]) {
     assert.match(
       code(file), /gateFor\(/,
@@ -19180,7 +19190,7 @@ check("a question the scene did not anticipate is answered before the move", () 
     reply, /\(!aside \|\| input\.recast\)/,
     "an aside displaces the learner's own word put right, so a slip is never said back",
   );
-  const route = code("app/api/scene/route.ts");
+  const route = code("lib/progress/sceneTurn.ts");
   assert.match(route, /asideFor\(/, "the scene route no longer asks what to say about a question");
   assert.match(route, /spokenFor\.awaits && !standing/, "the scene route walks the ladder for a beat that opens with nothing, so the answer is said before the question");
   const scripted = code("lib/scenes/scripted.ts");
@@ -19628,12 +19638,12 @@ check("every question a beat asks the learner for is answered by somebody", () =
     (`composeNote`'s `answer`), with the card's values filled in.
   */
   assert.match(
-    code("app/api/scene/route.ts"), /anticipated = askedNow && answered\?\.answer \? stageFor\(\{ \.\.\.answered, they: answered\.answer \}, card\)/,
+    code("lib/progress/sceneTurn.ts"), /anticipated = askedNow && answered\?\.answer \? stageFor\(\{ \.\.\.answered, they: answered\.answer \}, card\)/,
     "the route composes a move without telling the model what the beat says they answer with, "
       + "with the card's values filled in",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /\{ offer: handing, answer: anticipated[ ,}]/,
+    code("lib/progress/sceneTurn.ts"), /\{ offer: handing, answer: anticipated[ ,}]/,
     "the anticipated answer is worked out and never handed to the composer",
   );
 });
@@ -19746,7 +19756,7 @@ check("a learner who says they are lost is handed the word, never the question a
     narrower than it was: the model and the shrug are reached only on a turn
     that landed, and the aside on a miss is a fact or nothing.
   */
-  const sceneRoute = code("app/api/scene/route.ts");
+  const sceneRoute = code("lib/progress/sceneTurn.ts");
   assert.match(
     sceneRoute, /wantsAside = wantsAsideFor\(askedNow, /,
     "the scene route decides for itself which turns are owed an answer, rather than through wantsAsideFor",
@@ -19760,7 +19770,7 @@ check("a learner who says they are lost is handed the word, never the question a
     The first version handed the model "Tell them you would like a ticket" as
     settled, and it answered the next turn as the customer (§70).
   */
-  for (const file of ["app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/lib/keylessPlay.ts"]) {
+  for (const file of ["lib/progress/sceneTurn.ts"]) {
     assert.doesNotMatch(
       code(file), /settled = [^\n]*\.goal\)/,
       `${file} hands the model the learner's goals as what is settled, which it reads as its own lines`,
@@ -20321,7 +20331,7 @@ check("a beat answered out of order is credited, and never asked twice", () => {
     + "tell a miss from a late answer",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /landed: elsewhere > 0/,
+    code("lib/progress/sceneTurn.ts"), /landed: elsewhere > 0/,
     "the scene route no longer tells replyFor that the turn landed elsewhere, so the repair word "
     + "is said at a learner who has just answered an earlier question",
   );
@@ -20609,7 +20619,7 @@ check("a composed line is shown how its own beat is asked", () => {
     + "again or is not steered by it at all",
   );
   assert.match(
-    code("app/api/scene/route.ts"), /asked: bank\(beat\.id\)\.slice\(0, 2\)/,
+    code("lib/progress/sceneTurn.ts"), /asked: bank\(beat\.id\)\.slice\(0, 2\)/,
     "the scene route stopped handing the composer this beat's own lines",
   );
 });
@@ -22930,7 +22940,7 @@ check("a farewell is withheld off the close beat, and the goodbye stays off the 
     assert.match(code(file), /farewells: (?:\[\.\.\.)?FAREWELLS\.map\(words\)/, `${file} no longer hands the gate the closing phrases`);
   }
   assert.match(
-    code("app/api/scene/route.ts"), /\.filter\(\(b\) => b\.move !== "close" \|\| b\.id === beat\?\.id\)/,
+    code("lib/progress/sceneTurn.ts"), /\.filter\(\(b\) => b\.move !== "close" \|\| b\.id === beat\??\.id\)/,
     "the composer's agenda names the goodbye before it is the move, which is how the interviewer came to leave mid-interview",
   );
 });

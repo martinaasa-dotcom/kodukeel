@@ -5360,3 +5360,54 @@ sweep's detectors could name, which is why transcripts are read and not only cou
   shrug, and the goodbye waits for the learner's next turn.
 
 Measured after all of it: 4,456 conversations at each of A1, A2, B1, B2 and C1, and no flags at any.
+
+## §79 One reply assembly, for the route and every harness that measures it
+
+**Why.** Everything between marking a turn and answering it (which beat the reply is for, the card in
+play, whether a question gets a fact off the card or a shrug, whether a line is built at all, and what
+a model is handed) lived in `app/api/scene/route.ts` and was copied into `scripts/lib/keylessPlay.ts`,
+`scripts/play-scene.ts` and `scripts/fuzz-scenes.ts`. Read side by side, the copies had drifted from
+the route in more than a dozen places, and every drift was a harness reporting a conversation the app
+does not have:
+- the sweep's loop built a fresh line on turns the route answers by saying the last line again
+  (`wantsFreshLine`), and never shrugged where the route builds no line;
+- it shrugged at a scene that was over, and offered a narrowed choice after the goodbye;
+- it never told `replyFor` the beat's other banked lines (`others`) or that a word came in English;
+- it handed the gate the card's numbers without the learner's own, and the topic only on a turn that
+  deviated;
+- under the curveball that switches pronoun, `play:scenes` composed in the scene's register rather
+  than the switched one;
+- its consistency check and its "you said that already" check ran only where a judge link was set;
+- the fuzzer kept no record of what the bank had said, never passed how often a line had been heard,
+  and read "said aloud" by a rule of its own.
+
+**What there is now.** `lib/progress/sceneTurn.ts` is the one assembly. `planTurn` is everything a
+reply is planned from, in the order the route always worked it out. `speakTurn` walks the keyless
+rungs (the courtesy, the bank, a line said off the card) and hands the model step, where there is
+one, to the caller. `composeTurn` is what a model is asked: the answer before a break in time first,
+and then the move knowing it. The route keeps only what needs a socket or a ledger: it books the call,
+posts it, settles or releases the booking, and grows the dictionary. A harness hands the model step
+the links it was given (`harnessModel` in `scripts/lib/keylessPlay.ts`). `scripts/invariants/a-line-is-picked-the-same-way-everywhere.ts`
+fails on any other source file calling the pieces a reply is assembled from, and on the route or a
+harness reaching a reply some other way.
+
+**How it was shown to change nothing the app says.** The real route handler was driven in-process
+against a seeded local database through 1,350 conversations: every scene, at A1, B1 and C1, ten
+scripted learners, each run three ways (keyless; keyed with a run opened to speak from the bank; and
+composing against a stubbed model that answers deterministically from the prompt it is handed, fails
+on some calls, and has the judge and the consistency check answer by a hash). Every reply, every
+prompt sent to the model, every judge and consistency question and every ledger event was written
+down before the change and after it, with run ids derived from the scene and the learner so the two
+runs rotate their lines alike: 16,519 turns, 16,813 asks of the model with 641 lines getting through
+(181 of the asks for an answer before a break in time), 33 turns where no model answered at all,
+2,364 judge and consistency questions and 219 words sent to grow the dictionary. The two records, 70,677
+lines each, are identical byte for byte.
+
+**What did change is the harnesses, which is the point.** They now print what the route says. The
+keyless sweep at B1 still raises no flags over its 4,456 conversations, and 56 lines of its
+transcripts changed across the fifteen scenes, each the route's own answer: a shrug where no line is
+built, a different acknowledgement where the route has one. The
+first thing the unified `play:scenes` showed was a fault the old copy had been hiding: in the clothes
+shop, a learner who asks `kas hind?` after the assistant's line naming the price is read as handing
+the line back (an echo) and is answered `Ma ei saa aru` and the same line again. The route has always
+done that. It is fixed in the change after this one, because this one changes nothing the app says.

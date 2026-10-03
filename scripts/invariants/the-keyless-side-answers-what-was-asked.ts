@@ -55,7 +55,8 @@ export default function theKeylessSideAnswersWhatWasAsked({ check, code }: Invar
       "asideFor reads a money word anywhere in the turn again rather than the question clause");
     assert.match(aside, /priceOffCard\(card, lexicon, priceQuestion, input\.already\)/,
       "the figure is read from the whole turn again, so a price the learner stated is taken for one they are checking");
-    for (const file of ["app/api/scene/route.ts", "scripts/lib/keylessPlay.ts", "scripts/play-scene.ts"]) {
+    // The reply is assembled once, for the route and every harness (`lib/progress/sceneTurn.ts`).
+    for (const file of ["lib/progress/sceneTurn.ts"]) {
       assert.match(code(file), /money: askedNow !== null && priceAsked\(last\?\.said \?\? "", context\.lexicon\) !== null/,
         `${file} releases a held-back price on a money word anywhere in the turn`);
     }

@@ -14,20 +14,20 @@
  * one found four scenes a learner could hold for ever by typing one word at a
  * beat that wanted a sentence, which no unit test had asked.
  *
- * The route and the screen are not in the loop: this drives `replay`,
- * `sceneLine` and `replyFor` the way the route does, against the real
- * dictionary, which is where every rule about a turn lives.
+ * The route and the screen are not in the loop: this drives `replay` and
+ * the route's own `planTurn` and `speakTurn` (`lib/progress/sceneTurn.ts`),
+ * against the real dictionary, which is where every rule about a turn lives.
  */
 import { prisma } from "../lib/db";
 import { HARNESS_LEVEL } from "./lib/sceneDraft";
 import { SCENES, FALLBACK_PHRASE } from "../lib/scenes/catalogue";
 import { glossCard, glossesFor, knowing, replay, sceneContext, type StoredDraw } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
-import { replyFor, datumLine, cardChosen, cardInPlay, cardAfterHurdles, counterBeat } from "../lib/scenes/reply";
-import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
-import { isSpokenEstonian, sceneLine } from "../lib/scenes/line";
+import { planTurn, speakTurn } from "../lib/progress/sceneTurn";
+import { seedFrom } from "../lib/random/seeded";
+import { isOver } from "../lib/scenes/state";
+import { isSaid, isSpokenEstonian } from "../lib/scenes/line";
 import { PERSONAS } from "../lib/scenes/personas";
-import { sceneBeats } from "../lib/scenes/scripted";
 import { dealtNumbers } from "../lib/scenes/props";
 import { installMeter } from "./lib/meter";
 
@@ -72,51 +72,31 @@ async function main() {
         sequences.push(Array.from({ length: 70 }, () => "Tere!"));
         for (const seq of sequences) {
           const turns: { beatId: string; said: string; helped: boolean; heard: string }[] = [];
+          // What the screen sends back on every turn: the lines the bank has said, so none repeats.
+          const used = new Set<string>();
           let heard = "";
           let over = false;
           for (let i = 0; i < seq.length && !over; i++) {
-            let state, response;
+            let marking, state, response, elsewhere;
             try {
               // Widened the way the route widens, or the repair-phrase rule
               // below is asked of a narrower marker than a learner meets.
-              ({ state, response } = replay(await knowing(context, turns.map((t) => t.said)), draw, turns));
+              marking = await knowing(context, turns.map((t) => t.said));
+              ({ state, response, elsewhere } = replay(marking, draw, turns));
             } catch (e) { bad(`${scene.id} ${difficulty} replay threw: ${(e as Error).message}`); break; }
-            const beat = currentBeat(scene, state);
-            const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
-            const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
-            // The card as the route builds it: hurdles and counters stood in, and a
-            // word the learner chose named in English for the stage direction.
-            const card = cardChosen(
-              cardAfterHurdles(cardInPlay(draw.card, scene.beats, state.countered), state),
-              state.turns,
-              (lemma) => context.marker.englishFor?.get(lemma)?.[0],
-            );
-            const spokenFor = standing ?? speaking;
-            let line = null;
-            if (spokenFor) {
-              const cheap = await sceneLine({
-                beat: spokenFor, lexicon: context.lexicon, gate: context.gate,
-                pool: context.pool.get(spokenFor.id) ?? [], topic: context.topic.get(spokenFor.id) ?? new Set(),
-                hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
-                scripted: context.scripted.get(spokenFor.id) ?? [], used: new Set(),
-                // Keyless by design: the fuzzer opens no socket.
-                mode: "scripted" as const,
-              });
-              line = cheap.provenance !== "fallback" ? cheap : (datumLine(spokenFor, card, context.lexicon) ?? cheap);
-            }
-            const last = state.turns[state.turns.length - 1] ?? null;
-            // See app/api/scene/route.ts: `scene.beats` has never heard of a hurdle.
-            const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
+            /*
+              The route's own reply, planned and spoken by the route's own
+              functions (`lib/progress/sceneTurn.ts`). Keyless by design: the
+              fuzzer opens no socket, so no model step is handed over.
+            */
+            const plan = planTurn({
+              scene, context: marking, draw, state, response, elsewhere, taken: turns.length, used, persona,
+              composing: false, rotate: seedFrom(`${scene.id}:fuzz-${seedNo}`), level: HARNESS_LEVEL,
+            });
+            const { current: beat, card, last } = plan;
             let lines;
             try {
-              lines = replyFor({
-                beat: speaking, answered: turns.length ? answered : null, response: turns.length ? response : null,
-                reading: last?.reading ?? null, line, heard: last?.heard ?? null, said: last?.said ?? null, card,
-                translates: persona.translates, acknowledges: persona.acknowledges,
-                echo: last?.matched?.[0] ?? null, met: state.done.length,
-                tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
-                hurdle: standing ? { beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said } : null,
-              });
+              ({ lines } = await speakTurn(plan));
             } catch (e) { bad(`${scene.id} replyFor threw: ${(e as Error).message}`); break; }
             over = isOver(scene, state);
             if (!over && lines.length === 0) bad(`${scene.id} ${difficulty} turn ${i}: empty reply (response ${response}, reading ${last?.reading})`);
@@ -144,9 +124,10 @@ async function main() {
                 if (stray.length > 0) bad(`${scene.id}: a number nobody dealt (${stray.join(", ")}) in an Estonian line: ${l.text}`);
               }
             }
-            // what the learner is now answering
+            for (const l of lines) if (l.provenance === "attested" || l.provenance === "scripted") used.add(l.text);
+            // What the learner is now answering, as `moveIn` reads it on the screen.
             const move = [...lines].reverse().find((l) => !l.reaction);
-            if (move) heard = move.provenance === "unspoken" ? "" : move.text;
+            if (move) heard = isSaid(move.provenance) ? move.text : "";
             if (over) break;
             turns.push({ beatId: beat?.id ?? "", said: seq[i]!, helped: false, heard });
           }
