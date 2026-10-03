@@ -2856,3 +2856,12 @@ dictionary's own forms.
 
 **Describe's caption is a list.** "A picture of house, door and window" wanted articles a gloss
 cannot supply, `a water` and `a bread` among them; "In the picture: house, door, window" needs none.
+
+**Walking out of a level is holding it.** Finishing a part and pressing on wrote the next part and
+never the level, so a learner who walked the course from the first evening was still a beginner to
+everything that reads one: the speed a recording plays at (0.6 of the voice), the band a
+conversation opens at, Anu's briefing and the bands the standalone rounds draw from, all still A1
+on the first evening of C1. Found by opening the C1 conversation above and reading "Your level is
+A1" on its briefing. Moving from the last part of a level into the first of the next records the
+level walked out of (`levelHeldOnHandOff`), one step up and never down, so a jump in Settings to
+a part far above writes nothing and neither does going back to refresh one.
