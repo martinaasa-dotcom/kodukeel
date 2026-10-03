@@ -573,20 +573,28 @@ try {
         && (await unplugged.locator("#main").innerText().catch(() => "")).trim().length > 0,
     );
 
-    await unplugged.locator(".module-step").getByRole("button", { name: /Next step|Finish/ })
-      .click().catch(() => {});
+    /* Whichever way on is on the screen: the bar's quiet "Next step", or the
+       named "Next" where the step ends, which the bar stands aside for while
+       it is in view. A short screen, which a step drawn offline often is, has
+       its end in view from the start, so on that screen the bar carries none. */
+    const wayOn = unplugged.locator("[data-module-next] button").first();
+    const pressIn = (await wayOn.isVisible().catch(() => false))
+      ? wayOn
+      : unplugged.locator(".module-step").getByRole("button", { name: /Next step|Finish/ });
+    await pressIn.click().catch(() => {});
     await unplugged.waitForTimeout(4_000);
     const left = await unplugged.evaluate(() => ({
       bar: !!document.querySelector(".module-step"),
       main: (document.querySelector("#main")?.textContent || "").trim().length,
-      live: [...document.querySelectorAll(".module-step button")]
-        .some((b) => /Next step|Finish/.test(b.textContent || "") && !b.disabled),
+      live: [...document.querySelectorAll(".module-step button, [data-module-next] button")]
+        .some((b) => /Next|Finish/.test(b.textContent || "") && !b.disabled
+          && b.getBoundingClientRect().height > 0),
     }));
     check("and pressing on with it gone leaves the room standing", left.bar && left.main > 0, JSON.stringify(left));
     check("with the way on still pressable", left.live, JSON.stringify(left));
     check(
       "and says the step was not ticked",
-      /didn.t reach us|did not reach the server/i.test(await unplugged.locator(".module-step").innerText().catch(() => "")),
+      /didn.t reach us|did not reach the server/i.test(await unplugged.locator("body").innerText().catch(() => "")),
     );
   } finally {
     await dark.setOffline(false);
