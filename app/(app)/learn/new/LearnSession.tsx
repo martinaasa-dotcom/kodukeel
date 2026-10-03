@@ -613,7 +613,8 @@ export function LearnSession({
   const answerGap = useCallback(() => {
     if (!word || busy || phase === "feedback") return;
     const expected = word.gap ? word.gap.answer : word.lemma;
-    const check = checkAnswer(typed, expected, "et", word.gap?.rivals ?? []);
+    // On the gap another form is the wrong answer; asked from the meaning, it is the word.
+    const check = checkAnswer(typed, expected, "et", word.gap?.rivals ?? [], word.gap ? [] : word.kin);
     /*
       A SECOND RIGHT WORD IS RIGHT. Where the rung asks for the word from its
       meaning and the learner typed another word that means it, nobody in
@@ -651,10 +652,11 @@ export function LearnSession({
   /**
    * The marker's note with the answer marked inside it, or nothing.
    *
-   * `checkAnswer` writes a note that names the form on three of its four
-   * readings (`Not quite, it's "X".`, `So close, the word is "X".`, `That is
-   * another form of the word. This one wanted "X".`), and on the fourth it
-   * names the letters instead. The panel below prints the answer on its own
+   * `checkAnswer` writes a note that names the form on every reading but the
+   * dropped diacritic (`Not quite, it's "X".`, `So close, the word is "X".`,
+   * `That is another form of the word. This one wanted "X".`, `Right word, in
+   * another form. This one wanted "X".`), and on that one it names the letters
+   * instead. The panel below prints the answer on its own
    * line only where the note leaves it unsaid, so `splitOnForm` is asked the
    * question rather than the panel guessing from the verdict: a note that
    * grows or loses the form is answered correctly the day it changes.

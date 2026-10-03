@@ -281,7 +281,10 @@ export function offerParts(offer: AdaptOffer, effects: LeanEffects): OfferText {
   const seen = Math.round(offer.reading.accuracy * 100);
   const lean = leanSentence(tiltFor(offer.reading), effects);
   if (offer.reading.kind === "flying") {
-    const lead = `Lately you've been getting ${seen} out of a hundred right.`;
+    // "100 out of a hundred" is arithmetic read aloud; every one is a sentence.
+    const lead = seen >= 100
+      ? "Lately you've been getting every answer right."
+      : `Lately you've been getting ${seen} out of a hundred right.`;
     const advice = offer.move
       ? `If this part feels too easy, skip ahead to ${offer.move.to.id.toUpperCase()}. `
         + "Everything from this one stays in your reviews either way."

@@ -2745,3 +2745,28 @@ government and the object rule count as case evenings, and the government page's
 government (`onThePage`). **The picture round asks what the sentence says** ("out of the
 hospital"), the writing round's phrase, with the case's name on the verdict.
 
+
+## 47. The forty-first pass: a B1 evening walked from the start
+
+**An evening's words are met when every one the dictionary holds is met.** The meet step asked
+whether the cards that existed had all been answered, which is the same question only until
+somebody already holds some of tonight's words. Two of a B1 evening's five had come in from
+elsewhere and were long since answered, so the step read as done before anybody pressed Start, the
+press that builds the other three went with it, and `abielu`, `usaldama` and `tülitsema` were never
+taught. A word the dictionary holds and the deck does not is a word still to meet; a word the
+dictionary does not hold still cannot block the evening, and a card the leech clinic suspended
+counts as met, since Start will not rebuild it.
+
+**And an evening begun is the one the module screen draws.** "Come back tomorrow" stood until a step
+of the next day was ticked, and meeting its words ticks nothing, so a learner who pressed "start the
+next one now", met three words and went back was shown last night's "That's tonight done". The next
+day's words given cards since the last tick is that evening begun. The evening letter's own question,
+whether an evening was finished today, is unchanged.
+
+**The right word in another form is said to be that.** Asked for "to trust", `usaldada` is the verb
+and the other infinitive, and the slip rule called it one letter out of `usaldama`: "So close". A
+card that asks for the word from its meaning now hands the marker the word's other spellings
+(`checkAnswer`'s `kin`), and a match reads "Right word, in another form. This one wanted
+“usaldama”.", graded as nearly. A case card's rivals still win, since there another form is the
+wrong answer. The writing round's miss names the form it wanted, both spellings where a case has
+two, and the course-fit card says "every answer right" rather than "100 out of a hundred".

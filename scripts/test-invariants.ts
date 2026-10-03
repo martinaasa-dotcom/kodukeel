@@ -23401,9 +23401,25 @@ check("a derived step asks for no more evidence than the app can supply", () => 
     nought and the evening cannot be finished by any press either.
   */
   assert.match(
-    reading, /prisma\.lexeme\.count/,
+    reading, /toMeet\.size === 0\) return true/,
     "the meet step cannot be finished on a deployment whose dictionary holds none of the "
     + "day's words, and nothing a learner presses can tick it",
+  );
+
+  /*
+    AND IT ASKS FOR EVERY WORD THE DICTIONARY HOLDS, NOT EVERY WORD THE DECK
+    HAPPENS TO. Read off the cards that existed, two words already answered
+    from the frequency list ticked a five-word evening before Start, and the
+    press that builds the other three went with it, so they were never taught.
+  */
+  assert.match(
+    reading, /prisma\.lexeme\.findMany\(\{ where: \{ lemma: \{ in: \[\.\.\.words\] \} \}/,
+    "the meet step does not ask which of the day's words the dictionary holds",
+  );
+  assert.match(
+    reading, /\[\.\.\.toMeet\]\.every\(/,
+    "the meet step is finished by the words the deck holds rather than the words the dictionary does, "
+    + "so an evening whose other words were met elsewhere ticks before its new ones are taught",
   );
 });
 

@@ -90,6 +90,15 @@ export interface ReviewCard {
    * answer is English.
    */
   rivals: string[];
+  /**
+   * Every other spelling of the word, on a card asking for the word from its
+   * meaning. There another form is the word recalled rather than a miss:
+   * `usaldada` typed for "to trust" is the other infinitive, which the marker
+   * says, where the slip rule called it one letter out of `usaldama`.
+   *
+   * Empty on every other card, and on a session stashed before this existed.
+   */
+  kin: string[];
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
   isNew: boolean;
@@ -1160,7 +1169,7 @@ export function ReviewSession({
   const checkTyped = useCallback(() => {
     if (!card || verdict) return;
     const language = card.cardType === "RECOGNITION" ? "en" : "et";
-    const marked = checkAnswer(typed, card.back, language, card.rivals);
+    const marked = checkAnswer(typed, card.back, language, card.rivals, card.kin);
     /*
       A SECOND RIGHT WORD IS RIGHT. Asked only where the marker said no, so a
       clean hit, a dropped diacritic and a typo of the card's own word all keep
@@ -1194,7 +1203,7 @@ export function ReviewSession({
   const checkRetype = useCallback(() => {
     if (!card || !verdict || retypeOk) return;
     const language = card.cardType === "RECOGNITION" ? "en" : "et";
-    const again = checkAnswer(retyped, card.back, language, card.rivals);
+    const again = checkAnswer(retyped, card.back, language, card.rivals, card.kin);
     if (again.verdict === "correct") {
       setRetypeOk(true);
       setRetypeNote(null);

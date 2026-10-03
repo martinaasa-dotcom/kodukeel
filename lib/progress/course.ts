@@ -328,7 +328,8 @@ export async function dayIsInPlay(
 /**
  * Whether the day's words have been met.
  *
- * Every word in the deck, and every one of them answered at least once. `state
+ * Every word of the day the dictionary holds, in the deck and answered at least
+ * once. `state
  * 0` is FSRS's New, which is exactly the ladder's `meet` rung, so a word that
  * has left it is a word somebody has been asked about and answered. Requiring
  * the rung above, produced in a sentence, was tried on paper and is the wrong
@@ -336,8 +337,8 @@ export async function dayIsInPlay(
  * day could never be finished on the evening it was started.
  *
  * A word the dictionary does not hold cannot be met and cannot block a day, so
- * what is counted is the cards that exist against the words the deck actually
- * built. The alternative reads as a learner failing at a gap in Ekilex.
+ * what is counted is every word the dictionary holds, held and answered. The
+ * alternative reads as a learner failing at a gap in Ekilex.
  */
 async function metWords(ownerId: string, words: readonly string[]): Promise<boolean> {
   if (words.length === 0) return true;
@@ -356,16 +357,34 @@ async function metWords(ownerId: string, words: readonly string[]): Promise<bool
 */
 const metWordsFor = cache(async (ownerId: string, joined: string): Promise<boolean> => {
   const words = joined.split("\n");
-  const [cards, aside] = await Promise.all([
+  const [cards, aside, known] = await Promise.all([
     prisma.card.findMany({
       where: {
-        ownerId, suspended: false, cardType: LADDER_CARD_TYPE,
+        ownerId, cardType: LADDER_CARD_TYPE,
         lexeme: { lemma: { in: [...words] } },
       },
-      select: { state: true, lexemeId: true, lexeme: { select: { lemma: true } } },
+      select: { state: true, suspended: true, lexemeId: true, lexeme: { select: { lemma: true } } },
     }),
     deferredWordIds(ownerId),
+    prisma.lexeme.findMany({ where: { lemma: { in: [...words] } }, select: { lemma: true } }),
   ]);
+  /*
+    EVERY WORD THE DICTIONARY HOLDS, NOT EVERY WORD THE DECK HAPPENS TO. This
+    asked whether the cards that existed had all been answered, which is the
+    same question only until somebody already holds some of tonight's words:
+    two of a B1 evening's five came in from the frequency list, both long since
+    answered, so the step read as done before anybody pressed Start, the press
+    that builds the other three was gone with it, and `abielu`, `usaldama` and
+    `tülitsema` were never taught. A word the dictionary holds and the deck
+    does not is a word still to meet, which is what Start is for.
+
+    A word the dictionary does not hold still cannot block the evening, since
+    the ladder can build nothing for it: that is the deployment seeded before
+    the unit, and the honest answer to "meet these" there is that there is
+    nothing to meet.
+  */
+  const toMeet = new Set(known.map((k) => k.lemma));
+  if (toMeet.size === 0) return true;
   /*
     AND A WORD PUT ASIDE IS NOT A WORD STILL TO MEET. The meet rung offers
     "too complicated", which moves the card's date and leaves it New, and the
@@ -373,9 +392,10 @@ const metWordsFor = cache(async (ownerId: string, joined: string): Promise<boole
     went on waiting for it to leave New: the evening stopped with no press
     anywhere that could move it, since this step is derived and neither course
     action may write a row for it. The learner said not tonight; the step
-    takes them at their word, and the word returns when its wait ends.
-  */
-  /*
+    takes them at their word, and the word returns when its wait ends. A card
+    the leech clinic suspended is the same answer from another screen, and is
+    not rebuilt by Start, so it counts as met rather than blocking for ever.
+
     PER WORD, NOT PER CARD. A word is met when one of its ladder cards has
     left New, and a second copy of it at New is not the word un-met. That copy
     used to be all it took: the dictionary can hold a lemma twice, and a deck
@@ -384,42 +404,13 @@ const metWordsFor = cache(async (ownerId: string, joined: string): Promise<boole
     card at New beside the one already answered, and an evening finished
     minutes earlier read three quarters done. Reported off a real module.
   */
-  if (cards.length > 0) {
-    const met = new Set<string>();
-    const held = new Set<string>();
-    for (const c of cards) {
-      const word = c.lexeme?.lemma ?? c.lexemeId ?? "";
-      held.add(word);
-      if (c.state !== 0 || (c.lexemeId !== null && aside.has(c.lexemeId))) met.add(word);
-    }
-    return [...held].every((word) => met.has(word));
+  const met = new Set<string>();
+  for (const c of cards) {
+    const word = c.lexeme?.lemma;
+    if (!word) continue;
+    if (c.state !== 0 || c.suspended || (c.lexemeId !== null && aside.has(c.lexemeId))) met.add(word);
   }
-  /*
-    AND A DAY WHOSE WORDS THIS DEPLOYMENT'S DICTIONARY HOLDS NONE OF IS MET.
-
-    `cards.length > 0` is what stops the step ticking before anybody has
-    pressed Start, and on a dictionary that cannot supply a single one of the
-    day's words it was also what stopped it ticking ever: the ladder builds
-    nothing, so no card arrives, so the count stays nought and the evening
-    cannot be finished by any press on any screen. `course.test.ts` holds
-    every day's words to lemmas its own unit teaches, so this is a deployment
-    seeded before those units rather than a programme naming a word that does
-    not exist, and the honest answer to "meet these five words" when the
-    dictionary has none of them is that there is nothing to meet.
-
-    ALL OR NOTHING, WHICH IS NARROWER THAN THE STATE IT SITS IN. A dictionary
-    holding three of the day's five words is the commoner shape, and there the
-    step ticks on those three the moment they are met while the other two are
-    never taught. That is the reading this has always had and is not what this
-    branch is about; `missingWords` is what puts the gap on the screen, so the
-    learner is told rather than left to notice. Only the case where there is
-    nothing whatever to meet is answered here.
-
-    One query, and only on the path that would otherwise be stuck: a deck that
-    holds any card at all for the day never reaches it.
-  */
-  const known = await prisma.lexeme.count({ where: { lemma: { in: [...words] } } });
-  return known === 0;
+  return [...toMeet].every((word) => met.has(word));
 });
 
 /**
@@ -738,8 +729,31 @@ export async function courseReading(
   const eveningDoneToday = finishedToday
     || Boolean(beforeLast && beforeLast >= midnight);
 
+  /*
+    AND AN EVENING STARTED SINCE IS THE ONE THE SCREEN IS ABOUT. "Come back
+    tomorrow" stands until a step of the next day is ticked, and meeting its
+    words ticks nothing, since that step is read off the deck: so a learner who
+    pressed "start the next one now", met three words and went back to the
+    module was shown last night's "That's tonight done" over the evening they
+    were half way through. The next day's words given cards since the last
+    tick is that evening begun, because Start is what builds them. Asked only
+    on the path that would say "done", and never of `eveningDoneToday`, which
+    the evening letter reads and which this does not make false.
+  */
+  let begunNext = false;
+  const next = standing.current?.day;
+  if (finishedToday && lastTick && next && next.id !== justFinished) {
+    begunNext = await prisma.card.count({
+      where: {
+        ownerId, cardType: LADDER_CARD_TYPE, createdAt: { gt: lastTick },
+        lexeme: { lemma: { in: [...next.words] } },
+      },
+    }) > 0;
+  }
+
   return {
-    ...standing, finishedToday, eveningDoneToday, started: ticks.byDay.size > 0, eveningsInARow,
+    ...standing, finishedToday: finishedToday && !begunNext, eveningDoneToday,
+    started: ticks.byDay.size > 0, eveningsInARow,
   };
 }
 

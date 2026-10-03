@@ -18,7 +18,7 @@
 
 import { FOLD, fold } from "@/lib/estonian/fold";
 
-export type Verdict = "correct" | "diacritics" | "typo" | "wrong";
+export type Verdict = "correct" | "diacritics" | "typo" | "form" | "wrong";
 
 /**
  * How long a same-length, one-letter-substituted answer has to be before it
@@ -229,6 +229,19 @@ export function checkAnswer(
    * cannot supply them is no worse off than before.
    */
   rivals: readonly string[] = [],
+  /**
+   * Other forms of the word, on a card that asks for the word rather than
+   * for a form of it.
+   *
+   * THE RIGHT WORD IN ANOTHER FORM IS NOT A SLIP AND NOT A MISS. Asked for
+   * "to trust", a learner who types `usaldada` knows the verb and has given
+   * the other infinitive, and the slip rule below read it as one letter out
+   * of `usaldama` and said "So close", which names the wrong thing: nothing
+   * was mistyped. On a case card another form is the wrong answer, which is
+   * `rivals`; on a card asking what the word is, it is the word recalled and
+   * the citation form missed, so it is graded as nearly and said so.
+   */
+  kin: readonly string[] = [],
 ): AnswerCheck {
   const answers = acceptedForms(expected, language);
   const given = normalise(typed, language);
@@ -277,6 +290,20 @@ export function checkAnswer(
           expected: primary,
           note: `That's another form of the word. This one wanted ${closing(primary)}`,
           suggestedRating: 1,
+        };
+      }
+    }
+  }
+
+  if (!accepted.has(givenFoldedRival)) {
+    for (const form of kin) {
+      const other = fold(normalise(form, language));
+      if (other && other === givenFoldedRival) {
+        return {
+          verdict: "form",
+          expected: primary,
+          note: `Right word, in another form. This one wanted ${closing(primary)}`,
+          suggestedRating: 2,
         };
       }
     }
@@ -331,5 +358,5 @@ export function checkAnswer(
 
 /** True when a verdict should still count as recalled in the session tally. */
 export function countsAsRecalled(verdict: Verdict): boolean {
-  return verdict === "correct" || verdict === "diacritics" || verdict === "typo";
+  return verdict === "correct" || verdict === "diacritics" || verdict === "typo" || verdict === "form";
 }

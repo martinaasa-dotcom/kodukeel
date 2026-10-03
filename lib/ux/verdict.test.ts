@@ -30,6 +30,7 @@ describe("the verdict vocabulary", () => {
     expect(verdictOfCheck("correct")).toBe("right");
     expect(verdictOfCheck("diacritics")).toBe("nearly");
     expect(verdictOfCheck("typo")).toBe("nearly");
+    expect(verdictOfCheck("form")).toBe("nearly");
     expect(verdictOfCheck("wrong")).toBe("wrong");
   });
 
