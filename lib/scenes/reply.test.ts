@@ -591,6 +591,46 @@ describe("a question the scene did not anticipate", () => {
   });
 });
 
+describe("a question asked on the way out", () => {
+  const CLOSE: BeatSpec = { ...ASK, id: "close", move: "close", they: "They say goodbye.", needs: [{ kind: "lemma", oneOf: ["Head aega!"] }] };
+  const BYE: SpokenLine = { text: "Head aega!", provenance: "attested" };
+  const price: SpokenLine = { text: "Jah, see maksab 4 eurot.", provenance: "attested" };
+
+  /*
+    A learner who asked the price at the counter read the price and a goodbye
+    before they had paid: the keyless critic's commonest premature end. What
+    answered them is said, and the goodbye waits for them.
+  */
+  it("is answered, and the goodbye is left to the learner", () => {
+    const lines = replyFor(input({ answered: ASK, beat: CLOSE, line: BYE, aside: price, said: "Kas see maksab 4 eurot?" }));
+    expect(texts(lines)).toEqual([price.text]);
+  });
+
+  it("says the goodbye where nothing could answer, since it is all there is left to say", () => {
+    const lines = replyFor(input({ answered: ASK, beat: CLOSE, line: BYE, said: "Kas bussis on wifi?" }));
+    expect(texts(lines)).toContain(BYE.text);
+  });
+
+  // Their goodbye met the closing beat, so the scene is over and the goodbye is said back.
+  it("says it back where the learner said goodbye with the question", () => {
+    const lines = replyFor(input({ answered: CLOSE, beat: undefined, line: BYE, aside: price, said: "Kas see maksab 4 eurot? Head aega!" }));
+    expect(texts(lines)).toEqual([price.text, BYE.text]);
+  });
+
+  /*
+    The farewell offered when patience ran out, and then the scene's own
+    closing line in other words, was a shop assistant saying goodbye twice in
+    a row. The old guard compared the text and let `Nägemist!` through.
+  */
+  it("is never two goodbyes in one breath, whatever their words", () => {
+    const lines = replyFor(input({
+      answered: CLOSE, beat: undefined, response: "moveOn", reading: "offtarget",
+      line: { text: "Nägemist!", provenance: "attested" }, offer: "Head aega",
+    }));
+    expect(texts(lines).filter((text) => /aega|nägemist/i.test(text))).toHaveLength(1);
+  });
+});
+
 describe("one word where a sentence was due", () => {
   it("gets a look and a wait: one word with a question mark, and no new question", () => {
     const lines = replyFor(input({ answered: ASK, beat: ASK, response: "wait", reading: "fragment", echo: null }));

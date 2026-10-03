@@ -16,7 +16,7 @@ import {
 } from "../../lib/progress/scene";
 import { seedFrom } from "../../lib/random/seeded";
 import { feltAt, replyFor, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, sayableAfterHurdles, wantsAsideFor } from "../../lib/scenes/reply";
-import { asideFor, asideOwed, asksPrice, asksToHearAgain, shrug } from "../../lib/scenes/aside";
+import { asideFor, asideOwed, asksToHearAgain, priceAsked, shrug } from "../../lib/scenes/aside";
 import { asksSlower } from "../../lib/scenes/casual";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver, type SceneState } from "../../lib/scenes/state";
 import { ASKS_ON } from "../../lib/scenes/curveballs";
@@ -133,7 +133,7 @@ export async function playScripted(options: PlayOptions): Promise<Event[]> {
       // What this person holds for later and what the run has established, as the route reads them.
       const held = heldBack(scene.beats, inPlay, state, spokenFor, {
         any: askedNow !== null,
-        money: askedNow !== null && asksPrice(words(last?.said ?? ""), context.lexicon),
+        money: askedNow !== null && priceAsked(last?.said ?? "", context.lexicon) !== null,
       });
       const established = establishedBy(state, inPlay);
       const moved = sceneMovedOn(state, inPlay, scene.beats);
@@ -181,7 +181,7 @@ export async function playScripted(options: PlayOptions): Promise<Event[]> {
       });
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, inPlay, context.lexicon) ?? cheap;
       if (line.provenance === "composed") aside = null;
-      else if (wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain && !asksSlower(words(last?.said ?? ""))) aside = shrug(context.lexicon, used);
+      else if (wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain && !asksSlower(words(last?.said ?? ""))) aside = shrug(asking);
     }
     const lines = replyFor({
       beat: speaking, answered: turns.length ? answered : null, response: turns.length ? response : null,

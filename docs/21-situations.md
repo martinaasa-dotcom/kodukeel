@@ -5252,6 +5252,35 @@ learner is a model too, so both runs carry noise of their own. What the critic s
 question nobody wrote an answer for, and nothing without a model can answer small talk. That is the
 argument for keeping the model up.
 
+**Then "Ei tea." was held to the questions it answers.** In the 254 it was still said in 47 of the 60
+conversations, and most of those were replies to yes-or-no questions it does not answer: a shop
+assistant asked whether they sell ice cream, a neighbor asked how long they have lived there, a
+learner checking `Homme?`. `shrugFits` lets it answer only a question asking for information
+(`Kus on postkontor?`, `Mis kell on?`) or a "do you know...?", and never a question about the person
+asked (`Kuidas teie nimi on?`), read a sentence at a time so a statement in front of the question
+does not decide it. It errs toward silence, since a missed shrug costs nothing and the move is said
+either way. Three more faults came out of the next round, each mechanical:
+- The price was answered wherever a money word stood. A learner at a returns desk who said what
+  they had paid and asked for their money back was told the price. `priceAsked` reads the question
+  clause, so "Kas ma saan raha tagasi?" is not a price question and "Kas see maksab?" is, and the
+  figure is read from that clause alone. The same rule decides whether a price held for a later
+  beat is released.
+- With no model, a question on the way out was answered and then `Head aega!` followed in the same
+  breath. Now the answer is said and the goodbye waits for the learner, which is what the composer
+  is told. Where nothing could answer, the goodbye is still said, since it is all that is left. A
+  goodbye that waited is said as itself when it comes, not as "said again", and two goodbyes in
+  different words are never said in one breath.
+- A beat that explains, refuses or corrects was credited from a distance. At the pharmacy, a
+  learner who mentioned the price in their first turn met "pay" two beats early, so how to take the
+  medicine was never said, and asking how often got `Nägemist!`. Those beats now wait for their own
+  line, the same rule the offer beat already had.
+
+The rerun found 228 over 59 conversations (one was not judged): "Ei tea." said 16 times rather than
+47, unkind lines 19 to 6, stalls 30 to 11. Premature ends rose from 23 to 36. The round before
+these fixes ran on a harness that, with no model, said nothing in Estonian at a closing beat while
+the learner was still asking. The closing beat now says its goodbye, and the critic counts a
+goodbye the learner was not ready for. The sweep is at the same nine flags.
+
 **And reading it found one fault the sweep could not see.** When the learner is still asking things,
 the route hands the closing beat to the composer as a `confirm`, so a model answers the question and
 leaves the goodbye to the learner. The cheap ladder was handed the same relabelled beat, and a

@@ -75,3 +75,33 @@ describe("crediting a beat nobody asked yet", () => {
     expect(scene.beats[state.beat]?.id).toBe("where");
   });
 });
+
+/*
+  NOTHING IS TAKEN THAT THE OTHER SIDE HAS NOT YET SAID. At the pharmacy a
+  learner who mentioned the price in their first turn met "tell them you'll
+  take it and pay" two beats early, so the pharmacist never explained how to
+  take the medicine, and the learner who then asked how often was told
+  `Nägemist!`. A beat whose move is to explain, refuse or correct waits for
+  its own line.
+*/
+describe("a beat that explains something", () => {
+  const rows: Row[] = shippedDictionary().map((e) => ({
+    id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr, parts: e.parts,
+    extraForms: e.extraForms, usages: e.usages, government: e.government, gloss: e.gloss,
+  }));
+  const scene = sceneById("apteek")!;
+  const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), "A2");
+  const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
+  const run = planRun(scene, "says-first", "A2", "textbook");
+  const draw = { persona: run.persona.id, card: run.card, curveballs: [], lines: "scripted" as const, patience: run.patience };
+
+  it("is not met from a distance before it is said", () => {
+    const pay = scene.beats.find((b) => b.id === "pay");
+    expect(pay?.move).toBe("instruct");
+    const turns: { beatId: string; said: string; helped: boolean; heard: string }[] = [];
+    let state = replay(context, draw, []).state;
+    turns.push({ beatId: scene.beats[state.beat]?.id ?? "", said: "Tere! Mul on kõrv haige. Kas see maksab kuus eurot?", helped: false, heard: "" });
+    state = replay(context, draw, turns).state;
+    expect(state.done).not.toContain("pay");
+  });
+});

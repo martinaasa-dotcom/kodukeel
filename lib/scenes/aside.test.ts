@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { asideFor, asideOwed, asksPrice, asksToHearAgain, priceOffCard, shrug } from "./aside";
-import { buildLexicon, type DictEntry } from "./lexicon";
+import { asideFor, asideOwed, asksPrice, asksToHearAgain, priceAsked, priceOffCard, shrug, shrugFits } from "./aside";
+import { buildLexicon, words, type DictEntry } from "./lexicon";
 import type { RoleCard } from "./props";
 import type { BeatSpec } from "./types";
 
@@ -23,6 +23,14 @@ const ENTRIES: DictEntry[] = [
   { lemma: "hind", pos: "NOUN", cefr: "A1", parts: { NOM_SG: "hind", GEN_SG: "hinna", PART_SG: "hinda" }, usages: [] },
   { lemma: "palju", pos: "ADVERB", cefr: "A1", parts: {}, usages: [] },
   { lemma: "kuus", pos: "NUMERAL", cefr: "A1", parts: { NOM_SG: "kuus", GEN_SG: "kuue", PART_SG: "kuut" }, usages: [] },
+  { lemma: "kus", pos: "ADVERB", cefr: "A1", parts: {}, usages: [] },
+  { lemma: "kas", pos: "ADVERB", cefr: "A1", parts: {}, usages: [] },
+  { lemma: "mis", pos: "PRONOUN", cefr: "A1", parts: { NOM_SG: "mis", GEN_SG: "mille", PART_SG: "mida" }, usages: [] },
+  {
+    lemma: "sina", pos: "PRONOUN", cefr: "A1", parts: { NOM_SG: "sina", GEN_SG: "sinu", PART_SG: "sind" },
+    extraForms: [{ code: "SgN", value: "sa" }, { code: "SgAd", value: "sul" }], usages: [],
+  },
+  { lemma: "elama", pos: "VERB", cefr: "A1", parts: { INF_MA: "elama", INF_DA: "elada", PRES_1SG: "elan", PAST_1SG: "elasin" }, usages: [] },
 ];
 const LEX = buildLexicon(ENTRIES);
 
@@ -120,14 +128,14 @@ describe("a question the scene did not anticipate", () => {
     const asking = input({ asked: "miks", spoken: ["miks"], more: [] });
     expect(asideFor(asking)).toBeNull();
     expect(asideOwed(asking)).toBe(true);
-    const line = shrug(LEX, new Set());
+    const line = shrug({ ...asking, already: new Set() });
     expect(line?.text).toBe("Ei tea.");
     expect(line?.provenance).toBe("attested");
   });
 
   it("withholds the shrug whole where the verb cannot be derived", () => {
     const thin = buildLexicon(ENTRIES.filter((e) => e.lemma !== "teadma"));
-    expect(shrug(thin, new Set())).toBeNull();
+    expect(shrug(input({ asked: "miks", spoken: ["miks"], lexicon: thin }))).toBeNull();
   });
 
   /*
@@ -136,8 +144,46 @@ describe("a question the scene did not anticipate", () => {
     then the other side gets on with what they were doing.
   */
   it("shrugs once a conversation and not again", () => {
-    expect(shrug(LEX, new Set(["Tere!"]))?.text).toBe("Ei tea.");
-    expect(shrug(LEX, new Set(["Tere!", "Ei tea."]))).toBeNull();
+    const asking = input({ asked: "miks", spoken: ["miks"] });
+    expect(shrug({ ...asking, already: new Set(["Tere!"]) })?.text).toBe("Ei tea.");
+    expect(shrug({ ...asking, already: new Set(["Tere!", "Ei tea."]) })).toBeNull();
+  });
+
+  /*
+    "I don't know" was said to yes-or-no questions, which it does not answer:
+    `Kas siin poes müüakse ka jäätist?` to a shop assistant, `Homme?` checking
+    a day. The keyless critic counted it in 47 of 60 conversations.
+  */
+  const said = (text: string) => input({ asked: "?", said: text, spoken: words(text) });
+  it("shrugs at a question asking for information, and at nothing else", () => {
+    expect(shrugFits(said("Kus on postkontor?"))).toBe(true);
+    expect(shrugFits(said("Vabandust. Mis kell on?"))).toBe(true);
+    // Without its mark, a question word opening the sentence still asks.
+    expect(shrugFits(said("kus on pood"))).toBe(true);
+    // A yes-or-no question, and a single word checked back.
+    expect(shrugFits(said("Kas siin on pood?"))).toBe(false);
+    expect(shrugFits(said("Teisipäev?"))).toBe(false);
+    // A question word in a statement is a relative clause, not a question.
+    expect(shrugFits(said("Ma elan majas, kus on pood."))).toBe(false);
+    expect(shrug(said("Kas siin on pood?"))).toBeNull();
+  });
+
+  it("never shrugs at a question about the person asked", () => {
+    expect(shrugFits(said("Kus sa elad?"))).toBe(false);
+    expect(shrugFits(said("Mis sinu nimi on?"))).toBe(false);
+    // The verb alone says who it is about.
+    expect(shrugFits(said("Kus elate?"))).toBe(false);
+  });
+
+  it("shrugs at do you know, whose honest answer it is", () => {
+    expect(shrugFits(said("Kas sa tead, kus pood on?"))).toBe(true);
+    expect(shrugFits(said("Kas te teate?"))).toBe(true);
+  });
+
+  it("reads each sentence, so a statement ahead of the question does not decide", () => {
+    expect(shrugFits(said("Ma elan siin. Kus on pood?"))).toBe(true);
+    expect(shrugFits(said("Kus on pood? Kas sa elad siin?"))).toBe(true);
+    expect(shrugFits(said("Ma elan majas, kus on pood. Kas siin on hea?"))).toBe(false);
   });
 
   /*
@@ -234,6 +280,30 @@ describe("a question about the price", () => {
       .toBe("See maksab 5 eurot.");
     expect(asideFor(input({ asked: "kas", spoken: ["kas", "5€"], said: "Kas 5€?", card: PRICED }))?.text)
       .toBe("Jah, see maksab 5 eurot.");
+  });
+
+  /*
+    A learner at a returns desk said what they had paid and asked for their
+    money back, and was answered `Jah, see maksab 21 eurot.`: a money word
+    anywhere in the turn read as the price being asked. It is asked in a
+    question clause, and the figure is read from that clause alone.
+  */
+  it("answers the price only where the question asks it", () => {
+    const PAID: DictEntry = { lemma: "raha", pos: "NOUN", cefr: "A1", parts: { NOM_SG: "raha", GEN_SG: "raha", PART_SG: "raha" }, usages: [] };
+    const lex = buildLexicon([...ENTRIES, PAID]);
+    expect(priceAsked("See maksis 21 eurot, kas ma saan raha tagasi?", lex)).toBeNull();
+    expect(priceAsked("Kas ma maksan kaardiga?", lex)).toBeNull();
+    expect(priceAsked("Ma maksin 21 eurot.", lex)).toBeNull();
+    expect(priceAsked("Kui palju see maksab?", lex)).not.toBeNull();
+    expect(priceAsked("Mis hind on?", lex)).not.toBeNull();
+    expect(priceAsked("Kas see maksab?", lex)).not.toBeNull();
+    expect(priceAsked("Kui palju raha?", lex)).not.toBeNull();
+    // A figure checked back, and the clause it is checked in, not the one before.
+    expect(priceAsked("Ma tahan pileti, kas see maksab 5 eurot?", lex)).toBe("kas see maksab 5 eurot?");
+    expect(priceAsked("Kell 19:30?", lex)).toBeNull();
+    expect(priceAsked("Kas 2,50 eurot?", lex)).toBe("Kas 2,50 eurot?");
+    const asking = input({ asked: "mis", spoken: words("See maksis 21 eurot, kas ma saan raha tagasi?"), said: "See maksis 21 eurot, kas ma saan raha tagasi?", card: PRICED, lexicon: lex });
+    expect(asideFor(asking)).toBeNull();
   });
 
   it("reads a price said in words, and says yes alone to a price this run has already said", () => {

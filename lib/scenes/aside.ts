@@ -32,7 +32,7 @@
  */
 import { ASIDES } from "./catalogue";
 import type { SpokenLine } from "./line";
-import { caseKeyFor, type Lexicon } from "./lexicon";
+import { caseKeyFor, words, type Lexicon } from "./lexicon";
 import { CLOCK_LEMMA, numberWords, priceOnCard, timeFromText, type RoleCard } from "./props";
 import { partsLine } from "./reply";
 import { leafNeeds, type BeatSpec, type MoveKind } from "./types";
@@ -162,8 +162,16 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     off the card and the dictionary's case table, and it is withheld whole
     where a part is missing, like every other line said off the card.
   */
-  if (asksPrice(spoken, lexicon) || (asked === "?" && /\d/.test(input.said ?? "")) || /\d\s*€|€\s*\d/.test(input.said ?? "")) {
-    const price = priceOffCard(card, lexicon, input.said ?? "", input.already);
+  /*
+    AND ONLY WHERE THE PRICE IS WHAT THE QUESTION ASKS. This read a money word
+    anywhere in the turn, so a learner at a returns desk who said what they had
+    paid and asked for their money back ("See maksis 21 eurot, kas ma saan raha
+    tagasi?") was answered `Jah, see maksab 21 eurot.`, the keyless critic's
+    commonest non-sequitur in that scene, round after round (`priceAsked`).
+  */
+  const priceQuestion = input.said !== undefined ? priceAsked(input.said, lexicon) : asksPrice(spoken, lexicon) ? spoken.join(" ") : null;
+  if (priceQuestion !== null) {
+    const price = priceOffCard(card, lexicon, priceQuestion, input.already);
     if (price) return price;
   }
 
@@ -235,10 +243,85 @@ function wantsQuestion(beat: BeatSpec): boolean {
  * has said they do not know once and is asked something else beside the point
  * gets on with what they were doing; saying it again is the machine showing.
  * `already` is the run's own `used`, so a shrug said this run is not said again.
+ *
+ * AND ONLY TO A QUESTION "I DON'T KNOW" ANSWERS (`shrugFits`). Takes the whole
+ * question rather than the lexicon, so a caller that has not decided what was
+ * asked does not compile.
  */
-export function shrug(lexicon: Lexicon, already: ReadonlySet<string>): SpokenLine | null {
-  const line = partsLine(ASIDES.unknown, { lexicon, mark: "." });
-  return line && already.has(line.text) ? null : line;
+export function shrug(input: AsideInput): SpokenLine | null {
+  if (!shrugFits(input)) return null;
+  const line = partsLine(ASIDES.unknown, { lexicon: input.lexicon, mark: "." });
+  return line && input.already?.has(line.text) ? null : line;
+}
+
+/**
+ * Question words that ask for something other than yes or no, as lemma
+ * requests against `kusisonad`. `kas` is not one: it opens a yes-or-no
+ * question. Nor are `kui` and `palju`, which open a condition and a
+ * congratulation as often as a question, and whose one question that matters
+ * here, the price, is answered off the card before the shrug is reached.
+ */
+const INFORMATION = ["kes", "mis", "kus", "kuhu", "kust", "millal", "miks", "kuidas", "milline", "kumb", "mitu"] as const;
+/** The two words for "you". A question naming the person asked is about them. */
+const YOU = ["sina", "teie"] as const;
+/** The verb a "do you know?" is made of, whose honest answer is the shrug itself. */
+const KNOW = "teadma";
+/** The persons of a verb said to the person asked: `oled`, `olete`, `oleksite`. */
+const SECOND_PERSON: ReadonlySet<string> = new Set(["IndPrSg2", "IndPrPl2", "KndPrPl2"]);
+/** The persons of `maksma` with the thing as subject: `maksab`, `maksavad`, `maksaks`. */
+const THIRD_PERSON: ReadonlySet<string> = new Set(["IndPrSg3", "IndPrPl3", "KndPrPs"]);
+
+/**
+ * Whether `Ei tea.` is an answer to what was asked, rather than a non sequitur.
+ *
+ * IT WAS SAID TO A YES-OR-NO QUESTION, WHICH "I DON'T KNOW" DOES NOT ANSWER.
+ * The keyless critic counted it in 47 of 60 conversations and most of them
+ * were `kas` questions: `Kas teil on ka kõhuvalu olnud?` to a receptionist,
+ * `Kas siin poes müüakse ka jäätist?` to a shop assistant, `Kas te elate siin
+ * kaua?` to a neighbor, and `Homme?` checking a day. A person asked whether
+ * they sell ice cream does not say they do not know; they get on with the
+ * conversation, and so does the other side here. Three readings decide it,
+ * a sentence at a time, since a turn often carries a statement and then the
+ * question:
+ *
+ *   1. "Do you know...?" (`Kas sa tead`, `Kas te teate`) fits, because "no, I
+ *      don't" is exactly what it asks.
+ *   2. A question naming the person asked does not: `Kuidas teie nimi on?`,
+ *      `Miks sa siin oled?`, `Kus te elate?`. Nobody does not know their own
+ *      name, and the critic read every one of those as unkind.
+ *   3. What is left fits only where it asks for information, with a word out
+ *      of `INFORMATION`: `Kus on postkontor?`, `Mis kell on?`.
+ *
+ * A sentence is a question where it ends on a question mark or opens on a
+ * question word, so `Kus on pood` without its mark is one and `Ma elan majas,
+ * kus on koer.` is not. It errs toward silence, and that is the side to err
+ * on: a missed shrug costs nothing, since the move is said either way, and a
+ * wrong one tells somebody "I don't know" about a thing nobody asked.
+ */
+export function shrugFits(input: Pick<AsideInput, "said" | "spoken" | "lexicon">): boolean {
+  const { lexicon } = input;
+  const formsOf = (lemmas: readonly string[]) => new Set(lemmas.flatMap((lemma) => [lemma, ...(lexicon.byLemma.get(lemma) ?? [])]));
+  const information = formsOf(INFORMATION);
+  const opens = new Set([...information, ...formsOf(["kas"])]);
+  const you = formsOf(YOU);
+  const addressed = new Set<string>();
+  const knowing = new Set<string>();
+  for (const [lemma, persons] of lexicon.persons) {
+    for (const [code, form] of persons) {
+      if (!SECOND_PERSON.has(code)) continue;
+      addressed.add(form);
+      if (lemma === KNOW) knowing.add(form);
+    }
+  }
+  const sentences = input.said?.match(/[^.!?]+[.!?]*/g) ?? [input.spoken.join(" ")];
+  return sentences.some((sentence) => {
+    const spoken = words(sentence);
+    const question = /\?/.test(sentence) || (spoken[0] !== undefined && opens.has(spoken[0]));
+    if (!question) return false;
+    if (spoken.some((word) => knowing.has(word))) return true;
+    if (spoken.some((word) => you.has(word) || addressed.has(word))) return false;
+    return spoken.some((word) => information.has(word));
+  });
 }
 
 /**
@@ -267,6 +350,59 @@ export function asksPrice(spoken: readonly string[], lexicon: Lexicon): boolean 
     for (const form of lexicon.byLemma.get(lemma) ?? []) if (said.has(form)) return true;
   }
   return spoken.some((word, at) => word === HOW_MUCH[0] && spoken[at + 1] === HOW_MUCH[1]);
+}
+
+/**
+ * The clause of a turn that asks what something costs, or null where none does.
+ *
+ * A clause is a question where it is the last clause of a sentence ending on a
+ * question mark, or where it opens on a question word (`kas`, `kui`, `palju`
+ * and the `INFORMATION` words), since a learner's question often goes without
+ * its mark. It asks the price where it checks a figure (`Kas 5 eurot?`, `5?`,
+ * `Neli eurot?`, read by `figureNamed`), where it says "how much" (`Kui
+ * palju?`), where it names the price as a thing or as what something costs
+ * (`Mis hind on?`, `Kas see maksab?`), or where it holds `raha` or another
+ * person of `maksma` beside a word that asks for information (`Palju ma
+ * maksan?`) or nothing much else. A yes-or-no question about money that does
+ * none of those is not the price being asked (`Kas ma saan raha tagasi?`,
+ * `Kas ma maksan kaardiga?`), and a statement is not a question at all (`See
+ * maksis 21 eurot`).
+ *
+ * The clause is what the figure is then read from, so a price the learner
+ * stated in the sentence before is not taken for one they are checking.
+ */
+export function priceAsked(said: string, lexicon: Lexicon): string | null {
+  const formsOf = (lemmas: readonly string[]) => new Set(lemmas.flatMap((lemma) => [lemma, ...(lexicon.byLemma.get(lemma) ?? [])]));
+  const information = formsOf(INFORMATION);
+  const opens = new Set([...information, ...formsOf(["kas", ...HOW_MUCH])]);
+  const money = formsOf(MONEY);
+  /*
+    What makes a yes-or-no question about the price rather than about paying:
+    the price named as a thing (`hind`, `euro`, `palk`), or the verb with the
+    thing as its subject (`Kas see maksab?`). `raha` and the other persons of
+    `maksma` are how somebody asks for their money back or how to pay, and
+    count only beside a word that asks for information.
+  */
+  const named = formsOf(MONEY.filter((lemma) => lemma !== "raha" && lemma !== "maksma"));
+  const costs = new Set([...(lexicon.persons.get("maksma") ?? new Map())]
+    .filter(([code]) => THIRD_PERSON.has(code)).map(([, form]) => form));
+  for (const sentence of said.match(/[^.!?]+[.!?]*/g) ?? []) {
+    const marked = /\?\s*$/.test(sentence);
+    // A comma or semicolon before a space, so `19:30` and `2,50` stay whole.
+    const clauses = sentence.split(/[,;](?=\s)/);
+    for (const [at, clause] of clauses.entries()) {
+      const spoken = words(clause);
+      const question = (marked && at === clauses.length - 1) || (spoken[0] !== undefined && opens.has(spoken[0]));
+      if (!question) continue;
+      const checksFigure = figureCount(clause, lexicon) > 0;
+      const howMuch = spoken.some((word, i) => word === HOW_MUCH[0] && spoken[i + 1] === HOW_MUCH[1]);
+      const aboutMoney = spoken.some((word) => named.has(word) || costs.has(word))
+        || (spoken.some((word) => money.has(word))
+          && (spoken.some((word) => information.has(word) || word === HOW_MUCH[1]) || spoken.length <= 2));
+      if (checksFigure || howMuch || aboutMoney) return clause.trim();
+    }
+  }
+  return null;
 }
 
 /**
@@ -309,6 +445,17 @@ export function priceOffCard(card: RoleCard | null, lexicon: Lexicon, said = "",
  * reference code and `üks pilet` are none of them a price.
  */
 function figureNamed(said: string, lexicon: Lexicon, value: string): boolean | null {
+  const named = figuresIn(said, lexicon);
+  if (named.length === 0) return null;
+  return named.includes(Number(value));
+}
+
+/** How many figures the text names as a price, by `figureNamed`'s rule. */
+function figureCount(said: string, lexicon: Lexicon): number {
+  return figuresIn(said, lexicon).length;
+}
+
+function figuresIn(said: string, lexicon: Lexicon): number[] {
   const euros = lexicon.byLemma.get("euro") ?? new Set<string>();
   const tokens = said.toLowerCase().split(/\s+/)
     .map((token) => token.replace(/^[^\p{L}\p{N}€]+|[^\p{L}\p{N}€]+$/gu, ""))
@@ -328,8 +475,7 @@ function figureNamed(said: string, lexicon: Lexicon, value: string): boolean | n
     if (figure === undefined) continue;
     if (signed || isEuro(tokens[at + 1]) || tokens.length === 1) named.push(figure);
   }
-  if (named.length === 0) return null;
-  return named.includes(Number(value));
+  return named;
 }
 
 /**

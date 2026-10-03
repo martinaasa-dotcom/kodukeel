@@ -9707,7 +9707,15 @@ from 2,488 flags to 9, each read and left. A critic round over that path, judged
 it spends none of the composer's allowance, found the rest:
 - a reference number or a clock time read as a price;
 - the time read back whenever "kell" appeared anywhere;
-- the shrug said four times in one conversation;
+- the shrug said four times in one conversation, and said to yes-or-no questions it does not answer:
+  `Ei tea.` now answers a question asking for information or a "do you know...?", and never one about
+  the person asked (`shrugFits`);
+- the price said wherever a money word stood, so "can I have my money back?" got the price
+  (`priceAsked` reads the question clause);
+- a question on the way out answered and `Head aega!` said in the same breath: the goodbye now waits
+  for the learner where something answered them;
+- a beat that explains, refuses or corrects credited from a distance, so the pharmacist never said
+  how to take the medicine;
 - "ma ei saa" read as lost;
 - the closing beat handed to the keyless net relabelled the way the composer hears it, so a learner
   who asked something on the way out read "They say goodbye." in English instead of `Head aega!`.
@@ -11659,7 +11667,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `data-point-examples`, `BeforeYouStart`, `BriefingSteps`, `BRIEFINGS`, `startRound`,
 `OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`, `tonightSteps`, `useModuleSteps`,
 `ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`, `withoutFarewell`,
-`withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`.
+`withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`, `shrugFits`, `priceAsked`, `SAYS_FIRST`, `isFarewell`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

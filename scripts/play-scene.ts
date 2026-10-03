@@ -46,7 +46,7 @@ import {
   wantsAsideFor, sayableAfterHurdles,
   feltAt,
 } from "../lib/scenes/reply";
-import { asideFor, asideOwed, asksPrice, asksToHearAgain, shrug } from "../lib/scenes/aside";
+import { asideFor, asideOwed, asksToHearAgain, priceAsked, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { isSaid, sceneLine } from "../lib/scenes/line";
 import { PERSONAS } from "../lib/scenes/personas";
@@ -390,7 +390,7 @@ async function play(sceneId: string) {
     // What this person holds for later and what the run has established, as the route reads them.
     const held = heldBack(scene.beats, card, state, standing ?? speaking ?? null, {
       any: askedNow !== null,
-      money: askedNow !== null && asksPrice(words(last?.said ?? ""), context.lexicon),
+      money: askedNow !== null && priceAsked(last?.said ?? "", context.lexicon) !== null,
     });
     const established = establishedBy(state, card);
     const moved = sceneMovedOn(state, card, scene.beats);
@@ -587,7 +587,7 @@ async function play(sceneId: string) {
       // A composed line answered what was asked; otherwise a landed question nothing answered gets the shrug.
       if (line.provenance === "composed") aside = preBreak;
       else if (preBreak) aside = preBreak;
-      else if (LINKS.length === 0 && wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain && !asksSlower(words(last?.said ?? ""))) aside = shrug(context.lexicon, used);
+      else if (LINKS.length === 0 && wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain && !asksSlower(words(last?.said ?? ""))) aside = shrug(asking);
     }
     const lines = replyFor({
       beat: speaking, answered: turns.length ? answered : null, response: turns.length ? response : null,

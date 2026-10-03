@@ -33,7 +33,7 @@ import { dealtNumbers } from "@/lib/scenes/props";
 import { composeLive, composeSystem } from "@/lib/scenes/prompt";
 import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 import { courseLevelFor } from "@/lib/progress/level";
-import { asideFor, asideOwed, asksPrice, asksToHearAgain, shrug } from "@/lib/scenes/aside";
+import { asideFor, asideOwed, asksToHearAgain, priceAsked, shrug } from "@/lib/scenes/aside";
 import { choiceOf } from "@/lib/scenes/choice";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
 import { offerFor } from "@/lib/scenes/grades";
@@ -593,10 +593,9 @@ export async function POST(request: Request) {
     changed the situation stays changed (`establishedBy`): a bus that is not
     leaving tonight is not leaving tonight when the learner asks for beer.
   */
-  const turnSaid = words(last?.said ?? "");
   const held = heldBack(scene.beats, card, state, standing ?? speaking ?? null, {
     any: askedNow !== null,
-    money: askedNow !== null && asksPrice(turnSaid, context.lexicon),
+    money: askedNow !== null && priceAsked(last?.said ?? "", context.lexicon) !== null,
   });
   const established = establishedBy(state, card);
   const moved = sceneMovedOn(state, card, scene.beats);
@@ -879,7 +878,7 @@ export async function POST(request: Request) {
   const waitingAnswers = composing && !standing
     && (askedNow !== null || progress.reading === "lost" || progress.reading === "offtarget");
   if (!spokenFor || (spokenFor.awaits && !standing && !waitingAnswers)) {
-    if (shrugOwed) aside = shrug(context.lexicon, used);
+    if (shrugOwed) aside = shrug(asking);
     return answer(reply(null));
   }
   /*
@@ -888,7 +887,7 @@ export async function POST(request: Request) {
     gets keyless, read in every transcript as the other side repeating itself.
   */
   if (!composing && !wantsFreshLine(turns.length > 0 ? response : null, heard, progress.reading)) {
-    if (shrugOwed) aside = shrug(context.lexicon, used);
+    if (shrugOwed) aside = shrug(asking);
     return answer(reply(null));
   }
   /*
@@ -898,7 +897,7 @@ export async function POST(request: Request) {
     asking rather than switching, and the whole point is that they switched.
   */
   if (standing && hurdleSpec(state)?.said) {
-    if (shrugOwed) aside = shrug(context.lexicon, used);
+    if (shrugOwed) aside = shrug(asking);
     return answer(reply(null));
   }
   const beat = spokenFor;
@@ -1185,7 +1184,7 @@ export async function POST(request: Request) {
       time used to be answered with the repair phrase where a perfectly good
       line was sitting one variable away.
     */
-    if (shrugOwed) aside = shrug(context.lexicon, used);
+    if (shrugOwed) aside = shrug(asking);
     return answer(reply(move), { composed: false, note: decision?.message ?? null });
   }
   /*
@@ -1410,7 +1409,7 @@ export async function POST(request: Request) {
   } catch (error) {
     reportError(error, { at: "api/scene/compose", ownerId });
     if (!booking.settled) after(() => releaseReservation(reservation));
-    if (shrugOwed) aside = shrug(context.lexicon, used);
+    if (shrugOwed) aside = shrug(asking);
     return answer(reply(move), { composed: false });
   }
 
@@ -1422,7 +1421,7 @@ export async function POST(request: Request) {
     an ordinary one here rather than an error.
   */
   if (line.provenance !== "composed") {
-    if (shrugOwed) aside = shrug(context.lexicon, used);
+    if (shrugOwed) aside = shrug(asking);
     if (preBreak) aside = preBreak;
     /*
       Where no link answered at all the learner is told, once per turn it

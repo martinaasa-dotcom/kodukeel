@@ -1582,6 +1582,16 @@ export function replay(
           offer has been made, and taking it late is taking it.
         */
         if (other.move === "offer" && at > state.beat && !offerAlreadyMade(other, draw, heard)) continue;
+        /*
+          AND NOTHING IS TAKEN THAT THE OTHER SIDE HAS NOT YET SAID. A beat whose
+          move is to explain, refuse or correct carries its line to the learner,
+          and its requirement is the learner's reply to it: at the pharmacy a
+          learner who mentioned the price in their first turn met "tell them
+          you'll take it and pay" two beats early, so the pharmacist never said
+          how to take the medicine, and the learner who then asked how often was
+          told `Nägemist!`. The offer guard above is this rule for one move.
+        */
+        if (SAYS_FIRST.has(other.move) && at > state.beat) continue;
         const also = readTurn(said, other, marker);
         // Not through a second word for the same thing, for the cascade's reason.
         if (also.reading !== "complete" || !addsEvidence(also, spent) || also.substituted.length > 0) continue;
@@ -1594,6 +1604,9 @@ export function replay(
   }
   return { state, response, elsewhere };
 }
+
+/** Moves whose line the learner has to hear before they can answer it, so none is met from a distance. */
+const SAYS_FIRST: ReadonlySet<BeatSpec["move"]> = new Set(["instruct", "refuse", "correct"]);
 
 /**
  * WHETHER THE OTHER SIDE HAS ALREADY MADE THIS OFFER, IN A LINE OF ITS OWN.

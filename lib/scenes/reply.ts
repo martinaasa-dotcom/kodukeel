@@ -30,7 +30,7 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
-import { FALLBACK_PHRASE, FEELINGS, REACTIONS } from "./catalogue";
+import { FALLBACK_PHRASE, FAREWELLS, FEELINGS, REACTIONS } from "./catalogue";
 import type { Feel } from "./types";
 import { CHOICE_WORD } from "./choice";
 import { coachFor, NUDGE_AFTER } from "./coach";
@@ -1022,6 +1022,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     where nothing did, which is the keyless deployment.
   */
   const composed = line?.provenance === "composed";
+  /*
+    AT THE CLOSING BEAT, WHAT IS SAID AGAIN IS THE GOODBYE. A question on the
+    way out is answered and the goodbye waits (below), so the last move the
+    learner heard can be an earlier beat's: asked again, it was the price
+    said a third time to somebody who only had the goodbye left to say.
+  */
+  const waited = beat?.move === "close" && line !== null && line.provenance !== "fallback" && !composed
+    && !(heard !== null && isFarewell(heard, beat));
+  const again = waited ? line.text : heard;
+  // And a goodbye that was waiting is said for the first time, as itself, not as said again.
+  const sayAgainLine = (): SpokenLine => (again === heard || !line ? { text: again!, provenance: "again" } : line);
 
   if (response === "help") {
     const word = input.offer;
@@ -1033,8 +1044,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       one breath. A composed line hands the word over inside the sentence.
     */
     if (composed) out.push(line!);
-    else if (heard && heard !== offered?.text) out.push({ text: heard, provenance: "again" });
-    else if (!heard && beat) out.push(stage(stageFor(beat, card)));
+    else if (again && !(offered && beat?.move === "close" ? isFarewell(offered.text, beat) : again === offered?.text)) {
+      out.push(sayAgainLine());
+    } else if (!again && beat) out.push(stage(stageFor(beat, card)));
     return out;
   }
 
@@ -1282,9 +1294,16 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     greeting ("nobody says `Tere!` twice in one breath"); this is the same
     guard for the beat that ends the scene rather than moves past it.
   */
+  /*
+    AND NOT TWO GOODBYES IN ONE BREATH, WHATEVER THEIR WORDS. The guard above
+    compared the text, so the offered `Head aega` and then `Nägemist!` passed
+    it as two different lines, and the keyless critic read a shop assistant
+    saying goodbye twice in a row as somebody hurrying a customer out.
+  */
   if (!beat) {
-    const said = out.at(-1)?.text.toLowerCase();
-    if (answered?.move === "close" && line && line.provenance !== "fallback" && line.text.toLowerCase() !== said) {
+    const last = out.at(-1)?.text;
+    if (answered?.move === "close" && line && line.provenance !== "fallback"
+        && line.text.toLowerCase() !== last?.toLowerCase() && !(last !== undefined && isFarewell(last, answered))) {
       out.push(line);
     }
     return out;
@@ -1355,6 +1374,21 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     which the hint below is not, so the app steps out only where no choice
     could be built.
   */
+  /*
+    A QUESTION ON THE WAY OUT IS ANSWERED, AND THE GOODBYE IS LEFT TO THE
+    LEARNER. The composer is told this (`stillTalking` hands it the closing
+    beat as a `confirm`), and with no model behind the run the net said the
+    answer and then `Head aega!` in the same breath: a learner who asked the
+    price at the counter read the price and a goodbye before they had paid,
+    which the keyless critic counted as the commonest premature end. A person
+    who has answered a question stops and lets the other one finish, so where
+    something answered them the move waits; where nothing could, the goodbye
+    is the only thing left to say and is said. A learner who said goodbye
+    with the question met this beat, so the scene is over and the branch
+    above says it back.
+  */
+  if (beat.move === "close" && aside) return out;
+
   const narrowed = input.tries === NUDGE_AFTER && !advancing(response) && !composed ? input.choice : null;
   if (narrowed) {
     out.push({ text: narrowed, provenance: "attested", from: CHOICE_WORD });
@@ -1371,7 +1405,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     themselves rather than rephrasing. A fresh line where there is one;
     otherwise the same line once more; otherwise what they did, in English.
   */
-  const sayAgain = sayAgainWanted(response, reading, heard);
+  const sayAgain = sayAgainWanted(response, reading, again);
   /*
     AND THE FOURTH TIME OF ASKING IS NOT THE SECOND.
 
@@ -1416,8 +1450,8 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     own line for this beat, the scene's line is said instead: the same question,
     short, which is what a person who was not answered actually says.
   */
-  const recital = sayAgain && heard !== null && words(heard).length > REPEAT_WORDS
-    && line !== null && line.provenance !== "fallback" && line.text !== heard;
+  const recital = sayAgain && again !== null && words(again).length > REPEAT_WORDS
+    && line !== null && line.provenance !== "fallback" && line.text !== again;
   if (fresh) {
     out.push(fresh);
   } else if (recital) {
@@ -1425,11 +1459,11 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   } else if (another) {
     out.push({ text: another, provenance: "scripted" });
   } else if (sayAgain) {
-    out.push({ text: heard, provenance: "again" });
+    out.push(sayAgainLine());
   } else if (line && line.provenance !== "fallback") {
     out.push(line);
-  } else if (heard && response !== "answer" && response !== "moveOn" && response !== "counter") {
-    out.push({ text: heard, provenance: "again" });
+  } else if (again && response !== "answer" && response !== "moveOn" && response !== "counter") {
+    out.push(sayAgainLine());
   } else {
     out.push(stage(stageFor(beat, card), line?.withheld));
   }
@@ -1444,6 +1478,18 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   }
 
   return out;
+}
+
+/**
+ * Whether a line is a goodbye: one of the course's farewells, or a word the
+ * closing beat takes as one, compared on its letters so `Head aega` offered
+ * with a question mark is the same goodbye as `Head aega!`.
+ */
+function isFarewell(text: string, close: BeatSpec): boolean {
+  const letters = (s: string) => (s.match(/\p{L}+/gu) ?? []).join(" ").toLowerCase();
+  const said = letters(text);
+  const goodbyes = [...FAREWELLS, ...leafNeeds(close.needs).flatMap(({ need }) => (need.kind === "lemma" ? need.oneOf : []))];
+  return said.length > 0 && goodbyes.some((bye) => letters(bye) === said);
 }
 
 /**
