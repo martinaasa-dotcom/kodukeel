@@ -212,6 +212,12 @@ export interface DaySpec {
    */
   words: readonly string[];
   /**
+   * Which of those an earlier evening already taught, where any did. The
+   * object and government units drill verbs the course gave long before, on
+   * purpose, so an evening can be six words and none of them new.
+   */
+  again?: readonly string[];
+  /**
    * The one point today turns on, read on the reference page before the rounds.
    *
    * Two fields rather than one because the reference has two shapes of page
@@ -446,6 +452,15 @@ export const ordinaryWords = (level: string): number =>
  * a day whose closing round is optional is a course that teaches a fortnight
  * of words and keeps none of them.
  */
+/** How many of an evening's words no earlier evening taught. */
+export function newWordsIn(spec: Pick<DaySpec, "words" | "again">): number {
+  return spec.words.length - (spec.again?.length ?? 0);
+}
+
+function counted(n: number, noun: string): string {
+  return `${n} ${noun}${n === 1 ? "" : "s"}`;
+}
+
 export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): CourseDay {
   const steps: CourseStep[] = [];
   const perWord = MINUTES_PER_WORD[spec.level] ?? MINUTES_PER_WORD.A1!;
@@ -458,13 +473,21 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     sentence arrives with A2.
   */
   const atA1 = spec.level === "A1";
+  const fresh = newWordsIn(spec);
+  const met = spec.words.length - fresh;
   steps.push({
     id: MEET_STEP,
     kind: "meet",
-    title: `Learn tonight's ${spec.words.length} new words`,
-    why: atA1
-      ? "Hear each word and see what it means. A few minutes later you pick it out of four, and that's what makes it stay."
-      : "See what each word means, pick it out of four a little later, then type it into a real Estonian sentence.",
+    title: fresh === 0
+      ? `Go over tonight's ${spec.words.length} words`
+      : met === 0
+        ? `Learn tonight's ${counted(fresh, "new word")}`
+        : `Learn tonight's ${counted(fresh, "new word")}, with ${met} you've met`,
+    why: fresh === 0
+      ? "You've met all of these on earlier evenings. Tonight they come back for what the page is about."
+      : atA1
+        ? "Hear each word and see what it means. A few minutes later you pick it out of four, and that's what makes it stay."
+        : "See what each word means, pick it out of four a little later, then type it into a real Estonian sentence.",
     href: "/course/learn",
     minutes: Math.max(1, Math.round(spec.words.length * perWord)),
     derived: true,

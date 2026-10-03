@@ -434,6 +434,11 @@ export class Ledger {
   private readonly formsShown = new Set<string>();
 
   /** A word handed over, with what the harvest holds for it. */
+  /** Whether an earlier evening has already taught this word. */
+  knows(lemma: string): boolean {
+    return this.lemmas.has(lemma);
+  }
+
   teach(lemma: string, pos: string): void {
     // Read before `lemmas.add` below: a word taught again in a later part is not a second word.
     const fresh = !this.lemmas.has(lemma);
@@ -611,6 +616,13 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         meeting the words is the first step of the evening and the reading
         the second, and the rounds come after both.
       */
+      /*
+        AND A WORD AN EARLIER EVENING TAUGHT IS NOT A NEW WORD. The object and
+        government units drill verbs the course gave long before, on purpose,
+        and the first two evenings of B1 were six of them each under "Learn
+        tonight's 6 new words". Read before tonight's words are taught.
+      */
+      const again = chunk.filter((lemma) => ledger.knows(lemma));
       for (const lemma of chunk) {
         const entry = unit.vocabulary.find((v) => v.lemma === lemma);
         if (entry) ledger.teach(entry.lemma, entry.pos);
@@ -674,6 +686,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
           unitId,
           level: spec.level,
           words: chunk,
+          ...(again.length > 0 ? { again } : {}),
           ...reading,
           // The table on the unit's first evening and every other one after,
           // so a unit of verbs is still conjugated and still has its other drill.

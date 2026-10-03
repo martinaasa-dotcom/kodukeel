@@ -10,7 +10,7 @@ import {
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
-  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING, CASE_ROUNDS, PAGE_ROUND,
+  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING, CASE_ROUNDS, PAGE_ROUND, newWordsIn,
 } from "./index";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { readFileSync } from "node:fs";
@@ -1170,3 +1170,35 @@ describe("the ledger counts a word taught twice once", () => {
     expect(supportsRound("government", taught)).toBe(false);
   });
 });
+
+describe("an evening says how many of its words are new", () => {
+  /*
+    The object and government units drill verbs the course gave long before,
+    on purpose, and the first two evenings of B1 were six of them each under
+    "Learn tonight's 6 new words".
+  */
+  const walked = PROGRAMMES.flatMap((p) => p.days);
+
+  it("marks a word again exactly where an earlier evening taught it", () => {
+    const seen = new Set<string>();
+    let again = 0;
+    for (const d of walked) {
+      expect([...(d.again ?? [])].sort(), d.id).toEqual(d.words.filter((w) => seen.has(w)).sort());
+      again += d.again?.length ?? 0;
+      for (const w of d.words) seen.add(w);
+    }
+    expect(again).toBeGreaterThan(0);
+  });
+
+  it("titles the meet step by what is new, and goes over an evening of words met before", () => {
+    for (const d of walked) {
+      const meet = d.steps.find((s) => s.id === MEET_STEP)!;
+      const fresh = newWordsIn(d);
+      if (fresh === 0) expect(meet.title, d.id).toBe(`Go over tonight's ${d.words.length} words`);
+      else expect(meet.title, d.id).toContain(`${fresh} new word`);
+      expect(meet.title, d.id).not.toMatch(/\b0 new/);
+    }
+    expect(walked.some((d) => newWordsIn(d) === 0)).toBe(true);
+  });
+});
+

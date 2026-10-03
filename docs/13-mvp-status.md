@@ -2777,3 +2777,11 @@ tonight's three new words on a board with `aitäh`, `palun` and `tere hommikust`
 at B1 always has an A1 greeting somewhere near due. Inside the module each leads with tonight's
 words and then the evenings just before (`recentLemmas`, `byRecency`), and fills from the rest only
 once those run out; opened from Practice, nothing changed.
+
+**An evening says how many of its words are new.** Sixty-eight times across the ladder an evening
+names a word an earlier one taught, and on purpose: the object and government units drill verbs the
+course gave long before, so the first two evenings of B1 were six such verbs each under "Learn
+tonight's 6 new words". The builder records them (`DaySpec.again`), and the meet step says "Learn
+tonight's 3 new words, with 2 you've met" or, where none is new, "Go over tonight's 6 words"; the
+module card's figure and the evening letter count the new ones, and the letter no longer has a way
+to say "zero new words tonight".
