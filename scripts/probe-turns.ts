@@ -33,6 +33,10 @@ import { shippedDictionary } from "./lib/dictionary";
 import { SYLLABUS } from "../lib/collections/syllabus";
 import { HARNESS_LEVEL } from "./lib/sceneDraft";
 import { formsOf } from "../lib/scenes/lexicon";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
+installMeter({ replay: true });
 
 const rows: Row[] = shippedDictionary().map((e) => ({ id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr, parts: e.parts, extraForms: e.extraForms, usages: e.usages, government: e.government, gloss: e.gloss }));
 

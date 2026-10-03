@@ -37,3 +37,6 @@ prisma/data/.cache/
 
 # Session scaffolding for an isolated agent worktree. Not repository content.
 .claude/worktrees/
+
+# What the harnesses paid a model for, so the same question is not bought twice (scripts/lib/meter.ts).
+.cache/

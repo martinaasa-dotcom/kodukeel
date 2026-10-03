@@ -22,6 +22,23 @@
 import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { SCENES } from "../lib/scenes/catalogue";
+import { DEFAULT_BUDGET_USD, installMeter, spendIn } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
+const meter = installMeter({ replay: true });
+/*
+  The whole run's budget, split: four fifths shared evenly among the
+  conversations, each child held to its share through the environment, and the
+  rest for the critic's own reading. A child past its share finishes on the
+  bank and says so, so a round cut short is never read as a clean one. With no
+  `--budget` the round buys nothing at all, which is the meter's default and
+  the reason for it: thirteen rounds of this on 2026-10-02 were most of a day's
+  Google bill, against $0.27 for a month of the app's own learners.
+*/
+const budgetAt = process.argv.indexOf("--budget");
+const budget = Number((budgetAt >= 0 ? process.argv[budgetAt + 1] : undefined) ?? process.env.KODUKEEL_BUDGET_USD ?? DEFAULT_BUDGET_USD);
+const children = { usd: 0, refused: 0 };
+let jobCount = 0;
 
 const arg = (name: string) => { const i = process.argv.indexOf(`--${name}`); return i >= 0 ? process.argv[i + 1] : undefined; };
 const kinds = (arg("kinds") ?? "shy,chatty,offtrack,confused,english,good").split(",");
@@ -35,11 +52,18 @@ interface Issue { turn: number; kind: string; line: string; why: string }
 
 function play(scene: string, kind: string, seed: number): Promise<string> {
   return new Promise((resolve) => {
-    const child = spawn("npx", ["tsx", "scripts/play-scene.ts", "--compose", "--scene", scene, "--learner", kind, "--seed", String(seed), ...extra], { env: process.env });
+    const share = ((budget * 0.8) / Math.max(1, jobCount)).toFixed(4);
+    const child = spawn("npx", ["tsx", "scripts/play-scene.ts", "--compose", "--scene", scene, "--learner", kind, "--seed", String(seed), ...extra], {
+      env: { ...process.env, KODUKEEL_BUDGET_USD: share, KODUKEEL_REPLAY: meter.replay ? "1" : "0" },
+    });
     let text = "";
     child.stdout.on("data", (d) => { text += d; });
     child.stderr.on("data", () => {});
-    child.on("close", () => resolve(text));
+    child.on("close", () => {
+      const spent = spendIn(text);
+      if (spent) { children.usd += spent.usd; children.refused += spent.refused; }
+      resolve(text);
+    });
   });
 }
 
@@ -85,6 +109,7 @@ async function critique(text: string): Promise<Issue[]> {
   for (const scene of SCENES) if (!only || scene.id === only) {
     for (const kind of kinds) for (let seed = 1; seed <= seeds; seed += 1) jobs.push({ scene: scene.id, kind, seed });
   }
+  jobCount = jobs.length;
   const results: { job: typeof jobs[number]; text: string; issues: Issue[] }[] = [];
   let next = 0;
   await Promise.all(Array.from({ length: PARALLEL }, async () => {
@@ -112,4 +137,11 @@ async function critique(text: string): Promise<Issue[]> {
   console.log(`\n${total} issues over ${results.length} conversations`);
   for (const [k, n] of [...byKind].sort((a, b) => b[1] - a[1])) console.log(`  ${k}: ${n}`);
   console.log(`report: ${out}`);
+  /* What the whole round cost, the conversations and the critic together, and whether any was cut short. */
+  const total$ = children.usd + meter.spentMicros / 1e6;
+  console.log(`\nThis round: $${total$.toFixed(4)} across ${results.length} conversations and their critique`
+    + (children.refused + meter.refused > 0
+      ? `; ${children.refused + meter.refused} calls refused at the budget, so some conversations ran on the bank or went unjudged`
+      : "")
+    + ` (budget $${budget.toFixed(2)}; --budget to change it, --fresh to skip the replay record).`);
 })();

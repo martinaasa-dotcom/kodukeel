@@ -489,6 +489,33 @@ about a mechanical second opinion. An entry goes in when somebody who speaks the
 that sentence and said so, and the report button on every screen that draws one is the door a
 learner reaches it through.
 
+**And then the operator asked for scenes to run as cheaply as they can be made to, and three faults
+were most of the bill.** Read off Google's own cache listing and its 429s on 2026-10-02
+(`docs/21-situations.md` §77). The harnesses were the largest spender and nothing capped them:
+thirteen rounds of `scripts/critic-scenes.ts` took `gemini-3.8-flash` past its 10,000 requests a day.
+Every script that reaches a paid model installs `scripts/lib/meter.ts`, asserted, which prices every
+call off the ledger's table, **buys nothing unless it is handed a `--budget`**, refuses past it so a
+run finishes on the bank and says it is partial, holds every run on a machine to one day's ceiling
+(`KODUKEEL_DAY_BUDGET_USD`, two dollars), prints what it spent, and answers a byte-identical question from `.cache/model-replay/`
+(`--fresh` skips it; a Gemini call off a cache entry is replayed inside `geminiCache.ts` before any
+entry is made, through `setReplayRecord`, which nothing in the app sets). A model past its quota was
+still asked first and had an entry written for it before every refusal: `lib/tutor/exhausted.ts`
+believes a 429 for as long as its `RetryInfo` says, and a link marked out gets no request and no
+entry. Every instance wrote its own copy of one prompt: an entry carries `cacheTag`, a digest of its
+model and prompt, a miss adopts a live entry off Google's free listing before it writes one, and
+concurrent misses wait on one write through `singleFlight`. An entry lives five minutes rather
+than ten. **And the deployment's own ledger says the app was never the bill**: every model call it
+made for the month to 2026-10-02 came to $0.27, while the same key ran out of the flash's 10,000
+requests in a day on harnesses. So a session does not run a harness against a paid model without a
+budget it can state, and the limit that holds across sessions is a quota on the key's own Google
+project, or a separate key for development, which is the operator's to set (§77). **The two savings
+tried on the app's own side were taken back the next day**, on the operator's word that good is not
+good enough: answering the commonest turns from the bank (`onRails.ts`, deleted) saved pennies and
+cost the other side reacting to what the learner said, and leading on the Lite saved a third of a
+cent a conversation and cost the flash's reactions on the hard turns. A scene composes on every turn
+the route always composed on, on `gemini-3.8-flash` with the Lite behind it, at about a cent a
+conversation. Neither comes back without a measurement that the experience does not move.
+
 **The scene prompt was cut by a fifth and then held on Google's side, which is the saving the
 endpoint could not give.** The rules block was 594 tokens for twenty rules and is 498 saying the
 same twenty; the pitch voices and the per-turn boilerplate went the same way, and the whole prompt
