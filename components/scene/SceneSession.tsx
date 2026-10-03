@@ -168,8 +168,10 @@ const HOW_IT_GOES: { title: string; line: string; hue: "sky" | "cta" | "blush"; 
 const DIFFICULTIES: { id: Difficulty; label: string; blurb: string }[] = [
   { id: "textbook", label: "Easy", blurb: "Everything goes just like it did in the lesson." },
   { id: "good", label: "Fairly easy", blurb: "One thing will catch you out." },
-  { id: "ordinary", label: "Normal", blurb: "Two or three things go wrong, like a real day at the counter." },
-  { id: "bad", label: "Hard", blurb: "As rough as a Monday morning at a busy desk." },
+  /* Written for any of the fifteen places rather than for a counter: the
+     same two lines sat under a chat on the stairs and a call to a friend. */
+  { id: "ordinary", label: "Normal", blurb: "Two or three things go wrong, the way they do in real life." },
+  { id: "bad", label: "Hard", blurb: "Everything that can go wrong does, and they're in a hurry." },
 ];
 
 /*

@@ -1516,7 +1516,9 @@ const NEIGHBOR: SceneSpec = {
       means: { naine: "wife", mees: "husband" },
     },
   ],
-  curveballs: ["small-talk", "faster", "english", "interrupted", "misheard"],
+  /* Not "small-talk": the weather is a beat of this scene already, so the
+     curveball asked about it a second time on the same stairs. */
+  curveballs: ["faster", "english", "interrupted", "misheard"],
   beats: [
     {
       id: "greet",
