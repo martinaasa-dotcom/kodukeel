@@ -63,7 +63,7 @@ const prisma = newPrismaClient(requireLocalDatabase("create decks and file words
   off. Every other block that could stop running trips the floor, because
   nothing waives it.
 */
-const { check, absent, done } = suite("The deck screens", { floor: 20 });
+const { check, absent, done } = suite("The deck screens", { floor: 21 });
 
 async function dropOurDecks() {
   // Scoped to the two names this suite uses rather than to every deck this
@@ -201,7 +201,24 @@ check("and it offers the shelf by the name the learner gave it", await shows(DEC
 
 // ── Filing from there lands on the shelf ───────────────────────────────────
 await page.getByRole("checkbox", { name: DECK }).check();
-await page.getByRole("button", { name: /^Add$/ }).click();
+/*
+  THE BUTTON IS ON TOP OF THE ENTRY, NOT UNDER IT. `.night` isolates its own
+  stacking context, so the panel's z-index counted only inside the header and
+  the case labels on the cards of forms below painted over it: on some words
+  this click waited thirty seconds behind "osastav" and the suite threw. Asked
+  where the click lands, which is the question the click itself was asking.
+*/
+const addButton = page.getByRole("button", { name: /^Add$/ });
+await addButton.scrollIntoViewIfNeeded();
+check(
+  "the panel's Add button is drawn above the entry it opens over",
+  await addButton.evaluate((b) => {
+    const r = b.getBoundingClientRect();
+    return b.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
+  }),
+  plain,
+);
+await addButton.click();
 await page.waitForTimeout(1500);
 await deckPage();
 check("the word filed from the dictionary is on the shelf", await eventually(() => shows("1 word")));

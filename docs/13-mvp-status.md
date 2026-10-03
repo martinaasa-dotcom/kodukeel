@@ -2792,3 +2792,10 @@ adessive evening, having read the genitive, the inessive, the elative, the parti
 adessive, had three cases to build four options from and asked thirty meaning questions and not
 one ending. The genitive and the partitive are endings to aim at too, read off the stored stems;
 only the nominative, which is the word in the prompt, is left out.
+
+**The dictionary's add panel is on top of the entry it opens over.** `.night` isolates its own
+stacking context, so the panel's `z-40` counted only inside the header, and the case labels on the
+cards of forms below, which are `position: relative`, painted over it: on `aed` and `Saksamaa`
+the panel's Add button sat under "mitmus" and "osastav" and could not be pressed. Found because
+`test-decks.mjs` picks its word by card id and drew one of them in CI; the header stacks at `z-10`
+now, and the suite asks where its click will land before it clicks.
