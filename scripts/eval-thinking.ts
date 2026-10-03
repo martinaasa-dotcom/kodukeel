@@ -46,6 +46,10 @@ import { scriptedFor } from "../lib/scenes/scripted";
 import { billedOutput, SCENE_REPLY_TOKENS } from "../lib/tutor/provider";
 import { UNKNOWN_MODEL, normaliseModel, priceFor } from "../lib/usage/pricing";
 import { HARNESS_LEVEL, keylessContext, routeGate } from "./lib/sceneDraft";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it counts a rate over samples, and a sample replayed is not a second sample.
+installMeter({ replay: false });
 
 interface Combo {
   readonly label: string;

@@ -57,6 +57,10 @@ import { openWithFallback, TUTOR_REPLY_TOKENS, type ProviderConfig, type ChatMes
 import { estimateCostMicros } from "../lib/usage/pricing";
 import { asksForForms, ENGLISH_FUNCTION_WORDS, wordsNote } from "../lib/tutor/words";
 import { shippedWordsInQuestion } from "./lib/shippedWords";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it counts a rate over samples, and a sample replayed is not a second sample.
+installMeter({ replay: false });
 const GROUND = !process.argv.includes("--no-ground");
 
 const ROOT = process.cwd();

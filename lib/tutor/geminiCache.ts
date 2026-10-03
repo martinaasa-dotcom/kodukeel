@@ -57,18 +57,29 @@
  *
  * No React, no Next, no Prisma: `fetch` and a map.
  */
+import { createHash } from "node:crypto";
 import { cacheStorageAsInputTokens } from "@/lib/usage/pricing";
+import { singleFlight } from "@/lib/cache/singleFlight";
+import { isExhausted, noteRefusal } from "./exhausted";
 import { SCENE_REPLY_TOKENS, TutorError, type ChatMessage, type ProviderConfig, type UsageReport } from "./provider";
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
 
 /**
- * How long an entry is asked to live. A scene is played in one sitting and a
- * sitting is minutes, so ten of them cover a run and a pause in it; the
- * storage is charged for the whole term whether or not the entry is read, so
- * longer is money spent holding a prompt nobody is composing against.
+ * How long an entry is asked to live. The storage is charged for the whole
+ * term whether or not the entry is read, so the term is money spent holding a
+ * prompt nobody may compose against again.
+ *
+ * FIVE MINUTES, WHERE IT WAS TEN. What an entry costs after a conversation
+ * ends is its idle tail, storage nobody reads, and the life slides while a
+ * run keeps talking (`EXTEND_BELOW_MS`), so a shorter term costs a talking
+ * run nothing and halves the tail. Measured on 2026-10-02, with a run asking
+ * two to four times, ten idle minutes of a 2,000-token prompt held on the
+ * Lite were two thirds of a write. A run now asks on every turn again, which
+ * makes the slide do more of the work and the tail no longer: a conversation
+ * with a long pause in it pays one rewrite at worst.
  */
-export const CACHE_TTL_SECONDS = 600;
+export const CACHE_TTL_SECONDS = 300;
 
 /** How close to expiry an entry is treated as gone, so a call never lands on one mid-eviction. */
 const SLACK_MS = 20_000;
@@ -116,14 +127,80 @@ function keyFor(model: string, system: string): string {
   return `${model}\n${system}`;
 }
 
+/**
+ * THE NAME AN ENTRY IS FOUND BY FROM ANOTHER PROCESS.
+ *
+ * The map above is one instance's memory, and a deployment is many instances:
+ * a learner's turns land wherever the platform puts them, and every instance
+ * that had not seen the prompt wrote its own copy of it. Listed off Google on
+ * 2026-10-02, one prompt was being held nine times over at once, each copy a
+ * paid write and ten minutes of paid storage. So an entry carries a tag that is
+ * a digest of exactly what makes it reusable, the model and the whole system
+ * text, and an instance that misses asks Google for one wearing that tag
+ * before it pays to make another. A digest rather than the text, because the
+ * listing is a list of names, and nothing in a system prompt is personal.
+ */
+export function cacheTag(model: string, system: string): string {
+  return `kodukeel:${createHash("sha256").update(`${model}\n${system}`).digest("hex").slice(0, 40)}`;
+}
+
+/** An entry found by its tag is adopted only with this much life left, so a call never lands on one mid-eviction. */
+const ADOPT_ABOVE_MS = 60_000;
+
+/** One listing answers every miss for this long, so a burst of misses is one request rather than one each. */
+const LISTING_FRESH_MS = 10_000;
+let listing: { at: number; entries: Promise<Listed[]> } | null = null;
+/** Entries a call was told are gone, so a listing that still shows one cannot hand it back. Bounded like `entries`. */
+const gone = new Set<string>();
+
+interface Listed {
+  readonly name: string;
+  readonly model: string;
+  readonly displayName: string;
+  readonly tokens: number;
+  readonly expiresAt: number;
+}
+
+/**
+ * A HARNESS'S RECORD OF WHAT IT HAS ALREADY BOUGHT, AND NOTHING IN THE APP.
+ *
+ * `scripts/lib/meter.ts` sets this so a harness asking a question it asked
+ * before is answered from disk, and it sits here rather than in the meter for
+ * two reasons. This is the one module that makes cache entries, asserted, and
+ * the check for a recorded answer has to come before the entry is made, or a
+ * fully replayed run still pays to write its prompt into Google's cache.
+ * Keyed on the prompt's tag and the turn, never on an entry's random name, so
+ * two processes asking the same thing share the answer. Null in the app,
+ * always: no route sets it.
+ */
+export interface ReplayRecord {
+  get(key: string): string | null;
+  put(key: string, body: string): void;
+}
+let record: ReplayRecord | null = null;
+
+/** For `scripts/lib/meter.ts` alone. */
+export function setReplayRecord(next: ReplayRecord | null): void {
+  record = next;
+}
+
+/** Whether a URL is one of Google's cache entry calls, so the meter can price one without naming the endpoint itself. */
+export function isCacheEntryUrl(url: string): boolean {
+  return url.startsWith(`${BASE}/cachedContents`);
+}
+
 /** Only the tests need to start from nothing. */
 export function forgetGeminiCaches(): void {
   entries.clear();
+  gone.clear();
+  listing = null;
+  record = null;
 }
 
 function trim(): void {
   const now = Date.now();
   for (const [key, entry] of entries) if (entry.expiresAt - SLACK_MS <= now) entries.delete(key);
+  if (gone.size > MAX_ENTRIES) gone.clear();
   while (entries.size > MAX_ENTRIES) {
     const oldest = entries.keys().next().value;
     if (oldest === undefined) break;
@@ -159,11 +236,77 @@ async function entryFor(config: ProviderConfig, system: string): Promise<{ entry
     return { entry: held, booked: takeOwed(held) };
   }
 
+  /*
+    One look and at most one write per prompt however many turns miss at once
+    (`singleFlight`): two learners on one scene, or one learner whose turns
+    land together, used to write the same 2,600 tokens twice inside a second,
+    and Google billed both. The debt goes to whichever of them takes it first.
+  */
+  const entry = await singleFlight(`gemini-cache:${cacheTag(config.model, system)}`, async () => {
+    const found = await adopt(config, system);
+    const made = found ?? await create(config, system);
+    entries.set(key, made);
+    return made;
+  });
+  return { entry, booked: takeOwed(entry) };
+}
+
+/**
+ * An entry another instance already made for this exact prompt, or null.
+ *
+ * The listing is free and a write is not, so a miss asks first. Adopted with
+ * no debt: whoever made it booked its write and its first term, and the
+ * storage any later extension buys is booked by the turn that asks for it,
+ * here as anywhere. A listing that fails is a miss, never an error: the worst
+ * it costs is the write this module made on every miss before it looked.
+ */
+async function adopt(config: ProviderConfig, system: string): Promise<Entry | null> {
+  const tag = cacheTag(config.model, system);
+  const now = Date.now();
+  if (!listing || now - listing.at > LISTING_FRESH_MS) listing = { at: now, entries: listEntries() };
+  const found = (await listing.entries).find((one) =>
+    !gone.has(one.name) && one.displayName === tag && one.model === `models/${config.model}` && one.expiresAt - Date.now() > ADOPT_ABOVE_MS);
+  return found ? { name: found.name, tokens: found.tokens, expiresAt: found.expiresAt, owed: null } : null;
+}
+
+/** Every entry this key holds, a page at a time, bounded so a key holding thousands cannot make a miss slow. */
+async function listEntries(): Promise<Listed[]> {
+  const out: Listed[] = [];
+  let token = "";
+  try {
+    for (let page = 0; page < 5; page += 1) {
+      const res = await fetch(`${BASE}/cachedContents?pageSize=1000${token ? `&pageToken=${token}` : ""}&key=${keyOf()}`, {
+        signal: AbortSignal.timeout(5_000),
+      });
+      if (!res.ok) return out;
+      const body = await res.json() as {
+        cachedContents?: { name?: string; model?: string; displayName?: string; expireTime?: string; usageMetadata?: { totalTokenCount?: number } }[];
+        nextPageToken?: string;
+      };
+      for (const one of body.cachedContents ?? []) {
+        if (!one.name || !one.model || !one.displayName || !one.expireTime) continue;
+        out.push({
+          name: one.name, model: one.model, displayName: one.displayName,
+          tokens: one.usageMetadata?.totalTokenCount ?? 0, expiresAt: Date.parse(one.expireTime),
+        });
+      }
+      if (!body.nextPageToken) return out;
+      token = body.nextPageToken;
+    }
+  } catch {
+    // A miss rather than a failure: see `adopt`.
+  }
+  return out;
+}
+
+/** Makes the entry, tagged so the next instance to miss finds it (`cacheTag`). */
+async function create(config: ProviderConfig, system: string): Promise<Entry> {
   const res = await fetch(`${BASE}/cachedContents?key=${keyOf()}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
       model: `models/${config.model}`,
+      displayName: cacheTag(config.model, system),
       systemInstruction: { parts: [{ text: system }] },
       ttl: `${CACHE_TTL_SECONDS}s`,
     }),
@@ -173,18 +316,20 @@ async function entryFor(config: ProviderConfig, system: string): Promise<{ entry
     if (res.status === 401 || res.status === 403) {
       throw new TutorError(`${config.label} didn't accept the API key. Check it in your .env file.`, 401);
     }
+    if (res.status === 429) {
+      noteRefusal(config, await res.text().catch(() => ""), res.headers.get("retry-after"));
+      throw new TutorError(`${config.label} is getting too many requests for this model right now.`, 429);
+    }
     throw new TutorError(`${config.label} would not hold the prompt (${res.status}).`, 502);
   }
   const made = await res.json() as { name?: string; usageMetadata?: { totalTokenCount?: number } };
   if (!made.name) throw new TutorError(`${config.label} made a cache entry with no name.`, 502);
-  const entry: Entry = {
+  return {
     name: made.name,
     tokens: made.usageMetadata?.totalTokenCount ?? 0,
     expiresAt: Date.now() + CACHE_TTL_SECONDS * 1000,
     owed: { tokens: made.usageMetadata?.totalTokenCount ?? 0, model: config.model, written: true, storageSeconds: CACHE_TTL_SECONDS },
   };
-  entries.set(key, entry);
-  return { entry, booked: takeOwed(entry) };
 }
 
 /**
@@ -253,6 +398,11 @@ interface GenerateReply {
   error?: { message?: string; status?: string };
 }
 
+/** The line a reply carries, every part of it. */
+function textOf(reply: GenerateReply): string {
+  return reply.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+}
+
 /**
  * The usage of one native call as the ledger reads it. Exported for the test:
  * the total is `promptTokenCount`, which already counts the cached share, so
@@ -315,17 +465,29 @@ export async function geminiCachedReply(
   live = "",
   maxTokens = SCENE_REPLY_TOKENS,
 ): Promise<{ text: string; usage: UsageReport }> {
+  const generationConfig = {
+    maxOutputTokens: maxTokens,
+    // The chain's own answer to a flash model thinking by default (`ProviderConfig.reasoning`).
+    ...(config.reasoning === "none" ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+  };
+  const contents = contentsFor(messages, live);
+  /* A harness's recorded answer, before anything is made or asked (`ReplayRecord`). */
+  const replayKey = record ? JSON.stringify([config.model, cacheTag(config.model, system), contents, generationConfig]) : "";
+  const kept = record?.get(replayKey);
+  if (kept) {
+    const reply = JSON.parse(kept) as GenerateReply;
+    return { text: textOf(reply), usage: usageFromMetadata(reply.usageMetadata, null) };
+  }
+  /*
+    A model that has said "not until later" gets no entry written for it
+    (`lib/tutor/exhausted.ts`). The entry is made before the line is asked for,
+    so without this every new prompt paid for a cache write on a model that
+    was about to refuse it.
+  */
+  if (isExhausted(config)) throw new TutorError(`${config.label} is getting too many requests for this model right now.`, 429);
   const { entry, booked } = await entryFor(config, system);
   try {
-    const body = {
-      cachedContent: entry.name,
-      contents: contentsFor(messages, live),
-      generationConfig: {
-        maxOutputTokens: maxTokens,
-        // The chain's own answer to a flash model thinking by default (`ProviderConfig.reasoning`).
-        ...(config.reasoning === "none" ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
-      },
-    };
+    const body = { cachedContent: entry.name, contents, generationConfig };
     const res = await fetch(`${BASE}/models/${config.model}:generateContent?key=${keyOf()}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -340,14 +502,25 @@ export async function geminiCachedReply(
       */
       if (res.status === 400 || res.status === 403 || res.status === 404) {
         entries.delete(keyFor(config.model, system));
+        // And never adopted again off a listing taken before it went (`adopt`).
+        gone.add(entry.name);
+        listing = null;
         throw new TutorError(`${config.label} no longer holds the prompt (${res.status}).`, 502);
       }
       if (res.status === 401) throw new TutorError(`${config.label} didn't accept the API key. Check it in your .env file.`, 401);
-      if (res.status === 429) throw new TutorError(`${config.label} is getting too many requests for this model right now.`, 429);
+      // Out of credit is the account's, so the plain transport on this link would be refused too.
+      if (res.status === 402) throw new TutorError(`${config.label} has run out of credit on this key.`, 402);
+      if (res.status === 429) {
+        // Believed for as long as it says, so the next turn neither asks nor writes an entry for it.
+        noteRefusal(config, await res.text().catch(() => ""), res.headers.get("retry-after"));
+        throw new TutorError(`${config.label} is getting too many requests for this model right now.`, 429);
+      }
       throw new TutorError(`${config.label} answered ${res.status}.`, 502);
     }
-    const reply = await res.json() as GenerateReply;
-    const text = reply.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+    const raw = await res.text();
+    const reply = JSON.parse(raw) as GenerateReply;
+    const text = textOf(reply);
+    record?.put(replayKey, raw);
     const usage = usageFromMetadata(reply.usageMetadata, booked);
     if (reply.candidates?.[0]?.finishReason === "MAX_TOKENS") usage.truncated = true;
     return { text, usage };

@@ -32,6 +32,10 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { decodeWav, prepareClip, LEAD_MS, TRAIL_MS } from "../lib/audio/wav";
 import { spokenText } from "../lib/audio/say";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it counts a rate over samples, and a sample replayed is not a second sample.
+installMeter({ replay: false });
 
 const TTS = "https://api.tartunlp.ai/text-to-speech/v2";
 const CACHE = ".speech-cache";

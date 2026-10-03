@@ -27,6 +27,11 @@ import { leafNeeds, type BeatSpec, type SceneSpec } from "../lib/scenes/types";
 import { propBySlot, type RoleCard } from "../lib/scenes/props";
 import { shippedDictionary } from "./lib/dictionary";
 import { HARNESS_LEVEL } from "./lib/sceneDraft";
+import { installMeter } from "./lib/meter";
+
+// It calls no model: every conversation is played with no link. Metered anyway, since the loop it
+// drives can compose, so a later change that hands it a link is capped from its first call.
+installMeter({ replay: false });
 import { playScripted, printEvents, type Event, type Floor } from "./lib/keylessPlay";
 import type { Level } from "../lib/collections/syllabus";
 

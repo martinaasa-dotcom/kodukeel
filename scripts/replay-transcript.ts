@@ -21,6 +21,10 @@ import type { RoleCard } from "../lib/scenes/props";
 import { chain as providerChain, HARNESS_LEVEL } from "./lib/sceneDraft";
 import { playScripted, printEvents } from "./lib/keylessPlay";
 import type { Level } from "../lib/collections/syllabus";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
+installMeter({ replay: true });
 
 const rows: Row[] = shippedDictionary().map((e) => ({
   id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr, parts: e.parts,

@@ -50,6 +50,10 @@ import {
   FREE_GEMINI_MODELS, FREE_GROQ_MODELS, SCENE_REPLY_TOKENS,
 } from "../lib/tutor/provider";
 import { HARNESS_LEVEL, keylessContext, lacksFiniteVerb, routeGate } from "./lib/sceneDraft";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it counts a rate over samples, and a sample replayed is not a second sample.
+installMeter({ replay: false });
 
 const arg = (name: string, fallback: string) => {
   const i = process.argv.indexOf(`--${name}`);

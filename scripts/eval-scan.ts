@@ -27,6 +27,10 @@ import { launchChromium } from "./lib/browser.mjs";
 import { completeWithImage, type ProviderConfig } from "../lib/tutor/provider";
 import { SCAN_PROMPT, parseScanReply } from "../lib/scan/extract";
 import { fold } from "../lib/estonian/fold";
+import { installMeter } from "./lib/meter";
+
+// What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it counts a rate over samples, and a sample replayed is not a second sample.
+installMeter({ replay: false });
 
 type Entry = { lemma: string; translation: string; cefr: string | null; pos: string };
 
