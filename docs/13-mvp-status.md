@@ -3012,9 +3012,10 @@ the cards it draws. Learn keeps the whole evening, because Learn is where tonigh
 **Sõnad and the crossword are built from words the learner has met.** Both are rebuilt from the day
 to be marked, so they read the words taught by the ticks written before the learner's own day began
 (`taughtAtDayStart`), which nothing later in the day can change; a word met at eight in the evening
-does not move a grid somebody has been filling since lunch. Somebody who began today has been taught
-nothing yet and is told so rather than handed the dictionary, and on such a morning Today leads with
-Tähed in the puzzle's place. Sõnad has a six-letter word from the fourth evening of A1. A learner the
+does not move a grid somebody has been filling since lunch. Somebody whose first evening is today has
+been taught nothing yet and is told so rather than handed the dictionary, and on such a morning Today
+leads with Tähed in the puzzle's place. Finishing first run is not following the module: read that way
+first, the phone suite's learner, who had never opened an evening, lost their puzzle. Sõnad has a six-letter word from the fourth evening of A1. A learner the
 module has never held keeps the dictionary at their band, as before.
 
 **The Situations list says which conversations the course has not reached.** The module deals a

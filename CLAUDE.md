@@ -5408,9 +5408,9 @@ it, because Review has always asked those. The daily review and Today's count of
 thing, and the ladder keeps `learnerModuleScope`, since Learn is where tonight's words are taught. The
 quest asks Review's own question, `reviewable`. Sõnad and the crossword are rebuilt from the day to be
 marked, so they read `taughtAtDayStart`, the words taught by the ticks written before the learner's
-day began, which nothing later can change; somebody who began today gets no puzzle rather than the
-dictionary, and Today leads with Tähed on such a morning. A learner the module has never held is
-untouched. Asserted in `scripts/invariants/practice-asks-what-the-evenings-taught.ts`.
+day began, which nothing later can change; somebody whose first evening is today gets no puzzle rather
+than the dictionary, and Today leads with Tähed on such a morning. Finishing first run is not following
+the module, and a learner the module has never ticked an evening for is untouched. Asserted in `scripts/invariants/practice-asks-what-the-evenings-taught.ts`.
 
 **And the gate is on the gap rather than on the meeting, which this took two goes to get right.**
 Filtering the examples before `teachingSentence` is the tidier-looking place for it and takes the

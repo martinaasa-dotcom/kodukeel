@@ -12,7 +12,6 @@ import { prisma } from "@/lib/db";
 import { courseFormsByLemma } from "@/lib/dict/facts";
 import { moduleReached, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
-import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { dayReached, taughtThrough } from "@/lib/course";
 import { startOfKey, type DayKey } from "@/lib/time/day";
 import { moduleScopeFrom, scopeFor, scopeSoFar, type ModuleScope } from "@/lib/course/scope";
@@ -143,26 +142,31 @@ export async function practiceScope(
  *
  * So a learner following the module is given the words the course had taught
  * by the start of their day, read off ticks written before it, which nothing
- * can add to afterwards. Somebody who finished first run today has been taught
- * nothing yet and gets an empty list rather than the dictionary. Null is a
- * learner the module has never held, read the way `moduleReached` reads it,
- * and their puzzle is exactly what it was.
+ * can add to afterwards. Somebody whose first tick is today has been taught
+ * nothing yet as the day began and gets an empty list rather than the
+ * dictionary. Null is a learner the module has never held, read the way
+ * `moduleReached` reads it, and their puzzle is exactly what it was.
+ *
+ * NOT "FINISHED FIRST RUN TODAY", which is what this read first. First run is
+ * not the module: somebody can finish it and practise for a week without
+ * opening an evening, and holding them to the course took their puzzle away
+ * over a screen they never opened. The phone suite's learner was exactly
+ * that. The one cost of reading a tick instead is a learner who opens the
+ * board before their very first tick and hands it in after: the marking then
+ * finds no puzzle and grades nothing, which is the safe way round.
  */
 export const taughtAtDayStart = cache(async (ownerId: string, day: DayKey): Promise<readonly string[] | null> => {
-  const [programme, clock, onboarded] = await Promise.all([
-    programmeFor(ownerId), learnerDayClock(ownerId), readSetting(ownerId, SETTING_KEYS.onboardedAt),
-  ]);
+  const [programme, clock] = await Promise.all([programmeFor(ownerId), learnerDayClock(ownerId)]);
   if (!programme) return null;
   const began = startOfKey(clock, day);
   const rows = await prisma.courseStep.findMany({
-    where: { ownerId, programmeId: programme.id, createdAt: { lt: began } },
+    where: { ownerId, programmeId: programme.id },
     distinct: ["dayId"],
-    select: { dayId: true },
-    orderBy: { dayId: "asc" },
+    select: { dayId: true, createdAt: true },
+    orderBy: [{ dayId: "asc" }, { createdAt: "asc" }],
   });
-  if (rows.length === 0) {
-    const arrived = onboarded ? new Date(onboarded) : null;
-    return arrived && !Number.isNaN(arrived.getTime()) && arrived >= began ? [] : null;
-  }
-  return taughtThrough(programme, dayReached(programme, new Set(rows.map((r) => r.dayId))).index);
+  if (rows.length === 0) return null;
+  const before = rows.filter((r) => r.createdAt < began);
+  if (before.length === 0) return [];
+  return taughtThrough(programme, dayReached(programme, new Set(before.map((r) => r.dayId))).index);
 });

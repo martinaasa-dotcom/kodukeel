@@ -146,14 +146,28 @@ describe("a learner the module holds", () => {
     for (const entry of entries) expect(taught.has(entry.lemma), entry.lemma).toBe(true);
   });
 
-  it("gives somebody who began today no puzzle rather than the dictionary", async () => {
+  it("gives somebody whose first evening is today no puzzle rather than the dictionary", async () => {
+    await prisma.setting.create({ data: { ownerId: ARRIVED, key: SETTING_KEYS.programme, value: programme.id } });
+    await prisma.courseStep.create({
+      data: { ownerId: ARRIVED, programmeId: programme.id, dayId: programme.days[0]!.id, stepId: "do:match", createdAt: new Date(`${day}T12:00:00Z`) },
+    });
+    expect(await puzzleFor(ARRIVED, day, "A1")).toBeNull();
+    expect(await crosswordFor(ARRIVED, day, "A1")).toBeNull();
+  });
+
+  /*
+    And first run is not the module. The phone suite's learner finished it
+    today and had never opened an evening, and was told there were not enough
+    words yet: a puzzle taken away over a screen nobody opened.
+  */
+  it("leaves the puzzle alone for somebody who finished first run today and never opened an evening", async () => {
     await prisma.setting.createMany({
       data: [
         { ownerId: ARRIVED, key: SETTING_KEYS.programme, value: programme.id },
         { ownerId: ARRIVED, key: SETTING_KEYS.onboardedAt, value: `${day}T12:00:00.000Z` },
       ],
     });
-    expect(await puzzleFor(ARRIVED, day, "A1")).toBeNull();
-    expect(await crosswordFor(ARRIVED, day, "A1")).toBeNull();
+    expect(await puzzleFor(ARRIVED, day, "A1")).not.toBeNull();
+    expect(await crosswordFor(ARRIVED, day, "A1")).not.toBeNull();
   });
 });
