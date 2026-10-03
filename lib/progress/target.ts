@@ -211,7 +211,14 @@ export function caseQuestion(
   const spelt = lexeme.lemma.trim().toLocaleLowerCase("et");
   const built: { key: string; value: string }[] = [];
   for (const spec of CASES) {
-    if (spec.principal) continue;
+    /*
+      THE GENITIVE AND THE PARTITIVE ARE ENDINGS TO AIM AT TOO. Only the
+      nominative is left out, since it is the word in the prompt. Skipping all
+      three principal parts left A2's adessive evening, dealt Target because
+      four case pages had been read (two of them these), with three cases to
+      build four options from: thirty meaning questions and not one ending.
+    */
+    if (spec.key === "NOMINATIVE") continue;
     // And not a local case this word does not take: the quest was offering
     // `hobuses` and `hobusesse` as options against each other, which is a
     // question about the half of the language a horse is not in. See
@@ -219,10 +226,13 @@ export function caseQuestion(
     if (!caseFits(spec.key, subject)) continue;
     // And, inside the module, not a case whose page nobody has read yet.
     if (!caseWithin(scope, spec.key)) continue;
-    const answer = caseAnswer(stems, spec.key);
-    if (!answer) continue;
-    if (answer.value.trim().toLocaleLowerCase("et") === spelt) continue;
-    built.push({ key: spec.key, value: answer.value });
+    // A principal part is the stored form itself; every other case is `caseAnswer`'s.
+    const value = spec.key === "GENITIVE" ? stems.genSg
+      : spec.key === "PARTITIVE" ? stems.partSg
+        : caseAnswer(stems, spec.key)?.value;
+    if (!value) continue;
+    if (value.trim().toLocaleLowerCase("et") === spelt) continue;
+    built.push({ key: spec.key, value });
   }
   if (built.length < OPTIONS) return null;
 

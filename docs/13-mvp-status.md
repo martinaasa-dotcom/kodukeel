@@ -2785,3 +2785,10 @@ tonight's 6 new words". The builder records them (`DaySpec.again`), and the meet
 tonight's 3 new words, with 2 you've met" or, where none is new, "Go over tonight's 6 words"; the
 module card's figure and the evening letter count the new ones, and the letter no longer has a way
 to say "zero new words tonight".
+
+**Target asks an ending on the evenings it is dealt.** The builder deals it once four case pages have
+been read, counting the genitive and the partitive, and its question builder skipped both, so A2's
+adessive evening, having read the genitive, the inessive, the elative, the partitive and the
+adessive, had three cases to build four options from and asked thirty meaning questions and not
+one ending. The genitive and the partitive are endings to aim at too, read off the stored stems;
+only the nominative, which is the word in the prompt, is left out.
