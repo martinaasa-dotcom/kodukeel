@@ -2988,3 +2988,36 @@ minute or two shorter.
 marker sat on Today on the list and jumped to Learn the moment a step was pressed, on a screen that
 had not changed place. It lives inside Learn now, which is where the course is and where Today's
 card and Learn's button both lead.
+
+## 50. The forty-fourth pass: one course, wherever a round is opened from
+
+**A round walked to from Practice asks only what the evenings have taught so far.** A step of the
+module tells its round what has been taught through its own address, and a round somebody opened
+from Practice was told nothing, so a learner who had met tonight's words and gone to Practice was
+handed a "Case Sprint" in the case tonight's page had not taught yet, on a word still on the ladder.
+The operator's call reverses the line drawn when the module was built: the module and the rest of
+the app are one course.
+Every practice page now reads `practiceScope`, which is the step's address where there is one and
+`learnerScopeSoFar` otherwise: the evenings before tonight count whole, and tonight counts only for
+what it has done, a word once the ladder has asked it, the page once the reading is ticked, the past
+forms once the forms step is. The learner's own words are in it, as they are on Review. Measured on
+the tenth evening of A2 with three of five words met: before the reading the standalone sprint asks
+no case at all, after it nine of forty cards ask the inessive, and the two unmet words are on no
+round.
+
+**The daily review and Today's count of it read the same thing**, so the queue no longer asks
+tonight's case before its page is read, and the quest asks Review's own question (`reviewable`) of
+the cards it draws. Learn keeps the whole evening, because Learn is where tonight's words are taught.
+
+**Sõnad and the crossword are built from words the learner has met.** Both are rebuilt from the day
+to be marked, so they read the words taught by the ticks written before the learner's own day began
+(`taughtAtDayStart`), which nothing later in the day can change; a word met at eight in the evening
+does not move a grid somebody has been filling since lunch. Somebody who began today has been taught
+nothing yet and is told so rather than handed the dictionary, and on such a morning Today leads with
+Tähed in the puzzle's place. Sõnad has a six-letter word from the fourth evening of A1. A learner the
+module has never held keeps the dictionary at their band, as before.
+
+**What stays outside it, on purpose.** Minimal pairs asks which of two spellings was heard and needs
+no vocabulary, so it still draws from the dictionary. The leech clinic reports the learner's own
+history and is not narrowed. And a curveball that switches the other side to English is said again
+in English when the learner asks, never in a bubble marked as Estonian.

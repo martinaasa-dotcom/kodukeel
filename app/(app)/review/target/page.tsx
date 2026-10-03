@@ -3,9 +3,9 @@ import { targetRound } from "@/lib/progress/target";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { TargetSession } from "./TargetSession";
-import { moduleScopeFrom } from "@/lib/course/scope";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { multiplierFor, roundPaceFrom } from "@/lib/ux/roundClock";
+import { practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Target" };
 
@@ -33,7 +33,7 @@ export default async function TargetPage({
   const ownerId = await requireUserId();
   // Opened from the module, the targets are taught words in taught cases.
   const [questions, pace] = await Promise.all([
-    targetRound(ownerId, moduleScopeFrom(await searchParams)),
+    targetRound(ownerId, await practiceScope(ownerId, await searchParams)),
     readSetting(ownerId, SETTING_KEYS.roundPace),
   ]);
 

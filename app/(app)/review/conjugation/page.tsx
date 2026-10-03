@@ -9,7 +9,8 @@ import { Empty, Page } from "@/components/ui";
 import { shuffle } from "@/lib/random/shuffle";
 import { ConjugationSession, type ConjugationQuestion, type Shape, type Tense } from "./ConjugationSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
-import { byRecency, moduleScopeFrom, recentLemmas, slotWithin } from "@/lib/course/scope";
+import { byRecency, recentLemmas, slotWithin } from "@/lib/course/scope";
+import { practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Conjugation" };
 
@@ -63,17 +64,17 @@ export default async function ConjugationPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const ownerId = await requireUserId();
-  const level = await courseLevelFor(ownerId);
-
   /*
     OPENED FROM THE MODULE, THE TABLE IS THE MODULE'S OWN VERBS. This round
     fills itself from the deck and then from the dictionary at the learner's
     band, which on the module's second evening dealt `tekkima` and `jätma` to
     somebody who had met eleven words and no verb. Off the step's address
     (`lib/course/scope.ts`) both reads narrow to what the ladder has taught,
-    and the builder deals the table only once that includes a verb.
+    and the builder deals the table only once that includes a verb. Walked to
+    from Practice, the same holds against what the evenings have taught so far.
   */
-  const scope = moduleScopeFrom(await searchParams);
+  const params = await searchParams;
+  const [level, scope] = await Promise.all([courseLevelFor(ownerId), practiceScope(ownerId, params)]);
   const scoped = scope ? { lemma: { in: [...scope.lemmas] } } : {};
 
   /*

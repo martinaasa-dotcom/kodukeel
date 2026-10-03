@@ -5397,6 +5397,21 @@ header claimed five surfaces asked it while two did, and three of the five it na
 dictation and the flash round, which are exactly the ones deliberately left out. A reader who
 trusted that sentence would have concluded a beginner's case drilling was already gated.
 
+**And then the operator moved that line, so a round walked to from Practice asks only what the
+evenings have taught so far.** The module and the rest of the app are one course, and a learner who
+met tonight's words and opened Practice was handed a "Case Sprint" in the case tonight's page had not
+taught yet. `practiceScope` is what every practice page reads: the step's own address where a step
+opened it, and `learnerScopeSoFar` otherwise, which counts the evenings before tonight whole and
+tonight only for what it has done, a word once the ladder has asked it, the page once the reading is
+ticked and the past forms once the forms step is (`scopeSoFar`, pure). The learner's own words are in
+it, because Review has always asked those. The daily review and Today's count of it read the same
+thing, and the ladder keeps `learnerModuleScope`, since Learn is where tonight's words are taught. The
+quest asks Review's own question, `reviewable`. Sõnad and the crossword are rebuilt from the day to be
+marked, so they read `taughtAtDayStart`, the words taught by the ticks written before the learner's
+day began, which nothing later can change; somebody who began today gets no puzzle rather than the
+dictionary, and Today leads with Tähed on such a morning. A learner the module has never held is
+untouched. Asserted in `scripts/invariants/practice-asks-what-the-evenings-taught.ts`.
+
 **And the gate is on the gap rather than on the meeting, which this took two goes to get right.**
 Filtering the examples before `teachingSentence` is the tidier-looking place for it and takes the
 sentence off the *meet* rung as well: measured over every A1 evening of the programme, 478 of the 493

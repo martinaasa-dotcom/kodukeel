@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { bandsAround } from "@/lib/collections/levels";
+import { LEVELS } from "@/lib/collections/syllabus";
+import { taughtAtDayStart } from "@/lib/progress/moduleScope";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { clueClashes, crosswordPool } from "@/lib/dict/facts";
 import { clueFrom, clueKey } from "@/lib/games/clue";
@@ -42,6 +44,9 @@ export interface DailyCrossword extends Crossword {
   inDeck: number[];
 }
 
+/** Every graded band, for a pool narrowed to taught words rather than to a level. */
+const EVERY_BAND: readonly string[] = LEVELS;
+
 /** Enough words to compile from without dragging the dictionary onto the page. */
 const POOL = 90;
 
@@ -55,8 +60,17 @@ export async function crosswordFor(
     same 2,039 rows, and this page fetched all of them on every render and
     again inside the action that marks the grid.
   */
-  const [rows, clashes] = await Promise.all([
-    crosswordPool(bandsAround(level)),
+  /*
+    AND FOR A LEARNER THE MODULE HOLDS, ONLY WORDS IT HAD TAUGHT BY THE START
+    OF THEIR DAY, at any band: a clue is the English and the answer has to be
+    produced, so a word nobody has shown them is a square they can only leave
+    empty. Fixed for the day, so the marking compiles the same grid
+    (`taughtAtDayStart`). An empty list is no grid yet, not the dictionary.
+  */
+  const taught = await taughtAtDayStart(ownerId, day);
+  if (taught && taught.length === 0) return null;
+  const [graded, clashes] = await Promise.all([
+    crosswordPool(taught ? EVERY_BAND : bandsAround(level)),
     /*
       Over every entry the dictionary holds rather than over the day's pool,
       because a learner knows words outside their own band and a clue with two
@@ -74,6 +88,8 @@ export async function crosswordFor(
     entry per lemma is taken after that rather than before it. A dictionary
     seeded after the day began falls back to all of it, the same way both times.
   */
+  const taughtSet = taught ? new Set(taught) : null;
+  const rows = taughtSet ? graded.filter((row) => taughtSet.has(row.lemma)) : graded;
   const cutoff = earliestStartOf(day).getTime();
   const settled = rows.filter((row) => row.createdAt.getTime() < cutoff);
   const perLemma = new Set<string>();

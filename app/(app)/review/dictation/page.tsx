@@ -10,8 +10,8 @@ import { DictationSession, type DictationTask } from "./DictationSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
 import { resolveProvider } from "@/lib/tutor/provider";
-import { lemmaFilter, moduleScopeFrom, sentenceWithin } from "@/lib/course/scope";
-import { moduleSpellings } from "@/lib/progress/moduleScope";
+import { lemmaFilter, sentenceWithin } from "@/lib/course/scope";
+import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Dictation" };
 
@@ -52,7 +52,7 @@ export default async function DictationPage({
     the ladder has handed over, and the builder deals this round only once
     such a sentence exists (`lib/course/build.ts`).
   */
-  const scope = moduleScopeFrom(await searchParams);
+  const scope = await practiceScope(ownerId, await searchParams);
   const readable = sentenceWithin(scope, await moduleSpellings(scope));
 
   const [cards, reach] = await Promise.all([

@@ -17,7 +17,7 @@ import { readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store
 import { ReviewSession } from "./ReviewSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { moduleScopeFrom, reviewable } from "@/lib/course/scope";
-import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
+import { learnerScopeSoFar, moduleSpellings } from "@/lib/progress/moduleScope";
 import {
   MAX_SESSION, MODULE_SESSION, NEW_CANDIDATES, dueWhere, meetingFirst, notOnLadder, pastTheLadder,
   roomFor, taughtWhere, unseenWhere,
@@ -95,7 +95,7 @@ export default async function ReviewPage({
     narrowed by what the module has taught: a round trip is the price of never
     asking a learner something they were not shown.
   */
-  const taughtPromise = scope ? Promise.resolve(scope) : learnerModuleScope(ownerId);
+  const taughtPromise = scope ? Promise.resolve(scope) : learnerScopeSoFar(ownerId);
   const theirOwnToo = scope === null;
   const now = new Date();
 

@@ -12,8 +12,8 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { starredAmong } from "@/lib/progress/stars";
 import { FlashSession, type FlashPrompt } from "./FlashSession";
-import { moduleScopeFrom, sentenceWithin, slotWithin, type ModuleScope } from "@/lib/course/scope";
-import { moduleSpellings } from "@/lib/progress/moduleScope";
+import { sentenceWithin, slotWithin, type ModuleScope } from "@/lib/course/scope";
+import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
 export const metadata = { title: "Flash cards" };
@@ -63,7 +63,7 @@ export default async function FlashcardsPage({
 
   // Opened from the module: taught words, taught cases, and a sentence shape
   // only over a sentence of taught words. See lib/course/scope.ts.
-  const scope = moduleScopeFrom(await searchParams);
+  const scope = await practiceScope(ownerId, await searchParams);
   const readable = sentenceWithin(scope, await moduleSpellings(scope));
 
   const words = await masteryFor(ownerId);

@@ -9,6 +9,8 @@ import { caseFormChoices, verbFormChoices, verbFormSlots } from "@/lib/questions
 import { parseExamples, sentenceEnglish } from "@/lib/dict/examples";
 import { BLANK, filledSentence } from "@/lib/estonian/cloze";
 import { resolveProvider } from "@/lib/tutor/provider";
+import { learnerScopeSoFar, moduleSpellings } from "@/lib/progress/moduleScope";
+import { reviewable } from "@/lib/course/scope";
 
 /**
  * THE DAILY QUEST'S POOL: WHAT IS GOING WRONG, ASKED AGAIN TODAY.
@@ -140,12 +142,24 @@ export async function questFor(ownerId: string): Promise<Quest> {
     ending on the id because neither of those is unique: a truncated read says
     where to cut.
   */
-  const rows = await prisma.card.findMany({
-    where: { ownerId, suspended: false, state: { not: 0 } },
-    orderBy: [{ lapses: "desc" }, { due: "asc" }, { id: "asc" }],
-    take: POOL,
-    include: { lexeme: { select: { lemma: true, examples: true } } },
-  });
+  const [read, scope] = await Promise.all([
+    prisma.card.findMany({
+      where: { ownerId, suspended: false, state: { not: 0 } },
+      orderBy: [{ lapses: "desc" }, { due: "asc" }, { id: "asc" }],
+      take: POOL,
+      include: { lexeme: { select: { lemma: true, examples: true } } },
+    }),
+    learnerScopeSoFar(ownerId),
+  ]);
+  /*
+    AND ONLY WHAT REVIEW ITSELF WOULD ASK. A card somebody answered once is not
+    a card the module has taught: a deck built before the module carries case
+    cards in cases no evening has read yet, and Review holds those back until
+    the evening that reads the page. The quest is the same deck asked faster,
+    so it asks Review's own question (`reviewable`) rather than a second one.
+  */
+  const taught = await moduleSpellings(scope);
+  const rows = read.filter((c) => reviewable(scope, c, taught));
 
   const onWeakCase = rows.filter((c) => c.targetCase && weakKeys.includes(c.targetCase));
   const rest = rows.filter((c) => !c.targetCase || !weakKeys.includes(c.targetCase));

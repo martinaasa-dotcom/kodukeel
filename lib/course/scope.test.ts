@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { PROGRAMMES } from "./index";
-import { byRecency, recentLemmas, reviewable, scopeFor, tonightFirst, tonightsCase } from "./scope";
+import { PROGRAMMES, formsThrough, grammarThrough, taughtThrough } from "./index";
+import {
+  byRecency, recentLemmas, reviewable, scopeFor, scopeSoFar, slotWithin, tonightFirst, tonightsCase,
+} from "./scope";
+import { FORMS_STEP, MEET_STEP, READ_STEP } from "./types";
 import { caseFromFront } from "@/lib/copy/caseHint";
 import { CASES } from "@/lib/estonian/cases";
 
@@ -122,3 +125,89 @@ describe("the words taught most recently", () => {
   });
 });
 
+
+/*
+  WHAT THE EVENINGS HAVE TAUGHT SO FAR, FOR A SCREEN THE MODULE DID NOT OPEN.
+
+  A learner who met tonight's words and went straight to Practice was handed
+  a "Case Sprint" in the case tonight's page was about to teach. These hold
+  the rule over every evening of the ladder rather than the one that was seen.
+*/
+describe("scopeSoFar", () => {
+  const all = PROGRAMMES.flatMap((programme) => programme.days.map((day) => ({ programme, day })));
+
+  it("counts tonight's case and topic only once the reading is ticked", () => {
+    let reading = 0;
+    for (const { programme, day } of all) {
+      if (!day.grammarCase && !day.grammar) continue;
+      const already = grammarThrough(programme, day.index - 1);
+      const before = scopeSoFar(programme, day, new Set([MEET_STEP]), day.words);
+      expect(tonightsCase(before), day.id).toBeNull();
+      if (day.grammarCase && !already.cases.includes(day.grammarCase)) {
+        reading += 1;
+        expect(before.cases, day.id).not.toContain(day.grammarCase);
+      }
+      if (day.grammar && !already.topics.includes(day.grammar)) {
+        reading += 1;
+        expect(before.topics, day.id).not.toContain(day.grammar);
+      }
+      const after = scopeSoFar(programme, day, new Set([MEET_STEP, READ_STEP]), day.words);
+      if (day.grammarCase) {
+        expect(after.cases, day.id).toContain(day.grammarCase);
+        expect(tonightsCase(after), day.id).toBe(day.grammarCase);
+      }
+      if (day.grammar) expect(after.topics, day.id).toContain(day.grammar);
+    }
+    expect(reading).toBeGreaterThan(20);
+  });
+
+  it("counts a word of tonight's only once the ladder has asked it", () => {
+    const { programme, day } = all.find(({ day }) => day.index > 1 && day.words.length >= 3)!;
+    const [first, ...rest] = day.words;
+    const scope = scopeSoFar(programme, day, new Set(), [first!]);
+    expect(scope.lemmas).toContain(first);
+    for (const word of rest) expect(scope.lemmas).not.toContain(word);
+    for (const word of taughtThrough(programme, day.index - 1)) expect(scope.lemmas).toContain(word);
+    expect(recentLemmas(scope)[0]).toBe(first);
+  });
+
+  it("asks a verb's past only once tonight's forms step has shown it", () => {
+    const shown = all.filter(({ day }) => (day.forms?.length ?? 0) > 0);
+    expect(shown.length).toBeGreaterThan(10);
+    let checked = 0;
+    for (const { programme, day } of shown) {
+      for (const verb of day.forms!) {
+        if (formsThrough(programme, day.index - 1).includes(verb)) continue;
+        const read = new Set([MEET_STEP, READ_STEP]);
+        expect(slotWithin(scopeSoFar(programme, day, read, day.words), "IndIpfSg1", verb), day.id).toBe(false);
+        const after = scopeSoFar(programme, day, new Set([...read, FORMS_STEP]), day.words);
+        expect(after.formsShown, day.id).toContain(verb);
+        checked += 1;
+      }
+    }
+    expect(checked).toBeGreaterThan(20);
+  });
+
+  it("holds the learner's own words, behind the course's in recency, and never twice", () => {
+    const { programme, day } = all.find(({ day }) => day.index > 3)!;
+    const course = taughtThrough(programme, day.index - 1)[0]!;
+    const scope = scopeSoFar(programme, day, new Set(), [], ["zzownword", course]);
+    expect(scope.lemmas).toContain("zzownword");
+    expect(scope.lemmas.filter((w) => w === course)).toHaveLength(1);
+    expect(scope.lemmas.indexOf("zzownword")).toBeLessThan(scope.lemmas.indexOf(course));
+    expect(recentLemmas(scope, Number.MAX_SAFE_INTEGER).at(-1)).toBe("zzownword");
+  });
+
+  it("is the step's own scope once the whole evening is done", () => {
+    for (const { programme, day } of all) {
+      const done = new Set(day.steps.map((s) => s.id));
+      const so = scopeSoFar(programme, day, done, day.words);
+      const step = scopeFor(programme, day);
+      expect(so.lemmas, day.id).toEqual(step.lemmas);
+      expect(so.cases, day.id).toEqual(step.cases);
+      expect(so.topics, day.id).toEqual(step.topics);
+      expect(so.formsShown, day.id).toEqual(step.formsShown);
+      expect(tonightsCase(so), day.id).toBe(tonightsCase(step));
+    }
+  });
+});

@@ -18,11 +18,10 @@ import { Empty, Page } from "@/components/ui";
 import { WriteSession, type WritingPrompt } from "./WriteSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
-import {
-  RECENT_WORDS, byRecency, caseWithin, lemmaFilter, moduleScopeFrom, recentLemmas, tonightFirst, tonightsCase,
-} from "@/lib/course/scope";
+import { RECENT_WORDS, byRecency, caseWithin, lemmaFilter, recentLemmas, tonightFirst, tonightsCase } from "@/lib/course/scope";
 import { CASES } from "@/lib/estonian/cases";
 import { caseAsked } from "@/lib/srs/slots";
+import { practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Writing" };
 
@@ -46,7 +45,7 @@ export default async function WritePage({
   const ownerId = await requireUserId();
 
   // Opened from the module, taught words in taught cases. See lib/course/scope.ts.
-  const scope = moduleScopeFrom(await searchParams);
+  const scope = await practiceScope(ownerId, await searchParams);
 
   const cardSelect = { id: true, lexemeId: true, lapses: true, cardType: true } as const;
   const [general, recent] = await Promise.all([

@@ -1,5 +1,5 @@
 import type { Feel } from "@/lib/scenes/types";
-import { feltAt } from "@/lib/scenes/reply";
+import { feltAt, saidAgain } from "@/lib/scenes/reply";
 import { after } from "next/server";
 import { seedFrom } from "@/lib/random/seeded";
 import { requireUserId } from "@/lib/auth/session";
@@ -522,7 +522,7 @@ export async function POST(request: Request) {
     in its own words.
   */
   const hearAgain = asksToHearAgain(words(last?.said ?? ""), context.marker.questionWords, context.lexicon);
-  if (wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" };
+  if (wantsAside && aside === null && hearAgain && heard) aside = saidAgain(heard);
   /*
     AND NOBODY SHRUGS AT A GOODBYE. A question tucked into the turn that ends
     the scene ("17 eurot, jah? Siin on kaart... head aega!") met "Ei tea."

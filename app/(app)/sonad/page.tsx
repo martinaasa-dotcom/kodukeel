@@ -2,6 +2,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { guessList, puzzleFor } from "@/lib/progress/sonad";
+import { taughtAtDayStart } from "@/lib/progress/moduleScope";
 import { SONAD_GUESSES, SONAD_LENGTH } from "@/lib/games/sonad";
 import { Empty, Page } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
@@ -32,16 +33,18 @@ export default async function SonadPage() {
   const [level, clock] = await Promise.all([courseLevelFor(ownerId), learnerDayClock(ownerId)]);
   const day = clock.dayKey(new Date());
 
-  const [puzzle, guessable] = await Promise.all([
+  const [puzzle, guessable, taught] = await Promise.all([
     puzzleFor(ownerId, day, level),
     guessList(),
+    // Memoised: `puzzleFor` asks the same question of the same day.
+    taughtAtDayStart(ownerId, day),
   ]);
 
   return (
     <BeforeYouStart id="sonad" ready={puzzle !== null}>
       <Page
         title="Sõnad"
-        lead={`One word a day. ${SONAD_LENGTH} letters, ${SONAD_GUESSES} guesses, at your level.`}
+        lead={`One word a day. ${SONAD_LENGTH} letters, ${SONAD_GUESSES} guesses, ${taught ? "a word you've met" : "at your level"}.`}
       >
         {puzzle ? (
           <SonadSession puzzle={puzzle} day={day} guessable={guessable} />
@@ -52,11 +55,24 @@ export default async function SonadPage() {
             harvest is the ordinary state. Saying which is more use than an empty
             board.
           */
-          <Empty
-            title="No word for today"
-            body={`We couldn't find a ${SONAD_LENGTH}-letter word at your level for today. Try again tomorrow.`}
-            action={<ButtonLink href="/dictionary">Look something up</ButtonLink>}
-          />
+          taught ? (
+            /*
+              Held to the words the evenings had taught when the day began, and
+              none of them is the right length yet. That is a few evenings at
+              most, and saying so is the honest answer to an empty board.
+            */
+            <Empty
+              title="Not enough words yet"
+              body={`Today's word comes from your evenings, and none of their words has ${SONAD_LENGTH} letters yet.`}
+              action={<ButtonLink href="/course">Tonight&rsquo;s evening</ButtonLink>}
+            />
+          ) : (
+            <Empty
+              title="No word for today"
+              body={`We couldn't find a ${SONAD_LENGTH}-letter word at your level for today. Try again tomorrow.`}
+              action={<ButtonLink href="/dictionary">Look something up</ButtonLink>}
+            />
+          )
         )}
       </Page>
     </BeforeYouStart>

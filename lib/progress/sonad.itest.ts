@@ -4,6 +4,8 @@ import { SEED_SET_SIZE } from "@/lib/collections/seedSize";
 import type { DayKey } from "@/lib/time/day";
 import { crosswordFor } from "./crossword";
 import { puzzleFor } from "./sonad";
+import { PROGRAMMES, taughtThrough } from "@/lib/course";
+import { SETTING_KEYS } from "@/lib/settings/store";
 
 /**
  * A DAY'S PUZZLE IS ONE PUZZLE FOR THE WHOLE OF THAT DAY.
@@ -95,5 +97,63 @@ describe("the crossword", () => {
       vi.setSystemTime(Date.now() + 5 * 60_000);
     }
     expect(moved).toEqual([]);
+  });
+});
+
+/*
+  A LEARNER THE MODULE HOLDS IS GIVEN A PUZZLE OF WORDS IT HAD TAUGHT.
+
+  Three evenings into A1, Sõnad dealt a six-letter word to deduce out of a
+  language the learner had eleven words of. The puzzle is built from the words
+  the evenings had taught when the day began, which is fixed for the day, so
+  the marking draws the same word; a learner who began today has been taught
+  nothing yet and is given no puzzle rather than the dictionary.
+*/
+describe("a learner the module holds", () => {
+  const HELD = "itest-owner-puzzle-held";
+  const ARRIVED = "itest-owner-puzzle-arrived";
+  const day = "2027-03-10" as DayKey;
+  const programme = PROGRAMMES[0]!;
+  const reached = programme.days.find((d) => d.index === 18)!;
+
+  async function clear() {
+    await prisma.courseStep.deleteMany({ where: { ownerId: { in: [HELD, ARRIVED] } } });
+    await prisma.setting.deleteMany({ where: { ownerId: { in: [HELD, ARRIVED] } } });
+  }
+  beforeEach(clear);
+  afterAll(clear);
+
+  it("draws Sõnad and the crossword from the words the evenings had taught", async () => {
+    await prisma.setting.create({ data: { ownerId: HELD, key: SETTING_KEYS.programme, value: programme.id } });
+    await prisma.courseStep.createMany({
+      data: programme.days.filter((d) => d.index <= reached.index).map((d) => ({
+        ownerId: HELD, programmeId: programme.id, dayId: d.id, stepId: "do:match",
+        createdAt: new Date("2027-03-01T12:00:00Z"),
+      })),
+    });
+    const taught = new Set(taughtThrough(programme, reached.index));
+    const word = await puzzleFor(HELD, day, "B1");
+    expect(word, "a module learner eighteen evenings in has a six-letter word to guess").not.toBeNull();
+    expect(taught.has(word!.answer)).toBe(true);
+    // A tick written today is a word met today, and the day's word does not move for it.
+    await prisma.courseStep.create({
+      data: { ownerId: HELD, programmeId: programme.id, dayId: programme.days[reached.index]!.id, stepId: "do:match", createdAt: new Date(`${day}T12:00:00Z`) },
+    });
+    expect((await puzzleFor(HELD, day, "B1"))?.answer).toBe(word!.answer);
+    const grid = await crosswordFor(HELD, day, "B1");
+    const entries = grid?.entries ?? [];
+    expect(entries.length).toBeGreaterThan(0);
+    for (const entry of entries) expect(taught.has(entry.lemma), entry.lemma).toBe(true);
+  });
+
+  it("gives somebody who began today no puzzle rather than the dictionary", async () => {
+    await prisma.setting.createMany({
+      data: [
+        { ownerId: ARRIVED, key: SETTING_KEYS.programme, value: programme.id },
+        { ownerId: ARRIVED, key: SETTING_KEYS.onboardedAt, value: `${day}T12:00:00.000Z` },
+      ],
+    });
+    expect(await puzzleFor(ARRIVED, day, "A1")).toBeNull();
+    expect(await crosswordFor(ARRIVED, day, "A1")).toBeNull();
   });
 });

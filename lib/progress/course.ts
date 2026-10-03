@@ -284,12 +284,16 @@ const closingOpensAt = (ticks: Ticks, dayId: string): Date | undefined =>
  */
 export const moduleReached = cache(async (
   ownerId: string,
-): Promise<{ programme: Programme; day: CourseDay } | null> => {
+): Promise<{ programme: Programme; day: CourseDay; ticked: ReadonlySet<string> } | null> => {
   const programme = await programmeFor(ownerId);
   if (!programme) return null;
   const ticks = await ticksFor(ownerId, programme);
   if (ticks.byDay.size === 0) return null;
-  return { programme, day: dayReached(programme, new Set(ticks.byDay.keys())) };
+  const day = dayReached(programme, new Set(ticks.byDay.keys()));
+  // The steps of that evening that carry a row, which is what tells a screen
+  // the module did not open whether tonight's page has been read yet
+  // (`scopeSoFar`). Pressed steps and latched derived ones alike.
+  return { programme, day, ticked: ticks.byDay.get(day.id) ?? new Set<string>() };
 });
 
 export async function dayIsInPlay(

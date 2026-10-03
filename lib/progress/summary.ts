@@ -9,7 +9,7 @@ import {
 import { dayClock, type DayClock } from "@/lib/time/day";
 import { isLearningWord, LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { reviewable } from "@/lib/course/scope";
-import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
+import { learnerScopeSoFar, moduleSpellings } from "@/lib/progress/moduleScope";
 
 /**
  * One read of "where is this learner", shared by Today, the path, the progress
@@ -134,7 +134,7 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
   ]);
   const [entries, taught] = await Promise.all([
     lemmasByCardLexeme(cards.map((card) => card.lexemeId)),
-    learnerModuleScope(ownerId),
+    learnerScopeSoFar(ownerId),
   ]);
   const spellings = await moduleSpellings(taught);
 

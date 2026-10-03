@@ -816,7 +816,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       one breath. A composed line hands the word over inside the sentence.
     */
     if (composed) out.push(line!);
-    else if (heard && heard !== offered?.text) out.push({ text: heard, provenance: "again" });
+    else if (heard && heard !== offered?.text) out.push(saidAgain(heard));
     else if (!heard && beat) out.push(stage(stageFor(beat, card)));
     return out;
   }
@@ -1086,7 +1086,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   if (input.hurdle) {
     // A line composed for this turn wins over the repeat here too, and for its reason.
     if (input.hurdle.line?.provenance === "composed") out.push(input.hurdle.line);
-    else if (sayAgainWanted(response, reading, heard)) out.push({ text: heard!, provenance: "again" });
+    else if (sayAgainWanted(response, reading, heard)) out.push(saidAgain(heard!));
     else if (input.hurdle.said) out.push({ text: input.hurdle.said, provenance: "english" });
     else if (input.hurdle.line && input.hurdle.line.provenance !== "fallback") out.push(input.hurdle.line);
     else out.push(stage(stageFor(input.hurdle.beat, card)));
@@ -1212,11 +1212,11 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   } else if (another) {
     out.push({ text: another, provenance: "scripted" });
   } else if (sayAgain) {
-    out.push({ text: heard, provenance: "again" });
+    out.push(saidAgain(heard));
   } else if (line && line.provenance !== "fallback") {
     out.push(line);
   } else if (heard && response !== "answer" && response !== "moveOn" && response !== "counter") {
-    out.push({ text: heard, provenance: "again" });
+    out.push(saidAgain(heard));
   } else {
     out.push(stage(stageFor(beat, card), line?.withheld));
   }
@@ -1253,6 +1253,22 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
 /** Whether this response leaves the beat behind, so no hint about it is owed. */
 function advancing(response: Response | null): boolean {
   return response === "answer" || response === "moveOn" || response === "counter";
+}
+
+/**
+ * A line the learner heard, said once more, in the language it was said in.
+ *
+ * The switch to English is a curveball whose line is English, and repeating it
+ * marked `again` drew it as Estonian: a speaker reading "Sorry, let me switch to
+ * English" with an Estonian voice, the dictionary under English words, and the
+ * whole thing joined onto `Selge.` in one bubble. A repeat of an English line is
+ * an English line.
+ */
+const ENGLISH_LINES: ReadonlySet<string> = new Set(
+  CURVEBALLS.flatMap((c) => (c.said ? [c.said] : [])),
+);
+export function saidAgain(text: string): SpokenLine {
+  return { text, provenance: ENGLISH_LINES.has(text) ? "english" : "again" };
 }
 
 function sayAgainWanted(

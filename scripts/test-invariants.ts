@@ -23615,7 +23615,7 @@ check("every round a rotation can deal reads the module's scope off its address"
       continue;
     }
     const page = code(`app/(app)${spec.href}/page.tsx`);
-    assert.match(page, /moduleScopeFrom\(/, `${spec.href} is a round the module can deal and never asks what the module has taught`);
+    assert.match(page, /practiceScope\(ownerId, /, `${spec.href} is a round the module can deal and never asks what the module has taught`);
     reads += 1;
   }
   assert.ok(reads >= 12, `only ${reads} round pages read the scope; the table has more rounds than that`);
@@ -23641,8 +23641,10 @@ check("nothing outside lib/course/scope.ts reads a scope's lists to answer the m
   let files = 0;
   for (const file of ALL) {
     if (file === "lib/course/scope.ts") continue;
+    // A unit test reads the lists to check the gates, which is what it is for.
+    if (/\.test\.ts$/.test(file)) continue;
     const src = code(file);
-    if (!/ModuleScope|moduleScopeFrom|scopeFor/.test(src)) continue;
+    if (!/ModuleScope|moduleScopeFrom|scopeFor|practiceScope|learnerScopeSoFar/.test(src)) continue;
     files += 1;
     assert.ok(
       !/\.(cases|topics)\.includes\(/.test(src),
@@ -23679,11 +23681,11 @@ check("nothing outside lib/course/scope.ts reads a scope's lists to answer the m
 check("the daily review introduces nothing the module has not taught", () => {
   const page = code("app/(app)/review/page.tsx");
   assert.match(
-    page, /learnerModuleScope\(/,
+    page, /learnerScopeSoFar\(/,
     "the daily review reads the module only off its address, so nothing holds it on the path a learner actually opens",
   );
   assert.match(
-    page, /scope \? Promise\.resolve\(scope\) : learnerModuleScope\(/,
+    page, /scope \? Promise\.resolve\(scope\) : learnerScopeSoFar\(/,
     "the daily review no longer falls back to the learner's own standing when it was not opened from the module",
   );
   /*

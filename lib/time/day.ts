@@ -441,6 +441,24 @@ export function earliestStartOf(day: DayKey): Date {
   return new Date(Date.UTC(y!, m! - 1, d!) - 14 * 60 * 60 * 1000);
 }
 
+/**
+ * The instant the day `day` began on this clock, which is the learner's own
+ * midnight rather than the earliest one anywhere (`earliestStartOf`).
+ *
+ * Found by stepping half a day at a time from that date's noon in UTC until the
+ * clock agrees it is inside the day, then asking the clock for its start: noon
+ * UTC is inside the day for most zones and one step away for the rest, and a
+ * transition is the clock's business rather than this function's.
+ */
+export function startOfKey(clock: DayClock, day: DayKey): Date {
+  const [y, m, d] = day.split("-").map(Number);
+  let at = new Date(Date.UTC(y!, m! - 1, d!, 12));
+  for (let step = 0; step < 4 && clock.dayKey(at) !== day; step++) {
+    at = new Date(at.getTime() + (clock.dayKey(at) < day ? 1 : -1) * 43_200_000);
+  }
+  return clock.startOfDay(at);
+}
+
 /** Local day keys from `days - 1` days ago up to today, oldest first. */
 export function recentDayKeys(days: number, from: Date = new Date()): DayKey[] {
   return processClock.recentDayKeys(days, from);

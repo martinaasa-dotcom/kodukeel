@@ -98,6 +98,15 @@ export const FIRST_LEVEL_WEEK: readonly FeaturedGame[] = [
 ];
 
 /**
+ * The round Today leads with on a puzzle's day when the module has not yet
+ * taught enough words to build the puzzle from: unscrambling a word already
+ * met, which is the game the module's own first evenings deal.
+ */
+export const PUZZLE_STAND_IN: FeaturedGame = {
+  href: "/review/letters", why: "Unscramble a word you've met. Every letter has its place.",
+};
+
+/**
  * Which week a learner gets: the beginner's until their course reaches A2,
  * where the cases start, and the full one after. The level is the course's
  * own (`courseLevelFor`), which reads a learner nothing has placed as A1, and

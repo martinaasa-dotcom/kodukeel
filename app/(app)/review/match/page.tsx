@@ -2,8 +2,9 @@ import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { RECENT_WORDS, byRecency, lemmaFilter, moduleScopeFrom, recentLemmas } from "@/lib/course/scope";
+import { RECENT_WORDS, byRecency, lemmaFilter, recentLemmas } from "@/lib/course/scope";
 import { MatchSession, type MatchPair } from "./MatchSession";
+import { practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Match" };
 
@@ -38,7 +39,7 @@ export default async function MatchPage({
     address (`lib/course/scope.ts`), so a beginner's first board is the five
     words they met an hour ago and never a word from further up the course.
   */
-  const scope = moduleScopeFrom(await searchParams);
+  const scope = await practiceScope(ownerId, await searchParams);
   const base = {
     ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null },
     ...(scope ? { lexeme: lemmaFilter(scope) } : {}),

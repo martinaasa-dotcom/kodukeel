@@ -16,8 +16,8 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ExceptionsSession } from "./ExceptionsSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
-import { moduleScopeFrom } from "@/lib/course/scope";
 import { firstParams } from "@/lib/ux/queryParam";
+import { practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Exceptions" };
 
@@ -58,7 +58,7 @@ export default async function ExceptionsRoundPage({
   const params = firstParams(await searchParams);
   const { kind } = params;
   // Opened from the module, the words are the taught ones. See lib/course/scope.ts.
-  const scope = moduleScopeFrom(params);
+  const scope = await practiceScope(ownerId, params);
   const wanted = kind && (EXCEPTION_KINDS as readonly string[]).includes(kind.toUpperCase())
     ? kind.toUpperCase()
     : null;
