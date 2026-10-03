@@ -18,7 +18,6 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { splitOnForm } from "@/lib/dict/examples";
-import { sayPhrase } from "@/lib/estonian/sayIt";
 import { askLine, isForm, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { hintLadder } from "@/lib/questions/hints";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -36,6 +35,13 @@ import { caseLabelOf } from "@/lib/copy/caseLabel";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
+  /**
+   * What the form says in English, `to the teacher`, worked out on the server
+   * where the word's kind is known: asked here it read "onto it, or to
+   * someone" for every person, since the outside endings read differently for
+   * a person and a thing.
+   */
+  say: string | null;
   progress: { correct: number; needCorrect: number; slots: number; needSlots: number };
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
@@ -546,7 +552,7 @@ function SlotLine({ task }: { task: FlashPrompt }) {
   const english = asksInEnglish(task.slot);
   // `plainAskFor` decides whether this shape gets a line at all; the line
   // itself carries the word's gloss here, where the screen holds it.
-  const phrase = plainAskFor(task) ? sayPhrase(task.slot, task.translation) : null;
+  const phrase = plainAskFor(task) ? task.say : null;
   const plain = phrase
     ? task.shape === "build" ? `Write a sentence with “${phrase}”.` : `Say “${phrase}”`
     : null;

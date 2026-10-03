@@ -3,8 +3,11 @@ import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { writingTasksFor } from "@/lib/estonian/writing";
+import { sayPhrase } from "@/lib/estonian/sayIt";
+import { sentenceAsk } from "@/lib/estonian/caseReading";
 import { mentions } from "@/lib/estonian/cloze";
-import { parseExamples } from "@/lib/dict/examples";
+import { lentFor, parseExamples } from "@/lib/dict/examples";
+import { borrowedSentences } from "@/lib/dict/facts";
 import { isLocalCase } from "@/lib/estonian/caseQuestion";
 import { kindStated } from "@/lib/estonian/semantics";
 import { shownForms } from "@/lib/estonian/derive";
@@ -78,22 +81,24 @@ export default async function WritePage({
 
   const lexemeIds = [...new Set(cards.map((c) => c.lexemeId).filter((id): id is string => !!id))];
 
-  const lexemes = lexemeIds.length
-    ? await prisma.lexeme.findMany({
-        where: { id: { in: lexemeIds }, pos: { in: ["NOUN", "ADJECTIVE"] } },
-        include: { forms: true },
-      })
-    : [];
-
-  // The cases this learner has slipped on most, so the round targets weakness
-  // rather than sampling evenly.
-  // Grouped on the pair and folded through `caseAsked`, so a miss counts at
+  // The words, what each may borrow, and the cases this learner has slipped on
+  // most, so the round targets weakness rather than sampling evenly. The misses
+  // are grouped on the pair and folded through `caseAsked`, so a miss counts at
   // the case the round asked rather than at the card's own.
-  const weak = await prisma.review.groupBy({
-    by: ["targetCase", "slot"],
-    where: { ownerId, rating: 1, OR: [{ targetCase: { not: null } }, { slot: { in: CASES.map((c) => c.key as string) } }] },
-    _count: { _all: true },
-  });
+  const [lexemes, borrowed, weak] = await Promise.all([
+    lexemeIds.length
+      ? prisma.lexeme.findMany({
+          where: { id: { in: lexemeIds }, pos: { in: ["NOUN", "ADJECTIVE"] } },
+          include: { forms: true },
+        })
+      : Promise.resolve([]),
+    borrowedSentences(),
+    prisma.review.groupBy({
+      by: ["targetCase", "slot"],
+      where: { ownerId, rating: 1, OR: [{ targetCase: { not: null } }, { slot: { in: CASES.map((c) => c.key as string) } }] },
+      _count: { _all: true },
+    }),
+  ]);
   const missesByCase = new Map<string, number>();
   for (const w of weak) {
     const key = caseAsked(w);
@@ -112,10 +117,29 @@ export default async function WritePage({
     case was put first; a recorded form leads now and an unrecorded one is
     still asked, behind it, because a word with no sentences is not a wrong
     word.
+
+    EXCEPT IN A LOCAL CASE, WHERE AN UNRECORDED FORM IS NOT SET AT ALL.
+    Ranking it behind was not enough: a weak case and tonight's case both
+    outrank the tier, and a B2 evening opened on "Use aadress in a sentence
+    that says into the address", which is the rule's form and not something
+    anybody sends a letter to. In and on and to are where a thing's meaning
+    turns, so a local case is asked only where a sentence records the form,
+    the word's own or one lent for that very spelling (`Example.via`). The
+    other cases are asked of every noun, and are.
   */
   const recorded = new WeakSet<object>();
   for (const lexeme of lexemes) {
     const sentences = parseExamples(lexeme.examples);
+    const lent = borrowed.get(lexeme.id) ?? [];
+    const said = (form: string | null) => !!form && (
+      sentences.some((e) => mentions(e.et, form))
+      || lent.some((e) => lentFor(e, form) && mentions(e.et, form))
+    );
+    const subject = {
+      lemma: lexeme.lemma,
+      semanticTypes: lexeme.semanticTypes,
+      nomSg: lexeme.forms.find((f) => f.formType === "NOM_SG")?.value ?? null,
+    };
     for (const task of writingTasksFor(lexeme)) {
       const cardId = cardFor.get(lexeme.id);
       if (!cardId) continue;
@@ -124,6 +148,7 @@ export default async function WritePage({
       // so it is asked only of a word whose kind the dictionary has stated:
       // see `kindStated`, which is why "in the acquaintance" went.
       if (isLocalCase(task.caseKey) && !kindStated(lexeme.semanticTypes)) continue;
+      if (isLocalCase(task.caseKey) && !said(task.targetForm) && !said(task.alsoRight)) continue;
       pool.push({
         cardId,
         lexemeId: lexeme.id,
@@ -136,8 +161,13 @@ export default async function WritePage({
         shown: shownForms({ singular: task.targetForm, alsoRight: task.alsoRight }).join(PARTS),
         provenance: task.provenance,
         weak: weakCases.has(task.caseKey),
+        // What the sentence is asked to say, as a sentence rather than a form:
+        // "looking for the son" for the osastav, "of a pleasant one" for an
+        // adjective. See `sentenceAsk`.
+        say: sentenceAsk(task.caseKey, task.translation, lexeme.pos, subject)
+          ?? sayPhrase(task.caseKey, task.translation, subject),
       });
-      if (sentences.some((e) => mentions(e.et, task.targetForm))) recorded.add(pool.at(-1)!);
+      if (said(task.targetForm) || said(task.alsoRight)) recorded.add(pool.at(-1)!);
     }
   }
 

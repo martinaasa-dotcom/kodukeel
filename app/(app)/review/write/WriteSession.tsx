@@ -12,7 +12,6 @@ import { hintLadder } from "@/lib/questions/hints";
 import { caseByKey } from "@/lib/estonian/cases";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
-import { sayPhrase } from "@/lib/estonian/sayIt";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import type { GradedSentence } from "@/lib/tutor/grader";
 import type { WithholdReason } from "@/lib/tutor/verify";
@@ -49,6 +48,13 @@ export interface WritingPrompt {
   shown: string;
   provenance: "ekilex" | "derived";
   weak: boolean;
+  /**
+   * What the sentence has to say, `to the child`, worked out on the server
+   * where the word's kind is known. Worked out here it read `onto it, or to
+   * someone` for every person, since the outside endings read differently for
+   * a person and a thing.
+   */
+  say: string | null;
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
 }
@@ -101,7 +107,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   const finished = !prompt;
   // What the sentence has to say, `in the room`, and whether that already
   // carries the word's meaning so its gloss need not be printed twice.
-  const phrase = prompt ? sayPhrase(prompt.caseKey, prompt.translation) ?? prompt.caseEt : "";
+  const phrase = prompt ? prompt.say ?? prompt.caseEt : "";
   const firstSense = prompt?.translation.split(/[,;(]/)[0]?.trim().toLowerCase() ?? "";
   const saysGloss = firstSense.length > 0 && phrase.toLowerCase().includes(firstSense);
 

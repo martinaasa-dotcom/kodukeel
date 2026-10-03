@@ -1,6 +1,5 @@
 "use client";
 
-import { sayPhrase } from "@/lib/estonian/sayIt";
 import { PARTS } from "@/lib/copy/values";
 import { useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
@@ -45,6 +44,12 @@ export interface ScenePrompt {
   askIndex: number;
   askLemma: string;
   askTranslation: string;
+  /**
+   * What the sentence has to say, `to the man`, worked out on the server where
+   * the pictured word's kind is known: half of them are people and animals,
+   * and the outside endings read differently for a person and a thing.
+   */
+  say: string | null;
   caseKey: string;
   /**
    * The form the sentence has to carry, which is what a hint uncovers.
@@ -115,7 +120,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   const prompt = prompts[index];
   // What the sentence has to say, `out of the hospital`, the writing round's
   // own phrase, and whether it already carries the word's meaning.
-  const phrase = prompt ? sayPhrase(prompt.caseKey, prompt.askTranslation) : null;
+  const phrase = prompt ? prompt.say : null;
   const firstSense = prompt?.askTranslation.split(/[,;(]/)[0]?.trim().toLowerCase() ?? "";
   const saysGloss = !!phrase && firstSense.length > 0 && phrase.toLowerCase().includes(firstSense);
   const finished = !prompt;

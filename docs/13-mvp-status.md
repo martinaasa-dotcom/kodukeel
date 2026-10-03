@@ -2865,3 +2865,16 @@ on the first evening of C1. Found by opening the C1 conversation above and readi
 A1" on its briefing. Moving from the last part of a level into the first of the next records the
 level walked out of (`levelHeldOnHandOff`), one step up and never down, so a jump in Settings to
 a part far above writes nothing and neither does going back to refresh one.
+
+**The writing round asks what a person would write.** It set a task for every local case the
+morphology permits, and a B2 evening opened on "Use aadress in a sentence that says into the
+address", which is the rule's form and nothing anybody sends a letter to: a weak case and tonight's
+case both outranked the tier that put recorded forms first. A local case is now set only where a
+sentence records the form, the word's own or one lent for that very spelling. Three more readings
+were wrong in the same screen. The outside endings of a person read "onto it, or to someone",
+because the phrase was worked out in the browser, which did not know `laps` is a child; it is worked
+out on the server now, here and on the flash round and Describe, and build-a-word reads its own row.
+The osastav read "some of it", a portion of a son, and a sentence has an honest frame for it, the
+object of looking for (`Ma otsin poega`), or "looking for something pleasant" for an adjective. And
+an adjective's other cases read "of the pleasant", which is "of the pleasant one" now
+(`sentenceAsk`).
