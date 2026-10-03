@@ -453,7 +453,8 @@ export function SentenceSession(
       )}
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{correct} of {attempts} first time</span>
+        {/* Nothing on the first sentence: "0 of 0" is a tally of nothing. */}
+        {attempts > 0 && <span>{correct} of {attempts} first time</span>}
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>
