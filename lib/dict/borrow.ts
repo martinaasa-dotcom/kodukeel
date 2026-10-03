@@ -31,12 +31,22 @@
  * which makes `ajas` ambiguous and keeps `Tolm ajas aevastama` off `aeg`. A
  * claim too many costs a sentence; a claim too few costs a wrong card.
  *
- * What it does not see is a homograph the dictionary does not hold at all, and
- * that is the residual: a spelling unique among six thousand entries is not
- * always unique in the language. The sentence is the second opinion in the
- * usual way, since a borrowed card is still cut by `buildCloze` and read by
- * `readCase`, and the audits that build every card the dictionary can make
- * cover the borrowed ones too.
+ * AND A SPELLING THE LANGUAGE GIVES TO TWO WORDS IS LENT ONLY TO THE ONE ITS
+ * SENTENCE MEANS, which is the half the dictionary alone cannot see: a spelling
+ * unique among six thousand entries is not always unique in Estonian.
+ * `aastasadade jooksul` was lent to `jooks` as "on the run", where `jooksul`
+ * is the postposition "during"; `puu otsas` to `ots` and `kapi küljes` to
+ * `külg` the same way; `Ämm on paha tujuga õel` to `õde` as "at the sister",
+ * where `õel` is the adjective "malicious"; and `Rong väljub Tapa jaamast` to
+ * `tapma` as "kill!". The reading is Vabamorf's, of each spelling in its own
+ * sentence (`lib/dict/homographs.ts`, built by `npm run homographs`). In
+ * context rather than in the lexicon: the lexicon alone gives `arstiks` to the
+ * rare verb `arstima` as well as to `arst`, and refusing every such spelling
+ * took `Õpin ülikoolis arstiks` with it. None of a word's own sentences is
+ * touched, since a lexicographer filed those under it. The sentence is still
+ * the second opinion in the usual way, since a borrowed card is cut by
+ * `buildCloze` and read by `readCase`, and the audits that build every card
+ * the dictionary can make cover the borrowed ones too.
  *
  * RANKED, because the builder takes the first sentence that fits. One with an
  * English translation first, since the reveal can print it; then shorter,
@@ -51,6 +61,7 @@
 import { gapForms } from "@/lib/estonian/gapForms";
 import { naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { sentenceWords, usableExamples, type Example } from "@/lib/dict/examples";
+import { HOMOGRAPHS, lendable, type Homographs } from "@/lib/dict/homographs";
 
 /** One dictionary entry, as much of it as borrowing needs. */
 export interface BorrowEntry {
@@ -112,10 +123,15 @@ export function claimIndex(entries: readonly BorrowEntry[]): Map<string, Set<str
  * The sentences every entry may borrow from the others, keyed as the entries are.
  *
  * An entry with nothing to borrow has no key in the map, which is most of the
- * dictionary's long tail.
+ * dictionary's long tail. `homographs` is which word an ambiguous spelling is
+ * in each sentence, the shipped reading unless a test hands in its own.
  */
-export function borrowSentences(entries: readonly BorrowEntry[]): Map<string, Example[]> {
+export function borrowSentences(
+  entries: readonly BorrowEntry[],
+  homographs: Homographs = HOMOGRAPHS,
+): Map<string, Example[]> {
   const claims = claimIndex(entries);
+  const lemmaOf = new Map(entries.map((e) => [e.key, e.lemma]));
   const out = new Map<string, Example[]>();
   // Which spellings each loan was made for, so a sentence lent for `Peas` is
   // never gapped on the `peal` beside it. See `Example.via`.
@@ -134,6 +150,7 @@ export function borrowSentences(entries: readonly BorrowEntry[]): Map<string, Ex
         if (!claimed || claimed.size !== 1) continue;
         const [key] = claimed;
         if (key === undefined || key === owner.key) continue;
+        if (!lendable(homographs, example.et, word, lemmaOf.get(key) ?? "")) continue;
         const held = out.get(key) ?? [];
         held.push(example);
         out.set(key, held);

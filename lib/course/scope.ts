@@ -32,7 +32,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { conjugationSlotFromFront } from "@/lib/srs/slots";
 import { isAppsChoice } from "@/lib/srs/sources";
 import { caseFromFront } from "@/lib/copy/caseHint";
-import type { CourseDay, Programme } from "./types";
+import { FORMS_STEP, READ_STEP, type CourseDay, type Programme } from "./types";
 
 export interface ModuleScope {
   programme: Programme;
@@ -76,6 +76,65 @@ export function scopeFor(programme: Programme, day: CourseDay): ModuleScope {
   return {
     programme, day, lemmas: taughtThrough(programme, day.index), ...grammar,
     formsShown: formsThrough(programme, day.index),
+  };
+}
+
+/**
+ * WHAT THE EVENINGS HAVE TAUGHT SO FAR, FOR A SCREEN THE MODULE DID NOT OPEN.
+ *
+ * `scopeFor` answers for a step of the evening, and a step may assume the
+ * steps in front of it were walked: the closing review comes after the
+ * reading, so it may ask tonight's case. A round somebody walks to from
+ * Practice, or the daily review queue, assumes nothing. Read with the whole
+ * evening credited, a learner who had met tonight's words and gone straight
+ * to Practice was handed a "Case Sprint" in a case whose page was still
+ * unread two steps further down the same evening, and a word still on the
+ * ladder: a question about something they had not been taught, which is the
+ * one thing this scope exists to stop.
+ *
+ * So the evening in progress counts only for what it has actually done. The
+ * evenings before it count whole, since walking past a day is what finishing
+ * it means (`dayReached`). Tonight's words count where the learner has met
+ * them (`met`, read off the cards by the caller), tonight's page once the
+ * reading is ticked and tonight's past forms once the forms step is. And the
+ * learner's own words (`own`, every word this app did not choose) are in the
+ * list too, ahead of the course's so a round leads with the module's recent
+ * words: Review has always asked them (`reviewable`), and Practice drilling a
+ * word somebody went and looked up is the same promise.
+ *
+ * `day` comes back trimmed the same way, because three readers take tonight
+ * off it rather than off the lists (`recentLemmas`, `tonightsCase`,
+ * `formsTonight`) and a case tonight has not read would otherwise lead a round.
+ */
+export function scopeSoFar(
+  programme: Programme,
+  day: CourseDay,
+  done: ReadonlySet<string>,
+  met: readonly string[],
+  own: readonly string[] = [],
+): ModuleScope {
+  const before = day.index - 1;
+  const read = done.has(READ_STEP);
+  const shown = done.has(FORMS_STEP);
+  const metSet = new Set(met);
+  const tonight = day.words.filter((w) => metSet.has(w));
+  const course = [...new Set([...taughtThrough(programme, before), ...tonight, ...met])];
+  const courseSet = new Set(course);
+  const lemmas = [...new Set(own.filter((w) => !courseSet.has(w))), ...course];
+  const { grammar: _grammar, grammarCase: _case, forms: _forms, ...rest } = day;
+  const trimmed: CourseDay = {
+    ...rest,
+    words: tonight,
+    ...(read && day.grammar ? { grammar: day.grammar } : {}),
+    ...(read && day.grammarCase ? { grammarCase: day.grammarCase } : {}),
+    ...(shown && day.forms ? { forms: day.forms } : {}),
+  };
+  return {
+    programme,
+    day: trimmed,
+    lemmas,
+    ...grammarThrough(programme, read ? day.index : before),
+    formsShown: formsThrough(programme, shown ? day.index : before),
   };
 }
 

@@ -255,7 +255,7 @@ function moveIn(lines: readonly Line[]): string | null {
       question is over and repeating it would be repeating the wrong one,
       which is what happened when a stage direction stood between two beats.
     */
-    return spoken(line) ? line.text : "";
+    return spokenEstonian(line) ? line.text : "";
   }
   return null;
 }

@@ -6,8 +6,8 @@ import { plainerFirst } from "@/lib/dict/plainness";
 import { naturalSentence } from "@/lib/estonian/cloze";
 import { starredAmong } from "@/lib/progress/stars";
 import { SpeakingSession, type SpeakingCard } from "./SpeakingSession";
-import { RECENT_WORDS, byRecency, lemmaFilter, moduleScopeFrom, recentLemmas, sentenceWithin } from "@/lib/course/scope";
-import { moduleSpellings } from "@/lib/progress/moduleScope";
+import { RECENT_WORDS, byRecency, lemmaFilter, recentLemmas, sentenceWithin } from "@/lib/course/scope";
+import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
 export const metadata = { title: "Speaking" };
@@ -37,7 +37,7 @@ export default async function SpeakingPage({
   // Opened from the module, taught words, and a sentence only where every
   // word of it has been taught; otherwise the word alone, which this round
   // already says. See lib/course/scope.ts.
-  const scope = moduleScopeFrom(await searchParams);
+  const scope = await practiceScope(ownerId, await searchParams);
   const readable = sentenceWithin(scope, await moduleSpellings(scope));
 
   const base = {

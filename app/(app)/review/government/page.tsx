@@ -15,7 +15,8 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import type { CaseKey } from "@/lib/estonian/types";
 import { shuffle } from "@/lib/random/shuffle";
 import { resolveProvider } from "@/lib/tutor/provider";
-import { byRecency, moduleScopeFrom, recentLemmas } from "@/lib/course/scope";
+import { byRecency, recentLemmas } from "@/lib/course/scope";
+import { practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Verb government" };
 
@@ -58,7 +59,7 @@ export default async function GovernmentPage({
   // Opened from the module, the verbs are the taught ones that carry a
   // government, whatever their band, and the round is dealt only once the
   // government page has been read and a few of them exist (lib/course/build.ts).
-  const scope = moduleScopeFrom(await searchParams);
+  const scope = await practiceScope(ownerId, await searchParams);
   const level = await courseLevelFor(ownerId);
   const verbs = {
     select: { id: true, lemma: true, translation: true, government: true, cefr: true, examples: true },

@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
-import { RECENT_WORDS, byRecency, lemmaFilter, moduleScopeFrom, recentLemmas } from "@/lib/course/scope";
+import { RECENT_WORDS, byRecency, lemmaFilter, recentLemmas } from "@/lib/course/scope";
 import { spellable, tilesFor } from "@/lib/games/letters";
 import { shuffle } from "@/lib/random/shuffle";
 import { LettersSession, type LettersWord } from "./LettersSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
+import { practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Tähed" };
 
@@ -50,7 +51,7 @@ export default async function LettersPage({
 }) {
   const ownerId = await requireUserId();
   const now = new Date();
-  const scope = moduleScopeFrom(await searchParams);
+  const scope = await practiceScope(ownerId, await searchParams);
   const scoped = scope ? lemmaFilter(scope) : {};
 
   const where = {

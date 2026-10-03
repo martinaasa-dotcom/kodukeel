@@ -9,8 +9,8 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { describeRound } from "@/lib/progress/describe";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { DescribeSession, type ScenePrompt } from "./DescribeSession";
-import { moduleScopeFrom } from "@/lib/course/scope";
 import { BeforeYouStart } from "@/components/round/Briefing";
+import { practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Say what you see" };
 
@@ -46,7 +46,7 @@ export default async function DescribePage({
   const ownerId = await requireUserId();
   const level = await courseLevelFor(ownerId);
   // Opened from the module: scenes of taught words, asked in taught cases.
-  const round = await describeRound(ownerId, level, undefined, moduleScopeFrom(await searchParams));
+  const round = await describeRound(ownerId, level, undefined, await practiceScope(ownerId, await searchParams));
 
   if (round.length === 0) {
     return (

@@ -5,7 +5,7 @@ import { NUDGE_AFTER } from "./coach";
 import { fallbackLine, type SpokenLine } from "./line";
 import {
   cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, factsFor, partsLine, feltAt, replyFor,
-  reaction, stageFor, timesAnswered, wantsAsideFor, wantsFreshLine,
+  reaction, saidAgain, stageFor, timesAnswered, wantsAsideFor, wantsFreshLine,
   type ReplyInput,
 } from "./reply";
 import { caseKeyFor, type Lexicon } from "./lexicon";
@@ -865,6 +865,24 @@ describe("a curveball in the way", () => {
   it("is said in English, as a line, where the curveball is the switch to English", () => {
     const lines = replyFor(input({ answered: ASK, hurdle: { beat: hurdle, line: null, said: "Sorry, what was that?" } }));
     expect(lines.at(-1)).toEqual({ text: "Sorry, what was that?", provenance: "english" });
+  });
+
+  /*
+    Repeated after a turn that missed, the switch to English was drawn as
+    Estonian: joined onto `Selge.` in one bubble, read out in an Estonian voice
+    and glossed word by word. A repeat keeps the language the line was said in.
+  */
+  it("says the switch to English again in English, never as Estonian", () => {
+    const english = "Sorry, let me switch to English. What was that?";
+    expect(saidAgain(english)).toEqual({ text: english, provenance: "english" });
+    expect(saidAgain("Kuhu sa lähed?")).toEqual({ text: "Kuhu sa lähed?", provenance: "again" });
+    const lines = replyFor(input({
+      answered: ASK, response: "narrow", reading: "offtarget", heard: english,
+      hurdle: { beat: hurdle, line: null, said: english },
+    }));
+    const said = lines.filter((l) => l.text === english);
+    expect(said.length).toBeGreaterThan(0);
+    expect(said.every((l) => l.provenance === "english")).toBe(true);
   });
 
   it("is not preceded by an answer stating the figure it is about to state", () => {

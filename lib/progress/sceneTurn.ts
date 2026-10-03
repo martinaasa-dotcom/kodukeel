@@ -42,7 +42,7 @@ import type { PersonaSpec } from "@/lib/scenes/personas";
 import type { ComposeAsk, ComposeScene } from "@/lib/scenes/prompt";
 import { dealtNumbers } from "@/lib/scenes/props";
 import {
-  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, feltAt,
+  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, establishedBy, factsFor, feltAt, saidAgain,
   heldBack, heldNumbers, replyFor, sayableAfterHurdles, sceneMovedOn, stageFor, timesAnswered, wantsAsideFor,
   wantsFreshLine,
 } from "@/lib/scenes/reply";
@@ -256,7 +256,7 @@ export function planTurn(input: TurnInput) {
     in its own words.
   */
   const hearAgain = asksToHearAgain(words(last?.said ?? ""), context.marker.questionWords, context.lexicon);
-  if (!composing && wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" };
+  if (!composing && wantsAside && aside === null && hearAgain && heard) aside = saidAgain(heard);
   /*
     AND NOBODY SHRUGS AT A GOODBYE. A question tucked into the turn that ends
     the scene ("17 eurot, jah? Siin on kaart... head aega!") met "Ei tea."

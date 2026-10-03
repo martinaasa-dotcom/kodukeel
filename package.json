@@ -44,6 +44,7 @@
     "test:containment": "node scripts/test-containment.mjs",
     "wordlist": "tsx scripts/build-wordlist.ts",
     "forms": "tsx scripts/build-forms.ts",
+    "homographs": "tsx scripts/build-homographs.ts",
     "harvest": "tsx scripts/harvest-ekilex.ts",
     "harvest:semantics": "tsx scripts/harvest-semantics.ts",
     "harvest:translations": "tsx scripts/harvest-translations.ts",

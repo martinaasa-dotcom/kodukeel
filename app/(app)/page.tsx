@@ -32,7 +32,10 @@ import { dateLine } from "@/lib/time/estonianDate";
 import type { TaskView } from "@/components/TaskRow";
 import { TodayPlan } from "@/components/TodayPlan";
 import { eventsOn, kindFrom, span, weekdayOf, KIND_LABEL, KIND_TONE, WEEKDAY_LONG } from "@/lib/ux/schedule";
-import { featuredTitle, gameAfter, gameOn } from "@/lib/ux/weekGames";
+import { featuredTitle, gameAfter, gameOn, PUZZLE_STAND_IN, type FeaturedGame } from "@/lib/ux/weekGames";
+import { taughtAtDayStart } from "@/lib/progress/moduleScope";
+import { puzzleFor } from "@/lib/progress/sonad";
+import { crosswordFor } from "@/lib/progress/crossword";
 import { WordOfDayCard } from "@/components/WordOfDay";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { SayItToday } from "@/components/SayItToday";
@@ -210,7 +213,7 @@ export default async function TodayPage() {
   */
   /* Off the course's own level: a beginner's week has no endings in it, since
      the course leaves the cases to A2 (lib/ux/weekGames.ts). */
-  const featured = gameOn(weekdayOf(summary.dayKey), placement);
+  const featured = await withPuzzleReady(ownerId, summary.dayKey, gameOn(weekdayOf(summary.dayKey), placement));
   const questDay = featured.href === "/quest" && shows(stage, "quest");
   const [word, collection, weakest, outside, ladder] = await Promise.all([
     shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement) : null,
@@ -1166,4 +1169,28 @@ function taskView(task: {
  */
 async function weakestCase(ownerId: string, now: Date) {
   return caseAccuracy(await caseReviewsFor(ownerId, now))[0] ?? null;
+}
+
+/**
+ * TODAY'S PUZZLE, OR A ROUND IN ITS PLACE WHERE THERE IS NO PUZZLE TO GIVE.
+ *
+ * Sõnad and the crossword are built, for a learner the module holds, out of
+ * the words the evenings had taught when the day began (`taughtAtDayStart`),
+ * and on the first evenings of A1 none of those has six letters and too few
+ * of them cross. A card inviting somebody to a board that then says there is
+ * no board is the app promising something it has just decided not to give,
+ * so on those mornings the card leads with the round the module's own first
+ * evenings deal instead. Asked only on the two days a puzzle is featured, and
+ * only for a learner the module holds: anybody else's puzzle is the
+ * dictionary's at their band, which is always there.
+ */
+async function withPuzzleReady(ownerId: string, day: string, row: FeaturedGame): Promise<FeaturedGame> {
+  if (row.href !== "/sonad" && row.href !== "/crossword") return row;
+  const taught = await taughtAtDayStart(ownerId, day);
+  if (taught === null) return row;
+  const level = await courseLevelFor(ownerId);
+  const ready = row.href === "/sonad"
+    ? await puzzleFor(ownerId, day, level)
+    : await crosswordFor(ownerId, day, level);
+  return ready ? row : PUZZLE_STAND_IN;
 }

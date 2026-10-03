@@ -249,6 +249,21 @@ export function formsThrough(programme: Programme, index: number): string[] {
   return out;
 }
 
+/**
+ * The units the ladder has opened through a day, every part before it
+ * included, in teaching order. A conversation is dealt only once every unit
+ * it declares is on this list (`course.test.ts`), so a screen offering one
+ * outside the module can say which are ahead of the learner.
+ */
+export function unitsThrough(programme: Programme, index: number): string[] {
+  const at = PROGRAMMES.findIndex((p) => p.id === programme.id);
+  const out: string[] = [];
+  const take = (d: CourseDay) => { if (!out.includes(d.unitId)) out.push(d.unitId); };
+  if (at > 0) for (const before of PROGRAMMES.slice(0, at)) before.days.forEach(take);
+  for (const d of programme.days) if (d.index <= index) take(d);
+  return out;
+}
+
 /** The pages the ladder has read through a day: cases by key, topics by id. */
 export interface GrammarTaught {
   cases: string[];

@@ -2943,3 +2943,95 @@ the most recent. The conjugation table had the same shape, a shuffle of every ve
 alphabetically at a hundred and twenty on an evening pinned to it for its new verbs, and leads with
 them now. Every round the module can deal is held to leading with the words it taught last or to a
 written reason it does not, and six carry one.
+
+## 49. The forty-third pass: the three left open
+
+**A sentence is lent for a spelling only to the word that sentence means.** §48 left one hole in
+the borrowed pool: a spelling only one of the dictionary's six thousand entries claims was taken to
+be that entry's, and the language is a hundred and fifty thousand words. So `aastasadade jooksul`
+was a card for the adessive of `jooks`, "on the run", where `jooksul` is the postposition "during";
+`puu otsas`, `kapi küljes` and `tormi kätte` the same way; and further out `Rong väljub Tapa
+jaamast` was a card for the imperative of `tapma`, `Lükkasin teki kõrvale` for the imperative of
+`tekkima`, `Mu passi tähtaeg` for "watch!" and `Eestis on ahmi kohatud` for "gulp!". Measured over
+the shipped dictionary, 177 case cards gapped a spelling that is also a headword of its own.
+
+Refusing every such spelling was tried first and cost far more than it saved: the lexicon also
+gives `arstiks` to a rare verb `arstima` and `filmis` to `filmima`, so it took `Õpin ülikoolis
+arstiks` with `aastasadade jooksul`, 271 cards of which about one in seven was wrong. What separates
+them is the sentence, so `npm run homographs` asks Vabamorf two things, with guessing off for the
+first: which spellings in the dictionary's sentences belong to more than one word (2,503 of
+29,377), and, with its disambiguator over each sentence, which word every one of them is there
+(10,546 places). A loan for such a spelling goes only to the word its sentence means
+(`lib/dict/homographs.ts`, `lendable`). That removes 73 cards, about 62 of them wrong, and 9 more
+are rebuilt from another sentence. A word's own sentences are never checked, because a
+lexicographer filed them under it. A verb and its own participle count as one word, or `mängivad`
+would stop lending its conjugation card. The first word of a sentence is read in lower case,
+because read as written `Metsast saadavad hüved` came back as the surname Mets.
+
+**What it cannot see, written down.** The disambiguator leaves both readings where the sentence
+does not settle them (`soos`: in a bog, or in a gender) and misreads a few (`õel`, read as "at the
+sister"), and those loans stand. Requiring a single reading was measured too: it takes 50 more
+cards, about 45 of them good, nearly all a word beside its own variant (`talv` and `tali`, `poeg`
+and `poja`). A sentence a live Ekilex lookup brought in after the build has no reading, so an
+ambiguous spelling in it is not lent at all. And it misses a few the other way (`Mida ma sulle
+poest toon?` read as the noun "tone"), which costs a card rather than teaching a wrong one.
+
+**A conversation says one length everywhere.** Its tile and briefing said "about 5 min" off
+forty-five seconds an exchange, and the module listed the same conversation at 8, the slot an
+evening gives every conversation whatever its length. It is a minute an exchange now and one more
+for the card before and the review after (`minutesFor`), and the module step prints that figure
+(`DaySpec.sceneMinutes`), so the shop is 7 on the tile, the briefing and the evening. The slot still
+decides the words, so no day id moved, and an evening with a short conversation is honestly a
+minute or two shorter.
+
+**The evening's list lights Learn, as every step on it does.** It lived inside Today, so the rail's
+marker sat on Today on the list and jumped to Learn the moment a step was pressed, on a screen that
+had not changed place. It lives inside Learn now, which is where the course is and where Today's
+card and Learn's button both lead.
+
+## 50. The forty-fourth pass: one course, wherever a round is opened from
+
+**A round walked to from Practice asks only what the evenings have taught so far.** A step of the
+module tells its round what has been taught through its own address, and a round somebody opened
+from Practice was told nothing, so a learner who had met tonight's words and gone to Practice was
+handed a "Case Sprint" in the case tonight's page had not taught yet, on a word still on the ladder.
+The operator's call reverses the line drawn when the module was built: the module and the rest of
+the app are one course.
+Every practice page now reads `practiceScope`, which is the step's address where there is one and
+`learnerScopeSoFar` otherwise: the evenings before tonight count whole, and tonight counts only for
+what it has done, a word once the ladder has asked it, the page once the reading is ticked, the past
+forms once the forms step is. The learner's own words are in it, as they are on Review. Measured on
+the tenth evening of A2 with three of five words met: before the reading the standalone sprint asks
+no case at all, after it nine of forty cards ask the inessive, and the two unmet words are on no
+round.
+
+**The daily review and Today's count of it read the same thing**, so the queue no longer asks
+tonight's case before its page is read, and the quest asks Review's own question (`reviewable`) of
+the cards it draws. Learn keeps the whole evening, because Learn is where tonight's words are taught.
+
+**Sõnad and the crossword are built from words the learner has met.** Both are rebuilt from the day
+to be marked, so they read the words taught by the ticks written before the learner's own day began
+(`taughtAtDayStart`), which nothing later in the day can change; a word met at eight in the evening
+does not move a grid somebody has been filling since lunch. Somebody whose first evening is today has
+been taught nothing yet and is told so rather than handed the dictionary, and on such a morning Today
+leads with Tähed in the puzzle's place. Finishing first run is not following the module: read that way
+first, the phone suite's learner, who had never opened an evening, lost their puzzle. Sõnad has a six-letter word from the fourth evening of A1. A learner the
+module has never held keeps the dictionary at their band, as before.
+
+**The Situations list says which conversations the course has not reached.** The module deals a
+conversation only once every unit it draws on has been taught, and the list offered all fifteen
+alike. For a learner the module holds, a tile and the stage say "Your course brings this one in
+later" where a unit is still ahead (`unitsThrough`), the stage opens on one the course has reached,
+and "Another one" prefers those. Nothing is locked.
+
+**And the evenings were walked rather than reasoned about.** A script played every step of seven
+evenings in a browser (A1.1 evenings 1 and 3, A2.1 evenings 2 and 10, A2.2 evening 7, B1.1 evening 5
+and C1.1 evening 3), answering as a learner roughly would, and listed every Estonian word on screen
+that the course had not taught by that evening. No round, question or review asked one. What it found
+was the reading step's example sentences, which are attested and printed with their English, so they
+teach rather than ask: the residual this file already names, now measured rather than assumed.
+
+**What stays outside it, on purpose.** Minimal pairs asks which of two spellings was heard and needs
+no vocabulary, so it still draws from the dictionary. The leech clinic reports the learner's own
+history and is not narrowed. And a curveball that switches the other side to English is said again
+in English when the learner asks, never in a bubble marked as Estonian.
