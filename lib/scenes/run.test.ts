@@ -199,3 +199,38 @@ describe("planning a run", () => {
     }
   });
 });
+
+/*
+  A CURVEBALL THAT ANSWERS SOMETHING COMES AFTER IT WAS SAID.
+
+  At a ticket window the clerk answered `Tere!` with "it costs 2 euros now",
+  before anybody had asked for a ticket. A changed price and "that can't be
+  done today" come after the learner has asked for something, and "the time
+  you wanted has gone" after they have said a time.
+*/
+describe("where a curveball may stand", () => {
+  it("never in front of what it answers, over every scene and many runs", () => {
+    let constrained = 0;
+    for (const scene of SCENES) {
+      const request = scene.beats.findIndex((beat, i) => i > 0 && beat.move !== "greet");
+      const timeSlots = new Set(scene.props.filter((p) => p.kind === "time").map((p) => p.slot));
+      const time = scene.beats.findIndex((beat) => beat.needs.some((need) =>
+        (need.kind === "datum" && timeSlots.has(need.slot))
+        || (need.kind === "anyOf" && need.of.some((n) => n.kind === "datum" && timeSlots.has(n.slot)))));
+      for (let i = 0; i < 60; i++) {
+        for (const difficulty of ["ordinary", "bad"] as Difficulty[]) {
+          const run = planRun(scene, `follows-${i}`, "B2", difficulty);
+          for (const drawn of run.curveballs) {
+            const follows = curveballById(drawn.id)?.follows;
+            if (!follows) continue;
+            constrained++;
+            const after = follows === "request" ? request : time;
+            expect(after, `${scene.id} draws ${drawn.id} with nothing for it to follow`).toBeGreaterThan(0);
+            expect(drawn.at, `${scene.id}: ${drawn.id} before what it answers`).toBeGreaterThan(after);
+          }
+        }
+      }
+    }
+    expect(constrained).toBeGreaterThan(100);
+  });
+});

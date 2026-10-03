@@ -2909,3 +2909,17 @@ because the short illative of `lõng` is `lõnga`, which is also its genitive an
 any sentence about yarn holds one of those. `recordsCase` counts a spelling only where `readCase`
 names exactly the case asked, so a short illative spelled like the genitive records nothing and its
 long form has to be found instead. The writing round reads it too.
+
+**A turn read in front of a curveball still answers what else it says.** The B2 bus ticket, walked:
+told the price had changed, a learner wrote `Ma tahaksin osta ühe bussipileti haiglasse`, the
+ticket was met behind the curveball, and the turn stopped there. The clerk asked where they were
+going on the next three turns. The ordinary path walks on to the next beat a turn meets and
+credits a beat it answers further along; the path through a curveball did neither, and does both
+now (`replay`'s `further`).
+
+**And a price change comes after somebody asked for something.** The same run opened with the
+clerk answering `Tere!` with "it costs 2 euros now". A curveball was placed on any beat after the
+greeting, and three of them answer what the learner has not said yet there: a changed price and
+"that can't be done today" follow the first thing asked for, and "the time you wanted has gone"
+follows the first beat where a time is said (`CurveballSpec.follows`, `notBeforeIn`). A scene with
+no such beat never draws one. Every scene is played over sixty seeds a difficulty to hold it.
