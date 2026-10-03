@@ -268,7 +268,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
         </div>
 
         <div className="round-pad px-6">
-          {meeting ? <Meeting task={task} /> : <Asking task={task} />}
+          {meeting ? <Meeting task={task} /> : <Asking task={task} answered={!!mark} />}
 
           {!meeting && (
             <div className="mt-7">
@@ -445,7 +445,7 @@ function MoreOnThis({ task, className }: { task: ExceptionTask; className?: stri
 }
 
 /** The two rungs that ask for something: cold, then inside a sentence. */
-function Asking({ task }: { task: ExceptionTask }) {
+function Asking({ task, answered }: { task: ExceptionTask; answered: boolean }) {
   const plain = sayLine(task.slot, task.translation);
 
   if (task.rung === "use") {
@@ -485,7 +485,10 @@ function Asking({ task }: { task: ExceptionTask }) {
           if (!meaning && !cue) return null;
           return (
             <div className="mt-4">
-              {meaning && <GapMeaning meaning={meaning} />}
+              {/* Until the answer is in: the feedback prints the sentence
+                  whole with what it says, so this line would be the English
+                  twice. */}
+              {meaning && !answered && <GapMeaning meaning={meaning} />}
               {cue && (
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
                   The missing word means <strong style={{ color: "var(--ink)" }}>{cue}</strong>.

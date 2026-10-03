@@ -330,7 +330,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         </div>
 
         <div className="round-pad px-6">
-          <Question task={task} shape={shape ?? task.shape} onNoAudio={() => setHeardLost(true)} />
+          <Question task={task} shape={shape ?? task.shape} answered={!!mark} onNoAudio={() => setHeardLost(true)} />
 
           <div className="mt-7">
             <label htmlFor="answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>
@@ -412,8 +412,8 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
 
 /** What the learner is looking at, which is a different thing in each shape. */
 function Question({
-  task, shape, onNoAudio,
-}: { task: FlashPrompt; shape: FlashTask["shape"]; onNoAudio: () => void }) {
+  task, shape, answered, onNoAudio,
+}: { task: FlashPrompt; shape: FlashTask["shape"]; answered: boolean; onNoAudio: () => void }) {
   const meaning = (
     <p className="text-base" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
   );
@@ -475,7 +475,10 @@ function Question({
           if (!meaning && !cue) return null;
           return (
             <div className="mt-4">
-              {meaning && <GapMeaning meaning={meaning} />}
+              {/* Until the answer is in: the feedback under it prints the
+                  sentence whole and what it says, and this line above it
+                  was the English a second time. */}
+              {meaning && !answered && <GapMeaning meaning={meaning} />}
               {cue && (
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
                   The missing word means <strong style={{ color: "var(--ink)" }}>{cue}</strong>.

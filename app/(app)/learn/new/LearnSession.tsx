@@ -1201,7 +1201,10 @@ export function LearnSession({
                       printed in context, so the cue above drops the gloss and
                       keeps the word.
                     */}
-                    {gapLine && <GapMeaning meaning={gapLine} className="mt-1.5 text-sm leading-snug" />}
+                    {/* Until the answer is in. The reveal under it prints the
+                        whole sentence and what it says, so leaving this line
+                        standing above it printed the English twice. */}
+                    {gapLine && phase === "ask" && <GapMeaning meaning={gapLine} className="mt-1.5 text-sm leading-snug" />}
                   </div>
                 </div>
               ) : (
