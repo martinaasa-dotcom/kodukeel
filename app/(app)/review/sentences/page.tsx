@@ -12,8 +12,8 @@ import { orderContextFor } from "@/lib/dict/wordOrder";
 import { alsoRightOrders } from "@/lib/estonian/wordOrder";
 import { courseLevelFor } from "@/lib/progress/level";
 import { BUILD_FROM, maySortWords } from "@/lib/collections/levels";
-import { lemmaFilter, moduleScopeFrom, sentenceWithin } from "@/lib/course/scope";
-import { moduleSpellings } from "@/lib/progress/moduleScope";
+import { lemmaFilter, sentenceWithin } from "@/lib/course/scope";
+import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Sentences" };
 
@@ -43,7 +43,7 @@ export default async function SentencesPage({
 
   // Opened from the module, only a sentence made of taught words is set as
   // tiles, for the reason dictation gives. See lib/course/scope.ts.
-  const scope = moduleScopeFrom(await searchParams);
+  const scope = await practiceScope(ownerId, await searchParams);
   const readable = sentenceWithin(scope, await moduleSpellings(scope));
 
   /*

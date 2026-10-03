@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { taughtAtDayStart } from "@/lib/progress/moduleScope";
 import { bandsAround } from "@/lib/collections/levels";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { guessableWords } from "@/lib/dict/acceptFacts";
@@ -104,15 +105,34 @@ export async function puzzleFor(
     differently: that needs the row as it was, and nothing keeps it.
   */
   const before = earliestStartOf(day).toISOString();
-  const draw = (cutoff: string | null) => prisma.$queryRaw<{ id: string }[]>`
-    SELECT DISTINCT ON (lemma) id FROM "Lexeme"
-    WHERE char_length(lemma) = ${SONAD_LENGTH}
-      AND lemma ~ ${"^[a-zäöüõšž]+$"}
-      AND cefr = ANY(${bands})
-      AND pos = ANY(${kinds})
-      AND (${cutoff}::timestamp IS NULL OR "createdAt" < ${cutoff}::timestamp)
-    ORDER BY lemma, id
-  `;
+  /*
+    AND FOR A LEARNER THE MODULE HOLDS, ONLY A WORD IT HAD TAUGHT BY THE START
+    OF THEIR DAY, whatever band it sits in: the game is deducing a word you
+    have met, and a beginner three evenings in was asked to deduce one they
+    had not. Fixed for the day, so the marking draws the same word
+    (`taughtAtDayStart`). An empty list is no puzzle yet, not the dictionary.
+  */
+  const taught = await taughtAtDayStart(ownerId, day);
+  if (taught && taught.length === 0) return null;
+  const draw = (cutoff: string | null) => taught
+    ? prisma.$queryRaw<{ id: string }[]>`
+        SELECT DISTINCT ON (lemma) id FROM "Lexeme"
+        WHERE char_length(lemma) = ${SONAD_LENGTH}
+          AND lemma ~ ${"^[a-zäöüõšž]+$"}
+          AND lemma = ANY(${[...taught]})
+          AND pos = ANY(${kinds})
+          AND (${cutoff}::timestamp IS NULL OR "createdAt" < ${cutoff}::timestamp)
+        ORDER BY lemma, id
+      `
+    : prisma.$queryRaw<{ id: string }[]>`
+        SELECT DISTINCT ON (lemma) id FROM "Lexeme"
+        WHERE char_length(lemma) = ${SONAD_LENGTH}
+          AND lemma ~ ${"^[a-zäöüõšž]+$"}
+          AND cefr = ANY(${bands})
+          AND pos = ANY(${kinds})
+          AND (${cutoff}::timestamp IS NULL OR "createdAt" < ${cutoff}::timestamp)
+        ORDER BY lemma, id
+      `;
   const settled = await draw(before);
   const pool = settled.length > 0 ? settled : await draw(null);
   if (pool.length === 0) return null;

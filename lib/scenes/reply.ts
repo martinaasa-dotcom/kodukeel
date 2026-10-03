@@ -1095,7 +1095,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     && !(heard !== null && isFarewell(heard, beat));
   const again = waited ? line.text : heard;
   // And a goodbye that was waiting is said for the first time, as itself, not as said again.
-  const sayAgainLine = (): SpokenLine => (again === heard || !line ? { text: again!, provenance: "again" } : line);
+  const sayAgainLine = (): SpokenLine => (again === heard || !line ? saidAgain(again!) : line);
 
   /*
     How often this question has been put to them, counted on the line as well
@@ -1403,7 +1403,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   if (input.hurdle) {
     // A line composed for this turn wins over the repeat here too, and for its reason.
     if (input.hurdle.line?.provenance === "composed") out.push(input.hurdle.line);
-    else if (sayAgainWanted(response, reading, heard)) out.push({ text: heard!, provenance: "again" });
+    else if (sayAgainWanted(response, reading, heard)) out.push(saidAgain(heard!));
     else if (input.hurdle.said) out.push({ text: input.hurdle.said, provenance: "english" });
     else if (input.hurdle.line && input.hurdle.line.provenance !== "fallback") out.push(input.hurdle.line);
     else out.push(stage(stageFor(input.hurdle.beat, card)));
@@ -1617,6 +1617,22 @@ function isFarewell(text: string, close: BeatSpec): boolean {
 /** Whether this response leaves the beat behind, so no hint about it is owed. */
 function advancing(response: Response | null): boolean {
   return response === "answer" || response === "moveOn" || response === "counter";
+}
+
+/**
+ * A line the learner heard, said once more, in the language it was said in.
+ *
+ * The switch to English is a curveball whose line is English, and repeating it
+ * marked `again` drew it as Estonian: a speaker reading "Sorry, let me switch to
+ * English" with an Estonian voice, the dictionary under English words, and the
+ * whole thing joined onto `Selge.` in one bubble. A repeat of an English line is
+ * an English line.
+ */
+const ENGLISH_LINES: ReadonlySet<string> = new Set(
+  CURVEBALLS.flatMap((c) => (c.said ? [c.said] : [])),
+);
+export function saidAgain(text: string): SpokenLine {
+  return { text, provenance: ENGLISH_LINES.has(text) ? "english" : "again" };
 }
 
 function sayAgainWanted(

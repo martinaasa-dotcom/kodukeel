@@ -9,10 +9,11 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
 import { decoyOptions, decoysAmong } from "@/lib/dict/facts";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { RECENT_WORDS, byRecency, lemmaFilter, moduleScopeFrom, recentLemmas } from "@/lib/course/scope";
+import { RECENT_WORDS, byRecency, lemmaFilter, recentLemmas } from "@/lib/course/scope";
 import {
   bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
 } from "@/lib/questions/distractors";
+import { practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Listening" };
 
@@ -48,7 +49,7 @@ export default async function ListeningPage({
 
   // Opened from the module, the round hears the module's own words and no
   // others, off the step's address. See lib/course/scope.ts and Match.
-  const scope = moduleScopeFrom(await searchParams);
+  const scope = await practiceScope(ownerId, await searchParams);
   const scoped = scope ? { lexeme: lemmaFilter(scope) } : {};
 
   const include = { lexeme: { select: { lemma: true, translation: true, pos: true, cefr: true } } } as const;

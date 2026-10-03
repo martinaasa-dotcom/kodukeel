@@ -3,6 +3,8 @@ import { SCENES } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
 import { unitById } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
+import { moduleReached } from "@/lib/progress/course";
+import { unitsThrough } from "@/lib/course";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
@@ -40,11 +42,20 @@ export const dynamic = "force-dynamic";
  */
 export default async function SituationsPage() {
   const ownerId = await requireUserId();
-  const [history, learnerLevel] = await Promise.all([
+  const [history, learnerLevel, reached] = await Promise.all([
     sceneHistoryFor(ownerId),
     courseLevelFor(ownerId),
+    moduleReached(ownerId),
   ]);
   const scenes = [...SCENES].sort((a, b) => a.title.localeCompare(b.title));
+  /*
+    WHICH OF THEM THE COURSE HAS NOT REACHED YET, for a learner it holds. The
+    module deals a conversation only once every unit it draws its words from
+    has been taught, so a scene ahead of that is one whose words the evenings
+    have not handed over. Nothing is locked: the tile says so, and the stage
+    opens on one the course has reached.
+  */
+  const unitsMet = reached ? new Set(unitsThrough(reached.programme, reached.day.index)) : null;
 
   const tiles: SituationTile[] = scenes.map((scene) => {
     const unit = unitById(scene.tests);
@@ -68,6 +79,7 @@ export default async function SituationsPage() {
       // somebody comes back to.
       plays: past?.plays ?? 0,
       last: past?.last ?? null,
+      early: unitsMet ? scene.units.some((u) => !unitsMet.has(u)) : false,
     };
   });
 
@@ -77,7 +89,9 @@ export default async function SituationsPage() {
     about. One never played, in the catalogue's own order so the easiest rooms
     come first; failing that, the one played longest ago.
   */
-  const unplayed = SCENES.find((scene) => !history.has(scene.id));
+  const ready = new Set(tiles.filter((t) => !t.early).map((t) => t.id));
+  const unplayed = SCENES.find((scene) => ready.has(scene.id) && !history.has(scene.id))
+    ?? SCENES.find((scene) => !history.has(scene.id));
   const stalest = [...history.entries()]
     .sort(([, a], [, b]) => (a.lastAt?.getTime() ?? 0) - (b.lastAt?.getTime() ?? 0))[0]?.[0];
   const firstPick = unplayed?.id ?? stalest ?? tiles[0]?.id ?? "";

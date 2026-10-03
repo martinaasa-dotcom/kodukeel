@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  canonicalZone, dayClock, earliestStartOf, isTimeZone, nextCardLine, normaliseZone, partsIn, slowPartsIn, zoneToSend,
+  canonicalZone, dayClock, earliestStartOf, isTimeZone, nextCardLine, normaliseZone, partsIn, slowPartsIn, startOfKey, zoneToSend,
 } from "./day";
 
 /*
@@ -338,5 +338,21 @@ describe("earliestStartOf", () => {
       const midnight = dayClock(zone).startOfDay(new Date("2026-09-25T12:00:00Z"));
       expect(midnight.getTime()).toBeGreaterThanOrEqual(earliestStartOf("2026-09-25").getTime());
     }
+  });
+});
+
+describe("startOfKey", () => {
+  it("is the learner's own midnight for the day, in zones either side of Greenwich", () => {
+    let checked = 0;
+    for (const zone of ["Europe/Tallinn", "Pacific/Kiritimati", "Pacific/Pago_Pago", "UTC", "Pacific/Chatham"]) {
+      const clock = dayClock(zone);
+      for (const day of ["2026-01-01", "2026-03-29", "2026-10-25", "2026-10-03"]) {
+        const start = startOfKey(clock, day);
+        expect(clock.dayKey(start), `${zone} ${day}`).toBe(day);
+        expect(clock.dayKey(new Date(start.getTime() - 1)), `${zone} ${day}`).not.toBe(day);
+        checked += 1;
+      }
+    }
+    expect(checked).toBe(20);
   });
 });

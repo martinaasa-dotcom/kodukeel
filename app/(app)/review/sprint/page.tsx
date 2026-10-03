@@ -11,10 +11,10 @@ import { shuffle } from "@/lib/random/shuffle";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { roundPaceFrom, secondsFor, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 import {
-  RECENT_WORDS, TONIGHT_SHARE, byRecency, cardWithin, lemmaFilter, moduleScopeFrom, recentLemmas, tonightsCase,
+  RECENT_WORDS, TONIGHT_SHARE, byRecency, cardWithin, lemmaFilter, recentLemmas, tonightsCase,
 } from "@/lib/course/scope";
 import { caseAskFor, type CaseAsk } from "@/lib/questions/caseAsk";
-import { moduleSpellings } from "@/lib/progress/moduleScope";
+import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Case Sprint" };
 
@@ -54,7 +54,7 @@ export default async function SprintPage({
 
   // Opened from the module, the sprint is the module's own words, and a case
   // card only once its page has been read. See lib/course/scope.ts.
-  const scope = moduleScopeFrom(await searchParams);
+  const scope = await practiceScope(ownerId, await searchParams);
   const scoped = scope ? { lexeme: lemmaFilter(scope) } : {};
   // Started here and awaited where it is read, so the settings row rides
   // beside the deck reads rather than after them.

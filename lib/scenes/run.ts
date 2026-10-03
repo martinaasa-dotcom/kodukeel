@@ -180,14 +180,28 @@ export function curveballAt(run: SceneRun, beat: number): DrawnCurveball | undef
 }
 
 /**
- * How long a scene takes, in minutes, for the line on the card that chooses it.
+ * How long a scene takes, in minutes: the one figure for it, wherever it is
+ * printed.
  *
- * Beats times a guess at a turn, rounded to the nearest minute and floored at
- * three, which is honest about being a guess: this is the number on a menu tile
- * rather than a measurement, and §13 asks the chooser to say how long a scene
- * takes so somebody can decide whether they have time for one.
+ * A minute an exchange, which is reading their line, working out what to say
+ * and typing it in Estonian, and one more for the card before and the review
+ * after. A guess rather than a measurement, and honest about being one; §13
+ * asks the chooser to say how long a scene takes so somebody can decide
+ * whether they have time for one.
+ *
+ * IT WAS FORTY-FIVE SECONDS A TURN AND NOTHING ELSE, so the café read "about
+ * 4 min" on its tile and the module listed the same conversation at 8, which
+ * was the budget an evening gave every conversation whatever its length. Two
+ * figures for one sitting, a screen apart, and the lower one left out the card
+ * and the review the learner reads either side of it. The module reads this
+ * now (`DaySpec.sceneMinutes`), and the typical scene of seven beats comes out
+ * at the eight the evening already planned around.
  */
 export function minutesFor(scene: SceneSpec): number {
-  const perBeat = 0.75;
-  return Math.max(3, Math.round(scene.beats.length * perBeat));
+  return Math.max(3, Math.round(scene.beats.length * TURN_MINUTES + SETTLE_MINUTES));
 }
+
+/** One exchange: their line read, an answer worked out and typed. */
+export const TURN_MINUTES = 1;
+/** The card read before the first line, and the review read after the last. */
+export const SETTLE_MINUTES = 1;
