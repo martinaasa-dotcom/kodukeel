@@ -128,7 +128,7 @@ export function MapMockup({ scene, initial }: { scene: Scene; initial: "ask" | "
 
       <p className="mt-6 text-center text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>{d.ask[move]}</p>
 
-      <div className="mt-5 grid gap-2.5 sm:grid-cols-3">
+      <div className="mt-5 grid gap-2.5 lg:grid-cols-3">
         {options.map((option, i) => {
           const chose = picked === i;
           return (
