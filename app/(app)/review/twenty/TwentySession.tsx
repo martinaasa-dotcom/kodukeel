@@ -260,7 +260,9 @@ function TurnView({ turn, number }: { turn: Turn; number: number | null }) {
               <span lang="et" className="text-xl font-bold" style={{ color: "var(--accent-deep)" }}>{ANSWER_ET[reply.answer]}</span>
               <span className="text-base" style={{ color: "var(--ink-2)" }}>{ANSWER_EN[reply.answer]}</span>
             </p>
-            <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>Taken to mean: {reply.reading}</p>
+            <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>
+              {reply.counts ? `Taken to mean: ${reply.reading}` : `${reply.reading} That one didn’t cost a question.`}
+            </p>
           </>
         ) : (
           <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>

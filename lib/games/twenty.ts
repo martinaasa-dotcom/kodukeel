@@ -39,7 +39,7 @@
  */
 
 import {
-  CATEGORIES, COLOURS, KIND_HINT, PARTS, THINGS, THING_BY_LEMMA,
+  CATEGORIES, COLOURS, DOES, KIND_HINT, MATERIALS, OPINIONS, PARTS, THINGS, THING_BY_LEMMA, TRAITS,
   type Colour, type Part, type Thing, type Where,
 } from "./twentyThings";
 
@@ -93,6 +93,8 @@ export type Reply =
       /** The question named a thing (or a kind of thing) rather than describing one. */
       guess: boolean;
       won: boolean;
+      /** False where the game could only say it does not know, which costs no question. */
+      counts: boolean;
       tips: Tip[];
     };
 
@@ -134,11 +136,13 @@ const ADJECTIVES: Record<string, Intent> = {
   elus: { id: "alive", en: "Is it alive?", copula: true, test: alive },
   elav: { id: "alive", en: "Is it alive?", copula: true, test: alive },
   elama: { id: "alive", en: "Is it alive?", copula: false, test: alive },
+  raske: { id: "heavy", en: "Is it heavy?", copula: true, test: (t) => (t.size >= 7 ? "yes" : t.size >= 5 ? "sometimes" : "no") },
+  kerge: { id: "light", en: "Is it light?", copula: true, test: (t) => (t.size <= 2 ? "yes" : t.size === 3 ? "sometimes" : "no") },
 };
 
 const COLOUR_EN: Record<Colour, string> = {
   punane: "red", sinine: "blue", kollane: "yellow", roheline: "green",
-  valge: "white", must: "black", pruun: "brown", hall: "grey",
+  valge: "white", must: "black", pruun: "brown", hall: "grey", roosa: "pink", oranž: "orange", lilla: "purple",
 };
 
 for (const c of COLOURS) {
@@ -151,6 +155,10 @@ for (const c of COLOURS) {
 const PART_EN: Record<Part, string> = {
   jalg: "legs", tiib: "wings", saba: "a tail", ratas: "wheels", uks: "a door",
   aken: "a window", sulg: "feathers", karv: "fur", leht: "leaves or pages", nokk: "a beak",
+  silm: "eyes", kõrv: "ears", nina: "a nose", suu: "a mouth", pea: "a head", hammas: "teeth", kõht: "a belly",
+  selg: "a back", sarv: "horns", nahk: "skin", koor: "a peel, bark or crust", seeme: "seeds", juur: "roots",
+  oks: "branches", rool: "a steering wheel or handlebars", ekraan: "a screen", nupp: "buttons",
+  klaviatuur: "a keyboard", kaas: "a cover",
 };
 
 /** Part words that are also things: "uks" is a door you can have and a door you can guess. */
@@ -179,21 +187,90 @@ const EAT: Record<"eat" | "drink", { active: Intent; passive: Intent }> = {
   },
 };
 
-const PLACES: Record<string, { where: Where; en: string }> = {
-  kodu: { where: "home", en: "Is it at home?" },
-  maja: { where: "home", en: "Is it at home?" },
-  tuba: { where: "home", en: "Is it at home?" },
-  köök: { where: "kitchen", en: "Is it in the kitchen?" },
-  õu: { where: "outdoors", en: "Is it outdoors?" },
-  õues: { where: "outdoors", en: "Is it outdoors?" },
-  mets: { where: "forest", en: "Is it in the forest?" },
-  vesi: { where: "water", en: "Is it in the water?" },
-  linn: { where: "city", en: "Is it in the city?" },
+const PLACES: Record<string, { where: Where; en: string; cases: readonly string[] }> = {
+  kodu: { where: "home", en: "Is it at home?", cases: ["INESSIVE"] },
+  maja: { where: "home", en: "Is it at home?", cases: ["INESSIVE"] },
+  tuba: { where: "home", en: "Is it at home?", cases: ["INESSIVE"] },
+  köök: { where: "kitchen", en: "Is it in the kitchen?", cases: ["INESSIVE"] },
+  õu: { where: "outdoors", en: "Is it outdoors?", cases: ["INESSIVE"] },
+  õues: { where: "outdoors", en: "Is it outdoors?", cases: ["INESSIVE", "BASE"] },
+  mets: { where: "forest", en: "Is it in the forest?", cases: ["INESSIVE"] },
+  vesi: { where: "water", en: "Is it in the water?", cases: ["INESSIVE"] },
+  linn: { where: "city", en: "Is it in the city?", cases: ["INESSIVE"] },
+  maa: { where: "country", en: "Is it in the countryside?", cases: ["ADESSIVE", "INESSIVE"] },
+  aed: { where: "garden", en: "Is it in the garden?", cases: ["INESSIVE"] },
+  taevas: { where: "sky", en: "Is it in the sky?", cases: ["INESSIVE", "BASE"] },
+  meri: { where: "sea", en: "Is it in the sea?", cases: ["INESSIVE"] },
+  kool: { where: "school", en: "Is it at school?", cases: ["INESSIVE"] },
+  pood: { where: "shop", en: "Is it in a shop?", cases: ["INESSIVE"] },
+  tänav: { where: "street", en: "Is it on the street?", cases: ["ADESSIVE", "INESSIVE"] },
+  külmkapp: { where: "fridge", en: "Is it in the fridge?", cases: ["INESSIVE"] },
+  voodi: { where: "bed", en: "Is it in a bed?", cases: ["INESSIVE"] },
 };
 
 const COMPARATIVES: Record<string, "bigger" | "smaller"> = {
   suurem: "bigger",
   väiksem: "smaller",
+};
+
+
+/* Objective traits: the lemma that asks for each, and the plain English of the question. */
+const TRAIT_TERMS: Record<string, { key: (typeof TRAITS)[number]; en: string }> = {
+  märg: { key: "wet", en: "Is it wet?" },
+  kuiv: { key: "dry", en: "Is it dry?" },
+  magus: { key: "sweet", en: "Is it sweet?" },
+  soolane: { key: "salty", en: "Is it salty?" },
+  hapu: { key: "sour", en: "Is it sour?" },
+  terav: { key: "sharp", en: "Is it sharp?" },
+  ümar: { key: "round", en: "Is it round?" },
+  pikk: { key: "long", en: "Is it long?" },
+  lühike: { key: "short", en: "Is it short?" },
+  lai: { key: "wide", en: "Is it wide?" },
+  kitsas: { key: "narrow", en: "Is it narrow?" },
+  paks: { key: "thick", en: "Is it thick?" },
+  õhuke: { key: "thin", en: "Is it thin?" },
+  ohtlik: { key: "dangerous", en: "Is it dangerous?" },
+  tugev: { key: "strong", en: "Is it strong?" },
+};
+
+/* Opinions: "sometimes" unless the thing says yes, or says plainly no. */
+const OPINION_TERMS: Record<string, { key: (typeof OPINIONS)[number]; en: string }> = {
+  vana: { key: "old", en: "Is it old?" },
+  uus: { key: "new", en: "Is it new?" },
+  kallis: { key: "expensive", en: "Is it expensive?" },
+  odav: { key: "cheap", en: "Is it cheap?" },
+  ilus: { key: "pretty", en: "Is it pretty?" },
+  kasulik: { key: "useful", en: "Is it useful?" },
+  haruldane: { key: "rare", en: "Is it rare?" },
+  vaikne: { key: "quiet", en: "Is it quiet?" },
+  puhas: { key: "clean", en: "Is it clean?" },
+  tume: { key: "dark", en: "Is it dark?" },
+  hele: { key: "bright", en: "Is it bright?" },
+  nõrk: { key: "weak", en: "Is it weak?" },
+};
+
+const DOES_TERMS: Record<string, { key: (typeof DOES)[number]; en: string }> = {
+  haukuma: { key: "bark", en: "Does it bark?" },
+  kasvama: { key: "grow", en: "Does it grow?" },
+  magama: { key: "sleep", en: "Does it sleep?" },
+  laulma: { key: "sing", en: "Does it sing?" },
+  kõndima: { key: "walk", en: "Does it walk?" },
+  mängima: { key: "play", en: "Does it play?" },
+  töötama: { key: "work", en: "Does it work, or run?" },
+  ostma: { key: "buy", en: "Can you buy it?" },
+  müüma: { key: "sell", en: "Can you sell it?" },
+  põlema: { key: "burn", en: "Does it burn?" },
+  helisema: { key: "ring", en: "Does it ring?" },
+  sündima: { key: "born", en: "Is it born?" },
+  kasutama: { key: "use", en: "Do people use it?" },
+  pesema: { key: "wash", en: "Can you wash it?" },
+  kriipima: { key: "scratch", en: "Does it scratch?" },
+  lõhnama: { key: "smell", en: "Does it smell?" },
+};
+
+const MATERIAL_EN: Record<(typeof MATERIALS)[number], string> = {
+  puit: "wood", metall: "metal", klaas: "glass", paber: "paper", kivi: "stone", raud: "iron",
+  kuld: "gold", kumm: "rubber", vill: "wool", puuvill: "cotton",
 };
 
 const WH = new Set(["kes", "mis", "kus", "kuhu", "millal", "miks", "kuidas", "milline", "mitu", "palju", "kui"]);
@@ -203,6 +280,8 @@ export const NEEDED_LEMMAS: readonly string[] = [...new Set([
   "kas", "see", "tema", "olema", "ei", "kui", "või", "ja", "saama", "käsi",
   ...WH,
   ...Object.keys(ADJECTIVES), ...Object.keys(ACTIONS), "sööma", "jooma", ...Object.keys(PLACES),
+  ...Object.keys(TRAIT_TERMS), ...Object.keys(OPINION_TERMS), ...Object.keys(DOES_TERMS), ...MATERIALS,
+  "raske", "kerge",
   ...PARTS, ...CATEGORIES, ...THINGS.map((t) => t.lemma),
   "jah", "teadma", "mõnikord",
 ])];
@@ -290,11 +369,11 @@ export function ask(
     const label = (refThing ? glossOf(refThing.lemma) ?? refThing.lemma : ref.raw);
     const en = `Is it ${direction} than “${label}”?`;
     if (!refThing) {
-      comparison = { reply: { kind: "answer", answer: "unknown", reading: en, guess: false, won: false, tips: [] }, tips: sentence };
+      comparison = { reply: { kind: "answer", answer: "unknown", reading: en, guess: false, won: false, counts: true, tips: [] }, tips: sentence };
     } else {
       const diff = secret.size - refThing.size;
       const answer: Answer = diff === 0 ? "sometimes" : (direction === "bigger" ? diff > 0 : diff < 0) ? "yes" : "no";
-      comparison = { reply: { kind: "answer", answer, reading: en, guess: false, won: false, tips: [] }, tips: sentence };
+      comparison = { reply: { kind: "answer", answer, reading: en, guess: false, won: false, counts: true, tips: [] }, tips: sentence };
     }
   }
 
@@ -309,7 +388,10 @@ export function ask(
     const readings = w.readings;
 
     // Where it is. An inessive of a place word, or the adverb "õues".
-    const place = readings.find((r) => PLACES[r.lemma] && (r.case === "INESSIVE" || (r.lemma === "õues")));
+    const place = readings.find((r) => {
+      const at = PLACES[r.lemma];
+      return at !== undefined && (at.cases.includes(r.case ?? "") || (at.cases.includes("BASE") && r.base));
+    });
     if (place) {
       const site = PLACES[place.lemma]!;
       found.push({ raw: w.raw, intent: {
@@ -342,6 +424,43 @@ export function ask(
       }
     }
 
+    // The wide layer: traits, opinions, things it does, what it is made of.
+    for (const r of readings) {
+      const trait = TRAIT_TERMS[r.lemma];
+      if (trait) {
+        found.push({ raw: w.raw, intent: {
+          id: `trait:${trait.key}`, en: trait.en, copula: true, test: (t) => listed(t.trait, t.traitS, trait.key),
+        } });
+        return;
+      }
+      const opinion = OPINION_TERMS[r.lemma];
+      if (opinion) {
+        found.push({ raw: w.raw, intent: {
+          id: `opinion:${opinion.key}`, en: opinion.en, copula: true,
+          test: (t) => (t.traitNo.includes(opinion.key) ? "no" : t.trait.includes(opinion.key) ? "yes" : "sometimes"),
+        } });
+        return;
+      }
+      const does = DOES_TERMS[r.lemma];
+      if (does) {
+        found.push({ raw: w.raw, intent: {
+          id: `does:${does.key}`, en: does.en, copula: false,
+          test: (t) => (does.key === "smell"
+            ? (t.does.includes("smell") || t.trait.includes("smelly") ? "yes"
+              : t.doesS.includes("smell") || t.traitS.includes("smelly") ? "sometimes" : "no")
+            : listed(t.does, t.doesS, does.key)),
+        } });
+        return;
+      }
+      if ((MATERIALS as readonly string[]).includes(r.lemma)) {
+        const key = r.lemma as (typeof MATERIALS)[number];
+        found.push({ raw: w.raw, intent: {
+          id: `made:${key}`, en: `Is it made of ${MATERIAL_EN[key]}?`, copula: false, test: (t) => listed(t.made, t.madeS, key),
+        } });
+        return;
+      }
+    }
+
     // A thing, or a kind of thing, named.
     const named = readings.find((r) => THING_BY_LEMMA.has(r.lemma) || (CATEGORIES as readonly string[]).includes(r.lemma));
     if (named) names.push({ raw: w.raw, lemma: named.lemma, base: named.base });
@@ -357,6 +476,13 @@ export function ask(
     return { kind: "refused", why: "many", tips: [] };
   }
   if (distinct.length === 0 && names.length === 0) {
+    // A well-formed question made of words the dictionary knows, about something the game has no
+    // facts for: say so, as the classic game does, and do not charge a question for it.
+    const known = words.filter((w, i) => !taken.has(i) && w.readings.length > 0).length;
+    if (startsWithKas && words.length >= 3 && known * 2 >= words.length) {
+      const reading = "Taken as a yes or no question I have no facts for.";
+      return finish({ kind: "answer", answer: "unknown", reading, guess: false, won: false, counts: false, tips: [] }, []);
+    }
     return { kind: "refused", why: "unknown", tips: startsWithKas ? [] : [kasTip()] };
   }
 
@@ -377,7 +503,7 @@ export function ask(
     if (intent.copula && adjectiveAt !== -1 && seeAt !== -1 && adjectiveAt < seeAt) {
       tips.push({ id: "order", en: "Put see (it) straight after kas, then on, then the describing word.", example: `Kas see on ${raw}?` });
     }
-    return finish({ kind: "answer", answer: flip(intent.test(secret)), reading: intent.en, guess: false, won: false, tips: [] }, tips);
+    return finish({ kind: "answer", answer: flip(intent.test(secret)), reading: intent.en, guess: false, won: false, counts: true, tips: [] }, tips);
   }
 
   // A guess: one thing or kind, named.
@@ -394,7 +520,7 @@ export function ask(
     : secret.isa.includes(name.lemma) ? "yes"
     : secret.isaS.includes(name.lemma) ? "sometimes" : "no";
   const won = name.lemma === secret.lemma && !negated;
-  return finish({ kind: "answer", answer: flip(answer), reading, guess: true, won, tips: [] }, tips);
+  return finish({ kind: "answer", answer: flip(answer), reading, guess: true, won, counts: true, tips: [] }, tips);
 
   function finish(reply: Reply, extra: Tip[]): Reply {
     const all = [...extra];
@@ -480,7 +606,7 @@ export interface Turn {
 
 /** How many of the learner's turns spent a question. Turned-away ones did not. */
 export function spent(turns: readonly { reply: Reply | { kind: "hint" } }[]): number {
-  return turns.filter((t) => t.reply.kind === "answer" || t.reply.kind === "hint").length;
+  return turns.filter((t) => (t.reply.kind === "answer" && t.reply.counts) || t.reply.kind === "hint").length;
 }
 
 export function hintFor(secret: Thing): string {

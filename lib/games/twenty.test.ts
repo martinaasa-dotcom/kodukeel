@@ -197,6 +197,45 @@ describe("what the learner is told about the sentence", () => {
   });
 });
 
+describe("the wide layer", () => {
+  it("answers about what a thing is made of, has, does and is like", () => {
+    expect(said("Kas see on puidust?", "laud")).toBe("yes");
+    expect(said("Kas see on metallist?", "auto")).toBe("yes");
+    expect(said("Kas see on klaasist?", "koer")).toBe("no");
+    expect(said("Kas sellel on silmad?", "kass")).toBe("yes");
+    expect(said("Kas sellel on kõrvad?", "part")).toBe("no");
+    expect(said("Kas sellel on ekraan?", "telefon")).toBe("yes");
+    expect(said("Kas see haugub?", "koer")).toBe("yes");
+    expect(said("Kas see kasvab?", "puu")).toBe("yes");
+    expect(said("Kas see magab?", "kass")).toBe("yes");
+    expect(said("Kas see on magus?", "banaan")).toBe("yes");
+    expect(said("Kas see on märg?", "vesi")).toBe("yes");
+    expect(said("Kas see on ümar?", "õun")).toBe("yes");
+  });
+
+  it("answers about where it is, including the countryside, the shop and the fridge", () => {
+    expect(said("Kas see on poes?", "leib")).toBe("sometimes");
+    expect(said("Kas see on külmkapis?", "piim")).toBe("yes");
+    expect(said("Kas see on taevas?", "lennuk")).toBe("yes");
+    expect(said("Kas see on meres?", "laev")).toBe("sometimes");
+    expect(said("Kas see on aias?", "lill")).toBe("sometimes");
+  });
+
+  it("an opinion is sometimes unless the thing says otherwise", () => {
+    expect(said("Kas see on kallis?", "auto")).toBe("sometimes");
+    expect(said("Kas see on ilus?", "lill")).toBe("sometimes");
+    expect(said("Kas see on tume?", "päike")).toBe("no");
+    expect(said("Kas see on raske?", "buss")).toBe("yes");
+    expect(said("Kas see on kerge?", "võti")).toBe("yes");
+  });
+
+  it("a well-formed question the game has no facts for is answered I don't know, free", () => {
+    const r = answerTo("Kas see on sinu sõber?", "koer");
+    expect(r.kind === "answer" && r.answer === "unknown" && !r.counts).toBe(true);
+    expect(spent([{ reply: r }])).toBe(0);
+  });
+});
+
 describe("a round", () => {
   it("counts the questions that were answered and the hints, and not the ones turned away", () => {
     const answered = answerTo("Kas see on suur?", "part");
