@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/Locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { usePathname, useRouter } from "next/navigation";
 import { Check, LogOut, MessageSquareWarning, MoreHorizontal, Moon, Settings, SlidersHorizontal, Sun, X } from "lucide-react";
@@ -49,6 +50,7 @@ import { useModuleFocus, useModuleSteps, type ModuleStepRow } from "@/components
 export function Sidebar({ order: stored, name, classes = [] }: {
   order: readonly string[]; name: string | null; classes?: readonly RailClass[];
 }) {
+  const t = useT();
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   /*
@@ -205,7 +207,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
           className="brand-tap tap-tint mb-7 mr-1 block shrink-0 cursor-pointer rounded-[var(--r)] px-2 py-2"
         >
           <span className="brand-mark">
-            <Wordmark size={48} subtitle="Estonian, daily" />
+            <Wordmark size={48} subtitle={t("Estonian, daily")} />
           </span>
         </BrandLink>
 
@@ -259,7 +261,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               style={{ borderColor: "var(--rule-soft)" }}
             >
               <span id="rail-classes" className="px-3.5 text-xs font-semibold" style={{ color: "var(--ink-3)" }}>
-                {classLinks.length === 1 ? "Your class" : "Your classes"}
+                {t(classLinks.length === 1 ? "Your class" : "Your classes")}
               </span>
               {classLinks.map((item) => (
                 <RailLink key={item.href} item={item} active={lit === item.href} pinned={false} classRow />
@@ -309,8 +311,8 @@ export function Sidebar({ order: stored, name, classes = [] }: {
             <button
               type="button"
               onClick={() => setEditing(true)}
-              aria-label="Edit sidebar"
-              title="Edit sidebar"
+              aria-label={t("Edit sidebar")}
+              title={t("Edit sidebar")}
               className="tap-tint flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
               style={{ color: "var(--ink-3)" }}
             >
@@ -455,7 +457,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
                     <NamedIcon name={item.icon} size={16} strokeWidth={2.2} aria-hidden />
                   </span>
                 )}
-                {item.label}
+                {t(item.label)}
               </Link>
             );
           })}
@@ -486,7 +488,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
             >
               <MoreHorizontal size={16} strokeWidth={2.2} aria-hidden />
             </span>
-            More
+            {t("More")}
           </button>
         </div>
       </nav>
@@ -501,11 +503,11 @@ export function Sidebar({ order: stored, name, classes = [] }: {
           className="fixed inset-0 z-[100] flex flex-col justify-end md:hidden"
           role="dialog"
           aria-modal="true"
-          aria-label="More places to go"
+          aria-label={t("More places to go")}
         >
           <button
             type="button"
-            aria-label="Close"
+            aria-label={t("Close")}
             onClick={() => setMoreOpen(false)}
             className="flex-1"
             style={{ background: "rgb(20 16 32 / 0.4)" }}
@@ -520,12 +522,12 @@ export function Sidebar({ order: stored, name, classes = [] }: {
             }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-2xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>More</h2>
+              <h2 className="font-display text-2xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>{t("More")}</h2>
               <button
                 ref={sheetClose}
                 type="button"
                 onClick={() => setMoreOpen(false)}
-                aria-label="Close"
+                aria-label={t("Close")}
                 className="press rounded-full p-1.5"
                 style={{ color: "var(--ink-3)", background: "var(--raised)" }}
               >
@@ -536,7 +538,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               {classLinks.length > 0 && (
                 <section aria-labelledby="sheet-classes" data-sheet-classes>
                   <h3 id="sheet-classes" className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>
-                    {classLinks.length === 1 ? "Your class" : "Your classes"}
+                    {t(classLinks.length === 1 ? "Your class" : "Your classes")}
                   </h3>
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     {classLinks.map((item) => <SheetLink key={item.href} item={item} active={active(item.href)} />)}
@@ -546,11 +548,11 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               {sheet.map((section) => (
                 <section key={section.id} aria-labelledby={`sheet-${section.id}`}>
                   <h3 id={`sheet-${section.id}`} className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>
-                    {section.title}
+                    {t(section.title)}
                   </h3>
                   {section.blurb && (
                     <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
-                      {section.blurb}
+                      {t(section.blurb)}
                     </p>
                   )}
                   <div className="mt-2 grid grid-cols-2 gap-2">
@@ -599,6 +601,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
 function RailLink({ item, active, pinned, classRow = false }: {
   item: Destination; active: boolean; pinned: boolean; classRow?: boolean;
 }) {
+  const t = useT();
   const home = item.href === "/";
   return (
     <Link
@@ -609,7 +612,7 @@ function RailLink({ item, active, pinned, classRow = false }: {
       data-hop-end="nav-bob"
       data-nav-on={active ? "" : undefined}
       aria-current={active ? "page" : undefined}
-      title={item.blurb}
+      title={item.blurb ? t(item.blurb) : undefined}
       className="nav-cell flex min-h-12 items-center gap-3.5 rounded-[var(--r)] px-3.5 py-2.5 text-base"
       style={{
         color: active ? "var(--ink)" : "var(--nav-ink, var(--ink-2))",
@@ -627,7 +630,7 @@ function RailLink({ item, active, pinned, classRow = false }: {
           boxShadow: active ? `0 0 0 4px color-mix(in oklab, var(${home ? "--butter" : "--accent"}) 24%, transparent)` : undefined,
         }}
       />
-      <span className="min-w-0">{item.label}</span>
+      <span className="min-w-0">{t(item.label)}</span>
       {pinned && <span className="sr-only">, pinned</span>}
     </Link>
   );
@@ -698,6 +701,7 @@ function TonightRows({ steps, at }: { steps: readonly ModuleStepRow[]; at: strin
 function AccountMenu({ onClose, onEdit, active }: {
   onClose: () => void; onEdit: () => void; active: (href: string) => boolean;
 }) {
+  const t = useT();
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
     box.current?.querySelector<HTMLElement>("button, a")?.focus();
@@ -721,7 +725,7 @@ function AccountMenu({ onClose, onEdit, active }: {
     >
       <button type="button" onClick={onEdit} className={item} style={{ color: "var(--ink)" }}>
         <SlidersHorizontal size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
-        Edit sidebar
+        {t("Edit sidebar")}
       </button>
       <Link href="/settings" className={item} aria-current={active("/settings") ? "page" : undefined} style={{ color: "var(--ink)" }}>
         <Settings size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
@@ -748,10 +752,11 @@ function AccountMenu({ onClose, onEdit, active }: {
  * is still the tile's `title` and still what the command palette searches.
  */
 function SheetLink({ item, active }: { item: Destination; active: boolean }) {
+  const t = useT();
   return (
     <Link
       href={item.href}
-      title={item.blurb}
+      title={item.blurb ? t(item.blurb) : undefined}
       aria-current={active ? "page" : undefined}
       className="choice-btn flex min-h-12 items-center gap-2 rounded-[var(--r)] border px-3 py-2 text-sm font-semibold"
       style={{
@@ -767,7 +772,7 @@ function SheetLink({ item, active }: { item: Destination; active: boolean }) {
         aria-hidden
         style={{ color: active ? "var(--accent-deep)" : "var(--ink-3)" }}
       />
-      <span className="min-w-0">{item.label}</span>
+      <span className="min-w-0">{t(item.label)}</span>
     </Link>
   );
 }
@@ -784,6 +789,7 @@ function SheetLink({ item, active }: { item: Destination; active: boolean }) {
  * stay signed in until the tunnel ends.
  */
 function SignOutButton() {
+  const t = useT();
   const router = useRouter();
   const { flush } = useOffline();
   // Local installs have no accounts to sign out of — see lib/auth/mode.ts.
@@ -832,7 +838,7 @@ function SignOutButton() {
       style={{ color: "var(--ink)" }}
     >
       <LogOut size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
-      Sign out
+      {t("Sign out")}
     </button>
   );
 }
@@ -867,6 +873,7 @@ function applyTheme(next: "light" | "dark") {
  * the browser's own colour as the toggle, through `applyTheme`.
  */
 function ThemeChoice() {
+  const t = useT();
   const [theme, setTheme] = useState<"light" | "dark">("light");
   useEffect(() => {
     // Read after mount: the server cannot see localStorage, and the page's
@@ -876,8 +883,8 @@ function ThemeChoice() {
   const pick = (next: "light" | "dark") => { setTheme(next); applyTheme(next); };
   return (
     <div className="flex items-center justify-between gap-3 px-3 py-2">
-      <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>Theme</span>
-      <span role="radiogroup" aria-label="Theme" className="flex rounded-full p-1" style={{ background: "var(--raised)" }}>
+      <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{t("Theme")}</span>
+      <span role="radiogroup" aria-label={t("Theme")} className="flex rounded-full p-1" style={{ background: "var(--raised)" }}>
         {(["light", "dark"] as const).map((option) => (
           <button
             key={option}
@@ -893,7 +900,7 @@ function ThemeChoice() {
             }}
           >
             {option === "light" ? <Sun size={14} aria-hidden /> : <Moon size={14} aria-hidden />}
-            {option === "light" ? "Light" : "Dark"}
+            {t(option === "light" ? "Light" : "Dark")}
           </button>
         ))}
       </span>

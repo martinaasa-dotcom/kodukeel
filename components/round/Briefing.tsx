@@ -7,6 +7,8 @@ import { KeyCap } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { briefingFor, type BriefingId } from "@/lib/copy/briefings";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 
 /**
  * THE SCREEN A ROUND OPENS ON, AND THE ROUND IS NOT BEHIND IT YET.
@@ -47,6 +49,8 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
   children: ReactNode;
 }) {
   const brief = briefingFor(id);
+  const locale = useLocale();
+  const t = (english: string) => tr(locale, english);
   /*
     WHAT IS STORED IS THE PRESS, NOT THE VERDICT.
 
@@ -97,12 +101,9 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
 
   if (started || !brief) return <>{children}</>;
 
-  const plural = count === null || count === undefined
-    ? ""
-    : count.n === 1 ? count.noun : `${count.noun}s`;
 
   return (
-    <div className="round-brief mx-auto max-w-lg px-4 sm:px-5" data-briefing={id}>
+    <div className="round-brief mx-auto max-w-lg px-4 sm:px-5" data-briefing={id} lang={locale}>
       {/* The one heading on the screen: the round's own is inside the round,
           which is not mounted yet. Two steps rather than two paragraphs:
           what arrives on the screen, and what the learner does about it,
@@ -112,11 +113,11 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
       <div className="round-brief-panel night pop-in rounded-[var(--r-xl)] border text-center">
         <Mascot size={44} className="mx-auto" />
         <h1 className="round-brief-title round-brief-gap font-display font-bold tracking-tight" style={{ color: "var(--ink)", textWrap: "balance" }}>
-          {brief.title}
+          {t(brief.title)}
         </h1>
         {count && count.n > 0 && (
           <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-            {count.n} {plural} in this round
+            {fill(t("{count} in this round"), { count: countOf(locale, count.n, count.noun) })}
           </p>
         )}
         <BriefingSteps what={brief.what} you={brief.you} className="round-brief-gap" />
@@ -126,7 +127,7 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
             data-briefing-start=""
             onClick={() => setPressed(true)}
           >
-            {brief.action} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+            {t(brief.action)} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
           </Button>
         </div>
       </div>
@@ -154,8 +155,9 @@ export function BriefingSteps({ id, what, you, more, className = "" }: {
   className?: string;
 }) {
   const brief = id ? briefingFor(id) : null;
-  const first = what ?? brief?.what;
-  const second = you ?? brief?.you;
+  const t = useT();
+  const first = what ?? (brief ? t(brief.what) : undefined);
+  const second = you ?? (brief ? t(brief.you) : undefined);
   if (!first || !second) return null;
   return (
     <ol className={`flex flex-col gap-2 text-left ${className}`} data-briefing-lines={id}>

@@ -33,6 +33,8 @@ import { EmailPanel } from "./EmailPanel";
 import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossLanguagePanel } from "./GlossLanguagePanel";
+import { InterfaceLanguagePanel } from "./InterfaceLanguagePanel";
+import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, localeFrom, tr } from "@/lib/copy/locale";
 import { RoundPacePanel } from "./RoundPacePanel";
 import { ROUND_PACES, roundPaceFrom } from "@/lib/ux/roundClock";
 import { TodayOrderPanel } from "./TodayOrderPanel";
@@ -136,7 +138,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       SETTING_KEYS.displayName,
       SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
       SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
-      SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss,
+      SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss, SETTING_KEYS.uiLocale,
       SETTING_KEYS.todayOrder,
       SETTING_KEYS.roundPace,
       SETTING_KEYS.caseQuestionGloss,
@@ -201,6 +203,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const speechPace = paceFrom(settings[SETTING_KEYS.speechPace], courseLevel, tilt);
   const levelPace = paceFor(courseLevel, tilt);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
+  const locale = localeFrom(settings[SETTING_KEYS.uiLocale]);
   const wordGloss = wordGlossFrom(settings[SETTING_KEYS.wordGloss]);
   const caseGlossPref = caseGlossFrom(settings[SETTING_KEYS.caseQuestionGloss]);
   const todayOrder = todayOrderFrom(settings[SETTING_KEYS.todayOrder]);
@@ -462,6 +465,31 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             response as the forms and the sentences: no model is anywhere near
             them.
           */}
+          {/*
+            THE LANGUAGE THE APP ITSELF IS IN, ABOVE THE LANGUAGE A MEANING IS
+            GIVEN IN, because the first decides how the rest of this page reads.
+            The two Russian and Ukrainian options say on the choice that they
+            were machine translated, and the full notice is here for good once
+            one of them is chosen. See lib/copy/locale.ts.
+          */}
+          <section id="language">
+            <SectionTitle hint={LOCALE_NAMES[locale]}>
+              <span lang={locale}>{tr(locale, "Language of the app")}</span>
+            </SectionTitle>
+            <Card>
+              <p lang={locale} className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
+                {tr(locale, "The words around the Estonian. The Estonian itself never changes.")}
+              </p>
+              <InterfaceLanguagePanel current={locale} />
+              {locale !== "en" && !REVIEWED[locale] && (
+                <div className="mt-4 rounded-[var(--r-lg)] p-3" style={{ background: "var(--raised)" }}>
+                  <p lang={locale} className="text-sm leading-snug" style={{ color: "var(--ink)" }}>{MACHINE_NOTICE[locale]}</p>
+                  <p lang="en" className="mt-1.5 text-sm leading-snug" style={{ color: "var(--ink-2)" }}>{MACHINE_NOTICE_EN}</p>
+                </div>
+              )}
+            </Card>
+          </section>
+
           <section id="meanings">
             <SectionTitle hint={wordGloss === "off" ? `${glossLanguageName}, no underlines` : glossLanguageName}>
               Meanings

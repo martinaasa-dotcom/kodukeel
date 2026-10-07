@@ -14,6 +14,9 @@ import { resolveProviders } from "@/lib/tutor/provider";
 import { requireUserId } from "@/lib/auth/session";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { supabaseConfigured } from "@/lib/auth/mode";
+import { REVIEWED, localeFrom, tr } from "@/lib/copy/locale";
+import { LocaleProvider } from "@/components/Locale";
+import { LocaleNotice } from "@/components/LocaleNotice";
 import { letterBarFrom } from "@/lib/ux/letterBar";
 import { navOrderFrom } from "@/lib/ux/navOrder";
 import { railClasses } from "@/lib/progress/classes";
@@ -84,6 +87,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
         SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
         SETTING_KEYS.caseQuestionGloss, SETTING_KEYS.navOrder, SETTING_KEYS.displayName,
+        SETTING_KEYS.uiLocale, SETTING_KEYS.uiLocaleNoticed,
       ],
     ),
     courseLevelFor(ownerId),
@@ -103,6 +107,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     railClasses(ownerId),
   ]);
   const letters = letterBarFrom(settings[SETTING_KEYS.letterBar]);
+  // The language the app's own words are in. See lib/copy/locale.ts.
+  const locale = localeFrom(settings[SETTING_KEYS.uiLocale]);
   const storedZone = settings[SETTING_KEYS.timeZone] ?? null;
   const caseGloss = wantsCaseGloss(level, settings[SETTING_KEYS.caseQuestionGloss]);
   // How Estonian is read aloud, published once for every speaker button and
@@ -116,6 +122,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     pace: paceFrom(settings[SETTING_KEYS.speechPace], level, tilt),
   };
   return (
+    <LocaleProvider locale={locale}>
     <UiLanguageProvider level={level}>
     <CaseGlossProvider on={caseGloss}>
     <AudioPrefsProvider value={audio}>
@@ -126,7 +133,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-[200] focus:rounded-full focus:px-4 focus:py-2"
         style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "var(--shadow)" }}
       >
-        Skip to content
+        {tr(locale, "Skip to content")}
       </a>
       {/* Around the rail as well as the page, because inside a module the rail
           draws tonight's steps under Learn and has to know which step this is. */}
@@ -185,6 +192,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           the other. Installed to a home screen there is no address bar and so
           no reload button anywhere in this app. */}
       <TimeZoneSync stored={storedZone} />
+      {locale !== "en" && !REVIEWED[locale] && settings[SETTING_KEYS.uiLocaleNoticed] !== locale && <LocaleNotice locale={locale} />}
       <PullToRefresh />
       <CommandPalette />
       {/* `?` anywhere. Documentation with a keyboard binding — see the component. */}
@@ -199,6 +207,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     </AudioPrefsProvider>
     </CaseGlossProvider>
     </UiLanguageProvider>
+    </LocaleProvider>
   );
 }
 

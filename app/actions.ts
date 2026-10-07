@@ -69,6 +69,7 @@ import { SPEECH_PACES } from "@/lib/audio/pace";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { localeFrom } from "@/lib/copy/locale";
 import { serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { serialiseNavOrder } from "@/lib/ux/navOrder";
 import { roundPaceFrom } from "@/lib/ux/roundClock";
@@ -1900,6 +1901,26 @@ export async function setGlossLanguage(value: string) {
  * itself, which is where somebody is standing when they decide they are done
  * with it, so this action is reached from there as well as from Settings.
  */
+/** Closes the machine-translation notice for the language it was shown in. */
+export async function dismissLocaleNotice(value: string) {
+  const ownerId = await requireUserId();
+  await writeSetting(ownerId, SETTING_KEYS.uiLocaleNoticed, localeFrom(text(value)));
+  revalidatePath("/", "layout");
+  return { ok: true as const };
+}
+
+/**
+ * The language the app's own words are in. Revalidated at the layout, since the
+ * rail, every round's opening screen and Settings all read it.
+ */
+export async function setUiLocale(value: string) {
+  const ownerId = await requireUserId();
+  const normalised = localeFrom(text(value));
+  await writeSetting(ownerId, SETTING_KEYS.uiLocale, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
 export async function setWordGloss(value: WordGloss) {
   const ownerId = await requireUserId();
   const normalised = wordGlossFrom(value);
