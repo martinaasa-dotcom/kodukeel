@@ -71,8 +71,9 @@
  */
 import { sayLine } from "@/lib/estonian/sayIt";
 import { PARTS } from "@/lib/copy/values";
-import { buildCloze, isBuildable, mentions, sentenceTiles } from "@/lib/estonian/cloze";
+import { buildCloze, mentions } from "@/lib/estonian/cloze";
 import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
+import { isMark, isOrderable, orderTokens } from "@/lib/estonian/orderTiles";
 import { gapFormsFromParts } from "@/lib/estonian/gapForms";
 import { caseAnswer, stemsFromParts } from "@/lib/estonian/derive";
 import { CASES, caseByKey } from "@/lib/estonian/cases";
@@ -715,9 +716,12 @@ function buildStep(
 ): BuildStep | null {
   if (!rules.mayBuild) return null;
   for (const sentence of usable(word, rules)) {
-    if (!isBuildable(sentence.et)) continue;
-    const tiles = sentenceTiles(sentence.et);
-    if (tiles.length < 3 || tiles.length > 9) continue;
+    // The words and the marks, each a tile: where a comma goes is part of
+    // the answer (`lib/estonian/orderTiles.ts`).
+    if (!isOrderable(sentence.et)) continue;
+    const tiles = orderTokens(sentence.et);
+    const wordCount = tiles.filter((t) => !isMark(t)).length;
+    if (wordCount < 3 || wordCount > 9) continue;
     return {
       id, kind: "build", lexemeId: word.lexemeId, lemma: word.lemma,
       tiles: shuffle(tiles, rand), sentence: sentence.et, en: sentence.en,

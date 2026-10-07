@@ -524,23 +524,20 @@ describe("what a day reads and where it goes", () => {
   });
 
   /*
-    A CASE IS ASKED ONLY AFTER ITS PAGE HAS BEEN READ, ON EVERY LEVEL. The
-    sprint, Target, Write, Describe and the case board each ask for an ending,
+    A CASE IS ASKED ONLY AFTER ITS PAGE HAS BEEN READ, ON EVERY LEVEL. Write and the case board each ask for an ending,
     and the first evening of A2 has read no case page; the first case page is
     the inessive, in the third unit of A2.1. So those rounds wait for it, and
     dictation and word ordering wait for a sentence made entirely of taught
     words to exist, and government waits for its page and a handful of verbs.
   */
   it("asks a case round only once a case page has been read, and a sentence round only once a sentence exists", () => {
-    const caseRounds = new Set(["sprint", "target", "write", "describe"]);
+    const caseRounds = new Set(["write"]);
     let firstCase: string | null = null;
     for (const { programme, day } of DAYS) {
       const taught = taughtBy(programme, day.index);
       if (taught.cases.size > 0 && !firstCase) firstCase = day.id;
       for (const key of day.practice) {
         if (caseRounds.has(key)) expect(taught.cases.size, `${day.id} deals ${key} with no case read`).toBeGreaterThan(0);
-        if (key === "target") expect(taught.cases.size, `${day.id} deals Target with too few cases`).toBeGreaterThanOrEqual(4);
-        if (key === "describe") expect(taught.scene, `${day.id} deals Describe with no scene of taught words`).toBe(true);
         if (key === "dictation" || key === "sentences") expect(taught.readable, `${day.id} deals ${key}`).toBe(true);
         if (key === "government") expect(taught.topics.has("government"), `${day.id} deals government unread`).toBe(true);
       }
@@ -640,7 +637,7 @@ describe("what a day reads and where it goes", () => {
     // Deep into A2, the cases read so far and not the ones ahead.
     const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
     const lastOfLoodus = [...a2.days].reverse().find((d) => d.unitId === "loodus")!;
-    const later = moduleScopeFrom({ module: `${a2.id}~${lastOfLoodus.id}~do:sprint~3~5~0` })!;
+    const later = moduleScopeFrom({ module: `${a2.id}~${lastOfLoodus.id}~do:match~3~5~0` })!;
     expect(later.cases).toContain("INESSIVE");
     expect(later.cases).not.toContain("COMITATIVE");
     expect(later.lemmas).toContain("tere");
@@ -838,13 +835,14 @@ describe("what a day reads and where it goes", () => {
   });
 
   it("stands in with a round the evening before did not deal, where the ledger allows one", () => {
-    // Nothing but Match and Tähed supported: A2's second pair opens on
-    // Target, which needs four case pages, so its game is stood in for.
+    // Nothing but Match and Tähed supported: A2's third pair opens on the
+    // sentence builder, which needs a sentence of taught words, so its game
+    // is stood in for.
     const taught = { ...NO_TAUGHT, spellable: WORDS_FOR_LETTERS };
-    // Walked from Target, the next supported game along is Tähed.
-    expect(rounds("A2", 1, false, taught, false)[0]).toBe("letters");
-    // And where the evening before dealt Tähed, it takes Match instead.
-    expect(rounds("A2", 1, false, taught, false, ["letters", "listening"])[0]).toBe("match");
+    // Walked from the builder, the next supported game along is Match.
+    expect(rounds("A2", 2, false, taught, false)[0]).toBe("match");
+    // And where the evening before dealt Match, it takes Tähed instead.
+    expect(rounds("A2", 2, false, taught, false, ["match", "listening"])[0]).toBe("letters");
   });
 
   it("deals the table on the evenings a unit of verbs pins it, and not on the others", () => {
@@ -1283,20 +1281,20 @@ describe("an evening says how many of its words are new", () => {
 describe("a forms evening does not use up a drill's turn", () => {
   /*
     The forms step takes the drill's place every other evening from A2 up,
-    and B2's rotation paired `write` with Tähed and `describe` with the
-    sprint, both of which fell on forms evenings every time: over B2's 45
-    evenings the writing round came up three times and Describe once.
+    and B2's rotation paired `write` with Tähed and the government round
+    with the sentence builder, and a drill sitting on the forms evening's turn
+    came up too rarely: the writing round three times in B2's 45 evenings.
   */
   it("takes the drill from its own place on the rotation", () => {
     const [, drillOfPair1] = rounds("B2", 1, false);
     expect(rounds("B2", 0, false, undefined, false, [], 1)[1]).toBe(drillOfPair1);
   });
 
-  it("deals writing and Describe at B2 on more than a handful of evenings", () => {
+  it("deals writing and government at B2 on more than a handful of evenings", () => {
     const b2 = PROGRAMMES.filter((p) => p.level === "B2").flatMap((p) => p.days);
     const count = (key: string) => b2.filter((d) => d.practice.includes(key as never)).length;
     expect(count("write")).toBeGreaterThanOrEqual(5);
-    expect(count("describe")).toBeGreaterThanOrEqual(3);
+    expect(count("government")).toBeGreaterThanOrEqual(3);
   });
 });
 

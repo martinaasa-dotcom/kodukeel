@@ -50,8 +50,8 @@ const MODULE_HOME = "/course";
  * the six doors were found.
  */
 const MODULE_SCREENS = [
-  "/review/match", "/review/listening", "/review/sprint", "/review/sentences", "/review/dictation",
-  "/review/describe", "/sonad", "/review/target", "/review/conjugation",
+  "/review/match", "/review/listening", "/review/sentences", "/review/dictation",
+  "/review/describe", "/sonad", "/review/conjugation",
   "/review/speaking", "/review/write", "/review/government", "/review/exceptions",
   "/review/flashcards", "/review/letters",
   "/review", "/course/learn", "/situations/poodi-piima",

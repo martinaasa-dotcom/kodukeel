@@ -359,7 +359,7 @@ describe("the practice modes", () => {
     // so the order is the promise that a beginner's three are not the ones
     // needing a microphone or a recorded sentence.
     expect(QUICK_MODES.slice(0, 3).map((m) => m.href)).toEqual([
-      "/review/sprint", "/review/match", "/review/sentences",
+      "/review/match", "/review/sentences", "/review/listening",
     ]);
   });
 

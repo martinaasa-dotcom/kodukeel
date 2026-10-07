@@ -330,6 +330,15 @@ ceiling on the bill and default to three dollars a day, and a deployment whose G
 runs out composes on qwen at $0.8 and $4 a million, which is dearer than either Gemini link, so an
 empty Gemini balance raises the bill rather than lowering it.
 
+**And a native Gemini call asks for a thinking level, because the budget is going.** Google's notice of
+2026-10-07 says `thinkingBudget` returns 400 on its coming models. The three native callers (`geminiCachedReply`,
+`play-scene.ts`, `critic-scenes.ts`) go through `thinkingFor`, which was probed rather than assumed: the Lite takes
+`minimal` and writes a line with no thinking tokens, while `gemini-3.8-flash` refuses `minimal`, `none` and `off`
+and thinks a few hundred tokens a call at `low`. The same few hundred showed up with the old budget of nought and
+on the compat layer's `reasoning_effort`, so this adds no cost to the flash that was not already there; it is
+billed as output and the ledger counts it. Moving the primary to the Lite would remove it and is the operator's
+call, for the reason given above. An invariant fails on `thinkingBudget` coming back.
+
 **And the translations reach a word looked up live, which was the hole left after the seed.**
 `mapEkilexDetails` built a new row's sentences as `({ et, source })`, the same `.et`-only shape the
 lesson page had one layer further out, so a deployment holding an Ekilex key and no model key looked
@@ -4130,7 +4139,7 @@ plan now reads it as the length of a sitting, which is a fact about the evening;
 scheduler input and no shape selector had ever read it as the time on one answer, which is a fact
 about the word. And two rounds already knew the most useful
 thing in a wrong answer: `markFlash` names the ending that came back and prints "That is the
-seestütlev. This one wanted the seesütlev.", `markDescription` does the same for a sentence, both
+seestütlev. This one wanted the seesütlev.", the Describe round did the same for a sentence, both
 through `whichCase`, which names a case only where exactly one case is spelled that way. Then the
 card went and took it with it. What those two facts answer between them is the one thing an
 accuracy chart cannot: the difference between a form somebody has and a rule they are applying.
@@ -6783,7 +6792,7 @@ the board nothing and 500 simulated boards a level come out full with no tile sp
 
 **And the scene game had it a third time, which is what made the audit worth widening.** A scene
 puts three words on the screen and asks for one of them in a case, so a task whose answer is one of
-those three is finished by copying, and `markDescription` grades the copy Good and sends it to the
+those three is finished by copying, and the Describe round's marker graded the copy Good and sends it to the
 scheduler. Eight of the 1,980 tasks the sixty scenes can set were free that way, every one of them
 the seesütlev of a word already ending in `s`: `liblikas`, `sipelgas`, `kotkas`, `kirves`,
 `labidas`, `maasikas`, `lusikas`, `haldjas`. `taskFor` refuses that case now and the round builder
@@ -8273,6 +8282,24 @@ the app and asks the two questions no source check can: the rail draws its links
 open first, and a phone reaches every place a desktop does. `icon()` falling back to a sparkle is
 why `nav.test.ts` checks every name in both tables resolves. Two modes shipped with the placeholder
 before a screenshot caught them.
+
+**Sprint and Target are gone, the flip card has a key for each answer, and the picture round is five
+sentences about a scene.** The operator's practice overhaul. On a card the learner grades themselves,
+Space is "Not yet" and Enter is "Got it" (`isNotYetKey`, `isGotItKey`, drawn by
+`components/round/SelfGradeButtons.tsx` with the caps from `components/KeyCaps.tsx`), and Space plays
+the word wherever a round is still asking and no button has the keyboard (`isPlayKey`, `Speak`'s
+`spaceKey`). The sentence builder deals tiles with no stray capital and with the punctuation as tiles of
+their own (`lib/estonian/orderTiles.ts`): a mark is placed by the words before it, so the orders
+`wordOrder.ts` accepts still validate, and its state is keyed on the task so a tile index can never be
+read against the next sentence's tiles, which was the "reading 'word'" crash. Say what you see
+(`/review/describe`) is twelve emoji scenes in `lib/collections/pictures.ts`, two or three a round, and
+five boxes about each that must all hold a sentence. The dictionary decides first (spelled, about the
+picture, not repeated: `lib/games/picture.ts`), one grader call speaks to the grammar, and only a
+sentence whose Estonian is verified reaches the learner. It grades nothing into the review log, since
+no card stands behind a picture. The twelve example sentences are authored and are for the native
+speaker to read in the pull request. Sõnad and Ristsõna sit on the lavender (`tone="accent"`), their page
+is `compact`, and the circle and the square are sized from the window's height (`--sonad-cell`,
+`--cw-cell`) so the board and the keys share one screen.
 
 **A letter lying on a page has a character, and the room it has is along the edge it hangs off.**
 õ, ä, ö and ü are the four letters an English keyboard has no key for, which is the most concrete
@@ -10922,7 +10949,7 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   a question falling to three and a half, all three typed into the session, so the rule above held
   for two rounds and the third was the same WCAG 2.2.1 failure, on a practice round where nothing
   argues for the limit being fixed. Its allowance is a fraction of a second, which `secondsFor`
-  would round away, so `lib/games/target.ts` multiplies the whole allowance by `multiplierFor`
+  would round away, so the Target round's module (deleted with the round) multiplies the whole allowance by `multiplierFor`
   instead, and the start, the step and the floor keep their shape at every pace. The rule is
   asserted now, off the shape of a countdown rather than a list of rounds: a session stepping a
   setter to zero from a timer has to be handed its length by a page that reads the pace. Made to
@@ -11733,7 +11760,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `PrefetchLink`, `lemmasByCardLexeme`, `dictionaryLemmas`, `decoyOptions`, `forgetSettings`,
 `staleTimes`, `BadgeCheck`, `letterVars`, `leanFor`, `LetterTile`, `letter-key`, `--text-2xs`, `--landing-nav`, `derivedVerbForms`,
 `conjugatedForms`, `pres1sgFrom`, `useAudioPrefs`, `fetchClip`, `playFeedback`, `VOICES`,
-`nomPl`, `EMOJI_LEMMAS`, `acceptedUses`, `markDescription`, `prepareClip`, `SPEECH_PACES`, `paceFrom`,
+`nomPl`, `EMOJI_LEMMAS`, `acceptedUses`, `markPicture`, `prepareClip`, `SPEECH_PACES`, `paceFrom`,
 `PACE_FOR_LEVEL`, `SLOW_OF_NORMAL`, `trimSilence`, `fadeIn`,
 `stretchedClip`, `stretchMap`, `capPauses`, `normaliseLoudness`,
 `billFor`, `reserveMicros`, `distinctClips`, `MEASURED`, `PRICE_REFS`, `SERVICES`, `.range`,

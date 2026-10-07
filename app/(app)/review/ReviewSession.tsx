@@ -39,13 +39,14 @@ import type { ReviewMode } from "@/lib/settings/store";
 import { SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { useModuleFocus } from "@/components/course/moduleFocus";
-import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
+import { SelfGradeButtons } from "@/components/round/SelfGradeButtons";
+import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck } from "@/lib/ux/verdict";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { choiceIsRight } from "@/lib/questions/caseChoices";
 import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
-import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey, isNotYetKey } from "@/lib/ux/advanceKey";
 import { useResumeCard } from "@/components/useResumeCard";
 import { useUiText } from "@/components/UiLanguage";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
@@ -1334,8 +1335,11 @@ export function ReviewSession({
         if (ask === "type" && verdict) { if (!needsRetype) void submit(verdict.suggestedRating); return; }
         // Both a right and a wrong pick wait for the same button now.
         if (ask === "choice") { if (chosen) void submit(card && choiceIsRight(chosen, card.back, answerLanguage) ? 3 : 1); return; }
-        if (!revealed) setRevealed(true);
-        else void submit(3);
+        if (!revealed) { setRevealed(true); return; }
+        // A flip card with its answer showing has two buttons and each has a
+        // key: Space is "Not yet" and Enter is "Got it".
+        if (e.repeat) return;
+        void submit(isNotYetKey(e) ? 1 : 3);
         return;
       }
 
@@ -2111,28 +2115,7 @@ export function ReviewSession({
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
-            <div className="grid grid-cols-2 gap-2.5">
-              {SELF_GRADES.map((g) => (
-                <button
-                  key={g.rating}
-                  type="button"
-                  disabled={busy}
-                  onClick={() => void submit(g.rating)}
-                  /* No `-translate-y` on hover: the buttons sit in a `gap-2.5`
-                     grid and a hover that moves the box up loses contact with a
-                     pointer resting near its lower edge, which un-hovers it,
-                     which undoes the shift. `scale` grows the box from its own
-                     centre and can only gain area under the pointer. The
-                     interval preview under the label went the same way: how
-                     many minutes the scheduler adds is a question about a
-                     scheduler nobody can see, put to somebody trying to learn
-                     Estonian. */
-                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center rounded-[var(--r)] px-2 py-3.5 transition-ui hover:scale-[1.02] disabled:opacity-40`}
-                >
-                  <span className="text-base font-bold">{g.label}</span>
-                </button>
-              ))}
-            </div>
+            <SelfGradeButtons busy={busy} onGrade={(rating) => void submit(rating)} />
           )}
         </div>
       </div>
@@ -2186,7 +2169,7 @@ export function ReviewSession({
                 ? (chosen ? `${ADVANCE_KEY_LABEL} to carry on` : `1 to ${card?.choices?.length ?? 4} to pick`)
                 : !revealed
                   ? `${ADVANCE_KEY_LABEL} to flip`
-                  : "1 for not yet, 2 for got it"}
+                  : "Space for not yet, Enter for got it"}
         </span>
       </div>
 

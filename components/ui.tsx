@@ -23,7 +23,7 @@ export function Wash() {
   );
 }
 
-export function Page({ title, titleLang, lead, actions, children, eyebrow, route }: {
+export function Page({ title, titleLang, lead, actions, children, eyebrow, route, compact }: {
   title: string;
   /**
    * Set to "et" where the heading is the Estonian name of a grammar point
@@ -53,11 +53,18 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
    * a wide screen for no reason a reader could act on.
    */
   route?: string;
+  /**
+   * A game board's page: a heading that says where you are and a line under it,
+   * and then the room it takes goes to the board. Used where the whole of the
+   * round has to fit one screen (Sõnad and the crossword), since a learner who
+   * has to scroll to reach the keys has spent the game on the page.
+   */
+  compact?: boolean;
 }) {
   const place = route ? DESTINATIONS.find((d) => d.href === route) : undefined;
   return (
-    <div className="mx-auto max-w-4xl px-5 py-8 md:px-10 md:py-12">
-      <header className="fade-up mb-9 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+    <div className={compact ? "mx-auto max-w-4xl px-4 py-3 md:px-8 md:py-4" : "mx-auto max-w-4xl px-5 py-8 md:px-10 md:py-12"}>
+      <header className={`fade-up ${compact ? "mb-3" : "mb-9"} flex flex-wrap items-end justify-between gap-x-6 gap-y-4`}>
         <div className="min-w-0 flex-[1_1_28rem]">
           {eyebrow && (
             <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>{eyebrow}</p>
@@ -68,7 +75,7 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
                 heading's own size and leading, centres it there whether the
                 title is one line or wraps to three. */}
             {place && (
-              <span aria-hidden className="flex h-[1.05em] shrink-0 items-center text-3xl">
+              <span aria-hidden className={`flex h-[1.05em] shrink-0 items-center ${compact ? "text-xl" : "text-3xl"}`}>
                 <span
                   className="h-2.5 w-2.5 rounded-full"
                   style={{ background: place.tone === "ink" ? "var(--ink)" : `var(--${place.tone})` }}
@@ -77,9 +84,9 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
             )}
             {/* A page title is often one Estonian word, a unit or a case, and
                 a long one broke across lines on a phone: it shrinks instead. */}
-            <FitText as="h1" text={title} max="var(--text-3xl)" lang={titleLang} className="min-w-0 font-bold leading-[1.05]" style={{ color: "var(--ink)" }} />
+            <FitText as="h1" text={title} max={compact ? "var(--text-xl)" : "var(--text-3xl)"} lang={titleLang} className="min-w-0 font-bold leading-[1.05]" style={{ color: "var(--ink)" }} />
           </div>
-          {lead && <p className="mt-3 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
+          {lead && <p className={`${compact ? "mt-0.5 hidden text-sm sm:block" : "mt-3 text-md"} max-w-[60ch] leading-relaxed`} style={{ color: "var(--ink-2)" }}>{lead}</p>}
         </div>
         {actions && <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">{actions}</div>}
       </header>
@@ -113,7 +120,7 @@ const CARD_TONES = {
 
 export type CardTone = keyof typeof CARD_TONES;
 
-export function Card({ children, className = "", as: Tag = "div", tone = "plain", hover, style }: {
+export function Card({ children, className = "", as: Tag = "div", tone = "plain", hover, style, dense }: {
   children: ReactNode;
   className?: string;
   as?: "div" | "section" | "article" | "li";
@@ -121,10 +128,12 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
   /** Lifts on hover. For cards that are themselves a link or a control. */
   hover?: boolean;
   style?: CSSProperties;
+  /** Tighter padding, for a card that has to share one screen with others. */
+  dense?: boolean;
 }) {
   return (
     <Tag
-      className={`rounded-[var(--r-xl)] border p-5 md:p-7 ${tone === "night" ? "night" : ""} ${hover ? "lift" : ""} ${className}`}
+      className={`rounded-[var(--r-xl)] border ${dense ? "p-3 md:p-4" : "p-5 md:p-7"} ${tone === "night" ? "night" : ""} ${hover ? "lift" : ""} ${className}`}
       style={{
         ...CARD_TONES[tone],
         borderColor: "var(--edge)",

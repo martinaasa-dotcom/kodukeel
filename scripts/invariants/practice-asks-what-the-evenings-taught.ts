@@ -33,7 +33,7 @@ export default function practiceAsksWhatTheEveningsTaught({ check, code, sourceF
         `${page} reads the module only off its address, so a round walked to from Practice is held to nothing`);
       if (/practiceScope\(ownerId, /.test(src)) scoped += 1;
     }
-    assert.ok(scoped >= 14, `only ${scoped} practice pages read practiceScope; the sweep stopped finding the rounds`);
+    assert.ok(scoped >= 12, `only ${scoped} practice pages read practiceScope; the sweep stopped finding the rounds`);
 
     const moduleScope = code("lib/progress/moduleScope.ts");
     assert.match(moduleScope, /moduleScopeFrom\(searchParams\) \?\? learnerScopeSoFar\(ownerId\)/,

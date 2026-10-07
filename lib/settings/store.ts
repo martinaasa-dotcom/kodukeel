@@ -13,7 +13,6 @@ import { prisma } from "@/lib/db";
  */
 export const SETTING_KEYS = {
   dailyGoal: "dailyGoal",
-  sprintBest: "sprintBest",
   matchBest: "matchBest",
   streakShields: "streakShields",
   streakShieldDates: "streakShieldDates",

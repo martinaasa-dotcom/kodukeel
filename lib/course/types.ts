@@ -105,29 +105,17 @@ export const ACTIVITIES = {
     href: "/review/listening", kind: "drill",
     why: "The same words, but this time you only hear them. Reading a word and catching it when somebody says it are two different skills.",
   },
-  sprint: {
-    href: "/review/sprint", kind: "game",
-    why: "A race through the words you've met, and their endings once you've read about them. Answer fast enough and you stop working words out and simply know them.",
-  },
   sentences: {
-    href: "/review/sentences", kind: "drill",
+    href: "/review/sentences", kind: "game",
     why: "Put a real Estonian sentence back together, word by word. Do it a few times and you start to feel where things go.",
   },
   dictation: {
     href: "/review/dictation", kind: "drill",
     why: "Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.",
   },
-  describe: {
-    href: "/review/describe", kind: "drill",
-    why: "Look at a picture and write one sentence of your own about it. That's what all these words are for.",
-  },
   sonad: {
     href: "/sonad", kind: "game",
     why: "Guess today's six-letter word. Three minutes, and Estonian letters start feeling like old friends.",
-  },
-  target: {
-    href: "/review/target", kind: "game",
-    why: "Four versions of one word, and a question telling you which one to hit. Only the ending tells them apart, so you learn to read it fast.",
   },
   conjugation: {
     href: "/review/conjugation", kind: "drill",

@@ -129,8 +129,8 @@ export const BRIEFINGS = {
   },
   describe: {
     title: "Say what you see",
-    what: "A little scene with three things in it. We'll name one of them and tell you which ending it needs.",
-    you: "Write one sentence about the picture using that word, with that ending.",
+    what: "A scene made of emoji, and five empty boxes. You'll see an example of the kind of sentence we mean first.",
+    you: "Write five sentences about what you see and what might be going on, one in each box. Use your imagination.",
     action: "Show me the picture",
   },
   dictation: {
@@ -201,20 +201,6 @@ export const BRIEFINGS = {
     title: "Say it out loud",
     what: "A word to say, a recording of a native speaker saying it, and your own voice played back beside it.",
     you: "Record yourself, listen to both, and decide how close you got. No machine grades your accent.",
-    action: "Start",
-  },
-  sprint: {
-    title: "As many as you can",
-    what: "Cards from your deck against the clock. You turn them over instead of typing.",
-    you: "Go as fast as you can until time's up. Stopping early costs you nothing.",
-    action: "Start the clock",
-  },
-  target: {
-    title: "Hit the right ending",
-    what:
-      "A word, a question, and four answers to pick from, mostly the same word with different " +
-      "endings. Every hit makes the next clock a little shorter.",
-    you: "Tap the one the question is asking for.",
     action: "Start",
   },
   write: {

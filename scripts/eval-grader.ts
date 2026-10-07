@@ -45,7 +45,7 @@
 import { readFileSync } from "node:fs";
 import {
   gradeSentence, gradeComposition, gradeDescription,
-  JSON_REPLY_TOKENS, COMPOSITION_REPLY_TOKENS,
+  JSON_REPLY_TOKENS, COMPOSITION_REPLY_TOKENS, PICTURE_REPLY_TOKENS,
 } from "../lib/tutor/grader";
 import { verifyComment } from "../lib/tutor/verify";
 import { estimateCostMicros } from "../lib/usage/pricing";
@@ -157,11 +157,12 @@ async function run(cfg: ProviderConfig, shape: "sentence" | "describe" | "compos
           sentence: learner, knownForms: forms, level: f.entry.cefr ?? "A1",
         }, usedForm);
       } else if (shape === "describe") {
+        const five = [learner, f.sentence, learner, f.sentence, learner];
         res = await gradeDescription(cfg, {
           situation: "at home in the morning",
           things: [{ emoji: "*", lemma: f.entry.lemma, translation: f.entry.translation }],
-          asked: { lemma: f.entry.lemma, caseEt: spec.et, caseQuestion: spec.question },
-          rightCase: usedForm, knownForms: forms, sentence: learner, level: f.entry.cefr ?? "A1",
+          knownForms: forms, level: f.entry.cefr ?? "A1",
+          sentences: five.map((text) => ({ text, unknown: [], mentions: [f.entry.lemma] })),
         });
       } else {
         res = await gradeComposition(cfg, `${learner} ${f.sentence}`, f.entry.cefr ?? "A1");
@@ -171,7 +172,8 @@ async function run(cfg: ProviderConfig, shape: "sentence" | "describe" | "compos
       if (res.usage.outputTokens >= cap) t.capHits++;
       if (!res.graded) { t.failed++; continue; }
       t.verdicts++;
-      const v = verifyComment(res.graded.comment, forms.map((x) => x.value), learner, [f.entry.translation]);
+      const first = "sentences" in res.graded ? res.graded.sentences[0]! : res.graded;
+      const v = verifyComment(first.comment, forms.map((x) => x.value), learner, [f.entry.translation]);
       if (v.reason) t.withheld++;
     } catch (e) {
       t.failed++;
@@ -189,7 +191,7 @@ async function run(cfg: ProviderConfig, shape: "sentence" | "describe" | "compos
 */
 const SHAPES = [
   { shape: "sentence", cap: JSON_REPLY_TOKENS, caller: "gradeSentence" },
-  { shape: "describe", cap: JSON_REPLY_TOKENS, caller: "gradeDescription" },
+  { shape: "describe", cap: PICTURE_REPLY_TOKENS, caller: "gradeDescription" },
   { shape: "composition", cap: COMPOSITION_REPLY_TOKENS, caller: "gradeComposition" },
 ] as const;
 
