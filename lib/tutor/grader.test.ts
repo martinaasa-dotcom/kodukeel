@@ -338,7 +338,8 @@ describe("the note in the learner's language", () => {
     expect(ru).toMatch(/write "comment" and "rule" in Russian/);
     expect(ru).toMatch(/straight double quotes/);
     expect(ru).toMatch(/«»/);
-    expect(writtenIn("uk")).toMatch(/Real Ukrainian/);
+    expect(writtenIn("uk")).toMatch(/standard literary Ukrainian/);
+    expect(writtenIn("uk")).toMatch(/never compare anything to Russian/);
     // Russian is held to Russian: no Ukrainian word, letter or comparison.
     expect(writtenIn("ru")).toMatch(/Standard literary Russian only/);
     expect(writtenIn("ru")).not.toMatch(/Real Ukrainian/);

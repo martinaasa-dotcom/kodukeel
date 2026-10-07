@@ -134,7 +134,7 @@ describe("repeatLabel", () => {
   it("says it in Russian and Ukrainian with the days in the case the phrase needs", () => {
     expect(repeatLabelIn("en", [1, 3])).toBe("Every Monday and Wednesday");
     expect(repeatLabelIn("ru", [1, 3, 5])).toBe("По понедельникам, средам и пятницам");
-    expect(repeatLabelIn("uk", [2, 6])).toBe("По вівторках і суботах");
+    expect(repeatLabelIn("uk", [2, 6])).toBe("У вівторки й суботи");
     expect(repeatLabelIn("ru", [1, 2, 3, 4, 5])).toBe("По будням");
     expect(spanIn("ru", 18 * 60, 90)).toBe("с 18:00 до 19:30");
     expect(spanIn("uk", 18 * 60, 90)).toBe("з 18:00 до 19:30");

@@ -477,8 +477,16 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <Languages size={18} aria-hidden style={{ color: "var(--ink-3)" }} />
                 <ChoiceGroup ariaLabel={t("Language of the app")} className="flex flex-wrap gap-2">
-                  {LOCALES.map((l) => (
-                    <ChoiceChip key={l} selected={locale === l} onSelect={() => setLocale(l)}>
+                  {/* English, and the language on screen: a Ukrainian page does
+                      not offer Russian by name, or the reverse. Either is one
+                      press away from English. */}
+                  {LOCALES.filter((l) => locale === "en" || l === "en" || l === locale).map((l) => (
+                    <ChoiceChip key={l} selected={locale === l} onSelect={() => {
+                      setLocale(l);
+                      /* A meaning language the new interface language no longer
+                         offers goes back to English rather than staying hidden. */
+                      if (gloss !== "en" && l !== "en" && gloss !== l) setGloss("en");
+                    }}>
                       <span lang={l}>{LOCALE_NAMES[l]}</span>
                     </ChoiceChip>
                   ))}
@@ -602,6 +610,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                 label={t("What language would you like meanings in?")}
                 className={`grid gap-3 ${locale === "en" ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
               >
+                {/* Somebody reading the app in Russian or Ukrainian is offered
+                    English and their own language, never the other one, which
+                    is the rule the Settings panel keeps for the same choice. */}
                 {GLOSS_LANGUAGES.filter((o) =>
                   locale === "en" || o.id === "en" || o.id === locale || o.id === gloss,
                 ).map((o) => (

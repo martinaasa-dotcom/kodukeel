@@ -1162,7 +1162,7 @@ export const TODAY: Area = {
   "Pairs against the clock, and a personal best to beat.":
     "Пари на час і особистий рекорд, який можна побити.",
   "It's Friday, so keep it short: a quick burst of endings on the clock.":
-    "П'ятниця, тож коротко: швидкий спринт по закінченнях на час.",
+    "П'ятниця, тож коротко: швидкий спринт із закінчень на час.",
   "The crossword, for a Saturday with time to spare.":
     "Кросворд для суботи, коли є вільний час.",
   "A quiet round on the words you've met, typed from their meaning.":
@@ -1196,7 +1196,7 @@ export const TODAY: Area = {
   "Did you speak any Estonian to anyone yesterday?":
     "Ви вчора говорили з кимось естонською?",
   "Anything counts. A shop, a colleague, a single sentence at the door.":
-    "Рахується все: магазин, колега, одна фраза біля дверей.",
+    "Зараховується все: магазин, колега, одна фраза біля дверей.",
   "Whether you spoke Estonian yesterday":
     "Чи говорили ви вчора естонською",
   "Yes, I did":
@@ -1228,7 +1228,7 @@ export const TODAY: Area = {
   "They understood you. That's the whole point of all this.":
     "Вас зрозуміли. Саме заради цього все й затівалося.",
   "Getting stuck is just what learning a language out loud looks like. It still counts, and it's on the board.":
-    "Збитися посеред розмови нормально: так і виглядає мова, яку вчать уголос. Розмову все одно зараховано.",
+    "Збитися посеред розмови нормально: саме такий вигляд має мова, яку вчать уголос. Розмову все одно зараховано.",
   "They switched to English. Next time, keep going in Estonian anyway. Most people switch back.":
     "Співрозмовник перейшов на англійську. Наступного разу все одно продовжуйте естонською: більшість повертаються до естонської.",
   "Running out of words costs nothing in a practice conversation, and the person there will wait while you find them.":
@@ -1256,7 +1256,7 @@ export const TODAY: Area = {
   "Order your coffee in Estonian today. Don't forget the please.":
     "Замовте сьогодні каву естонською. Не забудьте сказати «будь ласка».",
   "Ask for bread at the counter and say how much you want. Pointing doesn't count.":
-    "Попросіть біля прилавка хліб і скажіть, скільки вам треба. Показувати пальцем не рахується.",
+    "Попросіть біля прилавка хліб і скажіть, скільки вам треба. Показувати пальцем не зараховується.",
   "Ask what something costs before you peek at the label.":
     "Спитайте, скільки щось коштує, перш ніж зазирнути в цінник.",
   "Ask somebody the time, even if you know it perfectly well.":
@@ -1274,7 +1274,7 @@ export const TODAY: Area = {
   "In a clothes shop, ask for another size or another color.":
     "У магазині одягу попросіть інший розмір або інший колір.",
   "Make one phone call in Estonian. A short one counts.":
-    "Зробіть один дзвінок естонською. Короткий теж рахується.",
+    "Зробіть один дзвінок естонською. Короткий теж зараховується.",
   "Book an appointment in Estonian, or just ask about one, and stay in Estonian even if they switch to English.":
     "Запишіться на прийом естонською або просто спитайте про запис і не переходьте з естонської, навіть якщо вам відповідатимуть англійською.",
   "Arrange to meet somebody in Estonian, with a day and a time.":
@@ -1584,7 +1584,7 @@ export const TODAY: Area = {
   "The same words, but this time you only hear them. Reading a word and catching it when somebody says it are two different skills.":
     "Ті самі слова, але тепер ви їх лише чуєте. Прочитати слово і впізнати його, коли хтось його вимовляє, це дві різні навички.",
   "A race through the words you've met, and their endings once you've read about them. Answer fast enough and you stop working words out and simply know them.":
-    "Перегони зі знайомими словами, а коли прочитаєте про закінчення, то й із закінченнями. Відповідайте швидко, і ви перестанете вираховувати слова й почнете просто їх знати.",
+    "Перегони зі знайомими словами, а коли прочитаєте про закінчення, то й із закінченнями. Відповідайте швидко, і ви перестанете обмірковувати кожне слово й почнете просто його знати.",
   "Put a real Estonian sentence back together, word by word. Do it a few times and you start to feel where things go.":
     "Зберіть справжнє естонське речення слово за словом. Зробіть так кілька разів, і ви почнете відчувати, що куди ставиться.",
   "Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.":
@@ -1768,7 +1768,7 @@ export const TODAY: Area = {
 
   // WHETHER THIS IS THE RIGHT PART, AND THE HAND-OFF.
   "You're flying through this":
-    "У вас усе йде як по маслу",
+    "У вас усе йде гладко",
   "You're flying through the top of the course":
     "Ви легко проходите вершину курсу",
   "This part is a tough one":
@@ -1788,9 +1788,9 @@ export const TODAY: Area = {
   "Your reviews will bring back the words that are slipping. Give it a few days.":
     "Повторення повернуть слова, які вислизають. Дайте цьому кілька днів.",
   "The level you started at was a first guess. Going over {level} first will make this part much easier. It's a refresher, and this part waits for you afterwards.":
-    "Рівень, з якого ви почали, був лише першим припущенням. Якщо спершу пройтися по {level}, ця частина стане значно легшою. Це просто освіжить знання, а ця частина вас зачекає.",
+    "Рівень, з якого ви почали, був лише першим припущенням. Якщо спершу повторити {level}, ця частина стане значно легшою. Це просто освіжить знання, а ця частина вас зачекає.",
   "Going over {level} first will make this part much easier. It's a refresher, and this part waits for you afterwards.":
-    "Якщо спершу пройтися по {level}, ця частина стане значно легшою. Це просто освіжить знання, а ця частина вас зачекає.",
+    "Якщо спершу повторити {level}, ця частина стане значно легшою. Це просто освіжить знання, а ця частина вас зачекає.",
   "{part} is the part you skipped, and this one leans on it. Going back fills in the gaps.":
     "{part} це частина, яку ви пропустили, а ця на неї спирається. Повернувшись, ви заповните прогалини.",
   "Refresh {level} first":
@@ -1830,7 +1830,7 @@ export const TODAY: Area = {
   "Food, the time, your day, and what things are like":
     "Їжа, час, ваш день і які бувають речі",
   "Food and drink, the days and the clock, what you do from morning to night, and your first words for what things look like, colors included. By the end you can say what you're doing, when, and what it's like.":
-    "Їжа й напої, дні тижня й години, що ви робите з ранку до вечора, і перші слова про те, який вигляд мають речі, зокрема кольори. Наприкінці ви зможете сказати, що робите, коли і як це виглядає.",
+    "Їжа й напої, дні тижня й години, що ви робите з ранку до вечора, і перші слова про те, який вигляд мають речі, зокрема кольори. Наприкінці ви зможете сказати, що робите, коли і який усе це має вигляд.",
   "Clothes, weather, prices, and a shop":
     "Одяг, погода, ціни й магазин",
   "What you're wearing, what the weather's doing, the bigger numbers you need for prices, and then a shop to put it all to work in. By the end you can describe what you want and buy it.":

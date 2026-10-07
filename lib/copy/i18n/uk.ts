@@ -136,7 +136,7 @@ export const UK: Readonly<Record<string, string>> = {
     "На першому кроці просто подивіться, він не оцінюється. Далі те, що ви друкуєте, уже зараховується.",
   "Which case does this verb want?": "Який відмінок потрібен цьому дієслову?",
   "A verb, and four cases it might take. Only one is right.": "Дієслово і чотири відмінки, які йому могли б підійти. Правильний лише один.",
-  "Pick it. There's nothing to type and no clock.": "Виберіть його. Друкувати нічого не треба, і час ніхто не рахує.",
+  "Pick it. There's nothing to type and no clock.": "Виберіть його. Друкувати нічого не треба, і час не обмежено.",
   "Put the word back together": "Зберіть слово",
   "A word you know, read out loud with its meaning shown, and its letters jumbled up on tiles.":
     "Знайоме вам слово звучить уголос, його значення показано, а літери перемішані на плитках.",

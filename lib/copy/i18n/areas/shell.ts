@@ -285,7 +285,7 @@ export const SHELL: Area = {
     "We couldn't read that result, so it wasn't saved.": "Ми не змогли прочитати результат, тож його не збережено.",
     "Give the class a name.": "Дайте групі назву.",
     "We couldn't make a join code just then. Please try again.": "Зараз не вдалося створити код для вступу. Спробуйте ще раз.",
-    "That code doesn't look quite right. Check it and try again.": "Код виглядає не зовсім так. Перевірте його й спробуйте ще раз.",
+    "That code doesn't look quite right. Check it and try again.": "Схоже, код уведено не так. Перевірте його й спробуйте ще раз.",
     "There's no class with that code. Check it and try again.": "Групи з таким кодом немає. Перевірте його й спробуйте ще раз.",
     "We couldn't find that class.": "Ми не знайшли цю групу.",
     "It's your class, so you can't leave it. You can archive it instead.": "Це ваша група, тож вийти з неї не можна. Натомість її можна перенести в архів.",
