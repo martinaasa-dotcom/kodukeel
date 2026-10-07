@@ -49,4 +49,29 @@ describe("readOpeners", () => {
   it("ignores a slot that is not an opener", () => {
     expect(readOpeners([{ slot: "PRODUCTION", rating: 3, day: day(1) }]).stages[0]!.answers).toBe(0);
   });
+
+  it("leads with the stage still being worked on, and takes nobody back a stage they reached", () => {
+    // Stage 1 and 2 settled, then stage 3 answered once, then a bad run on stage 2.
+    const settledTwo = [...answers(WINDOW, 5, 0, "need"), ...answers(WINDOW, 5, 0, "like")];
+    const slipped = [...answers(8, 5, 8, "need"), ...settledTwo, { slot: openerSlot("notwant"), rating: 3, day: day(1) }];
+    const r = readOpeners(slipped);
+    expect(r.stages[1]!.settled).toBe(false);
+    expect(r.stages[2]!.open).toBe(true);
+    expect(r.current).toBe(2);
+  });
+
+  it("does not open a later stage behind one that is closed", () => {
+    // Stage 1 settled, stage 3 reached but not settled: stage 4 is not offered.
+    const r = readOpeners([...answers(WINDOW, 5), ...answers(3, 5, 0, "notwant")]);
+    expect(r.stages[1]!.open).toBe(true);
+    expect(r.stages[2]!.open).toBe(true);
+    expect(r.stages[3]!.open).toBe(false);
+    expect(r.stages[4]!.open).toBe(false);
+  });
+
+  it("opens the mixed stage only once the stage before it is settled", () => {
+    const upToFive = ["like", "need", "notwant", "wanted", "pl-like"].flatMap((id) => answers(WINDOW, 5, 0, id));
+    expect(readOpeners(upToFive).stages[5]!.open).toBe(true);
+    expect(readOpeners(upToFive.slice(0, 4 * WINDOW)).stages[5]!.open).toBe(false);
+  });
 });

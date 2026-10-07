@@ -72,17 +72,35 @@ export function readOpeners(answers: readonly OpenerAnswer[], maxStage = MIXED_S
   // The mixed stage is settled by everything: it asks all of them.
   byStage.set(MIXED_STAGE, answers.filter((a) => openerBySlot(a.slot)));
 
+  /*
+    A stage is open when the one before it is open and either settled or one the
+    learner has already answered on. The second half is what stops a bad day
+    taking a stage back: somebody who got to stage 3 and then slipped on stage 2
+    is not shut out of 3, they are led back to 2 (`current`, below). The mixed
+    stage has no answers of its own to point at, so it needs the stage before it
+    settled.
+  */
+  let previousOpen = true;
   let previousSettled = true;
   const stages: StageReading[] = STAGES.map((s) => {
     const mine = (byStage.get(s.n) ?? []).slice(0, WINDOW);
     const share = mine.length >= MIN_ANSWERS ? mine.filter((a) => right(a.rating)).length / mine.length : null;
     const days = new Set(mine.map((a) => a.day)).size;
     const settled = share !== null && share >= SETTLED_SHARE && days >= SETTLED_DAYS;
-    const open = s.n <= maxStage && previousSettled;
+    const answered = byStage.get(s.n)?.length ?? 0;
+    const reached = s.n < MIXED_STAGE && answered > 0;
+    const open = s.n <= maxStage && previousOpen && (previousSettled || reached || s.n === 1);
+    previousOpen = open;
     previousSettled = settled;
-    return { n: s.n, title: s.title, line: s.line, answers: byStage.get(s.n)?.length ?? 0, share, days, settled, open };
+    return { n: s.n, title: s.title, line: s.line, answers: answered, share, days, settled, open };
   });
 
-  const current = Math.max(1, ...stages.filter((s) => s.open).map((s) => s.n));
+  /*
+    The stage to lead with is the first one still being worked on, which is the
+    one a learner is best served by whether they are climbing or have slipped.
+    When every open stage is settled it is the highest of them.
+  */
+  const open = stages.filter((s) => s.open);
+  const current = open.find((s) => !s.settled)?.n ?? Math.max(1, ...open.map((s) => s.n));
   return { stages, current };
 }

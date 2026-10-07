@@ -100,7 +100,7 @@ export const OPENERS: readonly OpenerSpec[] = [
     why: "It is simply there, so it keeps its dictionary form." },
   { id: "nohave", family: "no", stage: 1, number: "sg", text: "Mul ei ole", ending: "partial",
     en: "I don’t have {a}.",
-    why: "After a no, the thing always takes the “some of it” ending, even though it keeps its dictionary form after “mul on”." },
+    why: "After a no, the thing that isn’t there takes the “some of it” ending, even though it keeps its dictionary form after “mul on”." },
 
   // Stage 2: more verbs in each family, and the polite “would”.
   { id: "need", family: "wanting", stage: 2, number: "sg", text: "Ma vajan", ending: "partial",
@@ -182,9 +182,9 @@ export interface Stage {
 export const STAGES: readonly Stage[] = [
   { n: 1, title: "Four openers", line: "Liking, wanting, having and saying no." },
   { n: 2, title: "More verbs", line: "Needing, looking for, waiting for, a polite “would”, and who has it." },
-  { n: 3, title: "Every way to say no", line: "Every no, and the one that does not flip." },
+  { n: 3, title: "More ways to say no", line: "More negatives, and the one that stays plain." },
   { n: 4, title: "In the past", line: "Wanted, didn’t want, had, didn’t have, liked." },
-  { n: 5, title: "More than one", line: "The same openers with plurals, where the verb agrees." },
+  { n: 5, title: "More than one", line: "The same openers with plurals. One of them changes its verb." },
   { n: 6, title: "Everything mixed", line: "Any opener, any word, no order." },
 ];
 

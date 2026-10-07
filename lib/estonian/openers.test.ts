@@ -167,3 +167,73 @@ describe("marking", () => {
     expect(slip.right).toBe(false);
   });
 });
+
+describe("the copy a learner reads", () => {
+  const sentences = (text: string) =>
+    text.split(/(?<=[.!?])\s+/).map((x) => x.trim().toLowerCase().replace(/[^\p{L}\s]/gu, "")).filter(Boolean);
+
+  /**
+   * Whether a text says one thing twice: a quoted phrase used twice, or two
+   * sentences most of whose words are shared. The first version of this
+   * compared sentences for equality and would have passed the very defect it
+   * was written for, where the second sentence only restated the first.
+   */
+  const repeats = (text: string): boolean => {
+    const quoted = [...text.matchAll(/\u201c([^\u201d]+)\u201d/g)].map((m) => m[1]!.toLowerCase());
+    if (new Set(quoted).size !== quoted.length) return true;
+    const parts = sentences(text).map((x) => new Set(x.split(/\s+/)));
+    for (let i = 0; i < parts.length; i++) for (let j = i + 1; j < parts.length; j++) {
+      const a = parts[i]!, b = parts[j]!;
+      const shared = [...a].filter((w) => b.has(w)).length;
+      if (shared / Math.min(a.size, b.size) >= 0.75) return true;
+    }
+    return false;
+  };
+
+  it("knows a repeat when it sees one", () => {
+    expect(repeats("Something you are after takes the \u201csome of it\u201d ending. The thing takes the \u201csome of it\u201d ending.")).toBe(true);
+    expect(repeats("After a no, the thing takes the ending. After a no, the thing takes the ending.")).toBe(true);
+    expect(repeats("Things you are after take the \u201csome of them\u201d ending.")).toBe(false);
+  });
+
+  it("never says one thing twice in an explanation or an English line", () => {
+    let walked = 0;
+    for (const o of OPENERS) {
+      for (const text of [o.why, o.en]) {
+        walked += sentences(text).length;
+        expect(repeats(text), `${o.id}: ${text}`).toBe(false);
+      }
+    }
+    expect(walked).toBeGreaterThan(OPENERS.length);
+  });
+
+  it("gives an explanation that agrees with the ending the opener wants", () => {
+    for (const o of OPENERS) {
+      if (o.ending === "plain") expect(o.why, o.id).toMatch(/dictionary form/);
+      else expect(o.why, o.id).toMatch(/some of (it|them)/);
+    }
+  });
+
+  it("says a plural row in the plural and a singular row in the singular", () => {
+    for (const o of OPENERS) {
+      if (o.number === "pl") expect(o.why, o.id).not.toMatch(/some of it/);
+      if (o.number === "sg") expect(o.why, o.id).not.toMatch(/some of them|plural/);
+    }
+  });
+
+  it("puts no past form in a stage that is not the past, and no stage 4 opener outside it", () => {
+    const past = new Set(["wanted", "notwanted", "had", "hadnot", "liked"]);
+    for (const o of OPENERS) expect(o.stage === 4, o.id).toBe(past.has(o.id));
+  });
+
+  it("never names a gender for a pronoun that has none", () => {
+    for (const o of OPENERS) if (/^(Tal|Ta) /.test(o.text)) expect(o.en, o.id).not.toMatch(/^She /);
+  });
+
+  it("uses one quote style and no dash", () => {
+    for (const o of OPENERS) for (const text of [o.why, o.en]) {
+      expect(text, o.id).not.toMatch(/['"]/);
+      expect(text, o.id).not.toMatch(/[\u2013\u2014]/);
+    }
+  });
+});

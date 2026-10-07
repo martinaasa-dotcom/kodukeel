@@ -11,7 +11,7 @@ import { StarWord } from "@/components/StarWord";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
-import { familyTitle, markPick, markTyped, type OpenerMark, type OpenerQuestion } from "@/lib/estonian/openers";
+import { familyTitle, markPick, MIXED_STAGE, markTyped, type OpenerMark, type OpenerQuestion } from "@/lib/estonian/openers";
 import { OPTION_CLASS, optionState, VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
@@ -38,7 +38,7 @@ interface StageLine {
  * It does not grade a hint, because it has none: the opener is the cue, and a
  * wrong answer says which opener the form belongs to.
  */
-export function OpenersSession({ questions: initialQuestions, mode, stage, reading }: {
+export function OpenersSession({ questions: initialQuestions, mode, stage: initialStage, reading: initialReading }: {
   questions: OpenerCard[];
   mode: "pick" | "type";
   stage: { n: number; title: string; line: string };
@@ -47,6 +47,11 @@ export function OpenersSession({ questions: initialQuestions, mode, stage, readi
   const grade = useGrade();
   // Frozen on mount: grading revalidates the route and hands down a new round.
   const [questions] = useState(initialQuestions);
+  // The stage and the reading are frozen with the questions: grading revalidates
+  // the route, and a chip that moved from stage 1 to stage 2 mid-round would say
+  // the learner had changed rounds when they had not.
+  const [stage] = useState(initialStage);
+  const [reading] = useState(initialReading);
   const [index, setIndex] = useState(0);
   const [mark, setMark] = useState<OpenerMark | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
@@ -87,7 +92,8 @@ export function OpenersSession({ questions: initialQuestions, mode, stage, readi
   }, [question, mark, settle]);
 
   const check = useCallback(() => {
-    if (!question || mark) return;
+    // An empty box is not an answer: Enter on it would grade the word Again.
+    if (!question || mark || !typed.trim()) return;
     settle(question, markTyped(question, typed));
   }, [question, mark, typed, settle]);
 
@@ -132,14 +138,20 @@ export function OpenersSession({ questions: initialQuestions, mode, stage, readi
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     const accuracy = Math.round((correct / questions.length) * 100);
-    const afterThis = reading.find((s) => s.n === stage.n + 1 && s.open);
+    // Offered only once this stage is settled, or the message would nudge somebody on from one they are still learning.
+    const afterThis = reading.find((s) => s.n === stage.n)?.settled
+      ? reading.find((s) => s.n === stage.n + 1 && s.open)
+      : undefined;
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           That&rsquo;s the round done
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          One word, {questions.length} ways to start a sentence. The next round uses a different word, so you learn the openers and not the word.
+          {stage.n >= MIXED_STAGE
+            ? `${questions.length} sentences, each on a different word.`
+            : `One word, ${questions.length} ways to start a sentence.`}{" "}
+          The next round uses different words, so you learn the openers and not the words.
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
