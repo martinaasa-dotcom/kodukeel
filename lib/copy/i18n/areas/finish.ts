@@ -164,8 +164,8 @@ export const FINISH: Area = {
     "{forms} here aren't what the usual endings would give you.":
       "{forms} тут не такі, як дали б звичайні закінчення.",
     "{short} is the short one, and {long} is the long one you get from the ending. Both are right.":
-      "{short} це коротка форма, а {long} довга, яку дає закінчення. Обидві правильні.",
-    "{word} is the {form}.": "{word} це {form}.",
+      "Коротка форма: {short}, довга, яку дає закінчення: {long}. Обидві правильні.",
+    "{word} is the {form}.": "{word}: форма {form}.",
     "Which deck?": "У яку колоду?",
     "Words you might use": "Слова, які можуть знадобитися",
     "Loading": "Завантаження",

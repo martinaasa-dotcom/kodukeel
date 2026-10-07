@@ -7,6 +7,7 @@ import { Button } from "@/components/Button";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
 import { filled } from "@/components/Filled";
+import { confirmWord, confirms } from "@/lib/copy/confirmWord";
 
 type Mode = "merge" | "replace";
 
@@ -107,7 +108,9 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
     });
   };
 
-  const replaceBlocked = mode === "replace" && confirmText.trim().toLowerCase() !== "replace";
+  // Asked for in the reader's own language; the English word is accepted too.
+  const word = confirmWord("replace", locale);
+  const replaceBlocked = mode === "replace" && !confirms("replace", confirmText);
 
   return (
     <div>
@@ -179,15 +182,15 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
                 <span>
                   {filled(t("This wipes the {reviews} already here, and review history can’t be rebuilt. Type {word} to confirm."), {
                     reviews: countOf(locale, currentReviews, "review"),
-                    word: <strong>replace</strong>,
+                    word: <strong>{word}</strong>,
                   })}
                 </span>
               </p>
               <input
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
-                aria-label={t("Type replace to confirm")}
-                placeholder="replace"
+                aria-label={fill(t("Type {word} to confirm"), { word })}
+                placeholder={word}
                 className="field mt-2.5 text-sm"
                 style={{ borderColor: "var(--again)", background: "var(--surface)", color: "var(--ink)" }}
               />

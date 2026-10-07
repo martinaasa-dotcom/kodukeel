@@ -125,6 +125,14 @@ describe("a letter in the learner's own language", () => {
     }
   }
 
+  it("never addresses a Ukrainian reader by name, which would need the vocative", () => {
+    const [first, , third] = every("uk");
+    for (const letter of [first!, third!]) {
+      expect(renderText(letter, chrome("Stop emails like this one"))).not.toContain("Mari");
+    }
+    expect(renderText(every("ru")[0]!, chrome("Stop emails like this one"))).toContain("Mari");
+  });
+
   it("leaves an English letter's footer without the machine notice", () => {
     const [letter] = every("ru");
     const english = { ...letter!, locale: "en" as const };

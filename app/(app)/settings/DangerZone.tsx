@@ -9,6 +9,7 @@ import { Card, SectionTitle } from "@/components/ui";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
 import { filled } from "@/components/Filled";
+import { confirmWord, confirms } from "@/lib/copy/confirmWord";
 /*
   Fetched when it is needed rather than imported: the Supabase browser client
   is 254 KB with its Buffer polyfill, and Settings only needs it after an
@@ -43,6 +44,8 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
     page navigates out from under it.
   */
   const [remaining, setRemaining] = useState<string | null>(null);
+  // Asked for in the reader's own language; the English word is accepted too.
+  const word = confirmWord("delete", locale);
 
   async function remove() {
     setBusy(true);
@@ -117,15 +120,15 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
             <p className="flex items-start gap-2 text-sm">
               <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
               <span>
-                {filled(t("This can’t be undone. Type {word} to confirm."), { word: <strong>delete</strong> })}
+                {filled(t("This can’t be undone. Type {word} to confirm."), { word: <strong>{word}</strong> })}
               </span>
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <input
                 value={confirmation}
                 onChange={(e) => setConfirmation(e.target.value)}
-                aria-label={t("Type delete to confirm")}
-                placeholder="delete"
+                aria-label={fill(t("Type {word} to confirm"), { word })}
+                placeholder={word}
                 className="field text-sm"
                 style={{
                   borderColor: "var(--again)", background: "var(--surface)", color: "var(--ink)",
@@ -133,7 +136,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
               />
               <Button
                 variant="danger"
-                disabled={busy || confirmation.trim().toLowerCase() !== "delete"}
+                disabled={busy || !confirms("delete", confirmation)}
                 onClick={() => void remove()}
               >
                 {busy

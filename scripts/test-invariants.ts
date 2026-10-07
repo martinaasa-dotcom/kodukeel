@@ -3017,8 +3017,15 @@ check("a review is only ever deleted by something the learner asked for", () => 
     actions,
     // Coerced first, because the argument is JSON off the wire: see "a malformed
     // argument to a server action is refused, not thrown or stored".
-    /text\(confirmation\)\.trim\(\)\.toLowerCase\(\) !== "delete"/,
+    // The word may be typed in the learner's own language (lib/copy/confirmWord.ts),
+    // so the gate is the shared check rather than one English literal.
+    /if \(!confirms\("delete", text\(confirmation\)\)\)/,
     "account deletion no longer asks the learner to confirm",
+  );
+  assert.match(
+    code("lib/copy/confirmWord.ts"),
+    /delete: \{ en: "delete",/,
+    "the confirm word for deleting an account stopped accepting the English word",
   );
   assert.match(actions, /mode === "replace"/, "the restore no longer guards on an explicit replace");
   assert.equal(
