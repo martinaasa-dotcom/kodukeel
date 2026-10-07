@@ -2366,7 +2366,17 @@
       var(--stage);
     color: var(--stage-ink);
     border-radius: 0 0 clamp(28px, 5vw, 64px) clamp(28px, 5vw, 64px);
+  }  /*
+    The stage tucks under the nav so the pill sits on the dark. A page that
+    puts something between the two, which is the machine-translation notice
+    on /welcome/ru and /welcome/uk, would have its last lines painted over,
+    so there the stage starts below it instead.
+  */
+  .translation-notice ~ main .hero-stage {
+    margin-top: 0;
+    padding-top: clamp(2rem, 5svh, 3.75rem);
   }
+
   .hero-stage::before {
     content: "";
     position: absolute;

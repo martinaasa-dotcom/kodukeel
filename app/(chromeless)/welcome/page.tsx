@@ -122,7 +122,7 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
       {copy && !copy.reviewed && (
         <aside
           aria-label={say.t("About this translation")}
-          className="relative mx-auto mt-4 flex max-w-3xl items-start gap-2 rounded-[var(--r)] px-4 py-3 text-sm"
+          className="translation-notice relative mx-auto mt-4 flex max-w-3xl items-start gap-2 rounded-[var(--r)] px-4 py-3 text-sm"
           style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}
         >
           <Languages size={16} aria-hidden className="mt-0.5 shrink-0" />
@@ -985,7 +985,7 @@ function Features({ say }: { say: Say }) {
         </div>
       </Reveal>
 
-      <div className="mt-10 grid gap-5 md:mt-14 md:grid-cols-3">
+      <div className="mt-10 grid gap-5 md:mt-14 lg:grid-cols-3">
         <Reveal>
           <Feature
             tone="blush"
@@ -1039,7 +1039,7 @@ function Feature({ tone, icon, title, body, children }: {
       className="lift flex h-full flex-col rounded-[var(--r-xl)] border p-6"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex items-center gap-3">
         <span
           className="feature-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--r)] border"
           style={{
