@@ -310,7 +310,7 @@ export const START: Area = {
     "That address cannot use this copy of Kodukeel, because it’s set up for one particular group. Try the account you were invited with.":
       "З цією адресою не можна увійти в цю копію Kodukeel, бо її налаштовано для певної групи. Спробуйте обліковий запис, на який вас запросили.",
     "That link would have signed you in as someone else, so to be safe we signed you out and didn’t follow it. If the link is yours, sign in below. If you didn’t ask for it, you can safely ignore it.":
-      "За цим посиланням ви увійшли б у чужий обліковий запис, тож для безпеки ми вийшли з облікового запису й не стали його відкривати. Якщо посилання ваше, увійдіть нижче. Якщо ви його не запитували, просто не зважайте на нього.",
+      "За цим посиланням ви увійшли б у чужий обліковий запис, тож для безпеки ми завершили ваш сеанс і не стали відкривати посилання. Якщо посилання ваше, увійдіть нижче. Якщо ви його не запитували, просто не зважайте на нього.",
     "This browser couldn’t finish that sign-in. Either the link was opened in a different browser from the one that asked for it, or you ended up on a different address from the one you started on. Try again from here.":
       "Цей браузер не зміг завершити вхід. Або посилання відкрили не в тому браузері, де його запитували, або ви опинилися не на тій адресі, з якої починали. Спробуйте ще раз звідси.",
     "If it keeps happening, let {email} know: this address needs adding to the sign-in settings.":
@@ -348,7 +348,7 @@ export const START: Area = {
       "Якщо це повторюється, можливо, вхід через пошту в цій копії ще не ввімкнено.",
     "Check your email": "Перевірте пошту",
     "We’ve sent a link to {address}. Open it in this browser and you’re in. It stops working after an hour.":
-      "Ми надіслали посилання на {address}. Відкрийте його в цьому браузері, і ви ввійдете. За годину воно перестане працювати.",
+      "Ми надіслали посилання на {address}. Відкрийте його в цьому браузері, і ви ввійдете. Через годину воно перестане працювати.",
     "Use a different address": "Вказати іншу адресу",
     "Taking you to Google…": "Переходимо до Google…",
     "Continue with Google": "Продовжити з Google",
@@ -377,8 +377,8 @@ export const START: Area = {
     "Step {n} of {total}, {name}": "Крок {n} з {total}: {name}",
     "Setup progress, step {n} of {total}": "Налаштування, крок {n} з {total}",
     "Back": "Назад",
-    "Measured {level}": "Перевірено: {level}",
-    "Estimated {level}": "Ваша оцінка: {level}",
+    "Measured {level}": "Виміряно: {level}",
+    "Estimated {level}": "За вашою оцінкою: {level}",
     "below A1": "нижче A1",
     "Building your deck...": "Збираємо вашу колоду...",
     "Start learning": "Почати навчання",
@@ -415,7 +415,7 @@ export const START: Area = {
     "Where are you now?": "Який у вас зараз рівень?",
     "Take the level check to find out, or just pick the one that sounds like you. The check stops as soon as it has found your level. Either way, you can change it later in Settings.":
       "Пройдіть перевірку рівня, щоб дізнатися, або просто виберіть той, що найбільше схожий на вас. Перевірка закінчиться, щойно визначить ваш рівень. У будь-якому разі його можна потім змінити в налаштуваннях.",
-    "Measured just now": "Щойно перевірено",
+    "Measured just now": "Щойно виміряно",
     "Take it again": "Пройти ще раз",
     "Take the level check": "Пройти перевірку рівня",
     "The level check isn’t ready on this copy of Kodukeel yet, because its dictionary hasn’t been loaded. For now, pick the level that sounds most like you.":
@@ -436,7 +436,7 @@ export const START: Area = {
     "Pretty much anything. You're here for the finer shades of meaning.":
       "Майже все. Ви тут заради тонких відтінків значення.",
     "Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. Don’t worry about saying them right yet. That comes with time.":
-      "В естонській є чотири літери, яких немає в англійській: {a}, {b}, {c} і {d}. Вони трапляються всюди. Не хвилюйтеся, якщо поки не виходить правильно їх вимовляти. Це прийде з часом.",
+      "В естонській є чотири літери, яких немає ні в українській, ні в англійській: {a}, {b}, {c} і {d}. Дві останні звучать як «е» та «і», якщо скласти губи як для «у». Не хвилюйтеся, якщо поки не виходить. Це прийде з часом.",
 
     // FIRST RUN: GOAL.
     "Why Estonian?": "Навіщо вам естонська?",
@@ -466,7 +466,7 @@ export const START: Area = {
       "Досить, щоб замовити, запитати, подякувати й прочитати вивіску, не хапаючись за телефон.",
     "Curiosity": "Цікавість",
     "Fourteen cases, and words that change shape when you're not looking. Reason enough.":
-      "Чотирнадцять відмінків і слова, які змінюють форму, щойно відвернешся. Цілком достатня причина.",
+      "Чотирнадцять відмінків і слова, які змінюють форму, щойно ви відвернетеся. Цілком достатня причина.",
     "What level are you aiming for?": "До якого рівня ви прагнете?",
     "What level are you aiming for": "До якого рівня ви прагнете",
     "Get by": "Порозумітися",
@@ -492,7 +492,7 @@ export const START: Area = {
     "Your first words": "Ваші перші слова",
     "This copy of Kodukeel has no dictionary loaded yet, so there are no first words to give you. Whoever runs it can load one with {command}. You can still pick your pace below, and add words yourself as you come across them.":
       "У цій копії Kodukeel ще не завантажено словник, тож перших слів поки немає. Той, хто нею керує, може завантажити його командою {command}. А темп ви можете вибрати вже зараз, нижче, і додавати слова самі, коли їх зустрічатимете.",
-    "How much a day": "Скільки на день",
+    "How much a day": "Скільки часу на день",
     "changeable any time in Settings": "можна змінити в налаштуваннях",
     "Casual": "Спокійно",
     "Regular": "Регулярно",
@@ -503,7 +503,7 @@ export const START: Area = {
     "Tonight, and every night after": "Цей вечір і всі наступні",
     "You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.":
       "Вам ніколи не доведеться вирішувати, що вчити. Kodukeel планує за вас кожен вечір: які слова, у якому порядку і які ігри. Приблизно п'ятнадцять хвилин, а потім він скаже, що на сьогодні все.",
-    "You start at {part}": "Ви починаєте з {part}",
+    "You start at {part}": "Ви починаєте з частини {part}",
     "{evenings}, about {minutes} each.": "{evenings}, приблизно по {minutes}.",
     "Tonight is {title}, {words} and one short round.": "Сьогодні ввечері: {title}, {words} і один короткий раунд.",
     "The whole way to C1": "Увесь шлях до C1",

@@ -1397,7 +1397,7 @@ export const APP: Area = {
     "Deleting your data": "Видалення ваших даних",
     "You can delete everything this app keeps about you. That's {cards}, {reviews}, your tasks, your chats with Anu, your scanned word lists, your level checks, and every mock exam you sat, writing included. Any class you're in or run goes too, along with your badges and settings. The shared dictionary stays, because other learners have cards built on it.": "Ви можете видалити все, що застосунок зберігає про вас. Це {cards}, {reviews}, ваші завдання, розмови з Ану, відскановані списки слів, перевірки рівня та всі пробні іспити, які ви складали, разом із письмовими роботами. Групи, у яких ви є або які ведете, теж буде видалено, разом зі значками й налаштуваннями. Спільний словник залишиться, бо на ньому побудовано картки інших учнів.",
     "If there's any chance you'll want it back, download a backup first. Your review history and anything you wrote in an exam can't be rebuilt, and we don't keep a copy.": "Якщо є хоч найменший шанс, що все це вам ще знадобиться, спершу завантажте резервну копію. Історію повторень і все, що ви написали на іспиті, відновити не можна, а копії ми не зберігаємо.",
-    "Sign out": "Вийти",
+    "Sign out": "Вийти з облікового запису",
     "Delete everything": "Видалити все",
     "This can't be undone. Type {word} to confirm.": "Це не можна скасувати. Щоб підтвердити, надрукуйте {word}.",
     "Type delete to confirm": "Надрукуйте delete для підтвердження",
