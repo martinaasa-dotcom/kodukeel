@@ -10,7 +10,7 @@ import { MODULE_HOME, MODULE_PARAM, readFocus, type ModuleFocus } from "@/lib/co
 import { ModuleContext, ModuleNextContext, ModuleStepsContext, type ModuleStepRow } from "./moduleFocus";
 
 /**
- * TONIGHT'S MODULE, WITH THE REST OF THE WEBSITE TAKEN OFF THE SCREEN.
+ * TODAY'S MODULE, WITH THE REST OF THE WEBSITE TAKEN OFF THE SCREEN.
  *
  * The module screen is a decision made in advance and it was handing the
  * learner off to the ordinary app the moment they pressed a step. What that
@@ -32,7 +32,7 @@ import { ModuleContext, ModuleNextContext, ModuleStepsContext, type ModuleStepRo
  * screen, rail, phone bar and tutor's button, and it was reported the other
  * way: a learner three steps in had no idea where in the app they were and
  * nobody to ask about the card in front of them. So the rail is the ordinary
- * rail with Learn lit and tonight's steps hung under it, each one pressable,
+ * rail with Learn lit and today's steps hung under it, each one pressable,
  * the one you are on marked and the ones behind you ticked; a class group is
  * not drawn, since nothing about tonight is in it. Anu stays in her corner at
  * every width, and what goes is the phone bar alone. The cross is a phone's
@@ -89,7 +89,7 @@ export function ModuleScope({ children }: { children: ReactNode }) {
 }
 
 /**
- * TONIGHT'S STEPS, ASKED OF THE SERVER ONCE PER STEP.
+ * TODAY'S STEPS, ASKED OF THE SERVER ONCE PER STEP.
  *
  * Per step rather than once per evening, because pressing on is what ticks a
  * step and the rail has to show the tick on the screen that press opened. The
@@ -222,7 +222,7 @@ function ModuleNext({ focus, steps, onShown }: {
     <div ref={box} data-module-next="" className="dock-clear flex w-full flex-col items-center gap-2">
       <Button variant="primary" size="lg" onClick={carryOn} disabled={pending}>
         {last ? (
-          <>Finish tonight <ArrowRight size={16} aria-hidden /></>
+          <>Finish today's module <ArrowRight size={16} aria-hidden /></>
         ) : (
           <>
             {next ? `Next, step ${focus.n + 1}: ${next.title}` : `Next, step ${focus.n + 1}`}
@@ -424,7 +424,7 @@ function ModuleBar({ focus, atEnd }: { focus: ModuleFocus; atEnd: boolean }) {
           <Link
             href="/"
             data-module-leave=""
-            aria-label="Leave tonight's module and go back to Today"
+            aria-label="Leave today's module and go back to Today"
             className="tap-tint inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 text-sm font-semibold"
             style={{ color: "var(--ink-3)" }}
           >
@@ -460,7 +460,7 @@ function ModuleBar({ focus, atEnd }: { focus: ModuleFocus; atEnd: boolean }) {
             </Button>
           )}
           <ButtonLink href={MODULE_HOME} variant="secondary" className="shrink-0">
-            <ListChecks size={15} aria-hidden /> Tonight
+            <ListChecks size={15} aria-hidden /> Today's module
           </ButtonLink>
         </div>
         {failed && (

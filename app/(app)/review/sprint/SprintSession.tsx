@@ -68,7 +68,7 @@ export function SprintSession({
   cards: initialCards, best, seconds, canTranslate,
 }: { cards: SprintCard[]; best: number; seconds: number; canTranslate: boolean }) {
   const grade = useGrade();
-  /* Whether this round is a step of tonight's module, which decides whether
+  /* Whether this round is a step of today's module, which decides whether
      the note about the clock carries a link out of it. */
   const inModule = useModuleFocus() !== null;
   // Snapshotted once on mount, and never updated from later props. gradeCard()
@@ -179,7 +179,7 @@ export function SprintSession({
 
             WCAG 2.2.1 is met by the limit being adjustable before the round
             starts, which it is, in Settings, at up to ten times this. Inside
-            tonight's module a link out would land the learner on Settings with
+            today's module a link out would land the learner on Settings with
             the evening gone, so they are told the same thing and told where.
             See docs/08-ux-ia-a11y.md and lib/ux/roundClock.ts.
           */}

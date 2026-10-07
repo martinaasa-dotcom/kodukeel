@@ -114,7 +114,7 @@ export default async function WelcomePage() {
  */
 const ANU_LINES: readonly AnuLine[] = [
   { at: "top", mood: "happy", text: "Hi, I’m Anu, the tutor. Mind if I walk down the page with you?" },
-  { at: "who", mood: "happy", text: "Whichever one you are, you start the same way: fifteen minutes tonight." },
+  { at: "who", mood: "happy", text: "Whichever one you are, you start the same way: fifteen minutes today." },
   { at: "cases", mood: "thinking", text: "Press an ending and watch it snap on. That’s the whole trick, honestly." },
   { at: "evening", mood: "happy", text: "This really is how your first evening starts. Five new words, and then they come back to check on you." },
   { at: "talk", mood: "cheer", text: "Go on, order something. The person behind the counter is very patient." },

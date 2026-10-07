@@ -51,7 +51,7 @@ export default async function CrosswordPage() {
             <Empty
               title="Not enough words yet"
               body="Today's grid is built from your evenings' words, and there aren't enough to cross yet."
-              action={<ButtonLink href="/course">Tonight&rsquo;s evening</ButtonLink>}
+              action={<ButtonLink href="/course">Today&rsquo;s evening</ButtonLink>}
             />
           ) : (
             <Empty

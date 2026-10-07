@@ -10,7 +10,7 @@ import { useModuleFocus } from "@/components/course/moduleFocus";
  * The dictionary is one press from a great many words in this app, and that is
  * right nearly everywhere: a word in a table of forms or in the line saying
  * what it means is worth reading about, and the entry is where you read about
- * it. Inside a step of tonight's module it is a door out of the evening, and
+ * it. Inside a step of today's module it is a door out of the evening, and
  * the learner who takes one lands on the dictionary with the frame gone and
  * nothing saying how to get back.
  *

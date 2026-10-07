@@ -152,7 +152,7 @@ describe("when enough people have said it", () => {
  * The sentence a second press hands back.
  *
  * `deferWord` keeps a wait that is already standing where it reaches further
- * than tonight's would, and then has to say how long that one has left. A
+ * than today's would, and then has to say how long that one has left. A
  * remainder floored would read "0 days" over a word that is gone until
  * tomorrow, which is the fault `lib/time/duration.ts` states one directory
  * over about a figure whose smaller end rounds to a zero it is not.

@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
  * its own way: a mint wash on one, butter on the next, a bare icon and a
  * paragraph on the third. They are one moment, the same one the briefing is,
  * so they are one drawing and it is the briefing's: a night panel, the round's
- * name large, what it is in one paragraph, what is true of tonight's sitting
+ * name large, what it is in one paragraph, what is true of today's sitting
  * as chips, and the way in last.
  *
  * It draws the screen's one `h1`, so a caller does not wrap it in `Page`.
@@ -20,7 +20,7 @@ export function RoundStart({ icon, title, lead, children, chips, actions, footno
   lead?: ReactNode;
   /** What the round is, in a paragraph. */
   children?: ReactNode;
-  /** Facts about tonight's sitting: how long, how many, a personal best. */
+  /** Facts about today's sitting: how long, how many, a personal best. */
   chips?: ReactNode;
   /** The row of buttons, primary last. */
   actions: ReactNode;
@@ -65,7 +65,7 @@ export function RoundStart({ icon, title, lead, children, chips, actions, footno
   );
 }
 
-/** One fact about tonight's sitting, as a glass pill on the night panel. */
+/** One fact about today's sitting, as a glass pill on the night panel. */
 export function RoundChip({ icon, children }: { icon?: ReactNode; children: ReactNode }) {
   return (
     <span

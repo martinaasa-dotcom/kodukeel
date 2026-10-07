@@ -121,7 +121,7 @@ export default async function SprintPage({
     module adds those two and asks the forms in its rounds, so a sprint drawn
     off it was word flips under the name "Case Sprint" on the very evening that
     read the inessive. A production card of a noun is asked one of the cases
-    the module has read instead, tonight's about half the time, phrased by what
+    the module has read instead, today's about half the time, phrased by what
     it means: the word, `Say "in the house"`, and `majas` behind the flip.
     Graded onto that card with the case as its slot, the way the writing round
     grades a sentence, so the mastery count sees the facet that was practised.

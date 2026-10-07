@@ -303,7 +303,7 @@ export function Empty({ title, body, action, mood = "thinking" }: {
 
           Every one of these sends the reader somewhere that is not this
           screen, which is exactly right on a round somebody chose and wrong on
-          a step of tonight's module: a learner whose deck cannot fill a board
+          a step of today's module: a learner whose deck cannot fill a board
           would be handed the dictionary or the course, off the evening, with
           nothing saying how to get back. The way on is the frame's own button
           at the foot of the screen, and it is there whether the round could be

@@ -36,7 +36,7 @@ export const OPENS_WITHOUT_BRIEFING: Readonly<Record<string, string>> = {
     "stops asking what a word means and starts asking for it back. That change of question " +
     "inside one round is the thing this rule is about, and no wrapper at the page can see it.",
   "app/(app)/course/learn/page.tsx":
-    "Tonight's module opens the same ladder, with the same two screens, narrowed to the words " +
+    "Today's module opens the same ladder, with the same two screens, narrowed to the words " +
     "the evening has taught. A briefing at this page would be a third screen in front of the " +
     "ladder's own first one.",
   "app/(app)/situations/[id]/page.tsx":
