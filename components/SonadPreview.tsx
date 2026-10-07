@@ -35,7 +35,7 @@ export function SonadPreview({ href, why }: { href: string; why: string }) {
   return (
     <Card className="flex h-full flex-col">
       <SectionTitle hint="a new word every day">Today&rsquo;s game</SectionTitle>
-      <div className="flex flex-1 flex-col gap-5 sm:flex-row sm:items-center">
+      <div className="flex flex-1 flex-col gap-5">
         <div
           aria-hidden
           data-sonad-preview
@@ -76,7 +76,7 @@ export function SonadPreview({ href, why }: { href: string; why: string }) {
             ))}
           </div>
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0">
           <p className="font-display text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }} lang="et">
             Sõnad
           </p>
