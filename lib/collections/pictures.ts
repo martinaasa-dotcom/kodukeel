@@ -102,7 +102,7 @@ export const PICTURES: readonly Picture[] = [
       { emoji: "🧺", lemma: "korv" }, { emoji: "🧀", lemma: "juust" },
       { emoji: "🐟", lemma: "kala" },
     ],
-    example: { et: "Naine ostab turult tomateid ja porgandeid.", en: "The woman is buying tomatoes and carrots at the market." },
+    example: { et: "Naine ostab turul tomateid ja porgandeid.", en: "The woman is buying tomatoes and carrots at the market." },
   },
   {
     id: "winter",
@@ -158,7 +158,7 @@ export const PICTURES: readonly Picture[] = [
       { emoji: "🏡", lemma: "maja" }, { emoji: "👨", lemma: "mees" },
       { emoji: "☀️", lemma: "päike" }, { emoji: "🌳", lemma: "puu" },
     ],
-    example: { et: "Hobune ja lehm on põllul.", en: "The horse and the cow are in the field." },
+    example: { et: "Hobune ja lehm on karjamaal.", en: "The horse and the cow are in the pasture." },
   },
   {
     id: "classroom",
@@ -172,7 +172,7 @@ export const PICTURES: readonly Picture[] = [
       { emoji: "🧒", lemma: "laps" }, { emoji: "📓", lemma: "vihik" },
       { emoji: "🕐", lemma: "kell" },
     ],
-    example: { et: "Tüdruk kirjutab vihikusse.", en: "The girl is writing in her notebook." },
+    example: { et: "Tüdruk kirjutab vihikusse.", en: "The girl is writing in a notebook." },
   },
   {
     id: "forest",
@@ -214,7 +214,7 @@ export const PICTURES: readonly Picture[] = [
       { emoji: "👩", lemma: "naine" }, { emoji: "🧥", lemma: "mantel" },
       { emoji: "🌈", lemma: "vikerkaar" },
     ],
-    example: { et: "Vihma sajab ja naine kannab mantlit.", en: "It is raining and the woman is wearing a coat." },
+    example: { et: "Sajab vihma ja naine kannab mantlit.", en: "It is raining and the woman is wearing a coat." },
   },
   {
     id: "garden",

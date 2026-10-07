@@ -774,7 +774,7 @@ for (const [width, height] of [[390, 664], [360, 640]]) {
   */
   const text = await page.locator("main").innerText();
   check(`and it says what its three marks mean at ${width}x${height}`,
-    /in place/.test(text) && /in the word, elsewhere/.test(text) && /not in the word/.test(text),
+    /in place/.test(text) && /in the word/.test(text) && /not in it/.test(text),
     text.slice(0, 80).replace(/\n+/g, " "));
   await ctx.close();
 }
