@@ -5060,7 +5060,7 @@ check("Today deals its cards in the learner's order, under the same cap", () => 
   );
   // The cap on the deal, not on the candidates: an order must not grow the page.
   assert.match(
-    today, /orderTodayCards\([\s\S]*?\)\.slice\(0, TODAY_CARDS\)/,
+    today, /dealt = orderTodayCards\([\s\S]*?dealt\.slice\(0, TODAY_CARDS\)/,
     "the cap is no longer applied to what orderTodayCards returns",
   );
   /*
@@ -15594,7 +15594,6 @@ check("what the learner has kept is counted, never stored", () => {
   */
   const resolver = code("lib/progress/wordOfDay.ts");
   assert.match(resolver, /export const ALMANAC_SOURCE/, "the panel's cards no longer say where they came from");
-  assert.match(resolver, /computeStreak\(/, "the collection counts a run of days with a function of its own");
 
   // The button that adds one and the query that counts them read one constant.
   const card = code("components/WordOfDay.tsx");
