@@ -117,7 +117,7 @@ export default async function CommonRoundPage({ params }: {
             body={
               lexemeIds.length === 0
                 ? tr(locale, "This round comes from the dictionary, so there's nothing to ask until it's loaded.")
-                : fill(tr(locale, "Add the first {n} and you'll practise each one in all its forms."), { n: COMMON_BATCH })
+                : fill(tr(locale, "Add the first {n} and you'll practice each one in all its forms."), { n: COMMON_BATCH })
             }
             action={
               lexemeIds.length === 0

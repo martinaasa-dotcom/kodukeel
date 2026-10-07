@@ -96,7 +96,7 @@ function GroupCard({ section }: { section: CommonSection }) {
         )}
         {/* Collecting a hundred words is half of it; being asked them is the other. */}
         <ButtonLink href={`/review/common/${group.slug}`} variant="ghost">
-          <Play size={14} aria-hidden /> {t("Practise")}
+          <Play size={14} aria-hidden /> {t("Practice", "verb")}
         </ButtonLink>
       </div>
       {note && <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{note}</p>}

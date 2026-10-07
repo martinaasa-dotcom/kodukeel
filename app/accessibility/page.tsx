@@ -80,7 +80,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
 
       <S title={t("The standard")}>
         <P>
-          {rich(t("The target is **WCAG 2.2 level AA**, and through it **EN 301 549**, which is the European harmonised standard that public bodies and their suppliers are measured against and which adopts WCAG for web content."))}
+          {rich(t("The target is **WCAG 2.2 level AA**, and through it **EN 301 549**, which is the European harmonized standard that public bodies and their suppliers are measured against and which adopts WCAG for web content."))}
         </P>
       </S>
 
@@ -99,12 +99,12 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
         </P>
         <ul className="space-y-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <li>
-            {rich(t("**axe over every route.** {suite} loads every page the app has, not a chosen sample, and runs axe over each one, including its best-practice rules. Two screens are the exception so far, a marked paper and a scanned page, because each needs a row made before it exists; the containment suite below makes both and measures them, and axe does not reach them yet. It runs the whole sweep again in the dark theme, because light and dark are two palettes and a colour that clears the bar in one says nothing about the other. It runs it twice more at 390 pixels wide, which is a phone, because a phone here is different markup rather than the same markup narrower: the navigation rail is not drawn at all and a bar with a sheet behind it is drawn instead. That sheet is opened and swept too, since no address reaches it. It counts a one-character run of text as text, which is how a tick measured at 2.52 against a bar of 4.5 was found. Beyond axe it asserts exactly one main landmark and one heading per screen, a page title that is not the landing page’s, and Estonian marked so a screen reader does not read it with English phonics."), {
+            {rich(t("**axe over every route.** {suite} loads every page the app has, not a chosen sample, and runs axe over each one, including its best-practice rules. Two screens are the exception so far, a marked paper and a scanned page, because each needs a row made before it exists; the containment suite below makes both and measures them, and axe does not reach them yet. It runs the whole sweep again in the dark theme, because light and dark are two palettes and a color that clears the bar in one says nothing about the other. It runs it twice more at 390 pixels wide, which is a phone, because a phone here is different markup rather than the same markup narrower: the navigation rail is not drawn at all and a bar with a sheet behind it is drawn instead. That sheet is opened and swept too, since no address reaches it. It counts a one-character run of text as text, which is how a check mark measured at 2.52 against a bar of 4.5 was found. Beyond axe it asserts exactly one main landmark and one heading per screen, a page title that is not the landing page’s, and Estonian marked so a screen reader does not read it with English phonics."), {
               suite: suite("a11y-check.mjs"),
             })}
           </li>
           <li>
-            {rich(t("**Contrast measured rather than reasoned about.** {suite} reads the colours the browser actually painted and works out the ratio, in both themes, including states a page does not arrive in such as a row under a pointer. What a colour is worth depends on what it is sitting on, which no palette can tell you."), {
+            {rich(t("**Contrast measured rather than reasoned about.** {suite} reads the colors the browser actually painted and works out the ratio, in both themes, including states a page does not arrive in such as a row under a pointer. What a color is worth depends on what it is sitting on, which no palette can tell you."), {
               suite: suite("test-design.mjs"),
             })}
           </li>
@@ -120,7 +120,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
           </li>
         </ul>
         <P>
-          {t("Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Colour is never the only thing carrying a distinction, so a correct answer says so in words as well as in colour.")}
+          {t("Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Color is never the only thing carrying a distinction, so a correct answer says so in words as well as in color.")}
         </P>
         <P>
           {rich(t("**The three timed practice rounds can be set to run longer** (WCAG 2.2.1, Timing Adjustable). The Case Sprint is a minute, the daily quest is two minutes, and Target gives eight seconds a question, and all of those are now a starting point rather than the whole story: one setting stretches whichever round you open, up to ten times as long, which is the figure the criterion itself asks for. It is chosen before the round starts, in Settings, and every one of those start screens links to it. The clock stays, because a speed round without one is a different round, and what was shutting people out was that the length was not theirs to set."))}
@@ -142,13 +142,13 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
             {rich(t("**The listening, dictation and minimal-pair rounds require hearing** (WCAG 1.2.1). There is no transcript before the answer, because the transcript is the answer, so a text alternative would remove the exercise. The text is shown as soon as the answer is in. Somebody who cannot use audio can use every other round, and the app does not require any of these three to make progress, but three rounds are closed to them."))}
           </li>
           <li>
-            {rich(t("**Speaking practice needs a microphone** and asks the learner to judge their own attempt against a native rendering, because no recogniser available to this project is accurate enough on Estonian to mark one. Anybody who cannot record has no way through that round."))}
+            {rich(t("**Speaking practice needs a microphone** and asks the learner to judge their own attempt against a native rendering, because no recognizer available to this project is accurate enough on Estonian to mark one. Anybody who cannot record has no way through that round."))}
           </li>
           <li>
             {rich(t("**axe is swept at two widths, not at every width.** It runs at 1280 and at 390, which is either side of the one breakpoint that swaps the navigation, so the phone bar and the sheet behind it are covered now. The widths between them, 360, 430 and 768, are measured for targets, overflow and containment and are not swept by axe. A fault in markup that appears at one of those and at neither of these would be found by a person rather than by the build."))}
           </li>
           <li>
-            {rich(t("**Screens behind data are less covered.** The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with pupils in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them."))}
+            {rich(t("**Screens behind data are less covered.** The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with students in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them."))}
           </li>
           <li>
             {rich(t("**Reflow is checked at three widths rather than at 400% zoom.** The widths are 360, 768 and 1280, which covers the cases the app was designed for. WCAG asks the question in terms of zoom, and that exact test has not been run."))}

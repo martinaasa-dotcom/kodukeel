@@ -148,7 +148,7 @@ export default async function GovernmentPage({
     return (
       <Page title={tr(locale, "Verb government")} lead={tr(locale, "Every verb wants a certain case after it, and English won't tell you which.")}>
         <Empty
-          title={tr(locale, "No verbs to practise yet")}
+          title={tr(locale, "No verbs to practice yet")}
           body={tr(locale, "Look up a few verbs in the dictionary. Each one comes with the case it takes.")}
           action={<ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>}
         />

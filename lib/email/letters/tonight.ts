@@ -106,17 +106,37 @@ function minutesLeft(steps: readonly StepRow[]): number {
  */
 function subjectFor(input: TonightInput): string {
   const say = sayer(input.locale);
+  const title = titled(input);
   const done = input.day.steps.filter((s) => s.done).length;
   const left = input.day.steps.length - done;
   if (done > 0 && left > 0) {
     return left === 1
-      ? say("One step left in {title}", { title: input.day.title })
+      ? say("One step left in {title}", { title })
       : say("{steps} left in {title}", {
           steps: spelled(input.locale, left, "step", { capital: true }),
-          title: input.day.title,
+          title,
         });
   }
-  return newWordsLine(input.locale, input.day.newWords) ?? say("Back to {title} tonight", { title: input.day.title });
+  return newWordsLine(input.locale, input.day.newWords) ?? say("Back to {title} tonight", { title });
+}
+
+/**
+ * The evening's name as a sentence carries it. English sets it bare; Russian
+ * and Ukrainian quote it, since it follows a noun there ("в занятии «Kodus»")
+ * and an unquoted title mid-sentence reads as a word out of place.
+ */
+function titled(input: TonightInput): string {
+  return input.locale === "en" ? input.day.title : `«${input.day.title}»`;
+}
+
+/**
+ * Whether a line may open on the learner's name. Ukrainian addresses somebody
+ * in the vocative ("Олено"), which a name typed into a form cannot be put in,
+ * so a Ukrainian letter takes the line that names nobody rather than one that
+ * gets the name's ending wrong. Russian addresses in the nominative and keeps it.
+ */
+function addressable(input: TonightInput): string | null {
+  return input.locale === "uk" ? null : input.name || null;
 }
 
 /**
@@ -165,10 +185,6 @@ export function tonightLetter(input: TonightInput): Letter {
   /* English lowers the subtitle to set it mid-sentence; Russian and Ukrainian
      quote it whole, since it reads as the evening's name there. */
   const subtitle = locale === "en" ? lowerFirst(day.subtitle) : `«${day.subtitle}»`;
-  /* Ukrainian addresses a person in the vocative, which a name somebody typed
-     cannot be put into, and the nominative in direct address is wrong. So a
-     Ukrainian letter says the same sentence without the name. */
-  const name = locale === "uk" ? null : input.name;
 
   /*
     THE OPENING IS THE FACT, NOT THE GREETING.
@@ -185,7 +201,8 @@ export function tonightLetter(input: TonightInput): Letter {
       text: left <= 1 ? say("You're nearly done for tonight.") : say("About {minutes} minutes to go tonight.", { minutes: left }),
     });
     const steps = spelled(locale, done, "step");
-    const where = partOf(input, day.title);
+    const where = partOf(input, titled(input));
+    const name = addressable(input);
     blocks.push({
       t: "text",
       text: name
@@ -203,13 +220,14 @@ export function tonightLetter(input: TonightInput): Letter {
     const evening = partOf(input, subtitle);
     /* The can-do opens on a verb in all three, so lowering it sets it after "able to". */
     const canDo = lowerFirst(day.canDo);
+    const name = addressable(input);
     blocks.push({
       t: "text",
       text: name
         ? say("{name}, this is {title}, {evening}. By the end you'll be able to {canDo}", {
-            name, title: day.title, evening, canDo,
+            name, title: titled(input), evening, canDo,
           })
-        : say("{title}, {evening}. By the end you'll be able to {canDo}", { title: day.title, evening, canDo }),
+        : say("{title}, {evening}. By the end you'll be able to {canDo}", { title: titled(input), evening, canDo }),
     });
   }
 

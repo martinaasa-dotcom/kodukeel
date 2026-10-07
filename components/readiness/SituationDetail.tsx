@@ -11,6 +11,7 @@ import { RUNG_INK, RungChip } from "./Rung";
 import { SCENES } from "@/lib/scenes/catalogue";
 import { Explain } from "@/components/Explain";
 import { fill, tr, type Locale } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 import { sayIn } from "@/lib/copy/said";
 
 /**
@@ -58,7 +59,7 @@ export function SituationDetail({
         </p>
         {rung === "unmet" ? (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-            {fill(t("You haven't practised any of these {total} words yet. Start with the unit they come from."), { total })}
+            {fill(t("You haven't practiced any of these {total} words yet. Start with the unit they come from."), { total })}
           </p>
         ) : (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
@@ -208,9 +209,9 @@ export function SituationDetail({
 
       {situation.live && (
         <Explain label={t("What this page doesn't measure")}>
-          {t("Nothing on this page has heard you speak. How you sound is yours to judge, in")}{" "}
-          <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>{t("speaking practice")}</Link>
-          {t(", and no number here pretends otherwise.")}
+          {fillNodes(t("Nothing on this page has heard you speak. How you sound is yours to judge, in {link}, and no number here pretends otherwise."), {
+            link: <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>{t("speaking practice")}</Link>,
+          })}
         </Explain>
       )}
     </div>

@@ -165,7 +165,7 @@ export const CONTINUITY: readonly Continuity[] = [
   {
     id: "licence",
     claim:
-      "The code is MIT and the built dictionary carries the licences of the sources "
+      "The code is MIT and the built dictionary carries the licenses of the sources "
       + "it was made from. Anybody may run their own copy, including the institutions "
       + "whose data it was built on, and nobody needs permission to.",
     checkableAt: "LICENSE",

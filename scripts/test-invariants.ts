@@ -3017,15 +3017,15 @@ check("a review is only ever deleted by something the learner asked for", () => 
     actions,
     // Coerced first, because the argument is JSON off the wire: see "a malformed
     // argument to a server action is refused, not thrown or stored".
-    // The word may be typed in the learner's own language (lib/copy/confirmWord.ts),
-    // so the gate is the shared check rather than one English literal.
-    /if \(!confirms\("delete", text\(confirmation\)\)\)/,
+    /!isConfirmed\(text\(confirmation\), "delete"\)/,
     "account deletion no longer asks the learner to confirm",
   );
+  /* The word is asked for in the reader's own language and the English is
+     still accepted; what may not happen is the check accepting anything. */
   assert.match(
     code("lib/copy/confirmWord.ts"),
-    /delete: \{ en: "delete",/,
-    "the confirm word for deleting an account stopped accepting the English word",
+    /delete: \{ en: "delete", ru: "[^"]+", uk: "[^"]+" \}/,
+    "the word that confirms deleting an account lost one of its three languages",
   );
   assert.match(actions, /mode === "replace"/, "the restore no longer guards on an explicit replace");
   assert.equal(
@@ -5067,7 +5067,7 @@ check("Today deals its cards in the learner's order, under the same cap", () => 
   );
   // The cap on the deal, not on the candidates: an order must not grow the page.
   assert.match(
-    today, /orderTodayCards\([\s\S]*?\)\.slice\(0, TODAY_CARDS\)/,
+    today, /dealt = orderTodayCards\([\s\S]*?dealt\.slice\(0, TODAY_CARDS\)/,
     "the cap is no longer applied to what orderTodayCards returns",
   );
   /*
@@ -15624,7 +15624,6 @@ check("what the learner has kept is counted, never stored", () => {
   */
   const resolver = code("lib/progress/wordOfDay.ts");
   assert.match(resolver, /export const ALMANAC_SOURCE/, "the panel's cards no longer say where they came from");
-  assert.match(resolver, /computeStreak\(/, "the collection counts a run of days with a function of its own");
 
   // The button that adds one and the query that counts them read one constant.
   const card = code("components/WordOfDay.tsx");

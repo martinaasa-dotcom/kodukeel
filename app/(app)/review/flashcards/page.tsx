@@ -82,7 +82,7 @@ export default async function FlashcardsPage({
     return (
       <Page title={tr(locale, "Flash cards")} lead={tr(locale, "Words you've met, asked in a way you haven't seen yet.")}>
         <Empty
-          title={words.length === 0 ? tr(locale, "No words to practise yet") : tr(locale, "You've mastered every word you've met")}
+          title={words.length === 0 ? tr(locale, "No words to practice yet") : tr(locale, "You've mastered every word you've met")}
           body={
             words.length === 0
               ? tr(locale, "This works on words you've already met. Review a few and they'll turn up here.")

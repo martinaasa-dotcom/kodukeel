@@ -91,10 +91,19 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
     <Page
       eyebrow={
         <>
-          {result.level}
-          {result.number ? fill(t(", paper {n}"), { n: result.number }) : ""}
-          {result.part ? t(`, ${SKILL_LABEL[result.part].toLowerCase()} only`) : ""}{t(", sat")}{" "}
-          <DateText iso={attempt.finishedAt.toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
+          {/* One sentence per shape rather than four pieces glued in English
+              order, and "sat" kept apart from "passed" in every language. */}
+          {fillNodes(t(
+            result.number && result.part ? "{level}, paper {n}, {part} only, sat {date}"
+              : result.number ? "{level}, paper {n}, sat {date}"
+              : result.part ? "{level}, {part} only, sat {date}"
+              : "{level}, sat {date}",
+          ), {
+            level: result.level,
+            n: result.number ?? "",
+            part: result.part ? t(SKILL_LABEL[result.part]).toLocaleLowerCase(locale) : "",
+            date: <DateText iso={attempt.finishedAt.toISOString()} zone={clock.zone} options={DATE_AND_TIME} />,
+          })}
         </>
       }
       title={
@@ -213,11 +222,11 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                   <span className="text-md font-semibold" style={{ color: "var(--ink)" }}>
                     {t(part.label)}
                   </span>
-                  <span lang="et" className="ml-2 text-sm" style={{ color: "var(--ink-3)" }}>
+                  <span lang="et" className="ml-2 whitespace-nowrap text-sm" style={{ color: "var(--ink-3)" }}>
                     {SKILL_ET[part.skill]}
                   </span>
                 </span>
-                <span className="tnum text-lg font-bold" style={{ color: "var(--ink)" }}>
+                <span className="tnum shrink-0 text-lg font-bold" style={{ color: "var(--ink)" }}>
                   {part.rawAvailable === 0 ? NO_VALUE : part.points}
                   {part.rawAvailable > 0 && (
                     <span className="text-sm font-normal" style={{ color: "var(--ink-3)" }}>
@@ -429,9 +438,9 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                                 <ul className="grid gap-1.5">
                                   {blank.map((mark) => (
                                     <li key={mark.itemId} className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                                      {mark.prompt && <span lang="et" className="mr-2">{mark.prompt}</span>}
+                                      {mark.prompt && <span className="mr-2" {...promptLang(mark, locale)}>{promptIn(mark, locale)}</span>}
                                       <span className="font-semibold" style={{ color: "var(--sky-ink)" }} lang={mark.language === "et" ? "et" : undefined}>
-                                        {mark.expected}
+                                        {expectedIn(mark, locale)}
                                       </span>
                                     </li>
                                   ))}
@@ -554,8 +563,8 @@ function WrongAnswer({ mark, locale }: { mark: ItemMark; locale: Locale }) {
   return (
     <Card as="li" className="!py-3">
       {mark.prompt && (
-        <p className="mb-2 text-md leading-relaxed" style={{ color: "var(--ink)" }} lang={mark.promptLanguage === "en" ? undefined : "et"}>
-          {mark.prompt}
+        <p className="mb-2 text-md leading-relaxed" style={{ color: "var(--ink)" }} {...promptLang(mark, locale)}>
+          {promptIn(mark, locale)}
         </p>
       )}
       {/* The answer and what was written, each in the palette's own word for
@@ -567,7 +576,7 @@ function WrongAnswer({ mark, locale }: { mark: ItemMark; locale: Locale }) {
           lang={et ? "et" : undefined}
         >
           <Check size={14} aria-label={t("The answer")} />
-          {mark.expected}
+          {expectedIn(mark, locale)}
         </span>
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("you wrote")}</span>
         <span
@@ -576,12 +585,46 @@ function WrongAnswer({ mark, locale }: { mark: ItemMark; locale: Locale }) {
           lang={et && mark.given ? "et" : undefined}
         >
           <X size={14} aria-label={t("Your answer")} />
-          {mark.given || NO_VALUE}
+          {givenIn(mark, locale) || NO_VALUE}
         </span>
       </div>
       {mark.note && (
-        <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{t(mark.note)}</p>
+        <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{noteIn(mark, locale)}</p>
       )}
     </Card>
   );
+}
+
+/*
+  A written task's lines in the learner's language, off the templates the
+  marker kept; a mark stored before it kept them is printed as it was.
+*/
+function expectedIn(mark: ItemMark, locale: Locale): string {
+  return mark.said ? sayIn(locale, mark.said.expected) : mark.expected;
+}
+function givenIn(mark: ItemMark, locale: Locale): string {
+  return mark.said && mark.given ? sayIn(locale, mark.said.given) : mark.given;
+}
+function noteIn(mark: ItemMark, locale: Locale): string {
+  return mark.said ? mark.said.note.map((s) => sayIn(locale, s)).join(" ") : tr(locale, mark.note);
+}
+
+/*
+  The prompt's language, said. A sentence asked about is Estonian. A written
+  or spoken task's brief is built from the paper's own tables and kept as a
+  template beside its English (`promptSaid`), so it is said in the learner's
+  language and carries theirs. A mark stored before the template existed has
+  only the English, and says so: `data-untranslated` is what
+  `scripts/test-locales.mjs` counts as a known gap rather than a new leftover.
+*/
+function promptLang(mark: ItemMark, locale: Locale): { lang: string; "data-untranslated"?: string } {
+  if (mark.promptLanguage !== "en") return { lang: "et" };
+  if (locale === "en") return { lang: "en" };
+  return mark.promptSaid ? { lang: locale } : { lang: "en", "data-untranslated": "exam brief" };
+}
+
+/** The prompt itself, in the learner's language where the mark kept its template. */
+function promptIn(mark: ItemMark, locale: Locale): string | undefined {
+  if (mark.promptLanguage !== "en" || locale === "en" || !mark.promptSaid) return mark.prompt;
+  return sayIn(locale, mark.promptSaid);
 }

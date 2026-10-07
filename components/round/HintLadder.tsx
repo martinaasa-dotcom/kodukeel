@@ -124,7 +124,7 @@ export function HintLadder({
             and waived eight checks saying the deck never repeated a word.
           */
           aria-label={fill(t(taken === 0 ? "Get a hint for {word}" : "{hint} for {word}"), { word: t(label), hint: hintLabel(next, locale) })}
-          className="tap-tint flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold"
+          className="tap-tint flex flex-wrap items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-semibold"
           style={{ color: "var(--ink-3)" }}
         >
           <Lightbulb size={14} aria-hidden />
@@ -135,7 +135,7 @@ export function HintLadder({
             the half of this button somebody deciding whether to press again is
             actually reading.
           */}
-          <span aria-hidden>{left > 1 ? fill(t("({n} left)"), { n: left }) : t("(last one)")}</span>
+          <span aria-hidden className="whitespace-nowrap">{left > 1 ? fill(t("({n} left)"), { n: left }) : t("(last one)")}</span>
         </button>
       )}
       {taken > 0 && graded && (

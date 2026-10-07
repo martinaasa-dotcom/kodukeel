@@ -482,7 +482,7 @@ function Marked({ result }: { result: DictationResult }) {
                 pronounced as Estonian in the visual reading.
               */
               aria-label={`${shown}, ${t(tone.label)}${
-                word.typed && word.typed !== shown ? fill(t(". You typed {typed}"), { typed: word.typed }) : ""
+                word.typed && word.typed !== shown ? `. ${fill(t("You typed {typed}."), { typed: word.typed })}` : ""
               }`}
               className={`${tone.className} flex flex-col items-center rounded-[var(--r-sm)] px-2 py-1`}
               style={word.status === "extra" ? { background: "var(--raised)", color: "var(--ink-3)" } : undefined}

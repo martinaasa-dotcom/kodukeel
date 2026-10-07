@@ -17,6 +17,7 @@ import { Card, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@
 import { ArchiveClass, AssignHomework, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
 import { localeFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 import { filled } from "@/components/Filled";
 import { Explain } from "@/components/Explain";
 import { caseByKey } from "@/lib/estonian/cases";
@@ -318,16 +319,20 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                           />
                           {h.dueAt && (
                             <>
-                              {t(", due ")}
-                              {/* A day rather than an instant, stored at midnight UTC,
-                                  so it is printed in UTC: in the reader's own zone it
-                                  named the day before anywhere west of Greenwich. */}
-                              <LocalDate
-                                iso={h.dueAt.toISOString()}
-                                zone="UTC"
-                                options={DUE_DATE_FORMAT}
-                                fallback={h.dueAt.toLocaleDateString(undefined, DUE_DATE_FORMAT)}
-                              />
+                              {", "}
+                              {fillNodes(t("due {date}"), {
+                                /* A day rather than an instant, stored at midnight UTC,
+                                   so it is printed in UTC: in the reader's own zone it
+                                   named the day before anywhere west of Greenwich. */
+                                date: (
+                                  <LocalDate
+                                    iso={h.dueAt.toISOString()}
+                                    zone="UTC"
+                                    options={DUE_DATE_FORMAT}
+                                    fallback={h.dueAt.toLocaleDateString(undefined, DUE_DATE_FORMAT)}
+                                  />
+                                ),
+                              })}
                             </>
                           )}
                         </span>

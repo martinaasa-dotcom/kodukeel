@@ -186,7 +186,7 @@ export const SERVICES: readonly Service[] = [
     name: "The language model",
     who: "Google, with Groq behind it, and Anthropic or OpenAI as a paid fallback everywhere but Anu",
     does: "Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.",
-    whenItIsGone: "Anu says she can't reach anyone. Review, the dictionary and every drill carry on as normal.",
+    whenItIsGone: "Anu says she can't reach anyone. Review, the dictionary and every drill keep working as normal.",
     setBy: "GEMINI_API_KEY",
     ref: {
       // The page the Gemini rows in lib/usage/pricing.ts were read off, since

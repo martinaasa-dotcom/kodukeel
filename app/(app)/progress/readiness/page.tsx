@@ -13,6 +13,7 @@ import { RUNG_LABEL } from "@/lib/readiness/rungs";
 import { Explain } from "@/components/Explain";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 
 export async function generateMetadata() {
   return titleFor("In real life");
@@ -173,8 +174,9 @@ export default async function ReadinessPage() {
         })}
 
         <Explain label={t("What this page does not measure")}>
-          {t("Nothing here has heard you speak, and no number on this page pretends it has. How you sound is yours to judge, in")}{" "}
-          <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>{t("speaking practice")}</Link>.
+          {fillNodes(t("Nothing here has heard you speak, and no number on this page pretends it has. How you sound is yours to judge, in {link}."), {
+            link: <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>{t("speaking practice")}</Link>,
+          })}
         </Explain>
       </Stack>
     </Page>

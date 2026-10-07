@@ -42,7 +42,7 @@ export const COHORT_LABEL: Record<CohortKind, string> = {
 
 export const COHORT_DETAIL: Record<CohortKind, string> = {
   CLASS: "You're the teacher. You'll see who's keeping up and which case each person finds hardest.",
-  WORKPLACE: "You're the sponsor. You'll see who's practising and who's on track, but never their mistakes.",
+  WORKPLACE: "You're the sponsor. You'll see who's practicing and who's on track, but never their mistakes.",
 };
 
 /**

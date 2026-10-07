@@ -211,7 +211,7 @@ export default async function GrammarIndexPage() {
               {t("Words that break the pattern")}
             </span>
             <span className="mt-1.5 block text-sm" style={{ color: "var(--ink-2)" }}>
-              {t("Some words go their own way, like tuba becoming tuppa, and when a word's stem changes, eleven cases change with it. Here's which words do that, and how to practise them.")}
+              {t("Some words go their own way, like tuba becoming tuppa, and when a word's stem changes, eleven cases change with it. Here's which words do that, and how to practice them.")}
             </span>
           </span>
         </Link>

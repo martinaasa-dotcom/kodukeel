@@ -21,6 +21,8 @@ import { PUBLIC } from "./areas/public";
 import { MEANING } from "./areas/meaning";
 import { SPEAKERS } from "./areas/speakers";
 import { NEWCOMERS } from "./areas/newcomers";
+import { SWEEP } from "./areas/sweep";
+import { EXAM } from "./areas/exam";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -49,4 +51,6 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["meaning", MEANING],
   ["speakers", SPEAKERS],
   ["newcomers", NEWCOMERS],
+  ["sweep", SWEEP],
+  ["exam", EXAM],
 ];

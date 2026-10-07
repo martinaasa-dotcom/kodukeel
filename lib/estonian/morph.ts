@@ -396,8 +396,21 @@ export function formLabel(form: {
   formType?: string | null;
   morphCode?: string | null;
   morphName?: string | null;
-}): string {
+}, say: (english: string) => string = (english) => english): string {
   const name = formName(form);
   if (!name) return (form.formType ?? form.morphCode ?? "").replace(/^EKILEX:/, "");
-  return name.et === name.en ? name.et : `${name.et} (${name.en})`;
+  return name.et === name.en ? name.et : `${name.et} (${sayEnglish(name.en, say)})`;
+}
+
+/**
+ * The English half put into the reader's language by `say`, piece by piece:
+ * a name like "into what? where to?, the short one" is two lines a table can
+ * hold rather than one it never will. The Estonian half is never passed.
+ */
+function sayEnglish(english: string, say: (english: string) => string): string {
+  for (const tail of ["the short one", "plural"]) {
+    const marked = `, ${tail}`;
+    if (english.endsWith(marked)) return `${say(english.slice(0, -marked.length))}, ${say(tail)}`;
+  }
+  return say(english);
 }

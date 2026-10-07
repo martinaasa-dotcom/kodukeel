@@ -124,6 +124,17 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
   */
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
+  /*
+    Figures and dates the way the reader writes them: a decimal comma and a
+    grouping space in Russian and Ukrainian, and a date in their own words.
+    The facts file holds its dates as English strings, so English reads them
+    as written and the other two re-read them as a day.
+  */
+  const tag = locale === "en" ? "en-GB" : locale;
+  const num = (n: number | undefined) => (n === undefined ? "" : n.toLocaleString(tag));
+  const dayOf = (day: string) => (locale === "en"
+    ? day
+    : new Intl.DateTimeFormat(tag, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${day} UTC`)));
   const privacyLink = (label: string) => (
     <Link href={href("/privacy")} className="underline underline-offset-2">{t(label)}</Link>
   );
@@ -131,10 +142,10 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
   return (
     <Legal title={t("Funding")} updated="2 September 2026" locale={locale} explicit={explicit} path="/funding">
       <P>
-        {t("Kodukeel is free to use, there’s nothing to buy, and nothing about you is sold. This page shows the sums behind that sentence: what the app runs on, what each piece costs, who’s paying for the copy you’re reading, and what would change if somebody funded it.")}
+        {t("Kodukeel is free to use, there’s nothing to buy, and nothing about you is sold. This page shows the math behind that sentence: what the app runs on, what each piece costs, who’s paying for the copy you’re reading, and what would change if somebody funded it.")}
       </P>
       {locale !== "en" && (
-        <P>{t("The figures and the sums are the same in every language. The working the calculator shows for each line, and the numbers it had to judge, are still in English.")}</P>
+        <P>{t("The figures and the math are the same in every language. The working the calculator shows for each line, and the numbers it had to judge, are still in English.")}</P>
       )}
 
       <S title={t("Who pays for this copy")}>
@@ -222,7 +233,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
 
       <S title={t("What it comes to")}>
         <P>
-          {t("Move the slider. Nothing here is stored or sent anywhere. The sums run in your browser, using the same code the app itself uses to decide when to stop spending.")}
+          {t("Move the slider. Nothing here is stored or sent anywhere. The math runs in your browser, using the same code the app itself uses to decide when to stop spending.")}
         </P>
         <LocaleProvider locale={locale}>
           <CostExplorer />
@@ -232,7 +243,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
       <S title={t("What was measured, and how")}>
         <P>
           {fill(t("Taken on {day}, against Postgres 16 on one machine and a production build served locally. Each row says what to run to get the same number, because a figure nobody can reproduce is a claim rather than a measurement."), {
-            day: MEASURED_ON,
+            day: dayOf(MEASURED_ON),
           })}
         </P>
         {/* Focusable, because a region that scrolls sideways on a phone has to be
@@ -267,7 +278,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
       <S title={t("Where the prices came from")}>
         <P>
           {fill(t("Read on {day}. These are the numbers most likely to be out of date by the time you read this, which is why they carry a date rather than being folded into the total."), {
-            day: PRICES_CHECKED,
+            day: dayOf(PRICES_CHECKED),
           })}
         </P>
         <ul className="space-y-1.5 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -275,8 +286,8 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
             <Priced href={VERCEL.ref.source} label="Vercel" />
             {": "}
             {fill(t("${base} a month, then ${rate} a gigabyte out past the first {gb}."), {
-              base: VERCEL.pro.baseUsd,
-              rate: VERCEL.overage.perTransferGb,
+              base: num(VERCEL.pro.baseUsd),
+              rate: num(VERCEL.overage.perTransferGb),
               gb: VERCEL.pro.included.transferGb?.toLocaleString(locale === "en" ? "en-GB" : locale) ?? "",
             })}
           </li>
@@ -284,17 +295,17 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
             <Priced href={SUPABASE.ref.source} label="Supabase" />
             {": "}
             {fill(t("${base} a month with {db} GB of database, {files} GB of files and ${credit} of compute credit."), {
-              base: SUPABASE.pro.baseUsd,
-              db: SUPABASE.pro.included.dbGb ?? "",
-              files: SUPABASE.pro.included.storageGb ?? "",
-              credit: SUPABASE.computeCreditUsd,
+              base: num(SUPABASE.pro.baseUsd),
+              db: num(SUPABASE.pro.included.dbGb),
+              files: num(SUPABASE.pro.included.storageGb),
+              credit: num(SUPABASE.computeCreditUsd),
             })}
           </li>
           <li>
             <Priced href={COMPUTE.ref.source} label={t("Database instances")} />
             {": "}
             {fill(t("from ${low} a month to ${high}. This is the steepest ladder on the page."), {
-              low: COMPUTE.sizes[0]!.usd,
+              low: num(COMPUTE.sizes[0]!.usd),
               high: COMPUTE.sizes[COMPUTE.sizes.length - 1]!.usd.toLocaleString(locale === "en" ? "en-GB" : locale),
             })}
           </li>
@@ -302,24 +313,24 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
             <Priced href={SPEECH_MARKET.ref.source} label={t("Speech")} />
             {": "}
             {fill(t("${rate} a million characters, which is what {who} charge. TartuNLP charge nothing. That rate is here only to show the size of what they give, and it is in no total on this page."), {
-              rate: SPEECH_MARKET.usdPerMillionCharacters,
-              who: SPEECH_MARKET.equivalentOf,
+              rate: num(SPEECH_MARKET.usdPerMillionCharacters),
+              who: t(SPEECH_MARKET.equivalentOf),
             })}
           </li>
           <li>
             <Priced href={EMAIL.ref.source} label="Resend" />
             {": "}
             {fill(t("${base} a month for {emails} emails, then ${rate} a thousand."), {
-              base: EMAIL.pro.baseUsd,
+              base: num(EMAIL.pro.baseUsd),
               emails: EMAIL.pro.included.emails?.toLocaleString(locale === "en" ? "en-GB" : locale) ?? "",
-              rate: EMAIL.overage.perThousandEmails,
+              rate: num(EMAIL.overage.perThousandEmails),
             })}
           </li>
           <li>
             <Priced href={ERRORS.ref.source} label={t("Error reporting")} />
             {": "}
             {fill(t("${base} a month for {events} events."), {
-              base: ERRORS.team.baseUsd,
+              base: num(ERRORS.team.baseUsd),
               events: ERRORS.team.included.events?.toLocaleString(locale === "en" ? "en-GB" : locale) ?? "",
             })}
           </li>
@@ -327,14 +338,14 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
             <Priced href={DEVTOOLS.ref.source} label={DEVTOOLS.plan} />
             {": "}
             {fill(t("{eur} euros a month. The tooling that writes and maintains this, which is the one line here that is not runtime and the one that does not grow."), {
-              eur: DEVTOOLS.eurPerMonth,
+              eur: num(DEVTOOLS.eurPerMonth),
             })}
           </li>
           <li>
             <Priced href={FX.ref.source} label={t("The euro")} />
             {": "}
             {fill(t("{usd} dollars, the European Central Bank’s reference rate. Two lines here are billed in euros and the rest in dollars, and every price is net of VAT, which is how each vendor quotes its own."), {
-              usd: FX.usdPerEur,
+              usd: num(FX.usdPerEur),
             })}
           </li>
           <li>
@@ -416,7 +427,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           </P>
         ))}
         <P>
-          {t("Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a licence that lets somebody else pick it up.")}
+          {t("Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a license that lets somebody else pick it up.")}
         </P>
       </S>
 
@@ -427,7 +438,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           })}
         </P>
         <P>
-          {t("Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a pupil is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.")}
+          {t("Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a student is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.")}
         </P>
       </S>
     </Legal>

@@ -265,7 +265,8 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
       ? `That's your first in the last ${days} days.`
       : `That makes ${held} in the last ${days} days.`
     : fill(t(held === 1 ? "That's your first in the last {days}." : "That makes {held} in the last {days}."), {
-      held, days: countOf(locale, days, "day"),
+      /* "за последние 30 дней": the accusative after "за". */
+      held, days: countOf(locale, days, "day", "acc"),
     });
   const next = NEXT[answer];
 
@@ -290,7 +291,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
       {next && (
         <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
           {t(next)}{" "}
-          <Link href={rehearsal(errand)} className="underline">{t("Practise one here now")}</Link>.
+          <Link href={rehearsal(errand)} className="underline">{t("Practice one here now")}</Link>.
         </p>
       )}
       {/*
@@ -398,5 +399,5 @@ const REPLY: Record<Conversation, string> = {
 const NEXT: Record<Conversation, string | null> = {
   UNDERSTOOD: null,
   STUCK: "Running out of words costs nothing in a practice conversation, and the person there will wait while you find them.",
-  SWITCHED: "They can switch to English in there too, so you can practise steering it back to Estonian.",
+  SWITCHED: "They can switch to English in there too, so you can practice steering it back to Estonian.",
 };

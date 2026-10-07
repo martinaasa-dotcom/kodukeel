@@ -192,7 +192,7 @@ const anuLines = ({ t }: Say): readonly AnuLine[] => [
   { at: "talk", mood: "cheer", text: t("Go on, order something. The person behind the counter is very patient.") },
   { at: "features", mood: "happy", text: t("Ask me the thing you’d be too shy to ask in class. I never sigh.") },
   { at: "compare", mood: "thinking", text: t("Keep your class. I’m here for the evenings in between.") },
-  { at: "plan", mood: "happy", text: t("Have a play with it. Inside, I do the same sum with your real pace.") },
+  { at: "plan", mood: "happy", text: t("Play around with it. Inside, I do the same math with your real pace.") },
   { at: "faq", mood: "thinking", text: t("Short, straight answers. How we compare with other apps is the last one.") },
   { at: "start", mood: "cheer", text: t("Fifteen minutes a day. See you inside.") },
 ];
@@ -468,7 +468,7 @@ const whoCards = ({ t, href }: Say) => [
     icon: Heart,
     tone: "blush",
     title: t("You love someone who speaks it"),
-    body: t("Their mum on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it."),
+    body: t("Their mom on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it."),
   },
   {
     icon: ClipboardCheck,
@@ -595,7 +595,7 @@ function Compare({ say }: { say: Say }) {
         </div>
       </Reveal>
       <p className="mt-6 max-w-[60ch] text-sm" style={{ color: "var(--ink-3)" }}>
-        {rich(t("Weighing up particular apps? There’s a side-by-side table in {below}, checked against each app’s own website."), {
+        {rich(t("Weighing up particular apps? There’s a side-by-side table in {below}, checked against each app’s own website in August 2026."), {
           below: <a href="#comparison" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>{t("the questions below")}</a>,
         })}
       </p>
@@ -616,7 +616,7 @@ function Plan({ say }: { say: Say }) {
             {t("When could you get there?")}
           </h2>
           <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t("Answer four questions and we’ll do the same sum the app does inside. You get a range, because anyone who gives you one exact number is guessing.")}
+            {t("Answer four questions and we’ll do the same math the app does inside. You get a range, because anyone who gives you one exact number is guessing.")}
           </p>
         </div>
       </Reveal>
@@ -625,7 +625,7 @@ function Plan({ say }: { say: Say }) {
           <PlanCalculator />
           <div className="mt-6">
           <Explain label={t("Where the hours come from")}>
-            {t("We start from the study hours usually published for each level, add extra where Estonian’s cases start to bite, and keep the total inside what the US Foreign Service Institute estimates for the language. It isn’t measured on people using this app. Once you’re inside, the same sum runs on your own pace instead.")}
+            {t("We start from the study hours usually published for each level, add extra where Estonian’s cases start to bite, and keep the total inside what the US Foreign Service Institute estimates for the language. It isn’t measured on people using this app. Once you’re inside, the same math runs on your own pace instead.")}
           </Explain>
           </div>
         </div>
@@ -1003,7 +1003,7 @@ function Features({ say }: { say: Say }) {
             tone="sky"
             icon={<Target size={18} aria-hidden />}
             title={t("Then the real thing")}
-            body={t("A receptionist with no slot on Thursday, a landlord on a bad line, a queue at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count.")}
+            body={t("A receptionist with no slot on Thursday, a landlord on a bad line, a line at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count.")}
           />
         </Reveal>
       </div>
@@ -1218,7 +1218,7 @@ function Comparison({ say }: { say: Say }) {
         for by name.
       */}
       <p className="mt-3 max-w-[68ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {rich(t("Duolingo has never offered Estonian, so the real choice is between the tools that do. We checked {claims} claims against each tool’s own website, and another tool earns a tick on {shared} of them. None of them is trying to get you saying {e1} and knowing why it isn’t {e2}."), {
+        {rich(t("As of August 2026, Duolingo has never offered Estonian, so the real choice is between the tools that do. That month we checked {claims} claims against each tool’s own website, and another tool earns a check mark on {shared} of them. None of them is trying to get you saying {e1} and knowing why it isn’t {e2}."), {
           claims,
           shared,
           e1: <span lang="et" className="font-semibold">ma lähen tuppa</span>,
@@ -1310,7 +1310,7 @@ function Comparison({ say }: { say: Say }) {
       </div>
 
       <Explain label={t("How this table was checked")}>
-        {t("A tick means yes, a dash means their own pages don’t say so, and a question mark means we couldn’t tell. We checked each product’s own website in August 2026. Every name belongs to its owner, and none of them has endorsed this. If we’ve got something wrong, tell us and we’ll fix it.")}
+        {t("A check mark means yes, a dash means their own pages don’t say so, and a question mark means we couldn’t tell. We checked each product’s own website in August 2026. Every name belongs to its owner, and none of them has endorsed this. If we’ve got something wrong, tell us and we’ll fix it.")}
       </Explain>
     </FaqItem>
   );

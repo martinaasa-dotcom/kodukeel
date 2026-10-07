@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
-import { computeStreak } from "@/lib/stats/streak";
 import { occasionsFor, type Occasion } from "@/lib/copy/almanac";
 import { bandsAround, isAround } from "@/lib/collections/levels";
 import { dayHashFor, dayIndex } from "@/lib/random/dayHash";
@@ -11,7 +10,7 @@ import { sentenceReach } from "@/lib/dict/facts";
 import { VOUCHED_ROW } from "@/lib/dict/search";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { naturalSentence } from "@/lib/estonian/cloze";
-import type { DayClock, DayKey } from "@/lib/time/day";
+import type { DayKey } from "@/lib/time/day";
 
 /**
  * THE WORD OF THE DAY, AND WHY IT IS THAT WORD.
@@ -77,14 +76,6 @@ import type { DayClock, DayKey } from "@/lib/time/day";
  */
 export const ALMANAC_SOURCE = "ALMANAC";
 
-/** What the learner has kept from the panel. Derived, like everything else. */
-export interface WordOfDayCollection {
-  /** Words taken into the deck from this panel, ever. */
-  kept: number;
-  /** Days in a row one was taken, counting from today or yesterday. */
-  streak: number;
-}
-
 export interface WordOfDay {
   lexemeId: string;
   lemma: string;
@@ -120,51 +111,14 @@ export async function wordOfDay(
   day: DayKey,
   dayStart: Date,
   level: Level,
+  options: { forLevel?: boolean } = {},
 ): Promise<WordOfDay | null> {
+  if (options.forLevel) return pickForLevel(day, level);
   const occasions = occasionsFor(day);
   const glosses = [...new Set(occasions.flatMap((o) => o.glosses))];
 
   const themed = glosses.length > 0 ? await pickThemed(ownerId, day, dayStart, occasions, glosses, level) : null;
   return themed ?? (await pickAny(ownerId, day, dayStart, level));
-}
-
-/**
- * How many the learner has kept, and whether they are keeping one a day.
- *
- * A count makes the panel a habit rather than a decoration, which is the whole
- * argument for having it: somebody who has kept eleven words this way opens the
- * card looking for the twelfth. It costs one indexed read and no schema.
- *
- * `computeStreak` is the app's own run-of-days function, the one the review
- * streak uses, so a run counted here and a run counted there mean the same
- * thing and break at the same midnight. Bounded at 800 rows, which is a card
- * type or two a day for well over the 400 days a streak can reach.
- */
-export async function wordOfDayCollection(
-  ownerId: string,
-  now: Date,
-  clock: DayClock,
-): Promise<WordOfDayCollection> {
-  const cards = await prisma.card.findMany({
-    where: { ownerId, source: ALMANAC_SOURCE },
-    select: { id: true, createdAt: true, lexemeId: true },
-    /*
-      And then on the primary key, because `createdAt` is not unique: one press
-      writes a recognition card and a production card in a single `createMany`,
-      so the pair shares it exactly, and a `take` that straddles them would
-      keep whichever the plan happened to return. The count below is over
-      distinct lexemes, so a tie decided differently is a different number.
-    */
-    orderBy: [{ createdAt: "desc" }, { id: "asc" }],
-    take: 800,
-  });
-  // Words, not cards: one press adds a recognition card and a production card,
-  // and "kept 22" for eleven words would be counting the machinery.
-  const words = new Set(cards.map((c) => c.lexemeId ?? "")).size;
-  return {
-    kept: words,
-    streak: computeStreak(cards.map((c) => c.createdAt), now, clock),
-  };
 }
 
 interface Candidate {
@@ -235,6 +189,33 @@ async function pickThemed(
       const chosen = choose(matches, gloss, day, level, reach);
       if (chosen) return build(chosen, occasion, reach);
     }
+  }
+  return null;
+}
+
+/**
+ * THE CARD ON TODAY: a word at the learner's level, new every day, never blank.
+ *
+ * No meaning to honor and no "have you met it" test. It is a small thing to
+ * look at each morning, so a word already in the deck is fine, and it means the
+ * card is there for everybody however far in they are. The band is a filter
+ * (`bandsAround`); the whole dictionary is the second pass only for a level
+ * with no graded words at all. `dayIndex` walks the pool, so consecutive days
+ * are far apart and nothing repeats until the pool has been used.
+ */
+async function pickForLevel(day: DayKey, level: Level): Promise<WordOfDay | null> {
+  const base = { ...VOUCHED_ROW, translation: { not: "" } };
+  for (const where of [{ ...base, cefr: { in: [...bandsAround(level)] } }, base]) {
+    const total = await prisma.lexeme.count({ where });
+    if (total === 0) continue;
+    const rows = await prisma.lexeme.findMany({
+      where, select: SELECT, orderBy: [{ lemma: "asc" }, { id: "asc" }],
+      skip: dayIndex(day, "wordOfDay", total), take: WINDOW,
+    });
+    const reach = await sentenceReach();
+    // One with a sentence under it if the window has one: that is the lesson.
+    const chosen = rows.find((row) => firstExample(row, reach)) ?? rows[0];
+    if (chosen) return build(chosen, null, reach);
   }
   return null;
 }

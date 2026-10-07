@@ -17,6 +17,7 @@ import { Card, Chip, Meter, Note, Page, Ring, SectionTitle } from "@/components/
 import { ExamCountdownCard } from "@/components/ExamCountdown";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr, type Locale } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 import { sayIn } from "@/lib/copy/said";
 
 export async function generateMetadata() {
@@ -354,11 +355,13 @@ export default async function ExamPage() {
           </li>
           <li>
             <ArrowRight size={13} className="mr-1 inline" aria-hidden />
-            {t("How to register for the real one, what to bring on the day and what happens if you fail are on")}{" "}
-            <Link href="/state-exam" className="font-semibold underline underline-offset-4">
-              {t("the state examination")}
-            </Link>
-            {t(", taken from the Board's own pages, along with its free practice material.")}
+            {fillNodes(t("How to register for the real one, what to bring on the day and what happens if you fail are on {link}, taken from the Board's own pages, along with its free practice material."), {
+              link: (
+                <Link href="/state-exam" className="font-semibold underline underline-offset-4">
+                  {t("the state examination")}
+                </Link>
+              ),
+            })}
           </li>
         </ul>
       </Card>
@@ -411,8 +414,10 @@ function SittingRow({ attempt, zone, locale }: { attempt: Sitting; zone: Zone; l
           </span>
           {(attempt.number || attempt.part) && (
             <span className="text-sm" style={{ color: "var(--ink-2)" }}>
-              {attempt.number ? fill(t("Paper {n}"), { n: attempt.number }) : t("A paper")}
-              {attempt.part ? t(`, ${SKILL_LABEL[attempt.part].toLowerCase()} only`) : ""}
+              {fill(t(attempt.number ? (attempt.part ? "Paper {n}, {part} only" : "Paper {n}") : "A paper, {part} only"), {
+                n: attempt.number ?? "",
+                part: attempt.part ? t(SKILL_LABEL[attempt.part]).toLocaleLowerCase(locale) : "",
+              })}
             </span>
           )}
           <Chip tone={attempt.passed ? "good" : "again"}>

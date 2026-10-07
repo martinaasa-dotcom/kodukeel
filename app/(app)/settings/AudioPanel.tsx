@@ -10,7 +10,7 @@ import { Speak } from "@/components/Speak";
 import { playFeedback } from "@/lib/audio/feedback";
 import { type Autoplay, type FeedbackSounds, VOICES } from "@/lib/audio/voice";
 import { SPEECH_PACES, type Pace, type SpeechPaceId } from "@/lib/audio/pace";
-import { useT } from "@/components/Locale";
+import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 
 /**
@@ -278,6 +278,7 @@ const HEARING: { value: Hearing; label: string; detail: string; icon: typeof Cof
 
 export function HearingPanel({ current }: { current: Hearing }) {
   const t = useT();
+  const locale = useLocale();
   const [value, setValue] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -301,7 +302,7 @@ export function HearingPanel({ current }: { current: Hearing }) {
         id: o.value,
         title: t(o.label),
         detail: o.value === "on"
-          ? fill(t("Once you know a word well, you'll sometimes hear it {ways}, just like real life. New words always come nice and clear."), { ways: listOf(STREET.map((said) => t(said)), t(" or ")) })
+          ? fill(t("Once you know a word well, you'll sometimes hear it {ways}, just like real life. New words always come nice and clear."), { ways: locale === "en" ? listOf(STREET, " or ") : new Intl.ListFormat(locale, { type: "disjunction" }).format(STREET.map((said) => t(said))) })
           : t(o.detail), icon: <o.icon size={15} aria-hidden /> }))}
     />
   );

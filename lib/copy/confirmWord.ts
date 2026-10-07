@@ -3,36 +3,34 @@ import type { Locale } from "./locale";
 /**
  * THE WORD SOMEBODY TYPES TO SAY THEY MEAN IT, IN THEIR OWN LANGUAGE.
  *
- * Deleting an account and replacing a deck with a backup are the two presses
- * here that cannot be taken back, so each asks for a word to be typed out
- * rather than a button pressed twice. The word was English for everybody, so a
- * learner reading the app in Ukrainian or Russian was asked to type `delete`
- * or `replace` on the one screen where a mistake costs the most, in the
- * language they had chosen not to read it in.
+ * Deleting an account and replacing everything with a backup each ask for one
+ * word typed out, because a word is harder to type by accident than a button
+ * is to press. A reader of the Russian or the Ukrainian interface was asked to
+ * type `replace` and `delete`, which is an English word in a screen that is
+ * otherwise in their language, at the one moment it most needs to be clear.
+ * So the screen asks for the word in the reader's language and accepts the
+ * English as well, since somebody who has the English word in their head is
+ * just as sure.
  *
- * So the prompt shows the word in the reader's language and every one of the
- * three is accepted, whichever language the app is in: the check runs on the
- * server too, which does not know which screen the word was typed on, and a
- * learner who types the English out of habit has meant it just as much. What
- * stays strict is that it is a whole word typed on purpose: only the case and
- * the space around it are forgiven, never a prefix, a near miss or an empty box.
+ * Any of the three is accepted wherever it is checked, the server included:
+ * the action does not know which screen sent the word, and a word from a
+ * language the reader is not using is still a word nobody types by accident.
  */
-export type ConfirmAction = "delete" | "replace";
+export type ConfirmAction = "replace" | "delete";
 
-const WORDS: Readonly<Record<ConfirmAction, Readonly<Record<Locale, string>>>> = {
-  delete: { en: "delete", ru: "удалить", uk: "видалити" },
+export const CONFIRM_WORDS: Readonly<Record<ConfirmAction, Readonly<Record<Locale, string>>>> = {
   replace: { en: "replace", ru: "заменить", uk: "замінити" },
+  delete: { en: "delete", ru: "удалить", uk: "видалити" },
 };
 
-/** The word the prompt asks for, in the reader's language. */
+/** The word this reader is asked to type. */
 export function confirmWord(action: ConfirmAction, locale: Locale): string {
-  return WORDS[action][locale];
+  return CONFIRM_WORDS[action][locale];
 }
 
-/** Whether what was typed confirms the action, in any of the app's languages. */
-export function confirms(action: ConfirmAction, typed: unknown): boolean {
+/** Whether what was typed is the word, in any of the three languages. */
+export function isConfirmed(typed: unknown, action: ConfirmAction): boolean {
   if (typeof typed !== "string") return false;
-  const said = typed.normalize("NFC").trim().toLowerCase();
-  if (!said) return false;
-  return Object.values(WORDS[action]).includes(said);
+  const said = typed.trim().toLocaleLowerCase();
+  return Object.values(CONFIRM_WORDS[action]).includes(said);
 }

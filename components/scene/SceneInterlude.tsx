@@ -230,7 +230,7 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
           by looking.
         */}
         <Button ref={carryOn} variant="primary" size="lg" onClick={() => finish()}>
-          {t("Carry on")}
+          {t("Keep going")}
         </Button>
       </div>
     </div>

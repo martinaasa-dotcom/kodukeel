@@ -126,7 +126,9 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
             {reading && reading.rung !== "unmet" && (
               <p className="mt-2 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
                 <RungChip rung={reading.rung} locale={locale} />
-                <span>{verdictFor(reading, locale)} {t(`${EVIDENCE_LABEL[reading.evidence].charAt(0).toUpperCase()}${EVIDENCE_LABEL[reading.evidence].slice(1)}.`)}</span>
+                <span>{verdictFor(reading, locale)} {/* Translated as the label it is and capitalized after, since the
+                    capitalized sentence is a key no table holds. */}
+                {`${t(EVIDENCE_LABEL[reading.evidence]).charAt(0).toUpperCase()}${t(EVIDENCE_LABEL[reading.evidence]).slice(1)}.`}</span>
                 <Link href={`/progress/readiness/${unit.id}`} className="underline" style={{ color: "var(--accent-deep)" }}>
                   {t("See where you might get stuck")}
                 </Link>
@@ -179,7 +181,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
             )}
             {progress.started > 0 && (
               <ButtonLink href={`/review?unit=${unit.id}`} variant="ghost" className="justify-center">
-                <GraduationCap size={15} aria-hidden /> {t("Practise these words")}
+                <GraduationCap size={15} aria-hidden /> {t("Practice these words")}
               </ButtonLink>
             )}
             {/* For the half of a class that happens on paper. */}
@@ -292,7 +294,7 @@ function missingLine(missing: number, locale: Locale): string {
     ? "{words} in this unit isn't in your dictionary yet. Look it up once and it's saved for good."
     : "{words} in this unit aren't in your dictionary yet. Look them up once and they're saved for good."), {
     // The genitive Russian and Ukrainian put after "there is no".
-    words: countOf(locale, missing, locale === "en" ? "word" : "word missing"),
+    words: countOf(locale, missing, "word", "gen"),
   });
 }
 

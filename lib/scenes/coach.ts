@@ -44,7 +44,7 @@ import { fill } from "@/lib/copy/locale";
 export const COACH_TEMPLATES = {
   word: "Tip: try an answer with “{word}” in it. Any form of it is fine.",
   wordOrAnother: "Tip: try an answer with “{word}” in it (or another word for the same thing). Any form of it is fine.",
-  case: "Tip: try “{lemma}” in the {case}, the form that answers {question} ({questionEn}). The ending is the part being practised here.",
+  case: "Tip: try “{lemma}” in the {case}, the form that answers {question} ({questionEn}). The ending is the part being practiced here.",
   card: "Tip: your card has it, under “{card}”. Just say that in Estonian.",
   question: "Tip: try asking them something. Any sentence ending in a question mark works.",
   negation: "Tip: try saying no.",

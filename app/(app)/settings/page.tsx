@@ -84,7 +84,7 @@ const SHORTCUTS: [string, string][] = [
   /* Enter is the key every button in the app names, and Space does the same
      thing wherever you are not typing into a box. Both are written down here
      because this is a reference; a button says one of them (`ADVANCE_KEY_LABEL`). */
-  ["Enter", "Show the answer, check what you typed, then carry on"],
+  ["Enter", "Show the answer, check what you typed, then keep going"],
   ["Space", "Does the same, whenever you're not typing in a box"],
   ["1-4", "Say how it went: Again, Hard, Good or Easy"],
   ["U", "Take back the last answer you graded"],
@@ -609,7 +609,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   <Explain label={t("What happens when a model is busy")}>
                     {resilience.models === 1
                       ? t("Only one model is set up right now, so if it's busy, Anu has to wait.")
-                      : fill(t("If one model is busy, Anu tries the next. There are {n} of them, across {providers}."), { n: resilience.models, providers: resilience.providers.join(t(" and ")) })}
+                      : fill(t("If one model is busy, Anu tries the next. There are {n} of them, across {providers}."), { n: resilience.models, providers: new Intl.ListFormat(locale, { type: "conjunction" }).format(resilience.providers) })}
                   </Explain>
                   {/*
                     Said plainly because it is invisible otherwise. A chain of

@@ -68,4 +68,4 @@ export function isFirstProduction({ produced, typed }: { produced: number; typed
  * which is the app expecting them to fail, and it is not praise, which is the
  * app being pleased with somebody who has not done anything yet.
  */
-export const FIRST_TRY_NOTE = "It's fine not to know this one yet. Have a go anyway: a miss teaches you more than a skip.";
+export const FIRST_TRY_NOTE = "It's fine not to know this one yet. Try anyway: a miss teaches you more than a skip.";

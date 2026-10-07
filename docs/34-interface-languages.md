@@ -23,7 +23,17 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
   build a sentence by concatenating translated pieces, because word order differs.
 - A count is `countOf(locale, n, "card")`, never `n + " cards"`. Both languages have three plural
   forms (1 карточка, 2 карточки, 5 карточек) and `Intl.PluralRules` picks the right one. A new noun
-  goes in its area's `counted` table with all three forms.
+  goes in its area's `counted` table with all three forms, and in `COUNT_CASES` in
+  `lib/copy/locale.ts` with its genitive and accusative singular. A count after a preposition
+  or a verb is asked for in its case: `countOf(locale, n, "minute", "acc")` after «через», «за»,
+  «на» ("через 1 минуту"), `"gen"` after «около», «близько», «не хватает» ("около 1 минуты").
+  A fraction takes the genitive singular in both languages ("1,5 тижня"), which `countOf` does by
+  itself. Where no case fits, put the count after a colon («Ответов: {n}»).
+- A title, a name or an Estonian word dropped into a sentence after a preposition is quoted and
+  governed by a noun: «в разделе «{unit}»», «до частини {part}», «для «{pronoun}»». A weekday
+  inside a sentence is lower case, and "on Tuesday" is its own table (`ON_WEEKDAY` in
+  `lib/time/day.ts`). A name in direct address is left out of the Ukrainian, which would need the
+  vocative a typed name cannot get.
 - Each area of the app is a file under `lib/copy/i18n/`, listed in `lib/copy/i18n/index.ts`.
   Two areas translating one English line differently fails `locale.test.ts`.
 - A server component reads the locale with `localeFor(ownerId)` from `lib/progress/locale.ts`; a
@@ -60,6 +70,12 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
   byte as before. The footer says once, in Russian or Ukrainian, that the words were translated
   with AI (`MACHINE_SHORT`), and the document carries the language as its `lang`. The word of the
   day's gloss and its example sentence stay the dictionary's English, as on Today.
+- The mock exam's written and spoken briefs are English built from the tables in
+  `lib/exam/briefs.ts`, and the paper keeps each beside its English as a template and fragments
+  (`promptSaid`, `coverSaid`, a mark's `promptSaid`), said through `sayIn`. A fragment is kept in
+  `lib/copy/i18n/areas/exam.ts` under a context naming the form its slot needs (`@brief`, `@about`
+  with its preposition, `@ring`, `@for`, `@card`), and `lib/exam/briefs.i18n.test.ts` walks every
+  brief the tables can make, so a brief added in English fails until it is translated.
 - A sentence with an element in a slot (an Estonian word in its own span) is one template drawn by
   `components/TrParts.tsx`, never pieces translated apart.
 - The offline banner and the document's `lang` sit above the shell, so `components/ShellLocale.tsx`
@@ -86,8 +102,8 @@ that is correct and reads like a translation has failed.
 - **Quotation marks are «ёлочки»**, never straight or English curly quotes.
 - Russian keeps **ё** where it is written (ещё, всё, её).
 - Ukrainian uses the straight apostrophe `'` (п'ять, пам'ять), and is Ukrainian, never Russian with
-  Ukrainian letters: «поступ» rather than «прогрес» where the screen means progress, «застосунок»
-  rather than «додаток», «вчити», «запитання».
+  Ukrainian letters: «застосунок» rather than «додаток», «вчити», «запитання». Progress is «прогрес»,
+  the word the reader already uses for it.
 - Numbers keep their digits; a time is 24 hour, as in English.
 
 ## The words, once
@@ -95,10 +111,11 @@ that is correct and reads like a translation has failed.
 | English | Russian | Ukrainian |
 |---|---|---|
 | Today | Сегодня | Сьогодні |
-| Today's module, tonight's module | урок на сегодня, урок этого вечера | урок на сьогодні, урок цього вечора |
+| Today's module, tonight's module | занятие на сегодня, сегодняшнее занятие | заняття на сьогодні, сьогоднішнє заняття |
+| lesson (inside a unit) | урок | урок |
 | evening (a day of the course) | вечер | вечір |
 | step (of a module) | шаг | крок |
-| Learn | Учить | Вчити |
+| Learn | Учить | Вивчати |
 | Practice | Практика | Практика |
 | Review (the screen), to review | Повторение, повторять | Повторення, повторювати |
 | due (cards) | пора повторить | час повторити |
@@ -114,7 +131,7 @@ that is correct and reads like a translation has failed.
 | Situations, conversation | Ситуации, разговор | Ситуації, розмова |
 | Dictionary | Словарь | Словник |
 | Grammar | Грамматика | Граматика |
-| Progress | Прогресс | Поступ |
+| Progress | Прогресс | Прогрес |
 | Settings | Настройки | Налаштування |
 | level check | проверка уровня | перевірка рівня |
 | mock exam | пробный экзамен | пробний іспит |
@@ -125,6 +142,16 @@ that is correct and reads like a translation has failed.
 | Check (button) | Проверить | Перевірити |
 | Next | Дальше | Далі |
 | Start | Начать | Почати |
+
+## How it is checked
+
+`scripts/test-locales.mjs` walks every signed-in screen in both languages, at 360 and 1280 and in
+the dark at 360, and CI runs it. It asks the containment questions about text fitting (nothing cut
+off, nothing over a border, no word broken across lines, no button label wider than its button) and
+whether any English is left. English by design is subtracted: the dictionary's own English, read off
+the database, what the learner typed, and anything marked `lang="en"`. English a screen knows is not
+translated yet carries `data-untranslated` and is listed at the end of the run by name. A translation
+longer than its box is fixed by a shorter translation first, and by the layout where the box is wrong.
 
 ## Ukrainian as the base language
 

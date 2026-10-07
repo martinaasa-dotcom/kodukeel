@@ -22,8 +22,8 @@ export const LETTERS: Area = {
     "What we keep about you": "Какие данные о вас мы храним",
 
     // The evening nudge.
-    "One step left in {title}": "В уроке {title} остался последний шаг",
-    "{steps} left in {title}": "В уроке {title} ещё {steps}",
+    "One step left in {title}": "В занятии {title} остался последний шаг",
+    "{steps} left in {title}": "В занятии {title} ещё {steps}",
     "{newWords} tonight": "Сегодня вечером {newWords}",
     "Back to {title} tonight": "Сегодня вечером снова {title}",
     "{what}, part {n} of {of}": "{what}, часть {n} из {of}",
@@ -32,16 +32,16 @@ export const LETTERS: Area = {
     "You're nearly done for tonight.": "На сегодня почти всё.",
     "About {minutes} minutes to go tonight.": "На сегодня осталось около {minutes} мин.",
     "{name}, you're {steps} into {where}. The rest is right where you left it.":
-      "{name}, вы уже прошли {steps} в уроке {where}. Остальное ждёт там, где вы остановились.",
+      "{name}, вы уже прошли {steps} в занятии {where}. Остальное ждёт там, где вы остановились.",
     "You're {steps} into {where}. The rest is right where you left it.":
-      "Вы уже прошли {steps} в уроке {where}. Остальное ждёт там, где вы остановились.",
+      "Вы уже прошли {steps} в занятии {where}. Остальное ждёт там, где вы остановились.",
     "{newWords}, in about {minutes} minutes.": "{newWords}, примерно за {minutes} мин.",
     "Words you know, put to work tonight, in about {minutes} minutes.":
       "Сегодня вечером в ход идут знакомые слова, примерно за {minutes} мин.",
     "{name}, this is {title}, {evening}. By the end you'll be able to {canDo}":
-      "{name}, сегодня урок {title}, {evening}. К концу вы сможете {canDo}",
+      "{name}, сегодня занятие {title}, {evening}. К концу вы сможете {canDo}",
     "{title}, {evening}. By the end you'll be able to {canDo}":
-      "Сегодня урок {title}, {evening}. К концу вы сможете {canDo}",
+      "Сегодня занятие {title}, {evening}. К концу вы сможете {canDo}",
     "What you told yourself when you started:": "Что вы сказали себе, когда начинали:",
     "[done]": "[готово]",
     "And a word for you, whether you study tonight or not:":
@@ -50,7 +50,7 @@ export const LETTERS: Area = {
 
     // The first letter.
     "Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.":
-      "Kodukeel. Четыре буквы, для которых на английской клавиатуре нет клавиш: o с тильдой, a, o и u с умлаутом.",
+      "Kodukeel. Четыре буквы, которых нет в русском алфавите: o с тильдой, a, o и u с умлаутом.",
     "Your first cards are ready. Here's how it works.": "Ваши первые карточки готовы. Вот как всё устроено.",
     "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.":
       "В вашей колоде уже {cards} из первых уроков курса. Ваш первый вечер: {title}, {subtitle}.",
@@ -123,7 +123,7 @@ export const LETTERS: Area = {
     "A quiet week.": "Тихая неделя.",
     "You studied on {n} of the last seven days.": "Вы занимались {n} из последних семи.",
     "You answered {cards}. {words} are properly yours now, and that number only grows when a word comes back days later and you still know it.":
-      "За неделю вы дали {cards}. По-настоящему ваших уже {words}, и это число растёт, только когда слово возвращается через несколько дней, а вы его всё ещё помните.",
+      "За неделю вы ответили на {cards}. По-настоящему ваших уже {words}, и это число растёт, только когда слово возвращается через несколько дней, а вы его всё ещё помните.",
     "No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.":
       "На этой неделе карточек не было, и это нормально. Так бывает. Пока вас нет, ничего не копится вам в наказание, а один вечер возвращает вас туда, где вы были.",
     "And one conversation in Estonian with a real person. That's the number this whole app is for.":
@@ -135,9 +135,9 @@ export const LETTERS: Area = {
       "Примерно {assumed} из этих слов засчитаны по уровню, с которого вы начали, и ещё не проверены. Остальные вы помнили через несколько дней после первой встречи.",
     "That bar only moves for words you still know days after you first met them. Just opening the app won't nudge it.":
       "Эта полоса растёт только за слова, которые вы помните через несколько дней после первой встречи. Просто открыть приложение ничего не даст.",
-    "One evening left in {title}.": "В части {title} остался один вечер.",
-    "{evenings} left in {title}.": "В части {title} ещё {evenings}.",
-    "Carry on with the course": "Продолжить курс",
+    "One evening left in {title}.": "В части «{title}» остался один вечер.",
+    "{evenings} left in {title}.": "В части «{title}» ещё {evenings}.",
+    "Continue with the course": "Продолжить курс",
     "See all your progress": "Посмотреть весь прогресс",
     "A quiet week, and the course is right where you left it": "Тихая неделя, а курс ждёт там же, где вы остановились",
     "{days} of Estonian this week": "{days} с эстонским на этой неделе",
@@ -147,10 +147,10 @@ export const LETTERS: Area = {
     // One thing to say out loud.
     "One thing to say out loud today.": "Одна фраза, которую сегодня стоит сказать вслух.",
     "{places}. Nobody there will know it's practice.": "{places}. Никто там не догадается, что это тренировка.",
-    "Fancy a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.":
+    "Want a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.":
       "Хотите сначала прорепетировать? «{title}» занимает около двух минут, с собеседником, которому от вас что-то нужно, совсем как в жизни.",
-    "Practise it first": "Сначала прорепетировать",
-    "Or just have a look at the words in {unit}": "Или просто посмотреть слова из раздела {unit}",
+    "Practice it first": "Сначала прорепетировать",
+    "Or just have a look at the words in {unit}": "Или просто посмотреть слова из раздела «{unit}»",
     "Have a look at the words first": "Сначала посмотреть слова",
     "If they answer in English, that still counts. So does running out of words halfway. You said it, and whatever happens next is about the moment, not about you. The only thing that doesn't count is staying quiet.":
       "Если вам ответят по-английски, это всё равно засчитывается. И если слова закончатся на полпути, тоже. Вы это сказали, а что будет дальше, зависит от момента, а не от вас. Не засчитывается только молчание.",
@@ -162,7 +162,7 @@ export const LETTERS: Area = {
       "{places}. Всего одна фраза, и ответ по-английски тоже засчитывается.",
 
     // The date somebody set.
-    "{phrase} to go until the date you picked.": "До выбранной вами даты осталось {phrase}.",
+    "{phrase} to go until the date you picked.": "До выбранной вами даты осталось: {phrase}.",
     "You're aiming for {band}, the level where you can {label}. Here's how that's looking.":
       "Вы идёте к уровню {band}, на котором можно {label}. Вот как обстоят дела.",
     "A bar, about {pct} percent full, for your chances at {band}.": "Полоса заполнена примерно на {pct}%: ваши шансы на {band}.",
@@ -171,14 +171,14 @@ export const LETTERS: Area = {
     "Three things can change that, and any one of them counts: how often you study, the Estonian you already hear outside this app, and the date itself. Moving the date isn't giving up. You picked it in about ninety seconds, before you knew what any of this would take.":
       "Изменить это могут три вещи, и подойдёт любая: как часто вы занимаетесь, эстонский, который вы и так слышите вне приложения, и сама дата. Перенести дату не значит сдаться. Вы выбрали её секунд за девяносто, ещё не зная, чего всё это потребует.",
     "See your plan": "Посмотреть план",
-    "{phrase} to go until the date you picked": "До выбранной вами даты осталось {phrase}",
+    "{phrase} to go until the date you picked": "До выбранной вами даты осталось: {phrase}",
     "At the pace you're going, {band} still fits.": "В нынешнем темпе вы успеваете к {band}.",
     "How {band} is looking, and three things that could change it.":
       "Как обстоят дела с {band} и три вещи, которые могут это изменить.",
 
     // A group's week, to whoever runs it.
-    "Last week in {group}": "Прошлая неделя в группе {group}",
-    "{active} of {members} practised, with {answers} between them.": "Занимались {active} из {members}, всего {answers}.",
+    "Last week in {group}": "Прошлая неделя в группе «{group}»",
+    "{active} of {members} practiced, with {answers} between them.": "Занимались {active} из {members}, всего {answers}.",
     "{quiet} didn't open the app.": "Не открывали приложение: {quiet}.",
     "somebody studied": "кто-то занимался",
     "nobody studied": "никто не занимался",
@@ -195,9 +195,9 @@ export const LETTERS: Area = {
     "{close} close, {needTime} need more time, {tooEarly} too early to say.":
       "Близки к цели: {close}, нужно больше времени: {needTime}, пока рано судить: {tooEarly}.",
     "{close} close, {needTime} need more time.": "Близки к цели: {close}, нужно больше времени: {needTime}.",
-    "Open the group's board": "Открыть доску группы",
-    "Everybody in {group} practised last week": "На прошлой неделе в группе {group} занимались все",
-    "{active} of {members} in {group} practised last week": "На прошлой неделе в группе {group} занимались {active} из {members}",
+    "Open the group's board": "Открыть страницу группы",
+    "Everybody in {group} practiced last week": "На прошлой неделе в группе «{group}» занимались все",
+    "{active} of {members} in {group} practiced last week": "На прошлой неделе в группе «{group}» занимались {active} из {members}",
     "How the week went, and which case to work on next.": "Как прошла неделя и над каким падежом поработать дальше.",
     "How the week went, and how the group is doing toward {level}.": "Как прошла неделя и как группа продвигается к {level}.",
 
@@ -213,8 +213,8 @@ export const LETTERS: Area = {
     "What we keep about you": "Які дані про вас ми зберігаємо",
 
     // The evening nudge.
-    "One step left in {title}": "У розділі «{title}» лишився останній крок",
-    "{steps} left in {title}": "{steps} до кінця вечора в розділі «{title}»",
+    "One step left in {title}": "У занятті {title} лишився останній крок",
+    "{steps} left in {title}": "У занятті {title} ще {steps}",
     "{newWords} tonight": "Сьогодні ввечері {newWords}",
     "Back to {title} tonight": "Сьогодні ввечері знову розділ «{title}»",
     "{what}, part {n} of {of}": "{what}, частина {n} з {of}",
@@ -222,15 +222,17 @@ export const LETTERS: Area = {
     "{shape}. About {minutes} minutes, start to finish.": "{shape}. Усього близько {minutes} хв.",
     "You're nearly done for tonight.": "На сьогодні майже все.",
     "About {minutes} minutes to go tonight.": "На сьогодні лишилося близько {minutes} хв.",
-    // No "{name}, ..." lines: Ukrainian would need the vocative of a typed
-    // name, so lib/email/letters/tonight.ts sends the nameless line instead.
+    "{name}, you're {steps} into {where}. The rest is right where you left it.":
+      "{name}, ви вже пройшли {steps} у занятті {where}. Решта чекає там, де ви зупинилися.",
     "You're {steps} into {where}. The rest is right where you left it.":
-      "{where}: ви вже пройшли {steps}. Решта чекає там, де ви зупинилися.",
+      "Ви вже пройшли {steps} у занятті {where}. Решта чекає там, де ви зупинилися.",
     "{newWords}, in about {minutes} minutes.": "{newWords}, приблизно за {minutes} хв.",
     "Words you know, put to work tonight, in about {minutes} minutes.":
       "Сьогодні ввечері в хід ідуть знайомі слова, приблизно за {minutes} хв.",
+    "{name}, this is {title}, {evening}. By the end you'll be able to {canDo}":
+      "{name}, сьогодні заняття {title}, {evening}. Наприкінці ви зможете {canDo}",
     "{title}, {evening}. By the end you'll be able to {canDo}":
-      "Сьогодні ввечері розділ «{title}», {evening}. Наприкінці ви зможете {canDo}",
+      "Сьогодні заняття {title}, {evening}. Наприкінці ви зможете {canDo}",
     "What you told yourself when you started:": "Що ви сказали собі, коли починали:",
     "[done]": "[готово]",
     "And a word for you, whether you study tonight or not:":
@@ -239,13 +241,13 @@ export const LETTERS: Area = {
 
     // The first letter.
     "Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.":
-      "Kodukeel. Чотири літери, для яких на англійській клавіатурі немає клавіш: o з тильдою, a, o та u з умлаутом.",
+      "Kodukeel. Чотири літери, яких немає в українській абетці: o з тильдою, a, o та u з умлаутом.",
     "Your first cards are ready. Here's how it works.": "Ваші перші картки готові. Ось як усе влаштовано.",
     "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.":
       "У вашій колоді вже {cards} з перших уроків курсу. Ваш перший вечір: {title}, {subtitle}.",
     "{cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.":
       "У вашій колоді вже {cards} з перших уроків курсу. Відкрийте курс, і він покаже, з чого почати.",
-    "A progress bar, right at the start.": "Смуга поступу, на самому початку.",
+    "A progress bar, right at the start.": "Смуга прогресу, на самому початку.",
     "Fifteen minutes an evening, and that's all.": "П'ятнадцять хвилин увечері, і все.",
     "Each evening is a short reading, two quick exercises and a few cards to go over. It takes about a quarter of an hour at any level, and when you're done, the app tells you so and lets you go. No endless scrolling, no guilt.":
       "Кожен вечір: коротке читання, дві швидкі вправи й кілька карток на повторення. На будь-якому рівні це близько чверті години, а коли ви закінчите, застосунок так і скаже й відпустить вас. Без нескінченної стрічки й без почуття провини.",
@@ -312,7 +314,7 @@ export const LETTERS: Area = {
     "A quiet week.": "Тихий тиждень.",
     "You studied on {n} of the last seven days.": "Ви займалися {n} з останніх семи.",
     "You answered {cards}. {words} are properly yours now, and that number only grows when a word comes back days later and you still know it.":
-      "За тиждень ви дали {cards}. По-справжньому ваших уже {words}, і це число зростає, лише коли слово повертається через кілька днів, а ви його досі пам'ятаєте.",
+      "За тиждень ви відповіли на {cards}. По-справжньому ваших уже {words}, і це число зростає, лише коли слово повертається через кілька днів, а ви його досі пам'ятаєте.",
     "No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.":
       "Цього тижня карток не було, і це нормально. Так буває. Поки вас немає, нічого не накопичується вам на покарання, а один вечір повертає вас туди, де ви були.",
     "And one conversation in Estonian with a real person. That's the number this whole app is for.":
@@ -324,10 +326,10 @@ export const LETTERS: Area = {
       "Приблизно {assumed} із цих слів зараховано за рівнем, з якого ви почали, і їх ще не перевірено. Решту ви пам'ятали через кілька днів після першої зустрічі.",
     "That bar only moves for words you still know days after you first met them. Just opening the app won't nudge it.":
       "Ця смуга зростає лише за слова, які ви пам'ятаєте через кілька днів після першої зустрічі. Просто відкрити застосунок нічого не дасть.",
-    "One evening left in {title}.": "До кінця частини «{title}» лишився один вечір.",
-    "{evenings} left in {title}.": "{evenings} до кінця частини «{title}».",
-    "Carry on with the course": "Продовжити курс",
-    "See all your progress": "Переглянути весь поступ",
+    "One evening left in {title}.": "У частині «{title}» лишився один вечір.",
+    "{evenings} left in {title}.": "У частині «{title}» ще {evenings}.",
+    "Continue with the course": "Продовжити курс",
+    "See all your progress": "Переглянути весь прогрес",
     "A quiet week, and the course is right where you left it": "Тихий тиждень, а курс чекає там само, де ви зупинилися",
     "{days} of Estonian this week": "{days} з естонською цього тижня",
     "Nothing to catch up on. One evening and you're back in.": "Надолужувати нічого. Один вечір, і ви знову в ділі.",
@@ -336,9 +338,9 @@ export const LETTERS: Area = {
     // One thing to say out loud.
     "One thing to say out loud today.": "Одна фраза, яку сьогодні варто сказати вголос.",
     "{places}. Nobody there will know it's practice.": "{places}. Ніхто там не здогадається, що це тренування.",
-    "Fancy a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.":
+    "Want a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.":
       "Хочете спершу прорепетирувати? «{title}» триває близько двох хвилин, зі співрозмовником, якому від вас щось потрібно, зовсім як у житті.",
-    "Practise it first": "Спершу прорепетирувати",
+    "Practice it first": "Спершу прорепетирувати",
     "Or just have a look at the words in {unit}": "Або просто переглянути слова з розділу «{unit}»",
     "Have a look at the words first": "Спершу переглянути слова",
     "If they answer in English, that still counts. So does running out of words halfway. You said it, and whatever happens next is about the moment, not about you. The only thing that doesn't count is staying quiet.":
@@ -351,7 +353,7 @@ export const LETTERS: Area = {
       "{places}. Лише одна фраза, і відповідь англійською теж зараховується.",
 
     // The date somebody set.
-    "{phrase} to go until the date you picked.": "До обраної вами дати: {phrase}.",
+    "{phrase} to go until the date you picked.": "До обраної вами дати лишилося: {phrase}.",
     "You're aiming for {band}, the level where you can {label}. Here's how that's looking.":
       "Ви йдете до рівня {band}, на якому можна {label}. Ось як справи.",
     "A bar, about {pct} percent full, for your chances at {band}.": "Смуга заповнена приблизно на {pct}%: ваші шанси на {band}.",
@@ -360,14 +362,14 @@ export const LETTERS: Area = {
     "Three things can change that, and any one of them counts: how often you study, the Estonian you already hear outside this app, and the date itself. Moving the date isn't giving up. You picked it in about ninety seconds, before you knew what any of this would take.":
       "Змінити це можуть три речі, і підійде будь-яка: як часто ви займаєтеся, естонська, яку ви й так чуєте поза застосунком, і сама дата. Перенести дату не означає здатися. Ви обрали її секунд за дев'яносто, ще не знаючи, чого все це вимагатиме.",
     "See your plan": "Переглянути план",
-    "{phrase} to go until the date you picked": "До обраної вами дати: {phrase}",
+    "{phrase} to go until the date you picked": "До обраної вами дати лишилося: {phrase}",
     "At the pace you're going, {band} still fits.": "У теперішньому темпі ви встигаєте до {band}.",
     "How {band} is looking, and three things that could change it.":
       "Як справи з {band} і три речі, які можуть це змінити.",
 
     // A group's week, to whoever runs it.
     "Last week in {group}": "Минулий тиждень у групі «{group}»",
-    "{active} of {members} practised, with {answers} between them.": "Займалися {active} з {members}, усього {answers}.",
+    "{active} of {members} practiced, with {answers} between them.": "Займалися {active} з {members}, усього {answers}.",
     "{quiet} didn't open the app.": "Не відкривали застосунок: {quiet}.",
     "somebody studied": "хтось займався",
     "nobody studied": "ніхто не займався",
@@ -384,9 +386,9 @@ export const LETTERS: Area = {
     "{close} close, {needTime} need more time, {tooEarly} too early to say.":
       "Близькі до мети: {close}, потрібно більше часу: {needTime}, поки зарано судити: {tooEarly}.",
     "{close} close, {needTime} need more time.": "Близькі до мети: {close}, потрібно більше часу: {needTime}.",
-    "Open the group's board": "Відкрити дошку групи",
-    "Everybody in {group} practised last week": "Минулого тижня в групі «{group}» займалися всі",
-    "{active} of {members} in {group} practised last week": "Минулого тижня в групі «{group}» займалися {active} з {members}",
+    "Open the group's board": "Відкрити сторінку групи",
+    "Everybody in {group} practiced last week": "Минулого тижня в групі «{group}» займалися всі",
+    "{active} of {members} in {group} practiced last week": "Минулого тижня в групі «{group}» займалися {active} з {members}",
     "How the week went, and which case to work on next.": "Як минув тиждень і над яким відмінком попрацювати далі.",
     "How the week went, and how the group is doing toward {level}.": "Як минув тиждень і як група просувається до {level}.",
 

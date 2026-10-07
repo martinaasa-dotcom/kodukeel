@@ -107,7 +107,7 @@ function Tier({ tier, words, total, locale, prefs }: {
 
       {total > words.length && (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-          {fill(t("Showing the {shown} you've practised most, out of {total}."), { shown: words.length, total })}
+          {fill(t("Showing the {shown} you've practiced most, out of {total}."), { shown: words.length, total })}
         </p>
       )}
     </Card>
@@ -119,7 +119,7 @@ function Row({ word, locale, prefs }: { word: MasteredWord; locale: Locale; pref
   const { correct, total, slots, slotsNeeded, filled, progress } = word.verdict;
   /* Which forms is for a reader who asks, so it rides on the bar's label; the
      row says the word, what it means, and how far along it is. */
-  const forms = filled.length > 0 ? `: ${filled.map((slot) => slotShort(slot)).join(", ")}` : "";
+  const forms = filled.length > 0 ? `: ${filled.map((slot) => t(slotShort(slot))).join(", ")}` : "";
   return (
     /* Straight to the entry, because the question a list like this raises is
        "which one was that again", and the entry is where every form of it is. */

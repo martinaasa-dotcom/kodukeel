@@ -55,7 +55,7 @@ const GROUPS: Group[] = [
       { press: ["1"], does: "Pick the first option" },
       { press: ["2"], does: "…the second, and so on" },
       { press: ["R"], does: "Play the word again, in minimal pairs" },
-      { press: ["Enter", "Space"], does: "Carry on once you've answered" },
+      { press: ["Enter", "Space"], does: "Keep going once you've answered" },
     ],
   },
   {

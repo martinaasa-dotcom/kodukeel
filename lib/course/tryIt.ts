@@ -333,8 +333,10 @@ export function askText(ask: TryItAsk, locale: Locale): { prompt: string; yes: s
   const say = ask.say;
   if (say.kind === "person") {
     const prompts = PERSON_PROMPT[say.person];
-    const base = { lemma: say.lemma, translation: say.translation, value: say.value, pronoun: say.pronoun };
-    const shared = say.shared.length > 0 ? joined(locale, say.shared) : null;
+    /* Quoted, because a bare "ma" after "для" or "с" reads as a word of the
+       sentence rather than the pronoun being talked about. */
+    const base = { lemma: say.lemma, translation: say.translation, value: say.value, pronoun: `«${say.pronoun}»` };
+    const shared = say.shared.length > 0 ? joined(locale, say.shared.map((p) => `«${p}»`)) : null;
     return {
       prompt: prompts ? t(prompts[say.conditional ? 1 : 0], base) : ask.prompt,
       yes: shared

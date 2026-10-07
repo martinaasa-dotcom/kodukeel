@@ -1573,7 +1573,7 @@ export function ReviewSession({
   // sentence: the word leads and the rest is drawn as a tag under it.
   const split = !isGap(card) && card.cardType !== "CLOZE" ? arrowFront(card.front) : null;
   const backLang = estonianSide(card.cardType, "back") ? "et" : "en";
-  const [practisingBefore, practisingAfter = ""] = t("Practising the {form}.").split("{form}");
+  const [practisingBefore, practisingAfter = ""] = t("Practicing the {form}.").split("{form}");
   /*
     What the status line at the foot of the card says: the verdict in words,
     once there is one, and nothing before. A typed miss whose note already
@@ -2283,9 +2283,9 @@ export function ReviewSession({
           {fill(t(ask === "intro"
             ? "{key} when you're ready"
             : ask === "type"
-              ? (verdict ? (needsRetype ? "Type it again, then {key}" : "{key} to carry on") : "{key} to check")
+              ? (verdict ? (needsRetype ? "Type it again, then {key}" : "{key} to continue") : "{key} to check")
               : ask === "choice"
-                ? (chosen ? "{key} to carry on" : "1 to {n} to pick")
+                ? (chosen ? "{key} to continue" : "1 to {n} to pick")
                 : !revealed
                   ? "{key} to flip"
                   : "1 for not yet, 2 for got it"), { key: ADVANCE_KEY_LABEL, n: card?.choices?.length ?? 4 })}

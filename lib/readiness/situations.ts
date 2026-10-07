@@ -81,7 +81,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   // ── A1 ──────────────────────────────────────────────────────────────────
   tervitused: {
     live: true, needs: ["replies"], cases: [],
-    tryThis: "Greet the person at the till in Estonian and answer their greeting before you switch.",
+    tryThis: "Greet the person at the register in Estonian and answer their greeting before you switch.",
     expect: "A greeting back, said fast, and then a question about a bag or a card.",
   },
   inimesed: {
@@ -96,7 +96,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   },
   kodu: {
     live: false, needs: [], cases: ["INESSIVE", "ADESSIVE", "GENITIVE"],
-    tryThis: "Describe your own flat, room by room, saying where three things are in it.",
+    tryThis: "Describe your own apartment, room by room, saying where three things are in it.",
   },
   "sook-ja-jook": {
     live: true, needs: ["greetings", "numbers", "replies"], cases: ["PARTITIVE", "GENITIVE"],
@@ -193,7 +193,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   },
   kodus: {
     live: false, needs: [], cases: [],
-    tryThis: "Walk round your flat naming each room and three things in it.",
+    tryThis: "Walk around your apartment naming each room and three things in it.",
   },
   "loomad-ja-keha": {
     live: false, needs: [], cases: [],
@@ -279,7 +279,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   // ── A2 ──────────────────────────────────────────────────────────────────
   minevik: {
     live: true, needs: ["time", "pronouns"], cases: ["PARTITIVE", "INESSIVE", "ADESSIVE"],
-    tryThis: "Tell somebody what you did at the weekend, in the past tense, and ask about theirs.",
+    tryThis: "Tell somebody what you did on the weekend, in the past tense, and ask about theirs.",
     expect: "A story back, told faster than you told yours, with a question at the end of it.",
   },
   loodus: {
@@ -308,17 +308,17 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   },
   "linn-ja-teenused": {
     live: true, needs: ["numbers", "questions", "replies"], cases: ["GENITIVE", "PARTITIVE", "ALLATIVE", "ELATIVE"],
-    tryThis: "Post a parcel at a post office and answer every question at the counter in Estonian.",
+    tryThis: "Mail a package at the post office and answer every question at the counter in Estonian.",
     expect: "Which country, how heavy, which service, and a form to fill in.",
   },
   suhtlemine: {
     live: true, needs: ["time", "greetings", "replies"], cases: ["ALLATIVE", "COMITATIVE", "ADESSIVE"],
-    tryThis: "Ring somebody to arrange a time to meet, and confirm it by message afterwards.",
+    tryThis: "Call somebody to arrange a time to meet, and confirm it by message afterwards.",
     expect: "A voice with no face to read, a time you did not suggest, and a quick goodbye.",
   },
   "vaba-aeg": {
     live: true, needs: ["time", "replies"], cases: ["PARTITIVE", "ILLATIVE", "COMITATIVE"],
-    tryThis: "Suggest something to do at the weekend and accept or turn down what comes back.",
+    tryThis: "Suggest something to do on the weekend and accept or turn down what comes back.",
     expect: "A different suggestion, and a question about when you are free.",
   },
   restoranis: {
@@ -384,7 +384,7 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   },
   tehnoloogia: {
     live: true, needs: ["numbers", "questions"], cases: ["INESSIVE", "ELATIVE", "ILLATIVE"],
-    tryThis: "Ring a helpline about an account that won't work, and get through the security questions.",
+    tryThis: "Call a helpline about an account that won't work, and get through the security questions.",
     expect: "A code read out, a question about which device, and instructions to press something.",
   },
   keskkond: {

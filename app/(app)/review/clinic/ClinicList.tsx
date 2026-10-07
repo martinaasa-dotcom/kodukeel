@@ -12,6 +12,7 @@ import { useReaderDate } from "@/components/LocalDate";
 import { buildClinicQuestion, type Leech } from "@/lib/analysis/leeches";
 import { caseByKey } from "@/lib/estonian/cases";
 import { useT } from "@/components/Locale";
+import { TrParts } from "@/components/TrParts";
 import { fill } from "@/lib/copy/locale";
 
 export interface ClinicItem extends Omit<Leech, "history"> {
@@ -106,10 +107,18 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                   )}
                   {leech.targetCase && (
                     <ButtonLink href={`/review?case=${leech.targetCase}`}>
-                      {t("Practise the")}{" "}
-                      <span lang="et">
-                        {caseByKey(leech.targetCase)?.et ?? leech.targetCase.toLowerCase()}
-                      </span>
+                      {/* One sentence with the case in its slot, not "Practise the"
+                          with a name glued after it in English order. */}
+                      <TrParts
+                        template="Practice the {case}"
+                        parts={{
+                          case: (
+                            <span lang="et">
+                              {caseByKey(leech.targetCase)?.et ?? leech.targetCase.toLowerCase()}
+                            </span>
+                          ),
+                        }}
+                      />
                     </ButtonLink>
                   )}
                   <Button

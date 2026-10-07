@@ -53,7 +53,7 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
   {
     kind: "comeback",
     title: "One friendly note if you've been away a while",
-    detail: "At most once a fortnight, and it never counts the days you missed.",
+    detail: "At most once every two weeks, and it never counts the days you missed.",
   },
   {
     kind: "errand",

@@ -179,7 +179,7 @@ export default async function ConjugationPage({
     return (
       <Page title={tr(locale, "Conjugation")} lead={tr(locale, "One verb at a time: I, you, he or she, we, you all and they.")}>
         <Empty
-          title={tr(locale, "No verbs to practise yet")}
+          title={tr(locale, "No verbs to practice yet")}
           body={tr(locale, "Start a unit with verbs in it, or look a verb up in the dictionary.")}
           action={<ButtonLink href="/learn" variant="primary">{tr(locale, "Open the learning path")}</ButtonLink>}
         />
