@@ -848,6 +848,7 @@ export const A1 = [
       ["püksid", "trousers"],
       ["kampsun", "jumper, sweater"],
       ["saabas", "boot"],
+      ["riideese", "article of clothing"],
     ],
   }),
 

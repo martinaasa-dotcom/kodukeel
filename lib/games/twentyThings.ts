@@ -84,7 +84,7 @@ export interface Thing {
 /** Category headwords a question can name besides a thing. */
 export const CATEGORIES = [
   "loom", "lind", "imetaja", "putukas", "taim", "toit", "jook", "puuvili", "köögivili", "sõiduk", "mööbel",
-  "hoone", "ese", "rõivas",
+  "hoone", "ese", "riideese",
 ] as const;
 
 type Rest = Partial<Omit<Thing, "lemma" | "kind" | "size">>;
@@ -128,7 +128,7 @@ const BASE: readonly Thing[] = [
   thing("part", "animal", 4, { useS: ["eat"], isa: BIRD, has: ["jalg", "tiib", "sulg", "nokk", "saba"], can: ["move", "swim", "fly"], whereS: ["water", "outdoors"], colourS: ["pruun", "valge", "kollane", "roheline"] }),
   thing("kana", "animal", 4, { isa: BIRD, has: ["jalg", "tiib", "sulg", "nokk", "saba"], can: ["move"], canS: ["fly"], useS: ["eat"], whereS: ["outdoors"], colourS: ["valge", "pruun", "must"] }),
   thing("kala", "animal", 4, { isa: ["loom"], has: ["saba"], can: ["move", "swim"], use: ["eat"], where: ["water"], colourS: ["hall", "sinine", "punane", "must"] }),
-  thing("hobune", "animal", 7, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move", "jump"], canS: ["swim"], useS: ["ride"], whereS: ["outdoors"], colourS: ["pruun", "must", "valge", "hall"], feelS: ["fast"] }),
+  thing("hobune", "animal", 7, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move", "jump"], canS: ["swim"], use: ["ride"], whereS: ["outdoors"], colourS: ["pruun", "must", "valge", "hall"], feelS: ["fast"] }),
   thing("lehm", "animal", 7, { useS: ["eat"], isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["outdoors"], colourS: ["valge", "must", "pruun"] }),
   thing("siga", "animal", 6, { useS: ["eat"], isa: MAMMAL, has: ["jalg", "saba"], can: ["move"], whereS: ["outdoors"], colourS: ["valge", "must"] }),
   thing("jänes", "animal", 4, { useS: ["eat"], isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move", "jump"], whereS: ["outdoors", "forest"], colourS: ["hall", "pruun", "valge"], feel: ["fast"] }),
@@ -363,7 +363,7 @@ function widen(t: Thing): Thing {
   const made = merge(t.made, pick("m"));
   const madeS = merge(t.madeS, pick("ms")).filter((x) => !made.includes(x));
   // The categories a learner can name for what is not an animal, a plant or food.
-  const kindIsa: Record<string, string[]> = { clothes: ["rõivas", "ese"], object: ["ese"] };
+  const kindIsa: Record<string, string[]> = { clothes: ["riideese", "ese"], object: ["ese"] };
   const isa = merge(t.isa, kindIsa[t.kind] ?? []);
   return {
     ...t, isa, has, hasS, where, whereS, colour, colourS, trait, traitS, traitNo: merge(t.traitNo, words(own.tn)),

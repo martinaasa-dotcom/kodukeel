@@ -1795,7 +1795,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,805 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,807 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the

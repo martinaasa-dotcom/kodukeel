@@ -206,6 +206,7 @@ const ACTIONS: Record<string, Intent> = {
   hüppama: { id: "jump", en: "Does it jump?", copula: false, test: (t) => listed(t.can, t.canS, "jump") },
   liikuma: { id: "move", en: "Does it move?", copula: false, test: (t) => listed(t.can, t.canS, "move") },
   sõitma: { id: "ride", en: "Can you ride it?", copula: false, test: (t) => listed(t.use, t.useS, "ride") },
+  ratsutama: { id: "ride", en: "Can you ride it?", copula: false, test: (t) => listed(t.use, t.useS, "ride") },
   kandma: { id: "wear", en: "Can you wear or carry it?", copula: false, test: (t) => listed(t.use, t.useS, "wear") },
   lugema: { id: "read", en: "Can you read it?", copula: false, test: (t) => listed(t.use, t.useS, "read") },
   kirjutama: { id: "write", en: "Can you write with it?", copula: false, test: (t) => listed(t.use, t.useS, "write") },

@@ -1,9 +1,9 @@
 {
  "source": "Vabamorf through estnltk: the lexicon with guessing off for which spellings belong to more than one word, and the disambiguator over each sentence for which word it means",
  "corpus": {
-  "sentences": 15566,
-  "words": 29377,
-  "digest": "f8723061bf542f87"
+  "sentences": 15572,
+  "words": 29385,
+  "digest": "38bf91b03705fa77"
  },
  "homographs": [
   "-aastast",
@@ -3968,6 +3968,8 @@
   "23f6e6528250|koos": "koos",
   "23f7693520a7|püsis": "püsima",
   "2400dd1597c0|oma": "oma",
+  "2401d57323ac|arvata": "arvama",
+  "2401d57323ac|raske": "raske",
   "241b8b87567a|tõttu": "tõttu",
   "241b8b87567a|või": "või",
   "241eb49907c3|ühine": "ühine",
@@ -6822,6 +6824,8 @@
   "6bf4f2f740db|korda": "kord",
   "6c07e844c567|oluliselt": "oluliselt",
   "6c07e844c567|panna": "panema",
+  "6c1dd0297b33|korda": "kord",
+  "6c1dd0297b33|kuus": "kuu",
   "6c22263e8958|juhuslikult": "juhuslikult",
   "6c22263e8958|mahlast": "mahl",
   "6c22263e8958|sest": "sest",
@@ -11473,6 +11477,7 @@
   "d9b02b8f3bd8|sobi": "sobima",
   "d9b035f54b16|teed": "tee",
   "d9b89f56999e|taga": "taga",
+  "d9c8290a6691|kõige": "kõige",
   "d9cd9d0685fc|ilma": "ilma",
   "d9d4d6b593e5|teil": "sina",
   "d9dd0c87627b|koos": "koos",

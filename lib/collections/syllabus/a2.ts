@@ -606,6 +606,7 @@ export const A2 = [
       ["ligi", "nearly (with a number)", "ADVERB"],
       ["üha", "more and more", "ADVERB"],
       ["aina", "all the time", "ADVERB"],
+      ["ratsutama", "to ride a horse"],
     ],
   }),
 ] as const;
