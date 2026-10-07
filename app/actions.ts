@@ -1103,7 +1103,13 @@ export async function putWordAside(lexemeId: string, context: string) {
   */
   revalidatePath("/");
   revalidatePath("/words/mastery");
-  return { ok: true as const, note: result.note };
+  /* The span and the band ride along, so a Russian or Ukrainian screen can
+     say the sentence in its own words rather than print the English note. */
+  return {
+    ok: true as const,
+    note: result.note,
+    deferral: { reason: result.deferral.reason, days: result.deferral.days, untilLevel: result.deferral.untilLevel },
+  };
 }
 
 /**

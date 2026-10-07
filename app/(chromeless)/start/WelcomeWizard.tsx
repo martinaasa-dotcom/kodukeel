@@ -237,7 +237,20 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
   }, [presses]);
   const [name, setName] = useState(suggestedName);
   const [letters, setLetters] = useState<LetterBar>(DEFAULT_LETTER_BAR);
-  const [gloss, setGloss] = useState<GlossLanguage>(DEFAULT_GLOSS_LANGUAGE);
+  /*
+    THE MEANING LANGUAGE FOLLOWS THE APP'S LANGUAGE UNTIL THE LEARNER PICKS ONE.
+    Somebody who chose to read the app in Russian thinks in Russian, and
+    `kohv` next to «кофе» is reached in one step where "coffee" is two. So a
+    Russian or Ukrainian interface brings its own meanings with it, the
+    English is still printed beside them, and a press on the choice below
+    is final: changing the interface language afterwards does not undo it.
+  */
+  const [gloss, setGlossState] = useState<GlossLanguage>(initialLocale === "en" ? DEFAULT_GLOSS_LANGUAGE : initialLocale);
+  const [glossPicked, setGlossPicked] = useState(false);
+  const setGloss = (next: GlossLanguage) => {
+    setGlossPicked(true);
+    setGlossState(next);
+  };
 
   // A set, because almost nobody has one reason: living here, an Estonian
   // partner and a job where the meetings are in Estonian are three answers to
@@ -483,9 +496,12 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                   {LOCALES.filter((l) => locale === "en" || l === "en" || l === locale).map((l) => (
                     <ChoiceChip key={l} selected={locale === l} onSelect={() => {
                       setLocale(l);
-                      /* A meaning language the new interface language no longer
-                         offers goes back to English rather than staying hidden. */
-                      if (gloss !== "en" && l !== "en" && gloss !== l) setGloss("en");
+                      /* The meanings come along with the interface until the
+                         learner has chosen them; a meaning language the new
+                         interface language no longer offers goes back to
+                         English rather than staying hidden. */
+                      if (!glossPicked) setGlossState(l === "en" ? DEFAULT_GLOSS_LANGUAGE : l);
+                      else if (gloss !== "en" && l !== "en" && gloss !== l) setGlossState("en");
                     }}>
                       <span lang={l}>{LOCALE_NAMES[l]}</span>
                     </ChoiceChip>
@@ -592,8 +608,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
               anybody meets an Estonian word, and unlike the letter bar it is
               asked on a phone too: it is not a fact about the keyboard.
 
-              English stays the default, so somebody who wants it presses
-              nothing. The equivalents come from Ekilex, so nothing here was
+              It follows the language the app is read in, so somebody reading
+              in Russian starts with Russian meanings and somebody reading in
+              English presses nothing. The equivalents come from Ekilex, so nothing here was
               written by this app or by a model.
             */}
             <div

@@ -36,6 +36,7 @@ import { newWordsIn } from "@/lib/course/types";
 import { courseLevelFor } from "@/lib/progress/level";
 import { examCountdown } from "@/lib/progress/countdown";
 import { EVIDENCE_NOTE } from "@/lib/exam/readiness";
+import { caseByKey } from "@/lib/estonian/cases";
 import type { ExamLevel } from "@/lib/exam/spec";
 import { cohortKind, withoutMember } from "@/lib/classroom/cohort";
 import { classRoster, workplaceRoster } from "@/lib/classroom/roster";
@@ -1102,8 +1103,14 @@ export async function letterInputFor(
         groupName: group.name,
         ...headline,
         week,
-        // Never the screen's figure, which may rest on one student.
-        detail: { kind: "CLASS", weakestCases: roster.sharedCases },
+        // Never the screen's figure, which may rest on one student. And the
+        // case by the Estonian name a class uses: the roster hands over the
+        // `CaseKey` the review log stores ("PARTITIVE"), which the letter
+        // printed as it stood until it was read here.
+        detail: {
+          kind: "CLASS",
+          weakestCases: roster.sharedCases.map((c) => ({ ...c, grammCase: caseByKey(c.grammCase)?.et ?? c.grammCase.toLowerCase() })),
+        },
       },
     };
   }

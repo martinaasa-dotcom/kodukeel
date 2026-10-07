@@ -152,7 +152,7 @@ export const RU: Readonly<Record<string, string>> = {
     "Нажмите на слово, а потом на его значение, чтобы соединить их. Время идёт, пока поле не опустеет.",
   "Long or short": "Долгий или краткий",
   "Two words that sound almost the same, except one sound is held a little longer. You'll hear one of them.":
-    "Два слова звучат почти одинаково, только в одном звук тянется чуть дольше. Вы услышите одно из них.",
+    "Два слова звучат почти одинаково, только в одном звук тянется чуть дольше. В русском долгота звука не различает слова, а в эстонском различает. Вы услышите одно из них.",
   "Say which one you heard. Play it again if you need to, it's recorded in a quiet room.":
     "Выберите, какое вы услышали. Если нужно, включите ещё раз: запись сделана в тихой комнате.",
   "Put the sentence back in order": "Соберите предложение",
@@ -179,7 +179,7 @@ export const RU: Readonly<Record<string, string>> = {
   "The endings you keep missing": "Окончания, в которых вы чаще ошибаетесь",
   "Cards from the cases you get wrong most, picked from your own answers, against the clock.":
     "Карточки на падежи, в которых вы чаще всего ошибаетесь, отобранные по вашим же ответам, на время.",
-  "Answer as many as you can before time runs out.": "Ответьте на как можно больше вопросов, пока не закончится время.",
+  "Answer as many as you can before time runs out.": "Ответьте на столько вопросов, на сколько успеете, пока не закончится время.",
   "Guess today's word": "Угадайте слово дня",
   "One six-letter Estonian word a day, and seven tries to find it. After each guess, the letters show whether they're in the right spot, somewhere else, or not in the word at all.":
     "Одно эстонское слово из шести букв в день и семь попыток его найти. После каждой попытки буквы показывают, стоят ли они на своём месте, есть ли они в слове в другом месте или их в слове нет совсем.",

@@ -268,6 +268,32 @@ export interface LearnerNote {
 export function explainIn(language: Locale | undefined): string | null {
   if (!language || language === "en") return null;
   const name = LANGUAGE_NAME[language];
+  return `${explainLine(language, name)}${language === "ru" ? `\n${FROM_RUSSIAN}` : ""}`;
+}
+
+/**
+ * WHAT A RUSSIAN SPEAKER ALREADY HAS, AND WHERE IT PULLS THEM WRONG.
+ *
+ * A teacher of Estonian in Tallinn or Narva who works with Russian speakers
+ * leans on Russian where it carries over and names the handful of places it
+ * pulls a student wrong, and most of the commonest mistakes in their writing
+ * come from those places. Every parallel here is one that holds: Russian has
+ * cases and asks them with questions, has a genitive of part, drops the
+ * present of the verb to be, says «у меня есть» where Estonian puts the owner
+ * in the adessive, and counts with the genitive where Estonian uses the
+ * partitive singular. It holds no Estonian form, which is the rule this file
+ * keeps outside `WORKED_FORMS`, so nothing here can teach a wrong one.
+ *
+ * Not said for Ukrainian, because that reader is told never to be compared
+ * with Russian, and a list of Ukrainian parallels would need its own care.
+ */
+const FROM_RUSSIAN =
+  "- Russian gives them a head start: they know what a case is, they ask cases with questions (кто? кого? кому?), and Estonian's partial object is close to Russian's genitive of part («налей воды»). Use those parallels where they hold, and only those. "
+  + "Where Russian pulls them wrong, and their mistakes will show it, explain plainly and briefly: Estonian does not drop the present of the verb to be the way Russian drops «есть»; having is the owner in the adessive with the verb to be, the same shape as «у меня есть»; after a number from two upwards the noun is partitive singular, never the genitive Russian uses, and it does not change at five; Russian prepositions mostly become case endings or postpositions after the noun; whether an object is total or partial often does the work Russian aspect does («ел суп» against «съел суп»); Estonian has no grammatical gender. "
+  + "For pronunciation: stress is always on the first syllable, unstressed vowels keep their full sound, consonants are not softened before i or e the way Russian softens them, the length of a sound (short, long or overlong) changes the word, and the vowel written with a tilde over the o has no Russian equivalent. "
+  + "Raise only the point a question touches, never the whole list.";
+
+function explainLine(language: Exclude<Locale, "en">, name: string): string {
   return `- They read ${name} more easily than English and use the app in ${name}, so write everything you explain in ${name}: natural ${name}, the way a ${name}-speaking teacher of Estonian talks to an adult student (${language === "ru" ? "вы" : "ви"}), never a translation of English sentences.${language === "uk" ? " Write standard literary Ukrainian and nothing else: no Russian words, no Russianisms or calques from Russian, no surzhyk, and never Russian spelled with Ukrainian letters. Never mention Russia, Russian or the Russian language, and never compare anything to Russian; where a comparison helps, compare with Ukrainian or English." : " Standard literary Russian only: not one Ukrainian word, letter or turn of phrase, no surzhyk, and never mention Ukrainian or Ukraine or compare anything with them."} Wherever the rules above say English, read ${name}, except that the translation on a VOCAB line stays in English. Every Estonian word, form and sentence stays exactly as those rules require, in straight double quotes when you quote one; put ${name} words in «» quotes, never straight ones.`;
 }
 

@@ -15,6 +15,7 @@ import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { lengthAtPace, secondsAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 import { localeFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { matchedAsIn } from "@/lib/copy/matchedAs";
 
 export const dynamic = "force-dynamic";
 
@@ -186,7 +187,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
                     </span>
                     {item.matchedAs && (
                       <span className="block text-sm" style={{ color: "var(--sky-ink)" }}>
-                        {fill(t("On the page as the {form}"), { form: item.matchedAs })}
+                        {fill(t("On the page as the {form}"), { form: matchedAsIn(locale, item.matchedAs) })}
                       </span>
                     )}
                   </Link>

@@ -122,6 +122,27 @@ describe("the interface language", () => {
     }
   });
 
+  /*
+    A COUNTED NOUN MEANS ONE THING. The table is merged last-wins, so two
+    areas declaring one noun with different forms is not a clash anybody
+    sees: "point" counted marks on a paper as grammar topics and "second"
+    counted every clock in the accusative of a wait. A noun that needs two
+    readings takes two names, "exam point" and "second, as a wait".
+  */
+  it("declares each counted noun once, or the same way everywhere", () => {
+    const seen = new Map<string, [string, string]>();
+    const clashes: string[] = [];
+    for (const [name, area] of AREAS) {
+      for (const [noun, forms] of Object.entries(area.counted ?? {})) {
+        const key = JSON.stringify(forms);
+        const before = seen.get(noun);
+        if (before && before[1] !== key) clashes.push(`"${noun}": ${before[0]} and ${name} disagree`);
+        else seen.set(noun, [name, key]);
+      }
+    }
+    expect(clashes).toEqual([]);
+  });
+
   it("gives every counted noun all three forms in both languages", () => {
     for (const [name, area] of AREAS) {
       for (const [noun, forms] of Object.entries(area.counted ?? {})) {

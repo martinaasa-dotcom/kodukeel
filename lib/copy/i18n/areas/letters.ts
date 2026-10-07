@@ -25,7 +25,7 @@ export const LETTERS: Area = {
     "One step left in {title}": "В занятии {title} остался последний шаг",
     "{steps} left in {title}": "В занятии {title} ещё {steps}",
     "{newWords} tonight": "Сегодня вечером {newWords}",
-    "Back to {title} tonight": "Сегодня вечером снова {title}",
+    "Back to {title} tonight": "Сегодня вечером снова «{title}»",
     "{what}, part {n} of {of}": "{what}, часть {n} из {of}",
     "{shape}. About {minutes} minutes left.": "{shape}. Осталось около {minutes} мин.",
     "{shape}. About {minutes} minutes, start to finish.": "{shape}. Всего около {minutes} мин.",
@@ -53,7 +53,7 @@ export const LETTERS: Area = {
       "Kodukeel. Четыре буквы, которых нет в русском алфавите: o с тильдой, a, o и u с умлаутом.",
     "Your first cards are ready. Here's how it works.": "Ваши первые карточки готовы. Вот как всё устроено.",
     "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.":
-      "В вашей колоде уже {cards} из первых уроков курса. Ваш первый вечер: {title}, {subtitle}.",
+      "В вашей колоде уже {cards} из первых уроков курса. Ваш первый вечер: «{title}», {subtitle}.",
     "{cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.":
       "В вашей колоде уже {cards} из первых уроков курса. Откройте курс, и он покажет, с чего начать.",
     "A progress bar, right at the start.": "Полоса прогресса, в самом начале.",
@@ -78,7 +78,7 @@ export const LETTERS: Area = {
     "You still know {words}. That's what spacing the cards out is for: the words stay put while you're away. Nothing is lost, and you don't have to start over.":
       "Вы по-прежнему знаете {words}. Для этого карточки и разнесены во времени: слова остаются с вами, пока вас нет. Ничего не потеряно, и начинать заново не нужно.",
     "A shield you'd saved up covered the gap, so your {run} run is still going.":
-      "Перерыв прикрыл ваш запасной щит, так что серия ({run} подряд) продолжается.",
+      "Ваш запасной щит прикрыл пропуск, так что серия ({run} подряд) продолжается.",
     "No need for a whole evening. One quick round takes about {minutes} minutes, and that's enough to say you're back.":
       "Целый вечер не нужен. Один быстрый раунд занимает около {minutes} мин, и этого достаточно, чтобы вернуться.",
     "Or jump straight into tonight's fifteen minutes": "Или сразу к сегодняшним пятнадцати минутам",
@@ -89,7 +89,7 @@ export const LETTERS: Area = {
     "Play a two-minute word-matching game": "Сыграть в подбор пар на две минуты",
 
     // A shield spent.
-    "A shield covered yesterday.": "Вчерашний день прикрыл щит.",
+    "A shield covered yesterday.": "Щит прикрыл вчерашний день.",
     "You took yesterday off, so one of the shields you'd earned stepped in. Your run of {days} is still going.":
       "Вчера вы отдыхали, и в дело вступил один из заработанных щитов. Ваша серия, {days} подряд, продолжается.",
     "studied": "занимались",
@@ -101,7 +101,7 @@ export const LETTERS: Area = {
     "A day off never costs you anything here. Your words just wait for you, exactly where you left them.":
       "Выходной здесь ничего вам не стоит. Слова просто ждут вас там же, где вы их оставили.",
     "See what's on tonight": "Посмотреть, что сегодня вечером",
-    "A shield covered yesterday": "Вчерашний день прикрыл щит",
+    "A shield covered yesterday": "Щит прикрыл вчерашний день",
     "Your run of {days} is still going, and you've got {more} saved.":
       "Серия, {days} подряд, продолжается, и в запасе ещё {more}.",
     "Your run of {days} is still going, and that was your last shield.":
@@ -153,19 +153,19 @@ export const LETTERS: Area = {
     "Or just have a look at the words in {unit}": "Или просто посмотреть слова из раздела «{unit}»",
     "Have a look at the words first": "Сначала посмотреть слова",
     "If they answer in English, that still counts. So does running out of words halfway. You said it, and whatever happens next is about the moment, not about you. The only thing that doesn't count is staying quiet.":
-      "Если вам ответят по-английски, это всё равно засчитывается. И если слова закончатся на полпути, тоже. Вы это сказали, а что будет дальше, зависит от момента, а не от вас. Не засчитывается только молчание.",
+      "Если вам ответят по-русски или по-английски, это всё равно засчитывается. И если слова закончатся на полпути, тоже. Вы это сказали, а что будет дальше, зависит от момента, а не от вас. Не засчитывается только молчание.",
     "Tomorrow morning the app will ask whether you spoke any Estonian to anyone. No is a perfectly fine answer.":
       "Завтра утром приложение спросит, говорили ли вы с кем-нибудь по-эстонски. «Нет» тоже совершенно нормальный ответ.",
     "A word you might want for this one.": "Слово, которое может пригодиться.",
     "One thing to say out loud today": "Одна фраза, которую сегодня стоит сказать вслух",
     "{places}. Just one sentence, and an answer in English still counts.":
-      "{places}. Всего одна фраза, и ответ по-английски тоже засчитывается.",
+      "{places}. Всего одна фраза, и ответ по-русски или по-английски тоже засчитывается.",
 
     // The date somebody set.
     "{phrase} to go until the date you picked.": "До выбранной вами даты осталось: {phrase}.",
     "You're aiming for {band}, the level where you can {label}. Here's how that's looking.":
       "Вы идёте к уровню {band}, на котором можно {label}. Вот как обстоят дела.",
-    "A bar, about {pct} percent full, for your chances at {band}.": "Полоса заполнена примерно на {pct}%: ваши шансы на {band}.",
+    "A bar, about {pct} percent full, for your chances at {band}.": "Полоса заполнена примерно на {pct}%: ваши шансы на уровне {band}.",
     "If you sat it today, we'd put your chances of passing at about {pct} percent. {evidence}":
       "Если бы вы сдавали сегодня, мы оценили бы шансы сдать примерно в {pct}%. {evidence}",
     "Three things can change that, and any one of them counts: how often you study, the Estonian you already hear outside this app, and the date itself. Moving the date isn't giving up. You picked it in about ninety seconds, before you knew what any of this would take.":
@@ -174,7 +174,7 @@ export const LETTERS: Area = {
     "{phrase} to go until the date you picked": "До выбранной вами даты осталось: {phrase}",
     "At the pace you're going, {band} still fits.": "В нынешнем темпе вы успеваете к {band}.",
     "How {band} is looking, and three things that could change it.":
-      "Как обстоят дела с {band} и три вещи, которые могут это изменить.",
+      "Как обстоят дела с уровнем {band} и три вещи, которые могут это изменить.",
 
     // A group's week, to whoever runs it.
     "Last week in {group}": "Прошлая неделя в группе «{group}»",
@@ -182,7 +182,7 @@ export const LETTERS: Area = {
     "{quiet} didn't open the app.": "Не открывали приложение: {quiet}.",
     "somebody studied": "кто-то занимался",
     "nobody studied": "никто не занимался",
-    "The class finds {case} hardest.": "Труднее всего группе даётся {case}.",
+    "The class finds {case} hardest.": "Труднее всего группе даётся падеж {case}.",
     "{accuracy} percent right, across {total} answers from the whole class. That's the one to give them extra practice on this week.":
       "Верных ответов {accuracy}%, а всего ответов от группы: {total}. Именно этому падежу стоит уделить больше практики на этой неделе.",
     "{case} at {accuracy} percent": "{case} ({accuracy}%)",
@@ -190,8 +190,8 @@ export const LETTERS: Area = {
     "After that comes {first}.": "Следом идёт {first}.",
     "Not enough answers yet to say which case the class finds hardest. Give it another week.":
       "Ответов пока мало, чтобы сказать, какой падеж группе труднее всего. Подождите ещё неделю.",
-    "{onTrack} on track for {level}.": "Идут по плану к {level}: {onTrack}.",
-    "{ready} of {members} on track or close for {level}.": "{ready} из {members} идут по плану к {level} или близки к этому.",
+    "{onTrack} on track for {level}.": "Идут по плану к уровню {level}: {onTrack}.",
+    "{ready} of {members} on track or close for {level}.": "{ready} из {members} идут по плану к уровню {level} или близки к этому.",
     "{close} close, {needTime} need more time, {tooEarly} too early to say.":
       "Близки к цели: {close}, нужно больше времени: {needTime}, пока рано судить: {tooEarly}.",
     "{close} close, {needTime} need more time.": "Близки к цели: {close}, нужно больше времени: {needTime}.",
@@ -199,7 +199,7 @@ export const LETTERS: Area = {
     "Everybody in {group} practiced last week": "На прошлой неделе в группе «{group}» занимались все",
     "{active} of {members} in {group} practiced last week": "На прошлой неделе в группе «{group}» занимались {active} из {members}",
     "How the week went, and which case to work on next.": "Как прошла неделя и над каким падежом поработать дальше.",
-    "How the week went, and how the group is doing toward {level}.": "Как прошла неделя и как группа продвигается к {level}.",
+    "How the week went, and how the group is doing toward {level}.": "Как прошла неделя и как группа продвигается к уровню {level}.",
 
     // A word a day.
     "See {word} in the dictionary": "Открыть {word} в словаре",
@@ -373,7 +373,7 @@ export const LETTERS: Area = {
     "{quiet} didn't open the app.": "Не відкривали застосунок: {quiet}.",
     "somebody studied": "хтось займався",
     "nobody studied": "ніхто не займався",
-    "The class finds {case} hardest.": "Найважче групі дається {case}.",
+    "The class finds {case} hardest.": "Найважче групі дається відмінок {case}.",
     "{accuracy} percent right, across {total} answers from the whole class. That's the one to give them extra practice on this week.":
       "Правильних відповідей {accuracy}%, а всього відповідей від групи: {total}. Саме цьому відмінку варто приділити більше практики цього тижня.",
     "{case} at {accuracy} percent": "{case} ({accuracy}%)",

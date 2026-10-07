@@ -33,7 +33,7 @@ export const START: Area = {
     "If it keeps happening, let {email} know: this address needs adding to the sign-in settings.":
       "Если это повторяется, сообщите {email}: этот адрес нужно добавить в настройки входа.",
     "If it keeps happening, whoever runs this copy needs to add this address to the sign-in settings.":
-      "Если это повторяется, тому, кто управляет этой копией, нужно добавить этот адрес в настройки входа.",
+      "Если это повторяется, тому, кто запускает эту копию, нужно добавить этот адрес в настройки входа.",
     "That sign-in did not go through. An emailed link works once and only lasts an hour, so if yours is older than that, ask for a fresh one below.":
       "Войти не получилось. Ссылка из письма срабатывает один раз и действует всего час, так что если вашей уже больше часа, запросите новую ниже.",
     "This copy is running in local mode. There are no accounts and no signing in, and everything is kept right here on this machine. Add {url} and {key} to your {env} to turn on sign-in and separate decks for each person.":
@@ -113,9 +113,9 @@ export const START: Area = {
     "How do you type {a}, {b}, {c} and {d}?": "Как вы набираете {a}, {b}, {c} и {d}?",
     "Show the letters": "Показывать буквы",
     "Buttons for these letters appear under every box where you type Estonian.":
-      "Кнопки с этими буквами появятся под каждым полем, где вы пишете по-эстонски.",
+      "Кнопки с этими буквами появятся под каждым полем, где вы пишете по-эстонски. На русской и английской раскладке этих букв нет.",
     "I have them already": "Они у меня уже есть",
-    "Your keyboard already types them, so no extra buttons.": "Ваша клавиатура уже их набирает, так что лишние кнопки не нужны.",
+    "Your keyboard already types them, so no extra buttons.": "Ваша клавиатура уже их набирает (например, эстонская раскладка), так что кнопки не нужны.",
     "You can change this any time, in Settings or right from the row of letters.":
       "Это можно изменить в любой момент в настройках или прямо в строке с буквами.",
     "What language would you like meanings in?": "На каком языке показывать значения слов?",
@@ -228,9 +228,9 @@ export const START: Area = {
       "Всего {evenings}, и каждое слово курса встретится в одном из них. Вы можете в любой момент отойти от плана и пользоваться приложением по-своему. Ничего не пропадёт, и всё, что вы делаете, всё равно засчитывается.",
     "picked for your level": "подобраны под ваш уровень",
     "Tonight’s words come from your first {units} at {level}. Each word becomes a flashcard you can hear read aloud, with all its forms.":
-      "Слова этого вечера взяты из начала уровня {level}: {units}. Каждое слово станет карточкой со всеми его формами, которую можно прослушать.",
+      "Слова этого вечера взяты из первых разделов уровня {level} ({units}). Каждое слово станет карточкой со всеми его формами, которую можно прослушать.",
     "The other {units} at {level}, and every other level, are on the path whenever you want them.":
-      "Ещё {units} уровня {level} и все остальные уровни открыты для вас в любой момент.",
+      "Остальные разделы уровня {level} (ещё {units}) и все другие уровни доступны в любой момент.",
     "Nothing here is locked in.": "Всё это можно поменять.",
     "Your first conversation": "Ваш первый разговор",
     "{place}. Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one.":

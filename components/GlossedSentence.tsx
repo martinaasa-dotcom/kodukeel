@@ -13,6 +13,7 @@ import type { Condition } from "@/lib/audio/conditions";
 import { NOT_REACHED } from "@/lib/copy/values";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill, translated } from "@/lib/copy/locale";
+import { matchedAsIn } from "@/lib/copy/matchedAs";
 
 /**
  * AN ATTESTED SENTENCE YOU CAN READ, RATHER THAN ONE YOU CAN ONLY LOOK AT.
@@ -297,7 +298,7 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
             <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
               <HeadwordLink lemma={entry.lemma} small />
               {entry.reading && entry.reading !== entry.gloss && `, ${entry.gloss}`}
-              {entry.matchedAs && `, ${entry.matchedAs}`}
+              {entry.matchedAs && `, ${matchedAsIn(locale, entry.matchedAs)}`}
             </p>
           )}
           {/* The clause a flash card prints over the box, for a form no phrase

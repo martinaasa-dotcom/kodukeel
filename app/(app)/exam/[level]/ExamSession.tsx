@@ -685,7 +685,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
               </span>
               <span className="flex items-center gap-2">
                 <Chip>{fill(t("{n} min"), { n: part.spec.minutes })}</Chip>
-                <Chip tone="accent">{locale === "en" ? `${part.spec.points} points` : countOf(locale, part.spec.points, "point")}</Chip>
+                <Chip tone="accent">{countOf(locale, part.spec.points, "exam point")}</Chip>
               </span>
             </div>
             <ul className="mt-4 grid gap-2.5">
