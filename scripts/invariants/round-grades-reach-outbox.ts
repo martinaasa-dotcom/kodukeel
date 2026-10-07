@@ -36,7 +36,7 @@ export default function roundGradesReachOutbox({ check, ALL, code }: InvariantKi
     }
     const using = ALL.filter((f) => /\buseGrade\(\)/.test(code(f)));
     // 14 rather than 15: Picture match was taken out of the app, and it graded through this hook.
-    assert.ok(using.length >= 14, `only ${using.length} rounds grade through useGrade`);
+    assert.ok(using.length >= 11, `only ${using.length} rounds grade through useGrade`);
     /*
       Match hands its whole board in through one batched call rather than a
       grade per pair, so it cannot use the per-card hook; what it may not do is

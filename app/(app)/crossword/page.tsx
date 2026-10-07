@@ -41,6 +41,7 @@ export default async function CrosswordPage() {
   return (
     <BeforeYouStart id="crossword" ready={puzzle !== null}>
       <Page
+        compact
         title="Ristsõna"
         lead="Clues in English, answers in Estonian, and a fresh grid every morning."
       >

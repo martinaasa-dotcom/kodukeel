@@ -34,7 +34,7 @@ export default function aGapSaysItsEnglishOnce({ check, code, APP, COMPONENTS }:
       const guarded = [...source.matchAll(/&&\s*<GapMeaning\b/g)].length;
       if (drawn !== guarded) loose.push(`${file}: ${drawn - guarded} GapMeaning drawn with no guard at all`);
     }
-    assert.ok(seen >= 7, `found ${seen} GapMeaning call sites, expected at least the seven gap screens`);
+    assert.ok(seen >= 6, `found ${seen} GapMeaning call sites, expected at least the six gap screens`);
     assert.deepEqual(loose, [], "a gap screen leaves its English standing above the reveal that prints it again");
   });
 }

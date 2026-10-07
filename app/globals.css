@@ -978,6 +978,16 @@
     Phones only: above `md` the page fits and a pinned keyboard would be a
     control that follows you down a page that does not need it.
   */
+  /*
+    The circle's size is the window's height less everything on the page that
+    is not a circle, between 26px and 44px. Phones hold back more, for the tab
+    bar the keys are pinned above.
+  */
+  .sonad-board { --sonad-cell: clamp(1.625rem, calc((100dvh - 38rem) / 7), 2.5rem); }
+  @media (min-width: 768px) {
+    .sonad-board { --sonad-cell: clamp(1.75rem, calc((100dvh - 34rem) / 7), 2.75rem); }
+  }
+
   @media (max-width: 767px) {
     .sonad-keys {
       position: sticky;
@@ -1011,6 +1021,8 @@
       phone with a word game and no way out of it. The value is the point.
     */
     body:has(.sonad-keys) [data-chrome="anu"] { display: none !important; }
+    /* The crossword is the same fault: Anu's launcher sat over its Check button. */
+    body:has(.crossword-board) [data-chrome="anu"] { display: none !important; }
   }
 
   /*

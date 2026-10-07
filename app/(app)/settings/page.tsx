@@ -342,9 +342,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             HOW LONG A TIMED ROUND RUNS, WHICH IS WCAG 2.2.1 RATHER THAN A
             DIFFICULTY DIAL.
 
-            The Case Sprint, the daily quest and Target each ran to a clock
-            nobody could change, and a learner who reads slowly or types with one
-            hand was not playing a harder round, they were shut out of it. The
+            The daily quest ran to a clock nobody could change, and a learner
+            who reads slowly or types with one hand was not playing a harder
+            round, they were shut out of it. The
             criterion is met by letting the limit be adjusted before it is
             met, which is what this is; see lib/ux/roundClock.ts for why
             adjusting rather than removing. The mock examination keeps its own
@@ -354,8 +354,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={roundPaceName}>Time on the clock</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                Three games race the clock: the Case Sprint, the daily quest and Target. Choose how
-                much time you&rsquo;d like. Everything else about them stays the same.
+                The daily quest races the clock. Choose how much time you&rsquo;d like.
+                Everything else about it stays the same.
               </p>
               <RoundPacePanel current={roundPace} />
               <Explain label="Why the mock exam keeps its own timing">

@@ -68,3 +68,33 @@ export const ADVANCE_KEY_LABEL = "Enter";
  * character somebody has to recognise.
  */
 export const ADVANCE_KEY_GLYPH = "↵";
+
+/**
+ * THE TWO SELF-GRADES HAVE A KEY EACH, AND THEY ARE THE TWO BIG ONES.
+ *
+ * A card that says "Not yet" and "Got it" is a card with nothing to compare
+ * an answer against, so the learner is the judge and the keyboard should let
+ * them judge without the mouse: Space is "Not yet" and Enter is "Got it".
+ * Space is a letter inside a text box, so it counts only outside one, the
+ * same rule `isAdvanceKey` has, and a held key is not a second answer.
+ */
+export function isNotYetKey(e: KeyLike & { repeat?: boolean }): boolean {
+  return e.key === " " && !e.repeat && !inEditable(e.target);
+}
+
+export function isGotItKey(e: KeyLike & { repeat?: boolean }): boolean {
+  return e.key === "Enter" && !e.repeat;
+}
+
+/**
+ * SPACE PLAYS THE WORD, WHILE THE ROUND IS STILL ASKING.
+ *
+ * The same key as `isAdvanceKey` reads, so a round uses this only before the
+ * answer is in and the advance key after. It stands down for a control that
+ * has the keyboard, since that control answers its own Space.
+ */
+export function isPlayKey(e: KeyLike & { repeat?: boolean; target: object | null }): boolean {
+  if (e.key !== " " || e.repeat || inEditable(e.target)) return false;
+  const el = e.target as { closest?: (selector: string) => unknown } | null;
+  return !(el && typeof el.closest === "function" && el.closest("button, a, summary, select, [role=button], [role=radio]"));
+}

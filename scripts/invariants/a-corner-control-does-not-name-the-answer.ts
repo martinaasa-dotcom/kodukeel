@@ -20,7 +20,6 @@ const ROUNDS = [
   "app/(app)/review/ReviewSession.tsx",
   "app/(app)/review/flashcards/FlashSession.tsx",
   "app/(app)/learn/new/LearnSession.tsx",
-  "app/(app)/review/sprint/SprintSession.tsx",
 ];
 
 export default function aCornerControlDoesNotNameTheAnswer({ check, code }: InvariantKit) {

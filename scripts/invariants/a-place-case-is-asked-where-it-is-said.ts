@@ -44,7 +44,6 @@ export default function aPlaceCaseIsAskedWhereItIsSaid({ check, code }: Invarian
     assert.match(recorded, /readCase\(/, "recordsCase counts a spelling the word wears in another case too");
     assert.match(recorded, /verdict\.kind\s*!==\s*"one"/, "recordsCase takes a shared spelling as a record");
     assert.match(recorded, /lentFor\(/, "recordsCase counts a loan as recording a spelling it was not lent for");
-    assert.match(code("lib/progress/describe.ts"), /recordsCase\(/, "Describe chooses a picture's word without asking whether the case is recorded");
   });
 
   check("a borrowed sentence is gapped only on the spelling it was lent for", () => {

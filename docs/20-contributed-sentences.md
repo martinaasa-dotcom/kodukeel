@@ -38,8 +38,8 @@ left.
 
 ## What the app does without them
 
-`lib/progress/describe.ts` falls back to the dictionary's own attested usages,
-and the panel says which of three things it is showing:
+The picture round (`lib/collections/pictures.ts`) no longer reads these. The older scene task fell back
+to the dictionary's own attested usages, and its panel said which of three things it was showing:
 
 | Label | What it is | Measured coverage |
 | --- | --- | --- |

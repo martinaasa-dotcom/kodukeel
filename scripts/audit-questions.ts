@@ -66,11 +66,7 @@ import { EXAM_LEVELS } from "../lib/exam/spec";
 import { clueClashes, clueFrom, clueKey } from "../lib/games/clue";
 import { mentions } from "../lib/estonian/cloze";
 import { PARTS } from "../lib/copy/values";
-import { SCENES } from "../lib/collections/scenes";
-import { emojiFor } from "../lib/collections/emoji";
-import { ASKABLE_CASES, taskFor, type SceneWord } from "../lib/games/describe";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
-import { caseQuestion } from "../lib/progress/target";
 import { orderContextFrom } from "../lib/estonian/wordOrder";
 import { planLesson, type LessonWord } from "../lib/collections/lesson";
 import { taughtSpellings } from "../lib/progress/lessonWords";
@@ -163,7 +159,7 @@ const REACHES: Record<string, number> = {
     against 45,856. Re-measured rather than scaled, which is what the paragraph
     above says about `exam` having been guessed once.
   */
-  deck: 10_800, crossword: 3_700, scene: 1_100, target: 4_100,
+  deck: 10_800, crossword: 3_700,
   /*
     2,500 while every exam item was counted as asked, including the six shapes
     with nothing on screen to search. 1,160 of those were being counted and not
@@ -622,94 +618,6 @@ for (const e of entries) {
   if (clashes.has(clueKey(e.lemma, e.pos))) continue;
   const clue = clueFrom(e.translation ?? "", e.lemma, e.pos);
   if (clue) ask(`crossword ${e.lemma}`, clue, e.lemma);
-}
-});
-
-/* ── The scene game ──────────────────────────────────────────────────────── */
-/*
-  A scene puts three words on the screen and asks for one of them in a case, so
-  a task whose answer is one of those three is completed by copying, and
-  `markDescription` grades the copy Good. Eight of the 1,980 tasks the sixty
-  scenes can set were free that way, all of them the seesütlev of a word that
-  ends in `s` already: `liblikas`, `sipelgas`, `kotkas`, `kirves`, `labidas`,
-  `maasikas`, `lusikas`, `haldjas`.
-
-  Pure and file-backed like everything else here: `SCENES` names lemmas,
-  `emojiFor` says which have a picture, and `taskFor` builds the task.
-*/
-timed("scene", () => {
-const nouns = new Map<string, DictionaryRow>();
-for (const e of entries) if (e.pos === "NOUN" && !nouns.has(e.lemma)) nouns.set(e.lemma, e);
-
-for (const scene of SCENES) {
-  const words: SceneWord[] = [];
-  for (const lemma of scene.lemmas) {
-    const row = nouns.get(lemma);
-    const emoji = emojiFor(lemma);
-    if (!row || !emoji) break;
-    words.push({
-      lemma: row.lemma,
-      pos: "NOUN",
-      translation: row.translation ?? "",
-      emoji,
-      semanticTypes: row.semanticTypes ?? null,
-      forms: (row.forms ?? []).map((f) => ({ formType: f.formType, value: f.value })),
-    });
-  }
-  if (words.length !== scene.lemmas.length) continue;
-
-  // Every word of the scene, in every case the round could pick, because the
-  // builder walks them in priority order and takes the first that answers.
-  for (let index = 0; index < words.length; index++) {
-    for (const caseKey of ASKABLE_CASES) {
-      const task = taskFor(scene, words, index, caseKey);
-      if (!task) continue;
-      // The prompt is the situation and all three words, which is what makes
-      // this different from a card: the answer may be any of the three.
-      const prompt = `${scene.situation} ${words.map((w) => w.lemma).join(" ")}`;
-      ask(`scene ${scene.id} ${words[index]!.lemma} ${caseKey}`, prompt, task.accepted.join(PARTS));
-    }
-  }
-}
-});
-
-/* ── Target ──────────────────────────────────────────────────────────────── */
-/*
-  The aim-and-hit round offers four forms of one word under the lemma and the
-  question its case answers, so a form spelled like the lemma is an option the
-  learner takes straight off the prompt. 122 of the 51,447 case slots the
-  shipped dictionary can fill were spelled that way, every one of them a word
-  ending in `s` whose seesütlev comes back to the nominative.
-
-  `caseQuestion` is exported for this, because the round itself is a database
-  read and cannot be asked from a file.
-
-  THIS SECTION SAMPLES WHERE THE OTHERS ARE EXHAUSTIVE, and says so rather than
-  reading as though it were not. The builder picks one of the word's eleven
-  cases itself, which is what the round does, so one call asks one of them: with
-  the guard removed this reported 15 of the 122 slots that were free rather than
-  all 122. Every one of those is a failure and the count of them is not the
-  point, but a fault on a single word could be missed on a single run, which is
-  worth knowing about a check before trusting it. The rule the round applies is
-  total; this is the backstop, not the rule.
-*/
-timed("target", () => {
-for (const e of entries) {
-  if (e.pos !== "NOUN" && e.pos !== "ADJECTIVE") continue;
-  const forms = (e.forms ?? []).map((f) => ({
-    formType: f.formType, morphCode: null, value: f.value,
-  }));
-  const question = caseQuestion(
-    { lemma: e.lemma, semanticTypes: e.semanticTypes ?? null, forms },
-    "audit",
-  );
-  if (!question) continue;
-  // What the learner is shown: the word and the question its case answers.
-  ask(
-    `target ${e.lemma} ${question.caseEt ?? ""}`,
-    `${question.lemma} ${question.question ?? ""}`,
-    question.options[question.answer] ?? "",
-  );
 }
 });
 

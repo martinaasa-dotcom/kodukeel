@@ -31,7 +31,6 @@ const JOINED = [
 // so neither draws a case beside its question at all.
 const DRAWS_IT = [
   "app/(app)/review/ReviewSession.tsx",
-  "app/(app)/review/describe/DescribeSession.tsx",
   "app/(app)/review/government/GovernmentSession.tsx",
   "app/(app)/review/flashcards/FlashSession.tsx",
   "app/(app)/review/exceptions/ExceptionsSession.tsx",

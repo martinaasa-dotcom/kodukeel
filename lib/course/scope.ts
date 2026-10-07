@@ -164,8 +164,6 @@ export function tonightsCase(scope: ModuleScope | null): string | null {
   return scope?.day.grammarCase ?? null;
 }
 
-/** How much of a case round leads with tonight's case, where it can. */
-export const TONIGHT_SHARE = 0.5;
 
 /**
  * A round's order with tonight's items woven through the front of it: one of

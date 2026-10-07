@@ -11,8 +11,6 @@ import { Speak } from "@/components/Speak";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Empty, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { ScanActions } from "./ScanActions";
-import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { lengthAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 
 export const dynamic = "force-dynamic";
 
@@ -50,7 +48,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
   const summary = summarise(items);
   const ids = items.map((i) => i.lexemeId).filter((id): id is string => id !== null);
 
-  const [snapshot, lexemes, settings] = await Promise.all([
+  const [snapshot, lexemes] = await Promise.all([
     deckSnapshot(ownerId),
     ids.length
       ? prisma.lexeme.findMany({
@@ -61,11 +59,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
           },
         })
       : Promise.resolve([]),
-    readSettings(ownerId, [SETTING_KEYS.roundPace]),
   ]);
-  // The sprint's length at this learner's pace, the figure the round itself
-  // runs for, rather than the standard minute typed into a sentence.
-  const sprintLength = lengthAtPace(SPRINT_SECONDS, settings[SETTING_KEYS.roundPace]);
 
   const byId = new Map(lexemes.map((l) => [l.id, l]));
   // The page's own order, which is the order it is printed in. A learner
@@ -153,10 +147,10 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
                 body="Eight pairs against the clock. The words come from everything due in your deck, not just this page."
               />
               <PractiseTile
-                href="/review/sprint"
+                href="/review/flashcards"
                 tone="blush"
-                title="Sprint"
-                body={`${sprintLength} against the clock. The quickest way to see which words haven't stuck yet.`}
+                title="Flash cards"
+                body="The same words asked in new ways, typed from memory. The quickest way to see which haven't stuck yet."
               />
             </div>
           </section>

@@ -22,7 +22,7 @@ interface Group {
  * them: a shortcut nobody can discover is a shortcut nobody uses, and the fastest
  * way to make a review session feel slow is to make someone reach for the mouse
  * four times a card. Each line matches a real handler — the review keys live in
- * `ReviewSession`, the sprint keys in `SprintSession`, and so on.
+ * `ReviewSession`, the match keys in `MatchSession`, and so on.
  */
 const GROUPS: Group[] = [
   {
@@ -41,7 +41,8 @@ const GROUPS: Group[] = [
       { press: ["Enter", "Space"], does: "Show the answer, or move on once you've read it" },
       { press: ["Enter"], does: "Check what you typed" },
       { press: ["1"], does: "Pick the first answer, and 2 to 4 for the rest" },
-      { press: ["1", "2"], does: "On a card you flip: I didn't know it, I knew it" },
+      { press: ["Space"], does: "On a card you flip: not yet" },
+      { press: ["Enter"], does: "On a card you flip: got it" },
       { press: ["B"], does: "Peek at the word before this one, without changing anything" },
       { press: ["U"], does: "Undo your last answer, as if it never happened" },
       { press: ["⌘", "Z"], does: "…the same, without leaving the answer box" },
@@ -53,16 +54,9 @@ const GROUPS: Group[] = [
     keys: [
       { press: ["1"], does: "Pick the first option" },
       { press: ["2"], does: "…the second, and so on" },
+      { press: ["Space"], does: "Play the word, while you're still choosing" },
       { press: ["R"], does: "Play the word again, in minimal pairs" },
       { press: ["Enter", "Space"], does: "Carry on once you've answered" },
-    ],
-  },
-  {
-    title: "Case Sprint",
-    hint: "the timed round",
-    keys: [
-      { press: ["Enter", "Space"], does: "Flip the card, then say you got it" },
-      { press: ["⌫"], does: "Count it as a miss and move on" },
     ],
   },
 ];

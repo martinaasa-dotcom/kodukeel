@@ -75,7 +75,17 @@ import { WordLink } from "@/components/course/WordLink";
 const HUE: Record<Mark, { bg: string; ink: string; ring: string }> = {
   here: { bg: "var(--sky)", ink: "var(--on-sky)", ring: "transparent" },
   elsewhere: { bg: "var(--butter-soft)", ink: "var(--butter-ink)", ring: "var(--butter-ink)" },
-  absent: { bg: "var(--raised)", ink: "var(--ink-3)", ring: "transparent" },
+  /*
+    Spent is a deeper lavender than the board it sits on, with the second ink
+    for its letter. `--raised` was the wash on the night panel and is two
+    percent of lightness from the lavender ground, which would have made a
+    letter that is not in the word look like a circle nobody has used yet.
+  */
+  absent: {
+    bg: "color-mix(in srgb, var(--accent-deep) 16%, var(--accent-soft))",
+    ink: "var(--ink-2)",
+    ring: "transparent",
+  },
 };
 
 /** How thick each ring is, which is the half of the signal that is not color. */
@@ -95,7 +105,11 @@ const SPOKEN: Record<Mark, string> = {
   absent: "not in the word",
 };
 
-const EMPTY = { bg: "transparent", ink: "var(--ink)", ring: "var(--rule)" };
+/* An open circle: the ground shows through, and the ring is the deep accent at half strength. */
+/** The same three, short enough that the legend is one line on a phone. */
+const LEGEND: Record<Mark, string> = { here: "in place", elsewhere: "in the word", absent: "not in it" };
+
+const EMPTY = { bg: "transparent", ink: "var(--ink)", ring: "color-mix(in srgb, var(--accent-deep) 45%, transparent)" };
 
 export function SonadSession({ puzzle, day, guessable }: {
   puzzle: Puzzle;
@@ -245,8 +259,15 @@ export function SonadSession({ puzzle, day, guessable }: {
   }, [guesses, puzzle.answer]);
 
   return (
-    <div className="flex flex-col gap-5">
-      <Card tone="night">
+    /*
+      ONE SCREEN. The board, its keys and the two buttons have to be in view
+      together, so every size below is read off `--sonad-cell`, which is the
+      room the window leaves after everything that is not a circle, between
+      30px and 44px. On a phone the keys are pinned (see `.sonad-keys`) and
+      the board is the thing that gives.
+    */
+    <div className="sonad-board flex flex-col gap-3">
+      <Card tone="accent" dense>
         <div className="flex flex-wrap items-center gap-2">
           {/*
             What is known from the first row: what kind of word and how hard it
@@ -273,7 +294,7 @@ export function SonadSession({ puzzle, day, guessable }: {
           it lands under a board a screen reader has already been read.
         */}
         {!over && (clue.category || clue.vowels || coming) && (
-          <p className="mt-2.5 text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-1.5 text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
             {clue.category && puzzle.category && (
               <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>
                 It&apos;s {puzzle.category}.
@@ -293,7 +314,7 @@ export function SonadSession({ puzzle, day, guessable }: {
           </p>
         )}
 
-        <div className="mt-4 flex flex-col items-center gap-2">
+        <div className="mt-3 flex flex-col items-center gap-1.5">
           {rows.map((row) => (
             <Row
               key={row}
@@ -357,7 +378,7 @@ function Row({ guess, typed, answer, refused, won }: {
               answer, staggered along the row by `--sonad-at`. See the block in
               globals.css for why neither of those is a flip.
             */
-            className={`grid h-11 w-11 place-items-center rounded-full text-lg font-bold uppercase sm:h-12 sm:w-12 ${
+            className={`grid h-[var(--sonad-cell)] w-[var(--sonad-cell)] place-items-center rounded-full text-md font-bold uppercase ${
               won ? "sonad-rise" : marks ? "sonad-settle" : ""
             }`}
             style={{
@@ -398,7 +419,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
       scrolls. See `.sonad-keys` in globals.css for why sticky rather than
       fixed, and for what the suites were measuring instead.
     */
-    <Card className="sonad-keys">
+    <Card className="sonad-keys" dense>
       {/*
         WHAT THE THREE CIRCLES MEAN, IN WORDS, ON THE SCREEN.
 
@@ -421,7 +442,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
         Drawn from the same `HUE` and `RING` tables the circles are, so a
         legend cannot go on describing a colour the board has stopped using.
       */}
-      <ul className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-2xs" style={{ color: "var(--ink-3)" }}>
+      <ul className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-2xs" style={{ color: "var(--ink-3)" }}>
         {(["here", "elsewhere", "absent"] as const).map((mark) => (
           <li key={mark} className="flex items-center gap-1.5">
             <span
@@ -432,7 +453,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
                 boxShadow: RING[mark] === "0" ? "none" : `inset 0 0 0 2px ${HUE[mark].ring}`,
               }}
             />
-            {SPOKEN[mark]}
+            {LEGEND[mark]}
           </li>
         ))}
       </ul>
@@ -450,7 +471,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
         keyboard is, and the height stays 44 so a thumb has the target the
         floor asks for on the axis a thumb actually misses.
       */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1">
         {SONAD_KEY_ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1 sm:gap-1.5">
             {row.map((letter) => {
@@ -465,7 +486,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
                   lang="et"
                   aria-label={letter}
                   data-keyboard-key
-                  className="press tap-tint grid h-11 min-w-0 flex-1 basis-0 place-items-center rounded-[var(--r-sm)] text-sm font-semibold uppercase transition-ui sm:text-base"
+                  className="press tap-tint grid h-11 min-w-0 flex-1 md:h-10 basis-0 place-items-center rounded-[var(--r-sm)] text-sm font-semibold uppercase transition-ui sm:text-base"
                   style={{
                     background: hue.bg,
                     color: hue.ink,
@@ -479,7 +500,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
           </div>
         ))}
       </div>
-      <div className="mt-3 flex gap-2">
+      <div className="mt-2 flex gap-2">
         <Button type="button" variant="secondary" onClick={onDelete} className="flex-1">
           <Delete size={16} aria-hidden /> Delete
         </Button>
