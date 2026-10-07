@@ -26,7 +26,7 @@ export function NoPage() {
     <Lettered className="w-full">
       <div className="night flex w-full flex-col items-center gap-4 rounded-[var(--r-xl)] border px-6 py-10 md:px-10 md:py-12">
         <Mascot size={72} mood="thinking" className="float" />
-        <FitText as="h1" text="Seda lehte pole" lang="et" className="font-display font-bold leading-tight tracking-tight [--fit-max:var(--text-4xl)] md:[--fit-max:var(--text-5xl)]" style={{ color: "var(--ink)", textWrap: "balance" }} />
+        <FitText as="h1" text="Seda lehte pole" lang="et" className="font-display font-bold leading-tight tracking-tight [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]" style={{ color: "var(--ink)", textWrap: "balance" }} />
         <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           There&rsquo;s nothing at this address. If you were looking for a word, try the dictionary.
           Type it in Estonian or English, in whatever form you&rsquo;ve got in front of you.

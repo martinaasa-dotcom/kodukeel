@@ -469,7 +469,7 @@ export default async function TodayPage() {
         <FitText
           as="h2"
           text={uiText(placement, courseDay.day.title, courseDay.day.subtitle)}
-          className="font-display mt-3 font-bold leading-[1.02] [--fit-max:var(--text-3xl)] md:[--fit-max:var(--text-4xl)]"
+          className="font-display mt-3 font-bold leading-tight [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"
           lang={uiWantsEnglish(placement) ? undefined : "et"}
           style={{ color: "var(--ink)", textWrap: "balance" }}
         />

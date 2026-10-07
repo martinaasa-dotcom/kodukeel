@@ -164,7 +164,7 @@ export default async function CasePage({
             <div className="min-w-0">
               <p className="label-xs" style={{ color: "var(--cta)" }}>The ending</p>
               {ref.spec.principal ? (
-                <p className="font-display mt-2 text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+                <p className="font-display mt-2 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)" }}>
                   None. This one you learn by heart.
                 </p>
               ) : (

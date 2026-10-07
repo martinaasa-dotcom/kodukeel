@@ -68,7 +68,7 @@ export default async function GrammarIndexPage() {
               <Sparkles size={14} aria-hidden className="shrink-0" />
               How the cases work
             </p>
-            <h2 className="font-display mt-3 text-3xl font-bold leading-[1.02] md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+            <h2 className="font-display mt-3 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
               One word, eleven endings
             </h2>
             <p className="mt-3 max-w-[58ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
