@@ -153,6 +153,45 @@ the database, what the learner typed, and anything marked `lang="en"`. English a
 translated yet carries `data-untranslated` and is listed at the end of the run by name. A translation
 longer than its box is fixed by a shorter translation first, and by the layout where the box is wrong.
 
+## Ukrainian as the base language
+
+A Ukrainian reader thinks in Ukrainian, so the Ukrainian explains Estonian through Ukrainian where it
+genuinely helps: the partitive beside «налий води» and «не маю часу», the total and partial object
+beside perfective and imperfective aspect, «у мене є» for the -l ending, the instrumental that Estonian
+splits into -ga, -na and -ks. Where Ukrainian sets a trap (gender, dropping «olen», the genitive plural
+after numbers), the line names it. Facts about Estonian follow the English source and
+`docs/02-estonian-domain.md`.
+
+- Meanings lead in the learner's language on every card, choice and game (`meaningShown` and
+  `meaningsShown` in `lib/collections/glossLanguage.ts`). A set of options leads in Ukrainian only when
+  every option has a Ukrainian meaning, so the language never gives the answer away. What is compared
+  is still the English. `glossAlso` adds the other of Russian and Ukrainian as a second meaning.
+- `/grammar/ukrainian` is "Estonian for Ukrainian speakers" (`lib/estonian/ukrainian.ts`): sounds,
+  what carries over, what is new, typing, «ти» or «ви», and familiar words and false friends, every one
+  checked against the shipped dictionary. A page about Ukrainian has no Russian half.
+- Anu is given Ukrainian (or Russian) grammar bridges in the per-learner block (`BRIDGES` in
+  `lib/tutor/prompt.ts`); the cached prompt is unchanged.
+- A learner's name is never put in direct address in Ukrainian, which would need the vocative.
+- The delete and replace confirmations accept the word in any of the three languages (`confirmWord`).
+
+### More Ukrainian words, once
+
+| English | Ukrainian |
+|---|---|
+| landlord | орендодавець |
+| a form you hand in | бланк |
+| tutor (Anu) | репетиторка |
+| known (a word that stuck), mastered | засвоєно, опановано |
+| learning (status) | вивчаю |
+| sat (an exam), passed | писали, складено |
+| measured (a level) | виміряно |
+| Sign out | Вийти з облікового запису |
+| a unit's lesson | урок розділу |
+| an app area | сторінка (never «розділ», which is a course unit) |
+| verbal aspect | вид |
+| elative, ablative | зсередини, з поверхні (and «з чого? (зсередини)» against «з чого? (з поверхні)») |
+| comitative | разом із |
+
 ## Not reviewed yet
 
 Both languages were translated with AI, and nobody who speaks either as a first language has read

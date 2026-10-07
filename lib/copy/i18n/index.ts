@@ -18,6 +18,9 @@ import { LETTERS } from "./areas/letters";
 import { LANDING } from "./areas/landing";
 import { LEGAL } from "./areas/legal";
 import { PUBLIC } from "./areas/public";
+import { MEANING } from "./areas/meaning";
+import { SPEAKERS } from "./areas/speakers";
+import { NEWCOMERS } from "./areas/newcomers";
 import { SWEEP } from "./areas/sweep";
 import { EXAM } from "./areas/exam";
 
@@ -45,6 +48,9 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["landing", LANDING],
   ["legal", LEGAL],
   ["public", PUBLIC],
+  ["meaning", MEANING],
+  ["speakers", SPEAKERS],
+  ["newcomers", NEWCOMERS],
   ["sweep", SWEEP],
   ["exam", EXAM],
 ];

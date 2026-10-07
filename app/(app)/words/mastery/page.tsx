@@ -1,3 +1,4 @@
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { requireUserId } from "@/lib/auth/session";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page, Stack } from "@/components/ui";
@@ -49,7 +50,7 @@ export default async function MasteryPage() {
     from the list because the list is capped and a cap cannot say how many
     there are.
   */
-  const [words, kept, keptTotal, aside, locale] = await Promise.all([
+  const [words, kept, keptTotal, aside, locale, prefs] = await Promise.all([
     masteryFor(ownerId),
     favorites(ownerId),
     favoriteCount(ownerId),
@@ -61,6 +62,7 @@ export default async function MasteryPage() {
     */
     deferredFor(ownerId),
     localeFor(ownerId),
+    meaningPrefsFor(ownerId),
   ]);
   const t = (english: string) => tr(locale, english);
 
@@ -80,7 +82,7 @@ export default async function MasteryPage() {
         <Stack>
           <Favorites words={kept} total={keptTotal} locale={locale} />
           <PutAside words={aside} />
-          {words.length > 0 && <MasteryBoard words={words} counts={masteryCounts(words)} locale={locale} />}
+          {words.length > 0 && <MasteryBoard words={words} counts={masteryCounts(words)} locale={locale} prefs={prefs} />}
         </Stack>
       )}
     </Page>

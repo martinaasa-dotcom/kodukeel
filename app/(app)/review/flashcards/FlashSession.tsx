@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { Meaning } from "@/components/Meaning";
+import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { countOf, fill } from "@/lib/copy/locale";
 import { answerNote } from "@/lib/copy/answerNote";
 import { rich } from "@/components/round/rich";
@@ -46,6 +48,12 @@ export interface FlashPrompt extends FlashTask {
    * a person and a thing.
    */
   say: string | null;
+  /**
+   * The word's meaning as the learner's language leads it, wherever the round
+   * prints the meaning as a meaning, or null for English. Drawing only: the
+   * gap's cue and the mark go on reading `translation`.
+   */
+  meaning?: ShownMeaning | null;
   progress: { correct: number; needCorrect: number; slots: number; needSlots: number };
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
@@ -421,7 +429,9 @@ function Question({
   task, shape, answered, onNoAudio,
 }: { task: FlashPrompt; shape: FlashTask["shape"]; answered: boolean; onNoAudio: () => void }) {
   const t = useT();
-  const meaning = (
+  const meaning = task.meaning ? (
+    <Meaning meaning={task.meaning} className="text-base" leadStyle={{ color: "var(--ink)" }} />
+  ) : (
     <p className="text-base" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
   );
   const word = (
@@ -431,9 +441,19 @@ function Question({
   if (shape === "recall") {
     return (
       <div>
-        <p className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
-          {task.translation}
-        </p>
+        {task.meaning ? (
+          /* Asked from its meaning, so the meaning leads in the learner's language. */
+          <Meaning
+            meaning={task.meaning}
+            leadClassName="text-3xl font-bold leading-tight"
+            leadStyle={{ color: "var(--ink)" }}
+            englishClassName="mt-1 text-base"
+          />
+        ) : (
+          <p className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+            {task.translation}
+          </p>
+        )}
         {partOfSpeechCue(task.pos) && (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
             {t(partOfSpeechCue(task.pos) ?? "")}

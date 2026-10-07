@@ -46,6 +46,7 @@ import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { type SeenCard } from "@/lib/ux/lookBack";
 import { FitText } from "@/components/FitText";
+import { Meaning } from "@/components/Meaning";
 import { useKeepInView } from "@/components/round/useKeepInView";
 import { useOncePerRound } from "@/components/round/useOncePerRound";
 
@@ -850,7 +851,9 @@ export function LearnSession({
                 style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
               >
                 <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{w.lemma}</span>
-                <span className="text-sm" style={{ color: "var(--ink-3)" }}>{w.gloss}</span>
+                {w.meaning
+                  ? <Meaning meaning={w.meaning} inline className="text-sm" leadStyle={{ color: "var(--ink-2)" }} englishClassName="text-xs" />
+                  : <span className="text-sm" style={{ color: "var(--ink-3)" }}>{w.gloss}</span>}
                 <span className="ml-auto flex items-center gap-2">
                   <Ladder rung={where} />
                   <Chip tone={where === "kept" ? "good" : "neutral"}>
@@ -1044,6 +1047,7 @@ export function LearnSession({
               gloss={word.gloss}
               alsoSaid={word.alsoSaid}
               equivalent={word.equivalent}
+              also={word.also}
               sentence={word.sentence}
               tokens={word.tokens}
               lexemeId={word.lexemeId}
@@ -1064,6 +1068,8 @@ export function LearnSession({
                 <div className="mt-2 grid w-full max-w-md gap-2">
                   {word.choices.map((option, i) => {
                     const isAnswer = option === word.gloss;
+                    // How it is drawn, never what is compared: a pick is still `option`.
+                    const shown = word.choiceMeanings?.[i] ?? null;
                     const marked = phase === "feedback";
                     /* The option the learner pressed is marked as well as the
                        answer. It used to look exactly like the two nobody
@@ -1095,7 +1101,7 @@ export function LearnSession({
                         style={out ? { color: "var(--ink-3)" } : undefined}
                       >
                         <KeyCap>{i + 1}</KeyCap>
-                        <span className="min-w-0 flex-1">{option}</span>
+                        {shown ? <Meaning meaning={shown} className="flex-1" /> : <span className="min-w-0 flex-1">{option}</span>}
                         {out && <span className="sr-only"> {t("(ruled out by a hint)")}</span>}
                         {state === "right" && <Check size={16} aria-label={t("Right")} />}
                         {state === "wrong" && <X size={16} aria-label={t("Your pick")} />}
@@ -1108,7 +1114,9 @@ export function LearnSession({
                    word is asked the way the gap rung asks it. `pickOptions`
                    returns nothing rather than padding a question out with a
                    second right answer. */
-                <p className="text-sm" style={{ color: "var(--ink-2)" }}>{word.gloss}</p>
+                word.meaning
+                  ? <Meaning meaning={word.meaning} leadClassName="text-sm" leadStyle={{ color: "var(--ink)" }} className="items-center" />
+                  : <p className="text-sm" style={{ color: "var(--ink-2)" }}>{word.gloss}</p>
               )}
               {phase === "ask" && (
                 <HintLadder
@@ -1225,7 +1233,17 @@ export function LearnSession({
                   </div>
                 </div>
               ) : (
-                <p className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{word.gloss}</p>
+                word.meaning ? (
+                  <Meaning
+                    meaning={word.meaning}
+                    className="items-center text-center"
+                    leadClassName="text-2xl font-semibold"
+                    leadStyle={{ color: "var(--ink)" }}
+                    englishClassName="text-base"
+                  />
+                ) : (
+                  <p className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{word.gloss}</p>
+                )
               )}
               {/*
                 THE ONE LINE THAT SAYS NOT KNOWING IT IS THE ORDINARY STATE.

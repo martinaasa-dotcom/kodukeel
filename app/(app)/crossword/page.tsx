@@ -8,6 +8,9 @@ import { taughtAtDayStart } from "@/lib/progress/moduleScope";
 import { Empty, Page } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { CrosswordSession } from "./CrosswordSession";
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
+import { meaningShown } from "@/lib/collections/glossLanguage";
+import { clueParts } from "@/lib/games/clue";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
 export async function generateMetadata() {
@@ -40,7 +43,20 @@ export default async function CrosswordPage() {
   const [level, clock, locale] = await Promise.all([courseLevelFor(ownerId), learnerDayClock(ownerId), localeFor(ownerId)]);
   const day = clock.dayKey(new Date());
   // Memoised: `crosswordFor` asks the same question of the same day.
-  const [puzzle, taught] = await Promise.all([crosswordFor(ownerId, day, level), taughtAtDayStart(ownerId, day)]);
+  const [puzzle, taught, prefs] = await Promise.all([
+    crosswordFor(ownerId, day, level), taughtAtDayStart(ownerId, day), meaningPrefsFor(ownerId),
+  ]);
+  /*
+    Each clue's meaning in the learner's language, the English kept beneath:
+    a clue is a word's meaning shown as one. Drawn only; the grid and its
+    marking are the English clue's.
+  */
+  const clueMeanings = puzzle && prefs.lead !== "en"
+    ? puzzle.entries.map((entry, i) => {
+        const shown = meaningShown(clueParts(entry.clue).gloss, puzzle.equivalents[i] ?? {}, prefs);
+        return shown.english ? shown : null;
+      })
+    : null;
 
   return (
     <BeforeYouStart id="crossword" ready={puzzle !== null}>
@@ -50,7 +66,7 @@ export default async function CrosswordPage() {
         lead={tr(locale, "Clues in English, answers in Estonian, and a fresh grid every morning.")}
       >
         {puzzle ? (
-          <CrosswordSession puzzle={puzzle} day={day} />
+          <CrosswordSession puzzle={puzzle} day={day} clueMeanings={clueMeanings} />
         ) : (
           taught ? (
             <Empty

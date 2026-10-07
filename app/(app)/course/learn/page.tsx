@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { meaningPrefsFrom } from "@/lib/collections/glossLanguage";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { learnBatch, learnCounts } from "@/lib/progress/learn";
@@ -47,7 +47,7 @@ export default async function CourseLearnPage() {
   const day = reading.current.day;
 
   const lookups = Promise.all([
-    readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
+    readSettings(ownerId, [SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso]),
     courseLevelFor(ownerId),
     /*
       Every spelling of every course word. Which of them this learner has been
@@ -66,7 +66,7 @@ export default async function CourseLearnPage() {
     lookups.then(([settings, level, courseSpellings]) => learnBatch(
       ownerId,
       level,
-      glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]),
+      meaningPrefsFrom(settings[SETTING_KEYS.glossLanguage], settings[SETTING_KEYS.glossAlso]),
       day.words.length,
       {
         only: day.words,

@@ -33,7 +33,7 @@ import { CaseGlossPanel, ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewMo
 import { EmailPanel } from "./EmailPanel";
 import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
-import { GlossLanguagePanel } from "./GlossLanguagePanel";
+import { GlossAlsoPanel, GlossLanguagePanel } from "./GlossLanguagePanel";
 import { InterfaceLanguagePanel } from "./InterfaceLanguagePanel";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, countOf, fill, tr } from "@/lib/copy/locale";
@@ -42,7 +42,7 @@ import { ROUND_PACES, roundPaceFrom } from "@/lib/ux/roundClock";
 import { TodayOrderPanel } from "./TodayOrderPanel";
 import { isDefaultTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { TODAY_CARDS } from "@/lib/ux/disclosure";
-import { GLOSS_LANGUAGES, glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { GLOSS_LANGUAGES, alsoShowFrom, glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom, VOICES } from "@/lib/audio/voice";
 import { paceFor, paceFrom } from "@/lib/audio/pace";
 import { adaptTiltFor } from "@/lib/progress/adapt";
@@ -142,7 +142,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       SETTING_KEYS.displayName,
       SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
       SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
-      SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss,
+      SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso, SETTING_KEYS.wordGloss,
       SETTING_KEYS.todayOrder,
       SETTING_KEYS.roundPace,
       SETTING_KEYS.caseQuestionGloss,
@@ -207,6 +207,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const speechPace = paceFrom(settings[SETTING_KEYS.speechPace], courseLevel, tilt);
   const levelPace = paceFor(courseLevel, tilt);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
+  const glossAlso = alsoShowFrom(settings[SETTING_KEYS.glossAlso], glossLanguage);
   const locale = await localeFor(ownerId);
   const t = (english: string) => tr(locale, english);
   const wordGloss = wordGlossFrom(settings[SETTING_KEYS.wordGloss]);
@@ -495,6 +496,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 {t("Meanings can appear in Russian or Ukrainian too. The English always stays, and the language you choose shows up next to it.")}
               </p>
               <GlossLanguagePanel current={glossLanguage} />
+              <GlossAlsoPanel key={glossLanguage} lead={glossLanguage} current={glossAlso} />
               <Explain label={t("Where these come from")}>
                 {t("The Russian and Ukrainian come from the same dictionary as the Estonian. If none was recorded for a word, you’ll just see the English.")}
               </Explain>

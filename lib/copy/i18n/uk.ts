@@ -65,7 +65,7 @@ export const UK: Readonly<Record<string, string>> = {
 
   // THE RAIL'S OWN CHROME.
   "More": "Ще",
-  "More places to go": "Інші розділи",
+  "More places to go": "Інші сторінки",
   "Close": "Закрити",
   "Your class": "Ваша група",
   "Your classes": "Ваші групи",
@@ -115,7 +115,7 @@ export const UK: Readonly<Record<string, string>> = {
   "Paste something in": "Вставити текст",
   "One verb, all six people": "Одне дієслово, усі шість осіб",
   "A verb with the \"I\" form filled in and the other five boxes empty.": "Дієслово, у якого заповнено форму «я», а решта п'ять полів порожні.",
-  "Fill in the rest, one box at a time. The \"I\" form is your clue.": "Заповніть решту полів по одному. Форма «я» вам підказка.",
+  "Fill in the rest, one box at a time. The \"I\" form is your clue.": "Заповніть решту полів по одному. Підказкою вам буде форма «я».",
   "A verb's six forms, already on the screen but jumbled up.": "Шість форм дієслова вже на екрані, але перемішані.",
   "Put each form next to the person it goes with. There's nothing to type.": "Поставте кожну форму поруч із потрібною особою. Друкувати нічого не треба.",
   "Say what you see": "Опишіть, що бачите",
@@ -152,7 +152,7 @@ export const UK: Readonly<Record<string, string>> = {
     "Натисніть на слово, а потім на його значення, щоб з'єднати їх. Час іде, доки поле не спорожніє.",
   "Long or short": "Довгий чи короткий",
   "Two words that sound almost the same, except one sound is held a little longer. You'll hear one of them.":
-    "Два слова звучать майже однаково, тільки в одному звук тягнеться трохи довше. Ви почуєте одне з них.",
+    "Два слова звучать майже однаково, тільки в одному звук тягнеться довше. В українській довгих голосних немає, тож вухо треба привчити. Ви почуєте одне з них.",
   "Say which one you heard. Play it again if you need to, it's recorded in a quiet room.":
     "Скажіть, яке ви почули. Якщо треба, увімкніть ще раз: запис зроблено в тихій кімнаті.",
   "Put the sentence back in order": "Зберіть речення",

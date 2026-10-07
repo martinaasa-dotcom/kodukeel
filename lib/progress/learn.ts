@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
-import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
+import {
+  equivalentIn, firstSenses, meaningShown, meaningsShown, type MeaningPrefs, type ShownMeaning,
+} from "@/lib/collections/glossLanguage";
 import { challengeFirst } from "@/lib/collections/levels";
 import { hardWords } from "@/lib/dict/facts";
 import { deferredWordIds } from "@/lib/progress/deferrals";
@@ -114,6 +116,14 @@ export interface LearnWord {
   gloss: string;
   /** The Institute's own equivalent in the learner's chosen language, or null. */
   equivalent: { text: string; lang: string } | null;
+  /** The other of Russian and Ukrainian, small after the first, where asked for. */
+  also: { text: string; lang: string } | null;
+  /**
+   * The meaning as the learner's language leads it, for every place the ladder
+   * shows the meaning as a meaning outside the first meeting: the finish list
+   * and the gap rung's cue. Null where it leads in English.
+   */
+  meaning: ShownMeaning | null;
   /** A whole utterance rather than a word: `Tere!` has no example and never will. */
   isPhrase: boolean;
   /**
@@ -231,6 +241,8 @@ export interface LearnWord {
   } | null;
   /** Four glosses, one of them right, ranked rather than shuffled. */
   choices: string[] | null;
+  /** How each of `choices` is drawn, or null for English. A pick is still `choices[i]`. */
+  choiceMeanings: ShownMeaning[] | null;
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
   rung: Rung;
@@ -491,7 +503,7 @@ function posFilter(kind: LearnKind) {
  * learner's level first.
  */
 export async function learnBatch(
-  ownerId: string, level: Level, glossLanguage: GlossLanguage, size = LEARN_BATCH,
+  ownerId: string, level: Level, prefs: MeaningPrefs, size = LEARN_BATCH,
   /**
    * The three things a caller can decide about a round, as one object rather
    * than a tail of optional positions: three of them arrived from three
@@ -693,11 +705,14 @@ export async function learnBatch(
     nothing and keeps the whole pool, as with the sentence rule above.
   */
   const pool = decoysAmong(wholePool, taughtWords ? [...taughtWords] : null, CHOICES);
+  // Each option's own equivalents, for drawing them; one lookup rather than a scan.
+  const byText = prefs.lead === "en" ? null : new Map(pool.map((o) => [o.text, o]));
 
   const words = rows.map((row, index) => {
     const lexeme = row.lexeme!;
     const { sentence, gap, kin } = sentenceAndGap(lexeme, reach, readable);
-    const equivalent = equivalentIn(lexeme, glossLanguage);
+    const equivalent = equivalentIn(lexeme, prefs.lead);
+    const also = equivalent && prefs.also ? equivalentIn(lexeme, prefs.also) : null;
 
     /*
       Ranked rather than shuffled, through the one table of what a wrong
@@ -725,7 +740,9 @@ export async function learnBatch(
       lexemeId: lexeme.id,
       lemma: plainPhrase(lexeme.lemma, lexeme.pos),
       gloss: plainPhrase(lexeme.translation, lexeme.pos),
-      equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
+      equivalent: equivalent ? { text: firstSenses(equivalent), lang: prefs.lead } : null,
+      also: also && prefs.also ? { text: firstSenses(also), lang: prefs.also } : null,
+      meaning: prefs.lead === "en" ? null : leading(meaningShown(plainPhrase(lexeme.translation, lexeme.pos), lexeme, prefs)),
       isPhrase: isPhrase(lexeme.pos),
       sentence,
       kin,
@@ -738,6 +755,21 @@ export async function learnBatch(
       canTranslate: resolveProvider() !== null,
       gap,
       choices: picked ? picked.options : null,
+      /*
+        How each option is drawn in the learner's language, index for index:
+        all in the equivalent or all in English, so the odd one out is never
+        the one with a Ukrainian word on it. The answer is still `gloss` and a
+        pick is still compared with it.
+      */
+      choiceMeanings: picked && prefs.lead !== "en" ? leadingAll(meaningsShown(
+        picked.options.map((text) => ({
+          english: text,
+          entry: text === plainPhrase(lexeme.translation, lexeme.pos)
+            ? lexeme
+            : byText?.get(text)?.equivalents ?? null,
+        })),
+        prefs,
+      )) : null,
       contrast: contrasts.get(index) ?? null,
       starred: starred.has(lexeme.id),
       rung: rungOf(row.state, row.learningSteps),
@@ -901,4 +933,14 @@ export async function learnCounts(
     started: Math.max(0, started - heldWords),
     phrases: { waiting: phraseWaiting, started: Math.max(0, phraseStarted - heldPhrases) },
   };
+}
+
+/** A meaning that leads in an equivalent, or null where it is the English alone. */
+function leading(shown: ShownMeaning): ShownMeaning | null {
+  return shown.english === null ? null : shown;
+}
+
+/** A set of options drawn in the equivalent, or null where they fell back to English. */
+function leadingAll(shown: ShownMeaning[]): ShownMeaning[] | null {
+  return shown.some((m) => m.english !== null) ? shown : null;
 }

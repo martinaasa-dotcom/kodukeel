@@ -56,6 +56,8 @@ import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { type SeenCard } from "@/lib/ux/lookBack";
 import { FitText } from "@/components/FitText";
+import { Meaning } from "@/components/Meaning";
+import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { Lettered } from "@/components/HeroLetters";
 import { useKeepInView } from "@/components/round/useKeepInView";
 import { useOncePerRound } from "@/components/round/useOncePerRound";
@@ -139,6 +141,8 @@ export interface ReviewCard {
      * sentence under it.
      */
     equivalent: { text: string; lang: string } | null;
+    /** The other of Russian and Ukrainian, small after the first, where the learner asked for it. */
+    also?: { text: string; lang: string } | null;
     /** An attested sentence, and which form of the word it carries. */
     sentence: { et: string; en: string | null; form: string | null; authored: boolean } | null;
     /** The entry it hangs off, so the sentence can be asked about in English. */
@@ -178,6 +182,21 @@ export interface ReviewCard {
   } | null;
   /** Four options including the right one, when this card can be asked as multiple choice. */
   choices: string[] | null;
+  /**
+   * The card's English meaning as the learner's language leads it: the back of
+   * a recognition card, the prompt of a production card. Null where the
+   * learner reads meanings in English or the Institute recorded no equivalent,
+   * which draws exactly what the card drew before. Drawing only: the back and
+   * the front are still what a typed answer and a pick are marked against.
+   * Optional for a session stashed offline before the field existed.
+   */
+  meaning?: ShownMeaning | null;
+  /**
+   * How each of `choices` is drawn, index for index, or null for English.
+   * Every option leads in the equivalent or none does (`meaningsShown`), so the
+   * presence of Ukrainian never singles one out. A pick is still `choices[i]`.
+   */
+  choiceMeanings?: ShownMeaning[] | null;
   scheduling: Omit<SchedulingState, "due" | "lastReview"> & { due: string; lastReview: string | null };
   /**
    * The stored English translation of a `CLOZE` card's own sentence, matched
@@ -257,7 +276,7 @@ function shownAs(card: ReviewCard, met: boolean): Omit<SeenCard, "key"> {
     of: card.id,
     label: met
       ? (card.intro?.isPhrase ? "New phrase" : "New word")
-      : TYPE_LABEL[card.cardType] ?? card.cardType,
+      : typeLabel(card),
     question: met ? word : sizedBlank(card.front, card.back),
     answer: met ? card.intro?.gloss ?? card.back : card.back,
     note: met ? null : card.say ?? (plainAsk(slotAsked(card)) ? plainAskLine(slotAsked(card)) : null),
@@ -366,6 +385,7 @@ function MeetWord({ card, firstMeetingCardId }: { card: ReviewCard; firstMeeting
       gloss={gloss}
       alsoSaid={card.intro?.alsoSaid ?? null}
       equivalent={card.intro?.equivalent ?? null}
+      also={card.intro?.also ?? null}
       sentence={card.intro?.sentence ?? null}
       tokens={card.intro?.tokens ?? null}
       lexemeId={card.intro?.lexemeId ?? null}
@@ -380,13 +400,38 @@ function MeetWord({ card, firstMeetingCardId }: { card: ReviewCard; firstMeeting
       {card.cardType !== "RECOGNITION" && (
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
           {t("Next time, this card will ask:")}{" "}
-          <span lang={estonianSide(card.cardType, "front") ? "et" : "en"} className="font-semibold">
-            {card.front}
-          </span>
+          {card.cardType === "PRODUCTION" && card.meaning ? (
+            <span lang={card.meaning.lead.lang} className="font-semibold">{card.meaning.lead.text}</span>
+          ) : (
+            <span lang={estonianSide(card.cardType, "front") ? "et" : "en"} className="font-semibold">
+              {card.front}
+            </span>
+          )}
         </p>
       )}
     </WordIntro>
   );
+}
+
+/**
+ * What a card's chip calls its direction, which names the language the
+ * meaning leads in. A recognition card whose back leads in Ukrainian is
+ * "Estonian → Ukrainian", because that is what the learner is asked to reach;
+ * where it leads in English, or the Institute recorded no equivalent, it is
+ * what it always was.
+ */
+const DIRECTION_LABEL: Record<string, { RECOGNITION: string; PRODUCTION: string }> = {
+  ru: { RECOGNITION: "Estonian → Russian", PRODUCTION: "Russian → Estonian" },
+  uk: { RECOGNITION: "Estonian → Ukrainian", PRODUCTION: "Ukrainian → Estonian" },
+};
+
+function typeLabel(card: ReviewCard): string {
+  const lead = card.meaning?.lead.lang;
+  const direction = lead ? DIRECTION_LABEL[lead] : undefined;
+  if (direction && (card.cardType === "RECOGNITION" || card.cardType === "PRODUCTION")) {
+    return direction[card.cardType];
+  }
+  return TYPE_LABEL[card.cardType] ?? card.cardType;
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -1539,6 +1584,9 @@ export function ReviewSession({
     names the form is said as the note, as it is drawn.
   */
   const shownAnswer = primaryAnswer(card.back);
+  const rightAt = card.choices?.indexOf(rightChoice) ?? -1;
+  const rightShown = rightAt >= 0 ? card.choiceMeanings?.[rightAt] : null;
+  const rightShownAs = rightShown?.english ? `${rightShown.lead.text} (${rightShown.english})` : rightChoice;
   const verdictNote = verdict ? noteIn(verdict, locale) : "";
   const spokenVerdict =
     ask === "type" && verdict
@@ -1556,7 +1604,7 @@ export function ReviewSession({
       : ask === "choice" && chosen
         ? choiceIsRight(chosen, card.back, answerLanguage)
           ? t("Right.")
-          : fill(t("Not this time. It's {answer}."), { answer: rightChoice })
+          : fill(t("Not this time. It's {answer}."), { answer: rightShownAs })
         : ask === "flip" && revealed
           ? fill(t("The answer is {answer}."), { answer: shownAnswer })
           : "";
@@ -1625,7 +1673,7 @@ export function ReviewSession({
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           {/* Two chips at the most, and both about this card. What narrowed the
               session is said once, above, rather than on every card of it. */}
-          <Chip tone="accent">{t(TYPE_LABEL[card.cardType] ?? card.cardType)}</Chip>
+          <Chip tone="accent">{t(typeLabel(card))}</Chip>
           {card.isNew && !card.wordMet && <Chip tone="good">{card.intro?.isPhrase ? t("New phrase") : t("New word")}</Chip>}
           <div className="ml-auto flex items-center gap-1">
             {card.lemma && (
@@ -1680,6 +1728,26 @@ export function ReviewSession({
               >
                 {sizedBlank(card.front, card.back)}
               </p>
+            ) : card.cardType === "PRODUCTION" && card.meaning ? (
+              /*
+                A production card asks for the word from its meaning, so the
+                meaning leads in the learner's language and the English the
+                card was built from sits under it. The front is still what the
+                answer is marked against; this is what is drawn.
+              */
+              <div className="flex min-w-0 flex-col items-center gap-1">
+                <FitText
+                  as="p"
+                  text={card.meaning.lead.text}
+                  lang={card.meaning.lead.lang}
+                  className="round-word font-display font-bold tracking-tight"
+                  style={{ color: "var(--ink)" }}
+                />
+                {card.meaning.also && (
+                  <p lang={card.meaning.also.lang} className="text-sm" style={{ color: "var(--ink-3)" }}>{card.meaning.also.text}</p>
+                )}
+                <p lang="en" className="text-base" style={{ color: "var(--ink-2)" }}>{card.front}</p>
+              </div>
             ) : (
               // One word at the round's size: it shrinks to fit rather than break.
               <FitText
@@ -1911,6 +1979,9 @@ export function ReviewSession({
                 const state = chosen
                   ? optionState(choiceIsRight(choice, card.back, answerLanguage), choice === chosen)
                   : null;
+                /* How the option is drawn, never what it is: a pick is still
+                   `choice`, the English, and marked by `choiceIsRight`. */
+                const shownChoice = card.choiceMeanings?.[i] ?? null;
                 return (
                   <button
                     key={choice}
@@ -1929,14 +2000,14 @@ export function ReviewSession({
                   >
                     {state ? (
                       <>
-                        <span className="flex-1">{choice}</span>
+                        {shownChoice ? <Meaning meaning={shownChoice} className="flex-1" /> : <span className="flex-1">{choice}</span>}
                         {state === "right" && <Check size={16} aria-label={t("Right")} />}
                         {state === "wrong" && <X size={16} aria-label={t("Your pick")} />}
                       </>
                     ) : (
                       <>
                         <KeyCap>{i + 1}</KeyCap>
-                        {choice}
+                        {shownChoice ? <Meaning meaning={shownChoice} className="flex-1" /> : choice}
                         {/*
                           Struck rather than removed, and still pressable. An
                           option that vanishes takes the rows under it up the
@@ -2006,6 +2077,23 @@ export function ReviewSession({
                     en={card.sentenceEn}
                     canTranslate={card.canTranslate}
                   />
+                </div>
+              ) : card.cardType === "RECOGNITION" && card.meaning ? (
+                /* The back of a recognition card is the word's meaning, so it
+                   leads in the learner's language with the English beneath. */
+                <div className="flex min-w-0 flex-col items-center gap-1">
+                  <FitText
+                    as="p"
+                    text={card.meaning.lead.text}
+                    lang={card.meaning.lead.lang}
+                    className="font-bold [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"
+                    style={{ color: "var(--accent-deep)" }}
+                  />
+                  {card.meaning.also && (
+                    <p lang={card.meaning.also.lang} className="text-sm" style={{ color: "var(--ink-3)" }}>{card.meaning.also.text}</p>
+                  )}
+                  {/* The English is what a typed answer is marked against, so it carries the hook. */}
+                  <p lang="en" data-answer="" className="text-base" style={{ color: "var(--ink-2)" }}>{card.back}</p>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { meaningPrefsFrom } from "@/lib/collections/glossLanguage";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { nextCardLine } from "@/lib/time/day";
 import { prisma } from "@/lib/db";
@@ -107,16 +107,19 @@ export default async function ReviewPage({
   // beside the deck reads below rather than in front of them. On a hosted
   // database that is a round trip off the daily path.
   const settingsPromise = readSettings(ownerId, [
-    SETTING_KEYS.reviewMode, SETTING_KEYS.glossLanguage,
+    SETTING_KEYS.reviewMode, SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso,
   ]);
   const modeChosen = async () => reviewModeFrom((await settingsPromise)[SETTING_KEYS.reviewMode]);
   /*
-    Which language a first meeting gives the meaning in. One read for the whole
-    render: `readSettings` is memoised per request, so asking for both keys here
-    costs the same round trip the review mode already made.
+    Which language a meaning leads in, on every card rather than on the first
+    meeting alone, and what follows it. One read for the whole render:
+    `readSettings` is memoised per request, so asking for these keys here costs
+    the same round trip the review mode already made.
   */
-  const glossChosen = async () =>
-    glossLanguageFrom((await settingsPromise)[SETTING_KEYS.glossLanguage]);
+  const glossChosen = async () => {
+    const settings = await settingsPromise;
+    return meaningPrefsFrom(settings[SETTING_KEYS.glossLanguage], settings[SETTING_KEYS.glossAlso]);
+  };
 
 
   // A drill ignores scheduling: the point is to attack one weakness — a case the

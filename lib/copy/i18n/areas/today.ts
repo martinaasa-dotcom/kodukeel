@@ -1496,7 +1496,7 @@ export const TODAY: Area = {
   "Come back tomorrow for {unit} ({english}).":
     "Повертайтеся завтра: попереду {unit} ({english}).",
   "Sleep does half the work of making today's words stick, so stopping here is part of the plan.":
-    "Половину роботи із запам'ятовування сьогоднішніх слів зробить сон, тож зупинитися зараз теж частина плану.",
+    "Половину роботи із запам'ятовування сьогоднішніх слів зробить сон, тож зупинка зараз теж входить у план.",
   "Hear today's words once more":
     "Послухати сьогоднішні слова ще раз",
   "Start the next one now":
@@ -1510,7 +1510,7 @@ export const TODAY: Area = {
   "Day {day} of {total}, part {n} of {of}":
     "День {day} з {total}, частина {n} з {of}",
   "By the end of this unit":
-    "До кінця цього розділу",
+    "Наприкінці цього розділу",
   "{words} again":
     "{words} на повторення",
   "0m":
@@ -1578,9 +1578,9 @@ export const TODAY: Area = {
   "Read about the -{suffix} ending":
     "Прочитати про закінчення -{suffix}",
   "Read about {name}, \"{plain}\"":
-    "Прочитати про {name}, «{plain}»",
+    "Прочитати про відмінок {name}, «{plain}»",
   "Read about {name}":
-    "Прочитати про {name}",
+    "Прочитати про відмінок {name}",
   "The past tense of one verb":
     "Минулий час одного дієслова",
   "The past tense of {verbs}":
@@ -1604,7 +1604,7 @@ export const TODAY: Area = {
   "Pair each word with its meaning against the clock. It's quick, it's fun, and the meanings stick before you ever have to say them.":
     "З'єднуйте кожне слово з його значенням на час. Це швидко й весело, і значення запам'ятовуються ще до того, як їх доведеться вимовляти.",
   "The same words, but this time you only hear them. Reading a word and catching it when somebody says it are two different skills.":
-    "Ті самі слова, але тепер ви їх лише чуєте. Прочитати слово і впізнати його, коли хтось його вимовляє, це дві різні навички.",
+    "Ті самі слова, але тепер ви їх лише чуєте. Прочитати слово і впізнати його на слух: дві різні навички.",
   "A race through the words you've met, and their endings once you've read about them. Answer fast enough and you stop working words out and simply know them.":
     "Перегони зі знайомими словами, а коли прочитаєте про закінчення, то й із закінченнями. Відповідайте швидко, і ви перестанете обмірковувати кожне слово й почнете просто його знати.",
   "Put a real Estonian sentence back together, word by word. Do it a few times and you start to feel where things go.":
@@ -1624,7 +1624,7 @@ export const TODAY: Area = {
   "Write a sentence of your own with the ending we ask for. We check that word against the dictionary before anything else.":
     "Напишіть своє речення із закінченням, яке ми просимо. Це слово ми насамперед звіряємо зі словником.",
   "Aitan sind, but helistan sulle. Every verb chooses its own ending for whatever comes after it, and English gives you no clue, so you learn them one verb at a time.":
-    "Aitan sind, але helistan sulle. Кожне дієслово саме вибирає закінчення для того, що йде після нього, і вгадати його не можна, тож їх учать по одному дієслову.",
+    "Aitan sind, але helistan sulle, хоча українською в обох випадках «тобі». Кожне дієслово саме вибирає закінчення для слова після нього, тож їх учать по одному дієслову.",
   "The words that don't follow the usual ending rules. See each one, then write it yourself, and soon you won't need to look them up.":
     "Слова, які не підкоряються звичайним правилам закінчень. Подивіться на кожне, потім напишіть його самі, і незабаром заглядати в довідник не доведеться.",
   "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like plain a's, o's and u's.":
@@ -1750,9 +1750,9 @@ export const TODAY: Area = {
   "Yes. {value} is {lemma} for {pronoun}, and for {shared} too.":
     "Так. Для {pronoun} дієслово {lemma} має форму {value}, як і для {shared}.",
   "Not that one. With {pronoun} it's {value}.":
-    "Не ця. Для {pronoun} буде {value}.",
+    "Не ця. Для «{pronoun}» буде {value}.",
   "Not that one. With {pronoun} it's {value}, and the same with {shared}.":
-    "Не ця. Для {pronoun} буде {value}, і для {shared} так само.",
+    "Не ця. Для «{pronoun}» буде {value}, і для {shared} так само.",
   "{lemma} means {translation}. Which one says \"not\"?":
     "Слово {lemma} означає «{translation}». Яка форма каже «не»?",
   "{lemma} means {translation}. Which one tells somebody to do it?":
@@ -1780,13 +1780,13 @@ export const TODAY: Area = {
   "Which one is {lemma}, {translation}, in the {case}?":
     "Яка форма слова {lemma}, «{translation}», у відмінку {case}?",
   "Yes. {form} is {lemma} in the {case}.":
-    "Так, {form} це {lemma} у відмінку {case}.",
+    "Так, {form}: {lemma} у відмінку {case}.",
   "Yes. {form} is {lemma} in the {case}. It's {stem} with {ending} on the end.":
-    "Так, {form} це {lemma} у відмінку {case}. Це {stem} із закінченням {ending}.",
+    "Так, {form}: {lemma} у відмінку {case}. Тут до {stem} додано закінчення {ending}.",
   "Not that one. {lemma} becomes {form}.":
     "Не ця. {lemma} стає {form}.",
   "Not that one. {lemma} becomes {form}. It's {stem} with {ending} on the end.":
-    "Не ця. {lemma} стає {form}. Це {stem} із закінченням {ending}.",
+    "Не ця. {lemma} стає {form}. Тут до {stem} додано закінчення {ending}.",
 
   // WHETHER THIS IS THE RIGHT PART, AND THE HAND-OFF.
   "You're flying through this":

@@ -1,6 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { CaseLabel } from "@/components/CaseLabel";
-import { ChevronRight, Puzzle, Sparkles, Target, TriangleAlert } from "lucide-react";
+import { ChevronRight, Languages, Puzzle, Sparkles, Target, TriangleAlert } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -17,6 +17,8 @@ import { Lettered } from "@/components/HeroLetters";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { fillNodes } from "@/components/reference/fillNodes";
+import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 
 export const dynamic = "force-dynamic";
 
@@ -50,15 +52,26 @@ const ENDING_HUES = ["var(--butter-ink)", "var(--blush-ink)", "var(--sky-ink)", 
 export default async function GrammarIndexPage() {
   const ownerId = await requireUserId();
 
-  const [reviews, demo, locale] = await Promise.all([
+  const [reviews, demo, locale, settings] = await Promise.all([
     // Through the one reader, so this page and Practice and Progress cannot
     // name three different weakest cases at the same learner. See
     // lib/progress/cases.ts.
     caseReviewsFor(ownerId),
     endingStrip(),
     localeFor(ownerId),
+    readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
   ]);
   const t = (english: string, context?: string) => tr(locale, english, context);
+  /*
+    UKRAINIAN IS READ TWO WAYS, AND EITHER IS ENOUGH.
+
+    The interface language is what the app is read in and the gloss language
+    is what a meaning is printed in, and a learner can choose one without the
+    other: somebody fluent in English who thinks in Ukrainian reads the app in
+    English with Ukrainian meanings. Either says Ukrainian is the language they
+    compare Estonian with, so either puts the page that does that at the top.
+  */
+  const ukrainian = locale === "uk" || glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]) === "uk";
   const weakest = caseAccuracy(reviews).slice(0, 3);
 
   return (
@@ -68,6 +81,37 @@ export default async function GrammarIndexPage() {
       lead={t("Fourteen endings. Three you learn by heart, and eleven you can work out.")}
     >
       <Stack>
+        {/*
+          FIRST, FOR SOMEBODY WHOSE OTHER LANGUAGE IS UKRAINIAN.
+
+          Everything under this explains Estonian against English. For a
+          learner who thinks in Ukrainian there is a page that explains it
+          against what they already have, and it is the better first read, so
+          it leads rather than sitting at the foot of a long reference.
+        */}
+        {ukrainian && (
+          <Link
+            href="/grammar/ukrainian"
+            className="lift flex items-start gap-4 rounded-[var(--r-lg)] border p-5"
+            style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+          >
+            <span
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+              style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}
+            >
+              <Languages size={19} aria-hidden />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>
+                {t("Estonian for Ukrainian speakers")}
+              </span>
+              <span className="mt-1.5 block text-sm" style={{ color: "var(--ink-2)" }}>
+                {t("What your Ukrainian already gives you, and where it leads you astray.")}
+              </span>
+            </span>
+          </Link>
+        )}
+
         <Lettered>
           <Card tone="night" className="md:p-9">
             <p className="label-xs flex items-center gap-2" style={{ color: "var(--butter-ink)" }}>

@@ -527,6 +527,7 @@ function StepCard({
             gloss={step.gloss}
             alsoSaid={step.alsoSaid}
             equivalent={step.equivalent ?? null}
+            also={step.also ?? null}
             sentence={step.example}
             tokens={tokens[step.id] ?? null}
             lexemeId={step.lexemeId}

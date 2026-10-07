@@ -8,6 +8,8 @@ import { LocalDate, stableDate } from "@/components/LocalDate";
 import { useLocale, useT } from "@/components/Locale";
 import { localiseReadings } from "@/lib/copy/questionReading";
 import { countOf, fill } from "@/lib/copy/locale";
+import { Meaning } from "@/components/Meaning";
+import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 
 /** How a due date is written: the day and the short month, in the reader's own order. */
 const DUE_SHAPE: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
@@ -24,6 +26,12 @@ export interface CardRow {
   due: string;
   lapses: number;
   suspended: boolean;
+  /**
+   * The card's English meaning as the learner's language leads it, on a
+   * recognition or production card, or null for English. The search box still
+   * reads `front` and `back`, with the equivalent added to what it matches.
+   */
+  meaning?: ShownMeaning | null;
 }
 
 const FILTERS = ["All", "Due", "New", "Struggling", "Suspended"] as const;
@@ -45,7 +53,7 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
     const now = Date.now();
     const q = query.trim().toLowerCase();
     return rows.filter((r) => {
-      if (q && !`${r.front} ${r.back}`.toLowerCase().includes(q)) return false;
+      if (q && !`${r.front} ${r.back} ${r.meaning?.lead.text ?? ""}`.toLowerCase().includes(q)) return false;
       switch (filter) {
         case "Due": return !r.suspended && new Date(r.due).getTime() <= now;
         case "New": return r.state === 0;
@@ -161,8 +169,20 @@ function Row({ row }: { row: CardRow }) {
       />
       <div className="min-w-0 flex-1">
         <p className="text-base" style={{ color: "var(--ink)" }}>
-          <span lang="et" className="font-semibold">{row.front}</span>
-          <span style={{ color: "var(--ink-3)" }}> → {localiseReadings(locale, row.back)}</span>
+          {row.meaning && row.cardType === "PRODUCTION" ? (
+            <>
+              <Meaning meaning={row.meaning} inline leadClassName="font-semibold" englishClassName="text-sm" />
+              <span lang="et" style={{ color: "var(--ink-3)" }}> → {row.back}</span>
+            </>
+          ) : (
+            <>
+              <span lang="et" className="font-semibold">{row.front}</span>
+              <span style={{ color: "var(--ink-3)" }}> → </span>
+              {row.meaning
+                ? <Meaning meaning={row.meaning} inline leadStyle={{ color: "var(--ink-2)" }} englishClassName="text-sm" />
+                : <span style={{ color: "var(--ink-3)" }}>{localiseReadings(locale, row.back)}</span>}
+            </>
+          )}
         </p>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 text-2xs" style={{ color: "var(--ink-3)" }}>
           <span>{t(row.cardType.toLowerCase().replace("_", " "))}</span>

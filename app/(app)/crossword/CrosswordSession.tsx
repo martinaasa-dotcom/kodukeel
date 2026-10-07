@@ -1,6 +1,8 @@
 "use client";
 
 import { useT } from "@/components/Locale";
+import { Meaning } from "@/components/Meaning";
+import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { fill } from "@/lib/copy/locale";
 import { clueParts } from "@/lib/games/clue";
 import { playOnce } from "@/components/motion/PlayOnce";
@@ -32,7 +34,16 @@ import { OPTION_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
  * construction, and a nine by nine grid with sixty black squares in it reads as
  * a rendering fault rather than as a puzzle.
  */
-export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day: string }) {
+export function CrosswordSession({ puzzle, day, clueMeanings = null }: {
+  puzzle: DailyCrossword;
+  day: string;
+  /**
+   * Each clue's meaning as the learner's language leads it, by entry index,
+   * or null for English. The part of speech stays on the clue either way, and
+   * the grid is still the English clue's.
+   */
+  clueMeanings?: (ShownMeaning | null)[] | null;
+}) {
   const t = useT();
   const [typed, setTyped] = useState<Record<number, string>>({});
   const [active, setActive] = useState(0);
@@ -254,7 +265,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
           <p className="text-center text-base" style={{ color: "var(--ink-2)" }}>
             <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>{entry.number} {t(entry.direction)}</span>
             {": "}
-            <span className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{clueIn(t, entry.clue)}</span>
+            <ClueText t={t} clue={entry.clue} meaning={clueMeanings?.[active] ?? null} className="font-display text-xl font-bold" />
           </p>
           <DiacriticBar standalone={false} label={t("Insert Estonian character")} />
         </div>
@@ -315,7 +326,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
         </div>
       )}
 
-      <Clues puzzle={puzzle} active={active} solved={solved} onPick={(i) => {
+      <Clues puzzle={puzzle} meanings={clueMeanings} active={active} solved={solved} onPick={(i) => {
         setActive(i);
         focusCell(cellsOf(puzzle.entries[i]!, puzzle.cols)[0]!);
       }} />
@@ -332,8 +343,37 @@ function clueIn(t: (english: string) => string, clue: string): string {
   return kind ? `${gloss}, ${t(kind)}` : clue;
 }
 
-function Clues({ puzzle, active, solved, onPick }: {
+/**
+ * A clue drawn in the learner's language where the Institute recorded the
+ * meaning: the equivalent and the part-of-speech cue lead, the English clue
+ * sits under it. The cue is what keeps one clue to one answer, so it travels
+ * with whichever language leads.
+ */
+function ClueText({ t, clue, meaning, className, inline = false }: {
+  t: (english: string) => string;
+  clue: string;
+  meaning: ShownMeaning | null;
+  className?: string;
+  inline?: boolean;
+}) {
+  if (!meaning) return <span className={className} style={inline ? undefined : { color: "var(--ink)" }}>{clueIn(t, clue)}</span>;
+  const { kind } = clueParts(clue);
+  return (
+    <Meaning
+      meaning={meaning}
+      inline={inline}
+      className={className}
+      leadStyle={inline ? undefined : { color: "var(--ink)" }}
+      englishClassName={inline ? "text-xs" : "text-sm font-normal font-sans"}
+    >
+      {kind ? `${meaning.lead.text}, ${t(kind)}` : meaning.lead.text}
+    </Meaning>
+  );
+}
+
+function Clues({ puzzle, meanings, active, solved, onPick }: {
   puzzle: DailyCrossword;
+  meanings: (ShownMeaning | null)[] | null;
   active: number;
   solved: Set<number>;
   onPick: (index: number) => void;
@@ -367,7 +407,7 @@ function Clues({ puzzle, active, solved, onPick }: {
                   }}
                 >
                   <span className="font-bold" style={{ color: "var(--ink-3)" }}>{e.number}</span>
-                  <span className="min-w-0 flex-1">{clueIn(t, e.clue)}</span>
+                  <ClueText t={t} clue={e.clue} meaning={meanings?.[i] ?? null} className="min-w-0 flex-1" inline />
                   {solved.has(i) && <Check size={13} aria-hidden style={{ color: VERDICT_INK.right }} />}
                 </button>
               </li>

@@ -3,8 +3,7 @@ import { fill, tr } from "@/lib/copy/locale";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
-import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { shuffle } from "@/lib/random/shuffle";
 import { leastPractisedSlot } from "@/lib/srs/mastery";
 import { COMMON_BATCH, groupBySlug } from "@/lib/collections/commonGroups";
@@ -76,9 +75,9 @@ export default async function CommonRoundPage({ params }: {
     fact about the dictionary; which language the meaning is printed in is one
     settings row. On the deployment's own pooler each `await` is a round trip.
   */
-  const [lexemeIds, glossSetting, locale] = await Promise.all([
+  const [lexemeIds, meaningPrefs, locale] = await Promise.all([
     commonLexemeIds(group.key),
-    readSetting(ownerId, SETTING_KEYS.glossLanguage),
+    meaningPrefsFor(ownerId),
     localeFor(ownerId),
   ]);
   // The four headings are whole lines in the table, never "Most common" glued to a word.
@@ -140,8 +139,7 @@ export default async function CommonRoundPage({ params }: {
     );
   }
 
-  const gloss = glossLanguageFrom(glossSetting);
-  const round = await withChoices(shuffle(picked), gloss, ownerId);
+  const round = await withChoices(shuffle(picked), meaningPrefs, ownerId);
 
   return (
     <BeforeYouStart id="common" ready={round.length > 0} count={{ n: round.length, noun: "card" }}>

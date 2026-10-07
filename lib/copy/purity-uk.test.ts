@@ -22,10 +22,29 @@ function strings(value: unknown): string[] {
   return [];
 }
 
+/**
+ * The lines that have to name Russian to be true, each with its reason. A
+ * Ukrainian reader is owed these facts in their own language; leaving Russian
+ * out of them would make the line false rather than kinder.
+ */
+const MAY_NAME_RUSSIAN: Readonly<Record<string, string>> = {
+  // Safety: who answers the emergency number. A reader in trouble may need it.
+  "Let's hope you never need these words. You shout appi when you're in trouble, and ask for abi when you just need a hand. The emergency number is 112, and they answer in Estonian, Russian and English.":
+    "the languages 112 answers in",
+  // Settings says which languages the dictionary records meanings in.
+  "Meanings can appear in Russian or Ukrainian too. The English always stays, and the language you choose shows up next to it.":
+    "the meaning languages on offer",
+  "The Russian and Ukrainian come from the same dictionary as the Estonian. If none was recorded for a word, you'll just see the English.":
+    "where the meanings come from",
+  // Fact about a state exam: which languages its official handbook exists in.
+  "It's held once a month except in July, in Tallinn, Tartu and Narva, and you get your result as soon as it ends. Harno publishes a handbook for it in English and Russian.":
+    "the languages the citizenship exam handbook is published in",
+};
+
 function ukrainianLines(): string[] {
   const lines: string[] = [];
   for (const [, area] of AREAS) {
-    lines.push(...Object.values(area.uk));
+    lines.push(...Object.entries(area.uk).filter(([en]) => !(en in MAY_NAME_RUSSIAN)).map(([, uk]) => uk));
     for (const forms of Object.values(area.counted ?? {})) lines.push(...forms.uk);
   }
   for (const forms of Object.values(COUNTED_CORE)) lines.push(...forms.uk);
@@ -59,6 +78,15 @@ describe("the Ukrainian translation", () => {
 
   it("never names Russia or the Russian language", () => {
     expect(lines.filter((line) => NAMES_RUSSIA.test(line))).toEqual([]);
+  });
+
+  it("names Russian only where a line would be false without it, and every such line still does", () => {
+    for (const en of Object.keys(MAY_NAME_RUSSIAN)) {
+      const uk = AREAS.map(([, area]) => area.uk[en]).find((v) => v !== undefined);
+      expect(uk, `${en} is no longer translated, so its exemption is stale`).toBeDefined();
+      expect(NAMES_RUSSIA.test(uk ?? ""), `${en} no longer names Russian, so its exemption is stale`).toBe(true);
+      expect(RUSSIAN_LETTER.test(uk ?? ""), en).toBe(false);
+    }
   });
 
   it("has checks that fire on the shapes they are for", () => {

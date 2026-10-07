@@ -136,6 +136,14 @@ export const SETTING_KEYS = {
    */
   glossLanguage: "glossLanguage",
   /**
+   * The other of Russian and Ukrainian, shown small after the first meaning,
+   * or nothing. Read only beside `glossLanguage` and only where that leads in
+   * one of the two (`alsoShowFrom` in lib/collections/glossLanguage.ts), so a
+   * stored value under an English lead means nothing at all. Absent is
+   * nothing, which is what everybody had.
+   */
+  glossAlso: "glossAlso",
+  /**
    * The language the app's own words are in, around the Estonian. English is
    * the default because a missing row reads as what everybody had. The values
    * and why the other two are marked as machine translated live in

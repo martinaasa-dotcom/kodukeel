@@ -986,7 +986,10 @@ export default async function TodayPage() {
           />
         )
       }
-      title={name ? `${greeting(clock, now, placement, locale)}, ${name}` : greeting(clock, now, placement, locale)}
+      /* Ukrainian addresses a person in the vocative, which cannot be built
+         from a name somebody typed, and the nominative in its place reads as
+         a mistake. So the Ukrainian greeting goes without the name. */
+      title={name && locale !== "uk" ? `${greeting(clock, now, placement, locale)}, ${name}` : greeting(clock, now, placement, locale)}
       lead={courseNow && (moduleTonight || courseNow.finishedToday)
         ? undefined
         : lead(stage, toReview, toLearn, ownCardsPerMinute(pace), locale)}

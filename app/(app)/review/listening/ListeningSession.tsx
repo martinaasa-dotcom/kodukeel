@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { Meaning } from "@/components/Meaning";
+import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
@@ -43,6 +45,12 @@ export interface ListeningCard {
   correct: string;
   /** 2–4 English options, correct one included, already shuffled. */
   choices: string[];
+  /**
+   * How each option is drawn in the learner's language, index for index, or
+   * null for English. All lead in the equivalent or none does. A pick is still
+   * `choices[i]`, compared with `correct`.
+   */
+  choiceMeanings?: ShownMeaning[] | null;
   /**
    * How many times this card has been reviewed, which is what decides how it
    * may be heard: a new word is heard in a quiet room, a settled one at
@@ -112,6 +120,12 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     than reading four, and a hint that removed the near rival would answer it.
   */
   const ladder = card ? narrowLadder(card.choices, card.correct) : [];
+  // The answer said the way the options draw it, so the verdict and the option it points at agree.
+  const correctAt = card ? card.choices.indexOf(card.correct) : -1;
+  const correctMeaning = card && correctAt >= 0 ? card.choiceMeanings?.[correctAt] : null;
+  const correctShown = correctMeaning?.english
+    ? `${correctMeaning.lead.text} (${correctMeaning.english})`
+    : card?.correct ?? "";
   const hints = useHints({ word: card?.id ?? null, question: card?.id ?? null, ladder });
   const struck = card ? struckOptions(card.choices, card.correct, hints.taken) : [];
 
@@ -311,7 +325,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
               {/* The verdict in words, first, because the options below say it
                   in colour and a colour is not read out. */}
               <p className="sr-only">
-                {selected === card.correct ? t("Right.") : fill(t("Not quite. It means {meaning}."), { meaning: card.correct })}
+                {selected === card.correct ? t("Right.") : fill(t("Not quite. It means {meaning}."), { meaning: correctShown })}
               </p>
               <div className="flex items-center gap-2">
                 <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{card.lemma}</p>
@@ -330,6 +344,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         <div className="grid grid-cols-1 gap-2 border-t px-6 py-4 lg:grid-cols-2" style={{ borderColor: "var(--rule-soft)" }}>
           {card.choices.map((choice, i) => {
             const isCorrectChoice = choice === card.correct;
+            const shown = card.choiceMeanings?.[i] ?? null;
             const isPicked = choice === selected;
             const state = answered ? OPTION_CLASS[optionState(isCorrectChoice, isPicked)] : "";
             return (
@@ -350,7 +365,9 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                     At 60% this read 2.46 to 4.16 depending on which of the
                     four tones the option was wearing. */}
                 <KeyCap>{i + 1}</KeyCap>
-                <span className={`flex-1 ${!answered && struck.includes(choice) ? "line-through" : ""}`}>{choice}</span>
+                {shown
+                  ? <Meaning meaning={shown} className={`flex-1 ${!answered && struck.includes(choice) ? "line-through" : ""}`} />
+                  : <span className={`flex-1 ${!answered && struck.includes(choice) ? "line-through" : ""}`}>{choice}</span>}
                 {!answered && struck.includes(choice) && <span className="sr-only"> {t("(ruled out by a hint)")}</span>}
                 {answered && isCorrectChoice && <Check size={15} aria-label={t("Right")} />}
                 {answered && isPicked && !isCorrectChoice && <X size={15} aria-label={t("Your pick")} />}

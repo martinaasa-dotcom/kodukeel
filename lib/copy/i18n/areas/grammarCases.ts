@@ -39,13 +39,13 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   // WHAT A GRAMMAR BOOK CALLS EACH POINT (lib/estonian/terms.ts).
   ["the present tense", "настоящее время", "теперішній час"],
   ["negation", "отрицание", "заперечення"],
-  ["the imperfect, or simple past", "имперфект, или простое прошедшее время", "імперфект, або простий минулий час"],
+  ["the imperfect, or simple past", "имперфект, или простое прошедшее время", "імперфект (простий минулий час)"],
   ["the perfect", "перфект", "перфект"],
   ["the pluperfect", "плюсквамперфект", "плюсквамперфект"],
   ["the future", "будущее время", "майбутній час"],
   ["the conditional", "условное наклонение", "умовний спосіб"],
   ["the imperative", "повелительное наклонение", "наказовий спосіб"],
-  ["the quotative, or oblique mood", "пересказывательное, или косвенное наклонение", "переказовий, або непрямий спосіб"],
+  ["the quotative, or oblique mood", "пересказывательное, или косвенное наклонение", "переказовий (непрямий) спосіб"],
   ["the impersonal", "безличный залог", "безособовий стан"],
   ["participles", "причастия", "дієприкметники"],
   ["the past participle", "причастие прошедшего времени", "дієприкметник минулого часу"],
@@ -70,7 +70,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["tense", "время", "час"],
   ["Two tenses the verb makes by itself, for now and before, and two more built with \"to be\", like \"have done\". There's no future among them.",
     "Два времени глагол образует сам, для «сейчас» и для «раньше», и ещё два строятся с глаголом «быть», как английское «have done». Будущего времени среди них нет.",
-    "Два часи дієслово утворює саме, для «зараз» і для «раніше», і ще два будуються з дієсловом «бути», як англійське «have done». Майбутнього часу серед них немає."],
+    "Два часи дієслово утворює саме, для «зараз» і для «раніше», а ще два складаються з «бути» і форми на -nud. Майбутнього серед них немає: замість «буду читати» кажуть теперішнім часом."],
   ["mood", "наклонение", "спосіб"],
   ["Are you stating it, imagining it, telling someone to do it, or passing on something you only heard? School grammars count four moods, each with its own endings, and some reference books count five.",
     "Вы что-то утверждаете, представляете, велите сделать или пересказываете то, что только слышали? Школьные грамматики насчитывают четыре наклонения, у каждого свои окончания, а некоторые справочники насчитывают пять.",
@@ -82,7 +82,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["person@grammar", "лицо", "особа"],
   ["Six persons, each with its own verb ending, so \"I\" and \"you\" can often be left out. \"He\", \"she\" and \"they\" usually stay.",
     "Шесть лиц, у каждого своё окончание глагола, поэтому «я» и «ты» часто можно опустить. «Он», «она» и «они» обычно остаются.",
-    "Шість осіб, у кожної своє закінчення дієслова, тому «я» і «ти» часто можна пропустити. «Він», «вона» і «вони» зазвичай лишаються."],
+    "Шість осіб, у кожної своє закінчення, тож «я» і «ти» часто пропускають, як і в українському «читаю». «Він», «вона» і «вони» зазвичай лишаються."],
 
   // WHAT EACH ENDING MEANS, IN THE FEWEST WORDS (CASE_NOTES.plain). The index
   // also prints the first sense on its own ("onto", "on", "off").
@@ -98,13 +98,13 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["The word as you'd look it up", "Слово в том виде, в каком его ищут в словаре", "Слово в тому вигляді, у якому його шукають у словнику"],
   ["A whole object after a command, or in the plural",
     "Дополнение целиком после повеления или во множественном числе",
-    "Додаток повністю після наказу або в множині"],
+    "Цілий додаток після наказу або в множині"],
   ["It's the object after a command, like \"put the book down\". But in \"I bought the book\", the book takes the next form down, the one meaning \"whose\".",
     "В этой форме стоит дополнение после повеления: «положи книгу». Но в «я купил книгу» книга стоит в следующей форме, той, что значит «чей».",
-    "У цій формі стоїть додаток після наказу: «поклади книжку». Але в «я купив книжку» книжка стоїть у наступній формі, тій, що означає «чий»."],
+    "Українською в обох реченнях буде «книжку», а естонська розрізняє: після наказу («поклади книжку») стоїть ця форма, а в «я купив книжку» стоїть наступна, та, що означає «чий»."],
   ["The dog in \"the dog barks\", exactly as it is.",
     "Собака в «собака лает», ровно как в словаре.",
-    "Собака в «собака гавкає», точнісінько як у словнику."],
+    "Як український називний: «собака» в «собака гавкає»."],
 
   // OMASTAV.
   ["Whose something is. It's also the base the other eleven endings go onto.",
@@ -113,7 +113,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Saying whose something is", "Сказать, чьё что-то", "Сказати, чиє щось"],
   ["A whole object, like the car you bought",
     "Дополнение целиком, как машина, которую вы купили",
-    "Додаток повністю, як машина, яку ви купили"],
+    "Цілий додаток при завершеній дії, як машина, яку ви купили"],
   ["The base that the eleven endings below are added to",
     "Основа, к которой добавляются одиннадцать окончаний ниже",
     "Основа, до якої додаються одинадцять закінчень нижче"],
@@ -131,10 +131,10 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["After any number above one", "После любого числа больше единицы", "Після будь-якого числа, більшого за одиницю"],
   ["English doesn't mark any of this, so there's no instinct to lean on at first. The form can't be guessed either, so learn it with each new word.",
     "Отчасти это знакомо по русскому: «налей воды», а не «воду», и несовершенный вид для незаконченного действия. В эстонском всё это делает одно окончание. Угадать форму нельзя, поэтому учите её вместе с каждым новым словом.",
-    "Почасти це знайомо з української: «налий води», а не «воду», і недоконаний вид для незавершеної дії. В естонській усе це робить одне закінчення. Угадати форму не можна, тож учіть її разом із кожним новим словом."],
+    "Почасти це знайомо з української: «налий води», а не «воду», родовий після «не» («не маю часу») і недоконаний вид для незавершеної дії. В естонській усе це робить одне закінчення. Вгадати форму не можна, тож учіть її з кожним новим словом."],
   ["Some water. A book you're reading but haven't finished.",
     "Немного воды. Книга, которую вы читаете, но ещё не дочитали.",
-    "Трохи води. Книжка, яку ви читаєте, але ще не дочитали."],
+    "«Налий води», «не маю часу» і книжка, яку ви ще читаєте."],
 
   // SISSEÜTLEV.
   ["Going into something: a room, a new language, a bad mood.",
@@ -157,7 +157,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Being in a state, a language, or a month", "Нахождение в состоянии, языке или месяце", "Перебування в стані, мові чи місяці"],
   ["Estonian and English don't always agree on what counts as inside. Towns and rooms are, but some islands and open places aren't, so learn those as you meet them.",
     "Что считается «внутри», каждый язык решает сам. Города и комнаты считаются, а некоторые острова и открытые места нет, примерно как в русском «на острове», «на рынке». Такие слова запоминайте, когда встретите.",
-    "Що вважається «всередині», кожна мова вирішує сама. Міста й кімнати вважаються, а деякі острови й відкриті місця ні, приблизно як в українському «на острові», «на ринку». Такі слова запам'ятовуйте, коли трапляться."],
+    "Що вважається «всередині», кожна мова вирішує сама. Міста й кімнати вважаються, а деякі острови й відкриті місця ні, приблизно як українське «на острові», «на ринку». Такі слова запам'ятовуйте, коли трапляться."],
   ["In the house, in March, in a good mood.", "В доме, в марте, в хорошем настроении.", "У будинку, у березні, у гарному настрої."],
 
   // SEESTÜTLEV.
@@ -170,7 +170,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["The surprise is \"about\". Talking about history takes the same ending as walking out of a building.",
     "Неожиданное здесь значение «о». Разговор об истории получает то же окончание, что и выход из здания.",
     "Несподіванка тут у значенні «про». Розмова про історію отримує те саме закінчення, що й вихід із будівлі."],
-  ["Out of the house. A book about history.", "Из дома. Книга об истории.", "З дому. Книжка про історію."],
+  ["Out of the house. A book about history.", "Из дома. Книга об истории.", "З дому (зсередини). Книжка про історію."],
 
   // ALALEÜTLEV.
   ["Going onto a surface, and the person you give something to.",
@@ -183,7 +183,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["English says \"to the shop\" and \"to Anna\" with one little word. Estonian asks which kind of \"to\": into something is -sse, onto something or to a person is this one.",
     "По-русски это разные конструкции: «в магазин», «на стол», «Анне». Эстонский тоже их различает: движение внутрь чего-то даёт -sse, а на поверхность или к человеку даёт это окончание.",
     "Українською це різні конструкції: «у магазин», «на стіл», «Анні». Естонська теж їх розрізняє: рух усередину чогось дає -sse, а на поверхню чи до людини дає це закінчення."],
-  ["Onto the table. To a friend, to your teacher.", "На стол. Другу, вашему преподавателю.", "На стіл. Другові, вашому викладачеві."],
+  ["Onto the table. To a friend, to your teacher.", "На стол. Другу, вашему преподавателю.", "На стіл. Другові, вашому викладачеві: «кому?», як у давальному відмінку."],
 
   // ALALÜTLEV.
   ["Being on something, and how Estonian says somebody has something.",
@@ -211,10 +211,10 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Той, у кого щось беруть, купують чи питають"],
   ["Think \"off a table\", not \"out of a box\". That one difference is all that separates this ending from -st.",
     "Думайте «со стола», а не «из коробки». Только этим оно и отличается от -st.",
-    "Думайте «зі столу», а не «з коробки». Лише цим це закінчення й відрізняється від -st."],
+    "Українською в обох випадках буде «з», тож думайте «з поверхні» («зі столу»), а не «зсередини» («з коробки»). Лише цим це закінчення й відрізняється від -st."],
   ["Off the table. From the person who sold it to you.",
     "Со стола. У того, кто вам это продал.",
-    "Зі столу. У того, хто вам це продав."],
+    "Зі столу (з поверхні). Від людини, яка вам це продала."],
 
   // SAAV.
   ["Turning into something, what a thing is for, and by when.",
@@ -225,7 +225,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["A deadline: by when", "Срок: к какому времени", "Термін: до якого часу"],
   ["It covers far more than English \"into\". Becoming a teacher, the weather turning cold and being ready by Friday all use this one ending.",
     "Оно охватывает гораздо больше, чем кажется. Стать учителем, похолодать и успеть к пятнице: везде одно и то же окончание.",
-    "Воно охоплює набагато більше, ніж здається. Стати вчителем, похолоднішати й устигнути до п'ятниці: скрізь одне й те саме закінчення."],
+    "Українською «стати вчителем» стоїть в орудному, а тут для цього своє закінчення, і охоплює воно більше: «похолоднішати» й «устигнути до п'ятниці» теж з ним."],
   ["Turning cold, getting it as a gift, done by Friday.",
     "Похолодать, получить в подарок, сделать к пятнице.",
     "Похолоднішати, отримати в подарунок, зробити до п'ятниці."],
@@ -239,7 +239,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Up to an amount", "До определённого количества", "До певної кількості"],
   ["The ending already means \"as far as\", so the extra word people sometimes add when talking says it twice. Harmless, but you don't need it.",
     "Окончание уже значит «до», поэтому лишнее слово, которое иногда добавляют в разговоре, повторяет то же самое. Это не ошибка, но и не нужно.",
-    "Закінчення вже означає «до», тож зайве слово, яке іноді додають у розмові, повторює те саме. Це не помилка, але й не потрібно."],
+    "Закінчення вже означає «до», тож зайве слово, яке іноді додають у розмові, повторює те саме. Це не помилка, але й потреби в ньому немає."],
   ["As far as the church. Right up until Friday.", "До церкви. До самой пятницы.", "До церкви. Аж до п'ятниці."],
 
   // OLEV.
@@ -256,7 +256,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   // ILMAÜTLEV.
   ["Without something. The exact opposite of \"with\", the next one down.",
     "Без чего-то. Полная противоположность «с», о котором следующая карточка.",
-    "Без чогось. Повна протилежність «з», про яке наступна картка."],
+    "Без чогось. Повна протилежність «разом із» з наступної картки."],
   ["The absence of a thing", "Отсутствие чего-то", "Відсутність чогось"],
   ["Doing something without a tool, a person or permission",
     "Делать что-то без инструмента, без человека или без разрешения",
@@ -275,8 +275,8 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["How you got somewhere, like by bus", "На чём вы добрались, например на автобусе", "Чим ви дісталися, наприклад автобусом"],
   ["It covers \"with a friend\" and \"with a knife\", which plenty of languages keep apart. It's always -ga, so it's the easiest ending to spot.",
     "Оно передаёт и «с другом», и «ножом», и «на автобусе», а в русском это три разные конструкции. Это всегда -ga, поэтому его проще всего узнать.",
-    "Воно передає і «з другом», і «ножем», і «автобусом», а в українській це різні конструкції. Це завжди -ga, тож його найлегше впізнати."],
-  ["With a friend, with a fork, and by bus.", "С другом, вилкой и на автобусе.", "З другом, виделкою і автобусом."],
+    "Тут вам легше, ніж англомовним: «з другом», «ножем» і «автобусом» в українській теж один орудний відмінок, з «з» чи без. Естонська всюди ставить -ga, тож його найлегше впізнати."],
+  ["With a friend, with a fork, and by bus.", "С другом, вилкой и на автобусе.", "З другом, виделкою, автобусом: як український орудний."],
 
   // THE FOUR GROUPS OF ENDINGS (CASE_GROUPS).
   ["Three to memorize", "Три формы наизусть", "Три форми напам'ять"],
@@ -290,11 +290,11 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["On top", "На поверхности", "На поверхні"],
   ["Onto, on and off. For tables and shelves, for people, and for how Estonian says someone has something.",
     "На что-то, на чём-то и с чего-то. Для столов и полок, для людей и для того, как по-эстонски говорят, что у кого-то что-то есть.",
-    "На щось, на чомусь і з чогось. Для столів і полиць, для людей і для того, як естонською кажуть, що в когось щось є."],
+    "На щось, на чомусь і з поверхні. Для столів і полиць, для людей і для того, як естонською кажуть, що в когось щось є."],
   ["Five more, one job each", "Ещё пять, у каждого одна задача", "Ще п'ять, у кожного одне завдання"],
   ["Becoming, up to, as, without and with. No puzzles here: each ending is one simple idea.",
     "Становиться, до, в качестве, без и с. Никаких загадок: каждое окончание означает что-то одно и простое.",
-    "Ставати, до, у ролі, без і з. Жодних загадок: кожне закінчення означає щось одне й просте."],
+    "Ставати кимось, до, у ролі, без і разом із чимось. Жодних загадок: кожне закінчення означає щось одне й просте."],
 
   // WHAT EACH KIND OF EXCEPTION IS (lib/estonian/exceptions.ts, KIND_NOTES, FAMILY_TITLES).
   // "The verb" is a topic group's title as well and is translated there.
