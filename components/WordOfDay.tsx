@@ -5,6 +5,7 @@ import { AddWordButton } from "@/components/AddWordButton";
 import { Speak } from "@/components/Speak";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { Card, CardLink, Chip, SectionTitle } from "@/components/ui";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * ONE WORD A DAY, WITH A REASON, THAT THE REST OF THE APP IS NOT GOING TO SHOW
@@ -28,7 +29,7 @@ import { Card, CardLink, Chip, SectionTitle } from "@/components/ui";
  * day the card claims pancakes over the word for a cupboard is the day nobody
  * reads it again.
  */
-export function WordOfDayCard({ word, collection, canTranslate, className }: {
+export function WordOfDayCard({ word, collection, canTranslate, locale, className }: {
   word: WordOfDay | null;
   /**
    * What the learner has kept from this panel so far.
@@ -40,22 +41,24 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
   collection: WordOfDayCollection;
   /** Whether this deployment has a model to ask for a sentence's English. */
   canTranslate: boolean;
+  /** The language the card's own words are in. The word and its sentence never change. */
+  locale: Locale;
   className?: string;
 }) {
+  const t = (english: string) => tr(locale, english);
   if (!word) {
     return (
       <Card className={className}>
-        <SectionTitle>Word of the day</SectionTitle>
-        <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          You&apos;ve already met every word we could pick for today, which is a first. Have a
-          browse in the dictionary, and there&apos;ll be a new one here tomorrow.
+        <SectionTitle>{t("Word of the day")}</SectionTitle>
+        <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }} lang={locale}>
+          {t("You've already met every word we could pick for today, which is a first. Have a browse in the dictionary, and there'll be a new one here tomorrow.")}
         </p>
         <Link
           href="/dictionary"
           className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold"
           style={{ color: "var(--accent-deep)" }}
         >
-          <BookOpen size={14} aria-hidden /> Open the dictionary
+          <BookOpen size={14} aria-hidden /> {t("Open the dictionary")}
         </Link>
       </Card>
     );
@@ -63,8 +66,8 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
 
   return (
     <Card className={className}>
-      <SectionTitle hint={word.occasion ? word.occasion.name : "new to you"}>
-        Word of the day
+      <SectionTitle hint={word.occasion ? t(word.occasion.name) : t("new to you")}>
+        {t("Word of the day")}
       </SectionTitle>
 
       {/*
@@ -84,7 +87,7 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
         >
           {word.lemma}
         </Link>
-        <Speak text={word.lemma} label={`Hear ${word.lemma}`} />
+        <Speak text={word.lemma} label={fill(t("Hear {word}"), { word: word.lemma })} />
       </div>
       <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>{word.translation}</p>
 
@@ -115,7 +118,7 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
       {word.occasion && (
         <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <CalendarDays size={15} aria-hidden className="mt-0.5" style={{ color: "var(--sky-ink)" }} />
-          <span>{word.occasion.note}</span>
+          <span>{t(word.occasion.note)}</span>
         </p>
       )}
 
@@ -156,13 +159,19 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
           href={`/dictionary?q=${encodeURIComponent(word.lemma)}`}
           icon={<BookOpen size={14} aria-hidden />}
         >
-          See the full entry
+          {t("See the full entry")}
         </CardLink>
         {collection.kept > 0 && (
           <p className="inline-flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
             <Sprout size={13} aria-hidden />
-            {collection.kept} {collection.kept === 1 ? "word of the day" : "words of the day"} kept so far
-            {collection.streak > 1 ? `, ${collection.streak} days in a row` : ""}
+            {locale === "en"
+              ? <>
+                {collection.kept} {collection.kept === 1 ? "word of the day" : "words of the day"} kept so far
+                {collection.streak > 1 ? `, ${collection.streak} days in a row` : ""}
+              </>
+              : fill(t(collection.streak > 1
+                ? "Words of the day kept so far: {kept}, {days} in a row"
+                : "Words of the day kept so far: {kept}"), { kept: collection.kept, days: countOf(locale, collection.streak, "day") })}
           </p>
         )}
       </div>
