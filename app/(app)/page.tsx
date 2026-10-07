@@ -1022,16 +1022,25 @@ export default async function TodayPage() {
             evening. See `Lettered` in components/HeroLetters.tsx. */}
         <Lettered show={!!courseCard}>{doNowCard}</Lettered>
         <Columns>
-          {orderTodayCards({
-            ladder: ladderCard,
-            errand: errandCard,
-            schedule: scheduleCard,
-            plan: planCard,
-            round: roundCard,
-            streak: streakCard,
-            word: wordCard,
-            next: nextCard,
-          }, todayOrderFrom(settings[SETTING_KEYS.todayOrder])).slice(0, TODAY_CARDS)}
+          {(() => {
+            const dealt = orderTodayCards({
+              ladder: ladderCard,
+              errand: errandCard,
+              schedule: scheduleCard,
+              plan: planCard,
+              round: roundCard,
+              streak: streakCard,
+              word: wordCard,
+              next: nextCard,
+            }, todayOrderFrom(settings[SETTING_KEYS.todayOrder]));
+            const cut = dealt.slice(0, TODAY_CARDS);
+            /* The word of the day is on everyone's Today, whatever order they
+               set and however many other cards are dealt ahead of it. It takes
+               the last place when the cap would have cut it. */
+            return wordCard && !cut.includes(wordCard)
+              ? [...cut.slice(0, TODAY_CARDS - 1), wordCard]
+              : cut;
+          })()}
         </Columns>
       </Stack>
     </Page>
