@@ -23,6 +23,7 @@ import { acceptedAnswers } from "@/lib/estonian/answer";
 import { stemsFrom } from "@/lib/estonian/derive";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { starredAmong } from "@/lib/progress/stars";
+import { sentenceFronts } from "@/lib/progress/formCards";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 
@@ -466,10 +467,26 @@ async function formsForCases(rows: CardRow[]): Promise<Map<string, HeldForms>> {
  * apart.
  */
 export async function withChoices(
-  rows: CardRow[], glossLanguage: GlossLanguage, ownerId: string,
+  inputRows: CardRow[], glossLanguage: GlossLanguage, ownerId: string,
   /** The module's taught words, so the options stay among them; null elsewhere. */
   only: readonly string[] | null = null,
 ): Promise<ReviewCard[]> {
+  /*
+    A FORM IS NEVER ASKED BARE. A deck built before a case or a person of a
+    verb was drilled in a sentence still holds `juhtuma → lihtminevik, ma`,
+    which asks for a form and says nothing about when anybody would use it.
+    Each such card is read as the sentence the builder makes for it today,
+    and one with no recorded sentence behind it is held back from the session
+    rather than asked as a suffix on a stem. Only what is read changes; the
+    row, its schedule and its history are exactly as they were. See
+    lib/progress/formCards.ts.
+  */
+  const upgrades = await sentenceFronts(inputRows);
+  const rows = inputRows.flatMap((row): CardRow[] => {
+    if (!upgrades.has(row.id)) return [row];
+    const upgrade = upgrades.get(row.id);
+    return upgrade ? [{ ...row, front: upgrade.front, back: upgrade.back, hint: upgrade.hint, slot: upgrade.slot ?? row.slot }] : [];
+  });
   /*
     WHICH OF THESE WORDS ARE ALREADY FAVORITES, AND THE GLOSSED SENTENCE.
 

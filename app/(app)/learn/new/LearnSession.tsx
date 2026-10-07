@@ -755,7 +755,7 @@ export function LearnSession({
           title={back ? "Nothing left to meet here" : `No new ${nouns} waiting`}
           body={
             back
-              ? "You've met these already. The rest of tonight's module is waiting."
+              ? "You've met these already. The rest of today's module is waiting."
               : kind === "phrase"
                 ? "Phrases turn up here as you open the units that teach them."
                 : "Open a unit from the course and its words will turn up here."

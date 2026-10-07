@@ -687,6 +687,19 @@ how an Estonian counter actually works, in the shape `docs/20-contributed-senten
 describes, and a B1 tier that still does not exist: holding the line when they switch, asking a
 follow-up, explaining why you were late.
 
+**The module is "Today's module", at any hour, and a form is never asked bare.** A learner reported two
+faults off the finished-module screens. Copy said "tonight" and "evenings" to somebody who opened the app at
+nine in the morning, so the module is named by the day wherever a reader meets it (`Today's module`, `Finish
+today's module`, `Today's words`); the identifiers (`tonightSteps`, the `tonight` email kind) are code and stay.
+And a verb card read `juhtuma` over `lihtminevik, ma` with a box under it, and a case card said "say out of
+medicine", which no person says. The builder already cut both from a recorded sentence, but a `Card` row keeps
+the front it was built with, so a deck assembled earlier still held the bare ask. `lib/progress/formCards.ts`
+asks the builder what it would make today for each bare form card on every read: a card it can rebuild is
+shown as the sentence with the gap (the row, its schedule and its history untouched), and one with no recorded
+sentence behind it is held back from the session rather than asked as a suffix on a stem. `repairCaseFronts`
+now rewrites persons of a verb as well, and `audit:decks` reports and removes the conjugation cards no sentence
+can replace. Nothing is written in Estonian: every sentence is one a lexicographer recorded.
+
 **A letter is the app writing to somebody who is not looking at it, and the only thing that
 makes that acceptable is that it is easy to stop.** `lib/email/` is the letters and is pure;
 `lib/mailer/` posts them; `lib/progress/mailout.ts` gathers what one says. A closed list

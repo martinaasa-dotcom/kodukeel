@@ -192,7 +192,7 @@ export async function describeRound(
     ...shuffle(readCases.filter((c) => !weak.includes(c))),
   ];
   /*
-    And inside the module, the case tonight's reading was about on every
+    And inside the module, the case today's reading was about on every
     other scene (`tonightFirst`): the cursor walks this list one scene at a
     time, so the case appears once per pair rather than once per round.
   */
@@ -212,7 +212,7 @@ export async function describeRound(
     moved is which picture and which of its three words carries it: one where a
     sentence records that case of that word (`recordsCase`) is taken first.
 
-    The cases a round is *for*, the learner's weakest and tonight's, are asked
+    The cases a round is *for*, the learner's weakest and today's, are asked
     whatever the word. A case drawn only to vary the round gives way to the
     next such case that somebody has written down, and never to a pointed one,
     or the terminative evening asked the terminative five times running where

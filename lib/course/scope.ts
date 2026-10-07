@@ -1,7 +1,7 @@
 /**
  * WHAT A ROUND OPENED FROM THE MODULE MAY DRAW ON.
  *
- * A step of tonight's module opens the same screen a learner reaches from
+ * A step of today's module opens the same screen a learner reaches from
  * Practice, and that screen fills itself the way it always did: from the
  * deck, from the dictionary at the learner's band, from whatever the day's
  * puzzle is. Opened from Practice that is the learner's own difficulty to
@@ -84,9 +84,9 @@ export function scopeFor(programme: Programme, day: CourseDay): ModuleScope {
  *
  * `scopeFor` answers for a step of the evening, and a step may assume the
  * steps in front of it were walked: the closing review comes after the
- * reading, so it may ask tonight's case. A round somebody walks to from
+ * reading, so it may ask today's case. A round somebody walks to from
  * Practice, or the daily review queue, assumes nothing. Read with the whole
- * evening credited, a learner who had met tonight's words and gone straight
+ * evening credited, a learner who had met today's words and gone straight
  * to Practice was handed a "Case Sprint" in a case whose page was still
  * unread two steps further down the same evening, and a word still on the
  * ladder: a question about something they had not been taught, which is the
@@ -94,9 +94,9 @@ export function scopeFor(programme: Programme, day: CourseDay): ModuleScope {
  *
  * So the evening in progress counts only for what it has actually done. The
  * evenings before it count whole, since walking past a day is what finishing
- * it means (`dayReached`). Tonight's words count where the learner has met
- * them (`met`, read off the cards by the caller), tonight's page once the
- * reading is ticked and tonight's past forms once the forms step is. And the
+ * it means (`dayReached`). Today's words count where the learner has met
+ * them (`met`, read off the cards by the caller), today's page once the
+ * reading is ticked and today's past forms once the forms step is. And the
  * learner's own words (`own`, every word this app did not choose) are in the
  * list too, ahead of the course's so a round leads with the module's recent
  * words: Review has always asked them (`reviewable`), and Practice drilling a
@@ -150,7 +150,7 @@ export function caseWithin(scope: ModuleScope | null, caseKey: string | null | u
 }
 
 /**
- * The case tonight's reading was about, or nothing.
+ * The case today's reading was about, or nothing.
  *
  * An evening that reads the elative and then plays a round spread evenly over
  * every case read since A2 began has read the page and practised something
@@ -164,13 +164,13 @@ export function tonightsCase(scope: ModuleScope | null): string | null {
   return scope?.day.grammarCase ?? null;
 }
 
-/** How much of a case round leads with tonight's case, where it can. */
+/** How much of a case round leads with today's case, where it can. */
 export const TONIGHT_SHARE = 0.5;
 
 /**
- * A round's order with tonight's items woven through the front of it: one of
- * tonight's, one of the rest, and so on until either runs out, so about half
- * the head of the round is tonight's case and the other half keeps the cases
+ * A round's order with today's items woven through the front of it: one of
+ * today's, one of the rest, and so on until either runs out, so about half
+ * the head of the round is today's case and the other half keeps the cases
  * before it alive. Order within each half is the caller's, so a round that
  * shuffled or ranked its pool keeps that.
  */
@@ -188,23 +188,23 @@ export function tonightFirst<T>(items: readonly T[], isTonight: (item: T) => boo
 
 /**
  * How many of the most recently taught words a round inside the module leads
- * with: tonight's and roughly the last week of evenings at any level.
+ * with: today's and roughly the last week of evenings at any level.
  */
 export const RECENT_WORDS = 40;
 
 /**
- * THE WORDS THE MODULE TAUGHT MOST RECENTLY, TONIGHT'S FIRST.
+ * THE WORDS THE MODULE TAUGHT MOST RECENTLY, TODAY'S FIRST.
  *
  * A round the module deals is about tonight. Filled the way a round opened
  * from Practice is, due cards first and then whatever lapsed, a B1 evening's
- * Match put tonight's three new words on a board with `aitäh`, `palun` and
+ * Match put today's three new words on a board with `aitäh`, `palun` and
  * `tere hommikust`, because a learner standing at B1 holds a deck of A1
  * greetings that are always somewhere near due. So the round leads with these
  * and fills from the rest only once they run out.
  */
 export function recentLemmas(scope: ModuleScope, n = RECENT_WORDS): string[] {
   /*
-    Tonight's words named first rather than read off the end of `lemmas`,
+    Today's words named first rather than read off the end of `lemmas`,
     which keeps a word where it was first taught: `tuttav` is on an A1 evening
     and again on a B1 one, so read off the list alone the B1 evening's own
     word sat nine hundred places back.
@@ -295,7 +295,7 @@ export function slotWithin(
 }
 
 /**
- * What tonight's forms step shows: the evening's own verbs, and whether the
+ * What today's forms step shows: the evening's own verbs, and whether the
  * polite imperative goes beside their past, which it does once the imperative
  * page has been read. One answer here, so the page and the gate above cannot
  * disagree about what the step put on the screen.

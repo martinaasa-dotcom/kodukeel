@@ -105,7 +105,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
  * So this page explains in English and then hands over to the units that teach
  * the point, where the examples are attested and in context.
  *
- * AND READ FROM TONIGHT'S MODULE IT HANDS OVER TO NOTHING AT ALL.
+ * AND READ FROM TODAY'S MODULE IT HANDS OVER TO NOTHING AT ALL.
  *
  * The module's second step is "read the point behind it", and this is the page
  * it opens. It was reported from exactly here: the learner read it, kept
@@ -116,7 +116,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
  *
  * Inside a module this is the point and the verbs that show it, and the one
  * way on is the frame's own button at the foot of the screen. The evening has
- * its own rounds, two steps further down, on tonight's own words. Nothing is
+ * its own rounds, two steps further down, on today's own words. Nothing is
  * deleted for anybody else: opened from the reference or from a card, this
  * page is exactly what it was.
  */

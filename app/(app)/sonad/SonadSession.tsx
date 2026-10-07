@@ -512,7 +512,7 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
       </p>
       <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
         {/*
-          THE WORD OPENS ITS ENTRY, EXCEPT INSIDE TONIGHT'S MODULE.
+          THE WORD OPENS ITS ENTRY, EXCEPT INSIDE TODAY'S MODULE.
 
           A word in the sentence saying what it means is content rather than
           navigation, which is why an inline link like this survives everywhere

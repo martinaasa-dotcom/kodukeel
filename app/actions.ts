@@ -3939,7 +3939,7 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
 }
 
 /**
- * A STEP OF TONIGHT'S MODULE, FINISHED FROM INSIDE IT.
+ * A STEP OF TODAY'S MODULE, FINISHED FROM INSIDE IT.
  *
  * `markCourseStep` is the module screen's own button and stays exactly what it
  * was: a learner on the list saying they did a round somewhere else. This is
@@ -4001,7 +4001,7 @@ export async function advanceCourseStep(programmeId: string, dayId: string, step
 }
 
 /**
- * TONIGHT'S STEPS, FOR THE RAIL TO DRAW UNDER LEARN.
+ * TODAY'S STEPS, FOR THE RAIL TO DRAW UNDER LEARN.
  *
  * The marker on a step's address says which step this is and not what the
  * others are called or which of them are done, so the rail asks. What is done

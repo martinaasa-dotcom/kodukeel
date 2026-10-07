@@ -237,7 +237,7 @@ export function caseQuestion(
   if (built.length < OPTIONS) return null;
 
   /*
-    Inside the module, the case tonight's reading was about is asked on about
+    Inside the module, the case today's reading was about is asked on about
     half the questions where this word can be asked it (`TONIGHT_SHARE`), and
     the other half keeps the cases read before it alive.
   */

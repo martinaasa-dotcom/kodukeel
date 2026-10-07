@@ -291,7 +291,7 @@ export const moduleReached = cache(async (
   if (ticks.byDay.size === 0) return null;
   const day = dayReached(programme, new Set(ticks.byDay.keys()));
   // The steps of that evening that carry a row, which is what tells a screen
-  // the module did not open whether tonight's page has been read yet
+  // the module did not open whether today's page has been read yet
   // (`scopeSoFar`). Pressed steps and latched derived ones alike.
   return { programme, day, ticked: ticks.byDay.get(day.id) ?? new Set<string>() };
 });
@@ -375,7 +375,7 @@ const metWordsFor = cache(async (ownerId: string, joined: string): Promise<boole
   /*
     EVERY WORD THE DICTIONARY HOLDS, NOT EVERY WORD THE DECK HAPPENS TO. This
     asked whether the cards that existed had all been answered, which is the
-    same question only until somebody already holds some of tonight's words:
+    same question only until somebody already holds some of today's words:
     two of a B1 evening's five came in from the frequency list, both long since
     answered, so the step read as done before anybody pressed Start, the press
     that builds the other three was gone with it, and `abielu`, `usaldama` and
@@ -556,7 +556,7 @@ async function withDerivedSteps(
  *
  * ONLY ON A DAY SOMEBODY HAS PRESSED A STEP OF. The day reached is the
  * furthest day carrying a tick, so a saved row on the day after the one
- * finished would move the course onto it and take "That's tonight done"
+ * finished would move the course onto it and take "Today's module is done"
  * with it. A day with a pressed step is already the day reached, so a row
  * there moves nothing. And the rows never open the closing round's window,
  * since `lastAt` reads pressed steps alone.
@@ -590,7 +590,7 @@ export interface CourseReading extends ProgrammeStanding {
    * Not `finishedToday`, which is the screen's "come back tomorrow" and is
    * rightly false once somebody has pressed "start the next one now": the
    * screen is then about the next module. The evening letter asks a different
-   * question, whether tonight's evening is done, and somebody who finished one
+   * question, whether today's evening is done, and somebody who finished one
    * and carried on has done it.
    */
   eveningDoneToday: boolean;
@@ -671,11 +671,11 @@ export async function courseReading(
     AND A DAY ANOTHER RENDER FINISHED IS STILL FINISHED. The derived steps are
     saved the moment a render proves them (`latchDerived`), and the render that
     proves the closing round is very often not this screen's: the module's own
-    bar asks for tonight's steps as the round ends, so by the time the learner
-    presses "Finish tonight" the day in play is already whole by its ticks,
+    bar asks for today's steps as the round ends, so by the time the learner
+    presses "Finish today's module" the day in play is already whole by its ticks,
     the loop above starts on the next day, and nothing here had finished
     anything. Measured on the first evening: the course opened on evening two,
-    "Learn tonight's 6 new words", a minute after the fifth answer. A day
+    "Learn today's 6 new words", a minute after the fifth answer. A day
     reached that is whole, with nothing ticked on the one after it, is the day
     that finished; whether that was today is the same question as below.
   */
@@ -738,7 +738,7 @@ export async function courseReading(
     tomorrow" stands until a step of the next day is ticked, and meeting its
     words ticks nothing, since that step is read off the deck: so a learner who
     pressed "start the next one now", met three words and went back to the
-    module was shown last night's "That's tonight done" over the evening they
+    module was shown last night's "Today's module is done" over the evening they
     were half way through. The next day's words given cards since the last
     tick is that evening begun, because Start is what builds them. Asked only
     on the path that would say "done", and never of `eveningDoneToday`, which
