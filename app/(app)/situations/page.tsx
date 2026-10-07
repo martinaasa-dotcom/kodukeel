@@ -16,8 +16,12 @@ import { ArrowUpRight } from "lucide-react";
 import { kindOf } from "@/lib/scenes/kinds";
 import { SituationsBoard, type SituationTile } from "./SituationsBoard";
 import { Explain } from "@/components/Explain";
+import { tr } from "@/lib/copy/locale";
+import { localeFor } from "@/lib/progress/locale";
 
-export const metadata = { title: "Situations" };
+export async function generateMetadata() {
+  return { title: tr(await localeFor(await requireUserId()), "Situations") };
+}
 export const dynamic = "force-dynamic";
 
 /**
@@ -42,12 +46,13 @@ export const dynamic = "force-dynamic";
  */
 export default async function SituationsPage() {
   const ownerId = await requireUserId();
-  const [history, learnerLevel, reached] = await Promise.all([
+  const [history, learnerLevel, reached, locale] = await Promise.all([
     sceneHistoryFor(ownerId),
     courseLevelFor(ownerId),
     moduleReached(ownerId),
+    localeFor(ownerId),
   ]);
-  const scenes = [...SCENES].sort((a, b) => a.title.localeCompare(b.title));
+  const scenes = [...SCENES].sort((a, b) => tr(locale, a.title).localeCompare(tr(locale, b.title), locale));
   /*
     WHICH OF THEM THE COURSE HAS NOT REACHED YET, for a learner it holds. The
     module deals a conversation only once every unit it draws its words from
@@ -98,8 +103,9 @@ export default async function SituationsPage() {
 
   return (
     <Page route="/situations"
-      title="Situations"
-      lead="Practise real conversations: someone wants something from you, and you sort it out in Estonian."
+      title={tr(locale, "Situations")}
+      titleLang={locale}
+      lead={tr(locale, "Practise real conversations: someone wants something from you, and you sort it out in Estonian.")}
     >
       <Stack>
         {/*
@@ -112,8 +118,7 @@ export default async function SituationsPage() {
         */}
         {learnerLevel === "A1" && (
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            Your course brings these in at A2, once you have the words for asking. Try one now if you like:
-            the other side keeps it simple.
+            {tr(locale, "Your course brings these in at A2, once you have the words for asking. Try one now if you like: the other side keeps it simple.")}
           </p>
         )}
         {tiles.length === 0 ? (
@@ -123,9 +128,9 @@ export default async function SituationsPage() {
             opening one would not explain better.
           */
           <Empty
-            title="No conversations yet"
-            body="More are on the way. A quick practice round is a good way to fill the gap."
-            action={<ButtonLink href="/practice">Practice</ButtonLink>}
+            title={tr(locale, "No conversations yet")}
+            body={tr(locale, "More are on the way. A quick practice round is a good way to fill the gap.")}
+            action={<ButtonLink href="/practice">{tr(locale, "Practice")}</ButtonLink>}
           />
         ) : (
           <SituationsBoard tiles={tiles} firstPick={firstPick} />
@@ -149,12 +154,10 @@ export default async function SituationsPage() {
         */}
         <div className="flex flex-col gap-1">
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            We hand you a card and you play the person on it. Nothing you write here is about you.
+            {tr(locale, "We hand you a card and you play the person on it. Nothing you write here is about you.")}
           </p>
-          <Explain label="Whose details these are">
-            The card is made up, so a transcript is never a record of anything you did. No scene will
-            ask for a real document number. What you type is kept with that run so you can read the
-            conversation back afterwards.
+          <Explain label={tr(locale, "Whose details these are")}>
+            {tr(locale, "The card is made up, so a transcript is never a record of anything you did. No scene will ask for a real document number. What you type is kept with that run so you can read the conversation back afterwards.")}
           </Explain>
         </div>
 
@@ -166,9 +169,9 @@ export default async function SituationsPage() {
           word and the one that points out of the app.
         */}
         <section aria-labelledby="places-heading" className="situation-out rounded-[var(--r-xl)] border p-5 md:p-7">
-          <h2 id="places-heading" className="text-xl font-bold tracking-tight">Where the people are</h2>
+          <h2 id="places-heading" className="text-xl font-bold tracking-tight">{tr(locale, "Where the people are")}</h2>
           <p className="mb-4 mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            Practise here, then go and have the real conversation. All of these are free.
+            {tr(locale, "Practise here, then go and have the real conversation. All of these are free.")}
           </p>
           <ul className="grid gap-3 @container">
             {PLACES_TO_TALK.map((place) => (
@@ -180,8 +183,8 @@ export default async function SituationsPage() {
                   className="situation-place tap-tint flex items-start gap-3 rounded-[var(--r-lg)] p-4"
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block text-base font-semibold underline">{place.name}</span>
-                    <span className="mt-1 block text-sm" style={{ color: "var(--ink-2)" }}>{place.what}</span>
+                    <span className="block text-base font-semibold underline">{tr(locale, place.name)}</span>
+                    <span className="mt-1 block text-sm" style={{ color: "var(--ink-2)" }}>{tr(locale, place.what)}</span>
                   </span>
                   <ArrowUpRight aria-hidden size={20} className="mt-0.5" style={{ color: "var(--accent-deep)" }} />
                 </a>

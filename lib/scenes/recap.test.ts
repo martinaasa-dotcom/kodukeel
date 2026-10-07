@@ -33,7 +33,7 @@ describe("the recap of a conversation", () => {
     const recap = recapOf(SCENE, state([
       turn({ said: "mul on valu peas täna" }),
       turn({ beatId: "where", said: "pea", slips: [{ kind: "case", said: "pea", form: "peas", lemma: "pea", grammCase: "INESSIVE" }] }),
-    ], ["reason", "where"]));
+    ], ["reason", "where"]), "en");
     expect(recap.headline).toBe("You got everything done.");
     expect(recap.stats.find((s) => s.label === "Things done")?.value).toBe(2);
     expect(recap.stats.find((s) => s.label === "Turns understood")?.value).toBe(2);
@@ -43,27 +43,27 @@ describe("the recap of a conversation", () => {
   });
 
   it("quotes the learner's own words in a highlight", () => {
-    const recap = recapOf(SCENE, state([turn({ said: "mul on väga suur valu" })], ["reason"]));
+    const recap = recapOf(SCENE, state([turn({ said: "mul on väga suur valu" })], ["reason"]), "en");
     const longest = recap.highlights.find((h) => h.title === "Your longest sentence");
     expect(longest?.said).toBe("mul on väga suur valu");
   });
 
   it("never quotes the same sentence in two highlights", () => {
     const said = "mul on külm, üks suur tee palun";
-    const recap = recapOf(SCENE, state([turn({ said, chose: [{ slot: "x", value: "tee" }] as never })], ["reason"]));
+    const recap = recapOf(SCENE, state([turn({ said, chose: [{ slot: "x", value: "tee" }] as never })], ["reason"]), "en");
     const quotes = recap.highlights.flatMap((h) => (h.said ? [h.said] : []));
     expect(new Set(quotes).size).toBe(quotes.length);
   });
 
   it("names what is left as a thing to try, never as a failure", () => {
-    const recap = recapOf(SCENE, state([turn({ reading: "offtarget", met: [false] })], []));
+    const recap = recapOf(SCENE, state([turn({ reading: "offtarget", met: [false] })], []), "en");
     expect(recap.headline).not.toMatch(/fail|wrong|mistake/i);
     expect(recap.nextTime[0]?.detail).toContain("Say what is wrong.");
     for (const m of recap.moments) expect(m.tone).not.toBe("wrong");
   });
 
   it("always has something to try next, and at most three of anything", () => {
-    const recap = recapOf(SCENE, state([turn(), turn({ beatId: "where" })], ["reason", "where"]));
+    const recap = recapOf(SCENE, state([turn(), turn({ beatId: "where" })], ["reason", "where"]), "en");
     expect(recap.nextTime.length).toBeGreaterThan(0);
     expect(recap.nextTime.length).toBeLessThanOrEqual(3);
     expect(recap.highlights.length).toBeLessThanOrEqual(3);

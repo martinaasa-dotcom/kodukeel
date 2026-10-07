@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { BookOpen, Clock, CornerDownLeft, DoorOpen, Heart, Info, LifeBuoy, ListChecks, MessageCircle, RotateCcw, Shuffle } from "lucide-react";
 import { RoundChip } from "@/components/round/RoundStart";
 import { Button } from "@/components/Button";
@@ -29,6 +29,10 @@ import { SceneVignette } from "./SceneVignette";
 import { cueFor, movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
 import { practises } from "@/lib/scenes/practises";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { onScreen, sceneTemplates } from "@/lib/scenes/onScreen";
+import { around } from "./inPlace";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /**
@@ -297,6 +301,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
      whether the briefing carries a door out of it. See
      components/course/moduleFocus.ts. */
   const inModule = useModuleFocus() !== null;
+  const t = useT();
+  const locale = useLocale();
+  const templates = useMemo(() => sceneTemplates(scene), [scene]);
+  /** A line the server filled in English, in the learner's interface language. */
+  const onStage = (text: string) => onScreen(locale, text, templates);
   const [phase, setPhase] = useState<Phase>("briefing");
   const [difficulty, setDifficulty] = useState<Difficulty>(() => defaultDifficultyFor(openAt));
   /*
@@ -992,12 +1001,12 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
   const dealtFor = (beat: SceneSpec["beats"][number]): string[] => {
     const slots = leafNeeds(beat.needs)
       .flatMap(({ need }) => (need.kind === "datum" ? [need.slot] : []));
-    return slots.flatMap((slot) => opened?.card.props.find((prop) => prop.slot === slot)?.given ?? []);
+    return slots.flatMap((slot) => opened?.card.props.find((prop) => prop.slot === slot)?.given ?? []).map((value) => t(value));
   };
   const progress = objectives.map((beat) => ({
     met: done.includes(beat.id),
     now: !done.includes(beat.id) && beat.id === beatId,
-    goal: beat.goal,
+    goal: t(beat.goal),
   }));
 
   /*
@@ -1042,8 +1051,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
     return (
       <SceneStage
         sceneId={scene.id}
-        title={scene.title}
-        place={scene.place}
+        title={t(scene.title)}
+        place={t(scene.place)}
         stage={<SceneVignette sceneId={scene.id} setting={room} fit="band" />}
       >
         <div className="scene-open">
@@ -1056,8 +1065,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
   if (phase === "briefing") {
     const kind = kindOf(scene.id);
     return (
-      <SceneStage sceneId={scene.id} title={scene.title} place={scene.place} minutes={minutes}>
-      <div className="scene-open flex flex-col gap-5">
+      <SceneStage sceneId={scene.id} title={t(scene.title)} place={t(scene.place)} minutes={minutes}>
+      <div className="scene-open flex flex-col gap-5" lang={locale}>
         {/*
           THE DOOR, WHICH IS THE ONE PLACE THIS MODULE GETS TO BE PLEASED WITH
           ITSELF.
@@ -1097,7 +1106,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             {/* The kind in words beside its dot, the way the board names it. */}
             <span className="situation-glass label-xs inline-flex items-center gap-2 rounded-full px-3 py-1">
               <span aria-hidden className="situation-dot" style={{ background: `var(--${kind.hue})` }} />
-              {kind.label}
+              {t(kind.label)}
             </span>
             {/*
               WHO YOU ARE, AND NOT WHERE YOU ARE AGAIN. The page above prints
@@ -1106,7 +1115,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               paragraph wearing an `h2`.
             */}
             <p className="max-w-[44ch] font-display text-lg font-semibold leading-snug" style={{ color: "var(--ink)", textWrap: "balance" }}>
-              {scene.role}
+              {t(scene.role)}
             </p>
             {/*
               What is coming, in the scene's own terms. It is the count the bar
@@ -1115,9 +1124,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             */}
             <div className="flex flex-wrap items-center justify-center gap-2">
               <RoundChip icon={<ListChecks size={14} aria-hidden />}>
-                {objectives.length} things to get done
+                {fill(t("{count} things to get done"), { count: objectives.length })}
               </RoundChip>
-              <RoundChip icon={<Clock size={14} aria-hidden />}>About {minutes} min</RoundChip>
+              <RoundChip icon={<Clock size={14} aria-hidden />}>{fill(t("About {minutes} min"), { minutes })}</RoundChip>
             </div>
           </div>
         </div>
@@ -1130,7 +1139,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         */}
         <section className="flex flex-col gap-2.5" aria-labelledby="scene-practise">
           <h2 id="scene-practise" className="label-xs" style={{ color: "var(--ink-3)" }}>
-            You&apos;ll practise
+            {t("You'll practise")}
           </h2>
           <ul className="flex flex-wrap gap-2">
             {practises(scene).map((one) => (
@@ -1139,7 +1148,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                 className="rounded-full px-3 py-1.5 text-sm font-medium"
                 style={{ background: `var(--${kind.hue}-soft)`, color: toneInk(kind.hue) }}
               >
-                {one}
+                {t(one)}
               </li>
             ))}
           </ul>
@@ -1174,8 +1183,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                   {one.icon}
                 </span>
                 <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="font-semibold" style={{ color: "var(--ink)" }}>{one.title}</span>
-                  <span className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{one.line}</span>
+                  <span className="font-semibold" style={{ color: "var(--ink)" }}>{t(one.title)}</span>
+                  <span className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(one.line)}</span>
                 </span>
               </div>
             </li>
@@ -1199,7 +1208,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             Somebody who chose this conversation still gets the door. */}
         {unit && !inModule && (
           <CardLink href={`/learn/${unit.id}`} icon={<BookOpen size={16} aria-hidden />}>
-            The lesson behind it: {unit.title}
+            {fill(t("The lesson behind it: {title}"), { title: unit.title })}
           </CardLink>
         )}
 
@@ -1233,12 +1242,12 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         */}
         <Card className="flex flex-col gap-5">
         <ChoiceGroup
-          label="How they talk to you"
-          hint={openAt === learnerLevel
-            ? `Your level is ${learnerLevel}. Lower for simpler sentences, higher to be spoken to like anyone else.`
+          label={t("How they talk to you")}
+          hint={fill(t(openAt === learnerLevel
+            ? "Your level is {level}. Lower for simpler sentences, higher to be spoken to like anyone else."
             : openAt < learnerLevel
-              ? `Your level is ${learnerLevel}, but this starts at ${openAt} for now, since your recent answers have been a struggle. Change it whenever you like.`
-              : `Your level is ${learnerLevel}, but this starts at ${openAt} for now, since you've been getting nearly everything right. Change it whenever you like.`}
+              ? "Your level is {level}, but this starts at {start} for now, since your recent answers have been a struggle. Change it whenever you like."
+              : "Your level is {level}, but this starts at {start} for now, since you've been getting nearly everything right. Change it whenever you like."), { level: learnerLevel, start: openAt })}
         >
           {LEVELS.map((one) => (
             <ChoiceChip key={one} selected={level === one} onSelect={() => setLevel(one)} even>
@@ -1248,7 +1257,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         </ChoiceGroup>
 
         <ChoiceGroup
-          label="How tricky should it be?"
+          label={t("How tricky should it be?")}
           className="grid gap-2 sm:grid-cols-2"
         >
           {DIFFICULTIES.map((one) => (
@@ -1256,17 +1265,17 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               key={one.id}
               selected={difficulty === one.id}
               onSelect={() => setDifficulty(one.id)}
-              title={one.label}
-              detail={one.blurb}
+              title={t(one.label)}
+              detail={t(one.blurb)}
               layout="stacked"
             />
           ))}
         </ChoiceGroup>
         </Card>
 
-        {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{error}</p>}
+        {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{t(error)}</p>}
         <Button onClick={start} disabled={busy} variant="primary" size="lg">
-          {busy ? "Getting ready…" : "Start the conversation"}
+          {busy ? t("Getting ready…") : t("Start the conversation")}
         </Button>
       </div>
       </SceneStage>
@@ -1321,8 +1330,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
   return (
     <SceneStage
       sceneId={scene.id}
-      title={scene.title}
-      place={scene.place}
+      title={t(scene.title)}
+      place={t(scene.place)}
       progress={progress}
       /*
         THE ROOM, STILL THERE WHILE THE CONVERSATION IS HAD IN IT.
@@ -1353,11 +1362,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         sceneId={scene.id}
         from={interlude.from}
         to={interlude.to}
-        text={interlude.text}
+        text={onStage(interlude.text)}
         onDone={interlude.done}
       />
     )}
-    <div className="scene-open flex flex-col gap-4">
+    <div className="scene-open flex flex-col gap-4" lang={locale}>
       {/*
         THE CARD IS ONE LINE UNTIL SOMEBODY ASKS FOR MORE, WHICH IS THE WHOLE
         OF WHAT WAS WRONG WITH IT.
@@ -1448,11 +1457,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         >
           {dealt.length > 0 ? (
             <>
-              <span style={{ color: "var(--ink-3)" }}>Your card: </span>
-              <span className="font-medium" style={{ color: "var(--ink)" }}>{dealt.join(", ")}</span>
+              <span style={{ color: "var(--ink-3)" }}>{t("Your card:")}{" "}</span>
+              <span className="font-medium" style={{ color: "var(--ink)" }}>{dealt.map((value) => t(value)).join(", ")}</span>
             </>
           ) : (
-            "Your card"
+            t("Your card")
           )}
         </summary>
         <Card className="mt-2 flex flex-col gap-4">
@@ -1471,7 +1480,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             closes with is separated from the facts by a rule rather than by a
             gap somebody has to notice.
           */}
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{opened?.card.you}</p>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{opened ? t(opened.card.you) : null}</p>
           <ul
             className="flex flex-col gap-3 border-y py-3"
             style={{ borderColor: "var(--rule)" }}
@@ -1486,7 +1495,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                   label and the value are told apart by size, weight and ink,
                   which is three things and enough.
                 */}
-                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{prop.card}</p>
+                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{t(prop.card)}</p>
                 {/*
                   What you were dealt. In English where the card dealt a word,
                   because saying it in Estonian is the exercise; as itself
@@ -1497,13 +1506,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                 */}
                 {prop.given.length > 0 && (
                   <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                    {prop.given.join(", ")}
+                    {prop.given.map((value) => t(value)).join(", ")}
                   </p>
                 )}
                 {/* The word came back because it was missing last time. Said, so the card reads as remembering rather than repeating. */}
                 {prop.returned && (
                   <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
-                    You reached for this one in a recent conversation and didn&apos;t have it.
+                    {t("You reached for this one in a recent conversation and didn't have it.")}
                   </p>
                 )}
               </li>
@@ -1527,7 +1536,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
           */}
           <div className="mt-1 flex flex-col gap-1">
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-              What to get done, {metCount} of {objectives.length}
+              {fill(t("What to get done, {met} of {total}"), { met: metCount, total: objectives.length })}
             </p>
             <ul className="flex flex-col gap-1">
               {objectives.map((beat) => {
@@ -1549,7 +1558,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                     </span>
                     <span className="flex min-w-0 flex-wrap items-center gap-x-2">
                       <span style={{ color: met || now ? "var(--ink)" : "var(--ink-3)" }} className={now ? "font-medium" : undefined}>
-                        {beat.goal}
+                        {t(beat.goal)}
                       </span>
                       {/*
                         AND WHAT THE CARD DEALT FOR IT, HERE RATHER THAN
@@ -1566,7 +1575,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                           {value.join(", ")}
                         </span>
                       )}
-                      <span className="sr-only">{met ? "done" : now ? "this is the one they are waiting on" : "not yet"}</span>
+                      <span className="sr-only">{t(met ? "done" : now ? "this is the one they are waiting on" : "not yet")}</span>
                     </span>
                   </li>
                 );
@@ -1590,8 +1599,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                 set up" is a fact about the deployment nobody reading it can
                 act on, and what it changes for them is that the other side
                 keeps to its lines. */}
-            {note
-              ?? "They speak from lines written for this scene, so they stick closer to the card than a person would."}
+            {(note ? t(note) : null)
+              ?? t("They speak from lines written for this scene, so they stick closer to the card than a person would.")}
           </span>
         </p>
       )}
@@ -1615,7 +1624,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         role="log"
         aria-live="polite"
         aria-relevant="additions"
-        aria-label="The conversation"
+        aria-label={t("The conversation")}
       >
         {turns.map((turn, index) => (
           turn.who === "you" ? (
@@ -1643,7 +1652,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             <div key={index} className="scene-say-you flex flex-row-reverse items-start justify-start gap-2">
               <SceneFace who="you" />
               <div className="flex min-w-0 flex-col items-end">
-              <span className="sr-only">You said: </span>
+              <span className="sr-only">{t("You said:")}{" "}</span>
               {/*
                 What you typed, and a button to hear it said by a native
                 voice, which the design (§11) promised and nothing drew: a
@@ -1684,17 +1693,16 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               */}
               {turn.slips && turn.slips.length > 0 && (
                 <p className="mt-1 pr-1 text-right text-xs" style={{ color: "var(--ink-3)" }}>
-                  They understood you.
+                  {t("They understood you.")}
                   {turn.slips.some((slip) => slip.form) && (
                     <>
-                      {" "}They&apos;d say{" "}
-                      {turn.slips.filter((slip) => slip.form).map((slip, at, all) => (
+                      {" "}
+                      {around(t("They'd say {forms}."), "forms", turn.slips.filter((slip) => slip.form).map((slip, at, all) => (
                         <span key={slip.said}>
                           <span lang="et" className="font-medium" style={{ color: "var(--ink-2)" }}>{slip.form}</span>
                           {at < all.length - 1 && ", "}
                         </span>
-                      ))}
-                      .
+                      )))}
                     </>
                   )}
                 </p>
@@ -1705,7 +1713,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             <div key={index} className="flex items-start gap-2">
               <SceneFace who="them" />
               <div className="flex min-w-0 flex-col items-start gap-2">
-              <span className="sr-only">They said: </span>
+              <span className="sr-only">{t("They said:")}{" "}</span>
               {inOneBreath(turn.lines).map((line, at) => (
                 spoken(line) ? (
                   /*
@@ -1758,7 +1766,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                             className="tap-tint rounded-full px-3 py-1 text-sm"
                             style={{ color: "var(--ink-2)" }}
                           >
-                            Show the words
+                            {t("Show the words")}
                           </button>
                         </p>
                       ) : (
@@ -1837,12 +1845,12 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                         construction, and what a reader is owed is which lines
                         a model wrote (ADR-025), which is the move's rung.
                       */}
-                      <span>{PROVENANCE[line.provenance]}</span>
+                      <span>{t(PROVENANCE[line.provenance])}</span>
                       {reportable(line) && (
                         <SuggestFix
                           category="WRONG_CONTENT"
                           trigger={`Situations, ${scene.id}, ${line.text}`}
-                          label="Report"
+                          label={t("Report")}
                         />
                       )}
                     </p>
@@ -1878,7 +1886,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                       className="scene-break scene-aside inline-flex max-w-[85%] items-center gap-2.5 rounded-[var(--r-lg)] px-4 py-2.5 text-left text-sm"
                     >
                       <Clock size={16} aria-hidden className="shrink-0" style={{ color: "var(--cta)" }} />
-                      {line.text}
+                      {onStage(line.text)}
                     </span>
                     <span
                       aria-hidden
@@ -1908,10 +1916,10 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                       panel's colour and position say nothing.
                     */}
                     <span className="label-xs block" style={{ color: "var(--accent-deep)" }}>
-                      Hint
-                      <span className="sr-only"> ({PROVENANCE.coach})</span>
+                      {t("Hint")}
+                      <span className="sr-only"> ({t(PROVENANCE.coach)})</span>
                     </span>
-                    {line.text}
+                    {onStage(line.text)}
                   </p>
                 ) : (
                   /*
@@ -1923,8 +1931,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                     reporting our own sentence.
                   */
                   <p key={at} className="text-sm italic" style={{ color: "var(--ink-3)" }}>
-                    {line.text}
-                    <span className="sr-only"> ({PROVENANCE.unspoken})</span>
+                    {onStage(line.text)}
+                    <span className="sr-only"> ({t(PROVENANCE.unspoken)})</span>
                   </p>
                 )
               ))}
@@ -1957,7 +1965,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             {/* The same bubble the lines arrive in, so the wait reads as them
                 about to speak rather than as a panel appearing. */}
             <div data-who="them" className="scene-bubble inline-block">
-              <Dots label="They are answering" />
+              <Dots label={t("They are answering")} />
             </div>
           </div>
         )}
@@ -2005,8 +2013,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               nothing fills, nothing drains, and nothing is running.
             */}
             <p className="label-xs flex flex-wrap items-baseline justify-between gap-x-3" style={{ color: "var(--cta)" }}>
-              <span>Your turn</span>
-              <span style={{ color: "var(--ink-3)" }}>{metCount} of {objectives.length}</span>
+              <span>{t("Your turn")}</span>
+              <span style={{ color: "var(--ink-3)" }}>{fill(t("{met} of {total}"), { met: metCount, total: objectives.length })}</span>
             </p>
             {/*
               The same count as a row of steps, the ones behind you lit in the
@@ -2052,11 +2060,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                 className="tap-tint mt-1 block rounded-full px-3 py-1 text-lg font-medium"
                 style={{ color: "var(--ink-2)" }}
               >
-                Show me what I&apos;m trying to do
+                {t("Show me what I'm trying to do")}
               </button>
             ) : (
               <p className="mt-1 text-lg font-medium leading-snug">
-                {goal ?? "Answer them."}
+                {goal ? t(goal) : t("Answer them.")}
                 {/*
                   AND THE VALUE THE CARD DEALT FOR IT, IN THE ONE PLACE THE
                   LEARNER IS LOOKING WHEN THEY TYPE. Behind the same press as
@@ -2073,12 +2081,12 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
           </div>
           {lent && (
             <p className="text-sm" aria-live="polite">
-              <span style={{ color: "var(--ink-2)" }}>The word you were reaching for: </span>
+              <span style={{ color: "var(--ink-2)" }}>{t("The word you were reaching for:")}{" "}</span>
               <span lang="et" className="font-medium">{lent.lemma}</span>
               <span style={{ color: "var(--ink-2)" }}>, {lent.gloss}</span>
             </p>
           )}
-          {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{error}</p>}
+          {error && <p className="text-sm" style={{ color: "var(--blush-ink)" }}>{t(error)}</p>}
 
           {/*
             Closed while the room is moving, and closed by the field itself
@@ -2093,8 +2101,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             onEnter={say}
             inputRef={box}
             disabled={moving}
-            ariaLabel="What you say"
-            placeholder={moving ? "Just a moment…" : "Say it in Estonian"}
+            ariaLabel={t("What you say")}
+            placeholder={moving ? t("Just a moment…") : t("Say it in Estonian")}
           />
           {/*
             Alone in its row, so the one action a learner takes every turn is the
@@ -2103,11 +2111,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             away from the button being pressed twenty times a conversation.
           */}
           <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
-            <CornerDownLeft size={16} aria-hidden /> Say it
+            <CornerDownLeft size={16} aria-hidden /> {t("Say it")}
           </Button>
           <div className="flex flex-wrap gap-2">
             <Button variant="ghost" onClick={again} disabled={busy || moving || !heard}>
-              <RotateCcw size={16} aria-hidden /> Say that again
+              <RotateCcw size={16} aria-hidden /> {t("Say that again")}
             </Button>
             {/*
               Asking costs the turn its `helped` flag and nothing else: no
@@ -2119,10 +2127,10 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               lexicon and should not.
             */}
             <Button variant="ghost" onClick={help} disabled={busy || moving || helped}>
-              <LifeBuoy size={16} aria-hidden /> I need a word
+              <LifeBuoy size={16} aria-hidden /> {t("I need a word")}
             </Button>
             <Button variant="ghost" onClick={() => hangUp(sent, true)} disabled={busy || moving}>
-              <DoorOpen size={16} aria-hidden /> Leave
+              <DoorOpen size={16} aria-hidden /> {t("Leave")}
             </Button>
           </div>
           {/*
@@ -2133,13 +2141,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
           {opened && (modelDown || (writer && !writer.primary)) && (
             <p role="status" className="verdict-panel verdict-nearly">
               {modelDown
-                ? "The language model is not answering right now, so the other side can only use lines written for this scene in advance and will understand much less than usual. Try again a little later."
-                : `The main language model is not answering, so a backup (${writer?.model}) is writing the other side's lines. It may make mistakes the main one would not.`}
+                ? t("The language model is not answering right now, so the other side can only use lines written for this scene in advance and will understand much less than usual. Try again a little later.")
+                : fill(t("The main language model is not answering, so a backup ({model}) is writing the other side's lines. It may make mistakes the main one would not."), { model: writer?.model ?? "" })}
             </p>
           )}
           {writer && !modelDown && (
             <p className="text-xs" data-scene-model={writer.model} style={{ color: "var(--ink-3)" }}>
-              The other side is played by {writer.label}, {writer.model}
+              {fill(t("The other side is played by {label}, {model}"), { label: writer.label, model: writer.model })}
             </p>
           )}
         </div>
