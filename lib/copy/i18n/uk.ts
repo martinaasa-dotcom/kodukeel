@@ -213,6 +213,7 @@ export const UK: Readonly<Record<string, string>> = {
   "{day}: {count} reviews": "{day}, повторень: {count}",
   "{total} reviews, spread over {active} of the last {days} days": "Повторень: {total}. Днів із заняттями: {active} з {days}.",
   "Quiet": "Мало",
+  "You@person": "Ви",
   "Busy": "Багато",
   "Reviews per day, last six months": "Повторення за днями за останні пів року",
 };

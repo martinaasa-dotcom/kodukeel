@@ -298,14 +298,14 @@ export function Sidebar({ order: stored, name, classes = [] }: {
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold"
                 style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
               >
-                {(name ?? "You").trim().charAt(0).toUpperCase() || "Y"}
+                {(name ?? t("You", "person")).trim().charAt(0).toUpperCase() || "Y"}
               </span>
               <span className="min-w-0">
                 <span className="block text-sm font-semibold" style={{ color: "var(--ink)" }}>
-                  {name ?? "You"}
+                  {name ?? t("You", "person")}
                 </span>
                 <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                  Settings
+                  {t("Settings")}
                 </span>
               </span>
             </button>
@@ -563,7 +563,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               ))}
             </div>
             <section aria-labelledby="sheet-app" className="mt-5">
-              <h3 id="sheet-app" className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>You</h3>
+              <h3 id="sheet-app" className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>{t("You", "person")}</h3>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {app.map((item) => <SheetLink key={item.href} item={item} active={active(item.href)} />)}
               </div>
@@ -720,7 +720,7 @@ function AccountMenu({ onClose, onEdit, active }: {
     <div
       ref={box}
       role="group"
-      aria-label="You"
+      aria-label={t("You", "person")}
       className="menu-pop absolute bottom-full left-0 z-50 mb-2 w-72 rounded-[var(--r-lg)] border p-2"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--shadow-lg)" }}
     >
