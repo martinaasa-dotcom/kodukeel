@@ -44,7 +44,10 @@ function Picture({ scene, move }: { scene: Scene; move: Move }) {
   const ink = "var(--ink-3)";
   const arrow = "var(--accent-deep)";
   const book = (x: number, y: number) => (
-    <text x={x} y={y} fontSize="34" textAnchor="middle" aria-hidden>📖</text>
+    <g transform={`translate(${x} ${y - 12})`} fill="var(--accent-soft)" stroke="var(--accent-deep)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" aria-hidden>
+      <path d="M-20 -11 Q-10 -16 0 -9 Q10 -16 20 -11 V12 Q10 7 0 14 Q-10 7 -20 12 Z" />
+      <path d="M0 -9 V14" fill="none" />
+    </g>
   );
   return (
     <svg viewBox="0 0 360 210" role="img" className="h-auto w-full"
