@@ -546,6 +546,8 @@ export const TODAY: Area = {
     "{minutes} мин",
   "left":
     "осталось",
+  "min":
+    "мин",
   "Today's words":
     "Слова на сегодня",
   "A few of these aren't in your deck yet. The first step adds them.":
@@ -1519,6 +1521,8 @@ export const TODAY: Area = {
     "{minutes} хв",
   "left":
     "лишилося",
+  "min":
+    "хв",
   "Today's words":
     "Слова на сьогодні",
   "A few of these aren't in your deck yet. The first step adds them.":

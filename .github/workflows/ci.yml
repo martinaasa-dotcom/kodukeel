@@ -337,16 +337,21 @@ jobs:
           # minutes on its own and there is no honest way to make it less
           # without measuring less, so it gets a shard with one short suite
           # beside it rather than being hurried.
-          #
-          # And every signed-in screen again in Russian and in Ukrainian, asking
-          # the containment questions about text fitting and whether any English
-          # was left, since every other suite here runs in English, where a
-          # translation that is longer than its box or missing cannot show.
           - name: text inside its box
             suites: >-
               scripts/test-containment.mjs
-              scripts/test-locales.mjs
               scripts/test-polish.mjs
+
+          # Every signed-in screen again in Russian and in Ukrainian, asking the
+          # containment questions about text fitting and whether any English was
+          # left, since every other suite here runs in English, where a
+          # translation that is longer than its box or missing cannot show. It
+          # shared the shard above until the two together ran past the
+          # twenty-minute ceiling, which is a cancelled run rather than a red one
+          # and says nothing about either suite.
+          - name: the screens in Russian and Ukrainian
+            suites: >-
+              scripts/test-locales.mjs
 
           # And every route again as an Estonian reader in a far zone, which is
           # the one setting where a date formatted in a client component's

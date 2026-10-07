@@ -416,12 +416,17 @@ export default async function CoursePage({
               newWordsIn(day) > 0
                 ? { value: String(newWordsIn(day)), label: nounOnly(locale, newWordsIn(day), "new word", newWordsIn(day) === 1 ? "new word" : "new words") }
                 : { value: String(day.words.length), label: locale === "en" ? "words again" : fill(t("{words} again"), { words: nounOnly(locale, day.words.length, "word", "words") }) },
-              { value: standing.complete ? t("0m") : fill(t("{minutes}m"), { minutes: standing.minutesLeft }), label: t("left") },
+              // The unit is set small beside the number off English: "14 мин" at
+              // display size is wider than a third of a phone, and the number is
+              // the figure while the unit only says what it counts.
+              locale === "en"
+                ? { value: standing.complete ? t("0m") : fill(t("{minutes}m"), { minutes: standing.minutesLeft }), label: t("left") }
+                : { value: String(standing.complete ? 0 : standing.minutesLeft), unit: t("min"), label: t("left") },
               { value: `${standing.pct}%`, label: t("done") },
             ].map((figure) => (
               <div key={figure.label} className="flex flex-col-reverse items-center justify-end gap-1.5 px-2" style={{ borderColor: "rgb(255 255 255 / 0.12)" }}>
                 <dt className="text-sm" style={{ color: "var(--ink-2)" }}>{figure.label}</dt>
-                <dd data-figure className="tnum font-display whitespace-nowrap text-3xl sm:text-4xl font-bold leading-none" style={{ color: "var(--ink)" }}>{figure.value}</dd>
+                <dd data-figure className="tnum font-display whitespace-nowrap text-3xl sm:text-4xl font-bold leading-none" style={{ color: "var(--ink)" }}>{figure.value}{"unit" in figure && figure.unit ? <span className="text-base font-semibold"> {figure.unit}</span> : null}</dd>
               </div>
             ))}
           </dl>
