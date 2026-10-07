@@ -5472,3 +5472,9 @@ Choosing "hear it first" in Settings writes the mode to match, so the two cannot
 This is tier 1 of a voice conversation: the other side speaks and the learner still types. Speech
 recognition for the learner's side is a separate decision, waiting on a measurement of how well any
 recognizer hears learner Estonian.
+
+## 82. A conversation leaves room between its lines, and speaks in one clear voice
+
+Reported off `poodi-piima`: "Hästi.", the cover saying five minutes had passed, and the next question all landed into each other. The cover came up in the same frame as the line before it and cut its voice off, and the line after the cover arrived and spoke in the frame the cover left. `lib/scenes/pacing.ts` is the two beats: before a break the line is heard to its end (`untilQuiet` in `lib/audio/clip.ts`, capped) and then left up long enough to read, scaled by its length; after Continue the cover fades onto the move alone, and only `AFTER_BREAK_MS` later does the next line arrive and speak. Measured in a browser: "Hästi." stays up about three to four seconds, the next line arrives a second after Continue.
+
+The rung and a Report button under every line were taken off on the operator's word, as a second conversation under the first; the model composing is still named once at the top (ADR-025), and the rung rides on `data-rung` for the suite. And every persona speaks in `SCENE_VOICE`, Tambet, measured: all ten voices read eight short scene lines to a recognizer, the five that heard every word read eight long ones, and Tambet's came back word for word bar a digit for a spoken number. Külli and Indrek, two of the old persona voices, were misheard on the short lines already.

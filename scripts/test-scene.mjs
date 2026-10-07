@@ -376,43 +376,18 @@ const chips = await page.getByRole("log").innerText();
   source spelling failed on a chip that was there and correct, which is a check
   reporting its own regex.
 */
-const provenance =
-  /From the course|Written for this scene|Written for this turn|They did not catch that|Said again|In English, because/i
-    .test(chips);
 /*
-  EVERY STATE, because the ladder's claim is that whichever rung answered says
-  so: the dictionary's own sentence, one written for this turn, somebody who did
-  not catch what was said, or a move nothing could be said for at all. A keyless
-  run is not a broken one, and this is the check that says so.
-
-  The fourth is the one a keyless run mostly gets, and it is the reason it is
-  here: it used to come out as the third, so half a conversation was the desk
-  claiming not to have understood turns that were fine. See `wayOut`.
+  NOTHING UNDER A BUBBLE. Each line used to carry where it came from and a
+  Report button, and the learner asked for both gone: under every line of a
+  conversation they are a second conversation. Which model is composing is
+  said once at the top (ADR-025); the rung still rides on `data-rung`, which the
+  check at the foot of this file reads.
 */
-check("and the line says which rung it came from (ADR-025)", provenance,
-  chips.split("\n").filter(Boolean).slice(0, 2).join(" | "));
-/*
-  The report button belongs to a line somebody said, and the fourth rung is not
-  one: an `unspoken` turn is our own English about what the desk did, and
-  offering it to the queue would ask a learner to report our sentence to us. So
-  this is checked where an Estonian line is on screen, which the greeting
-  always is, because `Tere!` is its own sentence and the dictionary answers it.
-*/
-const spoken = await page.getByText(/From the course|Written for this scene|Written for this turn/i).count();
-/*
-  `spoken === 0 || ...` was the old shape and it passes when there is nothing
-  to look at, which is the same fault as the two waivers at the foot of this
-  file one size smaller. The greeting always is a line somebody said, so the
-  empty case is worth saying out loud rather than swallowing.
-*/
-if (spoken > 0) {
-  check("with a way to report a line somebody said",
-    (await page.getByRole("button", { name: /^Report/i }).count()) > 0,
-    `${spoken} spoken line(s) on screen`);
-} else {
-  absent(1, "no Estonian line was on screen to report: every line this run reached was a stage "
-    + "direction, which is our own English and deliberately carries no report button");
-}
+check("a line carries no caption saying where it came from",
+  !/From the course|Written for this scene|Written for this turn|Said again/i.test(chips),
+  chips.split("\n").filter(Boolean).slice(0, 3).join(" | "));
+check("and no Report button under it",
+  (await page.getByRole("log").getByRole("button", { name: /^Report/i }).count()) === 0);
 
 /*
   Every line the desk said, with the rung it came from, over the whole
@@ -442,8 +417,7 @@ async function listen() {
   */
   for (const line of await page.getByRole("log").locator("[data-rung]").all()) {
     const text = await line.locator("p[lang=et]").first().innerText().catch(() => "");
-    const chip = await line.locator("p").last().innerText().catch(() => "");
-    heard.push({ text, chip, rung: await line.getAttribute("data-rung") });
+    heard.push({ text, rung: await line.getAttribute("data-rung") });
   }
 }
 
@@ -646,23 +620,15 @@ check("and the card you answer from is pinned under it, not scrolled away",
   JSON.stringify(pinned));
 
 /*
-  And the words under every line are the rung it actually came from. The chip is
-  what a reader is told and `data-rung` is what the server decided, and the two
-  being one claim is the whole of ADR-025: a line labelled "from the course"
-  that a model wrote would be the app vouching for its own Estonian.
-
-  Read off the transcript this run built, before it is left: the debrief
-  replaces the conversation, so a `listen()` after that would find nothing and
-  the check would be asserting over an empty list.
+  And every line the desk said still says, to a suite, which rung the server
+  chose, now that it no longer says so to the reader. Read off the transcript
+  this run built, before it is left: the debrief replaces the conversation.
 */
+const RUNGS = ["attested", "scripted", "composed", "fallback", "again", "recast", "offered", "english", "echo", "unspoken"];
 const labelled = heard.filter((line) => line.rung);
-check("and the words under every line are the rung the server chose",
-  labelled.length > 0 && labelled.every((line) => new RegExp(
-    { attested: "From the course", scripted: "Written for this scene", composed: "Written for this turn",
-      fallback: "did not catch that", again: "Said again", recast: "the way they say it",
-      offered: "reaching for", english: "in English" }[line.rung] ?? "$^", "i",
-  ).test(line.chip)),
-  labelled.map((line) => `${line.rung}: ${line.chip}`).join(" | ").slice(0, 160));
+check("and every line the desk said carries the rung the server chose",
+  labelled.length > 0 && labelled.every((line) => RUNGS.includes(line.rung)),
+  labelled.map((line) => line.rung).join(" | ").slice(0, 160));
 
 // ── Walking out, which is a real option ─────────────────────────────────────
 await page.getByRole("button", { name: /^Leave/i }).click();
@@ -759,11 +725,10 @@ check("the words it needed are written down", gaps > 0, `${gaps} rows`);
 */
 const composed = heard.find((line) => line.rung === "composed");
 if (composed) {
-  check("a composed line is inside what the gate allows, and says a model wrote it",
+  check("a composed line is inside what the gate allows",
     composed.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
-    && sentences(composed.text) <= MAX_SPOKEN_SENTENCES
-    && /Written for this turn/i.test(composed.chip),
-    `${composed.text} · ${composed.chip}`);
+    && sentences(composed.text) <= MAX_SPOKEN_SENTENCES,
+    composed.text);
 } else {
   /*
     Says which state lifts it, which the house rule asks of every waiver: a key
@@ -784,11 +749,10 @@ if (composed) {
 */
 const scripted = heard.find((line) => line.rung === "scripted");
 if (scripted) {
-  check("a scripted line is inside the same gate and says it was scripted",
+  check("a scripted line is inside the same gate",
     scripted.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
-    && sentences(scripted.text) <= MAX_SPOKEN_SENTENCES
-    && /Written for this scene/i.test(scripted.chip),
-    `${scripted.text} · ${scripted.chip}`);
+    && sentences(scripted.text) <= MAX_SPOKEN_SENTENCES,
+    scripted.text);
 } else {
   absent(1, "no scripted line was said here: that needs lib/scenes/bank.ts to hold a row for a beat this run reached and retrieval did not fill");
 }
