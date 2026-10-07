@@ -94,6 +94,11 @@ export const SENTENCE_WITHOUT_ENGLISH: Readonly<Record<string, string>> = {
     "authored example above them prints its English directly beneath it. The picture " +
     "round says what each sentence got right and wrong in English afterwards.",
 
+  "app/(app)/review/twenty/TwentySession.tsx":
+    "The Estonian here is the learner's own question, typed by them and read back to them with " +
+    "what the game took it to mean in English beside it, and a short closed list of question " +
+    "shapes to start from, each printed with its English. None is a recorded sentence.",
+
   "app/(app)/dictionary/AddWord.tsx":
     "Not a sentence. `{example}` is the grayed-out hint inside a form field, showing " +
     "what a principal part looks like, and the label beside it is already English.",

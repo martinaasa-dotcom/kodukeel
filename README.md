@@ -102,13 +102,15 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   change. New words are shown to you with their answer rather than guessed at, and multiple choice
   covers recognizing them. Press `u` to undo your last grade. The card goes back to how it was, and
   your answer stays in your review history, which is never edited.
-- **21 ways to practice, all on one deck.** Six quick rounds: Match, Sentences (a real sentence
+- **22 ways to practice, all on one deck.** Six quick rounds: Match, Sentences (a real sentence
   put back in order, commas and dashes included), Listening, Dictation, Speaking, and Say what you
   see (five sentences about a scene made of emoji). Two ways through the words you're working on:
   flash cards over your whole deck, and the hundred most common words of each kind, counted from
-  film and television subtitles rather than picked by anybody. Three games: Tähed (put the
-  letters of a word you know back in order), Sõnad (one six-letter word a day, in seven guesses) and
-  Ristsõna (a crossword with English clues and Estonian answers). A two-minute daily quest aimed at whatever's going worst. And nine
+  film and television subtitles rather than picked by anybody. Four games: Tähed (put the
+  letters of a word you know back in order), Sõnad (one six-letter word a day, in seven guesses),
+  Ristsõna (a crossword with English clues and Estonian answers) and Kakskümmend küsimust (twenty
+  questions: you ask yes or no questions in Estonian to find what the game is thinking of, and every
+  question comes back with a plain grammar tip where it could be better; it grades nothing). A two-minute daily quest aimed at whatever's going worst. And nine
   drills, each tucked onto the page about the thing it drills: writing a sentence with a word in a
   named case, verb government, how the start of a sentence picks the ending, long sounds against short ones, your own pasted Estonian, the
   conjugation table, the words the endings rules don't reach, the cards you keep failing, and the
@@ -254,7 +256,7 @@ Estonian" without saying so.
 
 Everything except the two things that need a model: Anu, and reading a photo of a page.
 
-- **Dictionary**, 6,221 words (A1 to C2), with principal parts, consonant gradation and the full
+- **Dictionary**, 6,223 words (A1 to C2), with principal parts, consonant gradation and the full
   case table worked out from the genitive. Search for a form you met in class, like `toas`,
   `lugesin`, `tubadega` or `helistab`, and it finds the word *and* tells you which form you typed.
   Anything missing can be added by hand, principal parts and all.

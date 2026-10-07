@@ -167,6 +167,23 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "what you want to say and you hunt for the word, which is exactly what speaking feels like.",
   },
   {
+    /*
+      Twenty questions, which is the classic game against a machine: it holds a
+      thing in mind and the learner has twenty yes or no questions to name it.
+      The Estonian is the learner's own, a whole question typed with the forms
+      it needs, and every question comes back with what the game took it to
+      mean and a plain tip where the sentence could be better. See
+      `lib/games/twenty.ts`. A game, so it sits with the other games on
+      `/practice`; it grades nothing, for the reason Say what you see does not.
+    */
+    href: "/review/twenty", title: "Kakskümmend küsimust", subtitle: "Twenty questions",
+    icon: "MessageCircleQuestion", tone: "blush", group: "targeted", note: "Ask in Estonian",
+    within: "/practice",
+    blurb:
+      "I'm thinking of something. Ask yes or no questions in Estonian, like kas see on suur? " +
+      "You get twenty, and a tip whenever a question could be put better.",
+  },
+  {
     href: "/review/match", title: "Match", subtitle: "Pair words and meanings", icon: "Grid2x2", tone: "sky",
     group: "quick", note: "No time yet",
     blurb: "Eight words and eight meanings, all jumbled up. Pair them off as fast as you can.",

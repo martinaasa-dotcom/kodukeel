@@ -3101,7 +3101,11 @@ const GRADING_DOORS =
   is no card behind a picture, so a row in the log would tell the scheduler
   about a recall that did not happen.
 */
-const MEASURES_RATHER_THAN_PRACTISES: string[] = ["app/(app)/review/describe/DescribeSession.tsx"];
+const MEASURES_RATHER_THAN_PRACTISES: string[] = [
+  "app/(app)/review/describe/DescribeSession.tsx",
+  // Twenty questions: asking a good question is not recalling a card, so there is no grade to write.
+  "app/(app)/review/twenty/TwentySession.tsx",
+];
 
 
 check("every practice mode writes to the same review log", () => {
@@ -25809,6 +25813,9 @@ check("looking back at the last word is one drawing, and it grades nothing", () 
     // A board puts several words up at once, so there is no last word: what
     // was asked is still on the screen until the board is cleared.
     "app/(app)/review/match/MatchSession.tsx": "a board",
+    // The whole transcript of questions and answers stays on the screen, in order, so there is no
+    // last word to look back at: every earlier question is already there.
+    "app/(app)/review/twenty/TwentySession.tsx": "the transcript is the round",
     // A list of the cards you keep failing, with nothing stepping through.
     "app/(app)/review/clinic/ClinicList.tsx": "a list rather than a round",
     // A measurement that withholds every answer until the end, deliberately
