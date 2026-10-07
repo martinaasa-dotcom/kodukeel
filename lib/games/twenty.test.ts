@@ -89,7 +89,7 @@ describe("reading the learner's question", () => {
     expect(said("Kas see on taim?", "part")).toBe("no");
     expect(said("Kas see lendab?", "part")).toBe("yes");
     expect(said("Kas see ujub?", "part")).toBe("yes");
-    expect(said("Kas seda saab süüa?", "part")).toBe("no");
+    expect(said("Kas seda saab süüa?", "part")).toBe("sometimes");
     expect(said("Kas sellel on tiivad?", "part")).toBe("yes");
     expect(said("Kas sellel on rattad?", "part")).toBe("no");
     expect(said("Kas see on suur?", "part")).toBe("no");
@@ -233,6 +233,46 @@ describe("the wide layer", () => {
     const r = answerTo("Kas see on sinu sõber?", "koer");
     expect(r.kind === "answer" && r.answer === "unknown" && !r.counts).toBe(true);
     expect(spent([{ reply: r }])).toBe(0);
+  });
+});
+
+describe("what the reviewer found", () => {
+  it("a book is read, a pencil writes, a train is not on a street", () => {
+    expect(said("Kas seda saab lugeda?", "raamat")).toBe("yes");
+    expect(said("Kas sellega saab kirjutada?", "pliiats")).toBe("yes");
+    expect(said("Kas see on tänaval?", "rong")).toBe("no");
+    expect(said("Kas see on tänaval?", "lennuk")).toBe("no");
+    expect(said("Kas see on tänaval?", "buss")).toBe("yes");
+  });
+
+  it("a house is a building, clothes are garments and a mountain is nature", () => {
+    expect(said("Kas see on hoone?", "maja")).toBe("yes");
+    expect(said("Kas see on loodus?", "maja")).toBe("no");
+    expect(said("Kas see on rõivas?", "king")).toBe("yes");
+    expect(said("Kas see on ese?", "raamat")).toBe("yes");
+    expect(said("Kas see on loodus?", "mägi")).toBe("yes");
+  });
+
+  it("a bird has a tail and a beak and no mouth, an insect has no skin", () => {
+    expect(said("Kas sellel on saba?", "part")).toBe("yes");
+    expect(said("Kas sellel on nokk?", "kana")).toBe("yes");
+    expect(said("Kas sellel on suu?", "part")).toBe("no");
+    expect(said("Kas sellel on nahk?", "mesilane")).toBe("no");
+  });
+
+  it("a shape word is not answered where the thing says nothing about its shape", () => {
+    expect(said("Kas see on pikk?", "koer")).toBe("unknown");
+    expect(said("Kas see on lühike?", "koer")).toBe("unknown");
+    expect(said("Kas see on pikk?", "porgand")).toBe("yes");
+    expect(said("Kas see on lühike?", "porgand")).toBe("no");
+  });
+
+  it("the sun shines, and the tip for a pair of glasses says need", () => {
+    expect(said("Kas see paistab?", "päike")).toBe("yes");
+    const r = answerTo("Kas see on prillid?", "koer");
+    expect(r.tips.map((t) => t.example)).not.toContain("Kas see on prillid?");
+    const r2 = answerTo("Kas see on prille?", "koer");
+    expect(r2.tips.some((t) => t.example === "Kas need on prillid?")).toBe(true);
   });
 });
 

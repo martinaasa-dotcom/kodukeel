@@ -158,20 +158,21 @@ const PART_EN: Record<Part, string> = {
   silm: "eyes", kõrv: "ears", nina: "a nose", suu: "a mouth", pea: "a head", hammas: "teeth", kõht: "a belly",
   selg: "a back", sarv: "horns", nahk: "skin", koor: "a peel, bark or crust", seeme: "seeds", juur: "roots",
   oks: "branches", rool: "a steering wheel or handlebars", ekraan: "a screen", nupp: "buttons",
-  klaviatuur: "a keyboard", kaas: "a cover",
+  klaviatuur: "a keyboard", kaas: "a cover", uim: "fins",
 };
 
 /** Part words that are also things: "uks" is a door you can have and a door you can guess. */
 const PART_IS_ALSO_A_THING = new Set<string>(PARTS.filter((p) => THING_BY_LEMMA.has(p)));
 
 const ACTIONS: Record<string, Intent> = {
-  lendama: { id: "fly", en: "Can it fly?", copula: false, test: (t) => listed(t.can, t.canS, "fly") },
-  ujuma: { id: "swim", en: "Can it swim?", copula: false, test: (t) => listed(t.can, t.canS, "swim") },
-  hüppama: { id: "jump", en: "Can it jump?", copula: false, test: (t) => listed(t.can, t.canS, "jump") },
+  lendama: { id: "fly", en: "Does it fly?", copula: false, test: (t) => listed(t.can, t.canS, "fly") },
+  ujuma: { id: "swim", en: "Does it swim?", copula: false, test: (t) => listed(t.can, t.canS, "swim") },
+  hüppama: { id: "jump", en: "Does it jump?", copula: false, test: (t) => listed(t.can, t.canS, "jump") },
   liikuma: { id: "move", en: "Does it move?", copula: false, test: (t) => listed(t.can, t.canS, "move") },
   sõitma: { id: "ride", en: "Can you ride it?", copula: false, test: (t) => listed(t.use, t.useS, "ride") },
   kandma: { id: "wear", en: "Can you wear or carry it?", copula: false, test: (t) => listed(t.use, t.useS, "wear") },
   lugema: { id: "read", en: "Can you read it?", copula: false, test: (t) => listed(t.use, t.useS, "read") },
+  kirjutama: { id: "write", en: "Can you write with it?", copula: false, test: (t) => listed(t.use, t.useS, "write") },
   hoidma: { id: "hold", en: "Can you hold it in your hand?", copula: false, test: (t) => (t.size <= 3 ? "yes" : t.size === 4 ? "sometimes" : "no") },
 };
 
@@ -265,8 +266,12 @@ const DOES_TERMS: Record<string, { key: (typeof DOES)[number]; en: string }> = {
   kasutama: { key: "use", en: "Do people use it?" },
   pesema: { key: "wash", en: "Can you wash it?" },
   kriipima: { key: "scratch", en: "Does it scratch?" },
+  paistma: { key: "shine", en: "Does it shine?" },
+  haisema: { key: "smell", en: "Does it smell?" },
   lõhnama: { key: "smell", en: "Does it smell?" },
 };
+
+const SHAPE: readonly string[] = ["long", "short", "wide", "narrow", "thick", "thin"];
 
 const MATERIAL_EN: Record<(typeof MATERIALS)[number], string> = {
   puit: "wood", metall: "metal", klaas: "glass", paber: "paper", kivi: "stone", raud: "iron",
@@ -429,7 +434,10 @@ export function ask(
       const trait = TRAIT_TERMS[r.lemma];
       if (trait) {
         found.push({ raw: w.raw, intent: {
-          id: `trait:${trait.key}`, en: trait.en, copula: true, test: (t) => listed(t.trait, t.traitS, trait.key),
+          id: `trait:${trait.key}`, en: trait.en, copula: true,
+          // Shape words are only answered where the thing says something about its shape; a dog is neither long nor short.
+          test: (t) => (SHAPE.includes(trait.key) && !SHAPE.some((k) => t.trait.includes(k) || t.traitS.includes(k))
+            ? "unknown" : listed(t.trait, t.traitS, trait.key)),
         } });
         return;
       }
@@ -511,10 +519,10 @@ export function ask(
   const gloss = glossOf(name.lemma) ?? name.lemma;
   const reading = `Is it “${gloss}”?`;
   if (!name.base) {
-    tips.push({ id: "base", en: "After on, name the thing in its plain dictionary form.", example: `Kas see on ${name.lemma}?` });
+    tips.push({ id: "base", en: "After on, name the thing in its plain dictionary form.", example: `Kas ${subjectFor(name.lemma)} on ${name.lemma}?` });
   }
   if (!has("olema")) {
-    tips.push({ id: "on", en: "Say on (is) before the word.", example: `Kas see on ${name.raw}?` });
+    tips.push({ id: "on", en: "Say on (is) before the word.", example: `Kas ${subjectFor(name.lemma)} on ${name.raw}?` });
   }
   const answer: Answer = name.lemma === secret.lemma ? "yes"
     : secret.isa.includes(name.lemma) ? "yes"
@@ -537,6 +545,10 @@ export function ask(
     };
   }
 }
+
+/** Words with no singular take "need" (these), not "see" (it): a pair of glasses is "need on prillid". */
+const PLURAL_ONLY = new Set(["prillid"]);
+const subjectFor = (lemma: string) => (PLURAL_ONLY.has(lemma) ? "need" : "see");
 
 function whTip(): Tip {
   return {
@@ -580,8 +592,8 @@ export const IDEAS: readonly IdeaGroup[] = [
     { et: "Kas see on külm?", en: "Is it cold?" },
   ] },
   { title: "What it does", ideas: [
-    { et: "Kas see lendab?", en: "Can it fly?" },
-    { et: "Kas see ujub?", en: "Can it swim?" },
+    { et: "Kas see lendab?", en: "Does it fly?" },
+    { et: "Kas see ujub?", en: "Does it swim?" },
     { et: "Kas seda saab süüa?", en: "Can you eat it?" },
     { et: "Kas sellega saab sõita?", en: "Can you ride it?" },
   ] },

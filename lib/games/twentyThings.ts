@@ -25,18 +25,18 @@
  * Pure: no React, no Prisma.
  */
 
-export type Kind = "animal" | "plant" | "food" | "drink" | "object" | "clothes" | "vehicle" | "nature";
+export type Kind = "animal" | "plant" | "food" | "drink" | "object" | "clothes" | "vehicle" | "building" | "nature";
 
 /** Parts a thing can have. A lemma, because the learner asks for one by its name. */
 export const PARTS = [
   "jalg", "tiib", "saba", "ratas", "uks", "aken", "sulg", "karv", "leht", "nokk",
   "silm", "kõrv", "nina", "suu", "pea", "hammas", "kõht", "selg", "sarv", "nahk", "koor",
-  "seeme", "juur", "oks", "rool", "ekraan", "nupp", "klaviatuur", "kaas",
+  "seeme", "juur", "oks", "rool", "ekraan", "nupp", "klaviatuur", "kaas", "uim",
 ] as const;
 export type Part = (typeof PARTS)[number];
 
 export type Action = "fly" | "swim" | "move" | "jump";
-export type Use = "eat" | "drink" | "wear" | "read" | "ride";
+export type Use = "eat" | "drink" | "wear" | "read" | "ride" | "write";
 export type Where =
   | "home" | "kitchen" | "outdoors" | "forest" | "water" | "city"
   | "country" | "garden" | "sky" | "sea" | "school" | "shop" | "street" | "fridge" | "bed";
@@ -84,6 +84,7 @@ export interface Thing {
 /** Category headwords a question can name besides a thing. */
 export const CATEGORIES = [
   "loom", "lind", "imetaja", "putukas", "taim", "toit", "jook", "puuvili", "köögivili", "sõiduk", "mööbel",
+  "hoone", "ese", "loodus", "rõivas",
 ] as const;
 
 type Rest = Partial<Omit<Thing, "lemma" | "kind" | "size">>;
@@ -110,7 +111,7 @@ export const OPINIONS = [
 ] as const;
 
 export const DOES = [
-  "bark", "grow", "sleep", "sing", "walk", "play", "work", "buy", "sell", "burn", "ring", "born", "use", "wash", "scratch", "smell",
+  "bark", "grow", "sleep", "sing", "walk", "play", "work", "buy", "sell", "burn", "ring", "born", "use", "wash", "scratch", "smell", "shine",
 ] as const;
 
 export const MATERIALS = ["puit", "metall", "klaas", "paber", "kivi", "raud", "kuld", "kumm", "vill", "puuvill"] as const;
@@ -124,17 +125,17 @@ const BASE: readonly Thing[] = [
   // Animals
   thing("koer", "animal", 5, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], canS: ["swim", "jump"], whereS: ["home", "outdoors"], colourS: ["pruun", "must", "valge", "hall"], feelS: ["fast"] }),
   thing("kass", "animal", 4, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move", "jump"], canS: ["swim"], whereS: ["home", "outdoors"], colourS: ["must", "valge", "hall", "pruun"], feelS: ["soft", "fast"] }),
-  thing("part", "animal", 4, { isa: BIRD, has: ["jalg", "tiib", "sulg", "nokk"], hasS: ["saba"], can: ["move", "swim", "fly"], whereS: ["water", "outdoors"], colourS: ["pruun", "valge", "kollane", "roheline"] }),
-  thing("kana", "animal", 4, { isa: BIRD, has: ["jalg", "tiib", "sulg", "nokk"], hasS: ["saba"], can: ["move"], canS: ["fly"], useS: ["eat"], whereS: ["outdoors"], colourS: ["valge", "pruun", "must"] }),
-  thing("kala", "animal", 3, { isa: ["loom"], has: ["saba"], can: ["move", "swim"], use: ["eat"], where: ["water"], colourS: ["hall", "sinine", "punane", "must"] }),
-  thing("hobune", "animal", 7, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move", "jump"], canS: ["swim"], use: ["ride"], whereS: ["outdoors"], colourS: ["pruun", "must", "valge", "hall"], feelS: ["fast"] }),
-  thing("lehm", "animal", 7, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["outdoors"], colourS: ["valge", "must", "pruun"] }),
-  thing("siga", "animal", 6, { isa: MAMMAL, has: ["jalg", "saba"], can: ["move"], whereS: ["outdoors"], colourS: ["valge", "must"] }),
-  thing("jänes", "animal", 4, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move", "jump"], whereS: ["outdoors", "forest"], colourS: ["hall", "pruun", "valge"], feel: ["fast"] }),
+  thing("part", "animal", 4, { useS: ["eat"], isa: BIRD, has: ["jalg", "tiib", "sulg", "nokk", "saba"], can: ["move", "swim", "fly"], whereS: ["water", "outdoors"], colourS: ["pruun", "valge", "kollane", "roheline"] }),
+  thing("kana", "animal", 4, { isa: BIRD, has: ["jalg", "tiib", "sulg", "nokk", "saba"], can: ["move"], canS: ["fly"], useS: ["eat"], whereS: ["outdoors"], colourS: ["valge", "pruun", "must"] }),
+  thing("kala", "animal", 4, { isa: ["loom"], has: ["saba"], can: ["move", "swim"], use: ["eat"], where: ["water"], colourS: ["hall", "sinine", "punane", "must"] }),
+  thing("hobune", "animal", 7, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move", "jump"], canS: ["swim"], useS: ["ride"], whereS: ["outdoors"], colourS: ["pruun", "must", "valge", "hall"], feelS: ["fast"] }),
+  thing("lehm", "animal", 7, { useS: ["eat"], isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["outdoors"], colourS: ["valge", "must", "pruun"] }),
+  thing("siga", "animal", 6, { useS: ["eat"], isa: MAMMAL, has: ["jalg", "saba"], can: ["move"], whereS: ["outdoors"], colourS: ["valge", "must"] }),
+  thing("jänes", "animal", 4, { useS: ["eat"], isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move", "jump"], whereS: ["outdoors", "forest"], colourS: ["hall", "pruun", "valge"], feel: ["fast"] }),
   thing("karu", "animal", 7, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], canS: ["swim"], whereS: ["forest", "outdoors"], colourS: ["pruun", "must", "valge"] }),
   thing("hunt", "animal", 6, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["forest", "outdoors"], colourS: ["hall", "must", "valge"], feelS: ["fast"] }),
   thing("rebane", "animal", 5, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["forest", "outdoors"], colourS: ["punane", "pruun"] }),
-  thing("lammas", "animal", 6, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["outdoors"], colourS: ["valge", "must"], feelS: ["soft"] }),
+  thing("lammas", "animal", 6, { useS: ["eat"], isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["outdoors"], colourS: ["valge", "must"], feelS: ["soft"] }),
   thing("hiir", "animal", 2, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["home", "outdoors"], colourS: ["hall", "valge", "pruun"], feelS: ["fast", "soft"] }),
   thing("konn", "animal", 2, { isa: ["loom"], has: ["jalg"], can: ["move", "swim", "jump"], whereS: ["water", "outdoors"], colourS: ["roheline", "pruun"] }),
   thing("elevant", "animal", 8, { isa: MAMMAL, has: ["jalg", "saba"], can: ["move"], canS: ["swim"], whereS: ["outdoors"], colour: ["hall"], feelS: ["slow"] }),
@@ -167,16 +168,16 @@ const BASE: readonly Thing[] = [
   thing("vesi", "drink", 2, { isa: ["jook"], use: ["drink"], whereS: ["home", "kitchen", "outdoors"], feelS: ["cold", "warm"] }),
 
   // Objects
-  thing("raamat", "object", 3, { has: ["leht"], useS: ["read"], whereS: ["home"], colourS: PALE }),
-  thing("telefon", "object", 2, { useS: ["read"], whereS: ["home", "outdoors", "city"], colourS: ["must", "valge", "sinine", "hall"], feel: ["hard"] }),
-  thing("arvuti", "object", 3, { useS: ["read"], whereS: ["home"], colourS: ["must", "hall", "valge"], feel: ["hard"] }),
-  thing("pliiats", "object", 2, { whereS: ["home"], colourS: PALE, feel: ["hard"] }),
+  thing("raamat", "object", 3, { has: ["leht"], use: ["read"], useS: ["write"], whereS: ["home"], colourS: PALE }),
+  thing("telefon", "object", 2, { useS: ["read", "write"], whereS: ["home", "outdoors", "city"], colourS: ["must", "valge", "sinine", "hall"], feel: ["hard"] }),
+  thing("arvuti", "object", 3, { useS: ["read", "write"], whereS: ["home"], colourS: ["must", "hall", "valge"], feel: ["hard"] }),
+  thing("pliiats", "object", 2, { use: ["write"], whereS: ["home"], colourS: PALE, feel: ["hard"] }),
   thing("laud", "object", 6, { isa: ["mööbel"], has: ["jalg"], whereS: ["home", "kitchen"], colourS: ["pruun", "valge", "must"], feel: ["hard"] }),
   thing("tool", "object", 5, { isa: ["mööbel"], has: ["jalg"], whereS: ["home", "kitchen"], colourS: ["pruun", "valge", "must"], feelS: ["hard"] }),
   thing("voodi", "object", 6, { isa: ["mööbel"], hasS: ["jalg"], whereS: ["home"], colourS: ["valge", "pruun", "sinine"], feelS: ["soft"] }),
   thing("uks", "object", 6, { whereS: ["home", "city"], colourS: ["pruun", "valge", "must"], feel: ["hard"] }),
   thing("aken", "object", 6, { whereS: ["home", "city"], feel: ["hard"] }),
-  thing("kott", "object", 3, { useS: ["wear"], whereS: ["home", "city", "outdoors"], colourS: PALE, feelS: ["soft"] }),
+  thing("kott", "object", 3, { use: ["wear"], whereS: ["home", "city", "outdoors"], colourS: PALE, feelS: ["soft"] }),
   thing("pilet", "object", 2, { whereS: ["city"], colourS: ["valge", "kollane", "sinine"], feelS: ["soft"] }),
   thing("võti", "object", 1, { whereS: ["home"], colourS: ["hall"], feel: ["hard"] }),
   thing("lamp", "object", 4, { whereS: ["home"], colourS: PALE, feel: ["hard"] }),
@@ -198,7 +199,7 @@ const BASE: readonly Thing[] = [
   thing("tramm", "vehicle", 8, { isa: ["sõiduk"], has: ["ratas", "uks", "aken"], can: ["move"], use: ["ride"], where: ["city"], colourS: ["kollane", "punane", "sinine"] }),
 
   // Nature and places
-  thing("maja", "nature", 8, { has: ["uks", "aken"], whereS: ["city", "outdoors"], colourS: ["valge", "kollane", "punane", "pruun", "sinine"], feel: ["hard"] }),
+  thing("maja", "building", 8, { isa: ["hoone"], has: ["uks", "aken"], whereS: ["city", "outdoors"], colourS: ["valge", "kollane", "punane", "pruun", "sinine"], feel: ["hard"] }),
   thing("puu", "plant", 8, { isa: ["taim"], has: ["leht"], whereS: ["outdoors", "forest", "city"], colourS: ["roheline", "pruun"], feel: ["hard"] }),
   thing("lill", "plant", 2, { isa: ["taim"], has: ["leht"], whereS: ["outdoors", "home"], colourS: ["punane", "kollane", "sinine", "valge", "roheline"], feelS: ["soft"] }),
   thing("päike", "nature", 10, { where: ["outdoors"], colour: ["kollane"], feel: ["warm"], canS: ["move"] }),
@@ -227,12 +228,13 @@ const words = (s: string | undefined): string[] => (s ? s.split(" ").filter(Bool
 
 const KIND_DEFAULT: Record<Kind, Extra> = {
   animal: { p: "silm pea suu selg kõht nahk", d: "sleep born", ds: "buy sell smell" },
-  plant: { p: "juur", ps: "seeme", d: "grow born" },
+  plant: { p: "juur", ps: "seeme", d: "grow" },
   food: { d: "buy sell", ws: "shop" },
   drink: { d: "buy sell", ws: "shop" },
   object: { d: "buy sell use", ws: "shop" },
   clothes: { d: "buy sell use wash", ws: "shop" },
-  vehicle: { d: "buy sell use wash work", w: "street" },
+  vehicle: { d: "buy sell use wash work" },
+  building: { d: "buy sell use", ws: "shop" },
   nature: {},
 };
 
@@ -243,7 +245,7 @@ const EXTRA: Record<string, Extra> = {
   kana: { d: "walk", w: "country", ws: "garden" },
   kala: { ds: "", ts: "smelly", ws: "sea", p: "", ps: "" },
   hobune: { d: "walk", ds: "work play", t: "strong", w: "country", ws: "street" },
-  lehm: { d: "walk", ts: "smelly strong", w: "country" },
+  lehm: { d: "walk", ts: "smelly strong", w: "country", ps: "sarv" },
   siga: { d: "walk", ts: "smelly", w: "country", cs: "roosa" },
   jänes: { d: "walk", ws: "country garden" },
   karu: { d: "walk", t: "strong dangerous", ws: "country" },
@@ -279,16 +281,16 @@ const EXTRA: Record<string, Extra> = {
   vesi: { t: "wet", ws: "fridge" },
   kohv: { t: "wet", ts: "sweet", d: "smell", ws: "fridge" },
 
-  raamat: { p: "kaas", m: "paber", ts: "thick thin", ds: "burn", w: "school", ws: "bed" },
+  raamat: { p: "kaas", m: "paber", ts: "thick thin", ds: "burn", ws: "school bed" },
   telefon: { p: "ekraan nupp", m: "klaas", ms: "metall", d: "ring work", ts: "thin", ws: "bed school" },
-  arvuti: { p: "ekraan klaviatuur nupp", m: "metall", ms: "klaas", d: "work", w: "school" },
-  pliiats: { m: "puit", t: "thin long", ts: "sharp", w: "school" },
-  laud: { m: "puit", ms: "metall klaas", ts: "wide long", ds: "burn", w: "school" },
-  tool: { m: "puit", ms: "metall", ds: "burn", w: "school" },
+  arvuti: { p: "ekraan klaviatuur nupp", m: "metall", ms: "klaas", d: "work", ws: "school" },
+  pliiats: { m: "puit", t: "thin long", ts: "sharp", ws: "school" },
+  laud: { m: "puit", ms: "metall klaas", ts: "wide long", ds: "burn", ws: "school" },
+  tool: { m: "puit", ms: "metall", ds: "burn", ws: "school" },
   voodi: { ms: "puit metall", ts: "wide", ds: "burn" },
   uks: { p: "nupp", m: "puit", ms: "metall klaas", ts: "wide thick", ds: "burn", ws: "school" },
   aken: { m: "klaas", ms: "puit", ts: "wide", ws: "school" },
-  kott: { ms: "puuvill vill", w: "school", ws: "bed" },
+  kott: { ms: "puuvill vill", ws: "school bed" },
   pilet: { m: "paber", t: "thin", ds: "burn" },
   võti: { m: "metall", ms: "raud", t: "thin", ts: "sharp" },
   lamp: { p: "nupp", ms: "metall klaas", d: "burn work", ws: "school bed" },
@@ -301,7 +303,7 @@ const EXTRA: Record<string, Extra> = {
 
   auto: { p: "rool nupp", m: "metall raud", ms: "klaas kumm", ds: "ring", ws: "street" },
   buss: { m: "metall", ms: "klaas", ds: "ring", w: "street" },
-  rong: { m: "metall raud", ds: "ring", ws: "street" },
+  rong: { m: "metall raud", ds: "ring" },
   lennuk: { m: "metall", w: "sky", ws: "" },
   laev: { m: "metall", ms: "puit", ds: "ring", ws: "sea" },
   jalgratas: { p: "rool", m: "metall", ms: "kumm", d: "ring", ws: "street" },
@@ -310,7 +312,7 @@ const EXTRA: Record<string, Extra> = {
   maja: { ms: "puit kivi klaas", ds: "burn", ts: "wide" },
   puu: { m: "puit", p: "oks juur koor seeme", d: "grow", ds: "burn", ws: "garden country" },
   lill: { d: "smell", ws: "garden country", cs: "roosa lilla" },
-  päike: { w: "sky", t: "round bright", d: "burn", tn: "dark weak" },
+  päike: { w: "sky", t: "round bright", d: "shine", ds: "burn", tn: "dark weak" },
   järv: { t: "wet wide", w: "country" },
   mägi: { t: "old", ws: "country" },
   jõgi: { t: "wet long", w: "country" },
@@ -328,7 +330,12 @@ function widen(t: Thing): Thing {
   const mammal = t.isa.includes("imetaja");
   const pick = (key: keyof Extra): string[] => [...words(kind[key]), ...words(own[key])];
 
-  const parts = [...pick("p"), ...(mammal ? ["kõrv", "nina", "hammas"] : [])];
+  const bird = t.isa.includes("lind");
+  const insect = t.isa.includes("putukas");
+  const fish = t.lemma === "kala";
+  const parts = [...pick("p"), ...(mammal ? ["kõrv", "nina", "hammas"] : []), ...(fish ? ["uim"] : [])]
+    // A bird has a beak and not a mouth, and an insect has neither skin nor a back.
+    .filter((x) => !(bird && x === "suu") && !(insect && (x === "nahk" || x === "selg")));
   const has = merge(t.has, parts) as Part[];
   const hasS = merge(t.hasS, pick("ps")).filter((x) => !has.includes(x as Part)) as Part[];
   const where = merge(t.where, pick("w")) as Where[];
@@ -341,8 +348,11 @@ function widen(t: Thing): Thing {
   const doesS = merge(t.doesS, pick("ds")).filter((x) => !does.includes(x));
   const made = merge(t.made, pick("m"));
   const madeS = merge(t.madeS, pick("ms")).filter((x) => !made.includes(x));
+  // The categories a learner can name for what is not an animal, a plant or food.
+  const kindIsa: Record<string, string[]> = { clothes: ["rõivas", "ese"], object: ["ese"], nature: ["loodus"] };
+  const isa = merge(t.isa, kindIsa[t.kind] ?? []);
   return {
-    ...t, has, hasS, where, whereS, colour, colourS, trait, traitS, traitNo: merge(t.traitNo, words(own.tn)),
+    ...t, isa, has, hasS, where, whereS, colour, colourS, trait, traitS, traitNo: merge(t.traitNo, words(own.tn)),
     does, doesS, made, madeS,
   };
 }
@@ -360,5 +370,6 @@ export const KIND_HINT: Record<Kind, string> = {
   object: "It is an object, the kind you find in a home or carry about.",
   clothes: "It is something you wear.",
   vehicle: "It is something you can ride in or on.",
+  building: "It is a building.",
   nature: "It is part of nature, or a place.",
 };
