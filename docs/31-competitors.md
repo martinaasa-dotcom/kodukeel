@@ -1,7 +1,8 @@
-# Three other ways to learn Estonian, and where Kodukeel stands against them
+# Four other ways to learn Estonian, and where Kodukeel stands against them
 
-Read on **2026-09-25**. Somebody deciding how to learn Estonian in Estonia will look at more than one
-thing, and three of the things they are likely to find are Keelix, TereTere and Keeleklikk. This page
+Read on **2026-09-25**, and Speakly on **2026-10-07**. Somebody deciding how to learn Estonian in
+Estonia will look at more than one thing, and four of the things they are likely to find are Keelix,
+TereTere, Keeleklikk and Speakly. This page
 says what each of them offers, off their own pages, and puts Kodukeel's answer beside it with the
 file or the route that delivers it. It is for whoever decides what to build next, and it exists so
 that decision is made against what the others actually do rather than against a memory of them.
@@ -57,7 +58,22 @@ says videos can be slowed and subtitled, that the course bookmarks where somebod
 people with the chapters they appear in (Aksel in 4.1.9 and 5.1.2, Anna in 2.1.6), which is the
 recurring cast the course is built around.
 
-**And the state's own offer**, which all three sit beside. Harno's page on the examinations
+**Speakly** (`https://www.speakly.me/`, read 2026-10-07) is a paid app made in Tallinn that teaches
+ten languages, Estonian among them, according to its about page (`/en/about-us`), which also says
+the method was developed by a co-founder and published as the "LIVE-methodology" in 2012. Its front
+page says it teaches "the 4,000 most statistically relevant words" in order of relevance, uses
+"spaced repetition", lets learners "practice real-life situations right on your phone or computer",
+and offers "Try 7 days for free". Its pricing page (`/en/pricing`) lists what every plan includes:
+"Statistically relevant words", "Writing and speaking exercises" with whole sentences, "All the
+grammar you need" in "a special grammar section", "Challenges" that bring "real-life situations and
+listening exercises" once enough words are learned, and "Personal support" from "our language
+specialists". The prices themselves are drawn by a script and were not on the page as read, so none
+is quoted here. A separate "LIVE© language course" is linked from every page; that page rendered
+only its title and is not described here. Nothing read says whether the audio is recorded or
+synthetic, which level the course reaches, whether it works offline, or which languages its
+interface is in.
+
+**And the state's own offer**, which all four sit beside. Harno's page on the examinations
 (`https://harno.ee/en/examinations-tests-and-studies/examinations-tests-and-certificates/estonian-language-proficiency`,
 read the same day) says the examination is free of charge, that a free consultation is held before
 each one, that written samples by previous candidates are published with comments, and that public
@@ -67,48 +83,48 @@ B1 or above and the examination on the Constitution and the Citizenship Act
 
 ## 2. The matrix
 
-Status is Kodukeel against the best of the three on that row. **AHEAD** means Kodukeel does more for
+Status is Kodukeel against the best of the four on that row. **AHEAD** means Kodukeel does more for
 the learner; **EQUAL** means the need is met as well; **BEHIND** means somebody else meets a need
 Kodukeel does not. The last column is what closed it, and it is updated as the work lands.
 
 ### The examination
 
-| Capability | Keelix | TereTere | Keeleklikk | Kodukeel | Status | Closed by |
-|---|---|---|---|---|---|---|
-| Mock papers in the state format | 25 per section per level, A2 and B1 | Exam skills practised in lessons, no mock paper named on the front page | Tests per chapter; "Exam type" exercises in the lesson list | Whole papers at A1 (the app's own), A2, B1, B2 and C1, built to the published minutes and points; `lib/exam/spec.ts`, `/exam` | EQUAL on format, AHEAD on levels | |
-| A numbered set a learner can work through, checked for repeats | 100 named mock exams | None named | None named | Papers drawn from a random seed; no numbered set, no way to return to "paper 7" | EQUAL in kind, 25 papers a level rather than 100 | #679 |
-| Practising one part of the paper on its own | Every section sat separately | Skills practised separately in lessons | Exercises per skill | Only the whole paper | EQUAL | #679 |
-| Pass rules as the real paper applies them | 60 percent, no part at zero | Not stated | Not stated | 60 percent, no part at zero, the 45 percent retake rule, the verbal bands; `lib/exam/spec.ts`, asserted in `spec.test.ts` | EQUAL | |
-| Each task says which official task it stands in for | Says it follows Harno's task types | Not stated | Not stated | Every task declares `standsFor`, and two say they are not tasks the real paper sets; `docs/16-exam.md` §2 | AHEAD | |
-| Writing feedback | "Model answers" | 50 and 100 word tasks, feedback not described | Texts sent to a teacher by email | Marks for length and the named words, a live word and length meter, an optional note from Anu; no checklist of what an examiner looks for and no example of the words in use | EQUAL, without a model answer by rule | #683 |
-| Speaking practice structured like the spoken part | Picture and question tasks, "AI feedback" | Record, with optional browser transcription | "Practice speaking to the computer"; texts to a teacher | Two timed monologues with an idea card, recorded, played back beside a native reading and marked by the learner against named criteria (ADR-018); no introductory conversation, which the real spoken part opens with | EQUAL on structure | #684 |
-| A pronunciation score | "AI feedback on speaking" | Browser transcription | "Practice speaking to the computer" | None, by rule: the best reachable recognizer misreads clean native Estonian at a 14.6 percent word error rate, landing on exactly what a learner is weakest at (ADR-018, `scripts/measure-asr.mjs`) | Not built, by rule | |
-| Readiness | Certificate unlocks at 60 percent average | None | None | A confidence per level with its evidence tier printed beside it, capped by how much evidence there is; `lib/exam/readiness.ts` | AHEAD | |
-| A record of study a learner can keep | Readiness certificate | None | Diploma after the course test | None; the result page and Progress show figures, nothing printable or keepable | EQUAL, a record and not a certificate by rule | #682 |
-| What the examination is, how to register, exam day, results | Long A2 and B1 guides | None | Exam advice exercises in lessons | Only in `docs/16-exam.md`, which a learner never sees | EQUAL | #677 |
-| The Constitution and Citizenship Act examination | Guide and free mock | None | None | None | BEHIND, by decision: named with Harno's materials, no mock | #677 |
+| Capability | Keelix | TereTere | Keeleklikk | Speakly | Kodukeel | Status | Closed by |
+|---|---|---|---|---|---|---|---|
+| Mock papers in the state format | 25 per section per level, A2 and B1 | Exam skills practised in lessons, no mock paper named on the front page | Tests per chapter; "Exam type" exercises in the lesson list | None named | Whole papers at A1 (the app's own), A2, B1, B2 and C1, built to the published minutes and points; `lib/exam/spec.ts`, `/exam` | EQUAL on format, AHEAD on levels | |
+| A numbered set a learner can work through, checked for repeats | 100 named mock exams | None named | None named | None named | Papers drawn from a random seed; no numbered set, no way to return to "paper 7" | EQUAL in kind, 25 papers a level rather than 100 | #679 |
+| Practising one part of the paper on its own | Every section sat separately | Skills practised separately in lessons | Exercises per skill | None named | Only the whole paper | EQUAL | #679 |
+| Pass rules as the real paper applies them | 60 percent, no part at zero | Not stated | Not stated | Not stated | 60 percent, no part at zero, the 45 percent retake rule, the verbal bands; `lib/exam/spec.ts`, asserted in `spec.test.ts` | EQUAL | |
+| Each task says which official task it stands in for | Says it follows Harno's task types | Not stated | Not stated | Not stated | Every task declares `standsFor`, and two say they are not tasks the real paper sets; `docs/16-exam.md` §2 | AHEAD | |
+| Writing feedback | "Model answers" | 50 and 100 word tasks, feedback not described | Texts sent to a teacher by email | "Writing and speaking exercises" with whole sentences; feedback not described | Marks for length and the named words, a live word and length meter, an optional note from Anu; no checklist of what an examiner looks for and no example of the words in use | EQUAL, without a model answer by rule | #683 |
+| Speaking practice structured like the spoken part | Picture and question tasks, "AI feedback" | Record, with optional browser transcription | "Practice speaking to the computer"; texts to a teacher | "Writing and speaking exercises"; not built on the exam's spoken part | Two timed monologues with an idea card, recorded, played back beside a native reading and marked by the learner against named criteria (ADR-018); no introductory conversation, which the real spoken part opens with | EQUAL on structure | #684 |
+| A pronunciation score | "AI feedback on speaking" | Browser transcription | "Practice speaking to the computer" | Not stated | None, by rule: the best reachable recognizer misreads clean native Estonian at a 14.6 percent word error rate, landing on exactly what a learner is weakest at (ADR-018, `scripts/measure-asr.mjs`) | Not built, by rule | |
+| Readiness | Certificate unlocks at 60 percent average | None | None | None named | A confidence per level with its evidence tier printed beside it, capped by how much evidence there is; `lib/exam/readiness.ts` | AHEAD | |
+| A record of study a learner can keep | Readiness certificate | None | Diploma after the course test | None named | None; the result page and Progress show figures, nothing printable or keepable | EQUAL, a record and not a certificate by rule | #682 |
+| What the examination is, how to register, exam day, results | Long A2 and B1 guides | None | Exam advice exercises in lessons | None named | Only in `docs/16-exam.md`, which a learner never sees | EQUAL | #677 |
+| The Constitution and Citizenship Act examination | Guide and free mock | None | None | None | None | BEHIND, by decision: named with Harno's materials, no mock | #677 |
 
 ### The course
 
-| Capability | Keelix | TereTere | Keeleklikk | Kodukeel | Status | Closed by |
-|---|---|---|---|---|---|---|
-| A course that says what to do tonight | Not a course | 12 weeks, a day of learn, recall, listen | 16 chapters to A2, 13 at B1, a B2 course | 17 parts from A1 to C1, 15 minutes an evening, every word of the syllabus placed; `lib/course/`, `/course` | AHEAD on range | |
-| A plain promise of time to a level | None | "B1 in twelve focused weeks", "18 minutes" | None | The only promise is fifteen minutes an evening; a plan is computed in first run (`lib/assessment/plan.ts`) but nothing before sign up says how long a level takes at a given pace | AHEAD, computed from the visitor's own answers | #681 |
-| Trying it before making an account | First exam in every section, no account | A sample lesson on the front page | The introductory part without logging in | Two passive demos on the landing page; nothing to answer | EQUAL: a word to press and a plan to work out, nothing marked | #681 |
-| Price | 9.99 euros a week and up | 9.99 euros a month | Free | Free, MIT licensed | AHEAD on two, EQUAL on one | |
-| Interface in Russian and Ukrainian | English on the front page | English | English, Russian, Ukrainian at 0 to A2; English and Russian at B1 | English only; the Russian and Ukrainian are glosses beside the Estonian, not the interface; `lib/collections/glossLanguage.ts` | BEHIND, narrowed: entry pages in both, machine-translated and marked | #685 |
-| A recurring cast | None | None | Named people across chapters, animated | Situations have unnamed roles; nothing carries across; `lib/scenes/catalogue.ts` | BEHIND, left for the operator |  |
-| Video, animation, recorded native speakers | None | None | Interviews, animations, grammar videos | Speech is TartuNLP's synthetic voices, with a slow play that keeps the voice (`lib/audio/stretch.ts`); no recordings | BEHIND on recordings, left for the operator |  |
-| A human teacher | None | None | Written and spoken texts sent to a teacher by email | Classes where a teacher sees effort and sets homework (`lib/classroom/`); Anu the AI tutor; no way to send a text to a person | BEHIND, left for the operator |  |
-| Conversation practice | Speaking tasks | Speaking prompts | Speak to the computer | Fifteen situations a learner holds a conversation in, gated word by word through the dictionary; `lib/scenes/`, `/situations` | AHEAD | |
-| Spaced repetition | None named | "Recall, review five useful chunks" | Tests per chapter | FSRS on every card, graded by every mode; `lib/srs/` | AHEAD | |
-| Dictionary | None | Saved words | A course glossary | The whole Ekilex dictionary, 6,000 entries built in and every other word looked up live; `/dictionary` | AHEAD | |
-| Grammar explanation | Tips blog | Lessons | Grammar videos and tutorials | A grammar reference with every form read from the dictionary; `/grammar` | EQUAL | |
-| Hearing a word slowly | Not stated | Not stated | Video speed control | A slow half on every speaker, at a pace set by level; `lib/audio/pace.ts` | EQUAL | |
-| Progress kept across devices | Saved to the account | Kept in one browser, not synced | Bookmark in the account | Server side, and offline review queues and syncs; `lib/offline/` | AHEAD | |
-| Works offline | Not stated | Not stated | Not stated | Review works with no network (ADR-015) | AHEAD | |
-| A streak | "Progress, streak" | None | None | A streak with shields that cover a missed day, never punished; no XP, no badges | EQUAL, and no pressure by rule | |
-| Printable material | None | None | PDFs of the interviews | A worksheet per unit with an answer key; `/learn/[unitId]/worksheet` | EQUAL | |
+| Capability | Keelix | TereTere | Keeleklikk | Speakly | Kodukeel | Status | Closed by |
+|---|---|---|---|---|---|---|---|
+| A course that says what to do tonight | Not a course | 12 weeks, a day of learn, recall, listen | 16 chapters to A2, 13 at B1, a B2 course | "The 4,000 most-used words" in order of how often they are used | 17 parts from A1 to C1, 15 minutes an evening, every word of the syllabus placed; `lib/course/`, `/course` | AHEAD on range | |
+| A plain promise of time to a level | None | "B1 in twelve focused weeks", "18 minutes" | None | "Learn languages 5x faster", "in just months" | The only promise is fifteen minutes an evening; a plan is computed in first run (`lib/assessment/plan.ts`) but nothing before sign up says how long a level takes at a given pace | AHEAD, computed from the visitor's own answers | #681 |
+| Trying it before making an account | First exam in every section, no account | A sample lesson on the front page | The introductory part without logging in | "Try 7 days for free"; whether that needs an account or a card was not read | Two passive demos on the landing page; nothing to answer | EQUAL: a word to press and a plan to work out, nothing marked | #681 |
+| Price | 9.99 euros a week and up | 9.99 euros a month | Free | Not shown on the pricing page without its script running; a 7 day trial | Free, MIT licensed | AHEAD on two, EQUAL on one | |
+| Interface in Russian and Ukrainian | English on the front page | English | English, Russian, Ukrainian at 0 to A2; English and Russian at B1 | Site in English; the interface languages inside the app were not read | English only; the Russian and Ukrainian are glosses beside the Estonian, not the interface; `lib/collections/glossLanguage.ts` | BEHIND, narrowed: entry pages in both, machine-translated and marked | #685 |
+| A recurring cast | None | None | Named people across chapters, animated | Not stated | Situations have unnamed roles; nothing carries across; `lib/scenes/catalogue.ts` | BEHIND, left for the operator |  |
+| Video, animation, recorded native speakers | None | None | Interviews, animations, grammar videos | Not stated | Speech is TartuNLP's synthetic voices, with a slow play that keeps the voice (`lib/audio/stretch.ts`); no recordings | BEHIND on recordings, left for the operator |  |
+| A human teacher | None | None | Written and spoken texts sent to a teacher by email | "Personal support": write to "our language specialists" for advice; a separate LIVE course whose page was not read | Classes where a teacher sees effort and sets homework (`lib/classroom/`); Anu the AI tutor; no way to send a text to a person | BEHIND, left for the operator |  |
+| Conversation practice | Speaking tasks | Speaking prompts | Speak to the computer | "Challenges": "real-life situations and listening exercises" once enough words are learned | Fifteen situations a learner holds a conversation in, gated word by word through the dictionary; `lib/scenes/`, `/situations` | AHEAD | |
+| Spaced repetition | None named | "Recall, review five useful chunks" | Tests per chapter | "Spaced repetition" named on the front page | FSRS on every card, graded by every mode; `lib/srs/` | EQUAL | |
+| Dictionary | None | Saved words | A course glossary | None named | The whole Ekilex dictionary, 6,000 entries built in and every other word looked up live; `/dictionary` | AHEAD | |
+| Grammar explanation | Tips blog | Lessons | Grammar videos and tutorials | "A special grammar section" | A grammar reference with every form read from the dictionary; `/grammar` | EQUAL | |
+| Hearing a word slowly | Not stated | Not stated | Video speed control | Not stated | A slow half on every speaker, at a pace set by level; `lib/audio/pace.ts` | EQUAL | |
+| Progress kept across devices | Saved to the account | Kept in one browser, not synced | Bookmark in the account | "On your phone or computer"; sync not stated | Server side, and offline review queues and syncs; `lib/offline/` | AHEAD | |
+| Works offline | Not stated | Not stated | Not stated | Not stated | Review works with no network (ADR-015) | AHEAD | |
+| A streak | "Progress, streak" | None | None | Not stated | A streak with shields that cover a missed day, never punished; no XP, no badges | EQUAL, and no pressure by rule | |
+| Printable material | None | None | PDFs of the interviews | None named | A worksheet per unit with an answer key; `/learn/[unitId]/worksheet` | EQUAL | |
 
 ## 3. Where the BEHIND rows go
 
@@ -158,3 +174,13 @@ reason that is not engineering:
 
 The Constitution examination stays named rather than mocked, for the reason section 3 gives.
 
+## 5. Speakly, read 2026-10-07
+
+Adding Speakly moved one row: **spaced repetition** goes from AHEAD to EQUAL, because Speakly names it
+on its front page. Nothing it says it offers opens a new BEHIND row. Its closest match to a gap
+already on the list is "Personal support" from language specialists, which sits beside the human
+teacher row and does not close it for Kodukeel or change what that row asks for. Its "Challenges" are
+the nearest thing to Kodukeel's situations among the four, and its own pages say too little about them
+to compare the two further. Four things about it were not on any page read and are worth a second
+look before anybody relies on this column: the prices, whether its audio is recorded people, what its
+LIVE course is, and whether it can be studied through Russian or Ukrainian.
