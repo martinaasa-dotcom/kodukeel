@@ -389,6 +389,11 @@ export const ROUNDS: Area = {
     "Right form. Now build a whole sentence around it.": "Форма верная. Теперь постройте вокруг неё целое предложение.",
     "More on this:": "Подробнее:",
     "Flash cards": "Карточки",
+    "Twenty questions": "Двадцать вопросов",
+    "A box to type in and a list of your questions. I'm thinking of something, and I answer each question yes, no or sometimes.":
+      "Поле для ввода и список ваших вопросов. Я загадываю что-то и на каждый вопрос отвечаю «да», «нет» или «иногда».",
+    "Ask yes or no questions in Estonian, and name it when you can. Each question you type comes back with a tip if it could be better.":
+      "Задавайте по-эстонски вопросы, на которые можно ответить «да» или «нет», и назовите загаданное, когда догадаетесь. Если вопрос можно задать лучше, к нему придёт подсказка.",
     "Words you've met, asked in a way you haven't seen yet.": "Знакомые слова в вопросах, каких вы ещё не видели.",
     "No words to practice yet": "Пока нет слов для тренировки",
     "You've mastered every word you've met": "Вы освоили все слова, которые встречали",
@@ -1331,6 +1336,11 @@ export const ROUNDS: Area = {
     "Right form. Now build a whole sentence around it.": "Форма правильна. Тепер побудуйте навколо неї ціле речення.",
     "More on this:": "Докладніше:",
     "Flash cards": "Картки",
+    "Twenty questions": "Двадцять запитань",
+    "A box to type in and a list of your questions. I'm thinking of something, and I answer each question yes, no or sometimes.":
+      "Поле для введення і список ваших запитань. Я загадую щось і на кожне запитання відповідаю «так», «ні» або «іноді».",
+    "Ask yes or no questions in Estonian, and name it when you can. Each question you type comes back with a tip if it could be better.":
+      "Ставте естонською запитання, на які можна відповісти «так» чи «ні», і назвіть загадане, коли здогадаєтеся. Якщо запитання можна поставити краще, до нього прийде підказка.",
     "Words you've met, asked in a way you haven't seen yet.": "Знайомі слова, але запитання поставлено так, як ви ще не бачили.",
     "No words to practice yet": "Поки немає слів для тренування",
     "You've mastered every word you've met": "Ви опанували всі слова, які зустрічали",
