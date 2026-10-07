@@ -9,8 +9,10 @@ that decision is made against what the others actually do rather than against a 
 
 **Every claim about another service here carries the page it was read from and the date.** Nothing
 was filled in from memory. Where a page could not be read, the row says so rather than guessing.
-None of this appears in the app: the app names no other service, and nothing here is a claim about
-their quality, only about what their own pages say they offer.
+None of this comparison appears in the app, and nothing here is a claim about their quality, only
+about what their own pages say they offer. The app does name Keeleklikk, as one of the free places
+to go and use Estonian with people (`lib/collections/placesToTalk.ts`, on the landing page and under
+Situations), which is a pointer onward rather than a comparison.
 
 **The point is not to copy them.** A row marked BEHIND is a learner need somebody else meets and
 Kodukeel does not. Where meeting it the way they do would break a rule this project holds (ADR-005,

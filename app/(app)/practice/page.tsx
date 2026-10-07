@@ -111,11 +111,11 @@ export default async function PracticePage() {
     told nobody anything they needed in order to choose.
   */
   const live: Record<string, string | undefined> = {
-    "/review/sprint": sprintBest > 0 ? `Best: ${sprintBest}` : undefined,
-    "/review/match": matchBest > 0 ? `Best: ${matchBest}s` : undefined,
+    "/review/sprint": sprintBest > 0 ? `best ${sprintBest}` : undefined,
+    "/review/match": matchBest > 0 ? `best ${matchBest}s` : undefined,
     /* "34 ready" on a round that answers an A1 learner with "word order
        starts at A2" is the tile and the round disagreeing about one press. */
-    "/review/sentences": !maySortWords(level) ? `From ${BUILD_FROM}` : sentenceCount > 0 ? `${sentenceCount} ready` : undefined,
+    "/review/sentences": !maySortWords(level) ? `from ${BUILD_FROM}` : sentenceCount > 0 ? `${sentenceCount} ready` : undefined,
     "/review/dictation": dictationCount > 0 ? `${dictationCount} ready` : undefined,
   };
   /*

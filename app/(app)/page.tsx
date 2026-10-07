@@ -17,6 +17,7 @@ import { nextUnit as pickNextUnit } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
 import type { Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
+import { MODULE_SESSION } from "@/lib/srs/reviewQueue";
 import { caseAccuracy } from "@/lib/stats/history";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { caseReviewsFor } from "@/lib/progress/cases";
@@ -1077,9 +1078,13 @@ function courseLead(toReview: number, finishedToday: boolean): string {
   if (finishedToday) {
     return toReview === 0 ? "Nothing else is due today. Enjoy the rest of your day." : `${cards} still due, if you fancy a few more.`;
   }
-  return toReview === 0
-    ? "Nothing else is due today, so tonight's module is all you need to do."
-    : `${cards} due as well. They'll come up at the end of tonight's module.`;
+  // The module's closing round stops at `MODULE_SESSION`, so a promise that
+  // every due card comes up there was true of a light day and false of a heavy
+  // one: 34 due read as 34 asked, and the round asked 8.
+  if (toReview === 0) return "Nothing else is due today, so tonight's module is all you need to do.";
+  return toReview <= MODULE_SESSION
+    ? `${cards} due as well. They'll come up at the end of tonight's module.`
+    : `${cards} due as well. Tonight's module ends with a few of them, and the review button has the rest.`;
 }
 
 function lead(
