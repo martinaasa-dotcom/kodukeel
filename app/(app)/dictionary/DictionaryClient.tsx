@@ -36,6 +36,9 @@ import type { ReadableHeadline } from "@/lib/dict/headlines";
 import { Headlines } from "@/components/Headlines";
 import { Explain } from "@/components/Explain";
 import { FitText } from "@/components/FitText";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/reference/fillNodes";
 
 export interface EntryForm {
   formType: string;
@@ -201,6 +204,8 @@ export function DictionaryClient({
   canScan?: boolean;
 }) {
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
   const [query, setQuery] = useState(initialQuery);
   const [pending, start] = useTransition();
 
@@ -241,7 +246,7 @@ export function DictionaryClient({
       <div className={landing ? "night flex flex-col gap-5 rounded-[var(--r-xl)] border px-5 py-7 md:px-8 md:py-9" : "contents"}>
         {landing && (
           <p className="font-display text-2xl font-bold leading-tight tracking-tight sm:text-3xl md:text-4xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-            Type a word just as you met it, endings and all.
+            {t("Type a word just as you met it, endings and all.")}
           </p>
         )}
         {/* One row at every width: on a phone the button is its icon beside
@@ -261,19 +266,19 @@ export function DictionaryClient({
               value={query}
               onChange={setQuery}
               onEnter={() => go(query)}
-              placeholder="Estonian or English, like tuba or room"
-              ariaLabel="Search the dictionary"
+              placeholder={t("Estonian or English, like tuba or room")}
+              ariaLabel={t("Search the dictionary")}
               autoFocus={!initialQuery}
             />
           </div>
-          <Button variant="primary" onClick={() => go(query)} disabled={pending} className="shrink-0 py-3" aria-label="Search">
-            <Search size={16} aria-hidden /> <span className="hidden sm:inline">Search</span>
+          <Button variant="primary" onClick={() => go(query)} disabled={pending} className="shrink-0 py-3" aria-label={t("Search")}>
+            <Search size={16} aria-hidden /> <span className="hidden sm:inline">{t("Search")}</span>
           </Button>
         </div>
         {!initialQuery && suggestions.words.length > 0 && (
           <div className="flex flex-col gap-2">
             <p id="try-these" className="label-xs" style={{ color: "var(--ink-3)" }}>
-              {suggestions.label}
+              {t(suggestions.label)}
             </p>
             <ul aria-labelledby="try-these" className="flex flex-wrap gap-2">
               {suggestions.words.map((s) => (
@@ -297,7 +302,7 @@ export function DictionaryClient({
       {!showingEntry && initialQuery === "" && starred.length > 0 && (
         <div>
           <p className="label-xs mb-2 flex items-center gap-1.5" style={{ color: "var(--ink-3)" }}>
-            <Star size={12} aria-hidden /> Starred
+            <Star size={12} aria-hidden /> {t("Starred")}
             {/* A few of them here and all of them there. This row is capped and
                 the page it points at is where the list lives. */}
             <Link
@@ -305,7 +310,7 @@ export function DictionaryClient({
               className="font-semibold underline underline-offset-2"
               style={{ color: "var(--accent-deep)" }}
             >
-              See all
+              {t("See all")}
             </Link>
           </p>
           <ul className="flex flex-wrap gap-2">
@@ -341,14 +346,14 @@ export function DictionaryClient({
             <AddWord />
             {canScan && (
               <ButtonLink href="/scan">
-                <Camera size={15} aria-hidden /> Photograph a list
+                <Camera size={15} aria-hidden /> {t("Photograph a list")}
               </ButtonLink>
             )}
             {/* The other way of bringing your own Estonian in, and the reason it
                 is here rather than on the practice menu: both of these turn
                 something you already have into something you can study. */}
             <ButtonLink href="/review/cloze">
-              <ScissorsLineDashed size={15} aria-hidden /> Paste a passage
+              <ScissorsLineDashed size={15} aria-hidden /> {t("Paste a passage")}
             </ButtonLink>
           </div>
         </div>
@@ -373,10 +378,10 @@ export function DictionaryClient({
           <span className="flex items-center gap-2.5">
             <TrendingUp size={16} aria-hidden style={{ color: "var(--sky-ink)" }} />
             <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
-              The words you&apos;ll hear most
+              {t("The words you'll hear most")}
             </span>
           </span>
-          <span className="text-xs" style={{ color: "var(--ink-3)" }}>the top 100 verbs, nouns and more</span>
+          <span className="text-xs" style={{ color: "var(--ink-3)" }}>{t("the top 100 verbs, nouns and more")}</span>
         </Link>
       )}
 
@@ -399,12 +404,12 @@ export function DictionaryClient({
           <Empty
             title={known
               ? (knownAs[0] && knownAs[0] !== initialQuery.trim()
-                ? `${initialQuery} is a form of ${knownAs.slice(0, 3).join(", ")}`
-                : `${initialQuery} is a real Estonian word`)
-              : `Nothing found for "${initialQuery}"`}
+                ? fill(t("{word} is a form of {lemmas}"), { word: initialQuery, lemmas: knownAs.slice(0, 3).join(", ") })
+                : fill(t("{word} is a real Estonian word"), { word: initialQuery }))
+              : fill(t("Nothing found for \"{query}\""), { query: initialQuery })}
             body={known
-              ? "We just don't have an entry for it yet. Add it below with its omastav and it's yours."
-              : "Check the spelling. If it's right, add the word yourself below, or tell us it's missing."}
+              ? t("We just don't have an entry for it yet. Add it below with its omastav and it's yours.")
+              : t("Check the spelling. If it's right, add the word yourself below, or tell us it's missing.")}
           />
 
           {/*
@@ -416,7 +421,7 @@ export function DictionaryClient({
           {spellings.length > 0 && (
             <Card>
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                No word is spelled quite like that. Did you mean one of these?
+                {t("No word is spelled quite like that. Did you mean one of these?")}
               </p>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {spellings.map((lemma) => (
@@ -447,8 +452,7 @@ export function DictionaryClient({
           {heard.length > 0 && (
             <Card>
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                Heard it rather than read it? Some Estonian sounds can be written two ways,
-                so it might be one of these.
+                {t("Heard it rather than read it? Some Estonian sounds can be written two ways, so it might be one of these.")}
               </p>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {heard.map((lemma) => (
@@ -476,14 +480,14 @@ export function DictionaryClient({
           */}
           <div className="flex flex-col gap-2">
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              Sure it&apos;s a word? Tell us and somebody will look at adding it for everyone.
+              {t("Sure it's a word? Tell us and somebody will look at adding it for everyone.")}
             </p>
             <div>
               <SuggestFix
                 category="MISSING_WORD"
                 lemma={initialQuery}
                 trigger={`The dictionary found nothing for "${initialQuery}"`}
-                label="This word is missing"
+                label={t("This word is missing")}
                 tone="loud"
               />
             </div>
@@ -498,7 +502,7 @@ export function DictionaryClient({
               className="rounded-[var(--r)] px-4 py-3 text-sm font-medium"
               style={{ background: "var(--good-soft)", color: "var(--good-ink)" }}
             >
-              Found it, and saved it here, so it works offline from now on too.
+              {t("Found it, and saved it here, so it works offline from now on too.")}
             </p>
           )}
           {matchedAs && (
@@ -526,7 +530,7 @@ export function DictionaryClient({
       {others.length > 0 && (
         <div>
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            {others.length} other match{others.length === 1 ? "" : "es"}
+            {countOf(locale, others.length, "other match")}
           </p>
           <ul className="flex flex-wrap gap-2">
             {others.map((h) => (
@@ -548,7 +552,7 @@ export function DictionaryClient({
                   */}
                   {h.lemma === entry?.lemma && (
                     <span className="text-2xs italic" style={{ color: "var(--ink-3)" }}>
-                      {h.pos.toLowerCase()}
+                      {t(h.pos.toLowerCase())}
                     </span>
                   )}
                   <span className="text-xs" style={{ color: "var(--ink-3)" }}>
@@ -569,6 +573,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
   tutorReady: boolean;
   glossLanguage: GlossLanguage;
 }) {
+  const t = useT();
   const equivalent = equivalentIn(entry, glossLanguage);
   // The case the entry says this word pairs with, so the block below can say
   // what that case asks. Null where nothing is stored or nothing parses,
@@ -653,7 +658,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             them taught by the course.
           */}
           <p className="mt-3 text-lg" style={{ color: "var(--ink-2)" }}>
-            {sameSpelling(entry.lemma, entry.translation) ? SAME_SPELLING : entry.translation}
+            {sameSpelling(entry.lemma, entry.translation) ? t(SAME_SPELLING) : entry.translation}
           </p>
           {/*
             The meaning in the language the learner thinks in, where Ekilex
@@ -667,11 +672,11 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             </p>
           )}
           <div className="mt-3 flex flex-wrap gap-1.5">
-            <Chip>{entry.pos.toLowerCase()}</Chip>
+            <Chip>{t(entry.pos.toLowerCase())}</Chip>
             {entry.cefr && <Chip tone="accent">{entry.cefr}</Chip>}
             {entry.gradationNote && (
-              <Chip tone="hard" caseSensitive title="Consonant gradation, the reason the middle of this word changes in some forms.">
-                gradation {entry.gradationNote}
+              <Chip tone="hard" caseSensitive title={t("Consonant gradation, the reason the middle of this word changes in some forms.")}>
+                {fill(t("gradation {pattern}"), { pattern: entry.gradationNote })}
               </Chip>
             )}
           </div>
@@ -721,7 +726,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {entry.definition && (
         <div>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Seletus, how the dictionary explains it
+            {t("Seletus, how the dictionary explains it")}
           </h3>
           <p
             lang="et"
@@ -744,7 +749,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             is not another meaning and is the first entry a beginner opens.
           */}
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            {isPhrase(entry.pos) ? "About this phrase" : "Other meanings"}
+            {isPhrase(entry.pos) ? t("About this phrase") : t("Other meanings")}
           </h3>
           <p className="rounded-[var(--r)] px-4 py-3.5 text-sm" style={{ background: "var(--raised)", color: "var(--ink-2)" }}>
             {entry.notes}
@@ -755,7 +760,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {entry.government && (
         <div>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Rektsioon, the case it asks for
+            {t("Rektsioon, the case it asks for")}
           </h3>
           {/*
             EKILEX'S OWN QUESTION WORDS, WITH THE BRACKET SAYING WHAT THEY ASK.
@@ -774,7 +779,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
               The list above says what each asks and not which one leads. */}
           {governs && (
             <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-              Most often it goes with the <span lang="et">{governs.et}</span>.
+              {fillNodes(t("Most often it goes with the {case}."), { case: <span lang="et">{governs.et}</span> })}
             </p>
           )}
         </div>
@@ -785,7 +790,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       {entry.forms.length > 0 && (
         <div>
           <h3 className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>
-            The forms to learn by heart
+            {t("The forms to learn by heart")}
           </h3>
           <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(124px, 1fr))" }}>
             {parts.map(([type, label]) => {
@@ -825,7 +830,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                     <span lang="et" className="label-xs mt-1.5 block" style={{ color: "var(--ink-3)", textTransform: "none" }}>{label.et}</span>
                   )}
                   {label.en && (
-                    <span className="mt-0.5 block text-2xs italic" style={{ color: "var(--ink-3)" }}>{label.en}</span>
+                    <span className="mt-0.5 block text-2xs italic" style={{ color: "var(--ink-3)" }}>{t(label.en)}</span>
                   )}
                 </div>
               );
@@ -861,7 +866,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       ) : isNominal && form("GEN_SG") && (
         <div>
           <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-            The rest, built from the omastav
+            {t("The rest, built from the omastav")}
           </h3>
           {/*
             Counted rather than typed, because the short illative is stored and
@@ -871,9 +876,10 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             the same reason.
           */}
           <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
-            Know <Et className="text-base" >{form("GEN_SG")}</Et> and you get these{" "}
-            {table.filter((row) => row.origin === "DERIVED" && row.singular).length} for free, each one a regular ending on it.
-
+            {fillNodes(t("Know {form} and you get these {n} for free, each one a regular ending on it."), {
+              form: <Et className="text-base">{form("GEN_SG")}</Et>,
+              n: table.filter((row) => row.origin === "DERIVED" && row.singular).length,
+            })}
           </p>
           <div className="overflow-x-auto rounded-[var(--r)] border" style={{ borderColor: "var(--rule)" }}>
             <table className="w-full min-w-[360px] text-sm">
@@ -881,7 +887,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                 <tr>
                   {["Case", "Singular", "Plural"].map((h) => (
                     <th key={h} className="label-xs px-3 py-2.5 text-left" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
-                      {h}
+                      {t(h)}
                     </th>
                   ))}
                 </tr>
@@ -929,9 +935,8 @@ function Entry({ entry, tutorReady, glossLanguage }: {
           {(!form("GEN_PL") || !form("NOM_PL")) && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
               {!form("GEN_PL")
-                ? "Most plural forms are built on the omastav plural, and we don't have it for this word."
-                : "We don't have the nimetav plural for this word, and it isn't an ending we can work out."}
-              {" "}So we&apos;ve left a gap rather than guess one.
+                ? t("Most plural forms are built on the omastav plural, and we don't have it for this word. So we've left a gap rather than guess one.")
+                : t("We don't have the nimetav plural for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.")}
             </p>
           )}
           {/* Only on a pronoun, and only where the entry has not been enriched.
@@ -945,9 +950,8 @@ function Entry({ entry, tutorReady, glossLanguage }: {
               short forms are exactly the ones a seeded entry does not hold, so
               an example here would be one somebody typed. */}
           {entry.pos === "PRONOUN" && (
-            <Explain label="Why these are the long forms">
-              Pronouns have short forms too, and those are the ones you&apos;ll hear most. A dictionary
-              lists the long ones first, so that&apos;s what you see here. Both are right.
+            <Explain label={t("Why these are the long forms")}>
+              {t("Pronouns have short forms too, and those are the ones you'll hear most. A dictionary lists the long ones first, so that's what you see here. Both are right.")}
             </Explain>
           )}
         </div>
@@ -958,6 +962,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
 
 /** The "this is wrong" affordance on a dictionary entry, in one place. */
 function EntryProblem({ entry }: { entry: EntryView }) {
+  const t = useT();
   const isVerb = entry.pos === "VERB";
   const parts = isVerb ? VERB_PARTS : NOUN_PARTS;
   const formTypes = parts
@@ -973,7 +978,7 @@ function EntryProblem({ entry }: { entry: EntryView }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-        Spotted a mistake?
+        {t("Spotted a mistake?")}
       </p>
       <SuggestFix
         category="WRONG_MEANING"
@@ -984,7 +989,7 @@ function EntryProblem({ entry }: { entry: EntryView }) {
         formTypes={formTypes}
         examples={entry.examples.map((e) => e.et)}
         trigger={`${entry.lemma}: "${entry.translation}"`}
-        label="Suggest a correction"
+        label={t("Suggest a correction")}
       />
     </div>
   );
@@ -1009,6 +1014,7 @@ function EntryProblem({ entry }: { entry: EntryView }) {
  * like `AddWord`'s key does, and cannot collide with it.
  */
 function AddToDeck({ entry }: { entry: EntryView }) {
+  const tr = useT();
   const [open, setOpen] = useState(false);
   const [added, setAdded] = useState(entry.inDeck);
   const [pending, start] = useTransition();
@@ -1104,7 +1110,7 @@ function AddToDeck({ entry }: { entry: EntryView }) {
   if (!open) {
     return (
       <Button variant={added ? "secondary" : "primary"} onClick={() => setOpen(true)}>
-        {added ? <><Check size={15} aria-hidden /> In deck</> : <><Plus size={15} aria-hidden /> Add to deck</>}
+        {added ? <><Check size={15} aria-hidden /> {tr("In deck")}</> : <><Plus size={15} aria-hidden /> {tr("Add to deck")}</>}
       </Button>
     );
   }
@@ -1146,7 +1152,7 @@ function AddToDeck({ entry }: { entry: EntryView }) {
       className="absolute right-0 top-full z-40 mt-2 w-full max-w-[20rem] rounded-[var(--r-lg)] p-5"
       style={{ background: "var(--raised)", boxShadow: "var(--shadow-lg)" }}
     >
-      <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>How should we quiz you on it?</p>
+      <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>{tr("How should we quiz you on it?")}</p>
       <div className="flex flex-col gap-2">
         {CARD_TYPES.filter((t) => available.includes(t.type)).map((t) => (
           <label key={t.type} className="flex cursor-pointer items-start gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>
@@ -1159,8 +1165,8 @@ function AddToDeck({ entry }: { entry: EntryView }) {
               className="mt-0.5"
             />
             <span>
-              <span style={{ color: "var(--ink)" }}>{t.label}</span>
-              <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{t.description}</span>
+              <span style={{ color: "var(--ink)" }}>{tr(t.label)}</span>
+              <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{tr(t.description)}</span>
             </span>
           </label>
         ))}
@@ -1171,9 +1177,9 @@ function AddToDeck({ entry }: { entry: EntryView }) {
         </div>
       )}
       <div className="mt-4 flex gap-2">
-        <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+        <Button variant="ghost" onClick={() => setOpen(false)}>{tr("Cancel")}</Button>
         <Button variant="primary" onClick={submit} disabled={pending || selected.length === 0} className="flex-1">
-          {pending ? "Adding…" : "Add"}
+          {pending ? tr("Adding…") : tr("Add")}
         </Button>
       </div>
     </div>

@@ -6,6 +6,8 @@ import { Check, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { addScanToDeck, deleteScan, renameScan } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 /**
  * The three things you can do to a saved page: add its words, rename it, or
@@ -22,6 +24,8 @@ export function ScanActions({ scanId, title, pending }: {
   pending: number;
 }) {
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
   const [busy, start] = useTransition();
   const [renaming, setRenaming] = useState(false);
   const [draft, setDraft] = useState(title);
@@ -31,13 +35,13 @@ export function ScanActions({ scanId, title, pending }: {
   const add = () => {
     start(async () => {
       const result = await addScanToDeck(scanId).catch(() => null);
-      if (!result) { setMessage(NOT_REACHED); return; }
+      if (!result) { setMessage(t(NOT_REACHED)); return; }
       setMessage(
         !result.ok
           ? result.error
           : result.added === 0
-            ? "Every word is already in your deck."
-            : `Added ${result.added} card${result.added === 1 ? "" : "s"}.`,
+            ? t("Every word is already in your deck.")
+            : fill(t("Added {cards}."), { cards: countOf(locale, result.added, "card") }),
       );
       router.refresh();
     });
@@ -47,7 +51,7 @@ export function ScanActions({ scanId, title, pending }: {
     start(async () => {
       const result = await renameScan(scanId, draft).catch(() => null);
       if (!result || !result.ok) {
-        setMessage(result ? result.error : NOT_REACHED);
+        setMessage(result ? result.error : t(NOT_REACHED));
         return;
       }
       setRenaming(false);
@@ -59,7 +63,7 @@ export function ScanActions({ scanId, title, pending }: {
     start(async () => {
       const result = await deleteScan(scanId).catch(() => null);
       if (!result || !result.ok) {
-        setMessage(result ? result.error : NOT_REACHED);
+        setMessage(result ? result.error : t(NOT_REACHED));
         return;
       }
       router.push("/scan");
@@ -74,18 +78,18 @@ export function ScanActions({ scanId, title, pending }: {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           maxLength={80}
-          aria-label="Page name"
+          aria-label={t("Page name")}
           autoFocus
           className="field-lg w-full text-base"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         />
         <div className="flex gap-2">
           <Button variant="ghost" onClick={() => { setRenaming(false); setDraft(title); }}>
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button variant="primary" onClick={rename} disabled={busy}>
             <Check size={15} aria-hidden />
-            Save
+            {t("Save")}
           </Button>
         </div>
       </div>
@@ -96,13 +100,13 @@ export function ScanActions({ scanId, title, pending }: {
     <div className="flex w-full flex-col gap-2 sm:w-52">
       <Button variant="primary" onClick={add} disabled={busy || pending === 0}>
         {busy ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <Plus size={15} aria-hidden />}
-        {pending === 0 ? "All in your deck" : `Add ${pending} to my deck`}
+        {pending === 0 ? t("All in your deck") : fill(t("Add {n} to my deck"), { n: pending })}
       </Button>
 
       <div className="flex gap-2">
         <Button variant="secondary" onClick={() => setRenaming(true)} className="flex-1">
           <Pencil size={14} aria-hidden />
-          Rename
+          {t("Rename")}
         </Button>
         <Button
           variant={confirming ? "danger" : "ghost"}
@@ -111,7 +115,7 @@ export function ScanActions({ scanId, title, pending }: {
           className="flex-1"
         >
           <Trash2 size={14} aria-hidden />
-          {confirming ? "Really delete" : "Delete"}
+          {confirming ? t("Really delete") : t("Delete")}
         </Button>
       </div>
 
@@ -120,7 +124,7 @@ export function ScanActions({ scanId, title, pending }: {
       )}
       {confirming && (
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          Your cards and their history stay. Only the page itself goes.
+          {t("Your cards and their history stay. Only the page itself goes.")}
         </p>
       )}
     </div>

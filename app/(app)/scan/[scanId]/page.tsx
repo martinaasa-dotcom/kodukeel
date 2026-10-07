@@ -12,7 +12,9 @@ import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Empty, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { ScanActions } from "./ScanActions";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { lengthAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
+import { lengthAtPace, secondsAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
+import { localeFor } from "@/lib/progress/locale";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -50,7 +52,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
   const summary = summarise(items);
   const ids = items.map((i) => i.lexemeId).filter((id): id is string => id !== null);
 
-  const [snapshot, lexemes, settings] = await Promise.all([
+  const [snapshot, lexemes, settings, locale] = await Promise.all([
     deckSnapshot(ownerId),
     ids.length
       ? prisma.lexeme.findMany({
@@ -62,10 +64,12 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
         })
       : Promise.resolve([]),
     readSettings(ownerId, [SETTING_KEYS.roundPace]),
+    localeFor(ownerId),
   ]);
+  const t = (english: string) => tr(locale, english);
   // The sprint's length at this learner's pace, the figure the round itself
   // runs for, rather than the standard minute typed into a sentence.
-  const sprintLength = lengthAtPace(SPRINT_SECONDS, settings[SETTING_KEYS.roundPace]);
+  const sprintLength = localLength(locale, settings[SETTING_KEYS.roundPace]);
 
   const byId = new Map(lexemes.map((l) => [l.id, l]));
   // The page's own order, which is the order it is printed in. A learner
@@ -90,11 +94,11 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
   */
   if (words.length === 0) {
     return (
-      <Page eyebrow="From paper" title={scan.title}>
+      <Page eyebrow={t("From paper")} title={scan.title}>
         <Empty
-          title="No dictionary words on this page"
-          body="None of the words on it match the dictionary now, so there's nothing here to learn."
-          action={<ButtonLink href="/scan" variant="primary">All pages</ButtonLink>}
+          title={t("No dictionary words on this page")}
+          body={t("None of the words on it match the dictionary now, so there's nothing here to learn.")}
+          action={<ButtonLink href="/scan" variant="primary">{t("All pages")}</ButtonLink>}
         />
       </Page>
     );
@@ -102,30 +106,30 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
 
   return (
     <Page
-      eyebrow="From paper"
+      eyebrow={t("From paper")}
       title={scan.title}
-      lead={`${summary.total} word${summary.total === 1 ? "" : "s"} read off this page.`}
+      lead={fill(t("{words} read off this page."), { words: countOf(locale, summary.total, "word") })}
       actions={
         <Link href="/scan" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
-          <ArrowLeft size={14} aria-hidden /> All pages
+          <ArrowLeft size={14} aria-hidden /> {t("All pages")}
         </Link>
       }
     >
       <div className="flex flex-col gap-5">
         <Card className="flex flex-wrap items-center gap-5">
-          <Ring pct={progress.pct} size={70} label={`${progress.pct}% of this page learned`}>
+          <Ring pct={progress.pct} size={70} label={fill(t("{pct}% of this page learned"), { pct: progress.pct })}>
             <span className="text-base font-bold" style={{ color: "var(--accent-deep)" }}>
               {progress.pct}%
             </span>
           </Ring>
           <div className="min-w-0 flex-1">
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              {progress.known} of {progress.available} known, {inDeck} in your deck
+              {fill(t("{known} of {total} known, {inDeck} in your deck"), { known: progress.known, total: progress.available, inDeck })}
             </p>
             <div className="mt-2 max-w-sm">
               <Meter
                 pct={progress.pct}
-                label={`${scan.title}: ${progress.pct}% learned`}
+                label={fill(t("{title}: {pct}% learned"), { title: scan.title, pct: progress.pct })}
                 tone="var(--accent)"
               />
             </div>
@@ -135,7 +139,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
 
         {inDeck > 0 && (
           <section>
-            <SectionTitle>Practice this page</SectionTitle>
+            <SectionTitle>{t("Practice this page")}</SectionTitle>
             {/* Columns by the room the tiles have, not the window: at 768
                 `sm:grid-cols-3` gave each title 25px and "Match" was drawn
                 across three lines. */}
@@ -143,34 +147,34 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
               <PractiseTile
                 href={`/review?scan=${scan.id}`}
                 tone="accent"
-                title="Drill the page"
-                body="Just the words from this page, whether or not they're due. It counts like any other review."
+                title={t("Drill the page")}
+                body={t("Just the words from this page, whether or not they're due. It counts like any other review.")}
               />
               <PractiseTile
                 href="/review/match"
                 tone="sky"
-                title="Match"
-                body="Eight pairs against the clock. The words come from everything due in your deck, not just this page."
+                title={t("Match")}
+                body={t("Eight pairs against the clock. The words come from everything due in your deck, not just this page.")}
               />
               <PractiseTile
                 href="/review/sprint"
                 tone="blush"
-                title="Sprint"
-                body={`${sprintLength} against the clock. The quickest way to see which words haven't stuck yet.`}
+                title={t("Sprint")}
+                body={fill(t("{length} against the clock. The quickest way to see which words haven't stuck yet."), { length: sprintLength })}
               />
             </div>
           </section>
         )}
 
         <section>
-          <SectionTitle hint={summary.inflected > 0 ? `${summary.inflected} had an ending on the page` : undefined}>
-            The words on this page
+          <SectionTitle hint={summary.inflected > 0 ? fill(t("{n} had an ending on the page"), { n: summary.inflected }) : undefined}>
+            {t("The words on this page")}
           </SectionTitle>
           <ul className="flex flex-col gap-2">
             {words.map(({ item, lexeme }) => (
               <li key={lexeme!.id}>
                 <Card as="div" className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <Speak text={lexeme!.lemma} label={`Say ${lexeme!.lemma}`} />
+                  <Speak text={lexeme!.lemma} label={fill(t("Say {word}"), { word: lexeme!.lemma })} />
                   {/* A basis, so the chips beside it wrap under the word rather
                       than squeezing it: at 360 "abielu" and "marriage" had 49px. */}
                   <Link href={`/dictionary?q=${encodeURIComponent(lexeme!.lemma)}`} className="min-w-0 flex-[1_1_9rem]">
@@ -182,7 +186,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
                     </span>
                     {item.matchedAs && (
                       <span className="block text-sm" style={{ color: "var(--sky-ink)" }}>
-                        On the page as the {item.matchedAs}
+                        {fill(t("On the page as the {form}"), { form: item.matchedAs })}
                       </span>
                     )}
                   </Link>
@@ -192,11 +196,11 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
                       <Chip tone="hard" caseSensitive>{lexeme!.gradationNote}</Chip>
                     )}
                     {snapshot.knownLemmas.has(lexeme!.lemma) ? (
-                      <Chip tone="good">Known</Chip>
+                      <Chip tone="good">{t("Known")}</Chip>
                     ) : snapshot.startedLemmas.has(lexeme!.lemma) ? (
-                      <Chip tone="sky">Learning</Chip>
+                      <Chip tone="sky">{t("Learning")}</Chip>
                     ) : (
-                      <Chip>Not started</Chip>
+                      <Chip>{t("Not started")}</Chip>
                     )}
                   </span>
                 </Card>
@@ -207,6 +211,20 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
       </div>
     </Page>
   );
+}
+
+/**
+ * How long the sprint runs at this learner's pace, said in their language.
+ * English is `lengthAtPace` exactly; the other two count the same seconds
+ * with their own plurals rather than printing "60 seconds".
+ */
+function localLength(locale: Locale, stored: string | null | undefined): string {
+  if (locale === "en") return lengthAtPace(SPRINT_SECONDS, stored);
+  const seconds = secondsAtPace(SPRINT_SECONDS, stored);
+  const said = seconds >= 120 && seconds % 60 === 0
+    ? countOf(locale, seconds / 60, "minute")
+    : countOf(locale, seconds, "second");
+  return `${said[0]!.toUpperCase()}${said.slice(1)}`;
 }
 
 function PractiseTile({ href, tone, title, body }: {

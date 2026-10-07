@@ -5719,7 +5719,6 @@ check("an empty cell goes through NO_VALUE, never a literal", () => {
  */
 const PLURAL_COUNT_EXEMPT: Readonly<Record<string, string>> = {
   "app/(chromeless)/welcome/page.tsx": "the dictionary's size, which is thousands",
-  "app/(app)/dictionary/page.tsx": "the dictionary's size, which is thousands",
   "app/(app)/review/ReviewSession.tsx": "the one live count is guarded a line above; the other is a case name",
   "app/(app)/page.tsx": "said only once the goal is met, and the smallest goal is five",
   "app/(app)/settings/page.tsx": "the daily goal, whose smallest setting is five",
@@ -10935,7 +10934,9 @@ check("a screen that prints a case question says what it is asking", () => {
   // round, which is a letter rather than a case, is not swept in.
   // `<Words text={label.question} />` is the label printing it a word per run.
   const PRINTS = /lang="et"[^>]*>\s*(?:<Words text=)?\{[^{}]*\b(caseQuestion|question)\}/;
-  const READS = /questionInEnglish|<CaseQuestion|\bquestionEn\b|plainAsk/;
+  // `questionReading` and `caseQuestionReading` are `questionInEnglish` and
+  // `questionEn` in the learner's own language, English byte for byte.
+  const READS = /questionInEnglish|<CaseQuestion|\bquestionEn\b|plainAsk|\b(?:case)?[qQ]uestionReading\b/;
   let found = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     // The one drawing of a case question is not a screen printing one.
@@ -15173,8 +15174,10 @@ check("a frequency list is named once, asked one way, and never built by a rende
     const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     // As a string, a template, or a run of JSX text.
     const written = new RegExp(`["'\`]${escaped}["'\`]|>\\s*${escaped}\\s*<`);
+    // A translation table keys a line by its English, which is the label
+    // looked up rather than the label written down a second time.
     const naming = haystack.filter((f) =>
-      f !== "lib/collections/commonGroups.ts" && written.test(code(f)));
+      f !== "lib/collections/commonGroups.ts" && !f.startsWith("lib/copy/i18n/") && written.test(code(f)));
     assert.deepEqual(
       naming, [],
       `"${label}" is written down somewhere other than the one table of what a list is called`,

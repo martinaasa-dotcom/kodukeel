@@ -11,6 +11,8 @@ import { hasNoFields } from "@/lib/dict/pos";
 import { caseByKey } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 import { CaseLabel } from "@/components/CaseLabel";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * THE BOXES ARE NAMED THE WAY A LESSON NAMES THEM.
@@ -85,6 +87,7 @@ export interface WordDraft {
  * will contain mistakes, and a wrong form that cannot be fixed gets drilled.
  */
 export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; edit?: WordDraft }) {
+  const t = useT();
   const [open, setOpen] = useState(Boolean(initialLemma));
   const [pos, setPos] = useState(edit?.pos ?? "NOUN");
   const [lemma, setLemma] = useState(edit?.lemma ?? initialLemma);
@@ -135,7 +138,7 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
       const result = await createLexemeWithForms({
         id: edit?.id, lemma, translation, pos, cefr, government, forms: filled,
       }).catch(() => null);
-      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+      if (!result || !result.ok) { setError(result ? result.error : t(NOT_REACHED)); return; }
       setOpen(false);
       if (!edit) { setForms({}); setTranslation(""); }
 
@@ -171,8 +174,8 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
     return (
       <Button ref={opener} onClick={() => setOpen(true)}>
         {edit
-          ? <><Pencil size={14} aria-hidden /> Edit</>
-          : <><Plus size={15} aria-hidden /> Add a word</>}
+          ? <><Pencil size={14} aria-hidden /> {t("Edit")}</>
+          : <><Plus size={15} aria-hidden /> {t("Add a word")}</>}
       </Button>
     );
   }
@@ -182,16 +185,16 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
       <div ref={form} className="contents">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
-          {edit ? `Edit ${edit.lemma}` : "Add a word"}
+          {edit ? fill(t("Edit {word}"), { word: edit.lemma }) : t("Add a word")}
         </h2>
         <button type="button" onClick={() => setOpen(false)} className="tap-tint rounded-md px-1.5 py-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
-          Cancel
+          {t("Cancel")}
         </button>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="flex flex-col gap-1.5">
-          <span className="label-xs" style={{ color: "var(--ink-3)" }}>Estonian</span>
+          <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Estonian")}</span>
           <input
             value={lemma}
             onChange={(e) => setLemma(e.target.value)}
@@ -201,11 +204,11 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="label-xs" style={{ color: "var(--ink-3)" }}>English</span>
+          <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("English")}</span>
           <input
             value={translation}
             onChange={(e) => setTranslation(e.target.value)}
-            placeholder="word"
+            placeholder={t("word")}
             className="field text-md"
             style={field}
           />
@@ -214,26 +217,26 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
 
       <div className="flex flex-wrap gap-3">
         <label className="flex flex-col gap-1.5">
-          <span className="label-xs" style={{ color: "var(--ink-3)" }}>Type</span>
+          <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Type")}</span>
           <select value={pos} onChange={(e) => setPos(e.target.value)} className="field text-sm" style={field}>
-            <option value="NOUN">Noun</option>
-            <option value="VERB">Verb</option>
-            <option value="PRONOUN">Pronoun</option>
-            <option value="ADJECTIVE">Adjective</option>
-            <option value="ADVERB">Adverb</option>
-            <option value="PHRASE">Phrase</option>
-            <option value="OTHER">Other</option>
+            <option value="NOUN">{t("Noun")}</option>
+            <option value="VERB">{t("Verb")}</option>
+            <option value="PRONOUN">{t("Pronoun")}</option>
+            <option value="ADJECTIVE">{t("Adjective")}</option>
+            <option value="ADVERB">{t("Adverb")}</option>
+            <option value="PHRASE">{t("Phrase")}</option>
+            <option value="OTHER">{t("Other")}</option>
           </select>
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="label-xs" style={{ color: "var(--ink-3)" }}>Level</span>
+          <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Level")}</span>
           <select value={cefr} onChange={(e) => setCefr(e.target.value)} className="field text-sm" style={field}>
             {LEVELS.map((l) => <option key={l} value={l}>{l || NO_VALUE}</option>)}
           </select>
         </label>
         {pos === "VERB" && (
           <label className="flex flex-1 flex-col gap-1.5" style={{ minWidth: 220 }}>
-            <span className="label-xs" style={{ color: "var(--ink-3)" }}>Case it takes (optional)</span>
+            <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Case it takes (optional)")}</span>
             <input
               value={government}
               onChange={(e) => setGovernment(e.target.value)}
@@ -247,10 +250,9 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
 
       {fields.length > 0 && (
         <div>
-          <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>The forms to learn by heart</p>
+          <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>{t("The forms to learn by heart")}</p>
           <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
-            Fill in what you know. The omastav alone is enough for us to build the eleven regular
-            cases. Anything you leave blank stays blank, because we never guess.
+            {t("Fill in what you know. The omastav alone is enough for us to build the eleven regular cases. Anything you leave blank stays blank, because we never guess.")}
           </p>
           <div className="grid gap-2 md:grid-cols-3">
             {fields.map(([key, label, example]) => (
@@ -287,9 +289,9 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
           aria-disabled={pending || undefined}
           className="aria-disabled:opacity-45"
         >
-          {pending ? "Saving…" : edit ? "Save changes" : "Save word"}
+          {pending ? t("Saving…") : edit ? t("Save changes") : t("Save word")}
         </Button>
-        <DiacriticBar label="Insert an Estonian letter into the field you're typing in" />
+        <DiacriticBar label={t("Insert an Estonian letter into the field you're typing in")} />
       </div>
       </div>
     </Card>

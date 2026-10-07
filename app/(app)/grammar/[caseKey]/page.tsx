@@ -5,7 +5,10 @@ import {
   ArrowLeft, ArrowRight, BookOpen, MessageCircleQuestion, PenLine, Target, TriangleAlert,
 } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
-import { CASES } from "@/lib/estonian/cases";
+import { CASES, caseQuestionReading } from "@/lib/estonian/cases";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/reference/fillNodes";
 import { allCaseReferences, caseReference } from "@/lib/estonian/grammar";
 import { caseExamples, type CaseExample } from "@/lib/progress/caseExamples";
 import { ButtonLink } from "@/components/Button";
@@ -122,7 +125,11 @@ export default async function CasePage({
   if (!ref) notFound();
 
   const ownerId = await requireUserId();
-  const examples = await caseExamples(ownerId, ref.key, 6, scope?.lemmas);
+  const [examples, locale] = await Promise.all([
+    caseExamples(ownerId, ref.key, 6, scope?.lemmas),
+    localeFor(ownerId),
+  ]);
+  const t = (english: string) => tr(locale, english);
 
   const all = allCaseReferences();
   const index = all.findIndex((c) => c.key === ref.key);
@@ -141,15 +148,15 @@ export default async function CasePage({
         // same rule `Chip`'s `caseSensitive` exists for.
         <span lang="et" style={{ textTransform: "none" }}>{endingOf(ref)}</span>
       }
-      title={asTitle(ref.plain)}
-      lead={ref.summary}
+      title={asTitle(t(ref.plain))}
+      lead={t(ref.summary)}
       actions={inModule ? undefined : (
         <Link
           href="/grammar"
           className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
         >
-          <ArrowLeft size={14} aria-hidden /> All endings
+          <ArrowLeft size={14} aria-hidden /> {t("All endings")}
         </Link>
       )}
     >
@@ -162,10 +169,10 @@ export default async function CasePage({
         <Card tone="night">
           <div className="flex flex-wrap items-center gap-x-10 gap-y-6">
             <div className="min-w-0">
-              <p className="label-xs" style={{ color: "var(--cta)" }}>The ending</p>
+              <p className="label-xs" style={{ color: "var(--cta)" }}>{t("The ending")}</p>
               {ref.spec.principal ? (
                 <p className="font-display mt-2 text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
-                  None. This one you learn by heart.
+                  {t("None. This one you learn by heart.")}
                 </p>
               ) : (
                 <p className="mt-1 flex items-baseline gap-3">
@@ -175,19 +182,19 @@ export default async function CasePage({
                     className="font-display font-bold leading-none tracking-tight [--fit-max:var(--text-7xl)] md:[--fit-max:var(--text-8xl)]"
                     style={{ color: "var(--cta)" }}
                   />
-                  <span className="text-sm" style={{ color: "var(--ink-3)" }}>on the omastav</span>
+                  <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("on the omastav")}</span>
                 </p>
               )}
             </div>
             <dl className="grid min-w-0 flex-[1_1_18rem] gap-4 sm:grid-cols-2">
               <div className="min-w-0">
-                <dt className="label-xs" style={{ color: "var(--ink-3)" }}>Called</dt>
+                <dt className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Called")}</dt>
                 <dd lang="et" className="font-display mt-1 text-2xl font-bold" style={{ color: "var(--ink)" }}>
                   {ref.spec.et}
                 </dd>
               </div>
               <div className="min-w-0">
-                <dt className="label-xs" style={{ color: "var(--ink-3)" }}>Answers</dt>
+                <dt className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Answers")}</dt>
                 <dd lang="et" className="font-display mt-1 text-2xl font-bold" style={{ color: "var(--ink)" }}>
                   {ref.spec.question}
                 </dd>
@@ -196,21 +203,21 @@ export default async function CasePage({
                     whole reason the Latin name used to be the only English
                     anywhere near a case. See `lib/estonian/cases.ts`. */}
                 <dd className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
-                  {ref.spec.questionEn}
+                  {caseQuestionReading(ref.spec, locale)}
                 </dd>
               </div>
             </dl>
           </div>
           {ref.englishHook && (
             <p className="mt-6 border-t pt-4 text-base" style={{ borderColor: "var(--rule-soft)", color: "var(--ink-2)" }}>
-              <span className="label-xs mr-2" style={{ color: "var(--cta)" }}>In English</span>
-              {ref.englishHook}
+              <span className="label-xs mr-2" style={{ color: "var(--cta)" }}>{t("In English")}</span>
+              {t(ref.englishHook)}
             </p>
           )}
         </Card>
 
         <section>
-          <SectionTitle>Where it turns up</SectionTitle>
+          <SectionTitle>{t("Where it turns up")}</SectionTitle>
           <Card>
             <ul className="flex flex-col gap-2.5">
               {ref.uses.map((use) => (
@@ -224,7 +231,7 @@ export default async function CasePage({
                       is a list, and a list inside phrasing content is markup no
                       browser has to parse the way it was written. */}
                   <div className="min-w-0 flex-1">
-                    {use}
+                    {t(use)}
                     <PointExamples examples={pinned.get(use)} canTranslate={canTranslate} />
                   </div>
                 </li>
@@ -234,26 +241,26 @@ export default async function CasePage({
         </section>
 
         <section>
-          <SectionTitle>Watch out</SectionTitle>
+          <SectionTitle>{t("Watch out")}</SectionTitle>
           <Card tone="butter">
             <div className="flex items-start gap-3">
               <TriangleAlert size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--butter-ink)" }} />
               <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                {ref.watchOut}
+                {t(ref.watchOut)}
               </p>
             </div>
           </Card>
         </section>
 
         <section>
-          <SectionTitle hint={examples.some((e) => e.inDeck) ? "words from your deck first" : "from the dictionary"}>
-            On real words
+          <SectionTitle hint={examples.some((e) => e.inDeck) ? t("words from your deck first") : t("from the dictionary")}>
+            {t("On real words")}
           </SectionTitle>
           {examples.length === 0 ? (
             <Empty
-              title="No words to show it with yet"
-              body="Every example here comes from the dictionary. Look up a noun and this will fill in."
-              action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+              title={t("No words to show it with yet")}
+              body={t("Every example here comes from the dictionary. Look up a noun and this will fill in.")}
+              action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
             />
           ) : (
             <div
@@ -269,7 +276,7 @@ export default async function CasePage({
                       English word on a table of Estonian and is a term out of
                       a grammar this language does not use.
                     */}
-                    {["Word", "Omastav", endingOf(ref)].map((h, i) => (
+                    {[t("Word"), "Omastav", endingOf(ref)].map((h, i) => (
                       <th
                         key={h}
                         className="label-xs px-3 py-2.5 text-left"
@@ -330,7 +337,7 @@ export default async function CasePage({
                               / {example.alsoRight}
                             </span>
                           )}
-                          <Speak text={example.form} label={`Hear "${example.form}"`} size={13} />
+                          <Speak text={example.form} label={fill(t("Hear \"{sentence}\""), { sentence: example.form })} size={13} />
                         </span>
                         {/* Where the form came from, under it rather than in a
                             column of its own: a column of six identical chips
@@ -338,10 +345,10 @@ export default async function CasePage({
                             fact six times. */}
                         <span
                           className="block text-xs"
-                          title={ORIGIN_LABEL[example.origin].title}
+                          title={t(ORIGIN_LABEL[example.origin].title)}
                           style={{ color: example.origin === "DERIVED" ? "var(--ink-3)" : "var(--sky-ink)" }}
                         >
-                          {ORIGIN_LABEL[example.origin].label}
+                          {t(ORIGIN_LABEL[example.origin].label)}
                         </span>
                       </td>
                     </tr>
@@ -361,7 +368,7 @@ export default async function CasePage({
 
         {withSentence.length > 0 && (
           <section>
-            <SectionTitle>In a sentence</SectionTitle>
+            <SectionTitle>{t("In a sentence")}</SectionTitle>
             <ul className="flex flex-col gap-2">
               {withSentence.map((example) => (
                 <li key={`${example.lexemeId}-sentence`}>
@@ -383,10 +390,11 @@ export default async function CasePage({
                       className="min-w-0 flex-1 text-base leading-snug"
                     />
                     <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                      Here{" "}
-                      <span lang="et" style={{ color: "var(--accent-deep)" }}>{example.sentenceForm ?? example.form}</span>
-                      {" "}is the <span lang="et">{ref.spec.et}</span> of{" "}
-                      <span lang="et">{example.lemma}</span>.
+                      {fillNodes(t("Here {form} is the {case} of {lemma}."), {
+                        form: <span lang="et" style={{ color: "var(--accent-deep)" }}>{example.sentenceForm ?? example.form}</span>,
+                        case: <span lang="et">{ref.spec.et}</span>,
+                        lemma: <span lang="et">{example.lemma}</span>,
+                      })}
                     </p>
                   </Card>
                 </li>
@@ -401,25 +409,24 @@ export default async function CasePage({
           <>
             <div className="flex flex-wrap gap-3">
               <ButtonLink href="/review/write">
-                <PenLine size={15} aria-hidden /> Write a sentence with it
+                <PenLine size={15} aria-hidden /> {t("Write a sentence with it")}
               </ButtonLink>
               {/* Writing a sentence in a case is the hardest thing you can do with
                   one, so it belongs on the page that just explained it rather than
                   on a menu that cannot say which case you are stuck on. */}
               <ButtonLink href="/dictionary">
-                <BookOpen size={15} aria-hidden /> Look a word up
+                <BookOpen size={15} aria-hidden /> {t("Look a word up")}
               </ButtonLink>
               <ButtonLink href="/tutor">
-                <MessageCircleQuestion size={15} aria-hidden /> Ask Anu about it
+                <MessageCircleQuestion size={15} aria-hidden /> {t("Ask Anu about it")}
               </ButtonLink>
               <ButtonLink href={`/review?case=${ref.key}`} variant="primary">
-                <Target size={15} aria-hidden /> Drill it
+                <Target size={15} aria-hidden /> {t("Drill it")}
               </ButtonLink>
             </div>
 
             <Note tone="neutral">
-              The drill asks about words in your deck that take this ending. If it comes up empty,
-              add some nouns from the course first.
+              {t("The drill asks about words in your deck that take this ending. If it comes up empty, add some nouns from the course first.")}
             </Note>
           </>
         )}
@@ -432,12 +439,12 @@ export default async function CasePage({
         */}
         <div className="flex flex-wrap items-center gap-3 border-t pt-5" style={{ borderColor: "var(--rule-soft)" }}>
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Doesn&apos;t match what your teacher says?
+            {t("Doesn't match what your teacher says?")}
           </p>
           <SuggestFix
             category="WRONG_CONTENT"
             trigger={`The grammar reference for ${ref.spec.et}`}
-            label="Tell us what's wrong"
+            label={t("Tell us what's wrong")}
           />
         </div>
 
@@ -445,7 +452,7 @@ export default async function CasePage({
             tonight rather than the reader's. */}
         {!inModule && (
         <nav
-          aria-label="Endings"
+          aria-label={t("Endings")}
           className="flex flex-wrap items-center justify-between gap-3 border-t pt-5"
           style={{ borderColor: "var(--rule-soft)" }}
         >
@@ -456,7 +463,7 @@ export default async function CasePage({
               style={{ color: "var(--ink-2)" }}
             >
               <ArrowLeft size={14} aria-hidden /> {endingOf(previous)}
-              <span style={{ color: "var(--ink-3)" }}>{previous.plain}</span>
+              <span style={{ color: "var(--ink-3)" }}>{t(previous.plain)}</span>
             </Link>
           ) : <span />}
           {next && (
@@ -465,7 +472,7 @@ export default async function CasePage({
               className="flex items-center gap-1.5 text-sm"
               style={{ color: "var(--ink-2)" }}
             >
-              {endingOf(next)} <span style={{ color: "var(--ink-3)" }}>{next.plain}</span>
+              {endingOf(next)} <span style={{ color: "var(--ink-3)" }}>{t(next.plain)}</span>
               <ArrowRight size={14} aria-hidden />
             </Link>
           )}

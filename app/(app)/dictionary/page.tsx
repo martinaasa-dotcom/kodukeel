@@ -17,6 +17,8 @@ import { suggestWords, type Suggestions } from "@/lib/dict/suggest";
 import { readableHeadlines } from "@/lib/dict/headlines";
 import { feedHost } from "@/lib/news/feed";
 import { Page } from "@/components/ui";
+import { localeFor } from "@/lib/progress/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 import { DictionaryClient, type EntryView } from "./DictionaryClient";
 import { firstParams } from "@/lib/ux/queryParam";
 
@@ -177,14 +179,15 @@ export default async function DictionaryPage({
     readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
   ]);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
+  const locale = await localeFor(ownerId);
 
   return (
     <Page route="/dictionary"
-      title="Dictionary"
+      title={tr(locale, "Dictionary")}
       lead={
         ekilexConfigured()
-          ? "Look up any Estonian word. Anything you've looked up works offline too."
-          : `${total} words, each with its meaning, all its forms, and how to say it.`
+          ? tr(locale, "Look up any Estonian word. Anything you've looked up works offline too.")
+          : fill(tr(locale, "{words}, each with its meaning, all its forms, and how to say it."), { words: countOf(locale, total, "word") })
       }
     >
       <DictionaryClient
@@ -212,7 +215,7 @@ export default async function DictionaryPage({
           Only on the landing view: with an entry open, the page is about it. */}
       {!q && !opened && (
         <div className="mt-10">
-          <InsideHere place="/dictionary" title="Also in the dictionary" />
+          <InsideHere place="/dictionary" title={tr(locale, "Also in the dictionary")} />
         </div>
       )}
     </Page>

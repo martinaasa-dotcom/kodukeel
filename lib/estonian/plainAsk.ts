@@ -1,4 +1,5 @@
 import { caseByKey } from "./cases";
+import type { Locale } from "@/lib/copy/locale";
 
 /**
  * WHAT A SLOT IS ASKING FOR, IN THE WORDS SOMEBODY WOULD USE OUT LOUD.
@@ -108,7 +109,8 @@ const CLAUSES: Record<string, string> = {
  * Null is an answer rather than a gap: a screen with no clause prints the name
  * on its own, exactly as it did before this existed.
  */
-export function plainAsk(slot: string): string | null {
+export function plainAsk(slot: string, locale: Locale = "en"): string | null {
+  if (locale !== "en") return CLAUSES_IN[locale][slot] ?? null;
   return CLAUSES[slot] ?? null;
 }
 
@@ -162,7 +164,8 @@ export const VERB_SHORT: Readonly<Record<string, string>> = {
 };
 
 /** The short phrase for a slot with no word in it, or null for a question about meaning. */
-export function sayShort(slot: string): string | null {
+export function sayShort(slot: string, locale: Locale = "en"): string | null {
+  if (locale !== "en") return CASE_SHORT_IN[locale][slot] ?? VERB_SHORT_IN[locale][slot] ?? null;
   return CASE_SHORT[slot] ?? VERB_SHORT[slot] ?? null;
 }
 
@@ -173,9 +176,12 @@ export function sayShort(slot: string): string | null {
  * for two. A screen holding the word's gloss reads `sayLine` in
  * `lib/estonian/sayIt.ts` instead, which says "with the bird".
  */
-export function plainAskLine(slot: string): string | null {
-  const phrase = sayShort(slot);
-  return phrase ? `Say “${phrase}”` : null;
+export function plainAskLine(slot: string, locale: Locale = "en"): string | null {
+  const phrase = sayShort(slot, locale);
+  if (!phrase) return null;
+  if (locale === "ru") return `Скажите «${phrase}»`;
+  if (locale === "uk") return `Скажіть «${phrase}»`;
+  return `Say “${phrase}”`;
 }
 
 /*
@@ -211,10 +217,197 @@ const ENDING_WORD: Readonly<Record<string, string>> = {
  *
  * The nominative is the plain word rather than an ending, so it says so.
  */
-export function endingName(slot: string): string | null {
+export function endingName(slot: string, locale: Locale = "en"): string | null {
   const spec = caseByKey(slot);
   if (!spec) return null;
+  if (locale !== "en") {
+    if (spec.key === "NOMINATIVE") return locale === "ru" ? `${spec.et}: слово как есть` : `${spec.et}: слово як є`;
+    const said = ENDING_WORD_IN[locale][spec.key];
+    if (!said) return spec.et;
+    return locale === "ru" ? `${spec.et}: окончание «${said}»` : `${spec.et}: закінчення «${said}»`;
+  }
   if (spec.key === "NOMINATIVE") return `${spec.et}: the plain word`;
   const word = ENDING_WORD[spec.key];
   return word ? `${spec.et}: the “${word}” ending` : spec.et;
 }
+
+/*
+  THE SAME FOUR TABLES IN RUSSIAN AND UKRAINIAN, KEYED BY THE SAME SLOTS.
+
+  Parallel tables rather than the English strings looked up in a translation
+  table, because the clauses here are pieces a screen drops into a frame of
+  its own ("How do you say this ...?", `Say “...”`) and a piece is not a line:
+  a translation table keyed on a fragment invites somebody to build a sentence
+  out of fragments, which the interface standard forbids. Each function above
+  takes the reader's locale, defaulting to English, and returns for English
+  exactly what it always did, so an English screen is byte for byte unchanged.
+
+  The Russian and Ukrainian clauses complete «Как это сказать ...?» and
+  «Як це сказати ...?» the way the English completes "How do you say this
+  ...?", and they describe the form without spelling it, for the reason the
+  header gives. Nothing here is Estonian (ADR-005): the case names come off
+  `CASES`, as above.
+*/
+type Translated = Exclude<Locale, "en">;
+
+const CLAUSES_IN: Readonly<Record<Translated, Readonly<Record<string, string>>>> = {
+  ru: {
+    NOMINATIVE: "в словарной форме",
+    GENITIVE: "когда что-то принадлежит ему, как английские «of» или «’s»",
+    PARTITIVE: "когда имеется в виду часть чего-то или действие не закончено",
+    ILLATIVE: "когда что-то движется внутрь него",
+    INESSIVE: "когда что-то находится внутри него",
+    ELATIVE: "когда что-то выходит из него или речь идёт о нём",
+    ALLATIVE: "когда что-то движется на него или что-то дают кому-то",
+    ADESSIVE: "когда что-то находится на нём или у кого-то что-то есть",
+    ABLATIVE: "когда что-то сходит с него или приходит от кого-то",
+    TRANSLATIVE: "когда что-то превращается в это",
+    TERMINATIVE: "когда имеется в виду «до него» или «до тех пор»",
+    ESSIVE: "когда кто-то работает или выступает в этой роли",
+    ABESSIVE: "когда что-то делается без этого",
+    COMITATIVE: "когда что-то делается с этим",
+    IndPrSg1: "о себе, сейчас",
+    IndPrSg3: "о ком-то другом, сейчас",
+    IndPrPl1: "о себе и других, сейчас",
+    IndPrPs_: "чтобы сказать, что вы этого не делаете",
+    IndIpfSg1: "о себе, в прошлом",
+    IndIpfSg3: "о ком-то другом, в прошлом",
+    KndPrSg1: "о себе, как о том, что вы сделали бы",
+    ImpPrSg2: "чтобы сказать знакомому человеку это сделать",
+    ImpPrPl2: "чтобы попросить группу или кого-то вежливо это сделать",
+    Inf: "когда имеется в виду «делать это»",
+    PtsPtPs: "когда кто-то уже это сделал",
+    PtsPtIps: "когда это сделано, а кем, не говорится",
+    PtsPrPs: "когда имеется в виду тот, кто это делает",
+  },
+  uk: {
+    NOMINATIVE: "у словниковій формі",
+    GENITIVE: "коли щось належить йому, як англійські «of» або «’s»",
+    PARTITIVE: "коли мається на увазі частина чогось або дію не завершено",
+    ILLATIVE: "коли щось рухається всередину нього",
+    INESSIVE: "коли щось перебуває всередині нього",
+    ELATIVE: "коли щось виходить із нього або йдеться про нього",
+    ALLATIVE: "коли щось рухається на нього або щось дають комусь",
+    ADESSIVE: "коли щось перебуває на ньому або в когось щось є",
+    ABLATIVE: "коли щось сходить із нього або надходить від когось",
+    TRANSLATIVE: "коли щось перетворюється на це",
+    TERMINATIVE: "коли мається на увазі «до нього» або «доти»",
+    ESSIVE: "коли хтось працює чи виступає в цій ролі",
+    ABESSIVE: "коли щось робиться без цього",
+    COMITATIVE: "коли щось робиться з цим",
+    IndPrSg1: "про себе, зараз",
+    IndPrSg3: "про когось іншого, зараз",
+    IndPrPl1: "про себе й інших, зараз",
+    IndPrPs_: "щоб сказати, що ви цього не робите",
+    IndIpfSg1: "про себе, у минулому",
+    IndIpfSg3: "про когось іншого, у минулому",
+    KndPrSg1: "про себе, як про те, що ви зробили б",
+    ImpPrSg2: "щоб сказати знайомій людині це зробити",
+    ImpPrPl2: "щоб попросити групу або когось увічливо це зробити",
+    Inf: "коли мається на увазі «робити це»",
+    PtsPtPs: "коли хтось уже це зробив",
+    PtsPtIps: "коли це зроблено, а ким, не кажуть",
+    PtsPrPs: "коли мається на увазі той, хто це робить",
+  },
+};
+
+const CASE_SHORT_IN: Readonly<Record<Translated, Readonly<Record<string, string>>>> = {
+  ru: {
+    NOMINATIVE: "слово как есть",
+    GENITIVE: "чего-то",
+    PARTITIVE: "часть чего-то",
+    ILLATIVE: "внутрь",
+    INESSIVE: "внутри",
+    ELATIVE: "изнутри",
+    ALLATIVE: "на это, или кому-то",
+    ADESSIVE: "на этом, или у кого-то есть",
+    ABLATIVE: "с этого, или от кого-то",
+    TRANSLATIVE: "становясь этим",
+    TERMINATIVE: "до этого",
+    ESSIVE: "в качестве этого",
+    ABESSIVE: "без этого",
+    COMITATIVE: "с этим",
+  },
+  uk: {
+    NOMINATIVE: "слово як є",
+    GENITIVE: "чогось",
+    PARTITIVE: "частина чогось",
+    ILLATIVE: "всередину",
+    INESSIVE: "всередині",
+    ELATIVE: "зсередини",
+    ALLATIVE: "на це, або комусь",
+    ADESSIVE: "на цьому, або в когось є",
+    ABLATIVE: "з цього, або від когось",
+    TRANSLATIVE: "стаючи цим",
+    TERMINATIVE: "до цього",
+    ESSIVE: "у ролі цього",
+    ABESSIVE: "без цього",
+    COMITATIVE: "з цим",
+  },
+};
+
+const VERB_SHORT_IN: Readonly<Record<Translated, Readonly<Record<string, string>>>> = {
+  ru: {
+    IndPrSg1: "я …, сейчас",
+    IndPrSg3: "он/она …, сейчас",
+    IndPrPl1: "мы …, сейчас",
+    IndPrPs_: "не …",
+    IndIpfSg1: "я …, в прошлом",
+    IndIpfSg3: "он/она …, в прошлом",
+    KndPrSg1: "я бы …",
+    ImpPrSg2: "сделай! (другу)",
+    ImpPrPl2: "сделайте! (вежливо)",
+    Inf: "что делать?",
+    PtsPtPs: "сделал это",
+    PtsPtIps: "сделано, неизвестно кем",
+    PtsPrPs: "тот, кто это делает",
+  },
+  uk: {
+    IndPrSg1: "я …, зараз",
+    IndPrSg3: "він/вона …, зараз",
+    IndPrPl1: "ми …, зараз",
+    IndPrPs_: "не …",
+    IndIpfSg1: "я …, у минулому",
+    IndIpfSg3: "він/вона …, у минулому",
+    KndPrSg1: "я б …",
+    ImpPrSg2: "зроби! (другові)",
+    ImpPrPl2: "зробіть! (увічливо)",
+    Inf: "що робити?",
+    PtsPtPs: "зробив це",
+    PtsPtIps: "зроблено, невідомо ким",
+    PtsPrPs: "той, хто це робить",
+  },
+};
+
+const ENDING_WORD_IN: Readonly<Record<Translated, Readonly<Record<string, string>>>> = {
+  ru: {
+    GENITIVE: "чего",
+    PARTITIVE: "часть",
+    ILLATIVE: "внутрь",
+    INESSIVE: "внутри",
+    ELATIVE: "изнутри",
+    ALLATIVE: "на, или кому",
+    ADESSIVE: "на, или у кого есть",
+    ABLATIVE: "с, или от",
+    TRANSLATIVE: "становясь",
+    TERMINATIVE: "до",
+    ESSIVE: "в качестве",
+    ABESSIVE: "без",
+    COMITATIVE: "с",
+  },
+  uk: {
+    GENITIVE: "чого",
+    PARTITIVE: "частина",
+    ILLATIVE: "всередину",
+    INESSIVE: "всередині",
+    ELATIVE: "зсередини",
+    ALLATIVE: "на, або кому",
+    ADESSIVE: "на, або в кого є",
+    ABLATIVE: "з, або від",
+    TRANSLATIVE: "стаючи",
+    TERMINATIVE: "до",
+    ESSIVE: "у ролі",
+    ABESSIVE: "без",
+    COMITATIVE: "з",
+  },
+};

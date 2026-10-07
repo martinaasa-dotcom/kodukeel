@@ -4,6 +4,8 @@ import { commonSections } from "@/lib/progress/common";
 import { CommonWords } from "./CommonWords";
 import { Empty } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
 export const metadata = { title: "The words you'll hear most" };
 
@@ -29,13 +31,13 @@ export const dynamic = "force-dynamic";
  */
 export default async function CommonWordsPage() {
   const ownerId = await requireUserId();
-  const sections = await commonSections(ownerId);
+  const [sections, locale] = await Promise.all([commonSections(ownerId), localeFor(ownerId)]);
   const found = sections.reduce((sum, s) => sum + s.found, 0);
 
   return (
     <Page route="/dictionary/common"
-      title="The words you'll hear most"
-      lead="Counted from film and TV subtitles, so this is how people actually talk."
+      title={tr(locale, "The words you'll hear most")}
+      lead={tr(locale, "Counted from film and TV subtitles, so this is how people actually talk.")}
     >
       {found === 0 ? (
         <div className="flex flex-col gap-4">
@@ -46,8 +48,8 @@ export default async function CommonWordsPage() {
             empty page.
           */}
           <Empty
-            title="The dictionary isn't loaded yet"
-            body="These lists are built from the dictionary, so there's nothing to show until it's set up."
+            title={tr(locale, "The dictionary isn't loaded yet")}
+            body={tr(locale, "These lists are built from the dictionary, so there's nothing to show until it's set up.")}
           />
           <SuggestFix category="BROKEN" trigger="/dictionary/common found no entries in the dictionary" />
         </div>

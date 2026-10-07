@@ -5,6 +5,8 @@ import { caseWalk } from "@/lib/progress/caseWalk";
 import { Empty, Page, Stack } from "@/components/ui";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { BuildWalk } from "./BuildWalk";
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -40,20 +42,21 @@ export const metadata = {
  */
 export default async function BuildPage() {
   const ownerId = await requireUserId();
-  const walk = await caseWalk(ownerId);
+  const [walk, locale] = await Promise.all([caseWalk(ownerId), localeFor(ownerId)]);
+  const t = (english: string) => tr(locale, english);
 
   return (
     <Page route="/grammar/build-a-word"
-      eyebrow="Start here"
-      title="Build a word"
-      lead="Learn three forms by heart. Every other case is one of them plus an ending."
+      eyebrow={t("Start here")}
+      title={t("Build a word")}
+      lead={t("Learn three forms by heart. Every other case is one of them plus an ending.")}
       actions={
         <Link
           href="/grammar"
           className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
         >
-          <ArrowLeft size={14} aria-hidden /> All endings
+          <ArrowLeft size={14} aria-hidden /> {t("All endings")}
         </Link>
       }
     >
@@ -66,9 +69,9 @@ export default async function BuildPage() {
             which is English prose and renders regardless.
           */}
           <Empty
-            title="The dictionary isn't answering"
-            body="Every word here comes from the dictionary, so without it there's nothing to build."
-            action={<Link href="/grammar" className="underline" style={{ color: "var(--accent-deep)" }}>Read the endings instead</Link>}
+            title={t("The dictionary isn't answering")}
+            body={t("Every word here comes from the dictionary, so without it there's nothing to build.")}
+            action={<Link href="/grammar" className="underline" style={{ color: "var(--accent-deep)" }}>{t("Read the endings instead")}</Link>}
           />
         </Stack>
       ) : (

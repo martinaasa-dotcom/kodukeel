@@ -3,6 +3,7 @@ import { WordLink } from "@/components/course/WordLink";
 import { Speak } from "@/components/Speak";
 import type { VerbExample, VerbExampleForm } from "@/lib/progress/verbExamples";
 import { NO_VALUE } from "@/lib/copy/values";
+import { tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * Real verbs, conjugated for the point the page is about.
@@ -68,19 +69,25 @@ function Head({ verb }: { verb: VerbExample }) {
   );
 }
 
-function From({ origin }: { origin: VerbExampleForm["origin"] }) {
+function From({ origin, locale }: { origin: VerbExampleForm["origin"]; locale: Locale }) {
   return (
     <td className="px-3 py-2.5">
-      <Chip tone={origin === "DERIVED" ? "neutral" : "sky"} title={ORIGIN[origin].title}>
-        {ORIGIN[origin].label}
+      <Chip tone={origin === "DERIVED" ? "neutral" : "sky"} title={tr(locale, ORIGIN[origin].title)}>
+        {tr(locale, ORIGIN[origin].label)}
       </Chip>
     </td>
   );
 }
 
-export function VerbTable({ verbs, show }: {
+export function VerbTable({ verbs, show, locale = "en" }: {
   verbs: readonly VerbExample[];
   show: "present" | "negative" | "conditional" | "imperative" | "past" | "forms";
+  /**
+   * The reader's language for the words around the forms ("Verb", "From",
+   * where a form came from). Optional because the course's own forms step
+   * draws this table too and decides for itself; absent is English.
+   */
+  locale?: Locale;
 }) {
   const prefix = show === "conditional" ? "KndPr" : "IndPr";
   const persons = show === "present" || show === "conditional";
@@ -110,7 +117,7 @@ export function VerbTable({ verbs, show }: {
                 className="label-xs px-3 py-2.5 text-left"
                 style={{ background: "var(--raised)", color: "var(--ink-3)" }}
               >
-                {h}
+                {h === "Verb" || h === "From" ? tr(locale, h) : h}
               </th>
             ))}
           </tr>
@@ -127,7 +134,7 @@ export function VerbTable({ verbs, show }: {
                       <Form form={form} bold={form?.origin === "STORED"} />
                     </td>
                   ))}
-                  <From origin={rowOrigin(cells)} />
+                  <From origin={rowOrigin(cells)} locale={locale} />
                 </tr>
               );
             }
@@ -156,7 +163,7 @@ export function VerbTable({ verbs, show }: {
                       <Form form={politeTe && { ...politeTe, value: `${politeTe.value}!` }} />
                     </td>
                   )}
-                  <From origin={rowOrigin([first, pastMa, pastTa, ...(show === "forms" ? [politeTe] : [])])} />
+                  <From origin={rowOrigin([first, pastMa, pastTa, ...(show === "forms" ? [politeTe] : [])])} locale={locale} />
                 </tr>
               );
             }
@@ -169,7 +176,7 @@ export function VerbTable({ verbs, show }: {
                 <Head verb={verb} />
                 <td className="px-3 py-2.5"><Form form={first} bold /></td>
                 <td className="px-3 py-2.5"><Form form={shown} /></td>
-                <From origin={rowOrigin([first, other])} />
+                <From origin={rowOrigin([first, other])} locale={locale} />
               </tr>
             );
           })}

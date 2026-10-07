@@ -621,6 +621,11 @@ function captions(source: string): string[] {
   while ((m = re.exec(source))) {
     const text = (m[3] ?? "")
       .replace(/<[^>]*>/g, " ")
+      // A caption run through the translation table is still the English a
+      // reader sees, so `{t("...")}` and `{fill(t("..."), ...)}` read as the
+      // string inside rather than as a hole, or translating a screen would
+      // hide every caption on it from the cap.
+      .replace(/\{\s*(?:fill\(\s*)?t\(\s*"((?:[^"\\]|\\.)*)"\s*\)[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g, (_, s: string) => s)
       .replace(/\{[^{}]*\}/g, "xx")
       .replace(/&[a-z]+;/g, "'")
       .replace(/\s+/g, " ")
