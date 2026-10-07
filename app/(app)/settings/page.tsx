@@ -34,7 +34,8 @@ import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPan
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossLanguagePanel } from "./GlossLanguagePanel";
 import { InterfaceLanguagePanel } from "./InterfaceLanguagePanel";
-import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, localeFrom, tr } from "@/lib/copy/locale";
+import { localeFor } from "@/lib/progress/locale";
+import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, tr } from "@/lib/copy/locale";
 import { RoundPacePanel } from "./RoundPacePanel";
 import { ROUND_PACES, roundPaceFrom } from "@/lib/ux/roundClock";
 import { TodayOrderPanel } from "./TodayOrderPanel";
@@ -138,7 +139,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       SETTING_KEYS.displayName,
       SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
       SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
-      SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss, SETTING_KEYS.uiLocale,
+      SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss,
       SETTING_KEYS.todayOrder,
       SETTING_KEYS.roundPace,
       SETTING_KEYS.caseQuestionGloss,
@@ -203,7 +204,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const speechPace = paceFrom(settings[SETTING_KEYS.speechPace], courseLevel, tilt);
   const levelPace = paceFor(courseLevel, tilt);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
-  const locale = localeFrom(settings[SETTING_KEYS.uiLocale]);
+  const locale = await localeFor(ownerId);
   const wordGloss = wordGlossFrom(settings[SETTING_KEYS.wordGloss]);
   const caseGlossPref = caseGlossFrom(settings[SETTING_KEYS.caseQuestionGloss]);
   const todayOrder = todayOrderFrom(settings[SETTING_KEYS.todayOrder]);
