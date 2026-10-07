@@ -59,6 +59,14 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
   const t = useT();
 
   const finished = (id: string) => ticked.includes(id);
+  /*
+    WHAT WAS DONE BEFORE THIS LIST WAS DRAWN, so a tick pressed here lands
+    (`.tick-land`) and one the list arrived with does not: a check that sprang
+    in on every visit would be a list that celebrates itself ten times an
+    evening. Held across the refresh that follows a press, since that refresh
+    hands down a `done` already holding the step just ticked.
+  */
+  const arrivedDone = useRef(new Set(done));
   const next = steps.find((s) => !finished(s.id)) ?? null;
   /*
     Where each step goes, with the marker on it, worked out in one place so the
@@ -157,7 +165,9 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                     color: isDone ? "var(--good-ink)" : isNext ? "var(--accent-deep)" : "var(--ink-3)",
                   }}
                 >
-                  {isDone ? <Check size={15} /> : at + 1}
+                  {isDone ? (
+                    <Check size={15} className={arrivedDone.current.has(step.id) ? undefined : "tick-land"} />
+                  ) : at + 1}
                 </span>
 
                 <div className="min-w-0 flex-1">

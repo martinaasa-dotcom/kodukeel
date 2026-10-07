@@ -2,6 +2,7 @@ import { Children, type CSSProperties, type ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { Mascot } from "@/components/brand";
 import { FitText } from "@/components/FitText";
+import { RollNumber } from "@/components/motion/RollNumber";
 import { WayOut } from "@/components/round/RoundExit";
 import { PrefetchLink } from "@/components/PrefetchLink";
 import { DESTINATIONS } from "@/lib/ux/nav";
@@ -321,7 +322,7 @@ export function Stat({ value, label, tone, icon }: {
   return (
     <div data-stat>
       <div data-figure className="tnum font-display text-4xl font-bold leading-none tracking-tight" style={{ color: tone ?? "var(--ink)" }}>
-        {value}
+        <RollNumber value={value} />
       </div>
       {/*
         THE ICON SITS BESIDE THE LABEL, NEVER ABOVE THE FIGURE.
@@ -391,7 +392,7 @@ export function StatTile({ value, label, tone = "accent", icon, hint }: {
         <span className="min-w-0 text-sm" style={{ color: "var(--ink-2)" }}>{label}</span>
         {icon && <span aria-hidden className="shrink-0" style={{ color: toneInk(tone) }}>{icon}</span>}
       </div>
-      <span data-figure className={`mt-1.5 tnum font-display ${long ? "text-2xl" : "text-3xl"} font-bold leading-none tracking-tight`} style={{ color: "var(--ink)" }}>{value}</span>
+      <span data-figure className={`mt-1.5 tnum font-display ${long ? "text-2xl" : "text-3xl"} font-bold leading-none tracking-tight`} style={{ color: "var(--ink)" }}><RollNumber value={value} /></span>
       <span className="mt-1.5 text-xs empty:hidden" style={{ color: "var(--ink-3)" }}>{hint}</span>
     </div>
   );
