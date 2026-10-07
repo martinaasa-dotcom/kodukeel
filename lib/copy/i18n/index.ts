@@ -14,6 +14,9 @@ import { SHELL } from "./areas/shell";
 import { FINISH } from "./areas/finish";
 import { GRAMMAR_CASES } from "./areas/grammarCases";
 import { GRAMMAR_TOPICS } from "./areas/grammarTopics";
+import { LANDING } from "./areas/landing";
+import { LEGAL } from "./areas/legal";
+import { PUBLIC } from "./areas/public";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -35,4 +38,7 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["finish", FINISH],
   ["grammarCases", GRAMMAR_CASES],
   ["grammarTopics", GRAMMAR_TOPICS],
+  ["landing", LANDING],
+  ["legal", LEGAL],
+  ["public", PUBLIC],
 ];

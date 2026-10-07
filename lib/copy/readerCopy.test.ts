@@ -619,7 +619,7 @@ function sentences(file: string): string[] {
 /**
  * A line wired through the translator is still the English a reader sees.
  *
- * `{t("...")}`, `{tr(locale, "...")}` and a template filled with `fill` or
+ * `{t("...")}`, `{tr(locale, "...")}` and a template filled with `fill`, `rich` or
  * `filled` around one are what a screen prints in English, so they are read
  * as their text rather than as an interpolation the sweeps below blank to
  * "xx". Without this, every paragraph moved into lib/copy/locale.ts would
@@ -629,7 +629,8 @@ function sentences(file: string): string[] {
 function unwrapTranslated(source: string): string {
   const call = String.raw`(?:t|tr\(\s*\w+\s*,)\(?\s*"((?:[^"\\\n]|\\.)*)"\s*\)`;
   return source
-    .replace(new RegExp(String.raw`\{\s*(?:filled|fill)\(\s*${call}\s*,[\s\S]*?\}\)\s*\}`, "g"), "$1")
+    .replace(new RegExp(String.raw`\{\s*(?:filled|fill|rich)\(\s*${call}\s*,[\s\S]*?\}\)\s*\}`, "g"), "$1")
+    .replace(new RegExp(String.raw`\{\s*rich\(\s*${call}\s*\)\s*\}`, "g"), "$1")
     .replace(new RegExp(String.raw`\{\s*${call}\s*\}`, "g"), "$1")
     .replace(/\\u201[cd]/g, '"');
 }

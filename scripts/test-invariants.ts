@@ -5718,7 +5718,6 @@ check("an empty cell goes through NO_VALUE, never a literal", () => {
  * here with the reason it can never be one.
  */
 const PLURAL_COUNT_EXEMPT: Readonly<Record<string, string>> = {
-  "app/(chromeless)/welcome/page.tsx": "the dictionary's size, which is thousands",
   "app/(app)/exam/[level]/ExamSession.tsx": "a dictation is a sentence, and a single word is said as one word",
 };
 

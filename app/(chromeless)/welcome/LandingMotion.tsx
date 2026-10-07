@@ -5,7 +5,10 @@ import { PARTS } from "@/lib/copy/values";
 import { BANDS, PRE_A1, type Band, type Level } from "@/lib/assessment/types";
 import { distanceLine, foundHours, project } from "@/lib/assessment/plan";
 import { REASONS, impliedTarget } from "@/lib/assessment/goals";
-import { formatDuration } from "@/lib/time/duration";
+import { formatDurationIn } from "@/lib/time/duration";
+import { countOf, fill } from "@/lib/copy/locale";
+import { useLocale, useT } from "@/components/Locale";
+import { TrParts } from "@/components/TrParts";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { FitText } from "@/components/FitText";
 import { LETTER_SCATTER_EVENT } from "@/lib/ux/letterMotion";
@@ -28,6 +31,7 @@ import type { DemoWord } from "./LandingDemo";
  * holds it.
  */
 export function HeroWord({ words }: { words: DemoWord[] }) {
+  const t = useT();
   const frames = useMemo(
     () =>
       words.flatMap((w) =>
@@ -79,8 +83,14 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
       onMouseLeave={() => setHeld(false)}
     >
       <p className="sr-only">
-        For example, <span lang="et">{first.lemma}</span> becomes{" "}
-        <span lang="et">{first.form}</span>, {first.question}
+        <TrParts
+          template="For example, {lemma} becomes {form}, {question}"
+          parts={{
+            lemma: <span lang="et">{first.lemma}</span>,
+            form: <span lang="et">{first.form}</span>,
+            question: first.question,
+          }}
+        />
       </p>
       {/* What a press just dealt, said once, for somebody who cannot see the card. */}
       <p className="sr-only" aria-live="polite">
@@ -91,7 +101,7 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
         type="button"
         onClick={next}
         className="hero-word-press"
-        aria-label="Show the next ending on this word"
+        aria-label={t("Show the next ending on this word")}
       >
       {/*
         The card is a sticker on a sticker: a coral one tilted behind it and the
@@ -104,7 +114,7 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
         <span className="hero-word-back" />
         <span className="hero-word-card">
           <span className="hero-word-top">
-            <span className="hero-word-label">The word</span>
+            <span className="hero-word-label">{t("The word")}</span>
             <span lang="et" className="hero-word-lemma">{frame.lemma}</span>
           </span>
           <FitText
@@ -122,7 +132,7 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
         </span>
       </span>
       </button>
-      <p className="hero-word-hint" aria-hidden>Tap it to try the next ending</p>
+      <p className="hero-word-hint" aria-hidden>{t("Tap it to try the next ending")}</p>
     </div>
   );
 }
@@ -134,8 +144,8 @@ const MINUTES = [10, 15, 30] as const;
 const SITUATIONS = REASONS.filter((r) => ["living", "family", "work", "citizenship", "study"].includes(r.id));
 const DAYS_PER_WEEK = 5;
 
-function levelName(level: Level): string {
-  return level === PRE_A1 ? "Nothing yet" : level;
+function levelName(level: Level, t: (english: string) => string): string {
+  return level === PRE_A1 ? t("Nothing yet") : level;
 }
 
 /**
@@ -151,6 +161,8 @@ function levelName(level: Level): string {
  * is, and the plan widens the far end for exactly that.
  */
 export function PlanCalculator() {
+  const t = useT();
+  const locale = useLocale();
   const [from, setFrom] = useState<Level>(PRE_A1);
   const [reasons, setReasons] = useState<string[]>(["living"]);
   const [to, setTo] = useState<Band>("B1");
@@ -171,9 +183,7 @@ export function PlanCalculator() {
 
   const weeks = plan.weeksAbout;
   const arrived = plan.verdict === "arrived";
-  const span = weeks < 12
-    ? `${weeks} ${weeks === 1 ? "week" : "weeks"}`
-    : `${monthsOf(weeks)} ${monthsOf(weeks) === 1 ? "month" : "months"}`;
+  const span = weeks < 12 ? countOf(locale, weeks, "week") : countOf(locale, monthsOf(weeks), "month");
 
   const toggle = (id: string) =>
     setReasons((now) => (now.includes(id) ? now.filter((r) => r !== id) : [...now, id]));
@@ -181,21 +191,21 @@ export function PlanCalculator() {
   return (
     <div className="plan-calc grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-12">
       <div className="flex flex-col gap-6">
-        <ChoiceGroup label="Why you’re learning" select="many">
+        <ChoiceGroup label={t("Why you’re learning")} select="many">
           {SITUATIONS.map((r) => (
             <ChoiceChip key={r.id} selected={reasons.includes(r.id)} onSelect={() => toggle(r.id)}>
-              {r.label}
+              {t(r.label)}
             </ChoiceChip>
           ))}
         </ChoiceGroup>
-        <ChoiceGroup label="Where you are now">
+        <ChoiceGroup label={t("Where you are now")}>
           {START_LEVELS.map((level) => (
             <ChoiceChip key={level} selected={from === level} onSelect={() => setFrom(level)}>
-              {levelName(level)}
+              {levelName(level, t)}
             </ChoiceChip>
           ))}
         </ChoiceGroup>
-        <ChoiceGroup label="Where you want to be">
+        <ChoiceGroup label={t("Where you want to be")}>
           {TARGETS.map((band) => (
             <ChoiceChip
               key={band}
@@ -207,10 +217,10 @@ export function PlanCalculator() {
             </ChoiceChip>
           ))}
         </ChoiceGroup>
-        <ChoiceGroup label="How long you can spare, five evenings a week">
+        <ChoiceGroup label={t("How long you can spare, five evenings a week")}>
           {MINUTES.map((m) => (
             <ChoiceChip key={m} selected={minutes === m} onSelect={() => setMinutes(m)}>
-              {formatDuration(m / 60)}
+              {formatDurationIn(m / 60, locale)}
             </ChoiceChip>
           ))}
         </ChoiceGroup>
@@ -219,22 +229,22 @@ export function PlanCalculator() {
       <div className="plan-calc-answer night flex flex-col justify-center rounded-[var(--r-xl)] border p-6 md:p-8" aria-live="polite">
         {arrived ? (
           <>
-            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>You&rsquo;re already there</p>
+            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{t("You’re already there")}</p>
             <p className="mt-3 text-2xl font-bold leading-tight font-display" style={{ color: "var(--ink)" }}>
-              {target} is already behind you.
+              {fill(t("{target} is already behind you."), { target })}
             </p>
             <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Pick a higher level and we&rsquo;ll do the sum again.
+              {t("Pick a higher level and we’ll do the sum again.")}
             </p>
           </>
         ) : (
           <>
-            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{target}, in about</p>
+            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{fill(t("{target}, in about"), { target })}</p>
             <p className="plan-calc-figure mt-2 font-display font-bold" style={{ color: "var(--ink)" }}>
               {span}
             </p>
             <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {distanceLine(plan, "en")}
+              {distanceLine(plan, locale)}
             </p>
           </>
         )}

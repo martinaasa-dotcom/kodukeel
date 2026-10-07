@@ -7,6 +7,9 @@ import { shuffle } from "@/lib/random/shuffle";
 import { rng } from "@/lib/random/seeded";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { FitText } from "@/components/FitText";
+import { fill } from "@/lib/copy/locale";
+import { useLocale, useT } from "@/components/Locale";
+import { TrParts } from "@/components/TrParts";
 
 export interface EveningWord {
   readonly et: string;
@@ -38,6 +41,8 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
   canDo: string;
   evenings: number;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [stage, setStage] = useState<"meet" | "pick" | "done">("meet");
   const [at, setAt] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
@@ -94,14 +99,17 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
             <span className="min-w-0">
               <span className="flex flex-wrap items-baseline gap-x-2">
                 <span className="text-md font-semibold" style={{ color: "var(--ink)" }}>{step.title}</span>
-                <span className="text-sm" style={{ color: "var(--ink-3)" }}>{step.minutes} min</span>
+                <span className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("{n} min"), { n: step.minutes })}</span>
               </span>
               <span className="mt-1 block text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{step.why}</span>
             </span>
           </li>
         ))}
         <li className="px-1 text-sm font-semibold" style={{ color: "var(--ink-2)" }}>
-          {minutes} minutes, and then you&rsquo;re done for the night. {evenings.toLocaleString("en-GB")} evenings like this one take you all the way to C1.
+          {fill(t("{minutes} minutes, and then you’re done for the night. {evenings} evenings like this one take you all the way to C1."), {
+            minutes,
+            evenings: evenings.toLocaleString(locale === "en" ? "en-GB" : locale),
+          })}
         </li>
       </ol>
 
@@ -109,7 +117,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
       {/* First on a phone: the thing to press, then the steps it belongs to. */}
       <div className="evening-play night order-first flex flex-col gap-4 rounded-[var(--r-xl)] border p-5 md:p-7 lg:order-none">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="label-xs" style={{ color: "var(--cta)" }}>Evening one, step one</p>
+          <p className="label-xs" style={{ color: "var(--cta)" }}>{t("Evening one, step one")}</p>
           <p lang="et" className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>{title}</p>
         </div>
 
@@ -130,7 +138,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
             </ul>
             <div>
               <Button type="button" variant="primary" onClick={() => setStage("pick")}>
-                Got them, now quiz me <ArrowRight size={16} aria-hidden />
+                {t("Got them, now quiz me")} <ArrowRight size={16} aria-hidden />
               </Button>
             </div>
           </>
@@ -139,10 +147,10 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
         {stage === "pick" && q && (
           <>
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              Now they come back one at a time. Pick what each one means. {at + 1} of {questions.length}
+              {fill(t("Now they come back one at a time. Pick what each one means. {n} of {all}"), { n: at + 1, all: questions.length })}
             </p>
             <FitText as="p" text={q.word.et} max="var(--text-4xl)" lang="et" className="font-display font-bold" style={{ color: "var(--ink)" }} />
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="group" aria-label="What it means">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="group" aria-label={t("What it means")}>
               {q.options.map((o) => {
                 const state = picked ? optionState(o.en === q.word.en, o.en === picked) : null;
                 return (
@@ -160,12 +168,17 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
               })}
             </div>
             <p aria-live="polite" className={picked ? `verdict-panel ${VERDICT_CLASS[picked === q.word.en ? "right" : "wrong"]}` : "sr-only"}>
-              {picked ? (picked === q.word.en ? "That’s the one." : <>Not quite. <span lang="et">{q.word.et}</span> means {q.word.en}. It&rsquo;ll come round again soon.</>) : ""}
+              {picked ? (picked === q.word.en ? t("That’s the one.") : (
+                <TrParts
+                  template="Not quite. {word} means {meaning}. It’ll come round again soon."
+                  parts={{ word: <span lang="et">{q.word.et}</span>, meaning: q.word.en }}
+                />
+              )) : ""}
             </p>
             {picked && (
               <div>
                 <Button type="button" variant="primary" onClick={onward}>
-                  {at + 1 < questions.length ? "Next word" : "See how it went"} <ArrowRight size={16} aria-hidden />
+                  {at + 1 < questions.length ? t("Next word") : t("See how it went")} <ArrowRight size={16} aria-hidden />
                 </Button>
               </div>
             )}
@@ -175,15 +188,14 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
         {stage === "done" && (
           <>
             <p className="font-display text-3xl font-bold" style={{ color: "var(--ink)" }}>
-              {right} out of {words.length}, just a minute after meeting them.
+              {fill(t("{right} out of {all}, just a minute after meeting them."), { right, all: words.length })}
             </p>
             <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              And that&rsquo;s the first step of your first evening. Inside, the ones you missed come
-              back sooner, and the ones you got come back just before you&rsquo;d forget them.
+              {t("And that’s the first step of your first evening. Inside, the ones you missed come back sooner, and the ones you got come back just before you’d forget them.")}
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <button type="button" onClick={again} className="tap-tint inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold" style={{ color: "var(--ink-2)" }}>
-                <RotateCcw size={15} aria-hidden /> Try it again
+                <RotateCcw size={15} aria-hidden /> {t("Try it again")}
               </button>
             </div>
           </>
