@@ -267,7 +267,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
           <section id="goals">
             <SectionTitle
-              hint={latestCheck ? `measured ${levelLabel((latestCheck.overall ?? null) as never)}` : "not measured yet"}
+              hint={latestCheck ? `measured ${levelLabel((latestCheck.overall ?? null) as never, locale)}` : "not measured yet"}
             >
               Why you&rsquo;re learning
             </SectionTitle>

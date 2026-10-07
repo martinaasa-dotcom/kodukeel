@@ -1,6 +1,7 @@
 import type { DayClock } from "@/lib/time/day";
 import { BANDS, type Band, type HourRange } from "./types";
 import { clip } from "@/lib/copy/clip";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * Why somebody is learning Estonian, and by when.
@@ -187,11 +188,11 @@ export function reasonsFor(stored: string | null | undefined): Reason[] {
  * The situations among a set of reasons, as one clause after "you": "live in
  * Estonia and have Estonian at home". Null when none of them is a situation.
  */
-export function describeSituation(reasons: readonly Reason[]): string | null {
-  const parts = reasons.map((r) => r.situation).filter((p): p is string => !!p);
+export function describeSituation(reasons: readonly Reason[], locale: Locale): string | null {
+  const parts = reasons.map((r) => r.situation).filter((p): p is string => !!p).map((p) => tr(locale, p));
   if (parts.length === 0) return null;
   if (parts.length === 1) return parts[0]!;
-  return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+  return fill(tr(locale, "{first} and {last}"), { first: parts.slice(0, -1).join(", "), last: parts[parts.length - 1]! });
 }
 
 /** The chosen reasons back as a stored value, or null for none. */
@@ -344,17 +345,17 @@ export function daysUntil(
  * appears, so precision is never actually lost, only spent where it is worth
  * something.
  */
-export function countdownPhrase(days: number): string {
-  if (days < 0) return "that date has gone";
-  if (days === 0) return "today";
-  if (days === 1) return "tomorrow";
-  if (days <= 60) return `${days} days`;
+export function countdownPhrase(days: number, locale: Locale): string {
+  if (days < 0) return tr(locale, "that date has gone");
+  if (days === 0) return tr(locale, "today");
+  if (days === 1) return tr(locale, "tomorrow");
+  if (days <= 60) return countOf(locale, days, "day");
   const weeks = Math.round(days / 7);
-  if (weeks <= 26) return `${weeks} weeks`;
+  if (weeks <= 26) return countOf(locale, weeks, "week");
   const months = Math.round(days / 30.44);
   return months >= 12 && months % 12 === 0
-    ? `${months / 12} ${months === 12 ? "year" : "years"}`
-    : `${months} months`;
+    ? countOf(locale, months / 12, "year")
+    : countOf(locale, months, "month");
 }
 
 export function weeksUntil(deadline: string | null | undefined, now: Date): number | null {

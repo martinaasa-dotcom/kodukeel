@@ -97,10 +97,6 @@ export const SENTENCE_WITHOUT_ENGLISH: Readonly<Record<string, string>> = {
     "Not a sentence. `{EXAMPLE}` is the two-column paste format spelled out, so " +
     "somebody can see what a line of their own list should look like.",
 
-  "components/NotAutomatic.tsx":
-    "Not a sentence. `full` is the name of a slot, `sisseütlev` or `olevik, ma`, " +
-    "built for the label a screen reader is given about a figure on the Progress page.",
-
   "components/SuggestFix.tsx":
     "Not a sentence. `{sentence}` is the selected value of a dropdown listing an " +
     "entry's own examples, so a reporter can say which one is wrong; the Estonian in " +

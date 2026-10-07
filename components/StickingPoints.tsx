@@ -5,7 +5,8 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { BookOpen, Compass, EyeOff, Undo2 } from "lucide-react";
 import { setCardSuspended } from "@/app/actions";
 import { Chip } from "@/components/ui";
-import { counted } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 import { stickingNote, type StickingPoint } from "@/lib/stats/sticking";
 import { caseByKey } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -40,6 +41,8 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
   const [rows] = useState(points);
   const [suspended, setSuspended] = useState<Record<string, boolean>>({});
   const [pending, start] = useTransition();
+  const t = useT();
+  const locale = useLocale();
 
   const toggle = (id: string, next: boolean) => {
     setSuspended((s) => ({ ...s, [id]: next }));
@@ -51,7 +54,7 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
   };
 
   return (
-    <ul className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
+    <ul lang={locale} className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
       {rows.map((point) => {
         const isSuspended = suspended[point.id] ?? false;
         const word = point.lemma ?? point.front;
@@ -101,13 +104,13 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                   {word}
                 </Link>
                 <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                  {TYPE_LABEL[point.cardType] ?? point.cardType}
+                  {TYPE_LABEL[point.cardType] ? t(TYPE_LABEL[point.cardType]!) : point.cardType}
                 </span>
                 {/* The percentage is the meter under the word, so the chip
                     names the one thing the meter cannot: how often it has
                     been forgotten, where that is the reason it is here. */}
                 {(point.reason === "lapses" || point.accuracy === null) && (
-                  <Chip tone="again">forgotten {point.lapses} times</Chip>
+                  <Chip tone="again">{fill(t("forgotten {n} times"), { n: point.lapses })}</Chip>
                 )}
               </p>
               {/*
@@ -121,11 +124,11 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
               */}
               {isSuspended ? (
                 <p className="mt-0.5 text-xs" style={{ color: "var(--ink-2)" }}>
-                  Set aside. It won&apos;t come up again until you put it back.
+                  {t("Set aside. It won't come up again until you put it back.")}
                 </p>
               ) : (
                 <p className="mt-1.5 flex items-center gap-2">
-                  <span className="sr-only">{stickingNote(point)}</span>
+                  <span className="sr-only">{stickingNote(point, locale)}</span>
                   {point.accuracy !== null && (
                     <span aria-hidden className="block h-1.5 w-28 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
                       <span
@@ -135,8 +138,8 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                     </span>
                   )}
                   <span aria-hidden className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                    {point.accuracy === null ? "not seen for a while" : `${point.accuracy}% of ${point.reviews}`}
-                    {point.siblings > 0 ? `, stuck on ${counted(point.siblings + 1, "card")} for this word` : ""}
+                    {point.accuracy === null ? t("not seen for a while") : fill(t("{pct}% of {n}"), { pct: point.accuracy, n: point.reviews })}
+                    {point.siblings > 0 ? fill(t(", stuck on {cards} for this word"), { cards: countOf(locale, point.siblings + 1, "card") }) : ""}
                   </span>
                 </p>
               )}
@@ -152,7 +155,7 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                   {/* The Estonian name a class uses, never the Latin one. The
                       slug in the href above is the exception CLAUDE.md names;
                       this run of text is not. */}
-                  <Compass size={12} aria-hidden /> The{" "}
+                  <Compass size={12} aria-hidden /> {t("The")}{" "}
                   <span lang="et">
                     {caseByKey(point.targetCase as CaseKey)?.et ?? point.targetCase.toLowerCase()}
                   </span>
@@ -163,7 +166,7 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                 className="press inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-ui hover:-translate-y-px"
                 style={{ background: "var(--raised)", color: "var(--ink-2)" }}
               >
-                <BookOpen size={12} aria-hidden /> Entry
+                <BookOpen size={12} aria-hidden /> {t("Entry")}
               </Link>
               <button
                 type="button"
@@ -173,8 +176,8 @@ export function StickingPoints({ points }: { points: StickingPoint[] }) {
                 style={{ background: "transparent", color: "var(--ink-3)" }}
               >
                 {isSuspended
-                  ? <><Undo2 size={12} aria-hidden /> Put it back</>
-                  : <><EyeOff size={12} aria-hidden /> Set aside</>}
+                  ? <><Undo2 size={12} aria-hidden /> {t("Put it back")}</>
+                  : <><EyeOff size={12} aria-hidden /> {t("Set aside")}</>}
               </button>
             </div>
           </li>

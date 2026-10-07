@@ -89,7 +89,7 @@ export async function learnerContextFor(ownerId: string, now = new Date()): Prom
   return {
     level,
     standing,
-    situation: goals ? describeSituation(reasonsFor(goals.reason)) : null,
+    situation: goals ? describeSituation(reasonsFor(goals.reason), "en") : null,
     weakestCase: weakest && weakest.accuracy < PERFECT
       ? { grammCase: weakest.grammCase, accuracy: weakest.accuracy, total: weakest.total }
       : null,

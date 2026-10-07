@@ -11,6 +11,8 @@ import { ReadinessSummary } from "@/components/readiness/Summary";
 import { SituationRow } from "@/components/readiness/SituationRow";
 import { RUNG_LABEL } from "@/lib/readiness/rungs";
 import { Explain } from "@/components/Explain";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 
 export const metadata = { title: "In real life" };
 
@@ -32,19 +34,20 @@ export const dynamic = "force-dynamic";
  */
 export default async function ReadinessPage() {
   const ownerId = await requireUserId();
-  const picture = await readinessPicture(ownerId);
+  const [picture, locale] = await Promise.all([readinessPicture(ownerId), localeFor(ownerId)]);
+  const t = (english: string) => tr(locale, english);
 
   if (picture.totalReviews === 0) {
     return (
       <Page route="/progress/readiness"
-        eyebrow="Readiness"
-        title="In real life"
-        lead="Which situations you could follow, take part in or lead, based on your own answers."
+        eyebrow={t("Readiness")}
+        title={t("In real life")}
+        lead={t("Which situations you could follow, take part in or lead, based on your own answers.")}
       >
         <Empty
-          title="Nothing answered yet"
-          body="This page works from your answers, and there aren't any yet. Come back after your first session."
-          action={<ButtonLink href="/learn" variant="primary">Learn your first words</ButtonLink>}
+          title={t("Nothing answered yet")}
+          body={t("This page works from your answers, and there aren't any yet. Come back after your first session.")}
+          action={<ButtonLink href="/learn" variant="primary">{t("Learn your first words")}</ButtonLink>}
         />
       </Page>
     );
@@ -55,45 +58,42 @@ export default async function ReadinessPage() {
 
   return (
     <Page route="/progress/readiness"
-      eyebrow="Readiness"
-      title="In real life"
-      lead="Which situations you could follow, take part in or lead, based on your own answers."
+      eyebrow={t("Readiness")}
+      title={t("In real life")}
+      lead={t("Which situations you could follow, take part in or lead, based on your own answers.")}
       actions={
         <Link href="/progress" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
-          <ArrowLeft size={14} aria-hidden /> Back to progress
+          <ArrowLeft size={14} aria-hidden /> {t("Back to progress")}
         </Link>
       }
     >
       <Stack>
         <section>
-          <SectionTitle hint={`at ${picture.level}, your level in Settings`}>Where you stand</SectionTitle>
+          <SectionTitle hint={fill(t("at {level}, your level in Settings"), { level: picture.level })}>{t("Where you stand")}</SectionTitle>
           <Card tone="night">
-            <ReadinessSummary summary={picture.summary} />
-            <Explain label="What the three ratings mean">
-              Each situation gets one of three ratings. {RUNG_LABEL.follow} means you&rsquo;d understand
-              most of it. {RUNG_LABEL.takePart} means you could answer with the right words and endings,
-              without a long silence first. {RUNG_LABEL.lead} means you could start it, steer it, and get
-              it back on track if it goes wrong. For a live conversation, that also takes some sign that
-              you can follow spoken Estonian. Knowing words on cards never gets you past the first rating
-              on its own.
+            <ReadinessSummary summary={picture.summary} locale={locale} />
+            <Explain label={t("What the three ratings mean")}>
+              {fill(t("Each situation gets one of three ratings. {follow} means you'd understand most of it. {takePart} means you could answer with the right words and endings, without a long silence first. {lead} means you could start it, steer it, and get it back on track if it goes wrong. For a live conversation, that also takes some sign that you can follow spoken Estonian. Knowing words on cards never gets you past the first rating on its own."), {
+                follow: t(RUNG_LABEL.follow), takePart: t(RUNG_LABEL.takePart), lead: t(RUNG_LABEL.lead),
+              })}
             </Explain>
           </Card>
         </section>
 
         {worthTrying.length > 0 && (
           <section>
-            <SectionTitle hint="your answers say you're ready for these">Worth trying this week</SectionTitle>
+            <SectionTitle hint={t("your answers say you're ready for these")}>{t("Worth trying this week")}</SectionTitle>
             <div className="grid gap-3 md:grid-cols-3">
               {worthTrying.map((r) => (
                 <Card key={r.situation.id} tone="sky">
-                  <p className="label-xs" style={{ color: "var(--sky-ink)" }}>{RUNG_LABEL[r.rung]}</p>
-                  <p className="mt-1.5 font-semibold" style={{ color: "var(--sky-ink)" }}>{r.tryThis}</p>
+                  <p className="label-xs" style={{ color: "var(--sky-ink)" }}>{t(RUNG_LABEL[r.rung])}</p>
+                  <p className="mt-1.5 font-semibold" style={{ color: "var(--sky-ink)" }}>{r.tryThis ? t(r.tryThis) : null}</p>
                   <Link
                     href={`/progress/readiness/${r.situation.id}`}
                     className="mt-2 inline-block text-sm underline underline-offset-2"
                     style={{ color: "var(--sky-ink)" }}
                   >
-                    {r.situation.claim}
+                    {t(r.situation.claim)}
                   </Link>
                   {/*
                     The rehearsal, where a scene tests this very claim, on
@@ -104,7 +104,7 @@ export default async function ReadinessPage() {
                   {sceneTesting(r.situation.id) && (
                     <p className="mt-2 text-sm" style={{ color: "var(--sky-ink)" }}>
                       <Link href={`/situations/${sceneTesting(r.situation.id)!.id}`} className="underline underline-offset-2">
-                        Rehearse it first
+                        {t("Rehearse it first")}
                       </Link>
                     </p>
                   )}
@@ -137,7 +137,7 @@ export default async function ReadinessPage() {
             <div className="@container">
               <ul className="grid gap-3 @3xl:grid-cols-2">
                 {rows.map((r) => (
-                  <li key={r.situation.id}><SituationRow reading={r} /></li>
+                  <li key={r.situation.id}><SituationRow reading={r} locale={locale} /></li>
                 ))}
               </ul>
             </div>
@@ -162,7 +162,7 @@ export default async function ReadinessPage() {
               <summary className="flex min-h-[56px] cursor-pointer flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-3">
                 <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>{name}</span>
                 <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-                  {rows.length} situations, {reached} you could follow
+                  {fill(t("{n} situations, {reached} you could follow"), { n: rows.length, reached })}
                 </span>
               </summary>
               <div className="border-t p-4" style={{ borderColor: "var(--rule)" }}>{list}</div>
@@ -170,9 +170,9 @@ export default async function ReadinessPage() {
           );
         })}
 
-        <Explain label="What this page does not measure">
-          Nothing here has heard you speak, and no number on this page pretends it has. How you sound is yours to judge, in{" "}
-          <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>speaking practice</Link>.
+        <Explain label={t("What this page does not measure")}>
+          {t("Nothing here has heard you speak, and no number on this page pretends it has. How you sound is yours to judge, in")}{" "}
+          <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>{t("speaking practice")}</Link>.
         </Explain>
       </Stack>
     </Page>

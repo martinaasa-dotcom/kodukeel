@@ -933,7 +933,7 @@ export async function letterInputFor(
       is a state that can only arise between the two passes: somebody who
       cleared their deadline in the minute after the roster was read.
     */
-    const countdown = await examCountdown(ownerId, now, clock);
+    const countdown = await examCountdown(ownerId, now, clock, "en");
     if (!countdown || !countdown.phrase) return null;
     return {
       kind: "deadline",

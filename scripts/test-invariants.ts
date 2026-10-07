@@ -5724,7 +5724,6 @@ const PLURAL_COUNT_EXEMPT: Readonly<Record<string, string>> = {
   "app/(app)/page.tsx": "said only once the goal is met, and the smallest goal is five",
   "app/(app)/settings/page.tsx": "the daily goal, whose smallest setting is five",
   "app/(app)/learn/[unitId]/lesson/LessonSession.tsx": "a sitting folds a trailing one or two words into the one before it",
-  "components/WeakestCases.tsx": "a case is listed only above its floor of answers",
   "app/(app)/exam/[level]/ExamSession.tsx": "a dictation is a sentence, and a single word is said as one word",
 };
 
@@ -13781,7 +13780,7 @@ check("Anu's briefing reads the shared level rule and the reasons table", () => 
   const note = between(code("lib/tutor/prompt.ts"), "export function learnerNote");
   assert.match(note, /standing/, "learnerNote no longer says how the level is known");
   assert.match(note, /situation/, "learnerNote no longer says what Estonian the learner lives in");
-  const phrases = ALL.filter((f) => f !== "lib/assessment/goals.ts" && /"live in Estonia"/.test(code(f)));
+  const phrases = ALL.filter((f) => f !== "lib/assessment/goals.ts" && !f.startsWith("lib/copy/i18n/") && /"live in Estonia"/.test(code(f)));
   assert.deepEqual(phrases, [], "a situation phrase is typed outside the reasons table");
 });
 

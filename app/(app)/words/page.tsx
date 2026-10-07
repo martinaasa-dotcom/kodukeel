@@ -7,7 +7,8 @@ import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { STATE_LABELS } from "@/lib/srs/scheduler";
 import { Diagnosis } from "@/components/Diagnosis";
 import { DrillLink } from "@/components/DrillLink";
-import { counted } from "@/lib/copy/values";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { localeFor } from "@/lib/progress/locale";
 import { WordsTable, type CardRow } from "./WordsTable";
 
 export const metadata = { title: "My words" };
@@ -26,7 +27,7 @@ export default async function WordsPage() {
     is without, so the grouped read over the same rows already holds it, and a
     separate `count` was the same scan asked twice.
   */
-  const [cards, counts] = await Promise.all([
+  const [cards, counts, locale] = await Promise.all([
     prisma.card.findMany({
       where: { ownerId },
       /*
@@ -43,7 +44,9 @@ export default async function WordsPage() {
       include: { lexeme: { select: { lemma: true, cefr: true } } },
     }),
     prisma.card.groupBy({ by: ["state"], where: { ownerId }, _count: true }),
+    localeFor(ownerId),
   ]);
+  const t = (english: string) => tr(locale, english);
 
   const rows: CardRow[] = cards.map((c) => ({
     id: c.id,
@@ -64,30 +67,31 @@ export default async function WordsPage() {
 
   return (
     <Page route="/words"
-      title="My words"
-      lead="Everything in your deck, and how well it's sticking."
+      title={t("My words")}
+      lead={t("Everything in your deck, and how well it's sticking.")}
       actions={
         <>
           {/* The other reading of this page, and the one somebody comes for
               when the question is "what do I actually know". Counted in words
               rather than cards, which is what the box below is. */}
-          <ButtonLink href="/words/mastery">How well you know each word</ButtonLink>
-          <ButtonLink href="/words/decks">Decks</ButtonLink>
-          <ButtonLink href="/dictionary" variant="primary">Add words</ButtonLink>
+          <ButtonLink href="/words/mastery">{t("How well you know each word")}</ButtonLink>
+          <ButtonLink href="/words/decks">{t("Decks")}</ButtonLink>
+          <ButtonLink href="/dictionary" variant="primary">{t("Add words")}</ButtonLink>
         </>
       }
     >
       {rows.length === 0 ? (
         <Empty
-          title="No cards yet"
-          body="Add words from the dictionary, and each one comes with all its forms and audio."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={t("No cards yet")}
+          body={t("Add words from the dictionary, and each one comes with all its forms and audio.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
         />
       ) : (
         <Stack>
           <Card tone="night">
-            <SectionTitle hint={`${counted(totalCards, "card")} in all`}>How your cards are doing</SectionTitle>
+            <SectionTitle hint={fill(t("{cards} in all"), { cards: countOf(locale, totalCards, "card") })}>{t("How your cards are doing")}</SectionTitle>
             <DeckBar
+              locale={locale}
               segments={[
                 { label: "New", value: byState[0] ?? 0, fill: "var(--sky)" },
                 { label: "Learning", value: (byState[1] ?? 0) + (byState[3] ?? 0), fill: "var(--cta)" },
@@ -97,9 +101,9 @@ export default async function WordsPage() {
             {/* Word by word is the header's other button; which cases keep
                 catching somebody out is Progress's, one link away. */}
             <p className="mt-6 text-sm" style={{ color: "var(--ink-2)" }}>
-              Want to see which case endings keep catching you out? They&rsquo;re on{" "}
+              {t("Want to see which case endings keep catching you out? They're on")}{" "}
               <Link href="/progress" className="font-semibold underline underline-offset-2" style={{ color: "var(--cta)" }}>
-                Progress
+                {t("Progress")}
               </Link>.
             </p>
           </Card>
@@ -127,7 +131,8 @@ export default async function WordsPage() {
  * behind you, with each part's count and share written under it. It used to
  * sit under four tiles of the same counts, which said the deck three times.
  */
-function DeckBar({ segments }: { segments: { label: string; value: number; fill: string }[] }) {
+function DeckBar({ segments, locale }: { segments: { label: string; value: number; fill: string }[]; locale: Locale }) {
+  const t = (english: string) => tr(locale, english);
   const total = segments.reduce((sum, s) => sum + s.value, 0);
   if (total === 0) return null;
 
@@ -141,7 +146,7 @@ function DeckBar({ segments }: { segments: { label: string; value: number; fill:
             key={s.label}
             className="rounded-full"
             style={{ flexGrow: s.value, background: s.fill }}
-            title={`${s.label}: ${s.value}`}
+            title={`${t(s.label)}: ${s.value}`}
           />
         ))}
       </div>
@@ -152,7 +157,7 @@ function DeckBar({ segments }: { segments: { label: string; value: number; fill:
                 does not drop its figure below the ones beside it. */}
             <span className="flex flex-1 items-start gap-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
               <span aria-hidden className="mt-[0.4em] h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.fill }} />
-              {s.label}
+              {t(s.label)}
             </span>
             <span data-figure className="tnum font-display mt-1 text-4xl font-bold leading-none md:text-5xl" style={{ color: "var(--ink)" }}>{s.value}</span>
             <span className="tnum mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{Math.round((s.value / total) * 100)}%</span>

@@ -1,6 +1,7 @@
 import { caseByKey } from "@/lib/estonian/cases";
 import { EXAM_LEVELS, PASS_PCT, type ExamLevel } from "./spec";
 import { SKILLS, SKILL_LABEL, type SkillKey } from "./types";
+import { say, sayEnglish, type Said } from "@/lib/copy/said";
 
 /**
  * Where the app thinks a learner is, and how likely they are to pass each paper.
@@ -164,6 +165,8 @@ export interface Feedback {
   id: string;
   title: string;
   detail: string;
+  /** The title and the detail as templates, for a screen that prints them in the learner's language. */
+  said: { title: Said; detail: Said };
   /** Where to go and do something about it. */
   href?: string;
   cta?: string;
@@ -194,6 +197,8 @@ export interface LevelReadiness {
   measured: boolean;
   /** One line, ready to print. */
   verdict: string;
+  /** The same line as a template, for a screen that prints it in the learner's language. */
+  verdictSaid: Said;
 }
 
 export interface Readiness {
@@ -381,7 +386,8 @@ export function readinessFor(signals: ReadinessSignals, level: ExamLevel): Level
     expectedTotal,
     evidence,
     measured: Boolean(sat),
-    verdict: verdictFor(level, confidence, evidence, sat),
+    verdict: sayEnglish(verdictFor(level, confidence, evidence, sat)),
+    verdictSaid: verdictFor(level, confidence, evidence, sat),
   };
 }
 
@@ -403,17 +409,23 @@ function verdictFor(
   confidence: number,
   evidence: Evidence,
   sat: PastAttempt | undefined,
-): string {
+): Said {
   if (sat) {
     return sat.passed
-      ? `You sat this and scored ${sat.pct} percent, which is a pass.`
-      : `You sat this and scored ${sat.pct} percent. A pass is ${PASS_PCT}.`;
+      ? say("You sat this and scored {pct} percent, which is a pass.", { pct: sat.pct })
+      : say("You sat this and scored {pct} percent. A pass is {pass}.", { pct: sat.pct, pass: PASS_PCT });
   }
   const hedge = evidence === "thin" ? " We're working from very little, so take it as a guess." : "";
-  if (confidence >= LIKELY_PCT) return `You would very likely pass ${level} today.${hedge}`;
-  if (confidence >= CLOSE_PCT) return `${level} is within reach, but it would be close.${hedge}`;
-  if (confidence >= DISTANT_PCT) return `${level} would be a stretch right now.${hedge}`;
-  return `${level} is still a long way off. Better to know that now than on the day.${hedge}`;
+  if (confidence >= LIKELY_PCT) return say(`You would very likely pass {level} today.${hedge}`, { level });
+  if (confidence >= CLOSE_PCT) return say(`{level} is within reach, but it would be close.${hedge}`, { level });
+  if (confidence >= DISTANT_PCT) return say(`{level} would be a stretch right now.${hedge}`, { level });
+  return say(`{level} is still a long way off. Better to know that now than on the day.${hedge}`, { level });
+}
+
+/** A piece of feedback whose words are kept as templates, with the English read off them. */
+export function feedback(f: Omit<Feedback, "title" | "detail" | "said"> & { title: Said; detail: Said }): Feedback {
+  const { title, detail, ...rest } = f;
+  return { ...rest, title: sayEnglish(title), detail: sayEnglish(detail), said: { title, detail } };
 }
 
 /** The whole picture, every level at once. */
@@ -536,23 +548,23 @@ function strengthsFrom(signals: ReadinessSignals, assessed: ExamLevel | null): F
 
   if (assessed) {
     const row = signals.vocabulary[assessed];
-    out.push({
+    out.push(feedback({
       id: "level",
-      title: `Your ${assessed} words are in place`,
+      title: say("Your {level} words are in place", { level: assessed }),
       detail: row && row.available > 0
-        ? `${row.known} of the ${row.available} ${assessed} words in the dictionary have stuck.`
-        : `Enough of the ${assessed} words have stuck to sit the paper.`,
-    });
+        ? say("{known} of the {available} {level} words in the dictionary have stuck.", { known: row.known, available: row.available, level: assessed })
+        : say("Enough of the {level} words have stuck to sit the paper.", { level: assessed }),
+    }));
   }
 
   for (const skill of SKILLS) {
     const evidence = signals.skills[skill];
     if (evidence.attempts >= 5 && evidence.pct >= STRONG_SKILL_PCT) {
-      out.push({
+      out.push(feedback({
         id: `skill-${skill}`,
-        title: `${SKILL_LABEL[skill]} is holding up`,
-        detail: `${evidence.pct} percent across ${evidence.attempts} tries. You can leave this one alone and spend your time elsewhere.`,
-      });
+        title: say(`${SKILL_LABEL[skill]} is holding up`),
+        detail: say("{pct} percent across {n} tries. You can leave this one alone and spend your time elsewhere.", { pct: evidence.pct, n: evidence.attempts }),
+      }));
     }
   }
 
@@ -560,19 +572,24 @@ function strengthsFrom(signals: ReadinessSignals, assessed: ExamLevel | null): F
     .filter((c) => c.reviews >= MIN_CASE_REVIEWS && c.pct >= STRONG_CASE_PCT)
     .slice(0, 3);
   if (solid.length > 0) {
-    out.push({
+    out.push(feedback({
       id: "cases",
-      title: solid.length === 1 ? "One case is solid" : `${solid.length} cases are solid`,
-      detail: `${solid.map((c) => `${c.caseEt} at ${c.pct} percent`).join(", ")}. You can stop worrying about those.`,
-    });
+      title: solid.length === 1 ? say("One case is solid") : say("{n} cases are solid", { n: solid.length }),
+      detail: say(
+        "{list}. You can stop worrying about those.",
+        undefined,
+        undefined,
+        { list: solid.map((c) => say("{case} at {pct} percent", { case: c.caseEt, pct: c.pct })) },
+      ),
+    }));
   }
 
   if (signals.accuracy.reviews >= 100 && signals.accuracy.pct >= 85) {
-    out.push({
+    out.push(feedback({
       id: "recall",
-      title: "You remember what you learn",
-      detail: `${signals.accuracy.pct} percent across ${signals.accuracy.reviews} reviews. Once you learn a word, it stays.`,
-    });
+      title: say("You remember what you learn"),
+      detail: say("{pct} percent across {n} reviews. Once you learn a word, it stays.", { pct: signals.accuracy.pct, n: signals.accuracy.reviews }),
+    }));
   }
 
   return out;
@@ -587,16 +604,16 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
     const missing = row.available - row.known;
     const pct = Math.round((row.known / row.available) * 100);
     if (pct < 80) {
-      out.push({
+      out.push(feedback({
         id: "vocabulary",
         // "513 words short at A1" under a B1 target read as being short of A1,
         // which is the first sentence a nervous learner screenshots for their
         // teacher. It is the band of the words still to meet.
-        title: `${missing} ${target} words still to meet`,
-        detail: `You've got ${row.known} of ${row.available} so far, ${pct} percent. Any of the rest could turn up on the paper.`,
+        title: say("{missing} {level} words still to meet", { missing, level: target }),
+        detail: say("You've got {known} of {available} so far, {pct} percent. Any of the rest could turn up on the paper.", { known: row.known, available: row.available, pct }),
         href: "/learn",
         cta: "Learn new words",
-      });
+      }));
     }
   }
 
@@ -621,39 +638,39 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
     if (evidence.attempts === 0 && placed) {
       // Measured, just not by anything that leaves a review row.
       if (PLACEMENT_RANK[placed] !== undefined && PLACEMENT_RANK[placed]! < 2) {
-        out.push({
+        out.push(feedback({
           id: `placed-${skill}`,
-          title: `The level check put your ${SKILL_LABEL[skill].toLowerCase()} at ${placed}`,
-          detail:
+          title: say(`The level check put your ${SKILL_LABEL[skill].toLowerCase()} at {placed}`, { placed }),
+          detail: say(
             "That's one short check to plan a paper on, but it's all we have for this part. Your " +
-            "other practice here can't show us your listening and speaking on their own.",
+            "other practice here can't show us your listening and speaking on their own."),
           href: where.href,
           cta: where.cta,
-        });
+        }));
       }
     } else if (evidence.attempts === 0) {
-      out.push({
+      out.push(feedback({
         id: `unpractised-${skill}`,
         // Not "you have never practiced it": a review row carries no note of
         // which mode wrote it, so the app genuinely cannot tell a dictation from
         // a flip of the same card. What it can say is that it has nothing.
-        title: `We don't know how your ${SKILL_LABEL[skill].toLowerCase()} is going yet`,
-        detail:
+        title: say(`We don't know how your ${SKILL_LABEL[skill].toLowerCase()} is going yet`),
+        detail: say(
           "It's a quarter of the paper, and a zero in any one part fails the whole thing, however " +
-          "well the other three go. Sit a practice paper and you'll have a number for it.",
+          "well the other three go. Sit a practice paper and you'll have a number for it."),
         href: where.href,
         cta: where.cta,
-      });
+      }));
     } else if (evidence.pct < WEAK_SKILL_PCT) {
-      out.push({
+      out.push(feedback({
         id: `weak-${skill}`,
-        title: `${SKILL_LABEL[skill]} is at ${evidence.pct} percent`,
+        title: say(`${SKILL_LABEL[skill]} is at {pct} percent`, { pct: evidence.pct }),
         detail: skill === weakest
-          ? `Across ${evidence.attempts} tries, and it's the part costing you the most marks.`
-          : `Across ${evidence.attempts} tries.`,
+          ? say("Across {n} tries, and it's the part costing you the most marks.", { n: evidence.attempts })
+          : say("Across {n} tries.", { n: evidence.attempts }),
         href: where.href,
         cta: where.cta,
-      });
+      }));
     }
   }
 
@@ -661,35 +678,35 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
     .filter((c) => c.reviews >= MIN_CASE_REVIEWS && c.pct < WEAK_CASE_PCT)
     .slice(0, 3);
   for (const c of weak) {
-    out.push({
+    out.push(feedback({
       id: `case-${c.caseKey}`,
       // Named the way a class names it, and then what it asks rather than
       // what an English grammar calls it: see `lib/estonian/cases.ts`.
-      title: `The ${c.caseEt} (${caseByKey(c.caseKey)?.asksEn ?? c.caseKey.toLowerCase()}) is at ${c.pct} percent`,
-      detail: `It's still tripping you up after ${c.reviews} reviews, and case endings earn marks in every written part.`,
+      title: say("The {case} ({asks}) is at {pct} percent", { case: c.caseEt, pct: c.pct }, { asks: caseByKey(c.caseKey)?.asksEn ?? c.caseKey.toLowerCase() }),
+      detail: say("It's still tripping you up after {n} reviews, and case endings earn marks in every written part.", { n: c.reviews }),
       href: `/grammar/${c.caseKey.toLowerCase()}`,
       cta: "Read the rule",
-    });
+    }));
   }
 
   if (signals.accuracy.reviews >= 30 && signals.accuracy.pct < 75) {
-    out.push({
+    out.push(feedback({
       id: "recall",
-      title: `Recall is at ${signals.accuracy.pct} percent`,
-      detail: "Some words keep slipping away after you've learned them. The leech clinic shows you which ones.",
+      title: say("Recall is at {pct} percent", { pct: signals.accuracy.pct }),
+      detail: say("Some words keep slipping away after you've learned them. The leech clinic shows you which ones."),
       href: "/review/clinic",
       cta: "See which words",
-    });
+    }));
   }
 
   if (signals.totalReviews < EVIDENCE_FAIR) {
-    out.push({
+    out.push(feedback({
       id: "evidence",
-      title: "We don't know you well enough yet",
-      detail: `All of this rests on ${signals.totalReviews} reviews. Give it a few more weeks of daily review and these numbers will start to mean something.`,
+      title: say("We don't know you well enough yet"),
+      detail: say("All of this rests on {n} reviews. Give it a few more weeks of daily review and these numbers will start to mean something.", { n: signals.totalReviews }),
       href: "/review",
       cta: "Review now",
-    });
+    }));
   }
 
   return out;

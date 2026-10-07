@@ -21,6 +21,7 @@ import { readingFor } from "@/lib/progress/readiness";
 import { verdictFor } from "@/lib/readiness/narrative";
 import { EVIDENCE_LABEL } from "@/lib/exam/readiness";
 import { RungChip } from "@/components/readiness/Rung";
+import { localeFor } from "@/lib/progress/locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
@@ -46,7 +47,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
   if (!unit) notFound();
 
   const ownerId = await requireUserId();
-  const [placement, snapshot, rows, reading] = await Promise.all([
+  const [placement, snapshot, rows, reading, locale] = await Promise.all([
     courseLevelFor(ownerId),
     deckSnapshot(ownerId),
     prisma.lexeme.findMany({
@@ -59,6 +60,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
     }),
     // The claim two lines up, answered: could you actually do this yet.
     readingFor(ownerId, unitId),
+    localeFor(ownerId),
   ]);
 
   // One row per lemma, in the unit's own order. A lemma can hold two entries
@@ -118,8 +120,8 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
             <p className="mt-1.5 text-md" style={{ color: "var(--ink)" }}>{unit.canDo}</p>
             {reading && reading.rung !== "unmet" && (
               <p className="mt-2 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                <RungChip rung={reading.rung} />
-                <span>{verdictFor(reading)} {EVIDENCE_LABEL[reading.evidence].charAt(0).toUpperCase()}{EVIDENCE_LABEL[reading.evidence].slice(1)}.</span>
+                <RungChip rung={reading.rung} locale={locale} />
+                <span>{verdictFor(reading, locale)} {EVIDENCE_LABEL[reading.evidence].charAt(0).toUpperCase()}{EVIDENCE_LABEL[reading.evidence].slice(1)}.</span>
                 <Link href={`/progress/readiness/${unit.id}`} className="underline" style={{ color: "var(--accent-deep)" }}>
                   See where you might get stuck
                 </Link>
