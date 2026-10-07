@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { BRIEFINGS } from "./briefings";
 import { SECTIONS } from "@/lib/ux/nav";
 import { AREAS } from "./i18n";
-import { countOf, fill, localeFrom, pluralIndex, tr, translated, MACHINE_NOTICE, MACHINE_SHORT } from "./locale";
+import { countOf, estonianSlots, fill, localeFrom, pluralIndex, tr, translated, MACHINE_NOTICE, MACHINE_SHORT } from "./locale";
 
 const TABLES = {
   ru: Object.assign({}, ...AREAS.map(([, a]) => a.ru)) as Record<string, string>,
@@ -107,6 +107,19 @@ describe("the interface language", () => {
     ]);
     expect([1, 3, 12, 31].map((n) => countOf("uk", n, "word"))).toEqual(["1 слово", "3 слова", "12 слів", "31 слово"]);
     expect(pluralIndex("ru", 14)).toBe(2);
+  });
+
+  it("carries an Estonian word with an Estonian letter in a slot, so the table never holds one", () => {
+    expect(estonianSlots("toas is in the room")).toBeNull();
+    const slotted = estonianSlots("Kõndides, mõeldes, lugedes: while walking.");
+    expect(slotted?.key).toBe("{e1}, {e2}, lugedes: while walking.");
+    expect(slotted?.values).toEqual({ e1: "Kõndides", e2: "mõeldes" });
+    // Read back off a real course line: the Russian has the source's own words in it.
+    const line = "Use the small words like ära, üles and läbi that completely change what a verb means.";
+    expect(translated("ru", line)).toBe(true);
+    expect(tr("ru", line)).toContain("ära, üles и läbi");
+    expect(tr("uk", line)).toContain("ära, üles і läbi");
+    expect(tr("en", line)).toBe(line);
   });
 
   it("fills a template after it is translated", () => {

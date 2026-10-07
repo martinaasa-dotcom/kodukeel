@@ -89,12 +89,48 @@ export function tr(locale: Locale, english: string, context?: string): string {
     const specific = table[`${english}@${context}`];
     if (specific !== undefined) return specific;
   }
-  return table[english] ?? english;
+  const plain = table[english];
+  if (plain !== undefined) return plain;
+  const slotted = estonianSlots(english);
+  if (slotted) {
+    const template = table[slotted.key];
+    if (template !== undefined) return fill(template, slotted.values);
+  }
+  return english;
 }
 
 /** Whether a line has a translation in this locale. English always has. */
 export function translated(locale: Locale, english: string): boolean {
-  return locale === "en" || english in TABLES[locale];
+  if (locale === "en" || english in TABLES[locale]) return true;
+  const slotted = estonianSlots(english);
+  return slotted !== null && slotted.key in TABLES[locale];
+}
+
+/**
+ * AN ESTONIAN WORD INSIDE AN ENGLISH LINE TRAVELS IN A SLOT.
+ *
+ * Some of the course's own English quotes Estonian to make its point
+ * (`köögis is in the kitchen`), and a translation table may not hold an
+ * Estonian letter (ADR-005, asserted in `locale.test.ts`): copying `köögis`
+ * into the Russian would be this file writing Estonian. So a line holding a
+ * word with õ, ä, ö, ü, š or ž is stored under its English with each such
+ * word replaced by `{e1}`, `{e2}` and so on in order, and the words are put
+ * back from the English the caller handed in. The Estonian on screen is
+ * therefore always the Estonian the source wrote, character for character.
+ * A word without one of those letters is not a slot and is carried as it
+ * stands, which is what every area already does with `tuba` and `tuppa`.
+ */
+const ESTONIAN_WORD = /[\p{L}'-]*[õäöüšžÕÄÖÜŠŽ][\p{L}'-]*/gu;
+
+export function estonianSlots(english: string): { key: string; values: Record<string, string> } | null {
+  let n = 0;
+  const values: Record<string, string> = {};
+  const key = english.replace(ESTONIAN_WORD, (word) => {
+    n += 1;
+    values[`e${n}`] = word;
+    return `{e${n}}`;
+  });
+  return n === 0 ? null : { key, values };
 }
 
 /** A template's `{name}` slots filled in, after it has been through `tr`. */

@@ -273,7 +273,7 @@ export function AssignUnit({ classroomId, units }: {
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         >
           {units.map((u) => (
-            <option key={u.id} value={u.id}>{u.title}, {u.subtitle}</option>
+            <option key={u.id} value={u.id}>{u.title}, {t(u.subtitle)}</option>
           ))}
         </select>
       </div>
