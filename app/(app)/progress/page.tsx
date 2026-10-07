@@ -486,7 +486,7 @@ export default async function ProgressPage() {
           <Board ownerId={ownerId} now={now} />
         </Suspense>
 
-        <InsideHere place="/progress" title="More about your progress" />
+        <InsideHere place="/progress" title={tr(locale, "More about your progress")} locale={locale} />
       </Stack>
     </Page>
   );

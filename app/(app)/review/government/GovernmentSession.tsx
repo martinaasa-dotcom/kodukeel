@@ -1,6 +1,7 @@
 "use client";
 
-import { useT } from "@/components/Locale";
+import { useLocale, useT } from "@/components/Locale";
+import { questionIn } from "@/lib/copy/questionReading";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -13,7 +14,7 @@ import { Chip, KeyCap, Stat } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
-import { CASES, questionInEnglish } from "@/lib/estonian/cases";
+import { CASES } from "@/lib/estonian/cases";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
@@ -73,6 +74,7 @@ const caseLabel = (key: CaseKey) => CASES.find((c) => c.key === key);
 export function GovernmentSession({ questions: initialQuestions }: { questions: GovernmentQuestion[] }) {
   const grade = useGrade();
   const t = useT();
+  const locale = useLocale();
   /*
     Snapshotted once on mount, never updated from later props. gradeCard() is a
     Server Action and Next refreshes this route's Server Component after every
@@ -345,9 +347,9 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
               {question.experiencer
                 ? fill(t("Here the person goes in the {case}, and the thing itself is the subject."), { case: question.answerEt })
-                : questionInEnglish(question.answerQuestion)
+                : questionIn(locale, question.answerQuestion)
                   ? fill(t("{verb} takes the {case}, the one that asks {question}. English gives you no hint here, so learn the two together."), {
-                    verb: question.lemma, case: question.answerEt, question: questionInEnglish(question.answerQuestion) ?? "",
+                    verb: question.lemma, case: question.answerEt, question: questionIn(locale, question.answerQuestion) ?? "",
                   })
                   : fill(t("{verb} takes the {case}. English gives you no hint here, so learn the two together."), { verb: question.lemma, case: question.answerEt })}
             </p>

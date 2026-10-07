@@ -209,4 +209,5 @@ export const UK: Readonly<Record<string, string>> = {
   "Language of the app": "Мова застосунку",
   "The words around the Estonian. The Estonian itself never changes.": "Слова навколо естонського тексту. Сама естонська не змінюється.",
   "Got it": "Зрозуміло",
+  "More about your progress": "Ще про ваш поступ",
 };

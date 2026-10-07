@@ -1,7 +1,8 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { CircleHelp } from "lucide-react";
 import type { CaseAccuracy } from "@/lib/stats/history";
-import { caseByKey, questionInEnglish } from "@/lib/estonian/cases";
+import { caseByKey } from "@/lib/estonian/cases";
+import { questionIn } from "@/lib/copy/questionReading";
 import type { CaseKey } from "@/lib/estonian/types";
 import { Meter } from "@/components/ui";
 import { fill, tr, type Locale } from "@/lib/copy/locale";
@@ -60,7 +61,7 @@ export function WeakestCases({ cases, empty, locale }: {
         // called as well, and "the inessive" is the one name in this app that
         // helps nobody: what it asks is the useful thing to say.
         const english = spec?.en.toLowerCase() ?? c.grammCase.toLowerCase();
-        const asks = questionInEnglish([spec?.asksThing, spec?.asksWhere].filter(Boolean).join(" "));
+        const asks = questionIn(locale, [spec?.asksThing, spec?.asksWhere].filter(Boolean).join(" "));
         return (
           <li key={c.grammCase} className="flex min-w-0 items-center gap-1">
             <Link

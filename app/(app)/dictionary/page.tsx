@@ -215,7 +215,7 @@ export default async function DictionaryPage({
           Only on the landing view: with an entry open, the page is about it. */}
       {!q && !opened && (
         <div className="mt-10">
-          <InsideHere place="/dictionary" title={tr(locale, "Also in the dictionary")} />
+          <InsideHere place="/dictionary" title={tr(locale, "Also in the dictionary")} locale={locale} />
         </div>
       )}
     </Page>

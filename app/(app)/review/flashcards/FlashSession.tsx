@@ -561,6 +561,7 @@ function Question({
 function SlotLine({ task }: { task: FlashPrompt }) {
   const t = useT();
   const english = asksInEnglish(task.slot);
+  const asks = english ? t(english) : null;
   // `plainAskFor` decides whether this shape gets a line at all; the line
   // itself carries the word's gloss here, where the screen holds it.
   const phrase = plainAskFor(task) ? task.say : null;
@@ -589,7 +590,7 @@ function SlotLine({ task }: { task: FlashPrompt }) {
             {task.label}
           </p>
           {english && (
-            <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{english}</p>
+            <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{asks}</p>
           )}
         </>
       )}
@@ -682,7 +683,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
             {/* A case says its name and the one word it means, `alalütlev: the
                 “onto” ending`, rather than its name and its questions twice. */}
             <span lang="et" data-flash-slot="">{endingName(task.slot) ?? task.label}</span>
-            {!endingName(task.slot) && english && <>, {english}</>}
+            {!endingName(task.slot) && english && <>, {t(english)}</>}
           </p>
         )}
       </div>

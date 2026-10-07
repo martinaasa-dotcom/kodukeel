@@ -2,7 +2,7 @@
 
 import { openingConversation } from "@/lib/exam/warmUp";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { questionInEnglish } from "@/lib/estonian/cases";
+import { questionIn } from "@/lib/copy/questionReading";
 import { useRouter } from "next/navigation";
 import {
   Check, CircleAlert, Clock, Coffee, Ear, FileWarning, Headphones, Loader2, Mic, PenLine, RotateCcw, Save,
@@ -1177,7 +1177,7 @@ function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, 
           <EstonianInput
             value={response?.kind === "typed" ? response.value : ""}
             onChange={(value) => onAnswer({ kind: "typed", value })}
-            ariaLabel={fill(t("{case} of {word}, {asks}"), { case: item.caseEt, word: item.lemma, asks: questionInEnglish(item.caseQuestion) ?? "" })}
+            ariaLabel={fill(t("{case} of {word}, {asks}"), { case: item.caseEt, word: item.lemma, asks: questionIn(locale, item.caseQuestion) ?? "" })}
             placeholder={t("Write the form")}
           />
         </div>

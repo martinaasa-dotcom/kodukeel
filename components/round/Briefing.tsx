@@ -120,7 +120,7 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
             {fill(t("{count} in this round"), { count: countOf(locale, count.n, count.noun) })}
           </p>
         )}
-        <BriefingSteps what={brief.what} you={brief.you} className="round-brief-gap" />
+        <BriefingSteps what={t(brief.what)} you={t(brief.you)} className="round-brief-gap" />
         <div className="round-brief-gap flex justify-center">
           <Button
             variant="primary"
