@@ -2044,8 +2044,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 1,926 forms across 420 of the
-1,805 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 1,930 forms across 421 of the
+1,807 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
