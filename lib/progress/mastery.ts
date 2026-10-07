@@ -1,3 +1,4 @@
+import type { Equivalents } from "@/lib/collections/glossLanguage";
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
 import {
@@ -48,6 +49,8 @@ export interface MasteredWord {
   lexemeId: string;
   lemma: string;
   translation: string;
+  /** The Institute's equivalents, for drawing the meaning in the learner's language. */
+  equivalents: Equivalents;
   pos: string;
   cefr: string | null;
   verdict: Verdict;
@@ -124,6 +127,8 @@ export async function masteryFor(ownerId: string): Promise<MasteredWord[]> {
     where: { id: { in: [...byWord.keys()] } },
     select: {
       id: true, lemma: true, translation: true, pos: true, cefr: true,
+      // The equivalents, in this read, for the meaning shown beside each word.
+      translationRu: true, translationUk: true,
       /*
         THE ONE FORM THAT DECIDES WHETHER THERE ARE ELEVEN MORE.
 
@@ -188,6 +193,7 @@ export async function masteryFor(ownerId: string): Promise<MasteredWord[]> {
       lexemeId: l.id,
       lemma: plainPhrase(l.lemma, l.pos),
       translation: plainPhrase(l.translation, l.pos),
+      equivalents: { translationRu: l.translationRu, translationUk: l.translationUk },
       pos: l.pos,
       cefr: l.cefr,
       // Filled below, once every entry sharing this key has contributed.

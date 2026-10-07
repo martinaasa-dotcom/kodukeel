@@ -25,6 +25,8 @@ import { useModuleFocus } from "@/components/course/moduleFocus";
 import { FitText } from "@/components/FitText";
 import { Lettered } from "@/components/HeroLetters";
 import { useLocale, useT } from "@/components/Locale";
+import { Meaning } from "@/components/Meaning";
+import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { countOf, fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
 
@@ -45,6 +47,12 @@ export interface SprintCard {
    */
   ask: string | null;
   slot: string | null;
+  /**
+   * The card's English meaning as the learner's language leads it, on a
+   * recognition back or a production front, or null for English. Drawing
+   * only: the flip is self-graded and the card's own sides are unchanged.
+   */
+  meaning?: ShownMeaning | null;
   /** What this card's sentence means, where the dictionary already holds it. */
   sentenceEn: string | null;
   /**
@@ -274,6 +282,17 @@ export function SprintSession({
         </div>
 
         <div className="round-stage flex flex-col items-center justify-center gap-4 px-6 text-center" aria-live="polite">
+          {card.cardType === "PRODUCTION" && card.meaning ? (
+            /* Asked from the meaning, so the meaning leads in the learner's language. */
+            <Meaning
+              meaning={card.meaning}
+              className="items-center"
+              leadClassName="font-semibold"
+              englishClassName="text-base"
+            >
+              <FitText as="span" text={card.meaning.lead.text} className="round-word font-semibold" style={{ color: "var(--ink)" }} />
+            </Meaning>
+          ) : (
           <div className="flex items-center gap-2">
             <FitText
               as="p"
@@ -284,6 +303,7 @@ export function SprintSession({
             />
             {estonianSide(card.cardType, "front") && <Speak text={card.lemma ?? card.front} />}
           </div>
+          )}
 
           {/*
             WHAT THE LINE SAYS, ON THE QUESTION, WHERE THE FRONT IS A SENTENCE
@@ -308,6 +328,16 @@ export function SprintSession({
           {revealed && (
             <>
               <div className="my-1 h-px w-16" style={{ background: "var(--rule)" }} />
+              {card.cardType === "RECOGNITION" && card.meaning ? (
+                <Meaning meaning={card.meaning} className="items-center" englishClassName="text-base">
+                  <FitText
+                    as="span"
+                    text={card.meaning.lead.text}
+                    className="font-semibold [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"
+                    style={{ color: "var(--accent-deep)" }}
+                  />
+                </Meaning>
+              ) : (
               <div className="flex items-center gap-2">
                 <FitText
                   as="p"
@@ -320,6 +350,7 @@ export function SprintSession({
                     ReviewSession's own reveal states for itself. */}
                 {estonianSide(card.cardType, "back") && <Speak text={card.back} autoplay />}
               </div>
+              )}
 
               {/*
                 And what the whole line says, where the front is a sentence

@@ -3,8 +3,7 @@ import { tr } from "@/lib/copy/locale";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
-import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { shuffle } from "@/lib/random/shuffle";
 import { leastPractisedSlot } from "@/lib/srs/mastery";
 import { deckLexemeIds, deckName } from "@/lib/progress/decks";
@@ -75,9 +74,9 @@ export default async function DeckRoundPage({ params }: {
   const name = await deckName(ownerId, deckId);
   if (!name) notFound();
 
-  const [lexemeIds, glossSetting, locale] = await Promise.all([
+  const [lexemeIds, meaningPrefs, locale] = await Promise.all([
     deckLexemeIds(ownerId, deckId),
-    readSetting(ownerId, SETTING_KEYS.glossLanguage),
+    meaningPrefsFor(ownerId),
     localeFor(ownerId),
   ]);
 
@@ -117,8 +116,7 @@ export default async function DeckRoundPage({ params }: {
     );
   }
 
-  const gloss = glossLanguageFrom(glossSetting);
-  const round = await withChoices(picked, gloss, ownerId);
+  const round = await withChoices(picked, meaningPrefs, ownerId);
 
   return (
     <BeforeYouStart id="deck" ready={round.length > 0} count={{ n: round.length, noun: "card" }}>

@@ -11659,6 +11659,31 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     */
     join("lib", "progress", "learn.ts"),
     join("app", "(app)", "learn", "[unitId]", "lesson", "page.tsx"),
+    /*
+      And then every surface that shows a meaning as a meaning, because a
+      learner who reads Ukrainian better than English was meeting the
+      equivalent on the first meeting and then being quizzed in English for
+      the rest of the evening. Each of these only selects the two columns in
+      the query that already loads the word and hands them to `meaningShown`
+      or `meaningsShown` in lib/collections/glossLanguage.ts, which decides
+      what is drawn; none of them writes either column, and none hands them to
+      a model. `sprint/page.tsx` and `review/cards.ts` import the provider
+      check for an unrelated reason (whether a sentence may be offered in
+      English), and pass it nothing from these columns.
+
+      The decoy pool carries each option's equivalents so a choice is drawn in
+      the learner's language without a second query per question; the
+      crossword pool carries them so a clue can lead in it, while the grid is
+      still compiled and marked on the English clue alone.
+    */
+    join("lib", "dict", "facts.ts"),
+    join("lib", "progress", "crossword.ts"),
+    join("lib", "progress", "mastery.ts"),
+    join("app", "(app)", "review", "listening", "page.tsx"),
+    join("app", "(app)", "review", "match", "page.tsx"),
+    join("app", "(app)", "review", "flashcards", "page.tsx"),
+    join("app", "(app)", "review", "sprint", "page.tsx"),
+    join("app", "(app)", "words", "page.tsx"),
   ]);
 
   const roots = ["app", "lib", "components", "scripts", "prisma"];

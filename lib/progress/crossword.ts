@@ -5,6 +5,7 @@ import { taughtAtDayStart } from "@/lib/progress/moduleScope";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { clueClashes, crosswordPool } from "@/lib/dict/facts";
 import { clueFrom, clueKey } from "@/lib/games/clue";
+import type { Equivalents } from "@/lib/collections/glossLanguage";
 import { compile, type Candidate, type Crossword } from "@/lib/games/crossword";
 import { dayOrdinal } from "@/lib/random/dayHash";
 import { dayRng } from "@/lib/random/seeded";
@@ -42,6 +43,12 @@ import { earliestStartOf, type DayKey } from "@/lib/time/day";
 export interface DailyCrossword extends Crossword {
   /** The words in it that are already in the learner's deck, by entry index. */
   inDeck: number[];
+  /**
+   * Each entry's Russian and Ukrainian, by entry index, so the page can draw a
+   * clue in the learner's language. The grid is compiled and marked on the
+   * English clue alone, which is what keeps one clue to one answer.
+   */
+  equivalents: Equivalents[];
 }
 
 /** Every graded band, for a pool narrowed to taught words rather than to a level. */
@@ -134,9 +141,14 @@ export async function crosswordFor(
     distinct: ["lexemeId"],
   });
   const ids = new Set(held.map((c) => c.lexemeId ?? ""));
+  const byId = new Map(dayRows.map((row) => [row.id, row]));
   return {
     ...puzzle,
     inDeck: puzzle.entries.flatMap((entry, index) => (ids.has(entry.lexemeId) ? [index] : [])),
+    equivalents: puzzle.entries.map((entry) => {
+      const row = byId.get(entry.lexemeId);
+      return { translationRu: row?.translationRu ?? null, translationUk: row?.translationUk ?? null };
+    }),
   };
 }
 

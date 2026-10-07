@@ -1,4 +1,4 @@
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { meaningPrefsFrom } from "@/lib/collections/glossLanguage";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { learnBatch, learnCounts, type LearnKind } from "@/lib/progress/learn";
@@ -72,7 +72,7 @@ export default async function LearnNewPage({
     meeting an unfamiliar word inside a sentence is how reading grows.
   */
   const [settings, level, taught] = await Promise.all([
-    readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
+    readSettings(ownerId, [SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso]),
     courseLevelFor(ownerId),
     learnerModuleScope(ownerId),
   ]);
@@ -85,7 +85,7 @@ export default async function LearnNewPage({
   const [counts, words] = await Promise.all([
     learnCounts(ownerId, undefined, within),
     moduleSpellings(taught).then((spellings) => learnBatch(
-      ownerId, level, glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]), undefined,
+      ownerId, level, meaningPrefsFrom(settings[SETTING_KEYS.glossLanguage], settings[SETTING_KEYS.glossAlso]), undefined,
       {
         kind,
         within,

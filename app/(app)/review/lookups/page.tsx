@@ -2,8 +2,7 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
-import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { shuffle } from "@/lib/random/shuffle";
 import { leastPractisedSlot } from "@/lib/srs/mastery";
 import { YOUR_OWN_SOURCES } from "@/lib/srs/sources";
@@ -78,7 +77,7 @@ export default async function LookupsRoundPage() {
     own is a read of their deck, and which language a meaning is printed in is
     one settings row. On the deployment's own pooler each `await` is a trip.
   */
-  const [cards, glossSetting, locale] = await Promise.all([
+  const [cards, meaningPrefs, locale] = await Promise.all([
     prisma.card.findMany({
       where: {
         ownerId, suspended: false, source: { in: [...YOUR_OWN_SOURCES] }, ...notOnLadder(ownerId),
@@ -96,7 +95,7 @@ export default async function LookupsRoundPage() {
       take: POOL,
       include,
     }),
-    readSetting(ownerId, SETTING_KEYS.glossLanguage),
+    meaningPrefsFor(ownerId),
     localeFor(ownerId),
   ]);
 
@@ -125,8 +124,7 @@ export default async function LookupsRoundPage() {
     );
   }
 
-  const gloss = glossLanguageFrom(glossSetting);
-  const round = await withChoices(shuffle(picked), gloss, ownerId);
+  const round = await withChoices(shuffle(picked), meaningPrefs, ownerId);
 
   return (
     <BeforeYouStart id="lookups" ready={round.length > 0} count={{ n: round.length, noun: "card" }}>
