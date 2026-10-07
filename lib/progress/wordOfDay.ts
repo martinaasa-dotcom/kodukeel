@@ -111,7 +111,9 @@ export async function wordOfDay(
   day: DayKey,
   dayStart: Date,
   level: Level,
+  options: { forLevel?: boolean } = {},
 ): Promise<WordOfDay | null> {
+  if (options.forLevel) return pickForLevel(day, level);
   const occasions = occasionsFor(day);
   const glosses = [...new Set(occasions.flatMap((o) => o.glosses))];
 
@@ -187,6 +189,33 @@ async function pickThemed(
       const chosen = choose(matches, gloss, day, level, reach);
       if (chosen) return build(chosen, occasion, reach);
     }
+  }
+  return null;
+}
+
+/**
+ * THE CARD ON TODAY: a word at the learner's level, new every day, never blank.
+ *
+ * No meaning to honor and no "have you met it" test. It is a small thing to
+ * look at each morning, so a word already in the deck is fine, and it means the
+ * card is there for everybody however far in they are. The band is a filter
+ * (`bandsAround`); the whole dictionary is the second pass only for a level
+ * with no graded words at all. `dayIndex` walks the pool, so consecutive days
+ * are far apart and nothing repeats until the pool has been used.
+ */
+async function pickForLevel(day: DayKey, level: Level): Promise<WordOfDay | null> {
+  const base = { ...VOUCHED_ROW, translation: { not: "" } };
+  for (const where of [{ ...base, cefr: { in: [...bandsAround(level)] } }, base]) {
+    const total = await prisma.lexeme.count({ where });
+    if (total === 0) continue;
+    const rows = await prisma.lexeme.findMany({
+      where, select: SELECT, orderBy: [{ lemma: "asc" }, { id: "asc" }],
+      skip: dayIndex(day, "wordOfDay", total), take: WINDOW,
+    });
+    const reach = await sentenceReach();
+    // One with a sentence under it if the window has one: that is the lesson.
+    const chosen = rows.find((row) => firstExample(row, reach)) ?? rows[0];
+    if (chosen) return build(chosen, null, reach);
   }
   return null;
 }
