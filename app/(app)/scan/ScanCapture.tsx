@@ -82,7 +82,7 @@ export function ScanCapture() {
       });
       const body = (await response.json()) as { items?: ResolvedItem[]; error?: string };
       if (!response.ok) {
-        setError(body.error ?? t("We couldn't read that photo."));
+        setError(body.error ? t(body.error) : t("We couldn't read that photo."));
         setPhase("idle");
         return;
       }
@@ -142,7 +142,7 @@ export function ScanCapture() {
         addCards,
       }).catch(() => null);
       if (!result || !result.ok) {
-        setError(result ? result.error : t(NOT_REACHED));
+        setError(t(result ? result.error : NOT_REACHED));
         setPhase("review");
         return;
       }

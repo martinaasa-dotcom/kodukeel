@@ -63,7 +63,7 @@ export function ClozeSession() {
     setError(null);
     try {
       const result = await buildClozeFromText(text);
-      if (!result.ok) { setError(result.error); return; }
+      if (!result.ok) { setError(t(result.error)); return; }
       setItems(result.items);
       setPhase("drill");
       startedAt.current = Date.now();

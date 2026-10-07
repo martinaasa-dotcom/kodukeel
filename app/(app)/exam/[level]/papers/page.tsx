@@ -14,7 +14,8 @@ import { fill, tr } from "@/lib/copy/locale";
 export async function generateMetadata({ params }: { params: Promise<{ level: string }> }) {
   const { level } = await params;
   const upper = level.toUpperCase();
-  return { title: isExamLevel(upper) ? `${upper} numbered papers` : "Numbered papers" };
+  const locale = await localeFor(await requireUserId());
+  return { title: isExamLevel(upper) ? fill(tr(locale, "{level} numbered papers"), { level: upper }) : tr(locale, "Numbered papers") };
 }
 
 export const dynamic = "force-dynamic";

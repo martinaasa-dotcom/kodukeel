@@ -30,7 +30,7 @@ const ROUND = 200;
 export async function generateMetadata({ params }: { params: Promise<{ deckId: string }> }) {
   const ownerId = await requireUserId();
   const name = await deckName(ownerId, (await params).deckId);
-  return { title: name ?? "Deck" };
+  return { title: name ?? tr(await localeFor(ownerId), "Deck") };
 }
 
 export const dynamic = "force-dynamic";

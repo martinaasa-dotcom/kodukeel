@@ -63,9 +63,9 @@ export function CheckpointSession({
     setSaving(true);
     const result = await recordCheckpoint(level, finalCorrect, total, finalAnswers).catch(() => null);
     setSaving(false);
-    if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+    if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
     setDone({ passed: result.passed, level: result.level });
-  }, [level, total]);
+  }, [level, total, t]);
 
   const submit = useCallback(() => {
     if (!question || saving || done) return;

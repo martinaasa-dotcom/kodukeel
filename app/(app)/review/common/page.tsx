@@ -1,4 +1,4 @@
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { TrendingUp } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -9,7 +9,9 @@ import { Card, Chip, Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { DeepenButton } from "./DeepenButton";
 
-export const metadata = { title: "Most common words" };
+export async function generateMetadata() {
+  return titleFor("Most common words");
+}
 
 export const dynamic = "force-dynamic";
 

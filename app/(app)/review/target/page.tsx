@@ -1,5 +1,5 @@
 import { requireUserId } from "@/lib/auth/session";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { targetRound } from "@/lib/progress/target";
 import { ButtonLink } from "@/components/Button";
@@ -9,7 +9,9 @@ import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { multiplierFor, roundPaceFrom } from "@/lib/ux/roundClock";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Target" };
+export async function generateMetadata() {
+  return titleFor("Target");
+}
 
 export const dynamic = "force-dynamic";
 

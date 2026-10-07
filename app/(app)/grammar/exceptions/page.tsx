@@ -6,16 +6,17 @@ import { FAMILY_TITLES, KIND_NOTES, type ExceptionFamily } from "@/lib/estonian/
 import { DrillLink } from "@/components/DrillLink";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Empty, Page, SectionTitle, Stack } from "@/components/ui";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Exceptions: the words that don't follow the endings",
-  description:
-    "The Estonian words that don't follow the usual endings, grouped by what goes wrong, and taken straight from the dictionary.",
-};
+export async function generateMetadata() {
+  return titleFor("Exceptions: the words that don't follow the endings", {
+    description:
+      "The Estonian words that don't follow the usual endings, grouped by what goes wrong, and taken straight from the dictionary.",
+  });
+}
 
 /**
  * THE PAGE THAT SAYS HOW FAR TO TRUST THE PATTERN.

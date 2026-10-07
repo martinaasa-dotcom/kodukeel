@@ -7,10 +7,12 @@ import { learnerDayClock } from "@/lib/progress/dayClock";
 import { DATE_AND_TIME, DateText } from "@/components/DateText";
 import { CATEGORY_KEYS, SUGGESTION_CATEGORIES, parsePatch, summarisePatch } from "@/lib/suggestions/model";
 import type { SuggestionCategory } from "@/lib/suggestions/model";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Your suggested fixes" };
+export async function generateMetadata() {
+  return titleFor("Your suggested fixes");
+}
 
 export const dynamic = "force-dynamic";
 

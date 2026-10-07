@@ -4,7 +4,7 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { bandsAround } from "@/lib/collections/levels";
 import { contrastLetter, findQuantityPairs, longerOf, type FormRef } from "@/lib/estonian/quantity";
 import { formLabel } from "@/lib/estonian/morph";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
@@ -12,7 +12,9 @@ import { PairsSession, type PairQuestion } from "./PairsSession";
 import { shuffle } from "@/lib/random/shuffle";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
-export const metadata = { title: "Minimal pairs" };
+export async function generateMetadata() {
+  return titleFor("Minimal pairs");
+}
 
 export const dynamic = "force-dynamic";
 

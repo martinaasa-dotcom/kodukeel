@@ -6,10 +6,12 @@ import { Page } from "@/components/ui";
 import { TutorChat } from "./TutorChat";
 import { clip } from "@/lib/copy/clip";
 import { firstParams } from "@/lib/ux/queryParam";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Anu" };
+export async function generateMetadata() {
+  return titleFor("Anu");
+}
 
 export const dynamic = "force-dynamic";
 

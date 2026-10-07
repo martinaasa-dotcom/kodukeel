@@ -60,7 +60,7 @@ function GroupCard({ section }: { section: CommonSection }) {
   function add() {
     start(async () => {
       const result = await addCommonWords(section.group).catch(() => null);
-      if (!result || !result.ok) { setNote(result ? result.error : t(NOT_REACHED)); return; }
+      if (!result || !result.ok) { setNote(t(result ? result.error : NOT_REACHED)); return; }
       setKept(section.found);
       setNote(result.added === 0
         ? t("Those were already in your deck.")

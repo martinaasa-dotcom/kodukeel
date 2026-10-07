@@ -1,4 +1,4 @@
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -11,7 +11,9 @@ import { ButtonLink } from "@/components/Button";
 import { SonadSession } from "./SonadSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
-export const metadata = { title: "Sõnad" };
+export async function generateMetadata() {
+  return titleFor("Sõnad");
+}
 
 export const dynamic = "force-dynamic";
 

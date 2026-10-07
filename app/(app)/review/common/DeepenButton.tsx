@@ -43,7 +43,7 @@ export function DeepenButton({ group, label, variant = "primary" }: {
   function add() {
     start(async () => {
       const result = await deepenCommonWords(group).catch(() => null);
-      if (!result || !result.ok) { setNote(result ? result.error : t(NOT_REACHED)); return; }
+      if (!result || !result.ok) { setNote(t(result ? result.error : NOT_REACHED)); return; }
       setNote(result.added === 0
         ? t("You've already got every word on this list, in every form.")
         : fill(t("Added {words}, with {cards} between them. They're ready when you are."), {

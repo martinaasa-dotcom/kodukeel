@@ -4,10 +4,12 @@ import { commonSections } from "@/lib/progress/common";
 import { CommonWords } from "./CommonWords";
 import { Empty } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "The words you'll hear most" };
+export async function generateMetadata() {
+  return titleFor("The words you'll hear most");
+}
 
 export const dynamic = "force-dynamic";
 

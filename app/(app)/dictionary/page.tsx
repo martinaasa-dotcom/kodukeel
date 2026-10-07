@@ -17,12 +17,14 @@ import { suggestWords, type Suggestions } from "@/lib/dict/suggest";
 import { readableHeadlines } from "@/lib/dict/headlines";
 import { feedHost } from "@/lib/news/feed";
 import { Page } from "@/components/ui";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { DictionaryClient, type EntryView } from "./DictionaryClient";
 import { firstParams } from "@/lib/ux/queryParam";
 
-export const metadata = { title: "Dictionary" };
+export async function generateMetadata() {
+  return titleFor("Dictionary");
+}
 
 export const dynamic = "force-dynamic";
 

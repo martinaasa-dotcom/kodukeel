@@ -34,11 +34,13 @@ import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, Stat } from "@/com
 import { NO_VALUE } from "@/lib/copy/values";
 import { formatHour } from "@/lib/time/clock";
 import { Explain } from "@/components/Explain";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { RETENTION_MINIMUM } from "@/lib/stats/history";
 
-export const metadata = { title: "Progress" };
+export async function generateMetadata() {
+  return titleFor("Progress");
+}
 
 export const dynamic = "force-dynamic";
 

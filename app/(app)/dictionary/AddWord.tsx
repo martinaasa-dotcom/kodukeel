@@ -138,7 +138,7 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
       const result = await createLexemeWithForms({
         id: edit?.id, lemma, translation, pos, cefr, government, forms: filled,
       }).catch(() => null);
-      if (!result || !result.ok) { setError(result ? result.error : t(NOT_REACHED)); return; }
+      if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
       setOpen(false);
       if (!edit) { setForms({}); setTranslation(""); }
 

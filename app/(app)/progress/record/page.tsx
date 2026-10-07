@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { requireUserId } from "@/lib/auth/session";
 import { studyRecord } from "@/lib/progress/record";
 import { NOT_A_CERTIFICATE, WHAT_PROVES_A_LEVEL } from "@/lib/stats/record";
@@ -9,10 +8,12 @@ import { PrintButton } from "@/components/PrintButton";
 import { ButtonLink } from "@/components/Button";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { fillNodes } from "@/components/fillNodes";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 
-export const metadata: Metadata = { title: "Record of study" };
+export async function generateMetadata() {
+  return titleFor("Record of study");
+}
 export const dynamic = "force-dynamic";
 
 const DAY: Intl.DateTimeFormatOptions = { day: "numeric", month: "long", year: "numeric" };

@@ -7,10 +7,12 @@ import { isClasswork } from "@/lib/ux/agenda";
 import { Page, Stack } from "@/components/ui";
 import { CalendarWeek } from "./CalendarWeek";
 import { firstParams } from "@/lib/ux/queryParam";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Calendar" };
+export async function generateMetadata() {
+  return titleFor("Calendar");
+}
 
 export const dynamic = "force-dynamic";
 

@@ -9,11 +9,13 @@ import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
 import { CreateClass, JoinClass } from "./ClassForms";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { filled } from "@/components/Filled";
 
-export const metadata = { title: "Classes" };
+export async function generateMetadata() {
+  return titleFor("Classes");
+}
 
 export const dynamic = "force-dynamic";
 

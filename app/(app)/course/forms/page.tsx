@@ -7,10 +7,12 @@ import { Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { ReadingEnd } from "@/components/course/ReadingEnd";
 import { TryIt } from "@/components/course/TryIt";
 import { VerbTable } from "@/app/(app)/grammar/topic/[id]/VerbTable";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "The past of your verbs" };
+export async function generateMetadata() {
+  return titleFor("The past of your verbs");
+}
 
 export const dynamic = "force-dynamic";
 

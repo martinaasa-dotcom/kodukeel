@@ -15,6 +15,12 @@ import { countOf, fill, tr } from "@/lib/copy/locale";
 interface Command {
   id: string;
   label: string;
+  /**
+   * Said after the label, translated on its own. A unit is its Estonian title
+   * and its English subtitle, and the two were one string, so the subtitle
+   * could never be looked up and stayed English in a Russian palette.
+   */
+  detail?: string;
   hint: string;
   /** The heading it appears under. Results are grouped by it. */
   group: string;
@@ -80,7 +86,8 @@ function loadUnitCommands(): Promise<Command[]> {
   return import("@/lib/collections/syllabus").then(({ PATH }) => {
     unitCommands = PATH.map((u) => ({
       id: `unit-${u.id}`,
-      label: `${u.title}, ${u.subtitle}`,
+      label: u.title,
+      detail: u.subtitle,
       hint: u.cefr,
       group: "Units",
       href: `/learn/${u.id}`,
@@ -203,7 +210,7 @@ export function CommandPalette() {
        in English before they switched still finds them by those. */
     const said = (english: string) => tr(locale, english);
     const matches = pool
-      .filter((c) => fold(`${c.label} ${said(c.label)} ${said(c.hint)} ${c.keywords}`).includes(q))
+      .filter((c) => fold(`${c.label} ${said(c.label)} ${c.detail ?? ""} ${c.detail ? said(c.detail) : ""} ${said(c.hint)} ${c.keywords}`).includes(q))
       .slice(0, 8);
     // The dictionary can answer for a word nothing here matches, so it is always
     // offered rather than leaving a dead end.
@@ -340,7 +347,7 @@ export function CommandPalette() {
                     what `truncate` on the hint is for. Both shrinking together
                     left "Practice" 41px at 360, drawn across two lines. */}
                 <span className="max-w-[75%] shrink-0 text-base" style={{ color: i === active ? "var(--accent-deep)" : "var(--ink)" }}>
-                  {t(c.label)}
+                  {t(c.label)}{c.detail ? `, ${t(c.detail)}` : ""}
                 </span>
                 <span className="ml-auto truncate text-xs" style={{ color: "var(--ink-3)" }}>{t(c.hint)}</span>
               </button>

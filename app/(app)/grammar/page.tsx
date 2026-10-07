@@ -14,17 +14,18 @@ import { caseAccuracy } from "@/lib/stats/history";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { Card, Chip, Meter, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { Lettered } from "@/components/HeroLetters";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { fillNodes } from "@/components/reference/fillNodes";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Grammar: the endings and what they mean",
-  description:
-    "All fourteen Estonian cases in plain English, each with the name your teacher uses and the question it answers, shown on real words.",
-};
+export async function generateMetadata() {
+  return titleFor("Grammar: the endings and what they mean", {
+    description:
+      "All fourteen Estonian cases in plain English, each with the name your teacher uses and the question it answers, shown on real words.",
+  });
+}
 
 /**
  * The reference layer.

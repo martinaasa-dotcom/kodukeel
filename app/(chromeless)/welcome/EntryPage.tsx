@@ -5,6 +5,7 @@ import { ButtonLink } from "@/components/Button";
 import { Wordmark } from "@/components/brand";
 import { BrandLink } from "@/components/BrandLink";
 import { toneInk } from "@/components/ui";
+import { MACHINE_SHORT } from "@/lib/copy/locale";
 import {
   ENTRY_COPY, ENTRY_LOCALES, MACHINE_TRANSLATED_EN, type EntryLocale,
 } from "@/lib/copy/entryLocales";
@@ -99,7 +100,7 @@ export function EntryPage({ locale }: { locale: EntryLocale }) {
             </ButtonLink>
           </div>
           <p className="mx-auto mt-4 max-w-[52ch] text-sm" style={{ color: "var(--ink-3)" }}>
-            {copy.appInEnglish}
+            {copy.appLanguage} {MACHINE_SHORT[locale]}
           </p>
         </section>
 

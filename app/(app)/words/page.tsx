@@ -8,10 +8,12 @@ import { STATE_LABELS } from "@/lib/srs/scheduler";
 import { Diagnosis } from "@/components/Diagnosis";
 import { DrillLink } from "@/components/DrillLink";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { WordsTable, type CardRow } from "./WordsTable";
 
-export const metadata = { title: "My words" };
+export async function generateMetadata() {
+  return titleFor("My words");
+}
 
 export const dynamic = "force-dynamic";
 

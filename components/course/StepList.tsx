@@ -108,7 +108,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
       const result = await markCourseStep(programmeId, dayId, step.id).catch(() => null);
       if (!result || !result.ok) {
         setTicked((was) => was.filter((id) => id !== step.id));
-        setFailed(result ? result.error : t("That didn't reach us."));
+        setFailed(t(result ? result.error : "That didn't reach us."));
         return;
       }
       router.refresh();
@@ -126,7 +126,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
     start(async () => {
       const result = await startCourseDay(programmeId, dayId).catch(() => null);
       if (!result) { setFailed(t("That didn't reach us.")); return; }
-      if (!result.ok) { setFailed(result.error); return; }
+      if (!result.ok) { setFailed(t(result.error)); return; }
       router.push(opens.get(step.id) ?? step.href);
     });
   };

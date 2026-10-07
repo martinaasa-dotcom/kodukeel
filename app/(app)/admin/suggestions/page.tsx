@@ -14,10 +14,12 @@ import { courseProgressRoster } from "@/lib/progress/courseReset";
 import { hardWordReadings } from "@/lib/progress/hard";
 import { firstParams } from "@/lib/ux/queryParam";
 import { requireUserId } from "@/lib/auth/session";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Suggested fixes, review queue" };
+export async function generateMetadata() {
+  return titleFor("Suggested fixes, review queue");
+}
 
 export const dynamic = "force-dynamic";
 

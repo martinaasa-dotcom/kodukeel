@@ -170,7 +170,7 @@ function AddExample({ lexemeId, onAdded, onCancel }: {
     start(async () => {
       const result = await addExample(lexemeId, et, en).catch(() => null);
       if (result?.ok) onAdded({ et: et.trim(), en: en.trim() || null, source: "USER" });
-      else setError(result ? result.error : t(NOT_REACHED));
+      else setError(t(result ? result.error : NOT_REACHED));
     });
   };
 

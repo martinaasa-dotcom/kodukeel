@@ -1,4 +1,4 @@
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight } from "lucide-react";
@@ -20,7 +20,9 @@ import { Empty, Page, SectionTitle, Stack, toneInk } from "@/components/ui";
 import { courseLevelFor } from "@/lib/progress/level";
 import { BUILD_FROM, maySortWords } from "@/lib/collections/levels";
 
-export const metadata = { title: "Practice" };
+export async function generateMetadata() {
+  return titleFor("Practice");
+}
 
 export const dynamic = "force-dynamic";
 

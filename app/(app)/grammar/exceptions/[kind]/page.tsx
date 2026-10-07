@@ -25,9 +25,10 @@ function kindFrom(slug: string) {
 export async function generateMetadata({ params }: { params: Promise<{ kind: string }> }) {
   const { kind } = await params;
   const key = kindFrom(kind);
-  if (!key) return { title: "Exceptions" };
+  const locale = await localeFor(await requireUserId());
+  if (!key) return { title: tr(locale, "Exceptions") };
   const note = KIND_NOTES[key as keyof typeof KIND_NOTES];
-  return { title: `${note.title}, exceptions`, description: note.what };
+  return { title: fill(tr(locale, "{kind}, exceptions"), { kind: tr(locale, note.title) }), description: note.what };
 }
 
 /**

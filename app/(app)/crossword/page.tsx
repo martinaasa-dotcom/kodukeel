@@ -1,4 +1,4 @@
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -10,7 +10,9 @@ import { ButtonLink } from "@/components/Button";
 import { CrosswordSession } from "./CrosswordSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
-export const metadata = { title: "Ristsõna" };
+export async function generateMetadata() {
+  return titleFor("Ristsõna");
+}
 
 export const dynamic = "force-dynamic";
 

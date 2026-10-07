@@ -1,4 +1,4 @@
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { sentenceReach } from "@/lib/dict/facts";
@@ -20,7 +20,9 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { byRecency, recentLemmas } from "@/lib/course/scope";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Verb government" };
+export async function generateMetadata() {
+  return titleFor("Verb government");
+}
 
 export const dynamic = "force-dynamic";
 

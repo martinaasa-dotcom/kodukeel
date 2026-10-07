@@ -46,11 +46,13 @@ import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/p
 import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
 import { FitText } from "@/components/FitText";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepText } from "@/lib/course";
 
-export const metadata = { title: "Today" };
+export async function generateMetadata() {
+  return titleFor("Today");
+}
 
 export const dynamic = "force-dynamic";
 

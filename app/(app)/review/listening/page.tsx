@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
@@ -17,7 +17,9 @@ import {
 } from "@/lib/questions/distractors";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Listening" };
+export async function generateMetadata() {
+  return titleFor("Listening");
+}
 
 export const dynamic = "force-dynamic";
 

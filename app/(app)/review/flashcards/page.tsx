@@ -1,4 +1,4 @@
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -18,7 +18,9 @@ import { sentenceWithin, slotWithin, type ModuleScope } from "@/lib/course/scope
 import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
-export const metadata = { title: "Flash cards" };
+export async function generateMetadata() {
+  return titleFor("Flash cards");
+}
 
 export const dynamic = "force-dynamic";
 

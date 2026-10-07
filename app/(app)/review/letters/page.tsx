@@ -1,3 +1,4 @@
+import { titleFor } from "@/lib/progress/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
@@ -8,7 +9,9 @@ import { LettersSession, type LettersWord } from "./LettersSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Tähed" };
+export async function generateMetadata() {
+  return titleFor("Tähed");
+}
 
 export const dynamic = "force-dynamic";
 

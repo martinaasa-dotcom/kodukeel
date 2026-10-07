@@ -5,8 +5,8 @@ import { CloudOff, RefreshCw } from "lucide-react";
 import { replayGrades } from "@/app/actions";
 import { dropFromOutbox, outboxSize, readOutbox } from "@/lib/offline/db";
 import { nextBatch, withoutSettled } from "@/lib/offline/outbox";
-import { useLocale, useT } from "@/components/Locale";
-import { countOf, fill } from "@/lib/copy/locale";
+import { LocaleProvider, useLocale, useT } from "@/components/Locale";
+import { countOf, fill, type Locale } from "@/lib/copy/locale";
 
 interface OfflineState {
   online: boolean;
@@ -29,10 +29,19 @@ interface OfflineState {
    * Costs nothing when the outbox is empty, which is nearly always.
    */
   drainFirst: () => Promise<void>;
+  /**
+   * The language the banner speaks, published by the signed-in shell
+   * (`components/ShellLocale.tsx`). This provider sits in the root layout,
+   * above the shell's `LocaleProvider`, because the offline fallback is
+   * reachable from either route group; so the shell hands its language up
+   * rather than the banner reading a context it is mounted outside of.
+   */
+  publishLocale: (locale: Locale) => void;
 }
 
 const Context = createContext<OfflineState>({
   online: true, pending: 0, refresh: () => {}, flush: async () => {}, drainFirst: async () => {},
+  publishLocale: () => {},
 });
 
 /** How often to retry a stuck queue. Long enough to be invisible, short enough to matter. */
@@ -51,6 +60,8 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
   const [online, setOnline] = useState(true);
   const [pending, setPending] = useState(0);
   const [syncing, setSyncing] = useState(false);
+  // English until the shell says otherwise, which is every page outside it.
+  const [locale, publishLocale] = useState<Locale>("en");
 
   const refresh = useCallback(() => {
     void outboxSize().then(setPending);
@@ -198,9 +209,11 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Context.Provider value={{ online, pending, refresh, flush: sync, drainFirst }}>
+    <Context.Provider value={{ online, pending, refresh, flush: sync, drainFirst, publishLocale }}>
       {children}
-      <OfflineBanner online={online} pending={pending} syncing={syncing} />
+      <LocaleProvider locale={locale}>
+        <OfflineBanner online={online} pending={pending} syncing={syncing} />
+      </LocaleProvider>
     </Context.Provider>
   );
 }
@@ -212,9 +225,9 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
 function OfflineBanner({ online, pending, syncing }: {
   online: boolean; pending: number; syncing: boolean;
 }) {
-  /* In the reader's language wherever the shell has published one. This sits
-     in the root layout, above `LocaleProvider`, so until the language is
-     published there too it reads the default, which is English. */
+  /* In the reader's language wherever the shell has published one: the
+     provider above wraps this banner in the language `ShellLocale` handed up,
+     and in English everywhere else. */
   const t = useT();
   const locale = useLocale();
   if (online && pending === 0) return null;
