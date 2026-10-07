@@ -35,9 +35,9 @@ type Row = readonly [en: string, ru: string, uk: string];
 const TEMPLATES: readonly Row[] = [
   // Writing.
   ["Write {scenario}.", "Напишите {scenario}.", "Напишіть {scenario}."],
-  ["This is {name}'s business card. Write a short text about them for somebody who has never met them.",
-    "Перед вами визитная карточка: {name}. Напишите короткий текст об этом человеке для того, кто с ним не знаком.",
-    "Перед вами візитна картка: {name}. Напишіть короткий текст про цю людину для того, хто з нею не знайомий."],
+  ["This is {name}. Write a short text about them from what the card says, for somebody who has never met them.",
+    "Это {name}. По тому, что написано на карточке, напишите короткий текст об этом человеке для того, кто с ним не знаком.",
+    "Це {name}. За тим, що написано на картці, напишіть короткий текст про цю людину для того, хто з нею не знайомий."],
   ["Describe {subject}.", "Опишите {subject}.", "Опишіть {subject}."],
   ["Write a story about {topic}: something that happened to you or somebody you know.",
     "Напишите рассказ {topic}: историю, которая случилась с вами или с кем-то из ваших знакомых.",

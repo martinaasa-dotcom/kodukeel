@@ -1567,19 +1567,25 @@ function LengthMeter({ text, minWords, maxWords }: { text: string; minWords: num
   const there = words >= minWords;
   const over = maxWords !== null && words > maxWords;
   const t = useT();
-  const target = maxWords ? fill(t("{min} to {max}"), { min: minWords, max: maxWords }) : `${minWords}`;
+  // A range is said as a range ("aiming for 220 to 260"), never folded into
+  // "of", which reads "0 of 220 to 260" in English and worse elsewhere.
+  const range = { min: minWords, max: maxWords ?? minWords };
   return (
     <>
       <div className="mt-2">
         <Meter
           pct={minWords === 0 ? 100 : Math.min(100, (words / minWords) * 100)}
-          label={fill(t("{n} of {target} words written"), { n: words, target })}
+          label={maxWords
+            ? fill(t("{n} words written, aiming for {min} to {max}"), { n: words, ...range })
+            : fill(t("{n} of {target} words written"), { n: words, target: minWords })}
           tone={over ? "var(--blush)" : there ? "var(--sky)" : "var(--accent)"}
           height={4}
         />
       </div>
       <p className="mt-2 text-sm" style={{ color: over ? "var(--blush-ink)" : there ? "var(--sky-ink)" : "var(--ink-3)" }}>
-        {fillNodes(t("{n} of {target} words."), { n: <span className="tnum">{words}</span>, target })}{" "}
+        {maxWords
+          ? fillNodes(t("{n} words, aiming for {min} to {max}."), { n: <span className="tnum">{words}</span>, min: range.min, max: range.max })
+          : fillNodes(t("{n} of {target} words."), { n: <span className="tnum">{words}</span>, target: minWords })}{" "}
         {over
           ? fill(t("That's over the limit, which costs length marks, as on the real paper. Cut it back to {max}."), { max: maxWords ?? 0 })
           : t(there ? "That's long enough." : "Half the length still earns about half the length marks.")}

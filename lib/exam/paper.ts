@@ -1685,7 +1685,7 @@ export function writtenSaid(brief: WrittenBrief, asNote = false): { promptSaid: 
       }
       return said(
         template(
-          "This is {name}'s business card. Write a short text about them for somebody who has never met them.",
+          "This is {name}. Write a short text about them from what the card says, for somebody who has never met them.",
           {},
           { name: brief.person.name },
         ),
