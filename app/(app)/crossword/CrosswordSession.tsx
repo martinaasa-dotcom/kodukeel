@@ -163,7 +163,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
     */
     <div
       className="flex flex-col gap-3"
-      style={{ "--cw-cell": `clamp(2rem, calc((100dvh - 24rem) / ${puzzle.rows}), 2.75rem)` } as React.CSSProperties}
+      style={{ "--cw-cell": `min(clamp(2rem, calc((100dvh - 24rem) / ${puzzle.rows}), 2.75rem), calc((100vw - 4.5rem - ${(puzzle.cols - 1) * 4}px) / ${puzzle.cols}))` } as React.CSSProperties}
     >
       {/* The board is a lavender panel: squares lit where the word you are on
           runs, the clue under it in the display face. */}
