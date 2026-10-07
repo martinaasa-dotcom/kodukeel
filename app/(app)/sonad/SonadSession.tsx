@@ -294,7 +294,7 @@ export function SonadSession({ puzzle, day, guessable }: {
           it lands under a board a screen reader has already been read.
         */}
         {!over && (clue.category || clue.vowels || coming) && (
-          <p className="mt-1.5 text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
+          <p className="sonad-hint mt-1.5 text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
             {clue.category && puzzle.category && (
               <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>
                 It&apos;s {puzzle.category}.
@@ -307,7 +307,7 @@ export function SonadSession({ puzzle, day, guessable }: {
               </span>
             )}
             {coming && (
-              <span style={{ color: "var(--ink-3)" }}>
+              <span className="sonad-coming" style={{ color: "var(--ink-3)" }}>
                 {clue.category && puzzle.category ? " " : ""}{coming}
               </span>
             )}
@@ -442,7 +442,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
         Drawn from the same `HUE` and `RING` tables the circles are, so a
         legend cannot go on describing a colour the board has stopped using.
       */}
-      <ul className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-2xs" style={{ color: "var(--ink-3)" }}>
+      <ul className="sonad-legend mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-2xs" style={{ color: "var(--ink-3)" }}>
         {(["here", "elsewhere", "absent"] as const).map((mark) => (
           <li key={mark} className="flex items-center gap-1.5">
             <span
