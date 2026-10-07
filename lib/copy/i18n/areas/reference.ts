@@ -518,7 +518,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Say {word}", "Произнести {word}", "Вимовити {word}"],
   ["On the page as the {form}", "На странице в форме: {form}", "На сторінці у формі: {form}"],
   ["Known", "Знакомо", "Знайоме"],
-  ["Learning", "Учу", "Вчу"],
+  ["Learning", "Учу", "Вивчаю"],
   ["Not started", "Не начато", "Не розпочато"],
   ["Every word is already in your deck.", "Все слова уже в вашей колоде.", "Усі слова вже у вашій колоді."],
   ["Added {cards}.", "Добавлено: {cards}.", "Додано: {cards}."],

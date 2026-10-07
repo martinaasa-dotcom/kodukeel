@@ -288,7 +288,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
           )}
 
           <p className="mt-10 text-2xs" style={{ color: "var(--ink-3)" }}>
-            {t("Forms and sentences from the Institute of the Estonian Language, licensed CC BY 4.0. This worksheet was put together by Kodukeel. Nothing on it was written by software.")}
+            {t("Forms and sentences from the Institute of the Estonian Language, licensed CC BY 4.0. This worksheet was put together by Kodukeel. Nothing on it was written by AI.")}
           </p>
 
           {/* The key, on its own sheet, so it can be printed and kept back. */}

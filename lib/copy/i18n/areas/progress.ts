@@ -2302,7 +2302,7 @@ export const PROGRESS: Area = {
     "Mastered": "Опановано",
     "Almost there": "Майже опановано",
     "Needs work": "Треба підтягнути",
-    "Still learning": "Ще вчу",
+    "Still learning": "Ще вивчаю",
     "New": "Нові",
     "Relearning": "Вивчається заново",
     "This is a record of study that Kodukeel kept from its own log. It's not a certificate, and no examiner has checked anything on it.": "Це історія занять, яку Kodukeel вів за власним журналом. Це не сертифікат, і жоден екзаменатор нічого в ній не перевіряв.",
