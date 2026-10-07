@@ -230,7 +230,6 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
         level={paper.level}
         until={breakUntil}
         now={now}
-        nextLabel={part.spec.label}
         onResume={() => setBreakUntil(null)}
       />
     );
@@ -438,8 +437,8 @@ function formatRemaining(seconds: number): string {
  * number, and the screen says so. It can be ended early, and the clock on the
  * spoken part does not start until it is.
  */
-function Break({ level, until, now, nextLabel, onResume }: {
-  level: Paper["level"]; until: number; now: number; nextLabel: string; onResume: () => void;
+function Break({ level, until, now, onResume }: {
+  level: Paper["level"]; until: number; now: number; onResume: () => void;
 }) {
   const prompts = openingConversation(level);
   const left = Math.max(0, Math.round((until - now) / 1000));
@@ -456,7 +455,7 @@ function Break({ level, until, now, nextLabel, onResume }: {
         {t("Break")}
       </h1>
       <p className="mt-3 max-w-[56ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {t(`The written half is done and its clock has stopped. On the real day there's a short break before the spoken part, and this is yours. Stand up, get some water, and come back for ${nextLabel.toLowerCase()}.`)}
+        {t("The written half is done and its clock has stopped. On the real day there's a short break before the spoken part, and this is yours. Stand up, get some water, and come back for the spoken part.")}
       </p>
 
       <p
