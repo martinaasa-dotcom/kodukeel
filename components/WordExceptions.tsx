@@ -1,4 +1,9 @@
+"use client";
+
 import { Chip } from "@/components/ui";
+import { useLocale, useT } from "@/components/Locale";
+import { TrParts } from "@/components/TrParts";
+import { countOf, fill } from "@/lib/copy/locale";
 import { KIND_NOTES, type WordException } from "@/lib/estonian/exceptions";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { slotLabel } from "@/lib/srs/slots";
@@ -34,17 +39,19 @@ import { CaseLabel } from "@/components/CaseLabel";
  * cash in is furniture.
  */
 export function WordExceptions({ exceptions }: { exceptions: readonly WordException[] }) {
+  const t = useT();
+  const locale = useLocale();
   if (exceptions.length === 0) return null;
 
   return (
     <div>
       <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-        Where this word breaks the rules
+        {t("Where this word breaks the rules")}
       </h3>
       <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
         {exceptions.length === 1
-          ? "One form here isn't what the usual endings would give you."
-          : `${exceptions.length} forms here aren't what the usual endings would give you.`}
+          ? t("One form here isn't what the usual endings would give you.")
+          : fill(t("{forms} here aren't what the usual endings would give you."), { forms: countOf(locale, exceptions.length, "form") })}
       </p>
       <ul className="flex flex-col gap-2">
         {exceptions.map((ex) => (
@@ -68,8 +75,10 @@ export function ExceptionNote({ exception: ex, explained = false }: {
    */
   explained?: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const note = KIND_NOTES[ex.kind];
-  const ask = plainAskLine(ex.slot);
+  const ask = plainAskLine(ex.slot, locale);
   /* A case is drawn as one label, its name beside its question, never joined here. */
   const named = caseLabelFor(ex.slot, caseByKey(ex.slot)?.question);
 
@@ -86,7 +95,7 @@ export function ExceptionNote({ exception: ex, explained = false }: {
             </span>
           ))
         ) : (
-          <span className="text-md font-bold" style={{ color: "var(--ink)" }}>{note.title}</span>
+          <span className="text-md font-bold" style={{ color: "var(--ink)" }}>{t(note.title)}</span>
         )}
         {named ? (
           <CaseLabel label={named} className="text-xs" />
@@ -106,7 +115,7 @@ export function ExceptionNote({ exception: ex, explained = false }: {
 
       {!explained && (
         <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {note.what}
+          {t(note.what)}
         </p>
       )}
 
@@ -144,8 +153,10 @@ export function AlsoRight(
   if (!short || !long) return null;
   return (
     <p className={className} style={{ color: "var(--ink-3)" }}>
-      <span lang="et">{short}</span> is the short one, and{" "}
-      <span lang="et">{long}</span> is the long one you get from the ending. Both are right.
+      <TrParts
+        template="{short} is the short one, and {long} is the long one you get from the ending. Both are right."
+        parts={{ short: <span lang="et">{short}</span>, long: <span lang="et">{long}</span> }}
+      />
     </p>
   );
 }

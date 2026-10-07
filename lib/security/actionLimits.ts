@@ -1,4 +1,5 @@
 import { bucketForOwner, checkRateLimit } from "./rateLimit";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * How often one learner may run the actions that do real work per call.
@@ -205,6 +206,22 @@ export type ActionLimit = keyof typeof ACTION_LIMITS;
 export interface ActionRefusal {
   ok: false;
   error: string;
+  /** How long until the allowance comes back, so a caller can say it in the learner's language. */
+  retryAfterSec: number;
+}
+
+/**
+ * The refusal as a template, so the seconds travel as a value rather than
+ * inside a sentence a translation table could never match. The noun is
+ * counted (`countOf`), because Russian and Ukrainian say 1 секунду, 2 секунды
+ * and 5 секунд, where English says 1 second and 5 seconds.
+ */
+export const BUSY_REFUSAL =
+  "That's a lot in a short time, so we held this one back and nothing has changed. Try again in {time}.";
+
+/** The refusal in this locale, with the wait counted in it. */
+export function busyMessage(locale: Locale, seconds: number): string {
+  return fill(tr(locale, BUSY_REFUSAL), { time: countOf(locale, seconds, "second") });
 }
 
 /**
@@ -212,15 +229,13 @@ export interface ActionRefusal {
  *
  * Charged to the learner, never to their address, for the reason the whole
  * limiter module gives: twenty-five students in one classroom are one IP.
+ * The refusal is in English; `app/actions.ts` says it in the learner's own
+ * language before it goes back, off `retryAfterSec`.
  */
 export function throttleAction(ownerId: string, action: ActionLimit): ActionRefusal | null {
   const { perMinute } = ACTION_LIMITS[action];
   const limit = checkRateLimit(`action:${action}:${bucketForOwner(ownerId)}`, perMinute, 60_000);
   if (limit.ok) return null;
-  return {
-    ok: false,
-    error:
-      `That's a lot in a short time, so we held this one back and nothing has changed. ` +
-      `Try again in ${limit.retryAfterSec ?? 60} seconds.`,
-  };
+  const seconds = limit.retryAfterSec ?? 60;
+  return { ok: false, error: busyMessage("en", seconds), retryAfterSec: seconds };
 }

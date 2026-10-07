@@ -302,7 +302,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
     >
       <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
         <Chip tone="accent"><Blocks size={12} aria-hidden /> Tähed</Chip>
-        {streak >= 2 && <Chip tone="good">{streak} in a row</Chip>}
+        {streak >= 2 && <Chip tone="good">{fill(t("{n} in a row"), { n: streak })}</Chip>}
         <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("{n} spelled"), { n: correct })}</span>
         {/* After the answer, since the label names the word the board is hiding. */}
         {answered && <StarWord lexemeId={word.lexemeId} starred={word.starred} label={word.lemma} />}

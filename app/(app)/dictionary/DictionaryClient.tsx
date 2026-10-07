@@ -14,6 +14,7 @@ import { Card, Chip, Empty } from "@/components/ui";
 import { buildCaseTable, shownForms, stemsFrom } from "@/lib/estonian/derive";
 import { exceptionsFor } from "@/lib/estonian/exceptions";
 import { WordExceptions } from "@/components/WordExceptions";
+import { TrParts } from "@/components/TrParts";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { parseGovernment, readableGovernment } from "@/lib/estonian/government";
 import { caseByKey } from "@/lib/estonian/cases";
@@ -520,7 +521,7 @@ export function DictionaryClient({
               className="rounded-[var(--r)] px-4 py-3 text-sm"
               style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
             >
-              <Et className="font-semibold">{initialQuery}</Et> is the {matchedAs}.
+              <TrParts template="{word} is the {form}." parts={{ word: <Et className="font-semibold">{initialQuery}</Et>, form: matchedAs }} />
             </p>
           )}
           <Entry entry={entry} tutorReady={tutorReady} glossLanguage={glossLanguage} />

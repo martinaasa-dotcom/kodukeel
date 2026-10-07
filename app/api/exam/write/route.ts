@@ -8,6 +8,7 @@ import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledg
 import { reportError } from "@/lib/observability/report";
 import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
+import { localeFor } from "@/lib/progress/locale";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -81,7 +82,9 @@ export async function POST(request: Request) {
     comparison against the dictionary before any of this ran.
   */
   const chain = resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed });
-  const { graded, usage, config: answered } = await gradeComposition(chain, text, level);
+  // Written in the language the learner reads the app in; the Estonian rules are unchanged.
+  const language = await localeFor(ownerId).catch(() => "en" as const);
+  const { graded, usage, config: answered } = await gradeComposition(chain, text, level, language);
     after(() => recordUsage({
       ownerId, kind: "GRADER", provider: answered.name, model: answered.model,
       inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,

@@ -447,7 +447,7 @@ function Feedback({ marked, caseName, form }: { marked: Marked; caseName: string
       )}
 
       {quotaMessage && (
-        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{quotaMessage}</p>
+        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t(quotaMessage)}</p>
       )}
     </div>
   );

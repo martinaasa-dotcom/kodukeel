@@ -1956,7 +1956,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
 
       {item.ideas.length > 0 && (
         <div className="mt-3">
-          <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>Words you might use</p>
+          <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>{t("Words you might use")}</p>
           <p className="flex flex-wrap items-center gap-2">
             {item.ideas.map((idea) => (
               <Chip key={idea.lexemeId} caseSensitive>

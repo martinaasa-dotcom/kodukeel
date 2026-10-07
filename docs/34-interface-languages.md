@@ -32,7 +32,15 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
   static `metadata`, which cannot know who is asking. Public pages keep their English titles.
 - A server action returns its refusal in English and the screen translates it with `t()` where it
   is drawn. The one exception is a refusal that ends in what the database said (`safeMessage`):
-  the action translates its own sentence and leaves the redacted tail as it is.
+  the action translates its own sentence and leaves the redacted tail as it is. The other is a
+  refusal carrying a value a table cannot match, which is said on the server: the throttle's wait
+  (`busyMessage`, the seconds counted with `countOf`) and the size of a backup that arrived cut off.
+- A note a model writes for the learner (the writing grader, the picture round, Anu's reading of an
+  exam composition) is asked for in their language at the end of the user prompt (`writtenIn` in
+  `lib/tutor/grader.ts`), so the cached system prompt stays one prompt; the Estonian rules and the
+  verifier are unchanged.
+- A sentence with an element in a slot (an Estonian word in its own span) is one template drawn by
+  `components/TrParts.tsx`, never pieces translated apart.
 - The offline banner and the document's `lang` sit above the shell, so `components/ShellLocale.tsx`
   hands the language up to them; the shell's own wrapper carries `lang` from the first paint.
 - Anu explains in the learner's language: the tutor is told so in the per-learner block

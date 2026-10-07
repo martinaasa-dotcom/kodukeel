@@ -192,7 +192,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
       */}
       <nav
         data-chrome="rail"
-        aria-label="Main"
+        aria-label={t("Main")}
         className="rail sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r px-4 pb-4 pt-6 md:flex"
         style={{ borderColor: "var(--rule-soft)" }}
       >
@@ -204,7 +204,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
         */}
         <BrandLink
           href="/"
-          title="Today"
+          title={t("Today")}
           className="brand-tap tap-tint mb-7 mr-1 block shrink-0 cursor-pointer rounded-[var(--r)] px-2 py-2"
         >
           <span className="brand-mark">
@@ -302,10 +302,10 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               </span>
               <span className="min-w-0">
                 <span className="block text-sm font-semibold" style={{ color: "var(--ink)" }}>
-                  {name ?? "You"}
+                  {name ?? t("You")}
                 </span>
                 <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                  Settings
+                  {t("Settings")}
                 </span>
               </span>
             </button>
@@ -361,7 +361,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
       <nav
         ref={measure}
         data-chrome="dock"
-        aria-label="Main"
+        aria-label={t("Main")}
         /*
           The raised Today button stands up out of this box rather than being
           measured into it. Padding here for it was tried: it put a 36px
@@ -563,7 +563,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               ))}
             </div>
             <section aria-labelledby="sheet-app" className="mt-5">
-              <h3 id="sheet-app" className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>You</h3>
+              <h3 id="sheet-app" className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>{t("You")}</h3>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {app.map((item) => <SheetLink key={item.href} item={item} active={active(item.href)} />)}
               </div>
@@ -632,7 +632,7 @@ function RailLink({ item, active, pinned, classRow = false }: {
         }}
       />
       <span className="min-w-0">{t(item.label)}</span>
-      {pinned && <span className="sr-only">, pinned</span>}
+      {pinned && <span className="sr-only">{t(", pinned")}</span>}
     </Link>
   );
 }
@@ -652,10 +652,11 @@ const LEARN_HREF = "/learn";
  * one of them.
  */
 function TonightRows({ steps, at }: { steps: readonly ModuleStepRow[]; at: string }) {
+  const t = useT();
   if (steps.length === 0) return null;
   return (
     <ol
-      aria-label="Tonight"
+      aria-label={t("Tonight")}
       data-rail-tonight=""
       className="mb-1.5 ml-[1.1875rem] mt-0.5 flex flex-col gap-0.5 border-l-2 py-1 pl-3"
       style={{ borderColor: "color-mix(in oklab, var(--accent) 28%, transparent)" }}
@@ -676,11 +677,11 @@ function TonightRows({ steps, at }: { steps: readonly ModuleStepRow[]; at: strin
             >
               <span className="min-w-0 flex-1 py-1.5">{step.title}</span>
               {now ? (
-                <span className="shrink-0 text-xs font-medium">now</span>
+                <span className="shrink-0 text-xs font-medium">{t("now")}</span>
               ) : step.done ? (
                 <>
                   <Check size={14} aria-hidden className="shrink-0" style={{ color: "var(--good-ink)" }} />
-                  <span className="sr-only">, done</span>
+                  <span className="sr-only">{t(", done")}</span>
                 </>
               ) : null}
             </Link>
@@ -720,7 +721,7 @@ function AccountMenu({ onClose, onEdit, active }: {
     <div
       ref={box}
       role="group"
-      aria-label="You"
+      aria-label={t("You")}
       className="menu-pop absolute bottom-full left-0 z-50 mb-2 w-72 rounded-[var(--r-lg)] border p-2"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--shadow-lg)" }}
     >
@@ -730,11 +731,11 @@ function AccountMenu({ onClose, onEdit, active }: {
       </button>
       <Link href="/settings" className={item} aria-current={active("/settings") ? "page" : undefined} style={{ color: "var(--ink)" }}>
         <Settings size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
-        Settings
+        {t("Settings")}
       </Link>
       <Link href="/suggestions" className={item} aria-current={active("/suggestions") ? "page" : undefined} style={{ color: "var(--ink)" }}>
         <MessageSquareWarning size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
-        Suggested fixes
+        {t("Suggested fixes")}
       </Link>
       <div className="my-1 border-t" style={{ borderColor: "var(--rule-soft)" }} />
       <ThemeChoice />
