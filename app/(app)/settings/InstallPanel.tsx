@@ -4,6 +4,7 @@ import { Check, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/Button";
 import { isIosSafari, isStandalone, runInstall, useInstallEvent } from "@/components/installEvent";
+import { useT } from "@/components/Locale";
 
 /**
  * The install offer, where somebody can come and find it.
@@ -16,6 +17,7 @@ import { isIosSafari, isStandalone, runInstall, useInstallEvent } from "@/compon
  * already installed and there is nothing to do.
  */
 export function InstallPanel() {
+  const t = useT();
   const event = useInstallEvent();
   const [installed, setInstalled] = useState(false);
   const [ios, setIos] = useState(false);
@@ -28,7 +30,7 @@ export function InstallPanel() {
   if (installed) {
     return (
       <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "var(--sky-ink)" }}>
-        <Check size={14} aria-hidden /> It&rsquo;s installed on this device.
+        <Check size={14} aria-hidden /> {t("It's installed on this device.")}
       </p>
     );
   }
@@ -42,16 +44,16 @@ export function InstallPanel() {
           void runInstall(event).finally(() => setInstalled(isStandalone()));
         }}
       >
-        <Download size={16} aria-hidden /> Install Kodukeel
+        <Download size={16} aria-hidden /> {t("Install Kodukeel")}
       </Button>
     );
   }
 
   return (
     <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-      {ios
+      {t(ios
         ? "On an iPhone, tap the Share button, then Add to Home Screen."
-        : "This browser hasn't offered to install it. In Chrome or Edge, look for the button in the address bar. In Safari, it's under Share."}
+        : "This browser hasn't offered to install it. In Chrome or Edge, look for the button in the address bar. In Safari, it's under Share.")}
     </p>
   );
 }

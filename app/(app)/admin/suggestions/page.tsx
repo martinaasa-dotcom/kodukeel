@@ -13,6 +13,9 @@ import { ResetCourse } from "./ResetCourse";
 import { courseProgressRoster } from "@/lib/progress/courseReset";
 import { hardWordReadings } from "@/lib/progress/hard";
 import { firstParams } from "@/lib/ux/queryParam";
+import { requireUserId } from "@/lib/auth/session";
+import { localeFor } from "@/lib/progress/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 
 export const metadata = { title: "Suggested fixes, review queue" };
 
@@ -36,17 +39,19 @@ export default async function SuggestionsQueuePage({
 }: {
   searchParams: Promise<{ status?: string | string[]; category?: string | string[]; page?: string | string[] }>;
 }) {
+  const locale = await localeFor(await requireUserId());
+  const t = (english: string) => tr(locale, english);
   if (!(await isAdmin())) {
     return (
-      <Page title="Suggested fixes" lead="Reports from learners, waiting for whoever runs this copy of Kodukeel.">
+      <Page title={t("Suggested fixes")} lead={t("Reports from learners, waiting for whoever runs this copy of Kodukeel.")}>
         <Empty
-          title="Not this account"
-          body={
+          title={t("Not this account")}
+          body={t(
             adminsConfigured()
               ? "Suggestions are reviewed by whoever runs this copy."
-              : "Nobody has been made a reviewer here yet. Reports are still being kept, so nothing is lost."
-          }
-          action={<Link href="/suggestions" className="text-sm underline" style={{ color: "var(--accent-deep)" }}>Your own suggestions</Link>}
+              : "Nobody has been made a reviewer here yet. Reports are still being kept, so nothing is lost.",
+          )}
+          action={<Link href="/suggestions" className="text-sm underline" style={{ color: "var(--accent-deep)" }}>{t("Your own suggestions")}</Link>}
         />
       </Page>
     );
@@ -81,19 +86,20 @@ export default async function SuggestionsQueuePage({
     return query ? `/admin/suggestions?${query}` : "/admin/suggestions";
   };
 
+  const grouped = fill(t("{reports}, grouped so each problem needs one decision."), {
+    reports: countOf(locale, openTotal, "open report"),
+  });
+  const lead = `${grouped} ${t("Accepting a dictionary correction changes the entry for everybody straight away.")}`;
+
   return (
     <Page
-      title="Suggested fixes"
-      eyebrow="Review queue"
-      lead={
-        `${openTotal} open report${openTotal === 1 ? "" : "s"}, grouped so each problem needs one decision. ` +
-        `Accepting a dictionary correction changes the entry for everybody straight away.`
-      }
+      title={t("Suggested fixes")}
+      eyebrow={t("Review queue")}
+      lead={lead}
     >
       {!supabaseConfigured() && (
         <p className="mb-6 rounded-[var(--r)] px-4 py-3 text-sm" style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}>
-          This copy has no sign-in set up, so it&rsquo;s one learner on one computer, reviewing
-          their own reports.
+          {t("This copy has no sign-in set up, so it's one learner on one computer, reviewing their own reports.")}
         </p>
       )}
 
@@ -109,7 +115,7 @@ export default async function SuggestionsQueuePage({
               boxShadow: "var(--shadow-sm)",
             }}
           >
-            {s === "OPEN" ? "Open" : s === "ACCEPTED" ? "Accepted" : "Declined"}
+            {t(s === "OPEN" ? "Open" : s === "ACCEPTED" ? "Accepted" : "Declined")}
             <span className="tnum ml-2" style={{ color: "var(--ink-3)" }}>{queue.totals[s]}</span>
           </Link>
         ))}
@@ -125,7 +131,7 @@ export default async function SuggestionsQueuePage({
       <div className="mb-6 flex flex-col gap-3">
         {CATEGORY_GROUPS.filter((group) => categoriesInGroup(group).some((c) => queue.openByCategory[c] > 0 || category === c)).map((group) => (
           <div key={group} className="flex flex-wrap items-center gap-2">
-            <span className="label-xs min-w-20 shrink-0" style={{ color: "var(--ink-3)" }}>{group}</span>
+            <span className="label-xs min-w-20 shrink-0" style={{ color: "var(--ink-3)" }}>{t(group)}</span>
             {categoriesInGroup(group).filter((c) => queue.openByCategory[c] > 0 || category === c).map((c) => (
               <Link key={c} href={href({ category: category === c ? null : c, page: 0 })}>
                 <span
@@ -135,7 +141,7 @@ export default async function SuggestionsQueuePage({
                     color: category === c ? "var(--accent-deep)" : "var(--ink-2)",
                   }}
                 >
-                  {SUGGESTION_CATEGORIES[c].label}
+                  {t(SUGGESTION_CATEGORIES[c].label)}
                   <span className="tnum">{queue.openByCategory[c]}</span>
                 </span>
               </Link>
@@ -157,7 +163,7 @@ export default async function SuggestionsQueuePage({
       */}
       <QueueRows rows={queue.rows} status={status} />
 
-      <TooHard words={tooHard} />
+      <TooHard words={tooHard} locale={locale} />
 
       <ResetCourse
         rows={resetRoster.map((r) => ({ ...r, lastAt: r.lastAt ? r.lastAt.toISOString() : null }))}
@@ -166,20 +172,20 @@ export default async function SuggestionsQueuePage({
       {queue.groups > QUEUE_PAGE_SIZE && (
         <Card className="mt-6 flex items-center justify-between gap-3">
           <span className="text-sm" style={{ color: "var(--ink-2)" }}>
-            Page {page + 1} of {Math.ceil(queue.groups / QUEUE_PAGE_SIZE)}
+            {fill(t("Page {page} of {pages}"), { page: page + 1, pages: Math.ceil(queue.groups / QUEUE_PAGE_SIZE) })}
             <span className="ml-2" style={{ color: "var(--ink-3)" }}>
-              <Chip>{queue.groups} groups</Chip>
+              <Chip>{countOf(locale, queue.groups, "group")}</Chip>
             </span>
           </span>
           <span className="flex gap-2">
             {page > 0 && (
               <Link href={href({ page: page - 1 })} className="text-sm underline" style={{ color: "var(--accent-deep)" }}>
-                Previous
+                {t("Previous")}
               </Link>
             )}
             {(page + 1) * QUEUE_PAGE_SIZE < queue.groups && (
               <Link href={href({ page: page + 1 })} className="text-sm underline" style={{ color: "var(--accent-deep)" }}>
-                Next
+                {t("Next")}
               </Link>
             )}
           </span>

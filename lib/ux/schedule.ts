@@ -22,6 +22,7 @@
  */
 
 import type { DayClock, DayKey } from "@/lib/time/day";
+import type { Locale } from "@/lib/copy/locale";
 
 /** 0 Sunday to 6 Saturday, the numbering `Date.getUTCDay` uses. */
 export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -148,6 +149,41 @@ export function repeatLabel(weekdays: readonly number[]): string {
   const names = days.map((d) => WEEKDAY_LONG[d]!);
   const last = names.pop()!;
   return names.length === 0 ? `Every ${last}` : `Every ${names.join(", ")} and ${last}`;
+}
+
+/**
+ * The same line in the learner's own language.
+ *
+ * Not a translation of the English pieces, because "every Monday" is a case in
+ * both: «по понедельникам», «по понеділках». So each language names its days
+ * in the form the phrase needs, and only the joining words come from a table.
+ */
+const REPEAT_DAYS: Readonly<Record<Exclude<Locale, "en">, readonly string[]>> = {
+  ru: ["воскресеньям", "понедельникам", "вторникам", "средам", "четвергам", "пятницам", "субботам"],
+  uk: ["неділях", "понеділках", "вівторках", "середах", "четвергах", "п'ятницях", "суботах"],
+};
+const REPEAT_WORDS: Readonly<Record<Exclude<Locale, "en">, { once: string; daily: string; weekdays: string; every: string; and: string }>> = {
+  ru: { once: "Один раз", daily: "Каждый день", weekdays: "По будням", every: "По", and: "и" },
+  uk: { once: "Один раз", daily: "Щодня", weekdays: "По буднях", every: "По", and: "і" },
+};
+
+export function repeatLabelIn(locale: Locale, weekdays: readonly number[]): string {
+  if (locale === "en") return repeatLabel(weekdays);
+  const words = REPEAT_WORDS[locale];
+  const days = [...new Set(weekdays)].filter((d) => d >= 0 && d <= 6).sort();
+  if (days.length === 0) return words.once;
+  if (days.length === 7) return words.daily;
+  if (days.length === 5 && days.every((d) => d >= 1 && d <= 5)) return words.weekdays;
+  const names = days.map((d) => REPEAT_DAYS[locale][d]!);
+  const last = names.pop()!;
+  return names.length === 0 ? `${words.every} ${last}` : `${words.every} ${names.join(", ")} ${words.and} ${last}`;
+}
+
+/** "18:00 to 19:30" in the learner's language: «с 18:00 до 19:30». */
+export function spanIn(locale: Locale, startMinute: number, durationMinutes: number): string {
+  if (locale === "en") return span(startMinute, durationMinutes);
+  const end = atMinute(startMinute + Math.max(0, durationMinutes));
+  return locale === "ru" ? `с ${atMinute(startMinute)} до ${end}` : `з ${atMinute(startMinute)} до ${end}`;
 }
 
 /** A stored string, or the fallback when it is not a kind this app offers. */

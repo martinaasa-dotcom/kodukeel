@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Tr } from "@/components/Tr";
 
 /**
  * AN EXPLANATION THAT IS THERE WHEN IT IS WANTED AND NOT BEFORE.
@@ -28,7 +29,7 @@ import type { ReactNode } from "react";
  * open on a printed page. No state, no effect, no hydration, so it works in a
  * server component, which is where most of this copy lives.
  */
-export function Explain({ label = "How this works", children }: {
+export function Explain({ label, children }: {
   /**
    * What the reader is being offered, in three or four words.
    *
@@ -41,7 +42,7 @@ export function Explain({ label = "How this works", children }: {
 }) {
   return (
     <details className="explain">
-      <summary>{label}</summary>
+      <summary>{label ?? <Tr>How this works</Tr>}</summary>
       {/*
         The explanation itself is `text-sm`, which is the app's secondary body
         size, not `text-xs`. The whole point of moving it behind a press is

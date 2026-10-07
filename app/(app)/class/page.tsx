@@ -9,6 +9,9 @@ import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
 import { CreateClass, JoinClass } from "./ClassForms";
+import { localeFor } from "@/lib/progress/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
+import { filled } from "@/components/Filled";
 
 export const metadata = { title: "Classes" };
 
@@ -26,7 +29,7 @@ export const dynamic = "force-dynamic";
 export default async function ClassIndexPage() {
   const ownerId = await requireUserId();
 
-  const [memberships, settings, learner] = await Promise.all([
+  const [memberships, settings, learner, locale] = await Promise.all([
     prisma.classroomMember.findMany({
       where: { ownerId },
       include: {
@@ -38,7 +41,9 @@ export default async function ClassIndexPage() {
     }),
     readSettings(ownerId, [SETTING_KEYS.displayName]),
     currentLearner(),
+    localeFor(ownerId),
   ]);
+  const t = (english: string) => tr(locale, english);
 
   const counts = await prisma.classroomMember.groupBy({
     by: ["classroomId"],
@@ -57,14 +62,14 @@ export default async function ClassIndexPage() {
 
   return (
     <Page route="/class"
-      eyebrow="Learn together"
-      title="Classes"
-      lead="Your class can see how you're getting on, but never your deck, your searches or your answers."
+      eyebrow={t("Learn together")}
+      title={t("Classes")}
+      lead={t("Your class can see how you're getting on, but never your deck, your searches or your answers.")}
     >
       <Stack>
         {memberships.length > 0 && (
           <section>
-            <SectionTitle>Your classes</SectionTitle>
+            <SectionTitle>{t("Your classes")}</SectionTitle>
             <ul className="grid gap-3 lg:grid-cols-2">
               {memberships.map((m) => {
                 const workplace = cohortKind(m.classroom.kind) === "WORKPLACE";
@@ -86,7 +91,7 @@ export default async function ClassIndexPage() {
                           : owns ? <GraduationCap size={20} aria-hidden /> : <Users size={20} aria-hidden />}
                       </span>
                       <span className="flex shrink-0 flex-wrap justify-end gap-1.5 whitespace-nowrap">
-                        {m.classroom.archived && <Chip>archived</Chip>}
+                        {m.classroom.archived && <Chip>{t("archived")}</Chip>}
                         {owns && !m.classroom.archived && (
                           <Chip tone="accent" caseSensitive>{m.classroom.code}</Chip>
                         )}
@@ -97,10 +102,12 @@ export default async function ClassIndexPage() {
                         {m.classroom.name}
                       </span>
                       <span className="mt-1 block text-sm" style={{ color: "var(--ink-3)" }}>
-                        {workplace
-                          ? (owns ? "You run this group" : "You're in this group")
-                          : (owns ? "You teach this class" : "You're a student here")},{" "}
-                        {sizeOf.get(m.classroomId) ?? 1} member{(sizeOf.get(m.classroomId) ?? 1) === 1 ? "" : "s"}
+                        {fill(t("{role}, {members}"), {
+                          role: t(workplace
+                            ? (owns ? "You run this group" : "You're in this group")
+                            : (owns ? "You teach this class" : "You're a student here")),
+                          members: countOf(locale, sizeOf.get(m.classroomId) ?? 1, "member"),
+                        })}
                       </span>
                     </span>
                   </Link>
@@ -114,20 +121,17 @@ export default async function ClassIndexPage() {
         {shareable ? (
           <div className="grid gap-5 md:grid-cols-2">
             <section>
-              <SectionTitle hint="students">Join a class</SectionTitle>
+              <SectionTitle hint={t("students")}>{t("Join a class")}</SectionTitle>
               <Card tone="sky">
                 <JoinClass suggestedName={suggestedName} />
               </Card>
             </section>
 
             <section>
-              <SectionTitle hint="teachers and employers">Start a group</SectionTitle>
+              <SectionTitle hint={t("teachers and employers")}>{t("Start a group")}</SectionTitle>
               <Card tone="accent">
                 <p className="mb-4 text-sm" style={{ color: "var(--ink-2)" }}>
-                  Either way, you get a six-character join code and a list of who&rsquo;s in. A class shows
-                  who&rsquo;s really reviewing, what the whole group keeps tripping over, and the one
-                  case each student finds hardest. A workplace group leaves the grammar out and just
-                  shows who&rsquo;s on track for the exam they need to pass.
+                  {t("Either way, you get a six-character join code and a list of who's in. A class shows who's really reviewing, what the whole group keeps tripping over, and the one case each student finds hardest. A workplace group leaves the grammar out and just shows who's on track for the exam they need to pass.")}
                 </p>
                 {/*
                   On the screen rather than behind the press beside it: this is
@@ -138,10 +142,9 @@ export default async function ClassIndexPage() {
                   disclosure nobody opens does not.
                 */}
                 <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  Pupils under 13 need a parent to agree first, and that&rsquo;s the school&rsquo;s call
-                  rather than ours. The{" "}
-                  <Link href="/privacy" className="underline underline-offset-2">privacy page</Link>{" "}
-                  explains what&rsquo;s kept and what you can see.
+                  {filled(t("Pupils under 13 need a parent to agree first, and that's the school's call rather than ours. The {link} explains what's kept and what you can see."), {
+                    link: <Link href="/privacy" className="underline underline-offset-2">{t("privacy page")}</Link>,
+                  })}
                 </p>
                 <CreateClass />
               </Card>
@@ -153,26 +156,20 @@ export default async function ClassIndexPage() {
               <School size={20} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
               <div>
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
-                  Classes need sign-in, and this copy of Kodukeel runs without it, for one learner on
-                  one computer. Everything else works just the same.
+                  {t("Classes need sign-in, and this copy of Kodukeel runs without it, for one learner on one computer. Everything else works just the same.")}
                 </p>
-                <Explain label="Turning sign-in on">
-                  Set <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and its anon key. The
-                  README walks you through it in about ten minutes.
+                <Explain label={t("Turning sign-in on")}>
+                  {filled(t("Set {variable} and its anon key. The README walks you through it in about ten minutes."), {
+                    variable: <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code>,
+                  })}
                 </Explain>
               </div>
             </div>
           </Card>
         )}
 
-        <Explain label="What a teacher or an employer can see">
-          A teacher sees effort and progress: reviews this week, streak, words known, the cases
-          the whole class keeps missing, and the one case each student finds hardest, as a
-          percentage across all their reviews. Whoever runs a workplace group sees less, never
-          more: a name, whether somebody has been practicing, and one of four bands for the exam
-          the group is working toward. Never a search, a deck or a single answer, and never a
-          colleague&rsquo;s weak grammar. And that&rsquo;s not just a promise: anything a page isn&rsquo;t
-          allowed to show is never even fetched.
+        <Explain label={t("What a teacher or an employer can see")}>
+          {t("A teacher sees effort and progress: reviews this week, streak, words known, the cases the whole class keeps missing, and the one case each student finds hardest, as a percentage across all their reviews. Whoever runs a workplace group sees less, never more: a name, whether somebody has been practicing, and one of four bands for the exam the group is working toward. Never a search, a deck or a single answer, and never a colleague's weak grammar. And that's not just a promise: anything a page isn't allowed to show is never even fetched.")}
         </Explain>
       </Stack>
     </Page>

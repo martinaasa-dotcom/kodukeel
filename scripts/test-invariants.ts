@@ -5719,7 +5719,6 @@ check("an empty cell goes through NO_VALUE, never a literal", () => {
  */
 const PLURAL_COUNT_EXEMPT: Readonly<Record<string, string>> = {
   "app/(chromeless)/welcome/page.tsx": "the dictionary's size, which is thousands",
-  "app/(app)/settings/page.tsx": "the daily goal, whose smallest setting is five",
   "components/WeakestCases.tsx": "a case is listed only above its floor of answers",
   "app/(app)/exam/[level]/ExamSession.tsx": "a dictation is a sentence, and a single word is said as one word",
 };
@@ -8571,7 +8570,7 @@ check("every dead end in the app offers a way to report it", () => {
         here, so this is the file that has to keep both.
       */
       "components/ScreenFailed.tsx",
-      /didn&rsquo;t load|did not load/,
+      /didn&rsquo;t load|didn't load|did not load/,
       "a screen that threw",
     ],
     [

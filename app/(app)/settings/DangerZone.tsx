@@ -6,6 +6,9 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { deleteMyAccount } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { Card, SectionTitle } from "@/components/ui";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
+import { filled } from "@/components/Filled";
 /*
   Fetched when it is needed rather than imported: the Supabase browser client
   is 254 KB with its Buffer polyfill, and Settings only needs it after an
@@ -23,6 +26,8 @@ import { forgetThisDevice } from "@/lib/offline/forget";
  * first, and the review history is the part that cannot be recreated.
  */
 export function DangerZone({ counts }: { counts: { cards: number; reviews: number } }) {
+  const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [confirmation, setConfirmation] = useState("");
@@ -45,11 +50,11 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
     try {
       const result = await deleteMyAccount(confirmation);
       if (!result.ok) {
-        setError(result.error);
+        setError(t(result.error));
         return;
       }
       if (result.remaining) {
-        setRemaining(result.remaining);
+        setRemaining(t(result.remaining));
         return;
       }
       // Signing out here as well: the data is gone, so a session pointing at it
@@ -60,7 +65,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
       router.push("/sign-in");
       router.refresh();
     } catch {
-      setError("Something went wrong, so nothing has been deleted. Try again in a moment.");
+      setError(t("Something went wrong, so nothing has been deleted. Try again in a moment."));
     } finally {
       setBusy(false);
     }
@@ -68,18 +73,16 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
 
   return (
     <section>
-      <SectionTitle>Deleting your data</SectionTitle>
+      <SectionTitle>{t("Deleting your data")}</SectionTitle>
       <Card>
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          You can delete everything this app keeps about you. That&rsquo;s {counts.cards} cards,{" "}
-          {counts.reviews} reviews, your tasks, your chats with Anu, your scanned word lists, your
-          level checks, and every mock exam you sat, writing included. Any class you&rsquo;re in or
-          run goes too, along with your badges and settings. The shared dictionary stays, because
-          other learners have cards built on it.
+          {fill(t("You can delete everything this app keeps about you. That's {cards}, {reviews}, your tasks, your chats with Anu, your scanned word lists, your level checks, and every mock exam you sat, writing included. Any class you're in or run goes too, along with your badges and settings. The shared dictionary stays, because other learners have cards built on it."), {
+            cards: countOf(locale, counts.cards, "card"),
+            reviews: countOf(locale, counts.reviews, "review"),
+          })}
         </p>
         <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-          If there&rsquo;s any chance you&rsquo;ll want it back, download a backup first. Your review
-          history and anything you wrote in an exam can&rsquo;t be rebuilt, and we don&rsquo;t keep a copy.
+          {t("If there's any chance you'll want it back, download a backup first. Your review history and anything you wrote in an exam can't be rebuilt, and we don't keep a copy.")}
         </p>
 
         {remaining ? (
@@ -96,14 +99,14 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
                   router.refresh();
                 }}
               >
-                Sign out
+                {t("Sign out")}
               </Button>
             </div>
           </div>
         ) : !open ? (
           <div className="mt-4">
             <Button variant="danger" onClick={() => setOpen(true)}>
-              Delete everything
+              {t("Delete everything")}
             </Button>
           </div>
         ) : (
@@ -114,14 +117,14 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
             <p className="flex items-start gap-2 text-sm">
               <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
               <span>
-                This can&rsquo;t be undone. Type <strong>delete</strong> to confirm.
+                {filled(t("This can't be undone. Type {word} to confirm."), { word: <strong>delete</strong> })}
               </span>
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <input
                 value={confirmation}
                 onChange={(e) => setConfirmation(e.target.value)}
-                aria-label="Type delete to confirm"
+                aria-label={t("Type delete to confirm")}
                 placeholder="delete"
                 className="field text-sm"
                 style={{
@@ -134,11 +137,11 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
                 onClick={() => void remove()}
               >
                 {busy
-                  ? <><Loader2 size={14} className="animate-spin" aria-hidden /> Deleting…</>
-                  : "Delete everything permanently"}
+                  ? <><Loader2 size={14} className="animate-spin" aria-hidden /> {t("Deleting…")}</>
+                  : t("Delete everything permanently")}
               </Button>
               <Button onClick={() => { setOpen(false); setConfirmation(""); setError(null); }}>
-                Cancel
+                {t("Cancel")}
               </Button>
             </div>
             {error && (

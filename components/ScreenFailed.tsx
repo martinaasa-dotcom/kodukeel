@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { TriangleAlert } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { SuggestFix } from "@/components/SuggestFix";
+import { useT } from "@/components/Locale";
+import { filled } from "@/components/Filled";
 
 /**
  * What a reader is told when a screen threw while it was being drawn.
@@ -48,6 +50,7 @@ export const SCREEN_FAILED_FRAME =
   "mx-auto flex min-h-[70vh] max-w-lg flex-col items-center justify-center gap-4 px-6 text-center";
 
 export function ScreenFailed({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  const t = useT();
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -56,11 +59,10 @@ export function ScreenFailed({ error, reset }: { error: Error & { digest?: strin
     <>
       <TriangleAlert size={28} aria-hidden style={{ color: "var(--hard-ink)" }} />
       <h1 className="text-2xl font-bold" style={{ color: "var(--ink)" }}>
-        That screen didn&rsquo;t load
+        {t("That screen didn't load")}
       </h1>
       <p className="text-base" style={{ color: "var(--ink-2)" }}>
-        Nothing has been lost. Your words and your review history are safe, and trying again
-        usually sorts it out.
+        {t("Nothing has been lost. Your words and your review history are safe, and trying again usually sorts it out.")}
       </p>
       {/*
         WHAT THE FRAMEWORK PUTS IN `error.message` IS NOT A SENTENCE ANYBODY
@@ -83,23 +85,25 @@ export function ScreenFailed({ error, reset }: { error: Error & { digest?: strin
       */}
       {error.digest ? (
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          Reference{" "}
-          <code className="rounded px-1.5 py-0.5" style={{ background: "var(--raised)" }}>
-            {error.digest}
-          </code>
-          . If you run this copy of Kodukeel, the server log will show what actually went wrong.
+          {filled(t("Reference {digest}. If you run this copy of Kodukeel, the server log will show what actually went wrong."), {
+            digest: (
+              <code className="rounded px-1.5 py-0.5" style={{ background: "var(--raised)" }}>
+                {error.digest}
+              </code>
+            ),
+          })}
         </p>
       ) : (
         <code
           className="max-w-full overflow-x-auto rounded-[var(--r)] px-3 py-2 text-left text-xs"
           style={{ background: "var(--raised)", color: "var(--ink-2)" }}
         >
-          {error.message || "Unknown error"}
+          {error.message || t("Unknown error")}
         </code>
       )}
       <div className="mt-2 flex gap-3">
-        <ButtonLink href="/">Back to Today</ButtonLink>
-        <Button variant="primary" onClick={reset}>Try again</Button>
+        <ButtonLink href="/">{t("Back to Today")}</ButtonLink>
+        <Button variant="primary" onClick={reset}>{t("Try again")}</Button>
       </div>
       {/*
         A screen that failed is the one place a person has nothing else to do,

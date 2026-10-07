@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setGlossLanguage } from "@/app/actions";
 import { ChoiceSegment } from "@/components/Choice";
+import { useT } from "@/components/Locale";
 import {
   GLOSS_LANGUAGES, type GlossLanguage,
 } from "@/lib/collections/glossLanguage";
@@ -16,6 +17,7 @@ import {
  * reading down a list of English words for languages.
  */
 export function GlossLanguagePanel({ current }: { current: GlossLanguage }) {
+  const t = useT();
   const [value, setValue] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -31,14 +33,16 @@ export function GlossLanguagePanel({ current }: { current: GlossLanguage }) {
 
   return (
     <ChoiceSegment
-      ariaLabel="Which language you see meanings in"
+      ariaLabel={t("Which language you see meanings in")}
       value={value}
       disabled={pending}
       onSelect={pick}
       options={GLOSS_LANGUAGES.map((option) => ({
         id: option.id,
-        title: option.label,
-        detail: option.id === "en" ? "Meanings in English only." : `The ${option.label} meaning next to the English, wherever the dictionary has one.`,
+        title: t(option.label),
+        detail: t(option.id === "en" ? "Meanings in English only."
+          : option.id === "ru" ? "The Russian meaning next to the English, wherever the dictionary has one."
+            : "The Ukrainian meaning next to the English, wherever the dictionary has one."),
       }))}
     />
   );

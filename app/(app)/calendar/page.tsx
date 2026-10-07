@@ -7,6 +7,8 @@ import { isClasswork } from "@/lib/ux/agenda";
 import { Page, Stack } from "@/components/ui";
 import { CalendarWeek } from "./CalendarWeek";
 import { firstParams } from "@/lib/ux/queryParam";
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
 export const metadata = { title: "Calendar" };
 
@@ -50,7 +52,7 @@ export default async function CalendarPage({
   // nobody asked for rendered from a number nobody meant.
   const offset = Math.max(-52, Math.min(52, Number.parseInt(w ?? "0", 10) || 0));
 
-  const [zone, events, tasks] = await Promise.all([
+  const [zone, events, tasks, locale] = await Promise.all([
     readSetting(ownerId, SETTING_KEYS.timeZone),
     prisma.studyEvent.findMany({
       where: { ownerId },
@@ -62,6 +64,7 @@ export default async function CalendarPage({
       orderBy: [{ dueAt: "asc" }, { id: "asc" }],
       take: 200,
     }),
+    localeFor(ownerId),
   ]);
 
   /*
@@ -87,8 +90,8 @@ export default async function CalendarPage({
 
   return (
     <Page route="/calendar"
-      title="Calendar"
-      lead="Your Estonian week: classes, study time, and what's due when."
+      title={tr(locale, "Calendar")}
+      lead={tr(locale, "Your Estonian week: classes, study time, and what's due when.")}
     >
       <Stack>
         <CalendarWeek

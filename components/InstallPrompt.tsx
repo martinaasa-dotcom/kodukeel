@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Download, Share, X } from "lucide-react";
 import { Button } from "@/components/Button";
 import { isIosSafari, isStandalone, runInstall, useInstallEvent } from "@/components/installEvent";
+import { useT } from "@/components/Locale";
+import { filled } from "@/components/Filled";
 import {
   dayKey,
   markDismissed,
@@ -37,6 +39,7 @@ const IOS_HINT_DELAY_MS = 20_000;
  * will allow one. Somebody who wants it can find it on the day they want it.
  */
 export function InstallPrompt() {
+  const t = useT();
   const event = useInstallEvent();
   const [iosHint, setIosHint] = useState(false);
   const [open, setOpen] = useState(false);
@@ -104,7 +107,7 @@ export function InstallPrompt() {
     <div
       className="bottom-notice pop-in fixed left-1/2 z-[85] flex w-[min(94vw,420px)] -translate-x-1/2 items-start gap-3 rounded-[var(--r-lg)] border p-4"
       role="dialog"
-      aria-label="Install Kodukeel"
+      aria-label={t("Install Kodukeel")}
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-float)" }}
     >
       <span
@@ -115,20 +118,22 @@ export function InstallPrompt() {
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-base font-bold" style={{ color: "var(--ink)" }}>
-          Keep Kodukeel on your home screen
+          {t("Keep Kodukeel on your home screen")}
         </p>
         <p className="mt-0.5 text-xs" style={{ color: "var(--ink-2)" }}>
           {iosHint ? (
             <>
-              Tap <Share size={12} className="inline" aria-label="the Share button" />, then{" "}
-              <strong>Add to Home Screen</strong>. It opens straight to your review, even with no signal.
+              {filled(t("Tap {share}, then {add}. It opens straight to your review, even with no signal."), {
+                share: <Share size={12} className="inline" aria-label={t("the Share button")} />,
+                add: <strong>{t("Add to Home Screen")}</strong>,
+              })}
             </>
           ) : (
-            "It opens straight to your review, which keeps working even with no signal."
+            t("It opens straight to your review, which keeps working even with no signal.")
           )}
         </p>
         <p className="mt-1.5 text-2xs" style={{ color: "var(--ink-3)" }}>
-          We&rsquo;ll only ask this once. It&rsquo;s in Settings if you change your mind.
+          {t("We'll only ask this once. It's in Settings if you change your mind.")}
         </p>
         {open && event && (
           <Button
@@ -138,14 +143,14 @@ export function InstallPrompt() {
               void runInstall(event).finally(dismiss);
             }}
           >
-            Install
+            {t("Install")}
           </Button>
         )}
       </div>
       <button
         type="button"
         onClick={dismiss}
-        aria-label="Not now"
+        aria-label={t("Not now")}
         className="press flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
         style={{ color: "var(--ink-3)" }}
       >

@@ -9,6 +9,8 @@ import { AnuFace } from "@/components/anu/AnuFace";
 import { useAnuChat, type Msg } from "@/components/anu/useAnuChat";
 import { useStickToBottom } from "@/components/anu/useStickToBottom";
 import { AnuFailure, AnuOffline, Bubble, Provenance, SentenceCheck, Starters, sentenceCheckPrompt } from "@/components/anu/AnuParts";
+import { useT } from "@/components/Locale";
+import { filled } from "@/components/Filled";
 
 export function TutorChat({
   configured, readerCanConfigure, plannedLabel, history, initialQuestion,
@@ -27,6 +29,7 @@ export function TutorChat({
   /** A question handed over from elsewhere: written into the box, not sent. */
   initialQuestion?: string;
 }) {
+  const t = useT();
   const { messages, streaming, answeredBy, failure, send, online } = useAnuChat(history);
   const [input, setInput] = useState(initialQuestion ?? "");
   const [checkOpen, setCheckOpen] = useState(false);
@@ -53,12 +56,12 @@ export function TutorChat({
         <AnuFace size={76} mood="thinking" className="float" />
         <div className="max-w-[46ch]">
           <h2 className="font-display text-3xl font-bold" style={{ color: "var(--ink)" }}>
-            {readerCanConfigure ? "Anu needs an AI key" : "Anu isn't here right now"}
+            {t(readerCanConfigure ? "Anu needs an AI key" : "Anu isn't here right now")}
           </h2>
           <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {readerCanConfigure
+            {t(readerCanConfigure
               ? "She explains why a word takes the form it does, and checks sentences you write. Everything else works without her, and Settings walks you through getting a free key."
-              : "Everything else here works just fine without her."}
+              : "Everything else here works just fine without her.")}
           </p>
         </div>
         {/* A question handed over by the card the learner just got wrong.
@@ -70,11 +73,11 @@ export function TutorChat({
             className="max-w-[52ch] rounded-[var(--r-lg)] px-4 py-3 text-sm leading-relaxed"
             style={{ background: "rgb(255 255 255 / 0.08)", border: "1px solid rgb(255 255 255 / 0.14)", color: "var(--ink-2)" }}
           >
-            Here&rsquo;s the question you came with: <span style={{ color: "var(--ink)" }}>{initialQuestion}</span>
+            {filled(t("Here's the question you came with: {question}"), { question: <span style={{ color: "var(--ink)" }}>{initialQuestion}</span> })}
           </p>
         )}
         {readerCanConfigure && (
-          <ButtonLink href="/settings" variant="primary">Get a free key in Settings</ButtonLink>
+          <ButtonLink href="/settings" variant="primary">{t("Get a free key in Settings")}</ButtonLink>
         )}
       </Card>
     );
@@ -86,13 +89,12 @@ export function TutorChat({
         <Card tone="blush" className="flex items-start gap-4">
           <AnuFace size={60} className="float shrink-0" />
           <div>
-            <p className="text-xl font-bold" style={{ color: "var(--ink)" }}>Tere! Ma olen Anu.</p>
+            <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>Tere! Ma olen Anu.</p>
             <p className="mt-1.5 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Ask me anything about Estonian grammar. I&rsquo;ll tell you why, as well as what, and if
-              I&rsquo;m not sure of a form I&rsquo;ll say so instead of guessing.
+              {t("Ask me anything about Estonian grammar. I'll tell you why, as well as what, and if I'm not sure of a form I'll say so instead of guessing.")}
             </p>
             <p className="mt-3 flex items-center gap-1.5 text-xs" style={{ color: "var(--blush-ink)" }}>
-              <Sparkles size={13} aria-hidden /> Pick a question below to start, or just ask your own.
+              <Sparkles size={13} aria-hidden /> {t("Pick a question below to start, or just ask your own.")}
             </p>
           </div>
         </Card>
@@ -102,7 +104,7 @@ export function TutorChat({
           className="flex flex-col gap-4"
           role="log"
           aria-live="polite"
-          aria-label="Conversation with Anu"
+          aria-label={t("Conversation with Anu")}
         >
           {messages.map((m, i) => <Bubble key={i} message={m} streaming={streaming && i === messages.length - 1} />)}
         </div>
@@ -141,8 +143,8 @@ export function TutorChat({
             value={input}
             onChange={setInput}
             onEnter={() => { if (send(input)) setInput(""); }}
-            placeholder="Why is it raamatut and not raamatu?"
-            ariaLabel="Ask Anu a question"
+            placeholder={t("Why is it raamatut and not raamatu?")}
+            ariaLabel={t("Ask Anu a question")}
             autoFocus={Boolean(initialQuestion)}
           />
         </div>
@@ -152,7 +154,7 @@ export function TutorChat({
           onClick={() => { if (send(input)) setInput(""); }}
           disabled={streaming || !input.trim() || !online}
         >
-          <Send size={15} aria-hidden /> {streaming ? "Thinking…" : "Ask"}
+          <Send size={15} aria-hidden /> {t(streaming ? "Thinking…" : "Ask")}
         </Button>
       </div>
 

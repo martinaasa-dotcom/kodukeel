@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { dayClock } from "@/lib/time/day";
 import {
-  atMinute, eventsOn, kindFrom, repeatLabel, span, weekdayOf, weekOf, type StudyEvent,
+  atMinute, eventsOn, kindFrom, repeatLabel, repeatLabelIn, span, spanIn, weekdayOf, weekOf, type StudyEvent,
 } from "./schedule";
 
 const event = (over: Partial<StudyEvent> = {}): StudyEvent => ({
@@ -129,6 +129,15 @@ describe("repeatLabel", () => {
 
   it("ignores a day number that is not a day", () => {
     expect(repeatLabel([1, 9, -2])).toBe("Every Monday");
+  });
+
+  it("says it in Russian and Ukrainian with the days in the case the phrase needs", () => {
+    expect(repeatLabelIn("en", [1, 3])).toBe("Every Monday and Wednesday");
+    expect(repeatLabelIn("ru", [1, 3, 5])).toBe("По понедельникам, средам и пятницам");
+    expect(repeatLabelIn("uk", [2, 6])).toBe("По вівторках і суботах");
+    expect(repeatLabelIn("ru", [1, 2, 3, 4, 5])).toBe("По будням");
+    expect(spanIn("ru", 18 * 60, 90)).toBe("с 18:00 до 19:30");
+    expect(spanIn("uk", 18 * 60, 90)).toBe("з 18:00 до 19:30");
   });
 });
 

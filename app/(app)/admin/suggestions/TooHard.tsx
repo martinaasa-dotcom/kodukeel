@@ -1,6 +1,7 @@
 import { Card, Chip, SectionTitle } from "@/components/ui";
 import { HARD_LEARNERS, HARD_SHARE } from "@/lib/srs/defer";
 import type { HardWordReading } from "@/lib/progress/hard";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * WHAT THE "TOO COMPLICATED" BUTTON HAS SAID ABOUT THE COURSE.
@@ -17,17 +18,20 @@ import type { HardWordReading } from "@/lib/progress/hard";
  * the next thing to look at, and a panel that only listed what had already
  * been acted on would be reporting its own decisions back.
  */
-export function TooHard({ words }: { words: readonly HardWordReading[] }) {
+export function TooHard({ words, locale }: { words: readonly HardWordReading[]; locale: Locale }) {
   if (words.length === 0) return null;
+  const t = (english: string) => tr(locale, english);
 
   return (
     <Card className="mt-8">
-      <SectionTitle hint={`${words.length} ${words.length === 1 ? "word" : "words"}`}>
-        Too complicated
+      <SectionTitle hint={countOf(locale, words.length, "word")}>
+        {t("Too complicated")}
       </SectionTitle>
       <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-        Words learners have put aside as too hard for now. Once {HARD_LEARNERS} people, and {Math.round(HARD_SHARE * 100)} percent
-        of everyone who has the word, have done that, it&rsquo;s taught a level later for everybody.
+        {fill(t("Words learners have put aside as too hard for now. Once {people} people, and {share} percent of everyone who has the word, have done that, it's taught a level later for everybody."), {
+          people: HARD_LEARNERS,
+          share: Math.round(HARD_SHARE * 100),
+        })}
       </p>
 
       <ul className="mt-4 flex flex-col gap-2">
@@ -42,11 +46,11 @@ export function TooHard({ words }: { words: readonly HardWordReading[] }) {
             </span>
             {word.cefr && <Chip tone="sky">{word.cefr}</Chip>}
             <span className="tnum text-xs" style={{ color: "var(--ink-2)" }}>
-              {word.learners} of {word.holders}
+              {fill(t("{used} of {limit}"), { used: word.learners, limit: word.holders })}
             </span>
             {/* The one thing on the row that is a fact about this deployment
                 rather than about the word. */}
-            {word.moved && <Chip tone="hard">moved up</Chip>}
+            {word.moved && <Chip tone="hard">{t("moved up")}</Chip>}
           </li>
         ))}
       </ul>

@@ -3,13 +3,17 @@
 import { Check, Copy } from "lucide-react";
 import { COPY_LABEL, useCopy } from "@/components/useCopy";
 import { Explain } from "@/components/Explain";
+import { useT } from "@/components/Locale";
+import { filled } from "@/components/Filled";
 
-const STEPS = [
-  { text: "Go to ", link: { href: "https://ekilex.ee", label: "ekilex.ee" }, after: " and register. It's free and needs no card." },
-  { text: "Once signed in, open your ", strong: "profile", after: ", then the ", strong2: "API", after2: " tab." },
-  { text: "Ask for a reader key, and copy it once it arrives." },
-  { text: "In this project's folder, open the file called ", code: ".env", after: " and paste the key between the quotes, like the example below." },
-  { text: "Stop the app (Ctrl-C in the terminal) and run ", code: "npm run dev", after: " again." },
+/* One sentence a step, with a slot for each name in it, so a translation can
+   put the link or the tab wherever its own word order wants it. */
+const STEPS: { line: string; link?: { href: string; label: string }; strong?: string; strong2?: string; code?: string }[] = [
+  { line: "Go to {link} and register. It's free and needs no card.", link: { href: "https://ekilex.ee", label: "ekilex.ee" } },
+  { line: "Once signed in, open your {strong}, then the {strong2} tab.", strong: "profile", strong2: "API" },
+  { line: "Ask for a reader key, and copy it once it arrives." },
+  { line: "In this project's folder, open the file called {code} and paste the key between the quotes, like the example below.", code: ".env" },
+  { line: "Stop the app (Ctrl-C in the terminal) and run {code} again.", code: "npm run dev" },
 ];
 
 /**
@@ -24,6 +28,7 @@ const UNLOCKS = [
 ];
 
 export function EkilexSetupGuide() {
+  const t = useT();
   const [copied, copy] = useCopy();
   // Empty on purpose, matching .env.example: the value is never rendered
   // whole, since the assignment shape "EKILEX_API_KEY=<8+ chars>" is exactly
@@ -35,14 +40,13 @@ export function EkilexSetupGuide() {
   return (
     <div>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Search, cards and audio all work without a key. A free reader key from the Institute of the
-        Estonian Language gets you the rest:
+        {t("Search, cards and audio all work without a key. A free reader key from the Institute of the Estonian Language gets you the rest:")}
       </p>
       <ul className="mt-3 flex flex-col gap-1.5">
         {UNLOCKS.map((u) => (
           <li key={u} className="flex gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
             <Check size={14} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--accent-deep)" }} />
-            <span>{u}</span>
+            <span>{t(u)}</span>
           </li>
         ))}
       </ul>
@@ -57,21 +61,20 @@ export function EkilexSetupGuide() {
               {i + 1}
             </span>
             <span>
-              {s.text}
-              {s.link && (
-                <a href={s.link.href} target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent-deep)" }}>
-                  {s.link.label}
-                </a>
-              )}
-              {s.strong && <strong style={{ color: "var(--ink)" }}>{s.strong}</strong>}
-              {s.after}
-              {s.strong2 && <strong style={{ color: "var(--ink)" }}>{s.strong2}</strong>}
-              {s.after2}
-              {s.code && (
-                <code className="rounded-md px-1.5 py-0.5 text-xs" style={{ background: "var(--raised)", color: "var(--ink)" }}>
-                  {s.code}
-                </code>
-              )}
+              {filled(t(s.line), {
+                link: s.link && (
+                  <a href={s.link.href} target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent-deep)" }}>
+                    {s.link.label}
+                  </a>
+                ),
+                strong: s.strong && <strong style={{ color: "var(--ink)" }}>{t(s.strong)}</strong>,
+                strong2: s.strong2 && <strong style={{ color: "var(--ink)" }}>{s.strong2}</strong>,
+                code: s.code && (
+                  <code className="rounded-md px-1.5 py-0.5 text-xs" style={{ background: "var(--raised)", color: "var(--ink)" }}>
+                    {s.code}
+                  </code>
+                ),
+              })}
             </span>
           </li>
         ))}
@@ -87,7 +90,7 @@ export function EkilexSetupGuide() {
             style={{ color: copied === "copied" ? "var(--good-ink)" : "var(--ink-3)" }}
           >
             {copied === "copied" ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
-            <span aria-live="polite">{copied === "idle" ? "Copy" : COPY_LABEL[copied]}</span>
+            <span aria-live="polite">{t(copied === "idle" ? "Copy" : COPY_LABEL[copied])}</span>
           </button>
         </div>
         {/*
@@ -110,13 +113,13 @@ export function EkilexSetupGuide() {
         <pre
           tabIndex={0}
           role="region"
-          aria-label="The line to add to .env for the dictionary"
+          aria-label={t("The line to add to .env for the dictionary")}
           className="overflow-x-auto px-3 py-3 text-xs leading-relaxed" style={{ color: "var(--ink-2)" }}>
 {snippet}
         </pre>
       </div>
 
-      <Explain label="What happens to the words you already have">
+      <Explain label={t("What happens to the words you already have")}>
         {/*
           NOT "already in your deck": `ImportPanel` prints that phrase as its own
           result when a paste adds nothing new, on this same page, and
@@ -127,9 +130,7 @@ export function EkilexSetupGuide() {
           typed. The check could not have failed either, which is the worse
           half: it would have passed with the importer saying nothing at all.
         */}
-        Every word you already have picks up its real forms the next time you open it, so you
-        don&rsquo;t need to add anything again. If Ekilex has nothing on a word, we wait a day
-        before asking again.
+        {t("Every word you already have picks up its real forms the next time you open it, so you don't need to add anything again. If Ekilex has nothing on a word, we wait a day before asking again.")}
       </Explain>
     </div>
   );
