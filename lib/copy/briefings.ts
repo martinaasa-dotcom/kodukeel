@@ -68,7 +68,7 @@ export const BRIEFINGS = {
     evening.
   */
   closing: {
-    title: "Tonight's words, one more time",
+    title: "Today's words, one more time",
     what:
       "A few quick questions on the words you've just learned, and any older ones that are due today.",
     you: "Type your answer where there's a box, or pick one where there's a choice. Then the evening's done.",

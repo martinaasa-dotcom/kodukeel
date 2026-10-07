@@ -1,5 +1,5 @@
 /**
- * A STEP OPENED FROM TONIGHT'S MODULE, AND WHAT IT CARRIES WITH IT.
+ * A STEP OPENED FROM TODAY'S MODULE, AND WHAT IT CARRIES WITH IT.
  *
  * The module screen is one decision made in advance and it was handing the
  * learner off badly. Pressing a step opened an ordinary page of the website:

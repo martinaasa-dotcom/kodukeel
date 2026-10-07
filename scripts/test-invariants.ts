@@ -1704,7 +1704,7 @@ check("a bare case card is rewritten into a sentence, or reported", () => {
   assert.ok(fn.length > 0, "repairCaseFronts is gone from prisma/repair.ts");
   assert.match(
     fn,
-    /generateCards\(lex, \["CASE_FORM"\]\)/,
+    /generateCards\(lex, \["CASE_FORM", "CONJUGATION"\]\)/,
     "repairCaseFronts no longer asks the builder for the sentence card, so a repaired card and " +
     "a fresh one can stop being the same card",
   );
@@ -24361,7 +24361,7 @@ check("an order the writer did not choose is not a wrong order", () => {
 });
 
 /*
-  ────────────────────────── TONIGHT'S MODULE IS A ROOM ──────────────────────
+  ────────────────────────── TODAY'S MODULE IS A ROOM ──────────────────────
 
   A step opened from the module used to hand the learner back to the ordinary
   website. It was reported off the reading step and the report is the whole
@@ -24388,7 +24388,7 @@ check("an order the writer did not choose is not a wrong order", () => {
   taking the raw href exactly one step of the evening quietly leaves the
   module, which looks like a step somebody has not opened yet.
 */
-check("a step opened from tonight's module carries the marker", () => {
+check("a step opened from today's module carries the marker", () => {
   const list = code("components/course/StepList.tsx");
   assert.match(
     list, /focusedSteps\(/,
@@ -24474,7 +24474,7 @@ check("the module frame is mounted once in the shell, keeps the rail and Anu, an
   */
   const exit = code("components/round/RoundExit.tsx");
   assert.match(exit, /if \(focus\) return opening \? null : <div className=\{className\}>\{next\}<\/div>/,
-    "`WayOut` no longer draws tonight's Next inside a module, so a round finishes with no way on");
+    "`WayOut` no longer draws today's Next inside a module, so a round finishes with no way on");
   for (const page of [
     "app/(app)/grammar/topic/[id]/page.tsx",
     "app/(app)/grammar/[caseKey]/page.tsx",
@@ -24482,7 +24482,7 @@ check("the module frame is mounted once in the shell, keeps the rail and Anu, an
     // learner finished the three taps and had nothing to press.
     "app/(app)/course/forms/page.tsx",
   ]) {
-    assert.match(code(page), /<ReadingEnd \/>/, `${page} stopped ending on tonight's Next inside a module`);
+    assert.match(code(page), /<ReadingEnd \/>/, `${page} stopped ending on today's Next inside a module`);
   }
   assert.match(code("components/scene/SceneDebrief.tsx"), /<NextStep \/>/,
     "a conversation's debrief inside a module has no way on");
@@ -24495,7 +24495,7 @@ check("the module frame is mounted once in the shell, keeps the rail and Anu, an
   const rail = code("components/Sidebar.tsx");
   assert.match(rail, /const lit = focus \? LEARN_HREF :/, "the rail stopped lighting Learn during a module");
   assert.match(rail, /const classLinks = focus \? \[\] :/, "the rail draws the class group during a module again");
-  assert.match(rail, /<TonightRows /, "the rail stopped hanging tonight's steps under Learn");
+  assert.match(rail, /<TonightRows /, "the rail stopped hanging today's steps under Learn");
 });
 
 /*
@@ -24697,7 +24697,7 @@ check("the module's reading step carries no drill and no way off the page", () =
     const src = code(page);
     assert.match(
       src, /focusFrom\((await searchParams|query)\)/,
-      `${page} does not ask whether it was opened from tonight's module`,
+      `${page} does not ask whether it was opened from today's module`,
     );
     assert.match(
       src, /inModule \? undefined : \(/,
@@ -24770,10 +24770,10 @@ check("the reading's Try it is drawn on both reference pages and grades nothing"
   read off the step log through `computeStreak` (the same midnight the review
   streak breaks at) and stored nowhere, which is ADR-014.
 */
-check("the finished module plays tonight's words back and counts evenings off the log", () => {
+check("the finished module plays today's words back and counts evenings off the log", () => {
   const page = code("app/(app)/course/page.tsx");
-  assert.match(page, /data-recap-words/, "the finished module screen stopped listing tonight's words");
-  assert.match(page, /<Speak text=\{word\}/, "tonight's words on the finished screen carry no speaker");
+  assert.match(page, /data-recap-words/, "the finished module screen stopped listing today's words");
+  assert.match(page, /<Speak text=\{word\}/, "today's words on the finished screen carry no speaker");
   assert.match(page, /reading\.eveningsInARow >= 2/, "the finished module screen stopped saying the run of evenings");
   const reading = code("lib/progress/course.ts");
   assert.match(reading, /computeStreak\(ticks\.at, now, clock\)/, "the run of evenings is no longer read off the step log through computeStreak");

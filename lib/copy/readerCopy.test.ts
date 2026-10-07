@@ -555,7 +555,7 @@ function sentences(file: string): string[] {
   }
   /*
     And the props and table keys that carry a paragraph. `blurb` is the
-    practice menu, `why` is a step of tonight's module, `advice` and `headline`
+    practice menu, `why` is a step of today's module, `advice` and `headline`
     are what the retention reading says: all of them reach a screen, and none
     of them is an `Empty` body or a page `lead`, so none is measured above.
   */

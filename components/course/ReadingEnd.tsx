@@ -3,7 +3,7 @@
 import { useModuleFocus, useModuleNext } from "./moduleFocus";
 
 /**
- * WHERE A READING ENDS, INSIDE TONIGHT'S MODULE.
+ * WHERE A READING ENDS, INSIDE TODAY'S MODULE.
  *
  * A reading has no finish screen, and that was the report the module was
  * built on: the learner read the page, kept scrolling, and met a drill that

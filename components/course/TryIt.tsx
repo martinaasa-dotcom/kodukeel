@@ -76,7 +76,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
             </p>
             <p role="status" className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
               {rightSoFar === asks.length
-                ? "You got every one right. Later tonight you'll get questions like these about tonight's words."
+                ? "You got every one right. Later today you'll get questions like these about today's words."
                 : "Glance back at the table whenever a form looks odd. It'll look a lot less odd by tomorrow."}
             </p>
           </div>

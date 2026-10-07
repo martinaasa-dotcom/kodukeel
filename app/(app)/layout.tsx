@@ -129,7 +129,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         Skip to content
       </a>
       {/* Around the rail as well as the page, because inside a module the rail
-          draws tonight's steps under Learn and has to know which step this is. */}
+          draws today's steps under Learn and has to know which step this is. */}
       <ModuleScope>
       <div className="flex min-h-screen flex-col md:flex-row">
         <Wash />
@@ -164,10 +164,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           the column gives it room instead.
         */}
         {/*
-          TONIGHT'S MODULE IS A ROOM, AND THIS IS WHERE IT IS MOUNTED.
+          TODAY'S MODULE IS A ROOM, AND THIS IS WHERE IT IS MOUNTED.
 
           A step opened from the module says so in its own address, and this
-          reads it: the rail hangs tonight's steps under Learn, the way on is
+          reads it: the rail hangs today's steps under Learn, the way on is
           one "Next" where the step ends, and pressing it ticks the step and
           opens the next one. Mounted once here rather than wired into each
           step's own page, because a day's steps open eighteen screens today

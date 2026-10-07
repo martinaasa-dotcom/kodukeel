@@ -1,6 +1,7 @@
 import { caseFits, caseIsUnsaidFor, type CaseSubject } from "@/lib/estonian/caseQuestion";
 import { CASES } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
+import { conjugationSlotFromFront } from "@/lib/srs/slots";
 import { generateCards, isBareCaseFront, type LexemeForCards } from "@/lib/srs/cards";
 import { BLANK } from "@/lib/estonian/cloze";
 import { PARTS } from "@/lib/copy/values";
@@ -96,7 +97,7 @@ export interface Retirement {
   readonly id: string;
   readonly ownerId: string;
   readonly lemma: string;
-  readonly grammCase: CaseKey;
+  readonly grammCase: string;
   readonly why: RetireReason;
 }
 
@@ -295,6 +296,48 @@ export function refusedSentenceCards(cards: readonly SentenceFrontCard[]): Refus
       });
       break;
     }
+  }
+  return out;
+}
+
+/**
+ * A bare conjugation card, as the rule below needs it: the front to tell the
+ * old shape from the sentence, the slot it was about, and the whole entry.
+ */
+export interface BareConjugationCard {
+  readonly id: string;
+  readonly ownerId: string;
+  readonly slot: string | null;
+  readonly front: string;
+  readonly lexeme: LexemeForCards | null;
+}
+
+/**
+ * THE BARE PERSON-OF-A-VERB CARDS NO SENTENCE CAN REPLACE.
+ *
+ * `juhtuma → lihtminevik, ma` asks for a form of a verb and says nothing about
+ * when anybody would use it, so a person of a verb is drilled in a sentence or
+ * not at all, exactly as a case is. `repairCaseFronts` rewrites such a card
+ * into the sentence wherever a lexicographer recorded one holding that form,
+ * and what is left is a card the builder cannot rebuild: the review screen
+ * already holds those back, and this names them for `scripts/audit-decks.ts`
+ * to report and, on a second run, remove. The builder is the test, for the
+ * reason `unsentencedCaseCards` gives.
+ */
+export function unsentencedConjugationCards(cards: readonly BareConjugationCard[]): Retirement[] {
+  const out: Retirement[] = [];
+  const built = new Map<LexemeForCards, Set<string>>();
+  for (const card of cards) {
+    if (!isBareCaseFront(card.front) || !card.lexeme) continue;
+    const slot = card.slot ?? conjugationSlotFromFront(card.front);
+    if (!slot) continue;
+    let slots = built.get(card.lexeme);
+    if (!slots) {
+      slots = new Set(generateCards(card.lexeme, ["CONJUGATION"]).map((c) => c.slot ?? ""));
+      built.set(card.lexeme, slots);
+    }
+    if (slots.has(slot)) continue;
+    out.push({ id: card.id, ownerId: card.ownerId, lemma: card.lexeme.lemma, grammCase: slot, why: "no-sentence" });
   }
   return out;
 }

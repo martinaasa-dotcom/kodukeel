@@ -83,8 +83,8 @@ describe("caseFromFront", () => {
   });
 });
 
-describe("tonight's case first", () => {
-  it("weaves tonight's items through the front and keeps every item once", () => {
+describe("today's case first", () => {
+  it("weaves today's items through the front and keeps every item once", () => {
     const items = ["a1", "b1", "a2", "b2", "b3"];
     const out = tonightFirst(items, (x) => x.startsWith("a"));
     expect(out.slice(0, 4)).toEqual(["a1", "b1", "a2", "b2"]);
@@ -106,12 +106,12 @@ describe("tonight's case first", () => {
 });
 
 describe("the words taught most recently", () => {
-  /* A B1 evening's Match was tonight's three words and five A1 greetings. */
+  /* A B1 evening's Match was today's three words and five A1 greetings. */
   const b1 = PROGRAMMES.find((p) => p.level === "B1")!;
   const day = b1.days[3]!;
   const scope = scopeFor(b1, day);
 
-  it("leads with tonight's words and works back through the evenings before", () => {
+  it("leads with today's words and works back through the evenings before", () => {
     const recent = recentLemmas(scope, 20);
     expect(recent).toHaveLength(20);
     expect(recent.slice(0, day.words.length).sort()).toEqual([...day.words].sort());
@@ -129,14 +129,14 @@ describe("the words taught most recently", () => {
 /*
   WHAT THE EVENINGS HAVE TAUGHT SO FAR, FOR A SCREEN THE MODULE DID NOT OPEN.
 
-  A learner who met tonight's words and went straight to Practice was handed
-  a "Case Sprint" in the case tonight's page was about to teach. These hold
+  A learner who met today's words and went straight to Practice was handed
+  a "Case Sprint" in the case today's page was about to teach. These hold
   the rule over every evening of the ladder rather than the one that was seen.
 */
 describe("scopeSoFar", () => {
   const all = PROGRAMMES.flatMap((programme) => programme.days.map((day) => ({ programme, day })));
 
-  it("counts tonight's case and topic only once the reading is ticked", () => {
+  it("counts today's case and topic only once the reading is ticked", () => {
     let reading = 0;
     for (const { programme, day } of all) {
       if (!day.grammarCase && !day.grammar) continue;
@@ -161,7 +161,7 @@ describe("scopeSoFar", () => {
     expect(reading).toBeGreaterThan(20);
   });
 
-  it("counts a word of tonight's only once the ladder has asked it", () => {
+  it("counts a word of today's only once the ladder has asked it", () => {
     const { programme, day } = all.find(({ day }) => day.index > 1 && day.words.length >= 3)!;
     const [first, ...rest] = day.words;
     const scope = scopeSoFar(programme, day, new Set(), [first!]);
@@ -171,7 +171,7 @@ describe("scopeSoFar", () => {
     expect(recentLemmas(scope)[0]).toBe(first);
   });
 
-  it("asks a verb's past only once tonight's forms step has shown it", () => {
+  it("asks a verb's past only once today's forms step has shown it", () => {
     const shown = all.filter(({ day }) => (day.forms?.length ?? 0) > 0);
     expect(shown.length).toBeGreaterThan(10);
     let checked = 0;

@@ -285,7 +285,7 @@ describe("which day is current", () => {
   it("draws the next evening, not last night's, once its words are being met", async () => {
     /*
       "Start the next one now", three words met, back to the module: the
-      screen said "That's tonight done" over an evening half begun, because
+      screen said "Today's module is done" over an evening half begun, because
       meeting words ticks nothing.
     */
     const [one, two] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!];
@@ -663,10 +663,10 @@ describe("a finished evening stays finished", () => {
 
   /*
     The render that proves an evening is very often not the one the learner
-    reads it on: the module's bar asks for tonight's steps as the closing round
+    reads it on: the module's bar asks for today's steps as the closing round
     ends, that reading saves both derived steps, and the course screen opened a
     moment later found the evening whole by its ticks and started on the next
-    one. It said "learn tonight's 6 new words" a minute after the fifth answer
+    one. It said "learn today's 6 new words" a minute after the fifth answer
     rather than "that's tonight done".
   */
   it("still says tonight is done to the render after the one that proved it", async () => {

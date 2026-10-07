@@ -98,7 +98,7 @@ export async function deferWord(
       word stayed gone for a term and the way back would do nothing at all.
       That is reachable: a wait for a band, then a level rise, then the same
       word in a tab opened before it went. So where a wait is already standing
-      and reaches further than tonight's would, it is the one kept, whole,
+      and reaches further than today's would, it is the one kept, whole,
       date and grounds together, and the press counts. Saying it twice is not a
       reason to see the word sooner.
     */

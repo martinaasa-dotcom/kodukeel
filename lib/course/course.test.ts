@@ -472,7 +472,7 @@ describe("what a day reads and where it goes", () => {
 
   /*
     A PAGE IS READ ONCE A LEVEL, AND A SECOND LOOK SAYS SO. A1 read the
-    present tense four times as tonight's reading; across levels a page may
+    present tense four times as today's reading; across levels a page may
     come back, and its step says it is a second look.
   */
   it("reads a page once a level, and names a page read at an earlier level as read again", () => {
@@ -484,7 +484,7 @@ describe("what a day reads and where it goes", () => {
       const before = seenAt.get(page);
       expect(before === programme.level, `${day.id} reads ${page} twice at ${programme.level}`).toBe(false);
       expect(/ again$/.test(step.title), `${day.id} ${step.title}`).toBe(before !== undefined);
-      expect(step.title, day.id).not.toBe("Read how tonight's words work");
+      expect(step.title, day.id).not.toBe("Read how today's words work");
       seenAt.set(page, programme.level);
     }
   });
@@ -1003,7 +1003,7 @@ describe("what a day reads and where it goes", () => {
       /*
         An evening with nothing new to read reads nothing: a beginner reads
         no case page, and a page read last night is not put in front of
-        anybody again as tonight's step (`readingPlan`). It is two minutes
+        anybody again as today's step (`readingPlan`). It is two minutes
         shorter for it rather than two minutes of something invented to fill
         the slot. A quarter of an hour is the ceiling somebody planned their
         evening around; thirteen is that promise kept.
@@ -1253,7 +1253,7 @@ describe("an evening says how many of its words are new", () => {
   /*
     The object and government units drill verbs the course gave long before,
     on purpose, and the first two evenings of B1 were six of them each under
-    "Learn tonight's 6 new words".
+    "Learn today's 6 new words".
   */
   const walked = PROGRAMMES.flatMap((p) => p.days);
 
@@ -1272,7 +1272,7 @@ describe("an evening says how many of its words are new", () => {
     for (const d of walked) {
       const meet = d.steps.find((s) => s.id === MEET_STEP)!;
       const fresh = newWordsIn(d);
-      if (fresh === 0) expect(meet.title, d.id).toBe(`Go over tonight's ${d.words.length} words`);
+      if (fresh === 0) expect(meet.title, d.id).toBe(`Go over today's ${d.words.length} words`);
       else expect(meet.title, d.id).toContain(`${fresh} new word`);
       expect(meet.title, d.id).not.toMatch(/\b0 new/);
     }

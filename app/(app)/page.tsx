@@ -450,7 +450,7 @@ export default async function TodayPage() {
   const courseStep = courseDay?.next ?? null;
   /* An evening still to do, which is one condition and was written out twice:
      the hero draws the module off it and the line above the hero has to agree,
-     or the page says "tonight's module is the whole evening" over a card that
+     or the page says "today's module is the whole evening" over a card that
      has just said the evening is over. */
   const moduleTonight = Boolean(courseNow && courseDay && !courseNow.finishedToday && courseStep);
 
@@ -488,7 +488,7 @@ export default async function TodayPage() {
             thickness={7}
             tone="var(--cta)"
             track="rgb(255 255 255 / 0.1)"
-            label={`${courseDay.pct} percent of tonight done`}
+            label={`${courseDay.pct} percent of today's module done`}
           >
             <span className="text-sm font-bold tabular-nums" style={{ color: "var(--ink)" }}>{courseDay.pct}%</span>
           </Ring>
@@ -496,11 +496,11 @@ export default async function TodayPage() {
             <span className="font-display block text-2xl font-bold tabular-nums" style={{ color: "var(--ink)" }}>
               {courseDay.minutesLeft} min
             </span>
-            to go tonight
+            to go today
           </p>
         </div>
         <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
-          {courseDay.pct === 0 ? "Start tonight" : "Carry on"} <ArrowRight size={17} aria-hidden />
+          {courseDay.pct === 0 ? "Start today's module" : "Carry on"} <ArrowRight size={17} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
@@ -515,7 +515,7 @@ export default async function TodayPage() {
           Today&rsquo;s module
         </SectionTitle>
         <p className="mt-1 text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-          That&rsquo;s tonight done. Go and enjoy your evening.
+          Today&rsquo;s module is done. Go and enjoy the rest of your day.
         </p>
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay
@@ -979,7 +979,7 @@ export default async function TodayPage() {
         anything.
       */}
       <Stack className="min-w-0">
-        {/* Tonight's card is the one big thing on this page, and the only one
+        {/* Today's card is the one big thing on this page, and the only one
             the letters lie on here, calm rather than hopping, since it is opened every
             evening. See `Lettered` in components/HeroLetters.tsx. */}
         <Lettered show={!!courseCard}>{doNowCard}</Lettered>

@@ -310,7 +310,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {programme
                   ? <>You&rsquo;re following {uiText(courseLevel, programme.title, programme.subtitle)}. Each evening it
-                      picks your words and games for you, and tonight&rsquo;s plan sits at the top of
+                      picks your words and games for you, and today&rsquo;s plan sits at the top of
                       Today.</>
                   : <>{opening?.blurb}</>}
               </p>

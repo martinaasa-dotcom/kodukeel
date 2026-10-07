@@ -53,7 +53,7 @@ import type { Level } from "@/lib/collections/syllabus/types";
  *
  * What the button means is that the learner does not want this word *now*.
  * The honest answer to that is the next study day but one: long enough that
- * it is out of tonight's queue and is not the first thing back tomorrow
+ * it is out of today's queue and is not the first thing back tomorrow
  * either, short enough that nobody has lost the word. Three calendar days
  * lands there on every schedule this app supports, which is why it is
  * counted in days rather than in sittings: somebody studying daily skips two
