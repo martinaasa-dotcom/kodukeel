@@ -6,7 +6,7 @@ import { LEGAL_NOTICE, langParam, localeHref } from "./publicLocale";
 import { ENTRY_COPY } from "./entryLocales";
 import { GUIDE, MATERIALS, SOURCES } from "@/lib/exam/official";
 import { ASSUMPTIONS, DEFAULT_SHAPE, SCALE_LADDER, SERVICES, TUTOR_MODELS, billFor } from "@/lib/funding/model";
-import { MEASURED } from "@/lib/funding/facts";
+import { MEASURED, SPEECH_MARKET } from "@/lib/funding/facts";
 import { CONTINUITY, STAGES } from "@/lib/funding/sustainability";
 import { SOURCE_CREDITS } from "@/lib/legal/credits";
 
@@ -113,6 +113,7 @@ describe("the public pages in Russian and Ukrainian", () => {
         ...SERVICES.flatMap((s) => [s.name, s.who, s.does, s.whenItIsGone]),
         ...STAGES.flatMap((s) => [s.name, s.why]),
         ...CONTINUITY.map((c) => c.claim),
+        SPEECH_MARKET.equivalentOf,
         ...MEASURED.flatMap((m) => [m.what, m.value, m.how]),
         ...ASSUMPTIONS.flatMap((a) => [a.what, a.why]),
         // What each line of the cost panel says about itself, at every size and
@@ -123,6 +124,7 @@ describe("the public pages in Russian and Ukrainian", () => {
             // what the page translates; a fixed line is asked as it reads.
             ...("whyAs" in cost && cost.whyAs ? [cost.whyAs.template, ...listed(cost.whyAs)] : "why" in cost && cost.why ? [cost.why] : []),
             ...("givesAs" in cost && cost.givesAs ? [cost.givesAs.template, ...listed(cost.givesAs)] : "gives" in cost && cost.gives ? [cost.gives] : []),
+            ...("licence" in cost && cost.licence ? [cost.licence] : []),
             ...("meters" in cost && cost.meters ? cost.meters.map((m) => m.label) : []),
           ])))),
         // The landing footer's credits: what each source gives, and who runs it.

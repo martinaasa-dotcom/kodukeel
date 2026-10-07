@@ -21,6 +21,8 @@ import type { Area } from "../area";
 const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   // TRUST.
   ["Trust and security", "Доверие и безопасность", "Довіра й безпека"],
+  ["Ekilex under CC BY 4.0, Wiktionary under CC BY-SA 4.0", "Ekilex по лицензии CC BY 4.0, Wiktionary по лицензии CC BY-SA 4.0", "Ekilex за ліцензією CC BY 4.0, Wiktionary за ліцензією CC BY-SA 4.0"],
+  ["Amazon Polly's neural voices", "нейросетевые голоса Amazon Polly", "нейромережеві голоси Amazon Polly"],
   [", which would come to {money} a month to buy.", ", и купить это обошлось бы в {money} в месяц.", ", і купити це коштувало б {money} на місяць."],
   ["This page is for whoever decides whether Kodukeel is safe for a class, a team or a grant. The short answers come first, and each one takes you to the detail below.",
     "Эта страница для тех, кто решает, можно ли доверить Kodukeel классу, команде или грантовому проекту. Сначала идут короткие ответы, и каждый ведёт к подробностям ниже.",
