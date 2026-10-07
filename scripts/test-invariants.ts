@@ -11687,6 +11687,13 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     join("app", "(app)", "review", "match", "page.tsx"),
     join("app", "(app)", "review", "flashcards", "page.tsx"),
     join("app", "(app)", "words", "page.tsx"),
+    /*
+      Twenty questions reads them in the query that loads its words, so its
+      page can show the thing it was thinking of through `meaningShown` and a
+      guess is said back in the learner's own language. Nothing is written and nothing
+      reaches a model: the game answers in the browser.
+    */
+    join("lib", "progress", "twenty.ts"),
   ]);
 
   const roots = ["app", "lib", "components", "scripts", "prisma"];

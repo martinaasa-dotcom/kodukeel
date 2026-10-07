@@ -16,6 +16,7 @@ import { GRAMMAR_CASES } from "./areas/grammarCases";
 import { GRAMMAR_TOPICS } from "./areas/grammarTopics";
 import { LETTERS } from "./areas/letters";
 import { LANDING } from "./areas/landing";
+import { TWENTY } from "./areas/twenty";
 import { LEGAL } from "./areas/legal";
 import { PUBLIC } from "./areas/public";
 import { MEANING } from "./areas/meaning";
@@ -46,6 +47,7 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["grammarTopics", GRAMMAR_TOPICS],
   ["letters", LETTERS],
   ["landing", LANDING],
+  ["twenty", TWENTY],
   ["legal", LEGAL],
   ["public", PUBLIC],
   ["meaning", MEANING],

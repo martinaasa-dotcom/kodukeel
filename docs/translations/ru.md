@@ -13881,2435 +13881,2836 @@ _lib/copy/i18n/areas/landing.ts_
 - [ ] **6871.** month / month, months _(1, 2, 5)_  
   → месяц, месяца, месяцев
 
+## twenty (198 lines)
+
+_lib/copy/i18n/areas/twenty.ts_
+
+- [ ] **6872.** Twenty questions, in Estonian.  
+  → Двадцать вопросов по-эстонски.
+- [ ] **6873.** Nothing to think of yet  
+  → Пока нечего загадать
+- [ ] **6874.** The dictionary holds none of the words this game uses.  
+  → В словаре нет ни одного слова, которое использует эта игра.
+- [ ] **6875.** Questions used  
+  → Заданные вопросы
+- [ ] **6876.** I’m thinking of something. Ask me yes or no questions, in Estonian.  
+  → Я кое-что загадываю. Задавайте мне по-эстонски вопросы, на которые можно ответить «да» или «нет».
+- [ ] **6877.** When you know what it is, ask it as a question too:  
+  → Когда поймёте, что это, тоже спросите вопросом:
+- [ ] **6878.** Your questions  
+  → Ваши вопросы
+- [ ] **6879.** Your question  
+  → Ваш вопрос
+- [ ] **6880.** Give up  
+  → Сдаться
+- [ ] **6881.** Hint, costs a question  
+  → Подсказка, стоит одного вопроса
+- [ ] **6882.** Ask _(context: question)_  
+  → Спросить
+- [ ] **6883.** Not sure what to ask?  
+  → Не знаете, что спросить?
+- [ ] **6884.** Tap one to put it in the box, then change it as you like.  
+  → Нажмите на вариант, чтобы вставить его в поле, а потом меняйте как угодно.
+- [ ] **6885.** You got it, in {questions}.  
+  → Угадали за {questions}.
+- [ ] **6886.** Out of questions. It was:  
+  → Вопросы закончились. Это было:
+- [ ] **6887.** It was:  
+  → Это было:
+- [ ] **6888.** Worth remembering  
+  → Стоит запомнить
+- [ ] **6889.** Another word  
+  → Другое слово
+- [ ] **6890.** Nothing here is scored.  
+  → Здесь ничего не оценивается.
+- [ ] **6891.** Type your question, then press Enter  
+  → Напишите вопрос и нажмите Enter
+- [ ] **6892.** Hint.  
+  → Подсказка.
+- [ ] **6893.** Taken to mean: {reading}  
+  → Понято так: {reading}
+- [ ] **6894.** That one didn’t cost a question.  
+  → Этот вопрос не в счёт.
+- [ ] **6895.** Taken as a yes or no question I have no facts for.  
+  → Понято как вопрос «да или нет», но об этом у меня нет сведений.
+- [ ] **6896.** Yes  
+  → Да
+- [ ] **6897.** No  
+  → Нет
+- [ ] **6898.** Sometimes  
+  → Иногда
+- [ ] **6899.** I don’t know  
+  → Не знаю
+- [ ] **6900.** Type a question first.  
+  → Сначала напишите вопрос.
+- [ ] **6901.** This game wants a yes or no question. Start with kas, and ask about one thing.  
+  → В этой игре нужен вопрос с ответом «да» или «нет». Начните с kas и спросите об одном.
+- [ ] **6902.** A yes or no question can’t hold a choice. Ask about one thing at a time.  
+  → В вопросе с ответом «да» или «нет» не может быть выбора. Спрашивайте об одном за раз.
+- [ ] **6903.** That asks more than one thing, or something the game can’t check. Try one thing at a time.  
+  → Здесь спрашивается больше одного или то, что игра не может проверить. Спрашивайте об одном за раз.
+- [ ] **6904.** A comparison needs something to compare with. Try: bigger than a thing you know.  
+  → Для сравнения нужно, с чем сравнивать. Попробуйте: больше, чем что-то знакомое.
+- [ ] **6905.** The game didn’t catch what you want to know. Try one of the ideas below.  
+  → Игра не поняла, что вы хотите узнать. Попробуйте один из вариантов ниже.
+- [ ] **6906.** It is an animal.  
+  → Это животное.
+- [ ] **6907.** It is a plant.  
+  → Это растение.
+- [ ] **6908.** It is something you can eat.  
+  → Это что-то съедобное.
+- [ ] **6909.** It is something you drink.  
+  → Это что-то, что пьют.
+- [ ] **6910.** It is an object, the kind you find in a home or carry about.  
+  → Это предмет из тех, что бывают дома или носят с собой.
+- [ ] **6911.** It is something you wear.  
+  → Это что-то, что носят.
+- [ ] **6912.** It is something you can ride in or on.  
+  → Это то, на чём или в чём можно ехать.
+- [ ] **6913.** It is a building.  
+  → Это здание.
+- [ ] **6914.** It is part of nature, or a place.  
+  → Это часть природы или место.
+- [ ] **6915.** After kui, the thing you compare with stays in its plain dictionary form.  
+  → После kui то, с чем сравниваете, стоит в начальной словарной форме.
+- [ ] **6916.** To ask whether it has a part, put sellel on (it has) before the part. For an animal you can say tal on.  
+  → Чтобы спросить, есть ли у него какая-то часть, поставьте перед ней sellel on (у него есть). О животном можно сказать tal on.
+- [ ] **6917.** Say on (is) before the describing word.  
+  → Перед описывающим словом скажите on («есть»).
+- [ ] **6918.** Put see (it) straight after kas, then on, then the describing word.  
+  → Поставьте see (оно) сразу после kas, потом on, потом описывающее слово.
+- [ ] **6919.** After on, name the thing in its plain dictionary form.  
+  → После on назовите предмет в начальной словарной форме.
+- [ ] **6920.** Say on (is) before the word.  
+  → Перед словом скажите on («есть»).
+- [ ] **6921.** End a question with a question mark.  
+  → Ставьте в конце вопроса вопросительный знак.
+- [ ] **6922.** A yes or no question usually starts with kas.  
+  → Вопрос, на который отвечают «да» или «нет», обычно начинается с kas.
+- [ ] **6923.** A question word (who, what, where, how) asks for more than yes or no. Turn it into one thing you can say yes or no to.  
+  → Вопросительное слово (кто, что, где, как) требует больше, чем «да» или «нет». Превратите его в одно утверждение, на которое можно ответить «да» или «нет».
+- [ ] **6924.** What it is like  
+  → Какое оно
+- [ ] **6925.** What it does  
+  → Что оно делает
+- [ ] **6926.** What it has, and where it is  
+  → Что у него есть и где оно
+- [ ] **6927.** Is it “{thing}”?  
+  → Это «{thing}»?
+- [ ] **6928.** Is it bigger than “{thing}”?  
+  → Оно больше, чем «{thing}»?
+- [ ] **6929.** Is it smaller than “{thing}”?  
+  → Оно меньше, чем «{thing}»?
+- [ ] **6930.** Is it {word}? _(context: colour)_  
+  → Оно {word}?
+- [ ] **6931.** Does it have {word}? _(context: part)_  
+  → У него есть {word}?
+- [ ] **6932.** Is it made of {word}? _(context: material)_  
+  → Оно сделано из {word}?
+- [ ] **6933.** Is it big?  
+  → Оно большое?
+- [ ] **6934.** Is it small?  
+  → Оно маленькое?
+- [ ] **6935.** Is it fast?  
+  → Оно быстрое?
+- [ ] **6936.** Is it slow?  
+  → Оно медленное?
+- [ ] **6937.** Is it hard?  
+  → Оно твёрдое?
+- [ ] **6938.** Is it soft?  
+  → Оно мягкое?
+- [ ] **6939.** Is it cold?  
+  → Оно холодное?
+- [ ] **6940.** Is it warm?  
+  → Оно тёплое?
+- [ ] **6941.** Is it alive?  
+  → Оно живое?
+- [ ] **6942.** Is it heavy?  
+  → Оно тяжёлое?
+- [ ] **6943.** Is it light?  
+  → Оно лёгкое?
+- [ ] **6944.** Does it fly?  
+  → Оно летает?
+- [ ] **6945.** Does it swim?  
+  → Оно плавает?
+- [ ] **6946.** Does it jump?  
+  → Оно прыгает?
+- [ ] **6947.** Does it move?  
+  → Оно двигается?
+- [ ] **6948.** Can you ride it?  
+  → На нём можно ездить?
+- [ ] **6949.** Can you wear or carry it?  
+  → Его можно носить?
+- [ ] **6950.** Can you read it?  
+  → Его можно читать?
+- [ ] **6951.** Can you write with it?  
+  → Им можно писать?
+- [ ] **6952.** Can you hold it in your hand?  
+  → Его можно держать в руке?
+- [ ] **6953.** Does it eat?  
+  → Оно ест?
+- [ ] **6954.** Can you eat it?  
+  → Его можно есть?
+- [ ] **6955.** Does it drink?  
+  → Оно пьёт?
+- [ ] **6956.** Can you drink it?  
+  → Его можно пить?
+- [ ] **6957.** Is it at home?  
+  → Оно дома?
+- [ ] **6958.** Is it in the kitchen?  
+  → Оно на кухне?
+- [ ] **6959.** Is it outdoors?  
+  → Оно под открытым небом?
+- [ ] **6960.** Is it in the forest?  
+  → Оно в лесу?
+- [ ] **6961.** Is it in the water?  
+  → Оно в воде?
+- [ ] **6962.** Is it in the city?  
+  → Оно в городе?
+- [ ] **6963.** Is it in the countryside?  
+  → Оно в деревне?
+- [ ] **6964.** Is it in the garden?  
+  → Оно в саду?
+- [ ] **6965.** Is it in the sky?  
+  → Оно в небе?
+- [ ] **6966.** Is it in the sea?  
+  → Оно в море?
+- [ ] **6967.** Is it at school?  
+  → Оно в школе?
+- [ ] **6968.** Is it in a shop?  
+  → Оно в магазине?
+- [ ] **6969.** Is it on the street?  
+  → Оно на улице?
+- [ ] **6970.** Is it in the fridge?  
+  → Оно в холодильнике?
+- [ ] **6971.** Is it in a bed?  
+  → Оно в кровати?
+- [ ] **6972.** Is it wet?  
+  → Оно мокрое?
+- [ ] **6973.** Is it dry?  
+  → Оно сухое?
+- [ ] **6974.** Is it sweet?  
+  → Оно сладкое?
+- [ ] **6975.** Is it salty?  
+  → Оно солёное?
+- [ ] **6976.** Is it sour?  
+  → Оно кислое?
+- [ ] **6977.** Is it sharp?  
+  → Оно острое?
+- [ ] **6978.** Is it round?  
+  → Оно круглое?
+- [ ] **6979.** Is it long?  
+  → Оно длинное?
+- [ ] **6980.** Is it short?  
+  → Оно короткое?
+- [ ] **6981.** Is it wide?  
+  → Оно широкое?
+- [ ] **6982.** Is it narrow?  
+  → Оно узкое?
+- [ ] **6983.** Is it thick?  
+  → Оно толстое?
+- [ ] **6984.** Is it thin?  
+  → Оно тонкое?
+- [ ] **6985.** Is it dangerous?  
+  → Оно опасное?
+- [ ] **6986.** Is it strong?  
+  → Оно сильное?
+- [ ] **6987.** Is it a natural thing, not made by people?  
+  → Это что-то природное, не сделанное людьми?
+- [ ] **6988.** Is it old?  
+  → Оно старое?
+- [ ] **6989.** Is it new?  
+  → Оно новое?
+- [ ] **6990.** Is it expensive?  
+  → Оно дорогое?
+- [ ] **6991.** Is it cheap?  
+  → Оно дешёвое?
+- [ ] **6992.** Is it pretty?  
+  → Оно красивое?
+- [ ] **6993.** Is it useful?  
+  → Оно полезное?
+- [ ] **6994.** Is it rare?  
+  → Оно редкое?
+- [ ] **6995.** Is it quiet?  
+  → Оно тихое?
+- [ ] **6996.** Is it clean?  
+  → Оно чистое?
+- [ ] **6997.** Is it dark?  
+  → Оно тёмное?
+- [ ] **6998.** Is it bright?  
+  → Оно светлое?
+- [ ] **6999.** Is it weak?  
+  → Оно слабое?
+- [ ] **7000.** Does it bark?  
+  → Оно лает?
+- [ ] **7001.** Does it grow?  
+  → Оно растёт?
+- [ ] **7002.** Does it sleep?  
+  → Оно спит?
+- [ ] **7003.** Does it sing?  
+  → Оно поёт?
+- [ ] **7004.** Does it walk?  
+  → Оно ходит?
+- [ ] **7005.** Does it play?  
+  → Оно играет?
+- [ ] **7006.** Does it work, or run?  
+  → Оно работает?
+- [ ] **7007.** Can you buy it?  
+  → Его можно купить?
+- [ ] **7008.** Can you sell it?  
+  → Его можно продать?
+- [ ] **7009.** Does it burn?  
+  → Оно горит?
+- [ ] **7010.** Does it ring?  
+  → Оно звенит?
+- [ ] **7011.** Is it born?  
+  → Оно рождается?
+- [ ] **7012.** Do people use it?  
+  → Люди им пользуются?
+- [ ] **7013.** Can you wash it?  
+  → Его можно мыть?
+- [ ] **7014.** Does it scratch?  
+  → Оно царапается?
+- [ ] **7015.** Does it shine?  
+  → Оно светит?
+- [ ] **7016.** Does it smell?  
+  → Оно пахнет?
+- [ ] **7017.** red _(context: colour)_  
+  → красное
+- [ ] **7018.** blue _(context: colour)_  
+  → синее
+- [ ] **7019.** yellow _(context: colour)_  
+  → жёлтое
+- [ ] **7020.** green _(context: colour)_  
+  → зелёное
+- [ ] **7021.** white _(context: colour)_  
+  → белое
+- [ ] **7022.** black _(context: colour)_  
+  → чёрное
+- [ ] **7023.** brown _(context: colour)_  
+  → коричневое
+- [ ] **7024.** grey _(context: colour)_  
+  → серое
+- [ ] **7025.** pink _(context: colour)_  
+  → розовое
+- [ ] **7026.** orange _(context: colour)_  
+  → оранжевое
+- [ ] **7027.** purple _(context: colour)_  
+  → фиолетовое
+- [ ] **7028.** legs _(context: part)_  
+  → ноги
+- [ ] **7029.** wings _(context: part)_  
+  → крылья
+- [ ] **7030.** a tail _(context: part)_  
+  → хвост
+- [ ] **7031.** wheels _(context: part)_  
+  → колёса
+- [ ] **7032.** a door _(context: part)_  
+  → дверь
+- [ ] **7033.** a window _(context: part)_  
+  → окно
+- [ ] **7034.** feathers _(context: part)_  
+  → перья
+- [ ] **7035.** fur _(context: part)_  
+  → мех
+- [ ] **7036.** leaves or pages _(context: part)_  
+  → листья или страницы
+- [ ] **7037.** a beak _(context: part)_  
+  → клюв
+- [ ] **7038.** eyes _(context: part)_  
+  → глаза
+- [ ] **7039.** ears _(context: part)_  
+  → уши
+- [ ] **7040.** a nose _(context: part)_  
+  → нос
+- [ ] **7041.** a mouth _(context: part)_  
+  → рот
+- [ ] **7042.** a head _(context: part)_  
+  → голова
+- [ ] **7043.** teeth _(context: part)_  
+  → зубы
+- [ ] **7044.** a belly _(context: part)_  
+  → живот
+- [ ] **7045.** a back _(context: part)_  
+  → спина
+- [ ] **7046.** horns _(context: part)_  
+  → рога
+- [ ] **7047.** skin _(context: part)_  
+  → кожа
+- [ ] **7048.** a peel, bark or crust _(context: part)_  
+  → кожура, кора или корка
+- [ ] **7049.** seeds _(context: part)_  
+  → семена
+- [ ] **7050.** roots _(context: part)_  
+  → корни
+- [ ] **7051.** branches _(context: part)_  
+  → ветки
+- [ ] **7052.** a steering wheel or handlebars _(context: part)_  
+  → руль
+- [ ] **7053.** a screen _(context: part)_  
+  → экран
+- [ ] **7054.** buttons _(context: part)_  
+  → кнопки
+- [ ] **7055.** a keyboard _(context: part)_  
+  → клавиатура
+- [ ] **7056.** a cover _(context: part)_  
+  → крышка
+- [ ] **7057.** fins _(context: part)_  
+  → плавники
+- [ ] **7058.** paws _(context: part)_  
+  → лапы
+- [ ] **7059.** hooves _(context: part)_  
+  → копыта
+- [ ] **7060.** wood _(context: material)_  
+  → дерева
+- [ ] **7061.** metal _(context: material)_  
+  → металла
+- [ ] **7062.** glass _(context: material)_  
+  → стекла
+- [ ] **7063.** paper _(context: material)_  
+  → бумаги
+- [ ] **7064.** stone _(context: material)_  
+  → камня
+- [ ] **7065.** iron _(context: material)_  
+  → железа
+- [ ] **7066.** gold _(context: material)_  
+  → золота
+- [ ] **7067.** rubber _(context: material)_  
+  → резины
+- [ ] **7068.** wool _(context: material)_  
+  → шерсти
+- [ ] **7069.** cotton _(context: material)_  
+  → хлопка
+
 ## legal (123 lines)
 
 _lib/copy/i18n/areas/legal.ts_
 
-- [ ] **6872.** Last updated  
+- [ ] **7070.** Last updated  
   → Обновлено
-- [ ] **6873.** Privacy  
+- [ ] **7071.** Privacy  
   → Конфиденциальность
-- [ ] **6874.** Terms  
+- [ ] **7072.** Terms  
   → Условия
-- [ ] **6875.** Funding  
+- [ ] **7073.** Funding  
   → Финансирование
-- [ ] **6876.** Trust  
+- [ ] **7074.** Trust  
   → Доверие
-- [ ] **6877.** Accessibility  
+- [ ] **7075.** Accessibility  
   → Доступность
-- [ ] **6878.** The state examination  
+- [ ] **7076.** The state examination  
   → Государственный экзамен
-- [ ] **6879.** Language  
+- [ ] **7077.** Language  
   → Язык
-- [ ] **6880.** January _(context: date)_  
+- [ ] **7078.** January _(context: date)_  
   → января
-- [ ] **6881.** February _(context: date)_  
+- [ ] **7079.** February _(context: date)_  
   → февраля
-- [ ] **6882.** March _(context: date)_  
+- [ ] **7080.** March _(context: date)_  
   → марта
-- [ ] **6883.** April _(context: date)_  
+- [ ] **7081.** April _(context: date)_  
   → апреля
-- [ ] **6884.** May _(context: date)_  
+- [ ] **7082.** May _(context: date)_  
   → мая
-- [ ] **6885.** June _(context: date)_  
+- [ ] **7083.** June _(context: date)_  
   → июня
-- [ ] **6886.** July _(context: date)_  
+- [ ] **7084.** July _(context: date)_  
   → июля
-- [ ] **6887.** August _(context: date)_  
+- [ ] **7085.** August _(context: date)_  
   → августа
-- [ ] **6888.** September _(context: date)_  
+- [ ] **7086.** September _(context: date)_  
   → сентября
-- [ ] **6889.** October _(context: date)_  
+- [ ] **7087.** October _(context: date)_  
   → октября
-- [ ] **6890.** November _(context: date)_  
+- [ ] **7088.** November _(context: date)_  
   → ноября
-- [ ] **6891.** December _(context: date)_  
+- [ ] **7089.** December _(context: date)_  
   → декабря
-- [ ] **6892.** registry code {code}  
+- [ ] **7090.** registry code {code}  
   → регистрационный код {code}
-- [ ] **6893.** VAT number {vat}  
+- [ ] **7091.** VAT number {vat}  
   → номер плательщика НДС {vat}
-- [ ] **6894.** Kodukeel is an app for learning Estonian. This page tells you exactly what it keeps about you, why it’s allowed to, who else gets to see it, and how to make it go away.  
+- [ ] **7092.** Kodukeel is an app for learning Estonian. This page tells you exactly what it keeps about you, why it’s allowed to, who else gets to see it, and how to make it go away.  
   → Kodukeel помогает учить эстонский язык. На этой странице точно сказано, что приложение о вас хранит, на каком основании, кто ещё это видит и как всё это удалить.
-- [ ] **6895.** Who holds this  
+- [ ] **7093.** Who holds this  
   → Кто отвечает за данные
-- [ ] **6896.** The controller of your data, meaning the one who answers for it, is \*\*{name}\*\*{registry}{vat}, at {address}. Write to {email} about anything on this page, including any of the requests below.  
+- [ ] **7094.** The controller of your data, meaning the one who answers for it, is \*\*{name}\*\*{registry}{vat}, at {address}. Write to {email} about anything on this page, including any of the requests below.  
   → Контролёр ваших данных, то есть тот, кто за них отвечает: \*\*{name}\*\*{registry}{vat}, адрес: {address}. По любому вопросу с этой страницы, в том числе с любым из запросов ниже, пишите на {email}.
-- [ ] **6897.** There’s no data protection officer. This is a small installation, and the law only requires one of a public body or of a business built on monitoring people at scale, which this isn’t. The address above reaches a real person.  
+- [ ] **7095.** There’s no data protection officer. This is a small installation, and the law only requires one of a public body or of a business built on monitoring people at scale, which this isn’t. The address above reaches a real person.  
   → Ответственного за защиту данных нет. Это небольшая установка, а назначить такого человека закон требует только от государственного органа или от бизнеса, построенного на масштабном наблюдении за людьми, и это не тот случай. Письмо на адрес выше читает живой человек.
-- [ ] **6898.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install, not a service with one address, so whoever runs this copy, a person or a school, is the one who answers for your data. They’re supposed to be named here and aren’t, which you can complain about to the authority named further down. Ask whoever gave you the link. If you’re running this yourself, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\` and this paragraph will show your details instead.  
+- [ ] **7096.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install, not a service with one address, so whoever runs this copy, a person or a school, is the one who answers for your data. They’re supposed to be named here and aren’t, which you can complain about to the authority named further down. Ask whoever gave you the link. If you’re running this yourself, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\` and this paragraph will show your details instead.  
   → \*\*Тот, кто управляет этой установкой, не указал своё имя.\*\* Kodukeel может установить кто угодно, это программа, а не сервис с одним адресом, поэтому за ваши данные отвечает тот, кто управляет этой копией: человек или школа. Его имя должно стоять здесь, но его нет, и на это можно пожаловаться в надзорный орган, указанный ниже. Спросите того, кто дал вам ссылку. Если вы запустили приложение сами, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` и \`OPERATOR\_EMAIL\`, и вместо этого абзаца здесь появятся ваши данные.
-- [ ] **6899.** What we keep, and why we’re allowed to  
+- [ ] **7097.** What we keep, and why we’re allowed to  
   → Что мы храним и на каком основании
-- [ ] **6900.** \*\*Your identity.\*\* Signing in with Google gives us your email address and a user id, held by Supabase Auth. We never see your Google password, and we don’t ask for anything else in your Google account. Without this we couldn’t show you your own deck instead of somebody else’s, so we keep it to provide the service you asked for.  
+- [ ] **7098.** \*\*Your identity.\*\* Signing in with Google gives us your email address and a user id, held by Supabase Auth. We never see your Google password, and we don’t ask for anything else in your Google account. Without this we couldn’t show you your own deck instead of somebody else’s, so we keep it to provide the service you asked for.  
   → \*\*Кто вы.\*\* Вход через Google даёт нам ваш адрес электронной почты и идентификатор пользователя, которые хранятся в Supabase Auth. Ваш пароль от Google мы не видим никогда и больше ничего из вашего аккаунта Google не запрашиваем. Без этого мы не смогли бы показать вам вашу колоду, а не чужую, поэтому храним это, чтобы предоставлять услугу, о которой вы попросили.
-- [ ] **6901.** \*\*Your learning.\*\* The cards in your deck, every review you have ever done (the grade, the moment, and how long you took), your tasks, your starred words, the words you have put aside as too complicated, your badges and your settings. The review log is what makes the scheduling work. It’s the app’s memory of how well you know each word, and an app that forgot it wouldn’t be the app you signed up for.  
+- [ ] **7099.** \*\*Your learning.\*\* The cards in your deck, every review you have ever done (the grade, the moment, and how long you took), your tasks, your starred words, the words you have put aside as too complicated, your badges and your settings. The review log is what makes the scheduling work. It’s the app’s memory of how well you know each word, and an app that forgot it wouldn’t be the app you signed up for.  
   → \*\*Ваша учёба.\*\* Карточки в вашей колоде, каждое повторение, которое вы когда-либо делали (оценка, момент и сколько времени оно заняло), ваши задания, отмеченные звёздочкой слова, слова, отложенные как слишком сложные, ваши значки и настройки. На журнале повторений держится всё расписание. Это память приложения о том, насколько хорошо вы знаете каждое слово, и приложение, которое бы её забыло, было бы уже не тем, в котором вы зарегистрировались.
-- [ ] **6902.** \*\*What we have sent you.\*\* If this installation sends email, we keep a line for each message: which kind it was and when it went, so that the next one is not a repeat and so that there is a cap on how often you hear from us. We do \*\*not\*\* keep the message itself, and there is no tracking pixel in any of them, so nothing anywhere records whether you opened one. Every message carries a link that switches its kind off without signing in, and Settings has the same switches. The messages you cannot switch off are the ones you asked for, like a sign-in link.  
+- [ ] **7100.** \*\*What we have sent you.\*\* If this installation sends email, we keep a line for each message: which kind it was and when it went, so that the next one is not a repeat and so that there is a cap on how often you hear from us. We do \*\*not\*\* keep the message itself, and there is no tracking pixel in any of them, so nothing anywhere records whether you opened one. Every message carries a link that switches its kind off without signing in, and Settings has the same switches. The messages you cannot switch off are the ones you asked for, like a sign-in link.  
   → \*\*Что мы вам отправили.\*\* Если эта установка рассылает письма, мы храним по строке на каждое: какого оно было вида и когда ушло, чтобы следующее не повторяло его и чтобы было ограничение на то, как часто вы от нас что-то получаете. Само письмо мы \*\*не\*\* храним, и ни в одном нет пикселя отслеживания, так что нигде не записывается, открыли ли вы его. В каждом письме есть ссылка, которая отключает письма этого вида без входа в аккаунт, и те же переключатели есть в настройках. Отключить нельзя только письма, о которых вы попросили сами, например ссылку для входа.
-- [ ] **6903.** \*\*And one of them is about other people.\*\* Whoever runs a class or a workplace group can be sent a weekly note about it. That note carries how many people practiced and how many answers they gave between them, and never a name, a figure about one person, or anybody’s mistakes. Those are on the board inside the app, where everyone who joined was told they would be. It is switched off from the group’s own page.  
+- [ ] **7101.** \*\*And one of them is about other people.\*\* Whoever runs a class or a workplace group can be sent a weekly note about it. That note carries how many people practiced and how many answers they gave between them, and never a name, a figure about one person, or anybody’s mistakes. Those are on the board inside the app, where everyone who joined was told they would be. It is switched off from the group’s own page.  
   → \*\*И одно из них касается других людей.\*\* Тот, кто ведёт группу или рабочую группу, может получать о ней еженедельную записку. В ней сказано, сколько людей занималось и сколько ответов они дали вместе, но никогда нет имени, цифры об одном человеке или чьих-то ошибок. Всё это есть на доске внутри приложения, и каждого, кто вступал в группу, об этом предупредили. Отключается записка на странице самой группы.
-- [ ] **6904.** \*\*Your level checks.\*\* Each sitting is kept: the levels it measured, how many questions it came from, and the rating you gave your own speaking. Nothing you record is uploaded, and no audio is stored anywhere.  
+- [ ] **7102.** \*\*Your level checks.\*\* Each sitting is kept: the levels it measured, how many questions it came from, and the rating you gave your own speaking. Nothing you record is uploaded, and no audio is stored anywhere.  
   → \*\*Ваши проверки уровня.\*\* Каждая попытка сохраняется: какие уровни она показала, из скольких вопросов, и как вы сами оценили своё говорение. Ничего из того, что вы записываете, не загружается, и аудио нигде не хранится.
-- [ ] **6905.** \*\*Your mock exams.\*\* A sat paper is kept whole: the level, your score, and the marked paper itself, question by question, with what was expected and what you gave. That includes \*\*the composition you wrote\*\*, kept in your own words, because a piece of writing is only worth going back to if it is the piece you actually wrote. It is the longest thing you write anywhere in this app, which is why it has a line of its own here. A paper you abandon is never saved to your account. You mark the spoken part yourself, and nothing you record leaves your device.  
+- [ ] **7103.** \*\*Your mock exams.\*\* A sat paper is kept whole: the level, your score, and the marked paper itself, question by question, with what was expected and what you gave. That includes \*\*the composition you wrote\*\*, kept in your own words, because a piece of writing is only worth going back to if it is the piece you actually wrote. It is the longest thing you write anywhere in this app, which is why it has a line of its own here. A paper you abandon is never saved to your account. You mark the spoken part yourself, and nothing you record leaves your device.  
   → \*\*Ваши пробные экзамены.\*\* Сданный вариант сохраняется целиком: уровень, ваш результат и сама проверенная работа, вопрос за вопросом, с тем, что ожидалось, и тем, что ответили вы. Сюда входит и \*\*ваше сочинение\*\*, сохранённое вашими словами, потому что к тексту стоит возвращаться, только если это именно тот текст, который вы написали. Это самое длинное, что вы пишете в этом приложении, поэтому о нём здесь отдельная строка. Брошенный вариант в ваш аккаунт не сохраняется никогда. Устную часть вы оцениваете сами, и ничего из записанного не покидает ваше устройство.
-- [ ] **6906.** \*\*Your conversations in Situations.\*\* Each one you finish is kept whole: who was behind the desk, what was on the role card, what went wrong on purpose, every turn, and where each of the other side's lines came from. \*\*Nothing in a transcript is about you.\*\* You play a patient, a tenant, a customer, with a card of invented facts and a document number that is fiction, and you are never asked for your own. The words a conversation needed and you did not have are kept as a list, so they can be handed back. A conversation you walk out of is kept as one you walked out of; one you abandon by closing the tab is kept on your device only, and goes nowhere until you finish it.  
+- [ ] **7104.** \*\*Your conversations in Situations.\*\* Each one you finish is kept whole: who was behind the desk, what was on the role card, what went wrong on purpose, every turn, and where each of the other side's lines came from. \*\*Nothing in a transcript is about you.\*\* You play a patient, a tenant, a customer, with a card of invented facts and a document number that is fiction, and you are never asked for your own. The words a conversation needed and you did not have are kept as a list, so they can be handed back. A conversation you walk out of is kept as one you walked out of; one you abandon by closing the tab is kept on your device only, and goes nowhere until you finish it.  
   → \*\*Ваши разговоры в «Ситуациях».\*\* Каждый законченный разговор сохраняется целиком: кто был по ту сторону стойки, что было в карточке роли, что пошло не так нарочно, каждая реплика и откуда взялась каждая реплика собеседника. \*\*Ничто в записи разговора не касается вас лично.\*\* Вы играете пациента, жильца, покупателя по карточке с выдуманными фактами и вымышленным номером документа, и ваш собственный у вас никогда не спрашивают. Слова, которые понадобились в разговоре и которых у вас не было, сохраняются списком, чтобы их можно было вам вернуть. Разговор, из которого вы ушли, сохраняется как разговор, из которого вы ушли; разговор, брошенный закрытием вкладки, остаётся только на вашем устройстве и никуда не уходит, пока вы его не закончите.
-- [ ] **6907.** \*\*What you said happened out there.\*\* Today asks each morning whether you spoke any Estonian to somebody yesterday. Where the answer is no, that is the whole of it; where it is yes, it asks how it went, in one of three words: they understood me, I got stuck partway, they switched to English. That word and the day are kept, and nothing else: not where you were, not who you spoke to, not what was said. The errand it offers on a day with none is not stored at all.  
+- [ ] **7105.** \*\*What you said happened out there.\*\* Today asks each morning whether you spoke any Estonian to somebody yesterday. Where the answer is no, that is the whole of it; where it is yes, it asks how it went, in one of three words: they understood me, I got stuck partway, they switched to English. That word and the day are kept, and nothing else: not where you were, not who you spoke to, not what was said. The errand it offers on a day with none is not stored at all.  
   → \*\*Что, по вашим словам, было в жизни.\*\* Каждое утро экран «Сегодня» спрашивает, говорили ли вы вчера с кем-нибудь по-эстонски. Если нет, на этом всё; если да, он спрашивает, как всё прошло, одним из трёх вариантов: меня поняли, я застрял на полпути, со мной перешли на английский. Сохраняются этот ответ и день, и больше ничего: ни где вы были, ни с кем говорили, ни что было сказано. Задание, которое он предлагает в день без разговоров, не сохраняется вовсе.
-- [ ] **6908.** \*\*Your class, if you are in one.\*\* Joining with a code stores which class you joined, when, and the name you chose to be known by in it, which is the one place you can be under a name of your own choosing rather than your account. If you run a class, its name and its join code are stored against you. What a teacher sees of a student is only ever effort, never contents: reviews this week, a streak, words known, when they were last here, which grammar the class as a whole is weakest at, and which grammar that student personally is weakest at, as a percentage rolled up over their own reviews. Never a deck, a search or a specific answer. Leaving a class removes your membership of it, and deleting your account removes every class you are in and every class you run.  
+- [ ] **7106.** \*\*Your class, if you are in one.\*\* Joining with a code stores which class you joined, when, and the name you chose to be known by in it, which is the one place you can be under a name of your own choosing rather than your account. If you run a class, its name and its join code are stored against you. What a teacher sees of a student is only ever effort, never contents: reviews this week, a streak, words known, when they were last here, which grammar the class as a whole is weakest at, and which grammar that student personally is weakest at, as a percentage rolled up over their own reviews. Never a deck, a search or a specific answer. Leaving a class removes your membership of it, and deleting your account removes every class you are in and every class you run.  
   → \*\*Ваша группа, если вы в ней состоите.\*\* При вступлении по коду сохраняется, в какую группу вы вступили, когда и под каким именем вы решили в ней значиться; это единственное место, где вы можете быть под именем по своему выбору, а не под именем аккаунта. Если вы ведёте группу, её название и код для вступления хранятся за вами. Учитель видит у ученика только усилия, никогда не содержимое: повторения за неделю, серию дней, известные слова, когда ученик заходил последний раз, в какой грамматике слабее всего группа в целом и в какой лично этот ученик, в виде процента, сведённого по его собственным повторениям. Никогда не колоду, не поиск и не конкретный ответ. Выход из группы удаляет ваше членство в ней, а удаление аккаунта удаляет все группы, в которых вы состоите, и все, которые вы ведёте.
-- [ ] **6909.** \*\*Your workplace group, if an employer sponsors you.\*\* A group set up by an employer is the same membership row, and it shows them less than a teacher sees rather than more. They get your name, whether you have been reviewing and when you last did, and one of four bands for the examination the group works toward. Not a percentage, not which grammar you personally find hard, and never a deck, a search or an answer. The band is withheld entirely until there is enough history behind it to mean something. Leaving stops all of it at once and takes nothing from your own deck.  
+- [ ] **7107.** \*\*Your workplace group, if an employer sponsors you.\*\* A group set up by an employer is the same membership row, and it shows them less than a teacher sees rather than more. They get your name, whether you have been reviewing and when you last did, and one of four bands for the examination the group works toward. Not a percentage, not which grammar you personally find hard, and never a deck, a search or an answer. The band is withheld entirely until there is enough history behind it to mean something. Leaving stops all of it at once and takes nothing from your own deck.  
   → \*\*Ваша рабочая группа, если вас спонсирует работодатель.\*\* Группа, созданная работодателем, хранится той же строкой членства и показывает ему меньше, чем видит учитель, а не больше. Он видит ваше имя, повторяли ли вы и когда последний раз, и одну из четырёх ступеней готовности к экзамену, к которому идёт группа. Не процент, не то, какая грамматика трудна лично вам, и никогда не колоду, не поиск и не ответ. Ступень не показывается вовсе, пока за ней нет достаточной истории, чтобы она что-то значила. Выход из группы сразу прекращает всё это и ничего не забирает из вашей колоды.
-- [ ] **6910.** \*\*Your conversations with Anu.\*\* Messages you send the tutor and its replies are kept for a day, so the conversation survives a page reload, and no longer: the next time you speak to her, anything older than 24 hours is deleted and she starts fresh.  
+- [ ] **7108.** \*\*Your conversations with Anu.\*\* Messages you send the tutor and its replies are kept for a day, so the conversation survives a page reload, and no longer: the next time you speak to her, anything older than 24 hours is deleted and she starts fresh.  
   → \*\*Ваши разговоры с Ану.\*\* Сообщения, которые вы отправляете Ану, и её ответы хранятся сутки, чтобы разговор пережил перезагрузку страницы, и не дольше: в следующий раз, когда вы к ней обратитесь, всё старше 24 часов удаляется, и она начинает с чистого листа.
-- [ ] **6911.** \*\*Pages you photograph.\*\* When you scan a page, what is kept is the word list you confirmed: the Estonian, the English, and which dictionary entry each word matched. \*\*The photograph itself is never stored.\*\* It is read once, on the way through, and dropped. It is not written to a database, not put in file storage, and not written to a log. A picture of your homework has your name at the top of it.  
+- [ ] **7109.** \*\*Pages you photograph.\*\* When you scan a page, what is kept is the word list you confirmed: the Estonian, the English, and which dictionary entry each word matched. \*\*The photograph itself is never stored.\*\* It is read once, on the way through, and dropped. It is not written to a database, not put in file storage, and not written to a log. A picture of your homework has your name at the top of it.  
   → \*\*Страницы, которые вы фотографируете.\*\* Когда вы сканируете страницу, сохраняется подтверждённый вами список слов: эстонское слово, английское и с какой словарной статьёй совпало каждое. \*\*Сама фотография не хранится никогда.\*\* Её читают один раз, по пути, и выбрасывают. Она не записывается ни в базу данных, ни в файловое хранилище, ни в журнал. На фотографии вашего домашнего задания сверху стоит ваше имя.
-- [ ] **6912.** \*\*What the tutor cost.\*\* For every request to the AI, we keep a record: which model answered, roughly how much text went in and out, and what it is estimated to have cost. The tutor runs on somebody’s paid key and anyone can sign up, so a daily allowance per person is the only thing standing between an open door and an endless bill. We keep this because there’s a legitimate interest in a free service surviving the week, and there’s no way to run that cap without counting.  
+- [ ] **7110.** \*\*What the tutor cost.\*\* For every request to the AI, we keep a record: which model answered, roughly how much text went in and out, and what it is estimated to have cost. The tutor runs on somebody’s paid key and anyone can sign up, so a daily allowance per person is the only thing standing between an open door and an endless bill. We keep this because there’s a legitimate interest in a free service surviving the week, and there’s no way to run that cap without counting.  
   → \*\*Сколько стоил репетитор.\*\* О каждом запросе к ИИ мы храним запись: какая модель ответила, примерно сколько текста ушло туда и обратно и во сколько это, по оценке, обошлось. Репетитор работает на чьём-то платном ключе, а зарегистрироваться может любой, поэтому дневной лимит на человека остаётся единственным, что стоит между открытой дверью и бесконечным счётом. Мы храним это, потому что есть законный интерес в том, чтобы бесплатный сервис дожил до конца недели, а соблюдать лимит, ничего не считая, невозможно.
-- [ ] **6913.** \*\*What you report as wrong.\*\* Anywhere the app cannot help you there is a button to tell us so. What you send is kept: what kind of problem it was, the screen you were on, what the app had just said to you, the correction you proposed and anything you wrote. Whoever runs this installation reads it, so treat that box as something another person will see, and please don’t put anything private in it. It is kept because a shared dictionary that nobody can correct goes wrong quietly, and because you asked us to look at it. Your own reports and what happened to each are on the \*\*Suggestions\*\* page, they are in the export, and they are deleted with your account.  
+- [ ] **7111.** \*\*What you report as wrong.\*\* Anywhere the app cannot help you there is a button to tell us so. What you send is kept: what kind of problem it was, the screen you were on, what the app had just said to you, the correction you proposed and anything you wrote. Whoever runs this installation reads it, so treat that box as something another person will see, and please don’t put anything private in it. It is kept because a shared dictionary that nobody can correct goes wrong quietly, and because you asked us to look at it. Your own reports and what happened to each are on the \*\*Suggestions\*\* page, they are in the export, and they are deleted with your account.  
   → \*\*О чём вы сообщаете как об ошибке.\*\* Везде, где приложение не может вам помочь, есть кнопка, чтобы сказать нам об этом. Отправленное сохраняется: что это была за проблема, на каком вы были экране, что приложение вам только что сказало, какое исправление вы предложили и всё, что вы написали. Это читает тот, кто управляет этой установкой, поэтому относитесь к этому полю как к тому, что увидит другой человек, и, пожалуйста, не пишите туда ничего личного. Это хранится, потому что общий словарь, который никто не может исправить, тихо портится, и потому что вы сами попросили нас посмотреть. Ваши сообщения и то, что с каждым из них стало, есть на странице \*\*Предложения\*\*, они входят в экспорт и удаляются вместе с вашим аккаунтом.
-- [ ] **6914.** \*\*Errors.\*\* When something breaks, we log the error message and where it happened, along with your account id, never your email. Anything that looks like a password or key is stripped out before it is written down. Same reason: an app nobody can debug is an app that stays broken.  
+- [ ] **7112.** \*\*Errors.\*\* When something breaks, we log the error message and where it happened, along with your account id, never your email. Anything that looks like a password or key is stripped out before it is written down. Same reason: an app nobody can debug is an app that stays broken.  
   → \*\*Ошибки.\*\* Когда что-то ломается, мы записываем сообщение об ошибке и где она случилась, вместе с идентификатором вашего аккаунта, но никогда не с вашей почтой. Всё, что похоже на пароль или ключ, вычищается до записи. Причина та же: приложение, которое никто не может отладить, так и остаётся сломанным.
-- [ ] **6915.** \*\*What is not stored.\*\* No analytics, no advertising identifiers, no third-party trackers, no profiling, and no cookie that is not needed to keep you signed in.  
+- [ ] **7113.** \*\*What is not stored.\*\* No analytics, no advertising identifiers, no third-party trackers, no profiling, and no cookie that is not needed to keep you signed in.  
   → \*\*Что не хранится.\*\* Никакой аналитики, никаких рекламных идентификаторов, никаких сторонних трекеров, никакого профилирования и ни одного файла cookie, кроме того, что нужен, чтобы вы оставались в аккаунте.
-- [ ] **6916.** \*\*How we tell whether the app works.\*\* We count, from the review log described above, how many people come back after a day, a week and a month. It is worked out from what is already there rather than collected separately, which is why there is still no tracker on this site. Only totals ever leave that page: no name, no address, no word you looked up. A group of fewer than five people is reported as a size with no percentage, because “one of two people came back” is a fact about a person rather than a statistic.  
+- [ ] **7114.** \*\*How we tell whether the app works.\*\* We count, from the review log described above, how many people come back after a day, a week and a month. It is worked out from what is already there rather than collected separately, which is why there is still no tracker on this site. Only totals ever leave that page: no name, no address, no word you looked up. A group of fewer than five people is reported as a size with no percentage, because “one of two people came back” is a fact about a person rather than a statistic.  
   → \*\*Как мы понимаем, работает ли приложение.\*\* По журналу повторений, описанному выше, мы считаем, сколько людей возвращается через день, неделю и месяц. Это вычисляется из того, что уже есть, а не собирается отдельно, поэтому на сайте до сих пор нет трекера. С той страницы уходят только итоги: ни имени, ни адреса, ни слова, которое вы искали. Группа меньше пяти человек показывается только размером, без процента, потому что «вернулся один из двоих» говорит о человеке, а не о статистике.
-- [ ] **6917.** \*\*What learners of Estonian get wrong, counted.\*\* From the same review log, this installation can produce a table of how often each grammatical case, each stem change and each word is answered correctly, added up across everybody. It is worked out from what is already here, so nothing extra is collected and no new question is put to you. That table can be sent to people who teach Estonian or study how it is learned, because where a lot of learners go wrong is not something a textbook or a single classroom can measure and this can.  
+- [ ] **7115.** \*\*What learners of Estonian get wrong, counted.\*\* From the same review log, this installation can produce a table of how often each grammatical case, each stem change and each word is answered correctly, added up across everybody. It is worked out from what is already here, so nothing extra is collected and no new question is put to you. That table can be sent to people who teach Estonian or study how it is learned, because where a lot of learners go wrong is not something a textbook or a single classroom can measure and this can.  
   → \*\*В чём ошибаются изучающие эстонский, в цифрах.\*\* По тому же журналу повторений эта установка может составить таблицу: как часто правильно отвечают на каждый падеж, каждое изменение основы и каждое слово, в сумме по всем. Она вычисляется из того, что уже есть, поэтому ничего дополнительно не собирается и никаких новых вопросов вам не задаётся. Эту таблицу можно отправить тем, кто преподаёт эстонский или изучает, как его осваивают, потому что где ошибаются многие ученики, не измерит ни учебник, ни отдельный класс, а это может.
-- [ ] **6918.** What it holds is counts, and the rules it is built under are the point of it. Nothing is published that fewer than ten different people are behind, or that rests on fewer than fifty answers, and nothing where one person supplied more than half of a figure, because ten people is not ten people when one of them is most of the data. Anything below that is missing from the table rather than shown as a small number. Counts are rounded and people are counted in bands, so two versions of the table cannot be compared to work out what happened in between. There is no user id in it, no email, no date anybody studied, no word anybody searched for and no individual answer. By the time the table exists it is not about you and could not be turned back into anything about you, which is the whole reason it is safe to send.  
+- [ ] **7116.** What it holds is counts, and the rules it is built under are the point of it. Nothing is published that fewer than ten different people are behind, or that rests on fewer than fifty answers, and nothing where one person supplied more than half of a figure, because ten people is not ten people when one of them is most of the data. Anything below that is missing from the table rather than shown as a small number. Counts are rounded and people are counted in bands, so two versions of the table cannot be compared to work out what happened in between. There is no user id in it, no email, no date anybody studied, no word anybody searched for and no individual answer. By the time the table exists it is not about you and could not be turned back into anything about you, which is the whole reason it is safe to send.  
   → В ней только подсчёты, и вся суть в правилах, по которым она строится. Не публикуется ничего, за чем стоит меньше десяти разных людей или меньше пятидесяти ответов, и ничего, где больше половины цифры дал один человек, потому что десять человек перестают быть десятью, если один из них дал большую часть данных. Всё, что ниже этого порога, в таблице просто отсутствует, а не показывается маленьким числом. Подсчёты округляются, а люди считаются диапазонами, поэтому две версии таблицы нельзя сравнить, чтобы вычислить, что произошло между ними. В ней нет ни идентификатора пользователя, ни почты, ни дат, когда кто-то занимался, ни слов, которые кто-то искал, ни отдельных ответов. К тому моменту, когда таблица готова, она уже не о вас, и её невозможно превратить обратно во что-либо о вас; именно поэтому её безопасно отправлять.
-- [ ] **6919.** You can still say no. {setting} leaves your answers out of it, and out means your rows are skipped when the totals are worked out rather than removed from the answer afterwards. Nothing else about the app changes.  
+- [ ] **7117.** You can still say no. {setting} leaves your answers out of it, and out means your rows are skipped when the totals are worked out rather than removed from the answer afterwards. Nothing else about the app changes.  
   → Вы всё равно можете отказаться. {setting} исключает из неё ваши ответы, и «исключает» значит, что ваши строки пропускаются при подсчёте итогов, а не вычитаются из результата потом. Больше в приложении ничего не меняется.
-- [ ] **6920.** What is kept on your own device  
+- [ ] **7118.** What is kept on your own device  
   → Что хранится на вашем устройстве
-- [ ] **6921.** One cookie keeps you signed in. Beyond that the app stores a few things in the browser itself: whether you chose the dark theme, whether you have already been offered the install prompt, an outbox holding any card you graded while the network was down, so that grade is not lost and is sent with the time you actually answered it, a mock exam paper you have started but not handed in, so that closing the tab three hours into a B2 paper does not throw the whole sitting away, today's word puzzle, so a reload does not lose the guesses you have made, and which card a review round was on, so opening a word's dictionary entry and coming back returns you to it.  
+- [ ] **7119.** One cookie keeps you signed in. Beyond that the app stores a few things in the browser itself: whether you chose the dark theme, whether you have already been offered the install prompt, an outbox holding any card you graded while the network was down, so that grade is not lost and is sent with the time you actually answered it, a mock exam paper you have started but not handed in, so that closing the tab three hours into a B2 paper does not throw the whole sitting away, today's word puzzle, so a reload does not lose the guesses you have made, and which card a review round was on, so opening a word's dictionary entry and coming back returns you to it.  
   → Один файл cookie позволяет вам оставаться в аккаунте. Кроме него приложение хранит в самом браузере несколько вещей: выбрали ли вы тёмную тему; предлагали ли вам уже установить приложение; очередь исходящих с карточками, которые вы оценили без сети, чтобы оценка не потерялась и ушла со временем, когда вы на самом деле ответили; начатый, но не сданный пробный экзамен, чтобы закрытая через три часа после начала B2 вкладка не перечеркнула всю попытку; сегодняшнюю словесную головоломку, чтобы после перезагрузки не пропали ваши догадки; и на какой карточке был раунд повторения, чтобы, открыв словарную статью слова и вернувшись, вы оказались там же.
-- [ ] **6922.** The unfinished paper holds your answers and when each part's clock runs out. It holds no marks and no questions: the paper is rebuilt from a seed and marked on the server, so nothing kept here can change a score. It is replaced as you write and removed the moment the paper is handed in. The puzzle keeps your guesses and nothing else, and today's word is worked out from the date rather than kept beside them. The card you were on is only its id, gone the moment the round ends or the tab does, whichever comes first.  
+- [ ] **7120.** The unfinished paper holds your answers and when each part's clock runs out. It holds no marks and no questions: the paper is rebuilt from a seed and marked on the server, so nothing kept here can change a score. It is replaced as you write and removed the moment the paper is handed in. The puzzle keeps your guesses and nothing else, and today's word is worked out from the date rather than kept beside them. The card you were on is only its id, gone the moment the round ends or the tab does, whichever comes first.  
   → Незаконченная работа хранит ваши ответы и время, когда истекает каждая её часть. Оценок и вопросов в ней нет: вариант заново собирается из начального числа и проверяется на сервере, поэтому ничто сохранённое здесь не может изменить результат. Она перезаписывается по мере того, как вы пишете, и удаляется в момент сдачи. Головоломка хранит ваши догадки и больше ничего, а сегодняшнее слово вычисляется из даты, а не хранится рядом с ними. От карточки, на которой вы остановились, хранится только её идентификатор, и он исчезает, как только закончится раунд или закроется вкладка, смотря что раньше.
-- [ ] **6923.** None of that is a tracker and none of it is shared with anybody. Estonian law requires your agreement before something is stored on your device unless it is strictly necessary for the service you asked for, and each of these is: a review app that silently drops the answers you gave on a train is broken, not private. That is why there is no cookie banner. Signing out removes the outbox, the saved session, the pages kept for offline use, any unfinished paper and any puzzle, so the next person on a shared computer starts from nothing; the theme and the install prompt stay, since they are about the device rather than about you. The browser also keeps a short code for which account last used it, so that a different account signing in clears the previous one's data even when nobody signed out. Clearing your browser storage removes all of it, and costs you nothing except any grade still waiting to be sent.  
+- [ ] **7121.** None of that is a tracker and none of it is shared with anybody. Estonian law requires your agreement before something is stored on your device unless it is strictly necessary for the service you asked for, and each of these is: a review app that silently drops the answers you gave on a train is broken, not private. That is why there is no cookie banner. Signing out removes the outbox, the saved session, the pages kept for offline use, any unfinished paper and any puzzle, so the next person on a shared computer starts from nothing; the theme and the install prompt stay, since they are about the device rather than about you. The browser also keeps a short code for which account last used it, so that a different account signing in clears the previous one's data even when nobody signed out. Clearing your browser storage removes all of it, and costs you nothing except any grade still waiting to be sent.  
   → Ничто из этого не является трекером, и ничем из этого мы ни с кем не делимся. Эстонский закон требует вашего согласия, прежде чем что-то сохраняется на вашем устройстве, если только это не строго необходимо для услуги, о которой вы попросили, а каждое из перечисленного необходимо: приложение для повторения, которое молча теряет ответы, данные вами в поезде, не бережёт вашу приватность, а просто сломано. Поэтому здесь нет баннера о файлах cookie. Выход из аккаунта удаляет очередь исходящих, сохранённое занятие, страницы для работы без сети, незаконченную работу и головоломку, так что следующий человек за общим компьютером начинает с нуля; тема и предложение установки остаются, потому что они касаются устройства, а не вас. Браузер также хранит короткий код того, какой аккаунт пользовался им последним, чтобы вход другого аккаунта стирал данные предыдущего, даже если никто не вышел. Очистка хранилища браузера удаляет всё это и ничего вам не стоит, кроме оценки, которая ещё ждёт отправки.
-- [ ] **6924.** Who else sees it  
+- [ ] **7122.** Who else sees it  
   → Кто ещё это видит
-- [ ] **6925.** This installation only talks to the services below, and nobody else. Each one gets only what’s described beside it, and none of them is paid to profile you.  
+- [ ] **7123.** This installation only talks to the services below, and nobody else. Each one gets only what’s described beside it, and none of them is paid to profile you.  
   → Эта установка обращается только к сервисам ниже и больше ни к кому. Каждый получает только то, что описано рядом с ним, и никому из них не платят за то, чтобы составлять ваш профиль.
-- [ ] **6926.** In Estonia.  
+- [ ] **7124.** In Estonia.  
   → В Эстонии.
-- [ ] **6927.** Outside the European Economic Area.  
+- [ ] **7125.** Outside the European Economic Area.  
   → За пределами Европейской экономической зоны.
-- [ ] **6928.** Where this is hosted depends on how the installation was set up, so ask the operator above.  
+- [ ] **7126.** Where this is hosted depends on how the installation was set up, so ask the operator above.  
   → Где это размещено, зависит от того, как настроена установка, поэтому спросите у оператора, указанного выше.
-- [ ] **6929.** Your deck, your review history, your tasks and your level checks are never sent to any of them. The counted table described further up is the one thing that may go to somebody not on this list, and it holds none of those: it is totals, and it is only totals that at least ten people are behind.  
+- [ ] **7127.** Your deck, your review history, your tasks and your level checks are never sent to any of them. The counted table described further up is the one thing that may go to somebody not on this list, and it holds none of those: it is totals, and it is only totals that at least ten people are behind.  
   → Ваша колода, история повторений, задания и проверки уровня никогда не отправляются никому из них. Таблица подсчётов, описанная выше, остаётся единственным, что может уйти кому-то не из этого списка, и в ней нет ничего из перечисленного: это итоги, и только такие, за которыми стоит не меньше десяти человек.
-- [ ] **6930.** \*\*Some of that leaves the European Economic Area.\*\* The AI providers are established outside it, so what you type to Anu and any page you photograph crosses a border to be read. That transfer rests on the standard contractual clauses the provider publishes, and nothing else. It is worth knowing that protection there is not identical to protection here. It is also avoidable: the tutor and the page scanner are the only features that do it, and using neither means nothing of yours leaves.  
+- [ ] **7128.** \*\*Some of that leaves the European Economic Area.\*\* The AI providers are established outside it, so what you type to Anu and any page you photograph crosses a border to be read. That transfer rests on the standard contractual clauses the provider publishes, and nothing else. It is worth knowing that protection there is not identical to protection here. It is also avoidable: the tutor and the page scanner are the only features that do it, and using neither means nothing of yours leaves.  
   → \*\*Часть этого покидает Европейскую экономическую зону.\*\* Поставщики ИИ учреждены за её пределами, поэтому то, что вы пишете Ану, и любая сфотографированная вами страница пересекают границу, чтобы их прочитали. Эта передача основана на стандартных договорных условиях, которые публикует поставщик, и ни на что больше. Стоит знать, что защита там не тождественна защите здесь. Этого можно и избежать: данные передают только репетитор и сканер страниц, и если не пользоваться ни тем, ни другим, ничего вашего не уходит.
-- [ ] **6931.** None of it is sold, and we never use it to train a model ourselves. What a provider does with what we send them is governed by their own terms. That is a real limit on this promise rather than a formality: some free tiers are free because the provider keeps the right to look at what goes through them.  
+- [ ] **7129.** None of it is sold, and we never use it to train a model ourselves. What a provider does with what we send them is governed by their own terms. That is a real limit on this promise rather than a formality: some free tiers are free because the provider keeps the right to look at what goes through them.  
   → Ничего из этого не продаётся, и мы сами никогда не обучаем на этом модели. Что поставщик делает с тем, что мы ему отправляем, определяют его собственные условия. Это настоящее ограничение этого обещания, а не формальность: некоторые бесплатные тарифы бесплатны именно потому, что поставщик оставляет за собой право просматривать то, что через них проходит.
-- [ ] **6932.** How long it is kept  
+- [ ] **7130.** How long it is kept  
   → Как долго это хранится
-- [ ] **6933.** Your learning, your conversations and your scanned word lists are kept for as long as you keep the account, because their whole value is that they are long. The scheduling works off years of history and a level check is only useful next to the one before it.  
+- [ ] **7131.** Your learning, your conversations and your scanned word lists are kept for as long as you keep the account, because their whole value is that they are long. The scheduling works off years of history and a level check is only useful next to the one before it.  
   → Ваша учёба, разговоры и отсканированные списки слов хранятся, пока у вас есть аккаунт, потому что вся их ценность в том, что они длинные. Расписание строится на годах истории, а проверка уровня полезна только рядом с предыдущей.
-- [ ] **6934.** Spending records are kept for the running year, since the caps they enforce are daily. Error logs are short-lived by nature and hold no name. There is no separate archive, and no backup that outlives a deletion by more than the hosting provider’s own retention window.  
+- [ ] **7132.** Spending records are kept for the running year, since the caps they enforce are daily. Error logs are short-lived by nature and hold no name. There is no separate archive, and no backup that outlives a deletion by more than the hosting provider’s own retention window.  
   → Записи о расходах хранятся в течение текущего года, поскольку лимиты, которые они обеспечивают, дневные. Журналы ошибок по своей природе недолговечны и имён не содержат. Отдельного архива нет, и нет резервной копии, которая переживала бы удаление дольше, чем собственный срок хранения у хостинг-провайдера.
-- [ ] **6935.** What you can demand  
+- [ ] **7133.** What you can demand  
   → Что вы можете потребовать
-- [ ] **6936.** These are your rights under the GDPR. The two people actually use are buttons, so you don’t even have to ask.  
+- [ ] **7134.** These are your rights under the GDPR. The two people actually use are buttons, so you don’t even have to ask.  
   → Это ваши права по Общему регламенту по защите данных (GDPR). Для двух из них, которыми люди действительно пользуются, есть кнопки, так что просить даже не нужно.
-- [ ] **6937.** \*\*A copy of everything (access, and portability).\*\* Settings has an \*\*Export\*\* button that gives you the whole thing as a JSON file: every card, review, task, setting, scanned page, level check, mock exam paper with your composition in it, tutor message, suggested fix, starred word, word put aside, badge and class membership. It is a real backup, and the same file restores into a fresh installation. One thing is held back: the spending record described above, since that is this installation’s accounting rather than your work. It is deleted with your account like everything else.  
+- [ ] **7135.** \*\*A copy of everything (access, and portability).\*\* Settings has an \*\*Export\*\* button that gives you the whole thing as a JSON file: every card, review, task, setting, scanned page, level check, mock exam paper with your composition in it, tutor message, suggested fix, starred word, word put aside, badge and class membership. It is a real backup, and the same file restores into a fresh installation. One thing is held back: the spending record described above, since that is this installation’s accounting rather than your work. It is deleted with your account like everything else.  
   → \*\*Копия всего (право доступа и право на переносимость данных).\*\* В настройках есть кнопка \*\*Экспорт\*\*, которая выдаёт всё одним файлом JSON: каждую карточку, повторение, задание, настройку, отсканированную страницу, проверку уровня, пробный экзамен с вашим сочинением, сообщение репетитору, предложенное исправление, отмеченное слово, отложенное слово, значок и членство в группе. Это настоящая резервная копия, и этот же файл восстанавливается в новой установке. Одно не выдаётся: запись о расходах, описанная выше, потому что это учёт этой установки, а не ваша работа. Она удаляется вместе с вашим аккаунтом, как и всё остальное.
-- [ ] **6938.** \*\*Erasure.\*\* {setting} removes all of that immediately, in one go, along with your sign-in record. The shared dictionary stays, because other learners have cards built on it, but any entry you edited stops being attributed to you. Take an export first: this keeps no copy. If this installation is not set up to delete the sign-in record itself, the button says so plainly rather than pretending, and the address at the top of this page is who to ask.  
+- [ ] **7136.** \*\*Erasure.\*\* {setting} removes all of that immediately, in one go, along with your sign-in record. The shared dictionary stays, because other learners have cards built on it, but any entry you edited stops being attributed to you. Take an export first: this keeps no copy. If this installation is not set up to delete the sign-in record itself, the button says so plainly rather than pretending, and the address at the top of this page is who to ask.  
   → \*\*Право на удаление.\*\* {setting} сразу и за один раз удаляет всё это вместе с вашей записью для входа. Общий словарь остаётся, потому что на нём построены карточки других учеников, но статьи, которые вы правили, перестают быть подписаны вашим именем. Сначала сделайте экспорт: копия не сохраняется. Если эта установка не настроена удалять запись для входа сама, кнопка прямо об этом скажет, а не будет делать вид, и тогда обращайтесь по адресу в начале этой страницы.
-- [ ] **6939.** \*\*Correction.\*\* Anything you can see, you can change: your settings, your cards, your tasks, your goal. A dictionary entry can be corrected too, and because the dictionary is shared, that correction is attributed to you until you delete your account. Where you would rather somebody looked at it first, the same entry has a button to suggest the change instead of making it.  
+- [ ] **7137.** \*\*Correction.\*\* Anything you can see, you can change: your settings, your cards, your tasks, your goal. A dictionary entry can be corrected too, and because the dictionary is shared, that correction is attributed to you until you delete your account. Where you would rather somebody looked at it first, the same entry has a button to suggest the change instead of making it.  
   → \*\*Право на исправление.\*\* Всё, что вы видите, вы можете изменить: настройки, карточки, задания, цель. Словарную статью тоже можно исправить, и поскольку словарь общий, это исправление подписано вашим именем, пока вы не удалите аккаунт. Если вы предпочитаете, чтобы сначала кто-то посмотрел, у той же статьи есть кнопка, чтобы предложить изменение, а не вносить его.
-- [ ] **6940.** \*\*Restriction and objection.\*\* You can ask for processing to be paused or object to it, in writing, at the address above. In practice almost everything here exists only to deliver the app to you, so the usual answer to an objection is to stop using the part you object to, and erasure is the stronger and faster version of the same thing. The one objection that is a button rather than a letter is {setting}, which takes your answers out of the counts described above.  
+- [ ] **7138.** \*\*Restriction and objection.\*\* You can ask for processing to be paused or object to it, in writing, at the address above. In practice almost everything here exists only to deliver the app to you, so the usual answer to an objection is to stop using the part you object to, and erasure is the stronger and faster version of the same thing. The one objection that is a button rather than a letter is {setting}, which takes your answers out of the counts described above.  
   → \*\*Ограничение обработки и возражение.\*\* Вы можете письменно, по адресу выше, попросить приостановить обработку или возразить против неё. На деле почти всё здесь существует только для того, чтобы приложение работало для вас, поэтому обычный ответ на возражение: перестать пользоваться той частью, против которой вы возражаете, а удаление делает то же самое сильнее и быстрее. Единственное возражение, для которого есть кнопка, а не письмо: {setting}. Оно убирает ваши ответы из описанных выше подсчётов.
-- [ ] **6941.** None of this costs anything, and you don’t need to give a reason. A request made in writing gets an answer within a month.  
+- [ ] **7139.** None of this costs anything, and you don’t need to give a reason. A request made in writing gets an answer within a month.  
   → Всё это ничего не стоит, и объяснять причину не нужно. На письменный запрос вы получите ответ в течение месяца.
-- [ ] **6942.** Nothing here decides anything about you  
+- [ ] **7140.** Nothing here decides anything about you  
   → Здесь ничто не принимает решений о вас
-- [ ] **6943.** The app estimates a CEFR level from what you answered, and predicts your chance of passing a mock exam. Neither is a decision with any legal or similar effect: they are study advice, checked directly against the dictionary rather than judged by a model, and every figure says how thin the evidence behind it is. No qualification, no admission and no result depends on them. There is no automated decision-making in the sense the law means, and no profiling.  
+- [ ] **7141.** The app estimates a CEFR level from what you answered, and predicts your chance of passing a mock exam. Neither is a decision with any legal or similar effect: they are study advice, checked directly against the dictionary rather than judged by a model, and every figure says how thin the evidence behind it is. No qualification, no admission and no result depends on them. There is no automated decision-making in the sense the law means, and no profiling.  
   → Приложение оценивает ваш уровень по шкале CEFR по вашим ответам и прогнозирует, насколько вероятно, что вы сдадите пробный экзамен. Ни то, ни другое не является решением с юридическими или подобными последствиями: это учебный совет, проверенный напрямую по словарю, а не оценённый моделью, и каждая цифра говорит, насколько скудны данные за ней. От них не зависят ни квалификация, ни зачисление, ни какой-либо результат. Автоматизированного принятия решений в том смысле, в каком его понимает закон, нет, как нет и профилирования.
-- [ ] **6944.** If you are not satisfied  
+- [ ] **7142.** If you are not satisfied  
   → Если вас что-то не устраивает
-- [ ] **6945.** Ask the operator first, at the address at the top of this page. If that gets you nowhere, you have the right to complain to the \*\*{authority}\*\* ({local}), which is the supervisory authority for Estonia: {address}, {phone}, {email}, {web}. If you live elsewhere in the Union you may go to your own country’s authority instead. You can also take it to court.  
+- [ ] **7143.** Ask the operator first, at the address at the top of this page. If that gets you nowhere, you have the right to complain to the \*\*{authority}\*\* ({local}), which is the supervisory authority for Estonia: {address}, {phone}, {email}, {web}. If you live elsewhere in the Union you may go to your own country’s authority instead. You can also take it to court.  
   → Сначала обратитесь к оператору по адресу в начале этой страницы. Если это ничего не даст, вы вправе подать жалобу в \*\*{authority}\*\* ({local}), надзорный орган Эстонии: {address}, {phone}, {email}, {web}. Если вы живёте в другой стране Европейского союза, можете вместо этого обратиться в надзорный орган своей страны. Вы также можете обратиться в суд.
-- [ ] **6946.** Estonian Data Protection Inspectorate  
+- [ ] **7144.** Estonian Data Protection Inspectorate  
   → Инспекция по защите данных Эстонии
-- [ ] **6947.** Estonian Data Protection Inspectorate _(context: to)_  
+- [ ] **7145.** Estonian Data Protection Inspectorate _(context: to)_  
   → Инспекцию по защите данных Эстонии
-- [ ] **6948.** Children  
+- [ ] **7146.** Children  
   → Дети
-- [ ] **6949.** In Estonia a person can agree to a service like this one for themselves from the age of 13, which is the age the Personal Data Protection Act sets. Below that, a parent has to agree. Kodukeel isn’t aimed at younger children and doesn’t knowingly hold their data. If you think a child under 13 has an account here without a parent’s agreement, write to the address above and it will be deleted.  
+- [ ] **7147.** In Estonia a person can agree to a service like this one for themselves from the age of 13, which is the age the Personal Data Protection Act sets. Below that, a parent has to agree. Kodukeel isn’t aimed at younger children and doesn’t knowingly hold their data. If you think a child under 13 has an account here without a parent’s agreement, write to the address above and it will be deleted.  
   → В Эстонии человек может сам дать согласие на такую услугу с 13 лет: этот возраст устанавливает эстонский Закон о защите персональных данных. Если человек младше, согласие должен дать родитель. Kodukeel не рассчитан на детей младшего возраста и сознательно не хранит их данные. Если вы считаете, что у ребёнка младше 13 лет здесь есть аккаунт без согласия родителя, напишите по адресу выше, и он будет удалён.
-- [ ] **6950.** A school running this for a class is the controller of its students’ data and answers for that agreement. What a teacher can see is deliberately narrow: how much work each student did, which grammar the class as a whole is weakest at, and which grammar each student personally is weakest at as a rolled-up percentage. Never an individual’s deck, their searches or a specific answer.  
+- [ ] **7148.** A school running this for a class is the controller of its students’ data and answers for that agreement. What a teacher can see is deliberately narrow: how much work each student did, which grammar the class as a whole is weakest at, and which grammar each student personally is weakest at as a rolled-up percentage. Never an individual’s deck, their searches or a specific answer.  
   → Школа, которая использует это для класса, является контролёром данных своих учеников и отвечает за это согласие. Учитель намеренно видит немного: сколько поработал каждый ученик, в какой грамматике слабее всего класс в целом и в какой лично каждый ученик, в виде сведённого процента. Никогда не чью-то колоду, поиски или конкретный ответ.
-- [ ] **6951.** An employer sponsoring a workplace group is the controller of that group’s membership in the same way, and sees a narrower set again: effort, and a band for the paper the group is working toward. The difference is a different query rather than a hidden column, so there is no setting that widens it.  
+- [ ] **7149.** An employer sponsoring a workplace group is the controller of that group’s membership in the same way, and sees a narrower set again: effort, and a band for the paper the group is working toward. The difference is a different query rather than a hidden column, so there is no setting that widens it.  
   → Работодатель, спонсирующий рабочую группу, точно так же является контролёром данных о членстве в ней и видит ещё меньше: усилия и ступень готовности к экзамену, к которому идёт группа. Разница заложена в другом запросе к базе, а не в скрытом столбце, поэтому нет настройки, которая бы это расширила.
-- [ ] **6952.** Getting in touch  
+- [ ] **7150.** Getting in touch  
   → Как с нами связаться
-- [ ] **6953.** Questions about your data go to the operator named at the top. See also the {terms}.  
+- [ ] **7151.** Questions about your data go to the operator named at the top. See also the {terms}.  
   → Вопросы о ваших данных направляйте оператору, указанному в начале. См. также {terms}.
-- [ ] **6954.** terms  
+- [ ] **7152.** terms  
   → условия
-- [ ] **6955.** what you type to Anu, and any page you photograph  
+- [ ] **7153.** what you type to Anu, and any page you photograph  
   → то, что вы пишете Ану, и любая сфотографированная вами страница
-- [ ] **6956.** Ekilex, at the Institute of the Estonian Language  
+- [ ] **7154.** Ekilex, at the Institute of the Estonian Language  
   → Ekilex в Институте эстонского языка
-- [ ] **6957.** a single word you looked up, with no account attached  
+- [ ] **7155.** a single word you looked up, with no account attached  
   → одно слово, которое вы искали, без привязки к аккаунту
-- [ ] **6958.** Wikimedia, which runs Wiktionary  
+- [ ] **7156.** Wikimedia, which runs Wiktionary  
   → Фонд Викимедиа, который ведёт Викисловарь
-- [ ] **6959.** the same single word, asked for its English meaning, with no account attached  
+- [ ] **7157.** the same single word, asked for its English meaning, with no account attached  
   → то же слово, с запросом его значения на английском, без привязки к аккаунту
-- [ ] **6960.** Resend, which sends our emails  
+- [ ] **7158.** Resend, which sends our emails  
   → Resend, который отправляет наши письма
-- [ ] **6961.** your email address, and whatever a message to you says about your own course  
+- [ ] **7159.** your email address, and whatever a message to you says about your own course  
   → ваш адрес электронной почты и то, что в письме сказано о вашем собственном курсе
-- [ ] **6962.** TartuNLP, at the University of Tartu  
+- [ ] **7160.** TartuNLP, at the University of Tartu  
   → TartuNLP в Тартуском университете
-- [ ] **6963.** a phrase you asked to hear read aloud, with no account attached  
+- [ ] **7161.** a phrase you asked to hear read aloud, with no account attached  
   → фраза, которую вы попросили прочитать вслух, без привязки к аккаунту
-- [ ] **6964.** The error reporting endpoint at {host}  
+- [ ] **7162.** The error reporting endpoint at {host}  
   → Адрес приёма отчётов об ошибках на {host}
-- [ ] **6965.** a description of anything that breaks, with your user id and never your email  
+- [ ] **7163.** a description of anything that breaks, with your user id and never your email  
   → описание всего, что ломается, с вашим идентификатором пользователя и никогда с вашей почтой
-- [ ] **6966.** your email address and everything in the database, as the host of both  
+- [ ] **7164.** your email address and everything in the database, as the host of both  
   → ваш адрес электронной почты и всё содержимое базы данных, поскольку и то и другое размещено у него
-- [ ] **6967.** Vercel, which runs the servers this app lives on  
+- [ ] **7165.** Vercel, which runs the servers this app lives on  
   → Vercel, где работают серверы этого приложения
-- [ ] **6968.** every request you make, while it's being answered, and a log of it that includes your IP address  
+- [ ] **7166.** every request you make, while it's being answered, and a log of it that includes your IP address  
   → каждый ваш запрос, пока на него отвечают, и журнал запросов, в котором есть ваш IP-адрес
-- [ ] **6969.** Kodukeel is an app for studying Estonian. These terms are short because the deal is simple: use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.  
+- [ ] **7167.** Kodukeel is an app for studying Estonian. These terms are short because the deal is simple: use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.  
   → Kodukeel помогает учить эстонский язык. Эти условия короткие, потому что договорённость простая: пользуйтесь приложением, чтобы учить эстонский, не злоупотребляйте общими сервисами, на которых оно работает, и знайте, что оно может и чего не может вам обещать.
-- [ ] **6970.** Who provides it  
+- [ ] **7168.** Who provides it  
   → Кто его предоставляет
-- [ ] **6971.** This installation of Kodukeel is provided by \*\*{name}\*\*{registry}{vat}, at {address}. Reach them directly at {email}. Estonian law asks a provider of an online service for exactly that: a name, a place, and a way to get hold of them quickly without going through a form.  
+- [ ] **7169.** This installation of Kodukeel is provided by \*\*{name}\*\*{registry}{vat}, at {address}. Reach them directly at {email}. Estonian law asks a provider of an online service for exactly that: a name, a place, and a way to get hold of them quickly without going through a form.  
   → Эту установку Kodukeel предоставляет \*\*{name}\*\*{registry}{vat}, адрес: {address}. Связаться напрямую: {email}. Эстонский закон требует от поставщика онлайн-услуги именно этого: имя, адрес и способ быстро с ним связаться, минуя формы.
-- [ ] **6972.** \*\*Whoever runs this installation has not filled their name in\*\*, and they’re supposed to. Kodukeel is software anyone can install, so the provider of the service you’re using is whoever runs this copy, a person or a school, not the people who wrote it. Ask whoever gave you the link. If that’s you, setting \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\` puts your details here and on the {privacy}.  
+- [ ] **7170.** \*\*Whoever runs this installation has not filled their name in\*\*, and they’re supposed to. Kodukeel is software anyone can install, so the provider of the service you’re using is whoever runs this copy, a person or a school, not the people who wrote it. Ask whoever gave you the link. If that’s you, setting \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\` puts your details here and on the {privacy}.  
   → \*\*Тот, кто управляет этой установкой, не указал своё имя\*\*, хотя должен был. Kodukeel может установить кто угодно, поэтому поставщиком услуги, которой вы пользуетесь, является тот, кто управляет этой копией, человек или школа, а не те, кто её написал. Спросите того, кто дал вам ссылку. Если это вы, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` и \`OPERATOR\_EMAIL\`, и ваши данные появятся здесь и на {privacy}.
-- [ ] **6973.** It’s free and there’s nothing to buy, so the usual consumer purchase rules don’t apply: there’s no right of withdrawal and no payment terms. If an installation ever starts charging, that’s a different arrangement, and these terms don’t cover it. What it costs somebody to run, and who that is, is set out on the {funding}.  
+- [ ] **7171.** It’s free and there’s nothing to buy, so the usual consumer purchase rules don’t apply: there’s no right of withdrawal and no payment terms. If an installation ever starts charging, that’s a different arrangement, and these terms don’t cover it. What it costs somebody to run, and who that is, is set out on the {funding}.  
   → Приложение бесплатное, и покупать здесь нечего, поэтому обычные правила о потребительских покупках не применяются: нет ни права на отказ от договора, ни условий оплаты. Если какая-то установка когда-нибудь начнёт брать деньги, это будет другая договорённость, и эти условия на неё не распространяются. Сколько стоит кому-то содержать приложение и кто этот человек, описано на {funding}.
-- [ ] **6974.** funding page  
+- [ ] **7172.** funding page  
   → странице о финансировании
-- [ ] **6975.** What it promises  
+- [ ] **7173.** What it promises  
   → Что оно обещает
-- [ ] **6976.** Every Estonian word form here comes from Ekilex, the dictionary database run by the Institute of the Estonian Language. None of it is made up by AI. Where a form has been worked out by a fixed rule from one the dictionary stores, the screen says so.  
+- [ ] **7174.** Every Estonian word form here comes from Ekilex, the dictionary database run by the Institute of the Estonian Language. None of it is made up by AI. Where a form has been worked out by a fixed rule from one the dictionary stores, the screen says so.  
   → Каждая форма эстонского слова здесь взята из Ekilex, словарной базы Института эстонского языка. Ничего из этого не придумано ИИ. Если форма выведена по твёрдому правилу из той, что хранится в словаре, экран об этом говорит.
-- [ ] **6977.** \*\*Anu is a machine, and says so on every screen she speaks from.\*\* You are talking to a language model, not a teacher, and the app has to make that impossible to miss, not just true somewhere in the small print. Which model answered is printed under each reply, because a screen naming the wrong one would be worse than naming none.  
+- [ ] **7175.** \*\*Anu is a machine, and says so on every screen she speaks from.\*\* You are talking to a language model, not a teacher, and the app has to make that impossible to miss, not just true somewhere in the small print. Which model answered is printed under each reply, because a screen naming the wrong one would be worse than naming none.  
   → \*\*Ану не человек, а машина, и она говорит об этом на каждом экране, где появляется.\*\* Вы разговариваете с языковой моделью, а не с учителем, и приложение должно сделать так, чтобы это невозможно было не заметить, а не просто упомянуть где-то мелким шрифтом. Какая модель ответила, написано под каждым ответом, потому что экран, называющий не ту модель, был бы хуже, чем экран, не называющий никакой.
-- [ ] **6978.** She isn’t the final word on anything. She can explain grammar and suggest an English translation, but she can still get things wrong. Don’t rely on her for an exam answer without checking it yourself.  
+- [ ] **7176.** She isn’t the final word on anything. She can explain grammar and suggest an English translation, but she can still get things wrong. Don’t rely on her for an exam answer without checking it yourself.  
   → Её слово ни в чём не последнее. Она может объяснить грамматику и предложить перевод на английский, но всё равно может ошибиться. Не полагайтесь на неё в ответе на экзамене, не проверив его сами.
-- [ ] **6979.** The app comes as it is, with no warranty. It’s a learning aid, not a certified language qualification.  
+- [ ] **7177.** The app comes as it is, with no warranty. It’s a learning aid, not a certified language qualification.  
   → Приложение предоставляется «как есть», без гарантий. Это пособие для учёбы, а не сертифицированная языковая квалификация.
-- [ ] **6980.** What we ask of you  
+- [ ] **7178.** What we ask of you  
   → Чего мы просим от вас
-- [ ] **6981.** Use one account, and use it yourself. Please don’t use the tutor for things that have nothing to do with learning Estonian. It runs on a key that costs money every time it’s used, so each account has a daily limit, to stop one person using it all up for everyone else.  
+- [ ] **7179.** Use one account, and use it yourself. Please don’t use the tutor for things that have nothing to do with learning Estonian. It runs on a key that costs money every time it’s used, so each account has a daily limit, to stop one person using it all up for everyone else.  
   → Пользуйтесь одним аккаунтом и пользуйтесь им сами. Пожалуйста, не используйте репетитора для того, что не связано с изучением эстонского. Он работает на ключе, каждое использование которого стоит денег, поэтому у каждого аккаунта есть дневной лимит, чтобы один человек не израсходовал всё за всех.
-- [ ] **6982.** Please don’t write scripts that hammer the dictionary, the speech service or the tutor with requests. Ekilex and TartuNLP are free academic services, and this whole project depends on nobody abusing them.  
+- [ ] **7180.** Please don’t write scripts that hammer the dictionary, the speech service or the tutor with requests. Ekilex and TartuNLP are free academic services, and this whole project depends on nobody abusing them.  
   → Пожалуйста, не пишите скрипты, которые засыпают запросами словарь, сервис речи или репетитора. Ekilex и TartuNLP являются бесплатными академическими сервисами, и весь этот проект держится на том, что ими никто не злоупотребляет.
-- [ ] **6983.** Be 13 or older, or have a parent agree first. Estonia sets the age at which somebody can agree to a service like this for themselves at 13, which is the youngest any country in the Union sets it. Nothing here checks, and saying so plainly is more use than a box anyone can check. If you’re a teacher signing up a class, that agreement is the one thing worth getting before you send the link.  
+- [ ] **7181.** Be 13 or older, or have a parent agree first. Estonia sets the age at which somebody can agree to a service like this for themselves at 13, which is the youngest any country in the Union sets it. Nothing here checks, and saying so plainly is more use than a box anyone can check. If you’re a teacher signing up a class, that agreement is the one thing worth getting before you send the link.  
   → Вам должно быть не меньше 13 лет, иначе сначала нужно согласие родителя. Эстония устанавливает возраст, с которого человек может сам дать согласие на такую услугу, в 13 лет, и ни одна страна Европейского союза не устанавливает его ниже. Здесь ничего не проверяется, и сказать об этом прямо полезнее, чем добавить поле для галочки, которую может поставить кто угодно. Если вы учитель и регистрируете класс, это согласие и есть единственное, что стоит получить до того, как отправить ссылку.
-- [ ] **6984.** What you own  
+- [ ] **7182.** What you own  
   → Что принадлежит вам
-- [ ] **6985.** Your deck, your review history, your tasks and your notes are yours. Export them whenever you like from Settings, in a format that restores into any installation. The dictionary joins two sources with different licenses, so it’s worth being exact here. Every Estonian form and every example sentence comes from {ekilex} and is licensed \*\*CC BY 4.0\*\* by the Institute of the Estonian Language. Every English gloss that was not written for this project comes from {wiktionary} and is licensed \*\*CC BY-SA 4.0\*\* by its contributors, which is the stricter of the two: a work built on it has to be shared on the same terms. Both are credited on the sign-in page and in the footer, and keeping them apart is how the dictionary was designed, not an accident.  
+- [ ] **7183.** Your deck, your review history, your tasks and your notes are yours. Export them whenever you like from Settings, in a format that restores into any installation. The dictionary joins two sources with different licenses, so it’s worth being exact here. Every Estonian form and every example sentence comes from {ekilex} and is licensed \*\*CC BY 4.0\*\* by the Institute of the Estonian Language. Every English gloss that was not written for this project comes from {wiktionary} and is licensed \*\*CC BY-SA 4.0\*\* by its contributors, which is the stricter of the two: a work built on it has to be shared on the same terms. Both are credited on the sign-in page and in the footer, and keeping them apart is how the dictionary was designed, not an accident.  
   → Ваша колода, история повторений, задания и заметки принадлежат вам. Экспортируйте их когда угодно в настройках, в формате, который восстанавливается в любой установке. Словарь объединяет два источника с разными лицензиями, поэтому здесь стоит быть точными. Каждая эстонская форма и каждый пример предложения взяты из {ekilex} и распространяются Институтом эстонского языка по лицензии \*\*CC BY 4.0\*\*. Каждый английский перевод, написанный не для этого проекта, взят из {wiktionary} и распространяется его авторами по лицензии \*\*CC BY-SA 4.0\*\*, более строгой из двух: работа, созданная на её основе, должна распространяться на тех же условиях. Оба источника указаны на странице входа и внизу сайта, и разделять их было задумано при создании словаря, а не вышло случайно.
-- [ ] **6986.** English Wiktionary  
+- [ ] **7184.** English Wiktionary  
   → английского Викисловаря
-- [ ] **6987.** The order the commonest words are listed in comes from {frequency}, a published count over the OpenSubtitles corpus, also licensed \*\*CC BY-SA 4.0\*\*. It decides nothing but an order: every word shown is the dictionary’s own.  
+- [ ] **7185.** The order the commonest words are listed in comes from {frequency}, a published count over the OpenSubtitles corpus, also licensed \*\*CC BY-SA 4.0\*\*. It decides nothing but an order: every word shown is the dictionary’s own.  
   → Порядок, в котором перечислены самые частые слова, взят из {frequency}, опубликованного подсчёта по корпусу OpenSubtitles, который тоже распространяется по лицензии \*\*CC BY-SA 4.0\*\*. Он определяет только порядок: каждое показанное слово взято из словаря.
-- [ ] **6988.** Whether a spelling is an Estonian word at all, and which word it is a form of, is answered by a forms list built from Ekilex’s own inflection tables, as published in {wordlist} (\*\*CC BY-SA 4.0\*\*), and from {vabamorf}, Filosoft’s open-source morphological tools for Estonian (\*\*LGPL\*\*). That list decides whether a word is accepted and never what a card teaches: no form from it is ever drilled or marked against.  
+- [ ] **7186.** Whether a spelling is an Estonian word at all, and which word it is a form of, is answered by a forms list built from Ekilex’s own inflection tables, as published in {wordlist} (\*\*CC BY-SA 4.0\*\*), and from {vabamorf}, Filosoft’s open-source morphological tools for Estonian (\*\*LGPL\*\*). That list decides whether a word is accepted and never what a card teaches: no form from it is ever drilled or marked against.  
   → Является ли написание вообще эстонским словом и формой какого слова оно является, решает список форм, собранный из собственных таблиц словоизменения Ekilex в том виде, как они опубликованы в {wordlist} (\*\*CC BY-SA 4.0\*\*), и из {vabamorf}, открытого набора морфологических инструментов Filosoft для эстонского (\*\*LGPL\*\*). Этот список решает, принимается ли слово, и никогда не решает, чему учит карточка: ни одну форму из него никогда не заучивают и не проверяют по ней ответы.
-- [ ] **6989.** Ending it  
+- [ ] **7187.** Ending it  
   → Как прекратить
-- [ ] **6990.** You can stop and delete your data whenever you like. An installation may cut off an account that’s abusing the shared services described above.  
+- [ ] **7188.** You can stop and delete your data whenever you like. An installation may cut off an account that’s abusing the shared services described above.  
   → Вы можете остановиться и удалить свои данные когда угодно. Установка может отключить аккаунт, который злоупотребляет описанными выше общими сервисами.
-- [ ] **6991.** Which law applies  
+- [ ] **7189.** Which law applies  
   → Какое право применяется
-- [ ] **6992.** Estonian law governs these terms and anything arising from them, and the Estonian courts are where a dispute ends up. Nothing here takes away a right you have as a consumer where you live: if the law of your own country gives you something these terms do not, that law wins.  
+- [ ] **7190.** Estonian law governs these terms and anything arising from them, and the Estonian courts are where a dispute ends up. Nothing here takes away a right you have as a consumer where you live: if the law of your own country gives you something these terms do not, that law wins.  
   → Эти условия и всё, что из них вытекает, регулируются правом Эстонии, а спор в итоге решают эстонские суды. Ничто здесь не отнимает у вас прав, которые есть у вас как у потребителя там, где вы живёте: если закон вашей страны даёт вам то, чего не дают эти условия, действует этот закон.
-- [ ] **6993.** Changes  
+- [ ] **7191.** Changes  
   → Изменения
-- [ ] **6994.** If these terms change in a way that affects what happens to your data, the {privacy} changes with them and both carry the date of the change.  
+- [ ] **7192.** If these terms change in a way that affects what happens to your data, the {privacy} changes with them and both carry the date of the change.  
   → Если эти условия изменятся так, что это затронет происходящее с вашими данными, вместе с ними изменится и текст на {privacy}, и на обеих страницах будет стоять дата изменения.
 
 ## public (418 lines)
 
 _lib/copy/i18n/areas/public.ts_
 
-- [ ] **6995.** Trust and security  
+- [ ] **7193.** Trust and security  
   → Доверие и безопасность
-- [ ] **6996.** Ekilex under CC BY 4.0, Wiktionary under CC BY-SA 4.0  
+- [ ] **7194.** Ekilex under CC BY 4.0, Wiktionary under CC BY-SA 4.0  
   → Ekilex по лицензии CC BY 4.0, Wiktionary по лицензии CC BY-SA 4.0
-- [ ] **6997.** Amazon Polly's neural voices  
+- [ ] **7195.** Amazon Polly's neural voices  
   → нейросетевые голоса Amazon Polly
-- [ ] **6998.** , which would come to {money} a month to buy.  
+- [ ] **7196.** , which would come to {money} a month to buy.  
   → , и купить это обошлось бы в {money} в месяц.
-- [ ] **6999.** This page is for whoever decides whether Kodukeel is safe for a class, a team or a grant. The short answers come first, and each one takes you to the detail below.  
+- [ ] **7197.** This page is for whoever decides whether Kodukeel is safe for a class, a team or a grant. The short answers come first, and each one takes you to the detail below.  
   → Эта страница для тех, кто решает, можно ли доверить Kodukeel классу, команде или грантовому проекту. Сначала идут короткие ответы, и каждый ведёт к подробностям ниже.
-- [ ] **7000.** Who answers for it  
+- [ ] **7198.** Who answers for it  
   → Кто за это отвечает
-- [ ] **7001.** Not named on this copy yet  
+- [ ] **7199.** Not named on this copy yet  
   → В этой копии пока не указан
-- [ ] **7002.** Yes  
+- [ ] **7200.** Yes  
   → Да
-- [ ] **7003.** Where the data is kept  
+- [ ] **7201.** Where the data is kept  
   → Где хранятся данные
-- [ ] **7004.** Its own database, with some services outside the EEA  
+- [ ] **7202.** Its own database, with some services outside the EEA  
   → В собственной базе, часть сервисов за пределами ЕЭЗ
-- [ ] **7005.** Its own database, and nothing sent outside the EEA  
+- [ ] **7203.** Its own database, and nothing sent outside the EEA  
   → В собственной базе, и ничего не уходит за пределы ЕЭЗ
-- [ ] **7006.** Trackers and analytics  
+- [ ] **7204.** Trackers and analytics  
   → Трекеры и аналитика
-- [ ] **7007.** None  
+- [ ] **7205.** None  
   → Нет
-- [ ] **7008.** Export and deletion  
+- [ ] **7206.** Export and deletion  
   → Экспорт и удаление
-- [ ] **7009.** Any time, from Settings  
+- [ ] **7207.** Any time, from Settings  
   → Когда угодно, в настройках
-- [ ] **7010.** Outside audit or certificate  
+- [ ] **7208.** Outside audit or certificate  
   → Внешний аудит или сертификат
-- [ ] **7011.** Not yet: no SOC 2, ISO 27001 or pen test  
+- [ ] **7209.** Not yet: no SOC 2, ISO 27001 or pen test  
   → Пока нет: ни SOC 2, ни ISO 27001, ни теста на проникновение
-- [ ] **7012.** Checked on every change. Partial, with the gaps named  
+- [ ] **7210.** Checked on every change. Partial, with the gaps named  
   → Проверяется при каждом изменении. Частично, пробелы названы
-- [ ] **7013.** Who runs this  
+- [ ] **7211.** Who runs this  
   → Кто управляет этой копией
-- [ ] **7014.** This installation is run by \*\*{name}\*\*{registry}{vat}, at {address}. They’re the controller of every learner’s data here, and the party any contract would be with.  
+- [ ] **7212.** This installation is run by \*\*{name}\*\*{registry}{vat}, at {address}. They’re the controller of every learner’s data here, and the party any contract would be with.  
   → Оператор этой установки: \*\*{name}\*\*{registry}{vat}, адрес: {address}. Это контролёр данных каждого ученика здесь и сторона, с которой заключался бы любой договор.
-- [ ] **7015.** One address reaches a real person, whether it’s a data question, a security report or a procurement question: {email}. There’s no separate security mailbox yet, and saying so is more use than publishing one nobody reads.  
+- [ ] **7213.** One address reaches a real person, whether it’s a data question, a security report or a procurement question: {email}. There’s no separate security mailbox yet, and saying so is more use than publishing one nobody reads.  
   → Один адрес, и письмо на него читает живой человек, будь то вопрос о данных, сообщение об уязвимости или вопрос о закупке: {email}. Отдельного ящика по безопасности пока нет, и сказать об этом полезнее, чем опубликовать адрес, который никто не читает.
-- [ ] **7016.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install, not a service with one address, so the copy you’re reading is run by a person or an organization who’s supposed to be named here. Until they are, there’s nobody on this page to sign anything with. If you’re running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
+- [ ] **7214.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install, not a service with one address, so the copy you’re reading is run by a person or an organization who’s supposed to be named here. Until they are, there’s nobody on this page to sign anything with. If you’re running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
   → \*\*Тот, кто управляет этой установкой, не указал своё имя.\*\* Kodukeel может установить кто угодно, это программа, а не сервис с одним адресом, поэтому копией, которую вы читаете, управляет человек или организация, чьё имя должно стоять здесь. Пока его нет, на этой странице не с кем что-либо подписывать. Если её запустили вы, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` и \`OPERATOR\_EMAIL\`.
-- [ ] **7017.** Where the data is held, and who else touches it  
+- [ ] **7215.** Where the data is held, and who else touches it  
   → Где хранятся данные и кто ещё их обрабатывает
-- [ ] **7018.** Everything a learner does is held in this installation’s own Postgres database. Nothing below gets a deck, a review history or an exam paper. The list is read straight from this deployment’s configuration rather than typed out here, so it’s the real set of services this copy talks to.  
+- [ ] **7216.** Everything a learner does is held in this installation’s own Postgres database. Nothing below gets a deck, a review history or an exam paper. The list is read straight from this deployment’s configuration rather than typed out here, so it’s the real set of services this copy talks to.  
   → Всё, что делает ученик, хранится в собственной базе Postgres этой установки. Никто из перечисленных ниже не получает ни колоду, ни историю повторений, ни экзаменационную работу. Список читается прямо из настроек этой установки, а не набран здесь вручную, поэтому это настоящий перечень сервисов, к которым обращается эта копия.
-- [ ] **7019.** Established in the European Economic Area.  
+- [ ] **7217.** Established in the European Economic Area.  
   → Зарегистрирован в Европейской экономической зоне.
-- [ ] **7020.** Established outside the European Economic Area.  
+- [ ] **7218.** Established outside the European Economic Area.  
   → Зарегистрирован за пределами Европейской экономической зоны.
-- [ ] **7021.** Where this one sits depends on how the installation was set up, so ask the operator above.  
+- [ ] **7219.** Where this one sits depends on how the installation was set up, so ask the operator above.  
   → Где он находится, зависит от того, как настроена установка, поэтому спросите у оператора, указанного выше.
-- [ ] **7022.** \*\*Some of that leaves the European Economic Area\*\*, which matters for a transfer assessment. It rests on the standard contractual clauses each provider publishes. The two features that do it are the tutor and the page scanner, and a deployment configured with no AI provider has neither, so an organization that cannot accept the transfer can run the rest of the app without it.  
+- [ ] **7220.** \*\*Some of that leaves the European Economic Area\*\*, which matters for a transfer assessment. It rests on the standard contractual clauses each provider publishes. The two features that do it are the tutor and the page scanner, and a deployment configured with no AI provider has neither, so an organization that cannot accept the transfer can run the rest of the app without it.  
   → \*\*Часть этого покидает Европейскую экономическую зону\*\*, и это важно для оценки передачи данных. Передача основана на стандартных договорных условиях, которые публикует каждый поставщик. Данные передают две функции, репетитор и сканер страниц, а в установке без поставщика ИИ нет ни той, ни другой, поэтому организация, которая не может принять такую передачу, может пользоваться остальным приложением без неё.
-- [ ] **7023.** There’s no analytics vendor, no advertising identifier and no third-party tracker, and you don’t have to take our word for it: the app has no third-party script tag anywhere in it, and the one thing it counts, whether people come back, is worked out from its own review log. {privacy} is the long version of all of this, written for the learner rather than the buyer.  
+- [ ] **7221.** There’s no analytics vendor, no advertising identifier and no third-party tracker, and you don’t have to take our word for it: the app has no third-party script tag anywhere in it, and the one thing it counts, whether people come back, is worked out from its own review log. {privacy} is the long version of all of this, written for the learner rather than the buyer.  
   → Нет ни поставщика аналитики, ни рекламного идентификатора, ни стороннего трекера, и верить нам на слово не обязательно: в приложении нигде нет стороннего тега script, а единственное, что оно считает, возвращаются ли люди, вычисляется из его собственного журнала повторений. Страница «{privacy}» рассказывает обо всём этом подробно и написана для ученика, а не для покупателя.
-- [ ] **7024.** How a learner gets their data out, and how they delete it  
+- [ ] **7222.** How a learner gets their data out, and how they delete it  
   → Как ученик забирает свои данные и как их удаляет
-- [ ] **7025.** \*\*Export.\*\* Settings has a button that returns everything held about the account as a single JSON file: every card, review, task, setting, scanned word list, level check, mock exam paper with the composition in it, tutor message, conversation, suggestion, starred word and class membership. It is a real backup and the same file restores into a fresh installation, which is what makes it portability rather than a gesture.  
+- [ ] **7223.** \*\*Export.\*\* Settings has a button that returns everything held about the account as a single JSON file: every card, review, task, setting, scanned word list, level check, mock exam paper with the composition in it, tutor message, conversation, suggestion, starred word and class membership. It is a real backup and the same file restores into a fresh installation, which is what makes it portability rather than a gesture.  
   → \*\*Экспорт.\*\* В настройках есть кнопка, которая выдаёт всё, что хранится об аккаунте, одним файлом JSON: каждую карточку, повторение, задание, настройку, отсканированный список слов, проверку уровня, пробный экзамен с сочинением, сообщение репетитору, разговор, предложение, отмеченное слово и членство в группе. Это настоящая резервная копия, и тот же файл восстанавливается в новой установке, поэтому это настоящая переносимость, а не жест.
-- [ ] **7026.** \*\*Deleting everything.\*\* The same screen deletes the account and everything in it, including the sign-in record, in one action and with no request to write. Where an installation is not configured to remove the sign-in record itself, the button says so plainly instead of reporting a success it did not achieve. Both live under {settings}.  
+- [ ] **7224.** \*\*Deleting everything.\*\* The same screen deletes the account and everything in it, including the sign-in record, in one action and with no request to write. Where an installation is not configured to remove the sign-in record itself, the button says so plainly instead of reporting a success it did not achieve. Both live under {settings}.  
   → \*\*Удаление всего.\*\* На том же экране аккаунт удаляется со всем содержимым, включая запись для входа, одним действием и без письменного запроса. Если установка не настроена удалять запись для входа сама, кнопка прямо об этом говорит, а не сообщает об успехе, которого не было. Обе кнопки находятся в разделе «{settings}».
-- [ ] **7027.** A learner in a class or a workplace group can leave it, which stops the sponsor seeing anything and takes nothing out of their own deck.  
+- [ ] **7225.** A learner in a class or a workplace group can leave it, which stops the sponsor seeing anything and takes nothing out of their own deck.  
   → Ученик в группе или рабочей группе может из неё выйти: тогда спонсор перестаёт что-либо видеть, а из колоды ученика ничего не пропадает.
-- [ ] **7028.** Security posture  
+- [ ] **7226.** Security posture  
   → Состояние безопасности
-- [ ] **7029.** The security work is written down in full rather than summarized for you. There are three documents, and each one names files you can open:  
+- [ ] **7227.** The security work is written down in full rather than summarized for you. There are three documents, and each one names files you can open:  
   → Работа над безопасностью описана полностью, а не пересказана для вас вкратце. Есть три документа, и в каждом названы файлы, которые можно открыть:
-- [ ] **7030.** Security review and threat model  
+- [ ] **7228.** Security review and threat model  
   → Обзор безопасности и модель угроз
-- [ ] **7031.** {doc}: what the system is, the five trust boundaries, fifteen threats worked through one at a time, the controls inventory, and a section on what has not been done.  
+- [ ] **7229.** {doc}: what the system is, the five trust boundaries, fifteen threats worked through one at a time, the controls inventory, and a section on what has not been done.  
   → {doc}: что представляет собой система, пять границ доверия, пятнадцать угроз, разобранных по одной, перечень мер защиты и раздел о том, что не сделано.
-- [ ] **7032.** Incident response  
+- [ ] **7230.** Incident response  
   → Реагирование на инциденты
-- [ ] **7033.** {doc}: severity, who does what, the Article 33 clock for telling the supervisory authority, the Article 34 clock for telling the people affected, and runbooks for a leaked credential, a runaway AI bill, a database restore and a vandalized dictionary.  
+- [ ] **7231.** {doc}: severity, who does what, the Article 33 clock for telling the supervisory authority, the Article 34 clock for telling the people affected, and runbooks for a leaked credential, a runaway AI bill, a database restore and a vandalized dictionary.  
   → {doc}: уровни серьёзности, кто что делает, срок по статье 33 GDPR для уведомления надзорного органа, срок по статье 34 GDPR для уведомления затронутых людей и пошаговые инструкции на случай утечки учётных данных, неконтролируемого счёта за ИИ, восстановления базы данных и испорченного словаря.
-- [ ] **7034.** Control map  
+- [ ] **7232.** Control map  
   → Карта мер защиты
-- [ ] **7035.** {doc}: the controls a reviewer usually asks about, mapped to where each one lives.  
+- [ ] **7233.** {doc}: the controls a reviewer usually asks about, mapped to where each one lives.  
   → {doc}: меры защиты, о которых обычно спрашивают проверяющие, с указанием, где реализована каждая.
-- [ ] **7036.** The three documents are in English.  
+- [ ] **7234.** The three documents are in English.  
   → Все три документа на английском.
-- [ ] **7037.** \*\*What this project does not have, stated plainly.\*\* There is no SOC 2 report. There is no ISO/IEC 27001 certificate. The control map is a self-assessment written by the people who wrote the code, and it has not been reviewed by anybody outside this project. No external penetration test has been commissioned, so nobody has attacked this application under contract, and no independent reviewer has read the source for security faults. The code being public is not the same thing as having been audited.  
+- [ ] **7235.** \*\*What this project does not have, stated plainly.\*\* There is no SOC 2 report. There is no ISO/IEC 27001 certificate. The control map is a self-assessment written by the people who wrote the code, and it has not been reviewed by anybody outside this project. No external penetration test has been commissioned, so nobody has attacked this application under contract, and no independent reviewer has read the source for security faults. The code being public is not the same thing as having been audited.  
   → \*\*Чего у этого проекта нет, прямо.\*\* Нет отчёта SOC 2. Нет сертификата ISO/IEC 27001. Карта мер защиты составлена как самооценка теми же людьми, что писали код, и никто вне проекта её не проверял. Внешний тест на проникновение не заказывался, так что никто не атаковал это приложение по договору, и ни один независимый специалист не читал исходный код в поисках уязвимостей. То, что код открыт, не означает, что он прошёл аудит.
-- [ ] **7038.** Four more limits, named here before you find them yourself. Ownership of rows is enforced in application code and asserted in the build rather than by Postgres row level security. The Content Security Policy carries {inline} in its script sources, for a reason written out in the code, and that is the weakest line in it. Nothing watches the logs continuously: there is no intrusion detection and no alerting beyond an optional error webhook. And multi-factor authentication is inherited from whatever the learner’s Google account has rather than enforced here.  
+- [ ] **7236.** Four more limits, named here before you find them yourself. Ownership of rows is enforced in application code and asserted in the build rather than by Postgres row level security. The Content Security Policy carries {inline} in its script sources, for a reason written out in the code, and that is the weakest line in it. Nothing watches the logs continuously: there is no intrusion detection and no alerting beyond an optional error webhook. And multi-factor authentication is inherited from whatever the learner’s Google account has rather than enforced here.  
   → Ещё четыре ограничения, названные здесь раньше, чем вы найдёте их сами. Принадлежность строк обеспечивается кодом приложения и проверяется при сборке, а не механизмом защиты на уровне строк в Postgres. Политика безопасности контента (CSP) разрешает {inline} в источниках скриптов, по причине, описанной в коде, и это самое слабое её место. Журналы никто не отслеживает постоянно: нет обнаружения вторжений и нет оповещений, кроме необязательного вебхука для ошибок. И многофакторная аутентификация берётся из того, что включено в аккаунте Google ученика, а не требуется здесь.
-- [ ] **7039.** What there is instead is a build that fails when a rule is broken, rather than a document promising the rules are kept: the credential scan greps the built client bundle for every server-only value, the invariant suite asserts the rules this project set itself, and the browser suites drive the real app. All of it runs on every change.  
+- [ ] **7237.** What there is instead is a build that fails when a rule is broken, rather than a document promising the rules are kept: the credential scan greps the built client bundle for every server-only value, the invariant suite asserts the rules this project set itself, and the browser suites drive the real app. All of it runs on every change.  
   → Вместо этого есть сборка, которая падает при нарушении правила, а не документ с обещанием, что правила соблюдаются: проверка учётных данных ищет в собранном клиентском коде каждое значение, предназначенное только для сервера, набор инвариантов проверяет правила, которые проект сам себе установил, а браузерные тесты гоняют настоящее приложение. Всё это запускается при каждом изменении.
-- [ ] **7040.** One of those suites is worth naming, because it is the only one that asks these questions of a server rather than of the source. It sends the forged requests, reads back every security header, checks that what is behind a token stays behind it, and reads what the health endpoint is willing to say. It found something on its first run: a request carrying an address the app could not parse was being treated as a request carrying none, and those had different answers. That is the shape of thing it is for. It is a test written by the people who wrote the code, so it cannot tell you the design is right, and it is not the outside look this section says is missing.  
+- [ ] **7238.** One of those suites is worth naming, because it is the only one that asks these questions of a server rather than of the source. It sends the forged requests, reads back every security header, checks that what is behind a token stays behind it, and reads what the health endpoint is willing to say. It found something on its first run: a request carrying an address the app could not parse was being treated as a request carrying none, and those had different answers. That is the shape of thing it is for. It is a test written by the people who wrote the code, so it cannot tell you the design is right, and it is not the outside look this section says is missing.  
   → Один из этих наборов стоит назвать отдельно, потому что только он задаёт эти вопросы серверу, а не исходному коду. Он отправляет поддельные запросы, читает каждый заголовок безопасности, проверяет, что закрытое токеном остаётся закрытым, и смотрит, что готова сообщить точка проверки состояния. При первом же запуске он кое-что нашёл: запрос с адресом, который приложение не могло разобрать, обрабатывался как запрос без адреса, а ответы на них должны были быть разными. Именно для таких вещей он и нужен. Это тест, написанный теми же людьми, что писали код, поэтому он не может подтвердить, что устройство системы верно, и это не тот взгляд со стороны, которого, как сказано в этом разделе, не хватает.
-- [ ] **7041.** Availability  
+- [ ] **7239.** Availability  
   → Доступность сервиса
-- [ ] **7042.** \*\*There is no contractual service level today.\*\* No uptime percentage is promised anywhere in this app or in its terms, and nothing here is worth quoting as one. What can be said is what the app does when things break, which is a design decision rather than a hope.  
+- [ ] **7240.** \*\*There is no contractual service level today.\*\* No uptime percentage is promised anywhere in this app or in its terms, and nothing here is worth quoting as one. What can be said is what the app does when things break, which is a design decision rather than a hope.  
   → \*\*Договорного уровня обслуживания сейчас нет.\*\* Ни в приложении, ни в его условиях не обещан никакой процент времени работы, и ничего здесь не стоит цитировать в таком качестве. Сказать можно только то, что приложение делает, когда что-то ломается, а это решение при проектировании, а не надежда.
-- [ ] **7043.** \*\*The review path survives losing the network.\*\* A grade answered with no connection goes into a queue in the browser and is sent later with the time it was actually answered, never dropped and never restamped, so a session on a train costs nothing. The service worker keeps the pages a learner was last on and an offline screen behind them, so the app opens rather than showing a browser error. The dictionary, the tutor and speech all need a connection and say so instead of serving something stale.  
+- [ ] **7241.** \*\*The review path survives losing the network.\*\* A grade answered with no connection goes into a queue in the browser and is sent later with the time it was actually answered, never dropped and never restamped, so a session on a train costs nothing. The service worker keeps the pages a learner was last on and an offline screen behind them, so the app opens rather than showing a browser error. The dictionary, the tutor and speech all need a connection and say so instead of serving something stale.  
   → \*\*Повторение переживает потерю сети.\*\* Оценка, данная без связи, попадает в очередь в браузере и отправляется позже со временем, когда ответ был дан на самом деле, никогда не теряется и не получает новое время, так что занятие в поезде ничего не стоит. Сервис-воркер хранит страницы, на которых ученик был последним, и экран для работы без сети за ними, так что приложение открывается, а не показывает ошибку браузера. Словарю, репетитору и озвучке нужна связь, и они говорят об этом, а не показывают устаревшее.
-- [ ] **7044.** \*\*When the database is unreachable\*\*, pages that need it fail to an error screen that says nothing has been lost, which is true: the review log is only ever appended to. The message itself stays on the server, because a database error can quote a connection string, and what the screen shows is a reference you can quote back at us.  
+- [ ] **7242.** \*\*When the database is unreachable\*\*, pages that need it fail to an error screen that says nothing has been lost, which is true: the review log is only ever appended to. The message itself stays on the server, because a database error can quote a connection string, and what the screen shows is a reference you can quote back at us.  
   → \*\*Когда база данных недоступна\*\*, страницы, которым она нужна, показывают экран ошибки, где сказано, что ничего не потеряно, и это правда: в журнал повторений только добавляют записи. Само сообщение остаётся на сервере, потому что ошибка базы данных может содержать строку подключения, а на экране видно только номер, который можно нам назвать.
-- [ ] **7045.** \*\*When an AI provider is having a bad minute\*\*, the app moves to the next provider configured rather than failing, and where none answers the feature says so. Nothing that teaches Estonian depends on a model: the dictionary, the deck, the scheduler, the exam and every practice round work with no AI provider at all.  
+- [ ] **7243.** \*\*When an AI provider is having a bad minute\*\*, the app moves to the next provider configured rather than failing, and where none answers the feature says so. Nothing that teaches Estonian depends on a model: the dictionary, the deck, the scheduler, the exam and every practice round work with no AI provider at all.  
   → \*\*Когда у поставщика ИИ неудачная минута\*\*, приложение переходит к следующему настроенному поставщику, а не падает, а если не отвечает никто, функция так и говорит. Ничто из того, что учит эстонскому, не зависит от модели: словарь, колода, расписание, экзамен и каждый тренировочный раунд работают вообще без поставщика ИИ.
-- [ ] **7046.** \*\*Health check.\*\* {health} answers without a session and returns whether the app is up, whether the database answers, and the commit this build came from. It carries no counts and nothing about anybody. A monitor can poll it.  
+- [ ] **7244.** \*\*Health check.\*\* {health} answers without a session and returns whether the app is up, whether the database answers, and the commit this build came from. It carries no counts and nothing about anybody. A monitor can poll it.  
   → \*\*Проверка состояния.\*\* {health} отвечает без входа в аккаунт и сообщает, работает ли приложение, отвечает ли база данных и из какого коммита собрана эта версия. В ответе нет ни подсчётов, ни сведений о ком-либо. Его можно опрашивать системой мониторинга.
-- [ ] **7047.** Reporting a vulnerability  
+- [ ] **7245.** Reporting a vulnerability  
   → Как сообщить об уязвимости
-- [ ] **7048.** Send it to {who} with “security” in the subject line. The full policy is in {policy}, including the response times we can actually keep: three working days to acknowledge, ten to tell you whether we agree it is a problem, and a target of thirty days to fix anything critical or high. If the report is sensitive enough that plain email worries you, say so in one line with no detail in it and we’ll set up another channel.  
+- [ ] **7246.** Send it to {who} with “security” in the subject line. The full policy is in {policy}, including the response times we can actually keep: three working days to acknowledge, ten to tell you whether we agree it is a problem, and a target of thirty days to fix anything critical or high. If the report is sensitive enough that plain email worries you, say so in one line with no detail in it and we’ll set up another channel.  
   → Отправьте его {who} со словом «security» в теме письма. Полная политика в {policy}, включая сроки ответа, которые мы действительно можем выдержать: три рабочих дня на подтверждение получения, десять, чтобы сказать, согласны ли мы, что это проблема, и ориентир в тридцать дней на исправление всего критического или серьёзного. Если сообщение настолько чувствительное, что обычная почта вас беспокоит, напишите об этом одной строкой без подробностей, и мы организуем другой канал.
-- [ ] **7049.** the operator named at the top of this page  
+- [ ] **7247.** the operator named at the top of this page  
   → оператору, указанному в начале этой страницы
-- [ ] **7050.** If a breach ever affects personal data, the incident document above is the procedure we follow, and the supervisory authority for Estonia is the {authority} ({local}).  
+- [ ] **7248.** If a breach ever affects personal data, the incident document above is the procedure we follow, and the supervisory authority for Estonia is the {authority} ({local}).  
   → Если утечка когда-либо затронет персональные данные, мы действуем по описанному выше документу об инцидентах, а надзорный орган Эстонии: {authority} ({local}).
-- [ ] **7051.** Contrast is measured in a browser in both themes, every target is measured against 44px under a coarse pointer, axe runs over every route on every change, and no audit by a person with a disability using assistive technology has been commissioned yet. The {statement} says what is claimed, what is tested, and the gaps that are known.  
+- [ ] **7249.** Contrast is measured in a browser in both themes, every target is measured against 44px under a coarse pointer, axe runs over every route on every change, and no audit by a person with a disability using assistive technology has been commissioned yet. The {statement} says what is claimed, what is tested, and the gaps that are known.  
   → Контрастность измеряется в браузере в обеих темах, каждый элемент управления проверяется на размер 44px при сенсорном вводе, axe проходит по каждой странице при каждом изменении, а аудит с участием человека с инвалидностью, пользующегося вспомогательными технологиями, пока не заказывался. В {statement} сказано, что заявлено, что проверено и какие пробелы известны.
-- [ ] **7052.** accessibility statement  
+- [ ] **7250.** accessibility statement  
   → заявлении о доступности
-- [ ] **7053.** Accessibility statement  
+- [ ] **7251.** Accessibility statement  
   → Заявление о доступности
-- [ ] **7054.** Kodukeel is for people learning Estonian, and plenty of them are learning it because they have to. If somebody can’t use the app, it has let them down exactly when it mattered most. This page says what standard we’re aiming for, what we’ve checked and how, where we fall short today, and how to tell us.  
+- [ ] **7252.** Kodukeel is for people learning Estonian, and plenty of them are learning it because they have to. If somebody can’t use the app, it has let them down exactly when it mattered most. This page says what standard we’re aiming for, what we’ve checked and how, where we fall short today, and how to tell us.  
   → Kodukeel создан для тех, кто учит эстонский, а многие учат его потому, что им это нужно. Если кто-то не может пользоваться приложением, оно подвело его именно тогда, когда это было важнее всего. На этой странице сказано, к какому стандарту мы стремимся, что и как проверили, где пока не дотягиваем и как нам об этом сообщить.
-- [ ] **7055.** The standard  
+- [ ] **7253.** The standard  
   → Стандарт
-- [ ] **7056.** The target is \*\*WCAG 2.2 level AA\*\*, and through it \*\*EN 301 549\*\*, which is the European harmonized standard that public bodies and their suppliers are measured against and which adopts WCAG for web content.  
+- [ ] **7254.** The target is \*\*WCAG 2.2 level AA\*\*, and through it \*\*EN 301 549\*\*, which is the European harmonized standard that public bodies and their suppliers are measured against and which adopts WCAG for web content.  
   → Цель: \*\*WCAG 2.2, уровень AA\*\*, а через него \*\*EN 301 549\*\*, гармонизированный европейский стандарт, по которому оценивают государственные органы и их поставщиков и который включает WCAG в части веб-контента.
-- [ ] **7057.** Conformance status  
+- [ ] **7255.** Conformance status  
   → Статус соответствия
-- [ ] **7058.** \*\*Partially conformant with WCAG 2.2 level AA.\*\* Partially conformant means most of the app meets the standard, and the parts named below do not.  
+- [ ] **7256.** \*\*Partially conformant with WCAG 2.2 level AA.\*\* Partially conformant means most of the app meets the standard, and the parts named below do not.  
   → \*\*Частично соответствует WCAG 2.2, уровень AA.\*\* «Частично» означает, что большая часть приложения соответствует стандарту, а части, названные ниже, нет.
-- [ ] **7059.** It isn’t fully conformant, and here’s the honest reason: nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.  
+- [ ] **7257.** It isn’t fully conformant, and here’s the honest reason: nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.  
   → Полного соответствия нет, и вот честная причина: никому из тех, кто полагается на вспомогательные технологии, ещё не платили за то, чтобы сесть и попробовать им пользоваться. Всё, что ниже, опирается на автоматические проверки и на то, что авторы приложения проверяли собственную работу. Так находится очень многое, но это всё равно не то же самое, что услышать человека, которого приложение подводило.
-- [ ] **7060.** How the claim was tested  
+- [ ] **7258.** How the claim was tested  
   → Как это проверялось
-- [ ] **7061.** Four suites run in the build on every change, against the real app in a real browser rather than against a component in isolation.  
+- [ ] **7259.** Four suites run in the build on every change, against the real app in a real browser rather than against a component in isolation.  
   → При каждом изменении в сборке запускаются четыре набора тестов, против настоящего приложения в настоящем браузере, а не против отдельного компонента.
-- [ ] **7062.** \*\*axe over every route.\*\* {suite} loads every page the app has, not a chosen sample, and runs axe over each one, including its best-practice rules. Two screens are the exception so far, a marked paper and a scanned page, because each needs a row made before it exists; the containment suite below makes both and measures them, and axe does not reach them yet. It runs the whole sweep again in the dark theme, because light and dark are two palettes and a color that clears the bar in one says nothing about the other. It runs it twice more at 390 pixels wide, which is a phone, because a phone here is different markup rather than the same markup narrower: the navigation rail is not drawn at all and a bar with a sheet behind it is drawn instead. That sheet is opened and swept too, since no address reaches it. It counts a one-character run of text as text, which is how a check mark measured at 2.52 against a bar of 4.5 was found. Beyond axe it asserts exactly one main landmark and one heading per screen, a page title that is not the landing page’s, and Estonian marked so a screen reader does not read it with English phonics.  
+- [ ] **7260.** \*\*axe over every route.\*\* {suite} loads every page the app has, not a chosen sample, and runs axe over each one, including its best-practice rules. Two screens are the exception so far, a marked paper and a scanned page, because each needs a row made before it exists; the containment suite below makes both and measures them, and axe does not reach them yet. It runs the whole sweep again in the dark theme, because light and dark are two palettes and a color that clears the bar in one says nothing about the other. It runs it twice more at 390 pixels wide, which is a phone, because a phone here is different markup rather than the same markup narrower: the navigation rail is not drawn at all and a bar with a sheet behind it is drawn instead. That sheet is opened and swept too, since no address reaches it. It counts a one-character run of text as text, which is how a check mark measured at 2.52 against a bar of 4.5 was found. Beyond axe it asserts exactly one main landmark and one heading per screen, a page title that is not the landing page’s, and Estonian marked so a screen reader does not read it with English phonics.  
   → \*\*axe на каждой странице.\*\* {suite} открывает каждую страницу приложения, а не выборку, и запускает на каждой axe, включая правила лучших практик. Пока исключений два, проверенная работа и отсканированная страница, потому что для каждой сначала нужно создать запись; набор проверки границ ниже создаёт обе и измеряет их, а axe до них пока не доходит. Весь проход повторяется в тёмной теме, потому что светлая и тёмная темы являются двумя палитрами, и цвет, проходящий порог в одной, ничего не говорит о другой. Ещё дважды он запускается при ширине 390 пикселей, то есть на телефоне, потому что телефон здесь получает другую разметку, а не ту же, только уже: боковая панель навигации не рисуется вовсе, а вместо неё появляется нижняя панель со шторкой. Эту шторку тоже открывают и проверяют, так как ни один адрес к ней не ведёт. Строка текста из одного символа тоже считается текстом, и так была найдена галочка с контрастом 2,52 при пороге 4,5. Помимо axe проверяется ровно один главный ориентир и один заголовок на экран, заголовок страницы, отличный от заголовка лендинга, и разметка эстонского текста, чтобы экранный диктор не читал его с английским произношением.
-- [ ] **7063.** \*\*Contrast measured rather than reasoned about.\*\* {suite} reads the colors the browser actually painted and works out the ratio, in both themes, including states a page does not arrive in such as a row under a pointer. What a color is worth depends on what it is sitting on, which no palette can tell you.  
+- [ ] **7261.** \*\*Contrast measured rather than reasoned about.\*\* {suite} reads the colors the browser actually painted and works out the ratio, in both themes, including states a page does not arrive in such as a row under a pointer. What a color is worth depends on what it is sitting on, which no palette can tell you.  
   → \*\*Контраст измеряется, а не выводится рассуждением.\*\* {suite} читает цвета, которые браузер действительно нарисовал, и вычисляет соотношение в обеих темах, включая состояния, в которых страница не открывается сама, например строку под курсором. Чего стоит цвет, зависит от того, на чём он лежит, а этого не скажет ни одна палитра.
-- [ ] **7064.** \*\*Every target measured against 44px.\*\* {suite} drives the app at 360, 390, 430, 768 and 1280 pixels wide with a coarse pointer, which is the only condition under which that rule is real, and fails on a control below the floor.  
+- [ ] **7262.** \*\*Every target measured against 44px.\*\* {suite} drives the app at 360, 390, 430, 768 and 1280 pixels wide with a coarse pointer, which is the only condition under which that rule is real, and fails on a control below the floor.  
   → \*\*Каждый элемент проверяется на 44px.\*\* {suite} гоняет приложение при ширине 360, 390, 430, 768 и 1280 пикселей с сенсорным вводом, единственным условием, при котором это правило имеет смысл, и падает на любом элементе управления меньше порога.
-- [ ] **7065.** \*\*Text staying inside its box.\*\* {suite} walks every route at 360, 768 and 1280, in both themes, and asks whether anything is cut off, drawn outside its border or drawn on top of something else. Then it asks again with every run of text replaced by unbreakable text of the same length, which is the question Estonian actually poses.  
+- [ ] **7263.** \*\*Text staying inside its box.\*\* {suite} walks every route at 360, 768 and 1280, in both themes, and asks whether anything is cut off, drawn outside its border or drawn on top of something else. Then it asks again with every run of text replaced by unbreakable text of the same length, which is the question Estonian actually poses.  
   → \*\*Текст остаётся в своей рамке.\*\* {suite} проходит каждую страницу при ширине 360, 768 и 1280 в обеих темах и проверяет, не обрезано ли что-то, не выходит ли за свою рамку и не наложено ли поверх другого. Затем проверяет снова, заменив каждую строку текста неразрывной строкой той же длины, ведь именно такой вопрос и ставит эстонский язык.
-- [ ] **7066.** Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Color is never the only thing carrying a distinction, so a correct answer says so in words as well as in color.  
+- [ ] **7264.** Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Color is never the only thing carrying a distinction, so a correct answer says so in words as well as in color.  
   → Кроме того, приложение собрано из настоящих кнопок и ссылок с видимой рамкой фокуса. Анимация отключается для всех, чья система просит уменьшить движение, и нигде не нужно перетаскивание. Цвет никогда не бывает единственным, что передаёт различие, поэтому правильный ответ отмечается и словами, и цветом.
-- [ ] **7067.** \*\*The timed practice round can be set to run longer\*\* (WCAG 2.2.1, Timing Adjustable). The daily quest is two minutes, and that is a starting point rather than the whole story: one setting stretches it, up to ten times as long, which is the figure the criterion itself asks for. It is chosen before the round starts, in Settings, and the start screen links to it. The clock stays, because a speed round without one is a different round, and what was shutting people out was that the length was not theirs to set.  
+- [ ] **7265.** \*\*The timed practice round can be set to run longer\*\* (WCAG 2.2.1, Timing Adjustable). The daily quest is two minutes, and that is a starting point rather than the whole story: one setting stretches it, up to ten times as long, which is the figure the criterion itself asks for. It is chosen before the round starts, in Settings, and the start screen links to it. The clock stays, because a speed round without one is a different round, and what was shutting people out was that the length was not theirs to set.  
   → \*\*Тренировочный раунд на время можно сделать длиннее\*\* (WCAG 2.2.1, регулируемое время). «Задание дня» длится две минуты, и это только отправная точка: одна настройка растягивает его вплоть до десятикратной длины, именно ту величину, которую требует сам критерий. Она выбирается до начала раунда в настройках, и стартовый экран на неё ссылается. Таймер остаётся, потому что скоростной раунд без него уже другой раунд, а людей отсекало то, что длину нельзя было задать самим.
-- [ ] **7068.** \*\*No audit by a person with a disability using assistive technology has been commissioned.\*\* No screen reader user has been paid to test this, and there has been no third-party accessibility audit. Automated tools find perhaps a third of what is wrong with a page, and the third they find is the mechanical third.  
+- [ ] **7266.** \*\*No audit by a person with a disability using assistive technology has been commissioned.\*\* No screen reader user has been paid to test this, and there has been no third-party accessibility audit. Automated tools find perhaps a third of what is wrong with a page, and the third they find is the mechanical third.  
   → \*\*Аудит с участием человека с инвалидностью, пользующегося вспомогательными технологиями, не заказывался.\*\* Никому из пользователей экранного диктора не платили за проверку, и стороннего аудита доступности не было. Автоматические инструменты находят, пожалуй, треть того, что не так со страницей, и это механическая треть.
-- [ ] **7069.** What is known not to conform  
+- [ ] **7267.** What is known not to conform  
   → Что заведомо не соответствует
-- [ ] **7070.** These were found by reading the code rather than assumed from a template, and each one is a real screen.  
+- [ ] **7268.** These were found by reading the code rather than assumed from a template, and each one is a real screen.  
   → Это найдено чтением кода, а не взято из шаблона, и каждый пункт относится к настоящему экрану.
-- [ ] **7071.** \*\*The mock examination parts run to a clock nobody can change\*\* (WCAG 2.2.1, Timing Adjustable), and it closes the part when it goes. The paper is an imitation of a timed state examination and untimed practice of a timed paper measures something else, which is why it is the one clock left fixed, but a candidate who needs extra time in the real examination has no way to ask for it here.  
+- [ ] **7269.** \*\*The mock examination parts run to a clock nobody can change\*\* (WCAG 2.2.1, Timing Adjustable), and it closes the part when it goes. The paper is an imitation of a timed state examination and untimed practice of a timed paper measures something else, which is why it is the one clock left fixed, but a candidate who needs extra time in the real examination has no way to ask for it here.  
   → \*\*Части пробного экзамена идут по таймеру, который никто не может изменить\*\* (WCAG 2.2.1, регулируемое время), и по его истечении часть закрывается. Работа имитирует государственный экзамен на время, а тренировка такой работы без ограничения измеряет уже другое, поэтому это единственный таймер, оставленный неизменным, но кандидат, которому на настоящем экзамене нужно дополнительное время, не может попросить о нём здесь.
-- [ ] **7072.** \*\*The listening, dictation and minimal-pair rounds require hearing\*\* (WCAG 1.2.1). There is no transcript before the answer, because the transcript is the answer, so a text alternative would remove the exercise. The text is shown as soon as the answer is in. Somebody who cannot use audio can use every other round, and the app does not require any of these three to make progress, but three rounds are closed to them.  
+- [ ] **7270.** \*\*The listening, dictation and minimal-pair rounds require hearing\*\* (WCAG 1.2.1). There is no transcript before the answer, because the transcript is the answer, so a text alternative would remove the exercise. The text is shown as soon as the answer is in. Somebody who cannot use audio can use every other round, and the app does not require any of these three to make progress, but three rounds are closed to them.  
   → \*\*Раунды аудирования, диктанта и минимальных пар требуют слуха\*\* (WCAG 1.2.1). Расшифровки до ответа нет, потому что расшифровка и есть ответ, так что текстовая альтернатива уничтожила бы само упражнение. Текст показывается сразу после ответа. Тот, кто не может пользоваться звуком, может пользоваться всеми остальными раундами, и для продвижения ни один из этих трёх не обязателен, но три раунда для него закрыты.
-- [ ] **7073.** \*\*Speaking practice needs a microphone\*\* and asks the learner to judge their own attempt against a native rendering, because no recognizer available to this project is accurate enough on Estonian to mark one. Anybody who cannot record has no way through that round.  
+- [ ] **7271.** \*\*Speaking practice needs a microphone\*\* and asks the learner to judge their own attempt against a native rendering, because no recognizer available to this project is accurate enough on Estonian to mark one. Anybody who cannot record has no way through that round.  
   → \*\*Для тренировки речи нужен микрофон\*\*, и ученик сам сравнивает свою попытку с произношением носителя, потому что ни один доступный проекту распознаватель речи не настолько точен на эстонском, чтобы её оценить. Тот, кто не может записывать звук, не сможет пройти этот раунд.
-- [ ] **7074.** \*\*axe is swept at two widths, not at every width.\*\* It runs at 1280 and at 390, which is either side of the one breakpoint that swaps the navigation, so the phone bar and the sheet behind it are covered now. The widths between them, 360, 430 and 768, are measured for targets, overflow and containment and are not swept by axe. A fault in markup that appears at one of those and at neither of these would be found by a person rather than by the build.  
+- [ ] **7272.** \*\*axe is swept at two widths, not at every width.\*\* It runs at 1280 and at 390, which is either side of the one breakpoint that swaps the navigation, so the phone bar and the sheet behind it are covered now. The widths between them, 360, 430 and 768, are measured for targets, overflow and containment and are not swept by axe. A fault in markup that appears at one of those and at neither of these would be found by a person rather than by the build.  
   → \*\*axe проходит две ширины, а не все.\*\* Он запускается при 1280 и 390, по обе стороны от единственной точки перелома, где меняется навигация, так что нижняя панель телефона и шторка за ней теперь проверены. Промежуточные ширины, 360, 430 и 768, проверяются на размер элементов, переполнение и границы, но не axe. Ошибку в разметке, которая проявляется на одной из них и ни на одной из двух первых, найдёт человек, а не сборка.
-- [ ] **7075.** \*\*Screens behind data are less covered.\*\* The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with students in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them.  
+- [ ] **7273.** \*\*Screens behind data are less covered.\*\* The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with students in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them.  
   → \*\*Экраны, которым нужны данные, проверены хуже.\*\* Автоматический проход видит каждую страницу при загрузке плюс одно состояние, до которого ученик доходит своими действиями. Список группы с учениками, часть экзамена в процессе и сетки головоломок во время игры доступны, но проверены хуже соседних страниц.
-- [ ] **7076.** \*\*Reflow is checked at three widths rather than at 400% zoom.\*\* The widths are 360, 768 and 1280, which covers the cases the app was designed for. WCAG asks the question in terms of zoom, and that exact test has not been run.  
+- [ ] **7274.** \*\*Reflow is checked at three widths rather than at 400% zoom.\*\* The widths are 360, 768 and 1280, which covers the cases the app was designed for. WCAG asks the question in terms of zoom, and that exact test has not been run.  
   → \*\*Перекомпоновка проверяется на трёх ширинах, а не при увеличении 400%.\*\* Ширины 360, 768 и 1280, и они покрывают случаи, на которые рассчитано приложение. WCAG ставит вопрос через увеличение, и именно такой тест не проводился.
-- [ ] **7077.** Where a limitation above is one of ours rather than one the exercise requires, it is something to fix rather than something to explain away. The practice clocks were the first of those and are adjustable now, and the phone sweep was the second: it used to be on this list and it runs in the build. The examination clock is the one that stays, for the reason beside it.  
+- [ ] **7275.** Where a limitation above is one of ours rather than one the exercise requires, it is something to fix rather than something to explain away. The practice clocks were the first of those and are adjustable now, and the phone sweep was the second: it used to be on this list and it runs in the build. The examination clock is the one that stays, for the reason beside it.  
   → Если ограничение выше вызвано нами, а не требованием самого упражнения, его нужно исправить, а не оправдывать. Таймеры тренировок были первыми и теперь настраиваются, а проверка на телефоне была второй: раньше она стояла в этом списке, а теперь выполняется в сборке. Остаётся таймер экзамена, по причине, указанной рядом с ним.
-- [ ] **7078.** When this was prepared  
+- [ ] **7276.** When this was prepared  
   → Когда это подготовлено
-- [ ] **7079.** Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.  
+- [ ] **7277.** Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.  
   → Подготовлено 5 сентября 2026 года авторами приложения на основе описанных выше автоматических тестов и чтения исходного кода. Заявление пересматривается всякий раз, когда экран меняется настолько, что это затрагивает одно из утверждений. Внешней проверки не было.
-- [ ] **7080.** Telling us about a problem  
+- [ ] **7278.** Telling us about a problem  
   → Как сообщить нам о проблеме
-- [ ] **7081.** Write to {email}. Say what you were trying to do, what happened, and what you were using to do it with, if you can. A message that just says “this screen doesn’t work with my screen reader” is still worth sending: the person reading it can go and look.  
+- [ ] **7279.** Write to {email}. Say what you were trying to do, what happened, and what you were using to do it with, if you can. A message that just says “this screen doesn’t work with my screen reader” is still worth sending: the person reading it can go and look.  
   → Напишите на {email}. Если можете, расскажите, что вы пытались сделать, что произошло и чем вы для этого пользовались. Даже сообщение «этот экран не работает с моим экранным диктором» стоит отправить: тот, кто его прочитает, сможет пойти и посмотреть.
-- [ ] **7082.** \*\*Whoever runs this installation has not filled their contact details in\*\*, so this statement has no address on it to write to. Ask whoever gave you the link. If you are running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
+- [ ] **7280.** \*\*Whoever runs this installation has not filled their contact details in\*\*, so this statement has no address on it to write to. Ask whoever gave you the link. If you are running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
   → \*\*Тот, кто управляет этой установкой, не указал свои контакты\*\*, поэтому в этом заявлении нет адреса для писем. Спросите того, кто дал вам ссылку. Если её запустили вы, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` и \`OPERATOR\_EMAIL\`.
-- [ ] **7083.** Every screen in the app also has a way to report something that is wrong with it, beside the thing that went wrong, and those reports reach the same people.  
+- [ ] **7281.** Every screen in the app also has a way to report something that is wrong with it, beside the thing that went wrong, and those reports reach the same people.  
   → Кроме того, на каждом экране приложения рядом с тем, что пошло не так, есть способ сообщить о проблеме, и эти сообщения попадают к тем же людям.
-- [ ] **7084.** If that gets you nowhere  
+- [ ] **7282.** If that gets you nowhere  
   → Если это ничего не дало
-- [ ] **7085.** The enforcement route for accessibility in Estonia runs through the state authority responsible for the Web Accessibility Directive, and a complaint about how personal data is handled goes to the \*\*{authority}\*\* ({local}), {address}, {email}. Do write to us first, though. A real person reads it, and a fix is usually quicker than a complaint.  
+- [ ] **7283.** The enforcement route for accessibility in Estonia runs through the state authority responsible for the Web Accessibility Directive, and a complaint about how personal data is handled goes to the \*\*{authority}\*\* ({local}), {address}, {email}. Do write to us first, though. A real person reads it, and a fix is usually quicker than a complaint.  
   → Надзор за доступностью в Эстонии осуществляет государственный орган, отвечающий за Директиву о веб-доступности, а жалоба на обработку персональных данных направляется в \*\*{authority}\*\* ({local}), {address}, {email}. Но сначала всё же напишите нам. Письмо читает живой человек, и исправить обычно быстрее, чем пожаловаться.
-- [ ] **7086.** See also {trust} and {privacy}.  
+- [ ] **7284.** See also {trust} and {privacy}.  
   → См. также «{trust}» и «{privacy}».
-- [ ] **7087.** Offline  
+- [ ] **7285.** Offline  
   → Нет сети
-- [ ] **7088.** This page needs the internet  
+- [ ] **7286.** This page needs the internet  
   → Этой странице нужен интернет
-- [ ] **7089.** You’re offline right now. Pages you’ve already opened still work, and so does your review. Every answer you give is kept on this device and sent as soon as you’re back online.  
+- [ ] **7287.** You’re offline right now. Pages you’ve already opened still work, and so does your review. Every answer you give is kept on this device and sent as soon as you’re back online.  
   → Сейчас вы не в сети. Страницы, которые вы уже открывали, по-прежнему работают, как и повторение. Каждый ваш ответ сохраняется на этом устройстве и отправится, как только связь вернётся.
-- [ ] **7090.** Review your words instead  
+- [ ] **7288.** Review your words instead  
   → Лучше повторите слова
-- [ ] **7091.** Checked against the state’s own pages on  
+- [ ] **7289.** Checked against the state’s own pages on  
   → Сверено с официальными страницами государства
-- [ ] **7092.** Four levels  
+- [ ] **7290.** Four levels  
   → Четыре уровня
-- [ ] **7093.** Four parts at every level  
+- [ ] **7291.** Four parts at every level  
   → Четыре части на каждом уровне
-- [ ] **7094.** Every fact below links to the page it came from. Rules and dates do change, so check that page before you register.  
+- [ ] **7292.** Every fact below links to the page it came from. Rules and dates do change, so check that page before you register.  
   → Каждый факт ниже ссылается на страницу, откуда он взят. Правила и даты меняются, поэтому проверьте эту страницу перед регистрацией.
-- [ ] **7095.** From _(context: source)_  
+- [ ] **7293.** From _(context: source)_  
   → Источник:
-- [ ] **7096.** The best free preparation there is  
+- [ ] **7294.** The best free preparation there is  
   → Лучшая бесплатная подготовка
-- [ ] **7097.** The Board publishes its own practice materials, for free. Start with these before anything else, this app included.  
+- [ ] **7295.** The Board publishes its own practice materials, for free. Start with these before anything else, this app included.  
   → Harno, Департамент образования и молодёжи, бесплатно публикует собственные материалы для подготовки. Начните с них, прежде чем браться за что-либо ещё, включая это приложение.
-- [ ] **7098.** Where Kodukeel fits  
+- [ ] **7296.** Where Kodukeel fits  
   → Где здесь Kodukeel
-- [ ] **7099.** Kodukeel sets a mock paper at A2, B1, B2 and C1, plus one of its own at A1. Each one keeps the published time limits, the points, the pass mark and the rule that you fail if any part scores zero, and every task tells you which official task it stands in for. The questions are built from sentences a lexicographer recorded, so they aren’t the Board’s own. Nothing here scores your pronunciation, and it’s free.  
+- [ ] **7297.** Kodukeel sets a mock paper at A2, B1, B2 and C1, plus one of its own at A1. Each one keeps the published time limits, the points, the pass mark and the rule that you fail if any part scores zero, and every task tells you which official task it stands in for. The questions are built from sentences a lexicographer recorded, so they aren’t the Board’s own. Nothing here scores your pronunciation, and it’s free.  
   → Kodukeel даёт пробные экзамены на уровнях A2, B1, B2 и C1 и ещё собственный на A1. В каждом сохранены опубликованные ограничения по времени, баллы, проходной порог и правило, по которому экзамен не сдан, если хоть одна часть набрала ноль, а в каждом задании указано, какое официальное задание оно заменяет. Вопросы собраны из предложений, записанных лексикографом, поэтому это не задания самого Harno. Произношение здесь не оценивается, и всё это бесплатно.
-- [ ] **7100.** Sit a mock paper  
+- [ ] **7298.** Sit a mock paper  
   → Пройти пробный экзамен
-- [ ] **7101.** What Kodukeel is  
+- [ ] **7299.** What Kodukeel is  
   → Что такое Kodukeel
-- [ ] **7102.** Sign in  
+- [ ] **7300.** Sign in  
   → Войти
-- [ ] **7103.** What it is  
+- [ ] **7301.** What it is  
   → Что это такое
-- [ ] **7104.** The state examines Estonian at four levels: A2, B1, B2 and C1. There's no exam at A1 or C2.  
+- [ ] **7302.** The state examines Estonian at four levels: A2, B1, B2 and C1. There's no exam at A1 or C2.  
   → Государство проверяет знание эстонского на четырёх уровнях: A2, B1, B2 и C1. Экзамена на A1 и C2 нет.
-- [ ] **7105.** Every level has four parts: writing, listening, reading and speaking. It tests your Estonian, not what you know about Estonian culture or history.  
+- [ ] **7303.** Every level has four parts: writing, listening, reading and speaking. It tests your Estonian, not what you know about Estonian culture or history.  
   → На каждом уровне четыре части: письмо, аудирование, чтение и говорение. Проверяется ваш эстонский, а не знание эстонской культуры или истории.
-- [ ] **7106.** It's free, and so is sitting it again.  
+- [ ] **7304.** It's free, and so is sitting it again.  
   → Он бесплатный, и пересдача тоже.
-- [ ] **7107.** The papers, the level descriptions and the sample materials are all in Estonian.  
+- [ ] **7305.** The papers, the level descriptions and the sample materials are all in Estonian.  
   → Экзаменационные задания, описания уровней и образцы материалов на эстонском.
-- [ ] **7108.** The spoken part starts with a short chat with the examiner, the kind people have when they first meet: who you are and a bit about yourself. Two assessors mark a recording of it.  
+- [ ] **7306.** The spoken part starts with a short chat with the examiner, the kind people have when they first meet: who you are and a bit about yourself. Two assessors mark a recording of it.  
   → Устная часть начинается с короткого разговора с экзаменатором, какой бывает при первом знакомстве: кто вы и немного о себе. Запись разговора оценивают два экзаменатора.
-- [ ] **7109.** Who needs which level  
+- [ ] **7307.** Who needs which level  
   → Кому какой уровень нужен
-- [ ] **7110.** Applying for citizenship takes two examinations: this one at B1 or higher, and a separate examination on the Constitution and the Citizenship Act.  
+- [ ] **7308.** Applying for citizenship takes two examinations: this one at B1 or higher, and a separate examination on the Constitution and the Citizenship Act.  
   → Для гражданства нужны два экзамена: этот, на уровне B1 или выше, и отдельный экзамен по Конституции и Закону о гражданстве.
-- [ ] **7111.** If you're applying for citizenship and you're 65 or over, you can skip the writing part of the B1 exam and sit the other three. You choose that on the registration form.  
+- [ ] **7309.** If you're applying for citizenship and you're 65 or over, you can skip the writing part of the B1 exam and sit the other three. You choose that on the registration form.  
   → Если вы подаёте на гражданство и вам 65 лет или больше, можно не сдавать письменную часть экзамена B1 и сдавать остальные три. Это выбирается в регистрационной форме.
-- [ ] **7112.** The level a job needs is set by a government regulation, depending on the kind of post and its professional standard.  
+- [ ] **7310.** The level a job needs is set by a government regulation, depending on the kind of post and its professional standard.  
   → Уровень, нужный для работы, устанавливается постановлением правительства в зависимости от вида должности и её профессионального стандарта.
-- [ ] **7113.** The Police and Border Guard Board decides which level a residence permit needs. Ask them about your own case before you register.  
+- [ ] **7311.** The Police and Border Guard Board decides which level a residence permit needs. Ask them about your own case before you register.  
   → Какой уровень нужен для вида на жительство, решает Департамент полиции и погранохраны. Прежде чем регистрироваться, спросите их о своём случае.
-- [ ] **7114.** Registering  
+- [ ] **7312.** Registering  
   → Регистрация
-- [ ] **7115.** Register in EIS. If you have an Estonian personal identification code, you have to register there. Paper applications are only for people without one.  
+- [ ] **7313.** Register in EIS. If you have an Estonian personal identification code, you have to register there. Paper applications are only for people without one.  
   → Регистрируйтесь в EIS. Если у вас есть эстонский личный код, регистрироваться нужно там. Бумажные заявления только для тех, у кого его нет.
-- [ ] **7116.** You'll need an email address. The form won't send without one.  
+- [ ] **7314.** You'll need an email address. The form won't send without one.  
   → Понадобится адрес электронной почты. Без него форма не отправится.
-- [ ] **7117.** Registration closes on the 1st of the month before the examination. You can register for one examination at a time.  
+- [ ] **7315.** Registration closes on the 1st of the month before the examination. You can register for one examination at a time.  
   → Регистрация закрывается 1-го числа месяца, предшествующего экзамену. Регистрироваться можно только на один экзамен за раз.
-- [ ] **7118.** You'll get an email with the time and place at least 14 days before. You can cancel up to four working days before the date.  
+- [ ] **7316.** You'll get an email with the time and place at least 14 days before. You can cancel up to four working days before the date.  
   → Письмо со временем и местом придёт не позднее чем за 14 дней. Отменить можно не позднее чем за четыре рабочих дня до даты.
-- [ ] **7119.** If you need special conditions for health reasons, like more time or a separate room, apply to an expert committee. It meets in the first week of the month before the exam.  
+- [ ] **7317.** If you need special conditions for health reasons, like more time or a separate room, apply to an expert committee. It meets in the first week of the month before the exam.  
   → Если по состоянию здоровья вам нужны особые условия, например больше времени или отдельная комната, подайте заявление в экспертную комиссию. Она собирается в первую неделю месяца перед экзаменом.
-- [ ] **7120.** When, where and on the day  
+- [ ] **7318.** When, where and on the day  
   → Когда, где и как проходит день экзамена
-- [ ] **7121.** Examinations are held once a quarter in Tallinn, Tartu, Narva and {e1}, and in {e2} in March and September if at least twelve people register.  
+- [ ] **7319.** Examinations are held once a quarter in Tallinn, Tartu, Narva and {e1}, and in {e2} in March and September if at least twelve people register.  
   → Экзамены проходят раз в квартал в Таллине, Тарту, Нарве и {e1}, а в марте и сентябре и в {e2}, если зарегистрируется не меньше двенадцати человек.
-- [ ] **7122.** They start at 10:00. When a lot of people register, the written and spoken parts can fall on different days.  
+- [ ] **7320.** They start at 10:00. When a lot of people register, the written and spoken parts can fall on different days.  
   → Начало в 10:00. Если регистрируется много людей, письменная и устная части могут прийтись на разные дни.
-- [ ] **7123.** There's a free consultation before each exam, up to four and a half hours long, and you don't need to register for it. Bring an ID document, just as you would to the exam.  
+- [ ] **7321.** There's a free consultation before each exam, up to four and a half hours long, and you don't need to register for it. Bring an ID document, just as you would to the exam.  
   → Перед каждым экзаменом проходит бесплатная консультация продолжительностью до четырёх с половиной часов, и регистрироваться на неё не нужно. Возьмите удостоверение личности, как и на экзамен.
-- [ ] **7124.** Results, and failing  
+- [ ] **7322.** Results, and failing  
   → Результаты и неудача
-- [ ] **7125.** A pass is 60 percent of the total, and no part can score zero.  
+- [ ] **7323.** A pass is 60 percent of the total, and no part can score zero.  
   → Для сдачи нужно 60 процентов от общего балла, и ни одна часть не может быть оценена в ноль.
-- [ ] **7126.** Results are published no later than 40 days after the examination, in EIS and on eesti.ee. The certificate is electronic only; the certificate number and your identification code are what an employer checks.  
+- [ ] **7324.** Results are published no later than 40 days after the examination, in EIS and on eesti.ee. The certificate is electronic only; the certificate number and your identification code are what an employer checks.  
   → Результаты публикуются не позднее чем через 40 дней после экзамена, в EIS и на eesti.ee. Свидетельство только электронное; работодатель проверяет номер свидетельства и ваш личный код.
-- [ ] **7127.** If you score below 45 percent, or miss the exam without a good reason, you wait six months before registering again. You can't register for the next sitting until the last one's results are out.  
+- [ ] **7325.** If you score below 45 percent, or miss the exam without a good reason, you wait six months before registering again. You can't register for the next sitting until the last one's results are out.  
   → Если вы набрали меньше 45 процентов или пропустили экзамен без уважительной причины, снова зарегистрироваться можно только через шесть месяцев. На следующий экзамен нельзя зарегистрироваться, пока не вышли результаты предыдущей.
-- [ ] **7128.** You can ask to see your marked paper and appeal the result.  
+- [ ] **7326.** You can ask to see your marked paper and appeal the result.  
   → Можно попросить показать проверенную работу и обжаловать результат.
-- [ ] **7129.** Getting course fees back  
+- [ ] **7327.** Getting course fees back  
   → Возврат платы за курсы
-- [ ] **7130.** Since 1 January 2024 the state only refunds Estonian course fees to citizenship applicants who have passed both exams, and to people the Language Board sent to sit one.  
+- [ ] **7328.** Since 1 January 2024 the state only refunds Estonian course fees to citizenship applicants who have passed both exams, and to people the Language Board sent to sit one.  
   → С 1 января 2024 года государство возвращает плату за курсы эстонского только кандидатам на гражданство, сдавшим оба экзамена, и тем, кого направил на экзамен Департамент языка (Keeleamet).
-- [ ] **7131.** You can get up to 384 euros back for a course from a provider licensed for that level. Claim it within three months of finding out you passed.  
+- [ ] **7329.** You can get up to 384 euros back for a course from a provider licensed for that level. Claim it within three months of finding out you passed.  
   → За курс у поставщика с лицензией на этот уровень можно вернуть до 384 евро. Подайте заявление в течение трёх месяцев после того, как узнали, что сдали.
-- [ ] **7132.** The Constitution and Citizenship Act examination  
+- [ ] **7330.** The Constitution and Citizenship Act examination  
   → Экзамен по Конституции и Закону о гражданстве
-- [ ] **7133.** It takes 45 minutes on a computer: 24 multiple choice questions in Estonian. You pass with 18 right.  
+- [ ] **7331.** It takes 45 minutes on a computer: 24 multiple choice questions in Estonian. You pass with 18 right.  
   → Он длится 45 минут за компьютером: 24 вопроса с вариантами ответов на эстонском. Для сдачи нужно 18 правильных.
-- [ ] **7134.** The Constitution, the Citizenship Act and a dictionary are in the room, and you're allowed to use them.  
+- [ ] **7332.** The Constitution, the Citizenship Act and a dictionary are in the room, and you're allowed to use them.  
   → В аудитории есть Конституция, Закон о гражданстве и словарь, и ими разрешено пользоваться.
-- [ ] **7135.** It's held once a month except in July, in Tallinn, Tartu and Narva, and you get your result as soon as it ends. Harno publishes a handbook for it in English and Russian.  
+- [ ] **7333.** It's held once a month except in July, in Tallinn, Tartu and Narva, and you get your result as soon as it ends. Harno publishes a handbook for it in English and Russian.  
   → Он проходит раз в месяц, кроме июля, в Таллине, Тарту и Нарве, и результат вы получаете сразу по окончании. Harno публикует пособие к нему на английском и русском.
-- [ ] **7136.** Harno, Estonian language proficiency examinations  
+- [ ] **7334.** Harno, Estonian language proficiency examinations  
   → Harno, экзамены на уровень владения эстонским языком (на английском)
-- [ ] **7137.** Harno, the language examinations (the fuller page, in Estonian)  
+- [ ] **7335.** Harno, the language examinations (the fuller page, in Estonian)  
   → Harno, языковые экзамены (более полная страница, на эстонском)
-- [ ] **7138.** Harno, the citizenship examinations (in Estonian)  
+- [ ] **7336.** Harno, the citizenship examinations (in Estonian)  
   → Harno, экзамены на гражданство (на эстонском)
-- [ ] **7139.** EIS, the examinations information system  
+- [ ] **7337.** EIS, the examinations information system  
   → EIS, информационная система экзаменов
-- [ ] **7140.** The Police and Border Guard Board  
+- [ ] **7338.** The Police and Border Guard Board  
   → Департамент полиции и погранохраны
-- [ ] **7141.** eesti.ee, the state portal  
+- [ ] **7339.** eesti.ee, the state portal  
   → eesti.ee, государственный портал
-- [ ] **7142.** Written samples by past candidates, with the examiners' comments  
+- [ ] **7340.** Written samples by past candidates, with the examiners' comments  
   → Письменные работы прошлых кандидатов с комментариями экзаменаторов
-- [ ] **7143.** Consultation workbooks, listening tests and sample tasks for every level  
+- [ ] **7341.** Consultation workbooks, listening tests and sample tasks for every level  
   → Рабочие тетради консультаций, тесты на аудирование и образцы заданий для каждого уровня
-- [ ] **7144.** Public practice tests in EIS  
+- [ ] **7342.** Public practice tests in EIS  
   → Открытые тренировочные тесты в EIS
-- [ ] **7145.** The Constitution and Citizenship Act examination: handbook, dates and practice  
+- [ ] **7343.** The Constitution and Citizenship Act examination: handbook, dates and practice  
   → Экзамен по Конституции и Закону о гражданстве: пособие, даты и тренировка
-- [ ] **7146.** Kodukeel is free to use, there’s nothing to buy, and nothing about you is sold. This page shows the math behind that sentence: what the app runs on, what each piece costs, who’s paying for the copy you’re reading, and what would change if somebody funded it.  
+- [ ] **7344.** Kodukeel is free to use, there’s nothing to buy, and nothing about you is sold. This page shows the math behind that sentence: what the app runs on, what each piece costs, who’s paying for the copy you’re reading, and what would change if somebody funded it.  
   → Kodukeel бесплатен, покупать в нём нечего, и ничего о вас не продаётся. На этой странице показаны расчёты, стоящие за этой фразой: на чём работает приложение, сколько стоит каждая часть, кто платит за копию, которую вы читаете, и что изменилось бы, если бы кто-то его профинансировал.
-- [ ] **7147.** The figures and the math are the same in every language. The working the calculator shows for each line, and the numbers it had to judge, are still in English.  
+- [ ] **7345.** The figures and the math are the same in every language. The working the calculator shows for each line, and the numbers it had to judge, are still in English.  
   → Цифры и расчёты одинаковы на любом языке. Пояснения калькулятора к каждой строке и числа, которые пришлось оценить, пока на английском.
-- [ ] **7148.** Who pays for this copy  
+- [ ] **7346.** Who pays for this copy  
   → Кто платит за эту копию
-- [ ] **7149.** This installation is run by \*\*{name}\*\*, and they pay the bills on this page. Kodukeel is software anyone can install rather than one service, so every copy has its own operator and its own invoice.  
+- [ ] **7347.** This installation is run by \*\*{name}\*\*, and they pay the bills on this page. Kodukeel is software anyone can install rather than one service, so every copy has its own operator and its own invoice.  
   → Оператор этой установки: \*\*{name}\*\*, и счета на этой странице оплачивает он. Kodukeel может установить кто угодно, это программа, а не единый сервис, поэтому у каждой копии свой оператор и свои счета.
-- [ ] **7150.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install rather than one service, so the bills below are paid by whoever set this copy up. They are supposed to be named here and on the {privacy}, and they are not. If that is you, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
+- [ ] **7348.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install rather than one service, so the bills below are paid by whoever set this copy up. They are supposed to be named here and on the {privacy}, and they are not. If that is you, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
   → \*\*Тот, кто управляет этой установкой, не указал своё имя.\*\* Kodukeel может установить кто угодно, это программа, а не единый сервис, поэтому счета ниже оплачивает тот, кто развернул эту копию. Его имя должно стоять здесь и на {privacy}, но его нет. Если это вы, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` и \`OPERATOR\_EMAIL\`.
-- [ ] **7151.** The code is MIT licensed and the dictionary data is not ours to license: Ekilex is CC BY 4.0 and Wiktionary is CC BY-SA 4.0, which is share-alike and therefore reaches the built dictionary as well. Anyone may run their own copy, and at one learner it costs the price of a domain name.  
+- [ ] **7349.** The code is MIT licensed and the dictionary data is not ours to license: Ekilex is CC BY 4.0 and Wiktionary is CC BY-SA 4.0, which is share-alike and therefore reaches the built dictionary as well. Anyone may run their own copy, and at one learner it costs the price of a domain name.  
   → Код распространяется по лицензии MIT, а лицензировать данные словаря не нам: Ekilex идёт под CC BY 4.0, а Викисловарь под CC BY-SA 4.0, с условием «на тех же условиях», которое распространяется и на собранный словарь. Свою копию может запустить кто угодно, и на одного ученика это стоит как доменное имя.
-- [ ] **7152.** What it runs on  
+- [ ] **7350.** What it runs on  
   → На чём это работает
-- [ ] **7153.** the privacy page  
+- [ ] **7351.** the privacy page  
   → странице о конфиденциальности
-- [ ] **7154.** {count} things, and every one of them has a price on it. The list is longer than the one on {privacy}, because that page answers a narrower question: a service can hold every row in the database without ever being told who a learner is.  
+- [ ] **7352.** {count} things, and every one of them has a price on it. The list is longer than the one on {privacy}, because that page answers a narrower question: a service can hold every row in the database without ever being told who a learner is.  
   → Всего их {count}, и у каждой есть цена. Список длиннее, чем на {privacy}, потому что та страница отвечает на более узкий вопрос: сервис может хранить каждую строку базы данных, так и не узнав, кто ученик.
-- [ ] **7155.** \*\*Nothing anybody bills us for is counted as free.\*\* Every vendor here is on the plan a real deployment is on, because a free tier either pauses when nobody’s using it or forbids commercial use, and pricing one would describe a deployment nobody actually runs.  
+- [ ] **7353.** \*\*Nothing anybody bills us for is counted as free.\*\* Every vendor here is on the plan a real deployment is on, because a free tier either pauses when nobody’s using it or forbids commercial use, and pricing one would describe a deployment nobody actually runs.  
   → \*\*Ничто, за что нам выставляют счёт, не считается бесплатным.\*\* Каждый поставщик здесь взят с тем тарифом, на котором работает настоящая установка, потому что бесплатный тариф либо приостанавливается, когда им никто не пользуется, либо запрещает коммерческое использование, и расчёт по нему описывал бы установку, которой на деле никто не держит.
-- [ ] **7156.** \*\*What is given is credited, not priced.\*\* Ekilex, Wiktionary and TartuNLP are public institutions that decided this work should be available. They ask for nothing, and that is a good arrangement rather than a gap in the accounts, so they are named here with what each one gives and the license it comes under, and they appear in no total. Where buying the same thing is possible the panel says what that would come to, because the size of the gift is worth seeing. The last line of each card is the one worth reading: every entry is a state the app already handles rather than a disaster.  
+- [ ] **7354.** \*\*What is given is credited, not priced.\*\* Ekilex, Wiktionary and TartuNLP are public institutions that decided this work should be available. They ask for nothing, and that is a good arrangement rather than a gap in the accounts, so they are named here with what each one gives and the license it comes under, and they appear in no total. Where buying the same thing is possible the panel says what that would come to, because the size of the gift is worth seeing. The last line of each card is the one worth reading: every entry is a state the app already handles rather than a disaster.  
   → \*\*Подаренное указывается с благодарностью, а не с ценой.\*\* Ekilex, Викисловарь и TartuNLP являются общественными институтами, которые решили, что эта работа должна быть доступна. Они ничего не просят, и это хорошая договорённость, а не дыра в отчётности, поэтому они названы здесь вместе с тем, что даёт каждый, и лицензией, на которой это даётся, и не входят ни в одну сумму. Где то же самое можно купить, панель говорит, во сколько бы это обошлось, потому что размер подарка стоит увидеть. Читать стоит последнюю строку каждой карточки: каждый пункт описывает состояние, с которым приложение уже справляется, а не катастрофа.
-- [ ] **7157.** on here  
+- [ ] **7355.** on here  
   → включено здесь
-- [ ] **7158.** not set here  
+- [ ] **7356.** not set here  
   → здесь не настроено
-- [ ] **7159.** Without it: {gone}  
+- [ ] **7357.** Without it: {gone}  
   → Без этого: {gone}
-- [ ] **7160.** \*\*On this installation.\*\* Sign-in is {signIn}. Live dictionary lookups are {lookups}, and speech is cached {speech}. {anu}  
+- [ ] **7358.** \*\*On this installation.\*\* Sign-in is {signIn}. Live dictionary lookups are {lookups}, and speech is cached {speech}. {anu}  
   → \*\*В этой установке.\*\* Вход в аккаунт {signIn}. Живые запросы к словарю {lookups}, а озвучка кэшируется {speech}. {anu}
-- [ ] **7161.** on, so every learner has a deck of their own  
+- [ ] **7359.** on, so every learner has a deck of their own  
   → включён, поэтому у каждого ученика своя колода
-- [ ] **7162.** off, so this copy is one local learner  
+- [ ] **7360.** off, so this copy is one local learner  
   → выключен, поэтому в этой копии один локальный ученик
-- [ ] **7163.** on _(context: switch)_  
+- [ ] **7361.** on _(context: switch)_  
   → включены
-- [ ] **7164.** off, so the built-in dictionary answers by itself  
+- [ ] **7362.** off, so the built-in dictionary answers by itself  
   → выключены, поэтому отвечает встроенный словарь
-- [ ] **7165.** in shared storage  
+- [ ] **7363.** in shared storage  
   → в общем хранилище
-- [ ] **7166.** on the server’s own disk  
+- [ ] **7364.** on the server’s own disk  
   → на собственном диске сервера
-- [ ] **7167.** No model key is set, so Anu is not here at all and nothing on this page bills for her.  
+- [ ] **7365.** No model key is set, so Anu is not here at all and nothing on this page bills for her.  
   → Ключ модели не задан, поэтому Ану здесь нет вовсе, и ничто на этой странице за неё не платит.
-- [ ] **7168.** Anu is answered by {models}, on models that are given away at the tier this uses, which the panel below still prices as though they were bought.  
+- [ ] **7366.** Anu is answered by {models}, on models that are given away at the tier this uses, which the panel below still prices as though they were bought.  
   → За Ану отвечает {models}, на моделях, которые на используемом тарифе отдаются бесплатно, но панель ниже всё равно считает их так, будто они куплены.
-- [ ] **7169.** Anu is answered by {models}, on at least one model that charges.  
+- [ ] **7367.** Anu is answered by {models}, on at least one model that charges.  
   → За Ану отвечает {models}, и хотя бы одна из моделей платная.
-- [ ] **7170.** What it comes to  
+- [ ] **7368.** What it comes to  
   → Во что это обходится
-- [ ] **7171.** Move the slider. Nothing here is stored or sent anywhere. The math runs in your browser, using the same code the app itself uses to decide when to stop spending.  
+- [ ] **7369.** Move the slider. Nothing here is stored or sent anywhere. The math runs in your browser, using the same code the app itself uses to decide when to stop spending.  
   → Подвигайте ползунок. Здесь ничего не сохраняется и никуда не отправляется. Расчёты идут в вашем браузере тем же кодом, которым само приложение решает, когда прекратить тратить.
-- [ ] **7172.** What was measured, and how  
+- [ ] **7370.** What was measured, and how  
   → Что измерено и как
-- [ ] **7173.** Taken on {day}, against Postgres 16 on one machine and a production build served locally. Each row says what to run to get the same number, because a figure nobody can reproduce is a claim rather than a measurement.  
+- [ ] **7371.** Taken on {day}, against Postgres 16 on one machine and a production build served locally. Each row says what to run to get the same number, because a figure nobody can reproduce is a claim rather than a measurement.  
   → Снято {day} на Postgres 16 на одной машине и рабочей сборке, запущенной локально. В каждой строке сказано, что запустить, чтобы получить то же число, потому что цифра, которую никто не может воспроизвести, остаётся утверждением, а не измерением.
-- [ ] **7174.** Measurements taken on this repository  
+- [ ] **7372.** Measurements taken on this repository  
   → Измерения, снятые на этом репозитории
-- [ ] **7175.** What  
+- [ ] **7373.** What  
   → Что
-- [ ] **7176.** How much  
+- [ ] **7374.** How much  
   → Сколько
-- [ ] **7177.** Two of those are worth stopping on. A review row is 300 bytes, so a learner costs about 1.3 MB a year and the whole review log of a thousand people for a year fits in less space than a phone photograph album. And a spoken clip is uncompressed audio, 43 KB for every second of it once trimmed and stored as 16-bit, which still makes speech the largest thing this app moves by a wide margin. Turning the audio off in the panel above is the single biggest saving available, and it is also the feature hardest to argue for losing.  
+- [ ] **7375.** Two of those are worth stopping on. A review row is 300 bytes, so a learner costs about 1.3 MB a year and the whole review log of a thousand people for a year fits in less space than a phone photograph album. And a spoken clip is uncompressed audio, 43 KB for every second of it once trimmed and stored as 16-bit, which still makes speech the largest thing this app moves by a wide margin. Turning the audio off in the panel above is the single biggest saving available, and it is also the feature hardest to argue for losing.  
   → На двух из них стоит остановиться. Строка повторения весит 300 байт, так что ученик обходится примерно в 1,3 МБ в год, а весь журнал повторений тысячи человек за год занимает меньше места, чем альбом фотографий в телефоне. А звуковой фрагмент представляет собой несжатое аудио, 43 КБ на каждую секунду после обрезки и сохранения в 16 бит, и всё равно озвучка с большим отрывом самое объёмное, что передаёт это приложение. Самая большая из возможных экономий: выключить звук в панели выше, и при этом от этой функции труднее всего отказаться.
-- [ ] **7178.** Where the prices came from  
+- [ ] **7376.** Where the prices came from  
   → Откуда взяты цены
-- [ ] **7179.** Read on {day}. These are the numbers most likely to be out of date by the time you read this, which is why they carry a date rather than being folded into the total.  
+- [ ] **7377.** Read on {day}. These are the numbers most likely to be out of date by the time you read this, which is why they carry a date rather than being folded into the total.  
   → Проверено {day}. Именно эти числа скорее всего устареют к тому моменту, когда вы это прочтёте, поэтому у них стоит дата, а не просто итог.
-- [ ] **7180.** ${base} a month, then ${rate} a gigabyte out past the first {gb}.  
+- [ ] **7378.** ${base} a month, then ${rate} a gigabyte out past the first {gb}.  
   → {base} $ в месяц, затем {rate} $ за гигабайт исходящего трафика сверх первых {gb}.
-- [ ] **7181.** ${base} a month with {db} GB of database, {files} GB of files and ${credit} of compute credit.  
+- [ ] **7379.** ${base} a month with {db} GB of database, {files} GB of files and ${credit} of compute credit.  
   → {base} $ в месяц, в том числе {db} ГБ базы данных, {files} ГБ файлов и {credit} $ кредита на вычисления.
-- [ ] **7182.** Database instances  
+- [ ] **7380.** Database instances  
   → Экземпляры базы данных
-- [ ] **7183.** from ${low} a month to ${high}. This is the steepest ladder on the page.  
+- [ ] **7381.** from ${low} a month to ${high}. This is the steepest ladder on the page.  
   → от {low} $ до {high} $ в месяц. Это самая крутая лестница на странице.
-- [ ] **7184.** Speech  
+- [ ] **7382.** Speech  
   → Озвучка
-- [ ] **7185.** ${rate} a million characters, which is what {who} charge. TartuNLP charge nothing. That rate is here only to show the size of what they give, and it is in no total on this page.  
+- [ ] **7383.** ${rate} a million characters, which is what {who} charge. TartuNLP charge nothing. That rate is here only to show the size of what they give, and it is in no total on this page.  
   → {rate} $ за миллион символов, столько берут {who}. TartuNLP не берёт ничего. Этот тариф здесь только для того, чтобы показать размер того, что они дают, и он не входит ни в одну сумму на этой странице.
-- [ ] **7186.** ${base} a month for {emails} emails, then ${rate} a thousand.  
+- [ ] **7384.** ${base} a month for {emails} emails, then ${rate} a thousand.  
   → {base} $ в месяц, в тариф входит писем: {emails}, сверх этого {rate} $ за тысячу.
-- [ ] **7187.** Error reporting  
+- [ ] **7385.** Error reporting  
   → Отчёты об ошибках
-- [ ] **7188.** ${base} a month for {events} events.  
+- [ ] **7386.** ${base} a month for {events} events.  
   → {base} $ в месяц, в тариф входит событий: {events}.
-- [ ] **7189.** {eur} euros a month. The tooling that writes and maintains this, which is the one line here that is not runtime and the one that does not grow.  
+- [ ] **7387.** {eur} euros a month. The tooling that writes and maintains this, which is the one line here that is not runtime and the one that does not grow.  
   → {eur} евро в месяц. Инструменты, которыми это пишется и поддерживается, единственная строка здесь, не связанная с работой приложения, и единственная, которая не растёт.
-- [ ] **7190.** The euro  
+- [ ] **7388.** The euro  
   → Евро
-- [ ] **7191.** {usd} dollars, the European Central Bank’s reference rate. Two lines here are billed in euros and the rest in dollars, and every price is net of VAT, which is how each vendor quotes its own.  
+- [ ] **7389.** {usd} dollars, the European Central Bank’s reference rate. Two lines here are billed in euros and the rest in dollars, and every price is net of VAT, which is how each vendor quotes its own.  
   → {usd} доллара, справочный курс Европейского центрального банка. Две строки здесь оплачиваются в евро, остальные в долларах, и все цены указаны без НДС, так, как их называет каждый поставщик.
-- [ ] **7192.** A .ee domain  
+- [ ] **7390.** A .ee domain  
   → Домен .ee
-- [ ] **7193.** about {eur} euros a year.  
+- [ ] **7391.** about {eur} euros a year.  
   → около {eur} евро в год.
-- [ ] **7194.** Ekilex, Wiktionary and TartuNLP are not on that list, because they do not charge and this page does not pretend otherwise. They are credited above instead, with what each one gives and the license it comes under. Where buying the same thing is possible the panel says what that would come to, so the size of the gift is visible, and that figure is in no total here.  
+- [ ] **7392.** Ekilex, Wiktionary and TartuNLP are not on that list, because they do not charge and this page does not pretend otherwise. They are credited above instead, with what each one gives and the license it comes under. Where buying the same thing is possible the panel says what that would come to, so the size of the gift is visible, and that figure is in no total here.  
   → Ekilex, Викисловаря и TartuNLP в этом списке нет, потому что они не берут денег, и эта страница не делает вид, будто берут. Вместо этого они названы выше с благодарностью, вместе с тем, что даёт каждый, и лицензией, на которой это даётся. Где то же самое можно купить, панель говорит, во сколько бы это обошлось, чтобы размер подарка был виден, и эта цифра не входит ни в одну сумму здесь.
-- [ ] **7195.** What that number leaves out  
+- [ ] **7393.** What that number leaves out  
   → Чего эта сумма не учитывает
-- [ ] **7196.** \*\*Somebody’s time\*\*, which is the largest real cost of this project by a long way and is not a hosting bill. The panel above prices machines. It does not price writing the course, checking 5,363 English glosses against their sources, or reading the queue of corrections learners send in.  
+- [ ] **7394.** \*\*Somebody’s time\*\*, which is the largest real cost of this project by a long way and is not a hosting bill. The panel above prices machines. It does not price writing the course, checking 5,363 English glosses against their sources, or reading the queue of corrections learners send in.  
   → \*\*Чьё-то время\*\*, это с большим отрывом самая крупная настоящая статья расходов проекта, и это не счёт за хостинг. Панель выше считает машины. Она не считает написание курса, проверку 5 363 английских переводов по их источникам и чтение очереди исправлений, которые присылают ученики.
-- [ ] **7197.** \*\*Answering people.\*\* A dead end in this app offers to send a report, and somebody has to work through them for that to mean anything.  
+- [ ] **7395.** \*\*Answering people.\*\* A dead end in this app offers to send a report, and somebody has to work through them for that to mean anything.  
   → \*\*Ответы людям.\*\* В каждом тупике приложения есть кнопка отправить сообщение, и кто-то должен их разбирать, иначе это ничего не значит.
-- [ ] **7198.** \*\*A bad month.\*\* The projection is a steady month. It does not model the week something is on the radio, and a plan’s included allowance is exactly where a spike is felt first.  
+- [ ] **7396.** \*\*A bad month.\*\* The projection is a steady month. It does not model the week something is on the radio, and a plan’s included allowance is exactly where a spike is felt first.  
   → \*\*Плохой месяц.\*\* Прогноз рассчитан на ровный месяц. Он не учитывает неделю, когда о приложении рассказали по радио, а лимит, включённый в тариф, как раз там, где всплеск почувствуется первым.
-- [ ] **7199.** What money would change  
+- [ ] **7397.** What money would change  
   → Что изменили бы деньги
-- [ ] **7200.** Four things, in the order they would matter.  
+- [ ] **7398.** Four things, in the order they would matter.  
   → Четыре вещи, в порядке их важности.
-- [ ] **7201.** \*\*The daily cap on the tutor could go up.\*\* Every model call in the app is booked against a shared budget of ${cap} a day, which cannot be turned off and is what stops the one line that could run away. Raising it is a knob with a stop on it rather than an open check, and at ten thousand learners it is already the thing holding that line down.  
+- [ ] **7399.** \*\*The daily cap on the tutor could go up.\*\* Every model call in the app is booked against a shared budget of ${cap} a day, which cannot be turned off and is what stops the one line that could run away. Raising it is a knob with a stop on it rather than an open check, and at ten thousand learners it is already the thing holding that line down.  
   → \*\*Дневной лимит репетитора можно было бы поднять.\*\* Каждый вызов модели в приложении списывается из общего бюджета {cap} $ в день, который нельзя отключить и который удерживает единственную строку, способную выйти из-под контроля. Поднять его значит повернуть ручку с ограничителем, а не выписать открытый чек, и при десяти тысячах учеников именно он уже сдерживает эту строку.
-- [ ] **7202.** \*\*A school could keep its history.\*\* Everything on the progress screens is worked out from the review log on each request rather than stored, so the log is never thrown away and the database only grows. That is the right design and it is what makes the instance ladder the steepest line on this page.  
+- [ ] **7400.** \*\*A school could keep its history.\*\* Everything on the progress screens is worked out from the review log on each request rather than stored, so the log is never thrown away and the database only grows. That is the right design and it is what makes the instance ladder the steepest line on this page.  
   → \*\*Школа могла бы хранить свою историю.\*\* Всё на экранах прогресса вычисляется из журнала повторений при каждом запросе, а не хранится, поэтому журнал никогда не выбрасывается и база данных только растёт. Это правильное устройство, и именно из-за него лестница экземпляров самая крутая строка на этой странице.
-- [ ] **7203.** \*\*The corrections could be worked.\*\* The dictionary is built from Ekilex and Wiktionary rather than typed, which keeps invented Estonian out of it and does not make every entry right. Learners already report the wrong ones.  
+- [ ] **7401.** \*\*The corrections could be worked.\*\* The dictionary is built from Ekilex and Wiktionary rather than typed, which keeps invented Estonian out of it and does not make every entry right. Learners already report the wrong ones.  
   → \*\*Можно было бы разбирать исправления.\*\* Словарь собран из Ekilex и Викисловаря, а не набран вручную, и это не пускает в него выдуманный эстонский, но не делает каждую статью верной. Ученики уже сообщают о неверных.
-- [ ] **7204.** \*\*Something could go back to the institutions this is built on.\*\* Ekilex, Wiktionary and TartuNLP ask for nothing and there is no suggestion they should start. But this app would not exist without any of the three, and at a size worth funding the decent thing is to support the work rather than only to use it: a contribution, a corrected entry sent back, or paying for the compute somebody else is currently absorbing.  
+- [ ] **7402.** \*\*Something could go back to the institutions this is built on.\*\* Ekilex, Wiktionary and TartuNLP ask for nothing and there is no suggestion they should start. But this app would not exist without any of the three, and at a size worth funding the decent thing is to support the work rather than only to use it: a contribution, a corrected entry sent back, or paying for the compute somebody else is currently absorbing.  
   → \*\*Что-то можно было бы вернуть институтам, на которых всё это построено.\*\* Ekilex, Викисловарь и TartuNLP ничего не просят, и никто не предлагает им начать. Но без любого из трёх этого приложения бы не было, и при размере, достойном финансирования, порядочно поддерживать их работу, а не только пользоваться ею: взносом, отправленной обратно исправленной статьёй или оплатой вычислений, расходы на которые сейчас несёт кто-то другой.
-- [ ] **7205.** What happens when the money stops  
+- [ ] **7403.** What happens when the money stops  
   → Что будет, когда деньги закончатся
-- [ ] **7206.** The question a grant is scored on, and the one a cost page usually leaves out. The figures below are the same bill as above with things switched off, in the order somebody would actually switch them off. The tooling that writes the software goes first, because a reader opening the app tomorrow does not notice it. The server and the database go last, because without those there is nothing.  
+- [ ] **7404.** The question a grant is scored on, and the one a cost page usually leaves out. The figures below are the same bill as above with things switched off, in the order somebody would actually switch them off. The tooling that writes the software goes first, because a reader opening the app tomorrow does not notice it. The server and the database go last, because without those there is nothing.  
   → Вопрос, по которому оценивают грант и который страница о расходах обычно обходит. Цифры ниже показывают тот же счёт, что выше, с отключёнными частями, в том порядке, в каком их действительно стали бы отключать. Первыми уходят инструменты, которыми пишется программа, потому что тот, кто откроет приложение завтра, этого не заметит. Последними уходят сервер и база данных, потому что без них не остаётся ничего.
-- [ ] **7207.** {stage}, ${usd} a month.  
+- [ ] **7405.** {stage}, ${usd} a month.  
   → {stage}, {usd} $ в месяц.
-- [ ] **7208.** What goes: {lost}  
+- [ ] **7406.** What goes: {lost}  
   → Что уходит: {lost}
-- [ ] **7209.** The fall is gradual because most of what this app is made of was never bought. The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and all three are public institutions that decided this work should be available. The scheduler, the course, the exams, the games and the grammar run on a server and a database and nothing else. What money buys is the tutor, the polish, and somebody to work on it.  
+- [ ] **7407.** The fall is gradual because most of what this app is made of was never bought. The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and all three are public institutions that decided this work should be available. The scheduler, the course, the exams, the games and the grammar run on a server and a database and nothing else. What money buys is the tutor, the polish, and somebody to work on it.  
   → Спад постепенный, потому что большую часть того, из чего сделано это приложение, никогда не покупали. Словарь даёт Ekilex, озвучку TartuNLP, английский перевод Викисловарь, и все три являются общественными институтами, решившими, что эта работа должна быть доступна. Расписание, курс, экзамены, игры и грамматика работают на сервере и базе данных, и больше ни на чём. На деньги покупаются репетитор, доводка и человек, который над всем этим работает.
-- [ ] **7210.** So the honest claim is not that this becomes profitable. It is that at ${floor} a month it can be kept alive by one person who has not been paid, and that it keeps teaching Estonian the whole way down.  
+- [ ] **7408.** So the honest claim is not that this becomes profitable. It is that at ${floor} a month it can be kept alive by one person who has not been paid, and that it keeps teaching Estonian the whole way down.  
   → Поэтому честное утверждение не в том, что это станет прибыльным. А в том, что за {floor} $ в месяц его может поддерживать один человек, которому не платят, и что оно учит эстонскому на каждом шаге этого спада.
-- [ ] **7211.** What survives even that  
+- [ ] **7409.** What survives even that  
   → Что переживёт даже это
-- [ ] **7212.** Six things, and every one of them is a file somebody can open rather than an intention somebody has stated.  
+- [ ] **7410.** Six things, and every one of them is a file somebody can open rather than an intention somebody has stated.  
   → Шесть вещей, и каждая из них представляет собой файл, который можно открыть, а не чьё-то заявленное намерение.
-- [ ] **7213.** Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a license that lets somebody else pick it up.  
+- [ ] **7411.** Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a license that lets somebody else pick it up.  
   → В этом и ответ на вопрос, скрытый за вопросом. Тот, кто финансирует, на самом деле спрашивает не о том, будет ли гореть свет. Он спрашивает, купят ли деньги что-то, что переживёт проект. Для языка такого размера стоит покупать исправленный словарь, курс, собранный из проверенных источников, и код, чтобы запускать и то, и другое, всё опубликованное под лицензией, которая позволяет кому-то другому это подхватить.
-- [ ] **7214.** What it will not be spent on  
+- [ ] **7412.** What it will not be spent on  
   → На что деньги не пойдут
-- [ ] **7215.** There is no advertising, no analytics script and no third-party tracker on any page of this app, which the {privacy} states and the code keeps true: an analytics package was mounted here once, on every visitor of the hosted build, while that same notice said there was none. It was removed rather than the notice being edited.  
+- [ ] **7413.** There is no advertising, no analytics script and no third-party tracker on any page of this app, which the {privacy} states and the code keeps true: an analytics package was mounted here once, on every visitor of the hosted build, while that same notice said there was none. It was removed rather than the notice being edited.  
   → Ни на одной странице этого приложения нет ни рекламы, ни скрипта аналитики, ни стороннего трекера, как сказано на {privacy}, и код это обеспечивает: однажды здесь был подключён пакет аналитики, для каждого посетителя размещённой версии, в то время как тот же текст утверждал, что его нет. Его убрали, а не поправили текст.
-- [ ] **7216.** Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a student is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.  
+- [ ] **7414.** Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a student is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.  
   → Ничто об ученике не продаётся, не передаётся и не используется для обучения чего-либо. Что учитель видит у ученика, решено узко и отдельно, и ответ: усилия, а не содержимое. Каждое из этих обещаний стоит денег, а не экономит их, и во многом поэтому эта страница и существует.
-- [ ] **7217.** under a tenth of a cent  
+- [ ] **7415.** under a tenth of a cent  
   → меньше десятой доли цента
-- [ ] **7218.** cents _(context: fraction)_  
+- [ ] **7416.** cents _(context: fraction)_  
   → цента
-- [ ] **7219.** {n} min  
+- [ ] **7417.** {n} min  
   → {n} мин
-- [ ] **7220.** {n} hours  
+- [ ] **7418.** {n} hours  
   → {n} ч
-- [ ] **7221.** {amount} included  
+- [ ] **7419.** {amount} included  
   → включено {amount}
-- [ ] **7222.** {n} hours included  
+- [ ] **7420.** {n} hours included  
   → включено {n} ч
-- [ ] **7223.** inside another line  
+- [ ] **7421.** inside another line  
   → входит в другую строку
-- [ ] **7224.** given  
+- [ ] **7422.** given  
   → в дар
-- [ ] **7225.** {who} pays  
+- [ ] **7423.** {who} pays  
   → платит: {who}
-- [ ] **7226.** the learner  
+- [ ] **7424.** the learner  
   → сам ученик
-- [ ] **7227.** No bill of its own  
+- [ ] **7425.** No bill of its own  
   → Без отдельного счёта
-- [ ] **7228.** Public, and asks for nothing  
+- [ ] **7426.** Public, and asks for nothing  
   → Общественное и ничего не просит
-- [ ] **7229.** Not the operator's to pay  
+- [ ] **7427.** Not the operator's to pay  
   → Платит не оператор
-- [ ] **7230.** People using it in a month  
+- [ ] **7428.** People using it in a month  
   → Пользователей в месяц
-- [ ] **7231.** one person  
+- [ ] **7429.** one person  
   → один человек
-- [ ] **7232.** learners  
+- [ ] **7430.** learners  
   → учеников
-- [ ] **7233.** {n} learners  
+- [ ] **7431.** {n} learners  
   → учеников: {n}
-- [ ] **7234.** Every month, all of it  
+- [ ] **7432.** Every month, all of it  
   → Каждый месяц, всё вместе
-- [ ] **7235.** {each} a learner, and every cent of it an invoice somebody sends. In US dollars and net of VAT, which is how the vendors quote their own prices.  
+- [ ] **7433.** {each} a learner, and every cent of it an invoice somebody sends. In US dollars and net of VAT, which is how the vendors quote their own prices.  
   → {each} на ученика, и каждый цент из этого чей-то настоящий счёт. В долларах США и без НДС, так, как поставщики называют свои цены.
-- [ ] **7236.** How hard they study  
+- [ ] **7434.** How hard they study  
   → Насколько усердно занимаются
-- [ ] **7237.** Lightly _(context: study)_  
+- [ ] **7435.** Lightly _(context: study)_  
   → Понемногу
-- [ ] **7238.** The default _(context: study)_  
+- [ ] **7436.** The default _(context: study)_  
   → Обычно
-- [ ] **7239.** Hard _(context: study)_  
+- [ ] **7437.** Hard _(context: study)_  
   → Усердно
-- [ ] **7240.** Cards read themselves aloud  
+- [ ] **7438.** Cards read themselves aloud  
   → Карточки читаются вслух
-- [ ] **7241.** On _(context: switch)_  
+- [ ] **7439.** On _(context: switch)_  
   → Вкл.
-- [ ] **7242.** Off _(context: switch)_  
+- [ ] **7440.** Off _(context: switch)_  
   → Выкл.
-- [ ] **7243.** No key _(context: switch)_  
+- [ ] **7441.** No key _(context: switch)_  
   → Нет ключа
-- [ ] **7244.** The tutor  
+- [ ] **7442.** The tutor  
   → Репетитор
-- [ ] **7245.** Which model answers  
+- [ ] **7443.** Which model answers  
   → Какая модель отвечает
-- [ ] **7246.** Years of reviews already stored  
+- [ ] **7444.** Years of reviews already stored  
   → Сколько лет повторений уже хранится
-- [ ] **7247.** Where it goes  
+- [ ] **7445.** Where it goes  
   → Куда уходят деньги
-- [ ] **7248.** {amount} of {allowance}  
+- [ ] **7446.** {amount} of {allowance}  
   → {amount} из {allowance}
-- [ ] **7249.** {label}, {amount} against {allowance}  
+- [ ] **7447.** {label}, {amount} against {allowance}  
   → {label}: израсходовано {amount}, {allowance}
-- [ ] **7250.** The same app at every size  
+- [ ] **7448.** The same app at every size  
   → То же приложение при любом размере
-- [ ] **7251.** Each bar is ten times the learners of the one before it, and the heights are logarithmic, so a bar twice as tall is a bill many times larger. The shape to look at is the steps.  
+- [ ] **7449.** Each bar is ten times the learners of the one before it, and the heights are logarithmic, so a bar twice as tall is a bill many times larger. The shape to look at is the steps.  
   → Каждый столбик означает в десять раз больше учеников, чем предыдущий, а высоты логарифмические, так что столбик вдвое выше означает счёт во много раз больше. Смотреть стоит на ступеньки.
-- [ ] **7252.** What the app costs at each size  
+- [ ] **7450.** What the app costs at each size  
   → Сколько стоит приложение при каждом размере
-- [ ] **7253.** What the app costs a month at each size, and what that is per learner  
+- [ ] **7451.** What the app costs a month at each size, and what that is per learner  
   → Сколько приложение стоит в месяц при каждом размере и сколько это на ученика
-- [ ] **7254.** Learners  
+- [ ] **7452.** Learners  
   → Учеников
-- [ ] **7255.** A month  
+- [ ] **7453.** A month  
   → В месяц
-- [ ] **7256.** Given  
+- [ ] **7454.** Given  
   → В дар
-- [ ] **7257.** Each  
+- [ ] **7455.** Each  
   → На одного
-- [ ] **7258.** The floor is the interesting end. The plans, the tooling, the mail and the domain come to about three hundred dollars a month before a single learner arrives, and most of that does not move when they do. So the first thousand people are nearly free to serve, and the cost per head falls by roughly a factor of ten for each decade. What grows instead is speech and the database, so past ten thousand the shape is set by how much is said aloud and how many years of reviews are being kept.  
+- [ ] **7456.** The floor is the interesting end. The plans, the tooling, the mail and the domain come to about three hundred dollars a month before a single learner arrives, and most of that does not move when they do. So the first thousand people are nearly free to serve, and the cost per head falls by roughly a factor of ten for each decade. What grows instead is speech and the database, so past ten thousand the shape is set by how much is said aloud and how many years of reviews are being kept.  
   → Самое интересное здесь нижний край. Тарифы, инструменты, почта и домен обходятся примерно в триста долларов в месяц ещё до первого ученика, и большая часть этой суммы не меняется, когда ученики приходят. Поэтому первая тысяча человек обслуживается почти бесплатно, а стоимость на человека падает примерно в десять раз с каждым порядком. Растут вместо этого озвучка и база данных, так что после десяти тысяч форму задают объём того, что читается вслух, и сколько лет повторений хранится.
-- [ ] **7259.** The {count} numbers we had to judge rather than measure  
+- [ ] **7457.** The {count} numbers we had to judge rather than measure  
   → Числа, которые пришлось оценить, а не измерить: {count}
-- [ ] **7260.** Everything else on this page came off a stopwatch, a database or somebody’s published price list. These are judgments, and they are here so you can disagree with a specific one rather than with the total.  
+- [ ] **7458.** Everything else on this page came off a stopwatch, a database or somebody’s published price list. These are judgments, and they are here so you can disagree with a specific one rather than with the total.  
   → Всё остальное на этой странице снято секундомером, взято из базы данных или из чьего-то опубликованного прайс-листа. Это же оценки, и они здесь, чтобы вы могли не согласиться с конкретной, а не с итогом.
-- [ ] **7261.** Not counted above: buying the speech this app is given would come to a further {money} a month. Nobody has ever asked for it.  
+- [ ] **7459.** Not counted above: buying the speech this app is given would come to a further {money} a month. Nobody has ever asked for it.  
   → Выше не учтено: купить озвучку, которую это приложение получает в дар, стоило бы ещё {money} в месяц. Никто никогда этого не просил.
-- [ ] **7262.** The model line stops at {money}, and it stops there in the running app too. The daily budget in {file} has no off switch, so this is a ceiling rather than a forecast.  
+- [ ] **7460.** The model line stops at {money}, and it stops there in the running app too. The daily budget in {file} has no off switch, so this is a ceiling rather than a forecast.  
   → Строка модели останавливается на {money}, и в работающем приложении она останавливается там же. Дневной бюджет в {file} нельзя выключить, так что это потолок, а не прогноз.
-- [ ] **7263.** Vercel  
+- [ ] **7461.** Vercel  
   → Vercel
-- [ ] **7264.** Vercel, in the same region as the database  
+- [ ] **7462.** Vercel, in the same region as the database  
   → Vercel, в том же регионе, что и база данных
-- [ ] **7265.** Runs the app: every page rendered, every action answered, the speech proxy and the tutor route.  
+- [ ] **7463.** Runs the app: every page rendered, every action answered, the speech proxy and the tutor route.  
   → На нём работает приложение: отрисовка каждой страницы, ответ на каждое действие, прокси для озвучки и маршрут репетитора.
-- [ ] **7266.** The pages a phone has already seen still open, and nothing new loads.  
+- [ ] **7464.** The pages a phone has already seen still open, and nothing new loads.  
   → Страницы, которые телефон уже видел, по-прежнему открываются, а ничего нового не загружается.
-- [ ] **7267.** Supabase  
+- [ ] **7465.** Supabase  
   → Supabase
-- [ ] **7268.** Supabase, holding the database, the sign-ins and the cached speech  
+- [ ] **7466.** Supabase, holding the database, the sign-ins and the cached speech  
   → Supabase, где хранятся база данных, входы в аккаунты и кэш озвучки
-- [ ] **7269.** Every deck, every review, the dictionary, who is signed in, and the speech files keyed by their content.  
+- [ ] **7467.** Every deck, every review, the dictionary, who is signed in, and the speech files keyed by their content.  
   → Каждая колода, каждое повторение, словарь, кто вошёл в аккаунт, и файлы озвучки, разложенные по содержимому.
-- [ ] **7270.** Nothing works, and the landing page shrinks to a five-word dictionary.  
+- [ ] **7468.** Nothing works, and the landing page shrinks to a five-word dictionary.  
   → Ничего не работает, а главная страница сжимается до словаря из пяти слов.
-- [ ] **7271.** The language model  
+- [ ] **7469.** The language model  
   → Языковая модель
-- [ ] **7272.** Google, with Groq behind it, and Anthropic or OpenAI as a paid fallback everywhere but Anu  
+- [ ] **7470.** Google, with Groq behind it, and Anthropic or OpenAI as a paid fallback everywhere but Anu  
   → Google, за ним Groq, а Anthropic или OpenAI как платный запасной вариант везде, кроме Ану
-- [ ] **7273.** Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.  
+- [ ] **7471.** Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.  
   → Ану, отзыв на письменную работу и чтение сфотографированной страницы. Ни одной эстонской формы.
-- [ ] **7274.** Anu says she can't reach anyone. Review, the dictionary and every drill keep working as normal.  
+- [ ] **7472.** Anu says she can't reach anyone. Review, the dictionary and every drill keep working as normal.  
   → Ану говорит, что ни до кого не может достучаться. Повторение, словарь и все упражнения работают как обычно.
-- [ ] **7275.** Estonian speech  
+- [ ] **7473.** Estonian speech  
   → Эстонская речь
-- [ ] **7276.** Reads a word or a sentence aloud in any of ten voices. Every clip is cached and asked for once.  
+- [ ] **7474.** Reads a word or a sentence aloud in any of ten voices. Every clip is cached and asked for once.  
   → Читает вслух слово или предложение любым из десяти голосов. Каждый фрагмент кэшируется и запрашивается один раз.
-- [ ] **7277.** Cards go quiet, and the listening part of the mock exam says so instead of breaking.  
+- [ ] **7475.** Cards go quiet, and the listening part of the mock exam says so instead of breaking.  
   → Карточки замолкают, а часть пробного экзамена на аудирование говорит об этом, а не ломается.
-- [ ] **7278.** Ekilex and Wiktionary  
+- [ ] **7476.** Ekilex and Wiktionary  
   → Ekilex и Викисловарь
-- [ ] **7279.** The Institute of the Estonian Language, and the Wikimedia Foundation  
+- [ ] **7477.** The Institute of the Estonian Language, and the Wikimedia Foundation  
   → Институт эстонского языка и Фонд Викимедиа
-- [ ] **7280.** Every Estonian form and example sentence, and the English meaning of most of the dictionary.  
+- [ ] **7478.** Every Estonian form and example sentence, and the English meaning of most of the dictionary.  
   → Каждая эстонская форма и пример предложения, а также английское значение большей части словаря.
-- [ ] **7281.** Live lookups stop. The seeded dictionary carries on, and a word it lacks is simply missing.  
+- [ ] **7479.** Live lookups stop. The seeded dictionary carries on, and a word it lacks is simply missing.  
   → Живые запросы прекращаются. Встроенный словарь продолжает работать, а слова, которого в нём нет, просто нет.
-- [ ] **7282.** Resend  
+- [ ] **7480.** Resend  
   → Resend
-- [ ] **7283.** Resend, sending the mailed sign-in links  
+- [ ] **7481.** Resend, sending the mailed sign-in links  
   → Resend, который отправляет ссылки для входа по почте
-- [ ] **7284.** Sends a sign-in link to anybody without a Google account, and the occasional reminder.  
+- [ ] **7482.** Sends a sign-in link to anybody without a Google account, and the occasional reminder.  
   → Отправляет ссылку для входа тем, у кого нет аккаунта Google, и иногда напоминание.
-- [ ] **7285.** Google sign-in still works. Everybody else is locked out.  
+- [ ] **7483.** Google sign-in still works. Everybody else is locked out.  
   → Вход через Google по-прежнему работает. Все остальные не могут войти.
-- [ ] **7286.** Sentry, or whatever the deployment points its webhook at  
+- [ ] **7484.** Sentry, or whatever the deployment points its webhook at  
   → Sentry или то, куда установка направляет свой вебхук
-- [ ] **7287.** Catches anything that breaks, with personal details scrubbed: a user id, never an email address.  
+- [ ] **7485.** Catches anything that breaks, with personal details scrubbed: a user id, never an email address.  
   → Ловит всё, что ломается, с вычищенными личными данными: идентификатор пользователя, но никогда не адрес почты.
-- [ ] **7288.** Errors stay in the server log and nowhere else, just as before.  
+- [ ] **7486.** Errors stay in the server log and nowhere else, just as before.  
   → Ошибки остаются в журнале сервера и больше нигде, как и раньше.
-- [ ] **7289.** Claude Max  
+- [ ] **7487.** Claude Max  
   → Claude Max
-- [ ] **7290.** Anthropic, as the tooling that writes and maintains this  
+- [ ] **7488.** Anthropic, as the tooling that writes and maintains this  
   → Anthropic, как инструмент, которым это пишется и поддерживается
-- [ ] **7291.** Writes the code, the tests and the invariants, and keeps them honest against each other.  
+- [ ] **7489.** Writes the code, the tests and the invariants, and keeps them honest against each other.  
   → Пишет код, тесты и инварианты и следит, чтобы они честно сходились друг с другом.
-- [ ] **7292.** The app carries on running and stops being worked on.  
+- [ ] **7490.** The app carries on running and stops being worked on.  
   → Приложение продолжает работать, но над ним перестают работать.
-- [ ] **7293.** The domain  
+- [ ] **7491.** The domain  
   → Домен
-- [ ] **7294.** A registrar, under the Estonian Internet Foundation  
+- [ ] **7492.** A registrar, under the Estonian Internet Foundation  
   → Регистратор, подотчётный Эстонскому интернет-фонду
-- [ ] **7295.** The address people type in. By far the cheapest line here.  
+- [ ] **7493.** The address people type in. By far the cheapest line here.  
   → Адрес, который набирают люди. С большим отрывом самая дешёвая строка здесь.
-- [ ] **7296.** The app is still there under whatever address the host gave it.  
+- [ ] **7494.** The app is still there under whatever address the host gave it.  
   → Приложение остаётся доступным по тому адресу, который дал хостинг.
-- [ ] **7297.** An Estonian news feed  
+- [ ] **7495.** An Estonian news feed  
   → Эстонская новостная лента
-- [ ] **7298.** Whichever public feed the deployment points at  
+- [ ] **7496.** Whichever public feed the deployment points at  
   → Любая открытая лента, на которую указывает установка
-- [ ] **7299.** Suggests words off today's front page, and prints a few headlines the dictionary can open.  
+- [ ] **7497.** Suggests words off today's front page, and prints a few headlines the dictionary can open.  
   → Предлагает слова с сегодняшней первой полосы и показывает несколько заголовков, которые может открыть словарь.
-- [ ] **7300.** The suggestion row picks seasonal or random words instead, and says so.  
+- [ ] **7498.** The suggestion row picks seasonal or random words instead, and says so.  
   → Строка подсказок берёт вместо этого сезонные или случайные слова и так и говорит.
-- [ ] **7301.** The learner's own phone  
+- [ ] **7499.** The learner's own phone  
   → Собственный телефон ученика
-- [ ] **7302.** Them  
+- [ ] **7500.** Them  
   → Сам ученик
-- [ ] **7303.** Keeps 400 clips, 60 pages and every grade that could not be sent, so review works on a train.  
+- [ ] **7501.** Keeps 400 clips, 60 pages and every grade that could not be sent, so review works on a train.  
   → Хранит 400 звуковых фрагментов, 60 страниц и каждую оценку, которую не удалось отправить, чтобы повторение работало в поезде.
-- [ ] **7304.** There's no app without it. It's the one piece nobody here can pay for.  
+- [ ] **7502.** There's no app without it. It's the one piece nobody here can pay for.  
   → Без него приложения нет. Это единственная часть, за которую здесь никто не может заплатить.
-- [ ] **7305.** Funded  
+- [ ] **7503.** Funded  
   → Есть финансирование
-- [ ] **7306.** Funded _(context: stage)_  
+- [ ] **7504.** Funded _(context: stage)_  
   → Есть финансирование
-- [ ] **7307.** Somebody is paid to work on it, and every part of it is switched on.  
+- [ ] **7505.** Somebody is paid to work on it, and every part of it is switched on.  
   → Кому-то платят за работу над ним, и включены все его части.
-- [ ] **7308.** Unstaffed  
+- [ ] **7506.** Unstaffed  
   → Без людей
-- [ ] **7309.** Unstaffed _(context: stage)_  
+- [ ] **7507.** Unstaffed _(context: stage)_  
   → Без людей
-- [ ] **7310.** The grant ends and nobody works on it any more. Learners don't lose a thing at this step: the software keeps running when the developer stops.  
+- [ ] **7508.** The grant ends and nobody works on it any more. Learners don't lose a thing at this step: the software keeps running when the developer stops.  
   → Грант заканчивается, и над приложением больше никто не работает. На этом шаге ученики ничего не теряют: программа продолжает работать, когда разработчик останавливается.
-- [ ] **7311.** Quiet _(context: stage)_  
+- [ ] **7509.** Quiet _(context: stage)_  
   → Тихо
-- [ ] **7312.** The error reports only the operator reads, and the emails with sign-in links, both go. Google sign-in still works, so nobody already using it gets shut out.  
+- [ ] **7510.** The error reports only the operator reads, and the emails with sign-in links, both go. Google sign-in still works, so nobody already using it gets shut out.  
   → Уходят и отчёты об ошибках, которые читает только оператор, и письма со ссылками для входа. Вход через Google по-прежнему работает, так что никто из тех, кто уже пользуется им, не окажется за дверью.
-- [ ] **7313.** Lights on  
+- [ ] **7511.** Lights on  
   → Свет горит
-- [ ] **7314.** Lights on _(context: stage)_  
+- [ ] **7512.** Lights on _(context: stage)_  
   → Свет горит
-- [ ] **7315.** A server and a database, at whatever address the host gives it. Everything the course is made of still works, because none of it was ever bought.  
+- [ ] **7513.** A server and a database, at whatever address the host gives it. Everything the course is made of still works, because none of it was ever bought.  
   → Сервер и база данных по тому адресу, который даст хостинг. Всё, из чего сделан курс, по-прежнему работает, потому что ничего из этого никогда не покупали.
-- [ ] **7316.** The code is MIT and the built dictionary carries the licenses of the sources it was made from. Anybody may run their own copy, including the institutions whose data it was built on, and nobody needs permission to.  
+- [ ] **7514.** The code is MIT and the built dictionary carries the licenses of the sources it was made from. Anybody may run their own copy, including the institutions whose data it was built on, and nobody needs permission to.  
   → Код распространяется по MIT, а собранный словарь несёт лицензии источников, из которых он сделан. Свою копию может запустить кто угодно, в том числе институты, на чьих данных он построен, и разрешения для этого не нужно.
-- [ ] **7317.** There is no proprietary service in the middle of it. Postgres, a Next.js app and two public APIs, so a copy runs on a laptop, in a university's own cluster, or on any host that runs Node.  
+- [ ] **7515.** There is no proprietary service in the middle of it. Postgres, a Next.js app and two public APIs, so a copy runs on a laptop, in a university's own cluster, or on any host that runs Node.  
   → В его основе нет ни одного закрытого сервиса. Postgres, приложение на Next.js и два открытых API, так что копия работает на ноутбуке, в собственном кластере университета или на любом хостинге, где есть Node.
-- [ ] **7318.** The dictionary is built by a script from Ekilex and Wiktionary rather than typed, so it can be rebuilt from scratch by somebody who has neither this database nor this deployment.  
+- [ ] **7516.** The dictionary is built by a script from Ekilex and Wiktionary rather than typed, so it can be rebuilt from scratch by somebody who has neither this database nor this deployment.  
   → Словарь собирается скриптом из Ekilex и Викисловаря, а не набирается вручную, поэтому его может собрать заново с нуля тот, у кого нет ни этой базы данных, ни этой установки.
-- [ ] **7319.** Every learner can take their whole record out of it at any time, in one file, and put it back into another copy. That's a right on the privacy page, and it's built rather than just promised.  
+- [ ] **7517.** Every learner can take their whole record out of it at any time, in one file, and put it back into another copy. That's a right on the privacy page, and it's built rather than just promised.  
   → Каждый ученик может в любой момент забрать всё своё одним файлом и загрузить в другую копию. Это право записано на странице о конфиденциальности, и оно сделано, а не просто обещано.
-- [ ] **7320.** The pages a learner has already opened keep opening with no network at all, and grades taken offline are held and replayed. A day of downtime is not a day of lost study.  
+- [ ] **7518.** The pages a learner has already opened keep opening with no network at all, and grades taken offline are held and replayed. A day of downtime is not a day of lost study.  
   → Страницы, которые ученик уже открывал, открываются и вовсе без сети, а оценки, поставленные без связи, сохраняются и отправляются потом. День простоя не становится днём потерянной учёбы.
-- [ ] **7321.** Nothing a learner is taught comes from a model. The course, the dictionary, the exercises and the exams are assembled from attested sources, so the app keeps teaching with every AI key removed.  
+- [ ] **7519.** Nothing a learner is taught comes from a model. The course, the dictionary, the exercises and the exams are assembled from attested sources, so the app keeps teaching with every AI key removed.  
   → Ничто из того, чему учат ученика, не берётся из модели. Курс, словарь, упражнения и экзамены собраны из проверенных источников, поэтому приложение продолжает учить, даже если убрать все ключи ИИ.
-- [ ] **7322.** The dictionary, in Postgres  
+- [ ] **7520.** The dictionary, in Postgres  
   → Словарь в Postgres
-- [ ] **7323.** Postgres itself, before a single row  
+- [ ] **7521.** Postgres itself, before a single row  
   → Сам Postgres, ещё без единой строки
-- [ ] **7324.** One review  
+- [ ] **7522.** One review  
   → Одно повторение
-- [ ] **7325.** One card  
+- [ ] **7523.** One card  
   → Одна карточка
-- [ ] **7326.** A year of one learner, at fifteen reviews a day five days a week  
+- [ ] **7524.** A year of one learner, at fifteen reviews a day five days a week  
   → Год одного ученика, по пятнадцать повторений в день пять дней в неделю
-- [ ] **7327.** A page, as HTML over the wire  
+- [ ] **7525.** A page, as HTML over the wire  
   → Страница в виде HTML при передаче по сети
-- [ ] **7328.** The JavaScript every page shares  
+- [ ] **7526.** The JavaScript every page shares  
   → JavaScript, общий для всех страниц
-- [ ] **7329.** Requests behind one page view  
+- [ ] **7527.** Requests behind one page view  
   → Запросы за одним просмотром страницы
-- [ ] **7330.** One spoken phrase, as stored  
+- [ ] **7528.** One spoken phrase, as stored  
   → Одна озвученная фраза в том виде, в каком хранится
-- [ ] **7331.** What that speech actually is  
+- [ ] **7529.** What that speech actually is  
   → Что представляет собой эта запись
-- [ ] **7332.** What a phone keeps, so it stops asking  
+- [ ] **7530.** What a phone keeps, so it stops asking  
   → Что хранит телефон, чтобы не запрашивать снова
-- [ ] **7333.** Loading the whole dictionary into an empty deployment  
+- [ ] **7531.** Loading the whole dictionary into an empty deployment  
   → Загрузка всего словаря в пустую установку
-- [ ] **7334.** 20 MB for 6,223 entries and 39,985 forms, indexes included  
+- [ ] **7532.** 20 MB for 6,223 entries and 39,985 forms, indexes included  
   → 20 МБ на 6223 словарные статьи и 39 985 форм, вместе с индексами
-- [ ] **7335.** about 8 MB  
+- [ ] **7533.** about 8 MB  
   → около 8 МБ
-- [ ] **7336.** 300 bytes, with the four indexes that make it readable  
+- [ ] **7534.** 300 bytes, with the four indexes that make it readable  
   → 300 байт вместе с четырьмя индексами, без которых его не прочитать
-- [ ] **7337.** 352 bytes, indexes included  
+- [ ] **7535.** 352 bytes, indexes included  
   → 352 байта вместе с индексами
-- [ ] **7338.** 3,900 reviews and a starter deck of about 400 cards, so 1.3 MB  
+- [ ] **7536.** 3,900 reviews and a starter deck of about 400 cards, so 1.3 MB  
   → 3900 повторений и стартовая колода примерно из 400 карточек, итого 1,3 МБ
-- [ ] **7339.** 14 KB for the dictionary, 88 KB for the whole course page, 21 KB in the middle  
+- [ ] **7537.** 14 KB for the dictionary, 88 KB for the whole course page, 21 KB in the middle  
   → 14 КБ у словаря, 88 КБ у страницы всего курса, 21 КБ в середине
-- [ ] **7340.** 102 KB, fetched once per build and then cached  
+- [ ] **7538.** 102 KB, fetched once per build and then cached  
   → 102 КБ, загружаются один раз на сборку и затем хранятся в кэше
-- [ ] **7341.** about 35, of which 11 to 15 reach the server once the browser cache is warm  
+- [ ] **7539.** about 35, of which 11 to 15 reach the server once the browser cache is warm  
   → около 35, из них до сервера доходят от 11 до 15, когда кэш браузера уже заполнен
-- [ ] **7342.** 51 KB for 1.15 seconds, which is 43 KB a second  
+- [ ] **7540.** 51 KB for 1.15 seconds, which is 43 KB a second  
   → 51 КБ на 1,15 секунды, то есть 43 КБ в секунду
-- [ ] **7343.** 16-bit PCM, 22,050 Hz, one channel, no compression; the service sends 32-bit float with half a second of silence each end, 199 KB for the same sentence  
+- [ ] **7541.** 16-bit PCM, 22,050 Hz, one channel, no compression; the service sends 32-bit float with half a second of silence each end, 199 KB for the same sentence  
   → 16-битный PCM, 22 050 Гц, один канал, без сжатия; сервис присылает 32-битный формат с плавающей точкой и полсекунды тишины с каждого конца, 199 КБ на то же предложение
-- [ ] **7344.** 400 spoken clips, 220 build files and 60 pages  
+- [ ] **7542.** 400 spoken clips, 220 build files and 60 pages  
   → 400 аудиозаписей, 220 файлов сборки и 60 страниц
-- [ ] **7345.** 3.4 seconds  
+- [ ] **7543.** 3.4 seconds  
   → 3,4 секунды
-- [ ] **7346.** npm run db:seed, then pg\_total\_relation\_size over Lexeme and Form  
+- [ ] **7544.** npm run db:seed, then pg\_total\_relation\_size over Lexeme and Form  
   → npm run db:seed, затем pg\_total\_relation\_size по Lexeme и Form
-- [ ] **7347.** pg\_database\_size on the empty schema, subtracted from the seeded one  
+- [ ] **7545.** pg\_database\_size on the empty schema, subtracted from the seeded one  
   → pg\_database\_size на пустой схеме, вычтенный из заполненной
-- [ ] **7348.** 80,000 rows written by scripts/load-fixture.ts, divided into the table size  
+- [ ] **7546.** 80,000 rows written by scripts/load-fixture.ts, divided into the table size  
   → 80 000 строк, записанных scripts/load-fixture.ts, и размер таблицы, делённый на их число
-- [ ] **7349.** the same fixture, 2,000 cards  
+- [ ] **7547.** the same fixture, 2,000 cards  
   → те же тестовые данные, 2000 карточек
-- [ ] **7350.** the two rows above, times the default daily goal in lib/settings/store.ts  
+- [ ] **7548.** the two rows above, times the default daily goal in lib/settings/store.ts  
   → две строки выше, умноженные на дневную цель по умолчанию из lib/settings/store.ts
-- [ ] **7351.** curl --compressed against the built app, seven routes  
+- [ ] **7549.** curl --compressed against the built app, seven routes  
   → curl --compressed по собранному приложению, семь маршрутов
-- [ ] **7352.** the First Load JS line of next build  
+- [ ] **7550.** the First Load JS line of next build  
   → строка First Load JS в выводе next build
-- [ ] **7353.** Chrome DevTools request counts over seven routes, twice each  
+- [ ] **7551.** Chrome DevTools request counts over seven routes, twice each  
   → подсчёт запросов в Chrome DevTools на семи маршрутах, по два раза на каждом
-- [ ] **7354.** one request to TartuNLP for a three-word sentence, passed through prepareClip in lib/audio/wav.ts, read back off the WAV header  
+- [ ] **7552.** one request to TartuNLP for a three-word sentence, passed through prepareClip in lib/audio/wav.ts, read back off the WAV header  
   → один запрос к TartuNLP на предложение из трёх слов, пропущенный через prepareClip в lib/audio/wav.ts и прочитанный по заголовку WAV
-- [ ] **7355.** the fmt chunk of the same file, before and after  
+- [ ] **7553.** the fmt chunk of the same file, before and after  
   → блок fmt того же файла, до и после
-- [ ] **7356.** LIMITS in public/sw.js  
+- [ ] **7554.** LIMITS in public/sw.js  
   → LIMITS в public/sw.js
-- [ ] **7357.** time npx tsx prisma/seed.ts  
+- [ ] **7555.** time npx tsx prisma/seed.ts  
   → time npx tsx prisma/seed.ts, замер времени
-- [ ] **7358.** Pages opened in a sitting  
+- [ ] **7556.** Pages opened in a sitting  
   → Страниц открыто за один заход
-- [ ] **7359.** Today, review, and a few looks at the dictionary or a grammar page on the way past.  
+- [ ] **7557.** Today, review, and a few looks at the dictionary or a grammar page on the way past.  
   → Главная, повторение и пара заглядываний в словарь или на страницу грамматики по пути.
-- [ ] **7360.** New spoken clips a learner fetches in a month  
+- [ ] **7558.** New spoken clips a learner fetches in a month  
   → Новые аудиозаписи, которые ученик загружает за месяц
-- [ ] **7361.** A phone keeps 400, so only new words cost anything. This is roughly the new cards a month at the default pace, plus their sentences.  
+- [ ] **7559.** A phone keeps 400, so only new words cost anything. This is roughly the new cards a month at the default pace, plus their sentences.  
   → Телефон хранит 400 записей, так что платить приходится только за новые слова. Это примерно новые карточки за месяц в обычном темпе плюс их предложения.
-- [ ] **7362.** Characters in a spoken phrase  
+- [ ] **7560.** Characters in a spoken phrase  
   → Символов в озвученной фразе
-- [ ] **7363.** A word is about eight and a recorded sentence about forty. Speech is billed per character, so this is what decides that line.  
+- [ ] **7561.** A word is about eight and a recorded sentence about forty. Speech is billed per character, so this is what decides that line.  
   → В слове около восьми символов, в записанном предложении около сорока. За озвучку платят посимвольно, поэтому именно это и определяет ту строку.
-- [ ] **7364.** Questions a learner asks Anu in a month  
+- [ ] **7562.** Questions a learner asks Anu in a month  
   → Вопросов, которые ученик задаёт Ану за месяц
-- [ ] **7365.** The per-person cap is ten a day, so this is far under it. Most people never open her.  
+- [ ] **7563.** The per-person cap is ten a day, so this is far under it. Most people never open her.  
   → Предел на человека составляет десять в день, так что это намного меньше. Большинство вообще её не открывает.
-- [ ] **7366.** Pieces of writing a learner has looked at in a month  
+- [ ] **7564.** Pieces of writing a learner has looked at in a month  
   → Письменных работ ученика, проверенных за месяц
-- [ ] **7367.** Cheaper per call than a question and asked more often, because the writing exercise offers one every time.  
+- [ ] **7565.** Cheaper per call than a question and asked more often, because the writing exercise offers one every time.  
   → Дешевле вопроса за один вызов, но бывает чаще, потому что упражнение на письмо предлагает проверку каждый раз.
-- [ ] **7368.** Emails a learner is sent in a month  
+- [ ] **7566.** Emails a learner is sent in a month  
   → Писем, которые ученик получает за месяц
-- [ ] **7369.** A mailed sign-in link lasts a session, so this is a couple of sign-ins and the occasional reminder.  
+- [ ] **7567.** A mailed sign-in link lasts a session, so this is a couple of sign-ins and the occasional reminder.  
   → Ссылки для входа хватает на сеанс, так что это пара входов и изредка напоминание.
-- [ ] **7370.** Processor time behind one request  
+- [ ] **7568.** Processor time behind one request  
   → Процессорное время на один запрос
-- [ ] **7371.** A page is mostly waiting on the database, which is not charged. This is the part that is, and it is the softest number here.  
+- [ ] **7569.** A page is mostly waiting on the database, which is not charged. This is the part that is, and it is the softest number here.  
   → Страница в основном ждёт базу данных, а это время не оплачивается. Здесь посчитано то, что оплачивается, и это самая приблизительная цифра на странице.
-- [ ] **7372.** What one page reads out of the database  
+- [ ] **7570.** What one page reads out of the database  
   → Сколько одна страница читает из базы данных
-- [ ] **7373.** Eight or so queries over a deck and a review log, none of which return much.  
+- [ ] **7571.** Eight or so queries over a deck and a review log, none of which return much.  
   → Около восьми запросов к колоде и журналу повторений, и ни один не возвращает много.
-- [ ] **7374.** Learners on the app at the same moment, at the busiest  
+- [ ] **7572.** Learners on the app at the same moment, at the busiest  
   → Учеников в приложении одновременно, в самый загруженный момент
-- [ ] **7375.** A class arrives together, so this is higher than it looks. It decides the database instance and nothing else.  
+- [ ] **7573.** A class arrives together, so this is higher than it looks. It decides the database instance and nothing else.  
   → Класс приходит весь сразу, поэтому цифра выше, чем кажется. От неё зависит только размер сервера базы данных.
-- [ ] **7376.** Times the shared JavaScript is re-fetched by a device in a month  
+- [ ] **7574.** Times the shared JavaScript is re-fetched by a device in a month  
   → Сколько раз за месяц устройство заново загружает общий JavaScript
-- [ ] **7377.** It is cached until a deploy changes its name, so this is really how often the app ships.  
+- [ ] **7575.** It is cached until a deploy changes its name, so this is really how often the app ships.  
   → Он хранится в кэше, пока новая версия не сменит его имя, так что на деле это частота выпуска новых версий.
-- [ ] **7378.** The {plan} plan's own fee. Nothing here is over its allowance yet.  
+- [ ] **7576.** The {plan} plan's own fee. Nothing here is over its allowance yet.  
   → Абонентская плата тарифа {plan}. Ничто здесь пока не выходит за лимит тарифа.
-- [ ] **7379.** The {plan} plan, plus use over its allowance on {over}.  
+- [ ] **7577.** The {plan} plan, plus use over its allowance on {over}.  
   → Тариф {plan} плюс превышение лимита по таким статьям: {over}.
-- [ ] **7380.** The {plan} plan's own fee, with the smallest instance inside its compute credit.  
+- [ ] **7578.** The {plan} plan's own fee, with the smallest instance inside its compute credit.  
   → Абонентская плата тарифа {plan}; самый маленький сервер покрывается входящим в тариф кредитом на вычисления.
-- [ ] **7381.** A {size} instance, which is what {people} people at once and {gb} GB need.  
+- [ ] **7579.** A {size} instance, which is what {people} people at once and {gb} GB need.  
   → Сервер размера {size}: он нужен, когда одновременных пользователей: {people}, а база занимает {gb} ГБ.
-- [ ] **7382.** A question and a writing note on {model}, priced the way the ledger prices one before it makes the call.  
+- [ ] **7580.** A question and a writing note on {model}, priced the way the ledger prices one before it makes the call.  
   → Вопрос и отзыв на письменную работу на {model}, посчитанные так же, как журнал расходов оценивает вызов, прежде чем его сделать.
-- [ ] **7383.** The app's own daily cap is what is holding this down, not the traffic.  
+- [ ] **7581.** The app's own daily cap is what is holding this down, not the traffic.  
   → Сумму сдерживает собственный дневной лимит приложения, а не нагрузка.
-- [ ] **7384.** Nobody has set a key, so Anu isn't here. Everything else in the app still works.  
+- [ ] **7582.** Nobody has set a key, so Anu isn't here. Everything else in the app still works.  
   → Ключ никто не задал, поэтому Ану здесь нет. Всё остальное в приложении работает.
-- [ ] **7385.** {characters} characters read aloud a month, in a real Estonian voice  
+- [ ] **7583.** {characters} characters read aloud a month, in a real Estonian voice  
   → Символов, прочитанных вслух за месяц живым эстонским голосом: {characters}
-- [ ] **7386.** A public research group at the University of Tartu, which asks for nothing and sends no invoice.  
+- [ ] **7584.** A public research group at the University of Tartu, which asks for nothing and sends no invoice.  
   → Государственная исследовательская группа Тартуского университета, которая ничего не просит и не выставляет счетов.
-- [ ] **7387.** {entries} checked entries with {forms} forms, and the attested sentences every exercise is built from  
+- [ ] **7585.** {entries} checked entries with {forms} forms, and the attested sentences every exercise is built from  
   → Проверенных словарных статей: {entries}, форм: {forms}, и задокументированные предложения, из которых построено каждое упражнение
-- [ ] **7388.** Neither asks for anything, and neither has a price to quote: nothing else holds a checked Estonian case table with attested sentences, so there is nothing to compare it against.  
+- [ ] **7586.** Neither asks for anything, and neither has a price to quote: nothing else holds a checked Estonian case table with attested sentences, so there is nothing to compare it against.  
   → Ни один не просит ничего взамен, и ни у одного нет цены: больше нигде нет проверенных таблиц эстонских падежей с задокументированными предложениями, так что сравнивать не с чем.
-- [ ] **7389.** The {plan} plan, plus {emails} emails over its allowance.  
+- [ ] **7587.** The {plan} plan, plus {emails} emails over its allowance.  
   → Тариф {plan} плюс писем сверх лимита: {emails}.
-- [ ] **7390.** The {plan} plan. The free tier sends a hundred a day from a shared address, which is for testing.  
+- [ ] **7588.** The {plan} plan. The free tier sends a hundred a day from a shared address, which is for testing.  
   → Тариф {plan}. Бесплатный тариф отправляет сто писем в день с общего адреса, а это годится только для проверки.
-- [ ] **7391.** A flat plan. It bills by volume of errors rather than by learners, and a well-behaved month is nowhere near the allowance.  
+- [ ] **7589.** A flat plan. It bills by volume of errors rather than by learners, and a well-behaved month is nowhere near the allowance.  
   → Фиксированный тариф. Плата зависит от числа ошибок, а не учеников, и в спокойный месяц до лимита очень далеко.
-- [ ] **7392.** The only line here that is not runtime. It does not move with the number of learners, so it is most of the bill at a hundred and a rounding error at a hundred thousand.  
+- [ ] **7590.** The only line here that is not runtime. It does not move with the number of learners, so it is most of the bill at a hundred and a rounding error at a hundred thousand.  
   → Единственная строка, не связанная с работой приложения. Она не зависит от числа учеников, поэтому при сотне учеников это большая часть счёта, а при ста тысячах почти незаметна.
-- [ ] **7393.** A .ee domain. The registry charges 6 euros a year; a registrar asks about 15.  
+- [ ] **7591.** A .ee domain. The registry charges 6 euros a year; a registrar asks about 15.  
   → Домен .ee. Реестр берёт 6 евро в год, регистратор просит около 15.
-- [ ] **7394.** One request an hour from a function we already pay for, cached and shared by everybody.  
+- [ ] **7592.** One request an hour from a function we already pay for, cached and shared by everybody.  
   → Один запрос в час от функции, за которую мы и так платим; ответ хранится в кэше и общий для всех.
-- [ ] **7395.** Their hardware, their battery and their data. Every clip and page it keeps is one this deployment does not serve again.  
+- [ ] **7593.** Their hardware, their battery and their data. Every clip and page it keeps is one this deployment does not serve again.  
   → Их устройство, их батарея и их мобильный трафик. Каждая запись и страница, которую оно хранит, больше не отдаётся с сервера.
-- [ ] **7396.** Requests answered  
+- [ ] **7594.** Requests answered  
   → Обработано запросов
-- [ ] **7397.** Files served  
+- [ ] **7595.** Files served  
   → Отдано файлов
-- [ ] **7398.** Data out  
+- [ ] **7596.** Data out  
   → Исходящий трафик
-- [ ] **7399.** Processor time  
+- [ ] **7597.** Processor time  
   → Процессорное время
-- [ ] **7400.** Database  
+- [ ] **7598.** Database  
   → База данных
-- [ ] **7401.** Speech stored  
+- [ ] **7599.** Speech stored  
   → Хранение озвучки
-- [ ] **7402.** People signing in  
+- [ ] **7600.** People signing in  
   → Входящих пользователей
-- [ ] **7403.** Questions asked  
+- [ ] **7601.** Questions asked  
   → Задано вопросов
-- [ ] **7404.** Writing looked at  
+- [ ] **7602.** Writing looked at  
   → Проверено письменных работ
-- [ ] **7405.** Emails sent  
+- [ ] **7603.** Emails sent  
   → Отправлено писем
-- [ ] **7406.** requests answered  
+- [ ] **7604.** requests answered  
   → обработанные запросы
-- [ ] **7407.** processor time  
+- [ ] **7605.** processor time  
   → процессорное время
-- [ ] **7408.** files served  
+- [ ] **7606.** files served  
   → отданные файлы
-- [ ] **7409.** data out  
+- [ ] **7607.** data out  
   → исходящий трафик
-- [ ] **7410.** the database  
+- [ ] **7608.** the database  
   → база данных
-- [ ] **7411.** stored speech  
+- [ ] **7609.** stored speech  
   → хранение озвучки
-- [ ] **7412.** sign-ins  
+- [ ] **7610.** sign-ins  
   → входы
 
 ### Counted words in public: one, few (2 to 4), many (5 and up)
 
-- [ ] **7413.** cent / cent, cents _(1, 2, 5)_  
+- [ ] **7611.** cent / cent, cents _(1, 2, 5)_  
   → цент, цента, центов
-- [ ] **7414.** pages / page, pages _(1, 2, 5)_  
+- [ ] **7612.** pages / page, pages _(1, 2, 5)_  
   → страница, страницы, страниц
-- [ ] **7415.** clips / clip, clips _(1, 2, 5)_  
+- [ ] **7613.** clips / clip, clips _(1, 2, 5)_  
   → аудиозапись, аудиозаписи, аудиозаписей
-- [ ] **7416.** characters / character, characters _(1, 2, 5)_  
+- [ ] **7614.** characters / character, characters _(1, 2, 5)_  
   → символ, символа, символов
-- [ ] **7417.** questions / question, questions _(1, 2, 5)_  
+- [ ] **7615.** questions / question, questions _(1, 2, 5)_  
   → вопрос, вопроса, вопросов
-- [ ] **7418.** notes / note, notes _(1, 2, 5)_  
+- [ ] **7616.** notes / note, notes _(1, 2, 5)_  
   → отзыв, отзыва, отзывов
-- [ ] **7419.** emails / email, emails _(1, 2, 5)_  
+- [ ] **7617.** emails / email, emails _(1, 2, 5)_  
   → письмо, письма, писем
-- [ ] **7420.** milliseconds / millisecond, milliseconds _(1, 2, 5)_  
+- [ ] **7618.** milliseconds / millisecond, milliseconds _(1, 2, 5)_  
   → миллисекунда, миллисекунды, миллисекунд
-- [ ] **7421.** kilobytes / kilobyte, kilobytes _(1, 2, 5)_  
+- [ ] **7619.** kilobytes / kilobyte, kilobytes _(1, 2, 5)_  
   → килобайт, килобайта, килобайт
-- [ ] **7422.** percent of the month's learners / percent of the month's learners, percent of the month's learners _(1, 2, 5)_  
+- [ ] **7620.** percent of the month's learners / percent of the month's learners, percent of the month's learners _(1, 2, 5)_  
   → процент учеников за месяц, процента учеников за месяц, процентов учеников за месяц
-- [ ] **7423.** times / time, times _(1, 2, 5)_  
+- [ ] **7621.** times / time, times _(1, 2, 5)_  
   → раз, раза, раз
 
 ## meaning (7 lines)
 
 _lib/copy/i18n/areas/meaning.ts_
 
-- [ ] **7424.** Estonian → Russian  
+- [ ] **7622.** Estonian → Russian  
   → Эстонский → русский
-- [ ] **7425.** Russian → Estonian  
+- [ ] **7623.** Russian → Estonian  
   → Русский → эстонский
-- [ ] **7426.** Also show  
+- [ ] **7624.** Also show  
   → Показывать также
-- [ ] **7427.** Also show a second language after the first  
+- [ ] **7625.** Also show a second language after the first  
   → Показывать второй язык после первого
-- [ ] **7428.** Nothing else  
+- [ ] **7626.** Nothing else  
   → Больше ничего
-- [ ] **7429.** Just the one language and the English.  
+- [ ] **7627.** Just the one language and the English.  
   → Только один язык и английский.
-- [ ] **7430.** Shown small, after the first meaning.  
+- [ ] **7628.** Shown small, after the first meaning.  
   → Мелким шрифтом, после первого значения.
 
 ## sweep (15 lines)
 
 _lib/copy/i18n/areas/sweep.ts_
 
-- [ ] **7431.** Your homework, and how the class is getting on  
+- [ ] **7629.** Your homework, and how the class is getting on  
   → Ваше домашнее задание и как идут дела у группы
-- [ ] **7432.** what it means  
+- [ ] **7630.** what it means  
   → что значит
-- [ ] **7433.** saying it  
+- [ ] **7631.** saying it  
   → как сказать
-- [ ] **7434.** in a sentence  
+- [ ] **7632.** in a sentence  
   → в предложении
-- [ ] **7435.** a named form  
+- [ ] **7633.** a named form  
   → форма по названию
-- [ ] **7436.** a case  
+- [ ] **7634.** a case  
   → падеж
-- [ ] **7437.** the short one  
+- [ ] **7635.** the short one  
   → краткий
-- [ ] **7438.** plural  
+- [ ] **7636.** plural  
   → множественное число
-- [ ] **7439.** Fill some gaps  
+- [ ] **7637.** Fill some gaps  
   → Заполнить пропуски
-- [ ] **7440.** {min} to {max} words  
+- [ ] **7638.** {min} to {max} words  
   → от {min} до {max} слов
-- [ ] **7441.** {min} words or more  
+- [ ] **7639.** {min} words or more  
   → не меньше {min} слов
-- [ ] **7442.** {range}, using {words}  
+- [ ] **7640.** {range}, using {words}  
   → {range}, со словами {words}
-- [ ] **7443.** {n} words  
+- [ ] **7641.** {n} words  
   → слов: {n}
-- [ ] **7444.** That's over the limit of {max} words, which costs length marks.  
+- [ ] **7642.** That's over the limit of {max} words, which costs length marks.  
   → Это больше предела в {max} слов, и за длину снимаются баллы.
-- [ ] **7445.** You didn't use {words}.  
+- [ ] **7643.** You didn't use {words}.  
   → Вы не использовали {words}.
 
 ## exam (628 lines)
 
 _lib/copy/i18n/areas/exam.ts_
 
-- [ ] **7446.** Write {scenario}.  
+- [ ] **7644.** Write {scenario}.  
   → Напишите {scenario}.
-- [ ] **7447.** This is {name}. Write a short text about them from what the card says, for somebody who has never met them.  
+- [ ] **7645.** This is {name}. Write a short text about them from what the card says, for somebody who has never met them.  
   → Это {name}. По данным с карточки напишите короткий текст для читателя, который никогда не встречался с этим человеком.
-- [ ] **7448.** Describe {subject}.  
+- [ ] **7646.** Describe {subject}.  
   → Опишите {subject}.
-- [ ] **7449.** Write a story about {topic}: something that happened to you or somebody you know.  
+- [ ] **7647.** Write a story about {topic}: something that happened to you or somebody you know.  
   → Напишите рассказ {topic}: историю, которая случилась с вами или с кем-то из ваших знакомых.
-- [ ] **7450.** Write a personal letter to a friend about {topic}.  
+- [ ] **7648.** Write a personal letter to a friend about {topic}.  
   → Напишите личное письмо другу {topic}.
-- [ ] **7451.** Write {scenario}. Address them politely, as you would somebody in an office you don't know, and open and close the letter the way that kind of letter does.  
+- [ ] **7649.** Write {scenario}. Address them politely, as you would somebody in an office you don't know, and open and close the letter the way that kind of letter does.  
   → Напишите {scenario}. Обращайтесь вежливо, как к незнакомому человеку в учреждении, а начните и закончите письмо так, как принято в таких письмах.
-- [ ] **7452.** Write {scenario}. Write the way you would to a friend.  
+- [ ] **7650.** Write {scenario}. Write the way you would to a friend.  
   → Напишите {scenario}. Пишите так, как написали бы другу.
-- [ ] **7453.** Write a text arguing for or against this statement: "{statement}"  
+- [ ] **7651.** Write a text arguing for or against this statement: "{statement}"  
   → Напишите текст за или против этого утверждения: «{statement}»
-- [ ] **7454.** {situation} Write an opinion piece about it for {reader}.  
+- [ ] **7652.** {situation} Write an opinion piece about it for {reader}.  
   → {situation} Напишите об этом колонку со своим мнением для {reader}.
-- [ ] **7455.** develop the first point: {point}  
+- [ ] **7653.** develop the first point: {point}  
   → раскройте первый пункт: {point}
-- [ ] **7456.** develop the second point: {point}  
+- [ ] **7654.** develop the second point: {point}  
   → раскройте второй пункт: {point}
-- [ ] **7457.** Describe the picture for {time}: what is in it, where you might see it and what might be going on. The examiner's questions come once you've spoken.  
+- [ ] **7655.** Describe the picture for {time}: what is in it, where you might see it and what might be going on. The examiner's questions come once you've spoken.  
   → Описывайте картинку {time}: что на ней изображено, где такое можно увидеть и что, возможно, происходит. Вопросы экзаменатора будут после вашего рассказа.
-- [ ] **7458.** Ask about {about} using the card, then answer the same questions about yourself. On the real day you ask another candidate; here you play both sides.  
+- [ ] **7656.** Ask about {about} using the card, then answer the same questions about yourself. On the real day you ask another candidate; here you play both sides.  
   → Задайте вопросы {about} по карточке, а потом ответьте на те же вопросы о себе. На настоящем экзамене вы спрашиваете другого кандидата, а здесь играете обе роли.
-- [ ] **7459.** First you call {call} and ask for everything on your card. Then somebody calls you, and you answer as {answerAs}, with the facts on the second card.  
+- [ ] **7657.** First you call {call} and ask for everything on your card. Then somebody calls you, and you answer as {answerAs}, with the facts on the second card.  
   → Сначала вы звоните {call} и узнаёте всё, что указано на вашей карточке. Потом звонят вам, и вы отвечаете как {answerAs}, по фактам со второй карточки.
-- [ ] **7460.** You have {prep} to prepare and may make notes. Then speak for {time}, and answer the question after it.  
+- [ ] **7658.** You have {prep} to prepare and may make notes. Then speak for {time}, and answer the question after it.  
   → На подготовку у вас {prep}, можно делать заметки. Потом говорите {time} и ответьте на вопрос после выступления.
-- [ ] **7461.** Choose one of the two topics. You have {prep} to prepare and may make notes. Then speak for {time} and answer the questions after it.  
+- [ ] **7659.** Choose one of the two topics. You have {prep} to prepare and may make notes. Then speak for {time} and answer the questions after it.  
   → Выберите одну из двух тем. На подготовку у вас {prep}, можно делать заметки. Потом говорите {time} и ответьте на вопросы после выступления.
-- [ ] **7462.** Discuss the question as if with a partner, for {time}. Cover the thoughts on the card, and keep it a conversation rather than a speech.  
+- [ ] **7660.** Discuss the question as if with a partner, for {time}. Cover the thoughts on the card, and keep it a conversation rather than a speech.  
   → Обсуждайте вопрос {time}, как будто с партнёром. Затроньте мысли с карточки и ведите разговор, а не произносите речь.
-- [ ] **7463.** The business card _(context: brief)_  
+- [ ] **7661.** The business card _(context: brief)_  
   → Визитная карточка
-- [ ] **7464.** A note _(context: brief)_  
+- [ ] **7662.** A note _(context: brief)_  
   → Записка
-- [ ] **7465.** A description _(context: brief)_  
+- [ ] **7663.** A description _(context: brief)_  
   → Описание
-- [ ] **7466.** A story _(context: brief)_  
+- [ ] **7664.** A story _(context: brief)_  
   → Рассказ
-- [ ] **7467.** A personal letter _(context: brief)_  
+- [ ] **7665.** A personal letter _(context: brief)_  
   → Личное письмо
-- [ ] **7468.** A semi-formal letter _(context: brief)_  
+- [ ] **7666.** A semi-formal letter _(context: brief)_  
   → Полуофициальное письмо
-- [ ] **7469.** An informal letter _(context: brief)_  
+- [ ] **7667.** An informal letter _(context: brief)_  
   → Неофициальное письмо
-- [ ] **7470.** A summary with your comment _(context: brief)_  
+- [ ] **7668.** A summary with your comment _(context: brief)_  
   → Обзор с вашим комментарием
-- [ ] **7471.** An argument _(context: brief)_  
+- [ ] **7669.** An argument _(context: brief)_  
   → Аргументированный текст
-- [ ] **7472.** A summary of the figures _(context: brief)_  
+- [ ] **7670.** A summary of the figures _(context: brief)_  
   → Обзор цифр
-- [ ] **7473.** An opinion piece _(context: brief)_  
+- [ ] **7671.** An opinion piece _(context: brief)_  
   → Колонка с мнением
-- [ ] **7474.** about 45 seconds _(context: brief)_  
+- [ ] **7672.** about 45 seconds _(context: brief)_  
   → около 45 секунд
-- [ ] **7475.** about a minute _(context: brief)_  
+- [ ] **7673.** about a minute _(context: brief)_  
   → около минуты
-- [ ] **7476.** about a minute and a half _(context: brief)_  
+- [ ] **7674.** about a minute and a half _(context: brief)_  
   → около полутора минут
-- [ ] **7477.** about 2 minutes _(context: brief)_  
+- [ ] **7675.** about 2 minutes _(context: brief)_  
   → около 2 минут
-- [ ] **7478.** about 3 minutes _(context: brief)_  
+- [ ] **7676.** about 3 minutes _(context: brief)_  
   → около 3 минут
-- [ ] **7479.** 2 minutes _(context: brief)_  
+- [ ] **7677.** 2 minutes _(context: brief)_  
   → 2 минуты
-- [ ] **7480.** 3 minutes _(context: brief)_  
+- [ ] **7678.** 3 minutes _(context: brief)_  
   → 3 минуты
-- [ ] **7481.** Monday to Friday, 9:00 to 17:00 _(context: brief)_  
+- [ ] **7679.** Monday to Friday, 9:00 to 17:00 _(context: brief)_  
   → С понедельника по пятницу, с 9:00 до 17:00
-- [ ] **7482.** Monday to Thursday, 8:00 to 16:00 _(context: brief)_  
+- [ ] **7680.** Monday to Thursday, 8:00 to 16:00 _(context: brief)_  
   → С понедельника по четверг, с 8:00 до 16:00
-- [ ] **7483.** Tuesday to Saturday, 10:00 to 18:00 _(context: brief)_  
+- [ ] **7681.** Tuesday to Saturday, 10:00 to 18:00 _(context: brief)_  
   → Со вторника по субботу, с 10:00 до 18:00
-- [ ] **7484.** Every day, 12:00 to 20:00 _(context: brief)_  
+- [ ] **7682.** Every day, 12:00 to 20:00 _(context: brief)_  
   → Каждый день, с 12:00 до 20:00
-- [ ] **7485.** what happened, and when _(context: brief)_  
+- [ ] **7683.** what happened, and when _(context: brief)_  
   → что случилось и когда
-- [ ] **7486.** why it happened _(context: brief)_  
+- [ ] **7684.** why it happened _(context: brief)_  
   → почему это случилось
-- [ ] **7487.** what you think of it now _(context: brief)_  
+- [ ] **7685.** what you think of it now _(context: brief)_  
   → что вы думаете об этом сейчас
-- [ ] **7488.** greet them and ask how they are _(context: brief)_  
+- [ ] **7686.** greet them and ask how they are _(context: brief)_  
   → поздоровайтесь и спросите, как у него дела
-- [ ] **7489.** tell them your news on the topic _(context: brief)_  
+- [ ] **7687.** tell them your news on the topic _(context: brief)_  
   → расскажите свои новости на эту тему
-- [ ] **7490.** ask them something _(context: brief)_  
+- [ ] **7688.** ask them something _(context: brief)_  
   → спросите его о чём-нибудь
-- [ ] **7491.** sign off _(context: brief)_  
+- [ ] **7689.** sign off _(context: brief)_  
   → попрощайтесь и подпишитесь
-- [ ] **7492.** Write a summary of the figures in the table for the general public, then say what you think they mean. _(context: brief)_  
+- [ ] **7690.** Write a summary of the figures in the table for the general public, then say what you think they mean. _(context: brief)_  
   → Напишите для широкой публики обзор цифр из таблицы, а затем скажите, что, по-вашему, они означают.
-- [ ] **7493.** Write a general summary of the figures in the table for the readers of a newspaper. Keep your own opinion out of it. _(context: brief)_  
+- [ ] **7691.** Write a general summary of the figures in the table for the readers of a newspaper. Keep your own opinion out of it. _(context: brief)_  
   → Напишите для читателей газеты общий обзор цифр из таблицы. Своё мнение не высказывайте.
-- [ ] **7494.** compare the figures _(context: brief)_  
+- [ ] **7692.** compare the figures _(context: brief)_  
   → сравните цифры
-- [ ] **7495.** say what has changed or stands out _(context: brief)_  
+- [ ] **7693.** say what has changed or stands out _(context: brief)_  
   → скажите, что изменилось или выделяется
-- [ ] **7496.** give your own comment, with a reason _(context: brief)_  
+- [ ] **7694.** give your own comment, with a reason _(context: brief)_  
   → дайте свой комментарий и обоснуйте его
-- [ ] **7497.** compare the two columns _(context: brief)_  
+- [ ] **7695.** compare the two columns _(context: brief)_  
   → сравните два столбца
-- [ ] **7498.** pick out what matters most _(context: brief)_  
+- [ ] **7696.** pick out what matters most _(context: brief)_  
   → выделите самое важное
-- [ ] **7499.** say what follows from the figures, without an opinion _(context: brief)_  
+- [ ] **7697.** say what follows from the figures, without an opinion _(context: brief)_  
   → скажите, что следует из цифр, не высказывая своего мнения
-- [ ] **7500.** say where you stand _(context: brief)_  
+- [ ] **7698.** say where you stand _(context: brief)_  
   → скажите, какова ваша позиция
-- [ ] **7501.** give two reasons, each with an example _(context: brief)_  
+- [ ] **7699.** give two reasons, each with an example _(context: brief)_  
   → приведите два довода, каждый с примером
-- [ ] **7502.** answer one argument on the other side _(context: brief)_  
+- [ ] **7700.** answer one argument on the other side _(context: brief)_  
   → ответьте на один довод другой стороны
-- [ ] **7503.** end with a conclusion _(context: brief)_  
+- [ ] **7701.** end with a conclusion _(context: brief)_  
   → закончите выводом
-- [ ] **7504.** introduce the issue _(context: brief)_  
+- [ ] **7702.** introduce the issue _(context: brief)_  
   → представьте проблему
-- [ ] **7505.** end with a short conclusion _(context: brief)_  
+- [ ] **7703.** end with a short conclusion _(context: brief)_  
   → закончите коротким выводом
-- [ ] **7506.** Answer the examiner's questions and say why. Then read the situation, talk the choices over as if with a partner, and agree on one. _(context: brief)_  
+- [ ] **7704.** Answer the examiner's questions and say why. Then read the situation, talk the choices over as if with a partner, and agree on one. _(context: brief)_  
   → Ответьте на вопросы экзаменатора и объясните почему. Потом прочитайте ситуацию, обсудите варианты как будто с партнёром и договоритесь об одном.
-- [ ] **7507.** Give your view on the examiner's questions. Then read the situation, argue it out using both sides of the card and arguments of your own, and end with a decision. _(context: brief)_  
+- [ ] **7705.** Give your view on the examiner's questions. Then read the situation, argue it out using both sides of the card and arguments of your own, and end with a decision. _(context: brief)_  
   → Выскажите своё мнение по вопросам экзаменатора. Потом прочитайте ситуацию, обсудите её, опираясь на обе стороны карточки и собственные доводы, и в конце примите решение.
-- [ ] **7508.** a note to a neighbor who took in a package for you _(context: brief)_  
+- [ ] **7706.** a note to a neighbor who took in a package for you _(context: brief)_  
   → записку соседу, который принял для вас посылку
-- [ ] **7509.** say who you are _(context: brief)_  
+- [ ] **7707.** say who you are _(context: brief)_  
   → скажите, кто вы
-- [ ] **7510.** say what you're picking up _(context: brief)_  
+- [ ] **7708.** say what you're picking up _(context: brief)_  
   → скажите, что вы заберёте
-- [ ] **7511.** say when you'll come by _(context: brief)_  
+- [ ] **7709.** say when you'll come by _(context: brief)_  
   → скажите, когда зайдёте
-- [ ] **7512.** an e-mail canceling an appointment you can't keep _(context: brief)_  
+- [ ] **7710.** an e-mail canceling an appointment you can't keep _(context: brief)_  
   → электронное письмо с отменой записи, на которую вы не можете прийти
-- [ ] **7513.** say which appointment _(context: brief)_  
+- [ ] **7711.** say which appointment _(context: brief)_  
   → скажите, о какой записи речь
-- [ ] **7514.** give a reason _(context: brief)_  
+- [ ] **7712.** give a reason _(context: brief)_  
   → назовите причину
-- [ ] **7515.** suggest another time _(context: brief)_  
+- [ ] **7713.** suggest another time _(context: brief)_  
   → предложите другое время
-- [ ] **7516.** a message to your landlord about something broken in the apartment _(context: brief)_  
+- [ ] **7714.** a message to your landlord about something broken in the apartment _(context: brief)_  
   → сообщение арендодателю о том, что в квартире что-то сломалось
-- [ ] **7517.** say what is broken _(context: brief)_  
+- [ ] **7715.** say what is broken _(context: brief)_  
   → скажите, что сломалось
-- [ ] **7518.** say how long it has been broken _(context: brief)_  
+- [ ] **7716.** say how long it has been broken _(context: brief)_  
   → скажите, как давно это сломалось
-- [ ] **7519.** ask what happens next _(context: brief)_  
+- [ ] **7717.** ask what happens next _(context: brief)_  
   → спросите, что будет дальше
-- [ ] **7520.** a note to a colleague who will cover your work tomorrow _(context: brief)_  
+- [ ] **7718.** a note to a colleague who will cover your work tomorrow _(context: brief)_  
   → записку коллеге, который завтра будет вас замещать
-- [ ] **7521.** say why you're away _(context: brief)_  
+- [ ] **7719.** say why you're away _(context: brief)_  
   → скажите, почему вас не будет
-- [ ] **7522.** say what needs doing _(context: brief)_  
+- [ ] **7720.** say what needs doing _(context: brief)_  
   → скажите, что нужно сделать
-- [ ] **7523.** say how to reach you _(context: brief)_  
+- [ ] **7721.** say how to reach you _(context: brief)_  
   → скажите, как с вами связаться
-- [ ] **7524.** an invitation to a friend to come somewhere with you _(context: brief)_  
+- [ ] **7722.** an invitation to a friend to come somewhere with you _(context: brief)_  
   → приглашение другу сходить с вами куда-нибудь
-- [ ] **7525.** say where and when _(context: brief)_  
+- [ ] **7723.** say where and when _(context: brief)_  
   → скажите, где и когда
-- [ ] **7526.** say what you'll do there _(context: brief)_  
+- [ ] **7724.** say what you'll do there _(context: brief)_  
   → скажите, что вы там будете делать
-- [ ] **7527.** ask them to let you know _(context: brief)_  
+- [ ] **7725.** ask them to let you know _(context: brief)_  
   → попросите дать вам ответ
-- [ ] **7528.** an e-mail to a course you want to join _(context: brief)_  
+- [ ] **7726.** an e-mail to a course you want to join _(context: brief)_  
   → электронное письмо организаторам курса, на который вы хотите записаться
-- [ ] **7529.** give your name and details _(context: brief)_  
+- [ ] **7727.** give your name and details _(context: brief)_  
   → назовите своё имя и контактные данные
-- [ ] **7530.** say which course _(context: brief)_  
+- [ ] **7728.** say which course _(context: brief)_  
   → скажите, какой курс
-- [ ] **7531.** ask what it costs _(context: brief)_  
+- [ ] **7729.** ask what it costs _(context: brief)_  
   → спросите, сколько это стоит
-- [ ] **7532.** a note to a shop about something you bought that is faulty _(context: brief)_  
+- [ ] **7730.** a note to a shop about something you bought that is faulty _(context: brief)_  
   → письмо в магазин о купленной вещи, которая оказалась с браком
-- [ ] **7533.** say what you bought and when _(context: brief)_  
+- [ ] **7731.** say what you bought and when _(context: brief)_  
   → скажите, что и когда вы купили
-- [ ] **7534.** say what is wrong _(context: brief)_  
+- [ ] **7732.** say what is wrong _(context: brief)_  
   → скажите, в чём проблема
-- [ ] **7535.** say what you want done _(context: brief)_  
+- [ ] **7733.** say what you want done _(context: brief)_  
   → скажите, что, по-вашему, нужно сделать
-- [ ] **7536.** a message to a doctor's surgery asking for an appointment _(context: brief)_  
+- [ ] **7734.** a message to a doctor's surgery asking for an appointment _(context: brief)_  
   → сообщение в поликлинику с просьбой записать вас на приём
-- [ ] **7537.** give your name _(context: brief)_  
+- [ ] **7735.** give your name _(context: brief)_  
   → назовите своё имя
-- [ ] **7538.** say when you can come _(context: brief)_  
+- [ ] **7736.** say when you can come _(context: brief)_  
   → скажите, когда вы можете прийти
-- [ ] **7539.** an invitation to your birthday party _(context: brief)_  
+- [ ] **7737.** an invitation to your birthday party _(context: brief)_  
   → приглашение на ваш день рождения
-- [ ] **7540.** say when and where _(context: brief)_  
+- [ ] **7738.** say when and where _(context: brief)_  
   → скажите, когда и где
-- [ ] **7541.** say what you're planning _(context: brief)_  
+- [ ] **7739.** say what you're planning _(context: brief)_  
   → скажите, что вы планируете
-- [ ] **7542.** say what to bring _(context: brief)_  
+- [ ] **7740.** say what to bring _(context: brief)_  
   → скажите, что принести
-- [ ] **7543.** a note to your roommate about what to buy for dinner _(context: brief)_  
+- [ ] **7741.** a note to your roommate about what to buy for dinner _(context: brief)_  
   → записку соседу по квартире о том, что купить к ужину
-- [ ] **7544.** say what you're cooking _(context: brief)_  
+- [ ] **7742.** say what you're cooking _(context: brief)_  
   → скажите, что вы готовите
-- [ ] **7545.** list what to buy _(context: brief)_  
+- [ ] **7743.** list what to buy _(context: brief)_  
   → перечислите, что купить
-- [ ] **7546.** say when you'll eat _(context: brief)_  
+- [ ] **7744.** say when you'll eat _(context: brief)_  
   → скажите, когда будете есть
-- [ ] **7547.** a message to a friend who is picking you up from the station _(context: brief)_  
+- [ ] **7745.** a message to a friend who is picking you up from the station _(context: brief)_  
   → сообщение другу, который встречает вас на вокзале
-- [ ] **7548.** say which train you're on _(context: brief)_  
+- [ ] **7746.** say which train you're on _(context: brief)_  
   → скажите, на каком поезде вы едете
-- [ ] **7549.** say when it arrives _(context: brief)_  
+- [ ] **7747.** say when it arrives _(context: brief)_  
   → скажите, когда он прибывает
-- [ ] **7550.** say how they'll recognize you _(context: brief)_  
+- [ ] **7748.** say how they'll recognize you _(context: brief)_  
   → скажите, как вас узнать
-- [ ] **7551.** a note to your neighbors about a change in the building _(context: brief)_  
+- [ ] **7749.** a note to your neighbors about a change in the building _(context: brief)_  
   → записку соседям об изменениях в доме
-- [ ] **7552.** say what is changing _(context: brief)_  
+- [ ] **7750.** say what is changing _(context: brief)_  
   → скажите, что меняется
-- [ ] **7553.** say when _(context: brief)_  
+- [ ] **7751.** say when _(context: brief)_  
   → скажите, когда
-- [ ] **7554.** say what they need to do _(context: brief)_  
+- [ ] **7752.** say what they need to do _(context: brief)_  
   → скажите, что им нужно сделать
-- [ ] **7555.** your home _(context: brief)_  
+- [ ] **7753.** your home _(context: brief)_  
   → ваш дом
-- [ ] **7556.** where it is _(context: brief)_  
+- [ ] **7754.** where it is _(context: brief)_  
   → где это находится
-- [ ] **7557.** what it is like inside _(context: brief)_  
+- [ ] **7755.** what it is like inside _(context: brief)_  
   → как там внутри
-- [ ] **7558.** what you like about it _(context: brief)_  
+- [ ] **7756.** what you like about it _(context: brief)_  
   → что вам в этом нравится
-- [ ] **7559.** the town you live in _(context: brief)_  
+- [ ] **7757.** the town you live in _(context: brief)_  
   → город, в котором вы живёте
-- [ ] **7560.** what there is to do _(context: brief)_  
+- [ ] **7758.** what there is to do _(context: brief)_  
   → чем там можно заняться
-- [ ] **7561.** what you would change _(context: brief)_  
+- [ ] **7759.** what you would change _(context: brief)_  
   → что бы вы изменили
-- [ ] **7562.** your usual weekday _(context: brief)_  
+- [ ] **7760.** your usual weekday _(context: brief)_  
   → ваш обычный будний день
-- [ ] **7563.** when you get up _(context: brief)_  
+- [ ] **7761.** when you get up _(context: brief)_  
   → когда вы встаёте
-- [ ] **7564.** what you do during the day _(context: brief)_  
+- [ ] **7762.** what you do during the day _(context: brief)_  
   → что вы делаете днём
-- [ ] **7565.** how you spend the evening _(context: brief)_  
+- [ ] **7763.** how you spend the evening _(context: brief)_  
   → как вы проводите вечер
-- [ ] **7566.** your favorite way to spend a free day _(context: brief)_  
+- [ ] **7764.** your favorite way to spend a free day _(context: brief)_  
   → ваш любимый способ провести свободный день
-- [ ] **7567.** what you do _(context: brief)_  
+- [ ] **7765.** what you do _(context: brief)_  
   → что вы делаете
-- [ ] **7568.** who with _(context: brief)_  
+- [ ] **7766.** who with _(context: brief)_  
   → с кем
-- [ ] **7569.** why you like it _(context: brief)_  
+- [ ] **7767.** why you like it _(context: brief)_  
   → почему вам это нравится
-- [ ] **7570.** somebody close to you _(context: brief)_  
+- [ ] **7768.** somebody close to you _(context: brief)_  
   → близкого вам человека
-- [ ] **7571.** who they are _(context: brief)_  
+- [ ] **7769.** who they are _(context: brief)_  
   → кто этот человек
-- [ ] **7572.** what they are like _(context: brief)_  
+- [ ] **7770.** what they are like _(context: brief)_  
   → какой это человек
-- [ ] **7573.** what you do together _(context: brief)_  
+- [ ] **7771.** what you do together _(context: brief)_  
   → что вы делаете вместе
-- [ ] **7574.** a meal you like _(context: brief)_  
+- [ ] **7772.** a meal you like _(context: brief)_  
   → блюдо, которое вам нравится
-- [ ] **7575.** what it is _(context: brief)_  
+- [ ] **7773.** what it is _(context: brief)_  
   → что это за блюдо
-- [ ] **7576.** when you eat it _(context: brief)_  
+- [ ] **7774.** when you eat it _(context: brief)_  
   → когда вы его едите
-- [ ] **7577.** the weather where you live _(context: brief)_  
+- [ ] **7775.** the weather where you live _(context: brief)_  
   → погоду там, где вы живёте
-- [ ] **7578.** what it is like now _(context: brief)_  
+- [ ] **7776.** what it is like now _(context: brief)_  
   → какая погода сейчас
-- [ ] **7579.** your favorite season _(context: brief)_  
+- [ ] **7777.** your favorite season _(context: brief)_  
   → ваше любимое время года
-- [ ] **7580.** what you do when it rains _(context: brief)_  
+- [ ] **7778.** what you do when it rains _(context: brief)_  
   → что вы делаете, когда идёт дождь
-- [ ] **7581.** a place you have visited _(context: brief)_  
+- [ ] **7779.** a place you have visited _(context: brief)_  
   → место, где вы побывали
-- [ ] **7582.** what you saw _(context: brief)_  
+- [ ] **7780.** what you saw _(context: brief)_  
   → что вы там видели
-- [ ] **7583.** whether you would go again _(context: brief)_  
+- [ ] **7781.** whether you would go again _(context: brief)_  
   → поехали бы вы туда снова
-- [ ] **7584.** a letter to your housing association about building work that keeps you awake _(context: brief)_  
+- [ ] **7782.** a letter to your housing association about building work that keeps you awake _(context: brief)_  
   → письмо в товарищество собственников жилья о строительных работах, из-за которых вы не можете спать
-- [ ] **7585.** say what the problem is _(context: brief)_  
+- [ ] **7783.** say what the problem is _(context: brief)_  
   → скажите, в чём состоит проблема
-- [ ] **7586.** say how it affects you _(context: brief)_  
+- [ ] **7784.** say how it affects you _(context: brief)_  
   → скажите, как это на вас сказывается
-- [ ] **7587.** say what you want them to do _(context: brief)_  
+- [ ] **7785.** say what you want them to do _(context: brief)_  
   → скажите, что, по-вашему, они должны сделать
-- [ ] **7588.** a letter to a language school asking about a course for your team at work _(context: brief)_  
+- [ ] **7786.** a letter to a language school asking about a course for your team at work _(context: brief)_  
   → письмо в языковую школу с вопросом о курсе для вашей команды на работе
-- [ ] **7589.** say who you are and what your team does _(context: brief)_  
+- [ ] **7787.** say who you are and what your team does _(context: brief)_  
   → скажите, кто вы и чем занимается ваша команда
-- [ ] **7590.** say what the team needs _(context: brief)_  
+- [ ] **7788.** say what the team needs _(context: brief)_  
   → скажите, что нужно команде
-- [ ] **7591.** ask about times, length and price _(context: brief)_  
+- [ ] **7789.** ask about times, length and price _(context: brief)_  
   → спросите о времени занятий, продолжительности и цене
-- [ ] **7592.** a letter to your manager asking to change your working hours _(context: brief)_  
+- [ ] **7790.** a letter to your manager asking to change your working hours _(context: brief)_  
   → письмо руководителю с просьбой изменить ваш рабочий график
-- [ ] **7593.** say what you'd like to change _(context: brief)_  
+- [ ] **7791.** say what you'd like to change _(context: brief)_  
   → скажите, что вы хотели бы изменить
-- [ ] **7594.** explain why _(context: brief)_  
+- [ ] **7792.** explain why _(context: brief)_  
   → объясните почему
-- [ ] **7595.** say how your work will still be done _(context: brief)_  
+- [ ] **7793.** say how your work will still be done _(context: brief)_  
   → скажите, как ваша работа всё равно будет сделана
-- [ ] **7596.** a letter to a hotel about a stay that went wrong _(context: brief)_  
+- [ ] **7794.** a letter to a hotel about a stay that went wrong _(context: brief)_  
   → письмо в гостиницу о неудачном проживании
-- [ ] **7597.** say when you stayed _(context: brief)_  
+- [ ] **7795.** say when you stayed _(context: brief)_  
   → скажите, когда вы там останавливались
-- [ ] **7598.** say what went wrong _(context: brief)_  
+- [ ] **7796.** say what went wrong _(context: brief)_  
   → скажите, что пошло не так
-- [ ] **7599.** say what you expect them to do _(context: brief)_  
+- [ ] **7797.** say what you expect them to do _(context: brief)_  
   → скажите, чего вы от них ожидаете
-- [ ] **7600.** a letter to your town council about the state of a local park _(context: brief)_  
+- [ ] **7798.** a letter to your town council about the state of a local park _(context: brief)_  
   → письмо в городской совет о состоянии местного парка
-- [ ] **7601.** describe the problem _(context: brief)_  
+- [ ] **7799.** describe the problem _(context: brief)_  
   → опишите проблему
-- [ ] **7602.** say who it affects _(context: brief)_  
+- [ ] **7800.** say who it affects _(context: brief)_  
   → скажите, кого это касается
-- [ ] **7603.** suggest what could be done _(context: brief)_  
+- [ ] **7801.** suggest what could be done _(context: brief)_  
   → предложите, что можно сделать
-- [ ] **7604.** a letter to your sports club about a change you'd like to see _(context: brief)_  
+- [ ] **7802.** a letter to your sports club about a change you'd like to see _(context: brief)_  
   → письмо в ваш спортивный клуб о переменах, которые вы хотели бы увидеть
-- [ ] **7605.** say how long you've been a member _(context: brief)_  
+- [ ] **7803.** say how long you've been a member _(context: brief)_  
   → скажите, как давно вы в клубе
-- [ ] **7606.** say why it would help others too _(context: brief)_  
+- [ ] **7804.** say why it would help others too _(context: brief)_  
   → скажите, почему это поможет и другим
-- [ ] **7607.** a letter to a friend who is moving to Estonia _(context: brief)_  
+- [ ] **7805.** a letter to a friend who is moving to Estonia _(context: brief)_  
   → письмо другу, который переезжает в Эстонию
-- [ ] **7608.** give advice on finding somewhere to live _(context: brief)_  
+- [ ] **7806.** give advice on finding somewhere to live _(context: brief)_  
   → посоветуйте, как найти жильё
-- [ ] **7609.** invite them to visit you _(context: brief)_  
+- [ ] **7807.** invite them to visit you _(context: brief)_  
   → пригласите его в гости
-- [ ] **7610.** a letter to a friend you haven't seen for a year _(context: brief)_  
+- [ ] **7808.** a letter to a friend you haven't seen for a year _(context: brief)_  
   → письмо другу, которого вы не видели год
-- [ ] **7611.** say what has changed in your life _(context: brief)_  
+- [ ] **7809.** say what has changed in your life _(context: brief)_  
   → расскажите, что изменилось в вашей жизни
-- [ ] **7612.** ask about theirs _(context: brief)_  
+- [ ] **7810.** ask about theirs _(context: brief)_  
   → спросите, как дела у него
-- [ ] **7613.** suggest a time to meet _(context: brief)_  
+- [ ] **7811.** suggest a time to meet _(context: brief)_  
   → предложите время для встречи
-- [ ] **7614.** a letter thanking a friend for a weekend at their place _(context: brief)_  
+- [ ] **7812.** a letter thanking a friend for a weekend at their place _(context: brief)_  
   → письмо другу с благодарностью за выходные у него в гостях
-- [ ] **7615.** say what you enjoyed most _(context: brief)_  
+- [ ] **7813.** say what you enjoyed most _(context: brief)_  
   → скажите, что вам понравилось больше всего
-- [ ] **7616.** say what has happened since _(context: brief)_  
+- [ ] **7814.** say what has happened since _(context: brief)_  
   → расскажите, что случилось с тех пор
-- [ ] **7617.** invite them back _(context: brief)_  
+- [ ] **7815.** invite them back _(context: brief)_  
   → пригласите его к себе в ответ
-- [ ] **7618.** a letter to a friend about your new job _(context: brief)_  
+- [ ] **7816.** a letter to a friend about your new job _(context: brief)_  
   → письмо другу о вашей новой работе
-- [ ] **7619.** say what the job is _(context: brief)_  
+- [ ] **7817.** say what the job is _(context: brief)_  
   → скажите, что это за работа
-- [ ] **7620.** say what you like and don't like about it _(context: brief)_  
+- [ ] **7818.** say what you like and don't like about it _(context: brief)_  
   → скажите, что вам в ней нравится, а что нет
-- [ ] **7621.** ask for their advice on something _(context: brief)_  
+- [ ] **7819.** ask for their advice on something _(context: brief)_  
   → попросите у него совета
-- [ ] **7622.** a letter to a friend who has had a hard month _(context: brief)_  
+- [ ] **7820.** a letter to a friend who has had a hard month _(context: brief)_  
   → письмо другу, у которого был тяжёлый месяц
-- [ ] **7623.** say you heard what happened _(context: brief)_  
+- [ ] **7821.** say you heard what happened _(context: brief)_  
   → скажите, что вы слышали о случившемся
-- [ ] **7624.** say something that might help _(context: brief)_  
+- [ ] **7822.** say something that might help _(context: brief)_  
   → скажите что-нибудь, что может помочь
-- [ ] **7625.** offer to do something together _(context: brief)_  
+- [ ] **7823.** offer to do something together _(context: brief)_  
   → предложите чем-нибудь заняться вместе
-- [ ] **7626.** How people in one town get to work _(context: brief)_  
+- [ ] **7824.** How people in one town get to work _(context: brief)_  
   → Как жители одного города добираются до работы
-- [ ] **7627.** percent of people who work _(context: brief)_  
+- [ ] **7825.** percent of people who work _(context: brief)_  
   → процент работающих
-- [ ] **7628.** By car _(context: brief)_  
+- [ ] **7826.** By car _(context: brief)_  
   → На машине
-- [ ] **7629.** By bus _(context: brief)_  
+- [ ] **7827.** By bus _(context: brief)_  
   → На автобусе
-- [ ] **7630.** By bicycle _(context: brief)_  
+- [ ] **7828.** By bicycle _(context: brief)_  
   → На велосипеде
-- [ ] **7631.** On foot _(context: brief)_  
+- [ ] **7829.** On foot _(context: brief)_  
   → Пешком
-- [ ] **7632.** Working from home _(context: brief)_  
+- [ ] **7830.** Working from home _(context: brief)_  
   → Работают из дома
-- [ ] **7633.** Hours a week spent reading, by age _(context: brief)_  
+- [ ] **7831.** Hours a week spent reading, by age _(context: brief)_  
   → Сколько часов в неделю люди читают, по возрасту
-- [ ] **7634.** hours a week _(context: brief)_  
+- [ ] **7832.** hours a week _(context: brief)_  
   → часы в неделю
-- [ ] **7635.** Printed books _(context: brief)_  
+- [ ] **7833.** Printed books _(context: brief)_  
   → Печатные книги
-- [ ] **7636.** On a screen _(context: brief)_  
+- [ ] **7834.** On a screen _(context: brief)_  
   → С экрана
-- [ ] **7637.** Aged 15 to 24 _(context: brief)_  
+- [ ] **7835.** Aged 15 to 24 _(context: brief)_  
   → От 15 до 24 лет
-- [ ] **7638.** Aged 25 to 44 _(context: brief)_  
+- [ ] **7836.** Aged 25 to 44 _(context: brief)_  
   → От 25 до 44 лет
-- [ ] **7639.** Aged 45 to 64 _(context: brief)_  
+- [ ] **7837.** Aged 45 to 64 _(context: brief)_  
   → От 45 до 64 лет
-- [ ] **7640.** Aged 65 and over _(context: brief)_  
+- [ ] **7838.** Aged 65 and over _(context: brief)_  
   → 65 лет и старше
-- [ ] **7641.** Where households buy their food _(context: brief)_  
+- [ ] **7839.** Where households buy their food _(context: brief)_  
   → Где семьи покупают продукты
-- [ ] **7642.** percent of households, main place _(context: brief)_  
+- [ ] **7840.** percent of households, main place _(context: brief)_  
   → процент семей, основное место
-- [ ] **7643.** Large supermarket _(context: brief)_  
+- [ ] **7841.** Large supermarket _(context: brief)_  
   → Большой супермаркет
-- [ ] **7644.** Small local shop _(context: brief)_  
+- [ ] **7842.** Small local shop _(context: brief)_  
   → Небольшой магазин рядом с домом
-- [ ] **7645.** Market _(context: brief)_  
+- [ ] **7843.** Market _(context: brief)_  
   → Рынок
-- [ ] **7646.** Online _(context: brief)_  
+- [ ] **7844.** Online _(context: brief)_  
   → Через интернет
-- [ ] **7647.** Where households get their heating _(context: brief)_  
+- [ ] **7845.** Where households get their heating _(context: brief)_  
   → Как семьи отапливают жильё
-- [ ] **7648.** percent of households _(context: brief)_  
+- [ ] **7846.** percent of households _(context: brief)_  
   → процент семей
-- [ ] **7649.** District heating _(context: brief)_  
+- [ ] **7847.** District heating _(context: brief)_  
   → Центральное отопление
-- [ ] **7650.** Wood _(context: brief)_  
+- [ ] **7848.** Wood _(context: brief)_  
   → Дрова
-- [ ] **7651.** Electricity and heat pumps _(context: brief)_  
+- [ ] **7849.** Electricity and heat pumps _(context: brief)_  
   → Электричество и тепловые насосы
-- [ ] **7652.** Gas _(context: brief)_  
+- [ ] **7850.** Gas _(context: brief)_  
   → Газ
-- [ ] **7653.** How satisfied students are with their course _(context: brief)_  
+- [ ] **7851.** How satisfied students are with their course _(context: brief)_  
   → Насколько студенты довольны своей учёбой
-- [ ] **7654.** percent satisfied _(context: brief)_  
+- [ ] **7852.** percent satisfied _(context: brief)_  
   → процент довольных
-- [ ] **7655.** First year _(context: brief)_  
+- [ ] **7853.** First year _(context: brief)_  
   → Первый курс
-- [ ] **7656.** Final year _(context: brief)_  
+- [ ] **7854.** Final year _(context: brief)_  
   → Последний курс
-- [ ] **7657.** Teaching _(context: brief)_  
+- [ ] **7855.** Teaching _(context: brief)_  
   → Преподавание
-- [ ] **7658.** Course materials _(context: brief)_  
+- [ ] **7856.** Course materials _(context: brief)_  
   → Учебные материалы
-- [ ] **7659.** Online tools _(context: brief)_  
+- [ ] **7857.** Online tools _(context: brief)_  
   → Онлайн-инструменты
-- [ ] **7660.** Support and advice _(context: brief)_  
+- [ ] **7858.** Support and advice _(context: brief)_  
   → Поддержка и консультации
-- [ ] **7661.** Time spent online each day, by age _(context: brief)_  
+- [ ] **7859.** Time spent online each day, by age _(context: brief)_  
   → Сколько времени в день люди проводят в интернете, по возрасту
-- [ ] **7662.** hours a day _(context: brief)_  
+- [ ] **7860.** hours a day _(context: brief)_  
   → часы в день
-- [ ] **7663.** Weekdays _(context: brief)_  
+- [ ] **7861.** Weekdays _(context: brief)_  
   → Будни
-- [ ] **7664.** Weekends _(context: brief)_  
+- [ ] **7862.** Weekends _(context: brief)_  
   → Выходные
-- [ ] **7665.** Visitors to a national park, by season _(context: brief)_  
+- [ ] **7863.** Visitors to a national park, by season _(context: brief)_  
   → Посетители национального парка, по сезонам
-- [ ] **7666.** thousands of visitors _(context: brief)_  
+- [ ] **7864.** thousands of visitors _(context: brief)_  
   → тысячи посетителей
-- [ ] **7667.** Winter _(context: brief)_  
+- [ ] **7865.** Winter _(context: brief)_  
   → Зима
-- [ ] **7668.** Spring _(context: brief)_  
+- [ ] **7866.** Spring _(context: brief)_  
   → Весна
-- [ ] **7669.** Summer _(context: brief)_  
+- [ ] **7867.** Summer _(context: brief)_  
   → Лето
-- [ ] **7670.** Fall _(context: brief)_  
+- [ ] **7868.** Fall _(context: brief)_  
   → Осень
-- [ ] **7671.** How people found their current job _(context: brief)_  
+- [ ] **7869.** How people found their current job _(context: brief)_  
   → Как люди нашли свою нынешнюю работу
-- [ ] **7672.** percent of people in work _(context: brief)_  
+- [ ] **7870.** percent of people in work _(context: brief)_  
   → процент работающих людей
-- [ ] **7673.** Under 30 _(context: brief)_  
+- [ ] **7871.** Under 30 _(context: brief)_  
   → До 30 лет
-- [ ] **7674.** 30 and over _(context: brief)_  
+- [ ] **7872.** 30 and over _(context: brief)_  
   → 30 лет и старше
-- [ ] **7675.** A job website _(context: brief)_  
+- [ ] **7873.** A job website _(context: brief)_  
   → Сайт вакансий
-- [ ] **7676.** Friends or family _(context: brief)_  
+- [ ] **7874.** Friends or family _(context: brief)_  
   → Друзья или родственники
-- [ ] **7677.** Contacting the employer directly _(context: brief)_  
+- [ ] **7875.** Contacting the employer directly _(context: brief)_  
   → Напрямую через работодателя
-- [ ] **7678.** A recruitment agency _(context: brief)_  
+- [ ] **7876.** A recruitment agency _(context: brief)_  
   → Кадровое агентство
-- [ ] **7679.** Social media _(context: brief)_  
+- [ ] **7877.** Social media _(context: brief)_  
   → Социальные сети
-- [ ] **7680.** How often adults exercise _(context: brief)_  
+- [ ] **7878.** How often adults exercise _(context: brief)_  
   → Как часто взрослые занимаются спортом
-- [ ] **7681.** percent of adults _(context: brief)_  
+- [ ] **7879.** percent of adults _(context: brief)_  
   → процент взрослых
-- [ ] **7682.** Several times a week _(context: brief)_  
+- [ ] **7880.** Several times a week _(context: brief)_  
   → Несколько раз в неделю
-- [ ] **7683.** About once a week _(context: brief)_  
+- [ ] **7881.** About once a week _(context: brief)_  
   → Примерно раз в неделю
-- [ ] **7684.** Now and then _(context: brief)_  
+- [ ] **7882.** Now and then _(context: brief)_  
   → Время от времени
-- [ ] **7685.** Never _(context: brief)_  
+- [ ] **7883.** Never _(context: brief)_  
   → Никогда
-- [ ] **7686.** Everybody who can should work from home at least two days a week. _(context: brief)_  
+- [ ] **7884.** Everybody who can should work from home at least two days a week. _(context: brief)_  
   → Каждый, у кого есть такая возможность, должен работать из дома хотя бы два дня в неделю.
-- [ ] **7687.** Public transport in towns should be free for everybody. _(context: brief)_  
+- [ ] **7885.** Public transport in towns should be free for everybody. _(context: brief)_  
   → Общественный транспорт в городах должен быть бесплатным для всех.
-- [ ] **7688.** Children shouldn't have their own phone before they're twelve. _(context: brief)_  
+- [ ] **7886.** Children shouldn't have their own phone before they're twelve. _(context: brief)_  
   → У детей не должно быть своего телефона до двенадцати лет.
-- [ ] **7689.** Shops should be closed on Sundays. _(context: brief)_  
+- [ ] **7887.** Shops should be closed on Sundays. _(context: brief)_  
   → По воскресеньям магазины должны быть закрыты.
-- [ ] **7690.** A language is learned better online than in a classroom. _(context: brief)_  
+- [ ] **7888.** A language is learned better online than in a classroom. _(context: brief)_  
   → Язык лучше учить онлайн, чем в классе.
-- [ ] **7691.** Cars should not be allowed in town centers. _(context: brief)_  
+- [ ] **7889.** Cars should not be allowed in town centers. _(context: brief)_  
   → Машинам нельзя разрешать въезд в центр города.
-- [ ] **7692.** Every young person should work for a year before going to university. _(context: brief)_  
+- [ ] **7890.** Every young person should work for a year before going to university. _(context: brief)_  
   → Каждый молодой человек должен год поработать, прежде чем поступать в университет.
-- [ ] **7693.** Tourism does a small town more good than harm. _(context: brief)_  
+- [ ] **7891.** Tourism does a small town more good than harm. _(context: brief)_  
   → Туризм приносит маленькому городу больше пользы, чем вреда.
-- [ ] **7694.** Sport should be a bigger part of every school day. _(context: brief)_  
+- [ ] **7892.** Sport should be a bigger part of every school day. _(context: brief)_  
   → В каждом школьном дне должно быть больше спорта.
-- [ ] **7695.** Your town council plans to close two small libraries and build one large one in the center. _(context: brief)_  
+- [ ] **7893.** Your town council plans to close two small libraries and build one large one in the center. _(context: brief)_  
   → Городской совет собирается закрыть две небольшие библиотеки и построить одну большую в центре.
-- [ ] **7696.** what the town would gain _(context: brief)_  
+- [ ] **7894.** what the town would gain _(context: brief)_  
   → что город выиграет
-- [ ] **7697.** what it would lose _(context: brief)_  
+- [ ] **7895.** what it would lose _(context: brief)_  
   → что он потеряет
-- [ ] **7698.** A large employer wants all its staff back in the office five days a week. _(context: brief)_  
+- [ ] **7896.** A large employer wants all its staff back in the office five days a week. _(context: brief)_  
   → Крупный работодатель хочет, чтобы все сотрудники снова работали в офисе пять дней в неделю.
-- [ ] **7699.** the effect on productivity _(context: brief)_  
+- [ ] **7897.** the effect on productivity _(context: brief)_  
   → влияние на производительность
-- [ ] **7700.** the effect on people's lives _(context: brief)_  
+- [ ] **7898.** the effect on people's lives _(context: brief)_  
   → влияние на жизнь людей
-- [ ] **7701.** The government is considering a four day working week. _(context: brief)_  
+- [ ] **7899.** The government is considering a four day working week. _(context: brief)_  
   → Правительство рассматривает переход на четырёхдневную рабочую неделю.
-- [ ] **7702.** what it would mean for the economy _(context: brief)_  
+- [ ] **7900.** what it would mean for the economy _(context: brief)_  
   → что это значило бы для экономики
-- [ ] **7703.** what it would mean for wellbeing _(context: brief)_  
+- [ ] **7901.** what it would mean for wellbeing _(context: brief)_  
   → что это значило бы для самочувствия людей
-- [ ] **7704.** Universities may start teaching master's courses only in English. _(context: brief)_  
+- [ ] **7902.** Universities may start teaching master's courses only in English. _(context: brief)_  
   → Университеты могут начать преподавать в магистратуре только на английском языке.
-- [ ] **7705.** the international benefits _(context: brief)_  
+- [ ] **7903.** the international benefits _(context: brief)_  
   → международные преимущества
-- [ ] **7706.** the future of the national language in science _(context: brief)_  
+- [ ] **7904.** the future of the national language in science _(context: brief)_  
   → будущее национального языка в науке
-- [ ] **7707.** Social media platforms may be required to check the age of every user. _(context: brief)_  
+- [ ] **7905.** Social media platforms may be required to check the age of every user. _(context: brief)_  
   → Социальные сети могут обязать проверять возраст каждого пользователя.
-- [ ] **7708.** protecting children _(context: brief)_  
+- [ ] **7906.** protecting children _(context: brief)_  
   → защита детей
-- [ ] **7709.** privacy _(context: brief)_  
+- [ ] **7907.** privacy _(context: brief)_  
   → неприкосновенность частной жизни
-- [ ] **7710.** Your city wants to build housing on the site of a large park. _(context: brief)_  
+- [ ] **7908.** Your city wants to build housing on the site of a large park. _(context: brief)_  
   → Ваш город хочет построить жильё на месте большого парка.
-- [ ] **7711.** the need for housing _(context: brief)_  
+- [ ] **7909.** the need for housing _(context: brief)_  
   → потребность в жилье
-- [ ] **7712.** the value of green space _(context: brief)_  
+- [ ] **7910.** the value of green space _(context: brief)_  
   → ценность зелёных зон
-- [ ] **7713.** Schools may replace printed textbooks with tablets. _(context: brief)_  
+- [ ] **7911.** Schools may replace printed textbooks with tablets. _(context: brief)_  
   → Школы могут заменить печатные учебники планшетами.
-- [ ] **7714.** what students would gain _(context: brief)_  
+- [ ] **7912.** what students would gain _(context: brief)_  
   → что выиграют ученики
-- [ ] **7715.** what they might lose _(context: brief)_  
+- [ ] **7913.** what they might lose _(context: brief)_  
   → что они могут потерять
-- [ ] **7716.** Supermarkets may be required to give their unsold food away. _(context: brief)_  
+- [ ] **7914.** Supermarkets may be required to give their unsold food away. _(context: brief)_  
   → Супермаркеты могут обязать бесплатно отдавать непроданные продукты.
-- [ ] **7717.** the case against waste _(context: brief)_  
+- [ ] **7915.** the case against waste _(context: brief)_  
   → доводы против того, чтобы выбрасывать еду
-- [ ] **7718.** the cost and the practical problems _(context: brief)_  
+- [ ] **7916.** the cost and the practical problems _(context: brief)_  
   → расходы и практические трудности
-- [ ] **7719.** Your country is considering lowering the voting age to sixteen. _(context: brief)_  
+- [ ] **7917.** Your country is considering lowering the voting age to sixteen. _(context: brief)_  
   → В вашей стране обсуждают снижение возраста голосования до шестнадцати лет.
-- [ ] **7720.** young people's voice _(context: brief)_  
+- [ ] **7918.** young people's voice _(context: brief)_  
   → голос молодёжи
-- [ ] **7721.** whether sixteen is ready _(context: brief)_  
+- [ ] **7919.** whether sixteen is ready _(context: brief)_  
   → готовы ли шестнадцатилетние
-- [ ] **7722.** Where might you see these things together? _(context: brief)_  
+- [ ] **7920.** Where might you see these things together? _(context: brief)_  
   → Где можно увидеть все эти вещи вместе?
-- [ ] **7723.** When did you last see or use one of them? Tell me about it. _(context: brief)_  
+- [ ] **7921.** When did you last see or use one of them? Tell me about it. _(context: brief)_  
   → Когда вы в последний раз видели или использовали одну из них? Расскажите об этом.
-- [ ] **7724.** Do you like this kind of place? Why, or why not? _(context: brief)_  
+- [ ] **7922.** Do you like this kind of place? Why, or why not? _(context: brief)_  
   → Вам нравятся такие места? Почему да или почему нет?
-- [ ] **7725.** Breakfast _(context: brief)_  
+- [ ] **7923.** Breakfast _(context: brief)_  
   → Завтрак
-- [ ] **7726.** At the market _(context: brief)_  
+- [ ] **7924.** At the market _(context: brief)_  
   → На рынке
-- [ ] **7727.** Getting to work _(context: brief)_  
+- [ ] **7925.** Getting to work _(context: brief)_  
   → Дорога на работу
-- [ ] **7728.** The house _(context: brief)_  
+- [ ] **7926.** The house _(context: brief)_  
   → Дом
-- [ ] **7729.** Pets _(context: brief)_  
+- [ ] **7927.** Pets _(context: brief)_  
   → Домашние животные
-- [ ] **7730.** Fruit _(context: brief)_  
+- [ ] **7928.** Fruit _(context: brief)_  
   → Фрукты
-- [ ] **7731.** In the classroom _(context: brief)_  
+- [ ] **7929.** In the classroom _(context: brief)_  
   → В классе
-- [ ] **7732.** The family _(context: brief)_  
+- [ ] **7930.** The family _(context: brief)_  
   → Семья
-- [ ] **7733.** Setting off _(context: brief)_  
+- [ ] **7931.** Setting off _(context: brief)_  
   → В путь
-- [ ] **7734.** Something cold _(context: brief)_  
+- [ ] **7932.** Something cold _(context: brief)_  
   → Что-то холодное
-- [ ] **7735.** The bathroom _(context: brief)_  
+- [ ] **7933.** The bathroom _(context: brief)_  
   → Ванная
-- [ ] **7736.** Cooking _(context: brief)_  
+- [ ] **7934.** Cooking _(context: brief)_  
   → Готовим еду
-- [ ] **7737.** The face _(context: brief)_  
+- [ ] **7935.** The face _(context: brief)_  
   → Лицо
-- [ ] **7738.** An evening in _(context: brief)_  
+- [ ] **7936.** An evening in _(context: brief)_  
   → Вечер дома
-- [ ] **7739.** Sport _(context: brief)_  
+- [ ] **7937.** Sport _(context: brief)_  
   → Спорт
-- [ ] **7740.** In town _(context: brief)_  
+- [ ] **7938.** In town _(context: brief)_  
   → В городе
-- [ ] **7741.** On the farm _(context: brief)_  
+- [ ] **7939.** On the farm _(context: brief)_  
   → На ферме
-- [ ] **7742.** The children _(context: brief)_  
+- [ ] **7940.** The children _(context: brief)_  
   → Дети
-- [ ] **7743.** Lunch _(context: brief)_  
+- [ ] **7941.** Lunch _(context: brief)_  
   → Обед
-- [ ] **7744.** By the fire _(context: brief)_  
+- [ ] **7942.** By the fire _(context: brief)_  
   → У огня
-- [ ] **7745.** Getting dressed _(context: brief)_  
+- [ ] **7943.** Getting dressed _(context: brief)_  
   → Одеваемся
-- [ ] **7746.** At the doctor _(context: brief)_  
+- [ ] **7944.** At the doctor _(context: brief)_  
   → У врача
-- [ ] **7747.** Farm animals _(context: brief)_  
+- [ ] **7945.** Farm animals _(context: brief)_  
   → Животные на ферме
-- [ ] **7748.** In the forest _(context: brief)_  
+- [ ] **7946.** In the forest _(context: brief)_  
   → В лесу
-- [ ] **7749.** News and dates _(context: brief)_  
+- [ ] **7947.** News and dates _(context: brief)_  
   → Новости и даты
-- [ ] **7750.** Flowers _(context: brief)_  
+- [ ] **7948.** Flowers _(context: brief)_  
   → Цветы
-- [ ] **7751.** On vacation _(context: brief)_  
+- [ ] **7949.** On vacation _(context: brief)_  
   → В отпуске
-- [ ] **7752.** Washing _(context: brief)_  
+- [ ] **7950.** Washing _(context: brief)_  
   → Мытьё
-- [ ] **7753.** Strong flavors _(context: brief)_  
+- [ ] **7951.** Strong flavors _(context: brief)_  
   → Яркие вкусы
-- [ ] **7754.** Small animals _(context: brief)_  
+- [ ] **7952.** Small animals _(context: brief)_  
   → Маленькие животные
-- [ ] **7755.** An emergency _(context: brief)_  
+- [ ] **7953.** An emergency _(context: brief)_  
   → Экстренный случай
-- [ ] **7756.** At the bank _(context: brief)_  
+- [ ] **7954.** At the bank _(context: brief)_  
   → В банке
-- [ ] **7757.** Birds _(context: brief)_  
+- [ ] **7955.** Birds _(context: brief)_  
   → Птицы
-- [ ] **7758.** Something sweet _(context: brief)_  
+- [ ] **7956.** Something sweet _(context: brief)_  
   → Что-то сладкое
-- [ ] **7759.** Old buildings _(context: brief)_  
+- [ ] **7957.** Old buildings _(context: brief)_  
   → Старые здания
-- [ ] **7760.** Music _(context: brief)_  
+- [ ] **7958.** Music _(context: brief)_  
   → Музыка
-- [ ] **7761.** At the zoo _(context: brief)_  
+- [ ] **7959.** At the zoo _(context: brief)_  
   → В зоопарке
-- [ ] **7762.** Tools _(context: brief)_  
+- [ ] **7960.** Tools _(context: brief)_  
   → Инструменты
-- [ ] **7763.** Waiting _(context: brief)_  
+- [ ] **7961.** Waiting _(context: brief)_  
   → Ожидание
-- [ ] **7764.** In the water _(context: brief)_  
+- [ ] **7962.** In the water _(context: brief)_  
   → В воде
-- [ ] **7765.** Insects _(context: brief)_  
+- [ ] **7963.** Insects _(context: brief)_  
   → Насекомые
-- [ ] **7766.** Leaving the house _(context: brief)_  
+- [ ] **7964.** Leaving the house _(context: brief)_  
   → Выходим из дома
-- [ ] **7767.** A wedding _(context: brief)_  
+- [ ] **7965.** A wedding _(context: brief)_  
   → Свадьба
-- [ ] **7768.** After the rain _(context: brief)_  
+- [ ] **7966.** After the rain _(context: brief)_  
   → После дождя
-- [ ] **7769.** Large birds _(context: brief)_  
+- [ ] **7967.** Large birds _(context: brief)_  
   → Крупные птицы
-- [ ] **7770.** Mending something _(context: brief)_  
+- [ ] **7968.** Mending something _(context: brief)_  
   → Чиним что-то
-- [ ] **7771.** Slow creatures _(context: brief)_  
+- [ ] **7969.** Slow creatures _(context: brief)_  
   → Медлительные существа
-- [ ] **7772.** Subway _(context: brief)_  
+- [ ] **7970.** Subway _(context: brief)_  
   → В метро
-- [ ] **7773.** Farm work _(context: brief)_  
+- [ ] **7971.** Farm work _(context: brief)_  
   → Работа на ферме
-- [ ] **7774.** Late evening _(context: brief)_  
+- [ ] **7972.** Late evening _(context: brief)_  
   → Поздний вечер
-- [ ] **7775.** Camping _(context: brief)_  
+- [ ] **7973.** Camping _(context: brief)_  
   → В походе
-- [ ] **7776.** Far from here _(context: brief)_  
+- [ ] **7974.** Far from here _(context: brief)_  
   → Далеко отсюда
-- [ ] **7777.** Out at sea _(context: brief)_  
+- [ ] **7975.** Out at sea _(context: brief)_  
   → В открытом море
-- [ ] **7778.** Building _(context: brief)_  
+- [ ] **7976.** Building _(context: brief)_  
   → Стройка
-- [ ] **7779.** Across town _(context: brief)_  
+- [ ] **7977.** Across town _(context: brief)_  
   → Через весь город
-- [ ] **7780.** After dark _(context: brief)_  
+- [ ] **7978.** After dark _(context: brief)_  
   → Когда стемнело
-- [ ] **7781.** Looking up _(context: brief)_  
+- [ ] **7979.** Looking up _(context: brief)_  
   → Взгляд вверх
-- [ ] **7782.** Made by hand _(context: brief)_  
+- [ ] **7980.** Made by hand _(context: brief)_  
   → Ручная работа
-- [ ] **7783.** In the garden _(context: brief)_  
+- [ ] **7981.** In the garden _(context: brief)_  
   → В саду
-- [ ] **7784.** free time _(context: brief)_  
+- [ ] **7982.** free time _(context: brief)_  
   → свободное время
-- [ ] **7785.** what they like doing _(context: brief)_  
+- [ ] **7983.** what they like doing _(context: brief)_  
   → что вы любите делать
-- [ ] **7786.** when _(context: brief)_  
+- [ ] **7984.** when _(context: brief)_  
   → когда
-- [ ] **7787.** how much it costs _(context: brief)_  
+- [ ] **7985.** how much it costs _(context: brief)_  
   → сколько это стоит
-- [ ] **7788.** food _(context: brief)_  
+- [ ] **7986.** food _(context: brief)_  
   → еда
-- [ ] **7789.** what they like to eat _(context: brief)_  
+- [ ] **7987.** what they like to eat _(context: brief)_  
   → что вы любите есть
-- [ ] **7790.** where they shop _(context: brief)_  
+- [ ] **7988.** where they shop _(context: brief)_  
   → где вы покупаете продукты
-- [ ] **7791.** who cooks at home _(context: brief)_  
+- [ ] **7989.** who cooks at home _(context: brief)_  
   → кто у вас дома готовит
-- [ ] **7792.** what they ate today _(context: brief)_  
+- [ ] **7990.** what they ate today _(context: brief)_  
   → что вы ели сегодня
-- [ ] **7793.** a trip _(context: brief)_  
+- [ ] **7991.** a trip _(context: brief)_  
   → поездка
-- [ ] **7794.** where they went _(context: brief)_  
+- [ ] **7992.** where they went _(context: brief)_  
   → куда вы ездили
-- [ ] **7795.** how they got there _(context: brief)_  
+- [ ] **7993.** how they got there _(context: brief)_  
   → как вы туда добирались
-- [ ] **7796.** how long they stayed _(context: brief)_  
+- [ ] **7994.** how long they stayed _(context: brief)_  
   → сколько вы там пробыли
-- [ ] **7797.** what they liked _(context: brief)_  
+- [ ] **7995.** what they liked _(context: brief)_  
   → что вам понравилось
-- [ ] **7798.** home _(context: brief)_  
+- [ ] **7996.** home _(context: brief)_  
   → дом
-- [ ] **7799.** where they live _(context: brief)_  
+- [ ] **7997.** where they live _(context: brief)_  
   → где вы живёте
-- [ ] **7800.** how many rooms there are _(context: brief)_  
+- [ ] **7998.** how many rooms there are _(context: brief)_  
   → сколько у вас комнат
-- [ ] **7801.** who they live with _(context: brief)_  
+- [ ] **7999.** who they live with _(context: brief)_  
   → с кем вы живёте
-- [ ] **7802.** what they like about it _(context: brief)_  
+- [ ] **8000.** what they like about it _(context: brief)_  
   → что вам нравится в вашем доме
-- [ ] **7803.** work _(context: brief)_  
+- [ ] **8001.** work _(context: brief)_  
   → работа
-- [ ] **7804.** what they do _(context: brief)_  
+- [ ] **8002.** what they do _(context: brief)_  
   → кем вы работаете
-- [ ] **7805.** where they work _(context: brief)_  
+- [ ] **8003.** where they work _(context: brief)_  
   → где вы работаете
-- [ ] **7806.** when they start and finish _(context: brief)_  
+- [ ] **8004.** when they start and finish _(context: brief)_  
   → когда вы начинаете и заканчиваете работу
-- [ ] **7807.** whether they like it _(context: brief)_  
+- [ ] **8005.** whether they like it _(context: brief)_  
   → нравится ли вам ваша работа
-- [ ] **7808.** shopping _(context: brief)_  
+- [ ] **8006.** shopping _(context: brief)_  
   → покупки
-- [ ] **7809.** what they buy most often _(context: brief)_  
+- [ ] **8007.** what they buy most often _(context: brief)_  
   → что вы покупаете чаще всего
-- [ ] **7810.** where _(context: brief)_  
+- [ ] **8008.** where _(context: brief)_  
   → где
-- [ ] **7811.** how they pay _(context: brief)_  
+- [ ] **8009.** how they pay _(context: brief)_  
   → как вы платите
-- [ ] **7812.** what they bought last _(context: brief)_  
+- [ ] **8010.** what they bought last _(context: brief)_  
   → что вы купили в последний раз
-- [ ] **7813.** staying healthy _(context: brief)_  
+- [ ] **8011.** staying healthy _(context: brief)_  
   → здоровый образ жизни
-- [ ] **7814.** what sport they do _(context: brief)_  
+- [ ] **8012.** what sport they do _(context: brief)_  
   → каким спортом вы занимаетесь
-- [ ] **7815.** how often _(context: brief)_  
+- [ ] **8013.** how often _(context: brief)_  
   → как часто
-- [ ] **7816.** when they go to the doctor _(context: brief)_  
+- [ ] **8014.** when they go to the doctor _(context: brief)_  
   → когда вы ходите к врачу
-- [ ] **7817.** how they sleep _(context: brief)_  
+- [ ] **8015.** how they sleep _(context: brief)_  
   → как вы спите
-- [ ] **7818.** the weekend _(context: brief)_  
+- [ ] **8016.** the weekend _(context: brief)_  
   → выходные
-- [ ] **7819.** when they get up _(context: brief)_  
+- [ ] **8017.** when they get up _(context: brief)_  
   → когда вы встаёте
-- [ ] **7820.** who they meet _(context: brief)_  
+- [ ] **8018.** who they meet _(context: brief)_  
   → с кем вы встречаетесь
-- [ ] **7821.** what they did last weekend _(context: brief)_  
+- [ ] **8019.** what they did last weekend _(context: brief)_  
   → что вы делали в прошлые выходные
-- [ ] **7822.** What do you do in your free time? _(context: brief)_  
+- [ ] **8020.** What do you do in your free time? _(context: brief)_  
   → Чем вы занимаетесь в свободное время?
-- [ ] **7823.** Do you prefer staying in or going out? Why? _(context: brief)_  
+- [ ] **8021.** Do you prefer staying in or going out? Why? _(context: brief)_  
   → Вы больше любите проводить время дома или выходить куда-нибудь? Почему?
-- [ ] **7824.** What did you do last weekend? _(context: brief)_  
+- [ ] **8022.** What did you do last weekend? _(context: brief)_  
   → Что вы делали в прошлые выходные?
-- [ ] **7825.** A friend is visiting you for one weekend. Decide together what to do on Saturday. _(context: brief)_  
+- [ ] **8023.** A friend is visiting you for one weekend. Decide together what to do on Saturday. _(context: brief)_  
   → К вам на выходные приезжает друг. Решите вместе, чем заняться в субботу.
-- [ ] **7826.** a museum _(context: brief)_  
+- [ ] **8024.** a museum _(context: brief)_  
   → музей
-- [ ] **7827.** a walk in the forest _(context: brief)_  
+- [ ] **8025.** a walk in the forest _(context: brief)_  
   → прогулка по лесу
-- [ ] **7828.** a concert _(context: brief)_  
+- [ ] **8026.** a concert _(context: brief)_  
   → концерт
-- [ ] **7829.** What do you usually eat in a day? _(context: brief)_  
+- [ ] **8027.** What do you usually eat in a day? _(context: brief)_  
   → Что вы обычно едите за день?
-- [ ] **7830.** Do you like cooking? Why or why not? _(context: brief)_  
+- [ ] **8028.** Do you like cooking? Why or why not? _(context: brief)_  
   → Вы любите готовить? Почему да или почему нет?
-- [ ] **7831.** Where did you last eat out? _(context: brief)_  
+- [ ] **8029.** Where did you last eat out? _(context: brief)_  
   → Где вы в последний раз ели не дома?
-- [ ] **7832.** Your course is ending and the group wants to celebrate. Decide together where. _(context: brief)_  
+- [ ] **8030.** Your course is ending and the group wants to celebrate. Decide together where. _(context: brief)_  
   → Ваш курс заканчивается, и группа хочет это отметить. Решите вместе, где.
-- [ ] **7833.** a café _(context: brief)_  
+- [ ] **8031.** a café _(context: brief)_  
   → кафе
-- [ ] **7834.** a picnic in the park _(context: brief)_  
+- [ ] **8032.** a picnic in the park _(context: brief)_  
   → пикник в парке
-- [ ] **7835.** somebody's home _(context: brief)_  
+- [ ] **8033.** somebody's home _(context: brief)_  
   → у кого-нибудь дома
-- [ ] **7836.** Where do you usually shop? _(context: brief)_  
+- [ ] **8034.** Where do you usually shop? _(context: brief)_  
   → Где вы обычно делаете покупки?
-- [ ] **7837.** What do you buy online? _(context: brief)_  
+- [ ] **8035.** What do you buy online? _(context: brief)_  
   → Что вы покупаете в интернете?
-- [ ] **7838.** What was the last thing you bought for somebody else? _(context: brief)_  
+- [ ] **8036.** What was the last thing you bought for somebody else? _(context: brief)_  
   → Что вы в последний раз покупали для другого человека?
-- [ ] **7839.** A colleague is leaving. Decide together on a present. _(context: brief)_  
+- [ ] **8037.** A colleague is leaving. Decide together on a present. _(context: brief)_  
   → Коллега уходит с работы. Решите вместе, что ему подарить.
-- [ ] **7840.** flowers _(context: brief)_  
+- [ ] **8038.** flowers _(context: brief)_  
   → цветы
-- [ ] **7841.** a book _(context: brief)_  
+- [ ] **8039.** a book _(context: brief)_  
   → книга
-- [ ] **7842.** a gift card _(context: brief)_  
+- [ ] **8040.** a gift card _(context: brief)_  
   → подарочная карта
-- [ ] **7843.** Where did you last travel? _(context: brief)_  
+- [ ] **8041.** Where did you last travel? _(context: brief)_  
   → Куда вы в последний раз ездили?
-- [ ] **7844.** How do you prefer to travel, and why? _(context: brief)_  
+- [ ] **8042.** How do you prefer to travel, and why? _(context: brief)_  
   → Как вы предпочитаете путешествовать и почему?
-- [ ] **7845.** Where would you like to go next? _(context: brief)_  
+- [ ] **8043.** Where would you like to go next? _(context: brief)_  
   → Куда вы хотели бы поехать в следующий раз?
-- [ ] **7846.** You and a friend have three days off. Decide together where to go. _(context: brief)_  
+- [ ] **8044.** You and a friend have three days off. Decide together where to go. _(context: brief)_  
   → У вас с другом три выходных дня. Решите вместе, куда поехать.
-- [ ] **7847.** a city you don't know _(context: brief)_  
+- [ ] **8045.** a city you don't know _(context: brief)_  
   → незнакомый город
-- [ ] **7848.** an island by the sea _(context: brief)_  
+- [ ] **8046.** an island by the sea _(context: brief)_  
   → остров в море
-- [ ] **7849.** a spa hotel _(context: brief)_  
+- [ ] **8047.** a spa hotel _(context: brief)_  
   → спа-отель
-- [ ] **7850.** What do you do to stay healthy? _(context: brief)_  
+- [ ] **8048.** What do you do to stay healthy? _(context: brief)_  
   → Что вы делаете, чтобы оставаться здоровыми?
-- [ ] **7851.** How often do you do sport? _(context: brief)_  
+- [ ] **8049.** How often do you do sport? _(context: brief)_  
   → Как часто вы занимаетесь спортом?
-- [ ] **7852.** What do you do when you're ill? _(context: brief)_  
+- [ ] **8050.** What do you do when you're ill? _(context: brief)_  
   → Что вы делаете, когда болеете?
-- [ ] **7853.** You both want to get fitter this year. Decide together how. _(context: brief)_  
+- [ ] **8051.** You both want to get fitter this year. Decide together how. _(context: brief)_  
   → Вы оба хотите в этом году улучшить свою физическую форму. Решите вместе, как.
-- [ ] **7854.** running together _(context: brief)_  
+- [ ] **8052.** running together _(context: brief)_  
   → совместные пробежки
-- [ ] **7855.** joining a gym _(context: brief)_  
+- [ ] **8053.** joining a gym _(context: brief)_  
   → абонемент в спортзал
-- [ ] **7856.** cycling to work _(context: brief)_  
+- [ ] **8054.** cycling to work _(context: brief)_  
   → поездки на работу на велосипеде
-- [ ] **7857.** Describe where you live. _(context: brief)_  
+- [ ] **8055.** Describe where you live. _(context: brief)_  
   → Опишите, где вы живёте.
-- [ ] **7858.** What do you like about your neighborhood? _(context: brief)_  
+- [ ] **8056.** What do you like about your neighborhood? _(context: brief)_  
   → Что вам нравится в вашем районе?
-- [ ] **7859.** Would you rather live in town or in the country? Why? _(context: brief)_  
+- [ ] **8057.** Would you rather live in town or in the country? Why? _(context: brief)_  
   → Где бы вы предпочли жить: в городе или за городом? Почему?
-- [ ] **7860.** You share an apartment and have money for one new thing. Decide together what to buy. _(context: brief)_  
+- [ ] **8058.** You share an apartment and have money for one new thing. Decide together what to buy. _(context: brief)_  
   → Вы вместе снимаете квартиру, и у вас есть деньги на одну новую вещь. Решите вместе, что купить.
-- [ ] **7861.** a new sofa _(context: brief)_  
+- [ ] **8059.** a new sofa _(context: brief)_  
   → новый диван
-- [ ] **7862.** a dishwasher _(context: brief)_  
+- [ ] **8060.** a dishwasher _(context: brief)_  
   → посудомоечная машина
-- [ ] **7863.** bicycles for both of you _(context: brief)_  
+- [ ] **8061.** bicycles for both of you _(context: brief)_  
   → велосипеды для вас обоих
-- [ ] **7864.** when there is a free appointment _(context: brief)_  
+- [ ] **8062.** when there is a free appointment _(context: brief)_  
   → когда можно записаться на приём
-- [ ] **7865.** what a check-up costs _(context: brief)_  
+- [ ] **8063.** what a check-up costs _(context: brief)_  
   → сколько стоит осмотр
-- [ ] **7866.** where the surgery is _(context: brief)_  
+- [ ] **8064.** where the surgery is _(context: brief)_  
   → где находится клиника
-- [ ] **7867.** what to bring _(context: brief)_  
+- [ ] **8065.** what to bring _(context: brief)_  
   → что взять с собой
-- [ ] **7868.** somebody who works at a sports club _(context: brief)_  
+- [ ] **8066.** somebody who works at a sports club _(context: brief)_  
   → сотрудник спортивного клуба
-- [ ] **7869.** Open every day, 7:00 to 22:00 _(context: brief)_  
+- [ ] **8067.** Open every day, 7:00 to 22:00 _(context: brief)_  
   → Открыто каждый день с 7:00 до 22:00
-- [ ] **7870.** A month's membership costs 45 euros _(context: brief)_  
+- [ ] **8068.** A month's membership costs 45 euros _(context: brief)_  
   → Абонемент на месяц стоит 45 евро
-- [ ] **7871.** No need to book, just come in _(context: brief)_  
+- [ ] **8069.** No need to book, just come in _(context: brief)_  
   → Записываться не нужно, просто приходите
-- [ ] **7872.** Bring sports shoes and a towel _(context: brief)_  
+- [ ] **8070.** Bring sports shoes and a towel _(context: brief)_  
   → Возьмите спортивную обувь и полотенце
-- [ ] **7873.** when the next course starts _(context: brief)_  
+- [ ] **8071.** when the next course starts _(context: brief)_  
   → когда начинается следующий курс
-- [ ] **7874.** how many hours a week it is _(context: brief)_  
+- [ ] **8072.** how many hours a week it is _(context: brief)_  
   → сколько часов в неделю идут занятия
-- [ ] **7875.** what it costs _(context: brief)_  
+- [ ] **8073.** what it costs _(context: brief)_  
   → сколько это стоит
-- [ ] **7876.** how to sign up _(context: brief)_  
+- [ ] **8074.** how to sign up _(context: brief)_  
   → как записаться
-- [ ] **7877.** somebody who works at a library _(context: brief)_  
+- [ ] **8075.** somebody who works at a library _(context: brief)_  
   → сотрудник библиотеки
-- [ ] **7878.** Open Monday to Saturday, 10:00 to 19:00 _(context: brief)_  
+- [ ] **8076.** Open Monday to Saturday, 10:00 to 19:00 _(context: brief)_  
   → Открыто с понедельника по субботу, с 10:00 до 19:00
-- [ ] **7879.** Joining is free _(context: brief)_  
+- [ ] **8077.** Joining is free _(context: brief)_  
   → Записаться можно бесплатно
-- [ ] **7880.** You can borrow ten books for three weeks _(context: brief)_  
+- [ ] **8078.** You can borrow ten books for three weeks _(context: brief)_  
   → Можно взять десять книг на три недели
-- [ ] **7881.** Bring an ID card _(context: brief)_  
+- [ ] **8079.** Bring an ID card _(context: brief)_  
   → Возьмите с собой удостоверение личности
-- [ ] **7882.** whether there is a free time on Friday _(context: brief)_  
+- [ ] **8080.** whether there is a free time on Friday _(context: brief)_  
   → есть ли свободное время в пятницу
-- [ ] **7883.** what a haircut costs _(context: brief)_  
+- [ ] **8081.** what a haircut costs _(context: brief)_  
   → сколько стоит стрижка
-- [ ] **7884.** how long it takes _(context: brief)_  
+- [ ] **8082.** how long it takes _(context: brief)_  
   → сколько это длится
-- [ ] **7885.** whether you can pay by card _(context: brief)_  
+- [ ] **8083.** whether you can pay by card _(context: brief)_  
   → можно ли заплатить картой
-- [ ] **7886.** somebody who works at a theater box office _(context: brief)_  
+- [ ] **8084.** somebody who works at a theater box office _(context: brief)_  
   → кассир театра
-- [ ] **7887.** Tickets cost 15 and 25 euros _(context: brief)_  
+- [ ] **8085.** Tickets cost 15 and 25 euros _(context: brief)_  
   → Билеты стоят 15 и 25 евро
-- [ ] **7888.** The show starts at 19:00 _(context: brief)_  
+- [ ] **8086.** The show starts at 19:00 _(context: brief)_  
   → Спектакль начинается в 19:00
-- [ ] **7889.** It lasts two and a half hours _(context: brief)_  
+- [ ] **8087.** It lasts two and a half hours _(context: brief)_  
   → Он идёт два с половиной часа
-- [ ] **7890.** Children under 12 pay half _(context: brief)_  
+- [ ] **8088.** Children under 12 pay half _(context: brief)_  
   → Дети до 12 лет платят половину
-- [ ] **7891.** whether a room is free next weekend _(context: brief)_  
+- [ ] **8089.** whether a room is free next weekend _(context: brief)_  
   → есть ли свободный номер на следующие выходные
-- [ ] **7892.** what a night costs _(context: brief)_  
+- [ ] **8090.** what a night costs _(context: brief)_  
   → сколько стоит одна ночь
-- [ ] **7893.** whether breakfast is included _(context: brief)_  
+- [ ] **8091.** whether breakfast is included _(context: brief)_  
   → входит ли завтрак в цену
-- [ ] **7894.** how far it is from the station _(context: brief)_  
+- [ ] **8092.** how far it is from the station _(context: brief)_  
   → далеко ли это от вокзала
-- [ ] **7895.** somebody who works at a car hire company _(context: brief)_  
+- [ ] **8093.** somebody who works at a car hire company _(context: brief)_  
   → сотрудник компании по прокату автомобилей
-- [ ] **7896.** A small car costs 35 euros a day _(context: brief)_  
+- [ ] **8094.** A small car costs 35 euros a day _(context: brief)_  
   → Небольшая машина стоит 35 евро в день
-- [ ] **7897.** Open 8:00 to 20:00 _(context: brief)_  
+- [ ] **8095.** Open 8:00 to 20:00 _(context: brief)_  
   → Открыто с 8:00 до 20:00
-- [ ] **7898.** You need a driving license and a bank card _(context: brief)_  
+- [ ] **8096.** You need a driving license and a bank card _(context: brief)_  
   → Нужны водительские права и банковская карта
-- [ ] **7899.** Bring the car back with a full tank _(context: brief)_  
+- [ ] **8097.** Bring the car back with a full tank _(context: brief)_  
   → Верните машину с полным баком
-- [ ] **7900.** when it is open _(context: brief)_  
+- [ ] **8098.** when it is open _(context: brief)_  
   → когда он открыт
-- [ ] **7901.** what a ticket costs _(context: brief)_  
+- [ ] **8099.** what a ticket costs _(context: brief)_  
   → сколько стоит билет
-- [ ] **7902.** whether there are guided tours _(context: brief)_  
+- [ ] **8100.** whether there are guided tours _(context: brief)_  
   → есть ли экскурсии с гидом
-- [ ] **7903.** whether you can take photos _(context: brief)_  
+- [ ] **8101.** whether you can take photos _(context: brief)_  
   → можно ли фотографировать
-- [ ] **7904.** somebody who works at a doctor's surgery _(context: brief)_  
+- [ ] **8102.** somebody who works at a doctor's surgery _(context: brief)_  
   → сотрудник поликлиники
-- [ ] **7905.** The doctor sees patients 8:00 to 16:00 _(context: brief)_  
+- [ ] **8103.** The doctor sees patients 8:00 to 16:00 _(context: brief)_  
   → Врач принимает с 8:00 до 16:00
-- [ ] **7906.** Book by phone or online _(context: brief)_  
+- [ ] **8104.** Book by phone or online _(context: brief)_  
   → Записаться можно по телефону или онлайн
-- [ ] **7907.** The next free time is Thursday at 10:30 _(context: brief)_  
+- [ ] **8105.** The next free time is Thursday at 10:30 _(context: brief)_  
   → Ближайшее свободное время: четверг, 10:30
-- [ ] **7908.** Bring your ID card _(context: brief)_  
+- [ ] **8106.** Bring your ID card _(context: brief)_  
   → Возьмите своё удостоверение личности
-- [ ] **7909.** whether they are free on the 15th _(context: brief)_  
+- [ ] **8107.** whether they are free on the 15th _(context: brief)_  
   → свободны ли они 15-го числа
-- [ ] **7910.** what a small apartment costs to move _(context: brief)_  
+- [ ] **8108.** what a small apartment costs to move _(context: brief)_  
   → сколько стоит перевезти небольшую квартиру
-- [ ] **7911.** whether they bring boxes _(context: brief)_  
+- [ ] **8109.** whether they bring boxes _(context: brief)_  
   → привозят ли они коробки
-- [ ] **7912.** how to pay _(context: brief)_  
+- [ ] **8110.** how to pay _(context: brief)_  
   → как платить
-- [ ] **7913.** somebody who works at a swimming pool _(context: brief)_  
+- [ ] **8111.** somebody who works at a swimming pool _(context: brief)_  
   → сотрудник бассейна
-- [ ] **7914.** Open 6:30 to 21:00, closed on Mondays _(context: brief)_  
+- [ ] **8112.** Open 6:30 to 21:00, closed on Mondays _(context: brief)_  
   → Открыто с 6:30 до 21:00, по понедельникам закрыто
-- [ ] **7915.** One swim costs 7 euros _(context: brief)_  
+- [ ] **8113.** One swim costs 7 euros _(context: brief)_  
   → Одно посещение стоит 7 евро
-- [ ] **7916.** A swimming cap is required _(context: brief)_  
+- [ ] **8114.** A swimming cap is required _(context: brief)_  
   → Нужна шапочка для плавания
-- [ ] **7917.** Lessons for adults on Tuesdays at 18:00 _(context: brief)_  
+- [ ] **8115.** Lessons for adults on Tuesdays at 18:00 _(context: brief)_  
   → Занятия для взрослых по вторникам в 18:00
-- [ ] **7918.** At a team meeting, give a short talk on why your team should try working from home two days a week. _(context: brief)_  
+- [ ] **8116.** At a team meeting, give a short talk on why your team should try working from home two days a week. _(context: brief)_  
   → На собрании команды коротко расскажите, почему вашей команде стоит попробовать работать из дома два дня в неделю.
-- [ ] **7919.** What would be the hardest part to organize? _(context: brief)_  
+- [ ] **8117.** What would be the hardest part to organize? _(context: brief)_  
   → Что было бы сложнее всего организовать?
-- [ ] **7920.** A new colleague starts on Monday. Give a short talk on what they need to know in their first week. _(context: brief)_  
+- [ ] **8118.** A new colleague starts on Monday. Give a short talk on what they need to know in their first week. _(context: brief)_  
   → В понедельник выходит новый коллега. Коротко расскажите, что ему нужно знать в первую неделю.
-- [ ] **7921.** What mistake do newcomers make most often? _(context: brief)_  
+- [ ] **8119.** What mistake do newcomers make most often? _(context: brief)_  
   → Какую ошибку новички совершают чаще всего?
-- [ ] **7922.** At a staff meeting, propose one change that would make your workplace greener. _(context: brief)_  
+- [ ] **8120.** At a staff meeting, propose one change that would make your workplace greener. _(context: brief)_  
   → На собрании сотрудников предложите одно изменение, которое сделает вашу работу экологичнее.
-- [ ] **7923.** How much would it cost, and who would pay? _(context: brief)_  
+- [ ] **8121.** How much would it cost, and who would pay? _(context: brief)_  
   → Сколько бы это стоило и кто бы за это заплатил?
-- [ ] **7924.** At a training day, give a short talk on a skill that matters in your work and how to learn it. _(context: brief)_  
+- [ ] **8122.** At a training day, give a short talk on a skill that matters in your work and how to learn it. _(context: brief)_  
   → На учебном семинаре коротко расскажите о навыке, важном в вашей работе, и о том, как ему научиться.
-- [ ] **7925.** How long does it take to learn it well? _(context: brief)_  
+- [ ] **8123.** How long does it take to learn it well? _(context: brief)_  
   → Сколько времени нужно, чтобы хорошо его освоить?
-- [ ] **7926.** Your company is choosing between a team trip and a bonus for everyone. Speak for one of them. _(context: brief)_  
+- [ ] **8124.** Your company is choosing between a team trip and a bonus for everyone. Speak for one of them. _(context: brief)_  
   → Ваша компания выбирает между поездкой всей командой и премией для всех. Выступите в поддержку одного из вариантов.
-- [ ] **7927.** What would the others say against it? _(context: brief)_  
+- [ ] **8125.** What would the others say against it? _(context: brief)_  
   → Что другие сказали бы против?
-- [ ] **7928.** Give a short talk on how meetings at work could take less time. _(context: brief)_  
+- [ ] **8126.** Give a short talk on how meetings at work could take less time. _(context: brief)_  
   → Коротко расскажите, как сделать рабочие совещания короче.
-- [ ] **7929.** Which meeting would you get rid of first? _(context: brief)_  
+- [ ] **8127.** Which meeting would you get rid of first? _(context: brief)_  
   → От какого совещания вы отказались бы в первую очередь?
-- [ ] **7930.** Present a tool or an app that makes work easier. _(context: brief)_  
+- [ ] **8128.** Present a tool or an app that makes work easier. _(context: brief)_  
   → Представьте инструмент или приложение, которое облегчает работу.
-- [ ] **7931.** What would you change about it? _(context: brief)_  
+- [ ] **8129.** What would you change about it? _(context: brief)_  
   → Что бы вы в нём изменили?
-- [ ] **7932.** What does your town need most? _(context: brief)_  
+- [ ] **8130.** What does your town need most? _(context: brief)_  
   → Что больше всего нужно вашему городу?
-- [ ] **7933.** Who should decide how its money is spent? _(context: brief)_  
+- [ ] **8131.** Who should decide how its money is spent? _(context: brief)_  
   → Кто должен решать, на что тратить его деньги?
-- [ ] **7934.** Your town has money for one project this year: a new sports hall or better bus connections. Debate it and agree on one. _(context: brief)_  
+- [ ] **8132.** Your town has money for one project this year: a new sports hall or better bus connections. Debate it and agree on one. _(context: brief)_  
   → В этом году у вашего города есть деньги на один проект: новый спортивный зал или лучшее автобусное сообщение. Обсудите это и выберите что-то одно.
-- [ ] **7935.** A sports hall _(context: brief)_  
+- [ ] **8133.** A sports hall _(context: brief)_  
   → Спортивный зал
-- [ ] **7936.** keeps young people active _(context: brief)_  
+- [ ] **8134.** keeps young people active _(context: brief)_  
   → молодёжь будет больше двигаться
-- [ ] **7937.** can hold events that bring visitors _(context: brief)_  
+- [ ] **8135.** can hold events that bring visitors _(context: brief)_  
   → в нём можно проводить мероприятия, которые привлекут гостей
-- [ ] **7938.** Better buses _(context: brief)_  
+- [ ] **8136.** Better buses _(context: brief)_  
   → Автобусы получше
-- [ ] **7939.** help everybody get to work _(context: brief)_  
+- [ ] **8137.** help everybody get to work _(context: brief)_  
   → всем будет проще добираться до работы
-- [ ] **7940.** mean fewer cars and cleaner air _(context: brief)_  
+- [ ] **8138.** mean fewer cars and cleaner air _(context: brief)_  
   → меньше машин и чище воздух
-- [ ] **7941.** Is it better to rent a home or to buy one? _(context: brief)_  
+- [ ] **8139.** Is it better to rent a home or to buy one? _(context: brief)_  
   → Что лучше: снимать жильё или купить своё?
-- [ ] **7942.** Why do people move house? _(context: brief)_  
+- [ ] **8140.** Why do people move house? _(context: brief)_  
   → Почему люди переезжают?
-- [ ] **7943.** A friend has saved enough for a deposit. Debate whether they should buy now or keep renting, and agree on your advice. _(context: brief)_  
+- [ ] **8141.** A friend has saved enough for a deposit. Debate whether they should buy now or keep renting, and agree on your advice. _(context: brief)_  
   → Ваш друг накопил на первый взнос. Обсудите, стоит ли ему покупать жильё сейчас или пока снимать, и договоритесь, что ему посоветовать.
-- [ ] **7944.** Buy now _(context: brief)_  
+- [ ] **8142.** Buy now _(context: brief)_  
   → Купить сейчас
-- [ ] **7945.** paying off a loan is a kind of saving _(context: brief)_  
+- [ ] **8143.** paying off a loan is a kind of saving _(context: brief)_  
   → выплачивать кредит тоже своего рода накопление
-- [ ] **7946.** you can make the home your own _(context: brief)_  
+- [ ] **8144.** you can make the home your own _(context: brief)_  
   → жильё можно обустроить по-своему
-- [ ] **7947.** Keep renting _(context: brief)_  
+- [ ] **8145.** Keep renting _(context: brief)_  
   → Пока снимать
-- [ ] **7948.** you can move easily for a new job _(context: brief)_  
+- [ ] **8146.** you can move easily for a new job _(context: brief)_  
   → ради новой работы легко переехать
-- [ ] **7949.** repairs are not your problem _(context: brief)_  
+- [ ] **8147.** repairs are not your problem _(context: brief)_  
   → ремонт не ваша забота
-- [ ] **7950.** Do children spend too much time on screens? _(context: brief)_  
+- [ ] **8148.** Do children spend too much time on screens? _(context: brief)_  
   → Не слишком ли много времени дети проводят у экранов?
-- [ ] **7951.** What did children do before phones? _(context: brief)_  
+- [ ] **8149.** What did children do before phones? _(context: brief)_  
   → Чем занимались дети, когда телефонов ещё не было?
-- [ ] **7952.** A school is deciding whether to ban phones for the whole school day. Debate it and agree on a position. _(context: brief)_  
+- [ ] **8150.** A school is deciding whether to ban phones for the whole school day. Debate it and agree on a position. _(context: brief)_  
   → Школа решает, запретить ли телефоны на весь учебный день. Обсудите это и придите к общему мнению.
-- [ ] **7953.** Ban them _(context: brief)_  
+- [ ] **8151.** Ban them _(context: brief)_  
   → Запретить
-- [ ] **7954.** students concentrate better _(context: brief)_  
+- [ ] **8152.** students concentrate better _(context: brief)_  
   → ученики лучше сосредоточиваются
-- [ ] **7955.** breaks become more social _(context: brief)_  
+- [ ] **8153.** breaks become more social _(context: brief)_  
   → на переменах больше общаются
-- [ ] **7956.** Allow them _(context: brief)_  
+- [ ] **8154.** Allow them _(context: brief)_  
   → Разрешить
-- [ ] **7957.** phones help in an emergency _(context: brief)_  
+- [ ] **8155.** phones help in an emergency _(context: brief)_  
   → телефон помогает в экстренной ситуации
-- [ ] **7958.** students have to learn to use them sensibly _(context: brief)_  
+- [ ] **8156.** students have to learn to use them sensibly _(context: brief)_  
   → ученикам нужно учиться пользоваться ими разумно
-- [ ] **7959.** How long should a working week be? _(context: brief)_  
+- [ ] **8157.** How long should a working week be? _(context: brief)_  
   → Какой длины должна быть рабочая неделя?
-- [ ] **7960.** What makes a good employer? _(context: brief)_  
+- [ ] **8158.** What makes a good employer? _(context: brief)_  
   → Каким должен быть хороший работодатель?
-- [ ] **7961.** Your workplace wants a four day week with longer days. Debate it and agree on a position. _(context: brief)_  
+- [ ] **8159.** Your workplace wants a four day week with longer days. Debate it and agree on a position. _(context: brief)_  
   → На вашей работе хотят ввести четырёхдневную неделю с более длинными рабочими днями. Обсудите это и придите к общему мнению.
-- [ ] **7962.** Four longer days _(context: brief)_  
+- [ ] **8160.** Four longer days _(context: brief)_  
   → Четыре длинных дня
-- [ ] **7963.** three days off leave time for family _(context: brief)_  
+- [ ] **8161.** three days off leave time for family _(context: brief)_  
   → три выходных оставляют время для семьи
-- [ ] **7964.** fewer journeys to work _(context: brief)_  
+- [ ] **8162.** fewer journeys to work _(context: brief)_  
   → меньше поездок на работу
-- [ ] **7965.** Keep five days _(context: brief)_  
+- [ ] **8163.** Keep five days _(context: brief)_  
   → Оставить пять дней
-- [ ] **7966.** long days are tiring _(context: brief)_  
+- [ ] **8164.** long days are tiring _(context: brief)_  
   → длинные дни утомляют
-- [ ] **7967.** customers expect service every weekday _(context: brief)_  
+- [ ] **8165.** customers expect service every weekday _(context: brief)_  
   → клиенты ждут обслуживания каждый будний день
-- [ ] **7968.** Do you prefer vacations at home or abroad? _(context: brief)_  
+- [ ] **8166.** Do you prefer vacations at home or abroad? _(context: brief)_  
   → Где вы больше любите отдыхать: дома или за границей?
-- [ ] **7969.** What makes a team work well together? _(context: brief)_  
+- [ ] **8167.** What makes a team work well together? _(context: brief)_  
   → Что помогает команде хорошо работать вместе?
-- [ ] **7970.** Your company offers the team either a trip abroad or a summer party at home. Debate it and agree on one. _(context: brief)_  
+- [ ] **8168.** Your company offers the team either a trip abroad or a summer party at home. Debate it and agree on one. _(context: brief)_  
   → Ваша компания предлагает команде на выбор поездку за границу или летний праздник дома. Обсудите это и выберите что-то одно.
-- [ ] **7971.** A trip abroad _(context: brief)_  
+- [ ] **8169.** A trip abroad _(context: brief)_  
   → Поездка за границу
-- [ ] **7972.** it builds a team _(context: brief)_  
+- [ ] **8170.** it builds a team _(context: brief)_  
   → она сплачивает команду
-- [ ] **7973.** people remember it for years _(context: brief)_  
+- [ ] **8171.** people remember it for years _(context: brief)_  
   → её помнят годами
-- [ ] **7974.** A party at home _(context: brief)_  
+- [ ] **8172.** A party at home _(context: brief)_  
   → Праздник дома
-- [ ] **7975.** more people can come _(context: brief)_  
+- [ ] **8173.** more people can come _(context: brief)_  
   → прийти смогут больше людей
-- [ ] **7976.** it costs much less _(context: brief)_  
+- [ ] **8174.** it costs much less _(context: brief)_  
   → это гораздо дешевле
-- [ ] **7977.** Should cities be built for people or for cars? _(context: brief)_  
+- [ ] **8175.** Should cities be built for people or for cars? _(context: brief)_  
   → Для кого нужно строить города: для людей или для машин?
-- [ ] **7978.** How do you get around your town? _(context: brief)_  
+- [ ] **8176.** How do you get around your town? _(context: brief)_  
   → Как вы передвигаетесь по своему городу?
-- [ ] **7979.** Your city is deciding whether to close its old town to cars. Debate it and agree on a position. _(context: brief)_  
+- [ ] **8177.** Your city is deciding whether to close its old town to cars. Debate it and agree on a position. _(context: brief)_  
   → Ваш город решает, закрыть ли старый город для машин. Обсудите это и придите к общему мнению.
-- [ ] **7980.** Close it _(context: brief)_  
+- [ ] **8178.** Close it _(context: brief)_  
   → Закрыть
-- [ ] **7981.** it's safer for people on foot _(context: brief)_  
+- [ ] **8179.** it's safer for people on foot _(context: brief)_  
   → пешеходам безопаснее
-- [ ] **7982.** cafés and shops get more customers _(context: brief)_  
+- [ ] **8180.** cafés and shops get more customers _(context: brief)_  
   → у кафе и магазинов больше посетителей
-- [ ] **7983.** Keep it open _(context: brief)_  
+- [ ] **8181.** Keep it open _(context: brief)_  
   → Оставить открытым
-- [ ] **7984.** older people find it harder to get around _(context: brief)_  
+- [ ] **8182.** older people find it harder to get around _(context: brief)_  
   → пожилым людям труднее передвигаться
-- [ ] **7985.** delivery vans need to get in _(context: brief)_  
+- [ ] **8183.** delivery vans need to get in _(context: brief)_  
   → фургонам доставки нужно проезжать
-- [ ] **7986.** How to keep a team motivated when the work gets hard _(context: brief)_  
+- [ ] **8184.** How to keep a team motivated when the work gets hard _(context: brief)_  
   → Как поддерживать мотивацию команды, когда работа становится трудной
-- [ ] **7987.** What a good manager does differently _(context: brief)_  
+- [ ] **8185.** What a good manager does differently _(context: brief)_  
   → Что хороший руководитель делает иначе
-- [ ] **7988.** What is the most common mistake here? _(context: brief)_  
+- [ ] **8186.** What is the most common mistake here? _(context: brief)_  
   → Какая ошибка здесь встречается чаще всего?
-- [ ] **7989.** How would you know whether it was working? _(context: brief)_  
+- [ ] **8187.** How would you know whether it was working? _(context: brief)_  
   → Как понять, что это работает?
-- [ ] **7990.** The benefits and risks of working from home _(context: brief)_  
+- [ ] **8188.** The benefits and risks of working from home _(context: brief)_  
   → Плюсы и риски работы из дома
-- [ ] **7991.** How technology is changing a profession you know _(context: brief)_  
+- [ ] **8189.** How technology is changing a profession you know _(context: brief)_  
   → Как технологии меняют знакомую вам профессию
-- [ ] **7992.** Which change matters most? _(context: brief)_  
+- [ ] **8190.** Which change matters most? _(context: brief)_  
   → Какое изменение самое важное?
-- [ ] **7993.** What should employers do about it? _(context: brief)_  
+- [ ] **8191.** What should employers do about it? _(context: brief)_  
   → Что с этим делать работодателям?
-- [ ] **7994.** Why learning never stops in working life _(context: brief)_  
+- [ ] **8192.** Why learning never stops in working life _(context: brief)_  
   → Почему в профессиональной жизни учёба не заканчивается
-- [ ] **7995.** How to bring young people into your field _(context: brief)_  
+- [ ] **8193.** How to bring young people into your field _(context: brief)_  
   → Как привлечь молодёжь в вашу сферу
-- [ ] **7996.** Who should pay for it? _(context: brief)_  
+- [ ] **8194.** Who should pay for it? _(context: brief)_  
   → Кто должен за это платить?
-- [ ] **7997.** What stands in the way? _(context: brief)_  
+- [ ] **8195.** What stands in the way? _(context: brief)_  
   → Что этому мешает?
-- [ ] **7998.** How a workplace can cut its environmental footprint _(context: brief)_  
+- [ ] **8196.** How a workplace can cut its environmental footprint _(context: brief)_  
   → Как организации уменьшить свой экологический след
-- [ ] **7999.** Why every company should report its energy use _(context: brief)_  
+- [ ] **8197.** Why every company should report its energy use _(context: brief)_  
   → Почему каждая компания должна отчитываться о потреблении энергии
-- [ ] **8000.** What would be the first step? _(context: brief)_  
+- [ ] **8198.** What would be the first step? _(context: brief)_  
   → Каким был бы первый шаг?
-- [ ] **8001.** What would it cost? _(context: brief)_  
+- [ ] **8199.** What would it cost? _(context: brief)_  
   → Сколько бы это стоило?
-- [ ] **8002.** What makes a meeting worth having _(context: brief)_  
+- [ ] **8200.** What makes a meeting worth having _(context: brief)_  
   → Когда совещание действительно нужно
-- [ ] **8003.** How to give and take feedback well _(context: brief)_  
+- [ ] **8201.** How to give and take feedback well _(context: brief)_  
   → Как правильно давать и принимать обратную связь
-- [ ] **8004.** What goes wrong most often? _(context: brief)_  
+- [ ] **8202.** What goes wrong most often? _(context: brief)_  
   → Что чаще всего идёт не так?
-- [ ] **8005.** How would you train people in it? _(context: brief)_  
+- [ ] **8203.** How would you train people in it? _(context: brief)_  
   → Как бы вы этому учили?
-- [ ] **8006.** Artificial intelligence at work: a help or a threat? _(context: brief)_  
+- [ ] **8204.** Artificial intelligence at work: a help or a threat? _(context: brief)_  
   → Искусственный интеллект на работе: помощь или угроза?
-- [ ] **8007.** How to plan a large project _(context: brief)_  
+- [ ] **8205.** How to plan a large project _(context: brief)_  
   → Как спланировать крупный проект
-- [ ] **8008.** What would you warn people about? _(context: brief)_  
+- [ ] **8206.** What would you warn people about? _(context: brief)_  
   → О чём бы вы предупредили людей?
-- [ ] **8009.** Where should a beginner start? _(context: brief)_  
+- [ ] **8207.** Where should a beginner start? _(context: brief)_  
   → С чего начать новичку?
-- [ ] **8010.** Should higher education be free for everybody? _(context: brief)_  
+- [ ] **8208.** Should higher education be free for everybody? _(context: brief)_  
   → Должно ли высшее образование быть бесплатным для всех?
-- [ ] **8011.** who pays now, and who would pay _(context: brief)_  
+- [ ] **8209.** who pays now, and who would pay _(context: brief)_  
   → кто платит сейчас и кто платил бы тогда
-- [ ] **8012.** the quality of teaching _(context: brief)_  
+- [ ] **8210.** the quality of teaching _(context: brief)_  
   → качество преподавания
-- [ ] **8013.** fairness between people from different backgrounds _(context: brief)_  
+- [ ] **8211.** fairness between people from different backgrounds _(context: brief)_  
   → равные возможности для людей из разных слоёв общества
-- [ ] **8014.** Does social media do more good than harm to public debate? _(context: brief)_  
+- [ ] **8212.** Does social media do more good than harm to public debate? _(context: brief)_  
   → Приносят ли социальные сети общественной дискуссии больше пользы, чем вреда?
-- [ ] **8015.** access to information _(context: brief)_  
+- [ ] **8213.** access to information _(context: brief)_  
   → доступ к информации
-- [ ] **8016.** misinformation _(context: brief)_  
+- [ ] **8214.** misinformation _(context: brief)_  
   → дезинформация
-- [ ] **8017.** what can be regulated, and by whom _(context: brief)_  
+- [ ] **8215.** what can be regulated, and by whom _(context: brief)_  
   → что можно регулировать и кто должен это делать
-- [ ] **8018.** Should cities be built around people rather than cars? _(context: brief)_  
+- [ ] **8216.** Should cities be built around people rather than cars? _(context: brief)_  
   → Нужно ли строить города вокруг людей, а не машин?
-- [ ] **8019.** safety and health _(context: brief)_  
+- [ ] **8217.** safety and health _(context: brief)_  
   → безопасность и здоровье
-- [ ] **8020.** business and deliveries _(context: brief)_  
+- [ ] **8218.** business and deliveries _(context: brief)_  
   → бизнес и доставка
-- [ ] **8021.** people who live outside the city _(context: brief)_  
+- [ ] **8219.** people who live outside the city _(context: brief)_  
   → люди, которые живут за городом
-- [ ] **8022.** Is it the state's job to make people live more healthily? _(context: brief)_  
+- [ ] **8220.** Is it the state's job to make people live more healthily? _(context: brief)_  
   → Должно ли государство заботиться о том, чтобы люди жили здоровее?
-- [ ] **8023.** taxes on sugar and alcohol _(context: brief)_  
+- [ ] **8221.** taxes on sugar and alcohol _(context: brief)_  
   → налоги на сахар и алкоголь
-- [ ] **8024.** personal freedom _(context: brief)_  
+- [ ] **8222.** personal freedom _(context: brief)_  
   → личная свобода
-- [ ] **8025.** the cost of health care _(context: brief)_  
+- [ ] **8223.** the cost of health care _(context: brief)_  
   → стоимость здравоохранения
-- [ ] **8026.** Should everybody retire at the same age? _(context: brief)_  
+- [ ] **8224.** Should everybody retire at the same age? _(context: brief)_  
   → Должны ли все выходить на пенсию в одном и том же возрасте?
-- [ ] **8027.** physical work and office work _(context: brief)_  
+- [ ] **8225.** physical work and office work _(context: brief)_  
   → физический и офисный труд
-- [ ] **8028.** pensions _(context: brief)_  
+- [ ] **8226.** pensions _(context: brief)_  
   → пенсии
-- [ ] **8029.** experience in the workplace _(context: brief)_  
+- [ ] **8227.** experience in the workplace _(context: brief)_  
   → опыт на рабочем месте
-- [ ] **8030.** Can a small language thrive in a global world? _(context: brief)_  
+- [ ] **8228.** Can a small language thrive in a global world? _(context: brief)_  
   → Может ли небольшой язык процветать в глобальном мире?
-- [ ] **8031.** education _(context: brief)_  
+- [ ] **8229.** education _(context: brief)_  
   → образование
-- [ ] **8032.** the internet and entertainment _(context: brief)_  
+- [ ] **8230.** the internet and entertainment _(context: brief)_  
   → интернет и развлечения
-- [ ] **8033.** what each of us can do _(context: brief)_  
+- [ ] **8231.** what each of us can do _(context: brief)_  
   → что может сделать каждый из нас
-- [ ] **8034.** who they are and what they do _(context: card)_  
+- [ ] **8232.** who they are and what they do _(context: card)_  
   → кто этот человек и чем занимается
-- [ ] **8035.** where they work _(context: card)_  
+- [ ] **8233.** where they work _(context: card)_  
   → место работы
-- [ ] **8036.** when and how to get in touch _(context: card)_  
+- [ ] **8234.** when and how to get in touch _(context: card)_  
   → когда и как можно связаться
-- [ ] **8037.** your family and the people close to you _(context: about)_  
+- [ ] **8235.** your family and the people close to you _(context: about)_  
   → о вашей семье и близких вам людях
-- [ ] **8038.** where you live _(context: about)_  
+- [ ] **8236.** where you live _(context: about)_  
   → о том, где вы живёте
-- [ ] **8039.** an ordinary day _(context: about)_  
+- [ ] **8237.** an ordinary day _(context: about)_  
   → об обычном дне
-- [ ] **8040.** free time _(context: about)_  
+- [ ] **8238.** free time _(context: about)_  
   → о свободном времени
-- [ ] **8041.** travel _(context: about)_  
+- [ ] **8239.** travel _(context: about)_  
   → о путешествиях
-- [ ] **8042.** health _(context: about)_  
+- [ ] **8240.** health _(context: about)_  
   → о здоровье
-- [ ] **8043.** studying _(context: about)_  
+- [ ] **8241.** studying _(context: about)_  
   → об учёбе
-- [ ] **8044.** shopping _(context: about)_  
+- [ ] **8242.** shopping _(context: about)_  
   → о покупках
-- [ ] **8045.** food and drink _(context: about)_  
+- [ ] **8243.** food and drink _(context: about)_  
   → о еде и напитках
-- [ ] **8046.** your town and its services _(context: about)_  
+- [ ] **8244.** your town and its services _(context: about)_  
   → о вашем городе и его службах
-- [ ] **8047.** the weather and nature _(context: about)_  
+- [ ] **8245.** the weather and nature _(context: about)_  
   → о погоде и природе
-- [ ] **8048.** work _(context: about)_  
+- [ ] **8246.** work _(context: about)_  
   → о работе
-- [ ] **8049.** people and how they feel _(context: about)_  
+- [ ] **8247.** people and how they feel _(context: about)_  
   → о людях и их чувствах
-- [ ] **8050.** media and technology _(context: about)_  
+- [ ] **8248.** media and technology _(context: about)_  
   → о СМИ и технологиях
-- [ ] **8051.** the environment _(context: about)_  
+- [ ] **8249.** the environment _(context: about)_  
   → об окружающей среде
-- [ ] **8052.** society _(context: about)_  
+- [ ] **8250.** society _(context: about)_  
   → об обществе
-- [ ] **8053.** the economy _(context: about)_  
+- [ ] **8251.** the economy _(context: about)_  
   → об экономике
-- [ ] **8054.** science and new ideas _(context: about)_  
+- [ ] **8252.** science and new ideas _(context: about)_  
   → о науке и новых идеях
-- [ ] **8055.** culture and the arts _(context: about)_  
+- [ ] **8253.** culture and the arts _(context: about)_  
   → о культуре и искусстве
-- [ ] **8056.** food _(context: about)_  
+- [ ] **8254.** food _(context: about)_  
   → о еде
-- [ ] **8057.** a trip _(context: about)_  
+- [ ] **8255.** a trip _(context: about)_  
   → о поездке
-- [ ] **8058.** home _(context: about)_  
+- [ ] **8256.** home _(context: about)_  
   → о доме
-- [ ] **8059.** staying healthy _(context: about)_  
+- [ ] **8257.** staying healthy _(context: about)_  
   → о здоровом образе жизни
-- [ ] **8060.** the weekend _(context: about)_  
+- [ ] **8258.** the weekend _(context: about)_  
   → о выходных
-- [ ] **8061.** a dentist's surgery _(context: ring)_  
+- [ ] **8259.** a dentist's surgery _(context: ring)_  
   → в стоматологическую клинику
-- [ ] **8062.** a language school _(context: ring)_  
+- [ ] **8260.** a language school _(context: ring)_  
   → в языковую школу
-- [ ] **8063.** a hairdresser _(context: ring)_  
+- [ ] **8261.** a hairdresser _(context: ring)_  
   → в парикмахерскую
-- [ ] **8064.** a hotel _(context: ring)_  
+- [ ] **8262.** a hotel _(context: ring)_  
   → в гостиницу
-- [ ] **8065.** a museum _(context: ring)_  
+- [ ] **8263.** a museum _(context: ring)_  
   → в музей
-- [ ] **8066.** a removal company _(context: ring)_  
+- [ ] **8264.** a removal company _(context: ring)_  
   → в компанию по переездам
-- [ ] **8067.** the readers of the local paper _(context: for)_  
+- [ ] **8265.** the readers of the local paper _(context: for)_  
   → читателей местной газеты
-- [ ] **8068.** the company's management _(context: for)_  
+- [ ] **8266.** the company's management _(context: for)_  
   → руководства компании
-- [ ] **8069.** the readers of a national paper _(context: for)_  
+- [ ] **8267.** the readers of a national paper _(context: for)_  
   → читателей общенациональной газеты
-- [ ] **8070.** the ministry of education _(context: for)_  
+- [ ] **8268.** the ministry of education _(context: for)_  
   → министерства образования
-- [ ] **8071.** the readers of a news website _(context: for)_  
+- [ ] **8269.** the readers of a news website _(context: for)_  
   → читателей новостного сайта
-- [ ] **8072.** the city government _(context: for)_  
+- [ ] **8270.** the city government _(context: for)_  
   → городских властей
-- [ ] **8073.** the readers of an education magazine _(context: for)_  
+- [ ] **8271.** the readers of an education magazine _(context: for)_  
   → читателей журнала об образовании
 

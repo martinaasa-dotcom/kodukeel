@@ -1,4 +1,8 @@
 import { requireUserId } from "@/lib/auth/session";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
+import { meaningShown } from "@/lib/collections/glossLanguage";
+import { tr } from "@/lib/copy/locale";
 import { courseLevelFor } from "@/lib/progress/level";
 import { practiceScope } from "@/lib/progress/moduleScope";
 import { starredAmong } from "@/lib/progress/stars";
@@ -9,7 +13,9 @@ import { Empty, Page } from "@/components/ui";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { TwentySession } from "./TwentySession";
 
-export const metadata = { title: "Kakskümmend küsimust" };
+export async function generateMetadata() {
+  return titleFor("Kakskümmend küsimust");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +43,9 @@ export default async function TwentyPage({
   const ownerId = await requireUserId();
   const query = await searchParams;
   const params = firstParams(query);
-  const [level, scope] = await Promise.all([courseLevelFor(ownerId), practiceScope(ownerId, query)]);
+  const [level, scope, locale, prefs] = await Promise.all([
+    courseLevelFor(ownerId), practiceScope(ownerId, query), localeFor(ownerId), meaningPrefsFor(ownerId),
+  ]);
 
   const round = await twentyRound({
     level,
@@ -47,11 +55,11 @@ export default async function TwentyPage({
 
   if (!round) {
     return (
-      <Page title="Kakskümmend küsimust" lead="Twenty questions, in Estonian.">
+      <Page title="Kakskümmend küsimust" lead={tr(locale, "Twenty questions, in Estonian.")}>
         <Empty
-          title="Nothing to think of yet"
-          body="The dictionary holds none of the words this game uses."
-          action={<ButtonLink href="/practice" variant="primary">Back to Practice</ButtonLink>}
+          title={tr(locale, "Nothing to think of yet")}
+          body={tr(locale, "The dictionary holds none of the words this game uses.")}
+          action={<ButtonLink href="/practice" variant="primary">{tr(locale, "Back to Practice")}</ButtonLink>}
         />
       </Page>
     );
@@ -66,8 +74,9 @@ export default async function TwentyPage({
         key={round.secret.lemma}
         secret={round.secret}
         lexemeId={round.lexemeId}
-        gloss={round.gloss}
+        meaning={meaningShown(round.gloss, round.secretEquivalents, prefs)}
         glosses={round.glosses}
+        equivalents={round.equivalents}
         index={round.index}
         starred={starred.has(round.lexemeId)}
       />

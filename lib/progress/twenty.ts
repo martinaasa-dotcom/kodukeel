@@ -24,6 +24,14 @@ export interface TwentyRound {
   glosses: Record<string, string>;
   /** Spelling to readings, for every headword the game reads. */
   index: Index;
+  /** The thing's Russian and Ukrainian equivalents, for the meaning line under it. */
+  secretEquivalents: { translationRu: string | null; translationUk: string | null };
+  /**
+   * Headword to one short Russian and one short Ukrainian sense, for a screen
+   * in either language to say back a guess in its own words. Absent where the
+   * Institute recorded none, and the screen falls back to the English.
+   */
+  equivalents: Record<string, { ru: string | null; uk: string | null }>;
 }
 
 /** One short sense, with the note in brackets taken off: "bread (dark)" is "bread". */
@@ -58,6 +66,8 @@ export async function twentyRound(opts: {
       pos: true,
       cefr: true,
       translation: true,
+      translationRu: true,
+      translationUk: true,
       forms: { select: { formType: true, value: true }, orderBy: { id: "asc" } },
     },
     orderBy: [{ lemma: "asc" }, { id: "asc" }],
@@ -66,6 +76,13 @@ export async function twentyRound(opts: {
   const bands = new Set(bandsFor(opts.level));
   const glosses: Record<string, string> = {};
   for (const r of rows) glosses[r.lemma] ??= shortGloss(r.translation);
+  const equivalents: Record<string, { ru: string | null; uk: string | null }> = {};
+  for (const r of rows) {
+    equivalents[r.lemma] ??= {
+      ru: r.translationRu ? shortGloss(r.translationRu) : null,
+      uk: r.translationUk ? shortGloss(r.translationUk) : null,
+    };
+  }
 
   const nouns = new Map(rows.filter((r) => r.pos === "NOUN").map((r) => [r.lemma, r]));
   const pool = THINGS.flatMap((thing) => {
@@ -86,5 +103,7 @@ export async function twentyRound(opts: {
     gloss: picked.row.translation,
     glosses,
     index: buildIndex(rows),
+    secretEquivalents: { translationRu: picked.row.translationRu, translationUk: picked.row.translationUk },
+    equivalents,
   };
 }
