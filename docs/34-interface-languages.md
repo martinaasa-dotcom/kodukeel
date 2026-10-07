@@ -70,6 +70,12 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
   byte as before. The footer says once, in Russian or Ukrainian, that the words were translated
   with AI (`MACHINE_SHORT`), and the document carries the language as its `lang`. The word of the
   day's gloss and its example sentence stay the dictionary's English, as on Today.
+- The mock exam's written and spoken briefs are English built from the tables in
+  `lib/exam/briefs.ts`, and the paper keeps each beside its English as a template and fragments
+  (`promptSaid`, `coverSaid`, a mark's `promptSaid`), said through `sayIn`. A fragment is kept in
+  `lib/copy/i18n/areas/exam.ts` under a context naming the form its slot needs (`@brief`, `@about`
+  with its preposition, `@ring`, `@for`, `@card`), and `lib/exam/briefs.i18n.test.ts` walks every
+  brief the tables can make, so a brief added in English fails until it is translated.
 - A sentence with an element in a slot (an Estonian word in its own span) is one template drawn by
   `components/TrParts.tsx`, never pieces translated apart.
 - The offline banner and the document's `lang` sit above the shell, so `components/ShellLocale.tsx`

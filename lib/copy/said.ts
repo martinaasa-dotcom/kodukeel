@@ -22,6 +22,17 @@ export interface Said {
   readonly words?: Readonly<Record<string, string>>;
   /** A slot holding several sentences of their own, joined with commas. */
   readonly lists?: Readonly<Record<string, readonly Said[]>>;
+  /**
+   * The context `en` is looked up under (`tr`'s third argument), for a line
+   * whose English is short enough to mean something else on another screen.
+   */
+  readonly context?: string;
+  /**
+   * The context each of `words` is looked up under. A fragment that goes into
+   * a template in a grammatical case of its own (after "about", say) is kept
+   * under that case's context, so the same English can be said two ways.
+   */
+  readonly contexts?: Readonly<Record<string, string>>;
 }
 
 /** A `Said`, in one line. */
@@ -42,7 +53,7 @@ export function sayEnglish(said: Said): string {
 
 /** The sentence in this learner's language, or in English where nobody has translated it yet. */
 export function sayIn(locale: Locale, said: Said): string {
-  const words = Object.fromEntries(Object.entries(said.words ?? {}).map(([k, v]) => [k, tr(locale, v)]));
+  const words = Object.fromEntries(Object.entries(said.words ?? {}).map(([k, v]) => [k, tr(locale, v, said.contexts?.[k])]));
   const lists = Object.fromEntries(Object.entries(said.lists ?? {}).map(([k, v]) => [k, v.map((s) => sayIn(locale, s)).join(", ")]));
-  return fill(tr(locale, said.en), { ...said.values, ...words, ...lists });
+  return fill(tr(locale, said.en, said.context), { ...said.values, ...words, ...lists });
 }

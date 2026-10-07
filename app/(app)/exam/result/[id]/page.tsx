@@ -438,7 +438,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                                 <ul className="grid gap-1.5">
                                   {blank.map((mark) => (
                                     <li key={mark.itemId} className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                                      {mark.prompt && <span className="mr-2" {...promptLang(mark)}>{mark.prompt}</span>}
+                                      {mark.prompt && <span className="mr-2" {...promptLang(mark, locale)}>{promptIn(mark, locale)}</span>}
                                       <span className="font-semibold" style={{ color: "var(--sky-ink)" }} lang={mark.language === "et" ? "et" : undefined}>
                                         {expectedIn(mark, locale)}
                                       </span>
@@ -563,8 +563,8 @@ function WrongAnswer({ mark, locale }: { mark: ItemMark; locale: Locale }) {
   return (
     <Card as="li" className="!py-3">
       {mark.prompt && (
-        <p className="mb-2 text-md leading-relaxed" style={{ color: "var(--ink)" }} {...promptLang(mark)}>
-          {mark.prompt}
+        <p className="mb-2 text-md leading-relaxed" style={{ color: "var(--ink)" }} {...promptLang(mark, locale)}>
+          {promptIn(mark, locale)}
         </p>
       )}
       {/* The answer and what was written, each in the palette's own word for
@@ -610,11 +610,21 @@ function noteIn(mark: ItemMark, locale: Locale): string {
 }
 
 /*
-  The prompt's language, said. A sentence asked about is Estonian; a written
-  task's brief is English, built from the paper's own tables, and nobody has
-  translated those yet, so it says that too: `data-untranslated` is what
+  The prompt's language, said. A sentence asked about is Estonian. A written
+  or spoken task's brief is built from the paper's own tables and kept as a
+  template beside its English (`promptSaid`), so it is said in the learner's
+  language and carries theirs. A mark stored before the template existed has
+  only the English, and says so: `data-untranslated` is what
   `scripts/test-locales.mjs` counts as a known gap rather than a new leftover.
 */
-function promptLang(mark: ItemMark): { lang: string; "data-untranslated"?: string } {
-  return mark.promptLanguage === "en" ? { lang: "en", "data-untranslated": "exam brief" } : { lang: "et" };
+function promptLang(mark: ItemMark, locale: Locale): { lang: string; "data-untranslated"?: string } {
+  if (mark.promptLanguage !== "en") return { lang: "et" };
+  if (locale === "en") return { lang: "en" };
+  return mark.promptSaid ? { lang: locale } : { lang: "en", "data-untranslated": "exam brief" };
+}
+
+/** The prompt itself, in the learner's language where the mark kept its template. */
+function promptIn(mark: ItemMark, locale: Locale): string | undefined {
+  if (mark.promptLanguage !== "en" || locale === "en" || !mark.promptSaid) return mark.prompt;
+  return sayIn(locale, mark.promptSaid);
 }

@@ -101,8 +101,8 @@ function hours1(n: number): number {
 function verdictFor(plan: Projection, locale: Locale): { tone: "neutral" | "good" | "warn"; headline: string } {
   const t = (english: string) => tr(locale, english);
   const allIn = plan.otherHoursPerWeek
-    ? formatDurationIn(plan.appHoursPerWeek + about(plan.otherHoursPerWeek), locale, "long")
-    : formatDurationIn(plan.appHoursPerWeek, locale, "long");
+    ? formatDurationIn(plan.appHoursPerWeek + about(plan.otherHoursPerWeek), locale, "long", "acc")
+    : formatDurationIn(plan.appHoursPerWeek, locale, "long", "acc");
   switch (plan.verdict) {
     case "arrived": return { tone: "good", headline: t("By this measure, you're already there.") };
     case "comfortable": return { tone: "good", headline: t("Your usual pace gets you there, with room to spare.") };
@@ -422,10 +422,10 @@ function situation(reasons: readonly Reason[], locale: Locale): string | null {
 function foundNote(plan: Projection, reasons: readonly Reason[], locale: Locale): string {
   const t = (english: string) => tr(locale, english);
   const other = plan.otherHoursPerWeek!;
-  const need = formatDurationIn(about(other), locale, "long");
+  const need = formatDurationIn(about(other), locale, "long", "acc");
   const lands = weeksCount(plan.weeksAbout, locale);
   const where = situation(reasons, locale);
-  const held = formatDurationIn(about(plan.found), locale, "long");
+  const held = formatDurationIn(about(plan.found), locale, "long", "acc");
   if (plan.verdict === "short") {
     return fill(t("That's more than most weeks can hold on top of everything else. At {held} a week beyond this app, it's about {lands} away. Move your date to then, or raise the daily goal, and the plan works again."), { held, lands });
   }
@@ -453,7 +453,7 @@ function sentence(
       ? ` ${t("Your skills came out at different levels, so we counted the distance skill by skill.")}`
       : "";
   const distance = `${fill(t("Going from {from} to {to} takes about {hours} of study."), { from, to, hours: hoursWords(plan.hours.low, plan.hours.high, locale) })}${qualifier}`;
-  const pace = formatDurationIn(plan.appHoursPerWeek, locale, "long");
+  const pace = formatDurationIn(plan.appHoursPerWeek, locale, "long", "acc");
   const covers = plan.paceSource === "measured"
     ? fill(t("You've spent about {pace} a week here over the last {weeks}, so that's the pace we're using."), { pace, weeks: weeksWord(plan.paceWeeks, locale) })
     : plan.paceSource === "lapsed"

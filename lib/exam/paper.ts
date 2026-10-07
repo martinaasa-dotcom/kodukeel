@@ -6,6 +6,7 @@ import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import { buildOptions, governmentCue, parseGovernment } from "@/lib/estonian/government";
 import { caseByKey } from "@/lib/estonian/cases";
 import { PARTS, givesItselfAway } from "@/lib/copy/values";
+import { sayEnglish, type Said } from "@/lib/copy/said";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { writingTasksFor } from "@/lib/estonian/writing";
 import { twinsOf } from "@/lib/estonian/gapForms";
@@ -339,6 +340,13 @@ export interface WrittenVariant {
   prompt: string;
   /** The points the text has to cover, which the real task always lists. */
   cover: string[];
+  /**
+   * `prompt` and `cover` as templates and the fragments that fill them, so a
+   * screen can say the brief in Russian or Ukrainian. The English above is
+   * `sayEnglish` of these, byte for byte, so the two cannot come apart.
+   */
+  promptSaid: Said;
+  coverSaid: Said[];
   /** What it is about, as a prompt names it. */
   topic: string;
   /** Words from the dictionary the text must use, with their glosses. */
@@ -397,6 +405,8 @@ export interface SpeakItem extends BaseItem {
   topic: string;
   /** What to do, in English. */
   prompt: string;
+  /** `prompt` as a template and its fragments, for a screen in another language. */
+  promptSaid: Said;
   /** How long to speak for. */
   seconds: number;
   /** How long to prepare first, where the real paper gives time to. */
@@ -1550,7 +1560,7 @@ function wordsAsked(genre: WritingGenre, level: ExamLevel): number {
   return RANK[level]! <= RANK.A2! ? 3 : 4;
 }
 
-const GENRE_LABEL: Record<WritingGenre, string> = {
+export const GENRE_LABEL: Record<WritingGenre, string> = {
   card: "The business card",
   note: "A note",
   description: "A description",
@@ -1613,11 +1623,145 @@ function spokenText(brief: SpokenBrief): string {
   }
 }
 
+/**
+ * THE CONTEXT EVERY FRAGMENT OF A BRIEF IS TRANSLATED UNDER.
+ *
+ * A brief is English built out of the tables in `./briefs`, and a screen in
+ * Russian or Ukrainian says it through `lib/copy/i18n/areas/exam.ts`. Each
+ * fragment is kept there under a context of its own, so a short line such as
+ * "work" or "a museum" can be said the way its slot needs it without clashing
+ * with the same English on another screen: `brief` where it stands alone or is
+ * the object of "Write", `about` for a topic after "about" (the preposition
+ * travels with it), `ring` for the place a phone call goes to, `for` for the
+ * readers an opinion piece is written for, `card` for the points about the
+ * person on a business card, which an idea card asks of a partner in other
+ * words.
+ */
+export const BRIEF_CONTEXT = { brief: "brief", about: "about", ring: "ring", for: "for", card: "card" } as const;
+
+/** A line off the tables, said whole. */
+function line(en: string, context: string = BRIEF_CONTEXT.brief): Said {
+  return { en, context };
+}
+
+/** A template with brief fragments in it, each under the context its slot needs. */
+function template(
+  en: string,
+  words: Readonly<Record<string, readonly [english: string, context: string]>>,
+  values?: Readonly<Record<string, string | number>>,
+): Said {
+  return {
+    en,
+    ...(values ? { values } : {}),
+    words: Object.fromEntries(Object.entries(words).map(([k, [w]]) => [k, w])),
+    contexts: Object.fromEntries(Object.entries(words).map(([k, [, c]]) => [k, c])),
+  };
+}
+
+/** A variant's brief, with its English worked out from the templates, so the two say one thing. */
+function briefed(promptSaid: Said, coverSaid: Said[]): { prompt: string; cover: string[]; promptSaid: Said; coverSaid: Said[] } {
+  return { prompt: sayEnglish(promptSaid), cover: coverSaid.map(sayEnglish), promptSaid, coverSaid };
+}
+
+const lines = (list: readonly string[], context: string = BRIEF_CONTEXT.brief): Said[] => list.map((en) => line(en, context));
+
+/**
+ * What a written brief says, as templates and fragments: the task and the
+ * points to cover. `asNote` is the business card's fallback, set where the pool
+ * holds no job and workplace pair.
+ *
+ * Exported so `lib/exam/briefs.i18n.test.ts` can walk every brief the tables
+ * can produce and hold each to a translation in both languages.
+ */
+export function writtenSaid(brief: WrittenBrief, asNote = false): { promptSaid: Said; coverSaid: Said[] } {
+  const { brief: B, about: ABOUT, for: FOR } = BRIEF_CONTEXT;
+  const phrase = (topic: TopicKey) => topicByKey(topic).phrase;
+  const said = (promptSaid: Said, coverSaid: Said[]) => ({ promptSaid, coverSaid });
+
+  switch (brief.genre) {
+    case "card":
+      if (asNote) {
+        return said(template("Write {scenario}.", { scenario: [brief.fallback.scenario, B] }), lines(brief.fallback.cover));
+      }
+      return said(
+        template(
+          "This is {name}'s business card. Write a short text about them for somebody who has never met them.",
+          {},
+          { name: brief.person.name },
+        ),
+        lines(["who they are and what they do", "where they work", "when and how to get in touch"], BRIEF_CONTEXT.card),
+      );
+    case "note":
+      return said(template("Write {scenario}.", { scenario: [brief.note.scenario, B] }), lines(brief.note.cover));
+    case "description":
+      return said(template("Describe {subject}.", { subject: [brief.description.subject, B] }), lines(brief.description.cover));
+    case "story":
+      return said(
+        template(
+          "Write a story about {topic}: something that happened to you or somebody you know.",
+          { topic: [phrase(brief.topic), ABOUT] },
+        ),
+        lines(["what happened, and when", "why it happened", "what you think of it now"]),
+      );
+    case "personal-letter":
+      return said(
+        template("Write a personal letter to a friend about {topic}.", { topic: [phrase(brief.topic), ABOUT] }),
+        lines(["greet them and ask how they are", "tell them your news on the topic", "ask them something", "sign off"]),
+      );
+    case "letter-semiformal":
+      return said(
+        template(
+          "Write {scenario}. Address them politely, as you would somebody in an office " +
+          "you don't know, and open and close the letter the way that kind of letter does.",
+          { scenario: [brief.letter.scenario, B] },
+        ),
+        lines(brief.letter.cover),
+      );
+    case "letter-informal":
+      return said(
+        template("Write {scenario}. Write the way you would to a friend.", { scenario: [brief.letter.scenario, B] }),
+        lines(brief.letter.cover),
+      );
+    case "data-comment":
+    case "data-summary":
+      return said(
+        line(brief.genre === "data-comment"
+          ? "Write a summary of the figures in the table for the general public, then say what you think they mean."
+          : "Write a general summary of the figures in the table for the readers of a newspaper. Keep your own opinion out of it."),
+        lines(brief.genre === "data-comment"
+          ? ["compare the figures", "say what has changed or stands out", "give your own comment, with a reason"]
+          : ["compare the two columns", "pick out what matters most", "say what follows from the figures, without an opinion"]),
+      );
+    case "argument":
+      return said(
+        template('Write a text arguing for or against this statement: "{statement}"', { statement: [brief.argument.statement, B] }),
+        lines(["say where you stand", "give two reasons, each with an example", "answer one argument on the other side", "end with a conclusion"]),
+      );
+    case "opinion":
+      return said(
+        template("{situation} Write an opinion piece about it for {reader}.", {
+          situation: [brief.opinion.situation, B],
+          reader: [brief.opinion.reader, FOR],
+        }),
+        [
+          line("introduce the issue"),
+          template("develop the first point: {point}", { point: [brief.opinion.points[0], B] }),
+          template("develop the second point: {point}", { point: [brief.opinion.points[1], B] }),
+          line("end with a short conclusion"),
+        ],
+      );
+  }
+}
+
 function variantFor(brief: WrittenBrief, ctx: BuildContext, taken: Set<string>): WrittenVariant {
   const level = ctx.level;
   const words = (topic: TopicKey) => mustUseFor(ctx, topic, wordsAsked(brief.genre, level), taken, briefText(brief));
   const phrase = (topic: TopicKey) => topicByKey(topic).phrase;
   const label = GENRE_LABEL[brief.genre];
+  const told = (asNote = false) => {
+    const { promptSaid, coverSaid } = writtenSaid(brief, asNote);
+    return briefed(promptSaid, coverSaid);
+  };
 
   switch (brief.genre) {
     case "card": {
@@ -1627,7 +1771,7 @@ function variantFor(brief: WrittenBrief, ctx: BuildContext, taken: Set<string>):
         const note = brief.fallback;
         return {
           genre: "note", label: GENRE_LABEL.note, topic: phrase(note.topic),
-          prompt: `Write ${note.scenario}.`, cover: [...note.cover],
+          ...told(true),
           mustUse: words(note.topic), exhibit: null,
         };
       }
@@ -1635,10 +1779,7 @@ function variantFor(brief: WrittenBrief, ctx: BuildContext, taken: Set<string>):
       taken.add(found.workplace.lexemeId);
       return {
         genre: "card", label, topic: phrase("work"),
-        prompt:
-          `This is ${brief.person.name}'s business card. Write a short text about them for somebody who ` +
-          `has never met them.`,
-        cover: ["who they are and what they do", "where they work", "when and how to get in touch"],
+        ...told(),
         mustUse: [requiredWord(found.job), requiredWord(found.workplace)],
         exhibit: {
           layout: "card",
@@ -1652,57 +1793,20 @@ function variantFor(brief: WrittenBrief, ctx: BuildContext, taken: Set<string>):
       };
     }
     case "note":
-      return {
-        genre: "note", label, topic: phrase(brief.topic),
-        prompt: `Write ${brief.note.scenario}.`, cover: [...brief.note.cover],
-        mustUse: words(brief.topic), exhibit: null,
-      };
     case "description":
-      return {
-        genre: "description", label, topic: phrase(brief.topic),
-        prompt: `Describe ${brief.description.subject}.`, cover: [...brief.description.cover],
-        mustUse: words(brief.topic), exhibit: null,
-      };
-    case "story":
-      return {
-        genre: "story", label, topic: phrase(brief.topic),
-        prompt: `Write a story about ${phrase(brief.topic)}: something that happened to you or somebody you know.`,
-        cover: ["what happened, and when", "why it happened", "what you think of it now"],
-        mustUse: [], exhibit: null,
-      };
-    case "personal-letter":
-      return {
-        genre: "personal-letter", label, topic: phrase(brief.topic),
-        prompt: `Write a personal letter to a friend about ${phrase(brief.topic)}.`,
-        cover: ["greet them and ask how they are", "tell them your news on the topic", "ask them something", "sign off"],
-        mustUse: [], exhibit: null,
-      };
     case "letter-semiformal":
-      return {
-        genre: "letter-semiformal", label, topic: phrase(brief.topic),
-        prompt:
-          `Write ${brief.letter.scenario}. Address them politely, as you would somebody in an office ` +
-          `you don't know, and open and close the letter the way that kind of letter does.`,
-        cover: [...brief.letter.cover],
-        mustUse: words(brief.topic), exhibit: null,
-      };
     case "letter-informal":
-      return {
-        genre: "letter-informal", label, topic: phrase(brief.topic),
-        prompt: `Write ${brief.letter.scenario}. Write the way you would to a friend.`,
-        cover: [...brief.letter.cover],
-        mustUse: words(brief.topic), exhibit: null,
-      };
+    case "argument":
+    case "opinion":
+      return { genre: brief.genre, label, topic: phrase(brief.topic), ...told(), mustUse: words(brief.topic), exhibit: null };
+    case "story":
+    case "personal-letter":
+      return { genre: brief.genre, label, topic: phrase(brief.topic), ...told(), mustUse: [], exhibit: null };
     case "data-comment":
     case "data-summary":
       return {
         genre: brief.genre, label, topic: phrase(brief.topic),
-        prompt: brief.genre === "data-comment"
-          ? "Write a summary of the figures in the table for the general public, then say what you think they mean."
-          : "Write a general summary of the figures in the table for the readers of a newspaper. Keep your own opinion out of it.",
-        cover: brief.genre === "data-comment"
-          ? ["compare the figures", "say what has changed or stands out", "give your own comment, with a reason"]
-          : ["compare the two columns", "pick out what matters most", "say what follows from the figures, without an opinion"],
+        ...told(),
         mustUse: words(brief.topic),
         exhibit: {
           layout: "table",
@@ -1711,25 +1815,6 @@ function variantFor(brief: WrittenBrief, ctx: BuildContext, taken: Set<string>):
           columns: brief.dataset.columns,
           rows: brief.dataset.rows,
         },
-      };
-    case "argument":
-      return {
-        genre: "argument", label, topic: phrase(brief.topic),
-        prompt: `Write a text arguing for or against this statement: "${brief.argument.statement}"`,
-        cover: ["say where you stand", "give two reasons, each with an example", "answer one argument on the other side", "end with a conclusion"],
-        mustUse: words(brief.topic), exhibit: null,
-      };
-    case "opinion":
-      return {
-        genre: "opinion", label, topic: phrase(brief.topic),
-        prompt: `${brief.opinion.situation} Write an opinion piece about it for ${brief.opinion.reader}.`,
-        cover: [
-          "introduce the issue",
-          `develop the first point: ${brief.opinion.points[0]}`,
-          `develop the second point: ${brief.opinion.points[1]}`,
-          "end with a short conclusion",
-        ],
-        mustUse: words(brief.topic), exhibit: null,
       };
   }
 }
@@ -1767,32 +1852,47 @@ function buildWritten(kind: "message" | "compose", spec: TaskSpec, ctx: BuildCon
 
 // ── The spoken tasks ─────────────────────────────────────────────────────────
 
-function speakPrompt(card: SpeakCard, seconds: number, prepSeconds: number): string {
-  const time = seconds === 60 ? "about a minute"
+/**
+ * How long to speak for, as the prompt says it. Its own English line rather
+ * than a number in a template, because "about 2 minutes" after a verb of
+ * speaking is a different form in Russian and Ukrainian from "2 minutes" said
+ * alone, and both take the number's own plural.
+ */
+function aboutTime(seconds: number): string {
+  return seconds === 60 ? "about a minute"
     : seconds === 90 ? "about a minute and a half"
       : seconds > 60 && seconds % 60 === 0 ? `about ${seconds / 60} minutes`
         : `about ${seconds} seconds`;
+}
+
+export function speakPrompt(card: SpeakCard, seconds: number, prepSeconds: number): Said {
+  const { brief: B, about: ABOUT, ring: RING } = BRIEF_CONTEXT;
+  const time: readonly [string, string] = [aboutTime(seconds), B];
+  const prep: readonly [string, string] = [`${prepSeconds / 60} minutes`, B];
   switch (card.shape) {
     case "picture":
-      return `Describe the picture for ${time}: what is in it, where you might see it and what might be going on. The examiner's questions come once you've spoken.`;
+      return template("Describe the picture for {time}: what is in it, where you might see it and what might be going on. The examiner's questions come once you've spoken.", { time });
     case "idea-card":
-      return `Ask about ${card.about} using the card, then answer the same questions about yourself. On the real day you ask another candidate; here you play both sides.`;
+      return template("Ask about {about} using the card, then answer the same questions about yourself. On the real day you ask another candidate; here you play both sides.", { about: [card.about, ABOUT] });
     case "agree":
-      return "Answer the examiner's questions and say why. Then read the situation, talk the choices over as if with a partner, and agree on one.";
+      return line("Answer the examiner's questions and say why. Then read the situation, talk the choices over as if with a partner, and agree on one.");
     case "phone":
-      return `First you ring ${card.call} and ask for everything on your card. Then somebody rings you, and you answer as ${card.answerAs}, with the facts on the second card.`;
+      return template("First you ring {call} and ask for everything on your card. Then somebody rings you, and you answer as {answerAs}, with the facts on the second card.", {
+        call: [card.call, RING],
+        answerAs: [card.answerAs, B],
+      });
     case "talk":
-      return `You have ${prepSeconds / 60} minutes to prepare and may make notes. Then speak for ${time}, and answer the question after it.`;
+      return template("You have {prep} to prepare and may make notes. Then speak for {time}, and answer the question after it.", { prep, time });
     case "debate":
-      return "Give your view on the examiner's questions. Then read the situation, argue it out using both sides of the card and arguments of your own, and end with a decision.";
+      return line("Give your view on the examiner's questions. Then read the situation, argue it out using both sides of the card and arguments of your own, and end with a decision.");
     case "presentation":
-      return `Choose one of the two topics. You have ${prepSeconds / 60} minutes to prepare and may make notes. Then speak for ${time} and answer the questions after it.`;
+      return template("Choose one of the two topics. You have {prep} to prepare and may make notes. Then speak for {time} and answer the questions after it.", { prep, time });
     case "discussion":
-      return `Discuss the question as if with a partner, for ${time}. Cover the thoughts on the card, and keep it a conversation rather than a speech.`;
+      return template("Discuss the question as if with a partner, for {time}. Cover the thoughts on the card, and keep it a conversation rather than a speech.", { time });
   }
 }
 
-function cardFor(brief: SpokenBrief): SpeakCard {
+export function cardFor(brief: SpokenBrief): SpeakCard {
   switch (brief.shape) {
     case "picture":
       return {
@@ -1852,6 +1952,7 @@ function buildSpeak(spec: TaskSpec, ctx: BuildContext, which: number): ExamTask 
   const topic = brief.shape === "picture" ? brief.scene.situation.toLowerCase() : topicByKey(brief.topic).phrase;
   const seconds = spec.seconds ?? 60;
   const prepSeconds = spec.prepSeconds ?? 0;
+  const promptSaid = speakPrompt(card, seconds, prepSeconds);
 
   /*
     One item, marked out of the task's several marks by the learner themselves.
@@ -1869,7 +1970,8 @@ function buildSpeak(spec: TaskSpec, ctx: BuildContext, which: number): ExamTask 
     kind: "speak",
     shape: spec.shape ?? card.shape,
     topic,
-    prompt: speakPrompt(card, seconds, prepSeconds),
+    prompt: sayEnglish(promptSaid),
+    promptSaid,
     seconds,
     prepSeconds,
     card,
