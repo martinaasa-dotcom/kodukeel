@@ -40,8 +40,15 @@ export interface EntryCopy {
   readonly who: readonly { readonly title: string; readonly body: string }[];
   readonly whatTitle: string;
   readonly what: readonly string[];
-  /** That the app itself is in English, said before anybody signs up. */
-  readonly appInEnglish: string;
+  /**
+   * What language the app itself is in, said before anybody signs up. It used
+   * to say the app was in English, which stopped being true once the inside
+   * was translated: the language chosen here is carried through sign-in to
+   * first run. The page prints `MACHINE_SHORT` after it, since the inside is
+   * machine translated too and somebody deciding whether to sign up should
+   * know that before they do.
+   */
+  readonly appLanguage: string;
   readonly examLink: string;
 }
 
@@ -87,8 +94,8 @@ export const ENTRY_COPY: Readonly<Record<EntryLocale, EntryCopy>> = {
       "Все четырнадцать падежей, с формами из словаря, а не придуманными моделью.",
       "Повторение в тот день, когда слово начинает забываться. Бесплатно, и работает без интернета.",
     ],
-    appInEnglish:
-      "Само приложение пока на английском. Значения слов можно показывать по-русски, это включается в настройках (Settings).",
+    appLanguage:
+      "Внутри приложение тоже на русском: этот язык будет выбран сразу, а сменить его можно в настройках.",
     examLink: "Как устроен государственный экзамен (на английском)",
   },
   uk: {
@@ -129,8 +136,8 @@ export const ENTRY_COPY: Readonly<Record<EntryLocale, EntryCopy>> = {
       "Усі чотирнадцять відмінків, з формами зі словника, а не вигаданими моделлю.",
       "Повторення саме того дня, коли слово починає забуватися. Безкоштовно, і працює без інтернету.",
     ],
-    appInEnglish:
-      "Сам застосунок поки що англійською. Значення слів можна показувати українською, це вмикається в налаштуваннях (Settings).",
+    appLanguage:
+      "Усередині застосунок теж українською: цю мову буде вибрано одразу, а змінити її можна в налаштуваннях.",
     examLink: "Як влаштовано державний іспит (англійською)",
   },
 };

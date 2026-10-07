@@ -23,12 +23,14 @@ import { SelfCheck } from "./SelfCheck";
 import { SELF_CHECK, isWrittenKind } from "@/lib/exam/selfCheck";
 import { writtenSampleFor } from "@/lib/exam/official";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr, type Locale } from "@/lib/copy/locale";
 import { sayIn } from "@/lib/copy/said";
 import { fillNodes } from "@/components/fillNodes";
 
-export const metadata = { title: "Exam result" };
+export async function generateMetadata() {
+  return titleFor("Exam result");
+}
 
 export const dynamic = "force-dynamic";
 

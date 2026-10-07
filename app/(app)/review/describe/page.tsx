@@ -1,5 +1,5 @@
 import { requireUserId } from "@/lib/auth/session";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
@@ -14,7 +14,9 @@ import { DescribeSession, type ScenePrompt } from "./DescribeSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Say what you see" };
+export async function generateMetadata() {
+  return titleFor("Say what you see");
+}
 
 export const dynamic = "force-dynamic";
 

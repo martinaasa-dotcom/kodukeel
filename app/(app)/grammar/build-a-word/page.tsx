@@ -5,17 +5,18 @@ import { caseWalk } from "@/lib/progress/caseWalk";
 import { Empty, Page, Stack } from "@/components/ui";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { BuildWalk } from "./BuildWalk";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Build a word from three forms and eleven endings",
-  description:
-    "See how Estonian cases work on one word: the three forms you learn by heart, the one the endings "
-    + "go on, and each of the eleven endings in a real sentence.",
-};
+export async function generateMetadata() {
+  return titleFor("Build a word from three forms and eleven endings", {
+    description:
+      "See how Estonian cases work on one word: the three forms you learn by heart, the one the endings "
+      + "go on, and each of the eleven endings in a real sentence.",
+  });
+}
 
 /**
  * THE SCREEN THAT COMES BEFORE THE REFERENCE.

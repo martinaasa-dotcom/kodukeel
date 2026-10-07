@@ -15,11 +15,13 @@ import { DATE_AND_TIME, DateText } from "@/components/DateText";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Meter, Note, Page, Ring, SectionTitle } from "@/components/ui";
 import { ExamCountdownCard } from "@/components/ExamCountdown";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr, type Locale } from "@/lib/copy/locale";
 import { sayIn } from "@/lib/copy/said";
 
-export const metadata = { title: "Mock exam" };
+export async function generateMetadata() {
+  return titleFor("Mock exam");
+}
 
 export const dynamic = "force-dynamic";
 

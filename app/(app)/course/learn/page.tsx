@@ -10,10 +10,12 @@ import { courseReading, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { LearnSession } from "@/app/(app)/learn/new/LearnSession";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Today's words" };
+export async function generateMetadata() {
+  return titleFor("Today's words");
+}
 
 export const dynamic = "force-dynamic";
 

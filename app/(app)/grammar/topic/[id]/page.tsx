@@ -79,10 +79,13 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const topic = grammarTopic(id);
-  if (!topic) return { title: "Grammar" };
+  const locale = await localeFor(await requireUserId());
+  if (!topic) return { title: tr(locale, "Grammar") };
   const term = grammarTerm(id);
   return {
-    title: `Grammar, ${term ? `${topic.title.toLowerCase()}, or ${term.et}` : topic.title}`,
+    title: term
+      ? fill(tr(locale, "Grammar, {topic}, or {term}"), { topic: tr(locale, topic.title).toLowerCase(), term: term.et })
+      : fill(tr(locale, "Grammar, {topic}"), { topic: tr(locale, topic.title) }),
     description: topic.summary,
   };
 }

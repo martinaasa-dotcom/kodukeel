@@ -683,7 +683,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         alsoDone?: string[] | null;
         chosen?: { slot: string; given: string[] }[];
       };
-      if (data.error) { setError(data.error); return; }
+      if (data.error) { setError(t(data.error)); return; }
       /*
         A beat the judge conceded on this turn is written onto the turn, so the
         next request carries it and the server's replay ends the beat again.
@@ -853,7 +853,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         it was: the turn they typed is still theirs and pressing again resends
         it.
       */
-      setError("That didn't reach us. Try again.");
+      setError(t("That didn't reach us. Try again."));
     } finally {
       setBusy(false);
     }
@@ -863,14 +863,14 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
     the scene opened in rather than the one it is standing in, so a learner
     walking home from the shop would watch their kitchen leave twice.
   */
-  }, [opened, used, setTurns, scene.id, room]);
+  }, [opened, used, setTurns, scene.id, room, t]);
 
   async function start() {
     setBusy(true);
     setError(null);
     const result = await beginScene(scene.id, difficulty, level).catch(() => null);
     setBusy(false);
-    if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+    if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
 
     /*
       The briefing and nothing else: the plan stays on the server, so there is
@@ -891,7 +891,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
     setBusy(true);
     const result = await sceneHelp(opened?.runId, sent).catch(() => null);
     setBusy(false);
-    if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+    if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
     setHelped(true);
     setLent({ lemma: result.lemma, gloss: result.gloss });
     setAsked((was) => [...was, { lemma: result.lemma, lexemeId: result.lexemeId }]);
@@ -927,7 +927,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       runId: opened?.runId, turns: finalTurns, walkedOut, asked,
     }).catch(() => null);
     setBusy(false);
-    if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+    if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
     setDebrief({
       scene,
       objectives: result.objectives,

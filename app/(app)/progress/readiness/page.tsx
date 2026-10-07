@@ -11,10 +11,12 @@ import { ReadinessSummary } from "@/components/readiness/Summary";
 import { SituationRow } from "@/components/readiness/SituationRow";
 import { RUNG_LABEL } from "@/lib/readiness/rungs";
 import { Explain } from "@/components/Explain";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "In real life" };
+export async function generateMetadata() {
+  return titleFor("In real life");
+}
 
 export const dynamic = "force-dynamic";
 

@@ -10,6 +10,7 @@ import { APP } from "./areas/app";
 import { ROUNDS } from "./areas/rounds";
 import { PROGRESS } from "./areas/progress";
 import { COURSE } from "./areas/course";
+import { SHELL } from "./areas/shell";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -27,4 +28,5 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["rounds", ROUNDS],
   ["progress", PROGRESS],
   ["course", COURSE],
+  ["shell", SHELL],
 ];

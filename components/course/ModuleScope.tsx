@@ -154,7 +154,7 @@ function useCarryOn(focus: ModuleFocus) {
         setFailed(t("That didn't reach us, so this step isn't ticked yet."));
         return;
       }
-      if (!result.ok) { setFailed(result.error); return; }
+      if (!result.ok) { setFailed(t(result.error)); return; }
       /*
         AND NOTHING AFTER THE PUSH. `advanceCourseStep` revalidates `/course`
         and `/` inside the action, which drops the client's copy of both, and a

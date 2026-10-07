@@ -22,7 +22,8 @@ const ROUND = 20;
 
 export async function generateMetadata({ params }: { params: Promise<{ group: string }> }) {
   const group = groupBySlug((await params).group);
-  return { title: group ? `Most common ${group.title.toLowerCase()}` : "Most common words" };
+  const locale = await localeFor(await requireUserId());
+  return { title: tr(locale, group ? `Most common ${group.title.toLowerCase()}` : "Most common words") };
 }
 
 export const dynamic = "force-dynamic";

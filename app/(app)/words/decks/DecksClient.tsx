@@ -71,7 +71,7 @@ function NewDeck({ onCreated }: { onCreated: (deck: DeckSummary) => void }) {
     if (!name.trim() || pending) return;
     start(async () => {
       const result = await createMyDeck(name).catch(() => null);
-      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+      if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
       setError(null);
       setName("");
       onCreated(result.deck);
@@ -145,7 +145,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
     if (!name.trim() || name === deck.name) { setEditing(false); setName(deck.name); return; }
     start(async () => {
       const result = await renameMyDeck(deck.id, name).catch(() => null);
-      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+      if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
       setError(null);
       setEditing(false);
       onRenamed(name.trim());
@@ -161,7 +161,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
   const remove = () => {
     start(async () => {
       const result = await deleteMyDeck(deck.id).catch(() => null);
-      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+      if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
       onDeleted();
       router.refresh();
     });

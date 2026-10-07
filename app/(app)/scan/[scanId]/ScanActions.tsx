@@ -51,7 +51,7 @@ export function ScanActions({ scanId, title, pending }: {
     start(async () => {
       const result = await renameScan(scanId, draft).catch(() => null);
       if (!result || !result.ok) {
-        setMessage(result ? result.error : t(NOT_REACHED));
+        setMessage(t(result ? result.error : NOT_REACHED));
         return;
       }
       setRenaming(false);
@@ -63,7 +63,7 @@ export function ScanActions({ scanId, title, pending }: {
     start(async () => {
       const result = await deleteScan(scanId).catch(() => null);
       if (!result || !result.ok) {
-        setMessage(result ? result.error : t(NOT_REACHED));
+        setMessage(t(result ? result.error : NOT_REACHED));
         return;
       }
       router.push("/scan");

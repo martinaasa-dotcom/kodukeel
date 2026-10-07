@@ -36,7 +36,7 @@ export function CourseMove({ kind, label }: { kind: "down" | "back" | "ahead" | 
     start(async () => {
       const result = await press();
       if (!result) { setFailed(t(NOT_REACHED)); return; }
-      if (!result.ok) setFailed(result.error);
+      if (!result.ok) setFailed(t(result.error));
     });
   };
 

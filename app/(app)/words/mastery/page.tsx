@@ -7,10 +7,12 @@ import { MasteryBoard } from "@/components/MasteryBoard";
 import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
 import { favoriteCount, favorites } from "@/lib/progress/stars";
 import { deferredFor } from "@/lib/progress/deferrals";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Where your words stand" };
+export async function generateMetadata() {
+  return titleFor("Where your words stand");
+}
 
 export const dynamic = "force-dynamic";
 

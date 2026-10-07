@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ scanId: s
     where: { id: scanId, ownerId },
     select: { title: true },
   });
-  return { title: scan ? scan.title : "A page" };
+  return { title: scan ? scan.title : tr(await localeFor(ownerId), "A page") };
 }
 
 /**

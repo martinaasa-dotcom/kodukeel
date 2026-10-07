@@ -1,4 +1,4 @@
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -25,7 +25,9 @@ import { CASES } from "@/lib/estonian/cases";
 import { caseAsked } from "@/lib/srs/slots";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Writing" };
+export async function generateMetadata() {
+  return titleFor("Writing");
+}
 
 export const dynamic = "force-dynamic";
 

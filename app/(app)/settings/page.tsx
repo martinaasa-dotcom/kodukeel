@@ -35,7 +35,7 @@ import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPan
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossLanguagePanel } from "./GlossLanguagePanel";
 import { InterfaceLanguagePanel } from "./InterfaceLanguagePanel";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, countOf, fill, tr } from "@/lib/copy/locale";
 import { RoundPacePanel } from "./RoundPacePanel";
 import { ROUND_PACES, roundPaceFrom } from "@/lib/ux/roundClock";
@@ -52,7 +52,9 @@ import { DangerZone } from "./DangerZone";
 import { SetupGuide } from "./SetupGuide";
 import { providerResilience } from "@/lib/tutor/provider";
 
-export const metadata = { title: "Settings" };
+export async function generateMetadata() {
+  return titleFor("Settings");
+}
 
 export const dynamic = "force-dynamic";
 

@@ -69,7 +69,7 @@ import { SPEECH_PACES } from "@/lib/audio/pace";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
-import { localeFrom } from "@/lib/copy/locale";
+import { localeFrom, tr } from "@/lib/copy/locale";
 import { serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { serialiseNavOrder } from "@/lib/ux/navOrder";
 import { roundPaceFrom } from "@/lib/ux/roundClock";
@@ -3362,7 +3362,7 @@ export async function deleteMyAccount(confirmation: string) {
       ok: false as const,
       // Redacted: what the database says can name the deployment's own host and
       // user, and this sentence goes to a browser. See lib/observability/report.
-      error: `Something went wrong partway, so nothing was deleted. ${safeMessage(error)}`.trim(),
+      error: `${tr(await localeFor(ownerId), "Something went wrong partway, so nothing was deleted.")} ${safeMessage(error)}`.trim(),
     };
   }
 
@@ -3861,7 +3861,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   } catch (error) {
     return {
       ok: false as const,
-      error: `The restore didn't finish, so nothing was changed. ${safeMessage(error)}`.trim(),
+      error: `${tr(await localeFor(ownerId), "The restore didn't finish, so nothing was changed.")} ${safeMessage(error)}`.trim(),
     };
   }
 
@@ -4911,7 +4911,7 @@ export async function reviewSuggestion(input: unknown) {
  * are not touched (`lib/progress/courseReset.ts`).
  */
 export async function resetCourseFor(target: unknown) {
-  await requireAdminId();
+  const adminId = await requireAdminId();
   const all = target === "all";
   const ownerId = all ? "" : text(target).trim();
   if (!all && !ownerId) return { ok: false as const, error: "Nobody was named, so nothing was reset." };
@@ -4920,6 +4920,6 @@ export async function resetCourseFor(target: unknown) {
     revalidatePath("/admin/suggestions");
     return { ok: true as const, ...done };
   } catch (error) {
-    return { ok: false as const, error: `Nothing was reset. ${safeMessage(error)}`.trim() };
+    return { ok: false as const, error: `${tr(await localeFor(adminId), "Nothing was reset.")} ${safeMessage(error)}`.trim() };
   }
 }

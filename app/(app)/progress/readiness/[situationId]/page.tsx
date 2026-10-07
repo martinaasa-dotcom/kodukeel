@@ -17,9 +17,11 @@ import { tr } from "@/lib/copy/locale";
 export async function generateMetadata({ params }: { params: Promise<{ situationId: string }> }) {
   const { situationId } = await params;
   const situation = situationById(situationId);
-  if (!situation) return { title: "Situation" };
-  const placement = await courseLevelFor(await requireUserId());
-  return { title: uiText(placement, situation.title, situation.subtitle) };
+  const ownerId = await requireUserId();
+  const locale = await localeFor(ownerId);
+  if (!situation) return { title: tr(locale, "Situation") };
+  const placement = await courseLevelFor(ownerId);
+  return { title: tr(locale, uiText(placement, situation.title, situation.subtitle)) };
 }
 
 export const dynamic = "force-dynamic";

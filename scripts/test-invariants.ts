@@ -13491,7 +13491,8 @@ check("the copy about the round pace names every round that reads it", () => {
   const rounds = APP.filter((f) => f.endsWith("/page.tsx") && !f.includes("/settings/"))
     .filter((f) => /\broundPaceFrom\(/.test(code(f)))
     .map((f) => {
-      const title = /title:\s*"([^"]+)"/.exec(read(f))?.[1];
+      // A signed-in page names itself through `titleFor` (lib/progress/locale.ts).
+      const title = (/titleFor\("([^"]+)"/.exec(read(f)) ?? /title:\s*"([^"]+)"/.exec(read(f)))?.[1];
       assert.ok(title, `${f} reads the round pace and has no title to be named by`);
       return title!;
     });

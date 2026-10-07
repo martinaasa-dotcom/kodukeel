@@ -21,11 +21,13 @@ import { adaptOfferFor } from "@/lib/progress/adapt";
 import { leanSentence, moveLabel, offerParts, offerTitle, type AdaptOffer, type LeanEffects, type Tilt } from "@/lib/course";
 import { Speak } from "@/components/Speak";
 import { Lettered } from "@/components/HeroLetters";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepsIn } from "@/lib/course";
 
-export const metadata = { title: "Today's module" };
+export async function generateMetadata() {
+  return titleFor("Today's module");
+}
 
 export const dynamic = "force-dynamic";
 

@@ -8,12 +8,14 @@ import { parseItems, summarise } from "@/lib/scan/items";
 import { ButtonLink } from "@/components/Button";
 import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { ScanCapture } from "./ScanCapture";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Scan a page" };
+export async function generateMetadata() {
+  return titleFor("Scan a page");
+}
 
 /** How many past pages to list. A folder, not an archive. */
 const RECENT = 24;

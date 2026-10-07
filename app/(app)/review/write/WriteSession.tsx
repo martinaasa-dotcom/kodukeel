@@ -149,7 +149,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ?? t("Sorry, we couldn't mark that one. Try again?"));
+        setError(body.error ? t(body.error) : t("Sorry, we couldn't mark that one. Try again?"));
         return;
       }
       const result = body as Marked;

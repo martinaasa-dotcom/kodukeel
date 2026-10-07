@@ -2,10 +2,12 @@ import { requireUserId } from "@/lib/auth/session";
 import { listDecks } from "@/lib/progress/decks";
 import { Page } from "@/components/ui";
 import { DecksClient } from "./DecksClient";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Decks" };
+export async function generateMetadata() {
+  return titleFor("Decks");
+}
 
 export const dynamic = "force-dynamic";
 

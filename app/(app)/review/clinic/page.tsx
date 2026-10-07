@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { readableFront } from "@/lib/copy/caseHint";
 import { requireUserId } from "@/lib/auth/session";
@@ -9,7 +9,9 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ClinicList, type ClinicItem } from "./ClinicList";
 
-export const metadata = { title: "Leech clinic" };
+export async function generateMetadata() {
+  return titleFor("Leech clinic");
+}
 
 export const dynamic = "force-dynamic";
 

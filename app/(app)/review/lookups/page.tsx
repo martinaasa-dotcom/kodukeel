@@ -1,4 +1,4 @@
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -27,7 +27,9 @@ const ROUND = 20;
  */
 const POOL = ROUND * 8;
 
-export const metadata = { title: "Words you looked up" };
+export async function generateMetadata() {
+  return titleFor("Words you looked up");
+}
 
 export const dynamic = "force-dynamic";
 

@@ -1,4 +1,4 @@
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -14,7 +14,9 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { byRecency, recentLemmas, slotWithin } from "@/lib/course/scope";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Conjugation" };
+export async function generateMetadata() {
+  return titleFor("Conjugation");
+}
 
 export const dynamic = "force-dynamic";
 

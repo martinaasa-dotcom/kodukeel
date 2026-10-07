@@ -13,11 +13,13 @@ import { programmeFor } from "@/lib/progress/course";
 import { DATE_AND_TIME, DateText } from "@/components/DateText";
 import { Explain } from "@/components/Explain";
 import { firstParams } from "@/lib/ux/queryParam";
-import { localeFor } from "@/lib/progress/locale";
+import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { fillNodes } from "@/components/fillNodes";
 
-export const metadata = { title: "Level check" };
+export async function generateMetadata() {
+  return titleFor("Level check");
+}
 
 export const dynamic = "force-dynamic";
 

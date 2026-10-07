@@ -17,6 +17,7 @@ import { supabaseConfigured } from "@/lib/auth/mode";
 import { REVIEWED, localeFrom, tr } from "@/lib/copy/locale";
 import { LocaleProvider } from "@/components/Locale";
 import { LocaleNotice } from "@/components/LocaleNotice";
+import { ShellLocale } from "@/components/ShellLocale";
 import { letterBarFrom } from "@/lib/ux/letterBar";
 import { navOrderFrom } from "@/lib/ux/navOrder";
 import { railClasses } from "@/lib/progress/classes";
@@ -128,6 +129,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <AudioPrefsProvider value={audio}>
     <LetterBarScope value={letters} dismissible>
       <DeviceOwner owner={ownerDigest(ownerId)} />
+      {/* The language handed to what sits outside this shell: the offline
+          banner in the root layout, and `lang` on the document for anything
+          drawn in a portal. See the component. */}
+      <ShellLocale locale={locale} />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-[200] focus:rounded-full focus:px-4 focus:py-2"
@@ -138,7 +143,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       {/* Around the rail as well as the page, because inside a module the rail
           draws tonight's steps under Learn and has to know which step this is. */}
       <ModuleScope>
-      <div className="flex min-h-screen flex-col md:flex-row">
+      {/*
+        `lang` here from the first paint, so a screen reader reads the rail
+        and the page in Russian or Ukrainian rather than with English sounds.
+        Every Estonian word on them carries its own `lang="et"`, which wins
+        inside it. The document's own `lang` follows on mount.
+      */}
+      <div lang={locale} className="flex min-h-screen flex-col md:flex-row">
         <Wash />
         <Sidebar
           order={navOrderFrom(settings[SETTING_KEYS.navOrder])}

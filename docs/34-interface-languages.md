@@ -28,6 +28,18 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
   Two areas translating one English line differently fails `locale.test.ts`.
 - A server component reads the locale with `localeFor(ownerId)` from `lib/progress/locale.ts`; a
   client component with `useLocale()` from `components/Locale.tsx`.
+- A signed-in page names itself with `generateMetadata` returning `titleFor("Today")`, never a
+  static `metadata`, which cannot know who is asking. Public pages keep their English titles.
+- A server action returns its refusal in English and the screen translates it with `t()` where it
+  is drawn. The one exception is a refusal that ends in what the database said (`safeMessage`):
+  the action translates its own sentence and leaves the redacted tail as it is.
+- The offline banner and the document's `lang` sit above the shell, so `components/ShellLocale.tsx`
+  hands the language up to them; the shell's own wrapper carries `lang` from the first paint.
+- Anu explains in the learner's language: the tutor is told so in the per-learner block
+  (`explainIn` in `lib/tutor/prompt.ts`), so the cached prompt stays one prompt for everybody, and
+  the note after a conversation is written in it (`lib/scenes/coachNote.ts`). Every Estonian rule is
+  unchanged, Estonian stays in straight quotes for the verifier, their own language goes in «», and
+  the translation on a VOCAB line stays English because it becomes a shared dictionary gloss.
 
 ## The voice
 
