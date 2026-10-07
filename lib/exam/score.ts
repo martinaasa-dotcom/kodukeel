@@ -95,6 +95,12 @@ export interface ItemMark {
   /** Which language `prompt` is in: the sentence asked about, or a written task's English brief. */
   promptLanguage?: "et" | "en";
   /**
+   * An English `prompt` as its template and fragments, so the result page can
+   * say a written or spoken brief in the learner's language. A mark stored
+   * before this existed has none and prints its English.
+   */
+  promptSaid?: Said;
+  /**
    * The learner's own text, kept only for the composition.
    *
    * Every other item's answer fits in `given`. A composition does not, and the
@@ -484,6 +490,14 @@ function markWritten(
     raw: text.trim(),
     prompt: brief ? `${brief.label}: ${brief.prompt}` : undefined,
     promptLanguage: "en",
+    ...(brief?.promptSaid ? {
+      promptSaid: {
+        en: "{label}: {prompt}",
+        words: { label: brief.label },
+        contexts: { label: "brief" },
+        lists: { prompt: [brief.promptSaid] },
+      },
+    } : {}),
     note: note.map(sayEnglish).join(" "),
     said: { expected, given, note },
     cardId: null,
@@ -529,6 +543,7 @@ function markSpeak(
     note: spoken?.recorded ? "" : "There's no recording, so this task scores nothing.",
     prompt: item.prompt,
     promptLanguage: "en",
+    ...(item.promptSaid ? { promptSaid: item.promptSaid } : {}),
     cardId: null,
     lexemeId: item.lexemeId,
     lemma: item.lemma,

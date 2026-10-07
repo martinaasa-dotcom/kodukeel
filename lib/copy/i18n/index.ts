@@ -19,6 +19,7 @@ import { LANDING } from "./areas/landing";
 import { LEGAL } from "./areas/legal";
 import { PUBLIC } from "./areas/public";
 import { SWEEP } from "./areas/sweep";
+import { EXAM } from "./areas/exam";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -45,4 +46,5 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["legal", LEGAL],
   ["public", PUBLIC],
   ["sweep", SWEEP],
+  ["exam", EXAM],
 ];
