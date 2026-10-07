@@ -6153,28 +6153,28 @@ _lib/copy/i18n/areas/app.ts_
   → Сначала всё здесь удаляется, и в итоге остаётся ровно то, что в резервной копии, и ничего больше.
 - [ ] **3039.** This wipes the {reviews} already here, and review history can't be rebuilt. Type {word} to confirm.  
   → Это сотрёт уже сохранённые здесь повторения ({reviews}), а историю повторений нельзя восстановить. Чтобы подтвердить, напечатайте {word}.
-- [ ] **3040.** Type replace to confirm  
-  → Напечатайте replace для подтверждения
-- [ ] **3041.** Restoring…  
+- [ ] **3040.** Type {word} to confirm  
+  → Чтобы подтвердить, напечатайте {word}
+- [ ] **3041.** Type the word shown to confirm.  
+  → Чтобы подтвердить, напечатайте показанное слово.
+- [ ] **3042.** Restoring…  
   → Восстанавливаем…
-- [ ] **3042.** Merge this backup in  
+- [ ] **3043.** Merge this backup in  
   → Добавить эту копию
-- [ ] **3043.** Something went wrong, so nothing has been deleted. Try again in a moment.  
+- [ ] **3044.** Something went wrong, so nothing has been deleted. Try again in a moment.  
   → Что-то пошло не так, поэтому ничего не удалено. Попробуйте ещё раз чуть позже.
-- [ ] **3044.** Deleting your data  
+- [ ] **3045.** Deleting your data  
   → Удаление ваших данных
-- [ ] **3045.** You can delete everything this app keeps about you. That's {cards}, {reviews}, your tasks, your chats with Anu, your scanned word lists, your level checks, and every mock exam you sat, writing included. Any class you're in or run goes too, along with your badges and settings. The shared dictionary stays, because other learners have cards built on it.  
+- [ ] **3046.** You can delete everything this app keeps about you. That's {cards}, {reviews}, your tasks, your chats with Anu, your scanned word lists, your level checks, and every mock exam you sat, writing included. Any class you're in or run goes too, along with your badges and settings. The shared dictionary stays, because other learners have cards built on it.  
   → Вы можете удалить всё, что приложение хранит о вас. Это {cards}, {reviews}, ваши задания, разговоры с Ану, отсканированные списки слов, проверки уровня и все пробные экзамены, которые вы сдавали, вместе с письменными работами. Группы, в которых вы состоите или которые ведёте, тоже удалятся, вместе со значками и настройками. Общий словарь останется, потому что на нём построены карточки других учеников.
-- [ ] **3046.** If there's any chance you'll want it back, download a backup first. Your review history and anything you wrote in an exam can't be rebuilt, and we don't keep a copy.  
+- [ ] **3047.** If there's any chance you'll want it back, download a backup first. Your review history and anything you wrote in an exam can't be rebuilt, and we don't keep a copy.  
   → Если есть хоть малейший шанс, что всё это вам ещё понадобится, сначала скачайте резервную копию. Историю повторений и всё, что вы написали на экзамене, восстановить нельзя, а копию мы не храним.
-- [ ] **3047.** Sign out  
+- [ ] **3048.** Sign out  
   → Выйти
-- [ ] **3048.** Delete everything  
+- [ ] **3049.** Delete everything  
   → Удалить всё
-- [ ] **3049.** This can't be undone. Type {word} to confirm.  
+- [ ] **3050.** This can't be undone. Type {word} to confirm.  
   → Это нельзя отменить. Чтобы подтвердить, напечатайте {word}.
-- [ ] **3050.** Type delete to confirm  
-  → Напечатайте delete для подтверждения
 - [ ] **3051.** Deleting…  
   → Удаляем…
 - [ ] **3052.** Delete everything permanently  
@@ -14627,4 +14627,23 @@ _lib/copy/i18n/areas/public.ts_
   → процент учеников за месяц, процента учеников за месяц, процентов учеников за месяц
 - [ ] **7238.** times / time, times _(1, 2, 5)_  
   → раз, раза, раз
+
+## meaning (7 lines)
+
+_lib/copy/i18n/areas/meaning.ts_
+
+- [ ] **7239.** Estonian → Russian  
+  → Эстонский → русский
+- [ ] **7240.** Russian → Estonian  
+  → Русский → эстонский
+- [ ] **7241.** Also show  
+  → Показывать также
+- [ ] **7242.** Also show a second language after the first  
+  → Показывать второй язык после первого
+- [ ] **7243.** Nothing else  
+  → Больше ничего
+- [ ] **7244.** Just the one language and the English.  
+  → Только один язык и английский.
+- [ ] **7245.** Shown small, after the first meaning.  
+  → Мелким шрифтом, после первого значения.
 

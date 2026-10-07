@@ -61,7 +61,7 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **15.** Today  
   → Сьогодні
 - [ ] **16.** What's waiting for you today, and your streak  
-  → Що чекає на вас сьогодні, і ваша серія днів
+  → Що чекає на вас сьогодні й ваша серія днів
 - [ ] **17.** Today's module  
   → Урок на сьогодні
 - [ ] **18.** Tonight's words and games, already picked for you  
@@ -77,7 +77,7 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **23.** Review  
   → Повторення
 - [ ] **24.** Everything due, right before you'd forget it  
-  → Усе, що час повторити, саме тоді, коли ви б це забули
+  → Усе, що час повторити, якраз перед тим, як ви це забудете
 - [ ] **25.** Situations  
   → Ситуації
 - [ ] **26.** Book a doctor, order a coffee, ring your landlord  
@@ -95,9 +95,9 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **32.** What each of the fourteen cases is for  
   → Для чого потрібен кожен із чотирнадцяти відмінків
 - [ ] **33.** Build a word  
-  → Збери слово
+  → Побудувати слово
 - [ ] **34.** Learn three forms of a word and get eleven more for free  
-  → Вивчіть три форми слова, і ще одинадцять отримаєте безкоштовно
+  → Вивчіть три форми слова й отримайте ще одинадцять безкоштовно
 - [ ] **35.** Exceptions  
   → Винятки
 - [ ] **36.** The words that break the usual rules  
@@ -113,7 +113,7 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **41.** Ask Anu  
   → Запитати Ану
 - [ ] **42.** Ask your tutor anything about Estonian  
-  → Запитайте свою репетиторку про будь-що з естонської
+  → Запитайте свою репетиторку про будь-що в естонській мові
 - [ ] **43.** How it's going  
   → Як ідуть справи
 - [ ] **44.** Your week ahead, and how far you've come.  
@@ -135,9 +135,9 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **52.** Every word you're learning, card by card  
   → Кожне слово, яке ви вчите, картка за карткою
 - [ ] **53.** Word mastery  
-  → Знання слів
+  → Опанування слів
 - [ ] **54.** Your favorites, what you've mastered and what needs work  
-  → Обране, що ви вже знаєте і над чим ще варто попрацювати
+  → Обрані слова, опановані й ті, над якими ще варто попрацювати
 - [ ] **55.** Decks  
   → Колоди
 - [ ] **56.** Make your own word lists and add to them as you go  
@@ -149,13 +149,13 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **59.** Level check  
   → Перевірка рівня
 - [ ] **60.** Find out your level in reading, listening, writing and speaking  
-  → Дізнайтеся свій рівень у читанні, аудіюванні, письмі та усному мовленні
+  → Дізнайтеся свій рівень у читанні, аудіюванні, письмі та говорінні
 - [ ] **61.** Mock exam  
   → Пробний іспит
 - [ ] **62.** A practice run at the state language exam  
   → Тренування перед державним іспитом з мови
 - [ ] **63.** This app  
-  → Застосунок
+  → Цей застосунок
 - [ ] **64.** Your settings, and the fixes you've suggested.  
   → Ваші налаштування та виправлення, які ви запропонували.
 - [ ] **65.** Settings  
@@ -169,7 +169,7 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **69.** More  
   → Ще
 - [ ] **70.** More places to go  
-  → Інші розділи
+  → Інші сторінки
 - [ ] **71.** Close  
   → Закрити
 - [ ] **72.** Your class  
@@ -185,7 +185,7 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **77.** Dark  
   → Темна
 - [ ] **78.** Sign out  
-  → Вийти
+  → Вийти з облікового запису
 - [ ] **79.** Skip to content  
   → Перейти до вмісту
 - [ ] **80.** Estonian, daily  
@@ -231,7 +231,7 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **100.** Your own Estonian, with gaps  
   → Ваш естонський текст із пропусками
 - [ ] **101.** Paste in anything in Estonian, an article or your homework, and we'll blank out words you've learned.  
-  → Вставте будь-який текст естонською, статтю чи домашнє завдання, і ми приберемо з нього слова, які ви вже вчили.
+  → Вставте будь-який текст естонською, статтю чи домашнє завдання, і ми замінимо пропусками слова, які ви вже вчили.
 - [ ] **102.** Type each missing word back in, the way the writer had it.  
   → Впишіть кожне пропущене слово так, як воно було в автора.
 - [ ] **103.** Paste something in  
@@ -241,7 +241,7 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **105.** A verb with the "I" form filled in and the other five boxes empty.  
   → Дієслово, у якого заповнено форму «я», а решта п'ять полів порожні.
 - [ ] **106.** Fill in the rest, one box at a time. The "I" form is your clue.  
-  → Заповніть решту полів по одному. Форма «я» вам підказка.
+  → Заповніть решту полів по одному. Підказкою вам буде форма «я».
 - [ ] **107.** A verb's six forms, already on the screen but jumbled up.  
   → Шість форм дієслова вже на екрані, але перемішані.
 - [ ] **108.** Put each form next to the person it goes with. There's nothing to type.  
@@ -295,7 +295,7 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **132.** Long or short  
   → Довгий чи короткий
 - [ ] **133.** Two words that sound almost the same, except one sound is held a little longer. You'll hear one of them.  
-  → Два слова звучать майже однаково, тільки в одному звук тягнеться трохи довше. Ви почуєте одне з них.
+  → Два слова звучать майже однаково, тільки в одному звук тягнеться довше. В українській довгих голосних немає, тож вухо треба привчити. Ви почуєте одне з них.
 - [ ] **134.** Say which one you heard. Play it again if you need to, it's recorded in a quiet room.  
   → Скажіть, яке ви почули. Якщо треба, увімкніть ще раз: запис зроблено в тихій кімнаті.
 - [ ] **135.** Put the sentence back in order  
@@ -317,9 +317,9 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **143.** Go as fast as you can until time's up. Stopping early costs you nothing.  
   → Відповідайте якомога швидше, поки не мине час. Якщо зупинитеся раніше, нічого не втратите.
 - [ ] **144.** Start the clock  
-  → Запустити час
+  → Запустити таймер
 - [ ] **145.** Hit the right ending  
-  → Влуч у потрібне закінчення
+  → Влучте в потрібне закінчення
 - [ ] **146.** A word, a question, and four answers to pick from, mostly the same word with different endings. Every hit makes the next clock a little shorter.  
   → Слово, запитання і чотири відповіді на вибір, найчастіше те саме слово з різними закінченнями. З кожним влученням час на наступне запитання трохи скорочується.
 - [ ] **147.** Tap the one the question is asking for.  
@@ -355,13 +355,13 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **162.** Meeting a word isn't scored, so take your time with it. Then answer.  
   → Знайомство зі словом не оцінюється, тож не поспішайте. Потім відповідайте.
 - [ ] **163.** Start the lesson  
-  → Почати урок
+  → Почати урок розділу
 - [ ] **164.** A checkpoint, not a test  
   → Контрольна точка, а не іспит
 - [ ] **165.** A short set of questions from across the level. You'll find out how you did at the end, not after each one.  
   → Короткий набір запитань з усього рівня. Результат ви дізнаєтеся наприкінці, а не після кожного запитання.
 - [ ] **166.** Answer each one as best you can and keep going. Leaving one blank is an honest answer.  
-  → Відповідайте на кожне як зможете й рухайтеся далі. Залишити запитання без відповіді теж чесно.
+  → Відповідайте на кожне як зможете й рухайтеся далі. Порожня відповідь теж чесна відповідь.
 - [ ] **167.** {count} in this round  
   → {count} у цьому раунді
 - [ ] **168.** Before you start  
@@ -389,7 +389,7 @@ _lib/copy/i18n/{ru,uk}.ts_
 - [ ] **179.** Busy  
   → Багато
 - [ ] **180.** Reviews per day, last six months  
-  → Повторення за днями за останні пів року
+  → Щоденні повторення за останні пів року
 
 ## start (193 lines)
 
@@ -404,7 +404,7 @@ _lib/copy/i18n/areas/start.ts_
 - [ ] **184.** That address cannot use this copy of Kodukeel, because it’s set up for one particular group. Try the account you were invited with.  
   → З цією адресою не можна увійти в цю копію Kodukeel, бо її налаштовано для певної групи. Спробуйте обліковий запис, на який вас запросили.
 - [ ] **185.** That link would have signed you in as someone else, so to be safe we signed you out and didn’t follow it. If the link is yours, sign in below. If you didn’t ask for it, you can safely ignore it.  
-  → За цим посиланням ви увійшли б у чужий обліковий запис, тож для безпеки ми вийшли з облікового запису й не стали його відкривати. Якщо посилання ваше, увійдіть нижче. Якщо ви його не запитували, просто не зважайте на нього.
+  → За цим посиланням ви увійшли б у чужий обліковий запис, тож для безпеки ми завершили ваш сеанс і не стали відкривати посилання. Якщо посилання ваше, увійдіть нижче. Якщо ви його не запитували, просто не зважайте на нього.
 - [ ] **186.** This browser couldn’t finish that sign-in. Either the link was opened in a different browser from the one that asked for it, or you ended up on a different address from the one you started on. Try again from here.  
   → Цей браузер не зміг завершити вхід. Або посилання відкрили не в тому браузері, де його запитували, або ви опинилися не на тій адресі, з якої починали. Спробуйте ще раз звідси.
 - [ ] **187.** If it keeps happening, let {email} know: this address needs adding to the sign-in settings.  
@@ -444,7 +444,7 @@ _lib/copy/i18n/areas/start.ts_
 - [ ] **204.** Check your email  
   → Перевірте пошту
 - [ ] **205.** We’ve sent a link to {address}. Open it in this browser and you’re in. It stops working after an hour.  
-  → Ми надіслали посилання на {address}. Відкрийте його в цьому браузері, і ви ввійдете. За годину воно перестане працювати.
+  → Ми надіслали посилання на {address}. Відкрийте його в цьому браузері, і ви ввійдете. Через годину воно перестане працювати.
 - [ ] **206.** Use a different address  
   → Вказати іншу адресу
 - [ ] **207.** Taking you to Google…  
@@ -490,9 +490,9 @@ _lib/copy/i18n/areas/start.ts_
 - [ ] **227.** Back  
   → Назад
 - [ ] **228.** Measured {level}  
-  → Перевірено: {level}
+  → Виміряно: {level}
 - [ ] **229.** Estimated {level}  
-  → Ваша оцінка: {level}
+  → За вашою оцінкою: {level}
 - [ ] **230.** below A1  
   → нижче A1
 - [ ] **231.** Building your deck...  
@@ -544,7 +544,7 @@ _lib/copy/i18n/areas/start.ts_
 - [ ] **254.** Take the level check to find out, or just pick the one that sounds like you. The check stops as soon as it has found your level. Either way, you can change it later in Settings.  
   → Пройдіть перевірку рівня, щоб дізнатися, або просто виберіть той, що найбільше схожий на вас. Перевірка закінчиться, щойно визначить ваш рівень. У будь-якому разі його можна потім змінити в налаштуваннях.
 - [ ] **255.** Measured just now  
-  → Щойно перевірено
+  → Щойно виміряно
 - [ ] **256.** Take it again  
   → Пройти ще раз
 - [ ] **257.** Take the level check  
@@ -576,7 +576,7 @@ _lib/copy/i18n/areas/start.ts_
 - [ ] **270.** Pretty much anything. You're here for the finer shades of meaning.  
   → Майже все. Ви тут заради тонких відтінків значення.
 - [ ] **271.** Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. Don’t worry about saying them right yet. That comes with time.  
-  → В естонській є чотири літери, яких немає в англійській: {a}, {b}, {c} і {d}. Вони трапляються всюди. Не хвилюйтеся, якщо поки не виходить правильно їх вимовляти. Це прийде з часом.
+  → В естонській є чотири літери, яких немає ні в українській, ні в англійській: {a}, {b}, {c} і {d}. Дві останні звучать як «е» та «і», якщо скласти губи як для «у». Не хвилюйтеся, якщо поки не виходить. Це прийде з часом.
 - [ ] **272.** Why Estonian?  
   → Навіщо вам естонська?
 - [ ] **273.** Pick every one that’s true. We’ll suggest a level to aim for, and the plan at the bottom changes as you answer.  
@@ -614,7 +614,7 @@ _lib/copy/i18n/areas/start.ts_
 - [ ] **289.** Curiosity  
   → Цікавість
 - [ ] **290.** Fourteen cases, and words that change shape when you're not looking. Reason enough.  
-  → Чотирнадцять відмінків і слова, які змінюють форму, щойно відвернешся. Цілком достатня причина.
+  → Чотирнадцять відмінків і слова, які змінюють форму, щойно ви відвернетеся. Цілком достатня причина.
 - [ ] **291.** What level are you aiming for?  
   → До якого рівня ви прагнете?
 - [ ] **292.** What level are you aiming for  
@@ -658,7 +658,7 @@ _lib/copy/i18n/areas/start.ts_
 - [ ] **311.** This copy of Kodukeel has no dictionary loaded yet, so there are no first words to give you. Whoever runs it can load one with {command}. You can still pick your pace below, and add words yourself as you come across them.  
   → У цій копії Kodukeel ще не завантажено словник, тож перших слів поки немає. Той, хто нею керує, може завантажити його командою {command}. А темп ви можете вибрати вже зараз, нижче, і додавати слова самі, коли їх зустрічатимете.
 - [ ] **312.** How much a day  
-  → Скільки на день
+  → Скільки часу на день
 - [ ] **313.** changeable any time in Settings  
   → можна змінити в налаштуваннях
 - [ ] **314.** Casual  
@@ -676,7 +676,7 @@ _lib/copy/i18n/areas/start.ts_
 - [ ] **320.** You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.  
   → Вам ніколи не доведеться вирішувати, що вчити. Kodukeel планує за вас кожен вечір: які слова, у якому порядку і які ігри. Приблизно п'ятнадцять хвилин, а потім він скаже, що на сьогодні все.
 - [ ] **321.** You start at {part}  
-  → Ви починаєте з {part}
+  → Ви починаєте з частини {part}
 - [ ] **322.** {evenings}, about {minutes} each.  
   → {evenings}, приблизно по {minutes}.
 - [ ] **323.** Tonight is {title}, {words} and one short round.  
@@ -842,7 +842,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **399.** {done} of {goal} reviews  
   → Повторено {done} з {goal}
 - [ ] **400.** Going over cards before they're due doesn't help them stick. Take the break, or start something new.  
-  → Якщо повторювати картки раніше терміну, краще вони не запам'ятаються. Відпочиньте або почніть щось нове.
+  → Повторювати картки раніше терміну не допомагає їм закріпитися. Відпочиньте або почніть щось нове.
 - [ ] **401.** Meet your first words  
   → Познайомитися з першими словами
 - [ ] **402.** Learn {words}  
@@ -890,7 +890,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **423.** That's tonight done. Go and enjoy your evening.  
   → На сьогодні все. Гарного вам вечора.
 - [ ] **424.** Tomorrow you'll carry on with {unit}, part {n} of {of}.  
-  → Завтра продовжимо розділ {unit}, частина {n} з {of}.
+  → Завтра продовжимо розділ «{unit}», частина {n} з {of}.
 - [ ] **425.** See you tomorrow for {unit}.  
   → До завтра! Попереду: {unit}.
 - [ ] **426.** See you tomorrow for {unit} ({english}).  
@@ -962,7 +962,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **459.** Daily quest  
   → Завдання дня
 - [ ] **460.** Your {case} is at {pct}%. Give it {length} today.  
-  → Ваш {case} поки засвоєний на {pct}%. Приділіть йому сьогодні {length}.
+  → Відмінок {case} поки засвоєно на {pct}%. Приділіть йому сьогодні {length}.
 - [ ] **461.** {length} on the cards that trip you up most.  
   → {length} на картки, на яких ви найчастіше спотикаєтеся.
 - [ ] **462.** Start the quest  
@@ -1054,7 +1054,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **505.** Say it today  
   → Скажіть це сьогодні
 - [ ] **506.** You'll find the words in {unit}.  
-  → Потрібні слова є в розділі {unit}.
+  → Потрібні слова є в розділі «{unit}».
 - [ ] **507.** Or {try}.  
   → Або {try}.
 - [ ] **508.** try it out here first  
@@ -1074,7 +1074,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **515.** That makes {held} in the last {days}.  
   → Усього розмов за останні {days}: {held}.
 - [ ] **516.** See them all on Progress  
-  → Усі вони в розділі «Поступ»
+  → Усі вони на сторінці «Поступ»
 - [ ] **517.** Practise one here now  
   → Потренуватися тут просто зараз
 - [ ] **518.** Was there a word you wanted and couldn't find?  
@@ -1158,7 +1158,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **557.** a friend  
   → друг
 - [ ] **558.** A form  
-  → Анкета
+  → Бланк
 - [ ] **559.** A health center  
   → Поліклініка
 - [ ] **560.** a salon  
@@ -1186,7 +1186,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **571.** Word of the day  
   → Слово дня
 - [ ] **572.** You've already met every word we could pick for today, which is a first. Have a browse in the dictionary, and there'll be a new one here tomorrow.  
-  → Ви вже знаєте всі слова, які ми могли вибрати на сьогодні, і таке вперше. Загляньте до словника, а завтра тут буде нове.
+  → Ви вже зустрічали всі слова, які ми могли вибрати на сьогодні, і таке вперше. Загляньте до словника, а завтра тут буде нове.
 - [ ] **573.** Open the dictionary  
   → Відкрити словник
 - [ ] **574.** new to you  
@@ -1222,7 +1222,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **589.** You know every word this level asks for. There's nothing new left in it.  
   → Ви знаєте всі слова, потрібні на цьому рівні. Нового в ньому не лишилося.
 - [ ] **590.** You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you tick off an evening. You're on {part}.  
-  → Ви пройшли {pct}% шляху від початку {start} до {target}. Суцільна частина росте, лише коли слово справді закріпилося в повтореннях, а не коли ви позначаєте вечір. Ви зараз на {part}.
+  → Ви пройшли {pct}% шляху від початку {start} до {target}. Суцільна частина росте, лише коли слово справді закріпилося в повтореннях, а не коли ви позначаєте вечір. Ви зараз тут: {part}.
 - [ ] **591.** You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you tick off an evening.  
   → Ви пройшли {pct}% шляху від початку {start} до {target}. Суцільна частина росте, лише коли слово справді закріпилося в повтореннях, а не коли ви позначаєте вечір.
 - [ ] **592.** Every level up to {target} counts as yours already. What's left is proving it, and that's what the evenings are for.  
@@ -1242,7 +1242,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **599.** Confident user  
   → Впевнений користувач
 - [ ] **600.** Proficient user  
-  → Вільне володіння
+  → Досвідчений користувач
 - [ ] **601.** You can make yourself understood in a shop, a café and a first introduction.  
   → Ви можете порозумітися в магазині, у кав'ярні та під час першого знайомства.
 - [ ] **602.** You can hold a simple conversation about your day, your family and your plans.  
@@ -1270,21 +1270,21 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **613.** our guess, not a rule  
   → наше припущення, а не правило
 - [ ] **614.** Not ready for {part} yet  
-  → До {part} поки зарано
+  → До частини {part} поки зарано
 - [ ] **615.** We'd give it a few more days to settle before you build the next part on it.  
   → Ми б дали вивченому ще кілька днів улягтися, перш ніж будувати на ньому наступну частину.
 - [ ] **616.** Start {part} anyway  
-  → Усе одно почати {part}
+  → Усе одно почати частину {part}
 - [ ] **617.** Review what's due  
   → Повторити картки на сьогодні
 - [ ] **618.** Next is {part} ({about}). It picks up where this one stopped, and it only asks about things you've already met.  
-  → Далі {part} ({about}). Ця частина починається там, де закінчилася попередня, і питає лише про те, що ви вже зустрічали.
+  → Далі частина {part} ({about}). Вона починається там, де закінчилася попередня, і питає лише про те, що ви вже зустрічали.
 - [ ] **619.** That's the whole course, start to finish. Every word is in your reviews, and each one will come back just as you're about to forget it.  
   → Це весь курс від початку до кінця. Усі слова у ваших повтореннях, і кожне повернеться саме тоді, коли ви почнете його забувати.
 - [ ] **620.** See what you could handle out there  
   → Що вам уже під силу в житті
 - [ ] **621.** Start {part}  
-  → Почати {part}
+  → Почати частину {part}
 - [ ] **622.** Open the course  
   → Відкрити курс
 - [ ] **623.** That's tonight done  
@@ -1298,7 +1298,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **627.** Come back tomorrow for {unit} ({english}).  
   → Повертайтеся завтра: попереду {unit} ({english}).
 - [ ] **628.** Sleep does half the work of making tonight's words stick, so stopping here is part of the plan.  
-  → Половину роботи із запам'ятовування сьогоднішніх слів зробить сон, тож зупинитися зараз теж частина плану.
+  → Половину роботи із запам'ятовування сьогоднішніх слів зробить сон, тож зупинка зараз теж входить у план.
 - [ ] **629.** Hear tonight's words once more  
   → Послухати слова цього вечора ще раз
 - [ ] **630.** Start the next one now  
@@ -1312,9 +1312,9 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **634.** Day {day} of {total}, part {n} of {of}  
   → День {day} з {total}, частина {n} з {of}
 - [ ] **635.** By the end of this unit  
-  → До кінця цього розділу
+  → Наприкінці цього розділу
 - [ ] **636.** By the end of tonight  
-  → До кінця цього вечора
+  → Наприкінці цього вечора
 - [ ] **637.** {words} again  
   → {words} на повторення
 - [ ] **638.** 0m  
@@ -1382,9 +1382,9 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **669.** Read about the -{suffix} ending  
   → Прочитати про закінчення -{suffix}
 - [ ] **670.** Read about {name}, "{plain}"  
-  → Прочитати про {name}, «{plain}»
+  → Прочитати про відмінок {name}, «{plain}»
 - [ ] **671.** Read about {name}  
-  → Прочитати про {name}
+  → Прочитати про відмінок {name}
 - [ ] **672.** The past tense of one verb  
   → Минулий час одного дієслова
 - [ ] **673.** The past tense of {verbs}  
@@ -1408,7 +1408,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **682.** Pair each word with its meaning against the clock. It's quick, it's fun, and the meanings stick before you ever have to say them.  
   → З'єднуйте кожне слово з його значенням на час. Це швидко й весело, і значення запам'ятовуються ще до того, як їх доведеться вимовляти.
 - [ ] **683.** The same words, but this time you only hear them. Reading a word and catching it when somebody says it are two different skills.  
-  → Ті самі слова, але тепер ви їх лише чуєте. Прочитати слово і впізнати його, коли хтось його вимовляє, це дві різні навички.
+  → Ті самі слова, але тепер ви їх лише чуєте. Прочитати слово і впізнати його на слух: дві різні навички.
 - [ ] **684.** A race through the words you've met, and their endings once you've read about them. Answer fast enough and you stop working words out and simply know them.  
   → Перегони зі знайомими словами, а коли прочитаєте про закінчення, то й із закінченнями. Відповідайте швидко, і ви перестанете обмірковувати кожне слово й почнете просто його знати.
 - [ ] **685.** Put a real Estonian sentence back together, word by word. Do it a few times and you start to feel where things go.  
@@ -1428,7 +1428,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **692.** Write a sentence of your own with the ending we ask for. We check that word against the dictionary before anything else.  
   → Напишіть своє речення із закінченням, яке ми просимо. Це слово ми насамперед звіряємо зі словником.
 - [ ] **693.** Aitan sind, but helistan sulle. Every verb chooses its own ending for whatever comes after it, and English gives you no clue, so you learn them one verb at a time.  
-  → Aitan sind, але helistan sulle. Кожне дієслово саме вибирає закінчення для того, що йде після нього, і вгадати його не можна, тож їх учать по одному дієслову.
+  → Aitan sind, але helistan sulle, хоча українською в обох випадках «тобі». Кожне дієслово саме вибирає закінчення для слова після нього, тож їх учать по одному дієслову.
 - [ ] **694.** The words that don't follow the usual ending rules. See each one, then write it yourself, and soon you won't need to look them up.  
   → Слова, які не підкоряються звичайним правилам закінчень. Подивіться на кожне, потім напишіть його самі, і незабаром заглядати в довідник не доведеться.
 - [ ] **695.** A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like a's and o's.  
@@ -1544,59 +1544,59 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **750.** {lemma} means {translation}. Which one is "they would"?  
   → Слово {lemma} означає «{translation}». Яка форма для «вони б»?
 - [ ] **751.** Yes. {value} is {lemma} for {pronoun}.  
-  → Так, {value} це форма дієслова {lemma} для {pronoun}.
+  → Так, {value}: форма дієслова {lemma} для «{pronoun}».
 - [ ] **752.** Yes. {value} is {lemma} for {pronoun}, and for {shared} too.  
-  → Так, {value} це форма дієслова {lemma} для {pronoun}, а також для {shared}.
+  → Так, {value}: форма дієслова {lemma} для «{pronoun}», а також для {shared}.
 - [ ] **753.** Not that one. With {pronoun} it's {value}.  
-  → Не ця. Для {pronoun} буде {value}.
+  → Не ця. Для «{pronoun}» буде {value}.
 - [ ] **754.** Not that one. With {pronoun} it's {value}, and the same with {shared}.  
-  → Не ця. Для {pronoun} буде {value}, і для {shared} так само.
+  → Не ця. Для «{pronoun}» буде {value}, і для {shared} так само.
 - [ ] **755.** {lemma} means {translation}. Which one says "not"?  
   → Слово {lemma} означає «{translation}». Яка форма каже «не»?
 - [ ] **756.** {lemma} means {translation}. Which one tells somebody to do it?  
   → Слово {lemma} означає «{translation}». Яка форма каже комусь це зробити?
 - [ ] **757.** Yes. {answer} is how you say not with {lemma}, {translation}.  
-  → Так, {answer} це заперечення дієслова {lemma}, «{translation}».
+  → Так, {answer}: заперечення дієслова {lemma}, «{translation}».
 - [ ] **758.** Yes. {answer} is how you tell one person to do it with {lemma}, {translation}.  
-  → Так, {answer} це наказова форма дієслова {lemma}, «{translation}», для однієї людини.
+  → Так, {answer}: наказова форма дієслова {lemma}, «{translation}», для однієї людини.
 - [ ] **759.** Not that one. For {lemma}, it's {answer}.  
   → Не ця. У {lemma} буде {answer}.
 - [ ] **760.** {lemma} means {translation}. Which one says "I did it", back in the past?  
-  → Слово {lemma} означає «{translation}». Яка форма про минуле, коли це робив сам мовець?
+  → Слово {lemma} означає «{translation}». Яка форма про минуле, коли це робили ви самі?
 - [ ] **761.** {lemma} means {translation}. Which one says "he or she did it", back in the past?  
-  → Слово {lemma} означає «{translation}». Яка форма про минуле, коли це робив хтось інший?
+  → Слово {lemma} означає «{translation}». Яка форма про минуле, коли це робив він або вона?
 - [ ] **762.** Yes. {answer} is the past, when you did it yourself. {now} is happening right now.  
-  → Так, {answer} це минуле, коли це робили ви самі. А {now} це те, що відбувається зараз.
+  → Так, {answer} кажуть про минуле, коли це робили ви самі. А {now} про те, що відбувається зараз.
 - [ ] **763.** Yes. {answer} is the past, when somebody else did it. {now} is happening right now.  
-  → Так, {answer} це минуле, коли це робив хтось інший. А {now} це те, що відбувається зараз.
+  → Так, {answer} кажуть про минуле, коли це робив він або вона. А {now} про те, що відбувається зараз.
 - [ ] **764.** Not that one. {answer} is the past, when you did it yourself.  
-  → Не ця. {answer} це минуле, коли це робили ви самі.
+  → Не ця. Про минуле, коли це робили ви самі, кажуть {answer}.
 - [ ] **765.** Not that one. {answer} is the past, when somebody else did it.  
-  → Не ця. {answer} це минуле, коли це робив хтось інший.
+  → Не ця. Про минуле, коли це робив він або вона, кажуть {answer}.
 - [ ] **766.** {lemma} means {translation}. Which one says "{reading}"?  
   → Слово {lemma} означає «{translation}». Яка форма означає «{reading}»?
 - [ ] **767.** Which one is {lemma}, {translation}, in the {case}?  
   → Яка форма слова {lemma}, «{translation}», у відмінку {case}?
 - [ ] **768.** Yes. {form} is {lemma} in the {case}.  
-  → Так, {form} це {lemma} у відмінку {case}.
+  → Так, {form}: {lemma} у відмінку {case}.
 - [ ] **769.** Yes. {form} is {lemma} in the {case}. It's {stem} with {ending} on the end.  
-  → Так, {form} це {lemma} у відмінку {case}. Це {stem} із закінченням {ending}.
+  → Так, {form}: {lemma} у відмінку {case}. Тут до {stem} додано закінчення {ending}.
 - [ ] **770.** Not that one. {lemma} becomes {form}.  
   → Не ця. {lemma} стає {form}.
 - [ ] **771.** Not that one. {lemma} becomes {form}. It's {stem} with {ending} on the end.  
-  → Не ця. {lemma} стає {form}. Це {stem} із закінченням {ending}.
+  → Не ця. {lemma} стає {form}. Тут до {stem} додано закінчення {ending}.
 - [ ] **772.** You're flying through this  
   → У вас усе йде гладко
 - [ ] **773.** You're flying through the top of the course  
-  → Ви легко проходите вершину курсу
+  → Ви легко долаєте найвищу частину курсу
 - [ ] **774.** This part is a tough one  
   → Ця частина непроста
 - [ ] **775.** Lately you've been getting every answer right.  
-  → Останнім часом ви відповідаєте правильно на все.
+  → Останнім часом ви правильно відповідаєте на все.
 - [ ] **776.** Lately you've been getting {seen} out of a hundred right.  
   → Останнім часом ви відповідаєте правильно на {seen} зі ста.
 - [ ] **777.** If this part feels too easy, skip ahead to {part}. Everything from this one stays in your reviews either way.  
-  → Якщо ця частина здається надто легкою, переходьте одразу до {part}. Усе з цієї частини в будь-якому разі лишиться у ваших повтореннях.
+  → Якщо ця частина здається надто легкою, переходьте одразу до частини {part}. Усе з цієї частини в будь-якому разі лишиться у ваших повтореннях.
 - [ ] **778.** There's no part above this one, so stretch yourself with your reviews and the tougher conversations.  
   → Вище цієї частини нічого немає, тож випробуйте себе в повтореннях і складніших розмовах.
 - [ ] **779.** A lot of recent answers have been misses. This part is a step ahead of you for now, and that's normal.  
@@ -1610,13 +1610,13 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **783.** Going over {level} first will make this part much easier. It's a refresher, and this part waits for you afterwards.  
   → Якщо спершу повторити {level}, ця частина стане значно легшою. Це просто освіжить знання, а ця частина вас зачекає.
 - [ ] **784.** {part} is the part you skipped, and this one leans on it. Going back fills in the gaps.  
-  → {part} це частина, яку ви пропустили, а ця на неї спирається. Повернувшись, ви заповните прогалини.
+  → Ви пропустили частину {part}, а ця на неї спирається. Повернувшись, ви заповните прогалини.
 - [ ] **785.** Refresh {level} first  
   → Спершу освіжити {level}
 - [ ] **786.** Go back to {part}  
-  → Повернутися до {part}
+  → Повернутися до частини {part}
 - [ ] **787.** Skip ahead to {part}  
-  → Перейти одразу до {part}
+  → Перейти одразу до частини {part}
 - [ ] **788.** For now, recordings play a little slower and conversations start a little simpler. That goes back to normal on its own as your answers pick up.  
   → Поки що записи звучать трохи повільніше, а розмови починаються трохи простіше. Усе саме повернеться до звичного, щойно відповіді покращаться.
 - [ ] **789.** For now, recordings play a little slower. That goes back to normal on its own as your answers pick up.  
@@ -1646,7 +1646,7 @@ _lib/copy/i18n/areas/today.ts_
 - [ ] **801.** Food, the time, your day, and what things are like  
   → Їжа, час, ваш день і які бувають речі
 - [ ] **802.** Food and drink, the days and the clock, what you do from morning to night, and your first words for what things look like, colors included. By the end you can say what you're doing, when, and what it's like.  
-  → Їжа й напої, дні тижня й години, що ви робите з ранку до вечора, і перші слова про те, який вигляд мають речі, зокрема кольори. Наприкінці ви зможете сказати, що робите, коли і який усе це має вигляд.
+  → Їжа й напої, дні тижня й години, що ви робите з ранку до вечора, і перші слова про те, який вигляд мають речі, зокрема кольори. Наприкінці ви зможете сказати, що робите, коли саме і яке все довкола.
 - [ ] **803.** Clothes, weather, prices, and a shop  
   → Одяг, погода, ціни й магазин
 - [ ] **804.** What you're wearing, what the weather's doing, the bigger numbers you need for prices, and then a shop to put it all to work in. By the end you can describe what you want and buy it.  
@@ -1820,7 +1820,7 @@ _lib/copy/i18n/areas/review.ts_
 - [ ] **884.** to whom?  
   → кому?
 - [ ] **885.** who has it?  
-  → у кого?
+  → у кого є?
 - [ ] **886.** from whom?  
   → від кого?
 - [ ] **887.** becoming who?  
@@ -1838,19 +1838,19 @@ _lib/copy/i18n/areas/review.ts_
 - [ ] **893.** of what?  
   → чого?
 - [ ] **894.** what? (some of it)  
-  → що? (якусь частину)
+  → що? (частину чогось)
 - [ ] **895.** into what?  
   → у що?
 - [ ] **896.** what is it in?  
   → у чому?
 - [ ] **897.** out of what?  
-  → з чого?
+  → з чого? (зсередини)
 - [ ] **898.** onto what?  
   → на що?
 - [ ] **899.** what is it on?  
   → на чому?
 - [ ] **900.** off what?  
-  → з чого?
+  → з чого? (з поверхні)
 - [ ] **901.** becoming what?  
   → стати чим?
 - [ ] **902.** up to what?  
@@ -2012,15 +2012,15 @@ _lib/copy/i18n/areas/review.ts_
 - [ ] **980.** See where you might get stuck  
   → Подивитися, де можна спіткнутися
 - [ ] **981.** {known} of {available} words known, {started} started  
-  → Знайомих слів: {known} з {available}, розпочато: {started}
+  → Засвоєних слів: {known} з {available}, розпочато: {started}
 - [ ] **982.** {known} of {available} words known, {started} started, {lessons} lessons  
-  → Знайомих слів: {known} з {available}, розпочато: {started}, уроків: {lessons}
+  → Засвоєних слів: {known} з {available}, розпочато: {started}, уроків: {lessons}
 - [ ] **983.** {unit}: {pct}% learned  
   → {unit}: вивчено {pct}%
 - [ ] **984.** Continue the lesson  
-  → Продовжити урок
+  → Продовжити урок розділу
 - [ ] **985.** Start the lesson  
-  → Почати урок
+  → Почати урок розділу
 - [ ] **986.** Practise these words  
   → Повторити ці слова
 - [ ] **987.** Printable worksheet  
@@ -2046,9 +2046,9 @@ _lib/copy/i18n/areas/review.ts_
 - [ ] **997.** conjugation  
   → дієвідмінювання
 - [ ] **998.** Known  
-  → Знайоме
+  → Засвоєно
 - [ ] **999.** Learning  
-  → Вчу
+  → Вивчаю
 - [ ] **1000.** {words} in this unit isn't in your dictionary yet. Look it up once and it's saved for good.  
   → У вашому словнику поки немає {words} з цього розділу. Знайдіть його один раз, і воно збережеться назавжди.
 - [ ] **1001.** {words} in this unit aren't in your dictionary yet. Look them up once and they're saved for good.  
@@ -2086,7 +2086,7 @@ _lib/copy/i18n/areas/review.ts_
 - [ ] **1017.** The table to complete  
   → Таблиця для заповнення
 - [ ] **1018.** Forms and sentences from the Institute of the Estonian Language, licensed CC BY 4.0. This worksheet was put together by Kodukeel. Nothing on it was written by software.  
-  → Форми й речення надав Інститут естонської мови, ліцензія CC BY 4.0. Аркуш склав Kodukeel. У ньому немає жодного рядка, написаного програмою.
+  → Форми й речення надав Інститут естонської мови, ліцензія CC BY 4.0. Аркуш склав Kodukeel. У ньому немає жодного рядка, написаного штучним інтелектом.
 - [ ] **1019.** Answer key  
   → Відповіді
 - [ ] **1020.** Print this page and you get the worksheet, with the answer key on a separate sheet you can keep back. Everything on it comes from the dictionary, so if some of the unit’s words haven’t been looked up yet, the sheet is just shorter. We never fill a gap with made-up Estonian.  
@@ -2138,7 +2138,7 @@ _lib/copy/i18n/areas/review.ts_
 - [ ] **1043.** Pick up new words a few at a time, and see the whole course they come from.  
   → Вчіть нові слова потроху й дивіться весь курс, з якого їх узято.
 - [ ] **1044.** {level}, {known} of {total} words known  
-  → {level}, знайомих слів: {known} з {total}
+  → {level}, засвоєних слів: {known} з {total}
 - [ ] **1045.** The course  
   → Курс
 - [ ] **1046.** , builds on an earlier unit, but you can still open it  
@@ -2148,7 +2148,7 @@ _lib/copy/i18n/areas/review.ts_
 - [ ] **1048.** You are here  
   → Ви тут
 - [ ] **1049.** {level}: {known} of {total} words known  
-  → {level}: знайомих слів {known} з {total}
+  → {level}: засвоєних слів {known} з {total}
 - [ ] **1050.** {units} units, {known}/{total} words  
   → Розділів: {units}, слів: {known}/{total}
 - [ ] **1051.** {units} units, {known}/{total} words, {progress} in progress  
@@ -2158,9 +2158,9 @@ _lib/copy/i18n/areas/review.ts_
 - [ ] **1053.** {n} questions, {mark}% to pass  
   → Запитань: {n}, щоб пройти, потрібно {mark}%
 - [ ] **1054.** What counts as known  
-  → Що вважається знайомим
+  → Що вважається засвоєним
 - [ ] **1055.** A word counts as known once you've got it right on every one of its cards, often enough that it's past the learning stage. One right answer isn't enough.  
-  → Слово вважається знайомим, коли ви правильно відповіли на всіх його картках, і досить часто, щоб воно вийшло зі стадії вивчення. Однієї правильної відповіді замало.
+  → Слово вважається засвоєним, коли ви правильно відповіли на всіх його картках, і досить часто, щоб воно вийшло зі стадії вивчення. Однієї правильної відповіді замало.
 - [ ] **1056.** Units and the dictionary  
   → Розділи та словник
 - [ ] **1057.** A unit is just a handy bundle of dictionary words. You can find every one of them by searching too, and anything missing you can {link}. Nothing's ever really locked: a unit above your level tells you what it builds on, and you can still open it.  
@@ -2240,7 +2240,7 @@ _lib/copy/i18n/areas/review.ts_
 - [ ] **1094.** Learned  
   → Вивчено
 - [ ] **1095.** Still learning  
-  → Ще вчу
+  → Ще вивчаю
 - [ ] **1096.** {n}m  
   → {n} хв
 - [ ] **1097.** Time  
@@ -2248,7 +2248,7 @@ _lib/copy/i18n/areas/review.ts_
 - [ ] **1098.** {count} saved here while you were offline. They’ll be sent the moment you’re back online. You can close the tab.  
   → Збережено без мережі: {count}. Їх буде надіслано, щойно зв'язок повернеться. Вкладку можна закрити.
 - [ ] **1099.** Practise what's due  
-  → Повторити те, що час
+  → Повторити заплановане
 - [ ] **1100.** Learn {n} more  
   → Вчити ще {n}
 - [ ] **1101.** Now it’s your turn  
@@ -2484,7 +2484,7 @@ _lib/copy/i18n/areas/review.ts_
 - [ ] **1216.** Put {word} aside?  
   → Відкласти {word}?
 - [ ] **1217.** We'll take it out of your reviews for now, so it stops popping up on cards. It comes back by itself in {away}, or once you reach the level it belongs to. You can bring it back sooner any time from My words.  
-  → Ми поки приберемо його з повторення, щоб воно не траплялося на картках. Воно саме повернеться через {away} або коли ви дійдете до його рівня. Повернути його раніше можна будь-коли в розділі «Мої слова».
+  → Ми поки приберемо його з повторення, щоб воно не траплялося на картках. Воно саме повернеться через {away} або коли ви дійдете до його рівня. Повернути його раніше можна будь-коли на сторінці «Мої слова».
 - [ ] **1218.** That didn't save. Try again.  
   → Не збереглося. Спробуйте ще раз.
 - [ ] **1219.** Put it aside  
@@ -2668,7 +2668,7 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1304.** A hint from us, not from them  
   → Підказка від нас, а не від співрозмовника
 - [ ] **1305.** Report  
-  → Повідомити
+  → Повідомити про помилку
 - [ ] **1306.** Hint  
   → Підказка
 - [ ] **1307.** They are answering  
@@ -2736,7 +2736,7 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1338.** Tip: try an answer with “{word}” in it (or another word for the same thing). Any form of it is fine.  
   → Порада: спробуйте відповісти зі словом «{word}» (або іншим словом із тим самим значенням). Підійде будь-яка його форма.
 - [ ] **1339.** Tip: try “{lemma}” in the {case}, the form that answers {question} ({questionEn}). The ending is the part being practised here.  
-  → Порада: спробуйте сказати «{lemma}» у відмінку {case}, це форма, що відповідає на запитання {question} ({questionEn}). Тут тренується саме закінчення.
+  → Порада: спробуйте сказати «{lemma}» у відмінку {case}, тобто у формі, що відповідає на запитання {question} ({questionEn}). Тут тренується саме закінчення.
 - [ ] **1340.** Tip: your card has it, under “{card}”. Just say that in Estonian.  
   → Порада: відповідь є у вашій картці, у рядку «{card}». Просто скажіть це естонською.
 - [ ] **1341.** Tip: try asking them something. Any sentence ending in a question mark works.  
@@ -2754,13 +2754,13 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1347.** in whom? what is it in? where?  
   → у кому? у чому? де?
 - [ ] **1348.** about whom? out of what? where from?  
-  → про кого? з чого? звідки?
+  → про кого? з чого (зсередини)? звідки?
 - [ ] **1349.** to whom? onto what? where to?  
   → кому? на що? куди?
 - [ ] **1350.** who has it? what is it on? where?  
   → у кого є? на чому? де?
 - [ ] **1351.** from whom? off what? where from?  
-  → від кого? з чого? звідки?
+  → від кого? з чого (з поверхні)? звідки?
 - [ ] **1352.** becoming who? becoming what?  
   → ким стати? чим стати?
 - [ ] **1353.** up to whom? up to what?  
@@ -2994,31 +2994,31 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1467.** “the plain word”  
   → «початкова форма»
 - [ ] **1468.** “of, and whose”  
-  → «чого, а також чий»
+  → «кого? чого? і чий»
 - [ ] **1469.** “some of it”  
   → «частина чогось»
 - [ ] **1470.** “into”  
   → «всередину»
 - [ ] **1471.** “in”  
-  → «у, всередині»
+  → «всередині»
 - [ ] **1472.** “out of”  
-  → «з, із»
+  → «зсередини»
 - [ ] **1473.** “onto, and to a person”  
-  → «на, а також до людини»
+  → «на щось і комусь»
 - [ ] **1474.** “on, at, and have”  
-  → «на, біля, а також мати»
+  → «на чомусь, у когось і «у мене є»»
 - [ ] **1475.** “off, and from a person”  
-  → «з, а також від людини»
+  → «з поверхні і від когось»
 - [ ] **1476.** “becoming”  
-  → «стаючи кимось»
+  → «ставати кимось»
 - [ ] **1477.** “up to”  
   → «до»
 - [ ] **1478.** “as”  
-  → «як»
+  → «у ролі»
 - [ ] **1479.** “without”  
   → «без»
 - [ ] **1480.** “with”  
-  → «з, разом з»
+  → «разом із»
 - [ ] **1481.** you kept the ending from the question before.  
   → ви залишили закінчення з попереднього запитання.
 - [ ] **1482.** you used the {case}. It answers {question} too, but it means {means}.  
@@ -3120,11 +3120,11 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1530.** You walked away from the desk. People do, and you can always come back.  
   → Ви відійшли від стійки. Так буває, і повернутися можна завжди.
 - [ ] **1531.** Telling a landlord something is broken  
-  → Повідомити власника квартири про поломку
+  → Повідомити орендодавця про поломку
 - [ ] **1532.** A phone call to the person you rent from  
   → Дзвінок людині, у якої ви винаймаєте житло
 - [ ] **1533.** You rent a flat. Something in it stopped working earlier this week, so you're ringing your landlord.  
-  → Ви винаймаєте квартиру. На початку тижня в ній щось зламалося, і ви телефонуєте власникові.
+  → Ви винаймаєте квартиру. На початку тижня в ній щось зламалося, і ви телефонуєте орендодавцеві.
 - [ ] **1534.** What's broken.  
   → Що зламалося.
 - [ ] **1535.** The day it stopped working.  
@@ -3136,43 +3136,43 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1538.** The other day they can come.  
   → Інший день, коли зможуть прийти.
 - [ ] **1539.** What they said the repair would cost, in euros.  
-  → Скільки, за словами власника, коштує ремонт, у євро.
+  → Скільки, за словами орендодавця, коштує ремонт, у євро.
 - [ ] **1540.** What it costs now.  
   → Скільки це коштує тепер.
 - [ ] **1541.** Say hello back to the landlord.  
-  → Привітайтеся з власником у відповідь.
+  → Привітайтеся з орендодавцем у відповідь.
 - [ ] **1542.** The landlord picks up and says hello.  
-  → Власник бере слухавку й вітається.
+  → Орендодавець бере слухавку й вітається.
 - [ ] **1543.** Tell them what's broken.  
   → Скажіть, що зламалося.
 - [ ] **1544.** They ask what's gone wrong.  
-  → Власник питає, що сталося.
+  → Орендодавець питає, що сталося.
 - [ ] **1545.** Tell them which room it's in, and which floor you're on.  
   → Скажіть, у якій це кімнаті й на якому ви поверсі.
 - [ ] **1546.** They ask which room it's in, and which floor.  
-  → Власник питає, у якій це кімнаті й на якому поверсі.
+  → Орендодавець питає, у якій це кімнаті й на якому поверсі.
 - [ ] **1547.** Tell them which day it stopped working.  
   → Скажіть, якого дня воно перестало працювати.
 - [ ] **1548.** They ask how long it's been like that.  
-  → Власник питає, чи давно так.
+  → Орендодавець питає, чи давно так.
 - [ ] **1549.** Nobody can come this week. Ask when somebody can.  
   → Цього тижня ніхто прийти не може. Запитайте, коли зможуть.
 - [ ] **1550.** They sigh. Nobody can come this week.  
-  → Власник зітхає: цього тижня ніхто прийти не може.
+  → Орендодавець зітхає: цього тижня ніхто прийти не може.
 - [ ] **1551.** They say somebody can come soon, then offer a day and a time.  
-  → Власник каже, що незабаром хтось прийде, і пропонує день і час.
+  → Орендодавець каже, що незабаром хтось прийде, і пропонує день і час.
 - [ ] **1552.** Say yes to the day and time, or tell them it won't work.  
   → Погодьтеся на день і час або скажіть, що не вийде.
 - [ ] **1553.** They offer {day} next week at {time} and ask if that works.  
-  → Власник пропонує час наступного тижня: {day}, {time}, і питає, чи підійде.
+  → Орендодавець пропонує час наступного тижня: {day}, {time}, і питає, чи підійде.
 - [ ] **1554.** They try {day2} at {time2} instead and ask if that works.  
-  → Власник пропонує інший варіант: {day2}, {time2}, і питає, чи підійде.
+  → Орендодавець пропонує інший варіант: {day2}, {time2}, і питає, чи підійде.
 - [ ] **1555.** They know what's broken, where, and since when, and you've sorted out when somebody's coming.  
-  → Власник знає, що зламалося, де й відколи, і ви домовилися, коли хтось прийде.
+  → Орендодавець знає, що зламалося, де й відколи, і ви домовилися, коли хтось прийде.
 - [ ] **1556.** They know something's broken and roughly since when. No day's been agreed yet.  
-  → Власник знає, що щось зламалося і приблизно коли. День поки не погоджено.
+  → Орендодавець знає, що щось зламалося і приблизно коли. День поки не погоджено.
 - [ ] **1557.** They've got your report, but there's no free day this week. Nothing you could have said would change that.  
-  → Власник вас почув, але вільного дня цього тижня немає. Цього не змінили б жодні ваші слова.
+  → Орендодавець вас почув, але вільного дня цього тижня немає. Цього не змінили б жодні ваші слова.
 - [ ] **1558.** You hung up. It's still broken, and you can ring again any time.  
   → Ви поклали слухавку. Воно досі зламане, а зателефонувати можна будь-коли.
 - [ ] **1559.** Handing in a form at a counter  
@@ -3248,9 +3248,9 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1594.** They ask what you'd like.  
   → Вас питають, що ви будете.
 - [ ] **1595.** Say whether you'd like a large one or a small one.  
-  → Скажіть, великий чи маленький.
+  → Скажіть, яку порцію хочете: велику чи маленьку.
 - [ ] **1596.** They ask if you'd like a large or a small one.  
-  → Вас питають, великий чи маленький.
+  → Вас питають, велику чи маленьку порцію ви хочете.
 - [ ] **1597.** That's everything, so tell them you'd like to pay.  
   → Це все, тож скажіть, що хочете розрахуватися.
 - [ ] **1598.** They set it down and ask if that's everything.  
@@ -3426,7 +3426,7 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1683.** The neighbor on the stairs  
   → Сусід на сходах
 - [ ] **1684.** The stairwell of your building, on your way up  
-  → Сходи у вашому будинку, ви піднімаєтеся до себе
+  → На сходах у під'їзді, ви піднімаєтеся до себе
 - [ ] **1685.** You moved into the building last week. On the stairs you bump into the person from the flat opposite, who stops to say hello. Your card says where you're from and who lives with you.  
   → Ви в'їхали в цей будинок минулого тижня. На сходах ви зустрічаєте сусіда з квартири навпроти, і він зупиняється привітатися. У картці написано, звідки ви і хто живе з вами.
 - [ ] **1686.** Where you're from.  
@@ -3836,7 +3836,7 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1888.** ordering a drink  
   → замовити напій
 - [ ] **1889.** large or small  
-  → великий чи маленький
+  → велика чи маленька порція
 - [ ] **1890.** asking to pay  
   → розрахуватися
 - [ ] **1891.** asking the way  
@@ -3958,55 +3958,55 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1949.** A free online Estonian course that takes you up from beginner, with a real teacher who answers your emails. It goes nicely alongside this app.  
   → Безкоштовний онлайн-курс естонської з нуля, зі справжнім учителем, який відповідає на ваші листи. Добре поєднується з цим застосунком.
 - [ ] **1950.** A bus station  
-  → На автовокзалі
+  → Автовокзал
 - [ ] **1951.** A bus stop, a corridor  
-  → На зупинці чи в коридорі
+  → Зупинка чи коридор
 - [ ] **1952.** A café  
-  → У кав'ярні
+  → Кав'ярня
 - [ ] **1953.** A clothes shop  
-  → У магазині одягу
+  → Магазин одягу
 - [ ] **1954.** A form, a friend  
-  → В анкеті чи другові
+  → Бланк чи друг
 - [ ] **1955.** A health center, a salon  
-  → У поліклініці чи в салоні
+  → Поліклініка чи салон
 - [ ] **1956.** A neighbor, a colleague  
-  → Сусідові чи колезі
+  → Сусід чи колега
 - [ ] **1957.** A pharmacy  
-  → В аптеці
+  → Аптека
 - [ ] **1958.** A queue, a lift  
-  → У черзі чи в ліфті
+  → Черга чи ліфт
 - [ ] **1959.** A restaurant  
-  → У ресторані
+  → Ресторан
 - [ ] **1960.** A shop or a market  
-  → У магазині чи на ринку
+  → Магазин чи ринок
 - [ ] **1961.** A shop  
-  → У магазині
+  → Магазин
 - [ ] **1962.** A shop, a landlord, a helpdesk  
-  → У магазині, власникові квартири чи в службі підтримки
+  → Магазин, орендодавець чи служба підтримки
 - [ ] **1963.** A shop, a lift  
-  → У магазині чи в ліфті
+  → Магазин чи ліфт
 - [ ] **1964.** A stop, a platform  
-  → На зупинці чи на платформі
+  → Зупинка чи платформа
 - [ ] **1965.** Anywhere  
   → Будь-де
 - [ ] **1966.** Class, work, a friend  
-  → На занятті, на роботі чи з другом
+  → Заняття, робота чи друг
 - [ ] **1967.** Home, a friend  
-  → Удома чи з другом
+  → Дім чи друг
 - [ ] **1968.** The phone  
-  → Телефоном
+  → Телефон
 - [ ] **1969.** The post office  
-  → На пошті
+  → Пошта
 - [ ] **1970.** Town  
-  → У місті
+  → Місто
 - [ ] **1971.** Work, a class, a stairwell  
-  → На роботі, на занятті чи на сходах
+  → Робота, заняття чи під'їзд
 - [ ] **1972.** Work, a friend  
-  → На роботі чи з другом
+  → Робота чи друг
 - [ ] **1973.** Work, a party  
-  → На роботі чи на вечірці
+  → Робота чи вечірка
 - [ ] **1974.** Work, the stairwell  
-  → На роботі чи на сходах
+  → Робота чи під'їзд
 - [ ] **1975.** pain  
   → біль
 - [ ] **1976.** fever  
@@ -4408,7 +4408,7 @@ _lib/copy/i18n/areas/reference.ts_
 - [ ] **2170.** Edit {word}  
   → Змінити {word}
 - [ ] **2171.** Estonian  
-  → Естонською
+  → Естонська
 - [ ] **2172.** English  
   → Англійська
 - [ ] **2173.** word  
@@ -4476,7 +4476,7 @@ _lib/copy/i18n/areas/reference.ts_
 - [ ] **2204.** The hundred nouns that come up most: people, places, time, and the stuff of an ordinary day.  
   → Сто найчастіших іменників: люди, місця, час і все, з чого складається звичайний день.
 - [ ] **2205.** Describing words  
-  → Слова, що описують
+  → Слова для опису
 - [ ] **2206.** The hundred words Estonians reach for most to say what something is like. Big, new, good, cold, and the rest.  
   → Сто слів, якими естонці найчастіше описують, яким є щось: великий, новий, добрий, холодний і так далі.
 - [ ] **2207.** Reference  
@@ -4508,7 +4508,7 @@ _lib/copy/i18n/areas/reference.ts_
 - [ ] **2220.** Estonian verbs have just two tenses  
   → Естонські дієслова мають лише два часи
 - [ ] **2221.** A present and a past. Two more are made with a helper verb, the way English says “have done”. Mood, voice and person are separate switches on top, so you describe any form by saying how each switch is set.  
-  → Теперішній і минулий. Ще два утворюються з допоміжним дієсловом, як англійське «have done». Спосіб, стан і особа працюють як окремі перемикачі поверх часу, тож будь-яку форму можна описати, сказавши, у якому положенні кожен із них.
+  → Теперішній і минулий. Ще два утворюються з допоміжним дієсловом «бути», трохи як українське давноминуле «був пішов». Спосіб, стан і особа працюють як окремі перемикачі поверх часу, тож будь-яку форму можна описати, сказавши, у якому положенні кожен із них.
 - [ ] **2222.** Beyond the endings  
   → Не лише закінчення
 - [ ] **2223.** Grouped by the kind of word they're about, in the order a course would teach them.  
@@ -4530,7 +4530,7 @@ _lib/copy/i18n/areas/reference.ts_
 - [ ] **2231.** Answers  
   → Відповідає на
 - [ ] **2232.** In English  
-  → Для порівняння
+  → Українською
 - [ ] **2233.** Where it turns up  
   → Де трапляється
 - [ ] **2234.** Watch out  
@@ -4590,7 +4590,7 @@ _lib/copy/i18n/areas/reference.ts_
 - [ ] **2261.** The ending that carries it  
   → Закінчення, яке це виражає
 - [ ] **2262.** {name} in an English grammar book  
-  → {name} в англійських підручниках граматики
+  → У підручниках граматики: {name}
 - [ ] **2263.** What it is for  
   → Для чого це потрібно
 - [ ] **2264.** Where the course teaches it  
@@ -4692,7 +4692,7 @@ _lib/copy/i18n/areas/reference.ts_
 - [ ] **2312.** Hear {word}  
   → Послухати {word}
 - [ ] **2313.** In English: {hook}  
-  → Для порівняння: {hook}
+  → Українською: {hook}
 - [ ] **2314.** The same case, on a different word:  
   → Той самий відмінок, але на іншому слові:
 - [ ] **2315.** {word}, {meaning}, recorded in Ekilex.  
@@ -4776,7 +4776,7 @@ _lib/copy/i18n/areas/reference.ts_
 - [ ] **2354.** {pct}% of this page learned  
   → Вивчено {pct}% цієї сторінки
 - [ ] **2355.** {known} of {total} known, {inDeck} in your deck  
-  → Знаєте {known} з {total}, у колоді {inDeck}
+  → Засвоєно {known} з {total}, у колоді {inDeck}
 - [ ] **2356.** {title}: {pct}% learned  
   → {title}: вивчено {pct}%
 - [ ] **2357.** Practice this page  
@@ -4802,9 +4802,9 @@ _lib/copy/i18n/areas/reference.ts_
 - [ ] **2367.** On the page as the {form}  
   → На сторінці у формі: {form}
 - [ ] **2368.** Known  
-  → Знайоме
+  → Засвоєно
 - [ ] **2369.** Learning  
-  → Вчу
+  → Вивчаю
 - [ ] **2370.** Not started  
   → Не розпочато
 - [ ] **2371.** Every word is already in your deck.  
@@ -4858,9 +4858,9 @@ _lib/copy/i18n/areas/reference.ts_
 - [ ] **2395.** Read by {model}. Compare it with your paper before you add anything.  
   → Прочитано моделлю {model}. Звірте з папером, перш ніж щось додавати.
 - [ ] **2396.** {n} of these is not in the dictionary yet. They came straight off the photo, so open each one and check the spelling against your paper. If you add them as they are, you'll get cards for the meaning but not for the case endings, since we have nothing checked to build those from.  
-  → Слів, яких поки немає в словнику: {n}. Вони взяті просто з фото, тож відкрийте кожне й звірте написання з папером. Якщо додати їх як є, вийдуть картки на значення, але не на відмінкові закінчення: нам нема з чого їх будувати, бо перевірених форм немає.
+  → Слів, яких поки немає в словнику: {n}. Їх прочитано просто з фото, тож відкрийте кожне й звірте написання з папером. Якщо додати такі слова як є, вийдуть картки на значення, але не на відмінкові закінчення: перевірених форм, з яких їх можна побудувати, у нас немає.
 - [ ] **2397.** {n} of these are not in the dictionary yet. They came straight off the photo, so open each one and check the spelling against your paper. If you add them as they are, you'll get cards for the meaning but not for the case endings, since we have nothing checked to build those from.  
-  → Слів, яких поки немає в словнику: {n}. Вони взяті просто з фото, тож відкрийте кожне й звірте написання з папером. Якщо додати їх як є, вийдуть картки на значення, але не на відмінкові закінчення: нам нема з чого їх будувати, бо перевірених форм немає.
+  → Слів, яких поки немає в словнику: {n}. Їх прочитано просто з фото, тож відкрийте кожне й звірте написання з папером. Якщо додати такі слова як є, вийдуть картки на значення, але не на відмінкові закінчення: перевірених форм, з яких їх можна побудувати, у нас немає.
 - [ ] **2398.** Spelled right on your paper and still not found? Tell us.  
   → На папері написано правильно, а слово не знайшлося? Повідомте нам.
 - [ ] **2399.** A word here is missing  
@@ -4976,7 +4976,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2450.** Words learners have put aside as too hard for now. Once {people} people, and {share} percent of everyone who has the word, have done that, it's taught a level later for everybody.  
   → Слова, які учні поки відклали як надто важкі. Коли таких учнів стане щонайменше {people}, а їхня частка серед усіх, у кого є це слово, сягне {share}%, його почнуть вивчати на рівень пізніше для всіх.
 - [ ] **2451.** moved up  
-  → перенесено вище
+  → на рівень пізніше
 - [ ] **2452.** Nothing waiting  
   → Нічого не чекає
 - [ ] **2453.** Nothing here  
@@ -5012,7 +5012,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2468.** Open the entry  
   → Відкрити статтю
 - [ ] **2469.** Reviewer said  
-  → Відповідь перевіряльника
+  → Відповідь рецензента
 - [ ] **2470.** A note on this decision, optional  
   → Коментар до рішення, необов'язково
 - [ ] **2471.** Take the English off this sentence  
@@ -5080,7 +5080,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2502.** Here's the question you came with: {question}  
   → Ось запитання, з яким ви прийшли: {question}
 - [ ] **2503.** Get a free key in Settings  
-  → Безплатний ключ у налаштуваннях
+  → Безкоштовний ключ у налаштуваннях
 - [ ] **2504.** Ask me anything about Estonian grammar. I'll tell you why, as well as what, and if I'm not sure of a form I'll say so instead of guessing.  
   → Питайте мене про що завгодно з естонської граматики. Я поясню не лише що, а й чому, а якщо не певна щодо форми, так і скажу, а не вгадуватиму.
 - [ ] **2505.** Pick a question below to start, or just ask your own.  
@@ -5302,11 +5302,11 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2613.** You're a student here  
   → Ви тут навчаєтеся
 - [ ] **2614.** students  
-  → учням
+  → для учнів
 - [ ] **2615.** Join a class  
   → Вступити до групи
 - [ ] **2616.** teachers and employers  
-  → викладачам і роботодавцям
+  → для викладачів і роботодавців
 - [ ] **2617.** Start a group  
   → Створити групу
 - [ ] **2618.** Either way, you get a six-character join code and a list of who's in. A class shows who's really reviewing, what the whole group keeps tripping over, and the one case each student finds hardest. A workplace group leaves the grammar out and just shows who's on track for the exam they need to pass.  
@@ -5324,7 +5324,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2624.** What a teacher or an employer can see  
   → Що бачить викладач або роботодавець
 - [ ] **2625.** A teacher sees effort and progress: reviews this week, streak, words known, the cases the whole class keeps missing, and the one case each student finds hardest, as a percentage across all their reviews. Whoever runs a workplace group sees less, never more: a name, whether somebody has been practicing, and one of four bands for the exam the group is working toward. Never a search, a deck or a single answer, and never a colleague's weak grammar. And that's not just a promise: anything a page isn't allowed to show is never even fetched.  
-  → Викладач бачить старання й поступ: повторення за тиждень, серію днів, вивчені слова, відмінки, у яких помиляється вся група, і один найважчий відмінок кожного учня, у відсотках за всіма його повтореннями. Той, хто веде робочу групу, бачить менше, але аж ніяк не більше: ім'я, чи займалася людина, і одну з чотирьох оцінок готовності до іспиту, до якого готується група. Ніколи пошуки, колоду чи окрему відповідь і ніколи слабкі місця колеги в граматиці. І це не просто обіцянка: те, що сторінці показувати не можна, навіть не запитується.
+  → Викладач бачить старання й поступ: повторення за тиждень, серію днів, засвоєні слова, відмінки, у яких помиляється вся група, і один найважчий відмінок кожного учня, у відсотках за всіма його повтореннями. Той, хто веде робочу групу, бачить менше, але аж ніяк не більше: ім'я, чи займалася людина, і одну з чотирьох оцінок готовності до іспиту, до якого готується група. Ніколи пошуки, колоду чи окрему відповідь і ніколи слабкі місця колеги в граматиці. І це не просто обіцянка: те, що сторінці показувати не можна, навіть не запитується.
 - [ ] **2626.** What kind of group is it?  
   → Що це за група?
 - [ ] **2627.** A class  
@@ -5362,7 +5362,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2643.** Exactly what a class sees  
   → Що саме бачить група
 - [ ] **2644.** Your teacher and classmates see your name, your streak, how many reviews you did this week, when you last practiced and how many words you know. Your teacher alone also sees the one case you find hardest, as a single percentage across your reviews, never a specific answer. A workplace group sees less: your name, whether you've been practicing, and one of four bands for the exam the group is working toward. Never your deck, your searches or your mistakes one by one. If you leave, all of it stops straight away.  
-  → Викладач і одногрупники бачать ваше ім'я, серію днів, скільки повторень ви зробили за тиждень, коли займалися востаннє і скільки слів знаєте. Лише викладач бачить ще й найважчий для вас відмінок, одним відсотком за всіма повтореннями, але ніколи не конкретну відповідь. Робоча група бачить менше: ваше ім'я, чи займаєтеся ви, і одну з чотирьох оцінок готовності до іспиту, до якого готується група. Ніколи вашу колоду, пошуки чи помилки окремо. Якщо ви вийдете з групи, усе це одразу припиниться.
+  → Викладач і одногрупники бачать ваше ім'я, серію днів, скільки повторень ви зробили за тиждень, коли займалися востаннє і скільки слів ви засвоїли. Лише викладач бачить ще й найважчий для вас відмінок, одним відсотком за всіма повтореннями, але ніколи не конкретну відповідь. Робоча група бачить менше: ваше ім'я, чи займаєтеся ви, і одну з чотирьох оцінок готовності до іспиту, до якого готується група. Ніколи вашу колоду, пошуки чи помилки окремо. Якщо ви вийдете з групи, усе це одразу припиниться.
 - [ ] **2645.** Copy code  
   → Копіювати код
 - [ ] **2646.** Leave this class  
@@ -5416,9 +5416,9 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2670.** Join code  
   → Код для вступу
 - [ ] **2671.** Colleagues enter this code under Classes to join.  
-  → Щоб вступити, колеги вводять цей код у розділі «Групи».
+  → Щоб вступити, колеги вводять цей код на сторінці «Групи».
 - [ ] **2672.** Students enter this code under Classes to join.  
-  → Щоб вступити, учні вводять цей код у розділі «Групи».
+  → Щоб вступити, учні вводять цей код на сторінці «Групи».
 - [ ] **2673.** Members  
   → Учасники
 - [ ] **2674.** Active this week  
@@ -5446,7 +5446,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2685.** last review {days} ago  
   → останнє повторення {days} тому
 - [ ] **2686.** {words} known  
-  → знає {words}
+  → засвоєно: {words}
 - [ ] **2687.** weakest: {case}  
   → найслабший: {case}
 - [ ] **2688.** {reviews} behind the top of the class this week.  
@@ -5508,7 +5508,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2716.** You see who's practicing and roughly where they stand. You don't see anybody's deck, their searches, their answers, or which grammar they find hard. This page never even fetches those, so there's nothing hidden here to find.  
   → Ви бачите, хто займається і приблизно на якому він рівні. Ви не бачите нічиїх колод, пошуків, відповідей і того, яка граматика кому важка. Ця сторінка їх навіть не запитує, тож тут нічого шукати.
 - [ ] **2717.** Whoever runs this group sees your name, whether you've been practicing, and one of four bands for {level}. They don't see your deck, your searches, your answers, or which grammar you find hard.  
-  → Той, хто веде цю групу, бачить ваше ім'я, чи займаєтеся ви, і одну з чотирьох оцінок готовності до {level}. Він не бачить вашу колоду, пошуки, відповіді і те, яка граматика вам важка.
+  → Той, хто веде цю групу, бачить ваше ім'я, чи займаєтеся ви, і одну з чотирьох оцінок готовності до {level}. Вашої колоди, пошуків, відповідей і того, яка граматика вам важка, не видно.
 - [ ] **2718.** If you leave, all of that stops straight away, and your own deck stays exactly as it is.  
   → Якщо ви вийдете з групи, усе це одразу припиниться, а ваша колода лишиться точнісінько такою самою.
 - [ ] **2719.** Command palette  
@@ -5562,7 +5562,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2743.** Check what you typed  
   → Перевірити, що ви ввели
 - [ ] **2744.** Pick the first answer, and 2 to 4 for the rest  
-  → Вибрати першу відповідь, а від 2 до 4 решту
+  → Вибрати першу відповідь, а клавіші 2, 3 і 4 вибирають решту
 - [ ] **2745.** On a card you flip: I didn't know it, I knew it  
   → На картці з перевертанням: не пам'ятаю, пам'ятаю
 - [ ] **2746.** Peek at the word before this one, without changing anything  
@@ -5668,7 +5668,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2796.** Hide the Estonian letters. You can bring them back in Settings.  
   → Сховати естонські літери. Повернути їх можна в налаштуваннях.
 - [ ] **2797.** Keep Kodukeel on your home screen  
-  → Додайте Kodukeel на головний екран
+  → Додайте Kodukeel на початковий екран
 - [ ] **2798.** Tap {share}, then {add}. It opens straight to your review, even with no signal.  
   → Натисніть {share}, потім {add}. Застосунок відкриється одразу на повторенні, навіть без зв'язку.
 - [ ] **2799.** the Share button  
@@ -5684,7 +5684,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2804.** Not now  
   → Не зараз
 - [ ] **2805.** There's nothing at this address. If you were looking for a word, try the dictionary. Type it in Estonian or English, in whatever form you've got in front of you.  
-  → За цією адресою нічого немає. Якщо ви шукали слово, загляньте у словник. Введіть його естонською чи англійською, у тій формі, що у вас перед очима.
+  → За цією адресою нічого немає. Якщо ви шукали слово, зазирніть у словник. Введіть його естонською чи англійською, у тій формі, що у вас перед очима.
 - [ ] **2806.** Open the dictionary  
   → Відкрити словник
 - [ ] **2807.** That screen didn't load  
@@ -5734,13 +5734,13 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2829.** Take {title} off the sidebar  
   → Прибрати «{title}» з бічної панелі
 - [ ] **2830.** {title} is off the sidebar. You can still find it in {home}.  
-  → «{title}» прибрано з бічної панелі. Його й далі можна знайти в розділі «{home}».
+  → «{title}» прибрано з бічної панелі. Його й далі можна знайти на сторінці «{home}».
 - [ ] **2831.** You can pin up to {n}. Take one off to add another.  
   → Закріпити можна не більше {n}. Приберіть один пункт, щоб додати інший.
 - [ ] **2832.** Add to your sidebar  
   → Додати до бічної панелі
 - [ ] **2833.** In {home}  
-  → У розділі «{home}»
+  → На сторінці «{home}»
 - [ ] **2834.** Pin {title}  
   → Закріпити «{title}»
 - [ ] **2835.** {title} is pinned at the bottom.  
@@ -5860,7 +5860,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2892.** By when  
   → До якого терміну
 - [ ] **2893.** By when, {n} weeks away  
-  → До якого терміну, залишилося тижнів: {n}
+  → До якої дати, тижнів до неї: {n}
 - [ ] **2894.** In three months  
   → За три місяці
 - [ ] **2895.** In six months  
@@ -6036,7 +6036,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **2980.** {title} is now {place}.  
   → «{title}» тепер на місці номер {place}.
 - [ ] **2981.** {title} is now {place}, so it only appears on days when there's room.  
-  → «{title}» тепер на місці номер {place}, тож з'являється лише в дні, коли для неї є місце.
+  → «{title}» тепер на місці номер {place}, тож ця картка з'являється лише в дні, коли для неї є місце.
 - [ ] **2982.** These only appear on days when a card above has nothing to show  
   → Ці з'являються лише в дні, коли картці вище нема чого показати
 - [ ] **2983.** Only appears on days when a card above it has nothing to show.  
@@ -6149,28 +6149,28 @@ _lib/copy/i18n/areas/app.ts_
   → Спершу все тут видаляється, і зрештою лишається рівно те, що в резервній копії, і нічого більше.
 - [ ] **3037.** This wipes the {reviews} already here, and review history can't be rebuilt. Type {word} to confirm.  
   → Це зітре вже збережені тут повторення ({reviews}), а історію повторень не можна відновити. Щоб підтвердити, надрукуйте {word}.
-- [ ] **3038.** Type replace to confirm  
-  → Надрукуйте replace для підтвердження
-- [ ] **3039.** Restoring…  
+- [ ] **3038.** Type {word} to confirm  
+  → Щоб підтвердити, надрукуйте {word}
+- [ ] **3039.** Type the word shown to confirm.  
+  → Щоб підтвердити, надрукуйте показане слово.
+- [ ] **3040.** Restoring…  
   → Відновлюємо…
-- [ ] **3040.** Merge this backup in  
+- [ ] **3041.** Merge this backup in  
   → Додати цю копію
-- [ ] **3041.** Something went wrong, so nothing has been deleted. Try again in a moment.  
+- [ ] **3042.** Something went wrong, so nothing has been deleted. Try again in a moment.  
   → Щось пішло не так, тож нічого не видалено. Спробуйте ще раз трохи згодом.
-- [ ] **3042.** Deleting your data  
+- [ ] **3043.** Deleting your data  
   → Видалення ваших даних
-- [ ] **3043.** You can delete everything this app keeps about you. That's {cards}, {reviews}, your tasks, your chats with Anu, your scanned word lists, your level checks, and every mock exam you sat, writing included. Any class you're in or run goes too, along with your badges and settings. The shared dictionary stays, because other learners have cards built on it.  
+- [ ] **3044.** You can delete everything this app keeps about you. That's {cards}, {reviews}, your tasks, your chats with Anu, your scanned word lists, your level checks, and every mock exam you sat, writing included. Any class you're in or run goes too, along with your badges and settings. The shared dictionary stays, because other learners have cards built on it.  
   → Ви можете видалити все, що застосунок зберігає про вас. Це {cards}, {reviews}, ваші завдання, розмови з Ану, відскановані списки слів, перевірки рівня та всі пробні іспити, які ви складали, разом із письмовими роботами. Групи, у яких ви є або які ведете, теж буде видалено, разом зі значками й налаштуваннями. Спільний словник залишиться, бо на ньому побудовано картки інших учнів.
-- [ ] **3044.** If there's any chance you'll want it back, download a backup first. Your review history and anything you wrote in an exam can't be rebuilt, and we don't keep a copy.  
+- [ ] **3045.** If there's any chance you'll want it back, download a backup first. Your review history and anything you wrote in an exam can't be rebuilt, and we don't keep a copy.  
   → Якщо є хоч найменший шанс, що все це вам ще знадобиться, спершу завантажте резервну копію. Історію повторень і все, що ви написали на іспиті, відновити не можна, а копії ми не зберігаємо.
-- [ ] **3045.** Sign out  
-  → Вийти
-- [ ] **3046.** Delete everything  
+- [ ] **3046.** Sign out  
+  → Вийти з облікового запису
+- [ ] **3047.** Delete everything  
   → Видалити все
-- [ ] **3047.** This can't be undone. Type {word} to confirm.  
+- [ ] **3048.** This can't be undone. Type {word} to confirm.  
   → Це не можна скасувати. Щоб підтвердити, надрукуйте {word}.
-- [ ] **3048.** Type delete to confirm  
-  → Надрукуйте delete для підтвердження
 - [ ] **3049.** Deleting…  
   → Видаляємо…
 - [ ] **3050.** Delete everything permanently  
@@ -6212,7 +6212,7 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **3068.** Select it to copy  
   → Виділіть, щоб скопіювати
 - [ ] **3069.** The line to add to .env for the tutor  
-  → Рядок для .env, щоб увімкнути репетитора
+  → Рядок для .env, щоб увімкнути репетиторку
 - [ ] **3070.** For a backup, add a free Groq key as {key}, from {link}, on a line of its own in the same file. Then Anu can still answer when Gemini is busy.  
   → Для запасного варіанта додайте безкоштовний ключ Groq як {key} із сайту {link} окремим рядком у той самий файл. Тоді Ану зможе відповідати, навіть коли Gemini зайнятий.
 - [ ] **3071.** Go to {link} and register. It's free and needs no card.  
@@ -6352,11 +6352,11 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **3138.** Meanings  
   → Значення
 - [ ] **3139.** Meanings can appear in Russian or Ukrainian too. The English always stays, and the language you choose shows up next to it.  
-  → Значення можуть показуватися й українською. Англійська лишається завжди, а українська з'являється поруч.
+  → Значення можуть показуватися також українською чи російською. Англійська лишається завжди, а вибрана мова з'являється поруч.
 - [ ] **3140.** Where these come from  
   → Звідки вони беруться
 - [ ] **3141.** The Russian and Ukrainian come from the same dictionary as the Estonian. If none was recorded for a word, you'll just see the English.  
-  → Українські значення взято з того самого словника, що й естонські слова. Якщо для слова українського значення не записали, ви побачите лише англійське.
+  → Українські й російські значення взято з того самого словника, що й естонські слова. Якщо для слова такого значення не записали, ви побачите лише англійське.
 - [ ] **3142.** In an example sentence, the other words can be underlined so you can tap any of them to see what it means. With this off, the sentence stays plain and only the new word is marked.  
   → У прикладі інші слова можуть бути підкреслені, щоб можна було натиснути на будь-яке й дізнатися, що воно означає. Якщо це вимкнути, речення лишиться простим, і виділено буде лише нове слово.
 - [ ] **3143.** shown  
@@ -6636,9 +6636,9 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3276.** Meet some words  
   → Познайомитися зі словами
 - [ ] **3277.** Every word spelled  
-  → Усі слова складено
+  → Усі слова зібрано
 - [ ] **3278.** {n} of {total} spelled  
-  → Складено {n} з {total}
+  → Зібрано {n} з {total}
 - [ ] **3279.** Every one on the first try. You know these letters now.  
   → Усі з першої спроби. Тепер ви знаєте ці літери.
 - [ ] **3280.** Tubli. {n} of {total} on the first try, and the others come back a little sooner in your reviews.  
@@ -6646,7 +6646,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3281.** First time  
   → З першого разу
 - [ ] **3282.** Spelled  
-  → Складено
+  → Зібрано
 - [ ] **3283.** Words  
   → Слова
 - [ ] **3284.** Play again  
@@ -6660,13 +6660,13 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3288.** Not quite. Have another go. We've put the first letter in for you.  
   → Не зовсім. Спробуйте ще раз. Першу літеру ми вже поставили.
 - [ ] **3289.** {n} spelled  
-  → Складено: {n}
+  → Зібрано: {n}
 - [ ] **3290.** Hear the word  
   → Послухати слово
 - [ ] **3291.** Put the letters in order. Tap the speaker as often as you like.  
   → Розставте літери по порядку. Натискайте на динамік скільки завгодно.
 - [ ] **3292.** Spelled right first time.  
-  → Складено правильно з першого разу.
+  → Зібрано правильно з першого разу.
 - [ ] **3293.** You got there on the second go.  
   → Вийшло з другої спроби.
 - [ ] **3294.** Here it is, letter by letter.  
@@ -6886,7 +6886,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3401.** This one starts at {level}  
   → Це починається з рівня {level}
 - [ ] **3402.** Words first, then word order. Keep learning and this will be waiting for you.  
-  → Спершу слова, потім порядок слів. Учіться далі, і це на вас дочекається.
+  → Спершу слова, потім порядок слів. Учіться далі, і це вас дочекається.
 - [ ] **3403.** Carry on learning  
   → Вчитися далі
 - [ ] **3404.** No sentences to build yet  
@@ -6894,9 +6894,9 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3405.** The sentences come from words in your deck. Add a few more and check back.  
   → Речення беруться зі слів вашої колоди. Додайте ще кілька й зазирніть знову.
 - [ ] **3406.** All sentences built  
-  → Усі речення складено
+  → Усі речення зібрано
 - [ ] **3407.** Built  
-  → Складено
+  → Зібрано
 - [ ] **3408.** Build the sentence  
   → Складіть речення
 - [ ] **3409.** Read it. The words get jumbled in a moment  
@@ -7110,7 +7110,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3513.** Worth remembering: {rule}  
   → Варто запам'ятати: {rule}
 - [ ] **3514.** Every verb wants a certain case after it, and English won't tell you which.  
-  → Кожне дієслово вимагає після себе певного відмінка, і англійська не підкаже, якого.
+  → Кожне дієслово вимагає після себе певного відмінка, і українська не завжди підкаже, якого.
 - [ ] **3515.** No verbs to practise yet  
   → Поки немає дієслів для тренування
 - [ ] **3516.** Look up a few verbs in the dictionary. Each one comes with the case it takes.  
@@ -7128,9 +7128,9 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3522.** Here the person goes in the {case}, and the thing itself is the subject.  
   → Тут людина стоїть у відмінку {case}, а сам предмет є підметом.
 - [ ] **3523.** {verb} takes the {case}, the one that asks {question}. English gives you no hint here, so learn the two together.  
-  → {verb} вимагає відмінка {case}, того, що відповідає на питання «{question}». Здогадатися тут не вийде, тож запам'ятовуйте їх разом.
+  → {verb} вимагає відмінка {case}, того, що відповідає на питання «{question}». Українське керування тут не завжди підкаже, тож запам'ятовуйте їх разом.
 - [ ] **3524.** {verb} takes the {case}. English gives you no hint here, so learn the two together.  
-  → {verb} вимагає відмінка {case}. Здогадатися тут не вийде, тож запам'ятовуйте їх разом.
+  → {verb} вимагає відмінка {case}. Українське керування тут не завжди підкаже, тож запам'ятовуйте їх разом.
 - [ ] **3525.** It can also take {cases}, for another part of the sentence or in another sense.  
   → Воно може вимагати й {cases}, для іншої частини речення або в іншому значенні.
 - [ ] **3526.** and  
@@ -7316,7 +7316,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3616.** We worked this form out from the dictionary, using the regular pattern.  
   → Цю форму ми вивели зі словника за звичним зразком.
 - [ ] **3617.** What the {case} is for  
-  → Для чого потрібен {case}
+  → Для чого відмінок {case}
 - [ ] **3618.** {word} toward mastered  
   → {word}: шлях до опанування
 - [ ] **3619.** This word  
@@ -7336,7 +7336,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3626.** In the picture: {things}.  
   → На картинці: {things}.
 - [ ] **3627.** Describing what's in front of you is as close to real talking as a screen gets.  
-  → Описати те, що перед очима: ближче до справжньої розмови на екрані не буває.
+  → Описувати те, що перед очима, найближче до справжньої розмови, що може дати екран.
 - [ ] **3628.** Right case  
   → Правильний відмінок
 - [ ] **3629.** Write one sentence about this, with {word}, that says  
@@ -7462,9 +7462,9 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3689.** Type your answer  
   → Надрукуйте свою відповідь
 - [ ] **3690.** After your next guess you'll get a clue: what sort of thing the word is.  
-  → Після наступної спроби буде підказка: що означає це слово.
+  → Після наступної спроби буде підказка: до якої групи належить слово.
 - [ ] **3691.** After {n} more guesses you'll get a clue: what sort of thing the word is.  
-  → Спроб до підказки: {n}. Вона скаже, що означає це слово.
+  → Спроб до підказки: {n}. Вона скаже, до якої групи належить слово.
 - [ ] **3692.** Before your last guess you'll get a clue: how many of its letters are vowels.  
   → Перед останньою спробою буде підказка: скільки в слові голосних.
 - [ ] **3693.** After {n} more guesses you'll get a clue: how many of its letters are vowels.  
@@ -7496,7 +7496,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3706.** It's {category}.  
   → Це {category}.
 - [ ] **3707.** {n} of the six letters is a vowel.  
-  → У слові {n} голосна із шести літер.
+  → Голосних у слові: {n} з шести.
 - [ ] **3708.** {n} of the six letters are vowels.  
   → Голосних у слові: {n} з шести.
 - [ ] **3709.** in place  
@@ -7630,7 +7630,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3773.** {n} to work on  
   → Над чим попрацювати: {n}
 - [ ] **3774.** All mastered  
-  → Усе засвоєно
+  → Усе опановано
 - [ ] **3775.** No words yet  
   → Слів поки немає
 - [ ] **3776.** best {n}  
@@ -7672,7 +7672,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3794.** Typed, varied  
   → Друкуєте, щоразу по-різному
 - [ ] **3795.** Words you already know, asked in ways your daily review never does. Type what you hear in a sentence, fill a gap knowing only what it means, or write a sentence of your own. Get a word right five times, three different ways, and it's done.  
-  → Слова, які ви вже знаєте, у завданнях, яких немає в щоденному повторенні. Надрукуйте почуте в реченні, заповніть пропуск, знаючи тільки зміст, або напишіть власне речення. Дайте правильну відповідь на слово п'ять разів трьома різними способами, і його засвоєно.
+  → Слова, які ви вже знаєте, у завданнях, яких немає в щоденному повторенні. Надрукуйте почуте в реченні, заповніть пропуск, знаючи тільки зміст, або напишіть власне речення. Дайте правильну відповідь на слово п'ять разів трьома різними способами, і його опановано.
 - [ ] **3796.** The ones you hear most  
   → Ті, що чути найчастіше
 - [ ] **3797.** Four lists  
@@ -7754,7 +7754,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3835.** Multiple choice  
   → Вибір відповіді
 - [ ] **3836.** Aitan sind, but helistan sulle. English gives you no hint which case a verb wants, so you learn it verb by verb, and this is where you practise that.  
-  → Aitan sind, але helistan sulle. Англійська не підкаже, якого відмінка потребує дієслово, тож це вивчається дієслово за дієсловом, і тренується це тут.
+  → Aitan sind, але helistan sulle, хоча українською в обох «тобі». Тож відмінок вивчається дієслово за дієсловом, і тренується це тут.
 - [ ] **3837.** Long sound or short?  
   → Довгий звук чи короткий?
 - [ ] **3838.** Needs audio  
@@ -7766,7 +7766,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **3841.** Your own text  
   → Ваш власний текст
 - [ ] **3842.** Paste in an article or your homework. We blank out the words you've learned, and you fill them back in the way the writer had them.  
-  → Вставте статтю або домашнє завдання. Ми приберемо слова, які ви вже вивчили, а ви впишете їх так, як було в автора.
+  → Вставте статтю або домашнє завдання. Ми замінимо пропусками слова, які ви вже вчили, а ви впишете їх так, як було в автора.
 - [ ] **3843.** One verb, six people  
   → Одне дієслово, шість осіб
 - [ ] **3844.** Six persons  
@@ -7824,11 +7824,11 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **3866.** , paper {n}  
   → , варіант {n}
 - [ ] **3867.** , sat  
-  → , складено
+  → , писали
 - [ ] **3868.** , stuck on {cards} for this word  
   → , з цього слова важко даються {cards}
 - [ ] **3869.** , taken from the Board's own pages, along with its free practice material.  
-  → , їх узято з власних сторінок Департаменту, разом із безкоштовними матеріалами для підготовки.
+  → , їх узято з власних сторінок Harno, разом із безкоштовними матеріалами для підготовки.
 - [ ] **3870.** , {n} of them at the levels that decided it  
   → , з них {n} на рівнях, які все вирішили
 - [ ] **3871.** A PDF, in Estonian.  
@@ -7862,7 +7862,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **3885.** A wrong answer costs you nothing here, so a guess beats a blank.  
   → Неправильна відповідь тут нічого не коштує, тож краще вгадати, ніж залишити порожнім.
 - [ ] **3886.** About half an hour. It's what this number comes from.  
-  → Близько півгодини. Саме звідси це число.
+  → Близько півгодини: саме з цього й виходить це число.
 - [ ] **3887.** Across {n} tries, and it's the part costing you the most marks.  
   → Спроб: {n}, і саме ця частина коштує вам найбільше балів.
 - [ ] **3888.** Across {n} tries.  
@@ -7932,7 +7932,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **3920.** Based on your own answers. Where they can't tell us something, we say so.  
   → За вашими власними відповідями. Де вони нічого не можуть сказати, ми так і пишемо.
 - [ ] **3921.** Better than anything you've sat at this level. Your old best was {pct} percent.  
-  → Краще за все, що ви складали на цьому рівні. Попередній рекорд був {pct}%.
+  → Краще за все, що ви писали на цьому рівні. Попередній рекорд був {pct}%.
 - [ ] **3922.** Between the halves  
   → Між частинами
 - [ ] **3923.** Break  
@@ -7946,7 +7946,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **3927.** Cancel  
   → Скасувати
 - [ ] **3928.** Cards known  
-  → Відомих карток
+  → Засвоєних карток
 - [ ] **3929.** Carry on  
   → Продовжити
 - [ ] **3930.** Cases  
@@ -7988,7 +7988,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **3948.** Each one plays twice.  
   → Кожен звучить двічі.
 - [ ] **3949.** Each paper keeps the same questions, so you can sit it again and see how you've moved.  
-  → Кожен варіант зберігає ті самі запитання, тож його можна пройти знову й побачити, наскільки ви просунулися.
+  → Кожен варіант зберігає ті самі запитання, тож його можна написати знову й побачити, наскільки ви просунулися.
 - [ ] **3950.** Each part runs on its own clock and closes when its time runs out. Once you leave a part you can't go back to it.  
   → Кожна частина має свій годинник і закривається, коли час спливає. Залишивши частину, повернутися до неї не можна.
 - [ ] **3951.** Each recording plays twice and no more, as on the real exam.  
@@ -8168,7 +8168,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4038.** Marking _(context: busy)_  
   → Перевіряємо
 - [ ] **4039.** Measured {date}  
-  → Виміряно {date}
+  → Виміряно: {date}
 - [ ] **4040.** Mock examination  
   → Пробний іспит
 - [ ] **4041.** Mock examination, {level}  
@@ -8176,13 +8176,13 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4042.** Mock state examination  
   → Пробний державний іспит
 - [ ] **4043.** Mock {level} paper, sat once, best {best}, at or above the pass mark. Latest {latest}.  
-  → Пробний варіант {level}, складено один раз, найкращий результат {best}, не нижче за прохідний бал. Останній: {latest}.
+  → Пробний варіант {level}: писали один раз, найкращий результат {best}, не нижче за прохідний бал. Останній: {latest}.
 - [ ] **4044.** Mock {level} paper, sat once, best {best}, under the pass mark. Latest {latest}.  
-  → Пробний варіант {level}, складено один раз, найкращий результат {best}, нижче за прохідний бал. Останній: {latest}.
+  → Пробний варіант {level}: писали один раз, найкращий результат {best}, нижче за прохідний бал. Останній: {latest}.
 - [ ] **4045.** Mock {level} paper, sat {n} times, best {best}, at or above the pass mark. Latest {latest}.  
-  → Пробний варіант {level}, спроб: {n}, найкращий результат {best}, не нижче за прохідний бал. Останній: {latest}.
+  → Пробний варіант {level}: спроб {n}, найкращий результат {best}, не нижче за прохідний бал. Останній: {latest}.
 - [ ] **4046.** Mock {level} paper, sat {n} times, best {best}, under the pass mark. Latest {latest}.  
-  → Пробний варіант {level}, спроб: {n}, найкращий результат {best}, нижче за прохідний бал. Останній: {latest}.
+  → Пробний варіант {level}: спроб {n}, найкращий результат {best}, нижче за прохідний бал. Останній: {latest}.
 - [ ] **4047.** Most of the lost marks were in "{task}", where you got {pct} percent.  
   → Найбільше балів утрачено в завданні «{task}», де у вас {pct}%.
 - [ ] **4048.** Most recordings play twice, but one task plays each recording only once, as the real {level} paper does.  
@@ -8198,7 +8198,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4053.** Newest first, or search  
   → Спершу нові, або пошук
 - [ ] **4054.** Newest on {deck}  
-  → Найновіше в колоді {deck}
+  → Найновіше в колоді «{deck}»
 - [ ] **4055.** Next part: {part}  
   → Наступна частина: {part}
 - [ ] **4056.** Next question  
@@ -8244,7 +8244,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4076.** Not examined  
   → Не екзаменується
 - [ ] **4077.** Not sat yet  
-  → Ще не складали
+  → Ще не писали
 - [ ] **4078.** Not sure  
   → Не знаю напевно
 - [ ] **4079.** Notes, if you want them. You may use notes on the real day too. These aren't kept.  
@@ -8324,7 +8324,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4116.** Paper {n}, one part on its own  
   → Варіант {n}, одна частина окремо
 - [ ] **4117.** Papers you've sat  
-  → Варіанти, які ви складали
+  → Варіанти, які ви писали
 - [ ] **4118.** Part {n}  
   → Частина {n}
 - [ ] **4119.** Passed _(context: exam)_  
@@ -8424,7 +8424,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4166.** Remove  
   → Прибрати
 - [ ] **4167.** Rename {deck}  
-  → Перейменувати {deck}
+  → Перейменувати колоду «{deck}»
 - [ ] **4168.** Resume "{card}"  
   → Повернути «{card}»
 - [ ] **4169.** Review now  
@@ -8436,7 +8436,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4172.** Right, with a note  
   → Правильно, із зауваженням
 - [ ] **4173.** Sat _(context: exam)_  
-  → Складено
+  → Писали
 - [ ] **4174.** See every situation, and what would trip you up in each  
   → Усі ситуації і те, що може збити вас у кожній
 - [ ] **4175.** See the plan  
@@ -8472,11 +8472,11 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4190.** Showing the {shown} you've practised most, out of {total}.  
   → Показано ті, які ви тренували найбільше: {shown} з {total}.
 - [ ] **4191.** Sit again  
-  → Скласти ще раз
+  → Написати ще раз
 - [ ] **4192.** Sit it  
-  → Пройти
+  → Написати
 - [ ] **4193.** Sit it with a connection  
-  → Пройти з інтернетом
+  → Написати з інтернетом
 - [ ] **4194.** Sitting one part on its own  
   → Одна частина окремо
 - [ ] **4195.** Six marks in ten are for the length, and four for using the words listed. Read it back and check you've covered every point yourself: we'd have to judge your Estonian to check it for you, and nothing here does that. On the real paper an examiner marks how well you wrote, which these marks can't see.  
@@ -8490,7 +8490,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4199.** Some tasks use single words instead of full sentences, because we don't have a recorded sentence for every word yet. Each one says so above. It makes this paper a little easier than the real one, which is worth knowing before you look at your score.  
   → У деяких завданнях окремі слова замість цілих речень, бо в нас поки немає записаного речення для кожного слова. Над кожним таким завданням це написано. Через це варіант трохи легший за справжній, і це варто знати, перш ніж дивитися на результат.
 - [ ] **4200.** Some words keep slipping away after you've learned them. The leech clinic shows you which ones.  
-  → Деякі слова вислизають уже після того, як ви їх вивчили. Клініка складних слів покаже, які саме.
+  → Деякі слова вислизають уже після того, як ви їх вивчили. Розділ «Складні слова» покаже, які саме.
 - [ ] **4201.** Sort your words into decks of your own, like Work or Recipes. Add words now or any time later.  
   → Розкладіть слова по своїх колодах, наприклад «Робота» чи «Рецепти». Додати слова можна зараз або пізніше.
 - [ ] **4202.** Speak for about {time}.  
@@ -8576,7 +8576,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4242.** The A1 paper is ours, not the state's. Estonia doesn't test at that level, so we made one a little easier than A2. That way your first attempt is one you can pass.  
   → Варіант A1 наш, а не державний. В Естонії на цьому рівні іспиту немає, тому ми зробили його трохи легшим за A2. Так першу спробу цілком можна скласти.
 - [ ] **4243.** The Board published real candidates' texts with the examiners' comments beside them. Reading one next to yours is the closest you'll get to a second opinion here.  
-  → Департамент опублікував справжні тексти кандидатів із коментарями екзаменаторів. Прочитати такий текст поруч зі своїм: ближчого до другої думки тут нічого не буде.
+  → Harno опублікував справжні тексти кандидатів із коментарями екзаменаторів. Прочитати такий текст поруч зі своїм: ближчої до другої думки нагоди тут не буде.
 - [ ] **4244.** The answer  
   → Відповідь
 - [ ] **4245.** The audio won't play. Skip listening, and your level comes from the other two skills.  
@@ -8598,7 +8598,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4253.** The dictionary couldn't fill every task, so this percentage comes from a shorter paper than usual.  
   → Словник не зміг заповнити всі завдання, тому цей відсоток отримано за коротшим варіантом, ніж зазвичай.
 - [ ] **4254.** The dictionary didn't have enough to build those questions from, so we left them out rather than scoring them as nothing. Your percentage covers the parts you did sit.  
-  → У словнику не вистачило матеріалу для цих запитань, тому ми їх прибрали, а не зарахували як нуль. Ваш відсоток обчислено за частинами, які ви складали.
+  → У словнику не вистачило матеріалу для цих запитань, тому ми їх прибрали, а не зарахували як нуль. Ваш відсоток обчислено за частинами, які ви писали.
 - [ ] **4255.** The examiner asks  
   → Екзаменатор питає
 - [ ] **4256.** The examiner talks to you the way people do when they first meet. Say these out loud in Estonian now. Nobody's listening and nothing's marked.  
@@ -8638,7 +8638,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4273.** The same as your last {level}  
   → Так само, як минулого разу на {level}
 - [ ] **4274.** The shape of this paper is real. The questions aren't, and neither is the result. It's practice, not a certificate, and Kodukeel has nothing to do with {board}, who run the exams that count.  
-  → Структура цього варіанта справжня. Запитання не справжні, як і результат. Це практика, а не сертифікат, і Kodukeel не має жодного стосунку до {board}, який проводить справжні іспити.
+  → Структура цього варіанта справжня. Запитання не справжні, як і результат. Це практика, а не сертифікат, і Kodukeel не має жодного стосунку до Harno ({board}), який проводить справжні іспити.
 - [ ] **4275.** The state exam comes at A2, B1, B2 and C1. These are practice papers made from our dictionary.  
   → Державний іспит буває на рівнях A2, B1, B2 і C1. Це пробні варіанти, зроблені з нашого словника.
 - [ ] **4276.** The structure is real. The parts, the timing, the points, the sixty percent you need to pass, and a zero on any part failing you outright. Sit one of these and you'll know what the real exam feels like.  
@@ -8910,9 +8910,9 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4409.** You remembered {pct}% of your older cards, against a {target}% target  
   → Ви згадали {pct}% старих карток за мети {target}%
 - [ ] **4410.** You sat this and scored {pct} percent, which is a pass.  
-  → Ви складали цей варіант і набрали {pct}%, це прохідний результат.
+  → Ви писали цей варіант і набрали {pct}%, це прохідний результат.
 - [ ] **4411.** You sat this and scored {pct} percent. A pass is {pass}.  
-  → Ви складали цей варіант і набрали {pct}%. Прохідний бал: {pass}.
+  → Ви писали цей варіант і набрали {pct}%. Прохідний бал: {pass}.
 - [ ] **4412.** You'd follow this, then freeze when it's your turn  
   → Ви б зрозуміли, а потім заклякли, коли настане ваша черга
 - [ ] **4413.** You're already at {level} or above. Pick a higher target, or keep your reviews ticking over and take the check again in a couple of months.  
@@ -9170,7 +9170,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4539.** {level}, part {n} of {total},  
   → {level}, частина {n} з {total},
 - [ ] **4540.** {level}: {known} of {total} known  
-  → {level}: відомо {known} з {total}
+  → {level}: засвоєно {known} з {total}
 - [ ] **4541.** {list}. You can stop worrying about those.  
   → {list}. Про них можна більше не хвилюватися.
 - [ ] **4542.** {minutes} minutes, {days} days  
@@ -9220,7 +9220,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4564.** {n} questions on this part are still blank.  
   → Порожніх запитань у цій частині: {n}.
 - [ ] **4565.** {n} reported by the learner, answering each morning about the day before. These are their own answers and haven't been checked.  
-  → Позначок: {n}. Людина, що вчиться, щоранку відповідає про попередній день. Це її власні відповіді, їх ніхто не перевіряв.
+  → Позначок: {n}. Учень щоранку відповідає про попередній день. Це його власні відповіді, їх ніхто не перевіряв.
 - [ ] **4566.** {n} seconds  
   → {n} с
 - [ ] **4567.** {n} situations, {reached} you could follow  
@@ -9308,7 +9308,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4608.** {word} is back in your reviews.  
   → {word} знову в повторенні.
 - [ ] **4609.** {word} is on {deck}.  
-  → {word} у колоді {deck}.
+  → {word} у колоді «{deck}».
 - [ ] **4610.** {word}, on the way to mastered{forms}  
   → {word}, на шляху до опанування{forms}
 - [ ] **4611.** There's no state exam at A1, so this paper is our own. It follows the A2 paper, one step easier, so your first go is one you can actually pass.  
@@ -9342,7 +9342,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4625.** Which case does the verb take?  
   → Якого відмінка вимагає дієслово?
 - [ ] **4626.** Each Estonian verb wants a particular case after it, and English gives you no hint which. Pick the right one for each verb. Like the task above, this one is ours rather than the real paper's, so leave it till last.  
-  → Кожне естонське дієслово вимагає після себе певного відмінка, а англійська не дає жодної підказки. Оберіть правильний для кожного дієслова. Як і завдання вище, це наше, а не зі справжнього іспиту, тож залиште його наостанок.
+  → Кожне естонське дієслово вимагає після себе певного відмінка, і українське керування не завжди підкаже, якого. Оберіть правильний для кожного дієслова. Як і завдання вище, це наше, а не зі справжнього іспиту, тож залиште його наостанок.
 - [ ] **4627.** not a task the real paper sets: it asks directly which case each verb takes, which an examiner checks inside your two texts  
   → такого завдання на справжньому іспиті немає: воно прямо питає, якого відмінка вимагає кожне дієслово, а екзаменатор перевіряє це всередині ваших двох текстів
 - [ ] **4628.** Listening  
@@ -9380,7 +9380,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4644.** Put the sentence back together  
   → Зберіть речення заново
 - [ ] **4645.** Here's a real sentence with its words shuffled. Put them back in order. Estonian is looser about word order than English, so another order Estonian allows counts too.  
-  → Ось справжнє речення з перемішаними словами. Розставте їх по порядку. Порядок слів в естонській вільніший, ніж в англійській, тож інший допустимий в естонській порядок теж зараховується.
+  → Ось справжнє речення з перемішаними словами. Розставте їх по порядку. Порядок слів в естонській вільний, майже як в українській, тож інший допустимий порядок теж зараховується.
 - [ ] **4646.** not a task the real paper sets: it stands in for the questions on a longer text, which this app can't write, and tests how a sentence holds together  
   → такого завдання на справжньому іспиті немає: воно заміняє запитання до довгого тексту, який цей застосунок написати не може, і перевіряє, як тримається речення
 - [ ] **4647.** Speaking  
@@ -9414,7 +9414,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4661.** The real writing part opens with this. Cover every point you're given. Your marks come from the word count and from using the words we list. Checking that you covered every point is up to you, because no AI here judges your Estonian.  
   → З цього починається справжня письмова частина. Розкрийте всі пункти завдання. Бали дають за кількість слів і за використання слів із нашого списку. Перевірити, що всі пункти розкрито, доведеться вам самим, бо тут жоден ШІ не оцінює вашу естонську.
 - [ ] **4662.** a short message of about 50 words. Some papers set a ten question form to fill in instead, which this app can't set  
-  → коротке повідомлення приблизно на 50 слів. У деяких варіантах замість нього треба заповнити анкету з десяти запитань, яку цей застосунок скласти не може
+  → коротке повідомлення приблизно на 50 слів. У деяких варіантах замість нього треба заповнити бланк із десяти запитань, який цей застосунок скласти не може
 - [ ] **4663.** Write a story or a personal letter  
   → Напишіть розповідь або особистий лист
 - [ ] **4664.** The second writing task, and you choose: a story on the topic, or a personal letter about it. Your marks come from the length and from using the words listed. Anu can add a note afterwards if you ask, but it doesn't change your marks.  
@@ -9686,7 +9686,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4797.** Needs work  
   → Треба підтягнути
 - [ ] **4798.** Still learning  
-  → Ще вчу
+  → Ще вивчаю
 - [ ] **4799.** New  
   → Нові
 - [ ] **4800.** Relearning  
@@ -9958,7 +9958,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4933.** Interruptions, jargon, and somebody talking at full speed because you started it.  
   → Вас перебивають, говорять жаргоном і на повній швидкості, раз уже ви почали.
 - [ ] **4934.** Tell your landlord something is broken, where it is and since when, and agree a time.  
-  → Скажіть власникові квартири, що щось зламалося, де і відколи, і домовтеся про час.
+  → Скажіть орендодавцеві, що щось зламалося, де і відколи, і домовтеся про час.
 - [ ] **4935.** A no to the first time you suggest, and a question about what exactly is wrong.  
   → Відмова на перший запропонований вами час і запитання, що саме не так.
 - [ ] **4936.** Read one news story on ERR and tell somebody what happened in four sentences.  
@@ -9978,7 +9978,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4943.** Their side of a similar story, and an opinion on yours.  
   → Їхня версія схожої історії й думка про вашу.
 - [ ] **4944.** Describe somebody you know well in six sentences without using the word nice.  
-  → Опишіть добре знайому вам людину в шести реченнях, жодного разу не сказавши «милий».
+  → Опишіть добре знайому вам людину в шести реченнях, жодного разу не сказавши «хороший».
 - [ ] **4945.** Disagree with somebody politely about something small and give one reason.  
   → Ввічливо не погодьтеся з кимось у дрібниці й наведіть одну причину.
 - [ ] **4946.** A reason back, and the conversation getting faster.  
@@ -9990,7 +9990,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4949.** Write five sentences whose meaning changes when you take the particle off the verb.  
   → Напишіть п'ять речень, зміст яких змінюється, якщо прибрати частку в дієслова.
 - [ ] **4950.** Read a notice in a stairwell and rewrite it saying who is meant to do what.  
-  → Прочитайте оголошення на сходовій клітці й перепишіть його, вказавши, хто що має робити.
+  → Прочитайте оголошення на сходах у під'їзді й перепишіть його, вказавши, хто що має робити.
 - [ ] **4951.** Report something you were told but did not see, in the mood Estonian keeps for it.  
   → Перекажіть те, що вам сказали, але чого ви не бачили, у способі, який для цього є в естонській.
 - [ ] **4952.** Take a paragraph you wrote and join three pairs of sentences into one each.  
@@ -10092,11 +10092,11 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **5000.** in whom? what is it in? where?  
   → у кому? у чому? де?
 - [ ] **5001.** out of the book  
-  → з книжки
+  → з книжки (зсередини)
 - [ ] **5002.** out of what? where from?  
-  → з чого? звідки?
+  → з чого (зсередини)? звідки?
 - [ ] **5003.** about whom? out of what? where from?  
-  → про кого? з чого? звідки?
+  → про кого? з чого (зсередини)? звідки?
 - [ ] **5004.** onto the book  
   → на книжку
 - [ ] **5005.** onto what? where to?  
@@ -10108,13 +10108,13 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **5008.** what is it on? where?  
   → на чому? де?
 - [ ] **5009.** off the book  
-  → з книжки
+  → з книжки (з поверхні)
 - [ ] **5010.** off what? where from?  
-  → з чого? звідки?
+  → з чого (з поверхні)? звідки?
 - [ ] **5011.** from whom? off what? where from?  
-  → від кого? з чого? звідки?
+  → від кого? з чого (з поверхні)? звідки?
 - [ ] **5012.** becoming a book  
-  → стаючи книжкою
+  → ставати книжкою
 - [ ] **5013.** becoming who? becoming what?  
   → ким стати? чим стати?
 - [ ] **5014.** up to the book  
@@ -10124,7 +10124,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **5016.** up to whom? up to what?  
   → до кого? до чого?
 - [ ] **5017.** as a book  
-  → як книжка
+  → у ролі книжки
 - [ ] **5018.** without the book  
   → без книжки
 - [ ] **5019.** without what?  
@@ -10570,7 +10570,7 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5235.** All six in one evening. Every verb you learn after this changes its ending to match one of them.  
   → Усі шість за один вечір. Кожне дієслово, яке ви вивчите далі, змінює закінчення під один із них.
 - [ ] **5236.** Say I am, you are and this is, and use a handful of everyday verbs with every person.  
-  → Будувати фрази з дієсловом «бути» (я, ти, це) і змінювати кілька повсякденних дієслів за всіма особами.
+  → Казати «я є», «ти є» і «це є» (естонська, на відміну від української, «бути» не пропускає) і вживати кілька повсякденних дієслів з усіма особами.
 - [ ] **5237.** The verb to be, this and that, and seven verbs you'll use all the time. The six endings never change, so once you know them, each new verb only needs its first half.  
   → Дієслово «бути», «цей» і «той» та сім дієслів, які знадобляться постійно. Шість закінчень завжди однакові: вивчіть їх, і в кожному новому дієслові лишиться запам'ятати тільки першу половину.
 - [ ] **5238.** Say and, but, too and very, and talk about here, now and today.  
@@ -10606,7 +10606,7 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5253.** Count, give your phone number, say a price and tell someone how old you are.  
   → Лічити, диктувати свій номер телефону, називати ціну й казати, скільки вам років.
 - [ ] **5254.** After a number the noun takes the osastav: kaks raamatut, not kaks raamat. Teens end in -teist and tens in {e1}. For third and up you add -s to the omastav, which is how you say which floor you live on. First and second, esimene and teine, you just learn.  
-  → Після числа іменник стоїть в osastav: kaks raamatut, а не kaks raamat. Числа від одинадцяти до дев'ятнадцяти закінчуються на -teist, десятки на {e1}. Порядкові від третього й далі утворюються, якщо додати -s до omastav: так ви скажете, на якому поверсі живете. Перший і другий, esimene і teine, просто запам'ятовуються.
+  → Після числа іменник стоїть в osastav, і в однині: kaks raamatut, а не kaks raamat, приблизно як українське «п'ять книжок», тільки без множини. Числа від одинадцяти до дев'ятнадцяти закінчуються на -teist, десятки на {e1}. Порядкові від третього й далі утворюються, якщо додати -s до omastav: так ви скажете, на якому поверсі живете. Перший і другий, esimene і teine, просто запам'ятовуються.
 - [ ] **5255.** Home and the things in it  
   → Дім і речі в ньому
 - [ ] **5256.** Describe your home and say where things are in it.  
@@ -10630,7 +10630,7 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5265.** Order food, buy groceries and say what you like to eat.  
   → Замовити їжу, купити продукти й сказати, що ви любите їсти.
 - [ ] **5266.** Enough to order, shop and read a menu. You'll also find out why coffee changes its ending when you drink it: ma joon kohvi.  
-  → Вистачить, щоб замовити, сходити в магазин і прочитати меню. А ще ви дізнаєтеся, чому кава змінює закінчення, коли ви її п'єте: ma joon kohvi.
+  → Вистачить, щоб замовити, сходити в магазин і прочитати меню. А ще ви дізнаєтеся, чому кава змінює закінчення, коли ви її п'єте: ma joon kohvi, майже як «випити кави».
 - [ ] **5267.** Days, hours and when things happen  
   → Дні, години й коли що відбувається
 - [ ] **5268.** Tell the time, name the days of the week, and say when something happens.  
@@ -10648,7 +10648,7 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5274.** Say what a thing or a person is like, with the adjective matching its noun.  
   → Описувати речі й людей, узгоджуючи прикметник з іменником.
 - [ ] **5275.** Big and small, old and new, good and bad. An Estonian adjective takes the same ending as its noun, so once you've got the noun, the adjective follows.  
-  → Великий і маленький, старий і новий, хороший і поганий. Естонський прикметник бере те саме закінчення, що і його іменник: упоралися з іменником, і прикметник вийде сам.
+  → Великий і маленький, старий і новий, хороший і поганий. Як і в українській, прикметник стоїть у тому самому відмінку, що і його іменник, а роду тут немає зовсім: упоралися з іменником, і прикметник вийде сам.
 - [ ] **5276.** Colors  
   → Кольори
 - [ ] **5277.** Name colors and say what something looks like.  
@@ -10720,13 +10720,13 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5310.** Say what's on, under, in front of, behind or next to what.  
   → Сказати, що лежить на чому, під чим, перед чим, за чим або поруч із чим.
 - [ ] **5311.** The keys are on the table, the cat's under the bed. Most of these words come after the noun, and the noun changes: laua peal, not peal laud. A few go in front instead, and you'll meet both kinds.  
-  → Ключі на столі, кіт під ліжком. Більшість цих слів стоїть після іменника, і іменник змінюється: laua peal, а не peal laud. Деякі стоять попереду, і ви побачите обидва види.
+  → Ключі на столі, кіт під ліжком. На відміну від українських прийменників, більшість цих слів стоїть після іменника, і іменник змінюється: laua peal, а не peal laud. Деякі стоять попереду, і ви побачите обидва види.
 - [ ] **5312.** Joining two thoughts  
   → Як поєднати дві думки
 - [ ] **5313.** Join two ideas, say why, and put one thing against another.  
   → Поєднувати дві думки, пояснювати причину й протиставляти одне одному.
 - [ ] **5314.** Because, that, or: the words that let you say two things in one sentence. One rule to remember: Estonian always puts a comma before et, sest, kui and kes, even where English wouldn't.  
-  → Бо, що, або: слова, з якими можна сказати дві речі в одному реченні. Одне правило варто запам'ятати: в естонській перед et, sest, kui і kes завжди ставлять кому, навіть там, де в англійській її не було б.
+  → Бо, що, або: слова, з якими можна сказати дві речі в одному реченні. Кома тут ставиться так само, як в українській: перед et, sest, kui і kes вона потрібна завжди.
 - [ ] **5315.** How sure you are  
   → Наскільки ви впевнені
 - [ ] **5316.** Agree, disagree, and say how sure you are.  
@@ -10794,7 +10794,7 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5347.** Ask someone for help, say what's happened, and call the right number.  
   → Попросити про допомогу, пояснити, що сталося, і зателефонувати за потрібним номером.
 - [ ] **5348.** Let's hope you never need these words. You shout appi when you're in trouble, and ask for abi when you just need a hand. The emergency number is 112, and they answer in Estonian, Russian and English.  
-  → Сподіваємося, ці слова вам ніколи не знадобляться. Коли сталася біда, кричать appi, а коли просто потрібна допомога, просять abi. Номер екстреної служби 112, там відповідають естонською й англійською.
+  → Сподіваємося, ці слова вам ніколи не знадобляться. Коли сталася біда, кричать appi, а коли просто потрібна допомога, просять abi. Номер екстреної служби 112, там відповідають естонською, російською та англійською.
 - [ ] **5349.** Tell someone what to do, ask for something politely, and offer to help.  
   → Сказати, що треба зробити, чемно попросити про щось і запропонувати допомогу.
 - [ ] **5350.** Pass the salt. Could you help me? How to ask for things, tell people what to do, and soften an order into a polite request.  
@@ -10854,19 +10854,19 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5377.** Make arrangements, talk about your plans and say what you're going to do.  
   → Домовлятися про зустрічі, розповідати про плани й казати, що збираєтеся робити.
 - [ ] **5378.** Estonian has no future tense. Here's how it gets by without one.  
-  → В естонській немає майбутнього часу. Ось як вона без нього обходиться.
+  → В естонській немає майбутнього часу: замість «читатиму» кажуть «читаю завтра». Ось як вона без нього обходиться.
 - [ ] **5379.** Phone, mail and the internet  
   → Телефон, пошта й інтернет
 - [ ] **5380.** Make a phone call, write a short message and arrange to meet.  
   → Зателефонувати, написати коротке повідомлення й домовитися про зустріч.
 - [ ] **5381.** Calls, messages and arranging to meet. One trap every English speaker falls into: helistama, to call, takes a different ending from the one you'd guess.  
-  → Дзвінки, повідомлення й домовленості про зустріч. Пастка, у яку потрапляє кожен англомовний: helistama, «дзвонити», вимагає не того закінчення, якого ви б очікували.
+  → Дзвінки, повідомлення й домовленості про зустріч. Тут українська підказує правильно: helistama, «дзвонити», вимагає того самого «кому?», що й «дзвоню тобі»: helistan sulle.
 - [ ] **5382.** Feelings  
   → Почуття
 - [ ] **5383.** Say how you feel, and ask how someone else is and mean it.  
   → Сказати, як ви почуваєтеся, і щиро запитати, як справи в іншого.
 - [ ] **5384.** Happy, worried, scared, in love. Where English says I feel, Estonian often says what you have: mul on hea meel, I'm glad.  
-  → Щасливий, стривожений, наляканий, закоханий. Де англійська каже «я відчуваю», естонська часто каже, що у вас є: mul on hea meel, «я радий».
+  → Щасливий, стривожений, наляканий, закоханий. Почуття естонська часто описує тим самим «у мене є», що й українська: mul on hea meel, «я радий», дослівно «у мене добрий настрій».
 - [ ] **5385.** Say what you thought of something and describe it in a few words: nice, fun, strange, famous.  
   → Сказати, що ви про щось думаєте, і описати це двома словами: приємний, веселий, дивний, відомий.
 - [ ] **5386.** The words you need to tell someone about your weekend.  
@@ -10880,7 +10880,7 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5390.** Choose between an osastav object and an omastav object, and explain why.  
   → Обирати між додатком в osastav та в omastav і пояснювати чому.
 - [ ] **5391.** Did you read the book, or were you reading it? Estonian shows the difference with an ending. It's the hardest thing in the grammar, and getting it right is what marks out a B1 speaker.  
-  → Ви прочитали книжку чи читали її? В естонській різницю показує закінчення. Це найважче в граматиці, і саме за цим упізнають рівень B1.
+  → Ви прочитали книжку чи читали її? Українська показує це видом дієслова, а естонська закінченням додатка. Це найважче в граматиці, і саме за цим упізнають рівень B1.
 - [ ] **5392.** Talk about friendships, disagreements and how people get on.  
   → Говорити про дружбу, сварки й про те, як люди ладнають між собою.
 - [ ] **5393.** Words for getting along, falling out and making up.  
@@ -10888,7 +10888,7 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5394.** Use the case each common verb wants, not the one English suggests.  
   → Ставити після вживаних дієслів той відмінок, якого вони вимагають, а не той, що підказує інша мова.
 - [ ] **5395.** English speakers get these wrong for years: aitan sind, helistan sulle, mulle meeldib. Every card here asks which ending the verb wants.  
-  → Англомовні роками помиляються тут: aitan sind, helistan sulle, mulle meeldib. Кожна картка в цьому розділі питає, якого закінчення вимагає дієслово.
+  → Тут помиляються роками: aitan sind, helistan sulle, mulle meeldib. Українська підкаже два з трьох, але «допомагаю тобі» буде sind, а не sulle. Кожна картка тут питає, якого закінчення вимагає дієслово.
 - [ ] **5396.** Describe your job, talk about pay and conditions, and take part in a meeting.  
   → Розповісти про свою роботу, обговорити зарплату й умови та брати участь у нараді.
 - [ ] **5397.** Meetings, wages and contracts: the words you'll hear in your first week at a new job.  
@@ -10912,15 +10912,15 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5406.** Housing and moving  
   → Житло й переїзд
 - [ ] **5407.** Rent a flat, say what's wrong with it and deal with the landlord.  
-  → Винайняти квартиру, пояснити, що з нею не так, і домовитися з власником.
+  → Винайняти квартиру, пояснити, що з нею не так, і домовитися з орендодавцем.
 - [ ] **5408.** Rent, repairs, and the heating that won't come on. Every newcomer has this conversation with a landlord sooner or later.  
-  → Оренда, ремонт і опалення, яке ніяк не вмикається. Кожного новачка рано чи пізно чекає ця розмова з власником квартири.
+  → Оренда, ремонт і опалення, яке ніяк не вмикається. Кожного новачка рано чи пізно чекає ця розмова з орендодавцем.
 - [ ] **5409.** Character and personality  
   → Характер і особистість
 - [ ] **5410.** Describe someone's character with more than two adjectives.  
   → Описати чийсь характер більш ніж двома прикметниками.
 - [ ] **5411.** This is where you stop calling everybody 'nice'.  
-  → Тут ви перестанете називати всіх «хорошими».
+  → Тут ви перестанете називати всіх «милими».
 - [ ] **5412.** The news  
   → Новини
 - [ ] **5413.** Follow a news bulletin and sum up a story you've read.  
@@ -10960,7 +10960,7 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5430.** Read and write the impersonal Estonian of notices, news and official writing.  
   → Читати й писати безособовою естонською оголошень, новин і офіційних текстів.
 - [ ] **5431.** It isn't the passive. It's how Estonian says people did something without ever saying who.  
-  → Це не пасивний стан. Так естонська каже, що люди щось зробили, жодного разу не уточнюючи, хто саме.
+  → Це не пасивний стан. Так естонська каже, що щось зробили, не називаючи, хто саме. Найближче в українській: «кажуть», «зроблено».
 - [ ] **5432.** Follow a public debate and take a side in it.  
   → Стежити за громадською дискусією й обирати в ній позицію.
 - [ ] **5433.** Words you'll hear on every news bulletin: government, law, economy, rights.  
@@ -10968,7 +10968,7 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5434.** Pass on hearsay with the mood Estonian keeps for it, and notice when it's used on you.  
   → Переказувати чутки особливим способом дієслова, який для цього має естонська, і помічати, коли його вживають у розмові з вами.
 - [ ] **5435.** Where English says apparently, Estonian just changes the verb ending to -vat. You'll hear it in every bit of gossip and half the news.  
-  → Де англійська каже «нібито», естонська просто змінює закінчення дієслова на -vat. Ви почуєте це в кожній плітці й у половині новин.
+  → Де українська каже «нібито» чи «кажуть», естонська просто змінює закінчення дієслова на -vat. Ви почуєте це в кожній плітці й у половині новин.
 - [ ] **5436.** Read a business page and explain an economic trend.  
   → Читати рубрику про бізнес і пояснювати економічну тенденцію.
 - [ ] **5437.** Numbers going up and down, and the verbs Estonian uses to say so.  
@@ -11194,13 +11194,13 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5547.** The blue, black and white flag was blessed on this day in 1884.  
   → Синьо-чорно-білий прапор освятили цього дня 1884 року.
 - [ ] **5548.** Victory Day  
-  → Свято перемоги
+  → Естонський День перемоги
 - [ ] **5549.** Victory Day, and tonight the midsummer bonfires are lit.  
-  → Естонське Свято перемоги, а ввечері запалюють купальські вогнища.
+  → Естонський День перемоги, на згадку про битву під Цесісом 1919 року. А ввечері, напередодні Яанового дня, палять вогнища.
 - [ ] **5550.** Midsummer Day  
-  → Свято Івана Купала
+  → Яанів день
 - [ ] **5551.** Midsummer Day, the second holiday in a row. The fires were lit last night, and half the country is still out by the lake.  
-  → Свято Івана Купала, другий вихідний поспіль. Вогнища горіли минулої ночі, а пів країни досі біля озера.
+  → Яанів день, другий вихідний поспіль. Вогнища горіли минулої ночі, а пів країни досі біля озера.
 - [ ] **5552.** International Cat Day  
   → Міжнародний день котів
 - [ ] **5553.** International Cat Day. Not an Estonian invention, but the cats here are keeping it anyway.  
@@ -11288,7 +11288,7 @@ _lib/copy/i18n/areas/course.ts_
 - [ ] **5594.** The fourth  
   → Четверте число
 - [ ] **5595.** Four, like the seasons, and Estonia's four are very different from each other.  
-  → Чотири, як пір року, і в Естонії всі чотири зовсім не схожі одна на одну.
+  → Чотири, як пори року, і в Естонії всі чотири зовсім не схожі одна на одну.
 - [ ] **5596.** The fifth  
   → П'яте число
 - [ ] **5597.** Five. One for each finger, so here's the word for what they're attached to.  
@@ -11770,9 +11770,9 @@ _lib/copy/i18n/areas/finish.ts_
 - [ ] **5830.** {forms} here aren't what the usual endings would give you.  
   → {forms} тут не такі, як дали б звичайні закінчення.
 - [ ] **5831.** {short} is the short one, and {long} is the long one you get from the ending. Both are right.  
-  → {short} це коротка форма, а {long} довга, яку дає закінчення. Обидві правильні.
+  → Коротка форма: {short}, довга, яку дає закінчення: {long}. Обидві правильні.
 - [ ] **5832.** {word} is the {form}.  
-  → {word} це {form}.
+  → {word}: форма {form}.
 - [ ] **5833.** Which deck?  
   → У яку колоду?
 - [ ] **5834.** Words you might use  
@@ -11808,7 +11808,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5845.** negation  
   → заперечення
 - [ ] **5846.** the imperfect, or simple past  
-  → імперфект, або простий минулий час
+  → імперфект (простий минулий час)
 - [ ] **5847.** the perfect  
   → перфект
 - [ ] **5848.** the pluperfect  
@@ -11820,7 +11820,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5851.** the imperative  
   → наказовий спосіб
 - [ ] **5852.** the quotative, or oblique mood  
-  → переказовий, або непрямий спосіб
+  → переказовий (непрямий) спосіб
 - [ ] **5853.** the impersonal  
   → безособовий стан
 - [ ] **5854.** participles  
@@ -11834,7 +11834,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5858.** particle verbs  
   → дієслова з часткою
 - [ ] **5859.** aspect  
-  → аспект
+  → вид
 - [ ] **5860.** the object  
   → додаток
 - [ ] **5861.** agreement  
@@ -11862,7 +11862,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5872.** tense  
   → час
 - [ ] **5873.** Two tenses the verb makes by itself, for now and before, and two more built with "to be", like "have done". There's no future among them.  
-  → Два часи дієслово утворює саме, для «зараз» і для «раніше», і ще два будуються з дієсловом «бути», як англійське «have done». Майбутнього часу серед них немає.
+  → Два часи дієслово утворює саме, для «зараз» і для «раніше», а ще два складаються з «бути» і форми на -nud. Майбутнього серед них немає: замість «буду читати» кажуть теперішнім часом.
 - [ ] **5874.** mood  
   → спосіб
 - [ ] **5875.** Are you stating it, imagining it, telling someone to do it, or passing on something you only heard? School grammars count four moods, each with its own endings, and some reference books count five.  
@@ -11870,15 +11870,15 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5876.** voice  
   → стан
 - [ ] **5877.** Whether the sentence says who did it. It looks like the English passive but works differently, so keep the two apart.  
-  → Чи каже речення, хто це зробив. Схоже на пасив, але влаштовано інакше й ближче до українського «тут говорять естонською», де того, хто діє, просто не названо.
+  → Чи каже речення, хто це зробив. Схоже на пасив, але це інше: ближче до «тут говорять естонською» чи «роботу зроблено», де виконавця не названо. Не плутайте їх.
 - [ ] **5878.** person _(context: grammar)_  
   → особа
 - [ ] **5879.** Six persons, each with its own verb ending, so "I" and "you" can often be left out. "He", "she" and "they" usually stay.  
-  → Шість осіб, у кожної своє закінчення дієслова, тому «я» і «ти» часто можна пропустити. «Він», «вона» і «вони» зазвичай лишаються.
+  → Шість осіб, у кожної своє закінчення, тож «я» і «ти» часто пропускають, як і в українському «читаю». «Він», «вона» і «вони» зазвичай лишаються.
 - [ ] **5880.** the plain word  
   → початкова форма
 - [ ] **5881.** of, and whose  
-  → кого, чого і чий
+  → кого? чого? і чий
 - [ ] **5882.** some of it  
   → частина чогось
 - [ ] **5883.** into  
@@ -11896,9 +11896,9 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5889.** on  
   → на чомусь
 - [ ] **5890.** off, and from a person  
-  → з чогось і від когось
+  → з поверхні і від когось
 - [ ] **5891.** off  
-  → з чогось
+  → з поверхні
 - [ ] **5892.** becoming  
   → ставати кимось
 - [ ] **5893.** up to  
@@ -11908,7 +11908,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5895.** without  
   → без
 - [ ] **5896.** with  
-  → з
+  → разом із
 - [ ] **5897.** The word as the dictionary lists it, and whoever is doing the action.  
   → Слово в тому вигляді, у якому воно стоїть у словнику, і той, хто виконує дію.
 - [ ] **5898.** Whoever or whatever is doing the action  
@@ -11916,23 +11916,23 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5899.** The word as you'd look it up  
   → Слово в тому вигляді, у якому його шукають у словнику
 - [ ] **5900.** A whole object after a command, or in the plural  
-  → Додаток повністю після наказу або в множині
+  → Цілий додаток після наказу або в множині
 - [ ] **5901.** It's the object after a command, like "put the book down". But in "I bought the book", the book takes the next form down, the one meaning "whose".  
-  → У цій формі стоїть додаток після наказу: «поклади книжку». Але в «я купив книжку» книжка стоїть у наступній формі, тій, що означає «чий».
+  → Українською в обох реченнях буде «книжку», а естонська розрізняє: після наказу («поклади книжку») стоїть ця форма, а в «я купив книжку» стоїть наступна, та, що означає «чий».
 - [ ] **5902.** The dog in "the dog barks", exactly as it is.  
-  → Собака в «собака гавкає», точнісінько як у словнику.
+  → Як український називний: «собака» в «собака гавкає».
 - [ ] **5903.** Whose something is. It's also the base the other eleven endings go onto.  
   → Чиє щось. А ще це основа, до якої додаються решта одинадцять закінчень.
 - [ ] **5904.** Saying whose something is  
   → Сказати, чиє щось
 - [ ] **5905.** A whole object, like the car you bought  
-  → Додаток повністю, як машина, яку ви купили
+  → Цілий додаток при завершеній дії, як машина, яку ви купили
 - [ ] **5906.** The base that the eleven endings below are added to  
   → Основа, до якої додаються одинадцять закінчень нижче
 - [ ] **5907.** Get this one right and eleven more forms come for free, because they're all built on it. Get it wrong and all eleven go wrong with it.  
   → Запам'ятайте цю форму правильно, і ще одинадцять дістануться задарма, бо всі вони будуються на ній. Помилитеся в ній, і помилка перейде в усі одинадцять.
 - [ ] **5908.** The book's cover, the cover of the book.  
-  → Обкладинка книжки, дім друга.
+  → Як український родовий: обкладинка книжки, дім друга.
 - [ ] **5909.** Some of something, an action that isn't finished, and anything after a number.  
   → Частина чогось, незавершена дія і все, що стоїть після числа.
 - [ ] **5910.** Some of a thing rather than all of it  
@@ -11942,9 +11942,9 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5912.** After any number above one  
   → Після будь-якого числа, більшого за одиницю
 - [ ] **5913.** English doesn't mark any of this, so there's no instinct to lean on at first. The form can't be guessed either, so learn it with each new word.  
-  → Почасти це знайомо з української: «налий води», а не «воду», і недоконаний вид для незавершеної дії. В естонській усе це робить одне закінчення. Угадати форму не можна, тож учіть її разом із кожним новим словом.
+  → Почасти це знайомо з української: «налий води», а не «воду», родовий після «не» («не маю часу») і недоконаний вид для незавершеної дії. В естонській усе це робить одне закінчення. Вгадати форму не можна, тож учіть її з кожним новим словом.
 - [ ] **5914.** Some water. A book you're reading but haven't finished.  
-  → Трохи води. Книжка, яку ви читаєте, але ще не дочитали.
+  → «Налий води», «не маю часу» і книжка, яку ви ще читаєте.
 - [ ] **5915.** Going into something: a room, a new language, a bad mood.  
   → Рух усередину чогось: у кімнату, у нову мову, у поганий настрій.
 - [ ] **5916.** Going into a place or a container  
@@ -11962,7 +11962,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5922.** Being in a state, a language, or a month  
   → Перебування в стані, мові чи місяці
 - [ ] **5923.** Estonian and English don't always agree on what counts as inside. Towns and rooms are, but some islands and open places aren't, so learn those as you meet them.  
-  → Що вважається «всередині», кожна мова вирішує сама. Міста й кімнати вважаються, а деякі острови й відкриті місця ні, приблизно як в українському «на острові», «на ринку». Такі слова запам'ятовуйте, коли трапляться.
+  → Що вважається «всередині», кожна мова вирішує сама. Міста й кімнати вважаються, а деякі острови й відкриті місця ні, приблизно як українське «на острові», «на ринку». Такі слова запам'ятовуйте, коли трапляться.
 - [ ] **5924.** In the house, in March, in a good mood.  
   → У будинку, у березні, у гарному настрої.
 - [ ] **5925.** Coming out of something, and also what a book or a chat is about.  
@@ -11976,7 +11976,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5929.** The surprise is "about". Talking about history takes the same ending as walking out of a building.  
   → Несподіванка тут у значенні «про». Розмова про історію отримує те саме закінчення, що й вихід із будівлі.
 - [ ] **5930.** Out of the house. A book about history.  
-  → З дому. Книжка про історію.
+  → З дому (зсередини). Книжка про історію.
 - [ ] **5931.** Going onto a surface, and the person you give something to.  
   → Рух на поверхню і той, кому ви щось даєте.
 - [ ] **5932.** Going onto a surface  
@@ -11986,7 +11986,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5934.** English says "to the shop" and "to Anna" with one little word. Estonian asks which kind of "to": into something is -sse, onto something or to a person is this one.  
   → Українською це різні конструкції: «у магазин», «на стіл», «Анні». Естонська теж їх розрізняє: рух усередину чогось дає -sse, а на поверхню чи до людини дає це закінчення.
 - [ ] **5935.** Onto the table. To a friend, to your teacher.  
-  → На стіл. Другові, вашому викладачеві.
+  → На стіл. Другові, вашому викладачеві: «кому?», як у давальному відмінку.
 - [ ] **5936.** Being on something, and how Estonian says somebody has something.  
   → Перебування на чомусь, а також те, як естонською кажуть, що в когось щось є.
 - [ ] **5937.** Position on a surface  
@@ -12006,9 +12006,9 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5944.** The person something is taken, bought or asked from  
   → Той, у кого щось беруть, купують чи питають
 - [ ] **5945.** Think "off a table", not "out of a box". That one difference is all that separates this ending from -st.  
-  → Думайте «зі столу», а не «з коробки». Лише цим це закінчення й відрізняється від -st.
+  → Українською в обох випадках буде «з», тож думайте «з поверхні» («зі столу»), а не «зсередини» («з коробки»). Лише цим це закінчення й відрізняється від -st.
 - [ ] **5946.** Off the table. From the person who sold it to you.  
-  → Зі столу. У того, хто вам це продав.
+  → Зі столу (з поверхні). Від людини, яка вам це продала.
 - [ ] **5947.** Turning into something, what a thing is for, and by when.  
   → Перетворення на щось, для чого щось потрібне і до якого терміну.
 - [ ] **5948.** Turning into a state or a role  
@@ -12018,7 +12018,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5950.** A deadline: by when  
   → Термін: до якого часу
 - [ ] **5951.** It covers far more than English "into". Becoming a teacher, the weather turning cold and being ready by Friday all use this one ending.  
-  → Воно охоплює набагато більше, ніж здається. Стати вчителем, похолоднішати й устигнути до п'ятниці: скрізь одне й те саме закінчення.
+  → Українською «стати вчителем» стоїть в орудному, а тут для цього своє закінчення, і охоплює воно більше: «похолоднішати» й «устигнути до п'ятниці» теж з ним.
 - [ ] **5952.** Turning cold, getting it as a gift, done by Friday.  
   → Похолоднішати, отримати в подарунок, зробити до п'ятниці.
 - [ ] **5953.** As far as some point: a place, a moment or an amount.  
@@ -12030,7 +12030,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5956.** Up to an amount  
   → До певної кількості
 - [ ] **5957.** The ending already means "as far as", so the extra word people sometimes add when talking says it twice. Harmless, but you don't need it.  
-  → Закінчення вже означає «до», тож зайве слово, яке іноді додають у розмові, повторює те саме. Це не помилка, але й не потрібно.
+  → Закінчення вже означає «до», тож зайве слово, яке іноді додають у розмові, повторює те саме. Це не помилка, але й потреби в ньому немає.
 - [ ] **5958.** As far as the church. Right up until Friday.  
   → До церкви. Аж до п'ятниці.
 - [ ] **5959.** In the role of something, usually for now rather than forever.  
@@ -12044,7 +12044,7 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5963.** Working as a teacher, for as long as that lasts.  
   → Працювати вчителем, поки це триває.
 - [ ] **5964.** Without something. The exact opposite of "with", the next one down.  
-  → Без чогось. Повна протилежність «з», про яке наступна картка.
+  → Без чогось. Повна протилежність «разом із» з наступної картки.
 - [ ] **5965.** The absence of a thing  
   → Відсутність чогось
 - [ ] **5966.** Doing something without a tool, a person or permission  
@@ -12062,9 +12062,9 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5972.** How you got somewhere, like by bus  
   → Чим ви дісталися, наприклад автобусом
 - [ ] **5973.** It covers "with a friend" and "with a knife", which plenty of languages keep apart. It's always -ga, so it's the easiest ending to spot.  
-  → Воно передає і «з другом», і «ножем», і «автобусом», а в українській це різні конструкції. Це завжди -ga, тож його найлегше впізнати.
+  → Тут вам легше, ніж англомовним: «з другом», «ножем» і «автобусом» в українській теж один орудний відмінок, з «з» чи без. Естонська всюди ставить -ga, тож його найлегше впізнати.
 - [ ] **5974.** With a friend, with a fork, and by bus.  
-  → З другом, виделкою і автобусом.
+  → З другом, виделкою, автобусом: як український орудний.
 - [ ] **5975.** Three to memorize  
   → Три форми напам'ять
 - [ ] **5976.** You learn these three with each new word, because no rule gives them to you. The second one matters most: every ending below is added to it.  
@@ -12076,11 +12076,11 @@ _lib/copy/i18n/areas/grammarCases.ts_
 - [ ] **5979.** On top  
   → На поверхні
 - [ ] **5980.** Onto, on and off. For tables and shelves, for people, and for how Estonian says someone has something.  
-  → На щось, на чомусь і з чогось. Для столів і полиць, для людей і для того, як естонською кажуть, що в когось щось є.
+  → На щось, на чомусь і з поверхні. Для столів і полиць, для людей і для того, як естонською кажуть, що в когось щось є.
 - [ ] **5981.** Five more, one job each  
   → Ще п'ять, у кожного одне завдання
 - [ ] **5982.** Becoming, up to, as, without and with. No puzzles here: each ending is one simple idea.  
-  → Ставати, до, у ролі, без і з. Жодних загадок: кожне закінчення означає щось одне й просте.
+  → Ставати кимось, до, у ролі, без і разом із чимось. Жодних загадок: кожне закінчення означає щось одне й просте.
 - [ ] **5983.** The base form  
   → Основа слова
 - [ ] **5984.** The singular  
@@ -12169,7 +12169,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6023.** There's no verb for "have". You say the thing is "at you" instead.  
   → Окремого дієслова «мати» немає. Кажуть, що річ «у вас», як в українському «у мене є».
 - [ ] **6024.** The verb you'll use in every conversation, and it's irregular  
-  → Дієслово, яке знадобиться в будь-якій розмові, і воно неправильне
+  → Потрібне в кожній розмові й неправильне. На відміну від української, його не пропускають: «я студент» без нього не скажеш
 - [ ] **6025.** For "I have", you say "at me is", with -l on the owner  
   → Замість «я маю» кажуть «у мене є», а власник отримує -l
 - [ ] **6026.** Being sleepy or hungry, or having to do something, works the same way  
@@ -12183,9 +12183,9 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6030.** One ending each for I, you, he or she, we, you all and they  
   → По одному закінченню для «я», «ти», «він» чи «вона», «ми», «ви» і «вони»
 - [ ] **6031.** One form for both "I eat" and "I'm eating"  
-  → Одна форма і для «я їм», і для «я зараз їм»
+  → Як і в українській, одна форма для «я їм» і «я зараз їм»
 - [ ] **6032.** It covers the future too, as in "the concert is tomorrow"  
-  → Вона передає й майбутнє, як у «концерт завтра»
+  → Вона ж і про майбутнє: «концерт завтра», «завтра читаю»
 - [ ] **6033.** Knock -ma off the dictionary word and you won't always get the present. That's why each verb is learned with its "I" form, and the rest follow from it.  
   → Якщо відкинути -ma у словниковій формі, теперішній час вийде не завжди. Тому кожне дієслово вчать разом із формою «я», а решта виводиться з неї.
 - [ ] **6034.** Saying no  
@@ -12199,7 +12199,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6038.** The past says no in a different way from the present  
   → У минулому часі заперечення будується інакше, ніж у теперішньому
 - [ ] **6039.** It's tempting to put "not" in front of the usual form. Estonian strips the ending off instead, so it's the pronoun that tells you who.  
-  → Хочеться просто поставити «не» перед звичайною формою. Але естонська натомість прибирає закінчення, і про те, хто це робить, каже займенник.
+  → В українській «не» просто стає перед дієсловом («не читаю»), і так само хочеться тут. Але естонська ще й прибирає закінчення, тож хто це робить, каже займенник.
 - [ ] **6040.** Saying what happened  
   → Розповідь про минуле
 - [ ] **6041.** The past for anything that happened and is over. Every story is told in it.  
@@ -12215,7 +12215,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6046.** Done, and it still matters  
   → Зроблено, і це ще важливо
 - [ ] **6047.** Like "I have eaten": "to be" plus the -nud word, for things that still matter now.  
-  → Як англійське «I have eaten»: «бути» плюс слово на -nud, для того, що важливо й зараз.
+  → Як «я вже поїв» про те, що важливо й зараз: «бути» плюс слово на -nud.
 - [ ] **6048.** Built with "to be", never with "to have"  
   → Будується з «бути», ніколи з «мати»
 - [ ] **6049.** For when the result matters more than when it happened  
@@ -12223,11 +12223,11 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6050.** The -nud word stays the same for every person  
   → Слово на -nud однакове для всіх осіб
 - [ ] **6051.** Where English says "I have eaten", Estonian uses "to be" plus the -nud word. There's no "have" in it at all, so don't go looking for one.  
-  → Англійська будує цей час із «have» («I have eaten»), а естонська з «бути» і словом на -nud. Ніякого «мати» тут немає, тож не шукайте його.
+  → Де українська скаже просто «я поїв», естонська часто бере «бути» плюс слово на -nud, коли результат важливий зараз. Не перекладайте кожне українське минуле простим минулим.
 - [ ] **6052.** Done before something else  
   → Зроблено раніше за щось інше
 - [ ] **6053.** Like "I had eaten": the same -nud word, with "to be" in the past.  
-  → Як англійське «I had eaten»: те саме слово на -nud, але «бути» в минулому.
+  → Як «я вже поїв до того, як...»: те саме слово на -nud, але «бути» в минулому.
 - [ ] **6054.** Something that was over before something else happened  
   → Щось скінчилося до того, як сталося інше
 - [ ] **6055.** Common in stories, and when you retell what someone said  
@@ -12247,7 +12247,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6062.** A small extra word can say it's going to get finished  
   → Маленьке додаткове слово може сказати, що справу буде доведено до кінця
 - [ ] **6063.** Don't go hunting for a future tense, because there isn't one. Words like "tomorrow" and verbs like "plan" do the job instead.  
-  → Не шукайте майбутній час, його немає. Замість нього працюють слова на зразок «завтра» і дієслова на зразок «планувати».
+  → Не шукайте відповідника «буду читати» чи «читатиму»: його немає. Тут вистачає теперішнього часу і слова на зразок «завтра» або дієслова на зразок «планувати».
 - [ ] **6064.** Would, could, should  
   → Хотів би, міг би, варто було б
 - [ ] **6065.** One ending that turns a sentence into a "what if", or makes a request polite.  
@@ -12271,7 +12271,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6074.** "Don't" has a little word of its own  
   → Для «не роби» є своє маленьке слово
 - [ ] **6075.** Using the singular with somebody you've just met sounds like an order. With a stranger, the plural is the safe choice.  
-  → Однина з людиною, з якою ви щойно познайомилися, звучить як наказ. З незнайомими надійніша множина.
+  → Як і в українській, «ти» з малознайомою людиною звучить як наказ. З незнайомими безпечніша форма на «ви».
 - [ ] **6076.** Passing on what you heard  
   → Переказ почутого
 - [ ] **6077.** A verb ending that means "apparently": you pass it on without vouching for it.  
@@ -12289,13 +12289,13 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6083.** Like "people say" or "it's done": someone does it, and the sentence doesn't say who.  
   → Як «кажуть» або «зроблено»: хтось це робить, але речення не каже хто.
 - [ ] **6084.** Signs, instructions, forms and the news  
-  → Вивіски, інструкції, анкети й новини
+  → Вивіски, інструкції, бланки й новини
 - [ ] **6085.** Says people did something, without saying which people  
   → Каже, що люди щось зробили, не уточнюючи, які саме
 - [ ] **6086.** Works in the past as well as the present  
   → Працює і в минулому, і в теперішньому
 - [ ] **6087.** In English, "the door was opened by the wind" is fine. This form has no room for a "by whom", and it always means people did it, never the wind.  
-  → Українською можна сказати «двері відчинив вітер». У цій формі немає місця для «ким», і вона завжди означає, що це зробили люди, а не вітер.
+  → Українською можна сказати «двері були відчинені вітром». У цій формі немає місця для «ким», і вона завжди означає, що це зробили люди, а не вітер.
 - [ ] **6088.** Verb words that describe things  
   → Дієслівні форми, які описують предмети
 - [ ] **6089.** Verb forms that describe a noun, like "a broken window", and help build "have done".  
@@ -12365,7 +12365,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6121.** Unfinished, or only some: the "some of it" ending  
   → Не завершено або лише частина: закінчення «частина чогось»
 - [ ] **6122.** Small words like "up" and "off" underline that it's finished  
-  → Маленькі слова при дієслові, на зразок англійських «up» і «off», підкреслюють, що справу зроблено
+  → Маленькі слова при дієслові підкреслюють, що справу зроблено, як префікси в «з'їсти», «дочитати»
 - [ ] **6123.** English shows this with the tense and Estonian with an ending, so the two never line up. It's the hardest single thing to carry over, so go easy on yourself.  
   → В українській це показує вид дієслова: «з'їв торт» чи «їв торт». В естонській дієслово в обох випадках те саме, а різницю несе закінчення додатка. Переналаштуватися непросто, тож не будьте до себе надто суворі.
 - [ ] **6124.** Whole thing, or part of it  
@@ -12377,7 +12377,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6127.** Unfinished, or only part of it: the "some of it" ending  
   → Не завершено або лише частина: закінчення «частина чогось»
 - [ ] **6128.** After "not": always the "some of it" ending  
-  → Після «не»: завжди закінчення «частина чогось»
+  → Після «не»: завжди закінчення «частина чогось», як у «не маю часу»
 - [ ] **6129.** This isn't about politeness or emphasis, and it isn't optional. It changes what the sentence means, and it's the main thing separating a B1 speaker from an A2 one.  
   → Річ не у ввічливості й не в наголосі, і це не за бажанням. Це змінює зміст речення, і саме цим насамперед рівень B1 відрізняється від A2.
 - [ ] **6130.** Adjectives copy their noun  
@@ -12385,13 +12385,13 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6131.** In "in the big house" both words take the ending. That's true for ten of the fourteen.  
   → У виразі «у великому будинку» закінчення отримують обидва слова, як і в українській. Так у десяти відмінках із чотирнадцяти.
 - [ ] **6132.** Same ending and same number, one or many, as its noun  
-  → Те саме закінчення і те саме число, однина чи множина, що й в іменника
+  → Те саме закінчення й число, що в іменника. Роду немає: одна форма на «великий», «велика» і «велике»
 - [ ] **6133.** With -ni, -na, -ta and -ga, only the noun gets the full ending  
   → З -ni, -na, -ta і -ga повне закінчення отримує лише іменник
 - [ ] **6134.** A few borrowed adjectives never change at all  
   → Кілька запозичених прикметників не змінюються взагалі
 - [ ] **6135.** Every adjective you learn is really a whole set of forms. Leaving it in its dictionary form next to a noun with an ending is the classic beginner giveaway.  
-  → Кожен вивчений прикметник насправді становить цілий набір форм. Залишити його в словниковій формі поруч з іменником із закінченням означає одразу видати в собі новачка.
+  → Кожен прикметник насправді є цілим набором форм. Залишити його в словниковій формі поруч з іменником із закінченням означає одразу видати в собі новачка. А от рід узгоджувати не треба, його тут немає.
 - [ ] **6136.** Comparing things  
   → Порівняння
 - [ ] **6137.** Add -m to the same base the endings use, and "big" becomes "bigger".  
@@ -12419,7 +12419,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6148.** Numbers and what follows them  
   → Числа і те, що після них
 - [ ] **6149.** Counting is easy, until you notice the thing you're counting stays singular.  
-  → Рахувати легко, поки ви не помітите, що те, що ви рахуєте, лишається в однині.
+  → Рахувати легко, поки не помітите, що те, що ви рахуєте, лишається в однині.
 - [ ] **6150.** From two up, the noun takes the singular "some of it" form  
   → Починаючи з двох, іменник стоїть у формі «частина чогось» однини
 - [ ] **6151.** Numbers take endings too, when the noun after them does  
@@ -12427,7 +12427,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6152.** First, second and so on are regular, and take endings too  
   → «Перший», «другий» і так далі утворюються за правилом і теж отримують закінчення
 - [ ] **6153.** After a number the noun stays singular, which will look wrong to an English speaker for a long time. It's singular with the "some of it" ending, not a plural.  
-  → Після числа іменник лишається в однині, хоч в українській ми кажемо «п'ять будинків», і звикнути до цього треба час. Це однина із закінченням «частина чогось», а не множина.
+  → Українською ми кажемо «два будинки» і «п'ять будинків», а тут після будь-якого числа від двох іменник лишається в однині, із закінченням «частина чогось». Не ставте множину за звичкою.
 - [ ] **6154.** Words that change in the middle  
   → Слова, які змінюються всередині
 - [ ] **6155.** The middle of a word can shift from form to form, and only some of that shows in writing.  
@@ -12471,7 +12471,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6174.** Which ending comes after it is part of learning the verb  
   → Яке закінчення йде після дієслова, теж частина його вивчення
 - [ ] **6175.** Helping, calling, liking and thinking are the traps  
-  → Пастки: «допомагати», «дзвонити», «подобатися» і «думати»
+  → Пастки: «допомагати» і «думати про»; «дзвонити» й «подобатися» майже як в українській
 - [ ] **6176.** The dictionary shows it as a question word, like "whom?"  
   → Словник показує це питальним словом, наприклад «кого?»
 - [ ] **6177.** The English preposition points you at the wrong ending, and nothing about the verb hints at the right one. People trip on this for years, so learn it with the verb.  
@@ -12511,7 +12511,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6194.** Always separated by a comma  
   → Завжди відокремлюється комою
 - [ ] **6195.** The classic mistake is matching the pronoun to the noun it points back to. Ask what job it's doing in its own clause instead.  
-  → Класична помилка в тому, щоб узгодити займенник з іменником, на який він указує. Натомість запитайте, яку роль він відіграє у своєму реченні.
+  → Тут вам легше, ніж англомовним: як і український «який» у «книжка, яку я читаю», займенник бере відмінок зі свого речення, а не з іменника. Тільки роду він не має.
 - [ ] **6196.** Reporting what somebody said  
   → Переказ чужих слів
 - [ ] **6197.** Either "that" plus a clause, or the -vat form with no extra clause at all.  
@@ -12547,7 +12547,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6212.** The -vat form, which puts the claim on somebody else  
   → Форма на -vat, яка перекладає твердження на когось іншого
 - [ ] **6213.** Academic Estonian hedges more than academic English, and in different places. Translate an English hedge directly and it comes out somewhere between vague and evasive.  
-  → Наукова естонська обережничає більше, ніж наукова англійська, і в інших місцях. Перекладіть англійське застереження дослівно, і вийде щось середнє між розмитим і ухильним.
+  → Наукова естонська обережничає більше, ніж наукова англійська, і в інших місцях. Застереження, перекладене дослівно з іншої мови, вийде чимось середнім між розмитим і ухильним.
 - [ ] **6214.** Holding a text together  
   → Зв'язність тексту
 - [ ] **6215.** The linking words that turn a pile of sentences into something people can read.  
@@ -12593,7 +12593,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6235.** Rules for lists and for asides  
   → Правила для переліків і вставних конструкцій
 - [ ] **6236.** Quotation marks are shaped differently from English ones  
-  → Лапки мають інший вигляд, ніж англійські й українські
+  → Лапки інші, ніж звичні українські «ялинки»
 - [ ] **6237.** Putting a comma where you'd pause is an English habit. Estonian puts them where the grammar changes, so the habit gives you the same errors every time.  
   → Ставити кому там, де пауза, це англійська звичка. Естонська, як і українська, ставить їх там, де змінюється граматика, тож українське чуття тут радше допоможе, ніж завадить.
 - [ ] **6238.** Politeness  
@@ -12601,13 +12601,13 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6239.** It comes from the verb form and which "you" you pick, not from piling on "please".  
   → Вона складається з форми дієслова й вибору між «ти» і «ви», а не з нескінченних «будь ласка».
 - [ ] **6240.** Calling one stranger "you" in the plural, to be polite  
-  → Звертання до однієї незнайомої людини на «ви», з ввічливості
+  → Звертання на «ви» до однієї незнайомої людини, як і в українській
 - [ ] **6241.** The "would" form, to make a request gentler  
   → Форма «би», щоб пом'якшити прохання
 - [ ] **6242.** Being direct is less rude here than English speakers expect  
-  → Прямота тут менш груба, ніж очікують англомовні
+  → Пряме прохання тут не звучить грубо
 - [ ] **6243.** Estonian is more direct than English, and English-style softeners can sound insincere. The "would" form does what a pile of qualifiers does in English.  
-  → Естонська прямолінійніша за англійську, і пом'якшення в англійському дусі можуть звучати нещиро. Форма «би» робить те, що в англійській робить купа застережень.
+  → Довгі пом'якшення на зразок «чи не могли б ви, будь ласка» тут можуть звучати нещиро. Форма «би» робить ту саму роботу одним закінченням.
 - [ ] **6244.** Reading the room  
   → Чуття ситуації
 - [ ] **6245.** The same thing said formally, neutrally or among friends.  
@@ -12703,7 +12703,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6290.** it's about how the dictionary is sorted, not about a sentence, and every entry on every page already shows it  
   → ідеться про те, як упорядковано словник, а не про речення, і це й так видно в кожній статті
 - [ ] **6291.** it's about the eleven cases built on this form, and the build-a-word walk shows that on a word you pick  
-  → ідеться про одинадцять відмінків, побудованих на цій формі, і розділ «Збери слово» показує це на слові, яке ви виберете
+  → ідеться про одинадцять відмінків, побудованих на цій формі, а сторінка, де слово будують крок за кроком, показує це на слові, яке ви виберете
 - [ ] **6292.** the change happens between two forms of one word, and a pin holds one sentence. The entry's own forms and the exceptions area show it instead  
   → зміна відбувається між двома формами одного слова, а приклад вміщує лише одне речення. Натомість її видно у формах самої статті та в розділі винятків
 - [ ] **6293.** spelling doesn't record it, so no written sentence can show it. The minimal pairs round lets you hear the difference instead  
@@ -12777,7 +12777,7 @@ _lib/copy/i18n/areas/grammarTopics.ts_
 - [ ] **6327.** the dictionary records Estonian as it's used today, so the older forms this is about aren't in it  
   → словник записує естонську такою, якою нею користуються сьогодні, тож застарілих форм, про які тут ідеться, у ньому немає
 
-## letters (126 lines)
+## letters (124 lines)
 
 _lib/copy/i18n/areas/letters.ts_
 
@@ -12790,13 +12790,13 @@ _lib/copy/i18n/areas/letters.ts_
 - [ ] **6331.** What we keep about you  
   → Які дані про вас ми зберігаємо
 - [ ] **6332.** One step left in {title}  
-  → В уроці {title} лишився останній крок
+  → У розділі «{title}» лишився останній крок
 - [ ] **6333.** {steps} left in {title}  
-  → В уроці {title} ще {steps}
+  → {steps} до кінця вечора в розділі «{title}»
 - [ ] **6334.** {newWords} tonight  
   → Сьогодні ввечері {newWords}
 - [ ] **6335.** Back to {title} tonight  
-  → Сьогодні ввечері знову {title}
+  → Сьогодні ввечері знову розділ «{title}»
 - [ ] **6336.** {what}, part {n} of {of}  
   → {what}, частина {n} з {of}
 - [ ] **6337.** {shape}. About {minutes} minutes left.  
@@ -12807,1818 +12807,1940 @@ _lib/copy/i18n/areas/letters.ts_
   → На сьогодні майже все.
 - [ ] **6340.** About {minutes} minutes to go tonight.  
   → На сьогодні лишилося близько {minutes} хв.
-- [ ] **6341.** {name}, you're {steps} into {where}. The rest is right where you left it.  
-  → {name}, ви вже пройшли {steps} в уроці {where}. Решта чекає там, де ви зупинилися.
-- [ ] **6342.** You're {steps} into {where}. The rest is right where you left it.  
-  → Ви вже пройшли {steps} в уроці {where}. Решта чекає там, де ви зупинилися.
-- [ ] **6343.** {newWords}, in about {minutes} minutes.  
+- [ ] **6341.** You're {steps} into {where}. The rest is right where you left it.  
+  → {where}: ви вже пройшли {steps}. Решта чекає там, де ви зупинилися.
+- [ ] **6342.** {newWords}, in about {minutes} minutes.  
   → {newWords}, приблизно за {minutes} хв.
-- [ ] **6344.** Words you know, put to work tonight, in about {minutes} minutes.  
+- [ ] **6343.** Words you know, put to work tonight, in about {minutes} minutes.  
   → Сьогодні ввечері в хід ідуть знайомі слова, приблизно за {minutes} хв.
-- [ ] **6345.** {name}, this is {title}, {evening}. By the end you'll be able to {canDo}  
-  → {name}, сьогодні урок {title}, {evening}. Наприкінці ви зможете {canDo}
-- [ ] **6346.** {title}, {evening}. By the end you'll be able to {canDo}  
-  → Сьогодні урок {title}, {evening}. Наприкінці ви зможете {canDo}
-- [ ] **6347.** What you told yourself when you started:  
+- [ ] **6344.** {title}, {evening}. By the end you'll be able to {canDo}  
+  → Сьогодні ввечері розділ «{title}», {evening}. Наприкінці ви зможете {canDo}
+- [ ] **6345.** What you told yourself when you started:  
   → Що ви сказали собі, коли починали:
-- [ ] **6348.** \[done\]  
+- [ ] **6346.** \[done\]  
   → \[готово\]
-- [ ] **6349.** And a word for you, whether you study tonight or not:  
+- [ ] **6347.** And a word for you, whether you study tonight or not:  
   → І слово для вас, незалежно від того, чи займатиметеся ви сьогодні:
-- [ ] **6350.** That's {days} in a row so far.  
+- [ ] **6348.** That's {days} in a row so far.  
   → Уже {days} поспіль.
-- [ ] **6351.** Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.  
+- [ ] **6349.** Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.  
   → Kodukeel. Чотири літери, для яких на англійській клавіатурі немає клавіш: o з тильдою, a, o та u з умлаутом.
-- [ ] **6352.** Your first cards are ready. Here's how it works.  
+- [ ] **6350.** Your first cards are ready. Here's how it works.  
   → Ваші перші картки готові. Ось як усе влаштовано.
-- [ ] **6353.** {cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.  
+- [ ] **6351.** {cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.  
   → У вашій колоді вже {cards} з перших уроків курсу. Ваш перший вечір: {title}, {subtitle}.
-- [ ] **6354.** {cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.  
+- [ ] **6352.** {cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.  
   → У вашій колоді вже {cards} з перших уроків курсу. Відкрийте курс, і він покаже, з чого почати.
-- [ ] **6355.** A progress bar, right at the start.  
+- [ ] **6353.** A progress bar, right at the start.  
   → Смуга поступу, на самому початку.
-- [ ] **6356.** Fifteen minutes an evening, and that's all.  
+- [ ] **6354.** Fifteen minutes an evening, and that's all.  
   → П'ятнадцять хвилин увечері, і все.
-- [ ] **6357.** Each evening is a short reading, two quick exercises and a few cards to go over. It takes about a quarter of an hour at any level, and when you're done, the app tells you so and lets you go. No endless scrolling, no guilt.  
+- [ ] **6355.** Each evening is a short reading, two quick exercises and a few cards to go over. It takes about a quarter of an hour at any level, and when you're done, the app tells you so and lets you go. No endless scrolling, no guilt.  
   → Кожен вечір: коротке читання, дві швидкі вправи й кілька карток на повторення. На будь-якому рівні це близько чверті години, а коли ви закінчите, застосунок так і скаже й відпустить вас. Без нескінченної стрічки й без почуття провини.
-- [ ] **6358.** You picked {time}. Put it in your calendar and your phone will remind you, which works far better than an email from us.  
+- [ ] **6356.** You picked {time}. Put it in your calendar and your phone will remind you, which works far better than an email from us.  
   → Ви обрали {time}. Додайте цей час до календаря, і телефон нагадає сам: це працює набагато краще, ніж лист від нас.
-- [ ] **6359.** Add the daily reminder to your calendar  
+- [ ] **6357.** Add the daily reminder to your calendar  
   → Додати щоденне нагадування до календаря
-- [ ] **6360.** Pick a time that already has a gap in it: after dinner, on the train, before bed. Which hour you choose matters much less than keeping it the same every day.  
+- [ ] **6358.** Pick a time that already has a gap in it: after dinner, on the train, before bed. Which hour you choose matters much less than keeping it the same every day.  
   → Оберіть час, коли у вас і так буває вільна хвилина: після вечері, у потязі, перед сном. Яка саме година, набагато менш важливо, ніж те, щоб вона щодня була та сама.
-- [ ] **6361.** Open your first evening  
+- [ ] **6359.** Open your first evening  
   → Відкрити перший вечір
-- [ ] **6362.** What we'll send you: a short nudge on evenings you haven't studied yet, a look back at your week on Sundays, and now and then a note when there's real news, like finishing a level. The link at the bottom of any of them turns them off, and the course works just the same without them.  
+- [ ] **6360.** What we'll send you: a short nudge on evenings you haven't studied yet, a look back at your week on Sundays, and now and then a note when there's real news, like finishing a level. The link at the bottom of any of them turns them off, and the course works just the same without them.  
   → Що ми надсилатимемо: коротке нагадування в ті вечори, коли ви ще не займалися, огляд тижня щонеділі й інколи лист, коли є справжня новина, наприклад пройдений рівень. Посилання внизу будь-якого листа вимикає їх, а курс без них працює так само.
-- [ ] **6363.** Your first cards are ready  
+- [ ] **6361.** Your first cards are ready  
   → Ваші перші картки готові
-- [ ] **6364.** {cards} are waiting, and your first evening is {subtitle}.  
+- [ ] **6362.** {cards} are waiting, and your first evening is {subtitle}.  
   → У колоді вже {cards}, а перший вечір: {subtitle}.
-- [ ] **6365.** {cards} are waiting, and your first evening takes fifteen minutes.  
+- [ ] **6363.** {cards} are waiting, and your first evening takes fifteen minutes.  
   → У колоді вже {cards}, а перший вечір забере п'ятнадцять хвилин.
-- [ ] **6366.** Your Estonian hasn't gone anywhere.  
+- [ ] **6364.** Your Estonian hasn't gone anywhere.  
   → Ваша естонська нікуди не зникла.
-- [ ] **6367.** You still know {words}. That's what spacing the cards out is for: the words stay put while you're away. Nothing is lost, and you don't have to start over.  
+- [ ] **6365.** You still know {words}. That's what spacing the cards out is for: the words stay put while you're away. Nothing is lost, and you don't have to start over.  
   → Ви й досі знаєте {words}. Для цього картки й розподілені в часі: слова лишаються з вами, поки вас немає. Нічого не втрачено, і починати спочатку не треба.
-- [ ] **6368.** A shield you'd saved up covered the gap, so your {run} run is still going.  
+- [ ] **6366.** A shield you'd saved up covered the gap, so your {run} run is still going.  
   → Перерву прикрив ваш запасний щит, тож серія ({run} поспіль) триває.
-- [ ] **6369.** No need for a whole evening. One quick round takes about {minutes} minutes, and that's enough to say you're back.  
+- [ ] **6367.** No need for a whole evening. One quick round takes about {minutes} minutes, and that's enough to say you're back.  
   → Цілий вечір не потрібен. Один швидкий раунд триває близько {minutes} хв, і цього досить, щоб повернутися.
-- [ ] **6370.** Or jump straight into tonight's fifteen minutes  
+- [ ] **6368.** Or jump straight into tonight's fifteen minutes  
   → Або одразу до сьогоднішніх п'ятнадцяти хвилин
-- [ ] **6371.** And today's word, whatever you decide:  
+- [ ] **6369.** And today's word, whatever you decide:  
   → І слово дня, хоч би що ви вирішили:
-- [ ] **6372.** Your Estonian is right where you left it  
+- [ ] **6370.** Your Estonian is right where you left it  
   → Ваша естонська там само, де ви її залишили
-- [ ] **6373.** You still know {words}. Two minutes is all it takes to pick things up again.  
+- [ ] **6371.** You still know {words}. Two minutes is all it takes to pick things up again.  
   → Ви й досі знаєте {words}. Щоб продовжити, вистачить двох хвилин.
-- [ ] **6374.** Play a two-minute word-matching game  
+- [ ] **6372.** Play a two-minute word-matching game  
   → Зіграти в добір пар на дві хвилини
-- [ ] **6375.** A shield covered yesterday.  
+- [ ] **6373.** A shield covered yesterday.  
   → Учорашній день прикрив щит.
-- [ ] **6376.** You took yesterday off, so one of the shields you'd earned stepped in. Your run of {days} is still going.  
+- [ ] **6374.** You took yesterday off, so one of the shields you'd earned stepped in. Your run of {days} is still going.  
   → Учора ви відпочивали, і в справу вступив один із зароблених щитів. Ваша серія, {days} поспіль, триває.
-- [ ] **6377.** studied  
+- [ ] **6375.** studied  
   → займалися
-- [ ] **6378.** day off  
+- [ ] **6376.** day off  
   → вихідний
-- [ ] **6379.** You've got {more} more saved up.  
+- [ ] **6377.** You've got {more} more saved up.  
   → У запасі ще {more}.
-- [ ] **6380.** That was your last one. You'll earn another when you reach {nextAt} days.  
+- [ ] **6378.** That was your last one. You'll earn another when you reach {nextAt} days.  
   → Це був останній. Наступний ви отримаєте, коли серія дійде до {nextAt} днів.
-- [ ] **6381.** That was your last one.  
+- [ ] **6379.** That was your last one.  
   → Це був останній.
-- [ ] **6382.** A day off never costs you anything here. Your words just wait for you, exactly where you left them.  
+- [ ] **6380.** A day off never costs you anything here. Your words just wait for you, exactly where you left them.  
   → Вихідний тут нічого вам не коштує. Слова просто чекають на вас там само, де ви їх залишили.
-- [ ] **6383.** See what's on tonight  
+- [ ] **6381.** See what's on tonight  
   → Подивитися, що сьогодні ввечері
-- [ ] **6384.** A shield covered yesterday  
+- [ ] **6382.** A shield covered yesterday  
   → Учорашній день прикрив щит
-- [ ] **6385.** Your run of {days} is still going, and you've got {more} saved.  
+- [ ] **6383.** Your run of {days} is still going, and you've got {more} saved.  
   → Серія, {days} поспіль, триває, і в запасі ще {more}.
-- [ ] **6386.** Your run of {days} is still going, and that was your last shield.  
+- [ ] **6384.** Your run of {days} is still going, and that was your last shield.  
   → Серія, {days} поспіль, триває, але це був останній щит.
-- [ ] **6387.** You've made it through {level}.  
+- [ ] **6385.** You've made it through {level}.  
   → Рівень {level} пройдено.
-- [ ] **6388.** That's {words} that are properly yours now. Each one came back days after you met it, and you still knew it. So this letter is a little late: you did the work a while ago, and it stuck.  
+- [ ] **6386.** That's {words} that are properly yours now. Each one came back days after you met it, and you still knew it. So this letter is a little late: you did the work a while ago, and it stuck.  
   → Тепер по-справжньому ваші вже {words}. Кожне повернулося через кілька днів після знайомства, і ви його досі пам'ятали. Тож лист трохи запізнився: роботу ви зробили давно, і вона лишилася з вами.
-- [ ] **6389.** About {pct} percent of the way to {target}.  
+- [ ] **6387.** About {pct} percent of the way to {target}.  
   → Пройдено близько {pct}% шляху до {target}.
-- [ ] **6390.** Next stop is {level}, about {words} away.  
+- [ ] **6388.** Next stop is {level}, about {words} away.  
   → Наступна зупинка: {level}, до неї лишилося приблизно {words}.
-- [ ] **6391.** That was the level you set out to reach. There are always more words, and the course keeps going as long as you do.  
+- [ ] **6389.** That was the level you set out to reach. There are always more words, and the course keeps going as long as you do.  
   → Це той рівень, якого ви прагнули досягти. Слів завжди більше, і курс іде далі, доки йдете ви.
-- [ ] **6392.** Keep going  
+- [ ] **6390.** Keep going  
   → Продовжити
-- [ ] **6393.** You've made it through {level}  
+- [ ] **6391.** You've made it through {level}  
   → Рівень {level} пройдено
-- [ ] **6394.** {words} that are properly yours now. {title}.  
+- [ ] **6392.** {words} that are properly yours now. {title}.  
   → {words}, і всі вони тепер по-справжньому ваші. {title}.
-- [ ] **6395.** A quiet week.  
+- [ ] **6393.** A quiet week.  
   → Тихий тиждень.
-- [ ] **6396.** You studied on {n} of the last seven days.  
+- [ ] **6394.** You studied on {n} of the last seven days.  
   → Ви займалися {n} з останніх семи.
-- [ ] **6397.** You answered {cards}. {words} are properly yours now, and that number only grows when a word comes back days later and you still know it.  
+- [ ] **6395.** You answered {cards}. {words} are properly yours now, and that number only grows when a word comes back days later and you still know it.  
   → За тиждень ви дали {cards}. По-справжньому ваших уже {words}, і це число зростає, лише коли слово повертається через кілька днів, а ви його досі пам'ятаєте.
-- [ ] **6398.** No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.  
+- [ ] **6396.** No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.  
   → Цього тижня карток не було, і це нормально. Так буває. Поки вас немає, нічого не накопичується вам на покарання, а один вечір повертає вас туди, де ви були.
-- [ ] **6399.** And one conversation in Estonian with a real person. That's the number this whole app is for.  
+- [ ] **6397.** And one conversation in Estonian with a real person. That's the number this whole app is for.  
   → А ще одна розмова естонською з живою людиною. Заради цього числа й існує весь застосунок.
-- [ ] **6400.** And {conversations} in Estonian with real people. That's the number this whole app is for.  
+- [ ] **6398.** And {conversations} in Estonian with real people. That's the number this whole app is for.  
   → А ще {conversations} естонською з живими людьми. Заради цього числа й існує весь застосунок.
-- [ ] **6401.** On your way to {target}  
+- [ ] **6399.** On your way to {target}  
   → На шляху до {target}
-- [ ] **6402.** About {assumed} of those words count because of the level you started at, and haven't been checked yet. The rest are words you still knew days after you first met them.  
+- [ ] **6400.** About {assumed} of those words count because of the level you started at, and haven't been checked yet. The rest are words you still knew days after you first met them.  
   → Приблизно {assumed} із цих слів зараховано за рівнем, з якого ви почали, і їх ще не перевірено. Решту ви пам'ятали через кілька днів після першої зустрічі.
-- [ ] **6403.** That bar only moves for words you still know days after you first met them. Just opening the app won't nudge it.  
+- [ ] **6401.** That bar only moves for words you still know days after you first met them. Just opening the app won't nudge it.  
   → Ця смуга зростає лише за слова, які ви пам'ятаєте через кілька днів після першої зустрічі. Просто відкрити застосунок нічого не дасть.
-- [ ] **6404.** One evening left in {title}.  
-  → У частині {title} лишився один вечір.
-- [ ] **6405.** {evenings} left in {title}.  
-  → У частині {title} ще {evenings}.
-- [ ] **6406.** Carry on with the course  
+- [ ] **6402.** One evening left in {title}.  
+  → До кінця частини «{title}» лишився один вечір.
+- [ ] **6403.** {evenings} left in {title}.  
+  → {evenings} до кінця частини «{title}».
+- [ ] **6404.** Carry on with the course  
   → Продовжити курс
-- [ ] **6407.** See all your progress  
+- [ ] **6405.** See all your progress  
   → Переглянути весь поступ
-- [ ] **6408.** A quiet week, and the course is right where you left it  
+- [ ] **6406.** A quiet week, and the course is right where you left it  
   → Тихий тиждень, а курс чекає там само, де ви зупинилися
-- [ ] **6409.** {days} of Estonian this week  
+- [ ] **6407.** {days} of Estonian this week  
   → {days} з естонською цього тижня
-- [ ] **6410.** Nothing to catch up on. One evening and you're back in.  
+- [ ] **6408.** Nothing to catch up on. One evening and you're back in.  
   → Надолужувати нічого. Один вечір, і ви знову в ділі.
-- [ ] **6411.** {cards} answered, and {words} that are properly yours.  
+- [ ] **6409.** {cards} answered, and {words} that are properly yours.  
   → {cards} за тиждень і {words}, які по-справжньому ваші.
-- [ ] **6412.** One thing to say out loud today.  
+- [ ] **6410.** One thing to say out loud today.  
   → Одна фраза, яку сьогодні варто сказати вголос.
-- [ ] **6413.** {places}. Nobody there will know it's practice.  
+- [ ] **6411.** {places}. Nobody there will know it's practice.  
   → {places}. Ніхто там не здогадається, що це тренування.
-- [ ] **6414.** Fancy a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.  
+- [ ] **6412.** Fancy a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.  
   → Хочете спершу прорепетирувати? «{title}» триває близько двох хвилин, зі співрозмовником, якому від вас щось потрібно, зовсім як у житті.
-- [ ] **6415.** Practise it first  
+- [ ] **6413.** Practise it first  
   → Спершу прорепетирувати
-- [ ] **6416.** Or just have a look at the words in {unit}  
-  → Або просто переглянути слова з розділу {unit}
-- [ ] **6417.** Have a look at the words first  
+- [ ] **6414.** Or just have a look at the words in {unit}  
+  → Або просто переглянути слова з розділу «{unit}»
+- [ ] **6415.** Have a look at the words first  
   → Спершу переглянути слова
-- [ ] **6418.** If they answer in English, that still counts. So does running out of words halfway. You said it, and whatever happens next is about the moment, not about you. The only thing that doesn't count is staying quiet.  
+- [ ] **6416.** If they answer in English, that still counts. So does running out of words halfway. You said it, and whatever happens next is about the moment, not about you. The only thing that doesn't count is staying quiet.  
   → Якщо вам відповідять англійською, це все одно зараховується. І якщо слова закінчаться на півдорозі, теж. Ви це сказали, а що буде далі, залежить від моменту, а не від вас. Не зараховується лише мовчання.
-- [ ] **6419.** Tomorrow morning the app will ask whether you spoke any Estonian to anyone. No is a perfectly fine answer.  
+- [ ] **6417.** Tomorrow morning the app will ask whether you spoke any Estonian to anyone. No is a perfectly fine answer.  
   → Завтра вранці застосунок спитає, чи говорили ви з кимось естонською. «Ні» теж цілком нормальна відповідь.
-- [ ] **6420.** A word you might want for this one.  
+- [ ] **6418.** A word you might want for this one.  
   → Слово, яке може знадобитися.
-- [ ] **6421.** One thing to say out loud today  
+- [ ] **6419.** One thing to say out loud today  
   → Одна фраза, яку сьогодні варто сказати вголос
-- [ ] **6422.** {places}. Just one sentence, and an answer in English still counts.  
+- [ ] **6420.** {places}. Just one sentence, and an answer in English still counts.  
   → {places}. Лише одна фраза, і відповідь англійською теж зараховується.
-- [ ] **6423.** {phrase} to go until the date you picked.  
-  → До обраної вами дати лишилося {phrase}.
-- [ ] **6424.** You're aiming for {band}, the level where you can {label}. Here's how that's looking.  
+- [ ] **6421.** {phrase} to go until the date you picked.  
+  → До обраної вами дати: {phrase}.
+- [ ] **6422.** You're aiming for {band}, the level where you can {label}. Here's how that's looking.  
   → Ви йдете до рівня {band}, на якому можна {label}. Ось як справи.
-- [ ] **6425.** A bar, about {pct} percent full, for your chances at {band}.  
+- [ ] **6423.** A bar, about {pct} percent full, for your chances at {band}.  
   → Смуга заповнена приблизно на {pct}%: ваші шанси на {band}.
-- [ ] **6426.** If you sat it today, we'd put your chances of passing at about {pct} percent. {evidence}  
+- [ ] **6424.** If you sat it today, we'd put your chances of passing at about {pct} percent. {evidence}  
   → Якби ви складали сьогодні, ми оцінили б шанси скласти приблизно в {pct}%. {evidence}
-- [ ] **6427.** Three things can change that, and any one of them counts: how often you study, the Estonian you already hear outside this app, and the date itself. Moving the date isn't giving up. You picked it in about ninety seconds, before you knew what any of this would take.  
+- [ ] **6425.** Three things can change that, and any one of them counts: how often you study, the Estonian you already hear outside this app, and the date itself. Moving the date isn't giving up. You picked it in about ninety seconds, before you knew what any of this would take.  
   → Змінити це можуть три речі, і підійде будь-яка: як часто ви займаєтеся, естонська, яку ви й так чуєте поза застосунком, і сама дата. Перенести дату не означає здатися. Ви обрали її секунд за дев'яносто, ще не знаючи, чого все це вимагатиме.
-- [ ] **6428.** See your plan  
+- [ ] **6426.** See your plan  
   → Переглянути план
-- [ ] **6429.** {phrase} to go until the date you picked  
-  → До обраної вами дати лишилося {phrase}
-- [ ] **6430.** At the pace you're going, {band} still fits.  
+- [ ] **6427.** {phrase} to go until the date you picked  
+  → До обраної вами дати: {phrase}
+- [ ] **6428.** At the pace you're going, {band} still fits.  
   → У теперішньому темпі ви встигаєте до {band}.
-- [ ] **6431.** How {band} is looking, and three things that could change it.  
+- [ ] **6429.** How {band} is looking, and three things that could change it.  
   → Як справи з {band} і три речі, які можуть це змінити.
-- [ ] **6432.** Last week in {group}  
-  → Минулий тиждень у групі {group}
-- [ ] **6433.** {active} of {members} practised, with {answers} between them.  
+- [ ] **6430.** Last week in {group}  
+  → Минулий тиждень у групі «{group}»
+- [ ] **6431.** {active} of {members} practised, with {answers} between them.  
   → Займалися {active} з {members}, усього {answers}.
-- [ ] **6434.** {quiet} didn't open the app.  
+- [ ] **6432.** {quiet} didn't open the app.  
   → Не відкривали застосунок: {quiet}.
-- [ ] **6435.** somebody studied  
+- [ ] **6433.** somebody studied  
   → хтось займався
-- [ ] **6436.** nobody studied  
+- [ ] **6434.** nobody studied  
   → ніхто не займався
-- [ ] **6437.** The class finds {case} hardest.  
+- [ ] **6435.** The class finds {case} hardest.  
   → Найважче групі дається {case}.
-- [ ] **6438.** {accuracy} percent right, across {total} answers from the whole class. That's the one to give them extra practice on this week.  
+- [ ] **6436.** {accuracy} percent right, across {total} answers from the whole class. That's the one to give them extra practice on this week.  
   → Правильних відповідей {accuracy}%, а всього відповідей від групи: {total}. Саме цьому відмінку варто приділити більше практики цього тижня.
-- [ ] **6439.** {case} at {accuracy} percent  
+- [ ] **6437.** {case} at {accuracy} percent  
   → {case} ({accuracy}%)
-- [ ] **6440.** After that comes {first}, and {second}.  
+- [ ] **6438.** After that comes {first}, and {second}.  
   → Далі йдуть {first} і {second}.
-- [ ] **6441.** After that comes {first}.  
+- [ ] **6439.** After that comes {first}.  
   → Далі йде {first}.
-- [ ] **6442.** Not enough answers yet to say which case the class finds hardest. Give it another week.  
+- [ ] **6440.** Not enough answers yet to say which case the class finds hardest. Give it another week.  
   → Відповідей поки замало, щоб сказати, який відмінок групі найважчий. Зачекайте ще тиждень.
-- [ ] **6443.** {onTrack} on track for {level}.  
+- [ ] **6441.** {onTrack} on track for {level}.  
   → Ідуть за планом до {level}: {onTrack}.
-- [ ] **6444.** {ready} of {members} on track or close for {level}.  
+- [ ] **6442.** {ready} of {members} on track or close for {level}.  
   → {ready} з {members} ідуть за планом до {level} або близькі до цього.
-- [ ] **6445.** {close} close, {needTime} need more time, {tooEarly} too early to say.  
+- [ ] **6443.** {close} close, {needTime} need more time, {tooEarly} too early to say.  
   → Близькі до мети: {close}, потрібно більше часу: {needTime}, поки зарано судити: {tooEarly}.
-- [ ] **6446.** {close} close, {needTime} need more time.  
+- [ ] **6444.** {close} close, {needTime} need more time.  
   → Близькі до мети: {close}, потрібно більше часу: {needTime}.
-- [ ] **6447.** Open the group's board  
+- [ ] **6445.** Open the group's board  
   → Відкрити дошку групи
-- [ ] **6448.** Everybody in {group} practised last week  
-  → Минулого тижня в групі {group} займалися всі
-- [ ] **6449.** {active} of {members} in {group} practised last week  
-  → Минулого тижня в групі {group} займалися {active} з {members}
-- [ ] **6450.** How the week went, and which case to work on next.  
+- [ ] **6446.** Everybody in {group} practised last week  
+  → Минулого тижня в групі «{group}» займалися всі
+- [ ] **6447.** {active} of {members} in {group} practised last week  
+  → Минулого тижня в групі «{group}» займалися {active} з {members}
+- [ ] **6448.** How the week went, and which case to work on next.  
   → Як минув тиждень і над яким відмінком попрацювати далі.
-- [ ] **6451.** How the week went, and how the group is doing toward {level}.  
+- [ ] **6449.** How the week went, and how the group is doing toward {level}.  
   → Як минув тиждень і як група просувається до {level}.
-- [ ] **6452.** See {word} in the dictionary  
+- [ ] **6450.** See {word} in the dictionary  
   → Відкрити {word} у словнику
-- [ ] **6453.** One word for today. Nothing to do but enjoy it.  
+- [ ] **6451.** One word for today. Nothing to do but enjoy it.  
   → Одне слово на сьогодні. Робити нічого не треба, просто потіштеся ним.
 
 ### Counted words in letters: one, few (2 to 4), many (5 and up)
 
-- [ ] **6454.** step / step, steps _(1, 2, 5)_  
+- [ ] **6452.** step / step, steps _(1, 2, 5)_  
   → крок, кроки, кроків
-- [ ] **6455.** shield / shield, shields _(1, 2, 5)_  
+- [ ] **6453.** shield / shield, shields _(1, 2, 5)_  
   → щит, щити, щитів
-- [ ] **6456.** conversation / conversation, conversations _(1, 2, 5)_  
+- [ ] **6454.** conversation / conversation, conversations _(1, 2, 5)_  
   → розмова, розмови, розмов
 
 ## landing (227 lines)
 
 _lib/copy/i18n/areas/landing.ts_
 
-- [ ] **6457.** Kodukeel, home  
+- [ ] **6455.** Kodukeel, home  
   → Kodukeel, на головну
-- [ ] **6458.** Who it’s for  
+- [ ] **6456.** Who it’s for  
   → Для кого
-- [ ] **6459.** The cases  
+- [ ] **6457.** The cases  
   → Відмінки
-- [ ] **6460.** Start free  
+- [ ] **6458.** Start free  
   → Почати безкоштовно
-- [ ] **6461.** Estonian for the life you live here  
+- [ ] **6459.** Estonian for the life you live here  
   → Естонська для життя тут
-- [ ] **6462.** Estonian that finally sticks  
+- [ ] **6460.** Estonian that finally sticks  
   → Естонська, яка нарешті лишається в голові
-- [ ] **6463.** The neighbor says hello. A coworker asks you something. Even the dog seems to expect Estonian. You need the right words when someone’s actually looking at you, and Kodukeel gets you there, fifteen minutes at a time.  
-  → Сусід вітається. Колега щось у вас питає. Здається, навіть собака чекає від вас естонської. Правильні слова потрібні тоді, коли на вас справді дивляться, і Kodukeel готує до цього по п'ятнадцять хвилин за раз.
-- [ ] **6464.** Start learning for free  
+- [ ] **6461.** The neighbor says hello. A coworker asks you something. Even the dog seems to expect Estonian. You need the right words when someone’s actually looking at you, and Kodukeel gets you there, fifteen minutes at a time.  
+  → Сусід вітається. Колега щось у вас питає. Здається, навіть собака чекає від вас естонської. Правильні слова потрібні тоді, коли на вас справді дивляться, і Kodukeel готує до цього по п'ятнадцять хвилин за раз, пояснюючи все українською.
+- [ ] **6462.** Start learning for free  
   → Почати вчитися безкоштовно
-- [ ] **6465.** {words}, {forms}, and not one of them made up by AI  
+- [ ] **6463.** {words}, {forms}, and not one of them made up by AI  
   → {words}, {forms}, і нічого з цього не вигадано ШІ
-- [ ] **6466.** {units}, from your first hello at {first} all the way to {last}  
+- [ ] **6464.** {units}, from your first hello at {first} all the way to {last}  
   → {units}: від першого «привіт» на рівні {first} аж до {last}
-- [ ] **6467.** Free, and it works offline  
+- [ ] **6465.** Free, and it works offline  
   → Безкоштовно й працює без інтернету
-- [ ] **6468.** Counts the real conversations you have, not the days you open the app  
+- [ ] **6466.** Counts the real conversations you have, not the days you open the app  
   → Рахує ваші справжні розмови, а не дні, коли ви відкривали застосунок
-- [ ] **6469.** Show the next ending on this word  
+- [ ] **6467.** Show the next ending on this word  
   → Показати наступне закінчення цього слова
-- [ ] **6470.** Tap it to try the next ending  
+- [ ] **6468.** Tap it to try the next ending  
   → Натисніть, щоб спробувати наступне закінчення
-- [ ] **6471.** For example, {lemma} becomes {form}, {question}  
+- [ ] **6469.** For example, {lemma} becomes {form}, {question}  
   → Наприклад, {lemma} стає {form}, {question}
-- [ ] **6472.** Whatever brought you to Estonian  
+- [ ] **6470.** Whatever brought you to Estonian  
   → Хоч би що привело вас до естонської
-- [ ] **6473.** You live here now  
+- [ ] **6471.** You live here now  
   → Ви тепер живете тут
-- [ ] **6474.** The pharmacist, the parents at the school gate, the letter from the city. Learn the Estonian you'll actually bump into this week.  
+- [ ] **6472.** The pharmacist, the parents at the school gate, the letter from the city. Learn the Estonian you'll actually bump into this week.  
   → Фармацевт, батьки біля шкільних воріт, лист від міської управи. Вчіть естонську, яка трапиться вам уже цього тижня.
-- [ ] **6475.** You love someone who speaks it  
+- [ ] **6473.** You love someone who speaks it  
   → Ваша кохана людина нею говорить
-- [ ] **6476.** Their mum on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it.  
+- [ ] **6474.** Their mum on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it.  
   → Мама по телефону, жарти друзів, тост на дні народження. Підготуйте слова до недільного обіду, а не посеред нього.
-- [ ] **6477.** You have an exam to pass  
+- [ ] **6475.** You have an exam to pass  
   → Вам треба скласти іспит
-- [ ] **6478.** Full mock papers from A2 to C1, marked by clear rules you can check, not an AI's hunch. Walk in on the day knowing exactly what's coming.  
+- [ ] **6476.** Full mock papers from A2 to C1, marked by clear rules you can check, not an AI's hunch. Walk in on the day knowing exactly what's coming.  
   → Повні пробні іспити від A2 до C1, які перевіряються за зрозумілими правилами, а не за здогадкою ШІ, і ці правила можна перевірити. Приходьте на іспит, точно знаючи, що на вас чекає.
-- [ ] **6479.** How the real exam works  
+- [ ] **6477.** How the real exam works  
   → Як влаштовано справжній іспит
-- [ ] **6480.** You work in Estonian  
+- [ ] **6478.** You work in Estonian  
   → Ви працюєте естонською
-- [ ] **6481.** Meetings, emails, a chat by the coffee machine. Get to know the words you'll hear at work every day, and try the tricky conversations here first, where getting it wrong costs nothing.  
+- [ ] **6479.** Meetings, emails, a chat by the coffee machine. Get to know the words you'll hear at work every day, and try the tricky conversations here first, where getting it wrong costs nothing.  
   → Наради, листи, розмова біля кавоварки. Опануйте слова, які чуєте на роботі щодня, і спершу спробуйте складні розмови тут, де помилка нічого не коштує.
-- [ ] **6482.** You didn’t fail Estonian. Your tools did.  
+- [ ] **6480.** You didn’t fail Estonian. Your tools did.  
   → Не ви не впоралися з естонською. Не впоралися ваші інструменти.
-- [ ] **6483.** Learn {n} forms.  
+- [ ] **6481.** Learn {n} forms.  
   → Вивчіть {n}.
-- [ ] **6484.** Build the other {n}.  
+- [ ] **6482.** Build the other {n}.  
   → Решту {n} побудуйте самі.
-- [ ] **6485.** Fourteen cases is the number that makes people give up on Estonian. Here’s the secret: you learn three forms of a word, sometimes four, and the rest are the same endings glued on, for every word in the language. When a word breaks the pattern, you’ll see what Estonians actually say right beside what the rule predicts. Press an ending and build one yourself.  
-  → Саме через чотирнадцять відмінків люди кидають естонську. Але ось секрет: ви вчите три форми слова, іноді чотири, а решта утворюється з тих самих закінчень, однакових для кожного слова в мові. Коли слово вибивається з правила, ви побачите, як насправді кажуть естонці, просто поруч із тим, що дає правило. Натисніть закінчення й побудуйте форму самі.
-- [ ] **6486.** Try a word  
+- [ ] **6483.** Fourteen cases is the number that makes people give up on Estonian. Here’s the secret: you learn three forms of a word, sometimes four, and the rest are the same endings glued on, for every word in the language. When a word breaks the pattern, you’ll see what Estonians actually say right beside what the rule predicts. Press an ending and build one yourself.  
+  → Через чотирнадцять відмінків люди кидають естонську. Але що таке відмінки, ви вже знаєте: в українській їх сім. Естонські схожі на ваші, лише закінчення інші: ви вчите три форми слова, іноді чотири, а решту дають ті самі закінчення, однакові для кожного слова. Де слово вибивається з правила, поруч видно, як насправді кажуть естонці. Натисніть закінчення й побудуйте форму самі.
+- [ ] **6484.** Try a word  
   → Спробуйте слово
-- [ ] **6487.** Learn {n}  
+- [ ] **6485.** Learn {n}  
   → Вивчіть {n}
-- [ ] **6488.** the stem  
+- [ ] **6486.** the stem  
   → основа
-- [ ] **6489.** Then glue on an ending, the same {n} for every word  
+- [ ] **6487.** Then glue on an ending, the same {n} for every word  
   → Потім приклейте закінчення, ті самі {n} для кожного слова
-- [ ] **6490.** built  
+- [ ] **6488.** built  
   → зібрано
-- [ ] **6491.** All {n}, from that one form. That’s the whole trick.  
+- [ ] **6489.** All {n}, from that one form. That’s the whole trick.  
   → Усі {n} з однієї цієї форми. У цьому й увесь фокус.
-- [ ] **6492.** {done} of {all} built from {word}  
+- [ ] **6490.** {done} of {all} built from {word}  
   → {done} з {all} зібрано з {word}
-- [ ] **6493.** Estonians also say {form}, which no ending gives you, so learn that one too.  
+- [ ] **6491.** Estonians also say {form}, which no ending gives you, so learn that one too.  
   → Естонці ще кажуть {form}, а цього не дає жодне закінчення, тож вивчіть і цю форму.
-- [ ] **6494.** into _(context: ending)_  
+- [ ] **6492.** into _(context: ending)_  
   → всередину
-- [ ] **6495.** in _(context: ending)_  
+- [ ] **6493.** in _(context: ending)_  
   → всередині
-- [ ] **6496.** out of _(context: ending)_  
+- [ ] **6494.** out of _(context: ending)_  
   → зсередини
-- [ ] **6497.** onto _(context: ending)_  
-  → на (куди)
-- [ ] **6498.** on _(context: ending)_  
-  → на (де)
-- [ ] **6499.** off _(context: ending)_  
-  → з (звідки)
-- [ ] **6500.** becoming _(context: ending)_  
-  → стаючи
-- [ ] **6501.** up to _(context: ending)_  
+- [ ] **6495.** onto _(context: ending)_  
+  → на щось і комусь
+- [ ] **6496.** on _(context: ending)_  
+  → на чомусь і «у мене є»
+- [ ] **6497.** off _(context: ending)_  
+  → з поверхні і від когось
+- [ ] **6498.** becoming _(context: ending)_  
+  → ставати кимось
+- [ ] **6499.** up to _(context: ending)_  
   → до
-- [ ] **6502.** as _(context: ending)_  
-  → як
-- [ ] **6503.** without _(context: ending)_  
+- [ ] **6500.** as _(context: ending)_  
+  → у ролі
+- [ ] **6501.** without _(context: ending)_  
   → без
-- [ ] **6504.** with _(context: ending)_  
-  → з
-- [ ] **6505.** Your first evening  
+- [ ] **6502.** with _(context: ending)_  
+  → разом із
+- [ ] **6503.** Your first evening  
   → Ваш перший вечір
-- [ ] **6506.** {minutes} minutes, {words} words. Try the first step now.  
+- [ ] **6504.** {minutes} minutes, {words} words. Try the first step now.  
   → {minutes}, {words}. Спробуйте перший крок просто зараз.
-- [ ] **6507.** Every evening is one button. You meet a handful of new words, and they pop back a moment later to check you kept them. A quick game or two puts them to work, and then the app says you’re done for the night.  
+- [ ] **6505.** Every evening is one button. You meet a handful of new words, and they pop back a moment later to check you kept them. A quick game or two puts them to work, and then the app says you’re done for the night.  
   → Кожен вечір починається з однієї кнопки. Ви знайомитеся з кількома новими словами, і за хвилину вони повертаються перевірити, чи запам'яталися. Пара швидких ігор закріплює їх, а потім застосунок каже, що на сьогодні все.
-- [ ] **6508.** {minutes} minutes, and then you’re done for the night. {evenings} evenings like this one take you all the way to C1.  
+- [ ] **6506.** {minutes} minutes, and then you’re done for the night. {evenings} evenings like this one take you all the way to C1.  
   → {minutes}, і на сьогодні все. За {evenings} таких, як цей, ви дійдете аж до C1.
-- [ ] **6509.** Evening one, step one  
+- [ ] **6507.** Evening one, step one  
   → Вечір перший, крок перший
-- [ ] **6510.** Got them, now quiz me  
+- [ ] **6508.** Got them, now quiz me  
   → Готово, тепер перевірте мене
-- [ ] **6511.** Now they come back one at a time. Pick what each one means. {n} of {all}  
+- [ ] **6509.** Now they come back one at a time. Pick what each one means. {n} of {all}  
   → Тепер вони повертаються по одному. Виберіть, що означає кожне. {n} з {all}
-- [ ] **6512.** Next word  
+- [ ] **6510.** Next word  
   → Наступне слово
-- [ ] **6513.** See how it went  
+- [ ] **6511.** See how it went  
   → Подивитися результат
-- [ ] **6514.** {right} out of {all}, just a minute after meeting them.  
+- [ ] **6512.** {right} out of {all}, just a minute after meeting them.  
   → {right} з {all}, лише за хвилину після знайомства.
-- [ ] **6515.** And that’s the first step of your first evening. Inside, the ones you missed come back sooner, and the ones you got come back just before you’d forget them.  
+- [ ] **6513.** And that’s the first step of your first evening. Inside, the ones you missed come back sooner, and the ones you got come back just before you’d forget them.  
   → Це був перший крок вашого першого вечора. Усередині слова, на яких ви помилилися, повертаються раніше, а ті, що ви вгадали, повертаються саме перед тим, як ви б їх забули.
-- [ ] **6516.** Try it again  
+- [ ] **6514.** Try it again  
   → Спробувати ще раз
-- [ ] **6517.** Not quite. {word} means {meaning}. It’ll come round again soon.  
+- [ ] **6515.** Not quite. {word} means {meaning}. It’ll come round again soon.  
   → Не зовсім. {word} означає «{meaning}». Незабаром воно повернеться.
-- [ ] **6518.** hello _(context: gloss)_  
+- [ ] **6516.** hello _(context: gloss)_  
   → привіт
-- [ ] **6519.** thank you _(context: gloss)_  
+- [ ] **6517.** thank you _(context: gloss)_  
   → дякую
-- [ ] **6520.** yes _(context: gloss)_  
+- [ ] **6518.** yes _(context: gloss)_  
   → так
-- [ ] **6521.** no, not _(context: gloss)_  
+- [ ] **6519.** no, not _(context: gloss)_  
   → ні, не
-- [ ] **6522.** of course _(context: gloss)_  
+- [ ] **6520.** of course _(context: gloss)_  
   → звісно
-- [ ] **6523.** Say it to somebody  
+- [ ] **6521.** Say it to somebody  
   → Скажіть це комусь
-- [ ] **6524.** Order a drink in Estonian. Right now, no account needed.  
+- [ ] **6522.** Order a drink in Estonian. Right now, no account needed.  
   → Замовте напій естонською. Просто зараз, без реєстрації.
-- [ ] **6525.** This is one of the fifteen conversations inside: a café counter, and somebody waiting for your order. Here you pick what to say, from hello to paying. Inside the app, you type it yourself.  
+- [ ] **6523.** This is one of the fifteen conversations inside: a café counter, and somebody waiting for your order. Here you pick what to say, from hello to paying. Inside the app, you type it yourself.  
   → Це одна з п'ятнадцяти розмов усередині: стійка в кав'ярні й людина, яка чекає на ваше замовлення. Тут ви вибираєте, що сказати, від привітання до оплати. У самому застосунку ви пишете це самі.
-- [ ] **6526.** A small café, early  
+- [ ] **6524.** A small café, early  
   → Маленька кав'ярня, ранній ранок
-- [ ] **6527.** Your bus leaves in ten minutes.  
+- [ ] **6525.** Your bus leaves in ten minutes.  
   → Ваш автобус відходить за десять хвилин.
-- [ ] **6528.** Step {n} of {all}  
+- [ ] **6526.** Step {n} of {all}  
   → Крок {n} з {all}
-- [ ] **6529.** Hello _(context: step)_  
+- [ ] **6527.** Hello _(context: step)_  
   → Привітання
-- [ ] **6530.** Order _(context: step)_  
+- [ ] **6528.** Order _(context: step)_  
   → Замовлення
-- [ ] **6531.** Size _(context: step)_  
+- [ ] **6529.** Size _(context: step)_  
   → Розмір
-- [ ] **6532.** Bill _(context: step)_  
+- [ ] **6530.** Bill _(context: step)_  
   → Рахунок
-- [ ] **6533.** Pay _(context: step)_  
+- [ ] **6531.** Pay _(context: step)_  
   → Оплата
-- [ ] **6534.** Bye _(context: step)_  
+- [ ] **6532.** Bye _(context: step)_  
   → Прощання
-- [ ] **6535.** On the board  
+- [ ] **6533.** On the board  
   → На дошці
-- [ ] **6536.** Your order  
+- [ ] **6534.** Your order  
   → Ваше замовлення
-- [ ] **6537.** Coffee, tea, water and juice, each with its price in euros.  
+- [ ] **6535.** Coffee, tea, water and juice, each with its price in euros.  
   → Кава, чай, вода й сік, у кожного своя ціна в євро.
-- [ ] **6538.** Here you just pick a line, and they all work.  
+- [ ] **6536.** Here you just pick a line, and they all work.  
   → Тут ви просто вибираєте фразу, і підходить будь-яка.
-- [ ] **6539.** Inside the app you type what you’d really say. Get an ending wrong and they still understand you, then say it back the right way.  
+- [ ] **6537.** Inside the app you type what you’d really say. Get an ending wrong and they still understand you, then say it back the right way.  
   → У застосунку ви пишете те, що сказали б насправді. Помилитеся в закінченні, вас однаково зрозуміють і повторять правильно.
-- [ ] **6540.** Behind the counter  
+- [ ] **6538.** Behind the counter  
   → За стійкою
-- [ ] **6541.** answering  
+- [ ] **6539.** answering  
   → відповідає
-- [ ] **6542.** listening  
+- [ ] **6540.** listening  
   → слухає
-- [ ] **6543.** waiting for you  
+- [ ] **6541.** waiting for you  
   → чекає на вас
-- [ ] **6544.** Six little moments, from hello to goodbye. Each time you pick what to say, and see how the person behind the counter reacts.  
+- [ ] **6542.** Six little moments, from hello to goodbye. Each time you pick what to say, and see how the person behind the counter reacts.  
   → Шість коротких моментів, від привітання до прощання. Щоразу ви вибираєте, що сказати, і бачите, як реагує людина за стійкою.
-- [ ] **6545.** Walk up to the counter  
+- [ ] **6543.** Walk up to the counter  
   → Підійти до стійки
-- [ ] **6546.** You said:   
+- [ ] **6544.** You said:   
   → Ви сказали: 
-- [ ] **6547.** They said:   
+- [ ] **6545.** They said:   
   → Вам сказали: 
-- [ ] **6548.** And that’s the whole conversation.  
+- [ ] **6546.** And that’s the whole conversation.  
   → Ось і вся розмова.
-- [ ] **6549.** Inside there are fifteen of these, from the doctor’s to the landlord’s, and there you type your answers yourself.  
+- [ ] **6547.** Inside there are fifteen of these, from the doctor’s to the landlord’s, and there you type your answers yourself.  
   → Усередині таких п'ятнадцять, від лікаря до орендодавця, і там відповіді ви пишете самі.
-- [ ] **6550.** Order again  
+- [ ] **6548.** Order again  
   → Замовити ще раз
-- [ ] **6551.** Your turn.  
+- [ ] **6549.** Your turn.  
   → Ваша черга.
-- [ ] **6552.** They’re about to say something.  
+- [ ] **6550.** They’re about to say something.  
   → Зараз вам щось скажуть.
-- [ ] **6553.** No account needed, and nothing gets saved.  
+- [ ] **6551.** No account needed, and nothing gets saved.  
   → Реєстрація не потрібна, і нічого не зберігається.
-- [ ] **6554.** There’s no AI in this conversation. Every line on both sides comes from the dictionary, or was read and checked by a native speaker.  
+- [ ] **6552.** There’s no AI in this conversation. Every line on both sides comes from the dictionary, or was read and checked by a native speaker.  
   → У цій розмові немає ШІ. Кожну репліку з обох боків взято зі словника або прочитано й перевірено носієм мови.
-- [ ] **6555.** Hello!  
+- [ ] **6553.** Hello!  
   → Добрий день!
-- [ ] **6556.** Good morning!  
+- [ ] **6554.** Good morning!  
   → Доброго ранку!
-- [ ] **6557.** Coffee, please.  
+- [ ] **6555.** Coffee, please.  
   → Каву, будь ласка.
-- [ ] **6558.** Tea, please.  
+- [ ] **6556.** Tea, please.  
   → Чай, будь ласка.
-- [ ] **6559.** Water, please.  
+- [ ] **6557.** Water, please.  
   → Воду, будь ласка.
-- [ ] **6560.** Juice, please.  
+- [ ] **6558.** Juice, please.  
   → Сік, будь ласка.
-- [ ] **6561.** A large one, please.  
-  → Великий, будь ласка.
-- [ ] **6562.** A small one, please.  
-  → Маленький, будь ласка.
-- [ ] **6563.** Yes, that's everything.  
+- [ ] **6559.** A large one, please.  
+  → Велику порцію, будь ласка.
+- [ ] **6560.** A small one, please.  
+  → Маленьку порцію, будь ласка.
+- [ ] **6561.** Yes, that's everything.  
   → Так, це все.
-- [ ] **6564.** The bill, please.  
+- [ ] **6562.** The bill, please.  
   → Рахунок, будь ласка.
-- [ ] **6565.** Here you are. (You hold out your card.)  
+- [ ] **6563.** Here you are. (You hold out your card.)  
   → Ось, будь ласка. (Ви простягаєте картку.)
-- [ ] **6566.** In cash, please.  
+- [ ] **6564.** In cash, please.  
   → Готівкою, будь ласка.
-- [ ] **6567.** Thank you! Goodbye!  
+- [ ] **6565.** Thank you! Goodbye!  
   → Дякую! До побачення!
-- [ ] **6568.** Bye!  
+- [ ] **6566.** Bye!  
   → Бувайте!
-- [ ] **6569.** Now pay for it.  
+- [ ] **6567.** Now pay for it.  
   → Тепер заплатіть.
-- [ ] **6570.** coffee _(context: ordered)_  
+- [ ] **6568.** coffee _(context: ordered)_  
   → каву
-- [ ] **6571.** tea _(context: ordered)_  
+- [ ] **6569.** tea _(context: ordered)_  
   → чай
-- [ ] **6572.** water _(context: ordered)_  
+- [ ] **6570.** water _(context: ordered)_  
   → воду
-- [ ] **6573.** juice _(context: ordered)_  
+- [ ] **6571.** juice _(context: ordered)_  
   → сік
-- [ ] **6574.** What you get  
+- [ ] **6572.** What you get  
   → Що ви отримуєте
-- [ ] **6575.** Someone to ask, words that stay, and a nudge out the door  
+- [ ] **6573.** Someone to ask, words that stay, and a nudge out the door  
   → Кого спитати, слова, які не забуваються, і легкий поштовх до живої розмови
-- [ ] **6576.** The three feed each other. A word Anu explains goes into your practice with one press, and it comes back on the evening you’re about to forget it.  
+- [ ] **6574.** The three feed each other. A word Anu explains goes into your practice with one press, and it comes back on the evening you’re about to forget it.  
   → Усе це працює разом. Слово, яке пояснила Ану, одним натисканням потрапляє у вашу практику й повертається того вечора, коли ви от-от його забудете.
-- [ ] **6577.** Anu, who never sighs  
+- [ ] **6575.** Anu, who never sighs  
   → Ану, яка ніколи не зітхає
-- [ ] **6578.** Ask her the thing you'd never ask in class. She'll build a sentence with you, read the one you wrote, and tell you why the ending changed. Every Estonian word she shows you is checked in the dictionary, never guessed.  
+- [ ] **6576.** Ask her the thing you'd never ask in class. She'll build a sentence with you, read the one you wrote, and tell you why the ending changed. Every Estonian word she shows you is checked in the dictionary, never guessed.  
   → Спитайте в неї те, про що ніколи б не спитали на уроці. Вона побудує з вами речення, прочитає ваше й пояснить, чому змінилося закінчення. Кожне естонське слово, яке вона показує, перевірено за словником, а не вгадано.
-- [ ] **6579.** Why is it {a} and not {b}?  
+- [ ] **6577.** Why is it {a} and not {b}?  
   → Чому {a}, а не {b}?
-- [ ] **6580.** Because you haven’t finished it yet. {reading} means “I’m reading a book”, and the osastav says you’re still at it. Swap in the omastav and you get {done}: the whole book, done. In Estonian, the object’s case tells you whether the action is finished.  
-  → Бо ви її ще не дочитали. {reading} означає «я читаю книжку», і osastav каже, що ви ще в процесі. Поставте замість нього omastav, і вийде {done}: уся книжка, прочитана до кінця. В естонській відмінок додатка показує, чи завершено дію.
-- [ ] **6581.** Words that stay  
+- [ ] **6578.** Because you haven’t finished it yet. {reading} means “I’m reading a book”, and the osastav says you’re still at it. Swap in the omastav and you get {done}: the whole book, done. In Estonian, the object’s case tells you whether the action is finished.  
+  → Бо ви її ще не дочитали. {reading} означає «я читаю книжку», і osastav каже, що ви ще в процесі. Поставте замість нього omastav, і вийде {done}: уся книжка, до кінця. Те, що українська показує видом дієслова, «читаю» чи «прочитаю», естонська показує відмінком додатка.
+- [ ] **6579.** Words that stay  
   → Слова, що залишаються
-- [ ] **6582.** Look up any word and keep it with one press, every form included, read aloud in ten different voices. Then there are {units} of words like it. Each comes back the day before you'd forget it, and you hear it the way people really say it: fast, over café noise, down a crackly phone line.  
+- [ ] **6580.** Look up any word and keep it with one press, every form included, read aloud in ten different voices. Then there are {units} of words like it. Each comes back the day before you'd forget it, and you hear it the way people really say it: fast, over café noise, down a crackly phone line.  
   → Знайдіть будь-яке слово й збережіть його одним натисканням, з усіма формами й озвученням десятьма різними голосами. А далі {units} таких самих слів. Кожне повертається за день до того, як ви б його забули, і ви чуєте його так, як говорять насправді: швидко, крізь гамір кав'ярні, по тріскучій телефонній лінії.
-- [ ] **6583.** Then the real thing  
+- [ ] **6581.** Then the real thing  
   → А потім насправді
-- [ ] **6584.** A receptionist with no slot on Thursday, a landlord on a bad line, a queue at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count.  
+- [ ] **6582.** A receptionist with no slot on Thursday, a landlord on a bad line, a queue at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count.  
   → Адміністратор, у якого немає запису на четвер, орендодавець на поганому зв'язку, черга біля каси. Спершу відрепетируйте це тут, де ніхто не дивиться. Потім скажіть сьогодні хоч щось живій людині й розкажіть нам, як усе минуло. Саме ці розмови й рахуються.
-- [ ] **6585.** How it compares  
+- [ ] **6583.** How it compares  
   → Порівняння
-- [ ] **6586.** Keep what you already use. The fourteen cases are the bit it’s missing.  
+- [ ] **6584.** Keep what you already use. The fourteen cases are the bit it’s missing.  
   → Не кидайте те, чим уже користуєтеся. Чотирнадцять відмінків якраз те, чого там бракує.
-- [ ] **6587.** A streak app  
+- [ ] **6585.** A streak app  
   → Застосунок із серією днів
-- [ ] **6588.** A daily habit and your first few hundred words.  
+- [ ] **6586.** A daily habit and your first few hundred words.  
   → Щоденна звичка й перші кілька сотень слів.
-- [ ] **6589.** The fourteen cases, which is exactly where Estonian gets hard.  
+- [ ] **6587.** The fourteen cases, which is exactly where Estonian gets hard.  
   → Чотирнадцять відмінків, а саме там естонська й стає складною.
-- [ ] **6590.** A class or a textbook  
+- [ ] **6588.** A class or a textbook  
   → Курси або підручник
-- [ ] **6591.** A teacher, a syllabus and people to talk to.  
+- [ ] **6589.** A teacher, a syllabus and people to talk to.  
   → Викладач, програма й люди, з якими можна поговорити.
-- [ ] **6592.** Bringing each word back the day before you'd forget it.  
+- [ ] **6590.** Bringing each word back the day before you'd forget it.  
   → Повертати кожне слово за день до того, як ви б його забули.
-- [ ] **6593.** An AI chatbot  
+- [ ] **6591.** An AI chatbot  
   → Чат-бот зі ШІ
-- [ ] **6594.** An answer at eleven at night, about anything.  
+- [ ] **6592.** An answer at eleven at night, about anything.  
   → Відповідь об одинадцятій вечора на будь-яке питання.
-- [ ] **6595.** Getting the forms right. It writes Estonian that looks perfect and isn't.  
+- [ ] **6593.** Getting the forms right. It writes Estonian that looks perfect and isn't.  
   → Правильні форми. Він пише естонською так, що виглядає бездоганно, але це не так.
-- [ ] **6596.** Good at  
+- [ ] **6594.** Good at  
   → Сильна сторона
-- [ ] **6597.** Stops at  
+- [ ] **6595.** Stops at  
   → Де зупиняється
-- [ ] **6598.** The cases taught one at a time, every word brought back just before you’d forget it, a tutor awake at any hour, and every form straight from a dictionary, never an AI. Free, and it works offline.  
+- [ ] **6596.** The cases taught one at a time, every word brought back just before you’d forget it, a tutor awake at any hour, and every form straight from a dictionary, never an AI. Free, and it works offline.  
   → Відмінки по одному, кожне слово повертається саме перед тим, як ви б його забули, репетитор, доступний будь-коли, і кожна форма просто зі словника, а не від ШІ. Безкоштовно й працює без інтернету.
-- [ ] **6599.** Weighing up particular apps? There’s a side-by-side table in {below}, checked against each app’s own website.  
+- [ ] **6597.** Weighing up particular apps? There’s a side-by-side table in {below}, checked against each app’s own website.  
   → Порівнюєте конкретні застосунки? Докладна таблиця є в {below}, і її звірено із сайтом кожного застосунку.
-- [ ] **6600.** the questions below  
+- [ ] **6598.** the questions below  
   → питаннях нижче
-- [ ] **6601.** When could you get there?  
+- [ ] **6599.** When could you get there?  
   → Коли ви цього досягнете?
-- [ ] **6602.** Answer four questions and we’ll do the same sum the app does inside. You get a range, because anyone who gives you one exact number is guessing.  
+- [ ] **6600.** Answer four questions and we’ll do the same sum the app does inside. You get a range, because anyone who gives you one exact number is guessing.  
   → Дайте відповідь на чотири запитання, і ми зробимо той самий розрахунок, що й застосунок усередині. Ви отримаєте приблизну оцінку, адже той, хто називає одне точне число, просто вгадує.
-- [ ] **6603.** Where the hours come from  
+- [ ] **6601.** Where the hours come from  
   → Звідки беруться години
-- [ ] **6604.** We start from the study hours usually published for each level, add extra where Estonian’s cases start to bite, and keep the total inside what the US Foreign Service Institute estimates for the language. It isn’t measured on people using this app. Once you’re inside, the same sum runs on your own pace instead.  
+- [ ] **6602.** We start from the study hours usually published for each level, add extra where Estonian’s cases start to bite, and keep the total inside what the US Foreign Service Institute estimates for the language. It isn’t measured on people using this app. Once you’re inside, the same sum runs on your own pace instead.  
   → Ми беремо години навчання, які зазвичай публікують для кожного рівня, додаємо там, де естонські відмінки починають даватися взнаки, і тримаємо підсумок у межах оцінки Інституту дипломатичної служби США для цієї мови. Це не виміряно на людях, які користуються застосунком. Коли ви всередині, той самий розрахунок іде вже за вашим власним темпом.
-- [ ] **6605.** Nothing yet  
+- [ ] **6603.** Nothing yet  
   → Поки нічого
-- [ ] **6606.** Where you are now  
+- [ ] **6604.** Where you are now  
   → Де ви зараз
-- [ ] **6607.** Where you want to be  
+- [ ] **6605.** Where you want to be  
   → Куди хочете дійти
-- [ ] **6608.** How long you can spare, five evenings a week  
+- [ ] **6606.** How long you can spare, five evenings a week  
   → Скільки часу ви можете приділяти, п'ять вечорів на тиждень
-- [ ] **6609.** You’re already there  
+- [ ] **6607.** You’re already there  
   → Ви вже цього досягли
-- [ ] **6610.** {target} is already behind you.  
+- [ ] **6608.** {target} is already behind you.  
   → {target} у вас уже позаду.
-- [ ] **6611.** Pick a higher level and we’ll do the sum again.  
+- [ ] **6609.** Pick a higher level and we’ll do the sum again.  
   → Виберіть вищий рівень, і ми порахуємо знову.
-- [ ] **6612.** {target}, in about  
+- [ ] **6610.** {target}, in about  
   → {target}, приблизно
-- [ ] **6613.** Questions  
+- [ ] **6611.** Questions  
   → Питання
-- [ ] **6614.** Things people ask us  
+- [ ] **6612.** Things people ask us  
   → Про що нас питають
-- [ ] **6615.** Short answers, straight to the point. How this compares with other apps is the last one.  
+- [ ] **6613.** Short answers, straight to the point. How this compares with other apps is the last one.  
   → Короткі відповіді по суті. Порівняння з іншими застосунками в самому кінці.
-- [ ] **6616.** Do I need to pay for anything?  
+- [ ] **6614.** Do I need to pay for anything?  
   → Чи треба за щось платити?
-- [ ] **6617.** No, and there's nothing to install either. A few things cost us real money to run, so Anu, the writing feedback and the camera each have a daily limit. A normal evening never gets near it.  
+- [ ] **6615.** No, and there's nothing to install either. A few things cost us real money to run, so Anu, the writing feedback and the camera each have a daily limit. A normal evening never gets near it.  
   → Ні, і нічого не треба встановлювати. Дещо коштує нам справжніх грошей, тому в Ану, перевірки письмових завдань і камери є денний ліміт. Звичайний вечір до нього навіть не наближається.
-- [ ] **6618.** Where do the Estonian forms come from?  
+- [ ] **6616.** Where do the Estonian forms come from?  
   → Звідки беруться естонські форми?
-- [ ] **6619.** From a real dictionary, never from AI. AI makes up forms that look right and aren't, and a flashcard would drill that mistake straight into your head. When Anu translates a sentence for you, the app says so.  
+- [ ] **6617.** From a real dictionary, never from AI. AI makes up forms that look right and aren't, and a flashcard would drill that mistake straight into your head. When Anu translates a sentence for you, the app says so.  
   → Зі справжнього словника, а не від ШІ. ШІ вигадує форми, які мають правильний вигляд, але такими не є, і картки вбили б цю помилку вам просто в голову. Коли Ану перекладає для вас речення, застосунок так і каже.
-- [ ] **6620.** Is this only for beginners?  
+- [ ] **6618.** Is this only for beginners?  
   → Це лише для початківців?
-- [ ] **6621.** Not at all. It runs from A1 to C1, and the bits that trip up even advanced learners get extra practice: letters that change in the middle of a word, the case each verb insists on, and when an object takes which ending. Not sure where you are? Take the level check. There are mock state exam papers at A2, B1, B2 and C1 too, built fresh from real sentences and marked by clear rules rather than a model. The one exception is the spoken part, which you mark yourself.  
+- [ ] **6619.** Not at all. It runs from A1 to C1, and the bits that trip up even advanced learners get extra practice: letters that change in the middle of a word, the case each verb insists on, and when an object takes which ending. Not sure where you are? Take the level check. There are mock state exam papers at A2, B1, B2 and C1 too, built fresh from real sentences and marked by clear rules rather than a model. The one exception is the spoken part, which you mark yourself.  
   → Зовсім ні. Курс іде від A1 до C1, а те, на чому спотикаються навіть просунуті, відпрацьовується додатково: літери, що змінюються всередині слова, відмінок, якого вимагає кожне дієслово, і те, яке закінчення коли отримує додаток. Не знаєте, який у вас рівень? Пройдіть перевірку рівня. Є й пробні державні іспити на A2, B1, B2 і C1, які щоразу складаються зі справжніх речень і перевіряються за зрозумілими правилами, а не моделлю. Єдиний виняток становить усна частина: її ви оцінюєте самі.
-- [ ] **6622.** Will it actually get me talking to people?  
+- [ ] **6620.** Will it actually get me talking to people?  
   → Це справді допоможе мені заговорити з людьми?
-- [ ] **6623.** That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It won't score your pronunciation, though. The best speech recognizer we could find gets native speakers wrong, and we'd rather tell you that than pretend.  
+- [ ] **6621.** That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It won't score your pronunciation, though. The best speech recognizer we could find gets native speakers wrong, and we'd rather tell you that than pretend.  
   → У цьому весь сенс. Ви тренуєтеся з людьми, яким від вас щось потрібно: з адміністратором, орендодавцем, службовцем. Те, що ви кажете, перевіряється за словником, а не оцінюється ШІ, тож вам не скажуть, що ви помилилися, коли ви мали рацію. Щоранку застосунок питає, чи говорили ви вчора з кимось естонською, і якщо ні, пропонує одну невелику фразу, яку варто сказати вголос. Він рахує ці розмови, навіть ті, де співрозмовник перейшов на англійську. Але вимову він не оцінює. Найкраща система розпізнавання мовлення, яку ми знайшли, помиляється навіть на носіях мови, і ми краще скажемо вам про це, ніж удаватимемо.
-- [ ] **6624.** What happens to my data?  
+- [ ] **6622.** What happens to my data?  
   → Що відбувається з моїми даними?
-- [ ] **6625.** It stays in your account, and you can download every bit of it from Settings whenever you like. Your record of every answer you've given is the one thing we could never rebuild, so we never change or delete any of it, unless you delete your account.  
+- [ ] **6623.** It stays in your account, and you can download every bit of it from Settings whenever you like. Your record of every answer you've given is the one thing we could never rebuild, so we never change or delete any of it, unless you delete your account.  
   → Вони залишаються у вашому обліковому записі, і в налаштуваннях їх можна будь-коли завантажити повністю. Історію всіх ваших відповідей ми ніколи не змогли б відновити, тому нічого в ній не змінюємо й не видаляємо, якщо тільки ви не видалите свій обліковий запис.
-- [ ] **6626.** How does it compare with Speakly, Keeleklikk and Anki?  
+- [ ] **6624.** How does it compare with Speakly, Keeleklikk and Anki?  
   → Чим це відрізняється від Speakly, Keeleklikk і Anki?
-- [ ] **6627.** Duolingo has never offered Estonian, so the real choice is between the tools that do. We checked {claims} claims against each tool’s own website, and another tool earns a tick on {shared} of them. None of them is trying to get you saying {e1} and knowing why it isn’t {e2}.  
+- [ ] **6625.** Duolingo has never offered Estonian, so the real choice is between the tools that do. We checked {claims} claims against each tool’s own website, and another tool earns a tick on {shared} of them. None of them is trying to get you saying {e1} and knowing why it isn’t {e2}.  
   → У Duolingo естонської ніколи не було, тож вибирати насправді доводиться між тими інструментами, де вона є. Ми звірили {claims} тверджень із сайтом кожного інструмента, і за {shared} із них галочку отримує й інший інструмент. Жоден із них не намагається навчити вас казати {e1} і розуміти, чому не {e2}.
-- [ ] **6628.** Free, with no subscription  
+- [ ] **6626.** Free, with no subscription  
   → Безкоштовно, без підписки
-- [ ] **6629.** Built for Estonian and nothing else  
+- [ ] **6627.** Built for Estonian and nothing else  
   → Створено лише для естонської
-- [ ] **6630.** Teaches the cases one at a time  
+- [ ] **6628.** Teaches the cases one at a time  
   → Навчає відмінків по одному
-- [ ] **6631.** Every form shows the dictionary it came from  
+- [ ] **6629.** Every form shows the dictionary it came from  
   → У кожної форми вказано словник, з якого її взято
-- [ ] **6632.** Brings a word back on the day you would forget it  
+- [ ] **6630.** Brings a word back on the day you would forget it  
   → Повертає слово того дня, коли ви б його забули
-- [ ] **6633.** Any word you look up becomes a card  
+- [ ] **6631.** Any word you look up becomes a card  
   → Будь-яке знайдене слово стає карткою
-- [ ] **6634.** Explains why the answer was wrong  
+- [ ] **6632.** Explains why the answer was wrong  
   → Пояснює, чому відповідь неправильна
-- [ ] **6635.** Keeps working with no connection  
+- [ ] **6633.** Keeps working with no connection  
   → Працює без підключення до інтернету
-- [ ] **6636.** Lets you rehearse a conversation with somebody who wants something from you  
+- [ ] **6634.** Lets you rehearse a conversation with somebody who wants something from you  
   → Дає змогу відрепетирувати розмову з людиною, якій від вас щось потрібно
-- [ ] **6637.** Counts the conversations you have outside it  
+- [ ] **6635.** Counts the conversations you have outside it  
   → Рахує розмови, які у вас бувають поза застосунком
-- [ ] **6638.** yes _(context: mark)_  
+- [ ] **6636.** yes _(context: mark)_  
   → так
-- [ ] **6639.** no _(context: mark)_  
+- [ ] **6637.** no _(context: mark)_  
   → ні
-- [ ] **6640.** we could not tell  
+- [ ] **6638.** we could not tell  
   → ми не змогли визначити
-- [ ] **6641.** Made in Estonia, and the quickest way to get 4,000 common words into your ear. It's a paid app.  
+- [ ] **6639.** Made in Estonia, and the quickest way to get 4,000 common words into your ear. It's a paid app.  
   → Зроблено в Естонії, і це найшвидший спосіб звикнути на слух до 4 000 найуживаніших слів. Застосунок платний.
-- [ ] **6642.** Keeleklikk and Keeletee  
+- [ ] **6640.** Keeleklikk and Keeletee  
   → Keeleklikk і Keeletee
-- [ ] **6643.** Free, state-funded courses where a real teacher answers you by email. Start there, and keep this open alongside.  
+- [ ] **6641.** Free, state-funded courses where a real teacher answers you by email. Start there, and keep this open alongside.  
   → Безкоштовні державні курси, де справжній викладач відповідає вам електронною поштою. Почніть із них, а цей застосунок тримайте відкритим поруч.
-- [ ] **6644.** Schedules anything you're willing to type in. Finding the Estonian is up to you, and so is getting it right.  
+- [ ] **6642.** Schedules anything you're willing to type in. Finding the Estonian is up to you, and so is getting it right.  
   → Складає розклад для всього, що ви готові ввести. Знайти естонську вам доведеться самим, і перевірити, що все правильно, теж.
-- [ ] **6645.** The vocabulary apps  
+- [ ] **6643.** The vocabulary apps  
   → Застосунки для словникового запасу
-- [ ] **6646.** Drops, Mondly, Memrise, Ling and the rest are good at words. This is about which form of the word to use, and why.  
+- [ ] **6644.** Drops, Mondly, Memrise, Ling and the rest are good at words. This is about which form of the word to use, and why.  
   → Drops, Mondly, Memrise, Ling та інші добре навчають слів. А тут ідеться про те, яку форму слова вживати й чому.
-- [ ] **6647.** How this table was checked  
+- [ ] **6645.** How this table was checked  
   → Як перевіряли цю таблицю
-- [ ] **6648.** A tick means yes, a dash means their own pages don’t say so, and a question mark means we couldn’t tell. We checked each product’s own website in August 2026. Every name belongs to its owner, and none of them has endorsed this. If we’ve got something wrong, tell us and we’ll fix it.  
+- [ ] **6646.** A tick means yes, a dash means their own pages don’t say so, and a question mark means we couldn’t tell. We checked each product’s own website in August 2026. Every name belongs to its owner, and none of them has endorsed this. If we’ve got something wrong, tell us and we’ll fix it.  
   → Галочка означає «так», риска означає, що на їхніх власних сторінках про це не сказано, а знак питання означає, що ми не змогли визначити. Ми перевірили сайт кожного продукту в серпні 2026 року. Кожна назва належить своєму власникові, і жоден із них цього не схвалював. Якщо ми десь помилилися, напишіть нам, і ми виправимо.
-- [ ] **6649.** Fifteen minutes here.  
+- [ ] **6647.** Fifteen minutes here.  
   → П'ятнадцять хвилин тут.
-- [ ] **6650.** Then {say} to somebody.  
+- [ ] **6648.** Then {say} to somebody.  
   → А потім {say} комусь.
-- [ ] **6651.** say it _(context: sticker)_  
+- [ ] **6649.** say it _(context: sticker)_  
   → скажіть це
-- [ ] **6652.** Next time somebody speaks to you in Estonian, you’ll have something to say back. And it won’t be the first time you’ve said it.  
+- [ ] **6650.** Next time somebody speaks to you in Estonian, you’ll have something to say back. And it won’t be the first time you’ve said it.  
   → Коли наступного разу з вами заговорять естонською, вам буде що відповісти. І скажете ви це вже не вперше.
-- [ ] **6653.** Sign in with Google in a click. Nothing to install, and you can take your data with you any time.  
+- [ ] **6651.** Sign in with Google in a click. Nothing to install, and you can take your data with you any time.  
   → Вхід через Google в один клік. Нічого не треба встановлювати, а свої дані можна забрати будь-коли.
-- [ ] **6654.** a form  
+- [ ] **6652.** a form  
   → одну форму
-- [ ] **6655.** You built {forms} and ordered {drink} in Estonian, before you’ve even signed up.  
+- [ ] **6653.** You built {forms} and ordered {drink} in Estonian, before you’ve even signed up.  
   → Ви зібрали {forms} і замовили {drink} естонською, ще навіть не зареєструвавшись.
-- [ ] **6656.** You built {forms} of Estonian, before you’ve even signed up.  
+- [ ] **6654.** You built {forms} of Estonian, before you’ve even signed up.  
   → Ви зібрали {forms} естонською, ще навіть не зареєструвавшись.
-- [ ] **6657.** You ordered {drink} in Estonian, before you’ve even signed up.  
+- [ ] **6655.** You ordered {drink} in Estonian, before you’ve even signed up.  
   → Ви замовили {drink} естонською, ще навіть не зареєструвавшись.
-- [ ] **6658.** Now imagine fifteen minutes of that every evening.  
+- [ ] **6656.** Now imagine fifteen minutes of that every evening.  
   → А тепер уявіть п'ятнадцять хвилин такого щовечора.
-- [ ] **6659.** Kodukeel means home language. It’s free, and every Estonian form in it comes from a dictionary, never from AI.  
+- [ ] **6657.** Kodukeel means home language. It’s free, and every Estonian form in it comes from a dictionary, never from AI.  
   → Kodukeel означає «домашня мова». Застосунок безкоштовний, і кожну естонську форму в ньому взято зі словника, а не вигадано ШІ.
-- [ ] **6660.** Built on  
+- [ ] **6658.** Built on  
   → Спирається на
-- [ ] **6661.** Read more  
+- [ ] **6659.** Read more  
   → Докладніше
-- [ ] **6662.** What it costs to run  
+- [ ] **6660.** What it costs to run  
   → Скільки коштує робота застосунку
-- [ ] **6663.** Security and trust  
+- [ ] **6661.** Security and trust  
   → Безпека й довіра
-- [ ] **6664.** Institute of the Estonian Language  
+- [ ] **6662.** Institute of the Estonian Language  
   → Інститут естонської мови
-- [ ] **6665.** every form and example sentence  
+- [ ] **6663.** every form and example sentence  
   → усі форми й приклади речень
-- [ ] **6666.** the English translations  
+- [ ] **6664.** the English translations  
   → англійські переклади
-- [ ] **6667.** over OpenSubtitles  
+- [ ] **6665.** over OpenSubtitles  
   → за OpenSubtitles
-- [ ] **6668.** the word counts  
+- [ ] **6666.** the word counts  
   → частотність слів
-- [ ] **6669.** Ekilex's inflection tables, gathered  
+- [ ] **6667.** Ekilex's inflection tables, gathered  
   → зібрані таблиці словозміни Ekilex
-- [ ] **6670.** every spelling of every word  
+- [ ] **6668.** every spelling of every word  
   → усі написання всіх слів
-- [ ] **6671.** University of Tartu  
+- [ ] **6669.** University of Tartu  
   → Тартуський університет
-- [ ] **6672.** the speech  
+- [ ] **6670.** the speech  
   → озвучення
-- [ ] **6673.** Hi, I’m Anu, the tutor. Mind if I walk down the page with you?  
+- [ ] **6671.** Hi, I’m Anu, the tutor. Mind if I walk down the page with you?  
   → Привіт, я Ану, репетиторка. Можна я пройдуся з вами сторінкою?
-- [ ] **6674.** Whichever one you are, you start the same way: fifteen minutes tonight.  
+- [ ] **6672.** Whichever one you are, you start the same way: fifteen minutes tonight.  
   → Хоч би хто ви були, початок однаковий: п'ятнадцять хвилин сьогодні ввечері.
-- [ ] **6675.** Press an ending and watch it snap on. That’s the whole trick, honestly.  
+- [ ] **6673.** Press an ending and watch it snap on. That’s the whole trick, honestly.  
   → Натисніть закінчення й подивіться, як воно стає на місце. Чесно, у цьому весь фокус.
-- [ ] **6676.** This really is how your first evening starts. Five new words, and then they come back to check on you.  
+- [ ] **6674.** This really is how your first evening starts. Five new words, and then they come back to check on you.  
   → Ваш перший вечір справді починається так. П'ять нових слів, а потім вони повертаються вас перевірити.
-- [ ] **6677.** Go on, order something. The person behind the counter is very patient.  
+- [ ] **6675.** Go on, order something. The person behind the counter is very patient.  
   → Давайте, замовте щось. Людина за стійкою дуже терпляча.
-- [ ] **6678.** Ask me the thing you’d be too shy to ask in class. I never sigh.  
+- [ ] **6676.** Ask me the thing you’d be too shy to ask in class. I never sigh.  
   → Спитайте мене про те, про що соромилися б спитати на уроці. Я ніколи не зітхаю.
-- [ ] **6679.** Keep your class. I’m here for the evenings in between.  
+- [ ] **6677.** Keep your class. I’m here for the evenings in between.  
   → Не кидайте свої курси. Я тут для вечорів між заняттями.
-- [ ] **6680.** Have a play with it. Inside, I do the same sum with your real pace.  
+- [ ] **6678.** Have a play with it. Inside, I do the same sum with your real pace.  
   → Пограйтеся з ним. Усередині я роблю той самий розрахунок за вашим справжнім темпом.
-- [ ] **6681.** Short, straight answers. How we compare with other apps is the last one.  
+- [ ] **6679.** Short, straight answers. How we compare with other apps is the last one.  
   → Короткі прямі відповіді. Порівняння з іншими застосунками в самому кінці.
-- [ ] **6682.** Fifteen minutes a day. See you inside.  
+- [ ] **6680.** Fifteen minutes a day. See you inside.  
   → П'ятнадцять хвилин на день. До зустрічі всередині.
-- [ ] **6683.** Start learning, and ask Anu inside  
+- [ ] **6681.** Start learning, and ask Anu inside  
   → Почати вчитися й запитати Ану всередині
 
 ### Counted words in landing: one, few (2 to 4), many (5 and up)
 
-- [ ] **6684.** form / form, forms _(1, 2, 5)_  
+- [ ] **6682.** form / form, forms _(1, 2, 5)_  
   → форма, форми, форм
-- [ ] **6685.** month / month, months _(1, 2, 5)_  
+- [ ] **6683.** month / month, months _(1, 2, 5)_  
   → місяць, місяці, місяців
 
 ## legal (123 lines)
 
 _lib/copy/i18n/areas/legal.ts_
 
-- [ ] **6686.** Last updated  
+- [ ] **6684.** Last updated  
   → Оновлено
-- [ ] **6687.** Privacy  
+- [ ] **6685.** Privacy  
   → Конфіденційність
-- [ ] **6688.** Terms  
+- [ ] **6686.** Terms  
   → Умови
-- [ ] **6689.** Funding  
+- [ ] **6687.** Funding  
   → Фінансування
-- [ ] **6690.** Trust  
+- [ ] **6688.** Trust  
   → Довіра
-- [ ] **6691.** Accessibility  
+- [ ] **6689.** Accessibility  
   → Доступність
-- [ ] **6692.** The state examination  
+- [ ] **6690.** The state examination  
   → Державний іспит
-- [ ] **6693.** Language  
+- [ ] **6691.** Language  
   → Мова
-- [ ] **6694.** January _(context: date)_  
+- [ ] **6692.** January _(context: date)_  
   → січня
-- [ ] **6695.** February _(context: date)_  
+- [ ] **6693.** February _(context: date)_  
   → лютого
-- [ ] **6696.** March _(context: date)_  
+- [ ] **6694.** March _(context: date)_  
   → березня
-- [ ] **6697.** April _(context: date)_  
+- [ ] **6695.** April _(context: date)_  
   → квітня
-- [ ] **6698.** May _(context: date)_  
+- [ ] **6696.** May _(context: date)_  
   → травня
-- [ ] **6699.** June _(context: date)_  
+- [ ] **6697.** June _(context: date)_  
   → червня
-- [ ] **6700.** July _(context: date)_  
+- [ ] **6698.** July _(context: date)_  
   → липня
-- [ ] **6701.** August _(context: date)_  
+- [ ] **6699.** August _(context: date)_  
   → серпня
-- [ ] **6702.** September _(context: date)_  
+- [ ] **6700.** September _(context: date)_  
   → вересня
-- [ ] **6703.** October _(context: date)_  
+- [ ] **6701.** October _(context: date)_  
   → жовтня
-- [ ] **6704.** November _(context: date)_  
+- [ ] **6702.** November _(context: date)_  
   → листопада
-- [ ] **6705.** December _(context: date)_  
+- [ ] **6703.** December _(context: date)_  
   → грудня
-- [ ] **6706.** registry code {code}  
+- [ ] **6704.** registry code {code}  
   → реєстраційний код {code}
-- [ ] **6707.** VAT number {vat}  
+- [ ] **6705.** VAT number {vat}  
   → номер платника ПДВ {vat}
-- [ ] **6708.** Kodukeel is an app for learning Estonian. This page tells you exactly what it keeps about you, why it’s allowed to, who else gets to see it, and how to make it go away.  
+- [ ] **6706.** Kodukeel is an app for learning Estonian. This page tells you exactly what it keeps about you, why it’s allowed to, who else gets to see it, and how to make it go away.  
   → Kodukeel допомагає вчити естонську мову. На цій сторінці точно сказано, що застосунок про вас зберігає, на якій підставі, хто ще це бачить і як усе це видалити.
-- [ ] **6709.** Who holds this  
+- [ ] **6707.** Who holds this  
   → Хто відповідає за дані
-- [ ] **6710.** The controller of your data, meaning the one who answers for it, is \*\*{name}\*\*{registry}{vat}, at {address}. Write to {email} about anything on this page, including any of the requests below.  
-  → Контролер ваших даних, тобто той, хто за них відповідає: \*\*{name}\*\*{registry}{vat}, адреса: {address}. З будь-якого питання з цієї сторінки, зокрема з будь-яким із запитів нижче, пишіть на {email}.
-- [ ] **6711.** There’s no data protection officer. This is a small installation, and the law only requires one of a public body or of a business built on monitoring people at scale, which this isn’t. The address above reaches a real person.  
+- [ ] **6708.** The controller of your data, meaning the one who answers for it, is \*\*{name}\*\*{registry}{vat}, at {address}. Write to {email} about anything on this page, including any of the requests below.  
+  → Контролер (володілець) ваших даних, тобто той, хто за них відповідає: \*\*{name}\*\*{registry}{vat}, адреса: {address}. З будь-якого питання з цієї сторінки, зокрема з будь-яким із запитів нижче, пишіть на {email}.
+- [ ] **6709.** There’s no data protection officer. This is a small installation, and the law only requires one of a public body or of a business built on monitoring people at scale, which this isn’t. The address above reaches a real person.  
   → Інспектора із захисту даних немає. Це невелика інсталяція, а закон вимагає його лише від державного органу або від бізнесу, побудованого на масштабному стеженні за людьми, і це не той випадок. Лист на адресу вище читає жива людина.
-- [ ] **6712.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install, not a service with one address, so whoever runs this copy, a person or a school, is the one who answers for your data. They’re supposed to be named here and aren’t, which you can complain about to the authority named further down. Ask whoever gave you the link. If you’re running this yourself, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\` and this paragraph will show your details instead.  
+- [ ] **6710.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install, not a service with one address, so whoever runs this copy, a person or a school, is the one who answers for your data. They’re supposed to be named here and aren’t, which you can complain about to the authority named further down. Ask whoever gave you the link. If you’re running this yourself, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\` and this paragraph will show your details instead.  
   → \*\*Той, хто керує цією інсталяцією, не вказав свого імені.\*\* Kodukeel може встановити будь-хто, це програма, а не сервіс з однією адресою, тож за ваші дані відповідає той, хто керує цією копією: людина або школа. Його ім'я має стояти тут, але його немає, і на це можна поскаржитися до наглядового органу, вказаного нижче. Запитайте того, хто дав вам посилання. Якщо ви запустили застосунок самі, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`, і замість цього абзацу тут з'являться ваші дані.
-- [ ] **6713.** What we keep, and why we’re allowed to  
+- [ ] **6711.** What we keep, and why we’re allowed to  
   → Що ми зберігаємо і на якій підставі
-- [ ] **6714.** \*\*Your identity.\*\* Signing in with Google gives us your email address and a user id, held by Supabase Auth. We never see your Google password, and we don’t ask for anything else in your Google account. Without this we couldn’t show you your own deck instead of somebody else’s, so we keep it to provide the service you asked for.  
+- [ ] **6712.** \*\*Your identity.\*\* Signing in with Google gives us your email address and a user id, held by Supabase Auth. We never see your Google password, and we don’t ask for anything else in your Google account. Without this we couldn’t show you your own deck instead of somebody else’s, so we keep it to provide the service you asked for.  
   → \*\*Хто ви.\*\* Вхід через Google дає нам вашу адресу електронної пошти та ідентифікатор користувача, які зберігаються в Supabase Auth. Вашого пароля від Google ми не бачимо ніколи і більше нічого з вашого облікового запису Google не запитуємо. Без цього ми не змогли б показати вам вашу колоду, а не чужу, тож зберігаємо це, щоб надавати послугу, про яку ви попросили.
-- [ ] **6715.** \*\*Your learning.\*\* The cards in your deck, every review you have ever done (the grade, the moment, and how long you took), your tasks, your starred words, the words you have put aside as too complicated, your badges and your settings. The review log is what makes the scheduling work. It’s the app’s memory of how well you know each word, and an app that forgot it wouldn’t be the app you signed up for.  
+- [ ] **6713.** \*\*Your learning.\*\* The cards in your deck, every review you have ever done (the grade, the moment, and how long you took), your tasks, your starred words, the words you have put aside as too complicated, your badges and your settings. The review log is what makes the scheduling work. It’s the app’s memory of how well you know each word, and an app that forgot it wouldn’t be the app you signed up for.  
   → \*\*Ваше навчання.\*\* Картки у вашій колоді, кожне повторення, яке ви будь-коли робили (оцінка, момент і скільки часу воно забрало), ваші завдання, слова, позначені зірочкою, слова, відкладені як надто складні, ваші значки та налаштування. На журналі повторень тримається весь розклад. Це пам'ять застосунку про те, наскільки добре ви знаєте кожне слово, і застосунок, який би її забув, був би вже не тим, у якому ви зареєструвалися.
-- [ ] **6716.** \*\*What we have sent you.\*\* If this installation sends email, we keep a line for each message: which kind it was and when it went, so that the next one is not a repeat and so that there is a cap on how often you hear from us. We do \*\*not\*\* keep the message itself, and there is no tracking pixel in any of them, so nothing anywhere records whether you opened one. Every message carries a link that switches its kind off without signing in, and Settings has the same switches. The messages you cannot switch off are the ones you asked for, like a sign-in link.  
+- [ ] **6714.** \*\*What we have sent you.\*\* If this installation sends email, we keep a line for each message: which kind it was and when it went, so that the next one is not a repeat and so that there is a cap on how often you hear from us. We do \*\*not\*\* keep the message itself, and there is no tracking pixel in any of them, so nothing anywhere records whether you opened one. Every message carries a link that switches its kind off without signing in, and Settings has the same switches. The messages you cannot switch off are the ones you asked for, like a sign-in link.  
   → \*\*Що ми вам надіслали.\*\* Якщо ця інсталяція надсилає листи, ми зберігаємо по рядку на кожен: якого він був виду і коли пішов, щоб наступний не повторював його і щоб було обмеження на те, як часто ви щось від нас отримуєте. Самого листа ми \*\*не\*\* зберігаємо, і в жодному немає пікселя відстеження, тож ніде не записується, чи ви його відкрили. У кожному листі є посилання, яке вимикає листи цього виду без входу в обліковий запис, і ті самі перемикачі є в налаштуваннях. Вимкнути не можна лише листи, які ви попросили самі, наприклад посилання для входу.
-- [ ] **6717.** \*\*And one of them is about other people.\*\* Whoever runs a class or a workplace group can be sent a weekly note about it. That note carries how many people practised and how many answers they gave between them, and never a name, a figure about one person, or anybody’s mistakes. Those are on the board inside the app, where everyone who joined was told they would be. It is switched off from the group’s own page.  
+- [ ] **6715.** \*\*And one of them is about other people.\*\* Whoever runs a class or a workplace group can be sent a weekly note about it. That note carries how many people practised and how many answers they gave between them, and never a name, a figure about one person, or anybody’s mistakes. Those are on the board inside the app, where everyone who joined was told they would be. It is switched off from the group’s own page.  
   → \*\*І один із них стосується інших людей.\*\* Той, хто веде групу або робочу групу, може отримувати про неї щотижневу записку. У ній сказано, скільки людей займалося і скільки відповідей вони дали разом, але ніколи немає імені, цифри про одну людину чи чиїхось помилок. Усе це є на дошці всередині застосунку, і кожного, хто вступав до групи, про це попередили. Вимикається записка на сторінці самої групи.
-- [ ] **6718.** \*\*Your level checks.\*\* Each sitting is kept: the levels it measured, how many questions it came from, and the rating you gave your own speaking. Nothing you record is uploaded, and no audio is stored anywhere.  
-  → \*\*Ваші перевірки рівня.\*\* Кожна спроба зберігається: які рівні вона показала, зі скількох запитань, і як ви самі оцінили своє мовлення. Нічого з того, що ви записуєте, не завантажується, і аудіо ніде не зберігається.
-- [ ] **6719.** \*\*Your mock exams.\*\* A sat paper is kept whole: the level, your score, and the marked paper itself, question by question, with what was expected and what you gave. That includes \*\*the composition you wrote\*\*, kept in your own words, because a piece of writing is only worth going back to if it is the piece you actually wrote. It is the longest thing you write anywhere in this app, which is why it has a line of its own here. A paper you abandon is never saved to your account. You mark the spoken part yourself, and nothing you record leaves your device.  
+- [ ] **6716.** \*\*Your level checks.\*\* Each sitting is kept: the levels it measured, how many questions it came from, and the rating you gave your own speaking. Nothing you record is uploaded, and no audio is stored anywhere.  
+  → \*\*Ваші перевірки рівня.\*\* Кожна спроба зберігається: які рівні вона показала, зі скількох запитань, і як ви самі оцінили своє говоріння. Нічого з того, що ви записуєте, не завантажується, і аудіо ніде не зберігається.
+- [ ] **6717.** \*\*Your mock exams.\*\* A sat paper is kept whole: the level, your score, and the marked paper itself, question by question, with what was expected and what you gave. That includes \*\*the composition you wrote\*\*, kept in your own words, because a piece of writing is only worth going back to if it is the piece you actually wrote. It is the longest thing you write anywhere in this app, which is why it has a line of its own here. A paper you abandon is never saved to your account. You mark the spoken part yourself, and nothing you record leaves your device.  
   → \*\*Ваші пробні іспити.\*\* Складений варіант зберігається цілком: рівень, ваш результат і сама перевірена робота, запитання за запитанням, з тим, що очікувалося, і тим, що відповіли ви. Сюди входить і \*\*ваш твір\*\*, збережений вашими словами, бо до тексту варто повертатися, лише якщо це саме той текст, який ви написали. Це найдовше, що ви пишете в цьому застосунку, тому про нього тут окремий рядок. Покинутий варіант до вашого облікового запису не зберігається ніколи. Усну частину ви оцінюєте самі, і нічого із записаного не залишає ваш пристрій.
-- [ ] **6720.** \*\*Your conversations in Situations.\*\* Each one you finish is kept whole: who was behind the desk, what was on the role card, what went wrong on purpose, every turn, and where each of the other side's lines came from. \*\*Nothing in a transcript is about you.\*\* You play a patient, a tenant, a customer, with a card of invented facts and a document number that is fiction, and you are never asked for your own. The words a conversation needed and you did not have are kept as a list, so they can be handed back. A conversation you walk out of is kept as one you walked out of; one you abandon by closing the tab is kept on your device only, and goes nowhere until you finish it.  
+- [ ] **6718.** \*\*Your conversations in Situations.\*\* Each one you finish is kept whole: who was behind the desk, what was on the role card, what went wrong on purpose, every turn, and where each of the other side's lines came from. \*\*Nothing in a transcript is about you.\*\* You play a patient, a tenant, a customer, with a card of invented facts and a document number that is fiction, and you are never asked for your own. The words a conversation needed and you did not have are kept as a list, so they can be handed back. A conversation you walk out of is kept as one you walked out of; one you abandon by closing the tab is kept on your device only, and goes nowhere until you finish it.  
   → \*\*Ваші розмови в «Ситуаціях».\*\* Кожна закінчена розмова зберігається цілком: хто був по той бік стійки, що було в картці ролі, що пішло не так навмисно, кожна репліка і звідки взялася кожна репліка співрозмовника. \*\*Ніщо в записі розмови не стосується вас особисто.\*\* Ви граєте пацієнта, мешканця, покупця за карткою з вигаданими фактами й вигаданим номером документа, і вашого власного у вас ніколи не питають. Слова, які знадобилися в розмові і яких у вас не було, зберігаються списком, щоб їх можна було вам повернути. Розмова, з якої ви пішли, зберігається як розмова, з якої ви пішли; розмова, покинута закриттям вкладки, лишається тільки на вашому пристрої й нікуди не йде, доки ви її не закінчите.
-- [ ] **6721.** \*\*What you said happened out there.\*\* Today asks each morning whether you spoke any Estonian to somebody yesterday. Where the answer is no, that is the whole of it; where it is yes, it asks how it went, in one of three words: they understood me, I got stuck partway, they switched to English. That word and the day are kept, and nothing else: not where you were, not who you spoke to, not what was said. The errand it offers on a day with none is not stored at all.  
-  → \*\*Що, за вашими словами, було в житті.\*\* Щоранку екран «Сьогодні» питає, чи говорили ви вчора з кимось естонською. Якщо ні, на цьому все; якщо так, він питає, як усе пройшло, одним із трьох варіантів: мене зрозуміли, я застряг на півдорозі, зі мною перейшли на англійську. Зберігаються ця відповідь і день, і більше нічого: ні де ви були, ні з ким говорили, ні що було сказано. Завдання, яке він пропонує в день без розмов, не зберігається зовсім.
-- [ ] **6722.** \*\*Your class, if you are in one.\*\* Joining with a code stores which class you joined, when, and the name you chose to be known by in it, which is the one place you can be under a name of your own choosing rather than your account. If you run a class, its name and its join code are stored against you. What a teacher sees of a pupil is only ever effort, never contents: reviews this week, a streak, words known, when they were last here, which grammar the class as a whole is weakest at, and which grammar that pupil personally is weakest at, as a percentage rolled up over their own reviews. Never a deck, a search or a specific answer. Leaving a class removes your membership of it, and deleting your account removes every class you are in and every class you run.  
-  → \*\*Ваша група, якщо ви в ній.\*\* Під час вступу за кодом зберігається, до якої групи ви вступили, коли і під яким ім'ям ви вирішили в ній бути; це єдине місце, де ви можете бути під ім'ям на свій вибір, а не під ім'ям облікового запису. Якщо ви ведете групу, її назва і код для вступу зберігаються за вами. Учитель бачить в учня лише зусилля, ніколи не вміст: повторення за тиждень, серію днів, відомі слова, коли учень заходив востаннє, у якій граматиці найслабша група загалом і в якій особисто цей учень, у вигляді відсотка, зведеного за його власними повтореннями. Ніколи не колоду, не пошук і не конкретну відповідь. Вихід із групи видаляє ваше членство в ній, а видалення облікового запису видаляє всі групи, у яких ви є, і всі, які ви ведете.
-- [ ] **6723.** \*\*Your workplace group, if an employer sponsors you.\*\* A group set up by an employer is the same membership row, and it shows them less than a teacher sees rather than more. They get your name, whether you have been reviewing and when you last did, and one of four bands for the examination the group works toward. Not a percentage, not which grammar you personally find hard, and never a deck, a search or an answer. The band is withheld entirely until there is enough history behind it to mean something. Leaving stops all of it at once and takes nothing from your own deck.  
+- [ ] **6719.** \*\*What you said happened out there.\*\* Today asks each morning whether you spoke any Estonian to somebody yesterday. Where the answer is no, that is the whole of it; where it is yes, it asks how it went, in one of three words: they understood me, I got stuck partway, they switched to English. That word and the day are kept, and nothing else: not where you were, not who you spoke to, not what was said. The errand it offers on a day with none is not stored at all.  
+  → \*\*Що, за вашими словами, було в житті.\*\* Щоранку екран «Сьогодні» питає, чи говорили ви вчора з кимось естонською. Якщо ні, на цьому все; якщо так, він питає, як усе пройшло, одним із трьох варіантів: мене зрозуміли, мені забракло слів на півдорозі, зі мною перейшли на англійську. Зберігаються ця відповідь і день, і більше нічого: ні де ви були, ні з ким говорили, ні що було сказано. Завдання, яке він пропонує в день без розмов, не зберігається зовсім.
+- [ ] **6720.** \*\*Your class, if you are in one.\*\* Joining with a code stores which class you joined, when, and the name you chose to be known by in it, which is the one place you can be under a name of your own choosing rather than your account. If you run a class, its name and its join code are stored against you. What a teacher sees of a pupil is only ever effort, never contents: reviews this week, a streak, words known, when they were last here, which grammar the class as a whole is weakest at, and which grammar that pupil personally is weakest at, as a percentage rolled up over their own reviews. Never a deck, a search or a specific answer. Leaving a class removes your membership of it, and deleting your account removes every class you are in and every class you run.  
+  → \*\*Ваша група, якщо ви в ній.\*\* Під час вступу за кодом зберігається, до якої групи ви вступили, коли і під яким ім'ям ви вирішили в ній бути; це єдине місце, де ви можете бути під ім'ям на свій вибір, а не під ім'ям облікового запису. Якщо ви ведете групу, її назва і код для вступу зберігаються за вами. Учитель бачить в учня лише зусилля, ніколи не вміст: повторення за тиждень, серію днів, засвоєні слова, коли учень заходив востаннє, у якій граматиці найслабша група загалом і в якій особисто цей учень, у вигляді відсотка, зведеного за його власними повтореннями. Ніколи не колоду, не пошук і не конкретну відповідь. Вихід із групи видаляє ваше членство в ній, а видалення облікового запису видаляє всі групи, у яких ви є, і всі, які ви ведете.
+- [ ] **6721.** \*\*Your workplace group, if an employer sponsors you.\*\* A group set up by an employer is the same membership row, and it shows them less than a teacher sees rather than more. They get your name, whether you have been reviewing and when you last did, and one of four bands for the examination the group works toward. Not a percentage, not which grammar you personally find hard, and never a deck, a search or an answer. The band is withheld entirely until there is enough history behind it to mean something. Leaving stops all of it at once and takes nothing from your own deck.  
   → \*\*Ваша робоча група, якщо вас спонсорує роботодавець.\*\* Група, створена роботодавцем, зберігається тим самим рядком членства і показує йому менше, ніж бачить учитель, а не більше. Він бачить ваше ім'я, чи ви повторювали і коли востаннє, та один із чотирьох ступенів готовності до іспиту, до якого йде група. Не відсоток, не те, яка граматика складна особисто вам, і ніколи не колоду, не пошук і не відповідь. Ступінь не показується зовсім, доки за ним немає достатньої історії, щоб він щось означав. Вихід із групи одразу припиняє все це й нічого не забирає з вашої колоди.
-- [ ] **6724.** \*\*Your conversations with Anu.\*\* Messages you send the tutor and its replies are kept for a day, so the conversation survives a page reload, and no longer: the next time you speak to her, anything older than 24 hours is deleted and she starts fresh.  
+- [ ] **6722.** \*\*Your conversations with Anu.\*\* Messages you send the tutor and its replies are kept for a day, so the conversation survives a page reload, and no longer: the next time you speak to her, anything older than 24 hours is deleted and she starts fresh.  
   → \*\*Ваші розмови з Ану.\*\* Повідомлення, які ви надсилаєте Ану, та її відповіді зберігаються добу, щоб розмова пережила перезавантаження сторінки, і не довше: наступного разу, коли ви до неї звернетеся, усе старше за 24 години видаляється, і вона починає з чистого аркуша.
-- [ ] **6725.** \*\*Pages you photograph.\*\* When you scan a page, what is kept is the word list you confirmed: the Estonian, the English, and which dictionary entry each word matched. \*\*The photograph itself is never stored.\*\* It is read once, on the way through, and dropped. It is not written to a database, not put in file storage, and not written to a log. A picture of your homework has your name at the top of it.  
+- [ ] **6723.** \*\*Pages you photograph.\*\* When you scan a page, what is kept is the word list you confirmed: the Estonian, the English, and which dictionary entry each word matched. \*\*The photograph itself is never stored.\*\* It is read once, on the way through, and dropped. It is not written to a database, not put in file storage, and not written to a log. A picture of your homework has your name at the top of it.  
   → \*\*Сторінки, які ви фотографуєте.\*\* Коли ви скануєте сторінку, зберігається підтверджений вами список слів: естонське слово, англійське і з якою словниковою статтею збіглося кожне. \*\*Сама фотографія не зберігається ніколи.\*\* Її читають один раз, дорогою, і викидають. Вона не записується ні в базу даних, ні у файлове сховище, ні в журнал. На фотографії вашого домашнього завдання вгорі стоїть ваше ім'я.
-- [ ] **6726.** \*\*What the tutor cost.\*\* For every request to the AI, we keep a record: which model answered, roughly how much text went in and out, and what it is estimated to have cost. The tutor runs on somebody’s paid key and anyone can sign up, so a daily allowance per person is the only thing standing between an open door and an endless bill. We keep this because there’s a legitimate interest in a free service surviving the week, and there’s no way to run that cap without counting.  
+- [ ] **6724.** \*\*What the tutor cost.\*\* For every request to the AI, we keep a record: which model answered, roughly how much text went in and out, and what it is estimated to have cost. The tutor runs on somebody’s paid key and anyone can sign up, so a daily allowance per person is the only thing standing between an open door and an endless bill. We keep this because there’s a legitimate interest in a free service surviving the week, and there’s no way to run that cap without counting.  
   → \*\*Скільки коштував репетитор.\*\* Про кожен запит до ШІ ми зберігаємо запис: яка модель відповіла, приблизно скільки тексту пішло туди й назад і скільки це, за оцінкою, коштувало. Репетитор працює на чиємусь платному ключі, а зареєструватися може будь-хто, тож денний ліміт на людину лишається єдиним, що стоїть між відчиненими дверима й нескінченним рахунком. Ми зберігаємо це, бо є законний інтерес у тому, щоб безплатний сервіс дожив до кінця тижня, а дотримуватися ліміту, нічого не рахуючи, неможливо.
-- [ ] **6727.** \*\*What you report as wrong.\*\* Anywhere the app cannot help you there is a button to tell us so. What you send is kept: what kind of problem it was, the screen you were on, what the app had just said to you, the correction you proposed and anything you wrote. Whoever runs this installation reads it, so treat that box as something another person will see, and please don’t put anything private in it. It is kept because a shared dictionary that nobody can correct goes wrong quietly, and because you asked us to look at it. Your own reports and what happened to each are on the \*\*Suggestions\*\* page, they are in the export, and they are deleted with your account.  
+- [ ] **6725.** \*\*What you report as wrong.\*\* Anywhere the app cannot help you there is a button to tell us so. What you send is kept: what kind of problem it was, the screen you were on, what the app had just said to you, the correction you proposed and anything you wrote. Whoever runs this installation reads it, so treat that box as something another person will see, and please don’t put anything private in it. It is kept because a shared dictionary that nobody can correct goes wrong quietly, and because you asked us to look at it. Your own reports and what happened to each are on the \*\*Suggestions\*\* page, they are in the export, and they are deleted with your account.  
   → \*\*Про що ви повідомляєте як про помилку.\*\* Скрізь, де застосунок не може вам допомогти, є кнопка, щоб сказати нам про це. Надіслане зберігається: що це була за проблема, на якому ви були екрані, що застосунок вам щойно сказав, яке виправлення ви запропонували і все, що ви написали. Це читає той, хто керує цією інсталяцією, тож ставтеся до цього поля як до того, що побачить інша людина, і, будь ласка, не пишіть туди нічого особистого. Це зберігається, бо спільний словник, який ніхто не може виправити, тихо псується, і бо ви самі попросили нас подивитися. Ваші повідомлення і те, що з кожним із них сталося, є на сторінці \*\*Пропозиції\*\*, вони входять до експорту й видаляються разом із вашим обліковим записом.
-- [ ] **6728.** \*\*Errors.\*\* When something breaks, we log the error message and where it happened, along with your account id, never your email. Anything that looks like a password or key is stripped out before it is written down. Same reason: an app nobody can debug is an app that stays broken.  
+- [ ] **6726.** \*\*Errors.\*\* When something breaks, we log the error message and where it happened, along with your account id, never your email. Anything that looks like a password or key is stripped out before it is written down. Same reason: an app nobody can debug is an app that stays broken.  
   → \*\*Помилки.\*\* Коли щось ламається, ми записуємо повідомлення про помилку і де вона сталася, разом з ідентифікатором вашого облікового запису, але ніколи з вашою поштою. Усе, що схоже на пароль чи ключ, вичищається до запису. Причина та сама: застосунок, який ніхто не може налагодити, так і лишається зламаним.
-- [ ] **6729.** \*\*What is not stored.\*\* No analytics, no advertising identifiers, no third-party trackers, no profiling, and no cookie that is not needed to keep you signed in.  
+- [ ] **6727.** \*\*What is not stored.\*\* No analytics, no advertising identifiers, no third-party trackers, no profiling, and no cookie that is not needed to keep you signed in.  
   → \*\*Що не зберігається.\*\* Жодної аналітики, жодних рекламних ідентифікаторів, жодних сторонніх трекерів, жодного профілювання і жодного файлу cookie, крім того, що потрібен, щоб ви лишалися в обліковому записі.
-- [ ] **6730.** \*\*How we tell whether the app works.\*\* We count, from the review log described above, how many people come back after a day, a week and a month. It is worked out from what is already there rather than collected separately, which is why there is still no tracker on this site. Only totals ever leave that page: no name, no address, no word you looked up. A group of fewer than five people is reported as a size with no percentage, because “one of two people came back” is a fact about a person rather than a statistic.  
+- [ ] **6728.** \*\*How we tell whether the app works.\*\* We count, from the review log described above, how many people come back after a day, a week and a month. It is worked out from what is already there rather than collected separately, which is why there is still no tracker on this site. Only totals ever leave that page: no name, no address, no word you looked up. A group of fewer than five people is reported as a size with no percentage, because “one of two people came back” is a fact about a person rather than a statistic.  
   → \*\*Як ми розуміємо, чи працює застосунок.\*\* За журналом повторень, описаним вище, ми рахуємо, скільки людей повертається через день, тиждень і місяць. Це обчислюється з того, що вже є, а не збирається окремо, тому на сайті досі немає трекера. З тієї сторінки йдуть лише підсумки: ні імені, ні адреси, ні слова, яке ви шукали. Група менше ніж з п'яти людей показується лише розміром, без відсотка, бо «повернувся один із двох» говорить про людину, а не про статистику.
-- [ ] **6731.** \*\*What learners of Estonian get wrong, counted.\*\* From the same review log, this installation can produce a table of how often each grammatical case, each stem change and each word is answered correctly, added up across everybody. It is worked out from what is already here, so nothing extra is collected and no new question is put to you. That table can be sent to people who teach Estonian or study how it is learned, because where a lot of learners go wrong is not something a textbook or a single classroom can measure and this can.  
+- [ ] **6729.** \*\*What learners of Estonian get wrong, counted.\*\* From the same review log, this installation can produce a table of how often each grammatical case, each stem change and each word is answered correctly, added up across everybody. It is worked out from what is already here, so nothing extra is collected and no new question is put to you. That table can be sent to people who teach Estonian or study how it is learned, because where a lot of learners go wrong is not something a textbook or a single classroom can measure and this can.  
   → \*\*У чому помиляються ті, хто вивчає естонську, у цифрах.\*\* За тим самим журналом повторень ця інсталяція може скласти таблицю: як часто правильно відповідають на кожен відмінок, кожну зміну основи й кожне слово, у сумі за всіма. Вона обчислюється з того, що вже є, тож нічого додатково не збирається і жодних нових запитань вам не ставлять. Цю таблицю можна надіслати тим, хто викладає естонську або вивчає, як її опановують, бо де помиляються багато учнів, не виміряє ні підручник, ні окремий клас, а це може.
-- [ ] **6732.** What it holds is counts, and the rules it is built under are the point of it. Nothing is published that fewer than ten different people are behind, or that rests on fewer than fifty answers, and nothing where one person supplied more than half of a figure, because ten people is not ten people when one of them is most of the data. Anything below that is missing from the table rather than shown as a small number. Counts are rounded and people are counted in bands, so two versions of the table cannot be compared to work out what happened in between. There is no user id in it, no email, no date anybody studied, no word anybody searched for and no individual answer. By the time the table exists it is not about you and could not be turned back into anything about you, which is the whole reason it is safe to send.  
+- [ ] **6730.** What it holds is counts, and the rules it is built under are the point of it. Nothing is published that fewer than ten different people are behind, or that rests on fewer than fifty answers, and nothing where one person supplied more than half of a figure, because ten people is not ten people when one of them is most of the data. Anything below that is missing from the table rather than shown as a small number. Counts are rounded and people are counted in bands, so two versions of the table cannot be compared to work out what happened in between. There is no user id in it, no email, no date anybody studied, no word anybody searched for and no individual answer. By the time the table exists it is not about you and could not be turned back into anything about you, which is the whole reason it is safe to send.  
   → У ній лише підрахунки, і вся суть у правилах, за якими вона будується. Не публікується нічого, за чим стоїть менше ніж десять різних людей або менше ніж п'ятдесят відповідей, і нічого, де понад половину цифри дала одна людина, бо десять людей перестають бути десятьма, якщо одна з них дала більшу частину даних. Усе, що нижче цього порогу, у таблиці просто відсутнє, а не показується малим числом. Підрахунки округлюються, а людей рахують діапазонами, тож дві версії таблиці не можна порівняти, щоб обчислити, що сталося між ними. У ній немає ні ідентифікатора користувача, ні пошти, ні дат, коли хтось займався, ні слів, які хтось шукав, ні окремих відповідей. На той момент, коли таблиця готова, вона вже не про вас, і її неможливо перетворити назад на будь-що про вас; саме тому її безпечно надсилати.
-- [ ] **6733.** You can still say no. {setting} leaves your answers out of it, and out means your rows are skipped when the totals are worked out rather than removed from the answer afterwards. Nothing else about the app changes.  
+- [ ] **6731.** You can still say no. {setting} leaves your answers out of it, and out means your rows are skipped when the totals are worked out rather than removed from the answer afterwards. Nothing else about the app changes.  
   → Ви все одно можете відмовитися. {setting} виключає з неї ваші відповіді, і «виключає» означає, що ваші рядки пропускаються під час підрахунку підсумків, а не віднімаються з результату потім. Більше в застосунку нічого не змінюється.
-- [ ] **6734.** What is kept on your own device  
+- [ ] **6732.** What is kept on your own device  
   → Що зберігається на вашому пристрої
-- [ ] **6735.** One cookie keeps you signed in. Beyond that the app stores a few things in the browser itself: whether you chose the dark theme, whether you have already been offered the install prompt, an outbox holding any card you graded while the network was down, so that grade is not lost and is sent with the time you actually answered it, a mock exam paper you have started but not handed in, so that closing the tab three hours into a B2 paper does not throw the whole sitting away, today's word puzzle, so a reload does not lose the guesses you have made, and which card a review round was on, so opening a word's dictionary entry and coming back returns you to it.  
+- [ ] **6733.** One cookie keeps you signed in. Beyond that the app stores a few things in the browser itself: whether you chose the dark theme, whether you have already been offered the install prompt, an outbox holding any card you graded while the network was down, so that grade is not lost and is sent with the time you actually answered it, a mock exam paper you have started but not handed in, so that closing the tab three hours into a B2 paper does not throw the whole sitting away, today's word puzzle, so a reload does not lose the guesses you have made, and which card a review round was on, so opening a word's dictionary entry and coming back returns you to it.  
   → Один файл cookie дає вам змогу лишатися в обліковому записі. Крім нього застосунок зберігає в самому браузері кілька речей: чи вибрали ви темну тему; чи пропонували вам уже встановити застосунок; чергу вихідних з картками, які ви оцінили без мережі, щоб оцінка не загубилася й пішла з часом, коли ви насправді відповіли; розпочатий, але не зданий пробний іспит, щоб закрита через три години після початку B2 вкладка не перекреслила всю спробу; сьогоднішню словесну головоломку, щоб після перезавантаження не зникли ваші здогадки; і на якій картці був раунд повторення, щоб, відкривши словникову статтю слова й повернувшись, ви опинилися там само.
-- [ ] **6736.** The unfinished paper holds your answers and when each part's clock runs out. It holds no marks and no questions: the paper is rebuilt from a seed and marked on the server, so nothing kept here can change a score. It is replaced as you write and removed the moment the paper is handed in. The puzzle keeps your guesses and nothing else, and today's word is worked out from the date rather than kept beside them. The card you were on is only its id, gone the moment the round ends or the tab does, whichever comes first.  
+- [ ] **6734.** The unfinished paper holds your answers and when each part's clock runs out. It holds no marks and no questions: the paper is rebuilt from a seed and marked on the server, so nothing kept here can change a score. It is replaced as you write and removed the moment the paper is handed in. The puzzle keeps your guesses and nothing else, and today's word is worked out from the date rather than kept beside them. The card you were on is only its id, gone the moment the round ends or the tab does, whichever comes first.  
   → Незакінчена робота зберігає ваші відповіді та час, коли спливає кожна її частина. Оцінок і запитань у ній немає: варіант заново збирається з початкового числа й перевіряється на сервері, тож ніщо збережене тут не може змінити результат. Вона перезаписується в міру того, як ви пишете, і видаляється в момент здачі. Головоломка зберігає ваші здогадки й більше нічого, а сьогоднішнє слово обчислюється з дати, а не зберігається поруч із ними. Від картки, на якій ви зупинилися, зберігається лише її ідентифікатор, і він зникає, щойно закінчиться раунд або закриється вкладка, залежно від того, що станеться раніше.
-- [ ] **6737.** None of that is a tracker and none of it is shared with anybody. Estonian law requires your agreement before something is stored on your device unless it is strictly necessary for the service you asked for, and each of these is: a review app that silently drops the answers you gave on a train is broken, not private. That is why there is no cookie banner. Signing out removes the outbox, the saved session, the pages kept for offline use, any unfinished paper and any puzzle, so the next person on a shared computer starts from nothing; the theme and the install prompt stay, since they are about the device rather than about you. The browser also keeps a short code for which account last used it, so that a different account signing in clears the previous one's data even when nobody signed out. Clearing your browser storage removes all of it, and costs you nothing except any grade still waiting to be sent.  
+- [ ] **6735.** None of that is a tracker and none of it is shared with anybody. Estonian law requires your agreement before something is stored on your device unless it is strictly necessary for the service you asked for, and each of these is: a review app that silently drops the answers you gave on a train is broken, not private. That is why there is no cookie banner. Signing out removes the outbox, the saved session, the pages kept for offline use, any unfinished paper and any puzzle, so the next person on a shared computer starts from nothing; the theme and the install prompt stay, since they are about the device rather than about you. The browser also keeps a short code for which account last used it, so that a different account signing in clears the previous one's data even when nobody signed out. Clearing your browser storage removes all of it, and costs you nothing except any grade still waiting to be sent.  
   → Ніщо з цього не є трекером, і нічим із цього ми ні з ким не ділимося. Естонський закон вимагає вашої згоди, перш ніж щось зберігається на вашому пристрої, якщо тільки це не суворо необхідно для послуги, про яку ви попросили, а кожне з переліченого необхідне: застосунок для повторення, який мовчки губить відповіді, дані вами в потязі, не береже вашої приватності, а просто зламаний. Тому тут немає банера про файли cookie. Вихід з облікового запису видаляє чергу вихідних, збережене заняття, сторінки для роботи без мережі, незакінчену роботу й головоломку, тож наступна людина за спільним комп'ютером починає з нуля; тема і пропозиція встановлення лишаються, бо вони стосуються пристрою, а не вас. Браузер також зберігає короткий код того, який обліковий запис користувався ним останнім, щоб вхід іншого облікового запису стирав дані попереднього, навіть якщо ніхто не вийшов. Очищення сховища браузера видаляє все це й нічого вам не коштує, крім оцінки, яка ще чекає на відправлення.
-- [ ] **6738.** Who else sees it  
+- [ ] **6736.** Who else sees it  
   → Хто ще це бачить
-- [ ] **6739.** This installation only talks to the services below, and nobody else. Each one gets only what’s described beside it, and none of them is paid to profile you.  
+- [ ] **6737.** This installation only talks to the services below, and nobody else. Each one gets only what’s described beside it, and none of them is paid to profile you.  
   → Ця інсталяція звертається лише до сервісів нижче й більше ні до кого. Кожен отримує лише те, що описано поруч із ним, і нікому з них не платять за те, щоб складати ваш профіль.
-- [ ] **6740.** In Estonia.  
+- [ ] **6738.** In Estonia.  
   → В Естонії.
-- [ ] **6741.** Outside the European Economic Area.  
+- [ ] **6739.** Outside the European Economic Area.  
   → За межами Європейської економічної зони.
-- [ ] **6742.** Where this is hosted depends on how the installation was set up, so ask the operator above.  
+- [ ] **6740.** Where this is hosted depends on how the installation was set up, so ask the operator above.  
   → Де це розміщено, залежить від того, як налаштовано інсталяцію, тож запитайте в оператора, вказаного вище.
-- [ ] **6743.** Your deck, your review history, your tasks and your level checks are never sent to any of them. The counted table described further up is the one thing that may go to somebody not on this list, and it holds none of those: it is totals, and it is only totals that at least ten people are behind.  
+- [ ] **6741.** Your deck, your review history, your tasks and your level checks are never sent to any of them. The counted table described further up is the one thing that may go to somebody not on this list, and it holds none of those: it is totals, and it is only totals that at least ten people are behind.  
   → Ваша колода, історія повторень, завдання й перевірки рівня ніколи не надсилаються нікому з них. Таблиця підрахунків, описана вище, лишається єдиним, що може піти комусь не з цього списку, і в ній немає нічого з переліченого: це підсумки, і лише такі, за якими стоїть щонайменше десять людей.
-- [ ] **6744.** \*\*Some of that leaves the European Economic Area.\*\* The AI providers are established outside it, so what you type to Anu and any page you photograph crosses a border to be read. That transfer rests on the standard contractual clauses the provider publishes, and nothing else. It is worth knowing that protection there is not identical to protection here. It is also avoidable: the tutor and the page scanner are the only features that do it, and using neither means nothing of yours leaves.  
+- [ ] **6742.** \*\*Some of that leaves the European Economic Area.\*\* The AI providers are established outside it, so what you type to Anu and any page you photograph crosses a border to be read. That transfer rests on the standard contractual clauses the provider publishes, and nothing else. It is worth knowing that protection there is not identical to protection here. It is also avoidable: the tutor and the page scanner are the only features that do it, and using neither means nothing of yours leaves.  
   → \*\*Частина цього залишає Європейську економічну зону.\*\* Постачальники ШІ засновані за її межами, тож те, що ви пишете Ану, і будь-яка сфотографована вами сторінка перетинають кордон, щоб їх прочитали. Ця передача ґрунтується на стандартних договірних умовах, які публікує постачальник, і ні на що більше. Варто знати, що захист там не тотожний захисту тут. Цього можна й уникнути: дані передають лише репетитор і сканер сторінок, і якщо не користуватися ні тим, ні іншим, нічого вашого не йде.
-- [ ] **6745.** None of it is sold, and we never use it to train a model ourselves. What a provider does with what we send them is governed by their own terms. That is a real limit on this promise rather than a formality: some free tiers are free because the provider keeps the right to look at what goes through them.  
+- [ ] **6743.** None of it is sold, and we never use it to train a model ourselves. What a provider does with what we send them is governed by their own terms. That is a real limit on this promise rather than a formality: some free tiers are free because the provider keeps the right to look at what goes through them.  
   → Нічого з цього не продається, і ми самі ніколи не навчаємо на цьому моделей. Що постачальник робить із тим, що ми йому надсилаємо, визначають його власні умови. Це справжнє обмеження цієї обіцянки, а не формальність: деякі безплатні тарифи безплатні саме тому, що постачальник залишає за собою право переглядати те, що через них проходить.
-- [ ] **6746.** How long it is kept  
+- [ ] **6744.** How long it is kept  
   → Як довго це зберігається
-- [ ] **6747.** Your learning, your conversations and your scanned word lists are kept for as long as you keep the account, because their whole value is that they are long. The scheduling works off years of history and a level check is only useful next to the one before it.  
+- [ ] **6745.** Your learning, your conversations and your scanned word lists are kept for as long as you keep the account, because their whole value is that they are long. The scheduling works off years of history and a level check is only useful next to the one before it.  
   → Ваше навчання, розмови й відскановані списки слів зберігаються, доки у вас є обліковий запис, бо вся їхня цінність у тому, що вони довгі. Розклад будується на роках історії, а перевірка рівня корисна лише поруч із попередньою.
-- [ ] **6748.** Spending records are kept for the running year, since the caps they enforce are daily. Error logs are short-lived by nature and hold no name. There is no separate archive, and no backup that outlives a deletion by more than the hosting provider’s own retention window.  
+- [ ] **6746.** Spending records are kept for the running year, since the caps they enforce are daily. Error logs are short-lived by nature and hold no name. There is no separate archive, and no backup that outlives a deletion by more than the hosting provider’s own retention window.  
   → Записи про витрати зберігаються протягом поточного року, оскільки ліміти, які вони забезпечують, денні. Журнали помилок за своєю природою недовговічні й імен не містять. Окремого архіву немає, і немає резервної копії, яка переживала б видалення довше, ніж власний строк зберігання в хостинг-провайдера.
-- [ ] **6749.** What you can demand  
+- [ ] **6747.** What you can demand  
   → Що ви можете вимагати
-- [ ] **6750.** These are your rights under the GDPR. The two people actually use are buttons, so you don’t even have to ask.  
+- [ ] **6748.** These are your rights under the GDPR. The two people actually use are buttons, so you don’t even have to ask.  
   → Це ваші права за Загальним регламентом про захист даних (GDPR). Для двох із них, якими люди справді користуються, є кнопки, тож просити навіть не треба.
-- [ ] **6751.** \*\*A copy of everything (access, and portability).\*\* Settings has an \*\*Export\*\* button that gives you the whole thing as a JSON file: every card, review, task, setting, scanned page, level check, mock exam paper with your composition in it, tutor message, suggested fix, starred word, word put aside, badge and class membership. It is a real backup, and the same file restores into a fresh installation. One thing is held back: the spending record described above, since that is this installation’s accounting rather than your work. It is deleted with your account like everything else.  
+- [ ] **6749.** \*\*A copy of everything (access, and portability).\*\* Settings has an \*\*Export\*\* button that gives you the whole thing as a JSON file: every card, review, task, setting, scanned page, level check, mock exam paper with your composition in it, tutor message, suggested fix, starred word, word put aside, badge and class membership. It is a real backup, and the same file restores into a fresh installation. One thing is held back: the spending record described above, since that is this installation’s accounting rather than your work. It is deleted with your account like everything else.  
   → \*\*Копія всього (право доступу та право на перенесення даних).\*\* У налаштуваннях є кнопка \*\*Експорт\*\*, яка видає все одним файлом JSON: кожну картку, повторення, завдання, налаштування, відскановану сторінку, перевірку рівня, пробний іспит з вашим твором, повідомлення репетиторові, запропоноване виправлення, позначене слово, відкладене слово, значок і членство в групі. Це справжня резервна копія, і цей самий файл відновлюється в новій інсталяції. Одне не видається: запис про витрати, описаний вище, бо це облік цієї інсталяції, а не ваша робота. Він видаляється разом із вашим обліковим записом, як і все інше.
-- [ ] **6752.** \*\*Erasure.\*\* {setting} removes all of that immediately, in one go, along with your sign-in record. The shared dictionary stays, because other learners have cards built on it, but any entry you edited stops being attributed to you. Take an export first: this keeps no copy. If this installation is not set up to delete the sign-in record itself, the button says so plainly rather than pretending, and the address at the top of this page is who to ask.  
+- [ ] **6750.** \*\*Erasure.\*\* {setting} removes all of that immediately, in one go, along with your sign-in record. The shared dictionary stays, because other learners have cards built on it, but any entry you edited stops being attributed to you. Take an export first: this keeps no copy. If this installation is not set up to delete the sign-in record itself, the button says so plainly rather than pretending, and the address at the top of this page is who to ask.  
   → \*\*Право на видалення.\*\* {setting} одразу й за один раз видаляє все це разом із вашим записом для входу. Спільний словник лишається, бо на ньому побудовано картки інших учнів, але статті, які ви редагували, перестають бути підписані вашим ім'ям. Спершу зробіть експорт: копія не зберігається. Якщо ця інсталяція не налаштована видаляти запис для входу сама, кнопка прямо про це скаже, а не вдаватиме, і тоді звертайтеся за адресою на початку цієї сторінки.
-- [ ] **6753.** \*\*Correction.\*\* Anything you can see, you can change: your settings, your cards, your tasks, your goal. A dictionary entry can be corrected too, and because the dictionary is shared, that correction is attributed to you until you delete your account. Where you would rather somebody looked at it first, the same entry has a button to suggest the change instead of making it.  
+- [ ] **6751.** \*\*Correction.\*\* Anything you can see, you can change: your settings, your cards, your tasks, your goal. A dictionary entry can be corrected too, and because the dictionary is shared, that correction is attributed to you until you delete your account. Where you would rather somebody looked at it first, the same entry has a button to suggest the change instead of making it.  
   → \*\*Право на виправлення.\*\* Усе, що ви бачите, ви можете змінити: налаштування, картки, завдання, мету. Словникову статтю теж можна виправити, і оскільки словник спільний, це виправлення підписане вашим ім'ям, доки ви не видалите обліковий запис. Якщо ви хочете, щоб спершу хтось подивився, у тієї самої статті є кнопка, щоб запропонувати зміну, а не вносити її.
-- [ ] **6754.** \*\*Restriction and objection.\*\* You can ask for processing to be paused or object to it, in writing, at the address above. In practice almost everything here exists only to deliver the app to you, so the usual answer to an objection is to stop using the part you object to, and erasure is the stronger and faster version of the same thing. The one objection that is a button rather than a letter is {setting}, which takes your answers out of the counts described above.  
+- [ ] **6752.** \*\*Restriction and objection.\*\* You can ask for processing to be paused or object to it, in writing, at the address above. In practice almost everything here exists only to deliver the app to you, so the usual answer to an objection is to stop using the part you object to, and erasure is the stronger and faster version of the same thing. The one objection that is a button rather than a letter is {setting}, which takes your answers out of the counts described above.  
   → \*\*Обмеження обробки й заперечення.\*\* Ви можете письмово, за адресою вище, попросити призупинити обробку або заперечити проти неї. Насправді майже все тут існує лише для того, щоб застосунок працював для вас, тож звичайна відповідь на заперечення: перестати користуватися тією частиною, проти якої ви заперечуєте, а видалення робить те саме сильніше й швидше. Єдине заперечення, для якого є кнопка, а не лист: {setting}. Воно прибирає ваші відповіді з описаних вище підрахунків.
-- [ ] **6755.** None of this costs anything, and you don’t need to give a reason. A request made in writing gets an answer within a month.  
+- [ ] **6753.** None of this costs anything, and you don’t need to give a reason. A request made in writing gets an answer within a month.  
   → Усе це нічого не коштує, і пояснювати причину не потрібно. На письмовий запит ви отримаєте відповідь протягом місяця.
-- [ ] **6756.** Nothing here decides anything about you  
+- [ ] **6754.** Nothing here decides anything about you  
   → Тут ніщо не ухвалює рішень про вас
-- [ ] **6757.** The app estimates a CEFR level from what you answered, and predicts your chance of passing a mock exam. Neither is a decision with any legal or similar effect: they are study advice, checked directly against the dictionary rather than judged by a model, and every figure says how thin the evidence behind it is. No qualification, no admission and no result depends on them. There is no automated decision-making in the sense the law means, and no profiling.  
+- [ ] **6755.** The app estimates a CEFR level from what you answered, and predicts your chance of passing a mock exam. Neither is a decision with any legal or similar effect: they are study advice, checked directly against the dictionary rather than judged by a model, and every figure says how thin the evidence behind it is. No qualification, no admission and no result depends on them. There is no automated decision-making in the sense the law means, and no profiling.  
   → Застосунок оцінює ваш рівень за шкалою CEFR за вашими відповідями і прогнозує, наскільки ймовірно, що ви складете пробний іспит. Ні те, ні інше не є рішенням з юридичними чи подібними наслідками: це навчальна порада, перевірена безпосередньо за словником, а не оцінена моделлю, і кожна цифра каже, наскільки мізерні дані за нею. Від них не залежать ні кваліфікація, ні зарахування, ні будь-який результат. Автоматизованого ухвалення рішень у тому сенсі, у якому його розуміє закон, немає, як немає й профілювання.
-- [ ] **6758.** If you are not satisfied  
+- [ ] **6756.** If you are not satisfied  
   → Якщо вас щось не влаштовує
-- [ ] **6759.** Ask the operator first, at the address at the top of this page. If that gets you nowhere, you have the right to complain to the \*\*{authority}\*\* ({local}), which is the supervisory authority for Estonia: {address}, {phone}, {email}, {web}. If you live elsewhere in the Union you may go to your own country’s authority instead. You can also take it to court.  
+- [ ] **6757.** Ask the operator first, at the address at the top of this page. If that gets you nowhere, you have the right to complain to the \*\*{authority}\*\* ({local}), which is the supervisory authority for Estonia: {address}, {phone}, {email}, {web}. If you live elsewhere in the Union you may go to your own country’s authority instead. You can also take it to court.  
   → Спершу зверніться до оператора за адресою на початку цієї сторінки. Якщо це нічого не дасть, ви маєте право подати скаргу до \*\*{authority}\*\* ({local}), наглядового органу Естонії: {address}, {phone}, {email}, {web}. Якщо ви живете в іншій країні Європейського Союзу, можете натомість звернутися до наглядового органу своєї країни. Ви також можете звернутися до суду.
-- [ ] **6760.** Estonian Data Protection Inspectorate  
+- [ ] **6758.** Estonian Data Protection Inspectorate  
   → Інспекція із захисту даних Естонії
-- [ ] **6761.** Estonian Data Protection Inspectorate _(context: to)_  
+- [ ] **6759.** Estonian Data Protection Inspectorate _(context: to)_  
   → Інспекції із захисту даних Естонії
-- [ ] **6762.** Children  
+- [ ] **6760.** Children  
   → Діти
-- [ ] **6763.** In Estonia a person can agree to a service like this one for themselves from the age of 13, which is the age the Personal Data Protection Act sets. Below that, a parent has to agree. Kodukeel isn’t aimed at younger children and doesn’t knowingly hold their data. If you think a child under 13 has an account here without a parent’s agreement, write to the address above and it will be deleted.  
+- [ ] **6761.** In Estonia a person can agree to a service like this one for themselves from the age of 13, which is the age the Personal Data Protection Act sets. Below that, a parent has to agree. Kodukeel isn’t aimed at younger children and doesn’t knowingly hold their data. If you think a child under 13 has an account here without a parent’s agreement, write to the address above and it will be deleted.  
   → В Естонії людина може сама дати згоду на таку послугу з 13 років: цей вік встановлює естонський Закон про захист персональних даних. Якщо людина молодша, згоду має дати один із батьків. Kodukeel не розрахований на дітей молодшого віку і свідомо не зберігає їхніх даних. Якщо ви вважаєте, що в дитини віком до 13 років тут є обліковий запис без згоди батьків, напишіть за адресою вище, і його буде видалено.
-- [ ] **6764.** A school running this for a class is the controller of its pupils’ data and answers for that agreement. What a teacher can see is deliberately narrow: how much work each pupil did, which grammar the class as a whole is weakest at, and which grammar each pupil personally is weakest at as a rolled-up percentage. Never an individual’s deck, their searches or a specific answer.  
+- [ ] **6762.** A school running this for a class is the controller of its pupils’ data and answers for that agreement. What a teacher can see is deliberately narrow: how much work each pupil did, which grammar the class as a whole is weakest at, and which grammar each pupil personally is weakest at as a rolled-up percentage. Never an individual’s deck, their searches or a specific answer.  
   → Школа, яка використовує це для класу, є контролером даних своїх учнів і відповідає за цю згоду. Учитель навмисно бачить небагато: скільки попрацював кожен учень, у якій граматиці найслабший клас загалом і в якій особисто кожен учень, у вигляді зведеного відсотка. Ніколи не чиюсь колоду, пошуки чи конкретну відповідь.
-- [ ] **6765.** An employer sponsoring a workplace group is the controller of that group’s membership in the same way, and sees a narrower set again: effort, and a band for the paper the group is working toward. The difference is a different query rather than a hidden column, so there is no setting that widens it.  
+- [ ] **6763.** An employer sponsoring a workplace group is the controller of that group’s membership in the same way, and sees a narrower set again: effort, and a band for the paper the group is working toward. The difference is a different query rather than a hidden column, so there is no setting that widens it.  
   → Роботодавець, який спонсорує робочу групу, так само є контролером даних про членство в ній і бачить ще менше: зусилля та ступінь готовності до іспиту, до якого йде група. Різниця закладена в іншому запиті до бази, а не в прихованому стовпці, тож немає налаштування, яке б це розширило.
-- [ ] **6766.** Getting in touch  
+- [ ] **6764.** Getting in touch  
   → Як з нами зв'язатися
-- [ ] **6767.** Questions about your data go to the operator named at the top. See also the {terms}.  
+- [ ] **6765.** Questions about your data go to the operator named at the top. See also the {terms}.  
   → Питання про ваші дані надсилайте операторові, вказаному на початку. Див. також {terms}.
-- [ ] **6768.** terms  
+- [ ] **6766.** terms  
   → умови
-- [ ] **6769.** what you type to Anu, and any page you photograph  
+- [ ] **6767.** what you type to Anu, and any page you photograph  
   → те, що ви пишете Ану, і будь-яка сфотографована вами сторінка
-- [ ] **6770.** Ekilex, at the Institute of the Estonian Language  
+- [ ] **6768.** Ekilex, at the Institute of the Estonian Language  
   → Ekilex в Інституті естонської мови
-- [ ] **6771.** a single word you looked up, with no account attached  
+- [ ] **6769.** a single word you looked up, with no account attached  
   → одне слово, яке ви шукали, без прив'язки до облікового запису
-- [ ] **6772.** Wikimedia, which runs Wiktionary  
+- [ ] **6770.** Wikimedia, which runs Wiktionary  
   → Фонд Вікімедіа, який веде Вікісловник
-- [ ] **6773.** the same single word, asked for its English meaning, with no account attached  
+- [ ] **6771.** the same single word, asked for its English meaning, with no account attached  
   → те саме слово, із запитом його значення англійською, без прив'язки до облікового запису
-- [ ] **6774.** Resend, which sends our emails  
+- [ ] **6772.** Resend, which sends our emails  
   → Resend, який надсилає наші листи
-- [ ] **6775.** your email address, and whatever a message to you says about your own course  
+- [ ] **6773.** your email address, and whatever a message to you says about your own course  
   → ваша адреса електронної пошти і те, що в листі сказано про ваш власний курс
-- [ ] **6776.** TartuNLP, at the University of Tartu  
+- [ ] **6774.** TartuNLP, at the University of Tartu  
   → TartuNLP у Тартуському університеті
-- [ ] **6777.** a phrase you asked to hear read aloud, with no account attached  
+- [ ] **6775.** a phrase you asked to hear read aloud, with no account attached  
   → фраза, яку ви попросили прочитати вголос, без прив'язки до облікового запису
-- [ ] **6778.** The error reporting endpoint at {host}  
+- [ ] **6776.** The error reporting endpoint at {host}  
   → Адреса прийому звітів про помилки на {host}
-- [ ] **6779.** a description of anything that breaks, with your user id and never your email  
+- [ ] **6777.** a description of anything that breaks, with your user id and never your email  
   → опис усього, що ламається, з вашим ідентифікатором користувача й ніколи з вашою поштою
-- [ ] **6780.** your email address and everything in the database, as the host of both  
+- [ ] **6778.** your email address and everything in the database, as the host of both  
   → ваша адреса електронної пошти і весь вміст бази даних, оскільки і те, й інше розміщено в нього
-- [ ] **6781.** Vercel, which runs the servers this app lives on  
+- [ ] **6779.** Vercel, which runs the servers this app lives on  
   → Vercel, де працюють сервери цього застосунку
-- [ ] **6782.** every request you make, while it's being answered, and a log of it that includes your IP address  
+- [ ] **6780.** every request you make, while it's being answered, and a log of it that includes your IP address  
   → кожен ваш запит, поки на нього відповідають, і журнал запитів, у якому є ваша IP-адреса
-- [ ] **6783.** Kodukeel is an app for studying Estonian. These terms are short because the deal is simple: use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.  
+- [ ] **6781.** Kodukeel is an app for studying Estonian. These terms are short because the deal is simple: use it to learn Estonian, don’t abuse the shared services behind it, and know what it can and can’t promise you.  
   → Kodukeel допомагає вчити естонську мову. Ці умови короткі, бо домовленість проста: користуйтеся ним, щоб учити естонську, не зловживайте спільними сервісами, на яких працює застосунок, і знайте, що він може і чого не може вам обіцяти.
-- [ ] **6784.** Who provides it  
+- [ ] **6782.** Who provides it  
   → Хто його надає
-- [ ] **6785.** This installation of Kodukeel is provided by \*\*{name}\*\*{registry}{vat}, at {address}. Reach them directly at {email}. Estonian law asks a provider of an online service for exactly that: a name, a place, and a way to get hold of them quickly without going through a form.  
+- [ ] **6783.** This installation of Kodukeel is provided by \*\*{name}\*\*{registry}{vat}, at {address}. Reach them directly at {email}. Estonian law asks a provider of an online service for exactly that: a name, a place, and a way to get hold of them quickly without going through a form.  
   → Цю інсталяцію Kodukeel надає \*\*{name}\*\*{registry}{vat}, адреса: {address}. Зв'язатися напряму: {email}. Естонський закон вимагає від постачальника онлайн-послуги саме цього: ім'я, адреса і спосіб швидко з ним зв'язатися, оминаючи форми.
-- [ ] **6786.** \*\*Whoever runs this installation has not filled their name in\*\*, and they’re supposed to. Kodukeel is software anyone can install, so the provider of the service you’re using is whoever runs this copy, a person or a school, not the people who wrote it. Ask whoever gave you the link. If that’s you, setting \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\` puts your details here and on the {privacy}.  
+- [ ] **6784.** \*\*Whoever runs this installation has not filled their name in\*\*, and they’re supposed to. Kodukeel is software anyone can install, so the provider of the service you’re using is whoever runs this copy, a person or a school, not the people who wrote it. Ask whoever gave you the link. If that’s you, setting \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\` puts your details here and on the {privacy}.  
   → \*\*Той, хто керує цією інсталяцією, не вказав свого імені\*\*, хоча мав би. Kodukeel може встановити будь-хто, тож постачальником послуги, якою ви користуєтеся, є той, хто керує цією копією, людина або школа, а не ті, хто її написав. Запитайте того, хто дав вам посилання. Якщо це ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`, і ваші дані з'являться тут і на {privacy}.
-- [ ] **6787.** It’s free and there’s nothing to buy, so the usual consumer purchase rules don’t apply: there’s no right of withdrawal and no payment terms. If an installation ever starts charging, that’s a different arrangement, and these terms don’t cover it. What it costs somebody to run, and who that is, is set out on the {funding}.  
+- [ ] **6785.** It’s free and there’s nothing to buy, so the usual consumer purchase rules don’t apply: there’s no right of withdrawal and no payment terms. If an installation ever starts charging, that’s a different arrangement, and these terms don’t cover it. What it costs somebody to run, and who that is, is set out on the {funding}.  
   → Застосунок безплатний, і купувати тут нічого, тож звичайні правила щодо споживчих покупок не застосовуються: немає ні права на відмову від договору, ні умов оплати. Якщо якась інсталяція колись почне брати гроші, це буде інша домовленість, і ці умови на неї не поширюються. Скільки коштує комусь утримувати застосунок і хто ця людина, описано на {funding}.
-- [ ] **6788.** funding page  
+- [ ] **6786.** funding page  
   → сторінці про фінансування
-- [ ] **6789.** What it promises  
+- [ ] **6787.** What it promises  
   → Що він обіцяє
-- [ ] **6790.** Every Estonian word form here comes from Ekilex, the dictionary database run by the Institute of the Estonian Language. None of it is made up by AI. Where a form has been worked out by a fixed rule from one the dictionary stores, the screen says so.  
+- [ ] **6788.** Every Estonian word form here comes from Ekilex, the dictionary database run by the Institute of the Estonian Language. None of it is made up by AI. Where a form has been worked out by a fixed rule from one the dictionary stores, the screen says so.  
   → Кожна форма естонського слова тут узята з Ekilex, словникової бази Інституту естонської мови. Нічого з цього не вигадано ШІ. Якщо форму виведено за твердим правилом із тієї, що зберігається в словнику, екран про це каже.
-- [ ] **6791.** \*\*Anu is a machine, and says so on every screen she speaks from.\*\* You are talking to a language model, not a teacher, and the app has to make that impossible to miss, not just true somewhere in the small print. Which model answered is printed under each reply, because a screen naming the wrong one would be worse than naming none.  
+- [ ] **6789.** \*\*Anu is a machine, and says so on every screen she speaks from.\*\* You are talking to a language model, not a teacher, and the app has to make that impossible to miss, not just true somewhere in the small print. Which model answered is printed under each reply, because a screen naming the wrong one would be worse than naming none.  
   → \*\*Ану не людина, а машина, і вона каже про це на кожному екрані, де з'являється.\*\* Ви розмовляєте з мовною моделлю, а не з учителем, і застосунок має зробити так, щоб це неможливо було не помітити, а не просто згадати десь дрібним шрифтом. Яка модель відповіла, написано під кожною відповіддю, бо екран, що називає не ту модель, був би гіршим за екран, що не називає жодної.
-- [ ] **6792.** She isn’t the final word on anything. She can explain grammar and suggest an English translation, but she can still get things wrong. Don’t rely on her for an exam answer without checking it yourself.  
+- [ ] **6790.** She isn’t the final word on anything. She can explain grammar and suggest an English translation, but she can still get things wrong. Don’t rely on her for an exam answer without checking it yourself.  
   → Її слово ні в чому не останнє. Вона може пояснити граматику й запропонувати переклад англійською, але все одно може помилитися. Не покладайтеся на неї у відповіді на іспиті, не перевіривши її самі.
-- [ ] **6793.** The app comes as it is, with no warranty. It’s a learning aid, not a certified language qualification.  
+- [ ] **6791.** The app comes as it is, with no warranty. It’s a learning aid, not a certified language qualification.  
   → Застосунок надається «як є», без гарантій. Це посібник для навчання, а не сертифікована мовна кваліфікація.
-- [ ] **6794.** What we ask of you  
+- [ ] **6792.** What we ask of you  
   → Чого ми просимо від вас
-- [ ] **6795.** Use one account, and use it yourself. Please don’t use the tutor for things that have nothing to do with learning Estonian. It runs on a key that costs money every time it’s used, so each account has a daily limit, to stop one person using it all up for everyone else.  
+- [ ] **6793.** Use one account, and use it yourself. Please don’t use the tutor for things that have nothing to do with learning Estonian. It runs on a key that costs money every time it’s used, so each account has a daily limit, to stop one person using it all up for everyone else.  
   → Користуйтеся одним обліковим записом і користуйтеся ним самі. Будь ласка, не використовуйте репетитора для того, що не пов'язане з вивченням естонської. Він працює на ключі, кожне використання якого коштує грошей, тож у кожного облікового запису є денний ліміт, щоб одна людина не витратила все за всіх.
-- [ ] **6796.** Please don’t write scripts that hammer the dictionary, the speech service or the tutor with requests. Ekilex and TartuNLP are free academic services, and this whole project depends on nobody abusing them.  
+- [ ] **6794.** Please don’t write scripts that hammer the dictionary, the speech service or the tutor with requests. Ekilex and TartuNLP are free academic services, and this whole project depends on nobody abusing them.  
   → Будь ласка, не пишіть скриптів, які засипають запитами словник, сервіс мовлення чи репетитора. Ekilex і TartuNLP є безплатними академічними сервісами, і весь цей проєкт тримається на тому, що ними ніхто не зловживає.
-- [ ] **6797.** Be 13 or older, or have a parent agree first. Estonia sets the age at which somebody can agree to a service like this for themselves at 13, which is the youngest any country in the Union sets it. Nothing here checks, and saying so plainly is more use than a box anyone can tick. If you’re a teacher signing up a class, that agreement is the one thing worth getting before you send the link.  
+- [ ] **6795.** Be 13 or older, or have a parent agree first. Estonia sets the age at which somebody can agree to a service like this for themselves at 13, which is the youngest any country in the Union sets it. Nothing here checks, and saying so plainly is more use than a box anyone can tick. If you’re a teacher signing up a class, that agreement is the one thing worth getting before you send the link.  
   → Вам має бути щонайменше 13 років, інакше спершу потрібна згода одного з батьків. Естонія встановлює вік, з якого людина може сама дати згоду на таку послугу, у 13 років, і жодна країна Європейського Союзу не встановлює його нижчим. Тут нічого не перевіряється, і сказати про це прямо корисніше, ніж додати поле для позначки, яку може поставити будь-хто. Якщо ви вчитель і реєструєте клас, ця згода і є єдиним, що варто отримати до того, як надіслати посилання.
-- [ ] **6798.** What you own  
+- [ ] **6796.** What you own  
   → Що належить вам
-- [ ] **6799.** Your deck, your review history, your tasks and your notes are yours. Export them whenever you like from Settings, in a format that restores into any installation. The dictionary joins two sources with different licenses, so it’s worth being exact here. Every Estonian form and every example sentence comes from {ekilex} and is licensed \*\*CC BY 4.0\*\* by the Institute of the Estonian Language. Every English gloss that was not written for this project comes from {wiktionary} and is licensed \*\*CC BY-SA 4.0\*\* by its contributors, which is the stricter of the two: a work built on it has to be shared on the same terms. Both are credited on the sign-in page and in the footer, and keeping them apart is how the dictionary was designed, not an accident.  
+- [ ] **6797.** Your deck, your review history, your tasks and your notes are yours. Export them whenever you like from Settings, in a format that restores into any installation. The dictionary joins two sources with different licenses, so it’s worth being exact here. Every Estonian form and every example sentence comes from {ekilex} and is licensed \*\*CC BY 4.0\*\* by the Institute of the Estonian Language. Every English gloss that was not written for this project comes from {wiktionary} and is licensed \*\*CC BY-SA 4.0\*\* by its contributors, which is the stricter of the two: a work built on it has to be shared on the same terms. Both are credited on the sign-in page and in the footer, and keeping them apart is how the dictionary was designed, not an accident.  
   → Ваша колода, історія повторень, завдання й нотатки належать вам. Експортуйте їх будь-коли в налаштуваннях, у форматі, який відновлюється в будь-якій інсталяції. Словник поєднує два джерела з різними ліцензіями, тож тут варто бути точними. Кожна естонська форма й кожен приклад речення взяті з {ekilex} і поширюються Інститутом естонської мови за ліцензією \*\*CC BY 4.0\*\*. Кожен англійський переклад, написаний не для цього проєкту, узято з {wiktionary}, і він поширюється його авторами за ліцензією \*\*CC BY-SA 4.0\*\*, суворішою з двох: робота, створена на її основі, має поширюватися на тих самих умовах. Обидва джерела вказано на сторінці входу і внизу сайту, і розділяти їх було задумано під час створення словника, а не вийшло випадково.
-- [ ] **6800.** English Wiktionary  
+- [ ] **6798.** English Wiktionary  
   → англійського Вікісловника
-- [ ] **6801.** The order the commonest words are listed in comes from {frequency}, a published count over the OpenSubtitles corpus, also licensed \*\*CC BY-SA 4.0\*\*. It decides nothing but an order: every word shown is the dictionary’s own.  
+- [ ] **6799.** The order the commonest words are listed in comes from {frequency}, a published count over the OpenSubtitles corpus, also licensed \*\*CC BY-SA 4.0\*\*. It decides nothing but an order: every word shown is the dictionary’s own.  
   → Порядок, у якому перелічено найчастіші слова, узято з {frequency}, опублікованого підрахунку за корпусом OpenSubtitles, який теж поширюється за ліцензією \*\*CC BY-SA 4.0\*\*. Він визначає лише порядок: кожне показане слово взято зі словника.
-- [ ] **6802.** Whether a spelling is an Estonian word at all, and which word it is a form of, is answered by a forms list built from Ekilex’s own inflection tables, as published in {wordlist} (\*\*CC BY-SA 4.0\*\*), and from {vabamorf}, Filosoft’s open-source morphological tools for Estonian (\*\*LGPL\*\*). That list decides whether a word is accepted and never what a card teaches: no form from it is ever drilled or marked against.  
+- [ ] **6800.** Whether a spelling is an Estonian word at all, and which word it is a form of, is answered by a forms list built from Ekilex’s own inflection tables, as published in {wordlist} (\*\*CC BY-SA 4.0\*\*), and from {vabamorf}, Filosoft’s open-source morphological tools for Estonian (\*\*LGPL\*\*). That list decides whether a word is accepted and never what a card teaches: no form from it is ever drilled or marked against.  
   → Чи є написання взагалі естонським словом і формою якого слова воно є, вирішує список форм, зібраний із власних таблиць словозміни Ekilex у тому вигляді, як їх опубліковано в {wordlist} (\*\*CC BY-SA 4.0\*\*), і з {vabamorf}, відкритого набору морфологічних інструментів Filosoft для естонської (\*\*LGPL\*\*). Цей список вирішує, чи приймається слово, і ніколи не вирішує, чого вчить картка: жодну форму з нього ніколи не заучують і не перевіряють за нею відповідей.
-- [ ] **6803.** Ending it  
+- [ ] **6801.** Ending it  
   → Як припинити
-- [ ] **6804.** You can stop and delete your data whenever you like. An installation may cut off an account that’s abusing the shared services described above.  
+- [ ] **6802.** You can stop and delete your data whenever you like. An installation may cut off an account that’s abusing the shared services described above.  
   → Ви можете зупинитися й видалити свої дані будь-коли. Інсталяція може відключити обліковий запис, який зловживає описаними вище спільними сервісами.
-- [ ] **6805.** Which law applies  
+- [ ] **6803.** Which law applies  
   → Яке право застосовується
-- [ ] **6806.** Estonian law governs these terms and anything arising from them, and the Estonian courts are where a dispute ends up. Nothing here takes away a right you have as a consumer where you live: if the law of your own country gives you something these terms do not, that law wins.  
+- [ ] **6804.** Estonian law governs these terms and anything arising from them, and the Estonian courts are where a dispute ends up. Nothing here takes away a right you have as a consumer where you live: if the law of your own country gives you something these terms do not, that law wins.  
   → Ці умови й усе, що з них випливає, регулюються правом Естонії, а спір зрештою вирішують естонські суди. Ніщо тут не забирає у вас прав, які ви маєте як споживач там, де живете: якщо закон вашої країни дає вам те, чого не дають ці умови, діє цей закон.
-- [ ] **6807.** Changes  
+- [ ] **6805.** Changes  
   → Зміни
-- [ ] **6808.** If these terms change in a way that affects what happens to your data, the {privacy} changes with them and both carry the date of the change.  
+- [ ] **6806.** If these terms change in a way that affects what happens to your data, the {privacy} changes with them and both carry the date of the change.  
   → Якщо ці умови зміняться так, що це вплине на те, що відбувається з вашими даними, разом із ними зміниться й текст на {privacy}, і на обох сторінках стоятиме дата зміни.
 
 ## public (416 lines)
 
 _lib/copy/i18n/areas/public.ts_
 
-- [ ] **6809.** Trust and security  
+- [ ] **6807.** Trust and security  
   → Довіра й безпека
-- [ ] **6810.** , which would come to {money} a month to buy.  
+- [ ] **6808.** , which would come to {money} a month to buy.  
   → , і купити це коштувало б {money} на місяць.
-- [ ] **6811.** This page is for whoever decides whether Kodukeel is safe for a class, a team or a grant. The short answers come first, and each one takes you to the detail below.  
+- [ ] **6809.** This page is for whoever decides whether Kodukeel is safe for a class, a team or a grant. The short answers come first, and each one takes you to the detail below.  
   → Ця сторінка для тих, хто вирішує, чи можна довірити Kodukeel класу, команді або грантовому проєкту. Спершу йдуть короткі відповіді, і кожна веде до подробиць нижче.
-- [ ] **6812.** Who answers for it  
+- [ ] **6810.** Who answers for it  
   → Хто за це відповідає
-- [ ] **6813.** Not named on this copy yet  
+- [ ] **6811.** Not named on this copy yet  
   → У цій копії поки не вказано
-- [ ] **6814.** Yes  
+- [ ] **6812.** Yes  
   → Так
-- [ ] **6815.** Where the data is kept  
+- [ ] **6813.** Where the data is kept  
   → Де зберігаються дані
-- [ ] **6816.** Its own database, with some services outside the EEA  
+- [ ] **6814.** Its own database, with some services outside the EEA  
   → У власній базі, частина сервісів за межами ЄЕЗ
-- [ ] **6817.** Its own database, and nothing sent outside the EEA  
+- [ ] **6815.** Its own database, and nothing sent outside the EEA  
   → У власній базі, і нічого не йде за межі ЄЕЗ
-- [ ] **6818.** Trackers and analytics  
+- [ ] **6816.** Trackers and analytics  
   → Трекери й аналітика
-- [ ] **6819.** None  
+- [ ] **6817.** None  
   → Немає
-- [ ] **6820.** Export and deletion  
+- [ ] **6818.** Export and deletion  
   → Експорт і видалення
-- [ ] **6821.** Any time, from Settings  
+- [ ] **6819.** Any time, from Settings  
   → Будь-коли, у налаштуваннях
-- [ ] **6822.** Outside audit or certificate  
+- [ ] **6820.** Outside audit or certificate  
   → Зовнішній аудит або сертифікат
-- [ ] **6823.** Not yet: no SOC 2, ISO 27001 or pen test  
+- [ ] **6821.** Not yet: no SOC 2, ISO 27001 or pen test  
   → Поки ні: ні SOC 2, ні ISO 27001, ні тесту на проникнення
-- [ ] **6824.** Checked on every change. Partial, with the gaps named  
+- [ ] **6822.** Checked on every change. Partial, with the gaps named  
   → Перевіряється за кожної зміни. Частково, прогалини названо
-- [ ] **6825.** Who runs this  
+- [ ] **6823.** Who runs this  
   → Хто керує цією копією
-- [ ] **6826.** This installation is run by \*\*{name}\*\*{registry}{vat}, at {address}. They’re the controller of every learner’s data here, and the party any contract would be with.  
+- [ ] **6824.** This installation is run by \*\*{name}\*\*{registry}{vat}, at {address}. They’re the controller of every learner’s data here, and the party any contract would be with.  
   → Оператор цієї інсталяції: \*\*{name}\*\*{registry}{vat}, адреса: {address}. Це контролер даних кожного учня тут і сторона, з якою укладався б будь-який договір.
-- [ ] **6827.** One address reaches a real person, whether it’s a data question, a security report or a procurement question: {email}. There’s no separate security mailbox yet, and saying so is more use than publishing one nobody reads.  
+- [ ] **6825.** One address reaches a real person, whether it’s a data question, a security report or a procurement question: {email}. There’s no separate security mailbox yet, and saying so is more use than publishing one nobody reads.  
   → Одна адреса, і лист на неї читає жива людина, чи то питання про дані, повідомлення про вразливість чи питання про закупівлю: {email}. Окремої скриньки з безпеки поки немає, і сказати про це корисніше, ніж опублікувати адресу, яку ніхто не читає.
-- [ ] **6828.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install, not a service with one address, so the copy you’re reading is run by a person or an organisation who’s supposed to be named here. Until they are, there’s nobody on this page to sign anything with. If you’re running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
+- [ ] **6826.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install, not a service with one address, so the copy you’re reading is run by a person or an organisation who’s supposed to be named here. Until they are, there’s nobody on this page to sign anything with. If you’re running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
   → \*\*Той, хто керує цією інсталяцією, не вказав свого імені.\*\* Kodukeel може встановити будь-хто, це програма, а не сервіс з однією адресою, тож копією, яку ви читаєте, керує людина чи організація, чиє ім'я має стояти тут. Доки його немає, на цій сторінці немає з ким щось підписувати. Якщо її запустили ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`.
-- [ ] **6829.** Where the data is held, and who else touches it  
+- [ ] **6827.** Where the data is held, and who else touches it  
   → Де зберігаються дані і хто ще їх обробляє
-- [ ] **6830.** Everything a learner does is held in this installation’s own Postgres database. Nothing below gets a deck, a review history or an exam paper. The list is read straight from this deployment’s configuration rather than typed out here, so it’s the real set of services this copy talks to.  
+- [ ] **6828.** Everything a learner does is held in this installation’s own Postgres database. Nothing below gets a deck, a review history or an exam paper. The list is read straight from this deployment’s configuration rather than typed out here, so it’s the real set of services this copy talks to.  
   → Усе, що робить учень, зберігається у власній базі Postgres цієї інсталяції. Ніхто з перелічених нижче не отримує ні колоди, ні історії повторень, ні екзаменаційної роботи. Список читається просто з налаштувань цієї інсталяції, а не набраний тут вручну, тож це справжній перелік сервісів, до яких звертається ця копія.
-- [ ] **6831.** Established in the European Economic Area.  
+- [ ] **6829.** Established in the European Economic Area.  
   → Зареєстрований у Європейській економічній зоні.
-- [ ] **6832.** Established outside the European Economic Area.  
+- [ ] **6830.** Established outside the European Economic Area.  
   → Зареєстрований за межами Європейської економічної зони.
-- [ ] **6833.** Where this one sits depends on how the installation was set up, so ask the operator above.  
+- [ ] **6831.** Where this one sits depends on how the installation was set up, so ask the operator above.  
   → Де він розташований, залежить від того, як налаштовано інсталяцію, тож запитайте в оператора, вказаного вище.
-- [ ] **6834.** \*\*Some of that leaves the European Economic Area\*\*, which matters for a transfer assessment. It rests on the standard contractual clauses each provider publishes. The two features that do it are the tutor and the page scanner, and a deployment configured with no AI provider has neither, so an organisation that cannot accept the transfer can run the rest of the app without it.  
+- [ ] **6832.** \*\*Some of that leaves the European Economic Area\*\*, which matters for a transfer assessment. It rests on the standard contractual clauses each provider publishes. The two features that do it are the tutor and the page scanner, and a deployment configured with no AI provider has neither, so an organisation that cannot accept the transfer can run the rest of the app without it.  
   → \*\*Частина цього залишає Європейську економічну зону\*\*, і це важливо для оцінки передачі даних. Передача ґрунтується на стандартних договірних умовах, які публікує кожен постачальник. Дані передають дві функції, репетитор і сканер сторінок, а в інсталяції без постачальника ШІ немає ні тієї, ні іншої, тож організація, яка не може прийняти таку передачу, може користуватися рештою застосунку без неї.
-- [ ] **6835.** There’s no analytics vendor, no advertising identifier and no third-party tracker, and you don’t have to take our word for it: the app has no third-party script tag anywhere in it, and the one thing it counts, whether people come back, is worked out from its own review log. {privacy} is the long version of all of this, written for the learner rather than the buyer.  
+- [ ] **6833.** There’s no analytics vendor, no advertising identifier and no third-party tracker, and you don’t have to take our word for it: the app has no third-party script tag anywhere in it, and the one thing it counts, whether people come back, is worked out from its own review log. {privacy} is the long version of all of this, written for the learner rather than the buyer.  
   → Немає ні постачальника аналітики, ні рекламного ідентифікатора, ні стороннього трекера, і вірити нам на слово не обов'язково: у застосунку ніде немає стороннього тегу script, а єдине, що він рахує, чи повертаються люди, обчислюється з його власного журналу повторень. Сторінка «{privacy}» розповідає про все це докладно й написана для учня, а не для покупця.
-- [ ] **6836.** How a learner gets their data out, and how they delete it  
+- [ ] **6834.** How a learner gets their data out, and how they delete it  
   → Як учень забирає свої дані і як їх видаляє
-- [ ] **6837.** \*\*Export.\*\* Settings has a button that returns everything held about the account as a single JSON file: every card, review, task, setting, scanned word list, level check, mock exam paper with the composition in it, tutor message, conversation, suggestion, starred word and class membership. It is a real backup and the same file restores into a fresh installation, which is what makes it portability rather than a gesture.  
+- [ ] **6835.** \*\*Export.\*\* Settings has a button that returns everything held about the account as a single JSON file: every card, review, task, setting, scanned word list, level check, mock exam paper with the composition in it, tutor message, conversation, suggestion, starred word and class membership. It is a real backup and the same file restores into a fresh installation, which is what makes it portability rather than a gesture.  
   → \*\*Експорт.\*\* У налаштуваннях є кнопка, яка видає все, що зберігається про обліковий запис, одним файлом JSON: кожну картку, повторення, завдання, налаштування, відсканований список слів, перевірку рівня, пробний іспит із твором, повідомлення репетиторові, розмову, пропозицію, позначене слово й членство в групі. Це справжня резервна копія, і той самий файл відновлюється в новій інсталяції, тож це справжнє перенесення, а не жест.
-- [ ] **6838.** \*\*Deleting everything.\*\* The same screen deletes the account and everything in it, including the sign-in record, in one action and with no request to write. Where an installation is not configured to remove the sign-in record itself, the button says so plainly instead of reporting a success it did not achieve. Both live under {settings}.  
+- [ ] **6836.** \*\*Deleting everything.\*\* The same screen deletes the account and everything in it, including the sign-in record, in one action and with no request to write. Where an installation is not configured to remove the sign-in record itself, the button says so plainly instead of reporting a success it did not achieve. Both live under {settings}.  
   → \*\*Видалення всього.\*\* На тому самому екрані обліковий запис видаляється з усім умістом, зокрема із записом для входу, однією дією і без письмового запиту. Якщо інсталяція не налаштована видаляти запис для входу сама, кнопка прямо про це каже, а не повідомляє про успіх, якого не було. Обидві кнопки є в розділі «{settings}».
-- [ ] **6839.** A learner in a class or a workplace group can leave it, which stops the sponsor seeing anything and takes nothing out of their own deck.  
+- [ ] **6837.** A learner in a class or a workplace group can leave it, which stops the sponsor seeing anything and takes nothing out of their own deck.  
   → Учень у групі чи робочій групі може з неї вийти: тоді спонсор перестає будь-що бачити, а з колоди учня нічого не зникає.
-- [ ] **6840.** Security posture  
+- [ ] **6838.** Security posture  
   → Стан безпеки
-- [ ] **6841.** The security work is written down in full rather than summarised for you. There are three documents, and each one names files you can open:  
+- [ ] **6839.** The security work is written down in full rather than summarised for you. There are three documents, and each one names files you can open:  
   → Роботу з безпеки описано повністю, а не переказано для вас коротко. Є три документи, і в кожному названо файли, які можна відкрити:
-- [ ] **6842.** Security review and threat model  
+- [ ] **6840.** Security review and threat model  
   → Огляд безпеки й модель загроз
-- [ ] **6843.** {doc}: what the system is, the five trust boundaries, fifteen threats worked through one at a time, the controls inventory, and a section on what has not been done.  
+- [ ] **6841.** {doc}: what the system is, the five trust boundaries, fifteen threats worked through one at a time, the controls inventory, and a section on what has not been done.  
   → {doc}: що являє собою система, п'ять меж довіри, п'ятнадцять загроз, розібраних по одній, перелік заходів захисту і розділ про те, що не зроблено.
-- [ ] **6844.** Incident response  
+- [ ] **6842.** Incident response  
   → Реагування на інциденти
-- [ ] **6845.** {doc}: severity, who does what, the Article 33 clock for telling the supervisory authority, the Article 34 clock for telling the people affected, and runbooks for a leaked credential, a runaway AI bill, a database restore and a vandalised dictionary.  
+- [ ] **6843.** {doc}: severity, who does what, the Article 33 clock for telling the supervisory authority, the Article 34 clock for telling the people affected, and runbooks for a leaked credential, a runaway AI bill, a database restore and a vandalised dictionary.  
   → {doc}: рівні серйозності, хто що робить, строк за статтею 33 GDPR для повідомлення наглядового органу, строк за статтею 34 GDPR для повідомлення людей, яких це стосується, і покрокові інструкції на випадок витоку облікових даних, неконтрольованого рахунку за ШІ, відновлення бази даних і зіпсованого словника.
-- [ ] **6846.** Control map  
+- [ ] **6844.** Control map  
   → Карта заходів захисту
-- [ ] **6847.** {doc}: the controls a reviewer usually asks about, mapped to where each one lives.  
-  → {doc}: заходи захисту, про які зазвичай питають перевіряльники, із зазначенням, де реалізовано кожен.
-- [ ] **6848.** The three documents are in English.  
+- [ ] **6845.** {doc}: the controls a reviewer usually asks about, mapped to where each one lives.  
+  → {doc}: заходи захисту, про які зазвичай питають рецензенти, із зазначенням, де реалізовано кожен.
+- [ ] **6846.** The three documents are in English.  
   → Усі три документи англійською.
-- [ ] **6849.** \*\*What this project does not have, stated plainly.\*\* There is no SOC 2 report. There is no ISO/IEC 27001 certificate. The control map is a self-assessment written by the people who wrote the code, and it has not been reviewed by anybody outside this project. No external penetration test has been commissioned, so nobody has attacked this application under contract, and no independent reviewer has read the source for security faults. The code being public is not the same thing as having been audited.  
+- [ ] **6847.** \*\*What this project does not have, stated plainly.\*\* There is no SOC 2 report. There is no ISO/IEC 27001 certificate. The control map is a self-assessment written by the people who wrote the code, and it has not been reviewed by anybody outside this project. No external penetration test has been commissioned, so nobody has attacked this application under contract, and no independent reviewer has read the source for security faults. The code being public is not the same thing as having been audited.  
   → \*\*Чого в цього проєкту немає, прямо.\*\* Немає звіту SOC 2. Немає сертифіката ISO/IEC 27001. Карту заходів захисту складено як самооцінку тими самими людьми, що писали код, і ніхто поза проєктом її не перевіряв. Зовнішній тест на проникнення не замовляли, тож ніхто не атакував цей застосунок за договором, і жоден незалежний фахівець не читав вихідного коду в пошуках вразливостей. Те, що код відкритий, не означає, що він пройшов аудит.
-- [ ] **6850.** Four more limits, named here before you find them yourself. Ownership of rows is enforced in application code and asserted in the build rather than by Postgres row level security. The Content Security Policy carries {inline} in its script sources, for a reason written out in the code, and that is the weakest line in it. Nothing watches the logs continuously: there is no intrusion detection and no alerting beyond an optional error webhook. And multi-factor authentication is inherited from whatever the learner’s Google account has rather than enforced here.  
+- [ ] **6848.** Four more limits, named here before you find them yourself. Ownership of rows is enforced in application code and asserted in the build rather than by Postgres row level security. The Content Security Policy carries {inline} in its script sources, for a reason written out in the code, and that is the weakest line in it. Nothing watches the logs continuously: there is no intrusion detection and no alerting beyond an optional error webhook. And multi-factor authentication is inherited from whatever the learner’s Google account has rather than enforced here.  
   → Ще чотири обмеження, названі тут раніше, ніж ви знайдете їх самі. Належність рядків забезпечується кодом застосунку й перевіряється під час збирання, а не механізмом захисту на рівні рядків у Postgres. Політика безпеки вмісту (CSP) дозволяє {inline} у джерелах скриптів, з причини, описаної в коді, і це найслабше її місце. Журнали ніхто не відстежує постійно: немає виявлення вторгнень і немає сповіщень, крім необов'язкового вебхука для помилок. І багатофакторна автентифікація береться з того, що ввімкнено в обліковому записі Google учня, а не вимагається тут.
-- [ ] **6851.** What there is instead is a build that fails when a rule is broken, rather than a document promising the rules are kept: the credential scan greps the built client bundle for every server-only value, the invariant suite asserts the rules this project set itself, and the browser suites drive the real app. All of it runs on every change.  
+- [ ] **6849.** What there is instead is a build that fails when a rule is broken, rather than a document promising the rules are kept: the credential scan greps the built client bundle for every server-only value, the invariant suite asserts the rules this project set itself, and the browser suites drive the real app. All of it runs on every change.  
   → Натомість є збирання, яке падає, коли правило порушено, а не документ з обіцянкою, що правил дотримуються: перевірка облікових даних шукає в зібраному клієнтському коді кожне значення, призначене лише для сервера, набір інваріантів перевіряє правила, які проєкт сам собі встановив, а браузерні тести ганяють справжній застосунок. Усе це запускається за кожної зміни.
-- [ ] **6852.** One of those suites is worth naming, because it is the only one that asks these questions of a server rather than of the source. It sends the forged requests, reads back every security header, checks that what is behind a token stays behind it, and reads what the health endpoint is willing to say. It found something on its first run: a request carrying an address the app could not parse was being treated as a request carrying none, and those had different answers. That is the shape of thing it is for. It is a test written by the people who wrote the code, so it cannot tell you the design is right, and it is not the outside look this section says is missing.  
+- [ ] **6850.** One of those suites is worth naming, because it is the only one that asks these questions of a server rather than of the source. It sends the forged requests, reads back every security header, checks that what is behind a token stays behind it, and reads what the health endpoint is willing to say. It found something on its first run: a request carrying an address the app could not parse was being treated as a request carrying none, and those had different answers. That is the shape of thing it is for. It is a test written by the people who wrote the code, so it cannot tell you the design is right, and it is not the outside look this section says is missing.  
   → Один із цих наборів варто назвати окремо, бо лише він ставить ці запитання серверу, а не вихідному коду. Він надсилає підроблені запити, читає кожен заголовок безпеки, перевіряє, що закрите токеном лишається закритим, і дивиться, що готова повідомити точка перевірки стану. Під час першого ж запуску він дещо знайшов: запит з адресою, яку застосунок не міг розібрати, оброблявся як запит без адреси, а відповіді на них мали бути різними. Саме для таких речей він і потрібен. Це тест, написаний тими самими людьми, що писали код, тож він не може підтвердити, що будову системи зроблено правильно, і це не той погляд збоку, якого, як сказано в цьому розділі, бракує.
-- [ ] **6853.** Availability  
+- [ ] **6851.** Availability  
   → Доступність сервісу
-- [ ] **6854.** \*\*There is no contractual service level today.\*\* No uptime percentage is promised anywhere in this app or in its terms, and nothing here is worth quoting as one. What can be said is what the app does when things break, which is a design decision rather than a hope.  
+- [ ] **6852.** \*\*There is no contractual service level today.\*\* No uptime percentage is promised anywhere in this app or in its terms, and nothing here is worth quoting as one. What can be said is what the app does when things break, which is a design decision rather than a hope.  
   → \*\*Договірного рівня обслуговування зараз немає.\*\* Ні в застосунку, ні в його умовах не обіцяно жодного відсотка часу роботи, і нічого тут не варто цитувати в такій якості. Сказати можна лише те, що застосунок робить, коли щось ламається, а це рішення під час проєктування, а не надія.
-- [ ] **6855.** \*\*The review path survives losing the network.\*\* A grade answered with no connection goes into a queue in the browser and is sent later with the time it was actually answered, never dropped and never restamped, so a session on a train costs nothing. The service worker keeps the pages a learner was last on and an offline screen behind them, so the app opens rather than showing a browser error. The dictionary, the tutor and speech all need a connection and say so instead of serving something stale.  
+- [ ] **6853.** \*\*The review path survives losing the network.\*\* A grade answered with no connection goes into a queue in the browser and is sent later with the time it was actually answered, never dropped and never restamped, so a session on a train costs nothing. The service worker keeps the pages a learner was last on and an offline screen behind them, so the app opens rather than showing a browser error. The dictionary, the tutor and speech all need a connection and say so instead of serving something stale.  
   → \*\*Повторення переживає втрату мережі.\*\* Оцінка, дана без зв'язку, потрапляє в чергу в браузері й надсилається пізніше з часом, коли відповідь було дано насправді, ніколи не губиться і не отримує нового часу, тож заняття в потязі нічого не коштує. Сервіс-воркер зберігає сторінки, на яких учень був останнім, і екран для роботи без мережі за ними, тож застосунок відкривається, а не показує помилку браузера. Словникові, репетиторові й озвученню потрібен зв'язок, і вони кажуть про це, а не показують застаріле.
-- [ ] **6856.** \*\*When the database is unreachable\*\*, pages that need it fail to an error screen that says nothing has been lost, which is true: the review log is only ever appended to. The message itself stays on the server, because a database error can quote a connection string, and what the screen shows is a reference you can quote back at us.  
+- [ ] **6854.** \*\*When the database is unreachable\*\*, pages that need it fail to an error screen that says nothing has been lost, which is true: the review log is only ever appended to. The message itself stays on the server, because a database error can quote a connection string, and what the screen shows is a reference you can quote back at us.  
   → \*\*Коли база даних недоступна\*\*, сторінки, яким вона потрібна, показують екран помилки, де сказано, що нічого не втрачено, і це правда: до журналу повторень тільки додають записи. Саме повідомлення лишається на сервері, бо помилка бази даних може містити рядок підключення, а на екрані видно лише номер, який можна нам назвати.
-- [ ] **6857.** \*\*When an AI provider is having a bad minute\*\*, the app moves to the next provider configured rather than failing, and where none answers the feature says so. Nothing that teaches Estonian depends on a model: the dictionary, the deck, the scheduler, the exam and every practice round work with no AI provider at all.  
+- [ ] **6855.** \*\*When an AI provider is having a bad minute\*\*, the app moves to the next provider configured rather than failing, and where none answers the feature says so. Nothing that teaches Estonian depends on a model: the dictionary, the deck, the scheduler, the exam and every practice round work with no AI provider at all.  
   → \*\*Коли в постачальника ШІ невдала хвилина\*\*, застосунок переходить до наступного налаштованого постачальника, а не падає, а якщо не відповідає ніхто, функція так і каже. Ніщо з того, що вчить естонської, не залежить від моделі: словник, колода, розклад, іспит і кожен тренувальний раунд працюють зовсім без постачальника ШІ.
-- [ ] **6858.** \*\*Health check.\*\* {health} answers without a session and returns whether the app is up, whether the database answers, and the commit this build came from. It carries no counts and nothing about anybody. A monitor can poll it.  
+- [ ] **6856.** \*\*Health check.\*\* {health} answers without a session and returns whether the app is up, whether the database answers, and the commit this build came from. It carries no counts and nothing about anybody. A monitor can poll it.  
   → \*\*Перевірка стану.\*\* {health} відповідає без входу в обліковий запис і повідомляє, чи працює застосунок, чи відповідає база даних і з якого коміту зібрано цю версію. У відповіді немає ні підрахунків, ні відомостей про будь-кого. Її можна опитувати системою моніторингу.
-- [ ] **6859.** Reporting a vulnerability  
+- [ ] **6857.** Reporting a vulnerability  
   → Як повідомити про вразливість
-- [ ] **6860.** Send it to {who} with “security” in the subject line. The full policy is in {policy}, including the response times we can actually keep: three working days to acknowledge, ten to tell you whether we agree it is a problem, and a target of thirty days to fix anything critical or high. If the report is sensitive enough that plain email worries you, say so in one line with no detail in it and we’ll set up another channel.  
+- [ ] **6858.** Send it to {who} with “security” in the subject line. The full policy is in {policy}, including the response times we can actually keep: three working days to acknowledge, ten to tell you whether we agree it is a problem, and a target of thirty days to fix anything critical or high. If the report is sensitive enough that plain email worries you, say so in one line with no detail in it and we’ll set up another channel.  
   → Надішліть його {who} зі словом «security» у темі листа. Повна політика в {policy}, зокрема строки відповіді, яких ми справді можемо дотриматися: три робочі дні на підтвердження отримання, десять, щоб сказати, чи згодні ми, що це проблема, і орієнтир у тридцять днів на виправлення всього критичного чи серйозного. Якщо повідомлення настільки чутливе, що звичайна пошта вас непокоїть, напишіть про це одним рядком без подробиць, і ми організуємо інший канал.
-- [ ] **6861.** the operator named at the top of this page  
+- [ ] **6859.** the operator named at the top of this page  
   → операторові, вказаному на початку цієї сторінки
-- [ ] **6862.** If a breach ever affects personal data, the incident document above is the procedure we follow, and the supervisory authority for Estonia is the {authority} ({local}).  
+- [ ] **6860.** If a breach ever affects personal data, the incident document above is the procedure we follow, and the supervisory authority for Estonia is the {authority} ({local}).  
   → Якщо витік колись зачепить персональні дані, ми діємо за описаним вище документом про інциденти, а наглядовий орган Естонії: {authority} ({local}).
-- [ ] **6863.** Contrast is measured in a browser in both themes, every target is measured against 44px under a coarse pointer, axe runs over every route on every change, and no audit by a person with a disability using assistive technology has been commissioned yet. The {statement} says what is claimed, what is tested, and the gaps that are known.  
+- [ ] **6861.** Contrast is measured in a browser in both themes, every target is measured against 44px under a coarse pointer, axe runs over every route on every change, and no audit by a person with a disability using assistive technology has been commissioned yet. The {statement} says what is claimed, what is tested, and the gaps that are known.  
   → Контрастність вимірюється в браузері в обох темах, кожен елемент керування перевіряється на розмір 44px за сенсорного введення, axe проходить кожною сторінкою за кожної зміни, а аудит за участю людини з інвалідністю, яка користується допоміжними технологіями, поки не замовляли. У {statement} сказано, що заявлено, що перевірено і які прогалини відомі.
-- [ ] **6864.** accessibility statement  
+- [ ] **6862.** accessibility statement  
   → заяві про доступність
-- [ ] **6865.** Accessibility statement  
+- [ ] **6863.** Accessibility statement  
   → Заява про доступність
-- [ ] **6866.** Kodukeel is for people learning Estonian, and plenty of them are learning it because they have to. If somebody can’t use the app, it has let them down exactly when it mattered most. This page says what standard we’re aiming for, what we’ve checked and how, where we fall short today, and how to tell us.  
+- [ ] **6864.** Kodukeel is for people learning Estonian, and plenty of them are learning it because they have to. If somebody can’t use the app, it has let them down exactly when it mattered most. This page says what standard we’re aiming for, what we’ve checked and how, where we fall short today, and how to tell us.  
   → Kodukeel створено для тих, хто вчить естонську, а багато хто вчить її тому, що мусить. Якщо хтось не може користуватися застосунком, він підвів цю людину саме тоді, коли це було найважливіше. На цій сторінці сказано, до якого стандарту ми прагнемо, що і як перевірили, де поки не дотягуємо і як нам про це повідомити.
-- [ ] **6867.** The standard  
+- [ ] **6865.** The standard  
   → Стандарт
-- [ ] **6868.** The target is \*\*WCAG 2.2 level AA\*\*, and through it \*\*EN 301 549\*\*, which is the European harmonised standard that public bodies and their suppliers are measured against and which adopts WCAG for web content.  
+- [ ] **6866.** The target is \*\*WCAG 2.2 level AA\*\*, and through it \*\*EN 301 549\*\*, which is the European harmonised standard that public bodies and their suppliers are measured against and which adopts WCAG for web content.  
   → Мета: \*\*WCAG 2.2, рівень AA\*\*, а через нього \*\*EN 301 549\*\*, гармонізований європейський стандарт, за яким оцінюють державні органи та їхніх постачальників і який включає WCAG у частині вебвмісту.
-- [ ] **6869.** Conformance status  
+- [ ] **6867.** Conformance status  
   → Статус відповідності
-- [ ] **6870.** \*\*Partially conformant with WCAG 2.2 level AA.\*\* Partially conformant means most of the app meets the standard, and the parts named below do not.  
+- [ ] **6868.** \*\*Partially conformant with WCAG 2.2 level AA.\*\* Partially conformant means most of the app meets the standard, and the parts named below do not.  
   → \*\*Частково відповідає WCAG 2.2, рівень AA.\*\* «Частково» означає, що більша частина застосунку відповідає стандарту, а частини, названі нижче, ні.
-- [ ] **6871.** It isn’t fully conformant, and here’s the honest reason: nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.  
+- [ ] **6869.** It isn’t fully conformant, and here’s the honest reason: nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.  
   → Повної відповідності немає, і ось чесна причина: нікому з тих, хто покладається на допоміжні технології, ще не платили за те, щоб сісти й спробувати ним користуватися. Усе, що нижче, спирається на автоматичні перевірки і на те, що автори застосунку перевіряли власну роботу. Так знаходиться дуже багато, але це все одно не те саме, що почути людину, яку застосунок підводив.
-- [ ] **6872.** How the claim was tested  
+- [ ] **6870.** How the claim was tested  
   → Як це перевірялося
-- [ ] **6873.** Four suites run in the build on every change, against the real app in a real browser rather than against a component in isolation.  
+- [ ] **6871.** Four suites run in the build on every change, against the real app in a real browser rather than against a component in isolation.  
   → За кожної зміни під час збирання запускаються чотири набори тестів, проти справжнього застосунку в справжньому браузері, а не проти окремого компонента.
-- [ ] **6874.** \*\*axe over every route.\*\* {suite} loads every page the app has, not a chosen sample, and runs axe over each one, including its best-practice rules. Two screens are the exception so far, a marked paper and a scanned page, because each needs a row made before it exists; the containment suite below makes both and measures them, and axe does not reach them yet. It runs the whole sweep again in the dark theme, because light and dark are two palettes and a colour that clears the bar in one says nothing about the other. It runs it twice more at 390 pixels wide, which is a phone, because a phone here is different markup rather than the same markup narrower: the navigation rail is not drawn at all and a bar with a sheet behind it is drawn instead. That sheet is opened and swept too, since no address reaches it. It counts a one-character run of text as text, which is how a tick measured at 2.52 against a bar of 4.5 was found. Beyond axe it asserts exactly one main landmark and one heading per screen, a page title that is not the landing page’s, and Estonian marked so a screen reader does not read it with English phonics.  
+- [ ] **6872.** \*\*axe over every route.\*\* {suite} loads every page the app has, not a chosen sample, and runs axe over each one, including its best-practice rules. Two screens are the exception so far, a marked paper and a scanned page, because each needs a row made before it exists; the containment suite below makes both and measures them, and axe does not reach them yet. It runs the whole sweep again in the dark theme, because light and dark are two palettes and a colour that clears the bar in one says nothing about the other. It runs it twice more at 390 pixels wide, which is a phone, because a phone here is different markup rather than the same markup narrower: the navigation rail is not drawn at all and a bar with a sheet behind it is drawn instead. That sheet is opened and swept too, since no address reaches it. It counts a one-character run of text as text, which is how a tick measured at 2.52 against a bar of 4.5 was found. Beyond axe it asserts exactly one main landmark and one heading per screen, a page title that is not the landing page’s, and Estonian marked so a screen reader does not read it with English phonics.  
   → \*\*axe на кожній сторінці.\*\* {suite} відкриває кожну сторінку застосунку, а не вибірку, і запускає на кожній axe, зокрема правила найкращих практик. Поки винятків два, перевірена робота й відсканована сторінка, бо для кожної спершу треба створити запис; набір перевірки меж нижче створює обидві й вимірює їх, а axe до них поки не доходить. Увесь прохід повторюється в темній темі, бо світла й темна теми це дві палітри, і колір, що проходить поріг в одній, нічого не каже про іншу. Ще двічі він запускається за ширини 390 пікселів, тобто на телефоні, бо телефон тут отримує іншу розмітку, а не ту саму, тільки вужчу: бічна панель навігації не малюється зовсім, а замість неї з'являється нижня панель зі шторкою. Цю шторку теж відкривають і перевіряють, бо жодна адреса до неї не веде. Рядок тексту з одного символу теж вважається текстом, і так було знайдено галочку з контрастом 2,52 там, де поріг 4,5. Крім axe перевіряється рівно один головний орієнтир і один заголовок на екран, заголовок сторінки, відмінний від заголовка лендингу, і розмітка естонського тексту, щоб екранний диктор не читав його з англійською вимовою.
-- [ ] **6875.** \*\*Contrast measured rather than reasoned about.\*\* {suite} reads the colours the browser actually painted and works out the ratio, in both themes, including states a page does not arrive in such as a row under a pointer. What a colour is worth depends on what it is sitting on, which no palette can tell you.  
+- [ ] **6873.** \*\*Contrast measured rather than reasoned about.\*\* {suite} reads the colours the browser actually painted and works out the ratio, in both themes, including states a page does not arrive in such as a row under a pointer. What a colour is worth depends on what it is sitting on, which no palette can tell you.  
   → \*\*Контраст вимірюється, а не виводиться міркуванням.\*\* {suite} читає кольори, які браузер справді намалював, і обчислює співвідношення в обох темах, зокрема стани, у яких сторінка не відкривається сама, наприклад рядок під курсором. Чого вартий колір, залежить від того, на чому він лежить, а цього не скаже жодна палітра.
-- [ ] **6876.** \*\*Every target measured against 44px.\*\* {suite} drives the app at 360, 390, 430, 768 and 1280 pixels wide with a coarse pointer, which is the only condition under which that rule is real, and fails on a control below the floor.  
+- [ ] **6874.** \*\*Every target measured against 44px.\*\* {suite} drives the app at 360, 390, 430, 768 and 1280 pixels wide with a coarse pointer, which is the only condition under which that rule is real, and fails on a control below the floor.  
   → \*\*Кожен елемент перевіряється на 44px.\*\* {suite} ганяє застосунок за ширини 360, 390, 430, 768 і 1280 пікселів із сенсорним введенням, єдиною умовою, за якої це правило має сенс, і падає на будь-якому елементі керування, меншому за поріг.
-- [ ] **6877.** \*\*Text staying inside its box.\*\* {suite} walks every route at 360, 768 and 1280, in both themes, and asks whether anything is cut off, drawn outside its border or drawn on top of something else. Then it asks again with every run of text replaced by unbreakable text of the same length, which is the question Estonian actually poses.  
+- [ ] **6875.** \*\*Text staying inside its box.\*\* {suite} walks every route at 360, 768 and 1280, in both themes, and asks whether anything is cut off, drawn outside its border or drawn on top of something else. Then it asks again with every run of text replaced by unbreakable text of the same length, which is the question Estonian actually poses.  
   → \*\*Текст лишається у своїй рамці.\*\* {suite} проходить кожну сторінку за ширини 360, 768 і 1280 в обох темах і перевіряє, чи не обрізано щось, чи не виходить за свою рамку і чи не накладено поверх іншого. Потім перевіряє знову, замінивши кожен рядок тексту нерозривним рядком тієї самої довжини, адже саме таке питання й ставить естонська мова.
-- [ ] **6878.** Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Colour is never the only thing carrying a distinction, so a correct answer says so in words as well as in colour.  
+- [ ] **6876.** Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Colour is never the only thing carrying a distinction, so a correct answer says so in words as well as in colour.  
   → Крім того, застосунок зібрано зі справжніх кнопок і посилань із видимою рамкою фокуса. Анімація вимикається для всіх, чия система просить зменшити рух, і ніде не потрібне перетягування. Колір ніколи не є єдиним, що передає відмінність, тож правильна відповідь позначається і словами, і кольором.
-- [ ] **6879.** \*\*The three timed practice rounds can be set to run longer\*\* (WCAG 2.2.1, Timing Adjustable). The Case Sprint is a minute, the daily quest is two minutes, and Target gives eight seconds a question, and all of those are now a starting point rather than the whole story: one setting stretches whichever round you open, up to ten times as long, which is the figure the criterion itself asks for. It is chosen before the round starts, in Settings, and every one of those start screens links to it. The clock stays, because a speed round without one is a different round, and what was shutting people out was that the length was not theirs to set.  
+- [ ] **6877.** \*\*The three timed practice rounds can be set to run longer\*\* (WCAG 2.2.1, Timing Adjustable). The Case Sprint is a minute, the daily quest is two minutes, and Target gives eight seconds a question, and all of those are now a starting point rather than the whole story: one setting stretches whichever round you open, up to ten times as long, which is the figure the criterion itself asks for. It is chosen before the round starts, in Settings, and every one of those start screens links to it. The clock stays, because a speed round without one is a different round, and what was shutting people out was that the length was not theirs to set.  
   → \*\*Три тренувальні раунди на час можна зробити довшими\*\* (WCAG 2.2.1, регульований час). «Спринт за відмінками» триває хвилину, «Завдання дня» дві хвилини, а «Мішень» дає вісім секунд на запитання, і тепер усе це лише відправна точка: одне налаштування розтягує будь-який відкритий раунд аж до десятикратної тривалості, саме ту величину, якої вимагає сам критерій. Його вибирають до початку раунду в налаштуваннях, і кожен із цих стартових екранів на нього посилається. Таймер лишається, бо швидкісний раунд без нього вже інший раунд, а людей відсікало те, що тривалість не можна було задати самим.
-- [ ] **6880.** \*\*No audit by a person with a disability using assistive technology has been commissioned.\*\* No screen reader user has been paid to test this, and there has been no third-party accessibility audit. Automated tools find perhaps a third of what is wrong with a page, and the third they find is the mechanical third.  
+- [ ] **6878.** \*\*No audit by a person with a disability using assistive technology has been commissioned.\*\* No screen reader user has been paid to test this, and there has been no third-party accessibility audit. Automated tools find perhaps a third of what is wrong with a page, and the third they find is the mechanical third.  
   → \*\*Аудит за участю людини з інвалідністю, яка користується допоміжними технологіями, не замовляли.\*\* Нікому з користувачів екранного диктора не платили за перевірку, і стороннього аудиту доступності не було. Автоматичні інструменти знаходять, мабуть, третину того, що не так зі сторінкою, і це механічна третина.
-- [ ] **6881.** What is known not to conform  
+- [ ] **6879.** What is known not to conform  
   → Що свідомо не відповідає
-- [ ] **6882.** These were found by reading the code rather than assumed from a template, and each one is a real screen.  
+- [ ] **6880.** These were found by reading the code rather than assumed from a template, and each one is a real screen.  
   → Це знайдено читанням коду, а не взято із шаблону, і кожен пункт стосується справжнього екрана.
-- [ ] **6883.** \*\*The mock examination parts run to a clock nobody can change\*\* (WCAG 2.2.1, Timing Adjustable), and it closes the part when it goes. The paper is an imitation of a timed state examination and untimed practice of a timed paper measures something else, which is why it is the one clock left fixed, but a candidate who needs extra time in the real examination has no way to ask for it here.  
+- [ ] **6881.** \*\*The mock examination parts run to a clock nobody can change\*\* (WCAG 2.2.1, Timing Adjustable), and it closes the part when it goes. The paper is an imitation of a timed state examination and untimed practice of a timed paper measures something else, which is why it is the one clock left fixed, but a candidate who needs extra time in the real examination has no way to ask for it here.  
   → \*\*Частини пробного іспиту йдуть за таймером, який ніхто не може змінити\*\* (WCAG 2.2.1, регульований час), і коли він спливає, частина закривається. Робота імітує державний іспит на час, а тренування такої роботи без обмеження вимірює вже інше, тому це єдиний таймер, залишений незмінним, але кандидат, якому на справжньому іспиті потрібен додатковий час, не може попросити про нього тут.
-- [ ] **6884.** \*\*The listening, dictation and minimal-pair rounds require hearing\*\* (WCAG 1.2.1). There is no transcript before the answer, because the transcript is the answer, so a text alternative would remove the exercise. The text is shown as soon as the answer is in. Somebody who cannot use audio can use every other round, and the app does not require any of these three to make progress, but three rounds are closed to them.  
+- [ ] **6882.** \*\*The listening, dictation and minimal-pair rounds require hearing\*\* (WCAG 1.2.1). There is no transcript before the answer, because the transcript is the answer, so a text alternative would remove the exercise. The text is shown as soon as the answer is in. Somebody who cannot use audio can use every other round, and the app does not require any of these three to make progress, but three rounds are closed to them.  
   → \*\*Раунди аудіювання, диктанту й мінімальних пар потребують слуху\*\* (WCAG 1.2.1). Розшифровки до відповіді немає, бо розшифровка і є відповіддю, тож текстова альтернатива знищила б саму вправу. Текст показується одразу після відповіді. Той, хто не може користуватися звуком, може користуватися всіма іншими раундами, і для поступу жоден із цих трьох не обов'язковий, але три раунди для нього закриті.
-- [ ] **6885.** \*\*Speaking practice needs a microphone\*\* and asks the learner to judge their own attempt against a native rendering, because no recogniser available to this project is accurate enough on Estonian to mark one. Anybody who cannot record has no way through that round.  
+- [ ] **6883.** \*\*Speaking practice needs a microphone\*\* and asks the learner to judge their own attempt against a native rendering, because no recogniser available to this project is accurate enough on Estonian to mark one. Anybody who cannot record has no way through that round.  
   → \*\*Для тренування мовлення потрібен мікрофон\*\*, і учень сам порівнює свою спробу з вимовою носія, бо жоден доступний проєктові розпізнавач мовлення не настільки точний для естонської, щоб її оцінити. Той, хто не може записувати звук, не зможе пройти цей раунд.
-- [ ] **6886.** \*\*axe is swept at two widths, not at every width.\*\* It runs at 1280 and at 390, which is either side of the one breakpoint that swaps the navigation, so the phone bar and the sheet behind it are covered now. The widths between them, 360, 430 and 768, are measured for targets, overflow and containment and are not swept by axe. A fault in markup that appears at one of those and at neither of these would be found by a person rather than by the build.  
+- [ ] **6884.** \*\*axe is swept at two widths, not at every width.\*\* It runs at 1280 and at 390, which is either side of the one breakpoint that swaps the navigation, so the phone bar and the sheet behind it are covered now. The widths between them, 360, 430 and 768, are measured for targets, overflow and containment and are not swept by axe. A fault in markup that appears at one of those and at neither of these would be found by a person rather than by the build.  
   → \*\*axe проходить дві ширини, а не всі.\*\* Він запускається за 1280 і 390, по обидва боки від єдиної точки перелому, де змінюється навігація, тож нижню панель телефона й шторку за нею тепер перевірено. Проміжні ширини, 360, 430 і 768, перевіряються на розмір елементів, переповнення й межі, але не axe. Помилку в розмітці, яка проявляється на одній із них і на жодній із двох перших, знайде людина, а не збирання.
-- [ ] **6887.** \*\*Screens behind data are less covered.\*\* The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with pupils in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them.  
+- [ ] **6885.** \*\*Screens behind data are less covered.\*\* The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with pupils in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them.  
   → \*\*Екрани, яким потрібні дані, перевірено гірше.\*\* Автоматичний прохід бачить кожну сторінку під час завантаження плюс один стан, до якого учень доходить своїми діями. Список групи з учнями, частина іспиту в процесі й сітки головоломок під час гри доступні, але перевірені гірше за сусідні сторінки.
-- [ ] **6888.** \*\*Reflow is checked at three widths rather than at 400% zoom.\*\* The widths are 360, 768 and 1280, which covers the cases the app was designed for. WCAG asks the question in terms of zoom, and that exact test has not been run.  
+- [ ] **6886.** \*\*Reflow is checked at three widths rather than at 400% zoom.\*\* The widths are 360, 768 and 1280, which covers the cases the app was designed for. WCAG asks the question in terms of zoom, and that exact test has not been run.  
   → \*\*Перекомпонування перевіряється на трьох ширинах, а не за збільшення 400%.\*\* Ширини 360, 768 і 1280, і вони покривають випадки, на які розраховано застосунок. WCAG ставить питання через збільшення, і саме такого тесту не проводили.
-- [ ] **6889.** Where a limitation above is one of ours rather than one the exercise requires, it is something to fix rather than something to explain away. The practice clocks were the first of those and are adjustable now, and the phone sweep was the second: it used to be on this list and it runs in the build. The examination clock is the one that stays, for the reason beside it.  
+- [ ] **6887.** Where a limitation above is one of ours rather than one the exercise requires, it is something to fix rather than something to explain away. The practice clocks were the first of those and are adjustable now, and the phone sweep was the second: it used to be on this list and it runs in the build. The examination clock is the one that stays, for the reason beside it.  
   → Якщо обмеження вище спричинили ми, а не вимога самої вправи, його треба виправити, а не виправдовувати. Таймери тренувань були першими й тепер налаштовуються, а перевірка на телефоні була другою: раніше вона стояла в цьому списку, а тепер виконується під час збирання. Лишається таймер іспиту, з причини, вказаної поруч із ним.
-- [ ] **6890.** When this was prepared  
+- [ ] **6888.** When this was prepared  
   → Коли це підготовлено
-- [ ] **6891.** Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.  
+- [ ] **6889.** Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.  
   → Підготовлено 5 вересня 2026 року авторами застосунку на основі описаних вище автоматичних тестів і читання вихідного коду. Заяву переглядають щоразу, коли екран змінюється настільки, що це зачіпає одне з тверджень. Зовнішньої перевірки не було.
-- [ ] **6892.** Telling us about a problem  
+- [ ] **6890.** Telling us about a problem  
   → Як повідомити нам про проблему
-- [ ] **6893.** Write to {email}. Say what you were trying to do, what happened, and what you were using to do it with, if you can. A message that just says “this screen doesn’t work with my screen reader” is still worth sending: the person reading it can go and look.  
+- [ ] **6891.** Write to {email}. Say what you were trying to do, what happened, and what you were using to do it with, if you can. A message that just says “this screen doesn’t work with my screen reader” is still worth sending: the person reading it can go and look.  
   → Напишіть на {email}. Якщо можете, розкажіть, що ви намагалися зробити, що сталося і чим ви для цього користувалися. Навіть повідомлення «цей екран не працює з моїм екранним диктором» варто надіслати: той, хто його прочитає, зможе піти й подивитися.
-- [ ] **6894.** \*\*Whoever runs this installation has not filled their contact details in\*\*, so this statement has no address on it to write to. Ask whoever gave you the link. If you are running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
+- [ ] **6892.** \*\*Whoever runs this installation has not filled their contact details in\*\*, so this statement has no address on it to write to. Ask whoever gave you the link. If you are running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
   → \*\*Той, хто керує цією інсталяцією, не вказав своїх контактів\*\*, тож у цій заяві немає адреси для листів. Запитайте того, хто дав вам посилання. Якщо її запустили ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`.
-- [ ] **6895.** Every screen in the app also has a way to report something that is wrong with it, beside the thing that went wrong, and those reports reach the same people.  
+- [ ] **6893.** Every screen in the app also has a way to report something that is wrong with it, beside the thing that went wrong, and those reports reach the same people.  
   → Крім того, на кожному екрані застосунку поруч із тим, що пішло не так, є спосіб повідомити про проблему, і ці повідомлення потрапляють до тих самих людей.
-- [ ] **6896.** If that gets you nowhere  
+- [ ] **6894.** If that gets you nowhere  
   → Якщо це нічого не дало
-- [ ] **6897.** The enforcement route for accessibility in Estonia runs through the state authority responsible for the Web Accessibility Directive, and a complaint about how personal data is handled goes to the \*\*{authority}\*\* ({local}), {address}, {email}. Do write to us first, though. A real person reads it, and a fix is usually quicker than a complaint.  
+- [ ] **6895.** The enforcement route for accessibility in Estonia runs through the state authority responsible for the Web Accessibility Directive, and a complaint about how personal data is handled goes to the \*\*{authority}\*\* ({local}), {address}, {email}. Do write to us first, though. A real person reads it, and a fix is usually quicker than a complaint.  
   → Нагляд за доступністю в Естонії здійснює державний орган, відповідальний за Директиву про вебдоступність, а скарга на обробку персональних даних надсилається до \*\*{authority}\*\* ({local}), {address}, {email}. Але спершу все ж напишіть нам. Лист читає жива людина, і виправити зазвичай швидше, ніж поскаржитися.
-- [ ] **6898.** See also {trust} and {privacy}.  
+- [ ] **6896.** See also {trust} and {privacy}.  
   → Див. також «{trust}» і «{privacy}».
-- [ ] **6899.** Offline  
+- [ ] **6897.** Offline  
   → Немає мережі
-- [ ] **6900.** This page needs the internet  
+- [ ] **6898.** This page needs the internet  
   → Цій сторінці потрібен інтернет
-- [ ] **6901.** You’re offline right now. Pages you’ve already opened still work, and so does your review. Every answer you give is kept on this device and sent as soon as you’re back online.  
+- [ ] **6899.** You’re offline right now. Pages you’ve already opened still work, and so does your review. Every answer you give is kept on this device and sent as soon as you’re back online.  
   → Зараз ви не в мережі. Сторінки, які ви вже відкривали, як і раніше працюють, як і повторення. Кожна ваша відповідь зберігається на цьому пристрої й надішлеться, щойно зв'язок повернеться.
-- [ ] **6902.** Review your words instead  
+- [ ] **6900.** Review your words instead  
   → Краще повторіть слова
-- [ ] **6903.** Checked against the state’s own pages on  
+- [ ] **6901.** Checked against the state’s own pages on  
   → Звірено з офіційними сторінками держави
-- [ ] **6904.** Four levels  
+- [ ] **6902.** Four levels  
   → Чотири рівні
-- [ ] **6905.** Four parts at every level  
+- [ ] **6903.** Four parts at every level  
   → Чотири частини на кожному рівні
-- [ ] **6906.** Every fact below links to the page it came from. Rules and dates do change, so check that page before you register.  
+- [ ] **6904.** Every fact below links to the page it came from. Rules and dates do change, so check that page before you register.  
   → Кожен факт нижче посилається на сторінку, звідки його взято. Правила й дати змінюються, тож перевірте цю сторінку перед реєстрацією.
-- [ ] **6907.** From _(context: source)_  
+- [ ] **6905.** From _(context: source)_  
   → Джерело:
-- [ ] **6908.** The best free preparation there is  
+- [ ] **6906.** The best free preparation there is  
   → Найкраща безплатна підготовка
-- [ ] **6909.** The Board publishes its own practice materials, for free. Start with these before anything else, this app included.  
+- [ ] **6907.** The Board publishes its own practice materials, for free. Start with these before anything else, this app included.  
   → Harno безплатно публікує власні матеріали для підготовки. Почніть із них, перш ніж братися за будь-що інше, зокрема за цей застосунок.
-- [ ] **6910.** Where Kodukeel fits  
+- [ ] **6908.** Where Kodukeel fits  
   → Де тут Kodukeel
-- [ ] **6911.** Kodukeel sets a mock paper at A2, B1, B2 and C1, plus one of its own at A1. Each one keeps the published time limits, the points, the pass mark and the rule that you fail if any part scores zero, and every task tells you which official task it stands in for. The questions are built from sentences a lexicographer recorded, so they aren’t the Board’s own. Nothing here scores your pronunciation, and it’s free.  
+- [ ] **6909.** Kodukeel sets a mock paper at A2, B1, B2 and C1, plus one of its own at A1. Each one keeps the published time limits, the points, the pass mark and the rule that you fail if any part scores zero, and every task tells you which official task it stands in for. The questions are built from sentences a lexicographer recorded, so they aren’t the Board’s own. Nothing here scores your pronunciation, and it’s free.  
   → Kodukeel дає пробні іспити на рівнях A2, B1, B2 і C1 і ще власний на A1. У кожному збережено опубліковані обмеження часу, бали, прохідний поріг і правило, за яким іспит не складено, якщо хоч одна частина набрала нуль, а в кожному завданні вказано, яке офіційне завдання воно замінює. Запитання зібрано з речень, записаних лексикографом, тож це не завдання самого Harno. Вимову тут не оцінюють, і все це безплатно.
-- [ ] **6912.** Sit a mock paper  
+- [ ] **6910.** Sit a mock paper  
   → Скласти пробний іспит
-- [ ] **6913.** What Kodukeel is  
+- [ ] **6911.** What Kodukeel is  
   → Що таке Kodukeel
-- [ ] **6914.** Sign in  
+- [ ] **6912.** Sign in  
   → Увійти
-- [ ] **6915.** What it is  
+- [ ] **6913.** What it is  
   → Що це таке
-- [ ] **6916.** The state examines Estonian at four levels: A2, B1, B2 and C1. There's no exam at A1 or C2.  
+- [ ] **6914.** The state examines Estonian at four levels: A2, B1, B2 and C1. There's no exam at A1 or C2.  
   → Держава перевіряє знання естонської на чотирьох рівнях: A2, B1, B2 і C1. Іспиту на A1 і C2 немає.
-- [ ] **6917.** Every level has four parts: writing, listening, reading and speaking. It tests your Estonian, not what you know about Estonian culture or history.  
+- [ ] **6915.** Every level has four parts: writing, listening, reading and speaking. It tests your Estonian, not what you know about Estonian culture or history.  
   → На кожному рівні чотири частини: письмо, аудіювання, читання й говоріння. Перевіряється ваша естонська, а не знання естонської культури чи історії.
-- [ ] **6918.** It's free, and so is sitting it again.  
+- [ ] **6916.** It's free, and so is sitting it again.  
   → Він безплатний, і перескладання теж.
-- [ ] **6919.** The papers, the level descriptions and the sample materials are all in Estonian.  
+- [ ] **6917.** The papers, the level descriptions and the sample materials are all in Estonian.  
   → Екзаменаційні завдання, описи рівнів і зразки матеріалів естонською.
-- [ ] **6920.** The spoken part starts with a short chat with the examiner, the kind people have when they first meet: who you are and a bit about yourself. Two assessors mark a recording of it.  
+- [ ] **6918.** The spoken part starts with a short chat with the examiner, the kind people have when they first meet: who you are and a bit about yourself. Two assessors mark a recording of it.  
   → Усна частина починається з короткої розмови з екзаменатором, яка буває під час першого знайомства: хто ви і трохи про себе. Запис розмови оцінюють два екзаменатори.
-- [ ] **6921.** Who needs which level  
+- [ ] **6919.** Who needs which level  
   → Кому який рівень потрібен
-- [ ] **6922.** Applying for citizenship takes two examinations: this one at B1 or higher, and a separate examination on the Constitution and the Citizenship Act.  
+- [ ] **6920.** Applying for citizenship takes two examinations: this one at B1 or higher, and a separate examination on the Constitution and the Citizenship Act.  
   → Для громадянства потрібні два іспити: цей, на рівні B1 або вище, і окремий іспит з Конституції та Закону про громадянство.
-- [ ] **6923.** If you're applying for citizenship and you're 65 or over, you can skip the writing part of the B1 exam and sit the other three. You choose that on the registration form.  
+- [ ] **6921.** If you're applying for citizenship and you're 65 or over, you can skip the writing part of the B1 exam and sit the other three. You choose that on the registration form.  
   → Якщо ви подаєте на громадянство і вам 65 років або більше, можна не складати письмову частину іспиту B1 і складати решту три. Це обирають у реєстраційній формі.
-- [ ] **6924.** The level a job needs is set by a government regulation, depending on the kind of post and its professional standard.  
+- [ ] **6922.** The level a job needs is set by a government regulation, depending on the kind of post and its professional standard.  
   → Рівень, потрібний для роботи, встановлюється постановою уряду залежно від виду посади та її професійного стандарту.
-- [ ] **6925.** The Police and Border Guard Board decides which level a residence permit needs. Ask them about your own case before you register.  
+- [ ] **6923.** The Police and Border Guard Board decides which level a residence permit needs. Ask them about your own case before you register.  
   → Який рівень потрібен для посвідки на проживання, вирішує Департамент поліції та прикордонної охорони. Перш ніж реєструватися, запитайте їх про свій випадок.
-- [ ] **6926.** Registering  
+- [ ] **6924.** Registering  
   → Реєстрація
-- [ ] **6927.** Register in EIS. If you have an Estonian personal identification code, you have to register there. Paper applications are only for people without one.  
+- [ ] **6925.** Register in EIS. If you have an Estonian personal identification code, you have to register there. Paper applications are only for people without one.  
   → Реєструйтеся в EIS. Якщо у вас є естонський особистий код, реєструватися треба там. Паперові заяви лише для тих, у кого його немає.
-- [ ] **6928.** You'll need an email address. The form won't send without one.  
+- [ ] **6926.** You'll need an email address. The form won't send without one.  
   → Знадобиться адреса електронної пошти. Без неї форма не надішлеться.
-- [ ] **6929.** Registration closes on the 1st of the month before the examination. You can register for one examination at a time.  
+- [ ] **6927.** Registration closes on the 1st of the month before the examination. You can register for one examination at a time.  
   → Реєстрація закривається 1-го числа місяця, що передує іспиту. Реєструватися можна лише на один іспит за раз.
-- [ ] **6930.** You'll get an email with the time and place at least 14 days before. You can cancel up to four working days before the date.  
+- [ ] **6928.** You'll get an email with the time and place at least 14 days before. You can cancel up to four working days before the date.  
   → Лист із часом і місцем прийде не пізніше ніж за 14 днів. Скасувати можна не пізніше ніж за чотири робочі дні до дати.
-- [ ] **6931.** If you need special conditions for health reasons, like more time or a separate room, apply to an expert committee. It meets in the first week of the month before the exam.  
+- [ ] **6929.** If you need special conditions for health reasons, like more time or a separate room, apply to an expert committee. It meets in the first week of the month before the exam.  
   → Якщо через стан здоров'я вам потрібні особливі умови, наприклад більше часу чи окрема кімната, подайте заяву до експертної комісії. Вона збирається в перший тиждень місяця перед іспитом.
-- [ ] **6932.** When, where and on the day  
+- [ ] **6930.** When, where and on the day  
   → Коли, де і як минає день іспиту
-- [ ] **6933.** Examinations are held once a quarter in Tallinn, Tartu, Narva and {e1}, and in {e2} in March and September if at least twelve people register.  
+- [ ] **6931.** Examinations are held once a quarter in Tallinn, Tartu, Narva and {e1}, and in {e2} in March and September if at least twelve people register.  
   → Іспити проходять раз на квартал у Таллінні, Тарту, Нарві та {e1}, а в березні й вересні і в {e2}, якщо зареєструється щонайменше дванадцять людей.
-- [ ] **6934.** They start at 10:00. When a lot of people register, the written and spoken parts can fall on different days.  
+- [ ] **6932.** They start at 10:00. When a lot of people register, the written and spoken parts can fall on different days.  
   → Початок о 10:00. Якщо реєструється багато людей, письмова й усна частини можуть припасти на різні дні.
-- [ ] **6935.** There's a free consultation before each exam, up to four and a half hours long, and you don't need to register for it. Bring an ID document, just as you would to the exam.  
+- [ ] **6933.** There's a free consultation before each exam, up to four and a half hours long, and you don't need to register for it. Bring an ID document, just as you would to the exam.  
   → Перед кожним іспитом проходить безплатна консультація тривалістю до чотирьох з половиною годин, і реєструватися на неї не треба. Візьміть посвідчення особи, як і на іспит.
-- [ ] **6936.** Results, and failing  
+- [ ] **6934.** Results, and failing  
   → Результати й невдача
-- [ ] **6937.** A pass is 60 percent of the total, and no part can score zero.  
+- [ ] **6935.** A pass is 60 percent of the total, and no part can score zero.  
   → Для складання потрібно 60 відсотків від загального балу, і жодна частина не може бути оцінена в нуль.
-- [ ] **6938.** Results are published no later than 40 days after the examination, in EIS and on eesti.ee. The certificate is electronic only; the certificate number and your identification code are what an employer checks.  
+- [ ] **6936.** Results are published no later than 40 days after the examination, in EIS and on eesti.ee. The certificate is electronic only; the certificate number and your identification code are what an employer checks.  
   → Результати публікують не пізніше ніж через 40 днів після іспиту, в EIS і на eesti.ee. Свідоцтво лише електронне; роботодавець перевіряє номер свідоцтва і ваш особистий код.
-- [ ] **6939.** If you score below 45 percent, or miss the exam without a good reason, you wait six months before registering again. You can't register for the next sitting until the last one's results are out.  
+- [ ] **6937.** If you score below 45 percent, or miss the exam without a good reason, you wait six months before registering again. You can't register for the next sitting until the last one's results are out.  
   → Якщо ви набрали менше ніж 45 відсотків або пропустили іспит без поважної причини, знову зареєструватися можна лише через шість місяців. На наступний іспит не можна зареєструватися, доки не вийшли результати попередньої.
-- [ ] **6940.** You can ask to see your marked paper and appeal the result.  
+- [ ] **6938.** You can ask to see your marked paper and appeal the result.  
   → Можна попросити показати перевірену роботу й оскаржити результат.
-- [ ] **6941.** Getting course fees back  
+- [ ] **6939.** Getting course fees back  
   → Повернення плати за курси
-- [ ] **6942.** Since 1 January 2024 the state only refunds Estonian course fees to citizenship applicants who have passed both exams, and to people the Language Board sent to sit one.  
-  → З 1 січня 2024 року держава повертає плату за курси естонської лише кандидатам на громадянство, які склали обидва іспити, і тим, кого направив на іспит Департамент мови.
-- [ ] **6943.** You can get up to 384 euros back for a course from a provider licensed for that level. Claim it within three months of finding out you passed.  
+- [ ] **6940.** Since 1 January 2024 the state only refunds Estonian course fees to citizenship applicants who have passed both exams, and to people the Language Board sent to sit one.  
+  → З 1 січня 2024 року держава повертає плату за курси естонської лише кандидатам на громадянство, які склали обидва іспити, і тим, кого направив на іспит Мовний департамент (Keeleamet).
+- [ ] **6941.** You can get up to 384 euros back for a course from a provider licensed for that level. Claim it within three months of finding out you passed.  
   → За курс у постачальника з ліцензією на цей рівень можна повернути до 384 євро. Подайте заяву протягом трьох місяців після того, як дізналися, що склали.
-- [ ] **6944.** The Constitution and Citizenship Act examination  
+- [ ] **6942.** The Constitution and Citizenship Act examination  
   → Іспит з Конституції та Закону про громадянство
-- [ ] **6945.** It takes 45 minutes on a computer: 24 multiple choice questions in Estonian. You pass with 18 right.  
+- [ ] **6943.** It takes 45 minutes on a computer: 24 multiple choice questions in Estonian. You pass with 18 right.  
   → Він триває 45 хвилин за комп'ютером: 24 запитання з варіантами відповідей естонською. Для складання потрібно 18 правильних.
-- [ ] **6946.** The Constitution, the Citizenship Act and a dictionary are in the room, and you're allowed to use them.  
+- [ ] **6944.** The Constitution, the Citizenship Act and a dictionary are in the room, and you're allowed to use them.  
   → В аудиторії є Конституція, Закон про громадянство і словник, і ними дозволено користуватися.
-- [ ] **6947.** It's held once a month except in July, in Tallinn, Tartu and Narva, and you get your result as soon as it ends. Harno publishes a handbook for it in English and Russian.  
-  → Він проходить раз на місяць, крім липня, у Таллінні, Тарту й Нарві, і результат ви отримуєте одразу після закінчення. Harno публікує посібник до нього англійською.
-- [ ] **6948.** Harno, Estonian language proficiency examinations  
+- [ ] **6945.** It's held once a month except in July, in Tallinn, Tartu and Narva, and you get your result as soon as it ends. Harno publishes a handbook for it in English and Russian.  
+  → Він проходить раз на місяць, крім липня, у Таллінні, Тарту й Нарві, і результат ви отримуєте одразу після закінчення. Harno публікує посібник до нього англійською та російською.
+- [ ] **6946.** Harno, Estonian language proficiency examinations  
   → Harno, іспити на рівень володіння естонською мовою (англійською)
-- [ ] **6949.** Harno, the language examinations (the fuller page, in Estonian)  
+- [ ] **6947.** Harno, the language examinations (the fuller page, in Estonian)  
   → Harno, мовні іспити (повніша сторінка, естонською)
-- [ ] **6950.** Harno, the citizenship examinations (in Estonian)  
+- [ ] **6948.** Harno, the citizenship examinations (in Estonian)  
   → Harno, іспити на громадянство (естонською)
-- [ ] **6951.** EIS, the examinations information system  
+- [ ] **6949.** EIS, the examinations information system  
   → EIS, інформаційна система іспитів
-- [ ] **6952.** The Police and Border Guard Board  
+- [ ] **6950.** The Police and Border Guard Board  
   → Департамент поліції та прикордонної охорони
-- [ ] **6953.** eesti.ee, the state portal  
+- [ ] **6951.** eesti.ee, the state portal  
   → eesti.ee, державний портал
-- [ ] **6954.** Written samples by past candidates, with the examiners' comments  
+- [ ] **6952.** Written samples by past candidates, with the examiners' comments  
   → Письмові роботи минулих кандидатів із коментарями екзаменаторів
-- [ ] **6955.** Consultation workbooks, listening tests and sample tasks for every level  
+- [ ] **6953.** Consultation workbooks, listening tests and sample tasks for every level  
   → Робочі зошити консультацій, тести на аудіювання й зразки завдань для кожного рівня
-- [ ] **6956.** Public practice tests in EIS  
+- [ ] **6954.** Public practice tests in EIS  
   → Відкриті тренувальні тести в EIS
-- [ ] **6957.** The Constitution and Citizenship Act examination: handbook, dates and practice  
+- [ ] **6955.** The Constitution and Citizenship Act examination: handbook, dates and practice  
   → Іспит з Конституції та Закону про громадянство: посібник, дати й тренування
-- [ ] **6958.** Kodukeel is free to use, there’s nothing to buy, and nothing about you is sold. This page shows the sums behind that sentence: what the app runs on, what each piece costs, who’s paying for the copy you’re reading, and what would change if somebody funded it.  
+- [ ] **6956.** Kodukeel is free to use, there’s nothing to buy, and nothing about you is sold. This page shows the sums behind that sentence: what the app runs on, what each piece costs, who’s paying for the copy you’re reading, and what would change if somebody funded it.  
   → Kodukeel безплатний, купувати в ньому нічого, і нічого про вас не продається. На цій сторінці показано розрахунки, що стоять за цією фразою: на чому працює застосунок, скільки коштує кожна частина, хто платить за копію, яку ви читаєте, і що змінилося б, якби хтось його профінансував.
-- [ ] **6959.** The figures and the sums are the same in every language. The working the calculator shows for each line, and the numbers it had to judge, are still in English.  
+- [ ] **6957.** The figures and the sums are the same in every language. The working the calculator shows for each line, and the numbers it had to judge, are still in English.  
   → Цифри й розрахунки однакові будь-якою мовою. Пояснення калькулятора до кожного рядка і числа, які довелося оцінити, поки англійською.
-- [ ] **6960.** Who pays for this copy  
+- [ ] **6958.** Who pays for this copy  
   → Хто платить за цю копію
-- [ ] **6961.** This installation is run by \*\*{name}\*\*, and they pay the bills on this page. Kodukeel is software anyone can install rather than one service, so every copy has its own operator and its own invoice.  
+- [ ] **6959.** This installation is run by \*\*{name}\*\*, and they pay the bills on this page. Kodukeel is software anyone can install rather than one service, so every copy has its own operator and its own invoice.  
   → Оператор цієї інсталяції: \*\*{name}\*\*, і рахунки на цій сторінці оплачує він. Kodukeel може встановити будь-хто, це програма, а не єдиний сервіс, тож у кожної копії свій оператор і свої рахунки.
-- [ ] **6962.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install rather than one service, so the bills below are paid by whoever set this copy up. They are supposed to be named here and on the {privacy}, and they are not. If that is you, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
+- [ ] **6960.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install rather than one service, so the bills below are paid by whoever set this copy up. They are supposed to be named here and on the {privacy}, and they are not. If that is you, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
   → \*\*Той, хто керує цією інсталяцією, не вказав свого імені.\*\* Kodukeel може встановити будь-хто, це програма, а не єдиний сервіс, тож рахунки нижче оплачує той, хто розгорнув цю копію. Його ім'я має стояти тут і на {privacy}, але його немає. Якщо це ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`.
-- [ ] **6963.** The code is MIT licensed and the dictionary data is not ours to license: Ekilex is CC BY 4.0 and Wiktionary is CC BY-SA 4.0, which is share-alike and therefore reaches the built dictionary as well. Anyone may run their own copy, and at one learner it costs the price of a domain name.  
+- [ ] **6961.** The code is MIT licensed and the dictionary data is not ours to license: Ekilex is CC BY 4.0 and Wiktionary is CC BY-SA 4.0, which is share-alike and therefore reaches the built dictionary as well. Anyone may run their own copy, and at one learner it costs the price of a domain name.  
   → Код поширюється за ліцензією MIT, а ліцензувати дані словника не нам: Ekilex іде під CC BY 4.0, а Вікісловник під CC BY-SA 4.0, з умовою «на тих самих умовах», яка поширюється й на зібраний словник. Свою копію може запустити будь-хто, і на одного учня це коштує як доменне ім'я.
-- [ ] **6964.** What it runs on  
+- [ ] **6962.** What it runs on  
   → На чому це працює
-- [ ] **6965.** the privacy page  
+- [ ] **6963.** the privacy page  
   → сторінці про конфіденційність
-- [ ] **6966.** {count} things, and every one of them has a price on it. The list is longer than the one on {privacy}, because that page answers a narrower question: a service can hold every row in the database without ever being told who a learner is.  
+- [ ] **6964.** {count} things, and every one of them has a price on it. The list is longer than the one on {privacy}, because that page answers a narrower question: a service can hold every row in the database without ever being told who a learner is.  
   → Усього їх {count}, і кожна має ціну. Список довший, ніж на {privacy}, бо та сторінка відповідає на вужче питання: сервіс може зберігати кожен рядок бази даних, так і не дізнавшись, хто учень.
-- [ ] **6967.** \*\*Nothing anybody bills us for is counted as free.\*\* Every vendor here is on the plan a real deployment is on, because a free tier either pauses when nobody’s using it or forbids commercial use, and pricing one would describe a deployment nobody actually runs.  
+- [ ] **6965.** \*\*Nothing anybody bills us for is counted as free.\*\* Every vendor here is on the plan a real deployment is on, because a free tier either pauses when nobody’s using it or forbids commercial use, and pricing one would describe a deployment nobody actually runs.  
   → \*\*Ніщо, за що нам виставляють рахунок, не вважається безплатним.\*\* Кожного постачальника тут узято з тим тарифом, на якому працює справжня інсталяція, бо безплатний тариф або призупиняється, коли ним ніхто не користується, або забороняє комерційне використання, і розрахунок за ним описував би інсталяцію, якої насправді ніхто не тримає.
-- [ ] **6968.** \*\*What is given is credited, not priced.\*\* Ekilex, Wiktionary and TartuNLP are public institutions that decided this work should be available. They ask for nothing, and that is a good arrangement rather than a gap in the accounts, so they are named here with what each one gives and the license it comes under, and they appear in no total. Where buying the same thing is possible the panel says what that would come to, because the size of the gift is worth seeing. The last line of each card is the one worth reading: every entry is a state the app already handles rather than a disaster.  
+- [ ] **6966.** \*\*What is given is credited, not priced.\*\* Ekilex, Wiktionary and TartuNLP are public institutions that decided this work should be available. They ask for nothing, and that is a good arrangement rather than a gap in the accounts, so they are named here with what each one gives and the license it comes under, and they appear in no total. Where buying the same thing is possible the panel says what that would come to, because the size of the gift is worth seeing. The last line of each card is the one worth reading: every entry is a state the app already handles rather than a disaster.  
   → \*\*Подароване зазначається з подякою, а не з ціною.\*\* Ekilex, Вікісловник і TartuNLP це громадські інституції, які вирішили, що ця робота має бути доступною. Вони нічого не просять, і це добра домовленість, а не діра у звітності, тож їх названо тут разом із тим, що дає кожна, і ліцензією, на якій це дається, і вони не входять до жодної суми. Де те саме можна купити, панель каже, скільки б це коштувало, бо розмір подарунка варто побачити. Читати варто останній рядок кожної картки: кожен пункт це стан, з яким застосунок уже дає раду, а не катастрофа.
-- [ ] **6969.** on here  
+- [ ] **6967.** on here  
   → увімкнено тут
-- [ ] **6970.** not set here  
+- [ ] **6968.** not set here  
   → тут не налаштовано
-- [ ] **6971.** Without it: {gone}  
+- [ ] **6969.** Without it: {gone}  
   → Без цього: {gone}
-- [ ] **6972.** \*\*On this installation.\*\* Sign-in is {signIn}. Live dictionary lookups are {lookups}, and speech is cached {speech}. {anu}  
+- [ ] **6970.** \*\*On this installation.\*\* Sign-in is {signIn}. Live dictionary lookups are {lookups}, and speech is cached {speech}. {anu}  
   → \*\*У цій інсталяції.\*\* Вхід в обліковий запис {signIn}. Живі запити до словника {lookups}, а озвучення кешується {speech}. {anu}
-- [ ] **6973.** on, so every learner has a deck of their own  
+- [ ] **6971.** on, so every learner has a deck of their own  
   → увімкнено, тож у кожного учня своя колода
-- [ ] **6974.** off, so this copy is one local learner  
+- [ ] **6972.** off, so this copy is one local learner  
   → вимкнено, тож у цій копії один локальний учень
-- [ ] **6975.** on _(context: switch)_  
+- [ ] **6973.** on _(context: switch)_  
   → увімкнено
-- [ ] **6976.** off, so the built-in dictionary answers by itself  
+- [ ] **6974.** off, so the built-in dictionary answers by itself  
   → вимкнено, тож відповідає вбудований словник
-- [ ] **6977.** in shared storage  
+- [ ] **6975.** in shared storage  
   → у спільному сховищі
-- [ ] **6978.** on the server’s own disk  
+- [ ] **6976.** on the server’s own disk  
   → на власному диску сервера
-- [ ] **6979.** No model key is set, so Anu is not here at all and nothing on this page bills for her.  
+- [ ] **6977.** No model key is set, so Anu is not here at all and nothing on this page bills for her.  
   → Ключ моделі не задано, тож Ану тут немає зовсім, і ніщо на цій сторінці за неї не платить.
-- [ ] **6980.** Anu is answered by {models}, on models that are given away at the tier this uses, which the panel below still prices as though they were bought.  
+- [ ] **6978.** Anu is answered by {models}, on models that are given away at the tier this uses, which the panel below still prices as though they were bought.  
   → За Ану відповідає {models}, на моделях, які на використовуваному тарифі віддаються безплатно, але панель нижче все одно рахує їх так, ніби їх куплено.
-- [ ] **6981.** Anu is answered by {models}, on at least one model that charges.  
+- [ ] **6979.** Anu is answered by {models}, on at least one model that charges.  
   → За Ану відповідає {models}, і принаймні одна з моделей платна.
-- [ ] **6982.** What it comes to  
+- [ ] **6980.** What it comes to  
   → Скільки це коштує
-- [ ] **6983.** Move the slider. Nothing here is stored or sent anywhere. The sums run in your browser, using the same code the app itself uses to decide when to stop spending.  
+- [ ] **6981.** Move the slider. Nothing here is stored or sent anywhere. The sums run in your browser, using the same code the app itself uses to decide when to stop spending.  
   → Посуньте повзунок. Тут нічого не зберігається й нікуди не надсилається. Розрахунки йдуть у вашому браузері тим самим кодом, яким сам застосунок вирішує, коли припинити витрачати.
-- [ ] **6984.** What was measured, and how  
+- [ ] **6982.** What was measured, and how  
   → Що виміряно і як
-- [ ] **6985.** Taken on {day}, against Postgres 16 on one machine and a production build served locally. Each row says what to run to get the same number, because a figure nobody can reproduce is a claim rather than a measurement.  
+- [ ] **6983.** Taken on {day}, against Postgres 16 on one machine and a production build served locally. Each row says what to run to get the same number, because a figure nobody can reproduce is a claim rather than a measurement.  
   → Знято {day} на Postgres 16 на одній машині й робочому збиранні, запущеному локально. У кожному рядку сказано, що запустити, щоб отримати те саме число, бо цифра, яку ніхто не може відтворити, це твердження, а не вимірювання.
-- [ ] **6986.** Measurements taken on this repository  
+- [ ] **6984.** Measurements taken on this repository  
   → Вимірювання, зняті на цьому репозиторії
-- [ ] **6987.** What  
+- [ ] **6985.** What  
   → Що
-- [ ] **6988.** How much  
+- [ ] **6986.** How much  
   → Скільки
-- [ ] **6989.** Two of those are worth stopping on. A review row is 300 bytes, so a learner costs about 1.3 MB a year and the whole review log of a thousand people for a year fits in less space than a phone photograph album. And a spoken clip is uncompressed audio, 43 KB for every second of it once trimmed and stored as 16-bit, which still makes speech the largest thing this app moves by a wide margin. Turning the audio off in the panel above is the single biggest saving available, and it is also the feature hardest to argue for losing.  
+- [ ] **6987.** Two of those are worth stopping on. A review row is 300 bytes, so a learner costs about 1.3 MB a year and the whole review log of a thousand people for a year fits in less space than a phone photograph album. And a spoken clip is uncompressed audio, 43 KB for every second of it once trimmed and stored as 16-bit, which still makes speech the largest thing this app moves by a wide margin. Turning the audio off in the panel above is the single biggest saving available, and it is also the feature hardest to argue for losing.  
   → На двох із них варто зупинитися. Рядок повторення важить 300 байтів, тож учень коштує приблизно 1,3 МБ на рік, а весь журнал повторень тисячі людей за рік займає менше місця, ніж альбом фотографій у телефоні. А звуковий фрагмент це нестиснене аудіо, 43 КБ на кожну секунду після обрізання й збереження в 16 біт, і все одно озвучення з великим відривом найоб'ємніше, що передає цей застосунок. Вимкнути звук у панелі вище це найбільша з можливих економій, і водночас від цієї функції найважче відмовитися.
-- [ ] **6990.** Where the prices came from  
+- [ ] **6988.** Where the prices came from  
   → Звідки взято ціни
-- [ ] **6991.** Read on {day}. These are the numbers most likely to be out of date by the time you read this, which is why they carry a date rather than being folded into the total.  
+- [ ] **6989.** Read on {day}. These are the numbers most likely to be out of date by the time you read this, which is why they carry a date rather than being folded into the total.  
   → Перевірено {day}. Саме ці числа найімовірніше застаріють на той момент, коли ви це прочитаєте, тож у них стоїть дата, а не просто підсумок.
-- [ ] **6992.** ${base} a month, then ${rate} a gigabyte out past the first {gb}.  
+- [ ] **6990.** ${base} a month, then ${rate} a gigabyte out past the first {gb}.  
   → ${base} на місяць, потім ${rate} за гігабайт вихідного трафіку понад перші {gb}.
-- [ ] **6993.** ${base} a month with {db} GB of database, {files} GB of files and ${credit} of compute credit.  
+- [ ] **6991.** ${base} a month with {db} GB of database, {files} GB of files and ${credit} of compute credit.  
   → ${base} на місяць, зокрема {db} ГБ бази даних, {files} ГБ файлів і ${credit} кредиту на обчислення.
-- [ ] **6994.** Database instances  
+- [ ] **6992.** Database instances  
   → Екземпляри бази даних
-- [ ] **6995.** from ${low} a month to ${high}. This is the steepest ladder on the page.  
+- [ ] **6993.** from ${low} a month to ${high}. This is the steepest ladder on the page.  
   → від ${low} до ${high} на місяць. Це найкрутіша драбина на сторінці.
-- [ ] **6996.** Speech  
+- [ ] **6994.** Speech  
   → Озвучення
-- [ ] **6997.** ${rate} a million characters, which is what {who} charge. TartuNLP charge nothing. That rate is here only to show the size of what they give, and it is in no total on this page.  
+- [ ] **6995.** ${rate} a million characters, which is what {who} charge. TartuNLP charge nothing. That rate is here only to show the size of what they give, and it is in no total on this page.  
   → ${rate} за мільйон символів, стільки беруть {who}. TartuNLP не бере нічого. Цей тариф тут лише для того, щоб показати розмір того, що вони дають, і він не входить до жодної суми на цій сторінці.
-- [ ] **6998.** ${base} a month for {emails} emails, then ${rate} a thousand.  
+- [ ] **6996.** ${base} a month for {emails} emails, then ${rate} a thousand.  
   → ${base} на місяць, у тариф входить листів: {emails}, понад це ${rate} за тисячу.
-- [ ] **6999.** Error reporting  
+- [ ] **6997.** Error reporting  
   → Звіти про помилки
-- [ ] **7000.** ${base} a month for {events} events.  
+- [ ] **6998.** ${base} a month for {events} events.  
   → ${base} на місяць, у тариф входить подій: {events}.
-- [ ] **7001.** {eur} euros a month. The tooling that writes and maintains this, which is the one line here that is not runtime and the one that does not grow.  
+- [ ] **6999.** {eur} euros a month. The tooling that writes and maintains this, which is the one line here that is not runtime and the one that does not grow.  
   → {eur} євро на місяць. Інструменти, якими це пишеться й підтримується, єдиний рядок тут, не пов'язаний із роботою застосунку, і єдиний, що не зростає.
-- [ ] **7002.** The euro  
+- [ ] **7000.** The euro  
   → Євро
-- [ ] **7003.** {usd} dollars, the European Central Bank’s reference rate. Two lines here are billed in euros and the rest in dollars, and every price is net of VAT, which is how each vendor quotes its own.  
+- [ ] **7001.** {usd} dollars, the European Central Bank’s reference rate. Two lines here are billed in euros and the rest in dollars, and every price is net of VAT, which is how each vendor quotes its own.  
   → {usd} долара, довідковий курс Європейського центрального банку. Два рядки тут оплачуються в євро, решта в доларах, і всі ціни вказано без ПДВ, так, як їх називає кожен постачальник.
-- [ ] **7004.** A .ee domain  
+- [ ] **7002.** A .ee domain  
   → Домен .ee
-- [ ] **7005.** about {eur} euros a year.  
+- [ ] **7003.** about {eur} euros a year.  
   → близько {eur} євро на рік.
-- [ ] **7006.** Ekilex, Wiktionary and TartuNLP are not on that list, because they do not charge and this page does not pretend otherwise. They are credited above instead, with what each one gives and the license it comes under. Where buying the same thing is possible the panel says what that would come to, so the size of the gift is visible, and that figure is in no total here.  
+- [ ] **7004.** Ekilex, Wiktionary and TartuNLP are not on that list, because they do not charge and this page does not pretend otherwise. They are credited above instead, with what each one gives and the license it comes under. Where buying the same thing is possible the panel says what that would come to, so the size of the gift is visible, and that figure is in no total here.  
   → Ekilex, Вікісловника й TartuNLP у цьому списку немає, бо вони не беруть грошей, і ця сторінка не вдає, ніби беруть. Натомість їх названо вище з подякою, разом із тим, що дає кожна, і ліцензією, на якій це дається. Де те саме можна купити, панель каже, скільки б це коштувало, щоб розмір подарунка було видно, і ця цифра не входить до жодної суми тут.
-- [ ] **7007.** What that number leaves out  
+- [ ] **7005.** What that number leaves out  
   → Чого ця сума не враховує
-- [ ] **7008.** \*\*Somebody’s time\*\*, which is the largest real cost of this project by a long way and is not a hosting bill. The panel above prices machines. It does not price writing the course, checking 5,363 English glosses against their sources, or reading the queue of corrections learners send in.  
+- [ ] **7006.** \*\*Somebody’s time\*\*, which is the largest real cost of this project by a long way and is not a hosting bill. The panel above prices machines. It does not price writing the course, checking 5,363 English glosses against their sources, or reading the queue of corrections learners send in.  
   → \*\*Чийсь час\*\*, це з великим відривом найбільша справжня стаття витрат проєкту, і це не рахунок за хостинг. Панель вище рахує машини. Вона не рахує написання курсу, перевірку 5 363 англійських перекладів за їхніми джерелами й читання черги виправлень, які надсилають учні.
-- [ ] **7009.** \*\*Answering people.\*\* A dead end in this app offers to send a report, and somebody has to work through them for that to mean anything.  
+- [ ] **7007.** \*\*Answering people.\*\* A dead end in this app offers to send a report, and somebody has to work through them for that to mean anything.  
   → \*\*Відповіді людям.\*\* У кожному глухому куті застосунку є кнопка надіслати повідомлення, і хтось мусить їх розбирати, інакше це нічого не означає.
-- [ ] **7010.** \*\*A bad month.\*\* The projection is a steady month. It does not model the week something is on the radio, and a plan’s included allowance is exactly where a spike is felt first.  
+- [ ] **7008.** \*\*A bad month.\*\* The projection is a steady month. It does not model the week something is on the radio, and a plan’s included allowance is exactly where a spike is felt first.  
   → \*\*Поганий місяць.\*\* Прогноз розраховано на рівний місяць. Він не враховує тиждень, коли про застосунок розповіли по радіо, а ліміт, включений у тариф, якраз там, де сплеск відчується першим.
-- [ ] **7011.** What money would change  
+- [ ] **7009.** What money would change  
   → Що змінили б гроші
-- [ ] **7012.** Four things, in the order they would matter.  
+- [ ] **7010.** Four things, in the order they would matter.  
   → Чотири речі, у порядку їхньої ваги.
-- [ ] **7013.** \*\*The daily cap on the tutor could go up.\*\* Every model call in the app is booked against a shared budget of ${cap} a day, which cannot be turned off and is what stops the one line that could run away. Raising it is a knob with a stop on it rather than an open check, and at ten thousand learners it is already the thing holding that line down.  
+- [ ] **7011.** \*\*The daily cap on the tutor could go up.\*\* Every model call in the app is booked against a shared budget of ${cap} a day, which cannot be turned off and is what stops the one line that could run away. Raising it is a knob with a stop on it rather than an open check, and at ten thousand learners it is already the thing holding that line down.  
   → \*\*Денний ліміт репетитора можна було б підняти.\*\* Кожен виклик моделі в застосунку списується із загального бюджету ${cap} на день, який не можна вимкнути і який утримує єдиний рядок, здатний вийти з-під контролю. Підняти його означає повернути ручку з обмежувачем, а не виписати відкритий чек, і коли учнів десять тисяч, саме він уже стримує цей рядок.
-- [ ] **7014.** \*\*A school could keep its history.\*\* Everything on the progress screens is worked out from the review log on each request rather than stored, so the log is never thrown away and the database only grows. That is the right design and it is what makes the instance ladder the steepest line on this page.  
+- [ ] **7012.** \*\*A school could keep its history.\*\* Everything on the progress screens is worked out from the review log on each request rather than stored, so the log is never thrown away and the database only grows. That is the right design and it is what makes the instance ladder the steepest line on this page.  
   → \*\*Школа могла б зберігати свою історію.\*\* Усе на екранах поступу обчислюється з журналу повторень за кожного запиту, а не зберігається, тож журнал ніколи не викидається і база даних лише зростає. Це правильна будова, і саме через неї драбина екземплярів найкрутіший рядок на цій сторінці.
-- [ ] **7015.** \*\*The corrections could be worked.\*\* The dictionary is built from Ekilex and Wiktionary rather than typed, which keeps invented Estonian out of it and does not make every entry right. Learners already report the wrong ones.  
+- [ ] **7013.** \*\*The corrections could be worked.\*\* The dictionary is built from Ekilex and Wiktionary rather than typed, which keeps invented Estonian out of it and does not make every entry right. Learners already report the wrong ones.  
   → \*\*Можна було б розбирати виправлення.\*\* Словник зібрано з Ekilex і Вікісловника, а не набрано вручну, і це не пускає до нього вигаданої естонської, але не робить кожну статтю правильною. Учні вже повідомляють про неправильні.
-- [ ] **7016.** \*\*Something could go back to the institutions this is built on.\*\* Ekilex, Wiktionary and TartuNLP ask for nothing and there is no suggestion they should start. But this app would not exist without any of the three, and at a size worth funding the decent thing is to support the work rather than only to use it: a contribution, a corrected entry sent back, or paying for the compute somebody else is currently absorbing.  
+- [ ] **7014.** \*\*Something could go back to the institutions this is built on.\*\* Ekilex, Wiktionary and TartuNLP ask for nothing and there is no suggestion they should start. But this app would not exist without any of the three, and at a size worth funding the decent thing is to support the work rather than only to use it: a contribution, a corrected entry sent back, or paying for the compute somebody else is currently absorbing.  
   → \*\*Щось можна було б повернути інституціям, на яких усе це побудовано.\*\* Ekilex, Вікісловник і TartuNLP нічого не просять, і ніхто не пропонує їм почати. Але без будь-якої з трьох цього застосунку б не було, і за розміру, гідного фінансування, порядно підтримувати їхню роботу, а не лише користуватися нею: внеском, надісланою назад виправленою статтею або оплатою обчислень, витрати на які зараз несе хтось інший.
-- [ ] **7017.** What happens when the money stops  
+- [ ] **7015.** What happens when the money stops  
   → Що буде, коли гроші скінчаться
-- [ ] **7018.** The question a grant is scored on, and the one a cost page usually leaves out. The figures below are the same bill as above with things switched off, in the order somebody would actually switch them off. The tooling that writes the software goes first, because a reader opening the app tomorrow does not notice it. The server and the database go last, because without those there is nothing.  
+- [ ] **7016.** The question a grant is scored on, and the one a cost page usually leaves out. The figures below are the same bill as above with things switched off, in the order somebody would actually switch them off. The tooling that writes the software goes first, because a reader opening the app tomorrow does not notice it. The server and the database go last, because without those there is nothing.  
   → Питання, за яким оцінюють грант і яке сторінка про витрати зазвичай оминає. Цифри нижче це той самий рахунок, що вище, з вимкненими частинами, у тому порядку, у якому їх справді вимикали б. Першими йдуть інструменти, якими пишеться програма, бо той, хто відкриє застосунок завтра, цього не помітить. Останніми йдуть сервер і база даних, бо без них не лишається нічого.
-- [ ] **7019.** {stage}, ${usd} a month.  
+- [ ] **7017.** {stage}, ${usd} a month.  
   → {stage}, ${usd} на місяць.
-- [ ] **7020.** What goes: {lost}  
+- [ ] **7018.** What goes: {lost}  
   → Що зникає: {lost}
-- [ ] **7021.** The fall is gradual because most of what this app is made of was never bought. The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and all three are public institutions that decided this work should be available. The scheduler, the course, the exams, the games and the grammar run on a server and a database and nothing else. What money buys is the tutor, the polish, and somebody to work on it.  
+- [ ] **7019.** The fall is gradual because most of what this app is made of was never bought. The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and all three are public institutions that decided this work should be available. The scheduler, the course, the exams, the games and the grammar run on a server and a database and nothing else. What money buys is the tutor, the polish, and somebody to work on it.  
   → Спад поступовий, бо більшу частину того, з чого зроблено цей застосунок, ніколи не купували. Словник це Ekilex, озвучення це TartuNLP, англійська це Вікісловник, і всі три громадські інституції, які вирішили, що ця робота має бути доступною. Розклад, курс, іспити, ігри й граматика працюють на сервері й базі даних і більше ні на чому. За гроші купуються репетитор, доведення до ладу й людина, яка над усім цим працює.
-- [ ] **7022.** So the honest claim is not that this becomes profitable. It is that at ${floor} a month it can be kept alive by one person who has not been paid, and that it keeps teaching Estonian the whole way down.  
+- [ ] **7020.** So the honest claim is not that this becomes profitable. It is that at ${floor} a month it can be kept alive by one person who has not been paid, and that it keeps teaching Estonian the whole way down.  
   → Тож чесне твердження не в тому, що це стане прибутковим. А в тому, що за ${floor} на місяць його може підтримувати одна людина, якій не платять, і що він учить естонської на кожному кроці цього спаду.
-- [ ] **7023.** What survives even that  
+- [ ] **7021.** What survives even that  
   → Що переживе навіть це
-- [ ] **7024.** Six things, and every one of them is a file somebody can open rather than an intention somebody has stated.  
+- [ ] **7022.** Six things, and every one of them is a file somebody can open rather than an intention somebody has stated.  
   → Шість речей, і кожна з них це файл, який можна відкрити, а не чийсь заявлений намір.
-- [ ] **7025.** Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a licence that lets somebody else pick it up.  
+- [ ] **7023.** Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a licence that lets somebody else pick it up.  
   → У цьому й відповідь на питання, приховане за питанням. Той, хто фінансує, насправді питає не про те, чи світитиметься світло. Він питає, чи куплять гроші щось, що переживе проєкт. Для мови такого розміру варто купувати виправлений словник, курс, зібраний із перевірених джерел, і код, щоб запускати і те, й інше, усе опубліковане під ліцензією, яка дозволяє комусь іншому це підхопити.
-- [ ] **7026.** What it will not be spent on  
+- [ ] **7024.** What it will not be spent on  
   → На що гроші не підуть
-- [ ] **7027.** There is no advertising, no analytics script and no third-party tracker on any page of this app, which the {privacy} states and the code keeps true: an analytics package was mounted here once, on every visitor of the hosted build, while that same notice said there was none. It was removed rather than the notice being edited.  
+- [ ] **7025.** There is no advertising, no analytics script and no third-party tracker on any page of this app, which the {privacy} states and the code keeps true: an analytics package was mounted here once, on every visitor of the hosted build, while that same notice said there was none. It was removed rather than the notice being edited.  
   → На жодній сторінці цього застосунку немає ні реклами, ні скрипта аналітики, ні стороннього трекера, як сказано на {privacy}, і код це забезпечує: колись тут було підключено пакет аналітики, для кожного відвідувача розміщеної версії, тоді як той самий текст стверджував, що його немає. Його прибрали, а не виправили текст.
-- [ ] **7028.** Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a pupil is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.  
+- [ ] **7026.** Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a pupil is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.  
   → Ніщо про учня не продається, не передається й не використовується для навчання будь-чого. Що вчитель бачить в учня, вирішено вузько й окремо, і відповідь: зусилля, а не вміст. Кожна з цих обіцянок коштує грошей, а не заощаджує їх, і багато в чому тому ця сторінка й існує.
-- [ ] **7029.** under a tenth of a cent  
+- [ ] **7027.** under a tenth of a cent  
   → менше за десяту частку цента
-- [ ] **7030.** cents _(context: fraction)_  
+- [ ] **7028.** cents _(context: fraction)_  
   → цента
-- [ ] **7031.** {n} min  
+- [ ] **7029.** {n} min  
   → {n} хв
-- [ ] **7032.** {n} hours  
+- [ ] **7030.** {n} hours  
   → {n} год
-- [ ] **7033.** {amount} included  
+- [ ] **7031.** {amount} included  
   → включено {amount}
-- [ ] **7034.** {n} hours included  
+- [ ] **7032.** {n} hours included  
   → включено {n} год
-- [ ] **7035.** inside another line  
+- [ ] **7033.** inside another line  
   → входить в інший рядок
-- [ ] **7036.** given  
+- [ ] **7034.** given  
   → у дар
-- [ ] **7037.** {who} pays  
+- [ ] **7035.** {who} pays  
   → платить: {who}
-- [ ] **7038.** the learner  
+- [ ] **7036.** the learner  
   → сам учень
-- [ ] **7039.** No bill of its own  
+- [ ] **7037.** No bill of its own  
   → Без окремого рахунку
-- [ ] **7040.** Public, and asks for nothing  
+- [ ] **7038.** Public, and asks for nothing  
   → Громадське й нічого не просить
-- [ ] **7041.** Not the operator's to pay  
+- [ ] **7039.** Not the operator's to pay  
   → Платить не оператор
-- [ ] **7042.** People using it in a month  
+- [ ] **7040.** People using it in a month  
   → Користувачів на місяць
-- [ ] **7043.** one person  
+- [ ] **7041.** one person  
   → одна людина
-- [ ] **7044.** learners  
+- [ ] **7042.** learners  
   → учнів
-- [ ] **7045.** {n} learners  
+- [ ] **7043.** {n} learners  
   → учнів: {n}
-- [ ] **7046.** Every month, all of it  
+- [ ] **7044.** Every month, all of it  
   → Щомісяця, усе разом
-- [ ] **7047.** {each} a learner, and every cent of it an invoice somebody sends. In US dollars and net of VAT, which is how the vendors quote their own prices.  
+- [ ] **7045.** {each} a learner, and every cent of it an invoice somebody sends. In US dollars and net of VAT, which is how the vendors quote their own prices.  
   → {each} на учня, і кожен цент із цього чийсь справжній рахунок. У доларах США і без ПДВ, так, як постачальники називають свої ціни.
-- [ ] **7048.** How hard they study  
+- [ ] **7046.** How hard they study  
   → Наскільки старанно займаються
-- [ ] **7049.** Lightly _(context: study)_  
+- [ ] **7047.** Lightly _(context: study)_  
   → Потроху
-- [ ] **7050.** The default _(context: study)_  
+- [ ] **7048.** The default _(context: study)_  
   → Звичайно
-- [ ] **7051.** Hard _(context: study)_  
+- [ ] **7049.** Hard _(context: study)_  
   → Старанно
-- [ ] **7052.** Cards read themselves aloud  
+- [ ] **7050.** Cards read themselves aloud  
   → Картки читаються вголос
-- [ ] **7053.** On _(context: switch)_  
+- [ ] **7051.** On _(context: switch)_  
   → Увімк.
-- [ ] **7054.** Off _(context: switch)_  
+- [ ] **7052.** Off _(context: switch)_  
   → Вимк.
-- [ ] **7055.** No key _(context: switch)_  
+- [ ] **7053.** No key _(context: switch)_  
   → Немає ключа
-- [ ] **7056.** The tutor  
+- [ ] **7054.** The tutor  
   → Репетитор
-- [ ] **7057.** Which model answers  
+- [ ] **7055.** Which model answers  
   → Яка модель відповідає
-- [ ] **7058.** Years of reviews already stored  
+- [ ] **7056.** Years of reviews already stored  
   → Скільки років повторень уже зберігається
-- [ ] **7059.** Where it goes  
+- [ ] **7057.** Where it goes  
   → Куди йдуть гроші
-- [ ] **7060.** {amount} of {allowance}  
+- [ ] **7058.** {amount} of {allowance}  
   → {amount} з {allowance}
-- [ ] **7061.** {label}, {amount} against {allowance}  
+- [ ] **7059.** {label}, {amount} against {allowance}  
   → {label}: використано {amount}, {allowance}
-- [ ] **7062.** The same app at every size  
+- [ ] **7060.** The same app at every size  
   → Той самий застосунок за будь-якого розміру
-- [ ] **7063.** Each bar is ten times the learners of the one before it, and the heights are logarithmic, so a bar twice as tall is a bill many times larger. The shape to look at is the steps.  
+- [ ] **7061.** Each bar is ten times the learners of the one before it, and the heights are logarithmic, so a bar twice as tall is a bill many times larger. The shape to look at is the steps.  
   → Кожен стовпчик це вдесятеро більше учнів, ніж попередній, а висоти логарифмічні, тож стовпчик удвічі вищий означає рахунок у багато разів більший. Дивитися варто на сходинки.
-- [ ] **7064.** What the app costs at each size  
+- [ ] **7062.** What the app costs at each size  
   → Скільки коштує застосунок за кожного розміру
-- [ ] **7065.** What the app costs a month at each size, and what that is per learner  
+- [ ] **7063.** What the app costs a month at each size, and what that is per learner  
   → Скільки застосунок коштує на місяць за кожного розміру і скільки це на учня
-- [ ] **7066.** Learners  
+- [ ] **7064.** Learners  
   → Учнів
-- [ ] **7067.** A month  
+- [ ] **7065.** A month  
   → На місяць
-- [ ] **7068.** Given  
+- [ ] **7066.** Given  
   → У дар
-- [ ] **7069.** Each  
+- [ ] **7067.** Each  
   → На одного
-- [ ] **7070.** The floor is the interesting end. The plans, the tooling, the mail and the domain come to about three hundred dollars a month before a single learner arrives, and most of that does not move when they do. So the first thousand people are nearly free to serve, and the cost per head falls by roughly a factor of ten for each decade. What grows instead is speech and the database, so past ten thousand the shape is set by how much is said aloud and how many years of reviews are being kept.  
+- [ ] **7068.** The floor is the interesting end. The plans, the tooling, the mail and the domain come to about three hundred dollars a month before a single learner arrives, and most of that does not move when they do. So the first thousand people are nearly free to serve, and the cost per head falls by roughly a factor of ten for each decade. What grows instead is speech and the database, so past ten thousand the shape is set by how much is said aloud and how many years of reviews are being kept.  
   → Найцікавіше тут нижній край. Тарифи, інструменти, пошта й домен коштують приблизно триста доларів на місяць ще до першого учня, і більша частина цієї суми не змінюється, коли учні приходять. Тож першу тисячу людей обслуговують майже безплатно, а вартість на людину падає приблизно вдесятеро з кожним порядком. Зростають натомість озвучення й база даних, тож після десяти тисяч форму задають обсяг того, що читається вголос, і скільки років повторень зберігається.
-- [ ] **7071.** The {count} numbers we had to judge rather than measure  
+- [ ] **7069.** The {count} numbers we had to judge rather than measure  
   → Числа, які довелося оцінити, а не виміряти: {count}
-- [ ] **7072.** Everything else on this page came off a stopwatch, a database or somebody’s published price list. These are judgments, and they are here so you can disagree with a specific one rather than with the total.  
+- [ ] **7070.** Everything else on this page came off a stopwatch, a database or somebody’s published price list. These are judgments, and they are here so you can disagree with a specific one rather than with the total.  
   → Усе інше на цій сторінці знято секундоміром, узято з бази даних або з чийогось опублікованого прайс-листа. А це оцінки, і вони тут, щоб ви могли не погодитися з конкретною, а не з підсумком.
-- [ ] **7073.** Not counted above: buying the speech this app is given would come to a further {money} a month. Nobody has ever asked for it.  
+- [ ] **7071.** Not counted above: buying the speech this app is given would come to a further {money} a month. Nobody has ever asked for it.  
   → Вище не враховано: купити озвучення, яке цей застосунок отримує в дар, коштувало б ще {money} на місяць. Ніхто ніколи цього не просив.
-- [ ] **7074.** The model line stops at {money}, and it stops there in the running app too. The daily budget in {file} has no off switch, so this is a ceiling rather than a forecast.  
+- [ ] **7072.** The model line stops at {money}, and it stops there in the running app too. The daily budget in {file} has no off switch, so this is a ceiling rather than a forecast.  
   → Рядок моделі зупиняється на {money}, і в робочому застосунку він зупиняється там само. Денний бюджет у {file} не можна вимкнути, тож це стеля, а не прогноз.
-- [ ] **7075.** Vercel  
+- [ ] **7073.** Vercel  
   → Vercel
-- [ ] **7076.** Vercel, in the same region as the database  
+- [ ] **7074.** Vercel, in the same region as the database  
   → Vercel, у тому самому регіоні, що й база даних
-- [ ] **7077.** Runs the app: every page rendered, every action answered, the speech proxy and the tutor route.  
+- [ ] **7075.** Runs the app: every page rendered, every action answered, the speech proxy and the tutor route.  
   → На ньому працює застосунок: відтворення кожної сторінки, відповідь на кожну дію, проксі для озвучення й маршрут репетитора.
-- [ ] **7078.** The pages a phone has already seen still open, and nothing new loads.  
+- [ ] **7076.** The pages a phone has already seen still open, and nothing new loads.  
   → Сторінки, які телефон уже бачив, як і раніше відкриваються, а нічого нового не завантажується.
-- [ ] **7079.** Supabase  
+- [ ] **7077.** Supabase  
   → Supabase
-- [ ] **7080.** Supabase, holding the database, the sign-ins and the cached speech  
+- [ ] **7078.** Supabase, holding the database, the sign-ins and the cached speech  
   → Supabase, де зберігаються база даних, входи в облікові записи й кеш озвучення
-- [ ] **7081.** Every deck, every review, the dictionary, who is signed in, and the speech files keyed by their content.  
+- [ ] **7079.** Every deck, every review, the dictionary, who is signed in, and the speech files keyed by their content.  
   → Кожна колода, кожне повторення, словник, хто ввійшов в обліковий запис, і файли озвучення, розкладені за вмістом.
-- [ ] **7082.** Nothing works, and the landing page shrinks to a five-word dictionary.  
+- [ ] **7080.** Nothing works, and the landing page shrinks to a five-word dictionary.  
   → Нічого не працює, а головна сторінка стискається до словника з п'яти слів.
-- [ ] **7083.** The language model  
+- [ ] **7081.** The language model  
   → Мовна модель
-- [ ] **7084.** Google, with Groq behind it, and Anthropic or OpenAI as a paid fallback everywhere but Anu  
+- [ ] **7082.** Google, with Groq behind it, and Anthropic or OpenAI as a paid fallback everywhere but Anu  
   → Google, за ним Groq, а Anthropic або OpenAI як платний запасний варіант скрізь, крім Ану
-- [ ] **7085.** Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.  
+- [ ] **7083.** Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.  
   → Ану, відгук на письмову роботу й читання сфотографованої сторінки. Жодної естонської форми.
-- [ ] **7086.** Anu says she can't reach anyone. Review, the dictionary and every drill carry on as normal.  
+- [ ] **7084.** Anu says she can't reach anyone. Review, the dictionary and every drill carry on as normal.  
   → Ану каже, що ні до кого не може достукатися. Повторення, словник і всі вправи працюють як звичайно.
-- [ ] **7087.** Estonian speech  
+- [ ] **7085.** Estonian speech  
   → Естонське мовлення
-- [ ] **7088.** Reads a word or a sentence aloud in any of ten voices. Every clip is cached and asked for once.  
+- [ ] **7086.** Reads a word or a sentence aloud in any of ten voices. Every clip is cached and asked for once.  
   → Читає вголос слово чи речення будь-яким із десяти голосів. Кожен фрагмент кешується й запитується один раз.
-- [ ] **7089.** Cards go quiet, and the listening part of the mock exam says so instead of breaking.  
+- [ ] **7087.** Cards go quiet, and the listening part of the mock exam says so instead of breaking.  
   → Картки замовкають, а частина пробного іспиту на аудіювання каже про це, а не ламається.
-- [ ] **7090.** Ekilex and Wiktionary  
+- [ ] **7088.** Ekilex and Wiktionary  
   → Ekilex і Вікісловник
-- [ ] **7091.** The Institute of the Estonian Language, and the Wikimedia Foundation  
+- [ ] **7089.** The Institute of the Estonian Language, and the Wikimedia Foundation  
   → Інститут естонської мови й Фонд Вікімедіа
-- [ ] **7092.** Every Estonian form and example sentence, and the English meaning of most of the dictionary.  
+- [ ] **7090.** Every Estonian form and example sentence, and the English meaning of most of the dictionary.  
   → Кожна естонська форма й приклад речення, а також англійське значення більшої частини словника.
-- [ ] **7093.** Live lookups stop. The seeded dictionary carries on, and a word it lacks is simply missing.  
+- [ ] **7091.** Live lookups stop. The seeded dictionary carries on, and a word it lacks is simply missing.  
   → Живі запити припиняються. Вбудований словник працює далі, а слова, якого в ньому немає, просто немає.
-- [ ] **7094.** Resend  
+- [ ] **7092.** Resend  
   → Resend
-- [ ] **7095.** Resend, sending the mailed sign-in links  
+- [ ] **7093.** Resend, sending the mailed sign-in links  
   → Resend, який надсилає посилання для входу поштою
-- [ ] **7096.** Sends a sign-in link to anybody without a Google account, and the occasional reminder.  
+- [ ] **7094.** Sends a sign-in link to anybody without a Google account, and the occasional reminder.  
   → Надсилає посилання для входу тим, у кого немає облікового запису Google, і часом нагадування.
-- [ ] **7097.** Google sign-in still works. Everybody else is locked out.  
+- [ ] **7095.** Google sign-in still works. Everybody else is locked out.  
   → Вхід через Google, як і раніше, працює. Усі інші не можуть увійти.
-- [ ] **7098.** Sentry, or whatever the deployment points its webhook at  
+- [ ] **7096.** Sentry, or whatever the deployment points its webhook at  
   → Sentry або те, куди інсталяція спрямовує свій вебхук
-- [ ] **7099.** Catches anything that breaks, with personal details scrubbed: a user id, never an email address.  
+- [ ] **7097.** Catches anything that breaks, with personal details scrubbed: a user id, never an email address.  
   → Ловить усе, що ламається, з вичищеними особистими даними: ідентифікатор користувача, але ніколи не адресу пошти.
-- [ ] **7100.** Errors stay in the server log and nowhere else, just as before.  
+- [ ] **7098.** Errors stay in the server log and nowhere else, just as before.  
   → Помилки лишаються в журналі сервера й більше ніде, як і раніше.
-- [ ] **7101.** Claude Max  
+- [ ] **7099.** Claude Max  
   → Claude Max
-- [ ] **7102.** Anthropic, as the tooling that writes and maintains this  
+- [ ] **7100.** Anthropic, as the tooling that writes and maintains this  
   → Anthropic, як інструмент, яким це пишеться й підтримується
-- [ ] **7103.** Writes the code, the tests and the invariants, and keeps them honest against each other.  
+- [ ] **7101.** Writes the code, the tests and the invariants, and keeps them honest against each other.  
   → Пише код, тести й інваріанти і стежить, щоб вони чесно сходилися одне з одним.
-- [ ] **7104.** The app carries on running and stops being worked on.  
+- [ ] **7102.** The app carries on running and stops being worked on.  
   → Застосунок працює далі, але над ним перестають працювати.
-- [ ] **7105.** The domain  
+- [ ] **7103.** The domain  
   → Домен
-- [ ] **7106.** A registrar, under the Estonian Internet Foundation  
+- [ ] **7104.** A registrar, under the Estonian Internet Foundation  
   → Реєстратор, підзвітний Естонському інтернет-фонду
-- [ ] **7107.** The address people type in. By far the cheapest line here.  
+- [ ] **7105.** The address people type in. By far the cheapest line here.  
   → Адреса, яку набирають люди. З великим відривом найдешевший рядок тут.
-- [ ] **7108.** The app is still there under whatever address the host gave it.  
+- [ ] **7106.** The app is still there under whatever address the host gave it.  
   → Застосунок лишається доступним за тією адресою, яку дав хостинг.
-- [ ] **7109.** An Estonian news feed  
+- [ ] **7107.** An Estonian news feed  
   → Естонська стрічка новин
-- [ ] **7110.** Whichever public feed the deployment points at  
+- [ ] **7108.** Whichever public feed the deployment points at  
   → Будь-яка відкрита стрічка, на яку вказує інсталяція
-- [ ] **7111.** Suggests words off today's front page, and prints a few headlines the dictionary can open.  
+- [ ] **7109.** Suggests words off today's front page, and prints a few headlines the dictionary can open.  
   → Пропонує слова із сьогоднішньої першої шпальти й показує кілька заголовків, які може відкрити словник.
-- [ ] **7112.** The suggestion row picks seasonal or random words instead, and says so.  
+- [ ] **7110.** The suggestion row picks seasonal or random words instead, and says so.  
   → Рядок підказок бере натомість сезонні або випадкові слова й так і каже.
-- [ ] **7113.** The learner's own phone  
+- [ ] **7111.** The learner's own phone  
   → Власний телефон учня
-- [ ] **7114.** Them  
+- [ ] **7112.** Them  
   → Сам учень
-- [ ] **7115.** Keeps 400 clips, 60 pages and every grade that could not be sent, so review works on a train.  
+- [ ] **7113.** Keeps 400 clips, 60 pages and every grade that could not be sent, so review works on a train.  
   → Зберігає 400 звукових фрагментів, 60 сторінок і кожну оцінку, яку не вдалося надіслати, щоб повторення працювало в потязі.
-- [ ] **7116.** There's no app without it. It's the one piece nobody here can pay for.  
+- [ ] **7114.** There's no app without it. It's the one piece nobody here can pay for.  
   → Без нього застосунку немає. Це єдина частина, за яку тут ніхто не може заплатити.
-- [ ] **7117.** Funded  
+- [ ] **7115.** Funded  
   → Є фінансування
-- [ ] **7118.** Funded _(context: stage)_  
+- [ ] **7116.** Funded _(context: stage)_  
   → Є фінансування
-- [ ] **7119.** Somebody is paid to work on it, and every part of it is switched on.  
+- [ ] **7117.** Somebody is paid to work on it, and every part of it is switched on.  
   → Комусь платять за роботу над ним, і ввімкнено всі його частини.
-- [ ] **7120.** Unstaffed  
+- [ ] **7118.** Unstaffed  
   → Без людей
-- [ ] **7121.** Unstaffed _(context: stage)_  
+- [ ] **7119.** Unstaffed _(context: stage)_  
   → Без людей
-- [ ] **7122.** The grant ends and nobody works on it any more. Learners don't lose a thing at this step: the software keeps running when the developer stops.  
+- [ ] **7120.** The grant ends and nobody works on it any more. Learners don't lose a thing at this step: the software keeps running when the developer stops.  
   → Грант закінчується, і над застосунком більше ніхто не працює. На цьому кроці учні нічого не втрачають: програма працює далі, коли розробник зупиняється.
-- [ ] **7123.** Quiet _(context: stage)_  
+- [ ] **7121.** Quiet _(context: stage)_  
   → Тихо
-- [ ] **7124.** The error reports only the operator reads, and the emails with sign-in links, both go. Google sign-in still works, so nobody already using it gets shut out.  
+- [ ] **7122.** The error reports only the operator reads, and the emails with sign-in links, both go. Google sign-in still works, so nobody already using it gets shut out.  
   → Зникають і звіти про помилки, які читає лише оператор, і листи з посиланнями для входу. Вхід через Google, як і раніше, працює, тож ніхто з тих, хто вже ним користується, не опиниться за дверима.
-- [ ] **7125.** Lights on  
+- [ ] **7123.** Lights on  
   → Світло горить
-- [ ] **7126.** Lights on _(context: stage)_  
+- [ ] **7124.** Lights on _(context: stage)_  
   → Світло горить
-- [ ] **7127.** A server and a database, at whatever address the host gives it. Everything the course is made of still works, because none of it was ever bought.  
+- [ ] **7125.** A server and a database, at whatever address the host gives it. Everything the course is made of still works, because none of it was ever bought.  
   → Сервер і база даних за тією адресою, яку дасть хостинг. Усе, з чого зроблено курс, як і раніше працює, бо нічого з цього ніколи не купували.
-- [ ] **7128.** The code is MIT and the built dictionary carries the licences of the sources it was made from. Anybody may run their own copy, including the institutions whose data it was built on, and nobody needs permission to.  
+- [ ] **7126.** The code is MIT and the built dictionary carries the licences of the sources it was made from. Anybody may run their own copy, including the institutions whose data it was built on, and nobody needs permission to.  
   → Код поширюється за MIT, а зібраний словник несе ліцензії джерел, з яких його зроблено. Свою копію може запустити будь-хто, зокрема інституції, на чиїх даних його побудовано, і дозволу для цього не потрібно.
-- [ ] **7129.** There is no proprietary service in the middle of it. Postgres, a Next.js app and two public APIs, so a copy runs on a laptop, in a university's own cluster, or on any host that runs Node.  
+- [ ] **7127.** There is no proprietary service in the middle of it. Postgres, a Next.js app and two public APIs, so a copy runs on a laptop, in a university's own cluster, or on any host that runs Node.  
   → В його основі немає жодного закритого сервісу. Postgres, застосунок на Next.js і два відкриті API, тож копія працює на ноутбуці, у власному кластері університету або на будь-якому хостингу, де є Node.
-- [ ] **7130.** The dictionary is built by a script from Ekilex and Wiktionary rather than typed, so it can be rebuilt from scratch by somebody who has neither this database nor this deployment.  
+- [ ] **7128.** The dictionary is built by a script from Ekilex and Wiktionary rather than typed, so it can be rebuilt from scratch by somebody who has neither this database nor this deployment.  
   → Словник збирається скриптом з Ekilex і Вікісловника, а не набирається вручну, тож його може зібрати заново з нуля той, у кого немає ні цієї бази даних, ні цієї інсталяції.
-- [ ] **7131.** Every learner can take their whole record out of it at any time, in one file, and put it back into another copy. That's a right on the privacy page, and it's built rather than just promised.  
+- [ ] **7129.** Every learner can take their whole record out of it at any time, in one file, and put it back into another copy. That's a right on the privacy page, and it's built rather than just promised.  
   → Кожен учень може будь-коли забрати все своє одним файлом і завантажити в іншу копію. Це право записано на сторінці про конфіденційність, і його зроблено, а не просто обіцяно.
-- [ ] **7132.** The pages a learner has already opened keep opening with no network at all, and grades taken offline are held and replayed. A day of downtime is not a day of lost study.  
+- [ ] **7130.** The pages a learner has already opened keep opening with no network at all, and grades taken offline are held and replayed. A day of downtime is not a day of lost study.  
   → Сторінки, які учень уже відкривав, відкриваються й зовсім без мережі, а оцінки, поставлені без зв'язку, зберігаються й надсилаються потім. День простою не стає днем утраченого навчання.
-- [ ] **7133.** Nothing a learner is taught comes from a model. The course, the dictionary, the exercises and the exams are assembled from attested sources, so the app keeps teaching with every AI key removed.  
+- [ ] **7131.** Nothing a learner is taught comes from a model. The course, the dictionary, the exercises and the exams are assembled from attested sources, so the app keeps teaching with every AI key removed.  
   → Ніщо з того, чого вчать учня, не береться з моделі. Курс, словник, вправи й іспити зібрано з перевірених джерел, тож застосунок далі вчить, навіть якщо прибрати всі ключі ШІ.
-- [ ] **7134.** The dictionary, in Postgres  
+- [ ] **7132.** The dictionary, in Postgres  
   → Словник у Postgres
-- [ ] **7135.** Postgres itself, before a single row  
+- [ ] **7133.** Postgres itself, before a single row  
   → Сам Postgres, ще без жодного рядка
-- [ ] **7136.** One review  
+- [ ] **7134.** One review  
   → Одне повторення
-- [ ] **7137.** One card  
+- [ ] **7135.** One card  
   → Одна картка
-- [ ] **7138.** A year of one learner, at fifteen reviews a day five days a week  
+- [ ] **7136.** A year of one learner, at fifteen reviews a day five days a week  
   → Рік одного учня, по п'ятнадцять повторень на день п'ять днів на тиждень
-- [ ] **7139.** A page, as HTML over the wire  
+- [ ] **7137.** A page, as HTML over the wire  
   → Сторінка у вигляді HTML під час передавання мережею
-- [ ] **7140.** The JavaScript every page shares  
+- [ ] **7138.** The JavaScript every page shares  
   → JavaScript, спільний для всіх сторінок
-- [ ] **7141.** Requests behind one page view  
+- [ ] **7139.** Requests behind one page view  
   → Запити за одним переглядом сторінки
-- [ ] **7142.** One spoken phrase, as stored  
+- [ ] **7140.** One spoken phrase, as stored  
   → Одна озвучена фраза в тому вигляді, в якому зберігається
-- [ ] **7143.** What that speech actually is  
+- [ ] **7141.** What that speech actually is  
   → Що являє собою цей запис
-- [ ] **7144.** What a phone keeps, so it stops asking  
+- [ ] **7142.** What a phone keeps, so it stops asking  
   → Що зберігає телефон, щоб не запитувати знову
-- [ ] **7145.** Loading the whole dictionary into an empty deployment  
+- [ ] **7143.** Loading the whole dictionary into an empty deployment  
   → Завантаження всього словника в порожнє розгортання
-- [ ] **7146.** 20 MB for 6,221 entries and 39,970 forms, indexes included  
+- [ ] **7144.** 20 MB for 6,221 entries and 39,970 forms, indexes included  
   → 20 МБ на 6221 словникову статтю і 39 970 форм, разом з індексами
-- [ ] **7147.** about 8 MB  
+- [ ] **7145.** about 8 MB  
   → близько 8 МБ
-- [ ] **7148.** 300 bytes, with the four indexes that make it readable  
+- [ ] **7146.** 300 bytes, with the four indexes that make it readable  
   → 300 байтів разом із чотирма індексами, без яких його не прочитати
-- [ ] **7149.** 352 bytes, indexes included  
+- [ ] **7147.** 352 bytes, indexes included  
   → 352 байти разом з індексами
-- [ ] **7150.** 3,900 reviews and a starter deck of about 400 cards, so 1.3 MB  
+- [ ] **7148.** 3,900 reviews and a starter deck of about 400 cards, so 1.3 MB  
   → 3900 повторень і стартова колода приблизно з 400 карток, разом 1,3 МБ
-- [ ] **7151.** 14 KB for the dictionary, 88 KB for the whole course page, 21 KB in the middle  
+- [ ] **7149.** 14 KB for the dictionary, 88 KB for the whole course page, 21 KB in the middle  
   → 14 КБ у словника, 88 КБ у сторінки всього курсу, 21 КБ посередині
-- [ ] **7152.** 102 KB, fetched once per build and then cached  
+- [ ] **7150.** 102 KB, fetched once per build and then cached  
   → 102 КБ, завантажуються один раз на збірку й далі зберігаються в кеші
-- [ ] **7153.** about 35, of which 11 to 15 reach the server once the browser cache is warm  
+- [ ] **7151.** about 35, of which 11 to 15 reach the server once the browser cache is warm  
   → близько 35, з них до сервера доходять від 11 до 15, коли кеш браузера вже заповнено
-- [ ] **7154.** 51 KB for 1.15 seconds, which is 43 KB a second  
+- [ ] **7152.** 51 KB for 1.15 seconds, which is 43 KB a second  
   → 51 КБ на 1,15 секунди, тобто 43 КБ на секунду
-- [ ] **7155.** 16-bit PCM, 22,050 Hz, one channel, no compression; the service sends 32-bit float with half a second of silence each end, 199 KB for the same sentence  
+- [ ] **7153.** 16-bit PCM, 22,050 Hz, one channel, no compression; the service sends 32-bit float with half a second of silence each end, 199 KB for the same sentence  
   → 16-бітний PCM, 22 050 Гц, один канал, без стиснення; сервіс надсилає 32-бітний формат із рухомою комою і пів секунди тиші з кожного кінця, 199 КБ на те саме речення
-- [ ] **7156.** 400 spoken clips, 220 build files and 60 pages  
+- [ ] **7154.** 400 spoken clips, 220 build files and 60 pages  
   → 400 аудіозаписів, 220 файлів збірки і 60 сторінок
-- [ ] **7157.** 3.4 seconds  
+- [ ] **7155.** 3.4 seconds  
   → 3,4 секунди
-- [ ] **7158.** npm run db:seed, then pg\_total\_relation\_size over Lexeme and Form  
+- [ ] **7156.** npm run db:seed, then pg\_total\_relation\_size over Lexeme and Form  
   → npm run db:seed, потім pg\_total\_relation\_size по Lexeme і Form
-- [ ] **7159.** pg\_database\_size on the empty schema, subtracted from the seeded one  
+- [ ] **7157.** pg\_database\_size on the empty schema, subtracted from the seeded one  
   → pg\_database\_size на порожній схемі, віднятий від заповненої
-- [ ] **7160.** 80,000 rows written by scripts/load-fixture.ts, divided into the table size  
+- [ ] **7158.** 80,000 rows written by scripts/load-fixture.ts, divided into the table size  
   → 80 000 рядків, записаних scripts/load-fixture.ts, і розмір таблиці, поділений на їхню кількість
-- [ ] **7161.** the same fixture, 2,000 cards  
+- [ ] **7159.** the same fixture, 2,000 cards  
   → ті самі тестові дані, 2000 карток
-- [ ] **7162.** the two rows above, times the default daily goal in lib/settings/store.ts  
+- [ ] **7160.** the two rows above, times the default daily goal in lib/settings/store.ts  
   → два рядки вище, помножені на денну мету за замовчуванням з lib/settings/store.ts
-- [ ] **7163.** curl --compressed against the built app, seven routes  
+- [ ] **7161.** curl --compressed against the built app, seven routes  
   → curl --compressed по зібраному застосунку, сім маршрутів
-- [ ] **7164.** the First Load JS line of next build  
+- [ ] **7162.** the First Load JS line of next build  
   → рядок First Load JS у виводі next build
-- [ ] **7165.** Chrome DevTools request counts over seven routes, twice each  
+- [ ] **7163.** Chrome DevTools request counts over seven routes, twice each  
   → підрахунок запитів у Chrome DevTools на семи маршрутах, по два рази на кожному
-- [ ] **7166.** one request to TartuNLP for a three-word sentence, passed through prepareClip in lib/audio/wav.ts, read back off the WAV header  
+- [ ] **7164.** one request to TartuNLP for a three-word sentence, passed through prepareClip in lib/audio/wav.ts, read back off the WAV header  
   → один запит до TartuNLP на речення з трьох слів, пропущений через prepareClip у lib/audio/wav.ts і прочитаний із заголовка WAV
-- [ ] **7167.** the fmt chunk of the same file, before and after  
+- [ ] **7165.** the fmt chunk of the same file, before and after  
   → блок fmt того самого файлу, до і після
-- [ ] **7168.** LIMITS in public/sw.js  
+- [ ] **7166.** LIMITS in public/sw.js  
   → LIMITS у public/sw.js
-- [ ] **7169.** time npx tsx prisma/seed.ts  
+- [ ] **7167.** time npx tsx prisma/seed.ts  
   → time npx tsx prisma/seed.ts, замір часу
-- [ ] **7170.** Pages opened in a sitting  
+- [ ] **7168.** Pages opened in a sitting  
   → Сторінок відкрито за один захід
-- [ ] **7171.** Today, review, and a few looks at the dictionary or a grammar page on the way past.  
+- [ ] **7169.** Today, review, and a few looks at the dictionary or a grammar page on the way past.  
   → Головна, повторення і кілька заглядань у словник чи на сторінку граматики дорогою.
-- [ ] **7172.** New spoken clips a learner fetches in a month  
+- [ ] **7170.** New spoken clips a learner fetches in a month  
   → Нові аудіозаписи, які учень завантажує за місяць
-- [ ] **7173.** A phone keeps 400, so only new words cost anything. This is roughly the new cards a month at the default pace, plus their sentences.  
+- [ ] **7171.** A phone keeps 400, so only new words cost anything. This is roughly the new cards a month at the default pace, plus their sentences.  
   → Телефон зберігає 400 записів, тож платити доводиться лише за нові слова. Це приблизно нові картки за місяць у звичайному темпі плюс їхні речення.
-- [ ] **7174.** Characters in a spoken phrase  
+- [ ] **7172.** Characters in a spoken phrase  
   → Символів в озвученій фразі
-- [ ] **7175.** A word is about eight and a recorded sentence about forty. Speech is billed per character, so this is what decides that line.  
+- [ ] **7173.** A word is about eight and a recorded sentence about forty. Speech is billed per character, so this is what decides that line.  
   → У слові близько восьми символів, у записаному реченні близько сорока. За озвучення платять за кожен символ, тому саме це й визначає той рядок.
-- [ ] **7176.** Questions a learner asks Anu in a month  
+- [ ] **7174.** Questions a learner asks Anu in a month  
   → Запитань, які учень ставить Ану за місяць
-- [ ] **7177.** The per-person cap is ten a day, so this is far under it. Most people never open her.  
+- [ ] **7175.** The per-person cap is ten a day, so this is far under it. Most people never open her.  
   → Межа на людину становить десять на день, тож це набагато менше. Більшість узагалі її не відкриває.
-- [ ] **7178.** Pieces of writing a learner has looked at in a month  
+- [ ] **7176.** Pieces of writing a learner has looked at in a month  
   → Письмових робіт учня, перевірених за місяць
-- [ ] **7179.** Cheaper per call than a question and asked more often, because the writing exercise offers one every time.  
+- [ ] **7177.** Cheaper per call than a question and asked more often, because the writing exercise offers one every time.  
   → Дешевше за запитання за один виклик, але буває частіше, бо вправа на письмо пропонує перевірку щоразу.
-- [ ] **7180.** Emails a learner is sent in a month  
+- [ ] **7178.** Emails a learner is sent in a month  
   → Листів, які учень отримує за місяць
-- [ ] **7181.** A mailed sign-in link lasts a session, so this is a couple of sign-ins and the occasional reminder.  
+- [ ] **7179.** A mailed sign-in link lasts a session, so this is a couple of sign-ins and the occasional reminder.  
   → Посилання для входу вистачає на сеанс, тож це кілька входів і зрідка нагадування.
-- [ ] **7182.** Processor time behind one request  
+- [ ] **7180.** Processor time behind one request  
   → Процесорний час на один запит
-- [ ] **7183.** A page is mostly waiting on the database, which is not charged. This is the part that is, and it is the softest number here.  
+- [ ] **7181.** A page is mostly waiting on the database, which is not charged. This is the part that is, and it is the softest number here.  
   → Сторінка здебільшого чекає на базу даних, а цей час не оплачується. Тут пораховано те, що оплачується, і це найприблизніша цифра на сторінці.
-- [ ] **7184.** What one page reads out of the database  
+- [ ] **7182.** What one page reads out of the database  
   → Скільки одна сторінка читає з бази даних
-- [ ] **7185.** Eight or so queries over a deck and a review log, none of which return much.  
+- [ ] **7183.** Eight or so queries over a deck and a review log, none of which return much.  
   → Близько восьми запитів до колоди й журналу повторень, і жоден не повертає багато.
-- [ ] **7186.** Learners on the app at the same moment, at the busiest  
+- [ ] **7184.** Learners on the app at the same moment, at the busiest  
   → Учнів у застосунку одночасно, в найзавантаженіший момент
-- [ ] **7187.** A class arrives together, so this is higher than it looks. It decides the database instance and nothing else.  
+- [ ] **7185.** A class arrives together, so this is higher than it looks. It decides the database instance and nothing else.  
   → Клас приходить увесь одразу, тому цифра вища, ніж здається. Від неї залежить лише розмір сервера бази даних.
-- [ ] **7188.** Times the shared JavaScript is re-fetched by a device in a month  
+- [ ] **7186.** Times the shared JavaScript is re-fetched by a device in a month  
   → Скільки разів на місяць пристрій заново завантажує спільний JavaScript
-- [ ] **7189.** It is cached until a deploy changes its name, so this is really how often the app ships.  
+- [ ] **7187.** It is cached until a deploy changes its name, so this is really how often the app ships.  
   → Він зберігається в кеші, доки нова версія не змінить його назву, тож насправді це частота випуску нових версій.
-- [ ] **7190.** The {plan} plan's own fee. Nothing here is over its allowance yet.  
+- [ ] **7188.** The {plan} plan's own fee. Nothing here is over its allowance yet.  
   → Абонентська плата тарифу {plan}. Ніщо тут поки не виходить за ліміт тарифу.
-- [ ] **7191.** The {plan} plan, plus use over its allowance on {over}.  
+- [ ] **7189.** The {plan} plan, plus use over its allowance on {over}.  
   → Тариф {plan} плюс перевищення ліміту за такими статтями: {over}.
-- [ ] **7192.** The {plan} plan's own fee, with the smallest instance inside its compute credit.  
+- [ ] **7190.** The {plan} plan's own fee, with the smallest instance inside its compute credit.  
   → Абонентська плата тарифу {plan}; найменший сервер покривається кредитом на обчислення, що входить у тариф.
-- [ ] **7193.** A {size} instance, which is what {people} people at once and {gb} GB need.  
+- [ ] **7191.** A {size} instance, which is what {people} people at once and {gb} GB need.  
   → Сервер розміру {size}: він потрібен, коли одночасних користувачів: {people}, а база займає {gb} ГБ.
-- [ ] **7194.** A question and a writing note on {model}, priced the way the ledger prices one before it makes the call.  
+- [ ] **7192.** A question and a writing note on {model}, priced the way the ledger prices one before it makes the call.  
   → Запитання й відгук на письмову роботу на {model}, пораховані так само, як журнал витрат оцінює виклик, перш ніж його зробити.
-- [ ] **7195.** The app's own daily cap is what is holding this down, not the traffic.  
+- [ ] **7193.** The app's own daily cap is what is holding this down, not the traffic.  
   → Суму стримує власний денний ліміт застосунку, а не навантаження.
-- [ ] **7196.** Nobody has set a key, so Anu isn't here. Everything else in the app still works.  
+- [ ] **7194.** Nobody has set a key, so Anu isn't here. Everything else in the app still works.  
   → Ключ ніхто не задав, тому Ану тут немає. Усе інше в застосунку працює.
-- [ ] **7197.** {characters} characters read aloud a month, in a real Estonian voice  
+- [ ] **7195.** {characters} characters read aloud a month, in a real Estonian voice  
   → Символів, прочитаних уголос за місяць живим естонським голосом: {characters}
-- [ ] **7198.** A public research group at the University of Tartu, which asks for nothing and sends no invoice.  
+- [ ] **7196.** A public research group at the University of Tartu, which asks for nothing and sends no invoice.  
   → Державна дослідницька група Тартуського університету, яка нічого не просить і не виставляє рахунків.
-- [ ] **7199.** {entries} checked entries with {forms} forms, and the attested sentences every exercise is built from  
+- [ ] **7197.** {entries} checked entries with {forms} forms, and the attested sentences every exercise is built from  
   → Перевірених словникових статей: {entries}, форм: {forms}, і задокументовані речення, з яких побудовано кожну вправу
-- [ ] **7200.** Neither asks for anything, and neither has a price to quote: nothing else holds a checked Estonian case table with attested sentences, so there is nothing to compare it against.  
+- [ ] **7198.** Neither asks for anything, and neither has a price to quote: nothing else holds a checked Estonian case table with attested sentences, so there is nothing to compare it against.  
   → Жоден нічого не просить натомість, і жоден не має ціни: більше ніде немає перевірених таблиць естонських відмінків із задокументованими реченнями, тож порівнювати нема з чим.
-- [ ] **7201.** The {plan} plan, plus {emails} emails over its allowance.  
+- [ ] **7199.** The {plan} plan, plus {emails} emails over its allowance.  
   → Тариф {plan} плюс листів понад ліміт: {emails}.
-- [ ] **7202.** The {plan} plan. The free tier sends a hundred a day from a shared address, which is for testing.  
+- [ ] **7200.** The {plan} plan. The free tier sends a hundred a day from a shared address, which is for testing.  
   → Тариф {plan}. Безкоштовний тариф надсилає сто листів на день зі спільної адреси, а це годиться лише для перевірки.
-- [ ] **7203.** A flat plan. It bills by volume of errors rather than by learners, and a well-behaved month is nowhere near the allowance.  
+- [ ] **7201.** A flat plan. It bills by volume of errors rather than by learners, and a well-behaved month is nowhere near the allowance.  
   → Фіксований тариф. Плата залежить від кількості помилок, а не учнів, і в спокійний місяць до ліміту дуже далеко.
-- [ ] **7204.** The only line here that is not runtime. It does not move with the number of learners, so it is most of the bill at a hundred and a rounding error at a hundred thousand.  
+- [ ] **7202.** The only line here that is not runtime. It does not move with the number of learners, so it is most of the bill at a hundred and a rounding error at a hundred thousand.  
   → Єдиний рядок, не пов'язаний з роботою застосунку. Він не залежить від кількості учнів, тому за сотні учнів це більша частина рахунку, а за ста тисяч майже непомітний.
-- [ ] **7205.** A .ee domain. The registry charges 6 euros a year; a registrar asks about 15.  
+- [ ] **7203.** A .ee domain. The registry charges 6 euros a year; a registrar asks about 15.  
   → Домен .ee. Реєстр бере 6 євро на рік, реєстратор просить близько 15.
-- [ ] **7206.** One request an hour from a function we already pay for, cached and shared by everybody.  
+- [ ] **7204.** One request an hour from a function we already pay for, cached and shared by everybody.  
   → Один запит на годину від функції, за яку ми й так платимо; відповідь зберігається в кеші й спільна для всіх.
-- [ ] **7207.** Their hardware, their battery and their data. Every clip and page it keeps is one this deployment does not serve again.  
+- [ ] **7205.** Their hardware, their battery and their data. Every clip and page it keeps is one this deployment does not serve again.  
   → Їхній пристрій, їхній акумулятор і їхній мобільний трафік. Кожен запис і сторінку, які він зберігає, сервер більше не віддає.
-- [ ] **7208.** Requests answered  
+- [ ] **7206.** Requests answered  
   → Оброблено запитів
-- [ ] **7209.** Files served  
+- [ ] **7207.** Files served  
   → Віддано файлів
-- [ ] **7210.** Data out  
+- [ ] **7208.** Data out  
   → Вихідний трафік
-- [ ] **7211.** Processor time  
+- [ ] **7209.** Processor time  
   → Процесорний час
-- [ ] **7212.** Database  
+- [ ] **7210.** Database  
   → База даних
-- [ ] **7213.** Speech stored  
+- [ ] **7211.** Speech stored  
   → Зберігання озвучення
-- [ ] **7214.** People signing in  
+- [ ] **7212.** People signing in  
   → Користувачів, що входять
-- [ ] **7215.** Questions asked  
+- [ ] **7213.** Questions asked  
   → Поставлено запитань
-- [ ] **7216.** Writing looked at  
+- [ ] **7214.** Writing looked at  
   → Перевірено письмових робіт
-- [ ] **7217.** Emails sent  
+- [ ] **7215.** Emails sent  
   → Надіслано листів
-- [ ] **7218.** requests answered  
+- [ ] **7216.** requests answered  
   → оброблені запити
-- [ ] **7219.** processor time  
+- [ ] **7217.** processor time  
   → процесорний час
-- [ ] **7220.** files served  
+- [ ] **7218.** files served  
   → віддані файли
-- [ ] **7221.** data out  
+- [ ] **7219.** data out  
   → вихідний трафік
-- [ ] **7222.** the database  
+- [ ] **7220.** the database  
   → база даних
-- [ ] **7223.** stored speech  
+- [ ] **7221.** stored speech  
   → зберігання озвучення
-- [ ] **7224.** sign-ins  
+- [ ] **7222.** sign-ins  
   → входи
 
 ### Counted words in public: one, few (2 to 4), many (5 and up)
 
-- [ ] **7225.** cent / cent, cents _(1, 2, 5)_  
+- [ ] **7223.** cent / cent, cents _(1, 2, 5)_  
   → цент, центи, центів
-- [ ] **7226.** pages / page, pages _(1, 2, 5)_  
+- [ ] **7224.** pages / page, pages _(1, 2, 5)_  
   → сторінка, сторінки, сторінок
-- [ ] **7227.** clips / clip, clips _(1, 2, 5)_  
+- [ ] **7225.** clips / clip, clips _(1, 2, 5)_  
   → аудіозапис, аудіозаписи, аудіозаписів
-- [ ] **7228.** characters / character, characters _(1, 2, 5)_  
+- [ ] **7226.** characters / character, characters _(1, 2, 5)_  
   → символ, символи, символів
-- [ ] **7229.** questions / question, questions _(1, 2, 5)_  
+- [ ] **7227.** questions / question, questions _(1, 2, 5)_  
   → запитання, запитання, запитань
-- [ ] **7230.** notes / note, notes _(1, 2, 5)_  
+- [ ] **7228.** notes / note, notes _(1, 2, 5)_  
   → відгук, відгуки, відгуків
-- [ ] **7231.** emails / email, emails _(1, 2, 5)_  
+- [ ] **7229.** emails / email, emails _(1, 2, 5)_  
   → лист, листи, листів
-- [ ] **7232.** milliseconds / millisecond, milliseconds _(1, 2, 5)_  
+- [ ] **7230.** milliseconds / millisecond, milliseconds _(1, 2, 5)_  
   → мілісекунда, мілісекунди, мілісекунд
-- [ ] **7233.** kilobytes / kilobyte, kilobytes _(1, 2, 5)_  
+- [ ] **7231.** kilobytes / kilobyte, kilobytes _(1, 2, 5)_  
   → кілобайт, кілобайти, кілобайтів
-- [ ] **7234.** per cent of the month's learners / per cent of the month's learners, per cent of the month's learners _(1, 2, 5)_  
+- [ ] **7232.** per cent of the month's learners / per cent of the month's learners, per cent of the month's learners _(1, 2, 5)_  
   → відсоток учнів за місяць, відсотки учнів за місяць, відсотків учнів за місяць
-- [ ] **7235.** times / time, times _(1, 2, 5)_  
+- [ ] **7233.** times / time, times _(1, 2, 5)_  
   → раз, рази, разів
+
+## meaning (7 lines)
+
+_lib/copy/i18n/areas/meaning.ts_
+
+- [ ] **7234.** Estonian → Ukrainian  
+  → Естонська → українська
+- [ ] **7235.** Ukrainian → Estonian  
+  → Українська → естонська
+- [ ] **7236.** Also show  
+  → Показувати також
+- [ ] **7237.** Also show a second language after the first  
+  → Показувати другу мову після першої
+- [ ] **7238.** Nothing else  
+  → Більше нічого
+- [ ] **7239.** Just the one language and the English.  
+  → Лише одна мова й англійська.
+- [ ] **7240.** Shown small, after the first meaning.  
+  → Дрібнішим шрифтом, після першого значення.
+
+## speakers (51 lines)
+
+_lib/copy/i18n/areas/speakers.ts_
+
+- [ ] **7241.** Estonian for Ukrainian speakers  
+  → Естонська для україномовних
+- [ ] **7242.** What your Ukrainian already gives you, and where it leads you astray.  
+  → Що вам уже дає українська і де вона збиває з пантелику.
+- [ ] **7243.** Practise it: {round}  
+  → Потренуйтеся у вправі «{round}»
+- [ ] **7244.** In the dictionary: {gloss}  
+  → У словнику: {gloss}
+- [ ] **7245.** What you already have  
+  → Що у вас уже є
+- [ ] **7246.** Much of what makes Estonian hard for English speakers is already in your Ukrainian.  
+  → Багато з того, що англомовним здається в естонській важким, у вашій українській уже є.
+- [ ] **7247.** Cases. Ukrainian has seven and Estonian has fourteen, but eleven of the fourteen are one form with an ending added.  
+  → Відмінки. В українській їх сім, в естонській чотирнадцять, але одинадцять із чотирнадцяти утворюються від однієї форми додаванням закінчення.
+- [ ] **7248.** No articles, just as in Ukrainian, and the same free word order.  
+  → Артиклів немає, як і в українській, і порядок слів такий самий вільний.
+- [ ] **7249.** A whole object against a partial one works much like aspect. A finished «прочитав книжку» takes the whole object, and an unfinished «читав книжку» puts it in the {part}.  
+  → Повний і частковий додаток працюють майже як вид дієслова. Доконане «прочитав книжку» бере повний додаток, а недоконане «читав книжку» ставить його у форму {part}.
+- [ ] **7250.** The {part} also does what the Ukrainian «родовий» does in «налий води», and after a no, as in «не маю часу». After {not}, the object goes into it too.  
+  → Форма {part} робить те саме, що український родовий відмінок у «налий води» і після заперечення, як у «не маю часу». Після {not} додаток теж стоїть у цій формі.
+- [ ] **7251.** «У мене є» is built exactly the Estonian way: the owner takes the {have} ending and the verb to be follows.  
+  → «У мене є» побудовано точно як в естонській: власник отримує закінчення {have}, а за ним іде дієслово «бути».
+- [ ] **7252.** The {with} ending covers what the instrumental does with «з» and without it: «з другом», «ножем», «автобусом».  
+  → Закінчення {with} передає орудний відмінок і з прийменником «з», і без нього: «з другом», «ножем», «автобусом».
+- [ ] **7253.** What is new  
+  → Що нового
+- [ ] **7254.** Five places where Ukrainian habits lead you the wrong way.  
+  → П'ять місць, де українські звички ведуть вас не туди.
+- [ ] **7255.** No grammatical gender. The one word {he} means both «він» and «вона», and an adjective never changes to match.  
+  → Граматичного роду немає. Одне слово {he} означає і «він», і «вона», а прикметник ніколи не змінюється за родом.
+- [ ] **7256.** The verb {be} stays in the present. Ukrainian says «Я студент»; Estonian needs the verb every time.  
+  → Дієслово {be} не зникає в теперішньому часі. Українською кажуть «Я студент», а естонською дієслово потрібне щоразу.
+- [ ] **7257.** No future tense. The present does the job, often with a word like {tomorrow}, where Ukrainian says «буду читати» or «читатиму».  
+  → Майбутнього часу немає. Його роль виконує теперішній, часто зі словом на кшталт {tomorrow}, там, де українською кажуть «буду читати» або «читатиму».
+- [ ] **7258.** After every number from {two} up, the noun takes the {part} and stays singular. Ukrainian says «п'ять книжок» with a plural; Estonian never does.  
+  → Після будь-якого числа від {two} і більше іменник стоїть у формі {part} і в однині. Українською кажуть «п'ять книжок» у множині, естонською так не кажуть ніколи.
+- [ ] **7259.** Ukrainian uses one instrumental for «працювати вчителем» and «стати вчителем». Estonian splits it: {as} for a role you have, {become} for one you take on.  
+  → В українській і «працювати вчителем», і «стати вчителем» мають один орудний відмінок. Естонська їх розділяє: {as} для ролі, яку ви маєте, {become} для ролі, якої набуваєте.
+- [ ] **7260.** Sounds  
+  → Звуки
+- [ ] **7261.** Four vowels Ukrainian does not have, and a few habits to unlearn.  
+  → Чотири голосні, яких немає в українській, і кілька звичок, яких варто позбутися.
+- [ ] **7262.** Say «о», then spread your lips as if smiling, keeping the tongue where it was.  
+  → Скажіть «о», а потім розтягніть губи, ніби в усмішці, не рухаючи язика.
+- [ ] **7263.** Between «е» and «а», with the mouth open wide.  
+  → Щось середнє між «е» і «а», з широко відкритим ротом.
+- [ ] **7264.** Say «е» with your lips rounded.  
+  → Скажіть «е» з округленими губами.
+- [ ] **7265.** Say «і» and push your lips forward as for «у».  
+  → Скажіть «і» і витягніть губи вперед, як для «у».
+- [ ] **7266.** Estonian has three lengths of sound, and a doubled letter is a long one. Ukrainian has no long vowels, but its long consonants in «знання» and «життя» are the same idea.  
+  → В естонській три ступені довготи звука, і подвоєна літера позначає довгий звук. В українській довгих голосних немає, але довгі приголосні в «знання» і «життя» працюють так само.
+- [ ] **7267.** Estonian g is always «ґ», never «г». Estonian h is close to «г», only without the voice.  
+  → Естонське g завжди звучить як «ґ», ніколи як «г». Естонське h близьке до «г», тільки без голосу.
+- [ ] **7268.** The letters b, d and g are less voiced than «б», «д» and «ґ», and p, t and k have no puff of air. What tells them apart is mostly length and strength.  
+  → Літери b, d і g менш дзвінкі, ніж «б», «д» і «ґ», а p, t і k вимовляються без придиху. Розрізняють їх переважно за довготою та силою.
+- [ ] **7269.** The stress always falls on the first syllable.  
+  → Наголос завжди падає на перший склад.
+- [ ] **7270.** Typing  
+  → Набір тексту
+- [ ] **7271.** A Ukrainian keyboard has no {a}, {b}, {c} or {d}. Add the Estonian layout and switch to it when you write Estonian.  
+  → На українській клавіатурі немає {a}, {b}, {c} і {d}. Додайте естонську розкладку й перемикайтеся на неї, коли пишете естонською.
+- [ ] **7272.** Android, with Gboard: in the keyboard, tap Settings, then Languages, then Add keyboard, and choose Estonian. Touch and hold the space bar to switch.  
+  → Android, Gboard: на клавіатурі торкніться «Налаштування», потім «Мови», потім «Додати клавіатуру» й виберіть естонську. Щоб перемкнути мову, торкніться пробілу й утримуйте.
+- [ ] **7273.** iPhone: Settings, General, Keyboard, Keyboards, Add New Keyboard, then Estonian. Touch and hold the globe key to switch.  
+  → iPhone: «Параметри», «Загальні», «Клавіатура», «Клавіатури», «Додати нову клавіатуру», потім естонська. Щоб перемкнути, торкніться клавіші з глобусом і утримуйте.
+- [ ] **7274.** Windows 11: Settings, Time and language, Language and region. Open the menu beside your language, choose Language options, then Add a keyboard and pick Estonian. The Windows key and Space switch layouts.  
+  → Windows 11: «Налаштування», «Час і мова», «Мова та регіон». Відкрийте меню поруч із вашою мовою, виберіть «Параметри мови», потім «Додати клавіатуру» й виберіть естонську. Розкладку перемикають клавіші Windows і пробіл.
+- [ ] **7275.** Mac: System Settings, Keyboard, then Edit beside Input Sources under Text Input. Press the plus button, choose Estonian and press Add. Control and Space switch.  
+  → Mac: «Системні параметри», «Клавіатура», потім «Змінити» поруч із «Джерела введення» в розділі «Введення тексту». Натисніть «+», виберіть естонську й натисніть «Додати». Перемикають клавіші Control і пробіл.
+- [ ] **7276.** On a computer, the row of letters under every box types them for you, if you asked for it. You can turn it on or off in Settings.  
+  → На комп'ютері їх набирає за вас рядок літер під кожним полем, якщо ви його ввімкнули. Увімкнути чи вимкнути його можна в налаштуваннях.
+- [ ] **7277.** «Ти» or «ви»  
+  → «Ти» чи «ви»
+- [ ] **7278.** Customs vary, so follow the other person's lead.  
+  → Звичаї бувають різні, тож орієнтуйтеся на співрозмовника.
+- [ ] **7279.** Estonians move to {youOne} sooner than Ukrainians move to «ти»: with colleagues, with people your own age, and often in shops.  
+  → Естонці переходять на {youOne} швидше, ніж українці на «ти»: з колегами, з ровесниками, а часто й у магазинах.
+- [ ] **7280.** Use {youMany} with officials, with older people you do not know, and with more than one person.  
+  → Звертайтеся на {youMany} до посадовців, до незнайомих старших людей і до кількох людей одразу.
+- [ ] **7281.** Words that look familiar  
+  → Слова, що здаються знайомими
+- [ ] **7282.** A few Estonian words you will recognize, and a few that only look like Ukrainian.  
+  → Кілька естонських слів, які ви впізнаєте, і кілька таких, що лише схожі на українські.
+- [ ] **7283.** You will recognize these, or a relative of them in Ukrainian.  
+  → Ці слова ви впізнаєте самі або за їхніми українськими родичами.
+- [ ] **7284.** These look like Ukrainian words and mean something else.  
+  → Ці слова схожі на українські, але означають інше.
+- [ ] **7285.** It came into Estonian from German.  
+  → В естонську прийшло з німецької.
+- [ ] **7286.** It came into Estonian from a Slavic language. Compare «грамота».  
+  → В естонську прийшло зі слов'янської мови. Порівняйте «грамота».
+- [ ] **7287.** It came into Estonian from a Slavic language. Compare «торг».  
+  → В естонську прийшло зі слов'янської мови. Порівняйте «торг».
+- [ ] **7288.** It came into Estonian from a Slavic language.  
+  → В естонську прийшло зі слов'янської мови.
+- [ ] **7289.** A week, not «неділя».  
+  → Тиждень, а не «неділя».
+- [ ] **7290.** A stage, not «лава», the bench.  
+  → Сцена, а не «лава», на якій сидять.
+- [ ] **7291.** A cat, however much it sounds like «каса», the till.  
+  → Кіт, хоч і звучить майже як «каса».
 
