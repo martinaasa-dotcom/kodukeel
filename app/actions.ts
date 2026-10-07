@@ -64,7 +64,8 @@ import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
 import { caseGlossFrom } from "@/lib/estonian/caseGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
-import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
+import { hearingFrom, hidesWords, supportFrom } from "@/lib/audio/conditions";
+import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
 import { SPEECH_PACES } from "@/lib/audio/pace";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
@@ -2095,6 +2096,27 @@ export async function setSupport(value: string) {
   const ownerId = await requireUserId();
   const normalised = supportFrom(value);
   await writeSetting(ownerId, SETTING_KEYS.support, normalised);
+  /*
+    And the conversation's own mode follows, because hiding the words is now
+    said there (lib/audio/sceneVoice.ts): a stored mode beside this would win
+    over it, and somebody who turned "hear it first" on in Settings would open
+    the next scene with the words showing.
+  */
+  await writeSetting(ownerId, SETTING_KEYS.sceneVoice, hidesWords(normalised) ? "listen" : "voice");
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+/**
+ * How the other side of a conversation is heard: read, heard and read, or
+ * heard alone. Chosen on a scene's briefing and changed from the conversation
+ * itself, and remembered for the next one. Normalized on the way in, since an
+ * argument off the wire is whatever somebody sent.
+ */
+export async function setSceneVoice(value: unknown) {
+  const ownerId = await requireUserId();
+  const normalised = sceneVoiceFrom(value, "guided");
+  await writeSetting(ownerId, SETTING_KEYS.sceneVoice, normalised);
   revalidatePath("/", "layout");
   return { ok: true as const, value: normalised };
 }

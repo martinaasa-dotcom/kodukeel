@@ -11,8 +11,10 @@
  *
  *   patience  a delta on every beat's own, so a brisk one gives you one fewer
  *             try at everything and a thorough one gives you an extra.
- *   voice     one of the ten TartuNLP voices, so a second person in a scene
- *             reads as a second person rather than as more of the first.
+ *   voice     one of the ten TartuNLP voices. Every persona speaks in the
+ *             clearest one, measured (`SCENE_VOICE`): who they are is in how
+ *             they behave, and a learner misheard by the voice is a learner
+ *             failed on a word they knew.
  *   leans     which curveballs attach to them, which is how an agenda becomes
  *             something that happens rather than a label on a card.
  *
@@ -22,7 +24,7 @@
  *
  * Pure: no React, no Next, no Prisma, no clock.
  */
-import { VOICES } from "@/lib/audio/voice";
+import { SCENE_VOICE, VOICES } from "@/lib/audio/voice";
 import type { CurveballId } from "./curveballs";
 
 export interface PersonaSpec {
@@ -70,7 +72,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
     id: "brisk",
     who: "They're busy, and they won't wait long for an answer.",
     patience: -1,
-    voice: "kylli",
+    voice: SCENE_VOICE,
     speed: 1.1,
     leans: ["faster", "queue", "english"],
     translates: false,
@@ -80,7 +82,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
     id: "thorough",
     who: "They're in no hurry, and they'll want every last detail from you.",
     patience: 1,
-    voice: "mari",
+    voice: SCENE_VOICE,
     speed: 0.95,
     leans: ["missing-document", "wrong-price", "small-talk"],
     translates: true,
@@ -90,7 +92,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
     id: "new",
     who: "They're new in the job, so they check everything twice as they go.",
     patience: 1,
-    voice: "indrek",
+    voice: SCENE_VOICE,
     speed: 1,
     leans: ["not-possible", "contradiction", "interrupted"],
     translates: true,
@@ -100,7 +102,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
     id: "by-the-book",
     who: "They go strictly by the book: one thing at a time, in their order, not yours.",
     patience: 0,
-    voice: "peeter",
+    voice: SCENE_VOICE,
     speed: 1,
     leans: ["their-order", "place-instruction", "other-register"],
     translates: false,

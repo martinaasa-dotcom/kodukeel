@@ -66,7 +66,8 @@ export function GlossedSentence({ tokens, sentence, speak }: {
     condition?: Condition;
     rate?: number;
     autoplay?: boolean;
-  };
+    insist?: boolean;
+  } | false;
 }) {
   const panelId = useId();
   const t = useT();
@@ -168,7 +169,10 @@ export function GlossedSentence({ tokens, sentence, speak }: {
             );
           })}
         </p>
-        <Speak text={sentence} label={t("Hear the sentence")} {...speak} />
+        {/* `false` is a conversation read as text only, where a speaker
+            under a label saying nothing is played aloud would make the label
+            wrong (lib/audio/sceneVoice.ts). */}
+        {speak !== false && <Speak text={sentence} label={t("Hear the sentence")} {...speak} />}
       </div>
 
       <div id={panelId}>

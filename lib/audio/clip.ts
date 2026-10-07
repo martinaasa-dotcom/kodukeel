@@ -235,27 +235,87 @@ export function prefetchClip(request: ClipRequest): void {
  */
 export type PlayOutcome = "played" | "blocked";
 
+/*
+  WHETHER ANYTHING IS BEING SAID ALOUD RIGHT NOW, so a screen can wait for it.
+
+  A conversation used to hand the learner the other side's line and, in the
+  same breath, cover it with the scene moving on, so the line was cut off
+  while it was still being spoken and the sentence about the move arrived on
+  top of it. `untilQuiet` is how the conversation waits for the voice to
+  finish before it moves (`components/scene/SceneSession.tsx`).
+
+  A clip counts from the moment it is asked for, because the fetch and the
+  stretch are part of the wait somebody hears as silence before the word, to
+  the moment it ends, is paused, fails or is refused. A play that never says
+  it ended is what the caller's cap is for.
+*/
+let inFlight = 0;
+let onQuiet: Array<() => void> = [];
+
+function beginSpeech(): () => void {
+  inFlight += 1;
+  let ended = false;
+  return () => {
+    if (ended) return;
+    ended = true;
+    inFlight -= 1;
+    if (inFlight > 0) return;
+    const waiting = onQuiet;
+    onQuiet = [];
+    for (const resume of waiting) resume();
+  };
+}
+
+/**
+ * Resolves once no clip is being fetched or played, or after `capMs`,
+ * whichever comes first. Resolves at once when nothing is playing.
+ */
+export function untilQuiet(capMs: number): Promise<void> {
+  if (inFlight === 0) return Promise.resolve();
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, capMs);
+    onQuiet.push(() => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+}
+
 export async function playClip(
   request: ClipRequest,
   { unasked = false }: { unasked?: boolean } = {},
 ): Promise<PlayOutcome> {
-  const clip = await stretchedClip(request, rateFor(request));
-  // The rate is already in the clip; the room is the mixer's job. A slow
-  // play is heard in a quiet room, because it was asked for by somebody who
-  // wants to hear the word and not the café.
-  const condition = request.slow ? CLEAN : (request.condition ?? CLEAN);
-  if (needsMixer(condition)) return playThrough(await clip.blob.arrayBuffer(), condition, { unasked });
-  // The element rather than a buffer source for the plain case, on purpose:
-  // an element plays through a phone's silent switch and a Web Audio graph
-  // does not, and a learner who pressed the speaker asked to hear it.
-  const audio = new Audio(clip.url);
+  const end = beginSpeech();
   try {
-    await audio.play();
-  } catch (error) {
-    if (unasked && error instanceof DOMException && error.name === "NotAllowedError") {
-      return "blocked";
+    const clip = await stretchedClip(request, rateFor(request));
+    // The rate is already in the clip; the room is the mixer's job. A slow
+    // play is heard in a quiet room, because it was asked for by somebody who
+    // wants to hear the word and not the café.
+    const condition = request.slow ? CLEAN : (request.condition ?? CLEAN);
+    if (needsMixer(condition)) {
+      const outcome = await playThrough(await clip.blob.arrayBuffer(), condition, { unasked });
+      end();
+      return outcome;
     }
+    // The element rather than a buffer source for the plain case, on purpose:
+    // an element plays through a phone's silent switch and a Web Audio graph
+    // does not, and a learner who pressed the speaker asked to hear it.
+    const audio = new Audio(clip.url);
+    for (const event of ["ended", "pause", "error"] as const) {
+      audio.addEventListener(event, end, { once: true });
+    }
+    try {
+      await audio.play();
+    } catch (error) {
+      end();
+      if (unasked && error instanceof DOMException && error.name === "NotAllowedError") {
+        return "blocked";
+      }
+      throw error;
+    }
+    return "played";
+  } catch (error) {
+    end();
     throw error;
   }
-  return "played";
 }

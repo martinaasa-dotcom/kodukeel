@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { SCENES, sceneById } from "./catalogue";
 import { BANK } from "./bank";
 import { BUDGETS, curveballById, type Difficulty } from "./curveballs";
+import { SCENE_VOICE } from "@/lib/audio/voice";
 import { PERSONAS, patienceFor, personaById, voicesAreReal } from "./personas";
 import { curveballAt, minutesFor, planRun, RECENCY_WINDOW, type Recency } from "./run";
 
@@ -19,6 +20,10 @@ function recencyFrom(runs: { persona: string; props: string[]; curveballs: strin
 }
 
 describe("the personas", () => {
+  it("speak in the voice measured clearest for a scene", () => {
+    for (const p of PERSONAS) expect(p.voice, p.id).toBe(SCENE_VOICE);
+  });
+
   it("name a voice the speech route will accept", () => {
     // A voice not on the allowlist is silently swapped for the default, so a
     // typo here would make two personas sound identical and nothing would say so.

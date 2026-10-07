@@ -26,7 +26,7 @@ import { fill } from "@/lib/copy/locale";
  * takes the button away.
  */
 export function Speak({
-  text, slow, label, size = 15, className, style, onUnavailable, onPlay, disabled, children, autoplay, voice: askedVoice, condition, rate, spaceKey,
+  text, slow, label, size = 15, className, style, onUnavailable, onPlay, disabled, children, autoplay, insist, voice: askedVoice, condition, rate, spaceKey,
 }: {
   text: string; slow?: boolean; label?: string;
   /** A playback rate other than the clip's own, with the pitch held (`LEARNING_RATE`). */
@@ -78,6 +78,13 @@ export function Speak({
    * hole in it. Counts as a play for `onPlay`, since it is one.
    */
   autoplay?: boolean;
+  /**
+   * Autoplay even where the learner's autoplay setting is off, because the
+   * learner asked for this one in so many words: a conversation chosen as
+   * "Voice and text" or "Voice only" (lib/audio/sceneVoice.ts). The setting
+   * answers whether a card reads itself unasked, and this is not unasked.
+   */
+  insist?: boolean;
   /**
    * Space plays this clip, and the button says so with a Space key beside it.
    *
@@ -163,7 +170,7 @@ export function Speak({
   }, [keyed, busy]);
 
   useEffect(() => {
-    if (!autoplay || wanted !== "on" || disabled) return;
+    if (!autoplay || (wanted !== "on" && !insist) || disabled) return;
     const key = `${text}|${slow ? 1 : 0}|${voice}|${condition?.id ?? ""}|${pace.id}`;
     if (played.current === key) return;
     played.current = key;
@@ -171,7 +178,7 @@ export function Speak({
     // `play` closes over the props it needs; re-running on them would replay
     // the same clip on an unrelated re-render, which `played` also guards.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoplay, wanted, disabled, text, slow, voice, condition?.id, pace.id]);
+  }, [autoplay, wanted, insist, disabled, text, slow, voice, condition?.id, pace.id]);
 
   /*
     A BUTTON THAT HAS GONE SAYS SO, TO THE ONE READER WHO CANNOT SEE IT GO.
