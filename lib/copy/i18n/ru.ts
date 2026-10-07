@@ -17,7 +17,7 @@ export const RU: Readonly<Record<string, string>> = {
   "Practice": "Практика",
   "What's due, plus sprints, matching, sentences and games": "Что пора повторить, а ещё спринты, пары, предложения и игры",
   "Review": "Повторение",
-  "Everything due, right before you'd forget it": "Всё, что пора повторить, как раз перед тем, как вы бы это забыли",
+  "Everything due, right before you'd forget it": "Всё, что пора повторить, прямо перед тем, как вы это забудете",
   "Situations": "Ситуации",
   "Book a doctor, order a coffee, ring your landlord": "Записаться к врачу, заказать кофе, позвонить арендодателю",
   "Look it up": "Найти",
@@ -35,9 +35,9 @@ export const RU: Readonly<Record<string, string>> = {
   "Scan a page": "Сфотографировать страницу",
   "Photograph a word list and turn it into cards": "Сфотографируйте список слов и превратите его в карточки",
   "Ask Anu": "Спросить Ану",
-  "Ask your tutor anything about Estonian": "Спросите своего репетитора о чём угодно в эстонском",
+  "Ask your tutor anything about Estonian": "Спросите Ану обо всём, что касается эстонского",
   "How it's going": "Как идут дела",
-  "Your week ahead, and how far you've come.": "Ваша неделя впереди и путь, который вы уже прошли.",
+  "Your week ahead, and how far you've come.": "Что у вас на неделе и сколько вы уже прошли.",
   "Calendar": "Календарь",
   "Your classes, study times and what's due": "Ваши занятия, время учёбы и сроки",
   "Classes": "Группы",
@@ -53,7 +53,7 @@ export const RU: Readonly<Record<string, string>> = {
   "In real life": "В реальной жизни",
   "Which real conversations you could follow, join or lead": "Какие настоящие разговоры вы смогли бы понять, поддержать или вести сами",
   "Level check": "Проверка уровня",
-  "Find out your level in reading, listening, writing and speaking": "Узнайте свой уровень в чтении, аудировании, письме и устной речи",
+  "Find out your level in reading, listening, writing and speaking": "Узнайте свой уровень в чтении, аудировании, письме и говорении",
   "Mock exam": "Пробный экзамен",
   "A practice run at the state language exam": "Тренировка перед государственным экзаменом по языку",
   "This app": "Приложение",
@@ -73,7 +73,7 @@ export const RU: Readonly<Record<string, string>> = {
   "Theme": "Тема",
   "Light": "Светлая",
   "Dark": "Тёмная",
-  "Sign out": "Выйти",
+  "Sign out": "Выйти из аккаунта",
   "Skip to content": "Перейти к содержанию",
   "Estonian, daily": "Эстонский каждый день",
 
@@ -152,7 +152,7 @@ export const RU: Readonly<Record<string, string>> = {
     "Нажмите на слово, а потом на его значение, чтобы соединить их. Время идёт, пока поле не опустеет.",
   "Long or short": "Долгий или краткий",
   "Two words that sound almost the same, except one sound is held a little longer. You'll hear one of them.":
-    "Два слова звучат почти одинаково, только в одном звук тянется чуть дольше. Вы услышите одно из них.",
+    "Два слова звучат почти одинаково, только в одном звук тянется чуть дольше. В русском долгота звука не различает слова, а в эстонском различает. Вы услышите одно из них.",
   "Say which one you heard. Play it again if you need to, it's recorded in a quiet room.":
     "Выберите, какое вы услышали. Если нужно, включите ещё раз: запись сделана в тихой комнате.",
   "Put the sentence back in order": "Соберите предложение",
@@ -179,7 +179,7 @@ export const RU: Readonly<Record<string, string>> = {
   "The endings you keep missing": "Окончания, в которых вы чаще ошибаетесь",
   "Cards from the cases you get wrong most, picked from your own answers, against the clock.":
     "Карточки на падежи, в которых вы чаще всего ошибаетесь, отобранные по вашим же ответам, на время.",
-  "Answer as many as you can before time runs out.": "Ответьте на как можно больше вопросов, пока не закончится время.",
+  "Answer as many as you can before time runs out.": "Ответьте на столько вопросов, на сколько успеете, пока не закончится время.",
   "Guess today's word": "Угадайте слово дня",
   "One six-letter Estonian word a day, and seven tries to find it. After each guess, the letters show whether they're in the right spot, somewhere else, or not in the word at all.":
     "Одно эстонское слово из шести букв в день и семь попыток его найти. После каждой попытки буквы показывают, стоят ли они на своём месте, есть ли они в слове в другом месте или их в слове нет совсем.",
@@ -192,8 +192,8 @@ export const RU: Readonly<Record<string, string>> = {
   "This unit, one word at a time": "Этот раздел, слово за словом",
   "You'll meet each of the unit's words first, then use them in real sentences.": "Сначала вы познакомитесь с каждым словом раздела, а потом используете их в настоящих предложениях.",
   "Meeting a word isn't scored, so take your time with it. Then answer.": "Знакомство со словом не оценивается, так что не торопитесь. Потом отвечайте.",
-  "Start the lesson": "Начать урок",
-  "A checkpoint, not a test": "Контрольная точка, а не экзамен",
+  "Start the lesson": "Начать занятие",
+  "A checkpoint, not a test": "Контрольная точка, а не тест",
   "A short set of questions from across the level. You'll find out how you did at the end, not after each one.":
     "Короткий набор вопросов по всему уровню. Результат вы узнаете в конце, а не после каждого вопроса.",
   "Answer each one as best you can and keep going. Leaving one blank is an honest answer.":

@@ -119,7 +119,7 @@ export const SHELL: Area = {
     "Pick a name your class will recognize.": "Выберите имя, по которому вас узнают в группе.",
     "We couldn't find that word list.": "Мы не нашли этот список слов.",
     "We couldn't find that unit.": "Мы не нашли этот раздел.",
-    "We couldn't save that lesson. Try again in a moment.": "Урок не сохранился. Попробуйте ещё раз чуть позже.",
+    "We couldn't save that lesson. Try again in a moment.": "Занятие не сохранилось. Попробуйте ещё раз чуть позже.",
     "We couldn't read that result, so it wasn't saved.": "Мы не смогли прочитать результат, поэтому он не сохранён.",
     "Give the class a name.": "Дайте группе название.",
     "We couldn't make a join code just then. Please try again.": "Сейчас не получилось создать код для вступления. Попробуйте ещё раз.",
