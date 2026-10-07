@@ -5010,8 +5010,11 @@ check("Today draws at most TODAY_CARDS under the hero, and every card goes throu
     So the cards are named in priority order and the first `TODAY_CARDS` are
     drawn. What rots is not the constant, it is somebody adding `{newCard}`
     beside the sliced array, which reads as a card being added and is a card
-    that cannot be cut. That is what this fails on: every child of `Columns` on
-    this page comes out of the one expression the cap is applied to.
+    that cannot be cut. That is what this fails on: every child of the card grid
+    on this page comes out of the one expression the cap is applied to. (It was
+    `Columns` until the order was asked for in rows, game and word, calendar
+    and conversation, progress and out there: columns fill down the first and
+    then the second, so they cannot promise that two cards sit side by side.)
   */
   const today = code("app/(app)/page.tsx");
   assert.match(today, /TODAY_CARDS/, "Today no longer reads the cap");
@@ -5020,9 +5023,9 @@ check("Today draws at most TODAY_CARDS under the hero, and every card goes throu
     "Today names its cards and draws all of them again; the cap is what keeps the page glanceable",
   );
 
-  const open = today.indexOf("<Columns>");
-  const close = today.indexOf("</Columns>", open);
-  assert.ok(open >= 0 && close > open, "Today no longer lays its cards out in Columns");
+  const open = today.indexOf('className="grid items-stretch gap-6 lg:grid-cols-2"');
+  const close = today.indexOf("</Stack>", open);
+  assert.ok(open >= 0 && close > open, "Today no longer lays its cards out in the two-across grid");
   const columns = today.slice(open, close);
   /*
     A card interpolated on its own, rather than named inside the array. Written
@@ -5064,15 +5067,14 @@ check("Today deals its cards in the learner's order, under the same cap", () => 
     "the cap is no longer applied to what orderTodayCards returns",
   );
   /*
-    One round a day, which CLAUDE.md says is asserted on the slot. The cap
-    above counts slots, so a quest dealt as a slot of its own beside the round
-    passes it and puts two rounds on Today; what holds the rule is that the
-    game and the quest reach the deal only through the one slot.
+    One game a day, which is Sõnad. The cap above counts slots, so a quest
+    dealt as a slot of its own beside the game would put two rounds on Today;
+    the quest is not on this page at all, and the game reaches the deal through
+    its one slot.
   */
-  assert.match(today, /const roundCard = gameCard \?\? questCard;/, "the day's round is no longer one slot");
   const deal = /orderTodayCards\(\{([\s\S]*?)\}/.exec(today)?.[1] ?? "";
-  assert.ok(deal.includes("roundCard"), "the round slot is not dealt");
-  assert.doesNotMatch(deal, /\b(gameCard|questCard)\b/, "a round is dealt beside the round slot, which is two rounds on Today");
+  assert.ok(/\bgame:\s*gameCard\b/.test(deal), "the game slot is not dealt");
+  assert.doesNotMatch(today, /questCard/, "the daily quest is back on Today beside the game of the day, which is two rounds");
 
   const panel = code("app/(app)/settings/TodayOrderPanel.tsx");
   assert.match(panel, /setTodayOrder\(/, "the Settings panel no longer writes the order");
@@ -5215,7 +5217,7 @@ check("where a screen lives is decided in one table", () => {
     ["components/Sidebar.tsx", /lib\/ux\/nav/],
     ["components/CommandPalette.tsx", /lib\/ux\/nav/],
     ["app/(app)/practice/page.tsx", /lib\/ux\/modes/],
-    ["app/(app)/page.tsx", /lib\/ux\/modes/],
+    ["app/(app)/page.tsx", /lib\/ux\/weekGames/],
   ];
   for (const [file, table] of readers) {
     assert.match(code(file), table, `${file} navigates by a list of its own again`);
@@ -7609,9 +7611,9 @@ check("a timed round's length is written once and shown at the learner's pace", 
     code("app/(app)/scan/[scanId]/page.tsx"), /lengthAtPace\(SPRINT_SECONDS,/,
     "the scan page's sprint tile states a length without the learner's pace",
   );
-  assert.match(
-    code("app/(app)/page.tsx"), /lengthAtPace\(QUEST_SECONDS,/,
-    "Today's quest card states a length without the learner's pace",
+  assert.doesNotMatch(
+    code("app/(app)/page.tsx"), /QUEST_SECONDS|lengthAtPace\(/,
+    "Today states a round length again; the quest left it for Practice and the length is the pace's to say",
   );
   /*
     And no screen types the standard length as words. What a comment says is
@@ -14432,8 +14434,14 @@ check("every screen that draws the weakest cases reads the one query behind them
     );
   }
 
+  /*
+    Three until Today stopped drawing the daily quest, which was the third: the
+    home page leads with Sõnad now and the quest lives on Practice, so the screens
+    left are Progress and Practice. The floor is what is there, so a check that
+    stops finding either of them still fails.
+  */
   assert.ok(
-    screens.length >= 3,
+    screens.length >= 2,
     `only ${screens.length} screens draw the weakest cases, so this check stopped looking`,
   );
 });
@@ -14828,11 +14836,17 @@ check("the game of the day comes from the one table of them", () => {
     is what the home page leads with.
   */
   const page = code("app/(app)/page.tsx");
-  assert.match(page, /gameOn\(/, "Today no longer asks which game today's is");
-  assert.match(page, /gameAfter\(/, "Today stopped saying what is on tomorrow, which is what makes it a week");
   assert.match(
-    page, /modeAt\(/,
-    "Today names the featured round itself rather than reading lib/ux/modes.ts, so a rename splits",
+    page, /GAME_OF_THE_DAY/,
+    "Today no longer asks the table which game today's is, so the game of the day is typed in a screen",
+  );
+  assert.match(
+    page, /featuredTitle\(/,
+    "Today names the featured round itself rather than reading the tables that own the name, so a rename splits",
+  );
+  assert.match(
+    page, /<SonadPreview /,
+    "the game of the day is Sõnad and it is drawn with its example board, which is what makes it worth pressing",
   );
 
   const table = code("lib/ux/weekGames.ts");

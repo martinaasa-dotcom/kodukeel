@@ -87,10 +87,12 @@ describe("shows", () => {
 });
 
 describe("TODAY_CARDS", () => {
-  it("leaves room for the hero and no more than six boxes in all", () => {
-    // The number the redesign was asked for: a screen somebody glances at
-    // before a bus, rather than one they scroll.
-    expect(TODAY_CARDS + 1).toBeLessThanOrEqual(6);
+  it("leaves room for the hero and no more than six white boxes under it", () => {
+    // Three rows of two, which is the layout the home page was asked for:
+    // game and word, calendar and conversation, progress and out there. Still
+    // a screen somebody glances at before a bus rather than one they scroll.
+    expect(TODAY_CARDS).toBeLessThanOrEqual(6);
+    expect(TODAY_CARDS % 2).toBe(0);
   });
 
   it("cannot draw more cards than a settled learner has panels for", () => {

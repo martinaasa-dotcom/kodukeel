@@ -122,7 +122,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     */
     href: "/quest", title: "Daily quest", subtitle: "Your weak spots",
     icon: "Target", tone: "accent", group: "targeted", note: "From your log",
-    within: "/",
+    within: "/practice",
     blurb:
       "A short round on the endings you get wrong most, picked from your own answers. It counts " +
       "like any other practice, so whatever you miss comes back sooner.",
