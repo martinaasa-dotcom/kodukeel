@@ -40,7 +40,14 @@ export function InterfaceLanguagePanel({ current }: { current: Locale }) {
       options={LOCALES.map((id) => ({
         id,
         title: LOCALE_NAMES[id],
-        detail: id === "en" ? t("The app in English.") : <span lang={id}>{MACHINE_SHORT[id]}</span>,
+        /* Said in the language the app is in now, never in the other one: a
+           Ukrainian reader is not shown a Russian sentence, or the reverse.
+           Somebody still on English sees each note in its own language. */
+        detail: id === "en"
+          ? t("The app in English.")
+          : value === "en"
+            ? <span lang={id}>{MACHINE_SHORT[id]}</span>
+            : <span lang={value}>{MACHINE_SHORT[value]}</span>,
       }))}
     />
   );

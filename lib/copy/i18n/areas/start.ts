@@ -125,7 +125,7 @@ export const START: Area = {
     "Plain English meanings": "Значения на английском",
     "What stays in English": "Что остаётся на английском",
     "You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.":
-      "Английское значение вы тоже будете видеть всегда. Русские и украинские значения взяты прямо из эстонского словаря, их писали те же люди, что и эстонскую часть.",
+      "Английское значение вы тоже будете видеть всегда. Русские значения взяты прямо из эстонского словаря, их писали те же люди, что и эстонскую часть.",
     "One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.":
       "Одно честное замечание перед началом: Kodukeel не оценивает ваше произношение, не даёт ИИ ставить вам оценки и не заменяет преподавателя. Здесь вы репетируете. А настоящие разговоры ждут вас в жизни.",
 
@@ -409,7 +409,7 @@ export const START: Area = {
     "Plain English meanings": "Значення англійською",
     "What stays in English": "Що залишається англійською",
     "You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.":
-      "Англійське значення ви теж завжди бачитимете. Російські й українські значення взято просто з естонського словника, їх писали ті самі люди, що й естонську частину.",
+      "Англійське значення ви теж завжди бачитимете. Українські значення взято просто з естонського словника, їх писали ті самі люди, що й естонську частину.",
     "One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.":
       "Одне чесне застереження, перш ніж почати: Kodukeel не оцінює вашу вимову, не дає ШІ ставити вам оцінки й не замінює викладача. Тут ви репетируєте. А справжні розмови чекають на вас у житті.",
 
