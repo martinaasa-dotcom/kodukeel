@@ -11,7 +11,8 @@ import { ChevronRight } from "lucide-react";
 import { Card, Note, SectionTitle, StatTile } from "@/components/ui";
 import { NamedIcon } from "@/components/icons";
 import { Explain } from "@/components/Explain";
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { countOf, fill, tr, type CountCase, type Locale } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 
 /**
  * The honest timeline.
@@ -254,11 +255,13 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
 
       {compact && (
         <Explain label={t("Where the hours come from")}>
-          {t("The hours are published estimates for an English speaker, averaged over other people on other courses. We then adjust them for your level, your week and, once you have some, your reviews. The sources, and the research behind the pace, are on the")}{" "}
-          <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
-            {t("level check screen")}
-          </Link>
-          .
+          {fillNodes(t("The hours are published estimates for an English speaker, averaged over other people on other courses. We then adjust them for your level, your week and, once you have some, your reviews. The sources, and the research behind the pace, are on the {link}."), {
+            link: (
+              <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
+                {t("level check screen")}
+              </Link>
+            ),
+          })}
         </Explain>
       )}
 
@@ -375,12 +378,14 @@ function lowerFirst(text: string): string {
 function weeksWord(weeks: number | null, locale: Locale): string {
   const n = Math.max(1, Math.round(weeks ?? 0));
   if (locale === "en") return n === 1 ? "week" : `${n} weeks`;
-  return n === 1 ? tr(locale, "a single week (span)") : countOf(locale, n, "week");
+  /* Every sentence it fills reads "за {weeks}", which takes the accusative:
+     "за 21 неделю", never "за 21 неделя". */
+  return n === 1 ? tr(locale, "a single week (span)") : countOf(locale, n, "week", "acc");
 }
 
 /** A number of weeks in a sentence: always "N weeks" in English, as it was. */
-function weeksCount(n: number, locale: Locale): string {
-  return locale === "en" ? `${n} weeks` : countOf(locale, n, "week");
+function weeksCount(n: number, locale: Locale, grammaticalCase: CountCase = "nom"): string {
+  return locale === "en" ? `${n} weeks` : countOf(locale, n, "week", grammaticalCase);
 }
 
 /** The small print under the pace tile: what the figure is a figure of. */
@@ -468,7 +473,8 @@ function sentence(
   const whose = plan.paceSource === "measured" ? "your real pace"
     : plan.paceSource === "lapsed" ? "the pace you said"
       : why.onCourse ? "your evenings here" : "your daily goal";
-  const counts = { weeks: weeksCount(weeks, locale), covered: decimal(covered, locale) };
+  /* "За {weeks}": the accusative. */
+  const counts = { weeks: weeksCount(weeks, locale, "acc"), covered: decimal(covered, locale) };
   if (plan.verdict === "comfortable") {
     return `${distance} ${fill(t(`In {weeks} ${whose} alone ${puts(whose)} in about {covered} hours, which covers it.`), counts)}`;
   }

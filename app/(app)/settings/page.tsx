@@ -607,7 +607,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   <Explain label={t("What happens when a model is busy")}>
                     {resilience.models === 1
                       ? t("Only one model is set up right now, so if it's busy, Anu has to wait.")
-                      : fill(t("If one model is busy, Anu tries the next. There are {n} of them, across {providers}."), { n: resilience.models, providers: resilience.providers.join(t(" and ")) })}
+                      : fill(t("If one model is busy, Anu tries the next. There are {n} of them, across {providers}."), { n: resilience.models, providers: new Intl.ListFormat(locale, { type: "conjunction" }).format(resilience.providers) })}
                   </Explain>
                   {/*
                     Said plainly because it is invisible otherwise. A chain of

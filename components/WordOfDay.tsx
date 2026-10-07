@@ -1,12 +1,12 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { BookOpen, CalendarDays, Sprout } from "lucide-react";
-import { ALMANAC_SOURCE, type WordOfDay, type WordOfDayCollection } from "@/lib/progress/wordOfDay";
+import { BookOpen } from "lucide-react";
+import { ALMANAC_SOURCE, type WordOfDay } from "@/lib/progress/wordOfDay";
 import { AddWordButton } from "@/components/AddWordButton";
 import { Speak } from "@/components/Speak";
 import { WaveWord, WAVE_END } from "@/components/motion/WaveWord";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
-import { Card, CardLink, Chip, SectionTitle } from "@/components/ui";
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { Card, SectionTitle } from "@/components/ui";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * ONE WORD A DAY, WITH A REASON, THAT THE REST OF THE APP IS NOT GOING TO SHOW
@@ -30,16 +30,8 @@ import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
  * day the card claims pancakes over the word for a cupboard is the day nobody
  * reads it again.
  */
-export function WordOfDayCard({ word, collection, canTranslate, locale, className }: {
+export function WordOfDayCard({ word, canTranslate, locale, className }: {
   word: WordOfDay | null;
-  /**
-   * What the learner has kept from this panel so far.
-   *
-   * A count is what turns a card you read into a card you use: somebody who has
-   * kept eleven words this way opens it looking for the twelfth. It says nothing
-   * at nought, because "kept 0 so far" is a scoreboard for not having started.
-   */
-  collection: WordOfDayCollection;
   /** Whether this deployment has a model to ask for a sentence's English. */
   canTranslate: boolean;
   /** The language the card's own words are in. The word and its sentence never change. */
@@ -67,9 +59,7 @@ export function WordOfDayCard({ word, collection, canTranslate, locale, classNam
 
   return (
     <Card className={className}>
-      <SectionTitle hint={word.occasion ? t(word.occasion.name) : t("new to you")}>
-        {t("Word of the day")}
-      </SectionTitle>
+      <SectionTitle>{t("Word of the day")}</SectionTitle>
 
       {/*
         The number this card is about, at the size a number on a card is set,
@@ -97,37 +87,6 @@ export function WordOfDayCard({ word, collection, canTranslate, locale, classNam
         <Speak text={word.lemma} label={fill(t("Hear {word}"), { word: word.lemma })} />
       </div>
       <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>{word.translation}</p>
-
-      {/*
-        The band alone. Three chips sat here, and the other two were facts
-        about the word rather than about today: the part of speech and the
-        gradation pattern are both on the entry this word links to, printed
-        beside the table they are about. On a card whose job is one word and
-        why it is today's, a row of three pills is the busiest thing on the
-        screen and the least useful.
-      */}
-      {word.cefr && (
-        <div className="mt-3">
-          <Chip tone="sky">{word.cefr}</Chip>
-        </div>
-      )}
-
-      {/*
-        Why this word today. An icon and a line rather than a heading, because
-        it is an aside about the date and the word above it is the point.
-      */}
-      {/*
-        Only where there is an occasion to name. On an ordinary day this read
-        "Nothing special about today, so here is a word you have not met yet."
-        under a hint already reading "new to you": a line whose whole content
-        was that there was nothing to say, beside a line that had said it.
-      */}
-      {word.occasion && (
-        <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          <CalendarDays size={15} aria-hidden className="mt-0.5" style={{ color: "var(--sky-ink)" }} />
-          <span>{t(word.occasion.note)}</span>
-        </p>
-      )}
 
       {word.example && (
         <figure className="mt-4 rounded-[var(--r)] px-3.5 py-3" style={{ background: "var(--sky-soft)" }}>
@@ -157,31 +116,9 @@ export function WordOfDayCard({ word, collection, canTranslate, locale, classNam
       )}
 
       {/*
-        Marked as this panel's own, which is the only reason the count below can
-        exist without a column to store it in.
+        Marked as this panel's own.
       */}
       <AddWordButton lexemeId={word.lexemeId} lemma={word.lemma} source={ALMANAC_SOURCE} className="mt-4" />
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
-        <CardLink
-          href={`/dictionary?q=${encodeURIComponent(word.lemma)}`}
-          icon={<BookOpen size={14} aria-hidden />}
-        >
-          {t("See the full entry")}
-        </CardLink>
-        {collection.kept > 0 && (
-          <p className="inline-flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-            <Sprout size={13} aria-hidden />
-            {locale === "en"
-              ? <>
-                {collection.kept} {collection.kept === 1 ? "word of the day" : "words of the day"} kept so far
-                {collection.streak > 1 ? `, ${collection.streak} days in a row` : ""}
-              </>
-              : fill(t(collection.streak > 1
-                ? "Words of the day kept so far: {kept}, {days} in a row"
-                : "Words of the day kept so far: {kept}"), { kept: collection.kept, days: countOf(locale, collection.streak, "day") })}
-          </p>
-        )}
-      </div>
     </Card>
   );
 }

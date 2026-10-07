@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Mic, Play, Square } from "lucide-react";
 import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 type State = "idle" | "recording" | "ready" | "unavailable";
 
@@ -110,7 +111,7 @@ export function Recorder({ onRecorded, targetSeconds }: {
           role="timer"
         >
           {clock(elapsed)}
-          {targetSeconds ? <span style={{ color: "var(--ink-3)" }}> {t("of")} {clock(targetSeconds)}</span> : null}
+          {targetSeconds ? <span style={{ color: "var(--ink-3)" }}> {fill(t("of {total}"), { total: clock(targetSeconds) })}</span> : null}
         </span>
       )}
 

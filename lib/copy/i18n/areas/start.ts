@@ -216,12 +216,12 @@ export const START: Area = {
     "Serious": "Серьёзно",
     "Intense": "Интенсивно",
     "{minutes} a day, {days} a week. That’s {cards} to answer, not {goal} new ones. About nine in ten will be words you’ve already met, coming back just as you start to forget them.":
-      "{minutes} в день, {days} в неделю. Это {cards}, на которые нужно ответить, а не {goal} новых. Примерно девять из десяти будут словами, которые вы уже встречали: они возвращаются как раз тогда, когда вы начинаете их забывать.",
+      "{minutes} в день, {days} в неделю. Ответить нужно на {cards}, а не на {goal} новых. Примерно девять из десяти будут словами, которые вы уже встречали: они возвращаются как раз тогда, когда вы начинаете их забывать.",
     "Tonight, and every night after": "Этот вечер и все следующие",
     "You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.":
       "Вам никогда не придётся решать, что учить. Kodukeel планирует за вас каждый вечер: какие слова, в каком порядке и какие игры. Примерно пятнадцать минут, а потом он скажет, что на сегодня всё.",
-    "You start at {part}": "Вы начинаете с {part}",
-    "{evenings}, about {minutes} each.": "{evenings}, примерно по {minutes}.",
+    "You start at {part}": "Вы начинаете с части {part}",
+    "{evenings}, about {minutes} each.": "{evenings}, каждый около {minutes}.",
     "Tonight is {title}, {words} and one short round.": "Сегодня вечером: {title}, {words} и один короткий раунд.",
     "The whole way to C1": "Весь путь до C1",
     "{evenings} in all, and every word in the course turns up in one of them. You can step off the plan whenever you like and use the app your own way. Nothing disappears, and everything you do still counts.":
@@ -236,7 +236,7 @@ export const START: Area = {
     "{place}. Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one.":
       "{place}. Когда выучите эти слова, сможете отрепетировать здесь именно этот разговор: вы печатаете свои реплики незнакомцу, которому что-то от вас нужно. А потом идите и поговорите по-настоящему.",
     "That’s {cards} to answer a day, not {goal} new ones, and on a course evening they’re part of the fifteen minutes. About nine in ten will be words you’ve already met, coming back just as you start to forget them. These {deck} take roughly {weeks} to work through this way. A faster setting really does get you through them sooner, but it makes every evening longer for the next year too. Pick the one you’d still open on a bad Wednesday.":
-      "Это {cards} в день, на которые нужно ответить, а не {goal} новых, и в вечер курса они входят в те самые пятнадцать минут. Примерно девять из десяти будут словами, которые вы уже встречали: они возвращаются как раз тогда, когда вы начинаете их забывать. В таком темпе эти {deck} займут примерно {weeks}. Более быстрый режим и правда проведёт вас по ним быстрее, но и каждый вечер весь следующий год станет длиннее. Выберите тот, который вы откроете даже в неудачную среду.",
+      "Ответить в день нужно на {cards}, а не на {goal} новых, и в вечер курса это входит в те самые пятнадцать минут. Примерно девять из десяти будут словами, которые вы уже встречали: они возвращаются как раз тогда, когда вы начинаете их забывать. В таком темпе на всю колоду ({deck}) уйдёт примерно {weeks}. Более быстрый режим и правда проведёт вас по ней быстрее, но и каждый вечер весь следующий год станет длиннее. Выберите тот, который вы откроете даже в неудачную среду.",
 
     // WHY THIS PART.
     "If it turns out too hard or too easy, the course will notice and offer to move you.":
@@ -499,12 +499,12 @@ export const START: Area = {
     "Serious": "Серйозно",
     "Intense": "Інтенсивно",
     "{minutes} a day, {days} a week. That’s {cards} to answer, not {goal} new ones. About nine in ten will be words you’ve already met, coming back just as you start to forget them.":
-      "{minutes} на день, {days} на тиждень. Це {cards}, на які треба відповісти, а не {goal} нових. Приблизно дев'ять із десяти будуть словами, які ви вже зустрічали: вони повертаються саме тоді, коли ви починаєте їх забувати.",
+      "{minutes} на день, {days} на тиждень. Відповісти треба на {cards}, а не на {goal} нових. Приблизно дев'ять із десяти будуть словами, які ви вже зустрічали: вони повертаються саме тоді, коли ви починаєте їх забувати.",
     "Tonight, and every night after": "Цей вечір і всі наступні",
     "You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.":
       "Вам ніколи не доведеться вирішувати, що вчити. Kodukeel планує за вас кожен вечір: які слова, у якому порядку і які ігри. Приблизно п'ятнадцять хвилин, а потім він скаже, що на сьогодні все.",
-    "You start at {part}": "Ви починаєте з {part}",
-    "{evenings}, about {minutes} each.": "{evenings}, приблизно по {minutes}.",
+    "You start at {part}": "Ви починаєте з частини {part}",
+    "{evenings}, about {minutes} each.": "{evenings}, кожен близько {minutes}.",
     "Tonight is {title}, {words} and one short round.": "Сьогодні ввечері: {title}, {words} і один короткий раунд.",
     "The whole way to C1": "Увесь шлях до C1",
     "{evenings} in all, and every word in the course turns up in one of them. You can step off the plan whenever you like and use the app your own way. Nothing disappears, and everything you do still counts.":
@@ -519,7 +519,7 @@ export const START: Area = {
     "{place}. Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one.":
       "{place}. Коли вивчите ці слова, зможете відрепетирувати тут саме цю розмову: ви друкуєте свої репліки незнайомцю, якому щось від вас треба. А потім ідіть і поговоріть по-справжньому.",
     "That’s {cards} to answer a day, not {goal} new ones, and on a course evening they’re part of the fifteen minutes. About nine in ten will be words you’ve already met, coming back just as you start to forget them. These {deck} take roughly {weeks} to work through this way. A faster setting really does get you through them sooner, but it makes every evening longer for the next year too. Pick the one you’d still open on a bad Wednesday.":
-      "Це {cards} на день, на які треба відповісти, а не {goal} нових, і у вечір курсу вони входять у ті самі п'ятнадцять хвилин. Приблизно дев'ять із десяти будуть словами, які ви вже зустрічали: вони повертаються саме тоді, коли ви починаєте їх забувати. У такому темпі ці {deck} займуть приблизно {weeks}. Швидший режим і справді проведе вас через них швидше, але й кожен вечір увесь наступний рік стане довшим. Виберіть той, який ви відкриєте навіть у невдалу середу.",
+      "Відповісти на день треба на {cards}, а не на {goal} нових, і у вечір курсу це входить у ті самі п'ятнадцять хвилин. Приблизно дев'ять із десяти будуть словами, які ви вже зустрічали: вони повертаються саме тоді, коли ви починаєте їх забувати. У такому темпі на всю колоду ({deck}) піде приблизно {weeks}. Швидший режим і справді проведе вас через неї швидше, але й кожен вечір увесь наступний рік стане довшим. Виберіть той, який ви відкриєте навіть у невдалу середу.",
 
     // WHY THIS PART.
     "If it turns out too hard or too easy, the course will notice and offer to move you.":

@@ -206,7 +206,7 @@ export default async function LearnPage() {
                       <span className="tnum hidden shrink-0 text-xs @md:inline" style={{ color: "var(--ink-3)" }}>
                         {u.known}/{u.available}
                       </span>
-                      {locked && <span className="sr-only">{t(", builds on an earlier unit, but you can still open it")}</span>}
+                      {locked && <span className="sr-only">{". "}{t("It builds on an earlier unit, but you can still open it.")}</span>}
                       {!isNext && (
                         <ChevronRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
                       )}

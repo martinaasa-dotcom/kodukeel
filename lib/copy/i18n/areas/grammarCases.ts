@@ -1,4 +1,5 @@
 import type { Area } from "../area";
+import { CASE_GLOSS_ROWS } from "../caseGlosses";
 
 /**
  * THE CASE REFERENCE IN RUSSIAN AND UKRAINIAN.
@@ -85,23 +86,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
 
   // WHAT EACH ENDING MEANS, IN THE FEWEST WORDS (CASE_NOTES.plain). The index
   // also prints the first sense on its own ("onto", "on", "off").
-  ["the plain word", "начальная форма", "початкова форма"],
-  ["of, and whose", "кого, чего и чей", "кого, чого і чий"],
-  ["some of it", "часть чего-то", "частина чогось"],
-  ["into", "внутрь", "всередину"],
-  ["in", "внутри", "всередині"],
-  ["out of", "изнутри", "зсередини"],
-  ["onto, and to a person", "на что-то и кому-то", "на щось і комусь"],
-  ["onto", "на что-то", "на щось"],
-  ["on, at, and have", "на чём-то, у кого-то и «у меня есть»", "на чомусь, у когось і «у мене є»"],
-  ["on", "на чём-то", "на чомусь"],
-  ["off, and from a person", "с чего-то и от кого-то", "з чогось і від когось"],
-  ["off", "с чего-то", "з чогось"],
-  ["becoming", "становиться кем-то", "ставати кимось"],
-  ["up to", "до", "до"],
-  ["as", "в качестве", "у ролі"],
-  ["without", "без", "без"],
-  ["with", "с", "з"],
+  // One translation per gloss, shared with the conversation review and the
+  // ending chip (`../caseGlosses.ts`).
+  ...CASE_GLOSS_ROWS,
 
   // NIMETAV.
   ["The word as the dictionary lists it, and whoever is doing the action.",

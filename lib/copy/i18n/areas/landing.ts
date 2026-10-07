@@ -1,4 +1,5 @@
 import type { Area } from "../area";
+import { ENDING_GLOSS_ROWS } from "../caseGlosses";
 
 /**
  * THE LANDING PAGE IN RUSSIAN AND UKRAINIAN: `/welcome/ru` and `/welcome/uk`.
@@ -86,17 +87,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Эстонцы ещё говорят {form}, а этого не даёт ни одно окончание, так что выучите и эту форму.",
     "Естонці ще кажуть {form}, а цього не дає жодне закінчення, тож вивчіть і цю форму."],
   // What each ending means on its key, short enough for a chip.
-  ["into@ending", "внутрь", "всередину"],
-  ["in@ending", "внутри", "всередині"],
-  ["out of@ending", "изнутри", "зсередини"],
-  ["onto@ending", "на (куда)", "на (куди)"],
-  ["on@ending", "на (где)", "на (де)"],
-  ["off@ending", "с (откуда)", "з (звідки)"],
-  ["becoming@ending", "становясь", "стаючи"],
-  ["up to@ending", "до", "до"],
-  ["as@ending", "как", "як"],
-  ["without@ending", "без", "без"],
-  ["with@ending", "с", "з"],
+  ...ENDING_GLOSS_ROWS,
 
   // THE FIRST EVENING.
   ["Your first evening", "Ваш первый вечер", "Ваш перший вечір"],
@@ -157,8 +148,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Шесть коротких моментов, от приветствия до прощания. Каждый раз вы выбираете, что сказать, и видите, как реагирует человек за стойкой.",
     "Шість коротких моментів, від привітання до прощання. Щоразу ви вибираєте, що сказати, і бачите, як реагує людина за стійкою."],
   ["Walk up to the counter", "Подойти к стойке", "Підійти до стійки"],
-  ["You said: ", "Вы сказали: ", "Ви сказали: "],
-  ["They said: ", "Вам сказали: ", "Вам сказали: "],
+  // "You said:" and "They said:" are the conversation screen's own (situations.ts).
   ["And that’s the whole conversation.", "Вот и весь разговор.", "Ось і вся розмова."],
   ["Inside there are fifteen of these, from the doctor’s to the landlord’s, and there you type your answers yourself.",
     "Внутри таких пятнадцать, от врача до арендодателя, и там ответы вы пишете сами.",

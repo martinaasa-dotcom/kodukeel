@@ -64,7 +64,7 @@ export const TODAY_SLOTS = [
   {
     id: "word",
     title: "Word of the day",
-    detail: "A word chosen for today's date, with the reason it was picked.",
+    detail: "A new word each day, at your level.",
   },
   {
     id: "next",

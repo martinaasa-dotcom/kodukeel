@@ -90,6 +90,7 @@ import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor }
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
+import { isConfirmed } from "@/lib/copy/confirmWord";
 
 import { CARD_SOURCES as KNOWN_SOURCES, DEFAULT_SOURCE } from "@/lib/srs/sources";
 import { ratingFor, SONAD_GUESSES } from "@/lib/games/sonad";
@@ -3274,7 +3275,8 @@ export async function buildClozeFromText(passageIn: string) {
  */
 export async function deleteMyAccount(confirmation: string) {
   const ownerId = await requireUserId();
-  if (text(confirmation).trim().toLowerCase() !== "delete") {
+  /* The word in any of the three languages: the screen asks in the reader's own. */
+  if (!isConfirmed(text(confirmation), "delete")) {
     return { ok: false as const, error: 'Type "delete" to confirm.' };
   }
 

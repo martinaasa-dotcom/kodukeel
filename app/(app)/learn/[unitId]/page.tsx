@@ -294,7 +294,7 @@ function missingLine(missing: number, locale: Locale): string {
     ? "{words} in this unit isn't in your dictionary yet. Look it up once and it's saved for good."
     : "{words} in this unit aren't in your dictionary yet. Look them up once and they're saved for good."), {
     // The genitive Russian and Ukrainian put after "there is no".
-    words: countOf(locale, missing, locale === "en" ? "word" : "word missing"),
+    words: countOf(locale, missing, "word", "gen"),
   });
 }
 

@@ -7,6 +7,7 @@ import { Button } from "@/components/Button";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
 import { filled } from "@/components/Filled";
+import { confirmWord, isConfirmed } from "@/lib/copy/confirmWord";
 
 type Mode = "merge" | "replace";
 
@@ -107,7 +108,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
     });
   };
 
-  const replaceBlocked = mode === "replace" && confirmText.trim().toLowerCase() !== "replace";
+  const replaceBlocked = mode === "replace" && !isConfirmed(confirmText, "replace");
 
   return (
     <div>
@@ -179,7 +180,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
                 <span>
                   {filled(t("This wipes the {reviews} already here, and review history can’t be rebuilt. Type {word} to confirm."), {
                     reviews: countOf(locale, currentReviews, "review"),
-                    word: <strong>replace</strong>,
+                    word: <strong>{confirmWord("replace", locale)}</strong>,
                   })}
                 </span>
               </p>
@@ -187,7 +188,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 aria-label={t("Type replace to confirm")}
-                placeholder="replace"
+                placeholder={confirmWord("replace", locale)}
                 className="field mt-2.5 text-sm"
                 style={{ borderColor: "var(--again)", background: "var(--surface)", color: "var(--ink)" }}
               />

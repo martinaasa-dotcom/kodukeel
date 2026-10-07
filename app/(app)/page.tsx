@@ -10,7 +10,7 @@ import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/sum
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor } from "@/lib/progress/plan";
 import { minutesForCards, ownCardsPerMinute } from "@/lib/stats/pace";
-import { wordOfDay, wordOfDayCollection } from "@/lib/progress/wordOfDay";
+import { wordOfDay } from "@/lib/progress/wordOfDay";
 import { outThereToday } from "@/lib/progress/outThere";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { nextUnit as pickNextUnit } from "@/lib/collections/syllabus";
@@ -234,9 +234,8 @@ export default async function TodayPage() {
      the course leaves the cases to A2 (lib/ux/weekGames.ts). */
   const featured = await withPuzzleReady(ownerId, summary.dayKey, gameOn(weekdayOf(summary.dayKey), placement));
   const questDay = featured.href === "/quest" && shows(stage, "quest");
-  const [word, collection, weakest, outside, ladder] = await Promise.all([
-    shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement) : null,
-    shows(stage, "word") ? wordOfDayCollection(ownerId, now, clock) : { kept: 0, streak: 0 },
+  const [word, weakest, outside, ladder] = await Promise.all([
+    shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement, { forLevel: true }) : null,
     questDay ? weakestCase(ownerId, now) : null,
     // Whether the day's question has been answered, and the month behind it,
     // off one read rather than one for each.
@@ -853,7 +852,7 @@ export default async function TodayPage() {
 
   /* The one panel here that is not about this learner's own deck. */
   const wordCard = shows(stage, "word")
-    ? <WordOfDayCard word={word} collection={collection} canTranslate={resolveProvider() !== null} locale={locale} />
+    ? <WordOfDayCard word={word} canTranslate={resolveProvider() !== null} locale={locale} />
     : null;
 
   /*
@@ -1067,16 +1066,25 @@ export default async function TodayPage() {
             evening. See `Lettered` in components/HeroLetters.tsx. */}
         <Lettered show={!!courseCard}>{doNowCard}</Lettered>
         <Columns>
-          {orderTodayCards({
-            ladder: ladderCard,
-            errand: errandCard,
-            schedule: scheduleCard,
-            plan: planCard,
-            round: roundCard,
-            streak: streakCard,
-            word: wordCard,
-            next: nextCard,
-          }, todayOrderFrom(settings[SETTING_KEYS.todayOrder])).slice(0, TODAY_CARDS)}
+          {(() => {
+            const dealt = orderTodayCards({
+              ladder: ladderCard,
+              errand: errandCard,
+              schedule: scheduleCard,
+              plan: planCard,
+              round: roundCard,
+              streak: streakCard,
+              word: wordCard,
+              next: nextCard,
+            }, todayOrderFrom(settings[SETTING_KEYS.todayOrder]));
+            const cut = dealt.slice(0, TODAY_CARDS);
+            /* The word of the day is on everyone's Today, whatever order they
+               set and however many other cards are dealt ahead of it. It takes
+               the last place when the cap would have cut it. */
+            return wordCard && !cut.includes(wordCard)
+              ? [...cut.slice(0, TODAY_CARDS - 1), wordCard]
+              : cut;
+          })()}
         </Columns>
       </Stack>
     </Page>
@@ -1209,7 +1217,8 @@ function lengthIn(locale: Locale, english: string): string {
   if (locale === "en") return english;
   const said = /^(\d+) (minutes|seconds)$/i.exec(english);
   if (!said) return english;
-  return countOf(locale, Number(said[1]), said[2]!.toLowerCase() === "minutes" ? "minute" : "second");
+  /* "Уделите 1 минуту", "приділіть 1 хвилину": the length is the object of the sentence. */
+  return countOf(locale, Number(said[1]), said[2]!.toLowerCase() === "minutes" ? "minute" : "second", "acc");
 }
 
 /**
