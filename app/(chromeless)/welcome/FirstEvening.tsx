@@ -7,7 +7,7 @@ import { shuffle } from "@/lib/random/shuffle";
 import { rng } from "@/lib/random/seeded";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { FitText } from "@/components/FitText";
-import { fill } from "@/lib/copy/locale";
+import { countOf, fill } from "@/lib/copy/locale";
 import { useLocale, useT } from "@/components/Locale";
 import { TrParts } from "@/components/TrParts";
 
@@ -107,8 +107,12 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
         ))}
         <li className="px-1 text-sm font-semibold" style={{ color: "var(--ink-2)" }}>
           {fill(t("{minutes} minutes, and then you’re done for the night. {evenings} evenings like this one take you all the way to C1."), {
-            minutes,
-            evenings: evenings.toLocaleString(locale === "en" ? "en-GB" : locale),
+            // Russian and Ukrainian take the noun's form from the number, so
+            // there the template holds no noun and is handed the counted phrase.
+            minutes: locale === "en" ? minutes : countOf(locale, minutes, "minute"),
+            evenings: locale === "en"
+              ? evenings.toLocaleString("en-GB")
+              : countOf(locale, evenings, "evening").replace(String(evenings), evenings.toLocaleString(locale)),
           })}
         </li>
       </ol>

@@ -689,7 +689,7 @@ function Cases({ say, words }: { say: Say; words: DemoWord[] }) {
         <div className="section-head">
           <p className="section-tag" data-tone="accent">{t("You didn’t fail Estonian. Your tools did.")}</p>
           <h2 className="landing-title">
-            {fill(t("Learn {n} forms."), { n: count(learnCount) })}<br className="lg:hidden" /> {fill(t("Build the other {n}."), { n: count(buildCount) })}
+            {fill(t("Learn {n} forms."), { n: say.locale === "en" ? count(learnCount) : say.counted(learnCount, "form") })}<br className="lg:hidden" /> {fill(t("Build the other {n}."), { n: count(buildCount) })}
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {t("Fourteen cases is the number that makes people give up on Estonian. Here’s the secret: you learn three forms of a word, sometimes four, and the rest are the same endings glued on, for every word in the language. When a word breaks the pattern, you’ll see what Estonians actually say right beside what the rule predicts. Press an ending and build one yourself.")}
@@ -850,7 +850,12 @@ function Evening({ say }: { say: Say }) {
         <div className="section-head">
           <p className="section-tag" data-tone="sky">{t("Your first evening")}</p>
           <h2 className="landing-title">
-            {fill(t("{minutes} minutes, {words} words. Try the first step now."), { minutes, words: count(evening.words.length) })}
+            {fill(t("{minutes} minutes, {words} words. Try the first step now."), {
+              // Russian and Ukrainian take the noun's form from the number, so
+              // the template there holds no noun and is handed the counted phrase.
+              minutes: say.locale === "en" ? minutes : say.counted(minutes, "minute"),
+              words: say.locale === "en" ? count(evening.words.length) : say.counted(evening.words.length, "word"),
+            })}
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {t("Every evening is one button. You meet a handful of new words, and they pop back a moment later to check you kept them. A quick game or two puts them to work, and then the app says you’re done for the night.")}

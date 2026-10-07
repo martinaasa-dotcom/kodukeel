@@ -2930,7 +2930,7 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1435.** Your Estonian was understood every time. It just didn't answer what they were asking.  
   → Ваш эстонский понимали каждый раз. Просто это был ответ не на тот вопрос.
 - [ ] **1436.** {read} of your {turns} turns were understood as Estonian, but none of them answered the question.  
-  → Как эстонский поняли {read} из {turns} ваших реплик, но ни одна не ответила на вопрос.
+  → Ваших реплик, понятых как эстонский: {read} из {turns}. Но на вопрос не ответила ни одна.
 - [ ] **1437.** None of it got through this time, and that happens to everybody. Next time, the word button hands you one of the words they're waiting for, and telling them you're lost gets you one too.  
   → В этот раз ничего не дошло, и такое бывает у всех. В следующий раз кнопка «Подскажите слово» даст вам одно из слов, которых ждёт собеседник, а если сказать, что вы запутались, вам тоже подскажут слово.
 - [ ] **1438.** The one thing you said answered the question.  
@@ -2938,11 +2938,11 @@ _lib/copy/i18n/areas/situations.ts_
 - [ ] **1439.** Every one of your {turns} turns answered the question.  
   → Все ваши реплики ответили на вопрос, а их было {turns}.
 - [ ] **1440.** {partly} of your {turns} turns answered part of the question.  
-  → Частично ответили на вопрос {partly} из {turns} ваших реплик.
+  → Ваших реплик, частично ответивших на вопрос: {partly} из {turns}.
 - [ ] **1441.** {landed} of your {turns} turns answered the question, and {partly} more answered part of it.  
-  → На вопрос ответили {landed} из {turns} ваших реплик, и ещё {partly} ответили частично.
+  → Ваших реплик, ответивших на вопрос: {landed} из {turns}, и ещё частично: {partly}.
 - [ ] **1442.** {landed} of your {turns} turns answered the question.  
-  → На вопрос ответили {landed} из {turns} ваших реплик.
+  → Ваших реплик, ответивших на вопрос: {landed} из {turns}.
 - [ ] **1443.** Nothing needed putting right, which is rarer than it sounds.  
   → Исправлять ничего не пришлось, а это бывает реже, чем кажется.
 - [ ] **1444.** One spelling was off, and it didn't stop the conversation.  
@@ -9148,9 +9148,9 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4528.** {correct} of {total} right, in {slots} forms  
   → {correct} из {total} верно, форм: {slots}
 - [ ] **4529.** {correct} of {total} right, in {slots} of {needed} form  
-  → {correct} из {total} верно, в {slots} из {needed} формы
+  → {correct} из {total} верно, форм: {slots} из {needed}
 - [ ] **4530.** {correct} of {total} right, in {slots} of {needed} forms  
-  → {correct} из {total} верно, в {slots} из {needed} форм
+  → {correct} из {total} верно, форм: {slots} из {needed}
 - [ ] **4531.** {credit} of {items} at {band}  
   → {credit} из {items} на уровне {band}
 - [ ] **4532.** {date}: level check, placed at {level}  
@@ -13106,7 +13106,7 @@ _lib/copy/i18n/areas/landing.ts_
 - [ ] **6485.** You didn’t fail Estonian. Your tools did.  
   → Не вы не справились с эстонским. Не справились ваши инструменты.
 - [ ] **6486.** Learn {n} forms.  
-  → Выучите {n} формы.
+  → Выучите {n}.
 - [ ] **6487.** Build the other {n}.  
   → Остальные {n} постройте сами.
 - [ ] **6488.** Fourteen cases is the number that makes people give up on Estonian. Here’s the secret: you learn three forms of a word, sometimes four, and the rest are the same endings glued on, for every word in the language. When a word breaks the pattern, you’ll see what Estonians actually say right beside what the rule predicts. Press an ending and build one yourself.  
@@ -13152,11 +13152,11 @@ _lib/copy/i18n/areas/landing.ts_
 - [ ] **6508.** Your first evening  
   → Ваш первый вечер
 - [ ] **6509.** {minutes} minutes, {words} words. Try the first step now.  
-  → {minutes} минут, {words} слов. Попробуйте первый шаг прямо сейчас.
+  → {minutes}, {words}. Попробуйте первый шаг прямо сейчас.
 - [ ] **6510.** Every evening is one button. You meet a handful of new words, and they pop back a moment later to check you kept them. A quick game or two puts them to work, and then the app says you’re done for the night.  
   → Каждый вечер начинается с одной кнопки. Вы знакомитесь с несколькими новыми словами, и через минуту они возвращаются проверить, запомнились ли. Пара быстрых игр закрепляет их, а потом приложение говорит, что на сегодня всё.
 - [ ] **6511.** {minutes} minutes, and then you’re done for the night. {evenings} evenings like this one take you all the way to C1.  
-  → {minutes} минут, и на сегодня всё. {evenings} таких вечеров доведут вас до самого C1.
+  → {minutes}, и на сегодня всё. За {evenings} таких, как этот, вы дойдёте до самого C1.
 - [ ] **6512.** Evening one, step one  
   → Вечер первый, шаг первый
 - [ ] **6513.** Got them, now quiz me  

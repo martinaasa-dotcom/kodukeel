@@ -70,7 +70,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
 
   // THE CASES.
   ["You didn’t fail Estonian. Your tools did.", "Не вы не справились с эстонским. Не справились ваши инструменты.", "Не ви не впоралися з естонською. Не впоралися ваші інструменти."],
-  ["Learn {n} forms.", "Выучите {n} формы.", "Вивчіть {n} форми."],
+  ["Learn {n} forms.", "Выучите {n}.", "Вивчіть {n}."],
   ["Build the other {n}.", "Остальные {n} постройте сами.", "Решту {n} побудуйте самі."],
   ["Fourteen cases is the number that makes people give up on Estonian. Here’s the secret: you learn three forms of a word, sometimes four, and the rest are the same endings glued on, for every word in the language. When a word breaks the pattern, you’ll see what Estonians actually say right beside what the rule predicts. Press an ending and build one yourself.",
     "Именно из-за четырнадцати падежей люди бросают эстонский. Но вот секрет: вы учите три формы слова, иногда четыре, а остальные получаются из одних и тех же окончаний, одинаковых для каждого слова в языке. Когда слово выбивается из правила, вы увидите, как на самом деле говорят эстонцы, прямо рядом с тем, что даёт правило. Нажмите на окончание и постройте форму сами.",
@@ -100,13 +100,13 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
 
   // THE FIRST EVENING.
   ["Your first evening", "Ваш первый вечер", "Ваш перший вечір"],
-  ["{minutes} minutes, {words} words. Try the first step now.", "{minutes} минут, {words} слов. Попробуйте первый шаг прямо сейчас.", "{minutes} хвилин, {words} слів. Спробуйте перший крок просто зараз."],
+  ["{minutes} minutes, {words} words. Try the first step now.", "{minutes}, {words}. Попробуйте первый шаг прямо сейчас.", "{minutes}, {words}. Спробуйте перший крок просто зараз."],
   ["Every evening is one button. You meet a handful of new words, and they pop back a moment later to check you kept them. A quick game or two puts them to work, and then the app says you’re done for the night.",
     "Каждый вечер начинается с одной кнопки. Вы знакомитесь с несколькими новыми словами, и через минуту они возвращаются проверить, запомнились ли. Пара быстрых игр закрепляет их, а потом приложение говорит, что на сегодня всё.",
     "Кожен вечір починається з однієї кнопки. Ви знайомитеся з кількома новими словами, і за хвилину вони повертаються перевірити, чи запам'яталися. Пара швидких ігор закріплює їх, а потім застосунок каже, що на сьогодні все."],
   ["{minutes} minutes, and then you’re done for the night. {evenings} evenings like this one take you all the way to C1.",
-    "{minutes} минут, и на сегодня всё. {evenings} таких вечеров доведут вас до самого C1.",
-    "{minutes} хвилин, і на сьогодні все. {evenings} таких вечорів доведуть вас аж до C1."],
+    "{minutes}, и на сегодня всё. За {evenings} таких, как этот, вы дойдёте до самого C1.",
+    "{minutes}, і на сьогодні все. За {evenings} таких, як цей, ви дійдете аж до C1."],
   ["Evening one, step one", "Вечер первый, шаг первый", "Вечір перший, крок перший"],
   ["Got them, now quiz me", "Готово, теперь проверьте меня", "Готово, тепер перевірте мене"],
   ["Now they come back one at a time. Pick what each one means. {n} of {all}",
