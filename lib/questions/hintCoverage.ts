@@ -55,6 +55,11 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
   },
 
   {
+    file: "app/(app)/review/twenty/TwentySession.tsx",
+    why: "the learner is the one asking, so there is no answer to uncover; the hint is a button of its own that"
+      + " gives the kind of thing and costs one of the twenty questions, and the ideas under the box are the help",
+  },
+  {
     file: "app/(app)/review/describe/DescribeSession.tsx",
     why: "the learner writes five sentences of their own about a picture, so there is no one answer to uncover; the example above the boxes is the help",
   },
