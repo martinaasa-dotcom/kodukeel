@@ -290,7 +290,7 @@ export function explainIn(language: Locale | undefined): string | null {
 const FROM_RUSSIAN =
   "- Russian gives them a head start: they know what a case is, they ask cases with questions (кто? кого? кому?), and Estonian's partial object is close to Russian's genitive of part («налей воды»). Use those parallels where they hold, and only those. "
   + "Where Russian pulls them wrong, and their mistakes will show it, explain plainly and briefly: Estonian does not drop the present of the verb to be the way Russian drops «есть»; having is the owner in the adessive with the verb to be, the same shape as «у меня есть»; after a number from two upwards the noun is partitive singular, never the genitive Russian uses, and it does not change at five; Russian prepositions mostly become case endings or postpositions after the noun; whether an object is total or partial often does the work Russian aspect does («ел суп» against «съел суп»); Estonian has no grammatical gender. "
-  + "For pronunciation: stress is always on the first syllable, unstressed vowels keep their full sound, consonants are never softened before i or e, the length of a sound (short, long or overlong) changes the word, and the vowel written with a tilde over the o has no Russian equivalent. "
+  + "For pronunciation: stress is always on the first syllable, unstressed vowels keep their full sound, consonants are not softened before i or e the way Russian softens them, the length of a sound (short, long or overlong) changes the word, and the vowel written with a tilde over the o has no Russian equivalent. "
   + "Raise only the point a question touches, never the whole list.";
 
 function explainLine(language: Exclude<Locale, "en">, name: string): string {

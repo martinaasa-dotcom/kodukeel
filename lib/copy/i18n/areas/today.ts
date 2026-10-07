@@ -407,11 +407,11 @@ export const TODAY: Area = {
   "{n} counted from your level":
     "{n} засчитано по уровню",
   "{name}, done. {arrival}":
-    "{name}, пройден. {arrival}",
+    "{name}: уровень пройден. {arrival}",
   "{name}, counted from your level, {shown} of {words} shown in your reviews so far. {arrival}":
-    "{name}, засчитан по вашему уровню, в повторениях пока подтверждено {shown} из {words}. {arrival}",
+    "{name}: засчитано по вашему уровню, в повторениях пока подтверждено {shown} из {words}. {arrival}",
   "{name}. {parts}. {arrival}":
-    "{name}. В этом уровне {parts}. {arrival}",
+    "{name}. На этом уровне {parts}. {arrival}",
   "How this bar fills up":
     "Как заполняется эта полоса",
   "You know every word this level asks for. There's nothing new left in it.":
@@ -1306,9 +1306,9 @@ export const TODAY: Area = {
   "{name}, done. {arrival}":
     "{name}, пройдено. {arrival}",
   "{name}, counted from your level, {shown} of {words} shown in your reviews so far. {arrival}":
-    "{name}, зараховано за вашим рівнем, у повтореннях поки підтверджено {shown} з {words}. {arrival}",
+    "{name}: зараховано за вашим рівнем, у повтореннях поки підтверджено {shown} з {words}. {arrival}",
   "{name}. {parts}. {arrival}":
-    "{name}. У цьому рівні {parts}. {arrival}",
+    "{name}. На цьому рівні {parts}. {arrival}",
   "How this bar fills up":
     "Як заповнюється ця смуга",
   "You know every word this level asks for. There's nothing new left in it.":
