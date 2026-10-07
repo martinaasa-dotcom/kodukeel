@@ -290,7 +290,7 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
         join. What is left is what a reader at this box needs, in one line.
       */}
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        {t("It's how we say hello. If you join a class, it's the name they see next to your week. Nothing else goes with it.")}
+        {t("It’s how we say hello. If you join a class, it’s the name they see next to your week. Nothing else goes with it.")}
       </p>
     </div>
   );

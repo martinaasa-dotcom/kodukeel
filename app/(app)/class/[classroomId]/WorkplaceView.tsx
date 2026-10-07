@@ -138,7 +138,7 @@ export function WorkplaceView({ summary, sponsor, locale }: {
 
       {sponsor && (
         <Note tone="neutral">
-          {t("You see who's practicing and roughly where they stand. You don't see anybody's deck, their searches, their answers, or which grammar they find hard. This page never even fetches those, so there's nothing hidden here to find.")}
+          {t("You see who’s practicing and roughly where they stand. You don’t see anybody’s deck, their searches, their answers, or which grammar they find hard. This page never even fetches those, so there’s nothing hidden here to find.")}
         </Note>
       )}
 
@@ -148,7 +148,7 @@ export function WorkplaceView({ summary, sponsor, locale }: {
             <Building2 size={20} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
             <div>
               <p className="text-base" style={{ color: "var(--ink-2)" }}>
-                {fill(t("Whoever runs this group sees your name, whether you've been practicing, and one of four bands for {level}. They don't see your deck, your searches, your answers, or which grammar you find hard."), { level: summary.level })}
+                {fill(t("Whoever runs this group sees your name, whether you’ve been practicing, and one of four bands for {level}. They don’t see your deck, your searches, your answers, or which grammar you find hard."), { level: summary.level })}
               </p>
               <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
                 {t("If you leave, all of that stops straight away, and your own deck stays exactly as it is.")}

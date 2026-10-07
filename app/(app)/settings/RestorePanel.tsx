@@ -112,7 +112,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
   return (
     <div>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        {t("Bring back a backup file, after moving to a new computer or to undo something. You never really know a backup works until you've tried it, so it's worth a practice run while nothing is at stake.")}
+        {t("Bring back a backup file, after moving to a new computer or to undo something. You never really know a backup works until you’ve tried it, so it’s worth a practice run while nothing is at stake.")}
       </p>
 
       <div className="mt-3">
@@ -132,7 +132,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {filled(t(summary.personal > 0
               ? "{file} holds {contents} and {n} other saved things: your settings, your conversations with Anu, your level checks, your starred words and your badges."
-              : "{file} holds {contents} and nothing else. Older backups didn't include settings, conversations or level checks, so yours stay just as they are."), {
+              : "{file} holds {contents} and nothing else. Older backups didn’t include settings, conversations or level checks, so yours stay just as they are."), {
               file: <span style={{ color: "var(--ink)" }}>{filename}</span>,
               contents: [
                 countOf(locale, summary.words, "word"),
@@ -151,9 +151,9 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
               <label className="flex cursor-pointer items-start gap-2.5 text-sm">
                 <input type="radio" name="mode" checked={mode === "merge"} onChange={() => setMode("merge")} className="mt-1" />
                 <span>
-                  <span style={{ color: "var(--ink)" }}>{t("Add it to what's already here")}</span>
+                  <span style={{ color: "var(--ink)" }}>{t("Add it to what’s already here")}</span>
                   <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                    {t("Brings in whatever's missing and doesn't delete a thing. Safe to run twice.")}
+                    {t("Brings in whatever’s missing and doesn’t delete a thing. Safe to run twice.")}
                   </span>
                 </span>
               </label>
@@ -162,7 +162,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
                 <span>
                   <span style={{ color: "var(--ink)" }}>{t("Replace everything")}</span>
                   <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                    {t("Clears out what's here first, so you end up with exactly what's in the backup and nothing else.")}
+                    {t("Clears out what’s here first, so you end up with exactly what’s in the backup and nothing else.")}
                   </span>
                 </span>
               </label>
@@ -177,7 +177,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
               <p className="flex items-start gap-2 text-xs">
                 <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
                 <span>
-                  {filled(t("This wipes the {reviews} already here, and review history can't be rebuilt. Type {word} to confirm."), {
+                  {filled(t("This wipes the {reviews} already here, and review history can’t be rebuilt. Type {word} to confirm."), {
                     reviews: countOf(locale, currentReviews, "review"),
                     word: <strong>replace</strong>,
                   })}

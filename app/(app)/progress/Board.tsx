@@ -112,7 +112,7 @@ export async function Board({ ownerId, now }: { ownerId: string; now: Date }) {
         ) : (
           <>
             <p lang={locale} className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {t("A leaderboard is more fun when you know the people on it. Start a class and share the code, or join with the one your teacher gave you, and you'll see everybody's week here.")}
+              {t("A leaderboard is more fun when you know the people on it. Start a class and share the code, or join with the one your teacher gave you, and you’ll see everybody’s week here.")}
             </p>
             <ButtonLink href="/class" className="mt-4">{t("Start or join a class")}</ButtonLink>
           </>

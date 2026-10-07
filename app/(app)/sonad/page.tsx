@@ -69,7 +69,7 @@ export default async function SonadPage() {
             <Empty
               title={tr(locale, "Not enough words yet")}
               body={fill(tr(locale, "Today's word comes from your evenings, and none of their words has {n} letters yet."), { n: SONAD_LENGTH })}
-              action={<ButtonLink href="/course">{tr(locale, "Tonight's evening")}</ButtonLink>}
+              action={<ButtonLink href="/course">{tr(locale, "Tonight’s evening")}</ButtonLink>}
             />
           ) : (
             <Empty

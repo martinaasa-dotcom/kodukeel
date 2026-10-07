@@ -59,7 +59,7 @@ export function ScreenFailed({ error, reset }: { error: Error & { digest?: strin
     <>
       <TriangleAlert size={28} aria-hidden style={{ color: "var(--hard-ink)" }} />
       <h1 className="text-2xl font-bold" style={{ color: "var(--ink)" }}>
-        {t("That screen didn't load")}
+        {t("That screen didn’t load")}
       </h1>
       <p className="text-base" style={{ color: "var(--ink-2)" }}>
         {t("Nothing has been lost. Your words and your review history are safe, and trying again usually sorts it out.")}

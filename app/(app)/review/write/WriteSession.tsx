@@ -174,7 +174,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       // slot is what mastery counts, and without it this read as the card's case.
       void grade(prompt.cardId, rating, Date.now() - startedAt.current, prompt.caseKey);
     } catch {
-      setError(t("You're offline, so we can't mark it yet. Your sentence is safe here."));
+      setError(t("You’re offline, so we can’t mark it yet. Your sentence is safe here."));
     } finally {
       setBusy(false);
     }
@@ -206,10 +206,10 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That's the round done")}
+          {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          <span lang="et">Tubli töö.</span> {t("Writing your own sentences is slower going, but it's what gets you speaking.")}
+          <span lang="et">Tubli töö.</span> {t("Writing your own sentences is slower going, but it’s what gets you speaking.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -369,7 +369,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
 
       {!aiAvailable && (
         <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-          {t("Anu isn't available here, so only the form is checked. That check is the reliable half.")}
+          {t("Anu isn’t available here, so only the form is checked. That check is the reliable half.")}
         </p>
       )}
     </div>
@@ -402,8 +402,8 @@ function Feedback({ marked, caseName, form }: { marked: Marked; caseName: string
           {formCheck.used
             ? t("Yes, that's the right ending.")
             : formCheck.usedAnotherForm
-              ? rich(t("Right word, but not the ending we asked for. It's {form}."), { form: <strong lang="et">{form}</strong> })
-              : rich(t("The word we asked for isn't in your sentence. It's {form}."), { form: <strong lang="et">{form}</strong> })}
+              ? rich(t("Right word, but not the ending we asked for. It’s {form}."), { form: <strong lang="et">{form}</strong> })
+              : rich(t("The word we asked for isn’t in your sentence. It’s {form}."), { form: <strong lang="et">{form}</strong> })}
           {/* The ending's name, once the answer is in: here it is the thing to
               remember, where before the answer it was a thing to decode. */}
           <span className="mt-1 block text-sm">
@@ -419,9 +419,9 @@ function Feedback({ marked, caseName, form }: { marked: Marked; caseName: string
         >
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {withheldReason === "unvouched-word" ? (
-              t("We've hidden Anu's note this time. It used a word we couldn't confirm as Estonian (it may just have been English). The check above comes from the dictionary, so you can trust it.")
+              t("We’ve hidden Anu’s note this time. It used a word we couldn’t confirm as Estonian (it may just have been English). The check above comes from the dictionary, so you can trust it.")
             ) : (
-              t("We've hidden Anu's note this time. It used an Estonian form we couldn't confirm, and we never show a form we haven't checked. The check above comes from the dictionary, so you can trust it.")
+              t("We’ve hidden Anu’s note this time. It used an Estonian form we couldn’t confirm, and we never show a form we haven’t checked. The check above comes from the dictionary, so you can trust it.")
             )}
           </p>
         </div>

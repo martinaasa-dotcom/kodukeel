@@ -131,7 +131,7 @@ export default async function ClassIndexPage() {
               <SectionTitle hint={t("teachers and employers")}>{t("Start a group")}</SectionTitle>
               <Card tone="accent">
                 <p className="mb-4 text-sm" style={{ color: "var(--ink-2)" }}>
-                  {t("Either way, you get a six-character join code and a list of who's in. A class shows who's really reviewing, what the whole group keeps tripping over, and the one case each student finds hardest. A workplace group leaves the grammar out and just shows who's on track for the exam they need to pass.")}
+                  {t("Either way, you get a six-character join code and a list of who’s in. A class shows who’s really reviewing, what the whole group keeps tripping over, and the one case each student finds hardest. A workplace group leaves the grammar out and just shows who’s on track for the exam they need to pass.")}
                 </p>
                 {/*
                   On the screen rather than behind the press beside it: this is
@@ -142,7 +142,7 @@ export default async function ClassIndexPage() {
                   disclosure nobody opens does not.
                 */}
                 <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  {filled(t("Pupils under 13 need a parent to agree first, and that's the school's call rather than ours. The {link} explains what's kept and what you can see."), {
+                  {filled(t("Pupils under 13 need a parent to agree first, and that’s the school’s call rather than ours. The {link} explains what’s kept and what you can see."), {
                     link: <Link href="/privacy" className="underline underline-offset-2">{t("privacy page")}</Link>,
                   })}
                 </p>
@@ -169,7 +169,7 @@ export default async function ClassIndexPage() {
         )}
 
         <Explain label={t("What a teacher or an employer can see")}>
-          {t("A teacher sees effort and progress: reviews this week, streak, words known, the cases the whole class keeps missing, and the one case each student finds hardest, as a percentage across all their reviews. Whoever runs a workplace group sees less, never more: a name, whether somebody has been practicing, and one of four bands for the exam the group is working toward. Never a search, a deck or a single answer, and never a colleague's weak grammar. And that's not just a promise: anything a page isn't allowed to show is never even fetched.")}
+          {t("A teacher sees effort and progress: reviews this week, streak, words known, the cases the whole class keeps missing, and the one case each student finds hardest, as a percentage across all their reviews. Whoever runs a workplace group sees less, never more: a name, whether somebody has been practicing, and one of four bands for the exam the group is working toward. Never a search, a deck or a single answer, and never a colleague’s weak grammar. And that’s not just a promise: anything a page isn’t allowed to show is never even fetched.")}
         </Explain>
       </Stack>
     </Page>

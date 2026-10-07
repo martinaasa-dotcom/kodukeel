@@ -8569,7 +8569,7 @@ check("every dead end in the app offers a way to report it", () => {
         here, so this is the file that has to keep both.
       */
       "components/ScreenFailed.tsx",
-      /didn&rsquo;t load|didn't load|did not load/,
+      /didn&rsquo;t load|didn['’]t load|did not load/,
       "a screen that threw",
     ],
     [

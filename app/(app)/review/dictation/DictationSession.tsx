@@ -331,7 +331,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                 <p className="label-xs" style={{ color: "var(--hard-ink)" }}>{t("No sound right now")}</p>
                 <p lang="et" className="text-lg" style={{ color: "var(--ink)" }}>{task.et}</p>
                 <p className="max-w-[42ch] text-xs" style={{ color: "var(--ink-2)" }}>
-                  {t("We couldn't reach the audio, so here's the sentence to read instead. Copying it out still helps your spelling. Come back later to hear it.")}
+                  {t("We couldn’t reach the audio, so here’s the sentence to read instead. Copying it out still helps your spelling. Come back later to hear it.")}
                 </p>
               </div>
             ) : (

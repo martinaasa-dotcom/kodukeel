@@ -229,7 +229,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
         </div>
         {confirming ? (
           <span className="flex items-center gap-2 text-xs" style={{ color: "var(--ink-2)" }}>
-            {t("The words themselves won't be deleted.")}
+            {t("The words themselves won’t be deleted.")}
             <Button variant="danger" size="sm" disabled={pending} onClick={remove}>{t("Remove")}</Button>
             <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>{t("Cancel")}</Button>
           </span>
@@ -340,7 +340,7 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
   if (words === "failed") {
     return (
       <p role="status" className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-        {t("The words in this deck didn't load. Close it and open it again to try once more.")}
+        {t("The words in this deck didn’t load. Close it and open it again to try once more.")}
       </p>
     );
   }
@@ -461,7 +461,7 @@ function FileWords({ deckId, deckName, onFiled }: {
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>{t("Loading…")}</p>
       ) : words === "failed" ? (
         <p role="status" className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-          {t("Your words didn't load. Change the search to try again.")}
+          {t("Your words didn’t load. Change the search to try again.")}
         </p>
       ) : words.length === 0 ? (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>

@@ -189,10 +189,10 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That's the round done")}
+          {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {t("There's no rule for which case a verb wants. You just get to know them, one verb at a time, a little and often.")}
+          {t("There’s no rule for which case a verb wants. You just get to know them, one verb at a time, a little and often.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"

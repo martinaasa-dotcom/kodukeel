@@ -136,7 +136,7 @@ export function EmailPanel({
           `/privacy` takes about an operator nobody has named.
         */
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          {t("This copy of Kodukeel isn't set up to send email, so none of these will arrive. We'll remember your choices in case that changes.")}
+          {t("This copy of Kodukeel isn’t set up to send email, so none of these will arrive. We’ll remember your choices in case that changes.")}
         </p>
       )}
 
@@ -202,7 +202,7 @@ export function EmailPanel({
           </a>
         </p>
         <Explain label={t("What the calendar reminder is")}>
-          {t("It's an ordinary repeating event, not a notification. It pops up on your phone whether or not the app is open, and you delete it like any other event. It follows your own clock wherever you are, so it stays put when the clocks change, and it works whether or not the emails above are on.")}
+          {t("It’s an ordinary repeating event, not a notification. It pops up on your phone whether or not the app is open, and you delete it like any other event. It follows your own clock wherever you are, so it stays put when the clocks change, and it works whether or not the emails above are on.")}
         </Explain>
       </div>
     </div>

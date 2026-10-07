@@ -99,7 +99,7 @@ export default async function SuggestionsQueuePage({
     >
       {!supabaseConfigured() && (
         <p className="mb-6 rounded-[var(--r)] px-4 py-3 text-sm" style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}>
-          {t("This copy has no sign-in set up, so it's one learner on one computer, reviewing their own reports.")}
+          {t("This copy has no sign-in set up, so it’s one learner on one computer, reviewing their own reports.")}
         </p>
       )}
 

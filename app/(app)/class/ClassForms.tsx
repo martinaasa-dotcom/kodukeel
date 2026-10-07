@@ -164,7 +164,7 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
         {t(pending ? "Joining…" : "Join the class")}
       </Button>
       <Explain label={t("Exactly what a class sees")}>
-        {t("Your teacher and classmates see your name, your streak, how many reviews you did this week, when you last practiced and how many words you know. Your teacher alone also sees the one case you find hardest, as a single percentage across your reviews, never a specific answer. A workplace group sees less: your name, whether you've been practicing, and one of four bands for the exam the group is working toward. Never your deck, your searches or your mistakes one by one. If you leave, all of it stops straight away.")}
+        {t("Your teacher and classmates see your name, your streak, how many reviews you did this week, when you last practiced and how many words you know. Your teacher alone also sees the one case you find hardest, as a single percentage across your reviews, never a specific answer. A workplace group sees less: your name, whether you’ve been practicing, and one of four bands for the exam the group is working toward. Never your deck, your searches or your mistakes one by one. If you leave, all of it stops straight away.")}
       </Explain>
     </div>
   );

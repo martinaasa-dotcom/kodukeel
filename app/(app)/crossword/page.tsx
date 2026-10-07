@@ -53,7 +53,7 @@ export default async function CrosswordPage() {
             <Empty
               title={tr(locale, "Not enough words yet")}
               body={tr(locale, "Today's grid is built from your evenings' words, and there aren't enough to cross yet.")}
-              action={<ButtonLink href="/course">{tr(locale, "Tonight's evening")}</ButtonLink>}
+              action={<ButtonLink href="/course">{tr(locale, "Tonight’s evening")}</ButtonLink>}
             />
           ) : (
             <Empty

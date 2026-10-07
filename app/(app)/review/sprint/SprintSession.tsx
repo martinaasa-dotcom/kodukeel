@@ -215,7 +215,7 @@ export function SprintSession({
           <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
             <Mascot size={68} mood={isNewBest ? "cheer" : "happy"} className="float mx-auto" />
             <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-              {t("Time's up!")}
+              {t("Time’s up!")}
             </h1>
             <p className="mt-2 flex items-center justify-center gap-2 text-base" style={{ color: "var(--ink-2)" }}>
               {isNewBest && best > 0 && <Trophy size={17} aria-hidden style={{ color: "var(--butter-ink)" }} />}

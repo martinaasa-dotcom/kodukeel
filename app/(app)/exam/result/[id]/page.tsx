@@ -367,7 +367,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                 {fill(t("How examiners marked real {level} texts"), { level: result.level })}
               </p>
               <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-                {t("The Board published real candidates' texts with the examiners' comments beside them. Reading one next to yours is the closest you'll get to a second opinion here.")}
+                {t("The Board published real candidates’ texts with the examiners’ comments beside them. Reading one next to yours is the closest you'll get to a second opinion here.")}
               </p>
               <a
                 href={sample.href}

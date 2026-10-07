@@ -130,7 +130,7 @@ export function EkilexSetupGuide() {
           typed. The check could not have failed either, which is the worse
           half: it would have passed with the importer saying nothing at all.
         */}
-        {t("Every word you already have picks up its real forms the next time you open it, so you don't need to add anything again. If Ekilex has nothing on a word, we wait a day before asking again.")}
+        {t("Every word you already have picks up its real forms the next time you open it, so you don’t need to add anything again. If Ekilex has nothing on a word, we wait a day before asking again.")}
       </Explain>
     </div>
   );

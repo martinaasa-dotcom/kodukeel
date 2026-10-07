@@ -28,7 +28,7 @@ export function TooHard({ words, locale }: { words: readonly HardWordReading[]; 
         {t("Too complicated")}
       </SectionTitle>
       <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-        {fill(t("Words learners have put aside as too hard for now. Once {people} people, and {share} percent of everyone who has the word, have done that, it's taught a level later for everybody."), {
+        {fill(t("Words learners have put aside as too hard for now. Once {people} people, and {share} percent of everyone who has the word, have done that, it’s taught a level later for everybody."), {
           people: HARD_LEARNERS,
           share: Math.round(HARD_SHARE * 100),
         })}

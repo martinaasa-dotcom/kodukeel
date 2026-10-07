@@ -127,14 +127,14 @@ export default async function RecordPage() {
             </ul>
           )}
           <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-            {t("The level check and the mock exams are this app's own, marked automatically. None of them is the state examination.")}
+            {t("The level check and the mock exams are this app’s own, marked automatically. None of them is the state examination.")}
           </p>
         </section>
 
         <section>
           <SectionTitle>{t("Conversations outside the app")}</SectionTitle>
           <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {fillNodes(t("{n} reported by the learner, answering each morning about the day before. These are their own answers and haven't been checked."), {
+            {fillNodes(t("{n} reported by the learner, answering each morning about the day before. These are their own answers and haven’t been checked."), {
               n: <strong style={{ color: "var(--ink)" }}>{record.conversations.toLocaleString("en-GB")}</strong>,
             })}
           </p>

@@ -73,7 +73,7 @@ export function TutorChat({
             className="max-w-[52ch] rounded-[var(--r-lg)] px-4 py-3 text-sm leading-relaxed"
             style={{ background: "rgb(255 255 255 / 0.08)", border: "1px solid rgb(255 255 255 / 0.14)", color: "var(--ink-2)" }}
           >
-            {filled(t("Here's the question you came with: {question}"), { question: <span style={{ color: "var(--ink)" }}>{initialQuestion}</span> })}
+            {filled(t("Here’s the question you came with: {question}"), { question: <span style={{ color: "var(--ink)" }}>{initialQuestion}</span> })}
           </p>
         )}
         {readerCanConfigure && (
@@ -91,7 +91,7 @@ export function TutorChat({
           <div>
             <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>Tere! Ma olen Anu.</p>
             <p className="mt-1.5 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {t("Ask me anything about Estonian grammar. I'll tell you why, as well as what, and if I'm not sure of a form I'll say so instead of guessing.")}
+              {t("Ask me anything about Estonian grammar. I’ll tell you why, as well as what, and if I’m not sure of a form I’ll say so instead of guessing.")}
             </p>
             <p className="mt-3 flex items-center gap-1.5 text-xs" style={{ color: "var(--blush-ink)" }}>
               <Sparkles size={13} aria-hidden /> {t("Pick a question below to start, or just ask your own.")}

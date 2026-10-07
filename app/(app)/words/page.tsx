@@ -101,7 +101,7 @@ export default async function WordsPage() {
             {/* Word by word is the header's other button; which cases keep
                 catching somebody out is Progress's, one link away. */}
             <p className="mt-6 text-sm" style={{ color: "var(--ink-2)" }}>
-              {t("Want to see which case endings keep catching you out? They're on")}{" "}
+              {t("Want to see which case endings keep catching you out? They’re on")}{" "}
               <Link href="/progress" className="font-semibold underline underline-offset-2" style={{ color: "var(--cta)" }}>
                 {t("Progress")}
               </Link>.

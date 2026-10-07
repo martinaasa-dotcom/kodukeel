@@ -259,7 +259,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That's the round done")}
+          {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           {t("Right or wrong, every answer helped those words stick a little better.")}

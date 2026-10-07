@@ -191,7 +191,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
           <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            {t("That's the round done")}
+            {t("That’s the round done")}
           </h1>
           {/* Said off how it went. "Tubli töö" over nought right was praise
               for something that did not happen, which a learner sees through
@@ -278,7 +278,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   {card.lemma}
                 </p>
                 <p className="max-w-[40ch] text-xs" style={{ color: "var(--ink-3)" }}>
-                  {t("We couldn't reach the audio, so here's the word to read instead. It's still worth answering. Come back later to practise the listening part.")}
+                  {t("We couldn’t reach the audio, so here’s the word to read instead. It’s still worth answering. Come back later to practise the listening part.")}
                 </p>
               </>
             ) : (

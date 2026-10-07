@@ -129,7 +129,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
       <Stack>
         {classroom.archived && (
           <Note tone="hard">
-            {t("This class has been archived, so the join code doesn't work any more. Everything here stays put.")}
+            {t("This class has been archived, so the join code doesn’t work any more. Everything here stays put.")}
           </Note>
         )}
 
@@ -279,7 +279,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
             <Card>
               <AssignUnit classroomId={classroomId} units={units} />
               <Explain label={t("What this does to their deck")}>
-                {t("Each student gets it as a task in their own list, with a link to the unit. Nobody's deck changes. They choose when to add the words.")}
+                {t("Each student gets it as a task in their own list, with a link to the unit. Nobody’s deck changes. They choose when to add the words.")}
               </Explain>
             </Card>
 

@@ -255,7 +255,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card>
               <ReviewModePanel current={mode} />
               <Explain label={t("Why new cards show the answer")}>
-                {t("Either way, a brand-new card shows you its answer first. Being asked for a word you've never seen wouldn't teach you anything.")}
+                {t("Either way, a brand-new card shows you its answer first. Being asked for a word you’ve never seen wouldn’t teach you anything.")}
               </Explain>
             </Card>
           </section>
@@ -271,7 +271,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle
               hint={latestCheck ? fill(t("measured {level}"), { level: levelLabel((latestCheck.overall ?? null) as never, locale) }) : t("not measured yet")}
             >
-              {t("Why you're learning")}
+              {t("Why you’re learning")}
             </SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -294,7 +294,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={fill(t("{n} reviews/day"), { n: dailyGoal })}>{t("Daily goal")}</SectionTitle>
             <Card>
               <p className="mb-4 text-sm" style={{ color: "var(--ink-2)" }}>
-                {t("How many cards you'd like to get through each day. It's there to keep you going, and it never stops you doing more.")}
+                {t("How many cards you’d like to get through each day. It’s there to keep you going, and it never stops you doing more.")}
               </p>
               <DailyGoalPanel currentGoal={dailyGoal} />
             </Card>
@@ -316,7 +316,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card>
               <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {programme
-                  ? fill(t("You're following {course}. Each evening it picks your words and games for you, and tonight's plan sits at the top of Today."), { course: uiText(courseLevel, programme.title, programme.subtitle) })
+                  ? fill(t("You’re following {course}. Each evening it picks your words and games for you, and tonight’s plan sits at the top of Today."), { course: uiText(courseLevel, programme.title, programme.subtitle) })
                   : <>{opening?.blurb}</>}
               </p>
               <div className="mt-4">
@@ -358,11 +358,11 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={roundPaceName}>{t("Time on the clock")}</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                {t("Three games race the clock: the Case Sprint, the daily quest and Target. Choose how much time you'd like. Everything else about them stays the same.")}
+                {t("Three games race the clock: the Case Sprint, the daily quest and Target. Choose how much time you’d like. Everything else about them stays the same.")}
               </p>
               <RoundPacePanel current={roundPace} />
               <Explain label={t("Why the mock exam keeps its own timing")}>
-                {t("The mock exam is practice for the real state exam, so every part keeps the real exam's timings.")}
+                {t("The mock exam is practice for the real state exam, so every part keeps the real exam’s timings.")}
               </Explain>
             </Card>
           </section>
@@ -379,7 +379,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                {filled(t("Questions like {question} are always asked in Estonian. This decides whether a short English translation appears underneath. Up to B1 it's shown, while the fourteen cases are still new. From B2 it's hidden, because by then a class expects you to know them by heart."), {
+                {filled(t("Questions like {question} are always asked in Estonian. This decides whether a short English translation appears underneath. Up to B1 it’s shown, while the fourteen cases are still new. From B2 it’s hidden, because by then a class expects you to know them by heart."), {
                   question: <span lang="et">milles? kus?</span>,
                 })}
               </p>
@@ -407,7 +407,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 </p>
                 <VoicePanel current={voice} />
                 <Explain label={t("Why change the voice")}>
-                  {t("There are ten voices. The state examination has more than one speaker, so it's worth switching now and then to get used to different people.")}
+                  {t("There are ten voices. The state examination has more than one speaker, so it’s worth switching now and then to get used to different people.")}
                 </Explain>
               </div>
               <div>
@@ -423,7 +423,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   tilt={levelPace.id === paceFor(courseLevel).id ? 0 : tilt}
                 />
                 <Explain label={t("How the slow speed is made")}>
-                  {t("Every speed plays the same recording, slowed down in your browser, so the voice and pitch don't change and the consonants stay crisp. The slow button next to a word always plays it slower still than whatever you pick here.")}
+                  {t("Every speed plays the same recording, slowed down in your browser, so the voice and pitch don’t change and the consonants stay crisp. The slow button next to a word always plays it slower still than whatever you pick here.")}
                 </Explain>
               </div>
               <div>
@@ -438,7 +438,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Listening and dictation")}</h3>
                 <HearingPanel current={hearing} />
                 <Explain label={t("What a hearing condition changes")}>
-                  {t("The words stay the same. What changes is the speed, the voice and the background noise, because the receptionist won't slow down for you and the counter is never quiet.")}
+                  {t("The words stay the same. What changes is the speed, the voice and the background noise, because the receptionist won’t slow down for you and the counter is never quiet.")}
                 </Explain>
               </div>
               <div>
@@ -494,7 +494,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               </p>
               <GlossLanguagePanel current={glossLanguage} />
               <Explain label={t("Where these come from")}>
-                {t("The Russian and Ukrainian come from the same dictionary as the Estonian. If none was recorded for a word, you'll just see the English.")}
+                {t("The Russian and Ukrainian come from the same dictionary as the Estonian. If none was recorded for a word, you’ll just see the English.")}
               </Explain>
 
               <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule)" }}>
@@ -566,7 +566,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={t(ekilexOn ? "connected" : "built-in words only")}>{t("Dictionary")}</SectionTitle>
             <Card>
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                {filled(t("The built-in dictionary has {words}, from A1 up into C1, each with its main forms checked. Type any form you've met in class, like {first} or {second}, and it finds the word for you and tells you which form it is. The audio works out of the box too, no key needed."), {
+                {filled(t("The built-in dictionary has {words}, from A1 up into C1, each with its main forms checked. Type any form you’ve met in class, like {first} or {second}, and it finds the word for you and tells you which form it is. The audio works out of the box too, no key needed."), {
                   words: countOf(locale, words, "word"),
                   first: <span lang="et">toas</span>,
                   second: <span lang="et">lugesin</span>,
@@ -576,13 +576,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <Chip tone="good">{t("Connected")}</Chip>
                   <Explain label={t("What gets saved here")}>
-                    {t("Any word that isn't built in is looked up live and saved here, so next time it works offline too. Example sentences, dictation and the fuller mock exam all draw on these words.")}
+                    {t("Any word that isn’t built in is looked up live and saved here, so next time it works offline too. Example sentences, dictation and the fuller mock exam all draw on these words.")}
                   </Explain>
                 </div>
               ) : (
                 <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
                   <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                    {fill(t("Live dictionary lookup isn't set up here yet, so search only knows the {n} built-in words. Those come with hardly any real example sentences, so dictation, the sentence builder and the mock exam's reading and listening parts are thin or empty."), { n: words })}
+                    {fill(t("Live dictionary lookup isn’t set up here yet, so search only knows the {n} built-in words. Those come with hardly any real example sentences, so dictation, the sentence builder and the mock exam’s reading and listening parts are thin or empty."), { n: words })}
                   </p>
                   <EkilexSetupGuide />
                 </div>
@@ -616,7 +616,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   */}
                   {resilience.singlePointOfFailure && (
                     <Explain label={t("What happens if the key stops answering")}>
-                      {filled(t("Everything above goes through {provider}, on one account. If that key stops answering, because it's out of credit or just having a bad minute, Anu goes quiet too. Adding {key} to {env} gives Anu a backup. It's free and doesn't ask for a card. Read the note beside them in {file} first, because free usually means the provider may read what goes through it."), {
+                      {filled(t("Everything above goes through {provider}, on one account. If that key stops answering, because it’s out of credit or just having a bad minute, Anu goes quiet too. Adding {key} to {env} gives Anu a backup. It’s free and doesn’t ask for a card. Read the note beside them in {file} first, because free usually means the provider may read what goes through it."), {
                         provider: resilience.providers[0],
                         key: <code className="text-xs">{resilience.providers[0] === "Groq" ? "GEMINI_API_KEY" : "GROQ_API_KEY"}</code>,
                         env: <code className="text-xs">.env</code>,
@@ -690,7 +690,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 </a>
               </div>
               <Explain label={t("Why a backup is worth the ten seconds")}>
-                {t("Your answer history is the one thing here that can't be rebuilt if it's lost. Saving a copy now and then takes ten seconds.")}
+                {t("Your answer history is the one thing here that can’t be rebuilt if it’s lost. Saving a copy now and then takes ten seconds.")}
               </Explain>
               <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule-soft)" }}>
                 <RestorePanel currentReviews={reviews} />
@@ -717,7 +717,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                     {t("You can install Kodukeel like an app. On an iPhone, tap \u201cAdd to Home Screen\u201d. In Chrome on a computer, press \u201cInstall\u201d in the address bar. Once it's installed, it opens straight into review and keeps working without a connection.")}
                   </p>
                   <Explain label={t("What happens to an answer with no connection")}>
-                    {t("Anything you answer offline is kept on your device and sent as soon as you're back online, stamped with the time you actually answered. So an offline session still counts for the right day.")}
+                    {t("Anything you answer offline is kept on your device and sent as soon as you’re back online, stamped with the time you actually answered. So an offline session still counts for the right day.")}
                   </Explain>
                   <InstallPanel />
                 </div>

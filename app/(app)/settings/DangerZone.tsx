@@ -76,13 +76,13 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
       <SectionTitle>{t("Deleting your data")}</SectionTitle>
       <Card>
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          {fill(t("You can delete everything this app keeps about you. That's {cards}, {reviews}, your tasks, your chats with Anu, your scanned word lists, your level checks, and every mock exam you sat, writing included. Any class you're in or run goes too, along with your badges and settings. The shared dictionary stays, because other learners have cards built on it."), {
+          {fill(t("You can delete everything this app keeps about you. That’s {cards}, {reviews}, your tasks, your chats with Anu, your scanned word lists, your level checks, and every mock exam you sat, writing included. Any class you’re in or run goes too, along with your badges and settings. The shared dictionary stays, because other learners have cards built on it."), {
             cards: countOf(locale, counts.cards, "card"),
             reviews: countOf(locale, counts.reviews, "review"),
           })}
         </p>
         <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-          {t("If there's any chance you'll want it back, download a backup first. Your review history and anything you wrote in an exam can't be rebuilt, and we don't keep a copy.")}
+          {t("If there’s any chance you’ll want it back, download a backup first. Your review history and anything you wrote in an exam can’t be rebuilt, and we don’t keep a copy.")}
         </p>
 
         {remaining ? (
@@ -117,7 +117,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
             <p className="flex items-start gap-2 text-sm">
               <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
               <span>
-                {filled(t("This can't be undone. Type {word} to confirm."), { word: <strong>delete</strong> })}
+                {filled(t("This can’t be undone. Type {word} to confirm."), { word: <strong>delete</strong> })}
               </span>
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">

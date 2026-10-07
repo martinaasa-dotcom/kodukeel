@@ -208,7 +208,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
         );
       }
     } catch {
-      setError(t("You're offline, so we can't mark it yet. Your sentence is safe here."));
+      setError(t("You’re offline, so we can’t mark it yet. Your sentence is safe here."));
     } finally {
       setBusy(false);
     }
@@ -240,10 +240,10 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That's the round done")}
+          {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {t("Describing what's in front of you is as close to real talking as a screen gets.")}
+          {t("Describing what’s in front of you is as close to real talking as a screen gets.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
@@ -428,7 +428,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
 
       {!aiAvailable && (
         <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-          {t("Anu isn't around right now, so we'll only check the ending. That's the part we can check for certain anyway.")}
+          {t("Anu isn’t around right now, so we’ll only check the ending. That’s the part we can check for certain anyway.")}
         </p>
       )}
     </div>
@@ -464,7 +464,7 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
         <p className="text-base">
           {mark.rightCase ? (
-            rich(t("Yes, that's the {case}."), { case: caseName })
+            rich(t("Yes, that’s the {case}."), { case: caseName })
           ) : mark.written && wrote ? (
             /*
               The line this mode exists for. Every other screen can only say
@@ -479,13 +479,13 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
             })
           ) : mark.written ? (
             // Two cases share that spelling, so naming either would be a guess.
-            rich(t("{written} could be more than one case, so we can't tell it's this one. The {case} is {wanted}."), {
+            rich(t("{written} could be more than one case, so we can’t tell it’s this one. The {case} is {wanted}."), {
               written: <strong lang="et">{mark.written}</strong>,
               case: caseName,
               wanted,
             })
           ) : (
-            rich(t("{word} isn't in your sentence. The {case} is {wanted}."), {
+            rich(t("{word} isn’t in your sentence. The {case} is {wanted}."), {
               word: <strong lang="et">{prompt.askLemma}</strong>,
               case: caseName,
               wanted,
@@ -557,9 +557,9 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
         >
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {withheldReason === "unvouched-word" ? (
-              t("We've hidden Anu's note this time. It used a word we couldn't confirm as Estonian (it may just have been English). The check above comes from the dictionary, so you can trust it.")
+              t("We’ve hidden Anu’s note this time. It used a word we couldn’t confirm as Estonian (it may just have been English). The check above comes from the dictionary, so you can trust it.")
             ) : (
-              t("We've hidden Anu's note this time. It used an Estonian form we couldn't confirm, and a wrong form is worse than no note at all. The check above comes from the dictionary, so you can trust it.")
+              t("We’ve hidden Anu’s note this time. It used an Estonian form we couldn’t confirm, and a wrong form is worse than no note at all. The check above comes from the dictionary, so you can trust it.")
             )}
           </p>
         </div>

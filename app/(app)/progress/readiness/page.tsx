@@ -73,7 +73,7 @@ export default async function ReadinessPage() {
           <Card tone="night">
             <ReadinessSummary summary={picture.summary} locale={locale} />
             <Explain label={t("What the three ratings mean")}>
-              {fill(t("Each situation gets one of three ratings. {follow} means you'd understand most of it. {takePart} means you could answer with the right words and endings, without a long silence first. {lead} means you could start it, steer it, and get it back on track if it goes wrong. For a live conversation, that also takes some sign that you can follow spoken Estonian. Knowing words on cards never gets you past the first rating on its own."), {
+              {fill(t("Each situation gets one of three ratings. {follow} means you’d understand most of it. {takePart} means you could answer with the right words and endings, without a long silence first. {lead} means you could start it, steer it, and get it back on track if it goes wrong. For a live conversation, that also takes some sign that you can follow spoken Estonian. Knowing words on cards never gets you past the first rating on its own."), {
                 follow: t(RUNG_LABEL.follow), takePart: t(RUNG_LABEL.takePart), lead: t(RUNG_LABEL.lead),
               })}
             </Explain>

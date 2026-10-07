@@ -85,16 +85,27 @@ const TABLES: Readonly<Record<Exclude<Locale, "en">, Readonly<Record<string, str
 export function tr(locale: Locale, english: string, context?: string): string {
   if (locale === "en") return english;
   const table = TABLES[locale];
+  const key = keyOf(english);
   if (context) {
-    const specific = table[`${english}@${context}`];
+    const specific = table[`${key}@${context}`];
     if (specific !== undefined) return specific;
   }
-  return table[english] ?? english;
+  return table[key] ?? english;
+}
+
+/**
+ * The English as the tables hold it: with the straight apostrophe. The screen
+ * prints the curly one (`won’t`), which is what the English copy always used,
+ * and the tables are keyed on the plain one, so a line looks itself up by
+ * either and one apostrophe can never cost a translation.
+ */
+function keyOf(english: string): string {
+  return english.includes("\u2019") ? english.replace(/\u2019/g, "'") : english;
 }
 
 /** Whether a line has a translation in this locale. English always has. */
 export function translated(locale: Locale, english: string): boolean {
-  return locale === "en" || english in TABLES[locale];
+  return locale === "en" || keyOf(english) in TABLES[locale];
 }
 
 /** A template's `{name}` slots filled in, after it has been through `tr`. */

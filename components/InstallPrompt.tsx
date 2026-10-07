@@ -133,7 +133,7 @@ export function InstallPrompt() {
           )}
         </p>
         <p className="mt-1.5 text-2xs" style={{ color: "var(--ink-3)" }}>
-          {t("We'll only ask this once. It's in Settings if you change your mind.")}
+          {t("We’ll only ask this once. It’s in Settings if you change your mind.")}
         </p>
         {open && event && (
           <Button

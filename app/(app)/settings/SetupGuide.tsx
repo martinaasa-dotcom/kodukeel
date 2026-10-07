@@ -31,7 +31,7 @@ export function SetupGuide() {
   return (
     <div>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        {t("Anu needs a free key before she can answer questions. The dictionary, your cards and the audio all work without one. A single Gemini key switches on Anu, the conversations and page scanning, and it costs nothing. Here's how, step by step:")}
+        {t("Anu needs a free key before she can answer questions. The dictionary, your cards and the audio all work without one. A single Gemini key switches on Anu, the conversations and page scanning, and it costs nothing. Here’s how, step by step:")}
       </p>
 
       <ol className="mt-4 flex flex-col gap-3">

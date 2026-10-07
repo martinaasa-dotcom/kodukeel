@@ -394,7 +394,7 @@ export default async function TodayPage() {
   */
   const caughtUpNote = (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      {t("Going over cards before they're due doesn't help them stick. Take the break, or start something new.")}
+      {t("Going over cards before they’re due doesn’t help them stick. Take the break, or start something new.")}
     </p>
   );
   const orReview = say(
@@ -449,14 +449,14 @@ export default async function TodayPage() {
   const opening = figures ? null : caughtUp ? caughtUpNote : learnFirst ? (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
       {say(
-        `${toLearn} new word${toLearn === 1 ? " is" : "s are"} waiting for you, and you'll take them ${LEARN_BATCH} at a time. You see each word in a sentence, pick what it means, then fill it back into the sentence yourself.`,
+        `${toLearn} new word${toLearn === 1 ? " is" : "s are"} waiting for you, and you’ll take them ${LEARN_BATCH} at a time. You see each word in a sentence, pick what it means, then fill it back into the sentence yourself.`,
         "New words waiting for you: {words}. You'll take them {batch} at a time. You see each word in a sentence, pick what it means, then fill it back into the sentence yourself.",
         { words: countOf(locale, toLearn, "word"), batch: LEARN_BATCH },
       )}
     </p>
   ) : (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      {t("Most cards ask you to type or pick the answer. A few just show it and ask whether you knew it. Be honest there: that's how the app knows when to bring each word back.")}
+      {t("Most cards ask you to type or pick the answer. A few just show it and ask whether you knew it. Be honest there: that’s how the app knows when to bring each word back.")}
     </p>
   );
 
@@ -489,7 +489,7 @@ export default async function TodayPage() {
     <Card tone="night" className="flex flex-col gap-6 md:p-9 lg:flex-row lg:items-center lg:gap-10">
       <div className="min-w-0 flex-1">
         <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
-          <span style={{ color: "var(--cta)" }}>{t("Today's module")}</span>
+          <span style={{ color: "var(--cta)" }}>{t("Today’s module")}</span>
           <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
           <span>{fill(t("Day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}</span>
         </p>
@@ -548,15 +548,15 @@ export default async function TodayPage() {
             ? fill(t("{done} of {days} done, {run} evenings in a row"), { done: courseNow.daysDone, days: programme!.days.length, run: courseNow.eveningsInARow })
             : fill(t("{done} of {days} done"), { done: courseNow.daysDone, days: programme!.days.length })}
         >
-          {t("Today's module")}
+          {t("Today’s module")}
         </SectionTitle>
         <p className="mt-1 text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-          {t("That's tonight done. Go and enjoy your evening.")}
+          {t("That’s tonight done. Go and enjoy your evening.")}
         </p>
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay
             ? courseDay.day.part.n > 1
-              ? fill(t("Tomorrow you'll carry on with {unit}, part {n} of {of}."), {
+              ? fill(t("Tomorrow you’ll carry on with {unit}, part {n} of {of}."), {
                 unit: ui(courseDay.day.title, courseDay.day.subtitle), n: courseDay.day.part.n, of: courseDay.day.part.of,
               })
               : uiWantsEnglish(placement)
@@ -567,7 +567,7 @@ export default async function TodayPage() {
       </div>
       <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
         <ButtonLink href="/course" variant="secondary" className="w-full justify-center">
-          {t("See what's next")} <ArrowRight size={16} aria-hidden />
+          {t("See what’s next")} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
@@ -699,7 +699,7 @@ export default async function TodayPage() {
         <p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
           <Shield size={13} aria-hidden style={{ color: "var(--accent-deep)" }} />
           {say(
-            `${summary.shieldsAvailable} streak shield${summary.shieldsAvailable === 1 ? "" : "s"} saved up, so missing a day won't break your run.`,
+            `${summary.shieldsAvailable} streak shield${summary.shieldsAvailable === 1 ? "" : "s"} saved up, so missing a day won’t break your run.`,
             "Streak shields saved up: {shields}. Missing a day won't break your run.",
             { shields: summary.shieldsAvailable },
           )}
@@ -745,7 +745,7 @@ export default async function TodayPage() {
   const scheduleCard = todayEvents.length > 0 ? (
     <Card>
       <SectionTitle hint={todayEvents.length === 1 ? t("one thing") : say(`${todayEvents.length} things`, "{things}", { things: countOf(locale, todayEvents.length, "thing") })}>
-        {t("What's on today")}
+        {t("What’s on today")}
       </SectionTitle>
       <ul className="flex flex-col gap-2">
         {todayEvents.map((e) => (
@@ -937,7 +937,7 @@ export default async function TodayPage() {
         </ButtonLink>
       </div>
       <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-        {fill(t("Tomorrow's {weekday}, which means {game}."), {
+        {fill(t("Tomorrow’s {weekday}, which means {game}."), {
           weekday: locale === "en" ? tomorrow.weekday : t(tomorrow.weekday).toLocaleLowerCase(locale),
           game: t(featuredTitle(tomorrow.game.href) ?? "something different"),
         })}

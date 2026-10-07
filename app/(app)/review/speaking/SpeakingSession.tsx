@@ -225,7 +225,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
               </div>
               <Recorder />
               <Explain label={t("Why you mark yourself here")}>
-                {t("Listen to both, then say how close you got. Nothing is uploaded. We can't understand spoken Estonian well enough to score you, so we won't pretend to.")}
+                {t("Listen to both, then say how close you got. Nothing is uploaded. We can’t understand spoken Estonian well enough to score you, so we won’t pretend to.")}
               </Explain>
             </>
           )}

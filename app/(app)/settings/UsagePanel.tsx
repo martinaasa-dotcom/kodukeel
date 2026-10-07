@@ -60,7 +60,7 @@ export async function UsagePanel({ ownerId }: { ownerId: string }) {
 
         {!audioCacheIsDurable() && (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-            {filled(t("Pronunciation audio is saved on this machine's disk. Set {key} so every copy of the app can share it, rather than asking TartuNLP again for words it has already said."), {
+            {filled(t("Pronunciation audio is saved on this machine’s disk. Set {key} so every copy of the app can share it, rather than asking TartuNLP again for words it has already said."), {
               key: <code>SUPABASE_SERVICE_ROLE_KEY</code>,
             })}
           </p>

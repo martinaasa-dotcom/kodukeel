@@ -298,7 +298,7 @@ export default async function CoursePage({
               {justDone && justDone.words.length > 0 && (
                 <div className="mt-4">
                   <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-                    {t("Hear tonight's words once more")}
+                    {t("Hear tonight’s words once more")}
                   </p>
                   <ul className="mt-2 flex flex-wrap gap-2" data-recap-words>
                     {justDone.words.map((word) => (
@@ -420,7 +420,7 @@ export default async function CoursePage({
 
         <div>
           <SectionTitle hint={unit ? ui(unit.title, unit.subtitle) : undefined}>
-            {t("Tonight's words")}
+            {t("Tonight’s words")}
           </SectionTitle>
           {/*
             Printed rather than hidden, because seeing the eight at the start is

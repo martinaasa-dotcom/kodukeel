@@ -222,8 +222,8 @@ function OfflineBanner({ online, pending, syncing }: {
   const answers = countOf(locale, pending, "answer");
   const label = !online
     ? pending > 0
-      ? fill(t("You're offline. {answers} saved on this device"), { answers })
-      : t("You're offline, but reviews still work")
+      ? fill(t("You’re offline. {answers} saved on this device"), { answers })
+      : t("You’re offline, but reviews still work")
     : fill(t("Sending {answers} to your account"), { answers });
 
   return (

@@ -328,11 +328,11 @@ export default async function ProgressPage() {
                     */
                     level === "A1" ? (
                       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                        {t("The cases start at A2. Until then the course gives you words and phrases, and this fills in once you're putting endings on them.")}
+                        {t("The cases start at A2. Until then the course gives you words and phrases, and this fills in once you’re putting endings on them.")}
                       </p>
                     ) : (
                       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                        {t("You haven't answered any case cards yet. They come with the units that put endings on nouns, in")}{" "}
+                        {t("You haven’t answered any case cards yet. They come with the units that put endings on nouns, in")}{" "}
                         <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>{t("Learn")}</Link>.
                       </p>
                     )

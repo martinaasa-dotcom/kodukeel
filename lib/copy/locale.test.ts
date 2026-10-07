@@ -109,6 +109,13 @@ describe("the interface language", () => {
     expect(pluralIndex("ru", 14)).toBe(2);
   });
 
+  it("finds a line by either apostrophe, and prints the English one it was given", () => {
+    expect(tr("ru", "That\u2019s the round done")).toBe(tr("ru", "That's the round done"));
+    expect(tr("ru", "That\u2019s the round done")).toMatch(/[\u0400-\u04FF]/);
+    expect(tr("en", "That\u2019s the round done")).toBe("That\u2019s the round done");
+    expect(translated("uk", "That\u2019s the round done")).toBe(true);
+  });
+
   it("fills a template after it is translated", () => {
     expect(fill(tr("ru", "{count} in this round"), { count: countOf("ru", 3, "word") })).toBe("3 слова в этом раунде");
   });

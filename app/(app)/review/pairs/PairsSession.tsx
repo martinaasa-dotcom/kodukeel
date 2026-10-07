@@ -185,7 +185,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           {t("This one needs sound")}
         </h1>
         <p className="mx-auto mt-2 max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>
-          {t("This one is all about how a word sounds, and we couldn't get the audio to play. Try again once you're back online.")}
+          {t("This one is all about how a word sounds, and we couldn’t get the audio to play. Try again once you’re back online.")}
         </p>
         <WayOut className="mt-6 flex justify-center">
           <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
@@ -200,10 +200,10 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          {t("That's the round done")}
+          {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {rich(t("In Estonian, how long you hold a sound changes the meaning: {a} and {b} aren't the same thing said twice. Ears take a while to catch up with eyes, so be patient with them."), {
+          {rich(t("In Estonian, how long you hold a sound changes the meaning: {a} and {b} aren’t the same thing said twice. Ears take a while to catch up with eyes, so be patient with them."), {
             a: <span lang="et">maja</span>,
             b: <span lang="et">majja</span>,
           })}

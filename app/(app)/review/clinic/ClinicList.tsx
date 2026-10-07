@@ -84,7 +84,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                 {/* The pattern is one of four fixed lines, so the whole sentence is the key. */}
                 {t(`This card ${leech.pattern}.`)}
                 {leech.confusable.length > 0 && (
-                  <> {t("It's easy to mix up with these, which are in your deck too:")}{" "}
+                  <> {t("It’s easy to mix up with these, which are in your deck too:")}{" "}
                     <span lang="et">{leech.confusable.join(", ")}</span>.
                   </>
                 )}
