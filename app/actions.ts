@@ -1918,6 +1918,13 @@ export async function setUiLocale(value: string) {
   const ownerId = await requireUserId();
   const normalised = localeFrom(text(value));
   await writeSetting(ownerId, SETTING_KEYS.uiLocale, normalised);
+  /* Somebody who reads the app in Russian or Ukrainian wants a word's meaning
+     there too, and the Institute records one for most of the course. Only
+     where they have never chosen: a stored choice is theirs and is left alone,
+     and the English is printed beside it either way. */
+  if (normalised !== "en" && (await readSetting(ownerId, SETTING_KEYS.glossLanguage)) === null) {
+    await writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(normalised));
+  }
   revalidatePath("/", "layout");
   return { ok: true as const, value: normalised };
 }
