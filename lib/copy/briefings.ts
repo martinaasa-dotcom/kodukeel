@@ -155,6 +155,12 @@ export const BRIEFINGS = {
     you: "Choose the right form, or type it from B1. Nothing is timed. A wrong answer shows where that form would have fit.",
     action: "Start",
   },
+  twenty: {
+    title: "Twenty questions",
+    what: "A box to type in and a list of your questions. I'm thinking of something, and I answer each question yes, no or sometimes.",
+    you: "Ask yes or no questions in Estonian, and name it when you can. Each question you type comes back with a tip if it could be better.",
+    action: "Start",
+  },
   government: {
     title: "Which case does this verb want?",
     what: "A verb, and four cases it might take. Only one is right.",
