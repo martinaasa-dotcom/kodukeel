@@ -1,8 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { Meter } from "@/components/ui";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
+import { TrParts } from "@/components/TrParts";
 import {
   ASSUMPTIONS, DEFAULT_SHAPE, MODEL_CAP_USD, SCALE_LADDER, TUTOR_MODELS,
   billFor, ladderFor, type Line, type Meter as MeterFigure, type Shape, type TutorMode,
@@ -57,15 +60,30 @@ function money(usd: number): string {
  * below a dollar is the same rule `lib/time/duration.ts` applies to a stretch
  * of study: the unit is part of the number.
  */
-function perLearner(usd: number): string {
+function perLearner(usd: number, t: T, locale: Locale): string {
   if (usd >= 1) return `$${usd.toFixed(2)}`;
   const cents = usd * 100;
-  if (cents >= 10) return `${Math.round(cents)} cents`;
-  if (cents >= 0.1) return `${cents.toFixed(1)} cents`;
-  return "under a tenth of a cent";
+  if (locale === "en") {
+    if (cents >= 10) return `${Math.round(cents)} cents`;
+    if (cents >= 0.1) return `${cents.toFixed(1)} cents`;
+    return "under a tenth of a cent";
+  }
+  if (cents >= 10) return centsIn(Math.round(cents), locale);
+  if (cents >= 0.1) return centsIn(Number(cents.toFixed(1)), locale);
+  return t("under a tenth of a cent");
 }
 
-function amount(figure: MeterFigure): string {
+/**
+ * "12 cents", "12 центов", "1.5 цента". A fraction takes the genitive
+ * singular in both languages (1,5 цента), which is the second of the three
+ * forms rather than the one `Intl.PluralRules` picks for it.
+ */
+function centsIn(n: number, locale: Locale): string {
+  if (Number.isInteger(n)) return countOf(locale, n, "cent");
+  return `${String(n).replace(".", ",")} ${tr(locale, "cents", "fraction")}`;
+}
+
+function amount(figure: MeterFigure, t: T): string {
   if (figure.as === "gb") {
     const gb = figure.used;
     if (gb < 1) return `${Math.round(gb * 1000)} MB`;
@@ -74,38 +92,43 @@ function amount(figure: MeterFigure): string {
   }
   if (figure.as === "hours") {
     return figure.used < 1
-      ? `${Math.round(figure.used * 60)} min`
-      : `${count(figure.used)} hours`;
+      ? fill(t("{n} min"), { n: Math.round(figure.used * 60) })
+      : fill(t("{n} hours"), { n: count(figure.used) });
   }
   return count(figure.used);
 }
 
-function allowance(figure: MeterFigure): string {
+function allowance(figure: MeterFigure, t: T): string {
   return figure.as === "gb"
-    ? `${figure.included < 1 ? `${figure.included * 1000} MB` : `${count(figure.included)} GB`} included`
+    ? fill(t("{amount} included"), { amount: figure.included < 1 ? `${figure.included * 1000} MB` : `${count(figure.included)} GB` })
     : figure.as === "hours"
-      ? `${count(figure.included)} hours included`
-      : `${count(figure.included)} included`;
+      ? fill(t("{n} hours included"), { n: count(figure.included) })
+      : fill(t("{amount} included"), { amount: count(figure.included) });
 }
 
 /** What a line says on its right-hand side, whichever shape it is. */
-function figureFor(line: Line): { text: string; muted: boolean } {
+function figureFor(line: Line, t: T): { text: string; muted: boolean } {
   const { cost } = line;
   if (cost.kind === "charged") return { text: money(cost.usd), muted: cost.usd === 0 };
-  if (cost.kind === "partOf") return { text: "inside another line", muted: true };
-  if (cost.kind === "given") return { text: "given", muted: true };
-  return { text: `${cost.who} pays`, muted: true };
+  if (cost.kind === "partOf") return { text: t("inside another line"), muted: true };
+  if (cost.kind === "given") return { text: t("given"), muted: true };
+  return { text: fill(t("{who} pays"), { who: t(cost.who) }), muted: true };
 }
 
-function planFor(line: Line): string {
+function planFor(line: Line, t: T): string {
   const { cost } = line;
-  if (cost.kind === "charged") return cost.plan;
-  if (cost.kind === "partOf") return "No bill of its own";
-  if (cost.kind === "given") return "Public, and asks for nothing";
-  return "Not the operator's to pay";
+  if (cost.kind === "charged") return t(cost.plan);
+  if (cost.kind === "partOf") return t("No bill of its own");
+  if (cost.kind === "given") return t("Public, and asks for nothing");
+  return t("Not the operator's to pay");
 }
+
+/** The translator a client component gets from `useT`. */
+type T = (english: string, context?: string) => string;
 
 export function CostExplorer() {
+  const t = useT();
+  const locale = useLocale();
   const [shape, setShape] = useState<Shape>(DEFAULT_SHAPE);
   const set = <K extends keyof Shape>(key: K, value: Shape[K]) =>
     setShape((was) => ({ ...was, [key]: value }));
@@ -121,14 +144,14 @@ export function CostExplorer() {
         style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth-sm)" }}
       >
         <label htmlFor="learners" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-          People using it in a month
+          {t("People using it in a month")}
         </label>
         <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span className="tnum text-3xl font-bold leading-none" style={{ color: "var(--ink)" }}>
             {count(shape.learners)}
           </span>
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            {shape.learners === 1 ? "one person" : "learners"}
+            {shape.learners === 1 ? t("one person") : t("learners")}
           </span>
         </div>
 
@@ -141,7 +164,7 @@ export function CostExplorer() {
           step={1}
           value={stopFor(shape.learners)}
           onChange={(e) => set("learners", learnersAt(Number(e.target.value)))}
-          aria-valuetext={`${count(shape.learners)} learners`}
+          aria-valuetext={fill(t("{n} learners"), { n: count(shape.learners) })}
         />
         {/*
           One label per decade, because the slider is logarithmic and evenly
@@ -156,26 +179,28 @@ export function CostExplorer() {
         </p>
 
         <div className="mt-5 border-t pt-4" style={{ borderColor: "var(--rule)" }}>
-          <p className="label-xs" style={{ color: "var(--ink-3)" }}>Every month, all of it</p>
+          <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Every month, all of it")}</p>
           <p className="tnum mt-1 text-4xl font-bold leading-none" style={{ color: "var(--accent-deep)" }}>
             {money(bill.totalUsd)}
           </p>
           <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {perLearner(bill.perLearnerUsd)} a learner, and every cent of it an invoice
-            somebody sends. In US dollars and net of VAT, which is how the vendors quote
-            their own prices.
+            {fill(t("{each} a learner, and every cent of it an invoice somebody sends. In US dollars and net of VAT, which is how the vendors quote their own prices."), {
+              each: perLearner(bill.perLearnerUsd, t, locale),
+            })}
           </p>
           {bill.creditedUsd > 0 && (
             <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-3)" }}>
-              Not counted above: buying the speech this app is given would come to a further{" "}
-              <strong>{money(bill.creditedUsd)}</strong> a month. Nobody has ever asked for it.
+              <TrParts
+                template="Not counted above: buying the speech this app is given would come to a further {money} a month. Nobody has ever asked for it."
+                parts={{ money: <strong>{money(bill.creditedUsd)}</strong> }}
+              />
             </p>
           )}
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <ChoiceGroup label="How hard they study" select="one">
+        <ChoiceGroup label={t("How hard they study")} select="one">
           {([
             [3, 10, "Lightly"],
             [5, 15, "The default"],
@@ -188,17 +213,17 @@ export function CostExplorer() {
                 ...was, sessionsPerWeek: days, reviewsPerSession: reviews,
               }))}
             >
-              {name}
+              {t(name, "study")}
             </ChoiceChip>
           ))}
         </ChoiceGroup>
 
-        <ChoiceGroup label="Cards read themselves aloud" select="one">
-          <ChoiceChip selected={shape.audio} onSelect={() => set("audio", true)}>On</ChoiceChip>
-          <ChoiceChip selected={!shape.audio} onSelect={() => set("audio", false)}>Off</ChoiceChip>
+        <ChoiceGroup label={t("Cards read themselves aloud")} select="one">
+          <ChoiceChip selected={shape.audio} onSelect={() => set("audio", true)}>{t("On", "switch")}</ChoiceChip>
+          <ChoiceChip selected={!shape.audio} onSelect={() => set("audio", false)}>{t("Off", "switch")}</ChoiceChip>
         </ChoiceGroup>
 
-        <ChoiceGroup label="The tutor" select="one">
+        <ChoiceGroup label={t("The tutor")} select="one">
           {([
             ["paid", "On"],
             ["off", "No key"],
@@ -208,12 +233,12 @@ export function CostExplorer() {
               selected={shape.tutor === mode}
               onSelect={() => set("tutor", mode as TutorMode)}
             >
-              {name}
+              {t(name, "switch")}
             </ChoiceChip>
           ))}
         </ChoiceGroup>
 
-        <ChoiceGroup label="Which model answers" select="one">
+        <ChoiceGroup label={t("Which model answers")} select="one">
           {TUTOR_MODELS.map((model) => (
             <ChoiceChip
               key={model.id}
@@ -226,7 +251,7 @@ export function CostExplorer() {
           ))}
         </ChoiceGroup>
 
-        <ChoiceGroup label="Years of reviews already stored" select="one">
+        <ChoiceGroup label={t("Years of reviews already stored")} select="one">
           {[1, 3, 5, 10].map((years) => (
             <ChoiceChip key={years} even selected={shape.years === years} onSelect={() => set("years", years)}>
               {years}
@@ -240,17 +265,18 @@ export function CostExplorer() {
           className="rounded-[var(--r)] px-4 py-3 text-sm"
           style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}
         >
-          The model line stops at {money(MODEL_CAP_USD)}, and it stops there in the running
-          app too. The daily budget in <code>lib/usage/quota.ts</code> has no off switch, so
-          this is a ceiling rather than a forecast.
+          <TrParts
+            template="The model line stops at {money}, and it stops there in the running app too. The daily budget in {file} has no off switch, so this is a ceiling rather than a forecast."
+            parts={{ money: money(MODEL_CAP_USD), file: <code>lib/usage/quota.ts</code> }}
+          />
         </p>
       )}
 
       <div>
-        <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Where it goes</h3>
+        <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Where it goes")}</h3>
         <ul className="space-y-2">
           {bill.lines.map((line) => {
-            const figure = figureFor(line);
+            const figure = figureFor(line, t);
             const meters = line.cost.kind === "charged" ? line.cost.meters ?? [] : [];
             return (
               <li
@@ -260,7 +286,7 @@ export function CostExplorer() {
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                   <span className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                    {line.service.name}
+                    {t(line.service.name)}
                   </span>
                   <span
                     className="tnum text-base font-bold"
@@ -270,21 +296,21 @@ export function CostExplorer() {
                   </span>
                 </div>
                 <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
-                  {planFor(line)}
+                  {planFor(line, t)}
                   {line.cost.kind === "given" && line.cost.licence
                     ? `, ${line.cost.licence}`
                     : ""}
                 </p>
                 {line.cost.kind === "given" && (
                   <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--ink)" }}>
-                    {line.cost.gives}
+                    {t(line.cost.gives)}
                     {line.cost.wouldCostUsd
                       ? `, which would come to ${money(line.cost.wouldCostUsd)} a month to buy.`
                       : "."}
                   </p>
                 )}
                 <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {line.cost.why}
+                  {t(line.cost.why)}
                 </p>
 
                 {meters.some((m) => m.included > 0) && (
@@ -295,14 +321,14 @@ export function CostExplorer() {
                       return (
                         <li key={figureRow.label}>
                           <p className="tnum flex flex-wrap justify-between gap-x-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                            <span>{figureRow.label}</span>
-                            <span>{amount(figureRow)} of {allowance(figureRow)}</span>
+                            <span>{t(figureRow.label)}</span>
+                            <span>{fill(t("{amount} of {allowance}"), { amount: amount(figureRow, t), allowance: allowance(figureRow, t) })}</span>
                           </p>
                           <div className="mt-1">
                             <Meter
                               pct={pct}
                               height={6}
-                              label={`${figureRow.label}, ${amount(figureRow)} against ${allowance(figureRow)}`}
+                              label={fill(t("{label}, {amount} against {allowance}"), { label: t(figureRow.label), amount: amount(figureRow, t), allowance: allowance(figureRow, t) })}
                               tone={past ? "var(--blush)" : "var(--accent)"}
                             />
                           </div>
@@ -319,12 +345,10 @@ export function CostExplorer() {
 
       <div>
         <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-          The same app at every size
+          {t("The same app at every size")}
         </h3>
         <p className="mb-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          Each bar is ten times the learners of the one before it, and the heights are
-          logarithmic, so a bar twice as tall is a bill many times larger. The shape to
-          look at is the steps.
+          {t("Each bar is ten times the learners of the one before it, and the heights are logarithmic, so a bar twice as tall is a bill many times larger. The shape to look at is the steps.")}
         </p>
 
         {/*
@@ -369,17 +393,17 @@ export function CostExplorer() {
 
         {/* Focusable, because a region that scrolls sideways on a phone has to be
             reachable by a keyboard as well as a finger. */}
-        <div className="scroll-host mt-5 overflow-x-auto" tabIndex={0} role="region" aria-label="What the app costs at each size">
+        <div className="scroll-host mt-5 overflow-x-auto" tabIndex={0} role="region" aria-label={t("What the app costs at each size")}>
           <table className="w-full text-sm">
             <caption className="sr-only">
-              What the app costs a month at each size, and what that is per learner
+              {t("What the app costs a month at each size, and what that is per learner")}
             </caption>
             <thead>
               <tr style={{ color: "var(--ink-3)" }}>
-                <th scope="col" className="label-xs py-1 pr-3 text-left">Learners</th>
-                <th scope="col" className="label-xs py-1 text-right">A month</th>
-                <th scope="col" className="label-xs py-1 pl-3 pr-3 text-right">Given</th>
-                <th scope="col" className="label-xs py-1 text-right">Each</th>
+                <th scope="col" className="label-xs py-1 pr-3 text-left">{t("Learners")}</th>
+                <th scope="col" className="label-xs py-1 text-right">{t("A month")}</th>
+                <th scope="col" className="label-xs py-1 pl-3 pr-3 text-right">{t("Given")}</th>
+                <th scope="col" className="label-xs py-1 text-right">{t("Each")}</th>
               </tr>
             </thead>
             <tbody>
@@ -396,7 +420,7 @@ export function CostExplorer() {
                   <td className="tnum py-1.5 pr-3">{count(rung.learners)}</td>
                   <td className="tnum py-1.5 text-right">{money(rung.bill.totalUsd)}</td>
                   <td className="tnum py-1.5 pl-3 pr-3 text-right">{money(rung.bill.creditedUsd)}</td>
-                  <td className="tnum py-1.5 text-right">{perLearner(rung.bill.perLearnerUsd)}</td>
+                  <td className="tnum py-1.5 text-right">{perLearner(rung.bill.perLearnerUsd, t, locale)}</td>
                 </tr>
               ))}
             </tbody>
@@ -404,32 +428,24 @@ export function CostExplorer() {
         </div>
 
         <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          The floor is the interesting end. The plans, the tooling, the mail and the
-          domain come to about three hundred dollars a month before a single learner
-          arrives, and most of that does not move when they do. So the first thousand
-          people are nearly free to serve, and the cost per head falls by roughly a factor
-          of ten for each decade. What grows instead is speech and the database, so past ten
-          thousand the shape is set by how much is said aloud and how many years of
-          reviews are being kept.
+          {t("The floor is the interesting end. The plans, the tooling, the mail and the domain come to about three hundred dollars a month before a single learner arrives, and most of that does not move when they do. So the first thousand people are nearly free to serve, and the cost per head falls by roughly a factor of ten for each decade. What grows instead is speech and the database, so past ten thousand the shape is set by how much is said aloud and how many years of reviews are being kept.")}
         </p>
       </div>
 
       <details className="rounded-[var(--r-lg)] border p-4" style={{ borderColor: "var(--rule)" }}>
         <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--ink)" }}>
-          The {ASSUMPTIONS.length} numbers we had to judge rather than measure
+          {fill(t("The {count} numbers we had to judge rather than measure"), { count: ASSUMPTIONS.length })}
         </summary>
         <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          Everything else on this page came off a stopwatch, a database or somebody&rsquo;s
-          published price list. These are judgments, and they are here so you can disagree
-          with a specific one rather than with the total.
+          {t("Everything else on this page came off a stopwatch, a database or somebody’s published price list. These are judgments, and they are here so you can disagree with a specific one rather than with the total.")}
         </p>
         <ul className="mt-3 space-y-3">
           {ASSUMPTIONS.map((a) => (
             <li key={a.id}>
               <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
-                {a.what}: <span className="tnum">{a.value}</span> {a.unit}
+                {t(a.what)}: <span className="tnum">{a.value}</span> {t(a.unit)}
               </p>
-              <p className="mt-0.5 text-sm leading-relaxed" style={{ color: "var(--ink-3)" }}>{a.why}</p>
+              <p className="mt-0.5 text-sm leading-relaxed" style={{ color: "var(--ink-3)" }}>{t(a.why)}</p>
             </li>
           ))}
         </ul>

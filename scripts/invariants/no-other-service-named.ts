@@ -16,6 +16,7 @@ import type { InvariantKit } from "../lib/invariantKit";
 const EXEMPT: Readonly<Record<string, string>> = {
   "app/(chromeless)/welcome/page.tsx": "the dated comparison in the FAQ, which credits what each tool does better",
   "lib/collections/placesToTalk.ts": "points at the free state course as a place to go alongside this app",
+  "lib/copy/i18n/areas/landing.ts": "the same dated comparison as the landing page, in Russian and Ukrainian",
 };
 
 const OTHERS = /\b(keelix|tere\s?tere|keeleklikk|keeletee|keelelend)\b/i;

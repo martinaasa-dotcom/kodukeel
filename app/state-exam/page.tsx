@@ -1,53 +1,61 @@
 import { BookOpen, Headphones, Mic, PenLine } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { P, S } from "@/components/Legal";
+import { P, PublicFooter, S, switcherHrefs } from "@/components/Legal";
+import { LanguageSwitcher, TranslationNotice } from "@/components/PublicLanguage";
+import { tr, type Locale } from "@/lib/copy/locale";
+import { LANDING_HREF, localeHref } from "@/lib/copy/publicLocale";
 import { GUIDE, MATERIALS, READ_ON, SOURCES, type Fact } from "@/lib/exam/official";
+import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 
-export const metadata = {
-  title: "The state examination",
-  description: "What the Estonian language examination is, who needs which level, how to register, and what happens after.",
-};
+export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
+  return publicTitle(searchParams, "The state examination", {
+    description: "What the Estonian language examination is, who needs which level, how to register, and what happens after.",
+  });
+}
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
 ];
 
-/** Spelled out rather than formatted by a locale, so every reader sees the same day. */
-function spelledDay(iso: string): string {
+/** "25 September 2026", with the month in the page's language and case. */
+function spelledDay(iso: string, locale: Locale): string {
   const [year, month, day] = iso.split("-").map(Number);
-  return `${day} ${MONTHS[(month ?? 1) - 1]} ${year}`;
+  const name = MONTHS[(month ?? 1) - 1] ?? "";
+  return `${day} ${locale === "en" ? name : tr(locale, name, "date")} ${year}`;
 }
 
-/** The sources a section cites, once each, in the order its facts cite them. */
 function sourcesOf(facts: readonly Fact[]) {
   return [...new Set(facts.map((f) => f.source))].map((key) => SOURCES[key]);
 }
 
 /**
- * The state examination, for somebody who has not decided anything yet.
+ * What the state examination is, off the state's own pages.
  *
- * Public, because the person most likely to need this has no account here and
- * is deciding whether to make one: they have been told they need B1 for a
- * permit or a job and want to know what that means before anything else. The
- * facts are `lib/exam/official.ts`, every one with the page it came from, and
- * this file only lays them out. It says where the mock exam fits and where it
- * stops imitating, and it sends people to the state's own free preparation
- * first, since that is the best there is and it is written by the people who
- * set the paper.
+ * In Russian and Ukrainian the facts and the source labels are read through
+ * the public area (lib/copy/i18n/areas/public.ts); every link still goes to
+ * the page the fact came from, which is in Estonian or English, and the page
+ * says the facts were checked against those rather than against a translation.
  */
-export default function StateExamPage() {
+export default async function StateExamPage({ searchParams }: { searchParams: PublicSearch }) {
+  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const t = (english: string) => tr(locale, english);
+  const href = (to: string) => localeHref(to, locale, explicit);
   return (
-    <main className="mx-auto max-w-2xl px-5 py-10 md:px-8 md:py-16">
-      <Link href="/" className="label-xs inline-block" style={{ color: "var(--ink-3)" }}>
-        Kodukeel
-      </Link>
+    <main lang={locale} className="mx-auto max-w-2xl px-5 py-10 md:px-8 md:py-16">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <Link href={locale === "en" ? "/" : LANDING_HREF[locale]} className="label-xs inline-block" style={{ color: "var(--ink-3)" }}>
+          Kodukeel
+        </Link>
+        <LanguageSwitcher locale={locale} hrefs={switcherHrefs("/state-exam")} />
+      </div>
       <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight" style={{ color: "var(--ink)" }}>
-        The state examination
+        {t("The state examination")}
       </h1>
       <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-        Checked against the state&rsquo;s own pages on {spelledDay(READ_ON)}
+        {t("Checked against the state’s own pages on")} {spelledDay(READ_ON, locale)}
       </p>
+      <TranslationNotice locale={locale} className="mt-5" />
 
       {/*
         The examination at a glance, drawn: the four levels it sets and the four
@@ -60,7 +68,7 @@ export default function StateExamPage() {
         style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
       >
         <div>
-          <p className="text-sm" style={{ color: "var(--ink-3)" }}>Four levels</p>
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Four levels")}</p>
           <ul className="mt-2 flex gap-2">
             {["A2", "B1", "B2", "C1"].map((level) => (
               <li
@@ -74,7 +82,7 @@ export default function StateExamPage() {
           </ul>
         </div>
         <div>
-          <p className="text-sm" style={{ color: "var(--ink-3)" }}>Four parts at every level</p>
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Four parts at every level")}</p>
           <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-3">
             {[
               { name: "Writing", Icon: PenLine },
@@ -86,7 +94,7 @@ export default function StateExamPage() {
                 <span className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: "var(--raised)", color: "var(--ink-2)" }}>
                   <Icon size={19} aria-hidden />
                 </span>
-                <span className="text-xs" style={{ color: "var(--ink-2)" }}>{name}</span>
+                <span className="text-xs" style={{ color: "var(--ink-2)" }}>{t(name)}</span>
               </li>
             ))}
           </ul>
@@ -95,24 +103,23 @@ export default function StateExamPage() {
 
       <div className="mt-8 space-y-8">
         <P>
-          Every fact below links to the page it came from. Rules and dates do change, so check
-          that page before you register.
+          {t("Every fact below links to the page it came from. Rules and dates do change, so check that page before you register.")}
         </P>
 
         {GUIDE.map((section) => (
-          <S key={section.id} title={section.title}>
+          <S key={section.id} title={t(section.title)}>
             <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
               {section.facts.map((fact) => (
-                <li key={fact.text}>{fact.text}</li>
+                <li key={fact.text}>{t(fact.text)}</li>
               ))}
             </ul>
             <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-              From{" "}
+              {tr(locale, "From", "source")}{" "}
               {sourcesOf(section.facts).map((source, i) => (
                 <span key={source.href}>
-                  {i > 0 ? " and " : ""}
+                  {i > 0 ? ` ${t("and")} ` : ""}
                   <a href={source.href} className="underline underline-offset-2" rel="noreferrer">
-                    {source.label}
+                    {t(source.label)}
                   </a>
                 </span>
               ))}
@@ -120,15 +127,15 @@ export default function StateExamPage() {
           </S>
         ))}
 
-        <S title="The best free preparation there is">
+        <S title={t("The best free preparation there is")}>
           <P>
-            The Board publishes its own practice materials, for free. Start with these before anything else, this app included.
+            {t("The Board publishes its own practice materials, for free. Start with these before anything else, this app included.")}
           </P>
           <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {MATERIALS.map((material) => (
               <li key={material.href}>
                 <a href={material.href} className="underline underline-offset-2" rel="noreferrer">
-                  {material.label}
+                  {t(material.label)}
                   {material.level ? `, ${material.level}` : ""}
                 </a>
               </li>
@@ -136,32 +143,19 @@ export default function StateExamPage() {
           </ul>
         </S>
 
-        <S title="Where Kodukeel fits">
+        <S title={t("Where Kodukeel fits")}>
           <P>
-            Kodukeel sets a mock paper at A2, B1, B2 and C1, plus one of its own at A1. Each one
-            keeps the published time limits, the points, the pass mark and the rule that you fail
-            if any part scores zero, and every task tells you which official task it stands in
-            for. The questions are built from sentences a lexicographer recorded, so they
-            aren&rsquo;t the Board&rsquo;s own. Nothing here scores your pronunciation, and
-            it&rsquo;s free.
+            {t("Kodukeel sets a mock paper at A2, B1, B2 and C1, plus one of its own at A1. Each one keeps the published time limits, the points, the pass mark and the rule that you fail if any part scores zero, and every task tells you which official task it stands in for. The questions are built from sentences a lexicographer recorded, so they aren’t the Board’s own. Nothing here scores your pronunciation, and it’s free.")}
           </P>
           <P>
-            <Link href="/exam" className="underline underline-offset-2">Sit a mock paper</Link>
+            <Link href="/exam" className="underline underline-offset-2">{t("Sit a mock paper")}</Link>
             {", "}
-            <Link href="/welcome" className="underline underline-offset-2">What Kodukeel is</Link>
+            <Link href={href("/welcome")} className="underline underline-offset-2">{t("What Kodukeel is")}</Link>
           </P>
         </S>
       </div>
 
-      <p className="mt-14 text-sm" style={{ color: "var(--ink-3)" }}>
-        <Link href="/privacy" className="underline underline-offset-2">Privacy</Link>
-        {", "}
-        <Link href="/terms" className="underline underline-offset-2">Terms</Link>
-        {", "}
-        <Link href="/accessibility" className="underline underline-offset-2">Accessibility</Link>
-        {", "}
-        <Link href="/sign-in" className="underline underline-offset-2">Sign in</Link>
-      </p>
+      <PublicFooter locale={locale} explicit={explicit} href={href} short />
     </main>
   );
 }

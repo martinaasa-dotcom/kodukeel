@@ -35,6 +35,17 @@ import { AREAS } from "./i18n";
 export const LOCALES = ["en", "ru", "uk"] as const;
 export type Locale = (typeof LOCALES)[number];
 
+/**
+ * The languages a page in `locale` may offer a link to, itself included.
+ * English offers all three; Russian and Ukrainian each offer English and
+ * themselves and never name the other, because a reader of either would find
+ * the other language on their own page a slight. Switching between the two
+ * goes through English, one press away.
+ */
+export function languagesBeside(locale: Locale): readonly Locale[] {
+  return locale === "en" ? LOCALES : (["en", locale] as const);
+}
+
 /** Each language's own name for itself, for the picker. */
 export const LOCALE_NAMES: Readonly<Record<Locale, string>> = {
   en: "English",

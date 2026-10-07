@@ -29,7 +29,21 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
 - A server component reads the locale with `localeFor(ownerId)` from `lib/progress/locale.ts`; a
   client component with `useLocale()` from `components/Locale.tsx`.
 - A signed-in page names itself with `generateMetadata` returning `titleFor("Today")`, never a
-  static `metadata`, which cannot know who is asking. Public pages keep their English titles.
+  static `metadata`, which cannot know who is asking.
+- The public pages are translated too. The landing page is one component in three languages:
+  `/welcome` is English and `/welcome/ru` and `/welcome/uk` render the same page with their
+  language in `params`, so all three stay static; its lines are `lib/copy/i18n/areas/landing.ts`.
+  `/privacy`, `/terms`, `/trust`, `/accessibility`, `/offline`, `/state-exam` and `/funding` read
+  `?lang=` first and a signed-in reader's own language after it (`resolvePublicLocale` in
+  `lib/progress/publicLocale.ts`), default to English, title themselves with `publicTitle`, and
+  draw `LanguageSwitcher` (`components/PublicLanguage.tsx`) with real links. Their lines are
+  `legal.ts` and `public.ts`. A policy page says at the top, in its own language and in English,
+  that the translation is a convenience made with AI, read by no native speaker and no lawyer, and
+  that the English prevails (`LEGAL_NOTICE`); every other translated public page says it was
+  machine translated. What is data stays data: the operator, the recipients, every figure and
+  every product name are rendered from the same source in every language. `/offline` has no
+  switcher, since nothing it could link to can load. `lib/copy/publicPages.test.ts` fails on a
+  line any of these pages hands the translator that either table is missing.
 - A server action returns its refusal in English and the screen translates it with `t()` where it
   is drawn. The one exception is a refusal that ends in what the database said (`safeMessage`):
   the action translates its own sentence and leaves the redacted tail as it is. The other is a

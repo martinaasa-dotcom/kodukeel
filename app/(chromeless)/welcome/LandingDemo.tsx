@@ -8,6 +8,9 @@ import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { FitText } from "@/components/FitText";
 import { rememberBuilt } from "./visit";
 import { PARTS, spelledCount } from "@/lib/copy/values";
+import { fill } from "@/lib/copy/locale";
+import { useLocale, useT } from "@/components/Locale";
+import { TrParts } from "@/components/TrParts";
 
 /**
  * How long each built form stays up while the card walks itself.
@@ -83,6 +86,10 @@ export interface DemoWord {
  * it.
  */
 export function CaseExplorer({ words }: { words: DemoWord[] }) {
+  const t = useT();
+  const locale = useLocale();
+  // A count in prose: spelled out in English, a figure in Russian and Ukrainian.
+  const num = (n: number) => (locale === "en" ? counted(n) : String(n));
   const [active, setActive] = useState(0);
   const [ending, setEnding] = useState(0);
   /**
@@ -191,7 +198,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >
       <div className="flex flex-wrap items-center gap-2 border-b px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
-        <span className="label-xs mr-1" style={{ color: "var(--ink-3)" }}>Try a word</span>
+        <span className="label-xs mr-1" style={{ color: "var(--ink-3)" }}>{t("Try a word")}</span>
         {words.map((w, n) => (
           <button
             key={w.lemma}
@@ -223,7 +230,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
         */}
         <div>
           <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>
-            Learn {counted(word.principal.length)}
+            {fill(t("Learn {n}"), { n: num(word.principal.length) })}
           </p>
           <div className="grid grid-cols-3 gap-2">
             {word.principal.map((p, n) => {
@@ -245,7 +252,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
                     style={{ color: isStem ? "var(--accent-deep)" : "var(--ink)", "--i": n } as React.CSSProperties}
                   />
                   <span className="min-w-0 text-xs" style={{ color: isStem ? "var(--accent-deep)" : "var(--ink-3)" }}>
-                    {isStem ? "the stem" : (p.english ?? p.label)}
+                    {isStem ? t("the stem") : (p.english ?? p.label)}
                   </span>
                 </div>
               );
@@ -271,12 +278,12 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
           <div className="flex flex-wrap items-center justify-center gap-2 text-xl font-bold md:gap-3 md:text-2xl">
             <span lang="et" className="builder-chip" data-kind="stem">{stem}</span>
             <span aria-hidden style={{ color: "var(--ink-2)" }}>+</span>
-            <span className="sr-only">plus</span>
+            <span className="sr-only">{t("plus")}</span>
             <span key={`${word.lemma}-${current.et}-end`} lang="et" className="builder-chip builder-snap" data-kind="end">
               -{suffix}
             </span>
             <span aria-hidden style={{ color: "var(--ink-2)" }}>=</span>
-            <span className="sr-only">makes</span>
+            <span className="sr-only">{t("makes")}</span>
           </div>
           <div key={`${word.lemma}-${current.et}-out`} className="builder-out w-full">
             <FitText text={shown} steadyFor={derived.map((c) => (c.singular ?? "").split(PARTS)[0] ?? "")} max="var(--text-5xl)" lang="et" className="font-display font-bold leading-none tracking-tight" style={{ color: "var(--ink)" }}>
@@ -290,7 +297,10 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
           )}
           {learned.length > 0 && (
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              Estonians also say <span lang="et" className="font-bold" style={{ color: "var(--ink)" }}>{learned.join(", ")}</span>, which no ending gives you, so learn that one too.
+              <TrParts
+                template="Estonians also say {form}, which no ending gives you, so learn that one too."
+                parts={{ form: <span lang="et" className="font-bold" style={{ color: "var(--ink)" }}>{learned.join(", ")}</span> }}
+              />
             </p>
           )}
         </div>
@@ -305,12 +315,12 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
         */}
         <div>
           <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>
-            Then glue on an ending, the same {counted(derived.length)} for every word
+            {fill(t("Then glue on an ending, the same {n} for every word"), { n: num(derived.length) })}
           </p>
-          <ChoiceGroup ariaLabel="Endings" className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          <ChoiceGroup ariaLabel={t("Endings")} className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {derived.map((c, n) => {
               const suf = CASES.find((k) => k.et === c.et);
-              const means = (suf?.gloss ?? "").replace(/\s+(the|a)\s+book$/, "");
+              const means = t((suf?.gloss ?? "").replace(/\s+(the|a)\s+book$/, ""), "ending");
               return (
                 <ChoiceChip
                   key={c.et}
@@ -327,7 +337,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
                     <span lang="et" className="whitespace-nowrap font-bold">-{suf?.suffix}</span>
                     <span className="whitespace-nowrap text-xs font-medium">{means}</span>
                   </span>
-                  {built.has(`${word.lemma}:${c.et}`) && <Check size={13} aria-label="built" />}
+                  {built.has(`${word.lemma}:${c.et}`) && <Check size={13} aria-label={t("built")} />}
                 </ChoiceChip>
               );
             })}
@@ -340,8 +350,8 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
             </span>
             <span className="text-sm font-semibold" style={{ color: all ? "var(--accent-deep)" : "var(--ink-2)" }}>
               {all
-                ? `All ${counted(derived.length)}, from that one form. That’s the whole trick.`
-                : `${doneHere} of ${derived.length} built from ${word.lemma}`}
+                ? fill(t("All {n}, from that one form. That’s the whole trick."), { n: num(derived.length) })
+                : fill(t("{done} of {all} built from {word}"), { done: doneHere, all: derived.length, word: word.lemma })}
             </span>
           </div>
         </div>
@@ -352,6 +362,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
 
 /** The tutor, answering one real question, typed out on demand. */
 export function TutorPeek() {
+  const t = useT();
   const [asked, setAsked] = useState(false);
 
   return (
@@ -360,8 +371,13 @@ export function TutorPeek() {
         className="ml-auto max-w-[85%] rounded-[var(--r-lg)] rounded-br-md px-4 py-3 text-sm"
         style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
       >
-        Why is it <span lang="et" className="font-semibold">raamatut</span> and not{" "}
-        <span lang="et" className="font-semibold">raamatu</span>?
+        <TrParts
+          template="Why is it {a} and not {b}?"
+          parts={{
+            a: <span lang="et" className="font-semibold">raamatut</span>,
+            b: <span lang="et" className="font-semibold">raamatu</span>,
+          }}
+        />
       </div>
 
       {asked ? (
@@ -370,10 +386,13 @@ export function TutorPeek() {
           style={{ background: "var(--surface)", borderColor: "var(--rule)", color: "var(--ink-2)" }}
         >
           <span className="label-xs mb-1.5 block" style={{ color: "var(--blush-ink)" }}>Anu</span>
-          Because you haven&rsquo;t finished it yet. <span lang="et" className="font-semibold">Ma loen raamatut</span>{" "}
-          means “I&rsquo;m reading a book”, and the osastav says you&rsquo;re still at it. Swap in the omastav and you get{" "}
-          <span lang="et" className="font-semibold">Ma loen raamatu läbi</span>: the whole book,
-          done. In Estonian, the object&rsquo;s case tells you whether the action is finished.
+          <TrParts
+            template="Because you haven’t finished it yet. {reading} means “I’m reading a book”, and the osastav says you’re still at it. Swap in the omastav and you get {done}: the whole book, done. In Estonian, the object’s case tells you whether the action is finished."
+            parts={{
+              reading: <span lang="et" className="font-semibold">Ma loen raamatut</span>,
+              done: <span lang="et" className="font-semibold">Ma loen raamatu läbi</span>,
+            }}
+          />
         </div>
       ) : (
         <button
@@ -382,7 +401,7 @@ export function TutorPeek() {
           className="press mr-auto flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ background: "var(--surface)", borderColor: "var(--rule)", color: "var(--ink-2)" }}
         >
-          Ask Anu <ArrowRight size={14} aria-hidden />
+          {t("Ask Anu")} <ArrowRight size={14} aria-hidden />
         </button>
       )}
     </div>
