@@ -329,7 +329,7 @@ export const START: Area = {
     "Anu, a tutor who explains the grammar and never makes up a word":
       "Ану, репетиторка, яка пояснює граматику й ніколи не вигадує слів",
     "A conversation to rehearse, and one small thing to say to a real person today":
-      "Розмова, щоб відрепетирувати, і одна маленька фраза, яку сьогодні можна сказати живій людині",
+      "Розмова для репетиції й одна маленька фраза, яку сьогодні можна сказати живій людині",
     "Kodukeel is for people aged 13 and over. If you’re younger, a parent needs to say yes first.":
       "Kodukeel призначений для людей від 13 років. Якщо вам менше, спершу потрібна згода батьків.",
     "Estonian forms and example sentences from Ekilex (Institute of the Estonian Language, CC BY 4.0). English translations from English Wiktionary (CC BY-SA 4.0). Word counts from FrequencyWords over OpenSubtitles (CC BY-SA 4.0). Every spelling of every word from Ekilex’s own tables as gathered in Estonian-Wordlist-Enriched-Ekilex (CC BY-SA 4.0), and from Vabamorf (LGPL). Speech from the University of Tartu.":
@@ -411,7 +411,7 @@ export const START: Area = {
     "You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.":
       "Англійське значення ви теж завжди бачитимете. Російські й українські значення взято просто з естонського словника, їх писали ті самі люди, що й естонську частину.",
     "One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.":
-      "Чесно, перш ніж почати: Kodukeel не оцінює вашу вимову, не дає ШІ ставити вам оцінки й не замінює викладача. Тут ви репетируєте. А справжні розмови чекають на вас у житті.",
+      "Одне чесне застереження, перш ніж почати: Kodukeel не оцінює вашу вимову, не дає ШІ ставити вам оцінки й не замінює викладача. Тут ви репетируєте. А справжні розмови чекають на вас у житті.",
 
     // FIRST RUN: LEVEL.
     "Where are you now?": "Який у вас зараз рівень?",
@@ -459,7 +459,7 @@ export const START: Area = {
       "Курс із програмою, домашніми завданнями й оцінкою наприкінці семестру.",
     "Family or a partner": "Родина або партнер",
     "The people you most want to understand won't slow down for you forever.":
-      "Найважливіші для вас люди не говоритимуть повільніше заради вас вічно.",
+      "Ті, кого ви найбільше хочете розуміти, не говоритимуть повільно заради вас вічно.",
     "Roots and heritage": "Коріння й родинна історія",
     "A language your family spoke, or a country you keep coming back to.":
       "Мова, якою говорили у вашій родині, або країна, до якої ви знову й знову повертаєтеся.",

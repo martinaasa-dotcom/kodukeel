@@ -35,8 +35,8 @@ export const UK: Readonly<Record<string, string>> = {
   "Scan a page": "Сфотографувати сторінку",
   "Photograph a word list and turn it into cards": "Сфотографуйте список слів і перетворіть його на картки",
   "Ask Anu": "Запитати Ану",
-  "Ask your tutor anything about Estonian": "Запитайте свою репетиторку про будь-що в естонській",
-  "How it's going": "Як просуваються справи",
+  "Ask your tutor anything about Estonian": "Запитайте свою репетиторку про будь-що з естонської",
+  "How it's going": "Як ідуть справи",
   "Your week ahead, and how far you've come.": "Ваш тиждень попереду і шлях, який ви вже пройшли.",
   "Calendar": "Календар",
   "Your classes, study times and what's due": "Ваші заняття, час навчання і терміни",
@@ -49,7 +49,7 @@ export const UK: Readonly<Record<string, string>> = {
   "Word mastery": "Знання слів",
   "Your favorites, what you've mastered and what needs work": "Обране, що ви вже знаєте і над чим ще варто попрацювати",
   "Decks": "Колоди",
-  "Make your own word lists and add to them as you go": "Складайте власні списки слів і поповнюйте їх дорогою",
+  "Make your own word lists and add to them as you go": "Складайте власні списки слів і поповнюйте їх із часом",
   "In real life": "У реальному житті",
   "Which real conversations you could follow, join or lead": "Які справжні розмови ви змогли б зрозуміти, підтримати чи вести самі",
   "Level check": "Перевірка рівня",
@@ -80,7 +80,7 @@ export const UK: Readonly<Record<string, string>> = {
   // THE SCREEN THAT OPENS EVERY ROUND.
   "The words that are due today": "Слова, які час повторити сьогодні",
   "Words you've met before, back just as you're about to forget them. Some cards ask what a word means, others ask you to fill a gap in a real sentence.":
-    "Слова, які ви вже зустрічали, повертаються саме тоді, коли ви починаєте їх забувати. Одні картки питають, що слово означає, інші просять заповнити пропуск у справжньому реченні.",
+    "Слова, які ви вже зустрічали, повертаються саме тоді, коли ви починаєте їх забувати. Одні картки запитують, що слово означає, інші просять заповнити пропуск у справжньому реченні.",
   "Type your answer where there's a box. Where there isn't, think of it, turn the card over and say whether you had it.":
     "Якщо є поле, впишіть відповідь. Якщо поля немає, пригадайте відповідь, переверніть картку й позначте, чи ви її знали.",
   "Start reviewing": "Почати повторення",
@@ -142,7 +142,7 @@ export const UK: Readonly<Record<string, string>> = {
     "Знайоме вам слово звучить уголос, його значення показано, а літери перемішані на плитках.",
   "Tap the letters in the right order. Miss once and we'll put the first letter in for you.":
     "Натискайте на літери в правильному порядку. Якщо помилитеся, ми поставимо першу літеру за вас.",
-  "Hear a word, pick what it means": "Почуйте слово й виберіть його значення",
+  "Hear a word, pick what it means": "Послухайте слово й виберіть його значення",
   "One word at a time, read out loud by a different voice each time, with four meanings to choose from. You won't see it written until you've answered.":
     "По одному слову, щоразу новим голосом, і чотири значення на вибір. Як слово пишеться, ви побачите лише після відповіді.",
   "Pick the meaning. Play the word again as often as you like.": "Виберіть значення. Слово можна вмикати скільки завгодно разів.",
@@ -161,7 +161,7 @@ export const UK: Readonly<Record<string, string>> = {
     "Розставте слова по порядку. В естонській часто можливий не один порядок слів, і такі варіанти ми теж зарахуємо.",
   "Say it out loud": "Скажіть уголос",
   "A word to say, a recording of a native speaker saying it, and your own voice played back beside it.":
-    "Слово, яке треба сказати, запис носія мови і ваш власний голос поруч із ним.",
+    "Слово, яке треба вимовити, запис носія мови і ваш власний голос поруч.",
   "Record yourself, listen to both, and decide how close you got. No machine grades your accent.":
     "Запишіть себе, послухайте обидва записи й вирішіть, наскільки близько вийшло. Ваш акцент не оцінює жодна машина.",
   "As many as you can": "Скільки встигнете",
@@ -171,7 +171,7 @@ export const UK: Readonly<Record<string, string>> = {
   "Hit the right ending": "Влуч у потрібне закінчення",
   "A word, a question, and four answers to pick from, mostly the same word with different endings. Every hit makes the next clock a little shorter.":
     "Слово, запитання і чотири відповіді на вибір, найчастіше те саме слово з різними закінченнями. З кожним влученням час на наступне запитання трохи скорочується.",
-  "Tap the one the question is asking for.": "Натисніть на ту відповідь, про яку питає запитання.",
+  "Tap the one the question is asking for.": "Натисніть на відповідь, якої вимагає запитання.",
   "Write your own sentence": "Напишіть своє речення",
   "One word, and the ending we'd like you to give it.": "Одне слово і закінчення, яке ми просимо йому дати.",
   "Write a sentence with it. The dictionary checks the ending, and Anu leaves you a note on the rest.":
@@ -179,7 +179,7 @@ export const UK: Readonly<Record<string, string>> = {
   "The endings you keep missing": "Закінчення, у яких ви найчастіше помиляєтеся",
   "Cards from the cases you get wrong most, picked from your own answers, against the clock.":
     "Картки на відмінки, у яких ви найчастіше помиляєтеся, дібрані за вашими ж відповідями, на час.",
-  "Answer as many as you can before time runs out.": "Дайте якомога більше відповідей, поки не скінчився час.",
+  "Answer as many as you can before time runs out.": "Дайте якомога більше відповідей, поки не скінчиться час.",
   "Guess today's word": "Вгадайте слово дня",
   "One six-letter Estonian word a day, and seven tries to find it. After each guess, the letters show whether they're in the right spot, somewhere else, or not in the word at all.":
     "Одне естонське слово з шести літер на день і сім спроб його знайти. Після кожної спроби літери показують, чи стоять вони на своєму місці, чи є вони в слові в іншому місці, чи їх у слові немає зовсім.",
@@ -197,7 +197,7 @@ export const UK: Readonly<Record<string, string>> = {
   "A short set of questions from across the level. You'll find out how you did at the end, not after each one.":
     "Короткий набір запитань з усього рівня. Результат ви дізнаєтеся наприкінці, а не після кожного запитання.",
   "Answer each one as best you can and keep going. Leaving one blank is an honest answer.":
-    "Відповідайте на кожне як можете й рухайтеся далі. Залишити запитання порожнім теж чесна відповідь.",
+    "Відповідайте на кожне як зможете й рухайтеся далі. Залишити запитання без відповіді теж чесно.",
 
   // THE BRIEFING'S OWN CHROME.
   "{count} in this round": "{count} у цьому раунді",
