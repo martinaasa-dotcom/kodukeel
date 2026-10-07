@@ -5,6 +5,7 @@ import { Check, CircleAlert, Shuffle } from "lucide-react";
 import { openerCard } from "@/app/actions";
 import { useGrade } from "@/components/round/useGrade";
 import { Button, ButtonLink } from "@/components/Button";
+import { PrefetchLink } from "@/components/PrefetchLink";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
@@ -57,6 +58,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
   const [picked, setPicked] = useState<string | null>(null);
   const [typed, setTyped] = useState("");
   const [correct, setCorrect] = useState(0);
+  const [joined, setJoined] = useState<string[]>([]);
   const startedAt = useRef(Date.now());
   const answeredAt = useRef(Date.now());
   const cards = useRef(new Map<string, string | null>());
@@ -74,6 +76,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
     if (cardId === undefined) {
       const found = await openerCard(q.lexemeId).catch(() => null);
       cardId = found?.ok ? found.cardId : null;
+      if (found?.ok && found.made) setJoined((j) => [...j, q.lemma]);
       cards.current.set(q.lexemeId, cardId);
     }
     if (cardId) await grade(cardId, result.rating, ms, q.slot);
@@ -161,6 +164,12 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
           <Stat value={`${accuracy}%`} label="Right" />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
+        {joined.length > 0 && (
+          <p className="mt-6 text-base" style={{ color: "var(--ink-2)" }}>
+            Added to your deck: {joined.join(", ")}. You can take it out from{" "}
+            <PrefetchLink href="/words" className="underline">your words</PrefetchLink>.
+          </p>
+        )}
         {afterThis && (
           <p className="mt-6 text-base" style={{ color: "var(--ink-2)" }}>
             Stage {afterThis.n} is open: {afterThis.title}.

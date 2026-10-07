@@ -204,12 +204,15 @@ export async function openerCard(lexemeId: string) {
     orderBy: { id: "asc" },
   });
   let card = await find();
+  let made = false;
   if (!card) {
     const added = await addCardsFor(ownerId, lexemeId, ["RECOGNITION", "PRODUCTION"], DEFAULT_SOURCE);
     if (!added.ok) return { ok: false as const };
     card = await find();
+    made = true;
   }
-  return card ? { ok: true as const, cardId: card.id } : { ok: false as const };
+  // `made` lets the round say a word has just joined the deck, since nobody asked for it.
+  return card ? { ok: true as const, cardId: card.id, made } : { ok: false as const };
 }
 
 /** Every deck this learner has named, for the picker and the management page. */
