@@ -50,7 +50,7 @@ export const LETTERS: Area = {
 
     // The first letter.
     "Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.":
-      "Kodukeel. Четыре буквы, для которых на английской клавиатуре нет клавиш: o с тильдой, a, o и u с умлаутом.",
+      "Kodukeel. Четыре буквы, которых нет в русском алфавите: o с тильдой, a, o и u с умлаутом.",
     "Your first cards are ready. Here's how it works.": "Ваши первые карточки готовы. Вот как всё устроено.",
     "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.":
       "В вашей колоде уже {cards} из первых уроков курса. Ваш первый вечер: {title}, {subtitle}.",
@@ -195,7 +195,7 @@ export const LETTERS: Area = {
     "{close} close, {needTime} need more time, {tooEarly} too early to say.":
       "Близки к цели: {close}, нужно больше времени: {needTime}, пока рано судить: {tooEarly}.",
     "{close} close, {needTime} need more time.": "Близки к цели: {close}, нужно больше времени: {needTime}.",
-    "Open the group's board": "Открыть доску группы",
+    "Open the group's board": "Открыть страницу группы",
     "Everybody in {group} practised last week": "На прошлой неделе в группе {group} занимались все",
     "{active} of {members} in {group} practised last week": "На прошлой неделе в группе {group} занимались {active} из {members}",
     "How the week went, and which case to work on next.": "Как прошла неделя и над каким падежом поработать дальше.",
@@ -241,7 +241,7 @@ export const LETTERS: Area = {
 
     // The first letter.
     "Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.":
-      "Kodukeel. Чотири літери, для яких на англійській клавіатурі немає клавіш: o з тильдою, a, o та u з умлаутом.",
+      "Kodukeel. Чотири літери, яких немає в українській абетці: o з тильдою, a, o та u з умлаутом.",
     "Your first cards are ready. Here's how it works.": "Ваші перші картки готові. Ось як усе влаштовано.",
     "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.":
       "У вашій колоді вже {cards} з перших уроків курсу. Ваш перший вечір: {title}, {subtitle}.",
@@ -386,7 +386,7 @@ export const LETTERS: Area = {
     "{close} close, {needTime} need more time, {tooEarly} too early to say.":
       "Близькі до мети: {close}, потрібно більше часу: {needTime}, поки зарано судити: {tooEarly}.",
     "{close} close, {needTime} need more time.": "Близькі до мети: {close}, потрібно більше часу: {needTime}.",
-    "Open the group's board": "Відкрити дошку групи",
+    "Open the group's board": "Відкрити сторінку групи",
     "Everybody in {group} practised last week": "Минулого тижня в групі {group} займалися всі",
     "{active} of {members} in {group} practised last week": "Минулого тижня в групі {group} займалися {active} з {members}",
     "How the week went, and which case to work on next.": "Як минув тиждень і над яким відмінком попрацювати далі.",
