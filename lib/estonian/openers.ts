@@ -27,6 +27,11 @@
  * may write, and each word carries the English it needs rather than leaving a
  * rule to inflect it.
  *
+ * The openers are the everyday spoken forms (`mul`, `mulle`, `tal`, `meil`, `mul pole`) rather than
+ * the standard written ones (`minul`, `minule`, `temal`), which is how a learner hears Estonian and
+ * what a beginner course teaches. The "some of it" label simplifies one of the object forms; where a
+ * later stage meets a whole object (`ma tahan raamatu`) it will need a second explanation.
+ *
  * Pure: no React, no Prisma. A round is a function of the words handed in.
  */
 
@@ -47,7 +52,7 @@ export interface Family {
 }
 
 export const FAMILIES: readonly Family[] = [
-  { id: "liking", title: "Liking and feeling" },
+  { id: "liking", title: "Liking and tasting" },
   { id: "wanting", title: "Wanting and needing" },
   { id: "having", title: "Having and being there" },
   { id: "no", title: "Saying no" },
@@ -80,92 +85,91 @@ export interface OpenerSpec {
   only?: readonly string[];
 }
 
-const KEEPS = "The thing stays as the dictionary has it.";
-const TAKES = "The thing takes the “some of it” ending.";
+const ALL_ON_TABLE = ["raamat", "telefon", "arvuti", "pliiats", "õun", "kook", "kott", "pilet", "banaan"] as const;
 
 export const OPENERS: readonly OpenerSpec[] = [
   // Stage 1: the four that carry the idea.
   { id: "like", family: "liking", stage: 1, number: "sg", text: "Mulle meeldib", ending: "plain",
     en: "I like {the}.",
-    why: `The thing you like is the one doing the liking here, so it keeps its dictionary form. ${KEEPS}` },
+    why: "The thing you like is the one doing the liking here, so it keeps its dictionary form." },
   { id: "want", family: "wanting", stage: 1, number: "sg", text: "Ma tahan", ending: "partial",
     en: "I want {a}.",
-    why: `Something you are after takes the “some of it” ending. ${TAKES}` },
+    why: "Something you are after takes the “some of it” ending." },
   { id: "have", family: "having", stage: 1, number: "sg", text: "Mul on", ending: "plain",
     en: "I have {a}.",
-    why: `It is simply there, so it keeps its dictionary form. ${KEEPS}` },
+    why: "It is simply there, so it keeps its dictionary form." },
   { id: "nohave", family: "no", stage: 1, number: "sg", text: "Mul ei ole", ending: "partial",
-    en: "I don't have {a}.",
-    why: `After a no, the thing always takes the “some of it” ending, even though it had its dictionary form a moment ago after “mul on”.` },
+    en: "I don’t have {a}.",
+    why: "After a no, the thing always takes the “some of it” ending, even though it keeps its dictionary form after “mul on”." },
 
-  // Stage 2: more verbs in each family.
+  // Stage 2: more verbs in each family, and the polite “would”.
   { id: "need", family: "wanting", stage: 2, number: "sg", text: "Ma vajan", ending: "partial",
-    en: "I need {a}.", why: `Needing is wanting. ${TAKES}` },
+    en: "I need {a}.", why: "Needing is wanting, so the thing takes the “some of it” ending." },
   { id: "look", family: "wanting", stage: 2, number: "sg", text: "Ma otsin", ending: "partial",
-    en: "I'm looking for {a}.", why: `Looking for something is reaching for it. ${TAKES}` },
+    en: "I’m looking for {a}.", why: "Looking for something is reaching for it, so it takes the “some of it” ending." },
   { id: "wish", family: "wanting", stage: 2, number: "sg", text: "Ma soovin", ending: "partial",
-    en: "I'd like {a}.", why: `A wish is wanting, politely. ${TAKES}` },
+    en: "I’d like to have {a}.", why: "A wish is wanting, politely, so the thing takes the “some of it” ending." },
+  { id: "wouldwant", family: "wanting", stage: 2, number: "sg", text: "Ma tahaksin", ending: "partial",
+    en: "I would want {a}.", why: "A polite “would” is still wanting, so the thing takes the “some of it” ending." },
   { id: "wait", family: "wanting", stage: 2, number: "sg", text: "Ma ootan", ending: "partial",
-    en: "I'm waiting for {the}.", why: `Waiting for something is reaching for it too. ${TAKES}`,
+    en: "I’m waiting for {the}.", why: "Waiting for something is reaching for it too, so it takes the “some of it” ending.",
     only: ["buss", "pilet"] },
   { id: "taste", family: "liking", stage: 2, number: "sg", text: "Mulle maitseb", ending: "plain",
-    en: "I like the taste of {the}.",
-    why: `Like “mulle meeldib”, the thing is the one doing it: it tastes good to you. ${KEEPS}`,
+    en: "The {en} tastes good to me.",
+    why: "Like “mulle meeldib”, the thing is the one doing the work: it tastes good to you, so it keeps its dictionary form.",
     only: ["õun", "kook", "banaan"] },
   { id: "table", family: "having", stage: 2, number: "sg", text: "Laual on", ending: "plain",
-    en: "There is {a} on the table.", why: `It is simply there. ${KEEPS}`,
-    only: ["raamat", "telefon", "arvuti", "pliiats", "õun", "kook", "kott", "banaan"] },
+    en: "There is {a} on the table.", why: "It is simply there, so it keeps its dictionary form.",
+    only: ALL_ON_TABLE },
   { id: "wehave", family: "having", stage: 2, number: "sg", text: "Meil on", ending: "plain",
-    en: "We have {a}.", why: `Having is being there, for whoever has it. ${KEEPS}` },
+    en: "We have {a}.", why: "Having is being there, for whoever has it, so the thing keeps its dictionary form." },
   { id: "shehas", family: "having", stage: 2, number: "sg", text: "Tal on", ending: "plain",
-    en: "She has {a}.", why: `Having is being there, for whoever has it. ${KEEPS}` },
+    en: "He or she has {a}.", why: "Having is being there, for whoever has it, so the thing keeps its dictionary form." },
 
   // Stage 3: the negatives, including the one that does not flip.
   { id: "notwant", family: "no", stage: 3, number: "sg", text: "Ma ei taha", ending: "partial",
-    en: "I don't want {a}.", why: `After a no, the thing takes the “some of it” ending. ${TAKES}` },
+    en: "I don’t want {a}.", why: "After a no, the thing takes the “some of it” ending." },
   { id: "notneed", family: "no", stage: 3, number: "sg", text: "Ma ei vaja", ending: "partial",
-    en: "I don't need {a}.", why: `After a no, the thing takes the “some of it” ending. ${TAKES}` },
+    en: "I don’t need {a}.", why: "After a no, the thing takes the “some of it” ending." },
   { id: "pole", family: "no", stage: 3, number: "sg", text: "Mul pole", ending: "partial",
-    en: "I haven't got {a}.",
-    why: `“Pole” is “ei ole” squeezed into one word, so it does what a no does. ${TAKES}` },
+    en: "I haven’t got {a}.",
+    why: "“Pole” is “ei ole” squeezed into one word, so it does what a no does: the thing takes the “some of it” ending." },
   { id: "wehavenot", family: "no", stage: 3, number: "sg", text: "Meil ei ole", ending: "partial",
-    en: "We don't have {a}.", why: `After a no, the thing takes the “some of it” ending. ${TAKES}` },
+    en: "We don’t have {a}.", why: "After a no, the thing takes the “some of it” ending." },
   { id: "tablenot", family: "no", stage: 3, number: "sg", text: "Laual ei ole", ending: "partial",
-    en: "There is no {en} on the table.", why: `After a no, the thing takes the “some of it” ending. ${TAKES}`,
-    only: ["raamat", "telefon", "arvuti", "pliiats", "õun", "kook", "kott", "banaan"] },
+    en: "There is no {en} on the table.", why: "After a no, the thing takes the “some of it” ending.",
+    only: ALL_ON_TABLE },
   { id: "notlike", family: "no", stage: 3, number: "sg", text: "Mulle ei meeldi", ending: "plain",
-    en: "I don't like {the}.",
-    why: `The odd one out. A no usually brings the ending, but this thing is the one doing the liking, so it still keeps its dictionary form. ${KEEPS}` },
+    en: "I don’t like {the}.",
+    why: "The odd one out. A no usually brings the ending, but this thing is the one doing the liking, so it still keeps its dictionary form." },
 
-  // Stage 4: the same openers in the past, and one polite wish.
+  // Stage 4: the same openers in the past.
   { id: "wanted", family: "past", stage: 4, number: "sg", text: "Ma tahtsin", ending: "partial",
-    en: "I wanted {a}.", why: `Wanting in the past is still wanting. ${TAKES}` },
+    en: "I wanted {a}.", why: "Wanting in the past is still wanting, so the thing takes the “some of it” ending." },
   { id: "notwanted", family: "past", stage: 4, number: "sg", text: "Ma ei tahtnud", ending: "partial",
-    en: "I didn't want {a}.", why: `Past or not, a no brings the ending. ${TAKES}` },
+    en: "I didn’t want {a}.", why: "Past or not, a no brings the “some of it” ending." },
   { id: "had", family: "past", stage: 4, number: "sg", text: "Mul oli", ending: "plain",
-    en: "I had {a}.", why: `It was simply there. ${KEEPS}` },
+    en: "I had {a}.", why: "It was simply there, so it keeps its dictionary form." },
   { id: "hadnot", family: "past", stage: 4, number: "sg", text: "Mul ei olnud", ending: "partial",
-    en: "I didn't have {a}.", why: `Past or not, a no brings the ending. ${TAKES}` },
+    en: "I didn’t have {a}.", why: "Past or not, a no brings the “some of it” ending." },
   { id: "liked", family: "past", stage: 4, number: "sg", text: "Mulle meeldis", ending: "plain",
-    en: "I liked {the}.", why: `The thing is still the one doing the liking. ${KEEPS}` },
-  { id: "wouldwant", family: "past", stage: 4, number: "sg", text: "Ma tahaksin", ending: "partial",
-    en: "I would like {a}.", why: `A polite “would” is still wanting. ${TAKES}` },
+    en: "I liked {the}.", why: "The thing is still the one doing the liking, so it keeps its dictionary form." },
 
   // Stage 5: the same again with more than one, where the verb agrees too.
   { id: "pl-like", family: "liking", stage: 5, number: "pl", text: "Mulle meeldivad", ending: "plain",
     en: "I like {pl}.",
-    why: `More than one thing is doing the liking, so the verb says “meeldivad” and the things keep their plural dictionary form.` },
+    why: "More than one thing is doing the liking, so the verb becomes “meeldivad” and the things keep their plural dictionary form." },
   { id: "pl-want", family: "wanting", stage: 5, number: "pl", text: "Ma tahan", ending: "partial",
-    en: "I want {pl}.", why: `Things you are after take the “some of them” ending. ${TAKES}` },
+    en: "I want {pl}.", why: "Things you are after take the “some of them” ending." },
   { id: "pl-have", family: "having", stage: 5, number: "pl", text: "Mul on", ending: "plain",
-    en: "I have {pl}.", why: `They are simply there, so they keep their plural dictionary form.` },
+    en: "I have {pl}.", why: "They are simply there, so they keep their plural dictionary form." },
   { id: "pl-nohave", family: "no", stage: 5, number: "pl", text: "Mul ei ole", ending: "partial",
-    en: "I don't have {pl}.", why: `After a no, the things take the “some of them” ending.` },
+    en: "I don’t have {pl}.", why: "After a no, the things take the “some of them” ending." },
   { id: "pl-notwant", family: "no", stage: 5, number: "pl", text: "Ma ei taha", ending: "partial",
-    en: "I don't want {pl}.", why: `After a no, the things take the “some of them” ending.` },
+    en: "I don’t want {pl}.", why: "After a no, the things take the “some of them” ending." },
   { id: "pl-notlike", family: "no", stage: 5, number: "pl", text: "Mulle ei meeldi", ending: "plain",
-    en: "I don't like {pl}.",
-    why: `The odd one out again: the things are doing the liking, so they keep their plural dictionary form, and the verb is the same “meeldi” whatever their number.` },
+    en: "I don’t like {pl}.",
+    why: "The odd one out again: the things are doing the liking, so they keep their plural dictionary form, and the verb is the same “meeldi” whatever their number." },
 ];
 
 export interface Stage {
@@ -177,9 +181,9 @@ export interface Stage {
 
 export const STAGES: readonly Stage[] = [
   { n: 1, title: "Four openers", line: "Liking, wanting, having and saying no." },
-  { n: 2, title: "More verbs", line: "Needing, looking for, waiting for, and who has it." },
-  { n: 3, title: "Saying no every way", line: "Every no, and the one that does not flip." },
-  { n: 4, title: "In the past", line: "Wanted, didn't want, had, would like." },
+  { n: 2, title: "More verbs", line: "Needing, looking for, waiting for, a polite “would”, and who has it." },
+  { n: 3, title: "Every way to say no", line: "Every no, and the one that does not flip." },
+  { n: 4, title: "In the past", line: "Wanted, didn’t want, had, didn’t have, liked." },
   { n: 5, title: "More than one", line: "The same openers with plurals, where the verb agrees." },
   { n: 6, title: "Everything mixed", line: "Any opener, any word, no order." },
 ];
