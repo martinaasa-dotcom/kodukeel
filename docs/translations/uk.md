@@ -572,7 +572,7 @@ _lib/copy/i18n/areas/start.ts_
 - [ ] **268.** What stays in English  
   → Що залишається англійською
 - [ ] **269.** You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.  
-  → Англійське значення ви теж завжди бачитимете. Російські й українські значення взято просто з естонського словника, їх писали ті самі люди, що й естонську частину.
+  → Англійське значення ви теж завжди бачитимете. Українські значення взято просто з естонського словника, їх писали ті самі люди, що й естонську частину.
 - [ ] **270.** One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.  
   → Одне чесне застереження, перш ніж почати: Kodukeel не оцінює вашу вимову, не дає ШІ ставити вам оцінки й не замінює викладача. Тут ви репетируєте. А справжні розмови чекають на вас у житті.
 - [ ] **271.** Where are you now?  
@@ -6394,11 +6394,11 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **3159.** Meanings  
   → Значення
 - [ ] **3160.** Meanings can appear in Russian or Ukrainian too. The English always stays, and the language you choose shows up next to it.  
-  → Значення можуть показуватися й російською чи українською. Англійська лишається завжди, а вибрана мова з'являється поруч.
+  → Значення можуть показуватися й українською. Англійська лишається завжди, а українська з'являється поруч.
 - [ ] **3161.** Where these come from  
   → Звідки вони беруться
 - [ ] **3162.** The Russian and Ukrainian come from the same dictionary as the Estonian. If none was recorded for a word, you'll just see the English.  
-  → Російські й українські значення взято з того самого словника, що й естонські слова. Якщо для слова їх не записали, ви побачите лише англійську.
+  → Українські значення взято з того самого словника, що й естонські слова. Якщо для слова українського значення не записали, ви побачите лише англійське.
 - [ ] **3163.** In an example sentence, the other words can be underlined so you can tap any of them to see what it means. With this off, the sentence stays plain and only the new word is marked.  
   → У прикладі інші слова можуть бути підкреслені, щоб можна було натиснути на будь-яке й дізнатися, що воно означає. Якщо це вимкнути, речення лишиться простим, і виділено буде лише нове слово.
 - [ ] **3164.** shown  
@@ -12818,4 +12818,270 @@ _lib/copy/i18n/areas/grammarTopics.ts_
   → це відстань між письмом і мовленням, а записується лише один її кінець
 - [ ] **6348.** the dictionary records Estonian as it's used today, so the older forms this is about aren't in it  
   → словник записує естонську такою, якою нею користуються сьогодні, тож застарілих форм, про які тут ідеться, у ньому немає
+
+## letters (126 lines)
+
+_lib/copy/i18n/areas/letters.ts_
+
+- [ ] **6349.** Kodukeel, run by {operator}.  
+  → Kodukeel. Роботу сервісу забезпечує {operator}.
+- [ ] **6350.** Stop emails like this one  
+  → Відписатися від таких листів
+- [ ] **6351.** Choose which emails you get  
+  → Обрати, які листи отримувати
+- [ ] **6352.** What we keep about you  
+  → Які дані про вас ми зберігаємо
+- [ ] **6353.** One step left in {title}  
+  → В уроці {title} лишився останній крок
+- [ ] **6354.** {steps} left in {title}  
+  → В уроці {title} ще {steps}
+- [ ] **6355.** {newWords} tonight  
+  → Сьогодні ввечері {newWords}
+- [ ] **6356.** Back to {title} tonight  
+  → Сьогодні ввечері знову {title}
+- [ ] **6357.** {what}, part {n} of {of}  
+  → {what}, частина {n} з {of}
+- [ ] **6358.** {shape}. About {minutes} minutes left.  
+  → {shape}. Лишилося близько {minutes} хв.
+- [ ] **6359.** {shape}. About {minutes} minutes, start to finish.  
+  → {shape}. Усього близько {minutes} хв.
+- [ ] **6360.** You're nearly done for tonight.  
+  → На сьогодні майже все.
+- [ ] **6361.** About {minutes} minutes to go tonight.  
+  → На сьогодні лишилося близько {minutes} хв.
+- [ ] **6362.** {name}, you're {steps} into {where}. The rest is right where you left it.  
+  → {name}, ви вже пройшли {steps} в уроці {where}. Решта чекає там, де ви зупинилися.
+- [ ] **6363.** You're {steps} into {where}. The rest is right where you left it.  
+  → Ви вже пройшли {steps} в уроці {where}. Решта чекає там, де ви зупинилися.
+- [ ] **6364.** {newWords}, in about {minutes} minutes.  
+  → {newWords}, приблизно за {minutes} хв.
+- [ ] **6365.** Words you know, put to work tonight, in about {minutes} minutes.  
+  → Сьогодні ввечері в хід ідуть знайомі слова, приблизно за {minutes} хв.
+- [ ] **6366.** {name}, this is {title}, {evening}. By the end you'll be able to {canDo}  
+  → {name}, сьогодні урок {title}, {evening}. Наприкінці ви зможете {canDo}
+- [ ] **6367.** {title}, {evening}. By the end you'll be able to {canDo}  
+  → Сьогодні урок {title}, {evening}. Наприкінці ви зможете {canDo}
+- [ ] **6368.** What you told yourself when you started:  
+  → Що ви сказали собі, коли починали:
+- [ ] **6369.** \[done\]  
+  → \[готово\]
+- [ ] **6370.** And a word for you, whether you study tonight or not:  
+  → І слово для вас, незалежно від того, чи займатиметеся ви сьогодні:
+- [ ] **6371.** That's {days} in a row so far.  
+  → Уже {days} поспіль.
+- [ ] **6372.** Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.  
+  → Kodukeel. Чотири літери, для яких на англійській клавіатурі немає клавіш: o з тильдою, a, o та u з умлаутом.
+- [ ] **6373.** Your first cards are ready. Here's how it works.  
+  → Ваші перші картки готові. Ось як усе влаштовано.
+- [ ] **6374.** {cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.  
+  → У вашій колоді вже {cards} з перших уроків курсу. Ваш перший вечір: {title}, {subtitle}.
+- [ ] **6375.** {cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.  
+  → У вашій колоді вже {cards} з перших уроків курсу. Відкрийте курс, і він покаже, з чого почати.
+- [ ] **6376.** A progress bar, right at the start.  
+  → Смуга поступу, на самому початку.
+- [ ] **6377.** Fifteen minutes an evening, and that's all.  
+  → П'ятнадцять хвилин увечері, і все.
+- [ ] **6378.** Each evening is a short reading, two quick exercises and a few cards to go over. It takes about a quarter of an hour at any level, and when you're done, the app tells you so and lets you go. No endless scrolling, no guilt.  
+  → Кожен вечір: коротке читання, дві швидкі вправи й кілька карток на повторення. На будь-якому рівні це близько чверті години, а коли ви закінчите, застосунок так і скаже й відпустить вас. Без нескінченної стрічки й без почуття провини.
+- [ ] **6379.** You picked {time}. Put it in your calendar and your phone will remind you, which works far better than an email from us.  
+  → Ви обрали {time}. Додайте цей час до календаря, і телефон нагадає сам: це працює набагато краще, ніж лист від нас.
+- [ ] **6380.** Add the daily reminder to your calendar  
+  → Додати щоденне нагадування до календаря
+- [ ] **6381.** Pick a time that already has a gap in it: after dinner, on the train, before bed. Which hour you choose matters much less than keeping it the same every day.  
+  → Оберіть час, коли у вас і так буває вільна хвилина: після вечері, у потязі, перед сном. Яка саме година, набагато менш важливо, ніж те, щоб вона щодня була та сама.
+- [ ] **6382.** Open your first evening  
+  → Відкрити перший вечір
+- [ ] **6383.** What we'll send you: a short nudge on evenings you haven't studied yet, a look back at your week on Sundays, and now and then a note when there's real news, like finishing a level. The link at the bottom of any of them turns them off, and the course works just the same without them.  
+  → Що ми надсилатимемо: коротке нагадування в ті вечори, коли ви ще не займалися, огляд тижня щонеділі й інколи лист, коли є справжня новина, наприклад пройдений рівень. Посилання внизу будь-якого листа вимикає їх, а курс без них працює так само.
+- [ ] **6384.** Your first cards are ready  
+  → Ваші перші картки готові
+- [ ] **6385.** {cards} are waiting, and your first evening is {subtitle}.  
+  → У колоді вже {cards}, а перший вечір: {subtitle}.
+- [ ] **6386.** {cards} are waiting, and your first evening takes fifteen minutes.  
+  → У колоді вже {cards}, а перший вечір забере п'ятнадцять хвилин.
+- [ ] **6387.** Your Estonian hasn't gone anywhere.  
+  → Ваша естонська нікуди не зникла.
+- [ ] **6388.** You still know {words}. That's what spacing the cards out is for: the words stay put while you're away. Nothing is lost, and you don't have to start over.  
+  → Ви й досі знаєте {words}. Для цього картки й розподілені в часі: слова лишаються з вами, поки вас немає. Нічого не втрачено, і починати спочатку не треба.
+- [ ] **6389.** A shield you'd saved up covered the gap, so your {run} run is still going.  
+  → Перерву прикрив ваш запасний щит, тож серія ({run} поспіль) триває.
+- [ ] **6390.** No need for a whole evening. One quick round takes about {minutes} minutes, and that's enough to say you're back.  
+  → Цілий вечір не потрібен. Один швидкий раунд триває близько {minutes} хв, і цього досить, щоб повернутися.
+- [ ] **6391.** Or jump straight into tonight's fifteen minutes  
+  → Або одразу до сьогоднішніх п'ятнадцяти хвилин
+- [ ] **6392.** And today's word, whatever you decide:  
+  → І слово дня, хоч би що ви вирішили:
+- [ ] **6393.** Your Estonian is right where you left it  
+  → Ваша естонська там само, де ви її залишили
+- [ ] **6394.** You still know {words}. Two minutes is all it takes to pick things up again.  
+  → Ви й досі знаєте {words}. Щоб продовжити, вистачить двох хвилин.
+- [ ] **6395.** Play a two-minute word-matching game  
+  → Зіграти в добір пар на дві хвилини
+- [ ] **6396.** A shield covered yesterday.  
+  → Учорашній день прикрив щит.
+- [ ] **6397.** You took yesterday off, so one of the shields you'd earned stepped in. Your run of {days} is still going.  
+  → Учора ви відпочивали, і в справу вступив один із зароблених щитів. Ваша серія, {days} поспіль, триває.
+- [ ] **6398.** studied  
+  → займалися
+- [ ] **6399.** day off  
+  → вихідний
+- [ ] **6400.** You've got {more} more saved up.  
+  → У запасі ще {more}.
+- [ ] **6401.** That was your last one. You'll earn another when you reach {nextAt} days.  
+  → Це був останній. Наступний ви отримаєте, коли серія дійде до {nextAt} днів.
+- [ ] **6402.** That was your last one.  
+  → Це був останній.
+- [ ] **6403.** A day off never costs you anything here. Your words just wait for you, exactly where you left them.  
+  → Вихідний тут нічого вам не коштує. Слова просто чекають на вас там само, де ви їх залишили.
+- [ ] **6404.** See what's on tonight  
+  → Подивитися, що сьогодні ввечері
+- [ ] **6405.** A shield covered yesterday  
+  → Учорашній день прикрив щит
+- [ ] **6406.** Your run of {days} is still going, and you've got {more} saved.  
+  → Серія, {days} поспіль, триває, і в запасі ще {more}.
+- [ ] **6407.** Your run of {days} is still going, and that was your last shield.  
+  → Серія, {days} поспіль, триває, але це був останній щит.
+- [ ] **6408.** You've made it through {level}.  
+  → Рівень {level} пройдено.
+- [ ] **6409.** That's {words} that are properly yours now. Each one came back days after you met it, and you still knew it. So this letter is a little late: you did the work a while ago, and it stuck.  
+  → Тепер по-справжньому ваші вже {words}. Кожне повернулося через кілька днів після знайомства, і ви його досі пам'ятали. Тож лист трохи запізнився: роботу ви зробили давно, і вона лишилася з вами.
+- [ ] **6410.** About {pct} percent of the way to {target}.  
+  → Пройдено близько {pct}% шляху до {target}.
+- [ ] **6411.** Next stop is {level}, about {words} away.  
+  → Наступна зупинка: {level}, до неї лишилося приблизно {words}.
+- [ ] **6412.** That was the level you set out to reach. There are always more words, and the course keeps going as long as you do.  
+  → Це той рівень, якого ви прагнули досягти. Слів завжди більше, і курс іде далі, доки йдете ви.
+- [ ] **6413.** Keep going  
+  → Продовжити
+- [ ] **6414.** You've made it through {level}  
+  → Рівень {level} пройдено
+- [ ] **6415.** {words} that are properly yours now. {title}.  
+  → {words}, і всі вони тепер по-справжньому ваші. {title}.
+- [ ] **6416.** A quiet week.  
+  → Тихий тиждень.
+- [ ] **6417.** You studied on {n} of the last seven days.  
+  → Ви займалися {n} з останніх семи.
+- [ ] **6418.** You answered {cards}. {words} are properly yours now, and that number only grows when a word comes back days later and you still know it.  
+  → За тиждень ви дали {cards}. По-справжньому ваших уже {words}, і це число зростає, лише коли слово повертається через кілька днів, а ви його досі пам'ятаєте.
+- [ ] **6419.** No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.  
+  → Цього тижня карток не було, і це нормально. Так буває. Поки вас немає, нічого не накопичується вам на покарання, а один вечір повертає вас туди, де ви були.
+- [ ] **6420.** And one conversation in Estonian with a real person. That's the number this whole app is for.  
+  → А ще одна розмова естонською з живою людиною. Заради цього числа й існує весь застосунок.
+- [ ] **6421.** And {conversations} in Estonian with real people. That's the number this whole app is for.  
+  → А ще {conversations} естонською з живими людьми. Заради цього числа й існує весь застосунок.
+- [ ] **6422.** On your way to {target}  
+  → На шляху до {target}
+- [ ] **6423.** About {assumed} of those words count because of the level you started at, and haven't been checked yet. The rest are words you still knew days after you first met them.  
+  → Приблизно {assumed} із цих слів зараховано за рівнем, з якого ви почали, і їх ще не перевірено. Решту ви пам'ятали через кілька днів після першої зустрічі.
+- [ ] **6424.** That bar only moves for words you still know days after you first met them. Just opening the app won't nudge it.  
+  → Ця смуга зростає лише за слова, які ви пам'ятаєте через кілька днів після першої зустрічі. Просто відкрити застосунок нічого не дасть.
+- [ ] **6425.** One evening left in {title}.  
+  → У частині {title} лишився один вечір.
+- [ ] **6426.** {evenings} left in {title}.  
+  → У частині {title} ще {evenings}.
+- [ ] **6427.** Carry on with the course  
+  → Продовжити курс
+- [ ] **6428.** See all your progress  
+  → Переглянути весь поступ
+- [ ] **6429.** A quiet week, and the course is right where you left it  
+  → Тихий тиждень, а курс чекає там само, де ви зупинилися
+- [ ] **6430.** {days} of Estonian this week  
+  → {days} з естонською цього тижня
+- [ ] **6431.** Nothing to catch up on. One evening and you're back in.  
+  → Надолужувати нічого. Один вечір, і ви знову в ділі.
+- [ ] **6432.** {cards} answered, and {words} that are properly yours.  
+  → {cards} за тиждень і {words}, які по-справжньому ваші.
+- [ ] **6433.** One thing to say out loud today.  
+  → Одна фраза, яку сьогодні варто сказати вголос.
+- [ ] **6434.** {places}. Nobody there will know it's practice.  
+  → {places}. Ніхто там не здогадається, що це тренування.
+- [ ] **6435.** Fancy a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.  
+  → Хочете спершу прорепетирувати? «{title}» триває близько двох хвилин, зі співрозмовником, якому від вас щось потрібно, зовсім як у житті.
+- [ ] **6436.** Practise it first  
+  → Спершу прорепетирувати
+- [ ] **6437.** Or just have a look at the words in {unit}  
+  → Або просто переглянути слова з розділу {unit}
+- [ ] **6438.** Have a look at the words first  
+  → Спершу переглянути слова
+- [ ] **6439.** If they answer in English, that still counts. So does running out of words halfway. You said it, and whatever happens next is about the moment, not about you. The only thing that doesn't count is staying quiet.  
+  → Якщо вам відповідять англійською, це все одно зараховується. І якщо слова закінчаться на півдорозі, теж. Ви це сказали, а що буде далі, залежить від моменту, а не від вас. Не зараховується лише мовчання.
+- [ ] **6440.** Tomorrow morning the app will ask whether you spoke any Estonian to anyone. No is a perfectly fine answer.  
+  → Завтра вранці застосунок спитає, чи говорили ви з кимось естонською. «Ні» теж цілком нормальна відповідь.
+- [ ] **6441.** A word you might want for this one.  
+  → Слово, яке може знадобитися.
+- [ ] **6442.** One thing to say out loud today  
+  → Одна фраза, яку сьогодні варто сказати вголос
+- [ ] **6443.** {places}. Just one sentence, and an answer in English still counts.  
+  → {places}. Лише одна фраза, і відповідь англійською теж зараховується.
+- [ ] **6444.** {phrase} to go until the date you picked.  
+  → До обраної вами дати лишилося {phrase}.
+- [ ] **6445.** You're aiming for {band}, the level where you can {label}. Here's how that's looking.  
+  → Ви йдете до рівня {band}, на якому можна {label}. Ось як справи.
+- [ ] **6446.** A bar, about {pct} percent full, for your chances at {band}.  
+  → Смуга заповнена приблизно на {pct}%: ваші шанси на {band}.
+- [ ] **6447.** If you sat it today, we'd put your chances of passing at about {pct} percent. {evidence}  
+  → Якби ви складали сьогодні, ми оцінили б шанси скласти приблизно в {pct}%. {evidence}
+- [ ] **6448.** Three things can change that, and any one of them counts: how often you study, the Estonian you already hear outside this app, and the date itself. Moving the date isn't giving up. You picked it in about ninety seconds, before you knew what any of this would take.  
+  → Змінити це можуть три речі, і підійде будь-яка: як часто ви займаєтеся, естонська, яку ви й так чуєте поза застосунком, і сама дата. Перенести дату не означає здатися. Ви обрали її секунд за дев'яносто, ще не знаючи, чого все це вимагатиме.
+- [ ] **6449.** See your plan  
+  → Переглянути план
+- [ ] **6450.** {phrase} to go until the date you picked  
+  → До обраної вами дати лишилося {phrase}
+- [ ] **6451.** At the pace you're going, {band} still fits.  
+  → У теперішньому темпі ви встигаєте до {band}.
+- [ ] **6452.** How {band} is looking, and three things that could change it.  
+  → Як справи з {band} і три речі, які можуть це змінити.
+- [ ] **6453.** Last week in {group}  
+  → Минулий тиждень у групі {group}
+- [ ] **6454.** {active} of {members} practised, with {answers} between them.  
+  → Займалися {active} з {members}, усього {answers}.
+- [ ] **6455.** {quiet} didn't open the app.  
+  → Не відкривали застосунок: {quiet}.
+- [ ] **6456.** somebody studied  
+  → хтось займався
+- [ ] **6457.** nobody studied  
+  → ніхто не займався
+- [ ] **6458.** The class finds {case} hardest.  
+  → Найважче групі дається {case}.
+- [ ] **6459.** {accuracy} percent right, across {total} answers from the whole class. That's the one to give them extra practice on this week.  
+  → Правильних відповідей {accuracy}%, а всього відповідей від групи: {total}. Саме цьому відмінку варто приділити більше практики цього тижня.
+- [ ] **6460.** {case} at {accuracy} percent  
+  → {case} ({accuracy}%)
+- [ ] **6461.** After that comes {first}, and {second}.  
+  → Далі йдуть {first} і {second}.
+- [ ] **6462.** After that comes {first}.  
+  → Далі йде {first}.
+- [ ] **6463.** Not enough answers yet to say which case the class finds hardest. Give it another week.  
+  → Відповідей поки замало, щоб сказати, який відмінок групі найважчий. Зачекайте ще тиждень.
+- [ ] **6464.** {onTrack} on track for {level}.  
+  → Ідуть за планом до {level}: {onTrack}.
+- [ ] **6465.** {ready} of {members} on track or close for {level}.  
+  → {ready} з {members} ідуть за планом до {level} або близькі до цього.
+- [ ] **6466.** {close} close, {needTime} need more time, {tooEarly} too early to say.  
+  → Близькі до мети: {close}, потрібно більше часу: {needTime}, поки зарано судити: {tooEarly}.
+- [ ] **6467.** {close} close, {needTime} need more time.  
+  → Близькі до мети: {close}, потрібно більше часу: {needTime}.
+- [ ] **6468.** Open the group's board  
+  → Відкрити дошку групи
+- [ ] **6469.** Everybody in {group} practised last week  
+  → Минулого тижня в групі {group} займалися всі
+- [ ] **6470.** {active} of {members} in {group} practised last week  
+  → Минулого тижня в групі {group} займалися {active} з {members}
+- [ ] **6471.** How the week went, and which case to work on next.  
+  → Як минув тиждень і над яким відмінком попрацювати далі.
+- [ ] **6472.** How the week went, and how the group is doing toward {level}.  
+  → Як минув тиждень і як група просувається до {level}.
+- [ ] **6473.** See {word} in the dictionary  
+  → Відкрити {word} у словнику
+- [ ] **6474.** One word for today. Nothing to do but enjoy it.  
+  → Одне слово на сьогодні. Робити нічого не треба, просто потіштеся ним.
+
+### Counted words in letters: one, few (2 to 4), many (5 and up)
+
+- [ ] **6475.** step / step, steps _(1, 2, 5)_  
+  → крок, кроки, кроків
+- [ ] **6476.** shield / shield, shields _(1, 2, 5)_  
+  → щит, щити, щитів
+- [ ] **6477.** conversation / conversation, conversations _(1, 2, 5)_  
+  → розмова, розмови, розмов
 

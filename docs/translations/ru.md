@@ -572,7 +572,7 @@ _lib/copy/i18n/areas/start.ts_
 - [ ] **268.** What stays in English  
   → Что остаётся на английском
 - [ ] **269.** You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.  
-  → Английское значение вы тоже будете видеть всегда. Русские и украинские значения взяты прямо из эстонского словаря, их писали те же люди, что и эстонскую часть.
+  → Английское значение вы тоже будете видеть всегда. Русские значения взяты прямо из эстонского словаря, их писали те же люди, что и эстонскую часть.
 - [ ] **270.** One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.  
   → Одно честное замечание перед началом: Kodukeel не оценивает ваше произношение, не даёт ИИ ставить вам оценки и не заменяет преподавателя. Здесь вы репетируете. А настоящие разговоры ждут вас в жизни.
 - [ ] **271.** Where are you now?  
@@ -6396,11 +6396,11 @@ _lib/copy/i18n/areas/app.ts_
 - [ ] **3160.** Meanings  
   → Значения
 - [ ] **3161.** Meanings can appear in Russian or Ukrainian too. The English always stays, and the language you choose shows up next to it.  
-  → Значения могут показываться и на русском или украинском. Английский остаётся всегда, а выбранный язык появляется рядом.
+  → Значения могут показываться и на русском. Английский остаётся всегда, а русский появляется рядом.
 - [ ] **3162.** Where these come from  
   → Откуда они берутся
 - [ ] **3163.** The Russian and Ukrainian come from the same dictionary as the Estonian. If none was recorded for a word, you'll just see the English.  
-  → Русские и украинские значения взяты из того же словаря, что и эстонские слова. Если для слова их не записали, вы увидите только английский.
+  → Русские значения взяты из того же словаря, что и эстонские слова. Если для слова русского значения не записали, вы увидите только английское.
 - [ ] **3164.** In an example sentence, the other words can be underlined so you can tap any of them to see what it means. With this off, the sentence stays plain and only the new word is marked.  
   → В примере остальные слова могут быть подчёркнуты, чтобы можно было нажать на любое и узнать, что оно значит. Если это выключить, предложение останется простым, и выделено будет только новое слово.
 - [ ] **3165.** shown  
@@ -12822,4 +12822,270 @@ _lib/copy/i18n/areas/grammarTopics.ts_
   → это расстояние между письмом и речью, а записывается только один его конец
 - [ ] **6350.** the dictionary records Estonian as it's used today, so the older forms this is about aren't in it  
   → словарь записывает эстонский таким, каким им пользуются сегодня, так что устаревших форм, о которых здесь речь, в нём нет
+
+## letters (126 lines)
+
+_lib/copy/i18n/areas/letters.ts_
+
+- [ ] **6351.** Kodukeel, run by {operator}.  
+  → Kodukeel. Работу сервиса обеспечивает {operator}.
+- [ ] **6352.** Stop emails like this one  
+  → Отписаться от таких писем
+- [ ] **6353.** Choose which emails you get  
+  → Выбрать, какие письма получать
+- [ ] **6354.** What we keep about you  
+  → Какие данные о вас мы храним
+- [ ] **6355.** One step left in {title}  
+  → В уроке {title} остался последний шаг
+- [ ] **6356.** {steps} left in {title}  
+  → В уроке {title} ещё {steps}
+- [ ] **6357.** {newWords} tonight  
+  → Сегодня вечером {newWords}
+- [ ] **6358.** Back to {title} tonight  
+  → Сегодня вечером снова {title}
+- [ ] **6359.** {what}, part {n} of {of}  
+  → {what}, часть {n} из {of}
+- [ ] **6360.** {shape}. About {minutes} minutes left.  
+  → {shape}. Осталось около {minutes} мин.
+- [ ] **6361.** {shape}. About {minutes} minutes, start to finish.  
+  → {shape}. Всего около {minutes} мин.
+- [ ] **6362.** You're nearly done for tonight.  
+  → На сегодня почти всё.
+- [ ] **6363.** About {minutes} minutes to go tonight.  
+  → На сегодня осталось около {minutes} мин.
+- [ ] **6364.** {name}, you're {steps} into {where}. The rest is right where you left it.  
+  → {name}, вы уже прошли {steps} в уроке {where}. Остальное ждёт там, где вы остановились.
+- [ ] **6365.** You're {steps} into {where}. The rest is right where you left it.  
+  → Вы уже прошли {steps} в уроке {where}. Остальное ждёт там, где вы остановились.
+- [ ] **6366.** {newWords}, in about {minutes} minutes.  
+  → {newWords}, примерно за {minutes} мин.
+- [ ] **6367.** Words you know, put to work tonight, in about {minutes} minutes.  
+  → Сегодня вечером в ход идут знакомые слова, примерно за {minutes} мин.
+- [ ] **6368.** {name}, this is {title}, {evening}. By the end you'll be able to {canDo}  
+  → {name}, сегодня урок {title}, {evening}. К концу вы сможете {canDo}
+- [ ] **6369.** {title}, {evening}. By the end you'll be able to {canDo}  
+  → Сегодня урок {title}, {evening}. К концу вы сможете {canDo}
+- [ ] **6370.** What you told yourself when you started:  
+  → Что вы сказали себе, когда начинали:
+- [ ] **6371.** \[done\]  
+  → \[готово\]
+- [ ] **6372.** And a word for you, whether you study tonight or not:  
+  → И слово для вас, будете вы сегодня заниматься или нет:
+- [ ] **6373.** That's {days} in a row so far.  
+  → Уже {days} подряд.
+- [ ] **6374.** Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.  
+  → Kodukeel. Четыре буквы, для которых на английской клавиатуре нет клавиш: o с тильдой, a, o и u с умлаутом.
+- [ ] **6375.** Your first cards are ready. Here's how it works.  
+  → Ваши первые карточки готовы. Вот как всё устроено.
+- [ ] **6376.** {cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.  
+  → В вашей колоде уже {cards} из первых уроков курса. Ваш первый вечер: {title}, {subtitle}.
+- [ ] **6377.** {cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.  
+  → В вашей колоде уже {cards} из первых уроков курса. Откройте курс, и он покажет, с чего начать.
+- [ ] **6378.** A progress bar, right at the start.  
+  → Полоса прогресса, в самом начале.
+- [ ] **6379.** Fifteen minutes an evening, and that's all.  
+  → Пятнадцать минут вечером, и всё.
+- [ ] **6380.** Each evening is a short reading, two quick exercises and a few cards to go over. It takes about a quarter of an hour at any level, and when you're done, the app tells you so and lets you go. No endless scrolling, no guilt.  
+  → Каждый вечер: короткое чтение, два быстрых упражнения и несколько карточек на повторение. На любом уровне это около четверти часа, а когда вы закончите, приложение так и скажет и отпустит вас. Без бесконечной ленты и без чувства вины.
+- [ ] **6381.** You picked {time}. Put it in your calendar and your phone will remind you, which works far better than an email from us.  
+  → Вы выбрали {time}. Добавьте это время в календарь, и телефон напомнит сам: это работает куда лучше, чем письмо от нас.
+- [ ] **6382.** Add the daily reminder to your calendar  
+  → Добавить ежедневное напоминание в календарь
+- [ ] **6383.** Pick a time that already has a gap in it: after dinner, on the train, before bed. Which hour you choose matters much less than keeping it the same every day.  
+  → Выберите время, когда у вас и так бывает свободная минута: после ужина, в поезде, перед сном. Какой именно час, гораздо менее важно, чем то, чтобы он каждый день был одним и тем же.
+- [ ] **6384.** Open your first evening  
+  → Открыть первый вечер
+- [ ] **6385.** What we'll send you: a short nudge on evenings you haven't studied yet, a look back at your week on Sundays, and now and then a note when there's real news, like finishing a level. The link at the bottom of any of them turns them off, and the course works just the same without them.  
+  → Что мы будем присылать: короткое напоминание в те вечера, когда вы ещё не занимались, обзор недели по воскресеньям и иногда письмо, когда есть настоящая новость, например пройденный уровень. Ссылка внизу любого письма отключает их, а курс без них работает точно так же.
+- [ ] **6386.** Your first cards are ready  
+  → Ваши первые карточки готовы
+- [ ] **6387.** {cards} are waiting, and your first evening is {subtitle}.  
+  → В колоде уже {cards}, а первый вечер: {subtitle}.
+- [ ] **6388.** {cards} are waiting, and your first evening takes fifteen minutes.  
+  → В колоде уже {cards}, а первый вечер займёт пятнадцать минут.
+- [ ] **6389.** Your Estonian hasn't gone anywhere.  
+  → Ваш эстонский никуда не делся.
+- [ ] **6390.** You still know {words}. That's what spacing the cards out is for: the words stay put while you're away. Nothing is lost, and you don't have to start over.  
+  → Вы по-прежнему знаете {words}. Для этого карточки и разнесены во времени: слова остаются с вами, пока вас нет. Ничего не потеряно, и начинать заново не нужно.
+- [ ] **6391.** A shield you'd saved up covered the gap, so your {run} run is still going.  
+  → Перерыв прикрыл ваш запасной щит, так что серия ({run} подряд) продолжается.
+- [ ] **6392.** No need for a whole evening. One quick round takes about {minutes} minutes, and that's enough to say you're back.  
+  → Целый вечер не нужен. Один быстрый раунд занимает около {minutes} мин, и этого достаточно, чтобы вернуться.
+- [ ] **6393.** Or jump straight into tonight's fifteen minutes  
+  → Или сразу к сегодняшним пятнадцати минутам
+- [ ] **6394.** And today's word, whatever you decide:  
+  → И слово дня, что бы вы ни решили:
+- [ ] **6395.** Your Estonian is right where you left it  
+  → Ваш эстонский там же, где вы его оставили
+- [ ] **6396.** You still know {words}. Two minutes is all it takes to pick things up again.  
+  → Вы по-прежнему знаете {words}. Чтобы продолжить, хватит двух минут.
+- [ ] **6397.** Play a two-minute word-matching game  
+  → Сыграть в подбор пар на две минуты
+- [ ] **6398.** A shield covered yesterday.  
+  → Вчерашний день прикрыл щит.
+- [ ] **6399.** You took yesterday off, so one of the shields you'd earned stepped in. Your run of {days} is still going.  
+  → Вчера вы отдыхали, и в дело вступил один из заработанных щитов. Ваша серия, {days} подряд, продолжается.
+- [ ] **6400.** studied  
+  → занимались
+- [ ] **6401.** day off  
+  → выходной
+- [ ] **6402.** You've got {more} more saved up.  
+  → В запасе ещё {more}.
+- [ ] **6403.** That was your last one. You'll earn another when you reach {nextAt} days.  
+  → Это был последний. Следующий вы получите, когда серия дойдёт до {nextAt} дней.
+- [ ] **6404.** That was your last one.  
+  → Это был последний.
+- [ ] **6405.** A day off never costs you anything here. Your words just wait for you, exactly where you left them.  
+  → Выходной здесь ничего вам не стоит. Слова просто ждут вас там же, где вы их оставили.
+- [ ] **6406.** See what's on tonight  
+  → Посмотреть, что сегодня вечером
+- [ ] **6407.** A shield covered yesterday  
+  → Вчерашний день прикрыл щит
+- [ ] **6408.** Your run of {days} is still going, and you've got {more} saved.  
+  → Серия, {days} подряд, продолжается, и в запасе ещё {more}.
+- [ ] **6409.** Your run of {days} is still going, and that was your last shield.  
+  → Серия, {days} подряд, продолжается, но это был последний щит.
+- [ ] **6410.** You've made it through {level}.  
+  → Уровень {level} пройден.
+- [ ] **6411.** That's {words} that are properly yours now. Each one came back days after you met it, and you still knew it. So this letter is a little late: you did the work a while ago, and it stuck.  
+  → Теперь по-настоящему ваши уже {words}. Каждое вернулось через несколько дней после знакомства, и вы его всё ещё помнили. Так что письмо немного запоздало: работу вы сделали давно, и она осталась с вами.
+- [ ] **6412.** About {pct} percent of the way to {target}.  
+  → Пройдено около {pct}% пути до {target}.
+- [ ] **6413.** Next stop is {level}, about {words} away.  
+  → Следующая остановка: {level}, до неё осталось примерно {words}.
+- [ ] **6414.** That was the level you set out to reach. There are always more words, and the course keeps going as long as you do.  
+  → Это тот уровень, к которому вы стремились. Слов всегда больше, и курс продолжается, пока продолжаете вы.
+- [ ] **6415.** Keep going  
+  → Продолжить
+- [ ] **6416.** You've made it through {level}  
+  → Уровень {level} пройден
+- [ ] **6417.** {words} that are properly yours now. {title}.  
+  → {words}, и все они теперь по-настоящему ваши. {title}.
+- [ ] **6418.** A quiet week.  
+  → Тихая неделя.
+- [ ] **6419.** You studied on {n} of the last seven days.  
+  → Вы занимались {n} из последних семи.
+- [ ] **6420.** You answered {cards}. {words} are properly yours now, and that number only grows when a word comes back days later and you still know it.  
+  → За неделю вы дали {cards}. По-настоящему ваших уже {words}, и это число растёт, только когда слово возвращается через несколько дней, а вы его всё ещё помните.
+- [ ] **6421.** No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you while you're away, and one evening puts you right back where you were.  
+  → На этой неделе карточек не было, и это нормально. Так бывает. Пока вас нет, ничего не копится вам в наказание, а один вечер возвращает вас туда, где вы были.
+- [ ] **6422.** And one conversation in Estonian with a real person. That's the number this whole app is for.  
+  → А ещё один разговор на эстонском с живым человеком. Ради этого числа и существует всё приложение.
+- [ ] **6423.** And {conversations} in Estonian with real people. That's the number this whole app is for.  
+  → А ещё {conversations} на эстонском с живыми людьми. Ради этого числа и существует всё приложение.
+- [ ] **6424.** On your way to {target}  
+  → На пути к {target}
+- [ ] **6425.** About {assumed} of those words count because of the level you started at, and haven't been checked yet. The rest are words you still knew days after you first met them.  
+  → Примерно {assumed} из этих слов засчитаны по уровню, с которого вы начали, и ещё не проверены. Остальные вы помнили через несколько дней после первой встречи.
+- [ ] **6426.** That bar only moves for words you still know days after you first met them. Just opening the app won't nudge it.  
+  → Эта полоса растёт только за слова, которые вы помните через несколько дней после первой встречи. Просто открыть приложение ничего не даст.
+- [ ] **6427.** One evening left in {title}.  
+  → В части {title} остался один вечер.
+- [ ] **6428.** {evenings} left in {title}.  
+  → В части {title} ещё {evenings}.
+- [ ] **6429.** Carry on with the course  
+  → Продолжить курс
+- [ ] **6430.** See all your progress  
+  → Посмотреть весь прогресс
+- [ ] **6431.** A quiet week, and the course is right where you left it  
+  → Тихая неделя, а курс ждёт там же, где вы остановились
+- [ ] **6432.** {days} of Estonian this week  
+  → {days} с эстонским на этой неделе
+- [ ] **6433.** Nothing to catch up on. One evening and you're back in.  
+  → Догонять нечего. Один вечер, и вы снова в деле.
+- [ ] **6434.** {cards} answered, and {words} that are properly yours.  
+  → {cards} за неделю и {words}, которые по-настоящему ваши.
+- [ ] **6435.** One thing to say out loud today.  
+  → Одна фраза, которую сегодня стоит сказать вслух.
+- [ ] **6436.** {places}. Nobody there will know it's practice.  
+  → {places}. Никто там не догадается, что это тренировка.
+- [ ] **6437.** Fancy a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.  
+  → Хотите сначала прорепетировать? «{title}» занимает около двух минут, с собеседником, которому от вас что-то нужно, совсем как в жизни.
+- [ ] **6438.** Practise it first  
+  → Сначала прорепетировать
+- [ ] **6439.** Or just have a look at the words in {unit}  
+  → Или просто посмотреть слова из раздела {unit}
+- [ ] **6440.** Have a look at the words first  
+  → Сначала посмотреть слова
+- [ ] **6441.** If they answer in English, that still counts. So does running out of words halfway. You said it, and whatever happens next is about the moment, not about you. The only thing that doesn't count is staying quiet.  
+  → Если вам ответят по-английски, это всё равно засчитывается. И если слова закончатся на полпути, тоже. Вы это сказали, а что будет дальше, зависит от момента, а не от вас. Не засчитывается только молчание.
+- [ ] **6442.** Tomorrow morning the app will ask whether you spoke any Estonian to anyone. No is a perfectly fine answer.  
+  → Завтра утром приложение спросит, говорили ли вы с кем-нибудь по-эстонски. «Нет» тоже совершенно нормальный ответ.
+- [ ] **6443.** A word you might want for this one.  
+  → Слово, которое может пригодиться.
+- [ ] **6444.** One thing to say out loud today  
+  → Одна фраза, которую сегодня стоит сказать вслух
+- [ ] **6445.** {places}. Just one sentence, and an answer in English still counts.  
+  → {places}. Всего одна фраза, и ответ по-английски тоже засчитывается.
+- [ ] **6446.** {phrase} to go until the date you picked.  
+  → До выбранной вами даты осталось {phrase}.
+- [ ] **6447.** You're aiming for {band}, the level where you can {label}. Here's how that's looking.  
+  → Вы идёте к уровню {band}, на котором можно {label}. Вот как обстоят дела.
+- [ ] **6448.** A bar, about {pct} percent full, for your chances at {band}.  
+  → Полоса заполнена примерно на {pct}%: ваши шансы на {band}.
+- [ ] **6449.** If you sat it today, we'd put your chances of passing at about {pct} percent. {evidence}  
+  → Если бы вы сдавали сегодня, мы оценили бы шансы сдать примерно в {pct}%. {evidence}
+- [ ] **6450.** Three things can change that, and any one of them counts: how often you study, the Estonian you already hear outside this app, and the date itself. Moving the date isn't giving up. You picked it in about ninety seconds, before you knew what any of this would take.  
+  → Изменить это могут три вещи, и подойдёт любая: как часто вы занимаетесь, эстонский, который вы и так слышите вне приложения, и сама дата. Перенести дату не значит сдаться. Вы выбрали её секунд за девяносто, ещё не зная, чего всё это потребует.
+- [ ] **6451.** See your plan  
+  → Посмотреть план
+- [ ] **6452.** {phrase} to go until the date you picked  
+  → До выбранной вами даты осталось {phrase}
+- [ ] **6453.** At the pace you're going, {band} still fits.  
+  → В нынешнем темпе вы успеваете к {band}.
+- [ ] **6454.** How {band} is looking, and three things that could change it.  
+  → Как обстоят дела с {band} и три вещи, которые могут это изменить.
+- [ ] **6455.** Last week in {group}  
+  → Прошлая неделя в группе {group}
+- [ ] **6456.** {active} of {members} practised, with {answers} between them.  
+  → Занимались {active} из {members}, всего {answers}.
+- [ ] **6457.** {quiet} didn't open the app.  
+  → Не открывали приложение: {quiet}.
+- [ ] **6458.** somebody studied  
+  → кто-то занимался
+- [ ] **6459.** nobody studied  
+  → никто не занимался
+- [ ] **6460.** The class finds {case} hardest.  
+  → Труднее всего группе даётся {case}.
+- [ ] **6461.** {accuracy} percent right, across {total} answers from the whole class. That's the one to give them extra practice on this week.  
+  → Верных ответов {accuracy}%, а всего ответов от группы: {total}. Именно этому падежу стоит уделить больше практики на этой неделе.
+- [ ] **6462.** {case} at {accuracy} percent  
+  → {case} ({accuracy}%)
+- [ ] **6463.** After that comes {first}, and {second}.  
+  → Следом идут {first} и {second}.
+- [ ] **6464.** After that comes {first}.  
+  → Следом идёт {first}.
+- [ ] **6465.** Not enough answers yet to say which case the class finds hardest. Give it another week.  
+  → Ответов пока мало, чтобы сказать, какой падеж группе труднее всего. Подождите ещё неделю.
+- [ ] **6466.** {onTrack} on track for {level}.  
+  → Идут по плану к {level}: {onTrack}.
+- [ ] **6467.** {ready} of {members} on track or close for {level}.  
+  → {ready} из {members} идут по плану к {level} или близки к этому.
+- [ ] **6468.** {close} close, {needTime} need more time, {tooEarly} too early to say.  
+  → Близки к цели: {close}, нужно больше времени: {needTime}, пока рано судить: {tooEarly}.
+- [ ] **6469.** {close} close, {needTime} need more time.  
+  → Близки к цели: {close}, нужно больше времени: {needTime}.
+- [ ] **6470.** Open the group's board  
+  → Открыть доску группы
+- [ ] **6471.** Everybody in {group} practised last week  
+  → На прошлой неделе в группе {group} занимались все
+- [ ] **6472.** {active} of {members} in {group} practised last week  
+  → На прошлой неделе в группе {group} занимались {active} из {members}
+- [ ] **6473.** How the week went, and which case to work on next.  
+  → Как прошла неделя и над каким падежом поработать дальше.
+- [ ] **6474.** How the week went, and how the group is doing toward {level}.  
+  → Как прошла неделя и как группа продвигается к {level}.
+- [ ] **6475.** See {word} in the dictionary  
+  → Открыть {word} в словаре
+- [ ] **6476.** One word for today. Nothing to do but enjoy it.  
+  → Одно слово на сегодня. Делать ничего не нужно, просто порадуйтесь ему.
+
+### Counted words in letters: one, few (2 to 4), many (5 and up)
+
+- [ ] **6477.** step / step, steps _(1, 2, 5)_  
+  → шаг, шага, шагов
+- [ ] **6478.** shield / shield, shields _(1, 2, 5)_  
+  → щит, щита, щитов
+- [ ] **6479.** conversation / conversation, conversations _(1, 2, 5)_  
+  → разговор, разговора, разговоров
 
