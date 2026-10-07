@@ -10,7 +10,7 @@ import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/sum
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor } from "@/lib/progress/plan";
 import { minutesForCards, ownCardsPerMinute } from "@/lib/stats/pace";
-import { wordOfDay, wordOfDayCollection } from "@/lib/progress/wordOfDay";
+import { wordOfDay } from "@/lib/progress/wordOfDay";
 import { outThereToday } from "@/lib/progress/outThere";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { nextUnit as pickNextUnit } from "@/lib/collections/syllabus";
@@ -215,9 +215,8 @@ export default async function TodayPage() {
      the course leaves the cases to A2 (lib/ux/weekGames.ts). */
   const featured = await withPuzzleReady(ownerId, summary.dayKey, gameOn(weekdayOf(summary.dayKey), placement));
   const questDay = featured.href === "/quest" && shows(stage, "quest");
-  const [word, collection, weakest, outside, ladder] = await Promise.all([
+  const [word, weakest, outside, ladder] = await Promise.all([
     shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement) : null,
-    shows(stage, "word") ? wordOfDayCollection(ownerId, now, clock) : { kept: 0, streak: 0 },
     questDay ? weakestCase(ownerId, now) : null,
     // Whether the day's question has been answered, and the month behind it,
     // off one read rather than one for each.
@@ -813,7 +812,7 @@ export default async function TodayPage() {
 
   /* The one panel here that is not about this learner's own deck. */
   const wordCard = shows(stage, "word")
-    ? <WordOfDayCard word={word} collection={collection} canTranslate={resolveProvider() !== null} />
+    ? <WordOfDayCard word={word} canTranslate={resolveProvider() !== null} />
     : null;
 
   /*
