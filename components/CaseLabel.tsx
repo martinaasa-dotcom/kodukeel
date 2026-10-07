@@ -2,7 +2,8 @@
 
 import { Fragment } from "react";
 
-import { questionInEnglish } from "@/lib/estonian/cases";
+import { questionIn } from "@/lib/copy/questionReading";
+import { useLocale } from "@/components/Locale";
 import { useCaseGloss } from "@/components/CaseGloss";
 import type { CaseLabelParts } from "@/lib/copy/caseLabel";
 
@@ -32,7 +33,8 @@ export function CaseLabel({ label, className = "", reading = true }: {
   reading?: boolean | "always";
 }) {
   const wantsGloss = useCaseGloss();
-  const english = reading === "always" || (reading && wantsGloss) ? questionInEnglish(label.question) : null;
+  const locale = useLocale();
+  const english = reading === "always" || (reading && wantsGloss) ? questionIn(locale, label.question) : null;
   return (
     <span className={`case-label ${className}`} data-case-label>
       <span lang="et" className="case-label-name"><Words text={label.et} /></span>

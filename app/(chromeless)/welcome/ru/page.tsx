@@ -1,7 +1,12 @@
-import { EntryPage, entryMetadata } from "../EntryPage";
+import type { Metadata } from "next";
+import WelcomePage from "../page";
+import { entryMetadata } from "../entryMetadata";
 
-export const metadata = entryMetadata("ru");
+/** The landing page in Russian: the same page, read through the landing area. */
+export const metadata: Metadata = entryMetadata("ru");
 
-export default function RussianEntry() {
-  return <EntryPage locale="ru" />;
+export const revalidate = 3600;
+
+export default function RussianWelcome() {
+  return <WelcomePage params={Promise.resolve({ lang: "ru" })} />;
 }

@@ -106,6 +106,9 @@ export const SERVICES: readonly Service[] = [
         why: past.length === 0
           ? `The ${tier.name} plan's own fee. Nothing here is over its allowance yet.`
           : `The ${tier.name} plan, plus use over its allowance on ${listOf(past)}.`,
+        whyAs: past.length === 0
+          ? { template: "The {plan} plan's own fee. Nothing here is over its allowance yet.", values: { plan: tier.name } }
+          : { template: "The {plan} plan, plus use over its allowance on {over}.", values: { plan: tier.name, over: past } },
         meters: [
           { label: "Requests answered", used: invocations, included: tier.included.invocations ?? 0, as: "count" },
           { label: "Files served", used: edgeRequests, included: tier.included.edgeRequests ?? 0, as: "count" },
@@ -160,6 +163,14 @@ export const SERVICES: readonly Service[] = [
           : past.length === 0
             ? `The ${tier.name} plan's own fee, with the smallest instance inside its compute credit.`
             : `The ${tier.name} plan, plus use over its allowance on ${listOf(past)}.`,
+        whyAs: computeUsd > 0
+          ? {
+            template: "A {size} instance, which is what {people} people at once and {gb} GB need.",
+            values: { size: compute.name, people: Math.round(v.peakConcurrent), gb: { n: v.databaseGb, digits: 1 } },
+          }
+          : past.length === 0
+            ? { template: "The {plan} plan's own fee, with the smallest instance inside its compute credit.", values: { plan: tier.name } }
+            : { template: "The {plan} plan, plus use over its allowance on {over}.", values: { plan: tier.name, over: past } },
         meters: [
           { label: "Database", used: v.databaseGb, included: tier.included.dbGb ?? 0, as: "gb" },
           { label: "Data out", used: egressGb, included: tier.included.egressGb ?? 0, as: "gb" },
@@ -215,6 +226,10 @@ export const SERVICES: readonly Service[] = [
         why: capped
           ? "The app's own daily cap is what is holding this down, not the traffic."
           : `A question and a writing note on ${named}, priced the way the ledger prices one before it makes the call.`,
+        whyAs: capped ? undefined : {
+          template: "A question and a writing note on {model}, priced the way the ledger prices one before it makes the call.",
+          values: { model: named },
+        },
         meters: [
           { label: "Questions asked", used: v.tutorCalls, included: 0, as: "count" },
           { label: "Writing looked at", used: v.graderCalls, included: 0, as: "count" },
@@ -236,6 +251,9 @@ export const SERVICES: readonly Service[] = [
         gives: shape.audio
           ? `${Math.round(v.spokenCharacters).toLocaleString("en-GB")} characters read aloud a month, in a real Estonian voice`
           : "Speech in ten Estonian voices, switched off on this deployment",
+        givesAs: shape.audio
+          ? { template: "{characters} characters read aloud a month, in a real Estonian voice", values: { characters: Math.round(v.spokenCharacters) } }
+          : undefined,
         why: "A public research group at the University of Tartu, which asks for nothing and sends no invoice.",
         wouldCostUsd: shape.audio
           ? round2((v.spokenCharacters / 1e6) * SPEECH_MARKET.usdPerMillionCharacters)
@@ -267,6 +285,10 @@ export const SERVICES: readonly Service[] = [
         gives: `${SEED_SET_SIZE.words.toLocaleString("en-GB")} checked entries with `
           + `${SEED_SET_SIZE.forms.toLocaleString("en-GB")} forms, and the attested sentences `
           + "every exercise is built from",
+        givesAs: {
+          template: "{entries} checked entries with {forms} forms, and the attested sentences every exercise is built from",
+          values: { entries: SEED_SET_SIZE.words, forms: SEED_SET_SIZE.forms },
+        },
         licence: "Ekilex under CC BY 4.0, Wiktionary under CC BY-SA 4.0",
         why: "Neither asks for anything, and neither has a price to quote: nothing else holds a checked Estonian case table with attested sentences, so there is nothing to compare it against.",
       };
@@ -291,6 +313,9 @@ export const SERVICES: readonly Service[] = [
         why: over > 0
           ? `The ${tier.name} plan, plus ${Math.round(over).toLocaleString("en-GB")} emails over its allowance.`
           : `The ${tier.name} plan. The free tier sends a hundred a day from a shared address, which is for testing.`,
+        whyAs: over > 0
+          ? { template: "The {plan} plan, plus {emails} emails over its allowance.", values: { plan: tier.name, emails: Math.round(over) } }
+          : { template: "The {plan} plan. The free tier sends a hundred a day from a shared address, which is for testing.", values: { plan: tier.name } },
         meters: [
           { label: "Emails sent", used: v.emails, included: tier.included.emails ?? 0, as: "count" },
         ],

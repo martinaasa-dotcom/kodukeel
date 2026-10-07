@@ -23,6 +23,7 @@
   over three tags.
 */
 import type { Html } from "./html";
+import type { Locale } from "@/lib/copy/locale";
 
 /**
  * The closed list of letters this app can send.
@@ -140,6 +141,13 @@ export type Block =
 
 export interface Letter {
   readonly kind: EmailKind;
+  /**
+   * The language the letter is written in, which is the learner's interface
+   * language (`lib/email/say.ts`). It sets the document's `lang` and the
+   * language of the footer around the letter. Absent is English, which is what
+   * every letter was before there was a choice.
+   */
+  readonly locale?: Locale;
   /**
    * The subject line.
    *

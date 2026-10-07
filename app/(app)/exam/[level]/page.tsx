@@ -1,5 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import { paperFor, sittingOf } from "@/lib/progress/exam";
 import { isExamLevel } from "@/lib/exam/spec";
 import { fillRate } from "@/lib/exam/paper";
@@ -11,7 +13,8 @@ import { firstParams } from "@/lib/ux/queryParam";
 export async function generateMetadata({ params }: { params: Promise<{ level: string }> }) {
   const { level } = await params;
   const upper = level.toUpperCase();
-  return { title: isExamLevel(upper) ? `${upper} mock exam` : "Mock exam" };
+  const locale = await localeFor(await requireUserId());
+  return { title: isExamLevel(upper) ? fill(tr(locale, "{level} mock exam"), { level: upper }) : tr(locale, "Mock exam") };
 }
 
 export const dynamic = "force-dynamic";

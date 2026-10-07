@@ -1,6 +1,11 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Legal, P, S } from "@/components/Legal";
 import { CostExplorer } from "./CostExplorer";
+import { rich } from "@/components/Rich";
+import { LocaleProvider } from "@/components/Locale";
+import { fill, tr } from "@/lib/copy/locale";
+import { localeHref } from "@/lib/copy/publicLocale";
+import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 import { resolveOperator } from "@/lib/legal/operator";
 import { audioCacheIsDurable } from "@/lib/audio/store";
 import { supabaseConfigured } from "@/lib/auth/mode";
@@ -15,7 +20,9 @@ import {
   PRICES_CHECKED, SPEECH_MARKET, SUPABASE, VERCEL,
 } from "@/lib/funding/facts";
 
-export const metadata = { title: "Funding" };
+export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
+  return publicTitle(searchParams, "Funding");
+}
 
 /*
   Same reason as /privacy and /terms: most of what is worth saying here is a
@@ -61,7 +68,8 @@ export const dynamic = "force-dynamic";
  * page whose whole argument is that its numbers are checkable cannot carry a
  * stale one in its own header.
  */
-export default function FundingPage() {
+export default async function FundingPage({ searchParams }: { searchParams: PublicSearch }) {
+  const { locale, explicit } = await resolvePublicLocale(searchParams);
   const operator = resolveOperator();
   // Anu's own chain rather than the general one: the general chain carries the
   // paid tail, which a tutor chain never reaches, so naming it here told a
@@ -107,65 +115,60 @@ export default function FundingPage() {
   const ladder = retrenchment(DEFAULT_SHAPE);
   const floor = floorUsd(DEFAULT_SHAPE);
 
-  return (
-    <Legal title="Funding" updated="2 September 2026">
-      <P>
-        Kodukeel is free to use, there&rsquo;s nothing to buy, and nothing about you is sold.
-        This page shows the sums behind that sentence: what the app runs on, what each piece
-        costs, who&rsquo;s paying for the copy you&rsquo;re reading, and what would change if
-        somebody funded it.
-      </P>
+  /*
+    The language is the request's (lib/progress/publicLocale.ts). The prose and
+    every service's own description come from the public area; the arithmetic is
+    the same arithmetic in every language, and the figures stay figures. The
+    model's own explanation of each line and the judged numbers below the panel
+    are still English in Russian and Ukrainian, and the page says so.
+  */
+  const t = (english: string) => tr(locale, english);
+  const href = (to: string) => localeHref(to, locale, explicit);
+  const privacyLink = (label: string) => (
+    <Link href={href("/privacy")} className="underline underline-offset-2">{t(label)}</Link>
+  );
 
-      <S title="Who pays for this copy">
+  return (
+    <Legal title={t("Funding")} updated="2 September 2026" locale={locale} explicit={explicit} path="/funding">
+      <P>
+        {t("Kodukeel is free to use, there’s nothing to buy, and nothing about you is sold. This page shows the sums behind that sentence: what the app runs on, what each piece costs, who’s paying for the copy you’re reading, and what would change if somebody funded it.")}
+      </P>
+      {locale !== "en" && (
+        <P>{t("The figures and the sums are the same in every language. The working the calculator shows for each line, and the numbers it had to judge, are still in English.")}</P>
+      )}
+
+      <S title={t("Who pays for this copy")}>
         {operator.identified ? (
           <P>
-            This installation is run by <strong>{operator.name}</strong>, and they pay the
-            bills on this page. Kodukeel is software anyone can install rather than one
-            service, so every copy has its own operator and its own invoice.
+            {rich(t("This installation is run by **{name}**, and they pay the bills on this page. Kodukeel is software anyone can install rather than one service, so every copy has its own operator and its own invoice."), {
+              name: operator.name,
+            })}
           </P>
         ) : (
           <P>
-            <strong>Whoever runs this installation has not filled their name in.</strong>{" "}
-            Kodukeel is software anyone can install rather than one service, so the bills
-            below are paid by whoever set this copy up. They are supposed to be named here
-            and on the <Link href="/privacy" className="underline underline-offset-2">privacy page</Link>,
-            and they are not. If that is you, set <code>OPERATOR_NAME</code>,{" "}
-            <code>OPERATOR_ADDRESS</code> and <code>OPERATOR_EMAIL</code>.
+            {rich(t("**Whoever runs this installation has not filled their name in.** Kodukeel is software anyone can install rather than one service, so the bills below are paid by whoever set this copy up. They are supposed to be named here and on the {privacy}, and they are not. If that is you, set `OPERATOR_NAME`, `OPERATOR_ADDRESS` and `OPERATOR_EMAIL`."), {
+              privacy: privacyLink("privacy page"),
+            })}
           </P>
         )}
         <P>
-          The code is MIT licensed and the dictionary data is not ours to license: Ekilex
-          is CC BY 4.0 and Wiktionary is CC BY-SA 4.0, which is share-alike and therefore
-          reaches the built dictionary as well. Anyone may run their own copy, and at one
-          learner it costs the price of a domain name.
+          {t("The code is MIT licensed and the dictionary data is not ours to license: Ekilex is CC BY 4.0 and Wiktionary is CC BY-SA 4.0, which is share-alike and therefore reaches the built dictionary as well. Anyone may run their own copy, and at one learner it costs the price of a domain name.")}
         </P>
       </S>
 
-      <S title="What it runs on">
+      <S title={t("What it runs on")}>
         <P>
-          {SERVICES.length} things, and every one of them has a price on it. The list is
-          longer than the one on{" "}
-          <Link href="/privacy" className="underline underline-offset-2">the privacy page</Link>,
-          because that page answers a narrower question: a service can hold every row in
-          the database without ever being told who a learner is.
+          {rich(t("{count} things, and every one of them has a price on it. The list is longer than the one on {privacy}, because that page answers a narrower question: a service can hold every row in the database without ever being told who a learner is."), {
+            count: String(SERVICES.length),
+            privacy: privacyLink("the privacy page"),
+          })}
         </P>
         <P>
-          <strong>Nothing anybody bills us for is counted as free.</strong> Every vendor
-          here is on the plan a real deployment is on, because a free tier either pauses
-          when nobody&rsquo;s using it or forbids commercial use, and pricing one would
-          describe a deployment nobody actually runs.
+          {rich(t("**Nothing anybody bills us for is counted as free.** Every vendor here is on the plan a real deployment is on, because a free tier either pauses when nobody’s using it or forbids commercial use, and pricing one would describe a deployment nobody actually runs."))}
         </P>
         <P>
-          <strong>What is given is credited, not priced.</strong> Ekilex, Wiktionary and
-          TartuNLP are public institutions that decided this work should be available.
-          They ask for nothing, and that is a good arrangement rather than a gap in the
-          accounts, so they are named here with what each one gives and the license it
-          comes under, and they appear in no total. Where buying the same thing is
-          possible the panel says what that would come to, because the size of the gift is
-          worth seeing. The last line of each card is the one worth reading: every entry
-          is a state the app already handles rather than a disaster.
+          {rich(t("**What is given is credited, not priced.** Ekilex, Wiktionary and TartuNLP are public institutions that decided this work should be available. They ask for nothing, and that is a good arrangement rather than a gap in the accounts, so they are named here with what each one gives and the license it comes under, and they appear in no total. Where buying the same thing is possible the panel says what that would come to, because the size of the gift is worth seeing. The last line of each card is the one worth reading: every entry is a state the app already handles rather than a disaster."))}
         </P>
-
         <ul className="space-y-3">
           {SERVICES.map((service) => (
             <li
@@ -175,279 +178,265 @@ export default function FundingPage() {
             >
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                 <span className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                  {service.name}
+                  {t(service.name)}
                 </span>
                 <span
                   className="label-xs"
                   style={{ color: switchedOn(service.setBy) ? "var(--sky-ink)" : "var(--ink-3)" }}
                 >
-                  {switchedOn(service.setBy) ? "on here" : "not set here"}
+                  {switchedOn(service.setBy) ? t("on here") : t("not set here")}
                 </span>
               </div>
-              <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>{service.who}</p>
+              <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>{t(service.who)}</p>
               <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                {service.does}
+                {t(service.does)}
               </p>
               <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-3)" }}>
-                Without it: {service.whenItIsGone}
+                {fill(t("Without it: {gone}"), { gone: t(service.whenItIsGone) })}
               </p>
             </li>
           ))}
         </ul>
-
         <P>
-          <strong>On this installation.</strong> Sign-in is{" "}
-          {supabaseConfigured()
-            ? "on, so every learner has a deck of their own"
-            : "off, so this copy is one local learner"}. Live dictionary lookups are{" "}
-          {ekilexConfigured() ? "on" : "off, so the built-in dictionary answers by itself"}, and
-          speech is cached {audioCacheIsDurable() ? "in shared storage" : "on the server's own disk"}.{" "}
-          {chain.length === 0
-            ? "No model key is set, so Anu is not here at all and nothing on this page bills for her."
-            : `Anu is answered by ${modelLabels.length > 1
-              ? `${modelLabels.slice(0, -1).join(", ")} and ${modelLabels[modelLabels.length - 1]}`
-              : modelLabels[0]}, on ${freeChain
-              ? "models that are given away at the tier this uses, which the panel below still prices as though they were bought"
-              : "at least one model that charges"}.`}
+          {rich(t("**On this installation.** Sign-in is {signIn}. Live dictionary lookups are {lookups}, and speech is cached {speech}. {anu}"), {
+            signIn: supabaseConfigured()
+              ? t("on, so every learner has a deck of their own")
+              : t("off, so this copy is one local learner"),
+            lookups: ekilexConfigured() ? tr(locale, "on", "switch") : t("off, so the built-in dictionary answers by itself"),
+            speech: audioCacheIsDurable() ? t("in shared storage") : t("on the server’s own disk"),
+            anu: chain.length === 0
+              ? t("No model key is set, so Anu is not here at all and nothing on this page bills for her.")
+              : fill(
+                freeChain
+                  ? t("Anu is answered by {models}, on models that are given away at the tier this uses, which the panel below still prices as though they were bought.")
+                  : t("Anu is answered by {models}, on at least one model that charges."),
+                {
+                  models: modelLabels.length > 1
+                    ? `${modelLabels.slice(0, -1).join(", ")} ${t("and")} ${modelLabels[modelLabels.length - 1]}`
+                    : modelLabels[0] ?? "",
+                },
+              ),
+          })}
         </P>
       </S>
 
-      <S title="What it comes to">
+      <S title={t("What it comes to")}>
         <P>
-          Move the slider. Nothing here is stored or sent anywhere. The sums run in your
-          browser, using the same code the app itself uses to decide when to stop
-          spending.
+          {t("Move the slider. Nothing here is stored or sent anywhere. The sums run in your browser, using the same code the app itself uses to decide when to stop spending.")}
         </P>
-        <CostExplorer />
+        <LocaleProvider locale={locale}>
+          <CostExplorer />
+        </LocaleProvider>
       </S>
 
-      <S title="What was measured, and how">
+      <S title={t("What was measured, and how")}>
         <P>
-          Taken on {MEASURED_ON}, against Postgres 16 on one machine and a production
-          build served locally. Each row says what to run to get the same number, because
-          a figure nobody can reproduce is a claim rather than a measurement.
+          {fill(t("Taken on {day}, against Postgres 16 on one machine and a production build served locally. Each row says what to run to get the same number, because a figure nobody can reproduce is a claim rather than a measurement."), {
+            day: MEASURED_ON,
+          })}
         </P>
-        <div className="scroll-host overflow-x-auto" tabIndex={0} role="region" aria-label="Measurements taken on this repository">
+        {/* Focusable, because a region that scrolls sideways on a phone has to be
+            reachable by a keyboard as well as a finger. */}
+        <div className="scroll-host overflow-x-auto" tabIndex={0} role="region" aria-label={t("Measurements taken on this repository")}>
           <table className="w-full text-sm">
-            <caption className="sr-only">Measurements taken on this repository</caption>
+            <caption className="sr-only">{t("Measurements taken on this repository")}</caption>
             <thead>
               <tr style={{ color: "var(--ink-3)" }}>
-                <th scope="col" className="label-xs py-1 text-left">What</th>
-                <th scope="col" className="label-xs py-1 text-left">How much</th>
+                <th scope="col" className="label-xs py-1 text-left">{t("What")}</th>
+                <th scope="col" className="label-xs py-1 text-left">{t("How much")}</th>
               </tr>
             </thead>
             <tbody>
               {MEASURED.map((m) => (
                 <tr key={m.what} className="border-t align-top" style={{ borderColor: "var(--rule)" }}>
                   <td className="py-2 pr-3" style={{ color: "var(--ink-2)" }}>
-                    {m.what}
-                    <span className="mt-0.5 block text-xs" style={{ color: "var(--ink-3)" }}>{m.how}</span>
+                    {t(m.what)}
+                    <span className="mt-0.5 block text-xs" style={{ color: "var(--ink-3)" }}>{t(m.how)}</span>
                   </td>
-                  <td className="py-2" style={{ color: "var(--ink)" }}>{m.value}</td>
+                  <td className="py-2" style={{ color: "var(--ink)" }}>{t(m.value)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <P>
-          Two of those are worth stopping on. A review row is 300 bytes, so a learner
-          costs about 1.3 MB a year and the whole review log of a thousand people for a
-          year fits in less space than a phone photograph album. And a spoken clip is
-          uncompressed audio, 43 KB for every second of it once trimmed and stored as
-          16-bit, which still makes speech the largest thing this app moves by a wide
-          margin. Turning the audio off in the
-          panel above is the single biggest saving available, and it is also the feature
-          hardest to argue for losing.
+          {t("Two of those are worth stopping on. A review row is 300 bytes, so a learner costs about 1.3 MB a year and the whole review log of a thousand people for a year fits in less space than a phone photograph album. And a spoken clip is uncompressed audio, 43 KB for every second of it once trimmed and stored as 16-bit, which still makes speech the largest thing this app moves by a wide margin. Turning the audio off in the panel above is the single biggest saving available, and it is also the feature hardest to argue for losing.")}
         </P>
       </S>
 
-      <S title="Where the prices came from">
+      <S title={t("Where the prices came from")}>
         <P>
-          Read on {PRICES_CHECKED}. These are the numbers most likely to be out of date by
-          the time you read this, which is why they carry a date rather than being folded
-          into the total.
+          {fill(t("Read on {day}. These are the numbers most likely to be out of date by the time you read this, which is why they carry a date rather than being folded into the total."), {
+            day: PRICES_CHECKED,
+          })}
         </P>
         <ul className="space-y-1.5 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <li>
-            <a href={VERCEL.ref.source} target="_blank" rel="noreferrer" className="underline underline-offset-2">Vercel</a>
-            : ${VERCEL.pro.baseUsd} a month, then{" "}
-            ${VERCEL.overage.perTransferGb} a gigabyte out past the first{" "}
-            {VERCEL.pro.included.transferGb?.toLocaleString("en-GB")}.
+            <Priced href={VERCEL.ref.source} label="Vercel" />
+            {": "}
+            {fill(t("${base} a month, then ${rate} a gigabyte out past the first {gb}."), {
+              base: VERCEL.pro.baseUsd,
+              rate: VERCEL.overage.perTransferGb,
+              gb: VERCEL.pro.included.transferGb?.toLocaleString(locale === "en" ? "en-GB" : locale) ?? "",
+            })}
           </li>
           <li>
-            <a href={SUPABASE.ref.source} target="_blank" rel="noreferrer" className="underline underline-offset-2">Supabase</a>
-            : ${SUPABASE.pro.baseUsd} a month with {SUPABASE.pro.included.dbGb} GB of
-            database, {SUPABASE.pro.included.storageGb} GB of files and{" "}
-            ${SUPABASE.computeCreditUsd} of compute credit.
+            <Priced href={SUPABASE.ref.source} label="Supabase" />
+            {": "}
+            {fill(t("${base} a month with {db} GB of database, {files} GB of files and ${credit} of compute credit."), {
+              base: SUPABASE.pro.baseUsd,
+              db: SUPABASE.pro.included.dbGb ?? "",
+              files: SUPABASE.pro.included.storageGb ?? "",
+              credit: SUPABASE.computeCreditUsd,
+            })}
           </li>
           <li>
-            <a href={COMPUTE.ref.source} target="_blank" rel="noreferrer" className="underline underline-offset-2">Database instances</a>
-            : from ${COMPUTE.sizes[0]!.usd} a month to ${COMPUTE.sizes[COMPUTE.sizes.length - 1]!.usd.toLocaleString("en-GB")}. This is the steepest ladder on the page.
+            <Priced href={COMPUTE.ref.source} label={t("Database instances")} />
+            {": "}
+            {fill(t("from ${low} a month to ${high}. This is the steepest ladder on the page."), {
+              low: COMPUTE.sizes[0]!.usd,
+              high: COMPUTE.sizes[COMPUTE.sizes.length - 1]!.usd.toLocaleString(locale === "en" ? "en-GB" : locale),
+            })}
           </li>
           <li>
-            <a href={SPEECH_MARKET.ref.source} target="_blank" rel="noreferrer" className="underline underline-offset-2">Speech</a>
-            : ${SPEECH_MARKET.usdPerMillionCharacters} a million characters, which is what{" "}
-            {SPEECH_MARKET.equivalentOf} charge. TartuNLP charge nothing. That rate is here
-            only to show the size of what they give, and it is in no total on this page.
+            <Priced href={SPEECH_MARKET.ref.source} label={t("Speech")} />
+            {": "}
+            {fill(t("${rate} a million characters, which is what {who} charge. TartuNLP charge nothing. That rate is here only to show the size of what they give, and it is in no total on this page."), {
+              rate: SPEECH_MARKET.usdPerMillionCharacters,
+              who: SPEECH_MARKET.equivalentOf,
+            })}
           </li>
           <li>
-            <a href={EMAIL.ref.source} target="_blank" rel="noreferrer" className="underline underline-offset-2">Resend</a>
-            : ${EMAIL.pro.baseUsd} a month for{" "}
-            {EMAIL.pro.included.emails?.toLocaleString("en-GB")} emails, then{" "}
-            ${EMAIL.overage.perThousandEmails} a thousand.
+            <Priced href={EMAIL.ref.source} label="Resend" />
+            {": "}
+            {fill(t("${base} a month for {emails} emails, then ${rate} a thousand."), {
+              base: EMAIL.pro.baseUsd,
+              emails: EMAIL.pro.included.emails?.toLocaleString(locale === "en" ? "en-GB" : locale) ?? "",
+              rate: EMAIL.overage.perThousandEmails,
+            })}
           </li>
           <li>
-            <a href={ERRORS.ref.source} target="_blank" rel="noreferrer" className="underline underline-offset-2">Error reporting</a>
-            : ${ERRORS.team.baseUsd} a month for{" "}
-            {ERRORS.team.included.events?.toLocaleString("en-GB")} events.
+            <Priced href={ERRORS.ref.source} label={t("Error reporting")} />
+            {": "}
+            {fill(t("${base} a month for {events} events."), {
+              base: ERRORS.team.baseUsd,
+              events: ERRORS.team.included.events?.toLocaleString(locale === "en" ? "en-GB" : locale) ?? "",
+            })}
           </li>
           <li>
-            <a href={DEVTOOLS.ref.source} target="_blank" rel="noreferrer" className="underline underline-offset-2">{DEVTOOLS.plan}</a>
-            : {DEVTOOLS.eurPerMonth} euros a month. The tooling that writes and maintains
-            this, which is the one line here that is not runtime and the one that does not grow.
+            <Priced href={DEVTOOLS.ref.source} label={DEVTOOLS.plan} />
+            {": "}
+            {fill(t("{eur} euros a month. The tooling that writes and maintains this, which is the one line here that is not runtime and the one that does not grow."), {
+              eur: DEVTOOLS.eurPerMonth,
+            })}
           </li>
           <li>
-            <a href={FX.ref.source} target="_blank" rel="noreferrer" className="underline underline-offset-2">The euro</a>
-            : {FX.usdPerEur} dollars, the European Central Bank&rsquo;s reference rate. Two
-            lines here are billed in euros and the rest in dollars, and every price is net
-            of VAT, which is how each vendor quotes its own.
+            <Priced href={FX.ref.source} label={t("The euro")} />
+            {": "}
+            {fill(t("{usd} dollars, the European Central Bank’s reference rate. Two lines here are billed in euros and the rest in dollars, and every price is net of VAT, which is how each vendor quotes its own."), {
+              usd: FX.usdPerEur,
+            })}
           </li>
           <li>
-            <a href={DOMAIN.ref.source} target="_blank" rel="noreferrer" className="underline underline-offset-2">A .ee domain</a>
-            : about {DOMAIN.eurPerYear} euros a year.
+            <Priced href={DOMAIN.ref.source} label={t("A .ee domain")} />
+            {": "}
+            {fill(t("about {eur} euros a year."), { eur: DOMAIN.eurPerYear })}
           </li>
         </ul>
         <P>
-          Ekilex, Wiktionary and TartuNLP are not on that list, because they do not charge
-          and this page does not pretend otherwise. They are credited above instead, with
-          what each one gives and the license it comes under. Where buying the same thing
-          is possible the panel says what that would come to, so the size of the gift is
-          visible, and that figure is in no total here.
+          {t("Ekilex, Wiktionary and TartuNLP are not on that list, because they do not charge and this page does not pretend otherwise. They are credited above instead, with what each one gives and the license it comes under. Where buying the same thing is possible the panel says what that would come to, so the size of the gift is visible, and that figure is in no total here.")}
         </P>
       </S>
 
-      <S title="What that number leaves out">
+      <S title={t("What that number leaves out")}>
         <P>
-          <strong>Somebody&rsquo;s time</strong>, which is the largest real cost of this
-          project by a long way and is not a hosting bill. The panel above prices
-          machines. It does not price writing the course, checking 5,363 English glosses
-          against their sources, or reading the queue of corrections learners send in.
+          {rich(t("**Somebody’s time**, which is the largest real cost of this project by a long way and is not a hosting bill. The panel above prices machines. It does not price writing the course, checking 5,363 English glosses against their sources, or reading the queue of corrections learners send in."))}
         </P>
         <P>
-          <strong>Answering people.</strong> A dead end in this app offers to send a
-          report, and somebody has to work through them for that to mean anything.
+          {rich(t("**Answering people.** A dead end in this app offers to send a report, and somebody has to work through them for that to mean anything."))}
         </P>
         <P>
-          <strong>A bad month.</strong> The projection is a steady month. It does not
-          model the week something is on the radio, and a plan&rsquo;s included allowance is
-          exactly where a spike is felt first.
+          {rich(t("**A bad month.** The projection is a steady month. It does not model the week something is on the radio, and a plan’s included allowance is exactly where a spike is felt first."))}
         </P>
       </S>
 
-      <S title="What money would change">
+      <S title={t("What money would change")}>
         <P>
-          Four things, in the order they would matter.
+          {t("Four things, in the order they would matter.")}
         </P>
         <P>
-          <strong>The daily cap on the tutor could go up.</strong> Every model call in the
-          app is booked against a shared budget of{" "}
-          ${(DEFAULT_LIMITS.dailyMicrosGlobal / 1e6).toFixed(0)} a day, which cannot be
-          turned off and is what stops the one line that could run away. Raising it is a
-          knob with a stop on it rather than an open check, and at ten thousand learners
-          it is already the thing holding that line down.
+          {rich(t("**The daily cap on the tutor could go up.** Every model call in the app is booked against a shared budget of ${cap} a day, which cannot be turned off and is what stops the one line that could run away. Raising it is a knob with a stop on it rather than an open check, and at ten thousand learners it is already the thing holding that line down."), {
+            cap: (DEFAULT_LIMITS.dailyMicrosGlobal / 1e6).toFixed(0),
+          })}
         </P>
         <P>
-          <strong>A school could keep its history.</strong> Everything on the progress
-          screens is worked out from the review log on each request rather than stored, so
-          the log is never thrown away and the database only grows. That is the right
-          design and it is what makes the instance ladder the steepest line on this page.
+          {rich(t("**A school could keep its history.** Everything on the progress screens is worked out from the review log on each request rather than stored, so the log is never thrown away and the database only grows. That is the right design and it is what makes the instance ladder the steepest line on this page."))}
         </P>
         <P>
-          <strong>The corrections could be worked.</strong> The dictionary is built from
-          Ekilex and Wiktionary rather than typed, which keeps invented Estonian out of it
-          and does not make every entry right. Learners already report the wrong ones.
+          {rich(t("**The corrections could be worked.** The dictionary is built from Ekilex and Wiktionary rather than typed, which keeps invented Estonian out of it and does not make every entry right. Learners already report the wrong ones."))}
         </P>
         <P>
-          <strong>Something could go back to the institutions this is built on.</strong>{" "}
-          Ekilex, Wiktionary and TartuNLP ask for nothing and there is no suggestion they
-          should start. But this app would not exist without any of the three, and at a
-          size worth funding the decent thing is to support the work rather than only to
-          use it: a contribution, a corrected entry sent back, or paying for the compute
-          somebody else is currently absorbing.
+          {rich(t("**Something could go back to the institutions this is built on.** Ekilex, Wiktionary and TartuNLP ask for nothing and there is no suggestion they should start. But this app would not exist without any of the three, and at a size worth funding the decent thing is to support the work rather than only to use it: a contribution, a corrected entry sent back, or paying for the compute somebody else is currently absorbing."))}
         </P>
       </S>
 
-      <S title="What happens when the money stops">
+      <S title={t("What happens when the money stops")}>
         <P>
-          The question a grant is scored on, and the one a cost page usually leaves out.
-          The figures below are the same bill as above with things switched off, in the
-          order somebody would actually switch them off. The tooling that writes the
-          software goes first, because a reader opening the app tomorrow does not notice
-          it. The server and the database go last, because without those there is nothing.
+          {t("The question a grant is scored on, and the one a cost page usually leaves out. The figures below are the same bill as above with things switched off, in the order somebody would actually switch them off. The tooling that writes the software goes first, because a reader opening the app tomorrow does not notice it. The server and the database go last, because without those there is nothing.")}
         </P>
         {ladder.map((step) => (
           <P key={step.stage.id}>
-            <strong>{step.stage.name}, ${step.usd.toFixed(0)} a month.</strong>{" "}
-            {step.stage.why}
+            <strong>{fill(t("{stage}, ${usd} a month."), { stage: tr(locale, step.stage.name, "stage"), usd: step.usd.toFixed(0) })}</strong>{" "}
+            {t(step.stage.why)}
             {step.lost.length > 0 ? (
               <>
-                {" "}What goes: {step.lost.map((l) => `${l.name}. ${l.cost}`).join(" ")}
+                {" "}{fill(t("What goes: {lost}"), { lost: step.lost.map((l) => `${t(l.name)}. ${t(l.cost)}`).join(" ") })}
               </>
             ) : null}
           </P>
         ))}
         <P>
-          The fall is gradual because most of what this app is made of was never bought.
-          The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and
-          all three are public institutions that decided this work should be available. The
-          scheduler, the course, the exams, the games and the grammar run on a server and a
-          database and nothing else. What money buys is the tutor, the polish, and somebody
-          to work on it.
+          {t("The fall is gradual because most of what this app is made of was never bought. The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and all three are public institutions that decided this work should be available. The scheduler, the course, the exams, the games and the grammar run on a server and a database and nothing else. What money buys is the tutor, the polish, and somebody to work on it.")}
         </P>
         <P>
-          So the honest claim is not that this becomes profitable. It is that at{" "}
-          ${floor.toFixed(0)} a month it can be kept alive by one person who has not been
-          paid, and that it keeps teaching Estonian the whole way down.
+          {fill(t("So the honest claim is not that this becomes profitable. It is that at ${floor} a month it can be kept alive by one person who has not been paid, and that it keeps teaching Estonian the whole way down."), {
+            floor: floor.toFixed(0),
+          })}
         </P>
       </S>
 
-      <S title="What survives even that">
+      <S title={t("What survives even that")}>
         <P>
-          Six things, and every one of them is a file somebody can open rather than an
-          intention somebody has stated.
+          {t("Six things, and every one of them is a file somebody can open rather than an intention somebody has stated.")}
         </P>
         {CONTINUITY.map((item) => (
           <P key={item.id}>
-            {item.claim}{" "}
+            {t(item.claim)}{" "}
             <span style={{ color: "var(--ink-3)" }}>({item.checkableAt})</span>
           </P>
         ))}
         <P>
-          Which is the answer to the question under the question. A funder is not really
-          asking whether the lights stay on. They are asking whether the money buys
-          something that outlives the project. For a language this size, the thing worth
-          buying is a corrected dictionary, a course built out of attested sources, and the
-          code to run both, all published under a licence that lets somebody else pick it
-          up.
+          {t("Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a licence that lets somebody else pick it up.")}
         </P>
       </S>
 
-      <S title="What it will not be spent on">
+      <S title={t("What it will not be spent on")}>
         <P>
-          There is no advertising, no analytics script and no third-party tracker on any
-          page of this app, which the{" "}
-          <Link href="/privacy" className="underline underline-offset-2">privacy page</Link>{" "}
-          states and the code keeps true: an analytics package was mounted here once, on
-          every visitor of the hosted build, while that same notice said there was none.
-          It was removed rather than the notice being edited.
+          {rich(t("There is no advertising, no analytics script and no third-party tracker on any page of this app, which the {privacy} states and the code keeps true: an analytics package was mounted here once, on every visitor of the hosted build, while that same notice said there was none. It was removed rather than the notice being edited."), {
+            privacy: privacyLink("privacy page"),
+          })}
         </P>
         <P>
-          Nothing about a learner is sold, shared or used to train anything. Whether a
-          teacher can see a pupil is answered narrowly and separately, and the answer is
-          effort rather than contents. Every one of those promises costs money to keep
-          rather than saving it, which is most of why this page exists.
+          {t("Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a pupil is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.")}
         </P>
       </S>
     </Legal>
+  );
+}
+
+/** A vendor's name, linked to the page its price was read off. */
+function Priced({ href, label }: { href: string; label: string }) {
+  return (
+    <a href={href} target="_blank" rel="noreferrer" className="underline underline-offset-2">{label}</a>
   );
 }

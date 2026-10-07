@@ -21,6 +21,7 @@
  */
 
 import { droppedDiacritics, editDistance } from "./answer";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 import { fold } from "@/lib/estonian/fold";
 
 export type WordStatus =
@@ -190,7 +191,8 @@ export function checkDictation(typed: string, expected: string): DictationResult
   const total = want.length;
   const accuracy = total === 0 ? 0 : Math.round((right / total) * 100);
 
-  return { words, right, total, accuracy, ...judge(words, right, total, accuracy) };
+  const judged = judge(words, right, total, accuracy);
+  return { words, right, total, accuracy, ...judged, note: dictationNote({ words, right, total, verdict: judged.verdict }, "en") };
 }
 
 /**
@@ -301,14 +303,10 @@ function judge(
   right: number,
   total: number,
   accuracy: number,
-): Pick<DictationResult, "verdict" | "suggestedRating" | "note"> {
-  if (total === 0 || words.every((w) => w.typed === null)) {
-    return { verdict: "wrong", suggestedRating: 1, note: "Nothing typed." };
-  }
+): Pick<DictationResult, "verdict" | "suggestedRating"> {
+  if (nothingTyped(words, total)) return { verdict: "wrong", suggestedRating: 1 };
 
-  if (right === total && words.length === total) {
-    return { verdict: "correct", suggestedRating: 3, note: "Word for word." };
-  }
+  if (right === total && words.length === total) return { verdict: "correct", suggestedRating: 3 };
 
   /*
     THE LEARNER HEARD EVERY WORD, WHICH IS THE HARD HALF.
@@ -325,6 +323,37 @@ function judge(
   const heardEverything = words.every((w) =>
     w.status === "right" || w.status === "diacritics" || w.status === "spacing");
   if (heardEverything) {
+    return { verdict: words.some((w) => w.status === "spacing") ? "spacing" : "diacritics", suggestedRating: 2 };
+  }
+
+  if (accuracy >= 60) return { verdict: "close", suggestedRating: 2 };
+
+  return { verdict: "wrong", suggestedRating: 1 };
+}
+
+function nothingTyped(words: DictationWord[], total: number): boolean {
+  return total === 0 || words.every((w) => w.typed === null);
+}
+
+/**
+ * The one-line summary of a marked dictation, in the reader's language.
+ *
+ * Worked out from the marked words rather than carried as a string, so the
+ * English `note` on the result and the line a Russian or Ukrainian reader sees
+ * are the same reading of the same marks. Every sentence is whole in the
+ * table (`lib/copy/i18n`), because a clause about spaces joined to a clause
+ * about letters is a word order only English has.
+ */
+export function dictationNote(
+  result: Pick<DictationResult, "words" | "right" | "total" | "verdict">,
+  locale: Locale,
+): string {
+  const { words, right, total, verdict } = result;
+  const say = (english: string, values: Record<string, number> = {}) => fill(tr(locale, english), values);
+  if (nothingTyped(words, total)) return say("Nothing typed.");
+  if (verdict === "correct") return say("Word for word.");
+
+  if (verdict === "diacritics" || verdict === "spacing") {
     const spaced = words.filter((w) => w.status === "spacing");
     // A merge or split can itself have lost its diacritics, so that count is
     // folded in here rather than only ever coming from an ordinary pair.
@@ -332,43 +361,33 @@ function judge(
       + spaced.filter(spacingHasDiacriticsSlip).length;
 
     if (spaced.length === 0) {
-      return {
-        verdict: "diacritics",
-        suggestedRating: 2,
-        note: slipped === 1
-          ? "You heard every word. One is missing its Estonian letters."
-          : `You heard every word. ${slipped} are missing their Estonian letters.`,
-      };
+      return slipped === 1
+        ? say("You heard every word. One is missing its Estonian letters.")
+        : say("You heard every word. {slipped} are missing their Estonian letters.", { slipped });
     }
 
     const spaces = spaced.reduce((n, w) => n + spacesMoved(w), 0);
-    const spaceNote = spaces === 1 ? "one space needs moving" : `${spaces} spaces need moving`;
     // "Word", because after a clause about spaces a bare "one" reads as a space.
-    const diacriticsNote = slipped === 1
-      ? "one word is missing its Estonian letters"
-      : `${slipped} words are missing their Estonian letters`;
-    return {
-      verdict: "spacing",
-      suggestedRating: 2,
-      note: slipped > 0
-        ? `You heard every word, but ${spaceNote}, and ${diacriticsNote}.`
-        : `You heard every word, but ${spaceNote}.`,
-    };
+    if (slipped === 0) {
+      return spaces === 1
+        ? say("You heard every word, but one space needs moving.")
+        : say("You heard every word, but {spaces} spaces need moving.", { spaces });
+    }
+    if (spaces === 1) {
+      return slipped === 1
+        ? say("You heard every word, but one space needs moving, and one word is missing its Estonian letters.")
+        : say("You heard every word, but one space needs moving, and {slipped} words are missing their Estonian letters.", { slipped });
+    }
+    return slipped === 1
+      ? say("You heard every word, but {spaces} spaces need moving, and one word is missing its Estonian letters.", { spaces })
+      : say("You heard every word, but {spaces} spaces need moving, and {slipped} words are missing their Estonian letters.", { spaces, slipped });
   }
 
-  if (accuracy >= 60) {
-    return {
-      verdict: "close",
-      suggestedRating: 2,
-      note: `${right} of ${total} words exactly right.`,
-    };
-  }
+  if (verdict === "close") return say("{right} of {total} words exactly right.", { right, total });
 
-  return {
-    verdict: "wrong",
-    suggestedRating: 1,
-    note: total === right ? "Extra words crept in." : `${right} of ${total} words right. Give it another listen.`,
-  };
+  return total === right
+    ? say("Extra words crept in.")
+    : say("{right} of {total} words right. Give it another listen.", { right, total });
 }
 
 /**
@@ -401,19 +420,25 @@ function judge(
  * Nothing here writes Estonian: every letter named comes out of the sentence
  * Ekilex recorded (ADR-005).
  */
-export function wordNote(word: DictationWord): string | null {
+export function wordNote(word: DictationWord, locale: Locale): string | null {
   if (!word.expected || !word.typed) return null;
 
   if (word.status === "diacritics") {
     const dropped = droppedDiacritics(word.typed, word.expected);
-    return dropped.length > 0 ? dropped.join(", ") : "the dots and tildes";
+    // Each pair reads "õ, not o"; only the "not" is a word of ours.
+    return dropped.length > 0
+      ? dropped.map((pair) => {
+        const [right, wrong] = pair.split(", not ");
+        return fill(tr(locale, "{right}, not {wrong}"), { right: right ?? "", wrong: wrong ?? "" });
+      }).join(", ")
+      : tr(locale, "the dots and tildes");
   }
 
   if (word.status === "typo") {
     // Deliberately not "which" keystroke. The point of separating this from a
     // dropped diacritic is that this one is a slip and that one is a thing to
     // learn; spelling out the slip would give the two the same weight again.
-    return "one letter out";
+    return tr(locale, "one letter out");
   }
 
   if (word.status === "spacing") {
@@ -421,11 +446,11 @@ export function wordNote(word: DictationWord): string | null {
     // (two or more words run together); the other way round is a split.
     const spaces = spacesMoved(word);
     const spaceIssue = word.expected.split(" ").length > word.typed.split(" ").length
-      ? (spaces === 1 ? "missing a space" : `missing ${spaces} spaces`)
-      : (spaces === 1 ? "an extra space" : `${spaces} extra spaces`);
+      ? (spaces === 1 ? tr(locale, "missing a space") : fill(tr(locale, "missing {n} spaces"), { n: spaces }))
+      : (spaces === 1 ? tr(locale, "an extra space") : fill(tr(locale, "{n} extra spaces"), { n: spaces }));
     // The same slip can lose a diacritic on the way, since folding the
     // diacritics away is what let the merge or split match at all.
-    return spacingHasDiacriticsSlip(word) ? `${spaceIssue}, and its Estonian letters` : spaceIssue;
+    return spacingHasDiacriticsSlip(word) ? fill(tr(locale, "{issue}, and its Estonian letters"), { issue: spaceIssue }) : spaceIssue;
   }
 
   return null;

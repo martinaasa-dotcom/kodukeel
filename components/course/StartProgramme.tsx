@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { setProgramme } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { Note } from "@/components/ui";
+import { useT } from "@/components/Locale";
 
 /**
  * Follow the planned course, or stop following it.
@@ -23,6 +24,7 @@ export function StartProgramme({ programmeId, on = false }: {
   const [failed, setFailed] = useState(false);
   const [pending, start] = useTransition();
   const router = useRouter();
+  const t = useT();
 
   const press = () => {
     setFailed(false);
@@ -36,11 +38,11 @@ export function StartProgramme({ programmeId, on = false }: {
   return (
     <div>
       <Button variant={on ? "secondary" : "primary"} onClick={press} disabled={pending}>
-        {on ? "Stop following the course" : <>Start the course <ArrowRight size={15} aria-hidden /></>}
+        {on ? t("Stop following the course") : <>{t("Start the course")} <ArrowRight size={15} aria-hidden /></>}
       </Button>
       {failed && (
         <div className="mt-2" role="status">
-          <Note tone="again">That didn&apos;t go through, so nothing has changed. Try again in a moment.</Note>
+          <Note tone="again">{t("That didn't go through, so nothing has changed. Try again in a moment.")}</Note>
         </div>
       )}
     </div>

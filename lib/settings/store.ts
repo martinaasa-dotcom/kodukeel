@@ -137,6 +137,19 @@ export const SETTING_KEYS = {
    */
   glossLanguage: "glossLanguage",
   /**
+   * The language the app's own words are in, around the Estonian. English is
+   * the default because a missing row reads as what everybody had. The values
+   * and why the other two are marked as machine translated live in
+   * lib/copy/locale.ts.
+   */
+  uiLocale: "uiLocale",
+  /**
+   * The locale whose machine-translation notice this learner has closed, so it
+   * is said once per language rather than on every visit. Stored here rather
+   * than on the device, which /privacy would have to account for.
+   */
+  uiLocaleNoticed: "uiLocaleNoticed",
+  /**
    * Whether the dictionary is put under every word of an attested sentence.
    *
    * A first meeting and a line in a conversation both underline every word

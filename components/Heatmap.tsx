@@ -1,4 +1,5 @@
 import type { DayBucket } from "@/lib/stats/history";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 const LEVEL_COLOR: Record<number, string> = {
   /* One hue in four strengths over the neutral track. It ran cyan to violet
@@ -22,7 +23,8 @@ const LEVEL_COLOR: Record<number, string> = {
  * It scrolls horizontally inside its own box: a heatmap that makes the whole
  * page scroll sideways on a phone is worse than no heatmap.
  */
-export function Heatmap({ days }: { days: DayBucket[] }) {
+export function Heatmap({ days, locale = "en" }: { days: DayBucket[]; locale?: Locale }) {
+  const t = (english: string) => tr(locale, english);
   const first = days[0];
   if (!first) return null;
 
@@ -67,7 +69,7 @@ export function Heatmap({ days }: { days: DayBucket[] }) {
       {/* Written right to left and read left to right, so a box that scrolls
           opens on this week rather than on the one six months ago: the edge a
           phone shows first is the edge anybody is looking for. */}
-      <div dir="rtl" className="overflow-x-auto pb-1" tabIndex={0} role="region" aria-label="Reviews per day, last six months">
+      <div dir="rtl" className="overflow-x-auto pb-1" tabIndex={0} role="region" aria-label={t("Reviews per day, last six months")}>
         <div dir="ltr" style={{ minWidth: weeks.length * 13 }}>
           <div
             aria-hidden
@@ -97,7 +99,7 @@ export function Heatmap({ days }: { days: DayBucket[] }) {
                        calendar. Data cells are the one exception (docs §2). */
                     className="heat-cell block aspect-square rounded-[2px]"
                     style={{ background: LEVEL_COLOR[cell.level] }}
-                    title={`${cell.day}: ${cell.count} review${cell.count === 1 ? "" : "s"}`}
+                    title={locale === "en" ? `${cell.day}: ${cell.count} review${cell.count === 1 ? "" : "s"}` : fill(t("{day}: {count} reviews"), { day: cell.day, count: cell.count })}
                   />
                 );
               }),
@@ -106,13 +108,13 @@ export function Heatmap({ days }: { days: DayBucket[] }) {
         </div>
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-3 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{total} reviews, spread over {active} of the last {days.length} days</span>
+        <span>{fill(t("{total} reviews, spread over {active} of the last {days} days"), { total, active, days: days.length })}</span>
         <span className="ml-auto flex items-center gap-1.5">
-          Quiet
+          {t("Quiet")}
           {[0, 1, 2, 3, 4].map((l) => (
             <span key={l} className="block h-[10px] w-[10px] rounded-[2px]" style={{ background: LEVEL_COLOR[l] }} aria-hidden />
           ))}
-          Busy
+          {t("Busy")}
         </span>
       </div>
     </div>

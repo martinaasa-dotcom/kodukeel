@@ -6,6 +6,7 @@ import { setCourseLevel } from "@/app/actions";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { LEVELS, type Level } from "@/lib/collections/syllabus";
 import { Explain } from "@/components/Explain";
+import { useT } from "@/components/Locale";
 
 /**
  * The level the app holds for you, changed by hand.
@@ -36,6 +37,7 @@ export function LevelPanel({ current, measured }: {
   /** True when a level check is what the app is currently going on. */
   measured: boolean;
 }) {
+  const t = useT();
   const [level, setLevel] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -52,7 +54,7 @@ export function LevelPanel({ current, measured }: {
 
   return (
     <div className="flex flex-col gap-3">
-      <ChoiceGroup ariaLabel="Your level" className="flex flex-wrap gap-2">
+      <ChoiceGroup ariaLabel={t("Your level")} className="flex flex-wrap gap-2">
         {LEVELS.map((option) => (
           <ChoiceChip
             key={option}
@@ -66,15 +68,12 @@ export function LevelPanel({ current, measured }: {
         ))}
       </ChoiceGroup>
       <p className="text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
-        {measured
+        {t(measured
           ? "This is where your last level check put you. If it doesn't feel right, pick another. We'll go with yours until your next check."
-          : "Change it whenever it doesn't feel right. If you take a level check, its result will replace this."}
+          : "Change it whenever it doesn't feel right. If you take a level check, its result will replace this.")}
       </p>
-      <Explain label="What the level decides">
-        Your level decides which part of the course you&rsquo;re on, which new words come next, and
-        which words the games and the dictionary suggest. If you change it, tonight&rsquo;s module
-        moves to match. Nothing you&rsquo;ve already learned is lost, and
-        finished evenings stay finished.
+      <Explain label={t("What the level decides")}>
+        {t("Your level decides which part of the course you’re on, which new words come next, and which words the games and the dictionary suggest. If you change it, tonight’s module moves to match. Nothing you’ve already learned is lost, and finished evenings stay finished.")}
       </Explain>
     </div>
   );

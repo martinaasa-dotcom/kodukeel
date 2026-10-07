@@ -1,4 +1,7 @@
+"use client";
+
 import { Skeleton } from "@/components/ui";
+import { useT } from "@/components/Locale";
 
 /**
  * The shape of a page, while its data loads.
@@ -19,8 +22,11 @@ import { Skeleton } from "@/components/ui";
  * with it, for the reason this whole comment is about.
  */
 export default function Loading() {
+  // A client component so the label is said in the learner's language: the
+  // shell's locale is already published above this boundary.
+  const t = useT();
   return (
-    <div className="mx-auto max-w-4xl px-5 py-8 md:px-10 md:py-12" aria-busy="true" aria-label="Loading">
+    <div className="mx-auto max-w-4xl px-5 py-8 md:px-10 md:py-12" aria-busy="true" aria-label={t("Loading")}>
       <Skeleton className="w-56" height={30} />
       <Skeleton className="mt-3 w-80" height={16} />
       <div className="mt-8 grid gap-8 lg:gap-6 lg:grid-cols-[1.4fr_1fr]">

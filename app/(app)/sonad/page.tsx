@@ -1,3 +1,5 @@
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { learnerDayClock } from "@/lib/progress/dayClock";
@@ -9,7 +11,9 @@ import { ButtonLink } from "@/components/Button";
 import { SonadSession } from "./SonadSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
-export const metadata = { title: "Sõnad" };
+export async function generateMetadata() {
+  return titleFor("Sõnad");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +34,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function SonadPage() {
   const ownerId = await requireUserId();
-  const [level, clock] = await Promise.all([courseLevelFor(ownerId), learnerDayClock(ownerId)]);
+  const [level, clock, locale] = await Promise.all([courseLevelFor(ownerId), learnerDayClock(ownerId), localeFor(ownerId)]);
   const day = clock.dayKey(new Date());
 
   const [puzzle, guessable, taught] = await Promise.all([
@@ -44,7 +48,10 @@ export default async function SonadPage() {
     <BeforeYouStart id="sonad" ready={puzzle !== null}>
       <Page
         title="Sõnad"
-        lead={`One word a day. ${SONAD_LENGTH} letters, ${SONAD_GUESSES} guesses, ${taught ? "a word you've met" : "at your level"}.`}
+        lead={fill(
+          tr(locale, taught ? "One word a day. {letters} letters, {guesses} guesses, a word you've met." : "One word a day. {letters} letters, {guesses} guesses, at your level."),
+          { letters: SONAD_LENGTH, guesses: SONAD_GUESSES },
+        )}
       >
         {puzzle ? (
           <SonadSession puzzle={puzzle} day={day} guessable={guessable} />
@@ -62,15 +69,15 @@ export default async function SonadPage() {
               most, and saying so is the honest answer to an empty board.
             */
             <Empty
-              title="Not enough words yet"
-              body={`Today's word comes from your evenings, and none of their words has ${SONAD_LENGTH} letters yet.`}
-              action={<ButtonLink href="/course">Tonight&rsquo;s evening</ButtonLink>}
+              title={tr(locale, "Not enough words yet")}
+              body={fill(tr(locale, "Today's word comes from your evenings, and none of their words has {n} letters yet."), { n: SONAD_LENGTH })}
+              action={<ButtonLink href="/course">{tr(locale, "Tonight’s evening")}</ButtonLink>}
             />
           ) : (
             <Empty
-              title="No word for today"
-              body={`We couldn't find a ${SONAD_LENGTH}-letter word at your level for today. Try again tomorrow.`}
-              action={<ButtonLink href="/dictionary">Look something up</ButtonLink>}
+              title={tr(locale, "No word for today")}
+              body={fill(tr(locale, "We couldn't find a {n}-letter word at your level for today. Try again tomorrow."), { n: SONAD_LENGTH })}
+              action={<ButtonLink href="/dictionary">{tr(locale, "Look something up")}</ButtonLink>}
             />
           )
         )}

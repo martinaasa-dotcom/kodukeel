@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { EVIDENCE_LABEL } from "@/lib/exam/readiness";
 import type { Reading } from "@/lib/readiness/rungs";
 import { RungChip } from "./Rung";
+import { tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * ONE SITUATION, AS ONE THING TO READ AND ONE PLACE TO PRESS.
@@ -15,7 +16,7 @@ import { RungChip } from "./Rung";
  * carries the evidence behind it, which a rung printed on its own may not
  * leave out.
  */
-export function SituationRow({ reading }: { reading: Reading }) {
+export function SituationRow({ reading, locale }: { reading: Reading; locale: Locale }) {
   const { situation, rung, evidence } = reading;
   return (
     <Link
@@ -25,12 +26,12 @@ export function SituationRow({ reading }: { reading: Reading }) {
     >
       <span className="min-w-0 flex-1">
         <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>
-          {situation.claim}
+          {tr(locale, situation.claim)}
         </span>
         <span className="mt-1.5 flex flex-wrap items-center gap-2">
-          <RungChip rung={rung} />
+          <RungChip rung={rung} locale={locale} />
           {rung !== "unmet" && (
-            <span className="text-xs" style={{ color: "var(--ink-3)" }}>{EVIDENCE_LABEL[evidence]}</span>
+            <span className="text-xs" style={{ color: "var(--ink-3)" }}>{tr(locale, EVIDENCE_LABEL[evidence])}</span>
           )}
         </span>
       </span>

@@ -15,7 +15,9 @@ import { LocalDate } from "@/components/LocalDate";
 import { DUE_DATE_FORMAT } from "@/lib/ux/agenda";
 import { Card, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { ArchiveClass, AssignHomework, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
-import { counted } from "@/lib/copy/values";
+import { localeFor } from "@/lib/progress/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
+import { filled } from "@/components/Filled";
 import { Explain } from "@/components/Explain";
 import { caseByKey } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -72,7 +74,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
   const classroom = membership.classroom;
   const isTeacher = classroom.ownerId === ownerId;
   const workplace = cohortKind(classroom.kind) === "WORKPLACE";
-  const [roster, cohort, history, prefs] = await Promise.all([
+  const [roster, cohort, history, prefs, locale] = await Promise.all([
     workplace ? Promise.resolve(null) : classRoster(classroomId),
     workplace ? workplaceRoster(classroomId, classroom.targetLevel as ExamLevel) : Promise.resolve(null),
     isTeacher ? classworkHistory(classroomId) : Promise.resolve([]),
@@ -85,7 +87,9 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
     isTeacher
       ? readSettings(ownerId, [SETTING_KEYS.emailsOff, SETTING_KEYS.emailsOn])
       : Promise.resolve(null),
+    localeFor(ownerId),
   ]);
+  const t = (english: string) => tr(locale, english);
   const digest = prefs
     ? wants(
         emailPrefsFrom(prefs[SETTING_KEYS.emailsOff], prefs[SETTING_KEYS.emailsOn]),
@@ -99,17 +103,17 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
 
   return (
     <Page
-      eyebrow={
+      eyebrow={t(
         workplace
           ? (isTeacher ? "You run this group" : "Your group at work")
-          : (isTeacher ? "You teach this class" : "Your class")
-      }
+          : (isTeacher ? "You teach this class" : "Your class"),
+      )}
       title={classroom.name}
       lead={workplace
-        ? (isTeacher
-            ? `Who's practicing, and who's on track for ${classroom.targetLevel}.`
-            : `Your group, working toward ${classroom.targetLevel} together.`)
-        : (isTeacher
+        ? fill(t(isTeacher
+            ? "Who's practicing, and who's on track for {level}."
+            : "Your group, working toward {level} together."), { level: classroom.targetLevel })
+        : t(isTeacher
             ? "Who's keeping up, and what the whole class keeps tripping over."
             : "How your class is doing this week.")}
       actions={
@@ -118,14 +122,14 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
           className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
         >
-          <ArrowLeft size={14} aria-hidden /> {workplace ? "All groups" : "All classes"}
+          <ArrowLeft size={14} aria-hidden /> {t(workplace ? "All groups" : "All classes")}
         </Link>
       }
     >
       <Stack>
         {classroom.archived && (
           <Note tone="hard">
-            This class has been archived, so the join code doesn&rsquo;t work any more. Everything here stays put.
+            {t("This class has been archived, so the join code doesn’t work any more. Everything here stays put.")}
           </Note>
         )}
 
@@ -133,7 +137,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
           <Card tone="night">
             <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
               <div>
-                <p className="label-xs" style={{ color: "var(--cta)" }}>Join code</p>
+                <p className="label-xs" style={{ color: "var(--cta)" }}>{t("Join code")}</p>
                 <p
                   className="font-display tnum mt-1 whitespace-nowrap text-4xl font-bold tracking-[0.22em] md:text-5xl"
                   style={{ color: "var(--ink)" }}
@@ -141,7 +145,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                   {classroom.code}
                 </p>
                 <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                  {workplace ? "Colleagues" : "Students"} enter this code under Classes to join.
+                  {t(workplace ? "Colleagues enter this code under Classes to join." : "Students enter this code under Classes to join.")}
                 </p>
               </div>
               <CopyCode code={classroom.code} />
@@ -149,24 +153,24 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
           </Card>
         )}
 
-        {workplace && cohort && <WorkplaceView summary={cohort} sponsor={isTeacher} />}
+        {workplace && cohort && <WorkplaceView summary={cohort} sponsor={isTeacher} locale={locale} />}
 
         {roster && (
           <>
         <div className="grid gap-3 sm:grid-cols-3">
-          <StatTile value={roster.entries.length} label="Members" tone="sky" />
-          <StatTile value={roster.activeThisWeek} label="Active this week" tone="sky" />
-          <StatTile value={roster.totalReviewsThisWeek} label="Reviews this week" tone="accent" />
+          <StatTile value={roster.entries.length} label={t("Members")} tone="sky" />
+          <StatTile value={roster.activeThisWeek} label={t("Active this week")} tone="sky" />
+          <StatTile value={roster.totalReviewsThisWeek} label={t("Reviews this week")} tone="accent" />
         </div>
 
         <section>
-          <SectionTitle hint="this week">{isTeacher ? "Roster" : "Class leaderboard"}</SectionTitle>
+          <SectionTitle hint={t("this week")}>{t(isTeacher ? "Roster" : "Class leaderboard")}</SectionTitle>
           {roster.entries.length <= 1 ? (
             <Empty
-              title={isTeacher ? "Nobody has joined yet" : "You're the first one here"}
-              body={isTeacher
+              title={t(isTeacher ? "Nobody has joined yet" : "You're the first one here")}
+              body={t(isTeacher
                 ? "Put the join code on the board. People appear here as they join and start reviewing."
-                : "Your classmates will show up here as they join."}
+                : "Your classmates will show up here as they join.")}
             />
           ) : (
             <ul className="flex flex-col gap-1.5">
@@ -191,23 +195,27 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                       <span className="block text-base" style={{ color: "var(--ink)" }}>
                         {entry.displayName}
                         {entry.role === "TEACHER" && (
-                          <GraduationCap size={13} aria-label="teacher" className="ml-1.5 inline" style={{ color: "var(--ink-3)" }} />
+                          <GraduationCap size={13} aria-label={t("teacher")} className="ml-1.5 inline" style={{ color: "var(--ink-3)" }} />
                         )}
                       </span>
                       {isTeacher && (
                         <span className="block text-xs" style={{ color: quiet ? "var(--hard-ink)" : "var(--ink-3)" }}>
                           {entry.daysSinceLastReview === null
-                            ? "no reviews yet"
+                            ? t("no reviews yet")
                             : entry.daysSinceLastReview === 0
-                              ? "reviewed today"
-                              : `last review ${entry.daysSinceLastReview} day${entry.daysSinceLastReview === 1 ? "" : "s"} ago`}
-                          {", "}{counted(entry.wordsKnown, "word")} known
+                              ? t("reviewed today")
+                              : fill(t("last review {days} ago"), { days: countOf(locale, entry.daysSinceLastReview, "day") })}
+                          {", "}{fill(t("{words} known"), { words: countOf(locale, entry.wordsKnown, "word") })}
                           {entry.weakestCase && (
                             <>
-                              {", weakest: "}
-                              <span style={{ color: "var(--hard-ink)" }}>
-                                <span lang="et">{caseName(entry.weakestCase.grammCase)}</span> ({entry.weakestCase.accuracy}%)
-                              </span>
+                              {", "}
+                              {filled(t("weakest: {case}"), {
+                                case: (
+                                  <span style={{ color: "var(--hard-ink)" }}>
+                                    <span lang="et">{caseName(entry.weakestCase.grammCase)}</span> ({entry.weakestCase.accuracy}%)
+                                  </span>
+                                ),
+                              })}
                             </>
                           )}
                         </span>
@@ -217,7 +225,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                       {entry.streak}<Flame size={13} aria-hidden style={{ color: entry.streak > 0 ? "var(--hard-ink)" : "var(--ink-3)" }} />
                     </span>
                     <span className="tnum w-24 text-right text-sm" style={{ color: "var(--ink)" }}>
-                      {entry.reviewsThisWeek} review{entry.reviewsThisWeek === 1 ? "" : "s"}
+                      {countOf(locale, entry.reviewsThisWeek, "review")}
                     </span>
                   </li>
                 );
@@ -226,8 +234,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
           )}
           {you && leader && you.ownerId !== leader.ownerId && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-              {leader.reviewsThisWeek - you.reviewsThisWeek} review
-              {leader.reviewsThisWeek - you.reviewsThisWeek === 1 ? "" : "s"} behind the top of the class this week.
+              {fill(t("{reviews} behind the top of the class this week."), { reviews: countOf(locale, leader.reviewsThisWeek - you.reviewsThisWeek, "review") })}
             </p>
           )}
         </section>
@@ -236,7 +243,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
             classmate's accuracy less their own. */}
         {isTeacher && roster.weakestCases.length > 0 && (
           <section>
-            <SectionTitle hint="the whole class, not one person">What to teach next</SectionTitle>
+            <SectionTitle hint={t("the whole class, not one person")}>{t("What to teach next")}</SectionTitle>
             <Card>
               <ul className="flex flex-col gap-2">
                 {roster.weakestCases.map((c) => (
@@ -246,20 +253,19 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                     <span className="max-w-[240px] flex-1">
                       <Meter
                         pct={c.accuracy}
-                        label={`${caseName(c.grammCase)} across the class`}
+                        label={fill(t("{case} across the class"), { case: caseName(c.grammCase) })}
                         tone="var(--accent)"
                         height={5}
                       />
                     </span>
                     <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                      {c.accuracy}% over {c.total}
+                      {fill(t("{accuracy}% over {total}"), { accuracy: c.accuracy, total: c.total })}
                     </span>
                   </li>
                 ))}
               </ul>
-              <Explain label="How this is counted">
-                These add up the answers of everyone who has done a case card. A single answer is
-                only ever shown to the person who gave it.
+              <Explain label={t("How this is counted")}>
+                {t("These add up the answers of everyone who has done a case card. A single answer is only ever shown to the person who gave it.")}
               </Explain>
             </Card>
           </section>
@@ -269,25 +275,24 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
 
         {isTeacher && !classroom.archived && (
           <section>
-            <SectionTitle>Homework</SectionTitle>
+            <SectionTitle>{t("Homework")}</SectionTitle>
             <Card>
               <AssignUnit classroomId={classroomId} units={units} />
-              <Explain label="What this does to their deck">
-                Each student gets it as a task in their own list, with a link to the unit. Nobody&rsquo;s
-                deck changes. They choose when to add the words.
+              <Explain label={t("What this does to their deck")}>
+                {t("Each student gets it as a task in their own list, with a link to the unit. Nobody’s deck changes. They choose when to add the words.")}
               </Explain>
             </Card>
 
             <Card className="mt-3">
-              <SectionTitle hint="a textbook page, an exercise, anything outside the course">
-                Set other homework
+              <SectionTitle hint={t("a textbook page, an exercise, anything outside the course")}>
+                {t("Set other homework")}
               </SectionTitle>
               <AssignHomework classroomId={classroomId} />
             </Card>
 
             {history.length > 0 && (
               <div className="mt-4">
-                <SectionTitle hint="most recent first">Sent to this class</SectionTitle>
+                <SectionTitle hint={t("most recent first")}>{t("Sent to this class")}</SectionTitle>
                 <ul className="flex flex-col gap-1.5">
                   {history.map((h) => (
                     <li
@@ -313,7 +318,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                           />
                           {h.dueAt && (
                             <>
-                              {", due "}
+                              {t(", due ")}
                               {/* A day rather than an instant, stored at midnight UTC,
                                   so it is printed in UTC: in the reader's own zone it
                                   named the day before anywhere west of Greenwich. */}
@@ -346,17 +351,19 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
         <Card className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <div className="flex min-w-[14rem] flex-1 flex-col gap-2">
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              You joined on{" "}
-              <span className="font-semibold" style={{ color: "var(--ink)" }}>
-                <LocalDate
-                  iso={membership.joinedAt.toISOString()}
-                  options={{ day: "numeric", month: "long", year: "numeric" }}
-                  fallback={membership.joinedAt.toLocaleDateString(undefined, {
-                    day: "numeric", month: "long", year: "numeric",
-                  })}
-                />
-              </span>
-              .
+              {filled(t("You joined on {date}."), {
+                date: (
+                  <span className="font-semibold" style={{ color: "var(--ink)" }}>
+                    <LocalDate
+                      iso={membership.joinedAt.toISOString()}
+                      options={{ day: "numeric", month: "long", year: "numeric" }}
+                      fallback={membership.joinedAt.toLocaleDateString(undefined, {
+                        day: "numeric", month: "long", year: "numeric",
+                      })}
+                    />
+                  </span>
+                ),
+              })}
             </p>
             {isTeacher && <ClassDigest on={digest} />}
           </div>

@@ -1,4 +1,5 @@
 import type { CaseKey } from "./types";
+import type { Locale } from "@/lib/copy/locale";
 
 export interface CaseSpec {
   readonly key: CaseKey;
@@ -213,4 +214,96 @@ export function caseOptionLabel(spec: CaseSpec): string {
 
 export function caseByKey(key: string): CaseSpec | undefined {
   return CASES.find((c) => c.key === key);
+}
+
+/**
+ * WHAT EACH QUESTION ASKS, IN RUSSIAN AND UKRAINIAN, ROW FOR ROW BESIDE THE
+ * ENGLISH ABOVE.
+ *
+ * A parallel table rather than a translation of the English strings, because
+ * the English readings are joined and split by the functions above and a
+ * reading is a fact about one Estonian question word: `kuhu?` is «куда?» on
+ * the sisseütlev and on the alaleütlev alike, the rule the English keeps.
+ * Both languages have case questions of their own and a learner raised on
+ * them reads «в чём? где?» faster than any English; these are those
+ * questions, answering what the Estonian one asks, not a grammar of Russian
+ * or Ukrainian. The English readings and every function above are untouched,
+ * so an English screen is byte for byte what it was.
+ *
+ * Nothing here is Estonian (ADR-005): the Estonian question words stay in
+ * `ROWS`, and this holds only what they ask.
+ */
+type Reading = { readonly person: string; readonly thing: string; readonly where: string | null };
+type Translated = Exclude<Locale, "en">;
+
+const READINGS: Readonly<Record<Translated, Readonly<Record<CaseKey, Reading>>>> = {
+  ru: {
+    NOMINATIVE: { person: "кто?", thing: "что?", where: null },
+    GENITIVE: { person: "чей?", thing: "чего?", where: null },
+    PARTITIVE: { person: "кого?", thing: "что? (часть чего-то)", where: null },
+    ILLATIVE: { person: "в кого?", thing: "во что?", where: "куда?" },
+    INESSIVE: { person: "в ком?", thing: "в чём?", where: "где?" },
+    ELATIVE: { person: "о ком?", thing: "из чего?", where: "откуда?" },
+    ALLATIVE: { person: "кому?", thing: "на что?", where: "куда?" },
+    ADESSIVE: { person: "у кого есть?", thing: "на чём?", where: "где?" },
+    ABLATIVE: { person: "от кого?", thing: "с чего?", where: "откуда?" },
+    TRANSLATIVE: { person: "кем стать?", thing: "чем стать?", where: null },
+    TERMINATIVE: { person: "до кого?", thing: "до чего?", where: null },
+    ESSIVE: { person: "в роли кого?", thing: "в качестве чего?", where: null },
+    ABESSIVE: { person: "без кого?", thing: "без чего?", where: null },
+    COMITATIVE: { person: "с кем?", thing: "с чем?", where: null },
+  },
+  uk: {
+    NOMINATIVE: { person: "хто?", thing: "що?", where: null },
+    GENITIVE: { person: "чий?", thing: "чого?", where: null },
+    PARTITIVE: { person: "кого?", thing: "що? (частину чогось)", where: null },
+    ILLATIVE: { person: "у кого?", thing: "у що?", where: "куди?" },
+    INESSIVE: { person: "у кому?", thing: "у чому?", where: "де?" },
+    ELATIVE: { person: "про кого?", thing: "з чого?", where: "звідки?" },
+    ALLATIVE: { person: "кому?", thing: "на що?", where: "куди?" },
+    ADESSIVE: { person: "у кого є?", thing: "на чому?", where: "де?" },
+    ABLATIVE: { person: "від кого?", thing: "з чого? (з поверхні)", where: "звідки?" },
+    TRANSLATIVE: { person: "ким стати?", thing: "чим стати?", where: null },
+    TERMINATIVE: { person: "до кого?", thing: "до чого?", where: null },
+    ESSIVE: { person: "у ролі кого?", thing: "у ролі чого?", where: null },
+    ABESSIVE: { person: "без кого?", thing: "без чого?", where: null },
+    COMITATIVE: { person: "з ким?", thing: "з чим?", where: null },
+  },
+};
+
+function questionTable(locale: Translated): Record<string, string> {
+  return Object.fromEntries(
+    ROWS.flatMap((row) => {
+      const reading = READINGS[locale][row.key];
+      const pairs: [string, string][] = [[row.asksPerson, reading.person], [row.asksThing, reading.thing]];
+      if (row.asksWhere && reading.where) pairs.push([row.asksWhere, reading.where]);
+      return pairs;
+    }),
+  );
+}
+
+/** What each Estonian question word asks, per language, keyed the way `ENGLISH_FOR_QUESTION` is. */
+const READING_FOR_QUESTION: Readonly<Record<Translated, Readonly<Record<string, string>>>> = {
+  ru: questionTable("ru"),
+  uk: questionTable("uk"),
+};
+
+/** `questionInEnglish` in the reader's language: for English it is exactly that function. */
+export function questionReading(question: string | null | undefined, locale: Locale): string | null {
+  if (locale === "en") return questionInEnglish(question);
+  if (!question) return null;
+  const table = READING_FOR_QUESTION[locale];
+  const read = question
+    .trim()
+    .split(/\s+/)
+    .map((word) => table[word.endsWith("?") ? word : `${word}?`])
+    .filter((x): x is string => Boolean(x));
+  return read.length > 0 ? read.join(" ") : null;
+}
+
+/** A case's `questionEn` in the reader's language. */
+export function caseQuestionReading(spec: CaseSpec, locale: Locale): string {
+  if (locale === "en") return spec.questionEn;
+  const r = READINGS[locale][spec.key];
+  return [r.person, r.thing, r.where].filter(Boolean).join(" ");
 }

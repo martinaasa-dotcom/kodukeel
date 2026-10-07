@@ -1,3 +1,5 @@
+import { countOf, type Locale } from "@/lib/copy/locale";
+
 /**
  * HOW LONG A TIMED ROUND RUNS, AND WHOSE CHOICE THAT IS.
  *
@@ -34,6 +36,7 @@
  *
  * Pure: a string in, a number of seconds out. No React, no Prisma, no clock.
  */
+
 
 export const ROUND_PACES = [
   {
@@ -128,13 +131,19 @@ export function secondsFor(baseSeconds: number, pace: RoundPace): number {
  * where a minute would round away the difference between 60 and 90, and whole
  * minutes above wherever the figure is one.
  */
-export function roundLength(seconds: number): string {
+export function roundLength(seconds: number, locale?: Locale): string {
+  return roundLengthIn(locale ?? "en", seconds);
+}
+
+/**
+ * The same length in the learner's own language, where "5 minutes" is
+ * «5 минут» and two minutes is «2 минуты», which only a counted noun gets
+ * right. See `countOf` in lib/copy/locale.ts.
+ */
+export function roundLengthIn(locale: Locale, seconds: number): string {
   const whole = Math.max(0, Math.round(seconds));
-  if (whole >= 120 && whole % 60 === 0) {
-    const minutes = whole / 60;
-    return `${minutes} minutes`;
-  }
-  return `${whole} seconds`;
+  if (whole >= 120 && whole % 60 === 0) return countOf(locale, whole / 60, "minute");
+  return countOf(locale, whole, "second");
 }
 
 /**
@@ -147,7 +156,16 @@ export function roundLength(seconds: number): string {
  * go through this rather than `roundPaceFrom` directly, so that calling
  * `roundPaceFrom` stays what marks a page as a round with a clock.
  */
-export function lengthAtPace(base: number, stored: string | null | undefined): string {
-  const said = roundLength(secondsFor(base, roundPaceFrom(stored)));
+export function lengthAtPace(base: number, stored: string | null | undefined, locale?: Locale): string {
+  const said = roundLength(secondsAtPace(base, stored), locale);
   return `${said[0]!.toUpperCase()}${said.slice(1)}`;
+}
+
+/**
+ * The whole seconds a round runs at the learner's stored pace, for a screen
+ * that says the length in a language other than English and counts the units
+ * with that language's own plurals. `lengthAtPace` is this said in English.
+ */
+export function secondsAtPace(base: number, stored: string | null | undefined): number {
+  return Math.max(0, Math.round(secondsFor(base, roundPaceFrom(stored))));
 }

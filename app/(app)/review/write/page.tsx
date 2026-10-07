@@ -1,3 +1,5 @@
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
@@ -23,7 +25,9 @@ import { CASES } from "@/lib/estonian/cases";
 import { caseAsked } from "@/lib/srs/slots";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Writing" };
+export async function generateMetadata() {
+  return titleFor("Writing");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -226,12 +230,13 @@ export default async function WritePage({
   const round = shuffled.filter((p) => !seen.has(p.lemma) && seen.add(p.lemma)).slice(0, ROUND);
 
   if (round.length === 0) {
+    const locale = await localeFor(ownerId);
     return (
-      <Page title="Writing" lead="Write your own sentences in Estonian, and we'll check them.">
+      <Page title={tr(locale, "Writing")} lead={tr(locale, "Write your own sentences in Estonian, and we'll check them.")}>
         <Empty
-          title="No words to write about yet"
-          body="This uses nouns and adjectives from your deck. Add a few and come back."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={tr(locale, "No words to write about yet")}
+          body={tr(locale, "This uses nouns and adjectives from your deck. Add a few and come back.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>}
         />
       </Page>
     );

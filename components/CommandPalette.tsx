@@ -9,10 +9,18 @@ import { SECTIONS } from "@/lib/ux/nav";
 import { SHORTCUTS_EVENT } from "@/components/Shortcuts";
 import { KeyCap } from "@/components/ui";
 import { useModalFocus } from "@/components/useModalFocus";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 
 interface Command {
   id: string;
   label: string;
+  /**
+   * Said after the label, translated on its own. A unit is its Estonian title
+   * and its English subtitle, and the two were one string, so the subtitle
+   * could never be looked up and stayed English in a Russian palette.
+   */
+  detail?: string;
   hint: string;
   /** The heading it appears under. Results are grouped by it. */
   group: string;
@@ -78,7 +86,8 @@ function loadUnitCommands(): Promise<Command[]> {
   return import("@/lib/collections/syllabus").then(({ PATH }) => {
     unitCommands = PATH.map((u) => ({
       id: `unit-${u.id}`,
-      label: `${u.title}, ${u.subtitle}`,
+      label: u.title,
+      detail: u.subtitle,
       hint: u.cefr,
       group: "Units",
       href: `/learn/${u.id}`,
@@ -101,6 +110,8 @@ function loadUnitCommands(): Promise<Command[]> {
  * twenty-eight things that all look alike.
  */
 export function CommandPalette() {
+  const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -194,8 +205,12 @@ export function CommandPalette() {
       return PLACE_COMMANDS;
     }
     const pool = [...COMMANDS, ...(units ?? [])];
+    /* Both the label on the screen and the English one: somebody reading the
+       app in Russian types what they see, and somebody who learned the names
+       in English before they switched still finds them by those. */
+    const said = (english: string) => tr(locale, english);
     const matches = pool
-      .filter((c) => fold(`${c.label} ${c.keywords}`).includes(q))
+      .filter((c) => fold(`${c.label} ${said(c.label)} ${c.detail ?? ""} ${c.detail ? said(c.detail) : ""} ${said(c.hint)} ${c.keywords}`).includes(q))
       .slice(0, 8);
     // The dictionary can answer for a word nothing here matches, so it is always
     // offered rather than leaving a dead end.
@@ -203,14 +218,14 @@ export function CommandPalette() {
       ...matches,
       {
         id: "search",
-        label: `Look up “${query.trim()}” in the dictionary`,
+        label: fill(tr(locale, "Look up \u201c{word}\u201d in the dictionary"), { word: query.trim() }),
         hint: "In Estonian or English, any form of the word",
         group: "Look it up",
         href: `/dictionary?q=${encodeURIComponent(query.trim())}`,
         keywords: "",
       },
     ];
-  }, [query, units]);
+  }, [query, units, locale]);
 
   /*
     Grouped for the eye, flat for the keyboard. The arrow keys walk `results`
@@ -235,8 +250,8 @@ export function CommandPalette() {
   */
   const matched = query.trim() ? results.length - 1 : results.length;
   const heard = matched === 0
-    ? "Nothing matches that. The dictionary can still look it up."
-    : `${matched} ${matched === 1 ? "match" : "matches"}.`;
+    ? t("Nothing matches that. The dictionary can still look it up.")
+    : `${countOf(locale, matched, "match")}.`;
 
   const go = (command: Command) => {
     setOpen(false);
@@ -252,7 +267,7 @@ export function CommandPalette() {
       onClick={() => setOpen(false)}
       role="dialog"
       aria-modal="true"
-      aria-label="Command palette"
+      aria-label={t("Command palette")}
     >
       <div
         className="w-full max-w-lg overflow-hidden rounded-[var(--r-xl)] border"
@@ -290,8 +305,8 @@ export function CommandPalette() {
                 if (target) go(target);
               }
             }}
-            placeholder="Jump to a screen, or type a word to look up…"
-            aria-label="Search commands and words"
+            placeholder={t("Jump to a screen, or type a word to look up…")}
+            aria-label={t("Search commands and words")}
             role="combobox"
             aria-autocomplete="list"
             aria-expanded={results.length > 0}
@@ -303,13 +318,13 @@ export function CommandPalette() {
           <KeyCap className="shrink-0">Esc</KeyCap>
         </div>
         <p className="sr-only" role="status">{heard}</p>
-        <ul id={listId} role="listbox" aria-label="Results" className="scroll-host max-h-[52vh] py-1">
+        <ul id={listId} role="listbox" aria-label={t("Results")} className="scroll-host max-h-[52vh] py-1">
           {rows.map(({ command: c, index: i, heading }) => (
             <li key={c.id} role="presentation">
               {/* A listbox holds options and nothing else, so the heading is
                   for the eye; the hint on each row says what it is. */}
               {heading && (
-                <p aria-hidden className="label-xs px-4 pb-1 pt-2.5" style={{ color: "var(--ink-3)" }}>{heading}</p>
+                <p aria-hidden className="label-xs px-4 pb-1 pt-2.5" style={{ color: "var(--ink-3)" }}>{t(heading)}</p>
               )}
               <button
                 type="button"
@@ -332,16 +347,16 @@ export function CommandPalette() {
                     what `truncate` on the hint is for. Both shrinking together
                     left "Practice" 41px at 360, drawn across two lines. */}
                 <span className="max-w-[75%] shrink-0 text-base" style={{ color: i === active ? "var(--accent-deep)" : "var(--ink)" }}>
-                  {c.label}
+                  {t(c.label)}{c.detail ? `, ${t(c.detail)}` : ""}
                 </span>
-                <span className="ml-auto truncate text-xs" style={{ color: "var(--ink-3)" }}>{c.hint}</span>
+                <span className="ml-auto truncate text-xs" style={{ color: "var(--ink-3)" }}>{t(c.hint)}</span>
               </button>
             </li>
           ))}
         </ul>
         {results.length === 0 && (
           <p aria-hidden className="px-4 py-6 text-center text-sm" style={{ color: "var(--ink-3)" }}>
-            Nothing matches that. Try another word?
+            {t("Nothing matches that. Try another word?")}
           </p>
         )}
       </div>

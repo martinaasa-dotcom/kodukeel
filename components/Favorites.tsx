@@ -2,6 +2,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Card, Chip, SectionTitle } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
 import { FAVOURITE_LIMIT, type Favorite } from "@/lib/progress/stars";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * THE WORDS THE LEARNER KEPT, WHICH IS THE ONE LIST ON THIS PAGE THEY WROTE
@@ -22,14 +23,15 @@ import { FAVOURITE_LIMIT, type Favorite } from "@/lib/progress/stars";
  * The star is beside the link rather than inside it: a button nested in a link
  * is neither, and a press on it would follow the link on some browsers.
  */
-export function Favorites({ words, total }: { words: readonly Favorite[]; total: number }) {
+export function Favorites({ words, total, locale }: { words: readonly Favorite[]; total: number; locale: Locale }) {
   if (words.length === 0) return null;
+  const t = (english: string) => tr(locale, english);
 
   return (
     <Card>
-      <SectionTitle hint={`${total} ${total === 1 ? "word" : "words"}`}>Favorites</SectionTitle>
+      <SectionTitle hint={countOf(locale, total, "word")}>{t("Favorites")}</SectionTitle>
       <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-        Words you&apos;ve starred, newest first. Tap the star on any card to keep a word here.
+        {t("Words you've starred, newest first. Tap the star on any card to keep a word here.")}
       </p>
 
       <ul className="mt-4 flex flex-col gap-2">
@@ -62,7 +64,7 @@ export function Favorites({ words, total }: { words: readonly Favorite[]; total:
 
       {total > words.length && (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-          Showing the {FAVOURITE_LIMIT} you starred most recently, out of {total}.
+          {fill(t("Showing the {shown} you starred most recently, out of {total}."), { shown: FAVOURITE_LIMIT, total })}
         </p>
       )}
     </Card>

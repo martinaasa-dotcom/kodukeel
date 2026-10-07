@@ -1,4 +1,5 @@
 import { LEECH_LAPSES } from "@/lib/analysis/leeches";
+import { countOf, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * THE WAY OUT OF BEING STUCK, AND WHY IT COSTS SOMETHING.
@@ -77,6 +78,25 @@ export interface Hint {
    * something the learner produced unaided.
    */
   ceiling: 1 | 2;
+  /**
+   * How many words and letters the answer has, on the rung that says so.
+   * Kept as numbers beside the English label, so the label can be said in
+   * another language with the right plural (`hintLabel`).
+   */
+  size?: { words: number; letters: number };
+}
+
+/**
+ * A rung's label in the learner's language. The length rung is rebuilt
+ * from its counts, because "4 letters" needs the plural of the language it
+ * is said in; every other label is a fixed line.
+ */
+export function hintLabel(hint: Hint, locale: Locale): string {
+  if (hint.size) {
+    const letters = countOf(locale, hint.size.letters, "letter");
+    return hint.size.words > 1 ? `${countOf(locale, hint.size.words, "word")}, ${letters}` : letters;
+  }
+  return tr(locale, hint.label);
 }
 
 /** The character a covered letter is drawn as. `buildCloze` already uses it. */
@@ -299,7 +319,11 @@ export function hintLadder(ask: HintAsk): Hint[] {
   }
 
   rungs.push({ kind: "answer", label: "The answer", shown: answer, ceiling: 1 });
-  rungs[0] = { ...(rungs[0] as Hint), label: lengthLabel(answer) };
+  rungs[0] = {
+    ...(rungs[0] as Hint),
+    label: lengthLabel(answer),
+    size: { words: answer.trim().split(/\s+/).filter(Boolean).length, letters: n },
+  };
   return rungs;
 }
 

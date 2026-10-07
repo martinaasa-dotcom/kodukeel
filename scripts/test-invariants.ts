@@ -5718,13 +5718,6 @@ check("an empty cell goes through NO_VALUE, never a literal", () => {
  * here with the reason it can never be one.
  */
 const PLURAL_COUNT_EXEMPT: Readonly<Record<string, string>> = {
-  "app/(chromeless)/welcome/page.tsx": "the dictionary's size, which is thousands",
-  "app/(app)/dictionary/page.tsx": "the dictionary's size, which is thousands",
-  "app/(app)/review/ReviewSession.tsx": "the one live count is guarded a line above; the other is a case name",
-  "app/(app)/page.tsx": "said only once the goal is met, and the smallest goal is five",
-  "app/(app)/settings/page.tsx": "the daily goal, whose smallest setting is five",
-  "app/(app)/learn/[unitId]/lesson/LessonSession.tsx": "a sitting folds a trailing one or two words into the one before it",
-  "components/WeakestCases.tsx": "a case is listed only above its floor of answers",
   "app/(app)/exam/[level]/ExamSession.tsx": "a dictation is a sentence, and a single word is said as one word",
 };
 
@@ -8575,7 +8568,7 @@ check("every dead end in the app offers a way to report it", () => {
         here, so this is the file that has to keep both.
       */
       "components/ScreenFailed.tsx",
-      /didn&rsquo;t load|did not load/,
+      /didn&rsquo;t load|didn['’]t load|did not load/,
       "a screen that threw",
     ],
     [
@@ -8923,8 +8916,8 @@ check("dictation says which kind of mistake it was, in text", () => {
     Asserted by calling the function rather than by matching markup: two
     different, non-empty notes, and a component that actually renders them.
   */
-  const diacritics = wordNote({ expected: "õues", typed: "oues", status: "diacritics" });
-  const typo = wordNote({ expected: "kool", typed: "koll", status: "typo" });
+  const diacritics = wordNote({ expected: "õues", typed: "oues", status: "diacritics" }, "en");
+  const typo = wordNote({ expected: "kool", typed: "koll", status: "typo" }, "en");
 
   assert.ok(diacritics, "a dropped diacritic is marked with no words on it");
   assert.ok(typo, "a typo is marked with no words on it");
@@ -10935,7 +10928,9 @@ check("a screen that prints a case question says what it is asking", () => {
   // round, which is a letter rather than a case, is not swept in.
   // `<Words text={label.question} />` is the label printing it a word per run.
   const PRINTS = /lang="et"[^>]*>\s*(?:<Words text=)?\{[^{}]*\b(caseQuestion|question)\}/;
-  const READS = /questionInEnglish|<CaseQuestion|\bquestionEn\b|plainAsk/;
+  // `questionReading` and `caseQuestionReading` are `questionInEnglish` and
+  // `questionEn` in the learner's own language, English byte for byte.
+  const READS = /questionInEnglish|<CaseQuestion|\bquestionEn\b|plainAsk|\b(?:case)?[qQ]uestionReading\b/;
   let found = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     // The one drawing of a case question is not a screen printing one.
@@ -13495,7 +13490,8 @@ check("the copy about the round pace names every round that reads it", () => {
   const rounds = APP.filter((f) => f.endsWith("/page.tsx") && !f.includes("/settings/"))
     .filter((f) => /\broundPaceFrom\(/.test(code(f)))
     .map((f) => {
-      const title = /title:\s*"([^"]+)"/.exec(read(f))?.[1];
+      // A signed-in page names itself through `titleFor` (lib/progress/locale.ts).
+      const title = (/titleFor\("([^"]+)"/.exec(read(f)) ?? /title:\s*"([^"]+)"/.exec(read(f)))?.[1];
       assert.ok(title, `${f} reads the round pace and has no title to be named by`);
       return title!;
     });
@@ -13781,7 +13777,7 @@ check("Anu's briefing reads the shared level rule and the reasons table", () => 
   const note = between(code("lib/tutor/prompt.ts"), "export function learnerNote");
   assert.match(note, /standing/, "learnerNote no longer says how the level is known");
   assert.match(note, /situation/, "learnerNote no longer says what Estonian the learner lives in");
-  const phrases = ALL.filter((f) => f !== "lib/assessment/goals.ts" && /"live in Estonia"/.test(code(f)));
+  const phrases = ALL.filter((f) => f !== "lib/assessment/goals.ts" && !f.startsWith("lib/copy/i18n/") && /"live in Estonia"/.test(code(f)));
   assert.deepEqual(phrases, [], "a situation phrase is typed outside the reasons table");
 });
 
@@ -15173,8 +15169,10 @@ check("a frequency list is named once, asked one way, and never built by a rende
     const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     // As a string, a template, or a run of JSX text.
     const written = new RegExp(`["'\`]${escaped}["'\`]|>\\s*${escaped}\\s*<`);
+    // A translation table keys a line by its English, which is the label
+    // looked up rather than the label written down a second time.
     const naming = haystack.filter((f) =>
-      f !== "lib/collections/commonGroups.ts" && written.test(code(f)));
+      f !== "lib/collections/commonGroups.ts" && !f.startsWith("lib/copy/i18n/") && written.test(code(f)));
     assert.deepEqual(
       naming, [],
       `"${label}" is written down somewhere other than the one table of what a list is called`,
@@ -19375,7 +19373,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     learner sitting a course still gets the word their teacher uses.
   */
   assert.match(
-    review, /whatFor\(slip\.kind, plain, spec\?\.suffix\)/,
+    review, /whatFor\(slip\.kind, plain, spec\?\.suffix(, locale)?\)/,
     "the review names an ending without saying what it is for, which is the heading a learner could not read",
   );
   /*
@@ -19416,7 +19414,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     of it is that the first word is pronounced like the second.
   */
   assert.match(
-    debrief, /\{"It should be "\}/,
+    debrief, /\{"It should be "\}|t\("It should be \{form\}/,
     "the debrief prints the learner's form and the dictionary's with nothing saying which is which",
   );
   /*
@@ -19440,7 +19438,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     two languages on the screen whose point is reading the exchange back.
   */
   assert.match(
-    debrief, /className="sr-only">\{turn\.who === "you" \? "You said/,
+    debrief, /className="sr-only">\{(t\()?turn\.who === "you" \? "You said/,
     "the debrief's transcript says who spoke with position and colour alone, which is nothing to a screen reader",
   );
   /*
@@ -19457,7 +19455,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     "the debrief puts its transcript back in front of its teaching, so the review is a screen down again",
   );
   assert.match(
-    code("lib/progress/scene.ts"), /reviewOf\(scene, state\)/,
+    code("lib/progress/scene.ts"), /reviewOf\(scene, state(, locale)?\)/,
     "finishRun no longer derives the review from the run it just marked",
   );
 });
@@ -19589,7 +19587,8 @@ check("an objective carries the value the card dealt for it, and every line says
   assert.match(session, /<SceneFace who="them" \/>/, "the other side's lines lost their speaker");
   for (const said of ["You said: ", "They said: "]) {
     assert.ok(
-      session.includes(`<span className="sr-only">${said}</span>`),
+      session.includes(`<span className="sr-only">${said}</span>`)
+        || session.includes(`<span className="sr-only">{t("${said.trim()}")}{" "}</span>`),
       `a conversation no longer says "${said.trim()}" to a reader who cannot see the sides`,
     );
   }
@@ -23330,7 +23329,7 @@ check("the words put aside are listed, and one button puts them there", () => {
       `${file} stopped offering the button on the screen a word is met on`,
     );
     assert.match(
-      code(file), /\{aside\}/,
+      code(file), /\{(?:t\()?aside\)?\}/,
       `${file} draws the button and never prints what it did, so the press reads `
       + "as a card vanishing.",
     );
@@ -25744,7 +25743,9 @@ check("nothing but the hint ladder decides what a hint gives away", () => {
 
   // And the encouragement is one sentence, from one table, for the same reason
   // a second copy of any line of copy in this app is a second copy: they drift.
-  const notes = ALL.filter((f) => /fine not to know this one yet/.test(read(f)));
+  // The translation tables hold it as the key they translate, which is the
+  // line being said in another language rather than a second copy of it.
+  const notes = ALL.filter((f) => !/lib[\\/]copy[\\/]i18n[\\/]/.test(f) && /fine not to know this one yet/.test(read(f)));
   assert.deepEqual(
     notes.map((f) => f.replace(/\\/g, "/")), ["lib/copy/firstTry.ts"],
     "the first-try line is written out somewhere other than the one table that holds it",

@@ -435,6 +435,26 @@ Small, physical, and never blocking:
   slight undershoot; the rail does not, because a column that lurched beside the page it just
   changed would be arguing with a decision the reader has already made.
 
+- The small delights, each a one-shot that ends where it began, so nothing is left mid-move:
+  an answer settles (`.option-right` lifts a hair and lands, `.option-wrong` gives one small
+  nudge), on every multiple-choice screen at once because it lives on the verdict vocabulary
+  rather than on a screen; a Tähed letter lands in its slot with a squash (`.tile-land`) and a
+  word spelled right ripples through left to right; a word rippling letter by letter is
+  `components/motion/WaveWord.tsx`, used on the word of the day and on tonight's words when
+  the evening is done, where it plays when the word is reached for rather than on every visit;
+  and the streak's flame catches once on a day the run was kept and flickers when the card is
+  reached for, but stays still on a day it was not, since it is not there to nag. A figure in a
+  `Stat` or a `StatTile` rolls its digits up into place a beat apart as the page arrives
+  (`components/motion/RollNumber.tsx`): a CSS animation on what the server wrote rather than a
+  count from zero in an effect, which would flash the final figure and then reset it before
+  hydration, with the digits hidden and the figure said once, whole. A step ticked on tonight's
+  list lands its check with a spring (`.tick-land`), and only a step ticked in that sitting,
+  since a list whose checks sprang in on every visit would be celebrating itself; the finished
+  evening's calendar lands the same way as the card arrives. They are
+  switched off by name under reduced motion, because a staggered ripple keeps its delays
+  under the global rule, and `scripts/invariants/the-small-delights-stand-still-when-asked.ts`
+  holds the list.
+
 `prefers-reduced-motion: reduce` flattens all of it, and switches `.reveal` off outright, because a
 scroll-driven animation has no duration to shorten, so it needs removing rather than shrinking.
 

@@ -2,7 +2,7 @@
 
 import { openingConversation } from "@/lib/exam/warmUp";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { questionInEnglish } from "@/lib/estonian/cases";
+import { questionIn } from "@/lib/copy/questionReading";
 import { useRouter } from "next/navigation";
 import {
   Check, CircleAlert, Clock, Coffee, Ear, FileWarning, Headphones, Loader2, Mic, PenLine, RotateCcw, Save,
@@ -27,6 +27,9 @@ import { VOICES } from "@/lib/audio/voice";
 import { answeredIn, clearSitting, hasAnswer, loadSitting, saveSitting, type SavedSitting } from "./resume";
 import { Explain } from "@/components/Explain";
 import { CaseLabel } from "@/components/CaseLabel";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/fillNodes";
 
 /**
  * Sitting the paper.
@@ -55,6 +58,7 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
   */
   const [paper] = useState(initialPaper);
   const router = useRouter();
+  const t = useT();
 
   const [started, setStarted] = useState(false);
   const [partIndex, setPartIndex] = useState(0);
@@ -172,8 +176,8 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
     if (!result?.ok) {
       setSubmitting(false);
       setError(
-        result?.error ??
-        "You need a connection to hand this in, and you don't have one right now. Your answers are still here on the page.",
+        result?.error ? t(result.error) :
+        t("You need a connection to hand this in, and you don't have one right now. Your answers are still here on the page."),
       );
       return;
     }
@@ -241,10 +245,11 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-              {paper.level}, part {partIndex + 1} of {paper.parts.length}, {SKILL_ET[part.spec.skill]}
+              {fill(t("{level}, part {n} of {total},"), { level: paper.level, n: partIndex + 1, total: paper.parts.length })}{" "}
+              <span lang="et">{SKILL_ET[part.spec.skill]}</span>
             </p>
             <h1 className="text-xl font-bold" style={{ color: "var(--ink)" }}>
-              {part.spec.label}
+              {t(part.spec.label)}
             </h1>
           </div>
           <div className="text-right">
@@ -264,14 +269,14 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
               {formatRemaining(remaining)}
             </p>
             <p className="text-2xs mt-1" style={{ color: "var(--ink-3)" }}>
-              {answered} of {questions} answered
+              {fill(t("{answered} of {total} answered"), { answered, total: questions })}
             </p>
           </div>
         </div>
         <div className="mt-2">
           <Meter
             pct={questions === 0 ? 0 : (answered / questions) * 100}
-            label={`${answered} of ${questions} questions answered`}
+            label={fill(t("{answered} of {total} questions answered"), { answered, total: questions })}
             height={4}
           />
         </div>
@@ -285,11 +290,11 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
       */}
       <p className="sr-only" aria-live="polite">
         {warning === "gone"
-          ? "Time is up on this part."
+          ? t("Time is up on this part.")
           : warning === "last"
-            ? "One minute left."
+            ? t("One minute left.")
             : warning === "soon"
-              ? "Five minutes left."
+              ? t("Five minutes left.")
               : ""}
       </p>
 
@@ -297,23 +302,22 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
         <div className="mb-5">
           <Note tone="again">
             <TriangleAlert size={14} className="mr-1.5 inline" aria-hidden />
-            Time&apos;s up. This part is closed now, the way it would be in a real exam hall. Anything
-            you left blank scores nothing.{" "}
-            {last ? "Hand in below." : "Move on when you're ready."}
+            {t("Time's up. This part is closed now, the way it would be in a real exam hall. Anything you left blank scores nothing.")}{" "}
+            {t(last ? "Hand in below." : "Move on when you're ready.")}
           </Note>
         </div>
       ) : warning === "last" ? (
         <div className="mb-5">
           <Note tone="hard">
             <TriangleAlert size={14} className="mr-1.5 inline" aria-hidden />
-            One minute left on this part.
+            {t("One minute left on this part.")}
           </Note>
         </div>
       ) : warning === "soon" ? (
         <div className="mb-5">
           <Note tone="neutral">
             <Clock size={14} className="mr-1.5 inline" aria-hidden />
-            Five minutes left on this part.
+            {t("Five minutes left on this part.")}
           </Note>
         </div>
       ) : null}
@@ -353,22 +357,22 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
           <Note tone="hard">
             <TriangleAlert size={14} className="mr-1.5 inline" aria-hidden />
             {questions - answered === 1
-              ? "One question on this part is still blank."
-              : `${questions - answered} questions on this part are still blank.`}{" "}
-            {last
+              ? t("One question on this part is still blank.")
+              : fill(t("{n} questions on this part are still blank."), { n: questions - answered })}{" "}
+            {t(last
               ? "Handing in now means they score nothing."
-              : "You can't come back to this part once you leave it."}{" "}
-            A wrong answer costs you nothing here, so a guess beats a blank.
+              : "You can't come back to this part once you leave it.")}{" "}
+            {t("A wrong answer costs you nothing here, so a guess beats a blank.")}
             <span className="mt-3 flex flex-wrap gap-2">
               <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>
-                Go back and fill them in
+                {t("Go back and fill them in")}
               </Button>
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={() => { setConfirming(false); if (last) void hand(); else advance(); }}
               >
-                {last ? "Hand in anyway" : "Leave them blank and move on"}
+                {t(last ? "Hand in anyway" : "Leave them blank and move on")}
               </Button>
             </span>
           </Note>
@@ -378,10 +382,10 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
       <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-5" style={{ borderColor: "var(--rule)" }}>
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
           {last
-            ? `Handing in marks the whole paper. You need ${PASS_PCT} percent to pass, and no part can be a zero.`
+            ? fill(t("Handing in marks the whole paper. You need {pct} percent to pass, and no part can be a zero."), { pct: PASS_PCT })
             : paper.parts[partIndex + 1]?.spec.skill === "speaking"
-              ? `Moving on ends the written half. There's a ${BREAK_MINUTES} minute break, then the spoken part.`
-              : "Moving on ends this part. You can't come back to it, just like the real exam."}
+              ? fill(t("Moving on ends the written half. There's a {minutes} minute break, then the spoken part."), { minutes: BREAK_MINUTES })
+              : t("Moving on ends this part. You can't come back to it, just like the real exam.")}
         </p>
         {last ? (
           <Button
@@ -393,8 +397,8 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
             disabled={submitting}
           >
             {submitting
-              ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Marking</>
-              : <><Send size={15} aria-hidden /> Hand in</>}
+              ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Marking", "busy")}</>
+              : <><Send size={15} aria-hidden /> {t("Hand in")}</>}
           </Button>
         ) : (
           <Button
@@ -404,7 +408,7 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
               advance();
             }}
           >
-            Next part: {paper.parts[partIndex + 1]?.spec.label}
+            {fill(t("Next part: {part}"), { part: t(paper.parts[partIndex + 1]?.spec.label ?? "") })}
           </Button>
         )}
       </div>
@@ -440,20 +444,19 @@ function Break({ level, until, now, nextLabel, onResume }: {
   const prompts = openingConversation(level);
   const left = Math.max(0, Math.round((until - now) / 1000));
   const over = left === 0;
+  const t = useT();
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-12 md:px-10 md:py-16">
       <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>
-        Between the halves
+        {t("Between the halves")}
       </p>
       <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
         <Coffee size={26} className="mr-2 inline" aria-hidden />
-        Break
+        {t("Break")}
       </h1>
       <p className="mt-3 max-w-[56ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        The written half is done and its clock has stopped. On the real day there&apos;s a short break
-        before the spoken part, and this is yours. Stand up, get some water, and come back for{" "}
-        {nextLabel.toLowerCase()}.
+        {t(`The written half is done and its clock has stopped. On the real day there's a short break before the spoken part, and this is yours. Stand up, get some water, and come back for ${nextLabel.toLowerCase()}.`)}
       </p>
 
       <p
@@ -465,11 +468,11 @@ function Break({ level, until, now, nextLabel, onResume }: {
       </p>
       <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
         {over
-          ? "The break is over whenever you are."
-          : `${BREAK_MINUTES} minutes. The real exam board just says "a short break" with no number, so we picked one. Go early if you're ready.`}
+          ? t("The break is over whenever you are.")
+          : fill(t("{minutes} minutes. The real exam board just says \"a short break\" with no number, so we picked one. Go early if you're ready."), { minutes: BREAK_MINUTES })}
       </p>
 
-      <p className="sr-only" aria-live="polite">{over ? "The break is over." : ""}</p>
+      <p className="sr-only" aria-live="polite">{over ? t("The break is over.") : ""}</p>
 
       {/*
         The real spoken part opens with a short conversation with the examiner,
@@ -478,20 +481,19 @@ function Break({ level, until, now, nextLabel, onResume }: {
       */}
       <div className="mt-8 rounded-[var(--r-lg)] border px-5 py-4" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
         <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
-          The real spoken part opens with a short conversation
+          {t("The real spoken part opens with a short conversation")}
         </p>
         <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-          The examiner talks to you the way people do when they first meet. Say these out loud in
-          Estonian now. Nobody&apos;s listening and nothing&apos;s marked.
+          {t("The examiner talks to you the way people do when they first meet. Say these out loud in Estonian now. Nobody's listening and nothing's marked.")}
         </p>
         <ul className="mt-3 flex list-disc flex-col gap-1 pl-5 text-sm" style={{ color: "var(--ink-2)" }}>
-          {prompts.map((line) => <li key={line}>{line}</li>)}
+          {prompts.map((line) => <li key={line}>{t(line)}</li>)}
         </ul>
       </div>
 
       <div className="mt-8">
         <Button variant="primary" size="lg" onClick={onResume}>
-          Start the spoken part
+          {t("Start the spoken part")}
         </Button>
       </div>
     </div>
@@ -528,13 +530,42 @@ function Fact({ icon, hue, title, children }: { icon: ReactNode; hue: "butter" |
  * order task say they are not a task the real paper sets, and "stands for not
  * a task the real paper sets" is what the old list printed.
  */
-function onTheRealPaper(standsFor: string): string {
-  return /^not a task/.test(standsFor)
-    ? `${standsFor.charAt(0).toUpperCase()}${standsFor.slice(1)}.`
-    : `On the real paper: ${standsFor}.`;
+function onTheRealPaper(standsFor: string, t: (english: string) => string): ReactNode {
+  if (/^not a task/.test(standsFor) || /^the second writing task$/.test(standsFor)) {
+    if (/^not a task/.test(standsFor)) {
+      const said = t(standsFor);
+      return `${said.charAt(0).toUpperCase()}${said.slice(1)}.`;
+    }
+    return fill(t("On the real paper: {task}."), { task: t(standsFor) });
+  }
+  /*
+    The official task's own name is Estonian and stays Estonian; what follows
+    the comma is the English gloss of it, which is what gets translated. The
+    split is at the first comma that is followed by the gloss rather than by
+    more of the name, since several names have commas of their own.
+  */
+  const at = standsFor.search(/, (?:a|an|the|writing|choosing|deciding|completing|matching|describing|asking|answering|filling|short) /);
+  if (at < 0) return `${t("On the real paper:")} ${standsFor}.`;
+  const name = standsFor.slice(0, at);
+  const gloss = standsFor.slice(at + 2);
+  return <>{t("On the real paper:")} <span lang="et">{name}</span>, {t(gloss)}.</>;
 }
 
 /** How many listening tasks play their recordings only once. */
+/**
+ * The shortfall sentence `finish` in lib/exam/paper.ts writes, read back into
+ * its figures so it can be said in the learner's language. A sentence of any
+ * other shape is printed as it came.
+ */
+function shortfallIn(reason: string | null, t: (english: string) => string): string {
+  if (!reason) return "";
+  const m = /^There was only enough in the dictionary for (\d+) of the (\d+) questions here\. Each one needs (.+)\.$/.exec(reason);
+  if (!m) return t(reason);
+  return fill(t("There was only enough in the dictionary for {have} of the {want} questions here. Each one needs {needed}."), {
+    have: m[1]!, want: m[2]!, needed: t(m[3]!),
+  });
+}
+
 function heardOnce(paper: Paper): number {
   return paper.parts.flatMap((p) => p.tasks).filter((t) => t.spec.plays === 1).length;
 }
@@ -559,6 +590,8 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
   const resumeLeft = resumable && resumePart
     ? Math.max(0, Math.round(((resumable.deadlines?.[resumable.partIndex] ?? 0) - Date.now()) / 1000))
     : 0;
+  const t = useT();
+  const locale = useLocale();
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-8 md:px-10 md:py-12">
@@ -567,19 +600,20 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
           <Card tone="accent">
             <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>
               <RotateCcw size={16} className="mr-2 inline" aria-hidden />
-              You left this paper part way through
+              {t("You left this paper part way through")}
             </p>
             <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {answeredIn(resumable)} answered so far. You were on {resumePart.spec.label.toLowerCase()}.{" "}
+              {fill(t("{n} answered so far."), { n: answeredIn(resumable) })}{" "}
+              {t(`You were on ${resumePart.spec.label.toLowerCase()}.`)}{" "}
               {resumeLeft > 0
-                ? `${formatRemaining(resumeLeft)} is left on that part. The clock kept running while you were away, just as it would in a real exam hall.`
-                : "That part's time ran out while you were away. It'll open already closed, just as it would in a real exam hall."}
+                ? fill(t("{time} is left on that part. The clock kept running while you were away, just as it would in a real exam hall."), { time: formatRemaining(resumeLeft) })
+                : t("That part's time ran out while you were away. It'll open already closed, just as it would in a real exam hall.")}
             </p>
             <span className="mt-3 flex flex-wrap gap-2">
               <Button variant="ghost" size="sm" onClick={onDiscard}>
-                Throw it away and start fresh
+                {t("Throw it away and start fresh")}
               </Button>
-              <Button variant="primary" size="sm" onClick={onResume}>Carry on</Button>
+              <Button variant="primary" size="sm" onClick={onResume}>{t("Carry on")}</Button>
             </span>
           </Card>
         </div>
@@ -592,17 +626,17 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
       <section className="night rounded-[var(--r-xl)] border px-5 py-8 sm:px-8 md:px-10 md:py-11">
         <p className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold" style={{ background: "rgb(255 255 255 / 0.08)", border: "1px solid rgb(255 255 255 / 0.14)", color: "var(--ink)" }}>
           <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: paper.spec.official ? "var(--cta)" : "var(--blush)" }} />
-          {paper.spec.official ? "Mock state examination" : "Not a state examination"}
+          {t(paper.spec.official ? "Mock state examination" : "Not a state examination")}
         </p>
         <h1 className="font-display mt-5 text-6xl font-bold leading-[0.95] tracking-tight md:text-7xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
           {paper.level}
           <span className="text-3xl md:text-4xl" style={{ color: "var(--ink-2)" }}>
-            {paper.number ? `, paper ${paper.number}` : ""}
-            {paper.part ? `, ${SKILL_LABEL[paper.part].toLowerCase()} only` : ""}
+            {paper.number ? fill(t(", paper {n}"), { n: paper.number }) : ""}
+            {paper.part ? t(`, ${SKILL_LABEL[paper.part].toLowerCase()} only`) : ""}
           </span>
         </h1>
         <p className="mt-4 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {paper.spec.summary}
+          {t(paper.spec.summary)}
         </p>
         <div aria-hidden className="mt-8 flex h-3 gap-1">
           {paper.parts.map((part, index) => (
@@ -618,8 +652,8 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
           {paper.parts.map((part, index) => (
             <li key={part.spec.skill} className="flex items-center gap-2 whitespace-nowrap text-sm">
               <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: `var(--${PART_HUES[index % PART_HUES.length]})` }} />
-              <span className="font-semibold" style={{ color: "var(--ink)" }}>{part.spec.label}</span>
-              <span className="tnum" style={{ color: "var(--ink-3)" }}>{part.spec.minutes} min</span>
+              <span className="font-semibold" style={{ color: "var(--ink)" }}>{t(part.spec.label)}</span>
+              <span className="tnum" style={{ color: "var(--ink-3)" }}>{fill(t("{n} min"), { n: part.spec.minutes })}</span>
             </li>
           ))}
         </ul>
@@ -636,18 +670,18 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
             <div className="flex flex-wrap items-start justify-between gap-2">
               <span className="min-w-0">
                 <span className="label-xs block" style={{ color: "var(--ink-3)" }}>
-                  Part {index + 1}
+                  {fill(t("Part {n}"), { n: index + 1 })}
                 </span>
                 <span className="font-display mt-1 block text-2xl font-bold" style={{ color: "var(--ink)" }}>
-                  {part.spec.label}
+                  {t(part.spec.label)}
                 </span>
                 <span lang="et" className="text-sm" style={{ color: "var(--ink-3)" }}>
                   {SKILL_ET[part.spec.skill]}
                 </span>
               </span>
               <span className="flex items-center gap-2">
-                <Chip>{part.spec.minutes} min</Chip>
-                <Chip tone="accent">{part.spec.points} points</Chip>
+                <Chip>{fill(t("{n} min"), { n: part.spec.minutes })}</Chip>
+                <Chip tone="accent">{locale === "en" ? `${part.spec.points} points` : countOf(locale, part.spec.points, "point")}</Chip>
               </span>
             </div>
             <ul className="mt-4 grid gap-2.5">
@@ -660,19 +694,18 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
                 return (
                 <li key={task.spec.id} className="border-t pt-2.5 text-sm leading-relaxed" style={{ borderColor: "var(--rule-soft)", color: "var(--ink-2)" }}>
                   <span className="block font-semibold" style={{ color: "var(--ink)" }}>
-                    {task.spec.title}
+                    {t(task.spec.title)}
                     {times > 1 && <span className="tnum">{` × ${times}`}</span>}
-                    {task.spec.plays === 1 && <span style={{ color: "var(--ink-3)" }}>, heard once</span>}
+                    {task.spec.plays === 1 && <span style={{ color: "var(--ink-3)" }}>{t(", heard once")}</span>}
                   </span>
-                  <span className="block" style={{ color: "var(--ink-3)" }}>{onTheRealPaper(task.spec.standsFor)}</span>
+                  <span className="block" style={{ color: "var(--ink-3)" }}>{onTheRealPaper(task.spec.standsFor, t)}</span>
                   {task.fallbackFrom && (
                     <span className="block" style={{ color: "var(--butter-ink)" }}>
-                      Set in a simpler shape this time, because the dictionary didn&apos;t have the
-                      sentences the real task needs.
+                      {t("Set in a simpler shape this time, because the dictionary didn't have the sentences the real task needs.")}
                     </span>
                   )}
                   {task.shortfall > 0 && (
-                    <span className="block" style={{ color: "var(--blush-ink)" }}>{task.shortfallReason}</span>
+                    <span className="block" style={{ color: "var(--blush-ink)" }}>{shortfallIn(task.shortfallReason, t)}</span>
                   )}
                 </li>
                 );
@@ -680,7 +713,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
             </ul>
             {part.spec.notSet && (
               <p className="mt-3 border-t pt-2.5 text-sm leading-relaxed" style={{ borderColor: "var(--rule-soft)", color: "var(--ink-3)" }}>
-                {part.spec.notSet}
+                {t(part.spec.notSet)}
               </p>
             )}
           </li>
@@ -690,10 +723,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
       <div className="mt-6 grid gap-3">
         {paper.part ? (
           <Note tone="sky">
-            You&apos;re sitting just this one part, with {paper.parts[0]?.spec.minutes ?? 0} minutes
-            on the clock. The real exam marks all four parts together, so you&apos;ll get a mark for
-            this part, not a pass or a fail. When the time&apos;s up, it closes. Your answers are
-            saved on this device as you go.
+            {fill(t("You're sitting just this one part, with {n} minutes on the clock. The real exam marks all four parts together, so you'll get a mark for this part, not a pass or a fail. When the time's up, it closes. Your answers are saved on this device as you go."), { n: paper.parts[0]?.spec.minutes ?? 0 })}
           </Note>
         ) : (
         /*
@@ -702,7 +732,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
           with it as a list a candidate can check off.
         */
         <section className="rounded-[var(--r-xl)] border p-5 sm:p-6" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}>
-          <h2 className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>How the day runs</h2>
+          <h2 className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>{t("How the day runs")}</h2>
           <ol className="mt-4 grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 10rem), 1fr))" }}>
             {[
               { label: "Written paper", minutes: writtenMinutes(paper.spec), hue: "accent" },
@@ -716,70 +746,58 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
               >
                 <span aria-hidden className="font-display tnum text-2xl font-bold" style={{ color: "var(--ink-3)" }}>{i + 1}</span>
                 <span className="min-w-0">
-                  <span className="block text-sm font-bold" style={{ color: "var(--ink)" }}>{step.label}</span>
-                  <span className="tnum block text-sm" style={{ color: "var(--ink-2)" }}>{step.minutes} minutes</span>
+                  <span className="block text-sm font-bold" style={{ color: "var(--ink)" }}>{t(step.label)}</span>
+                  <span className="tnum block text-sm" style={{ color: "var(--ink-2)" }}>{locale === "en" ? `${step.minutes} minutes` : countOf(locale, step.minutes, "minute")}</span>
                 </span>
               </li>
             ))}
           </ol>
           <ul className="mt-4 grid gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            <li className="flex gap-2.5"><Clock size={15} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />Each part runs on its own clock and closes when its time runs out. Once you leave a part you can&apos;t go back to it.</li>
-            <li className="flex gap-2.5"><Save size={15} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />Your answers are saved on this device as you go, so a reload loses nothing. The clock keeps running while the tab is closed.</li>
+            <li className="flex gap-2.5"><Clock size={15} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />{t("Each part runs on its own clock and closes when its time runs out. Once you leave a part you can't go back to it.")}</li>
+            <li className="flex gap-2.5"><Save size={15} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />{t("Your answers are saved on this device as you go, so a reload loses nothing. The clock keeps running while the tab is closed.")}</li>
           </ul>
         </section>
         )}
         <div className="grid gap-3 md:grid-cols-2">
         {partOf(paper, "writing") && (
-        <Fact icon={<PenLine size={18} />} hue="butter" title="The writing clock is for two texts">
-          On the real exam the writing part is two texts, and the clock is only for those two. The
-          grammar questions after them are our own extra, because nothing here can check your
-          grammar the way an examiner does. They come last, so give them whatever time is left.
+        <Fact icon={<PenLine size={18} />} hue="butter" title={t("The writing clock is for two texts")}>
+          {t("On the real exam the writing part is two texts, and the clock is only for those two. The grammar questions after them are our own extra, because nothing here can check your grammar the way an examiner does. They come last, so give them whatever time is left.")}
         </Fact>
         )}
         {partOf(paper, "listening") && (
-        <Fact icon={<Headphones size={18} />} hue="blush" title={heardOnce(paper) > 0 ? "Some recordings play once" : "Two plays per recording"}>
+        <Fact icon={<Headphones size={18} />} hue="blush" title={t(heardOnce(paper) > 0 ? "Some recordings play once" : "Two plays per recording")}>
           {heardOnce(paper) > 0
-            ? `Most recordings play twice, but one task plays each recording only once, as the real ${paper.level} paper does. `
-            : `Each recording plays ${LISTEN_PLAYS === 2 ? "twice" : `${LISTEN_PLAYS} times`} and no more, as on the real exam. `}
-          Every listening task gives you time to read its questions before the audio unlocks, and
-          the recordings are read by different voices, as the real ones are.
+            ? fill(t("Most recordings play twice, but one task plays each recording only once, as the real {level} paper does."), { level: paper.level })
+            : t(LISTEN_PLAYS === 2 ? "Each recording plays twice and no more, as on the real exam." : `Each recording plays ${LISTEN_PLAYS} times and no more, as on the real exam.`)}{" "}
+          {t("Every listening task gives you time to read its questions before the audio unlocks, and the recordings are read by different voices, as the real ones are.")}
         </Fact>
         )}
-        <Fact icon={<WifiOff size={18} />} hue="sky" title="Sit it with a connection">
-          The recordings load as you play them and the paper is marked on our server. If handing in
-          fails, your answers stay on the page and you can press the button again.
+        <Fact icon={<WifiOff size={18} />} hue="sky" title={t("Sit it with a connection")}>
+          {t("The recordings load as you play them and the paper is marked on our server. If handing in fails, your answers stay on the page and you can press the button again.")}
         </Fact>
         {speaking && (
-        <Fact icon={<Mic size={18} />} hue="accent" title="Speaking is marked by you">
-          You mark the spoken part yourself: record, listen back, and tick off what you managed. We
-          tested speech recognizers and none was accurate enough for Estonian. In the break before
-          it, you&apos;ll rehearse the small talk a real examiner opens with.
+        <Fact icon={<Mic size={18} />} hue="accent" title={t("Speaking is marked by you")}>
+          {t("You mark the spoken part yourself: record, listen back, and tick off what you managed. We tested speech recognizers and none was accurate enough for Estonian. In the break before it, you'll rehearse the small talk a real examiner opens with.")}
         </Fact>
         )}
         </div>
         {paper.substituted && (
           <Note tone="hard">
             <FileWarning size={14} className="mr-1.5 inline" aria-hidden />
-            Some tasks use single words instead of full sentences, because we don&apos;t have a
-            recorded sentence for every word yet. Each one says so above. It makes this paper a
-            little easier than the real one, which is worth knowing before you look at your score.
+            {t("Some tasks use single words instead of full sentences, because we don't have a recorded sentence for every word yet. Each one says so above. It makes this paper a little easier than the real one, which is worth knowing before you look at your score.")}
           </Note>
         )}
         {paper.thin && (
           <Note tone="again">
             <FileWarning size={14} className="mr-1.5 inline" aria-hidden />
-            We could only fill {fillRate} percent of this paper from the dictionary, so some tasks
-            are shorter than usual. Each part is marked on what was actually set, and your result
-            will say what was missing. Add more words to your deck and the paper fills in over
-            time. Running your own copy of Kodukeel? Turning on live dictionary lookups fills it
-            straight away.
+            {fill(t("We could only fill {pct} percent of this paper from the dictionary, so some tasks are shorter than usual. Each part is marked on what was actually set, and your result will say what was missing. Add more words to your deck and the paper fills in over time. Running your own copy of Kodukeel? Turning on live dictionary lookups fills it straight away."), { pct: fillRate })}
           </Note>
         )}
       </div>
 
       <div className="mt-8 flex justify-end">
         <Button variant="primary" size="lg" onClick={onStart}>
-          Start the clock
+          {t("Start the clock")}
         </Button>
       </div>
     </div>
@@ -817,6 +835,8 @@ function TaskBlock({ task, number, responses, onAnswer, frozen }: {
   /** The part's time has gone, so nothing here should still be counting down. */
   frozen: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const audible = task.items.some(isHeard);
   const pause = task.spec.readSeconds ?? READ_QUESTIONS_SECONDS;
   const plays = task.spec.plays ?? LISTEN_PLAYS;
@@ -861,23 +881,24 @@ function TaskBlock({ task, number, responses, onAnswer, frozen }: {
 
   return (
     <section className="mb-10">
-      <SectionTitle hint={`${task.spec.raw} ${task.spec.raw === 1 ? "mark" : "marks"}`}>
-        Task {number}: {task.spec.title}
+      <SectionTitle hint={countOf(locale, task.spec.raw, "mark")}>
+        {fill(t("Task {n}: {title}"), { n: number, title: t(task.spec.title) })}
       </SectionTitle>
       <p className="mb-4 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {task.spec.instruction}
+        {t(task.spec.instruction)}
       </p>
 
       {audible && reading && task.items.length > 0 && (
         <div className="mb-4">
           <Note tone="hard">
             <Ear size={14} className="mr-1.5 inline" aria-hidden />
-            Read the questions first. The recordings unlock in{" "}
-            <span className="tnum font-semibold">{left}</span> seconds, as on the real exam.{" "}
-            {plays === 1 ? "Each one plays once." : `Each one plays ${plays === 2 ? "twice" : `${plays} times`}.`}
+            {fillNodes(t("Read the questions first. The recordings unlock in {seconds} seconds, as on the real exam."), {
+              seconds: <span className="tnum font-semibold">{left}</span>,
+            })}{" "}
+            {t(plays === 1 ? "Each one plays once." : plays === 2 ? "Each one plays twice." : `Each one plays ${plays} times.`)}
             <span className="mt-3 flex">
               <Button variant="ghost" size="sm" onClick={() => setReading(false)}>
-                I&apos;ve read them, unlock the recordings
+                {t("I've read them, unlock the recordings")}
               </Button>
             </span>
           </Note>
@@ -886,7 +907,7 @@ function TaskBlock({ task, number, responses, onAnswer, frozen }: {
 
       {task.shortfall > 0 && (
         <div className="mb-4">
-          <Note tone="neutral">{task.shortfallReason}</Note>
+          <Note tone="neutral">{shortfallIn(task.shortfallReason, t)}</Note>
         </div>
       )}
 
@@ -894,8 +915,7 @@ function TaskBlock({ task, number, responses, onAnswer, frozen }: {
 
       {task.items.length === 0 ? (
         <Note tone="neutral">
-          We couldn&apos;t set anything for this task, so it carries no marks. The part is marked
-          on what&apos;s left.
+          {t("We couldn't set anything for this task, so it carries no marks. The part is marked on what's left.")}
         </Note>
       ) : (
         <ol className="grid gap-4">
@@ -929,13 +949,14 @@ function letterOf(index: number): string {
 
 /** The shared list of a matching task or a word bank, printed once with its letters. */
 function Bank({ entries, glossed }: { entries: { id: string; label: string; gloss: string }[]; glossed: boolean }) {
+  const t = useT();
   return (
     <div
       className="mb-4 rounded-[var(--r-lg)] border px-4 py-3"
       style={{ borderColor: "var(--edge)", background: "var(--raised)" }}
     >
       <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-        {glossed ? "The words" : "The word bank"}
+        {t(glossed ? "The words" : "The word bank")}
       </p>
       <ul className="grid gap-x-6 gap-y-1.5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 11rem), 1fr))" }}>
         {entries.map((entry, index) => (
@@ -970,6 +991,8 @@ function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, 
   voice: string;
   onAnswer: (response: Response) => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const stem = (
     <span className="label-xs mr-2 shrink-0" style={{ color: "var(--ink-3)" }}>{number}</span>
   );
@@ -1012,7 +1035,7 @@ function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, 
     case "listen-choose":
       return (
         <Audible text={item.answer} number={number} response={response} canPlay={canPlay} plays={plays} voice={voice} onAnswer={onAnswer}
-          lead={item.unit === "word" ? "One word. Play it, then choose what you heard." : "Play it, then choose what you heard."}>
+          lead={t(item.unit === "word" ? "One word. Play it, then choose what you heard." : "Play it, then choose what you heard.")}>
           <Options
             name={item.id}
             options={item.options.map((value) => ({ value, label: value }))}
@@ -1025,13 +1048,13 @@ function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, 
     case "listen-gap":
       return (
         <Audible text={item.full} number={number} response={response} canPlay={canPlay} plays={plays} voice={voice} onAnswer={onAnswer}
-          lead="Play it, and write the missing word.">
+          lead={t("Play it, and write the missing word.")}>
           <p className="mb-3 text-md leading-relaxed" style={{ color: "var(--ink)" }} lang="et">{item.sentence}</p>
           <EstonianInput
             value={response?.kind === "typed" ? response.value : ""}
             onChange={(value) => onAnswer({ kind: "typed", value })}
-            ariaLabel={`Recording ${number}, the missing word`}
-            placeholder="The missing word"
+            ariaLabel={fill(t("Recording {n}, the missing word"), { n: number })}
+            placeholder={t("The missing word")}
           />
         </Audible>
       );
@@ -1039,7 +1062,7 @@ function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, 
     case "listen-truefalse":
       return (
         <Audible text={item.audio} number={number} response={response} canPlay={canPlay} plays={plays} voice={voice} onAnswer={onAnswer}
-          lead="Play it, then say whether the line below is what it said.">
+          lead={t("Play it, then say whether the line below is what it said.")}>
           <blockquote
             className="mb-3 rounded-[var(--r)] border-l-4 px-4 py-2.5 text-md leading-relaxed"
             style={{ borderColor: "var(--accent)", background: "var(--raised)", color: "var(--ink)" }}
@@ -1050,8 +1073,8 @@ function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, 
           <Options
             name={item.id}
             options={[
-              { value: "true", label: "True, that's what it said" },
-              { value: "false", label: "False, it said something else" },
+              { value: "true", label: t("True, that's what it said") },
+              { value: "false", label: t("False, it said something else") },
             ]}
             selected={chosen}
             onSelect={(value) => onAnswer({ kind: "chosen", value })}
@@ -1085,7 +1108,7 @@ function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, 
             <span className="font-semibold" lang="et">{item.lemma}</span>
             <span style={{ color: "var(--ink-3)" }}> {item.translation}</span>
             <span className="ml-2">
-              in the{" "}
+              {t("in the")}{" "}
               {/* The name, the question and what that asks, as one label, with
                   the reading always on rather than the Latin name. The paper is
                   marked on the form the candidate writes, so saying which form
@@ -1141,7 +1164,7 @@ function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, 
             <span className="font-semibold" lang="et">{item.lemma}</span>
             <span style={{ color: "var(--ink-3)" }}> {item.translation}</span>
             <span className="ml-2">
-              in the{" "}
+              {t("in the")}{" "}
               {/* The name, the question and what that asks, as one label, with
                   the reading always on rather than the Latin name. The paper is
                   marked on the form the candidate writes, so saying which form
@@ -1154,8 +1177,8 @@ function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, 
           <EstonianInput
             value={response?.kind === "typed" ? response.value : ""}
             onChange={(value) => onAnswer({ kind: "typed", value })}
-            ariaLabel={`${item.caseEt} of ${item.lemma}, ${questionInEnglish(item.caseQuestion)}`}
-            placeholder="Write the form"
+            ariaLabel={fill(t("{case} of {word}, {asks}"), { case: item.caseEt, word: item.lemma, asks: questionIn(locale, item.caseQuestion) ?? "" })}
+            placeholder={t("Write the form")}
           />
         </div>
       );
@@ -1163,12 +1186,12 @@ function ItemView({ item, number, marks, bank, response, canPlay, plays, voice, 
     case "dictation":
       return (
         <Audible text={item.answer} number={number} response={response} canPlay={canPlay} plays={plays} voice={voice} onAnswer={onAnswer} slow
-          lead={item.unit === "word" ? "One word. Write it down." : `${item.words} words. Write them down.`}>
+          lead={item.unit === "word" ? t("One word. Write it down.") : fill(t("{words}. Write them down."), { words: locale === "en" ? `${item.words} words` : countOf(locale, item.words, "word") })}>
           <EstonianInput
             value={response?.kind === "typed" ? response.value : ""}
             onChange={(value) => onAnswer({ kind: "typed", value })}
-            ariaLabel={`Recording ${number}, written down`}
-            placeholder="Write what you hear"
+            ariaLabel={fill(t("Recording {n}, written down"), { n: number })}
+            placeholder={t("Write what you hear")}
           />
         </Audible>
       );
@@ -1229,6 +1252,7 @@ function Audible({ text, number, response, canPlay, plays, voice, onAnswer, slow
   children: ReactNode;
 }) {
   const [gone, setGone] = useState(false);
+  const t = useT();
   /*
     Counted here rather than in `Speak`, because the budget belongs to the
     question and not to a button: the dictation offers a slow play as well, and
@@ -1251,8 +1275,7 @@ function Audible({ text, number, response, canPlay, plays, voice, onAnswer, slow
         <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>
           <span className="label-xs mr-2" style={{ color: "var(--ink-3)" }}>{number}</span>
           <VolumeX size={14} className="mr-1.5 inline" aria-hidden />
-          The recording wouldn&apos;t play, so this question is left out of the marks rather than
-          counted against you.
+          {t("The recording wouldn't play, so this question is left out of the marks rather than counted against you.")}
         </p>
       </div>
     );
@@ -1265,8 +1288,8 @@ function Audible({ text, number, response, canPlay, plays, voice, onAnswer, slow
         {slow ? (
           <SpeakPair
             text={text}
-            label={`Play recording ${number}`}
-            slowLabel={`Play recording ${number} slowly`}
+            label={fill(t("Play recording {n}"), { n: number })}
+            slowLabel={fill(t("Play recording {n} slowly"), { n: number })}
             disabled={!canPlay || spent}
             voice={voice}
             onPlay={() => setPlayed((n) => n + 1)}
@@ -1275,7 +1298,7 @@ function Audible({ text, number, response, canPlay, plays, voice, onAnswer, slow
         ) : (
           <Speak
             text={text}
-            label={`Play recording ${number}`}
+            label={fill(t("Play recording {n}"), { n: number })}
             disabled={!canPlay || spent}
             voice={voice}
             onPlay={() => setPlayed((n) => n + 1)}
@@ -1295,8 +1318,8 @@ function Audible({ text, number, response, canPlay, plays, voice, onAnswer, slow
             style={{ color: spent ? "var(--blush-ink)" : "var(--ink-3)" }}
           >
             {spent
-              ? plays === 1 ? "Played. Answer with what you heard." : "Plays used up. Answer with what you heard."
-              : plays === 1 ? "Plays once." : `${plays - played} of ${plays} plays left.`}
+              ? t(plays === 1 ? "Played. Answer with what you heard." : "Plays used up. Answer with what you heard.")
+              : plays === 1 ? t("Plays once.") : fill(t("{left} of {plays} plays left."), { left: plays - played, plays })}
           </span>
         )}
       </div>
@@ -1399,8 +1422,9 @@ function LetterPick({ name, question, entries, taken, selected, onSelect }: {
   onSelect: (value: string) => void;
 }) {
   const picked = entries.find((e) => e.id === selected);
+  const t = useT();
   return (
-    <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label={`Answer for ${question}`}>
+    <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label={fill(t("Answer for {n}"), { n: question })}>
       {entries.map((entry, index) => {
         const active = selected === entry.id;
         const elsewhere = !active && taken.has(entry.id);
@@ -1426,7 +1450,7 @@ function LetterPick({ name, question, entries, taken, selected, onSelect }: {
               className="sr-only"
             />
             <span aria-hidden>{letterOf(index)}</span>
-            <span className="sr-only" lang="et">{`${letterOf(index)}, ${entry.label}${elsewhere ? ", already used" : ""}`}</span>
+            <span className="sr-only"><span>{letterOf(index)}, </span><span lang="et">{entry.label}</span>{elsewhere ? <span>{t(", already used")}</span> : null}</span>
           </label>
         );
       })}
@@ -1454,12 +1478,13 @@ function OrderQuestion({ item, number, built, onBuild }: {
     }
     return pool;
   }, [item.tiles, built]);
+  const t = useT();
 
   return (
     <div>
       <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
         <span className="label-xs mr-2" style={{ color: "var(--ink-3)" }}>{number}</span>
-        Tap the words in order. Tap one you&apos;ve placed to take it back.
+        {t("Tap the words in order. Tap one you've placed to take it back.")}
       </p>
       <div
         className="mb-3 flex min-h-[52px] flex-wrap items-center gap-2 rounded-[var(--r)] border border-dashed p-3"
@@ -1467,7 +1492,7 @@ function OrderQuestion({ item, number, built, onBuild }: {
         lang="et"
       >
         {built.length === 0
-          ? <span className="text-sm" style={{ color: "var(--ink-3)" }}>Your sentence goes here.</span>
+          ? <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Your sentence goes here.")}</span>
           : built.map((word, index) => (
             <button
               key={`${word}-${index}`}
@@ -1508,15 +1533,16 @@ function OrderQuestion({ item, number, built, onBuild }: {
  * scores it, and `kirjutan` lights nothing, exactly as it scores that.
  */
 function RequiredWords({ words, text }: { words: MustUseWord[]; text: string }) {
+  const t = useT();
   if (words.length === 0) return null;
   const used = words.filter((word) => usesRequiredWord(word, text)).length;
 
   return (
     <div className="mt-3">
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Use every one of these, in whatever form your sentence needs.{" "}
+        {t("Use every one of these, in whatever form your sentence needs.")}{" "}
         <span className="tnum font-semibold" style={{ color: used === words.length ? "var(--sky-ink)" : "var(--ink-3)" }}>
-          {used} of {words.length} used
+          {fill(t("{used} of {total} used"), { used, total: words.length })}
         </span>
       </p>
       <p className="mt-2 flex flex-wrap items-center gap-2">
@@ -1540,22 +1566,23 @@ function LengthMeter({ text, minWords, maxWords }: { text: string; minWords: num
   const words = wordsOf(text).length;
   const there = words >= minWords;
   const over = maxWords !== null && words > maxWords;
-  const target = maxWords ? `${minWords} to ${maxWords}` : `${minWords}`;
+  const t = useT();
+  const target = maxWords ? fill(t("{min} to {max}"), { min: minWords, max: maxWords }) : `${minWords}`;
   return (
     <>
       <div className="mt-2">
         <Meter
           pct={minWords === 0 ? 100 : Math.min(100, (words / minWords) * 100)}
-          label={`${words} of ${target} words written`}
+          label={fill(t("{n} of {target} words written"), { n: words, target })}
           tone={over ? "var(--blush)" : there ? "var(--sky)" : "var(--accent)"}
           height={4}
         />
       </div>
       <p className="mt-2 text-sm" style={{ color: over ? "var(--blush-ink)" : there ? "var(--sky-ink)" : "var(--ink-3)" }}>
-        <span className="tnum">{words}</span> of {target} words.{" "}
+        {fillNodes(t("{n} of {target} words."), { n: <span className="tnum">{words}</span>, target })}{" "}
         {over
-          ? `That's over the limit, which costs length marks, as on the real paper. Cut it back to ${maxWords}.`
-          : there ? "That's long enough." : "Half the length still earns about half the length marks."}
+          ? fill(t("That's over the limit, which costs length marks, as on the real paper. Cut it back to {max}."), { max: maxWords ?? 0 })
+          : t(there ? "That's long enough." : "Half the length still earns about half the length marks.")}
       </p>
     </>
   );
@@ -1563,9 +1590,10 @@ function LengthMeter({ text, minWords, maxWords }: { text: string; minWords: num
 
 /** A business card, for the A2 information transfer. */
 function BusinessCard({ card }: { card: Extract<Exhibit, { layout: "card" }> }) {
+  const t = useT();
   return (
     <figure
-      aria-label="The business card"
+      aria-label={t("The business card")}
       className="@container mt-3 max-w-sm rounded-[var(--r-lg)] border px-5 py-4"
       style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth)" }}
     >
@@ -1579,16 +1607,16 @@ function BusinessCard({ card }: { card: Extract<Exhibit, { layout: "card" }> }) 
           across two lines, and an address is the one thing on a card that
           has to be copied out exactly. */}
       <dl className="mt-3 grid grid-cols-1 gap-x-3 text-sm @xs:grid-cols-[auto_1fr] @xs:gap-y-1" style={{ color: "var(--ink-2)" }}>
-        <dt className="mt-1.5 first:mt-0 @xs:mt-0" style={{ color: "var(--ink-3)" }}>Works at</dt>
+        <dt className="mt-1.5 first:mt-0 @xs:mt-0" style={{ color: "var(--ink-3)" }}>{t("Works at")}</dt>
         <dd>
           <span lang="et" style={{ color: "var(--ink)" }}>{card.workplace.lemma}</span>
           <span className="ml-2" style={{ color: "var(--ink-3)" }}>{card.workplace.translation}</span>
         </dd>
-        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>Town</dt>
+        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>{t("Town", "form")}</dt>
         <dd style={{ color: "var(--ink)" }}>{card.city}</dd>
-        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>Open</dt>
+        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>{t("Open", "hours")}</dt>
         <dd style={{ color: "var(--ink)" }}>{card.hours}</dd>
-        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>E-mail</dt>
+        <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>{t("E-mail")}</dt>
         <dd className="min-w-0" style={{ color: "var(--ink)" }}>{card.email}</dd>
       </dl>
     </figure>
@@ -1597,19 +1625,20 @@ function BusinessCard({ card }: { card: Extract<Exhibit, { layout: "card" }> }) 
 
 /** Two columns of figures, for the summaries at B2 and C1. */
 function FigureTable({ table }: { table: Extract<Exhibit, { layout: "table" }> }) {
+  const t = useT();
   return (
     <figure className="mt-3">
       <figcaption className="mb-2">
         <span className="block text-md font-semibold" style={{ color: "var(--ink)" }}>{table.title}</span>
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-          In {table.unit}. These figures are made up for practice, so don&apos;t quote them as facts.
+          {fill(t("In {unit}. These figures are made up for practice, so don't quote them as facts."), { unit: table.unit })}
         </span>
       </figcaption>
       <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)" }}>
         <table className="w-full min-w-[320px] text-sm">
           <thead>
             <tr style={{ background: "var(--raised)" }}>
-              <th scope="col" className="px-3 py-2 text-left font-semibold" style={{ color: "var(--ink-2)" }}><span className="sr-only">Group</span></th>
+              <th scope="col" className="px-3 py-2 text-left font-semibold" style={{ color: "var(--ink-2)" }}><span className="sr-only">{t("Group")}</span></th>
               {table.columns.map((column) => (
                 <th key={column} scope="col" className="tnum whitespace-nowrap px-3 py-2 text-right font-semibold" style={{ color: "var(--ink-2)" }}>{column}</th>
               ))}
@@ -1647,15 +1676,16 @@ function WrittenQuestion({ item, response, onWrite }: {
   const text = response?.value ?? "";
   const chosen = Math.min(response?.variant ?? 0, item.variants.length - 1);
   const brief = item.variants[chosen];
+  const t = useT();
   if (!brief) return null;
 
   return (
     <div>
       {item.variants.length > 1 && (
         <div className="mb-4">
-          <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Choose one to write</p>
+          <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Choose one to write")}</p>
           <div className="@container">
-            <div className="grid gap-2 @md:grid-cols-2" role="radiogroup" aria-label="Which to write">
+            <div className="grid gap-2 @md:grid-cols-2" role="radiogroup" aria-label={t("Which to write")}>
               {item.variants.map((variant, index) => (
                 <label
                   key={variant.label}
@@ -1685,7 +1715,7 @@ function WrittenQuestion({ item, response, onWrite }: {
       {brief.exhibit?.layout === "card" && <BusinessCard card={brief.exhibit} />}
       {brief.exhibit?.layout === "table" && <FigureTable table={brief.exhibit} />}
 
-      <p className="label-xs mt-4" style={{ color: "var(--ink-3)" }}>Cover every point</p>
+      <p className="label-xs mt-4" style={{ color: "var(--ink-3)" }}>{t("Cover every point")}</p>
       <ul className="mt-1.5 grid gap-1 text-md" style={{ color: "var(--ink-2)" }}>
         {brief.cover.map((point) => (
           <li key={point} className="flex items-start gap-2">
@@ -1701,7 +1731,7 @@ function WrittenQuestion({ item, response, onWrite }: {
         onChange={(event) => onWrite(event.target.value, chosen)}
         rows={item.kind === "compose" || item.minWords >= 100 ? 10 : 6}
         aria-label={`${brief.label}: ${brief.prompt}`}
-        placeholder="Write in Estonian."
+        placeholder={t("Write in Estonian.")}
         className="field-lg mt-3 w-full text-md leading-relaxed"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         lang="et"
@@ -1710,11 +1740,8 @@ function WrittenQuestion({ item, response, onWrite }: {
         <DiacriticBar />
       </div>
       <LengthMeter text={text} minWords={item.minWords} maxWords={item.maxWords} />
-      <Explain label="How this is marked">
-        Six marks in ten are for the length, and four for using the words listed. Read it back and
-        check you&apos;ve covered every point yourself: we&apos;d have to judge your Estonian to
-        check it for you, and nothing here does that. On the real paper an examiner marks how well
-        you wrote, which these marks can&apos;t see.
+      <Explain label={t("How this is marked")}>
+        {t("Six marks in ten are for the length, and four for using the words listed. Read it back and check you've covered every point yourself: we'd have to judge your Estonian to check it for you, and nothing here does that. On the real paper an examiner marks how well you wrote, which these marks can't see.")}
       </Explain>
     </div>
   );
@@ -1731,6 +1758,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
   swapped: boolean;
   onSwap: () => void;
 }) {
+  const t = useT();
   const box = "mt-3 rounded-[var(--r-lg)] border px-4 py-3";
   const boxStyle = { borderColor: "var(--edge)", background: "var(--raised)" };
   const heading = (text: string) => <p className="label-xs mb-1.5" style={{ color: "var(--ink-3)" }}>{text}</p>;
@@ -1756,8 +1784,8 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
     case "idea-card":
       return (
         <div className={box} style={boxStyle}>
-          {heading(`Idea card: ${card.about}`)}
-          <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>Ask about</p>
+          {heading(fill(t("Idea card: {about}"), { about: card.about }))}
+          <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{t("Ask about")}</p>
           {list(card.ask)}
         </div>
       );
@@ -1765,13 +1793,13 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
       return (
         <>
           <div className={box} style={boxStyle}>
-            {heading("The examiner asks")}
+            {heading(t("The examiner asks"))}
             {list(card.questions, true)}
           </div>
           <div className={box} style={boxStyle}>
-            {heading("Then decide together")}
+            {heading(t("Then decide together"))}
             <p className="text-md" style={{ color: "var(--ink)" }}>{card.situation}</p>
-            <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>The choices: {card.alternatives.join(", ")}.</p>
+            <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{fill(t("The choices: {list}."), { list: card.alternatives.join(", ") })}</p>
           </div>
         </>
       );
@@ -1779,13 +1807,13 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
       return (
         <div className="grid gap-3 @container">
           <div className={box} style={boxStyle}>
-            {heading(`Your call: you ring ${card.call}`)}
-            <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>Find out</p>
+            {heading(fill(t("Your call: you ring {who}"), { who: card.call }))}
+            <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{t("Find out")}</p>
             {list(card.find)}
           </div>
           <div className={box} style={boxStyle}>
-            {heading(`Their call: you're ${card.answerAs}`)}
-            <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>Answer with these facts</p>
+            {heading(fill(t("Their call: you're {who}"), { who: card.answerAs }))}
+            <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{t("Answer with these facts")}</p>
             {list(card.facts)}
           </div>
         </div>
@@ -1794,16 +1822,16 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
       const showing = swapped && card.swap ? card.swap : card;
       return (
         <div className={box} style={boxStyle}>
-          {heading("Your topic card")}
+          {heading(t("Your topic card"))}
           <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{showing.task}</p>
           {card.swap && (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-              {swapped
+              {t(swapped
                 ? "You've swapped your card. The real paper lets you do that once."
-                : "The real paper lets you swap your card once, if the topic doesn't suit you."}{" "}
+                : "The real paper lets you swap your card once, if the topic doesn't suit you.")}{" "}
               {!swapped && (
                 <button type="button" onClick={onSwap} className="tap-tint font-semibold underline" style={{ color: "var(--accent-deep)" }}>
-                  Swap it
+                  {t("Swap it")}
                 </button>
               )}
             </p>
@@ -1815,11 +1843,11 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
       return (
         <>
           <div className={box} style={boxStyle}>
-            {heading("The examiner asks")}
+            {heading(t("The examiner asks"))}
             {list(card.questions, true)}
           </div>
           <div className={box} style={boxStyle}>
-            {heading("Then debate this")}
+            {heading(t("Then debate this"))}
             <p className="text-md" style={{ color: "var(--ink)" }}>{card.situation}</p>
             <div className="@container mt-3">
               <div className="grid gap-3 @md:grid-cols-2">
@@ -1837,8 +1865,8 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
     case "presentation":
       return (
         <div className={box} style={boxStyle}>
-          {heading("Choose one topic")}
-          <div className="grid gap-2" role="radiogroup" aria-label="Your topic">
+          {heading(t("Choose one topic"))}
+          <div className="grid gap-2" role="radiogroup" aria-label={t("Your topic")}>
             {card.topics.map((option, index) => (
               <label
                 key={option}
@@ -1859,9 +1887,9 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
     case "discussion":
       return (
         <div className={box} style={boxStyle}>
-          {heading("The question")}
+          {heading(t("The question"))}
           <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{card.question}</p>
-          <p className="mb-1.5 mt-3 text-sm" style={{ color: "var(--ink-2)" }}>Thoughts on the card</p>
+          <p className="mb-1.5 mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{t("Thoughts on the card")}</p>
           {list(card.thoughts)}
         </div>
       );
@@ -1878,10 +1906,11 @@ function followUpsOf(card: SpeakCard, swapped: boolean): string[] {
   }
 }
 
-function formatSeconds(seconds: number): string {
-  if (seconds === 60) return "a minute";
-  if (seconds === 90) return "a minute and a half";
-  return seconds > 60 && seconds % 60 === 0 ? `${seconds / 60} minutes` : `${seconds} seconds`;
+function formatSeconds(seconds: number, t: (english: string) => string, locale: ReturnType<typeof useLocale>): string {
+  if (seconds === 60) return t("a minute");
+  if (seconds === 90) return t("a minute and a half");
+  if (locale === "en") return seconds > 60 && seconds % 60 === 0 ? `${seconds / 60} minutes` : `${seconds} seconds`;
+  return seconds > 60 && seconds % 60 === 0 ? countOf(locale, seconds / 60, "minute") : countOf(locale, seconds, "second");
 }
 
 /** Record, listen back, mark yourself. Nothing here scores a recording. */
@@ -1903,6 +1932,8 @@ function SpeakQuestion({ item, marks, response, onMark }: {
   const [now, setNow] = useState(() => Date.now());
   const preparing = prepEnds !== null && now < prepEnds;
   const followUps = followUpsOf(item.card, swapped);
+  const t = useT();
+  const locale = useLocale();
 
   useEffect(() => {
     if (prepEnds === null) return;
@@ -1925,7 +1956,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
 
       {item.ideas.length > 0 && (
         <div className="mt-3">
-          <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>Words you might use</p>
+          <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>{t("Words you might use")}</p>
           <p className="flex flex-wrap items-center gap-2">
             {item.ideas.map((idea) => (
               <Chip key={idea.lexemeId} caseSensitive>
@@ -1947,20 +1978,20 @@ function SpeakQuestion({ item, marks, response, onMark }: {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>
               {prepEnds === null
-                ? `${formatSeconds(item.prepSeconds)} to prepare`
+                ? fill(t("{time} to prepare"), { time: formatSeconds(item.prepSeconds, t, locale) })
                 : preparing
-                  ? <span role="timer" className="tnum">{formatRemaining(Math.max(0, Math.round((prepEnds - now) / 1000)))} to prepare</span>
-                  : "Time to speak"}
+                  ? <span role="timer" className="tnum">{fill(t("{time} to prepare"), { time: formatRemaining(Math.max(0, Math.round((prepEnds - now) / 1000))) })}</span>
+                  : t("Time to speak")}
             </p>
             {prepEnds === null && (
               <Button variant="secondary" size="sm" onClick={() => { setNow(Date.now()); setPrepEnds(Date.now() + item.prepSeconds * 1000); }}>
-                <Clock size={14} aria-hidden /> Start preparing
+                <Clock size={14} aria-hidden /> {t("Start preparing")}
               </Button>
             )}
           </div>
           <label className="mt-3 block">
             <span className="text-sm" style={{ color: "var(--ink-2)" }}>
-              Notes, if you want them. You may use notes on the real day too. These aren&apos;t kept.
+              {t("Notes, if you want them. You may use notes on the real day too. These aren't kept.")}
             </span>
             <textarea
               value={notes}
@@ -1971,13 +2002,13 @@ function SpeakQuestion({ item, marks, response, onMark }: {
               lang="et"
             />
           </label>
-          <p className="sr-only" aria-live="polite">{prepEnds !== null && !preparing ? "Preparation time is over. Time to speak." : ""}</p>
+          <p className="sr-only" aria-live="polite">{prepEnds !== null && !preparing ? t("Preparation time is over. Time to speak.") : ""}</p>
         </div>
       )}
 
       <div className="mt-4">
         <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>
-          Speak for about {formatSeconds(item.seconds)}.
+          {fill(t("Speak for about {time}."), { time: formatSeconds(item.seconds, t, locale) })}
         </p>
         <Recorder targetSeconds={item.seconds} onRecorded={() => update({ recorded: true })} />
       </div>
@@ -1985,12 +2016,12 @@ function SpeakQuestion({ item, marks, response, onMark }: {
       {recorded && followUps.length > 0 && (
         <div className="mt-4 rounded-[var(--r-lg)] border px-4 py-3" style={{ borderColor: "var(--edge)", background: "var(--raised)" }}>
           <p className="label-xs mb-1.5" style={{ color: "var(--ink-3)" }}>
-            Then the examiner asks
+            {t("Then the examiner asks")}
           </p>
           <ol className="grid list-decimal gap-1 pl-5 text-md" style={{ color: "var(--ink)" }}>
             {followUps.map((q) => <li key={q}>{q}</li>)}
           </ol>
-          <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>Answer out loud. You can record your answer too.</p>
+          <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{t("Answer out loud. You can record your answer too.")}</p>
           <div className="mt-3">
             <Recorder targetSeconds={30} />
           </div>
@@ -1999,7 +2030,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
 
       <fieldset className="mt-5">
         <legend className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-          Listen back and tick what you managed. Each one is a mark.
+          {t("Listen back and tick what you managed. Each one is a mark.")}
         </legend>
         <div className="grid gap-1.5">
           {criteria.map((criterion, index) => (
@@ -2024,14 +2055,13 @@ function SpeakQuestion({ item, marks, response, onMark }: {
                 }}
                 className="size-4 shrink-0 accent-[var(--accent)]"
               />
-              <span>{criterion}</span>
+              <span>{t(criterion)}</span>
             </label>
           ))}
         </div>
         {!recorded && (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-            Record something first, then tick what you managed. There&apos;s nothing to judge
-            until you&apos;ve spoken.
+            {t("Record something first, then tick what you managed. There's nothing to judge until you've spoken.")}
           </p>
         )}
       </fieldset>

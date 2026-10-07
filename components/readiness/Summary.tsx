@@ -3,6 +3,8 @@ import { Card, CardLink, SectionTitle } from "@/components/ui";
 import { RUNG_LABEL, RUNG_ORDER, type Summary } from "@/lib/readiness/rungs";
 import { headline } from "@/lib/readiness/narrative";
 import { RUNG_FILL } from "./Rung";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
+import { sayIn } from "@/lib/copy/said";
 
 /**
  * The distribution over a level, which is the headline this screen prints
@@ -22,12 +24,13 @@ import { RUNG_FILL } from "./Rung";
  * sweep read it as clean. `sm:` is the wrong breakpoint for the same reason:
  * 768 is above it.
  */
-export function ReadinessSummary({ summary }: { summary: Summary }) {
+export function ReadinessSummary({ summary, locale }: { summary: Summary; locale: Locale }) {
+  const t = (english: string) => tr(locale, english);
   const shown = [...RUNG_ORDER].reverse();
   const total = shown.reduce((sum, rung) => sum + summary.counts[rung], 0);
   return (
     <>
-      <p className="text-base" style={{ color: "var(--ink)" }}>{headline(summary)}</p>
+      <p className="text-base" style={{ color: "var(--ink)" }}>{headline(summary, locale)}</p>
       {/*
         Five across once the card has the room, not once the window does: at
         768 the rail takes a column and this card is 318px wide, which put
@@ -58,14 +61,14 @@ export function ReadinessSummary({ summary }: { summary: Summary }) {
         {shown.filter((rung) => total === 0 || summary.counts[rung] > 0).map((rung) => (
           <li key={rung} className="flex items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
             <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: RUNG_FILL[rung] }} />
-            {RUNG_LABEL[rung]}
+            {t(RUNG_LABEL[rung])}
             <span className="tnum font-bold" style={{ color: "var(--ink)" }}>{summary.counts[rung]}</span>
           </li>
         ))}
       </ul>
       {summary.commonest && (
         <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
-          What trips you up most, in {summary.commonest.times} of these situations: {summary.commonest.title.toLowerCase()}.
+          {fill(t("What trips you up most, in {n} of these situations: {what}."), { n: summary.commonest.times, what: sayIn(locale, summary.commonest.said).toLowerCase() })}
           {summary.commonest.href && summary.commonest.cta && (
             <>
               {" "}
@@ -74,7 +77,7 @@ export function ReadinessSummary({ summary }: { summary: Summary }) {
                 className="font-semibold underline underline-offset-2"
                 style={{ color: "var(--accent-deep)" }}
               >
-                {summary.commonest.cta}
+                {t(summary.commonest.cta)}
               </Link>
               .
             </>
@@ -86,14 +89,15 @@ export function ReadinessSummary({ summary }: { summary: Summary }) {
 }
 
 /** The panel Progress draws. */
-export function ReadinessPanel({ summary }: { summary: Summary }) {
+export function ReadinessPanel({ summary, locale }: { summary: Summary; locale: Locale }) {
+  const t = (english: string) => tr(locale, english);
   return (
-    <section>
-      <SectionTitle hint={`everyday situations at ${summary.level}`}>In real life</SectionTitle>
+    <section lang={locale}>
+      <SectionTitle hint={fill(t("everyday situations at {level}"), { level: summary.level })}>{t("In real life")}</SectionTitle>
       <Card>
-        <ReadinessSummary summary={summary} />
+        <ReadinessSummary summary={summary} locale={locale} />
         <div className="mt-4">
-          <CardLink href="/progress/readiness">See every situation, and what would trip you up in each</CardLink>
+          <CardLink href="/progress/readiness">{t("See every situation, and what would trip you up in each")}</CardLink>
         </div>
       </Card>
     </section>

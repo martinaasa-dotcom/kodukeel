@@ -11,6 +11,8 @@ import {
   serialiseNavOrder, unpinned,
 } from "@/lib/ux/navOrder";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * "EDIT SIDEBAR", OPENED FROM THE MENU UNDER THE LEARNER'S NAME.
@@ -38,6 +40,7 @@ export function NavEditor({
   onChange: (order: string[]) => void;
   onClose: () => void;
 }) {
+  const t = useT();
   const [order, setOrder] = useState<string[]>([...initial]);
   const [message, setMessage] = useState("");
   const [dragging, setDragging] = useState<string | null>(null);
@@ -75,16 +78,19 @@ export function NavEditor({
       if (!landed) {
         setOrder(was);
         onChange(was);
-        setMessage(`${NOT_REACHED} Your sidebar hasn't changed.`);
+        setMessage(`${t(NOT_REACHED)} ${t("Your sidebar hasn't changed.")}`);
       }
     });
   };
 
-  const labelOf = (href: string) => byHref.get(href)?.label ?? href;
+  const labelOf = (href: string) => {
+    const label = byHref.get(href)?.label;
+    return label ? t(label) : href;
+  };
 
   const move = (i: number, to: number) => {
     if (to < 0 || to >= order.length) return;
-    save(moveRow(order, i, to), `${labelOf(order[i]!)} moved to number ${to + 1}.`);
+    save(moveRow(order, i, to), fill(t("{title} moved to number {n}."), { title: labelOf(order[i]!), n: to + 1 }));
   };
 
   /*
@@ -120,7 +126,7 @@ export function NavEditor({
       target.removeEventListener("pointerup", onUp);
       target.removeEventListener("pointercancel", onUp);
       setDragging(null);
-      if (current !== order) save(current, `${labelOf(href)} moved to number ${current.indexOf(href) + 1}.`);
+      if (current !== order) save(current, fill(t("{title} moved to number {n}."), { title: labelOf(href), n: current.indexOf(href) + 1 }));
     };
     target.addEventListener("pointermove", onMove);
     target.addEventListener("pointerup", onUp);
@@ -149,14 +155,14 @@ export function NavEditor({
             className="font-display text-2xl font-bold tracking-tight outline-none"
             style={{ color: "var(--ink)" }}
           >
-            Your sidebar
+            {t("Your sidebar")}
           </h2>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            Drag a row, or use the arrows. Put what you use most at the top.
+            {t("Drag a row, or use the arrows. Put what you use most at the top.")}
           </p>
         </div>
 
-        <ol ref={list} aria-label="Sidebar order" className="flex flex-col gap-1.5">
+        <ol ref={list} aria-label={t("Sidebar order")} className="flex flex-col gap-1.5">
           {rows.map((row, i) => {
             const core = isCoreRow(row.href);
             return (
@@ -184,14 +190,14 @@ export function NavEditor({
                     className="h-2 w-2 shrink-0"
                     style={{ borderRadius: core ? "50%" : "2px", background: row.href === "/" ? "var(--butter)" : "var(--accent)" }}
                   />
-                  <span className="min-w-0">{row.label}</span>
-                  {!core && <span className="sr-only">, pinned</span>}
+                  <span className="min-w-0">{t(row.label)}</span>
+                  {!core && <span className="sr-only">{t(", pinned")}</span>}
                 </span>
                 <button
                   type="button"
                   className="tap-tint flex h-9 w-9 shrink-0 items-center justify-center rounded-md disabled:opacity-30"
                   style={{ color: "var(--ink-2)" }}
-                  aria-label={`Move ${row.label} up`}
+                  aria-label={fill(t("Move {title} up"), { title: t(row.label) })}
                   disabled={i === 0}
                   onClick={() => move(i, i - 1)}
                 >
@@ -201,7 +207,7 @@ export function NavEditor({
                   type="button"
                   className="tap-tint flex h-9 w-9 shrink-0 items-center justify-center rounded-md disabled:opacity-30"
                   style={{ color: "var(--ink-2)" }}
-                  aria-label={`Move ${row.label} down`}
+                  aria-label={fill(t("Move {title} down"), { title: t(row.label) })}
                   disabled={i === rows.length - 1}
                   onClick={() => move(i, i + 1)}
                 >
@@ -214,8 +220,8 @@ export function NavEditor({
                     type="button"
                     className="tap-tint flex h-9 w-9 shrink-0 items-center justify-center rounded-md"
                     style={{ color: "var(--ink-3)" }}
-                    aria-label={`Take ${row.label} off the sidebar`}
-                    onClick={() => save(order.filter((h) => h !== row.href), `${row.label} is off the sidebar. You can still find it in ${labelOf(row.within ?? "/")}.`)}
+                    aria-label={fill(t("Take {title} off the sidebar"), { title: t(row.label) })}
+                    onClick={() => save(order.filter((h) => h !== row.href), fill(t("{title} is off the sidebar. You can still find it in {home}."), { title: t(row.label), home: labelOf(row.within ?? "/") }))}
                   >
                     <X size={15} aria-hidden />
                   </button>
@@ -227,7 +233,7 @@ export function NavEditor({
 
         <div className="flex flex-col gap-1.5">
           <p className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>
-            {atCap ? `You can pin up to ${MAX_PINS}. Take one off to add another.` : "Add to your sidebar"}
+            {atCap ? fill(t("You can pin up to {n}. Take one off to add another."), { n: MAX_PINS }) : t("Add to your sidebar")}
           </p>
           {/* Grouped under the place each already lives in, as chips, so the
               whole list fits beside the rail rather than scrolling. */}
@@ -236,15 +242,15 @@ export function NavEditor({
             if (here.length === 0) return null;
             return (
               <div key={home.href} className="mt-1.5">
-                <p className="text-xs font-semibold" style={{ color: "var(--ink-3)" }}>In {home.label}</p>
+                <p className="text-xs font-semibold" style={{ color: "var(--ink-3)" }}>{fill(t("In {home}"), { home: t(home.label) })}</p>
                 <ul className="mt-1.5 flex flex-wrap gap-1.5">
                   {here.map((d) => (
                     <li key={d.href}>
                       <button
                         type="button"
                         disabled={atCap}
-                        aria-label={`Pin ${d.label}`}
-                        onClick={() => save([...order, d.href], `${d.label} is pinned at the bottom.`)}
+                        aria-label={fill(t("Pin {title}"), { title: t(d.label) })}
+                        onClick={() => save([...order, d.href], fill(t("{title} is pinned at the bottom."), { title: t(d.label) }))}
                         className="choice-btn inline-flex min-h-10 items-center gap-1.5 rounded-full border border-dashed py-1.5 pl-2 pr-3.5 text-sm font-semibold disabled:opacity-40"
                         style={{ borderColor: "var(--rule)", color: "var(--ink)" }}
                       >
@@ -255,7 +261,7 @@ export function NavEditor({
                         >
                           <Plus size={12} strokeWidth={2.8} />
                         </span>
-                        {d.label}
+                        {t(d.label)}
                       </button>
                     </li>
                   ))}
@@ -274,12 +280,12 @@ export function NavEditor({
             {!isDefaultNavOrder(order) && (
               <Button
                 variant="ghost"
-                onClick={() => save([...DEFAULT_NAV_ORDER], "Your sidebar is back to how it started.")}
+                onClick={() => save([...DEFAULT_NAV_ORDER], t("Your sidebar is back to how it started."))}
               >
-                Reset to how it started
+                {t("Reset to how it started")}
               </Button>
             )}
-            <Button variant="primary" onClick={onClose}>Done</Button>
+            <Button variant="primary" onClick={onClose}>{t("Done")}</Button>
           </span>
         </div>
       </div>

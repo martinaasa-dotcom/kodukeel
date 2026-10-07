@@ -6,7 +6,9 @@ import { Check, Loader2, Plus } from "lucide-react";
 import { addToDeck } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
-import { counted, NOT_REACHED } from "@/lib/copy/values";
+import { NOT_REACHED } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 /**
  * Puts one dictionary word into the deck, and asks which shelf where there is
@@ -40,6 +42,8 @@ export function AddWordButton({ lexemeId, lemma, source = "LOOKUP", className, v
   variant?: "primary" | "secondary";
 }) {
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
   const [result, setResult] = useState<string | null>(null);
   /*
     A FAILURE IS NOT A RESULT. It used to land in the same field, so a refused
@@ -51,10 +55,15 @@ export function AddWordButton({ lexemeId, lemma, source = "LOOKUP", className, v
 
   const keeper = useKeepWord(lexemeId, async (deckIds, named) => {
     const r = await addToDeck(lexemeId, ["RECOGNITION", "PRODUCTION"], source, deckIds).catch(() => null);
-    if (!r || !r.ok) { setError(r ? r.error : NOT_REACHED); return; }
+    if (!r || !r.ok) { setError(t(r ? r.error : NOT_REACHED)); return; }
     setError(null);
-    const where = named.length > 0 ? ` On ${named.join(", ")}.` : "";
-    setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${counted(r.added, "card")}.${where}`);
+    const decks = named.join(", ");
+    const cards = countOf(locale, r.added, "card");
+    setResult(
+      r.added === 0
+        ? named.length > 0 ? fill(t("Already in your deck. On {decks}."), { decks }) : t("Already in your deck.")
+        : named.length > 0 ? fill(t("Added {cards}. On {decks}."), { cards, decks }) : fill(t("Added {cards}."), { cards }),
+    );
     router.refresh();
   });
 
@@ -63,7 +72,7 @@ export function AddWordButton({ lexemeId, lemma, source = "LOOKUP", className, v
       <KeepWordChoice keeper={keeper} className="mb-3" />
       <div className="flex flex-wrap items-center gap-2">
         {keeper.asking && (
-          <Button variant="ghost" onClick={keeper.cancel}>Cancel</Button>
+          <Button variant="ghost" onClick={keeper.cancel}>{t("Cancel")}</Button>
         )}
         <Button
           variant={variant}
@@ -75,11 +84,11 @@ export function AddWordButton({ lexemeId, lemma, source = "LOOKUP", className, v
           className={`${keeper.asking ? "flex-1" : "w-full"} aria-disabled:opacity-45`}
         >
           {keeper.pending ? (
-            <><Loader2 size={15} className="animate-spin" aria-hidden /> Adding…</>
+            <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Adding…")}</>
           ) : result ? (
             <><Check size={15} aria-hidden /> {result}</>
           ) : (
-            <><Plus size={15} aria-hidden /> {keeper.asking ? "Add it" : "Add it to my deck"}</>
+            <><Plus size={15} aria-hidden /> {t(keeper.asking ? "Add it" : "Add it to my deck")}</>
           )}
         </Button>
       </div>

@@ -6,6 +6,8 @@ import { resolveOperator } from "@/lib/legal/operator";
 import { Note } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { MascotWatch } from "@/components/MascotWatch";
+import { fillNodes } from "@/components/TemplateNodes";
+import { fill, localeFrom, tr } from "@/lib/copy/locale";
 import { SignInForm } from "./SignInForm";
 
 export const metadata = { title: "Sign in" };
@@ -37,6 +39,17 @@ export default async function SignInPage({ searchParams }: {
 }) {
   const configured = supabaseConfigured();
   const params = await searchParams;
+  /*
+    THE LANGUAGE COMES IN ON THE ADDRESS, BECAUSE NOBODY IS SIGNED IN YET.
+
+    The Russian and Ukrainian front pages link here with `?lang=ru` and
+    `?lang=uk`, and there is no learner to read a setting from, so the query is
+    the only place the choice can live. `localeFrom` honours those two and
+    reads anything else as English, which is what this screen always was. The
+    form carries it on to first run, so the wizard opens in the same language.
+  */
+  const locale = localeFrom(typeof params.lang === "string" ? params.lang : null);
+  const t = (english: string) => tr(locale, english);
   const operator = resolveOperator();
   /*
     THE MAILED LINK IS DRAWN UNLESS THE OPERATOR SAYS OTHERWISE.
@@ -99,7 +112,7 @@ export default async function SignInPage({ searchParams }: {
   const bounced = params.bounced !== undefined;
 
   return (
-    <main className="night relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12">
+    <main lang={locale === "en" ? undefined : locale} className="night relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -108,11 +121,11 @@ export default async function SignInPage({ searchParams }: {
 
       <div className="relative w-full max-w-[440px]">
         <Link
-          href="/welcome"
+          href={locale === "en" ? "/welcome" : `/welcome/${locale}`}
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-60"
           style={{ color: "var(--ink-3)" }}
         >
-          <ArrowLeft size={14} aria-hidden /> Back to the front page
+          <ArrowLeft size={14} aria-hidden /> {t("Back to the front page")}
         </Link>
 
         <div
@@ -126,66 +139,60 @@ export default async function SignInPage({ searchParams }: {
         >
           <MascotWatch size={62} className="float mx-auto" />
           <h1 className="font-display mt-5 text-4xl font-bold leading-tight tracking-tight" style={{ color: "var(--ink)" }}>
-            Tere tulemast tagasi
+            {/* Estonian whatever language the page around it is in. */}
+            <span lang="et">Tere tulemast tagasi</span>
           </h1>
           <p className="mx-auto mt-2 max-w-[36ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            New here? Signing in is all it takes to start, and it&rsquo;s free. Coming back?
-            Everything you&rsquo;ve learned is right where you left it.
+            {t("New here? Signing in is all it takes to start, and it’s free. Coming back? Everything you’ve learned is right where you left it.")}
           </p>
 
           {denied && (
             <div className="mt-6 text-left">
               <Note tone="again">
-                That address cannot use this copy of Kodukeel, because it&rsquo;s set up for one
-                particular group. Try the account you were invited with
-                {operator.email ? <>, or ask {operator.email} to add you</> : null}.
+                {operator.email
+                  ? fill(t("That address cannot use this copy of Kodukeel, because it’s set up for one particular group. Try the account you were invited with, or ask {email} to add you."), { email: operator.email })
+                  : t("That address cannot use this copy of Kodukeel, because it’s set up for one particular group. Try the account you were invited with.")}
               </Note>
             </div>
           )}
           {switched && (
             <div className="mt-6 text-left">
               <Note tone="hard">
-                That link would have signed you in as someone else, so to be safe we signed you out
-                and didn&rsquo;t follow it. If the link is yours, sign in below. If you didn&rsquo;t
-                ask for it, you can safely ignore it.
+                {t("That link would have signed you in as someone else, so to be safe we signed you out and didn’t follow it. If the link is yours, sign in below. If you didn’t ask for it, you can safely ignore it.")}
               </Note>
             </div>
           )}
           {bounced && (
             <div className="mt-6 text-left">
               <Note tone="hard">
-                This browser couldn&rsquo;t finish that sign-in. Either the link was opened in a
-                different browser from the one that asked for it, or you ended up on a different
-                address from the one you started on. Try again from here.
+                {t("This browser couldn’t finish that sign-in. Either the link was opened in a different browser from the one that asked for it, or you ended up on a different address from the one you started on. Try again from here.")}{" "}
                 {operator.email
-                  ? <> If it keeps happening, let {operator.email} know: this address needs adding to the sign-in settings.</>
-                  : <> If it keeps happening, whoever runs this copy needs to add this address to the sign-in settings.</>}
+                  ? fill(t("If it keeps happening, let {email} know: this address needs adding to the sign-in settings."), { email: operator.email })
+                  : t("If it keeps happening, whoever runs this copy needs to add this address to the sign-in settings.")}
               </Note>
             </div>
           )}
           {failed && !denied && !switched && !bounced && (
             <div className="mt-6 text-left">
               <Note tone="hard">
-                That sign-in did not go through. An emailed link works once and only lasts an hour,
-                so if yours is older than that, ask for a fresh one below.
+                {t("That sign-in did not go through. An emailed link works once and only lasts an hour, so if yours is older than that, ask for a fresh one below.")}
               </Note>
             </div>
           )}
 
           <div className="mt-7">
             {configured ? (
-              <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} googleClientId={googleClientId} />
+              <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} googleClientId={googleClientId} locale={locale} />
             ) : (
               <div className="rounded-[var(--r-lg)] p-5 text-left" style={{ background: "var(--raised)" }}>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  This copy is running in local mode. There are no accounts and no signing in, and
-                  everything is kept right here on this machine. Add{" "}
-                  <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-                  <code className="text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to your{" "}
-                  <code className="text-xs">.env</code> to turn on sign-in and
-                  separate decks for each person.
+                  {fillNodes(t("This copy is running in local mode. There are no accounts and no signing in, and everything is kept right here on this machine. Add {url} and {key} to your {env} to turn on sign-in and separate decks for each person."), {
+                    url: <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code>,
+                    key: <code className="text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>,
+                    env: <code className="text-xs">.env</code>,
+                  })}
                 </p>
-                <ButtonLink href="/" variant="primary" className="mt-4 w-full">Start studying</ButtonLink>
+                <ButtonLink href={locale === "en" ? "/" : `/start?lang=${locale}`} variant="primary" className="mt-4 w-full">{t("Start studying")}</ButtonLink>
               </div>
             )}
           </div>
@@ -199,7 +206,7 @@ export default async function SignInPage({ searchParams }: {
                 >
                   <Check size={12} strokeWidth={3} aria-hidden />
                 </span>
-                {p}
+                {t(p)}
               </li>
             ))}
           </ul>
@@ -218,16 +225,11 @@ export default async function SignInPage({ searchParams }: {
           up is the reader it is actually for.
         */}
         <p className="mx-auto mt-6 max-w-[46ch] text-center text-xs" style={{ color: "var(--ink-3)" }}>
-          Kodukeel is for people aged 13 and over. If you&rsquo;re younger, a parent needs to
-          say yes first.
+          {t("Kodukeel is for people aged 13 and over. If you’re younger, a parent needs to say yes first.")}
         </p>
 
         <p className="mx-auto mt-3 max-w-[46ch] text-center text-xs" style={{ color: "var(--ink-3)" }}>
-          Estonian forms and example sentences from Ekilex (Institute of the Estonian Language,
-          CC BY 4.0). English translations from English Wiktionary (CC BY-SA 4.0). Word counts from
-          FrequencyWords over OpenSubtitles (CC BY-SA 4.0). Every spelling of every word from
-          Ekilex&rsquo;s own tables as gathered in Estonian-Wordlist-Enriched-Ekilex (CC BY-SA 4.0),
-          and from Vabamorf (LGPL). Speech from the University of Tartu.
+          {t("Estonian forms and example sentences from Ekilex (Institute of the Estonian Language, CC BY 4.0). English translations from English Wiktionary (CC BY-SA 4.0). Word counts from FrequencyWords over OpenSubtitles (CC BY-SA 4.0). Every spelling of every word from Ekilex’s own tables as gathered in Estonian-Wordlist-Enriched-Ekilex (CC BY-SA 4.0), and from Vabamorf (LGPL). Speech from the University of Tartu.")}
         </p>
       </div>
     </main>

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { tonightLetter, type TonightInput } from "./tonight";
 
 const base = (over: Partial<TonightInput> = {}): TonightInput => ({
+  locale: "en",
   name: null,
   origin: "https://example.test",
   day: {

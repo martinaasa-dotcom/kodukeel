@@ -1,12 +1,13 @@
 /**
- * The entry page, in the two languages most people learning Estonian in
- * Estonia already read.
+ * The landing page's facts about itself, in the two languages most people
+ * learning Estonian in Estonia already read.
  *
  * Most adults learning Estonian here speak Russian or Ukrainian, and a landing
- * page they have to read in their third language is one they close. The app
- * itself is in English and says so on these pages; what it already does in
- * both languages is show a word's meaning, from the Institute of the Estonian
- * Language's own equivalents (`lib/collections/glossLanguage.ts`).
+ * page they have to read in their third language is one they close. The page
+ * itself is one component in three languages (`app/(chromeless)/welcome/page.tsx`,
+ * with its lines in `lib/copy/i18n/areas/landing.ts`); what lives here is what
+ * the page says about being a translation: its address, its title for a search
+ * engine, the notice, and what language the app opens in.
  *
  * MACHINE-TRANSLATED AND SAID SO. These were translated by a model and nobody
  * who speaks either language as a first language has read them yet. So every
@@ -33,16 +34,13 @@ export interface EntryCopy {
   readonly notice: string;
   readonly title: string;
   readonly description: string;
-  readonly headline: string;
-  readonly sub: string;
-  readonly cta: string;
-  readonly whoTitle: string;
-  readonly who: readonly { readonly title: string; readonly body: string }[];
-  readonly whatTitle: string;
-  readonly what: readonly string[];
-  /** That the app itself is in English, said before anybody signs up. */
-  readonly appInEnglish: string;
-  readonly examLink: string;
+  /**
+   * What language the app itself is in, said before anybody signs up: the
+   * language chosen here is carried through sign-in to first run. The page
+   * prints `MACHINE_SHORT` after it, since the inside is machine translated
+   * too and somebody deciding whether to sign up should know that first.
+   */
+  readonly appLanguage: string;
 }
 
 /** Said in English beside the translated notice, for a reader of neither. */
@@ -55,41 +53,11 @@ export const ENTRY_COPY: Readonly<Record<EntryLocale, EntryCopy>> = {
     href: "/welcome/ru",
     reviewed: false,
     notice: "Эта страница переведена машинным способом, и носитель языка её ещё не проверил.",
-    title: "Kodukeel: эстонский, который наконец запоминается",
+    title: "Kodukeel: эстонский, который наконец остаётся в голове",
     description:
       "Бесплатное приложение для изучения эстонского: падежи по словарю, повторение вовремя и разговоры, к которым можно подготовиться.",
-    headline: "Эстонский, который наконец запоминается.",
-    sub:
-      "Сосед здоровается. Коллега задаёт вопрос. Нужны правильные слова, когда на вас смотрят. Kodukeel готовит к этому по пятнадцать минут в день.",
-    cta: "Начать бесплатно",
-    whoTitle: "Для кого это",
-    who: [
-      {
-        title: "Вы живёте в Эстонии",
-        body: "Магазин, врач, письмо из города. Эстонский, который встречается каждую неделю, в том порядке, в каком он встречается.",
-      },
-      {
-        title: "Ваш близкий говорит по-эстонски",
-        body: "Его семья, его шутки, его мама по телефону. Потренируйтесь до воскресного обеда, а не во время него.",
-      },
-      {
-        title: "У вас назначен экзамен",
-        body: "Пробные экзамены от A2 до C1, которые проверяются по правилам, а не нейросетью, и понятное описание настоящего экзамена.",
-      },
-      {
-        title: "Ваши рабочие встречи на эстонском",
-        body: "Слова для работы и репетиция разговора с человеком, которому от вас что-то нужно.",
-      },
-    ],
-    whatTitle: "Что внутри",
-    what: [
-      "Значения слов по-русски из словаря Института эстонского языка.",
-      "Все четырнадцать падежей, с формами из словаря, а не придуманными моделью.",
-      "Повторение в тот день, когда слово начинает забываться. Бесплатно, и работает без интернета.",
-    ],
-    appInEnglish:
-      "Само приложение пока на английском. Значения слов можно показывать по-русски, это включается в настройках (Settings).",
-    examLink: "Как устроен государственный экзамен (на английском)",
+    appLanguage:
+      "Внутри приложение тоже на русском: этот язык будет выбран сразу, а сменить его можно в настройках.",
   },
   uk: {
     lang: "uk",
@@ -97,41 +65,11 @@ export const ENTRY_COPY: Readonly<Record<EntryLocale, EntryCopy>> = {
     href: "/welcome/uk",
     reviewed: false,
     notice: "Цю сторінку перекладено машинно, і носій мови її ще не перевірив.",
-    title: "Kodukeel: естонська, яка нарешті запам’ятовується",
+    title: "Kodukeel: естонська, яка нарешті лишається в голові",
     description:
       "Безкоштовний застосунок для вивчення естонської: відмінки зі словника, повторення вчасно і розмови, до яких можна підготуватися.",
-    headline: "Естонська, яка нарешті запам’ятовується.",
-    sub:
-      "Сусід вітається. Колега ставить запитання. Потрібні правильні слова, коли на вас дивляться. Kodukeel готує до цього по п’ятнадцять хвилин на день.",
-    cta: "Почати безкоштовно",
-    whoTitle: "Для кого це",
-    who: [
-      {
-        title: "Ви живете в Естонії",
-        body: "Магазин, лікар, лист від міста. Естонська, яку ви зустрічаєте щотижня, у тому порядку, в якому вона трапляється.",
-      },
-      {
-        title: "Ваша близька людина говорить естонською",
-        body: "Її родина, її жарти, її мама по телефону. Потренуйтеся до недільного обіду, а не під час нього.",
-      },
-      {
-        title: "У вас призначено іспит",
-        body: "Пробні іспити від A2 до C1, які перевіряються за правилами, а не нейромережею, і зрозумілий опис справжнього іспиту.",
-      },
-      {
-        title: "Ваші робочі зустрічі естонською",
-        body: "Слова для роботи й репетиція розмови з людиною, якій щось від вас потрібно.",
-      },
-    ],
-    whatTitle: "Що всередині",
-    what: [
-      "Значення слів українською для більшості слів, зі словника Інституту естонської мови.",
-      "Усі чотирнадцять відмінків, з формами зі словника, а не вигаданими моделлю.",
-      "Повторення саме того дня, коли слово починає забуватися. Безкоштовно, і працює без інтернету.",
-    ],
-    appInEnglish:
-      "Сам застосунок поки що англійською. Значення слів можна показувати українською, це вмикається в налаштуваннях (Settings).",
-    examLink: "Як влаштовано державний іспит (англійською)",
+    appLanguage:
+      "Усередині застосунок теж українською: цю мову буде вибрано одразу, а змінити її можна в налаштуваннях.",
   },
 };
 

@@ -13,6 +13,7 @@ import { reportError } from "@/lib/observability/report";
 import type { CaseKey } from "@/lib/estonian/types";
 import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
+import { localeFor } from "@/lib/progress/locale";
 import { courseLevelFor } from "@/lib/progress/level";
 
 export const dynamic = "force-dynamic";
@@ -138,10 +139,13 @@ export async function POST(request: Request) {
     comparison against the dictionary before any of this ran.
   */
   const chain = resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed });
+  // The note is written in the language the learner reads the app in.
+  const language = await localeFor(ownerId).catch(() => "en" as const);
   const { graded, usage, config: answered } = await gradeSentence(chain, {
       task,
       sentence,
       level,
+      language,
       knownForms: lexeme.forms.map((f) => ({
         label: f.morphName ?? f.formType.replace(/^EKILEX:/, ""),
         value: f.value,

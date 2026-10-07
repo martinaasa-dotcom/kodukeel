@@ -43,6 +43,7 @@ const STEPS = [
 /** One of every letter this app can send, each carrying the nasty string. */
 const EVERY: Letter[] = [
   tonightLetter({
+    locale: "en",
     name: NASTY,
     origin: CHROME.origin,
     day: {
@@ -58,12 +59,14 @@ const EVERY: Letter[] = [
     word: { lemma: "pannkook", translation: "pancake", occasion: NASTY },
   }),
   welcomeLetter({
+    locale: "en",
     origin: CHROME.origin,
     reminderAt: "18:00",
     cardsWaiting: 404,
     opensOn: { title: NASTY, subtitle: "At home" },
   }),
   comebackLetter({
+    locale: "en",
     origin: CHROME.origin,
     wordsKept: 212,
     shieldUsed: true,
@@ -72,6 +75,7 @@ const EVERY: Letter[] = [
     word: { lemma: "lumi", translation: "snow", occasion: null },
   }),
   errandLetter({
+    locale: "en",
     origin: CHROME.origin,
     errand: {
       says: NASTY,
@@ -83,6 +87,7 @@ const EVERY: Letter[] = [
     word: { lemma: "kohv", translation: "coffee" },
   }),
   milestoneLetter({
+    locale: "en",
     origin: CHROME.origin,
     level: { key: "A1", title: NASTY, arrival: NASTY, words: 493 },
     pct: 41,
@@ -90,6 +95,7 @@ const EVERY: Letter[] = [
     next: { level: "A2", wordsAway: 118 },
   }),
   shieldLetter({
+    locale: "en",
     origin: CHROME.origin,
     streak: 12,
     remaining: 1,
@@ -97,6 +103,7 @@ const EVERY: Letter[] = [
     week: ["M", "T", "W", "T", "F", "S", "S"].map((label, i) => ({ label, studied: i !== 5 })),
   }),
   weeklyLetter({
+    locale: "en",
     origin: CHROME.origin,
     week: ["M", "T", "W", "T", "F", "S", "S"].map((label, i) => ({ label, studied: i < 5 })),
     reviews: 91,
@@ -106,6 +113,7 @@ const EVERY: Letter[] = [
     part: { title: NASTY, eveningsLeft: 3 },
   }),
   deadlineLetter({
+    locale: "en",
     origin: CHROME.origin,
     band: "B1",
     label: "Live in the language",
@@ -117,6 +125,7 @@ const EVERY: Letter[] = [
     onTrack: false,
   }),
   classroomLetter({
+    locale: "en",
     origin: CHROME.origin,
     groupName: NASTY,
     members: 25,
@@ -140,6 +149,7 @@ const EVERY: Letter[] = [
     the safer of the two.
   */
   classroomLetter({
+    locale: "en",
     origin: CHROME.origin,
     groupName: NASTY,
     members: 9,
@@ -157,6 +167,7 @@ const EVERY: Letter[] = [
     },
   }),
   worddayLetter({
+    locale: "en",
     origin: CHROME.origin,
     word: {
       lemma: "pannkook",
@@ -350,6 +361,7 @@ describe("a sentence opens on a capital", () => {
   */
   const counted: Letter[] = [
     shieldLetter({
+      locale: "en",
       origin: CHROME.origin,
       streak: 12,
       remaining: 2,

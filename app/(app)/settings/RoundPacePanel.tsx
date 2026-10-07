@@ -4,7 +4,9 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setRoundPace } from "@/app/actions";
 import { ChoiceSegment } from "@/components/Choice";
-import { ROUND_PACES, roundLength, secondsFor, SPRINT_SECONDS, type RoundPace } from "@/lib/ux/roundClock";
+import { ROUND_PACES, roundLengthIn, secondsFor, SPRINT_SECONDS, type RoundPace } from "@/lib/ux/roundClock";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * How long a timed round runs.
@@ -15,6 +17,8 @@ import { ROUND_PACES, roundLength, secondsFor, SPRINT_SECONDS, type RoundPace } 
  * and Target from its eight seconds a question.
  */
 export function RoundPacePanel({ current }: { current: RoundPace }) {
+  const t = useT();
+  const locale = useLocale();
   const [value, setValue] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -30,14 +34,14 @@ export function RoundPacePanel({ current }: { current: RoundPace }) {
 
   return (
     <ChoiceSegment
-      ariaLabel="How much time the timed games give you"
+      ariaLabel={t("How much time the timed games give you")}
       value={value}
       disabled={pending}
       onSelect={pick}
       options={ROUND_PACES.map((option) => ({
         id: option.id,
-        title: option.label,
-        detail: `${roundLength(secondsFor(SPRINT_SECONDS, option.id))} in the sprint. ${option.detail}`,
+        title: t(option.label),
+        detail: fill(t("{length} in the sprint. {detail}"), { length: roundLengthIn(locale, secondsFor(SPRINT_SECONDS, option.id)), detail: t(option.detail) }),
       }))}
     />
   );

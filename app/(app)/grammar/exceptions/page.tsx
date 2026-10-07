@@ -6,14 +6,17 @@ import { FAMILY_TITLES, KIND_NOTES, type ExceptionFamily } from "@/lib/estonian/
 import { DrillLink } from "@/components/DrillLink";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Empty, Page, SectionTitle, Stack } from "@/components/ui";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Exceptions: the words that don't follow the endings",
-  description:
-    "The Estonian words that don't follow the usual endings, grouped by what goes wrong, and taken straight from the dictionary.",
-};
+export async function generateMetadata() {
+  return titleFor("Exceptions: the words that don't follow the endings", {
+    description:
+      "The Estonian words that don't follow the usual endings, grouped by what goes wrong, and taken straight from the dictionary.",
+  });
+}
 
 /**
  * THE PAGE THAT SAYS HOW FAR TO TRUST THE PATTERN.
@@ -38,7 +41,8 @@ export const metadata = {
  */
 export default async function ExceptionsPage() {
   const ownerId = await requireUserId();
-  const level = await courseLevelFor(ownerId);
+  const [level, locale] = await Promise.all([courseLevelFor(ownerId), localeFor(ownerId)]);
+  const t = (english: string) => tr(locale, english);
   const [groups, scale] = await Promise.all([exceptionGroups(level), exceptionScale()]);
 
   const live = groups.filter((g) => g.entries.length > 0);
@@ -46,9 +50,9 @@ export default async function ExceptionsPage() {
 
   return (
     <Page route="/grammar/exceptions"
-      eyebrow="Reference"
-      title="Exceptions"
-      lead="Where the usual endings stop working, and which words you'll just have to learn."
+      eyebrow={t("Reference")}
+      title={t("Exceptions")}
+      lead={t("Where the usual endings stop working, and which words you'll just have to learn.")}
     >
       <Stack>
         <Card tone="night">
@@ -58,11 +62,10 @@ export default async function ExceptionsPage() {
             </p>
             <div className="min-w-0 flex-[1_1_20rem]">
               <p className="font-display text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
-                Most words follow the pattern. These don&apos;t.
+                {t("Most words follow the pattern. These don't.")}
               </p>
               <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                Of the dictionary&apos;s words with a level on them, {scale} break a pattern somewhere.
-                Every other one follows the rules, so you can work its forms out.
+                {fill(t("Of the dictionary's words with a level on them, {scale} break a pattern somewhere. Every other one follows the rules, so you can work its forms out."), { scale })}
               </p>
             </div>
           </div>
@@ -70,14 +73,14 @@ export default async function ExceptionsPage() {
 
         {live.length === 0 ? (
           <Empty
-            title="No exceptions near your level yet"
-            body="The dictionary doesn't have enough words near your level for us to check yet."
-            action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+            title={t("No exceptions near your level yet")}
+            body={t("The dictionary doesn't have enough words near your level for us to check yet.")}
+            action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
           />
         ) : (
           families.map((family) => (
             <section key={family}>
-              <SectionTitle hint={`at ${level}`}>{FAMILY_TITLES[family]}</SectionTitle>
+              <SectionTitle hint={fill(t("at {level}"), { level })}>{t(FAMILY_TITLES[family])}</SectionTitle>
               <ul className="grid gap-3 sm:grid-cols-2">
                 {live.filter((g) => g.family === family).map((group) => {
                   const note = KIND_NOTES[group.kind];
@@ -98,18 +101,18 @@ export default async function ExceptionsPage() {
                       >
                         <span className="flex flex-wrap items-baseline justify-between gap-2">
                           <span className="text-md font-bold" style={{ color: "var(--ink)" }}>
-                            {note.title}
+                            {t(note.title)}
                           </span>
-                          <Chip tone="accent">{group.entries.length} near you</Chip>
+                          <Chip tone="accent">{fill(t("{n} near you"), { n: group.entries.length })}</Chip>
                         </span>
                         <span className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                          {note.what}
+                          {t(note.what)}
                         </span>
                         <span className="mt-auto flex flex-wrap gap-x-3 gap-y-1 pt-1 text-xs" style={{ color: "var(--ink-3)" }}>
                           {sample.map((entry) => (
                             <span key={entry.id} lang="et">{entry.lemma}</span>
                           ))}
-                          <span>{group.everywhere} in the dictionary</span>
+                          <span>{fill(t("{n} in the dictionary"), { n: group.everywhere })}</span>
                         </span>
                       </Link>
                     </li>
@@ -121,7 +124,7 @@ export default async function ExceptionsPage() {
         )}
 
         <section>
-          <SectionTitle>Drill them</SectionTitle>
+          <SectionTitle>{t("Drill them")}</SectionTitle>
           <DrillLink href="/review/exceptions" />
         </section>
       </Stack>

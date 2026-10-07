@@ -38,8 +38,11 @@
 */
 import { meter } from "../art";
 import type { Block, Letter } from "../letter";
+import { sayer, type Locale } from "../say";
 
 export interface DeadlineInput {
+  /** The language the letter is written in. The countdown's own words arrive already in it. */
+  readonly locale: Locale;
   readonly origin: string;
   /** The band they said they were aiming for. */
   readonly band: string;
@@ -60,6 +63,8 @@ export interface DeadlineInput {
 }
 
 export function deadlineLetter(input: DeadlineInput): Letter {
+  const { locale } = input;
+  const say = sayer(locale);
   const blocks: Block[] = [];
 
   /*
@@ -69,10 +74,13 @@ export function deadlineLetter(input: DeadlineInput): Letter {
     they can be told anything, and the fact that they set a date is the thing
     they may have forgotten.
   */
-  blocks.push({ t: "heading", text: `${input.phrase} to go until the date you picked.` });
+  blocks.push({ t: "heading", text: say("{phrase} to go until the date you picked.", { phrase: input.phrase }) });
   blocks.push({
     t: "text",
-    text: `You're aiming for ${input.band}, the level where you can ${input.label.toLowerCase()}. Here's how that's looking.`,
+    text: say("You're aiming for {band}, the level where you can {label}. Here's how that's looking.", {
+      band: input.band,
+      label: input.label.toLowerCase(),
+    }),
   });
 
   /*
@@ -83,7 +91,7 @@ export function deadlineLetter(input: DeadlineInput): Letter {
   blocks.push({
     t: "art",
     html: meter(input.confidence),
-    alt: `A bar, about ${input.confidence} percent full, for your chances at ${input.band}.`,
+    alt: say("A bar, about {pct} percent full, for your chances at {band}.", { pct: input.confidence, band: input.band }),
   });
   /*
     The figure and what it rests on, in one breath. Splitting them is how a
@@ -92,7 +100,10 @@ export function deadlineLetter(input: DeadlineInput): Letter {
   */
   blocks.push({
     t: "quiet",
-    text: `If you sat it today, we'd put your chances of passing at about ${input.confidence} percent. ${input.evidence}`,
+    text: say("If you sat it today, we'd put your chances of passing at about {pct} percent. {evidence}", {
+      pct: input.confidence,
+      evidence: input.evidence,
+    }),
   });
 
   if (input.gap) {
@@ -110,21 +121,23 @@ export function deadlineLetter(input: DeadlineInput): Letter {
     blocks.push({ t: "rule" });
     blocks.push({
       t: "text",
-      text:
+      text: say(
         "Three things can change that, and any one of them counts: how often you study, the " +
-        "Estonian you already hear outside this app, and the date itself. Moving the date isn't " +
-        "giving up. You picked it in about ninety seconds, before you knew what any of this would take.",
+          "Estonian you already hear outside this app, and the date itself. Moving the date isn't " +
+          "giving up. You picked it in about ninety seconds, before you knew what any of this would take.",
+      ),
     });
   }
 
-  blocks.push({ t: "button", label: "See your plan", href: `${input.origin}/assess` });
+  blocks.push({ t: "button", label: say("See your plan"), href: `${input.origin}/assess` });
 
   return {
     kind: "deadline",
-    subject: `${input.phrase} to go until the date you picked`,
+    locale,
+    subject: say("{phrase} to go until the date you picked", { phrase: input.phrase }),
     preheader: input.onTrack
-      ? `At the pace you're going, ${input.band} still fits.`
-      : `How ${input.band} is looking, and three things that could change it.`,
+      ? say("At the pace you're going, {band} still fits.", { band: input.band })
+      : say("How {band} is looking, and three things that could change it.", { band: input.band }),
     blocks,
   };
 }

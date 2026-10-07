@@ -27,6 +27,7 @@
 
 import { clip } from "@/lib/copy/clip";
 import { VOICE_RULES } from "@/lib/copy/voice";
+import type { Locale } from "@/lib/copy/locale";
 
 export interface CoachNoteInput {
   readonly title: string;
@@ -40,25 +41,44 @@ export interface CoachNoteInput {
 }
 
 export interface CoachNote {
-  /** Two or three sentences on what went well, in English. `comment` so the verifier reads it. */
+  /** Two or three sentences on what went well, in the learner's language. `comment` so the verifier reads it. */
   readonly comment: string;
-  /** One concrete thing to practise, in English. `rule` so the verifier reads it. */
+  /** One concrete thing to practise, in the learner's language. `rule` so the verifier reads it. */
   readonly rule: string;
 }
 
 /** How long a note may be, so a model that runs on cannot fill the screen. */
 export const COACH_NOTE_CHARS = 700;
 
-export function buildCoachNoteSystem(): string {
+export function buildCoachNoteSystem(language: Locale = "en"): string {
   return [
     "You are Anu, a warm and experienced teacher of Estonian. A beginner has just finished a practice role-play conversation in Estonian, and you write them a short note about it.",
-    "Write in plain, friendly English, as one person to another. No lists, no headings, no markdown, no emoji.",
+    `Write in plain, friendly ${NOTE_LANGUAGE[language]}, as one person to another. No lists, no headings, no markdown, no emoji.`,
+    ...(language === "en" ? [] : [inTheirLanguage(language)]),
     "comment: two or three sentences on what they did well, quoting their own words where it helps (in quotation marks, exactly as they wrote them). Be specific and honest: praise something real, never the generic 'great job'.",
     "rule: one sentence with one concrete thing to practise next time, the most useful one. If a word came out differently, you may point at the form given in the list of fixes. Never correct anything else and never mark or grade them.",
     "Never write an Estonian word or sentence that does not appear in the conversation or in the fixes: quote, never invent. Never mention scores, mistakes counts, or the app.",
     ...VOICE_RULES,
     "Reply with JSON only: {\"comment\": \"...\", \"rule\": \"...\"}.",
   ].join("\n");
+}
+
+/** The language the note is written in, named for the model. */
+const NOTE_LANGUAGE: Readonly<Record<Locale, string>> = { en: "English", ru: "Russian", uk: "Ukrainian" };
+
+/**
+ * THE NOTE IN THE LANGUAGE THE LEARNER READS THE APP IN.
+ *
+ * A note about their Estonian, written in their third language, is the one
+ * paragraph on the screen they have to work hardest to read, and it is the
+ * last thing they read before deciding whether to open the next conversation.
+ * Only the language of the note moves: the Estonian is quoted exactly, in the
+ * straight quotes `verifyVerdict` reads as a form presented, and their own
+ * language goes in «ёлочки», which the verifier never mistakes for one.
+ */
+function inTheirLanguage(language: Exclude<Locale, "en">): string {
+  const name = NOTE_LANGUAGE[language];
+  return `The learner reads ${name} better than English, so the note is in ${name}: natural, warm ${name}, addressing them as ${language === "ru" ? "вы" : "ви"}, never a translation of English sentences.${language === "uk" ? " Write standard literary Ukrainian and nothing else: no Russian words, no Russianisms or calques from Russian, no surzhyk, and never Russian spelled with Ukrainian letters. Never mention Russia, Russian or the Russian language, and never compare anything to Russian; where a comparison helps, compare with Ukrainian or English." : " Standard literary Russian only: not one Ukrainian word, letter or turn of phrase, no surzhyk, and never mention Ukrainian or Ukraine or compare anything with them."} Quote their Estonian in straight double quotes exactly as written, and put any ${name} words in «» quotes.`;
 }
 
 export function buildCoachNoteUser(input: CoachNoteInput): string {

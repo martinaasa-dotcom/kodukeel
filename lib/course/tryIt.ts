@@ -28,6 +28,7 @@
  */
 
 import { shuffle } from "@/lib/random/shuffle";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /** What a verb row on the reference page carries, structurally. */
 export interface TryItVerb {
@@ -63,7 +64,32 @@ export interface TryItAsk {
   readonly yes: string;
   /** Said after a wrong pick: the correction. */
   readonly no: string;
+  /**
+   * What the three sentences above were built from, so `askText` can word the
+   * same question in the reader's own language. The English is built here
+   * once and kept as it is, since tests and browser suites read it.
+   */
+  readonly say: TryItSay;
 }
+
+/** The facts behind an ask's three sentences. Holds no Estonian beyond the forms the page printed. */
+export type TryItSay =
+  | {
+    readonly kind: "person"; readonly lemma: string; readonly translation: string; readonly person: string;
+    readonly conditional: boolean; readonly value: string; readonly pronoun: string; readonly shared: readonly string[];
+  }
+  | {
+    readonly kind: "across"; readonly what: "not" | "command"; readonly lemma: string; readonly translation: string;
+    readonly answer: string;
+  }
+  | {
+    readonly kind: "past"; readonly lemma: string; readonly translation: string; readonly aboutMe: boolean;
+    readonly answer: string; readonly now: string;
+  }
+  | {
+    readonly kind: "case"; readonly lemma: string; readonly translation: string; readonly reading: string | null;
+    readonly caseName: string; readonly form: string; readonly genitive: string | null; readonly ending: string | null;
+  };
 
 /** How many questions a reading asks back. */
 export const TRY_IT_ASKS = 3;
@@ -115,6 +141,11 @@ function personAsk(verb: TryItVerb, prefix: "IndPr" | "KndPr", random: () => num
     answer: target.value,
     yes: `Yes. ${target.value} is ${verb.lemma} for ${target.pronoun}${also}.`,
     no: `Not that one. With ${target.pronoun} it's ${target.value}${soDoes}.`,
+    say: {
+      kind: "person", lemma: verb.lemma, translation: verb.translation, person: target.code,
+      conditional: prefix === "KndPr", value: target.value, pronoun: target.pronoun,
+      shared: sharing.map((c) => c.pronoun),
+    },
   };
 }
 
@@ -129,7 +160,7 @@ function acrossVerbsAsk(
   code: string,
   dress: (value: string) => string,
   wanted: (verb: TryItVerb) => string,
-  what: string,
+  what: "not" | "command",
   random: () => number,
 ): TryItAsk | null {
   const answer = form(target, code);
@@ -141,8 +172,9 @@ function acrossVerbsAsk(
     about: target.lemma,
     options: shuffle(options, random),
     answer: dress(answer),
-    yes: `Yes. ${dress(answer)} is ${what} with ${target.lemma}, ${target.translation}.`,
+    yes: `Yes. ${dress(answer)} is ${what === "not" ? "how you say not" : "how you tell one person to do it"} with ${target.lemma}, ${target.translation}.`,
     no: `Not that one. For ${target.lemma}, it's ${dress(answer)}.`,
+    say: { kind: "across", what, lemma: target.lemma, translation: target.translation, answer: dress(answer) },
   };
 }
 
@@ -165,6 +197,7 @@ function pastAsk(verb: TryItVerb, random: () => number): TryItAsk | null {
     answer,
     yes: `Yes. ${answer} is the past, when ${aboutMe ? "you did it yourself" : "somebody else did it"}. ${now} is happening right now.`,
     no: `Not that one. ${answer} is the past, when ${aboutMe ? "you did it yourself" : "somebody else did it"}.`,
+    say: { kind: "past", lemma: verb.lemma, translation: verb.translation, aboutMe, answer, now: now ?? "" },
   };
 }
 
@@ -189,12 +222,12 @@ export function verbAsks(
         ? acrossVerbsAsk(
             verbs, verb, "IndPrPs_", (v) => `ei ${v}`,
             (v) => `${v.lemma} means ${v.translation}. Which one says "not"?`,
-            "how you say not", random,
+            "not", random,
           )
         : acrossVerbsAsk(
             verbs, verb, "ImpPrSg2", (v) => `${v}!`,
             (v) => `${v.lemma} means ${v.translation}. Which one tells somebody to do it?`,
-            "how you tell one person to do it", random,
+            "command", random,
           );
     if (ask) asks.push(ask);
   }
@@ -251,7 +284,107 @@ export function caseAsks(
       answer: word.form,
       yes: `Yes. ${word.form} is ${word.lemma} in the ${caseNameEt}.${stem}`,
       no: `Not that one. ${word.lemma} becomes ${word.form}.${stem}`,
+      say: {
+        kind: "case", lemma: word.lemma, translation: word.translation, reading: word.reading ?? null,
+        caseName: caseNameEt, form: word.form, genitive: stem ? word.genitive : null, ending: stem ? ending : null,
+      },
     });
   }
   return asks;
+}
+
+/**
+ * WHO A PERSON IS, IN A QUESTION ABOUT A VERB TABLE, ONE WHOLE SENTENCE EACH.
+ *
+ * Written out per person and per mood rather than built from "who", "would"
+ * and "talking to", because those three pieces fall in a different order in
+ * every language and a question assembled from them reads as a translation.
+ */
+const PERSON_PROMPT: Readonly<Record<string, readonly [plain: string, conditional: string]>> = {
+  Sg1: ["{lemma} means {translation}. Which one is \"I\"?", "{lemma} means {translation}. Which one is \"I would\"?"],
+  Sg2: [
+    "{lemma} means {translation}. Which one is \"you\", talking to one person?",
+    "{lemma} means {translation}. Which one is \"you would\", talking to one person?",
+  ],
+  Sg3: ["{lemma} means {translation}. Which one is \"he or she\"?", "{lemma} means {translation}. Which one is \"he or she would\"?"],
+  Pl1: ["{lemma} means {translation}. Which one is \"we\"?", "{lemma} means {translation}. Which one is \"we would\"?"],
+  Pl2: [
+    "{lemma} means {translation}. Which one is \"you\", talking to several people or politely?",
+    "{lemma} means {translation}. Which one is \"you would\", talking to several people or politely?",
+  ],
+  Pl3: ["{lemma} means {translation}. Which one is \"they\"?", "{lemma} means {translation}. Which one is \"they would\"?"],
+};
+
+/** Estonian pronouns joined the way the reader's language joins two or three things. */
+function joined(locale: Locale, items: readonly string[]): string {
+  return new Intl.ListFormat(locale, { type: "conjunction" }).format(items);
+}
+
+/**
+ * An ask's question, its yes and its no, in this reader's language.
+ *
+ * English is handed back exactly as it was built. Every other language words
+ * the same facts from whole templates, so a form, a lemma and an English gloss
+ * are the only things dropped into a sentence.
+ */
+export function askText(ask: TryItAsk, locale: Locale): { prompt: string; yes: string; no: string } {
+  if (locale === "en") return { prompt: ask.prompt, yes: ask.yes, no: ask.no };
+  const t = (english: string, values: Readonly<Record<string, string>>) => fill(tr(locale, english), values);
+  const say = ask.say;
+  if (say.kind === "person") {
+    const prompts = PERSON_PROMPT[say.person];
+    const base = { lemma: say.lemma, translation: say.translation, value: say.value, pronoun: say.pronoun };
+    const shared = say.shared.length > 0 ? joined(locale, say.shared) : null;
+    return {
+      prompt: prompts ? t(prompts[say.conditional ? 1 : 0], base) : ask.prompt,
+      yes: shared
+        ? t("Yes. {value} is {lemma} for {pronoun}, and for {shared} too.", { ...base, shared })
+        : t("Yes. {value} is {lemma} for {pronoun}.", base),
+      no: shared
+        ? t("Not that one. With {pronoun} it's {value}, and the same with {shared}.", { ...base, shared })
+        : t("Not that one. With {pronoun} it's {value}.", base),
+    };
+  }
+  if (say.kind === "across") {
+    const base = { lemma: say.lemma, translation: say.translation, answer: say.answer };
+    return {
+      prompt: say.what === "not"
+        ? t("{lemma} means {translation}. Which one says \"not\"?", base)
+        : t("{lemma} means {translation}. Which one tells somebody to do it?", base),
+      yes: say.what === "not"
+        ? t("Yes. {answer} is how you say not with {lemma}, {translation}.", base)
+        : t("Yes. {answer} is how you tell one person to do it with {lemma}, {translation}.", base),
+      no: t("Not that one. For {lemma}, it's {answer}.", base),
+    };
+  }
+  if (say.kind === "past") {
+    const base = { lemma: say.lemma, translation: say.translation, answer: say.answer, now: say.now };
+    return {
+      prompt: say.aboutMe
+        ? t("{lemma} means {translation}. Which one says \"I did it\", back in the past?", base)
+        : t("{lemma} means {translation}. Which one says \"he or she did it\", back in the past?", base),
+      yes: say.aboutMe
+        ? t("Yes. {answer} is the past, when you did it yourself. {now} is happening right now.", base)
+        : t("Yes. {answer} is the past, when somebody else did it. {now} is happening right now.", base),
+      no: say.aboutMe
+        ? t("Not that one. {answer} is the past, when you did it yourself.", base)
+        : t("Not that one. {answer} is the past, when somebody else did it.", base),
+    };
+  }
+  const base = {
+    lemma: say.lemma, translation: say.translation, reading: say.reading ?? "", case: say.caseName,
+    form: say.form, stem: say.genitive ?? "", ending: say.ending ?? "",
+  };
+  const stem = Boolean(say.genitive && say.ending);
+  return {
+    prompt: say.reading
+      ? t("{lemma} means {translation}. Which one says \"{reading}\"?", base)
+      : t("Which one is {lemma}, {translation}, in the {case}?", base),
+    yes: stem
+      ? t("Yes. {form} is {lemma} in the {case}. It's {stem} with {ending} on the end.", base)
+      : t("Yes. {form} is {lemma} in the {case}.", base),
+    no: stem
+      ? t("Not that one. {lemma} becomes {form}. It's {stem} with {ending} on the end.", base)
+      : t("Not that one. {lemma} becomes {form}.", base),
+  };
 }

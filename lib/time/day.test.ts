@@ -186,22 +186,22 @@ describe("nextCardLine", () => {
   const now = new Date("2026-09-02T09:00:00Z"); // Wednesday, 12:00 in Tallinn
 
   it("names the rest of today when the card is hours away", () => {
-    expect(nextCardLine(new Date("2026-09-02T18:00:00Z"), now, clock))
+    expect(nextCardLine(new Date("2026-09-02T18:00:00Z"), now, clock, "en"))
       .toBe("The next card comes back later today.");
   });
 
   it("says tomorrow rather than naming a weekday for it", () => {
-    expect(nextCardLine(new Date("2026-09-03T05:00:00Z"), now, clock))
+    expect(nextCardLine(new Date("2026-09-03T05:00:00Z"), now, clock, "en"))
       .toBe("The next card comes back tomorrow.");
   });
 
   it("names the weekday inside a week", () => {
-    expect(nextCardLine(new Date("2026-09-05T05:00:00Z"), now, clock))
+    expect(nextCardLine(new Date("2026-09-05T05:00:00Z"), now, clock, "en"))
       .toBe("The next card comes back on Saturday.");
   });
 
   it("counts the days once a weekday would be ambiguous", () => {
-    expect(nextCardLine(new Date("2026-09-14T05:00:00Z"), now, clock))
+    expect(nextCardLine(new Date("2026-09-14T05:00:00Z"), now, clock, "en"))
       .toBe("The next card comes back in 12 days.");
   });
 
@@ -210,9 +210,9 @@ describe("nextCardLine", () => {
     const evening = new Date("2026-09-02T20:00:00Z");
     // Two and a half hours on: past midnight in Tallinn, not in London.
     const soon = new Date("2026-09-02T22:30:00Z");
-    expect(nextCardLine(soon, evening, dayClock(TALLINN)))
+    expect(nextCardLine(soon, evening, dayClock(TALLINN), "en"))
       .toBe("The next card comes back tomorrow.");
-    expect(nextCardLine(soon, evening, dayClock("Europe/London")))
+    expect(nextCardLine(soon, evening, dayClock("Europe/London"), "en"))
       .toBe("The next card comes back later today.");
   });
 });

@@ -9,6 +9,9 @@ import { EstonianSentence } from "@/components/EstonianSentence";
 import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/reference/fillNodes";
 
 /**
  * Example sentences on a dictionary entry.
@@ -30,13 +33,14 @@ export function Examples({ lexemeId, examples, tutorReady, pos }: {
   /** The entry's part of speech, because a phrase has no usages to be waiting for. */
   pos: string | null;
 }) {
+  const t = useT();
   const [list, setList] = useState(examples);
   const [adding, setAdding] = useState(false);
 
   if (list.length === 0 && !adding) {
     return (
       <div>
-        <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Näited, in a sentence</h3>
+        <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{fillNodes(t("{term}, in a sentence"), { term: <span lang="et">Näited</span> })}</h3>
         {/*
           AN ABSENCE SOMEBODY CAN WAIT OUT, OR ONE THAT IS SIMPLY WHAT THE ENTRY
           IS. Ekilex records a usage against a *word*, so `Tere!` and `Kuidas
@@ -47,19 +51,23 @@ export function Examples({ lexemeId, examples, tutorReady, pos }: {
           in class using a phrase is worth having.
         */}
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          {isPhrase(pos)
-            ? "A phrase is already a sentence, so there's no example to show here. "
-            : "No example sentences for this word yet. Common words usually pick some up the "
-              + "first time anybody looks them up. "}
-          You can{" "}
-          <button
-            type="button"
-            onClick={() => setAdding(true)}
-            className="underline"
-            style={{ color: "var(--accent-deep)" }}
-          >
-            add one you met in class
-          </button>.
+          {fillNodes(
+            isPhrase(pos)
+              ? t("A phrase is already a sentence, so there's no example to show here. You can {add}.")
+              : t("No example sentences for this word yet. Common words usually pick some up the first time anybody looks them up. You can {add}."),
+            {
+              add: (
+                <button
+                  type="button"
+                  onClick={() => setAdding(true)}
+                  className="underline"
+                  style={{ color: "var(--accent-deep)" }}
+                >
+                  {t("add one you met in class")}
+                </button>
+              ),
+            },
+          )}
         </p>
       </div>
     );
@@ -68,7 +76,7 @@ export function Examples({ lexemeId, examples, tutorReady, pos }: {
   return (
     <div>
       <h3 className="label-xs mb-2 flex items-center gap-2" style={{ color: "var(--ink-3)" }}>
-        Näited, in a sentence
+        {fillNodes(t("{term}, in a sentence"), { term: <span lang="et">Näited</span> })}
         <span className="font-normal normal-case tracking-normal" style={{ letterSpacing: 0 }}>
           {list.length}
         </span>
@@ -100,7 +108,7 @@ export function Examples({ lexemeId, examples, tutorReady, pos }: {
           className="press mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-ui hover:-translate-y-px"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
         >
-          <Plus size={13} aria-hidden /> Add a sentence of your own
+          <Plus size={13} aria-hidden /> {t("Add a sentence of your own")}
         </button>
       )}
     </div>
@@ -113,6 +121,7 @@ function ExampleRow({ lexemeId, example, tutorReady, onTranslated }: {
   tutorReady: boolean;
   onTranslated: (en: string) => void;
 }) {
+  const t = useT();
   return (
     <li
       className="rounded-[var(--r)] px-4 py-3"
@@ -133,13 +142,13 @@ function ExampleRow({ lexemeId, example, tutorReady, onTranslated }: {
         lexemeId={lexemeId}
         canTranslate={tutorReady}
         ask="never"
-        speakLabel={`Hear "${example.et}"`}
+        speakLabel={fill(t("Hear \"{sentence}\""), { sentence: example.et })}
         className="flex-1 text-base leading-snug"
         onTranslated={onTranslated}
       />
 
       {example.source === "USER" && (
-        <span className="mt-1 block text-2xs" style={{ color: "var(--ink-3)" }}>your own sentence</span>
+        <span className="mt-1 block text-2xs" style={{ color: "var(--ink-3)" }}>{t("your own sentence")}</span>
       )}
     </li>
   );
@@ -150,6 +159,7 @@ function AddExample({ lexemeId, onAdded, onCancel }: {
   onAdded: (example: Example) => void;
   onCancel: () => void;
 }) {
+  const t = useT();
   const [et, setEt] = useState("");
   const [en, setEn] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -160,7 +170,7 @@ function AddExample({ lexemeId, onAdded, onCancel }: {
     start(async () => {
       const result = await addExample(lexemeId, et, en).catch(() => null);
       if (result?.ok) onAdded({ et: et.trim(), en: en.trim() || null, source: "USER" });
-      else setError(result ? result.error : NOT_REACHED);
+      else setError(t(result ? result.error : NOT_REACHED));
     });
   };
 
@@ -169,27 +179,27 @@ function AddExample({ lexemeId, onAdded, onCancel }: {
       className="pop-in mt-3 rounded-[var(--r-lg)] border p-4"
       style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
-      <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Your sentence</p>
+      <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Your sentence")}</p>
       <EstonianInput
         value={et}
         onChange={setEt}
-        placeholder="A sentence you met in class with this word"
-        ariaLabel="Estonian sentence"
+        placeholder={t("A sentence you met in class with this word")}
+        ariaLabel={t("Estonian sentence")}
         autoFocus
       />
       <input
         value={en}
         onChange={(e) => setEn(e.target.value)}
-        placeholder="English (optional)"
-        aria-label="English translation"
+        placeholder={t("English (optional)")}
+        aria-label={t("English translation")}
         className="field mt-2 w-full text-sm"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
       />
       {error && <p role="alert" className="mt-2 text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
       <div className="mt-3 flex gap-2">
-        <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+        <Button variant="ghost" onClick={onCancel}>{t("Cancel")}</Button>
         <Button variant="primary" onClick={save} disabled={pending || et.trim().length < 4}>
-          {pending ? "Saving…" : "Save sentence"}
+          {pending ? t("Saving…") : t("Save sentence")}
         </Button>
       </div>
     </div>

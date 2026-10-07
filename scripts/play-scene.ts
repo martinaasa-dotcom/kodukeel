@@ -399,7 +399,7 @@ async function play(sceneId: string) {
     if (move) heard = isSaid(move.provenance) ? move.text : "";
     if (isOver(scene, state)) {
       console.log(`   -> over: ${state.done.join(", ")}`);
-      const review = reviewOf(scene, state);
+      const review = reviewOf(scene, state, "en");
       console.log(`   REVIEW: ${review.lead}`);
       for (const note of review.notes) {
         console.log(`     - ${note.said}${note.times ? ` x${note.times}` : ""} (turn ${note.at + 1})`);

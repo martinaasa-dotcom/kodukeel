@@ -9,6 +9,7 @@ import type { DayClock } from "@/lib/time/day";
 import { minutesPerStudyDay } from "@/lib/stats/pace";
 import { programmeFor } from "./course";
 import { standingFor } from "./plan";
+import { tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * THE DATE SOMEBODY GAVE US, AND WHETHER THEY ARE GOING TO MAKE IT.
@@ -131,6 +132,8 @@ export async function examCountdown(
   ownerId: string,
   now: Date,
   clock: DayClock,
+  /** The language the sentences on the card are in. A letter passes "en". */
+  locale: Locale,
   snapshot?: DeckSnapshot,
   /** The learner's measured pace, when the caller already read it. Null before any review. */
   pace: MeasuredPace | null = null,
@@ -195,16 +198,16 @@ export async function examCountdown(
 
   return {
     band: level.level,
-    label: target.label.toLowerCase(),
+    label: tr(locale, target.label).toLowerCase(),
     deadline: goals.deadline,
     daysLeft,
-    phrase: daysLeft === null ? null : countdownPhrase(daysLeft),
+    phrase: daysLeft === null ? null : countdownPhrase(daysLeft, locale),
     confidence: level.confidence,
     evidence: level.evidence,
     measured: level.measured,
     chosen: chosen !== undefined,
     gap: readiness.gaps[0] ?? null,
-    distance: distanceLine(plan),
+    distance: distanceLine(plan, locale),
     fits: plan.verdict === "comfortable" || plan.verdict === "tight" || plan.verdict === "arrived",
   };
 }

@@ -2,6 +2,7 @@
 
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
+import { useLocale, useT } from "@/components/Locale";
 
 /** One side of the contrast, as the review page assembles it out of the dictionary. */
 export interface SameMeaningWord {
@@ -32,14 +33,17 @@ export function SameMeaning({
   own: SameMeaningWord;
   canTranslate: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
+  const [yesBefore, yesAfter] = t("Yes, {word} works too.").split("{word}");
+  const [afterBefore, afterAfter] = t("We were after {word}. Both get you understood, and here is how they differ:").split("{word}");
   return (
-    <div className="w-full text-left" data-same-meaning>
+    <div className="w-full text-left" data-same-meaning lang={locale}>
       <p className={`pop-in ${VERDICT_CLASS.right} verdict-panel`} role="status">
-        Yes, <span lang="et" className="font-semibold">{typed.lemma}</span> works too.
+        {yesBefore}<span lang="et" className="font-semibold">{typed.lemma}</span>{yesAfter}
       </p>
       <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
-        We were after <span lang="et" className="font-semibold">{own.lemma}</span>. Both get you understood,
-        and here is how they differ:
+        {afterBefore}<span lang="et" className="font-semibold">{own.lemma}</span>{afterAfter}
       </p>
       <ul className="mt-3 grid gap-3">
         {[typed, own].map((word) => (
