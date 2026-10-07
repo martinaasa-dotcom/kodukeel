@@ -134,6 +134,13 @@ function level(t: Thing, key: string): "yes" | "sometimes" | null {
   return null;
 }
 
+/** Their size is a serving, not a real size, so nothing is said about big, small, heavy, light or bigger than. */
+const SIZELESS = new Set(["supp", "kohv", "liha", "piim", "vesi"]);
+
+function bySize(t: Thing, rule: (size: number) => Answer): Answer {
+  return SIZELESS.has(t.lemma) ? "unknown" : rule(t.size);
+}
+
 function degree(t: Thing, key: string): Answer {
   if (t.traitNo.includes(key)) return "no";
   const own = level(t, key);
@@ -161,8 +168,8 @@ const alive = (t: Thing): Answer =>
   : t.lemma === "mets" || t.isa.includes("puuvili") || t.isa.includes("köögivili") ? "sometimes" : "no";
 
 const ADJECTIVES: Record<string, Intent> = {
-  suur: { id: "big", en: "Is it big?", copula: true, test: (t) => (t.size >= 6 ? "yes" : t.size === 5 ? "sometimes" : "no") },
-  väike: { id: "small", en: "Is it small?", copula: true, test: (t) => (t.size <= 3 ? "yes" : t.size === 4 ? "sometimes" : "no") },
+  suur: { id: "big", en: "Is it big?", copula: true, test: (t) => bySize(t, (n) => (n >= 7 ? "yes" : n >= 5 ? "sometimes" : "no")) },
+  väike: { id: "small", en: "Is it small?", copula: true, test: (t) => bySize(t, (n) => (n <= 2 ? "yes" : n <= 4 ? "sometimes" : "no")) },
   kiire: { id: "fast", en: "Is it fast?", copula: true, test: (t) => degree(t, "fast") },
   aeglane: { id: "slow", en: "Is it slow?", copula: true, test: (t) => degree(t, "slow") },
   kõva: { id: "hard", en: "Is it hard?", copula: true, test: (t) => degree(t, "hard") },
@@ -172,8 +179,8 @@ const ADJECTIVES: Record<string, Intent> = {
   elus: { id: "alive", en: "Is it alive?", copula: true, test: alive },
   elav: { id: "alive", en: "Is it alive?", copula: true, test: alive },
   elama: { id: "alive", en: "Is it alive?", copula: false, test: alive },
-  raske: { id: "heavy", en: "Is it heavy?", copula: true, test: (t) => (t.size >= 7 ? "yes" : t.size >= 5 ? "sometimes" : "no") },
-  kerge: { id: "light", en: "Is it light?", copula: true, test: (t) => (t.size <= 2 ? "yes" : t.size === 3 ? "sometimes" : "no") },
+  raske: { id: "heavy", en: "Is it heavy?", copula: true, test: (t) => bySize(t, (n) => (n >= 7 ? "yes" : n >= 5 ? "sometimes" : "no")) },
+  kerge: { id: "light", en: "Is it light?", copula: true, test: (t) => bySize(t, (n) => (n <= 2 ? "yes" : n <= 4 ? "sometimes" : "no")) },
 };
 
 const COLOUR_EN: Record<Colour, string> = {
@@ -409,11 +416,11 @@ export function ask(
     }
     const label = (refThing ? glossOf(refThing.lemma) ?? refThing.lemma : ref.raw);
     const en = `Is it ${direction} than “${label}”?`;
-    if (!refThing) {
+    if (!refThing || SIZELESS.has(refThing.lemma) || SIZELESS.has(secret.lemma)) {
       comparison = { reply: { kind: "answer", answer: "unknown", reading: en, guess: false, won: false, counts: true, tips: [] }, tips: sentence };
     } else {
       const diff = secret.size - refThing.size;
-      const answer: Answer = diff === 0 ? "sometimes" : (direction === "bigger" ? diff > 0 : diff < 0) ? "yes" : "no";
+      const answer: Answer = diff === 0 ? "no" : (direction === "bigger" ? diff > 0 : diff < 0) ? "yes" : "no";
       comparison = { reply: { kind: "answer", answer, reading: en, guess: false, won: false, counts: true, tips: [] }, tips: sentence };
     }
   }

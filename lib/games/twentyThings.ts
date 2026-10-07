@@ -19,8 +19,10 @@
  * by holding the thing up: 1 sits on a fingertip, 3 is the size of a loaf of
  * bread (`leib` is the anchor, and the one a learner is most likely to compare
  * against), 5 is a dog, 7 a horse, 9 something you ride in, 10 something you
- * stand in. Two things on the same step are "about the same", which the game
- * answers "sometimes".
+ * stand in. Big and heavy are yes at 7 to 10 and sometimes at 5 to 6; small and
+ * light are yes at 1 to 2 and sometimes at 3 to 4. Two things on the same step
+ * are not bigger than each other, so "bigger than" answers no. Drinks, soup and
+ * meat have a serving rather than a size and answer Ei tea (`SIZELESS`).
  *
  * Pure: no React, no Prisma.
  */

@@ -131,8 +131,18 @@ describe("reading the learner's question", () => {
     expect(said("Kas see ei lenda?", "koer")).toBe("yes");
   });
 
-  it("two things the same size are about the same", () => {
-    expect(said("Kas see on suurem kui leib?", "raamat")).toBe("sometimes");
+  it("two things the same size are not bigger than each other", () => {
+    expect(said("Kas see on suurem kui leib?", "raamat")).toBe("no");
+  });
+
+  it("a serving has no size to speak of, and size 5 to 6 is only sometimes big", () => {
+    expect(said("Kas see on suur?", "vesi")).toBe("unknown");
+    expect(said("Kas see on raske?", "kohv")).toBe("unknown");
+    expect(said("Kas see on suurem kui leib?", "piim")).toBe("unknown");
+    expect(said("Kas see on suur?", "jalgratas")).toBe("sometimes");
+    expect(said("Kas see on suur?", "buss")).toBe("yes");
+    expect(said("Kas see on väike?", "kass")).toBe("sometimes");
+    expect(said("Kas see on väike?", "hiir")).toBe("yes");
   });
 
   it("turns away what is not a yes or no question, without spending one", () => {
