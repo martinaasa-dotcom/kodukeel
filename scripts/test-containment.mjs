@@ -670,7 +670,7 @@ async function screensToMake() {
     await page.locator('input[type="file"]').first().setInputFiles({
       name: "page.png", mimeType: "image/png", buffer: await page.screenshot(),
     });
-    await page.getByText(/word.* ticked/i).first().waitFor({ timeout: 20_000 }).catch(() => {});
+    await page.getByText(/word.* (?:ticked|checked)/i).first().waitFor({ timeout: 20_000 }).catch(() => {});
     // "Make 1 flashcard", which is what the button says. Matched loosely on
     // the count, because it names how many words were ticked.
     const add = page.getByRole("button", { name: /Make \d+ flashcard/ }).first();

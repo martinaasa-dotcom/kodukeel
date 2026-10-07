@@ -120,8 +120,8 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
         language and in English, and what language the app itself opens in.
       */}
       {copy && !copy.reviewed && (
-        <p
-          role="note"
+        <aside
+          aria-label={say.t("About this translation")}
           className="relative mx-auto mt-4 flex max-w-3xl items-start gap-2 rounded-[var(--r)] px-4 py-3 text-sm"
           style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}
         >
@@ -129,7 +129,7 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
           <span>
             {copy.notice} <span lang="en">{MACHINE_TRANSLATED_EN}</span> {copy.appLanguage} {MACHINE_SHORT[copy.lang]}
           </span>
-        </p>
+        </aside>
       )}
 
       {/*
@@ -298,10 +298,16 @@ function Nav({ say }: { say: Say }) {
               broke "Start" in half, and "Start" with the arrow still did at 94px.
               Two whole labels rather than one with a word hidden, so each is a
               single run of text wherever it shows, and no arrow down there. */}
+          {/* Russian and Ukrainian say "Start free" in about half as many
+              letters again, so their short label takes over below 420. */}
           <ButtonLink href={signIn} variant="primary" className="group">
-            <span className="max-[359px]:hidden">{t("Start free")}</span>
-            <span className="hidden max-[359px]:inline">{t("Start", "begin")}</span>
-            <ArrowRight size={15} aria-hidden className="transition-transform group-hover:translate-x-0.5 max-[359px]:hidden" />
+            <span className={locale === "en" ? "max-[359px]:hidden" : "max-[419px]:hidden"}>{t("Start free")}</span>
+            <span className={locale === "en" ? "hidden max-[359px]:inline" : "hidden max-[419px]:inline"}>{t("Start", "begin")}</span>
+            <ArrowRight
+              size={15}
+              aria-hidden
+              className={`transition-transform group-hover:translate-x-0.5 ${locale === "en" ? "max-[359px]:hidden" : "max-[419px]:hidden"}`}
+            />
           </ButtonLink>
         </div>
       </nav>
@@ -398,7 +404,7 @@ function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: 
             four English words: the last word still wears the sticker, and the
             stagger runs over whatever words the phrase has.
           */}
-          <h1 className="hero-display">
+          <h1 className={locale === "en" ? "hero-display" : "hero-display hero-display-long"}>
             {locale === "en" ? (
               <>
                 <span className="word-in" style={{ "--w": "60ms" } as React.CSSProperties}>Estonian</span>{" "}
@@ -1033,7 +1039,7 @@ function Feature({ tone, icon, title, body, children }: {
       className="lift flex h-full flex-col rounded-[var(--r-xl)] border p-6"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <span
           className="feature-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--r)] border"
           style={{

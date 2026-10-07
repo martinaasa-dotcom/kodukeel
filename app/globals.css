@@ -2669,6 +2669,22 @@
   @media (min-width: 1024px) and (min-height: 740px) {
     .hero-display { font-size: var(--text-8xl); }
   }
+  /*
+    Russian and Ukrainian set the same headline in longer words ("Эстонский,",
+    "залишається"), and a display word is never broken. So the long cut sits
+    one step down the same scale at every width, which is what keeps the
+    longest word on one line in the column the English was measured for.
+  */
+  .hero-display.hero-display-long { font-size: var(--text-4xl); }
+  @media (min-width: 768px) {
+    .hero-display.hero-display-long { font-size: var(--text-5xl); }
+  }
+  @media (min-width: 768px) and (min-height: 740px) {
+    .hero-display.hero-display-long { font-size: var(--text-6xl); }
+  }
+  @media (min-width: 1024px) and (min-height: 740px) {
+    .hero-display.hero-display-long { font-size: var(--text-7xl); }
+  }
   @media (min-width: 768px) and (min-height: 740px) {
     .hero-sub { font-size: var(--text-lg); }
     .hero-claims { font-size: var(--text-sm); }
