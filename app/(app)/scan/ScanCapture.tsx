@@ -380,7 +380,7 @@ export function ScanCapture() {
         )}
 
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-          {fill(t("One page at a time, up to {max} words. The photo is made smaller on your device before it's sent, and it's never saved anywhere."), { max: MAX_ITEMS })}
+          {fill(t("One page at a time, up to {words}. The photo is made smaller on your device before it's sent, and it's never saved anywhere."), { words: countOf(locale, MAX_ITEMS, "word") })}
         </p>
       </Card>
 

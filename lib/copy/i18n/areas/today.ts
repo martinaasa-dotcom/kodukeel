@@ -511,7 +511,7 @@ export const TODAY: Area = {
   "Start {part} anyway":
     "Всё равно начать {part}",
   "Review what's due":
-    "Повторить то, что пора",
+    "Повторить карточки на сегодня",
   "Next is {part} ({about}). It picks up where this one stopped, and it only asks about things you've already met.":
     "Дальше {part} ({about}). Эта часть начинается там, где закончилась предыдущая, и спрашивает только о том, что вы уже встречали.",
   "That's the whole course, start to finish. Every word is in your reviews, and each one will come back just as you're about to forget it.":
@@ -1372,7 +1372,7 @@ export const TODAY: Area = {
   "{part}, day {day}":
     "{part}, день {day}",
   "{credited} of {total} words":
-    "{credited} з {total} слів",
+    "Слів: {credited} з {total}",
   "You've reached {target}":
     "Ви досягли рівня {target}",
   "On the way to {target}":
@@ -1448,7 +1448,7 @@ export const TODAY: Area = {
   "Start {part} anyway":
     "Усе одно почати {part}",
   "Review what's due":
-    "Повторити те, що час",
+    "Повторити картки на сьогодні",
   "Next is {part} ({about}). It picks up where this one stopped, and it only asks about things you've already met.":
     "Далі {part} ({about}). Ця частина починається там, де закінчилася попередня, і питає лише про те, що ви вже зустрічали.",
   "That's the whole course, start to finish. Every word is in your reviews, and each one will come back just as you're about to forget it.":

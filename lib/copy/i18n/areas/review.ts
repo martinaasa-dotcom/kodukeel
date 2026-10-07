@@ -497,7 +497,7 @@ export const REVIEW: Area = {
     "Lesson {part} of {parts}": "Урок {part} з {parts}",
     "Lesson": "Урок",
     "Leave": "Вийти",
-    "{answered} of {total} questions answered": "Відповіли на {answered} з {total} запитань",
+    "{answered} of {total} questions answered": "Запитань із відповіддю: {answered} з {total}",
     "Bring it back": "Повернути",
     "Correct.": "Правильно.",
     "Not quite.": "Не зовсім.",

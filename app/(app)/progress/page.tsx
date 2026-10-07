@@ -35,7 +35,7 @@ import { NO_VALUE } from "@/lib/copy/values";
 import { formatHour } from "@/lib/time/clock";
 import { Explain } from "@/components/Explain";
 import { localeFor } from "@/lib/progress/locale";
-import { fill, tr } from "@/lib/copy/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 import { RETENTION_MINIMUM } from "@/lib/stats/history";
 
 export const metadata = { title: "Progress" };
@@ -355,7 +355,7 @@ export default async function ProgressPage() {
         </div>
 
         <section>
-          <SectionTitle hint={hour === null ? fill(t("last {days} days"), { days: HEATMAP_DAYS }) : fill(t("{days} days, most at {hour}"), { days: HEATMAP_DAYS, hour: formatHour(hour) })}>
+          <SectionTitle hint={hour === null ? fill(t("last {days}"), { days: countOf(locale, HEATMAP_DAYS, "day") }) : fill(t("{days} days, most at {hour}"), { days: HEATMAP_DAYS, hour: formatHour(hour) })}>
             {t("Study history")}
           </SectionTitle>
           <Card>
@@ -368,7 +368,7 @@ export default async function ProgressPage() {
         <div className="@container">
           <div className="grid gap-5 @xl:grid-cols-2">
             <section className="flex flex-col">
-              <SectionTitle hint={fill(t("last {days} days"), { days: outside.days })}>{t("Real conversations")}</SectionTitle>
+              <SectionTitle hint={fill(t("last {days}"), { days: countOf(locale, outside.days, "day") })}>{t("Real conversations")}</SectionTitle>
               <Card className="flex-1">
                 {outside.total === 0 ? (
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>

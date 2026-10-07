@@ -39,7 +39,7 @@ import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 /** What each tier means, in the learner's terms rather than the rule's. */
 const EXPLAINS: Record<Mastery, string> = {
-  mastered: "These are yours. You've got each one right {n} times, in different forms.",
+  mastered: "These are yours. You've got each one right {times}, in different forms.",
   almost: "Nearly there. Get them right in a couple more forms and they're yours.",
   struggling: "These keep tripping you up. A round of flash cards is the best help for them.",
   learning: "You've met these, but haven't answered them enough yet for us to tell how they're going.",
@@ -62,7 +62,7 @@ export function MasteryBoard({
           {/* "Three different forms" is the bar for a word that has three; `yes` and
               `thank you` have one, and the counter asks of a word only what it can
               carry (`lib/srs/mastery.ts`), so the sentence says so too. */}
-          {fill(t("A word counts as mastered once you get it right {n} times, in up to {forms} different forms if it has them."), { n: MASTERY_CORRECT, forms: MASTERY_SLOTS })}
+          {fill(t("A word counts as mastered once you get it right {times}, in up to {forms} different forms if it has them."), { times: countOf(locale, MASTERY_CORRECT, "time"), forms: MASTERY_SLOTS })}
         </p>
       </Card>
 
@@ -80,7 +80,7 @@ function Tier({ tier, words, total, locale }: { tier: Mastery; words: MasteredWo
       <SectionTitle hint={countOf(locale, total, "word")}>
         {t(MASTERY_LABEL[tier])}
       </SectionTitle>
-      <p className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t(EXPLAINS[tier]), { n: MASTERY_CORRECT })}</p>
+      <p className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t(EXPLAINS[tier]), { times: countOf(locale, MASTERY_CORRECT, "time") })}</p>
 
       {/* One list with hairlines rather than a bordered box per word: forty
           boxes down a page is forty edges to read past before the words. Two
