@@ -1,6 +1,7 @@
 import type { Area } from "./area";
 import { RU } from "./ru";
 import { UK } from "./uk";
+import { START } from "./areas/start";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -9,4 +10,5 @@ import { UK } from "./uk";
  */
 export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["core", { ru: RU, uk: UK }],
+  ["start", START],
 ];
