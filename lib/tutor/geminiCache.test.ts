@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { thinkingFor } from "./thinking";
 import { CACHE_TTL_SECONDS, cacheTag, contentsFor, forgetGeminiCaches, geminiCachedReply, setReplayRecord, usageFromMetadata } from "./geminiCache";
 import { forgetExhausted, isExhausted } from "./exhausted";
 import { SCENE_MODELS, openWithFallback, resolveProviders, type ProviderConfig } from "./provider";
@@ -114,7 +115,7 @@ describe("the scene prompt held on Google's side", () => {
     const asked = JSON.parse(calls.find((c) => c.url.includes(":generateContent"))!.body);
     expect(asked.contents.map((c: { role: string }) => c.role)).toEqual(["model", "user", "user"]);
     expect(asked.contents[2].parts[0].text).toBe("LIVE\n\nYour line:");
-    expect(asked.generationConfig.thinkingConfig).toEqual({ thinkingBudget: 0 });
+    expect(asked.generationConfig.thinkingConfig).toEqual({ thinkingLevel: thinkingFor(LINK.model).thinkingLevel });
     expect(JSON.stringify(asked)).not.toContain("SYSTEM");
   });
 
