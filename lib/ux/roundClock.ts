@@ -148,6 +148,15 @@ export function roundLength(seconds: number): string {
  * `roundPaceFrom` stays what marks a page as a round with a clock.
  */
 export function lengthAtPace(base: number, stored: string | null | undefined): string {
-  const said = roundLength(secondsFor(base, roundPaceFrom(stored)));
+  const said = roundLength(secondsAtPace(base, stored));
   return `${said[0]!.toUpperCase()}${said.slice(1)}`;
+}
+
+/**
+ * The whole seconds a round runs at the learner's stored pace, for a screen
+ * that says the length in a language other than English and counts the units
+ * with that language's own plurals. `lengthAtPace` is this said in English.
+ */
+export function secondsAtPace(base: number, stored: string | null | undefined): number {
+  return Math.max(0, Math.round(secondsFor(base, roundPaceFrom(stored))));
 }

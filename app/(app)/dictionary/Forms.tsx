@@ -11,6 +11,9 @@ import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { Speak } from "@/components/Speak";
 import { NO_VALUE, PARTS } from "@/lib/copy/values";
 import { Explain } from "@/components/Explain";
+import { useT } from "@/components/Locale";
+import { fillNodes } from "@/components/reference/fillNodes";
+import { fill } from "@/lib/copy/locale";
 
 export interface WordForm {
   value: string;
@@ -41,16 +44,15 @@ export function WordForms({ forms, pos, subject }: {
    */
   subject: CaseSubject;
 }) {
+  const t = useT();
   const isVerb = pos === "VERB";
   return (
     <div>
       <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-        Every form
+        {t("Every form")}
       </h3>
-      <Explain label="Where these came from">
-        Every form here comes straight from Ekilex, the Estonian dictionary, so none of it is
-        worked out by us. That&apos;s why the odd plurals are right, and why some cells hold two
-        spellings that are both correct.
+      <Explain label={t("Where these came from")}>
+        {t("Every form here comes straight from Ekilex, the Estonian dictionary, so none of it is worked out by us. That's why the odd plurals are right, and why some cells hold two spellings that are both correct.")}
       </Explain>
       {isVerb ? <VerbTable forms={forms} /> : <CaseTable forms={forms} subject={subject} />}
     </div>
@@ -83,6 +85,7 @@ function Cell({ values }: { values: string[] }) {
 
 /** Cases down, singular and plural across — the shape of every Estonian noun table. */
 function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject }) {
+  const t = useT();
   const singular: Record<string, string> = {};
   const plural: Record<string, string> = {};
   for (const spec of CASES) {
@@ -116,7 +119,7 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
         <table className="w-full min-w-[340px] text-sm">
           <thead>
             <tr>
-              {["Case", "Singular", "Plural"].map((h) => (
+              {[t("Case"), t("Singular"), t("Plural")].map((h) => (
                 <th key={h} className="label-xs px-3 py-2.5 text-left" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
                   {h}
                 </th>
@@ -190,6 +193,7 @@ const FINITE_GROUPS: VerbSlot["group"][] = ["PRESENT", "PAST", "CONDITIONAL"];
 
 /** Persons down, tenses across — how a verb is actually recited. */
 function VerbTable({ forms }: { forms: WordForm[] }) {
+  const t = useT();
   const slotted = forms
     .map((f) => ({ form: f, slot: verbSlot(f.morphCode) }))
     .filter((x): x is { form: WordForm; slot: VerbSlot } => x.slot !== null);
@@ -206,13 +210,13 @@ function VerbTable({ forms }: { forms: WordForm[] }) {
             <thead>
               <tr>
                 <th className="label-xs px-3 py-2.5 text-left" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
-                  Person
+                  {t("Person")}
                 </th>
                 {groups.map((g) => (
                   <th key={g} className="label-xs px-3 py-2.5 text-left" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
                     <span lang="et">{VERB_GROUP_LABELS[g].et}</span>
                     <span className="ml-1.5 font-normal normal-case italic" style={{ letterSpacing: 0 }}>
-                      {VERB_GROUP_LABELS[g].en.toLowerCase()}
+                      {t(VERB_GROUP_LABELS[g].en.toLowerCase())}
                     </span>
                   </th>
                 ))}
@@ -248,7 +252,7 @@ function VerbTable({ forms }: { forms: WordForm[] }) {
               style={{ background: "var(--raised)" }}
             >
               <Cell values={valuesFor(forms, form.morphCode!)} />
-              <span className="label-xs mt-1 block" style={{ color: "var(--ink-3)" }}>{slot.en}</span>
+              <span className="label-xs mt-1 block" style={{ color: "var(--ink-3)" }}>{t(slot.en)}</span>
             </div>
           ))}
         </div>
@@ -266,6 +270,7 @@ function VerbTable({ forms }: { forms: WordForm[] }) {
  * and someone at C1 looking for the quotative should be able to find it.
  */
 function OtherForms({ forms, used }: { forms: WordForm[]; used: Set<string> }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const rest: { code: string; name: string; values: string[] }[] = [];
   for (const f of forms) {
@@ -290,7 +295,12 @@ function OtherForms({ forms, used }: { forms: WordForm[]; used: Set<string> }) {
           aria-hidden
           style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform .15s" }}
         />
-        {open ? "Hide" : "Show"} the other {rest.length} form{rest.length === 1 ? "" : "s"}
+        {fill(
+          open
+            ? (rest.length === 1 ? t("Hide the other {n} form") : t("Hide the other {n} forms"))
+            : (rest.length === 1 ? t("Show the other {n} form") : t("Show the other {n} forms")),
+          { n: rest.length },
+        )}
       </button>
       {open && (
         <ul className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
@@ -329,6 +339,7 @@ export function DerivedVerbForms({ lemma, forms }: {
   lemma: string;
   forms: { formType: string; value: string }[];
 }) {
+  const t = useT();
   const pres1sg = pres1sgFrom(forms);
   const derived = derivedVerbForms({ lemma, pres1sg });
   const present = derived.filter((f) => f.morphCode.startsWith("IndPr") && f.morphCode !== "IndPrPs_");
@@ -347,25 +358,25 @@ export function DerivedVerbForms({ lemma, forms }: {
   return (
     <div>
       <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-        The rest, worked out from <span lang="et" className="normal-case" style={{ letterSpacing: 0 }}>{pres1sg}</span>
+        {fillNodes(t("The rest, worked out from {form}"), { form: <span lang="et" className="normal-case" style={{ letterSpacing: 0 }}>{pres1sg}</span> })}
       </h3>
       <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
         {present.length > 0
-          ? "Take the n off that form and you have the stem. Every form below is the stem plus a regular ending. The past tense you learn verb by verb."
-          : "This is the one verb whose present tense breaks the pattern. The conditional still follows it, and the rest come straight from the dictionary."}
+          ? t("Take the n off that form and you have the stem. Every form below is the stem plus a regular ending. The past tense you learn verb by verb.")
+          : t("This is the one verb whose present tense breaks the pattern. The conditional still follows it, and the rest come straight from the dictionary.")}
       </p>
       <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}>
         <table className="w-full min-w-[360px] text-sm">
           <thead>
             <tr>
               <th className="label-xs px-3 py-2.5 text-left" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
-                Person
+                {t("Person")}
               </th>
               {groups.map((g) => (
                 <th key={g.key} className="label-xs px-3 py-2.5 text-left" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
                   <span lang="et">{VERB_GROUP_LABELS[g.key].et}</span>
                   <span className="ml-1.5 font-normal normal-case italic" style={{ letterSpacing: 0 }}>
-                    {VERB_GROUP_LABELS[g.key].en.toLowerCase()}
+                    {t(VERB_GROUP_LABELS[g.key].en.toLowerCase())}
                   </span>
                 </th>
               ))}
@@ -402,7 +413,7 @@ export function DerivedVerbForms({ lemma, forms }: {
               <tr style={{ borderTop: "1px solid var(--rule-soft)" }}>
                 <td className="px-3 py-2 text-sm" style={{ color: "var(--ink-2)" }}>
                   <span lang="et">eitus</span>
-                  <span className="ml-1.5 text-2xs italic" style={{ color: "var(--ink-3)" }}>same for every person</span>
+                  <span className="ml-1.5 text-2xs italic" style={{ color: "var(--ink-3)" }}>{t("same for every person")}</span>
                 </td>
                 <td className="px-3 py-2" colSpan={groups.length}>
                   <span className="inline-flex items-center gap-1.5">
@@ -416,7 +427,7 @@ export function DerivedVerbForms({ lemma, forms }: {
               <tr style={{ borderTop: "1px solid var(--rule-soft)" }}>
                 <td className="px-3 py-2 text-sm" style={{ color: "var(--ink-2)" }}>
                   <span lang="et">käskiv kõneviis</span>
-                  <span className="ml-1.5 text-2xs italic" style={{ color: "var(--ink-3)" }}>to one person</span>
+                  <span className="ml-1.5 text-2xs italic" style={{ color: "var(--ink-3)" }}>{t("to one person")}</span>
                 </td>
                 <td className="px-3 py-2" colSpan={groups.length}>
                   <span className="inline-flex items-center gap-1.5">
@@ -430,7 +441,7 @@ export function DerivedVerbForms({ lemma, forms }: {
         </table>
       </div>
       <p className="mt-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        The bold form comes from the dictionary. The rest are regular endings on it, checked on every verb we have.
+        {t("The bold form comes from the dictionary. The rest are regular endings on it, checked on every verb we have.")}
       </p>
     </div>
   );

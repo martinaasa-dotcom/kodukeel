@@ -23,7 +23,7 @@ export function useLocale(): Locale {
 }
 
 /** `t("Settings")` is the line in this learner's language, or the English where none exists yet. */
-export function useT(): (english: string) => string {
+export function useT(): (english: string, context?: string) => string {
   const locale = useContext(Context);
-  return (english) => tr(locale, english);
+  return (english, context) => tr(locale, english, context);
 }

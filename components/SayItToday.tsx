@@ -332,7 +332,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
  * its own and joined the way that language says "or".
  */
 function placesIn(locale: Locale, where: string, t: (english: string) => string): string {
-  const places = where.split(",").map((place) => place.trim()).filter(Boolean).map(t);
+  const places = where.split(",").map((place) => place.trim()).filter(Boolean).map((line) => t(line));
   const said = new Intl.ListFormat(locale, { type: "disjunction" }).format(places);
   return said.charAt(0).toLocaleUpperCase(locale) + said.slice(1);
 }

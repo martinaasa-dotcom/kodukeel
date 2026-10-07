@@ -74,10 +74,22 @@ const TABLES: Readonly<Record<Exclude<Locale, "en">, Readonly<Record<string, str
   uk: Object.assign({}, ...AREAS.map(([, a]) => a.uk)),
 };
 
-/** The line in this locale, or the English where nobody has translated it yet. */
-export function tr(locale: Locale, english: string): string {
+/**
+ * The line in this locale, or the English where nobody has translated it yet.
+ *
+ * `context` is for the rare English word that means two things on two screens
+ * and needs two translations: "person" is a grammatical person in the verb
+ * tables and a strength on a job-interview card. Such a line is stored under
+ * `english@context` (`person@grammar`) and looked up there first.
+ */
+export function tr(locale: Locale, english: string, context?: string): string {
   if (locale === "en") return english;
-  return TABLES[locale][english] ?? english;
+  const table = TABLES[locale];
+  if (context) {
+    const specific = table[`${english}@${context}`];
+    if (specific !== undefined) return specific;
+  }
+  return table[english] ?? english;
 }
 
 /** Whether a line has a translation in this locale. English always has. */

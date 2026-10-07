@@ -50,7 +50,7 @@ export function CaseQuestion({ question, className = "", inline = false }: {
   const readings = wantsGloss
     ? question.trim().split(/\s+/).map((word) => questionInEnglish(word)).filter((x): x is string => Boolean(x))
     : [];
-  const english = readings.length > 0 ? readings.map(t).join(" ") : null;
+  const english = readings.length > 0 ? readings.map((line) => t(line)).join(" ") : null;
   if (!english) {
     return <span lang="et" className={className}>{question}</span>;
   }

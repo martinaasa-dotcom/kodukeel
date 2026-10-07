@@ -8,6 +8,8 @@ import { parseItems, summarise } from "@/lib/scan/items";
 import { ButtonLink } from "@/components/Button";
 import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { ScanCapture } from "./ScanCapture";
+import { localeFor } from "@/lib/progress/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -32,20 +34,24 @@ const RECENT = 24;
  */
 export default async function ScanPage() {
   const ownerId = await requireUserId();
-  const scans = await prisma.scan.findMany({
-    where: { ownerId },
-    orderBy: { createdAt: "desc" },
-    take: RECENT,
-    select: { id: true, title: true, items: true, createdAt: true },
-  });
+  const [scans, locale] = await Promise.all([
+    prisma.scan.findMany({
+      where: { ownerId },
+      orderBy: { createdAt: "desc" },
+      take: RECENT,
+      select: { id: true, title: true, items: true, createdAt: true },
+    }),
+    localeFor(ownerId),
+  ]);
+  const t = (english: string) => tr(locale, english);
 
   const configured = resolveProvider() !== null;
 
   return (
     <Page route="/scan"
-      eyebrow="From paper"
-      title="Scan a page"
-      lead="Snap a word list or your homework, and turn it into cards you can practice."
+      eyebrow={t("From paper")}
+      title={t("Scan a page")}
+      lead={t("Snap a word list or your homework, and turn it into cards you can practice.")}
     >
       <Stack>
         {!configured && (
@@ -64,15 +70,14 @@ export default async function ScanPage() {
             </span>
             <span className="min-w-0 flex-1 basis-[16rem]">
               <span className="font-display block text-xl font-bold" style={{ color: "var(--ink)" }}>
-                The camera isn&rsquo;t set up here
+                {t("The camera isn’t set up here")}
               </span>
               <span className="mt-1 block text-sm" style={{ color: "var(--ink-2)" }}>
-                Reading a photo needs an AI key, and this copy doesn&rsquo;t have one. You can still
-                paste the words from your page in as a list.
+                {t("Reading a photo needs an AI key, and this copy doesn’t have one. You can still paste the words from your page in as a list.")}
               </span>
             </span>
             <ButtonLink href="/settings?tab=words#import" variant="primary">
-              <ClipboardPaste size={15} aria-hidden /> Paste a word list
+              <ClipboardPaste size={15} aria-hidden /> {t("Paste a word list")}
             </ButtonLink>
           </Card>
         )}
@@ -80,14 +85,14 @@ export default async function ScanPage() {
         {configured && <ScanCapture />}
 
         <section>
-          <SectionTitle hint={scans.length > 0 ? `${scans.length} saved` : undefined}>
-            Your pages
+          <SectionTitle hint={scans.length > 0 ? fill(t("{n} saved"), { n: scans.length }) : undefined}>
+            {t("Your pages")}
           </SectionTitle>
 
           {scans.length === 0 ? (
             <Empty
-              title="No pages yet"
-              body="Take a photo of a vocabulary list and it'll show up here, ready to practice."
+              title={t("No pages yet")}
+              body={t("Take a photo of a vocabulary list and it'll show up here, ready to practice.")}
             />
           ) : (
             <ul className="flex flex-col gap-2">
@@ -114,8 +119,9 @@ export default async function ScanPage() {
                           </span>
                           <span className="flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
                             <Layers size={13} aria-hidden />
-                            {summary.total} word{summary.total === 1 ? "" : "s"}
-                            {summary.unknown > 0 && <>, {summary.unknown} unverified</>}
+                            {summary.unknown > 0
+                              ? fill(t("{words}, {n} unverified"), { words: countOf(locale, summary.total, "word"), n: summary.unknown })
+                              : countOf(locale, summary.total, "word")}
                           </span>
                           {shown.length > 0 && (
                             <span className="mt-2 flex flex-wrap gap-1.5">
