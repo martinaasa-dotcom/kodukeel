@@ -4,7 +4,7 @@ import { createContext, useContext, type ReactNode } from "react";
 import type { ModuleFocus } from "@/lib/course";
 
 /**
- * WHICH STEP OF TONIGHT'S MODULE A SCREEN IS BEING READ INSIDE, OR NOTHING.
+ * WHICH STEP OF TODAY'S MODULE A SCREEN IS BEING READ INSIDE, OR NOTHING.
  *
  * A leaf, deliberately: the context and the hook and not one thing more.
  * `components/course/ModuleScope.tsx` fills it and draws the way on, and this
@@ -56,7 +56,7 @@ export interface ModuleStepRow {
 
 export const ModuleStepsContext = createContext<readonly ModuleStepRow[]>([]);
 
-/** Tonight's steps, in the day's own order, or none outside a module. */
+/** Today's steps, in the day's own order, or none outside a module. */
 export function useModuleSteps(): readonly ModuleStepRow[] {
   return useContext(ModuleStepsContext);
 }

@@ -101,7 +101,7 @@ export function shieldLetter(input: ShieldInput): Letter {
       "exactly where you left them.",
   });
 
-  blocks.push({ t: "button", label: "See what's on tonight", href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: "See today's module", href: `${input.origin}/course` });
 
   return {
     kind: "shield",

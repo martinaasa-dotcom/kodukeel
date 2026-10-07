@@ -65,7 +65,7 @@ export default async function SonadPage() {
             <Empty
               title="Not enough words yet"
               body={`Today's word comes from your evenings, and none of their words has ${SONAD_LENGTH} letters yet.`}
-              action={<ButtonLink href="/course">Tonight&rsquo;s evening</ButtonLink>}
+              action={<ButtonLink href="/course">Today&rsquo;s evening</ButtonLink>}
             />
           ) : (
             <Empty

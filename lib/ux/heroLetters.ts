@@ -1,5 +1,5 @@
 /**
- * WHERE THE FOUR LETTERS SIT ON TONIGHT'S CARD, CHOSEN FRESH EACH TIME.
+ * WHERE THE FOUR LETTERS SIT ON TODAY'S CARD, CHOSEN FRESH EACH TIME.
  *
  * The landing page's case card carries õ, ä, ö and ü tucked over its edges at
  * fixed places, because that card is looked at once. Today's hero is opened

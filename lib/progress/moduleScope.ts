@@ -39,7 +39,7 @@ export async function moduleSpellings(scope: ModuleScope | null): Promise<Readon
  *
  * The planned module is the record of what somebody has been taught, so it is
  * what the app reads before it teaches anything else. This reading credits
- * the whole evening reached and is the ladder's: Learn is where tonight's
+ * the whole evening reached and is the ladder's: Learn is where today's
  * words are taught. Everything that only asks, the review queue, Today's count
  * of it and the Practice rounds, reads `learnerScopeSoFar` below, which
  * credits tonight only for what tonight has done. The line that used to stand
@@ -62,13 +62,13 @@ export const learnerModuleScope = cache(async (ownerId: string): Promise<ModuleS
  * THE SAME STANDING, COUNTING TONIGHT ONLY FOR WHAT TONIGHT HAS DONE.
  *
  * `learnerModuleScope` credits the whole evening reached, which is right for
- * the ladder: Learn is where tonight's words are taught, so it has to be
+ * the ladder: Learn is where today's words are taught, so it has to be
  * allowed to teach them. Everything else that asks a learner something
  * without the module having opened it, the review queue, Today's count of it
  * and every Practice round, may only ask what has already been taught, and
- * part of tonight has not been yet. So a word of tonight's counts once the
- * ladder has asked it (a ladder card has left New), tonight's page once it is
- * ticked, tonight's past forms once they are, and the learner's own words
+ * part of tonight has not been yet. So a word of today's counts once the
+ * ladder has asked it (a ladder card has left New), today's page once it is
+ * ticked, today's past forms once they are, and the learner's own words
  * always: see `scopeSoFar` for the rule itself, which is pure.
  *
  * The evening after the one reached is read for met words too, because
@@ -105,7 +105,7 @@ export const learnerScopeSoFar = cache(async (ownerId: string): Promise<ModuleSc
     }),
   ]);
   const metSet = new Set(metRows.map((r) => r.lexeme?.lemma).filter((l): l is string => !!l));
-  // In teaching order, tonight's before the next evening's.
+  // In teaching order, today's before the next evening's.
   const met = candidates.filter((w, i) => metSet.has(w) && candidates.indexOf(w) === i);
   const own = ownRows.map((r) => r.lexeme?.lemma).filter((l): l is string => !!l);
   return scopeSoFar(programme, day, ticked, met, own);

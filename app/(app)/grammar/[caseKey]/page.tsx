@@ -92,7 +92,7 @@ const SENTENCES = 3;
  * "Ekilex says so" and "this app added an ending to a stem" are different
  * claims and a learner deserves to know which one they are looking at.
  *
- * AND READ FROM TONIGHT'S MODULE IT IS A READING AND NOTHING ELSE.
+ * AND READ FROM TODAY'S MODULE IT IS A READING AND NOTHING ELSE.
  *
  * The module's second step is "read the point behind it", and what it opened
  * was this, whole: an ending explained, and then four buttons, a drill, a note
@@ -164,7 +164,7 @@ export default async function CasePage({
             <div className="min-w-0">
               <p className="label-xs" style={{ color: "var(--cta)" }}>The ending</p>
               {ref.spec.principal ? (
-                <p className="font-display mt-2 text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
+                <p className="font-display mt-2 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)" }}>
                   None. This one you learn by heart.
                 </p>
               ) : (

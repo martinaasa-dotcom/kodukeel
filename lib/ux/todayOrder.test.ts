@@ -13,7 +13,7 @@ describe("todayOrderFrom", () => {
   });
 
   it("keeps the order the learner set", () => {
-    expect(todayOrderFrom("word round errand").slice(0, 3)).toEqual(["word", "round", "errand"]);
+    expect(todayOrderFrom("errand game ladder").slice(0, 3)).toEqual(["errand", "game", "ladder"]);
   });
 
   it("appends whatever the row left out, in the default order", () => {
@@ -26,14 +26,14 @@ describe("todayOrderFrom", () => {
   });
 
   it("drops an id it no longer knows and keeps a duplicate once", () => {
-    const order = todayOrderFrom("exam word word streak practice");
-    expect(order.slice(0, 2)).toEqual(["word", "streak"]);
+    const order = todayOrderFrom("exam word word calendar practice");
+    expect(order.slice(0, 2)).toEqual(["word", "calendar"]);
     expect(new Set(order).size).toBe(order.length);
     expect(order).toHaveLength(DEFAULT_TODAY_ORDER.length);
   });
 
   it("always visits every slot exactly once", () => {
-    for (const value of ["", "next", "streak errand streak", "garbage"]) {
+    for (const value of ["", "next", "calendar errand calendar", "garbage"]) {
       expect([...todayOrderFrom(value)].sort()).toEqual([...DEFAULT_TODAY_ORDER].sort());
     }
   });
@@ -41,7 +41,7 @@ describe("todayOrderFrom", () => {
 
 describe("serialiseTodayOrder", () => {
   it("round-trips through the store's own shape", () => {
-    const order = todayOrderFrom("streak word");
+    const order = todayOrderFrom("calendar word");
     expect(todayOrderFrom(serialiseTodayOrder(order))).toEqual(order);
   });
 
@@ -59,17 +59,17 @@ describe("isDefaultTodayOrder", () => {
 
 describe("orderTodayCards", () => {
   const cards = {
-    ladder: "L", errand: "E", schedule: null, plan: "P", round: "R", streak: "S",
-    word: "W", next: "N",
+    game: "G", word: "W", calendar: "C", conversation: null, ladder: "L", errand: "E",
+    plan: "P", next: "N",
   } as const;
 
   it("deals in the learner's order and drops what has nothing to say", () => {
-    expect(orderTodayCards(cards, todayOrderFrom("word next")))
-      .toEqual(["W", "N", "L", "E", "P", "R", "S"]);
+    expect(orderTodayCards(cards, todayOrderFrom("next errand")))
+      .toEqual(["N", "E", "G", "W", "C", "L", "P"]);
   });
 
   it("is the shipped order when nothing was chosen", () => {
-    expect(orderTodayCards(cards, DEFAULT_TODAY_ORDER)).toEqual(["L", "E", "P", "R", "S", "W", "N"]);
+    expect(orderTodayCards(cards, DEFAULT_TODAY_ORDER)).toEqual(["G", "W", "C", "L", "E", "P", "N"]);
   });
 
   it("never grows the deal past the cap by itself", () => {
@@ -78,6 +78,13 @@ describe("orderTodayCards", () => {
     // candidates than there are slots.
     expect(orderTodayCards(cards, DEFAULT_TODAY_ORDER).length).toBeLessThanOrEqual(TODAY_SLOTS.length);
     expect(TODAY_CARDS).toBeLessThan(TODAY_SLOTS.length);
+  });
+
+  it("is the order the home page was asked for: rows of game and word, calendar and conversation, progress and out there", () => {
+    expect(DEFAULT_TODAY_ORDER.slice(0, 6)).toEqual(
+      ["game", "word", "calendar", "conversation", "ladder", "errand"],
+    );
+    expect(TODAY_CARDS).toBe(6);
   });
 });
 
@@ -89,9 +96,9 @@ describe("moveSlot", () => {
   */
   it("moves a slot one step either way", () => {
     const order = todayOrderFrom(null);
-    const at = order.indexOf("round");
-    expect(moveSlot(order, "round", "up").indexOf("round")).toBe(at - 1);
-    expect(moveSlot(order, "round", "down").indexOf("round")).toBe(at + 1);
+    const at = order.indexOf("conversation");
+    expect(moveSlot(order, "conversation", "up").indexOf("conversation")).toBe(at - 1);
+    expect(moveSlot(order, "conversation", "down").indexOf("conversation")).toBe(at + 1);
   });
 
   it("does nothing at either end rather than wrapping", () => {

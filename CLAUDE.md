@@ -687,6 +687,19 @@ how an Estonian counter actually works, in the shape `docs/20-contributed-senten
 describes, and a B1 tier that still does not exist: holding the line when they switch, asking a
 follow-up, explaining why you were late.
 
+**The module is "Today's module", at any hour, and a form is never asked bare.** A learner reported two
+faults off the finished-module screens. Copy said "tonight" and "evenings" to somebody who opened the app at
+nine in the morning, so the module is named by the day wherever a reader meets it (`Today's module`, `Finish
+today's module`, `Today's words`); the identifiers (`tonightSteps`, the `tonight` email kind) are code and stay.
+And a verb card read `juhtuma` over `lihtminevik, ma` with a box under it, and a case card said "say out of
+medicine", which no person says. The builder already cut both from a recorded sentence, but a `Card` row keeps
+the front it was built with, so a deck assembled earlier still held the bare ask. `lib/progress/formCards.ts`
+asks the builder what it would make today for each bare form card on every read: a card it can rebuild is
+shown as the sentence with the gap (the row, its schedule and its history untouched), and one with no recorded
+sentence behind it is held back from the session rather than asked as a suffix on a stem. `repairCaseFronts`
+now rewrites persons of a verb as well, and `audit:decks` reports and removes the conjugation cards no sentence
+can replace. Nothing is written in Estonian: every sentence is one a lexicographer recorded.
+
 **A letter is the app writing to somebody who is not looking at it, and the only thing that
 makes that acceptable is that it is easy to stop.** `lib/email/` is the letters and is pure;
 `lib/mailer/` posts them; `lib/progress/mailout.ts` gathers what one says. A closed list
@@ -7828,8 +7841,8 @@ Anu sat under a button that is in the corner of every signed-in screen, which is
 of them together is a page somebody scrolls rather than reads, reported as "way too busy" by
 somebody using it.
 
-So `TODAY_CARDS` is five, the page names its cards in priority order and draws the first five under
-the hero, and six is the whole screen. The order is the argument and it is what to do today: what
+So `TODAY_CARDS` was five (it is six now, below), the page names its cards in priority order and
+draws the first of them under the hero. The order is the argument and it is what to do today: what
 to say to a real person, what is actually on today, the one short round, the run of days, a word,
 and then the course. What came off moved rather than went: the countdown card is on the examination
 hub in place of the block that was hand-building the same four figures beside it, and the sticking
@@ -7844,6 +7857,32 @@ round; on the seventh the quest is, and only then is the weakest case worth the 
 which takes three queries and a dictionary read off every other render of this page. The invariant
 is on the *slot* rather than on either card, because two rounds on this page is what the cap was
 added to stop.
+
+**And then the operator laid the home page out in rows, and that supersedes the paragraphs above
+where they disagree.** The feedback was three things, off a screenshot. The line under the greeting
+("60 cards due as well. They'll come up at the end of tonight's module.") was busy and added little,
+since this page is for the module that is due today; what it was for is the learner who does not feel
+like anything new tonight, so the greeting stands alone and a smaller white card under the hero points
+at the cards already outstanding (`reviewStrip`, and the hero's second button went with it, since the
+card has the way back). The game of the day is Sõnad, every day for now, drawn with a small example
+board so a stranger can see what pressing it gives them, and a screenshot was deliberately not used:
+`components/SonadPreview.tsx` draws three real rows with the board's own circles
+(`components/sonad/look.ts`, shared because a plain value cannot cross from a client module to a
+server one) and marks them with `scoreGuess`, so it cannot go stale and is right in both themes. The
+week table is kept whole behind `GAME_OF_THE_DAY` for the day the card is made dynamic again, and the
+daily quest left Today for Practice (`within` moved), so there is still one round on the page. And
+the cards sit in three fixed rows of two, game and word of the day, calendar and today's
+conversation, progress bar and out there, which is why `Columns` is deleted: it fills down the first
+column and then the second, so it cannot promise that two cards are side by side.
+
+Three of the six are new or changed. **Calendar** is one card holding the week strip with the streak
+and, under it, whatever is on the learner's calendar today, which were two cards (`streak` and
+`schedule`). **Today's conversation** is `sceneOfDay`, a scene walked by the date the way the word
+of the day walks the dictionary, held for a learner the module holds to scenes whose units the evenings
+have taught, so on the first weeks of A1 it is absent rather than offering a conversation whose words
+nobody has handed over. **Out there** is the existing question about yesterday under its new name.
+`TODAY_CARDS` is six for that reason, so a seventh card (homework, or the next unit off the course)
+falls under the cut when all six are drawn.
 
 **And the order is the learner's, because a home page's reading order is a fact about the
 reader.** The shipped order is an argument and it is still the default, and it is not the only
@@ -11726,7 +11765,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `distanceLine`, `minutesForCards`, `describeSituation`, `conditionFor`, `describeHearing`,
 `playThrough`, `errandForDay`, `recordEncounter`, `outThere`, `reachedSlot`, `reachedFor`,
 `answerTimeReading`, `confusions`, `formatAnswerTime`, `NotAutomatic`, `scriptedFor`, `scriptable`,
-`TODAY_CARDS`, `weakestCase`, `roundCard`, `orderTodayCards`, `todayOrderFrom`,
+`TODAY_CARDS`, `weakestCase`, `orderTodayCards`, `todayOrderFrom`,
 `lacksFiniteVerb`, `answerForms`, `groupEndings`, `endingStrip`, `plainAsk`, `plainAskFor`,
 `conjugationSlotFromFront`, `slotCodeOf`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,

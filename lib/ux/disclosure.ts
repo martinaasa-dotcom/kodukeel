@@ -163,7 +163,7 @@ export function shows(stage: Stage, panel: Panel): boolean {
  * rather than things to do today. Somebody with two minutes before the bus
  * reads the top of that and nothing else.
  *
- * So the page names its cards in priority order and takes the first five. Five
+ * So the page names its cards in priority order and takes the first six. Six
  * because the hero above them is the sixth, and six is what fits on a phone
  * screen and a half: a card that has to be hunted for is a card that is not
  * being glanced at, which is the whole job of this screen.
@@ -172,4 +172,4 @@ export function shows(stage: Stage, panel: Panel): boolean {
  * in the rail and in the palette, exactly as with the table above. What it
  * decides is which five earn the one screen everybody opens every morning.
  */
-export const TODAY_CARDS = 5;
+export const TODAY_CARDS = 6;

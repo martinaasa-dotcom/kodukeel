@@ -141,7 +141,7 @@ function caseReadTitle(key: string): string | undefined {
  * round, so the greetings read the politeness page four evenings running and
  * the numbers read the numerals page five, and the impersonal was read
  * nineteen times between B1 and C1: a reading the learner did last night,
- * put in front of them again as tonight's step, is furniture, and it is the
+ * put in front of them again as today's step, is furniture, and it is the
  * step a learner reported skipping past. Each page a unit declares is read
  * once in the unit, in the order its author wrote them, and a page already
  * read in this part is not read again by a later unit of it. An evening past
@@ -584,7 +584,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
   /*
     A page read once in a level is not read again by a later unit of it. It
     was once per part, and A1 read the present tense four times and "to be"
-    three, the same page with the same words presented as tonight's reading;
+    three, the same page with the same words presented as today's reading;
     across levels a page comes back, and its step says so ("again").
   */
   const readInPart = ledger.pagesReadAt(spec.level);
@@ -624,7 +624,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         AND A WORD AN EARLIER EVENING TAUGHT IS NOT A NEW WORD. The object and
         government units drill verbs the course gave long before, on purpose,
         and the first two evenings of B1 were six of them each under "Learn
-        tonight's 6 new words". Read before tonight's words are taught.
+        today's 6 new words". Read before today's words are taught.
       */
       const again = chunk.filter((lemma) => ledger.knows(lemma));
       for (const lemma of chunk) {
@@ -637,7 +637,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         A PAGE READ AT AN EARLIER LEVEL SAYS SO. The plan reads a page once per
         part, and a unit at B1 may list a page somebody read at A1: the
         conditional, politeness, the partitive. Same page, same words, and a
-        step that called it tonight's reading as though it were new reads as
+        step that called it today's reading as though it were new reads as
         the app having forgotten. It is still worth reading, and the step says
         it is a second look.
       */
@@ -731,7 +731,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
 
 /**
  * The rounds that ask a case off the word's own forms, which inside the
- * module lead with the case tonight's reading was about (`tonightsCase`).
+ * module lead with the case today's reading was about (`tonightsCase`).
  * The sprint is not one: it turns over the deck's cards, and a module's deck
  * holds a word's meaning and its spelling, so on a module evening it asks no
  * ending at all.

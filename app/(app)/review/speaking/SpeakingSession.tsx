@@ -145,7 +145,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
+          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
             Well spoken
           </h1>
           {/* The assurance stays and the pitch goes. "Nothing you recorded left

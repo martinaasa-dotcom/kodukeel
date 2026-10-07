@@ -1704,7 +1704,7 @@ check("a bare case card is rewritten into a sentence, or reported", () => {
   assert.ok(fn.length > 0, "repairCaseFronts is gone from prisma/repair.ts");
   assert.match(
     fn,
-    /generateCards\(lex, \["CASE_FORM"\]\)/,
+    /generateCards\(lex, \["CASE_FORM", "CONJUGATION"\]\)/,
     "repairCaseFronts no longer asks the builder for the sentence card, so a repaired card and " +
     "a fresh one can stop being the same card",
   );
@@ -5008,8 +5008,11 @@ check("Today draws at most TODAY_CARDS under the hero, and every card goes throu
     So the cards are named in priority order and the first `TODAY_CARDS` are
     drawn. What rots is not the constant, it is somebody adding `{newCard}`
     beside the sliced array, which reads as a card being added and is a card
-    that cannot be cut. That is what this fails on: every child of `Columns` on
-    this page comes out of the one expression the cap is applied to.
+    that cannot be cut. That is what this fails on: every child of the card grid
+    on this page comes out of the one expression the cap is applied to. (It was
+    `Columns` until the order was asked for in rows, game and word, calendar
+    and conversation, progress and out there: columns fill down the first and
+    then the second, so they cannot promise that two cards sit side by side.)
   */
   const today = code("app/(app)/page.tsx");
   assert.match(today, /TODAY_CARDS/, "Today no longer reads the cap");
@@ -5018,9 +5021,9 @@ check("Today draws at most TODAY_CARDS under the hero, and every card goes throu
     "Today names its cards and draws all of them again; the cap is what keeps the page glanceable",
   );
 
-  const open = today.indexOf("<Columns>");
-  const close = today.indexOf("</Columns>", open);
-  assert.ok(open >= 0 && close > open, "Today no longer lays its cards out in Columns");
+  const open = today.indexOf('className="grid items-stretch gap-6 lg:grid-cols-2"');
+  const close = today.indexOf("</Stack>", open);
+  assert.ok(open >= 0 && close > open, "Today no longer lays its cards out in the two-across grid");
   const columns = today.slice(open, close);
   /*
     A card interpolated on its own, rather than named inside the array. Written
@@ -5062,15 +5065,14 @@ check("Today deals its cards in the learner's order, under the same cap", () => 
     "the cap is no longer applied to what orderTodayCards returns",
   );
   /*
-    One round a day, which CLAUDE.md says is asserted on the slot. The cap
-    above counts slots, so a quest dealt as a slot of its own beside the round
-    passes it and puts two rounds on Today; what holds the rule is that the
-    game and the quest reach the deal only through the one slot.
+    One game a day, which is Sõnad. The cap above counts slots, so a quest
+    dealt as a slot of its own beside the game would put two rounds on Today;
+    the quest is not on this page at all, and the game reaches the deal through
+    its one slot.
   */
-  assert.match(today, /const roundCard = gameCard \?\? questCard;/, "the day's round is no longer one slot");
   const deal = /orderTodayCards\(\{([\s\S]*?)\}/.exec(today)?.[1] ?? "";
-  assert.ok(deal.includes("roundCard"), "the round slot is not dealt");
-  assert.doesNotMatch(deal, /\b(gameCard|questCard)\b/, "a round is dealt beside the round slot, which is two rounds on Today");
+  assert.ok(/\bgame:\s*gameCard\b/.test(deal), "the game slot is not dealt");
+  assert.doesNotMatch(today, /questCard/, "the daily quest is back on Today beside the game of the day, which is two rounds");
 
   const panel = code("app/(app)/settings/TodayOrderPanel.tsx");
   assert.match(panel, /setTodayOrder\(/, "the Settings panel no longer writes the order");
@@ -5213,7 +5215,7 @@ check("where a screen lives is decided in one table", () => {
     ["components/Sidebar.tsx", /lib\/ux\/nav/],
     ["components/CommandPalette.tsx", /lib\/ux\/nav/],
     ["app/(app)/practice/page.tsx", /lib\/ux\/modes/],
-    ["app/(app)/page.tsx", /lib\/ux\/modes/],
+    ["app/(app)/page.tsx", /lib\/ux\/weekGames/],
   ];
   for (const [file, table] of readers) {
     assert.match(code(file), table, `${file} navigates by a list of its own again`);
@@ -7601,9 +7603,9 @@ check("a timed round's length is written once and shown at the learner's pace", 
     assert.match(src, new RegExp(`secondsFor\\(\\s*${base},`), `${file} does not take its length from ${base}`);
     assert.doesNotMatch(src, /const \w+ = (60|120);/, `${file} types a round length of its own`);
   }
-  assert.match(
-    code("app/(app)/page.tsx"), /lengthAtPace\(QUEST_SECONDS,/,
-    "Today's quest card states a length without the learner's pace",
+  assert.doesNotMatch(
+    code("app/(app)/page.tsx"), /QUEST_SECONDS|lengthAtPace\(/,
+    "Today states a round length again; the quest left it for Practice and the length is the pace's to say",
   );
   /*
     And no screen types the standard length as words. What a comment says is
@@ -14423,8 +14425,14 @@ check("every screen that draws the weakest cases reads the one query behind them
     );
   }
 
+  /*
+    Three until Today stopped drawing the daily quest, which was the third: the
+    home page leads with Sõnad now and the quest lives on Practice, so the screens
+    left are Progress and Practice. The floor is what is there, so a check that
+    stops finding either of them still fails.
+  */
   assert.ok(
-    screens.length >= 3,
+    screens.length >= 2,
     `only ${screens.length} screens draw the weakest cases, so this check stopped looking`,
   );
 });
@@ -14819,11 +14827,17 @@ check("the game of the day comes from the one table of them", () => {
     is what the home page leads with.
   */
   const page = code("app/(app)/page.tsx");
-  assert.match(page, /gameOn\(/, "Today no longer asks which game today's is");
-  assert.match(page, /gameAfter\(/, "Today stopped saying what is on tomorrow, which is what makes it a week");
   assert.match(
-    page, /modeAt\(/,
-    "Today names the featured round itself rather than reading lib/ux/modes.ts, so a rename splits",
+    page, /GAME_OF_THE_DAY/,
+    "Today no longer asks the table which game today's is, so the game of the day is typed in a screen",
+  );
+  assert.match(
+    page, /featuredTitle\(/,
+    "Today names the featured round itself rather than reading the tables that own the name, so a rename splits",
+  );
+  assert.match(
+    page, /<SonadPreview /,
+    "the game of the day is Sõnad and it is drawn with its example board, which is what makes it worth pressing",
   );
 
   const table = code("lib/ux/weekGames.ts");
@@ -24337,7 +24351,7 @@ check("an order the writer did not choose is not a wrong order", () => {
 });
 
 /*
-  ────────────────────────── TONIGHT'S MODULE IS A ROOM ──────────────────────
+  ────────────────────────── TODAY'S MODULE IS A ROOM ──────────────────────
 
   A step opened from the module used to hand the learner back to the ordinary
   website. It was reported off the reading step and the report is the whole
@@ -24364,7 +24378,7 @@ check("an order the writer did not choose is not a wrong order", () => {
   taking the raw href exactly one step of the evening quietly leaves the
   module, which looks like a step somebody has not opened yet.
 */
-check("a step opened from tonight's module carries the marker", () => {
+check("a step opened from today's module carries the marker", () => {
   const list = code("components/course/StepList.tsx");
   assert.match(
     list, /focusedSteps\(/,
@@ -24450,7 +24464,7 @@ check("the module frame is mounted once in the shell, keeps the rail and Anu, an
   */
   const exit = code("components/round/RoundExit.tsx");
   assert.match(exit, /if \(focus\) return opening \? null : <div className=\{className\}>\{next\}<\/div>/,
-    "`WayOut` no longer draws tonight's Next inside a module, so a round finishes with no way on");
+    "`WayOut` no longer draws today's Next inside a module, so a round finishes with no way on");
   for (const page of [
     "app/(app)/grammar/topic/[id]/page.tsx",
     "app/(app)/grammar/[caseKey]/page.tsx",
@@ -24458,7 +24472,7 @@ check("the module frame is mounted once in the shell, keeps the rail and Anu, an
     // learner finished the three taps and had nothing to press.
     "app/(app)/course/forms/page.tsx",
   ]) {
-    assert.match(code(page), /<ReadingEnd \/>/, `${page} stopped ending on tonight's Next inside a module`);
+    assert.match(code(page), /<ReadingEnd \/>/, `${page} stopped ending on today's Next inside a module`);
   }
   assert.match(code("components/scene/SceneDebrief.tsx"), /<NextStep \/>/,
     "a conversation's debrief inside a module has no way on");
@@ -24471,7 +24485,7 @@ check("the module frame is mounted once in the shell, keeps the rail and Anu, an
   const rail = code("components/Sidebar.tsx");
   assert.match(rail, /const lit = focus \? LEARN_HREF :/, "the rail stopped lighting Learn during a module");
   assert.match(rail, /const classLinks = focus \? \[\] :/, "the rail draws the class group during a module again");
-  assert.match(rail, /<TonightRows /, "the rail stopped hanging tonight's steps under Learn");
+  assert.match(rail, /<TonightRows /, "the rail stopped hanging today's steps under Learn");
 });
 
 /*
@@ -24673,7 +24687,7 @@ check("the module's reading step carries no drill and no way off the page", () =
     const src = code(page);
     assert.match(
       src, /focusFrom\((await searchParams|query)\)/,
-      `${page} does not ask whether it was opened from tonight's module`,
+      `${page} does not ask whether it was opened from today's module`,
     );
     assert.match(
       src, /inModule \? undefined : \(/,
@@ -24746,10 +24760,10 @@ check("the reading's Try it is drawn on both reference pages and grades nothing"
   read off the step log through `computeStreak` (the same midnight the review
   streak breaks at) and stored nowhere, which is ADR-014.
 */
-check("the finished module plays tonight's words back and counts evenings off the log", () => {
+check("the finished module plays today's words back and counts evenings off the log", () => {
   const page = code("app/(app)/course/page.tsx");
-  assert.match(page, /data-recap-words/, "the finished module screen stopped listing tonight's words");
-  assert.match(page, /<Speak text=\{word\}/, "tonight's words on the finished screen carry no speaker");
+  assert.match(page, /data-recap-words/, "the finished module screen stopped listing today's words");
+  assert.match(page, /<Speak text=\{word\}/, "today's words on the finished screen carry no speaker");
   assert.match(page, /reading\.eveningsInARow >= 2/, "the finished module screen stopped saying the run of evenings");
   const reading = code("lib/progress/course.ts");
   assert.match(reading, /computeStreak\(ticks\.at, now, clock\)/, "the run of evenings is no longer read off the step log through computeStreak");

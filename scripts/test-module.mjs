@@ -6,7 +6,7 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
 import { startRound } from "./lib/briefing.mjs";
 
 /**
- * TONIGHT'S MODULE, WALKED, AND THE FOUR THINGS ONLY A BROWSER CAN SAY.
+ * TODAY'S MODULE, WALKED, AND THE FOUR THINGS ONLY A BROWSER CAN SAY.
  *
  * `lib/course/focus.test.ts` decides everything about the marker that can be
  * decided without one: that it goes out and comes back the same over every day
@@ -79,7 +79,7 @@ await requireLocalDatabase(prisma);
   reading, so they are in the floor: 33 was the three-step evening with them
   waived.
 */
-const { check, absent, done } = suite("Tonight's module", { floor: 42 });
+const { check, absent, done } = suite("Today's module", { floor: 42 });
 
 /** The module's own screen, with a programme running. */
 async function openModule(page) {
@@ -112,7 +112,7 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 try {
   await openModule(page);
   const steps = await stepsOn(page);
-  check("the module lists tonight's steps", steps.length >= 3, `${steps.length} steps`);
+  check("the module lists today's steps", steps.length >= 3, `${steps.length} steps`);
 
   /*
     THE WHOLE EVENING IS WALKED, STEP BY STEP, THE WAY A LEARNER WALKS IT.
@@ -127,7 +127,7 @@ try {
     round's own finish screen offers Today, the practice menu and another
     round, and an empty one offers the dictionary. Checking the step that was
     reported and trusting the rest is how the next one of these reaches a
-    learner. Whatever tonight's rotation dealt is walked, so the evenings that
+    learner. Whatever today's rotation dealt is walked, so the evenings that
     carry a conversation or a game are covered by the same loop without it
     being told what they are.
   */
@@ -211,7 +211,7 @@ try {
       The first version took the whole website off the screen and was reported
       the other way: a learner three steps in had no idea where in the app they
       were and nobody to ask about the card. So the rail is the ordinary rail
-      with Learn lit and tonight's steps under it, no class group, Anu in her
+      with Learn lit and today's steps under it, no class group, Anu in her
       corner, and on a desktop no bar at all: the way on is "Next" where the
       step ends.
     */
@@ -239,7 +239,7 @@ try {
       };
     });
     check(
-      `and tonight's steps hang under it, the one open marked now  (${here})`,
+      `and today's steps hang under it, the one open marked now  (${here})`,
       tonight.rows === steps.length && tonight.now === 1 && tonight.underLearn && tonight.marked,
       JSON.stringify(tonight),
     );
@@ -275,7 +275,7 @@ try {
        pressed. */
     const pageNext = page.locator("[data-module-next] button").first();
     if (await readingNext.isVisible().catch(() => false)) {
-      check(`the reading ends on a named Next  (${here})`, /Next, step \d+|Finish tonight/.test(await readingNext.innerText()));
+      check(`the reading ends on a named Next  (${here})`, /Next, step \d+|Finish today's module/.test(await readingNext.innerText()));
       await readingNext.click();
     } else if (await pageNext.isVisible().catch(() => false)) {
       await pageNext.click();

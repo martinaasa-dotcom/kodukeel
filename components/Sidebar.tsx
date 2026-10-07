@@ -117,13 +117,13 @@ export function Sidebar({ order: stored, name, classes = [] }: {
     joins and go when they leave or the class is archived.
   */
   /*
-    INSIDE TONIGHT'S MODULE THE RAIL IS THE SAME RAIL, WITH LEARN LIT AND THE
+    INSIDE TODAY'S MODULE THE RAIL IS THE SAME RAIL, WITH LEARN LIT AND THE
     EVENING HUNG UNDER IT.
 
     A step opens a practice round, a grammar page or the review queue, and
     lighting the row those live under would say the learner had wandered off to
     Practice in the middle of an evening they are walking. So Learn is lit,
-    whatever the path, and tonight's steps are listed under it. The class group
+    whatever the path, and today's steps are listed under it. The class group
     is not drawn: nothing about tonight is in it, and a column that grows a
     second section during a module is a column with more in it than the room
     it is in.
@@ -633,11 +633,11 @@ function RailLink({ item, active, pinned, classRow = false }: {
   );
 }
 
-/** The row tonight's module hangs off. */
+/** The row today's module hangs off. */
 const LEARN_HREF = "/learn";
 
 /**
- * TONIGHT'S STEPS, NESTED UNDER LEARN.
+ * TODAY'S STEPS, NESTED UNDER LEARN.
  *
  * A thread down the left edge rather than a card of its own, so it reads as
  * part of the Learn row above it. Each step is a link carrying the module's
@@ -651,7 +651,7 @@ function TonightRows({ steps, at }: { steps: readonly ModuleStepRow[]; at: strin
   if (steps.length === 0) return null;
   return (
     <ol
-      aria-label="Tonight"
+      aria-label="Today's module"
       data-rail-tonight=""
       className="mb-1.5 ml-[1.1875rem] mt-0.5 flex flex-col gap-0.5 border-l-2 py-1 pl-3"
       style={{ borderColor: "color-mix(in oklab, var(--accent) 28%, transparent)" }}

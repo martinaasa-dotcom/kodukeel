@@ -72,7 +72,7 @@ export function LevelPanel({ current, measured }: {
       </p>
       <Explain label="What the level decides">
         Your level decides which part of the course you&rsquo;re on, which new words come next, and
-        which words the games and the dictionary suggest. If you change it, tonight&rsquo;s module
+        which words the games and the dictionary suggest. If you change it, today&rsquo;s module
         moves to match. Nothing you&rsquo;ve already learned is lost, and
         finished evenings stay finished.
       </Explain>

@@ -556,7 +556,7 @@ export function ReviewSession({
    * The caught-up screen answers "when does the next card come back", which is
    * the scheduler's question. This one is a different state wearing the same
    * empty queue: the words are there, the course has not opened them yet, and
-   * the way to the next few is tonight's evening rather than a date. Sending
+   * the way to the next few is today's evening rather than a date. Sending
    * somebody to Learn there would hand them a round held back for the same
    * reason.
    */
@@ -572,7 +572,7 @@ export function ReviewSession({
   // very first load is the only one this session should ever know about.
   const [queue, setQueue] = useState(initialCards);
   const [wasEmptyAtStart] = useState(initialCards.length === 0);
-  /* Whether this round was opened as a step of tonight's module, which decides
+  /* Whether this round was opened as a step of today's module, which decides
      what an empty queue means and therefore what the screen may say about it. */
   const inModule = useModuleFocus() !== null;
   /*
@@ -1398,14 +1398,14 @@ export function ReviewSession({
             deck can have plenty due and this round still have nothing to ask,
             and a screen saying every card is scheduled for later sends the
             learner off to check a deck that is fine. What is true is that
-            tonight's review is finished, and the way on is the module's own
+            today's review is finished, and the way on is the module's own
             bar underneath rather than an action here, which is why `Empty`
             withholds one inside a step. Before the two branches below, since
             both of them answer for somebody who walked here themselves.
           */
           <Empty
-            title="That's tonight's review done"
-            body="You've been through every word tonight had for you. On to the next step."
+            title="That's today's review done"
+            body="You've been through every word today's module had for you. On to the next step."
           />
         ) : totalCards === 0 ? (
           <Empty
@@ -1417,8 +1417,8 @@ export function ReviewSession({
           waitingOnCourse ? (
             <Empty
               title="You're all caught up"
-              body="Nothing's due right now. Your next new words are waiting in tonight's module."
-              action={<ButtonLink href="/course" variant="primary">{"Open tonight's module"}</ButtonLink>}
+              body="Nothing's due right now. Your next new words are part of today's module."
+              action={<ButtonLink href="/course" variant="primary">{"Open today's module"}</ButtonLink>}
             />
           ) : (
             <Empty
@@ -1471,7 +1471,7 @@ export function ReviewSession({
         <Lettered celebrate>
           <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
             <Mascot size={72} mood="cheer" className="float mx-auto" />
-            <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
+            <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
               Session complete
             </h1>
             <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>

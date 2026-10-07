@@ -14,6 +14,7 @@ import { addToDeck, recordSonad } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { loadBoard, saveBoard } from "./resume";
 import { WordLink } from "@/components/course/WordLink";
+import { EMPTY, HUE, LEGEND, RING, SPOKEN } from "@/components/sonad/look";
 
 /**
  * SÕNAD'S BOARD.
@@ -72,44 +73,6 @@ import { WordLink } from "@/components/course/WordLink";
  * `--on-butter` from inside a game to make the three look symmetrical would be
  * adding a token to a design system sideways.
  */
-const HUE: Record<Mark, { bg: string; ink: string; ring: string }> = {
-  here: { bg: "var(--sky)", ink: "var(--on-sky)", ring: "transparent" },
-  elsewhere: { bg: "var(--butter-soft)", ink: "var(--butter-ink)", ring: "var(--butter-ink)" },
-  /*
-    Spent is a deeper lavender than the board it sits on, with the second ink
-    for its letter. `--raised` was the wash on the night panel and is two
-    percent of lightness from the lavender ground, which would have made a
-    letter that is not in the word look like a circle nobody has used yet.
-  */
-  absent: {
-    bg: "color-mix(in srgb, var(--accent-deep) 16%, var(--accent-soft))",
-    ink: "var(--ink-2)",
-    ring: "transparent",
-  },
-};
-
-/** How thick each ring is, which is the half of the signal that is not color. */
-const RING: Record<Mark, string> = { here: "0", elsewhere: "3px", absent: "0" };
-
-/**
- * And the third channel, for a reader who gets neither the fill nor the ring.
- *
- * A fill and a ring are two signals and both of them are visual. Every circle
- * that has been marked says what it is in words, and the row announces its
- * tally once rather than reading 36 labels out on every guess, which is what
- * an `aria-live` on the whole board was doing.
- */
-const SPOKEN: Record<Mark, string> = {
-  here: "in place",
-  elsewhere: "in the word, elsewhere",
-  absent: "not in the word",
-};
-
-/* An open circle: the ground shows through, and the ring is the deep accent at half strength. */
-/** The same three, short enough that the legend is one line on a phone. */
-const LEGEND: Record<Mark, string> = { here: "in place", elsewhere: "in the word", absent: "not in it" };
-
-const EMPTY = { bg: "transparent", ink: "var(--ink)", ring: "color-mix(in srgb, var(--accent-deep) 45%, transparent)" };
 
 export function SonadSession({ puzzle, day, guessable }: {
   puzzle: Puzzle;
@@ -533,7 +496,7 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
       </p>
       <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
         {/*
-          THE WORD OPENS ITS ENTRY, EXCEPT INSIDE TONIGHT'S MODULE.
+          THE WORD OPENS ITS ENTRY, EXCEPT INSIDE TODAY'S MODULE.
 
           A word in the sentence saying what it means is content rather than
           navigation, which is why an inline link like this survives everywhere
