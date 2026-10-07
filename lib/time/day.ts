@@ -1,3 +1,4 @@
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 /**
  * Calendar days, in the learner's own timezone.
  *
@@ -491,15 +492,32 @@ export function daysBetween(a: Date, b: Date): number {
  * "The next card comes back on laupäev." is neither language, and the unit
  * test for it failed on every non-English host.
  */
-export function nextCardLine(due: Date, now: Date, clock: DayClock): string {
+export function nextCardLine(due: Date, now: Date, clock: DayClock, locale: Locale): string {
   const days = clock.daysBetween(now, due);
-  if (days <= 0) return "The next card comes back later today.";
-  if (days === 1) return "The next card comes back tomorrow.";
+  if (days <= 0) return tr(locale, "The next card comes back later today.");
+  if (days === 1) return tr(locale, "The next card comes back tomorrow.");
   if (days < 7) {
     const weekday = new Intl.DateTimeFormat("en", {
       weekday: "long", timeZone: clock.zoneName,
     }).format(due);
-    return `The next card comes back on ${weekday}.`;
+    if (locale === "en") return `The next card comes back on ${weekday}.`;
+    /* Russian and Ukrainian put the day after a preposition and in the
+       accusative ("во вторник", "у середу"), so the whole phrase is the
+       table's rather than the formatter's nominative. */
+    const phrase = ON_WEEKDAY[locale][weekday] ?? weekday;
+    return fill(tr(locale, "The next card comes back {weekday}."), { weekday: phrase });
   }
-  return `The next card comes back in ${days} days.`;
+  return fill(tr(locale, "The next card comes back in {count}."), { count: countOf(locale, days, "day") });
 }
+
+/** "On Tuesday", as Russian and Ukrainian say it, keyed on the English weekday. */
+const ON_WEEKDAY: Readonly<Record<Exclude<Locale, "en">, Readonly<Record<string, string>>>> = {
+  ru: {
+    Monday: "в понедельник", Tuesday: "во вторник", Wednesday: "в среду", Thursday: "в четверг",
+    Friday: "в пятницу", Saturday: "в субботу", Sunday: "в воскресенье",
+  },
+  uk: {
+    Monday: "у понеділок", Tuesday: "у вівторок", Wednesday: "у середу", Thursday: "у четвер",
+    Friday: "у п'ятницю", Saturday: "у суботу", Sunday: "у неділю",
+  },
+};

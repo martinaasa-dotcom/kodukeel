@@ -26,13 +26,17 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { orderContextFor } from "@/lib/dict/wordOrder";
 import { ordinaryOpeners } from "@/lib/dict/openers";
 import { firstParams } from "@/lib/ux/queryParam";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
   const unit = unitById(unitId);
-  if (!unit) return { title: "Lesson" };
-  const placement = await courseLevelFor(await requireUserId());
-  return { title: `${uiText(placement, unit.title, unit.subtitle)}, lesson` };
+  const ownerId = await requireUserId();
+  const locale = await localeFor(ownerId);
+  if (!unit) return { title: tr(locale, "Lesson") };
+  const placement = await courseLevelFor(ownerId);
+  return { title: fill(tr(locale, "{title}, lesson"), { title: tr(locale, uiText(placement, unit.title, unit.subtitle)) }) };
 }
 
 export const dynamic = "force-dynamic";

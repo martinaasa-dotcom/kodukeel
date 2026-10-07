@@ -594,8 +594,6 @@ export const TODAY: Area = {
     "Вечеров: {done} из {total}",
   "This part":
     "Эта часть",
-  "Tonight":
-    "Сегодня",
   "evenings {from} to {to}":
     "вечера с {from} по {to}",
   "evening {n}":
@@ -728,8 +726,6 @@ export const TODAY: Area = {
     "Не сейчас",
   "Got it":
     "Понятно",
-  "That didn't get through to us. Give it a moment and try again.":
-    "До нас это не дошло. Подождите немного и попробуйте ещё раз.",
   "That's the end of the page":
     "Это конец страницы",
   "Move on and that's step {n} of {of} done.":
@@ -912,8 +908,6 @@ export const TODAY: Area = {
   // THE PARTS OF THE COURSE: WHAT EACH IS ABOUT, AND WHAT FINISHING IT MEANS.
   "Hello, you and me, the verb to be, and the people around you":
     "Приветствия, вы и я, глагол «быть» и люди вокруг вас",
-  "You start from nothing and build up the way a sentence does. Five words on the first evening, then I, you, he and she, then the verb to be with its six endings. After that come the little words that hold a sentence together, a few greetings and questions, and the people in your life. By the end you can say hello, ask where somebody lives and tell them who's in your family.":
-    "Вы начинаете с нуля и строите всё так, как строится предложение. Пять слов в первый вечер, потом я, ты, он и она, потом глагол «быть» с его шестью окончаниями. Дальше маленькие слова, которые держат предложение вместе, несколько приветствий и вопросов и люди в вашей жизни. К концу вы сможете поздороваться, спросить, где человек живёт, и рассказать, кто есть в вашей семье.",
   "Your name, numbers, your home, and the verbs you'll use every day":
     "Ваше имя, числа, ваш дом и глаголы на каждый день",
   "Your name and where you live, how to count, the rooms of your home, and the eleven verbs you'll need in almost every sentence you ever say. By the end you can introduce yourself, count, and describe where you live.":
@@ -940,8 +934,6 @@ export const TODAY: Area = {
     "Последняя часть A1. Слова о том, как что-то сделано, и маленькие слова, которые меняют смысл глагола. Потом ещё повседневное: еда, места в городе и люди, которые там работают, десять глаголов, которые знает любой ребёнок, и ещё десять слов для описания. Заканчивается всё просьбой о помощи, и к этому времени у вас есть все слова, которые нужны для A1.",
   "Asking for things, yesterday, the outdoors, the body and the house":
     "Просьбы, вчерашний день, природа, тело и дом",
-  "A2 starts with what makes a conversation possible: asking for something without sounding like a robot. Then the past tense, and your first case endings, starting with the one all the others are built on. By the end you can say what you did yesterday and what's wrong with you, and your first two conversations are waiting.":
-    "A2 начинается с того, без чего не бывает разговора: как попросить о чём-то и не звучать как робот. Потом прошедшее время и ваши первые падежные окончания, начиная с того, на котором строятся все остальные. К концу вы сможете рассказать, что делали вчера и что у вас болит, а вас ждут первые два разговора.",
   "School, travel, the town, a free afternoon, and comparing things":
     "Учёба, поездки, город, свободный день и сравнение",
   "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are four conversations to practise on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
@@ -952,8 +944,6 @@ export const TODAY: Area = {
     "Разговор о том, что ещё не случилось, общение с людьми и как сказать, что вы обо всём этом чувствуете. Здесь пять разговоров, больше, чем в любой другой части. К концу вы сможете пообедать в ресторане целиком по-эстонски, записаться на приём и позвонить, чтобы о нём договориться.",
   "Objects, the people in your life, what each verb asks for, money, and would":
     "Дополнение, люди в вашей жизни, чего требует каждый глагол, деньги и «бы»",
-  "Two things separate knowing Estonian words from knowing Estonian: getting the object of a sentence right, and knowing which ending each verb wants after it. You learn each one on everyday words, first the people in your life, then work and money. Then comes would, for wishes and polite requests. Grammar and new words take turns, so it's never two weeks of tables.":
-    "Знание эстонских слов от знания эстонского отделяют две вещи: правильное дополнение в предложении и знание того, какое окончание требует после себя каждый глагол. Каждую вы учите на повседневных словах, сначала о людях в вашей жизни, потом о работе и деньгах. Потом приходит «бы», для желаний и вежливых просьб. Грамматика и новые слова чередуются, так что двух недель сплошных таблиц не будет.",
   "School, two new past forms, renting, what people are like, and the news":
     "Учёба, две новые формы прошедшего, аренда, какие бывают люди и новости",
   "School and a job interview first. Then the verb forms ending in -nud and -tud, and the two past tenses built from them. Then renting a flat, what people are like, and the news, which leans on those same forms to say what happened without saying who did it. By the end you can get through an interview, read a news story and phone a landlord.":
@@ -964,8 +954,6 @@ export const TODAY: Area = {
     "Как спорить с собеседником, о чём спорят в газетах и как справиться, когда что-то сломалось. B1 заканчивается глаголами из двух частей, потому что они подчиняются тому же правилу дополнения, которое вы встретили в начале B1. К концу вы сможете отстоять свою точку зрения, не переходя на английский.",
   "Leaving out who did it, society, hearsay, the economy, and doing two things at once":
     "Без указания, кто это сделал, общество, пересказ, экономика и два действия сразу",
-  "Estonian has three ways of telling you what happened without saying who did it. You learn each one alongside the words it usually comes with: the impersonal with society, the reported form with the economy, and then the form for doing two things at once. By the end you can read a report that never names anybody.":
-    "В эстонском есть три способа рассказать, что произошло, не говоря, кто это сделал. Каждый вы учите вместе со словами, с которыми он обычно встречается: безличную форму с темой общества, пересказывательную с экономикой, а потом форму для двух действий сразу. К концу вы сможете прочитать отчёт, в котором никто не назван.",
   "History, building new words, politics, health and science":
     "История, образование новых слов, политика, здоровье и наука",
   "It opens on had done, the past before the past, learned on history, where you'll meet it most. Then how to work out a word you've never seen from one you already know, and three subjects to try it on. By the end you can read an opinion piece on any of them without a dictionary open.":
@@ -976,8 +964,6 @@ export const TODAY: Area = {
     "Конец B2: искусство, как подать настоящую жалобу, как описать поведение людей, работа на эстонском, чтение таблицы с цифрами и аргумент, который сначала немного уступает, а потом побеждает.",
   "Saying more in fewer words, and long sentences that hold together":
     "Сказать больше меньшим числом слов, и длинные предложения, которые держатся вместе",
-  "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole clause for. You practise it on academic writing, research and philosophy, which is where you'll need it most.":
-    "C1 в основном о том, как сказать больше меньшими средствами: уместить в оборот то, для чего на B2 нужно было целое придаточное. Вы тренируете это на академических текстах, исследованиях и философии, где это понадобится больше всего.",
   "Ethics, persuasion, how formal to be, idioms, and holding a text together":
     "Этика, убеждение, насколько официально говорить, идиомы и связный текст",
   "Knowing how formal to be and getting it right, winning over somebody who disagrees, and the set phrases no rule will ever explain.":
@@ -1567,8 +1553,6 @@ export const TODAY: Area = {
     "Вечорів: {done} з {total}",
   "This part":
     "Ця частина",
-  "Tonight":
-    "Сьогодні",
   "evenings {from} to {to}":
     "вечори з {from} по {to}",
   "evening {n}":
@@ -1701,8 +1685,6 @@ export const TODAY: Area = {
     "Не зараз",
   "Got it":
     "Зрозуміло",
-  "That didn't get through to us. Give it a moment and try again.":
-    "До нас це не дійшло. Зачекайте трохи й спробуйте ще раз.",
   "That's the end of the page":
     "Це кінець сторінки",
   "Move on and that's step {n} of {of} done.":
@@ -1885,8 +1867,6 @@ export const TODAY: Area = {
   // THE PARTS OF THE COURSE: WHAT EACH IS ABOUT, AND WHAT FINISHING IT MEANS.
   "Hello, you and me, the verb to be, and the people around you":
     "Вітання, ви і я, дієслово «бути» і люди навколо вас",
-  "You start from nothing and build up the way a sentence does. Five words on the first evening, then I, you, he and she, then the verb to be with its six endings. After that come the little words that hold a sentence together, a few greetings and questions, and the people in your life. By the end you can say hello, ask where somebody lives and tell them who's in your family.":
-    "Ви починаєте з нуля і будуєте все так, як будується речення. П'ять слів першого вечора, потім я, ти, він і вона, потім дієслово «бути» з його шістьма закінченнями. Далі маленькі слова, що тримають речення разом, кілька привітань і запитань та люди у вашому житті. Наприкінці ви зможете привітатися, спитати, де людина живе, і розповісти, хто є у вашій родині.",
   "Your name, numbers, your home, and the verbs you'll use every day":
     "Ваше ім'я, числа, ваш дім і дієслова на щодень",
   "Your name and where you live, how to count, the rooms of your home, and the eleven verbs you'll need in almost every sentence you ever say. By the end you can introduce yourself, count, and describe where you live.":
@@ -1913,8 +1893,6 @@ export const TODAY: Area = {
     "Остання частина A1. Слова про те, як щось зроблено, і маленькі слова, що змінюють значення дієслова. Потім ще повсякденне: їжа, місця в місті й люди, які там працюють, десять дієслів, які знає будь-яка дитина, і ще десять слів для опису. Завершується все проханням про допомогу, і на той час у вас є всі слова, потрібні для A1.",
   "Asking for things, yesterday, the outdoors, the body and the house":
     "Прохання, учорашній день, природа, тіло і дім",
-  "A2 starts with what makes a conversation possible: asking for something without sounding like a robot. Then the past tense, and your first case endings, starting with the one all the others are built on. By the end you can say what you did yesterday and what's wrong with you, and your first two conversations are waiting.":
-    "A2 починається з того, без чого не буває розмови: як попросити про щось і не звучати як робот. Потім минулий час і ваші перші відмінкові закінчення, починаючи з того, на якому будуються всі інші. Наприкінці ви зможете розповісти, що робили вчора і що у вас болить, а на вас чекають перші дві розмови.",
   "School, travel, the town, a free afternoon, and comparing things":
     "Навчання, подорожі, місто, вільний день і порівняння",
   "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are four conversations to practise on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
@@ -1925,8 +1903,6 @@ export const TODAY: Area = {
     "Розмова про те, що ще не сталося, спілкування з людьми і як сказати, що ви про все це відчуваєте. Тут п'ять розмов, більше, ніж у будь-якій іншій частині. Наприкінці ви зможете пообідати в ресторані цілком естонською, записатися на прийом і зателефонувати, щоб про нього домовитися.",
   "Objects, the people in your life, what each verb asks for, money, and would":
     "Додаток, люди у вашому житті, чого вимагає кожне дієслово, гроші й «б»",
-  "Two things separate knowing Estonian words from knowing Estonian: getting the object of a sentence right, and knowing which ending each verb wants after it. You learn each one on everyday words, first the people in your life, then work and money. Then comes would, for wishes and polite requests. Grammar and new words take turns, so it's never two weeks of tables.":
-    "Знання естонських слів від знання естонської відділяють дві речі: правильний додаток у реченні та знання того, яке закінчення вимагає після себе кожне дієслово. Кожну ви вчите на повсякденних словах, спершу про людей у вашому житті, потім про роботу й гроші. Потім приходить «б», для бажань і ввічливих прохань. Граматика й нові слова чергуються, тож двох тижнів суцільних таблиць не буде.",
   "School, two new past forms, renting, what people are like, and the news":
     "Навчання, дві нові форми минулого, оренда, які бувають люди і новини",
   "School and a job interview first. Then the verb forms ending in -nud and -tud, and the two past tenses built from them. Then renting a flat, what people are like, and the news, which leans on those same forms to say what happened without saying who did it. By the end you can get through an interview, read a news story and phone a landlord.":
@@ -1937,8 +1913,6 @@ export const TODAY: Area = {
     "Як сперечатися зі співрозмовником, про що сперечаються в газетах і як упоратися, коли щось зламалося. B1 завершується дієсловами з двох частин, бо вони підкоряються тому самому правилу додатка, яке ви зустріли на початку B1. Наприкінці ви зможете обстояти свою думку, не переходячи на англійську.",
   "Leaving out who did it, society, hearsay, the economy, and doing two things at once":
     "Без вказівки, хто це зробив, суспільство, переказ, економіка і дві дії одночасно",
-  "Estonian has three ways of telling you what happened without saying who did it. You learn each one alongside the words it usually comes with: the impersonal with society, the reported form with the economy, and then the form for doing two things at once. By the end you can read a report that never names anybody.":
-    "В естонській є три способи розповісти, що сталося, не кажучи, хто це зробив. Кожен ви вчите разом зі словами, з якими він зазвичай трапляється: безособову форму з темою суспільства, переказну з економікою, а потім форму для двох дій одночасно. Наприкінці ви зможете прочитати звіт, у якому нікого не названо.",
   "History, building new words, politics, health and science":
     "Історія, творення нових слів, політика, здоров'я і наука",
   "It opens on had done, the past before the past, learned on history, where you'll meet it most. Then how to work out a word you've never seen from one you already know, and three subjects to try it on. By the end you can read an opinion piece on any of them without a dictionary open.":
@@ -1949,8 +1923,6 @@ export const TODAY: Area = {
     "Кінець B2: мистецтво, як подати справжню скаргу, як описати поведінку людей, робота естонською, читання таблиці з цифрами й аргумент, який спершу трохи поступається, а потім перемагає.",
   "Saying more in fewer words, and long sentences that hold together":
     "Сказати більше меншою кількістю слів, і довгі речення, що тримаються разом",
-  "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole clause for. You practise it on academic writing, research and philosophy, which is where you'll need it most.":
-    "C1 здебільшого про те, як сказати більше меншими засобами: умістити в зворот те, для чого на B2 потрібне було ціле підрядне речення. Ви тренуєте це на академічних текстах, дослідженнях і філософії, де це знадобиться найбільше.",
   "Ethics, persuasion, how formal to be, idioms, and holding a text together":
     "Етика, переконання, наскільки офіційно говорити, ідіоми і зв'язний текст",
   "Knowing how formal to be and getting it right, winning over somebody who disagrees, and the set phrases no rule will ever explain.":

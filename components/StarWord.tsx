@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { Star } from "lucide-react";
 import { toggleStar } from "@/app/actions";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * FAVORITE THIS WORD, WHEREVER THE WORD IS.
@@ -67,6 +69,7 @@ export function StarWord({
     pattern for a state that a prop supersedes, and it re-renders immediately
     rather than after a paint, so nothing is ever drawn in the stale state.
   */
+  const t = useT();
   const known = pressed.get(lexemeId) ?? starred;
   const [shown, setShown] = useState({ lexemeId, starred: known });
   if (shown.lexemeId !== lexemeId) setShown({ lexemeId, starred: known });
@@ -86,7 +89,7 @@ export function StarWord({
         it has just disabled. A second press waits for the first instead.
       */
       aria-pressed={on}
-      aria-label={`Favorite ${label}`}
+      aria-label={fill(t("Favorite {word}"), { word: label })}
       aria-busy={pending || undefined}
       className="tap-tint flex h-9 w-9 items-center justify-center rounded-full"
       style={{ color: on ? "var(--accent-deep)" : "var(--ink-3)" }}

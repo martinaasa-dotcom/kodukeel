@@ -24,8 +24,12 @@ import {
 } from "@/lib/srs/reviewQueue";
 import { include, withChoices, type CardRow } from "./cards";
 import { firstParams } from "@/lib/ux/queryParam";
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Review" };
+export async function generateMetadata() {
+  return { title: tr(await localeFor(await requireUserId()), "Review") };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -407,7 +411,7 @@ export default async function ReviewPage({
         cards={cards}
         totalCards={totalCards}
         mode={mode}
-        nextDue={next && clock ? nextCardLine(next.due, now, clock) : null}
+        nextDue={next && clock ? nextCardLine(next.due, now, clock, await localeFor(ownerId)) : null}
         waitingOnCourse={unseenAnywhere > 0}
       />
     </BeforeYouStart>

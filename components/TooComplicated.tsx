@@ -6,6 +6,8 @@ import { Button } from "@/components/Button";
 import { putWordAside } from "@/app/actions";
 import { awayIn, DEFER_DAYS } from "@/lib/srs/defer";
 import { useModalFocus } from "@/components/useModalFocus";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 /**
  * TOO COMPLICATED, WHEREVER THE WORD IS.
@@ -55,6 +57,8 @@ export function TooComplicated({
   onDone: (note: string) => void;
 }) {
   const [pending, start] = useTransition();
+  const t = useT();
+  const locale = useLocale();
   const [failed, setFailed] = useState(false);
   const [asking, setAsking] = useState(false);
   const dialog = useRef<HTMLDivElement>(null);
@@ -97,12 +101,13 @@ export function TooComplicated({
     });
   };
 
+  const [putBefore, putAfter = ""] = t("Put {word} aside?").split("{word}");
   return (
-    <span className="flex items-center gap-2">
+    <span className="flex items-center gap-2" lang={locale}>
       <button
         type="button"
         disabled={pending}
-        aria-label={`Ask about putting ${label} aside for now`}
+        aria-label={fill(t("Ask about putting {word} aside for now"), { word: label })}
         className="tap-tint flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm font-semibold disabled:opacity-40"
         style={{ color: "var(--ink-3)" }}
         onClick={() => {
@@ -112,7 +117,7 @@ export function TooComplicated({
       >
         {/* Icon alone on a phone, so the card's header stays one line. */}
         <CalendarClock size={13} aria-hidden />
-        <span className="sr-only whitespace-nowrap sm:not-sr-only">Too complicated</span>
+        <span className="sr-only whitespace-nowrap sm:not-sr-only">{t("Too complicated")}</span>
       </button>
 
       {asking && (
@@ -131,24 +136,24 @@ export function TooComplicated({
             onClick={(e) => e.stopPropagation()}
           >
             <p id={`too-complicated-${lexemeId}`} className="text-base font-bold" style={{ color: "var(--ink)" }}>
-              Put <span lang="et">{label}</span> aside?
+              {putBefore}<span lang="et">{label}</span>{putAfter}
             </p>
             <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-              We&apos;ll take it out of your reviews for now, so it stops popping up on cards.
-              It comes back by itself in {awayIn(DEFER_DAYS)}, or once you reach the level it
-              belongs to. You can bring it back sooner any time from My words.
+              {fill(t("We'll take it out of your reviews for now, so it stops popping up on cards. It comes back by itself in {away}, or once you reach the level it belongs to. You can bring it back sooner any time from My words."), {
+                away: locale === "en" ? awayIn(DEFER_DAYS) : countOf(locale, DEFER_DAYS, "day"),
+              })}
             </p>
             {failed && (
               <p className="mt-3 text-sm" role="status" style={{ color: "var(--hard-ink)" }}>
-                That didn&apos;t save. Try again.
+                {t("That didn't save. Try again.")}
               </p>
             )}
             <div className="mt-5 flex justify-end gap-2">
               <Button ref={cancel} variant="secondary" onClick={() => setAsking(false)} disabled={pending}>
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button variant="primary" onClick={confirm} disabled={pending}>
-                Put it aside
+                {t("Put it aside")}
               </Button>
             </div>
           </div>

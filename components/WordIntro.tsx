@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/Locale";
+
 import { Speak } from "@/components/Speak";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
@@ -109,6 +111,8 @@ export function WordIntro({
     evening it arrives, which is exactly the sentence the paragraph above says
     a beginner could not be given: a word doing something, in words they have.
   */
+  const t = useT();
+  const [usuallyBefore, usuallyAfter = ""] = t("People usually say {word}.").split("{word}");
   const showSentence = sentence !== null && (cefr !== "A1" || sentence.authored);
   // A sentence exists and is deliberately not shown: an A1 word is met on
   // its own. "No example sentence for this one yet" would be untrue here,
@@ -125,13 +129,12 @@ export function WordIntro({
       </div>
       {gloss && (
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          {sameSpelling(lemma, gloss) ? SAME_SPELLING : gloss}
+          {sameSpelling(lemma, gloss) ? t(SAME_SPELLING) : gloss}
         </p>
       )}
       {alsoSaid && (
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          People usually say{" "}
-          <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{alsoSaid}</span>.
+          {usuallyBefore}<span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{alsoSaid}</span>{usuallyAfter}
         </p>
       )}
       {equivalent && (
@@ -144,7 +147,7 @@ export function WordIntro({
 
       {firstCardEver && (
         <p className="max-w-md text-sm" style={{ color: "var(--ink-2)" }}>
-          {firstMeetingNote(showSentence)}
+          {t(firstMeetingNote(showSentence))}
         </p>
       )}
 
@@ -190,8 +193,8 @@ export function WordIntro({
            on the first cards anybody meets. */
         <p className="max-w-[38ch] text-sm" style={{ color: "var(--ink-3)" }}>
           {isPhrase
-            ? "This one's a whole phrase, used just as it is. Say it out loud a couple of times."
-            : "No example sentence for this one yet. Try saying it out loud a couple of times."}
+            ? t("This one's a whole phrase, used just as it is. Say it out loud a couple of times.")
+            : t("No example sentence for this one yet. Try saying it out loud a couple of times.")}
         </p>
       )}
 
