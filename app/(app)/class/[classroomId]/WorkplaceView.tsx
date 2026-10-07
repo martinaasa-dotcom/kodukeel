@@ -2,6 +2,7 @@ import { Building2 } from "lucide-react";
 import { BAND_LABEL, QUIET_DAYS, sharesCounts, type CohortSummary, type ReadinessBand } from "@/lib/classroom/cohort";
 import { EVIDENCE_LABEL, EVIDENCE_NOTE } from "@/lib/exam/readiness";
 import { Card, Chip, Empty, Note, SectionTitle, StatTile } from "@/components/ui";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * A sponsored group, as the sponsor sees it.
@@ -19,11 +20,19 @@ import { Card, Chip, Empty, Note, SectionTitle, StatTile } from "@/components/ui
  * What is left is what somebody paying for this can act on: who is practicing,
  * and who is on track for the paper the group is aiming at.
  */
-export function WorkplaceView({ summary, sponsor }: {
+export function WorkplaceView({ summary, sponsor, locale }: {
   summary: CohortSummary;
   /** False for a member looking at the group they are in. */
   sponsor: boolean;
+  /** The reader's language, handed down by the page since this draws on the server. */
+  locale: Locale;
 }) {
+  const t = (english: string) => tr(locale, english);
+  /* "Close" is also the button that shuts a panel, and the table holds one
+     translation per English line, so the band is looked up by a longer key
+     outside English, where it means close to passing. */
+  const bandLabel = (band: ReadinessBand) =>
+    band === "close" && locale !== "en" ? t("Close to passing") : t(BAND_LABEL[band]);
   const { counts } = summary;
   const named = counts.likely + counts.close + counts.far;
 
@@ -33,14 +42,14 @@ export function WorkplaceView({ summary, sponsor }: {
           "Practiced" 83px of the 94 it needs, drawn across two lines. */}
       {sharesCounts(summary.members.length, sponsor) ? (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-3">
-          <StatTile value={summary.members.length} label="People" tone="sky" />
-          <StatTile value={summary.active} label={`Practiced in ${QUIET_DAYS} days`} tone="sky" />
-          <StatTile value={counts.likely} label={`On track for ${summary.level}`} tone="accent" />
+          <StatTile value={summary.members.length} label={t("People")} tone="sky" />
+          <StatTile value={summary.active} label={fill(t("Practiced in {days}"), { days: countOf(locale, QUIET_DAYS, "day") })} tone="sky" />
+          <StatTile value={counts.likely} label={fill(t("On track for {level}"), { level: summary.level })} tone="accent" />
         </div>
       ) : (
         /* A group this small would name somebody by subtraction: see `MIN_GROUP_TO_SHARE`. */
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-3">
-          <StatTile value={summary.members.length} label="People" tone="sky" />
+          <StatTile value={summary.members.length} label={t("People")} tone="sky" />
         </div>
       )}
 
@@ -56,12 +65,12 @@ export function WorkplaceView({ summary, sponsor }: {
       */}
       {sponsor && (
       <section>
-        <SectionTitle hint={EVIDENCE_LABEL[summary.evidence]}>Where everyone is</SectionTitle>
+        <SectionTitle hint={t(EVIDENCE_LABEL[summary.evidence])}>{t("Where everyone is")}</SectionTitle>
 
         {summary.members.length <= 1 ? (
           <Empty
-            title="Nobody has joined yet"
-            body="Share the join code. People appear here as they join and start reviewing."
+            title={t("Nobody has joined yet")}
+            body={t("Share the join code. People appear here as they join and start reviewing.")}
           />
         ) : (
           <ul className="flex flex-col gap-1.5">
@@ -94,14 +103,14 @@ export function WorkplaceView({ summary, sponsor }: {
                     </span>
                     <span className="block text-xs" style={{ color: quiet ? "var(--hard-ink)" : "var(--ink-3)" }}>
                       {member.daysSinceLastReview === null
-                        ? "no reviews yet"
+                        ? t("no reviews yet")
                         : member.daysSinceLastReview === 0
-                          ? "reviewed today"
-                          : `last review ${member.daysSinceLastReview} day${member.daysSinceLastReview === 1 ? "" : "s"} ago`}
-                      {member.reviewsThisWeek > 0 && `, ${member.reviewsThisWeek} this week`}
+                          ? t("reviewed today")
+                          : fill(t("last review {days} ago"), { days: countOf(locale, member.daysSinceLastReview, "day") })}
+                      {member.reviewsThisWeek > 0 && `, ${fill(t("{n} this week"), { n: member.reviewsThisWeek })}`}
                     </span>
                   </span>
-                  <Chip tone={BAND_TONE[member.band]}>{BAND_LABEL[member.band]}</Chip>
+                  <Chip tone={BAND_TONE[member.band]}>{bandLabel(member.band)}</Chip>
                 </li>
               );
             })}
@@ -116,11 +125,11 @@ export function WorkplaceView({ summary, sponsor }: {
         */}
         {named > 0 && (
           <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-            {EVIDENCE_NOTE[summary.evidence]}{" "}
+            {t(EVIDENCE_NOTE[summary.evidence])}{" "}
             {counts.unknown > 0 && (
               counts.unknown === 1
-                ? "One person hasn't practiced enough yet for us to tell where they stand."
-                : `${counts.unknown} people haven't practiced enough yet for us to tell where they stand.`
+                ? t("One person hasn't practiced enough yet for us to tell where they stand.")
+                : fill(t("{n} people haven't practiced enough yet for us to tell where they stand."), { n: counts.unknown })
             )}
           </p>
         )}
@@ -129,9 +138,7 @@ export function WorkplaceView({ summary, sponsor }: {
 
       {sponsor && (
         <Note tone="neutral">
-          You see who&rsquo;s practicing and roughly where they stand. You don&rsquo;t see anybody&rsquo;s
-          deck, their searches, their answers, or which grammar they find hard. This page never even
-          fetches those, so there&rsquo;s nothing hidden here to find.
+          {t("You see who's practicing and roughly where they stand. You don't see anybody's deck, their searches, their answers, or which grammar they find hard. This page never even fetches those, so there's nothing hidden here to find.")}
         </Note>
       )}
 
@@ -141,12 +148,10 @@ export function WorkplaceView({ summary, sponsor }: {
             <Building2 size={20} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
             <div>
               <p className="text-base" style={{ color: "var(--ink-2)" }}>
-                Whoever runs this group sees your name, whether you&rsquo;ve been practicing, and one of
-                four bands for {summary.level}. They don&rsquo;t see your deck, your searches, your
-                answers, or which grammar you find hard.
+                {fill(t("Whoever runs this group sees your name, whether you've been practicing, and one of four bands for {level}. They don't see your deck, your searches, your answers, or which grammar you find hard."), { level: summary.level })}
               </p>
               <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-                If you leave, all of that stops straight away, and your own deck stays exactly as it is.
+                {t("If you leave, all of that stops straight away, and your own deck stays exactly as it is.")}
               </p>
             </div>
           </div>

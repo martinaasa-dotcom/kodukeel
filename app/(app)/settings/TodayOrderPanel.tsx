@@ -6,6 +6,8 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { setTodayOrder } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { TODAY_CARDS } from "@/lib/ux/disclosure";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 import {
   DEFAULT_TODAY_ORDER, isDefaultTodayOrder, moveSlot, serialiseTodayOrder,
   TODAY_SLOTS, type TodaySlot,
@@ -30,6 +32,8 @@ import {
  * discovers by their homework going missing. The rows past the cut say so.
  */
 export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) {
+  const t = useT();
+  const locale = useLocale();
   const [order, setOrder] = useState<readonly TodaySlot[]>(current);
   const [message, setMessage] = useState("");
   const [pending, start] = useTransition();
@@ -45,7 +49,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
       const landed = await setTodayOrder(serialiseTodayOrder(next)).then(() => true).catch(() => false);
       if (!landed) {
         setOrder(was);
-        setMessage("That didn't save, so we've put the order back the way it was.");
+        setMessage(t("That didn't save, so we've put the order back the way it was."));
         return;
       }
       router.refresh();
@@ -55,8 +59,10 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
   const move = (slot: TodaySlot, direction: "up" | "down") => {
     const next = moveSlot(order, slot, direction);
     const to = next.indexOf(slot) + 1;
-    const title = byId.get(slot)?.title ?? slot;
-    save(next, `${title} is now ${ordinal(to)}${to > TODAY_CARDS ? ", so it only appears on days when there's room" : ""}.`);
+    const title = t(byId.get(slot)?.title ?? slot);
+    // A position is a word in English and a number in the other two, which say "number 3" rather than inflect an ordinal for the card's gender.
+    const place = locale === "en" ? ordinal(to) : String(to);
+    save(next, fill(t(to > TODAY_CARDS ? "{title} is now {place}, so it only appears on days when there's room." : "{title} is now {place}."), { title, place }));
   };
 
   return (
@@ -74,7 +80,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
                  it on each row instead. */
               <li aria-hidden className="flex items-center gap-3 px-1 pt-2 text-xs" style={{ color: "var(--ink-3)" }}>
                 <span className="h-px flex-1" style={{ background: "var(--rule)" }} />
-                These only appear on days when a card above has nothing to show
+                {t("These only appear on days when a card above has nothing to show")}
                 <span className="h-px flex-1" style={{ background: "var(--rule)" }} />
               </li>
             )}
@@ -94,15 +100,15 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>
-                  {entry.title}
+                  {t(entry.title)}
                 </span>
                 <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                  {entry.detail}
+                  {t(entry.detail)}
                   {/*
                     Said in words rather than by the tint alone, since a
                     greyer row is a hue carrying a distinction on its own.
                   */}
-                  {pastCut ? <span className="sr-only"> Only appears on days when a card above it has nothing to show.</span> : null}
+                  {pastCut ? <span className="sr-only"> {t("Only appears on days when a card above it has nothing to show.")}</span> : null}
                 </span>
               </span>
               {/* Stacked until the list has room for them side by side: two
@@ -112,7 +118,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
               <span className="flex shrink-0 flex-col items-center gap-1 @sm:flex-row">
                 <Button
                   size="sm"
-                  aria-label={`Move ${entry.title} up`}
+                  aria-label={fill(t("Move {title} up"), { title: t(entry.title) })}
                   disabled={pending || i === 0}
                   onClick={() => move(slot, "up")}
                 >
@@ -120,7 +126,7 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
                 </Button>
                 <Button
                   size="sm"
-                  aria-label={`Move ${entry.title} down`}
+                  aria-label={fill(t("Move {title} down"), { title: t(entry.title) })}
                   disabled={pending || i === order.length - 1}
                   onClick={() => move(slot, "down")}
                 >
@@ -139,9 +145,9 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
           <Button
             size="sm"
             disabled={pending}
-            onClick={() => save(DEFAULT_TODAY_ORDER, "Back to the usual order.")}
+            onClick={() => save(DEFAULT_TODAY_ORDER, t("Back to the usual order."))}
           >
-            Go back to the usual order
+            {t("Go back to the usual order")}
           </Button>
         )}
       </div>

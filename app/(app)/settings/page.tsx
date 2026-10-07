@@ -19,6 +19,7 @@ import { uiText } from "@/lib/copy/uiLanguage";
 import { Card, Chip, KeyCap, Page, SectionTitle, Stack } from "@/components/ui";
 import { Explain } from "@/components/Explain";
 import { StartProgramme } from "@/components/course/StartProgramme";
+import { filled } from "@/components/Filled";
 
 import { courseReading, openingPartFor, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
@@ -34,7 +35,7 @@ import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPan
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossLanguagePanel } from "./GlossLanguagePanel";
 import { InterfaceLanguagePanel } from "./InterfaceLanguagePanel";
-import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, localeFrom, tr } from "@/lib/copy/locale";
+import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, countOf, fill, localeFrom, tr } from "@/lib/copy/locale";
 import { RoundPacePanel } from "./RoundPacePanel";
 import { ROUND_PACES, roundPaceFrom } from "@/lib/ux/roundClock";
 import { TodayOrderPanel } from "./TodayOrderPanel";
@@ -204,14 +205,15 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const levelPace = paceFor(courseLevel, tilt);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
   const locale = localeFrom(settings[SETTING_KEYS.uiLocale]);
+  const t = (english: string) => tr(locale, english);
   const wordGloss = wordGlossFrom(settings[SETTING_KEYS.wordGloss]);
   const caseGlossPref = caseGlossFrom(settings[SETTING_KEYS.caseQuestionGloss]);
   const todayOrder = todayOrderFrom(settings[SETTING_KEYS.todayOrder]);
   const roundPace = roundPaceFrom(settings[SETTING_KEYS.roundPace]);
   const roundPaceName =
-    ROUND_PACES.find((p) => p.id === roundPace)?.label ?? "Standard";
+    t(ROUND_PACES.find((p) => p.id === roundPace)?.label ?? "Standard");
   const glossLanguageName =
-    GLOSS_LANGUAGES.find((l) => l.id === glossLanguage)?.label ?? "English";
+    t(GLOSS_LANGUAGES.find((l) => l.id === glossLanguage)?.label ?? "English");
   const displayName = settings[SETTING_KEYS.displayName] ?? (learner.name === "you" ? "" : learner.name);
   /*
     Whether the level on screen is one a check produced, which is the only
@@ -224,42 +226,41 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
   return (
     <Page route="/settings"
-      title="Settings"
+      title={t("Settings")}
       lead={
         hosted
-          ? "Your cards, reviews and tasks are yours alone. Nobody else can see them."
-          : "This copy runs on your own computer, so nothing gets uploaded anywhere."
+          ? t("Your cards, reviews and tasks are yours alone. Nobody else can see them.")
+          : t("This copy runs on your own computer, so nothing gets uploaded anywhere.")
       }
     >
       <Stack>
-        <nav aria-label="Settings sections" className="flex flex-wrap gap-2">
-          {TABS.map((t) => (
+        <nav aria-label={t("Settings sections")} className="flex flex-wrap gap-2" lang={locale}>
+          {TABS.map((entry) => (
             <Link
-              key={t.id}
-              href={t.id === "study" ? "/settings" : `/settings?tab=${t.id}`}
-              aria-current={t.id === tab ? "page" : undefined}
-              data-on={t.id === tab ? "" : undefined}
+              key={entry.id}
+              href={entry.id === "study" ? "/settings" : `/settings?tab=${entry.id}`}
+              aria-current={entry.id === tab ? "page" : undefined}
+              data-on={entry.id === tab ? "" : undefined}
               className="choice-btn choice-chip press inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold"
             >
-              {t.label}
+              {t(entry.label)}
             </Link>
           ))}
         </nav>
         {tab === "study" && (
           <div className="flex flex-col gap-8">
           <section>
-            <SectionTitle hint={mode === "type" ? "typing" : "flipping"}>How cards ask you</SectionTitle>
+            <SectionTitle hint={t(mode === "type" ? "typing" : "flipping")}>{t("How cards ask you")}</SectionTitle>
             <Card>
               <ReviewModePanel current={mode} />
-              <Explain label="Why new cards show the answer">
-                Either way, a brand-new card shows you its answer first. Being asked for a word
-                you&rsquo;ve never seen wouldn&rsquo;t teach you anything.
+              <Explain label={t("Why new cards show the answer")}>
+                {t("Either way, a brand-new card shows you its answer first. Being asked for a word you've never seen wouldn't teach you anything.")}
               </Explain>
             </Card>
           </section>
 
           <section id="level">
-            <SectionTitle hint={courseLevel}>Your level</SectionTitle>
+            <SectionTitle hint={courseLevel}>{t("Your level")}</SectionTitle>
             <Card>
               <LevelPanel current={courseLevel} measured={measuredIsCurrent} />
             </Card>
@@ -267,30 +268,32 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
           <section id="goals">
             <SectionTitle
-              hint={latestCheck ? `measured ${levelLabel((latestCheck.overall ?? null) as never)}` : "not measured yet"}
+              hint={latestCheck ? fill(t("measured {level}"), { level: levelLabel((latestCheck.overall ?? null) as never) }) : t("not measured yet")}
             >
-              Why you&rsquo;re learning
+              {t("Why you're learning")}
             </SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                Your plan is built from these. Change them whenever your life does.
+                {t("Your plan is built from these. Change them whenever your life does.")}
               </p>
               <GoalsPanel current={goals} />
               <p className="mt-5 text-sm" style={{ color: "var(--ink-3)" }}>
-                <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
-                  Take the level check
-                </Link>{" "}
-                to find out where you are now.
+                {filled(t("{link} to find out where you are now."), {
+                  link: (
+                    <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
+                      {t("Take the level check")}
+                    </Link>
+                  ),
+                })}
               </p>
             </Card>
           </section>
 
           <section>
-            <SectionTitle hint={`${dailyGoal} reviews/day`}>Daily goal</SectionTitle>
+            <SectionTitle hint={fill(t("{n} reviews/day"), { n: dailyGoal })}>{t("Daily goal")}</SectionTitle>
             <Card>
               <p className="mb-4 text-sm" style={{ color: "var(--ink-2)" }}>
-                How many cards you&rsquo;d like to get through each day.
-                It&rsquo;s there to keep you going, and it never stops you doing more.
+                {t("How many cards you'd like to get through each day. It's there to keep you going, and it never stops you doing more.")}
               </p>
               <DailyGoalPanel currentGoal={dailyGoal} />
             </Card>
@@ -306,15 +309,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             the log whichever screen the answers came from.
           */}
           <section id="course">
-            <SectionTitle hint={programme ? `day ${programmeDay} of ${programme.days.length}` : "off"}>
-              The planned course
+            <SectionTitle hint={programme ? fill(t("day {day} of {total}"), { day: programmeDay, total: programme.days.length }) : t("off")}>
+              {t("The planned course")}
             </SectionTitle>
             <Card>
               <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {programme
-                  ? <>You&rsquo;re following {uiText(courseLevel, programme.title, programme.subtitle)}. Each evening it
-                      picks your words and games for you, and tonight&rsquo;s plan sits at the top of
-                      Today.</>
+                  ? fill(t("You're following {course}. Each evening it picks your words and games for you, and tonight's plan sits at the top of Today."), { course: uiText(courseLevel, programme.title, programme.subtitle) })
                   : <>{opening?.blurb}</>}
               </p>
               <div className="mt-4">
@@ -329,13 +330,12 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           <section id="today">
-            <SectionTitle hint={isDefaultTodayOrder(todayOrder) ? "the usual order" : "your order"}>
-              Your Today page
+            <SectionTitle hint={t(isDefaultTodayOrder(todayOrder) ? "the usual order" : "your order")}>
+              {t("Your Today page")}
             </SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                Put the cards on Today in the order you like. The big button at the top always stays
-                put, and Today shows the first {TODAY_CARDS} of these that have something for you.
+                {fill(t("Put the cards on Today in the order you like. The big button at the top always stays put, and Today shows the first {n} of these that have something for you."), { n: TODAY_CARDS })}
               </p>
               <TodayOrderPanel current={todayOrder} />
             </Card>
@@ -354,16 +354,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             clock, because a paper is imitating a timed examination.
           */}
           <section id="round-pace">
-            <SectionTitle hint={roundPaceName}>Time on the clock</SectionTitle>
+            <SectionTitle hint={roundPaceName}>{t("Time on the clock")}</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                Three games race the clock: the Case Sprint, the daily quest and Target. Choose how
-                much time you&rsquo;d like. Everything else about them stays the same.
+                {t("Three games race the clock: the Case Sprint, the daily quest and Target. Choose how much time you'd like. Everything else about them stays the same.")}
               </p>
               <RoundPacePanel current={roundPace} />
-              <Explain label="Why the mock exam keeps its own timing">
-                The mock exam is practice for the real state exam, so every part keeps the real
-                exam&rsquo;s timings.
+              <Explain label={t("Why the mock exam keeps its own timing")}>
+                {t("The mock exam is practice for the real state exam, so every part keeps the real exam's timings.")}
               </Explain>
             </Card>
           </section>
@@ -371,19 +369,18 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <section id="case-questions">
             <SectionTitle
               hint={
-                caseGlossPref
+                t(caseGlossPref
                   ? caseGlossPref === "on" ? "always shown" : "always hidden"
-                  : caseGlossDefaultFor(courseLevel) ? "shown at your level" : "hidden at your level"
+                  : caseGlossDefaultFor(courseLevel) ? "shown at your level" : "hidden at your level")
               }
             >
-              English under a case question
+              {t("English under a case question")}
             </SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                Questions like <span lang="et">milles? kus?</span> are always asked in Estonian. This
-                decides whether a short English translation appears underneath. Up to B1 it&rsquo;s
-                shown, while the fourteen cases are still new. From B2 it&rsquo;s hidden, because by
-                then a class expects you to know them by heart.
+                {filled(t("Questions like {question} are always asked in Estonian. This decides whether a short English translation appears underneath. Up to B1 it's shown, while the fourteen cases are still new. From B2 it's hidden, because by then a class expects you to know them by heart."), {
+                  question: <span lang="et">milles? kus?</span>,
+                })}
               </p>
               <CaseGlossPanel current={caseGlossPref} level={courseLevel} />
             </Card>
@@ -400,22 +397,21 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             voices come from the same Tartu service every clip in the app does.
           */}
           <section>
-            <SectionTitle hint={voiceName}>Voice</SectionTitle>
+            <SectionTitle hint={voiceName}>{t("Voice")}</SectionTitle>
             <Card className="flex flex-col gap-5">
               <div>
                 <p className="mb-3 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                  Choose who reads Estonian to you. Press the ear to hear a voice, and a name to choose it.
+                  {t("Choose who reads Estonian to you. Press the ear to hear a voice, and a name to choose it.")}
                   <CurrentVoiceSample />
                 </p>
                 <VoicePanel current={voice} />
-                <Explain label="Why change the voice">
-                  There are ten voices. The state examination has more than one speaker, so
-                  it&rsquo;s worth switching now and then to get used to different people.
+                <Explain label={t("Why change the voice")}>
+                  {t("There are ten voices. The state examination has more than one speaker, so it's worth switching now and then to get used to different people.")}
                 </Explain>
               </div>
               <div>
                 <h3 className="label-xs mb-2 flex flex-wrap items-center gap-2" style={{ color: "var(--ink-3)" }}>
-                  How fast
+                  {t("How fast")}
                   <CurrentPaceSample />
                 </h3>
                 <SpeechPacePanel
@@ -425,30 +421,27 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   // Only where the lean really moved the pace, since at A1 or C1 it cannot.
                   tilt={levelPace.id === paceFor(courseLevel).id ? 0 : tilt}
                 />
-                <Explain label="How the slow speed is made">
-                  Every speed plays the same recording, slowed down in your browser, so the voice and
-                  pitch don&rsquo;t change and the consonants stay crisp. The slow button next to a
-                  word always plays it slower still than whatever you pick here.
+                <Explain label={t("How the slow speed is made")}>
+                  {t("Every speed plays the same recording, slowed down in your browser, so the voice and pitch don't change and the consonants stay crisp. The slow button next to a word always plays it slower still than whatever you pick here.")}
                 </Explain>
               </div>
               <div>
-                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>When it speaks</h3>
+                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("When it speaks")}</h3>
                 <AutoplayPanel current={autoplay} />
               </div>
               <div>
-                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Sounds for right and wrong</h3>
+                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Sounds for right and wrong")}</h3>
                 <FeedbackSoundsPanel current={sounds} />
               </div>
               <div>
-                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Listening and dictation</h3>
+                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Listening and dictation")}</h3>
                 <HearingPanel current={hearing} />
-                <Explain label="What a hearing condition changes">
-                  The words stay the same. What changes is the speed, the voice and the background
-                  noise, because the receptionist won&rsquo;t slow down for you and the counter is never quiet.
+                <Explain label={t("What a hearing condition changes")}>
+                  {t("The words stay the same. What changes is the speed, the voice and the background noise, because the receptionist won't slow down for you and the counter is never quiet.")}
                 </Explain>
               </div>
               <div>
-                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>In a conversation</h3>
+                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("In a conversation")}</h3>
                 <SupportPanel current={support} />
               </div>
             </Card>
@@ -491,24 +484,21 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           <section id="meanings">
-            <SectionTitle hint={wordGloss === "off" ? `${glossLanguageName}, no underlines` : glossLanguageName}>
-              Meanings
+            <SectionTitle hint={wordGloss === "off" ? fill(t("{language}, no underlines"), { language: glossLanguageName }) : glossLanguageName}>
+              {t("Meanings")}
             </SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                Meanings can appear in Russian or Ukrainian too. The English always stays, and the
-                language you choose shows up next to it.
+                {t("Meanings can appear in Russian or Ukrainian too. The English always stays, and the language you choose shows up next to it.")}
               </p>
               <GlossLanguagePanel current={glossLanguage} />
-              <Explain label="Where these come from">
-                The Russian and Ukrainian come from the same dictionary as the Estonian. If none
-                was recorded for a word, you&rsquo;ll just see the English.
+              <Explain label={t("Where these come from")}>
+                {t("The Russian and Ukrainian come from the same dictionary as the Estonian. If none was recorded for a word, you'll just see the English.")}
               </Explain>
 
               <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule)" }}>
                 <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                  In an example sentence, the other words can be underlined so you can tap any of them
-                  to see what it means. With this off, the sentence stays plain and only the new word is marked.
+                  {t("In an example sentence, the other words can be underlined so you can tap any of them to see what it means. With this off, the sentence stays plain and only the new word is marked.")}
                 </p>
                 <WordGlossPanel current={wordGloss} />
               </div>
@@ -521,24 +511,23 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             draws no letter bar, so there is nothing here to decide.
           */}
           <section className="letters-choice">
-            <SectionTitle hint={letters === "on" ? "shown" : "hidden"}>Typing Estonian</SectionTitle>
+            <SectionTitle hint={t(letters === "on" ? "shown" : "hidden")}>{t("Typing Estonian")}</SectionTitle>
             <Card>
               <LetterBarPanel current={letters} />
-              <Explain label="Why only on a computer">
-                The letter buttons only appear on a computer. On a phone you already have these
-                letters: hold down a key, or switch to an Estonian keyboard.
+              <Explain label={t("Why only on a computer")}>
+                {t("The letter buttons only appear on a computer. On a phone you already have these letters: hold down a key, or switch to an Estonian keyboard.")}
               </Explain>
             </Card>
           </section>
 
           <section>
-            <SectionTitle>Keyboard</SectionTitle>
+            <SectionTitle>{t("Keyboard")}</SectionTitle>
             <Card>
               <div className="flex items-start gap-3">
                 <Keyboard size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    You can do a whole session without touching the mouse.
+                    {t("You can do a whole session without touching the mouse.")}
                   </p>
                   {/* Keyed on the room the list has rather than the window, and
                       the key column held to one width: at 768 Settings is two
@@ -548,13 +537,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                     {SHORTCUTS.map(([keys, what]) => (
                       <div key={keys} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
                         <dt>
-                          <KeyCap>{keys}</KeyCap>
+                          <KeyCap>{t(keys)}</KeyCap>
                         </dt>
                         {/* A basis rather than `flex-1` alone, so a long key takes its
                             own line and the words under it wrap onto the next one:
                             "1-4 (listening, choice)" left its description 28px at 360,
                             and `min-w-0` let it shrink into that instead of moving down. */}
-                        <dd className="min-w-0 flex-[1_1_10rem] text-xs" style={{ color: "var(--ink-3)" }}>{what}</dd>
+                        <dd className="min-w-0 flex-[1_1_10rem] text-xs" style={{ color: "var(--ink-3)" }}>{t(what)}</dd>
                       </div>
                     ))}
                   </dl>
@@ -568,35 +557,31 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         {tab === "words" && (
           <div className="flex flex-col gap-8">
           <section id="import">
-            <SectionTitle>Import words</SectionTitle>
+            <SectionTitle>{t("Import words")}</SectionTitle>
             <ImportPanel />
           </section>
 
           <section>
-            <SectionTitle hint={ekilexOn ? "connected" : "built-in words only"}>Dictionary</SectionTitle>
+            <SectionTitle hint={t(ekilexOn ? "connected" : "built-in words only")}>{t("Dictionary")}</SectionTitle>
             <Card>
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                The built-in dictionary has {words} words, from A1 up into C1, each with its main forms
-                checked. Type any form you&rsquo;ve met in class, like <span lang="et">toas</span> or{" "}
-                <span lang="et">lugesin</span>, and it finds the word for you and tells you which form
-                it is. The audio works out of the box too, no key needed.
+                {filled(t("The built-in dictionary has {words}, from A1 up into C1, each with its main forms checked. Type any form you've met in class, like {first} or {second}, and it finds the word for you and tells you which form it is. The audio works out of the box too, no key needed."), {
+                  words: countOf(locale, words, "word"),
+                  first: <span lang="et">toas</span>,
+                  second: <span lang="et">lugesin</span>,
+                })}
               </p>
               {ekilexOn ? (
                 <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Chip tone="good">Connected</Chip>
-                  <Explain label="What gets saved here">
-                    Any word that isn&rsquo;t built in is looked up live and saved here, so next time it
-                    works offline too. Example sentences, dictation and the fuller mock exam all
-                    draw on these words.
+                  <Chip tone="good">{t("Connected")}</Chip>
+                  <Explain label={t("What gets saved here")}>
+                    {t("Any word that isn't built in is looked up live and saved here, so next time it works offline too. Example sentences, dictation and the fuller mock exam all draw on these words.")}
                   </Explain>
                 </div>
               ) : (
                 <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
                   <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                    Live dictionary lookup isn&rsquo;t set up here yet, so search only knows the {words}{" "}
-                    built-in words. Those come with hardly any real example sentences, so dictation,
-                    the sentence builder and the mock exam&rsquo;s reading and listening parts are thin
-                    or empty.
+                    {fill(t("Live dictionary lookup isn't set up here yet, so search only knows the {n} built-in words. Those come with hardly any real example sentences, so dictation, the sentence builder and the mock exam's reading and listening parts are thin or empty."), { n: words })}
                   </p>
                   <EkilexSetupGuide />
                 </div>
@@ -606,20 +591,20 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <section>
             {/* Named the way every other screen names her. "AI tutor" here
                 against "Anu" everywhere else made two things out of one. */}
-            <SectionTitle hint={provider ? undefined : "off until you add a key"}>Anu</SectionTitle>
+            <SectionTitle hint={provider ? undefined : t("off until you add a key")}>{t("Anu")}</SectionTitle>
             <Card>
               {provider ? (
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
-                    <Chip tone="good">Connected</Chip>
+                    <Chip tone="good">{t("Connected")}</Chip>
                     <span className="text-sm" style={{ color: "var(--ink-2)" }}>
                       {provider.label}, <code className="text-xs">{provider.model}</code>
                     </span>
                   </div>
-                  <Explain label="What happens when a model is busy">
+                  <Explain label={t("What happens when a model is busy")}>
                     {resilience.models === 1
-                      ? "Only one model is set up right now, so if it's busy, Anu has to wait."
-                      : `If one model is busy, Anu tries the next. There are ${resilience.models} of them, across ${resilience.providers.join(" and ")}.`}
+                      ? t("Only one model is set up right now, so if it's busy, Anu has to wait.")
+                      : fill(t("If one model is busy, Anu tries the next. There are {n} of them, across {providers}."), { n: resilience.models, providers: resilience.providers.join(t(" and ")) })}
                   </Explain>
                   {/*
                     Said plainly because it is invisible otherwise. A chain of
@@ -629,17 +614,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                     down. A second provider is the only thing that changes that.
                   */}
                   {resilience.singlePointOfFailure && (
-                    <Explain label="What happens if the key stops answering">
-                      Everything above goes through {resilience.providers[0]}, on one account. If
-                      that key stops answering, because it&rsquo;s out of credit or just having a bad
-                      minute, Anu goes quiet too.
-                      Adding{" "}
-                      <code className="text-xs">{resilience.providers[0] === "Groq" ? "GEMINI_API_KEY" : "GROQ_API_KEY"}</code>{" "}
-                      to <code className="text-xs">.env</code> gives Anu a backup. It&rsquo;s
-                      free and doesn&rsquo;t ask for a card.
-                      Read the note beside them in{" "}
-                      <code className="text-xs">.env.example</code> first, because free usually means
-                      the provider may read what goes through it.
+                    <Explain label={t("What happens if the key stops answering")}>
+                      {filled(t("Everything above goes through {provider}, on one account. If that key stops answering, because it's out of credit or just having a bad minute, Anu goes quiet too. Adding {key} to {env} gives Anu a backup. It's free and doesn't ask for a card. Read the note beside them in {file} first, because free usually means the provider may read what goes through it."), {
+                        provider: resilience.providers[0],
+                        key: <code className="text-xs">{resilience.providers[0] === "Groq" ? "GEMINI_API_KEY" : "GROQ_API_KEY"}</code>,
+                        env: <code className="text-xs">.env</code>,
+                        file: <code className="text-xs">.env.example</code>,
+                      })}
                     </Explain>
                   )}
                 </div>
@@ -661,13 +642,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         {tab === "account" && (
           <div className="flex flex-col gap-8">
           <section>
-            <SectionTitle>Your name in a class</SectionTitle>
+            <SectionTitle>{t("Your name in a class")}</SectionTitle>
             <Card>
               <ClassNamePanel currentName={displayName} />
             </Card>
           </section>
           <section id="email">
-            <SectionTitle hint="you choose which ones, and when">Emails and reminders</SectionTitle>
+            <SectionTitle hint={t("you choose which ones, and when")}>{t("Emails and reminders")}</SectionTitle>
             <Card>
               <EmailPanel
                 on={
@@ -693,25 +674,22 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           <section>
-            <SectionTitle>Your data</SectionTitle>
+            <SectionTitle>{t("Your data")}</SectionTitle>
             <Card>
               <div className="flex flex-wrap items-center justify-between gap-4">
-                <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  <span className="tnum" style={{ color: "var(--ink)" }}>{words}</span> words,{" "}
-                  <span className="tnum" style={{ color: "var(--ink)" }}>{cards}</span> cards,{" "}
-                  <span className="tnum" style={{ color: "var(--ink)" }}>{reviews}</span> reviews
+                <p className="tnum text-sm" style={{ color: "var(--ink-2)" }}>
+                  {countOf(locale, words, "word")}, {countOf(locale, cards, "card")}, {countOf(locale, reviews, "review")}
                 </p>
                 <a
                   href="/api/export"
                   className="press inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-ui hover:-translate-y-px"
                   style={{ borderColor: "var(--edge)", color: "var(--ink)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
                 >
-                  <Download size={15} aria-hidden /> Download a backup
+                  <Download size={15} aria-hidden /> {t("Download a backup")}
                 </a>
               </div>
-              <Explain label="Why a backup is worth the ten seconds">
-                Your answer history is the one thing here that can&rsquo;t be rebuilt if it&rsquo;s lost.
-                Saving a copy now and then takes ten seconds.
+              <Explain label={t("Why a backup is worth the ten seconds")}>
+                {t("Your answer history is the one thing here that can't be rebuilt if it's lost. Saving a copy now and then takes ten seconds.")}
               </Explain>
               <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule-soft)" }}>
                 <RestorePanel currentReviews={reviews} />
@@ -720,8 +698,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           <section>
-            <SectionTitle hint={participation === "in" ? "counted" : "left out"}>
-              Anonymous statistics
+            <SectionTitle hint={t(participation === "in" ? "counted" : "left out")}>
+              {t("Anonymous statistics")}
             </SectionTitle>
             <Card>
               <ResearchPanel current={participation} exported={researchExported} />
@@ -729,20 +707,16 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           <section>
-            <SectionTitle>Install it</SectionTitle>
+            <SectionTitle>{t("Install it")}</SectionTitle>
             <Card>
               <div className="flex items-start gap-3">
                 <Smartphone size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
                 <div>
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    You can install Kodukeel like an app. On an iPhone, tap &ldquo;Add to Home Screen&rdquo;.
-                    In Chrome on a computer, press &ldquo;Install&rdquo; in the address bar. Once it&rsquo;s
-                    installed, it opens straight into review and keeps working without a connection.
+                    {t("You can install Kodukeel like an app. On an iPhone, tap \u201cAdd to Home Screen\u201d. In Chrome on a computer, press \u201cInstall\u201d in the address bar. Once it's installed, it opens straight into review and keeps working without a connection.")}
                   </p>
-                  <Explain label="What happens to an answer with no connection">
-                    Anything you answer offline is kept on your device and sent as soon as you&rsquo;re
-                    back online, stamped with the time you actually answered. So an offline session
-                    still counts for the right day.
+                  <Explain label={t("What happens to an answer with no connection")}>
+                    {t("Anything you answer offline is kept on your device and sent as soon as you're back online, stamped with the time you actually answered. So an offline session still counts for the right day.")}
                   </Explain>
                   <InstallPanel />
                 </div>

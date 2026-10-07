@@ -12,6 +12,8 @@ import { SUGGESTION_CATEGORIES, summarisePatch } from "@/lib/suggestions/model";
 import type { SuggestionStatus } from "@/lib/suggestions/model";
 import type { QueueRow } from "@/lib/suggestions/queue";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 /**
  * One decision per line, and the decision is the whole line.
@@ -33,6 +35,7 @@ import { NOT_REACHED } from "@/lib/copy/values";
  * that would rewrite it is not there to press.
  */
 export function QueueRows({ rows, status }: { rows: QueueRow[]; status: SuggestionStatus }) {
+  const t = useT();
   /*
     WHAT THIS REVIEWER HAS JUST DONE, HELD HERE RATHER THAN IN THE ROW.
 
@@ -56,8 +59,8 @@ export function QueueRows({ rows, status }: { rows: QueueRow[]; status: Suggesti
     return (
       <Empty
         mood="happy"
-        title={status === "OPEN" ? "Nothing waiting" : "Nothing here"}
-        body={status === "OPEN" ? "Every report has been dealt with. Nice." : "No reports have ended up here yet."}
+        title={t(status === "OPEN" ? "Nothing waiting" : "Nothing here")}
+        body={t(status === "OPEN" ? "Every report has been dealt with. Nice." : "No reports have ended up here yet.")}
       />
     );
   }
@@ -91,6 +94,8 @@ function Settled({ message }: { message: string }) {
 }
 
 function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void }) {
+  const t = useT();
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -104,14 +109,14 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
     start(async () => {
       const result = await reviewSuggestion({ id: row.id, decision, apply, note }).catch(() => null);
       if (!result || !result.ok) {
-        setError(result ? result.error : NOT_REACHED);
+        setError(t(result ? result.error : NOT_REACHED));
         return;
       }
-      const many = result.resolved === 1 ? "1 report" : `${result.resolved} reports`;
+      const many = countOf(locale, result.resolved, "report");
       onDone(
         [
-          decision === "ACCEPT" ? `Accepted, ${many} closed.` : `Declined, ${many} closed.`,
-          result.applied,
+          fill(t(decision === "ACCEPT" ? "Accepted, {reports} closed." : "Declined, {reports} closed."), { reports: many }),
+          result.applied ? t(result.applied) : null,
         ].filter(Boolean).join(" "),
       );
     });
@@ -122,9 +127,9 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
-            <Chip tone="accent">{SUGGESTION_CATEGORIES[row.category].label}</Chip>
+            <Chip tone="accent">{t(SUGGESTION_CATEGORIES[row.category].label)}</Chip>
             {row.reports > 1 && (
-              <Chip tone="hard">{row.reports} people</Chip>
+              <Chip tone="hard">{countOf(locale, row.reports, "person")}</Chip>
             )}
             {row.lemma && (
               <span lang="et" className="text-lg font-bold" style={{ color: "var(--ink)" }}>
@@ -133,34 +138,34 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
             )}
           </div>
           <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-            {row.context ?? "somewhere in the app"}, <LocalDate iso={new Date(row.createdAt).toISOString()} fallback={stableDate(new Date(row.createdAt), DATE_TIME_SHAPE)} options={DATE_TIME_SHAPE} />
+            {row.context ?? t("somewhere in the app")}, <LocalDate iso={new Date(row.createdAt).toISOString()} fallback={stableDate(new Date(row.createdAt), DATE_TIME_SHAPE)} options={DATE_TIME_SHAPE} />
           </p>
         </div>
 
         {row.status === "OPEN" ? (
           <div className="flex flex-wrap gap-2">
             <Button variant="ghost" disabled={pending} onClick={() => act("DECLINE", false)}>
-              <X size={15} aria-hidden /> Decline
+              <X size={15} aria-hidden /> {t("Decline")}
             </Button>
             <Button variant="secondary" disabled={pending} onClick={() => act("ACCEPT", false)}>
-              {canApply ? "Accept without applying" : "Accept"}
+              {t(canApply ? "Accept without applying" : "Accept")}
             </Button>
             {canApply && (
               <Button variant="primary" disabled={pending} onClick={() => act("ACCEPT", true)}>
-                <Check size={15} aria-hidden /> Accept and apply
+                <Check size={15} aria-hidden /> {t("Accept and apply")}
               </Button>
             )}
           </div>
         ) : (
           <Chip tone={row.status === "ACCEPTED" ? "good" : "neutral"}>
-            {row.status === "ACCEPTED" ? "accepted" : "declined"}
+            {t(row.status === "ACCEPTED" ? "accepted" : "declined")}
           </Chip>
         )}
       </div>
 
       {summary && (
         <div className="rounded-[var(--r)] px-4 py-3" style={{ background: "var(--raised)" }}>
-          <p className="label-xs" style={{ color: "var(--ink-3)" }}>{summary.action}</p>
+          <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t(summary.action)}</p>
           <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-base">
             <span className="label-xs" style={{ color: "var(--ink-3)" }}>{summary.field}</span>
             {row.before && (
@@ -174,13 +179,13 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
       {row.blocked && (
         <p className="flex items-start gap-2 rounded-[var(--r)] px-4 py-3 text-sm" style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}>
           <TriangleAlert size={15} aria-hidden className="mt-0.5 shrink-0" />
-          <span>{row.blocked}</span>
+          <span>{t(row.blocked)}</span>
         </p>
       )}
 
       {row.trigger && (
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          <span className="label-xs mr-2" style={{ color: "var(--ink-3)" }}>The app had said</span>
+          <span className="label-xs mr-2" style={{ color: "var(--ink-3)" }}>{t("The app had said")}</span>
           {row.trigger}
         </p>
       )}
@@ -204,7 +209,7 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
             style={{ color: "var(--ink-3)" }}
           >
             {open ? <ChevronDown size={13} aria-hidden /> : <ChevronRight size={13} aria-hidden />}
-            {row.alsoSaid.length > 0 ? `${row.alsoSaid.length} more said something` : "More"}
+            {row.alsoSaid.length > 0 ? fill(t("{n} more said something"), { n: row.alsoSaid.length }) : t("More")}
           </button>
 
           {open && (
@@ -221,13 +226,13 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
                   className="text-sm underline"
                   style={{ color: "var(--accent-deep)" }}
                 >
-                  Open the entry
+                  {t("Open the entry")}
                 </Link>
               )}
 
               {row.decision && (
                 <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  <span className="label-xs mr-2" style={{ color: "var(--ink-3)" }}>Reviewer said</span>
+                  <span className="label-xs mr-2" style={{ color: "var(--ink-3)" }}>{t("Reviewer said")}</span>
                   {row.decision}
                 </p>
               )}
@@ -235,7 +240,7 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
               {row.status === "OPEN" && (
                 <div>
                   <label htmlFor={`note-${row.id}`} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-                    A note on this decision, optional
+                    {t("A note on this decision, optional")}
                   </label>
                   <input
                     id={`note-${row.id}`}

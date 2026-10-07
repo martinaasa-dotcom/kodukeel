@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setUiLocale } from "@/app/actions";
 import { ChoiceSegment } from "@/components/Choice";
+import { useT } from "@/components/Locale";
 import { LOCALES, LOCALE_NAMES, MACHINE_SHORT, type Locale } from "@/lib/copy/locale";
 
 /**
@@ -15,6 +16,7 @@ import { LOCALES, LOCALE_NAMES, MACHINE_SHORT, type Locale } from "@/lib/copy/lo
  * machine-translated ones say so on the choice itself. See lib/copy/locale.ts.
  */
 export function InterfaceLanguagePanel({ current }: { current: Locale }) {
+  const t = useT();
   const [value, setValue] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -31,14 +33,14 @@ export function InterfaceLanguagePanel({ current }: { current: Locale }) {
 
   return (
     <ChoiceSegment
-      ariaLabel="Language of the app"
+      ariaLabel={t("Language of the app")}
       value={value}
       disabled={pending}
       onSelect={pick}
       options={LOCALES.map((id) => ({
         id,
         title: LOCALE_NAMES[id],
-        detail: id === "en" ? "The app in English." : <span lang={id}>{MACHINE_SHORT[id]}</span>,
+        detail: id === "en" ? t("The app in English.") : <span lang={id}>{MACHINE_SHORT[id]}</span>,
       }))}
     />
   );

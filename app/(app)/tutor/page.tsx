@@ -6,6 +6,8 @@ import { Page } from "@/components/ui";
 import { TutorChat } from "./TutorChat";
 import { clip } from "@/lib/copy/clip";
 import { firstParams } from "@/lib/ux/queryParam";
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
 export const metadata = { title: "Anu" };
 
@@ -21,12 +23,12 @@ export default async function TutorPage({ searchParams }: {
   // either a text box or the setup walkthrough, and `/api/tutor` asks Gemini
   // and then Groq and nothing else.
   const chain = resolveProviders({ purpose: "tutor" });
-  const history = await loadRecentMessages(ownerId);
+  const [history, locale] = await Promise.all([loadRecentMessages(ownerId), localeFor(ownerId)]);
 
   return (
     <Page route="/tutor"
-      title="Anu"
-      lead="Ask why a word changes its ending, get her to check a sentence, or have a rule explained."
+      title={tr(locale, "Anu")}
+      lead={tr(locale, "Ask why a word changes its ending, get her to check a sentence, or have a rule explained.")}
     >
       <TutorChat
         configured={chain.length > 0}

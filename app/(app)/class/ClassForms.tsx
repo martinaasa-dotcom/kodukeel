@@ -15,8 +15,11 @@ import {
 import { EXAM_LEVELS } from "@/lib/exam/spec";
 import { Explain } from "@/components/Explain";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 export function CreateClass() {
+  const t = useT();
   const router = useRouter();
   const [name, setName] = useState("");
   const [kind, setKind] = useState<CohortKind>("CLASS");
@@ -29,7 +32,7 @@ export function CreateClass() {
     setError(null);
     start(async () => {
       const result = await createClassroom(name, kind, level).catch(() => null);
-      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+      if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
       router.push(`/class/${result.id}`);
       router.refresh();
     });
@@ -37,27 +40,27 @@ export function CreateClass() {
 
   return (
     <div className="flex flex-col gap-3">
-      <ChoiceGroup label="What kind of group is it?" select="one" className="grid gap-2">
+      <ChoiceGroup label={t("What kind of group is it?")} select="one" className="grid gap-2">
         {COHORT_KINDS.map((option) => (
           <ChoiceCard
             key={option}
             selected={kind === option}
             onSelect={() => setKind(option)}
-            title={COHORT_LABEL[option]}
-            detail={COHORT_DETAIL[option]}
+            title={t(COHORT_LABEL[option])}
+            detail={t(COHORT_DETAIL[option])}
           />
         ))}
       </ChoiceGroup>
 
       <label htmlFor="class-name" className="label-xs" style={{ color: "var(--ink-3)" }}>
-        {workplace ? "Group name" : "Class name"}
+        {t(workplace ? "Group name" : "Class name")}
       </label>
       <input
         id="class-name"
         value={name}
         maxLength={60}
         onChange={(e) => setName(e.target.value)}
-        placeholder={workplace ? "Estonian at work, autumn" : "Eesti keel A2, teisipäev"}
+        placeholder={workplace ? t("Estonian at work, autumn") : "Eesti keel A2, teisipäev"}
         className="field text-base"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
       />
@@ -70,7 +73,7 @@ export function CreateClass() {
         question with no use for the answer.
       */}
       {workplace && (
-        <ChoiceGroup label="Which exam are they working toward?" select="one">
+        <ChoiceGroup label={t("Which exam are they working toward?")} select="one">
           {EXAM_LEVELS.map((band) => (
             <ChoiceChip key={band} selected={level === band} onSelect={() => setLevel(band)} even>
               {band}
@@ -82,13 +85,14 @@ export function CreateClass() {
       {error && <p role="alert" className="text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
       <Button variant="primary" onClick={create} disabled={pending || name.trim().length < 2}>
         <Plus size={15} aria-hidden />{" "}
-        {pending ? "Creating…" : workplace ? "Create the group" : "Create the class"}
+        {t(pending ? "Creating…" : workplace ? "Create the group" : "Create the class")}
       </Button>
     </div>
   );
 }
 
 export function JoinClass({ suggestedName }: { suggestedName: string }) {
+  const t = useT();
   const router = useRouter();
   const [code, setCode] = useState("");
   const [name, setName] = useState(suggestedName);
@@ -99,7 +103,7 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
     setError(null);
     start(async () => {
       const result = await joinClassroom(code, name).catch(() => null);
-      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+      if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
       router.push(`/class/${result.id}`);
       router.refresh();
     });
@@ -108,7 +112,7 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
   return (
     <div className="flex flex-col gap-3">
       <label htmlFor="join-code" className="label-xs" style={{ color: "var(--ink-3)" }}>
-        Join code from your teacher
+        {t("Join code from your teacher")}
       </label>
       <input
         id="join-code"
@@ -123,7 +127,7 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
       />
       <label htmlFor="join-name" className="label-xs" style={{ color: "var(--ink-3)" }}>
-        The name your class will see
+        {t("The name your class will see")}
       </label>
       <input
         id="join-name"
@@ -153,25 +157,21 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
         element along.
       */}
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Your teacher and classmates see your name and your effort, never your deck or your answers.
+        {t("Your teacher and classmates see your name and your effort, never your deck or your answers.")}
       </p>
       {error && <p role="alert" className="text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
       <Button variant="primary" onClick={join} disabled={pending || code.trim().length < CODE_LENGTH}>
-        {pending ? "Joining…" : "Join the class"}
+        {t(pending ? "Joining…" : "Join the class")}
       </Button>
-      <Explain label="Exactly what a class sees">
-        Your teacher and classmates see your name, your streak, how many reviews you did this
-        week, when you last practiced and how many words you know. Your teacher alone also sees
-        the one case you find hardest, as a single percentage across your reviews, never a
-        specific answer. A workplace group sees less: your name, whether you&rsquo;ve been
-        practicing, and one of four bands for the exam the group is working toward. Never your
-        deck, your searches or your mistakes one by one. If you leave, all of it stops straight away.
+      <Explain label={t("Exactly what a class sees")}>
+        {t("Your teacher and classmates see your name, your streak, how many reviews you did this week, when you last practiced and how many words you know. Your teacher alone also sees the one case you find hardest, as a single percentage across your reviews, never a specific answer. A workplace group sees less: your name, whether you've been practicing, and one of four bands for the exam the group is working toward. Never your deck, your searches or your mistakes one by one. If you leave, all of it stops straight away.")}
       </Explain>
     </div>
   );
 }
 
 export function CopyCode({ code }: { code: string }) {
+  const t = useT();
   const [copied, copy] = useCopy(1600);
   return (
     <button
@@ -181,12 +181,13 @@ export function CopyCode({ code }: { code: string }) {
       style={{ borderColor: "var(--rule)", background: "var(--surface)", color: copied === "copied" ? "var(--good-ink)" : "var(--ink-2)" }}
     >
       {copied === "copied" ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
-      <span aria-live="polite">{copied === "idle" ? "Copy code" : COPY_LABEL[copied]}</span>
+      <span aria-live="polite">{t(copied === "idle" ? "Copy code" : COPY_LABEL[copied])}</span>
     </button>
   );
 }
 
 export function LeaveClass({ classroomId }: { classroomId: string }) {
+  const t = useT();
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -197,14 +198,14 @@ export function LeaveClass({ classroomId }: { classroomId: string }) {
         disabled={pending}
         onClick={() => start(async () => {
           const result = await leaveClassroom(classroomId).catch(() => null);
-          if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+          if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
           router.push("/class");
           router.refresh();
         })}
         className="tap-tint inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm"
         style={{ color: "var(--ink-3)" }}
       >
-        <LogOut size={14} aria-hidden /> Leave this class
+        <LogOut size={14} aria-hidden /> {t("Leave this class")}
       </button>
       {error && <p role="alert" className="mt-1 text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
     </>
@@ -212,6 +213,7 @@ export function LeaveClass({ classroomId }: { classroomId: string }) {
 }
 
 export function ArchiveClass({ classroomId }: { classroomId: string }) {
+  const t = useT();
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [pending, start] = useTransition();
@@ -224,23 +226,23 @@ export function ArchiveClass({ classroomId }: { classroomId: string }) {
         className="tap-tint inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm"
         style={{ color: "var(--ink-3)" }}
       >
-        <Archive size={14} aria-hidden /> Archive this class
+        <Archive size={14} aria-hidden /> {t("Archive this class")}
       </button>
     );
   }
 
   return (
     <span className="flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-      The join code will stop working, but nobody loses any work.
+      {t("The join code will stop working, but nobody loses any work.")}
       <Button variant="danger" disabled={pending} onClick={() => start(async () => {
         const landed = await archiveClassroom(classroomId).then(() => true).catch(() => false);
         if (!landed) return;
         router.push("/class");
         router.refresh();
       })}>
-        Archive
+        {t("Archive")}
       </Button>
-      <Button variant="ghost" onClick={() => setConfirming(false)}>Cancel</Button>
+      <Button variant="ghost" onClick={() => setConfirming(false)}>{t("Cancel")}</Button>
     </span>
   );
 }
@@ -249,6 +251,8 @@ export function AssignUnit({ classroomId, units }: {
   classroomId: string;
   units: { id: string; title: string; subtitle: string }[];
 }) {
+  const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const [unitId, setUnitId] = useState(units[0]?.id ?? "");
   const [due, setDue] = useState("");
@@ -259,7 +263,7 @@ export function AssignUnit({ classroomId, units }: {
     <div className="flex flex-wrap items-end gap-2">
       <div className="min-w-[210px] flex-1">
         <label htmlFor="assign-unit" className="label-xs mb-1 block" style={{ color: "var(--ink-3)" }}>
-          Set a unit as homework
+          {t("Set a unit as homework")}
         </label>
         <select
           id="assign-unit"
@@ -275,7 +279,7 @@ export function AssignUnit({ classroomId, units }: {
       </div>
       <div>
         <label htmlFor="assign-due" className="label-xs mb-1 block" style={{ color: "var(--ink-3)" }}>
-          Due (optional)
+          {t("Due (optional)")}
         </label>
         <input
           id="assign-due"
@@ -291,12 +295,12 @@ export function AssignUnit({ classroomId, units }: {
         disabled={pending || !unitId}
         onClick={() => start(async () => {
           const result = await assignUnit(classroomId, unitId, due || undefined).catch(() => null);
-          if (!result) { setMessage(NOT_REACHED); return; }
-          setMessage(result.ok ? `Sent to ${result.assigned} ${result.assigned === 1 ? "person" : "people"}.` : result.error);
+          if (!result) { setMessage(t(NOT_REACHED)); return; }
+          setMessage(result.ok ? fill(t("Sent to {people}."), { people: countOf(locale, result.assigned, "person") }) : t(result.error));
           router.refresh();
         })}
       >
-        {pending ? "Sending…" : "Send it to the class"}
+        {t(pending ? "Sending…" : "Send it to the class")}
       </Button>
       {/* The same unit, on paper. A class that meets in a room wants both. */}
       <Link
@@ -304,7 +308,7 @@ export function AssignUnit({ classroomId, units }: {
         className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold transition-ui hover:-translate-y-px"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
       >
-        <Printer size={14} aria-hidden /> Print a worksheet
+        <Printer size={14} aria-hidden /> {t("Print a worksheet")}
       </Link>
       {message && <p role="status" className="w-full text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>}
     </div>
@@ -319,6 +323,8 @@ export function AssignUnit({ classroomId, units }: {
  * close.
  */
 export function AssignHomework({ classroomId }: { classroomId: string }) {
+  const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
@@ -330,8 +336,8 @@ export function AssignHomework({ classroomId }: { classroomId: string }) {
     setMessage(null);
     start(async () => {
       const result = await assignHomework(classroomId, title, notes, due || undefined).catch(() => null);
-      if (!result || !result.ok) { setMessage(result ? result.error : NOT_REACHED); return; }
-      setMessage(`Sent to ${result.assigned} ${result.assigned === 1 ? "person" : "people"}.`);
+      if (!result || !result.ok) { setMessage(t(result ? result.error : NOT_REACHED)); return; }
+      setMessage(fill(t("Sent to {people}."), { people: countOf(locale, result.assigned, "person") }));
       setTitle("");
       setNotes("");
       setDue("");
@@ -342,26 +348,26 @@ export function AssignHomework({ classroomId }: { classroomId: string }) {
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor="assign-title" className="label-xs" style={{ color: "var(--ink-3)" }}>
-        Title
+        {t("Title")}
       </label>
       <input
         id="assign-title"
         value={title}
         maxLength={200}
-        placeholder="Write 5 sentences using the osastav"
+        placeholder={t("Write 5 sentences using the osastav")}
         onChange={(e) => setTitle(e.target.value)}
         className="field text-sm"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
       />
       <label htmlFor="assign-notes" className="label-xs" style={{ color: "var(--ink-3)" }}>
-        Details (optional)
+        {t("Details (optional)")}
       </label>
       <textarea
         id="assign-notes"
         value={notes}
         maxLength={1900}
         rows={2}
-        placeholder="Textbook page 34, exercise 3. Bring it printed on Thursday."
+        placeholder={t("Textbook page 34, exercise 3. Bring it printed on Thursday.")}
         onChange={(e) => setNotes(e.target.value)}
         className="field text-sm"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
@@ -369,7 +375,7 @@ export function AssignHomework({ classroomId }: { classroomId: string }) {
       <div className="flex flex-wrap items-end gap-2">
         <div>
           <label htmlFor="assign-hw-due" className="label-xs mb-1 block" style={{ color: "var(--ink-3)" }}>
-            Due (optional)
+            {t("Due (optional)")}
           </label>
           <input
             id="assign-hw-due"
@@ -381,7 +387,7 @@ export function AssignHomework({ classroomId }: { classroomId: string }) {
           />
         </div>
         <Button variant="primary" disabled={pending || title.trim().length < 2} onClick={send}>
-          {pending ? "Sending…" : "Set as homework"}
+          {t(pending ? "Sending…" : "Set as homework")}
         </Button>
       </div>
       {message && <p role="status" className="text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>}
@@ -405,6 +411,7 @@ export function AssignHomework({ classroomId }: { classroomId: string }) {
  * `StarWord`'s rule about a press that did not land.
  */
 export function ClassDigest({ on }: { on: boolean }) {
+  const t = useT();
   const [want, setWant] = useState(on);
   const [, start] = useTransition();
 
@@ -424,7 +431,7 @@ export function ClassDigest({ on }: { on: boolean }) {
           });
         }}
       />
-      Email me this summary every Monday morning
+      {t("Email me this summary every Monday morning")}
     </label>
   );
 }

@@ -5,6 +5,8 @@ import { CloudOff, RefreshCw } from "lucide-react";
 import { replayGrades } from "@/app/actions";
 import { dropFromOutbox, outboxSize, readOutbox } from "@/lib/offline/db";
 import { nextBatch, withoutSettled } from "@/lib/offline/outbox";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 interface OfflineState {
   online: boolean;
@@ -210,13 +212,19 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
 function OfflineBanner({ online, pending, syncing }: {
   online: boolean; pending: number; syncing: boolean;
 }) {
+  /* In the reader's language wherever the shell has published one. This sits
+     in the root layout, above `LocaleProvider`, so until the language is
+     published there too it reads the default, which is English. */
+  const t = useT();
+  const locale = useLocale();
   if (online && pending === 0) return null;
 
+  const answers = countOf(locale, pending, "answer");
   const label = !online
     ? pending > 0
-      ? `You're offline. ${pending} answer${pending === 1 ? "" : "s"} saved on this device`
-      : "You're offline, but reviews still work"
-    : `Sending ${pending} answer${pending === 1 ? "" : "s"} to your account`;
+      ? fill(t("You're offline. {answers} saved on this device"), { answers })
+      : t("You're offline, but reviews still work")
+    : fill(t("Sending {answers} to your account"), { answers });
 
   return (
     <div

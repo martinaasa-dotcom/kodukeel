@@ -35,6 +35,8 @@
  * Pure: a string in, a number of seconds out. No React, no Prisma, no clock.
  */
 
+import { countOf, type Locale } from "@/lib/copy/locale";
+
 export const ROUND_PACES = [
   {
     id: "standard",
@@ -129,12 +131,18 @@ export function secondsFor(baseSeconds: number, pace: RoundPace): number {
  * minutes above wherever the figure is one.
  */
 export function roundLength(seconds: number): string {
+  return roundLengthIn("en", seconds);
+}
+
+/**
+ * The same length in the learner's own language, where "5 minutes" is
+ * «5 минут» and two minutes is «2 минуты», which only a counted noun gets
+ * right. See `countOf` in lib/copy/locale.ts.
+ */
+export function roundLengthIn(locale: Locale, seconds: number): string {
   const whole = Math.max(0, Math.round(seconds));
-  if (whole >= 120 && whole % 60 === 0) {
-    const minutes = whole / 60;
-    return `${minutes} minutes`;
-  }
-  return `${whole} seconds`;
+  if (whole >= 120 && whole % 60 === 0) return countOf(locale, whole / 60, "minute");
+  return countOf(locale, whole, "second");
 }
 
 /**

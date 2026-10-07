@@ -5722,7 +5722,6 @@ const PLURAL_COUNT_EXEMPT: Readonly<Record<string, string>> = {
   "app/(app)/dictionary/page.tsx": "the dictionary's size, which is thousands",
   "app/(app)/review/ReviewSession.tsx": "the one live count is guarded a line above; the other is a case name",
   "app/(app)/page.tsx": "said only once the goal is met, and the smallest goal is five",
-  "app/(app)/settings/page.tsx": "the daily goal, whose smallest setting is five",
   "app/(app)/learn/[unitId]/lesson/LessonSession.tsx": "a sitting folds a trailing one or two words into the one before it",
   "components/WeakestCases.tsx": "a case is listed only above its floor of answers",
   "app/(app)/exam/[level]/ExamSession.tsx": "a dictation is a sentence, and a single word is said as one word",
@@ -8575,7 +8574,7 @@ check("every dead end in the app offers a way to report it", () => {
         here, so this is the file that has to keep both.
       */
       "components/ScreenFailed.tsx",
-      /didn&rsquo;t load|did not load/,
+      /didn&rsquo;t load|didn't load|did not load/,
       "a screen that threw",
     ],
     [

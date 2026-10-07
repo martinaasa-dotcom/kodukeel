@@ -12,6 +12,7 @@ import { useAnuChat } from "./useAnuChat";
 import { useStickToBottom } from "./useStickToBottom";
 import { readScreen } from "./readScreen";
 import { useModalFocus } from "@/components/useModalFocus";
+import { useT } from "@/components/Locale";
 import { AnuFailure, Bubble, CheckStarter, Provenance, SentenceCheck, Starters, sentenceCheckPrompt, AnuOffline } from "./AnuParts";
 
 /**
@@ -32,6 +33,7 @@ export function AnuPanel({
   prefill?: { text: string; seq: number } | null;
   onClose: () => void;
 }) {
+  const t = useT();
   const [historyLoaded, setHistoryLoaded] = useState(false);
   /*
     She reads the screen she is open over, so "what does this mean" is about
@@ -113,7 +115,7 @@ export function AnuPanel({
       ref={panel}
       role="dialog"
       aria-modal="true"
-      aria-label="Ask Anu"
+      aria-label={t("Ask Anu")}
       // The review, lesson and ladder sessions bind Enter, the digits and u
       // straight onto window, so a question typed in here still reached
       // them: `u` as the first character of an empty question was read as
@@ -173,19 +175,19 @@ export function AnuPanel({
       <header className="flex items-center gap-3 border-b px-5 py-4" style={{ borderColor: "var(--rule)" }}>
         <AnuFace size={40} className="shrink-0" />
         <div className="min-w-0 flex-1">
-          <p className="text-base font-bold leading-snug" style={{ color: "var(--ink)" }}>Anu</p>
+          <p className="text-base font-bold leading-snug" style={{ color: "var(--ink)" }}>{t("Anu")}</p>
           {configured && (
             answeredBy
               ? <Provenance compact label={answeredBy} answered />
               : <p className="text-2xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
-                  Ask me about anything on this screen.
+                  {t("Ask me about anything on this screen.")}
                 </p>
           )}
         </div>
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close Anu"
+          aria-label={t("Close Anu")}
           className="press flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
           style={{ color: "var(--ink-3)" }}
         >
@@ -208,12 +210,12 @@ export function AnuPanel({
         {!configured ? (
           <div className="flex flex-col gap-4">
             <Empty
-              title={readerCanConfigure ? "Anu needs an AI key to talk" : "Anu isn't available here"}
-              body={readerCanConfigure
+              title={t(readerCanConfigure ? "Anu needs an AI key to talk" : "Anu isn't available here")}
+              body={t(readerCanConfigure
                 ? "Everything else works without one. Settings walks you through getting a free key."
-                : "Don't worry, everything else here works without her."}
+                : "Don't worry, everything else here works without her.")}
               action={readerCanConfigure && (
-                <ButtonLink href="/settings">Open Settings</ButtonLink>
+                <ButtonLink href="/settings">{t("Open Settings")}</ButtonLink>
               )}
             />
             {/* The question a card handed over is the one thing the learner
@@ -225,7 +227,7 @@ export function AnuPanel({
                 className="rounded-[var(--r-lg)] px-4 py-3 text-sm leading-relaxed"
                 style={{ background: "var(--raised)", color: "var(--ink-2)" }}
               >
-                Your question: <span style={{ color: "var(--ink)" }}>{prefill.text}</span>
+                {t("Your question:")} <span style={{ color: "var(--ink)" }}>{prefill.text}</span>
               </p>
             )}
           </div>
@@ -279,7 +281,7 @@ export function AnuPanel({
             className="mt-auto flex flex-col gap-4"
             role="log"
             aria-live="polite"
-            aria-label="Conversation with Anu"
+            aria-label={t("Conversation with Anu")}
           >
             {messages.map((m, i) => (
               <Bubble key={i} message={m} streaming={streaming && i === messages.length - 1} />
@@ -298,8 +300,8 @@ export function AnuPanel({
                 value={input}
                 onChange={setInput}
                 onEnter={() => { if (send(input)) setInput(""); }}
-                placeholder="What does this mean?"
-                ariaLabel="Ask Anu a question"
+                placeholder={t("What does this mean?")}
+                ariaLabel={t("Ask Anu a question")}
                 inputRef={boxRef}
               />
             </div>
@@ -307,9 +309,9 @@ export function AnuPanel({
               variant="primary"
               onClick={() => { if (send(input)) setInput(""); }}
               disabled={streaming || !input.trim() || !online}
-              aria-label={streaming ? "Anu is thinking" : "Ask"}
+              aria-label={t(streaming ? "Anu is thinking" : "Ask")}
             >
-              {streaming ? "…" : "Ask"}
+              {streaming ? "…" : t("Ask")}
             </Button>
           </div>
 

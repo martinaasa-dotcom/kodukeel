@@ -6,6 +6,8 @@ import { Card, SectionTitle } from "@/components/ui";
 import { useReaderDate } from "@/components/LocalDate";
 import { resetCourseFor } from "@/app/actions";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 export interface ResetRow {
   ownerId: string;
@@ -24,6 +26,8 @@ export interface ResetRow {
  * decks, the words in them, the dictionary and review history stay.
  */
 export function ResetCourse({ rows }: { rows: readonly ResetRow[] }) {
+  const t = useT();
+  const locale = useLocale();
   const [sure, setSure] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const [said, setSaid] = useState<string | null>(null);
@@ -36,31 +40,30 @@ export function ResetCourse({ rows }: { rows: readonly ResetRow[] }) {
     }
     start(async () => {
       const result = await resetCourseFor(target).catch(() => null);
-      if (!result) setSaid(NOT_REACHED);
-      else if (!result.ok) setSaid(result.error);
-      else setSaid(`Done: ${label} reset, with ${result.ticks} ticked steps cleared. Decks and the dictionary are untouched.`);
+      if (!result) setSaid(t(NOT_REACHED));
+      else if (!result.ok) setSaid(t(result.error));
+      else setSaid(fill(t("Done: {who} reset, with {ticks} ticked steps cleared. Decks and the dictionary are untouched."), { who: label, ticks: result.ticks }));
       setSure(null);
     });
   };
 
   return (
     <Card className="mt-8">
-      <SectionTitle hint={`${rows.length} ${rows.length === 1 ? "learner" : "learners"}`}>
-        Reset course progress
+      <SectionTitle hint={countOf(locale, rows.length, "learner")}>
+        {t("Reset course progress")}
       </SectionTitle>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        A reset sends a learner back to the first evening of their level. Only their course progress
-        goes. Their deck, its words, the dictionary and their review history all stay.
+        {t("A reset sends a learner back to the first evening of their level. Only their course progress goes. Their deck, its words, the dictionary and their review history all stay.")}
       </p>
 
       {rows.length === 0 ? (
         <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
-          Nobody has any course progress to reset.
+          {t("Nobody has any course progress to reset.")}
         </p>
       ) : (
         <ul className="mt-4 flex flex-col gap-2">
           {rows.map((row) => {
-            const label = row.name ?? "This learner";
+            const label = row.name ?? t("This learner");
             const asking = sure === row.ownerId;
             return (
               <li
@@ -70,16 +73,17 @@ export function ResetCourse({ rows }: { rows: readonly ResetRow[] }) {
               >
                 <span className="min-w-0 flex-1">
                   <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>
-                    {row.name ?? "No name set"}
+                    {row.name ?? t("No name set")}
                   </span>
                   <span className="tnum block text-sm" style={{ color: "var(--ink-2)" }}>
-                    {row.ticks} ticks
-                    {row.lastAt ? `, last on ${date(new Date(row.lastAt), { day: "numeric", month: "short", year: "numeric" })}` : ""}
+                    {row.lastAt
+                      ? fill(t("{ticks} ticks, last on {date}"), { ticks: row.ticks, date: date(new Date(row.lastAt), { day: "numeric", month: "short", year: "numeric" }) })
+                      : fill(t("{ticks} ticks"), { ticks: row.ticks })}
                   </span>
                 </span>
                 {asking && (
                   <Button variant="ghost" size="sm" onClick={() => setSure(null)} disabled={pending}>
-                    Cancel
+                    {t("Cancel")}
                   </Button>
                 )}
                 <Button
@@ -88,7 +92,7 @@ export function ResetCourse({ rows }: { rows: readonly ResetRow[] }) {
                   onClick={() => reset(row.ownerId, label)}
                   disabled={pending}
                 >
-                  {asking ? "Yes, reset" : "Reset"}
+                  {t(asking ? "Yes, reset" : "Reset")}
                 </Button>
               </li>
             );
@@ -100,11 +104,11 @@ export function ResetCourse({ rows }: { rows: readonly ResetRow[] }) {
         <div className="mt-5 flex flex-wrap items-center gap-3">
           {sure === "all" && (
             <Button variant="ghost" onClick={() => setSure(null)} disabled={pending}>
-              Cancel
+              {t("Cancel")}
             </Button>
           )}
-          <Button variant="danger" onClick={() => reset("all", "Everybody")} disabled={pending}>
-            {sure === "all" ? `Yes, reset all ${rows.length}` : "Reset everybody"}
+          <Button variant="danger" onClick={() => reset("all", t("Everybody"))} disabled={pending}>
+            {sure === "all" ? fill(t("Yes, reset all {n}"), { n: rows.length }) : t("Reset everybody")}
           </Button>
         </div>
       )}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useOffline } from "@/components/OfflineProvider";
+import { useT } from "@/components/Locale";
 import type { ScreenContext } from "@/lib/tutor/screen";
 
 export interface Msg { role: "user" | "assistant"; content: string }
@@ -26,6 +27,7 @@ export function useAnuChat(
   */
   screen?: () => ScreenContext | null,
 ) {
+  const t = useT();
   const [messages, setMessages] = useState<Msg[]>(initialMessages);
   const [streaming, setStreaming] = useState(false);
   /*
@@ -100,7 +102,8 @@ export function useAnuChat(
       if (!res.ok || !res.body) {
         const { error } = await res.json().catch(() => ({ error: "Couldn't reach Anu just now." }));
         setFailure(String(error));
-        setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: `⚠ ${error}` }]);
+        // The failure keeps the English for the report button; the thread says it in the learner's language.
+        setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: `⚠ ${t(String(error))}` }]);
         return;
       }
 
@@ -141,7 +144,7 @@ export function useAnuChat(
         // Not "still in the box above": both surfaces clear the input on the
         // same line that calls this, so the question is gone and the learner
         // was being sent to a box that no longer held it.
-        content: `${half}⚠ Lost the connection to Anu. Ask again whenever you're ready.`,
+        content: `${half}⚠ ${t("Lost the connection to Anu. Ask again whenever you're ready.")}`,
       }]);
     } finally {
       setStreaming(false);

@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { setDailyGoal } from "@/app/actions";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 const PRESETS = [
   { label: "Casual", value: 10 },
@@ -12,6 +14,7 @@ const PRESETS = [
 ] as const;
 
 export function DailyGoalPanel({ currentGoal }: { currentGoal: number }) {
+  const t = useT();
   const [goal, setGoal] = useState(currentGoal);
   const [, startTransition] = useTransition();
 
@@ -31,10 +34,10 @@ export function DailyGoalPanel({ currentGoal }: { currentGoal: number }) {
       you just gave un-hoverable for a moment, which reads as the control
       breaking rather than as it working.
     */
-    <ChoiceGroup ariaLabel="Daily goal" className="flex flex-wrap items-center gap-2">
+    <ChoiceGroup ariaLabel={t("Daily goal")} className="flex flex-wrap items-center gap-2">
       {PRESETS.map((p) => (
         <ChoiceChip key={p.value} selected={goal === p.value} onSelect={() => pick(p.value)}>
-          {p.label}, {p.value} a day
+          {fill(t("{label}, {n} a day"), { label: t(p.label), n: p.value })}
         </ChoiceChip>
       ))}
     </ChoiceGroup>

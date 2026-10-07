@@ -532,7 +532,7 @@ const SENTENCE_EXEMPT = [
  * part of no sentence, and left in it reads as a 49-word one.
  */
 function sentences(file: string): string[] {
-  const source = readerFacingLines(file).map((l) => l.text).join("\n");
+  const source = unwrapTranslated(readerFacingLines(file).map((l) => l.text).join("\n"));
   const runs: string[] = [];
   /*
     A `div` is deliberately not on this list. It is a container, so it matches
@@ -614,7 +614,26 @@ function sentences(file: string): string[] {
  * `propStrings` measures a lead: the point is to catch a paragraph, not to
  * argue about whether a count renders as one digit or three.
  */
-function captions(source: string): string[] {
+/**
+ * A line wired through the translator is still the English a reader sees.
+ *
+ * `{t("...")}`, `{tr(locale, "...")}` and a template filled with `fill` or
+ * `filled` around one are what a screen prints in English, so they are read
+ * as their text rather than as an interpolation the sweeps below blank to
+ * "xx". Without this, every paragraph moved into lib/copy/locale.ts would
+ * leave these checks silently, which is the failure every floor in this file
+ * exists to catch.
+ */
+function unwrapTranslated(source: string): string {
+  const call = String.raw`(?:t|tr\(\s*\w+\s*,)\(?\s*"((?:[^"\\\n]|\\.)*)"\s*\)`;
+  return source
+    .replace(new RegExp(String.raw`\{\s*(?:filled|fill)\(\s*${call}\s*,[\s\S]*?\}\)\s*\}`, "g"), "$1")
+    .replace(new RegExp(String.raw`\{\s*${call}\s*\}`, "g"), "$1")
+    .replace(/\\u201[cd]/g, '"');
+}
+
+function captions(raw: string): string[] {
+  const source = unwrapTranslated(raw);
   const out: string[] = [];
   const re = /<(p|span|div|figcaption|li)\b[^>]*className="[^"]*\b(text-2xs|text-xs)\b[^>]*>([\s\S]*?)<\/\1>/g;
   let m: RegExpExecArray | null;

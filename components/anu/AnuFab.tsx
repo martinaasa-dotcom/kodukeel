@@ -6,6 +6,7 @@ import { AnuFace } from "./AnuFace";
 import { useFinishingHover } from "@/components/motion/useFinishingHover";
 import { watchSelection } from "./readScreen";
 import { ANU_OPEN_EVENT, type OpenAnuDetail } from "./openAnu";
+import { useT } from "@/components/Locale";
 
 /*
   The panel (the conversation, the starters, the sentence check, the
@@ -38,6 +39,7 @@ export function AnuFab({
   configured: boolean;
   readerCanConfigure: boolean;
 }) {
+  const t = useT();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -137,8 +139,8 @@ export function AnuFab({
           type="button"
           {...wiggle}
           onClick={() => { setLoaded(true); setOpen(true); }}
-          aria-label="Ask Anu"
-          title="Ask Anu"
+          aria-label={t("Ask Anu")}
+          title={t("Ask Anu")}
           className="anu-call press lift flex h-14 w-14 items-center justify-center rounded-full border"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
         >

@@ -13,6 +13,8 @@ import { Dots } from "@/components/Dots";
 import type { Msg } from "./useAnuChat";
 import { fixFrom, vocabFrom } from "@/lib/tutor/markers";
 import { AnuProse } from "./Prose";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * The pieces of an Anu conversation shared by the full `/tutor` page and the
@@ -97,12 +99,13 @@ export function Provenance({ label, answered, compact = false }: {
   answered: boolean;
   compact?: boolean;
 }) {
+  const t = useT();
   if (!label) return null;
   if (compact && !answered) return null;
   return (
     <p className="text-2xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
-      {answered ? "That answer came from" : "Your questions go to"} {label}.
-      {!compact && " Anu is here for the grammar. The forms come from the dictionary."}
+      {fill(t(answered ? "That answer came from {model}." : "Your questions go to {model}."), { model: label })}
+      {!compact && ` ${t("Anu is here for the grammar. The forms come from the dictionary.")}`}
     </p>
   );
 }
@@ -129,6 +132,7 @@ export function Starters({ compact = false, lead, onPick }: {
   lead?: ReactNode;
   onPick: (prompt: string) => void;
 }) {
+  const t = useT();
   return (
     <div className="flex flex-wrap gap-2">
       {lead}
@@ -142,7 +146,7 @@ export function Starters({ compact = false, lead, onPick }: {
           }`}
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
         >
-          {compact ? c.short : c.label}
+          {t(compact ? c.short : c.label)}
         </button>
       ))}
     </div>
@@ -157,6 +161,7 @@ export function Starters({ compact = false, lead, onPick }: {
  * surface that holds the hook.
  */
 export function AnuOffline({ online, compact = false }: { online: boolean; compact?: boolean }) {
+  const t = useT();
   /*
     The status region is mounted whether or not there is anything to say. A
     live region inserted into the page already holding its text is announced
@@ -171,10 +176,10 @@ export function AnuOffline({ online, compact = false }: { online: boolean; compa
           <div className="flex items-start gap-3">
             <CloudOff size={18} aria-hidden style={{ color: "var(--sky-ink)" }} />
             <div>
-              <p className="font-semibold" style={{ color: "var(--ink)" }}>Anu needs a connection.</p>
+              <p className="font-semibold" style={{ color: "var(--ink)" }}>{t("Anu needs a connection.")}</p>
               {!compact && (
                 <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-                  Everything she&apos;s already said stays here. Ask her again once you&apos;re back online.
+                  {t("Everything she's already said stays here. Ask her again once you're back online.")}
                 </p>
               )}
             </div>
@@ -195,14 +200,15 @@ export function AnuOffline({ online, compact = false }: { online: boolean; compa
  * thread, and only once something has actually failed.
  */
 export function AnuFailure({ failure }: { failure: string | null }) {
+  const t = useT();
   if (!failure) return null;
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <p className="text-sm" style={{ color: "var(--ink-3)" }}>Still not working?</p>
+      <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Still not working?")}</p>
       <SuggestFix
         category="BROKEN"
         trigger={`Asking Anu failed: ${failure}`}
-        label="Tell the Kodukeel team"
+        label={t("Tell the Kodukeel team")}
       />
     </div>
   );
@@ -225,6 +231,7 @@ function displayUserContent(content: string): string {
 }
 
 export function Bubble({ message, streaming }: { message: Msg; streaming: boolean }) {
+  const t = useT();
   const isUser = message.role === "user";
   const { body: withoutVocab, vocab } = splitVocab(message.content);
   const { body, unverified } = splitUnverified(withoutVocab);
@@ -260,12 +267,12 @@ export function Bubble({ message, streaming }: { message: Msg; streaming: boolea
         }}
       >
         <p className="label-xs mb-1.5" style={{ color: isUser ? "var(--accent-deep)" : "var(--blush-ink)" }}>
-          {isUser
+          {t(isUser
             ? message.content.startsWith("Check this sentence for me.") ? "You, sentence to check" : "You"
-            : "Anu"}
+            : "Anu")}
         </p>
         {writing ? (
-          <Dots label="Anu is writing" />
+          <Dots label={t("Anu is writing")} />
         ) : isUser ? (
           <div className="whitespace-pre-wrap text-base leading-relaxed" style={{ color: "var(--ink)" }}>{rest}</div>
         ) : (
@@ -274,7 +281,7 @@ export function Bubble({ message, streaming }: { message: Msg; streaming: boolea
         {fix && (
           <div className="mt-3 rounded-[var(--r)] px-4 py-3" style={{ background: "var(--accent-soft)" }}>
             <div className="mb-1 flex items-center gap-2">
-              <span className="label-xs" style={{ color: "var(--accent-deep)" }}>Corrected</span>
+              <span className="label-xs" style={{ color: "var(--accent-deep)" }}>{t("Corrected")}</span>
             </div>
             <p lang="et" className="text-md" style={{ color: "var(--ink)" }}>{fix}</p>
           </div>
@@ -329,13 +336,14 @@ function splitUnverified(content: string): { body: string; unverified: string[] 
 }
 
 function UnverifiedNotice({ words }: { words: string[] }) {
+  const t = useT();
   const plural = words.length > 1;
   return (
     <div
       className="mt-3 flex flex-wrap items-baseline gap-x-1.5 gap-y-1 rounded-[var(--r)] px-4 py-3 text-sm"
       style={{ background: "var(--again-soft)", color: "var(--again-ink)" }}
     >
-      <span>{plural ? "Anu used some words above" : "Anu used a word above"} that the dictionary doesn&apos;t know yet:</span>
+      <span>{t(plural ? "Anu used some words above that the dictionary doesn't know yet:" : "Anu used a word above that the dictionary doesn't know yet:")}</span>
       <span>
         {words.map((w, i) => (
           <span key={w}>
@@ -344,7 +352,7 @@ function UnverifiedNotice({ words }: { words: string[] }) {
           </span>
         ))}.
       </span>
-      <span>Double-check {plural ? "them" : "it"} before you rely on {plural ? "them" : "it"}.</span>
+      <span>{t(plural ? "Double-check them before you rely on them." : "Double-check it before you rely on it.")}</span>
     </div>
   );
 }
@@ -385,6 +393,7 @@ function splitFix(content: string): { rest: string; fix: string | null } {
  * button under the box.
  */
 export function CheckStarter({ compact = false, onOpen }: { compact?: boolean; onOpen: () => void }) {
+  const t = useT();
   return (
     <button
       type="button"
@@ -395,7 +404,7 @@ export function CheckStarter({ compact = false, onOpen }: { compact?: boolean; o
       style={{ borderColor: "var(--accent)", color: "var(--accent-deep)", background: "var(--accent-soft)" }}
     >
       <CheckCheck size={compact ? 13 : 15} aria-hidden />
-      {compact ? "Check a sentence" : "Check a sentence I wrote"}
+      {t(compact ? "Check a sentence" : "Check a sentence I wrote")}
     </button>
   );
 }
@@ -419,28 +428,29 @@ export function SentenceCheck({
   onMeaning: (value: string) => void;
   onSubmit: () => void;
 }) {
+  const t = useT();
   if (!open) return <CheckStarter compact={compact} onOpen={onOpen} />;
 
   return (
     <Card>
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="label-xs" style={{ color: "var(--ink-3)" }}>Check a sentence</span>
+        <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Check a sentence")}</span>
         <button type="button" onClick={onClose} className="tap-tint rounded-md px-1.5 py-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
-          Close
+          {t("Close")}
         </button>
       </div>
       <EstonianInput
         value={estonian}
         onChange={onEstonian}
         placeholder="Ma lugesin raamatu eile õhtul."
-        ariaLabel="The Estonian sentence you wrote"
+        ariaLabel={t("The Estonian sentence you wrote")}
         autoFocus
       />
       <input
         value={meaning}
         onChange={(e) => onMeaning(e.target.value)}
-        placeholder="What you meant, in English (optional, but it helps)"
-        aria-label="What you meant, in English"
+        placeholder={t("What you meant, in English (optional, but it helps)")}
+        aria-label={t("What you meant, in English")}
         className="field-lg mt-2 w-full text-base"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
       />
@@ -462,11 +472,11 @@ export function SentenceCheck({
           onClick={onSubmit}
           disabled={streaming || !online || estonian.trim().length < 3}
         >
-          <CheckCheck size={15} aria-hidden /> Check it
+          <CheckCheck size={15} aria-hidden /> {t("Check it")}
         </Button>
         {!compact && (
           <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-            Anu tells you the rule before the fix, and says so when she&apos;s not sure instead of guessing.
+            {t("Anu tells you the rule before the fix, and says so when she's not sure instead of guessing.")}
           </span>
         )}
       </div>
@@ -475,10 +485,11 @@ export function SentenceCheck({
 }
 
 function VocabBridge({ vocab }: { vocab: { et: string; en: string }[] }) {
+  const t = useT();
   return (
     <div className="mt-4 border-t pt-3" style={{ borderColor: "var(--rule-soft)" }}>
       <div className="mb-2 flex items-center gap-2">
-        <span className="label-xs" style={{ color: "var(--ink-3)" }}>Vocabulary</span>
+        <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Vocabulary")}</span>
       </div>
       <ul className="flex flex-col gap-1.5">
         {vocab.map((w) => <VocabRow key={w.et} word={w} />)}
@@ -502,6 +513,7 @@ function VocabBridge({ vocab }: { vocab: { et: string; en: string }[] }) {
   what gets filed.
 */
 function VocabRow({ word }: { word: { et: string; en: string } }) {
+  const t = useT();
   const [added, setAdded] = useState(false);
 
   const keeper = useKeepWord(null, async (deckIds) => {
@@ -521,20 +533,20 @@ function VocabRow({ word }: { word: { et: string; en: string } }) {
     <li className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-3">
         <span className="text-sm">
-          <span className="font-semibold" style={{ color: "var(--ink)" }}>{word.et}</span>
+          <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{word.et}</span>
           <span style={{ color: "var(--ink-3)" }}>, {word.en}</span>
         </span>
         <div className="flex flex-wrap items-center gap-1.5">
           {keeper.asking && (
-            <Button variant="ghost" onClick={keeper.cancel}>Cancel</Button>
+            <Button variant="ghost" onClick={keeper.cancel}>{t("Cancel")}</Button>
           )}
           <Button
             variant="ghost"
             disabled={keeper.pending || added}
             onClick={keeper.press}
-            aria-label={`Add "${word.et}" to your deck`}
+            aria-label={fill(t('Add "{word}" to your deck'), { word: word.et })}
           >
-            {added ? "Added" : keeper.asking ? "Keep it" : <><Plus size={14} aria-hidden /> Add</>}
+            {added ? t("Added") : keeper.asking ? t("Keep it") : <><Plus size={14} aria-hidden /> {t("Add")}</>}
           </Button>
         </div>
       </div>

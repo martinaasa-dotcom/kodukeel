@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { setLetterBar } from "@/app/actions";
 import { ESTONIAN_LETTERS, type LetterBar } from "@/lib/ux/letterBar";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * THE BAR THAT TYPES THE SIX LETTERS A UK OR US KEYBOARD DOES NOT HAVE.
@@ -96,6 +98,7 @@ export function DiacriticBar({
   /** The field to type into when nothing has focus. */
   fallbackRef?: RefObject<HTMLInputElement | null>;
 }) {
+  const t = useT();
   const dismissible = useContext(Dismissible);
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -137,7 +140,7 @@ export function DiacriticBar({
       // Keep focus in the field being typed into.
       onMouseDown={(e) => e.preventDefault()}
       onClick={() => insert(ch, fallbackRef?.current)}
-      aria-label={`Insert ${ch}`}
+      aria-label={fill(t("Insert {letter}"), { letter: ch })}
       className="press letter-key h-9 w-9 shrink-0 rounded-full text-base font-semibold"
       style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
     >
@@ -168,9 +171,9 @@ export function DiacriticBar({
       is what it used to be. It still wraps, because the exam's answer column at
       768px is narrow enough to want it and wrapping costs nothing.
     */
-    <div className="letter-bar flex-wrap items-center gap-1.5" role="group" aria-label={label}>
+    <div className="letter-bar flex-wrap items-center gap-1.5" role="group" aria-label={t(label)}>
       {standalone && (
-        <span className="label-xs mr-1" style={{ color: "var(--ink-3)" }}>Insert</span>
+        <span className="label-xs mr-1" style={{ color: "var(--ink-3)" }}>{t("Insert")}</span>
       )}
       {rest.map(letter)}
       {dismissible ? (
@@ -182,8 +185,8 @@ export function DiacriticBar({
             disabled={pending}
             onMouseDown={(e) => e.preventDefault()}
             onClick={(e) => hide(e.currentTarget)}
-            title="Hide these. You can bring them back in Settings."
-            aria-label="Hide the Estonian letters. You can bring them back in Settings."
+            title={t("Hide these. You can bring them back in Settings.")}
+            aria-label={t("Hide the Estonian letters. You can bring them back in Settings.")}
             className="press tap-tint flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
             style={{ color: "var(--ink-3)" }}
           >

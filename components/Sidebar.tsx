@@ -1,6 +1,7 @@
 "use client";
 
 import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { usePathname, useRouter } from "next/navigation";
 import { Check, LogOut, MessageSquareWarning, MoreHorizontal, Moon, Settings, SlidersHorizontal, Sun, X } from "lucide-react";
@@ -799,9 +800,10 @@ function SignOutButton() {
     await flush();
     const stranded = await outboxSize();
     if (stranded > 0) {
-      const grades = stranded === 1 ? "1 answer" : `${stranded} answers`;
       const ok = window.confirm(
-        `${grades} on this device ${stranded === 1 ? "hasn't" : "haven't"} reached your account yet. If you sign out now, ${stranded === 1 ? "it will be" : "they will be"} lost. Sign out anyway?`,
+        stranded === 1
+          ? t("1 answer on this device hasn't reached your account yet. If you sign out now, it will be lost. Sign out anyway?")
+          : fill(t("{n} answers on this device haven't reached your account yet. If you sign out now, they will be lost. Sign out anyway?"), { n: stranded }),
       );
       if (!ok) return;
     }
@@ -822,7 +824,7 @@ function SignOutButton() {
       error = failed;
     }
     if (error) {
-      window.alert("We couldn't reach the sign-in service, so you're still signed in. Try again once you're back online.");
+      window.alert(t("We couldn't reach the sign-in service, so you're still signed in. Try again once you're back online."));
       return;
     }
     await forgetThisDevice();

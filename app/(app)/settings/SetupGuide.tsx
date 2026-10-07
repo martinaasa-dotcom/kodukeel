@@ -2,12 +2,16 @@
 
 import { Check, Copy } from "lucide-react";
 import { COPY_LABEL, useCopy } from "@/components/useCopy";
+import { useT } from "@/components/Locale";
+import { filled } from "@/components/Filled";
 
-const STEPS = [
-  { text: "Go to ", link: { href: "https://aistudio.google.com/apikey", label: "aistudio.google.com" }, after: " and sign in. It's free and takes no card." },
-  { text: "Click ", strong: "Create API key", after: ". Copy the key it shows you." },
-  { text: "In this project's folder, open the file called ", code: ".env", after: " and paste the key between the quotes, like the example below." },
-  { text: "Stop the app (Ctrl-C in the terminal) and run ", code: "npm run dev", after: " again. Anu will be there, ready to help." },
+/* Each step is one sentence with a slot where the link, the button's name or
+   the file goes, so a translation can put it wherever its own word order wants. */
+const STEPS: { line: string; link?: { href: string; label: string }; strong?: string; code?: string }[] = [
+  { line: "Go to {link} and sign in. It's free and takes no card.", link: { href: "https://aistudio.google.com/apikey", label: "aistudio.google.com" } },
+  { line: "Click {strong}. Copy the key it shows you.", strong: "Create API key" },
+  { line: "In this project's folder, open the file called {code} and paste the key between the quotes, like the example below.", code: ".env" },
+  { line: "Stop the app (Ctrl-C in the terminal) and run {code} again. Anu will be there, ready to help.", code: "npm run dev" },
 ];
 
 /*
@@ -21,14 +25,13 @@ const STEPS = [
 const SNIPPET = 'GEMINI_API_KEY="paste-your-key-here"';
 
 export function SetupGuide() {
+  const t = useT();
   const [copied, copy] = useCopy();
 
   return (
     <div>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Anu needs a free key before she can answer questions. The dictionary, your cards and the
-        audio all work without one. A single Gemini key switches on Anu, the conversations and page
-        scanning, and it costs nothing. Here&rsquo;s how, step by step:
+        {t("Anu needs a free key before she can answer questions. The dictionary, your cards and the audio all work without one. A single Gemini key switches on Anu, the conversations and page scanning, and it costs nothing. Here's how, step by step:")}
       </p>
 
       <ol className="mt-4 flex flex-col gap-3">
@@ -41,19 +44,19 @@ export function SetupGuide() {
               {i + 1}
             </span>
             <span>
-              {s.text}
-              {s.link && (
-                <a href={s.link.href} target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent-deep)" }}>
-                  {s.link.label}
-                </a>
-              )}
-              {s.strong && <strong style={{ color: "var(--ink)" }}>{s.strong}</strong>}
-              {s.code && (
-                <code className="rounded-md px-1.5 py-0.5 text-xs" style={{ background: "var(--raised)", color: "var(--ink)" }}>
-                  {s.code}
-                </code>
-              )}
-              {s.after}
+              {filled(t(s.line), {
+                link: s.link && (
+                  <a href={s.link.href} target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent-deep)" }}>
+                    {s.link.label}
+                  </a>
+                ),
+                strong: s.strong && <strong style={{ color: "var(--ink)" }}>{s.strong}</strong>,
+                code: s.code && (
+                  <code className="rounded-md px-1.5 py-0.5 text-xs" style={{ background: "var(--raised)", color: "var(--ink)" }}>
+                    {s.code}
+                  </code>
+                ),
+              })}
             </span>
           </li>
         ))}
@@ -69,7 +72,7 @@ export function SetupGuide() {
             style={{ color: copied === "copied" ? "var(--good-ink)" : "var(--ink-3)" }}
           >
             {copied === "copied" ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
-            <span aria-live="polite">{copied === "idle" ? "Copy" : COPY_LABEL[copied]}</span>
+            <span aria-live="polite">{t(copied === "idle" ? "Copy" : COPY_LABEL[copied])}</span>
           </button>
         </div>
         {/*
@@ -92,7 +95,7 @@ export function SetupGuide() {
         <pre
           tabIndex={0}
           role="region"
-          aria-label="The line to add to .env for the tutor"
+          aria-label={t("The line to add to .env for the tutor")}
           className="overflow-x-auto px-3 py-3 text-xs leading-relaxed" style={{ color: "var(--ink-2)" }}>
 {SNIPPET}
         </pre>
@@ -106,11 +109,14 @@ export function SetupGuide() {
         have been looking for a line that does not exist.
       */}
       <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-        For a backup, add a free Groq key as <code>GROQ_API_KEY</code>, from{" "}
-        <a href="https://console.groq.com" target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent-deep)" }}>
-          console.groq.com
-        </a>
-        , on a line of its own in the same file. Then Anu can still answer when Gemini is busy.
+        {filled(t("For a backup, add a free Groq key as {key}, from {link}, on a line of its own in the same file. Then Anu can still answer when Gemini is busy."), {
+          key: <code>GROQ_API_KEY</code>,
+          link: (
+            <a href="https://console.groq.com" target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent-deep)" }}>
+              console.groq.com
+            </a>
+          ),
+        })}
       </p>
     </div>
   );
