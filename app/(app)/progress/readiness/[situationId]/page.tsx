@@ -11,6 +11,8 @@ import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { Page } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { SituationDetail } from "@/components/readiness/SituationDetail";
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ situationId: string }> }) {
   const { situationId } = await params;
@@ -33,14 +35,16 @@ export default async function SituationPage({ params }: { params: Promise<{ situ
   if (!situation) notFound();
 
   const ownerId = await requireUserId();
-  const [reading, picture, rows] = await Promise.all([
+  const [reading, picture, rows, locale] = await Promise.all([
     readingFor(ownerId, situationId),
     readinessPicture(ownerId),
     prisma.lexeme.findMany({
       where: { lemma: { in: [...situation.lemmas] } },
       select: { id: true, lemma: true, translation: true, pos: true, provenance: true, forms: { select: { formType: true } } },
     }),
+    localeFor(ownerId),
   ]);
+  const t = (english: string) => tr(locale, english);
   if (!reading) notFound();
 
   // One row per lemma, in the unit's own order, for the reason the unit page
@@ -62,18 +66,18 @@ export default async function SituationPage({ params }: { params: Promise<{ situ
          , {situation.level}
         </>
       }
-      title={situation.claim}
-      lead="Based on your own answers. Where they can't tell us something, we say so."
+      title={t(situation.claim)}
+      lead={t("Based on your own answers. Where they can't tell us something, we say so.")}
       actions={
         <span className="flex flex-wrap gap-2">
           <Link href="/progress/readiness" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
-            <ArrowLeft size={14} aria-hidden /> All situations
+            <ArrowLeft size={14} aria-hidden /> {t("All situations")}
           </Link>
-          <ButtonLink href={`/learn/${situation.id}`} size="sm">Open the unit</ButtonLink>
+          <ButtonLink href={`/learn/${situation.id}`} size="sm">{t("Open the unit")}</ButtonLink>
         </span>
       }
     >
-      <SituationDetail reading={reading} words={words} />
+      <SituationDetail reading={reading} words={words} locale={locale} />
     </Page>
   );
 }

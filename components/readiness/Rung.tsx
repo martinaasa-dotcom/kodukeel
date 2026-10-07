@@ -1,5 +1,6 @@
 import { Chip } from "@/components/ui";
 import { RUNG_LABEL, type Rung } from "@/lib/readiness/rungs";
+import { tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * A rung is a reading of the log, not a verdict on an answer, so it is one hue
@@ -36,6 +37,6 @@ export const RUNG_INK: Record<Rung, string> = {
   unmet: "var(--ink-3)",
 };
 
-export function RungChip({ rung }: { rung: Rung }) {
-  return <Chip tone={RUNG_CHIP[rung]}>{RUNG_LABEL[rung]}</Chip>;
+export function RungChip({ rung, locale }: { rung: Rung; locale: Locale }) {
+  return <Chip tone={RUNG_CHIP[rung]}>{tr(locale, RUNG_LABEL[rung])}</Chip>;
 }

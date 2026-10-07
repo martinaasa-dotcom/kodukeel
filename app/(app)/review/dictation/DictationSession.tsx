@@ -498,7 +498,7 @@ function Marked({ result }: { result: DictationResult }) {
                   word underneath itself is noise. */}
               {word.status !== "right" && word.status !== "extra" && (
                 <span className="text-2xs" style={{ color: "var(--ink-3)" }} aria-hidden>
-                  {word.typed ? fill(t("you: {typed}"), { typed: word.typed }) : t("left out")}
+                  {word.typed ? fill(t("you: {typed}"), { typed: word.typed }) : t("left out", "word")}
                 </span>
               )}
               {/*

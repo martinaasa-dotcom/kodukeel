@@ -15,6 +15,9 @@ import { DATE_AND_TIME, DateText } from "@/components/DateText";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Meter, Note, Page, Ring, SectionTitle } from "@/components/ui";
 import { ExamCountdownCard } from "@/components/ExamCountdown";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
+import { sayIn } from "@/lib/copy/said";
 
 export const metadata = { title: "Mock exam" };
 
@@ -32,12 +35,14 @@ export const dynamic = "force-dynamic";
  */
 export default async function ExamPage() {
   const ownerId = await requireUserId();
-  const [signals, attempts, clock, pace] = await Promise.all([
+  const [signals, attempts, clock, pace, locale] = await Promise.all([
     readinessSignals(ownerId),
     recentAttempts(ownerId),
     learnerDayClock(ownerId),
     measuredPaceFor(ownerId),
+    localeFor(ownerId),
   ]);
+  const t = (english: string, context?: string) => tr(locale, english, context);
   const readiness = assessReadiness(signals);
 
   /*
@@ -63,17 +68,17 @@ export default async function ExamPage() {
     three this page already asked for, and where nobody named a band it falls
     back to the one the climb stopped at and says whose it is.
   */
-  const countdown = await examCountdown(ownerId, new Date(), clock, undefined, pace, signals);
+  const countdown = await examCountdown(ownerId, new Date(), clock, locale, undefined, pace, signals);
 
   // The words live beside the tier in `readiness.ts`, because Today prints the
   // same percentage and two copies of "what this number is worth" is how one
   // screen ends up quietly more confident than the other.
-  const evidenceNote = EVIDENCE_NOTE[readiness.evidence];
+  const evidenceNote = t(EVIDENCE_NOTE[readiness.evidence]);
 
   return (
     <Page route="/exam"
-      eyebrow="Mock examination"
-      title="Try the state exam here before the real thing"
+      eyebrow={t("Mock examination")}
+      title={t("Try the state exam here before the real thing")}
       /*
         278 characters, in four literals joined with `+`, which is how it got
         past the 95-character ceiling on a page lead: the sweep measured each
@@ -81,15 +86,15 @@ export default async function ExamPage() {
         list with one, and the pass rule it spent a sentence on is the hint on
         the section that lists the papers, three screens down.
       */
-      lead="The state exam comes at A2, B1, B2 and C1. These are practice papers made from our dictionary."
+      lead={t("The state exam comes at A2, B1, B2 and C1. These are practice papers made from our dictionary.")}
     >
       {/* The card carries its own heading and its own hint, which is why there
           is no `SectionTitle` over it: two headings on one card is the shape
           this pass took off Today. */}
-      {countdown && <ExamCountdownCard countdown={countdown} zone={clock.zone} className="mb-10" />}
+      {countdown && <ExamCountdownCard countdown={countdown} zone={clock.zone} locale={locale} className="mb-10" />}
 
       <section className="mb-10">
-        <SectionTitle hint={evidenceNote}>Where you are</SectionTitle>
+        <SectionTitle hint={evidenceNote}>{t("Where you are")}</SectionTitle>
         <Card>
           {/* The ring and the verdict share a row; what follows takes the
               card's width on a phone rather than a column beside the ring. */}
@@ -99,7 +104,7 @@ export default async function ExamPage() {
               pct={readiness.assessed ? 100 : 0}
               size={72}
               tone="var(--accent)"
-              label={readiness.assessed ? `Assessed at ${readiness.assessed}` : "No level assessed yet"}
+              label={readiness.assessed ? fill(t("Assessed at {level}"), { level: readiness.assessed }) : t("No level assessed yet")}
             >
               <span className="text-xl font-bold" style={{ color: "var(--ink)" }}>
                 {readiness.assessed ?? "?"}
@@ -108,16 +113,16 @@ export default async function ExamPage() {
             </span>
             <p className="text-lg font-bold sm:self-end sm:text-xl" style={{ color: "var(--ink)" }}>
               {readiness.assessed
-                ? `We'd bet on you passing ${readiness.assessed} today.`
-                : "We wouldn't bet on any paper yet."}
+                ? fill(t("We'd bet on you passing {level} today."), { level: readiness.assessed })
+                : t("We wouldn't bet on any paper yet.")}
             </p>
             <div className="col-span-2 sm:col-span-1 sm:col-start-2 sm:self-start">
               <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {!readiness.next
-                  ? "You could pass every paper here. That's as far as we can tell."
+                  ? t("You could pass every paper here. That's as far as we can tell.")
                   : readiness.assessed
-                    ? `${readiness.next} is next, and the gaps below are what's in your way.`
-                    : `${readiness.next} is the one to aim for first, and the gaps below are what's in your way.`}
+                    ? fill(t("{level} is next, and the gaps below are what's in your way."), { level: readiness.next })
+                    : fill(t("{level} is the one to aim for first, and the gaps below are what's in your way."), { level: readiness.next })}
               </p>
               {/*
                 A page that says "no level assessed yet" and offers no way to be
@@ -129,10 +134,10 @@ export default async function ExamPage() {
               <p className="mt-3 flex flex-wrap items-center gap-3">
                 <ButtonLink href="/assess" variant={readiness.assessed ? "secondary" : "primary"} size="sm">
                   <Compass size={14} aria-hidden />
-                  {readiness.assessed ? "Check your level again" : "Take the level check"}
+                  {t(readiness.assessed ? "Check your level again" : "Take the level check")}
                 </ButtonLink>
                 <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-                  About half an hour. It&apos;s what this number comes from.
+                  {t("About half an hour. It's what this number comes from.")}
                 </span>
               </p>
             </div>
@@ -141,8 +146,8 @@ export default async function ExamPage() {
       </section>
 
       <section className="mb-10">
-        <SectionTitle hint={`${PASS_PCT} percent to pass, and no part can be a zero`}>
-          Every paper, and how likely you are to pass it
+        <SectionTitle hint={fill(t("{pct} percent to pass, and no part can be a zero"), { pct: PASS_PCT })}>
+          {t("Every paper, and how likely you are to pass it")}
         </SectionTitle>
         {/* Two papers across once the section can hold two, which the window
             said it could at 768 and the column did not: 176px a card, with
@@ -166,9 +171,9 @@ export default async function ExamPage() {
                           {level.level}
                         </span>
                         {official
-                          ? <Chip tone="sky"><BadgeCheck size={12} aria-hidden /> State exam</Chip>
-                          : <Chip tone="neutral">Not examined</Chip>}
-                        {level.measured && <Chip tone="accent">Sat</Chip>}
+                          ? <Chip tone="sky"><BadgeCheck size={12} aria-hidden /> {t("State exam")}</Chip>
+                          : <Chip tone="neutral">{t("Not examined")}</Chip>}
+                        {level.measured && <Chip tone="accent">{t("Sat", "exam")}</Chip>}
                       </div>
                     </div>
                     <span className="flex shrink-0 flex-col items-center gap-1">
@@ -176,7 +181,7 @@ export default async function ExamPage() {
                       pct={level.confidence}
                       size={62}
                       tone="var(--accent)"
-                      label={`${level.confidence} percent likely to pass ${level.level}`}
+                      label={fill(t("{pct} percent likely to pass {level}"), { pct: level.confidence, level: level.level })}
                     >
                       <span className="tnum text-md font-bold" style={{ color: "var(--ink)" }}>
                         {level.confidence}%
@@ -187,7 +192,7 @@ export default async function ExamPage() {
                         still thin, so the section's one hint could not speak
                         for this ring. */}
                     <span className="max-w-[6rem] text-center text-xs leading-tight" style={{ color: "var(--ink-3)" }} data-evidence={level.measured ? "sat" : readiness.evidence}>
-                      {level.measured ? "from your paper" : EVIDENCE_LABEL[readiness.evidence]}
+                      {level.measured ? t("from your paper") : t(EVIDENCE_LABEL[readiness.evidence])}
                     </span>
                     </span>
                   </div>
@@ -197,7 +202,7 @@ export default async function ExamPage() {
                       cards it was "X is a long way off for now" five times
                       down the page. */}
                   {(level.measured || level.confidence >= 25) && (
-                    <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{level.verdict}</p>
+                    <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{sayIn(locale, level.verdictSaid)}</p>
                   )}
 
                   {/* The four parts only once one of them has a figure: four
@@ -208,19 +213,19 @@ export default async function ExamPage() {
                     {SKILLS.map((skill) => (
                       <div key={skill}>
                         <dt className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-                          {SKILL_LABEL[skill]}
+                          {t(SKILL_LABEL[skill])}
                         </dt>
                         <dd>
                           {level.seen[skill] ? (
                             <Meter
                               pct={level.expected[skill]}
-                              label={`${SKILL_LABEL[skill]} predicted at ${level.expected[skill]} percent`}
+                              label={fill(t("{skill} predicted at {pct} percent"), { skill: t(SKILL_LABEL[skill]), pct: level.expected[skill] })}
                               tone="var(--accent)"
                               height={6}
                             />
                           ) : (
                             <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                              nothing measured yet
+                              {t("nothing measured yet")}
                             </span>
                           )}
                         </dd>
@@ -232,7 +237,7 @@ export default async function ExamPage() {
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                     <span className="inline-flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
                       <Clock size={12} aria-hidden />
-                      <span className="sr-only">Predicted {level.expectedTotal} percent, {band.label}. </span>
+                      <span className="sr-only">{fill(t("Predicted {pct} percent, {band}."), { pct: level.expectedTotal, band: t(band.label) })} </span>
                       {writtenMinutes(spec)} + {spec.parts[3]?.minutes ?? 15} min
                     </span>
                     <span className="flex flex-wrap items-center gap-3">
@@ -241,10 +246,10 @@ export default async function ExamPage() {
                         className="text-sm font-semibold underline underline-offset-4"
                         style={{ color: "var(--ink-2)" }}
                       >
-                        Pick a paper, or just one part
+                        {t("Pick a paper, or just one part")}
                       </Link>
                       <ButtonLink href={`/exam/${level.level}`} variant="secondary" size="sm">
-                        Sit it <ArrowRight size={14} aria-hidden />
+                        {t("Sit it")} <ArrowRight size={14} aria-hidden />
                       </ButtonLink>
                     </span>
                   </div>
@@ -257,10 +262,10 @@ export default async function ExamPage() {
 
       <div className="mb-10 grid gap-6 md:grid-cols-2">
         <section>
-          <SectionTitle>What you&apos;re already good at</SectionTitle>
+          <SectionTitle>{t("What you're already good at")}</SectionTitle>
           {readiness.strengths.length === 0 ? (
             <Note tone="neutral">
-              Nothing here yet. Review for a week or two and it will start to fill in.
+              {t("Nothing here yet. Review for a week or two and it will start to fill in.")}
             </Note>
           ) : (
             <ul className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
@@ -270,8 +275,8 @@ export default async function ExamPage() {
                     <BadgeCheck size={16} />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{item.title}</span>
-                    <span className="mt-0.5 block text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.detail}</span>
+                    <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{sayIn(locale, item.said.title)}</span>
+                    <span className="mt-0.5 block text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{sayIn(locale, item.said.detail)}</span>
                   </span>
                 </li>
               ))}
@@ -280,21 +285,21 @@ export default async function ExamPage() {
         </section>
 
         <section>
-          <SectionTitle>What is standing in the way</SectionTitle>
+          <SectionTitle>{t("What is standing in the way")}</SectionTitle>
           {readiness.gaps.length === 0 ? (
-            <Note tone="good">Nothing here is holding you back. Go sit the paper.</Note>
+            <Note tone="good">{t("Nothing here is holding you back. Go sit the paper.")}</Note>
           ) : (
             <ul className="flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
-              {readiness.gaps.slice(0, SHOWN).map((item) => <GapRow key={item.id} item={item} />)}
+              {readiness.gaps.slice(0, SHOWN).map((item) => <GapRow key={item.id} item={item} locale={locale} />)}
             </ul>
           )}
           {readiness.gaps.length > SHOWN && (
             <details className="mt-2">
               <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--accent-deep)" }}>
-                {readiness.gaps.length - SHOWN} more
+                {fill(t("{n} more"), { n: readiness.gaps.length - SHOWN })}
               </summary>
               <ul className="mt-2 flex flex-col divide-y overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule-soft)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
-                {readiness.gaps.slice(SHOWN).map((item) => <GapRow key={item.id} item={item} />)}
+                {readiness.gaps.slice(SHOWN).map((item) => <GapRow key={item.id} item={item} locale={locale} />)}
               </ul>
             </details>
           )}
@@ -302,25 +307,24 @@ export default async function ExamPage() {
       </div>
 
       <section className="mb-10">
-        <SectionTitle>Papers you&apos;ve sat</SectionTitle>
+        <SectionTitle>{t("Papers you've sat")}</SectionTitle>
         {attempts.length === 0 ? (
           <Note tone="neutral">
             <ClipboardCheck size={14} className="mr-1.5 inline" aria-hidden />
-            None yet. One paper tells us more than a month of flashcards, since it&apos;s the only
-            thing here that tests all four parts at once.
+            {t("None yet. One paper tells us more than a month of flashcards, since it's the only thing here that tests all four parts at once.")}
           </Note>
         ) : (
           <ul className="grid gap-2">
-            {attempts.slice(0, SHOWN).map((attempt, index) => <SittingRow key={`${attempt.level}-${attempt.at}-${index}`} attempt={attempt} zone={clock.zone} />)}
+            {attempts.slice(0, SHOWN).map((attempt, index) => <SittingRow key={`${attempt.level}-${attempt.at}-${index}`} attempt={attempt} zone={clock.zone} locale={locale} />)}
           </ul>
         )}
         {attempts.length > SHOWN && (
           <details className="mt-2">
             <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--accent-deep)" }}>
-              {attempts.length - SHOWN} earlier
+              {fill(t("{n} earlier"), { n: attempts.length - SHOWN })}
             </summary>
             <ul className="mt-2 grid gap-2">
-              {attempts.slice(SHOWN).map((attempt, index) => <SittingRow key={`${attempt.level}-${attempt.at}-${index}`} attempt={attempt} zone={clock.zone} />)}
+              {attempts.slice(SHOWN).map((attempt, index) => <SittingRow key={`${attempt.level}-${attempt.at}-${index}`} attempt={attempt} zone={clock.zone} locale={locale} />)}
             </ul>
           </details>
         )}
@@ -329,38 +333,30 @@ export default async function ExamPage() {
       <Card>
         <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--ink)" }}>
           <Info size={16} aria-hidden />
-          What these papers are, and what they aren&apos;t
+          {t("What these papers are, and what they aren't")}
         </p>
-        <ul className="mt-2 grid gap-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+        <ul lang={locale} className="mt-2 grid gap-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <li>
-            The structure is real. The parts, the timing, the points, the sixty percent you need to
-            pass, and a zero on any part failing you outright. Sit one of these and you&apos;ll know
-            what the real exam feels like.
+            {t("The structure is real. The parts, the timing, the points, the sixty percent you need to pass, and a zero on any part failing you outright. Sit one of these and you'll know what the real exam feels like.")}
           </li>
           <li>
-            The questions themselves aren&apos;t the real ones, but every word in them is real Estonian,
-            straight from the dictionary. The reading part uses real recorded sentences instead of a
-            magazine article, and in the speaking part a microphone stands in for the examiner.
+            {t("The questions themselves aren't the real ones, but every word in them is real Estonian, straight from the dictionary. The reading part uses real recorded sentences instead of a magazine article, and in the speaking part a microphone stands in for the examiner.")}
           </li>
           <li>
             <CircleAlert size={13} className="mr-1 inline" aria-hidden />
-            Nothing here scores your pronunciation. We tested a speech recognizer and it
-            wasn&apos;t accurate enough, so instead you record yourself, listen back, and judge how
-            you did. You&apos;ll see this note again on your result.
+            {t("Nothing here scores your pronunciation. We tested a speech recognizer and it wasn't accurate enough, so instead you record yourself, listen back, and judge how you did. You'll see this note again on your result.")}
           </li>
           <li>
             <Lightbulb size={13} className="mr-1 inline" aria-hidden />
-            The A1 paper is ours, not the state&apos;s. Estonia doesn&apos;t test at that level, so
-            we made one a little easier than A2. That way your first attempt is one you can pass.
+            {t("The A1 paper is ours, not the state's. Estonia doesn't test at that level, so we made one a little easier than A2. That way your first attempt is one you can pass.")}
           </li>
           <li>
             <ArrowRight size={13} className="mr-1 inline" aria-hidden />
-            How to register for the real one, what to bring on the day and what happens if you
-            fail are on{" "}
+            {t("How to register for the real one, what to bring on the day and what happens if you fail are on")}{" "}
             <Link href="/state-exam" className="font-semibold underline underline-offset-4">
-              the state examination
+              {t("the state examination")}
             </Link>
-            , taken from the Board&apos;s own pages, along with its free practice material.
+            {t(", taken from the Board's own pages, along with its free practice material.")}
           </li>
         </ul>
       </Card>
@@ -378,22 +374,23 @@ const SHOWN = 4;
 type Gap = ReturnType<typeof assessReadiness>["gaps"][number];
 type Sitting = Awaited<ReturnType<typeof recentAttempts>>[number];
 
-function GapRow({ item }: { item: Gap }) {
+function GapRow({ item, locale }: { item: Gap; locale: Locale }) {
+  const t = (english: string, context?: string) => tr(locale, english, context);
   return (
     <li className="flex items-start gap-3 px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
       <span aria-hidden className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ background: "var(--blush-soft)", color: "var(--blush-ink)" }}>
         <TriangleAlert size={16} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{item.title}</span>
-        <span className="mt-0.5 block text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.detail}</span>
+        <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{sayIn(locale, item.said.title)}</span>
+        <span className="mt-0.5 block text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{sayIn(locale, item.said.detail)}</span>
         {item.href && (
           <Link
             href={item.href}
             className="mt-2 inline-block text-sm font-semibold underline underline-offset-4"
             style={{ color: "var(--accent-deep)" }}
           >
-            {item.cta ?? "Go and fix it"} <ArrowRight size={13} aria-hidden className="inline align-[-2px]" />
+            {t(item.cta ?? "Go and fix it")} <ArrowRight size={13} aria-hidden className="inline align-[-2px]" />
           </Link>
         )}
       </span>
@@ -401,7 +398,8 @@ function GapRow({ item }: { item: Gap }) {
   );
 }
 
-function SittingRow({ attempt, zone }: { attempt: Sitting; zone: Zone }) {
+function SittingRow({ attempt, zone, locale }: { attempt: Sitting; zone: Zone; locale: Locale }) {
+  const t = (english: string, context?: string) => tr(locale, english, context);
   return (
     <li>
       <Card className="flex flex-wrap items-center justify-between gap-3 !py-3">
@@ -411,15 +409,14 @@ function SittingRow({ attempt, zone }: { attempt: Sitting; zone: Zone }) {
           </span>
           {(attempt.number || attempt.part) && (
             <span className="text-sm" style={{ color: "var(--ink-2)" }}>
-              {attempt.number ? `Paper ${attempt.number}` : "A paper"}
-              {attempt.part ? `, ${SKILL_LABEL[attempt.part].toLowerCase()} only` : ""}
+              {attempt.number ? fill(t("Paper {n}"), { n: attempt.number }) : t("A paper")}
+              {attempt.part ? t(`, ${SKILL_LABEL[attempt.part].toLowerCase()} only`) : ""}
             </span>
           )}
           <Chip tone={attempt.passed ? "good" : "again"}>
-            {attempt.pct} percent
-            {attempt.whole === false
-              ? ""
-              : attempt.passed ? ", pass" : ", not a pass"}
+            {fill(t(attempt.whole === false
+              ? "{pct} percent"
+              : attempt.passed ? "{pct} percent, pass" : "{pct} percent, not a pass"), { pct: attempt.pct })}
           </Chip>
         </span>
         <span className="text-xs" style={{ color: "var(--ink-3)" }}>

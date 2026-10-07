@@ -124,8 +124,8 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
             <p className="mt-1.5 text-md" style={{ color: "var(--ink)" }}>{t(unit.canDo)}</p>
             {reading && reading.rung !== "unmet" && (
               <p className="mt-2 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                <RungChip rung={reading.rung} />
-                <span>{t(verdictFor(reading))} {t(`${EVIDENCE_LABEL[reading.evidence].charAt(0).toUpperCase()}${EVIDENCE_LABEL[reading.evidence].slice(1)}.`)}</span>
+                <RungChip rung={reading.rung} locale={locale} />
+                <span>{verdictFor(reading, locale)} {t(`${EVIDENCE_LABEL[reading.evidence].charAt(0).toUpperCase()}${EVIDENCE_LABEL[reading.evidence].slice(1)}.`)}</span>
                 <Link href={`/progress/readiness/${unit.id}`} className="underline" style={{ color: "var(--accent-deep)" }}>
                   {t("See where you might get stuck")}
                 </Link>

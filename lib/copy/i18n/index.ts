@@ -8,6 +8,7 @@ import { SITUATIONS } from "./areas/situations";
 import { REFERENCE } from "./areas/reference";
 import { APP } from "./areas/app";
 import { ROUNDS } from "./areas/rounds";
+import { PROGRESS } from "./areas/progress";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -23,4 +24,5 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["reference", REFERENCE],
   ["app", APP],
   ["rounds", ROUNDS],
+  ["progress", PROGRESS],
 ];

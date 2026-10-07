@@ -6,6 +6,8 @@ import { PASS_PCT } from "@/lib/exam/spec";
 import { ButtonLink } from "@/components/Button";
 import { LocalDate } from "@/components/LocalDate";
 import { Card, CardLink, Ring, SectionTitle } from "@/components/ui";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
+import { sayIn } from "@/lib/copy/said";
 
 /**
  * THE DATE THEY GAVE US, AND WHETHER THEY ARE GOING TO MAKE IT.
@@ -39,19 +41,21 @@ import { Card, CardLink, Ring, SectionTitle } from "@/components/ui";
  * percentage says the same thing in digits so the
  * color is never the only channel.
  */
-export function ExamCountdownCard({ countdown, zone, className }: {
+export function ExamCountdownCard({ countdown, zone, className, locale }: {
+  locale: Locale;
   countdown: ExamCountdown;
   /** The learner's zone, so the date reads as their date. */
   zone: string | undefined;
   className?: string;
 }) {
+  const t = (english: string) => tr(locale, english);
   const passing = countdown.confidence >= PASS_PCT;
   const gone = countdown.daysLeft !== null && countdown.daysLeft < 0;
 
   return (
     <Card tone="night" className={className}>
-      <SectionTitle hint={countdown.chosen ? countdown.phrase ?? "no date set" : "no target set"}>
-        {countdown.chosen ? "Your exam" : "Where you stand"}
+      <SectionTitle hint={countdown.chosen ? countdown.phrase ?? t("no date set") : t("no target set")}>
+        {t(countdown.chosen ? "Your exam" : "Where you stand")}
       </SectionTitle>
 
       <div className="flex flex-wrap items-center gap-4">
@@ -62,7 +66,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
           tone="var(--cta)"
           // A night panel: the track is a faint light rather than a rule.
           track="rgb(255 255 255 / 0.1)"
-          label={`${countdown.confidence} percent likely to pass ${countdown.band}`}
+          label={fill(t("{pct} percent likely to pass {level}"), { pct: countdown.confidence, level: countdown.band })}
         >
           <span className="tnum font-display text-xl font-bold" style={{ color: "var(--ink)" }}>
             {countdown.confidence}%
@@ -73,9 +77,9 @@ export function ExamCountdownCard({ countdown, zone, className }: {
             {countdown.band}, {countdown.label}
           </p>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            {countdown.chosen
-              ? `${countdown.confidence}% likely to pass`
-              : `${countdown.confidence}% likely to pass. It's your next level up.`}
+            {fill(t(countdown.chosen
+              ? "{pct}% likely to pass"
+              : "{pct}% likely to pass. It's your next level up."), { pct: countdown.confidence })}
           </p>
           {/*
             What the number is worth, beside the number. The hub prints the long
@@ -83,7 +87,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
             here and there is room for three words.
           */}
           <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-            {countdown.measured ? "from a paper you sat" : EVIDENCE_LABEL[countdown.evidence]}
+            {countdown.measured ? t("from a paper you sat") : t(EVIDENCE_LABEL[countdown.evidence])}
           </p>
         </div>
       </div>
@@ -91,7 +95,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
       {countdown.deadline && (
         <p className="mt-3.5 flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
           <CalendarClock size={14} aria-hidden style={{ color: "var(--ink-3)" }} />
-          {gone ? "That date has already passed: " : "Your date: "}
+          {t(gone ? "That date has already passed:" : "Your date:")}{" "}
           {/*
             The reader's own date order and month names, which only their
             browser knows. Rendered on a server, `undefined` as a locale is the
@@ -125,22 +129,22 @@ export function ExamCountdownCard({ countdown, zone, className }: {
       */}
       <p className="mt-2.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
         {passing ? (
-          "Based on what we've seen so far, you would pass if you sat it today."
+          t("Based on what we've seen so far, you would pass if you sat it today.")
         ) : countdown.gap ? (
           <>
-            {countdown.gap.title}.{" "}
+            {sayIn(locale, countdown.gap.said.title)}.{" "}
             {countdown.gap.href && countdown.gap.cta && (
               <Link
                 href={countdown.gap.href}
                 className="font-semibold underline underline-offset-2"
                 style={{ color: "var(--accent-deep)" }}
               >
-                {countdown.gap.cta}
+                {t(countdown.gap.cta)}
               </Link>
             )}
           </>
         ) : (
-          "We haven't seen enough of your answers yet to tell what's holding you back."
+          t("We haven't seen enough of your answers yet to tell what's holding you back.")
         )}
       </p>
 
@@ -158,7 +162,7 @@ export function ExamCountdownCard({ countdown, zone, className }: {
           className="underline underline-offset-2"
           style={{ color: "var(--accent-deep)" }}
         >
-          See the plan
+          {t("See the plan")}
         </Link>
       </p>
 
@@ -166,10 +170,10 @@ export function ExamCountdownCard({ countdown, zone, className }: {
         {/* The paper itself, which is what this whole card is about and is one
             press from the page it sits on. */}
         <ButtonLink href={`/exam/${countdown.band}`} variant="secondary" size="sm">
-          Try the {countdown.band} mock exam <ArrowRight size={14} aria-hidden />
+          {fill(t("Try the {level} mock exam"), { level: countdown.band })} <ArrowRight size={14} aria-hidden />
         </ButtonLink>
         <CardLink href="/settings#goals">
-          {countdown.chosen ? "Change the goal" : "Set a goal of your own"}
+          {t(countdown.chosen ? "Change the goal" : "Set a goal of your own")}
         </CardLink>
       </div>
     </Card>

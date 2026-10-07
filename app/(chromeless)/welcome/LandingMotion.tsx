@@ -234,7 +234,7 @@ export function PlanCalculator() {
               {span}
             </p>
             <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {distanceLine(plan)}
+              {distanceLine(plan, "en")}
             </p>
           </>
         )}

@@ -269,7 +269,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
           <section id="goals">
             <SectionTitle
-              hint={latestCheck ? fill(t("measured {level}"), { level: levelLabel((latestCheck.overall ?? null) as never) }) : t("not measured yet")}
+              hint={latestCheck ? fill(t("measured {level}"), { level: levelLabel((latestCheck.overall ?? null) as never, locale) }) : t("not measured yet")}
             >
               {t("Why you're learning")}
             </SectionTitle>

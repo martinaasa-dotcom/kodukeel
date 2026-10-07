@@ -4,6 +4,7 @@ import type { CaseAccuracy } from "@/lib/stats/history";
 import { caseByKey, questionInEnglish } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 import { Meter } from "@/components/ui";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * The cases a learner keeps missing, worst first, with a way in to each.
@@ -28,12 +29,14 @@ import { Meter } from "@/components/ui";
  * not understood yet only fails faster, so the way out has to be visible
  * without turning the list into two lines per case.
  */
-export function WeakestCases({ cases, empty }: {
+export function WeakestCases({ cases, empty, locale }: {
   cases: CaseAccuracy[];
+  locale: Locale;
   /** What to say when there is nothing to show. Each screen phrases its own. */
   empty: React.ReactNode;
 }) {
   if (cases.length === 0) return <>{empty}</>;
+  const t = (english: string) => tr(locale, english);
 
   return (
     <ul className="flex flex-col gap-2">
@@ -62,7 +65,12 @@ export function WeakestCases({ cases, empty }: {
           <li key={c.grammCase} className="flex min-w-0 items-center gap-1">
             <Link
               href={`/review?case=${c.grammCase}`}
-              aria-label={`Practise the ${name}${asks ? `, which asks ${asks}` : ""}. Right ${c.accuracy} percent of the time over ${c.total} reviews`}
+              aria-label={fill(
+                t(asks
+                  ? "Practise the {name}, which asks {asks}. Right {pct} percent of the time over {total} reviews"
+                  : "Practise the {name}. Right {pct} percent of the time over {total} reviews"),
+                { name, asks: asks ?? "", pct: c.accuracy, total: c.total },
+              )}
               className="pill tap-tint flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1 rounded-[var(--r)] px-2 py-1.5 text-sm"
             >
               {/*
@@ -125,7 +133,7 @@ export function WeakestCases({ cases, empty }: {
             </Link>
             <Link
               href={`/grammar/${english}`}
-              aria-label={`What the ${name} is for${asks ? `, the one that asks ${asks}` : ""}`}
+              aria-label={fill(t(asks ? "What the {name} is for, the one that asks {asks}" : "What the {name} is for"), { name, asks: asks ?? "" })}
               title={`${name}${asks ? `: ${asks}` : ""}`}
               className="press flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
               style={{ color: "var(--ink-3)" }}

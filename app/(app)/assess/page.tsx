@@ -13,6 +13,9 @@ import { programmeFor } from "@/lib/progress/course";
 import { DATE_AND_TIME, DateText } from "@/components/DateText";
 import { Explain } from "@/components/Explain";
 import { firstParams } from "@/lib/ux/queryParam";
+import { localeFor } from "@/lib/progress/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/fillNodes";
 
 export const metadata = { title: "Level check" };
 
@@ -34,7 +37,8 @@ export default async function AssessPage({
   searchParams: Promise<{ take?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
-  const { take } = firstParams(await searchParams);
+  const [{ take }, locale] = await Promise.all([firstParams(await searchParams), localeFor(ownerId)]);
+  const t = (english: string) => tr(locale, english);
 
   if (take) {
     // A different seed every sitting, so a second attempt is a second test
@@ -42,11 +46,11 @@ export default async function AssessPage({
     const paper = await paperFor(ownerId, Date.now() % 1_000_000);
     if (paper.items.length === 0) {
       return (
-        <Page route="/assess" title="Level check" lead="A short test of your reading, listening and writing, so we know where to start you.">
+        <Page route="/assess" title={t("Level check")} lead={t("A short test of your reading, listening and writing, so we know where to start you.")}>
           <Empty
-            title="We couldn't put a check together"
-            body="Every question is built from the dictionary, and it has no words with a level on them yet."
-            action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+            title={t("We couldn't put a check together")}
+            body={t("Every question is built from the dictionary, and it has no words with a level on them yet.")}
+            action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
           />
         </Page>
       );
@@ -99,11 +103,11 @@ export default async function AssessPage({
 
   return (
     <Page route="/assess"
-      title="Level check"
-      lead="A short test of your reading, listening and writing, so we know where to start you."
+      title={t("Level check")}
+      lead={t("A short test of your reading, listening and writing, so we know where to start you.")}
       actions={result ? (
         <ButtonLink href="/assess?take=1" variant="primary" size="lg">
-          <Compass size={16} aria-hidden /> Take it again
+          <Compass size={16} aria-hidden /> {t("Take it again")}
         </ButtonLink>
       ) : undefined}
     >
@@ -111,24 +115,25 @@ export default async function AssessPage({
         {result ? (
           <ResultPanel
             result={result}
+            locale={locale}
             heading={latest ? (
               <>
-                Measured{" "}
-                <DateText iso={latest.takenAt.toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
+                {fillNodes(t("Measured {date}"), { date: <DateText iso={latest.takenAt.toISOString()} zone={clock.zone} options={DATE_AND_TIME} /> })}
               </>
             ) : "Where you are"}
           />
         ) : (
           <Empty
-            title="You haven't taken a check yet"
-            body="It starts easy and gets harder until it finds your level. For speaking, you judge yourself."
-            action={<ButtonLink href="/assess?take=1" variant="primary" size="lg">Start the check</ButtonLink>}
+            title={t("You haven't taken a check yet")}
+            body={t("It starts easy and gets harder until it finds your level. For speaking, you judge yourself.")}
+            action={<ButtonLink href="/assess?take=1" variant="primary" size="lg">{t("Start the check")}</ButtonLink>}
           />
         )}
 
         <div>
-          <SectionTitle hint="counted in hours of study">What this means for your goal</SectionTitle>
+          <SectionTitle hint={t("counted in hours of study")}>{t("What this means for your goal")}</SectionTitle>
           <PlanPanel
+            locale={locale}
             standing={standing}
             goals={goals}
             dailyGoal={goals.dailyGoal}
@@ -139,9 +144,9 @@ export default async function AssessPage({
 
         {history.length > 1 && (
           <div>
-            <SectionTitle hint={`${history.length} sittings`}>
+            <SectionTitle hint={countOf(locale, history.length, "sitting")}>
               <History size={13} className="mr-1.5 inline" aria-hidden />
-              Every check you&apos;ve taken
+              {t("Every check you've taken")}
             </SectionTitle>
             <Card>
               <ul className="flex flex-col">
@@ -156,21 +161,21 @@ export default async function AssessPage({
                     </span>
                     <span className="flex flex-wrap items-center gap-2">
                       <Chip tone="accent">
-                        {row.overall === PRE_A1 ? "below A1" : (row.overall ?? "not measured")}
+                        {row.overall === PRE_A1 ? t("below A1") : (row.overall ?? t("not measured"))}
                       </Chip>
                       <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                        reading {levelLabel(row.reading as Placement["overall"])}, listening{" "}
-                        {levelLabel(row.listening as Placement["overall"])}, writing{" "}
-                        {levelLabel(row.writing as Placement["overall"])}
+                        {fill(t("reading {reading}, listening {listening}, writing {writing}"), {
+                          reading: levelLabel(row.reading as Placement["overall"], locale),
+                          listening: levelLabel(row.listening as Placement["overall"], locale),
+                          writing: levelLabel(row.writing as Placement["overall"], locale),
+                        })}
                       </span>
                     </span>
                   </li>
                 ))}
               </ul>
-              <Explain label="How often to take it">
-                We keep every result just as it was, so you can see how far you&apos;ve come. Leave a couple
-                of months between checks. Two weeks later, it mostly tests whether you remember the
-                questions.
+              <Explain label={t("How often to take it")}>
+                {t("We keep every result just as it was, so you can see how far you've come. Leave a couple of months between checks. Two weeks later, it mostly tests whether you remember the questions.")}
               </Explain>
             </Card>
           </div>
