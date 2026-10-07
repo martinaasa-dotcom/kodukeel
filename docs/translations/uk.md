@@ -13566,7 +13566,7 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6711.** There’s no data protection officer. This is a small installation, and the law only requires one of a public body or of a business built on monitoring people at scale, which this isn’t. The address above reaches a real person.  
   → Інспектора із захисту даних немає. Це невелика інсталяція, а закон вимагає його лише від державного органу або від бізнесу, побудованого на масштабному стеженні за людьми, і це не той випадок. Лист на адресу вище читає жива людина.
 - [ ] **6712.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install, not a service with one address, so whoever runs this copy, a person or a school, is the one who answers for your data. They’re supposed to be named here and aren’t, which you can complain about to the authority named further down. Ask whoever gave you the link. If you’re running this yourself, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\` and this paragraph will show your details instead.  
-  → \*\*Той, хто запустив цю інсталяцію, не вказав свого імені.\*\* Kodukeel може встановити будь-хто, це програма, а не сервіс з однією адресою, тож за ваші дані відповідає той, хто запустив цю копію: людина або школа. Його ім'я має стояти тут, але його немає, і на це можна поскаржитися до наглядового органу, вказаного нижче. Запитайте того, хто дав вам посилання. Якщо ви запустили застосунок самі, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`, і замість цього абзацу тут з'являться ваші дані.
+  → \*\*Той, хто керує цією інсталяцією, не вказав свого імені.\*\* Kodukeel може встановити будь-хто, це програма, а не сервіс з однією адресою, тож за ваші дані відповідає той, хто керує цією копією: людина або школа. Його ім'я має стояти тут, але його немає, і на це можна поскаржитися до наглядового органу, вказаного нижче. Запитайте того, хто дав вам посилання. Якщо ви запустили застосунок самі, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`, і замість цього абзацу тут з'являться ваші дані.
 - [ ] **6713.** What we keep, and why we’re allowed to  
   → Що ми зберігаємо і на якій підставі
 - [ ] **6714.** \*\*Your identity.\*\* Signing in with Google gives us your email address and a user id, held by Supabase Auth. We never see your Google password, and we don’t ask for anything else in your Google account. Without this we couldn’t show you your own deck instead of somebody else’s, so we keep it to provide the service you asked for.  
@@ -13590,17 +13590,17 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6723.** \*\*Your workplace group, if an employer sponsors you.\*\* A group set up by an employer is the same membership row, and it shows them less than a teacher sees rather than more. They get your name, whether you have been reviewing and when you last did, and one of four bands for the examination the group works toward. Not a percentage, not which grammar you personally find hard, and never a deck, a search or an answer. The band is withheld entirely until there is enough history behind it to mean something. Leaving stops all of it at once and takes nothing from your own deck.  
   → \*\*Ваша робоча група, якщо вас спонсорує роботодавець.\*\* Група, створена роботодавцем, зберігається тим самим рядком членства і показує йому менше, ніж бачить учитель, а не більше. Він бачить ваше ім'я, чи ви повторювали і коли востаннє, та один із чотирьох ступенів готовності до іспиту, до якого йде група. Не відсоток, не те, яка граматика складна особисто вам, і ніколи не колоду, не пошук і не відповідь. Ступінь не показується зовсім, доки за ним немає достатньої історії, щоб він щось означав. Вихід із групи одразу припиняє все це й нічого не забирає з вашої колоди.
 - [ ] **6724.** \*\*Your conversations with Anu.\*\* Messages you send the tutor and its replies are kept for a day, so the conversation survives a page reload, and no longer: the next time you speak to her, anything older than 24 hours is deleted and she starts fresh.  
-  → \*\*Ваші розмови з Ану.\*\* Повідомлення, які ви надсилаєте репетиторові, та його відповіді зберігаються добу, щоб розмова пережила перезавантаження сторінки, і не довше: наступного разу, коли ви до неї звернетеся, усе старше за 24 години видаляється, і вона починає з чистого аркуша.
+  → \*\*Ваші розмови з Ану.\*\* Повідомлення, які ви надсилаєте Ану, та її відповіді зберігаються добу, щоб розмова пережила перезавантаження сторінки, і не довше: наступного разу, коли ви до неї звернетеся, усе старше за 24 години видаляється, і вона починає з чистого аркуша.
 - [ ] **6725.** \*\*Pages you photograph.\*\* When you scan a page, what is kept is the word list you confirmed: the Estonian, the English, and which dictionary entry each word matched. \*\*The photograph itself is never stored.\*\* It is read once, on the way through, and dropped. It is not written to a database, not put in file storage, and not written to a log. A picture of your homework has your name at the top of it.  
   → \*\*Сторінки, які ви фотографуєте.\*\* Коли ви скануєте сторінку, зберігається підтверджений вами список слів: естонське слово, англійське і з якою словниковою статтею збіглося кожне. \*\*Сама фотографія не зберігається ніколи.\*\* Її читають один раз, дорогою, і викидають. Вона не записується ні в базу даних, ні у файлове сховище, ні в журнал. На фотографії вашого домашнього завдання вгорі стоїть ваше ім'я.
 - [ ] **6726.** \*\*What the tutor cost.\*\* For every request to the AI, we keep a record: which model answered, roughly how much text went in and out, and what it is estimated to have cost. The tutor runs on somebody’s paid key and anyone can sign up, so a daily allowance per person is the only thing standing between an open door and an endless bill. We keep this because there’s a legitimate interest in a free service surviving the week, and there’s no way to run that cap without counting.  
   → \*\*Скільки коштував репетитор.\*\* Про кожен запит до ШІ ми зберігаємо запис: яка модель відповіла, приблизно скільки тексту пішло туди й назад і скільки це, за оцінкою, коштувало. Репетитор працює на чиємусь платному ключі, а зареєструватися може будь-хто, тож денний ліміт на людину лишається єдиним, що стоїть між відчиненими дверима й нескінченним рахунком. Ми зберігаємо це, бо є законний інтерес у тому, щоб безплатний сервіс дожив до кінця тижня, а дотримуватися ліміту, нічого не рахуючи, неможливо.
 - [ ] **6727.** \*\*What you report as wrong.\*\* Anywhere the app cannot help you there is a button to tell us so. What you send is kept: what kind of problem it was, the screen you were on, what the app had just said to you, the correction you proposed and anything you wrote. Whoever runs this installation reads it, so treat that box as something another person will see, and please don’t put anything private in it. It is kept because a shared dictionary that nobody can correct goes wrong quietly, and because you asked us to look at it. Your own reports and what happened to each are on the \*\*Suggestions\*\* page, they are in the export, and they are deleted with your account.  
-  → \*\*Про що ви повідомляєте як про помилку.\*\* Скрізь, де застосунок не може вам допомогти, є кнопка, щоб сказати нам про це. Надіслане зберігається: що це була за проблема, на якому ви були екрані, що застосунок вам щойно сказав, яке виправлення ви запропонували і все, що ви написали. Це читає той, хто запустив цю інсталяцію, тож ставтеся до цього поля як до того, що побачить інша людина, і, будь ласка, не пишіть туди нічого особистого. Це зберігається, бо спільний словник, який ніхто не може виправити, тихо псується, і бо ви самі попросили нас подивитися. Ваші повідомлення і те, що з кожним із них сталося, є на сторінці \*\*Пропозиції\*\*, вони входять до експорту й видаляються разом із вашим обліковим записом.
+  → \*\*Про що ви повідомляєте як про помилку.\*\* Скрізь, де застосунок не може вам допомогти, є кнопка, щоб сказати нам про це. Надіслане зберігається: що це була за проблема, на якому ви були екрані, що застосунок вам щойно сказав, яке виправлення ви запропонували і все, що ви написали. Це читає той, хто керує цією інсталяцією, тож ставтеся до цього поля як до того, що побачить інша людина, і, будь ласка, не пишіть туди нічого особистого. Це зберігається, бо спільний словник, який ніхто не може виправити, тихо псується, і бо ви самі попросили нас подивитися. Ваші повідомлення і те, що з кожним із них сталося, є на сторінці \*\*Пропозиції\*\*, вони входять до експорту й видаляються разом із вашим обліковим записом.
 - [ ] **6728.** \*\*Errors.\*\* When something breaks, we log the error message and where it happened, along with your account id, never your email. Anything that looks like a password or key is stripped out before it is written down. Same reason: an app nobody can debug is an app that stays broken.  
   → \*\*Помилки.\*\* Коли щось ламається, ми записуємо повідомлення про помилку і де вона сталася, разом з ідентифікатором вашого облікового запису, але ніколи з вашою поштою. Усе, що схоже на пароль чи ключ, вичищається до запису. Причина та сама: застосунок, який ніхто не може налагодити, так і лишається зламаним.
 - [ ] **6729.** \*\*What is not stored.\*\* No analytics, no advertising identifiers, no third-party trackers, no profiling, and no cookie that is not needed to keep you signed in.  
-  → \*\*Що не зберігається.\*\* Жодної аналітики, жодних рекламних ідентифікаторів, жодних сторонніх трекерів, жодного профілювання і жодного cookie, крім того, що потрібен, щоб ви лишалися в обліковому записі.
+  → \*\*Що не зберігається.\*\* Жодної аналітики, жодних рекламних ідентифікаторів, жодних сторонніх трекерів, жодного профілювання і жодного файлу cookie, крім того, що потрібен, щоб ви лишалися в обліковому записі.
 - [ ] **6730.** \*\*How we tell whether the app works.\*\* We count, from the review log described above, how many people come back after a day, a week and a month. It is worked out from what is already there rather than collected separately, which is why there is still no tracker on this site. Only totals ever leave that page: no name, no address, no word you looked up. A group of fewer than five people is reported as a size with no percentage, because “one of two people came back” is a fact about a person rather than a statistic.  
   → \*\*Як ми розуміємо, чи працює застосунок.\*\* За журналом повторень, описаним вище, ми рахуємо, скільки людей повертається через день, тиждень і місяць. Це обчислюється з того, що вже є, а не збирається окремо, тому на сайті досі немає трекера. З тієї сторінки йдуть лише підсумки: ні імені, ні адреси, ні слова, яке ви шукали. Група менше ніж з п'яти людей показується лише розміром, без відсотка, бо «повернувся один із двох» говорить про людину, а не про статистику.
 - [ ] **6731.** \*\*What learners of Estonian get wrong, counted.\*\* From the same review log, this installation can produce a table of how often each grammatical case, each stem change and each word is answered correctly, added up across everybody. It is worked out from what is already here, so nothing extra is collected and no new question is put to you. That table can be sent to people who teach Estonian or study how it is learned, because where a lot of learners go wrong is not something a textbook or a single classroom can measure and this can.  
@@ -13612,11 +13612,11 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6734.** What is kept on your own device  
   → Що зберігається на вашому пристрої
 - [ ] **6735.** One cookie keeps you signed in. Beyond that the app stores a few things in the browser itself: whether you chose the dark theme, whether you have already been offered the install prompt, an outbox holding any card you graded while the network was down, so that grade is not lost and is sent with the time you actually answered it, a mock exam paper you have started but not handed in, so that closing the tab three hours into a B2 paper does not throw the whole sitting away, today's word puzzle, so a reload does not lose the guesses you have made, and which card a review round was on, so opening a word's dictionary entry and coming back returns you to it.  
-  → Один cookie тримає вас в обліковому записі. Крім нього застосунок зберігає в самому браузері кілька речей: чи вибрали ви темну тему; чи пропонували вам уже встановити застосунок; чергу вихідних з картками, які ви оцінили без мережі, щоб оцінка не загубилася й пішла з часом, коли ви насправді відповіли; розпочатий, але не зданий пробний іспит, щоб закрита через три години після початку B2 вкладка не перекреслила всю спробу; сьогоднішню словесну головоломку, щоб після перезавантаження не зникли ваші здогадки; і на якій картці був раунд повторення, щоб, відкривши словникову статтю слова й повернувшись, ви опинилися там само.
+  → Один файл cookie дає вам змогу лишатися в обліковому записі. Крім нього застосунок зберігає в самому браузері кілька речей: чи вибрали ви темну тему; чи пропонували вам уже встановити застосунок; чергу вихідних з картками, які ви оцінили без мережі, щоб оцінка не загубилася й пішла з часом, коли ви насправді відповіли; розпочатий, але не зданий пробний іспит, щоб закрита через три години після початку B2 вкладка не перекреслила всю спробу; сьогоднішню словесну головоломку, щоб після перезавантаження не зникли ваші здогадки; і на якій картці був раунд повторення, щоб, відкривши словникову статтю слова й повернувшись, ви опинилися там само.
 - [ ] **6736.** The unfinished paper holds your answers and when each part's clock runs out. It holds no marks and no questions: the paper is rebuilt from a seed and marked on the server, so nothing kept here can change a score. It is replaced as you write and removed the moment the paper is handed in. The puzzle keeps your guesses and nothing else, and today's word is worked out from the date rather than kept beside them. The card you were on is only its id, gone the moment the round ends or the tab does, whichever comes first.  
   → Незакінчена робота зберігає ваші відповіді та час, коли спливає кожна її частина. Оцінок і запитань у ній немає: варіант заново збирається з початкового числа й перевіряється на сервері, тож ніщо збережене тут не може змінити результат. Вона перезаписується в міру того, як ви пишете, і видаляється в момент здачі. Головоломка зберігає ваші здогадки й більше нічого, а сьогоднішнє слово обчислюється з дати, а не зберігається поруч із ними. Від картки, на якій ви зупинилися, зберігається лише її ідентифікатор, і він зникає, щойно закінчиться раунд або закриється вкладка, залежно від того, що станеться раніше.
 - [ ] **6737.** None of that is a tracker and none of it is shared with anybody. Estonian law requires your agreement before something is stored on your device unless it is strictly necessary for the service you asked for, and each of these is: a review app that silently drops the answers you gave on a train is broken, not private. That is why there is no cookie banner. Signing out removes the outbox, the saved session, the pages kept for offline use, any unfinished paper and any puzzle, so the next person on a shared computer starts from nothing; the theme and the install prompt stay, since they are about the device rather than about you. The browser also keeps a short code for which account last used it, so that a different account signing in clears the previous one's data even when nobody signed out. Clearing your browser storage removes all of it, and costs you nothing except any grade still waiting to be sent.  
-  → Ніщо з цього не є трекером, і нічим із цього ми ні з ким не ділимося. Естонський закон вимагає вашої згоди, перш ніж щось зберігається на вашому пристрої, якщо тільки це не суворо необхідно для послуги, про яку ви попросили, а кожне з переліченого необхідне: застосунок для повторення, який мовчки губить відповіді, дані вами в потязі, не береже вашої приватності, а просто зламаний. Тому тут немає банера про cookie. Вихід з облікового запису видаляє чергу вихідних, збережене заняття, сторінки для роботи без мережі, незакінчену роботу й головоломку, тож наступна людина за спільним комп'ютером починає з нуля; тема і пропозиція встановлення лишаються, бо вони стосуються пристрою, а не вас. Браузер також зберігає короткий код того, який обліковий запис користувався ним останнім, щоб вхід іншого облікового запису стирав дані попереднього, навіть якщо ніхто не вийшов. Очищення сховища браузера видаляє все це й нічого вам не коштує, крім оцінки, яка ще чекає на відправлення.
+  → Ніщо з цього не є трекером, і нічим із цього ми ні з ким не ділимося. Естонський закон вимагає вашої згоди, перш ніж щось зберігається на вашому пристрої, якщо тільки це не суворо необхідно для послуги, про яку ви попросили, а кожне з переліченого необхідне: застосунок для повторення, який мовчки губить відповіді, дані вами в потязі, не береже вашої приватності, а просто зламаний. Тому тут немає банера про файли cookie. Вихід з облікового запису видаляє чергу вихідних, збережене заняття, сторінки для роботи без мережі, незакінчену роботу й головоломку, тож наступна людина за спільним комп'ютером починає з нуля; тема і пропозиція встановлення лишаються, бо вони стосуються пристрою, а не вас. Браузер також зберігає короткий код того, який обліковий запис користувався ним останнім, щоб вхід іншого облікового запису стирав дані попереднього, навіть якщо ніхто не вийшов. Очищення сховища браузера видаляє все це й нічого вам не коштує, крім оцінки, яка ще чекає на відправлення.
 - [ ] **6738.** Who else sees it  
   → Хто ще це бачить
 - [ ] **6739.** This installation only talks to the services below, and nobody else. Each one gets only what’s described beside it, and none of them is paid to profile you.  
@@ -13630,7 +13630,7 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6743.** Your deck, your review history, your tasks and your level checks are never sent to any of them. The counted table described further up is the one thing that may go to somebody not on this list, and it holds none of those: it is totals, and it is only totals that at least ten people are behind.  
   → Ваша колода, історія повторень, завдання й перевірки рівня ніколи не надсилаються нікому з них. Таблиця підрахунків, описана вище, лишається єдиним, що може піти комусь не з цього списку, і в ній немає нічого з переліченого: це підсумки, і лише такі, за якими стоїть щонайменше десять людей.
 - [ ] **6744.** \*\*Some of that leaves the European Economic Area.\*\* The AI providers are established outside it, so what you type to Anu and any page you photograph crosses a border to be read. That transfer rests on the standard contractual clauses the provider publishes, and nothing else. It is worth knowing that protection there is not identical to protection here. It is also avoidable: the tutor and the page scanner are the only features that do it, and using neither means nothing of yours leaves.  
-  → \*\*Частина цього залишає Європейську економічну зону.\*\* Постачальники ШІ зареєстровані за її межами, тож те, що ви пишете Ану, і будь-яка сфотографована вами сторінка перетинають кордон, щоб їх прочитали. Ця передача спирається на стандартні договірні положення, які публікує постачальник, і ні на що більше. Варто знати, що захист там не тотожний захисту тут. Цього можна й уникнути: так роблять лише репетитор і сканер сторінок, і якщо не користуватися ні тим, ні іншим, нічого вашого не йде.
+  → \*\*Частина цього залишає Європейську економічну зону.\*\* Постачальники ШІ засновані за її межами, тож те, що ви пишете Ану, і будь-яка сфотографована вами сторінка перетинають кордон, щоб їх прочитали. Ця передача ґрунтується на стандартних договірних умовах, які публікує постачальник, і ні на що більше. Варто знати, що захист там не тотожний захисту тут. Цього можна й уникнути: дані передають лише репетитор і сканер сторінок, і якщо не користуватися ні тим, ні іншим, нічого вашого не йде.
 - [ ] **6745.** None of it is sold, and we never use it to train a model ourselves. What a provider does with what we send them is governed by their own terms. That is a real limit on this promise rather than a formality: some free tiers are free because the provider keeps the right to look at what goes through them.  
   → Нічого з цього не продається, і ми самі ніколи не навчаємо на цьому моделей. Що постачальник робить із тим, що ми йому надсилаємо, визначають його власні умови. Це справжнє обмеження цієї обіцянки, а не формальність: деякі безплатні тарифи безплатні саме тому, що постачальник залишає за собою право переглядати те, що через них проходить.
 - [ ] **6746.** How long it is kept  
@@ -13642,17 +13642,17 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6749.** What you can demand  
   → Що ви можете вимагати
 - [ ] **6750.** These are your rights under the GDPR. The two people actually use are buttons, so you don’t even have to ask.  
-  → Це ваші права за GDPR. Два, якими люди справді користуються, зроблено кнопками, тож вам навіть не треба просити.
+  → Це ваші права за Загальним регламентом про захист даних (GDPR). Для двох із них, якими люди справді користуються, є кнопки, тож просити навіть не треба.
 - [ ] **6751.** \*\*A copy of everything (access, and portability).\*\* Settings has an \*\*Export\*\* button that gives you the whole thing as a JSON file: every card, review, task, setting, scanned page, level check, mock exam paper with your composition in it, tutor message, suggested fix, starred word, word put aside, badge and class membership. It is a real backup, and the same file restores into a fresh installation. One thing is held back: the spending record described above, since that is this installation’s accounting rather than your work. It is deleted with your account like everything else.  
-  → \*\*Копія всього (доступ і перенесення).\*\* У налаштуваннях є кнопка \*\*Експорт\*\*, яка видає все одним файлом JSON: кожну картку, повторення, завдання, налаштування, відскановану сторінку, перевірку рівня, пробний іспит з вашим твором, повідомлення репетиторові, запропоноване виправлення, позначене слово, відкладене слово, значок і членство в групі. Це справжня резервна копія, і цей самий файл відновлюється в новій інсталяції. Одне не видається: запис про витрати, описаний вище, бо це облік цієї інсталяції, а не ваша робота. Він видаляється разом із вашим обліковим записом, як і все інше.
+  → \*\*Копія всього (право доступу та право на перенесення даних).\*\* У налаштуваннях є кнопка \*\*Експорт\*\*, яка видає все одним файлом JSON: кожну картку, повторення, завдання, налаштування, відскановану сторінку, перевірку рівня, пробний іспит з вашим твором, повідомлення репетиторові, запропоноване виправлення, позначене слово, відкладене слово, значок і членство в групі. Це справжня резервна копія, і цей самий файл відновлюється в новій інсталяції. Одне не видається: запис про витрати, описаний вище, бо це облік цієї інсталяції, а не ваша робота. Він видаляється разом із вашим обліковим записом, як і все інше.
 - [ ] **6752.** \*\*Erasure.\*\* {setting} removes all of that immediately, in one go, along with your sign-in record. The shared dictionary stays, because other learners have cards built on it, but any entry you edited stops being attributed to you. Take an export first: this keeps no copy. If this installation is not set up to delete the sign-in record itself, the button says so plainly rather than pretending, and the address at the top of this page is who to ask.  
-  → \*\*Видалення.\*\* {setting} одразу й за один раз видаляє все це разом із вашим записом для входу. Спільний словник лишається, бо на ньому побудовано картки інших учнів, але статті, які ви редагували, перестають бути підписані вашим ім'ям. Спершу зробіть експорт: копія не зберігається. Якщо ця інсталяція не налаштована видаляти запис для входу сама, кнопка прямо про це скаже, а не вдаватиме, і тоді звертайтеся за адресою на початку цієї сторінки.
+  → \*\*Право на видалення.\*\* {setting} одразу й за один раз видаляє все це разом із вашим записом для входу. Спільний словник лишається, бо на ньому побудовано картки інших учнів, але статті, які ви редагували, перестають бути підписані вашим ім'ям. Спершу зробіть експорт: копія не зберігається. Якщо ця інсталяція не налаштована видаляти запис для входу сама, кнопка прямо про це скаже, а не вдаватиме, і тоді звертайтеся за адресою на початку цієї сторінки.
 - [ ] **6753.** \*\*Correction.\*\* Anything you can see, you can change: your settings, your cards, your tasks, your goal. A dictionary entry can be corrected too, and because the dictionary is shared, that correction is attributed to you until you delete your account. Where you would rather somebody looked at it first, the same entry has a button to suggest the change instead of making it.  
-  → \*\*Виправлення.\*\* Усе, що ви бачите, ви можете змінити: налаштування, картки, завдання, мету. Словникову статтю теж можна виправити, і оскільки словник спільний, це виправлення підписане вашим ім'ям, доки ви не видалите обліковий запис. Якщо ви хочете, щоб спершу хтось подивився, у тієї самої статті є кнопка, щоб запропонувати зміну, а не вносити її.
+  → \*\*Право на виправлення.\*\* Усе, що ви бачите, ви можете змінити: налаштування, картки, завдання, мету. Словникову статтю теж можна виправити, і оскільки словник спільний, це виправлення підписане вашим ім'ям, доки ви не видалите обліковий запис. Якщо ви хочете, щоб спершу хтось подивився, у тієї самої статті є кнопка, щоб запропонувати зміну, а не вносити її.
 - [ ] **6754.** \*\*Restriction and objection.\*\* You can ask for processing to be paused or object to it, in writing, at the address above. In practice almost everything here exists only to deliver the app to you, so the usual answer to an objection is to stop using the part you object to, and erasure is the stronger and faster version of the same thing. The one objection that is a button rather than a letter is {setting}, which takes your answers out of the counts described above.  
-  → \*\*Обмеження й заперечення.\*\* Ви можете письмово, за адресою вище, попросити призупинити обробку або заперечити проти неї. Насправді майже все тут існує лише для того, щоб застосунок працював для вас, тож звичайна відповідь на заперечення: перестати користуватися тією частиною, проти якої ви заперечуєте, а видалення робить те саме сильніше й швидше. Єдине заперечення, для якого є кнопка, а не лист: {setting}. Воно прибирає ваші відповіді з описаних вище підрахунків.
+  → \*\*Обмеження обробки й заперечення.\*\* Ви можете письмово, за адресою вище, попросити призупинити обробку або заперечити проти неї. Насправді майже все тут існує лише для того, щоб застосунок працював для вас, тож звичайна відповідь на заперечення: перестати користуватися тією частиною, проти якої ви заперечуєте, а видалення робить те саме сильніше й швидше. Єдине заперечення, для якого є кнопка, а не лист: {setting}. Воно прибирає ваші відповіді з описаних вище підрахунків.
 - [ ] **6755.** None of this costs anything, and you don’t need to give a reason. A request made in writing gets an answer within a month.  
-  → Усе це нічого не коштує, і пояснювати причину не потрібно. На письмовий запит відповідають протягом місяця.
+  → Усе це нічого не коштує, і пояснювати причину не потрібно. На письмовий запит ви отримаєте відповідь протягом місяця.
 - [ ] **6756.** Nothing here decides anything about you  
   → Тут ніщо не ухвалює рішень про вас
 - [ ] **6757.** The app estimates a CEFR level from what you answered, and predicts your chance of passing a mock exam. Neither is a decision with any legal or similar effect: they are study advice, checked directly against the dictionary rather than judged by a model, and every figure says how thin the evidence behind it is. No qualification, no admission and no result depends on them. There is no automated decision-making in the sense the law means, and no profiling.  
@@ -13660,7 +13660,7 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6758.** If you are not satisfied  
   → Якщо вас щось не влаштовує
 - [ ] **6759.** Ask the operator first, at the address at the top of this page. If that gets you nowhere, you have the right to complain to the \*\*{authority}\*\* ({local}), which is the supervisory authority for Estonia: {address}, {phone}, {email}, {web}. If you live elsewhere in the Union you may go to your own country’s authority instead. You can also take it to court.  
-  → Спершу зверніться до оператора за адресою на початку цієї сторінки. Якщо це нічого не дасть, ви маєте право подати скаргу до \*\*{authority}\*\* ({local}), наглядового органу Естонії: {address}, {phone}, {email}, {web}. Якщо ви живете в іншій країні Союзу, можете натомість звернутися до наглядового органу своєї країни. Ви також можете звернутися до суду.
+  → Спершу зверніться до оператора за адресою на початку цієї сторінки. Якщо це нічого не дасть, ви маєте право подати скаргу до \*\*{authority}\*\* ({local}), наглядового органу Естонії: {address}, {phone}, {email}, {web}. Якщо ви живете в іншій країні Європейського Союзу, можете натомість звернутися до наглядового органу своєї країни. Ви також можете звернутися до суду.
 - [ ] **6760.** Estonian Data Protection Inspectorate  
   → Інспекція із захисту даних Естонії
 - [ ] **6761.** Estonian Data Protection Inspectorate _(context: to)_  
@@ -13668,7 +13668,7 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6762.** Children  
   → Діти
 - [ ] **6763.** In Estonia a person can agree to a service like this one for themselves from the age of 13, which is the age the Personal Data Protection Act sets. Below that, a parent has to agree. Kodukeel isn’t aimed at younger children and doesn’t knowingly hold their data. If you think a child under 13 has an account here without a parent’s agreement, write to the address above and it will be deleted.  
-  → В Естонії людина може сама погодитися на таку послугу з 13 років: цей вік встановлює Закон про захист персональних даних. Молодшим за цей вік згоду має дати один із батьків. Kodukeel не розрахований на дітей молодшого віку і свідомо не зберігає їхніх даних. Якщо ви вважаєте, що в дитини, молодшої за 13 років, тут є обліковий запис без згоди батьків, напишіть за адресою вище, і його буде видалено.
+  → В Естонії людина може сама дати згоду на таку послугу з 13 років: цей вік встановлює естонський Закон про захист персональних даних. Якщо людина молодша, згоду має дати один із батьків. Kodukeel не розрахований на дітей молодшого віку і свідомо не зберігає їхніх даних. Якщо ви вважаєте, що в дитини віком до 13 років тут є обліковий запис без згоди батьків, напишіть за адресою вище, і його буде видалено.
 - [ ] **6764.** A school running this for a class is the controller of its pupils’ data and answers for that agreement. What a teacher can see is deliberately narrow: how much work each pupil did, which grammar the class as a whole is weakest at, and which grammar each pupil personally is weakest at as a rolled-up percentage. Never an individual’s deck, their searches or a specific answer.  
   → Школа, яка використовує це для класу, є контролером даних своїх учнів і відповідає за цю згоду. Учитель навмисно бачить небагато: скільки попрацював кожен учень, у якій граматиці найслабший клас загалом і в якій особисто кожен учень, у вигляді зведеного відсотка. Ніколи не чиюсь колоду, пошуки чи конкретну відповідь.
 - [ ] **6765.** An employer sponsoring a workplace group is the controller of that group’s membership in the same way, and sees a narrower set again: effort, and a band for the paper the group is working toward. The difference is a different query rather than a hidden column, so there is no setting that widens it.  
@@ -13682,27 +13682,27 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6769.** what you type to Anu, and any page you photograph  
   → те, що ви пишете Ану, і будь-яка сфотографована вами сторінка
 - [ ] **6770.** Ekilex, at the Institute of the Estonian Language  
-  → Ekilex, Інститут естонської мови
+  → Ekilex в Інституті естонської мови
 - [ ] **6771.** a single word you looked up, with no account attached  
   → одне слово, яке ви шукали, без прив'язки до облікового запису
 - [ ] **6772.** Wikimedia, which runs Wiktionary  
-  → Wikimedia, яка веде Вікісловник
+  → Фонд Вікімедіа, який веде Вікісловник
 - [ ] **6773.** the same single word, asked for its English meaning, with no account attached  
-  → те саме слово, із запитом його англійського значення, без прив'язки до облікового запису
+  → те саме слово, із запитом його значення англійською, без прив'язки до облікового запису
 - [ ] **6774.** Resend, which sends our emails  
   → Resend, який надсилає наші листи
 - [ ] **6775.** your email address, and whatever a message to you says about your own course  
-  → ваша адреса електронної пошти і те, що лист вам каже про ваш власний курс
+  → ваша адреса електронної пошти і те, що в листі сказано про ваш власний курс
 - [ ] **6776.** TartuNLP, at the University of Tartu  
-  → TartuNLP, Тартуський університет
+  → TartuNLP у Тартуському університеті
 - [ ] **6777.** a phrase you asked to hear read aloud, with no account attached  
   → фраза, яку ви попросили прочитати вголос, без прив'язки до облікового запису
 - [ ] **6778.** The error reporting endpoint at {host}  
-  → Адреса для звітів про помилки на {host}
+  → Адреса прийому звітів про помилки на {host}
 - [ ] **6779.** a description of anything that breaks, with your user id and never your email  
   → опис усього, що ламається, з вашим ідентифікатором користувача й ніколи з вашою поштою
 - [ ] **6780.** your email address and everything in the database, as the host of both  
-  → ваша адреса електронної пошти і все, що є в базі даних, як місце, де зберігається і те, і інше
+  → ваша адреса електронної пошти і весь вміст бази даних, оскільки і те, й інше розміщено в нього
 - [ ] **6781.** Vercel, which runs the servers this app lives on  
   → Vercel, де працюють сервери цього застосунку
 - [ ] **6782.** every request you make, while it's being answered, and a log of it that includes your IP address  
@@ -13712,11 +13712,11 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6784.** Who provides it  
   → Хто його надає
 - [ ] **6785.** This installation of Kodukeel is provided by \*\*{name}\*\*{registry}{vat}, at {address}. Reach them directly at {email}. Estonian law asks a provider of an online service for exactly that: a name, a place, and a way to get hold of them quickly without going through a form.  
-  → Цю інсталяцію Kodukeel надає \*\*{name}\*\*{registry}{vat}, адреса: {address}. Зв'язатися напряму: {email}. Естонський закон вимагає від постачальника онлайн-послуги саме цього: ім'я, місце і спосіб швидко з ним зв'язатися, оминаючи форми.
+  → Цю інсталяцію Kodukeel надає \*\*{name}\*\*{registry}{vat}, адреса: {address}. Зв'язатися напряму: {email}. Естонський закон вимагає від постачальника онлайн-послуги саме цього: ім'я, адреса і спосіб швидко з ним зв'язатися, оминаючи форми.
 - [ ] **6786.** \*\*Whoever runs this installation has not filled their name in\*\*, and they’re supposed to. Kodukeel is software anyone can install, so the provider of the service you’re using is whoever runs this copy, a person or a school, not the people who wrote it. Ask whoever gave you the link. If that’s you, setting \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\` puts your details here and on the {privacy}.  
-  → \*\*Той, хто запустив цю інсталяцію, не вказав свого імені\*\*, хоча мав би. Kodukeel може встановити будь-хто, тож постачальником послуги, якою ви користуєтеся, є той, хто запустив цю копію, людина або школа, а не ті, хто її написав. Запитайте того, хто дав вам посилання. Якщо це ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`, і ваші дані з'являться тут і на {privacy}.
+  → \*\*Той, хто керує цією інсталяцією, не вказав свого імені\*\*, хоча мав би. Kodukeel може встановити будь-хто, тож постачальником послуги, якою ви користуєтеся, є той, хто керує цією копією, людина або школа, а не ті, хто її написав. Запитайте того, хто дав вам посилання. Якщо це ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`, і ваші дані з'являться тут і на {privacy}.
 - [ ] **6787.** It’s free and there’s nothing to buy, so the usual consumer purchase rules don’t apply: there’s no right of withdrawal and no payment terms. If an installation ever starts charging, that’s a different arrangement, and these terms don’t cover it. What it costs somebody to run, and who that is, is set out on the {funding}.  
-  → Він безплатний, і купувати тут нічого, тож звичайні правила для покупок споживача не діють: немає права відмови і немає умов оплати. Якщо якась інсталяція колись почне брати гроші, це буде інша домовленість, і ці умови на неї не поширюються. Скільки коштує комусь утримувати застосунок і хто ця людина, описано на {funding}.
+  → Застосунок безплатний, і купувати тут нічого, тож звичайні правила щодо споживчих покупок не застосовуються: немає ні права на відмову від договору, ні умов оплати. Якщо якась інсталяція колись почне брати гроші, це буде інша домовленість, і ці умови на неї не поширюються. Скільки коштує комусь утримувати застосунок і хто ця людина, описано на {funding}.
 - [ ] **6788.** funding page  
   → сторінці про фінансування
 - [ ] **6789.** What it promises  
@@ -13728,7 +13728,7 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6792.** She isn’t the final word on anything. She can explain grammar and suggest an English translation, but she can still get things wrong. Don’t rely on her for an exam answer without checking it yourself.  
   → Її слово ні в чому не останнє. Вона може пояснити граматику й запропонувати переклад англійською, але все одно може помилитися. Не покладайтеся на неї у відповіді на іспиті, не перевіривши її самі.
 - [ ] **6793.** The app comes as it is, with no warranty. It’s a learning aid, not a certified language qualification.  
-  → Застосунок надається як є, без гарантій. Це посібник для навчання, а не сертифікована мовна кваліфікація.
+  → Застосунок надається «як є», без гарантій. Це посібник для навчання, а не сертифікована мовна кваліфікація.
 - [ ] **6794.** What we ask of you  
   → Чого ми просимо від вас
 - [ ] **6795.** Use one account, and use it yourself. Please don’t use the tutor for things that have nothing to do with learning Estonian. It runs on a key that costs money every time it’s used, so each account has a daily limit, to stop one person using it all up for everyone else.  
@@ -13736,7 +13736,7 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6796.** Please don’t write scripts that hammer the dictionary, the speech service or the tutor with requests. Ekilex and TartuNLP are free academic services, and this whole project depends on nobody abusing them.  
   → Будь ласка, не пишіть скриптів, які засипають запитами словник, сервіс мовлення чи репетитора. Ekilex і TartuNLP є безплатними академічними сервісами, і весь цей проєкт тримається на тому, що ними ніхто не зловживає.
 - [ ] **6797.** Be 13 or older, or have a parent agree first. Estonia sets the age at which somebody can agree to a service like this for themselves at 13, which is the youngest any country in the Union sets it. Nothing here checks, and saying so plainly is more use than a box anyone can tick. If you’re a teacher signing up a class, that agreement is the one thing worth getting before you send the link.  
-  → Вам має бути 13 років або більше, інакше спершу потрібна згода одного з батьків. Естонія встановлює вік, з якого людина може сама погодитися на таку послугу, у 13 років, і це найраніший вік серед країн Союзу. Тут нічого не перевіряється, і сказати про це прямо корисніше, ніж поставити позначку, яку може відмітити будь-хто. Якщо ви вчитель і реєструєте клас, ця згода і є єдиним, що варто отримати до того, як надіслати посилання.
+  → Вам має бути щонайменше 13 років, інакше спершу потрібна згода одного з батьків. Естонія встановлює вік, з якого людина може сама дати згоду на таку послугу, у 13 років, і жодна країна Європейського Союзу не встановлює його нижчим. Тут нічого не перевіряється, і сказати про це прямо корисніше, ніж додати поле для позначки, яку може поставити будь-хто. Якщо ви вчитель і реєструєте клас, ця згода і є єдиним, що варто отримати до того, як надіслати посилання.
 - [ ] **6798.** What you own  
   → Що належить вам
 - [ ] **6799.** Your deck, your review history, your tasks and your notes are yours. Export them whenever you like from Settings, in a format that restores into any installation. The dictionary joins two sources with different licenses, so it’s worth being exact here. Every Estonian form and every example sentence comes from {ekilex} and is licensed \*\*CC BY 4.0\*\* by the Institute of the Estonian Language. Every English gloss that was not written for this project comes from {wiktionary} and is licensed \*\*CC BY-SA 4.0\*\* by its contributors, which is the stricter of the two: a work built on it has to be shared on the same terms. Both are credited on the sign-in page and in the footer, and keeping them apart is how the dictionary was designed, not an accident.  
@@ -13744,9 +13744,9 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6800.** English Wiktionary  
   → англійського Вікісловника
 - [ ] **6801.** The order the commonest words are listed in comes from {frequency}, a published count over the OpenSubtitles corpus, also licensed \*\*CC BY-SA 4.0\*\*. It decides nothing but an order: every word shown is the dictionary’s own.  
-  → Порядок, у якому перелічено найчастіші слова, узято з {frequency}, опублікованого підрахунку за корпусом OpenSubtitles, теж за ліцензією \*\*CC BY-SA 4.0\*\*. Він визначає лише порядок: кожне показане слово взято зі словника.
+  → Порядок, у якому перелічено найчастіші слова, узято з {frequency}, опублікованого підрахунку за корпусом OpenSubtitles, який теж поширюється за ліцензією \*\*CC BY-SA 4.0\*\*. Він визначає лише порядок: кожне показане слово взято зі словника.
 - [ ] **6802.** Whether a spelling is an Estonian word at all, and which word it is a form of, is answered by a forms list built from Ekilex’s own inflection tables, as published in {wordlist} (\*\*CC BY-SA 4.0\*\*), and from {vabamorf}, Filosoft’s open-source morphological tools for Estonian (\*\*LGPL\*\*). That list decides whether a word is accepted and never what a card teaches: no form from it is ever drilled or marked against.  
-  → Чи є написання взагалі естонським словом і формою якого слова воно є, вирішує список форм, зібраний із власних таблиць словозміни Ekilex у тому вигляді, як їх опубліковано в {wordlist} (\*\*CC BY-SA 4.0\*\*), і з {vabamorf}, відкритих морфологічних інструментів Filosoft для естонської (\*\*LGPL\*\*). Цей список вирішує, чи приймається слово, і ніколи не вирішує, чого вчить картка: жодну форму з нього ніколи не заучують і не перевіряють за нею відповідей.
+  → Чи є написання взагалі естонським словом і формою якого слова воно є, вирішує список форм, зібраний із власних таблиць словозміни Ekilex у тому вигляді, як їх опубліковано в {wordlist} (\*\*CC BY-SA 4.0\*\*), і з {vabamorf}, відкритого набору морфологічних інструментів Filosoft для естонської (\*\*LGPL\*\*). Цей список вирішує, чи приймається слово, і ніколи не вирішує, чого вчить картка: жодну форму з нього ніколи не заучують і не перевіряють за нею відповідей.
 - [ ] **6803.** Ending it  
   → Як припинити
 - [ ] **6804.** You can stop and delete your data whenever you like. An installation may cut off an account that’s abusing the shared services described above.  
@@ -13760,661 +13760,865 @@ _lib/copy/i18n/areas/legal.ts_
 - [ ] **6808.** If these terms change in a way that affects what happens to your data, the {privacy} changes with them and both carry the date of the change.  
   → Якщо ці умови зміняться так, що це вплине на те, що відбувається з вашими даними, разом із ними зміниться й текст на {privacy}, і на обох сторінках стоятиме дата зміни.
 
-## public (324 lines)
+## public (416 lines)
 
 _lib/copy/i18n/areas/public.ts_
 
 - [ ] **6809.** Trust and security  
   → Довіра й безпека
-- [ ] **6810.** This page is for whoever decides whether Kodukeel is safe for a class, a team or a grant. The short answers come first, and each one takes you to the detail below.  
+- [ ] **6810.** , which would come to {money} a month to buy.  
+  → , і купити це коштувало б {money} на місяць.
+- [ ] **6811.** This page is for whoever decides whether Kodukeel is safe for a class, a team or a grant. The short answers come first, and each one takes you to the detail below.  
   → Ця сторінка для тих, хто вирішує, чи можна довірити Kodukeel класу, команді або грантовому проєкту. Спершу йдуть короткі відповіді, і кожна веде до подробиць нижче.
-- [ ] **6811.** Who answers for it  
+- [ ] **6812.** Who answers for it  
   → Хто за це відповідає
-- [ ] **6812.** Not named on this copy yet  
+- [ ] **6813.** Not named on this copy yet  
   → У цій копії поки не вказано
-- [ ] **6813.** Yes  
+- [ ] **6814.** Yes  
   → Так
-- [ ] **6814.** Where the data is kept  
+- [ ] **6815.** Where the data is kept  
   → Де зберігаються дані
-- [ ] **6815.** Its own database, with some services outside the EEA  
+- [ ] **6816.** Its own database, with some services outside the EEA  
   → У власній базі, частина сервісів за межами ЄЕЗ
-- [ ] **6816.** Its own database, and nothing sent outside the EEA  
+- [ ] **6817.** Its own database, and nothing sent outside the EEA  
   → У власній базі, і нічого не йде за межі ЄЕЗ
-- [ ] **6817.** Trackers and analytics  
+- [ ] **6818.** Trackers and analytics  
   → Трекери й аналітика
-- [ ] **6818.** None  
+- [ ] **6819.** None  
   → Немає
-- [ ] **6819.** Export and deletion  
+- [ ] **6820.** Export and deletion  
   → Експорт і видалення
-- [ ] **6820.** Any time, from Settings  
+- [ ] **6821.** Any time, from Settings  
   → Будь-коли, у налаштуваннях
-- [ ] **6821.** Outside audit or certificate  
+- [ ] **6822.** Outside audit or certificate  
   → Зовнішній аудит або сертифікат
-- [ ] **6822.** Not yet: no SOC 2, ISO 27001 or pen test  
+- [ ] **6823.** Not yet: no SOC 2, ISO 27001 or pen test  
   → Поки ні: ні SOC 2, ні ISO 27001, ні тесту на проникнення
-- [ ] **6823.** Checked on every change. Partial, with the gaps named  
+- [ ] **6824.** Checked on every change. Partial, with the gaps named  
   → Перевіряється за кожної зміни. Частково, прогалини названо
-- [ ] **6824.** Who runs this  
-  → Хто це запускає
-- [ ] **6825.** This installation is run by \*\*{name}\*\*{registry}{vat}, at {address}. They’re the controller of every learner’s data here, and the party any contract would be with.  
-  → Цю інсталяцію запускає \*\*{name}\*\*{registry}{vat}, адреса: {address}. Це контролер даних кожного учня тут і сторона, з якою укладався б будь-який договір.
-- [ ] **6826.** One address reaches a real person, whether it’s a data question, a security report or a procurement question: {email}. There’s no separate security mailbox yet, and saying so is more use than publishing one nobody reads.  
+- [ ] **6825.** Who runs this  
+  → Хто керує цією копією
+- [ ] **6826.** This installation is run by \*\*{name}\*\*{registry}{vat}, at {address}. They’re the controller of every learner’s data here, and the party any contract would be with.  
+  → Оператор цієї інсталяції: \*\*{name}\*\*{registry}{vat}, адреса: {address}. Це контролер даних кожного учня тут і сторона, з якою укладався б будь-який договір.
+- [ ] **6827.** One address reaches a real person, whether it’s a data question, a security report or a procurement question: {email}. There’s no separate security mailbox yet, and saying so is more use than publishing one nobody reads.  
   → Одна адреса, і лист на неї читає жива людина, чи то питання про дані, повідомлення про вразливість чи питання про закупівлю: {email}. Окремої скриньки з безпеки поки немає, і сказати про це корисніше, ніж опублікувати адресу, яку ніхто не читає.
-- [ ] **6827.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install, not a service with one address, so the copy you’re reading is run by a person or an organisation who’s supposed to be named here. Until they are, there’s nobody on this page to sign anything with. If you’re running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
-  → \*\*Той, хто запустив цю інсталяцію, не вказав свого імені.\*\* Kodukeel може встановити будь-хто, це програма, а не сервіс з однією адресою, тож копію, яку ви читаєте, запускає людина чи організація, чиє ім'я має стояти тут. Доки його немає, на цій сторінці немає з ким щось підписувати. Якщо її запустили ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`.
-- [ ] **6828.** Where the data is held, and who else touches it  
-  → Де зберігаються дані і хто ще до них торкається
-- [ ] **6829.** Everything a learner does is held in this installation’s own Postgres database. Nothing below gets a deck, a review history or an exam paper. The list is read straight from this deployment’s configuration rather than typed out here, so it’s the real set of services this copy talks to.  
-  → Усе, що робить учень, зберігається у власній базі Postgres цієї інсталяції. Ніхто з переліченних нижче не отримує ні колоди, ні історії повторень, ні екзаменаційної роботи. Список читається просто з налаштувань цієї інсталяції, а не набраний тут вручну, тож це справжній перелік сервісів, до яких звертається ця копія.
-- [ ] **6830.** Established in the European Economic Area.  
+- [ ] **6828.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install, not a service with one address, so the copy you’re reading is run by a person or an organisation who’s supposed to be named here. Until they are, there’s nobody on this page to sign anything with. If you’re running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
+  → \*\*Той, хто керує цією інсталяцією, не вказав свого імені.\*\* Kodukeel може встановити будь-хто, це програма, а не сервіс з однією адресою, тож копією, яку ви читаєте, керує людина чи організація, чиє ім'я має стояти тут. Доки його немає, на цій сторінці немає з ким щось підписувати. Якщо її запустили ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`.
+- [ ] **6829.** Where the data is held, and who else touches it  
+  → Де зберігаються дані і хто ще їх обробляє
+- [ ] **6830.** Everything a learner does is held in this installation’s own Postgres database. Nothing below gets a deck, a review history or an exam paper. The list is read straight from this deployment’s configuration rather than typed out here, so it’s the real set of services this copy talks to.  
+  → Усе, що робить учень, зберігається у власній базі Postgres цієї інсталяції. Ніхто з перелічених нижче не отримує ні колоди, ні історії повторень, ні екзаменаційної роботи. Список читається просто з налаштувань цієї інсталяції, а не набраний тут вручну, тож це справжній перелік сервісів, до яких звертається ця копія.
+- [ ] **6831.** Established in the European Economic Area.  
   → Зареєстрований у Європейській економічній зоні.
-- [ ] **6831.** Established outside the European Economic Area.  
+- [ ] **6832.** Established outside the European Economic Area.  
   → Зареєстрований за межами Європейської економічної зони.
-- [ ] **6832.** Where this one sits depends on how the installation was set up, so ask the operator above.  
+- [ ] **6833.** Where this one sits depends on how the installation was set up, so ask the operator above.  
   → Де він розташований, залежить від того, як налаштовано інсталяцію, тож запитайте в оператора, вказаного вище.
-- [ ] **6833.** \*\*Some of that leaves the European Economic Area\*\*, which matters for a transfer assessment. It rests on the standard contractual clauses each provider publishes. The two features that do it are the tutor and the page scanner, and a deployment configured with no AI provider has neither, so an organisation that cannot accept the transfer can run the rest of the app without it.  
-  → \*\*Частина цього залишає Європейську економічну зону\*\*, і це важливо для оцінки передачі даних. Передача спирається на стандартні договірні положення, які публікує кожен постачальник. Так працюють дві функції, репетитор і сканер сторінок, а в інсталяції без постачальника ШІ немає ні тієї, ні іншої, тож організація, яка не може прийняти таку передачу, може користуватися рештою застосунку без неї.
-- [ ] **6834.** There’s no analytics vendor, no advertising identifier and no third-party tracker, and you don’t have to take our word for it: the app has no third-party script tag anywhere in it, and the one thing it counts, whether people come back, is worked out from its own review log. {privacy} is the long version of all of this, written for the learner rather than the buyer.  
+- [ ] **6834.** \*\*Some of that leaves the European Economic Area\*\*, which matters for a transfer assessment. It rests on the standard contractual clauses each provider publishes. The two features that do it are the tutor and the page scanner, and a deployment configured with no AI provider has neither, so an organisation that cannot accept the transfer can run the rest of the app without it.  
+  → \*\*Частина цього залишає Європейську економічну зону\*\*, і це важливо для оцінки передачі даних. Передача ґрунтується на стандартних договірних умовах, які публікує кожен постачальник. Дані передають дві функції, репетитор і сканер сторінок, а в інсталяції без постачальника ШІ немає ні тієї, ні іншої, тож організація, яка не може прийняти таку передачу, може користуватися рештою застосунку без неї.
+- [ ] **6835.** There’s no analytics vendor, no advertising identifier and no third-party tracker, and you don’t have to take our word for it: the app has no third-party script tag anywhere in it, and the one thing it counts, whether people come back, is worked out from its own review log. {privacy} is the long version of all of this, written for the learner rather than the buyer.  
   → Немає ні постачальника аналітики, ні рекламного ідентифікатора, ні стороннього трекера, і вірити нам на слово не обов'язково: у застосунку ніде немає стороннього тегу script, а єдине, що він рахує, чи повертаються люди, обчислюється з його власного журналу повторень. Сторінка «{privacy}» розповідає про все це докладно й написана для учня, а не для покупця.
-- [ ] **6835.** How a learner gets their data out, and how they delete it  
+- [ ] **6836.** How a learner gets their data out, and how they delete it  
   → Як учень забирає свої дані і як їх видаляє
-- [ ] **6836.** \*\*Export.\*\* Settings has a button that returns everything held about the account as a single JSON file: every card, review, task, setting, scanned word list, level check, mock exam paper with the composition in it, tutor message, conversation, suggestion, starred word and class membership. It is a real backup and the same file restores into a fresh installation, which is what makes it portability rather than a gesture.  
+- [ ] **6837.** \*\*Export.\*\* Settings has a button that returns everything held about the account as a single JSON file: every card, review, task, setting, scanned word list, level check, mock exam paper with the composition in it, tutor message, conversation, suggestion, starred word and class membership. It is a real backup and the same file restores into a fresh installation, which is what makes it portability rather than a gesture.  
   → \*\*Експорт.\*\* У налаштуваннях є кнопка, яка видає все, що зберігається про обліковий запис, одним файлом JSON: кожну картку, повторення, завдання, налаштування, відсканований список слів, перевірку рівня, пробний іспит із твором, повідомлення репетиторові, розмову, пропозицію, позначене слово й членство в групі. Це справжня резервна копія, і той самий файл відновлюється в новій інсталяції, тож це справжнє перенесення, а не жест.
-- [ ] **6837.** \*\*Deleting everything.\*\* The same screen deletes the account and everything in it, including the sign-in record, in one action and with no request to write. Where an installation is not configured to remove the sign-in record itself, the button says so plainly instead of reporting a success it did not achieve. Both live under {settings}.  
+- [ ] **6838.** \*\*Deleting everything.\*\* The same screen deletes the account and everything in it, including the sign-in record, in one action and with no request to write. Where an installation is not configured to remove the sign-in record itself, the button says so plainly instead of reporting a success it did not achieve. Both live under {settings}.  
   → \*\*Видалення всього.\*\* На тому самому екрані обліковий запис видаляється з усім умістом, зокрема із записом для входу, однією дією і без письмового запиту. Якщо інсталяція не налаштована видаляти запис для входу сама, кнопка прямо про це каже, а не повідомляє про успіх, якого не було. Обидві кнопки є в розділі «{settings}».
-- [ ] **6838.** A learner in a class or a workplace group can leave it, which stops the sponsor seeing anything and takes nothing out of their own deck.  
+- [ ] **6839.** A learner in a class or a workplace group can leave it, which stops the sponsor seeing anything and takes nothing out of their own deck.  
   → Учень у групі чи робочій групі може з неї вийти: тоді спонсор перестає будь-що бачити, а з колоди учня нічого не зникає.
-- [ ] **6839.** Security posture  
+- [ ] **6840.** Security posture  
   → Стан безпеки
-- [ ] **6840.** The security work is written down in full rather than summarised for you. There are three documents, and each one names files you can open:  
+- [ ] **6841.** The security work is written down in full rather than summarised for you. There are three documents, and each one names files you can open:  
   → Роботу з безпеки описано повністю, а не переказано для вас коротко. Є три документи, і в кожному названо файли, які можна відкрити:
-- [ ] **6841.** Security review and threat model  
+- [ ] **6842.** Security review and threat model  
   → Огляд безпеки й модель загроз
-- [ ] **6842.** {doc}: what the system is, the five trust boundaries, fifteen threats worked through one at a time, the controls inventory, and a section on what has not been done.  
+- [ ] **6843.** {doc}: what the system is, the five trust boundaries, fifteen threats worked through one at a time, the controls inventory, and a section on what has not been done.  
   → {doc}: що являє собою система, п'ять меж довіри, п'ятнадцять загроз, розібраних по одній, перелік заходів захисту і розділ про те, що не зроблено.
-- [ ] **6843.** Incident response  
+- [ ] **6844.** Incident response  
   → Реагування на інциденти
-- [ ] **6844.** {doc}: severity, who does what, the Article 33 clock for telling the supervisory authority, the Article 34 clock for telling the people affected, and runbooks for a leaked credential, a runaway AI bill, a database restore and a vandalised dictionary.  
-  → {doc}: рівні серйозності, хто що робить, строк за статтею 33 для повідомлення наглядового органу, строк за статтею 34 для повідомлення людей, яких це стосується, і покрокові інструкції на випадок витоку облікових даних, неконтрольованого рахунку за ШІ, відновлення бази даних і зіпсованого словника.
-- [ ] **6845.** Control map  
+- [ ] **6845.** {doc}: severity, who does what, the Article 33 clock for telling the supervisory authority, the Article 34 clock for telling the people affected, and runbooks for a leaked credential, a runaway AI bill, a database restore and a vandalised dictionary.  
+  → {doc}: рівні серйозності, хто що робить, строк за статтею 33 GDPR для повідомлення наглядового органу, строк за статтею 34 GDPR для повідомлення людей, яких це стосується, і покрокові інструкції на випадок витоку облікових даних, неконтрольованого рахунку за ШІ, відновлення бази даних і зіпсованого словника.
+- [ ] **6846.** Control map  
   → Карта заходів захисту
-- [ ] **6846.** {doc}: the controls a reviewer usually asks about, mapped to where each one lives.  
+- [ ] **6847.** {doc}: the controls a reviewer usually asks about, mapped to where each one lives.  
   → {doc}: заходи захисту, про які зазвичай питають перевіряльники, із зазначенням, де реалізовано кожен.
-- [ ] **6847.** The three documents are in English.  
+- [ ] **6848.** The three documents are in English.  
   → Усі три документи англійською.
-- [ ] **6848.** \*\*What this project does not have, stated plainly.\*\* There is no SOC 2 report. There is no ISO/IEC 27001 certificate. The control map is a self-assessment written by the people who wrote the code, and it has not been reviewed by anybody outside this project. No external penetration test has been commissioned, so nobody has attacked this application under contract, and no independent reviewer has read the source for security faults. The code being public is not the same thing as having been audited.  
+- [ ] **6849.** \*\*What this project does not have, stated plainly.\*\* There is no SOC 2 report. There is no ISO/IEC 27001 certificate. The control map is a self-assessment written by the people who wrote the code, and it has not been reviewed by anybody outside this project. No external penetration test has been commissioned, so nobody has attacked this application under contract, and no independent reviewer has read the source for security faults. The code being public is not the same thing as having been audited.  
   → \*\*Чого в цього проєкту немає, прямо.\*\* Немає звіту SOC 2. Немає сертифіката ISO/IEC 27001. Карту заходів захисту складено як самооцінку тими самими людьми, що писали код, і ніхто поза проєктом її не перевіряв. Зовнішній тест на проникнення не замовляли, тож ніхто не атакував цей застосунок за договором, і жоден незалежний фахівець не читав вихідного коду в пошуках вразливостей. Те, що код відкритий, не означає, що він пройшов аудит.
-- [ ] **6849.** Four more limits, named here before you find them yourself. Ownership of rows is enforced in application code and asserted in the build rather than by Postgres row level security. The Content Security Policy carries {inline} in its script sources, for a reason written out in the code, and that is the weakest line in it. Nothing watches the logs continuously: there is no intrusion detection and no alerting beyond an optional error webhook. And multi-factor authentication is inherited from whatever the learner’s Google account has rather than enforced here.  
-  → Ще чотири обмеження, названі тут раніше, ніж ви знайдете їх самі. Належність рядків забезпечується кодом застосунку й перевіряється під час збирання, а не порядковим захистом Postgres. Політика безпеки вмісту (CSP) дозволяє {inline} у джерелах скриптів, з причини, описаної в коді, і це найслабше її місце. Журнали ніхто не відстежує постійно: немає виявлення вторгнень і немає сповіщень, крім необов'язкового вебхука для помилок. І багатофакторна автентифікація береться з того, що ввімкнено в обліковому записі Google учня, а не вимагається тут.
-- [ ] **6850.** What there is instead is a build that fails when a rule is broken, rather than a document promising the rules are kept: the credential scan greps the built client bundle for every server-only value, the invariant suite asserts the rules this project set itself, and the browser suites drive the real app. All of it runs on every change.  
+- [ ] **6850.** Four more limits, named here before you find them yourself. Ownership of rows is enforced in application code and asserted in the build rather than by Postgres row level security. The Content Security Policy carries {inline} in its script sources, for a reason written out in the code, and that is the weakest line in it. Nothing watches the logs continuously: there is no intrusion detection and no alerting beyond an optional error webhook. And multi-factor authentication is inherited from whatever the learner’s Google account has rather than enforced here.  
+  → Ще чотири обмеження, названі тут раніше, ніж ви знайдете їх самі. Належність рядків забезпечується кодом застосунку й перевіряється під час збирання, а не механізмом захисту на рівні рядків у Postgres. Політика безпеки вмісту (CSP) дозволяє {inline} у джерелах скриптів, з причини, описаної в коді, і це найслабше її місце. Журнали ніхто не відстежує постійно: немає виявлення вторгнень і немає сповіщень, крім необов'язкового вебхука для помилок. І багатофакторна автентифікація береться з того, що ввімкнено в обліковому записі Google учня, а не вимагається тут.
+- [ ] **6851.** What there is instead is a build that fails when a rule is broken, rather than a document promising the rules are kept: the credential scan greps the built client bundle for every server-only value, the invariant suite asserts the rules this project set itself, and the browser suites drive the real app. All of it runs on every change.  
   → Натомість є збирання, яке падає, коли правило порушено, а не документ з обіцянкою, що правил дотримуються: перевірка облікових даних шукає в зібраному клієнтському коді кожне значення, призначене лише для сервера, набір інваріантів перевіряє правила, які проєкт сам собі встановив, а браузерні тести ганяють справжній застосунок. Усе це запускається за кожної зміни.
-- [ ] **6851.** One of those suites is worth naming, because it is the only one that asks these questions of a server rather than of the source. It sends the forged requests, reads back every security header, checks that what is behind a token stays behind it, and reads what the health endpoint is willing to say. It found something on its first run: a request carrying an address the app could not parse was being treated as a request carrying none, and those had different answers. That is the shape of thing it is for. It is a test written by the people who wrote the code, so it cannot tell you the design is right, and it is not the outside look this section says is missing.  
+- [ ] **6852.** One of those suites is worth naming, because it is the only one that asks these questions of a server rather than of the source. It sends the forged requests, reads back every security header, checks that what is behind a token stays behind it, and reads what the health endpoint is willing to say. It found something on its first run: a request carrying an address the app could not parse was being treated as a request carrying none, and those had different answers. That is the shape of thing it is for. It is a test written by the people who wrote the code, so it cannot tell you the design is right, and it is not the outside look this section says is missing.  
   → Один із цих наборів варто назвати окремо, бо лише він ставить ці запитання серверу, а не вихідному коду. Він надсилає підроблені запити, читає кожен заголовок безпеки, перевіряє, що закрите токеном лишається закритим, і дивиться, що готова повідомити точка перевірки стану. Під час першого ж запуску він дещо знайшов: запит з адресою, яку застосунок не міг розібрати, оброблявся як запит без адреси, а відповіді на них мали бути різними. Саме для таких речей він і потрібен. Це тест, написаний тими самими людьми, що писали код, тож він не може підтвердити, що будову системи зроблено правильно, і це не той погляд збоку, якого, як сказано в цьому розділі, бракує.
-- [ ] **6852.** Availability  
+- [ ] **6853.** Availability  
   → Доступність сервісу
-- [ ] **6853.** \*\*There is no contractual service level today.\*\* No uptime percentage is promised anywhere in this app or in its terms, and nothing here is worth quoting as one. What can be said is what the app does when things break, which is a design decision rather than a hope.  
+- [ ] **6854.** \*\*There is no contractual service level today.\*\* No uptime percentage is promised anywhere in this app or in its terms, and nothing here is worth quoting as one. What can be said is what the app does when things break, which is a design decision rather than a hope.  
   → \*\*Договірного рівня обслуговування зараз немає.\*\* Ні в застосунку, ні в його умовах не обіцяно жодного відсотка часу роботи, і нічого тут не варто цитувати в такій якості. Сказати можна лише те, що застосунок робить, коли щось ламається, а це рішення під час проєктування, а не надія.
-- [ ] **6854.** \*\*The review path survives losing the network.\*\* A grade answered with no connection goes into a queue in the browser and is sent later with the time it was actually answered, never dropped and never restamped, so a session on a train costs nothing. The service worker keeps the pages a learner was last on and an offline screen behind them, so the app opens rather than showing a browser error. The dictionary, the tutor and speech all need a connection and say so instead of serving something stale.  
+- [ ] **6855.** \*\*The review path survives losing the network.\*\* A grade answered with no connection goes into a queue in the browser and is sent later with the time it was actually answered, never dropped and never restamped, so a session on a train costs nothing. The service worker keeps the pages a learner was last on and an offline screen behind them, so the app opens rather than showing a browser error. The dictionary, the tutor and speech all need a connection and say so instead of serving something stale.  
   → \*\*Повторення переживає втрату мережі.\*\* Оцінка, дана без зв'язку, потрапляє в чергу в браузері й надсилається пізніше з часом, коли відповідь було дано насправді, ніколи не губиться і не отримує нового часу, тож заняття в потязі нічого не коштує. Сервіс-воркер зберігає сторінки, на яких учень був останнім, і екран для роботи без мережі за ними, тож застосунок відкривається, а не показує помилку браузера. Словникові, репетиторові й озвученню потрібен зв'язок, і вони кажуть про це, а не показують застаріле.
-- [ ] **6855.** \*\*When the database is unreachable\*\*, pages that need it fail to an error screen that says nothing has been lost, which is true: the review log is only ever appended to. The message itself stays on the server, because a database error can quote a connection string, and what the screen shows is a reference you can quote back at us.  
+- [ ] **6856.** \*\*When the database is unreachable\*\*, pages that need it fail to an error screen that says nothing has been lost, which is true: the review log is only ever appended to. The message itself stays on the server, because a database error can quote a connection string, and what the screen shows is a reference you can quote back at us.  
   → \*\*Коли база даних недоступна\*\*, сторінки, яким вона потрібна, показують екран помилки, де сказано, що нічого не втрачено, і це правда: до журналу повторень тільки додають записи. Саме повідомлення лишається на сервері, бо помилка бази даних може містити рядок підключення, а на екрані видно лише номер, який можна нам назвати.
-- [ ] **6856.** \*\*When an AI provider is having a bad minute\*\*, the app moves to the next provider configured rather than failing, and where none answers the feature says so. Nothing that teaches Estonian depends on a model: the dictionary, the deck, the scheduler, the exam and every practice round work with no AI provider at all.  
+- [ ] **6857.** \*\*When an AI provider is having a bad minute\*\*, the app moves to the next provider configured rather than failing, and where none answers the feature says so. Nothing that teaches Estonian depends on a model: the dictionary, the deck, the scheduler, the exam and every practice round work with no AI provider at all.  
   → \*\*Коли в постачальника ШІ невдала хвилина\*\*, застосунок переходить до наступного налаштованого постачальника, а не падає, а якщо не відповідає ніхто, функція так і каже. Ніщо з того, що вчить естонської, не залежить від моделі: словник, колода, розклад, іспит і кожен тренувальний раунд працюють зовсім без постачальника ШІ.
-- [ ] **6857.** \*\*Health check.\*\* {health} answers without a session and returns whether the app is up, whether the database answers, and the commit this build came from. It carries no counts and nothing about anybody. A monitor can poll it.  
+- [ ] **6858.** \*\*Health check.\*\* {health} answers without a session and returns whether the app is up, whether the database answers, and the commit this build came from. It carries no counts and nothing about anybody. A monitor can poll it.  
   → \*\*Перевірка стану.\*\* {health} відповідає без входу в обліковий запис і повідомляє, чи працює застосунок, чи відповідає база даних і з якого коміту зібрано цю версію. У відповіді немає ні підрахунків, ні відомостей про будь-кого. Її можна опитувати системою моніторингу.
-- [ ] **6858.** Reporting a vulnerability  
+- [ ] **6859.** Reporting a vulnerability  
   → Як повідомити про вразливість
-- [ ] **6859.** Send it to {who} with “security” in the subject line. The full policy is in {policy}, including the response times we can actually keep: three working days to acknowledge, ten to tell you whether we agree it is a problem, and a target of thirty days to fix anything critical or high. If the report is sensitive enough that plain email worries you, say so in one line with no detail in it and we’ll set up another channel.  
+- [ ] **6860.** Send it to {who} with “security” in the subject line. The full policy is in {policy}, including the response times we can actually keep: three working days to acknowledge, ten to tell you whether we agree it is a problem, and a target of thirty days to fix anything critical or high. If the report is sensitive enough that plain email worries you, say so in one line with no detail in it and we’ll set up another channel.  
   → Надішліть його {who} зі словом «security» у темі листа. Повна політика в {policy}, зокрема строки відповіді, яких ми справді можемо дотриматися: три робочі дні на підтвердження отримання, десять, щоб сказати, чи згодні ми, що це проблема, і орієнтир у тридцять днів на виправлення всього критичного чи серйозного. Якщо повідомлення настільки чутливе, що звичайна пошта вас непокоїть, напишіть про це одним рядком без подробиць, і ми організуємо інший канал.
-- [ ] **6860.** the operator named at the top of this page  
+- [ ] **6861.** the operator named at the top of this page  
   → операторові, вказаному на початку цієї сторінки
-- [ ] **6861.** If a breach ever affects personal data, the incident document above is the procedure we follow, and the supervisory authority for Estonia is the {authority} ({local}).  
+- [ ] **6862.** If a breach ever affects personal data, the incident document above is the procedure we follow, and the supervisory authority for Estonia is the {authority} ({local}).  
   → Якщо витік колись зачепить персональні дані, ми діємо за описаним вище документом про інциденти, а наглядовий орган Естонії: {authority} ({local}).
-- [ ] **6862.** Contrast is measured in a browser in both themes, every target is measured against 44px under a coarse pointer, axe runs over every route on every change, and no audit by a person with a disability using assistive technology has been commissioned yet. The {statement} says what is claimed, what is tested, and the gaps that are known.  
+- [ ] **6863.** Contrast is measured in a browser in both themes, every target is measured against 44px under a coarse pointer, axe runs over every route on every change, and no audit by a person with a disability using assistive technology has been commissioned yet. The {statement} says what is claimed, what is tested, and the gaps that are known.  
   → Контрастність вимірюється в браузері в обох темах, кожен елемент керування перевіряється на розмір 44px за сенсорного введення, axe проходить кожною сторінкою за кожної зміни, а аудит за участю людини з інвалідністю, яка користується допоміжними технологіями, поки не замовляли. У {statement} сказано, що заявлено, що перевірено і які прогалини відомі.
-- [ ] **6863.** accessibility statement  
+- [ ] **6864.** accessibility statement  
   → заяві про доступність
-- [ ] **6864.** Accessibility statement  
+- [ ] **6865.** Accessibility statement  
   → Заява про доступність
-- [ ] **6865.** Kodukeel is for people learning Estonian, and plenty of them are learning it because they have to. If somebody can’t use the app, it has let them down exactly when it mattered most. This page says what standard we’re aiming for, what we’ve checked and how, where we fall short today, and how to tell us.  
+- [ ] **6866.** Kodukeel is for people learning Estonian, and plenty of them are learning it because they have to. If somebody can’t use the app, it has let them down exactly when it mattered most. This page says what standard we’re aiming for, what we’ve checked and how, where we fall short today, and how to tell us.  
   → Kodukeel створено для тих, хто вчить естонську, а багато хто вчить її тому, що мусить. Якщо хтось не може користуватися застосунком, він підвів цю людину саме тоді, коли це було найважливіше. На цій сторінці сказано, до якого стандарту ми прагнемо, що і як перевірили, де поки не дотягуємо і як нам про це повідомити.
-- [ ] **6866.** The standard  
+- [ ] **6867.** The standard  
   → Стандарт
-- [ ] **6867.** The target is \*\*WCAG 2.2 level AA\*\*, and through it \*\*EN 301 549\*\*, which is the European harmonised standard that public bodies and their suppliers are measured against and which adopts WCAG for web content.  
-  → Мета: \*\*WCAG 2.2, рівень AA\*\*, а через нього \*\*EN 301 549\*\*, гармонізований європейський стандарт, за яким оцінюють державні органи та їхніх постачальників і який приймає WCAG для вебвмісту.
-- [ ] **6868.** Conformance status  
+- [ ] **6868.** The target is \*\*WCAG 2.2 level AA\*\*, and through it \*\*EN 301 549\*\*, which is the European harmonised standard that public bodies and their suppliers are measured against and which adopts WCAG for web content.  
+  → Мета: \*\*WCAG 2.2, рівень AA\*\*, а через нього \*\*EN 301 549\*\*, гармонізований європейський стандарт, за яким оцінюють державні органи та їхніх постачальників і який включає WCAG у частині вебвмісту.
+- [ ] **6869.** Conformance status  
   → Статус відповідності
-- [ ] **6869.** \*\*Partially conformant with WCAG 2.2 level AA.\*\* Partially conformant means most of the app meets the standard, and the parts named below do not.  
-  → \*\*Частково відповідає WCAG 2.2, рівень AA.\*\* Частково означає, що більша частина застосунку відповідає стандарту, а частини, названі нижче, ні.
-- [ ] **6870.** It isn’t fully conformant, and here’s the honest reason: nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.  
+- [ ] **6870.** \*\*Partially conformant with WCAG 2.2 level AA.\*\* Partially conformant means most of the app meets the standard, and the parts named below do not.  
+  → \*\*Частково відповідає WCAG 2.2, рівень AA.\*\* «Частково» означає, що більша частина застосунку відповідає стандарту, а частини, названі нижче, ні.
+- [ ] **6871.** It isn’t fully conformant, and here’s the honest reason: nobody who relies on assistive technology has yet been paid to sit down with it and try to use it. Everything below rests on automated checks and on the people who wrote the app testing their own work. That finds a great deal, and it’s still not the same as hearing from somebody the app was failing.  
   → Повної відповідності немає, і ось чесна причина: нікому з тих, хто покладається на допоміжні технології, ще не платили за те, щоб сісти й спробувати ним користуватися. Усе, що нижче, спирається на автоматичні перевірки і на те, що автори застосунку перевіряли власну роботу. Так знаходиться дуже багато, але це все одно не те саме, що почути людину, яку застосунок підводив.
-- [ ] **6871.** How the claim was tested  
+- [ ] **6872.** How the claim was tested  
   → Як це перевірялося
-- [ ] **6872.** Four suites run in the build on every change, against the real app in a real browser rather than against a component in isolation.  
+- [ ] **6873.** Four suites run in the build on every change, against the real app in a real browser rather than against a component in isolation.  
   → За кожної зміни під час збирання запускаються чотири набори тестів, проти справжнього застосунку в справжньому браузері, а не проти окремого компонента.
-- [ ] **6873.** \*\*axe over every route.\*\* {suite} loads every page the app has, not a chosen sample, and runs axe over each one, including its best-practice rules. Two screens are the exception so far, a marked paper and a scanned page, because each needs a row made before it exists; the containment suite below makes both and measures them, and axe does not reach them yet. It runs the whole sweep again in the dark theme, because light and dark are two palettes and a colour that clears the bar in one says nothing about the other. It runs it twice more at 390 pixels wide, which is a phone, because a phone here is different markup rather than the same markup narrower: the navigation rail is not drawn at all and a bar with a sheet behind it is drawn instead. That sheet is opened and swept too, since no address reaches it. It counts a one-character run of text as text, which is how a tick measured at 2.52 against a bar of 4.5 was found. Beyond axe it asserts exactly one main landmark and one heading per screen, a page title that is not the landing page’s, and Estonian marked so a screen reader does not read it with English phonics.  
-  → \*\*axe на кожній сторінці.\*\* {suite} відкриває кожну сторінку застосунку, а не вибірку, і проганяє кожною axe, зокрема правила найкращих практик. Поки винятків два, перевірена робота й відсканована сторінка, бо для кожної спершу треба створити запис; набір перевірки меж нижче створює обидві й вимірює їх, а axe до них поки не доходить. Увесь прохід повторюється в темній темі, бо світла й темна теми це дві палітри, і колір, що проходить поріг в одній, нічого не каже про іншу. Ще двічі він запускається за ширини 390 пікселів, тобто на телефоні, бо телефон тут отримує іншу розмітку, а не ту саму, тільки вужчу: бічна панель навігації не малюється зовсім, а замість неї з'являється нижня панель зі шторкою. Цю шторку теж відкривають і перевіряють, бо жодна адреса до неї не веде. Рядок тексту з одного символу теж вважається текстом, і так було знайдено галочку з контрастом 2,52 за порогу 4,5. Крім axe перевіряється рівно один головний орієнтир і один заголовок на екран, заголовок сторінки, відмінний від заголовка лендингу, і розмітка естонського тексту, щоб екранний диктор не читав його з англійською вимовою.
-- [ ] **6874.** \*\*Contrast measured rather than reasoned about.\*\* {suite} reads the colours the browser actually painted and works out the ratio, in both themes, including states a page does not arrive in such as a row under a pointer. What a colour is worth depends on what it is sitting on, which no palette can tell you.  
+- [ ] **6874.** \*\*axe over every route.\*\* {suite} loads every page the app has, not a chosen sample, and runs axe over each one, including its best-practice rules. Two screens are the exception so far, a marked paper and a scanned page, because each needs a row made before it exists; the containment suite below makes both and measures them, and axe does not reach them yet. It runs the whole sweep again in the dark theme, because light and dark are two palettes and a colour that clears the bar in one says nothing about the other. It runs it twice more at 390 pixels wide, which is a phone, because a phone here is different markup rather than the same markup narrower: the navigation rail is not drawn at all and a bar with a sheet behind it is drawn instead. That sheet is opened and swept too, since no address reaches it. It counts a one-character run of text as text, which is how a tick measured at 2.52 against a bar of 4.5 was found. Beyond axe it asserts exactly one main landmark and one heading per screen, a page title that is not the landing page’s, and Estonian marked so a screen reader does not read it with English phonics.  
+  → \*\*axe на кожній сторінці.\*\* {suite} відкриває кожну сторінку застосунку, а не вибірку, і запускає на кожній axe, зокрема правила найкращих практик. Поки винятків два, перевірена робота й відсканована сторінка, бо для кожної спершу треба створити запис; набір перевірки меж нижче створює обидві й вимірює їх, а axe до них поки не доходить. Увесь прохід повторюється в темній темі, бо світла й темна теми це дві палітри, і колір, що проходить поріг в одній, нічого не каже про іншу. Ще двічі він запускається за ширини 390 пікселів, тобто на телефоні, бо телефон тут отримує іншу розмітку, а не ту саму, тільки вужчу: бічна панель навігації не малюється зовсім, а замість неї з'являється нижня панель зі шторкою. Цю шторку теж відкривають і перевіряють, бо жодна адреса до неї не веде. Рядок тексту з одного символу теж вважається текстом, і так було знайдено галочку з контрастом 2,52 там, де поріг 4,5. Крім axe перевіряється рівно один головний орієнтир і один заголовок на екран, заголовок сторінки, відмінний від заголовка лендингу, і розмітка естонського тексту, щоб екранний диктор не читав його з англійською вимовою.
+- [ ] **6875.** \*\*Contrast measured rather than reasoned about.\*\* {suite} reads the colours the browser actually painted and works out the ratio, in both themes, including states a page does not arrive in such as a row under a pointer. What a colour is worth depends on what it is sitting on, which no palette can tell you.  
   → \*\*Контраст вимірюється, а не виводиться міркуванням.\*\* {suite} читає кольори, які браузер справді намалював, і обчислює співвідношення в обох темах, зокрема стани, у яких сторінка не відкривається сама, наприклад рядок під курсором. Чого вартий колір, залежить від того, на чому він лежить, а цього не скаже жодна палітра.
-- [ ] **6875.** \*\*Every target measured against 44px.\*\* {suite} drives the app at 360, 390, 430, 768 and 1280 pixels wide with a coarse pointer, which is the only condition under which that rule is real, and fails on a control below the floor.  
+- [ ] **6876.** \*\*Every target measured against 44px.\*\* {suite} drives the app at 360, 390, 430, 768 and 1280 pixels wide with a coarse pointer, which is the only condition under which that rule is real, and fails on a control below the floor.  
   → \*\*Кожен елемент перевіряється на 44px.\*\* {suite} ганяє застосунок за ширини 360, 390, 430, 768 і 1280 пікселів із сенсорним введенням, єдиною умовою, за якої це правило має сенс, і падає на будь-якому елементі керування, меншому за поріг.
-- [ ] **6876.** \*\*Text staying inside its box.\*\* {suite} walks every route at 360, 768 and 1280, in both themes, and asks whether anything is cut off, drawn outside its border or drawn on top of something else. Then it asks again with every run of text replaced by unbreakable text of the same length, which is the question Estonian actually poses.  
+- [ ] **6877.** \*\*Text staying inside its box.\*\* {suite} walks every route at 360, 768 and 1280, in both themes, and asks whether anything is cut off, drawn outside its border or drawn on top of something else. Then it asks again with every run of text replaced by unbreakable text of the same length, which is the question Estonian actually poses.  
   → \*\*Текст лишається у своїй рамці.\*\* {suite} проходить кожну сторінку за ширини 360, 768 і 1280 в обох темах і перевіряє, чи не обрізано щось, чи не виходить за свою рамку і чи не накладено поверх іншого. Потім перевіряє знову, замінивши кожен рядок тексту нерозривним рядком тієї самої довжини, адже саме таке питання й ставить естонська мова.
-- [ ] **6877.** Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Colour is never the only thing carrying a distinction, so a correct answer says so in words as well as in colour.  
+- [ ] **6878.** Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Colour is never the only thing carrying a distinction, so a correct answer says so in words as well as in colour.  
   → Крім того, застосунок зібрано зі справжніх кнопок і посилань із видимою рамкою фокуса. Анімація вимикається для всіх, чия система просить зменшити рух, і ніде не потрібне перетягування. Колір ніколи не є єдиним, що передає відмінність, тож правильна відповідь позначається і словами, і кольором.
-- [ ] **6878.** \*\*The three timed practice rounds can be set to run longer\*\* (WCAG 2.2.1, Timing Adjustable). The Case Sprint is a minute, the daily quest is two minutes, and Target gives eight seconds a question, and all of those are now a starting point rather than the whole story: one setting stretches whichever round you open, up to ten times as long, which is the figure the criterion itself asks for. It is chosen before the round starts, in Settings, and every one of those start screens links to it. The clock stays, because a speed round without one is a different round, and what was shutting people out was that the length was not theirs to set.  
+- [ ] **6879.** \*\*The three timed practice rounds can be set to run longer\*\* (WCAG 2.2.1, Timing Adjustable). The Case Sprint is a minute, the daily quest is two minutes, and Target gives eight seconds a question, and all of those are now a starting point rather than the whole story: one setting stretches whichever round you open, up to ten times as long, which is the figure the criterion itself asks for. It is chosen before the round starts, in Settings, and every one of those start screens links to it. The clock stays, because a speed round without one is a different round, and what was shutting people out was that the length was not theirs to set.  
   → \*\*Три тренувальні раунди на час можна зробити довшими\*\* (WCAG 2.2.1, регульований час). «Спринт за відмінками» триває хвилину, «Завдання дня» дві хвилини, а «Мішень» дає вісім секунд на запитання, і тепер усе це лише відправна точка: одне налаштування розтягує будь-який відкритий раунд аж до десятикратної тривалості, саме ту величину, якої вимагає сам критерій. Його вибирають до початку раунду в налаштуваннях, і кожен із цих стартових екранів на нього посилається. Таймер лишається, бо швидкісний раунд без нього вже інший раунд, а людей відсікало те, що тривалість не можна було задати самим.
-- [ ] **6879.** \*\*No audit by a person with a disability using assistive technology has been commissioned.\*\* No screen reader user has been paid to test this, and there has been no third-party accessibility audit. Automated tools find perhaps a third of what is wrong with a page, and the third they find is the mechanical third.  
+- [ ] **6880.** \*\*No audit by a person with a disability using assistive technology has been commissioned.\*\* No screen reader user has been paid to test this, and there has been no third-party accessibility audit. Automated tools find perhaps a third of what is wrong with a page, and the third they find is the mechanical third.  
   → \*\*Аудит за участю людини з інвалідністю, яка користується допоміжними технологіями, не замовляли.\*\* Нікому з користувачів екранного диктора не платили за перевірку, і стороннього аудиту доступності не було. Автоматичні інструменти знаходять, мабуть, третину того, що не так зі сторінкою, і це механічна третина.
-- [ ] **6880.** What is known not to conform  
+- [ ] **6881.** What is known not to conform  
   → Що свідомо не відповідає
-- [ ] **6881.** These were found by reading the code rather than assumed from a template, and each one is a real screen.  
+- [ ] **6882.** These were found by reading the code rather than assumed from a template, and each one is a real screen.  
   → Це знайдено читанням коду, а не взято із шаблону, і кожен пункт стосується справжнього екрана.
-- [ ] **6882.** \*\*The mock examination parts run to a clock nobody can change\*\* (WCAG 2.2.1, Timing Adjustable), and it closes the part when it goes. The paper is an imitation of a timed state examination and untimed practice of a timed paper measures something else, which is why it is the one clock left fixed, but a candidate who needs extra time in the real examination has no way to ask for it here.  
+- [ ] **6883.** \*\*The mock examination parts run to a clock nobody can change\*\* (WCAG 2.2.1, Timing Adjustable), and it closes the part when it goes. The paper is an imitation of a timed state examination and untimed practice of a timed paper measures something else, which is why it is the one clock left fixed, but a candidate who needs extra time in the real examination has no way to ask for it here.  
   → \*\*Частини пробного іспиту йдуть за таймером, який ніхто не може змінити\*\* (WCAG 2.2.1, регульований час), і коли він спливає, частина закривається. Робота імітує державний іспит на час, а тренування такої роботи без обмеження вимірює вже інше, тому це єдиний таймер, залишений незмінним, але кандидат, якому на справжньому іспиті потрібен додатковий час, не може попросити про нього тут.
-- [ ] **6883.** \*\*The listening, dictation and minimal-pair rounds require hearing\*\* (WCAG 1.2.1). There is no transcript before the answer, because the transcript is the answer, so a text alternative would remove the exercise. The text is shown as soon as the answer is in. Somebody who cannot use audio can use every other round, and the app does not require any of these three to make progress, but three rounds are closed to them.  
+- [ ] **6884.** \*\*The listening, dictation and minimal-pair rounds require hearing\*\* (WCAG 1.2.1). There is no transcript before the answer, because the transcript is the answer, so a text alternative would remove the exercise. The text is shown as soon as the answer is in. Somebody who cannot use audio can use every other round, and the app does not require any of these three to make progress, but three rounds are closed to them.  
   → \*\*Раунди аудіювання, диктанту й мінімальних пар потребують слуху\*\* (WCAG 1.2.1). Розшифровки до відповіді немає, бо розшифровка і є відповіддю, тож текстова альтернатива знищила б саму вправу. Текст показується одразу після відповіді. Той, хто не може користуватися звуком, може користуватися всіма іншими раундами, і для поступу жоден із цих трьох не обов'язковий, але три раунди для нього закриті.
-- [ ] **6884.** \*\*Speaking practice needs a microphone\*\* and asks the learner to judge their own attempt against a native rendering, because no recogniser available to this project is accurate enough on Estonian to mark one. Anybody who cannot record has no way through that round.  
+- [ ] **6885.** \*\*Speaking practice needs a microphone\*\* and asks the learner to judge their own attempt against a native rendering, because no recogniser available to this project is accurate enough on Estonian to mark one. Anybody who cannot record has no way through that round.  
   → \*\*Для тренування мовлення потрібен мікрофон\*\*, і учень сам порівнює свою спробу з вимовою носія, бо жоден доступний проєктові розпізнавач мовлення не настільки точний для естонської, щоб її оцінити. Той, хто не може записувати звук, не зможе пройти цей раунд.
-- [ ] **6885.** \*\*axe is swept at two widths, not at every width.\*\* It runs at 1280 and at 390, which is either side of the one breakpoint that swaps the navigation, so the phone bar and the sheet behind it are covered now. The widths between them, 360, 430 and 768, are measured for targets, overflow and containment and are not swept by axe. A fault in markup that appears at one of those and at neither of these would be found by a person rather than by the build.  
+- [ ] **6886.** \*\*axe is swept at two widths, not at every width.\*\* It runs at 1280 and at 390, which is either side of the one breakpoint that swaps the navigation, so the phone bar and the sheet behind it are covered now. The widths between them, 360, 430 and 768, are measured for targets, overflow and containment and are not swept by axe. A fault in markup that appears at one of those and at neither of these would be found by a person rather than by the build.  
   → \*\*axe проходить дві ширини, а не всі.\*\* Він запускається за 1280 і 390, по обидва боки від єдиної точки перелому, де змінюється навігація, тож нижню панель телефона й шторку за нею тепер перевірено. Проміжні ширини, 360, 430 і 768, перевіряються на розмір елементів, переповнення й межі, але не axe. Помилку в розмітці, яка проявляється на одній із них і на жодній із двох перших, знайде людина, а не збирання.
-- [ ] **6886.** \*\*Screens behind data are less covered.\*\* The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with pupils in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them.  
+- [ ] **6887.** \*\*Screens behind data are less covered.\*\* The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with pupils in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them.  
   → \*\*Екрани, яким потрібні дані, перевірено гірше.\*\* Автоматичний прохід бачить кожну сторінку під час завантаження плюс один стан, до якого учень доходить своїми діями. Список групи з учнями, частина іспиту в процесі й сітки головоломок під час гри доступні, але перевірені гірше за сусідні сторінки.
-- [ ] **6887.** \*\*Reflow is checked at three widths rather than at 400% zoom.\*\* The widths are 360, 768 and 1280, which covers the cases the app was designed for. WCAG asks the question in terms of zoom, and that exact test has not been run.  
+- [ ] **6888.** \*\*Reflow is checked at three widths rather than at 400% zoom.\*\* The widths are 360, 768 and 1280, which covers the cases the app was designed for. WCAG asks the question in terms of zoom, and that exact test has not been run.  
   → \*\*Перекомпонування перевіряється на трьох ширинах, а не за збільшення 400%.\*\* Ширини 360, 768 і 1280, і вони покривають випадки, на які розраховано застосунок. WCAG ставить питання через збільшення, і саме такого тесту не проводили.
-- [ ] **6888.** Where a limitation above is one of ours rather than one the exercise requires, it is something to fix rather than something to explain away. The practice clocks were the first of those and are adjustable now, and the phone sweep was the second: it used to be on this list and it runs in the build. The examination clock is the one that stays, for the reason beside it.  
+- [ ] **6889.** Where a limitation above is one of ours rather than one the exercise requires, it is something to fix rather than something to explain away. The practice clocks were the first of those and are adjustable now, and the phone sweep was the second: it used to be on this list and it runs in the build. The examination clock is the one that stays, for the reason beside it.  
   → Якщо обмеження вище спричинили ми, а не вимога самої вправи, його треба виправити, а не виправдовувати. Таймери тренувань були першими й тепер налаштовуються, а перевірка на телефоні була другою: раніше вона стояла в цьому списку, а тепер виконується під час збирання. Лишається таймер іспиту, з причини, вказаної поруч із ним.
-- [ ] **6889.** When this was prepared  
+- [ ] **6890.** When this was prepared  
   → Коли це підготовлено
-- [ ] **6890.** Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.  
+- [ ] **6891.** Prepared on 5 September 2026 by the people who wrote the app, from the automated suites described above and from reading the source. It is reviewed whenever a screen changes enough to move one of the claims on it. There has been no external review.  
   → Підготовлено 5 вересня 2026 року авторами застосунку на основі описаних вище автоматичних тестів і читання вихідного коду. Заяву переглядають щоразу, коли екран змінюється настільки, що це зачіпає одне з тверджень. Зовнішньої перевірки не було.
-- [ ] **6891.** Telling us about a problem  
+- [ ] **6892.** Telling us about a problem  
   → Як повідомити нам про проблему
-- [ ] **6892.** Write to {email}. Say what you were trying to do, what happened, and what you were using to do it with, if you can. A message that just says “this screen doesn’t work with my screen reader” is still worth sending: the person reading it can go and look.  
+- [ ] **6893.** Write to {email}. Say what you were trying to do, what happened, and what you were using to do it with, if you can. A message that just says “this screen doesn’t work with my screen reader” is still worth sending: the person reading it can go and look.  
   → Напишіть на {email}. Якщо можете, розкажіть, що ви намагалися зробити, що сталося і чим ви для цього користувалися. Навіть повідомлення «цей екран не працює з моїм екранним диктором» варто надіслати: той, хто його прочитає, зможе піти й подивитися.
-- [ ] **6893.** \*\*Whoever runs this installation has not filled their contact details in\*\*, so this statement has no address on it to write to. Ask whoever gave you the link. If you are running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
-  → \*\*Той, хто запустив цю інсталяцію, не вказав своїх контактів\*\*, тож у цій заяві немає адреси для листів. Запитайте того, хто дав вам посилання. Якщо її запустили ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`.
-- [ ] **6894.** Every screen in the app also has a way to report something that is wrong with it, beside the thing that went wrong, and those reports reach the same people.  
+- [ ] **6894.** \*\*Whoever runs this installation has not filled their contact details in\*\*, so this statement has no address on it to write to. Ask whoever gave you the link. If you are running it, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
+  → \*\*Той, хто керує цією інсталяцією, не вказав своїх контактів\*\*, тож у цій заяві немає адреси для листів. Запитайте того, хто дав вам посилання. Якщо її запустили ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`.
+- [ ] **6895.** Every screen in the app also has a way to report something that is wrong with it, beside the thing that went wrong, and those reports reach the same people.  
   → Крім того, на кожному екрані застосунку поруч із тим, що пішло не так, є спосіб повідомити про проблему, і ці повідомлення потрапляють до тих самих людей.
-- [ ] **6895.** If that gets you nowhere  
+- [ ] **6896.** If that gets you nowhere  
   → Якщо це нічого не дало
-- [ ] **6896.** The enforcement route for accessibility in Estonia runs through the state authority responsible for the Web Accessibility Directive, and a complaint about how personal data is handled goes to the \*\*{authority}\*\* ({local}), {address}, {email}. Do write to us first, though. A real person reads it, and a fix is usually quicker than a complaint.  
+- [ ] **6897.** The enforcement route for accessibility in Estonia runs through the state authority responsible for the Web Accessibility Directive, and a complaint about how personal data is handled goes to the \*\*{authority}\*\* ({local}), {address}, {email}. Do write to us first, though. A real person reads it, and a fix is usually quicker than a complaint.  
   → Нагляд за доступністю в Естонії здійснює державний орган, відповідальний за Директиву про вебдоступність, а скарга на обробку персональних даних надсилається до \*\*{authority}\*\* ({local}), {address}, {email}. Але спершу все ж напишіть нам. Лист читає жива людина, і виправити зазвичай швидше, ніж поскаржитися.
-- [ ] **6897.** See also {trust} and {privacy}.  
+- [ ] **6898.** See also {trust} and {privacy}.  
   → Див. також «{trust}» і «{privacy}».
-- [ ] **6898.** Offline  
+- [ ] **6899.** Offline  
   → Немає мережі
-- [ ] **6899.** This page needs the internet  
+- [ ] **6900.** This page needs the internet  
   → Цій сторінці потрібен інтернет
-- [ ] **6900.** You’re offline right now. Pages you’ve already opened still work, and so does your review. Every answer you give is kept on this device and sent as soon as you’re back online.  
+- [ ] **6901.** You’re offline right now. Pages you’ve already opened still work, and so does your review. Every answer you give is kept on this device and sent as soon as you’re back online.  
   → Зараз ви не в мережі. Сторінки, які ви вже відкривали, як і раніше працюють, як і повторення. Кожна ваша відповідь зберігається на цьому пристрої й надішлеться, щойно зв'язок повернеться.
-- [ ] **6901.** Review your words instead  
+- [ ] **6902.** Review your words instead  
   → Краще повторіть слова
-- [ ] **6902.** Checked against the state’s own pages on  
+- [ ] **6903.** Checked against the state’s own pages on  
   → Звірено з офіційними сторінками держави
-- [ ] **6903.** Four levels  
+- [ ] **6904.** Four levels  
   → Чотири рівні
-- [ ] **6904.** Four parts at every level  
+- [ ] **6905.** Four parts at every level  
   → Чотири частини на кожному рівні
-- [ ] **6905.** Every fact below links to the page it came from. Rules and dates do change, so check that page before you register.  
+- [ ] **6906.** Every fact below links to the page it came from. Rules and dates do change, so check that page before you register.  
   → Кожен факт нижче посилається на сторінку, звідки його взято. Правила й дати змінюються, тож перевірте цю сторінку перед реєстрацією.
-- [ ] **6906.** From _(context: source)_  
+- [ ] **6907.** From _(context: source)_  
   → Джерело:
-- [ ] **6907.** The best free preparation there is  
+- [ ] **6908.** The best free preparation there is  
   → Найкраща безплатна підготовка
-- [ ] **6908.** The Board publishes its own practice materials, for free. Start with these before anything else, this app included.  
-  → Harno безплатно публікує власні матеріали для підготовки. Почніть із них, раніше за все інше, зокрема за цей застосунок.
-- [ ] **6909.** Where Kodukeel fits  
+- [ ] **6909.** The Board publishes its own practice materials, for free. Start with these before anything else, this app included.  
+  → Harno безплатно публікує власні матеріали для підготовки. Почніть із них, перш ніж братися за будь-що інше, зокрема за цей застосунок.
+- [ ] **6910.** Where Kodukeel fits  
   → Де тут Kodukeel
-- [ ] **6910.** Kodukeel sets a mock paper at A2, B1, B2 and C1, plus one of its own at A1. Each one keeps the published time limits, the points, the pass mark and the rule that you fail if any part scores zero, and every task tells you which official task it stands in for. The questions are built from sentences a lexicographer recorded, so they aren’t the Board’s own. Nothing here scores your pronunciation, and it’s free.  
-  → Kodukeel дає пробні іспити на рівнях A2, B1, B2 і C1 і ще власний на A1. Кожен дотримується опублікованих обмежень часу, балів, прохідного порогу й правила, що іспит не складено, якщо хоч одна частина набрала нуль, а кожне завдання каже, яке офіційне завдання воно замінює. Запитання зібрано з речень, записаних лексикографом, тож це не завдання самого Harno. Вимову тут не оцінюють, і все це безплатно.
-- [ ] **6911.** Sit a mock paper  
+- [ ] **6911.** Kodukeel sets a mock paper at A2, B1, B2 and C1, plus one of its own at A1. Each one keeps the published time limits, the points, the pass mark and the rule that you fail if any part scores zero, and every task tells you which official task it stands in for. The questions are built from sentences a lexicographer recorded, so they aren’t the Board’s own. Nothing here scores your pronunciation, and it’s free.  
+  → Kodukeel дає пробні іспити на рівнях A2, B1, B2 і C1 і ще власний на A1. У кожному збережено опубліковані обмеження часу, бали, прохідний поріг і правило, за яким іспит не складено, якщо хоч одна частина набрала нуль, а в кожному завданні вказано, яке офіційне завдання воно замінює. Запитання зібрано з речень, записаних лексикографом, тож це не завдання самого Harno. Вимову тут не оцінюють, і все це безплатно.
+- [ ] **6912.** Sit a mock paper  
   → Скласти пробний іспит
-- [ ] **6912.** What Kodukeel is  
+- [ ] **6913.** What Kodukeel is  
   → Що таке Kodukeel
-- [ ] **6913.** Sign in  
+- [ ] **6914.** Sign in  
   → Увійти
-- [ ] **6914.** What it is  
+- [ ] **6915.** What it is  
   → Що це таке
-- [ ] **6915.** The state examines Estonian at four levels: A2, B1, B2 and C1. There's no exam at A1 or C2.  
+- [ ] **6916.** The state examines Estonian at four levels: A2, B1, B2 and C1. There's no exam at A1 or C2.  
   → Держава перевіряє знання естонської на чотирьох рівнях: A2, B1, B2 і C1. Іспиту на A1 і C2 немає.
-- [ ] **6916.** Every level has four parts: writing, listening, reading and speaking. It tests your Estonian, not what you know about Estonian culture or history.  
+- [ ] **6917.** Every level has four parts: writing, listening, reading and speaking. It tests your Estonian, not what you know about Estonian culture or history.  
   → На кожному рівні чотири частини: письмо, аудіювання, читання й говоріння. Перевіряється ваша естонська, а не знання естонської культури чи історії.
-- [ ] **6917.** It's free, and so is sitting it again.  
+- [ ] **6918.** It's free, and so is sitting it again.  
   → Він безплатний, і перескладання теж.
-- [ ] **6918.** The papers, the level descriptions and the sample materials are all in Estonian.  
+- [ ] **6919.** The papers, the level descriptions and the sample materials are all in Estonian.  
   → Екзаменаційні завдання, описи рівнів і зразки матеріалів естонською.
-- [ ] **6919.** The spoken part starts with a short chat with the examiner, the kind people have when they first meet: who you are and a bit about yourself. Two assessors mark a recording of it.  
+- [ ] **6920.** The spoken part starts with a short chat with the examiner, the kind people have when they first meet: who you are and a bit about yourself. Two assessors mark a recording of it.  
   → Усна частина починається з короткої розмови з екзаменатором, яка буває під час першого знайомства: хто ви і трохи про себе. Запис розмови оцінюють два екзаменатори.
-- [ ] **6920.** Who needs which level  
+- [ ] **6921.** Who needs which level  
   → Кому який рівень потрібен
-- [ ] **6921.** Applying for citizenship takes two examinations: this one at B1 or higher, and a separate examination on the Constitution and the Citizenship Act.  
+- [ ] **6922.** Applying for citizenship takes two examinations: this one at B1 or higher, and a separate examination on the Constitution and the Citizenship Act.  
   → Для громадянства потрібні два іспити: цей, на рівні B1 або вище, і окремий іспит з Конституції та Закону про громадянство.
-- [ ] **6922.** If you're applying for citizenship and you're 65 or over, you can skip the writing part of the B1 exam and sit the other three. You choose that on the registration form.  
+- [ ] **6923.** If you're applying for citizenship and you're 65 or over, you can skip the writing part of the B1 exam and sit the other three. You choose that on the registration form.  
   → Якщо ви подаєте на громадянство і вам 65 років або більше, можна не складати письмову частину іспиту B1 і складати решту три. Це обирають у реєстраційній формі.
-- [ ] **6923.** The level a job needs is set by a government regulation, depending on the kind of post and its professional standard.  
+- [ ] **6924.** The level a job needs is set by a government regulation, depending on the kind of post and its professional standard.  
   → Рівень, потрібний для роботи, встановлюється постановою уряду залежно від виду посади та її професійного стандарту.
-- [ ] **6924.** The Police and Border Guard Board decides which level a residence permit needs. Ask them about your own case before you register.  
+- [ ] **6925.** The Police and Border Guard Board decides which level a residence permit needs. Ask them about your own case before you register.  
   → Який рівень потрібен для посвідки на проживання, вирішує Департамент поліції та прикордонної охорони. Перш ніж реєструватися, запитайте їх про свій випадок.
-- [ ] **6925.** Registering  
+- [ ] **6926.** Registering  
   → Реєстрація
-- [ ] **6926.** Register in EIS. If you have an Estonian personal identification code, you have to register there. Paper applications are only for people without one.  
+- [ ] **6927.** Register in EIS. If you have an Estonian personal identification code, you have to register there. Paper applications are only for people without one.  
   → Реєструйтеся в EIS. Якщо у вас є естонський особистий код, реєструватися треба там. Паперові заяви лише для тих, у кого його немає.
-- [ ] **6927.** You'll need an email address. The form won't send without one.  
+- [ ] **6928.** You'll need an email address. The form won't send without one.  
   → Знадобиться адреса електронної пошти. Без неї форма не надішлеться.
-- [ ] **6928.** Registration closes on the 1st of the month before the examination. You can register for one examination at a time.  
+- [ ] **6929.** Registration closes on the 1st of the month before the examination. You can register for one examination at a time.  
   → Реєстрація закривається 1-го числа місяця, що передує іспиту. Реєструватися можна лише на один іспит за раз.
-- [ ] **6929.** You'll get an email with the time and place at least 14 days before. You can cancel up to four working days before the date.  
+- [ ] **6930.** You'll get an email with the time and place at least 14 days before. You can cancel up to four working days before the date.  
   → Лист із часом і місцем прийде не пізніше ніж за 14 днів. Скасувати можна не пізніше ніж за чотири робочі дні до дати.
-- [ ] **6930.** If you need special conditions for health reasons, like more time or a separate room, apply to an expert committee. It meets in the first week of the month before the exam.  
+- [ ] **6931.** If you need special conditions for health reasons, like more time or a separate room, apply to an expert committee. It meets in the first week of the month before the exam.  
   → Якщо через стан здоров'я вам потрібні особливі умови, наприклад більше часу чи окрема кімната, подайте заяву до експертної комісії. Вона збирається в перший тиждень місяця перед іспитом.
-- [ ] **6931.** When, where and on the day  
+- [ ] **6932.** When, where and on the day  
   → Коли, де і як минає день іспиту
-- [ ] **6932.** Examinations are held once a quarter in Tallinn, Tartu, Narva and {e1}, and in {e2} in March and September if at least twelve people register.  
+- [ ] **6933.** Examinations are held once a quarter in Tallinn, Tartu, Narva and {e1}, and in {e2} in March and September if at least twelve people register.  
   → Іспити проходять раз на квартал у Таллінні, Тарту, Нарві та {e1}, а в березні й вересні і в {e2}, якщо зареєструється щонайменше дванадцять людей.
-- [ ] **6933.** They start at 10:00. When a lot of people register, the written and spoken parts can fall on different days.  
+- [ ] **6934.** They start at 10:00. When a lot of people register, the written and spoken parts can fall on different days.  
   → Початок о 10:00. Якщо реєструється багато людей, письмова й усна частини можуть припасти на різні дні.
-- [ ] **6934.** There's a free consultation before each exam, up to four and a half hours long, and you don't need to register for it. Bring an ID document, just as you would to the exam.  
+- [ ] **6935.** There's a free consultation before each exam, up to four and a half hours long, and you don't need to register for it. Bring an ID document, just as you would to the exam.  
   → Перед кожним іспитом проходить безплатна консультація тривалістю до чотирьох з половиною годин, і реєструватися на неї не треба. Візьміть посвідчення особи, як і на іспит.
-- [ ] **6935.** Results, and failing  
+- [ ] **6936.** Results, and failing  
   → Результати й невдача
-- [ ] **6936.** A pass is 60 percent of the total, and no part can score zero.  
+- [ ] **6937.** A pass is 60 percent of the total, and no part can score zero.  
   → Для складання потрібно 60 відсотків від загального балу, і жодна частина не може бути оцінена в нуль.
-- [ ] **6937.** Results are published no later than 40 days after the examination, in EIS and on eesti.ee. The certificate is electronic only; the certificate number and your identification code are what an employer checks.  
+- [ ] **6938.** Results are published no later than 40 days after the examination, in EIS and on eesti.ee. The certificate is electronic only; the certificate number and your identification code are what an employer checks.  
   → Результати публікують не пізніше ніж через 40 днів після іспиту, в EIS і на eesti.ee. Свідоцтво лише електронне; роботодавець перевіряє номер свідоцтва і ваш особистий код.
-- [ ] **6938.** If you score below 45 percent, or miss the exam without a good reason, you wait six months before registering again. You can't register for the next sitting until the last one's results are out.  
-  → Якщо ви набрали менше ніж 45 відсотків або пропустили іспит без поважної причини, знову зареєструватися можна лише через шість місяців. На наступну сесію не можна зареєструватися, доки не вийшли результати попередньої.
-- [ ] **6939.** You can ask to see your marked paper and appeal the result.  
+- [ ] **6939.** If you score below 45 percent, or miss the exam without a good reason, you wait six months before registering again. You can't register for the next sitting until the last one's results are out.  
+  → Якщо ви набрали менше ніж 45 відсотків або пропустили іспит без поважної причини, знову зареєструватися можна лише через шість місяців. На наступний іспит не можна зареєструватися, доки не вийшли результати попередньої.
+- [ ] **6940.** You can ask to see your marked paper and appeal the result.  
   → Можна попросити показати перевірену роботу й оскаржити результат.
-- [ ] **6940.** Getting course fees back  
+- [ ] **6941.** Getting course fees back  
   → Повернення плати за курси
-- [ ] **6941.** Since 1 January 2024 the state only refunds Estonian course fees to citizenship applicants who have passed both exams, and to people the Language Board sent to sit one.  
+- [ ] **6942.** Since 1 January 2024 the state only refunds Estonian course fees to citizenship applicants who have passed both exams, and to people the Language Board sent to sit one.  
   → З 1 січня 2024 року держава повертає плату за курси естонської лише кандидатам на громадянство, які склали обидва іспити, і тим, кого направив на іспит Департамент мови.
-- [ ] **6942.** You can get up to 384 euros back for a course from a provider licensed for that level. Claim it within three months of finding out you passed.  
+- [ ] **6943.** You can get up to 384 euros back for a course from a provider licensed for that level. Claim it within three months of finding out you passed.  
   → За курс у постачальника з ліцензією на цей рівень можна повернути до 384 євро. Подайте заяву протягом трьох місяців після того, як дізналися, що склали.
-- [ ] **6943.** The Constitution and Citizenship Act examination  
+- [ ] **6944.** The Constitution and Citizenship Act examination  
   → Іспит з Конституції та Закону про громадянство
-- [ ] **6944.** It takes 45 minutes on a computer: 24 multiple choice questions in Estonian. You pass with 18 right.  
+- [ ] **6945.** It takes 45 minutes on a computer: 24 multiple choice questions in Estonian. You pass with 18 right.  
   → Він триває 45 хвилин за комп'ютером: 24 запитання з варіантами відповідей естонською. Для складання потрібно 18 правильних.
-- [ ] **6945.** The Constitution, the Citizenship Act and a dictionary are in the room, and you're allowed to use them.  
+- [ ] **6946.** The Constitution, the Citizenship Act and a dictionary are in the room, and you're allowed to use them.  
   → В аудиторії є Конституція, Закон про громадянство і словник, і ними дозволено користуватися.
-- [ ] **6946.** It's held once a month except in July, in Tallinn, Tartu and Narva, and you get your result as soon as it ends. Harno publishes a handbook for it in English and Russian.  
+- [ ] **6947.** It's held once a month except in July, in Tallinn, Tartu and Narva, and you get your result as soon as it ends. Harno publishes a handbook for it in English and Russian.  
   → Він проходить раз на місяць, крім липня, у Таллінні, Тарту й Нарві, і результат ви отримуєте одразу після закінчення. Harno публікує посібник до нього англійською.
-- [ ] **6947.** Harno, Estonian language proficiency examinations  
+- [ ] **6948.** Harno, Estonian language proficiency examinations  
   → Harno, іспити на рівень володіння естонською мовою (англійською)
-- [ ] **6948.** Harno, the language examinations (the fuller page, in Estonian)  
+- [ ] **6949.** Harno, the language examinations (the fuller page, in Estonian)  
   → Harno, мовні іспити (повніша сторінка, естонською)
-- [ ] **6949.** Harno, the citizenship examinations (in Estonian)  
+- [ ] **6950.** Harno, the citizenship examinations (in Estonian)  
   → Harno, іспити на громадянство (естонською)
-- [ ] **6950.** EIS, the examinations information system  
+- [ ] **6951.** EIS, the examinations information system  
   → EIS, інформаційна система іспитів
-- [ ] **6951.** The Police and Border Guard Board  
+- [ ] **6952.** The Police and Border Guard Board  
   → Департамент поліції та прикордонної охорони
-- [ ] **6952.** eesti.ee, the state portal  
+- [ ] **6953.** eesti.ee, the state portal  
   → eesti.ee, державний портал
-- [ ] **6953.** Written samples by past candidates, with the examiners' comments  
+- [ ] **6954.** Written samples by past candidates, with the examiners' comments  
   → Письмові роботи минулих кандидатів із коментарями екзаменаторів
-- [ ] **6954.** Consultation workbooks, listening tests and sample tasks for every level  
+- [ ] **6955.** Consultation workbooks, listening tests and sample tasks for every level  
   → Робочі зошити консультацій, тести на аудіювання й зразки завдань для кожного рівня
-- [ ] **6955.** Public practice tests in EIS  
+- [ ] **6956.** Public practice tests in EIS  
   → Відкриті тренувальні тести в EIS
-- [ ] **6956.** The Constitution and Citizenship Act examination: handbook, dates and practice  
+- [ ] **6957.** The Constitution and Citizenship Act examination: handbook, dates and practice  
   → Іспит з Конституції та Закону про громадянство: посібник, дати й тренування
-- [ ] **6957.** Kodukeel is free to use, there’s nothing to buy, and nothing about you is sold. This page shows the sums behind that sentence: what the app runs on, what each piece costs, who’s paying for the copy you’re reading, and what would change if somebody funded it.  
+- [ ] **6958.** Kodukeel is free to use, there’s nothing to buy, and nothing about you is sold. This page shows the sums behind that sentence: what the app runs on, what each piece costs, who’s paying for the copy you’re reading, and what would change if somebody funded it.  
   → Kodukeel безплатний, купувати в ньому нічого, і нічого про вас не продається. На цій сторінці показано розрахунки, що стоять за цією фразою: на чому працює застосунок, скільки коштує кожна частина, хто платить за копію, яку ви читаєте, і що змінилося б, якби хтось його профінансував.
-- [ ] **6958.** The figures and the sums are the same in every language. The working the calculator shows for each line, and the numbers it had to judge, are still in English.  
+- [ ] **6959.** The figures and the sums are the same in every language. The working the calculator shows for each line, and the numbers it had to judge, are still in English.  
   → Цифри й розрахунки однакові будь-якою мовою. Пояснення калькулятора до кожного рядка і числа, які довелося оцінити, поки англійською.
-- [ ] **6959.** Who pays for this copy  
+- [ ] **6960.** Who pays for this copy  
   → Хто платить за цю копію
-- [ ] **6960.** This installation is run by \*\*{name}\*\*, and they pay the bills on this page. Kodukeel is software anyone can install rather than one service, so every copy has its own operator and its own invoice.  
-  → Цю інсталяцію запускає \*\*{name}\*\*, і рахунки на цій сторінці оплачує він. Kodukeel може встановити будь-хто, це програма, а не єдиний сервіс, тож у кожної копії свій оператор і свої рахунки.
-- [ ] **6961.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install rather than one service, so the bills below are paid by whoever set this copy up. They are supposed to be named here and on the {privacy}, and they are not. If that is you, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
-  → \*\*Той, хто запустив цю інсталяцію, не вказав свого імені.\*\* Kodukeel може встановити будь-хто, це програма, а не єдиний сервіс, тож рахунки нижче оплачує той, хто розгорнув цю копію. Його ім'я має стояти тут і на {privacy}, але його немає. Якщо це ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`.
-- [ ] **6962.** The code is MIT licensed and the dictionary data is not ours to license: Ekilex is CC BY 4.0 and Wiktionary is CC BY-SA 4.0, which is share-alike and therefore reaches the built dictionary as well. Anyone may run their own copy, and at one learner it costs the price of a domain name.  
+- [ ] **6961.** This installation is run by \*\*{name}\*\*, and they pay the bills on this page. Kodukeel is software anyone can install rather than one service, so every copy has its own operator and its own invoice.  
+  → Оператор цієї інсталяції: \*\*{name}\*\*, і рахунки на цій сторінці оплачує він. Kodukeel може встановити будь-хто, це програма, а не єдиний сервіс, тож у кожної копії свій оператор і свої рахунки.
+- [ ] **6962.** \*\*Whoever runs this installation has not filled their name in.\*\* Kodukeel is software anyone can install rather than one service, so the bills below are paid by whoever set this copy up. They are supposed to be named here and on the {privacy}, and they are not. If that is you, set \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` and \`OPERATOR\_EMAIL\`.  
+  → \*\*Той, хто керує цією інсталяцією, не вказав свого імені.\*\* Kodukeel може встановити будь-хто, це програма, а не єдиний сервіс, тож рахунки нижче оплачує той, хто розгорнув цю копію. Його ім'я має стояти тут і на {privacy}, але його немає. Якщо це ви, задайте \`OPERATOR\_NAME\`, \`OPERATOR\_ADDRESS\` і \`OPERATOR\_EMAIL\`.
+- [ ] **6963.** The code is MIT licensed and the dictionary data is not ours to license: Ekilex is CC BY 4.0 and Wiktionary is CC BY-SA 4.0, which is share-alike and therefore reaches the built dictionary as well. Anyone may run their own copy, and at one learner it costs the price of a domain name.  
   → Код поширюється за ліцензією MIT, а ліцензувати дані словника не нам: Ekilex іде під CC BY 4.0, а Вікісловник під CC BY-SA 4.0, з умовою «на тих самих умовах», яка поширюється й на зібраний словник. Свою копію може запустити будь-хто, і на одного учня це коштує як доменне ім'я.
-- [ ] **6963.** What it runs on  
+- [ ] **6964.** What it runs on  
   → На чому це працює
-- [ ] **6964.** the privacy page  
+- [ ] **6965.** the privacy page  
   → сторінці про конфіденційність
-- [ ] **6965.** {count} things, and every one of them has a price on it. The list is longer than the one on {privacy}, because that page answers a narrower question: a service can hold every row in the database without ever being told who a learner is.  
-  → Позицій: {count}, і в кожної є ціна. Список довший, ніж на {privacy}, бо та сторінка відповідає на вужче питання: сервіс може зберігати кожен рядок бази даних, так і не дізнавшись, хто учень.
-- [ ] **6966.** \*\*Nothing anybody bills us for is counted as free.\*\* Every vendor here is on the plan a real deployment is on, because a free tier either pauses when nobody’s using it or forbids commercial use, and pricing one would describe a deployment nobody actually runs.  
+- [ ] **6966.** {count} things, and every one of them has a price on it. The list is longer than the one on {privacy}, because that page answers a narrower question: a service can hold every row in the database without ever being told who a learner is.  
+  → Усього їх {count}, і кожна має ціну. Список довший, ніж на {privacy}, бо та сторінка відповідає на вужче питання: сервіс може зберігати кожен рядок бази даних, так і не дізнавшись, хто учень.
+- [ ] **6967.** \*\*Nothing anybody bills us for is counted as free.\*\* Every vendor here is on the plan a real deployment is on, because a free tier either pauses when nobody’s using it or forbids commercial use, and pricing one would describe a deployment nobody actually runs.  
   → \*\*Ніщо, за що нам виставляють рахунок, не вважається безплатним.\*\* Кожного постачальника тут узято з тим тарифом, на якому працює справжня інсталяція, бо безплатний тариф або призупиняється, коли ним ніхто не користується, або забороняє комерційне використання, і розрахунок за ним описував би інсталяцію, якої насправді ніхто не тримає.
-- [ ] **6967.** \*\*What is given is credited, not priced.\*\* Ekilex, Wiktionary and TartuNLP are public institutions that decided this work should be available. They ask for nothing, and that is a good arrangement rather than a gap in the accounts, so they are named here with what each one gives and the license it comes under, and they appear in no total. Where buying the same thing is possible the panel says what that would come to, because the size of the gift is worth seeing. The last line of each card is the one worth reading: every entry is a state the app already handles rather than a disaster.  
+- [ ] **6968.** \*\*What is given is credited, not priced.\*\* Ekilex, Wiktionary and TartuNLP are public institutions that decided this work should be available. They ask for nothing, and that is a good arrangement rather than a gap in the accounts, so they are named here with what each one gives and the license it comes under, and they appear in no total. Where buying the same thing is possible the panel says what that would come to, because the size of the gift is worth seeing. The last line of each card is the one worth reading: every entry is a state the app already handles rather than a disaster.  
   → \*\*Подароване зазначається з подякою, а не з ціною.\*\* Ekilex, Вікісловник і TartuNLP це громадські інституції, які вирішили, що ця робота має бути доступною. Вони нічого не просять, і це добра домовленість, а не діра у звітності, тож їх названо тут разом із тим, що дає кожна, і ліцензією, на якій це дається, і вони не входять до жодної суми. Де те саме можна купити, панель каже, скільки б це коштувало, бо розмір подарунка варто побачити. Читати варто останній рядок кожної картки: кожен пункт це стан, з яким застосунок уже дає раду, а не катастрофа.
-- [ ] **6968.** on here  
+- [ ] **6969.** on here  
   → увімкнено тут
-- [ ] **6969.** not set here  
+- [ ] **6970.** not set here  
   → тут не налаштовано
-- [ ] **6970.** Without it: {gone}  
+- [ ] **6971.** Without it: {gone}  
   → Без цього: {gone}
-- [ ] **6971.** \*\*On this installation.\*\* Sign-in is {signIn}. Live dictionary lookups are {lookups}, and speech is cached {speech}. {anu}  
+- [ ] **6972.** \*\*On this installation.\*\* Sign-in is {signIn}. Live dictionary lookups are {lookups}, and speech is cached {speech}. {anu}  
   → \*\*У цій інсталяції.\*\* Вхід в обліковий запис {signIn}. Живі запити до словника {lookups}, а озвучення кешується {speech}. {anu}
-- [ ] **6972.** on, so every learner has a deck of their own  
+- [ ] **6973.** on, so every learner has a deck of their own  
   → увімкнено, тож у кожного учня своя колода
-- [ ] **6973.** off, so this copy is one local learner  
+- [ ] **6974.** off, so this copy is one local learner  
   → вимкнено, тож у цій копії один локальний учень
-- [ ] **6974.** on _(context: switch)_  
+- [ ] **6975.** on _(context: switch)_  
   → увімкнено
-- [ ] **6975.** off, so the built-in dictionary answers by itself  
+- [ ] **6976.** off, so the built-in dictionary answers by itself  
   → вимкнено, тож відповідає вбудований словник
-- [ ] **6976.** in shared storage  
+- [ ] **6977.** in shared storage  
   → у спільному сховищі
-- [ ] **6977.** on the server’s own disk  
+- [ ] **6978.** on the server’s own disk  
   → на власному диску сервера
-- [ ] **6978.** No model key is set, so Anu is not here at all and nothing on this page bills for her.  
+- [ ] **6979.** No model key is set, so Anu is not here at all and nothing on this page bills for her.  
   → Ключ моделі не задано, тож Ану тут немає зовсім, і ніщо на цій сторінці за неї не платить.
-- [ ] **6979.** Anu is answered by {models}, on models that are given away at the tier this uses, which the panel below still prices as though they were bought.  
+- [ ] **6980.** Anu is answered by {models}, on models that are given away at the tier this uses, which the panel below still prices as though they were bought.  
   → За Ану відповідає {models}, на моделях, які на використовуваному тарифі віддаються безплатно, але панель нижче все одно рахує їх так, ніби їх куплено.
-- [ ] **6980.** Anu is answered by {models}, on at least one model that charges.  
+- [ ] **6981.** Anu is answered by {models}, on at least one model that charges.  
   → За Ану відповідає {models}, і принаймні одна з моделей платна.
-- [ ] **6981.** What it comes to  
+- [ ] **6982.** What it comes to  
   → Скільки це коштує
-- [ ] **6982.** Move the slider. Nothing here is stored or sent anywhere. The sums run in your browser, using the same code the app itself uses to decide when to stop spending.  
+- [ ] **6983.** Move the slider. Nothing here is stored or sent anywhere. The sums run in your browser, using the same code the app itself uses to decide when to stop spending.  
   → Посуньте повзунок. Тут нічого не зберігається й нікуди не надсилається. Розрахунки йдуть у вашому браузері тим самим кодом, яким сам застосунок вирішує, коли припинити витрачати.
-- [ ] **6983.** What was measured, and how  
+- [ ] **6984.** What was measured, and how  
   → Що виміряно і як
-- [ ] **6984.** Taken on {day}, against Postgres 16 on one machine and a production build served locally. Each row says what to run to get the same number, because a figure nobody can reproduce is a claim rather than a measurement.  
+- [ ] **6985.** Taken on {day}, against Postgres 16 on one machine and a production build served locally. Each row says what to run to get the same number, because a figure nobody can reproduce is a claim rather than a measurement.  
   → Знято {day} на Postgres 16 на одній машині й робочому збиранні, запущеному локально. У кожному рядку сказано, що запустити, щоб отримати те саме число, бо цифра, яку ніхто не може відтворити, це твердження, а не вимірювання.
-- [ ] **6985.** Measurements taken on this repository  
+- [ ] **6986.** Measurements taken on this repository  
   → Вимірювання, зняті на цьому репозиторії
-- [ ] **6986.** What  
+- [ ] **6987.** What  
   → Що
-- [ ] **6987.** How much  
+- [ ] **6988.** How much  
   → Скільки
-- [ ] **6988.** Two of those are worth stopping on. A review row is 300 bytes, so a learner costs about 1.3 MB a year and the whole review log of a thousand people for a year fits in less space than a phone photograph album. And a spoken clip is uncompressed audio, 43 KB for every second of it once trimmed and stored as 16-bit, which still makes speech the largest thing this app moves by a wide margin. Turning the audio off in the panel above is the single biggest saving available, and it is also the feature hardest to argue for losing.  
+- [ ] **6989.** Two of those are worth stopping on. A review row is 300 bytes, so a learner costs about 1.3 MB a year and the whole review log of a thousand people for a year fits in less space than a phone photograph album. And a spoken clip is uncompressed audio, 43 KB for every second of it once trimmed and stored as 16-bit, which still makes speech the largest thing this app moves by a wide margin. Turning the audio off in the panel above is the single biggest saving available, and it is also the feature hardest to argue for losing.  
   → На двох із них варто зупинитися. Рядок повторення важить 300 байтів, тож учень коштує приблизно 1,3 МБ на рік, а весь журнал повторень тисячі людей за рік займає менше місця, ніж альбом фотографій у телефоні. А звуковий фрагмент це нестиснене аудіо, 43 КБ на кожну секунду після обрізання й збереження в 16 біт, і все одно озвучення з великим відривом найоб'ємніше, що передає цей застосунок. Вимкнути звук у панелі вище це найбільша з можливих економій, і водночас від цієї функції найважче відмовитися.
-- [ ] **6989.** Where the prices came from  
+- [ ] **6990.** Where the prices came from  
   → Звідки взято ціни
-- [ ] **6990.** Read on {day}. These are the numbers most likely to be out of date by the time you read this, which is why they carry a date rather than being folded into the total.  
+- [ ] **6991.** Read on {day}. These are the numbers most likely to be out of date by the time you read this, which is why they carry a date rather than being folded into the total.  
   → Перевірено {day}. Саме ці числа найімовірніше застаріють на той момент, коли ви це прочитаєте, тож у них стоїть дата, а не просто підсумок.
-- [ ] **6991.** ${base} a month, then ${rate} a gigabyte out past the first {gb}.  
+- [ ] **6992.** ${base} a month, then ${rate} a gigabyte out past the first {gb}.  
   → ${base} на місяць, потім ${rate} за гігабайт вихідного трафіку понад перші {gb}.
-- [ ] **6992.** ${base} a month with {db} GB of database, {files} GB of files and ${credit} of compute credit.  
+- [ ] **6993.** ${base} a month with {db} GB of database, {files} GB of files and ${credit} of compute credit.  
   → ${base} на місяць, зокрема {db} ГБ бази даних, {files} ГБ файлів і ${credit} кредиту на обчислення.
-- [ ] **6993.** Database instances  
+- [ ] **6994.** Database instances  
   → Екземпляри бази даних
-- [ ] **6994.** from ${low} a month to ${high}. This is the steepest ladder on the page.  
+- [ ] **6995.** from ${low} a month to ${high}. This is the steepest ladder on the page.  
   → від ${low} до ${high} на місяць. Це найкрутіша драбина на сторінці.
-- [ ] **6995.** Speech  
+- [ ] **6996.** Speech  
   → Озвучення
-- [ ] **6996.** ${rate} a million characters, which is what {who} charge. TartuNLP charge nothing. That rate is here only to show the size of what they give, and it is in no total on this page.  
+- [ ] **6997.** ${rate} a million characters, which is what {who} charge. TartuNLP charge nothing. That rate is here only to show the size of what they give, and it is in no total on this page.  
   → ${rate} за мільйон символів, стільки беруть {who}. TartuNLP не бере нічого. Цей тариф тут лише для того, щоб показати розмір того, що вони дають, і він не входить до жодної суми на цій сторінці.
-- [ ] **6997.** ${base} a month for {emails} emails, then ${rate} a thousand.  
-  → ${base} на місяць за {emails} листів, потім ${rate} за тисячу.
-- [ ] **6998.** Error reporting  
+- [ ] **6998.** ${base} a month for {emails} emails, then ${rate} a thousand.  
+  → ${base} на місяць, у тариф входить листів: {emails}, понад це ${rate} за тисячу.
+- [ ] **6999.** Error reporting  
   → Звіти про помилки
-- [ ] **6999.** ${base} a month for {events} events.  
-  → ${base} на місяць за {events} подій.
-- [ ] **7000.** {eur} euros a month. The tooling that writes and maintains this, which is the one line here that is not runtime and the one that does not grow.  
+- [ ] **7000.** ${base} a month for {events} events.  
+  → ${base} на місяць, у тариф входить подій: {events}.
+- [ ] **7001.** {eur} euros a month. The tooling that writes and maintains this, which is the one line here that is not runtime and the one that does not grow.  
   → {eur} євро на місяць. Інструменти, якими це пишеться й підтримується, єдиний рядок тут, не пов'язаний із роботою застосунку, і єдиний, що не зростає.
-- [ ] **7001.** The euro  
+- [ ] **7002.** The euro  
   → Євро
-- [ ] **7002.** {usd} dollars, the European Central Bank’s reference rate. Two lines here are billed in euros and the rest in dollars, and every price is net of VAT, which is how each vendor quotes its own.  
+- [ ] **7003.** {usd} dollars, the European Central Bank’s reference rate. Two lines here are billed in euros and the rest in dollars, and every price is net of VAT, which is how each vendor quotes its own.  
   → {usd} долара, довідковий курс Європейського центрального банку. Два рядки тут оплачуються в євро, решта в доларах, і всі ціни вказано без ПДВ, так, як їх називає кожен постачальник.
-- [ ] **7003.** A .ee domain  
+- [ ] **7004.** A .ee domain  
   → Домен .ee
-- [ ] **7004.** about {eur} euros a year.  
+- [ ] **7005.** about {eur} euros a year.  
   → близько {eur} євро на рік.
-- [ ] **7005.** Ekilex, Wiktionary and TartuNLP are not on that list, because they do not charge and this page does not pretend otherwise. They are credited above instead, with what each one gives and the license it comes under. Where buying the same thing is possible the panel says what that would come to, so the size of the gift is visible, and that figure is in no total here.  
+- [ ] **7006.** Ekilex, Wiktionary and TartuNLP are not on that list, because they do not charge and this page does not pretend otherwise. They are credited above instead, with what each one gives and the license it comes under. Where buying the same thing is possible the panel says what that would come to, so the size of the gift is visible, and that figure is in no total here.  
   → Ekilex, Вікісловника й TartuNLP у цьому списку немає, бо вони не беруть грошей, і ця сторінка не вдає, ніби беруть. Натомість їх названо вище з подякою, разом із тим, що дає кожна, і ліцензією, на якій це дається. Де те саме можна купити, панель каже, скільки б це коштувало, щоб розмір подарунка було видно, і ця цифра не входить до жодної суми тут.
-- [ ] **7006.** What that number leaves out  
+- [ ] **7007.** What that number leaves out  
   → Чого ця сума не враховує
-- [ ] **7007.** \*\*Somebody’s time\*\*, which is the largest real cost of this project by a long way and is not a hosting bill. The panel above prices machines. It does not price writing the course, checking 5,363 English glosses against their sources, or reading the queue of corrections learners send in.  
+- [ ] **7008.** \*\*Somebody’s time\*\*, which is the largest real cost of this project by a long way and is not a hosting bill. The panel above prices machines. It does not price writing the course, checking 5,363 English glosses against their sources, or reading the queue of corrections learners send in.  
   → \*\*Чийсь час\*\*, це з великим відривом найбільша справжня стаття витрат проєкту, і це не рахунок за хостинг. Панель вище рахує машини. Вона не рахує написання курсу, перевірку 5 363 англійських перекладів за їхніми джерелами й читання черги виправлень, які надсилають учні.
-- [ ] **7008.** \*\*Answering people.\*\* A dead end in this app offers to send a report, and somebody has to work through them for that to mean anything.  
+- [ ] **7009.** \*\*Answering people.\*\* A dead end in this app offers to send a report, and somebody has to work through them for that to mean anything.  
   → \*\*Відповіді людям.\*\* У кожному глухому куті застосунку є кнопка надіслати повідомлення, і хтось мусить їх розбирати, інакше це нічого не означає.
-- [ ] **7009.** \*\*A bad month.\*\* The projection is a steady month. It does not model the week something is on the radio, and a plan’s included allowance is exactly where a spike is felt first.  
+- [ ] **7010.** \*\*A bad month.\*\* The projection is a steady month. It does not model the week something is on the radio, and a plan’s included allowance is exactly where a spike is felt first.  
   → \*\*Поганий місяць.\*\* Прогноз розраховано на рівний місяць. Він не враховує тиждень, коли про застосунок розповіли по радіо, а ліміт, включений у тариф, якраз там, де сплеск відчується першим.
-- [ ] **7010.** What money would change  
+- [ ] **7011.** What money would change  
   → Що змінили б гроші
-- [ ] **7011.** Four things, in the order they would matter.  
+- [ ] **7012.** Four things, in the order they would matter.  
   → Чотири речі, у порядку їхньої ваги.
-- [ ] **7012.** \*\*The daily cap on the tutor could go up.\*\* Every model call in the app is booked against a shared budget of ${cap} a day, which cannot be turned off and is what stops the one line that could run away. Raising it is a knob with a stop on it rather than an open check, and at ten thousand learners it is already the thing holding that line down.  
-  → \*\*Денний ліміт репетитора можна було б підняти.\*\* Кожен виклик моделі в застосунку списується із загального бюджету ${cap} на день, який не можна вимкнути і який утримує єдиний рядок, здатний вийти з-під контролю. Підняти його означає повернути ручку з обмежувачем, а не виписати відкритий чек, і за десяти тисяч учнів саме він уже стримує цей рядок.
-- [ ] **7013.** \*\*A school could keep its history.\*\* Everything on the progress screens is worked out from the review log on each request rather than stored, so the log is never thrown away and the database only grows. That is the right design and it is what makes the instance ladder the steepest line on this page.  
+- [ ] **7013.** \*\*The daily cap on the tutor could go up.\*\* Every model call in the app is booked against a shared budget of ${cap} a day, which cannot be turned off and is what stops the one line that could run away. Raising it is a knob with a stop on it rather than an open check, and at ten thousand learners it is already the thing holding that line down.  
+  → \*\*Денний ліміт репетитора можна було б підняти.\*\* Кожен виклик моделі в застосунку списується із загального бюджету ${cap} на день, який не можна вимкнути і який утримує єдиний рядок, здатний вийти з-під контролю. Підняти його означає повернути ручку з обмежувачем, а не виписати відкритий чек, і коли учнів десять тисяч, саме він уже стримує цей рядок.
+- [ ] **7014.** \*\*A school could keep its history.\*\* Everything on the progress screens is worked out from the review log on each request rather than stored, so the log is never thrown away and the database only grows. That is the right design and it is what makes the instance ladder the steepest line on this page.  
   → \*\*Школа могла б зберігати свою історію.\*\* Усе на екранах поступу обчислюється з журналу повторень за кожного запиту, а не зберігається, тож журнал ніколи не викидається і база даних лише зростає. Це правильна будова, і саме через неї драбина екземплярів найкрутіший рядок на цій сторінці.
-- [ ] **7014.** \*\*The corrections could be worked.\*\* The dictionary is built from Ekilex and Wiktionary rather than typed, which keeps invented Estonian out of it and does not make every entry right. Learners already report the wrong ones.  
+- [ ] **7015.** \*\*The corrections could be worked.\*\* The dictionary is built from Ekilex and Wiktionary rather than typed, which keeps invented Estonian out of it and does not make every entry right. Learners already report the wrong ones.  
   → \*\*Можна було б розбирати виправлення.\*\* Словник зібрано з Ekilex і Вікісловника, а не набрано вручну, і це не пускає до нього вигаданої естонської, але не робить кожну статтю правильною. Учні вже повідомляють про неправильні.
-- [ ] **7015.** \*\*Something could go back to the institutions this is built on.\*\* Ekilex, Wiktionary and TartuNLP ask for nothing and there is no suggestion they should start. But this app would not exist without any of the three, and at a size worth funding the decent thing is to support the work rather than only to use it: a contribution, a corrected entry sent back, or paying for the compute somebody else is currently absorbing.  
+- [ ] **7016.** \*\*Something could go back to the institutions this is built on.\*\* Ekilex, Wiktionary and TartuNLP ask for nothing and there is no suggestion they should start. But this app would not exist without any of the three, and at a size worth funding the decent thing is to support the work rather than only to use it: a contribution, a corrected entry sent back, or paying for the compute somebody else is currently absorbing.  
   → \*\*Щось можна було б повернути інституціям, на яких усе це побудовано.\*\* Ekilex, Вікісловник і TartuNLP нічого не просять, і ніхто не пропонує їм почати. Але без будь-якої з трьох цього застосунку б не було, і за розміру, гідного фінансування, порядно підтримувати їхню роботу, а не лише користуватися нею: внеском, надісланою назад виправленою статтею або оплатою обчислень, витрати на які зараз несе хтось інший.
-- [ ] **7016.** What happens when the money stops  
+- [ ] **7017.** What happens when the money stops  
   → Що буде, коли гроші скінчаться
-- [ ] **7017.** The question a grant is scored on, and the one a cost page usually leaves out. The figures below are the same bill as above with things switched off, in the order somebody would actually switch them off. The tooling that writes the software goes first, because a reader opening the app tomorrow does not notice it. The server and the database go last, because without those there is nothing.  
+- [ ] **7018.** The question a grant is scored on, and the one a cost page usually leaves out. The figures below are the same bill as above with things switched off, in the order somebody would actually switch them off. The tooling that writes the software goes first, because a reader opening the app tomorrow does not notice it. The server and the database go last, because without those there is nothing.  
   → Питання, за яким оцінюють грант і яке сторінка про витрати зазвичай оминає. Цифри нижче це той самий рахунок, що вище, з вимкненими частинами, у тому порядку, у якому їх справді вимикали б. Першими йдуть інструменти, якими пишеться програма, бо той, хто відкриє застосунок завтра, цього не помітить. Останніми йдуть сервер і база даних, бо без них не лишається нічого.
-- [ ] **7018.** {stage}, ${usd} a month.  
+- [ ] **7019.** {stage}, ${usd} a month.  
   → {stage}, ${usd} на місяць.
-- [ ] **7019.** What goes: {lost}  
+- [ ] **7020.** What goes: {lost}  
   → Що зникає: {lost}
-- [ ] **7020.** The fall is gradual because most of what this app is made of was never bought. The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and all three are public institutions that decided this work should be available. The scheduler, the course, the exams, the games and the grammar run on a server and a database and nothing else. What money buys is the tutor, the polish, and somebody to work on it.  
+- [ ] **7021.** The fall is gradual because most of what this app is made of was never bought. The dictionary is Ekilex, the speech is TartuNLP, the English is Wiktionary, and all three are public institutions that decided this work should be available. The scheduler, the course, the exams, the games and the grammar run on a server and a database and nothing else. What money buys is the tutor, the polish, and somebody to work on it.  
   → Спад поступовий, бо більшу частину того, з чого зроблено цей застосунок, ніколи не купували. Словник це Ekilex, озвучення це TartuNLP, англійська це Вікісловник, і всі три громадські інституції, які вирішили, що ця робота має бути доступною. Розклад, курс, іспити, ігри й граматика працюють на сервері й базі даних і більше ні на чому. За гроші купуються репетитор, доведення до ладу й людина, яка над усім цим працює.
-- [ ] **7021.** So the honest claim is not that this becomes profitable. It is that at ${floor} a month it can be kept alive by one person who has not been paid, and that it keeps teaching Estonian the whole way down.  
+- [ ] **7022.** So the honest claim is not that this becomes profitable. It is that at ${floor} a month it can be kept alive by one person who has not been paid, and that it keeps teaching Estonian the whole way down.  
   → Тож чесне твердження не в тому, що це стане прибутковим. А в тому, що за ${floor} на місяць його може підтримувати одна людина, якій не платять, і що він учить естонської на кожному кроці цього спаду.
-- [ ] **7022.** What survives even that  
+- [ ] **7023.** What survives even that  
   → Що переживе навіть це
-- [ ] **7023.** Six things, and every one of them is a file somebody can open rather than an intention somebody has stated.  
+- [ ] **7024.** Six things, and every one of them is a file somebody can open rather than an intention somebody has stated.  
   → Шість речей, і кожна з них це файл, який можна відкрити, а не чийсь заявлений намір.
-- [ ] **7024.** Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a licence that lets somebody else pick it up.  
+- [ ] **7025.** Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a licence that lets somebody else pick it up.  
   → У цьому й відповідь на питання, приховане за питанням. Той, хто фінансує, насправді питає не про те, чи світитиметься світло. Він питає, чи куплять гроші щось, що переживе проєкт. Для мови такого розміру варто купувати виправлений словник, курс, зібраний із перевірених джерел, і код, щоб запускати і те, й інше, усе опубліковане під ліцензією, яка дозволяє комусь іншому це підхопити.
-- [ ] **7025.** What it will not be spent on  
+- [ ] **7026.** What it will not be spent on  
   → На що гроші не підуть
-- [ ] **7026.** There is no advertising, no analytics script and no third-party tracker on any page of this app, which the {privacy} states and the code keeps true: an analytics package was mounted here once, on every visitor of the hosted build, while that same notice said there was none. It was removed rather than the notice being edited.  
+- [ ] **7027.** There is no advertising, no analytics script and no third-party tracker on any page of this app, which the {privacy} states and the code keeps true: an analytics package was mounted here once, on every visitor of the hosted build, while that same notice said there was none. It was removed rather than the notice being edited.  
   → На жодній сторінці цього застосунку немає ні реклами, ні скрипта аналітики, ні стороннього трекера, як сказано на {privacy}, і код це забезпечує: колись тут було підключено пакет аналітики, для кожного відвідувача розміщеної версії, тоді як той самий текст стверджував, що його немає. Його прибрали, а не виправили текст.
-- [ ] **7027.** Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a pupil is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.  
+- [ ] **7028.** Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a pupil is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.  
   → Ніщо про учня не продається, не передається й не використовується для навчання будь-чого. Що вчитель бачить в учня, вирішено вузько й окремо, і відповідь: зусилля, а не вміст. Кожна з цих обіцянок коштує грошей, а не заощаджує їх, і багато в чому тому ця сторінка й існує.
-- [ ] **7028.** under a tenth of a cent  
+- [ ] **7029.** under a tenth of a cent  
   → менше за десяту частку цента
-- [ ] **7029.** cents _(context: fraction)_  
+- [ ] **7030.** cents _(context: fraction)_  
   → цента
-- [ ] **7030.** {n} min  
+- [ ] **7031.** {n} min  
   → {n} хв
-- [ ] **7031.** {n} hours  
+- [ ] **7032.** {n} hours  
   → {n} год
-- [ ] **7032.** {amount} included  
+- [ ] **7033.** {amount} included  
   → включено {amount}
-- [ ] **7033.** {n} hours included  
+- [ ] **7034.** {n} hours included  
   → включено {n} год
-- [ ] **7034.** inside another line  
+- [ ] **7035.** inside another line  
   → входить в інший рядок
-- [ ] **7035.** given  
+- [ ] **7036.** given  
   → у дар
-- [ ] **7036.** {who} pays  
+- [ ] **7037.** {who} pays  
   → платить: {who}
-- [ ] **7037.** the learner  
+- [ ] **7038.** the learner  
   → сам учень
-- [ ] **7038.** No bill of its own  
+- [ ] **7039.** No bill of its own  
   → Без окремого рахунку
-- [ ] **7039.** Public, and asks for nothing  
+- [ ] **7040.** Public, and asks for nothing  
   → Громадське й нічого не просить
-- [ ] **7040.** Not the operator's to pay  
+- [ ] **7041.** Not the operator's to pay  
   → Платить не оператор
-- [ ] **7041.** People using it in a month  
-  → Людей користується за місяць
-- [ ] **7042.** one person  
+- [ ] **7042.** People using it in a month  
+  → Користувачів на місяць
+- [ ] **7043.** one person  
   → одна людина
-- [ ] **7043.** learners  
+- [ ] **7044.** learners  
   → учнів
-- [ ] **7044.** {n} learners  
+- [ ] **7045.** {n} learners  
   → учнів: {n}
-- [ ] **7045.** Every month, all of it  
+- [ ] **7046.** Every month, all of it  
   → Щомісяця, усе разом
-- [ ] **7046.** {each} a learner, and every cent of it an invoice somebody sends. In US dollars and net of VAT, which is how the vendors quote their own prices.  
+- [ ] **7047.** {each} a learner, and every cent of it an invoice somebody sends. In US dollars and net of VAT, which is how the vendors quote their own prices.  
   → {each} на учня, і кожен цент із цього чийсь справжній рахунок. У доларах США і без ПДВ, так, як постачальники називають свої ціни.
-- [ ] **7047.** How hard they study  
+- [ ] **7048.** How hard they study  
   → Наскільки старанно займаються
-- [ ] **7048.** Lightly _(context: study)_  
+- [ ] **7049.** Lightly _(context: study)_  
   → Потроху
-- [ ] **7049.** The default _(context: study)_  
+- [ ] **7050.** The default _(context: study)_  
   → Звичайно
-- [ ] **7050.** Hard _(context: study)_  
+- [ ] **7051.** Hard _(context: study)_  
   → Старанно
-- [ ] **7051.** Cards read themselves aloud  
+- [ ] **7052.** Cards read themselves aloud  
   → Картки читаються вголос
-- [ ] **7052.** On _(context: switch)_  
+- [ ] **7053.** On _(context: switch)_  
   → Увімк.
-- [ ] **7053.** Off _(context: switch)_  
+- [ ] **7054.** Off _(context: switch)_  
   → Вимк.
-- [ ] **7054.** No key _(context: switch)_  
+- [ ] **7055.** No key _(context: switch)_  
   → Немає ключа
-- [ ] **7055.** The tutor  
+- [ ] **7056.** The tutor  
   → Репетитор
-- [ ] **7056.** Which model answers  
+- [ ] **7057.** Which model answers  
   → Яка модель відповідає
-- [ ] **7057.** Years of reviews already stored  
-  → Років повторень уже зберігається
-- [ ] **7058.** Where it goes  
+- [ ] **7058.** Years of reviews already stored  
+  → Скільки років повторень уже зберігається
+- [ ] **7059.** Where it goes  
   → Куди йдуть гроші
-- [ ] **7059.** {amount} of {allowance}  
+- [ ] **7060.** {amount} of {allowance}  
   → {amount} з {allowance}
-- [ ] **7060.** {label}, {amount} against {allowance}  
-  → {label}: {amount} за {allowance}
-- [ ] **7061.** The same app at every size  
+- [ ] **7061.** {label}, {amount} against {allowance}  
+  → {label}: використано {amount}, {allowance}
+- [ ] **7062.** The same app at every size  
   → Той самий застосунок за будь-якого розміру
-- [ ] **7062.** Each bar is ten times the learners of the one before it, and the heights are logarithmic, so a bar twice as tall is a bill many times larger. The shape to look at is the steps.  
+- [ ] **7063.** Each bar is ten times the learners of the one before it, and the heights are logarithmic, so a bar twice as tall is a bill many times larger. The shape to look at is the steps.  
   → Кожен стовпчик це вдесятеро більше учнів, ніж попередній, а висоти логарифмічні, тож стовпчик удвічі вищий означає рахунок у багато разів більший. Дивитися варто на сходинки.
-- [ ] **7063.** What the app costs at each size  
+- [ ] **7064.** What the app costs at each size  
   → Скільки коштує застосунок за кожного розміру
-- [ ] **7064.** What the app costs a month at each size, and what that is per learner  
+- [ ] **7065.** What the app costs a month at each size, and what that is per learner  
   → Скільки застосунок коштує на місяць за кожного розміру і скільки це на учня
-- [ ] **7065.** Learners  
+- [ ] **7066.** Learners  
   → Учнів
-- [ ] **7066.** A month  
+- [ ] **7067.** A month  
   → На місяць
-- [ ] **7067.** Given  
+- [ ] **7068.** Given  
   → У дар
-- [ ] **7068.** Each  
+- [ ] **7069.** Each  
   → На одного
-- [ ] **7069.** The floor is the interesting end. The plans, the tooling, the mail and the domain come to about three hundred dollars a month before a single learner arrives, and most of that does not move when they do. So the first thousand people are nearly free to serve, and the cost per head falls by roughly a factor of ten for each decade. What grows instead is speech and the database, so past ten thousand the shape is set by how much is said aloud and how many years of reviews are being kept.  
+- [ ] **7070.** The floor is the interesting end. The plans, the tooling, the mail and the domain come to about three hundred dollars a month before a single learner arrives, and most of that does not move when they do. So the first thousand people are nearly free to serve, and the cost per head falls by roughly a factor of ten for each decade. What grows instead is speech and the database, so past ten thousand the shape is set by how much is said aloud and how many years of reviews are being kept.  
   → Найцікавіше тут нижній край. Тарифи, інструменти, пошта й домен коштують приблизно триста доларів на місяць ще до першого учня, і більша частина цієї суми не змінюється, коли учні приходять. Тож першу тисячу людей обслуговують майже безплатно, а вартість на людину падає приблизно вдесятеро з кожним порядком. Зростають натомість озвучення й база даних, тож після десяти тисяч форму задають обсяг того, що читається вголос, і скільки років повторень зберігається.
-- [ ] **7070.** The {count} numbers we had to judge rather than measure  
+- [ ] **7071.** The {count} numbers we had to judge rather than measure  
   → Числа, які довелося оцінити, а не виміряти: {count}
-- [ ] **7071.** Everything else on this page came off a stopwatch, a database or somebody’s published price list. These are judgments, and they are here so you can disagree with a specific one rather than with the total.  
+- [ ] **7072.** Everything else on this page came off a stopwatch, a database or somebody’s published price list. These are judgments, and they are here so you can disagree with a specific one rather than with the total.  
   → Усе інше на цій сторінці знято секундоміром, узято з бази даних або з чийогось опублікованого прайс-листа. А це оцінки, і вони тут, щоб ви могли не погодитися з конкретною, а не з підсумком.
-- [ ] **7072.** Not counted above: buying the speech this app is given would come to a further {money} a month. Nobody has ever asked for it.  
+- [ ] **7073.** Not counted above: buying the speech this app is given would come to a further {money} a month. Nobody has ever asked for it.  
   → Вище не враховано: купити озвучення, яке цей застосунок отримує в дар, коштувало б ще {money} на місяць. Ніхто ніколи цього не просив.
-- [ ] **7073.** The model line stops at {money}, and it stops there in the running app too. The daily budget in {file} has no off switch, so this is a ceiling rather than a forecast.  
+- [ ] **7074.** The model line stops at {money}, and it stops there in the running app too. The daily budget in {file} has no off switch, so this is a ceiling rather than a forecast.  
   → Рядок моделі зупиняється на {money}, і в робочому застосунку він зупиняється там само. Денний бюджет у {file} не можна вимкнути, тож це стеля, а не прогноз.
-- [ ] **7074.** Vercel  
+- [ ] **7075.** Vercel  
   → Vercel
-- [ ] **7075.** Vercel, in the same region as the database  
+- [ ] **7076.** Vercel, in the same region as the database  
   → Vercel, у тому самому регіоні, що й база даних
-- [ ] **7076.** Runs the app: every page rendered, every action answered, the speech proxy and the tutor route.  
-  → Запускає застосунок: кожна намальована сторінка, кожна оброблена дія, проксі для озвучення й маршрут репетитора.
-- [ ] **7077.** The pages a phone has already seen still open, and nothing new loads.  
+- [ ] **7077.** Runs the app: every page rendered, every action answered, the speech proxy and the tutor route.  
+  → На ньому працює застосунок: відтворення кожної сторінки, відповідь на кожну дію, проксі для озвучення й маршрут репетитора.
+- [ ] **7078.** The pages a phone has already seen still open, and nothing new loads.  
   → Сторінки, які телефон уже бачив, як і раніше відкриваються, а нічого нового не завантажується.
-- [ ] **7078.** Supabase  
+- [ ] **7079.** Supabase  
   → Supabase
-- [ ] **7079.** Supabase, holding the database, the sign-ins and the cached speech  
+- [ ] **7080.** Supabase, holding the database, the sign-ins and the cached speech  
   → Supabase, де зберігаються база даних, входи в облікові записи й кеш озвучення
-- [ ] **7080.** Every deck, every review, the dictionary, who is signed in, and the speech files keyed by their content.  
+- [ ] **7081.** Every deck, every review, the dictionary, who is signed in, and the speech files keyed by their content.  
   → Кожна колода, кожне повторення, словник, хто ввійшов в обліковий запис, і файли озвучення, розкладені за вмістом.
-- [ ] **7081.** Nothing works, and the landing page shrinks to a five-word dictionary.  
+- [ ] **7082.** Nothing works, and the landing page shrinks to a five-word dictionary.  
   → Нічого не працює, а головна сторінка стискається до словника з п'яти слів.
-- [ ] **7082.** The language model  
+- [ ] **7083.** The language model  
   → Мовна модель
-- [ ] **7083.** Google, with Groq behind it, and Anthropic or OpenAI as a paid fallback everywhere but Anu  
+- [ ] **7084.** Google, with Groq behind it, and Anthropic or OpenAI as a paid fallback everywhere but Anu  
   → Google, за ним Groq, а Anthropic або OpenAI як платний запасний варіант скрізь, крім Ану
-- [ ] **7084.** Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.  
+- [ ] **7085.** Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.  
   → Ану, відгук на письмову роботу й читання сфотографованої сторінки. Жодної естонської форми.
-- [ ] **7085.** Anu says she can't reach anyone. Review, the dictionary and every drill carry on as normal.  
+- [ ] **7086.** Anu says she can't reach anyone. Review, the dictionary and every drill carry on as normal.  
   → Ану каже, що ні до кого не може достукатися. Повторення, словник і всі вправи працюють як звичайно.
-- [ ] **7086.** Estonian speech  
+- [ ] **7087.** Estonian speech  
   → Естонське мовлення
-- [ ] **7087.** Reads a word or a sentence aloud in any of ten voices. Every clip is cached and asked for once.  
+- [ ] **7088.** Reads a word or a sentence aloud in any of ten voices. Every clip is cached and asked for once.  
   → Читає вголос слово чи речення будь-яким із десяти голосів. Кожен фрагмент кешується й запитується один раз.
-- [ ] **7088.** Cards go quiet, and the listening part of the mock exam says so instead of breaking.  
+- [ ] **7089.** Cards go quiet, and the listening part of the mock exam says so instead of breaking.  
   → Картки замовкають, а частина пробного іспиту на аудіювання каже про це, а не ламається.
-- [ ] **7089.** Ekilex and Wiktionary  
+- [ ] **7090.** Ekilex and Wiktionary  
   → Ekilex і Вікісловник
-- [ ] **7090.** The Institute of the Estonian Language, and the Wikimedia Foundation  
+- [ ] **7091.** The Institute of the Estonian Language, and the Wikimedia Foundation  
   → Інститут естонської мови й Фонд Вікімедіа
-- [ ] **7091.** Every Estonian form and example sentence, and the English meaning of most of the dictionary.  
+- [ ] **7092.** Every Estonian form and example sentence, and the English meaning of most of the dictionary.  
   → Кожна естонська форма й приклад речення, а також англійське значення більшої частини словника.
-- [ ] **7092.** Live lookups stop. The seeded dictionary carries on, and a word it lacks is simply missing.  
+- [ ] **7093.** Live lookups stop. The seeded dictionary carries on, and a word it lacks is simply missing.  
   → Живі запити припиняються. Вбудований словник працює далі, а слова, якого в ньому немає, просто немає.
-- [ ] **7093.** Resend  
+- [ ] **7094.** Resend  
   → Resend
-- [ ] **7094.** Resend, sending the mailed sign-in links  
+- [ ] **7095.** Resend, sending the mailed sign-in links  
   → Resend, який надсилає посилання для входу поштою
-- [ ] **7095.** Sends a sign-in link to anybody without a Google account, and the occasional reminder.  
+- [ ] **7096.** Sends a sign-in link to anybody without a Google account, and the occasional reminder.  
   → Надсилає посилання для входу тим, у кого немає облікового запису Google, і часом нагадування.
-- [ ] **7096.** Google sign-in still works. Everybody else is locked out.  
+- [ ] **7097.** Google sign-in still works. Everybody else is locked out.  
   → Вхід через Google, як і раніше, працює. Усі інші не можуть увійти.
-- [ ] **7097.** Sentry, or whatever the deployment points its webhook at  
+- [ ] **7098.** Sentry, or whatever the deployment points its webhook at  
   → Sentry або те, куди інсталяція спрямовує свій вебхук
-- [ ] **7098.** Catches anything that breaks, with personal details scrubbed: a user id, never an email address.  
+- [ ] **7099.** Catches anything that breaks, with personal details scrubbed: a user id, never an email address.  
   → Ловить усе, що ламається, з вичищеними особистими даними: ідентифікатор користувача, але ніколи не адресу пошти.
-- [ ] **7099.** Errors stay in the server log and nowhere else, just as before.  
+- [ ] **7100.** Errors stay in the server log and nowhere else, just as before.  
   → Помилки лишаються в журналі сервера й більше ніде, як і раніше.
-- [ ] **7100.** Claude Max  
+- [ ] **7101.** Claude Max  
   → Claude Max
-- [ ] **7101.** Anthropic, as the tooling that writes and maintains this  
+- [ ] **7102.** Anthropic, as the tooling that writes and maintains this  
   → Anthropic, як інструмент, яким це пишеться й підтримується
-- [ ] **7102.** Writes the code, the tests and the invariants, and keeps them honest against each other.  
+- [ ] **7103.** Writes the code, the tests and the invariants, and keeps them honest against each other.  
   → Пише код, тести й інваріанти і стежить, щоб вони чесно сходилися одне з одним.
-- [ ] **7103.** The app carries on running and stops being worked on.  
+- [ ] **7104.** The app carries on running and stops being worked on.  
   → Застосунок працює далі, але над ним перестають працювати.
-- [ ] **7104.** The domain  
+- [ ] **7105.** The domain  
   → Домен
-- [ ] **7105.** A registrar, under the Estonian Internet Foundation  
+- [ ] **7106.** A registrar, under the Estonian Internet Foundation  
   → Реєстратор, підзвітний Естонському інтернет-фонду
-- [ ] **7106.** The address people type in. By far the cheapest line here.  
+- [ ] **7107.** The address people type in. By far the cheapest line here.  
   → Адреса, яку набирають люди. З великим відривом найдешевший рядок тут.
-- [ ] **7107.** The app is still there under whatever address the host gave it.  
+- [ ] **7108.** The app is still there under whatever address the host gave it.  
   → Застосунок лишається доступним за тією адресою, яку дав хостинг.
-- [ ] **7108.** An Estonian news feed  
+- [ ] **7109.** An Estonian news feed  
   → Естонська стрічка новин
-- [ ] **7109.** Whichever public feed the deployment points at  
+- [ ] **7110.** Whichever public feed the deployment points at  
   → Будь-яка відкрита стрічка, на яку вказує інсталяція
-- [ ] **7110.** Suggests words off today's front page, and prints a few headlines the dictionary can open.  
+- [ ] **7111.** Suggests words off today's front page, and prints a few headlines the dictionary can open.  
   → Пропонує слова із сьогоднішньої першої шпальти й показує кілька заголовків, які може відкрити словник.
-- [ ] **7111.** The suggestion row picks seasonal or random words instead, and says so.  
+- [ ] **7112.** The suggestion row picks seasonal or random words instead, and says so.  
   → Рядок підказок бере натомість сезонні або випадкові слова й так і каже.
-- [ ] **7112.** The learner's own phone  
+- [ ] **7113.** The learner's own phone  
   → Власний телефон учня
-- [ ] **7113.** Them  
+- [ ] **7114.** Them  
   → Сам учень
-- [ ] **7114.** Keeps 400 clips, 60 pages and every grade that could not be sent, so review works on a train.  
+- [ ] **7115.** Keeps 400 clips, 60 pages and every grade that could not be sent, so review works on a train.  
   → Зберігає 400 звукових фрагментів, 60 сторінок і кожну оцінку, яку не вдалося надіслати, щоб повторення працювало в потязі.
-- [ ] **7115.** There's no app without it. It's the one piece nobody here can pay for.  
+- [ ] **7116.** There's no app without it. It's the one piece nobody here can pay for.  
   → Без нього застосунку немає. Це єдина частина, за яку тут ніхто не може заплатити.
-- [ ] **7116.** Funded  
+- [ ] **7117.** Funded  
   → Є фінансування
-- [ ] **7117.** Funded _(context: stage)_  
+- [ ] **7118.** Funded _(context: stage)_  
   → Є фінансування
-- [ ] **7118.** Somebody is paid to work on it, and every part of it is switched on.  
+- [ ] **7119.** Somebody is paid to work on it, and every part of it is switched on.  
   → Комусь платять за роботу над ним, і ввімкнено всі його частини.
-- [ ] **7119.** Unstaffed  
+- [ ] **7120.** Unstaffed  
   → Без людей
-- [ ] **7120.** Unstaffed _(context: stage)_  
+- [ ] **7121.** Unstaffed _(context: stage)_  
   → Без людей
-- [ ] **7121.** The grant ends and nobody works on it any more. Learners don't lose a thing at this step: the software keeps running when the developer stops.  
+- [ ] **7122.** The grant ends and nobody works on it any more. Learners don't lose a thing at this step: the software keeps running when the developer stops.  
   → Грант закінчується, і над застосунком більше ніхто не працює. На цьому кроці учні нічого не втрачають: програма працює далі, коли розробник зупиняється.
-- [ ] **7122.** Quiet _(context: stage)_  
+- [ ] **7123.** Quiet _(context: stage)_  
   → Тихо
-- [ ] **7123.** The error reports only the operator reads, and the emails with sign-in links, both go. Google sign-in still works, so nobody already using it gets shut out.  
+- [ ] **7124.** The error reports only the operator reads, and the emails with sign-in links, both go. Google sign-in still works, so nobody already using it gets shut out.  
   → Зникають і звіти про помилки, які читає лише оператор, і листи з посиланнями для входу. Вхід через Google, як і раніше, працює, тож ніхто з тих, хто вже ним користується, не опиниться за дверима.
-- [ ] **7124.** Lights on  
+- [ ] **7125.** Lights on  
   → Світло горить
-- [ ] **7125.** Lights on _(context: stage)_  
+- [ ] **7126.** Lights on _(context: stage)_  
   → Світло горить
-- [ ] **7126.** A server and a database, at whatever address the host gives it. Everything the course is made of still works, because none of it was ever bought.  
+- [ ] **7127.** A server and a database, at whatever address the host gives it. Everything the course is made of still works, because none of it was ever bought.  
   → Сервер і база даних за тією адресою, яку дасть хостинг. Усе, з чого зроблено курс, як і раніше працює, бо нічого з цього ніколи не купували.
-- [ ] **7127.** The code is MIT and the built dictionary carries the licences of the sources it was made from. Anybody may run their own copy, including the institutions whose data it was built on, and nobody needs permission to.  
+- [ ] **7128.** The code is MIT and the built dictionary carries the licences of the sources it was made from. Anybody may run their own copy, including the institutions whose data it was built on, and nobody needs permission to.  
   → Код поширюється за MIT, а зібраний словник несе ліцензії джерел, з яких його зроблено. Свою копію може запустити будь-хто, зокрема інституції, на чиїх даних його побудовано, і дозволу для цього не потрібно.
-- [ ] **7128.** There is no proprietary service in the middle of it. Postgres, a Next.js app and two public APIs, so a copy runs on a laptop, in a university's own cluster, or on any host that runs Node.  
+- [ ] **7129.** There is no proprietary service in the middle of it. Postgres, a Next.js app and two public APIs, so a copy runs on a laptop, in a university's own cluster, or on any host that runs Node.  
   → В його основі немає жодного закритого сервісу. Postgres, застосунок на Next.js і два відкриті API, тож копія працює на ноутбуці, у власному кластері університету або на будь-якому хостингу, де є Node.
-- [ ] **7129.** The dictionary is built by a script from Ekilex and Wiktionary rather than typed, so it can be rebuilt from scratch by somebody who has neither this database nor this deployment.  
+- [ ] **7130.** The dictionary is built by a script from Ekilex and Wiktionary rather than typed, so it can be rebuilt from scratch by somebody who has neither this database nor this deployment.  
   → Словник збирається скриптом з Ekilex і Вікісловника, а не набирається вручну, тож його може зібрати заново з нуля той, у кого немає ні цієї бази даних, ні цієї інсталяції.
-- [ ] **7130.** Every learner can take their whole record out of it at any time, in one file, and put it back into another copy. That's a right on the privacy page, and it's built rather than just promised.  
+- [ ] **7131.** Every learner can take their whole record out of it at any time, in one file, and put it back into another copy. That's a right on the privacy page, and it's built rather than just promised.  
   → Кожен учень може будь-коли забрати все своє одним файлом і завантажити в іншу копію. Це право записано на сторінці про конфіденційність, і його зроблено, а не просто обіцяно.
-- [ ] **7131.** The pages a learner has already opened keep opening with no network at all, and grades taken offline are held and replayed. A day of downtime is not a day of lost study.  
+- [ ] **7132.** The pages a learner has already opened keep opening with no network at all, and grades taken offline are held and replayed. A day of downtime is not a day of lost study.  
   → Сторінки, які учень уже відкривав, відкриваються й зовсім без мережі, а оцінки, поставлені без зв'язку, зберігаються й надсилаються потім. День простою не стає днем утраченого навчання.
-- [ ] **7132.** Nothing a learner is taught comes from a model. The course, the dictionary, the exercises and the exams are assembled from attested sources, so the app keeps teaching with every AI key removed.  
+- [ ] **7133.** Nothing a learner is taught comes from a model. The course, the dictionary, the exercises and the exams are assembled from attested sources, so the app keeps teaching with every AI key removed.  
   → Ніщо з того, чого вчать учня, не береться з моделі. Курс, словник, вправи й іспити зібрано з перевірених джерел, тож застосунок далі вчить, навіть якщо прибрати всі ключі ШІ.
+- [ ] **7134.** The dictionary, in Postgres  
+  → Словник у Postgres
+- [ ] **7135.** Postgres itself, before a single row  
+  → Сам Postgres, ще без жодного рядка
+- [ ] **7136.** One review  
+  → Одне повторення
+- [ ] **7137.** One card  
+  → Одна картка
+- [ ] **7138.** A year of one learner, at fifteen reviews a day five days a week  
+  → Рік одного учня, по п'ятнадцять повторень на день п'ять днів на тиждень
+- [ ] **7139.** A page, as HTML over the wire  
+  → Сторінка у вигляді HTML під час передавання мережею
+- [ ] **7140.** The JavaScript every page shares  
+  → JavaScript, спільний для всіх сторінок
+- [ ] **7141.** Requests behind one page view  
+  → Запити за одним переглядом сторінки
+- [ ] **7142.** One spoken phrase, as stored  
+  → Одна озвучена фраза в тому вигляді, в якому зберігається
+- [ ] **7143.** What that speech actually is  
+  → Що являє собою цей запис
+- [ ] **7144.** What a phone keeps, so it stops asking  
+  → Що зберігає телефон, щоб не запитувати знову
+- [ ] **7145.** Loading the whole dictionary into an empty deployment  
+  → Завантаження всього словника в порожнє розгортання
+- [ ] **7146.** 20 MB for 6,221 entries and 39,970 forms, indexes included  
+  → 20 МБ на 6221 словникову статтю і 39 970 форм, разом з індексами
+- [ ] **7147.** about 8 MB  
+  → близько 8 МБ
+- [ ] **7148.** 300 bytes, with the four indexes that make it readable  
+  → 300 байтів разом із чотирма індексами, без яких його не прочитати
+- [ ] **7149.** 352 bytes, indexes included  
+  → 352 байти разом з індексами
+- [ ] **7150.** 3,900 reviews and a starter deck of about 400 cards, so 1.3 MB  
+  → 3900 повторень і стартова колода приблизно з 400 карток, разом 1,3 МБ
+- [ ] **7151.** 14 KB for the dictionary, 88 KB for the whole course page, 21 KB in the middle  
+  → 14 КБ у словника, 88 КБ у сторінки всього курсу, 21 КБ посередині
+- [ ] **7152.** 102 KB, fetched once per build and then cached  
+  → 102 КБ, завантажуються один раз на збірку й далі зберігаються в кеші
+- [ ] **7153.** about 35, of which 11 to 15 reach the server once the browser cache is warm  
+  → близько 35, з них до сервера доходять від 11 до 15, коли кеш браузера вже заповнено
+- [ ] **7154.** 51 KB for 1.15 seconds, which is 43 KB a second  
+  → 51 КБ на 1,15 секунди, тобто 43 КБ на секунду
+- [ ] **7155.** 16-bit PCM, 22,050 Hz, one channel, no compression; the service sends 32-bit float with half a second of silence each end, 199 KB for the same sentence  
+  → 16-бітний PCM, 22 050 Гц, один канал, без стиснення; сервіс надсилає 32-бітний формат із рухомою комою і пів секунди тиші з кожного кінця, 199 КБ на те саме речення
+- [ ] **7156.** 400 spoken clips, 220 build files and 60 pages  
+  → 400 аудіозаписів, 220 файлів збірки і 60 сторінок
+- [ ] **7157.** 3.4 seconds  
+  → 3,4 секунди
+- [ ] **7158.** npm run db:seed, then pg\_total\_relation\_size over Lexeme and Form  
+  → npm run db:seed, потім pg\_total\_relation\_size по Lexeme і Form
+- [ ] **7159.** pg\_database\_size on the empty schema, subtracted from the seeded one  
+  → pg\_database\_size на порожній схемі, віднятий від заповненої
+- [ ] **7160.** 80,000 rows written by scripts/load-fixture.ts, divided into the table size  
+  → 80 000 рядків, записаних scripts/load-fixture.ts, і розмір таблиці, поділений на їхню кількість
+- [ ] **7161.** the same fixture, 2,000 cards  
+  → ті самі тестові дані, 2000 карток
+- [ ] **7162.** the two rows above, times the default daily goal in lib/settings/store.ts  
+  → два рядки вище, помножені на денну мету за замовчуванням з lib/settings/store.ts
+- [ ] **7163.** curl --compressed against the built app, seven routes  
+  → curl --compressed по зібраному застосунку, сім маршрутів
+- [ ] **7164.** the First Load JS line of next build  
+  → рядок First Load JS у виводі next build
+- [ ] **7165.** Chrome DevTools request counts over seven routes, twice each  
+  → підрахунок запитів у Chrome DevTools на семи маршрутах, по два рази на кожному
+- [ ] **7166.** one request to TartuNLP for a three-word sentence, passed through prepareClip in lib/audio/wav.ts, read back off the WAV header  
+  → один запит до TartuNLP на речення з трьох слів, пропущений через prepareClip у lib/audio/wav.ts і прочитаний із заголовка WAV
+- [ ] **7167.** the fmt chunk of the same file, before and after  
+  → блок fmt того самого файлу, до і після
+- [ ] **7168.** LIMITS in public/sw.js  
+  → LIMITS у public/sw.js
+- [ ] **7169.** time npx tsx prisma/seed.ts  
+  → time npx tsx prisma/seed.ts, замір часу
+- [ ] **7170.** Pages opened in a sitting  
+  → Сторінок відкрито за один захід
+- [ ] **7171.** Today, review, and a few looks at the dictionary or a grammar page on the way past.  
+  → Головна, повторення і кілька заглядань у словник чи на сторінку граматики дорогою.
+- [ ] **7172.** New spoken clips a learner fetches in a month  
+  → Нові аудіозаписи, які учень завантажує за місяць
+- [ ] **7173.** A phone keeps 400, so only new words cost anything. This is roughly the new cards a month at the default pace, plus their sentences.  
+  → Телефон зберігає 400 записів, тож платити доводиться лише за нові слова. Це приблизно нові картки за місяць у звичайному темпі плюс їхні речення.
+- [ ] **7174.** Characters in a spoken phrase  
+  → Символів в озвученій фразі
+- [ ] **7175.** A word is about eight and a recorded sentence about forty. Speech is billed per character, so this is what decides that line.  
+  → У слові близько восьми символів, у записаному реченні близько сорока. За озвучення платять за кожен символ, тому саме це й визначає той рядок.
+- [ ] **7176.** Questions a learner asks Anu in a month  
+  → Запитань, які учень ставить Ану за місяць
+- [ ] **7177.** The per-person cap is ten a day, so this is far under it. Most people never open her.  
+  → Межа на людину становить десять на день, тож це набагато менше. Більшість узагалі її не відкриває.
+- [ ] **7178.** Pieces of writing a learner has looked at in a month  
+  → Письмових робіт учня, перевірених за місяць
+- [ ] **7179.** Cheaper per call than a question and asked more often, because the writing exercise offers one every time.  
+  → Дешевше за запитання за один виклик, але буває частіше, бо вправа на письмо пропонує перевірку щоразу.
+- [ ] **7180.** Emails a learner is sent in a month  
+  → Листів, які учень отримує за місяць
+- [ ] **7181.** A mailed sign-in link lasts a session, so this is a couple of sign-ins and the occasional reminder.  
+  → Посилання для входу вистачає на сеанс, тож це кілька входів і зрідка нагадування.
+- [ ] **7182.** Processor time behind one request  
+  → Процесорний час на один запит
+- [ ] **7183.** A page is mostly waiting on the database, which is not charged. This is the part that is, and it is the softest number here.  
+  → Сторінка здебільшого чекає на базу даних, а цей час не оплачується. Тут пораховано те, що оплачується, і це найприблизніша цифра на сторінці.
+- [ ] **7184.** What one page reads out of the database  
+  → Скільки одна сторінка читає з бази даних
+- [ ] **7185.** Eight or so queries over a deck and a review log, none of which return much.  
+  → Близько восьми запитів до колоди й журналу повторень, і жоден не повертає багато.
+- [ ] **7186.** Learners on the app at the same moment, at the busiest  
+  → Учнів у застосунку одночасно, в найзавантаженіший момент
+- [ ] **7187.** A class arrives together, so this is higher than it looks. It decides the database instance and nothing else.  
+  → Клас приходить увесь одразу, тому цифра вища, ніж здається. Від неї залежить лише розмір сервера бази даних.
+- [ ] **7188.** Times the shared JavaScript is re-fetched by a device in a month  
+  → Скільки разів на місяць пристрій заново завантажує спільний JavaScript
+- [ ] **7189.** It is cached until a deploy changes its name, so this is really how often the app ships.  
+  → Він зберігається в кеші, доки нова версія не змінить його назву, тож насправді це частота випуску нових версій.
+- [ ] **7190.** The {plan} plan's own fee. Nothing here is over its allowance yet.  
+  → Абонентська плата тарифу {plan}. Ніщо тут поки не виходить за ліміт тарифу.
+- [ ] **7191.** The {plan} plan, plus use over its allowance on {over}.  
+  → Тариф {plan} плюс перевищення ліміту за такими статтями: {over}.
+- [ ] **7192.** The {plan} plan's own fee, with the smallest instance inside its compute credit.  
+  → Абонентська плата тарифу {plan}; найменший сервер покривається кредитом на обчислення, що входить у тариф.
+- [ ] **7193.** A {size} instance, which is what {people} people at once and {gb} GB need.  
+  → Сервер розміру {size}: він потрібен, коли одночасних користувачів: {people}, а база займає {gb} ГБ.
+- [ ] **7194.** A question and a writing note on {model}, priced the way the ledger prices one before it makes the call.  
+  → Запитання й відгук на письмову роботу на {model}, пораховані так само, як журнал витрат оцінює виклик, перш ніж його зробити.
+- [ ] **7195.** The app's own daily cap is what is holding this down, not the traffic.  
+  → Суму стримує власний денний ліміт застосунку, а не навантаження.
+- [ ] **7196.** Nobody has set a key, so Anu isn't here. Everything else in the app still works.  
+  → Ключ ніхто не задав, тому Ану тут немає. Усе інше в застосунку працює.
+- [ ] **7197.** {characters} characters read aloud a month, in a real Estonian voice  
+  → Символів, прочитаних уголос за місяць живим естонським голосом: {characters}
+- [ ] **7198.** A public research group at the University of Tartu, which asks for nothing and sends no invoice.  
+  → Державна дослідницька група Тартуського університету, яка нічого не просить і не виставляє рахунків.
+- [ ] **7199.** {entries} checked entries with {forms} forms, and the attested sentences every exercise is built from  
+  → Перевірених словникових статей: {entries}, форм: {forms}, і задокументовані речення, з яких побудовано кожну вправу
+- [ ] **7200.** Neither asks for anything, and neither has a price to quote: nothing else holds a checked Estonian case table with attested sentences, so there is nothing to compare it against.  
+  → Жоден нічого не просить натомість, і жоден не має ціни: більше ніде немає перевірених таблиць естонських відмінків із задокументованими реченнями, тож порівнювати нема з чим.
+- [ ] **7201.** The {plan} plan, plus {emails} emails over its allowance.  
+  → Тариф {plan} плюс листів понад ліміт: {emails}.
+- [ ] **7202.** The {plan} plan. The free tier sends a hundred a day from a shared address, which is for testing.  
+  → Тариф {plan}. Безкоштовний тариф надсилає сто листів на день зі спільної адреси, а це годиться лише для перевірки.
+- [ ] **7203.** A flat plan. It bills by volume of errors rather than by learners, and a well-behaved month is nowhere near the allowance.  
+  → Фіксований тариф. Плата залежить від кількості помилок, а не учнів, і в спокійний місяць до ліміту дуже далеко.
+- [ ] **7204.** The only line here that is not runtime. It does not move with the number of learners, so it is most of the bill at a hundred and a rounding error at a hundred thousand.  
+  → Єдиний рядок, не пов'язаний з роботою застосунку. Він не залежить від кількості учнів, тому за сотні учнів це більша частина рахунку, а за ста тисяч майже непомітний.
+- [ ] **7205.** A .ee domain. The registry charges 6 euros a year; a registrar asks about 15.  
+  → Домен .ee. Реєстр бере 6 євро на рік, реєстратор просить близько 15.
+- [ ] **7206.** One request an hour from a function we already pay for, cached and shared by everybody.  
+  → Один запит на годину від функції, за яку ми й так платимо; відповідь зберігається в кеші й спільна для всіх.
+- [ ] **7207.** Their hardware, their battery and their data. Every clip and page it keeps is one this deployment does not serve again.  
+  → Їхній пристрій, їхній акумулятор і їхній мобільний трафік. Кожен запис і сторінку, які він зберігає, сервер більше не віддає.
+- [ ] **7208.** Requests answered  
+  → Оброблено запитів
+- [ ] **7209.** Files served  
+  → Віддано файлів
+- [ ] **7210.** Data out  
+  → Вихідний трафік
+- [ ] **7211.** Processor time  
+  → Процесорний час
+- [ ] **7212.** Database  
+  → База даних
+- [ ] **7213.** Speech stored  
+  → Зберігання озвучення
+- [ ] **7214.** People signing in  
+  → Користувачів, що входять
+- [ ] **7215.** Questions asked  
+  → Поставлено запитань
+- [ ] **7216.** Writing looked at  
+  → Перевірено письмових робіт
+- [ ] **7217.** Emails sent  
+  → Надіслано листів
+- [ ] **7218.** requests answered  
+  → оброблені запити
+- [ ] **7219.** processor time  
+  → процесорний час
+- [ ] **7220.** files served  
+  → віддані файли
+- [ ] **7221.** data out  
+  → вихідний трафік
+- [ ] **7222.** the database  
+  → база даних
+- [ ] **7223.** stored speech  
+  → зберігання озвучення
+- [ ] **7224.** sign-ins  
+  → входи
 
 ### Counted words in public: one, few (2 to 4), many (5 and up)
 
-- [ ] **7133.** cent / cent, cents _(1, 2, 5)_  
+- [ ] **7225.** cent / cent, cents _(1, 2, 5)_  
   → цент, центи, центів
+- [ ] **7226.** pages / page, pages _(1, 2, 5)_  
+  → сторінка, сторінки, сторінок
+- [ ] **7227.** clips / clip, clips _(1, 2, 5)_  
+  → аудіозапис, аудіозаписи, аудіозаписів
+- [ ] **7228.** characters / character, characters _(1, 2, 5)_  
+  → символ, символи, символів
+- [ ] **7229.** questions / question, questions _(1, 2, 5)_  
+  → запитання, запитання, запитань
+- [ ] **7230.** notes / note, notes _(1, 2, 5)_  
+  → відгук, відгуки, відгуків
+- [ ] **7231.** emails / email, emails _(1, 2, 5)_  
+  → лист, листи, листів
+- [ ] **7232.** milliseconds / millisecond, milliseconds _(1, 2, 5)_  
+  → мілісекунда, мілісекунди, мілісекунд
+- [ ] **7233.** kilobytes / kilobyte, kilobytes _(1, 2, 5)_  
+  → кілобайт, кілобайти, кілобайтів
+- [ ] **7234.** per cent of the month's learners / per cent of the month's learners, per cent of the month's learners _(1, 2, 5)_  
+  → відсоток учнів за місяць, відсотки учнів за місяць, відсотків учнів за місяць
+- [ ] **7235.** times / time, times _(1, 2, 5)_  
+  → раз, рази, разів
 

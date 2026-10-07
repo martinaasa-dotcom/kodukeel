@@ -8,7 +8,7 @@ import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { TrParts } from "@/components/TrParts";
 import {
   ASSUMPTIONS, DEFAULT_SHAPE, MODEL_CAP_USD, SCALE_LADDER, TUTOR_MODELS,
-  billFor, ladderFor, type Line, type Meter as MeterFigure, type Shape, type TutorMode,
+  billFor, ladderFor, type Line, type Meter as MeterFigure, type Phrase, type Shape, type TutorMode,
 } from "@/lib/funding/model";
 
 /**
@@ -45,11 +45,16 @@ function stopFor(learners: number): number {
   return Math.round((Math.log10(Math.max(1, learners)) / DECADES) * STOPS);
 }
 
-const count = (n: number) => Math.round(n).toLocaleString("en-GB");
+/** How a figure is grouped and pointed for the reader: 50,000 and 0.45 in
+ * English, 50 000 and 0,45 in Russian and Ukrainian, where a comma is the
+ * decimal point and would read 50,000 as fifty. */
+const numberTag = (locale: Locale) => (locale === "en" ? "en-GB" : locale);
 
-function money(usd: number): string {
-  if (usd >= 1000) return `$${Math.round(usd).toLocaleString("en-GB")}`;
-  return `$${usd.toFixed(2)}`;
+const count = (n: number, locale: Locale) => Math.round(n).toLocaleString(numberTag(locale));
+
+function money(usd: number, locale: Locale): string {
+  if (usd >= 1000) return `$${Math.round(usd).toLocaleString(numberTag(locale))}`;
+  return `$${usd.toLocaleString(numberTag(locale), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 /**
@@ -83,33 +88,33 @@ function centsIn(n: number, locale: Locale): string {
   return `${String(n).replace(".", ",")} ${tr(locale, "cents", "fraction")}`;
 }
 
-function amount(figure: MeterFigure, t: T): string {
+function amount(figure: MeterFigure, t: T, locale: Locale): string {
   if (figure.as === "gb") {
     const gb = figure.used;
     if (gb < 1) return `${Math.round(gb * 1000)} MB`;
-    if (gb < 1000) return `${gb.toFixed(1)} GB`;
-    return `${(gb / 1000).toFixed(1)} TB`;
+    if (gb < 1000) return `${gb.toLocaleString(numberTag(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} GB`;
+    return `${(gb / 1000).toLocaleString(numberTag(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} TB`;
   }
   if (figure.as === "hours") {
     return figure.used < 1
       ? fill(t("{n} min"), { n: Math.round(figure.used * 60) })
-      : fill(t("{n} hours"), { n: count(figure.used) });
+      : fill(t("{n} hours"), { n: count(figure.used, locale) });
   }
-  return count(figure.used);
+  return count(figure.used, locale);
 }
 
-function allowance(figure: MeterFigure, t: T): string {
+function allowance(figure: MeterFigure, t: T, locale: Locale): string {
   return figure.as === "gb"
-    ? fill(t("{amount} included"), { amount: figure.included < 1 ? `${figure.included * 1000} MB` : `${count(figure.included)} GB` })
+    ? fill(t("{amount} included"), { amount: figure.included < 1 ? `${figure.included * 1000} MB` : `${count(figure.included, locale)} GB` })
     : figure.as === "hours"
-      ? fill(t("{n} hours included"), { n: count(figure.included) })
-      : fill(t("{amount} included"), { amount: count(figure.included) });
+      ? fill(t("{n} hours included"), { n: count(figure.included, locale) })
+      : fill(t("{amount} included"), { amount: count(figure.included, locale) });
 }
 
 /** What a line says on its right-hand side, whichever shape it is. */
-function figureFor(line: Line, t: T): { text: string; muted: boolean } {
+function figureFor(line: Line, t: T, locale: Locale): { text: string; muted: boolean } {
   const { cost } = line;
-  if (cost.kind === "charged") return { text: money(cost.usd), muted: cost.usd === 0 };
+  if (cost.kind === "charged") return { text: money(cost.usd, locale), muted: cost.usd === 0 };
   if (cost.kind === "partOf") return { text: t("inside another line"), muted: true };
   if (cost.kind === "given") return { text: t("given"), muted: true };
   return { text: fill(t("{who} pays"), { who: t(cost.who) }), muted: true };
@@ -121,6 +126,36 @@ function planFor(line: Line, t: T): string {
   if (cost.kind === "partOf") return t("No bill of its own");
   if (cost.kind === "given") return t("Public, and asks for nothing");
   return t("Not the operator's to pay");
+}
+
+/**
+ * A line the model built with figures in it, in the reader's language. English
+ * reads the sentence the model wrote, unchanged. Russian and Ukrainian read
+ * its template translated, with every number written the way they write one
+ * and every label in a list translated and joined the way their language joins
+ * a list. A line with no template is a fixed sentence and goes through `t`.
+ */
+function said(english: string, as: Phrase | undefined, t: T, locale: Locale): string {
+  if (locale === "en" || !as) return t(english);
+  const values = Object.fromEntries(Object.entries(as.values).map(([key, value]) => {
+    if (typeof value === "number") return [key, value.toLocaleString(numberTag(locale))];
+    if (typeof value === "string") return [key, value];
+    if ("n" in value) {
+      return [key, value.n.toLocaleString(numberTag(locale), { minimumFractionDigits: value.digits, maximumFractionDigits: value.digits })];
+    }
+    return [key, new Intl.ListFormat(locale, { type: "conjunction" }).format(value.map((label) => t(label)))];
+  }));
+  return fill(t(as.template), values);
+}
+
+/**
+ * The unit beside an assumption's figure. Russian and Ukrainian take the
+ * unit's form from the number (one page, two pages, five pages are three
+ * different words), so there the unit is a counted noun keyed on its English.
+ */
+function unitFor(value: number, unit: string, t: T, locale: Locale): string {
+  if (locale === "en") return t(unit);
+  return countOf(locale, value, unit).slice(String(value).length + 1);
 }
 
 /** The translator a client component gets from `useT`. */
@@ -148,7 +183,7 @@ export function CostExplorer() {
         </label>
         <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span className="tnum text-3xl font-bold leading-none" style={{ color: "var(--ink)" }}>
-            {count(shape.learners)}
+            {count(shape.learners, locale)}
           </span>
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
             {shape.learners === 1 ? t("one person") : t("learners")}
@@ -164,7 +199,7 @@ export function CostExplorer() {
           step={1}
           value={stopFor(shape.learners)}
           onChange={(e) => set("learners", learnersAt(Number(e.target.value)))}
-          aria-valuetext={fill(t("{n} learners"), { n: count(shape.learners) })}
+          aria-valuetext={fill(t("{n} learners"), { n: count(shape.learners, locale) })}
         />
         {/*
           One label per decade, because the slider is logarithmic and evenly
@@ -181,7 +216,7 @@ export function CostExplorer() {
         <div className="mt-5 border-t pt-4" style={{ borderColor: "var(--rule)" }}>
           <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Every month, all of it")}</p>
           <p className="tnum mt-1 text-4xl font-bold leading-none" style={{ color: "var(--accent-deep)" }}>
-            {money(bill.totalUsd)}
+            {money(bill.totalUsd, locale)}
           </p>
           <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {fill(t("{each} a learner, and every cent of it an invoice somebody sends. In US dollars and net of VAT, which is how the vendors quote their own prices."), {
@@ -192,7 +227,7 @@ export function CostExplorer() {
             <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-3)" }}>
               <TrParts
                 template="Not counted above: buying the speech this app is given would come to a further {money} a month. Nobody has ever asked for it."
-                parts={{ money: <strong>{money(bill.creditedUsd)}</strong> }}
+                parts={{ money: <strong>{money(bill.creditedUsd, locale)}</strong> }}
               />
             </p>
           )}
@@ -267,7 +302,7 @@ export function CostExplorer() {
         >
           <TrParts
             template="The model line stops at {money}, and it stops there in the running app too. The daily budget in {file} has no off switch, so this is a ceiling rather than a forecast."
-            parts={{ money: money(MODEL_CAP_USD), file: <code>lib/usage/quota.ts</code> }}
+            parts={{ money: money(MODEL_CAP_USD, locale), file: <code>lib/usage/quota.ts</code> }}
           />
         </p>
       )}
@@ -276,7 +311,7 @@ export function CostExplorer() {
         <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Where it goes")}</h3>
         <ul className="space-y-2">
           {bill.lines.map((line) => {
-            const figure = figureFor(line, t);
+            const figure = figureFor(line, t, locale);
             const meters = line.cost.kind === "charged" ? line.cost.meters ?? [] : [];
             return (
               <li
@@ -303,14 +338,14 @@ export function CostExplorer() {
                 </p>
                 {line.cost.kind === "given" && (
                   <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--ink)" }}>
-                    {t(line.cost.gives)}
+                    {said(line.cost.gives, line.cost.givesAs, t, locale)}
                     {line.cost.wouldCostUsd
-                      ? `, which would come to ${money(line.cost.wouldCostUsd)} a month to buy.`
+                      ? fill(t(", which would come to {money} a month to buy."), { money: money(line.cost.wouldCostUsd, locale) })
                       : "."}
                   </p>
                 )}
                 <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {t(line.cost.why)}
+                  {said(line.cost.why, "whyAs" in line.cost ? line.cost.whyAs : undefined, t, locale)}
                 </p>
 
                 {meters.some((m) => m.included > 0) && (
@@ -322,13 +357,13 @@ export function CostExplorer() {
                         <li key={figureRow.label}>
                           <p className="tnum flex flex-wrap justify-between gap-x-2 text-xs" style={{ color: "var(--ink-3)" }}>
                             <span>{t(figureRow.label)}</span>
-                            <span>{fill(t("{amount} of {allowance}"), { amount: amount(figureRow, t), allowance: allowance(figureRow, t) })}</span>
+                            <span>{fill(t("{amount} of {allowance}"), { amount: amount(figureRow, t, locale), allowance: allowance(figureRow, t, locale) })}</span>
                           </p>
                           <div className="mt-1">
                             <Meter
                               pct={pct}
                               height={6}
-                              label={fill(t("{label}, {amount} against {allowance}"), { label: t(figureRow.label), amount: amount(figureRow, t), allowance: allowance(figureRow, t) })}
+                              label={fill(t("{label}, {amount} against {allowance}"), { label: t(figureRow.label), amount: amount(figureRow, t, locale), allowance: allowance(figureRow, t, locale) })}
                               tone={past ? "var(--blush)" : "var(--accent)"}
                             />
                           </div>
@@ -417,9 +452,9 @@ export function CostExplorer() {
                     fontWeight: rung.learners === nearestRung(shape.learners) ? 600 : 400,
                   }}
                 >
-                  <td className="tnum py-1.5 pr-3">{count(rung.learners)}</td>
-                  <td className="tnum py-1.5 text-right">{money(rung.bill.totalUsd)}</td>
-                  <td className="tnum py-1.5 pl-3 pr-3 text-right">{money(rung.bill.creditedUsd)}</td>
+                  <td className="tnum py-1.5 pr-3">{count(rung.learners, locale)}</td>
+                  <td className="tnum py-1.5 text-right">{money(rung.bill.totalUsd, locale)}</td>
+                  <td className="tnum py-1.5 pl-3 pr-3 text-right">{money(rung.bill.creditedUsd, locale)}</td>
                   <td className="tnum py-1.5 text-right">{perLearner(rung.bill.perLearnerUsd, t, locale)}</td>
                 </tr>
               ))}
@@ -443,7 +478,7 @@ export function CostExplorer() {
           {ASSUMPTIONS.map((a) => (
             <li key={a.id}>
               <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
-                {t(a.what)}: <span className="tnum">{a.value}</span> {t(a.unit)}
+                {t(a.what)}: <span className="tnum">{a.value}</span> {unitFor(a.value, a.unit, t, locale)}
               </p>
               <p className="mt-0.5 text-sm leading-relaxed" style={{ color: "var(--ink-3)" }}>{t(a.why)}</p>
             </li>

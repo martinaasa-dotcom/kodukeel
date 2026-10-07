@@ -251,9 +251,9 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
                 <tr key={m.what} className="border-t align-top" style={{ borderColor: "var(--rule)" }}>
                   <td className="py-2 pr-3" style={{ color: "var(--ink-2)" }}>
                     {t(m.what)}
-                    <span className="mt-0.5 block text-xs" style={{ color: "var(--ink-3)" }}>{m.how}</span>
+                    <span className="mt-0.5 block text-xs" style={{ color: "var(--ink-3)" }}>{t(m.how)}</span>
                   </td>
-                  <td className="py-2" style={{ color: "var(--ink)" }}>{m.value}</td>
+                  <td className="py-2" style={{ color: "var(--ink)" }}>{t(m.value)}</td>
                 </tr>
               ))}
             </tbody>
@@ -277,7 +277,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
             {fill(t("${base} a month, then ${rate} a gigabyte out past the first {gb}."), {
               base: VERCEL.pro.baseUsd,
               rate: VERCEL.overage.perTransferGb,
-              gb: VERCEL.pro.included.transferGb?.toLocaleString("en-GB") ?? "",
+              gb: VERCEL.pro.included.transferGb?.toLocaleString(locale === "en" ? "en-GB" : locale) ?? "",
             })}
           </li>
           <li>
@@ -295,7 +295,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
             {": "}
             {fill(t("from ${low} a month to ${high}. This is the steepest ladder on the page."), {
               low: COMPUTE.sizes[0]!.usd,
-              high: COMPUTE.sizes[COMPUTE.sizes.length - 1]!.usd.toLocaleString("en-GB"),
+              high: COMPUTE.sizes[COMPUTE.sizes.length - 1]!.usd.toLocaleString(locale === "en" ? "en-GB" : locale),
             })}
           </li>
           <li>
@@ -311,7 +311,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
             {": "}
             {fill(t("${base} a month for {emails} emails, then ${rate} a thousand."), {
               base: EMAIL.pro.baseUsd,
-              emails: EMAIL.pro.included.emails?.toLocaleString("en-GB") ?? "",
+              emails: EMAIL.pro.included.emails?.toLocaleString(locale === "en" ? "en-GB" : locale) ?? "",
               rate: EMAIL.overage.perThousandEmails,
             })}
           </li>
@@ -320,7 +320,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
             {": "}
             {fill(t("${base} a month for {events} events."), {
               base: ERRORS.team.baseUsd,
-              events: ERRORS.team.included.events?.toLocaleString("en-GB") ?? "",
+              events: ERRORS.team.included.events?.toLocaleString(locale === "en" ? "en-GB" : locale) ?? "",
             })}
           </li>
           <li>

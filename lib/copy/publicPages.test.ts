@@ -1,11 +1,12 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { translated, tr } from "./locale";
+import { countOf, translated, tr } from "./locale";
 import { LEGAL_NOTICE, langParam, localeHref } from "./publicLocale";
 import { ENTRY_COPY } from "./entryLocales";
 import { GUIDE, MATERIALS, SOURCES } from "@/lib/exam/official";
-import { SERVICES } from "@/lib/funding/model";
+import { ASSUMPTIONS, DEFAULT_SHAPE, SCALE_LADDER, SERVICES, TUTOR_MODELS, billFor } from "@/lib/funding/model";
+import { MEASURED } from "@/lib/funding/facts";
 import { CONTINUITY, STAGES } from "@/lib/funding/sustainability";
 import { SOURCE_CREDITS } from "@/lib/legal/credits";
 
@@ -22,9 +23,10 @@ import { SOURCE_CREDITS } from "@/lib/legal/credits";
  * sentence added to a page in English fails until it has its Russian and its
  * Ukrainian.
  *
- * What is not asked: a value the page reads from data that has no translation
- * on purpose (a product name, a command in the measured table, the model's own
- * working on each line of the cost panel, which the page says is English).
+ * What is not asked: a product name. The measured table and the model's own
+ * working on each line of the cost panel are asked, at every size the ladder
+ * draws, because a paragraph left in English on a translated page reads as the
+ * part nobody thought the reader needed.
  */
 const ROOT = process.cwd();
 const WELCOME = "app/(chromeless)/welcome";
@@ -59,6 +61,11 @@ function literals(file: string): { english: string; context?: string }[] {
     }
   }
   return out;
+}
+
+/** The labels a phrase joins into a list, each of which the page translates. */
+function listed(as: { values: Readonly<Record<string, unknown>> }): string[] {
+  return Object.values(as.values).flatMap((v) => (Array.isArray(v) ? (v as string[]) : []));
 }
 
 function untranslated(locale: "ru" | "uk", lines: readonly { english: string; context?: string }[]): string[] {
@@ -106,10 +113,29 @@ describe("the public pages in Russian and Ukrainian", () => {
         ...SERVICES.flatMap((s) => [s.name, s.who, s.does, s.whenItIsGone]),
         ...STAGES.flatMap((s) => [s.name, s.why]),
         ...CONTINUITY.map((c) => c.claim),
+        ...MEASURED.flatMap((m) => [m.what, m.value, m.how]),
+        ...ASSUMPTIONS.flatMap((a) => [a.what, a.why]),
+        // What each line of the cost panel says about itself, at every size and
+        // for every way of paying for the tutor the panel offers.
+        ...(["paid", "off"] as const).flatMap((tutor) => TUTOR_MODELS.flatMap((model) => SCALE_LADDER.flatMap((learners) =>
+          billFor({ ...DEFAULT_SHAPE, learners, tutor, tutorModel: model.id }).lines.flatMap(({ cost }) => [
+            // A line built with figures is asked for its template, which is
+            // what the page translates; a fixed line is asked as it reads.
+            ...("whyAs" in cost && cost.whyAs ? [cost.whyAs.template, ...listed(cost.whyAs)] : "why" in cost && cost.why ? [cost.why] : []),
+            ...("givesAs" in cost && cost.givesAs ? [cost.givesAs.template, ...listed(cost.givesAs)] : "gives" in cost && cost.gives ? [cost.gives] : []),
+            ...("meters" in cost && cost.meters ? cost.meters.map((m) => m.label) : []),
+          ])))),
         // The landing footer's credits: what each source gives, and who runs it.
         ...SOURCE_CREDITS.flatMap((c) => [c.gives, ...(c.by && c.by !== "Filosoft" ? [c.by] : [])]),
       ].map((english) => ({ english }));
       expect(untranslated(locale, lines), `untranslated in ${locale}`).toEqual([]);
+    });
+
+    it(`${locale}: counts every unit the funding page's assumptions are measured in`, () => {
+      // Five, because it takes the third form in both languages and the
+      // English fallback adds an s, so a missing unit cannot pass by accident.
+      const missing = ASSUMPTIONS.filter((a) => !/[а-яёієїґ]/i.test(countOf(locale, 5, a.unit))).map((a) => a.unit);
+      expect(missing, `uncounted in ${locale}`).toEqual([]);
     });
 
     it(`${locale}: says on a legal page that the English prevails, in its own language`, () => {
