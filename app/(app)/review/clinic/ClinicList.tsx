@@ -13,6 +13,7 @@ import { buildClinicQuestion, type Leech } from "@/lib/analysis/leeches";
 import { caseByKey } from "@/lib/estonian/cases";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 
 export interface ClinicItem extends Omit<Leech, "history"> {
   history: { rating: number; at: string }[];
@@ -106,10 +107,13 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                   )}
                   {leech.targetCase && (
                     <ButtonLink href={`/review?case=${leech.targetCase}`}>
-                      {t("Practise the")}{" "}
-                      <span lang="et">
-                        {caseByKey(leech.targetCase)?.et ?? leech.targetCase.toLowerCase()}
-                      </span>
+                      {fillNodes(t("Practise the {case}"), {
+                        case: (
+                          <span lang="et">
+                            {caseByKey(leech.targetCase)?.et ?? leech.targetCase.toLowerCase()}
+                          </span>
+                        ),
+                      })}
                     </ButtonLink>
                   )}
                   <Button

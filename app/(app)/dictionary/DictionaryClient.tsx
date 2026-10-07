@@ -40,6 +40,7 @@ import { FitText } from "@/components/FitText";
 import { useLocale, useT } from "@/components/Locale";
 import { localiseReadings } from "@/lib/copy/questionReading";
 import { countOf, fill } from "@/lib/copy/locale";
+import { matchedAsIn } from "@/lib/copy/matchedAs";
 import { fillNodes } from "@/components/reference/fillNodes";
 
 export interface EntryForm {
@@ -522,7 +523,7 @@ export function DictionaryClient({
               className="rounded-[var(--r)] px-4 py-3 text-sm"
               style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
             >
-              <TrParts template="{word} is the {form}." parts={{ word: <Et className="font-semibold">{initialQuery}</Et>, form: matchedAs }} />
+              <TrParts template="{word} is the {form}." parts={{ word: <Et className="font-semibold">{initialQuery}</Et>, form: matchedAsIn(locale, matchedAs) }} />
             </p>
           )}
           <Entry entry={entry} tutorReady={tutorReady} glossLanguage={glossLanguage} />
@@ -558,7 +559,7 @@ export function DictionaryClient({
                     </span>
                   )}
                   <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                    {h.matchedAs ? h.matchedAs : h.translation}
+                    {h.matchedAs ? matchedAsIn(locale, h.matchedAs) : h.translation}
                   </span>
                 </button>
               </li>

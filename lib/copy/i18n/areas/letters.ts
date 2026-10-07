@@ -182,7 +182,7 @@ export const LETTERS: Area = {
     "{quiet} didn't open the app.": "Не открывали приложение: {quiet}.",
     "somebody studied": "кто-то занимался",
     "nobody studied": "никто не занимался",
-    "The class finds {case} hardest.": "Труднее всего группе даётся {case}.",
+    "The class finds {case} hardest.": "Труднее всего группе даётся падеж {case}.",
     "{accuracy} percent right, across {total} answers from the whole class. That's the one to give them extra practice on this week.":
       "Верных ответов {accuracy}%, а всего ответов от группы: {total}. Именно этому падежу стоит уделить больше практики на этой неделе.",
     "{case} at {accuracy} percent": "{case} ({accuracy}%)",
@@ -373,7 +373,7 @@ export const LETTERS: Area = {
     "{quiet} didn't open the app.": "Не відкривали застосунок: {quiet}.",
     "somebody studied": "хтось займався",
     "nobody studied": "ніхто не займався",
-    "The class finds {case} hardest.": "Найважче групі дається {case}.",
+    "The class finds {case} hardest.": "Найважче групі дається відмінок {case}.",
     "{accuracy} percent right, across {total} answers from the whole class. That's the one to give them extra practice on this week.":
       "Правильних відповідей {accuracy}%, а всього відповідей від групи: {total}. Саме цьому відмінку варто приділити більше практики цього тижня.",
     "{case} at {accuracy} percent": "{case} ({accuracy}%)",

@@ -174,10 +174,10 @@ export const TODAY: Area = {
     "Домашнее задание",
   "Vocabulary":
     "Слова",
-  "Overdue, ":
-    "Просрочено, ",
-  "Due ":
-    "Срок: ",
+  "Overdue, {date}":
+    "Просрочено: {date}",
+  "Due {date}":
+    "Срок: {date}",
   "Mark \"{task}\" as done":
     "Отметить «{task}» как выполненное",
   "Mark \"{task}\" as not done":
@@ -370,48 +370,10 @@ export const TODAY: Area = {
     "Назовите вслух по-эстонски цену или этаж, на котором живёте, и попросите повторить.",
   "Anywhere":
     "Где угодно",
-  "A bus stop":
-    "Остановка",
-  "a corridor":
-    "коридор",
-  "A queue":
-    "Очередь",
-  "a lift":
-    "лифт",
   "Work":
     "Работа",
-  "the stairwell":
-    "подъезд",
-  "Home":
-    "Дом",
-  "a friend":
-    "друг",
-  "A form":
-    "Анкета",
-  "A health center":
-    "Поликлиника",
-  "a salon":
-    "салон",
-  "A neighbor":
-    "Сосед",
-  "a colleague":
-    "коллега",
   "work":
     "работа",
-  "a party":
-    "вечеринка",
-  "a landlord":
-    "арендодатель",
-  "a helpdesk":
-    "служба поддержки",
-  "A stop":
-    "Остановка",
-  "a platform":
-    "платформа",
-  "a class":
-    "занятие",
-  "a stairwell":
-    "подъезд",
 
   // TODAY: THE WORD OF THE DAY.
   "Word of the day":
@@ -444,12 +406,12 @@ export const TODAY: Area = {
     "{n} уже подтверждено",
   "{n} counted from your level":
     "{n} засчитано по уровню",
-  ", done. ":
-    ", пройден. ",
-  ", counted from your level, {shown} of {words} shown in your reviews so far. ":
-    ", засчитан по вашему уровню, в повторениях пока подтверждено {shown} из {words}. ",
-  "{parts} parts. ":
-    "Частей: {parts}. ",
+  "{name}, done. {arrival}":
+    "{name}, пройден. {arrival}",
+  "{name}, counted from your level, {shown} of {words} shown in your reviews so far. {arrival}":
+    "{name}, засчитан по вашему уровню, в повторениях пока подтверждено {shown} из {words}. {arrival}",
+  "{name}. {parts}. {arrival}":
+    "{name}. В этом уровне {parts}. {arrival}",
   "How this bar fills up":
     "Как заполняется эта полоса",
   "You know every word this level asks for. There's nothing new left in it.":
@@ -552,12 +514,10 @@ export const TODAY: Area = {
     "К концу этого вечера",
   "{words} again":
     "{words} на повтор",
-  "0m":
-    "0",
   "{minutes}m":
-    "{minutes}",
+    "{minutes} мин",
   "left":
-    "мин осталось",
+    "осталось",
   "Tonight's words":
     "Слова этого вечера",
   "A few of these aren't in your deck yet. The first step adds them.":
@@ -1111,10 +1071,10 @@ export const TODAY: Area = {
     "Домашнє завдання",
   "Vocabulary":
     "Слова",
-  "Overdue, ":
-    "Прострочено, ",
-  "Due ":
-    "Термін: ",
+  "Overdue, {date}":
+    "Прострочено: {date}",
+  "Due {date}":
+    "Термін: {date}",
   "Mark \"{task}\" as done":
     "Позначити «{task}» як виконане",
   "Mark \"{task}\" as not done":
@@ -1307,48 +1267,10 @@ export const TODAY: Area = {
     "Назвіть уголос естонською ціну або поверх, на якому живете, і попросіть повторити.",
   "Anywhere":
     "Будь-де",
-  "A bus stop":
-    "Зупинка",
-  "a corridor":
-    "коридор",
-  "A queue":
-    "Черга",
-  "a lift":
-    "ліфт",
   "Work":
     "Робота",
-  "the stairwell":
-    "під'їзд",
-  "Home":
-    "Дім",
-  "a friend":
-    "друг",
-  "A form":
-    "Анкета",
-  "A health center":
-    "Поліклініка",
-  "a salon":
-    "салон",
-  "A neighbor":
-    "Сусід",
-  "a colleague":
-    "колега",
   "work":
     "робота",
-  "a party":
-    "вечірка",
-  "a landlord":
-    "орендодавець",
-  "a helpdesk":
-    "служба підтримки",
-  "A stop":
-    "Зупинка",
-  "a platform":
-    "платформа",
-  "a class":
-    "заняття",
-  "a stairwell":
-    "під'їзд",
 
   // TODAY: THE WORD OF THE DAY.
   "Word of the day":
@@ -1381,12 +1303,12 @@ export const TODAY: Area = {
     "{n} уже підтверджено",
   "{n} counted from your level":
     "{n} зараховано за рівнем",
-  ", done. ":
-    ", пройдено. ",
-  ", counted from your level, {shown} of {words} shown in your reviews so far. ":
-    ", зараховано за вашим рівнем, у повтореннях поки підтверджено {shown} з {words}. ",
-  "{parts} parts. ":
-    "Частин: {parts}. ",
+  "{name}, done. {arrival}":
+    "{name}, пройдено. {arrival}",
+  "{name}, counted from your level, {shown} of {words} shown in your reviews so far. {arrival}":
+    "{name}, зараховано за вашим рівнем, у повтореннях поки підтверджено {shown} з {words}. {arrival}",
+  "{name}. {parts}. {arrival}":
+    "{name}. У цьому рівні {parts}. {arrival}",
   "How this bar fills up":
     "Як заповнюється ця смуга",
   "You know every word this level asks for. There's nothing new left in it.":
@@ -1489,12 +1411,10 @@ export const TODAY: Area = {
     "До кінця цього вечора",
   "{words} again":
     "{words} на повторення",
-  "0m":
-    "0",
   "{minutes}m":
-    "{minutes}",
+    "{minutes} хв",
   "left":
-    "хв до кінця",
+    "залишилося",
   "Tonight's words":
     "Слова цього вечора",
   "A few of these aren't in your deck yet. The first step adds them.":

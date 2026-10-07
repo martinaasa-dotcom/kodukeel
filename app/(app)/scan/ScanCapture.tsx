@@ -17,6 +17,7 @@ import { summarise, type ResolvedItem } from "@/lib/scan/items";
 import { NOT_REACHED } from "@/lib/copy/values";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
+import { matchedAsIn } from "@/lib/copy/matchedAs";
 
 /** A row on screen: what came back, plus whether the learner still wants it. */
 interface Row extends ResolvedItem {
@@ -469,6 +470,7 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
 }) {
   const known = row.lexemeId !== null;
   const t = useT();
+  const locale = useLocale();
 
   return (
     <div
@@ -522,7 +524,7 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
 
       {row.matchedAs && (
         <p className="pb-2 text-sm" style={{ color: "var(--sky-ink)" }}>
-          {fill(t("On the page as the {form}"), { form: row.matchedAs })}
+          {fill(t("On the page as the {form}"), { form: matchedAsIn(locale, row.matchedAs) })}
         </p>
       )}
 

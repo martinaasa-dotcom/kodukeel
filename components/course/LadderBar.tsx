@@ -4,7 +4,8 @@ import { Explain } from "@/components/Explain";
 import type { LadderProgress } from "@/lib/course";
 import { LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
-import { fill, tr, type Locale } from "@/lib/copy/locale";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 
 /**
  * THE CLIMB TO THE BAND SOMEBODY SAID THEY WERE AIMING AT.
@@ -268,14 +269,31 @@ export function LadderBar({ progress, partLabel, learnerLevel, locale }: {
       <ol className="sr-only">
         {milestones.map((stop) => (
           <li key={stop.level}>
-            <span lang={wantsEnglish ? undefined : "et"}>
-              {stop.level}, {uiText(learnerLevel, stop.title, t(LEVEL_INFO[stop.level].titleEn))}
-            </span>
-            {stop.state === "passed" ? t(", done. ")
-              : stop.state === "here" ? fill(t(", {pct}%. "), { pct: stop.pct })
-              : stop.state === "assumed" ? fill(t(", counted from your level, {shown} of {words} shown in your reviews so far. "), { shown: stop.verified, words: stop.words })
-              : ". "}
-            {stop.state === "ahead" ? fill(t("{parts} parts. "), { parts: stop.parts }) : ""}{t(stop.arrival)}
+            {/* One sentence per state with the level's name in a slot, so a
+                language orders and inflects it whole rather than being handed
+                ", done. " to stand after a name it cannot see. */}
+            {fillNodes(
+              fill(
+                t(stop.state === "passed" ? "{name}, done. {arrival}"
+                  : stop.state === "here" ? "{name}, {pct}%. {arrival}"
+                  : stop.state === "assumed" ? "{name}, counted from your level, {shown} of {words} shown in your reviews so far. {arrival}"
+                  : "{name}. {parts}. {arrival}"),
+                {
+                  pct: stop.pct,
+                  shown: stop.verified,
+                  words: stop.words,
+                  parts: countOf(locale, stop.parts, "part"),
+                  arrival: t(stop.arrival),
+                },
+              ),
+              {
+                name: (
+                  <span lang={wantsEnglish ? undefined : "et"}>
+                    {stop.level}, {uiText(learnerLevel, stop.title, t(LEVEL_INFO[stop.level].titleEn))}
+                  </span>
+                ),
+              },
+            )}
           </li>
         ))}
       </ol>

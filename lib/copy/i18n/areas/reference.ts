@@ -517,6 +517,14 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["The words on this page", "Слова на этой странице", "Слова на цій сторінці"],
   ["Say {word}", "Послушать {word}", "Вимовити {word}"],
   ["On the page as the {form}", "На странице в форме: {form}", "На сторінці у формі: {form}"],
+  // What a matched form is called (lib/copy/matchedAs.ts): the Estonian name
+  // stays as the search wrote it, the reading after it is put into the
+  // learner's language, and the headword ends it.
+  ["{form} ({reading}) of {lemma}", "{form} ({reading}) слова {lemma}", "{form} ({reading}) слова {lemma}"],
+  ["{form} of {lemma}", "{form} слова {lemma}", "{form} слова {lemma}"],
+  ["{reading}, plural", "{reading}, множественное число", "{reading}, множина"],
+  ["{reading}, the short one", "{reading}, краткая форма", "{reading}, коротка форма"],
+  ["imperative", "повелительное наклонение", "наказовий спосіб"],
   ["Known", "Знакомо", "Знайоме"],
   ["Learning", "Изучается", "Вчу"],
   ["Not started", "Не начато", "Не розпочато"],

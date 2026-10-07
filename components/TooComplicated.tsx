@@ -4,10 +4,10 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { CalendarClock } from "lucide-react";
 import { Button } from "@/components/Button";
 import { putWordAside } from "@/app/actions";
-import { awayIn, DEFER_DAYS } from "@/lib/srs/defer";
+import { awayIn, awaySpan, DEFER_DAYS } from "@/lib/srs/defer";
 import { useModalFocus } from "@/components/useModalFocus";
 import { useLocale, useT } from "@/components/Locale";
-import { countOf, fill } from "@/lib/copy/locale";
+import { countOf, fill, type Locale } from "@/lib/copy/locale";
 
 /**
  * TOO COMPLICATED, WHEREVER THE WORD IS.
@@ -94,7 +94,12 @@ export function TooComplicated({
       const result = await putWordAside(lexemeId, context).catch(() => null);
       if (result?.ok) {
         setAsking(false);
-        onDone(result.note);
+        /* The server's sentence is English; a Russian or Ukrainian learner is
+           told the same thing in a whole template of their own. */
+        const away = awayLocalised(locale, result.deferral.days, t);
+        onDone(locale === "en" ? result.note : result.deferral.reason === "BAND" && result.deferral.untilLevel
+          ? fill(t("Put aside for now. {word} is a {level} word, so it'll wait until you reach {level}, or {away} at most."), { word: label, level: result.deferral.untilLevel, away })
+          : fill(t("Put aside for now. You'll see {word} again in {away}."), { word: label, away }));
       } else {
         setFailed(true);
       }
@@ -140,7 +145,7 @@ export function TooComplicated({
             </p>
             <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
               {fill(t("We'll take it out of your reviews for now, so it stops popping up on cards. It comes back by itself in {away}, or once you reach the level it belongs to. You can bring it back sooner any time from My words."), {
-                away: locale === "en" ? awayIn(DEFER_DAYS) : countOf(locale, DEFER_DAYS, "day"),
+                away: locale === "en" ? awayIn(DEFER_DAYS) : awayLocalised(locale, DEFER_DAYS, t),
               })}
             </p>
             {failed && (
@@ -161,4 +166,17 @@ export function TooComplicated({
       )}
     </span>
   );
+}
+
+/**
+ * `awayIn`'s span in Russian or Ukrainian: the same unit English would use for
+ * the same number of days, as a counted noun, with the hedge where English has
+ * one. Never a count of days where English says weeks.
+ */
+function awayLocalised(locale: Locale, days: number, t: (english: string) => string): string {
+  const span = awaySpan(days);
+  // "week, as a span" holds the accusative a span after a preposition takes;
+  // a day and a month read the same in either case.
+  const counted = countOf(locale, span.n, span.unit === "week" ? "week, as a span" : span.unit);
+  return span.about ? fill(t("about {span}"), { span: counted }) : counted;
 }

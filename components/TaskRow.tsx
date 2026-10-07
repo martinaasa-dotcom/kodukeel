@@ -8,6 +8,7 @@ import { dayClock } from "@/lib/time/day";
 import { LocalDate, stableDate } from "@/components/LocalDate";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 
 export interface TaskView {
   id: string;
@@ -74,17 +75,22 @@ export function TaskRow({ task }: { task: TaskView }) {
           <span>{TASK_TAGS[task.tag] ? t(TASK_TAGS[task.tag]!) : task.tag}</span>
           {due && (
             <span style={{ color: overdue ? "var(--again-ink)" : undefined }}>
-              {overdue ? t("Overdue, ") : t("Due ")}
-              {/* A day stored at midnight UTC, so written in UTC: the reader's own
-                  zone named the day before anywhere west of Greenwich. Through
-                  LocalDate, and pinned to one locale until it has mounted, since
-                  this renders on the server first and the two have to agree. */}
-              <LocalDate
-                iso={due.toISOString()}
-                zone="UTC"
-                options={DUE_DATE_FORMAT}
-                fallback={stableDate(due, DUE_DATE_FORMAT)}
-              />
+              {/* One sentence per case with the date in its slot, so a language
+                  puts the date where it goes. A day stored at midnight UTC, so
+                  written in UTC: the reader's own zone named the day before
+                  anywhere west of Greenwich. Through LocalDate, and pinned to one
+                  locale until it has mounted, since this renders on the server
+                  first and the two have to agree. */}
+              {fillNodes(t(overdue ? "Overdue, {date}" : "Due {date}"), {
+                date: (
+                  <LocalDate
+                    iso={due.toISOString()}
+                    zone="UTC"
+                    options={DUE_DATE_FORMAT}
+                    fallback={stableDate(due, DUE_DATE_FORMAT)}
+                  />
+                ),
+              })}
             </span>
           )}
         </div>

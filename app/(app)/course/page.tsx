@@ -219,6 +219,7 @@ export default async function CoursePage({
 
   const standing = reading.current!;
   const day = standing.day;
+  const minutesLeft = standing.complete ? 0 : standing.minutesLeft;
 
   /*
     THE EVENING IS OVER, AND SAYING SO IS THE POINT.
@@ -416,7 +417,12 @@ export default async function CoursePage({
               newWordsIn(day) > 0
                 ? { value: String(newWordsIn(day)), label: nounOnly(locale, newWordsIn(day), "new word", newWordsIn(day) === 1 ? "new word" : "new words") }
                 : { value: String(day.words.length), label: locale === "en" ? "words again" : fill(t("{words} again"), { words: nounOnly(locale, day.words.length, "word", "words") }) },
-              { value: standing.complete ? t("0m") : fill(t("{minutes}m"), { minutes: standing.minutesLeft }), label: t("left") },
+              {
+                value: locale === "en"
+                  ? fill(t("{minutes}m"), { minutes: minutesLeft })
+                  : <WithUnit template={t("{minutes}m")} value={minutesLeft} />,
+                label: t("left"),
+              },
               { value: `${standing.pct}%`, label: t("done") },
             ].map((figure) => (
               <div key={figure.label} className="flex flex-col-reverse items-center justify-end gap-1.5 px-2" style={{ borderColor: "rgb(255 255 255 / 0.12)" }}>
@@ -767,6 +773,24 @@ function eveningsIn(locale: Locale, n: number): string {
 /** "18 parts", the same way. */
 function partsIn(locale: Locale, n: number): string {
   return locale === "en" ? `${n} parts` : countOf(locale, n, "part");
+}
+
+/**
+ * A figure whose number is set large and whose unit is not, in the order the
+ * reader's language puts them: "12 мин", "12 хв". The template is one whole
+ * translated string with a `{minutes}` slot, so a language that puts the unit
+ * first can; only the words around the slot are set smaller, because "мин" at
+ * display size does not fit a third of a phone.
+ */
+function WithUnit({ template, value }: { template: string; value: number }) {
+  const [before = "", after = ""] = template.split("{minutes}");
+  return (
+    <>
+      {before.trim() && <span className="me-1 text-base font-semibold">{before.trim()}</span>}
+      {value}
+      {after.trim() && <span className="ms-1 text-base font-semibold">{after.trim()}</span>}
+    </>
+  );
 }
 
 /**

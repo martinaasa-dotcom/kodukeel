@@ -12,7 +12,7 @@ import {
   SPOKE_LABEL, type Conversation, type Errand, type Outcome,
 } from "@/lib/collections/errands";
 import { useLocale, useT } from "@/components/Locale";
-import { countOf, fill, type Locale } from "@/lib/copy/locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 /**
  * Whether any Estonian was spoken to a real person yesterday, and a small
@@ -225,7 +225,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
             </>
           ) : (
             <>
-              {placesIn(locale, errand.where, t)}.{" "}
+              {placesIn(errand.where, t)}.{" "}
               <Linked template={t("You'll find the words in {unit}.")} href={`/learn/${errand.unit}`} label={unitTitle} />
               {scene && <>{" "}<Linked template={t("Or {try}.")} href={`/situations/${scene.id}`} label={t("try it out here first")} /></>}
             </>
@@ -331,10 +331,15 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
  * Where an errand happens, in the reader's language: each place translated on
  * its own and joined the way that language says "or".
  */
-function placesIn(locale: Locale, where: string, t: (english: string) => string): string {
-  const places = where.split(",").map((place) => place.trim()).filter(Boolean).map((line) => t(line));
-  const said = new Intl.ListFormat(locale, { type: "disjunction" }).format(places);
-  return said.charAt(0).toLocaleUpperCase(locale) + said.slice(1);
+/**
+ * Where the errand happens, translated whole. A list of places joined per place
+ * reads as a list of nouns in Russian and Ukrainian ("Остановка или коридор")
+ * where the sentence wants them in the locative, one preposition each
+ * ("На остановке или в коридоре"), so the area files hold every `where` as one
+ * line, which is what the scene debrief and the errand letter already read.
+ */
+function placesIn(where: string, t: (english: string) => string): string {
+  return t(where);
 }
 
 /** A sentence with one link in it, wherever the reader's language puts the link. */
