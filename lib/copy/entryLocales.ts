@@ -53,7 +53,7 @@ export const ENTRY_COPY: Readonly<Record<EntryLocale, EntryCopy>> = {
     href: "/welcome/ru",
     reviewed: false,
     notice: "Эта страница переведена машинным способом, и носитель языка её ещё не проверил.",
-    title: "Kodukeel: эстонский, который наконец запоминается",
+    title: "Kodukeel: эстонский, который наконец остаётся в голове",
     description:
       "Бесплатное приложение для изучения эстонского: падежи по словарю, повторение вовремя и разговоры, к которым можно подготовиться.",
     appLanguage:
@@ -65,7 +65,7 @@ export const ENTRY_COPY: Readonly<Record<EntryLocale, EntryCopy>> = {
     href: "/welcome/uk",
     reviewed: false,
     notice: "Цю сторінку перекладено машинно, і носій мови її ще не перевірив.",
-    title: "Kodukeel: естонська, яка нарешті запам'ятовується",
+    title: "Kodukeel: естонська, яка нарешті лишається в голові",
     description:
       "Безкоштовний застосунок для вивчення естонської: відмінки зі словника, повторення вчасно і розмови, до яких можна підготуватися.",
     appLanguage:
