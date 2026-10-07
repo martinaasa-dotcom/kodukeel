@@ -92,7 +92,7 @@ export default async function LearnPage() {
   return (
     <Page route="/learn"
       title="Learn"
-      lead="Pick up new words a few at a time, and see the whole course they come from."
+      lead="Pick up new words a few at a time. And see which course they come from."
     >
       {/*
         WHAT THIS PAGE LEADS WITH IS THE NEXT FIVE WORDS, NOT THE MAP.
@@ -399,7 +399,7 @@ function LearnCard({
           <p className="label-xs" style={{ color: "var(--butter-ink)" }}>
             {ready > 0 ? "Tonight\u2019s new words" : "New words"}
           </p>
-          <h2 className="font-display mt-3 text-4xl font-bold leading-[1] md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+          <h2 className="font-display mt-3 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
             {ready > 0
               ? <>{batch} words are waiting for you</>
               : onCourse ? <>They come with each evening</> : <>No new words yet</>}
