@@ -435,6 +435,19 @@ Small, physical, and never blocking:
   slight undershoot; the rail does not, because a column that lurched beside the page it just
   changed would be arguing with a decision the reader has already made.
 
+- The small delights, each a one-shot that ends where it began, so nothing is left mid-move:
+  an answer settles (`.option-right` lifts a hair and lands, `.option-wrong` gives one small
+  nudge), on every multiple-choice screen at once because it lives on the verdict vocabulary
+  rather than on a screen; a Tähed letter lands in its slot with a squash (`.tile-land`) and a
+  word spelled right ripples through left to right; a word rippling letter by letter is
+  `components/motion/WaveWord.tsx`, used on the word of the day and on tonight's words when
+  the evening is done, where it plays when the word is reached for rather than on every visit;
+  and the streak's flame catches once on a day the run was kept and flickers when the card is
+  reached for, but stays still on a day it was not, since it is not there to nag. They are
+  switched off by name under reduced motion, because a staggered ripple keeps its delays
+  under the global rule, and `scripts/invariants/the-small-delights-stand-still-when-asked.ts`
+  holds the list.
+
 `prefers-reduced-motion: reduce` flattens all of it, and switches `.reveal` off outright, because a
 scroll-driven animation has no duration to shorten, so it needs removing rather than shrinking.
 
