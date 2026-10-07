@@ -18,6 +18,9 @@ import { LETTERS } from "./areas/letters";
 import { LANDING } from "./areas/landing";
 import { LEGAL } from "./areas/legal";
 import { PUBLIC } from "./areas/public";
+import { MEANING } from "./areas/meaning";
+import { SPEAKERS } from "./areas/speakers";
+import { NEWCOMERS } from "./areas/newcomers";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -43,4 +46,7 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["landing", LANDING],
   ["legal", LEGAL],
   ["public", PUBLIC],
+  ["meaning", MEANING],
+  ["speakers", SPEAKERS],
+  ["newcomers", NEWCOMERS],
 ];
