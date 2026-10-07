@@ -31,17 +31,17 @@ export const TODAY: Area = {
   "Your first cards are ready: {cards}. That's about {minutes}.":
     "Ваши первые карточки готовы: {cards}. Это примерно {minutes}.",
   "Cards waiting for you: {cards}. That's about {minutes}.":
-    "Вас ждут карточки: {cards}. Это примерно {minutes}.",
+    "Вас ждёт: {cards}. Это примерно {minutes}.",
   "Nothing else is due today. Enjoy the rest of your day.":
     "Больше на сегодня повторять нечего. Хорошего вам дня.",
   "{cards} still due, if you fancy a few more.":
     "Если хочется ещё, пора повторить: {cards}.",
   "Nothing else is due today, so tonight's module is all you need to do.":
-    "Больше на сегодня повторять нечего, так что вам нужен только урок этого вечера.",
+    "Больше на сегодня повторять нечего, так что вам осталось только сегодняшнее занятие.",
   "{cards} due as well. They'll come up at the end of tonight's module.":
-    "Ещё пора повторить: {cards}. Они попадутся в конце урока этого вечера.",
+    "Ещё пора повторить: {cards}. Они попадутся в конце сегодняшнего занятия.",
   "{cards} due as well. Tonight's module ends with a few of them, and the review button has the rest.":
-    "Ещё пора повторить: {cards}. Урок этого вечера закончится несколькими из них, а остальные ждут на экране повторения.",
+    "Ещё пора повторить: {cards}. Сегодняшнее занятие закончится несколькими из них, а остальные ждут на странице «Повторение».",
 
   // TODAY: THE CARD THAT SAYS WHAT TO DO NOW.
   "Due now":
@@ -57,7 +57,7 @@ export const TODAY: Area = {
   "{done} of {goal} reviews":
     "Повторено {done} из {goal}",
   "Going over cards before they're due doesn't help them stick. Take the break, or start something new.":
-    "Если повторять карточки раньше срока, лучше они не запомнятся. Отдохните или начните что-то новое.",
+    "Если повторять карточки раньше срока, они запомнятся не лучше. Отдохните или начните что-то новое.",
   "Meet your first words":
     "Познакомиться с первыми словами",
   "Learn {words}":
@@ -85,19 +85,19 @@ export const TODAY: Area = {
 
   // TODAY: TONIGHT'S MODULE, AT THE TOP.
   "Today's module":
-    "Урок на сегодня",
+    "Занятие на сегодня",
   "Day {day} of {days}":
     "День {day} из {days}",
   "Next":
     "Дальше",
   "{pct} percent of tonight done":
-    "Урок этого вечера пройден на {pct}%",
+    "Сегодняшнее занятие пройдено на {pct}%",
   "{minutes} min":
     "{minutes} мин",
   "to go tonight":
     "осталось на этот вечер",
   "Start tonight":
-    "Начать урок",
+    "Начать занятие",
   "Carry on":
     "Продолжить",
   "{done} of {days} done, {run} evenings in a row":
@@ -143,7 +143,7 @@ export const TODAY: Area = {
   "See your whole week":
     "Вся неделя",
   "Class":
-    "Занятие",
+    "Занятие в группе",
   "Study":
     "Учёба",
   "Exam":
@@ -387,7 +387,7 @@ export const TODAY: Area = {
   "a friend":
     "друг",
   "A form":
-    "Анкета",
+    "Бланк",
   "A health center":
     "Поликлиника",
   "a salon":
@@ -409,7 +409,7 @@ export const TODAY: Area = {
   "a platform":
     "платформа",
   "a class":
-    "занятие",
+    "учебная группа",
   "a stairwell":
     "подъезд",
 
@@ -417,7 +417,7 @@ export const TODAY: Area = {
   "Word of the day":
     "Слово дня",
   "You've already met every word we could pick for today, which is a first. Have a browse in the dictionary, and there'll be a new one here tomorrow.":
-    "Вы уже знаете все слова, которые мы могли выбрать на сегодня, и такое впервые. Загляните в словарь, а завтра здесь будет новое.",
+    "Вы уже встречали все слова, которые мы могли выбрать на сегодня, и такое впервые. Загляните в словарь, а завтра здесь будет новое.",
   "Open the dictionary":
     "Открыть словарь",
   "new to you":
@@ -471,9 +471,9 @@ export const TODAY: Area = {
   "Everyday Estonian":
     "Эстонский на каждый день",
   "Independent user":
-    "Самостоятельный пользователь",
+    "Самостоятельное владение",
   "Confident user":
-    "Уверенный пользователь",
+    "Уверенное владение",
   "Proficient user":
     "Свободное владение",
   "You can make yourself understood in a shop, a café and a first introduction.":
@@ -491,7 +491,7 @@ export const TODAY: Area = {
   "Your evenings, already planned":
     "Ваши вечера уже спланированы",
   "{evenings} short evenings, from your very first word all the way to C1. We've planned every one.":
-    "{evenings} от самого первого слова до C1, и все короткие. Мы спланировали каждый.",
+    "{evenings} от самого первого слова до C1. Все они короткие, и каждый мы уже спланировали.",
   "You've been choosing what to do each evening, and that's fine. Starting this won't change anything else.":
     "Вы сами выбирали, чем заниматься каждый вечер, и это нормально. Если начать курс, больше ничего не изменится.",
   "It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.":
@@ -615,13 +615,13 @@ export const TODAY: Area = {
   "Read \"{title}\"":
     "Прочитать «{title}»",
   "Read about the -{suffix} ending, \"{plain}\"":
-    "Прочитать про окончание -{suffix}, «{plain}»",
+    "Прочитать об окончании -{suffix}, «{plain}»",
   "Read about the -{suffix} ending":
-    "Прочитать про окончание -{suffix}",
+    "Прочитать об окончании -{suffix}",
   "Read about {name}, \"{plain}\"":
-    "Прочитать про {name}, «{plain}»",
+    "Прочитать о {name}, «{plain}»",
   "Read about {name}":
-    "Прочитать про {name}",
+    "Прочитать о {name}",
   "The past tense of one verb":
     "Прошедшее время одного глагола",
   "The past tense of {verbs}":
@@ -668,8 +668,8 @@ export const TODAY: Area = {
     "Aitan sind, но helistan sulle. Каждый глагол сам выбирает окончание для того, что идёт после него, и угадать его нельзя, так что их учат по одному глаголу.",
   "The words that don't follow the usual ending rules. See each one, then write it yourself, and soon you won't need to look them up.":
     "Слова, которые не подчиняются обычным правилам окончаний. Посмотрите на каждое, потом напишите его сами, и скоро заглядывать в справочник не придётся.",
-  "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like a's and o's.":
-    "Знакомое слово с перемешанными буквами. Расставьте их по местам, и буквы с точками и волной перестанут казаться просто a и o.",
+  "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like plain a's, o's and u's.":
+    "Знакомое слово с перемешанными буквами. Расставьте их по местам, и буквы с точками и волной перестанут казаться просто a, o и u.",
   "Words you've already met, asked in new ways: read aloud, missing from a sentence, or in a sentence you write.":
     "Слова, которые вы уже встречали, в новых вопросах: на слух, с пропуском в предложении или в вашем собственном предложении.",
 
@@ -711,13 +711,13 @@ export const TODAY: Area = {
   "That didn't reach us, so this step isn't ticked yet.":
     "Запрос до нас не дошёл, поэтому шаг пока не отмечен.",
   "Finish tonight":
-    "Завершить урок",
+    "Завершить занятие",
   "Next, step {n}: {title}":
     "Дальше, шаг {n}: {title}",
   "Next, step {n}":
     "Дальше, шаг {n}",
   "Leave tonight's module and go back to Today":
-    "Выйти из урока этого вечера и вернуться на главную",
+    "Выйти из сегодняшнего занятия и вернуться на главную",
   "Leave":
     "Выйти",
   "Step {n} of {of}":
@@ -729,11 +729,11 @@ export const TODAY: Area = {
   "You're still on this step.":
     "Вы всё ещё на этом шаге.",
   "Back to today's module":
-    "Назад к уроку на сегодня",
+    "Назад к занятию на сегодня",
 
   // THE PAST FORMS STEP.
   "Tonight's module":
-    "Урок этого вечера",
+    "Занятие этого вечера",
   "The past of your verbs":
     "Прошедшее время ваших глаголов",
   "Each verb makes its past its own way, so learn them a few at a time. Listen, then try three.":
@@ -773,7 +773,7 @@ export const TODAY: Area = {
   "{lemma} means {translation}. Which one is \"he or she\"?":
     "Слово {lemma} значит «{translation}». Какая форма для «он или она»?",
   "{lemma} means {translation}. Which one is \"he or she would\"?":
-    "Слово {lemma} значит «{translation}». Какая форма для «он или она бы»?",
+    "Слово {lemma} значит «{translation}». Какая форма для «он (она) бы»?",
   "{lemma} means {translation}. Which one is \"we\"?":
     "Слово {lemma} значит «{translation}». Какая форма для «мы»?",
   "{lemma} means {translation}. Which one is \"we would\"?":
@@ -805,9 +805,9 @@ export const TODAY: Area = {
   "Not that one. For {lemma}, it's {answer}.":
     "Не эта. У {lemma} будет {answer}.",
   "{lemma} means {translation}. Which one says \"I did it\", back in the past?":
-    "Слово {lemma} значит «{translation}». Какая форма о прошлом, когда это делал сам говорящий?",
+    "Слово {lemma} значит «{translation}». Какая форма о прошлом, когда это делали вы сами?",
   "{lemma} means {translation}. Which one says \"he or she did it\", back in the past?":
-    "Слово {lemma} значит «{translation}». Какая форма о прошлом, когда это делал кто-то другой?",
+    "Слово {lemma} значит «{translation}». Какая форма о прошлом, когда это сделал «он» или «она»?",
   "Yes. {answer} is the past, when you did it yourself. {now} is happening right now.":
     "Да. {answer} говорит о прошлом, когда это делали вы сами, а {now} о том, что происходит сейчас.",
   "Yes. {answer} is the past, when somebody else did it. {now} is happening right now.":
@@ -935,7 +935,7 @@ export const TODAY: Area = {
   "History, building new words, politics, health and science":
     "История, образование новых слов, политика, здоровье и наука",
   "It opens on had done, the past before the past, learned on history, where you'll meet it most. Then how to work out a word you've never seen from one you already know, and three subjects to try it on. By the end you can read an opinion piece on any of them without a dictionary open.":
-    "Часть открывается давнопрошедшим временем, прошлым до прошлого, и учите вы его на истории, где оно встречается чаще всего. Потом как понять незнакомое слово по уже знакомому и три темы, чтобы это опробовать. К концу вы сможете прочитать авторскую колонку на любую из этих тем, не открывая словарь.",
+    "Часть открывается плюсквамперфектом, прошлым до прошлого, и учите вы его на истории, где он встречается чаще всего. Потом как понять незнакомое слово по уже знакомому и три темы, чтобы это опробовать. К концу вы сможете прочитать авторскую колонку на любую из этих тем, не открывая словарь.",
   "The arts, the law, the mind, working life, figures, and making a case":
     "Искусство, закон, психология, работа, цифры и аргументация",
   "The end of B2: the arts, making a proper complaint, describing how people behave, working in Estonian, reading a table of figures, and building an argument that gives a little ground before it wins.":
@@ -968,21 +968,21 @@ export const TODAY: Area = {
   "Your first cards are ready: {cards}. That's about {minutes}.":
     "Ваші перші картки готові: {cards}. Це приблизно {minutes}.",
   "Cards waiting for you: {cards}. That's about {minutes}.":
-    "На вас чекають картки: {cards}. Це приблизно {minutes}.",
+    "На вас чекає: {cards}. Це приблизно {minutes}.",
   "Nothing else is due today. Enjoy the rest of your day.":
     "Більше на сьогодні повторювати нічого. Гарного вам дня.",
   "{cards} still due, if you fancy a few more.":
-    "Якщо хочеться ще, час повторити: {cards}.",
+    "Якщо хочеться ще, пора повторити: {cards}.",
   "Nothing else is due today, so tonight's module is all you need to do.":
-    "Більше на сьогодні повторювати нічого, тож вам потрібен лише урок цього вечора.",
+    "Більше на сьогодні повторювати нічого, тож вам залишилося лише сьогоднішнє заняття.",
   "{cards} due as well. They'll come up at the end of tonight's module.":
-    "Ще час повторити: {cards}. Вони трапляться наприкінці уроку цього вечора.",
+    "Ще пора повторити: {cards}. Вони трапляться наприкінці сьогоднішнього заняття.",
   "{cards} due as well. Tonight's module ends with a few of them, and the review button has the rest.":
-    "Ще час повторити: {cards}. Урок цього вечора завершиться кількома з них, а решта чекає на екрані повторення.",
+    "Ще пора повторити: {cards}. Сьогоднішнє заняття завершиться кількома з них, а решта чекає на сторінці «Повторення».",
 
   // TODAY: THE CARD THAT SAYS WHAT TO DO NOW.
   "Due now":
-    "Час повторити",
+    "Пора повторити",
   "New words":
     "Нові слова",
   "{done} of today's {goal} reviews done":
@@ -994,7 +994,7 @@ export const TODAY: Area = {
   "{done} of {goal} reviews":
     "Повторено {done} з {goal}",
   "Going over cards before they're due doesn't help them stick. Take the break, or start something new.":
-    "Якщо повторювати картки раніше терміну, краще вони не запам'ятаються. Відпочиньте або почніть щось нове.",
+    "Повторювати картки раніше терміну не допомагає їм закріпитися. Відпочиньте або почніть щось нове.",
   "Meet your first words":
     "Познайомитися з першими словами",
   "Learn {words}":
@@ -1022,19 +1022,19 @@ export const TODAY: Area = {
 
   // TODAY: TONIGHT'S MODULE, AT THE TOP.
   "Today's module":
-    "Урок на сьогодні",
+    "Заняття на сьогодні",
   "Day {day} of {days}":
     "День {day} з {days}",
   "Next":
     "Далі",
   "{pct} percent of tonight done":
-    "Урок цього вечора пройдено на {pct}%",
+    "Сьогоднішнє заняття пройдено на {pct}%",
   "{minutes} min":
     "{minutes} хв",
   "to go tonight":
     "залишилося на цей вечір",
   "Start tonight":
-    "Почати вечір",
+    "Почати заняття",
   "Carry on":
     "Продовжити",
   "{done} of {days} done, {run} evenings in a row":
@@ -1080,7 +1080,7 @@ export const TODAY: Area = {
   "See your whole week":
     "Увесь тиждень",
   "Class":
-    "Заняття",
+    "Заняття в групі",
   "Study":
     "Навчання",
   "Exam":
@@ -1324,7 +1324,7 @@ export const TODAY: Area = {
   "a friend":
     "друг",
   "A form":
-    "Анкета",
+    "Бланк",
   "A health center":
     "Поліклініка",
   "a salon":
@@ -1346,7 +1346,7 @@ export const TODAY: Area = {
   "a platform":
     "платформа",
   "a class":
-    "заняття",
+    "навчальна група",
   "a stairwell":
     "під'їзд",
 
@@ -1354,7 +1354,7 @@ export const TODAY: Area = {
   "Word of the day":
     "Слово дня",
   "You've already met every word we could pick for today, which is a first. Have a browse in the dictionary, and there'll be a new one here tomorrow.":
-    "Ви вже знаєте всі слова, які ми могли вибрати на сьогодні, і таке вперше. Загляньте до словника, а завтра тут буде нове.",
+    "Ви вже зустрічали всі слова, які ми могли вибрати на сьогодні, і таке вперше. Загляньте до словника, а завтра тут буде нове.",
   "Open the dictionary":
     "Відкрити словник",
   "new to you":
@@ -1412,7 +1412,7 @@ export const TODAY: Area = {
   "Confident user":
     "Впевнений користувач",
   "Proficient user":
-    "Вільне володіння",
+    "Досвідчений користувач",
   "You can make yourself understood in a shop, a café and a first introduction.":
     "Ви можете порозумітися в магазині, у кав'ярні та під час першого знайомства.",
   "You can hold a simple conversation about your day, your family and your plans.":
@@ -1428,7 +1428,7 @@ export const TODAY: Area = {
   "Your evenings, already planned":
     "Ваші вечори вже сплановано",
   "{evenings} short evenings, from your very first word all the way to C1. We've planned every one.":
-    "Від найпершого слова аж до C1: {evenings}, і всі короткі. Ми спланували кожен.",
+    "Від найпершого слова аж до C1: {evenings}. Усі вони короткі, і кожен ми вже спланували.",
   "You've been choosing what to do each evening, and that's fine. Starting this won't change anything else.":
     "Ви самі вибирали, чим займатися щовечора, і це нормально. Якщо почати курс, більше нічого не зміниться.",
   "It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.":
@@ -1605,8 +1605,8 @@ export const TODAY: Area = {
     "Aitan sind, але helistan sulle. Кожне дієслово саме вибирає закінчення для того, що йде після нього, і вгадати його не можна, тож їх учать по одному дієслову.",
   "The words that don't follow the usual ending rules. See each one, then write it yourself, and soon you won't need to look them up.":
     "Слова, які не підкоряються звичайним правилам закінчень. Подивіться на кожне, потім напишіть його самі, і незабаром заглядати в довідник не доведеться.",
-  "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like a's and o's.":
-    "Знайоме слово з перемішаними літерами. Розставте їх на місця, і літери з крапками та тильдою перестануть здаватися просто a та o.",
+  "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like plain a's, o's and u's.":
+    "Знайоме слово з перемішаними літерами. Розставте їх на місця, і літери з крапками та тильдою перестануть здаватися просто a, o та u.",
   "Words you've already met, asked in new ways: read aloud, missing from a sentence, or in a sentence you write.":
     "Слова, які ви вже зустрічали, у нових запитаннях: на слух, із пропуском у реченні або у вашому власному реченні.",
 
@@ -1648,13 +1648,13 @@ export const TODAY: Area = {
   "That didn't reach us, so this step isn't ticked yet.":
     "До нас це не дійшло, тож крок поки не позначено.",
   "Finish tonight":
-    "Завершити вечір",
+    "Завершити заняття",
   "Next, step {n}: {title}":
     "Далі, крок {n}: {title}",
   "Next, step {n}":
     "Далі, крок {n}",
   "Leave tonight's module and go back to Today":
-    "Вийти з уроку цього вечора і повернутися на головну",
+    "Вийти із сьогоднішнього заняття і повернутися на головну",
   "Leave":
     "Вийти",
   "Step {n} of {of}":
@@ -1666,11 +1666,11 @@ export const TODAY: Area = {
   "You're still on this step.":
     "Ви все ще на цьому кроці.",
   "Back to today's module":
-    "Назад до уроку на сьогодні",
+    "Назад до заняття на сьогодні",
 
   // THE PAST FORMS STEP.
   "Tonight's module":
-    "Урок цього вечора",
+    "Заняття цього вечора",
   "The past of your verbs":
     "Минулий час ваших дієслів",
   "Each verb makes its past its own way, so learn them a few at a time. Listen, then try three.":
@@ -1710,7 +1710,7 @@ export const TODAY: Area = {
   "{lemma} means {translation}. Which one is \"he or she\"?":
     "Слово {lemma} означає «{translation}». Яка форма для «він або вона»?",
   "{lemma} means {translation}. Which one is \"he or she would\"?":
-    "Слово {lemma} означає «{translation}». Яка форма для «він або вона б»?",
+    "Слово {lemma} означає «{translation}». Яка форма для «він (вона) б»?",
   "{lemma} means {translation}. Which one is \"we\"?":
     "Слово {lemma} означає «{translation}». Яка форма для «ми»?",
   "{lemma} means {translation}. Which one is \"we would\"?":
@@ -1736,23 +1736,23 @@ export const TODAY: Area = {
   "{lemma} means {translation}. Which one tells somebody to do it?":
     "Слово {lemma} означає «{translation}». Яка форма каже комусь це зробити?",
   "Yes. {answer} is how you say not with {lemma}, {translation}.":
-    "Так, {answer} це заперечення дієслова {lemma}, «{translation}».",
+    "Так, {answer}: так звучить заперечення дієслова {lemma}, «{translation}».",
   "Yes. {answer} is how you tell one person to do it with {lemma}, {translation}.":
-    "Так, {answer} це наказова форма дієслова {lemma}, «{translation}», для однієї людини.",
+    "Так, {answer}: так дієсловом {lemma}, «{translation}», просять одну людину щось зробити.",
   "Not that one. For {lemma}, it's {answer}.":
     "Не ця. У {lemma} буде {answer}.",
   "{lemma} means {translation}. Which one says \"I did it\", back in the past?":
-    "Слово {lemma} означає «{translation}». Яка форма про минуле, коли це робив сам мовець?",
+    "Слово {lemma} означає «{translation}». Яка форма про минуле, коли це робили ви самі?",
   "{lemma} means {translation}. Which one says \"he or she did it\", back in the past?":
-    "Слово {lemma} означає «{translation}». Яка форма про минуле, коли це робив хтось інший?",
+    "Слово {lemma} означає «{translation}». Яка форма про минуле, коли це зробив «він» або «вона»?",
   "Yes. {answer} is the past, when you did it yourself. {now} is happening right now.":
-    "Так, {answer} це минуле, коли це робили ви самі. А {now} це те, що відбувається зараз.",
+    "Так. {answer} означає минуле, коли це робили ви самі, а {now} означає те, що відбувається зараз.",
   "Yes. {answer} is the past, when somebody else did it. {now} is happening right now.":
-    "Так, {answer} це минуле, коли це робив хтось інший. А {now} це те, що відбувається зараз.",
+    "Так. {answer} означає минуле, коли це робив хтось інший, а {now} означає те, що відбувається зараз.",
   "Not that one. {answer} is the past, when you did it yourself.":
-    "Не ця. {answer} це минуле, коли це робили ви самі.",
+    "Не ця. Про минуле, коли це робили ви самі, каже {answer}.",
   "Not that one. {answer} is the past, when somebody else did it.":
-    "Не ця. {answer} це минуле, коли це робив хтось інший.",
+    "Не ця. Про минуле, коли це робив хтось інший, каже {answer}.",
   "{lemma} means {translation}. Which one says \"{reading}\"?":
     "Слово {lemma} означає «{translation}». Яка форма означає «{reading}»?",
   "Which one is {lemma}, {translation}, in the {case}?":
@@ -1770,13 +1770,13 @@ export const TODAY: Area = {
   "You're flying through this":
     "У вас усе йде гладко",
   "You're flying through the top of the course":
-    "Ви легко проходите вершину курсу",
+    "Ви легко долаєте найвищий рівень курсу",
   "This part is a tough one":
     "Ця частина непроста",
   "Lately you've been getting every answer right.":
-    "Останнім часом ви відповідаєте правильно на все.",
+    "Останнім часом ви правильно відповідаєте на все.",
   "Lately you've been getting {seen} out of a hundred right.":
-    "Останнім часом ви відповідаєте правильно на {seen} зі ста.",
+    "Останнім часом ви правильно відповідаєте на {seen} зі ста.",
   "If this part feels too easy, skip ahead to {part}. Everything from this one stays in your reviews either way.":
     "Якщо ця частина здається надто легкою, переходьте одразу до {part}. Усе з цієї частини в будь-якому разі лишиться у ваших повтореннях.",
   "There's no part above this one, so stretch yourself with your reviews and the tougher conversations.":
@@ -1784,7 +1784,7 @@ export const TODAY: Area = {
   "A lot of recent answers have been misses. This part is a step ahead of you for now, and that's normal.":
     "Багато останніх відповідей були неправильними. Ця частина поки на крок попереду вас, і це нормально.",
   "Lately you've been getting {seen} out of a hundred right. This part is a step ahead of you for now, and that's normal.":
-    "Останнім часом ви відповідаєте правильно на {seen} зі ста. Ця частина поки на крок попереду вас, і це нормально.",
+    "Останнім часом ви правильно відповідаєте на {seen} зі ста. Ця частина поки на крок попереду вас, і це нормально.",
   "Your reviews will bring back the words that are slipping. Give it a few days.":
     "Повторення повернуть слова, які вислизають. Дайте цьому кілька днів.",
   "The level you started at was a first guess. Going over {level} first will make this part much easier. It's a refresher, and this part waits for you afterwards.":
@@ -1830,7 +1830,7 @@ export const TODAY: Area = {
   "Food, the time, your day, and what things are like":
     "Їжа, час, ваш день і які бувають речі",
   "Food and drink, the days and the clock, what you do from morning to night, and your first words for what things look like, colors included. By the end you can say what you're doing, when, and what it's like.":
-    "Їжа й напої, дні тижня й години, що ви робите з ранку до вечора, і перші слова про те, який вигляд мають речі, зокрема кольори. Наприкінці ви зможете сказати, що робите, коли і який усе це має вигляд.",
+    "Їжа й напої, дні тижня й години, що ви робите з ранку до вечора, і перші слова про те, який вигляд мають речі, зокрема кольори. Наприкінці ви зможете сказати, що робите, коли і як усе це виглядає.",
   "Clothes, weather, prices, and a shop":
     "Одяг, погода, ціни й магазин",
   "What you're wearing, what the weather's doing, the bigger numbers you need for prices, and then a shop to put it all to work in. By the end you can describe what you want and buy it.":
@@ -1872,7 +1872,7 @@ export const TODAY: Area = {
   "History, building new words, politics, health and science":
     "Історія, творення нових слів, політика, здоров'я і наука",
   "It opens on had done, the past before the past, learned on history, where you'll meet it most. Then how to work out a word you've never seen from one you already know, and three subjects to try it on. By the end you can read an opinion piece on any of them without a dictionary open.":
-    "Частина відкривається давноминулим часом, минулим до минулого, і вчите ви його на історії, де він трапляється найчастіше. Потім як зрозуміти незнайоме слово за вже знайомим і три теми, щоб це випробувати. Наприкінці ви зможете прочитати авторську колонку на будь-яку з цих тем, не відкриваючи словника.",
+    "Частина відкривається плюсквамперфектом, минулим до минулого, і вчите ви його на історії, де він трапляється найчастіше. Потім як зрозуміти незнайоме слово за вже знайомим і три теми, щоб це випробувати. Наприкінці ви зможете прочитати авторську колонку на будь-яку з цих тем, не відкриваючи словника.",
   "The arts, the law, the mind, working life, figures, and making a case":
     "Мистецтво, право, психологія, робота, цифри й аргументація",
   "The end of B2: the arts, making a proper complaint, describing how people behave, working in Estonian, reading a table of figures, and building an argument that gives a little ground before it wins.":

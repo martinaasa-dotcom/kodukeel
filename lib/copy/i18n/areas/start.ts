@@ -29,7 +29,7 @@ export const START: Area = {
     "That link would have signed you in as someone else, so to be safe we signed you out and didn’t follow it. If the link is yours, sign in below. If you didn’t ask for it, you can safely ignore it.":
       "По этой ссылке вы вошли бы в чужой аккаунт, поэтому для надёжности мы вышли из аккаунта и не стали её открывать. Если ссылка ваша, войдите ниже. Если вы её не запрашивали, просто не обращайте на неё внимания.",
     "This browser couldn’t finish that sign-in. Either the link was opened in a different browser from the one that asked for it, or you ended up on a different address from the one you started on. Try again from here.":
-      "Этот браузер не смог завершить вход. Либо ссылку открыли не в том браузере, в котором её запросили, либо вы оказались не на том адресе, с которого начинали. Попробуйте ещё раз отсюда.",
+      "Этот браузер не смог завершить вход. Либо ссылку открыли не в том браузере, в котором её запросили, либо вы оказались на другом адресе сайта, не на том, с которого начинали. Попробуйте ещё раз отсюда.",
     "If it keeps happening, let {email} know: this address needs adding to the sign-in settings.":
       "Если это повторяется, сообщите {email}: этот адрес нужно добавить в настройки входа.",
     "If it keeps happening, whoever runs this copy needs to add this address to the sign-in settings.":
@@ -41,7 +41,7 @@ export const START: Area = {
     "Start studying": "Начать учиться",
     "A dictionary that shows you every form of every word": "Словарь, в котором видна каждая форма каждого слова",
     "Your words brought back just before you'd forget them, plus quick games: speed rounds, listening and matching pairs":
-      "Ваши слова возвращаются как раз перед тем, как вы бы их забыли, а ещё быстрые игры: раунды на скорость, аудирование и поиск пар",
+      "Ваши слова возвращаются прямо перед тем, как вы их забудете, а ещё быстрые игры: раунды на скорость, аудирование и поиск пар",
     "Anu, a tutor who explains the grammar and never makes up a word":
       "Ану, репетитор, которая объясняет грамматику и никогда не выдумывает слов",
     "A conversation to rehearse, and one small thing to say to a real person today":
@@ -97,7 +97,7 @@ export const START: Area = {
     "Measured {level}": "Проверено: {level}",
     "Estimated {level}": "Ваша оценка: {level}",
     "below A1": "ниже A1",
-    "Building your deck...": "Собираем вашу колоду...",
+    "Building your deck...": "Собираем вашу колоду…",
     "Start learning": "Начать учиться",
     "That didn’t go through, so nothing’s been saved yet. Press it again.":
       "Не получилось, поэтому пока ничего не сохранено. Нажмите ещё раз.",
@@ -153,7 +153,7 @@ export const START: Area = {
     "Pretty much anything. You're here for the finer shades of meaning.":
       "Почти всё. Вы здесь ради тонких оттенков смысла.",
     "Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. Don’t worry about saying them right yet. That comes with time.":
-      "В эстонском есть четыре буквы, которых нет в английском: {a}, {b}, {c} и {d}. Они встречаются повсюду. Не переживайте, если пока не получается их правильно произносить. Это придёт со временем.",
+      "В эстонском есть четыре буквы, которых нет в русском алфавите: {a}, {b}, {c} и {d}. Они встречаются повсюду. Не переживайте, если пока не получается их правильно произносить. Это придёт со временем.",
 
     // FIRST RUN: GOAL.
     "Why Estonian?": "Зачем вам эстонский?",
@@ -174,7 +174,7 @@ export const START: Area = {
       "Курс с программой, домашними заданиями и оценкой в конце семестра.",
     "Family or a partner": "Семья или партнёр",
     "The people you most want to understand won't slow down for you forever.":
-      "Самые важные для вас люди не будут вечно говорить медленнее ради вас.",
+      "Люди, которых вам больше всего хочется понимать, не будут вечно говорить медленнее ради вас.",
     "Roots and heritage": "Корни и семейная история",
     "A language your family spoke, or a country you keep coming back to.":
       "Язык, на котором говорили в вашей семье, или страна, в которую вы снова и снова возвращаетесь.",
@@ -184,8 +184,8 @@ export const START: Area = {
     "Curiosity": "Любопытство",
     "Fourteen cases, and words that change shape when you're not looking. Reason enough.":
       "Четырнадцать падежей и слова, которые меняют форму, стоит только отвернуться. Вполне достаточная причина.",
-    "What level are you aiming for?": "К какому уровню вы стремитесь?",
-    "What level are you aiming for": "К какому уровню вы стремитесь",
+    "What level are you aiming for?": "Какого уровня вы хотите достичь?",
+    "What level are you aiming for": "Какого уровня вы хотите достичь",
     "Get by": "Объясняться",
     "Handle everyday life": "Справляться в быту",
     "Live in the language": "Жить на этом языке",
@@ -208,8 +208,8 @@ export const START: Area = {
     // FIRST RUN: TONIGHT.
     "Your first words": "Ваши первые слова",
     "This copy of Kodukeel has no dictionary loaded yet, so there are no first words to give you. Whoever runs it can load one with {command}. You can still pick your pace below, and add words yourself as you come across them.":
-      "В этой копии Kodukeel ещё не загружен словарь, поэтому первых слов пока нет. Тот, кто ею управляет, может загрузить его командой {command}. А темп вы можете выбрать уже сейчас, ниже, и добавлять слова сами, когда будете их встречать.",
-    "How much a day": "Сколько в день",
+      "В этой копии Kodukeel ещё не загружен словарь, поэтому первых слов пока нет. Тот, кто запускает эту копию, может загрузить его командой {command}. А темп вы можете выбрать уже сейчас, ниже, и добавлять слова сами, когда будете их встречать.",
+    "How much a day": "Сколько времени в день",
     "changeable any time in Settings": "можно изменить в любой момент в настройках",
     "Casual": "Спокойно",
     "Regular": "Регулярно",
@@ -240,7 +240,7 @@ export const START: Area = {
 
     // WHY THIS PART.
     "If it turns out too hard or too easy, the course will notice and offer to move you.":
-      "Если окажется слишком сложно или слишком легко, курс это заметит и предложит вам перейти.",
+      "Если окажется слишком сложно или слишком легко, курс это заметит и предложит перейти на другую часть.",
     "You start at the very beginning, with the first words anybody needs.":
       "Вы начинаете с самого начала, с первых слов, которые нужны любому.",
     "Your level check put you at {level}, which is the top of this course, so you start on its first part.":
@@ -283,22 +283,22 @@ export const START: Area = {
     "Society and public life": "Общество и общественная жизнь",
     "Passing on what you heard": "Пересказ услышанного",
     "Economy and business": "Экономика и бизнес",
-    "Turning clauses into phrases": "Как превращать придаточные в обороты",
+    "Turning clauses into phrases": "Превращение придаточных в обороты",
     "Long sentences that stay clear": "Длинные предложения, которые остаются понятными",
     "Arguing a point": "Аргументация",
     "Research writing": "Научное письмо",
 
     // THE FIRST PART OF EACH LEVEL.
-    "You start from nothing and build up the way a sentence does. Five words on the first evening, then I, you, he and she, then the verb to be with its six endings. After that come the little words that hold a sentence together, a few greetings and questions, and the people in your life. By the end you can say hello, ask where somebody lives and tell them who's in your family.":
-      "Вы начинаете с нуля и строите язык так же, как строится предложение. Пять слов в первый вечер, потом я, ты, он и она, потом глагол «быть» с его шестью окончаниями. Дальше маленькие слова, которые скрепляют предложение, несколько приветствий и вопросов и люди в вашей жизни. В конце вы сможете поздороваться, спросить, где человек живёт, и рассказать, кто входит в вашу семью.",
+    "You start from nothing and build up the way a sentence does. Five words on the first evening, then I, you, he and she, then the verb to be, with a form for each person. After that come the little words that hold a sentence together, a few greetings and questions, and the people in your life. By the end you can say hello, ask where somebody lives and tell them who's in your family.":
+      "Вы начинаете с нуля и строите язык так же, как строится предложение. Пять слов в первый вечер, потом я, ты, он и она, потом глагол «быть» с формой для каждого лица. Дальше маленькие слова, которые скрепляют предложение, несколько приветствий и вопросов и люди в вашей жизни. В конце вы сможете поздороваться, спросить, где человек живёт, и рассказать, кто входит в вашу семью.",
     "A2 starts with what makes a conversation possible: asking for something without sounding like a robot. Then the past tense, and your first case endings, starting with the one all the others are built on. By the end you can say what you did yesterday and what's wrong with you, and your first two conversations are waiting.":
       "A2 начинается с того, без чего разговор невозможен: как попросить что-то и не звучать как робот. Потом прошедшее время и первые падежные окончания, начиная с того, на котором строятся все остальные. В конце вы сможете рассказать, что делали вчера и что у вас болит, а вас будут ждать первые два разговора.",
     "Two things separate knowing Estonian words from knowing Estonian: getting the object of a sentence right, and knowing which ending each verb wants after it. You learn each one on everyday words, first the people in your life, then work and money. Then comes would, for wishes and polite requests. Grammar and new words take turns, so it's never two weeks of tables.":
-      "Знать эстонские слова и знать эстонский отличают две вещи: правильное дополнение в предложении и знание того, какое окончание требует после себя каждый глагол. Каждую вы учите на повседневных словах: сначала люди в вашей жизни, потом работа и деньги. Затем условное наклонение для желаний и вежливых просьб. Грамматика и новые слова чередуются, так что двух недель сплошных таблиц не будет.",
-    "Estonian has three ways of telling you what happened without saying who did it. You learn each one alongside the words it usually comes with: the impersonal with society, the reported form with the economy, and then the form for doing two things at once. By the end you can read a report that never names anybody.":
-      "В эстонском есть три способа рассказать, что произошло, не говоря, кто это сделал. Каждый вы учите вместе со словами, рядом с которыми он обычно встречается: безличную форму с темой общества, пересказывательное наклонение с экономикой, а потом форму для двух действий одновременно. В конце вы сможете прочитать отчёт, в котором никто не назван.",
+      "Знание эстонских слов отличается от знания эстонского двумя вещами: правильным падежом дополнения и тем, какой падеж требует после себя каждый глагол. Каждую вы учите на повседневных словах: сначала на людях вокруг вас, потом на работе и деньгах. Затем условное наклонение для желаний и вежливых просьб. Грамматика и новые слова чередуются, так что двух недель сплошных таблиц не будет.",
+    "Estonian has three forms you learn here: one for when nobody is named, one for passing on what you heard, and one for doing two things at once. Each comes with the words it usually goes with: the impersonal with society, the reported form with the economy, and the last on its own. By the end you can read a report that never names anybody.":
+      "В эстонском есть три формы, которые вы здесь учите: одна для случая, когда никто не назван, одна для пересказа услышанного и одна для двух действий сразу. Каждая идёт вместе со словами, рядом с которыми обычно встречается: безличная форма с темой общества, пересказывательное наклонение с экономикой, а последняя сама по себе. В конце вы сможете прочитать отчёт, в котором никто не назван.",
     "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole clause for. You practise it on academic writing, research and philosophy, which is where you'll need it most.":
-      "C1 в основном о том, как сказать больше меньшим числом слов: уместить в оборот то, на что на B2 нужно было целое придаточное. Вы тренируете это на академических текстах, исследованиях и философии, где это понадобится больше всего.",
+      "C1 в основном о том, как сказать больше меньшим числом слов: уместить в оборот то, для чего на B2 требовалось целое придаточное. Вы тренируете это на академических текстах, исследованиях и философии, где это понадобится больше всего.",
   },
   uk: {
     // SIGN-IN.
@@ -310,7 +310,7 @@ export const START: Area = {
     "That address cannot use this copy of Kodukeel, because it’s set up for one particular group. Try the account you were invited with.":
       "З цією адресою не можна увійти в цю копію Kodukeel, бо її налаштовано для певної групи. Спробуйте обліковий запис, на який вас запросили.",
     "That link would have signed you in as someone else, so to be safe we signed you out and didn’t follow it. If the link is yours, sign in below. If you didn’t ask for it, you can safely ignore it.":
-      "За цим посиланням ви увійшли б у чужий обліковий запис, тож для безпеки ми вийшли з облікового запису й не стали його відкривати. Якщо посилання ваше, увійдіть нижче. Якщо ви його не запитували, просто не зважайте на нього.",
+      "За цим посиланням ви увійшли б у чужий обліковий запис, тож для безпеки ми завершили ваш сеанс і не стали відкривати це посилання. Якщо посилання ваше, увійдіть нижче. Якщо ви його не запитували, просто не зважайте на нього.",
     "This browser couldn’t finish that sign-in. Either the link was opened in a different browser from the one that asked for it, or you ended up on a different address from the one you started on. Try again from here.":
       "Цей браузер не зміг завершити вхід. Або посилання відкрили не в тому браузері, де його запитували, або ви опинилися не на тій адресі, з якої починали. Спробуйте ще раз звідси.",
     "If it keeps happening, let {email} know: this address needs adding to the sign-in settings.":
@@ -324,7 +324,7 @@ export const START: Area = {
     "Start studying": "Почати навчання",
     "A dictionary that shows you every form of every word": "Словник, у якому видно кожну форму кожного слова",
     "Your words brought back just before you'd forget them, plus quick games: speed rounds, listening and matching pairs":
-      "Ваші слова повертаються якраз перед тим, як ви б їх забули, а ще швидкі ігри: раунди на швидкість, аудіювання й пошук пар",
+      "Ваші слова повертаються якраз перед тим, як ви їх забудете, а ще швидкі ігри: раунди на швидкість, аудіювання й пошук пар",
     "Anu, a tutor who explains the grammar and never makes up a word":
       "Ану, репетиторка, яка пояснює граматику й ніколи не вигадує слів",
     "A conversation to rehearse, and one small thing to say to a real person today":
@@ -348,7 +348,7 @@ export const START: Area = {
       "Якщо це повторюється, можливо, вхід через пошту в цій копії ще не ввімкнено.",
     "Check your email": "Перевірте пошту",
     "We’ve sent a link to {address}. Open it in this browser and you’re in. It stops working after an hour.":
-      "Ми надіслали посилання на {address}. Відкрийте його в цьому браузері, і ви ввійдете. За годину воно перестане працювати.",
+      "Ми надіслали посилання на {address}. Відкрийте його в цьому браузері, і ви ввійдете. Через годину воно перестане працювати.",
     "Use a different address": "Вказати іншу адресу",
     "Taking you to Google…": "Переходимо до Google…",
     "Continue with Google": "Продовжити з Google",
@@ -377,10 +377,10 @@ export const START: Area = {
     "Step {n} of {total}, {name}": "Крок {n} з {total}: {name}",
     "Setup progress, step {n} of {total}": "Налаштування, крок {n} з {total}",
     "Back": "Назад",
-    "Measured {level}": "Перевірено: {level}",
-    "Estimated {level}": "Ваша оцінка: {level}",
+    "Measured {level}": "Виміряно: {level}",
+    "Estimated {level}": "За вашою оцінкою: {level}",
     "below A1": "нижче A1",
-    "Building your deck...": "Збираємо вашу колоду...",
+    "Building your deck...": "Збираємо вашу колоду…",
     "Start learning": "Почати навчання",
     "That didn’t go through, so nothing’s been saved yet. Press it again.":
       "Не вийшло, тож поки нічого не збережено. Натисніть ще раз.",
@@ -415,7 +415,7 @@ export const START: Area = {
     "Where are you now?": "Який у вас зараз рівень?",
     "Take the level check to find out, or just pick the one that sounds like you. The check stops as soon as it has found your level. Either way, you can change it later in Settings.":
       "Пройдіть перевірку рівня, щоб дізнатися, або просто виберіть той, що найбільше схожий на вас. Перевірка закінчиться, щойно визначить ваш рівень. У будь-якому разі його можна потім змінити в налаштуваннях.",
-    "Measured just now": "Щойно перевірено",
+    "Measured just now": "Щойно виміряно",
     "Take it again": "Пройти ще раз",
     "Take the level check": "Пройти перевірку рівня",
     "The level check isn’t ready on this copy of Kodukeel yet, because its dictionary hasn’t been loaded. For now, pick the level that sounds most like you.":
@@ -436,7 +436,7 @@ export const START: Area = {
     "Pretty much anything. You're here for the finer shades of meaning.":
       "Майже все. Ви тут заради тонких відтінків значення.",
     "Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. Don’t worry about saying them right yet. That comes with time.":
-      "В естонській є чотири літери, яких немає в англійській: {a}, {b}, {c} і {d}. Вони трапляються всюди. Не хвилюйтеся, якщо поки не виходить правильно їх вимовляти. Це прийде з часом.",
+      "В естонській є чотири літери, яких немає в українській абетці: {a}, {b}, {c} і {d}. Вони трапляються всюди. Не хвилюйтеся, якщо поки не виходить правильно їх вимовляти. Це прийде з часом.",
 
     // FIRST RUN: GOAL.
     "Why Estonian?": "Навіщо вам естонська?",
@@ -474,15 +474,15 @@ export const START: Area = {
     "Live in the language": "Жити цією мовою",
     "Work in it": "Працювати нею",
     "Use it like your own": "Володіти як рідною",
-    "By when?": "До якого терміну?",
-    "By when": "До якого терміну",
+    "By when?": "До якої дати?",
+    "By when": "До якої дати",
     "In three months": "За три місяці",
-    "In six months": "За пів року",
+    "In six months": "За півроку",
     "In a year": "За рік",
     "In two years": "За два роки",
     "No deadline, I'm in no hurry": "Без терміну, я не поспішаю",
     "Days a week you will really practice": "Скільки днів на тиждень ви справді займатиметеся",
-    "be honest, the plan is built on it": "чесно, на цьому будується план",
+    "be honest, the plan is built on it": "чесно: на цьому будується план",
     "What this is going to take": "Що для цього знадобиться",
     "from your answers and published estimates": "за вашими відповідями й опублікованими розрахунками",
     "This plan starts from your own guess at your level. Take the level check whenever you like, and it’ll redo the sums with your real one.":
@@ -492,7 +492,7 @@ export const START: Area = {
     "Your first words": "Ваші перші слова",
     "This copy of Kodukeel has no dictionary loaded yet, so there are no first words to give you. Whoever runs it can load one with {command}. You can still pick your pace below, and add words yourself as you come across them.":
       "У цій копії Kodukeel ще не завантажено словник, тож перших слів поки немає. Той, хто нею керує, може завантажити його командою {command}. А темп ви можете вибрати вже зараз, нижче, і додавати слова самі, коли їх зустрічатимете.",
-    "How much a day": "Скільки на день",
+    "How much a day": "Скільки часу на день",
     "changeable any time in Settings": "можна змінити в налаштуваннях",
     "Casual": "Спокійно",
     "Regular": "Регулярно",
@@ -523,7 +523,7 @@ export const START: Area = {
 
     // WHY THIS PART.
     "If it turns out too hard or too easy, the course will notice and offer to move you.":
-      "Якщо виявиться надто складно або надто легко, курс це помітить і запропонує вас перевести.",
+      "Якщо виявиться надто складно або надто легко, курс це помітить і запропонує перейти на іншу частину.",
     "You start at the very beginning, with the first words anybody needs.":
       "Ви починаєте з самого початку, з перших слів, які потрібні кожному.",
     "Your level check put you at {level}, which is the top of this course, so you start on its first part.":
@@ -566,22 +566,22 @@ export const START: Area = {
     "Society and public life": "Суспільство й громадське життя",
     "Passing on what you heard": "Переказ почутого",
     "Economy and business": "Економіка й бізнес",
-    "Turning clauses into phrases": "Як перетворювати підрядні речення на звороти",
+    "Turning clauses into phrases": "Перетворення підрядних речень на звороти",
     "Long sentences that stay clear": "Довгі речення, що залишаються зрозумілими",
     "Arguing a point": "Аргументація",
     "Research writing": "Наукове письмо",
 
     // THE FIRST PART OF EACH LEVEL.
-    "You start from nothing and build up the way a sentence does. Five words on the first evening, then I, you, he and she, then the verb to be with its six endings. After that come the little words that hold a sentence together, a few greetings and questions, and the people in your life. By the end you can say hello, ask where somebody lives and tell them who's in your family.":
-      "Ви починаєте з нуля й будуєте мову так само, як будується речення. П'ять слів першого вечора, потім я, ти, він і вона, потім дієслово «бути» з його шістьма закінченнями. Далі маленькі слова, що скріплюють речення, кілька привітань і запитань і люди у вашому житті. Наприкінці ви зможете привітатися, запитати, де людина живе, і розповісти, хто є у вашій родині.",
+    "You start from nothing and build up the way a sentence does. Five words on the first evening, then I, you, he and she, then the verb to be, with a form for each person. After that come the little words that hold a sentence together, a few greetings and questions, and the people in your life. By the end you can say hello, ask where somebody lives and tell them who's in your family.":
+      "Ви починаєте з нуля й будуєте мову так само, як будується речення. П'ять слів першого вечора, потім я, ти, він і вона, потім дієслово «бути» з формою для кожної особи. Далі маленькі слова, що скріплюють речення, кілька привітань і запитань і люди у вашому житті. Наприкінці ви зможете привітатися, запитати, де людина живе, і розповісти, хто є у вашій родині.",
     "A2 starts with what makes a conversation possible: asking for something without sounding like a robot. Then the past tense, and your first case endings, starting with the one all the others are built on. By the end you can say what you did yesterday and what's wrong with you, and your first two conversations are waiting.":
       "A2 починається з того, без чого розмова неможлива: як попросити щось і не звучати як робот. Потім минулий час і перші відмінкові закінчення, починаючи з того, на якому будуються всі інші. Наприкінці ви зможете розповісти, що робили вчора і що у вас болить, а на вас чекатимуть перші дві розмови.",
     "Two things separate knowing Estonian words from knowing Estonian: getting the object of a sentence right, and knowing which ending each verb wants after it. You learn each one on everyday words, first the people in your life, then work and money. Then comes would, for wishes and polite requests. Grammar and new words take turns, so it's never two weeks of tables.":
       "Знати естонські слова і знати естонську відрізняють дві речі: правильний додаток у реченні й знання того, якого закінчення вимагає після себе кожне дієслово. Кожну з них ви вчите на повсякденних словах: спершу люди у вашому житті, потім робота й гроші. Далі умовний спосіб, для побажань і ввічливих прохань. Граматика й нові слова чергуються, тож двох тижнів суцільних таблиць не буде.",
-    "Estonian has three ways of telling you what happened without saying who did it. You learn each one alongside the words it usually comes with: the impersonal with society, the reported form with the economy, and then the form for doing two things at once. By the end you can read a report that never names anybody.":
-      "В естонській є три способи розповісти, що сталося, не кажучи, хто це зробив. Кожен ви вчите разом зі словами, поруч із якими він зазвичай трапляється: безособову форму з темою суспільства, переказовий спосіб з економікою, а потім форму для двох дій одночасно. Наприкінці ви зможете прочитати звіт, у якому нікого не названо.",
+    "Estonian has three forms you learn here: one for when nobody is named, one for passing on what you heard, and one for doing two things at once. Each comes with the words it usually goes with: the impersonal with society, the reported form with the economy, and the last on its own. By the end you can read a report that never names anybody.":
+      "В естонській є три форми, які ви тут вивчаєте: одна для випадку, коли нікого не названо, одна для переказу почутого й одна для двох дій водночас. Кожна йде разом зі словами, поруч із якими зазвичай трапляється: безособова форма з темою суспільства, переказовий спосіб з економікою, а остання сама по собі. Наприкінці ви зможете прочитати звіт, у якому нікого не названо.",
     "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole clause for. You practise it on academic writing, research and philosophy, which is where you'll need it most.":
-      "C1 здебільшого про те, як сказати більше меншою кількістю слів: умістити у зворот те, на що на B2 потрібне було ціле підрядне речення. Ви тренуєте це на академічних текстах, дослідженнях і філософії, де це знадобиться найбільше.",
+      "C1 здебільшого про те, як сказати більше меншою кількістю слів: умістити у зворот те, для чого на B2 потрібне було ціле підрядне речення. Ви тренуєте це на академічних текстах, дослідженнях і філософії, де це знадобиться найбільше.",
   },
   counted: {
     unit: { en: ["unit", "units"], ru: ["раздел", "раздела", "разделов"], uk: ["розділ", "розділи", "розділів"] },

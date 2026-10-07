@@ -761,7 +761,7 @@ function StepCard({
       return (
         <Card className="flex flex-col gap-4">
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            {t("Which question does this verb answer? That tells you the case it takes.")}
+            {t("Which question does this verb ask? That tells you the case it takes.")}
           </span>
           <div className="flex flex-wrap items-center gap-3">
             <Et className="text-3xl">{step.lemma}</Et>
