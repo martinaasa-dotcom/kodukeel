@@ -107,6 +107,21 @@ export const PUZZLE_STAND_IN: FeaturedGame = {
 };
 
 /**
+ * THE GAME TODAY LEADS WITH, FOR NOW: SÕNAD, EVERY DAY.
+ *
+ * The week above is a rotation, and the feedback on the home page was that the
+ * one game worth leading with is the one that is eye-catching on sight, which
+ * is Sõnad. So Today draws this row every morning, with a small example board
+ * beside it (`components/SonadPreview.tsx`), and the table is kept whole for
+ * the day the card is made dynamic again. Nothing about the other rounds
+ * moved: every one is still on /practice, in the palette and at its own URL.
+ */
+export const GAME_OF_THE_DAY: FeaturedGame = {
+  href: "/sonad",
+  why: "Guess the Estonian word in six letters. Every guess tells you which letters are right.",
+};
+
+/**
  * Which week a learner gets: the beginner's until their course reaches A2,
  * where the cases start, and the full one after. The level is the course's
  * own (`courseLevelFor`), which reads a learner nothing has placed as A1, and

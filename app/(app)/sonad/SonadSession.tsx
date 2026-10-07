@@ -14,6 +14,7 @@ import { addToDeck, recordSonad } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { loadBoard, saveBoard } from "./resume";
 import { WordLink } from "@/components/course/WordLink";
+import { EMPTY, HUE, RING, SPOKEN } from "@/components/sonad/look";
 
 /**
  * SÕNAD'S BOARD.
@@ -72,30 +73,6 @@ import { WordLink } from "@/components/course/WordLink";
  * `--on-butter` from inside a game to make the three look symmetrical would be
  * adding a token to a design system sideways.
  */
-const HUE: Record<Mark, { bg: string; ink: string; ring: string }> = {
-  here: { bg: "var(--sky)", ink: "var(--on-sky)", ring: "transparent" },
-  elsewhere: { bg: "var(--butter-soft)", ink: "var(--butter-ink)", ring: "var(--butter-ink)" },
-  absent: { bg: "var(--raised)", ink: "var(--ink-3)", ring: "transparent" },
-};
-
-/** How thick each ring is, which is the half of the signal that is not color. */
-const RING: Record<Mark, string> = { here: "0", elsewhere: "3px", absent: "0" };
-
-/**
- * And the third channel, for a reader who gets neither the fill nor the ring.
- *
- * A fill and a ring are two signals and both of them are visual. Every circle
- * that has been marked says what it is in words, and the row announces its
- * tally once rather than reading 36 labels out on every guess, which is what
- * an `aria-live` on the whole board was doing.
- */
-const SPOKEN: Record<Mark, string> = {
-  here: "in place",
-  elsewhere: "in the word, elsewhere",
-  absent: "not in the word",
-};
-
-const EMPTY = { bg: "transparent", ink: "var(--ink)", ring: "var(--rule)" };
 
 export function SonadSession({ puzzle, day, guessable }: {
   puzzle: Puzzle;
