@@ -318,10 +318,11 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
           they will not have. Both halves are said now.
         */}
         <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {fill(t(newCards === 1
-            ? "A daily goal of {goal} cards means {goal} cards to answer, not {goal} new ones. A card you learn today needs about ten more reviews in its first year. Once those reviews pile up, your daily goal works out at about {n} brand new card a day. A higher goal does bring new words in faster, but it also makes every day from here on longer, and that's usually where week six falls apart. Pick the goal you'd still keep on a rotten Wednesday."
-            : "A daily goal of {goal} cards means {goal} cards to answer, not {goal} new ones. A card you learn today needs about ten more reviews in its first year. Once those reviews pile up, your daily goal works out at about {n} brand new cards a day. A higher goal does bring new words in faster, but it also makes every day from here on longer, and that's usually where week six falls apart. Pick the goal you'd still keep on a rotten Wednesday."),
-          { goal: dailyGoal, n: newCards })}
+          {fill(t("A daily goal of {cards} means {cards} to answer, not {newOnes}. A card you learn today needs about ten more reviews in its first year. Once those reviews pile up, your daily goal works out at about {fresh} a day. A higher goal does bring new words in faster, but it also makes every day from here on longer, and that's usually where week six falls apart. Pick the goal you'd still keep on a rotten Wednesday."), {
+            cards: countOf(locale, dailyGoal, "card"),
+            newOnes: countOf(locale, dailyGoal, "new one"),
+            fresh: countOf(locale, newCards, "brand new card"),
+          })}
         </p>
         </Card>
 

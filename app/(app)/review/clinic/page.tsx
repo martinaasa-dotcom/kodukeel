@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { localeFor } from "@/lib/progress/locale";
-import { fill, tr } from "@/lib/copy/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 import { readableFront } from "@/lib/copy/caseHint";
 import { requireUserId } from "@/lib/auth/session";
 import { resolveProvider } from "@/lib/tutor/provider";
@@ -49,7 +49,7 @@ export default async function ClinicPage() {
       <Page title={tr(locale, "Leech clinic")} lead={tr(locale, "The words that just won't stick, and a good guess at why.")}>
         <Empty
           title={tr(locale, "Nothing's stuck. Good news.")}
-          body={fill(tr(locale, "No card has slipped your mind {n} times or more, so there's nothing to fix."), { n: LEECH_LAPSES })}
+          body={fill(tr(locale, "No card has slipped your mind {times} or more, so there's nothing to fix."), { times: countOf(locale, LEECH_LAPSES, "time") })}
           action={<ButtonLink href="/review" variant="primary">{tr(locale, "Carry on reviewing")}</ButtonLink>}
         />
       </Page>
