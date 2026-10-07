@@ -11667,7 +11667,7 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
       the query that already loads the word and hands them to `meaningShown`
       or `meaningsShown` in lib/collections/glossLanguage.ts, which decides
       what is drawn; none of them writes either column, and none hands them to
-      a model. `sprint/page.tsx` and `review/cards.ts` import the provider
+      a model. `review/cards.ts` imports the provider
       check for an unrelated reason (whether a sentence may be offered in
       English), and pass it nothing from these columns.
 
@@ -11682,7 +11682,6 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     join("app", "(app)", "review", "listening", "page.tsx"),
     join("app", "(app)", "review", "match", "page.tsx"),
     join("app", "(app)", "review", "flashcards", "page.tsx"),
-    join("app", "(app)", "review", "sprint", "page.tsx"),
     join("app", "(app)", "words", "page.tsx"),
   ]);
 
