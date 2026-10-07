@@ -27,7 +27,7 @@ const EVERYONE = 1200;
 
 export async function POST(request: Request) {
   const mine = await checkSharedRateLimit(`demo-scene:${bucketForRequest(request)}`, PER_VISITOR, 60_000);
-  if (!mine.ok) return rateLimited(mine, "That was a lot of turns in one minute. Give it a moment, then carry on.");
+  if (!mine.ok) return rateLimited(mine, "That was a lot of turns in one minute. Give it a moment, then keep going.");
   const all = await checkSharedRateLimit("demo-scene:all", EVERYONE, 60_000);
   if (!all.ok) return rateLimited(all, "The café's busy right now. Try again in a minute.");
 

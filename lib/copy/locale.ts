@@ -283,7 +283,7 @@ export const COUNT_CASES: Readonly<Record<string, { ru: CaseForms; uk: CaseForms
   emails: { ru: ["письма", "письмо"], uk: ["листа", "лист"] },
   milliseconds: { ru: ["миллисекунды", "миллисекунду"], uk: ["мілісекунди", "мілісекунду"] },
   kilobytes: { ru: ["килобайта", "килобайт"], uk: ["кілобайта", "кілобайт"] },
-  "per cent of the month's learners": {
+  "percent of the month's learners": {
     ru: ["процента учеников за месяц", "процент учеников за месяц"],
     uk: ["відсотка учнів за місяць", "відсоток учнів за місяць"],
   },

@@ -59,7 +59,7 @@ export function SituationDetail({
         </p>
         {rung === "unmet" ? (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-            {fill(t("You haven't practised any of these {total} words yet. Start with the unit they come from."), { total })}
+            {fill(t("You haven't practiced any of these {total} words yet. Start with the unit they come from."), { total })}
           </p>
         ) : (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>

@@ -436,7 +436,7 @@ export default async function TodayPage() {
         </ButtonLink>
       ) : (
         <ButtonLink href="/practice" variant="secondary" className="w-full justify-center">
-          {t("Go and practise")} <ArrowRight size={16} aria-hidden />
+          {t("Go and practice")} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       )}
     </>
@@ -532,7 +532,7 @@ export default async function TodayPage() {
           </p>
         </div>
         <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
-          {courseDay.pct === 0 ? t("Start tonight") : t("Carry on")} <ArrowRight size={17} aria-hidden />
+          {courseDay.pct === 0 ? t("Start tonight") : t("Keep going")} <ArrowRight size={17} aria-hidden />
         </ButtonLink>
         {toReview > 0 && (
           <ButtonLink href="/review" variant="secondary" className="w-full justify-center">
@@ -557,7 +557,7 @@ export default async function TodayPage() {
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay
             ? courseDay.day.part.n > 1
-              ? fill(t("Tomorrow you’ll carry on with {unit}, part {n} of {of}."), {
+              ? fill(t("Tomorrow you’ll continue with {unit}, part {n} of {of}."), {
                 unit: ui(courseDay.day.title, courseDay.day.subtitle), n: courseDay.day.part.n, of: courseDay.day.part.of,
               })
               : uiWantsEnglish(placement)
@@ -578,7 +578,7 @@ export default async function TodayPage() {
     <Card>
       <Empty
         title={t("No cards yet")}
-        body={t("Choose a unit to begin with. Its words become cards you can learn, hear and practise.")}
+        body={t("Choose a unit to begin with. Its words become cards you can learn, hear and practice.")}
         action={<ButtonLink href="/learn" variant="primary">{t("Choose your first unit")}</ButtonLink>}
       />
     </Card>
@@ -1128,7 +1128,7 @@ function courseLead(toReview: number, finishedToday: boolean, locale: Locale): s
   const cards = locale === "en" ? `${toReview} card${toReview === 1 ? "" : "s"}` : countOf(locale, toReview, "card");
   const line = (english: string) => fill(tr(locale, english), { cards });
   if (finishedToday) {
-    return toReview === 0 ? tr(locale, "Nothing else is due today. Enjoy the rest of your day.") : line("{cards} still due, if you fancy a few more.");
+    return toReview === 0 ? tr(locale, "Nothing else is due today. Enjoy the rest of your day.") : line("{cards} still due, if you feel like a few more.");
   }
   // The module's closing round stops at `MODULE_SESSION`, so a promise that
   // every due card comes up there was true of a light day and false of a heavy

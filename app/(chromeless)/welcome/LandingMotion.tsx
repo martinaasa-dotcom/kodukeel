@@ -234,7 +234,7 @@ export function PlanCalculator() {
               {fill(t("{target} is already behind you."), { target })}
             </p>
             <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {t("Pick a higher level and we’ll do the sum again.")}
+              {t("Pick a higher level and we’ll do the math again.")}
             </p>
           </>
         ) : (

@@ -352,7 +352,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Форма, которая стоит за «сделано», как в «работа сделана». Обычно это словарная форма минус ma, плюс tud или dud, но здесь слово сначала меняется, так что учите её целиком.",
     "Форма, що стоїть за «зроблено», як у «роботу зроблено». Зазвичай це словникова форма мінус ma, плюс tud або dud, але тут слово спочатку змінюється, тож учіть її цілком."],
   ["Telling somebody politely", "Просьба на «вы»", "Прохання на «ви»"],
-  ["The form every shop assistant and official will use with you. It isn't built on the \"I\" form, so where the present changes a consonant, this one keeps the other.",
+  ["The form every sales assistant and official will use with you. It isn't built on the \"I\" form, so where the present changes a consonant, this one keeps the other.",
     "Форма, которой к вам обратится любой продавец и чиновник: «возьмите», «подождите». Она строится не на форме «я», поэтому там, где настоящее время меняет согласную, эта форма сохраняет другую.",
     "Форма, якою до вас звернеться будь-який продавець і службовець: «візьміть», «зачекайте». Вона будується не на формі «я», тому там, де теперішній час змінює приголосну, ця форма зберігає іншу."],
 ];

@@ -890,7 +890,7 @@ export function LearnSession({
             </ButtonLink>
           ) : (
             <>
-              <ButtonLink href="/review" size="lg">{t("Practise what's due")}</ButtonLink>
+              <ButtonLink href="/review" size="lg">{t("Practice what's due")}</ButtonLink>
               <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
               {more > 0 && (
                 <ButtonLink href={moreHref} variant="primary" size="lg">

@@ -218,7 +218,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     });
   }
 
-  blocks.push({ t: "button", label: say("Carry on with the course"), href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: say("Continue with the course"), href: `${input.origin}/course` });
   blocks.push({
     t: "link",
     label: say("See all your progress"),

@@ -234,7 +234,7 @@ export function SentenceSession(
           <Empty
             title={fill(t("This one starts at {level}"), { level: opensAt })}
             body={t("Words first, then word order. Keep learning and this will be waiting for you.")}
-            action={<ButtonLink href="/learn" variant="primary">{t("Carry on learning")}</ButtonLink>}
+            action={<ButtonLink href="/learn" variant="primary">{t("Keep learning")}</ButtonLink>}
           />
         ) : (
           <Empty

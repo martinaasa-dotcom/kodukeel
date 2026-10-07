@@ -613,7 +613,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
               <Button variant="ghost" size="sm" onClick={onDiscard}>
                 {t("Throw it away and start fresh")}
               </Button>
-              <Button variant="primary" size="sm" onClick={onResume}>{t("Carry on")}</Button>
+              <Button variant="primary" size="sm" onClick={onResume}>{t("Keep going")}</Button>
             </span>
           </Card>
         </div>
@@ -777,7 +777,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
         </Fact>
         {speaking && (
         <Fact icon={<Mic size={18} />} hue="accent" title={t("Speaking is marked by you")}>
-          {t("You mark the spoken part yourself: record, listen back, and tick off what you managed. We tested speech recognizers and none was accurate enough for Estonian. In the break before it, you'll rehearse the small talk a real examiner opens with.")}
+          {t("You mark the spoken part yourself: record, listen back, and check off what you managed. We tested speech recognizers and none was accurate enough for Estonian. In the break before it, you'll rehearse the small talk a real examiner opens with.")}
         </Fact>
         )}
         </div>
@@ -1823,7 +1823,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
       return (
         <div className="grid gap-3 @container">
           <div className={box} style={boxStyle}>
-            {heading(fill(t("Your call: you ring {who}"), { who: t(card.call, "ring") }))}
+            {heading(fill(t("Your call: you're calling {who}"), { who: t(card.call, "ring") }))}
             <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{t("Find out")}</p>
             {list(card.find)}
           </div>
@@ -2046,7 +2046,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
 
       <fieldset className="mt-5">
         <legend className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-          {t("Listen back and tick what you managed. Each one is a mark.")}
+          {t("Listen back and check off what you managed. Each one is a mark.")}
         </legend>
         <div className="grid gap-1.5">
           {criteria.map((criterion, index) => (
@@ -2077,7 +2077,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
         </div>
         {!recorded && (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-            {t("Record something first, then tick what you managed. There's nothing to judge until you've spoken.")}
+            {t("Record something first, then check off what you managed. There's nothing to judge until you've spoken.")}
           </p>
         )}
       </fieldset>

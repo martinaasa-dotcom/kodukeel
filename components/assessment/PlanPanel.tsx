@@ -301,7 +301,7 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
           {plan.paceSource === "measured"
             ? fill(t("Your pace comes from what you actually did here over the last {weeks}, not from what you said you'd do."), { weeks: weeksWord(plan.paceWeeks, locale) })
             : plan.paceSource === "lapsed"
-              ? fill(t("You haven't reviewed anything here in the last {weeks}, so we're using the pace you told us. Review for a fortnight and we'll use your real one."), { weeks: weeksWord(plan.paceWeeks, locale) })
+              ? fill(t("You haven't reviewed anything here in the last {weeks}, so we're using the pace you told us. Review for two weeks and we'll use your real one."), { weeks: weeksWord(plan.paceWeeks, locale) })
               : t("Once you've had two weeks of reviews here, the pace comes from what you actually do, not what you said you'd do.")}
         </p>
         {spec && (
@@ -445,7 +445,7 @@ function sentence(
 ): string {
   const t = (english: string) => tr(locale, english);
   if (plan.verdict === "arrived") {
-    return fill(t("You're already at {level} or above. Pick a higher target, or keep your reviews ticking over and take the check again in a couple of months."), { level: to });
+    return fill(t("You're already at {level} or above. Pick a higher target, or keep your reviews going and take the check again in a couple of months."), { level: to });
   }
   const qualifier = why.guessed
     ? ` ${t("That level is your own estimate, so the figure allows for you starting half a level lower.")}`

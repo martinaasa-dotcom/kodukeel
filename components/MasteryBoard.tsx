@@ -97,7 +97,7 @@ function Tier({ tier, words, total, locale }: { tier: Mastery; words: MasteredWo
 
       {total > words.length && (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-          {fill(t("Showing the {shown} you've practised most, out of {total}."), { shown: words.length, total })}
+          {fill(t("Showing the {shown} you've practiced most, out of {total}."), { shown: words.length, total })}
         </p>
       )}
     </Card>

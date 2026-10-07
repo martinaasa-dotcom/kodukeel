@@ -112,7 +112,7 @@ function gradationFindings(facts: ReviewFact[]): Finding[] {
       detail: say(
         "You get the {case} ({asks}) right {strong}% of the time when the word " +
         "keeps its shape, but only {weak}% when it changes in the middle. So the ending isn't the " +
-        "problem, the change inside the word is. Practise astmevaheldus rather than the case.",
+        "problem, the change inside the word is. Practice astmevaheldus rather than the case.",
         { case: caseName(key), strong, weak },
         { asks: caseNameEn(key) },
       ),

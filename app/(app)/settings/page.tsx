@@ -84,7 +84,7 @@ const SHORTCUTS: [string, string][] = [
   /* Enter is the key every button in the app names, and Space does the same
      thing wherever you are not typing into a box. Both are written down here
      because this is a reference; a button says one of them (`ADVANCE_KEY_LABEL`). */
-  ["Enter", "Show the answer, check what you typed, then carry on"],
+  ["Enter", "Show the answer, check what you typed, then keep going"],
   ["Space", "Does the same, whenever you're not typing in a box"],
   ["1-4", "Say how it went: Again, Hard, Good or Easy"],
   ["U", "Take back the last answer you graded"],

@@ -34,7 +34,7 @@ export const TODAY: Area = {
     "Вас ждёт: {cards}. Это примерно {minutes}.",
   "Nothing else is due today. Enjoy the rest of your day.":
     "Больше на сегодня повторять нечего. Хорошего вам дня.",
-  "{cards} still due, if you fancy a few more.":
+  "{cards} still due, if you feel like a few more.":
     "Если хочется ещё, пора повторить: {cards}.",
   "Nothing else is due today, so tonight's module is all you need to do.":
     "Больше на сегодня повторять нечего, так что вам осталось только сегодняшнее занятие.",
@@ -70,7 +70,7 @@ export const TODAY: Area = {
     "Начать повторение",
   "Start {unit}":
     "Начать раздел «{unit}»",
-  "Go and practise":
+  "Go and practice":
     "К практике",
   "New words waiting for you: {words}. You'll take them {batch} at a time. You see each word in a sentence, pick what it means, then fill it back into the sentence yourself.":
     "Вас ждут новые слова: {words}. Вы будете учить их по {batch} за раз. Вы увидите каждое слово в предложении, выберете, что оно значит, а потом сами вставите его обратно.",
@@ -78,7 +78,7 @@ export const TODAY: Area = {
     "Большинство карточек просят вписать или выбрать ответ. Некоторые просто показывают его и спрашивают, знали ли вы. Отвечайте честно: так приложение понимает, когда вернуть каждое слово.",
   "No cards yet":
     "Карточек пока нет",
-  "Choose a unit to begin with. Its words become cards you can learn, hear and practise.":
+  "Choose a unit to begin with. Its words become cards you can learn, hear and practice.":
     "Выберите раздел, с которого начнёте. Его слова станут карточками, которые можно учить, слушать и тренировать.",
   "Choose your first unit":
     "Выбрать первый раздел",
@@ -98,7 +98,7 @@ export const TODAY: Area = {
     "осталось на этот вечер",
   "Start tonight":
     "Начать занятие",
-  "Carry on":
+  "Keep going":
     "Продолжить",
   "{done} of {days} done, {run} evenings in a row":
     "Пройдено {done} из {days}, вечеров подряд: {run}",
@@ -106,7 +106,7 @@ export const TODAY: Area = {
     "Пройдено {done} из {days}",
   "That's tonight done. Go and enjoy your evening.":
     "На сегодня всё. Хорошего вечера!",
-  "Tomorrow you'll carry on with {unit}, part {n} of {of}.":
+  "Tomorrow you'll continue with {unit}, part {n} of {of}.":
     "Завтра продолжим раздел «{unit}», часть {n} из {of}.",
   "See you tomorrow for {unit}.":
     "До завтра! Впереди: {unit}.",
@@ -296,7 +296,7 @@ export const TODAY: Area = {
     "Собеседник перешёл на английский. В следующий раз всё равно продолжайте по-эстонски: большинство возвращаются к эстонскому.",
   "Running out of words costs nothing in a practice conversation, and the person there will wait while you find them.":
     "В тренировочном разговоре не страшно, если не хватает слов: собеседник подождёт, пока вы их найдёте.",
-  "They can switch to English in there too, so you can practise steering it back to Estonian.":
+  "They can switch to English in there too, so you can practice steering it back to Estonian.":
     "Там тоже могут перейти на английский, так что можно потренироваться возвращать разговор к эстонскому.",
   "That's your first in the last {days}.":
     "Это ваш первый разговор за последние {days}.",
@@ -304,7 +304,7 @@ export const TODAY: Area = {
     "Всего разговоров за последние {days}: {held}.",
   "See them all on Progress":
     "Все они в разделе «Прогресс»",
-  "Practise one here now":
+  "Practice one here now":
     "Потренироваться здесь прямо сейчас",
   "Was there a word you wanted and couldn't find?":
     "Было слово, которое вы хотели сказать, но не нашли?",
@@ -342,11 +342,11 @@ export const TODAY: Area = {
     "Запишитесь на приём по-эстонски или просто спросите о записи и не переходите с эстонского, даже если вам ответят по-английски.",
   "Arrange to meet somebody in Estonian, with a day and a time.":
     "Договоритесь с кем-нибудь о встрече по-эстонски, с днём и временем.",
-  "Tell somebody one thing about your flat, or ask about theirs.":
+  "Tell somebody one thing about your apartment, or ask about theirs.":
     "Расскажите кому-нибудь что-нибудь одно о своей квартире или спросите, как с жильём у них.",
   "Ask somebody for a hand with one small thing, in Estonian.":
     "Попросите кого-нибудь по-эстонски помочь с одной мелочью.",
-  "Post a letter or pick up a parcel, and do the whole thing in Estonian.":
+  "Mail a letter or pick up a package, and do the whole thing in Estonian.":
     "Отправьте письмо или заберите посылку, и всё это по-эстонски.",
   "Buy a bus ticket at the window, and say where you're going and when.":
     "Купите в кассе билет на автобус и скажите, куда и когда едете.",
@@ -456,9 +456,9 @@ export const TODAY: Area = {
     "Как заполняется эта полоса",
   "You know every word this level asks for. There's nothing new left in it.":
     "Вы знаете все слова, которые нужны на этом уровне. Нового в нём не осталось.",
-  "You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you tick off an evening. You're on {part}.":
+  "You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you check off an evening. You're on {part}.":
     "Вы прошли {pct}% пути от начала {start} до {target}. Сплошная часть растёт, только когда слово действительно закрепилось в повторениях, а не когда вы отмечаете вечер. Сейчас вы здесь: {part}.",
-  "You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you tick off an evening.":
+  "You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you check off an evening.":
     "Вы прошли {pct}% пути от начала {start} до {target}. Сплошная часть растёт, только когда слово действительно закрепилось в повторениях, а не когда вы отмечаете вечер.",
   "Every level up to {target} counts as yours already. What's left is proving it, and that's what the evenings are for.":
     "Все уровни до {target} уже засчитаны вам. Осталось это подтвердить, для этого и нужны вечера.",
@@ -566,9 +566,9 @@ export const TODAY: Area = {
     "Некоторых из них ещё нет в вашей колоде. Первый шаг их добавит.",
   "What you do tonight":
     "Что вас ждёт этим вечером",
-  "How a step gets ticked":
+  "How a step gets checked off":
     "Как отмечается шаг",
-  "Meeting the words and the review at the end tick themselves off as you answer. The others you tick yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.":
+  "Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.":
     "Знакомство со словами и повторение в конце отмечаются сами, пока вы отвечаете. Остальные шаги отмечаете вы, потому что мы не видим, из какого упражнения пришёл ответ, и лучше честно это признать, чем делать вид, что следили.",
   "{done} of {total} evenings":
     "Вечеров: {done} из {total}",
@@ -676,9 +676,9 @@ export const TODAY: Area = {
     "Слова, которые вы уже встречали, в новых вопросах: на слух, с пропуском в предложении или в вашем собственном предложении.",
 
   // THE STEP LIST AND THE MODULE'S OWN CHROME.
-  "{graded} of {needed} answer done. Keep going and this ticks itself off.":
+  "{graded} of {needed} answer done. Keep going and this checks itself off.":
     "Ответов: {graded} из {needed}. Продолжайте, и шаг отметится сам.",
-  "{graded} of {needed} answers done. Keep going and this ticks itself off.":
+  "{graded} of {needed} answers done. Keep going and this checks itself off.":
     "Ответов: {graded} из {needed}. Продолжайте, и шаг отметится сам.",
   "Done, going by your answers":
     "Готово, судя по вашим ответам",
@@ -710,7 +710,7 @@ export const TODAY: Area = {
     "Это конец страницы",
   "Move on and that's step {n} of {of} done.":
     "Переходите дальше, и шаг {n} из {of} засчитается.",
-  "That didn't reach us, so this step isn't ticked yet.":
+  "That didn't reach us, so this step isn't checked off yet.":
     "Запрос до нас не дошёл, поэтому шаг пока не отмечен.",
   "Finish tonight":
     "Завершить занятие",
@@ -742,7 +742,7 @@ export const TODAY: Area = {
     "Каждый глагол образует прошедшее время по-своему, поэтому учите их понемногу. Послушайте, а потом ответьте на три вопроса.",
   "No verbs to learn here tonight":
     "Сегодня здесь учить нечего",
-  "We don't have the past forms of tonight's verbs yet. Carry on to the next step.":
+  "We don't have the past forms of tonight's verbs yet. Go on to the next step.":
     "Форм прошедшего времени для сегодняшних глаголов у нас пока нет. Переходите к следующему шагу.",
   "the ones you've met":
     "те, что вы уже встречали",
@@ -916,17 +916,17 @@ export const TODAY: Area = {
     "Просьбы, вчерашний день, природа, тело и дом",
   "School, travel, the town, a free afternoon, and comparing things":
     "Учёба, поездки, город, свободный день и сравнение",
-  "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are four conversations to practise on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
+  "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are four conversations to practice on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
     "Жизнь за порогом дома: учёба, поездки, город, ваши выходные и как сказать, какая из двух вещей лучше. По пути вас ждут четыре разговора для практики. К концу вы сможете купить билет, спросить дорогу и рассказать, что делали в субботу.",
   "Eating out, making plans, keeping in touch, and how you feel":
     "Кафе и рестораны, планы, общение и чувства",
-  "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It has five conversations, more than any other part. By the end you can get through a whole meal in Estonian, book an appointment and ring somebody about it.":
+  "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It has five conversations, more than any other part. By the end you can get through a whole meal in Estonian, book an appointment and call somebody about it.":
     "Разговор о том, что ещё не случилось, общение с людьми и как сказать, что вы обо всём этом чувствуете. Здесь пять разговоров, больше, чем в любой другой части. К концу вы сможете пообедать в ресторане целиком по-эстонски, записаться на приём и позвонить, чтобы о нём договориться.",
   "Objects, the people in your life, what each verb asks for, money, and would":
     "Дополнение, люди в вашей жизни, чего требует каждый глагол, деньги и «бы»",
   "School, two new past forms, renting, what people are like, and the news":
     "Учёба, две новые формы прошедшего, аренда, какие бывают люди и новости",
-  "School and a job interview first. Then the verb forms ending in -nud and -tud, and the two past tenses built from them. Then renting a flat, what people are like, and the news, which leans on those same forms to say what happened without saying who did it. By the end you can get through an interview, read a news story and phone a landlord.":
+  "School and a job interview first. Then the verb forms ending in -nud and -tud, and the two past tenses built from them. Then renting an apartment, what people are like, and the news, which leans on those same forms to say what happened without saying who did it. By the end you can get through an interview, read a news story and phone a landlord.":
     "Сначала учёба и собеседование на работу. Потом глагольные формы на -nud и -tud и два прошедших времени, которые из них строятся. Потом аренда квартиры, какие бывают люди и новости, где те же формы помогают сказать, что произошло, не называя, кто это сделал. К концу вы сможете пройти собеседование, прочитать новость и позвонить арендодателю.",
   "Technology, opinions, the environment, things going wrong, and two-part verbs":
     "Технологии, мнения, экология, когда что-то идёт не так, и глаголы из двух частей",
@@ -973,7 +973,7 @@ export const TODAY: Area = {
     "На вас чекає: {cards}. Це приблизно {minutes}.",
   "Nothing else is due today. Enjoy the rest of your day.":
     "Більше на сьогодні повторювати нічого. Гарного вам дня.",
-  "{cards} still due, if you fancy a few more.":
+  "{cards} still due, if you feel like a few more.":
     "Якщо хочеться ще, пора повторити: {cards}.",
   "Nothing else is due today, so tonight's module is all you need to do.":
     "Більше на сьогодні повторювати нічого, тож вам залишилося лише сьогоднішнє заняття.",
@@ -1009,7 +1009,7 @@ export const TODAY: Area = {
     "Почати повторення",
   "Start {unit}":
     "Почати розділ «{unit}»",
-  "Go and practise":
+  "Go and practice":
     "До практики",
   "New words waiting for you: {words}. You'll take them {batch} at a time. You see each word in a sentence, pick what it means, then fill it back into the sentence yourself.":
     "На вас чекають нові слова: {words}. Ви вчитимете їх по {batch} за раз. Ви побачите кожне слово в реченні, виберете, що воно означає, а потім самі вставите його назад.",
@@ -1017,7 +1017,7 @@ export const TODAY: Area = {
     "Більшість карток просять вписати або вибрати відповідь. Деякі просто показують її і питають, чи ви її знали. Відповідайте чесно: так застосунок розуміє, коли повернути кожне слово.",
   "No cards yet":
     "Карток поки немає",
-  "Choose a unit to begin with. Its words become cards you can learn, hear and practise.":
+  "Choose a unit to begin with. Its words become cards you can learn, hear and practice.":
     "Виберіть розділ, з якого почнете. Його слова стануть картками, які можна вчити, слухати й тренувати.",
   "Choose your first unit":
     "Вибрати перший розділ",
@@ -1037,7 +1037,7 @@ export const TODAY: Area = {
     "залишилося на цей вечір",
   "Start tonight":
     "Почати заняття",
-  "Carry on":
+  "Keep going":
     "Продовжити",
   "{done} of {days} done, {run} evenings in a row":
     "Пройдено {done} з {days}, вечорів поспіль: {run}",
@@ -1045,7 +1045,7 @@ export const TODAY: Area = {
     "Пройдено {done} з {days}",
   "That's tonight done. Go and enjoy your evening.":
     "На сьогодні все. Гарного вам вечора.",
-  "Tomorrow you'll carry on with {unit}, part {n} of {of}.":
+  "Tomorrow you'll continue with {unit}, part {n} of {of}.":
     "Завтра продовжимо розділ «{unit}», частина {n} з {of}.",
   "See you tomorrow for {unit}.":
     "До завтра! Попереду: {unit}.",
@@ -1235,7 +1235,7 @@ export const TODAY: Area = {
     "Співрозмовник перейшов на англійську. Наступного разу все одно продовжуйте естонською: більшість повертаються до естонської.",
   "Running out of words costs nothing in a practice conversation, and the person there will wait while you find them.":
     "У тренувальній розмові не страшно, якщо бракує слів: співрозмовник зачекає, поки ви їх знайдете.",
-  "They can switch to English in there too, so you can practise steering it back to Estonian.":
+  "They can switch to English in there too, so you can practice steering it back to Estonian.":
     "Там теж можуть перейти на англійську, тож можна потренуватися повертати розмову до естонської.",
   "That's your first in the last {days}.":
     "Це ваша перша розмова за останні {days}.",
@@ -1243,7 +1243,7 @@ export const TODAY: Area = {
     "Усього розмов за останні {days}: {held}.",
   "See them all on Progress":
     "Усі вони в розділі «Поступ»",
-  "Practise one here now":
+  "Practice one here now":
     "Потренуватися тут просто зараз",
   "Was there a word you wanted and couldn't find?":
     "Було слово, яке ви хотіли сказати, але не знайшли?",
@@ -1281,11 +1281,11 @@ export const TODAY: Area = {
     "Запишіться на прийом естонською або просто спитайте про запис і не переходьте з естонської, навіть якщо вам відповідатимуть англійською.",
   "Arrange to meet somebody in Estonian, with a day and a time.":
     "Домовтеся з кимось про зустріч естонською, з днем і часом.",
-  "Tell somebody one thing about your flat, or ask about theirs.":
+  "Tell somebody one thing about your apartment, or ask about theirs.":
     "Розкажіть комусь щось одне про свою квартиру або спитайте, як із житлом у них.",
   "Ask somebody for a hand with one small thing, in Estonian.":
     "Попросіть когось естонською допомогти з однією дрібницею.",
-  "Post a letter or pick up a parcel, and do the whole thing in Estonian.":
+  "Mail a letter or pick up a package, and do the whole thing in Estonian.":
     "Надішліть лист або заберіть посилку й зробіть усе це естонською.",
   "Buy a bus ticket at the window, and say where you're going and when.":
     "Купіть у касі квиток на автобус і скажіть, куди й коли їдете.",
@@ -1395,9 +1395,9 @@ export const TODAY: Area = {
     "Як заповнюється ця смуга",
   "You know every word this level asks for. There's nothing new left in it.":
     "Ви знаєте всі слова, потрібні на цьому рівні. Нового в ньому не лишилося.",
-  "You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you tick off an evening. You're on {part}.":
+  "You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you check off an evening. You're on {part}.":
     "Ви пройшли {pct}% шляху від початку {start} до {target}. Суцільна частина росте, лише коли слово справді закріпилося в повтореннях, а не коли ви позначаєте вечір. Зараз ви тут: {part}.",
-  "You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you tick off an evening.":
+  "You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you check off an evening.":
     "Ви пройшли {pct}% шляху від початку {start} до {target}. Суцільна частина росте, лише коли слово справді закріпилося в повтореннях, а не коли ви позначаєте вечір.",
   "Every level up to {target} counts as yours already. What's left is proving it, and that's what the evenings are for.":
     "Усі рівні до {target} уже зараховано вам. Лишилося це підтвердити, для цього й потрібні вечори.",
@@ -1505,9 +1505,9 @@ export const TODAY: Area = {
     "Деяких із них ще немає у вашій колоді. Перший крок їх додасть.",
   "What you do tonight":
     "Що ви робите цього вечора",
-  "How a step gets ticked":
+  "How a step gets checked off":
     "Як позначається крок",
-  "Meeting the words and the review at the end tick themselves off as you answer. The others you tick yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.":
+  "Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.":
     "Знайомство зі словами і повторення наприкінці позначаються самі, поки ви відповідаєте. Решту ви позначаєте самі, бо ми не бачимо, з якої вправи прийшла відповідь, і краще чесно це визнати, ніж вдавати, що стежили.",
   "{done} of {total} evenings":
     "Вечорів: {done} з {total}",
@@ -1615,9 +1615,9 @@ export const TODAY: Area = {
     "Слова, які ви вже зустрічали, у нових запитаннях: на слух, із пропуском у реченні або у вашому власному реченні.",
 
   // THE STEP LIST AND THE MODULE'S OWN CHROME.
-  "{graded} of {needed} answer done. Keep going and this ticks itself off.":
+  "{graded} of {needed} answer done. Keep going and this checks itself off.":
     "Відповідей: {graded} з {needed}. Продовжуйте, і крок позначиться сам.",
-  "{graded} of {needed} answers done. Keep going and this ticks itself off.":
+  "{graded} of {needed} answers done. Keep going and this checks itself off.":
     "Відповідей: {graded} з {needed}. Продовжуйте, і крок позначиться сам.",
   "Done, going by your answers":
     "Готово, судячи з ваших відповідей",
@@ -1649,7 +1649,7 @@ export const TODAY: Area = {
     "Це кінець сторінки",
   "Move on and that's step {n} of {of} done.":
     "Ідіть далі, і крок {n} з {of} буде пройдено.",
-  "That didn't reach us, so this step isn't ticked yet.":
+  "That didn't reach us, so this step isn't checked off yet.":
     "До нас це не дійшло, тож крок поки не позначено.",
   "Finish tonight":
     "Завершити заняття",
@@ -1681,7 +1681,7 @@ export const TODAY: Area = {
     "Кожне дієслово утворює минулий час по-своєму, тож учіть їх потроху. Послухайте, а потім дайте відповідь на три запитання.",
   "No verbs to learn here tonight":
     "Сьогодні тут немає дієслів",
-  "We don't have the past forms of tonight's verbs yet. Carry on to the next step.":
+  "We don't have the past forms of tonight's verbs yet. Go on to the next step.":
     "Форм минулого часу для сьогоднішніх дієслів у нас поки немає. Переходьте до наступного кроку.",
   "the ones you've met":
     "ті, що ви вже зустрічали",
@@ -1855,17 +1855,17 @@ export const TODAY: Area = {
     "Прохання, учорашній день, природа, тіло і дім",
   "School, travel, the town, a free afternoon, and comparing things":
     "Навчання, подорожі, місто, вільний день і порівняння",
-  "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are four conversations to practise on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
+  "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are four conversations to practice on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
     "Життя за порогом дому: навчання, подорожі, місто, ваші вихідні і як сказати, яка з двох речей краща. Дорогою на вас чекають чотири розмови для практики. Наприкінці ви зможете купити квиток, спитати дорогу й розповісти, що робили в суботу.",
   "Eating out, making plans, keeping in touch, and how you feel":
     "Їжа поза домом, плани, спілкування і почуття",
-  "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It has five conversations, more than any other part. By the end you can get through a whole meal in Estonian, book an appointment and ring somebody about it.":
+  "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It has five conversations, more than any other part. By the end you can get through a whole meal in Estonian, book an appointment and call somebody about it.":
     "Розмова про те, що ще не сталося, спілкування з людьми і як сказати, що ви про все це відчуваєте. Тут п'ять розмов, більше, ніж у будь-якій іншій частині. Наприкінці ви зможете пообідати в ресторані цілком естонською, записатися на прийом і зателефонувати, щоб про нього домовитися.",
   "Objects, the people in your life, what each verb asks for, money, and would":
     "Додаток у реченні, люди у вашому житті, чого вимагає кожне дієслово, гроші й «б»",
   "School, two new past forms, renting, what people are like, and the news":
     "Навчання, дві нові форми минулого, оренда, які бувають люди і новини",
-  "School and a job interview first. Then the verb forms ending in -nud and -tud, and the two past tenses built from them. Then renting a flat, what people are like, and the news, which leans on those same forms to say what happened without saying who did it. By the end you can get through an interview, read a news story and phone a landlord.":
+  "School and a job interview first. Then the verb forms ending in -nud and -tud, and the two past tenses built from them. Then renting an apartment, what people are like, and the news, which leans on those same forms to say what happened without saying who did it. By the end you can get through an interview, read a news story and phone a landlord.":
     "Спершу навчання і співбесіда на роботу. Потім дієслівні форми на -nud і -tud та два минулі часи, що з них будуються. Потім оренда квартири, які бувають люди і новини, де ті самі форми допомагають сказати, що сталося, не називаючи, хто це зробив. Наприкінці ви зможете пройти співбесіду, прочитати новину й зателефонувати орендодавцеві.",
   "Technology, opinions, the environment, things going wrong, and two-part verbs":
     "Технології, думки, довкілля, коли щось іде не так, і дієслова з двох частин",

@@ -823,7 +823,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
               {!measured && (
                 <div className="mb-4">
                   <Note tone="sky">
-                    {t("This plan starts from your own guess at your level. Take the level check whenever you like, and it’ll redo the sums with your real one.")}
+                    {t("This plan starts from your own guess at your level. Take the level check whenever you like, and it’ll redo the math with your real one.")}
                   </Note>
                 </div>
               )}

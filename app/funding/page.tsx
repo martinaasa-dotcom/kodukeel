@@ -142,10 +142,10 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
   return (
     <Legal title={t("Funding")} updated="2 September 2026" locale={locale} explicit={explicit} path="/funding">
       <P>
-        {t("Kodukeel is free to use, there’s nothing to buy, and nothing about you is sold. This page shows the sums behind that sentence: what the app runs on, what each piece costs, who’s paying for the copy you’re reading, and what would change if somebody funded it.")}
+        {t("Kodukeel is free to use, there’s nothing to buy, and nothing about you is sold. This page shows the math behind that sentence: what the app runs on, what each piece costs, who’s paying for the copy you’re reading, and what would change if somebody funded it.")}
       </P>
       {locale !== "en" && (
-        <P>{t("The figures and the sums are the same in every language. The working the calculator shows for each line, and the numbers it had to judge, are still in English.")}</P>
+        <P>{t("The figures and the math are the same in every language. The working the calculator shows for each line, and the numbers it had to judge, are still in English.")}</P>
       )}
 
       <S title={t("Who pays for this copy")}>
@@ -233,7 +233,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
 
       <S title={t("What it comes to")}>
         <P>
-          {t("Move the slider. Nothing here is stored or sent anywhere. The sums run in your browser, using the same code the app itself uses to decide when to stop spending.")}
+          {t("Move the slider. Nothing here is stored or sent anywhere. The math runs in your browser, using the same code the app itself uses to decide when to stop spending.")}
         </P>
         <LocaleProvider locale={locale}>
           <CostExplorer />
@@ -427,7 +427,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           </P>
         ))}
         <P>
-          {t("Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a licence that lets somebody else pick it up.")}
+          {t("Which is the answer to the question under the question. A funder is not really asking whether the lights stay on. They are asking whether the money buys something that outlives the project. For a language this size, the thing worth buying is a corrected dictionary, a course built out of attested sources, and the code to run both, all published under a license that lets somebody else pick it up.")}
         </P>
       </S>
 
@@ -438,7 +438,7 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
           })}
         </P>
         <P>
-          {t("Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a pupil is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.")}
+          {t("Nothing about a learner is sold, shared or used to train anything. Whether a teacher can see a student is answered narrowly and separately, and the answer is effort rather than contents. Every one of those promises costs money to keep rather than saving it, which is most of why this page exists.")}
         </P>
       </S>
     </Legal>

@@ -90,7 +90,7 @@ export const SENTENCE_WITHOUT_ENGLISH: Readonly<Record<string, string>> = {
     "English already.",
 
   "app/(app)/dictionary/AddWord.tsx":
-    "Not a sentence. `{example}` is the greyed-out hint inside a form field, showing " +
+    "Not a sentence. `{example}` is the grayed-out hint inside a form field, showing " +
     "what a principal part looks like, and the label beside it is already English.",
 
   "app/(app)/settings/ImportPanel.tsx":

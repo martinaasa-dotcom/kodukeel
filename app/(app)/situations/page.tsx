@@ -105,7 +105,7 @@ export default async function SituationsPage() {
     <Page route="/situations"
       title={tr(locale, "Situations")}
       titleLang={locale}
-      lead={tr(locale, "Practise real conversations: someone wants something from you, and you sort it out in Estonian.")}
+      lead={tr(locale, "Practice real conversations: someone wants something from you, and you sort it out in Estonian.")}
     >
       <Stack>
         {/*
@@ -171,7 +171,7 @@ export default async function SituationsPage() {
         <section aria-labelledby="places-heading" className="situation-out rounded-[var(--r-xl)] border p-5 md:p-7">
           <h2 id="places-heading" className="text-xl font-bold tracking-tight">{tr(locale, "Where the people are")}</h2>
           <p className="mb-4 mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            {tr(locale, "Practise here, then go and have the real conversation. All of these are free.")}
+            {tr(locale, "Practice here, then go and have the real conversation. All of these are free.")}
           </p>
           <ul className="grid gap-3 @container">
             {PLACES_TO_TALK.map((place) => (

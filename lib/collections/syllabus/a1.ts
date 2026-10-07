@@ -1606,7 +1606,7 @@ export const A1 = [
     icon: "House",
     level: "A1",
     module: "Igapäevaelu",
-    canDo: "Name the rooms of a flat and the everyday things you keep in them.",
+    canDo: "Name the rooms of an apartment and the everyday things you keep in them.",
     blurb: "More of home: every room by name, and what's in the drawers and your pockets.",
     grammar: ["nominative"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],

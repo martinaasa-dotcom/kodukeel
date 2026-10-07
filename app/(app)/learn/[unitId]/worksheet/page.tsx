@@ -190,7 +190,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 B, <span lang="et">Täida lüngad.</span> {t("Fill the gaps")}
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
-                {t("Put the word in brackets into the form the sentence needs. Every sentence is real Estonian from the dictionary.")}
+                {t("Put the word in parentheses into the form the sentence needs. Every sentence is real Estonian from the dictionary.")}
               </p>
               <ol className="flex flex-col gap-4">
                 {sheet.gaps.map((gap, i) => (

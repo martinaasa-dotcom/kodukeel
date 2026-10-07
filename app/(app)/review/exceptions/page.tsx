@@ -200,7 +200,7 @@ async function NothingToDrill() {
   return (
     <Page title={tr(locale, "Exceptions")} lead={tr(locale, "Words that don't follow the usual pattern, so you just have to know them.")}>
       <Empty
-        title={tr(locale, "Nothing to practise here yet")}
+        title={tr(locale, "Nothing to practice here yet")}
         body={tr(locale, "None of the rule-breakers are near your level yet. Have a look through the full list instead.")}
         action={<ButtonLink href="/grammar/exceptions" variant="primary">{tr(locale, "Browse the exceptions")}</ButtonLink>}
       />

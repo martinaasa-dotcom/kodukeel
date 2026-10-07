@@ -351,7 +351,7 @@ export const PARTS: readonly PartSpec[] = [
     title: "Linn ja liikumine", subtitle: "School, travel, the town, a free afternoon, and comparing things",
     blurb:
       "Life outside your front door: school, trips, the town, your weekends, and saying which "
-      + "of two things is better. There are four conversations to practise on along the way. By "
+      + "of two things is better. There are four conversations to practice on along the way. By "
       + "the end you can buy a ticket, ask the way and say what you did on Saturday.",
     units: ["kool-ja-keel", "reisimine", "linn-ja-teenused", "vaba-aeg", "vordlemine"],
   },
@@ -361,7 +361,7 @@ export const PARTS: readonly PartSpec[] = [
     blurb:
       "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about "
       + "it all. It has five conversations, more than any other part. By the end you can get "
-      + "through a whole meal in Estonian, book an appointment and ring somebody about it.",
+      + "through a whole meal in Estonian, book an appointment and call somebody about it.",
     units: ["restoranis", "plaanid", "suhtlemine", "tunded", "kirjeldamine", "kuivord"],
   },
 
@@ -381,7 +381,7 @@ export const PARTS: readonly PartSpec[] = [
     title: "Kool, minevik ja kodu", subtitle: "School, two new past forms, renting, what people are like, and the news",
     blurb:
       "School and a job interview first. Then the verb forms ending in -nud and -tud, and the "
-      + "two past tenses built from them. Then renting a flat, what people are like, and the "
+      + "two past tenses built from them. Then renting an apartment, what people are like, and the "
       + "news, which leans on those same forms to say what happened without saying who did it. By "
       + "the end you can get through an interview, read a news story and phone a landlord.",
     units: ["haridus", "kesksonad", "eluase", "iseloom", "meedia"],
@@ -433,7 +433,7 @@ export const PARTS: readonly PartSpec[] = [
     title: "Lause ja mõte", subtitle: "Saying more in fewer words, and long sentences that hold together",
     blurb:
       "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole "
-      + "clause for. You practise it on academic writing, research and philosophy, which is where "
+      + "clause for. You practice it on academic writing, research and philosophy, which is where "
       + "you'll need it most.",
     units: ["nominalisatsioon", "lauseloome", "akadeemiline", "teadustoo", "filosoofia"],
   },

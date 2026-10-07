@@ -566,7 +566,7 @@ export const KIND_NOTES: Record<ExceptionKind, KindNote> = {
   IMPERATIVE_PL: {
     family: "VERB",
     title: "Telling somebody politely",
-    what: "The form every shop assistant and official will use with you. It isn't built on the \"I\" form, so where the present changes a consonant, this one keeps the other.",
+    what: "The form every sales assistant and official will use with you. It isn't built on the \"I\" form, so where the present changes a consonant, this one keeps the other.",
     topic: "imperative",
   },
 };

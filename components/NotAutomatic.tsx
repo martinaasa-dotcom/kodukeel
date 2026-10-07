@@ -122,7 +122,7 @@ function SlowRow({ pace, locale }: { pace: SlotAnswerTime; locale: Locale }) {
       {spec ? (
         <Link
           href={`/review?case=${pace.slot}`}
-          aria-label={fill(t("{label}. Practise it."), { label })}
+          aria-label={fill(t("{label}. Practice it."), { label })}
           className="pill tap-tint flex min-w-0 flex-1 items-center gap-3 rounded-[var(--r)] px-2 py-1.5 text-sm"
         >
           {inside}

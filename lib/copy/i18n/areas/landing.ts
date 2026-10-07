@@ -56,7 +56,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Фармацевт, родители у школьных ворот, письмо из городской управы. Учите эстонский, который встретится вам уже на этой неделе.",
     "Фармацевт, батьки біля шкільних воріт, лист від міської управи. Вчіть естонську, яка трапиться вам уже цього тижня."],
   ["You love someone who speaks it", "Ваш любимый человек говорит на нём", "Ваша кохана людина нею говорить"],
-  ["Their mum on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it.",
+  ["Their mom on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it.",
     "Мама по телефону, шутки друзей, тост на дне рождения. Подготовьте слова до воскресного обеда, а не посреди него.",
     "Мама по телефону, жарти друзів, тост на дні народження. Підготуйте слова до недільного обіду, а не посеред нього."],
   ["You have an exam to pass", "Вам нужно сдать экзамен", "Вам треба скласти іспит"],
@@ -110,7 +110,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Это был первый шаг вашего первого вечера. Внутри слова, на которых вы ошиблись, возвращаются раньше, а те, что вы угадали, возвращаются прямо перед тем, как вы их забудете.",
     "Це був перший крок вашого першого вечора. Усередині слова, на яких ви помилилися, повертаються раніше, а ті, що ви вгадали, повертаються якраз перед тим, як ви їх забудете."],
   ["Try it again", "Попробовать ещё раз", "Спробувати ще раз"],
-  ["Not quite. {word} means {meaning}. It’ll come round again soon.", "Не совсем. {word} значит «{meaning}». Скоро оно вернётся.", "Не зовсім. {word} означає «{meaning}». Незабаром воно повернеться."],
+  ["Not quite. {word} means {meaning}. It’ll come around again soon.", "Не совсем. {word} значит «{meaning}». Скоро оно вернётся.", "Не зовсім. {word} означає «{meaning}». Незабаром воно повернеться."],
   // The first evening's words, as the meaning beside each.
   ["hello@gloss", "привет", "привіт"],
   ["thank you@gloss", "спасибо", "дякую"],
@@ -201,7 +201,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Найдите любое слово и сохраните его одним нажатием, со всеми формами и озвучкой десятью разными голосами. А дальше {units} таких же слов. Каждое возвращается за день до того, как вы его забудете, и вы слышите его так, как говорят на самом деле: быстро, сквозь шум кафе, по трескучей телефонной линии.",
     "Знайдіть будь-яке слово й збережіть його одним натисканням, з усіма формами й озвученням десятьма різними голосами. А далі {units} таких самих слів. Кожне повертається за день до того, як ви його забудете, і ви чуєте його так, як говорять насправді: швидко, крізь гамір кав'ярні, по тріскучій телефонній лінії."],
   ["Then the real thing", "А потом по-настоящему", "А потім насправді"],
-  ["A receptionist with no slot on Thursday, a landlord on a bad line, a queue at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count.",
+  ["A receptionist with no slot on Thursday, a landlord on a bad line, a line at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count.",
     "Администратор, у которого нет записи на четверг, арендодатель на плохой связи, очередь у кассы. Сначала отрепетируйте это здесь, где никто не смотрит. Потом скажите сегодня хоть что-то живому человеку и расскажите нам, как всё прошло. Именно эти разговоры и считаются.",
     "Адміністратор, у якого немає запису на четвер, орендодавець на поганому зв'язку, черга біля каси. Спершу відрепетируйте це тут, де ніхто не дивиться. Потім скажіть сьогодні хоч щось живій людині й розкажіть нам, як усе минуло. Саме ці розмови й рахуються."],
 
@@ -231,11 +231,11 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
 
   // YOUR PLAN.
   ["When could you get there?", "Когда вы этого достигнете?", "Коли ви цього досягнете?"],
-  ["Answer four questions and we’ll do the same sum the app does inside. You get a range, because anyone who gives you one exact number is guessing.",
+  ["Answer four questions and we’ll do the same math the app does inside. You get a range, because anyone who gives you one exact number is guessing.",
     "Ответьте на четыре вопроса, и мы сделаем тот же расчёт, что и приложение внутри. Вы получите приблизительную оценку, ведь тот, кто называет одно точное число, просто гадает.",
     "Дайте відповідь на чотири запитання, і ми зробимо той самий розрахунок, що й застосунок усередині. Ви отримаєте приблизну оцінку, адже той, хто називає одне точне число, просто вгадує."],
   ["Where the hours come from", "Откуда берутся часы", "Звідки беруться години"],
-  ["We start from the study hours usually published for each level, add extra where Estonian’s cases start to bite, and keep the total inside what the US Foreign Service Institute estimates for the language. It isn’t measured on people using this app. Once you’re inside, the same sum runs on your own pace instead.",
+  ["We start from the study hours usually published for each level, add extra where Estonian’s cases start to bite, and keep the total inside what the US Foreign Service Institute estimates for the language. It isn’t measured on people using this app. Once you’re inside, the same math runs on your own pace instead.",
     "Мы берём часы учёбы, которые обычно публикуют для каждого уровня, добавляем там, где эстонские падежи начинают давать о себе знать, и держим итог в пределах оценки Института дипломатической службы США для этого языка. Это не измерено на людях, которые пользуются приложением. Когда вы внутри, тот же расчёт идёт уже по вашему собственному темпу.",
     "Ми беремо години навчання, які зазвичай публікують для кожного рівня, додаємо там, де естонські відмінки починають даватися взнаки, і тримаємо підсумок у межах оцінки Інституту дипломатичної служби США для цієї мови. Це не виміряно на людях, які користуються застосунком. Коли ви всередині, той самий розрахунок іде вже за вашим власним темпом."],
   ["Nothing yet", "Пока ничего", "Поки нічого"],
@@ -244,7 +244,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["How long you can spare, five evenings a week", "Сколько времени вы можете уделять, пять вечеров в неделю", "Скільки часу ви можете приділяти, п'ять вечорів на тиждень"],
   ["You’re already there", "Вы уже этого достигли", "Ви вже цього досягли"],
   ["{target} is already behind you.", "{target} у вас уже позади.", "{target} у вас уже позаду."],
-  ["Pick a higher level and we’ll do the sum again.", "Выберите уровень повыше, и мы посчитаем заново.", "Виберіть вищий рівень, і ми порахуємо знову."],
+  ["Pick a higher level and we’ll do the math again.", "Выберите уровень повыше, и мы посчитаем заново.", "Виберіть вищий рівень, і ми порахуємо знову."],
   ["{target}, in about", "{target}, примерно", "{target}, приблизно"],
 
   // QUESTIONS.
@@ -274,7 +274,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Они остаются в вашей учётной записи, и в настройках их можно в любой момент скачать целиком. Историю всех ваших ответов мы никогда не смогли бы восстановить, поэтому ничего в ней не меняем и не удаляем, если только вы не удалите свою учётную запись.",
     "Вони залишаються у вашому обліковому записі, і в налаштуваннях їх можна будь-коли завантажити повністю. Історію всіх ваших відповідей ми ніколи не змогли б відновити, тому нічого в ній не змінюємо й не видаляємо, якщо тільки ви не видалите свій обліковий запис."],
   ["How does it compare with Speakly, Keeleklikk and Anki?", "Чем это отличается от Speakly, Keeleklikk и Anki?", "Чим це відрізняється від Speakly, Keeleklikk і Anki?"],
-  ["Duolingo has never offered Estonian, so the real choice is between the tools that do. We checked {claims} claims against each tool’s own website, and another tool earns a tick on {shared} of them. None of them is trying to get you saying {e1} and knowing why it isn’t {e2}.",
+  ["Duolingo has never offered Estonian, so the real choice is between the tools that do. We checked {claims} claims against each tool’s own website, and another tool earns a check mark on {shared} of them. None of them is trying to get you saying {e1} and knowing why it isn’t {e2}.",
     "В Duolingo эстонского никогда не было, так что выбирать на самом деле приходится между теми инструментами, где он есть. Мы сверили {claims} утверждений с сайтом каждого инструмента, и по {shared} из них галочку получает и другой инструмент. Ни один из них не пытается научить вас говорить {e1} и понимать, почему не {e2}.",
     "У Duolingo естонської ніколи не було, тож вибирати насправді доводиться між тими інструментами, де вона є. Ми звірили {claims} тверджень із сайтом кожного інструмента, і за {shared} із них галочку отримує й інший інструмент. Жоден із них не намагається навчити вас казати {e1} і розуміти, чому не {e2}."],
   ["Free, with no subscription", "Бесплатно, без подписки", "Безкоштовно, без підписки"],
@@ -305,7 +305,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Drops, Mondly, Memrise, Ling и другие хорошо учат слова. А здесь речь о том, какую форму слова использовать и почему.",
     "Drops, Mondly, Memrise, Ling та інші добре навчають слів. А тут ідеться про те, яку форму слова вживати й чому."],
   ["How this table was checked", "Как проверялась эта таблица", "Як перевіряли цю таблицю"],
-  ["A tick means yes, a dash means their own pages don’t say so, and a question mark means we couldn’t tell. We checked each product’s own website in August 2026. Every name belongs to its owner, and none of them has endorsed this. If we’ve got something wrong, tell us and we’ll fix it.",
+  ["A check mark means yes, a dash means their own pages don’t say so, and a question mark means we couldn’t tell. We checked each product’s own website in August 2026. Every name belongs to its owner, and none of them has endorsed this. If we’ve got something wrong, tell us and we’ll fix it.",
     "Галочка означает «да», прочерк означает, что на их собственных страницах об этом не сказано, а вопросительный знак означает, что мы не смогли определить. Мы проверили сайт каждого продукта в августе 2026 года. Каждое название принадлежит своему владельцу, и никто из них этого не одобрял. Если мы где-то ошиблись, напишите нам, и мы исправим.",
     "Галочка означає «так», риска означає, що на їхніх власних сторінках про це не сказано, а знак питання означає, що ми не змогли визначити. Ми перевірили сайт кожного продукту в серпні 2026 року. Кожна назва належить своєму власникові, і жоден із них цього не схвалював. Якщо ми десь помилилися, напишіть нам, і ми виправимо."],
 
@@ -356,7 +356,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Go on, order something. The person behind the counter is very patient.", "Давайте, закажите что-нибудь. Человек за стойкой очень терпеливый.", "Давайте, замовте щось. Людина за стійкою дуже терпляча."],
   ["Ask me the thing you’d be too shy to ask in class. I never sigh.", "Спросите меня о том, о чём постеснялись бы спросить на уроке. Я никогда не вздыхаю.", "Спитайте мене про те, про що соромилися б спитати на уроці. Я ніколи не зітхаю."],
   ["Keep your class. I’m here for the evenings in between.", "Не бросайте свои курсы. Я здесь для вечеров между занятиями.", "Не кидайте свої курси. Я тут для вечорів між заняттями."],
-  ["Have a play with it. Inside, I do the same sum with your real pace.", "Поиграйте с ним. Внутри я делаю тот же расчёт по вашему настоящему темпу.", "Пограйтеся з ним. Усередині я роблю той самий розрахунок за вашим справжнім темпом."],
+  ["Play around with it. Inside, I do the same math with your real pace.", "Поиграйте с ним. Внутри я делаю тот же расчёт по вашему настоящему темпу.", "Пограйтеся з ним. Усередині я роблю той самий розрахунок за вашим справжнім темпом."],
   ["Short, straight answers. How we compare with other apps is the last one.", "Короткие прямые ответы. Сравнение с другими приложениями в самом конце.", "Короткі прямі відповіді. Порівняння з іншими застосунками в самому кінці."],
   ["Fifteen minutes a day. See you inside.", "Пятнадцать минут в день. До встречи внутри.", "П'ятнадцять хвилин на день. До зустрічі всередині."],
   ["Start learning, and ask Anu inside", "Начать учиться и спросить Ану внутри", "Почати вчитися й запитати Ану всередині"],

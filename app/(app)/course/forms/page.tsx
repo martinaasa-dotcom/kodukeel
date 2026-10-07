@@ -66,7 +66,7 @@ export default async function CourseFormsPage({
         {ordered.length === 0 ? (
           <Empty
             title={t("No verbs to learn here tonight")}
-            body={t("We don't have the past forms of tonight's verbs yet. Carry on to the next step.")}
+            body={t("We don't have the past forms of tonight's verbs yet. Go on to the next step.")}
           />
         ) : (
           <>

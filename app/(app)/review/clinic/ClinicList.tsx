@@ -110,7 +110,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                       {/* One sentence with the case in its slot, not "Practise the"
                           with a name glued after it in English order. */}
                       <TrParts
-                        template="Practise the {case}"
+                        template="Practice the {case}"
                         parts={{
                           case: (
                             <span lang="et">

@@ -906,7 +906,7 @@ export function composeNote(
   */
   const question = asked
     ? " They also asked you something: answer it first, from what you know, in a few words, and"
-      + " only then carry on. Never ignore a question and never say you do not know something"
+      + " only then keep going. Never ignore a question and never say you do not know something"
       + " that is in what you know."
       + (extra.answer ? ` What you say when asked this: ${extra.answer}` : "")
     : "";
@@ -931,7 +931,7 @@ export function composeNote(
   }
   if (response === "moveOn") {
     return "You have asked for something a few times and not got it. Let it go the way a"
-      + " person does, without any reproach, and carry on to the next thing you need."
+      + " person does, without any reproach, and go on to the next thing you need."
       + handing + question;
   }
   if (response === "help" || reading === "lost") {
@@ -992,7 +992,7 @@ export function composeNote(
   */
   if (reading === "echo") {
     return "They said back your own words, most likely to check them or to buy time. Confirm"
-      + " briefly and kindly what you meant, in other words, and carry on." + question;
+      + " briefly and kindly what you meant, in other words, and keep going." + question;
   }
   if (reading === "english") {
     return "They wrote in English. Show you understood what they meant, answer it in simple"

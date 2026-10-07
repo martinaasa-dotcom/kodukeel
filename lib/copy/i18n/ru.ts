@@ -19,7 +19,7 @@ export const RU: Readonly<Record<string, string>> = {
   "Review": "Повторение",
   "Everything due, right before you'd forget it": "Всё, что пора повторить, прямо перед тем, как вы это забудете",
   "Situations": "Ситуации",
-  "Book a doctor, order a coffee, ring your landlord": "Записаться к врачу, заказать кофе, позвонить арендодателю",
+  "Book a doctor, order a coffee, call your landlord": "Записаться к врачу, заказать кофе, позвонить арендодателю",
   "Look it up": "Найти",
   "Any word, any ending, and why it works that way.": "Любое слово, любое окончание и почему всё устроено именно так.",
   "Dictionary": "Словарь",

@@ -87,7 +87,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "restoranis-tellimine:drink": "ordering a drink",
   "restoranis-tellimine:bill": "asking for the bill",
 
-  "helistamine:why": "saying why you're ringing",
+  "helistamine:why": "saying why you're calling",
   "helistamine:have": "asking if they have it",
   "helistamine:hours": "asking when they open",
   "helistamine:confirm": "reading a time back",
@@ -125,7 +125,7 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
 
   "riidepood:want": "asking for a piece of clothing",
   "riidepood:size": "your size",
-  "riidepood:colour": "the colour you want",
+  "riidepood:colour": "the color you want",
   "riidepood:proov": "asking to try it on",
   "riidepood:sobib": "saying whether it fits",
   "riidepood:hind": "asking the price",

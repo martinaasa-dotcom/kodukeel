@@ -52,7 +52,7 @@ export default async function ClinicPage() {
         <Empty
           title={tr(locale, "Nothing's stuck. Good news.")}
           body={fill(tr(locale, "No card has slipped your mind {times} or more, so there's nothing to fix."), { times: countOf(locale, LEECH_LAPSES, "time") })}
-          action={<ButtonLink href="/review" variant="primary">{tr(locale, "Carry on reviewing")}</ButtonLink>}
+          action={<ButtonLink href="/review" variant="primary">{tr(locale, "Keep reviewing")}</ButtonLink>}
         />
       </Page>
     );

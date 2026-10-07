@@ -202,7 +202,7 @@ export const START: Area = {
     "be honest, the plan is built on it": "честно: на этом строится план",
     "What this is going to take": "Что для этого потребуется",
     "from your answers and published estimates": "по вашим ответам и опубликованным оценкам",
-    "This plan starts from your own guess at your level. Take the level check whenever you like, and it’ll redo the sums with your real one.":
+    "This plan starts from your own guess at your level. Take the level check whenever you like, and it’ll redo the math with your real one.":
       "Этот план исходит из вашей собственной оценки уровня. Пройдите проверку уровня, когда захотите, и всё пересчитается по вашему настоящему уровню.",
 
     // FIRST RUN: TONIGHT.
@@ -258,7 +258,7 @@ export const START: Area = {
 
     // THE FIRST CONVERSATION, OFF THE REASON.
     "Going to the shop for milk": "Сходить в магазин за молоком",
-    "Your kitchen, then the corner shop, with a friend on the phone": "Ваша кухня, потом магазин за углом, а друг на связи по телефону",
+    "Your kitchen, then the corner store, with a friend on the phone": "Ваша кухня, потом магазин за углом, а друг на связи по телефону",
     "Handing in a form at a counter": "Сдать бланк в окошке",
     "The desk at an office that wants your paperwork": "Стойка в учреждении, где от вас ждут документы",
     "Ordering a drink": "Заказать напиток",
@@ -297,7 +297,7 @@ export const START: Area = {
       "Знание эстонских слов отличается от знания эстонского двумя вещами: правильным падежом дополнения и тем, какой падеж требует после себя каждый глагол. Каждую вы учите на повседневных словах: сначала на людях вокруг вас, потом на работе и деньгах. Затем условное наклонение для желаний и вежливых просьб. Грамматика и новые слова чередуются, так что двух недель сплошных таблиц не будет.",
     "Estonian has three forms you learn here: one for when nobody is named, one for passing on what you heard, and one for doing two things at once. Each comes with the words it usually goes with: the impersonal with society, the reported form with the economy, and the last on its own. By the end you can read a report that never names anybody.":
       "В эстонском есть три формы, которые вы здесь учите: одна для случая, когда никто не назван, одна для пересказа услышанного и одна для двух действий сразу. Каждая идёт вместе со словами, рядом с которыми обычно встречается: безличная форма с темой общества, пересказывательное наклонение с экономикой, а последняя сама по себе. В конце вы сможете прочитать отчёт, в котором никто не назван.",
-    "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole clause for. You practise it on academic writing, research and philosophy, which is where you'll need it most.":
+    "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole clause for. You practice it on academic writing, research and philosophy, which is where you'll need it most.":
       "C1 в основном о том, как сказать больше меньшим числом слов: уместить в оборот то, для чего на B2 требовалось целое придаточное. Вы тренируете это на академических текстах, исследованиях и философии, где это понадобится больше всего.",
   },
   uk: {
@@ -485,7 +485,7 @@ export const START: Area = {
     "be honest, the plan is built on it": "чесно: на цьому будується план",
     "What this is going to take": "Що для цього знадобиться",
     "from your answers and published estimates": "за вашими відповідями й опублікованими розрахунками",
-    "This plan starts from your own guess at your level. Take the level check whenever you like, and it’ll redo the sums with your real one.":
+    "This plan starts from your own guess at your level. Take the level check whenever you like, and it’ll redo the math with your real one.":
       "Цей план виходить із вашої власної оцінки рівня. Пройдіть перевірку рівня, коли захочете, і все буде перераховано за вашим справжнім рівнем.",
 
     // FIRST RUN: TONIGHT.
@@ -541,7 +541,7 @@ export const START: Area = {
 
     // THE FIRST CONVERSATION, OFF THE REASON.
     "Going to the shop for milk": "Сходити в магазин по молоко",
-    "Your kitchen, then the corner shop, with a friend on the phone": "Ваша кухня, потім магазин за рогом, а на телефоні друг",
+    "Your kitchen, then the corner store, with a friend on the phone": "Ваша кухня, потім магазин за рогом, а на телефоні друг",
     "Handing in a form at a counter": "Здати бланк у віконці",
     "The desk at an office that wants your paperwork": "Стійка в установі, де вимагають ваші документи",
     "Ordering a drink": "Замовити напій",
@@ -580,7 +580,7 @@ export const START: Area = {
       "Знати естонські слова і знати естонську відрізняють дві речі: правильний додаток у реченні й знання того, якого закінчення вимагає після себе кожне дієслово. Кожну з них ви вчите на повсякденних словах: спершу люди у вашому житті, потім робота й гроші. Далі умовний спосіб, для побажань і ввічливих прохань. Граматика й нові слова чергуються, тож двох тижнів суцільних таблиць не буде.",
     "Estonian has three forms you learn here: one for when nobody is named, one for passing on what you heard, and one for doing two things at once. Each comes with the words it usually goes with: the impersonal with society, the reported form with the economy, and the last on its own. By the end you can read a report that never names anybody.":
       "В естонській є три форми, які ви тут вивчаєте: одна для випадку, коли нікого не названо, одна для переказу почутого й одна для двох дій водночас. Кожна йде разом зі словами, поруч із якими зазвичай трапляється: безособова форма з темою суспільства, переказовий спосіб з економікою, а остання сама по собі. Наприкінці ви зможете прочитати звіт, у якому нікого не названо.",
-    "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole clause for. You practise it on academic writing, research and philosophy, which is where you'll need it most.":
+    "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole clause for. You practice it on academic writing, research and philosophy, which is where you'll need it most.":
       "C1 здебільшого про те, як сказати більше меншою кількістю слів: умістити у зворот те, для чого на B2 потрібне було ціле підрядне речення. Ви тренуєте це на академічних текстах, дослідженнях і філософії, де це знадобиться найбільше.",
   },
   counted: {

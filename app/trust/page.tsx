@@ -112,7 +112,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
           </>
         ) : (
           <P>
-            {rich(t("**Whoever runs this installation has not filled their name in.** Kodukeel is software anyone can install, not a service with one address, so the copy you’re reading is run by a person or an organisation who’s supposed to be named here. Until they are, there’s nobody on this page to sign anything with. If you’re running it, set `OPERATOR_NAME`, `OPERATOR_ADDRESS` and `OPERATOR_EMAIL`."))}
+            {rich(t("**Whoever runs this installation has not filled their name in.** Kodukeel is software anyone can install, not a service with one address, so the copy you’re reading is run by a person or an organization who’s supposed to be named here. Until they are, there’s nobody on this page to sign anything with. If you’re running it, set `OPERATOR_NAME`, `OPERATOR_ADDRESS` and `OPERATOR_EMAIL`."))}
           </P>
         )}
       </S>
@@ -138,7 +138,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
         </ul>
         {leavesTheUnion && (
           <P>
-            {rich(t("**Some of that leaves the European Economic Area**, which matters for a transfer assessment. It rests on the standard contractual clauses each provider publishes. The two features that do it are the tutor and the page scanner, and a deployment configured with no AI provider has neither, so an organisation that cannot accept the transfer can run the rest of the app without it."))}
+            {rich(t("**Some of that leaves the European Economic Area**, which matters for a transfer assessment. It rests on the standard contractual clauses each provider publishes. The two features that do it are the tutor and the page scanner, and a deployment configured with no AI provider has neither, so an organization that cannot accept the transfer can run the rest of the app without it."))}
           </P>
         )}
         <P>
@@ -164,7 +164,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
 
       <S id="security" title={t("Security posture")}>
         <P>
-          {t("The security work is written down in full rather than summarised for you. There are three documents, and each one names files you can open:")}
+          {t("The security work is written down in full rather than summarized for you. There are three documents, and each one names files you can open:")}
         </P>
         <ul className="space-y-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           <li>
@@ -173,7 +173,7 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
             })}
           </li>
           <li>
-            {rich(t("{doc}: severity, who does what, the Article 33 clock for telling the supervisory authority, the Article 34 clock for telling the people affected, and runbooks for a leaked credential, a runaway AI bill, a database restore and a vandalised dictionary."), {
+            {rich(t("{doc}: severity, who does what, the Article 33 clock for telling the supervisory authority, the Article 34 clock for telling the people affected, and runbooks for a leaked credential, a runaway AI bill, a database restore and a vandalized dictionary."), {
               doc: doc("docs/28-incident-response.md", "Incident response"),
             })}
           </li>

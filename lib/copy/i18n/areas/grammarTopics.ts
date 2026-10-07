@@ -881,7 +881,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Understatement is the most common kind here",
     "Чаще всего здесь встречается преуменьшение",
     "Найчастіше тут трапляється применшення"],
-  ["Rarely signalled, so you have to pick up on it",
+  ["Rarely signaled, so you have to pick up on it",
     "Её редко обозначают, так что улавливать приходится самим",
     "Її рідко позначають, тож уловлювати доводиться самим"],
   ["It's the last thing a learner picks up and the easiest to get wrong. Irony nobody notices comes across as rudeness, or as a mistake.",

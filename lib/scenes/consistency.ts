@@ -57,7 +57,7 @@ export const CONSISTENCY_REPLY_TOKENS = 1_000;
 export function buildConsistencySystemPrompt(): string {
   return [
     "You check one line in an Estonian role-play before a language learner sees it.",
-    "The line is what the other person (a shop assistant, a receptionist, an interviewer and so on) says next.",
+    "The line is what the other person (a sales assistant, a receptionist, an interviewer and so on) says next.",
     "First, the learner's account wins: if the learner has said something about where they are or what has or has not happened (they are still looking for the shop, they have not eaten, they have not paid), that is the truth for this check, whatever the scene notes say has happened, and a line going along with the learner is never a problem for that reason.",
     "Answer one question: is there a problem with this line? The main problems: it contradicts or quietly goes back on anything this person has already said in the conversation or anything listed as established, or it reveals or settles something listed as coming later when the learner has not asked for it.",
     "Also a problem: speaking as though something listed as having happened since has not happened yet, such as telling them to wait for a turn that has already come. The exception is the learner saying otherwise: if they say it has not happened (they have not eaten yet, they forgot the milk), going along with them is fine and so is sorting it out with them.",

@@ -174,7 +174,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
             <p aria-live="polite" className={picked ? `verdict-panel ${VERDICT_CLASS[picked === q.word.en ? "right" : "wrong"]}` : "sr-only"}>
               {picked ? (picked === q.word.en ? t("That’s the one.") : (
                 <TrParts
-                  template="Not quite. {word} means {meaning}. It’ll come round again soon."
+                  template="Not quite. {word} means {meaning}. It’ll come around again soon."
                   parts={{ word: <span lang="et">{q.word.et}</span>, meaning: q.word.en }}
                 />
               )) : ""}

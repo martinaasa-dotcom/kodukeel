@@ -107,7 +107,7 @@ export function classroomLetter(input: ClassroomInput): Letter {
   blocks.push({
     t: "text",
     text:
-      say("{active} of {members} practised, with {answers} between them.", {
+      say("{active} of {members} practiced, with {answers} between them.", {
         active: input.active,
         members: input.members,
         answers: figured(locale, input.reviews, "answer"),
@@ -212,8 +212,8 @@ export function classroomLetter(input: ClassroomInput): Letter {
     locale,
     subject:
       quiet === 0 && input.members > 0
-        ? say("Everybody in {group} practised last week", { group: input.groupName })
-        : say("{active} of {members} in {group} practised last week", {
+        ? say("Everybody in {group} practiced last week", { group: input.groupName })
+        : say("{active} of {members} in {group} practiced last week", {
             active: input.active,
             members: input.members,
             group: input.groupName,

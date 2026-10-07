@@ -278,7 +278,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   {card.lemma}
                 </p>
                 <p className="max-w-[40ch] text-xs" style={{ color: "var(--ink-3)" }}>
-                  {t("We couldn’t reach the audio, so here’s the word to read instead. It’s still worth answering. Come back later to practise the listening part.")}
+                  {t("We couldn’t reach the audio, so here’s the word to read instead. It’s still worth answering. Come back later to practice the listening part.")}
                 </p>
               </>
             ) : (

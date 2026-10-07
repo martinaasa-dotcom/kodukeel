@@ -3970,7 +3970,7 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
     return { ok: false as const, error: "That step isn't part of that evening." };
   }
   if (step.derived) {
-    return { ok: false as const, error: "That step ticks itself off as you go." };
+    return { ok: false as const, error: "That step checks itself off as you go." };
   }
   /* A tick is the pointer: `dayReached` is the furthest day carrying one, so a
      forged tick on a day nobody has reached would move the course onto it and
@@ -4266,7 +4266,7 @@ export async function saveScan(input: {
   input = fieldsOf(input);
   const sent = sanitiseItems(input.items, SCAN_MAX_ITEMS);
   if (sent.length === 0) {
-    return { ok: false as const, error: "Tick at least one word on that page first." };
+    return { ok: false as const, error: "Check at least one word on that page first." };
   }
   // What the dictionary says about each spelling, asked again here rather
   // than taken from the request: see `vouchScanItems`.

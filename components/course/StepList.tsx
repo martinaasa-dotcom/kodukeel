@@ -187,8 +187,8 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                   {isNext && step.id === "review" && closing.needed > 0 && (
                     <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
                       {fill(t(closing.needed === 1
-                        ? "{graded} of {needed} answer done. Keep going and this ticks itself off."
-                        : "{graded} of {needed} answers done. Keep going and this ticks itself off."), { graded: closing.graded, needed: closing.needed })}
+                        ? "{graded} of {needed} answer done. Keep going and this checks itself off."
+                        : "{graded} of {needed} answers done. Keep going and this checks itself off."), { graded: closing.graded, needed: closing.needed })}
                     </p>
                   )}
 

@@ -1877,7 +1877,7 @@ export function speakPrompt(card: SpeakCard, seconds: number, prepSeconds: numbe
     case "agree":
       return line("Answer the examiner's questions and say why. Then read the situation, talk the choices over as if with a partner, and agree on one.");
     case "phone":
-      return template("First you ring {call} and ask for everything on your card. Then somebody rings you, and you answer as {answerAs}, with the facts on the second card.", {
+      return template("First you call {call} and ask for everything on your card. Then somebody calls you, and you answer as {answerAs}, with the facts on the second card.", {
         call: [card.call, RING],
         answerAs: [card.answerAs, B],
       });

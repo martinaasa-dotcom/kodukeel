@@ -52,8 +52,8 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
 
 ## What it does
 
-- **Situations.** There are fifteen: a shop, a health centre, a landlord, a counter, a café, a
-  street corner, a bus ticket, a restaurant table, ringing a shop before you go, a neighbour on the
+- **Situations.** There are fifteen: a shop, a health center, a landlord, a counter, a café, a
+  street corner, a bus ticket, a restaurant table, calling a shop before you go, a neighbor on the
   stairs, a pharmacy, the first evening of a language course, a job interview, taking something
   back, and a clothes shop. A card tells you who you are today and what you came for. The other
   side speaks first, reacts to what you say, repeats your word back to you, and asks again when
@@ -64,7 +64,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   only the scene's own words and checked word by word before you see it. The screen tells you
   which. Whether you were understood is decided by the dictionary, never by a model, so you can't
   be marked wrong for being right. Difficulty is a budget of things going wrong: the appointment
-  you wanted has gone, a queue forms behind you, they switch to English. You can walk out whenever
+  you wanted has gone, a line forms behind you, they switch to English. You can walk out whenever
   you like, and the debrief starts with what happened, never with a score.
 
   With a key set, the other side's line is written fresh for each turn with the whole conversation
@@ -100,7 +100,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
 - **Review that asks properly.** Type your answer and it's checked. A missing `õ` is told apart
   from a typo, and a typo from a genuinely wrong word, and each verdict suggests a grade you can
   change. New words are shown to you with their answer rather than guessed at, and multiple choice
-  covers recognising them. Press `u` to undo your last grade. The card goes back to how it was, and
+  covers recognizing them. Press `u` to undo your last grade. The card goes back to how it was, and
   your answer stays in your review history, which is never edited.
 - **22 ways to practice, all on one deck.** Six quick rounds: a 60-second Case Sprint against the
   clock, Match, Sentences, Listening, Dictation and Speaking. Two ways through the words you're
@@ -125,7 +125,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
 - **A mock of the state examination.** Estonia examines at A2, B1, B2 and C1, and B1 is what a
   citizenship application asks for. Sit an imitation of any of them on the real clock, out of the
   real points, under the real rule: sixty percent passes, and a zero in any one part fails the
-  lot. There's also an A1 paper the state has never set, clearly labelled, because it's worth
+  lot. There's also an A1 paper the state has never set, clearly labeled, because it's worth
   being able to find out. Every level shows your chance of passing it today, with the evidence
   behind that number spelled out, and a list of what to work on with links to where you can work
   on it. No model writes any of the paper. The questions are put together from the dictionary, and
@@ -136,7 +136,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   own kind of mistake, and worth naming.
 - **Speaking that doesn't lie to you.** Say the word, then hear a native voice and your own
   recording one after the other. There's no score, because there's no proven Estonian speech
-  recogniser this app can use, and a made-up confidence number would be believed.
+  recognizer this app can use, and a made-up confidence number would be believed.
 - **A level check that measures rather than asks.** Eighty questions from A1 to C1: six reading and
   six writing at each level, three listening, and one spoken. It's built entirely from the
   dictionary, so the questions are meanings, sentences with a word taken out, dictation, and forms
@@ -156,14 +156,14 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   chips, is the one it goes by. Your level decides where the course opens, which new words review
   brings in next, and how hard the practice rounds and the dictionary suggestions are.
 - **A plan in hours, and it won't flatter you.** Tell it why you're learning, how far you want to
-  get and by when, and it does the maths: how many study hours that level usually takes, how many
+  get and by when, and it does the math: how many study hours that level usually takes, how many
   of them your daily goal covers, and how many you'll need to find in a class or in conversation.
   The Foreign Service Institute budgets around 1,100 classroom hours of Estonian for an English
   speaker, and fifteen minutes a day here comes to about 90 hours a year. Both numbers are on the
   same screen, with their sources. And the plan is about you rather than the average learner. A
   measured level is costed skill by skill, while a guessed one is given extra room for the guess.
   Living in Estonia, or having Estonian at home, counts as hours your week already holds. Once
-  there's a fortnight of reviews, the plan uses the pace you actually keep.
+  there are two weeks of reviews, the plan uses the pace you actually keep.
 - **A first run that gets to know you.** It asks what you're here for before it asks your level,
   offers to measure you rather than making you guess, and shows you the timeline before you've
   picked a single word. And before it asks you for anything, it tells you in one line what it
@@ -185,7 +185,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
 - **How ready you really are, measured in situations rather than a percentage.** Every unit of the
   course makes a promise, like "describe a symptom to a doctor and understand the advice". The app
   checks each one against your own answers on three levels: would you follow the conversation, take
-  part in it, or lead it? Recognising words on flashcards is never enough for the second. It tells
+  part in it, or lead it? Recognizing words on flashcards is never enough for the second. It tells
   you what's in the way, whether that's the endings the conversation depends on, how many seconds a
   word takes you to find, or the fact that nothing has ever tested your ear. It only suggests a
   real thing to go and try once your answers show you're ready to take part. See
@@ -195,18 +195,18 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   reminder is offered as a calendar event, so it goes off whether or not the app is open.
 - **A grammar reference in English, using Estonian names.** One page per case: what it's for, when
   Estonian uses it, and the mistake English speakers tend to make, shown on real words from your own
-  deck with each form labelled with where it came from. Cases are named the way a course in Tallinn
+  deck with each form labeled with where it came from. Cases are named the way a course in Tallinn
   names them, by the Estonian term and the question each one answers, with that question in plain
   English beside it. Nobody teaching this language says "the inessive". The explanations are the
   only part of those pages this app wrote.
 - **Photograph a page.** Point your camera at a vocabulary list, a page of your textbook or last
   night's homework, and the words come back checked against the dictionary. Exercise sheets are
   full of words in their cases rather than their dictionary form, so `toas` is traced back to
-  `tuba` and you're told it's the seesütlev. Every word arrives ticked and editable, labelled
+  `tuba` and you're told it's the seesütlev. Every word arrives checked and editable, labeled
   either "in the dictionary" or "read from the photo", because only the person holding the paper
   can say what's printed on it. Nothing becomes a flashcard until you say so. A word the dictionary
-  recognises brings its own principal parts with it, and the photo itself is read once and never
-  kept. The page then becomes a set you can practise on its own.
+  recognizes brings its own principal parts with it, and the photo itself is read once and never
+  kept. The page then becomes a set you can practice on its own.
 - **Worksheets you can print.** Any unit becomes a sheet with its vocabulary, gap-fills built from
   real recorded sentences and a table of principal parts, plus the answer key on its own page. For
   the part of a class that happens in a room.
@@ -238,8 +238,8 @@ Wiktionary have nothing else.
 
 The dictionary's front page also reads the morning news. A few of the day's headlines from ERR,
 Estonia's public broadcaster, are printed exactly as written, and every word the dictionary
-recognises links to its entry, so the most ordinary Estonian there is comes with a case table under
-it. A word the dictionary doesn't recognise is left as plain text rather than guessed at, and
+recognizes links to its entry, so the most ordinary Estonian there is comes with a case table under
+it. A word the dictionary doesn't recognize is left as plain text rather than guessed at, and
 nothing from the feed is stored. Set `NEWS_FEED_URL` to point it at another RSS feed, or to `off` to
 turn it off.
 
@@ -447,12 +447,12 @@ account here.
 
 **Nothing anybody charges for is counted as free.** A free tier is a plan that pauses when nobody's
 using it, forbids commercial use, or hands out an allowance that's gone the week you launch, so
-modelling one would describe a site nobody actually runs. Every service is priced on the plan a
+modeling one would describe a site nobody actually runs. Every service is priced on the plan a
 real deployment uses.
 
 **What's given is credited, not priced.** Ekilex, Wiktionary and TartuNLP are public institutions
 that decided this work should be available to everyone. They ask for nothing. Each one is named with
-what it gives and its licence, and none of them appears in any total. Where you could buy the same
+what it gives and its license, and none of them appears in any total. Where you could buy the same
 thing, the page says what it would cost, so you can see the size of the gift without being charged
 for it.
 
@@ -693,7 +693,7 @@ Inside, the app uses a soft pastel palette built around the cornflower, *rukkili
 national flower. It's set in Onest, with Schibsted Grotesk for the few words set large, and the
 mascot is made out of the letter **õ**. Light mode is the default everywhere and dark mode is your
 choice: the switch is at the bottom of the side menu. `docs/14-design-system.md` has the palette,
-the design tokens and the rules for what each colour is allowed to mean.
+the design tokens and the rules for what each color is allowed to mean.
 
 ## Backing up
 
@@ -840,7 +840,7 @@ Four rules the code sticks to, each explained in `docs/`:
 - Every spelling of every word, in `prisma/data/forms/`: Ekilex's own inflection tables as published
   in [Estonian-Wordlist-Enriched-Ekilex](https://github.com/KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex)
   (CC BY 4.0 for the Institute's data, CC BY-SA 4.0 for the repository), and
-  [Vabamorf](https://github.com/Filosoft/vabamorf), Filosoft's tool for analysing and building
+  [Vabamorf](https://github.com/Filosoft/vabamorf), Filosoft's tool for analyzing and building
   Estonian word forms (LGPL).
 - Speech: [TartuNLP](https://tartunlp.ai), University of Tartu (MIT).
 - The plan this was built from, including the review of the original specification, is in `docs/`.
@@ -851,5 +851,5 @@ The code is MIT, in `LICENSE`. The language data isn't, and the difference matte
 redistribute this rather than just run it. Ekilex is CC BY 4.0 and Wiktionary is CC BY-SA 4.0,
 which is share-alike, so `prisma/data/expanded.json` carries CC BY-SA because it's built from both.
 Both credits are shown in the running app, not only in this file: on the sign-in page, in the
-landing page footer and on `/terms`, which is where a licence like that expects to find them.
+landing page footer and on `/terms`, which is where a license like that expects to find them.
 `LICENSE` sets all of this out.

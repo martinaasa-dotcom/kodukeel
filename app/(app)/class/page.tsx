@@ -144,7 +144,7 @@ export default async function ClassIndexPage() {
                   disclosure nobody opens does not.
                 */}
                 <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                  {filled(t("Pupils under 13 need a parent to agree first, and that’s the school’s call rather than ours. The {link} explains what’s kept and what you can see."), {
+                  {filled(t("Students under 13 need a parent to agree first, and that’s the school’s call rather than ours. The {link} explains what’s kept and what you can see."), {
                     link: <Link href="/privacy" className="underline underline-offset-2">{t("privacy page")}</Link>,
                   })}
                 </p>

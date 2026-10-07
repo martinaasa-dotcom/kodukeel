@@ -176,7 +176,7 @@ export const B1 = [
     icon: "KeyRound",
     level: "B1",
     module: "Töö ja ühiskond",
-    canDo: "Rent a flat, say what's wrong with it and deal with the landlord.",
+    canDo: "Rent an apartment, say what's wrong with it and deal with the landlord.",
     blurb: "Rent, repairs, and the heating that won't come on. Every newcomer has this conversation with a landlord sooner or later.",
     grammar: ["inessive", "elative", "genitive"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],

@@ -19,7 +19,7 @@ export const UK: Readonly<Record<string, string>> = {
   "Review": "Повторення",
   "Everything due, right before you'd forget it": "Усе, що пора повторити, якраз перед тим, як ви його забудете",
   "Situations": "Ситуації",
-  "Book a doctor, order a coffee, ring your landlord": "Записатися до лікаря, замовити каву, зателефонувати орендодавцю",
+  "Book a doctor, order a coffee, call your landlord": "Записатися до лікаря, замовити каву, зателефонувати орендодавцю",
   "Look it up": "Знайти",
   "Any word, any ending, and why it works that way.": "Будь-яке слово, будь-яке закінчення і чому все влаштовано саме так.",
   "Dictionary": "Словник",
