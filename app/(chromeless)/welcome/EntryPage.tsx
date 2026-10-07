@@ -63,12 +63,9 @@ export function EntryPage({ locale }: { locale: EntryLocale }) {
               <span className="hidden sm:inline">English</span>
               <span aria-hidden className="sm:hidden">EN</span>
             </Link>
-            {ENTRY_LOCALES.filter((l) => l !== locale).map((l) => (
-              <Link key={l} href={ENTRY_COPY[l].href} lang={l} aria-label={ENTRY_COPY[l].name} className="tap-tint whitespace-nowrap rounded-full px-3 py-2" style={{ color: "var(--ink-2)" }}>
-                <span className="hidden sm:inline">{ENTRY_COPY[l].name}</span>
-                <span aria-hidden className="sm:hidden">{l.toUpperCase()}</span>
-              </Link>
-            ))}
+            {/* English and nothing else: the Russian page does not link the
+                Ukrainian one by name, or the reverse. The English page lists
+                both, and is one press away. */}
           </div>
         </nav>
       </header>

@@ -155,16 +155,18 @@ export function repeatLabel(weekdays: readonly number[]): string {
  * The same line in the learner's own language.
  *
  * Not a translation of the English pieces, because "every Monday" is a case in
- * both: «по понедельникам», «по понеділках». So each language names its days
- * in the form the phrase needs, and only the joining words come from a table.
+ * both, and a different construction in each: «по понедельникам» in Russian,
+ * «у понеділки» in Ukrainian, which does not borrow the Russian «по» with a
+ * locative. So each language names its days in the form its own phrase needs,
+ * and only the joining words come from a table.
  */
 const REPEAT_DAYS: Readonly<Record<Exclude<Locale, "en">, readonly string[]>> = {
   ru: ["воскресеньям", "понедельникам", "вторникам", "средам", "четвергам", "пятницам", "субботам"],
-  uk: ["неділях", "понеділках", "вівторках", "середах", "четвергах", "п'ятницях", "суботах"],
+  uk: ["неділі", "понеділки", "вівторки", "середи", "четверги", "п'ятниці", "суботи"],
 };
 const REPEAT_WORDS: Readonly<Record<Exclude<Locale, "en">, { once: string; daily: string; weekdays: string; every: string; and: string }>> = {
   ru: { once: "Один раз", daily: "Каждый день", weekdays: "По будням", every: "По", and: "и" },
-  uk: { once: "Один раз", daily: "Щодня", weekdays: "По буднях", every: "По", and: "і" },
+  uk: { once: "Один раз", daily: "Щодня", weekdays: "У будні", every: "У", and: "й" },
 };
 
 export function repeatLabelIn(locale: Locale, weekdays: readonly number[]): string {

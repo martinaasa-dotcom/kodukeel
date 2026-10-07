@@ -404,7 +404,6 @@ export const START: Area = {
       "Це можна змінити будь-коли в налаштуваннях або просто в рядку з літерами.",
     "What language would you like meanings in?": "Якою мовою показувати значення слів?",
     "English": "Англійська",
-    "Russian": "Російська",
     "Ukrainian": "Українська",
     "Plain English meanings": "Значення англійською",
     "What stays in English": "Що залишається англійською",

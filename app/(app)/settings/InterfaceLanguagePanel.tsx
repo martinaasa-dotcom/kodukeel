@@ -37,7 +37,11 @@ export function InterfaceLanguagePanel({ current }: { current: Locale }) {
       value={value}
       disabled={pending}
       onSelect={pick}
-      options={LOCALES.map((id) => ({
+      /* English and the language the app is in now, never the other one:
+         a Ukrainian reader is not offered Russian by name, or the reverse,
+         which the meaning-language panel already keeps. The other one is
+         a press away, through English. */
+      options={LOCALES.filter((id) => current === "en" || id === "en" || id === current).map((id) => ({
         id,
         title: LOCALE_NAMES[id],
         /* Said in the language the app is in now, never in the other one: a

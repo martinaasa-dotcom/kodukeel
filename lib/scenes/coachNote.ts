@@ -78,7 +78,7 @@ const NOTE_LANGUAGE: Readonly<Record<Locale, string>> = { en: "English", ru: "Ru
  */
 function inTheirLanguage(language: Exclude<Locale, "en">): string {
   const name = NOTE_LANGUAGE[language];
-  return `The learner reads ${name} better than English, so the note is in ${name}: natural, warm ${name}, addressing them as ${language === "ru" ? "вы" : "ви"}, never a translation of English sentences.${language === "uk" ? " Real Ukrainian, never Russian spelled with Ukrainian letters." : ""} Quote their Estonian in straight double quotes exactly as written, and put any ${name} words in «» quotes.`;
+  return `The learner reads ${name} better than English, so the note is in ${name}: natural, warm ${name}, addressing them as ${language === "ru" ? "вы" : "ви"}, never a translation of English sentences.${language === "uk" ? " Write standard literary Ukrainian and nothing else: no Russian words, no Russianisms or calques from Russian, no surzhyk, and never Russian spelled with Ukrainian letters. Never mention Russia, Russian or the Russian language, and never compare anything to Russian; where a comparison helps, compare with Ukrainian or English." : ""} Quote their Estonian in straight double quotes exactly as written, and put any ${name} words in «» quotes.`;
 }
 
 export function buildCoachNoteUser(input: CoachNoteInput): string {

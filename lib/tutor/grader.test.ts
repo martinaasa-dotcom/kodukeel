@@ -338,7 +338,8 @@ describe("the note in the learner's language", () => {
     expect(ru).toMatch(/write "comment" and "rule" in Russian/);
     expect(ru).toMatch(/straight double quotes/);
     expect(ru).toMatch(/«»/);
-    expect(writtenIn("uk")).toMatch(/Real Ukrainian/);
+    expect(writtenIn("uk")).toMatch(/standard literary Ukrainian/);
+    expect(writtenIn("uk")).toMatch(/never compare anything to Russian/);
     // The system prompt carries no language, so it stays one cached prompt for everybody.
     expect(buildGraderSystemPrompt()).not.toMatch(/Russian|Ukrainian/);
   });
