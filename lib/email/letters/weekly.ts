@@ -37,9 +37,12 @@
 */
 import { meter, weekStrip } from "../art";
 import type { Block, Letter } from "../letter";
-import { SpelledCount, spelledCount } from "@/lib/copy/values";
+import { figured, sayer, spelled, type Locale } from "../say";
+import { spelledCount } from "@/lib/copy/values";
 
 export interface WeeklyInput {
+  /** The language the letter is written in. The week's labels arrive already in it. */
+  readonly locale: Locale;
   readonly origin: string;
   /** Seven days ending yesterday, oldest first, each with a one-letter label. */
   readonly week: readonly { readonly label: string; readonly studied: boolean }[];
@@ -75,18 +78,32 @@ export interface WeeklyInput {
 
 
 export function weeklyLetter(input: WeeklyInput): Letter {
+  const { locale } = input;
+  const say = sayer(locale);
   const studied = input.week.filter((d) => d.studied).length;
   const blocks: Block[] = [];
+  /*
+    The answers and the words, as counts. English says "cards" and "words"
+    whatever the number, which is how this letter always read; Russian and
+    Ukrainian count answers rather than cards, because "you answered on
+    91 cards" wants a case the count's own form cannot give.
+  */
+  const cards = locale === "en" ? `${input.reviews} cards` : figured(locale, input.reviews, "answer");
+  const words = figured(locale, input.held, "word", { always: true });
 
   blocks.push({
     t: "heading",
-    text: studied === 0 ? "A quiet week." : `You studied on ${spelledCount(studied)} of the last seven days.`,
+    text: studied === 0
+      ? say("A quiet week.")
+      : say("You studied on {n} of the last seven days.", {
+          n: locale === "en" ? spelledCount(studied) : figured(locale, studied, "day"),
+        }),
   });
 
   blocks.push({
     t: "art",
     html: weekStrip(input.week),
-    alt: input.week.map((d) => `${d.label}: ${d.studied ? "studied" : "day off"}`).join("\n"),
+    alt: input.week.map((d) => `${d.label}: ${d.studied ? say("studied") : say("day off")}`).join("\n"),
   });
 
   if (studied > 0) {
@@ -101,16 +118,19 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     */
     blocks.push({
       t: "text",
-      text:
-        `You answered ${input.reviews} cards. ${input.held} words are properly yours now, and that ` +
-        `number only grows when a word comes back days later and you still know it.`,
+      text: say(
+        "You answered {cards}. {words} are properly yours now, and that " +
+          "number only grows when a word comes back days later and you still know it.",
+        { cards, words },
+      ),
     });
   } else {
     blocks.push({
       t: "text",
-      text:
+      text: say(
         "No cards this week, and that's fine. Weeks like that happen. Nothing piles up to punish you " +
-        "while you're away, and one evening puts you right back where you were.",
+          "while you're away, and one evening puts you right back where you were.",
+      ),
     });
   }
 
@@ -119,8 +139,10 @@ export function weeklyLetter(input: WeeklyInput): Letter {
       t: "text",
       text:
         input.conversations === 1
-          ? "And one conversation in Estonian with a real person. That's the number this whole app is for."
-          : `And ${input.conversations} conversations in Estonian with real people. That's the number this whole app is for.`,
+          ? say("And one conversation in Estonian with a real person. That's the number this whole app is for.")
+          : say("And {conversations} in Estonian with real people. That's the number this whole app is for.", {
+              conversations: figured(locale, input.conversations, "conversation"),
+            }),
     });
   }
 
@@ -135,16 +157,22 @@ export function weeklyLetter(input: WeeklyInput): Letter {
   */
   if (input.ladder) {
     blocks.push({ t: "rule" });
-    blocks.push({ t: "heading", text: `On your way to ${input.ladder.target}` });
+    blocks.push({ t: "heading", text: say("On your way to {target}", { target: input.ladder.target }) });
     blocks.push({
       t: "art",
       html: meter(input.ladder.pct),
-      alt: `About ${Math.round(input.ladder.pct)} percent of the way to ${input.ladder.target}.`,
+      alt: say("About {pct} percent of the way to {target}.", {
+        pct: Math.round(input.ladder.pct),
+        target: input.ladder.target,
+      }),
     });
     if (input.ladder.next) {
       blocks.push({
         t: "text",
-        text: `Next stop is ${input.ladder.next.level}, about ${input.ladder.next.wordsAway} words away.`,
+        text: say("Next stop is {level}, about {words} away.", {
+          level: input.ladder.next.level,
+          words: figured(locale, input.ladder.next.wordsAway, "word", { always: true }),
+        }),
       });
     }
     blocks.push({
@@ -160,10 +188,15 @@ export function weeklyLetter(input: WeeklyInput): Letter {
         screen is.
       */
       text: input.ladder.assumed > 0
-        ? `About ${input.ladder.assumed} of those words count because of the level you started at, ` +
-          "and haven't been checked yet. The rest are words you still knew days after you first met them."
-        : "That bar only moves for words you still know days after you first met them. " +
-          "Just opening the app won't nudge it.",
+        ? say(
+            "About {assumed} of those words count because of the level you started at, " +
+              "and haven't been checked yet. The rest are words you still knew days after you first met them.",
+            { assumed: input.ladder.assumed },
+          )
+        : say(
+            "That bar only moves for words you still know days after you first met them. " +
+              "Just opening the app won't nudge it.",
+          ),
     });
   }
 
@@ -173,25 +206,31 @@ export function weeklyLetter(input: WeeklyInput): Letter {
       t: "text",
       text:
         input.part.eveningsLeft === 1
-          ? `One evening left in ${input.part.title}.`
-          : `${SpelledCount(input.part.eveningsLeft)} evenings left in ${input.part.title}.`,
+          ? say("One evening left in {title}.", { title: input.part.title })
+          : say("{evenings} left in {title}.", {
+              evenings: spelled(locale, input.part.eveningsLeft, "evening", { capital: true }),
+              title: input.part.title,
+            }),
     });
   }
 
-  blocks.push({ t: "button", label: "Carry on with the course", href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: say("Carry on with the course"), href: `${input.origin}/course` });
   blocks.push({
     t: "link",
-    label: "See all your progress",
+    label: say("See all your progress"),
     href: `${input.origin}/progress`,
   });
 
   return {
     kind: "weekly",
-    subject: studied === 0 ? "A quiet week, and the course is right where you left it" : `${studied === 1 ? "One day" : `${SpelledCount(studied)} days`} of Estonian this week`,
+    locale,
+    subject: studied === 0
+      ? say("A quiet week, and the course is right where you left it")
+      : say("{days} of Estonian this week", { days: spelled(locale, studied, "day", { capital: true }) }),
     preheader:
       studied === 0
-        ? "Nothing to catch up on. One evening and you're back in."
-        : `${input.reviews} cards answered, and ${input.held} words that are properly yours.`,
+        ? say("Nothing to catch up on. One evening and you're back in.")
+        : say("{cards} answered, and {words} that are properly yours.", { cards, words }),
     blocks,
   };
 }

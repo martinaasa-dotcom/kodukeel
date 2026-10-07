@@ -39,6 +39,13 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
   exam composition) is asked for in their language at the end of the user prompt (`writtenIn` in
   `lib/tutor/grader.ts`), so the cached system prompt stays one prompt; the Estonian rules and the
   verifier are unchanged.
+- A letter is written in the learner's language too. `lib/progress/mailout.ts` reads every
+  learner's language for a roster page in one query (`localesFor`) and hands it to each letter's
+  input; the letters look their lines up in `lib/copy/i18n/areas/letters.ts` through
+  `lib/email/say.ts`, which builds a count in the right plural, and English comes out byte for
+  byte as before. The footer says once, in Russian or Ukrainian, that the words were translated
+  with AI (`MACHINE_SHORT`), and the document carries the language as its `lang`. The word of the
+  day's gloss and its example sentence stay the dictionary's English, as on Today.
 - A sentence with an element in a slot (an Estonian word in its own span) is one template drawn by
   `components/TrParts.tsx`, never pieces translated apart.
 - The offline banner and the document's `lang` sit above the shell, so `components/ShellLocale.tsx`

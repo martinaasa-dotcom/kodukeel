@@ -32,9 +32,12 @@
 */
 import { weekStrip } from "../art";
 import type { Block, Letter } from "../letter";
+import { figured, sayer, type Locale } from "../say";
 import { spelledCount } from "@/lib/copy/values";
 
 export interface ShieldInput {
+  /** The language the letter is written in. The week's labels arrive already in it. */
+  readonly locale: Locale;
   readonly origin: string;
   /** The run of days the shield kept alive. */
   readonly streak: number;
@@ -53,9 +56,15 @@ export interface ShieldInput {
 
 
 export function shieldLetter(input: ShieldInput): Letter {
+  const { locale } = input;
+  const say = sayer(locale);
   const blocks: Block[] = [];
+  const days = figured(locale, input.streak, "day");
+  /* How many are left: "two" in English, which the sentence carries its own
+     noun after, and the figure with the noun's own form in the other two. */
+  const more = locale === "en" ? spelledCount(input.remaining) : figured(locale, input.remaining, "shield");
 
-  blocks.push({ t: "heading", text: "A shield covered yesterday." });
+  blocks.push({ t: "heading", text: say("A shield covered yesterday.") });
 
   /*
     WHAT HAPPENED, IN THE ORDER IT HAPPENED, WITH NO ADJECTIVE IN IT.
@@ -66,15 +75,17 @@ export function shieldLetter(input: ShieldInput): Letter {
   */
   blocks.push({
     t: "text",
-    text:
-      `You took yesterday off, so one of the shields you'd earned stepped in. ` +
-      `Your run of ${input.streak} days is still going.`,
+    text: say(
+      "You took yesterday off, so one of the shields you'd earned stepped in. " +
+        "Your run of {days} is still going.",
+      { days },
+    ),
   });
 
   blocks.push({
     t: "art",
     html: weekStrip(input.week),
-    alt: input.week.map((d) => `${d.label}: ${d.studied ? "studied" : "day off"}`).join("\n"),
+    alt: input.week.map((d) => `${d.label}: ${d.studied ? say("studied") : say("day off")}`).join("\n"),
   });
 
   /*
@@ -88,25 +99,32 @@ export function shieldLetter(input: ShieldInput): Letter {
     t: "text",
     text:
       input.remaining > 0
-        ? `You've got ${spelledCount(input.remaining)} more saved up.`
+        ? say("You've got {more} more saved up.", { more })
         : input.nextAt !== null
-          ? `That was your last one. You'll earn another when you reach ${input.nextAt} days.`
-          : `That was your last one.`,
+          ? say("That was your last one. You'll earn another when you reach {nextAt} days.", { nextAt: input.nextAt })
+          : say("That was your last one."),
   });
 
   blocks.push({
     t: "quiet",
-    text:
+    text: say(
       "A day off never costs you anything here. Your words just wait for you, " +
-      "exactly where you left them.",
+        "exactly where you left them.",
+    ),
   });
 
-  blocks.push({ t: "button", label: "See what's on tonight", href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: say("See what's on tonight"), href: `${input.origin}/course` });
 
   return {
     kind: "shield",
-    subject: "A shield covered yesterday",
-    preheader: `Your run of ${input.streak} days is still going, and ${input.remaining > 0 ? `you've got ${spelledCount(input.remaining)} more ${input.remaining === 1 ? "shield" : "shields"} saved` : "that was your last shield"}.`,
+    locale,
+    subject: say("A shield covered yesterday"),
+    preheader: input.remaining > 0
+      ? say("Your run of {days} is still going, and you've got {more} saved.", {
+          days,
+          more: locale === "en" ? `${more} more ${input.remaining === 1 ? "shield" : "shields"}` : more,
+        })
+      : say("Your run of {days} is still going, and that was your last shield.", { days }),
     blocks,
   };
 }
