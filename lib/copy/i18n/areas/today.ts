@@ -370,18 +370,10 @@ export const TODAY: Area = {
     "Назовите вслух по-эстонски цену или этаж, на котором живёте, и попросите повторить.",
   "Anywhere":
     "Где угодно",
-  "A café":
-    "Кафе",
-  "A shop or a market":
-    "Магазин или рынок",
-  "A shop":
-    "Магазин",
   "A bus stop":
     "Остановка",
   "a corridor":
     "коридор",
-  "Town":
-    "Город",
   "A queue":
     "Очередь",
   "a lift":
@@ -396,10 +388,6 @@ export const TODAY: Area = {
     "друг",
   "A form":
     "Анкета",
-  "A clothes shop":
-    "Магазин одежды",
-  "The phone":
-    "Телефон",
   "A health center":
     "Поликлиника",
   "a salon":
@@ -408,14 +396,6 @@ export const TODAY: Area = {
     "Сосед",
   "a colleague":
     "коллега",
-  "The post office":
-    "Почта",
-  "A bus station":
-    "Автовокзал",
-  "A restaurant":
-    "Ресторан",
-  "A pharmacy":
-    "Аптека",
   "work":
     "работа",
   "a party":
@@ -578,8 +558,6 @@ export const TODAY: Area = {
     "{minutes} мин",
   "left":
     "осталось",
-  "done":
-    "пройдено",
   "Tonight's words":
     "Слова этого вечера",
   "A few of these aren't in your deck yet. The first step adds them.":
@@ -1329,18 +1307,10 @@ export const TODAY: Area = {
     "Назвіть уголос естонською ціну або поверх, на якому живете, і попросіть повторити.",
   "Anywhere":
     "Будь-де",
-  "A café":
-    "Кав'ярня",
-  "A shop or a market":
-    "Магазин або ринок",
-  "A shop":
-    "Магазин",
   "A bus stop":
     "Зупинка",
   "a corridor":
     "коридор",
-  "Town":
-    "Місто",
   "A queue":
     "Черга",
   "a lift":
@@ -1355,10 +1325,6 @@ export const TODAY: Area = {
     "друг",
   "A form":
     "Анкета",
-  "A clothes shop":
-    "Магазин одягу",
-  "The phone":
-    "Телефон",
   "A health center":
     "Поліклініка",
   "a salon":
@@ -1367,14 +1333,6 @@ export const TODAY: Area = {
     "Сусід",
   "a colleague":
     "колега",
-  "The post office":
-    "Пошта",
-  "A bus station":
-    "Автовокзал",
-  "A restaurant":
-    "Ресторан",
-  "A pharmacy":
-    "Аптека",
   "work":
     "робота",
   "a party":
@@ -1537,8 +1495,6 @@ export const TODAY: Area = {
     "{minutes} хв",
   "left":
     "залишилося",
-  "done":
-    "пройдено",
   "Tonight's words":
     "Слова цього вечора",
   "A few of these aren't in your deck yet. The first step adds them.":
