@@ -553,11 +553,11 @@ export const TODAY: Area = {
   "{words} again":
     "{words} на повтор",
   "0m":
-    "0 мин",
+    "0",
   "{minutes}m":
-    "{minutes} мин",
+    "{minutes}",
   "left":
-    "осталось",
+    "мин осталось",
   "Tonight's words":
     "Слова этого вечера",
   "A few of these aren't in your deck yet. The first step adds them.":
@@ -1490,11 +1490,11 @@ export const TODAY: Area = {
   "{words} again":
     "{words} на повторення",
   "0m":
-    "0 хв",
+    "0",
   "{minutes}m":
-    "{minutes} хв",
+    "{minutes}",
   "left":
-    "залишилося",
+    "хв залишилося",
   "Tonight's words":
     "Слова цього вечора",
   "A few of these aren't in your deck yet. The first step adds them.":
