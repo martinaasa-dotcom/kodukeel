@@ -20,7 +20,7 @@ export const UK: Readonly<Record<string, string>> = {
   "Everything due, right before you'd forget it": "Усе, що пора повторити, якраз перед тим, як ви його забудете",
   "Situations": "Ситуації",
   "Book a doctor, order a coffee, call your landlord": "Записатися до лікаря, замовити каву, зателефонувати орендодавцю",
-  "Look it up": "Знайти",
+  "Look it up": "Пошук",
   "Any word, any ending, and why it works that way.": "Будь-яке слово, будь-яке закінчення і чому все влаштовано саме так.",
   "Dictionary": "Словник",
   "Look up any word, in any form": "Будь-яке слово в будь-якій формі",
@@ -42,7 +42,7 @@ export const UK: Readonly<Record<string, string>> = {
   "Your classes, study times and what's due": "Ваші заняття в групі, час навчання і терміни",
   "Classes": "Групи",
   "Teach a class, or join one": "Ведіть групу або приєднуйтеся до неї",
-  "Progress": "Поступ",
+  "Progress": "Прогрес",
   "What's sticking, what isn't, and when you study": "Що запам'ятовується, що ні, і коли ви вчитеся",
   "My words": "Мої слова",
   "Every word you're learning, card by card": "Кожне слово, яке ви вчите, картка за карткою",
@@ -201,15 +201,13 @@ export const UK: Readonly<Record<string, string>> = {
 
   // THE BRIEFING'S OWN CHROME.
   "{count} in this round": "{count} у цьому раунді",
-  "Before you start": "Перед початком",
-  "What you'll see": "Що ви побачите",
   "What you do": "Що треба робити",
 
   // SETTINGS: THE LANGUAGE ITSELF.
   "Language of the app": "Мова застосунку",
   "The words around the Estonian. The Estonian itself never changes.": "Слова навколо естонського тексту. Сама естонська не змінюється.",
   "Got it": "Зрозуміло",
-  "More about your progress": "Ще про ваш поступ",
+  "More about your progress": "Ще про ваш прогрес",
   "{day}: {count} reviews": "{day}, повторень: {count}",
   "{total} reviews, spread over {active} of the last {days} days": "Повторень: {total}. Днів із заняттями: {active} з {days}.",
   "Quiet": "Мало",

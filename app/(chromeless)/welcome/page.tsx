@@ -596,7 +596,7 @@ function Compare({ say }: { say: Say }) {
         </div>
       </Reveal>
       <p className="mt-6 max-w-[60ch] text-sm" style={{ color: "var(--ink-3)" }}>
-        {rich(t("Weighing up particular apps? There’s a side-by-side table in {below}, checked against each app’s own website."), {
+        {rich(t("Weighing up particular apps? There’s a side-by-side table in {below}, checked against each app’s own website in August 2026."), {
           below: <a href="#comparison" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>{t("the questions below")}</a>,
         })}
       </p>
@@ -1219,7 +1219,7 @@ function Comparison({ say }: { say: Say }) {
         for by name.
       */}
       <p className="mt-3 max-w-[68ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {rich(t("Duolingo has never offered Estonian, so the real choice is between the tools that do. We checked {claims} claims against each tool’s own website, and another tool earns a check mark on {shared} of them. None of them is trying to get you saying {e1} and knowing why it isn’t {e2}."), {
+        {rich(t("As of August 2026, Duolingo has never offered Estonian, so the real choice is between the tools that do. That month we checked {claims} claims against each tool’s own website, and another tool earns a check mark on {shared} of them. None of them is trying to get you saying {e1} and knowing why it isn’t {e2}."), {
           claims,
           shared,
           e1: <span lang="et" className="font-semibold">ma lähen tuppa</span>,

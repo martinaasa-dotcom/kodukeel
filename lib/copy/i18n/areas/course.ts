@@ -844,7 +844,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Midsummer Day", "Иванов день (Яанипяэв)", "Яанів день"],
   ["Midsummer Day, the second holiday in a row. The fires were lit last night, and half the country is still out by the lake.",
     "Иванов день, второй выходной подряд. Костры горели прошлой ночью, а полстраны до сих пор у озера.",
-    "Яанів день, другий вихідний поспіль. Вогнища горіли минулої ночі, а пів країни досі біля озера."],
+    "Яанів день, другий вихідний поспіль. Вогнища горіли минулої ночі, а півкраїни досі біля озера."],
   ["International Cat Day", "Международный день кошек", "Міжнародний день котів"],
   ["International Cat Day. Not an Estonian invention, but the cats here are keeping it anyway.",
     "Международный день кошек. Придумали его не в Эстонии, но здешние кошки всё равно его отмечают.",

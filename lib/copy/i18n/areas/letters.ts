@@ -247,7 +247,7 @@ export const LETTERS: Area = {
       "У вашій колоді вже {cards} з перших уроків курсу. Ваш перший вечір: {title}, {subtitle}.",
     "{cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.":
       "У вашій колоді вже {cards} з перших уроків курсу. Відкрийте курс, і він покаже, з чого почати.",
-    "A progress bar, right at the start.": "Смуга поступу, на самому початку.",
+    "A progress bar, right at the start.": "Смуга прогресу, на самому початку.",
     "Fifteen minutes an evening, and that's all.": "П'ятнадцять хвилин увечері, і все.",
     "Each evening is a short reading, two quick exercises and a few cards to go over. It takes about a quarter of an hour at any level, and when you're done, the app tells you so and lets you go. No endless scrolling, no guilt.":
       "Кожен вечір: коротке читання, дві швидкі вправи й кілька карток на повторення. На будь-якому рівні це близько чверті години, а коли ви закінчите, застосунок так і скаже й відпустить вас. Без нескінченної стрічки й без почуття провини.",
@@ -329,7 +329,7 @@ export const LETTERS: Area = {
     "One evening left in {title}.": "У частині «{title}» лишився один вечір.",
     "{evenings} left in {title}.": "У частині «{title}» ще {evenings}.",
     "Continue with the course": "Продовжити курс",
-    "See all your progress": "Переглянути весь поступ",
+    "See all your progress": "Переглянути весь прогрес",
     "A quiet week, and the course is right where you left it": "Тихий тиждень, а курс чекає там само, де ви зупинилися",
     "{days} of Estonian this week": "{days} з естонською цього тижня",
     "Nothing to catch up on. One evening and you're back in.": "Надолужувати нічого. Один вечір, і ви знову в ділі.",

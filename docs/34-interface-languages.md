@@ -102,8 +102,8 @@ that is correct and reads like a translation has failed.
 - **Quotation marks are «ёлочки»**, never straight or English curly quotes.
 - Russian keeps **ё** where it is written (ещё, всё, её).
 - Ukrainian uses the straight apostrophe `'` (п'ять, пам'ять), and is Ukrainian, never Russian with
-  Ukrainian letters: «поступ» rather than «прогрес» where the screen means progress, «застосунок»
-  rather than «додаток», «вчити», «запитання».
+  Ukrainian letters: «застосунок» rather than «додаток», «вчити», «запитання». Progress is «прогрес»,
+  the word the reader already uses for it.
 - Numbers keep their digits; a time is 24 hour, as in English.
 
 ## The words, once
@@ -111,10 +111,11 @@ that is correct and reads like a translation has failed.
 | English | Russian | Ukrainian |
 |---|---|---|
 | Today | Сегодня | Сьогодні |
-| Today's module, tonight's module | урок на сегодня, урок этого вечера | урок на сьогодні, урок цього вечора |
+| Today's module, tonight's module | занятие на сегодня, сегодняшнее занятие | заняття на сьогодні, сьогоднішнє заняття |
+| lesson (inside a unit) | урок | урок |
 | evening (a day of the course) | вечер | вечір |
 | step (of a module) | шаг | крок |
-| Learn | Учить | Вчити |
+| Learn | Учить | Вивчати |
 | Practice | Практика | Практика |
 | Review (the screen), to review | Повторение, повторять | Повторення, повторювати |
 | due (cards) | пора повторить | час повторити |
@@ -130,7 +131,7 @@ that is correct and reads like a translation has failed.
 | Situations, conversation | Ситуации, разговор | Ситуації, розмова |
 | Dictionary | Словарь | Словник |
 | Grammar | Грамматика | Граматика |
-| Progress | Прогресс | Поступ |
+| Progress | Прогресс | Прогрес |
 | Settings | Настройки | Налаштування |
 | level check | проверка уровня | перевірка рівня |
 | mock exam | пробный экзамен | пробний іспит |

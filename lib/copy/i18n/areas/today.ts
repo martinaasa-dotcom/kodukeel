@@ -424,12 +424,6 @@ export const TODAY: Area = {
     "новое для вас",
   "Hear {word}":
     "Послушать {word}",
-  "See the full entry":
-    "Вся статья в словаре",
-  "Words of the day kept so far: {kept}":
-    "Сохранено слов дня: {kept}",
-  "Words of the day kept so far: {kept}, {days} in a row":
-    "Сохранено слов дня: {kept}, {days} подряд",
 
   // THE CLIMB TO THE LEVEL THEY ARE AIMING AT.
   "{part}, day {day}":
@@ -1242,7 +1236,7 @@ export const TODAY: Area = {
   "That makes {held} in the last {days}.":
     "Усього розмов за останні {days}: {held}.",
   "See them all on Progress":
-    "Усі вони в розділі «Поступ»",
+    "Усі вони в розділі «Прогрес»",
   "Practice one here now":
     "Потренуватися тут просто зараз",
   "Was there a word you wanted and couldn't find?":
@@ -1250,7 +1244,7 @@ export const TODAY: Area = {
   "In English or Estonian":
     "Англійською або естонською",
   "Look it up":
-    "Знайти",
+    "Пошук",
   "Say hello to the first person you deal with today, and thank them on your way out.":
     "Привітайтеся з першою людиною, з якою сьогодні матимете справу, і подякуйте їй, коли йтимете.",
   "Say sorry in Estonian for something tiny, and tell them you're learning.":
@@ -1363,12 +1357,6 @@ export const TODAY: Area = {
     "нове для вас",
   "Hear {word}":
     "Послухати {word}",
-  "See the full entry":
-    "Уся стаття в словнику",
-  "Words of the day kept so far: {kept}":
-    "Збережено слів дня: {kept}",
-  "Words of the day kept so far: {kept}, {days} in a row":
-    "Збережено слів дня: {kept}, {days} поспіль",
 
   // THE CLIMB TO THE LEVEL THEY ARE AIMING AT.
   "{part}, day {day}":
@@ -1858,7 +1846,7 @@ export const TODAY: Area = {
   "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are four conversations to practice on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
     "Життя за порогом дому: навчання, подорожі, місто, ваші вихідні і як сказати, яка з двох речей краща. Дорогою на вас чекають чотири розмови для практики. Наприкінці ви зможете купити квиток, спитати дорогу й розповісти, що робили в суботу.",
   "Eating out, making plans, keeping in touch, and how you feel":
-    "Їжа поза домом, плани, спілкування і почуття",
+    "Кафе й ресторани, плани, спілкування і почуття",
   "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It has five conversations, more than any other part. By the end you can get through a whole meal in Estonian, book an appointment and call somebody about it.":
     "Розмова про те, що ще не сталося, спілкування з людьми і як сказати, що ви про все це відчуваєте. Тут п'ять розмов, більше, ніж у будь-якій іншій частині. Наприкінці ви зможете пообідати в ресторані цілком естонською, записатися на прийом і зателефонувати, щоб про нього домовитися.",
   "Objects, the people in your life, what each verb asks for, money, and would":

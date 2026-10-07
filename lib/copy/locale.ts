@@ -61,8 +61,8 @@ export const REVIEWED: Readonly<Record<Locale, boolean>> = { en: true, ru: false
  * (`MACHINE_NOTICE_EN`) wherever it is shown, for a reader of neither.
  */
 export const MACHINE_NOTICE: Readonly<Record<Exclude<Locale, "en">, string>> = {
-  ru: "Интерфейс переведён с помощью ИИ, и носитель языка его ещё не проверял, поэтому в переводе возможны ошибки. Часть экранов пока на английском.",
-  uk: "Інтерфейс перекладено за допомогою ШІ, і носій мови його ще не перевіряв, тож у перекладі можливі помилки. Частина екранів поки що англійською.",
+  ru: "Интерфейс переведён с помощью ИИ, и носитель языка его ещё не проверял, поэтому в переводе возможны ошибки.",
+  uk: "Інтерфейс перекладено за допомогою ШІ, і носій мови його ще не перевіряв, тож у перекладі можливі помилки.",
 };
 
 /** The same, short enough for the line under a choice. */
@@ -72,7 +72,7 @@ export const MACHINE_SHORT: Readonly<Record<Exclude<Locale, "en">, string>> = {
 };
 
 export const MACHINE_NOTICE_EN =
-  "This translation was made with AI and no native speaker has reviewed it yet, so it may contain mistakes. Some screens are still in English.";
+  "This translation was made with AI and no native speaker has reviewed it yet, so it may contain mistakes.";
 
 /** A stored row read back as a locale. Absent or unknown is English, which is what everybody had. */
 export function localeFrom(stored: string | null | undefined): Locale {
@@ -229,7 +229,6 @@ export const COUNT_CASES: Readonly<Record<string, { ru: CaseForms; uk: CaseForms
   thing: { ru: ["дела", "дело"], uk: ["справи", "справу"] },
   task: { ru: ["задания", "задание"], uk: ["завдання", "завдання"] },
   letter: { ru: ["буквы", "букву"], uk: ["літери", "літеру"] },
-  "word missing": { ru: ["слова", "слова"], uk: ["слова", "слова"] },
   phrase: { ru: ["фразы", "фразу"], uk: ["фрази", "фразу"] },
   answer: { ru: ["ответа", "ответ"], uk: ["відповіді", "відповідь"] },
   grade: { ru: ["ответа", "ответ"], uk: ["відповіді", "відповідь"] },

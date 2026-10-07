@@ -94,7 +94,7 @@ export const START: Area = {
     "Step {n} of {total}, {name}": "Шаг {n} из {total}: {name}",
     "Setup progress, step {n} of {total}": "Настройка, шаг {n} из {total}",
     "Back": "Назад",
-    "Measured {level}": "Проверено: {level}",
+    "Measured {level}": "Измерено: {level}",
     "Estimated {level}": "Ваша оценка: {level}",
     "below A1": "ниже A1",
     "Building your deck...": "Собираем вашу колоду…",
@@ -132,7 +132,7 @@ export const START: Area = {
     "Where are you now?": "Какой у вас сейчас уровень?",
     "Take the level check to find out, or just pick the one that sounds like you. The check stops as soon as it has found your level. Either way, you can change it later in Settings.":
       "Пройдите проверку уровня, чтобы узнать, или просто выберите тот, что подходит по описанию. Проверка закончится, как только определит ваш уровень. В любом случае его можно потом изменить в настройках.",
-    "Measured just now": "Только что проверено",
+    "Measured just now": "Только что измерено",
     "Take it again": "Пройти ещё раз",
     "Take the level check": "Пройти проверку уровня",
     "The level check isn’t ready on this copy of Kodukeel yet, because its dictionary hasn’t been loaded. For now, pick the level that sounds most like you.":

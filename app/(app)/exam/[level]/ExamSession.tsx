@@ -631,8 +631,12 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
         <h1 className="font-display mt-5 text-6xl font-bold leading-[0.95] tracking-tight md:text-7xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
           {paper.level}
           <span className="text-3xl md:text-4xl" style={{ color: "var(--ink-2)" }}>
-            {paper.number ? fill(t(", paper {n}"), { n: paper.number }) : ""}
-            {paper.part ? t(`, ${SKILL_LABEL[paper.part].toLowerCase()} only`) : ""}
+            {paper.number || paper.part
+              ? fill(t(paper.number ? (paper.part ? ", paper {n}, {part} only" : ", paper {n}") : ", {part} only"), {
+                  n: paper.number ?? "",
+                  part: paper.part ? t(SKILL_LABEL[paper.part]).toLocaleLowerCase(locale) : "",
+                })
+              : ""}
           </span>
         </h1>
         <p className="mt-4 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>

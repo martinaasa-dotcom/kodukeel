@@ -201,8 +201,6 @@ export const RU: Readonly<Record<string, string>> = {
 
   // THE BRIEFING'S OWN CHROME.
   "{count} in this round": "{count} в этом раунде",
-  "Before you start": "Перед началом",
-  "What you'll see": "Что вы увидите",
   "What you do": "Что нужно делать",
 
   // SETTINGS: THE LANGUAGE ITSELF.

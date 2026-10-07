@@ -178,6 +178,6 @@ export const FINISH: Area = {
     "{written} + {spoken} min": "{written} + {spoken} хв",
   },
   counted: {
-    second: { en: ["second", "seconds"], ru: ["секунду", "секунды", "секунд"], uk: ["секунду", "секунди", "секунд"] },
+    second: { en: ["second", "seconds"], ru: ["секунда", "секунды", "секунд"], uk: ["секунда", "секунди", "секунд"] },
   },
 };

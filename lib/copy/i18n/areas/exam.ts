@@ -36,8 +36,8 @@ const TEMPLATES: readonly Row[] = [
   // Writing.
   ["Write {scenario}.", "Напишите {scenario}.", "Напишіть {scenario}."],
   ["This is {name}. Write a short text about them from what the card says, for somebody who has never met them.",
-    "Это {name}. По тому, что написано на карточке, напишите короткий текст об этом человеке для того, кто с ним не знаком.",
-    "Це {name}. За тим, що написано на картці, напишіть короткий текст про цю людину для того, хто з нею не знайомий."],
+    "Это {name}. По данным с карточки напишите короткий текст для читателя, который никогда не встречался с этим человеком.",
+    "Це {name}. За даними з картки напишіть короткий текст для читача, який ніколи не зустрічався з цією людиною."],
   ["Describe {subject}.", "Опишите {subject}.", "Опишіть {subject}."],
   ["Write a story about {topic}: something that happened to you or somebody you know.",
     "Напишите рассказ {topic}: историю, которая случилась с вами или с кем-то из ваших знакомых.",
@@ -423,7 +423,7 @@ const BRIEF: readonly Row[] = [
   ["Large birds", "Крупные птицы", "Великі птахи"],
   ["Mending something", "Чиним что-то", "Лагодимо щось"],
   ["Slow creatures", "Медлительные существа", "Повільні істоти"],
-  ["Subway", "Под землёй", "Під землею"],
+  ["Subway", "В метро", "У метро"],
   ["Farm work", "Работа на ферме", "Робота на фермі"],
   ["Late evening", "Поздний вечер", "Пізній вечір"],
   ["Camping", "В походе", "У поході"],
@@ -703,9 +703,9 @@ const BRIEF: readonly Row[] = [
 
 /** The points about the person on a business card (`@card`). */
 const CARD: readonly Row[] = [
-  ["who they are and what they do", "кто этот человек и чем он занимается", "хто ця людина і чим вона займається"],
-  ["where they work", "где он работает", "де вона працює"],
-  ["when and how to get in touch", "когда и как с ним связаться", "коли і як із нею зв'язатися"],
+  ["who they are and what they do", "кто этот человек и чем занимается", "хто ця людина і чим займається"],
+  ["where they work", "место работы", "місце роботи"],
+  ["when and how to get in touch", "когда и как можно связаться", "коли і як можна зв'язатися"],
 ];
 
 /** A topic after "about", with the preposition (`@about`). */

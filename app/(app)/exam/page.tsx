@@ -414,8 +414,10 @@ function SittingRow({ attempt, zone, locale }: { attempt: Sitting; zone: Zone; l
           </span>
           {(attempt.number || attempt.part) && (
             <span className="text-sm" style={{ color: "var(--ink-2)" }}>
-              {attempt.number ? fill(t("Paper {n}"), { n: attempt.number }) : t("A paper")}
-              {attempt.part ? t(`, ${SKILL_LABEL[attempt.part].toLowerCase()} only`) : ""}
+              {fill(t(attempt.number ? (attempt.part ? "Paper {n}, {part} only" : "Paper {n}") : "A paper, {part} only"), {
+                n: attempt.number ?? "",
+                part: attempt.part ? t(SKILL_LABEL[attempt.part]).toLocaleLowerCase(locale) : "",
+              })}
             </span>
           )}
           <Chip tone={attempt.passed ? "good" : "again"}>

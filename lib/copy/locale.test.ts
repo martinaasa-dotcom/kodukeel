@@ -9,6 +9,32 @@ const TABLES = {
   uk: Object.assign({}, ...AREAS.map(([, a]) => a.uk)) as Record<string, string>,
 } as const;
 
+/**
+ * A line with every „…“ pair taken out that sits inside an open «…», which is
+ * how Russian and Ukrainian nest one quotation in another. A „ or a “ left
+ * after this is outside the outer marks, unpaired, or crossing a », and the
+ * quotation test fails on it.
+ */
+function innerPairsTakenOut(line: string): string {
+  let out = "";
+  let depth = 0;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]!;
+    if (ch === "«") depth++;
+    if (ch === "»") depth = Math.max(0, depth - 1);
+    if (ch === "„" && depth > 0) {
+      const close = line.indexOf("“", i + 1);
+      const inner = close < 0 ? "" : line.slice(i + 1, close);
+      if (close > 0 && !/[«»„"”]/.test(inner)) {
+        i = close;
+        continue;
+      }
+    }
+    out += ch;
+  }
+  return out;
+}
+
 /** Every line the translated surfaces draw, read off the tables they come from. */
 function surfaceLines(): string[] {
   const lines = new Set<string>();
@@ -71,7 +97,13 @@ describe("the interface language", () => {
     });
 
     it(`${locale}: uses the right quotation marks, never the English ones`, () => {
-      for (const out of Object.values(TABLES[locale])) expect(out, out).not.toMatch(/["“”]/);
+      for (const out of Object.values(TABLES[locale])) expect(innerPairsTakenOut(out), out).not.toMatch(/["“”„]/);
+    });
+
+    it(`${locale}: opens an inner „…“ pair only inside a «…» quotation`, () => {
+      expect(innerPairsTakenOut("«На экран „Домой“»")).toBe("«На экран »");
+      expect(innerPairsTakenOut("На экран „Домой“")).toBe("На экран „Домой“");
+      expect(innerPairsTakenOut("«„Домой»“")).toBe("«„Домой»“");
     });
   }
 
