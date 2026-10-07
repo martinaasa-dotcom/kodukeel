@@ -21,6 +21,7 @@ import { visibleLine } from "@/lib/security/visibleText";
 import { AudioPrefsProvider } from "@/components/AudioPrefs";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
+import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
 import { paceFrom } from "@/lib/audio/pace";
 import { adaptTiltFor } from "@/lib/progress/adapt";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -82,7 +83,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       [
         SETTING_KEYS.letterBar, SETTING_KEYS.timeZone,
         SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
-        SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
+        SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.sceneVoice, SETTING_KEYS.speechPace,
         SETTING_KEYS.caseQuestionGloss, SETTING_KEYS.navOrder, SETTING_KEYS.displayName,
       ],
     ),
@@ -107,12 +108,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const caseGloss = wantsCaseGloss(level, settings[SETTING_KEYS.caseQuestionGloss]);
   // How Estonian is read aloud, published once for every speaker button and
   // every round inside the shell. See components/AudioPrefs.tsx.
+  const support = supportFrom(settings[SETTING_KEYS.support]);
   const audio = {
     voice: voiceFrom(settings[SETTING_KEYS.ttsVoice]),
     autoplay: autoplayFrom(settings[SETTING_KEYS.autoplayAudio]),
     sounds: feedbackSoundsFrom(settings[SETTING_KEYS.feedbackSounds]),
     hearing: hearingFrom(settings[SETTING_KEYS.hearing]),
-    support: supportFrom(settings[SETTING_KEYS.support]),
+    support,
+    sceneVoice: sceneVoiceFrom(settings[SETTING_KEYS.sceneVoice], support),
     pace: paceFrom(settings[SETTING_KEYS.speechPace], level, tilt),
   };
   return (

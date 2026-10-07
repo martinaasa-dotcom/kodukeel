@@ -12,11 +12,12 @@ import { SuggestFix } from "@/components/SuggestFix";
 import { Dots } from "@/components/Dots";
 import { Speak } from "@/components/Speak";
 import { isSaid, isSpokenEstonian, type Provenance as SceneProvenance } from "@/lib/scenes/line";
-import { conditionFor, hidesGoal, hidesWords } from "@/lib/audio/conditions";
+import { conditionFor, hidesGoal } from "@/lib/audio/conditions";
+import { hidesLines, speaksAloud, type SceneVoice } from "@/lib/audio/sceneVoice";
 import { GlossedSentence } from "@/components/GlossedSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { useAudioPrefs } from "@/components/AudioPrefs";
-import { beginScene, finishScene, sceneHelp } from "@/app/actions";
+import { beginScene, finishScene, sceneHelp, setSceneVoice } from "@/app/actions";
 import { leafNeeds, type SceneSpec } from "@/lib/scenes/types";
 import type { Difficulty } from "@/lib/scenes/curveballs";
 import { BUDGETS, defaultDifficultyFor } from "@/lib/scenes/curveballs";
@@ -26,6 +27,7 @@ import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import { SceneStage } from "./SceneStage";
 import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
 import { SceneVignette } from "./SceneVignette";
+import { SceneVoiceChoice } from "./SceneVoiceChoice";
 import { cueFor, movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
 import { practises } from "@/lib/scenes/practises";
 import { NOT_REACHED } from "@/lib/copy/values";
@@ -433,7 +435,23 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
     is the thing the table exists to rehearse rather than a way to be marked
     down.
   */
-  const { hearing, support } = useAudioPrefs();
+  const { hearing, support, sceneVoice } = useAudioPrefs();
+  /*
+    HOW THE OTHER SIDE REACHES THE LEARNER: read, heard and read, or heard
+    alone (lib/audio/sceneVoice.ts). Chosen on the briefing and changeable from
+    the panel the learner types into, so somebody who opened a scene with the
+    voice on and then got on a bus does not have to leave the conversation to
+    turn it off. Remembered for the next scene, optimistically: the choice on
+    the screen is the one that holds for this run whether or not the write
+    lands, since a setting that failed to save is not a reason to change how a
+    conversation already under way sounds.
+  */
+  const [voiceMode, setVoiceMode] = useState<SceneVoice>(sceneVoice);
+  const chooseVoice = useCallback((next: SceneVoice) => {
+    setVoiceMode(next);
+    void setSceneVoice(next).catch(() => null);
+  }, []);
+  const aloud = speaksAloud(voiceMode);
   /*
     WHICH LINES THE LEARNER HAS ASKED TO SEE.
 
@@ -1247,6 +1265,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
           ))}
         </ChoiceGroup>
 
+        {/*
+          AND HOW THEY ARE HEARD, beside the other two, because it is the same
+          kind of decision: how this conversation will feel. See
+          lib/audio/sceneVoice.ts for why a voice mode plays a line unasked.
+        */}
+        <SceneVoiceChoice value={voiceMode} onSelect={chooseVoice} />
+
         <ChoiceGroup
           label="How tricky should it be?"
           className="grid gap-2 sm:grid-cols-2"
@@ -1665,13 +1690,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               <div data-who="you" className="scene-bubble inline-block max-w-full">
                 <p lang="et" className="flex items-center justify-end gap-2">
                   <span>{turn.text}</span>
-                  <Speak
+                  {aloud && <Speak
                     text={turn.text}
                     voice={voice}
                     size={14}
                     className="press inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[color-mix(in_srgb,var(--cta-ink)_14%,transparent)]"
                     style={{ color: "var(--cta-ink)" }}
-                  />
+                  />}
                 </p>
               </div>
               {/*
@@ -1735,7 +1760,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                     style={{ "--say-at": at } as CSSProperties}
                   >
                     <div data-who="them" className="scene-bubble inline-block max-w-full">
-                      {hidesWords(support) && spokenEstonian(line) && !shown.has(line.text) ? (
+                      {hidesLines(voiceMode) && spokenEstonian(line) && !shown.has(line.text) ? (
                         /*
                           Heard, not read. The speaker is the whole line, and
                           the way out is beside it rather than hidden: a
@@ -1750,6 +1775,10 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                             rate={speed}
                             size={18}
                             autoplay={index === turns.length - 1 && at === turn.lines.length - 1}
+                            insist
+                            /* Written out, because the default label is the
+                               line itself and these words are the ones hidden. */
+                            label="Hear what they said"
                             className="press inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-[var(--raised)]"
                           />
                           <button
@@ -1789,17 +1818,18 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                         <GlossedSentence
                           tokens={line.tokens}
                           sentence={line.text}
-                          speak={{
+                          speak={aloud && {
                             voice,
                             condition: conditionFor(opened?.plays ?? 0, index, hearing, true),
                             rate: speed,
                             autoplay: index === turns.length - 1 && at === turn.lines.length - 1,
+                            insist: true,
                           }}
                         />
                       ) : (
                       <p lang={spokenEstonian(line) ? "et" : "en"} className="flex items-center gap-2">
                         <span>{line.text}</span>
-                        {spokenEstonian(line) && (
+                        {aloud && spokenEstonian(line) && (
                           <Speak
                             text={line.text}
                             voice={voice}
@@ -1807,6 +1837,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                             rate={speed}
                             size={14}
                             autoplay={index === turns.length - 1 && at === turn.lines.length - 1}
+                            insist
                             className="press inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[var(--raised)]"
                           />
                         )}
@@ -1991,6 +2022,16 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         {/* Lit the way the room above it is, so the two ends of the screen
             are one conversation: the place you are in, and what you say in it. */}
         <div className="scene-ask flex flex-col gap-3 rounded-[var(--r-xl)] p-4 md:p-5">
+          {/*
+            HOW THEY ARE HEARD, SAID WHERE THE LEARNER IS LOOKING. A label and
+            a control at once: the chosen chip says which of the three this
+            conversation is, and a press on another changes it without leaving
+            the room. Outside the live region below, because a radio group
+            announces itself when it is used and announcing it again on every
+            turn would be the same sentence read at somebody each time the
+            other side speaks.
+          */}
+          <SceneVoiceChoice value={voiceMode} onSelect={chooseVoice} compact />
           <div aria-live="polite">
             {/*
               HOW FAR IN, WHERE THE LEARNER IS LOOKING.
