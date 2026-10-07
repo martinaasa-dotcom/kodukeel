@@ -25,6 +25,8 @@
  * Pure: no React, no Prisma.
  */
 
+import { AUDIT, AUDIT_VOCAB } from "./twentyAudit";
+
 export type Kind = "animal" | "plant" | "food" | "drink" | "object" | "clothes" | "vehicle" | "building" | "nature";
 
 /** Parts a thing can have. A lemma, because the learner asks for one by its name. */
@@ -371,7 +373,57 @@ function widen(t: Thing): Thing {
   };
 }
 
-export const THINGS: readonly Thing[] = BASE.map(widen);
+type Lists = Record<string, string[]>;
+
+/** Fields that describe what a thing looks or feels like, where "sometimes" from the audit is not taken over a plain yes (a table is wooden, a car is on the street). */
+const DESCRIBES = new Set(["trait", "colour", "feel", "isa", "where", "made"]);
+
+/** Lay the audited factbase over a widened thing: y goes to the plain list, s to "sometimes", a covered token left out is a no, u is left as it was. */
+function audited(t: Thing): Thing {
+  const raw = AUDIT[t.lemma];
+  if (!raw) return t;
+  const yes: Lists = { has: [...t.has], can: [...t.can], does: [...t.does], use: [...t.use], where: [...t.where], colour: [...t.colour], made: [...t.made], trait: [...t.trait], feel: [...t.feel], isa: [...t.isa] };
+  const some: Lists = { has: [...t.hasS], can: [...t.canS], does: [...t.doesS], use: [...t.useS], where: [...t.whereS], colour: [...t.colourS], made: [...t.madeS], trait: [...t.traitS], feel: [...t.feelS], isa: [...t.isaS] };
+  for (const seg of raw.split(" ; ")) {
+    const [field = "", ...cells] = seg.split(" ");
+    const cell: Record<string, string[]> = {};
+    for (const c of cells) {
+      const [k = "", v = ""] = c.split("=");
+      cell[k] = v.split(",").filter(Boolean);
+    }
+    const unknown = new Set(cell.u ?? []);
+    for (const token of AUDIT_VOCAB[field] ?? []) {
+      if (unknown.has(token)) continue;
+      const was = yes[field]?.includes(token) ? "y" : some[field]?.includes(token) ? "s" : "n";
+      const now = cell.y?.includes(token) ? "y" : cell.s?.includes(token) ? "s" : "n";
+      if (was === now) continue;
+      // A plain no that the research calls "sometimes" is left as no: it lists dogs as food and cars as red
+      // and would turn the game into a row of "Mõnikord". And a plain yes on a description (a carrot is long,
+      // an apple is round) stays yes. Everything else the audit says is taken as it is.
+      if (was === "n" && now === "s") continue;
+      if (was === "y" && now === "s" && DESCRIBES.has(field)) continue;
+      yes[field] = (yes[field] ?? []).filter((x) => x !== token);
+      some[field] = (some[field] ?? []).filter((x) => x !== token);
+      if (now === "y") yes[field]?.push(token);
+      else if (now === "s") some[field]?.push(token);
+    }
+  }
+  return {
+    ...t,
+    has: yes.has as Part[], hasS: some.has as Part[],
+    can: yes.can as Action[], canS: some.can as Action[],
+    does: yes.does ?? [], doesS: some.does ?? [],
+    use: yes.use as Use[], useS: some.use as Use[],
+    where: yes.where as Where[], whereS: some.where as Where[],
+    colour: yes.colour as Colour[], colourS: some.colour as Colour[],
+    made: yes.made ?? [], madeS: some.made ?? [],
+    trait: yes.trait ?? [], traitS: some.trait ?? [],
+    feel: yes.feel as Feel[], feelS: some.feel as Feel[],
+    isa: yes.isa ?? [], isaS: some.isa ?? [],
+  };
+}
+
+export const THINGS: readonly Thing[] = BASE.map((t) => audited(widen(t)));
 
 export const THING_BY_LEMMA: ReadonlyMap<string, Thing> = new Map(THINGS.map((t) => [t.lemma, t]));
 

@@ -87,7 +87,7 @@ describe("reading the learner's question", () => {
     expect(said("Kas see on loom?", "part")).toBe("yes");
     expect(said("Kas see on lind?", "part")).toBe("yes");
     expect(said("Kas see on taim?", "part")).toBe("no");
-    expect(said("Kas see lendab?", "part")).toBe("yes");
+    expect(said("Kas see lendab?", "part")).toBe("sometimes"); // the audit: some ducks, the farm kind, do not fly
     expect(said("Kas see ujub?", "part")).toBe("yes");
     expect(said("Kas seda saab süüa?", "part")).toBe("sometimes");
     expect(said("Kas sellel on tiivad?", "part")).toBe("yes");
@@ -127,7 +127,7 @@ describe("reading the learner's question", () => {
   });
 
   it("a negative question flips yes and no and leaves sometimes alone", () => {
-    expect(said("Kas see ei lenda?", "part")).toBe("no");
+    expect(said("Kas see ei lenda?", "part")).toBe("sometimes");
     expect(said("Kas see ei lenda?", "koer")).toBe("yes");
   });
 
@@ -204,7 +204,7 @@ describe("the wide layer", () => {
     expect(said("Kas see on klaasist?", "koer")).toBe("no");
     expect(said("Kas sellel on silmad?", "kass")).toBe("yes");
     expect(said("Kas sellel on kõrvad?", "part")).toBe("no");
-    expect(said("Kas sellel on ekraan?", "telefon")).toBe("yes");
+    expect(said("Kas sellel on ekraan?", "telefon")).toBe("sometimes");
     expect(said("Kas see haugub?", "koer")).toBe("yes");
     expect(said("Kas see kasvab?", "puu")).toBe("yes");
     expect(said("Kas see magab?", "kass")).toBe("yes");
