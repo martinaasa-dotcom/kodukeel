@@ -42,7 +42,7 @@ export function ResetCourse({ rows }: { rows: readonly ResetRow[] }) {
       const result = await resetCourseFor(target).catch(() => null);
       if (!result) setSaid(t(NOT_REACHED));
       else if (!result.ok) setSaid(t(result.error));
-      else setSaid(fill(t("Done: {who} reset, with {ticks} ticked steps cleared. Decks and the dictionary are untouched."), { who: label, ticks: result.ticks }));
+      else setSaid(fill(t("Done: {who} reset, with {ticks} checked steps cleared. Decks and the dictionary are untouched."), { who: label, ticks: result.ticks }));
       setSure(null);
     });
   };
@@ -77,8 +77,8 @@ export function ResetCourse({ rows }: { rows: readonly ResetRow[] }) {
                   </span>
                   <span className="tnum block text-sm" style={{ color: "var(--ink-2)" }}>
                     {row.lastAt
-                      ? fill(t("{ticks} ticks, last on {date}"), { ticks: row.ticks, date: date(new Date(row.lastAt), { day: "numeric", month: "short", year: "numeric" }) })
-                      : fill(t("{ticks} ticks"), { ticks: row.ticks })}
+                      ? fill(t("{ticks} steps checked, last on {date}"), { ticks: row.ticks, date: date(new Date(row.lastAt), { day: "numeric", month: "short", year: "numeric" }) })
+                      : fill(t("{ticks} steps checked"), { ticks: row.ticks })}
                   </span>
                 </span>
                 {asking && (

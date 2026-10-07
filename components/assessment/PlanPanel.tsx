@@ -11,7 +11,8 @@ import { ChevronRight } from "lucide-react";
 import { Card, Note, SectionTitle, StatTile } from "@/components/ui";
 import { NamedIcon } from "@/components/icons";
 import { Explain } from "@/components/Explain";
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { countOf, fill, tr, type CountCase, type Locale } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 
 /**
  * The honest timeline.
@@ -100,8 +101,8 @@ function hours1(n: number): number {
 function verdictFor(plan: Projection, locale: Locale): { tone: "neutral" | "good" | "warn"; headline: string } {
   const t = (english: string) => tr(locale, english);
   const allIn = plan.otherHoursPerWeek
-    ? formatDurationIn(plan.appHoursPerWeek + about(plan.otherHoursPerWeek), locale, "long")
-    : formatDurationIn(plan.appHoursPerWeek, locale, "long");
+    ? formatDurationIn(plan.appHoursPerWeek + about(plan.otherHoursPerWeek), locale, "long", "acc")
+    : formatDurationIn(plan.appHoursPerWeek, locale, "long", "acc");
   switch (plan.verdict) {
     case "arrived": return { tone: "good", headline: t("By this measure, you're already there.") };
     case "comfortable": return { tone: "good", headline: t("Your usual pace gets you there, with room to spare.") };
@@ -254,11 +255,13 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
 
       {compact && (
         <Explain label={t("Where the hours come from")}>
-          {t("The hours are published estimates for an English speaker, averaged over other people on other courses. We then adjust them for your level, your week and, once you have some, your reviews. The sources, and the research behind the pace, are on the")}{" "}
-          <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
-            {t("level check screen")}
-          </Link>
-          .
+          {fillNodes(t("The hours are published estimates for an English speaker, averaged over other people on other courses. We then adjust them for your level, your week and, once you have some, your reviews. The sources, and the research behind the pace, are on the {link}."), {
+            link: (
+              <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
+                {t("level check screen")}
+              </Link>
+            ),
+          })}
         </Explain>
       )}
 
@@ -298,7 +301,7 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
           {plan.paceSource === "measured"
             ? fill(t("Your pace comes from what you actually did here over the last {weeks}, not from what you said you'd do."), { weeks: weeksWord(plan.paceWeeks, locale) })
             : plan.paceSource === "lapsed"
-              ? fill(t("You haven't reviewed anything here in the last {weeks}, so we're using the pace you told us. Review for a fortnight and we'll use your real one."), { weeks: weeksWord(plan.paceWeeks, locale) })
+              ? fill(t("You haven't reviewed anything here in the last {weeks}, so we're using the pace you told us. Review for two weeks and we'll use your real one."), { weeks: weeksWord(plan.paceWeeks, locale) })
               : t("Once you've had two weeks of reviews here, the pace comes from what you actually do, not what you said you'd do.")}
         </p>
         {spec && (
@@ -375,12 +378,14 @@ function lowerFirst(text: string): string {
 function weeksWord(weeks: number | null, locale: Locale): string {
   const n = Math.max(1, Math.round(weeks ?? 0));
   if (locale === "en") return n === 1 ? "week" : `${n} weeks`;
-  return n === 1 ? tr(locale, "a single week (span)") : countOf(locale, n, "week");
+  /* Every sentence it fills reads "за {weeks}", which takes the accusative:
+     "за 21 неделю", never "за 21 неделя". */
+  return n === 1 ? tr(locale, "a single week (span)") : countOf(locale, n, "week", "acc");
 }
 
 /** A number of weeks in a sentence: always "N weeks" in English, as it was. */
-function weeksCount(n: number, locale: Locale): string {
-  return locale === "en" ? `${n} weeks` : countOf(locale, n, "week");
+function weeksCount(n: number, locale: Locale, grammaticalCase: CountCase = "nom"): string {
+  return locale === "en" ? `${n} weeks` : countOf(locale, n, "week", grammaticalCase);
 }
 
 /** The small print under the pace tile: what the figure is a figure of. */
@@ -417,10 +422,10 @@ function situation(reasons: readonly Reason[], locale: Locale): string | null {
 function foundNote(plan: Projection, reasons: readonly Reason[], locale: Locale): string {
   const t = (english: string) => tr(locale, english);
   const other = plan.otherHoursPerWeek!;
-  const need = formatDurationIn(about(other), locale, "long");
+  const need = formatDurationIn(about(other), locale, "long", "acc");
   const lands = weeksCount(plan.weeksAbout, locale);
   const where = situation(reasons, locale);
-  const held = formatDurationIn(about(plan.found), locale, "long");
+  const held = formatDurationIn(about(plan.found), locale, "long", "acc");
   if (plan.verdict === "short") {
     return fill(t("That's more than most weeks can hold on top of everything else. At {held} a week beyond this app, it's about {lands} away. Move your date to then, or raise the daily goal, and the plan works again."), { held, lands });
   }
@@ -440,7 +445,7 @@ function sentence(
 ): string {
   const t = (english: string) => tr(locale, english);
   if (plan.verdict === "arrived") {
-    return fill(t("You're already at {level} or above. Pick a higher target, or keep your reviews ticking over and take the check again in a couple of months."), { level: to });
+    return fill(t("You're already at {level} or above. Pick a higher target, or keep your reviews going and take the check again in a couple of months."), { level: to });
   }
   const qualifier = why.guessed
     ? ` ${t("That level is your own estimate, so the figure allows for you starting half a level lower.")}`
@@ -448,7 +453,7 @@ function sentence(
       ? ` ${t("Your skills came out at different levels, so we counted the distance skill by skill.")}`
       : "";
   const distance = `${fill(t("Going from {from} to {to} takes about {hours} of study."), { from, to, hours: hoursWords(plan.hours.low, plan.hours.high, locale) })}${qualifier}`;
-  const pace = formatDurationIn(plan.appHoursPerWeek, locale, "long");
+  const pace = formatDurationIn(plan.appHoursPerWeek, locale, "long", "acc");
   const covers = plan.paceSource === "measured"
     ? fill(t("You've spent about {pace} a week here over the last {weeks}, so that's the pace we're using."), { pace, weeks: weeksWord(plan.paceWeeks, locale) })
     : plan.paceSource === "lapsed"
@@ -468,7 +473,8 @@ function sentence(
   const whose = plan.paceSource === "measured" ? "your real pace"
     : plan.paceSource === "lapsed" ? "the pace you said"
       : why.onCourse ? "your evenings here" : "your daily goal";
-  const counts = { weeks: weeksCount(weeks, locale), covered: decimal(covered, locale) };
+  /* "За {weeks}": the accusative. */
+  const counts = { weeks: weeksCount(weeks, locale, "acc"), covered: decimal(covered, locale) };
   if (plan.verdict === "comfortable") {
     return `${distance} ${fill(t(`In {weeks} ${whose} alone ${puts(whose)} in about {covered} hours, which covers it.`), counts)}`;
   }

@@ -116,13 +116,13 @@ export function errandLetter(input: ErrandInput): Letter {
     blocks.push({
       t: "text",
       text: say(
-        "Fancy a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.",
+        "Want a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.",
         { title: errand.scene.title },
       ),
     });
     blocks.push({
       t: "button",
-      label: say("Practise it first"),
+      label: say("Practice it first"),
       href: `${input.origin}/situations/${errand.scene.id}`,
     });
     blocks.push({

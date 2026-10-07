@@ -91,7 +91,7 @@ await page.waitForURL(/\/review\?case=/, { timeout: 10000 });
 await startRound(page);
 await page.waitForSelector("text=Full entry", { timeout: 10000 });
 check("the drill opens and says what it is",
-  (await page.getByText(/(practising|drilling) the/i).count()) > 0, href);
+  (await page.getByText(/(practicing|drilling) the/i).count()) > 0, href);
 // Derived from the link rather than hard-coded: which case is weakest depends
 // on the review history, so pinning one name here makes the test fail on data
 // rather than on behavior.

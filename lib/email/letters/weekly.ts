@@ -38,6 +38,7 @@
 import { meter, weekStrip } from "../art";
 import type { Block, Letter } from "../letter";
 import { figured, sayer, spelled, type Locale } from "../say";
+import { countOf } from "@/lib/copy/locale";
 import { spelledCount } from "@/lib/copy/values";
 
 export interface WeeklyInput {
@@ -89,6 +90,9 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     91 cards" wants a case the count's own form cannot give.
   */
   const cards = locale === "en" ? `${input.reviews} cards` : figured(locale, input.reviews, "answer");
+  /* "You answered" is "ответили на" and "відповіли на", which takes the
+     accusative: "на 1 карточку", never "на 1 ответ" said twice over. */
+  const answeredOn = locale === "en" ? cards : countOf(locale, input.reviews, "card", "acc");
   const words = figured(locale, input.held, "word", { always: true });
 
   blocks.push({
@@ -121,7 +125,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
       text: say(
         "You answered {cards}. {words} are properly yours now, and that " +
           "number only grows when a word comes back days later and you still know it.",
-        { cards, words },
+        { cards: answeredOn, words },
       ),
     });
   } else {
@@ -214,7 +218,7 @@ export function weeklyLetter(input: WeeklyInput): Letter {
     });
   }
 
-  blocks.push({ t: "button", label: say("Carry on with the course"), href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: say("Continue with the course"), href: `${input.origin}/course` });
   blocks.push({
     t: "link",
     label: say("See all your progress"),

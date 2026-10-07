@@ -68,7 +68,7 @@ export default async function MasteryPage() {
     <Page route="/words/mastery"
       title={t("Where your words stand")}
       lead={t("Your favorites, and how well every other word is sticking.")}
-      actions={<ButtonLink href="/review/flashcards" variant="primary">{t("Practise with flash cards")}</ButtonLink>}
+      actions={<ButtonLink href="/review/flashcards" variant="primary">{t("Practice with flash cards")}</ButtonLink>}
     >
       {words.length === 0 && kept.length === 0 && aside.length === 0 ? (
         <Empty

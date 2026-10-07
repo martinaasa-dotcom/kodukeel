@@ -56,7 +56,7 @@ export function buildCoachNoteSystem(language: Locale = "en"): string {
     `Write in plain, friendly ${NOTE_LANGUAGE[language]}, as one person to another. No lists, no headings, no markdown, no emoji.`,
     ...(language === "en" ? [] : [inTheirLanguage(language)]),
     "comment: two or three sentences on what they did well, quoting their own words where it helps (in quotation marks, exactly as they wrote them). Be specific and honest: praise something real, never the generic 'great job'.",
-    "rule: one sentence with one concrete thing to practise next time, the most useful one. If a word came out differently, you may point at the form given in the list of fixes. Never correct anything else and never mark or grade them.",
+    "rule: one sentence with one concrete thing to practice next time, the most useful one. If a word came out differently, you may point at the form given in the list of fixes. Never correct anything else and never mark or grade them.",
     "Never write an Estonian word or sentence that does not appear in the conversation or in the fixes: quote, never invent. Never mention scores, mistakes counts, or the app.",
     ...VOICE_RULES,
     "Reply with JSON only: {\"comment\": \"...\", \"rule\": \"...\"}.",

@@ -105,8 +105,10 @@ export function SentenceTranslation({ lexemeId, et, en, canTranslate, ask = "onA
 
   if (!got) return null;
 
+  // English by design, so it says so: a screen reader set to Russian reads
+  // it with English sounds, and `scripts/test-locales.mjs` leaves it alone.
   return (
-    <p className="mt-1.5 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
+    <p lang="en" className="mt-1.5 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
       {got}
     </p>
   );

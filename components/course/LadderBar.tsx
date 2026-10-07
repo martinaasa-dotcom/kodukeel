@@ -4,8 +4,7 @@ import { Explain } from "@/components/Explain";
 import type { LadderProgress } from "@/lib/course";
 import { LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
-import { fillNodes } from "@/components/TemplateNodes";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * THE CLIMB TO THE BAND SOMEBODY SAID THEY WERE AIMING AT.
@@ -269,31 +268,21 @@ export function LadderBar({ progress, partLabel, learnerLevel, locale }: {
       <ol className="sr-only">
         {milestones.map((stop) => (
           <li key={stop.level}>
-            {/* One sentence per state with the level's name in a slot, so a
-                language orders and inflects it whole rather than being handed
-                ", done. " to stand after a name it cannot see. */}
-            {fillNodes(
-              fill(
-                t(stop.state === "passed" ? "{name}, done. {arrival}"
-                  : stop.state === "here" ? "{name}, {pct}%. {arrival}"
-                  : stop.state === "assumed" ? "{name}, counted from your level, {shown} of {words} shown in your reviews so far. {arrival}"
-                  : "{name}. {parts}. {arrival}"),
-                {
-                  pct: stop.pct,
-                  shown: stop.verified,
-                  words: stop.words,
-                  parts: countOf(locale, stop.parts, "part"),
-                  arrival: t(stop.arrival),
-                },
-              ),
-              {
-                name: (
-                  <span lang={wantsEnglish ? undefined : "et"}>
-                    {stop.level}, {uiText(learnerLevel, stop.title, t(LEVEL_INFO[stop.level].titleEn))}
-                  </span>
-                ),
-              },
-            )}
+            <span lang={wantsEnglish ? undefined : "et"}>
+              {stop.level}, {uiText(learnerLevel, stop.title, t(LEVEL_INFO[stop.level].titleEn))}
+            </span>
+            {/* Whole sentences after the name, never a fragment opening on a
+                comma: a translated ", done. " glued to a title is English word
+                order in every language. */}
+            {". "}
+            {[
+              stop.state === "passed" ? t("This level is done.")
+                : stop.state === "here" ? fill(t("{pct}% done."), { pct: stop.pct })
+                : stop.state === "assumed" ? fill(t("Counted from your level: {shown} of {words} shown in your reviews so far."), { shown: stop.verified, words: stop.words })
+                : stop.state === "ahead" ? fill(t("{parts} parts."), { parts: stop.parts })
+                : "",
+              t(stop.arrival),
+            ].filter(Boolean).join(" ")}
           </li>
         ))}
       </ol>
@@ -309,8 +298,8 @@ export function LadderBar({ progress, partLabel, learnerLevel, locale }: {
             ? t("You know every word this level asks for. There's nothing new left in it.")
             : here
               ? partLabel
-                ? fill(t("You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you tick off an evening. You're on {part}."), { pct, start, target, part: partLabel })
-                : fill(t("You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you tick off an evening."), { pct, start, target })
+                ? fill(t("You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you check off an evening. You're on {part}."), { pct, start, target, part: partLabel })
+                : fill(t("You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you check off an evening."), { pct, start, target })
               : standing
                 ? fill(t("Every level up to {target} counts as yours already. What's left is proving it, and that's what the evenings are for."), { target })
                 : t("Pick a target in Settings and this becomes the one number worth keeping an eye on.")}

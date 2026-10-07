@@ -1141,7 +1141,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         */}
         <section className="flex flex-col gap-2.5" aria-labelledby="scene-practise">
           <h2 id="scene-practise" className="label-xs" style={{ color: "var(--ink-3)" }}>
-            {t("You'll practise")}
+            {t("You'll practice")}
           </h2>
           <ul className="flex flex-wrap gap-2">
             {practises(scene).map((one) => (

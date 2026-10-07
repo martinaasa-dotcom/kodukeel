@@ -83,8 +83,8 @@ export const FINISH: Area = {
     "{forms} here aren't what the usual endings would give you.":
       "{forms} здесь не такие, как дали бы обычные окончания.",
     "{short} is the short one, and {long} is the long one you get from the ending. Both are right.":
-      "{short} это краткая форма, а {long} длинная, которая получается с окончанием. Обе правильные.",
-    "{word} is the {form}.": "{word}: форма {form}.",
+      "Краткая форма: {short}, а длинная, которая получается с окончанием: {long}. Обе правильные.",
+    "{word} is the {form}.": "Форма {word}: {form}.",
     "Which deck?": "В какую колоду?",
     "Words you might use": "Слова, которые могут пригодиться",
     "Loading": "Загрузка",
@@ -164,8 +164,8 @@ export const FINISH: Area = {
     "{forms} here aren't what the usual endings would give you.":
       "{forms} тут не такі, як дали б звичайні закінчення.",
     "{short} is the short one, and {long} is the long one you get from the ending. Both are right.":
-      "{short} це коротка форма, а {long} довга, яку дає закінчення. Обидві правильні.",
-    "{word} is the {form}.": "{word}: форма {form}.",
+      "Коротка форма: {short}, а довга, яку дає закінчення: {long}. Обидві правильні.",
+    "{word} is the {form}.": "Форма {word}: {form}.",
     "Which deck?": "У яку колоду?",
     "Words you might use": "Слова, які можуть знадобитися",
     "Loading": "Завантаження",
@@ -178,9 +178,6 @@ export const FINISH: Area = {
     "{written} + {spoken} min": "{written} + {spoken} хв",
   },
   counted: {
-    // The wait in "try again in {time}", which Russian and Ukrainian put in
-    // the accusative («через минуту», «через секунду»), so it is its own entry
-    // rather than the nominative "second" a screen counts with.
-    "second, as a wait": { en: ["second", "seconds"], ru: ["секунду", "секунды", "секунд"], uk: ["секунду", "секунди", "секунд"] },
+    second: { en: ["second", "seconds"], ru: ["секунда", "секунды", "секунд"], uk: ["секунда", "секунди", "секунд"] },
   },
 };

@@ -1,4 +1,4 @@
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { countOf, fill, tr, type CountCase, type Locale } from "@/lib/copy/locale";
 
 /*
   A STRETCH OF STUDY, WRITTEN IN THE UNIT THAT MAKES IT HONEST.
@@ -76,7 +76,13 @@ export function formatDuration(hours: number, style: DurationStyle = "short"): s
  * asks for, with a fraction of an hour in the genitive singular both
  * languages use after one (2,5 часа, 2,5 години).
  */
-export function formatDurationIn(hours: number, locale: Locale, style: DurationStyle = "short"): string {
+export function formatDurationIn(
+  hours: number,
+  locale: Locale,
+  style: DurationStyle = "short",
+  /** The case the sentence puts the duration in; the abbreviated style needs none. */
+  grammaticalCase: CountCase = "nom",
+): string {
   if (locale === "en") return formatDuration(hours, style);
   const safe = Math.max(0, hours);
   const unit = unitFor(safe);
@@ -84,7 +90,7 @@ export function formatDurationIn(hours: number, locale: Locale, style: DurationS
   const n = String(amount).replace(".", ",");
   if (style === "short") return fill(tr(locale, unit === "min" ? "{n} min" : "{n} h"), { n });
   if (!Number.isInteger(amount)) return fill(tr(locale, "{n} hours (fraction)"), { n });
-  return countOf(locale, amount, unit === "min" ? "minute" : "hour");
+  return countOf(locale, amount, unit === "min" ? "minute" : "hour", grammaticalCase);
 }
 
 

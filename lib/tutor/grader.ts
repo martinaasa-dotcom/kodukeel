@@ -101,7 +101,7 @@ Reply with a single JSON object and nothing else:
 
 "correct" means the sentence works. "almost" means understandable but with an error worth naming. "wrong" means it does not mean what they intended, or is not Estonian.
 
-Do not use an em dash or an en dash anywhere in your comment. Use a comma, a full stop, or a pair of brackets.`;
+Do not use an em dash or an en dash anywhere in your comment. Use a comma, a period, or a pair of parentheses.`;
 }
 
 export function buildGraderUserPrompt(input: GraderInput, formWasUsed: boolean): string {
@@ -458,7 +458,7 @@ OUTPUT
 Reply with a single JSON object and nothing else:
 {"verdict":"correct"|"almost"|"wrong","comment":"two or three sentences","rule":"the one thing to work on, in a few words, or an empty string"}
 
-Do not use an em dash or an en dash anywhere in your comment. Use a comma, a full stop, or a pair of brackets.`;
+Do not use an em dash or an en dash anywhere in your comment. Use a comma, a period, or a pair of parentheses.`;
 }
 
 export function buildCompositionUserPrompt(text: string, level: string, language?: Locale): string {
@@ -576,7 +576,7 @@ Reply with a single JSON object and nothing else:
 
 "correct" means the sentence works and is about the picture. "almost" means it is understandable but has an error worth naming, or is only loosely about the picture. "wrong" means it is not Estonian, or is about something else entirely.
 
-Do not use an em dash or an en dash anywhere in your comment. Use a comma, a full stop, or a pair of brackets.`;
+Do not use an em dash or an en dash anywhere in your comment. Use a comma, a period, or a pair of parentheses.`;
 }
 
 export interface DescribeGraderInput {

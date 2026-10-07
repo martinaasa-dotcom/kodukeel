@@ -29,7 +29,7 @@ import { Explain } from "@/components/Explain";
 import { CaseLabel } from "@/components/CaseLabel";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
-import { briefLine } from "../examCopy";
+import { sayIn } from "@/lib/copy/said";
 import { fillNodes } from "@/components/fillNodes";
 
 /**
@@ -613,7 +613,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
               <Button variant="ghost" size="sm" onClick={onDiscard}>
                 {t("Throw it away and start fresh")}
               </Button>
-              <Button variant="primary" size="sm" onClick={onResume}>{t("Carry on")}</Button>
+              <Button variant="primary" size="sm" onClick={onResume}>{t("Keep going")}</Button>
             </span>
           </Card>
         </div>
@@ -631,8 +631,12 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
         <h1 className="font-display mt-5 text-6xl font-bold leading-[0.95] tracking-tight md:text-7xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
           {paper.level}
           <span className="text-3xl md:text-4xl" style={{ color: "var(--ink-2)" }}>
-            {paper.number ? fill(t(", paper {n}"), { n: paper.number }) : ""}
-            {paper.part ? t(`, ${SKILL_LABEL[paper.part].toLowerCase()} only`) : ""}
+            {paper.number || paper.part
+              ? fill(t(paper.number ? (paper.part ? ", paper {n}, {part} only" : ", paper {n}") : ", {part} only"), {
+                  n: paper.number ?? "",
+                  part: paper.part ? t(SKILL_LABEL[paper.part]).toLocaleLowerCase(locale) : "",
+                })
+              : ""}
           </span>
         </h1>
         <p className="mt-4 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -777,7 +781,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
         </Fact>
         {speaking && (
         <Fact icon={<Mic size={18} />} hue="accent" title={t("Speaking is marked by you")}>
-          {t("You mark the spoken part yourself: record, listen back, and tick off what you managed. We tested speech recognizers and none was accurate enough for Estonian. In the break before it, you'll rehearse the small talk a real examiner opens with.")}
+          {t("You mark the spoken part yourself: record, listen back, and check off what you managed. We tested speech recognizers and none was accurate enough for Estonian. In the break before it, you'll rehearse the small talk a real examiner opens with.")}
         </Fact>
         )}
         </div>
@@ -1567,19 +1571,25 @@ function LengthMeter({ text, minWords, maxWords }: { text: string; minWords: num
   const there = words >= minWords;
   const over = maxWords !== null && words > maxWords;
   const t = useT();
-  const target = maxWords ? fill(t("{min} to {max}"), { min: minWords, max: maxWords }) : `${minWords}`;
+  // A range is said as a range ("aiming for 220 to 260"), never folded into
+  // "of", which reads "0 of 220 to 260" in English and worse elsewhere.
+  const range = { min: minWords, max: maxWords ?? minWords };
   return (
     <>
       <div className="mt-2">
         <Meter
           pct={minWords === 0 ? 100 : Math.min(100, (words / minWords) * 100)}
-          label={fill(t("{n} of {target} words written"), { n: words, target })}
+          label={maxWords
+            ? fill(t("{n} words written, aiming for {min} to {max}"), { n: words, ...range })
+            : fill(t("{n} of {target} words written"), { n: words, target: minWords })}
           tone={over ? "var(--blush)" : there ? "var(--sky)" : "var(--accent)"}
           height={4}
         />
       </div>
       <p className="mt-2 text-sm" style={{ color: over ? "var(--blush-ink)" : there ? "var(--sky-ink)" : "var(--ink-3)" }}>
-        {fillNodes(t("{n} of {target} words."), { n: <span className="tnum">{words}</span>, target })}{" "}
+        {maxWords
+          ? fillNodes(t("{n} words, aiming for {min} to {max}."), { n: <span className="tnum">{words}</span>, min: range.min, max: range.max })
+          : fillNodes(t("{n} of {target} words."), { n: <span className="tnum">{words}</span>, target: minWords })}{" "}
         {over
           ? fill(t("That's over the limit, which costs length marks, as on the real paper. Cut it back to {max}."), { max: maxWords ?? 0 })
           : t(there ? "That's long enough." : "Half the length still earns about half the length marks.")}
@@ -1615,7 +1625,7 @@ function BusinessCard({ card }: { card: Extract<Exhibit, { layout: "card" }> }) 
         <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>{t("Town", "form")}</dt>
         <dd style={{ color: "var(--ink)" }}>{card.city}</dd>
         <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>{t("Open", "hours")}</dt>
-        <dd style={{ color: "var(--ink)" }}>{t(card.hours)}</dd>
+        <dd style={{ color: "var(--ink)" }}>{t(card.hours, "brief")}</dd>
         <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>{t("E-mail")}</dt>
         <dd className="min-w-0" style={{ color: "var(--ink)" }}>{card.email}</dd>
       </dl>
@@ -1629,9 +1639,9 @@ function FigureTable({ table }: { table: Extract<Exhibit, { layout: "table" }> }
   return (
     <figure className="mt-3">
       <figcaption className="mb-2">
-        <span className="block text-md font-semibold" style={{ color: "var(--ink)" }}>{t(table.title)}</span>
+        <span className="block text-md font-semibold" style={{ color: "var(--ink)" }}>{t(table.title, "brief")}</span>
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-          {fill(t("In {unit}. These figures are made up for practice, so don't quote them as facts."), { unit: t(table.unit) })}
+          {fill(t("In {unit}. These figures are made up for practice, so don't quote them as facts."), { unit: t(table.unit, "brief") })}
         </span>
       </figcaption>
       <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)" }}>
@@ -1640,14 +1650,14 @@ function FigureTable({ table }: { table: Extract<Exhibit, { layout: "table" }> }
             <tr style={{ background: "var(--raised)" }}>
               <th scope="col" className="px-3 py-2 text-left font-semibold" style={{ color: "var(--ink-2)" }}><span className="sr-only">{t("Group")}</span></th>
               {table.columns.map((column) => (
-                <th key={column} scope="col" className="tnum whitespace-nowrap px-3 py-2 text-right font-semibold" style={{ color: "var(--ink-2)" }}>{t(column, "figures")}</th>
+                <th key={column} scope="col" className="tnum whitespace-nowrap px-3 py-2 text-right font-semibold" style={{ color: "var(--ink-2)" }}>{t(column, "brief")}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {table.rows.map((row) => (
               <tr key={row.label} className="border-t" style={{ borderColor: "var(--rule-soft)" }}>
-                <th scope="row" className="whitespace-nowrap px-3 py-2 text-left font-normal" style={{ color: "var(--ink)" }}>{t(row.label, "figures")}</th>
+                <th scope="row" className="whitespace-nowrap px-3 py-2 text-left font-normal" style={{ color: "var(--ink)" }}>{t(row.label, "brief")}</th>
                 {row.values.map((value, i) => (
                   <td key={i} className="tnum px-3 py-2 text-right" style={{ color: "var(--ink)" }}>{value}</td>
                 ))}
@@ -1677,7 +1687,15 @@ function WrittenQuestion({ item, response, onWrite }: {
   const chosen = Math.min(response?.variant ?? 0, item.variants.length - 1);
   const brief = item.variants[chosen];
   const t = useT();
+  const locale = useLocale();
   if (!brief) return null;
+  /*
+    The brief in the learner's language, off the templates the paper kept
+    beside its English. The English is the same sentence filled the same way,
+    so an English reader is shown exactly what was there before.
+  */
+  const prompt = locale === "en" ? brief.prompt : sayIn(locale, brief.promptSaid);
+  const label = t(brief.label, "brief");
 
   return (
     <div>
@@ -1703,7 +1721,7 @@ function WrittenQuestion({ item, response, onWrite }: {
                     onChange={() => onWrite(text, index)}
                     className="size-4 shrink-0 accent-[var(--accent)]"
                   />
-                  {t(variant.label)}
+                  {t(variant.label, "brief")}
                 </label>
               ))}
             </div>
@@ -1711,16 +1729,16 @@ function WrittenQuestion({ item, response, onWrite }: {
         </div>
       )}
 
-      <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>{briefLine(t, brief.prompt)}</p>
+      <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>{prompt}</p>
       {brief.exhibit?.layout === "card" && <BusinessCard card={brief.exhibit} />}
       {brief.exhibit?.layout === "table" && <FigureTable table={brief.exhibit} />}
 
       <p className="label-xs mt-4" style={{ color: "var(--ink-3)" }}>{t("Cover every point")}</p>
       <ul className="mt-1.5 grid gap-1 text-md" style={{ color: "var(--ink-2)" }}>
-        {brief.cover.map((point) => (
+        {brief.cover.map((point, index) => (
           <li key={point} className="flex items-start gap-2">
             <Check size={15} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--accent-deep)" }} />
-            {briefLine(t, point)}
+            {locale === "en" ? point : sayIn(locale, brief.coverSaid[index] ?? { en: point })}
           </li>
         ))}
       </ul>
@@ -1730,7 +1748,7 @@ function WrittenQuestion({ item, response, onWrite }: {
         value={text}
         onChange={(event) => onWrite(event.target.value, chosen)}
         rows={item.kind === "compose" || item.minWords >= 100 ? 10 : 6}
-        aria-label={`${t(brief.label)}: ${briefLine(t, brief.prompt)}`}
+        aria-label={`${label}: ${prompt}`}
         placeholder={t("Write in Estonian.")}
         className="field-lg mt-3 w-full text-md leading-relaxed"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
@@ -1759,6 +1777,8 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
   onSwap: () => void;
 }) {
   const t = useT();
+  /* Every line on a card is off the brief tables, kept under their own context. */
+  const b = (english: string) => t(english, "brief");
   const box = "mt-3 rounded-[var(--r-lg)] border px-4 py-3";
   const boxStyle = { borderColor: "var(--edge)", background: "var(--raised)" };
   const heading = (text: string) => <p className="label-xs mb-1.5" style={{ color: "var(--ink-3)" }}>{text}</p>;
@@ -1766,7 +1786,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
     const List = numbered ? "ol" : "ul";
     return (
       <List className={`${numbered ? "list-decimal" : "list-disc"} grid gap-1 pl-5 text-md`} style={{ color: "var(--ink)" }}>
-        {items.map((line) => <li key={line}>{t(line)}</li>)}
+        {items.map((line) => <li key={line}>{b(line)}</li>)}
       </List>
     );
   };
@@ -1775,8 +1795,8 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
     case "picture":
       return (
         <div className={box} style={boxStyle}>
-          {heading(t(card.situation, "scene"))}
-          <p className="flex flex-wrap gap-4 text-5xl leading-none" role="img" aria-label={t(card.situation, "scene")}>
+          {heading(b(card.situation))}
+          <p className="flex flex-wrap gap-4 text-5xl leading-none" role="img" aria-label={b(card.situation)}>
             {card.emoji.map((e) => <span key={e} aria-hidden>{e}</span>)}
           </p>
         </div>
@@ -1784,7 +1804,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
     case "idea-card":
       return (
         <div className={box} style={boxStyle}>
-          {heading(fill(t("Idea card: {about}"), { about: t(card.about, "idea") }))}
+          {heading(fill(t("Idea card: {about}"), { about: b(card.about) }))}
           <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{t("Ask about")}</p>
           {list(card.ask)}
         </div>
@@ -1798,8 +1818,8 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
           </div>
           <div className={box} style={boxStyle}>
             {heading(t("Then decide together"))}
-            <p className="text-md" style={{ color: "var(--ink)" }}>{t(card.situation)}</p>
-            <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{fill(t("The choices: {list}."), { list: card.alternatives.map((a) => t(a)).join(", ") })}</p>
+            <p className="text-md" style={{ color: "var(--ink)" }}>{b(card.situation)}</p>
+            <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{fill(t("The choices: {list}."), { list: card.alternatives.map(b).join(", ") })}</p>
           </div>
         </>
       );
@@ -1807,12 +1827,12 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
       return (
         <div className="grid gap-3 @container">
           <div className={box} style={boxStyle}>
-            {heading(fill(t("Your call: you ring {who}"), { who: t(card.call, "call") }))}
+            {heading(fill(t("Your call: you're calling {who}"), { who: t(card.call, "ring") }))}
             <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{t("Find out")}</p>
             {list(card.find)}
           </div>
           <div className={box} style={boxStyle}>
-            {heading(fill(t("Their call: you're {who}"), { who: t(card.answerAs) }))}
+            {heading(fill(t("Their call: you're {who}"), { who: b(card.answerAs) }))}
             <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{t("Answer with these facts")}</p>
             {list(card.facts)}
           </div>
@@ -1823,7 +1843,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
       return (
         <div className={box} style={boxStyle}>
           {heading(t("Your topic card"))}
-          <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{t(showing.task)}</p>
+          <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{b(showing.task)}</p>
           {card.swap && (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
               {t(swapped
@@ -1848,12 +1868,12 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
           </div>
           <div className={box} style={boxStyle}>
             {heading(t("Then debate this"))}
-            <p className="text-md" style={{ color: "var(--ink)" }}>{t(card.situation)}</p>
+            <p className="text-md" style={{ color: "var(--ink)" }}>{b(card.situation)}</p>
             <div className="@container mt-3">
               <div className="grid gap-3 @md:grid-cols-2">
                 {card.sides.map((side) => (
                   <div key={side.label} className="rounded-[var(--r)] border px-3 py-2.5" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
-                    <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{t(side.label)}</p>
+                    <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{b(side.label)}</p>
                     {list(side.points)}
                   </div>
                 ))}
@@ -1878,7 +1898,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
                 } as React.CSSProperties : { color: "var(--ink)" }}
               >
                 <input type="radio" name={name} checked={topic === index} onChange={() => onTopic(index)} className="mt-1 size-4 shrink-0 accent-[var(--accent)]" />
-                <span className="min-w-0">{t(option)}</span>
+                <span className="min-w-0">{b(option)}</span>
               </label>
             ))}
           </div>
@@ -1888,7 +1908,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
       return (
         <div className={box} style={boxStyle}>
           {heading(t("The question"))}
-          <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{t(card.question)}</p>
+          <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{b(card.question)}</p>
           <p className="mb-1.5 mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{t("Thoughts on the card")}</p>
           {list(card.thoughts)}
         </div>
@@ -1951,7 +1971,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
 
   return (
     <div>
-      <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>{t(item.prompt)}</p>
+      <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>{locale === "en" ? item.prompt : sayIn(locale, item.promptSaid)}</p>
       <SpeakCardView name={`${item.id}-topic`} card={item.card} topic={topic} onTopic={setTopic} swapped={swapped} onSwap={() => setSwapped(true)} />
 
       {item.ideas.length > 0 && (
@@ -2019,7 +2039,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
             {t("Then the examiner asks")}
           </p>
           <ol className="grid list-decimal gap-1 pl-5 text-md" style={{ color: "var(--ink)" }}>
-            {followUps.map((q) => <li key={q}>{t(q)}</li>)}
+            {followUps.map((q) => <li key={q}>{t(q, "brief")}</li>)}
           </ol>
           <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{t("Answer out loud. You can record your answer too.")}</p>
           <div className="mt-3">
@@ -2030,7 +2050,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
 
       <fieldset className="mt-5">
         <legend className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-          {t("Listen back and tick what you managed. Each one is a mark.")}
+          {t("Listen back and check off what you managed. Each one is a mark.")}
         </legend>
         <div className="grid gap-1.5">
           {criteria.map((criterion, index) => (
@@ -2061,7 +2081,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
         </div>
         {!recorded && (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-            {t("Record something first, then tick what you managed. There's nothing to judge until you've spoken.")}
+            {t("Record something first, then check off what you managed. There's nothing to judge until you've spoken.")}
           </p>
         )}
       </fieldset>

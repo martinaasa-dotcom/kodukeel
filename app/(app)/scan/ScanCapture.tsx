@@ -246,7 +246,7 @@ export function ScanCapture() {
 
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
             {[
-              fill(t("{words} ticked"), { words: countOf(locale, summary.total, "word") }),
+              fill(t("{words} checked"), { words: countOf(locale, summary.total, "word") }),
               ...(summary.known > 0 ? [fill(t("{n} matched the dictionary"), { n: summary.known })] : []),
               ...(summary.inflected > 0 ? [fill(t("{n} with an ending on them"), { n: summary.inflected })] : []),
             ].join(", ")}

@@ -91,7 +91,7 @@ export default async function TermsPage({ searchParams }: { searchParams: Public
           {t("Please don’t write scripts that hammer the dictionary, the speech service or the tutor with requests. Ekilex and TartuNLP are free academic services, and this whole project depends on nobody abusing them.")}
         </P>
         <P>
-          {t("Be 13 or older, or have a parent agree first. Estonia sets the age at which somebody can agree to a service like this for themselves at 13, which is the youngest any country in the Union sets it. Nothing here checks, and saying so plainly is more use than a box anyone can tick. If you’re a teacher signing up a class, that agreement is the one thing worth getting before you send the link.")}
+          {t("Be 13 or older, or have a parent agree first. Estonia sets the age at which somebody can agree to a service like this for themselves at 13, which is the youngest any country in the Union sets it. Nothing here checks, and saying so plainly is more use than a box anyone can check. If you’re a teacher signing up a class, that agreement is the one thing worth getting before you send the link.")}
         </P>
       </S>
 

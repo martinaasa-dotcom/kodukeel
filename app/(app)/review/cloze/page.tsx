@@ -30,7 +30,7 @@ export default async function ClozePage() {
 
   if (deckSize === 0) {
     return (
-      <Page title={tr(locale, "From your reading")} lead={tr(locale, "Paste in some real Estonian and practise the words you're learning inside it.")}>
+      <Page title={tr(locale, "From your reading")} lead={tr(locale, "Paste in some real Estonian and practice the words you're learning inside it.")}>
         <Empty
           title={tr(locale, "Your deck is empty")}
           body={tr(locale, "It turns the words you're learning into gaps, so add a few from the dictionary first.")}

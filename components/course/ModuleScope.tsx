@@ -151,7 +151,7 @@ function useCarryOn(focus: ModuleFocus) {
       const result = await advanceCourseStep(focus.programmeId, focus.dayId, focus.stepId)
         .catch(() => null);
       if (!result) {
-        setFailed(t("That didn't reach us, so this step isn't ticked yet."));
+        setFailed(t("That didn't reach us, so this step isn't checked off yet."));
         return;
       }
       if (!result.ok) { setFailed(t(result.error)); return; }

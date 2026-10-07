@@ -574,7 +574,7 @@ check("a paper left part way through is offered back rather than lost",
 check("it says how much of the part's time is left, because the clock kept running",
   /is left on that part|part.s time ran out/i.test(returning));
 
-const carryOn = page.getByRole("button", { name: /Carry on/ });
+const carryOn = page.getByRole("button", { name: /Keep going/ });
 check("carrying on is one press away", (await carryOn.count()) > 0);
 if (await carryOn.count()) {
   await carryOn.click();

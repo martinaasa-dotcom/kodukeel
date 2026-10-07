@@ -840,7 +840,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
               {!measured && (
                 <div className="mb-4">
                   <Note tone="sky">
-                    {t("This plan starts from your own guess at your level. Take the level check whenever you like, and it’ll redo the sums with your real one.")}
+                    {t("This plan starts from your own guess at your level. Take the level check whenever you like, and it’ll redo the math with your real one.")}
                   </Note>
                 </div>
               )}
@@ -883,7 +883,8 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
               {fill(t("{minutes} a day, {days} a week. That’s {cards} to answer, not {goal} new ones. About nine in ten will be words you’ve already met, coming back just as you start to forget them."), {
                 minutes: countOf(locale, minutesFor(goal), "minute"),
                 days: countOf(locale, daysPerWeek, "day"),
-                cards: countOf(locale, goal, "card"),
+                /* "answer on" takes the accusative in both languages. */
+                cards: countOf(locale, goal, "card", "acc"),
                 goal,
               })}
             </p>
@@ -937,7 +938,8 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                 <p className="mt-3 text-sm" style={{ color: "var(--accent-deep)" }}>
                   {fill(t("{evenings}, about {minutes} each."), {
                     evenings: countOf(locale, openingPart.days, "evening"),
-                    minutes: countOf(locale, COURSE_DAY_MINUTES, "minute"),
+                    /* After "около" and "близько", which take the genitive. */
+                    minutes: countOf(locale, COURSE_DAY_MINUTES, "minute", "gen"),
                   })}
                   {openingPart.firstDay && (
                     <> {fillNodes(t("Tonight is {title}, {words} and one short round."), {
@@ -1092,7 +1094,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
             */}
             <p className="mt-2.5 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
               {fill(t("That’s {cards} to answer a day, not {goal} new ones, and on a course evening they’re part of the fifteen minutes. About nine in ten will be words you’ve already met, coming back just as you start to forget them. These {deck} take roughly {weeks} to work through this way. A faster setting really does get you through them sooner, but it makes every evening longer for the next year too. Pick the one you’d still open on a bad Wednesday."), {
-                cards: countOf(locale, goal, "card"),
+                cards: countOf(locale, goal, "card", "acc"),
                 goal,
                 deck: countOf(locale, deck.cards, "card"),
                 weeks: countOf(locale, weeksToLearn(deck.cards, goal, daysPerWeek), "week"),

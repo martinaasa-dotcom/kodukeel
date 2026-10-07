@@ -60,7 +60,7 @@ export function CreateClass() {
         value={name}
         maxLength={60}
         onChange={(e) => setName(e.target.value)}
-        placeholder={workplace ? t("Estonian at work, autumn") : "Eesti keel A2, teisipäev"}
+        placeholder={workplace ? t("Estonian at work, fall") : "Eesti keel A2, teisipäev"}
         className="field text-base"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
       />

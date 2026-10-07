@@ -90,6 +90,7 @@ import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor }
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
+import { isConfirmed } from "@/lib/copy/confirmWord";
 
 import { CARD_SOURCES as KNOWN_SOURCES, DEFAULT_SOURCE } from "@/lib/srs/sources";
 import { ratingFor, SONAD_GUESSES } from "@/lib/games/sonad";
@@ -3280,7 +3281,8 @@ export async function buildClozeFromText(passageIn: string) {
  */
 export async function deleteMyAccount(confirmation: string) {
   const ownerId = await requireUserId();
-  if (text(confirmation).trim().toLowerCase() !== "delete") {
+  /* The word in any of the three languages: the screen asks in the reader's own. */
+  if (!isConfirmed(text(confirmation), "delete")) {
     return { ok: false as const, error: 'Type "delete" to confirm.' };
   }
 
@@ -3974,7 +3976,7 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
     return { ok: false as const, error: "That step isn't part of that evening." };
   }
   if (step.derived) {
-    return { ok: false as const, error: "That step ticks itself off as you go." };
+    return { ok: false as const, error: "That step checks itself off as you go." };
   }
   /* A tick is the pointer: `dayReached` is the furthest day carrying one, so a
      forged tick on a day nobody has reached would move the course onto it and
@@ -4270,7 +4272,7 @@ export async function saveScan(input: {
   input = fieldsOf(input);
   const sent = sanitiseItems(input.items, SCAN_MAX_ITEMS);
   if (sent.length === 0) {
-    return { ok: false as const, error: "Tick at least one word on that page first." };
+    return { ok: false as const, error: "Check at least one word on that page first." };
   }
   // What the dictionary says about each spelling, asked again here rather
   // than taken from the request: see `vouchScanItems`.

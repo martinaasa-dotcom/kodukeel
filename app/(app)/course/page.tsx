@@ -284,7 +284,7 @@ export default async function CoursePage({
                   */}
                   <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                     {justDone && justDone.unitId === day.unitId
-                      ? fill(t("Tomorrow you'll carry on with {unit}, part {n} of {of}."), { unit: ui(day.title, day.subtitle), n: day.part.n, of: day.part.of })
+                      ? fill(t("Tomorrow you'll continue with {unit}, part {n} of {of}."), { unit: ui(day.title, day.subtitle), n: day.part.n, of: day.part.of })
                       : uiWantsEnglish(level)
                         ? fill(t("Come back tomorrow for {unit}."), { unit: t(day.subtitle) })
                         : fill(t("Come back tomorrow for {unit} ({english})."), { unit: day.title, english: t(day.subtitle) })}
@@ -479,8 +479,8 @@ export default async function CoursePage({
           is worth knowing and it is not worth the room, which is the rule
           `components/Explain.tsx` exists for.
         */}
-        <Explain label={t("How a step gets ticked")}>
-          {t("Meeting the words and the review at the end tick themselves off as you answer. The others you tick yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.")}
+        <Explain label={t("How a step gets checked off")}>
+          {t("Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.")}
         </Explain>
 
         <Card>

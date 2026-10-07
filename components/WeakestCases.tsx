@@ -68,8 +68,8 @@ export function WeakestCases({ cases, empty, locale }: {
               href={`/review?case=${c.grammCase}`}
               aria-label={fill(
                 t(asks
-                  ? "Practise the {name}, which asks {asks}. Right {pct} percent of the time over {total} reviews"
-                  : "Practise the {name}. Right {pct} percent of the time over {total} reviews"),
+                  ? "Practice the {name}, which asks {asks}. Right {pct} percent of the time over {total} reviews"
+                  : "Practice the {name}. Right {pct} percent of the time over {total} reviews"),
                 { name, asks: asks ?? "", pct: c.accuracy, total: c.total },
               )}
               className="pill tap-tint flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1 rounded-[var(--r)] px-2 py-1.5 text-sm"

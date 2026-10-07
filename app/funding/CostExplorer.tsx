@@ -52,19 +52,22 @@ const numberTag = (locale: Locale) => (locale === "en" ? "en-GB" : locale);
 
 const count = (n: number, locale: Locale) => Math.round(n).toLocaleString(numberTag(locale));
 
-/** Dollars written where the reader writes them: "$1,234" in English and
- * "1 234 $" in Russian and Ukrainian, where the sign follows the figure. The
- * narrow symbol, because en-GB otherwise prints "US$". */
-function money(usd: number, locale: Locale): string {
-  const whole = usd >= 1000;
-  return new Intl.NumberFormat(numberTag(locale), {
-    style: "currency",
-    currency: "USD",
-    currencyDisplay: "narrowSymbol",
-    minimumFractionDigits: whole ? 0 : 2,
-    maximumFractionDigits: whole ? 0 : 2,
-  }).format(whole ? Math.round(usd) : usd);
+/** A dollar figure: "$1,234" in English, "1 234 $" in Russian and Ukrainian. */
+function dollars(figure: string, locale: Locale): string {
+  return locale === "en" ? `$${figure}` : `${figure}\u00a0$`;
 }
+
+function money(usd: number, locale: Locale): string {
+  if (usd >= 1000) return dollars(Math.round(usd).toLocaleString(numberTag(locale)), locale);
+  return dollars(usd.toLocaleString(numberTag(locale), { minimumFractionDigits: 2, maximumFractionDigits: 2 }), locale);
+}
+
+/** Megabytes, gigabytes and terabytes, in the reader's abbreviations. */
+const BYTES: Record<Locale, readonly [string, string, string]> = {
+  en: ["MB", "GB", "TB"],
+  ru: ["МБ", "ГБ", "ТБ"],
+  uk: ["МБ", "ГБ", "ТБ"],
+};
 
 /**
  * The per-learner figure, in whatever unit stops it reading as zero.
@@ -100,9 +103,9 @@ function centsIn(n: number, locale: Locale): string {
 function amount(figure: MeterFigure, t: T, locale: Locale): string {
   if (figure.as === "gb") {
     const gb = figure.used;
-    if (gb < 1) return `${Math.round(gb * 1000)} MB`;
-    if (gb < 1000) return `${gb.toLocaleString(numberTag(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} GB`;
-    return `${(gb / 1000).toLocaleString(numberTag(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} TB`;
+    if (gb < 1) return `${Math.round(gb * 1000)} ${BYTES[locale][0]}`;
+    if (gb < 1000) return `${gb.toLocaleString(numberTag(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ${BYTES[locale][1]}`;
+    return `${(gb / 1000).toLocaleString(numberTag(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ${BYTES[locale][2]}`;
   }
   if (figure.as === "hours") {
     return figure.used < 1
@@ -114,7 +117,7 @@ function amount(figure: MeterFigure, t: T, locale: Locale): string {
 
 function allowance(figure: MeterFigure, t: T, locale: Locale): string {
   return figure.as === "gb"
-    ? fill(t("{amount} included"), { amount: figure.included < 1 ? `${figure.included * 1000} MB` : `${count(figure.included, locale)} GB` })
+    ? fill(t("{amount} included"), { amount: figure.included < 1 ? `${figure.included * 1000} ${BYTES[locale][0]}` : `${count(figure.included, locale)} ${BYTES[locale][1]}` })
     : figure.as === "hours"
       ? fill(t("{n} hours included"), { n: count(figure.included, locale) })
       : fill(t("{amount} included"), { amount: count(figure.included, locale) });
@@ -342,7 +345,7 @@ export function CostExplorer() {
                 <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
                   {planFor(line, t)}
                   {line.cost.kind === "given" && line.cost.licence
-                    ? `, ${line.cost.licence}`
+                    ? `, ${t(line.cost.licence)}`
                     : ""}
                 </p>
                 {line.cost.kind === "given" && (

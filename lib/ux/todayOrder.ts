@@ -59,12 +59,12 @@ export const TODAY_SLOTS = [
   {
     id: "streak",
     title: "Your streak",
-    detail: "How many days in a row you've practised, this week at a glance, and any shields saved up.",
+    detail: "How many days in a row you've practiced, this week at a glance, and any shields saved up.",
   },
   {
     id: "word",
     title: "Word of the day",
-    detail: "A word chosen for today's date, with the reason it was picked.",
+    detail: "A new word each day, at your level.",
   },
   {
     id: "next",
