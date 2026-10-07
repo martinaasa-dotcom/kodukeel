@@ -291,7 +291,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
               ),
             })}
           </p>
-          <p data-say className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
+          <p data-say lang="en" className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
             “{phrase}”
           </p>
 

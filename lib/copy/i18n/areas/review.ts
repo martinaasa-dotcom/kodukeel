@@ -156,7 +156,7 @@ export const REVIEW: Area = {
     "{unit}: {pct}% learned": "{unit}: выучено {pct}%",
     "Continue the lesson": "Продолжить урок",
     "Start the lesson": "Начать урок",
-    "Practise these words": "Потренировать эти слова",
+    "Practise these words": "Повторить эти слова",
     "Printable worksheet": "Лист для печати",
     "Try it in a conversation": "Попробовать в разговоре",
     "Grammar": "Грамматика",

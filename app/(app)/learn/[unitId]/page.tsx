@@ -126,7 +126,9 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
             {reading && reading.rung !== "unmet" && (
               <p className="mt-2 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
                 <RungChip rung={reading.rung} locale={locale} />
-                <span>{verdictFor(reading, locale)} {t(`${EVIDENCE_LABEL[reading.evidence].charAt(0).toUpperCase()}${EVIDENCE_LABEL[reading.evidence].slice(1)}.`)}</span>
+                <span>{verdictFor(reading, locale)} {/* Translated as the label it is and capitalized after, since the
+                    capitalized sentence is a key no table holds. */}
+                {`${t(EVIDENCE_LABEL[reading.evidence]).charAt(0).toUpperCase()}${t(EVIDENCE_LABEL[reading.evidence]).slice(1)}.`}</span>
                 <Link href={`/progress/readiness/${unit.id}`} className="underline" style={{ color: "var(--accent-deep)" }}>
                   {t("See where you might get stuck")}
                 </Link>

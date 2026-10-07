@@ -65,7 +65,7 @@ export default async function PairsPage() {
     the whole graded set answers instead, which is what this drill did for
     everybody before.
   */
-  const level = await courseLevelFor(ownerId);
+  const [level, locale] = await Promise.all([courseLevelFor(ownerId), localeFor(ownerId)]);
   const select = {
     id: true, lemma: true, translation: true,
     forms: { select: { value: true, formType: true, morphName: true } },
@@ -87,7 +87,8 @@ export default async function PairsPage() {
         value: form.value,
         lemma: lexeme.lemma,
         translation: lexeme.translation,
-        formLabel: formLabel(form),
+        // The English half is said in the learner's language; the Estonian name never is.
+        formLabel: formLabel(form, (english) => tr(locale, english)),
         lexemeId: lexeme.id,
       });
     }
@@ -115,7 +116,6 @@ export default async function PairsPage() {
   const pairs = findQuantityPairs(refs, 200);
 
   if (pairs.length === 0) {
-    const locale = await localeFor(ownerId);
     return (
       <Page title={tr(locale, "Minimal pairs")} lead={tr(locale, "Hear the difference a longer sound makes, even when spelling hides it.")}>
         <Empty

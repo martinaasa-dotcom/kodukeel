@@ -6,6 +6,7 @@ import { usesRequiredWord, wordsOf } from "./written";
 import { bandFor, PASS_PCT, RETAKE_WAIT_PCT, speakingCriteria, type Band, type ExamLevel } from "./spec";
 import type { ExamItem, ExamTask, Paper } from "./paper";
 import type { SkillKey } from "./types";
+import { say, sayEnglish, type Said } from "@/lib/copy/said";
 
 /**
  * Marking a paper.
@@ -101,6 +102,14 @@ export interface ItemMark {
    * and there is nowhere else it survives, because the sitting itself is gone.
    */
   raw?: string;
+  /**
+   * The English lines of a written task's mark kept as templates and values,
+   * so the result page can say them in the learner's language. Only the two
+   * written tasks carry it: their lines are built from counts, where every
+   * other mark's English is a fixed line a table already holds. A row stored
+   * before this existed has none and is printed in English, as it was.
+   */
+  said?: { readonly expected: Said; readonly given: Said; readonly note: readonly Said[] };
 }
 
 /**
@@ -449,25 +458,34 @@ function markWritten(
   // Nothing written is nothing to mark, whatever the share of no words used.
   const share = written.length === 0 ? 0 : lengthPct * COMPOSE_LENGTH_SHARE + wordsPct * (1 - COMPOSE_LENGTH_SHARE);
   const missing = mustUse.filter((w) => !used.includes(w)).map((w) => w.lemma);
-  const range = item.maxWords ? `${item.minWords} to ${item.maxWords} words` : `${item.minWords} words or more`;
+  const range = item.maxWords
+    ? say("{min} to {max} words", { min: item.minWords, max: item.maxWords })
+    : say("{min} words or more", { min: item.minWords });
   const over = item.maxWords !== null && written.length > item.maxWords;
+  // The Estonian words go in as values, never through a table (ADR-005).
+  const expected = mustUse.length > 0
+    ? say("{range}, using {words}", { words: mustUse.map((w) => w.lemma).join(", ") }, undefined, { range: [range] })
+    : range;
+  const given = say("{n} words", { n: written.length });
+  const note = [
+    written.length === 0 ? say("Nothing was written.") : null,
+    over ? say("That's over the limit of {max} words, which costs length marks.", { max: item.maxWords ?? 0 }) : null,
+    written.length > 0 && missing.length > 0 ? say("You didn't use {words}.", { words: missing.join(", ") }) : null,
+  ].filter((s): s is Said => s !== null);
 
   return {
     itemId: item.id,
     scored: Math.round(share * marks * 100) / 100,
     available: marks,
     correct: share >= 0.6,
-    expected: mustUse.length > 0 ? `${range}, using ${mustUse.map((w) => w.lemma).join(", ")}` : range,
-    given: `${written.length} words`,
+    expected: sayEnglish(expected),
+    given: sayEnglish(given),
     language: "en",
     raw: text.trim(),
     prompt: brief ? `${brief.label}: ${brief.prompt}` : undefined,
     promptLanguage: "en",
-    note: [
-      written.length === 0 ? "Nothing was written." : "",
-      over ? `That's over the limit of ${item.maxWords} words, which costs length marks.` : "",
-      written.length > 0 && missing.length > 0 ? `You didn't use ${missing.join(", ")}.` : "",
-    ].filter(Boolean).join(" "),
+    note: note.map(sayEnglish).join(" "),
+    said: { expected, given, note },
     cardId: null,
     lexemeId: item.lexemeId,
     lemma: item.lemma,

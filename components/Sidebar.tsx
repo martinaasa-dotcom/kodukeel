@@ -291,15 +291,22 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               data-account
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((open) => !open)}
-              className="tap-tint flex min-w-0 flex-1 items-center gap-3 rounded-[var(--r)] px-2 py-2 text-left"
+              className="tap-tint flex min-w-0 flex-1 items-center gap-2 rounded-[var(--r)] px-2 py-2 text-left"
             >
               <span
                 aria-hidden
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold"
                 style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
               >
                 {(name ?? t("You", "person")).trim().charAt(0).toUpperCase() || "Y"}
               </span>
+              {/*
+                The avatar is 32px and the gap 8 rather than 36 and 12 because
+                the account row is as wide as the rail and no wider, and the
+                Ukrainian for Settings is one word six pixels wider than what
+                was left beside them, so it was drawn broken across two lines.
+                `scripts/test-locales.mjs` found it.
+              */}
               <span className="min-w-0">
                 <span className="block text-sm font-semibold" style={{ color: "var(--ink)" }}>
                   {name ?? t("You", "person")}

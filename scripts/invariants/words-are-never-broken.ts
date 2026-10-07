@@ -48,7 +48,9 @@ export default function wordsAreNeverBroken({ check, code, read, APP, COMPONENTS
   });
 
   check("the containment sweep measures whole words, with a phrase on the Learn page", () => {
-    const sweep = code("scripts/test-containment.mjs");
+    // The browser-side half lives in scripts/lib/containment.mjs, which the
+    // locale sweep shares, so both files are the sweep.
+    const sweep = code("scripts/test-containment.mjs") + code("scripts/lib/containment.mjs");
     assert.match(sweep, /function wholeWords\(\)/, "the sweep stopped measuring words as Ranges");
     assert.match(sweep, /page\.evaluate\(wholeWords\)/, "the sweep defines the word check and never runs it");
     assert.match(sweep, /getClientRects\(\)/, "the word check stopped asking the browser how many lines a word is on");
