@@ -14,6 +14,8 @@ import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { useLocale, useT } from "@/components/Locale";
+import { Meaning } from "@/components/Meaning";
+import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { countOf, fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
 
@@ -21,6 +23,12 @@ export interface MatchPair {
   cardId: string;
   estonian: string;
   english: string;
+  /**
+   * The meaning tile as the learner's language leads it, or null for English.
+   * A board is all one or all the other (`meaningsShown`), so no tile stands
+   * out, and two tiles never read the same. Matching is by card, never by text.
+   */
+  meaning?: ShownMeaning | null;
 }
 
 interface Tile {
@@ -28,6 +36,7 @@ interface Tile {
   cardId: string;
   text: string;
   side: "et" | "en";
+  meaning: ShownMeaning | null;
 }
 
 /**
@@ -77,8 +86,8 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
 
   const tiles = useMemo(() => {
     const all: Tile[] = pairs.flatMap((p) => [
-      { key: `et-${p.cardId}`, cardId: p.cardId, text: p.estonian, side: "et" as const },
-      { key: `en-${p.cardId}`, cardId: p.cardId, text: p.english, side: "en" as const },
+      { key: `et-${p.cardId}`, cardId: p.cardId, text: p.estonian, side: "et" as const, meaning: null },
+      { key: `en-${p.cardId}`, cardId: p.cardId, text: p.english, side: "en" as const, meaning: p.meaning ?? null },
     ]);
     return shuffle(all);
   }, [pairs]);
@@ -166,7 +175,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       const nextMatched = new Set(matched).add(tile.cardId);
       setMatched(nextMatched);
       setSelected(null);
-      setSaid(fill(t("{word} is {meaning}."), tile.side === "et" ? { word: tile.text, meaning: selected.text } : { word: selected.text, meaning: tile.text }));
+      setSaid(fill(t("{word} is {meaning}."), tile.side === "et" ? { word: tile.text, meaning: saidAs(selected) } : { word: selected.text, meaning: saidAs(tile) }));
       if (nextMatched.size === pairs.length) {
         const finalSeconds = Math.max(1, Math.round((Date.now() - startedAt.current) / 1000));
         setSeconds(finalSeconds);
@@ -289,10 +298,11 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
             A tile with a space in it (an English phrase, a short sentence)
             still wraps normally at the space, which is the readable break.
           */
-          const singleWord = !tile.text.includes(" ");
-          const sizeClass = singleWord && tile.text.length > 12
+          const drawn = tile.meaning?.lead.text ?? tile.text;
+          const singleWord = !drawn.includes(" ");
+          const sizeClass = singleWord && drawn.length > 12
             ? "text-xs"
-            : singleWord && tile.text.length > 8
+            : singleWord && drawn.length > 8
               ? "text-sm"
               : tile.side === "et" ? "text-md font-semibold" : "text-base";
           return (
@@ -301,7 +311,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
               type="button"
               onClick={() => pick(tile)}
               disabled={isMatched}
-              lang={tile.side === "et" ? "et" : "en"}
+              lang={tile.side === "et" ? "et" : tile.meaning ? undefined : "en"}
               aria-pressed={isSelected}
               className={`${sizeClass} ${tile.side === "et" ? "font-semibold " : " "}${isMatched ? `pop-in ${OPTION_CLASS.right} ` : isWrong ? `shake ${OPTION_CLASS.wrong} ` : ""}press flex min-h-[84px] items-center justify-center rounded-[var(--r-lg)] px-3 py-3 text-center transition-ui hover:scale-[1.02] disabled:hover:scale-100`}
               style={{
@@ -321,7 +331,13 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
                 }),
               }}
             >
-              {tile.text}
+              {tile.meaning ? (
+                <Meaning
+                  meaning={tile.meaning}
+                  className="items-center"
+                  englishClassName="text-xs font-normal"
+                />
+              ) : tile.text}
             </button>
           );
         })}
@@ -337,3 +353,8 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
   );
 }
 
+
+/** What a meaning tile is called when the match is read out: the lead, and the English beside it. */
+function saidAs(tile: Tile): string {
+  return tile.meaning?.english ? `${tile.meaning.lead.text} (${tile.meaning.english})` : tile.text;
+}

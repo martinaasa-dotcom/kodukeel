@@ -131,6 +131,8 @@ export interface LessonWord {
    * read it.
    */
   equivalent?: { text: string; lang: string } | null;
+  /** The other of Russian and Ukrainian, small after the first, where the learner asked for it. */
+  also?: { text: string; lang: string } | null;
   /**
    * The everyday spelling of a pronoun, where the word has one.
    *
@@ -189,6 +191,8 @@ export interface MeetStep extends StepBase {
   gloss: string;
   /** The meaning in the learner's own language, where Ekilex recorded one. */
   equivalent?: { text: string; lang: string } | null;
+  /** The other of Russian and Ukrainian, small after the first. */
+  also?: { text: string; lang: string } | null;
   /** The everyday spelling of a pronoun, where the word has one. */
   alsoSaid: string | null;
   pos: string;
@@ -961,6 +965,7 @@ export function planLesson(input: LessonInput): LessonStep[] {
   const meetLane = (block: readonly LessonWord[]) => block.map((word): LessonStep => ({
     id: nextId("meet"), kind: "meet", lexemeId: word.lexemeId, lemma: word.lemma, gloss: word.gloss,
     equivalent: word.equivalent ?? null,
+    also: word.also ?? null,
     alsoSaid: word.alsoSaid,
     pos: word.pos, isPhrase: isPhrase(word.pos),
     /*

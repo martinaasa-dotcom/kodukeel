@@ -1,4 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { Meaning } from "@/components/Meaning";
+import { ENGLISH_MEANINGS, meaningShown, type MeaningPrefs } from "@/lib/collections/glossLanguage";
 import { Card, Meter, SectionTitle, StatTile } from "@/components/ui";
 import {
   MASTERY_CORRECT, MASTERY_LABEL, MASTERY_ORDER, MASTERY_SLOTS, type Mastery,
@@ -46,8 +48,14 @@ const EXPLAINS: Record<Mastery, string> = {
 };
 
 export function MasteryBoard({
-  words, counts, locale,
-}: { words: readonly MasteredWord[]; counts: Record<Mastery, number>; locale: Locale }) {
+  words, counts, locale, prefs = ENGLISH_MEANINGS,
+}: {
+  words: readonly MasteredWord[];
+  counts: Record<Mastery, number>;
+  locale: Locale;
+  /** Which language a meaning leads in, so each row's meaning is the learner's. */
+  prefs?: MeaningPrefs;
+}) {
   const t = (english: string) => tr(locale, english);
   return (
     <>
@@ -67,13 +75,15 @@ export function MasteryBoard({
       </Card>
 
       {MASTERY_ORDER.filter((tier) => counts[tier] > 0).map((tier) => (
-        <Tier key={tier} tier={tier} words={wordsAt(words, tier)} total={counts[tier]} locale={locale} />
+        <Tier key={tier} tier={tier} words={wordsAt(words, tier)} total={counts[tier]} locale={locale} prefs={prefs} />
       ))}
     </>
   );
 }
 
-function Tier({ tier, words, total, locale }: { tier: Mastery; words: MasteredWord[]; total: number; locale: Locale }) {
+function Tier({ tier, words, total, locale, prefs }: {
+  tier: Mastery; words: MasteredWord[]; total: number; locale: Locale; prefs: MeaningPrefs;
+}) {
   const t = (english: string) => tr(locale, english);
   return (
     <Card>
@@ -89,7 +99,7 @@ function Tier({ tier, words, total, locale }: { tier: Mastery; words: MasteredWo
         <ul className="grid gap-x-6 @2xl:grid-cols-2">
           {words.map((word) => (
             <li key={word.lexemeId} className="border-b" style={{ borderColor: "var(--rule-soft)" }}>
-              <Row word={word} locale={locale} />
+              <Row word={word} locale={locale} prefs={prefs} />
             </li>
           ))}
         </ul>
@@ -104,7 +114,7 @@ function Tier({ tier, words, total, locale }: { tier: Mastery; words: MasteredWo
   );
 }
 
-function Row({ word, locale }: { word: MasteredWord; locale: Locale }) {
+function Row({ word, locale, prefs }: { word: MasteredWord; locale: Locale; prefs: MeaningPrefs }) {
   const t = (english: string) => tr(locale, english);
   const { correct, total, slots, slotsNeeded, filled, progress } = word.verdict;
   /* Which forms is for a reader who asks, so it rides on the bar's label; the
@@ -122,7 +132,13 @@ function Row({ word, locale }: { word: MasteredWord; locale: Locale }) {
           <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
             {word.lemma}
           </span>
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
+          <Meaning
+            meaning={meaningShown(word.translation, word.equivalents, prefs)}
+            inline
+            className="text-sm"
+            leadStyle={{ color: "var(--ink-2)" }}
+            englishClassName="text-xs"
+          />
         </span>
         <span className="block text-sm" style={{ color: "var(--ink-3)" }}>
           <span className="tnum">

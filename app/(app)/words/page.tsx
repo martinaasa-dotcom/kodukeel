@@ -1,3 +1,5 @@
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
+import { meaningShown, type Equivalents, type MeaningPrefs, type ShownMeaning } from "@/lib/collections/glossLanguage";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { readableFront } from "@/lib/copy/caseHint";
 import { prisma } from "@/lib/db";
@@ -29,7 +31,7 @@ export default async function WordsPage() {
     is without, so the grouped read over the same rows already holds it, and a
     separate `count` was the same scan asked twice.
   */
-  const [cards, counts, locale] = await Promise.all([
+  const [cards, counts, locale, prefs] = await Promise.all([
     prisma.card.findMany({
       where: { ownerId },
       /*
@@ -43,10 +45,12 @@ export default async function WordsPage() {
       */
       orderBy: [{ suspended: "asc" }, { due: "asc" }, { id: "asc" }],
       take: 400,
-      include: { lexeme: { select: { lemma: true, cefr: true } } },
+      // The equivalents ride in the read that already loads the word.
+      include: { lexeme: { select: { lemma: true, cefr: true, translationRu: true, translationUk: true } } },
     }),
     prisma.card.groupBy({ by: ["state"], where: { ownerId }, _count: true }),
     localeFor(ownerId),
+    meaningPrefsFor(ownerId),
   ]);
   const t = (english: string) => tr(locale, english);
 
@@ -62,6 +66,7 @@ export default async function WordsPage() {
     due: c.due.toISOString(),
     lapses: c.lapses,
     suspended: c.suspended,
+    meaning: meaningOfCard(c, prefs),
   }));
 
   const byState = Object.fromEntries(counts.map((c) => [c.state, c._count]));
@@ -171,3 +176,15 @@ function DeckBar({ segments, locale }: { segments: { label: string; value: numbe
 }
 
 /** Accuracy per grammatical case — the diagnostic that turns a card box into a study plan. */
+
+/** A recognition back or a production front is the word's meaning; nothing else on a card is. */
+function meaningOfCard(
+  c: { cardType: string; front: string; back: string; lexeme: Equivalents | null },
+  prefs: MeaningPrefs,
+): ShownMeaning | null {
+  if (!c.lexeme || prefs.lead === "en") return null;
+  const english = c.cardType === "RECOGNITION" ? c.back : c.cardType === "PRODUCTION" ? c.front : null;
+  if (english === null) return null;
+  const shown = meaningShown(english, c.lexeme, prefs);
+  return shown.english ? shown : null;
+}

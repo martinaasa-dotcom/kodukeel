@@ -68,7 +68,7 @@ import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { SPEECH_PACES } from "@/lib/audio/pace";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { alsoShowFrom, glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { localeFrom, tr } from "@/lib/copy/locale";
 import { serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { serialiseNavOrder } from "@/lib/ux/navOrder";
@@ -1902,6 +1902,22 @@ export async function setGlossLanguage(value: string) {
   const ownerId = await requireUserId();
   const normalised = glossLanguageFrom(text(value));
   await writeSetting(ownerId, SETTING_KEYS.glossLanguage, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+/**
+ * Whether the other of Russian and Ukrainian is shown small after the first
+ * meaning. Read against the lead the learner holds now, so a value that is not
+ * the other language of that lead is stored as nothing (`alsoShowFrom`): a
+ * forged "uk" under a Ukrainian lead is the same line twice, and under English
+ * it means nothing. Revalidated at the layout, like the lead it sits beside.
+ */
+export async function setGlossAlso(value: string) {
+  const ownerId = await requireUserId();
+  const lead = glossLanguageFrom(await readSetting(ownerId, SETTING_KEYS.glossLanguage));
+  const normalised = alsoShowFrom(text(value), lead) ?? "none";
+  await writeSetting(ownerId, SETTING_KEYS.glossAlso, normalised);
   revalidatePath("/", "layout");
   return { ok: true as const, value: normalised };
 }

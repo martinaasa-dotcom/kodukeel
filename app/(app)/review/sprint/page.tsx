@@ -1,3 +1,4 @@
+import { meaningPrefsFrom, meaningShown, type ShownMeaning } from "@/lib/collections/glossLanguage";
 import { titleFor } from "@/lib/progress/locale";
 import { prisma } from "@/lib/db";
 import { readableFront } from "@/lib/copy/caseHint";
@@ -30,6 +31,8 @@ const POOL_SIZE = 40;
    case ask is built from (`lib/questions/caseAsk.ts`). */
 const LEXEME_SELECT = {
   lemma: true, translation: true, examples: true, pos: true, semanticTypes: true,
+  // The Institute's equivalents, in the read that already loads the word.
+  translationRu: true, translationUk: true,
   forms: { select: { formType: true, morphCode: true, value: true } },
 } as const;
 
@@ -62,7 +65,7 @@ export default async function SprintPage({
   // Started here and awaited where it is read, so the settings row rides
   // beside the deck reads rather than after them.
   const settingsPromise = readSettings(ownerId, [
-    SETTING_KEYS.sprintBest, SETTING_KEYS.roundPace,
+    SETTING_KEYS.sprintBest, SETTING_KEYS.roundPace, SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso,
   ]);
 
   const [spellings, recent, due] = await Promise.all([
@@ -141,6 +144,17 @@ export default async function SprintPage({
     }
   }
 
+  const read = await settingsPromise;
+  const prefs = meaningPrefsFrom(read[SETTING_KEYS.glossLanguage], read[SETTING_KEYS.glossAlso]);
+  /* A recognition back and a production front are the word's meaning as a meaning. */
+  const meaningFor = (c: (typeof shuffled)[number]): ShownMeaning | null => {
+    if (!c.lexeme || prefs.lead === "en") return null;
+    const english = c.cardType === "RECOGNITION" ? c.back : c.cardType === "PRODUCTION" ? readableFront(c.front) : null;
+    if (english === null) return null;
+    const shown = meaningShown(english, c.lexeme, prefs);
+    return shown.english ? shown : null;
+  };
+
   const sprintCards: SprintCard[] = shuffled.map((c) => {
     const asked = caseAsks.get(c.id);
     if (asked && c.lexeme) {
@@ -164,6 +178,7 @@ export default async function SprintPage({
       back: c.back,
       ask: null,
       slot: null,
+      meaning: meaningFor(c),
       lemma: c.lexeme ? plainPhrase(c.lexeme.lemma, c.lexeme.pos) : null,
       lexemeId: c.lexemeId,
       starred: !!c.lexemeId && starred.has(c.lexemeId),
