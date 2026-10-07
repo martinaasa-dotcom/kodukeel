@@ -165,6 +165,10 @@ export function tonightLetter(input: TonightInput): Letter {
   /* English lowers the subtitle to set it mid-sentence; Russian and Ukrainian
      quote it whole, since it reads as the evening's name there. */
   const subtitle = locale === "en" ? lowerFirst(day.subtitle) : `«${day.subtitle}»`;
+  /* Ukrainian addresses a person in the vocative, which a name somebody typed
+     cannot be put into, and the nominative in direct address is wrong. So a
+     Ukrainian letter says the same sentence without the name. */
+  const name = locale === "uk" ? null : input.name;
 
   /*
     THE OPENING IS THE FACT, NOT THE GREETING.
@@ -184,8 +188,8 @@ export function tonightLetter(input: TonightInput): Letter {
     const where = partOf(input, day.title);
     blocks.push({
       t: "text",
-      text: input.name
-        ? say("{name}, you're {steps} into {where}. The rest is right where you left it.", { name: input.name, steps, where })
+      text: name
+        ? say("{name}, you're {steps} into {where}. The rest is right where you left it.", { name, steps, where })
         : say("You're {steps} into {where}. The rest is right where you left it.", { steps, where }),
     });
   } else {
@@ -201,9 +205,9 @@ export function tonightLetter(input: TonightInput): Letter {
     const canDo = lowerFirst(day.canDo);
     blocks.push({
       t: "text",
-      text: input.name
+      text: name
         ? say("{name}, this is {title}, {evening}. By the end you'll be able to {canDo}", {
-            name: input.name, title: day.title, evening, canDo,
+            name, title: day.title, evening, canDo,
           })
         : say("{title}, {evening}. By the end you'll be able to {canDo}", { title: day.title, evening, canDo }),
     });
