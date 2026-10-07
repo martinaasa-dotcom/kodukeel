@@ -237,6 +237,14 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     within: "/grammar/topic/government",
   },
   {
+    href: "/review/openers", title: "Lause algus", subtitle: "Start picks the ending", icon: "Shuffle",
+    tone: "accent", group: "targeted", note: "Choose, then type",
+    blurb:
+      "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of " +
+      "its last word, and this is where you learn to hear that.",
+    within: "/grammar/topic/government",
+  },
+  {
     href: "/review/pairs", title: "Minimal pairs", subtitle: "Long sound or short?", icon: "Ear", tone: "sky",
     group: "targeted", note: "Needs audio", within: "/grammar/topic/gradation",
     blurb:

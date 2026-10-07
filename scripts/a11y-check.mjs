@@ -141,7 +141,7 @@ const ROUTES = [
   "/course", "/course/learn", "/course/forms", "/review/letters", "/review/lookups",
   "/exam/A1", "/grammar/topic/object", "/learn/checkpoint/A1",
   "/learn/kodu/lesson", "/learn/kodu/worksheet",
-  "/review", "/review/write", "/review/government", "/review/conjugation", "/review/cloze", "/review/clinic",
+  "/review", "/review/write", "/review/government", "/review/openers", "/review/conjugation", "/review/cloze", "/review/clinic",
   "/review/dictation", "/review/listening", "/review/match", "/review/pairs",
   "/review/sentences", "/review/speaking", "/review/sprint",
   /*

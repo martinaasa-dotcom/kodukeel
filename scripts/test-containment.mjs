@@ -128,6 +128,7 @@ const ROUTES = [
   "/review/pairs",
   "/review/clinic",
   "/review/government",
+  "/review/openers",
   "/review/conjugation",
   "/review/listening",
   "/review/match",

@@ -184,6 +184,34 @@ export async function addToDeck(
   return result;
 }
 
+/**
+ * The card an answer in the openers round is graded on, made on the first one.
+ *
+ * Every answer is a `Review` row and a row needs a card (ADR-016), and the
+ * words the round uses are plain A1 nouns a learner would meet in the first
+ * month, so the first answer about one puts it in the deck. That is the one
+ * place a round adds a word behind the learner's back, and it is deliberate:
+ * a round whose answers could not be written down would have no stage to move
+ * a learner on from, which is what it is for. The production card is the one
+ * graded, as in the flash round, and the recognition card comes with it.
+ */
+export async function openerCard(lexemeId: string) {
+  lexemeId = text(lexemeId);
+  const ownerId = await requireUserId();
+  const find = () => prisma.card.findFirst({
+    where: { ownerId, lexemeId, cardType: "PRODUCTION" },
+    select: { id: true },
+    orderBy: { id: "asc" },
+  });
+  let card = await find();
+  if (!card) {
+    const added = await addCardsFor(ownerId, lexemeId, ["RECOGNITION", "PRODUCTION"], DEFAULT_SOURCE);
+    if (!added.ok) return { ok: false as const };
+    card = await find();
+  }
+  return card ? { ok: true as const, cardId: card.id } : { ok: false as const };
+}
+
 /** Every deck this learner has named, for the picker and the management page. */
 export async function listMyDecks() {
   return listDecks(await requireUserId());
