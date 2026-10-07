@@ -271,11 +271,18 @@ export function LadderBar({ progress, partLabel, learnerLevel, locale }: {
             <span lang={wantsEnglish ? undefined : "et"}>
               {stop.level}, {uiText(learnerLevel, stop.title, t(LEVEL_INFO[stop.level].titleEn))}
             </span>
-            {stop.state === "passed" ? t(", done. ")
-              : stop.state === "here" ? fill(t(", {pct}%. "), { pct: stop.pct })
-              : stop.state === "assumed" ? fill(t(", counted from your level, {shown} of {words} shown in your reviews so far. "), { shown: stop.verified, words: stop.words })
-              : ". "}
-            {stop.state === "ahead" ? fill(t("{parts} parts. "), { parts: stop.parts }) : ""}{t(stop.arrival)}
+            {/* Whole sentences after the name, never a fragment opening on a
+                comma: a translated ", done. " glued to a title is English word
+                order in every language. */}
+            {". "}
+            {[
+              stop.state === "passed" ? t("This level is done.")
+                : stop.state === "here" ? fill(t("{pct}% done."), { pct: stop.pct })
+                : stop.state === "assumed" ? fill(t("Counted from your level: {shown} of {words} shown in your reviews so far."), { shown: stop.verified, words: stop.words })
+                : stop.state === "ahead" ? fill(t("{parts} parts."), { parts: stop.parts })
+                : "",
+              t(stop.arrival),
+            ].filter(Boolean).join(" ")}
           </li>
         ))}
       </ol>

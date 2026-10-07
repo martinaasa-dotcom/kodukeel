@@ -1217,7 +1217,8 @@ function lengthIn(locale: Locale, english: string): string {
   if (locale === "en") return english;
   const said = /^(\d+) (minutes|seconds)$/i.exec(english);
   if (!said) return english;
-  return countOf(locale, Number(said[1]), said[2]!.toLowerCase() === "minutes" ? "minute" : "second");
+  /* "Уделите 1 минуту", "приділіть 1 хвилину": the length is the object of the sentence. */
+  return countOf(locale, Number(said[1]), said[2]!.toLowerCase() === "minutes" ? "minute" : "second", "acc");
 }
 
 /**

@@ -223,9 +223,11 @@ function diacriticSay(typed: string, expected: string): NoteSay {
 
 /** "õ, not o and ä, not a", in the learner's language. */
 function lettersIn(letters: NonNullable<NoteSay["letters"]>, locale: Locale): string {
-  return letters
-    .map(([right, typed]) => fill(tr(locale, "{right}, not {typed}"), { right, typed }))
-    .join(tr(locale, " and "));
+  /* Joined the way the reader's language joins a list, never with a
+     translated " and " glued between two translated pieces. */
+  return new Intl.ListFormat(locale, { type: "conjunction" }).format(
+    letters.map(([right, typed]) => fill(tr(locale, "{right}, not {typed}"), { right, typed })),
+  );
 }
 
 /**

@@ -211,7 +211,7 @@ export function LessonSession({
   return (
     <Page
       title={t(unitTitle)}
-      eyebrow={parts > 1 ? fill(t("Lesson {part} of {parts}"), { part, parts }) : t("Lesson")}
+      eyebrow={parts > 1 ? fill(t("Lesson {n} of {total}"), { n: part, total: parts }) : t("Lesson")}
       actions={
         <Link href={`/learn/${unitId}`} className="text-sm" style={{ color: "var(--accent-deep)" }}>
           {t("Leave")}

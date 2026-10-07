@@ -23,7 +23,17 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
   build a sentence by concatenating translated pieces, because word order differs.
 - A count is `countOf(locale, n, "card")`, never `n + " cards"`. Both languages have three plural
   forms (1 карточка, 2 карточки, 5 карточек) and `Intl.PluralRules` picks the right one. A new noun
-  goes in its area's `counted` table with all three forms.
+  goes in its area's `counted` table with all three forms, and in `COUNT_CASES` in
+  `lib/copy/locale.ts` with its genitive and accusative singular. A count after a preposition
+  or a verb is asked for in its case: `countOf(locale, n, "minute", "acc")` after «через», «за»,
+  «на» ("через 1 минуту"), `"gen"` after «около», «близько», «не хватает» ("около 1 минуты").
+  A fraction takes the genitive singular in both languages ("1,5 тижня"), which `countOf` does by
+  itself. Where no case fits, put the count after a colon («Ответов: {n}»).
+- A title, a name or an Estonian word dropped into a sentence after a preposition is quoted and
+  governed by a noun: «в разделе «{unit}»», «до частини {part}», «для «{pronoun}»». A weekday
+  inside a sentence is lower case, and "on Tuesday" is its own table (`ON_WEEKDAY` in
+  `lib/time/day.ts`). A name in direct address is left out of the Ukrainian, which would need the
+  vocative a typed name cannot get.
 - Each area of the app is a file under `lib/copy/i18n/`, listed in `lib/copy/i18n/index.ts`.
   Two areas translating one English line differently fails `locale.test.ts`.
 - A server component reads the locale with `localeFor(ownerId)` from `lib/progress/locale.ts`; a

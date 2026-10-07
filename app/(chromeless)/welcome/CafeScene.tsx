@@ -288,7 +288,7 @@ export function CafeScene() {
                     </p>
                   ) : (
                     <div key={n} className={`cafe-line ${line.who === "you" ? "self-end" : "self-start"}`} data-who={line.who}>
-                      <span className="sr-only">{line.who === "you" ? t("You said: ") : t("They said: ")}</span>
+                      <span className="sr-only">{line.who === "you" ? t("You said:") : t("They said:")}{" "}</span>
                       <span lang="et">{line.text}</span>
                       {line.en && <span className="cafe-line-en">{line.en}</span>}
                     </div>

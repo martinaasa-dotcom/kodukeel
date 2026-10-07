@@ -265,7 +265,8 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
       ? `That's your first in the last ${days} days.`
       : `That makes ${held} in the last ${days} days.`
     : fill(t(held === 1 ? "That's your first in the last {days}." : "That makes {held} in the last {days}."), {
-      held, days: countOf(locale, days, "day"),
+      /* "за последние 30 дней": the accusative after "за". */
+      held, days: countOf(locale, days, "day", "acc"),
     });
   const next = NEXT[answer];
 

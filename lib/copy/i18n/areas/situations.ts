@@ -1,4 +1,5 @@
 import type { Area } from "../area";
+import { QUOTED_CASE_GLOSS_ROWS } from "../caseGlosses";
 
 /**
  * Situations: the list of conversations, the briefing with its two dials, the
@@ -13,6 +14,7 @@ import type { Area } from "../area";
  */
 export const SITUATIONS: Area = {
   ru: {
+    ...Object.fromEntries(QUOTED_CASE_GLOSS_ROWS.map(([en, ru]) => [en, ru])),
     "Practise real conversations: someone wants something from you, and you sort it out in Estonian.": "Тренируйте настоящие разговоры: кому-то что-то от вас нужно, и вы решаете это по-эстонски.",
     "Your course brings these in at A2, once you have the words for asking. Try one now if you like: the other side keeps it simple.": "В курсе разговоры начинаются с A2, когда у вас уже есть слова, чтобы о чём-то просить. Но можно попробовать и сейчас: собеседник будет говорить просто.",
     "No conversations yet": "Разговоров пока нет",
@@ -252,20 +254,6 @@ export const SITUATIONS: Area = {
     "{count} turns in English": "Реплик по-английски: {count}",
     "Estonian, even a word or two": "эстонский, хотя бы пара слов",
     "Staying in Estonian a little longer each time is what this practice is for. When you're stuck, the word button gives you a word to use.": "Каждый раз продержаться на эстонском чуть дольше, в этом и смысл практики. Если застряли, кнопка «Подскажите слово» подскажет слово.",
-    "“the plain word”": "«исходная форма»",
-    "“of, and whose”": "«чего, а также чей»",
-    "“some of it”": "«часть чего-то»",
-    "“into”": "«внутрь»",
-    "“in”": "«в, внутри»",
-    "“out of”": "«из»",
-    "“onto, and to a person”": "«на, а также к человеку»",
-    "“on, at, and have”": "«на, у, а также иметь»",
-    "“off, and from a person”": "«с, а также от человека»",
-    "“becoming”": "«становясь кем-то»",
-    "“up to”": "«до»",
-    "“as”": "«в качестве»",
-    "“without”": "«без»",
-    "“with”": "«с, вместе с»",
     "you kept the ending from the question before.": "вы оставили окончание из предыдущего вопроса.",
     "you used the {case}. It answers {question} too, but it means {means}.": "вы взяли падеж {case}. Он тоже отвечает на вопрос {question}, но значит {means}.",
     "you used the {case}. It answers {question} too.": "вы взяли падеж {case}. Он тоже отвечает на вопрос {question}.",
@@ -837,6 +825,7 @@ export const SITUATIONS: Area = {
     "brown": "коричневый",
   },
   uk: {
+    ...Object.fromEntries(QUOTED_CASE_GLOSS_ROWS.map(([en, , uk]) => [en, uk])),
     "Practise real conversations: someone wants something from you, and you sort it out in Estonian.": "Справжні розмови: комусь від вас щось потрібно, і ви розв'язуєте це естонською.",
     "Your course brings these in at A2, once you have the words for asking. Try one now if you like: the other side keeps it simple.": "У курсі розмови починаються з A2, коли у вас уже є слова, щоб про щось просити. Але можна спробувати й зараз: співрозмовник говоритиме просто.",
     "No conversations yet": "Розмов поки немає",
@@ -1076,20 +1065,6 @@ export const SITUATIONS: Area = {
     "{count} turns in English": "Реплік англійською: {count}",
     "Estonian, even a word or two": "естонська, хоча б кілька слів",
     "Staying in Estonian a little longer each time is what this practice is for. When you're stuck, the word button gives you a word to use.": "Щоразу протриматися естонською трохи довше, у цьому й сенс практики. Якщо застрягли, кнопка «Мені потрібне слово» підкаже слово.",
-    "“the plain word”": "«початкова форма»",
-    "“of, and whose”": "«чого, а також чий»",
-    "“some of it”": "«частина чогось»",
-    "“into”": "«всередину»",
-    "“in”": "«у, всередині»",
-    "“out of”": "«з, із»",
-    "“onto, and to a person”": "«на, а також до людини»",
-    "“on, at, and have”": "«на, біля, а також мати»",
-    "“off, and from a person”": "«з, а також від людини»",
-    "“becoming”": "«стаючи кимось»",
-    "“up to”": "«до»",
-    "“as”": "«як»",
-    "“without”": "«без»",
-    "“with”": "«з, разом з»",
     "you kept the ending from the question before.": "ви залишили закінчення з попереднього запитання.",
     "you used the {case}. It answers {question} too, but it means {means}.": "ви вжили відмінок {case}. Він теж відповідає на запитання {question}, але означає {means}.",
     "you used the {case}. It answers {question} too.": "ви вжили відмінок {case}. Він теж відповідає на запитання {question}.",

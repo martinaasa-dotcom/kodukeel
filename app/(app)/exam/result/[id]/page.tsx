@@ -91,10 +91,19 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
     <Page
       eyebrow={
         <>
-          {result.level}
-          {result.number ? fill(t(", paper {n}"), { n: result.number }) : ""}
-          {result.part ? t(`, ${SKILL_LABEL[result.part].toLowerCase()} only`) : ""}{t(", sat")}{" "}
-          <DateText iso={attempt.finishedAt.toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
+          {/* One sentence per shape rather than four pieces glued in English
+              order, and "sat" kept apart from "passed" in every language. */}
+          {fillNodes(t(
+            result.number && result.part ? "{level}, paper {n}, {part} only, sat {date}"
+              : result.number ? "{level}, paper {n}, sat {date}"
+              : result.part ? "{level}, {part} only, sat {date}"
+              : "{level}, sat {date}",
+          ), {
+            level: result.level,
+            n: result.number ?? "",
+            part: result.part ? t(SKILL_LABEL[result.part]).toLocaleLowerCase(locale) : "",
+            date: <DateText iso={attempt.finishedAt.toISOString()} zone={clock.zone} options={DATE_AND_TIME} />,
+          })}
         </>
       }
       title={

@@ -507,7 +507,8 @@ export function nextCardLine(due: Date, now: Date, clock: DayClock, locale: Loca
     const phrase = ON_WEEKDAY[locale][weekday] ?? weekday;
     return fill(tr(locale, "The next card comes back {weekday}."), { weekday: phrase });
   }
-  return fill(tr(locale, "The next card comes back in {count}."), { count: countOf(locale, days, "day") });
+  /* "Через 8 дней": after "через" the count is accusative. */
+  return fill(tr(locale, "The next card comes back in {count}."), { count: countOf(locale, days, "day", "acc") });
 }
 
 /** "On Tuesday", as Russian and Ukrainian say it, keyed on the English weekday. */
@@ -518,6 +519,6 @@ const ON_WEEKDAY: Readonly<Record<Exclude<Locale, "en">, Readonly<Record<string,
   },
   uk: {
     Monday: "у понеділок", Tuesday: "у вівторок", Wednesday: "у середу", Thursday: "у четвер",
-    Friday: "у п'ятницю", Saturday: "у суботу", Sunday: "у неділю",
+    Friday: "у п'ятницю", Saturday: "у суботу", Sunday: "в неділю",
   },
 };
