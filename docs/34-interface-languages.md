@@ -105,6 +105,16 @@ that is correct and reads like a translation has failed.
 | Next | Дальше | Далі |
 | Start | Начать | Почати |
 
+## How it is checked
+
+`scripts/test-locales.mjs` walks every signed-in screen in both languages, at 360 and 1280 and in
+the dark at 360, and CI runs it. It asks the containment questions about text fitting (nothing cut
+off, nothing over a border, no word broken across lines, no button label wider than its button) and
+whether any English is left. English by design is subtracted: the dictionary's own English, read off
+the database, what the learner typed, and anything marked `lang="en"`. English a screen knows is not
+translated yet carries `data-untranslated` and is listed at the end of the run by name. A translation
+longer than its box is fixed by a shorter translation first, and by the layout where the box is wrong.
+
 ## Not reviewed yet
 
 Both languages were translated with AI, and nobody who speaks either as a first language has read
