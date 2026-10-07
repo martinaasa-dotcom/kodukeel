@@ -125,7 +125,7 @@ export default async function SignInPage({ searchParams }: {
           }}
         >
           <MascotWatch size={62} className="float mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold leading-tight tracking-tight" style={{ color: "var(--ink)" }}>
+          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
             Tere tulemast tagasi
           </h1>
           <p className="mx-auto mt-2 max-w-[36ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
