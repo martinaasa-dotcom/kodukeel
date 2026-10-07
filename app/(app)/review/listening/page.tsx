@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
@@ -120,12 +122,13 @@ export default async function ListeningPage({
     // reach four, so nothing on the screen is a word nobody has shown.
     const pool = decoysAmong(await decoyOptions(), scope?.lemmas, MIN_LEXEMES_FOR_CHOICES);
     if (pool.length < MIN_LEXEMES_FOR_CHOICES) {
+      const locale = await localeFor(ownerId);
       return (
-        <Page title="Listening" lead="Listen to a word, then pick what it means.">
+        <Page title={tr(locale, "Listening")} lead={tr(locale, "Listen to a word, then pick what it means.")}>
           <Empty
-            title="A few more words needed"
-            body={`The wrong answers come from your other words, so you'll need at least ${MIN_LEXEMES_FOR_CHOICES} in your deck.`}
-            action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+            title={tr(locale, "A few more words needed")}
+            body={fill(tr(locale, "The wrong answers come from your other words, so you'll need at least {n} in your deck."), { n: MIN_LEXEMES_FOR_CHOICES })}
+            action={<ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>}
           />
         </Page>
       );

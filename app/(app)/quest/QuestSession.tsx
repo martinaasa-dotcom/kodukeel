@@ -1,5 +1,9 @@
 "use client";
 
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { answerNote } from "@/lib/copy/answerNote";
+import { rich } from "@/components/round/rich";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CaseLabel } from "@/components/CaseLabel";
 import { caseLabelOf } from "@/lib/copy/caseLabel";
@@ -94,6 +98,9 @@ const isGap = (front: string) => front.includes(BLANK);
 export function QuestSession({
   cards: initialCards, aimed, seconds,
 }: { cards: QuestCard[]; aimed: AimedCase[]; seconds: number }) {
+  const t = useT();
+  const locale = useLocale();
+  const lead = fill(t("{length} on the endings that keep tripping you up."), { length: roundLength(seconds, locale) });
   // Snapshotted once on mount and never updated from later props: `gradeCard`
   // refreshes this route's Server Component on every call, which would hand
   // down a shrinking pool mid-round. See ReviewSession for the same reasoning.
@@ -332,11 +339,11 @@ export function QuestSession({
 
   if (cards.length === 0) {
     return (
-      <Page title="Daily quest" lead={`${roundLength(seconds)} on the endings that keep tripping you up.`}>
+      <Page title={t("Daily quest")} lead={lead}>
         <Empty
-          title="Nothing to work on yet"
-          body="It picks the endings you miss most, so it needs a few of your answers first."
-          action={<ButtonLink href="/review" variant="primary">Open review</ButtonLink>}
+          title={t("Nothing to work on yet")}
+          body={t("It picks the endings you miss most, so it needs a few of your answers first.")}
+          action={<ButtonLink href="/review" variant="primary">{t("Open review")}</ButtonLink>}
         />
       </Page>
     );
@@ -346,23 +353,25 @@ export function QuestSession({
     return (
       <RoundStart
         icon={<Timer size={26} aria-hidden />}
-        title="Daily quest"
-        lead={`${roundLength(seconds)} on the endings that keep tripping you up.`}
+        title={t("Daily quest")}
+        lead={lead}
         hue="blush"
         actions={<>
-          <ButtonLink href="/" variant="ghost">Not now</ButtonLink>
+          <ButtonLink href="/" variant="ghost">{t("Not now")}</ButtonLink>
           <Button variant="primary" size="lg" onClick={() => { setPhase("running"); shownAt.current = Date.now(); }}>
-            Start the clock
+            {t("Start the clock")}
           </Button>
         </>}
         footnote={<>
           {/* Where the clock is set, said on the screen somebody is standing
               on when they find the round too fast. */}
-          Need longer?{" "}
-          <Link href="/settings#round-pace" className="underline underline-offset-2">
-            Give yourself more time
-          </Link>
-          , up to ten times this.
+          {rich(t("Need longer? {more}, up to ten times this."), {
+            more: (
+              <Link href="/settings#round-pace" className="underline underline-offset-2">
+                {t("Give yourself more time")}
+              </Link>
+            ),
+          })}
         </>}
       >
         <BriefingSteps id="quest" />
@@ -373,13 +382,13 @@ export function QuestSession({
         */}
         {aimed.length > 0 && (
           <section
-            aria-label="What this round is aimed at"
+            aria-label={t("What this round is aimed at")}
             className="mt-2 rounded-[var(--r-lg)] p-5 text-left"
             style={{ background: "rgb(255 255 255 / 0.06)", border: "1px solid rgb(255 255 255 / 0.12)" }}
           >
             <h2 className="flex items-center gap-2 text-md font-bold" style={{ color: "var(--ink)" }}>
               <Target size={17} aria-hidden style={{ color: "var(--cta)" }} />
-              The endings you find hardest
+              {t("The endings you find hardest")}
             </h2>
             <ul className="mt-4 flex flex-col gap-4">
               {aimed.map((c) => (
@@ -391,7 +400,7 @@ export function QuestSession({
                       <span lang="et" className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{c.et}</span>
                     )}
                     <span className="tnum whitespace-nowrap text-sm font-semibold" style={{ color: "var(--ink)" }}>
-                      {c.accuracy}% right
+                      {fill(t("{pct}% right"), { pct: c.accuracy })}
                     </span>
                   </div>
                   <span aria-hidden className="mt-1.5 block h-2 overflow-hidden rounded-full" style={{ background: "rgb(255 255 255 / 0.1)" }}>
@@ -412,21 +421,21 @@ export function QuestSession({
   if (phase === "done") {
     const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
     return (
-      <Page title="Daily quest" lead="That's today's quest done.">
+      <Page title={t("Daily quest")} lead={t("That's today's quest done.")}>
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
           <div className="grid w-full grid-cols-3 gap-2 sm:gap-3">
-            <StatTile value={correct} label="Right" tone="sky" />
-            <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 70 ? "sky" : "butter"} />
-            <StatTile value={bestStreak} label="Best run" tone="blush" />
+            <StatTile value={correct} label={t("Right")} tone="sky" />
+            <StatTile value={`${accuracy}%`} label={t("Accuracy")} tone={accuracy >= 70 ? "sky" : "butter"} />
+            <StatTile value={bestStreak} label={t("Best run")} tone="blush" />
           </div>
           <p className="max-w-[40ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {attempted === 0
-              ? "You didn't answer any, so nothing was saved. Come back whenever you're ready."
-              : "Every answer counted. The ones you missed will come back a bit sooner."}
+              ? t("You didn't answer any, so nothing was saved. Come back whenever you're ready.")
+              : t("Every answer counted. The ones you missed will come back a bit sooner.")}
           </p>
           <WayOut className="flex flex-wrap justify-center gap-3">
-            <ButtonLink href="/practice" size="lg">Play a round</ButtonLink>
-            <ButtonLink href="/" variant="primary" size="lg">Back to Today</ButtonLink>
+            <ButtonLink href="/practice" size="lg">{t("Play a round")}</ButtonLink>
+            <ButtonLink href="/" variant="primary" size="lg">{t("Back to Today")}</ButtonLink>
           </WayOut>
         </div>
       </Page>
@@ -437,7 +446,7 @@ export function QuestSession({
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
-      <h1 className="sr-only">Daily quest</h1>
+      <h1 className="sr-only">{t("Daily quest")}</h1>
 
       <div className="flex items-center justify-between gap-3">
         <span className="flex items-center gap-2 text-sm font-semibold tabular-nums"
@@ -455,7 +464,7 @@ export function QuestSession({
           <span className="text-sm font-semibold tabular-nums" style={{ color: "var(--ink-2)" }}>
             {correct}/{attempted}
           </span>
-          <ButtonLink href="/" aria-label="Leave the quest"><X size={15} aria-hidden /></ButtonLink>
+          <ButtonLink href="/" aria-label={t("Leave the quest")}><X size={15} aria-hidden /></ButtonLink>
         </span>
       </div>
 
@@ -477,7 +486,7 @@ export function QuestSession({
           style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
         >
           {card.targetsWeakCase && (
-            <Chip tone="hard">One you often miss</Chip>
+            <Chip tone="hard">{t("One you often miss")}</Chip>
           )}
           <FitText as="p" text={card.front} lang="et" className="round-word font-bold" style={{ color: "var(--ink)" }} />
           {/*
@@ -532,11 +541,11 @@ export function QuestSession({
                     <span className={!revealed && struck.includes(option.text) ? "line-through" : ""}>
                       {option.text}
                       {!revealed && struck.includes(option.text) && (
-                        <span className="sr-only"> (ruled out by a hint)</span>
+                        <span className="sr-only"> {t("(ruled out by a hint)")}</span>
                       )}
                     </span>
                     {revealed && isAnswer
-                      ? <span className="text-xs font-semibold uppercase tracking-wide">Right</span>
+                      ? <span className="text-xs font-semibold uppercase tracking-wide">{t("Right")}</span>
                       : (
                         <KeyCap>{at + 1}</KeyCap>
                       )}
@@ -551,8 +560,8 @@ export function QuestSession({
                 <p className="sr-only" role="status">
                   {picked && acceptedAnswers(card.back, "et")
                     .some((f) => f.toLocaleLowerCase("et") === picked.toLocaleLowerCase("et"))
-                    ? "Right."
-                    : `Not this time. It's ${card.back}.`}
+                    ? t("Right.")
+                    : fill(t("Not this time. It's {answer}."), { answer: card.back })}
                 </p>
               )}
               {!revealed && (
@@ -592,7 +601,7 @@ export function QuestSession({
                     </p>
                     <Speak
                       text={filledSentence(card.front, card.back)}
-                      label="Hear the whole sentence"
+                      label={t("Hear the whole sentence")}
                       autoplay
                       className="press inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
                     />
@@ -625,10 +634,10 @@ export function QuestSession({
                     role="status"
                     className={`${check.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(check.verdict)]} verdict-panel`}
                   >
-                    {check.verdict === "correct" ? "Right." : check.note || `It's ${primaryAnswer(card.back)}.`}
+                    {check.verdict === "correct" ? t("Right.") : answerNote(check.note, locale) || fill(t("It's {answer}."), { answer: primaryAnswer(card.back) })}
                   </p>
                   <Button variant="primary" size="lg" autoFocus disabled={busy} onClick={nextTyped}>
-                    Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                    {t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                   </Button>
                 </div>
               ) : (
@@ -642,7 +651,7 @@ export function QuestSession({
                   onClick={() => void answer(false)}
                   className={`${VERDICT_CLASS.wrong} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
-                  Missed it <KeyCap className="ml-1">1</KeyCap>
+                  {t("Missed it")} <KeyCap className="ml-1">1</KeyCap>
                 </button>
                 <button
                   type="button"
@@ -650,7 +659,7 @@ export function QuestSession({
                   onClick={() => void answer(true)}
                   className={`${VERDICT_CLASS.right} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
-                  Had it <KeyCap className="ml-1">2</KeyCap>
+                  {t("Had it")} <KeyCap className="ml-1">2</KeyCap>
                 </button>
               </div>
               )}
@@ -658,19 +667,19 @@ export function QuestSession({
           ) : card.typed ? (
             <div className="mt-2 flex w-full max-w-sm flex-col gap-3 text-left">
               <label htmlFor="quest-answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-                Type the answer
+                {t("Type the answer")}
               </label>
               <EstonianInput
                 id="quest-answer"
                 value={typed}
                 onChange={setTyped}
                 onEnter={markTyped}
-                ariaLabel="Type your answer"
+                ariaLabel={t("Type your answer")}
                 autoFocus
                 large
               />
               <Button variant="primary" size="lg" disabled={busy} onClick={markTyped}>
-                Check it <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                {t("Check it")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
               <HintLadder
                 ladder={ladder}
@@ -682,7 +691,7 @@ export function QuestSession({
             </div>
           ) : (
             <Button variant="primary" size="lg" onClick={() => setRevealed(true)}>
-              Show answer <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+              {t("Show answer")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>

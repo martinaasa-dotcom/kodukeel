@@ -381,7 +381,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
             {mark.result.words.map((word, i) => {
               const tone = WORD_TONE[word.status];
               const shown = word.expected ?? word.typed ?? "";
-              const note = wordNote(word);
+              const note = wordNote(word, "en");
               return (
                 <span
                   key={`${shown}-${i}`}

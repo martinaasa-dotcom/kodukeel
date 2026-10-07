@@ -4,6 +4,8 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { bandsAround } from "@/lib/collections/levels";
 import { contrastLetter, findQuantityPairs, longerOf, type FormRef } from "@/lib/estonian/quantity";
 import { formLabel } from "@/lib/estonian/morph";
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { PairsSession, type PairQuestion } from "./PairsSession";
@@ -111,12 +113,13 @@ export default async function PairsPage() {
   const pairs = findQuantityPairs(refs, 200);
 
   if (pairs.length === 0) {
+    const locale = await localeFor(ownerId);
     return (
-      <Page title="Minimal pairs" lead="Hear the difference a longer sound makes, even when spelling hides it.">
+      <Page title={tr(locale, "Minimal pairs")} lead={tr(locale, "Hear the difference a longer sound makes, even when spelling hides it.")}>
         <Empty
-          title="No pairs to listen to yet"
-          body="A pair is two words where one sound is held longer, like maja and majja. We haven't found any yet."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={tr(locale, "No pairs to listen to yet")}
+          body={tr(locale, "A pair is two words where one sound is held longer, like maja and majja. We haven't found any yet.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>}
         />
       </Page>
     );

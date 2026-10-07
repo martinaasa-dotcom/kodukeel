@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db";
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
@@ -19,15 +21,18 @@ export const dynamic = "force-dynamic";
  */
 export default async function ClozePage() {
   const ownerId = await requireUserId();
-  const deckSize = await prisma.card.count({ where: { ownerId, lexemeId: { not: null } } });
+  const [locale, deckSize] = await Promise.all([
+    localeFor(ownerId),
+    prisma.card.count({ where: { ownerId, lexemeId: { not: null } } }),
+  ]);
 
   if (deckSize === 0) {
     return (
-      <Page title="From your reading" lead="Paste in some real Estonian and practise the words you're learning inside it.">
+      <Page title={tr(locale, "From your reading")} lead={tr(locale, "Paste in some real Estonian and practise the words you're learning inside it.")}>
         <Empty
-          title="Your deck is empty"
-          body="It turns the words you're learning into gaps, so add a few from the dictionary first."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={tr(locale, "Your deck is empty")}
+          body={tr(locale, "It turns the words you're learning into gaps, so add a few from the dictionary first.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>}
         />
       </Page>
     );

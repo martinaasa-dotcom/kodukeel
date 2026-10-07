@@ -1,5 +1,8 @@
 "use client";
 
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { clueParts } from "@/lib/games/clue";
 import { playOnce } from "@/components/motion/PlayOnce";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, Eye } from "lucide-react";
@@ -30,6 +33,7 @@ import { OPTION_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
  * a rendering fault rather than as a puzzle.
  */
 export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day: string }) {
+  const t = useT();
   const [typed, setTyped] = useState<Record<number, string>>({});
   const [active, setActive] = useState(0);
   const [checked, setChecked] = useState<number[]>([]);
@@ -179,7 +183,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
             exactly what is true.
           */
           role="group"
-          aria-label="Crossword grid"
+          aria-label={t("Crossword grid")}
         >
           {Array.from({ length: puzzle.rows * puzzle.cols }, (_, cell) => {
             if (!puzzle.filled.has(cell)) return <span key={cell} aria-hidden className="h-9 w-9 sm:h-10 sm:w-10" />;
@@ -222,7 +226,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                   onFocus={() => { if (!activeCells.includes(cell)) pick(cell); }}
                   onClick={() => pick(cell)}
                   lang="et"
-                  aria-label={`Row ${Math.floor(cell / puzzle.cols) + 1}, column ${(cell % puzzle.cols) + 1}`}
+                  aria-label={fill(t("Row {row}, column {col}"), { row: Math.floor(cell / puzzle.cols) + 1, col: (cell % puzzle.cols) + 1 })}
                   className={`${isWrong ? OPTION_CLASS.wrong : isRight ? OPTION_CLASS.right : ""} h-full w-full rounded-[var(--r-sm)] border-0 text-center text-base font-bold uppercase transition-ui`}
                   style={isWrong || isRight ? undefined : {
                     background: inWord ? "color-mix(in srgb, var(--cta) 20%, var(--surface))" : "var(--surface)",
@@ -237,11 +241,11 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
 
         <div className="mt-4 flex flex-col items-center gap-3">
           <p className="text-center text-base" style={{ color: "var(--ink-2)" }}>
-            <span className="font-semibold" style={{ color: "var(--cta)" }}>{entry.number} {entry.direction}</span>
+            <span className="font-semibold" style={{ color: "var(--cta)" }}>{entry.number} {t(entry.direction)}</span>
             {": "}
-            <span className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>{entry.clue}</span>
+            <span className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>{clueIn(t, entry.clue)}</span>
           </p>
-          <DiacriticBar standalone={false} label="Insert Estonian character" />
+          <DiacriticBar standalone={false} label={t("Insert Estonian character")} />
         </div>
       </Card>
 
@@ -276,7 +280,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                 });
               }}
             >
-              <Eye size={16} aria-hidden /> Show this one
+              <Eye size={16} aria-hidden /> {t("Show this one")}
             </Button>
             <Button
               type="button"
@@ -289,12 +293,12 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                 const bad = wrongCells(puzzle, typed).size;
                 setSaid(
                   bad === 0
-                    ? "Every letter you've filled in so far is right."
-                    : `${bad} ${bad === 1 ? "letter needs" : "letters need"} another look.`,
+                    ? t("Every letter you've filled in so far is right.")
+                    : bad === 1 ? t("1 letter needs another look.") : fill(t("{n} letters need another look."), { n: bad }),
                 );
               }}
             >
-              <Check size={16} aria-hidden /> Check
+              <Check size={16} aria-hidden /> {t("Check")}
             </Button>
           </div>
         </div>
@@ -308,12 +312,22 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
   );
 }
 
+/**
+ * The clue's gloss is the dictionary's English and stays as it is; the kind of
+ * word it names is a label of ours, so that half is read in the reader's language.
+ */
+function clueIn(t: (english: string) => string, clue: string): string {
+  const { gloss, kind } = clueParts(clue);
+  return kind ? `${gloss}, ${t(kind)}` : clue;
+}
+
 function Clues({ puzzle, active, solved, onPick }: {
   puzzle: DailyCrossword;
   active: number;
   solved: Set<number>;
   onPick: (index: number) => void;
 }) {
+  const t = useT();
   const half = (direction: Entry["direction"]) =>
     puzzle.entries.map((e, i) => ({ e, i })).filter(({ e }) => e.direction === direction);
 
@@ -328,7 +342,7 @@ function Clues({ puzzle, active, solved, onPick }: {
     <div className="grid gap-4 lg:grid-cols-2">
       {(["across", "down"] as const).map((direction) => (
         <Card key={direction}>
-          <SectionTitle>{direction === "across" ? "Across" : "Down"}</SectionTitle>
+          <SectionTitle>{direction === "across" ? t("Across") : t("Down")}</SectionTitle>
           <ul className="mt-2 flex flex-col gap-1">
             {half(direction).map(({ e, i }) => (
               <li key={i}>
@@ -342,7 +356,7 @@ function Clues({ puzzle, active, solved, onPick }: {
                   }}
                 >
                   <span className="font-bold" style={{ color: "var(--ink-3)" }}>{e.number}</span>
-                  <span className="min-w-0 flex-1">{e.clue}</span>
+                  <span className="min-w-0 flex-1">{clueIn(t, e.clue)}</span>
                   {solved.has(i) && <Check size={13} aria-hidden style={{ color: VERDICT_INK.right }} />}
                 </button>
               </li>
@@ -355,15 +369,18 @@ function Clues({ puzzle, active, solved, onPick }: {
 }
 
 function Finish({ puzzle, helped }: { puzzle: DailyCrossword; helped: number }) {
+  const t = useT();
   return (
     <Card>
       <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
-        {helped === 0 ? "Solved, and every square of it was yours." : "Solved, with a little help. That still counts."}
+        {helped === 0 ? t("Solved, and every square of it was yours.") : t("Solved, with a little help. That still counts.")}
       </p>
       <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
         {puzzle.inDeck.length > 0
-          ? `${puzzle.inDeck.length} of these ${puzzle.inDeck.length === 1 ? "is" : "are"} in your deck, so this counted as practice for ${puzzle.inDeck.length === 1 ? "it" : "them"}.`
-          : "None of these are in your deck yet. Tap any word you liked to look it up and keep it."}
+          ? puzzle.inDeck.length === 1
+            ? t("1 of these is in your deck, so this counted as practice for it.")
+            : fill(t("{n} of these are in your deck, so this counted as practice for them."), { n: puzzle.inDeck.length })
+          : t("None of these are in your deck yet. Tap any word you liked to look it up and keep it.")}
       </p>
       <ul className="mt-4 flex flex-wrap gap-2">
         {puzzle.entries.map((entry) => (
@@ -377,7 +394,7 @@ function Finish({ puzzle, helped }: { puzzle: DailyCrossword; helped: number }) 
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>There&apos;s a new grid every morning.</p>
+      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>{t("There's a new grid every morning.")}</p>
     </Card>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useCallback, useContext, type ReactNode } from "react";
 import { tr, type Locale } from "@/lib/copy/locale";
 
 /**
@@ -22,8 +22,13 @@ export function useLocale(): Locale {
   return useContext(Context);
 }
 
-/** `t("Settings")` is the line in this learner's language, or the English where none exists yet. */
+/**
+ * `t("Settings")` is the line in this learner's language, or the English where
+ * none exists yet. `context` picks a line that means two things in English
+ * (see `tr`). The same function for as long as the language is, so a round
+ * can name it in a hook's dependencies without re-running every render.
+ */
 export function useT(): (english: string, context?: string) => string {
   const locale = useContext(Context);
-  return (english, context) => tr(locale, english, context);
+  return useCallback((english: string, context?: string) => tr(locale, english, context), [locale]);
 }

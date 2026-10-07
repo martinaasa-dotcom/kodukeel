@@ -1,3 +1,5 @@
+import { countOf, type Locale } from "@/lib/copy/locale";
+
 /**
  * HOW LONG A TIMED ROUND RUNS, AND WHOSE CHOICE THAT IS.
  *
@@ -35,7 +37,6 @@
  * Pure: a string in, a number of seconds out. No React, no Prisma, no clock.
  */
 
-import { countOf, type Locale } from "@/lib/copy/locale";
 
 export const ROUND_PACES = [
   {
@@ -130,8 +131,8 @@ export function secondsFor(baseSeconds: number, pace: RoundPace): number {
  * where a minute would round away the difference between 60 and 90, and whole
  * minutes above wherever the figure is one.
  */
-export function roundLength(seconds: number): string {
-  return roundLengthIn("en", seconds);
+export function roundLength(seconds: number, locale?: Locale): string {
+  return roundLengthIn(locale ?? "en", seconds);
 }
 
 /**
@@ -155,8 +156,8 @@ export function roundLengthIn(locale: Locale, seconds: number): string {
  * go through this rather than `roundPaceFrom` directly, so that calling
  * `roundPaceFrom` stays what marks a page as a round with a clock.
  */
-export function lengthAtPace(base: number, stored: string | null | undefined): string {
-  const said = roundLength(secondsAtPace(base, stored));
+export function lengthAtPace(base: number, stored: string | null | undefined, locale?: Locale): string {
+  const said = roundLength(secondsAtPace(base, stored), locale);
   return `${said[0]!.toUpperCase()}${said.slice(1)}`;
 }
 

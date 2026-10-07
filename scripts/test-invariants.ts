@@ -8918,8 +8918,8 @@ check("dictation says which kind of mistake it was, in text", () => {
     Asserted by calling the function rather than by matching markup: two
     different, non-empty notes, and a component that actually renders them.
   */
-  const diacritics = wordNote({ expected: "õues", typed: "oues", status: "diacritics" });
-  const typo = wordNote({ expected: "kool", typed: "koll", status: "typo" });
+  const diacritics = wordNote({ expected: "õues", typed: "oues", status: "diacritics" }, "en");
+  const typo = wordNote({ expected: "kool", typed: "koll", status: "typo" }, "en");
 
   assert.ok(diacritics, "a dropped diacritic is marked with no words on it");
   assert.ok(typo, "a typo is marked with no words on it");
