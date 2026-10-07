@@ -668,7 +668,7 @@ export const TODAY: Area = {
     "Aitan sind, но helistan sulle. Как и в русском, каждый глагол требует своего падежа, но эстонское управление с русским часто не совпадает: мы говорим «помогаю тебе», а здесь sind. Поэтому их учат по одному глаголу.",
   "The words that don't follow the usual ending rules. See each one, then write it yourself, and soon you won't need to look them up.":
     "Слова, которые не подчиняются обычным правилам окончаний. Посмотрите на каждое, потом напишите его сами, и скоро заглядывать в справочник не придётся.",
-  "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like a's and o's.":
+  "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like plain a's, o's and u's.":
     "Знакомое слово с перемешанными буквами. Расставьте их по местам, и буквы с точками и волной перестанут казаться обычными a, o и u.",
   "Words you've already met, asked in new ways: read aloud, missing from a sentence, or in a sentence you write.":
     "Слова, которые вы уже встречали, в новых вопросах: на слух, с пропуском в предложении или в вашем собственном предложении.",
@@ -1605,8 +1605,8 @@ export const TODAY: Area = {
     "Aitan sind, але helistan sulle. Кожне дієслово саме вибирає закінчення для того, що йде після нього, і вгадати його не можна, тож їх учать по одному дієслову.",
   "The words that don't follow the usual ending rules. See each one, then write it yourself, and soon you won't need to look them up.":
     "Слова, які не підкоряються звичайним правилам закінчень. Подивіться на кожне, потім напишіть його самі, і незабаром заглядати в довідник не доведеться.",
-  "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like a's and o's.":
-    "Знайоме слово з перемішаними літерами. Розставте їх на місця, і літери з крапками та тильдою перестануть здаватися просто a та o.",
+  "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like plain a's, o's and u's.":
+    "Знайоме слово з перемішаними літерами. Розставте їх на місця, і літери з крапками та тильдою перестануть здаватися звичайними a, o та u.",
   "Words you've already met, asked in new ways: read aloud, missing from a sentence, or in a sentence you write.":
     "Слова, які ви вже зустрічали, у нових запитаннях: на слух, із пропуском у реченні або у вашому власному реченні.",
 

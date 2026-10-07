@@ -52,9 +52,18 @@ const numberTag = (locale: Locale) => (locale === "en" ? "en-GB" : locale);
 
 const count = (n: number, locale: Locale) => Math.round(n).toLocaleString(numberTag(locale));
 
+/** Dollars written where the reader writes them: "$1,234" in English and
+ * "1 234 $" in Russian and Ukrainian, where the sign follows the figure. The
+ * narrow symbol, because en-GB otherwise prints "US$". */
 function money(usd: number, locale: Locale): string {
-  if (usd >= 1000) return `$${Math.round(usd).toLocaleString(numberTag(locale))}`;
-  return `$${usd.toLocaleString(numberTag(locale), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const whole = usd >= 1000;
+  return new Intl.NumberFormat(numberTag(locale), {
+    style: "currency",
+    currency: "USD",
+    currencyDisplay: "narrowSymbol",
+    minimumFractionDigits: whole ? 0 : 2,
+    maximumFractionDigits: whole ? 0 : 2,
+  }).format(whole ? Math.round(usd) : usd);
 }
 
 /**
@@ -66,7 +75,7 @@ function money(usd: number, locale: Locale): string {
  * of study: the unit is part of the number.
  */
 function perLearner(usd: number, t: T, locale: Locale): string {
-  if (usd >= 1) return `$${usd.toFixed(2)}`;
+  if (usd >= 1) return money(usd, locale);
   const cents = usd * 100;
   if (locale === "en") {
     if (cents >= 10) return `${Math.round(cents)} cents`;

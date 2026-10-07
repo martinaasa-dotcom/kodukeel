@@ -260,7 +260,7 @@ export const PARTS: readonly PartSpec[] = [
     title: "Esimesed sõnad", subtitle: "Hello, you and me, the verb to be, and the people around you",
     blurb:
       "You start from nothing and build up the way a sentence does. Five words on the first "
-      + "evening, then I, you, he and she, then the verb to be with its six endings. After that "
+      + "evening, then I, you, he and she, then the verb to be in all six persons. After that "
       + "come the little words that hold a sentence together, a few greetings and questions, and "
       + "the people in your life. By the end you can say hello, ask where somebody lives and tell "
       + "them who's in your family.",
@@ -401,10 +401,11 @@ export const PARTS: readonly PartSpec[] = [
     id: "b2.1", level: "B2",
     title: "Kes seda ütles", subtitle: "Leaving out who did it, society, hearsay, the economy, and doing two things at once",
     blurb:
-      "Estonian has three ways of telling you what happened without saying who did it. You "
-      + "learn each one alongside the words it usually comes with: the impersonal with society, "
-      + "the reported form with the economy, and then the form for doing two things at once. By "
-      + "the end you can read a report that never names anybody.",
+      "Three forms change how Estonian tells you something: one says what happened without "
+      + "saying who did it, one passes on what you only heard, and one puts two things done at "
+      + "once into a single sentence. You learn each alongside the words it usually comes with: "
+      + "the impersonal with society, the reported form with the economy, and the third after "
+      + "them. By the end you can read a report that never names anybody.",
     units: ["umbisikuline", "uhiskond", "kaudne", "majandus", "des-vorm"],
   },
   {

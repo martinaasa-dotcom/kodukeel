@@ -178,6 +178,9 @@ export const FINISH: Area = {
     "{written} + {spoken} min": "{written} + {spoken} хв",
   },
   counted: {
-    second: { en: ["second", "seconds"], ru: ["секунду", "секунды", "секунд"], uk: ["секунду", "секунди", "секунд"] },
+    // The wait in "try again in {time}", which Russian and Ukrainian put in
+    // the accusative («через минуту», «через секунду»), so it is its own entry
+    // rather than the nominative "second" a screen counts with.
+    "second, as a wait": { en: ["second", "seconds"], ru: ["секунду", "секунды", "секунд"], uk: ["секунду", "секунди", "секунд"] },
   },
 };

@@ -456,7 +456,7 @@ function Break({ level, until, now, nextLabel, onResume }: {
         {t("Break")}
       </h1>
       <p className="mt-3 max-w-[56ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {t(`The written half is done and its clock has stopped. On the real day there's a short break before the spoken part, and this is yours. Stand up, get some water, and come back for ${nextLabel.toLowerCase()}.`)}
+        {t("The written half is done and its clock has stopped. On the real day there's a short break before the spoken part, and this is yours. Stand up, get some water, and come back for the spoken part.")}
       </p>
 
       <p
@@ -681,7 +681,7 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
               </span>
               <span className="flex items-center gap-2">
                 <Chip>{fill(t("{n} min"), { n: part.spec.minutes })}</Chip>
-                <Chip tone="accent">{locale === "en" ? `${part.spec.points} points` : countOf(locale, part.spec.points, "point")}</Chip>
+                <Chip tone="accent">{countOf(locale, part.spec.points, "exam point")}</Chip>
               </span>
             </div>
             <ul className="mt-4 grid gap-2.5">

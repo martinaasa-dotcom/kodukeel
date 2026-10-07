@@ -221,7 +221,7 @@ export const BUSY_REFUSAL =
 
 /** The refusal in this locale, with the wait counted in it. */
 export function busyMessage(locale: Locale, seconds: number): string {
-  return fill(tr(locale, BUSY_REFUSAL), { time: countOf(locale, seconds, "second") });
+  return fill(tr(locale, BUSY_REFUSAL), { time: countOf(locale, seconds, "second, as a wait") });
 }
 
 /**

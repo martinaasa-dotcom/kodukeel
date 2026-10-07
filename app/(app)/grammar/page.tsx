@@ -319,7 +319,7 @@ export default async function GrammarIndexPage() {
         </Card>
 
         <section>
-          <SectionTitle hint={countOf(locale, TOPIC_NOTES.length, "point")}>{t("Beyond the endings")}</SectionTitle>
+          <SectionTitle hint={countOf(locale, TOPIC_NOTES.length, "grammar point")}>{t("Beyond the endings")}</SectionTitle>
           <p className="mt-1 max-w-[68ch] text-sm" style={{ color: "var(--ink-2)" }}>
             {t("Grouped by the kind of word they're about, in the order a course would teach them.")}
           </p>
