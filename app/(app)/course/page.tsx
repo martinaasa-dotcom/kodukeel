@@ -21,6 +21,8 @@ import { adaptOfferFor } from "@/lib/progress/adapt";
 import { leanSentence, moveLabel, offerParts, offerTitle, type AdaptOffer, type LeanEffects, type Tilt } from "@/lib/course";
 import { Speak } from "@/components/Speak";
 import { Lettered } from "@/components/HeroLetters";
+import { WaveWord, WAVE_END } from "@/components/motion/WaveWord";
+import type { CSSProperties } from "react";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepsIn } from "@/lib/course";
@@ -303,14 +305,19 @@ export default async function CoursePage({
                     {t("Hear tonight’s words once more")}
                   </p>
                   <ul className="mt-2 flex flex-wrap gap-2" data-recap-words>
-                    {justDone.words.map((word) => (
+                    {justDone.words.map((word, i) => (
+                      /* They come in one after another, and each ripples
+                         when reached for, which is the word saying itself
+                         once more beside the speaker that says it aloud. */
                       <li
                         key={word}
-                        className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5"
-                        style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
+                        data-hop-on="hover"
+                        data-hop-end={WAVE_END}
+                        className="word-arrive inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5"
+                        style={{ borderColor: "var(--rule)", background: "var(--surface)", "--i": i } as CSSProperties}
                       >
                         <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                          {word}
+                          <WaveWord text={word} />
                         </span>
                         <Speak text={word} size={14} />
                       </li>

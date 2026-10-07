@@ -3,6 +3,7 @@ import { BookOpen, CalendarDays, Sprout } from "lucide-react";
 import { ALMANAC_SOURCE, type WordOfDay, type WordOfDayCollection } from "@/lib/progress/wordOfDay";
 import { AddWordButton } from "@/components/AddWordButton";
 import { Speak } from "@/components/Speak";
+import { WaveWord, WAVE_END } from "@/components/motion/WaveWord";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { Card, CardLink, Chip, SectionTitle } from "@/components/ui";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
@@ -82,10 +83,16 @@ export function WordOfDayCard({ word, collection, canTranslate, locale, classNam
         <Link
           href={`/dictionary?q=${encodeURIComponent(word.lemma)}`}
           lang="et"
+          /* The word ripples, letter by letter, when it is reached for: the
+             one bit of play on a card whose whole subject is a word. The link
+             carries the word as its name, since the letters are hidden. */
+          aria-label={word.lemma}
+          data-hop-on="hover"
+          data-hop-end={WAVE_END}
           className="text-2xl font-bold leading-tight underline decoration-transparent underline-offset-4 transition-ui hover:decoration-current"
           style={{ color: "var(--ink)" }}
         >
-          {word.lemma}
+          <WaveWord text={word.lemma} named />
         </Link>
         <Speak text={word.lemma} label={fill(t("Hear {word}"), { word: word.lemma })} />
       </div>

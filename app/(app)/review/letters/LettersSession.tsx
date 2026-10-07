@@ -2,7 +2,7 @@
 
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { Blocks, Delete } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
@@ -334,7 +334,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
             verdict once there is one, and shaking once on a miss. */}
         <div
           lang="et"
-          className={`flex flex-wrap justify-center gap-1.5 rounded-[var(--r)] px-3 py-3 ${shaking ? "emoji-shake" : ""} ${answered ? VERDICT_CLASS[verdict] : ""}`}
+          className={`flex flex-wrap justify-center gap-1.5 rounded-[var(--r)] px-3 py-3 ${shaking ? "emoji-shake" : ""} ${answered ? `${VERDICT_CLASS[verdict]} wave-arrive` : ""}`}
           style={answered ? undefined : { background: "var(--raised)" }}
           aria-label={t("Your spelling")}
         >
@@ -359,7 +359,22 @@ function Board({ word, streak, correct, onSettled, onNext }: {
                   color: answered ? "inherit" : "var(--ink)",
                 }}
               >
-                {shown ?? ""}
+                {/* A letter lands in its slot with a squash, keyed on the tile
+                    so it plays as the tile arrives and not on every render. A
+                    word spelled right ripples through, left to right, which is
+                    the word assembling itself once more as the reward; a miss
+                    is shown still, since what it needs is reading. */}
+                {shown === undefined ? "" : answered ? (
+                  <span
+                    key={`spelled-${i}`}
+                    className={verdict === "right" ? "wave-letter" : undefined}
+                    style={verdict === "right" ? ({ "--i": i } as CSSProperties) : undefined}
+                  >
+                    {shown}
+                  </span>
+                ) : (
+                  <span key={tile?.id} className="tile-land">{shown}</span>
+                )}
               </button>
             );
           })}

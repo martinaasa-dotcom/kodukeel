@@ -604,6 +604,10 @@ export default async function TodayPage() {
   */
   const streakCard = shows(stage, "streak") ? (
 
+    /* Reaching for the card flickers the flame, and on a day the run was
+       kept it catches once as the page arrives. A run that has not been kept
+       today stays still: the flame is not there to nag. */
+    <div data-hop-on="hover" data-hop-end="flame-flicker">
     <Card className="flex flex-col gap-4">
       <SectionTitle hint={fill(t("{n} reviewed today"), { n: summary.reviewsToday })}>{t("Your streak")}</SectionTitle>
 
@@ -613,7 +617,7 @@ export default async function TodayPage() {
         for one figure, which is the dashboard shape `StatTile` warns about.
       */}
       <p className="flex items-baseline gap-2">
-        <Flame size={18} aria-hidden className="self-center" style={{ color: "var(--butter-ink)" }} />
+        <Flame size={18} aria-hidden className={`${summary.reviewsToday > 0 && summary.streak > 0 ? "flame-lit" : "flame"} self-center`} style={{ color: "var(--butter-ink)" }} />
         <span className="tnum font-display text-3xl font-bold leading-none" style={{ color: "var(--ink)" }}>{summary.streak}</span>
         <span className="text-base" style={{ color: "var(--ink-2)" }}>
           {locale === "en" ? (summary.streak === 1 ? "day in a row" : "days in a row") : daysInARow(locale, summary.streak)}
@@ -718,6 +722,7 @@ export default async function TodayPage() {
         minutes to spend.
       */}
     </Card>
+    </div>
   ) : null;
 
   /* What a teacher has assigned, under headings rather than loose dates. Only
