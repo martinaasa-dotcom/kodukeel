@@ -17,7 +17,7 @@ export async function generateMetadata() {
 export const dynamic = "force-dynamic";
 
 /**
- * SHOWN BEFORE IT IS ASKED: THE PAST OF TONIGHT'S VERBS.
+ * SHOWN BEFORE IT IS ASKED: THE PAST OF TODAY'S VERBS.
  *
  * The simple past is not a rule on the stem. `lugesin`, `tahtsin` and
  * `võtsin` each have to be learned for their own verb, and so does the polite
@@ -35,7 +35,7 @@ export const dynamic = "force-dynamic";
  * The three taps under the table grade nothing, for the reason `TryIt` gives:
  * the answer is on the screen above them.
  *
- * And it ends on tonight's Next, like every reading does. This page is only
+ * And it ends on today's Next, like every reading does. This page is only
  * ever a module step, and without `ReadingEnd` a desktop reached the end of
  * the three taps with nothing to press: the phone has its bar, and the
  * desktop's way on is where the step ends.
@@ -58,20 +58,20 @@ export default async function CourseFormsPage({
 
   return (
     <Page
-      eyebrow={t("Tonight's module")}
+      eyebrow={t("Today's module")}
       title={t("The past of your verbs")}
       lead={t("Each verb makes its past its own way, so learn them a few at a time. Listen, then try three.")}
     >
       <Stack>
         {ordered.length === 0 ? (
           <Empty
-            title={t("No verbs to learn here tonight")}
-            body={t("We don't have the past forms of tonight's verbs yet. Go on to the next step.")}
+            title={t("No verbs to learn here today")}
+            body={t("We don't have the past forms of today's verbs yet. Carry on to the next step.")}
           />
         ) : (
           <>
             <section>
-              <SectionTitle hint={t("the ones you've met")}>{t("Tonight's verbs")}</SectionTitle>
+              <SectionTitle hint={t("the ones you've met")}>{t("Today's verbs")}</SectionTitle>
               <VerbTable verbs={ordered} show={polite ? "forms" : "past"} />
             </section>
             <TryIt asks={verbAsks(ordered, "past")} />

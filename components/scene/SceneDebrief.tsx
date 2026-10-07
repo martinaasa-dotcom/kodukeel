@@ -95,7 +95,7 @@ export interface Debrief {
 const HIGHLIGHT_COLS = ["", "sm:grid-cols-2", "sm:grid-cols-3"] as const;
 
 export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: () => void }) {
-  /* Whether this conversation is a step of tonight's module, which decides
+  /* Whether this conversation is a step of today's module, which decides
      whether the debrief carries a way on of its own. */
   const inModule = useModuleFocus() !== null;
   const t = useT();
@@ -677,7 +677,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           every other finish screen in the app has.
         */}
         {/*
-          AND INSIDE TONIGHT'S MODULE NEITHER OF THESE IS THE WAY ON. The
+          AND INSIDE TODAY'S MODULE NEITHER OF THESE IS THE WAY ON. The
           conversation is one step of an evening and what follows it is the
           next step, which is the "Next" the module draws here.
           Offering a different conversation there is the catalogue again, and

@@ -55,7 +55,7 @@ export function TutorChat({
       <Card tone="night" className="flex flex-col items-center gap-5 px-6 py-10 text-center md:py-12">
         <AnuFace size={76} mood="thinking" className="float" />
         <div className="max-w-[46ch]">
-          <h2 className="font-display text-3xl font-bold" style={{ color: "var(--ink)" }}>
+          <h2 className="font-display text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)" }}>
             {t(readerCanConfigure ? "Anu needs an AI key" : "Anu isn't here right now")}
           </h2>
           <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>

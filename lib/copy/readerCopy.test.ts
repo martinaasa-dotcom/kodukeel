@@ -81,6 +81,17 @@ const ALLOWED = new Map<string, { rules: Rule[]; only?: string[]; why: string }>
     },
   ],
   [
+    "lib/collections/pictures.ts",
+    {
+      rules: ["emoji"],
+      why:
+        "Is the twelve scenes of the picture game, each laid out in emoji, because an emoji is the " +
+        "picture: the artwork this app cannot afford yet. They are drawn on a card the learner writes " +
+        "five sentences about, never set in a sentence of copy, which is what this rule bans. " +
+        "Excused for the emoji rule only, so a brochure word or a stray dash in it still fails.",
+    },
+  ],
+  [
     "prisma/data/harvested.ts",
     {
       rules: ["dash"],
@@ -510,13 +521,12 @@ const SENTENCE_MAX = 36;
  * here.
  */
 const SENTENCE_EXEMPT = [
-  // The five public pages. A privacy notice, a licence and a cost model are
+  // The public pages. A privacy notice, a licence and a cost model are
   // read by somebody who came to read them, and a clause split out of one of
   // those sentences is a clause that stops qualifying what it qualified.
   "app/privacy/",
   "app/terms/",
   "app/funding/",
-  "app/accessibility/",
   "app/trust/",
   // The research export describes its own dataset to a stranger who will
   // publish off it, which is the one audience here that needs the caveat in
@@ -555,7 +565,7 @@ function sentences(file: string): string[] {
   }
   /*
     And the props and table keys that carry a paragraph. `blurb` is the
-    practice menu, `why` is a step of tonight's module, `advice` and `headline`
+    practice menu, `why` is a step of today's module, `advice` and `headline`
     are what the retention reading says: all of them reach a screen, and none
     of them is an `Empty` body or a page `lead`, so none is measured above.
   */

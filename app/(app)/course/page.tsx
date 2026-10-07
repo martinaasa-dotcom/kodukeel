@@ -239,7 +239,7 @@ export default async function CoursePage({
             {programme.id.toUpperCase()}, {ui(programme.title, programme.subtitle)}
           </span>
         }
-        title={t("That's tonight done")}
+        title={t("Today's module is done")}
         lead={
           /*
             THE RUN OF EVENINGS IS THE ONE FIGURE WORTH SAYING HERE. "Six days
@@ -287,12 +287,12 @@ export default async function CoursePage({
                       : uiWantsEnglish(level)
                         ? fill(t("Come back tomorrow for {unit}."), { unit: t(day.subtitle) })
                         : fill(t("Come back tomorrow for {unit} ({english})."), { unit: day.title, english: t(day.subtitle) })}
-                    {" "}{t("Sleep does half the work of making tonight's words stick, so stopping here is part of the plan.")}
+                    {" "}{t("Sleep does half the work of making today's words stick, so stopping here is part of the plan.")}
                   </p>
                 </div>
               </div>
               {/*
-                TONIGHT'S WORDS, ONCE MORE, OUT LOUD. The evening ended on a
+                TODAY'S WORDS, ONCE MORE, OUT LOUD. The evening ended on a
                 checklist, and what a learner has at the end of it is five words
                 they met an hour ago. A row of them with a speaker apiece is the
                 cheapest spaced repetition there is and the one moment somebody
@@ -302,7 +302,7 @@ export default async function CoursePage({
               {justDone && justDone.words.length > 0 && (
                 <div className="mt-4">
                   <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-                    {t("Hear tonight’s words once more")}
+                    {t("Hear today’s words once more")}
                   </p>
                   <ul className="mt-2 flex flex-wrap gap-2" data-recap-words>
                     {justDone.words.map((word, i) => (
@@ -369,7 +369,7 @@ export default async function CoursePage({
         {/*
           WHETHER THIS IS THE RIGHT PART, BEFORE TONIGHT STARTS. The offer to
           step down or skip ahead goes above the evening rather than under it,
-          because a learner who is going to move should not do tonight's module
+          because a learner who is going to move should not do today's module
           of the part they are about to leave. Nothing at all here for a steady
           learner, which is nearly everybody nearly always.
         */}
@@ -380,7 +380,7 @@ export default async function CoursePage({
             AND WHICH EVENING OF THE UNIT THIS IS, BESIDE WHICH DAY OF THE PART.
 
             The heading already says the claim under it is the unit's rather
-            than tonight's, and that is not the same as saying which slice
+            than today's, and that is not the same as saying which slice
             tonight is: a learner read "Say I, you, he, we and they" over an
             evening teaching four of the six and reported it, correctly, as
             the screen promising words it was not going to teach. The count
@@ -392,7 +392,7 @@ export default async function CoursePage({
               ? fill(t("Day {day} of {total}, part {n} of {of}"), { day: day.index, total, n: day.part.n, of: day.part.of })
               : fill(t("Day {day} of {days}"), { day: day.index, days: total })}
           >
-            {day.part.of > 1 ? t("By the end of this unit") : t("By the end of tonight")}
+            {day.part.of > 1 ? t("By the end of this unit") : t("By the end of today's module")}
           </SectionTitle>
           {/*
             THE UNIT'S OWN CLAIM, AND WHICH PART OF IT TONIGHT IS.
@@ -429,7 +429,7 @@ export default async function CoursePage({
 
         <div>
           <SectionTitle hint={unit ? ui(unit.title, unit.subtitle) : undefined}>
-            {t("Tonight’s words")}
+            {t("Today’s words")}
           </SectionTitle>
           {/*
             Printed rather than hidden, because seeing the eight at the start is
@@ -454,7 +454,7 @@ export default async function CoursePage({
         </div>
 
         <div>
-          <SectionTitle hint={fill(t("{minutes} min"), { minutes: day.minutes })}>{t("What you do tonight")}</SectionTitle>
+          <SectionTitle hint={fill(t("{minutes} min"), { minutes: day.minutes })}>{t("What you do today")}</SectionTitle>
           <div className="mt-2">
             <StepList
               programmeId={programme.id}
@@ -469,7 +469,7 @@ export default async function CoursePage({
         {/*
           AN EXPLANATION WAITS TO BE ASKED. This sat on the list as a paragraph
           about which ticks the app can see, which is a fact about the review
-          log put in front of somebody who came to do tonight's five words. It
+          log put in front of somebody who came to do today's five words. It
           is worth knowing and it is not worth the room, which is the rule
           `components/Explain.tsx` exists for.
         */}
@@ -529,7 +529,7 @@ export default async function CoursePage({
                       >
                         {ui(first.title, first.subtitle)}
                       </span>
-                      {state === "now" && <Chip tone="accent">{t("Tonight")}</Chip>}
+                      {state === "now" && <Chip tone="accent">{t("Today")}</Chip>}
                     </span>
                   </div>
                   {!uiWantsEnglish(level) && (

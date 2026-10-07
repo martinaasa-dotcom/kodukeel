@@ -39,13 +39,14 @@ import type { ReviewMode } from "@/lib/settings/store";
 import { SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { useModuleFocus } from "@/components/course/moduleFocus";
-import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
+import { SelfGradeButtons } from "@/components/round/SelfGradeButtons";
+import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck } from "@/lib/ux/verdict";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { choiceIsRight } from "@/lib/questions/caseChoices";
 import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
-import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey, isNotYetKey } from "@/lib/ux/advanceKey";
 import { useResumeCard } from "@/components/useResumeCard";
 import { useUiText } from "@/components/UiLanguage";
 import { useLocale, useT } from "@/components/Locale";
@@ -563,7 +564,7 @@ export function ReviewSession({
    * The caught-up screen answers "when does the next card come back", which is
    * the scheduler's question. This one is a different state wearing the same
    * empty queue: the words are there, the course has not opened them yet, and
-   * the way to the next few is tonight's evening rather than a date. Sending
+   * the way to the next few is today's evening rather than a date. Sending
    * somebody to Learn there would hand them a round held back for the same
    * reason.
    */
@@ -579,7 +580,7 @@ export function ReviewSession({
   // very first load is the only one this session should ever know about.
   const [queue, setQueue] = useState(initialCards);
   const [wasEmptyAtStart] = useState(initialCards.length === 0);
-  /* Whether this round was opened as a step of tonight's module, which decides
+  /* Whether this round was opened as a step of today's module, which decides
      what an empty queue means and therefore what the screen may say about it. */
   const inModule = useModuleFocus() !== null;
   /*
@@ -1344,8 +1345,11 @@ export function ReviewSession({
         if (ask === "type" && verdict) { if (!needsRetype) void submit(verdict.suggestedRating); return; }
         // Both a right and a wrong pick wait for the same button now.
         if (ask === "choice") { if (chosen) void submit(card && choiceIsRight(chosen, card.back, answerLanguage) ? 3 : 1); return; }
-        if (!revealed) setRevealed(true);
-        else void submit(3);
+        if (!revealed) { setRevealed(true); return; }
+        // A flip card with its answer showing has two buttons and each has a
+        // key: Space is "Not yet" and Enter is "Got it".
+        if (e.repeat) return;
+        void submit(isNotYetKey(e) ? 1 : 3);
         return;
       }
 
@@ -1404,14 +1408,14 @@ export function ReviewSession({
             deck can have plenty due and this round still have nothing to ask,
             and a screen saying every card is scheduled for later sends the
             learner off to check a deck that is fine. What is true is that
-            tonight's review is finished, and the way on is the module's own
+            today's review is finished, and the way on is the module's own
             bar underneath rather than an action here, which is why `Empty`
             withholds one inside a step. Before the two branches below, since
             both of them answer for somebody who walked here themselves.
           */
           <Empty
-            title={t("That's tonight's review done")}
-            body={t("You've been through every word tonight had for you. On to the next step.")}
+            title={t("That's today's review done")}
+            body={t("You've been through every word today's module had for you. On to the next step.")}
           />
         ) : totalCards === 0 ? (
           <Empty
@@ -1423,8 +1427,8 @@ export function ReviewSession({
           waitingOnCourse ? (
             <Empty
               title={t("You're all caught up")}
-              body={t("Nothing's due right now. Your next new words are waiting in tonight's module.")}
-              action={<ButtonLink href="/course" variant="primary">{t("Open tonight's module")}</ButtonLink>}
+              body={t("Nothing's due right now. Your next new words are part of today's module.")}
+              action={<ButtonLink href="/course" variant="primary">{t("Open today's module")}</ButtonLink>}
             />
           ) : (
             <Empty
@@ -1478,7 +1482,7 @@ export function ReviewSession({
         <Lettered celebrate>
           <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
             <Mascot size={72} mood="cheer" className="float mx-auto" />
-            <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
+            <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
               {t("Session complete")}
             </h1>
             <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
@@ -2125,28 +2129,7 @@ export function ReviewSession({
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
-            <div className="grid grid-cols-2 gap-2.5">
-              {SELF_GRADES.map((g) => (
-                <button
-                  key={g.rating}
-                  type="button"
-                  disabled={busy}
-                  onClick={() => void submit(g.rating)}
-                  /* No `-translate-y` on hover: the buttons sit in a `gap-2.5`
-                     grid and a hover that moves the box up loses contact with a
-                     pointer resting near its lower edge, which un-hovers it,
-                     which undoes the shift. `scale` grows the box from its own
-                     centre and can only gain area under the pointer. The
-                     interval preview under the label went the same way: how
-                     many minutes the scheduler adds is a question about a
-                     scheduler nobody can see, put to somebody trying to learn
-                     Estonian. */
-                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center rounded-[var(--r)] px-2 py-3.5 transition-ui hover:scale-[1.02] disabled:opacity-40`}
-                >
-                  <span className="text-base font-bold">{t(g.label)}</span>
-                </button>
-              ))}
-            </div>
+            <SelfGradeButtons busy={busy} onGrade={(rating) => void submit(rating)} />
           )}
         </div>
       </div>
@@ -2200,7 +2183,7 @@ export function ReviewSession({
                 ? (chosen ? "{key} to continue" : "1 to {n} to pick")
                 : !revealed
                   ? "{key} to flip"
-                  : "1 for not yet, 2 for got it"), { key: ADVANCE_KEY_LABEL, n: card?.choices?.length ?? 4 })}
+                  : "Space for not yet, Enter for got it"), { key: ADVANCE_KEY_LABEL, n: card?.choices?.length ?? 4 })}
         </span>
       </div>
 

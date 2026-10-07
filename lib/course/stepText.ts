@@ -35,11 +35,11 @@ function titleOf(day: CourseDay, step: CourseStep, locale: Locale): string {
   if (step.id === MEET_STEP) {
     const fresh = newWordsIn(day);
     const met = day.words.length - fresh;
-    if (fresh === 0) return fill(tr(locale, "Go over tonight's {words}"), { words: countOf(locale, day.words.length, "word") });
+    if (fresh === 0) return fill(tr(locale, "Go over today's {words}"), { words: countOf(locale, day.words.length, "word") });
     const newWords = countOf(locale, fresh, "new word");
     return met === 0
-      ? fill(tr(locale, "Learn tonight's {newWords}"), { newWords })
-      : fill(tr(locale, "Learn tonight's {newWords}, and {met} from earlier"), { newWords, met });
+      ? fill(tr(locale, "Learn today's {newWords}"), { newWords })
+      : fill(tr(locale, "Learn today's {newWords}, and {met} from earlier"), { newWords, met });
   }
   if (step.id === READ_STEP) return readTitle(day, locale) ?? tr(locale, step.title);
   if (step.id === FORMS_STEP) {

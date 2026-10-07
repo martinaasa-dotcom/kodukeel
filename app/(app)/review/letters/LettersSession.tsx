@@ -129,7 +129,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
         <Lettered celebrate>
           <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
             <Mascot size={68} mood="cheer" className="float mx-auto" />
-            <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
+            <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
               {correct === attempted ? t("Every word spelled") : fill(t("{n} of {total} spelled"), { n: correct, total: attempted })}
             </h1>
             <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
@@ -316,6 +316,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
             autoplay
             size={20}
             label={t("Hear the word")}
+            spaceKey={!answered}
             className="press flex h-11 w-11 items-center justify-center rounded-full"
             style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
           />
@@ -324,7 +325,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
           {/* Said for the way it went, since "here it is" over a word the
               learner has just built reads as the board giving it away. */}
           {!answered
-            ? t("Put the letters in order. Tap the speaker as often as you like.")
+            ? t("Put the letters in order. Tap the speaker, or press Space, as often as you like.")
             : verdict === "right" ? t("Spelled right first time.")
               : verdict === "nearly" ? t("You got there on the second go.")
                 : t("Here it is, letter by letter.")}

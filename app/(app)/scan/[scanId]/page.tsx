@@ -11,10 +11,8 @@ import { Speak } from "@/components/Speak";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Empty, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { ScanActions } from "./ScanActions";
-import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { lengthAtPace, secondsAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 import { localeFor } from "@/lib/progress/locale";
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +50,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
   const summary = summarise(items);
   const ids = items.map((i) => i.lexemeId).filter((id): id is string => id !== null);
 
-  const [snapshot, lexemes, settings, locale] = await Promise.all([
+  const [snapshot, lexemes, locale] = await Promise.all([
     deckSnapshot(ownerId),
     ids.length
       ? prisma.lexeme.findMany({
@@ -63,13 +61,9 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
           },
         })
       : Promise.resolve([]),
-    readSettings(ownerId, [SETTING_KEYS.roundPace]),
     localeFor(ownerId),
   ]);
   const t = (english: string) => tr(locale, english);
-  // The sprint's length at this learner's pace, the figure the round itself
-  // runs for, rather than the standard minute typed into a sentence.
-  const sprintLength = localLength(locale, settings[SETTING_KEYS.roundPace]);
 
   const byId = new Map(lexemes.map((l) => [l.id, l]));
   // The page's own order, which is the order it is printed in. A learner
@@ -157,10 +151,10 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
                 body={t("Eight pairs against the clock. The words come from everything due in your deck, not just this page.")}
               />
               <PractiseTile
-                href="/review/sprint"
+                href="/review/flashcards"
                 tone="blush"
-                title={t("Sprint")}
-                body={fill(t("{length} against the clock. The quickest way to see which words haven't stuck yet."), { length: sprintLength })}
+                title={t("Flash cards")}
+                body={t("The same words asked in new ways, typed from memory. The quickest way to see which haven't stuck yet.")}
               />
             </div>
           </section>
@@ -211,20 +205,6 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
       </div>
     </Page>
   );
-}
-
-/**
- * How long the sprint runs at this learner's pace, said in their language.
- * English is `lengthAtPace` exactly; the other two count the same seconds
- * with their own plurals rather than printing "60 seconds".
- */
-function localLength(locale: Locale, stored: string | null | undefined): string {
-  if (locale === "en") return lengthAtPace(SPRINT_SECONDS, stored);
-  const seconds = secondsAtPace(SPRINT_SECONDS, stored);
-  const said = seconds >= 120 && seconds % 60 === 0
-    ? countOf(locale, seconds / 60, "minute")
-    : countOf(locale, seconds, "second");
-  return `${said[0]!.toUpperCase()}${said.slice(1)}`;
 }
 
 function PractiseTile({ href, tone, title, body }: {

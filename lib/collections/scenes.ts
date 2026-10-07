@@ -33,9 +33,7 @@ import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
  * NO LEVEL IS DECLARED. A scene is as hard as its hardest word, and which band
  * that word is in is a fact about the dictionary that a reseed can move. A
  * level written down here would be a second answer to it, and the first thing
- * a second answer does is go stale. `lib/progress/describe.ts` reads the bands
- * off the entries and keeps the scenes whose words are all within one band of
- * the learner, which is `bandsAround`, the same table every other screen uses.
+ * a second answer does is go stale. The picture round (`lib/collections/pictures.ts`) keeps its own short list.
  *
  * The ids are English slugs and are keys rather than words: a contributed
  * sentence attaches to one, so renaming one orphans somebody's work. The

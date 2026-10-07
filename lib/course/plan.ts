@@ -60,8 +60,8 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     It was ten, and the second evening of the module was measured at forty
     minutes against a promise of sixteen. Eight of the ten put something in
     front of a beginner that nobody had taught them: Sõnad deals a word off
-    the dictionary, and dealt an A2 verb on the second evening; the sprint,
-    Target, the picture board and Describe all ask for a case; dictation and
+    the dictionary, and dealt an A2 verb on the second evening; the picture board
+    asks for a case; dictation and
     speaking put a whole attested sentence up, which at A1 is a sentence made
     of words further up the course (`npm run audit:readable`). None of that is
     a fault in the round. Each is the right round for somebody who opened it
@@ -91,7 +91,7 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     been read, a person of a verb. Three pairs rather than one, walked two an
     evening, so a fortnight of A1 is not the same fortnight three times.
 
-    Sõnad, the sprint and the rest stay on Practice, in the palette and as the
+    Sõnad and the rest stay on Practice, in the palette and as the
     game of the day, where a learner chooses them.
 
     AND THE PICTURE BOARD WENT, WHICH LEFT A1 WITH TWO GAMES. The operator
@@ -119,10 +119,21 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     the government page and a few governed verbs for government; and each
     reads the same ledger back off the step's address and narrows to it.
   */
-  A2: ["match", "dictation", "target", "sentences", "sprint", "write", "letters", "describe"],
-  B1: ["letters", "write", "target", "government", "sprint", "sentences", "match", "flash"],
-  B2: ["letters", "write", "target", "flash", "sprint", "describe", "match", "government"],
-  C1: ["letters", "write", "target", "exceptions", "sprint", "describe", "match", "flash"],
+  /*
+    THE CASE SPRINT AND TARGET ARE OUT OF THE APP, AND THE GAME SLOTS THEY
+    HELD ARE THE SENTENCE BUILDER'S. The operator called both bad games and had
+    them removed everywhere. Building a sentence is a game in the sense this
+    table means (something to play rather than something to be marked on), so
+    it takes the second game slot, and each list is the three games and three
+    drills there are to deal. "Say what you see" is not on any of them: it
+    asks for five sentences about a picture, which is its own sitting of eight
+    minutes or so and not a step of a fifteen-minute evening, so it stays on
+    Practice and in the palette.
+  */
+  A2: ["match", "dictation", "letters", "write", "sentences", "flash"],
+  B1: ["letters", "write", "sentences", "government", "match", "flash"],
+  B2: ["letters", "write", "match", "government", "sentences", "flash"],
+  C1: ["letters", "write", "match", "exceptions", "sentences", "flash"],
 };
 
 /**

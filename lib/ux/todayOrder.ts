@@ -32,39 +32,39 @@
 
 export const TODAY_SLOTS = [
   {
-    id: "ladder",
-    title: "On the way to your target",
-    detail: "How close you are to the level you're aiming for, level by level.",
-  },
-  {
-    id: "errand",
-    title: "Say it today",
-    detail: "Asks if you spoke any Estonian yesterday, and gives you one thing to try saying today.",
-  },
-  {
-    id: "schedule",
-    title: "What's on today",
-    detail: "Anything on your calendar for today. It only appears on days that have something.",
-  },
-  {
-    id: "plan",
-    title: "Homework",
-    detail: "Anything your teacher has set you, sorted by when it's due.",
-  },
-  {
-    id: "round",
-    title: "Today's game",
-    detail: "A short game picked for today. On Sundays it's the daily quest instead.",
-  },
-  {
-    id: "streak",
-    title: "Your streak",
-    detail: "How many days in a row you've practiced, this week at a glance, and any shields saved up.",
+    id: "game",
+    title: "Game of the day",
+    detail: "Sõnad, with a small example board. A new word to guess every morning.",
   },
   {
     id: "word",
     title: "Word of the day",
     detail: "A new word each day, at your level.",
+  },
+  {
+    id: "calendar",
+    title: "Calendar",
+    detail: "Your week at a glance, your streak, and anything on your calendar for today.",
+  },
+  {
+    id: "conversation",
+    title: "Today's conversation",
+    detail: "One situation to rehearse, picked by the date from the ones your course has reached.",
+  },
+  {
+    id: "ladder",
+    title: "Progress bar",
+    detail: "How close you are to the level you're aiming for, level by level.",
+  },
+  {
+    id: "errand",
+    title: "Out there",
+    detail: "Asks if you spoke any Estonian yesterday, and gives you one thing to try saying today.",
+  },
+  {
+    id: "plan",
+    title: "Homework",
+    detail: "Anything your teacher has set you, sorted by when it's due.",
   },
   {
     id: "next",

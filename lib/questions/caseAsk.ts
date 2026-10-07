@@ -10,7 +10,7 @@ import type { CaseKey } from "@/lib/estonian/types";
 /**
  * ONE WORD, ONE CASE THE MODULE HAS READ, ASKED BY WHAT IT MEANS.
  *
- * Tonight's module deals the case sprint on evenings after a case page, and a
+ * Today's module deals the case sprint on evenings after a case page, and a
  * module learner's deck holds a word's meaning and its spelling and nothing
  * else: the module adds recognition and production, and the forms are asked
  * in the rounds. So the "Case Sprint" on the evening that read the inessive
@@ -23,7 +23,7 @@ import type { CaseKey } from "@/lib/estonian/types";
  * builds (`caseAnswer`), never one spelled like the word in the question,
  * since that flip cannot be missed, and only where the reading is a phrase
  * somebody would say (`caseReading`): a word with no frame is left a word
- * card rather than asked with a phrase about nothing. The case tonight's page
+ * card rather than asked with a phrase about nothing. The case today's page
  * was about is asked about half the time, where the word can take it.
  *
  * Pure: the dictionary rows and the scope in, an ask or nothing out.

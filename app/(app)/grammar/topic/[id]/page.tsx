@@ -44,6 +44,15 @@ const TOPIC_DRILL: Record<string, string> = {
   conditional: "/review/conjugation",
 };
 
+/**
+ * A second drill on the same page, for the topic whose fact is asked two ways:
+ * rektsioon as "which case does this verb take", and as the start of a
+ * sentence deciding the ending of its last word.
+ */
+const TOPIC_ALSO_DRILL: Record<string, string> = {
+  government: "/review/openers",
+};
+
 /** The topics with a table of real verbs, and which slots that table shows. */
 const VERB_TOPICS: Record<string, "present" | "negative" | "conditional" | "imperative" | "past"> = {
   /*
@@ -110,7 +119,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
  * So this page explains in English and then hands over to the units that teach
  * the point, where the examples are attested and in context.
  *
- * AND READ FROM TONIGHT'S MODULE IT HANDS OVER TO NOTHING AT ALL.
+ * AND READ FROM TODAY'S MODULE IT HANDS OVER TO NOTHING AT ALL.
  *
  * The module's second step is "read the point behind it", and this is the page
  * it opens. It was reported from exactly here: the learner read it, kept
@@ -121,7 +130,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
  *
  * Inside a module this is the point and the verbs that show it, and the one
  * way on is the frame's own button at the foot of the screen. The evening has
- * its own rounds, two steps further down, on tonight's own words. Nothing is
+ * its own rounds, two steps further down, on today's own words. Nothing is
  * deleted for anybody else: opened from the reference or from a card, this
  * page is exactly what it was.
  */
@@ -331,7 +340,10 @@ export default async function TopicPage({
         {!inModule && TOPIC_DRILL[id] && (
           <section>
             <SectionTitle hint={t("from your own deck")}>{t("Drill it")}</SectionTitle>
-            <DrillLink href={TOPIC_DRILL[id]!} />
+            <div className="flex flex-col gap-3">
+              <DrillLink href={TOPIC_DRILL[id]!} />
+              {TOPIC_ALSO_DRILL[id] && <DrillLink href={TOPIC_ALSO_DRILL[id]!} />}
+            </div>
           </section>
         )}
         {inModule && <ReadingEnd />}

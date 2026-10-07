@@ -80,9 +80,9 @@ export default async function WritePage({
       take: 200,
     }),
     /*
-      INSIDE THE MODULE, TONIGHT'S WORDS AND THE EVENINGS JUST BEFORE, whatever
+      INSIDE THE MODULE, TODAY'S WORDS AND THE EVENINGS JUST BEFORE, whatever
       the cut above reached, which is the rule every other module round keeps
-      (`recentLemmas`). Tonight's case is usually carried by them: the inessive
+      (`recentLemmas`). Today's case is usually carried by them: the inessive
       evening teaches animals and the two before it the forest, the sea and the
       lake, which are where the inessive is said.
     */
@@ -149,13 +149,13 @@ export default async function WritePage({
     The prompts whose form a lexicographer has recorded in a sentence, which
     is the one signal this page has that the word is said in that case at
     all. "Use sünniaeg in a sentence that says in the date of birth" is a
-    form the rule builds and nobody writes, and it led a round once tonight's
+    form the rule builds and nobody writes, and it led a round once today's
     case was put first; a recorded form leads now and an unrecorded one is
     still asked, behind it, because a word with no sentences is not a wrong
     word.
 
     EXCEPT IN A LOCAL CASE, WHERE AN UNRECORDED FORM IS NOT SET AT ALL.
-    Ranking it behind was not enough: a weak case and tonight's case both
+    Ranking it behind was not enough: a weak case and today's case both
     outrank the tier, and a B2 evening opened on "Use aadress in a sentence
     that says into the address", which is the rule's form and not something
     anybody sends a letter to. In and on and to are where a thing's meaning
@@ -212,7 +212,7 @@ export default async function WritePage({
   // Weak cases first and a recorded form before an unrecorded one, each tier
   // shuffled on its own, so a round is varied but pointed: a shuffle per tier
   // rather than one sort keyed on random numbers, which says what it does.
-  // And inside the module, the case tonight's reading was about woven through
+  // And inside the module, the case today's reading was about woven through
   // the front of it (`tonightFirst`), so the page just read is the page used.
   const tonight = tonightsCase(scope);
   const tier = (p: (typeof pool)[number]) => (p.weak ? 0 : 2) + (recorded.has(p) ? 0 : 1);

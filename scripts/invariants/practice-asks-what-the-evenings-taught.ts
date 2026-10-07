@@ -7,8 +7,8 @@ import type { InvariantKit } from "../lib/invariantKit";
  *
  * A step of the module tells its round what has been taught through its own
  * address. A round opened from Practice, the daily review queue and Today's
- * count of it were told nothing, so a learner who met tonight's words and
- * went to Practice was handed a "Case Sprint" in the case tonight's page was
+ * count of it were told nothing, so a learner who met today's words and
+ * went to Practice was handed a "Case Sprint" in the case today's page was
  * still to teach, on a word still on the ladder. The operator's call, written
  * down so it is not re-litigated: the module and the rest of the app are one
  * course, and nothing is asked before it is taught.
@@ -18,7 +18,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  * to the learner's standing where the address says nothing; the daily review
  * and Today's summary read `learnerScopeSoFar`, which credits tonight only for
  * what tonight has done; the ladder keeps `learnerModuleScope`, because Learn
- * is where tonight's words are taught and a so-far scope would stop it
+ * is where today's words are taught and a so-far scope would stop it
  * teaching them; and `scopeSoFar` reads the reading and the forms steps, or it
  * is the whole evening again under another name.
  */
@@ -33,7 +33,7 @@ export default function practiceAsksWhatTheEveningsTaught({ check, code, sourceF
         `${page} reads the module only off its address, so a round walked to from Practice is held to nothing`);
       if (/practiceScope\(ownerId, /.test(src)) scoped += 1;
     }
-    assert.ok(scoped >= 14, `only ${scoped} practice pages read practiceScope; the sweep stopped finding the rounds`);
+    assert.ok(scoped >= 12, `only ${scoped} practice pages read practiceScope; the sweep stopped finding the rounds`);
 
     const moduleScope = code("lib/progress/moduleScope.ts");
     assert.match(moduleScope, /moduleScopeFrom\(searchParams\) \?\? learnerScopeSoFar\(ownerId\)/,
@@ -43,16 +43,16 @@ export default function practiceAsksWhatTheEveningsTaught({ check, code, sourceF
       const src = code(file);
       assert.match(src, /learnerScopeSoFar\(ownerId\)/, `${file} no longer holds the daily review to what tonight has done`);
       assert.doesNotMatch(src, /learnerModuleScope\(/,
-        `${file} credits the whole evening reached, so it asks tonight's case before its page is read`);
+        `${file} credits the whole evening reached, so it asks today's case before its page is read`);
     }
     for (const file of ["app/(app)/learn/new/page.tsx", "app/(app)/learn/page.tsx"]) {
       assert.match(code(file), /learnerModuleScope\(ownerId\)/,
-        `${file} stopped reading the whole evening, so the ladder cannot teach tonight's words`);
+        `${file} stopped reading the whole evening, so the ladder cannot teach today's words`);
     }
 
     const scope = code("lib/course/scope.ts");
     const body = scope.slice(scope.indexOf("export function scopeSoFar("));
-    assert.match(body.slice(0, 2000), /done\.has\(READ_STEP\)/, "scopeSoFar no longer waits for tonight's page to be read");
-    assert.match(body.slice(0, 2000), /done\.has\(FORMS_STEP\)/, "scopeSoFar no longer waits for tonight's forms to be shown");
+    assert.match(body.slice(0, 2000), /done\.has\(READ_STEP\)/, "scopeSoFar no longer waits for today's page to be read");
+    assert.match(body.slice(0, 2000), /done\.has\(FORMS_STEP\)/, "scopeSoFar no longer waits for today's forms to be shown");
   });
 }

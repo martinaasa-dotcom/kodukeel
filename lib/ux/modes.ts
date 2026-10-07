@@ -122,7 +122,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     */
     href: "/quest", title: "Daily quest", subtitle: "Your weak spots",
     icon: "Target", tone: "accent", group: "targeted", note: "From your log",
-    within: "/",
+    within: "/practice",
     blurb:
       "A short round on the endings you get wrong most, picked from your own answers. It counts " +
       "like any other practice, so whatever you miss comes back sooner.",
@@ -146,22 +146,6 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     /*
-      The picture game and the conversation game, which turned out to be one
-      thing: a situation, and the learner producing Estonian about it. See
-      `lib/collections/scenes.ts` for why the picture is emoji rather than the
-      cartoon artwork that was asked for, and why that is the better answer
-      rather than the cheaper one.
-    */
-    href: "/review/describe", title: "Say what you see", subtitle: "A picture, one sentence",
-    icon: "Eye", tone: "blush", group: "targeted", note: "Five pictures",
-    within: "/practice",
-    blurb:
-      "A little scene with three things in it. Write one sentence about it, using the word we " +
-      "name with the ending we ask for. Use the other two as well for a bonus. Get the ending " +
-      "wrong and we'll tell you which one you wrote.",
-  },
-  {
-    /*
       Named the way Sõnad is, in the language it is played in. `ristsõna` is
       the word a shop in Tallinn prints on the puzzle book, and a learner who
       meets it here can read it on one. The English name is not dropped, it
@@ -181,19 +165,6 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     blurb:
       "Seven Estonian words at your level, crossing each other, with clues in English. You know " +
       "what you want to say and you hunt for the word, which is exactly what speaking feels like.",
-  },
-  {
-    href: "/review/target", title: "Target", subtitle: "Hit the right ending",
-    icon: "Target", tone: "blush", group: "targeted", note: "Shrinking clock",
-    within: "/practice",
-    blurb:
-      "One word with four different endings, and a question asking for one of them. The meaning " +
-      "won't help you here, only the ending will. Every hit makes the clock a little shorter.",
-  },
-  {
-    href: "/review/sprint", title: "Case Sprint", subtitle: "Against the clock", icon: "Zap", tone: "butter",
-    group: "quick", note: "No score yet",
-    blurb: "Your hardest endings, as many as you can get through before the clock runs out.",
   },
   {
     href: "/review/match", title: "Match", subtitle: "Pair words and meanings", icon: "Grid2x2", tone: "sky",
@@ -221,6 +192,22 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     blurb: "Say a word, then hear your voice next to a native speaker's. You judge how close you got.",
   },
   {
+    /*
+      The picture game and the conversation game, which turned out to be one
+      thing: a situation, and the learner producing Estonian about it. See
+      `lib/collections/scenes.ts` for why the picture is emoji rather than the
+      cartoon artwork that was asked for, and why that is the better answer
+      rather than the cheaper one. It is a quick round now: two or three
+      scenes, five sentences each, which is the writing part of the state
+      examination in miniature.
+    */
+    href: "/review/describe", title: "Say what you see", subtitle: "Five sentences",
+    icon: "Eye", tone: "accent", group: "quick", note: "Two or three scenes",
+    blurb:
+      "A scene made of emoji. Write five sentences about what you see, one in each box. We check " +
+      "that each one is about the scene and that the Estonian is right, and tell you what to fix.",
+  },
+  {
     href: "/review/write", title: "Writing", subtitle: "Your own sentence", icon: "PenLine", tone: "sky",
     group: "targeted", note: "You write it",
     blurb:
@@ -234,6 +221,14 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     blurb:
       "Aitan sind, but helistan sulle. English gives you no hint which case a verb wants, so " +
       "you learn it verb by verb, and this is where you practice that.",
+    within: "/grammar/topic/government",
+  },
+  {
+    href: "/review/openers", title: "Lause algus", subtitle: "Start picks the ending", icon: "Shuffle",
+    tone: "accent", group: "targeted", note: "Choose, then type",
+    blurb:
+      "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of " +
+      "its last word, and this is where you learn to hear that.",
     within: "/grammar/topic/government",
   },
   {

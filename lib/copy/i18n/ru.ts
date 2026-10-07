@@ -11,7 +11,7 @@ export const RU: Readonly<Record<string, string>> = {
   "Today": "Сегодня",
   "What's waiting for you today, and your streak": "Что ждёт вас сегодня и ваша серия дней",
   "Today's module": "Занятие на сегодня",
-  "Tonight's words and games, already picked for you": "Слова и игры на этот вечер, уже подобранные для вас",
+  "Today's words and games, already picked for you": "Слова и игры на сегодня, уже подобранные для вас",
   "Learn": "Учить",
   "New words, five at a time, straight from the course": "Новые слова по пять за раз, прямо из курса",
   "Practice": "Практика",
@@ -84,7 +84,7 @@ export const RU: Readonly<Record<string, string>> = {
   "Type your answer where there's a box. Where there isn't, think of it, turn the card over and say whether you had it.":
     "Если есть поле, впишите ответ. Если поля нет, вспомните ответ, переверните карточку и отметьте, знали ли вы его.",
   "Start reviewing": "Начать повторение",
-  "Tonight's words, one more time": "Слова этого вечера, ещё раз",
+  "Today's words, one more time": "Сегодняшние слова, ещё раз",
   "A few quick questions on the words you've just learned, and any older ones that are due today.":
     "Несколько быстрых вопросов о словах, которые вы только что выучили, и о старых, которые пора повторить сегодня.",
   "Type your answer where there's a box, or pick one where there's a choice. Then the evening's done.":
@@ -214,4 +214,15 @@ export const RU: Readonly<Record<string, string>> = {
   "You@person": "Вы",
   "Busy": "Много",
   "Reviews per day, last six months": "Повторения по дням за последние полгода",
+  "A scene made of emoji, and five empty boxes. You'll see an example of the kind of sentence we mean first.": "Сцена из эмодзи и пять пустых полей. Сначала вы увидите пример того, какое предложение мы имеем в виду.",
+  "Write five sentences about what you see and what might be going on, one in each box. Use your imagination.": "Напишите пять предложений о том, что видите и что, возможно, происходит, по одному в каждом поле. Дайте волю воображению.",
+  "How a sentence start picks the ending": "Как начало предложения выбирает окончание",
+  "The first words of a sentence and a gap at the end, always for the same word within a round.": "Первые слова предложения и пропуск в конце, всё время для одного и того же слова в пределах раунда.",
+  "Choose the right form, or type it from B1. Nothing is timed. A wrong answer shows where that form would have fit.": "Выберите нужную форму, а с уровня B1 впишите её сами. Время не ограничено. Неверный ответ покажет, где эта форма подошла бы.",
+  "Five sentences": "Пять предложений",
+  "Two or three scenes": "Две или три сцены",
+  "A scene made of emoji. Write five sentences about what you see, one in each box. We check that each one is about the scene and that the Estonian is right, and tell you what to fix.": "Сцена из эмодзи. Напишите пять предложений о том, что видите, по одному в каждом поле. Мы проверим, что каждое про эту сцену и что эстонский верный, и подскажем, что исправить.",
+  "Start picks the ending": "Начало выбирает окончание",
+  "Choose, then type": "Сначала выбрать, потом вписать",
+  "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of its last word, and this is where you learn to hear that.": "Mulle meeldib pasta, но ma tahan pastat. Первые слова предложения решают, в какой форме будет последнее слово, и здесь вы учитесь это слышать.",
 };

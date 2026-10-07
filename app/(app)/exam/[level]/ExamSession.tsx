@@ -628,9 +628,9 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
           <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: paper.spec.official ? "var(--cta)" : "var(--blush)" }} />
           {t(paper.spec.official ? "Mock state examination" : "Not a state examination")}
         </p>
-        <h1 className="font-display mt-5 text-6xl font-bold leading-[0.95] tracking-tight md:text-7xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+        <h1 className="font-display mt-5 text-4xl font-bold leading-tight tracking-tight md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
           {paper.level}
-          <span className="text-3xl md:text-4xl" style={{ color: "var(--ink-2)" }}>
+          <span className="text-2xl md:text-3xl" style={{ color: "var(--ink-2)" }}>
             {paper.number || paper.part
               ? fill(t(paper.number ? (paper.part ? ", paper {n}, {part} only" : ", paper {n}") : ", {part} only"), {
                   n: paper.number ?? "",

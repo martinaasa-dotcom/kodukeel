@@ -24,27 +24,23 @@ export const LETTERS: Area = {
     // The evening nudge.
     "One step left in {title}": "В занятии {title} остался последний шаг",
     "{steps} left in {title}": "В занятии {title} ещё {steps}",
-    "{newWords} tonight": "Сегодня вечером {newWords}",
-    "Back to {title} tonight": "Сегодня вечером снова {title}",
     "{what}, part {n} of {of}": "{what}, часть {n} из {of}",
     "{shape}. About {minutes} minutes left.": "{shape}. Осталось около {minutes} мин.",
     "{shape}. About {minutes} minutes, start to finish.": "{shape}. Всего около {minutes} мин.",
-    "You're nearly done for tonight.": "На сегодня почти всё.",
-    "About {minutes} minutes to go tonight.": "На сегодня осталось около {minutes} мин.",
+    "You're nearly done for today.": "На сегодня почти всё.",
+    "About {minutes} minutes to go today.": "На сегодня осталось около {minutes} мин.",
     "{name}, you're {steps} into {where}. The rest is right where you left it.":
       "{name}, вы уже прошли {steps} в занятии {where}. Остальное ждёт там, где вы остановились.",
     "You're {steps} into {where}. The rest is right where you left it.":
       "Вы уже прошли {steps} в занятии {where}. Остальное ждёт там, где вы остановились.",
     "{newWords}, in about {minutes} minutes.": "{newWords}, примерно за {minutes} мин.",
-    "Words you know, put to work tonight, in about {minutes} minutes.":
-      "Сегодня вечером в ход идут знакомые слова, примерно за {minutes} мин.",
     "{name}, this is {title}, {evening}. By the end you'll be able to {canDo}":
       "{name}, сегодня занятие {title}, {evening}. К концу вы сможете {canDo}",
     "{title}, {evening}. By the end you'll be able to {canDo}":
       "Сегодня занятие {title}, {evening}. К концу вы сможете {canDo}",
     "What you told yourself when you started:": "Что вы сказали себе, когда начинали:",
     "[done]": "[готово]",
-    "And a word for you, whether you study tonight or not:":
+    "And a word for you, whether you study today or not:":
       "И слово для вас, будете вы сегодня заниматься или нет:",
     "That's {days} in a row so far.": "Уже {days} подряд.",
 
@@ -81,7 +77,7 @@ export const LETTERS: Area = {
       "Перерыв прикрыл ваш запасной щит, так что серия ({run} подряд) продолжается.",
     "No need for a whole evening. One quick round takes about {minutes} minutes, and that's enough to say you're back.":
       "Целый вечер не нужен. Один быстрый раунд занимает около {minutes} мин, и этого достаточно, чтобы вернуться.",
-    "Or jump straight into tonight's fifteen minutes": "Или сразу к сегодняшним пятнадцати минутам",
+    "Or jump straight into today's fifteen minutes": "Или сразу к сегодняшним пятнадцати минутам",
     "And today's word, whatever you decide:": "И слово дня, что бы вы ни решили:",
     "Your Estonian is right where you left it": "Ваш эстонский там же, где вы его оставили",
     "You still know {words}. Two minutes is all it takes to pick things up again.":
@@ -100,7 +96,7 @@ export const LETTERS: Area = {
     "That was your last one.": "Это был последний.",
     "A day off never costs you anything here. Your words just wait for you, exactly where you left them.":
       "Выходной здесь ничего вам не стоит. Слова просто ждут вас там же, где вы их оставили.",
-    "See what's on tonight": "Посмотреть, что сегодня вечером",
+    "See today's module": "Открыть занятие на сегодня",
     "A shield covered yesterday": "Вчерашний день прикрыл щит",
     "Your run of {days} is still going, and you've got {more} saved.":
       "Серия, {days} подряд, продолжается, и в запасе ещё {more}.",
@@ -204,6 +200,14 @@ export const LETTERS: Area = {
     // A word a day.
     "See {word} in the dictionary": "Открыть {word} в словаре",
     "One word for today. Nothing to do but enjoy it.": "Одно слово на сегодня. Делать ничего не нужно, просто порадуйтесь ему.",
+    "{newWords} today":
+      "Сегодня {newWords}",
+    "Back to {title} today":
+      "Сегодня снова {title}",
+    "Words you know, put to work today, in about {minutes} minutes.":
+      "Сегодня в ход идут знакомые слова, примерно за {minutes} мин.",
+    "Start today's module":
+      "Начать занятие",
   },
   uk: {
     // The footer every letter carries, and the way out.
@@ -215,27 +219,23 @@ export const LETTERS: Area = {
     // The evening nudge.
     "One step left in {title}": "У занятті {title} лишився останній крок",
     "{steps} left in {title}": "У занятті {title} ще {steps}",
-    "{newWords} tonight": "Сьогодні ввечері {newWords}",
-    "Back to {title} tonight": "Сьогодні ввечері знову {title}",
     "{what}, part {n} of {of}": "{what}, частина {n} з {of}",
     "{shape}. About {minutes} minutes left.": "{shape}. Лишилося близько {minutes} хв.",
     "{shape}. About {minutes} minutes, start to finish.": "{shape}. Усього близько {minutes} хв.",
-    "You're nearly done for tonight.": "На сьогодні майже все.",
-    "About {minutes} minutes to go tonight.": "На сьогодні лишилося близько {minutes} хв.",
+    "You're nearly done for today.": "На сьогодні майже все.",
+    "About {minutes} minutes to go today.": "На сьогодні лишилося близько {minutes} хв.",
     "{name}, you're {steps} into {where}. The rest is right where you left it.":
       "{name}, ви вже пройшли {steps} у занятті {where}. Решта чекає там, де ви зупинилися.",
     "You're {steps} into {where}. The rest is right where you left it.":
       "Ви вже пройшли {steps} у занятті {where}. Решта чекає там, де ви зупинилися.",
     "{newWords}, in about {minutes} minutes.": "{newWords}, приблизно за {minutes} хв.",
-    "Words you know, put to work tonight, in about {minutes} minutes.":
-      "Сьогодні ввечері в хід ідуть знайомі слова, приблизно за {minutes} хв.",
     "{name}, this is {title}, {evening}. By the end you'll be able to {canDo}":
       "{name}, сьогодні заняття {title}, {evening}. Наприкінці ви зможете {canDo}",
     "{title}, {evening}. By the end you'll be able to {canDo}":
       "Сьогодні заняття {title}, {evening}. Наприкінці ви зможете {canDo}",
     "What you told yourself when you started:": "Що ви сказали собі, коли починали:",
     "[done]": "[готово]",
-    "And a word for you, whether you study tonight or not:":
+    "And a word for you, whether you study today or not:":
       "І слово для вас, незалежно від того, чи займатиметеся ви сьогодні:",
     "That's {days} in a row so far.": "Уже {days} поспіль.",
 
@@ -272,7 +272,7 @@ export const LETTERS: Area = {
       "Перерву прикрив ваш запасний щит, тож серія ({run} поспіль) триває.",
     "No need for a whole evening. One quick round takes about {minutes} minutes, and that's enough to say you're back.":
       "Цілий вечір не потрібен. Один швидкий раунд триває близько {minutes} хв, і цього досить, щоб повернутися.",
-    "Or jump straight into tonight's fifteen minutes": "Або одразу до сьогоднішніх п'ятнадцяти хвилин",
+    "Or jump straight into today's fifteen minutes": "Або одразу до сьогоднішніх п'ятнадцяти хвилин",
     "And today's word, whatever you decide:": "І слово дня, хоч би що ви вирішили:",
     "Your Estonian is right where you left it": "Ваша естонська там само, де ви її залишили",
     "You still know {words}. Two minutes is all it takes to pick things up again.":
@@ -291,7 +291,7 @@ export const LETTERS: Area = {
     "That was your last one.": "Це був останній.",
     "A day off never costs you anything here. Your words just wait for you, exactly where you left them.":
       "Вихідний тут нічого вам не коштує. Слова просто чекають на вас там само, де ви їх залишили.",
-    "See what's on tonight": "Подивитися, що сьогодні ввечері",
+    "See today's module": "Відкрити заняття на сьогодні",
     "A shield covered yesterday": "Учорашній день прикрив щит",
     "Your run of {days} is still going, and you've got {more} saved.":
       "Серія, {days} поспіль, триває, і в запасі ще {more}.",
@@ -395,6 +395,14 @@ export const LETTERS: Area = {
     // A word a day.
     "See {word} in the dictionary": "Відкрити {word} у словнику",
     "One word for today. Nothing to do but enjoy it.": "Одне слово на сьогодні. Робити нічого не треба, просто потіштеся ним.",
+    "{newWords} today":
+      "Сьогодні {newWords}",
+    "Back to {title} today":
+      "Сьогодні знову {title}",
+    "Words you know, put to work today, in about {minutes} minutes.":
+      "Сьогодні в хід ідуть знайомі слова, приблизно за {minutes} хв.",
+    "Start today's module":
+      "Почати заняття",
   },
   counted: {
     "step": { en: ["step", "steps"], ru: ["шаг", "шага", "шагов"], uk: ["крок", "кроки", "кроків"] },

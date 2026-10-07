@@ -1363,6 +1363,8 @@ export const PROGRESS: Area = {
     "cloze": "пропуск в предложении",
     "conjugation": "спряжение",
     "what?": "что?",
+    "Type some answers against the clock":
+      "Напечатайте несколько ответов на время",
   },
   uk: {
     ", already used": ", вже використано",
@@ -2718,6 +2720,8 @@ export const PROGRESS: Area = {
     "cloze": "пропуск у реченні",
     "conjugation": "дієвідмінювання",
     "what?": "що?",
+    "Type some answers against the clock":
+      "Надрукуйте кілька відповідей на час",
   },
   counted: {
     "lapse": { en: ["lapse", "lapses"], ru: ["провал", "провала", "провалов"], uk: ["провал", "провали", "провалів"] },

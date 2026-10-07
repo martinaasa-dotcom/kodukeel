@@ -4,8 +4,9 @@ import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
-import { isBuildable, naturalSentence, nominalOpener, sentenceTiles } from "@/lib/estonian/cloze";
-import { ordinaryOpeners } from "@/lib/dict/openers";
+import { naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
+import { isOrderable, sentenceStarters } from "@/lib/estonian/orderTiles";
+import { ordinaryStarters } from "@/lib/dict/openers";
 import { SentenceSession, type SentenceTask } from "./SentenceSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
@@ -34,7 +35,7 @@ const ROUND = 8;
  * task rather than a memory drill.
  *
  * Always renders SentenceSession, even with nothing to do, for the same reason
- * as every other mode (see app/(app)/review/sprint/page.tsx): grading refreshes this
+ * as every other mode (see app/(app)/review/listening/page.tsx): grading refreshes this
  * Server Component, and a conditional empty state here would swap in mid-round.
  */
 export default async function SentencesPage({
@@ -74,7 +75,7 @@ export default async function SentencesPage({
         true rather than aspirational: a brand-new card is due the moment it is
         created, so `orderBy due asc` with no state filter put an unmet word's
         sentence at the front of the round, its order being asked for before the
-        word itself was ever taught. The same rule sprint, speaking, listening
+        word itself was ever taught. The same rule speaking, listening
         and Match already apply to their own pools.
       */
       where: {
@@ -114,10 +115,10 @@ export default async function SentencesPage({
     }
   }
 
-  const tasks: Omit<SentenceTask, "alsoRight" | "openerIsWord">[] = [];
+  const tasks: Omit<SentenceTask, "alsoRight" | "lowerable">[] = [];
   for (const entry of byLexeme.values()) {
     /*
-      And only out of a sentence. `isBuildable` counts the tiles and refuses a
+      And only out of a sentence. `isOrderable` counts the tiles and refuses a
       repeated word; it has no opinion on whether the thing is a sentence at
       all, so `Panin lehte/internetti kuulutuse.` came out as tiles to put in
       order with a slash inside one of them. `naturalSentence` is the gate the
@@ -127,7 +128,7 @@ export default async function SentencesPage({
     for (const example of usableExamples(parseExamples(entry.examples), plainerFirst(entry.cefr, reach))) {
       if (!naturalSentence(example.et, opener)) continue;
       if (!readable(example.et)) continue;
-      if (!isBuildable(example.et)) continue;
+      if (!isOrderable(example.et)) continue;
       tasks.push({
         cardId: entry.cardId,
         lexemeId: entry.lexemeId,
@@ -151,9 +152,9 @@ export default async function SentencesPage({
     decides. Asked of the eight sentences the round actually sets rather than
     of every candidate, since the query is keyed on the words in front of it.
   */
-  const [wordOrder, openers] = await Promise.all([
+  const [wordOrder, ordinary] = await Promise.all([
     orderContextFor(round.map((t) => t.et)),
-    ordinaryOpeners(round.map((t) => t.et)),
+    ordinaryStarters(round.map((t) => t.et)),
   ]);
 
   return (
@@ -162,7 +163,7 @@ export default async function SentencesPage({
         tasks={round.map((t) => ({
           ...t,
           alsoRight: alsoRightOrders(t.et, wordOrder),
-          openerIsWord: openers.has(sentenceTiles(t.et)[0] ?? ""),
+          lowerable: sentenceStarters(t.et).filter((w) => ordinary.has(w)),
         }))}
       />
     </BeforeYouStart>

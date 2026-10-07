@@ -1,4 +1,4 @@
-import { Children, type CSSProperties, type ReactNode } from "react";
+import { type CSSProperties, type ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { Mascot } from "@/components/brand";
 import { FitText } from "@/components/FitText";
@@ -24,7 +24,7 @@ export function Wash() {
   );
 }
 
-export function Page({ title, titleLang, lead, actions, children, eyebrow, route }: {
+export function Page({ title, titleLang, lead, actions, children, eyebrow, route, compact }: {
   title: string;
   /**
    * Set to "et" where the heading is the Estonian name of a grammar point
@@ -54,11 +54,18 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
    * a wide screen for no reason a reader could act on.
    */
   route?: string;
+  /**
+   * A game board's page: a heading that says where you are and a line under it,
+   * and then the room it takes goes to the board. Used where the whole of the
+   * round has to fit one screen (Sõnad and the crossword), since a learner who
+   * has to scroll to reach the keys has spent the game on the page.
+   */
+  compact?: boolean;
 }) {
   const place = route ? DESTINATIONS.find((d) => d.href === route) : undefined;
   return (
-    <div className="mx-auto max-w-4xl px-5 py-8 md:px-10 md:py-12">
-      <header className="fade-up mb-9 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+    <div className={compact ? "mx-auto max-w-4xl px-4 py-3 md:px-8 md:py-4" : "mx-auto max-w-4xl px-5 py-8 md:px-10 md:py-12"}>
+      <header className={`fade-up ${compact ? "mb-3" : "mb-9"} flex flex-wrap items-end justify-between gap-x-6 gap-y-4`}>
         <div className="min-w-0 flex-[1_1_28rem]">
           {eyebrow && (
             <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>{eyebrow}</p>
@@ -69,7 +76,7 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
                 heading's own size and leading, centres it there whether the
                 title is one line or wraps to three. */}
             {place && (
-              <span aria-hidden className="flex h-[1.05em] shrink-0 items-center text-3xl">
+              <span aria-hidden className={`flex h-[1.05em] shrink-0 items-center ${compact ? "text-xl" : "text-3xl"}`}>
                 <span
                   className="h-2.5 w-2.5 rounded-full"
                   style={{ background: place.tone === "ink" ? "var(--ink)" : `var(--${place.tone})` }}
@@ -78,9 +85,9 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
             )}
             {/* A page title is often one Estonian word, a unit or a case, and
                 a long one broke across lines on a phone: it shrinks instead. */}
-            <FitText as="h1" text={title} max="var(--text-3xl)" lang={titleLang} className="min-w-0 font-bold leading-[1.05]" style={{ color: "var(--ink)" }} />
+            <FitText as="h1" text={title} max={compact ? "var(--text-xl)" : "var(--text-3xl)"} lang={titleLang} className="min-w-0 font-bold leading-[1.05]" style={{ color: "var(--ink)" }} />
           </div>
-          {lead && <p className="mt-3 max-w-[60ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>{lead}</p>}
+          {lead && <p className={`${compact ? "mt-0.5 hidden text-sm sm:block" : "mt-3 text-md"} max-w-[60ch] leading-relaxed`} style={{ color: "var(--ink-2)" }}>{lead}</p>}
         </div>
         {actions && <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">{actions}</div>}
       </header>
@@ -114,7 +121,7 @@ const CARD_TONES = {
 
 export type CardTone = keyof typeof CARD_TONES;
 
-export function Card({ children, className = "", as: Tag = "div", tone = "plain", hover, style }: {
+export function Card({ children, className = "", as: Tag = "div", tone = "plain", hover, style, dense }: {
   children: ReactNode;
   className?: string;
   as?: "div" | "section" | "article" | "li";
@@ -122,10 +129,12 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
   /** Lifts on hover. For cards that are themselves a link or a control. */
   hover?: boolean;
   style?: CSSProperties;
+  /** Tighter padding, for a card that has to share one screen with others. */
+  dense?: boolean;
 }) {
   return (
     <Tag
-      className={`rounded-[var(--r-xl)] border p-5 md:p-7 ${tone === "night" ? "night" : ""} ${hover ? "lift" : ""} ${className}`}
+      className={`rounded-[var(--r-xl)] border ${dense ? "p-3 md:p-4" : "p-5 md:p-7"} ${tone === "night" ? "night" : ""} ${hover ? "lift" : ""} ${className}`}
       style={{
         ...CARD_TONES[tone],
         borderColor: "var(--edge)",
@@ -158,43 +167,6 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
  */
 export function Stack({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <div className={`stack-rise flex flex-col gap-10 ${className}`}>{children}</div>;
-}
-
-/**
- * Two columns of cards that end level with each other, and one on a phone.
- *
- * Today used to hand each module a column by what it was for: the wide one for
- * what is due and what keeps going wrong, the narrow one for what is ahead.
- * That is a sound reading order and a poor picture, because how much each
- * column holds depends on how far in the learner is. On the first morning the
- * wide column held one button and the narrow one held three tall cards, so the
- * page read as having slid sideways, and moving one card across for that one
- * stage only moved the lean.
- *
- * So the browser deals the cards. A multi-column layout fills the first column
- * and then the second and balances the two by height, which is the one thing a
- * server cannot do: it knows which cards there are this morning and not how
- * tall the word of the day turned out. Reading order is unchanged, down the
- * first column and then down the second, which is the order the children are
- * given in. A card never splits across the seam, and every card keeps the
- * rhythm `Stack` sets between sections.
- *
- * Children are wrapped rather than asked to carry the class themselves,
- * because a card that forgot `break-inside: avoid` would be a card cut in half
- * at the seam, and nothing would fail on it. The wrapper carries the rhythm as
- * padding rather than margin, since a margin at a column break is truncated
- * and a padding is not, so the two columns are balanced over the same air.
- */
-export function Columns({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return (
-    <div className={`-mb-8 gap-x-6 lg:columns-2 ${className}`}>
-      {Children.toArray(children).map((child, i) => (
-        <div key={i} className="break-inside-avoid pb-8" data-column-item>
-          {child}
-        </div>
-      ))}
-    </div>
-  );
 }
 
 /**
@@ -304,7 +276,7 @@ export function Empty({ title, body, action, mood = "thinking" }: {
 
           Every one of these sends the reader somewhere that is not this
           screen, which is exactly right on a round somebody chose and wrong on
-          a step of tonight's module: a learner whose deck cannot fill a board
+          a step of today's module: a learner whose deck cannot fill a board
           would be handed the dictionary or the course, off the evening, with
           nothing saying how to get back. The way on is the frame's own button
           at the foot of the screen, and it is there whether the round could be

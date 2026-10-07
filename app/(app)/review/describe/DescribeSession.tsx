@@ -1,238 +1,144 @@
 "use client";
 
-import { useLocale, useT } from "@/components/Locale";
-import { rich } from "@/components/round/rich";
-import { fill } from "@/lib/copy/locale";
-import { PARTS } from "@/lib/copy/values";
-import { useRef, useState } from "react";
-import { useGrade } from "@/components/round/useGrade";
-import { CaseLabel } from "@/components/CaseLabel";
+import { createRef, useMemo, useRef, useState, type RefObject } from "react";
 import { Check, CircleAlert, Loader2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
-import { HintLadder } from "@/components/round/HintLadder";
-import { useHints } from "@/components/round/useHints";
-import { hintLadder } from "@/lib/questions/hints";
-import { caseByKey } from "@/lib/estonian/cases";
+import { EstonianInput } from "@/components/EstonianInput";
 import { Chip, KeyCap, Stat } from "@/components/ui";
-import { SentenceTranslation } from "@/components/SentenceTranslation";
-import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
-import { pictureLabel, type DescribeMark } from "@/lib/games/describe";
-import type { GradedSentence } from "@/lib/tutor/grader";
-import type { WithholdReason } from "@/lib/tutor/verify";
-import { CASES } from "@/lib/estonian/cases";
-import { grammarTerm } from "@/lib/estonian/terms";
-import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { SENTENCES_PER_PICTURE } from "@/lib/collections/pictures";
+import { looksLikeSentence } from "@/lib/estonian/writing";
+import type { PictureMark, SentenceMark } from "@/lib/games/picture";
+import type { GradedPicture } from "@/lib/tutor/grader";
+import type { WithholdReason } from "@/lib/tutor/verify";
+import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
+import { VERDICT_CLASS, verdictOfCredit, type Verdict } from "@/lib/ux/verdict";
+import { useLocale, useT } from "@/components/Locale";
+import { fill, type Locale } from "@/lib/copy/locale";
+import { quoted } from "@/lib/copy/values";
 
-export interface ScenePrompt {
-  sceneId: string;
-  situation: string;
-  /** The card this practices, where the learner has one for the named word. */
-  cardId: string | null;
-  /**
-   * The three things: the character, and what it means in English.
-   *
-   * The English is what makes the picture reach somebody who cannot see it. An
-   * emoji carries a meaning to a sighted reader without a word of text, so
-   * `aria-hidden` on it and nothing else would leave a screen reader with two
-   * thirds of the exercise missing, and the answer is not alt text on each one:
-   * it is the same information in the same place, which is what the sentence
-   * under the row says. No Estonian is in it, so this is parity rather than a
-   * giveaway. Only the named word's Estonian appears before the marking.
-   */
-  things: { emoji: string; translation: string }[];
-  askIndex: number;
-  askLemma: string;
-  askTranslation: string;
-  /**
-   * What the sentence has to say, `to the man`, worked out on the server where
-   * the pictured word's kind is known: half of them are people and animals,
-   * and the outside endings read differently for a person and a thing.
-   */
-  say: string | null;
-  caseKey: string;
-  /**
-   * The form the sentence has to carry, which is what a hint uncovers.
-   *
-   * Sent down like every other round's answer, and the marking is not: the
-   * route still decides whether the form was used, so nothing a client could
-   * forge reaches the log. Null where the round could not name one, and the
-   * ladder is simply not offered there.
-   */
-  targetForm: string | null;
-  caseEt: string;
-  caseQuestion: string;
+export interface PicturePrompt {
+  pictureId: string;
+  title: string;
+  /** The scene, a row of emoji at a time. */
+  rows: string[];
+  /** What is drawn, in English, for a reader who cannot see it. */
+  alt: string;
+  /** A model sentence about this picture, shown before the learner writes. */
+  example: { et: string; en: string };
 }
 
 interface Reveal {
-  words: { emoji: string; lemma: string; translation: string }[];
-  wanted: string[];
-  /** A sentence to read afterwards, and what it is evidence of. See `ModelAnswer`. */
-  answer: {
-    et: string; source: "contributed" | "this-form" | "this-word";
-    lexemeId: string | null; en: string | null;
-  } | null;
-  /** Whether this deployment has a model that could translate that sentence. */
-  canTranslate: boolean;
+  things: { emoji: string; lemma: string; translation: string; used: boolean }[];
+  example: { et: string; en: string };
 }
 
 interface Marked {
-  mark: DescribeMark;
+  mark: PictureMark;
   reveal: Reveal;
-  graded: GradedSentence | null;
+  graded: GradedPicture | null;
   aiAvailable: boolean;
   quotaMessage?: string;
   withheld?: string[];
   withheldReason?: WithholdReason | null;
 }
 
+/** A box is done when it holds a sentence, which is what lets the learner move on. */
+const filled = (text: string) => looksLikeSentence(text.trim());
+
 /**
- * A picture, a case, and a box.
+ * Five boxes about one picture.
  *
- * Two authorities on the screen and they stay apart, which is the arrangement
- * `/review/write` settled on: whether the case was right is the dictionary's
- * answer and is certain, and what Anu says about the rest of the sentence is a
- * model's opinion and is labeled as one. What is new here is the middle
- * verdict. A learner who wrote the right word with the wrong ending is told
- * which ending they wrote, by name, because `lib/estonian/whichCase.ts` can
- * work that out with certainty and "not the form we asked for" is the least
- * useful true thing this app could say instead.
+ * The learner cannot check until every box holds a sentence, and the screen
+ * says how many do, so there is never a question of whether the round counted
+ * what they wrote. What comes back is two authorities that stay apart, the
+ * arrangement `/review/write` settled on: what the dictionary can decide
+ * (spelled, about the picture, not a repeat) is certain, and what Anu says
+ * about the grammar is a model's opinion and is labelled as one.
+ *
+ * NOTHING IS GRADED INTO THE REVIEW LOG. There is no card behind a picture,
+ * and a row about a card that does not exist would tell the scheduler
+ * something that did not happen.
  */
 export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
-  prompts: ScenePrompt[]; aiAvailable: boolean;
+  prompts: PicturePrompt[]; aiAvailable: boolean;
 }) {
-  const t = useT();
-  const locale = useLocale();
-  const grade = useGrade();
   /*
-    Snapshotted once. `gradeCard` is a Server Action and Next re-renders this
-    route's Server Component after every call, which would hand down a freshly
-    drawn round and change the picture under somebody still reading their
-    feedback. Every mode that grades froze its queue for this reason.
+    Snapshotted once, so a re-render of the route cannot change the picture
+    under somebody who is mid-sentence.
   */
   const [prompts] = useState(initialPrompts);
+  const t = useT();
   const [index, setIndex] = useState(0);
-  const [sentence, setSentence] = useState("");
+  const [texts, setTexts] = useState<string[]>(() => Array.from({ length: SENTENCES_PER_PICTURE }, () => ""));
   const [busy, setBusy] = useState(false);
   const [marked, setMarked] = useState<Marked | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [right, setRight] = useState(0);
+  const [sound, setSound] = useState(0);
+  const [written, setWritten] = useState(0);
   const startedAt = useRef(Date.now());
+  const inputs = useMemo<RefObject<HTMLInputElement | null>[]>(
+    () => Array.from({ length: SENTENCES_PER_PICTURE }, () => createRef<HTMLInputElement>()),
+    [],
+  );
 
   const prompt = prompts[index];
-  // What the sentence has to say, `out of the hospital`, the writing round's
-  // own phrase, and whether it already carries the word's meaning.
-  const phrase = prompt ? prompt.say : null;
-  const firstSense = prompt?.askTranslation.split(/[,;(]/)[0]?.trim().toLowerCase() ?? "";
-  const saysGloss = !!phrase && firstSense.length > 0 && phrase.toLowerCase().includes(firstSense);
   const finished = !prompt;
   /* The way back to the picture before this one. See `lib/ux/lookBack.ts`. */
   const look = useLookBack();
 
-  /*
-    THE WAY OUT OF BEING STUCK, AND WHAT IT IS ABOUT.
-
-    The sentence is the learner's own and nothing here holds it. What this
-    round marks is whether the named word turned up in the case it asked for,
-    so the ending is the one thing somebody can be stuck on, and the ladder
-    uncovers that. The suffix comes off the case's own table, so the ending
-    rung names what the case adds and leaves the stem to be remembered.
-  */
-  const ladder = prompt?.targetForm
-    ? hintLadder({ answer: prompt.targetForm, suffix: caseByKey(prompt.caseKey)?.suffix })
-    : [];
-  const hints = useHints({
-    word: prompt?.askLemma ?? null,
-    question: prompt ? `${prompt.sceneId}:${prompt.caseKey}` : null,
-    ladder,
-  });
+  const done = texts.filter(filled).length;
+  const ready = done === SENTENCES_PER_PICTURE;
 
   async function submit() {
-    if (!prompt || busy || sentence.trim().length === 0) return;
+    if (!prompt || busy || !ready) return;
     setBusy(true);
     setError(null);
     try {
       const res = await fetch("/api/describe", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          sceneId: prompt.sceneId,
-          caseKey: prompt.caseKey,
-          askLemma: prompt.askLemma,
-          sentence,
-        }),
+        body: JSON.stringify({ pictureId: prompt.pictureId, sentences: texts.map((t) => t.trim()) }),
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ? t(body.error) : t("Sorry, we couldn't mark that one. Try again?"));
+        setError(typeof body.index === "number"
+          ? fill(t("Sentence {n} needs at least three words."), { n: body.index + 1 })
+          : body.error ? t(body.error) : t("Sorry, we couldn't mark that one. Try again?"));
         return;
       }
       const result = body as Marked;
       setMarked(result);
-      if (result.mark.rightCase) setRight((n) => n + 1);
-      else hints.noteMiss();
-
-      /*
-        ADR-016: the same review log as everything else, and the dictionary
-        decides the rating rather than the model. Three of the four ratings are
-        reachable here because the app can tell the middle case apart with
-        certainty: the right word in the wrong ending is a Hard, not an Again.
-        A scene whose words are all new to this deck carries no card, and
-        nothing is written for it.
-      */
-      if (prompt.cardId) {
-        /*
-          WHAT WAS ASKED, AND WHAT CAME BACK.
-
-          This round asks a named word for a named case and grades the nearest
-          card the learner has (ADR-016), so without the fifth argument the log
-          says the answer was about whatever that card happens to be. That is
-          the fault `Review.slot` was added to fix, in a round written after
-          the fix and told about none of it: the mastery counter could not see
-          that the word had been practiced in the kaasaütlev, and neither could
-          anything else.
-
-          The sixth is the case they reached for instead. `markDescription`
-          works it out through `whichCase`, which names one only where exactly
-          one case is spelled that way, and prints it. It was dropped here.
-        */
-        const reached = result.mark.verdict?.kind === "one" ? result.mark.verdict.key : undefined;
-        void grade(
-          // A hint is paid for: see `lib/questions/hints.ts`. It can only lower
-          // what the dictionary's own check already decided.
-          prompt.cardId, Math.min(result.mark.rating, hints.ceiling) as 1 | 2 | 3,
-          Date.now() - startedAt.current, prompt.caseKey, reached,
-        );
-      }
+      setSound((n) => n + result.mark.sound);
+      setWritten((n) => n + SENTENCES_PER_PICTURE);
     } catch {
-      setError(t("You’re offline, so we can’t mark it yet. Your sentence is safe here."));
+      setError(t("You're offline, so we can't mark it yet. Your sentences are safe here."));
     } finally {
       setBusy(false);
     }
   }
 
   function next() {
-    /* The situation, what was asked of it and the sentence the learner
-       wrote, which is theirs and is neither stored nor marked again. */
     if (prompt) {
       look.record({
-        of: `${prompt.sceneId}-${prompt.caseKey}`,
-        label: prompt.situation,
-        question: `${prompt.askLemma}, ${prompt.askTranslation}, ${prompt.caseEt}`,
-        answer: sentence.trim() || prompt.askLemma,
-        note: prompt.caseQuestion,
-        questionLang: "et",
+        of: prompt.pictureId,
+        label: t(prompt.title),
+        question: t(prompt.alt),
+        answer: texts.map((t) => t.trim()).join(" "),
+        note: null,
+        questionLang: "en",
         answerLang: "et",
         speak: null,
       });
     }
     setMarked(null);
-    setSentence("");
+    setTexts(Array.from({ length: SENTENCES_PER_PICTURE }, () => ""));
     setError(null);
     setIndex((i) => i + 1);
+    // The first box of the next picture, once it has rendered.
+    queueMicrotask(() => inputs[0]?.current?.focus());
   }
 
   if (finished) {
@@ -249,11 +155,8 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={prompts.length} label={t("Written")} />
-          <Stat
-            value={`${Math.round((right / prompts.length) * 100)}%`}
-            label={t("Right case")}
-          />
+          <Stat value={written} label={t("Sentences")} />
+          <Stat value={sound} label={t("Spelled and on topic")} />
           <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
@@ -264,11 +167,11 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     );
   }
 
+  const last = index === prompts.length - 1;
+
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
-      {/* The heading a session screen has no room to draw. Every mode carries
-          one: the empty state had a heading and the round did not, so an
-          accessibility run that met an empty deck saw one and passed. */}
+      {/* The heading a session screen has no room to draw. */}
       <h1 className="sr-only">{t("Say what you see")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession size={19} />
@@ -294,128 +197,129 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent">{prompt.situation}</Chip>
+          <Chip tone="accent">{t(prompt.title)}</Chip>
+          <span className="tnum ml-auto text-xs" style={{ color: "var(--ink-3)" }}>
+            {fill(t("Picture {n} of {total}"), { n: index + 1, total: prompts.length })}
+          </span>
         </div>
 
         <div className="round-pad px-6">
-          {/* Decoration in the sense that a photograph on a worksheet is: the
-              meaning is here rather than in the text, so it is announced to a
-              reader who cannot see it by the words underneath and by the
-              reveal after marking, never by an alt text naming the answer. */}
-          <p
-            className="text-center leading-none"
-            style={{ fontSize: "clamp(44px, 14vw, 64px)" }}
+          {/*
+            THE PICTURE. Emoji laid out as a scene, on the lavender the rest of
+            the app calls its own, so it reads as a picture rather than a row
+            of icons. Decoration in the sense a photograph on a worksheet is:
+            the meaning reaches a reader who cannot see it through the English
+            sentence, never through alt text naming Estonian words.
+          */}
+          <div
+            className="rounded-[var(--r-lg)] px-3 py-5 text-center"
+            style={{ background: "var(--accent-soft)" }}
           >
-            <span aria-hidden>{prompt.things.map((t) => t.emoji).join(" ")}</span>
-            <span className="sr-only">
-              {pictureLabel(prompt.things.map((thing) => thing.translation), locale)}
-            </span>
+            <p className="sr-only">{t(prompt.alt)}</p>
+            <div aria-hidden className="flex flex-col items-center gap-1.5" style={{ fontSize: "clamp(34px, 11vw, 52px)", lineHeight: 1.15 }}>
+              {prompt.rows.map((row, i) => (
+                <div key={i} className="whitespace-nowrap">{row}</div>
+              ))}
+            </div>
+          </div>
+
+          <p className="mt-5 text-base font-semibold" style={{ color: "var(--ink)" }}>
+            {t("Write five sentences about this picture.")}
+          </p>
+          <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+            {t("Say what you see and what might be going on. Use your imagination: who are they, what are they doing?")}
           </p>
 
-          {/*
-            WHAT THE SENTENCE HAS TO SAY, NOT WHAT THE CASE IS CALLED. The
-            writing round made this change first and its own comment has the
-            argument: the case's name and its question are lines of grammar
-            standing between a learner and a sentence, and "out of the
-            hospital" is the whole of what the ending means. The name is on
-            the verdict, where it is worth keeping, and where no honest phrase
-            fits the label stands in as before.
-          */}
-          {phrase ? (
-            <>
-              <p className="mt-7 text-sm" style={{ color: "var(--ink-2)" }}>
-                {rich(t("Write one sentence about this, with {word}, that says"), {
-                  word: (
-                    <>
-                      <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
-                        {prompt.askLemma}
-                      </strong>
-                      {!saysGloss && <span style={{ color: "var(--ink-3)" }}> ({prompt.askTranslation})</span>}
-                    </>
-                  ),
-                })}
-              </p>
-              <p data-say lang="en" className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
-                “{phrase}”
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="mt-7 text-sm" style={{ color: "var(--ink-2)" }}>
-                {rich(t("Write one sentence about this, with {word} in the"), {
-                  word: (
-                    <>
-                      <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
-                        {prompt.askLemma}
-                      </strong>{" "}
-                      <span style={{ color: "var(--ink-3)" }}>({prompt.askTranslation})</span>
-                    </>
-                  ),
-                })}
-              </p>
-              {/* The case and the question it answers, drawn as one label. */}
-              <p className="mt-2 text-lg">
-                <CaseLabel label={{ et: prompt.caseEt, question: prompt.caseQuestion }} />
-              </p>
-            </>
-          )}
-
-          <div className="mt-6">
-            <label htmlFor="sentence" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-              {t("Your sentence")}
-            </label>
-            <textarea
-              id="sentence"
-              value={sentence}
-              lang="et"
-              rows={3}
-              maxLength={MAX_SENTENCE_CHARS}
-              disabled={!!marked}
-              autoFocus
-              onChange={(e) => setSentence(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); void submit(); }
-              }}
-              placeholder="Kirjuta oma lause siia…"
-              className="field-lg mt-2 w-full resize-none text-md disabled:opacity-70"
-              style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
-            />
-            {!marked && <div className="under-field"><DiacriticBar /></div>}
-            {!marked && (
-              <div className="mt-4">
-                <HintLadder
-                  ladder={ladder}
-                  taken={hints.taken}
-                  onTake={hints.take}
-                  open={hints.open}
-                  label={prompt.askLemma}
-                />
-              </div>
-            )}
+          <div
+            className="mt-4 rounded-[var(--r)] border px-4 py-3"
+            style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
+          >
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("An example of the kind of sentence we mean")}</p>
+            <p lang="et" className="mt-1.5 text-md font-semibold" style={{ color: "var(--ink)" }}>{prompt.example.et}</p>
+            <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>{t(prompt.example.en)}</p>
           </div>
+
+          <ol
+            className="mt-5 flex flex-col gap-2.5"
+            aria-label={t("Your five sentences")}
+            onKeyDown={(e) => {
+              // Anywhere in the five boxes, as the button under them says.
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); void submit(); }
+            }}
+          >
+            {texts.map((text, i) => {
+              const sentenceMark = marked?.mark.sentences[i];
+              return (
+                <li key={i} className="flex items-start gap-2.5">
+                  <span
+                    aria-hidden
+                    className="tnum mt-2.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                    style={{
+                      background: filled(text) ? "var(--good-soft)" : "var(--raised)",
+                      color: filled(text) ? "var(--good-ink)" : "var(--ink-3)",
+                    }}
+                  >
+                    {filled(text) ? <Check size={13} /> : i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <EstonianInput
+                      bar={false}
+                      id={`sentence-${i + 1}`}
+                      ariaLabel={fill(t("Sentence {n} of {total}"), { n: i + 1, total: SENTENCES_PER_PICTURE })}
+                      inputRef={inputs[i]}
+                      value={text}
+                      autoFocus={i === 0}
+                      disabled={!!marked || busy}
+                      placeholder={`${i + 1}.`}
+                      onChange={(next) => setTexts((t) => t.map((v, j) => (j === i ? next : v)))}
+                      onEnter={() => {
+                        const following = inputs[i + 1]?.current;
+                        if (following) following.focus();
+                        else if (ready) void submit();
+                      }}
+                    />
+                    {sentenceMark && marked && (
+                      <SentenceFeedback
+                        mark={sentenceMark}
+                        note={marked.graded?.sentences[i]}
+                        graded={marked.graded !== null}
+                      />
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+
+          {!marked && <div className="under-field"><DiacriticBar standalone={false} fallbackRef={inputs[0]} /></div>}
 
           {error && (
             <p role="alert" className="mt-3 text-sm" style={{ color: "var(--again-ink)" }}>{error}</p>
           )}
 
-          {marked && <Feedback marked={marked} prompt={prompt} />}
+          {marked && <Summary marked={marked} aiAvailable={aiAvailable} />}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {!marked ? (
-            <Button
-              variant="primary"
-              className="w-full py-3"
-              disabled={busy || sentence.trim().length === 0}
-              onClick={() => void submit()}
-            >
-              {busy
-                ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Marking…")}</>
-                : <>{t("Check it")} <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="primary"
+                className="w-full py-3"
+                disabled={busy || !ready}
+                onClick={() => void submit()}
+              >
+                {busy
+                  ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Marking…")}</>
+                  : <>{t("Check my sentences")} <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
+              </Button>
+              <p className="text-center text-xs" style={{ color: "var(--ink-3)" }} aria-live="polite">
+                {ready ? t("All five written. Ready when you are.") : fill(t("{done} of {total} written. Each one needs at least three words."), { done, total: SENTENCES_PER_PICTURE })}
+              </p>
+            </div>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              {t("Next")}
+              {last ? t("Finish") : t("Next picture")}
             </Button>
           )}
         </div>
@@ -425,161 +329,147 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
       <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
-
-      {!aiAvailable && (
-        <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-          {t("Anu isn’t around right now, so we’ll only check the ending. That’s the part we can check for certain anyway.")}
-        </p>
-      )}
     </div>
   );
 }
 
-/** What the case a learner reached for is called, or nothing where two share the spelling. */
-function nameOf(key: string): string | null {
-  const spec = CASES.find((c) => c.key === key);
-  if (!spec) return null;
-  return grammarTerm(spec.key)?.et ?? spec.et;
+/** How a sentence stood, in the palette's three words. */
+function verdictFor(mark: SentenceMark, note: { verdict: "correct" | "almost" | "wrong" } | undefined): Verdict {
+  if (!mark.sound) return "wrong";
+  if (!note) return "right";
+  return verdictOfCredit(note.verdict === "correct" ? 1 : note.verdict === "almost" ? 0.5 : 0);
+}
+
+/** What is said under one box once the five are marked. */
+function SentenceFeedback({ mark, note, graded }: {
+  mark: SentenceMark;
+  note: { verdict: "correct" | "almost" | "wrong"; comment: string; rule: string } | undefined;
+  graded: boolean;
+}) {
+  const t = useT();
+  const locale = useLocale();
+  const verdict = verdictFor(mark, note);
+  const lines: string[] = [];
+  if (!mark.isSentence) lines.push(t("That's not quite a sentence yet. Try three words or more."));
+  if (mark.unknown.length > 0) {
+    lines.push(
+      fill(t("We couldn't find {words} in the dictionary. Check the spelling, and the {letters}."), {
+        words: mark.unknown.map((w) => quoted(w, locale)).join(", "),
+        letters: fill(t("{a}, {b}, {c} and {d}"), { a: "õ", b: "ä", c: "ö", d: "ü" }),
+      }),
+    );
+  }
+  if (mark.repeated) lines.push(t("You already wrote this one. Try saying something different about the picture."));
+  if (mark.isSentence && mark.mentions.length === 0) {
+    lines.push(t("We couldn't match this to anything in the picture. Name something you can see: a person, an animal or an object."));
+  }
+  if (mark.sound && !note && !graded) lines.push(t("Every word is spelled right and it's about the picture."));
+  const Icon = verdict === "right" ? Check : CircleAlert;
+
+  return (
+    <div className={`${VERDICT_CLASS[verdict]} verdict-panel mt-2 flex items-start gap-2.5`} aria-live="polite">
+      <Icon size={15} className="mt-0.5 shrink-0" aria-hidden />
+      <div className="min-w-0">
+        {note?.comment && <p>{note.comment}</p>}
+        {note?.rule && <p className="mt-1">{note.rule}</p>}
+        {lines.map((line) => <p key={line} className={note?.comment ? "mt-1" : undefined}>{line}</p>)}
+        {!mark.tidy && mark.isSentence && (
+          <p className="mt-1">{t("Start with a capital letter and finish with a period.")}</p>
+        )}
+        {!note?.comment && lines.length === 0 && mark.tidy && <p>{t("Spelled right and about the picture.")}</p>}
+      </div>
+    </div>
+  );
 }
 
 /**
- * Three verdicts, in the order they are worth reading.
+ * What went well, what to work on, and what was in the picture.
  *
- * The case, which is certain. Then the picture, which is the other mechanical
- * thing this knows and the reason the words are worth revealing at all. Then
- * Anu, labeled, last, and never allowed to look like part of the first.
+ * The first two come from the model where there is one and from the counts
+ * where there is not, so the learner is never left with a score and no
+ * direction. The things in the picture are told last, with the ones they used
+ * ticked, because naming them beforehand would have been most of the
+ * exercise.
  */
-function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
-  const { mark, reveal, graded, quotaMessage, withheld, withheldReason } = marked;
-  const wrote = mark.verdict?.kind === "one" ? nameOf(mark.verdict.key) : null;
+function Summary({ marked, aiAvailable }: { marked: Marked; aiAvailable: boolean }) {
   const t = useT();
-  const wanted = <strong lang="et">{reveal.wanted.join(PARTS)}</strong>;
-  const caseName = <span lang="et">{prompt.caseEt}</span>;
+  const locale = useLocale();
+  const { mark, reveal, graded, quotaMessage, withheld, withheldReason } = marked;
+  const total = mark.sentences.length;
+
+  const spelling = mark.sentences.filter((s) => s.unknown.length > 0).length;
+  const offTopic = mark.sentences.filter((s) => s.isSentence && s.mentions.length === 0).length;
+  const repeated = mark.sentences.filter((s) => s.repeated).length;
+  const untidy = mark.sentences.filter((s) => s.isSentence && !s.tidy).length;
+
+  const wentWell = graded?.wentWell
+    || (mark.sound > 0
+      ? fill(t("{n} of your {total} sentences are spelled right and about the picture."), { n: mark.sound, total })
+      : t("You wrote all five, which is the hardest part to start."));
+  const workOn = graded?.workOn
+    || [
+      spelling > 0 ? sentencesLine(locale, t, spelling, "spelling") : "",
+      offTopic > 0 ? sentencesLine(locale, t, offTopic, "topic") : "",
+      repeated > 0 ? t("Saying something new in each sentence.") : "",
+      untidy > 0 ? t("A capital at the start and a period at the end.") : "",
+    ].filter(Boolean).join(" ");
 
   return (
     <div className="mt-6 flex flex-col gap-3" aria-live="polite">
-      <div className={`${VERDICT_CLASS[mark.rightCase ? "right" : wrote ? "nearly" : "wrong"]} verdict-panel flex items-start gap-2.5`}>
-        {mark.rightCase
-          ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
-          : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-        <p className="text-base">
-          {mark.rightCase ? (
-            rich(t("Yes, that’s the {case}."), { case: caseName })
-          ) : mark.written && wrote ? (
-            /*
-              The line this mode exists for. Every other screen can only say
-              the form was not the one asked for; this one can name what was
-              written instead, because exactly one case is spelled that way.
-            */
-            rich(t("You wrote {written}, which is the {got}. The {case} is {wanted}."), {
-              written: <strong lang="et">{mark.written}</strong>,
-              got: <span lang="et">{wrote}</span>,
-              case: caseName,
-              wanted,
-            })
-          ) : mark.written ? (
-            // Two cases share that spelling, so naming either would be a guess.
-            rich(t("{written} could be more than one case, so we can’t tell it’s this one. The {case} is {wanted}."), {
-              written: <strong lang="et">{mark.written}</strong>,
-              case: caseName,
-              wanted,
-            })
-          ) : (
-            rich(t("{word} isn’t in your sentence. The {case} is {wanted}."), {
-              word: <strong lang="et">{prompt.askLemma}</strong>,
-              case: caseName,
-              wanted,
-            })
-          )}
-        </p>
+      <div className="rounded-md border px-3.5 py-3" style={{ borderColor: "var(--rule)", background: "var(--raised)" }}>
+        <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("What went well")}</p>
+        <p className="mt-1.5 text-base" style={{ color: "var(--ink)" }}>{wentWell}</p>
+        {workOn && (
+          <>
+            <p className="label-xs mt-3" style={{ color: "var(--ink-3)" }}>{t("What to work on")}</p>
+            <p className="mt-1.5 text-base" style={{ color: "var(--ink)" }}>{workOn}</p>
+          </>
+        )}
+        {graded && <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>{t("Notes from Anu. The spelling and picture checks come from the dictionary.")}</p>}
       </div>
 
-      <div
-        className="rounded-md border px-3.5 py-3"
-        style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
-      >
+      <div className="rounded-md border px-3.5 py-3" style={{ borderColor: "var(--rule)", background: "var(--raised)" }}>
         <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("What was in the picture")}</p>
-        <ul className="mt-2 flex flex-col gap-1.5">
-          {reveal.words.map((word, i) => (
-            <li key={word.lemma} className="flex items-baseline gap-2 text-base">
-              <span aria-hidden className="text-lg leading-none">{word.emoji}</span>
-              <strong lang="et" style={{ color: "var(--ink)" }}>{word.lemma}</strong>
-              <span style={{ color: "var(--ink-3)" }}>{word.translation}</span>
-              {mark.used[i] && (
-                <Check size={13} aria-label={t("you used this one")} style={{ color: VERDICT_INK.right }} />
-              )}
+        <ul className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2">
+          {reveal.things.map((thing) => (
+            <li key={thing.lemma} className="flex items-baseline gap-2 text-base">
+              <span aria-hidden className="text-lg leading-none">{thing.emoji}</span>
+              <strong lang="et" style={{ color: "var(--ink)" }}>{thing.lemma}</strong>
+              <span style={{ color: "var(--ink-3)" }}>{thing.translation}</span>
+              {thing.used && <Check size={13} aria-label={t("you used this one")} style={{ color: "var(--good-ink)" }} />}
             </li>
           ))}
         </ul>
       </div>
 
-      {reveal.answer && (
-        <div
-          className="rounded-md border px-3.5 py-3"
-          style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
-        >
-          {/*
-            Whose sentence this is and what it shows, said out loud, because
-            the three are not the same claim. A native speaker wrote theirs
-            about this picture. A lexicographer wrote theirs to illustrate this
-            word, and whether it happens to carry the case just asked for is
-            the difference between a model answer and a good sentence with the
-            right word in it. None of the three is a mark, and none is compared
-            against what the learner wrote: there are many right sentences
-            about three things, which is the point of asking.
-          */}
-          <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-            {reveal.answer.source === "contributed"
-              ? t("How a native speaker said it")
-              : reveal.answer.source === "this-form"
-                ? fill(t("A real sentence with {word} in this case"), { word: prompt.askLemma })
-                : fill(t("A real sentence with {word} in it"), { word: prompt.askLemma })}
-          </p>
-          <p lang="et" className="mt-1.5 text-base" style={{ color: "var(--ink)" }}>
-            {reveal.answer.et}
-          </p>
-          {reveal.answer.lexemeId && (
-            <SentenceTranslation
-              key={reveal.answer.et}
-              lexemeId={reveal.answer.lexemeId}
-              et={reveal.answer.et}
-              en={reveal.answer.en}
-              canTranslate={reveal.canTranslate}
-            />
-          )}
-        </div>
-      )}
-
       {withheld && withheld.length > 0 && (
-        <div
-          className="rounded-md border px-3.5 py-3"
-          style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
-        >
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            {withheldReason === "unvouched-word" ? (
-              t("We’ve hidden Anu’s note this time. It used a word we couldn’t confirm as Estonian (it may just have been English). The check above comes from the dictionary, so you can trust it.")
-            ) : (
-              t("We’ve hidden Anu’s note this time. It used an Estonian form we couldn’t confirm, and a wrong form is worse than no note at all. The check above comes from the dictionary, so you can trust it.")
-            )}
-          </p>
-        </div>
+        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+          {withheldReason === "unvouched-word"
+            ? t("We hid one of Anu's notes. It used a word we couldn't confirm as Estonian. The spelling check comes from the dictionary, so you can trust that.")
+            : t("We hid one of Anu's notes. It used an Estonian form we couldn't confirm, and a wrong form is worse than no note. The spelling check comes from the dictionary, so you can trust that.")}
+        </p>
       )}
-
-      {graded && graded.comment && (
-        <div
-          className="rounded-md border px-3.5 py-3"
-          style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
-        >
-          <p className="mt-1.5 text-base" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
-          {graded.rule && (
-            <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{graded.rule}</p>
-          )}
-        </div>
-      )}
-
-      {quotaMessage && (
-        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t(quotaMessage)}</p>
+      {!aiAvailable && !graded && (
+        <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+          {quotaMessage ? t(quotaMessage) : t("Anu isn't around right now, so we only checked spelling and whether each sentence is about the picture. Word order and endings need her.")}
+        </p>
       )}
     </div>
   );
+}
+
+/**
+ * "Spelling: 2 sentences had a word we couldn't find." English keeps the line
+ * it always printed; Russian and Ukrainian get the count in its own plural.
+ */
+function sentencesLine(locale: Locale, t: (english: string) => string, n: number, which: "spelling" | "topic"): string {
+  if (locale === "en") {
+    const s = `${n} sentence${n === 1 ? "" : "s"}`;
+    return which === "spelling"
+      ? `Spelling: ${s} had a word we couldn't find.`
+      : `Staying on the picture: ${s} didn't name anything in it.`;
+  }
+  return fill(t(which === "spelling"
+    ? "Spelling: sentences with a word we couldn't find: {n}."
+    : "Staying on the picture: sentences that named nothing in it: {n}."), { n });
 }

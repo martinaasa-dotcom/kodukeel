@@ -58,10 +58,10 @@ export interface FeaturedGame {
 export const WEEK_GAMES: readonly FeaturedGame[] = [
   { href: "/quest", why: "A short round on whatever tripped you up this week." },
   { href: "/sonad", why: "A fresh word to guess every morning. Monday's a good day to start." },
-  { href: "/review/target", why: "Four versions of one word, and only the ending tells you which to hit." },
+  { href: "/review/sentences", why: "Put a real sentence back together, commas and all." },
   { href: "/situations", why: "Midweek, try a real conversation. Order a coffee, buy a bus ticket." },
   { href: "/review/match", why: "Pairs against the clock, and a personal best to beat." },
-  { href: "/review/sprint", why: "It's Friday, so keep it short: a quick burst of endings on the clock." },
+  { href: "/review/flashcards", why: "It's Friday, so keep it quiet: words you know, asked in new ways." },
   { href: "/crossword", why: "The crossword, for a Saturday with time to spare." },
 ];
 
@@ -70,7 +70,7 @@ export const WEEK_GAMES: readonly FeaturedGame[] = [
  *
  * The table above is a week for a learner with endings to practise, and four
  * of its rows are about endings or need them: the quest drills the weakest
- * case, Target and the sprint are "a quick burst of endings", and a
+ * case, the sentence builder wants word order, and a
  * conversation needs the asking-and-offering words the course reaches at A2.
  * On a beginner's first Friday Today said "a quick burst of endings on the
  * clock" to somebody who had met five words and no case at all, which is the
@@ -104,6 +104,21 @@ export const FIRST_LEVEL_WEEK: readonly FeaturedGame[] = [
  */
 export const PUZZLE_STAND_IN: FeaturedGame = {
   href: "/review/letters", why: "Unscramble a word you've met. Every letter has its place.",
+};
+
+/**
+ * THE GAME TODAY LEADS WITH, FOR NOW: SÕNAD, EVERY DAY.
+ *
+ * The week above is a rotation, and the feedback on the home page was that the
+ * one game worth leading with is the one that is eye-catching on sight, which
+ * is Sõnad. So Today draws this row every morning, with a small example board
+ * beside it (`components/SonadPreview.tsx`), and the table is kept whole for
+ * the day the card is made dynamic again. Nothing about the other rounds
+ * moved: every one is still on /practice, in the palette and at its own URL.
+ */
+export const GAME_OF_THE_DAY: FeaturedGame = {
+  href: "/sonad",
+  why: "Guess the Estonian word in six letters. Every guess tells you which letters are right.",
 };
 
 /**

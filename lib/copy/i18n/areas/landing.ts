@@ -350,7 +350,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
 
   // ANU, DOWN THE PAGE.
   ["Hi, I’m Anu, the tutor. Mind if I walk down the page with you?", "Привет, я Ану, репетитор. Можно я пройдусь с вами по странице?", "Привіт, я Ану, репетиторка. Можна я пройдуся з вами сторінкою?"],
-  ["Whichever one you are, you start the same way: fifteen minutes tonight.", "Кем бы вы ни были, начало одно и то же: пятнадцать минут сегодня вечером.", "Хоч би хто ви були, початок однаковий: п'ятнадцять хвилин сьогодні ввечері."],
+  ["Whichever one you are, you start the same way: fifteen minutes today.", "Кем бы вы ни были, начало одно и то же: пятнадцать минут сегодня.", "Хоч би хто ви були, початок однаковий: п'ятнадцять хвилин сьогодні."],
   ["Press an ending and watch it snap on. That’s the whole trick, honestly.", "Нажмите на окончание и посмотрите, как оно встаёт на место. Честно, в этом весь фокус.", "Натисніть закінчення й подивіться, як воно стає на місце. Чесно, у цьому весь фокус."],
   ["This really is how your first evening starts. Five new words, and then they come back to check on you.", "Ваш первый вечер правда начинается так. Пять новых слов, а потом они возвращаются вас проверить.", "Ваш перший вечір справді починається так. П'ять нових слів, а потім вони повертаються вас перевірити."],
   ["Go on, order something. The person behind the counter is very patient.", "Давайте, закажите что-нибудь. Человек за стойкой очень терпеливый.", "Давайте, замовте щось. Людина за стійкою дуже терпляча."],

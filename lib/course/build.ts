@@ -17,7 +17,6 @@ import { CASE_NOTES, grammarTopic } from "@/lib/estonian/grammar";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
 import { spellable } from "@/lib/games/letters";
-import { SCENES } from "@/lib/collections/scenes";
 import { sceneById as conversationById } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
@@ -142,7 +141,7 @@ function caseReadTitle(key: string): string | undefined {
  * round, so the greetings read the politeness page four evenings running and
  * the numbers read the numerals page five, and the impersonal was read
  * nineteen times between B1 and C1: a reading the learner did last night,
- * put in front of them again as tonight's step, is furniture, and it is the
+ * put in front of them again as today's step, is furniture, and it is the
  * step a learner reported skipping past. Each page a unit declares is read
  * once in the unit, in the order its author wrote them, and a page already
  * read in this part is not read again by a later unit of it. An evening past
@@ -234,8 +233,6 @@ export interface Taught {
   topics: ReadonlySet<string>;
   /** Taught verbs the dictionary records a government for. */
   governed: number;
-  /** A picture scene (`lib/collections/scenes.ts`) whose three words have all been taught. */
-  scene: boolean;
   /** Taught words Tähed can scramble: one word, three letters or more (`spellable`). */
   spellable: number;
   /**
@@ -247,29 +244,15 @@ export interface Taught {
 }
 
 export const NO_TAUGHT: Taught = {
-  verbs: false, cases: new Set(), topics: new Set(), governed: 0, scene: false,
+  verbs: false, cases: new Set(), topics: new Set(), governed: 0,
   readable: false, spellable: 0,
 };
 
 const ALL_TAUGHT: Taught = {
   verbs: true, cases: new Set(CASES.map((c) => c.key)),
-  topics: new Set(["government", "conditional"]), governed: 99, scene: true, readable: true,
+  topics: new Set(["government", "conditional"]), governed: 99, readable: true,
   spellable: 99,
 };
-
-/**
- * How many case pages Target needs before it is dealt: it draws four forms of
- * one word and needs four cases it may draw from, so one page read is a round
- * that builds nothing.
- */
-export const CASES_FOR_TARGET = 4;
-
-/**
- * Describe wants a whole scene of taught words and a choice of case for it,
- * since a case the pictured word does not take builds no task: an animal is
- * not in the inside trio, and the first case page read is the inessive.
- */
-export const CASES_FOR_DESCRIBE = 3;
 
 /** How many governed verbs a government round needs before it is dealt. */
 export const GOVERNED_FOR_ROUND = 4;
@@ -307,9 +290,7 @@ export function supportsRound(key: ActivityKey, taught: Taught, _level = "A2"): 
   const cases = taught.cases.size > 0;
   switch (key) {
     case "conjugation": return taught.verbs;
-    case "sprint": case "write": return cases;
-    case "target": return taught.cases.size >= CASES_FOR_TARGET;
-    case "describe": return taught.scene && taught.cases.size >= CASES_FOR_DESCRIBE;
+    case "write": return cases;
     case "dictation": case "sentences": return taught.readable;
     case "government": return taught.topics.has("government") && taught.governed >= GOVERNED_FOR_ROUND;
     case "letters": return taught.spellable >= WORDS_FOR_LETTERS;
@@ -442,7 +423,6 @@ export class Ledger {
   private readonly lemmas = new Set<string>();
   private verbs = false;
   private governed = 0;
-  private scene = false;
   private readable = false;
   private spellable = 0;
   /** Verbs with a stored past, taught and not yet shown, in teaching order. */
@@ -469,7 +449,6 @@ export class Ledger {
     if (pos === "VERB") this.verbs = true;
     if (spellable(lemma) && !this.lemmas.has(lemma)) this.spellable += 1;
     this.lemmas.add(lemma);
-    if (!this.scene) this.scene = SCENES.some((s) => s.lemmas.every((l) => this.lemmas.has(l)));
     const word = this.harvest.get(`${lemma}|${pos}`);
     this.spellings.add(lemma.toLowerCase());
     if (!word) return;
@@ -534,7 +513,6 @@ export class Ledger {
       cases: new Set(this.cases),
       topics: new Set(this.topics),
       governed: this.governed,
-      scene: this.scene,
       readable: this.readable,
       spellable: this.spellable,
     };
@@ -606,7 +584,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
   /*
     A page read once in a level is not read again by a later unit of it. It
     was once per part, and A1 read the present tense four times and "to be"
-    three, the same page with the same words presented as tonight's reading;
+    three, the same page with the same words presented as today's reading;
     across levels a page comes back, and its step says so ("again").
   */
   const readInPart = ledger.pagesReadAt(spec.level);
@@ -646,7 +624,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         AND A WORD AN EARLIER EVENING TAUGHT IS NOT A NEW WORD. The object and
         government units drill verbs the course gave long before, on purpose,
         and the first two evenings of B1 were six of them each under "Learn
-        tonight's 6 new words". Read before tonight's words are taught.
+        today's 6 new words". Read before today's words are taught.
       */
       const again = chunk.filter((lemma) => ledger.knows(lemma));
       for (const lemma of chunk) {
@@ -659,7 +637,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         A PAGE READ AT AN EARLIER LEVEL SAYS SO. The plan reads a page once per
         part, and a unit at B1 may list a page somebody read at A1: the
         conditional, politeness, the partitive. Same page, same words, and a
-        step that called it tonight's reading as though it were new reads as
+        step that called it today's reading as though it were new reads as
         the app having forgotten. It is still worth reading, and the step says
         it is a second look.
       */
@@ -753,12 +731,12 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
 
 /**
  * The rounds that ask a case off the word's own forms, which inside the
- * module lead with the case tonight's reading was about (`tonightsCase`).
+ * module lead with the case today's reading was about (`tonightsCase`).
  * The sprint is not one: it turns over the deck's cards, and a module's deck
  * holds a word's meaning and its spelling, so on a module evening it asks no
  * ending at all.
  */
-export const CASE_ROUNDS: ReadonlySet<ActivityKey> = new Set(["target", "write", "describe"]);
+export const CASE_ROUNDS: ReadonlySet<ActivityKey> = new Set(["write"]);
 
 /**
  * AN EVENING THAT READS A CASE PRACTISES IT.

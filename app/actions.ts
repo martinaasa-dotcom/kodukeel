@@ -54,7 +54,7 @@ import {
 } from "@/lib/progress/decks";
 import { canonicalZone } from "@/lib/time/day";
 import {
-  forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
+  forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 import { isEmailKind } from "@/lib/email/letter";
 import { switchOff, switchOn } from "@/lib/email/prefs";
@@ -198,6 +198,60 @@ export async function addToDeck(
     await setDecksForWord(ownerId, lexemeId, deckIds.filter((id) => typeof id === "string"));
   }
   return result;
+}
+
+/**
+ * The card an answer in the openers round is graded on, made on the first one.
+ *
+ * Every answer is a `Review` row and a row needs a card (ADR-016), and the
+ * words the round uses are plain A1 nouns a learner would meet in the first
+ * month, so the first answer about one puts it in the deck. That is the one
+ * place a round adds a word behind the learner's back, and it is deliberate:
+ * a round whose answers could not be written down would have no stage to move
+ * a learner on from, which is what it is for. The production card is the one
+ * graded, as in the flash round, and the recognition card comes with it.
+ */
+export async function openerCard(lexemeId: string) {
+  lexemeId = text(lexemeId);
+  const ownerId = await requireUserId();
+  const find = () => prisma.card.findFirst({
+    where: { ownerId, lexemeId, cardType: "PRODUCTION" },
+    select: { id: true },
+    orderBy: { id: "asc" },
+  });
+  let card = await find();
+  let made = false;
+  if (!card) {
+    const added = await addCardsFor(ownerId, lexemeId, ["RECOGNITION", "PRODUCTION"], DEFAULT_SOURCE);
+    if (!added.ok) return { ok: false as const };
+    card = await find();
+    made = true;
+  }
+  // `made` lets the round say a word has just joined the deck, since nobody asked for it.
+  return card ? { ok: true as const, cardId: card.id, made } : { ok: false as const };
+}
+
+/**
+ * Takes back what `openerCard` just added. Only the two cards it makes, only from
+ * the default source, and only if the word arrived within the last day, so a word
+ * the learner has had for months is never touched. Review rows carry no key to the
+ * card, so the history stays.
+ */
+export async function undoOpenerCards(lexemeIds: string[]) {
+  const ownerId = await requireUserId();
+  const ids = (Array.isArray(lexemeIds) ? lexemeIds : []).slice(0, 20).map(text);
+  await prisma.card.deleteMany({
+    where: {
+      ownerId,
+      lexemeId: { in: ids },
+      source: DEFAULT_SOURCE,
+      cardType: { in: ["RECOGNITION", "PRODUCTION"] },
+      createdAt: { gte: new Date(Date.now() - 24 * 3600 * 1000) },
+    },
+  });
+  revalidatePath("/words");
+  revalidatePath("/");
+  return { ok: true as const };
 }
 
 /** Every deck this learner has named, for the picker and the management page. */
@@ -1282,10 +1336,9 @@ export async function setDailyGoal(goal: number) {
   three exceptions, because `Review` records no note of which mode wrote a row
   and so cannot say what a sixty-second sprint scored. That exception is why
   these two are stored, and it is not a reason to store whatever arrives.
-  Neither of these clamped anything: `recordSprintScore(NaN)` wrote the string
-  "NaN", `recordMatchTime(NaN)` slipped through its own `Math.max(1, ...)`
-  because `Math.max(1, NaN)` is `NaN`, and `1e21` came back on the sprint
-  screen as somebody's best score in scientific notation.
+  `recordMatchTime(NaN)` slipped through its own `Math.max(1, ...)` because
+  `Math.max(1, NaN)` is `NaN`, and a score of `1e21` came back as somebody's
+  best in scientific notation.
 
   What is *not* attempted is bounding a score against the review log. Every
   answer in both rounds grades through it (ADR-016), so a count is there, but
@@ -1295,25 +1348,9 @@ export async function setDailyGoal(goal: number) {
   themselves, on a board that no longer has anybody else on it.
 */
 
-/** A round of this app is a minute long; nothing honest reaches these. */
-const MAX_SPRINT_SCORE = 500;
 const MAX_MATCH_SECONDS = 3_600;
 /** Twice the board's own size (see PAIRS in the round's page.tsx). A ceiling, not a pace. */
 const MAX_MATCH_PAIRS = 16;
-
-/** Records a Case Sprint score, keeping only the personal best. */
-export async function recordSprintScore(score: number) {
-  const ownerId = await requireUserId();
-  if (!Number.isFinite(score)) return { ok: false as const, error: "That score didn't come through properly." };
-  const clamped = Math.min(MAX_SPRINT_SCORE, Math.max(0, Math.round(score)));
-  // A round of nothing beats no stored best and writes no row, as before.
-  if (clamped === 0) {
-    const best = numberSetting(await readSetting(ownerId, SETTING_KEYS.sprintBest), 0);
-    return { ok: true as const, best, isNewBest: false };
-  }
-  // Compared inside the write, so a slower round cannot lower it (lib/progress/personalBest.ts).
-  return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.sprintBest, clamped, "higher")) };
-}
 
 /**
  * Records a finished match round in the review log, one write rather than
@@ -3995,7 +4032,7 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
 }
 
 /**
- * A STEP OF TONIGHT'S MODULE, FINISHED FROM INSIDE IT.
+ * A STEP OF TODAY'S MODULE, FINISHED FROM INSIDE IT.
  *
  * `markCourseStep` is the module screen's own button and stays exactly what it
  * was: a learner on the list saying they did a round somewhere else. This is
@@ -4057,7 +4094,7 @@ export async function advanceCourseStep(programmeId: string, dayId: string, step
 }
 
 /**
- * TONIGHT'S STEPS, FOR THE RAIL TO DRAW UNDER LEARN.
+ * TODAY'S STEPS, FOR THE RAIL TO DRAW UNDER LEARN.
  *
  * The marker on a step's address says which step this is and not what the
  * others are called or which of them are done, so the rail asks. What is done

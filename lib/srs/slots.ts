@@ -1,4 +1,5 @@
 import { CASES, caseByKey } from "@/lib/estonian/cases";
+import { isOpenerSlot, openerBySlot } from "@/lib/estonian/openers";
 
 /**
  * WHICH FACET OF A WORD ONE ANSWER WAS ABOUT.
@@ -119,7 +120,7 @@ const CONJUGATION_CODES = new Set(CONJUGATION_SLOTS.map((s) => s.code));
  * ever asked them for.
  */
 export function isKnownSlot(slot: string): boolean {
-  return CASE_KEYS.has(slot) || CONJUGATION_CODES.has(slot) || MEANING_SLOTS.includes(slot);
+  return CASE_KEYS.has(slot) || CONJUGATION_CODES.has(slot) || MEANING_SLOTS.includes(slot) || isOpenerSlot(slot);
 }
 
 /** Whether a slot is one of the fourteen cases. */
@@ -203,6 +204,10 @@ export function slotLabel(slot: string): string {
   const verb = CONJUGATION_SLOTS.find((s) => s.code === slot);
   if (verb) return verb.label;
 
+  // An opener slot is named by the first words of the sentence it was about.
+  const opener = openerBySlot(slot);
+  if (opener) return opener.text;
+
   return MEANING_LABELS[slot] ?? slot.toLowerCase();
 }
 
@@ -210,7 +215,8 @@ export function slotLabel(slot: string): string {
 export function slotShort(slot: string): string {
   const spec = caseByKey(slot);
   if (spec) return spec.et;
-  return CONJUGATION_SLOTS.find((s) => s.code === slot)?.label ?? MEANING_LABELS[slot] ?? slot.toLowerCase();
+  return CONJUGATION_SLOTS.find((s) => s.code === slot)?.label
+    ?? openerBySlot(slot)?.text ?? MEANING_LABELS[slot] ?? slot.toLowerCase();
 }
 
 const MEANING_LABELS: Record<string, string> = {

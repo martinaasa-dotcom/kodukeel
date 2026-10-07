@@ -24,8 +24,8 @@ import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
-import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
-import { ORDER_EXACT, orderVariantNote, ORDER_WRONG, NOT_REACHED, quoted } from "@/lib/copy/values";
+import { buildIsRight, isMark, joinTokens, markName, readBuiltOrder } from "@/lib/estonian/orderTiles";
+import { ORDER_EXACT, ORDER_MARKS, orderVariantNote, ORDER_WRONG, NOT_REACHED, quoted } from "@/lib/copy/values";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { checkAnswer, countsAsRecalled, noteIn } from "@/lib/estonian/answer";
@@ -791,7 +791,7 @@ function StepCard({
             className="min-h-[52px] rounded-[var(--r-sm)] border p-3"
             style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
           >
-            <Et>{placed.join(" ") || " "}</Et>
+            <Et>{joinTokens(placed) || " "}</Et>
           </div>
           <div className="flex flex-wrap gap-2">
             {/*
@@ -807,7 +807,8 @@ function StepCard({
                 <button
                   key={i} type="button" disabled={done}
                   onClick={() => setBuilt((b) => [...b, i])}
-                  className="choice-btn min-h-[44px] rounded-[var(--r-sm)] border px-3"
+                  aria-label={isMark(tile) ? t(`Add ${markName(tile)}`) : undefined}
+                  className={`choice-btn min-h-[44px] min-w-[44px] rounded-[var(--r-sm)] border ${isMark(tile) ? "px-2.5 font-bold" : "px-3"}`}
                 >
                   <Et>{tile}</Et>
                 </button>
@@ -829,14 +830,15 @@ function StepCard({
                     printed under the verdict is the writer's own order rather
                     than a correction of anything.
                   */
-                  const verdict = readOrder(placed, step.sentence, step.alsoRight);
-                  const ok = orderIsRight(verdict.reading);
+                  const verdict = readBuiltOrder(placed, step.sentence, step.alsoRight);
+                  const ok = buildIsRight(verdict);
                   setChecked({
                     ok,
                     note:
-                      verdict.reading === "exact" ? t(ORDER_EXACT)
-                      : verdict.reading === "variant" ? orderVariantNote(verdict.moved, verdict.writerPut, locale)
-                      : t(ORDER_WRONG),
+                      verdict.reading === "wrong" ? t(ORDER_WRONG)
+                      : !verdict.punctuationRight ? t(ORDER_MARKS)
+                      : verdict.reading === "exact" ? t(ORDER_EXACT)
+                      : orderVariantNote(verdict.moved, verdict.writerPut, locale),
                   });
                   onAnswer(step.lemma, step.kind, ok);
                 }}

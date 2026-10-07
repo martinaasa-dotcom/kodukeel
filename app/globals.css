@@ -978,6 +978,31 @@
     Phones only: above `md` the page fits and a pinned keyboard would be a
     control that follows you down a page that does not need it.
   */
+  /*
+    The circle's size is the window's height less everything on the page that
+    is not a circle, between 26px and 44px. Phones hold back more, for the tab
+    bar the keys are pinned above.
+  */
+  .sonad-board { --sonad-cell: clamp(1.625rem, calc((100dvh - 38rem) / 7), 2.5rem); }
+  /*
+    A phone with its toolbar showing is about 660px tall. The keys are pinned
+    over the board there, so what has to give is what is not the board or the
+    keys: the promise of a clue, and a few pixels off each circle. The legend
+    stays, since the three marks have to be said in words on the screen.
+  */
+  @media (max-width: 767px) and (max-height: 720px) {
+    .sonad-board { --sonad-cell: clamp(1.375rem, calc((100dvh - 33rem) / 7), 2.25rem); }
+    .sonad-board .sonad-hint { margin-top: 0.25rem; }
+    /* The promise of a clue is the one line that can wait; the clue itself stays. */
+    .sonad-board .sonad-coming { display: none; }
+    .sonad-keys { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    /* And the line itself goes where nothing else is in it. */
+    .sonad-board .sonad-hint:not(:has(.font-semibold)) { display: none; }
+  }
+  @media (min-width: 768px) {
+    .sonad-board { --sonad-cell: clamp(1.75rem, calc((100dvh - 34rem) / 7), 2.75rem); }
+  }
+
   @media (max-width: 767px) {
     .sonad-keys {
       position: sticky;
@@ -1011,6 +1036,8 @@
       phone with a word game and no way out of it. The value is the point.
     */
     body:has(.sonad-keys) [data-chrome="anu"] { display: none !important; }
+    /* The crossword is the same fault: Anu's launcher sat over its Check button. */
+    body:has(.crossword-board) [data-chrome="anu"] { display: none !important; }
   }
 
   /*

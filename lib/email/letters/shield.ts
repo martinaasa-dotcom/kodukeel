@@ -113,7 +113,7 @@ export function shieldLetter(input: ShieldInput): Letter {
     ),
   });
 
-  blocks.push({ t: "button", label: say("See what's on tonight"), href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: say("See today's module"), href: `${input.origin}/course` });
 
   return {
     kind: "shield",

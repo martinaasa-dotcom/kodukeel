@@ -21,7 +21,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  * NIGHT. The navy of Vikerkaar öös is `--stage` and is typed once. `.night`
  * read its own copy of the hex, which is two definitions of one colour.
  *
- * THE EVENING. A card that says tonight's module is done is the accent's tint
+ * THE EVENING. A card that says today's module is done is the accent's tint
  * with the mix along its top (`.evening` on `tone="accent"`), and the strip is
  * built only from the palette's bright four, through their tokens, so each
  * theme draws its own and no hex arrives with it.

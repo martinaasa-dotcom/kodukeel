@@ -760,7 +760,7 @@ export function LearnSession({
           title={back ? t("Nothing left to meet here") : t(phrases ? "No new phrases waiting" : "No new words waiting")}
           body={
             back
-              ? t("You've met these already. The rest of tonight's module is waiting.")
+              ? t("You've met these already. The rest of today's module is waiting.")
               : kind === "phrase"
                 ? t("Phrases turn up here as you open the units that teach them.")
                 : t("Open a unit from the course and its words will turn up here.")
@@ -780,7 +780,7 @@ export function LearnSession({
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={72} className="mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
+          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
             {t("First, just meet them")}
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
@@ -820,7 +820,7 @@ export function LearnSession({
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={72} mood="cheer" className="float mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
+          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
             {t("Round done")}
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
@@ -919,8 +919,8 @@ export function LearnSession({
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={72} className="mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            {t("Now it\u2019s your turn")}
+          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
+            {t("Now it’s your turn")}
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {/* Said the way this batch will ask it: a beginner's words have no

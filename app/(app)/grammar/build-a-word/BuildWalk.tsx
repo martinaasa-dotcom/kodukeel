@@ -1014,7 +1014,7 @@ function YourTurn({ word }: { word: WalkWord }) {
               </Button>
             </div>
           </Card>
-          <DrillLink href="/review/target" />
+          <DrillLink href="/review/flashcards" />
         </>
       )}
     </Stack>

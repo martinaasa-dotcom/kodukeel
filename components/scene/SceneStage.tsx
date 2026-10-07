@@ -82,7 +82,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
   stage?: ReactNode;
   children: ReactNode;
 }) {
-  /* A conversation reached from tonight's module is a step of an evening
+  /* A conversation reached from today's module is a step of an evening
      rather than a thing chosen off a catalogue, so the door back to the
      catalogue stands down. See components/course/ModuleScope.tsx. */
   const inModule = useModuleFocus() !== null;
@@ -105,7 +105,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
             conversation and reads the debrief.
           */}
           {/*
-            AND INSIDE TONIGHT'S MODULE THE DOOR IS THE MODULE'S OWN. A
+            AND INSIDE TODAY'S MODULE THE DOOR IS THE MODULE'S OWN. A
             conversation reached from a module is one step of an evening, and
             the way on from it is the button at the foot of the screen, which
             ticks the step and opens the next. A second door here would go to

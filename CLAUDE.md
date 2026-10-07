@@ -330,6 +330,15 @@ ceiling on the bill and default to three dollars a day, and a deployment whose G
 runs out composes on qwen at $0.8 and $4 a million, which is dearer than either Gemini link, so an
 empty Gemini balance raises the bill rather than lowering it.
 
+**And a native Gemini call asks for a thinking level, because the budget is going.** Google's notice of
+2026-10-07 says `thinkingBudget` returns 400 on its coming models. The three native callers (`geminiCachedReply`,
+`play-scene.ts`, `critic-scenes.ts`) go through `thinkingFor`, which was probed rather than assumed: the Lite takes
+`minimal` and writes a line with no thinking tokens, while `gemini-3.8-flash` refuses `minimal`, `none` and `off`
+and thinks a few hundred tokens a call at `low`. The same few hundred showed up with the old budget of nought and
+on the compat layer's `reasoning_effort`, so this adds no cost to the flash that was not already there; it is
+billed as output and the ledger counts it. Moving the primary to the Lite would remove it and is the operator's
+call, for the reason given above. An invariant fails on `thinkingBudget` coming back.
+
 **And the translations reach a word looked up live, which was the hole left after the seed.**
 `mapEkilexDetails` built a new row's sentences as `({ et, source })`, the same `.et`-only shape the
 lesson page had one layer further out, so a deployment holding an Ekilex key and no model key looked
@@ -686,6 +695,19 @@ words is a rehearsal of something else. What it needs before it grows again is s
 how an Estonian counter actually works, in the shape `docs/20-contributed-sentences.md` already
 describes, and a B1 tier that still does not exist: holding the line when they switch, asking a
 follow-up, explaining why you were late.
+
+**The module is "Today's module", at any hour, and a form is never asked bare.** A learner reported two
+faults off the finished-module screens. Copy said "tonight" and "evenings" to somebody who opened the app at
+nine in the morning, so the module is named by the day wherever a reader meets it (`Today's module`, `Finish
+today's module`, `Today's words`); the identifiers (`tonightSteps`, the `tonight` email kind) are code and stay.
+And a verb card read `juhtuma` over `lihtminevik, ma` with a box under it, and a case card said "say out of
+medicine", which no person says. The builder already cut both from a recorded sentence, but a `Card` row keeps
+the front it was built with, so a deck assembled earlier still held the bare ask. `lib/progress/formCards.ts`
+asks the builder what it would make today for each bare form card on every read: a card it can rebuild is
+shown as the sentence with the gap (the row, its schedule and its history untouched), and one with no recorded
+sentence behind it is held back from the session rather than asked as a suffix on a stem. `repairCaseFronts`
+now rewrites persons of a verb as well, and `audit:decks` reports and removes the conjugation cards no sentence
+can replace. Nothing is written in Estonian: every sentence is one a lexicographer recorded.
 
 **A letter is the app writing to somebody who is not looking at it, and the only thing that
 makes that acceptable is that it is easy to stop.** `lib/email/` is the letters and is pure;
@@ -4121,7 +4143,7 @@ plan now reads it as the length of a sitting, which is a fact about the evening;
 scheduler input and no shape selector had ever read it as the time on one answer, which is a fact
 about the word. And two rounds already knew the most useful
 thing in a wrong answer: `markFlash` names the ending that came back and prints "That is the
-seestütlev. This one wanted the seesütlev.", `markDescription` does the same for a sentence, both
+seestütlev. This one wanted the seesütlev.", the Describe round did the same for a sentence, both
 through `whichCase`, which names a case only where exactly one case is spelled that way. Then the
 card went and took it with it. What those two facts answer between them is the one thing an
 accuracy chart cannot: the difference between a form somebody has and a rule they are applying.
@@ -6777,7 +6799,7 @@ the board nothing and 500 simulated boards a level come out full with no tile sp
 
 **And the scene game had it a third time, which is what made the audit worth widening.** A scene
 puts three words on the screen and asks for one of them in a case, so a task whose answer is one of
-those three is finished by copying, and `markDescription` grades the copy Good and sends it to the
+those three is finished by copying, and the Describe round's marker graded the copy Good and sends it to the
 scheduler. Eight of the 1,980 tasks the sixty scenes can set were free that way, every one of them
 the seesütlev of a word already ending in `s`: `liblikas`, `sipelgas`, `kotkas`, `kirves`,
 `labidas`, `maasikas`, `lusikas`, `haldjas`. `taskFor` refuses that case now and the round builder
@@ -7835,8 +7857,8 @@ Anu sat under a button that is in the corner of every signed-in screen, which is
 of them together is a page somebody scrolls rather than reads, reported as "way too busy" by
 somebody using it.
 
-So `TODAY_CARDS` is five, the page names its cards in priority order and draws the first five under
-the hero, and six is the whole screen. The order is the argument and it is what to do today: what
+So `TODAY_CARDS` was five (it is six now, below), the page names its cards in priority order and
+draws the first of them under the hero. The order is the argument and it is what to do today: what
 to say to a real person, what is actually on today, the one short round, the run of days, a word,
 and then the course. What came off moved rather than went: the countdown card is on the examination
 hub in place of the block that was hand-building the same four figures beside it, and the sticking
@@ -7851,6 +7873,32 @@ round; on the seventh the quest is, and only then is the weakest case worth the 
 which takes three queries and a dictionary read off every other render of this page. The invariant
 is on the *slot* rather than on either card, because two rounds on this page is what the cap was
 added to stop.
+
+**And then the operator laid the home page out in rows, and that supersedes the paragraphs above
+where they disagree.** The feedback was three things, off a screenshot. The line under the greeting
+("60 cards due as well. They'll come up at the end of tonight's module.") was busy and added little,
+since this page is for the module that is due today; what it was for is the learner who does not feel
+like anything new tonight, so the greeting stands alone and a smaller white card under the hero points
+at the cards already outstanding (`reviewStrip`, and the hero's second button went with it, since the
+card has the way back). The game of the day is Sõnad, every day for now, drawn with a small example
+board so a stranger can see what pressing it gives them, and a screenshot was deliberately not used:
+`components/SonadPreview.tsx` draws three real rows with the board's own circles
+(`components/sonad/look.ts`, shared because a plain value cannot cross from a client module to a
+server one) and marks them with `scoreGuess`, so it cannot go stale and is right in both themes. The
+week table is kept whole behind `GAME_OF_THE_DAY` for the day the card is made dynamic again, and the
+daily quest left Today for Practice (`within` moved), so there is still one round on the page. And
+the cards sit in three fixed rows of two, game and word of the day, calendar and today's
+conversation, progress bar and out there, which is why `Columns` is deleted: it fills down the first
+column and then the second, so it cannot promise that two cards are side by side.
+
+Three of the six are new or changed. **Calendar** is one card holding the week strip with the streak
+and, under it, whatever is on the learner's calendar today, which were two cards (`streak` and
+`schedule`). **Today's conversation** is `sceneOfDay`, a scene walked by the date the way the word
+of the day walks the dictionary, held for a learner the module holds to scenes whose units the evenings
+have taught, so on the first weeks of A1 it is absent rather than offering a conversation whose words
+nobody has handed over. **Out there** is the existing question about yesterday under its new name.
+`TODAY_CARDS` is six for that reason, so a seventh card (homework, or the next unit off the course)
+falls under the cut when all six are drawn.
 
 **And the order is the learner's, because a home page's reading order is a fact about the
 reader.** The shipped order is an argument and it is still the default, and it is not the only
@@ -8241,6 +8289,24 @@ the app and asks the two questions no source check can: the rail draws its links
 open first, and a phone reaches every place a desktop does. `icon()` falling back to a sparkle is
 why `nav.test.ts` checks every name in both tables resolves. Two modes shipped with the placeholder
 before a screenshot caught them.
+
+**Sprint and Target are gone, the flip card has a key for each answer, and the picture round is five
+sentences about a scene.** The operator's practice overhaul. On a card the learner grades themselves,
+Space is "Not yet" and Enter is "Got it" (`isNotYetKey`, `isGotItKey`, drawn by
+`components/round/SelfGradeButtons.tsx` with the caps from `components/KeyCaps.tsx`), and Space plays
+the word wherever a round is still asking and no button has the keyboard (`isPlayKey`, `Speak`'s
+`spaceKey`). The sentence builder deals tiles with no stray capital and with the punctuation as tiles of
+their own (`lib/estonian/orderTiles.ts`): a mark is placed by the words before it, so the orders
+`wordOrder.ts` accepts still validate, and its state is keyed on the task so a tile index can never be
+read against the next sentence's tiles, which was the "reading 'word'" crash. Say what you see
+(`/review/describe`) is twelve emoji scenes in `lib/collections/pictures.ts`, two or three a round, and
+five boxes about each that must all hold a sentence. The dictionary decides first (spelled, about the
+picture, not repeated: `lib/games/picture.ts`), one grader call speaks to the grammar, and only a
+sentence whose Estonian is verified reaches the learner. It grades nothing into the review log, since
+no card stands behind a picture. The twelve example sentences are authored and are for the native
+speaker to read in the pull request. Sõnad and Ristsõna sit on the lavender (`tone="accent"`), their page
+is `compact`, and the circle and the square are sized from the window's height (`--sonad-cell`,
+`--cw-cell`) so the board and the keys share one screen.
 
 **A letter lying on a page has a character, and the room it has is along the edge it hangs off.**
 õ, ä, ö and ü are the four letters an English keyboard has no key for, which is the most concrete
@@ -10890,7 +10956,7 @@ it cannot find the rail, which was the `A || !A` shape one check over.
   a question falling to three and a half, all three typed into the session, so the rule above held
   for two rounds and the third was the same WCAG 2.2.1 failure, on a practice round where nothing
   argues for the limit being fixed. Its allowance is a fraction of a second, which `secondsFor`
-  would round away, so `lib/games/target.ts` multiplies the whole allowance by `multiplierFor`
+  would round away, so the Target round's module (deleted with the round) multiplies the whole allowance by `multiplierFor`
   instead, and the start, the step and the floor keep their shape at every pace. The rule is
   asserted now, off the shape of a countdown rather than a list of rounds: a session stepping a
   setter to zero from a timer has to be handed its length by a page that reads the pace. Made to
@@ -11701,7 +11767,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `PrefetchLink`, `lemmasByCardLexeme`, `dictionaryLemmas`, `decoyOptions`, `forgetSettings`,
 `staleTimes`, `BadgeCheck`, `letterVars`, `leanFor`, `LetterTile`, `letter-key`, `--text-2xs`, `--landing-nav`, `derivedVerbForms`,
 `conjugatedForms`, `pres1sgFrom`, `useAudioPrefs`, `fetchClip`, `playFeedback`, `VOICES`,
-`nomPl`, `EMOJI_LEMMAS`, `acceptedUses`, `markDescription`, `prepareClip`, `SPEECH_PACES`, `paceFrom`,
+`nomPl`, `EMOJI_LEMMAS`, `acceptedUses`, `markPicture`, `prepareClip`, `SPEECH_PACES`, `paceFrom`,
 `PACE_FOR_LEVEL`, `SLOW_OF_NORMAL`, `trimSilence`, `fadeIn`,
 `stretchedClip`, `stretchMap`, `capPauses`, `normaliseLoudness`,
 `billFor`, `reserveMicros`, `distinctClips`, `MEASURED`, `PRICE_REFS`, `SERVICES`, `.range`,
@@ -11715,7 +11781,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `distanceLine`, `minutesForCards`, `describeSituation`, `conditionFor`, `describeHearing`,
 `playThrough`, `errandForDay`, `recordEncounter`, `outThere`, `reachedSlot`, `reachedFor`,
 `answerTimeReading`, `confusions`, `formatAnswerTime`, `NotAutomatic`, `scriptedFor`, `scriptable`,
-`TODAY_CARDS`, `weakestCase`, `roundCard`, `orderTodayCards`, `todayOrderFrom`,
+`TODAY_CARDS`, `weakestCase`, `orderTodayCards`, `todayOrderFrom`,
 `lacksFiniteVerb`, `answerForms`, `groupEndings`, `endingStrip`, `plainAsk`, `plainAskFor`,
 `conjugationSlotFromFront`, `slotCodeOf`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,

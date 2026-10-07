@@ -94,7 +94,7 @@ export interface StepRow {
 }
 
 /**
- * Tonight's steps, ticked or waiting. The engine of the whole letter.
+ * Today's steps, ticked or waiting. The engine of the whole letter.
  *
  * A course day is a short list and some of it is finished, which is a real
  * unfinished task rather than a manufactured one: the ticks are read off the

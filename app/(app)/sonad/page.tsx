@@ -47,6 +47,7 @@ export default async function SonadPage() {
   return (
     <BeforeYouStart id="sonad" ready={puzzle !== null}>
       <Page
+        compact
         title="Sõnad"
         lead={fill(
           tr(locale, taught ? "One word a day. {letters} letters, {guesses} guesses, a word you've met." : "One word a day. {letters} letters, {guesses} guesses, at your level."),
@@ -71,7 +72,7 @@ export default async function SonadPage() {
             <Empty
               title={tr(locale, "Not enough words yet")}
               body={fill(tr(locale, "Today's word comes from your evenings, and none of their words has {n} letters yet."), { n: SONAD_LENGTH })}
-              action={<ButtonLink href="/course">{tr(locale, "Tonight’s evening")}</ButtonLink>}
+              action={<ButtonLink href="/course">{tr(locale, "Today’s evening")}</ButtonLink>}
             />
           ) : (
             <Empty

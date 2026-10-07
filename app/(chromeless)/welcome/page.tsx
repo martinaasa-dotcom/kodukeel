@@ -35,7 +35,6 @@ import { SOURCE_CREDITS } from "@/lib/legal/credits";
 import { SpelledCount, spelledCount } from "@/lib/copy/values";
 import { Languages } from "lucide-react";
 import { LocaleProvider } from "@/components/Locale";
-import { LanguageSwitcher } from "@/components/PublicLanguage";
 import { rich } from "@/components/Rich";
 import { MACHINE_SHORT, countOf, languagesBeside, fill, tr, type Locale } from "@/lib/copy/locale";
 import { LANDING_HREF, langParam, localeHref } from "@/lib/copy/publicLocale";
@@ -187,7 +186,7 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
  */
 const anuLines = ({ t }: Say): readonly AnuLine[] => [
   { at: "top", mood: "happy", text: t("Hi, I’m Anu, the tutor. Mind if I walk down the page with you?") },
-  { at: "who", mood: "happy", text: t("Whichever one you are, you start the same way: fifteen minutes tonight.") },
+  { at: "who", mood: "happy", text: t("Whichever one you are, you start the same way: fifteen minutes today.") },
   { at: "cases", mood: "thinking", text: t("Press an ending and watch it snap on. That’s the whole trick, honestly.") },
   { at: "evening", mood: "happy", text: t("This really is how your first evening starts. Five new words, and then they come back to check on you.") },
   { at: "talk", mood: "cheer", text: t("Go on, order something. The person behind the counter is very patient.") },

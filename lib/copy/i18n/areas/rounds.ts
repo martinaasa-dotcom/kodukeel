@@ -505,7 +505,7 @@ export const ROUNDS: Area = {
     "One word a day. {letters} letters, {guesses} guesses, at your level.": "Одно слово в день. Букв: {letters}, попыток: {guesses}, по вашему уровню.",
     "Not enough words yet": "Пока мало слов",
     "Today's word comes from your evenings, and none of their words has {n} letters yet.": "Слово дня берётся из ваших вечеров, а в них пока нет ни одного слова нужной длины (букв: {n}).",
-    "Tonight's evening": "Сегодняшний вечер",
+    "Today's evening": "Сегодняшний вечер",
     "No word for today": "На сегодня слова нет",
     "We couldn't find a {n}-letter word at your level for today. Try again tomorrow.": "На сегодня не нашлось слова нужной длины (букв: {n}) для вашего уровня. Загляните завтра.",
     "Look something up": "Найти что-нибудь в словаре",
@@ -663,6 +663,292 @@ export const ROUNDS: Area = {
     "The few cards you keep getting wrong, with a look at why. Sort them out here before they quietly pile up.": "Те немногие карточки, в которых вы раз за разом ошибаетесь, с разбором причин. Разберитесь с ними здесь, пока они тихо не накопились.",
     "Pairs against the clock, and a personal best to beat.": "Пары на время и личный рекорд, который можно побить.",
     "The crossword, for a Saturday with time to spare.": "Кроссворд для субботы, когда есть свободное время.",
+    "Marked: {grade}":
+      "Отмечено: {grade}",
+    "Tap to hear it {space} or {key}, or hear it {speaker} slowly":
+      "Нажмите, чтобы услышать {space} или {key}, или послушайте {speaker} медленно",
+    "Play again {space} or {key}, or hear it {speaker} slowly":
+      "Ещё раз {space} или {key}, или послушайте {speaker} медленно",
+    "Tap or press {space} to hear the word, and again to replay it":
+      "Коснитесь или нажмите {space}, чтобы услышать слово, и ещё раз, чтобы повторить",
+    "Put the letters in order. Tap the speaker, or press Space, as often as you like.":
+      "Расставьте буквы по порядку. Нажимайте на динамик или на пробел сколько угодно.",
+    "Tap the words and marks in order…":
+      "Нажимайте на слова и знаки по порядку…",
+    "The words are right. Check where the punctuation goes.":
+      "Слова верные. Проверьте, где стоят знаки препинания.",
+    "Add comma":
+      "Добавить запятую",
+    "Add full stop":
+      "Добавить точку",
+    "Add exclamation mark":
+      "Добавить восклицательный знак",
+    "Add question mark":
+      "Добавить вопросительный знак",
+    "Add colon":
+      "Добавить двоеточие",
+    "Add semicolon":
+      "Добавить точку с запятой",
+    "Add dash":
+      "Добавить тире",
+    "Remove comma":
+      "Убрать запятую",
+    "Remove full stop":
+      "Убрать точку",
+    "Remove exclamation mark":
+      "Убрать восклицательный знак",
+    "Remove question mark":
+      "Убрать вопросительный знак",
+    "Remove colon":
+      "Убрать двоеточие",
+    "Remove semicolon":
+      "Убрать точку с запятой",
+    "Remove dash":
+      "Убрать тире",
+    "Write five sentences about this picture.":
+      "Напишите пять предложений об этой картинке.",
+    "Say what you see and what might be going on. Use your imagination: who are they, what are they doing?":
+      "Опишите, что видите и что, возможно, происходит. Дайте волю воображению: кто эти люди, что они делают?",
+    "An example of the kind of sentence we mean":
+      "Пример предложения, которое мы имеем в виду",
+    "Your five sentences":
+      "Ваши пять предложений",
+    "Check my sentences":
+      "Проверить предложения",
+    "All five written. Ready when you are.":
+      "Все пять написаны. Проверяйте, когда будете готовы.",
+    "{done} of {total} written. Each one needs at least three words.":
+      "Написано {done} из {total}. В каждом нужно хотя бы три слова.",
+    "Next picture":
+      "Следующая картинка",
+    "Picture {n} of {total}":
+      "Картинка {n} из {total}",
+    "Sentence {n} needs at least three words.":
+      "В предложении {n} нужно хотя бы три слова.",
+    "You're offline, so we can't mark it yet. Your sentences are safe here.":
+      "Вы офлайн, поэтому проверить пока не получится. Ваши предложения сохранены здесь.",
+    "Spelled and on topic":
+      "Без ошибок и по теме",
+    "That's not quite a sentence yet. Try three words or more.":
+      "Это пока не совсем предложение. Попробуйте три слова или больше.",
+    "We couldn't find {words} in the dictionary. Check the spelling, and the {letters}.":
+      "Мы не нашли в словаре {words}. Проверьте написание, особенно {letters}.",
+    "{a}, {b}, {c} and {d}":
+      "{a}, {b}, {c} и {d}",
+    "You already wrote this one. Try saying something different about the picture.":
+      "Это вы уже писали. Попробуйте сказать о картинке что-то другое.",
+    "We couldn't match this to anything in the picture. Name something you can see: a person, an animal or an object.":
+      "Мы не нашли здесь ничего с картинки. Назовите то, что видите: человека, животное или предмет.",
+    "Every word is spelled right and it's about the picture.":
+      "Все слова написаны правильно, и предложение про картинку.",
+    "Start with a capital letter and finish with a period.":
+      "Начните с заглавной буквы и закончите точкой.",
+    "Spelled right and about the picture.":
+      "Без ошибок и про картинку.",
+    "{n} of your {total} sentences are spelled right and about the picture.":
+      "Без ошибок и про картинку: {n} из {total} ваших предложений.",
+    "You wrote all five, which is the hardest part to start.":
+      "Вы написали все пять, а начать всегда труднее всего.",
+    "Spelling: sentences with a word we couldn't find: {n}.":
+      "Орфография: предложений со словом, которого мы не нашли: {n}.",
+    "Staying on the picture: sentences that named nothing in it: {n}.":
+      "Не отходить от картинки: предложений, где ничего с неё не названо: {n}.",
+    "Saying something new in each sentence.":
+      "Говорить в каждом предложении что-то новое.",
+    "A capital at the start and a period at the end.":
+      "Заглавная буква в начале и точка в конце.",
+    "What to work on":
+      "Над чем поработать",
+    "Notes from Anu. The spelling and picture checks come from the dictionary.":
+      "Заметки Ану. Написание и связь с картинкой мы проверили по словарю.",
+    "We hid one of Anu's notes. It used a word we couldn't confirm as Estonian. The spelling check comes from the dictionary, so you can trust that.":
+      "Мы скрыли одну из заметок Ану: в ней было слово, которое мы не смогли подтвердить как эстонское. Написание мы проверили по словарю, этому можно доверять.",
+    "We hid one of Anu's notes. It used an Estonian form we couldn't confirm, and a wrong form is worse than no note. The spelling check comes from the dictionary, so you can trust that.":
+      "Мы скрыли одну из заметок Ану: в ней была эстонская форма, которую мы не смогли подтвердить, а неверная форма хуже, чем никакой заметки. Написание мы проверили по словарю, этому можно доверять.",
+    "Anu isn't around right now, so we only checked spelling and whether each sentence is about the picture. Word order and endings need her.":
+      "Ану сейчас нет, поэтому мы проверили только написание и то, про картинку ли каждое предложение. Порядок слов и окончания может проверить только она.",
+    "A birthday party":
+      "День рождения",
+    "A day at the beach":
+      "День на пляже",
+    "At the market":
+      "На рынке",
+    "A winter day":
+      "Зимний день",
+    "In the kitchen":
+      "На кухне",
+    "At the station":
+      "На вокзале",
+    "On the farm":
+      "На ферме",
+    "In the classroom":
+      "В классе",
+    "In the forest":
+      "В лесу",
+    "At a café":
+      "В кафе",
+    "A rainy day in town":
+      "Дождливый день в городе",
+    "In the garden":
+      "В саду",
+    "Balloons and streamers over a girl, a boy and a child, with a birthday cake, a gift and a drink.":
+      "Воздушные шары и серпантин над девочкой, мальчиком и малышом, а ещё праздничный торт, подарок и напиток.",
+    "A sunny beach with palm trees and waves, a woman and a child with a watermelon, a crab, a shell and sunglasses.":
+      "Солнечный пляж с пальмами и волнами, женщина и ребёнок с арбузом, краб, ракушка и солнечные очки.",
+    "A market stall of carrots, tomatoes, onions, potatoes, apples and pears, with bread, cheese and fish, a basket, a woman and a man.":
+      "Рыночный прилавок с морковью, помидорами, луком, картошкой, яблоками и грушами, а ещё хлеб, сыр и рыба, корзина, женщина и мужчина.",
+    "A snowy day with fir trees, a snowman, two children, a dog, a scarf, gloves and a hot drink.":
+      "Снежный день: ели, снеговик, двое детей, собака, шарф, перчатки и горячий напиток.",
+    "A kitchen with a frying pan, an egg and salt, a woman with a knife and a carrot, and a pot of soup, bread and a spoon.":
+      "Кухня: сковородка, яйцо и соль, женщина с ножом и морковкой, кастрюля супа, хлеб и ложка.",
+    "A railway station with trains, a suitcase, a man, a woman and a child, a ticket, a clock and a bus.":
+      "Вокзал: поезда, чемодан, мужчина, женщина и ребёнок, билет, часы и автобус.",
+    "A farm with a cow, a pig, a sheep, a rooster, a horse and a dog, a tractor, a field of wheat, a farmhouse, a farmer, the sun and a tree.":
+      "Ферма: корова, свинья, овца, петух, лошадь и собака, трактор, пшеничное поле, деревенский дом, фермер, солнце и дерево.",
+    "A school classroom with books, a pencil, a teacher, three pupils, a notebook, a school bag and a clock.":
+      "Школьный класс: книги, карандаш, учитель, трое учеников, тетрадь, рюкзак и часы.",
+    "A forest with fir trees, a mushroom, a squirrel, a deer, a bird, a bear and a fox, a tent, a campfire and a compass.":
+      "Лес: ели, гриб, белка, олень, птица, медведь и лиса, палатка, костёр и компас.",
+    "A café with coffee, cake and a croissant, a woman and a man at a table, a book, a drink and a window.":
+      "Кафе: кофе, торт и круассан, женщина и мужчина за столиком, книга, напиток и окно.",
+    "A rainy street with an umbrella, tall buildings, a taxi and a bus, a traffic light, a woman in a coat and a rainbow.":
+      "Дождливая улица: зонт, высокие дома, такси и автобус, светофор, женщина в пальто и радуга.",
+    "A garden with tulips, sunflowers and roses, a tree, a bee and a butterfly, a house, a person and a cat.":
+      "Сад: тюльпаны, подсолнухи и розы, дерево, пчела и бабочка, дом, человек и кошка.",
+    "The girl and the boy are eating birthday cake.":
+      "Девочка и мальчик едят праздничный торт.",
+    "The sun is shining and the woman is on the beach.":
+      "Светит солнце, и женщина на пляже.",
+    "The woman is buying tomatoes and carrots at the market.":
+      "Женщина покупает на рынке помидоры и морковь.",
+    "The children are playing in the snow.":
+      "Дети играют в снегу.",
+    "The woman is cutting a carrot with a knife.":
+      "Женщина режет морковку ножом.",
+    "The man is waiting for the train at the station.":
+      "Мужчина ждёт на вокзале поезд.",
+    "The horse and the cow are in the pasture.":
+      "Лошадь и корова на пастбище.",
+    "The girl is writing in a notebook.":
+      "Девочка пишет в тетради.",
+    "The bear and the deer are in the forest.":
+      "Медведь и олень в лесу.",
+    "The woman is drinking coffee and eating cake.":
+      "Женщина пьёт кофе и ест торт.",
+    "It is raining and the woman is wearing a coat.":
+      "Идёт дождь, и женщина в пальто.",
+    "The cat is sitting under the tree.":
+      "Кошка сидит под деревом.",
+    "The start of the sentence picks the ending.":
+      "Начало предложения выбирает окончание.",
+    "This opens at A2":
+      "Это откроется на уровне A2",
+    "It leans on the first month of phrases, so it waits until you have them.":
+      "Здесь нужны фразы первого месяца, так что раунд подождёт, пока они у вас появятся.",
+    "Back to Practice":
+      "Назад к практике",
+    "No words to practice with yet":
+      "Пока не на чем тренироваться",
+    "The dictionary has none of the words this round uses.":
+      "В словаре нет ни одного слова, которое нужно этому раунду.",
+    "{n} sentences, each on a different word.":
+      "Предложений: {n}, в каждом другое слово.",
+    "One word, {n} ways to start a sentence.":
+      "Одно слово, а начал предложения: {n}.",
+    "The next round uses different words, so you learn the openers and not the words.":
+      "В следующем раунде будут другие слова, чтобы вы запоминали начала предложений, а не слова.",
+    "Taken out of your deck again.":
+      "Снова убрано из вашей колоды.",
+    "Added to your deck: {words}.":
+      "Добавлено в вашу колоду: {words}.",
+    "Stage {n} is open: {title}.":
+      "Открыт этап {n}: {title}.",
+    "Try stage {n}":
+      "Попробовать этап {n}",
+    "Stage {n}":
+      "Этап {n}",
+    "Which ending goes at the end?":
+      "Какое окончание будет в конце?",
+    "Type the word with the ending this start needs.":
+      "Впишите слово с окончанием, которого требует это начало.",
+    "The word is {word}.":
+      "Слово: {word}.",
+    "Yes.":
+      "Да.",
+    "{n}/{total} right":
+      "Верно {n}/{total}",
+    "Type, then press Enter":
+      "Впишите и нажмите Enter",
+    "That is the form that goes after {elsewhere}. After {start} it is {form}.":
+      "Эта форма ставится после {elsewhere}. После {start} нужно {form}.",
+    "After {start} it is {form}.":
+      "После {start} нужно {form}.",
+    "This one wanted {form}.":
+      "Здесь нужно {form}.",
+    "Liking and tasting":
+      "Нравится и по вкусу",
+    "Wanting and needing":
+      "Хочу и нужно",
+    "Having and being there":
+      "Есть и находится",
+    "In the past":
+      "В прошлом",
+    "Four openers":
+      "Четыре начала",
+    "More verbs":
+      "Больше глаголов",
+    "More ways to say no":
+      "Другие способы сказать «нет»",
+    "More than one":
+      "Больше одного",
+    "Everything mixed":
+      "Всё вперемешку",
+    "The thing you like is the one doing the liking here, so it keeps its dictionary form.":
+      "Здесь то, что вам нравится, само «совершает» действие, поэтому остаётся в словарной форме.",
+    "Something you are after takes the “some of it” ending.":
+      "То, чего вы добиваетесь, получает окончание «часть чего-то».",
+    "It is simply there, so it keeps its dictionary form.":
+      "Оно просто есть, поэтому остаётся в словарной форме.",
+    "After a no, the thing that isn't there takes the “some of it” ending, even though it keeps its dictionary form after “mul on”.":
+      "После «нет» то, чего нет, получает окончание «часть чего-то», хотя после «mul on» оно остаётся в словарной форме.",
+    "Needing is wanting, so the thing takes the “some of it” ending.":
+      "Нуждаться значит хотеть, поэтому слово получает окончание «часть чего-то».",
+    "Looking for something is reaching for it, so it takes the “some of it” ending.":
+      "Искать что-то значит тянуться к нему, поэтому слово получает окончание «часть чего-то».",
+    "A wish is wanting, politely, so the thing takes the “some of it” ending.":
+      "Желать значит вежливо хотеть, поэтому слово получает окончание «часть чего-то».",
+    "A polite “would” is still wanting, so the thing takes the “some of it” ending.":
+      "Вежливое «бы» всё равно означает «хочу», поэтому слово получает окончание «часть чего-то».",
+    "Waiting for something is reaching for it too, so it takes the “some of it” ending.":
+      "Ждать чего-то тоже значит тянуться к нему, поэтому слово получает окончание «часть чего-то».",
+    "Like “mulle meeldib”, the thing is the one doing the work: it tastes good to you, so it keeps its dictionary form.":
+      "Как и в «mulle meeldib», действие совершает сама вещь: это она вам по вкусу, поэтому остаётся в словарной форме.",
+    "Having is being there, for whoever has it, so the thing keeps its dictionary form.":
+      "Иметь значит, что вещь просто есть у того, кто её имеет, поэтому она остаётся в словарной форме.",
+    "After a no, the thing takes the “some of it” ending.":
+      "После «нет» слово получает окончание «часть чего-то».",
+    "“Pole” is “ei ole” squeezed into one word, so it does what a no does: the thing takes the “some of it” ending.":
+      "В «pole» слились в одно слово «ei ole», поэтому оно действует как отрицание: слово получает окончание «часть чего-то».",
+    "The odd one out. A no usually brings the ending, but this thing is the one doing the liking, so it still keeps its dictionary form.":
+      "Исключение. Обычно после «нет» появляется окончание, но здесь вещь сама «нравится», поэтому остаётся в словарной форме.",
+    "Wanting in the past is still wanting, so the thing takes the “some of it” ending.":
+      "Хотеть в прошлом всё равно значит хотеть, поэтому слово получает окончание «часть чего-то».",
+    "Past or not, a no brings the “some of it” ending.":
+      "В прошлом или нет, после «нет» будет окончание «часть чего-то».",
+    "It was simply there, so it keeps its dictionary form.":
+      "Оно просто было, поэтому остаётся в словарной форме.",
+    "The thing is still the one doing the liking, so it keeps its dictionary form.":
+      "Вещь по-прежнему сама «нравится», поэтому остаётся в словарной форме.",
+    "More than one thing is doing the liking, so the verb becomes “meeldivad” and the things keep their plural dictionary form.":
+      "Нравится больше одной вещи, поэтому глагол становится «meeldivad», а вещи остаются в словарной форме множественного числа.",
+    "Things you are after take the “some of them” ending.":
+      "То, чего вы добиваетесь, получает окончание «часть чего-то» во множественном числе.",
+    "They are simply there, so they keep their plural dictionary form.":
+      "Они просто есть, поэтому остаются в словарной форме множественного числа.",
+    "After a no, the things take the “some of them” ending.":
+      "После «нет» слова получают окончание «часть чего-то» во множественном числе.",
+    "The odd one out again: the things are doing the liking, so they keep their plural dictionary form, and the verb is the same “meeldi” whatever their number.":
+      "Снова исключение: вещи сами «нравятся», поэтому остаются в словарной форме множественного числа, а глагол остаётся «meeldi» при любом их числе.",
   },
   uk: {
     "From your reading": "З прочитаного",
@@ -1160,7 +1446,7 @@ export const ROUNDS: Area = {
     "One word a day. {letters} letters, {guesses} guesses, at your level.": "Одне слово на день. Літер: {letters}, спроб: {guesses}, за вашим рівнем.",
     "Not enough words yet": "Поки замало слів",
     "Today's word comes from your evenings, and none of their words has {n} letters yet.": "Слово дня береться з ваших вечорів, а в них поки немає жодного слова потрібної довжини (літер: {n}).",
-    "Tonight's evening": "Сьогоднішній вечір",
+    "Today's evening": "Сьогоднішній вечір",
     "No word for today": "На сьогодні слова немає",
     "We couldn't find a {n}-letter word at your level for today. Try again tomorrow.": "На сьогодні не знайшлося слова потрібної довжини (літер: {n}) для вашого рівня. Загляньте завтра.",
     "Look something up": "Знайти щось у словнику",
@@ -1319,6 +1605,292 @@ export const ROUNDS: Area = {
     "A short round on whatever tripped you up this week.": "Короткий раунд на все, на чому ви спотикалися цього тижня.",
     "Pairs against the clock, and a personal best to beat.": "Пари на час і особистий рекорд, який можна побити.",
     "The crossword, for a Saturday with time to spare.": "Кросворд для суботи, коли є вільний час.",
+    "Marked: {grade}":
+      "Позначено: {grade}",
+    "Tap to hear it {space} or {key}, or hear it {speaker} slowly":
+      "Натисніть, щоб почути {space} або {key}, або послухайте {speaker} повільно",
+    "Play again {space} or {key}, or hear it {speaker} slowly":
+      "Ще раз {space} або {key}, або послухайте {speaker} повільно",
+    "Tap or press {space} to hear the word, and again to replay it":
+      "Торкніться або натисніть {space}, щоб почути слово, і ще раз, щоб повторити",
+    "Put the letters in order. Tap the speaker, or press Space, as often as you like.":
+      "Розставте літери по порядку. Натискайте на динамік або на пробіл скільки завгодно.",
+    "Tap the words and marks in order…":
+      "Натискайте на слова й знаки по порядку…",
+    "The words are right. Check where the punctuation goes.":
+      "Слова правильні. Перевірте, де стоять розділові знаки.",
+    "Add comma":
+      "Додати кому",
+    "Add full stop":
+      "Додати крапку",
+    "Add exclamation mark":
+      "Додати знак оклику",
+    "Add question mark":
+      "Додати знак питання",
+    "Add colon":
+      "Додати двокрапку",
+    "Add semicolon":
+      "Додати крапку з комою",
+    "Add dash":
+      "Додати тире",
+    "Remove comma":
+      "Прибрати кому",
+    "Remove full stop":
+      "Прибрати крапку",
+    "Remove exclamation mark":
+      "Прибрати знак оклику",
+    "Remove question mark":
+      "Прибрати знак питання",
+    "Remove colon":
+      "Прибрати двокрапку",
+    "Remove semicolon":
+      "Прибрати крапку з комою",
+    "Remove dash":
+      "Прибрати тире",
+    "Write five sentences about this picture.":
+      "Напишіть п'ять речень про цю картинку.",
+    "Say what you see and what might be going on. Use your imagination: who are they, what are they doing?":
+      "Опишіть, що бачите і що, можливо, відбувається. Дайте волю уяві: хто ці люди, що вони роблять?",
+    "An example of the kind of sentence we mean":
+      "Приклад речення, яке ми маємо на увазі",
+    "Your five sentences":
+      "Ваші п'ять речень",
+    "Check my sentences":
+      "Перевірити речення",
+    "All five written. Ready when you are.":
+      "Усі п'ять написано. Перевіряйте, коли будете готові.",
+    "{done} of {total} written. Each one needs at least three words.":
+      "Написано {done} з {total}. У кожному потрібно щонайменше три слова.",
+    "Next picture":
+      "Наступна картинка",
+    "Picture {n} of {total}":
+      "Картинка {n} з {total}",
+    "Sentence {n} needs at least three words.":
+      "У реченні {n} потрібно щонайменше три слова.",
+    "You're offline, so we can't mark it yet. Your sentences are safe here.":
+      "Ви офлайн, тож перевірити поки не вийде. Ваші речення збережено тут.",
+    "Spelled and on topic":
+      "Без помилок і за темою",
+    "That's not quite a sentence yet. Try three words or more.":
+      "Це поки не зовсім речення. Спробуйте три слова або більше.",
+    "We couldn't find {words} in the dictionary. Check the spelling, and the {letters}.":
+      "Ми не знайшли в словнику {words}. Перевірте написання, особливо {letters}.",
+    "{a}, {b}, {c} and {d}":
+      "{a}, {b}, {c} і {d}",
+    "You already wrote this one. Try saying something different about the picture.":
+      "Це ви вже писали. Спробуйте сказати про картинку щось інше.",
+    "We couldn't match this to anything in the picture. Name something you can see: a person, an animal or an object.":
+      "Ми не знайшли тут нічого з картинки. Назвіть те, що бачите: людину, тварину чи предмет.",
+    "Every word is spelled right and it's about the picture.":
+      "Усі слова написано правильно, і речення про картинку.",
+    "Start with a capital letter and finish with a period.":
+      "Почніть з великої літери й закінчіть крапкою.",
+    "Spelled right and about the picture.":
+      "Без помилок і про картинку.",
+    "{n} of your {total} sentences are spelled right and about the picture.":
+      "Без помилок і про картинку: {n} з {total} ваших речень.",
+    "You wrote all five, which is the hardest part to start.":
+      "Ви написали всі п'ять, а почати завжди найважче.",
+    "Spelling: sentences with a word we couldn't find: {n}.":
+      "Правопис: речень зі словом, якого ми не знайшли: {n}.",
+    "Staying on the picture: sentences that named nothing in it: {n}.":
+      "Не відходити від картинки: речень, де нічого з неї не названо: {n}.",
+    "Saying something new in each sentence.":
+      "Казати в кожному реченні щось нове.",
+    "A capital at the start and a period at the end.":
+      "Велика літера на початку й крапка в кінці.",
+    "What to work on":
+      "Над чим попрацювати",
+    "Notes from Anu. The spelling and picture checks come from the dictionary.":
+      "Нотатки Ану. Написання і зв'язок із картинкою ми перевірили за словником.",
+    "We hid one of Anu's notes. It used a word we couldn't confirm as Estonian. The spelling check comes from the dictionary, so you can trust that.":
+      "Ми приховали одну з нотаток Ану: у ній було слово, яке ми не змогли підтвердити як естонське. Написання ми перевірили за словником, цьому можна довіряти.",
+    "We hid one of Anu's notes. It used an Estonian form we couldn't confirm, and a wrong form is worse than no note. The spelling check comes from the dictionary, so you can trust that.":
+      "Ми приховали одну з нотаток Ану: у ній була естонська форма, яку ми не змогли підтвердити, а неправильна форма гірша, ніж жодної нотатки. Написання ми перевірили за словником, цьому можна довіряти.",
+    "Anu isn't around right now, so we only checked spelling and whether each sentence is about the picture. Word order and endings need her.":
+      "Ану зараз немає, тож ми перевірили лише написання і те, чи кожне речення про картинку. Порядок слів і закінчення може перевірити тільки вона.",
+    "A birthday party":
+      "День народження",
+    "A day at the beach":
+      "День на пляжі",
+    "At the market":
+      "На ринку",
+    "A winter day":
+      "Зимовий день",
+    "In the kitchen":
+      "На кухні",
+    "At the station":
+      "На вокзалі",
+    "On the farm":
+      "На фермі",
+    "In the classroom":
+      "У класі",
+    "In the forest":
+      "У лісі",
+    "At a café":
+      "У кафе",
+    "A rainy day in town":
+      "Дощовий день у місті",
+    "In the garden":
+      "У саду",
+    "Balloons and streamers over a girl, a boy and a child, with a birthday cake, a gift and a drink.":
+      "Повітряні кульки й серпантин над дівчинкою, хлопчиком і малюком, а ще святковий торт, подарунок і напій.",
+    "A sunny beach with palm trees and waves, a woman and a child with a watermelon, a crab, a shell and sunglasses.":
+      "Сонячний пляж із пальмами й хвилями, жінка й дитина з кавуном, краб, мушля і сонцезахисні окуляри.",
+    "A market stall of carrots, tomatoes, onions, potatoes, apples and pears, with bread, cheese and fish, a basket, a woman and a man.":
+      "Ринковий прилавок із морквою, помідорами, цибулею, картоплею, яблуками й грушами, а ще хліб, сир і риба, кошик, жінка й чоловік.",
+    "A snowy day with fir trees, a snowman, two children, a dog, a scarf, gloves and a hot drink.":
+      "Сніжний день: ялинки, сніговик, двоє дітей, собака, шарф, рукавички й гарячий напій.",
+    "A kitchen with a frying pan, an egg and salt, a woman with a knife and a carrot, and a pot of soup, bread and a spoon.":
+      "Кухня: сковорідка, яйце й сіль, жінка з ножем і морквиною, каструля супу, хліб і ложка.",
+    "A railway station with trains, a suitcase, a man, a woman and a child, a ticket, a clock and a bus.":
+      "Вокзал: потяги, валіза, чоловік, жінка й дитина, квиток, годинник і автобус.",
+    "A farm with a cow, a pig, a sheep, a rooster, a horse and a dog, a tractor, a field of wheat, a farmhouse, a farmer, the sun and a tree.":
+      "Ферма: корова, свиня, вівця, півень, кінь і собака, трактор, пшеничне поле, сільський будинок, фермер, сонце й дерево.",
+    "A school classroom with books, a pencil, a teacher, three pupils, a notebook, a school bag and a clock.":
+      "Шкільний клас: книжки, олівець, учитель, троє учнів, зошит, шкільна сумка й годинник.",
+    "A forest with fir trees, a mushroom, a squirrel, a deer, a bird, a bear and a fox, a tent, a campfire and a compass.":
+      "Ліс: ялинки, гриб, білка, олень, птах, ведмідь і лисиця, намет, вогнище й компас.",
+    "A café with coffee, cake and a croissant, a woman and a man at a table, a book, a drink and a window.":
+      "Кафе: кава, торт і круасан, жінка й чоловік за столиком, книжка, напій і вікно.",
+    "A rainy street with an umbrella, tall buildings, a taxi and a bus, a traffic light, a woman in a coat and a rainbow.":
+      "Дощова вулиця: парасолька, високі будинки, таксі й автобус, світлофор, жінка в пальті й веселка.",
+    "A garden with tulips, sunflowers and roses, a tree, a bee and a butterfly, a house, a person and a cat.":
+      "Сад: тюльпани, соняшники й троянди, дерево, бджола й метелик, будинок, людина й кіт.",
+    "The girl and the boy are eating birthday cake.":
+      "Дівчинка й хлопчик їдять святковий торт.",
+    "The sun is shining and the woman is on the beach.":
+      "Світить сонце, і жінка на пляжі.",
+    "The woman is buying tomatoes and carrots at the market.":
+      "Жінка купує на ринку помідори й моркву.",
+    "The children are playing in the snow.":
+      "Діти граються в снігу.",
+    "The woman is cutting a carrot with a knife.":
+      "Жінка ріже морквину ножем.",
+    "The man is waiting for the train at the station.":
+      "Чоловік чекає на вокзалі на потяг.",
+    "The horse and the cow are in the pasture.":
+      "Кінь і корова на пасовищі.",
+    "The girl is writing in a notebook.":
+      "Дівчинка пише в зошиті.",
+    "The bear and the deer are in the forest.":
+      "Ведмідь і олень у лісі.",
+    "The woman is drinking coffee and eating cake.":
+      "Жінка п'є каву і їсть торт.",
+    "It is raining and the woman is wearing a coat.":
+      "Іде дощ, і жінка в пальті.",
+    "The cat is sitting under the tree.":
+      "Кіт сидить під деревом.",
+    "The start of the sentence picks the ending.":
+      "Початок речення вибирає закінчення.",
+    "This opens at A2":
+      "Це відкриється на рівні A2",
+    "It leans on the first month of phrases, so it waits until you have them.":
+      "Тут потрібні фрази першого місяця, тож раунд зачекає, доки вони у вас з'являться.",
+    "Back to Practice":
+      "Назад до практики",
+    "No words to practice with yet":
+      "Поки немає на чому тренуватися",
+    "The dictionary has none of the words this round uses.":
+      "У словнику немає жодного слова, потрібного цьому раунду.",
+    "{n} sentences, each on a different word.":
+      "Речень: {n}, у кожному інше слово.",
+    "One word, {n} ways to start a sentence.":
+      "Одне слово, а початків речення: {n}.",
+    "The next round uses different words, so you learn the openers and not the words.":
+      "У наступному раунді будуть інші слова, щоб ви запам'ятовували початки речень, а не слова.",
+    "Taken out of your deck again.":
+      "Знову прибрано з вашої колоди.",
+    "Added to your deck: {words}.":
+      "Додано до вашої колоди: {words}.",
+    "Stage {n} is open: {title}.":
+      "Відкрито етап {n}: {title}.",
+    "Try stage {n}":
+      "Спробувати етап {n}",
+    "Stage {n}":
+      "Етап {n}",
+    "Which ending goes at the end?":
+      "Яке закінчення буде в кінці?",
+    "Type the word with the ending this start needs.":
+      "Впишіть слово із закінченням, якого вимагає цей початок.",
+    "The word is {word}.":
+      "Слово: {word}.",
+    "Yes.":
+      "Так.",
+    "{n}/{total} right":
+      "Правильно {n}/{total}",
+    "Type, then press Enter":
+      "Впишіть і натисніть Enter",
+    "That is the form that goes after {elsewhere}. After {start} it is {form}.":
+      "Ця форма ставиться після {elsewhere}. Після {start} потрібно {form}.",
+    "After {start} it is {form}.":
+      "Після {start} потрібно {form}.",
+    "This one wanted {form}.":
+      "Тут потрібно {form}.",
+    "Liking and tasting":
+      "Подобається і до смаку",
+    "Wanting and needing":
+      "Хочу і треба",
+    "Having and being there":
+      "Є і знаходиться",
+    "In the past":
+      "У минулому",
+    "Four openers":
+      "Чотири початки",
+    "More verbs":
+      "Більше дієслів",
+    "More ways to say no":
+      "Інші способи сказати «ні»",
+    "More than one":
+      "Більше одного",
+    "Everything mixed":
+      "Усе впереміш",
+    "The thing you like is the one doing the liking here, so it keeps its dictionary form.":
+      "Тут те, що вам подобається, саме «виконує» дію, тому лишається в словниковій формі.",
+    "Something you are after takes the “some of it” ending.":
+      "Те, чого ви прагнете, отримує закінчення «частина чогось».",
+    "It is simply there, so it keeps its dictionary form.":
+      "Воно просто є, тому лишається в словниковій формі.",
+    "After a no, the thing that isn't there takes the “some of it” ending, even though it keeps its dictionary form after “mul on”.":
+      "Після «ні» те, чого немає, отримує закінчення «частина чогось», хоча після «mul on» воно лишається в словниковій формі.",
+    "Needing is wanting, so the thing takes the “some of it” ending.":
+      "Потребувати означає хотіти, тому слово отримує закінчення «частина чогось».",
+    "Looking for something is reaching for it, so it takes the “some of it” ending.":
+      "Шукати щось означає тягтися до нього, тому слово отримує закінчення «частина чогось».",
+    "A wish is wanting, politely, so the thing takes the “some of it” ending.":
+      "Бажати означає ввічливо хотіти, тому слово отримує закінчення «частина чогось».",
+    "A polite “would” is still wanting, so the thing takes the “some of it” ending.":
+      "Ввічливе «б» однаково означає «хочу», тому слово отримує закінчення «частина чогось».",
+    "Waiting for something is reaching for it too, so it takes the “some of it” ending.":
+      "Чекати на щось теж означає тягтися до нього, тому слово отримує закінчення «частина чогось».",
+    "Like “mulle meeldib”, the thing is the one doing the work: it tastes good to you, so it keeps its dictionary form.":
+      "Як і в «mulle meeldib», дію виконує сама річ: це вона вам до смаку, тому лишається в словниковій формі.",
+    "Having is being there, for whoever has it, so the thing keeps its dictionary form.":
+      "Мати означає, що річ просто є в того, хто її має, тому вона лишається в словниковій формі.",
+    "After a no, the thing takes the “some of it” ending.":
+      "Після «ні» слово отримує закінчення «частина чогось».",
+    "“Pole” is “ei ole” squeezed into one word, so it does what a no does: the thing takes the “some of it” ending.":
+      "У «pole» злилися в одне слово «ei ole», тому воно діє як заперечення: слово отримує закінчення «частина чогось».",
+    "The odd one out. A no usually brings the ending, but this thing is the one doing the liking, so it still keeps its dictionary form.":
+      "Виняток. Зазвичай після «ні» з'являється закінчення, але тут річ сама «подобається», тому лишається в словниковій формі.",
+    "Wanting in the past is still wanting, so the thing takes the “some of it” ending.":
+      "Хотіти в минулому однаково означає хотіти, тому слово отримує закінчення «частина чогось».",
+    "Past or not, a no brings the “some of it” ending.":
+      "У минулому чи ні, після «ні» буде закінчення «частина чогось».",
+    "It was simply there, so it keeps its dictionary form.":
+      "Воно просто було, тому лишається в словниковій формі.",
+    "The thing is still the one doing the liking, so it keeps its dictionary form.":
+      "Річ і далі сама «подобається», тому лишається в словниковій формі.",
+    "More than one thing is doing the liking, so the verb becomes “meeldivad” and the things keep their plural dictionary form.":
+      "Подобається більше однієї речі, тому дієслово стає «meeldivad», а речі лишаються в словниковій формі множини.",
+    "Things you are after take the “some of them” ending.":
+      "Те, чого ви прагнете, отримує закінчення «частина чогось» у множині.",
+    "They are simply there, so they keep their plural dictionary form.":
+      "Вони просто є, тому лишаються в словниковій формі множини.",
+    "After a no, the things take the “some of them” ending.":
+      "Після «ні» слова отримують закінчення «частина чогось» у множині.",
+    "The odd one out again: the things are doing the liking, so they keep their plural dictionary form, and the verb is the same “meeldi” whatever their number.":
+      "Знову виняток: речі самі «подобаються», тому лишаються в словниковій формі множини, а дієслово лишається «meeldi» за будь-якої їх кількості.",
   },
   counted: {
     "second": { en: ["second", "seconds"], ru: ["секунда", "секунды", "секунд"], uk: ["секунда", "секунди", "секунд"] },

@@ -318,7 +318,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card>
               <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {programme
-                  ? fill(t("You’re following {course}. Each evening it picks your words and games for you, and tonight’s plan sits at the top of Today."), { course: uiText(courseLevel, programme.title, t(programme.subtitle)) })
+                  ? fill(t("You’re following {course}. Each evening it picks your words and games for you, and today’s plan sits at the top of Today."), { course: uiText(courseLevel, programme.title, t(programme.subtitle)) })
                   : <>{opening ? t(opening.blurb) : null}</>}
               </p>
               <div className="mt-4">
@@ -348,9 +348,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             HOW LONG A TIMED ROUND RUNS, WHICH IS WCAG 2.2.1 RATHER THAN A
             DIFFICULTY DIAL.
 
-            The Case Sprint, the daily quest and Target each ran to a clock
-            nobody could change, and a learner who reads slowly or types with one
-            hand was not playing a harder round, they were shut out of it. The
+            The daily quest ran to a clock nobody could change, and a learner
+            who reads slowly or types with one hand was not playing a harder
+            round, they were shut out of it. The
             criterion is met by letting the limit be adjusted before it is
             met, which is what this is; see lib/ux/roundClock.ts for why
             adjusting rather than removing. The mock examination keeps its own
@@ -360,7 +360,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <SectionTitle hint={roundPaceName}>{t("Time on the clock")}</SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                {t("Three games race the clock: the Case Sprint, the daily quest and Target. Choose how much time you’d like. Everything else about them stays the same.")}
+                {t("The daily quest races the clock. Choose how much time you’d like. Everything else about it stays the same.")}
               </p>
               <RoundPacePanel current={roundPace} />
               <Explain label={t("Why the mock exam keeps its own timing")}>

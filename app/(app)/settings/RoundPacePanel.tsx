@@ -4,17 +4,16 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setRoundPace } from "@/app/actions";
 import { ChoiceSegment } from "@/components/Choice";
-import { ROUND_PACES, roundLengthIn, secondsFor, SPRINT_SECONDS, type RoundPace } from "@/lib/ux/roundClock";
+import { ROUND_PACES, roundLengthIn, secondsFor, QUEST_SECONDS, type RoundPace } from "@/lib/ux/roundClock";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 
 /**
  * How long a timed round runs.
  *
- * Each option says what it does to the sprint as well as what it is, because
- * "five times as long" is a ratio and "five minutes" is the thing somebody is
- * choosing. The quest stretches from its own two minutes by the same figure,
- * and Target from its eight seconds a question.
+ * Each option says what it does to the daily quest as well as what it is,
+ * because "five times as long" is a ratio and "ten minutes" is the thing
+ * somebody is choosing.
  */
 export function RoundPacePanel({ current }: { current: RoundPace }) {
   const t = useT();
@@ -41,7 +40,7 @@ export function RoundPacePanel({ current }: { current: RoundPace }) {
       options={ROUND_PACES.map((option) => ({
         id: option.id,
         title: t(option.label),
-        detail: fill(t("{length} in the sprint. {detail}"), { length: roundLengthIn(locale, secondsFor(SPRINT_SECONDS, option.id)), detail: t(option.detail) }),
+        detail: fill(t("{length} in the daily quest. {detail}"), { length: roundLengthIn(locale, secondsFor(QUEST_SECONDS, option.id)), detail: t(option.detail) }),
       }))}
     />
   );

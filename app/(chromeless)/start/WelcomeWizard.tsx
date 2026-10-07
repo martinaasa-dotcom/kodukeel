@@ -141,7 +141,7 @@ const GOALS = [
   { value: 40, label: "Intense" },
 ] as const;
 
-const STEPS = ["You", "Level", "Goal", "Tonight"] as const;
+const STEPS = ["You", "Level", "Goal", "Today"] as const;
 
 /**
  * First run.
@@ -376,7 +376,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
       if (!result) { setFailed("That didn’t go through, so nothing’s been saved yet. Press it again."); return; }
       if (!result.ok) { setFailed(result.error); return; }
       /*
-        Straight to tonight's module rather than to Today. Somebody who has
+        Straight to today's module rather than to Today. Somebody who has
         just been told what the evening is wants the evening, and a dashboard
         in between is one more screen to read before anything happens.
       */
@@ -877,7 +877,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
         {step === 3 && deck && deck.cards > 0 && (
           <section>
             <h1 tabIndex={-1} className="text-2xl font-bold leading-tight outline-none" style={{ color: "var(--ink)" }}>
-              {t("Tonight, and every night after")}
+              {t("Today, and every day after")}
             </h1>
             <p className="mt-2 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
               {t("You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.")}
@@ -887,11 +887,11 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
               THE LADDER, AS THE LAST THING FIRST RUN SAYS.
 
               A stranger who has answered four questions wants to be told what
-              to do tonight, and the honest answer is a named part with a named
+              to do today, and the honest answer is a named part with a named
               first evening. The whole climb is under it because seventeen
               parts is a course and one part with nothing behind it is a trial:
               somebody deciding whether this is worth starting is deciding
-              about the shape, not about tonight.
+              about the shape, not about today.
             */}
             {openingPart && (
               <div
@@ -925,7 +925,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                     minutes: countOf(locale, COURSE_DAY_MINUTES, "minute", "gen"),
                   })}
                   {openingPart.firstDay && (
-                    <> {fillNodes(t("Tonight is {title}, {words} and one short round."), {
+                    <> {fillNodes(t("Today’s module is {title}, {words} and one short round."), {
                       title: <span lang="et">{openingPart.firstDay.title}</span>,
                       words: countOf(locale, openingPart.firstDay.words, "new word"),
                     })}</>
@@ -956,7 +956,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
               <SectionTitle hint={t("picked for your level")}>{t("Your first words")}</SectionTitle>
             </div>
             <p className="mt-1 max-w-[54ch] text-sm" style={{ color: "var(--ink-2)" }}>
-              {fill(t("Tonight’s words come from your first {units} at {level}. Each word becomes a flashcard you can hear read aloud, with all its forms."), {
+              {fill(t("Today’s words come from your first {units} at {level}. Each word becomes a flashcard you can hear read aloud, with all its forms."), {
                 units: countOf(locale, deck.units.length, "unit"),
                 level: openLevel,
               })}

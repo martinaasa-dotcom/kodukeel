@@ -174,7 +174,7 @@ function Stage({ tile, turn, onAnother }: {
               {t(tile.early ? "Your course brings this one in later" : tile.plays === 0 ? "One you have not tried" : "Worth another go")}
             </span>
           </p>
-          <h2 id="pick-heading" className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">
+          <h2 id="pick-heading" className="font-display text-2xl font-bold leading-tight tracking-tight md:text-3xl">
             {t(tile.title)}
           </h2>
           <p className="text-md" style={{ color: "var(--ink-2)" }}>{t(tile.place)}</p>

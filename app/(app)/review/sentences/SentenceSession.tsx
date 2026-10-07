@@ -11,9 +11,10 @@ import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { useUiText } from "@/components/UiLanguage";
 import { useResumeCard } from "@/components/useResumeCard";
-import { sentenceTiles, tileFaces } from "@/lib/estonian/cloze";
-import { orderIsRight, readOrder, type OrderVerdict } from "@/lib/estonian/wordOrder";
-import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
+import {
+  buildIsRight, isMark, joinTokens, markName, orderFaces, orderTokens, readBuiltOrder, type BuiltVerdict,
+} from "@/lib/estonian/orderTiles";
+import { ORDER_EXACT, ORDER_MARKS, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
@@ -43,10 +44,11 @@ export interface SentenceTask {
    */
   alsoRight: readonly string[];
   /**
-   * Whether the sentence opens on an ordinary word, so its first tile loses
-   * the capital that would say which tile goes first. See `tileFaces`.
+   * The words of this sentence that open a sentence and are ordinary words,
+   * so they lose the capital that would say which tile comes first. A name
+   * keeps its capital wherever it stands. See `orderFaces`.
    */
-  openerIsWord: boolean;
+  lowerable: readonly string[];
 }
 
 /** How long the sentence is shown before it is scrambled, when there is no English. */
@@ -90,15 +92,29 @@ export function SentenceSession(
   // components/useResumeCard.ts.
   const { initialIndex, remember: rememberTask } = useResumeCard(initialTasks.map((t) => ({ id: t.cardId })));
   const [index, setIndex] = useState(initialIndex);
-  const [built, setBuilt] = useState<number[]>([]);
   /*
+    EVERYTHING ABOUT THE SENTENCE IN HAND, KEYED ON THE SENTENCE.
+
+    The picks, the mark and the verdict used to be three separate states reset
+    by an effect after the next sentence had rendered. For that one render the
+    new sentence's tiles were read against the old sentence's picks, which are
+    positions in a list of a different length, and `tile.word` was read off
+    nothing: "Cannot read properties of undefined (reading 'word')", on the
+    screen that says "That screen didn't load", after a few sentences and a
+    press of Next. A state that carries the key it belongs to cannot be read
+    against the wrong sentence however the render lands.
+
     The verdict paints the panel and is one of `lib/ux/verdict.ts`'s three
     words; `variant` says whether a right answer was the writer's own order or
     another one Estonian allows. Two fields rather than a third verdict,
     because another order is not a near miss and may not wear butter.
   */
-  const [checked, setChecked] = useState<null | "right" | "wrong">(null);
-  const [variant, setVariant] = useState<OrderVerdict | null>(null);
+  const [play, setPlay] = useState<{
+    key: string;
+    picks: number[];
+    checked: null | "right" | "wrong";
+    verdict: BuiltVerdict | null;
+  }>({ key: "", picks: [], checked: null, verdict: null });
   const [attempts, setAttempts] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [previewing, setPreviewing] = useState(false);
@@ -107,6 +123,18 @@ export function SentenceSession(
   const shownAt = useRef(Date.now());
 
   const task = tasks[index];
+  const taskKey = task ? `${task.cardId}|${task.et}` : "";
+  const here = play.key === taskKey;
+  const built = here ? play.picks : [];
+  const checked = here ? play.checked : null;
+  const verdictNow = here ? play.verdict : null;
+  const variant = verdictNow && verdictNow.reading === "variant" ? verdictNow : null;
+  const setBuilt = useCallback((next: number[] | ((b: number[]) => number[])) => {
+    setPlay((p) => {
+      const before = p.key === taskKey ? p.picks : [];
+      return { key: taskKey, picks: typeof next === "function" ? next(before) : next, checked: null, verdict: null };
+    });
+  }, [taskKey]);
   /* The way back to the sentence before this one. See `lib/ux/lookBack.ts`. */
   const look = useLookBack();
   const finished = !task;
@@ -137,12 +165,14 @@ export function SentenceSession(
   // mid-exercise would move the tile under the learner's finger.
   const tiles = useMemo(() => {
     if (!task || !mounted) return [];
-    const recorded = sentenceTiles(task.et);
-    const words = tileFaces(recorded, recorded[0] ?? "", task.openerIsWord);
-    const order = shuffle(words.map((_, i) => i));
+    /* The words and the marks, each its own tile: where the comma goes and
+       whether it is a question are part of the answer. */
+    const recorded = orderTokens(task.et);
+    const faces = orderFaces(recorded, new Set(task.lowerable));
+    const order = shuffle(faces.map((_, i) => i));
     // A shuffle that happens to be the right order is not an exercise.
     if (order.every((v, i) => v === i) && order.length > 1) order.reverse();
-    return order.map((i) => ({ index: i, word: words[i]! }));
+    return order.map((i) => ({ index: i, word: faces[i]!, mark: isMark(faces[i]!) }));
   }, [task, mounted]);
 
   /** Translate the next couple of sentences while this one is being answered. */
@@ -158,9 +188,6 @@ export function SentenceSession(
   }, [index]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    setBuilt([]);
-    setChecked(null);
-    setVariant(null);
     shownAt.current = Date.now();
     if (task && task.en === null) {
       setPreviewing(true);
@@ -176,10 +203,9 @@ export function SentenceSession(
   const check = useCallback(async () => {
     if (!task || busy || checked) return;
     setBusy(true);
-    const verdict = readOrder(answer, task.et, task.alsoRight);
-    const right = orderIsRight(verdict.reading);
-    setChecked(right ? "right" : "wrong");
-    setVariant(verdict.reading === "variant" ? verdict : null);
+    const verdict = readBuiltOrder(answer, task.et, task.alsoRight);
+    const right = buildIsRight(verdict);
+    setPlay((p) => ({ key: taskKey, picks: p.key === taskKey ? p.picks : [], checked: right ? "right" : "wrong", verdict }));
     setAttempts((a) => a + 1);
     if (right) setCorrect((c) => c + 1);
     if (!right && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(60);
@@ -189,7 +215,7 @@ export function SentenceSession(
     const rating = Math.min(right ? 3 : 1, hints.ceiling) as 1 | 2 | 3;
     await grade(task.cardId, rating, Date.now() - shownAt.current);
     setBusy(false);
-  }, [task, busy, checked, answer, hints, grade]);
+  }, [task, taskKey, busy, checked, answer, hints, grade]);
 
   const next = useCallback(() => {
     /* The sentence the writer wrote, which is the answer this round is
@@ -254,7 +280,7 @@ export function SentenceSession(
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
+          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
             {t("All sentences built")}
           </h1>
           {/* The provenance disclaimer is off every round in the app; see the
@@ -351,19 +377,20 @@ export function SentenceSession(
             style={checked ? undefined : { borderColor: "var(--rule)", background: "transparent" }}
           >
             {built.length === 0 && (
-              <span className="text-xs" style={{ color: "var(--ink-3)" }}>{t("Tap the words in order…")}</span>
+              <span className="text-xs" style={{ color: "var(--ink-3)" }}>{t("Tap the words and marks in order…")}</span>
             )}
             {built.map((tileIndex) => {
-              const tile = tiles.find((t) => t.index === tileIndex)!;
+              const tile = tiles.find((t) => t.index === tileIndex);
+              if (!tile) return null;
               return (
                 <button
                   key={tileIndex}
                   type="button"
                   disabled={checked !== null}
                   onClick={() => setBuilt((b) => b.filter((i) => i !== tileIndex))}
-                  lang="et"
-                  aria-label={fill(t("Remove {word}"), { word: tile.word })}
-                  className="press rounded-[var(--r-sm)] border px-3 py-1.5 text-md transition-ui hover:-translate-y-px"
+                  lang={tile.mark ? undefined : "et"}
+                  aria-label={tile.mark ? t(`Remove ${markName(tile.word)}`) : fill(t("Remove {word}"), { word: tile.word })}
+                  className={`press rounded-[var(--r-sm)] border py-1.5 text-md transition-ui hover:-translate-y-px ${tile.mark ? "min-w-9 px-2.5 font-bold" : "px-3"}`}
                   style={{
                     borderColor: "var(--edge)",
                     background: "var(--surface)",
@@ -377,7 +404,7 @@ export function SentenceSession(
             })}
           </div>
 
-          {/* The bank of remaining words. */}
+          {/* The bank of remaining words and marks. */}
           <div className="flex flex-wrap gap-2">
             {tiles.map((tile) => {
               const used = built.includes(tile.index);
@@ -387,9 +414,9 @@ export function SentenceSession(
                   type="button"
                   disabled={used || checked !== null || previewing}
                   onClick={() => setBuilt((b) => [...b, tile.index])}
-                  lang="et"
-                  aria-label={fill(t("Add {word}"), { word: tile.word })}
-                  className="press rounded-[var(--r-sm)] border px-3 py-1.5 text-md transition-ui hover:-translate-y-px disabled:opacity-25 disabled:hover:translate-y-0"
+                  lang={tile.mark ? undefined : "et"}
+                  aria-label={tile.mark ? t(`Add ${markName(tile.word)}`) : fill(t("Add {word}"), { word: tile.word })}
+                  className={`press rounded-[var(--r-sm)] border py-1.5 text-md transition-ui hover:-translate-y-px disabled:opacity-25 disabled:hover:translate-y-0 ${tile.mark ? "min-w-9 px-2.5 font-bold" : "px-3"}`}
                   style={{ borderColor: "transparent", background: "var(--raised)", color: "var(--ink)" }}
                 >
                   {tile.word}
@@ -411,11 +438,12 @@ export function SentenceSession(
                 than the label.
               */}
               <p className="font-semibold">
-                {checked === "wrong" ? t(ORDER_WRONG)
+                {checked === "wrong"
+                  ? t(verdictNow && verdictNow.reading !== "wrong" && !verdictNow.punctuationRight ? ORDER_MARKS : ORDER_WRONG)
                   : <>{uiText("Õige!", t("Correct!"))} {variant === null ? t(ORDER_EXACT) : orderVariantNote(variant.moved, variant.writerPut, locale)}</>}
               </p>
               <p className="mt-1 flex items-center justify-center gap-2">
-                <span lang="et" className="text-md" style={{ color: "var(--ink)" }}>{task.et}</span>
+                <span lang="et" className="text-md" style={{ color: "var(--ink)" }}>{joinTokens(orderTokens(task.et))}</span>
                 <Speak text={task.et} />
               </p>
             </div>

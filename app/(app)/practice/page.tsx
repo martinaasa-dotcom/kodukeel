@@ -8,11 +8,10 @@ import { deckSnapshot } from "@/lib/progress/summary";
 import { listDecks } from "@/lib/progress/decks";
 import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
-import { isBuildable } from "@/lib/estonian/cloze";
+import { isOrderable } from "@/lib/estonian/orderTiles";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { GAMES, QUICK_MODES, modeAt, type PracticeMode } from "@/lib/ux/modes";
-import { lengthAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
@@ -28,7 +27,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * Every way to practice, in one place, with the state that decides whether each
- * one is worth doing right now: how many cards are due, your best sprint, your
+ * one is worth doing right now: how many cards are due, your
  * fastest match. A hub that just lists modes makes you guess; this one answers
  * "what should I do with the next five minutes".
  */
@@ -36,7 +35,7 @@ export default async function PracticePage() {
   const ownerId = await requireUserId();
   const [snapshot, settings, sentenceReady, words, decks, level, locale] = await Promise.all([
     deckSnapshot(ownerId),
-    readSettings(ownerId, [SETTING_KEYS.sprintBest, SETTING_KEYS.matchBest, SETTING_KEYS.roundPace]),
+    readSettings(ownerId, [SETTING_KEYS.matchBest]),
     /*
       The learner's own words, asked for as words.
 
@@ -77,7 +76,6 @@ export default async function PracticePage() {
     localeFor(ownerId),
   ]);
 
-  const sprintBest = numberSetting(settings[SETTING_KEYS.sprintBest], 0);
   /*
     Parsed once and asked twice. Each of these used to call `parseExamples` for
     itself, which is a `JSON.parse` per word per question, and the cap above is
@@ -88,7 +86,7 @@ export default async function PracticePage() {
     since it has to be short enough to hold in your head.
   */
   const usable = sentenceReady.map((w) => usableExamples(parseExamples(w.examples)));
-  const sentenceCount = usable.filter((es) => es.some((e) => isBuildable(e.et))).length;
+  const sentenceCount = usable.filter((es) => es.some((e) => isOrderable(e.et))).length;
   const dictationCount = usable.filter((es) => es.some((e) => {
     const count = dictationWords(e.et).length;
     return count >= 3 && count <= 9 && e.et.length <= 80;
@@ -116,21 +114,14 @@ export default async function PracticePage() {
     told nobody anything they needed in order to choose.
   */
   const live: Record<string, string | undefined> = {
-    "/review/sprint": sprintBest > 0 ? fill(tr(locale, "best {n}"), { n: sprintBest }) : undefined,
     "/review/match": matchBest > 0 ? fill(tr(locale, "best {n}s"), { n: matchBest }) : undefined,
     /* "34 ready" on a round that answers an A1 learner with "word order
        starts at A2" is the tile and the round disagreeing about one press. */
     "/review/sentences": !maySortWords(level) ? fill(tr(locale, "from {level}"), { level: BUILD_FROM }) : sentenceCount > 0 ? fill(tr(locale, "{n} ready"), { n: sentenceCount }) : undefined,
     "/review/dictation": dictationCount > 0 ? fill(tr(locale, "{n} ready"), { n: dictationCount }) : undefined,
   };
-  /*
-    The one tile whose subtitle is a length, and the length is the learner's:
-    the sprint runs to whatever pace they set in Settings, so a fixed "60
-    seconds" here was wrong for everybody who had asked for longer.
-  */
-  const sprintLength = lengthAtPace(SPRINT_SECONDS, settings[SETTING_KEYS.roundPace], locale);
   const lineFor = (mode: PracticeMode) => {
-    const what = mode.href === "/review/sprint" ? sprintLength : tr(locale, mode.subtitle);
+    const what = tr(locale, mode.subtitle);
     const now = live[mode.href];
     return now ? `${what}, ${now}` : what;
   };

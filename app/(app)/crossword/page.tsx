@@ -45,6 +45,7 @@ export default async function CrosswordPage() {
   return (
     <BeforeYouStart id="crossword" ready={puzzle !== null}>
       <Page
+        compact
         title="Ristsõna"
         lead={tr(locale, "Clues in English, answers in Estonian, and a fresh grid every morning.")}
       >
@@ -55,7 +56,7 @@ export default async function CrosswordPage() {
             <Empty
               title={tr(locale, "Not enough words yet")}
               body={tr(locale, "Today's grid is built from your evenings' words, and there aren't enough to cross yet.")}
-              action={<ButtonLink href="/course">{tr(locale, "Tonight’s evening")}</ButtonLink>}
+              action={<ButtonLink href="/course">{tr(locale, "Today’s evening")}</ButtonLink>}
             />
           ) : (
             <Empty

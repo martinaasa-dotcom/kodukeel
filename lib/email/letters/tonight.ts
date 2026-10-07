@@ -3,7 +3,7 @@
 
   This is the letter the whole system is for: a learner chose fifteen minutes
   an evening, and the thing that decides whether they get a language out of
-  this app is whether they sit down for those fifteen minutes tonight. Nothing
+  this app is whether they sit down for those fifteen minutes today. Nothing
   about the teaching moves that number. The letter does.
 
   So it is written to work, and the levers it pulls are real ones. Every one of
@@ -75,7 +75,7 @@ export interface TonightInput {
   readonly theirWords: string | null;
   /** The run of days, for the one quiet line at the end. Nought is fine. */
   readonly streak: number;
-  /** Tonight's gift. Null where the dictionary had nothing to offer. */
+  /** Today's gift. Null where the dictionary had nothing to offer. */
   readonly word: {
     readonly lemma: string;
     readonly translation: string;
@@ -117,7 +117,7 @@ function subjectFor(input: TonightInput): string {
           title,
         });
   }
-  return newWordsLine(input.locale, input.day.newWords) ?? say("Back to {title} tonight", { title });
+  return newWordsLine(input.locale, input.day.newWords) ?? say("Back to {title} today", { title });
 }
 
 /**
@@ -146,7 +146,7 @@ function addressable(input: TonightInput): string | null {
  */
 function newWordsLine(locale: Locale, n: number): string | null {
   if (n <= 0) return null;
-  return sayer(locale)("{newWords} tonight", {
+  return sayer(locale)("{newWords} today", {
     newWords: spelled(locale, n, "new word", { capital: true }),
   });
 }
@@ -198,7 +198,7 @@ export function tonightLetter(input: TonightInput): Letter {
   if (done > 0) {
     blocks.push({
       t: "heading",
-      text: left <= 1 ? say("You're nearly done for tonight.") : say("About {minutes} minutes to go tonight.", { minutes: left }),
+      text: left <= 1 ? say("You're nearly done for today.") : say("About {minutes} minutes to go today.", { minutes: left }),
     });
     const steps = spelled(locale, done, "step");
     const where = partOf(input, titled(input));
@@ -215,7 +215,7 @@ export function tonightLetter(input: TonightInput): Letter {
       t: "heading",
       text: fresh
         ? say("{newWords}, in about {minutes} minutes.", { newWords: fresh, minutes: left })
-        : say("Words you know, put to work tonight, in about {minutes} minutes.", { minutes: left }),
+        : say("Words you know, put to work today, in about {minutes} minutes.", { minutes: left }),
     });
     const evening = partOf(input, subtitle);
     /* The can-do opens on a verb in all three, so lowering it sets it after "able to". */
@@ -254,7 +254,7 @@ export function tonightLetter(input: TonightInput): Letter {
 
   blocks.push({
     t: "button",
-    label: done > 0 ? say("Pick up where you left off") : say("Start tonight"),
+    label: done > 0 ? say("Pick up where you left off") : say("Start today's module"),
     href: `${input.origin}/course`,
   });
 
@@ -268,7 +268,7 @@ export function tonightLetter(input: TonightInput): Letter {
   */
   if (input.word) {
     blocks.push({ t: "rule" });
-    blocks.push({ t: "quiet", text: say("And a word for you, whether you study tonight or not:") });
+    blocks.push({ t: "quiet", text: say("And a word for you, whether you study today or not:") });
     blocks.push({
       t: "art",
       html: wordCard(input.word.lemma, input.word.translation, input.word.occasion ?? undefined),

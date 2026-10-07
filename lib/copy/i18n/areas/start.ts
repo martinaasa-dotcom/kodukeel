@@ -217,18 +217,16 @@ export const START: Area = {
     "Intense": "Интенсивно",
     "{minutes} a day, {days} a week. That’s {cards} to answer, not {goal} new ones. About nine in ten will be words you’ve already met, coming back just as you start to forget them.":
       "{minutes} в день, {days} в неделю. Ответить нужно на {cards}, а не на {goal} новых. Примерно девять из десяти будут словами, которые вы уже встречали: они возвращаются как раз тогда, когда вы начинаете их забывать.",
-    "Tonight, and every night after": "Этот вечер и все следующие",
     "You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.":
       "Вам никогда не придётся решать, что учить. Kodukeel планирует за вас каждый вечер: какие слова, в каком порядке и какие игры. Примерно пятнадцать минут, а потом он скажет, что на сегодня всё.",
     "You start at {part}": "Вы начинаете с части {part}",
     "{evenings}, about {minutes} each.": "{evenings}, каждый около {minutes}.",
-    "Tonight is {title}, {words} and one short round.": "Сегодня вечером: {title}, {words} и один короткий раунд.",
     "The whole way to C1": "Весь путь до C1",
     "{evenings} in all, and every word in the course turns up in one of them. You can step off the plan whenever you like and use the app your own way. Nothing disappears, and everything you do still counts.":
       "Всего {evenings}, и каждое слово курса встретится в одном из них. Вы можете в любой момент отойти от плана и пользоваться приложением по-своему. Ничего не пропадёт, и всё, что вы делаете, всё равно засчитывается.",
     "picked for your level": "подобраны под ваш уровень",
-    "Tonight’s words come from your first {units} at {level}. Each word becomes a flashcard you can hear read aloud, with all its forms.":
-      "Слова этого вечера взяты из начала уровня {level}: {units}. Каждое слово станет карточкой со всеми его формами, которую можно прослушать.",
+    "Today's words come from your first {units} at {level}. Each word becomes a flashcard you can hear read aloud, with all its forms.":
+      "Сегодняшние слова взяты из начала уровня {level}: {units}. Каждое слово станет карточкой со всеми его формами, которую можно прослушать.",
     "The other {units} at {level}, and every other level, are on the path whenever you want them.":
       "Ещё {units} уровня {level} и все остальные уровни открыты для вас в любой момент.",
     "Nothing here is locked in.": "Всё это можно поменять.",
@@ -299,6 +297,10 @@ export const START: Area = {
       "В эстонском есть три формы, которые вы здесь учите: одна для случая, когда никто не назван, одна для пересказа услышанного и одна для двух действий сразу. Каждая идёт вместе со словами, рядом с которыми обычно встречается: безличная форма с темой общества, пересказывательное наклонение с экономикой, а последняя сама по себе. В конце вы сможете прочитать отчёт, в котором никто не назван.",
     "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole clause for. You practice it on academic writing, research and philosophy, which is where you'll need it most.":
       "C1 в основном о том, как сказать больше меньшим числом слов: уместить в оборот то, для чего на B2 требовалось целое придаточное. Вы тренируете это на академических текстах, исследованиях и философии, где это понадобится больше всего.",
+    "Today, and every day after":
+      "Сегодня и каждый следующий день",
+    "Today's module is {title}, {words} and one short round.":
+      "Занятие на сегодня: {title}, {words} и один короткий раунд.",
   },
   uk: {
     // SIGN-IN.
@@ -500,18 +502,16 @@ export const START: Area = {
     "Intense": "Інтенсивно",
     "{minutes} a day, {days} a week. That’s {cards} to answer, not {goal} new ones. About nine in ten will be words you’ve already met, coming back just as you start to forget them.":
       "{minutes} на день, {days} на тиждень. Відповісти треба на {cards}, а не на {goal} нових. Приблизно дев'ять із десяти будуть словами, які ви вже зустрічали: вони повертаються саме тоді, коли ви починаєте їх забувати.",
-    "Tonight, and every night after": "Цей вечір і всі наступні",
     "You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.":
       "Вам ніколи не доведеться вирішувати, що вчити. Kodukeel планує за вас кожен вечір: які слова, у якому порядку і які ігри. Приблизно п'ятнадцять хвилин, а потім він скаже, що на сьогодні все.",
     "You start at {part}": "Ви починаєте з частини {part}",
     "{evenings}, about {minutes} each.": "{evenings}, кожен близько {minutes}.",
-    "Tonight is {title}, {words} and one short round.": "Сьогодні ввечері: {title}, {words} і один короткий раунд.",
     "The whole way to C1": "Увесь шлях до C1",
     "{evenings} in all, and every word in the course turns up in one of them. You can step off the plan whenever you like and use the app your own way. Nothing disappears, and everything you do still counts.":
       "Усього {evenings}, і кожне слово курсу трапиться в одному з них. Ви можете будь-коли відійти від плану й користуватися застосунком по-своєму. Нічого не зникне, і все, що ви робите, однаково зараховується.",
     "picked for your level": "дібрані під ваш рівень",
-    "Tonight’s words come from your first {units} at {level}. Each word becomes a flashcard you can hear read aloud, with all its forms.":
-      "Слова цього вечора взято з початку рівня {level}: {units}. Кожне слово стане карткою з усіма його формами, яку можна прослухати.",
+    "Today's words come from your first {units} at {level}. Each word becomes a flashcard you can hear read aloud, with all its forms.":
+      "Сьогоднішні слова взято з початку рівня {level}: {units}. Кожне слово стане карткою з усіма його формами, яку можна прослухати.",
     "The other {units} at {level}, and every other level, are on the path whenever you want them.":
       "Ще {units} рівня {level} і всі інші рівні відкриті для вас будь-коли.",
     "Nothing here is locked in.": "Усе це можна змінити.",
@@ -582,6 +582,10 @@ export const START: Area = {
       "В естонській є три форми, які ви тут вивчаєте: одна для випадку, коли нікого не названо, одна для переказу почутого й одна для двох дій водночас. Кожна йде разом зі словами, поруч із якими зазвичай трапляється: безособова форма з темою суспільства, переказовий спосіб з економікою, а остання сама по собі. Наприкінці ви зможете прочитати звіт, у якому нікого не названо.",
     "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole clause for. You practice it on academic writing, research and philosophy, which is where you'll need it most.":
       "C1 здебільшого про те, як сказати більше меншою кількістю слів: умістити у зворот те, для чого на B2 потрібне було ціле підрядне речення. Ви тренуєте це на академічних текстах, дослідженнях і філософії, де це знадобиться найбільше.",
+    "Today, and every day after":
+      "Сьогодні й кожного наступного дня",
+    "Today's module is {title}, {words} and one short round.":
+      "Заняття на сьогодні: {title}, {words} і один короткий раунд.",
   },
   counted: {
     unit: { en: ["unit", "units"], ru: ["раздел", "раздела", "разделов"], uk: ["розділ", "розділи", "розділів"] },

@@ -99,7 +99,7 @@ export default async function LearnPage() {
   return (
     <Page route="/learn"
       title={t("Learn")}
-      lead={t("Pick up new words a few at a time, and see the whole course they come from.")}
+      lead={t("Pick up new words a few at a time. And see which course they come from.")}
     >
       {/*
         WHAT THIS PAGE LEADS WITH IS THE NEXT FIVE WORDS, NOT THE MAP.
@@ -391,7 +391,7 @@ function LearnCard({
    * Whether the planned course is handing this learner their words.
    *
    * With nothing waiting, the card said "No new words yet. Open a unit below",
-   * to somebody whose course had just taught them tonight's five and planned
+   * to somebody whose course had just taught them today's five and planned
    * tomorrow's: the honest answer is where the next ones come from, and that
    * is the module, so that is what it says and where its button goes.
    */
@@ -405,9 +405,9 @@ function LearnCard({
       <div className="flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
         <div className="min-w-0">
           <p className="label-xs" style={{ color: "var(--butter-ink)" }}>
-            {ready > 0 ? t("Tonight\u2019s new words") : t("New words")}
+            {ready > 0 ? t("Today’s new words") : t("New words")}
           </p>
-          <h2 className="font-display mt-3 text-4xl font-bold leading-[1] md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+          <h2 className="font-display mt-3 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
             {ready > 0
               ? <>{fill(t("{n} words are waiting for you"), { n: batch })}</>
               : onCourse ? <>{t("They come with each evening")}</> : <>{t("No new words yet")}</>}
@@ -462,7 +462,7 @@ function LearnCard({
           )}
           {ready === 0 && onCourse && (
             <ButtonLink href="/course" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap sm:w-auto">
-              {t("Open tonight\u2019s module")} <ArrowRight size={17} aria-hidden />
+              {t("Open today’s module")} <ArrowRight size={17} aria-hidden />
             </ButtonLink>
           )}
         </div>

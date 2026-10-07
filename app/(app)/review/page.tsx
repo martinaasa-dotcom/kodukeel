@@ -381,7 +381,7 @@ export default async function ReviewPage({
     "Nothing due, you're caught up" over a date is the right answer when the
     scheduler is what is holding everything, and the wrong one the moment the
     module is: a learner whose deck holds unseen words the course has not
-    reached is not caught up, they are ahead of tonight's evening, and sending
+    reached is not caught up, they are ahead of today's evening, and sending
     them to Learn instead would hand them a round that is held back for the
     same reason. One count, on the caught-up path alone, beside the two reads
     that were already there.

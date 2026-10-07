@@ -11,7 +11,7 @@ export const UK: Readonly<Record<string, string>> = {
   "Today": "Сьогодні",
   "What's waiting for you today, and your streak": "Що чекає на вас сьогодні і ваша серія днів",
   "Today's module": "Заняття на сьогодні",
-  "Tonight's words and games, already picked for you": "Слова й ігри на цей вечір, уже дібрані для вас",
+  "Today's words and games, already picked for you": "Слова й ігри на сьогодні, уже дібрані для вас",
   "Learn": "Вивчати",
   "New words, five at a time, straight from the course": "Нові слова по п'ять за раз, просто з курсу",
   "Practice": "Практика",
@@ -84,7 +84,7 @@ export const UK: Readonly<Record<string, string>> = {
   "Type your answer where there's a box. Where there isn't, think of it, turn the card over and say whether you had it.":
     "Якщо є поле, впишіть відповідь. Якщо поля немає, пригадайте відповідь, переверніть картку й позначте, чи ви її знали.",
   "Start reviewing": "Почати повторення",
-  "Tonight's words, one more time": "Слова цього вечора, ще раз",
+  "Today's words, one more time": "Сьогоднішні слова, ще раз",
   "A few quick questions on the words you've just learned, and any older ones that are due today.":
     "Кілька швидких запитань про слова, які ви щойно вивчили, і про старі, які пора повторити сьогодні.",
   "Type your answer where there's a box, or pick one where there's a choice. Then the evening's done.":
@@ -214,4 +214,15 @@ export const UK: Readonly<Record<string, string>> = {
   "You@person": "Ви",
   "Busy": "Багато",
   "Reviews per day, last six months": "Повторення по днях за останні півроку",
+  "A scene made of emoji, and five empty boxes. You'll see an example of the kind of sentence we mean first.": "Сцена з емодзі та п'ять порожніх полів. Спочатку ви побачите приклад того, яке речення ми маємо на увазі.",
+  "Write five sentences about what you see and what might be going on, one in each box. Use your imagination.": "Напишіть п'ять речень про те, що бачите і що, можливо, відбувається, по одному в кожному полі. Дайте волю уяві.",
+  "How a sentence start picks the ending": "Як початок речення вибирає закінчення",
+  "The first words of a sentence and a gap at the end, always for the same word within a round.": "Перші слова речення і пропуск у кінці, увесь час для того самого слова в межах раунду.",
+  "Choose the right form, or type it from B1. Nothing is timed. A wrong answer shows where that form would have fit.": "Виберіть потрібну форму, а з рівня B1 впишіть її самі. Час не обмежено. Неправильна відповідь покаже, де ця форма підійшла б.",
+  "Five sentences": "П'ять речень",
+  "Two or three scenes": "Дві або три сцени",
+  "A scene made of emoji. Write five sentences about what you see, one in each box. We check that each one is about the scene and that the Estonian is right, and tell you what to fix.": "Сцена з емодзі. Напишіть п'ять речень про те, що бачите, по одному в кожному полі. Ми перевіримо, що кожне стосується сцени і що естонська правильна, і підкажемо, що виправити.",
+  "Start picks the ending": "Початок вибирає закінчення",
+  "Choose, then type": "Спершу вибрати, потім вписати",
+  "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of its last word, and this is where you learn to hear that.": "Mulle meeldib pasta, але ma tahan pastat. Перші слова речення вирішують, у якій формі буде останнє слово, і тут ви вчитеся це чути.",
 };

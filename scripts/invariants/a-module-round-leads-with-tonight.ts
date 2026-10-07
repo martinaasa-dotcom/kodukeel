@@ -19,8 +19,6 @@ import type { InvariantKit } from "../lib/invariantKit";
 const ORDERED_OTHERWISE: Readonly<Record<string, string>> = {
   "/review/flashcards": "asks the words this learner has not mastered yet, which is the order the round exists for",
   "/review/exceptions": "asks the taught words that break a pattern, and a round of exceptions is chosen by the exception",
-  "/review/target": "asks four forms of one word at a time, drawn by the case the evening read",
-  "/review/describe": "asks a picture whose three words have all been taught, chosen by the case it can carry",
   "/review/dictation": "plays a whole sentence of taught words, and what is due decides which",
   "/review/sentences": "builds a whole sentence of taught words, and what is due decides which",
   "/sonad": "is rebuilt from the date and the level to be marked, so it may not be narrowed (lib/course/build.ts)",
@@ -36,7 +34,7 @@ export default function aModuleRoundLeadsWithTonight({ check, code }: InvariantK
       read++;
       if (!/byRecency\(|recentLemmas\(/.test(page)) loose.push(href);
     }
-    assert.ok(read >= 8, `read ${read} module rounds, expected at least the eight that lead with recency`);
+    assert.ok(read >= 7, `read ${read} module rounds, expected at least the seven that lead with recency`);
     assert.deepEqual(loose, [], "a round the module deals is not led by the words the module taught last");
     // And a reason is a decision about a round that exists and is dealt.
     const dealt = new Set<string>(Object.values(ACTIVITIES).map((a) => a.href));

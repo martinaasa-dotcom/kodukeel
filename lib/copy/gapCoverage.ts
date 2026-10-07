@@ -70,10 +70,6 @@ export const GAP_WITHOUT_MEANING: Readonly<Record<string, string>> = {
     "Not a screen. It builds the cards a review session is handed, `sentenceEn` among " +
     "them, and renders nothing; `ReviewSession` is what draws the line from it.",
 
-  "app/(app)/review/sprint/page.tsx":
-    "Not a screen either, for the same reason: the server page reads the sentence's stored " +
-    "English and its card's cue and hands both to `SprintSession`, which draws them.",
-
 };
 
 /**

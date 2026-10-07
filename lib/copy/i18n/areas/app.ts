@@ -430,7 +430,6 @@ export const APP: Area = {
     "Intense": "Интенсивно",
     "{label}, {n} a day": "{label}, {n} в день",
     "How much time the timed games give you": "Сколько времени дают игры на время",
-    "{length} in the sprint. {detail}": "{length} в спринте. {detail}",
     "Half again as long": "В полтора раза дольше",
     "Twice as long": "Вдвое дольше",
     "Five times as long": "В пять раз дольше",
@@ -460,7 +459,7 @@ export const APP: Area = {
     "This is where your last level check put you. If it doesn't feel right, pick another. We'll go with yours until your next check.": "Это уровень, который показала ваша последняя проверка. Если он кажется неверным, выберите другой. Мы будем исходить из вашего выбора до следующей проверки.",
     "Change it whenever it doesn't feel right. If you take a level check, its result will replace this.": "Меняйте, когда уровень кажется неверным. Если пройдёте проверку уровня, её результат заменит этот.",
     "What the level decides": "Что определяет уровень",
-    "Your level decides which part of the course you're on, which new words come next, and which words the games and the dictionary suggest. If you change it, tonight's module moves to match. Nothing you've already learned is lost, and finished evenings stay finished.": "От уровня зависит, на какой части курса вы находитесь, какие новые слова будут дальше и какие слова предлагают игры и словарь. Если его изменить, занятие на сегодня подстроится. Ничего из выученного не пропадёт, а пройденные вечера останутся пройденными.",
+    "Your level decides which part of the course you're on, which new words come next, and which words the games and the dictionary suggest. If you change it, today's module moves to match. Nothing you've already learned is lost, and finished evenings stay finished.": "От уровня зависит, на какой части курса вы находитесь, какие новые слова будут дальше и какие слова предлагают игры и словарь. Если его изменить, занятие на сегодня подстроится. Ничего из выученного не пропадёт, а пройденные вечера останутся пройденными.",
     "Why you're learning Estonian": "Зачем вы учите эстонский",
     "pick all that apply": "отметьте всё подходящее",
     "I live in Estonia": "Я живу в Эстонии",
@@ -689,13 +688,13 @@ export const APP: Area = {
     "day {day} of {total}": "день {day} из {total}",
     "off@setting": "выключено",
     "The planned course": "Курс по плану",
-    "You're following {course}. Each evening it picks your words and games for you, and tonight's plan sits at the top of Today.": "Вы идёте по курсу «{course}». Каждый вечер он подбирает для вас слова и игры, а план на этот вечер ждёт наверху страницы «Сегодня».",
+    "You're following {course}. Each evening it picks your words and games for you, and today's plan sits at the top of Today.": "Вы идёте по курсу «{course}». Каждый вечер он подбирает для вас слова и игры, а план на сегодня ждёт наверху страницы «Сегодня».",
     "the usual order": "обычный порядок",
     "your order": "ваш порядок",
     "Your Today page": "Ваша страница «Сегодня»",
     "Put the cards on Today in the order you like. The big button at the top always stays put, and Today shows the first {n} of these that have something for you.": "Расставьте карточки на странице «Сегодня» в удобном порядке. Большая кнопка наверху всегда остаётся на месте, а «Сегодня» показывает первые {n} из них, в которых для вас что-то есть.",
     "Time on the clock": "Время на таймере",
-    "Three games race the clock: the Case Sprint, the daily quest and Target. Choose how much time you'd like. Everything else about them stays the same.": "Три игры идут на время: падежный спринт, задание дня и «Мишень». Выберите, сколько времени вам нужно. Всё остальное в них не меняется.",
+    "The daily quest races the clock. Choose how much time you'd like. Everything else about it stays the same.": "Задание дня идёт на время. Выберите, сколько времени вам нужно. Всё остальное в нём не меняется.",
     "Why the mock exam keeps its own timing": "Почему у пробного экзамена своё время",
     "The mock exam is practice for the real state exam, so every part keeps the real exam's timings.": "Пробный экзамен готовит к настоящему государственному, поэтому в каждой его части то же время, что и на настоящем.",
     "always shown": "всегда показан",
@@ -767,6 +766,16 @@ export const APP: Area = {
     "Anything you answer offline is kept on your device and sent as soon as you're back online, stamped with the time you actually answered. So an offline session still counts for the right day.": "Всё, на что вы ответили без интернета, хранится на устройстве и отправляется, как только связь вернётся, с пометкой о времени, когда вы на самом деле ответили. Так что занятие без интернета засчитывается в нужный день.",
     "Standard": "Стандартный",
     "English": "Английский",
+    "{length} in the daily quest. {detail}":
+      "{length} в задании дня. {detail}",
+    "On a card you flip: not yet":
+      "На карточке, которую переворачиваете: пока нет",
+    "On a card you flip: got it":
+      "На карточке, которую переворачиваете: понятно",
+    "Play the word, while you're still choosing":
+      "Послушать слово, пока вы ещё выбираете",
+    "The same words asked in new ways, typed from memory. The quickest way to see which haven't stuck yet.":
+      "Те же слова в новых вопросах, по памяти и с клавиатуры. Самый быстрый способ понять, какие ещё не запомнились.",
   },
   uk: {
     "Suggested fixes": "Запропоновані виправлення",
@@ -1191,7 +1200,6 @@ export const APP: Area = {
     "Intense": "Інтенсивно",
     "{label}, {n} a day": "{label}, {n} на день",
     "How much time the timed games give you": "Скільки часу дають ігри на час",
-    "{length} in the sprint. {detail}": "{length} у спринті. {detail}",
     "Half again as long": "У півтора раза довше",
     "Twice as long": "Удвічі довше",
     "Five times as long": "У п'ять разів довше",
@@ -1221,7 +1229,7 @@ export const APP: Area = {
     "This is where your last level check put you. If it doesn't feel right, pick another. We'll go with yours until your next check.": "Це рівень, який показала ваша остання перевірка. Якщо він здається неправильним, виберіть інший. Ми виходитимемо з вашого вибору до наступної перевірки.",
     "Change it whenever it doesn't feel right. If you take a level check, its result will replace this.": "Змінюйте, коли рівень здається неправильним. Якщо пройдете перевірку рівня, її результат замінить цей.",
     "What the level decides": "Що визначає рівень",
-    "Your level decides which part of the course you're on, which new words come next, and which words the games and the dictionary suggest. If you change it, tonight's module moves to match. Nothing you've already learned is lost, and finished evenings stay finished.": "Від рівня залежить, на якій частині курсу ви перебуваєте, які нові слова будуть далі і які слова пропонують ігри та словник. Якщо його змінити, заняття на сьогодні підлаштується. Нічого з вивченого не пропаде, а пройдені вечори лишаться пройденими.",
+    "Your level decides which part of the course you're on, which new words come next, and which words the games and the dictionary suggest. If you change it, today's module moves to match. Nothing you've already learned is lost, and finished evenings stay finished.": "Від рівня залежить, на якій частині курсу ви перебуваєте, які нові слова будуть далі і які слова пропонують ігри та словник. Якщо його змінити, заняття на сьогодні підлаштується. Нічого з вивченого не пропаде, а пройдені вечори лишаться пройденими.",
     "Why you're learning Estonian": "Навіщо ви вчите естонську",
     "pick all that apply": "позначте все, що підходить",
     "I live in Estonia": "Я живу в Естонії",
@@ -1455,13 +1463,13 @@ export const APP: Area = {
     "day {day} of {total}": "день {day} з {total}",
     "off@setting": "вимкнено",
     "The planned course": "Курс за планом",
-    "You're following {course}. Each evening it picks your words and games for you, and tonight's plan sits at the top of Today.": "Ви йдете за курсом «{course}». Щовечора він добирає для вас слова й ігри, а план на цей вечір чекає вгорі сторінки «Сьогодні».",
+    "You're following {course}. Each evening it picks your words and games for you, and today's plan sits at the top of Today.": "Ви йдете за курсом «{course}». Щовечора він добирає для вас слова й ігри, а план на сьогодні чекає вгорі сторінки «Сьогодні».",
     "the usual order": "звичайний порядок",
     "your order": "ваш порядок",
     "Your Today page": "Ваша сторінка «Сьогодні»",
     "Put the cards on Today in the order you like. The big button at the top always stays put, and Today shows the first {n} of these that have something for you.": "Розставте картки на сторінці «Сьогодні» у зручному порядку. Велика кнопка вгорі завжди лишається на місці, а «Сьогодні» показує перші {n} з них, у яких для вас щось є.",
     "Time on the clock": "Час на таймері",
-    "Three games race the clock: the Case Sprint, the daily quest and Target. Choose how much time you'd like. Everything else about them stays the same.": "Три ігри йдуть на час: спринт із відмінків, завдання дня і «Мішень». Виберіть, скільки часу вам потрібно. Усе інше в них не змінюється.",
+    "The daily quest races the clock. Choose how much time you'd like. Everything else about it stays the same.": "Завдання дня йде на час. Виберіть, скільки часу вам потрібно. Усе інше в ньому не змінюється.",
     "Why the mock exam keeps its own timing": "Чому пробний іспит має власний час",
     "The mock exam is practice for the real state exam, so every part keeps the real exam's timings.": "Пробний іспит готує до справжнього державного, тому в кожній його частині той самий час, що й на справжньому.",
     "always shown": "завжди показувати",
@@ -1533,6 +1541,16 @@ export const APP: Area = {
     "Anything you answer offline is kept on your device and sent as soon as you're back online, stamped with the time you actually answered. So an offline session still counts for the right day.": "Усе, на що ви відповіли без інтернету, зберігається на пристрої й надсилається, щойно зв'язок повернеться, з позначкою часу, коли ви насправді відповіли. Тож заняття без інтернету зараховується в потрібний день.",
     "Standard": "Стандартний",
     "English": "Англійська",
+    "{length} in the daily quest. {detail}":
+      "{length} у завданні дня. {detail}",
+    "On a card you flip: not yet":
+      "На картці, яку перевертаєте: поки ні",
+    "On a card you flip: got it":
+      "На картці, яку перевертаєте: зрозуміло",
+    "Play the word, while you're still choosing":
+      "Послухати слово, поки ви ще обираєте",
+    "The same words asked in new ways, typed from memory. The quickest way to see which haven't stuck yet.":
+      "Ті самі слова в нових запитаннях, з пам'яті та з клавіатури. Найшвидший спосіб зрозуміти, які ще не запам'яталися.",
   },
   counted: {
     "review": { en: ["review", "reviews"], ru: ["повторение", "повторения", "повторений"], uk: ["повторення", "повторення", "повторень"] },

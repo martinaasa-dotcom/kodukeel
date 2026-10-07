@@ -297,7 +297,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
    */
   openAt: Level;
 }) {
-  /* Whether this conversation is a step of tonight's module, which decides
+  /* Whether this conversation is a step of today's module, which decides
      whether the briefing carries a door out of it. See
      components/course/moduleFocus.ts. */
   const inModule = useModuleFocus() !== null;
@@ -1203,7 +1203,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
           lesson is a door out of a room somebody has just stepped into.
         */}
         {/* AND GONE INSIDE A MODULE FOR THE REASON THE COMMENT ABOVE GIVES
-            ABOUT THE CONVERSATION ITSELF: a conversation reached from tonight's
+            ABOUT THE CONVERSATION ITSELF: a conversation reached from today's
             module is one step of an evening, and a lesson is a door out of it.
             Somebody who chose this conversation still gets the door. */}
         {unit && !inModule && (

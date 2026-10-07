@@ -411,7 +411,7 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     COMING BACK, WHICH OUTRANKS BOTH OF THE ROUTINE LETTERS.
 
     Somebody this far away is not going to read a summary of a week they were
-    not in, and a nudge about tonight's evening assumes a course they have
+    not in, and a nudge about today's evening assumes a course they have
     stepped out of. Whichever of the two was owed, this is the one to send.
   */
   const away = daysSince(who.lastReviewAt, now);

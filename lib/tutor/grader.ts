@@ -57,12 +57,12 @@ export interface GraderInput {
  */
 const NOTE_LANGUAGE: Readonly<Record<Exclude<Locale, "en">, string>> = { ru: "Russian", uk: "Ukrainian" };
 
-export function writtenIn(language: Locale | undefined): string {
+export function writtenIn(language: Locale | undefined, fields = '"comment" and "rule"'): string {
   if (!language || language === "en") return "";
   const name = NOTE_LANGUAGE[language];
   return `
 
-LANGUAGE OF YOUR NOTE: the learner reads ${name} better than English, so write "comment" and "rule" in ${name}: natural, warm ${name}, the way a ${name}-speaking teacher of Estonian writes to an adult student (${language === "ru" ? "вы" : "ви"}), never a translation of English sentences.${language === "uk" ? " Write standard literary Ukrainian and nothing else: no Russian words, no Russianisms or calques from Russian, no surzhyk, and never Russian spelled with Ukrainian letters. Never mention Russia, Russian or the Russian language, and never compare anything to Russian; where a comparison helps, compare with Ukrainian or English." : " Standard literary Russian only: not one Ukrainian word, letter or turn of phrase, no surzhyk, and never mention Ukrainian or Ukraine or compare anything with them."} Wherever the rules say plain English, read plain ${name}. Every rule about Estonian still holds exactly: quote any Estonian word in straight double quotes exactly as it is given above, never spell one you were not given, and put ${name} words in «» quotes, never straight ones. The JSON keys and the verdict stay in English.`;
+LANGUAGE OF YOUR NOTE: the learner reads ${name} better than English, so write ${fields} in ${name}: natural, warm ${name}, the way a ${name}-speaking teacher of Estonian writes to an adult student (${language === "ru" ? "вы" : "ви"}), never a translation of English sentences.${language === "uk" ? " Write standard literary Ukrainian and nothing else: no Russian words, no Russianisms or calques from Russian, no surzhyk, and never Russian spelled with Ukrainian letters. Never mention Russia, Russian or the Russian language, and never compare anything to Russian; where a comparison helps, compare with Ukrainian or English." : " Standard literary Russian only: not one Ukrainian word, letter or turn of phrase, no surzhyk, and never mention Ukrainian or Ukraine or compare anything with them."} Wherever the rules say plain English, read plain ${name}. Every rule about Estonian still holds exactly: quote any Estonian word in straight double quotes exactly as it is given above, never spell one you were not given, and put ${name} words in «» quotes, never straight ones. The JSON keys and the verdict stay in English.`;
 }
 
 /**
@@ -131,7 +131,7 @@ ${input.sentence}${writtenIn(input.language)}`;
  * Anything unparseable becomes an honest "could not grade" rather than a guess:
  * inventing a verdict here would be inventing feedback.
  */
-export function parseVerdict(raw: string): GradedSentence | null {
+export function firstJsonObject(raw: string): Record<string, unknown> | null {
   const start = raw.indexOf("{");
   if (start === -1) return null;
 
@@ -151,17 +151,27 @@ export function parseVerdict(raw: string): GradedSentence | null {
   if (end === -1) return null;
 
   try {
-    const parsed = JSON.parse(raw.slice(start, end)) as Record<string, unknown>;
-    const verdict = parsed.verdict;
-    if (verdict !== "correct" && verdict !== "almost" && verdict !== "wrong") return null;
-    return {
-      verdict,
-      comment: typeof parsed.comment === "string" ? humanizeReply(parsed.comment.slice(0, 600)) : "",
-      rule: typeof parsed.rule === "string" ? parsed.rule.slice(0, 200) : "",
-    };
+    const parsed: unknown = JSON.parse(raw.slice(start, end));
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : null;
   } catch {
     return null;
   }
+}
+
+/** One verdict out of an object the model wrote, or null where it is not one. */
+function verdictFrom(parsed: Record<string, unknown>): GradedSentence | null {
+  const verdict = parsed.verdict;
+  if (verdict !== "correct" && verdict !== "almost" && verdict !== "wrong") return null;
+  return {
+    verdict,
+    comment: typeof parsed.comment === "string" ? humanizeReply(parsed.comment.slice(0, 600)) : "",
+    rule: typeof parsed.rule === "string" ? parsed.rule.slice(0, 200) : "",
+  };
+}
+
+export function parseVerdict(raw: string): GradedSentence | null {
+  const parsed = firstJsonObject(raw);
+  return parsed ? verdictFrom(parsed) : null;
 }
 
 /**
@@ -528,71 +538,64 @@ export async function gradeComposition(
 // ── A sentence about a scene ─────────────────────────────────────────────────
 
 /**
- * Reading back one sentence a learner wrote about a scene.
+ * Five sentences about one picture, read together.
  *
- * The third prompt in this file and the third time the same boundary is drawn.
- * `lib/games/describe.ts` has already decided, against the dictionary and
- * before this runs, whether the named word carried the case the task asked for
- * and which case it carried instead. Nothing here can move that, and the
- * prompt says so, because a model that re-litigated the morphology would be
- * the one thing ADR-005 exists to prevent.
+ * "Say what you see" is the writing part of the state examination in
+ * miniature, so what a learner is owed is what an examiner's note gives: which
+ * sentences worked, which did not and why, and what to work on. One call reads
+ * all five, which costs a fifth of five calls and lets the summary be about
+ * the five rather than about the last one.
  *
- * WHAT THE SCENE BUYS. The writing grader is handed a word and a case and
- * nothing else, so the most it can say about a sentence is whether it hangs
- * together. Here the model is told what the picture is, so it can say the
- * thing a teacher would say first: that the sentence is fine Estonian and is
- * not about the picture. That is a judgment about meaning rather than about
- * morphology, which is the half a model is actually good at.
- *
- * The scene's words are given in English as well as Estonian, and the Estonian
- * is quoted rather than invented: every form in `KNOWN FORMS` came out of the
- * dictionary, and `verifyComment` checks afterwards that nothing else was
- * spelled, because a live test showed a model reaching for forms unprompted.
+ * WHAT THE MODEL IS AND IS NOT FOR. Whether a word is spelled, whether each
+ * sentence is long enough and whether it names something in the picture were
+ * decided from the dictionary before this ran (`lib/games/picture.ts`) and are
+ * handed over as facts. What is left is the part a model is good at and a
+ * dictionary is not: word order, the case of an object, whether the words go
+ * together. Every Estonian form it mentions is checked afterwards against the
+ * forms of the things in the picture and the learner's own words, and a note
+ * that introduces one is withheld (ADR-005, `verifyVerdict`).
  */
 export function buildDescribeSystemPrompt(): string {
-  return `You are Anu, an Estonian teacher, reading one sentence a learner has written about a picture.
+  return `You are Anu, an Estonian teacher, reading five sentences a learner has written about a picture.
 
 WHAT YOU ARE JUDGING
-Two things, in this order:
-1. Is the sentence about the picture? They were shown a situation and three things in it. A grammatical sentence about something else is the most useful thing you can point out, and nothing else in this app can see it.
-2. Is it Estonian that works? Word order, the case of the object, whether the words go together.
+For each sentence, in this order:
+1. Is it about the picture? They were shown a situation made of emoji and told to write what they see and what might be going on. A grammatical sentence about something else is worth pointing out.
+2. Is it Estonian that works? Word order, the case of the object, the verb ending, whether the words go together.
 
 WHAT HAS ALREADY BEEN DECIDED WITHOUT YOU
-Whether they used the one word in the one case the task named. That was checked against the dictionary before you saw this and the result is given to you below. Do not re-check it, do not contradict it, and do not repeat it back as though it were your finding.
+Whether each word is a real Estonian word, whether the sentence is long enough, and whether it names something in the picture. That was checked against the dictionary and the result is given to you below. Do not argue with it and do not repeat it back as your own finding.
 
 RULES YOU MUST NOT BREAK
-- Every Estonian form you mention must appear in KNOWN FORMS below, or be a word the learner themselves wrote. You may not introduce an inflected form from your own knowledge. If the sentence needs a word you have not been given, say so in plain English ("you'd need the form that answers onto what? here") and do not spell it.
+- Every Estonian form you mention must appear in KNOWN FORMS below, or be a word the learner themselves wrote. You may not introduce an inflected form from your own knowledge. If a sentence needs a word you have not been given, say so in plain English ("this verb needs the ending for she, not I") and do not spell it.
 - If you are unsure whether something is an error, say the sentence is acceptable. A confident correction that is wrong is far more damaging than a missed one, because the learner will believe you.
 - Give the reason in plain words when you correct something, not the feeling: "only some of it, because it's still going on", never "it sounds better". If you name a case, use its Estonian name, never the Latin one.
-- Do not tell them to use the other two words. Only one was required.
+- Judge each sentence on its own. A sentence is not wrong for repeating a word another one used.
 
 HOW YOU SOUND
 Like a warm teacher handing the page back in person: say what works before what does not, when both apply, then the one thing to fix. No praise that carries no information.
 ${VOICE}
 
 OUTPUT
-Reply with a single JSON object and nothing else:
-{"verdict":"correct"|"almost"|"wrong","comment":"one or two sentences","rule":"the grammatical rule at issue, or an empty string"}
+Reply with a single JSON object and nothing else, with exactly five entries in "sentences", in the order they were written:
+{"sentences":[{"verdict":"correct"|"almost"|"wrong","comment":"one or two sentences","rule":"the grammatical rule at issue, or an empty string"}],"went_well":"one or two sentences on what they did well across the five","work_on":"one or two sentences naming what to practice next, or an empty string if nothing stood out"}
 
 "correct" means the sentence works and is about the picture. "almost" means it is understandable but has an error worth naming, or is only loosely about the picture. "wrong" means it is not Estonian, or is about something else entirely.
 
-Do not use an em dash or an en dash anywhere in your comment. Use a comma, a period, or a pair of parentheses.`;
+Do not use an em dash or an en dash anywhere in your reply. Use a comma, a period, or a pair of parentheses.`;
 }
 
 export interface DescribeGraderInput {
   /** What is going on, in English. */
   situation: string;
-  /** The three things, as the learner saw them. */
+  /** What is in the picture, as the learner saw it. */
   things: { emoji: string; lemma: string; translation: string }[];
-  /** The word the task named, and the case it asked for. */
-  asked: { lemma: string; caseEt: string; caseQuestion: string };
-  /** Whether the mechanical check found that case. Settled before this runs. */
-  rightCase: boolean;
   /** Every authoritative form, so the model never has to guess one. */
   knownForms: { label: string; value: string }[];
-  sentence: string;
+  /** The five, in order, with what the dictionary already found out about each. */
+  sentences: { text: string; unknown: readonly string[]; mentions: readonly string[] }[];
   level: string;
-  /** The language the learner reads the app in; the note is written in it. English when absent. */
+  /** The language the learner reads the app in; the notes are written in it. English when absent. */
   language?: Locale;
 }
 
@@ -604,28 +607,67 @@ export function buildDescribeUserPrompt(input: DescribeGraderInput): string {
     .filter((f) => f.value)
     .map((f) => `  ${f.label}: ${f.value}`)
     .join("\n");
+  const written = input.sentences
+    .map((s, i) => {
+      const facts = [
+        s.unknown.length > 0 ? `words not found in the dictionary: ${s.unknown.join(", ")}` : "every word found in the dictionary",
+        s.mentions.length > 0 ? `names ${s.mentions.join(", ")} from the picture` : "names nothing from the picture's list",
+      ].join("; ");
+      return `  ${i + 1}. ${s.text}\n     (checked: ${facts})`;
+    })
+    .join("\n");
 
   return `LEARNER LEVEL: ${input.level}
 
-THE PICTURE. Situation: ${input.situation}. Three things in it:
+THE PICTURE. Situation: ${input.situation}. Things in it, which they could name:
 ${things}
 
-TASK SET: write one sentence about it, with "${input.asked.lemma}" in the ${input.asked.caseEt} (${input.asked.caseQuestion}${questionInEnglish(input.asked.caseQuestion) ? `, which asks ${questionInEnglish(input.asked.caseQuestion)}` : ""}).
-MECHANICAL CHECK: the learner ${input.rightCase ? "DID" : "DID NOT"} use that case.
+TASK SET: write five sentences about what you see and what might be going on.
 
 KNOWN FORMS, from the dictionary. These are the only Estonian forms you may write:
 ${forms || "  (none)"}
 
 THE LEARNER WROTE:
-${input.sentence}${writtenIn(input.language)}`;
+${written}${writtenIn(input.language, 'every "comment", "rule", "went_well" and "work_on"')}`;
+}
+
+export interface GradedPicture {
+  /** One per sentence, in the order they were written. */
+  sentences: GradedSentence[];
+  wentWell: string;
+  workOn: string;
+}
+
+/** A reply budget for five verdicts and a summary, which one sentence's is not. */
+export const PICTURE_REPLY_TOKENS = 1_800;
+
+/**
+ * Reads the model's five verdicts.
+ *
+ * All five or nothing: a reply with four, or one that mislabels a verdict,
+ * would put a note under the wrong sentence, which is worse than no notes.
+ */
+export function parsePictureGrade(raw: string, count: number): GradedPicture | null {
+  const parsed = firstJsonObject(raw);
+  if (!parsed || !Array.isArray(parsed.sentences) || parsed.sentences.length !== count) return null;
+  const sentences: GradedSentence[] = [];
+  for (const entry of parsed.sentences as unknown[]) {
+    if (!entry || typeof entry !== "object") return null;
+    const one = verdictFrom(entry as Record<string, unknown>);
+    if (!one) return null;
+    sentences.push(one);
+  }
+  const text = (value: unknown, max: number) =>
+    typeof value === "string" ? humanizeReply(value.slice(0, max)) : "";
+  return { sentences, wentWell: text(parsed.went_well, 400), workOn: text(parsed.work_on, 400) };
 }
 
 export async function gradeDescription(
   provider: ProviderConfig | readonly ProviderConfig[],
   input: DescribeGraderInput,
-): Promise<{ graded: GradedSentence | null; usage: UsageReport; config: ProviderConfig }> {
+): Promise<{ graded: GradedPicture | null; usage: UsageReport; config: ProviderConfig }> {
   const { text, usage, config } = await callChainForJson(
-    asChain(provider), buildDescribeSystemPrompt(), buildDescribeUserPrompt(input),
+    asChain(provider), buildDescribeSystemPrompt(), buildDescribeUserPrompt(input), PICTURE_REPLY_TOKENS,
   );
-  return { graded: parseVerdict(text), usage, config };
+  return { graded: parsePictureGrade(text, input.sentences.length), usage, config };
 }

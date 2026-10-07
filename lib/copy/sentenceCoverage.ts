@@ -89,6 +89,11 @@ export const SENTENCE_WITHOUT_ENGLISH: Readonly<Record<string, string>> = {
     "and the exercise. The marking afterwards is `lib/exam/written.ts`'s and is in " +
     "English already.",
 
+  "app/(app)/review/describe/DescribeSession.tsx":
+    "The boxes hold the learner's own sentences, theirs and unfinished, and the one " +
+    "authored example above them prints its English directly beneath it. The picture " +
+    "round says what each sentence got right and wrong in English afterwards.",
+
   "app/(app)/dictionary/AddWord.tsx":
     "Not a sentence. `{example}` is the grayed-out hint inside a form field, showing " +
     "what a principal part looks like, and the label beside it is already English.",

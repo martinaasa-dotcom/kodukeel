@@ -2,6 +2,7 @@
 
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
+import { rich } from "@/components/round/rich";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, Headphones, X } from "lucide-react";
@@ -17,6 +18,7 @@ import { narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { VOICES } from "@/lib/audio/voice";
 import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "@/components/AudioPrefs";
+import { SpaceKeyCap } from "@/components/KeyCaps";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -190,7 +192,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
+          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
             {t("That’s the round done")}
           </h1>
           {/* Said off how it went. "Tubli töö" over nought right was praise
@@ -294,11 +296,14 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   voice={voice.id}
                   condition={condition}
                   autoplay
+                  spaceKey="silent"
                   onUnavailable={() => setNoAudio(true)}
                   className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:scale-[1.02]"
                   style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "var(--shadow)" }}
                 />
-                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{t("Tap to hear the word, and again to replay it")}</p>
+                <p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
+                  {rich(t("Tap or press {space} to hear the word, and again to replay it"), { space: <SpaceKeyCap /> })}
+                </p>
               </>
             )
           ) : (

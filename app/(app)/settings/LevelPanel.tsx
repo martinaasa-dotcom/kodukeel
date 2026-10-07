@@ -73,7 +73,7 @@ export function LevelPanel({ current, measured }: {
           : "Change it whenever it doesn't feel right. If you take a level check, its result will replace this.")}
       </p>
       <Explain label={t("What the level decides")}>
-        {t("Your level decides which part of the course you’re on, which new words come next, and which words the games and the dictionary suggest. If you change it, tonight’s module moves to match. Nothing you’ve already learned is lost, and finished evenings stay finished.")}
+        {t("Your level decides which part of the course you’re on, which new words come next, and which words the games and the dictionary suggest. If you change it, today’s module moves to match. Nothing you’ve already learned is lost, and finished evenings stay finished.")}
       </Explain>
     </div>
   );

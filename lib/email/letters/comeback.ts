@@ -110,7 +110,7 @@ export function comebackLetter(input: ComebackInput): Letter {
   blocks.push({ t: "button", label: input.smallStep.title, href: input.smallStep.href });
   blocks.push({
     t: "link",
-    label: say("Or jump straight into tonight's fifteen minutes"),
+    label: say("Or jump straight into today's fifteen minutes"),
     href: `${input.origin}/course`,
   });
 
