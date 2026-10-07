@@ -16,10 +16,10 @@ import type { InvariantKit } from "../lib/invariantKit";
 export default function recordIsNotACertificate({ check, code, ALL }: InvariantKit) {
   check("the record of study says on its face that it is not a certificate", () => {
     const page = code("app/(app)/progress/record/page.tsx");
-    assert.match(page, /\{NOT_A_CERTIFICATE\}/, "the record page no longer prints the sentence saying it is not a certificate");
-    assert.match(page, /\{WHAT_PROVES_A_LEVEL\}/, "the record page no longer says what does prove a level");
+    assert.match(page, /\{(?:t\()?NOT_A_CERTIFICATE\)?\}/, "the record page no longer prints the sentence saying it is not a certificate");
+    assert.match(page, /\{(?:t\()?WHAT_PROVES_A_LEVEL\)?\}/, "the record page no longer says what does prove a level");
     const outside = page.replace(/<Explain\b[\s\S]*?<\/Explain>/g, "");
-    assert.match(outside, /\{NOT_A_CERTIFICATE\}/, "the not-a-certificate sentence is behind a press, where the reader of a printout cannot reach it");
+    assert.match(outside, /\{(?:t\()?NOT_A_CERTIFICATE\)?\}/, "the not-a-certificate sentence is behind a press, where the reader of a printout cannot reach it");
 
     const claims = ALL.filter((f) => !/\.(i)?test\.tsx?$/.test(f) && !f.startsWith("scripts/"))
       .filter((f) => /\b(your|our|earn|earned|download|get|receive)\s+(kodukeel\s+)?certificates?\b/i.test(code(f)));

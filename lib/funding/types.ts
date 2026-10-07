@@ -68,6 +68,19 @@ export interface Meter {
  * other than the operator is paying for it, and in the last case the page says
  * who.
  */
+/**
+ * A sentence the model builds with figures in it, kept as its template and
+ * values beside the English it reads as, so a page in another language can
+ * translate the template and write the figures the way its reader writes them.
+ * A number is formatted for the reader, with `digits` places where the English
+ * shows them; a list is a list of short labels, each translated and joined the
+ * way the reader's language joins a list.
+ */
+export interface Phrase {
+  readonly template: string;
+  readonly values: Readonly<Record<string, string | number | { readonly n: number; readonly digits: number } | readonly string[]>>;
+}
+
 export type ServiceCost =
   | {
       readonly kind: "charged";
@@ -75,6 +88,8 @@ export type ServiceCost =
       readonly usd: number;
       /** What moved it, in one line. */
       readonly why: string;
+      /** The same line as a template, where it carries figures. */
+      readonly whyAs?: Phrase;
       readonly meters?: readonly Meter[];
       /**
        * Set where the app's own spend cap, rather than the traffic, is what
@@ -119,6 +134,8 @@ export type ServiceCost =
       readonly kind: "given";
       /** What this one gives, in the reader's terms. */
       readonly gives: string;
+      /** The same line as a template, where it carries figures. */
+      readonly givesAs?: Phrase;
       /** The licence it is given under, where it states one. */
       readonly licence?: string;
       /**

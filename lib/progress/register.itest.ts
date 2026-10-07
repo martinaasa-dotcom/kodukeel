@@ -92,7 +92,7 @@ describe("which group the register is about", () => {
     await classroom("Last term", "ZZAAA1", []);
     const full = await classroom("This term", "ZZAAA2", [PUPIL]);
 
-    const built = await letterInputFor(TEACHER, "classroom", "https://example.test", MONDAY);
+    const built = await letterInputFor(TEACHER, "classroom", "https://example.test", MONDAY, "en");
     expect(built?.kind).toBe("classroom");
     expect(built && built.kind === "classroom" && built.input.groupName).toBe("This term");
     expect(full.id).toBeTruthy();
@@ -123,7 +123,7 @@ describe("who the register counts", () => {
     // two readings: the roster would report one active member and one answer.
     await reviewedOn(TEACHER, new Date("2026-09-10T09:00:00.000Z"), word.id);
 
-    const built = await letterInputFor(TEACHER, "classroom", "https://example.test", MONDAY);
+    const built = await letterInputFor(TEACHER, "classroom", "https://example.test", MONDAY, "en");
     expect(built?.kind).toBe("classroom");
     if (!built || built.kind !== "classroom") throw new Error("no register built");
 
@@ -142,7 +142,7 @@ describe("who the register counts", () => {
     await reviewedOn(PUPIL, new Date("2026-09-10T09:00:00.000Z"), word.id);
     await reviewedOn(PUPIL, new Date("2026-09-11T09:00:00.000Z"), word.id);
 
-    const built = await letterInputFor(TEACHER, "classroom", "https://example.test", MONDAY);
+    const built = await letterInputFor(TEACHER, "classroom", "https://example.test", MONDAY, "en");
     if (!built || built.kind !== "classroom") throw new Error("no register built");
 
     expect(built.input.members).toBe(1);

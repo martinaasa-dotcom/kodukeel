@@ -7,6 +7,7 @@ import { caseAccuracy } from "@/lib/stats/history";
 import type { LearnerNote } from "@/lib/tutor/prompt";
 import { prisma } from "@/lib/db";
 import { sceneById } from "@/lib/scenes/catalogue";
+import { localeFor } from "@/lib/progress/locale";
 
 /**
  * What Anu is told about the person asking, worked out from their own log.
@@ -30,7 +31,7 @@ export async function learnerContextFor(ownerId: string, now = new Date()): Prom
     off the reasons they gave, the same phrase the plan prints; and the last
     conversation they rehearsed comes off its own run.
   */
-  const [level, answer, goals, reviews, units, lastRun] = await Promise.all([
+  const [level, answer, goals, reviews, units, lastRun, language] = await Promise.all([
     courseLevelFor(ownerId),
     currentLevelAnswer(ownerId),
     goalsFor(ownerId).catch(() => null),
@@ -60,6 +61,8 @@ export async function learnerContextFor(ownerId: string, now = new Date()): Prom
       });
       return { run, gaps: gaps.map((g) => g.lemma).filter((l): l is string => l !== null) };
     }),
+    // The language she explains in, which is the one the app is read in.
+    localeFor(ownerId).catch(() => "en" as const),
   ]);
   let scene: LearnerNote["scene"] = null;
   if (lastRun) {
@@ -89,7 +92,7 @@ export async function learnerContextFor(ownerId: string, now = new Date()): Prom
   return {
     level,
     standing,
-    situation: goals ? describeSituation(reasonsFor(goals.reason)) : null,
+    situation: goals ? describeSituation(reasonsFor(goals.reason), "en") : null,
     weakestCase: weakest && weakest.accuracy < PERFECT
       ? { grammCase: weakest.grammCase, accuracy: weakest.accuracy, total: weakest.total }
       : null,
@@ -97,6 +100,7 @@ export async function learnerContextFor(ownerId: string, now = new Date()): Prom
       ? { title: current.unit.title, subtitle: current.unit.subtitle, level: current.unit.cefr }
       : null,
     scene,
+    language,
   };
 }
 

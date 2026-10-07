@@ -6,6 +6,7 @@ import { acceptCourseMove, snoozeCourseMove } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { Note } from "@/components/ui";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useT } from "@/components/Locale";
 
 /**
  * The two presses under an offer on the module screen: make the move, or not
@@ -25,6 +26,7 @@ import { NOT_REACHED } from "@/lib/copy/values";
 export function CourseMove({ kind, label }: { kind: "down" | "back" | "ahead" | null; label: string | null }) {
   const [failed, setFailed] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const t = useT();
 
   /* Each press catches its own rejection at the call, which is where the
      invariant looks and where a dropped connection is turned into a sentence
@@ -33,8 +35,8 @@ export function CourseMove({ kind, label }: { kind: "down" | "back" | "ahead" | 
     setFailed(null);
     start(async () => {
       const result = await press();
-      if (!result) { setFailed(NOT_REACHED); return; }
-      if (!result.ok) setFailed(result.error);
+      if (!result) { setFailed(t(NOT_REACHED)); return; }
+      if (!result.ok) setFailed(t(result.error));
     });
   };
 
@@ -44,7 +46,7 @@ export function CourseMove({ kind, label }: { kind: "down" | "back" | "ahead" | 
         {/* Where there is no move to make, the card is news rather than a
             question, and the press is an acknowledgement. */}
         <Button variant="secondary" disabled={pending} onClick={() => run(() => snoozeCourseMove().catch(() => null))}>
-          {kind ? "Not now" : "Got it"}
+          {kind ? t("Not now") : t("Got it")}
         </Button>
         {kind && label && (
           <Button variant="primary" disabled={pending} onClick={() => run(() => acceptCourseMove(kind).catch(() => null))}>
@@ -54,7 +56,7 @@ export function CourseMove({ kind, label }: { kind: "down" | "back" | "ahead" | 
       </div>
       {failed && (
         <div className="mt-2" role="status">
-          <Note tone="again">{failed} Nothing has changed.</Note>
+          <Note tone="again">{failed} {t("Nothing has changed.")}</Note>
         </div>
       )}
     </div>

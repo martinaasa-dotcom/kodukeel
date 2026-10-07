@@ -4,13 +4,17 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { bandsAround } from "@/lib/collections/levels";
 import { contrastLetter, findQuantityPairs, longerOf, type FormRef } from "@/lib/estonian/quantity";
 import { formLabel } from "@/lib/estonian/morph";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { PairsSession, type PairQuestion } from "./PairsSession";
 import { shuffle } from "@/lib/random/shuffle";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
-export const metadata = { title: "Minimal pairs" };
+export async function generateMetadata() {
+  return titleFor("Minimal pairs");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +65,7 @@ export default async function PairsPage() {
     the whole graded set answers instead, which is what this drill did for
     everybody before.
   */
-  const level = await courseLevelFor(ownerId);
+  const [level, locale] = await Promise.all([courseLevelFor(ownerId), localeFor(ownerId)]);
   const select = {
     id: true, lemma: true, translation: true,
     forms: { select: { value: true, formType: true, morphName: true } },
@@ -83,7 +87,8 @@ export default async function PairsPage() {
         value: form.value,
         lemma: lexeme.lemma,
         translation: lexeme.translation,
-        formLabel: formLabel(form),
+        // The English half is said in the learner's language; the Estonian name never is.
+        formLabel: formLabel(form, (english) => tr(locale, english)),
         lexemeId: lexeme.id,
       });
     }
@@ -112,11 +117,11 @@ export default async function PairsPage() {
 
   if (pairs.length === 0) {
     return (
-      <Page title="Minimal pairs" lead="Hear the difference a longer sound makes, even when spelling hides it.">
+      <Page title={tr(locale, "Minimal pairs")} lead={tr(locale, "Hear the difference a longer sound makes, even when spelling hides it.")}>
         <Empty
-          title="No pairs to listen to yet"
-          body="A pair is two words where one sound is held longer, like maja and majja. We haven't found any yet."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={tr(locale, "No pairs to listen to yet")}
+          body={tr(locale, "A pair is two words where one sound is held longer, like maja and majja. We haven't found any yet.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>}
         />
       </Page>
     );

@@ -58,11 +58,14 @@
 */
 import { wordCard } from "../art";
 import type { Block, Letter } from "../letter";
+import { sayer, type Locale } from "../say";
 
 export interface ErrandInput {
+  /** The language the letter is written in. The errand's English arrives already in it. */
+  readonly locale: Locale;
   readonly origin: string;
   readonly errand: {
-    /** English. The thing to do, in the errand's own words. */
+    /** The thing to do, in the errand's own words, in the reader's language. */
     readonly says: string;
     /** Where the people are, read the way a person says it. */
     readonly places: string;
@@ -85,7 +88,8 @@ export interface ErrandInput {
 }
 
 export function errandLetter(input: ErrandInput): Letter {
-  const { errand } = input;
+  const { errand, locale } = input;
+  const say = sayer(locale);
   const blocks: Block[] = [];
 
   /*
@@ -95,9 +99,9 @@ export function errandLetter(input: ErrandInput): Letter {
     sentence somebody could picture themselves doing, and anything in front of
     it is a sentence between them and the thing.
   */
-  blocks.push({ t: "heading", text: "One thing to say out loud today." });
+  blocks.push({ t: "heading", text: say("One thing to say out loud today.") });
   blocks.push({ t: "text", text: errand.says });
-  blocks.push({ t: "quiet", text: `${errand.places}. Nobody there will know it's practice.` });
+  blocks.push({ t: "quiet", text: say("{places}. Nobody there will know it's practice.", { places: errand.places }) });
 
   /*
     THE REHEARSAL, WHERE THERE IS ONE, AND IT IS THE BUTTON.
@@ -111,22 +115,25 @@ export function errandLetter(input: ErrandInput): Letter {
   if (errand.scene) {
     blocks.push({
       t: "text",
-      text: `Fancy a practice run first? ${errand.scene.title} takes about two minutes, with somebody who wants something from you, just like the real thing.`,
+      text: say(
+        "Fancy a practice run first? {title} takes about two minutes, with somebody who wants something from you, just like the real thing.",
+        { title: errand.scene.title },
+      ),
     });
     blocks.push({
       t: "button",
-      label: "Practise it first",
+      label: say("Practise it first"),
       href: `${input.origin}/situations/${errand.scene.id}`,
     });
     blocks.push({
       t: "link",
-      label: `Or just have a look at the words in ${errand.unitTitle}`,
+      label: say("Or just have a look at the words in {unit}", { unit: errand.unitTitle }),
       href: `${input.origin}/learn/${errand.unitId}`,
     });
   } else {
     blocks.push({
       t: "button",
-      label: `Have a look at the words first`,
+      label: say("Have a look at the words first"),
       href: `${input.origin}/learn/${errand.unitId}`,
     });
   }
@@ -146,28 +153,31 @@ export function errandLetter(input: ErrandInput): Letter {
   blocks.push({ t: "rule" });
   blocks.push({
     t: "text",
-    text:
+    text: say(
       "If they answer in English, that still counts. So does running out of words halfway. " +
-      "You said it, and whatever happens next is about the moment, not about you. " +
-      "The only thing that doesn't count is staying quiet.",
+        "You said it, and whatever happens next is about the moment, not about you. " +
+        "The only thing that doesn't count is staying quiet.",
+    ),
   });
   blocks.push({
     t: "quiet",
-    text: "Tomorrow morning the app will ask whether you spoke any Estonian to anyone. No is a perfectly fine answer.",
+    text: say("Tomorrow morning the app will ask whether you spoke any Estonian to anyone. No is a perfectly fine answer."),
   });
 
   if (input.word) {
+    const note = say("A word you might want for this one.");
     blocks.push({
       t: "art",
-      html: wordCard(input.word.lemma, input.word.translation, "A word you might want for this one."),
-      alt: `${input.word.lemma}: ${input.word.translation}. A word you might want for this one.`,
+      html: wordCard(input.word.lemma, input.word.translation, note),
+      alt: `${input.word.lemma}: ${input.word.translation}. ${note}`,
     });
   }
 
   return {
     kind: "errand",
-    subject: "One thing to say out loud today",
-    preheader: `${errand.places}. Just one sentence, and an answer in English still counts.`,
+    locale,
+    subject: say("One thing to say out loud today"),
+    preheader: say("{places}. Just one sentence, and an answer in English still counts.", { places: errand.places }),
     blocks,
   };
 }

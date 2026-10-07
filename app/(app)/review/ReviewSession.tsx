@@ -28,7 +28,7 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
 import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
 import { BLANK, filledSentence, mentions, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
-import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
+import { checkAnswer, countsAsRecalled, noteIn, type AnswerCheck } from "@/lib/estonian/answer";
 import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
 import { SameMeaning } from "@/components/round/SameMeaning";
 import { partOfSpeechCue, SAME_SPELLING, sameSpelling, wordName } from "@/lib/copy/values";
@@ -48,6 +48,9 @@ import { useHints } from "@/components/round/useHints";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useResumeCard } from "@/components/useResumeCard";
 import { useUiText } from "@/components/UiLanguage";
+import { useLocale, useT } from "@/components/Locale";
+import { localiseReadings } from "@/lib/copy/questionReading";
+import { countOf, fill } from "@/lib/copy/locale";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { type SeenCard } from "@/lib/ux/lookBack";
@@ -279,6 +282,7 @@ function WhyRow({ card, alsoRight }: {
   alsoRight?: string;
 }) {
   const router = useRouter();
+  const t = useT();
   // Named the way a class names it, because this question is going to a tutor
   // who is told to answer in the same words (lib/tutor/prompt.ts).
   const named = card.targetCase ? caseByKey(card.targetCase) : undefined;
@@ -287,14 +291,17 @@ function WhyRow({ card, alsoRight }: {
   // is a sentence now and carries no label, and the label is what the learner
   // wants the moment the answer appears and is not what they thought.
   const verbSlot = card.slot ? slotLabel(card.slot) : null;
+  // Asked in the learner's language, since it is their question to Anu.
+  const word = card.lemma ?? card.front;
   const question = alsoRight && card.lemma
-    ? `"${alsoRight}" and "${card.lemma}" both mean "${card.front}". When would an Estonian use each one?`
+    ? fill(t('"{also}" and "{word}" both mean "{meaning}". When would an Estonian use each one?'), { also: alsoRight, word: card.lemma, meaning: card.front })
     : card.targetCase
-    ? `I keep getting the ${caseName} of "${card.lemma ?? card.front}" wrong. Why does it look like that?`
+    ? fill(t('I keep getting the {form} of "{word}" wrong. Why does it look like that?'), { form: caseName, word })
     : verbSlot
-      ? `I keep getting "${card.lemma ?? card.front}" wrong in the ${verbSlot}. Why does it look like that?`
-      : `What does "${card.lemma ?? card.front}" mean, and when would an Estonian actually say it?`;
+      ? fill(t('I keep getting "{word}" wrong in the {form}. Why does it look like that?'), { form: verbSlot, word })
+      : fill(t('What does "{word}" mean, and when would an Estonian actually say it?'), { word });
 
+  const [whyBefore, whyAfter = ""] = t("Why the {form}?").split("{form}");
   const pill =
     "press inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-ui hover:-translate-y-px";
 
@@ -311,7 +318,7 @@ function WhyRow({ card, alsoRight }: {
           className={pill}
           style={{ background: "var(--raised)", color: "var(--ink-2)" }}
         >
-          <Compass size={12} aria-hidden /> Why the <span lang="et">{caseName}</span>?
+          <Compass size={12} aria-hidden /> {whyBefore}<span lang="et">{caseName}</span>{whyAfter}
         </Link>
       )}
       {/* Opens her panel over the card rather than leaving the round for
@@ -323,7 +330,7 @@ function WhyRow({ card, alsoRight }: {
         className={pill}
         style={{ background: "var(--raised)", color: "var(--ink-2)" }}
       >
-        <MessageCircleQuestion size={12} aria-hidden /> Ask Anu
+        <MessageCircleQuestion size={12} aria-hidden /> {t("Ask Anu")}
       </button>
     </div>
   );
@@ -347,6 +354,7 @@ function WhyRow({ card, alsoRight }: {
  * written or derived (ADR-005).
  */
 function MeetWord({ card, firstMeetingCardId }: { card: ReviewCard; firstMeetingCardId: string | null }) {
+  const t = useT();
   const lemma = card.intro?.lemma ?? card.lemma ?? card.front;
   const gloss = card.intro?.gloss ?? (card.cardType === "RECOGNITION" ? card.back : "");
 
@@ -370,7 +378,7 @@ function MeetWord({ card, firstMeetingCardId }: { card: ReviewCard; firstMeeting
           screen already, so it would only be saying it twice. */}
       {card.cardType !== "RECOGNITION" && (
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-          Next time, this card will ask:{" "}
+          {t("Next time, this card will ask:")}{" "}
           <span lang={estonianSide(card.cardType, "front") ? "et" : "en"} className="font-semibold">
             {card.front}
           </span>
@@ -593,6 +601,8 @@ export function ReviewSession({
   // detour, rather than a fresh start. See `components/useResumeCard.ts`.
   const { initialIndex, remember: rememberCard } = useResumeCard(initialCards);
   const uiText = useUiText();
+  const t = useT();
+  const locale = useLocale();
   const [index, setIndex] = useState(initialIndex);
   const [revealed, setRevealed] = useState(false);
   /*
@@ -769,7 +779,7 @@ export function ReviewSession({
      shows it, and `UNNAMED_WORD` on a card whose question is the word, until
      the answer is in (`wordName`). */
   const named = card
-    ? wordName(card.lemma ?? card.front, answerShown || !card.lemma || mentions(card.front, card.lemma))
+    ? t(wordName(card.lemma ?? card.front, answerShown || !card.lemma || mentions(card.front, card.lemma)))
     : "";
   /* The footer's next press, brought into view once the card has answered
      (`useKeepInView`): a verdict grows the card past the fold on a phone. */
@@ -1211,9 +1221,9 @@ export function ReviewSession({
       // `scheduled` on why the retype no longer grades itself on a timer.
       producedAt.current = Date.now();
     } else {
-      setRetypeNote("Not quite. Copy the answer above, letter for letter.");
+      setRetypeNote(t("Not quite. Copy the answer above, letter for letter."));
     }
-  }, [card, verdict, retyped, retypeOk]);
+  }, [card, verdict, retyped, retypeOk, t]);
 
   const pickChoice = useCallback((choice: string) => {
     if (!card || chosen) return;
@@ -1364,26 +1374,26 @@ export function ReviewSession({
 
   if (wasEmptyAtStart) {
     return (
-      <Page title="Review" lead="Each word comes back just as you're about to forget it.">
+      <Page title={t("Review")} lead={t("Each word comes back just as you're about to forget it.")}>
         {drillCase ? (
           <Empty
             // The Estonian name, like every other screen that names a case.
-            title={`No ${caseByKey(drillCase)?.et ?? drillCase.toLowerCase()} cards yet`}
-            body="These come from nouns in your deck. Start a unit with some nouns and they'll turn up here."
-            action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
+            title={fill(t("No {form} cards yet"), { form: caseByKey(drillCase)?.et ?? drillCase.toLowerCase() })}
+            body={t("These come from nouns in your deck. Start a unit with some nouns and they'll turn up here.")}
+            action={<ButtonLink href="/learn" variant="primary">{t("Open the learning path")}</ButtonLink>}
           />
         ) : drillUnit ? (
           <Empty
-            title="None of this unit is in your deck yet"
-            body="Do the unit's lesson first. Its words will turn up here once you've met them."
-            action={<ButtonLink href={`/learn/${drillUnit}`} variant="primary">Open the unit</ButtonLink>}
+            title={t("None of this unit is in your deck yet")}
+            body={t("Do the unit's lesson first. Its words will turn up here once you've met them.")}
+            action={<ButtonLink href={`/learn/${drillUnit}`} variant="primary">{t("Open the unit")}</ButtonLink>}
           />
         ) : drillScan ? (
           <Empty
-            title="None of this page is in your deck yet"
-            body="You saved these words but haven't added them to your deck yet. Do that and they'll show up here."
+            title={t("None of this page is in your deck yet")}
+            body={t("You saved these words but haven't added them to your deck yet. Do that and they'll show up here.")}
             action={
-              <ButtonLink href={`/scan/${drillScan.id}`} variant="primary">Open the page</ButtonLink>
+              <ButtonLink href={`/scan/${drillScan.id}`} variant="primary">{t("Open the page")}</ButtonLink>
             }
           />
         ) : inModule ? (
@@ -1400,29 +1410,29 @@ export function ReviewSession({
             both of them answer for somebody who walked here themselves.
           */
           <Empty
-            title="That's tonight's review done"
-            body="You've been through every word tonight had for you. On to the next step."
+            title={t("That's tonight's review done")}
+            body={t("You've been through every word tonight had for you. On to the next step.")}
           />
         ) : totalCards === 0 ? (
           <Empty
-            title="No cards yet"
-            body="Start a unit, or add a few words from the dictionary, and they'll wait for you here."
-            action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
+            title={t("No cards yet")}
+            body={t("Start a unit, or add a few words from the dictionary, and they'll wait for you here.")}
+            action={<ButtonLink href="/learn" variant="primary">{t("Open the learning path")}</ButtonLink>}
           />
         ) : (
           waitingOnCourse ? (
             <Empty
-              title="You're all caught up"
-              body="Nothing's due right now. Your next new words are waiting in tonight's module."
-              action={<ButtonLink href="/course" variant="primary">{"Open tonight's module"}</ButtonLink>}
+              title={t("You're all caught up")}
+              body={t("Nothing's due right now. Your next new words are waiting in tonight's module.")}
+              action={<ButtonLink href="/course" variant="primary">{t("Open tonight's module")}</ButtonLink>}
             />
           ) : (
             <Empty
-              title="You're all caught up"
+              title={t("You're all caught up")}
               body={nextDue ?? (totalCards === 1
-                ? "Your one card isn't due yet. It'll come back when it's time."
-                : `None of your ${totalCards} cards need you right now. Each one comes back when it's time.`)}
-              action={<ButtonLink href="/learn/new" variant="primary">Learn some new words</ButtonLink>}
+                ? t("Your one card isn't due yet. It'll come back when it's time.")
+                : fill(t("None of your {n} cards need you right now. Each one comes back when it's time."), { n: totalCards }))}
+              action={<ButtonLink href="/learn/new" variant="primary">{t("Learn some new words")}</ButtonLink>}
             />
           )
         )}
@@ -1450,9 +1460,9 @@ export function ReviewSession({
     >
       {aside && (
         <>
-          {aside}{" "}
+          {t(aside)}{" "}
           <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
-            Bring it back
+            {t("Bring it back")}
           </Link>
         </>
       )}
@@ -1462,30 +1472,31 @@ export function ReviewSession({
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     const accuracy = done > 0 ? Math.round((correct / done) * 100) : 0;
+    const [drilledBefore, drilledAfter = ""] = t("That\u2019s the {form} drilled. Those cards will still come back on their usual days.").split("{form}");
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <Lettered celebrate>
           <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
             <Mascot size={72} mood="cheer" className="float mx-auto" />
             <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-              Session complete
+              {t("Session complete")}
             </h1>
             <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
               {drillCase
-                ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the <span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span> drilled. Those cards will still come back on their usual days.</>
+                ? <>{t(uiText("Tubli töö.", "Good work."))} {drilledBefore}<span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span>{drilledAfter}</>
                 : drillUnit
-                  ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s this unit drilled. Its cards will still come back on their usual days.</>
+                  ? <>{t(uiText("Tubli töö.", "Good work."))} {t("That\u2019s this unit drilled. Its cards will still come back on their usual days.")}</>
                   : drillScan
-                    ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the whole page drilled. Its cards will still come back on their usual days.</>
-                    : <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s everything that was due. See you tomorrow.</>}
+                    ? <>{t(uiText("Tubli töö.", "Good work."))} {t("That\u2019s the whole page drilled. Its cards will still come back on their usual days.")}</>
+                    : <>{t(uiText("Tubli töö.", "Good work."))} {t("That\u2019s everything that was due. See you tomorrow.")}</>}
             </p>
           </div>
         </Lettered>
 
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={done} label="Reviewed" tone="accent" />
-          <StatTile value={`${accuracy}%`} label="Recalled" tone={accuracy >= 85 ? "sky" : "butter"} />
-          <StatTile value={`${minutes}m`} label="Time" tone="sky" />
+          <StatTile value={done} label={t("Reviewed")} tone="accent" />
+          <StatTile value={`${accuracy}%`} label={t("Recalled")} tone={accuracy >= 85 ? "sky" : "butter"} />
+          <StatTile value={fill(t("{n}m"), { n: minutes })} label={t("Time")} tone="sky" />
         </div>
         {/* A word put aside as the last card of a session ends it, so the note
             belongs here too: the one drawing is `asideNote`, because two
@@ -1496,14 +1507,15 @@ export function ReviewSession({
             className="mt-4 rounded-[var(--r)] px-4 py-3 text-sm"
             style={{ background: "var(--hard-soft)", color: "var(--hard-ink)" }}
           >
-            {pendingOffline} grade{pendingOffline === 1 ? "" : "s"} saved here while you were offline.
-            They&rsquo;ll go through as soon as you&rsquo;re back online, so it&rsquo;s fine to close the tab.
+            {fill(t("{count} saved here while you were offline. They\u2019ll go through as soon as you\u2019re back online, so it\u2019s fine to close the tab."), {
+              count: countOf(locale, pendingOffline, "grade"),
+            })}
           </p>
         )}
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/practice" size="lg"><Zap size={15} aria-hidden /> Play a round</ButtonLink>
-          <ButtonLink href="/learn/new" size="lg">Learn new words</ButtonLink>
-          <ButtonLink href="/" variant="primary" size="lg">Back to Today</ButtonLink>
+          <ButtonLink href="/practice" size="lg"><Zap size={15} aria-hidden /> {t("Play a round")}</ButtonLink>
+          <ButtonLink href="/learn/new" size="lg">{t("Learn new words")}</ButtonLink>
+          <ButtonLink href="/" variant="primary" size="lg">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -1516,31 +1528,33 @@ export function ReviewSession({
   // sentence: the word leads and the rest is drawn as a tag under it.
   const split = !isGap(card) && card.cardType !== "CLOZE" ? arrowFront(card.front) : null;
   const backLang = estonianSide(card.cardType, "back") ? "et" : "en";
+  const [practisingBefore, practisingAfter = ""] = t("Practising the {form}.").split("{form}");
   /*
     What the status line at the foot of the card says: the verdict in words,
     once there is one, and nothing before. A typed miss whose note already
     names the form is said as the note, as it is drawn.
   */
   const shownAnswer = primaryAnswer(card.back);
+  const verdictNote = verdict ? noteIn(verdict, locale) : "";
   const spokenVerdict =
     ask === "type" && verdict
       ? retypeOk
-        ? `${uiText("Õige!", "Correct!")} That's the one.`
+        ? `${t(uiText("Õige!", "Correct!"))} ${t("That's the one.")}`
         : verdict.neighbour
-          ? `Yes, ${verdict.neighbour.lemma} works too. This card was after ${shownAnswer}.`
+          ? fill(t("Yes, {word} works too. This card was after {answer}."), { word: verdict.neighbour.lemma, answer: shownAnswer })
           : verdict.verdict === "correct"
-          ? uiText("Õige!", "Correct!")
+          ? t(uiText("Õige!", "Correct!"))
           : countsAsRecalled(verdict.verdict)
-            ? `Close: ${verdict.note}`
-            : verdict.note.includes(shownAnswer)
-              ? verdict.note
-              : `${verdict.note} The answer is ${shownAnswer}.`
+            ? fill(t("Close: {note}"), { note: verdictNote })
+            : verdictNote.includes(shownAnswer)
+              ? verdictNote
+              : `${verdictNote} ${fill(t("The answer is {answer}."), { answer: shownAnswer })}`
       : ask === "choice" && chosen
         ? choiceIsRight(chosen, card.back, answerLanguage)
-          ? "Right."
-          : `Not this time. It's ${rightChoice}.`
+          ? t("Right.")
+          : fill(t("Not this time. It's {answer}."), { answer: rightChoice })
         : ask === "flip" && revealed
-          ? `The answer is ${shownAnswer}.`
+          ? fill(t("The answer is {answer}."), { answer: shownAnswer })
           : "";
 
   return (
@@ -1554,17 +1568,17 @@ export function ReviewSession({
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">{title}</h1>
+      <h1 className="sr-only">{t(title)}</h1>
       <div className="mb-7 flex items-center gap-4">
         <EndSession />
         <div className="flex-1">
-          <Meter pct={progress} label={`Session progress: ${index} of ${queue.length}`} height={10} tone="linear-gradient(90deg, var(--cta), var(--blush), var(--accent), var(--sky))" />
+          <Meter pct={progress} label={fill(t("Session progress: {n} of {total}"), { n: index, total: queue.length })} height={10} tone="linear-gradient(90deg, var(--cta), var(--blush), var(--accent), var(--sky))" />
         </div>
         <span
           className="tnum label-xs rounded-full px-2.5 py-1"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
         >
-          {remaining} left
+          {fill(t("{n} left"), { n: remaining })}
         </span>
       </div>
 
@@ -1589,8 +1603,8 @@ export function ReviewSession({
               brace-free JSX text, and this is a value interpolated into a run
               of text, which is the residual that rule names in writing.
             */
-            ? <>Practising the <span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span>.</>
-            : <>From {drillScan!.title}.</>}
+            ? <>{practisingBefore}<span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span>{practisingAfter}</>
+            : <>{fill(t("From {title}."), { title: t(drillScan!.title) })}</>}
         </p>
       )}
 
@@ -1607,8 +1621,8 @@ export function ReviewSession({
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           {/* Two chips at the most, and both about this card. What narrowed the
               session is said once, above, rather than on every card of it. */}
-          <Chip tone="accent">{TYPE_LABEL[card.cardType] ?? card.cardType}</Chip>
-          {card.isNew && !card.wordMet && <Chip tone="good">{card.intro?.isPhrase ? "New phrase" : "New word"}</Chip>}
+          <Chip tone="accent">{t(TYPE_LABEL[card.cardType] ?? card.cardType)}</Chip>
+          {card.isNew && !card.wordMet && <Chip tone="good">{card.intro?.isPhrase ? t("New phrase") : t("New word")}</Chip>}
           <div className="ml-auto flex items-center gap-1">
             {card.lemma && (
               <FullEntry lemma={card.lemma} />
@@ -1726,13 +1740,13 @@ export function ReviewSession({
               className="rounded-full px-4 py-1.5 text-lg font-semibold"
               style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
             >
-              {card.say}
+              {t(card.say)}
             </p>
           )}
 
           {!card.say && (isGap(card) ? answerShown : !answerShown) && plainAsk(slotAsked(card)) && (
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              {plainAskLine(slotAsked(card))}
+              {t(plainAskLine(slotAsked(card)) ?? "")}
             </p>
           )}
 
@@ -1758,7 +1772,7 @@ export function ReviewSession({
                   {cueCase.rest && <>{cueCase.rest} </>}
                   <CaseLabel label={cueCase} />
                 </>
-              ) : cue}
+              ) : t(cue)}
             </p>
           )}
 
@@ -1772,18 +1786,18 @@ export function ReviewSession({
                 `lib/copy/firstTry.ts` for why it is not under every box.
               */}
               {firstTry && (
-                <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>{FIRST_TRY_NOTE}</p>
+                <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>{t(FIRST_TRY_NOTE)}</p>
               )}
               <div className="mt-2 w-full max-w-sm text-left">
                 <label htmlFor="answer" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-                  Type the answer
+                  {t("Type the answer")}
                 </label>
                 <EstonianInput
                   id="answer"
                   value={typed}
                   onChange={setTyped}
                   onEnter={checkTyped}
-                  ariaLabel="Type your answer"
+                  ariaLabel={t("Type your answer")}
                   autoFocus
                   large
                 />
@@ -1809,11 +1823,11 @@ export function ReviewSession({
               <p
                 className={`${verdict.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(verdict.verdict)]} verdict-panel`}
               >
-                {verdict.verdict === "correct" ? uiText("Õige!", "Correct!") : verdict.note}
+                {verdict.verdict === "correct" ? t(uiText("Õige!", "Correct!")) : verdictNote}
               </p>
               {typed.trim() && verdict.verdict !== "correct" && (
                 <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                  You typed <span lang={backLang}>{typed.trim()}</span>
+                  {t("You typed")} <span lang={backLang}>{typed.trim()}</span>
                 </p>
               )}
               {/*
@@ -1837,7 +1851,7 @@ export function ReviewSession({
                       `Asked: ${card.front}. Expected: ${card.back}. ` +
                       `Typed: ${typed.trim() || "nothing"}.`
                     }
-                    label="I think that was right"
+                    label={t("I think that was right")}
                   />
                 </div>
               )}
@@ -1845,19 +1859,19 @@ export function ReviewSession({
                 <div className="mt-4 text-left">
                   {retypeOk ? (
                     <p className={`pop-in ${VERDICT_CLASS.right} verdict-panel`}>
-                      {uiText("Õige!", "Correct!")} That&apos;s the one.
+                      {t(uiText("Õige!", "Correct!"))} {t("That's the one.")}
                     </p>
                   ) : (
                     <>
                       <label htmlFor="retype" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-                        Now type it again
+                        {t("Now type it again")}
                       </label>
                       <EstonianInput
                         id="retype"
                         value={retyped}
                         onChange={(v) => { setRetyped(v); setRetypeNote(null); }}
                         onEnter={checkRetype}
-                        ariaLabel="Type the answer again"
+                        ariaLabel={t("Type the answer again")}
                         autoFocus
                         large
                       />
@@ -1912,8 +1926,8 @@ export function ReviewSession({
                     {state ? (
                       <>
                         <span className="flex-1">{choice}</span>
-                        {state === "right" && <Check size={16} aria-label="Right" />}
-                        {state === "wrong" && <X size={16} aria-label="Your pick" />}
+                        {state === "right" && <Check size={16} aria-label={t("Right")} />}
+                        {state === "wrong" && <X size={16} aria-label={t("Your pick")} />}
                       </>
                     ) : (
                       <>
@@ -1926,7 +1940,7 @@ export function ReviewSession({
                           the press would be the app saying they are wrong
                           before they have answered.
                         */}
-                        {struck.includes(choice) && <span className="sr-only"> (ruled out by a hint)</span>}
+                        {struck.includes(choice) && <span className="sr-only"> {t("(ruled out by a hint)")}</span>}
                       </>
                     )}
                   </button>
@@ -1976,7 +1990,7 @@ export function ReviewSession({
                     </p>
                     <Speak
                       text={filledSentence(card.front, card.back)}
-                      label="Hear the whole sentence"
+                      label={t("Hear the whole sentence")}
                       autoplay
                       className="press inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
                     />
@@ -1993,7 +2007,7 @@ export function ReviewSession({
                 <div className="flex items-center gap-2">
                   <FitText
                     as="p"
-                    text={card.back}
+                    text={card.cardType === "GOVERNMENT" ? localiseReadings(locale, card.back) : card.back}
                     lang={backLang}
                     data-answer=""
                     className="font-bold [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"
@@ -2010,7 +2024,7 @@ export function ReviewSession({
                   that looks broken. It is a real fact about the word, so it is
                   said in words. */}
               {answerShown && sameSpelling(card.front, card.back) && (
-                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{SAME_SPELLING}</p>
+                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{t(SAME_SPELLING)}</p>
               )}
 
               {/* And not on a gap reveal, where the sentence and its English
@@ -2028,7 +2042,7 @@ export function ReviewSession({
                       {revealedCase.rest && <>{revealedCase.rest} </>}
                       <CaseLabel label={revealedCase} />
                     </>
-                  ) : revealedHint}
+                  ) : t(revealedHint)}
                 </p>
               )}
             </>
@@ -2064,12 +2078,12 @@ export function ReviewSession({
           */}
           {ask === "intro" ? (
             <Button variant="primary" size="lg" className="w-full" onClick={meetDone} disabled={busy}>
-              Got it, ask me later
+              {t("Got it, ask me later")}
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "type" && !verdict ? (
             <Button variant="primary" size="lg" className="w-full" onClick={checkTyped}>
-              Check
+              {t("Check")}
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "type" && verdict ? (
@@ -2084,30 +2098,30 @@ export function ReviewSession({
               onClick={needsRetype ? checkRetype : () => void submit(verdict.suggestedRating)}
               disabled={busy}
             >
-              {needsRetype ? "Check it again" : "Got it, next"}
+              {needsRetype ? t("Check it again") : t("Got it, next")}
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "choice" && !chosen ? (
             <p className="text-center text-xs" style={{ color: "var(--ink-3)" }}>
-              Pick the meaning, or press 1 to {card.choices?.length ?? 4}
+              {fill(t("Pick the meaning, or press 1 to {n}"), { n: card.choices?.length ?? 4 })}
             </p>
           ) : ask === "choice" && chosen !== null && choiceIsRight(chosen, card.back, answerLanguage) ? (
             /* Right, and waiting: the tile has already turned mint, so the
                button only has to say what happens next. */
             <Button variant="primary" size="lg" className="w-full" onClick={() => void submit(3)} disabled={busy}>
-              {uiText("Õige!", "Correct!")}
+              {t(uiText("Õige!", "Correct!"))}
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "choice" ? (
             /* Picked the wrong one. Nothing to grade: the right answer is on
                the screen and the card comes back later in this session. */
             <Button variant="primary" size="lg" className="w-full" onClick={() => void submit(1)} disabled={busy}>
-              Got it, next
+              {t("Got it, next")}
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : !revealed ? (
             <Button variant="primary" size="lg" className="w-full" onClick={() => setRevealed(true)}>
-              Show answer
+              {t("Show answer")}
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
@@ -2129,7 +2143,7 @@ export function ReviewSession({
                      Estonian. */
                   className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center rounded-[var(--r)] px-2 py-3.5 transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
-                  <span className="text-base font-bold">{g.label}</span>
+                  <span className="text-base font-bold">{t(g.label)}</span>
                 </button>
               ))}
             </div>
@@ -2139,8 +2153,8 @@ export function ReviewSession({
       )}
 
       <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span className="flex items-center gap-1"><Check size={12} aria-hidden style={{ color: "var(--good-ink)" }} /> {correct} recalled</span>
-        <span className="flex items-center gap-1"><RotateCcw size={12} aria-hidden /> {done} graded</span>
+        <span className="flex items-center gap-1"><Check size={12} aria-hidden style={{ color: "var(--good-ink)" }} /> {fill(t("{n} recalled"), { n: correct })}</span>
+        <span className="flex items-center gap-1"><RotateCcw size={12} aria-hidden /> {fill(t("{n} graded"), { n: done })}</span>
         <LookBackButton {...look.button} disabled={busy || look.looking} />
         <Button
           type="button"
@@ -2169,7 +2183,7 @@ export function ReviewSession({
           {/* The cap names the key that works on the card in front of you:
               `u` is a letter while a box has focus, so a typed card carries
               the gesture that is not one. Same rule as the hint beside it. */}
-          <Undo2 size={13} aria-hidden /> Undo <KeyCap>{ask === "type" ? "⌘Z" : "U"}</KeyCap>
+          <Undo2 size={13} aria-hidden /> {t("Undo")} <KeyCap>{ask === "type" ? "⌘Z" : "U"}</KeyCap>
         </Button>
         <span className="hidden items-center gap-1 md:flex">
           <Keyboard size={12} aria-hidden />
@@ -2178,22 +2192,24 @@ export function ReviewSession({
               four shapes, which told anyone on a multiple-choice card to press
               Space to flip and 1-4 to grade, where nothing flips and 1-4 picks
               an option instead. */}
-          {ask === "intro"
-            ? `${ADVANCE_KEY_LABEL} when you're ready`
+          {fill(t(ask === "intro"
+            ? "{key} when you're ready"
             : ask === "type"
-              ? (verdict ? (needsRetype ? `Type it again, then ${ADVANCE_KEY_LABEL}` : `${ADVANCE_KEY_LABEL} to carry on`) : `${ADVANCE_KEY_LABEL} to check`)
+              ? (verdict ? (needsRetype ? "Type it again, then {key}" : "{key} to carry on") : "{key} to check")
               : ask === "choice"
-                ? (chosen ? `${ADVANCE_KEY_LABEL} to carry on` : `1 to ${card?.choices?.length ?? 4} to pick`)
+                ? (chosen ? "{key} to carry on" : "1 to {n} to pick")
                 : !revealed
-                  ? `${ADVANCE_KEY_LABEL} to flip`
-                  : "1 for not yet, 2 for got it"}
+                  ? "{key} to flip"
+                  : "1 for not yet, 2 for got it"), { key: ADVANCE_KEY_LABEL, n: card?.choices?.length ?? 4 })}
         </span>
       </div>
 
       {asideNote}
       {pendingOffline > 0 && (
         <p className="mt-3 text-center text-xs" style={{ color: "var(--hard-ink)" }}>
-          You&rsquo;re offline. {pendingOffline} answer{pendingOffline === 1 ? "" : "s"} saved here, and they&rsquo;ll go through when you reconnect.
+          {fill(t("You\u2019re offline. {count} saved here, and they\u2019ll go through when you reconnect."), {
+            count: countOf(locale, pendingOffline, "answer"),
+          })}
         </p>
       )}
       {/*

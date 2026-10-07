@@ -7,6 +7,9 @@ import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope"
 import { LearnSession } from "./LearnSession";
 import { firstParams } from "@/lib/ux/queryParam";
 
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
+
 export const dynamic = "force-dynamic";
 
 function kindFrom(raw: string | undefined): LearnKind {
@@ -15,7 +18,8 @@ function kindFrom(raw: string | undefined): LearnKind {
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ kind?: string | string[] }> }) {
   const { kind } = firstParams(await searchParams);
-  return { title: kindFrom(kind) === "phrase" ? "Learn phrases" : "Learn new words" };
+  const locale = await localeFor(await requireUserId());
+  return { title: tr(locale, kindFrom(kind) === "phrase" ? "Learn phrases" : "Learn new words") };
 }
 
 /**

@@ -5,6 +5,8 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { playClip } from "@/lib/audio/clip";
 import type { Condition } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "./AudioPrefs";
+import { useT } from "./Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * Pronunciation button.
@@ -75,6 +77,7 @@ export function Speak({
    */
   autoplay?: boolean;
 }) {
+  const t = useT();
   const [state, setState] = useState<"idle" | "loading" | "gone">("idle");
   const prefs = useAudioPrefs();
   const voice = askedVoice ?? prefs.voice;
@@ -142,7 +145,7 @@ export function Speak({
     sighted reader sees the gap. A screen reader whose focus was on it is left
     on the page with nothing said, so a quiet status stands where it was.
   */
-  if (state === "gone") return <span role="status" className="sr-only">No audio for this one.</span>;
+  if (state === "gone") return <span role="status" className="sr-only">{t("No audio for this one.")}</span>;
 
   const loading = state === "loading";
 
@@ -160,7 +163,7 @@ export function Speak({
       disabled={disabled}
       aria-disabled={loading || undefined}
       aria-busy={loading || undefined}
-      aria-label={label ?? `Hear "${text}"${slow ? " slowly" : ""} in Estonian`}
+      aria-label={label ?? hear(t, text, !!slow)}
       className={className ?? "press inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"}
       style={{ color: "var(--ink-3)", opacity: disabled ? 0.4 : undefined, ...style }}
     >
@@ -207,7 +210,8 @@ export function SpeakPair({
   autoplay?: boolean;
 }) {
   const [gone, setGone] = useState(false);
-  if (gone) return <span role="status" className="sr-only">No audio for this one.</span>;
+  const t = useT();
+  if (gone) return <span role="status" className="sr-only">{t("No audio for this one.")}</span>;
 
   const lost = () => {
     setGone(true);
@@ -224,7 +228,7 @@ export function SpeakPair({
       <Speak
         text={text}
         size={size}
-        label={label ?? `Hear "${text}" in Estonian`}
+        label={label ?? hear(t, text, false)}
         disabled={disabled}
         onPlay={onPlay}
         onUnavailable={lost}
@@ -238,7 +242,7 @@ export function SpeakPair({
         text={text}
         slow
         size={size}
-        label={slowLabel ?? `Hear "${text}" slowly in Estonian`}
+        label={slowLabel ?? hear(t, text, true)}
         disabled={disabled}
         onPlay={onPlay}
         onUnavailable={lost}
@@ -246,8 +250,13 @@ export function SpeakPair({
         className={`${half} gap-1 whitespace-nowrap px-2.5 py-1.5 text-xs font-semibold`}
         style={{ color: "var(--ink-3)" }}
       >
-        Slow
+        {t("Slow")}
       </Speak>
     </span>
   );
+}
+
+/** The speaker's name for a screen reader, in the reader's language. The English is the key. */
+function hear(t: (english: string) => string, text: string, slow: boolean): string {
+  return fill(slow ? t('Hear "{text}" slowly in Estonian') : t('Hear "{text}" in Estonian'), { text });
 }

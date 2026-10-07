@@ -33,7 +33,7 @@ const CASE_SLIP: Slip = { kind: "case", said: "pea", form: "peas", lemma: "pea",
 
 describe("the review of a conversation", () => {
   it("leads on what landed, because that is the sentence somebody takes away", () => {
-    const review = reviewOf(SCENE, state([turn(), turn(), turn()]));
+    const review = reviewOf(SCENE, state([turn(), turn(), turn()]), "en");
     expect(review.lead).toMatch(/answered the question/);
     expect(review.lead).not.toMatch(/wrong|mistake|error/i);
   });
@@ -47,11 +47,11 @@ describe("the review of a conversation", () => {
   */
   it("counts a turn that answered part of the question as part, not whole", () => {
     const partial = turn({ reading: "incomplete", met: [true, false] });
-    const lead = reviewOf(SCENE, state([turn(), partial, partial], ["reason"])).lead;
+    const lead = reviewOf(SCENE, state([turn(), partial, partial], ["reason"]), "en").lead;
     expect(lead).not.toMatch(/Every one of/);
     expect(lead).not.toMatch(/Nothing needed putting right/);
     expect(lead).toContain("1 of your 3 turns answered the question, and 2 more answered part of it.");
-    const onlyPart = reviewOf(SCENE, state([partial, partial], [])).lead;
+    const onlyPart = reviewOf(SCENE, state([partial, partial], []), "en").lead;
     expect(onlyPart).toContain("2 of your 2 turns answered part of the question.");
   });
 
@@ -63,7 +63,7 @@ describe("the review of a conversation", () => {
   */
   it("does not tell somebody who answered nothing that they were understood", () => {
     const missed = [turn({ reading: "offtarget", met: [false] }), turn({ reading: "offtarget", met: [false] })];
-    const review = reviewOf(SCENE, state(missed, []));
+    const review = reviewOf(SCENE, state(missed, []), "en");
     expect(review.lead).not.toMatch(/[0-9]+ of your/);
     expect(review.lead).toMatch(/got through/);
     // And it says the way in rather than a figure.
@@ -75,11 +75,11 @@ describe("the review of a conversation", () => {
     than hedging "ending or spelling" over a run that held only one of the two.
   */
   it("agrees with itself about one slip, and names which kind it was", () => {
-    const one = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })])).lead;
+    const one = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })]), "en").lead;
     expect(one).toContain("One ending was off, and it didn't stop the conversation.");
     const spelling: Slip = { kind: "spelling", said: "korvas", form: "kõrvas", lemma: "kõrv" };
-    expect(reviewOf(SCENE, state([turn({ slips: [spelling] })])).lead).toContain("One spelling was off");
-    expect(reviewOf(SCENE, state([turn({ slips: [CASE_SLIP, spelling] })])).lead)
+    expect(reviewOf(SCENE, state([turn({ slips: [spelling] })]), "en").lead).toContain("One spelling was off");
+    expect(reviewOf(SCENE, state([turn({ slips: [CASE_SLIP, spelling] })]), "en").lead)
       .toContain("2 endings and spellings were off, and not one of them");
   });
 
@@ -89,13 +89,13 @@ describe("the review of a conversation", () => {
   */
   it("does not say every time about some of the time", () => {
     const off = turn({ reading: "offtarget", met: [false] });
-    const lead = reviewOf(SCENE, state([off, turn({ reading: "unrecognised", met: [false] })], [])).lead;
+    const lead = reviewOf(SCENE, state([off, turn({ reading: "unrecognised", met: [false] })], []), "en").lead;
     expect(lead).not.toMatch(/every time/);
     expect(lead).toContain("1 of your 2 turns were understood as Estonian");
   });
 
   it("still says their Estonian was understood, where it was", () => {
-    const review = reviewOf(SCENE, state([turn({ reading: "offtarget", met: [false] })], []));
+    const review = reviewOf(SCENE, state([turn({ reading: "offtarget", met: [false] })], []), "en");
     expect(review.lead).toMatch(/understood every time/);
   });
 
@@ -106,18 +106,18 @@ describe("the review of a conversation", () => {
     unreadable and that was the loudest part of why.
   */
   it("does not say what was left undone a third time", () => {
-    const review = reviewOf(SCENE, state([turn()], []));
+    const review = reviewOf(SCENE, state([turn()], []), "en");
     expect(review.notes.some((n) => n.id === "missed")).toBe(false);
     expect(review.notes.every((n) => !(n.body ?? "").includes("Say what is wrong."))).toBe(true);
   });
 
   it("counts turns the other side acted on, and not the ones it waited through", () => {
-    const review = reviewOf(SCENE, state([turn(), turn({ reading: "fragment" }), turn({ reading: "echo" })]));
+    const review = reviewOf(SCENE, state([turn(), turn({ reading: "fragment" }), turn({ reading: "echo" })]), "en");
     expect(review.lead).toContain("The one thing you said");
   });
 
   it("says nothing came out wrong where nothing did", () => {
-    expect(reviewOf(SCENE, state([turn(), turn()])).notes).toEqual([]);
+    expect(reviewOf(SCENE, state([turn(), turn()]), "en").notes).toEqual([]);
   });
 
   /*
@@ -127,7 +127,7 @@ describe("the review of a conversation", () => {
     want to know is what happened to the word they wrote.
   */
   it("leads with the learner's own word and says which turn it was in", () => {
-    const note = reviewOf(SCENE, state([turn(), turn({ slips: [CASE_SLIP] })])).notes[0];
+    const note = reviewOf(SCENE, state([turn(), turn({ slips: [CASE_SLIP] })]), "en").notes[0];
     expect(note?.said).toBe("pea");
     expect(note?.form).toBe("peas");
     expect(note?.what).toBe("the ending for \u201cin\u201d");
@@ -143,14 +143,14 @@ describe("the review of a conversation", () => {
   */
   it("does not call the plain form an ending", () => {
     const slip: Slip = { kind: "case", said: "kooli", form: "kool", lemma: "kool", grammCase: "NOMINATIVE" };
-    const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
+    const note = reviewOf(SCENE, state([turn({ slips: [slip] })]), "en").notes[0];
     expect(note?.what).toBe("the form for \u201cthe plain word\u201d");
   });
 
   it("says how many times only where it was more than once", () => {
-    const once = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })])).notes[0];
+    const once = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })]), "en").notes[0];
     expect(once?.times).toBeUndefined();
-    const twice = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] }), turn({ slips: [CASE_SLIP] })])).notes[0];
+    const twice = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] }), turn({ slips: [CASE_SLIP] })]), "en").notes[0];
     expect(twice?.times).toBe(2);
     // And it points at the first of them, which is nearest the top.
     expect(twice?.at).toBe(0);
@@ -160,7 +160,7 @@ describe("the review of a conversation", () => {
     const other: Slip = { kind: "case", said: "kohv", form: "kohvi", lemma: "kohv", grammCase: "PARTITIVE" };
     const review = reviewOf(SCENE, state([
       turn({ slips: [other] }), turn({ slips: [CASE_SLIP] }), turn({ slips: [CASE_SLIP] }),
-    ]));
+    ]), "en");
     expect(review.notes[0]?.said).toBe("pea");
     expect(review.notes[1]?.said).toBe("kohv");
   });
@@ -173,7 +173,7 @@ describe("the review of a conversation", () => {
   */
   it("guesses why, off the case they reached for", () => {
     const slip: Slip = { ...CASE_SLIP, said: "peal", reached: "ADESSIVE" };
-    const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
+    const note = reviewOf(SCENE, state([turn({ slips: [slip] })]), "en").notes[0];
     expect(note?.hunch?.sure).toBe("likely");
     expect(note?.hunch?.says).toContain("kus?");
   });
@@ -181,7 +181,7 @@ describe("the review of a conversation", () => {
   it("reads the case the question before wanted as the likeliest reason", () => {
     const first: Slip = { kind: "case", said: "peast", form: "peas", lemma: "pea", grammCase: "ELATIVE" };
     const second: Slip = { ...CASE_SLIP, said: "peast", reached: "ELATIVE" };
-    const review = reviewOf(SCENE, state([turn({ slips: [first] }), turn({ slips: [second] })]));
+    const review = reviewOf(SCENE, state([turn({ slips: [first] }), turn({ slips: [second] })]), "en");
     // Both turns said the same word; the note keyed on the case that was wanted.
     const note = review.notes.find((n) => n.id === "case:INESSIVE:peast");
     expect(note?.hunch?.says).toContain("the question before");
@@ -200,7 +200,7 @@ describe("the review of a conversation", () => {
   it("gives one reason once, and says how many notes it covers", () => {
     const into: Slip = { kind: "case", said: "pood", form: "poodi", lemma: "pood", grammCase: "ILLATIVE", reached: "NOMINATIVE" };
     const some: Slip = { kind: "case", said: "piim", form: "piima", lemma: "piim", grammCase: "PARTITIVE", reached: "NOMINATIVE" };
-    const notes = reviewOf(SCENE, state([turn({ slips: [into] }), turn({ slips: [some] })])).notes;
+    const notes = reviewOf(SCENE, state([turn({ slips: [into] }), turn({ slips: [some] })]), "en").notes;
     expect(notes.filter((n) => n.hunch)).toHaveLength(1);
     // The notes themselves stay: each is about a different word.
     expect(notes).toHaveLength(2);
@@ -210,18 +210,18 @@ describe("the review of a conversation", () => {
   });
 
   it("leaves a reason that covers one note exactly as it was", () => {
-    const note = reviewOf(SCENE, state([turn({ slips: [{ ...CASE_SLIP, reached: "NOMINATIVE" }] })])).notes[0];
+    const note = reviewOf(SCENE, state([turn({ slips: [{ ...CASE_SLIP, reached: "NOMINATIVE" }] })]), "en").notes[0];
     expect(note?.hunch?.says).not.toContain("The same thing is behind");
   });
 
   it("guesses nothing where the spelling names no case", () => {
-    const note = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })])).notes[0];
+    const note = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })]), "en").notes[0];
     expect(note?.hunch).toBeUndefined();
   });
 
   it("states the one rule that gets five forms for the price of one", () => {
     const slip: Slip = { kind: "person", said: "tulema", form: "tulen", lemma: "tulema" };
-    const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
+    const note = reviewOf(SCENE, state([turn({ slips: [slip] })]), "en").notes[0];
     expect(note?.said).toBe("tulema");
     expect(note?.form).toBe("tulen");
     expect(note?.body).toContain("first");
@@ -229,7 +229,7 @@ describe("the review of a conversation", () => {
   });
 
   it("counts a turn in English without a word against it", () => {
-    const note = reviewOf(SCENE, state([turn({ reading: "english" })])).notes.find((n) => n.id === "english");
+    const note = reviewOf(SCENE, state([turn({ reading: "english" })]), "en").notes.find((n) => n.id === "english");
     expect(note?.said).toBe("One turn in English");
     expect(note?.body).not.toMatch(/should|must|avoid/i);
   });
@@ -247,7 +247,7 @@ describe("the review of a conversation", () => {
       { kind: "form", said: "valudeks", form: "valusid", lemma: "valu" },
       { kind: "spelling", said: "korvas", form: "kõrvas", lemma: "kõrv" },
     ];
-    const review = reviewOf(SCENE, state([turn({ slips })]));
+    const review = reviewOf(SCENE, state([turn({ slips })]), "en");
     expect(review.notes.length).toBe(4);
     for (const note of review.notes) {
       expect(note.body ?? "", note.id).not.toMatch(/[õäöüšž]/i);
@@ -260,12 +260,12 @@ describe("the review of a conversation", () => {
   */
   it("marks a hunch as a guess and never as a finding", () => {
     const slip: Slip = { ...CASE_SLIP, said: "peal", reached: "ADESSIVE" };
-    const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
+    const note = reviewOf(SCENE, state([turn({ slips: [slip] })]), "en").notes[0];
     expect(["likely", "possible"]).toContain(note?.hunch?.sure);
   });
 
   it("says something kind and true about a run where nothing was said", () => {
-    const review = reviewOf(SCENE, state([], []));
+    const review = reviewOf(SCENE, state([], []), "en");
     expect(review.lead).toMatch(/didn't say anything/);
     expect(review.notes).toEqual([]);
   });

@@ -1524,8 +1524,12 @@ const NEIGHBOR: SceneSpec = {
   role: "You moved into the building last week. On the stairs you bump into the person from the flat opposite, who stops to say hello. Your card says where you're from and who lives with you.",
   props: [
     { kind: "number", slot: "floor", min: 1, max: 5, says: "The floor you live on." },
+    /* No `Venemaa`: the card is read in Ukrainian as well as in Russian, and
+       a Ukrainian learner dealt "you are from Russia" as their own role is
+       the one card in the catalogue that would be an insult rather than a
+       rehearsal. The unit still teaches the word. */
     {
-      kind: "word", slot: "from", oneOf: ["Soome", "Läti", "Saksamaa", "Inglismaa", "Ameerika", "Rootsi", "Venemaa"],
+      kind: "word", slot: "from", oneOf: ["Soome", "Läti", "Saksamaa", "Inglismaa", "Ameerika", "Rootsi"],
       says: "Where you're from.",
     },
     {

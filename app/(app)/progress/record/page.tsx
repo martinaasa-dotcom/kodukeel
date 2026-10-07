@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { requireUserId } from "@/lib/auth/session";
 import { studyRecord } from "@/lib/progress/record";
 import { NOT_A_CERTIFICATE, WHAT_PROVES_A_LEVEL } from "@/lib/stats/record";
@@ -8,8 +7,13 @@ import { DateText } from "@/components/DateText";
 import { PrintButton } from "@/components/PrintButton";
 import { ButtonLink } from "@/components/Button";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { fillNodes } from "@/components/fillNodes";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
-export const metadata: Metadata = { title: "Record of study" };
+export async function generateMetadata() {
+  return titleFor("Record of study");
+}
 export const dynamic = "force-dynamic";
 
 const DAY: Intl.DateTimeFormatOptions = { day: "numeric", month: "long", year: "numeric" };
@@ -26,16 +30,17 @@ const DAY: Intl.DateTimeFormatOptions = { day: "numeric", month: "long", year: "
  */
 export default async function RecordPage() {
   const ownerId = await requireUserId();
-  const record = await studyRecord(ownerId);
+  const [record, locale] = await Promise.all([studyRecord(ownerId), localeFor(ownerId)]);
+  const t = (english: string) => tr(locale, english);
   const { totals } = record;
 
   if (totals.answers === 0) {
     return (
-      <Page title="Record of study">
+      <Page title={t("Record of study")}>
         <Empty
-          title="Nothing to record yet"
-          body="Answer a few cards and this page will fill itself in."
-          action={<ButtonLink href="/learn" variant="primary">Start learning</ButtonLink>}
+          title={t("Nothing to record yet")}
+          body={t("Answer a few cards and this page will fill itself in.")}
+          action={<ButtonLink href="/learn" variant="primary">{t("Start learning")}</ButtonLink>}
         />
       </Page>
     );
@@ -45,37 +50,36 @@ export default async function RecordPage() {
 
   return (
     <Page
-      title="Record of study"
-      lead="Your time with Kodukeel, taken straight from the app's own records. Print it or save a PDF."
-      actions={<PrintButton label="Print or save as PDF" />}
+      title={t("Record of study")}
+      lead={t("Your time with Kodukeel, taken straight from the app's own records. Print it or save a PDF.")}
+      actions={<PrintButton label={t("Print or save as PDF")} />}
     >
       <Stack>
         <Card className="record-sheet">
-          <p className="label-xs" style={{ color: "var(--ink-3)" }}>Kodukeel, record of study</p>
+          <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Kodukeel, record of study")}</p>
           <p className="mt-2 text-2xl font-bold" style={{ color: "var(--ink)" }}>
-            {record.name ?? "A learner of Estonian"}
+            {record.name ?? t("A learner of Estonian")}
           </p>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            From {onDay(totals.firstDay!)} to {onDay(totals.lastDay!)}
+            {fillNodes(t("From {first} to {last}"), { first: onDay(totals.firstDay!), last: onDay(totals.lastDay!) })}
           </p>
 
           <div className="mt-6 grid grid-cols-2 gap-5 xl:grid-cols-4">
-            <Stat label="Time studied" value={formatDuration(totals.hours)} />
-            <Stat label="Days studied" value={totals.activeDays.toLocaleString("en-GB")} />
-            <Stat label="Answers given" value={totals.answers.toLocaleString("en-GB")} />
-            <Stat label="Cards known" value={record.cardsKnown.toLocaleString("en-GB")} />
+            <Stat label={t("Time studied")} value={formatDuration(totals.hours)} />
+            <Stat label={t("Days studied")} value={totals.activeDays.toLocaleString("en-GB")} />
+            <Stat label={t("Answers given")} value={totals.answers.toLocaleString("en-GB")} />
+            <Stat label={t("Cards known")} value={record.cardsKnown.toLocaleString("en-GB")} />
           </div>
 
           <p className="mt-6 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Time is counted in sittings, from the first answer of an evening to the last. A card
-            counts as known once it has come back days later and been answered again.
+            {t("Time is counted in sittings, from the first answer of an evening to the last. A card counts as known once it has come back days later and been answered again.")}
           </p>
         </Card>
 
         <section>
-          <SectionTitle>Units finished</SectionTitle>
+          <SectionTitle>{t("Units finished")}</SectionTitle>
           {record.unitsDone.length === 0 ? (
-            <p className="text-sm" style={{ color: "var(--ink-2)" }}>None yet. A unit is finished when every word in it is known.</p>
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("None yet. A unit is finished when every word in it is known.")}</p>
           ) : (
             <ul className="grid gap-2 sm:grid-cols-2">
               {record.unitsDone.map((u) => (
@@ -89,47 +93,60 @@ export default async function RecordPage() {
         </section>
 
         <section>
-          <SectionTitle>Tested in this app</SectionTitle>
+          <SectionTitle>{t("Tested in this app")}</SectionTitle>
           {record.checks.length === 0 && record.papers.length === 0 ? (
-            <p className="text-sm" style={{ color: "var(--ink-2)" }}>No level check or mock paper sat yet.</p>
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("No level check or mock paper sat yet.")}</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {record.checks.map((c) => (
                 <li key={`c-${c.at.toISOString()}`} className="rounded-[var(--r)] border px-4 py-3 text-sm" style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}>
-                  <DateText iso={c.at.toISOString()} zone={record.zone} options={DAY} />: level check,
-                  placed at <strong style={{ color: "var(--ink)" }}>{c.overall ?? "below A1"}</strong>
+                  {fillNodes(t("{date}: level check, placed at {level}"), {
+                    date: <DateText iso={c.at.toISOString()} zone={record.zone} options={DAY} />,
+                    level: <strong style={{ color: "var(--ink)" }}>{c.overall ?? t("below A1")}</strong>,
+                  })}
                 </li>
               ))}
               {record.papers.map((p) => (
                 <li key={`p-${p.level}`} className="rounded-[var(--r)] border px-4 py-3 text-sm" style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}>
-                  Mock {p.level} paper, sat {p.sittings === 1 ? "once" : `${p.sittings} times`}, best{" "}
-                  <strong style={{ color: "var(--ink)" }}>{Math.round(p.best)} percent</strong>
-                  {p.passed ? ", at or above the pass mark" : ", under the pass mark"}. Latest{" "}
-                  <DateText iso={p.latest.toISOString()} zone={record.zone} options={DAY} />.
+                  {fillNodes(
+                    t(p.passed
+                      ? (p.sittings === 1
+                        ? "Mock {level} paper, sat once, best {best}, at or above the pass mark. Latest {latest}."
+                        : "Mock {level} paper, sat {n} times, best {best}, at or above the pass mark. Latest {latest}.")
+                      : (p.sittings === 1
+                        ? "Mock {level} paper, sat once, best {best}, under the pass mark. Latest {latest}."
+                        : "Mock {level} paper, sat {n} times, best {best}, under the pass mark. Latest {latest}.")),
+                    {
+                      level: p.level,
+                      n: p.sittings,
+                      best: <strong style={{ color: "var(--ink)" }}>{fillNodes(t("{pct} percent"), { pct: Math.round(p.best) })}</strong>,
+                      latest: <DateText iso={p.latest.toISOString()} zone={record.zone} options={DAY} />,
+                    },
+                  )}
                 </li>
               ))}
             </ul>
           )}
           <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-            The level check and the mock exams are this app&rsquo;s own, marked automatically. None of them is the state examination.
+            {t("The level check and the mock exams are this app’s own, marked automatically. None of them is the state examination.")}
           </p>
         </section>
 
         <section>
-          <SectionTitle>Conversations outside the app</SectionTitle>
+          <SectionTitle>{t("Conversations outside the app")}</SectionTitle>
           <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            <strong style={{ color: "var(--ink)" }}>{record.conversations.toLocaleString("en-GB")}</strong>{" "}
-            reported by the learner, answering each morning about the day before. These are their own
-            answers and haven&rsquo;t been checked.
+            {fillNodes(t("{n} reported by the learner, answering each morning about the day before. These are their own answers and haven’t been checked."), {
+              n: <strong style={{ color: "var(--ink)" }}>{record.conversations.toLocaleString("en-GB")}</strong>,
+            })}
           </p>
         </section>
 
         <Card tone="accent" className="record-note">
-          <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{NOT_A_CERTIFICATE}</p>
+          <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{t(NOT_A_CERTIFICATE)}</p>
           <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-            {WHAT_PROVES_A_LEVEL}{" "}
+            {t(WHAT_PROVES_A_LEVEL)}{" "}
             <Link href="/state-exam" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
-              How the state examination works
+              {t("How the state examination works")}
             </Link>
           </p>
         </Card>

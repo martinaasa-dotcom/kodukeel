@@ -5,6 +5,8 @@ import { Check, MessageSquareWarning, X } from "lucide-react";
 import { submitSuggestion } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 import {
   PATCH_POS, SUGGESTION_CATEGORIES, SUGGESTION_LIMITS,
   type Patch, type SuggestionCategory,
@@ -85,6 +87,7 @@ export function SuggestFix({
   /** `loud` where the failure is the whole screen and this is the way on. */
   tone?: "quiet" | "loud";
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<SuggestionCategory>(category);
   const [note, setNote] = useState("");
@@ -182,15 +185,15 @@ export function SuggestFix({
           patch: patch() ?? undefined,
         });
         if (!result.ok) {
-          setError(result.error);
+          setError(t(result.error));
           return;
         }
-        setSent(result.message);
+        setSent(t(result.message));
       } catch {
-        setError(
+        setError(t(
           "That didn't reach us. If you're offline, you'll need to send it again once you're " +
           "back. If you've been signed out, signing in again should fix it.",
-        );
+        ));
       }
     });
   };
@@ -219,7 +222,7 @@ export function SuggestFix({
         onClick={() => setOpen(true)}
       >
         <MessageSquareWarning size={15} aria-hidden />
-        {label ?? "Suggest a fix"}
+        {t(label ?? "Suggest a fix")}
       </Button>
     );
   }
@@ -233,13 +236,13 @@ export function SuggestFix({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-            Tell the Kodukeel team
+            {t("Tell the Kodukeel team")}
           </p>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            {SUGGESTION_CATEGORIES[kind].lead}
+            {t(SUGGESTION_CATEGORIES[kind].lead)}
           </p>
         </div>
-        <Button variant="ghost" size="sm" aria-label="Close" onClick={() => setOpen(false)}>
+        <Button variant="ghost" size="sm" aria-label={t("Close")} onClick={() => setOpen(false)}>
           <X size={15} aria-hidden />
         </Button>
       </div>
@@ -249,14 +252,14 @@ export function SuggestFix({
           className="mt-3 rounded-[var(--r)] px-3 py-2 text-xs"
           style={{ background: "var(--raised)", color: "var(--ink-3)" }}
         >
-          Sent with this: {trigger}
+          {fill(t("Sent with this: {trigger}"), { trigger })}
         </p>
       )}
 
       {choices && (
         <div className="mt-4">
           <label htmlFor={idFor("kind")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-            What&apos;s wrong?
+            {t("What's wrong?")}
           </label>
           <select
             id={idFor("kind")} name="suggest-kind"
@@ -266,7 +269,7 @@ export function SuggestFix({
             style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
           >
             {choices.map((c) => (
-              <option key={c} value={c}>{SUGGESTION_CATEGORIES[c].label}</option>
+              <option key={c} value={c}>{t(SUGGESTION_CATEGORIES[c].label)}</option>
             ))}
           </select>
         </div>
@@ -276,14 +279,14 @@ export function SuggestFix({
         <div className="mt-4 flex flex-col gap-3">
           <div>
             <label htmlFor={idFor("word")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-              The Estonian word
+              {t("The Estonian word")}
             </label>
-            <EstonianInput id={idFor("word")} value={word} onChange={setWord} ariaLabel="The Estonian word" />
+            <EstonianInput id={idFor("word")} value={word} onChange={setWord} ariaLabel={t("The Estonian word")} />
           </div>
           <div className="flex flex-wrap gap-3">
             <div className="flex-1">
               <label htmlFor={idFor("meaning")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-                What it means in English
+                {t("What it means in English")}
               </label>
               <input
                 id={idFor("meaning")} name="suggest-meaning"
@@ -295,7 +298,7 @@ export function SuggestFix({
             </div>
             <div>
               <label htmlFor={idFor("pos")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-                Type of word
+                {t("Type of word")}
               </label>
               <select
                 id={idFor("pos")} name="suggest-pos"
@@ -305,7 +308,7 @@ export function SuggestFix({
                 style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
               >
                 {PATCH_POS.map((p) => (
-                  <option key={p} value={p}>{p.toLowerCase()}</option>
+                  <option key={p} value={p}>{t(p.toLowerCase())}</option>
                 ))}
               </select>
             </div>
@@ -316,7 +319,7 @@ export function SuggestFix({
       {kind === "WRONG_MEANING" && (
         <div className="mt-4">
           <label htmlFor={idFor("gloss")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-            What it should say in English
+            {t("What it should say in English")}
           </label>
           <input
             id={idFor("gloss")} name="suggest-gloss"
@@ -326,8 +329,7 @@ export function SuggestFix({
             style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
           />
           <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-            Not sure what the right answer is? Leave this blank. Just knowing it&apos;s wrong is
-            still useful to us.
+            {t("Not sure what the right answer is? Leave this blank. Just knowing it's wrong is still useful to us.")}
           </p>
         </div>
       )}
@@ -336,7 +338,7 @@ export function SuggestFix({
         <div className="mt-4 flex flex-col gap-3">
           <div>
             <label htmlFor={idFor("formtype")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-              Which form
+              {t("Which form")}
             </label>
             <select
               id={idFor("formtype")} name="suggest-formtype"
@@ -355,9 +357,9 @@ export function SuggestFix({
           </div>
           <div>
             <label htmlFor={idFor("form")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-              What it should be
+              {t("What it should be")}
             </label>
-            <EstonianInput id={idFor("form")} value={formValue} onChange={setFormValue} ariaLabel="The correct form" />
+            <EstonianInput id={idFor("form")} value={formValue} onChange={setFormValue} ariaLabel={t("The correct form")} />
           </div>
         </div>
       )}
@@ -365,7 +367,7 @@ export function SuggestFix({
       {(kind === "WRONG_EXAMPLE" || kind === "WRONG_TRANSLATION") && examples && examples.length > 0 && (
         <div className="mt-4">
           <label htmlFor={idFor("sentence")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-            Which sentence
+            {t("Which sentence")}
           </label>
           <select
             id={idFor("sentence")} name="suggest-sentence"
@@ -384,7 +386,7 @@ export function SuggestFix({
 
       <div className="mt-4">
         <label htmlFor={idFor("note")} className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-          Anything else we should know? (optional)
+          {t("Anything else we should know? (optional)")}
         </label>
         <textarea
           id={idFor("note")} name="suggest-note"
@@ -392,7 +394,7 @@ export function SuggestFix({
           maxLength={SUGGESTION_LIMITS.note}
           onChange={(e) => setNote(e.target.value)}
           rows={3}
-          placeholder="What you expected, where you saw it, what your teacher or dictionary says."
+          placeholder={t("What you expected, where you saw it, what your teacher or dictionary says.")}
           className="field w-full text-sm"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         />
@@ -403,7 +405,7 @@ export function SuggestFix({
           sentence the DPIA's R13 mitigation promises the learner is told.
         */}
         <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-          A real person on the team reads this, so please leave out anything private about you or anyone else.
+          {t("A real person on the team reads this, so please leave out anything private about you or anyone else.")}
         </p>
       </div>
 
@@ -414,11 +416,11 @@ export function SuggestFix({
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <Button variant="ghost" onClick={() => setOpen(false)}>Not now</Button>
+        <Button variant="ghost" onClick={() => setOpen(false)}>{t("Not now")}</Button>
         {/* Not `disabled` while it sends: the press is what starts it, and a
             control disabled under the caret drops focus onto the body. */}
         <Button variant="primary" onClick={send} aria-disabled={pending || undefined} className="aria-disabled:opacity-45">
-          {pending ? "Sending…" : "Send it"}
+          {t(pending ? "Sending…" : "Send it")}
         </Button>
       </div>
     </div>

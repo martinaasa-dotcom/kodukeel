@@ -15,6 +15,8 @@ import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { Explain } from "@/components/Explain";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 export interface SpeakingCard {
   cardId: string;
@@ -48,6 +50,7 @@ export interface SpeakingCard {
  */
 export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[] }) {
   const grade = useGrade();
+  const t = useT();
   /*
     Snapshotted once on mount. gradeCard refreshes this route's Server
     Component, which would hand down a card list shrinking as graded cards leave the
@@ -90,7 +93,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
        most often wants to hear once more. */
     look.record({
       of: card.cardId,
-      label: "Speaking",
+      label: t("Speaking"),
       question: card.prompt,
       answer: card.et,
       note: null,
@@ -100,15 +103,15 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
     });
     setIndex((i) => i + 1);
     setBusy(false);
-  }, [card, busy, look, grade]);
+  }, [card, busy, look, grade, t]);
 
   if (cards.length === 0) {
     return (
-      <Page title="Speaking" lead="Say it out loud, then hear how a native voice says it.">
+      <Page title={t("Speaking")} lead={t("Say it out loud, then hear how a native voice says it.")}>
         <Empty
-          title="Nothing to say yet"
-          body="This uses words from your deck, so learn a few first and come back."
-          action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
+          title={t("Nothing to say yet")}
+          body={t("This uses words from your deck, so learn a few first and come back.")}
+          action={<ButtonLink href="/learn" variant="primary">{t("Open the learning path")}</ButtonLink>}
         />
       </Page>
     );
@@ -121,7 +124,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
           <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            Well spoken
+            {t("Well spoken")}
           </h1>
           {/* The assurance stays and the pitch goes. "Nothing you recorded left
               this device" is a fact about a microphone somebody just used,
@@ -129,17 +132,17 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
               rather than behind a press; the sentence in front of it was the
               app explaining to somebody who has just finished why they did it. */}
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            Your recordings never left this device.
+            {t("Your recordings never left this device.")}
           </p>
         </div>
         <div className="mt-8 grid grid-cols-2 gap-3">
-          <StatTile value={done} label="Spoken" tone="accent" />
-          <StatTile value={`${minutes}m`} label="Time" tone="sky" />
+          <StatTile value={done} label={t("Spoken")} tone="accent" />
+          <StatTile value={fill(t("{n}m"), { n: minutes })} label={t("Time")} tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/practice" size="lg">Try something else</ButtonLink>
-          <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
-          <ButtonLink href="/review/speaking" variant="primary" size="lg">Another round</ButtonLink>
+          <ButtonLink href="/practice" size="lg">{t("Try something else")}</ButtonLink>
+          <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
+          <ButtonLink href="/review/speaking" variant="primary" size="lg">{t("Another round")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -156,7 +159,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">Speaking</h1>
+      <h1 className="sr-only">{t("Speaking")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession />
         <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -167,14 +170,14 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={cards.length}
-            aria-label={`Card ${index + 1} of ${cards.length}`}
+            aria-label={fill(t("Card {n} of {total}"), { n: index + 1, total: cards.length })}
           />
         </div>
         <span
           className="tnum label-xs rounded-full px-2.5 py-1"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
         >
-          {cards.length - index} left
+          {fill(t("{n} left"), { n: cards.length - index })}
         </span>
       </div>
 
@@ -184,8 +187,8 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent"><Mic size={12} aria-hidden /> Say it out loud</Chip>
-          {card.isSentence && <Chip>sentence</Chip>}
+          <Chip tone="accent"><Mic size={12} aria-hidden /> {t("Say it out loud")}</Chip>
+          {card.isSentence && <Chip>{t("sentence")}</Chip>}
           <div className="ml-auto flex items-center gap-1">
             <FullEntry lemma={card.lemma} icon={false} />
             {/* The corner of the card, which is where somebody looks for this
@@ -198,7 +201,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
 
         <div className="round-stage flex flex-col items-center justify-center gap-5 px-6 text-center" aria-live="polite">
           <div>
-            <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Say this in Estonian</p>
+            <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Say this in Estonian")}</p>
             <p className="text-2xl font-bold leading-snug tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
               {card.prompt}
             </p>
@@ -221,9 +224,8 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
                 <SpeakPair text={card.et} size={17} autoplay />
               </div>
               <Recorder />
-              <Explain label="Why you mark yourself here">
-                Listen to both, then say how close you got. Nothing is uploaded. We can&rsquo;t
-                understand spoken Estonian well enough to score you, so we won&rsquo;t pretend to.
+              <Explain label={t("Why you mark yourself here")}>
+                {t("Listen to both, then say how close you got. Nothing is uploaded. We can’t understand spoken Estonian well enough to score you, so we won’t pretend to.")}
               </Explain>
             </>
           )}
@@ -232,7 +234,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {!revealed ? (
             <Button variant="primary" size="lg" className="w-full" onClick={() => setRevealed(true)}>
-              I said it, show me
+              {t("I said it, show me")}
             </Button>
           ) : (
             /* Two, from the one table in lib/srs/scheduler.ts. Nothing here can
@@ -249,7 +251,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
                   onClick={() => void submit(g.rating)}
                   className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center rounded-[var(--r)] px-2 py-3.5 transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
-                  <span className="text-base font-bold">{g.label}</span>
+                  <span className="text-base font-bold">{t(g.label)}</span>
                 </button>
               ))}
             </div>
@@ -259,7 +261,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
       )}
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{done} spoken</span>
+        <span>{fill(t("{n} spoken"), { n: done })}</span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>

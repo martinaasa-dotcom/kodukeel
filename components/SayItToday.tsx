@@ -11,6 +11,8 @@ import {
   errandPlaces, HOW_IT_WENT, isConversation, OUTCOME_LABEL, SAY_IT_TODAY, sceneForErrand,
   SPOKE_LABEL, type Conversation, type Errand, type Outcome,
 } from "@/lib/collections/errands";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill, type Locale } from "@/lib/copy/locale";
 
 /**
  * Whether any Estonian was spoken to a real person yesterday, and a small
@@ -55,6 +57,8 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
   const [failed, setFailed] = useState(false);
   const [pending, start] = useTransition();
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
 
   const report = (outcome: Outcome) => {
     setAnswer(outcome);
@@ -83,7 +87,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
 
   const mishap = failed && (
     <p className="mt-2 text-xs" role="status" style={{ color: "var(--hard-ink)" }}>
-      That didn&apos;t save. Try again once you&apos;re back online.
+      {t("That didn't save. Try again once you're back online.")}
     </p>
   );
 
@@ -95,15 +99,15 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
   if (answer === null && !spoke) {
     return (
       <Card>
-        <SectionTitle hint="yesterday">Out there</SectionTitle>
+        <SectionTitle hint={t("yesterday")}>{t("Out there")}</SectionTitle>
         <p className="text-md leading-snug" style={{ color: "var(--ink)" }}>
-          Did you speak any Estonian to anyone yesterday?
+          {t("Did you speak any Estonian to anyone yesterday?")}
         </p>
         <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-          Anything counts. A shop, a colleague, a single sentence at the door.
+          {t("Anything counts. A shop, a colleague, a single sentence at the door.")}
         </p>
         {mishap}
-        <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Whether you spoke Estonian yesterday">
+        <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={t("Whether you spoke Estonian yesterday")}>
           <button
             type="button"
             disabled={pending}
@@ -117,7 +121,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
             */
             className="choice-btn min-h-[44px] rounded-full border px-4 py-2 text-sm"
           >
-            {SPOKE_LABEL}
+            {t(SPOKE_LABEL)}
           </button>
           <button
             type="button"
@@ -125,7 +129,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
             onClick={() => report("BAILED")}
             className="choice-btn min-h-[44px] rounded-full border px-4 py-2 text-sm"
           >
-            {OUTCOME_LABEL.BAILED}
+            {t(OUTCOME_LABEL.BAILED)}
           </button>
         </div>
       </Card>
@@ -141,14 +145,14 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
   if (answer === null) {
     return (
       <Card>
-        <SectionTitle hint="yesterday">Out there</SectionTitle>
+        <SectionTitle hint={t("yesterday")}>{t("Out there")}</SectionTitle>
         <p className="flex items-start gap-2 text-md leading-snug" style={{ color: "var(--ink)" }}>
           <Footprints size={16} aria-hidden className="mt-1" />
-          You spoke Estonian to a real person. That&apos;s the hard part, and it&apos;s what all of this is for.
+          {t("You spoke Estonian to a real person. That's the hard part, and it's what all of this is for.")}
         </p>
-        <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>How did it go?</p>
+        <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{t("How did it go?")}</p>
         {mishap}
-        <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="How the conversation went">
+        <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label={t("How the conversation went")}>
           {HOW_IT_WENT.map((o) => (
             <button
               key={o}
@@ -157,7 +161,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
               onClick={() => report(o)}
               className="choice-btn min-h-[44px] rounded-full border px-4 py-2 text-sm"
             >
-              {OUTCOME_LABEL[o]}
+              {t(OUTCOME_LABEL[o])}
             </button>
           ))}
         </div>
@@ -174,7 +178,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
           className="tap-tint mt-2 rounded-md px-2 py-1 text-xs underline"
           style={{ color: "var(--ink-3)" }}
         >
-          I pressed that by mistake
+          {t("I pressed that by mistake")}
         </button>
       </Card>
     );
@@ -190,7 +194,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
     const scene = sceneForErrand(errand);
     return (
       <Card>
-        <SectionTitle>{SAY_IT_TODAY}</SectionTitle>
+        <SectionTitle>{t(SAY_IT_TODAY)}</SectionTitle>
         {/*
           A LINE THAT ONLY ANNOUNCES THE NEXT LINE SAYS NOTHING OF ITS OWN.
           "Then here is a small one for today." sat between the title and the
@@ -198,7 +202,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
           thing to say, and the errand itself is the small one. Removing it
           took the card from three sizes of text to two.
         */}
-        <p className="text-md leading-snug" style={{ color: "var(--ink)" }}>{errand.says}</p>
+        <p className="text-md leading-snug" style={{ color: "var(--ink)" }}>{t(errand.says)}</p>
         {/*
           The place reads as part of the errand rather than as a hint in the
           corner of the card. It sat in the SectionTitle's hint slot, which on
@@ -213,9 +217,19 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
           shape `docs/18-voice.md` calls a sentence doing no work.
         */}
         <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-          {errandPlaces(errand)}. You&apos;ll find the words in{" "}
-          <Link href={`/learn/${errand.unit}`} className="underline">{unitTitle}</Link>.
-          {scene && <> Or <Link href={`/situations/${scene.id}`} className="underline">try it out here first</Link>.</>}
+          {locale === "en" ? (
+            <>
+              {errandPlaces(errand)}. You&apos;ll find the words in{" "}
+              <Link href={`/learn/${errand.unit}`} className="underline">{unitTitle}</Link>.
+              {scene && <> Or <Link href={`/situations/${scene.id}`} className="underline">try it out here first</Link>.</>}
+            </>
+          ) : (
+            <>
+              {placesIn(locale, errand.where, t)}.{" "}
+              <Linked template={t("You'll find the words in {unit}.")} href={`/learn/${errand.unit}`} label={unitTitle} />
+              {scene && <>{" "}<Linked template={t("Or {try}.")} href={`/situations/${scene.id}`} label={t("try it out here first")} /></>}
+            </>
+          )}
         </p>
       </Card>
     );
@@ -246,19 +260,23 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
     of it.
   */
   const held = conversations + (answered === null ? 1 : 0);
-  const tally = held === 1
-    ? `That's your first in the last ${days} days.`
-    : `That makes ${held} in the last ${days} days.`;
+  const tally = locale === "en"
+    ? held === 1
+      ? `That's your first in the last ${days} days.`
+      : `That makes ${held} in the last ${days} days.`
+    : fill(t(held === 1 ? "That's your first in the last {days}." : "That makes {held} in the last {days}."), {
+      held, days: countOf(locale, days, "day"),
+    });
   const next = NEXT[answer];
 
   return (
     <Card>
-      <SectionTitle hint="yesterday">Out there</SectionTitle>
+      <SectionTitle hint={t("yesterday")}>{t("Out there")}</SectionTitle>
       <p className="flex items-start gap-2 text-md leading-snug" style={{ color: "var(--ink)" }}>
-        <Footprints size={16} aria-hidden className="mt-1" /> {REPLY[answer]}
+        <Footprints size={16} aria-hidden className="mt-1" /> {t(REPLY[answer])}
       </p>
       <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-        {tally} <Link href="/progress" className="underline">See them all on Progress</Link>.
+        {tally} <Link href="/progress" className="underline">{t("See them all on Progress")}</Link>.
       </p>
       {/*
         AND THEN ONE THING TO DO ABOUT IT, WHICH IS A REHEARSAL AND NOT AN
@@ -271,8 +289,8 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
       */}
       {next && (
         <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-          {next}{" "}
-          <Link href={rehearsal(errand)} className="underline">Practise one here now</Link>.
+          {t(next)}{" "}
+          <Link href={rehearsal(errand)} className="underline">{t("Practise one here now")}</Link>.
         </p>
       )}
       {/*
@@ -293,19 +311,41 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
       <form action="/dictionary" method="get" className="mt-3 flex flex-wrap items-end gap-2">
         <div className="min-w-0 flex-1">
           <label htmlFor="out-there-word" className="label-xs mb-1 block" style={{ color: "var(--ink-3)" }}>
-            Was there a word you wanted and couldn&apos;t find?
+            {t("Was there a word you wanted and couldn't find?")}
           </label>
           <input
             id="out-there-word"
             name="q"
-            placeholder="In English or Estonian"
+            placeholder={t("In English or Estonian")}
             autoComplete="off"
             className="field w-full text-sm"
           />
         </div>
-        <Button type="submit" size="sm">Look it up</Button>
+        <Button type="submit" size="sm">{t("Look it up")}</Button>
       </form>
     </Card>
+  );
+}
+
+/**
+ * Where an errand happens, in the reader's language: each place translated on
+ * its own and joined the way that language says "or".
+ */
+function placesIn(locale: Locale, where: string, t: (english: string) => string): string {
+  const places = where.split(",").map((place) => place.trim()).filter(Boolean).map((line) => t(line));
+  const said = new Intl.ListFormat(locale, { type: "disjunction" }).format(places);
+  return said.charAt(0).toLocaleUpperCase(locale) + said.slice(1);
+}
+
+/** A sentence with one link in it, wherever the reader's language puts the link. */
+function Linked({ template, href, label }: { template: string; href: string; label: string }) {
+  const [before, after = ""] = template.split(/\{\w+\}/);
+  return (
+    <>
+      {before}
+      <Link href={href} className="underline">{label}</Link>
+      {after}
+    </>
   );
 }
 

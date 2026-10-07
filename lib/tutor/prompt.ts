@@ -2,6 +2,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { plainAsk } from "@/lib/estonian/plainAsk";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { VOICE_RULES } from "@/lib/copy/voice";
+import type { Locale } from "@/lib/copy/locale";
 
 /**
  * Anu's system prompt, assembled from the same domain model the app renders, so
@@ -243,10 +244,39 @@ export interface LearnerNote {
    * lemmas only, the way the unit is: nothing here is a sentence.
    */
   scene?: { title: string; missed: string[]; gaps: string[] } | null;
+  /**
+   * The language they read the app in. Most adults learning Estonian in
+   * Estonia read Russian or Ukrainian better than English, and an explanation
+   * of the partitive in their third language is one they work twice as hard
+   * at. Absent or English leaves the static prompt exactly as it reads.
+   */
+  language?: Locale;
 }
+
+/**
+ * Which language Anu explains in, said once in the per-learner block so the
+ * cached static prompt stays byte-identical for everybody.
+ *
+ * Only her explanations move. Every Estonian rule above still holds word for
+ * word, the tagged lines keep their shape, and the translation half of a VOCAB
+ * line stays English, because that line is how a word reaches the shared
+ * dictionary and the gloss column there is English for every reader. Words in
+ * the reader's own language are quoted in «ёлочки», so the guard that reads a
+ * straight-quoted word as Estonian (`estonianTokens`) never mistakes them for
+ * a form.
+ */
+export function explainIn(language: Locale | undefined): string | null {
+  if (!language || language === "en") return null;
+  const name = LANGUAGE_NAME[language];
+  return `- They read ${name} more easily than English and use the app in ${name}, so write everything you explain in ${name}: natural ${name}, the way a ${name}-speaking teacher of Estonian talks to an adult student (${language === "ru" ? "вы" : "ви"}), never a translation of English sentences.${language === "uk" ? " Write standard literary Ukrainian and nothing else: no Russian words, no Russianisms or calques from Russian, no surzhyk, and never Russian spelled with Ukrainian letters. Never mention Russia, Russian or the Russian language, and never compare anything to Russian; where a comparison helps, compare with Ukrainian or English." : " Standard literary Russian only: not one Ukrainian word, letter or turn of phrase, no surzhyk, and never mention Ukrainian or Ukraine or compare anything with them."} Wherever the rules above say English, read ${name}, except that the translation on a VOCAB line stays in English. Every Estonian word, form and sentence stays exactly as those rules require, in straight double quotes when you quote one; put ${name} words in «» quotes, never straight ones.`;
+}
+
+const LANGUAGE_NAME: Readonly<Record<Exclude<Locale, "en">, string>> = { ru: "Russian", uk: "Ukrainian" };
 
 export function learnerNote(note: LearnerNote): string {
   const lines: string[] = [];
+  const language = explainIn(note.language);
+  if (language) lines.push(language);
   if (note.standing) {
     const skills = Object.entries(note.standing.skills ?? {}).filter(([, l]) => l);
     if (note.standing.source === "measured") {

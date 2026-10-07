@@ -1,5 +1,8 @@
 "use client";
 
+import { useLocale, useT } from "@/components/Locale";
+import { rich } from "@/components/round/rich";
+import { fill } from "@/lib/copy/locale";
 import { PARTS } from "@/lib/copy/values";
 import { useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
@@ -101,6 +104,8 @@ interface Marked {
 export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   prompts: ScenePrompt[]; aiAvailable: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const grade = useGrade();
   /*
     Snapshotted once. `gradeCard` is a Server Action and Next re-renders this
@@ -162,7 +167,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ?? "Sorry, we couldn't mark that one. Try again?");
+        setError(body.error ? t(body.error) : t("Sorry, we couldn't mark that one. Try again?"));
         return;
       }
       const result = body as Marked;
@@ -203,7 +208,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
         );
       }
     } catch {
-      setError("You're offline, so we can't mark it yet. Your sentence is safe here.");
+      setError(t("You’re offline, so we can’t mark it yet. Your sentence is safe here."));
     } finally {
       setBusy(false);
     }
@@ -235,25 +240,25 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          That&rsquo;s the round done
+          {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          Describing what&rsquo;s in front of you is as close to real talking as a screen gets.
+          {t("Describing what’s in front of you is as close to real talking as a screen gets.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={prompts.length} label="Written" />
+          <Stat value={prompts.length} label={t("Written")} />
           <Stat
             value={`${Math.round((right / prompts.length) * 100)}%`}
-            label="Right case"
+            label={t("Right case")}
           />
-          <Stat value={`${minutes}m`} label="Time" />
+          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/describe">Another round</ButtonLink>
-          <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
+          <ButtonLink href="/review/describe">{t("Another round")}</ButtonLink>
+          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -264,7 +269,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
       {/* The heading a session screen has no room to draw. Every mode carries
           one: the empty state had a heading and the round did not, so an
           accessibility run that met an empty deck saw one and passed. */}
-      <h1 className="sr-only">Say what you see</h1>
+      <h1 className="sr-only">{t("Say what you see")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -275,11 +280,11 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={prompts.length}
-            aria-label="Round progress"
+            aria-label={t("Round progress")}
           />
         </div>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {prompts.length - index} left
+          {fill(t("{n} left"), { n: prompts.length - index })}
         </span>
       </div>
 
@@ -303,7 +308,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           >
             <span aria-hidden>{prompt.things.map((t) => t.emoji).join(" ")}</span>
             <span className="sr-only">
-              {pictureLabel(prompt.things.map((t) => t.translation))}
+              {pictureLabel(prompt.things.map((thing) => thing.translation), locale)}
             </span>
           </p>
 
@@ -319,24 +324,34 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           {phrase ? (
             <>
               <p className="mt-7 text-sm" style={{ color: "var(--ink-2)" }}>
-                Write one sentence about this, with{" "}
-                <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
-                  {prompt.askLemma}
-                </strong>
-                {!saysGloss && <span style={{ color: "var(--ink-3)" }}> ({prompt.askTranslation})</span>}, that says
+                {rich(t("Write one sentence about this, with {word}, that says"), {
+                  word: (
+                    <>
+                      <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
+                        {prompt.askLemma}
+                      </strong>
+                      {!saysGloss && <span style={{ color: "var(--ink-3)" }}> ({prompt.askTranslation})</span>}
+                    </>
+                  ),
+                })}
               </p>
-              <p data-say className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
+              <p data-say lang="en" className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
                 “{phrase}”
               </p>
             </>
           ) : (
             <>
               <p className="mt-7 text-sm" style={{ color: "var(--ink-2)" }}>
-                Write one sentence about this, with{" "}
-                <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
-                  {prompt.askLemma}
-                </strong>{" "}
-                <span style={{ color: "var(--ink-3)" }}>({prompt.askTranslation})</span> in the
+                {rich(t("Write one sentence about this, with {word} in the"), {
+                  word: (
+                    <>
+                      <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
+                        {prompt.askLemma}
+                      </strong>{" "}
+                      <span style={{ color: "var(--ink-3)" }}>({prompt.askTranslation})</span>
+                    </>
+                  ),
+                })}
               </p>
               {/* The case and the question it answers, drawn as one label. */}
               <p className="mt-2 text-lg">
@@ -347,7 +362,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
 
           <div className="mt-6">
             <label htmlFor="sentence" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-              Your sentence
+              {t("Your sentence")}
             </label>
             <textarea
               id="sentence"
@@ -395,12 +410,12 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
               onClick={() => void submit()}
             >
               {busy
-                ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Marking…</>
-                : <>Check it <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
+                ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Marking…")}</>
+                : <>{t("Check it")} <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              Next
+              {t("Next")}
             </Button>
           )}
         </div>
@@ -413,7 +428,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
 
       {!aiAvailable && (
         <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-          Anu isn&rsquo;t around right now, so we&rsquo;ll only check the ending. That&rsquo;s the part we can check for certain anyway.
+          {t("Anu isn’t around right now, so we’ll only check the ending. That’s the part we can check for certain anyway.")}
         </p>
       )}
     </div>
@@ -437,6 +452,9 @@ function nameOf(key: string): string | null {
 function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
   const { mark, reveal, graded, quotaMessage, withheld, withheldReason } = marked;
   const wrote = mark.verdict?.kind === "one" ? nameOf(mark.verdict.key) : null;
+  const t = useT();
+  const wanted = <strong lang="et">{reveal.wanted.join(PARTS)}</strong>;
+  const caseName = <span lang="et">{prompt.caseEt}</span>;
 
   return (
     <div className="mt-6 flex flex-col gap-3" aria-live="polite">
@@ -446,32 +464,32 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
         <p className="text-base">
           {mark.rightCase ? (
-            <>Yes, that&rsquo;s the {prompt.caseEt}.</>
+            rich(t("Yes, that’s the {case}."), { case: caseName })
           ) : mark.written && wrote ? (
             /*
               The line this mode exists for. Every other screen can only say
               the form was not the one asked for; this one can name what was
               written instead, because exactly one case is spelled that way.
             */
-            <>
-              You wrote <strong lang="et">{mark.written}</strong>, which is the{" "}
-              <span lang="et">{wrote}</span>. The{" "}
-              <span lang="et">{prompt.caseEt}</span> is{" "}
-              <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
-            </>
+            rich(t("You wrote {written}, which is the {got}. The {case} is {wanted}."), {
+              written: <strong lang="et">{mark.written}</strong>,
+              got: <span lang="et">{wrote}</span>,
+              case: caseName,
+              wanted,
+            })
           ) : mark.written ? (
             // Two cases share that spelling, so naming either would be a guess.
-            <>
-              <strong lang="et">{mark.written}</strong> could be more than one case, so we
-              can&rsquo;t tell it&rsquo;s this one. The <span lang="et">{prompt.caseEt}</span> is{" "}
-              <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
-            </>
+            rich(t("{written} could be more than one case, so we can’t tell it’s this one. The {case} is {wanted}."), {
+              written: <strong lang="et">{mark.written}</strong>,
+              case: caseName,
+              wanted,
+            })
           ) : (
-            <>
-              <strong lang="et">{prompt.askLemma}</strong> isn&rsquo;t in your sentence. The{" "}
-              <span lang="et">{prompt.caseEt}</span> is{" "}
-              <strong lang="et">{reveal.wanted.join(PARTS)}</strong>.
-            </>
+            rich(t("{word} isn’t in your sentence. The {case} is {wanted}."), {
+              word: <strong lang="et">{prompt.askLemma}</strong>,
+              case: caseName,
+              wanted,
+            })
           )}
         </p>
       </div>
@@ -480,7 +498,7 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
         className="rounded-md border px-3.5 py-3"
         style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
       >
-        <p className="label-xs" style={{ color: "var(--ink-3)" }}>What was in the picture</p>
+        <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("What was in the picture")}</p>
         <ul className="mt-2 flex flex-col gap-1.5">
           {reveal.words.map((word, i) => (
             <li key={word.lemma} className="flex items-baseline gap-2 text-base">
@@ -488,7 +506,7 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
               <strong lang="et" style={{ color: "var(--ink)" }}>{word.lemma}</strong>
               <span style={{ color: "var(--ink-3)" }}>{word.translation}</span>
               {mark.used[i] && (
-                <Check size={13} aria-label="you used this one" style={{ color: VERDICT_INK.right }} />
+                <Check size={13} aria-label={t("you used this one")} style={{ color: VERDICT_INK.right }} />
               )}
             </li>
           ))}
@@ -512,10 +530,10 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           */}
           <p className="label-xs" style={{ color: "var(--ink-3)" }}>
             {reveal.answer.source === "contributed"
-              ? "How a native speaker said it"
+              ? t("How a native speaker said it")
               : reveal.answer.source === "this-form"
-                ? `A real sentence with ${prompt.askLemma} in this case`
-                : `A real sentence with ${prompt.askLemma} in it`}
+                ? fill(t("A real sentence with {word} in this case"), { word: prompt.askLemma })
+                : fill(t("A real sentence with {word} in it"), { word: prompt.askLemma })}
           </p>
           <p lang="et" className="mt-1.5 text-base" style={{ color: "var(--ink)" }}>
             {reveal.answer.et}
@@ -539,17 +557,9 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
         >
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {withheldReason === "unvouched-word" ? (
-              <>
-                We&rsquo;ve hidden Anu&rsquo;s note this time. It used a word we couldn&rsquo;t confirm as
-                Estonian (it may just have been English). The check above comes from the
-                dictionary, so you can trust it.
-              </>
+              t("We’ve hidden Anu’s note this time. It used a word we couldn’t confirm as Estonian (it may just have been English). The check above comes from the dictionary, so you can trust it.")
             ) : (
-              <>
-                We&rsquo;ve hidden Anu&rsquo;s note this time. It used an Estonian form we couldn&rsquo;t
-                confirm, and a wrong form is worse than no note at all. The check above comes
-                from the dictionary, so you can trust it.
-              </>
+              t("We’ve hidden Anu’s note this time. It used an Estonian form we couldn’t confirm, and a wrong form is worse than no note at all. The check above comes from the dictionary, so you can trust it.")
             )}
           </p>
         </div>
@@ -568,7 +578,7 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
       )}
 
       {quotaMessage && (
-        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{quotaMessage}</p>
+        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t(quotaMessage)}</p>
       )}
     </div>
   );

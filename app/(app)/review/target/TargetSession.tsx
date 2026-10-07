@@ -17,6 +17,9 @@ import { useModuleFocus } from "@/components/course/moduleFocus";
 import { shotSeconds } from "@/lib/games/target";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { FitText } from "@/components/FitText";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
+import { rich } from "@/components/round/rich";
 
 
 /**
@@ -45,6 +48,8 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
   multiplier: number;
 }) {
   const grade = useGrade();
+  const t = useT();
+  const locale = useLocale();
   // Snapshotted on mount: `gradeCard` refreshes this route's Server Component,
   // and a round whose questions changed under the player is a different round.
   const [questions] = useState(initialQuestions);
@@ -129,37 +134,37 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
     return (
       <RoundStart
         icon={<Crosshair size={26} aria-hidden />}
-        title="Target"
-        lead="Tap the right ending before the clock runs out."
+        title={t("Target")}
+        lead={t("Tap the right ending before the clock runs out.")}
         hue="accent"
-        chips={<RoundChip icon={<Timer size={14} aria-hidden />}>{questions.length} shots</RoundChip>}
+        chips={<RoundChip icon={<Timer size={14} aria-hidden />}>{countOf(locale, questions.length, "shot")}</RoundChip>}
         actions={<>
           {/* The way back to the menu somebody chose this round from, which
               inside a module is a door out of the evening. */}
-          <WayOut opening><ButtonLink href="/practice" variant="ghost">Back to practice</ButtonLink></WayOut>
+          <WayOut opening><ButtonLink href="/practice" variant="ghost">{t("Back to practice")}</ButtonLink></WayOut>
           <Button variant="primary" size="lg"
             onClick={() => { setPhase("running"); setLeft(shotSeconds(0, multiplier)); shownAt.current = Date.now(); }}>
-            Start
+            {t("Start")}
           </Button>
         </>}
         footnote={<>
           {/* The same sentence the Case Sprint carries: the moment somebody
               finds the clock too fast is the moment they are looking at this
               screen. Inside a module the sentence stays and the link goes. */}
-          Need longer?{" "}
-          {inModule ? (
-              <span>You can give yourself more time in Settings</span>
+          {rich(t("Need longer? {more}, up to ten times this."), {
+            more: inModule ? (
+              <span>{t("You can give yourself more time in Settings")}</span>
             ) : (
               <Link href="/settings#round-pace" className="underline underline-offset-2">
-                Give yourself more time
+                {t("Give yourself more time")}
               </Link>
-            )}
-          , up to ten times this.
+            ),
+          })}
         </>}
       >
         <BriefingSteps
           id="target"
-          more="When all four are the same word, the little question word is your only clue."
+          more={t("When all four are the same word, the little question word is your only clue.")}
         />
       </RoundStart>
     );
@@ -169,23 +174,23 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
     const asked = Math.min(index, questions.length);
     const accuracy = asked > 0 ? Math.round((hits / asked) * 100) : 0;
     return (
-      <Page title="Target" lead="That's the round done.">
+      <Page title={t("Target")} lead={t("That's the round done.")}>
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
           <span className="flex h-20 w-20 items-center justify-center rounded-full quest-pop"
             style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}>
             <Trophy size={34} aria-hidden />
           </span>
           <div className="grid w-full grid-cols-3 gap-2 sm:gap-3">
-            <StatTile value={hits} label="Hit" tone="sky" />
-            <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 70 ? "sky" : "butter"} />
-            <StatTile value={best} label="Best run" tone="blush" />
+            <StatTile value={hits} label={t("Hit")} tone="sky" />
+            <StatTile value={`${accuracy}%`} label={t("Accuracy")} tone={accuracy >= 70 ? "sky" : "butter"} />
+            <StatTile value={best} label={t("Best run")} tone="blush" />
           </div>
           <p className="max-w-[42ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Every answer counted. The ones you missed will come back a bit sooner.
+            {t("Every answer counted. The ones you missed will come back a bit sooner.")}
           </p>
           <WayOut className="flex flex-wrap justify-center gap-3">
-            <ButtonLink href="/practice" size="lg">Back to practice</ButtonLink>
-            <ButtonLink href="/review/target" variant="primary" size="lg">Play again</ButtonLink>
+            <ButtonLink href="/practice" size="lg">{t("Back to practice")}</ButtonLink>
+            <ButtonLink href="/review/target" variant="primary" size="lg">{t("Play again")}</ButtonLink>
           </WayOut>
         </div>
       </Page>
@@ -198,20 +203,20 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
-      <h1 className="sr-only">Target</h1>
+      <h1 className="sr-only">{t("Target")}</h1>
 
       <div className="flex items-center justify-between gap-3">
         <span className="flex items-center gap-2 text-sm font-semibold tabular-nums"
           style={{ color: left <= 2 ? "var(--again-ink)" : "var(--ink-2)" }}>
-          <Timer size={15} aria-hidden /> {left.toFixed(1)}s
+          <Timer size={15} aria-hidden /> {fill(t("{n}s"), { n: left.toFixed(1) })}
         </span>
         <span className="flex items-center gap-3">
           {streak >= 3 && (
             <span key={streak} className="text-sm font-bold quest-pop" style={{ color: "var(--blush-ink)" }}>
-              {streak} in a row
+              {fill(t("{n} in a row"), { n: streak })}
             </span>
           )}
-          <Chip tone="good">{hits} hit</Chip>
+          <Chip tone="good">{fill(t("{n} hit"), { n: hits })}</Chip>
         </span>
       </div>
 
@@ -234,7 +239,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
             {question.say}
           </p>
         ) : (
-          <p className="text-sm" style={{ color: "var(--ink-3)" }}>What does it mean?</p>
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("What does it mean?")}</p>
         )}
       </div>
 
@@ -285,7 +290,7 @@ export function TargetSession({ questions: initialQuestions, multiplier }: {
       {answered && (
         <div className="mt-5 flex justify-center">
           <Button variant="primary" size="lg" onClick={next}>
-            Continue
+            {t("Continue")}
             <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
           </Button>
         </div>

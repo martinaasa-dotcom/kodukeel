@@ -4,6 +4,7 @@ import { Explain } from "@/components/Explain";
 import type { LadderProgress } from "@/lib/course";
 import { LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * THE CLIMB TO THE BAND SOMEBODY SAID THEY WERE AIMING AT.
@@ -72,12 +73,13 @@ import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 const HATCH =
   "repeating-linear-gradient(115deg, var(--accent-soft) 0 5px, var(--accent) 5px 7px)";
 
-function joinLevels(levels: readonly string[]): string {
+function joinLevels(levels: readonly string[], locale: Locale): string {
   if (levels.length <= 1) return levels[0] ?? "";
+  if (locale !== "en") return new Intl.ListFormat(locale, { type: "conjunction" }).format(levels);
   return `${levels.slice(0, -1).join(", ")} and ${levels.at(-1)}`;
 }
 
-export function LadderBar({ progress, partLabel, learnerLevel }: {
+export function LadderBar({ progress, partLabel, learnerLevel, locale }: {
   progress: LadderProgress;
   /** Which part of the ladder they are on, for the line under the bar. */
   partLabel?: string;
@@ -90,7 +92,10 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
    * carries no opinion about how it is read.
    */
   learnerLevel: Level;
+  /** The language the card's own words are in. */
+  locale: Locale;
 }) {
+  const t = (english: string) => tr(locale, english);
   const { milestones, pct, target, verified, credited, assumed, total, here, arrived, standing } = progress;
   const wantsEnglish = uiWantsEnglish(learnerLevel);
   const assumedLevels = milestones.filter((m) => m.state === "assumed").map((m) => m.level);
@@ -101,8 +106,8 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
 
   return (
     <Card>
-      <SectionTitle hint={`${credited} of ${total} words`}>
-        {arrived ? `You've reached ${target}` : `On the way to ${target}`}
+      <SectionTitle hint={fill(t("{credited} of {total} words"), { credited, total })}>
+        {fill(t(arrived ? "You've reached {target}" : "On the way to {target}"), { target })}
       </SectionTitle>
 
       {/*
@@ -214,7 +219,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
               className="h-2.5 w-4 shrink-0 rounded-full"
               style={{ background: "linear-gradient(90deg, var(--sky) 0%, var(--accent) 100%)" }}
             />
-            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{verified}</span> you&apos;ve shown you know</span>
+            <Counted template={t("{n} you've shown you know")} n={verified} />
           </span>
           <span className="inline-flex items-center gap-2 whitespace-nowrap">
             <span
@@ -222,7 +227,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
               className="h-2.5 w-4 shrink-0 rounded-full"
               style={{ background: HATCH }}
             />
-            <span><span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{assumed}</span> counted from your level</span>
+            <Counted template={t("{n} counted from your level")} n={assumed} />
           </span>
         </p>
       )}
@@ -264,44 +269,64 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
         {milestones.map((stop) => (
           <li key={stop.level}>
             <span lang={wantsEnglish ? undefined : "et"}>
-              {stop.level}, {uiText(learnerLevel, stop.title, LEVEL_INFO[stop.level].titleEn)}
+              {stop.level}, {uiText(learnerLevel, stop.title, t(LEVEL_INFO[stop.level].titleEn))}
             </span>
-            {stop.state === "passed" ? ", done. " : stop.state === "here" ? `, ${stop.pct}%. ` : stop.state === "assumed" ? `, counted from your level, ${stop.verified} of ${stop.words} shown in your reviews so far. ` : ". "}
-            {stop.state === "ahead" ? `${stop.parts} parts. ` : ""}{stop.arrival}
+            {stop.state === "passed" ? t(", done. ")
+              : stop.state === "here" ? fill(t(", {pct}%. "), { pct: stop.pct })
+              : stop.state === "assumed" ? fill(t(", counted from your level, {shown} of {words} shown in your reviews so far. "), { shown: stop.verified, words: stop.words })
+              : ". "}
+            {stop.state === "ahead" ? fill(t("{parts} parts. "), { parts: stop.parts }) : ""}{t(stop.arrival)}
           </li>
         ))}
       </ol>
       {milestones.filter((m) => m.state === "here").map((stop) => (
         <p key={stop.level} aria-hidden className="mt-4 text-base" style={{ color: "var(--ink)" }}>
           <span className="font-semibold">{stop.level}: </span>
-          {stop.arrival}
+          {t(stop.arrival)}
         </p>
       ))}
       <div className="mt-3">
-        <Explain label="How this bar fills up">
+        <Explain label={t("How this bar fills up")}>
           {arrived
-            ? "You know every word this level asks for. There's nothing new left in it."
+            ? t("You know every word this level asks for. There's nothing new left in it.")
             : here
-              ? <>
-                  You&apos;re {pct}% of the way from the start of {start} to {target}. The solid part
-                  only grows when a word really sticks in your reviews, not when you tick off an
-                  evening{partLabel ? <>. You&apos;re on {partLabel}</> : null}.
-                </>
+              ? partLabel
+                ? fill(t("You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you tick off an evening. You're on {part}."), { pct, start, target, part: partLabel })
+                : fill(t("You're {pct}% of the way from the start of {start} to {target}. The solid part only grows when a word really sticks in your reviews, not when you tick off an evening."), { pct, start, target })
               : standing
-                ? `Every level up to ${target} counts as yours already. What's left is proving it, and that's what the evenings are for.`
-                : "Pick a target in Settings and this becomes the one number worth keeping an eye on."}
+                ? fill(t("Every level up to {target} counts as yours already. What's left is proving it, and that's what the evenings are for."), { target })
+                : t("Pick a target in Settings and this becomes the one number worth keeping an eye on.")}
           {standing && assumed > 0 && (
             <>
               {" "}
-              {standing.kind === "measured"
-                ? `Your level check put you at ${standing.level}, so `
-                : `You told us you're at ${standing.level}, so `}
-              {joinLevels(assumedLevels)} {assumedLevels.length === 1 ? "counts" : "count"} as
-              yours. You won&apos;t have to redo anything below your level.
+              {locale === "en"
+                ? <>
+                  {standing.kind === "measured"
+                    ? `Your level check put you at ${standing.level}, so `
+                    : `You told us you're at ${standing.level}, so `}
+                  {joinLevels(assumedLevels, locale)} {assumedLevels.length === 1 ? "counts" : "count"} as
+                  yours. You won&apos;t have to redo anything below your level.
+                </>
+                : fill(t(standing.kind === "measured"
+                  ? "Your level check put you at {level}, so {levels} count as yours. You won't have to redo anything below your level."
+                  : "You told us you're at {level}, so {levels} count as yours. You won't have to redo anything below your level."),
+                { level: standing.level, levels: joinLevels(assumedLevels, locale) })}
             </>
           )}
         </Explain>
       </div>
     </Card>
+  );
+}
+
+/** A count set in bold with its words around it, wherever the reader's language puts the number. */
+function Counted({ template, n }: { template: string; n: number }) {
+  const [before, after = ""] = template.split("{n}");
+  return (
+    <span>
+      {before}
+      <span className="tnum font-semibold" style={{ color: "var(--ink)" }}>{n}</span>
+      {after}
+    </span>
   );
 }

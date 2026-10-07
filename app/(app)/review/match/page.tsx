@@ -1,3 +1,4 @@
+import { titleFor } from "@/lib/progress/locale";
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
@@ -6,7 +7,9 @@ import { RECENT_WORDS, byRecency, lemmaFilter, recentLemmas } from "@/lib/course
 import { MatchSession, type MatchPair } from "./MatchSession";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Match" };
+export async function generateMetadata() {
+  return titleFor("Match");
+}
 
 export const dynamic = "force-dynamic";
 

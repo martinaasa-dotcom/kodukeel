@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { MascotWatch } from "@/components/MascotWatch";
 import { useFinishingHover } from "@/components/motion/useFinishingHover";
+import { useLocale, useT } from "@/components/Locale";
 
 /**
  * ANU, COMING DOWN THE LANDING PAGE WITH YOU.
@@ -46,6 +47,8 @@ export interface AnuLine {
 }
 
 export function LandingAnu({ lines }: { lines: readonly AnuLine[] }) {
+  const t = useT();
+  const locale = useLocale();
   const [current, setCurrent] = useState(0);
   const [hopping, setHopping] = useState(false);
   // What the observer last settled on, kept outside React so the callback
@@ -107,8 +110,8 @@ export function LandingAnu({ lines }: { lines: readonly AnuLine[] }) {
       <Link
         ref={call}
         {...wiggle}
-        href="/sign-in"
-        aria-label="Start learning, and ask Anu inside"
+        href={locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`}
+        aria-label={t("Start learning, and ask Anu inside")}
         className={`anu-call press lift flex h-14 w-14 items-center justify-center rounded-full border ${hopping ? "anu-hop" : ""}`}
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
         onAnimationEnd={(e) => { if (e.animationName === "anu-hop") setHopping(false); }}

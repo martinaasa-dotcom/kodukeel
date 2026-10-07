@@ -7,6 +7,8 @@ import { COMMON_BATCH } from "@/lib/collections/commonGroups";
 import type { FrequencyGroup } from "@/lib/collections/frequency";
 import { deepenCommonWords } from "@/app/actions";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 /**
  * ONE PRESS, THE NEXT TWENTY WORDS OF A LIST, BUILT OUT PROPERLY.
@@ -33,17 +35,21 @@ export function DeepenButton({ group, label, variant = "primary" }: {
    */
   variant?: "primary" | "secondary";
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [note, setNote] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
   function add() {
     start(async () => {
       const result = await deepenCommonWords(group).catch(() => null);
-      if (!result || !result.ok) { setNote(result ? result.error : NOT_REACHED); return; }
+      if (!result || !result.ok) { setNote(t(result ? result.error : NOT_REACHED)); return; }
       setNote(result.added === 0
-        ? "You've already got every word on this list, in every form."
-        : `Added ${result.words} ${result.words === 1 ? "word" : "words"}, with `
-          + `${result.added} ${result.added === 1 ? "card" : "cards"} between them. They're ready when you are.`);
+        ? t("You've already got every word on this list, in every form.")
+        : fill(t("Added {words}, with {cards} between them. They're ready when you are."), {
+          words: countOf(locale, result.words, "word"),
+          cards: countOf(locale, result.added, "card"),
+        }));
     });
   }
 
@@ -51,7 +57,7 @@ export function DeepenButton({ group, label, variant = "primary" }: {
     <div className="flex flex-col gap-2">
       <Button type="button" variant={variant} onClick={add} disabled={pending}>
         <Plus size={15} aria-hidden />
-        {pending ? "Adding…" : label ?? `Add the next ${COMMON_BATCH}`}
+        {pending ? t("Adding…") : label ?? fill(t("Add the next {n}"), { n: COMMON_BATCH })}
       </Button>
       {/* Always mounted, so the answer to the press is read out when it arrives. */}
       <p className={note ? "text-sm" : "sr-only"} style={{ color: "var(--ink-2)" }} role="status">{note}</p>

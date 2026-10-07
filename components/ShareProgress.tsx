@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, Share2 } from "lucide-react";
 import { Button } from "@/components/Button";
 import { shareRefusal } from "@/lib/ux/share";
+import { useT } from "@/components/Locale";
 
 /**
  * Share the progress card.
@@ -14,6 +15,7 @@ import { shareRefusal } from "@/lib/ux/share";
  * for the signed-in learner and handed to them.
  */
 export function ShareProgress() {
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +33,7 @@ export function ShareProgress() {
       let shared = false;
       if (navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: "My Estonian progress" });
+          await navigator.share({ files: [file], title: t("My Estonian progress") });
           shared = true;
         } catch (refusal) {
           // Closing the sheet is a choice; anything else falls through to the tab.
@@ -56,7 +58,7 @@ export function ShareProgress() {
         window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
       }
     } catch {
-      setError("Couldn't make the card just now. Try again in a moment.");
+      setError(t("Couldn't make the card just now. Try again in a moment."));
     }
     setBusy(false);
   };
@@ -65,7 +67,7 @@ export function ShareProgress() {
     <>
       <Button onClick={() => void share()} disabled={busy}>
         {busy ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <Share2 size={15} aria-hidden />}
-        {busy ? "Building…" : "Share your progress"}
+        {t(busy ? "Building…" : "Share your progress")}
       </Button>
       {error && <p role="alert" className="mt-2 text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
     </>

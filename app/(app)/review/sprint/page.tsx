@@ -1,3 +1,4 @@
+import { titleFor } from "@/lib/progress/locale";
 import { prisma } from "@/lib/db";
 import { readableFront } from "@/lib/copy/caseHint";
 import { plainPhrase } from "@/lib/copy/values";
@@ -16,7 +17,9 @@ import {
 import { caseAskFor, type CaseAsk } from "@/lib/questions/caseAsk";
 import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Case Sprint" };
+export async function generateMetadata() {
+  return titleFor("Case Sprint");
+}
 
 export const dynamic = "force-dynamic";
 

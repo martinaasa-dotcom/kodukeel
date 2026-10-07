@@ -1,4 +1,6 @@
 import { requireUserId } from "@/lib/auth/session";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { CASES } from "@/lib/estonian/cases";
@@ -12,7 +14,9 @@ import { DescribeSession, type ScenePrompt } from "./DescribeSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Say what you see" };
+export async function generateMetadata() {
+  return titleFor("Say what you see");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -44,17 +48,17 @@ export default async function DescribePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const ownerId = await requireUserId();
-  const level = await courseLevelFor(ownerId);
+  const [level, locale] = await Promise.all([courseLevelFor(ownerId), localeFor(ownerId)]);
   // Opened from the module: scenes of taught words, asked in taught cases.
   const round = await describeRound(ownerId, level, undefined, await practiceScope(ownerId, await searchParams));
 
   if (round.length === 0) {
     return (
-      <Page title="Say what you see" lead="Look at a picture, then write one sentence of your own about it.">
+      <Page title={tr(locale, "Say what you see")} lead={tr(locale, "Look at a picture, then write one sentence of your own about it.")}>
         <Empty
-          title="No pictures at your level yet"
-          body="This needs a few more nouns at your level that we can draw. Learn some and come back."
-          action={<ButtonLink href="/practice" variant="primary">Back to practice</ButtonLink>}
+          title={tr(locale, "No pictures at your level yet")}
+          body={tr(locale, "This needs a few more nouns at your level that we can draw. Learn some and come back.")}
+          action={<ButtonLink href="/practice" variant="primary">{tr(locale, "Back to practice")}</ButtonLink>}
         />
       </Page>
     );

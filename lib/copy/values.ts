@@ -1,4 +1,5 @@
 import { isPhrase } from "@/lib/dict/pos";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * What a cell says when there is no value to put in it.
@@ -284,6 +285,15 @@ export function joinWithOr(items: readonly string[]): string {
  * where the answer is printed in the row *above* the note. A note that only
  * parses in one layout is a note the next screen renders wrong.
  */
+/**
+ * A form in quotes, in the marks the reader's language uses: “toas” in
+ * English, «toas» in Russian and Ukrainian. The form is the dictionary's
+ * and is never translated.
+ */
+export function quoted(text: string, locale: Locale): string {
+  return locale === "en" ? `“${text}”` : `«${text}»`;
+}
+
 export const ORDER_EXACT = "That's exactly how the sentence goes.";
 export const ORDER_WRONG = "That's not the order the writer used.";
 
@@ -308,9 +318,18 @@ export const ORDER_WRONG = "That's not the order the writer used.";
  * Null falls back to the sentence without the word, which is what a caller
  * with no reading of the order has.
  */
-export function orderVariantNote(moved: string | null, writerPut: "earlier" | "later" | null): string {
-  if (!moved || !writerPut) return "That works too. The writer just put it another way.";
-  return `That works too. The writer just put ${moved} ${writerPut}.`;
+export function orderVariantNote(
+  moved: string | null,
+  writerPut: "earlier" | "later" | null,
+  locale: Locale,
+): string {
+  if (!moved || !writerPut) return tr(locale, "That works too. The writer just put it another way.");
+  return fill(
+    tr(locale, writerPut === "earlier"
+      ? "That works too. The writer just put {word} earlier."
+      : "That works too. The writer just put {word} later."),
+    { word: moved },
+  );
 }
 
 /**

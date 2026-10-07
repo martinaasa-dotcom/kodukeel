@@ -82,11 +82,11 @@ describe("somebody placed above where their answers are", () => {
     const offer = adaptOffer(struggling, placed)!;
     expect(offer.move).toMatchObject({ kind: "down", to: firstOf("B1"), held: "A2" });
     expect(offer.placed).toBe(true);
-    expect(moveLabel(offer.move!)).toBe("Refresh B1 first");
+    expect(moveLabel(offer.move!, "en")).toBe("Refresh B1 first");
   });
 
   it("is told what the move is for, and that the level was a first guess", () => {
-    const body = offerBody(adaptOffer(struggling, placed)!, both);
+    const body = offerBody(adaptOffer(struggling, placed)!, both, "en");
     expect(body).toMatch(/refresher/);
     expect(body).toMatch(/first guess/);
     expect(body).toMatch(/waits for you/);
@@ -107,7 +107,7 @@ describe("somebody who walked up from the first evening", () => {
     expect(offer.move).toBeNull();
     expect(offer.placed).toBe(false);
     // And the card still says what is being done about it.
-    expect(offerBody(offer, both)).toMatch(/slower/);
+    expect(offerBody(offer, both, "en")).toMatch(/slower/);
   });
 });
 
@@ -129,7 +129,7 @@ describe("somebody flying", () => {
     const top = ladder[ladder.length - 1]!;
     const offer = adaptOffer(flying, at({ part: top }))!;
     expect(offer.move).toBeNull();
-    expect(offerBody(offer, both)).toMatch(/no part above/);
+    expect(offerBody(offer, both, "en")).toMatch(/no part above/);
   });
 });
 
@@ -153,7 +153,7 @@ describe("what the card says", () => {
       for (const position of positions) {
         const offer = adaptOffer(reading, position);
         if (!offer) continue;
-        const text = `${offerTitle(offer)} ${offerBody(offer, both)} ${offer.move ? moveLabel(offer.move) : ""}`;
+        const text = `${offerTitle(offer, "en")} ${offerBody(offer, both, "en")} ${offer.move ? moveLabel(offer.move!, "en") : ""}`;
         expect(findTells(text)).toEqual([]);
         // About the fit, never about the person.
         expect(text).not.toMatch(/\b(bad at|failing|failed|struggle with)\b/i);
@@ -166,28 +166,28 @@ describe("what the card says", () => {
 
 describe("what the lean is said to be doing", () => {
   it("names only the levers that moved", () => {
-    expect(leanSentence(-1, { pace: true, talk: false })).toMatch(/slower/);
-    expect(leanSentence(-1, { pace: true, talk: false })).not.toMatch(/conversations/);
-    expect(leanSentence(1, { pace: false, talk: true })).toMatch(/conversations start a little harder/);
+    expect(leanSentence(-1, { pace: true, talk: false }, "en")).toMatch(/slower/);
+    expect(leanSentence(-1, { pace: true, talk: false }, "en")).not.toMatch(/conversations/);
+    expect(leanSentence(1, { pace: false, talk: true }, "en")).toMatch(/conversations start a little harder/);
   });
 
   it("says nothing where nothing moved, or nothing leans", () => {
     // Somebody at A1 who chose their own pace: neither lever can move.
-    expect(leanSentence(-1, { pace: false, talk: false })).toBe("");
-    expect(leanSentence(0, { pace: true, talk: true })).toBe("");
+    expect(leanSentence(-1, { pace: false, talk: false }, "en")).toBe("");
+    expect(leanSentence(0, { pace: true, talk: true }, "en")).toBe("");
   });
 
   it("keeps a card honest about a lean that moved nothing", () => {
     const offer = adaptOffer(struggling, at({ part: ladder[0]! }))!;
-    expect(offerBody(offer, { pace: false, talk: false })).not.toMatch(/slower|simpler/);
+    expect(offerBody(offer, { pace: false, talk: false }, "en")).not.toMatch(/slower|simpler/);
   });
 });
 
 describe("the flying card's figure", () => {
   it("says every answer rather than a hundred out of a hundred", () => {
     const offer = adaptOffer({ kind: "flying", accuracy: 1 }, at({ part: firstOf("B1") }))!;
-    expect(offerParts(offer, both).lead).toBe("Lately you've been getting every answer right.");
+    expect(offerParts(offer, both, "en").lead).toBe("Lately you've been getting every answer right.");
     const nearly = adaptOffer(flying, at({ part: firstOf("B1") }))!;
-    expect(offerParts(nearly, both).lead).toContain("95 out of a hundred");
+    expect(offerParts(nearly, both, "en").lead).toContain("95 out of a hundred");
   });
 });

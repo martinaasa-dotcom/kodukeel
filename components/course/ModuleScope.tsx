@@ -8,6 +8,8 @@ import { Button, ButtonLink } from "@/components/Button";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { MODULE_HOME, MODULE_PARAM, readFocus, type ModuleFocus } from "@/lib/course/focus";
 import { ModuleContext, ModuleNextContext, ModuleStepsContext, type ModuleStepRow } from "./moduleFocus";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * TONIGHT'S MODULE, WITH THE REST OF THE WEBSITE TAKEN OFF THE SCREEN.
@@ -128,6 +130,7 @@ function useCarryOn(focus: ModuleFocus) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [failed, setFailed] = useState<string | null>(null);
+  const t = useT();
   const carryOn = () => {
     setFailed(null);
     start(async () => {
@@ -148,10 +151,10 @@ function useCarryOn(focus: ModuleFocus) {
       const result = await advanceCourseStep(focus.programmeId, focus.dayId, focus.stepId)
         .catch(() => null);
       if (!result) {
-        setFailed("That didn't reach us, so this step isn't ticked yet.");
+        setFailed(t("That didn't reach us, so this step isn't ticked yet."));
         return;
       }
-      if (!result.ok) { setFailed(result.error); return; }
+      if (!result.ok) { setFailed(t(result.error)); return; }
       /*
         AND NOTHING AFTER THE PUSH. `advanceCourseStep` revalidates `/course`
         and `/` inside the action, which drops the client's copy of both, and a
@@ -190,6 +193,7 @@ function ModuleNext({ focus, steps, onShown }: {
   onShown: (shown: boolean) => void;
 }) {
   const { carryOn, pending, failed } = useCarryOn(focus);
+  const t = useT();
   /*
     ON THE SCREEN, NOT MERELY ON THE PAGE. The bar's quiet "Next step" steps
     aside while this is in view, so the two are never on one screen; and only
@@ -222,17 +226,19 @@ function ModuleNext({ focus, steps, onShown }: {
     <div ref={box} data-module-next="" className="dock-clear flex w-full flex-col items-center gap-2">
       <Button variant="primary" size="lg" onClick={carryOn} disabled={pending}>
         {last ? (
-          <>Finish tonight <ArrowRight size={16} aria-hidden /></>
+          <>{t("Finish tonight")} <ArrowRight size={16} aria-hidden /></>
         ) : (
           <>
-            {next ? `Next, step ${focus.n + 1}: ${next.title}` : `Next, step ${focus.n + 1}`}
+            {next
+              ? fill(t("Next, step {n}: {title}"), { n: focus.n + 1, title: next.title })
+              : fill(t("Next, step {n}"), { n: focus.n + 1 })}
             <ArrowRight size={16} aria-hidden />
           </>
         )}
       </Button>
       {failed && (
         <p role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>
-          {failed} Nothing has changed.
+          {failed} {t("Nothing has changed.")}
         </p>
       )}
     </div>
@@ -261,6 +267,7 @@ function ModuleNext({ focus, steps, onShown }: {
  */
 function ModuleBar({ focus, atEnd }: { focus: ModuleFocus; atEnd: boolean }) {
   const { carryOn, pending, failed } = useCarryOn(focus);
+  const t = useT();
 
   /*
     HOW TALL THE BAR IS, FOR ANU TO STAND CLEAR OF ON A PHONE.
@@ -424,16 +431,16 @@ function ModuleBar({ focus, atEnd }: { focus: ModuleFocus; atEnd: boolean }) {
           <Link
             href="/"
             data-module-leave=""
-            aria-label="Leave tonight's module and go back to Today"
+            aria-label={t("Leave tonight's module and go back to Today")}
             className="tap-tint inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 text-sm font-semibold"
             style={{ color: "var(--ink-3)" }}
           >
             <X size={16} aria-hidden />
-            <span className="hidden sm:inline">Leave</span>
+            <span className="hidden sm:inline">{t("Leave")}</span>
           </Link>
           <div className="min-w-[4rem] flex-1">
             <p className="label-xs whitespace-nowrap" style={{ color: "var(--ink-3)" }}>
-              Step {focus.n} of {focus.of}
+              {fill(t("Step {n} of {of}"), { n: focus.n, of: focus.of })}
             </p>
             {/* A meter rather than a row of dots, because an evening runs to
                 five or six steps and a dot apiece is furniture at 360px. */}
@@ -456,16 +463,16 @@ function ModuleBar({ focus, atEnd }: { focus: ModuleFocus; atEnd: boolean }) {
           */}
           {!atEnd && (
             <Button variant="ghost" onClick={carryOn} disabled={pending} className="shrink-0">
-              {focus.n >= focus.of ? "Finish" : "Next step"}
+              {focus.n >= focus.of ? t("Finish") : t("Next step")}
             </Button>
           )}
           <ButtonLink href={MODULE_HOME} variant="secondary" className="shrink-0">
-            <ListChecks size={15} aria-hidden /> Tonight
+            <ListChecks size={15} aria-hidden /> {t("Tonight")}
           </ButtonLink>
         </div>
         {failed && (
           <p role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>
-            {failed} You&apos;re still on this step.
+            {failed} {t("You're still on this step.")}
           </p>
         )}
       </div>

@@ -2,7 +2,9 @@
 
 import { Lightbulb } from "lucide-react";
 import { Et } from "@/components/Et";
-import { HINT_COST_NOTE, type Hint } from "@/lib/questions/hints";
+import { HINT_COST_NOTE, hintLabel, type Hint } from "@/lib/questions/hints";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * THE HINT, DRAWN ONCE FOR EVERY ROUND IN THE APP.
@@ -67,6 +69,8 @@ export function HintLadder({
    */
   graded?: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
   if (!open || ladder.length === 0) return null;
 
   const shown = taken > 0 ? ladder[Math.min(taken, ladder.length) - 1] : null;
@@ -92,7 +96,7 @@ export function HintLadder({
           className="flex flex-col items-center gap-1 rounded-lg px-3 py-2"
           style={{ background: "var(--raised)" }}
         >
-          <span className="label-xs" style={{ color: "var(--ink-3)" }}>{shown.label}</span>
+          <span className="label-xs" style={{ color: "var(--ink-3)" }}>{hintLabel(shown, locale)}</span>
           {shown.shown && (
             /*
               `tracking` rather than a monospace face, which was the first
@@ -119,23 +123,23 @@ export function HintLadder({
             found nothing on a round where the hint was on screen every time,
             and waived eight checks saying the deck never repeated a word.
           */
-          aria-label={taken === 0 ? `Get a hint for ${label}` : `${next.label} for ${label}`}
-          className="tap-tint flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold"
+          aria-label={fill(t(taken === 0 ? "Get a hint for {word}" : "{hint} for {word}"), { word: t(label), hint: hintLabel(next, locale) })}
+          className="tap-tint flex flex-wrap items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-semibold"
           style={{ color: "var(--ink-3)" }}
         >
           <Lightbulb size={14} aria-hidden />
-          {taken === 0 ? "Stuck? Take a hint" : next.label}
+          {taken === 0 ? t("Stuck? Take a hint") : hintLabel(next, locale)}
           {/*
             Not faded to say it is secondary: `opacity` on a box that holds
             words is the rule this app has about locked units, and the count is
             the half of this button somebody deciding whether to press again is
             actually reading.
           */}
-          <span aria-hidden>{left > 1 ? `(${left} left)` : "(last one)"}</span>
+          <span aria-hidden className="whitespace-nowrap">{left > 1 ? fill(t("({n} left)"), { n: left }) : t("(last one)")}</span>
         </button>
       )}
       {taken > 0 && graded && (
-        <p className="text-2xs" style={{ color: "var(--ink-3)" }}>{HINT_COST_NOTE}</p>
+        <p className="text-2xs" style={{ color: "var(--ink-3)" }}>{t(HINT_COST_NOTE)}</p>
       )}
     </div>
   );

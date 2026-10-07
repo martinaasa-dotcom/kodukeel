@@ -163,15 +163,15 @@ describe("markDescription", () => {
 
 describe("pictureLabel", () => {
   it("names two senses of each thing, so the drawn one is among them", () => {
-    expect(pictureLabel(["tape, ribbon", "stone, rock", "bath, bathtub"]))
+    expect(pictureLabel(["tape, ribbon", "stone, rock", "bath, bathtub"], "en"))
       .toBe("In the picture: tape or ribbon, stone or rock, bath or bathtub.");
   });
 
   it("leaves a single-sense gloss alone", () => {
-    expect(pictureLabel(["egg"])).toBe("In the picture: egg.");
+    expect(pictureLabel(["egg"], "en")).toBe("In the picture: egg.");
   });
 
   it("says nothing where there is nothing to name", () => {
-    expect(pictureLabel(["", " "])).toBe("");
+    expect(pictureLabel(["", " "], "en")).toBe("");
   });
 });

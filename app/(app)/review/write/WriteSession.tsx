@@ -1,5 +1,8 @@
 "use client";
 
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { rich } from "@/components/round/rich";
 import { endingName } from "@/lib/estonian/plainAsk";
 import { useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
@@ -83,6 +86,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   prompts: WritingPrompt[]; aiAvailable: boolean;
 }) {
   const grade = useGrade();
+  const t = useT();
   /*
     Snapshotted once on mount, never updated from later props. gradeCard() is a
     Server Action and Next refreshes this route's Server Component after every
@@ -145,7 +149,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ?? "Sorry, we couldn't mark that one. Try again?");
+        setError(body.error ? t(body.error) : t("Sorry, we couldn't mark that one. Try again?"));
         return;
       }
       const result = body as Marked;
@@ -170,7 +174,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       // slot is what mastery counts, and without it this read as the card's case.
       void grade(prompt.cardId, rating, Date.now() - startedAt.current, prompt.caseKey);
     } catch {
-      setError("You're offline, so we can't mark it yet. Your sentence is safe here.");
+      setError(t("You’re offline, so we can’t mark it yet. Your sentence is safe here."));
     } finally {
       setBusy(false);
     }
@@ -182,7 +186,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
     if (prompt) {
       look.record({
         of: prompt.cardId,
-        label: "Write a sentence",
+        label: t("Write a sentence"),
         question: `${prompt.lemma}, ${prompt.translation}, ${prompt.caseEt}`,
         answer: sentence.trim() || prompt.lemma,
         note: prompt.caseQuestion,
@@ -202,26 +206,25 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          That&rsquo;s the round done
+          {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          Tubli töö. Writing your own sentences is slower going, but it&rsquo;s what gets you
-          speaking.
+          <span lang="et">Tubli töö.</span> {t("Writing your own sentences is slower going, but it’s what gets you speaking.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={prompts.length} label="Written" />
+          <Stat value={prompts.length} label={t("Written")} />
           <Stat
             value={`${Math.round((correct / prompts.length) * 100)}%`}
-            label="Right form"
+            label={t("Right form")}
           />
-          <Stat value={`${minutes}m`} label="Time" />
+          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/write">Another round</ButtonLink>
-          <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
+          <ButtonLink href="/review/write">{t("Another round")}</ButtonLink>
+          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -233,7 +236,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
           other six modes: the empty state carries one and the round did not,
           which is why an accessibility run that happened to meet an empty deck
           saw a heading and passed. */}
-      <h1 className="sr-only">Writing</h1>
+      <h1 className="sr-only">{t("Writing")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -244,11 +247,11 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={prompts.length}
-            aria-label="Round progress"
+            aria-label={t("Round progress")}
           />
         </div>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {prompts.length - index} left
+          {fill(t("{n} left"), { n: prompts.length - index })}
         </span>
       </div>
 
@@ -258,8 +261,8 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent"><PenLine size={12} aria-hidden /> Write a sentence</Chip>
-          {prompt.weak && <Chip tone="hard">a case you often miss</Chip>}
+          <Chip tone="accent"><PenLine size={12} aria-hidden /> {t("Write a sentence")}</Chip>
+          {prompt.weak && <Chip tone="hard">{t("a case you often miss")}</Chip>}
           {/* The corner of the card, which is where somebody looks for this
               the moment a word turns out to be worth keeping. */}
           <div className="ml-auto">
@@ -277,19 +280,24 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
             and the case's name is on the verdict, where it is worth keeping.
           */}
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            Use{" "}
-            <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
-              {prompt.lemma}
-            </strong>
-            {!saysGloss && <span style={{ color: "var(--ink-3)" }}> ({prompt.translation})</span>} in a sentence that says
+            {rich(t("Use {word} in a sentence that says"), {
+              word: (
+                <>
+                  <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
+                    {prompt.lemma}
+                  </strong>
+                  {!saysGloss && <span style={{ color: "var(--ink-3)" }}> ({prompt.translation})</span>}
+                </>
+              ),
+            })}
           </p>
-          <p data-say className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
+          <p data-say lang="en" className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
             “{phrase}”
           </p>
 
           <div className="mt-6">
             <label htmlFor="sentence" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-              Your sentence
+              {t("Your sentence")}
             </label>
             <textarea
               id="sentence"
@@ -343,12 +351,12 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
               onClick={() => void submit()}
             >
               {busy
-                ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Marking…</>
-                : <>Check it <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
+                ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Marking…")}</>
+                : <>{t("Check it")} <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              Next
+              {t("Next")}
             </Button>
           )}
         </div>
@@ -361,7 +369,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
 
       {!aiAvailable && (
         <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-          Anu isn&rsquo;t available here, so only the form is checked. That check is the reliable half.
+          {t("Anu isn’t available here, so only the form is checked. That check is the reliable half.")}
         </p>
       )}
     </div>
@@ -380,6 +388,7 @@ function writeRating(formCheck: Marked["formCheck"]): 1 | 2 | 3 {
 
 function Feedback({ marked, caseName, form }: { marked: Marked; caseName: string; form: string }) {
   const { formCheck, graded, quotaMessage, withheld, withheldReason } = marked;
+  const t = useT();
 
   return (
     <div className="mt-6 flex flex-col gap-3" aria-live="polite">
@@ -391,10 +400,10 @@ function Feedback({ marked, caseName, form }: { marked: Marked; caseName: string
           {/* A miss names the form, since the box is closed by now and "try
               working it in" offered a second go the screen did not have. */}
           {formCheck.used
-            ? "Yes, that's the right ending."
+            ? t("Yes, that's the right ending.")
             : formCheck.usedAnotherForm
-              ? <>Right word, but not the ending we asked for. It&rsquo;s <strong lang="et">{form}</strong>.</>
-              : <>The word we asked for isn&rsquo;t in your sentence. It&rsquo;s <strong lang="et">{form}</strong>.</>}
+              ? rich(t("Right word, but not the ending we asked for. It’s {form}."), { form: <strong lang="et">{form}</strong> })
+              : rich(t("The word we asked for isn’t in your sentence. It’s {form}."), { form: <strong lang="et">{form}</strong> })}
           {/* The ending's name, once the answer is in: here it is the thing to
               remember, where before the answer it was a thing to decode. */}
           <span className="mt-1 block text-sm">
@@ -410,17 +419,9 @@ function Feedback({ marked, caseName, form }: { marked: Marked; caseName: string
         >
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {withheldReason === "unvouched-word" ? (
-              <>
-                We&rsquo;ve hidden Anu&rsquo;s note this time. It used a word we couldn&rsquo;t confirm as
-                Estonian (it may just have been English). The check above comes from the
-                dictionary, so you can trust it.
-              </>
+              t("We’ve hidden Anu’s note this time. It used a word we couldn’t confirm as Estonian (it may just have been English). The check above comes from the dictionary, so you can trust it.")
             ) : (
-              <>
-                We&rsquo;ve hidden Anu&rsquo;s note this time. It used an Estonian form we couldn&rsquo;t
-                confirm, and we never show a form we haven&rsquo;t checked. The check above comes
-                from the dictionary, so you can trust it.
-              </>
+              t("We’ve hidden Anu’s note this time. It used an Estonian form we couldn’t confirm, and we never show a form we haven’t checked. The check above comes from the dictionary, so you can trust it.")
             )}
           </p>
         </div>
@@ -433,20 +434,20 @@ function Feedback({ marked, caseName, form }: { marked: Marked; caseName: string
         >
           <div className="mb-1.5 flex items-center gap-2">
             <Chip tone={graded.verdict === "correct" ? "good" : graded.verdict === "almost" ? "hard" : "again"}>
-              {graded.verdict === "correct" ? "reads well" : graded.verdict === "almost" ? "nearly there" : "not quite yet"}
+              {graded.verdict === "correct" ? t("reads well") : graded.verdict === "almost" ? t("nearly there") : t("not quite yet")}
             </Chip>
           </div>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
           {graded.rule && (
             <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-              Worth remembering: {graded.rule}
+              {fill(t("Worth remembering: {rule}"), { rule: graded.rule })}
             </p>
           )}
         </div>
       )}
 
       {quotaMessage && (
-        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{quotaMessage}</p>
+        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t(quotaMessage)}</p>
       )}
     </div>
   );

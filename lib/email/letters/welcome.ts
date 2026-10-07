@@ -28,8 +28,11 @@
 */
 import { letterTiles, meter } from "../art";
 import type { Block, Letter } from "../letter";
+import { figured, lowerFirst, sayer, type Locale } from "../say";
 
 export interface WelcomeInput {
+  /** The language the letter is written in. `opensOn.subtitle` arrives already in it. */
+  readonly locale: Locale;
   readonly origin: string;
   /** The hour they chose to be reminded at, as "18:00", or null where they did not. */
   readonly reminderAt: string | null;
@@ -40,15 +43,21 @@ export interface WelcomeInput {
 }
 
 export function welcomeLetter(input: WelcomeInput): Letter {
+  const { locale } = input;
+  const say = sayer(locale);
   const blocks: Block[] = [];
+  /* "404 cards", always plural in English, which is how it always read. */
+  const cards = figured(locale, input.cardsWaiting, "card", { always: true });
+  /* English sets the subtitle mid-sentence in lower case; the others quote it whole. */
+  const subtitle = input.opensOn ? (locale === "en" ? lowerFirst(input.opensOn.subtitle) : `«${input.opensOn.subtitle}»`) : null;
 
   blocks.push({
     t: "art",
     html: letterTiles(),
-    alt: "Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut.",
+    alt: say("Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut."),
   });
 
-  blocks.push({ t: "heading", text: "Your first cards are ready. Here's how it works." });
+  blocks.push({ t: "heading", text: say("Your first cards are ready. Here's how it works.") });
 
   /*
     ENDOWED PROGRESS: THE DECK IS ALREADY THERE.
@@ -59,17 +68,21 @@ export function welcomeLetter(input: WelcomeInput): Letter {
   */
   blocks.push({
     t: "text",
-    text:
-      `${input.cardsWaiting} cards are already waiting for you, made from the first lessons of your course. ` +
-      (input.opensOn
-        ? `Your first evening is ${input.opensOn.title}, which is ${input.opensOn.subtitle.charAt(0).toLowerCase()}${input.opensOn.subtitle.slice(1)}.`
-        : `Open the course and it'll show you where to start.`),
+    text: input.opensOn && subtitle !== null
+      ? say(
+          "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is {title}, which is {subtitle}.",
+          { cards, title: input.opensOn.title, subtitle },
+        )
+      : say(
+          "{cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.",
+          { cards },
+        ),
   });
 
   blocks.push({
     t: "art",
     html: meter(2),
-    alt: "A progress bar, right at the start.",
+    alt: say("A progress bar, right at the start."),
   });
 
   /*
@@ -81,35 +94,40 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     app will ever be.
   */
   blocks.push({ t: "rule" });
-  blocks.push({ t: "heading", text: "Fifteen minutes an evening, and that's all." });
+  blocks.push({ t: "heading", text: say("Fifteen minutes an evening, and that's all.") });
   blocks.push({
     t: "text",
-    text:
+    text: say(
       "Each evening is a short reading, two quick exercises and a few cards to go over. It takes about " +
-      "a quarter of an hour at any level, and when you're done, the app tells you so and lets you go. " +
-      "No endless scrolling, no guilt.",
+        "a quarter of an hour at any level, and when you're done, the app tells you so and lets you go. " +
+        "No endless scrolling, no guilt.",
+    ),
   });
 
   if (input.reminderAt) {
     blocks.push({
       t: "text",
-      text: `You picked ${input.reminderAt}. Put it in your calendar and your phone will remind you, which works far better than an email from us.`,
+      text: say(
+        "You picked {time}. Put it in your calendar and your phone will remind you, which works far better than an email from us.",
+        { time: input.reminderAt },
+      ),
     });
     blocks.push({
       t: "link",
-      label: "Add the daily reminder to your calendar",
+      label: say("Add the daily reminder to your calendar"),
       href: `${input.origin}/api/reminder?at=${encodeURIComponent(input.reminderAt)}`,
     });
   } else {
     blocks.push({
       t: "text",
-      text:
+      text: say(
         "Pick a time that already has a gap in it: after dinner, on the train, before bed. " +
-        "Which hour you choose matters much less than keeping it the same every day.",
+          "Which hour you choose matters much less than keeping it the same every day.",
+      ),
     });
   }
 
-  blocks.push({ t: "button", label: "Open your first evening", href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: say("Open your first evening"), href: `${input.origin}/course` });
 
   /*
     AND WHAT WILL ARRIVE, SAID PLAINLY, WITH THE WAY OUT IN THE SAME BREATH.
@@ -117,18 +135,20 @@ export function welcomeLetter(input: WelcomeInput): Letter {
   blocks.push({ t: "rule" });
   blocks.push({
     t: "quiet",
-    text:
+    text: say(
       "What we'll send you: a short nudge on evenings you haven't studied yet, a look back at your " +
-      "week on Sundays, and now and then a note when there's real news, like finishing a level. " +
-      "The link at the bottom of any of them turns them off, and the course works just the same without them.",
+        "week on Sundays, and now and then a note when there's real news, like finishing a level. " +
+        "The link at the bottom of any of them turns them off, and the course works just the same without them.",
+    ),
   });
 
   return {
     kind: "welcome",
-    subject: "Your first cards are ready",
-    preheader: input.opensOn
-      ? `${input.cardsWaiting} cards are waiting, and your first evening is ${input.opensOn.subtitle.charAt(0).toLowerCase()}${input.opensOn.subtitle.slice(1)}.`
-      : `${input.cardsWaiting} cards are waiting, and your first evening takes fifteen minutes.`,
+    locale,
+    subject: say("Your first cards are ready"),
+    preheader: subtitle !== null
+      ? say("{cards} are waiting, and your first evening is {subtitle}.", { cards, subtitle })
+      : say("{cards} are waiting, and your first evening takes fifteen minutes.", { cards }),
     blocks,
   };
 }

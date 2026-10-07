@@ -46,6 +46,16 @@
 import { caseByKey } from "@/lib/estonian/cases";
 import { CASE_NOTES } from "@/lib/estonian/grammar";
 import type { CaseKey } from "@/lib/estonian/types";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
+
+/**
+ * A case's one English word, quoted, in the learner's interface language.
+ * The quotation marks are part of the key so a short word like "in" is never
+ * looked up on its own, where another screen may mean something else by it.
+ */
+export function quotedPlain(locale: Locale, plain: string): string {
+  return tr(locale, `“${plain}”`);
+}
 
 /**
  * A guess at why, with how sure it is.
@@ -77,6 +87,8 @@ export function diagnose(
   wanted: CaseKey,
   reached: CaseKey | undefined,
   before: Before,
+  /** The learner's interface language, which is all the English here is for. */
+  locale: Locale,
 ): Hunch | null {
   if (!reached || reached === wanted) return null;
   const asked = caseByKey(reached);
@@ -91,7 +103,7 @@ export function diagnose(
   if (before.grammCase === reached) {
     return {
       sure: "likely",
-      says: "you kept the ending from the question before.",
+      says: tr(locale, "you kept the ending from the question before."),
     };
   }
 
@@ -115,24 +127,32 @@ export function diagnose(
       already says what the case that was due is for, so naming both meanings
       here was that heading again inside a longer sentence.
     */
-    const means = askedMeans ? `, but it means “${askedMeans}”` : "";
     return {
       sure: "likely",
-      says: `you used the ${asked.et}. It answers ${due.asksWhere} too${means}.`,
+      says: askedMeans
+        ? fill(tr(locale, "you used the {case}. It answers {question} too, but it means {means}."), {
+          case: asked.et, question: due.asksWhere, means: quotedPlain(locale, askedMeans),
+        })
+        : fill(tr(locale, "you used the {case}. It answers {question} too."), {
+          case: asked.et, question: due.asksWhere,
+        }),
     };
   }
 
   if (reached === "NOMINATIVE") {
     return {
       sure: "likely",
-      says: "you left the word the way the dictionary lists it, with no ending on.",
+      says: tr(locale, "you left the word the way the dictionary lists it, with no ending on."),
     };
   }
 
   if (reached === "GENITIVE" || reached === "PARTITIVE") {
     return {
       sure: "possible",
-      says: `you stopped at the ${asked.et}. That's the base the ending gets added to, so only the ending went missing.`,
+      says: fill(
+        tr(locale, "you stopped at the {case}. That's the base the ending gets added to, so only the ending went missing."),
+        { case: asked.et },
+      ),
     };
   }
 
@@ -146,9 +166,9 @@ export function diagnose(
  * only one answer: a dictionary lists a verb in that form, so it is the form
  * a learner has met most and the one that comes first under pressure.
  */
-export function diagnosePerson(): Hunch {
+export function diagnosePerson(locale: Locale): Hunch {
   return {
     sure: "likely",
-    says: "that's how a dictionary lists a verb, so it's the form you've seen most.",
+    says: tr(locale, "that's how a dictionary lists a verb, so it's the form you've seen most."),
   };
 }

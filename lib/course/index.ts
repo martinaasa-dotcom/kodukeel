@@ -32,6 +32,7 @@ export * from "./focus";
 export * from "./milestones";
 export * from "./placement";
 export * from "./adapt";
+export * from "./stepText";
 
 export const PROGRAMMES: readonly Programme[] = buildProgrammes();
 

@@ -7,8 +7,12 @@ import { MasteryBoard } from "@/components/MasteryBoard";
 import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
 import { favoriteCount, favorites } from "@/lib/progress/stars";
 import { deferredFor } from "@/lib/progress/deferrals";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Where your words stand" };
+export async function generateMetadata() {
+  return titleFor("Where your words stand");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +49,7 @@ export default async function MasteryPage() {
     from the list because the list is capped and a cap cannot say how many
     there are.
   */
-  const [words, kept, keptTotal, aside] = await Promise.all([
+  const [words, kept, keptTotal, aside, locale] = await Promise.all([
     masteryFor(ownerId),
     favorites(ownerId),
     favoriteCount(ownerId),
@@ -56,25 +60,27 @@ export default async function MasteryPage() {
       a handful of words is a page nobody finds.
     */
     deferredFor(ownerId),
+    localeFor(ownerId),
   ]);
+  const t = (english: string) => tr(locale, english);
 
   return (
     <Page route="/words/mastery"
-      title="Where your words stand"
-      lead="Your favorites, and how well every other word is sticking."
-      actions={<ButtonLink href="/review/flashcards" variant="primary">Practise with flash cards</ButtonLink>}
+      title={t("Where your words stand")}
+      lead={t("Your favorites, and how well every other word is sticking.")}
+      actions={<ButtonLink href="/review/flashcards" variant="primary">{t("Practise with flash cards")}</ButtonLink>}
     >
       {words.length === 0 && kept.length === 0 && aside.length === 0 ? (
         <Empty
-          title="Nothing answered yet"
-          body="A word shows up here once you've answered it, or as soon as you star it."
-          action={<ButtonLink href="/review" variant="primary">Start reviewing</ButtonLink>}
+          title={t("Nothing answered yet")}
+          body={t("A word shows up here once you've answered it, or as soon as you star it.")}
+          action={<ButtonLink href="/review" variant="primary">{t("Start reviewing")}</ButtonLink>}
         />
       ) : (
         <Stack>
-          <Favorites words={kept} total={keptTotal} />
+          <Favorites words={kept} total={keptTotal} locale={locale} />
           <PutAside words={aside} />
-          {words.length > 0 && <MasteryBoard words={words} counts={masteryCounts(words)} />}
+          {words.length > 0 && <MasteryBoard words={words} counts={masteryCounts(words)} locale={locale} />}
         </Stack>
       )}
     </Page>

@@ -49,7 +49,7 @@ import { shieldLetter } from "@/lib/email/letters/shield";
 import { deadlineLetter } from "@/lib/email/letters/deadline";
 import { classroomLetter } from "@/lib/email/letters/classroom";
 import { worddayLetter } from "@/lib/email/letters/wordday";
-import { candidateFor, letterInputFor, mailoutRoster, undeliverableRow } from "@/lib/progress/mailout";
+import { candidateFor, letterInputFor, localesFor, mailoutRoster, undeliverableRow } from "@/lib/progress/mailout";
 import { addressDigest, blocks } from "@/lib/email/webhook";
 import { writeSetting, SETTING_KEYS, type SettingKey } from "@/lib/settings/store";
 import { resolveOperator } from "@/lib/legal/operator";
@@ -162,6 +162,8 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
 
   const operator = resolveOperator();
   report.considered = roster.length;
+  /* Each learner's language, read once for the page rather than per letter. */
+  const locales = await localesFor(roster);
 
   for (const ownerId of roster) {
     if (report.sent >= MAX_PER_RUN) break;
@@ -193,7 +195,7 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
       const decision = letterOwed({ ...who, email, undeliverable: blocked }, now);
       if (!decision || !email) continue;
 
-      const built = await letterInputFor(ownerId, decision.kind, origin, now);
+      const built = await letterInputFor(ownerId, decision.kind, origin, now, locales.get(ownerId) ?? "en");
       if (!built) continue;
 
       const letter = letterFrom(built);

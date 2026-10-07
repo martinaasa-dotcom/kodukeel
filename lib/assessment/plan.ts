@@ -1,6 +1,7 @@
 import { BANDS, PRE_A1, type Band, type HourRange, type Level } from "./types";
 import { rank } from "./score";
 import type { Reason } from "./goals";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 export type { HourRange } from "./types";
 
@@ -545,31 +546,50 @@ export function weeksNeeded(hours: HourRange, appHoursPerWeek: number, otherHour
  * "the pace you said" is a promise, and a learner reading the second knows
  * what would change the number.
  */
-export function distanceLine(plan: Projection): string {
-    if (plan.verdict === "arrived") {
-    return `As far as the app can tell, you're already ${plan.to}. All that's left is the exam itself.`;
+export function distanceLine(plan: Projection, locale: Locale): string {
+  const t = (english: string) => tr(locale, english);
+  if (plan.verdict === "arrived") {
+    return fill(t("As far as the app can tell, you're already {level}. All that's left is the exam itself."), { level: plan.to });
   }
-  const pace = plan.paceSource === "measured"
+  const pace = t(plan.paceSource === "measured"
     ? "the pace you have kept"
     : plan.paceSource === "lapsed"
       ? "the pace you said, since nothing has been reviewed here lately"
-      : "the pace you said";
-  const opening = `At ${pace}, plus the Estonian already in your week, ${plan.to} is about ${plan.weeksAbout} weeks away.`;
+      : "the pace you said");
+  const opening = fill(t("At {pace}, plus the Estonian already in your week, {level} is about {weeks} away."), {
+    pace, level: plan.to, weeks: weeksWords(plan.weeksAbout, locale),
+  });
+  const off = { weeks: weeksWords(plan.weeksAvailable ?? 0, locale) };
   switch (plan.verdict) {
-    case "open": return `${opening} No date is set, so that's the whole story.`;
-    case "passed": return `${opening} The date you picked has gone, so choose a new one whenever you're ready.`;
-    case "comfortable": return `${opening} Your date is ${plan.weeksAvailable} weeks off, and this app alone covers it.`;
-    case "tight": return `${opening} Your date is ${plan.weeksAvailable} weeks off. It fits, as long as you count the Estonian your ordinary week already brings.`;
-    case "possible": return `${opening} Your date is ${plan.weeksAvailable} weeks off. It fits if you commit: about ${hoursAWeek(plan)} a week of Estonian on top of this app.`;
-    default: return `${opening} Your date is ${plan.weeksAvailable} weeks off, so something has to give: the pace, the date, or the hours you put in outside this app.`;
+    case "open": return `${opening} ${t("No date is set, so that's the whole story.")}`;
+    case "passed": return `${opening} ${t("The date you picked has gone, so choose a new one whenever you're ready.")}`;
+    case "comfortable": return `${opening} ${fill(t("Your date is {weeks} off, and this app alone covers it."), off)}`;
+    case "tight": return `${opening} ${fill(t("Your date is {weeks} off. It fits, as long as you count the Estonian your ordinary week already brings."), off)}`;
+    case "possible": return `${opening} ${fill(t("Your date is {weeks} off. It fits if you commit: about {hours} a week of Estonian on top of this app."), { ...off, hours: hoursAWeek(plan, locale) })}`;
+    default: return `${opening} ${fill(t("Your date is {weeks} off, so something has to give: the pace, the date, or the hours you put in outside this app."), off)}`;
   }
 }
 
+/**
+ * A number of weeks, as the sentence around it says it. In English it is
+ * always "N weeks", which is what this line printed before it was translated;
+ * Russian and Ukrainian take the form the number asks for.
+ */
+function weeksWords(n: number, locale: Locale): string {
+  return locale === "en" ? `${n} weeks` : countOf(locale, n, "week");
+}
+
 /** The hours a week beyond the app a plan asks for, as words. */
-function hoursAWeek(plan: Projection): string {
+function hoursAWeek(plan: Projection, locale: Locale): string {
   const need = plan.otherHoursPerWeek ? about(plan.otherHoursPerWeek) : 0;
   const rounded = need >= 1 ? Math.round(need * 2) / 2 : Math.round(need * 10) / 10;
-  return rounded === 1 ? "an hour" : `${rounded} hours`;
+  if (locale === "en") return rounded === 1 ? "an hour" : `${rounded} hours`;
+  if (rounded === 1) return tr(locale, "an hour");
+  // A fraction takes the genitive singular in both languages: 2,5 часа, 2,5 години.
+  if (!Number.isInteger(rounded)) {
+    return fill(tr(locale, "{n} hours (fraction)"), { n: String(rounded).replace(".", ",") });
+  }
+  return countOf(locale, rounded, "hour");
 }
 
 /**

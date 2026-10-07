@@ -1,4 +1,6 @@
 import { requireUserId } from "@/lib/auth/session";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { targetRound } from "@/lib/progress/target";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
@@ -7,7 +9,9 @@ import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { multiplierFor, roundPaceFrom } from "@/lib/ux/roundClock";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Target" };
+export async function generateMetadata() {
+  return titleFor("Target");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -32,18 +36,19 @@ export default async function TargetPage({
 }) {
   const ownerId = await requireUserId();
   // Opened from the module, the targets are taught words in taught cases.
-  const [questions, pace] = await Promise.all([
+  const [questions, pace, locale] = await Promise.all([
     targetRound(ownerId, await practiceScope(ownerId, await searchParams)),
     readSetting(ownerId, SETTING_KEYS.roundPace),
+    localeFor(ownerId),
   ]);
 
   if (questions.length === 0) {
     return (
-      <Page title="Target" lead="Tap the right ending before the clock runs out.">
+      <Page title={tr(locale, "Target")} lead={tr(locale, "Tap the right ending before the clock runs out.")}>
         <Empty
-          title="Nothing to aim at yet"
-          body="It uses words from your deck, so learn a few first and come back."
-          action={<ButtonLink href="/learn" variant="primary">Open the course</ButtonLink>}
+          title={tr(locale, "Nothing to aim at yet")}
+          body={tr(locale, "It uses words from your deck, so learn a few first and come back.")}
+          action={<ButtonLink href="/learn" variant="primary">{tr(locale, "Open the course")}</ButtonLink>}
         />
       </Page>
     );

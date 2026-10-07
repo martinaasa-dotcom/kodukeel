@@ -2,8 +2,12 @@ import { requireUserId } from "@/lib/auth/session";
 import { listDecks } from "@/lib/progress/decks";
 import { Page } from "@/components/ui";
 import { DecksClient } from "./DecksClient";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Decks" };
+export async function generateMetadata() {
+  return titleFor("Decks");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -22,12 +26,12 @@ export const dynamic = "force-dynamic";
  */
 export default async function DecksPage() {
   const ownerId = await requireUserId();
-  const decks = await listDecks(ownerId);
+  const [decks, locale] = await Promise.all([listDecks(ownerId), localeFor(ownerId)]);
 
   return (
     <Page route="/words/decks"
-      title="Decks"
-      lead="Sort your words into decks of your own, like Work or Recipes. Add words now or any time later."
+      title={tr(locale, "Decks")}
+      lead={tr(locale, "Sort your words into decks of your own, like Work or Recipes. Add words now or any time later.")}
     >
       <DecksClient decks={decks} />
     </Page>

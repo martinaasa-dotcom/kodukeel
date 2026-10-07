@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import { useReaderDate } from "@/components/LocalDate";
 import { buildClinicQuestion, type Leech } from "@/lib/analysis/leeches";
 import { caseByKey } from "@/lib/estonian/cases";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 export interface ClinicItem extends Omit<Leech, "history"> {
   history: { rating: number; at: string }[];
@@ -35,19 +37,20 @@ const SHAPE_LABEL: Record<string, string> = {
  */
 export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvailable: boolean }) {
   const router = useRouter();
+  const t = useT();
   const [handled, setHandled] = useState<Record<string, "suspended" | "deleted">>({});
 
   return (
     <Page
-      title="Leech clinic"
-      lead="The words that just won't stick, and a good guess at why."
+      title={t("Leech clinic")}
+      lead={t("The words that just won't stick, and a good guess at why.")}
     >
       <p className="-mt-2 mb-3 flex items-center gap-2 text-sm" style={{ color: "var(--ink-3)" }}>
         <span aria-hidden className="inline-flex items-end gap-0.5">
           <span className="h-2.5 w-2 rounded-[2px]" style={{ background: "var(--again)" }} />
           <span className="h-1 w-2 rounded-[2px]" style={{ background: "var(--good)" }} />
         </span>
-        Each mark is one try, oldest first. A tall one is a miss.
+        {t("Each mark is one try, oldest first. A tall one is a miss.")}
       </p>
       <div className="flex flex-col gap-4">
         {items.map((leech) => {
@@ -60,10 +63,10 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
           return (
             <Card key={leech.cardId}>
               <div className="flex flex-wrap items-center gap-2">
-                <Chip tone="again"><Stethoscope size={12} aria-hidden /> Forgotten {leech.lapses} times</Chip>
-                <Chip tone="hard">{SHAPE_LABEL[leech.shape]}</Chip>
-                <Chip>{leech.failRate}% wrong</Chip>
-                {state && <Chip tone="neutral">{state === "suspended" ? "put away for now" : "deleted"}</Chip>}
+                <Chip tone="again"><Stethoscope size={12} aria-hidden /> {fill(t("Forgotten {n} times"), { n: leech.lapses })}</Chip>
+                <Chip tone="hard">{t(SHAPE_LABEL[leech.shape] ?? "")}</Chip>
+                <Chip>{fill(t("{pct}% wrong"), { pct: leech.failRate })}</Chip>
+                {state && <Chip tone="neutral">{state === "suspended" ? t("put away for now") : t("deleted")}</Chip>}
               </div>
 
               <div className="mt-3 flex flex-wrap items-baseline gap-2">
@@ -78,9 +81,10 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
               <Timeline history={leech.history} />
 
               <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                This card {leech.pattern}.
+                {/* The pattern is one of four fixed lines, so the whole sentence is the key. */}
+                {t(`This card ${leech.pattern}.`)}
                 {leech.confusable.length > 0 && (
-                  <> It&rsquo;s easy to mix up with these, which are in your deck too:{" "}
+                  <> {t("It’s easy to mix up with these, which are in your deck too:")}{" "}
                     <span lang="et">{leech.confusable.join(", ")}</span>.
                   </>
                 )}
@@ -97,12 +101,12 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                       aria-haspopup="dialog"
                       onClick={() => { if (!openAnu(question)) router.push(tutorHref(question)); }}
                     >
-                      <MessageCircleQuestion size={15} aria-hidden /> Ask Anu about it
+                      <MessageCircleQuestion size={15} aria-hidden /> {t("Ask Anu about it")}
                     </Button>
                   )}
                   {leech.targetCase && (
                     <ButtonLink href={`/review?case=${leech.targetCase}`}>
-                      Practise the{" "}
+                      {t("Practise the")}{" "}
                       <span lang="et">
                         {caseByKey(leech.targetCase)?.et ?? leech.targetCase.toLowerCase()}
                       </span>
@@ -114,7 +118,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                       if (landed) setHandled((h) => ({ ...h, [leech.cardId]: "suspended" }));
                     }}
                   >
-                    <Pause size={15} aria-hidden /> Put it away for now
+                    <Pause size={15} aria-hidden /> {t("Put it away for now")}
                   </Button>
                   <Button
                     variant="danger"
@@ -123,7 +127,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
                       if (landed) setHandled((h) => ({ ...h, [leech.cardId]: "deleted" }));
                     }}
                   >
-                    <Trash2 size={15} aria-hidden /> Delete this card
+                    <Trash2 size={15} aria-hidden /> {t("Delete this card")}
                   </Button>
                 </div>
               )}
@@ -140,7 +144,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
         the button below a card is safe to press.
       */}
       <p className="mt-8 text-sm" style={{ color: "var(--ink-3)" }}>
-        Deleting a card is safe. Your past answers stay in your history.
+        {t("Deleting a card is safe. Your past answers stay in your history.")}
       </p>
     </Page>
   );
@@ -169,6 +173,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
  */
 function Timeline({ history }: { history: { rating: number; at: string }[] }) {
   const readerDate = useReaderDate();
+  const t = useT();
   const shown = history.slice(-24);
   if (shown.length === 0) return null;
   const failures = shown.filter((h) => h.rating <= 2).length;
@@ -181,7 +186,7 @@ function Timeline({ history }: { history: { rating: number; at: string }[] }) {
           return (
             <span
               key={i}
-              title={`${readerDate(new Date(h.at), { day: "numeric", month: "short", year: "numeric" })}, ${failed ? "failed" : "recalled"}`}
+              title={`${readerDate(new Date(h.at), { day: "numeric", month: "short", year: "numeric" })}, ${failed ? t("failed") : t("recalled")}`}
               className={`w-2.5 rounded-[2px] ${failed ? "h-2.5" : "h-1"}`}
               style={{ background: failed ? "var(--again)" : "var(--good)" }}
             />
@@ -191,7 +196,7 @@ function Timeline({ history }: { history: { rating: number; at: string }[] }) {
       <p className="mt-1.5 text-2xs" style={{ color: "var(--ink-3)" }}>
         {/* The count is the caption; how to read the marks is said once, over
             the list, rather than under every card in it. */}
-        Missed {failures} of the last {shown.length}.
+        {fill(t("Missed {n} of the last {total}."), { n: failures, total: shown.length })}
       </p>
     </div>
   );

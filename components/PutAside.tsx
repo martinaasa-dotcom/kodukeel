@@ -7,6 +7,8 @@ import { Button } from "@/components/Button";
 import { DateText } from "@/components/DateText";
 import { bringWordBack } from "@/app/actions";
 import type { DeferredWord } from "@/lib/progress/deferrals";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 /**
  * THE WORDS SOMEBODY SAID WERE TOO COMPLICATED, AND THE WAY BACK.
@@ -31,6 +33,8 @@ import type { DeferredWord } from "@/lib/progress/deferrals";
 export function PutAside({ words }: { words: readonly DeferredWord[] }) {
   const [gone, setGone] = useState<ReadonlySet<string>>(new Set());
   const [pending, start] = useTransition();
+  const t = useT();
+  const locale = useLocale();
   /*
     WHAT THE LAST PRESS DID, SAID OUT LOUD AND ON THE PAGE.
     The row vanished on a yes and nothing happened on a no, so a screen reader
@@ -47,11 +51,11 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
 
   return (
     <Card>
-      <SectionTitle hint={`${showing.length} ${showing.length === 1 ? "word" : "words"}`}>
-        Put aside
+      <SectionTitle hint={countOf(locale, showing.length, "word")}>
+        {t("Put aside")}
       </SectionTitle>
       <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-        Words you said were too hard for now. They&apos;ll come back by themselves, or you can bring them back today.
+        {t("Words you said were too hard for now. They'll come back by themselves, or you can bring them back today.")}
       </p>
 
       <ul className="mt-4 flex flex-col gap-2">
@@ -81,7 +85,7 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
             <span className="text-xs" style={{ color: "var(--ink-3)" }}>
               {/* No zone handed in: this whole list is drawn in the browser, so
                   leaving it undefined is already the reader's own. */}
-              back <DateText iso={word.untilIso} options={{ day: "numeric", month: "short" }} />
+              {t("back")} <DateText iso={word.untilIso} options={{ day: "numeric", month: "short" }} />
             </span>
             <Button
               size="sm"
@@ -92,7 +96,7 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
               // Every row's button says the same two words, so the name says
               // which word; and it is not `disabled` while the write is out,
               // because that drops the caret off the button that was pressed.
-              aria-label={`Bring ${word.lemma} back`}
+              aria-label={fill(t("Bring {word} back"), { word: word.lemma })}
               aria-disabled={pending || undefined}
               className="aria-disabled:opacity-45"
               onClick={() => {
@@ -104,10 +108,10 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
                   // Only on a yes. A row that vanished on a failed write would
                   // tell somebody a word is back when the deck disagrees.
                   if (!result?.ok) {
-                    setSaid({ ok: false, text: `Couldn't bring back ${word.lemma}. Try again in a moment.` });
+                    setSaid({ ok: false, text: fill(t("Couldn't bring back {word}. Try again in a moment."), { word: word.lemma }) });
                     return;
                   }
-                  setSaid({ ok: true, text: `${word.lemma} is back in your reviews.` });
+                  setSaid({ ok: true, text: fill(t("{word} is back in your reviews."), { word: word.lemma }) });
                   setGone((set) => new Set(set).add(word.lexemeId));
                   // The pressed row is about to go, and its button with it: hand
                   // the caret to the neighbouring row's. The last word leaves
@@ -116,7 +120,7 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
                 });
               }}
             >
-              Bring it back
+              {t("Bring it back")}
             </Button>
           </li>
         ))}

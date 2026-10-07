@@ -10,6 +10,7 @@ import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
 import { buildCoachNoteSystem, buildCoachNoteUser, parseCoachNote, withoutUnverified, type CoachNoteInput } from "@/lib/scenes/coachNote";
 import { sceneById } from "@/lib/scenes/catalogue";
+import { localeFor } from "@/lib/progress/locale";
 
 /**
  * ANU'S NOTE ON A FINISHED CONVERSATION (`lib/scenes/coachNote.ts`).
@@ -65,14 +66,18 @@ export async function POST(request: Request) {
   if (!input.turns.some((t) => t.who === "you")) return Response.json({ note: null }, { headers: NO_STORE });
 
   if (!resolveProviders({ purpose: "grader" })[0]) return Response.json({ note: null }, { headers: NO_STORE });
-  const decision = await authoriseCall(ownerId, "GRADER");
+  // Written in the language the learner reads the app in (lib/scenes/coachNote.ts).
+  const [language, decision] = await Promise.all([
+    localeFor(ownerId).catch(() => "en" as const),
+    authoriseCall(ownerId, "GRADER"),
+  ]);
   if (!decision.allowed || !decision.reservation) return Response.json({ note: null }, { headers: NO_STORE });
   const reservation = decision.reservation;
 
   let settled = false;
   try {
     const chain = resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed });
-    const { text, usage, config } = await callChainForJson(chain, buildCoachNoteSystem(), buildCoachNoteUser(input), 600);
+    const { text, usage, config } = await callChainForJson(chain, buildCoachNoteSystem(language), buildCoachNoteUser(input), 600);
     after(() => recordUsage({
       ownerId, kind: "GRADER", provider: config.name, model: config.model,
       inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,

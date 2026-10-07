@@ -5,6 +5,9 @@ import { EyeOff, Trash2 } from "lucide-react";
 import { deleteCard, setCardSuspended } from "@/app/actions";
 import { Chip } from "@/components/ui";
 import { LocalDate, stableDate } from "@/components/LocalDate";
+import { useLocale, useT } from "@/components/Locale";
+import { localiseReadings } from "@/lib/copy/questionReading";
+import { countOf, fill } from "@/lib/copy/locale";
 
 /** How a due date is written: the day and the short month, in the reader's own order. */
 const DUE_SHAPE: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
@@ -36,6 +39,7 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
   const [query, setQuery] = useState("");
   const [shown, setShown] = useState(FIRST_ROWS);
+  const t = useT();
 
   const visible = useMemo(() => {
     const now = Date.now();
@@ -53,7 +57,7 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
   }, [rows, filter, query]);
 
   return (
-    <div>
+    <div lang={useLocale()}>
       <div className="mb-3 flex flex-wrap items-center gap-2">
         {FILTERS.map((f) => (
           <button
@@ -64,14 +68,14 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
             data-on={filter === f ? "" : undefined}
             className="choice-btn choice-chip rounded-full border px-3.5 py-1.5 text-xs"
           >
-            {f}
+            {t(f, "cards")}
           </button>
         ))}
         <input
           value={query}
           onChange={(e) => { setQuery(e.target.value); setShown(FIRST_ROWS); }}
-          placeholder="Filter…"
-          aria-label="Filter cards"
+          placeholder={t("Filter…")}
+          aria-label={t("Filter cards")}
           className="ml-auto rounded-full border px-4 py-2 text-sm"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         />
@@ -82,7 +86,7 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
           className="rounded-[var(--r-lg)] border border-dashed px-4 py-10 text-center text-sm"
           style={{ borderColor: "var(--rule)", color: "var(--ink-3)" }}
         >
-          No cards match that. Try a different filter.
+          {t("No cards match that. Try a different filter.")}
         </p>
       ) : (
         /* One list with hairlines between the rows, rather than a bordered and
@@ -103,15 +107,15 @@ export function WordsTable({ rows, total }: { rows: CardRow[]; total: number }) 
             onClick={() => setShown((n) => n + FIRST_ROWS * 2)}
             className="choice-btn rounded-full border px-4 py-2 text-sm font-semibold"
           >
-            Show more
+            {t("Show more")}
           </button>
           <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-            {shown} of {visible.length} here
+            {fill(t("{shown} of {total} here"), { shown, total: visible.length })}
           </span>
         </div>
       ) : total > rows.length && visible.length > 0 ? (
         <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-          Showing the {rows.length} cards due soonest, out of {total}. Search to find the rest.
+          {fill(t("Showing the {shown} cards due soonest, out of {total}. Search to find the rest."), { shown: rows.length, total })}
         </p>
       ) : null}
     </div>
@@ -130,6 +134,8 @@ function Row({ row }: { row: CardRow }) {
   const [pending, start] = useTransition();
   const [gone, setGone] = useState(false);
   const [suspended, setSuspended] = useState(row.suspended);
+  const t = useT();
+  const locale = useLocale();
   if (gone) return null;
 
   const dueDate = new Date(row.due);
@@ -156,17 +162,17 @@ function Row({ row }: { row: CardRow }) {
       <div className="min-w-0 flex-1">
         <p className="text-base" style={{ color: "var(--ink)" }}>
           <span lang="et" className="font-semibold">{row.front}</span>
-          <span style={{ color: "var(--ink-3)" }}> → {row.back}</span>
+          <span style={{ color: "var(--ink-3)" }}> → {localiseReadings(locale, row.back)}</span>
         </p>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 text-2xs" style={{ color: "var(--ink-3)" }}>
-          <span>{row.cardType.toLowerCase().replace("_", " ")}</span>
-          <span>{row.stateLabel}</span>
+          <span>{t(row.cardType.toLowerCase().replace("_", " "))}</span>
+          <span>{t(row.stateLabel)}</span>
           <span style={isDue ? { color: "var(--accent-deep)", fontWeight: 600 } : undefined}>
-            {isDue ? "due now" : (
-              <>due <LocalDate iso={dueDate.toISOString()} fallback={stableDate(dueDate, DUE_SHAPE)} options={DUE_SHAPE} /></>
+            {isDue ? t("due now") : (
+              <>{t("due")} <LocalDate iso={dueDate.toISOString()} fallback={stableDate(dueDate, DUE_SHAPE)} options={DUE_SHAPE} /></>
             )}
           </span>
-          {row.lapses > 0 && <span style={{ color: "var(--again-ink)" }}>{row.lapses} lapse{row.lapses === 1 ? "" : "s"}</span>}
+          {row.lapses > 0 && <span style={{ color: "var(--again-ink)" }}>{countOf(locale, row.lapses, "lapse")}</span>}
         </div>
       </div>
 
@@ -178,7 +184,7 @@ function Row({ row }: { row: CardRow }) {
           const landed = await setCardSuspended(row.id, !suspended).then(() => true).catch(() => false);
           if (landed) setSuspended(!suspended);
         })}
-        aria-label={suspended ? `Resume "${row.front}"` : `Suspend "${row.front}"`}
+        aria-label={fill(t(suspended ? "Resume \"{card}\"" : "Suspend \"{card}\""), { card: row.front })}
         className="tap-tint rounded-md p-1.5"
         style={{ color: suspended ? "var(--accent-deep)" : "var(--ink-3)" }}
       >
@@ -190,7 +196,7 @@ function Row({ row }: { row: CardRow }) {
           const landed = await deleteCard(row.id).then(() => true).catch(() => false);
           if (landed) setGone(true);
         })}
-        aria-label={`Delete card "${row.front}"`}
+        aria-label={fill(t("Delete card \"{card}\""), { card: row.front })}
         className="tap-tint rounded-md p-1.5"
         style={{ color: "var(--ink-3)" }}
       >

@@ -31,6 +31,7 @@
 import { esc, html, join, raw, url, type Html } from "./html";
 import type { Block, Letter } from "./letter";
 import { DARK, PALETTE as P } from "./palette";
+import { fill, MACHINE_SHORT, tr, type Locale } from "@/lib/copy/locale";
 
 const CARD = 600;
 
@@ -216,11 +217,33 @@ function preheader(text: string): Html {
   })}">${text}${raw("&#8204;&nbsp;".repeat(60))}</div>`;
 }
 
+/**
+ * The footer's three lines in the letter's language.
+ *
+ * The way out arrives as the English label `unsubscribeLink` writes and is
+ * looked up here, so the URL and the words for it stay one decision. In
+ * Russian and Ukrainian the footer also says, once, that the words were
+ * translated with AI and not yet read by a native speaker, which is what the
+ * app says beside the language choice (`MACHINE_SHORT`).
+ */
+function footer(locale: Locale, chrome: Chrome) {
+  return {
+    signed: chrome.operator
+      ? fill(tr(locale, "Kodukeel, run by {operator}."), { operator: chrome.operator })
+      : "Kodukeel.",
+    unsubscribe: tr(locale, chrome.unsubscribeLabel),
+    privacy: tr(locale, "What we keep about you"),
+    machine: locale === "en" ? null : MACHINE_SHORT[locale],
+  };
+}
+
 export function renderHtml(letter: Letter, chrome: Chrome): string {
   const body = join(letter.blocks.map(blockHtml));
+  const locale = letter.locale ?? "en";
+  const foot = footer(locale, chrome);
 
   return `<!doctype html>
-<html lang="en" style="margin:0;padding:0">
+<html lang="${locale}" style="margin:0;padding:0">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -259,11 +282,13 @@ ${preheader(letter.preheader).__html}
 
     <table role="presentation" width="${CARD}" cellpadding="0" cellspacing="0" border="0" style="width:${CARD}px;max-width:100%">
       <tr><td class="k-pad" style="padding:20px 36px;font-family:${FONT};font-size:12px;line-height:19px;color:${P.ink3}" class="k-ink2">
-        Kodukeel${chrome.operator ? `, run by ${esc(chrome.operator).__html}` : ""}.
+        ${esc(foot.signed).__html}
         <br>
-        <a href="${url(chrome.unsubscribeUrl).__html}" style="color:${P.ink3};text-decoration:underline">${esc(chrome.unsubscribeLabel).__html}</a>
+        <a href="${url(chrome.unsubscribeUrl).__html}" style="color:${P.ink3};text-decoration:underline">${esc(foot.unsubscribe).__html}</a>
         &nbsp;&nbsp;&nbsp;
-        <a href="${url(`${chrome.origin}/privacy`).__html}" style="color:${P.ink3};text-decoration:underline">What we keep about you</a>
+        <a href="${url(`${chrome.origin}/privacy`).__html}" style="color:${P.ink3};text-decoration:underline">${esc(foot.privacy).__html}</a>${foot.machine ? `
+        <br>
+        ${esc(foot.machine).__html}` : ""}
       </td></tr>
     </table>
   </td></tr>
@@ -278,12 +303,14 @@ export function renderText(letter: Letter, chrome: Chrome): string {
     .filter((line): line is string => line !== null)
     .join("\n\n");
 
+  const foot = footer(letter.locale ?? "en", chrome);
   return [
     body,
     "",
     "---",
-    `Kodukeel${chrome.operator ? `, run by ${chrome.operator}` : ""}.`,
-    `${chrome.unsubscribeLabel}: ${chrome.unsubscribeUrl}`,
-    `What we keep about you: ${chrome.origin}/privacy`,
+    foot.signed,
+    `${foot.unsubscribe}: ${chrome.unsubscribeUrl}`,
+    `${foot.privacy}: ${chrome.origin}/privacy`,
+    ...(foot.machine ? [foot.machine] : []),
   ].join("\n");
 }

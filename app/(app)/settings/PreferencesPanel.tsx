@@ -18,12 +18,15 @@ import { caseGlossDefaultFor, type CaseGlossPref } from "@/lib/estonian/caseGlos
 import type { Level } from "@/lib/collections/syllabus";
 import type { Participation } from "@/lib/research/participation";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { filled } from "@/components/Filled";
 
 const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof PenLine }[] = [
   {
     value: "type",
     label: "Type the answer",
-    detail: "You type every answer yourself. It's slower, and it sticks better. A small slip like a missing õ gets pointed out, not marked wrong.",
+    detail: "You type every answer yourself. It's slower, and it sticks better. A small slip like a missing {letter} gets pointed out, not marked wrong.",
     icon: PenLine,
   },
   {
@@ -45,6 +48,7 @@ const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof Pe
 ];
 
 export function ReviewModePanel({ current }: { current: ReviewMode }) {
+  const t = useT();
   const [mode, setMode] = useState(current);
   const [, start] = useTransition();
 
@@ -58,10 +62,10 @@ export function ReviewModePanel({ current }: { current: ReviewMode }) {
 
   return (
     <ChoiceSegment
-      ariaLabel="How cards ask you"
+      ariaLabel={t("How cards ask you")}
       value={mode}
       onSelect={pick}
-      options={MODES.map((m) => ({ id: m.value, title: m.label, detail: m.detail, icon: <m.icon size={15} aria-hidden /> }))}
+      options={MODES.map((m) => ({ id: m.value, title: t(m.label), detail: fill(t(m.detail), { letter: "õ" }), icon: <m.icon size={15} aria-hidden /> }))}
     />
   );
 }
@@ -80,6 +84,7 @@ export function ReviewModePanel({ current }: { current: ReviewMode }) {
  * over an answered-for-you choice is worse than no heading.
  */
 export function LetterBarPanel({ current }: { current: LetterBar }) {
+  const t = useT();
   const [value, setValue] = useState(current);
   const [pending, start] = useTransition();
   const root = useRef<HTMLDivElement>(null);
@@ -107,7 +112,7 @@ export function LetterBarPanel({ current }: { current: LetterBar }) {
   return (
     <div ref={root}>
       <div className="@container">
-        <ChoiceGroup ariaLabel="Typing Estonian" className="grid gap-2 @md:grid-cols-2">
+        <ChoiceGroup ariaLabel={t("Typing Estonian")} className="grid gap-2 @md:grid-cols-2">
           {LETTER_BAR_CHOICES.map((o) => (
             <ChoiceCard
               key={o.value}
@@ -115,8 +120,8 @@ export function LetterBarPanel({ current }: { current: LetterBar }) {
               disabled={pending}
               selected={value === o.value}
               onSelect={() => pick(o.value)}
-              title={o.label}
-              detail={<><LetterSample lit={o.value === "on"} />{o.detail}</>}
+              title={t(o.label)}
+              detail={<><LetterSample lit={o.value === "on"} />{t(o.detail)}</>}
             />
           ))}
         </ChoiceGroup>
@@ -139,6 +144,7 @@ export function LetterBarPanel({ current }: { current: LetterBar }) {
  * being taught rather than about the word itself.
  */
 export function WordGlossPanel({ current }: { current: WordGloss }) {
+  const t = useT();
   const [value, setValue] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -156,14 +162,14 @@ export function WordGlossPanel({ current }: { current: WordGloss }) {
 
   return (
     <ChoiceSegment
-      ariaLabel="Words in a sentence"
+      ariaLabel={t("Words in a sentence")}
       value={value}
       disabled={pending}
       onSelect={pick}
       options={WORD_GLOSS_CHOICES.map((o) => ({
         id: o.value,
-        title: o.label,
-        detail: o.detail,
+        title: t(o.label),
+        detail: t(o.detail),
         icon: o.value === "on" ? <Underline size={15} aria-hidden /> : <AlignLeft size={15} aria-hidden />,
       }))}
     />
@@ -181,6 +187,7 @@ export function WordGlossPanel({ current }: { current: WordGloss }) {
  * somebody to guess whether they are turning the reading on or off.
  */
 export function CaseGlossPanel({ current, level }: { current: CaseGlossPref | null; level: Level }) {
+  const t = useT();
   const [value, setValue] = useState<CaseGlossPref | "auto">(current ?? "auto");
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -198,19 +205,19 @@ export function CaseGlossPanel({ current, level }: { current: CaseGlossPref | nu
 
   return (
     <ChoiceSegment
-      ariaLabel="English under a case question"
+      ariaLabel={t("English under a case question")}
       value={value}
       disabled={pending}
       onSelect={pick}
       options={[
         {
           id: "auto" as const,
-          title: "Follow my level",
+          title: t("Follow my level"),
           icon: <Wand2 size={15} aria-hidden />,
-          detail: autoShows ? `You'll see the English for now. It hides itself once you reach B2.` : `Hidden, because at ${level} you're expected to know these questions by heart.`,
+          detail: autoShows ? t("You'll see the English for now. It hides itself once you reach B2.") : fill(t("Hidden, because at {level} you're expected to know these questions by heart."), { level }),
         },
-        { id: "on" as const, title: "Always show it", icon: <Eye size={15} aria-hidden />, detail: "You'll always see the English under the question, whatever your level." },
-        { id: "off" as const, title: "Never show it", icon: <EyeOff size={15} aria-hidden />, detail: <>You only see the Estonian, like <span lang="et">milles? kus?</span>, with no English under it.</> },
+        { id: "on" as const, title: t("Always show it"), icon: <Eye size={15} aria-hidden />, detail: t("You'll always see the English under the question, whatever your level.") },
+        { id: "off" as const, title: t("Never show it"), icon: <EyeOff size={15} aria-hidden />, detail: <>{filled(t("You only see the Estonian, like {question}, with no English under it."), { question: <span lang="et">milles? kus?</span> })}</> },
       ]}
     />
   );
@@ -232,6 +239,7 @@ export function CaseGlossPanel({ current, level }: { current: CaseGlossPref | nu
  * from this screen any more, which is why the button went with the board.
  */
 export function ClassNamePanel({ currentName }: { currentName: string }) {
+  const t = useT();
   const [name, setName] = useState(currentName);
   const [message, setMessage] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -239,14 +247,14 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
   const save = () => {
     start(async () => {
       const result = await setClassDisplayName({ displayName: name }).catch(() => null);
-      setMessage(!result ? NOT_REACHED : result.ok ? "Saved." : result.error);
+      setMessage(t(!result ? NOT_REACHED : result.ok ? "Saved." : result.error));
     });
   };
 
   return (
     <div className="flex flex-col gap-3">
       <label htmlFor="display-name" className="label-xs" style={{ color: "var(--ink-3)" }}>
-        Name your class sees
+        {t("Name your class sees")}
       </label>
       <div className="flex flex-wrap gap-2">
         <input
@@ -254,7 +262,7 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
           value={name}
           maxLength={32}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Whatever your class calls you"
+          placeholder={t("Whatever your class calls you")}
           className="field min-w-0 flex-1 text-base"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         />
@@ -263,7 +271,7 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
           disabled={pending || name.trim() === currentName.trim()}
           onClick={save}
         >
-          Save
+          {t("Save")}
         </Button>
       </div>
       {message && (
@@ -282,7 +290,7 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
         join. What is left is what a reader at this box needs, in one line.
       */}
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        It&rsquo;s how we say hello. If you join a class, it&rsquo;s the name they see next to your week. Nothing else goes with it.
+        {t("It’s how we say hello. If you join a class, it’s the name they see next to your week. Nothing else goes with it.")}
       </p>
     </div>
   );
@@ -316,6 +324,7 @@ const PARTICIPATION: { value: Participation; label: string; detail: string; icon
  * labels on it.
  */
 export function ResearchPanel({ current, exported }: { current: Participation; exported: boolean }) {
+  const t = useT();
   const [value, setValue] = useState(current);
   const [, start] = useTransition();
 
@@ -330,7 +339,7 @@ export function ResearchPanel({ current, exported }: { current: Participation; e
   return (
     <div className="flex flex-col gap-3">
       <div className="@container">
-        <ChoiceGroup ariaLabel="Anonymous statistics" className="grid gap-2 @md:grid-cols-2">
+        <ChoiceGroup ariaLabel={t("Anonymous statistics")} className="grid gap-2 @md:grid-cols-2">
           {PARTICIPATION.map((p) => (
             <ChoiceCard
               key={p.value}
@@ -338,17 +347,17 @@ export function ResearchPanel({ current, exported }: { current: Participation; e
               selected={value === p.value}
               onSelect={() => pick(p.value)}
               icon={<p.icon size={16} aria-hidden />}
-              title={p.label}
-              detail={p.detail}
+              title={t(p.label)}
+              detail={t(p.detail)}
             />
           ))}
         </ChoiceGroup>
       </div>
       <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-        {exported
+        {t(exported
           ? "Teachers of Estonian see which grammar trips learners up: which case, which stem change, which word. Never your deck, your searches or any single answer."
-          : "This copy of Kodukeel isn't set up to make those totals, so nothing is counted. We'll remember your choice in case that changes."}{" "}
-        <Link href="/privacy" className="underline underline-offset-2">How this works</Link>.
+          : "This copy of Kodukeel isn't set up to make those totals, so nothing is counted. We'll remember your choice in case that changes.")}{" "}
+        <Link href="/privacy" className="underline underline-offset-2">{t("How this works")}</Link>.
       </p>
     </div>
   );

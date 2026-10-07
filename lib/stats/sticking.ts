@@ -1,3 +1,4 @@
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 /**
  * The cards that are fighting you.
  *
@@ -138,7 +139,8 @@ export function stickingPoints(
 }
 
 /** One line naming what is wrong, for the card that was flagged. */
-export function stickingNote(point: StickingPoint): string {
+export function stickingNote(point: StickingPoint, locale: Locale): string {
+  const t = (english: string) => tr(locale, english);
   /*
     "Another 1 card for this word is stuck too" is not a sentence anybody
     writes, and the row above it was saying the lapse count twice: once in the
@@ -147,16 +149,16 @@ export function stickingNote(point: StickingPoint): string {
     telling you, which is how the card has done over how many attempts.
   */
   const also = point.siblings === 0 ? ""
-    : point.siblings === 1 ? " One more card for this word is stuck too."
-    : ` ${point.siblings} more cards for this word are stuck too.`;
+    : point.siblings === 1 ? ` ${t("One more card for this word is stuck too.")}`
+    : ` ${fill(t("{n} more cards for this word are stuck too."), { n: point.siblings })}`;
 
   if (point.accuracy === null) {
     // Flagged on its lapse count, which outlives the window the reviews were
     // read over. Saying nothing about the percentage is the honest half.
-    return `You learned it, then it slipped away, and it hasn't come up lately.${also}`;
+    return `${t("You learned it, then it slipped away, and it hasn't come up lately.")}${also}`;
   }
   if (point.reason === "lapses") {
-    return `You learned it, then it slipped away. ${point.accuracy}% right over ${point.reviews} reviews.${also}`;
+    return `${fill(t("You learned it, then it slipped away. {pct}% right over {n} reviews."), { pct: point.accuracy, n: point.reviews })}${also}`;
   }
-  return `${point.accuracy}% right over ${point.reviews} reviews. It has never really settled.${also}`;
+  return `${fill(t("{pct}% right over {n} reviews. It has never really settled."), { pct: point.accuracy, n: point.reviews })}${also}`;
 }

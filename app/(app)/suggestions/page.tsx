@@ -7,8 +7,12 @@ import { learnerDayClock } from "@/lib/progress/dayClock";
 import { DATE_AND_TIME, DateText } from "@/components/DateText";
 import { CATEGORY_KEYS, SUGGESTION_CATEGORIES, parsePatch, summarisePatch } from "@/lib/suggestions/model";
 import type { SuggestionCategory } from "@/lib/suggestions/model";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Your suggested fixes" };
+export async function generateMetadata() {
+  return titleFor("Your suggested fixes");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +27,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function MySuggestionsPage() {
   const ownerId = await requireUserId();
-  const [mine, reviewer, clock] = await Promise.all([
+  const [mine, reviewer, clock, locale] = await Promise.all([
     prisma.suggestion.findMany({
       where: { ownerId },
       orderBy: { createdAt: "desc" },
@@ -31,24 +35,26 @@ export default async function MySuggestionsPage() {
     }),
     isAdmin(),
     learnerDayClock(ownerId),
+    localeFor(ownerId),
   ]);
+  const t = (english: string) => tr(locale, english);
 
   return (
     <Page route="/suggestions"
-      title="Suggested fixes"
-      lead="Everything you've told us about, and what happened to each one."
+      title={t("Suggested fixes")}
+      lead={t("Everything you've told us about, and what happened to each one.")}
       actions={
         reviewer ? (
           <Link href="/admin/suggestions" className="text-sm underline" style={{ color: "var(--accent-deep)" }}>
-            Open the review queue
+            {t("Open the review queue")}
           </Link>
         ) : undefined
       }
     >
       {mine.length === 0 ? (
         <Empty
-          title="Nothing sent yet"
-          body="Spot something wrong? There's a button right beside it to tell us. What you send shows up here."
+          title={t("Nothing sent yet")}
+          body={t("Spot something wrong? There's a button right beside it to tell us. What you send shows up here.")}
         />
       ) : (
         <ul className="flex flex-col gap-3">
@@ -63,7 +69,7 @@ export default async function MySuggestionsPage() {
               <Card as="li" key={row.id} className="flex flex-col gap-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <Chip tone="accent">{SUGGESTION_CATEGORIES[category].label}</Chip>
+                    <Chip tone="accent">{t(SUGGESTION_CATEGORIES[category].label)}</Chip>
                     {row.lemma && (
                       <span lang="et" className="text-base font-bold" style={{ color: "var(--ink)" }}>
                         {row.lemma}
@@ -71,19 +77,19 @@ export default async function MySuggestionsPage() {
                     )}
                   </div>
                   <Chip tone={row.status === "ACCEPTED" ? "good" : row.status === "DECLINED" ? "neutral" : "hard"}>
-                    {row.status === "ACCEPTED" ? "accepted" : row.status === "DECLINED" ? "not this time" : "waiting"}
+                    {t(row.status === "ACCEPTED" ? "accepted" : row.status === "DECLINED" ? "not this time" : "waiting")}
                   </Chip>
                 </div>
 
                 {summary && (
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    {summary.action}: {summary.after}
+                    {fill(t("{action}: {after}"), { action: t(summary.action), after: summary.after })}
                   </p>
                 )}
                 {row.note && <p className="text-sm" style={{ color: "var(--ink-2)" }}>{row.note}</p>}
                 {row.decision && (
                   <p className="rounded-[var(--r)] px-3 py-2 text-sm" style={{ background: "var(--raised)", color: "var(--ink-2)" }}>
-                    <span className="label-xs mr-2" style={{ color: "var(--ink-3)" }}>Reply</span>
+                    <span className="label-xs mr-2" style={{ color: "var(--ink-3)" }}>{t("Reply")}</span>
                     {row.decision}
                   </p>
                 )}

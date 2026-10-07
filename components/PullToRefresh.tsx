@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useT } from "@/components/Locale";
 import {
   PULL_ARC_MS,
   PULL_MAX_WAIT_MS,
@@ -125,15 +126,19 @@ function PullSurface({ onRefresh }: { onRefresh: () => Promise<void> }) {
   const ringRef = useRef<SVGSVGElement | null>(null);
   const liveRef = useRef<HTMLSpanElement | null>(null);
   const refreshRef = useRef(onRefresh);
+  const t = useT();
+  const tRef = useRef(t);
 
   /*
     Held in a ref so the gesture effect never has to be torn down and rebuilt
     when the callback identity changes. Re-running it would drop the document
-    listener for a frame, which is the one frame somebody's thumb is in.
+    listener for a frame, which is the one frame somebody's thumb is in. The
+    translator is held the same way, for the two things the ring says aloud.
   */
   useEffect(() => {
     refreshRef.current = onRefresh;
-  }, [onRefresh]);
+    tRef.current = t;
+  }, [onRefresh, t]);
 
   useEffect(() => {
     if (!window.matchMedia?.("(any-pointer: coarse)").matches) return;
@@ -293,7 +298,7 @@ function PullSurface({ onRefresh }: { onRefresh: () => Promise<void> }) {
       }
       if (ring && !reducedMotion()) ring.setAttribute("data-working", "");
       glide(PULL_TRIGGER, false);
-      say("Refreshing");
+      say(tRef.current("Refreshing"));
 
       const started = performance.now();
       try {
@@ -320,7 +325,7 @@ function PullSurface({ onRefresh }: { onRefresh: () => Promise<void> }) {
       */
       if (ring) ring.removeAttribute("data-working");
       if (arc) arc.style.strokeDashoffset = "0";
-      say("Up to date");
+      say(tRef.current("Up to date"));
       retract();
     };
 

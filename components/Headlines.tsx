@@ -1,6 +1,10 @@
+"use client";
+
 import { Newspaper } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import type { ReadableHeadline } from "@/lib/dict/headlines";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * Today's front page with a dictionary under it.
@@ -14,15 +18,16 @@ import type { ReadableHeadline } from "@/lib/dict/headlines";
  * know whose it is. See `lib/dict/headlines.ts`.
  */
 export function Headlines({ headlines, host }: { headlines: ReadableHeadline[]; host: string | null }) {
+  const t = useT();
   if (headlines.length === 0) return null;
   return (
     <section aria-labelledby="headlines-title">
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <h2 id="headlines-title" className="label-xs flex items-center gap-1.5" style={{ color: "var(--ink-3)" }}>
-          <Newspaper size={13} aria-hidden /> Read today&rsquo;s news
+          <Newspaper size={13} aria-hidden /> {t("Read today’s news")}
         </h2>
         {host && (
-          <span className="text-2xs" style={{ color: "var(--ink-3)" }}>from {host}</span>
+          <span className="text-2xs" style={{ color: "var(--ink-3)" }}>{fill(t("from {host}"), { host })}</span>
         )}
       </div>
       <ul className="flex flex-col gap-2.5">
@@ -52,8 +57,7 @@ export function Headlines({ headlines, host }: { headlines: ReadableHeadline[]; 
         ))}
       </ul>
       <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-        Tap a dotted word to look it up. The plain ones are names, or words the dictionary
-        doesn&apos;t know yet.
+        {t("Tap a dotted word to look it up. The plain ones are names, or words the dictionary doesn't know yet.")}
       </p>
     </section>
   );

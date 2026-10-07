@@ -2073,6 +2073,10 @@ two-sided, which is why it stands: `oli` says an exact spelling should beat a re
 `parast` says the opposite, since `pärast` is far commoner than the partitive of `paras`. Deciding
 it needs frequency data this project does not have, and it changes what the scanner offers for the
 whole dictionary.
+**That was settled later by a named list rather than a ranking.** `FOLD_COLLISION_LOSES` in
+`lib/dict/search.ts` holds `õli`, which may no longer win any tier by folding, so `oli` reaches
+`olema` while `õli` and `õlid` typed with their letters still find oil. It is widened only against a
+collision somebody reported, because the general ordering above is still two-sided.
 
 **The one card the course never built was the one every other card is built on.** `GRADATION` asks
 `hammas → kelle? mille?` and takes `hamba`. Nothing else in the deck asks for the genitive:
@@ -5383,6 +5387,9 @@ rather than traded away because every other drill A1 rotates through puts a whol
 of a beginner instead. What would fix it is the round preferring to say it has nothing rather than
 reaching past the deck, and that is a change to a screen a learner also walks to themselves, which is
 the line the operator drew.
+**The operator then moved that line, which closed this.** The round reads `practiceScope` and
+narrows both the deck read and the dictionary top-up to what the evenings have taught, so on a
+module evening with no taught verb it shows its empty state rather than a verb nobody has met.
 
 **The planned module is held to the rule whole, and everything else a learner walks to themselves is
 not.** That is the line the operator drew and it is the one the code draws: what the module chose for
