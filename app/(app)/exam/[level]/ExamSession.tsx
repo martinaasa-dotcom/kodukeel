@@ -29,6 +29,7 @@ import { Explain } from "@/components/Explain";
 import { CaseLabel } from "@/components/CaseLabel";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
+import { briefLine } from "../examCopy";
 import { fillNodes } from "@/components/fillNodes";
 
 /**
@@ -230,7 +231,6 @@ export function ExamSession({ paper: initialPaper, fillRate }: {
         level={paper.level}
         until={breakUntil}
         now={now}
-        nextLabel={part.spec.label}
         onResume={() => setBreakUntil(null)}
       />
     );
@@ -438,8 +438,8 @@ function formatRemaining(seconds: number): string {
  * number, and the screen says so. It can be ended early, and the clock on the
  * spoken part does not start until it is.
  */
-function Break({ level, until, now, nextLabel, onResume }: {
-  level: Paper["level"]; until: number; now: number; nextLabel: string; onResume: () => void;
+function Break({ level, until, now, onResume }: {
+  level: Paper["level"]; until: number; now: number; onResume: () => void;
 }) {
   const prompts = openingConversation(level);
   const left = Math.max(0, Math.round((until - now) / 1000));
@@ -1615,7 +1615,7 @@ function BusinessCard({ card }: { card: Extract<Exhibit, { layout: "card" }> }) 
         <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>{t("Town", "form")}</dt>
         <dd style={{ color: "var(--ink)" }}>{card.city}</dd>
         <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>{t("Open", "hours")}</dt>
-        <dd style={{ color: "var(--ink)" }}>{card.hours}</dd>
+        <dd style={{ color: "var(--ink)" }}>{t(card.hours)}</dd>
         <dt className="mt-1.5 @xs:mt-0" style={{ color: "var(--ink-3)" }}>{t("E-mail")}</dt>
         <dd className="min-w-0" style={{ color: "var(--ink)" }}>{card.email}</dd>
       </dl>
@@ -1629,9 +1629,9 @@ function FigureTable({ table }: { table: Extract<Exhibit, { layout: "table" }> }
   return (
     <figure className="mt-3">
       <figcaption className="mb-2">
-        <span className="block text-md font-semibold" style={{ color: "var(--ink)" }}>{table.title}</span>
+        <span className="block text-md font-semibold" style={{ color: "var(--ink)" }}>{t(table.title)}</span>
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-          {fill(t("In {unit}. These figures are made up for practice, so don't quote them as facts."), { unit: table.unit })}
+          {fill(t("In {unit}. These figures are made up for practice, so don't quote them as facts."), { unit: t(table.unit) })}
         </span>
       </figcaption>
       <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)" }}>
@@ -1640,14 +1640,14 @@ function FigureTable({ table }: { table: Extract<Exhibit, { layout: "table" }> }
             <tr style={{ background: "var(--raised)" }}>
               <th scope="col" className="px-3 py-2 text-left font-semibold" style={{ color: "var(--ink-2)" }}><span className="sr-only">{t("Group")}</span></th>
               {table.columns.map((column) => (
-                <th key={column} scope="col" className="tnum whitespace-nowrap px-3 py-2 text-right font-semibold" style={{ color: "var(--ink-2)" }}>{column}</th>
+                <th key={column} scope="col" className="tnum whitespace-nowrap px-3 py-2 text-right font-semibold" style={{ color: "var(--ink-2)" }}>{t(column, "figures")}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {table.rows.map((row) => (
               <tr key={row.label} className="border-t" style={{ borderColor: "var(--rule-soft)" }}>
-                <th scope="row" className="whitespace-nowrap px-3 py-2 text-left font-normal" style={{ color: "var(--ink)" }}>{row.label}</th>
+                <th scope="row" className="whitespace-nowrap px-3 py-2 text-left font-normal" style={{ color: "var(--ink)" }}>{t(row.label, "figures")}</th>
                 {row.values.map((value, i) => (
                   <td key={i} className="tnum px-3 py-2 text-right" style={{ color: "var(--ink)" }}>{value}</td>
                 ))}
@@ -1703,7 +1703,7 @@ function WrittenQuestion({ item, response, onWrite }: {
                     onChange={() => onWrite(text, index)}
                     className="size-4 shrink-0 accent-[var(--accent)]"
                   />
-                  {variant.label}
+                  {t(variant.label)}
                 </label>
               ))}
             </div>
@@ -1711,7 +1711,7 @@ function WrittenQuestion({ item, response, onWrite }: {
         </div>
       )}
 
-      <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>{brief.prompt}</p>
+      <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>{briefLine(t, brief.prompt)}</p>
       {brief.exhibit?.layout === "card" && <BusinessCard card={brief.exhibit} />}
       {brief.exhibit?.layout === "table" && <FigureTable table={brief.exhibit} />}
 
@@ -1720,7 +1720,7 @@ function WrittenQuestion({ item, response, onWrite }: {
         {brief.cover.map((point) => (
           <li key={point} className="flex items-start gap-2">
             <Check size={15} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--accent-deep)" }} />
-            {point}
+            {briefLine(t, point)}
           </li>
         ))}
       </ul>
@@ -1730,7 +1730,7 @@ function WrittenQuestion({ item, response, onWrite }: {
         value={text}
         onChange={(event) => onWrite(event.target.value, chosen)}
         rows={item.kind === "compose" || item.minWords >= 100 ? 10 : 6}
-        aria-label={`${brief.label}: ${brief.prompt}`}
+        aria-label={`${t(brief.label)}: ${briefLine(t, brief.prompt)}`}
         placeholder={t("Write in Estonian.")}
         className="field-lg mt-3 w-full text-md leading-relaxed"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
@@ -1766,7 +1766,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
     const List = numbered ? "ol" : "ul";
     return (
       <List className={`${numbered ? "list-decimal" : "list-disc"} grid gap-1 pl-5 text-md`} style={{ color: "var(--ink)" }}>
-        {items.map((line) => <li key={line}>{line}</li>)}
+        {items.map((line) => <li key={line}>{t(line)}</li>)}
       </List>
     );
   };
@@ -1775,8 +1775,8 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
     case "picture":
       return (
         <div className={box} style={boxStyle}>
-          {heading(card.situation)}
-          <p className="flex flex-wrap gap-4 text-5xl leading-none" role="img" aria-label={card.situation}>
+          {heading(t(card.situation, "scene"))}
+          <p className="flex flex-wrap gap-4 text-5xl leading-none" role="img" aria-label={t(card.situation, "scene")}>
             {card.emoji.map((e) => <span key={e} aria-hidden>{e}</span>)}
           </p>
         </div>
@@ -1784,7 +1784,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
     case "idea-card":
       return (
         <div className={box} style={boxStyle}>
-          {heading(fill(t("Idea card: {about}"), { about: card.about }))}
+          {heading(fill(t("Idea card: {about}"), { about: t(card.about, "idea") }))}
           <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{t("Ask about")}</p>
           {list(card.ask)}
         </div>
@@ -1798,8 +1798,8 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
           </div>
           <div className={box} style={boxStyle}>
             {heading(t("Then decide together"))}
-            <p className="text-md" style={{ color: "var(--ink)" }}>{card.situation}</p>
-            <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{fill(t("The choices: {list}."), { list: card.alternatives.join(", ") })}</p>
+            <p className="text-md" style={{ color: "var(--ink)" }}>{t(card.situation)}</p>
+            <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{fill(t("The choices: {list}."), { list: card.alternatives.map((a) => t(a)).join(", ") })}</p>
           </div>
         </>
       );
@@ -1807,12 +1807,12 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
       return (
         <div className="grid gap-3 @container">
           <div className={box} style={boxStyle}>
-            {heading(fill(t("Your call: you ring {who}"), { who: card.call }))}
+            {heading(fill(t("Your call: you ring {who}"), { who: t(card.call, "call") }))}
             <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{t("Find out")}</p>
             {list(card.find)}
           </div>
           <div className={box} style={boxStyle}>
-            {heading(fill(t("Their call: you're {who}"), { who: card.answerAs }))}
+            {heading(fill(t("Their call: you're {who}"), { who: t(card.answerAs) }))}
             <p className="mb-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{t("Answer with these facts")}</p>
             {list(card.facts)}
           </div>
@@ -1823,7 +1823,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
       return (
         <div className={box} style={boxStyle}>
           {heading(t("Your topic card"))}
-          <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{showing.task}</p>
+          <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{t(showing.task)}</p>
           {card.swap && (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
               {t(swapped
@@ -1848,12 +1848,12 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
           </div>
           <div className={box} style={boxStyle}>
             {heading(t("Then debate this"))}
-            <p className="text-md" style={{ color: "var(--ink)" }}>{card.situation}</p>
+            <p className="text-md" style={{ color: "var(--ink)" }}>{t(card.situation)}</p>
             <div className="@container mt-3">
               <div className="grid gap-3 @md:grid-cols-2">
                 {card.sides.map((side) => (
                   <div key={side.label} className="rounded-[var(--r)] border px-3 py-2.5" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
-                    <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{side.label}</p>
+                    <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{t(side.label)}</p>
                     {list(side.points)}
                   </div>
                 ))}
@@ -1878,7 +1878,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
                 } as React.CSSProperties : { color: "var(--ink)" }}
               >
                 <input type="radio" name={name} checked={topic === index} onChange={() => onTopic(index)} className="mt-1 size-4 shrink-0 accent-[var(--accent)]" />
-                <span className="min-w-0">{option}</span>
+                <span className="min-w-0">{t(option)}</span>
               </label>
             ))}
           </div>
@@ -1888,7 +1888,7 @@ function SpeakCardView({ name, card, topic, onTopic, swapped, onSwap }: {
       return (
         <div className={box} style={boxStyle}>
           {heading(t("The question"))}
-          <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{card.question}</p>
+          <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>{t(card.question)}</p>
           <p className="mb-1.5 mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{t("Thoughts on the card")}</p>
           {list(card.thoughts)}
         </div>
@@ -1951,7 +1951,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
 
   return (
     <div>
-      <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>{item.prompt}</p>
+      <p className="text-md leading-relaxed" style={{ color: "var(--ink)" }}>{t(item.prompt)}</p>
       <SpeakCardView name={`${item.id}-topic`} card={item.card} topic={topic} onTopic={setTopic} swapped={swapped} onSwap={() => setSwapped(true)} />
 
       {item.ideas.length > 0 && (
@@ -2019,7 +2019,7 @@ function SpeakQuestion({ item, marks, response, onMark }: {
             {t("Then the examiner asks")}
           </p>
           <ol className="grid list-decimal gap-1 pl-5 text-md" style={{ color: "var(--ink)" }}>
-            {followUps.map((q) => <li key={q}>{q}</li>)}
+            {followUps.map((q) => <li key={q}>{t(q)}</li>)}
           </ol>
           <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{t("Answer out loud. You can record your answer too.")}</p>
           <div className="mt-3">

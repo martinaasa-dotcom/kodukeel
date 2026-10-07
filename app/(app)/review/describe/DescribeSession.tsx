@@ -220,7 +220,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     if (prompt) {
       look.record({
         of: `${prompt.sceneId}-${prompt.caseKey}`,
-        label: prompt.situation,
+        label: t(prompt.situation, "scene"),
         question: `${prompt.askLemma}, ${prompt.askTranslation}, ${prompt.caseEt}`,
         answer: sentence.trim() || prompt.askLemma,
         note: prompt.caseQuestion,
@@ -294,7 +294,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent">{prompt.situation}</Chip>
+          <Chip tone="accent">{t(prompt.situation, "scene")}</Chip>
         </div>
 
         <div className="round-pad px-6">

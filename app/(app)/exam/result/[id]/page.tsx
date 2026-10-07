@@ -27,6 +27,7 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr, type Locale } from "@/lib/copy/locale";
 import { sayIn } from "@/lib/copy/said";
 import { fillNodes } from "@/components/fillNodes";
+import { markNote, markPrompt, markValue } from "../../examCopy";
 
 export async function generateMetadata() {
   return titleFor("Exam result");
@@ -429,7 +430,9 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                                 <ul className="grid gap-1.5">
                                   {blank.map((mark) => (
                                     <li key={mark.itemId} className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                                      {mark.prompt && <span lang="et" className="mr-2">{mark.prompt}</span>}
+                                      {mark.prompt && (mark.promptLanguage === "en"
+                                        ? <span className="mr-2">{markPrompt(t, mark.prompt)}</span>
+                                        : <span lang="et" className="mr-2">{mark.prompt}</span>)}
                                       <span className="font-semibold" style={{ color: "var(--sky-ink)" }} lang={mark.language === "et" ? "et" : undefined}>
                                         {mark.expected}
                                       </span>
@@ -555,7 +558,7 @@ function WrongAnswer({ mark, locale }: { mark: ItemMark; locale: Locale }) {
     <Card as="li" className="!py-3">
       {mark.prompt && (
         <p className="mb-2 text-md leading-relaxed" style={{ color: "var(--ink)" }} lang={mark.promptLanguage === "en" ? undefined : "et"}>
-          {mark.prompt}
+          {mark.promptLanguage === "en" ? markPrompt(t, mark.prompt) : mark.prompt}
         </p>
       )}
       {/* The answer and what was written, each in the palette's own word for
@@ -567,7 +570,7 @@ function WrongAnswer({ mark, locale }: { mark: ItemMark; locale: Locale }) {
           lang={et ? "et" : undefined}
         >
           <Check size={14} aria-label={t("The answer")} />
-          {mark.expected}
+          {et ? mark.expected : markValue(t, locale, mark.expected)}
         </span>
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("you wrote")}</span>
         <span
@@ -576,11 +579,11 @@ function WrongAnswer({ mark, locale }: { mark: ItemMark; locale: Locale }) {
           lang={et && mark.given ? "et" : undefined}
         >
           <X size={14} aria-label={t("Your answer")} />
-          {mark.given || NO_VALUE}
+          {mark.given ? (et ? mark.given : markValue(t, locale, mark.given)) : NO_VALUE}
         </span>
       </div>
       {mark.note && (
-        <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{t(mark.note)}</p>
+        <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{markNote(t, mark.note)}</p>
       )}
     </Card>
   );
