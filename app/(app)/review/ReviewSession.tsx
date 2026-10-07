@@ -49,6 +49,7 @@ import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/adv
 import { useResumeCard } from "@/components/useResumeCard";
 import { useUiText } from "@/components/UiLanguage";
 import { useLocale, useT } from "@/components/Locale";
+import { localiseReadings } from "@/lib/copy/questionReading";
 import { countOf, fill } from "@/lib/copy/locale";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -2006,7 +2007,7 @@ export function ReviewSession({
                 <div className="flex items-center gap-2">
                   <FitText
                     as="p"
-                    text={card.back}
+                    text={card.cardType === "GOVERNMENT" ? localiseReadings(locale, card.back) : card.back}
                     lang={backLang}
                     data-answer=""
                     className="font-bold [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"

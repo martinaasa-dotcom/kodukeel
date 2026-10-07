@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { questionInEnglish } from "@/lib/estonian/cases";
-import { questionIn } from "./questionReading";
+import { localiseReadings, questionIn } from "./questionReading";
 
 describe("a case question read in the learner's language", () => {
   it("is exactly the English reading in English", () => {
@@ -19,5 +19,16 @@ describe("a case question read in the learner's language", () => {
   it("says nothing for nothing", () => {
     expect(questionIn("ru", null)).toBeNull();
     expect(questionIn("ru", "")).toBeNull();
+  });
+});
+
+describe("readings already written into a stored line", () => {
+  it("are translated in place, and the Estonian beside them is left as it is", () => {
+    const stored = `keda/mida* (${questionInEnglish("keda? mida?")}), millest (${questionInEnglish("millest?")})`;
+    const ru = localiseReadings("ru", stored);
+    expect(ru.startsWith("keda/mida* (")).toBe(true);
+    expect(ru).toContain("millest (");
+    expect(ru).not.toMatch(/whom|what/);
+    expect(localiseReadings("en", stored)).toBe(stored);
   });
 });

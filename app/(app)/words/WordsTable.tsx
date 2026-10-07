@@ -6,6 +6,7 @@ import { deleteCard, setCardSuspended } from "@/app/actions";
 import { Chip } from "@/components/ui";
 import { LocalDate, stableDate } from "@/components/LocalDate";
 import { useLocale, useT } from "@/components/Locale";
+import { localiseReadings } from "@/lib/copy/questionReading";
 import { countOf, fill } from "@/lib/copy/locale";
 
 /** How a due date is written: the day and the short month, in the reader's own order. */
@@ -161,7 +162,7 @@ function Row({ row }: { row: CardRow }) {
       <div className="min-w-0 flex-1">
         <p className="text-base" style={{ color: "var(--ink)" }}>
           <span lang="et" className="font-semibold">{row.front}</span>
-          <span style={{ color: "var(--ink-3)" }}> → {row.back}</span>
+          <span style={{ color: "var(--ink-3)" }}> → {localiseReadings(locale, row.back)}</span>
         </p>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 text-2xs" style={{ color: "var(--ink-3)" }}>
           <span>{t(row.cardType.toLowerCase().replace("_", " "))}</span>

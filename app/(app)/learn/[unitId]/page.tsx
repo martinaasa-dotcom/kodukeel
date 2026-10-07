@@ -23,6 +23,7 @@ import { EVIDENCE_LABEL } from "@/lib/exam/readiness";
 import { RungChip } from "@/components/readiness/Rung";
 import { localeFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { localiseReadings } from "@/lib/copy/questionReading";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
@@ -259,7 +260,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
                         printed the column raw. */}
                     {l.government && (
                       <span className="block text-2xs" style={{ color: "var(--accent-deep)" }}>
-                        {readableGovernment(l.government)}
+                        {localiseReadings(locale, readableGovernment(l.government))}
                       </span>
                     )}
                   </span>

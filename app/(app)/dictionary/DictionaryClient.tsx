@@ -38,6 +38,7 @@ import { Headlines } from "@/components/Headlines";
 import { Explain } from "@/components/Explain";
 import { FitText } from "@/components/FitText";
 import { useLocale, useT } from "@/components/Locale";
+import { localiseReadings } from "@/lib/copy/questionReading";
 import { countOf, fill } from "@/lib/copy/locale";
 import { fillNodes } from "@/components/reference/fillNodes";
 
@@ -575,6 +576,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
   glossLanguage: GlossLanguage;
 }) {
   const t = useT();
+  const locale = useLocale();
   const equivalent = equivalentIn(entry, glossLanguage);
   // The case the entry says this word pairs with, so the block below can say
   // what that case asks. Null where nothing is stored or nothing parses,
@@ -774,7 +776,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             reads it and it is Ekilex's.
           */}
           <p className="rounded-[var(--r)] px-4 py-3.5 text-base" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>
-            {readableGovernment(entry.government)}
+            {localiseReadings(locale, readableGovernment(entry.government))}
           </p>
           {/* Which of several is the primary, named the way a class names it.
               The list above says what each asks and not which one leads. */}
