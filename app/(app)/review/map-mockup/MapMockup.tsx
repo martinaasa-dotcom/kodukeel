@@ -116,7 +116,7 @@ export function MapMockup({ scene, initial }: { scene: Scene; initial: "ask" | "
         <div className="h-full rounded-full" style={{ width: "37.5%", background: "var(--accent)" }} />
       </div>
 
-      <div className="mt-6 rounded-[var(--r-xl)] border px-4 pb-3 pt-4" style={{ background: "var(--surface, var(--card))", borderColor: "var(--rule)" }}>
+      <div className="mt-6 rounded-[var(--r-xl)] border px-4 pb-3 pt-4" style={{ background: "var(--surface)", borderColor: "var(--rule)" }}>
         <Picture scene={scene} move={move} />
         <p className="mt-1 text-center text-sm" style={{ color: "var(--ink-3)" }}>
           <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{d.word}</span>, {d.gloss}
@@ -140,7 +140,7 @@ export function MapMockup({ scene, initial }: { scene: Scene; initial: "ask" | "
 
       {!answered && (
         <div className="mt-4 flex justify-center">
-          <button type="button" className="tap-tint inline-flex items-center gap-2 rounded-[var(--r-md)] px-3 py-2 text-sm font-semibold" style={{ color: "var(--ink-2)" }}>
+          <button type="button" className="tap-tint inline-flex items-center gap-2 rounded-[var(--r-lg)] px-3 py-2 text-sm font-semibold" style={{ color: "var(--ink-2)" }}>
             <Lightbulb size={15} aria-hidden /> Hint
           </button>
         </div>
@@ -158,7 +158,7 @@ export function MapMockup({ scene, initial }: { scene: Scene; initial: "ask" | "
               const on = m === move;
               return (
                 <div key={m} className="rounded-[var(--r-lg)] border px-3 py-3 text-center"
-                  style={{ background: on ? "var(--accent-soft)" : "var(--card)", borderColor: on ? "var(--accent)" : "var(--rule)" }}>
+                  style={{ background: on ? "var(--accent-soft)" : "var(--surface)", borderColor: on ? "var(--accent)" : "var(--rule)" }}>
                   <p lang="et" className="text-lg font-bold" style={{ color: on ? "var(--accent-deep)" : "var(--ink)" }}>{f.end.split(",")[0]}</p>
                   <p lang="et" className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>{f.form}</p>
                   <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}><CaseQuestion question={f.q.split(" ")[1]} inline /></p>

@@ -154,7 +154,7 @@ const ROUTES = [
     and a second of wall clock is what it costs to enforce it.
   */
   "/quest", "/sonad", "/crossword", "/calendar", "/dictionary/common",
-  "/review/target", "/review/flashcards", "/review/describe",
+  "/review/target", "/review/map-mockup", "/review/flashcards", "/review/describe",
   "/words/mastery",
   "/progress/readiness", "/progress/readiness/riigid", "/progress/record",
   /*
