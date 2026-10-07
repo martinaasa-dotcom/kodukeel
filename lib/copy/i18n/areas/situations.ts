@@ -1652,7 +1652,6 @@ export const SITUATIONS: Area = {
     "black": "чорний",
     "green": "зелений",
     "brown": "коричневий",
-    "Sorry, let me switch to English. What was that?": "Вибачте, давайте англійською. Що ви сказали?",
   },
   counted: {
     time: { en: ["time", "times"], ru: ["раз", "раза", "раз"], uk: ["раз", "рази", "разів"] },

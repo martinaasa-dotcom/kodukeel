@@ -88,7 +88,7 @@ export interface Debrief {
     phonology. The live conversation gets this right through `spokenEstonian`;
     the debrief was the copy that did not.
   */
-  turns: readonly { who: "them" | "you"; text: string; lang: "et" | "en" }[];
+  turns: readonly { who: "them" | "you"; text: string; lang: "et" | Locale }[];
 }
 
 /** Written out whole so the class names survive Tailwind's scan of this file. */
