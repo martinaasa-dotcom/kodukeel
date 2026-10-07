@@ -19376,7 +19376,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     learner sitting a course still gets the word their teacher uses.
   */
   assert.match(
-    review, /whatFor\(slip\.kind, plain, spec\?\.suffix\)/,
+    review, /whatFor\(slip\.kind, plain, spec\?\.suffix(, locale)?\)/,
     "the review names an ending without saying what it is for, which is the heading a learner could not read",
   );
   /*
@@ -19417,7 +19417,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     of it is that the first word is pronounced like the second.
   */
   assert.match(
-    debrief, /\{"It should be "\}/,
+    debrief, /\{"It should be "\}|t\("It should be \{form\}/,
     "the debrief prints the learner's form and the dictionary's with nothing saying which is which",
   );
   /*
@@ -19441,7 +19441,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     two languages on the screen whose point is reading the exchange back.
   */
   assert.match(
-    debrief, /className="sr-only">\{turn\.who === "you" \? "You said/,
+    debrief, /className="sr-only">\{(t\()?turn\.who === "you" \? "You said/,
     "the debrief's transcript says who spoke with position and colour alone, which is nothing to a screen reader",
   );
   /*
@@ -19458,7 +19458,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     "the debrief puts its transcript back in front of its teaching, so the review is a screen down again",
   );
   assert.match(
-    code("lib/progress/scene.ts"), /reviewOf\(scene, state\)/,
+    code("lib/progress/scene.ts"), /reviewOf\(scene, state(, locale)?\)/,
     "finishRun no longer derives the review from the run it just marked",
   );
 });
@@ -19590,7 +19590,8 @@ check("an objective carries the value the card dealt for it, and every line says
   assert.match(session, /<SceneFace who="them" \/>/, "the other side's lines lost their speaker");
   for (const said of ["You said: ", "They said: "]) {
     assert.ok(
-      session.includes(`<span className="sr-only">${said}</span>`),
+      session.includes(`<span className="sr-only">${said}</span>`)
+        || session.includes(`<span className="sr-only">{t("${said.trim()}")}{" "}</span>`),
       `a conversation no longer says "${said.trim()}" to a reader who cannot see the sides`,
     );
   }

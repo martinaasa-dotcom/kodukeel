@@ -12,7 +12,7 @@ import type { SceneSpec } from "@/lib/scenes/types";
 import { drillFor } from "@/lib/scenes/drills";
 import { splitOnForm } from "@/lib/dict/examples";
 import { curveballById } from "@/lib/scenes/curveballs";
-import { errandForScene, errandPlaces, SAY_IT_TODAY } from "@/lib/collections/errands";
+import { errandForScene, errandPlaces, SAY_IT_TODAY, type Errand } from "@/lib/collections/errands";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import type { SceneReview } from "@/lib/scenes/review";
 import type { SceneRecap } from "@/lib/scenes/recap";
@@ -20,6 +20,9 @@ import { useModuleFocus } from "@/components/course/moduleFocus";
 import { NextStep } from "@/components/round/RoundExit";
 import { CaseLabel } from "@/components/CaseLabel";
 import { caseLabelOf } from "@/lib/copy/caseLabel";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill, type Locale } from "@/lib/copy/locale";
+import { around, withLink } from "./inPlace";
 
 /** So "words your conversations needed" is a query and never a counter (ADR-014). */
 export const SCENE_SOURCE = "SCENE";
@@ -95,6 +98,8 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
   /* Whether this conversation is a step of tonight's module, which decides
      whether the debrief carries a way on of its own. */
   const inModule = useModuleFocus() !== null;
+  const t = useT();
+  const locale = useLocale();
   const { scene, objectives, hurdles, outcome, gaps, turns, graded, review, recap } = debrief;
   const byId = new Map(scene.beats.map((beat) => [beat.id, beat]));
   const required = scene.beats.filter((beat) => beat.required);
@@ -161,7 +166,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
   }, []);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6" lang={locale}>
       {/*
         THE RUN AT A GLANCE, FIRST (`lib/scenes/recap.ts`). The headline is
         about what got done, in the learner's terms; the outcome is the scene's
@@ -169,10 +174,10 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         happened in the conversation, never a score.
       */}
       <Card tone="night" className="scene-night scene-done evening flex flex-col gap-2">
-        <p className="label-xs" style={{ color: "var(--ink-3)" }}>Your conversation, reviewed</p>
+        <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Your conversation, reviewed")}</p>
         <h2 className="font-display text-2xl leading-tight">{recap.headline}</h2>
         {outcome?.says && (
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{outcome.says}</p>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t(outcome.says)}</p>
         )}
       </Card>
       <div data-recap-stats className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -182,7 +187,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       </div>
       {recap.highlights.length > 0 && (
         <section data-recap-highlights>
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>What went well</h3>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("What went well")}</h3>
           {/*
             As many columns as there are cards, up to the three the recap
             ever writes: a fixed two left one card beside a blank half and a
@@ -203,7 +208,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                     */
                     <div className="night scene-night self-start rounded-[var(--r-lg)] p-2">
                       <p data-who="you" lang="et" className="scene-bubble scene-bubble-sm inline-block max-w-full">
-                        <span className="sr-only">You said: </span>{highlight.said}
+                        <span className="sr-only">{t("You said:")}{" "}</span>{highlight.said}
                       </p>
                     </div>
                   )}
@@ -219,16 +224,16 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           <Card tone="accent" className="flex flex-col gap-2">
             <p className="flex items-center gap-2 font-medium">
               <MessageCircleHeart size={16} aria-hidden style={{ color: "var(--accent-deep)" }} />
-              A note from Anu
+              {t("A note from Anu")}
             </p>
             {note === "waiting" ? (
-              <p className="text-sm" style={{ color: "var(--ink-2)" }}>Anu is reading your conversation…</p>
+              <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("Anu is reading your conversation…")}</p>
             ) : (
               <>
                 <p className="text-sm">{note.comment}</p>
                 {note.rule && (
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    <span className="font-medium" style={{ color: "var(--ink)" }}>Next time: </span>{note.rule}
+                    <span className="font-medium" style={{ color: "var(--ink)" }}>{t("Next time:")}{" "}</span>{note.rule}
                   </p>
                 )}
               </>
@@ -238,7 +243,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       )}
       {recap.nextTime.length > 0 && (
         <section data-recap-next className="recap-panel">
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Try next time</h3>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Try next time")}</h3>
           <ul className="flex flex-col gap-2">
             {recap.nextTime.map((tip) => (
               <li key={tip.title} className="flex items-start gap-2">
@@ -262,7 +267,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           has already said the count, so this says what the list is.
         */}
         <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-          {objectives.met.length === 0 ? "What you went in to get done" : "What you got done"}
+          {t(objectives.met.length === 0 ? "What you went in to get done" : "What you got done")}
         </h3>
         <ul className="flex flex-col gap-1">
           {required.map((beat) => {
@@ -272,8 +277,8 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                 <span aria-hidden style={{ color: met ? "var(--sky-ink)" : "var(--ink-3)" }}>
                   {met ? "✓" : "○"}
                 </span>
-                <span style={{ color: met ? "var(--ink)" : "var(--ink-3)" }}>{beat.goal}</span>
-                <span className="sr-only">{met ? "done" : "not this time"}</span>
+                <span style={{ color: met ? "var(--ink)" : "var(--ink-3)" }}>{t(beat.goal)}</span>
+                <span className="sr-only">{t(met ? "done" : "not this time")}</span>
               </li>
             );
           })}
@@ -282,7 +287,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
 
       {hurdles.length > 0 && (
         <section className="recap-panel">
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>What went wrong on the way</h3>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("What went wrong on the way")}</h3>
           {/*
             The curveballs this run drew, and whether each was dealt with.
             Named in the debrief and nowhere before it, because pressure is
@@ -299,7 +304,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                     {hurdle.met ? "✓" : "○"}
                   </span>
                   <span style={{ color: hurdle.met ? "var(--ink)" : "var(--ink-3)" }}>
-                    {spec.says} {hurdle.met ? "You handled it." : "They let it slide."}
+                    {t(spec.says)} {t(hurdle.met ? "You handled it." : "They let it slide.")}
                   </span>
                 </li>
               );
@@ -309,7 +314,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       )}
 
       <section className="recap-panel">
-        <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>How it went</h3>
+        <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("How it went")}</h3>
         {/*
           The lead is the sentence a learner takes away, and it is about being
           understood rather than about being right: those are the same run
@@ -342,14 +347,14 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                   aria-expanded={showing === note.at}
                   className="press tap-tint -mx-1.5 flex w-full items-baseline gap-2 rounded-[var(--r-sm)] px-1.5 py-1 text-left"
                 >
-                  <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                  <span lang={note.id === "english" ? undefined : "et"} className="text-base font-semibold" style={{ color: "var(--ink)" }}>
                     {note.said}
                   </span>
                   {note.times && (
-                    <span className="text-xs" style={{ color: "var(--ink-3)" }}>{note.times} times</span>
+                    <span className="text-xs" style={{ color: "var(--ink-3)" }}>{countOf(locale, note.times, "time")}</span>
                   )}
                   <span className="ml-auto shrink-0 text-xs" style={{ color: "var(--accent-deep)" }}>
-                    {showing === note.at ? "Shown below" : "Show me where"}
+                    {t(showing === note.at ? "Shown below" : "Show me where")}
                   </span>
                 </button>
                 {/*
@@ -362,7 +367,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                 {note.hunch && (
                   <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>
                     <span className="font-medium">
-                      {note.hunch.sure === "likely" ? "Most likely" : "Possibly"}:
+                      {t(note.hunch.sure === "likely" ? "Most likely" : "Possibly")}:
                     </span>{" "}
                     {note.hunch.says}
                   </p>
@@ -370,13 +375,13 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                 {/* And the form that was wanted, which is the dictionary's. */}
                 <p className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
                   {note.form ? (
-                    <>
-                      {"It should be "}
-                      <span lang="et" className="font-medium">{note.form}</span>
-                      {`, ${note.what}.`}
-                    </>
+                    around(
+                      fill(t("It should be {form}, {what}."), { what: note.what }),
+                      "form",
+                      <span lang="et" className="font-medium">{note.form}</span>,
+                    )
                   ) : (
-                    `They understood you anyway. It needed ${note.what}.`
+                    fill(t("They understood you anyway. It needed {what}."), { what: note.what })
                   )}
                 </p>
                 {note.term && (caseLabelOf(note.term) ? (
@@ -398,7 +403,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       {gaps.length > 0 && (
         <section className="recap-panel">
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Words this conversation needed
+            {t("Words this conversation needed")}
           </h3>
           {/*
             Help is counted and never taken away: a learner who asks for four
@@ -408,7 +413,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           <ul className="flex flex-wrap gap-2">
             {gaps.map((gap) => (
               <li key={gap.lemma} className="flex items-center gap-1">
-                <Chip tone="neutral" caseSensitive>{gap.lemma}</Chip>
+                <span lang="et"><Chip tone="neutral" caseSensitive>{gap.lemma}</Chip></span>
                 {/*
                   A word the dictionary holds can be kept; one it does not is
                   still listed, because "the conversation needed this and you
@@ -426,7 +431,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
 
       {missed && drill && (
         <section className="recap-panel">
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>A drill for what was left</h3>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("A drill for what was left")}</h3>
           {/*
             NAMED HERE ONLY WHERE THERE IS A DRILL TO NAME IT FOR.
 
@@ -481,7 +486,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       */}
       {turns.length > 0 && (
         <section>
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>What was said</h3>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("What was said")}</h3>
           {/*
             Both sides rather than the learner's alone, because a turn only
             makes sense beside the line it answered, and reading the whole
@@ -540,7 +545,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                         who can see it and a label on every bubble would be the
                         same two words twenty times down a phone.
                       */}
-                      <span className="sr-only">{turn.who === "you" ? "You said: " : "They said: "}</span>
+                      <span className="sr-only">{t(turn.who === "you" ? "You said:" : "They said:")}{" "}</span>
                       <span lang={turn.lang}>
                         {/*
                           The word marked inside the turn, in butter, which is
@@ -603,9 +608,9 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             typed twice, so the two screens cannot drift into naming it
             differently.
           */}
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{SAY_IT_TODAY}</h3>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t(SAY_IT_TODAY)}</h3>
           <Card tone="sky">
-            <p className="text-base font-semibold" style={{ color: "var(--sky-ink)" }}>{errand.says}</p>
+            <p className="text-base font-semibold" style={{ color: "var(--sky-ink)" }}>{t(errand.says)}</p>
             {/*
               `errandPlaces` leads the sentence rather than following a colon.
               Every `where` in `lib/collections/errands.ts` is authored
@@ -615,13 +620,21 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
               but the single-place ones.
             */}
             <p className="mt-1.5 text-sm" style={{ color: "var(--sky-ink)" }}>
-              {errandPlaces(errand)}. Nobody there has seen your card, so you&apos;ll say it your own
-              way, which is the whole point. Tomorrow, the <Link href="/">Today</Link> screen will ask how it went.
+              {withLink(
+                fill(
+                  t("{places}. Nobody there has seen your card, so you'll say it your own way, which is the whole point. Tomorrow, the [Today] screen will ask how it went."),
+                  { places: placesIn(locale, errand, t) },
+                ),
+                (words) => <Link href="/">{words}</Link>,
+              )}
             </p>
             {cafe && (
               <p className="mt-2 text-xs" style={{ color: "var(--sky-ink)" }}>
-                No one to say it to? <a href={cafe.href} target="_blank" rel="noopener noreferrer" className="underline">{cafe.name}</a> runs
-                language cafés, where people turn up hoping to be spoken to.
+                {around(
+                  t("No one to say it to? {name} runs language cafés, where people turn up hoping to be spoken to."),
+                  "name",
+                  <a href={cafe.href} target="_blank" rel="noopener noreferrer" className="underline">{t(cafe.name)}</a>,
+                )}
               </p>
             )}
           </Card>
@@ -674,19 +687,23 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         <NextStep />
         {!inModule && (
           <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/situations" variant="ghost">Rehearse a different conversation</ButtonLink>
+            <ButtonLink href="/situations" variant="ghost">{t("Rehearse a different conversation")}</ButtonLink>
             {/* Redoing it keeps this scene and redraws everything else. */}
-            <Button variant="primary" onClick={onAgain}>Rehearse this conversation again</Button>
+            <Button variant="primary" onClick={onAgain}>{t("Rehearse this conversation again")}</Button>
           </div>
         )}
 
         {(objectives.missed.length > 0 || graded > 0) && (
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            {objectives.missed.length > 0 && "Most of it sticks the second time round. "}
+            {objectives.missed.length > 0 && `${t("Most of it sticks the second time round.")} `}
             {graded > 0 && (
               <>
-                {graded === 1 ? "One word you used is" : `${graded} words you used are`} now in{" "}
-                <Link href="/progress">your reviews</Link>.
+                {withLink(
+                  graded === 1
+                    ? t("One word you used is now in [your reviews].")
+                    : fill(t("{count} words you used are now in [your reviews]."), { count: graded }),
+                  (words) => <Link href="/progress">{words}</Link>,
+                )}
               </>
             )}
           </p>
@@ -705,3 +722,13 @@ const MOMENT_INK: Record<"right" | "nearly" | "neutral", string> = {
   nearly: "var(--butter-ink)",
   neutral: "var(--ink-3)",
 };
+
+/**
+ * Where an errand can be done, as one phrase in the learner's language. The
+ * English reading is `errandPlaces`, untouched; another language translates
+ * the authored list whole, because "in a shop or in a lift" takes a
+ * preposition and a case per place that no list joiner can supply.
+ */
+function placesIn(locale: Locale, errand: Errand, t: (english: string) => string): string {
+  return locale === "en" ? errandPlaces(errand) : t(errand.where);
+}

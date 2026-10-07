@@ -8,12 +8,15 @@ import { adaptTiltFor } from "@/lib/progress/adapt";
 import { tiltedLevel } from "@/lib/course/adapt";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { SceneSession } from "@/components/scene/SceneSession";
+import { tr } from "@/lib/copy/locale";
+import { localeFor } from "@/lib/progress/locale";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const scene = sceneById((await params).id);
-  return { title: scene ? scene.title : "Situations" };
+  const locale = await localeFor(await requireUserId());
+  return { title: tr(locale, scene ? scene.title : "Situations") };
 }
 
 /**
