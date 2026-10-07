@@ -67,7 +67,7 @@ const { check, absent, done } = suite("A conversation, end to end", {
     room and which drew none: that the band is still there once the
     conversation has ended, and that nobody is talking in it.
   */
-  floor: 56,
+  floor: 62,
 });
 
 /*
@@ -172,8 +172,37 @@ const chose = await eventually(async () => {
   return (await easiest.getAttribute("aria-checked")) === "true";
 }, { timeoutMs: 20_000, everyMs: 250 });
 check("the dial answers a press", chose);
+/*
+  HOW THEY ARE HEARD, CHOSEN ON THE BRIEFING (lib/audio/sceneVoice.ts). Set to
+  voice and text here whatever an earlier run left stored, since the rest of
+  this suite reads the words of the other side's lines.
+*/
+const voiceAndText = page.getByRole("radio", { name: /^Voice and text/i });
+check("the briefing offers the three ways of hearing them",
+  (await page.getByRole("radiogroup", { name: /How you hear them/i }).getByRole("radio").count()) === 3);
+await eventually(async () => {
+  await voiceAndText.click();
+  return (await voiceAndText.getAttribute("aria-checked")) === "true";
+}, { timeoutMs: 20_000, everyMs: 250 });
 await page.getByRole("button", { name: /Start the conversation/i }).click();
 await page.waitForSelector('[role="log"] p', { timeout: TURN_MS });
+
+/*
+  AND SAID WHERE THE LEARNER TYPES, as a label that is also the way to change
+  it. The speaker on the other side's line is the half a label cannot fake:
+  "Text" may draw none, and the voice modes have to draw one.
+*/
+const modeChips = page.locator(".scene-voice [role=radio]");
+check("the conversation names how it is heard", (await modeChips.count()) === 3
+  && (await page.locator(".scene-voice [role=radio][aria-checked=true]").innerText()).trim() === "Voice + text");
+const themSpeakers = page.locator('[data-who="them"] button[aria-label^="Hear"]');
+check("with the voice on, the other side's line has a speaker", (await themSpeakers.count()) > 0);
+await page.locator(".scene-voice [role=radio]", { hasText: /^Text$/ }).click();
+check("with text only, no line has a speaker",
+  await eventually(async () => (await page.locator('[role="log"] button[aria-label^="Hear"]').count()) === 0, { timeoutMs: 5_000, everyMs: 100 }));
+await page.locator(".scene-voice [role=radio]", { hasText: /^Voice \+ text$/ }).click();
+check("and the voice comes back when it is chosen again",
+  await eventually(async () => (await themSpeakers.count()) > 0, { timeoutMs: 5_000, everyMs: 100 }));
 
 // ── The card, which is the thing a learner answers from ─────────────────────
 /*

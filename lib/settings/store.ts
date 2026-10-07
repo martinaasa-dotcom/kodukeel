@@ -128,6 +128,13 @@ export const SETTING_KEYS = {
    */
   support: "support",
   /**
+   * How the other side of a conversation reaches the learner: read, heard and
+   * read, or heard alone. Chosen on a scene's briefing and changeable mid-scene;
+   * a missing row reads off `support` above. The values and the reasoning live
+   * in lib/audio/sceneVoice.ts.
+   */
+  sceneVoice: "sceneVoice",
+  /**
    * Which language a meaning is given in beside the English.
    *
    * English is the default and stays the default, because a missing row has to

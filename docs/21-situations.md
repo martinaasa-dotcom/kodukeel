@@ -5444,3 +5444,31 @@ echo any more, where five were.
 the till line could still ask the learner's question. Whether it should is a measurement on the paid
 model, whose daily allowance is spent until it resets, so it waits for that measurement rather than
 going in unmeasured.
+
+## §81 How the other side is heard, chosen and said
+
+A scene spoke in the persona's voice, but only for a learner who had switched autoplay on in
+Settings, which is off by default. So a conversation was silent unless somebody pressed the speaker
+on every line, and nothing on the screen said whether it was meant to be read or heard.
+`lib/audio/sceneVoice.ts` is the one answer: **Text only**, **Voice and text** or **Voice only**.
+It is chosen on the briefing beside the band and the difficulty, remembered for the next scene
+(`SETTING_KEYS.sceneVoice`), and drawn again as three chips in the panel the learner types into. That
+row is the label saying which mode this is, and the way to change it without leaving the room.
+
+Three rules, each asserted in `scripts/invariants/a-conversation-says-how-it-is-heard.ts`:
+
+- **A voice mode plays each line unasked**, through `Speak`'s `insist`, because choosing it on the
+  screen before the conversation starts is the learner asking. The autoplay setting still governs
+  cards, where the argument about a library holds.
+- **Text only draws no speaker** for either side. A speaker under a label saying nothing is played
+  aloud would make the label wrong.
+- **Voice only hides the words behind a press**, and the speaker playing the hidden line carries a
+  written label. The default label is the line itself, which read the hidden words to a screen reader.
+
+A missing row reads off `support`: a learner who chose to hear before reading keeps that, and
+everybody else opens on Voice and text, shown and selected on the briefing before anything plays.
+Choosing "hear it first" in Settings writes the mode to match, so the two cannot disagree.
+
+This is tier 1 of a voice conversation: the other side speaks and the learner still types. Speech
+recognition for the learner's side is a separate decision, waiting on a measurement of how well any
+recognizer hears learner Estonian.
