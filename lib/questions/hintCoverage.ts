@@ -50,12 +50,13 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
     THE SCREENS WHERE THE HINT WOULD BE THE BUTTON THAT IS ALREADY THERE.
   */
   {
-    file: "app/(app)/review/sprint/SprintSession.tsx",
-    why: "a flip card against a clock: the answer is already behind one press the learner controls, so a ladder under it offers nothing shorter",
-  },
-  {
     file: "app/(app)/review/speaking/SpeakingSession.tsx",
     why: "the word is played properly before the learner says it, so the answer is the exercise, and ADR-018 leaves the judging to them",
+  },
+
+  {
+    file: "app/(app)/review/describe/DescribeSession.tsx",
+    why: "the learner writes five sentences of their own about a picture, so there is no one answer to uncover; the example above the boxes is the help",
   },
 
   /*
@@ -76,12 +77,6 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
   {
     file: "app/(app)/review/pairs/PairsSession.tsx",
     why: "a board rather than a card: every tile is already face up by the time a pair can be got wrong",
-  },
-  {
-    file: "app/(app)/review/target/TargetSession.tsx",
-    why: "the answer is one of four forms drawn against a clock that shortens on every hit, so a"
-      + " press that spends seconds is the drill rather than a way through it, and the round"
-      + " already shows the answer on the miss it moves on from",
   },
 
   /*

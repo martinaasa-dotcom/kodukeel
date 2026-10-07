@@ -54,7 +54,7 @@ export default async function MatchPage({
   const [recent, due, settings] = await Promise.all([
     /*
       AND INSIDE THE MODULE IT LEADS WITH TONIGHT, then the evenings just
-      before it (`recentLemmas`). Due cards first put tonight's three new words
+      before it (`recentLemmas`). Due cards first put today's three new words
       on a B1 board beside five A1 greetings, because a learner standing at B1
       always has an `aitäh` somewhere near due.
     */

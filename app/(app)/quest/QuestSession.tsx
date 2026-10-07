@@ -24,7 +24,8 @@ import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { EnterKeyCap, SpaceKeyCap } from "@/components/KeyCaps";
+import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey, isGotItKey, isNotYetKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 import { WayOut } from "@/components/round/RoundExit";
 import { BriefingSteps } from "@/components/round/Briefing";
@@ -285,7 +286,7 @@ export function QuestSession({
   }, [check, answer]);
 
   /* Keys, because a two-minute round is one a keyboard should be able to play:
-     space turns the card, then 1 and 2 answer it. Same two answers as a flip
+     space or enter turns the card, then space says missed and enter says had it. Same two answers as a flip
      card in review, for the same reason. */
   useEffect(() => {
     if (phase !== "running") return;
@@ -323,8 +324,11 @@ export function QuestSession({
       }
       if (isAdvanceKey(e) && !revealed) { e.preventDefault(); setRevealed(true); return; }
       if (!revealed) return;
-      if (e.key === "1") { e.preventDefault(); void answer(false); }
-      if (e.key === "2") { e.preventDefault(); void answer(true); }
+      // The two answers have a key each: Space is "Missed it" and Enter is
+      // "Had it", as on every other card that asks the learner to judge. The
+      // digits stay for anybody who has them under their fingers.
+      if (isNotYetKey(e) || e.key === "1") { e.preventDefault(); void answer(false); }
+      else if (isGotItKey(e) || e.key === "2") { e.preventDefault(); void answer(true); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -633,8 +637,8 @@ export function QuestSession({
                 </div>
               ) : (
               <div className="mt-2 grid w-full max-w-sm grid-cols-2 gap-2">
-                {/* The two self-grades in the palette's own words, as Sprint
-                    and the review card draw them. Only where there is nothing
+                {/* The two self-grades in the palette's own words, as the
+                    review card draws them. Only where there is nothing
                     to compare, which is the flip review keeps too. */}
                 <button
                   type="button"
@@ -642,7 +646,7 @@ export function QuestSession({
                   onClick={() => void answer(false)}
                   className={`${VERDICT_CLASS.wrong} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
-                  Missed it <KeyCap className="ml-1">1</KeyCap>
+                  Missed it <SpaceKeyCap className="ml-1" />
                 </button>
                 <button
                   type="button"
@@ -650,7 +654,7 @@ export function QuestSession({
                   onClick={() => void answer(true)}
                   className={`${VERDICT_CLASS.right} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
-                  Had it <KeyCap className="ml-1">2</KeyCap>
+                  Had it <EnterKeyCap className="ml-1" />
                 </button>
               </div>
               )}

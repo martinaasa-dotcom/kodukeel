@@ -422,7 +422,7 @@ function MoreOnThis({ task, className }: { task: ExceptionTask; className?: stri
     AND THERE IS NO "MORE ON THIS" INSIDE A MODULE.
 
     Supplementary reading is worth offering where somebody chose this round and
-    has the evening to spend on it. Inside a step of tonight's module it is a
+    has the evening to spend on it. Inside a step of today's module it is a
     door into the reference with the evening behind it, which is the thing this
     was reported as: a learner reading a page, following a link at the foot of
     it, and doing something that was never part of tonight. The evening has its

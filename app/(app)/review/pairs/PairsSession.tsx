@@ -10,7 +10,8 @@ import { playClip } from "@/lib/audio/clip";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { VOICES } from "@/lib/audio/voice";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { SpaceKeyCap } from "@/components/KeyCaps";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey, isPlayKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
@@ -165,6 +166,11 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
       }
       if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (e.key === "r" || e.key === "R") { e.preventDefault(); void play(question.heard); return; }
+      // Space is free until the answer is in, and then it moves on, so it
+      // plays the word only while the round is still asking.
+      if (!revealed && isPlayKey(e)) {
+        e.preventDefault(); void play(question.heard); return;
+      }
       if (revealed && isAdvanceKey(e)) { e.preventDefault(); next(); return; }
       if (revealed) return;
       const option = question.options[Number(e.key) - 1];
@@ -274,7 +280,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>
             {/* "Play again" is a lie before anything has played, which is
                 every arrival on a browser that blocks autoplay. */}
-            {needsPress ? "Tap to hear it" : "Play again"} <KeyCap>R</KeyCap>, or hear it{" "}
+            {needsPress ? "Tap to hear it" : "Play again"} <SpaceKeyCap /> or <KeyCap>R</KeyCap>, or hear it{" "}
             <span className="inline-flex items-center align-middle">
               <Speak text={question.heard} slow voice={voice} label="Hear it slowly" />
             </span>{" "}

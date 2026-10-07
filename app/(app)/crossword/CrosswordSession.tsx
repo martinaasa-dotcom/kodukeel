@@ -153,10 +153,21 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      {/* The board is the night panel: squares lit where the word you are on
+    /*
+      ONE SCREEN. The grid, the clue, the letter bar and the two buttons are
+      in view together, so the square is read off `--cw-cell`: the room the
+      window leaves once everything that is not a square is counted, between
+      32px and 44px. The two clue lists are the one part that may sit below
+      the fold, since the clue for the word you are on is printed under the
+      grid and the lists are for jumping about.
+    */
+    <div
+      className="flex flex-col gap-3"
+      style={{ "--cw-cell": `min(clamp(2rem, calc((100dvh - 24rem) / ${puzzle.rows}), 2.75rem), calc((100vw - 4.5rem - ${(puzzle.cols - 1) * 4}px) / ${puzzle.cols}))` } as React.CSSProperties}
+    >
+      {/* The board is a lavender panel: squares lit where the word you are on
           runs, the clue under it in the display face. */}
-      <Card tone="night">
+      <Card tone="accent" dense className="crossword-board">
         <div
           className="mx-auto grid w-fit gap-1"
           style={{ gridTemplateColumns: `repeat(${puzzle.cols}, minmax(0, 1fr))` }}
@@ -182,7 +193,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
           aria-label="Crossword grid"
         >
           {Array.from({ length: puzzle.rows * puzzle.cols }, (_, cell) => {
-            if (!puzzle.filled.has(cell)) return <span key={cell} aria-hidden className="h-9 w-9 sm:h-10 sm:w-10" />;
+            if (!puzzle.filled.has(cell)) return <span key={cell} aria-hidden className="h-[var(--cw-cell)] w-[var(--cw-cell)]" />;
             const number = puzzle.entries.find(
               (e) => e.row * puzzle.cols + e.col === cell,
             )?.number;
@@ -193,7 +204,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                one peach square in a field of nothing. */
             const isRight = checked.includes(cell) && Boolean(typed[cell]) && !isWrong;
             return (
-              <span key={cell} className="relative h-9 w-9 sm:h-10 sm:w-10">
+              <span key={cell} className="relative h-[var(--cw-cell)] w-[var(--cw-cell)]">
                 {number !== undefined && (
                   <span
                     aria-hidden
@@ -225,9 +236,9 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                   aria-label={`Row ${Math.floor(cell / puzzle.cols) + 1}, column ${(cell % puzzle.cols) + 1}`}
                   className={`${isWrong ? OPTION_CLASS.wrong : isRight ? OPTION_CLASS.right : ""} h-full w-full rounded-[var(--r-sm)] border-0 text-center text-base font-bold uppercase transition-ui`}
                   style={isWrong || isRight ? undefined : {
-                    background: inWord ? "color-mix(in srgb, var(--cta) 20%, var(--surface))" : "var(--surface)",
+                    background: inWord ? "color-mix(in srgb, var(--accent-deep) 16%, var(--surface))" : "var(--surface)",
                     color: "var(--ink)",
-                    boxShadow: inWord ? "inset 0 0 0 1.5px var(--cta)" : "inset 0 0 0 1px var(--rule)",
+                    boxShadow: inWord ? "inset 0 0 0 1.5px var(--accent-deep)" : "inset 0 0 0 1px var(--rule)",
                   }}
                 />
               </span>
@@ -235,11 +246,11 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
           })}
         </div>
 
-        <div className="mt-4 flex flex-col items-center gap-3">
+        <div className="mt-3 flex flex-col items-center gap-2">
           <p className="text-center text-base" style={{ color: "var(--ink-2)" }}>
-            <span className="font-semibold" style={{ color: "var(--cta)" }}>{entry.number} {entry.direction}</span>
+            <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>{entry.number} {entry.direction}</span>
             {": "}
-            <span className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>{entry.clue}</span>
+            <span className="font-display text-lg font-bold" style={{ color: "var(--ink)" }}>{entry.clue}</span>
           </p>
           <DiacriticBar standalone={false} label="Insert Estonian character" />
         </div>

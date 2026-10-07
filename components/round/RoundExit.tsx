@@ -15,7 +15,7 @@ import { useModuleFocus, useModuleNext } from "@/components/course/moduleFocus";
  * the round themselves, which is most of the time: they chose it, and when it
  * is over they choose again.
  *
- * It is wrong inside tonight's module, and that is what was reported. A module
+ * It is wrong inside today's module, and that is what was reported. A module
  * is one decision made in advance and a step of it is a room: the way on is
  * the one button at the foot of the screen, which ticks the step and opens the
  * next, and a finish screen offering three other places to be is three doors
@@ -67,7 +67,7 @@ export function EndSession({ href = "/", label = "End session", size = 18 }: {
 }
 
 /**
- * The row of ways off a finish screen, or tonight's "Next" inside a module.
+ * The row of ways off a finish screen, or today's "Next" inside a module.
  *
  * It takes the row rather than sitting inside it, because what a module has to
  * remove is the whole row: "another round" is not an exit and is still a
@@ -91,7 +91,7 @@ export function WayOut({ className = "", opening = false, children }: {
 }
 
 /**
- * Tonight's "Next" where a step ends that is not a round, which is the foot of
+ * Today's "Next" where a step ends that is not a round, which is the foot of
  * a reading page, or nothing outside a module.
  */
 export function NextStep({ className = "" }: { className?: string }) {

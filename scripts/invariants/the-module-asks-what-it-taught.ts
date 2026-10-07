@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import type { InvariantKit } from "../lib/invariantKit";
 
 /**
- * TONIGHT'S MODULE IS THE LEVEL THE LEARNER SAID, AND ITS CLOSING ROUND IS
- * TONIGHT'S WORDS.
+ * TODAY'S MODULE IS THE LEVEL THE LEARNER SAID, AND ITS CLOSING ROUND IS
+ * TODAY'S WORDS.
  *
  * Reported off one screen: a learner who had set A1 was asked for the simple
  * past of `juhtuma`, an A2 verb, in a closing review eighteen cards long. Three

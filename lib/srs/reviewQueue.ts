@@ -150,7 +150,7 @@ export function dueWhere(
  * answers, and it used to open the whole queue: up to sixty cards due from
  * anywhere in the deck plus ten new ones. A beginner on an evening of five
  * words read "18 left" and a verb from another level, which is not quick and
- * is not tonight's evening. So inside the module the due read is narrowed to
+ * is not today's evening. So inside the module the due read is narrowed to
  * the words the ladder has taught (`dueWhere`'s `only`), and the round stops
  * here. Everything else that is due is still due, on Review, where a learner
  * who opens it themselves chooses to meet it.

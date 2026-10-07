@@ -240,7 +240,7 @@ export function DictionaryClient({
       */}
       <div className={landing ? "night flex flex-col gap-5 rounded-[var(--r-xl)] border px-5 py-7 md:px-8 md:py-9" : "contents"}>
         {landing && (
-          <p className="font-display text-2xl font-bold leading-tight tracking-tight sm:text-3xl md:text-4xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+          <p className="font-display text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
             Type a word just as you met it, endings and all.
           </p>
         )}

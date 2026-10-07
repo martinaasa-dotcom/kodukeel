@@ -143,7 +143,7 @@ const ROUTES = [
   "/learn/kodu/lesson", "/learn/kodu/worksheet",
   "/review", "/review/write", "/review/government", "/review/openers", "/review/conjugation", "/review/cloze", "/review/clinic",
   "/review/dictation", "/review/listening", "/review/match", "/review/pairs",
-  "/review/sentences", "/review/speaking", "/review/sprint",
+  "/review/sentences", "/review/speaking",
   /*
     The rounds and screens the games pass added, which this list did not get.
     That is the fault its own header names: `/review/emoji` and `/review/target`
@@ -154,7 +154,7 @@ const ROUTES = [
     and a second of wall clock is what it costs to enforce it.
   */
   "/quest", "/sonad", "/crossword", "/calendar", "/dictionary/common",
-  "/review/target", "/review/flashcards", "/review/describe",
+  "/review/flashcards", "/review/describe",
   "/words/mastery",
   "/progress/readiness", "/progress/readiness/riigid", "/progress/record",
   /*
@@ -362,7 +362,7 @@ ROUTES.push(...groups);
   pointless, and `/review/emoji` was one of the routes this walks. Nine
   checks, counted off the route list rather than off a run.
 */
-const { check, absent, done } = suite("Accessibility", { floor: 764 });
+const { check, absent, done } = suite("Accessibility", { floor: 740 });
 if (!shelf) absent(11, "a round over one shelf: no shelf on /words/decks holds a word. Run `npm run demo`");
 if (groups.length === 0) absent(11, "a classroom: /class lists no group. Run `npm run demo`");
 

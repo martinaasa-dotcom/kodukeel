@@ -30,7 +30,7 @@ describe("a case ask for a word card inside the module", () => {
     }
   });
 
-  it("leads with tonight's case on the share it is given, and not otherwise", () => {
+  it("leads with today's case on the share it is given, and not otherwise", () => {
     expect(caseAskFor(house, ["INESSIVE", "ELATIVE"], "ELATIVE", 0.5, always)!.caseKey).toBe("ELATIVE");
     expect(caseAskFor(house, ["INESSIVE", "ELATIVE"], "ELATIVE", 0, always)!.caseKey).toBe("INESSIVE");
   });

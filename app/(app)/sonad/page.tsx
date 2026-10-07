@@ -43,6 +43,7 @@ export default async function SonadPage() {
   return (
     <BeforeYouStart id="sonad" ready={puzzle !== null}>
       <Page
+        compact
         title="Sõnad"
         lead={`One word a day. ${SONAD_LENGTH} letters, ${SONAD_GUESSES} guesses, ${taught ? "a word you've met" : "at your level"}.`}
       >
@@ -64,7 +65,7 @@ export default async function SonadPage() {
             <Empty
               title="Not enough words yet"
               body={`Today's word comes from your evenings, and none of their words has ${SONAD_LENGTH} letters yet.`}
-              action={<ButtonLink href="/course">Tonight&rsquo;s evening</ButtonLink>}
+              action={<ButtonLink href="/course">Today&rsquo;s evening</ButtonLink>}
             />
           ) : (
             <Empty

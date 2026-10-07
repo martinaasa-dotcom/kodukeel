@@ -300,7 +300,7 @@ export function boundedRestoredReview(
     reachedSlot: slot ? reachedFor(slot, reached) : null,
     // A restored row was not received now, and the file does not get to say it
     // was: read as `receivedAt` it would count a backup's whole history towards
-    // tonight's closing round.
+    // today's closing round.
     receivedAt: null,
   };
 }

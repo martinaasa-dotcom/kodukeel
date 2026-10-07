@@ -75,7 +75,7 @@
  */
 import { prisma } from "../lib/db";
 import { acceptedAnswers } from "../lib/estonian/answer";
-import { refusedSentenceCards, retirableCaseCards, unsentencedCaseCards, type Retirement } from "../lib/srs/retire";
+import { refusedSentenceCards, retirableCaseCards, unsentencedCaseCards, unsentencedConjugationCards, type Retirement } from "../lib/srs/retire";
 import { refusalFor } from "../lib/dict/refused";
 import { borrowSentences } from "../lib/dict/borrow";
 import { plainerFirst, plainReach } from "../lib/dict/plainness";
@@ -204,6 +204,46 @@ async function main() {
       back: byId.get(gone.id)?.back ?? "",
       targetCase: gone.grammCase,
       why: gone.why,
+    });
+    owners.add(gone.ownerId);
+  }
+
+  /*
+    The same third rule for the other form card, a person of a verb: a bare
+    `juhtuma → lihtminevik, ma` the dictionary holds no sentence for. Its own
+    query, since the cases above are `CASE_FORM` alone.
+  */
+  const bareVerbs = await prisma.card.findMany({
+    where: { cardType: "CONJUGATION", lexemeId: { not: null }, front: { contains: " → " } },
+    select: {
+      id: true, ownerId: true, front: true, slot: true, back: true, lexemeId: true,
+      lexeme: {
+        select: {
+          lemma: true, translation: true, pos: true, semanticTypes: true,
+          gradation: true, gradationNote: true, government: true, examples: true,
+          forms: {
+            select: { formType: true, value: true, morphCode: true },
+            orderBy: [{ orderIndex: "asc" }, { id: "asc" }],
+          },
+        },
+      },
+    },
+    orderBy: { id: "asc" },
+  });
+  const verbBacks = new Map(bareVerbs.map((card) => [card.id, card.back]));
+  for (const gone of unsentencedConjugationCards(bareVerbs.map((card) => ({
+    ...card,
+    lexeme: card.lexeme && card.lexemeId
+      ? {
+          ...card.lexeme,
+          borrowed: borrowed.get(card.lexemeId) ?? [],
+          plainest: plainerFirst(bandOfLexeme.get(card.lexemeId) ?? null, reach),
+        }
+      : card.lexeme,
+  })))) {
+    condemn({
+      id: gone.id, lemma: gone.lemma, back: verbBacks.get(gone.id) ?? "",
+      targetCase: gone.grammCase, why: gone.why,
     });
     owners.add(gone.ownerId);
   }

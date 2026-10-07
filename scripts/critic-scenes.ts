@@ -22,6 +22,7 @@
 import { spawn } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { SCENES } from "../lib/scenes/catalogue";
+import { thinkingFor } from "../lib/tutor/thinking";
 import { DEFAULT_BUDGET_USD, installMeter, spendIn } from "./lib/meter";
 
 // What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
@@ -123,7 +124,7 @@ async function critique(text: string): Promise<Issue[] | null> {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: CRITIC }] },
         contents: [{ role: "user", parts: [{ text }] }],
-        generationConfig: { maxOutputTokens: 1500, responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 0 } },
+        generationConfig: { maxOutputTokens: 1500, responseMimeType: "application/json", thinkingConfig: thinkingFor(CRITIC_MODEL) },
       }),
     }).catch(() => null);
     if (!res || !res.ok) continue;

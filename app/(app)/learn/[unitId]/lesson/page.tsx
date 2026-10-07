@@ -13,7 +13,8 @@ import { taughtSpellings } from "@/lib/progress/lessonWords";
 import { courseFormsByLemma } from "@/lib/dict/facts";
 import { parseExamples, teachableSentences } from "@/lib/dict/examples";
 import { authoredFor } from "@/lib/dict/authored";
-import { nominalOpener, sentenceTiles, tileFaces } from "@/lib/estonian/cloze";
+import { nominalOpener } from "@/lib/estonian/cloze";
+import { sentenceStarters } from "@/lib/estonian/orderTiles";
 import { everydaySpellings, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { isPrincipalFormType } from "@/lib/estonian/types";
@@ -24,7 +25,7 @@ import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { orderContextFor } from "@/lib/dict/wordOrder";
-import { ordinaryOpeners } from "@/lib/dict/openers";
+import { ordinaryStarters } from "@/lib/dict/openers";
 import { firstParams } from "@/lib/ux/queryParam";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
@@ -263,13 +264,19 @@ export default async function LessonPage({
     opener is an ordinary word, or the capital says which tile goes first. The
     planner is pure and the forms list is a file read, so it is settled here.
   */
-  const openers = await ordinaryOpeners(
+  const ordinary = await ordinaryStarters(
     planned.flatMap((step) => (step.kind === "build" ? [step.sentence] : [])),
   );
   const steps = planned.map((step) => {
     if (step.kind !== "build") return step;
-    const opener = sentenceTiles(step.sentence)[0] ?? "";
-    return { ...step, tiles: tileFaces(step.tiles, opener, openers.has(opener)) };
+    /* Tiles are already shuffled, so the capital comes off by the word rather
+       than by its place: a sentence has no word twice (`isOrderable`), so the
+       word is the place. A name keeps its capital. */
+    const starters = new Set(sentenceStarters(step.sentence).filter((w) => ordinary.has(w)));
+    return {
+      ...step,
+      tiles: step.tiles.map((t) => (starters.has(t) ? (t[0] ?? "").toLowerCase() + t.slice(1) : t)),
+    };
   });
 
   /*

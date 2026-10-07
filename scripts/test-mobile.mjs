@@ -774,7 +774,7 @@ for (const [width, height] of [[390, 664], [360, 640]]) {
   */
   const text = await page.locator("main").innerText();
   check(`and it says what its three marks mean at ${width}x${height}`,
-    /in place/.test(text) && /in the word, elsewhere/.test(text) && /not in the word/.test(text),
+    /in place/.test(text) && /in the word/.test(text) && /not in it/.test(text),
     text.slice(0, 80).replace(/\n+/g, " "));
   await ctx.close();
 }
@@ -783,7 +783,7 @@ for (const [width, height] of [[390, 664], [360, 640]]) {
   The `lg` button, at a laptop width and at a window wide enough to be the
   `2xl` step. Found by its class rather than by its text or its screen,
   because the button reads differently by the day the demo data lands on
-  ("Start tonight", "Learn 5 new words", "Start reviewing") and the marker
+  ("Start today's module", "Learn 5 new words", "Start reviewing") and the marker
   that says "this is an `lg` primary button" has to survive that: every
   breakpoint's utility classes are always present in the rendered `class`
   attribute, whether or not their media query currently applies, so

@@ -3,7 +3,7 @@
 
   This is the letter the whole system is for: a learner chose fifteen minutes
   an evening, and the thing that decides whether they get a language out of
-  this app is whether they sit down for those fifteen minutes tonight. Nothing
+  this app is whether they sit down for those fifteen minutes today. Nothing
   about the teaching moves that number. The letter does.
 
   So it is written to work, and the levers it pulls are real ones. Every one of
@@ -73,7 +73,7 @@ export interface TonightInput {
   readonly theirWords: string | null;
   /** The run of days, for the one quiet line at the end. Nought is fine. */
   readonly streak: number;
-  /** Tonight's gift. Null where the dictionary had nothing to offer. */
+  /** Today's gift. Null where the dictionary had nothing to offer. */
   readonly word: {
     readonly lemma: string;
     readonly translation: string;
@@ -117,7 +117,7 @@ function subjectFor(input: TonightInput): string {
       ? `One step left in ${input.day.title}`
       : `${SpelledCount(left)} steps left in ${input.day.title}`;
   }
-  return newWordsLine(input.day.newWords) ?? `Back to ${input.day.title} tonight`;
+  return newWordsLine(input.day.newWords) ?? `Back to ${input.day.title} today`;
 }
 
 /**
@@ -127,7 +127,7 @@ function subjectFor(input: TonightInput): string {
  */
 function newWordsLine(n: number): string | null {
   if (n <= 0) return null;
-  return `${SpelledCount(n)} new ${n === 1 ? "word" : "words"} tonight`;
+  return `${SpelledCount(n)} new ${n === 1 ? "word" : "words"} today`;
 }
 
 /**
@@ -162,7 +162,7 @@ export function tonightLetter(input: TonightInput): Letter {
   if (done > 0) {
     blocks.push({
       t: "heading",
-      text: left <= 1 ? "You're nearly done for tonight." : `About ${left} minutes to go tonight.`,
+      text: left <= 1 ? "You're nearly done for today." : `About ${left} minutes to go today.`,
     });
     blocks.push({
       t: "text",
@@ -174,7 +174,7 @@ export function tonightLetter(input: TonightInput): Letter {
   } else {
     blocks.push({
       t: "heading",
-      text: `${newWordsLine(day.newWords) ?? "Words you know, put to work tonight"}, in about ${left} minutes.`,
+      text: `${newWordsLine(day.newWords) ?? "Words you know, put to work today"}, in about ${left} minutes.`,
     });
     blocks.push({
       t: "text",
@@ -209,7 +209,7 @@ export function tonightLetter(input: TonightInput): Letter {
 
   blocks.push({
     t: "button",
-    label: done > 0 ? "Pick up where you left off" : "Start tonight",
+    label: done > 0 ? "Pick up where you left off" : "Start today's module",
     href: `${input.origin}/course`,
   });
 
@@ -223,7 +223,7 @@ export function tonightLetter(input: TonightInput): Letter {
   */
   if (input.word) {
     blocks.push({ t: "rule" });
-    blocks.push({ t: "quiet", text: "And a word for you, whether you study tonight or not:" });
+    blocks.push({ t: "quiet", text: "And a word for you, whether you study today or not:" });
     blocks.push({
       t: "art",
       html: wordCard(input.word.lemma, input.word.translation, input.word.occasion ?? undefined),
