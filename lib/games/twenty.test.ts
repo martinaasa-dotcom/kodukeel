@@ -247,10 +247,14 @@ describe("what the reviewer found", () => {
 
   it("a house is a building, clothes are garments and a mountain is nature", () => {
     expect(said("Kas see on hoone?", "maja")).toBe("yes");
-    expect(said("Kas see on loodus?", "maja")).toBe("no");
+    expect(said("Kas see on looduslik?", "maja")).toBe("no");
     expect(said("Kas see on rõivas?", "king")).toBe("yes");
     expect(said("Kas see on ese?", "raamat")).toBe("yes");
-    expect(said("Kas see on loodus?", "mägi")).toBe("yes");
+    expect(said("Kas see on looduslik?", "mägi")).toBe("yes");
+    expect(said("Kas see on poes?", "maja")).toBe("no");
+    expect(said("Kas see on tänaval?", "auto")).toBe("yes");
+    expect(said("Kas see paistab?", "lamp")).toBe("yes");
+    expect(said("Kas sellel on nina?", "elevant")).toBe("sometimes");
   });
 
   it("a bird has a tail and a beak and no mouth, an insect has no skin", () => {

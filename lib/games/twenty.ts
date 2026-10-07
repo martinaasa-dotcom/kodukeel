@@ -232,6 +232,7 @@ const TRAIT_TERMS: Record<string, { key: (typeof TRAITS)[number]; en: string }> 
   õhuke: { key: "thin", en: "Is it thin?" },
   ohtlik: { key: "dangerous", en: "Is it dangerous?" },
   tugev: { key: "strong", en: "Is it strong?" },
+  looduslik: { key: "natural", en: "Is it a natural thing, not made by people?" },
 };
 
 /* Opinions: "sometimes" unless the thing says yes, or says plainly no. */

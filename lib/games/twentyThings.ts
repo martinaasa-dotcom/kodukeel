@@ -84,7 +84,7 @@ export interface Thing {
 /** Category headwords a question can name besides a thing. */
 export const CATEGORIES = [
   "loom", "lind", "imetaja", "putukas", "taim", "toit", "jook", "puuvili", "köögivili", "sõiduk", "mööbel",
-  "hoone", "ese", "loodus", "rõivas",
+  "hoone", "ese", "rõivas",
 ] as const;
 
 type Rest = Partial<Omit<Thing, "lemma" | "kind" | "size">>;
@@ -102,7 +102,7 @@ function thing(lemma: string, kind: Kind, size: number, rest: Rest = {}): Thing 
 /** Objective traits: not listed means no. The lemma that asks for each is in `lib/games/twenty.ts`. */
 export const TRAITS = [
   "wet", "dry", "sweet", "salty", "sour", "sharp", "round", "long", "short", "wide", "narrow", "thick", "thin",
-  "smelly", "dangerous", "strong",
+  "smelly", "dangerous", "strong", "natural",
 ] as const;
 
 /** Subjective ones. Not listed means "sometimes", unless the thing says it is plainly not so (`traitNo`). */
@@ -227,15 +227,15 @@ interface Extra {
 const words = (s: string | undefined): string[] => (s ? s.split(" ").filter(Boolean) : []);
 
 const KIND_DEFAULT: Record<Kind, Extra> = {
-  animal: { p: "silm pea suu selg kõht nahk", d: "sleep born", ds: "buy sell smell" },
-  plant: { p: "juur", ps: "seeme", d: "grow" },
+  animal: { t: "natural", p: "silm pea suu selg kõht nahk", d: "sleep born", ds: "buy sell smell" },
+  plant: { p: "juur", ps: "seeme", d: "grow", t: "natural" },
   food: { d: "buy sell", ws: "shop" },
   drink: { d: "buy sell", ws: "shop" },
   object: { d: "buy sell use", ws: "shop" },
   clothes: { d: "buy sell use wash", ws: "shop" },
   vehicle: { d: "buy sell use wash work" },
-  building: { d: "buy sell use", ws: "shop" },
-  nature: {},
+  building: { d: "buy sell use" },
+  nature: { t: "natural" },
 };
 
 const EXTRA: Record<string, Extra> = {
@@ -293,7 +293,7 @@ const EXTRA: Record<string, Extra> = {
   kott: { ms: "puuvill vill", ws: "school bed" },
   pilet: { m: "paber", t: "thin", ds: "burn" },
   võti: { m: "metall", ms: "raud", t: "thin", ts: "sharp" },
-  lamp: { p: "nupp", ms: "metall klaas", d: "burn work", ws: "school bed" },
+  lamp: { p: "nupp", ms: "metall klaas", d: "burn work shine", ws: "school bed" },
   prillid: { m: "klaas", ms: "metall", ts: "thin", ws: "bed school" },
 
   king: { ms: "kumm vill" },
@@ -301,7 +301,7 @@ const EXTRA: Record<string, Extra> = {
   jope: { ms: "puuvill vill" },
   särk: { m: "puuvill", ms: "vill" },
 
-  auto: { p: "rool nupp", m: "metall raud", ms: "klaas kumm", ds: "ring", ws: "street" },
+  auto: { p: "rool nupp", m: "metall raud", ms: "klaas kumm", ds: "ring", w: "street" },
   buss: { m: "metall", ms: "klaas", ds: "ring", w: "street" },
   rong: { m: "metall raud", ds: "ring" },
   lennuk: { m: "metall", w: "sky", ws: "" },
@@ -335,9 +335,11 @@ function widen(t: Thing): Thing {
   const fish = t.lemma === "kala";
   const parts = [...pick("p"), ...(mammal ? ["kõrv", "nina", "hammas"] : []), ...(fish ? ["uim"] : [])]
     // A bird has a beak and not a mouth, and an insect has neither skin nor a back.
-    .filter((x) => !(bird && x === "suu") && !(insect && (x === "nahk" || x === "selg")));
+    .filter((x) => !(bird && x === "suu") && !(insect && (x === "nahk" || x === "selg"))
+      // An elephant has a trunk, which is not quite a nose.
+      && !(t.lemma === "elevant" && x === "nina"));
   const has = merge(t.has, parts) as Part[];
-  const hasS = merge(t.hasS, pick("ps")).filter((x) => !has.includes(x as Part)) as Part[];
+  const hasS = merge(t.hasS, [...pick("ps"), ...(t.lemma === "elevant" ? ["nina"] : [])]).filter((x) => !has.includes(x as Part)) as Part[];
   const where = merge(t.where, pick("w")) as Where[];
   const whereS = merge(t.whereS, pick("ws")).filter((x) => !where.includes(x as Where)) as Where[];
   const colour = merge(t.colour, pick("c")) as Colour[];
@@ -349,7 +351,7 @@ function widen(t: Thing): Thing {
   const made = merge(t.made, pick("m"));
   const madeS = merge(t.madeS, pick("ms")).filter((x) => !made.includes(x));
   // The categories a learner can name for what is not an animal, a plant or food.
-  const kindIsa: Record<string, string[]> = { clothes: ["rõivas", "ese"], object: ["ese"], nature: ["loodus"] };
+  const kindIsa: Record<string, string[]> = { clothes: ["rõivas", "ese"], object: ["ese"] };
   const isa = merge(t.isa, kindIsa[t.kind] ?? []);
   return {
     ...t, isa, has, hasS, where, whereS, colour, colourS, trait, traitS, traitNo: merge(t.traitNo, words(own.tn)),
