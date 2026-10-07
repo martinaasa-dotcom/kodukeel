@@ -215,6 +215,29 @@ export async function openerCard(lexemeId: string) {
   return card ? { ok: true as const, cardId: card.id, made } : { ok: false as const };
 }
 
+/**
+ * Takes back what `openerCard` just added. Only the two cards it makes, only from
+ * the default source, and only if the word arrived within the last day, so a word
+ * the learner has had for months is never touched. Review rows carry no key to the
+ * card, so the history stays.
+ */
+export async function undoOpenerCards(lexemeIds: string[]) {
+  const ownerId = await requireUserId();
+  const ids = (Array.isArray(lexemeIds) ? lexemeIds : []).slice(0, 20).map(text);
+  await prisma.card.deleteMany({
+    where: {
+      ownerId,
+      lexemeId: { in: ids },
+      source: DEFAULT_SOURCE,
+      cardType: { in: ["RECOGNITION", "PRODUCTION"] },
+      createdAt: { gte: new Date(Date.now() - 24 * 3600 * 1000) },
+    },
+  });
+  revalidatePath("/words");
+  revalidatePath("/");
+  return { ok: true as const };
+}
+
 /** Every deck this learner has named, for the picker and the management page. */
 export async function listMyDecks() {
   return listDecks(await requireUserId());

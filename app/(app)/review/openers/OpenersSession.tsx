@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert, Shuffle } from "lucide-react";
-import { openerCard } from "@/app/actions";
+import { openerCard, undoOpenerCards } from "@/app/actions";
 import { useGrade } from "@/components/round/useGrade";
 import { Button, ButtonLink } from "@/components/Button";
-import { PrefetchLink } from "@/components/PrefetchLink";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
@@ -58,7 +57,8 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
   const [picked, setPicked] = useState<string | null>(null);
   const [typed, setTyped] = useState("");
   const [correct, setCorrect] = useState(0);
-  const [joined, setJoined] = useState<string[]>([]);
+  const [joined, setJoined] = useState<{ id: string; lemma: string }[]>([]);
+  const [undone, setUndone] = useState(false);
   const startedAt = useRef(Date.now());
   const answeredAt = useRef(Date.now());
   const cards = useRef(new Map<string, string | null>());
@@ -76,7 +76,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
     if (cardId === undefined) {
       const found = await openerCard(q.lexemeId).catch(() => null);
       cardId = found?.ok ? found.cardId : null;
-      if (found?.ok && found.made) setJoined((j) => [...j, q.lemma]);
+      if (found?.ok && found.made) setJoined((j) => [...j, { id: q.lexemeId, lemma: q.lemma }]);
       cards.current.set(q.lexemeId, cardId);
     }
     if (cardId) await grade(cardId, result.rating, ms, q.slot);
@@ -165,10 +165,25 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
           <Stat value={`${minutes}m`} label="Time" />
         </div>
         {joined.length > 0 && (
-          <p className="mt-6 text-base" style={{ color: "var(--ink-2)" }}>
-            Added to your deck: {joined.join(", ")}. You can take it out from{" "}
-            <PrefetchLink href="/words" className="underline">your words</PrefetchLink>.
-          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-3 text-base" style={{ color: "var(--ink-2)" }}>
+            <p>
+              {undone
+                ? "Taken out of your deck again."
+                : `Added to your deck: ${joined.map((j) => j.lemma).join(", ")}.`}
+            </p>
+            {!undone && (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  void undoOpenerCards(joined.map((j) => j.id))
+                    .then(() => setUndone(true))
+                    .catch(() => {});
+                }}
+              >
+                Undo
+              </Button>
+            )}
+          </div>
         )}
         {afterThis && (
           <p className="mt-6 text-base" style={{ color: "var(--ink-2)" }}>
