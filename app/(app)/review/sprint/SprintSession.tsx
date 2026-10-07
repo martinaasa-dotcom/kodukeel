@@ -24,6 +24,9 @@ import { RoundStart, RoundChip } from "@/components/round/RoundStart";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { FitText } from "@/components/FitText";
 import { Lettered } from "@/components/HeroLetters";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
+import { rich } from "@/components/round/rich";
 
 export interface SprintCard {
   id: string;
@@ -67,6 +70,8 @@ const estonianSide = (type: string, side: "front" | "back") =>
 export function SprintSession({
   cards: initialCards, best, seconds, canTranslate,
 }: { cards: SprintCard[]; best: number; seconds: number; canTranslate: boolean }) {
+  const t = useT();
+  const locale = useLocale();
   const grade = useGrade();
   /* Whether this round is a step of tonight's module, which decides whether
      the note about the clock carries a link out of it. */
@@ -154,11 +159,11 @@ export function SprintSession({
   if (phase === "ready") {
     if (cards.length === 0) {
       return (
-        <Page title="Case Sprint" lead={`A quick-fire round through your deck. You've got ${roundLength(seconds)}.`}>
+        <Page title={t("Case Sprint")} lead={fill(t("A quick-fire round through your deck. You've got {length}."), { length: roundLength(seconds, locale) })}>
           <Empty
-            title="Nothing to race through yet"
-            body="It uses cards that are due, or that tripped you up before, and right now there aren't any."
-            action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+            title={t("Nothing to race through yet")}
+            body={t("It uses cards that are due, or that tripped you up before, and right now there aren't any.")}
+            action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
           />
         </Page>
       );
@@ -166,13 +171,13 @@ export function SprintSession({
     return (
       <RoundStart
         icon={<Timer size={26} aria-hidden />}
-        title="Case Sprint"
-        lead={`You've got ${roundLength(seconds)}. Go as fast as you can.`}
+        title={t("Case Sprint")}
+        lead={fill(t("You've got {length}. Go as fast as you can."), { length: roundLength(seconds, locale) })}
         chips={<>
-          <RoundChip>{counted(cards.length, "card")} loaded</RoundChip>
-          {best > 0 && <RoundChip icon={<Trophy size={14} aria-hidden />}>Personal best {best}</RoundChip>}
+          <RoundChip>{fill(t("{count} loaded"), { count: locale === "en" ? counted(cards.length, "card") : countOf(locale, cards.length, "card") })}</RoundChip>
+          {best > 0 && <RoundChip icon={<Trophy size={14} aria-hidden />}>{fill(t("Personal best {n}"), { n: best })}</RoundChip>}
         </>}
-        actions={<Button variant="primary" size="lg" className="px-10" onClick={start}>Start the clock</Button>}
+        actions={<Button variant="primary" size="lg" className="px-10" onClick={start}>{t("Start the clock")}</Button>}
         footnote={<>
           {/*
             THE SENTENCE SURVIVES A MODULE AND THE DOOR DOES NOT.
@@ -183,20 +188,20 @@ export function SprintSession({
             the evening gone, so they are told the same thing and told where.
             See docs/08-ux-ia-a11y.md and lib/ux/roundClock.ts.
           */}
-          Need longer?{" "}
-          {inModule ? (
-              <span>You can give yourself more time in Settings</span>
+          {rich(t("Need longer? {more}, up to ten times this."), {
+            more: inModule ? (
+              <span>{t("You can give yourself more time in Settings")}</span>
             ) : (
               <Link href="/settings#round-pace" className="underline underline-offset-2">
-                Give yourself more time
+                {t("Give yourself more time")}
               </Link>
-            )}
-          , up to ten times this.
+            ),
+          })}
         </>}
       >
         <BriefingSteps
           id="sprint"
-          more={<>{ADVANCE_KEY_LABEL} flips the card. Press it again if you got it, or Backspace if you missed it.</>}
+          more={fill(t("{key} flips the card. Press it again if you got it, or Backspace if you missed it."), { key: ADVANCE_KEY_LABEL })}
         />
       </RoundStart>
     );
@@ -210,22 +215,22 @@ export function SprintSession({
           <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
             <Mascot size={68} mood={isNewBest ? "cheer" : "happy"} className="float mx-auto" />
             <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-              Time&rsquo;s up!
+              {t("Time's up!")}
             </h1>
             <p className="mt-2 flex items-center justify-center gap-2 text-base" style={{ color: "var(--ink-2)" }}>
               {isNewBest && best > 0 && <Trophy size={17} aria-hidden style={{ color: "var(--butter-ink)" }} />}
-              {best === 0 ? "Your first sprint, so that's the score to beat." : isNewBest ? "That's a new personal best." : `Your best so far is ${best}.`}
+              {best === 0 ? t("Your first sprint, so that's the score to beat.") : isNewBest ? t("That's a new personal best.") : fill(t("Your best so far is {n}."), { n: best })}
             </p>
           </div>
         </Lettered>
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={correct} label="Score" tone="accent" />
-          <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "sky" : "butter"} />
-          <StatTile value={attempted} label="Cards seen" tone="sky" />
+          <StatTile value={correct} label={t("Score")} tone="accent" />
+          <StatTile value={`${accuracy}%`} label={t("Accuracy")} tone={accuracy >= 85 ? "sky" : "butter"} />
+          <StatTile value={attempted} label={t("Cards seen")} tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
-          <ButtonLink href="/review/sprint" variant="primary" size="lg">Sprint again</ButtonLink>
+          <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
+          <ButtonLink href="/review/sprint" variant="primary" size="lg">{t("Sprint again")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -238,16 +243,16 @@ export function SprintSession({
       {/* The heading a session screen has no room to draw. Same line as every
           other mode: the start screen and the finished screen each carry one
           and the round itself did not. */}
-      <h1 className="sr-only">Case sprint</h1>
+      <h1 className="sr-only">{t("Case sprint")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession label="End sprint" />
+        <EndSession label={t("End sprint")} />
         <div
           className="tnum flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold"
           style={{ background: secondsLeft <= 10 ? "var(--blush-soft)" : "var(--raised)", color: secondsLeft <= 10 ? "var(--blush-ink)" : "var(--ink-2)" }}
         >
-          <Timer size={14} aria-hidden /> {secondsLeft}s
+          <Timer size={14} aria-hidden /> {fill(t("{n}s"), { n: secondsLeft })}
         </div>
-        <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>{correct} correct</span>
+        <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("{n} correct"), { n: correct })}</span>
       </div>
 
       <div
@@ -255,7 +260,7 @@ export function SprintSession({
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent">Sprint</Chip>
+          <Chip tone="accent">{t("Sprint")}</Chip>
           <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>#{attempted + 1}</span>
           {/* The corner of the card, which is where somebody looks for this the
               moment a word turns out to be worth keeping. */}
@@ -348,7 +353,7 @@ export function SprintSession({
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {!revealed ? (
             <Button variant="primary" size="lg" className="w-full" onClick={() => setRevealed(true)}>
-              Show answer
+              {t("Show answer")}
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
@@ -359,7 +364,7 @@ export function SprintSession({
                 onClick={() => void answer(1)}
                 className={`${VERDICT_CLASS.wrong} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
               >
-                Missed it <KeyCap className="ml-1">⌫</KeyCap>
+                {t("Missed it")} <KeyCap className="ml-1">⌫</KeyCap>
               </button>
               <button
                 type="button"
@@ -367,7 +372,7 @@ export function SprintSession({
                 onClick={() => void answer(3)}
                 className={`${VERDICT_CLASS.right} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
               >
-                Got it <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                {t("Got it")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </button>
             </div>
           )}

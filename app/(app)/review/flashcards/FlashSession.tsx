@@ -1,7 +1,11 @@
 "use client";
 
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
+import { answerNote } from "@/lib/copy/answerNote";
+import { rich } from "@/components/round/rich";
 import { endingName } from "@/lib/estonian/plainAsk";
-import { PARTS, partOfSpeechCue, wordName } from "@/lib/copy/values";
+import { PARTS, partOfSpeechCue, UNNAMED_WORD, wordName } from "@/lib/copy/values";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -64,6 +68,7 @@ export interface FlashPrompt extends FlashTask {
  * replayed with the slot it was about (ADR-015).
  */
 export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt[] }) {
+  const t = useT();
   /*
     Snapshotted once. `gradeCard` is a Server Action and Next re-renders this
     route's Server Component after every call, which would hand down a freshly
@@ -103,7 +108,8 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   /* What the corner controls and the line under the card call the word: two
      shapes print it as the question and three ask for it, and those three
      say "this word" until the answer is marked (`wordName`). */
-  const named = task ? wordName(task.lemma, shape === "inflect" || shape === "build" || mark !== null) : "";
+  const shownName = task ? wordName(task.lemma, shape === "inflect" || shape === "build" || mark !== null) : "";
+  const named = shownName === UNNAMED_WORD ? t(UNNAMED_WORD) : shownName;
 
   /*
     THE WAY OUT OF BEING STUCK, ON THE ROUND THAT ASKS THE HARDEST QUESTIONS.
@@ -253,25 +259,25 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          That&rsquo;s the round done
+          {t("That's the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          Right or wrong, every answer helped those words stick a little better.
+          {t("Right or wrong, every answer helped those words stick a little better.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={prompts.length} label="Asked" />
+          <Stat value={prompts.length} label={t("Asked")} />
           <Stat
             value={`${Math.round((right / prompts.length) * 100)}%`}
-            label="Right"
+            label={t("Right")}
           />
-          <Stat value={`${minutes}m`} label="Time" />
+          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/flashcards">Another round</ButtonLink>
-          <ButtonLink href="/words/mastery" variant="primary">Where your words stand</ButtonLink>
+          <ButtonLink href="/review/flashcards">{t("Another round")}</ButtonLink>
+          <ButtonLink href="/words/mastery" variant="primary">{t("Where your words stand")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -282,7 +288,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       {/* The heading a session screen has no room to draw. Every mode carries
           one: the empty state had a heading and the round did not, so an
           accessibility run that met an empty deck saw one and passed. */}
-      <h1 className="sr-only">Flash cards</h1>
+      <h1 className="sr-only">{t("Flash cards")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession href="/practice" size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -293,11 +299,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={prompts.length}
-            aria-label="Round progress"
+            aria-label={t("Round progress")}
           />
         </div>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {prompts.length - index} left
+          {fill(t("{n} left"), { n: prompts.length - index })}
         </span>
       </div>
 
@@ -319,8 +325,8 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
               on a phone the whole row wrapped and left the star alone on a
               line of its own. */}
           <span className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-            <Chip tone="accent">{askLine({ ...task, shape: shape ?? task.shape })}</Chip>
-            {task.provenance === "derived" && <Chip>worked out by rule</Chip>}
+            <Chip tone="accent">{t(askLine({ ...task, shape: shape ?? task.shape }))}</Chip>
+            {task.provenance === "derived" && <Chip>{t("worked out by rule")}</Chip>}
           </span>
           {/* The corner of the card, which is where somebody looks for this the
               moment a word turns out to be worth keeping. */}
@@ -334,7 +340,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
 
           <div className="mt-7">
             <label htmlFor="answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-              {shape === "build" ? "Your sentence" : "Your answer"}
+              {shape === "build" ? t("Your sentence") : t("Your answer")}
             </label>
             {shape === "build" ? (
               <textarea
@@ -390,11 +396,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
               disabled={typed.trim().length === 0}
               onClick={() => void check()}
             >
-              Check it <KeyCap className="ml-1">{shape === "build" ? `⌘ ${ADVANCE_KEY_GLYPH}` : ADVANCE_KEY_GLYPH}</KeyCap>
+              {t("Check it")} <KeyCap className="ml-1">{shape === "build" ? `⌘ ${ADVANCE_KEY_GLYPH}` : ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+              {t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>
@@ -414,6 +420,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
 function Question({
   task, shape, answered, onNoAudio,
 }: { task: FlashPrompt; shape: FlashTask["shape"]; answered: boolean; onNoAudio: () => void }) {
+  const t = useT();
   const meaning = (
     <p className="text-base" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
   );
@@ -429,7 +436,7 @@ function Question({
         </p>
         {partOfSpeechCue(task.pos) && (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-            {partOfSpeechCue(task.pos)}
+            {t(partOfSpeechCue(task.pos) ?? "")}
           </p>
         )}
       </div>
@@ -481,7 +488,7 @@ function Question({
               {meaning && !answered && <GapMeaning meaning={meaning} />}
               {cue && (
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
-                  The missing word means <strong style={{ color: "var(--ink)" }}>{cue}</strong>.
+                  {rich(t("The missing word means {meaning}."), { meaning: <strong style={{ color: "var(--ink)" }}>{cue}</strong> })}
                 </p>
               )}
             </div>
@@ -505,13 +512,13 @@ function Question({
             text={task.sentence ?? task.lemma}
             size={22}
             className="px-1 py-1"
-            label="Play the sentence"
-            slowLabel="Play the sentence slowly"
+            label={t("Play the sentence")}
+            slowLabel={t("Play the sentence slowly")}
             onUnavailable={onNoAudio}
             autoplay
           />
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Listen, then type the form of {task.lemma} you hear.
+            {rich(t("Listen, then type the form of {word} you hear."), { word: task.lemma })}
           </span>
         </div>
       </div>
@@ -526,7 +533,7 @@ function Question({
       <SlotLine task={task} />
       {shape === "build" && !plainAskFor(task) && (
         <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
-          Write a sentence of your own, with the word in that form.
+          {t("Write a sentence of your own, with the word in that form.")}
         </p>
       )}
     </div>
@@ -552,12 +559,13 @@ function Question({
  * worse than the name it replaced.
  */
 function SlotLine({ task }: { task: FlashPrompt }) {
+  const t = useT();
   const english = asksInEnglish(task.slot);
   // `plainAskFor` decides whether this shape gets a line at all; the line
   // itself carries the word's gloss here, where the screen holds it.
   const phrase = plainAskFor(task) ? task.say : null;
   const plain = phrase
-    ? task.shape === "build" ? `Write a sentence with “${phrase}”.` : `Say “${phrase}”`
+    ? task.shape === "build" ? fill(t("Write a sentence with “{phrase}”."), { phrase }) : fill(t("Say “{phrase}”"), { phrase })
     : null;
   /* A case is drawn as one label, never its name and question joined here. */
   const named = slotCase(task);
@@ -624,8 +632,11 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
     diacritic somebody dropped or a slip of one letter, which `checkAnswer`
     counts as produced, so it reads as the recall it was.
   */
+  const t = useT();
+  const locale = useLocale();
   const verdict = mark.right ? "right" : verdictOfRating(mark.rating);
-  const head = { right: "That's it", nearly: "Nearly", wrong: "Not quite" }[verdict];
+  const head = t({ right: "That's it", nearly: "Nearly", wrong: "Not quite" }[verdict]);
+  const note = answerNote(mark.note, locale);
 
   return (
     <div className="mt-6" aria-live="polite">
@@ -635,8 +646,8 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
         {/* Said once, where the note opens on the verdict: see `verdictLine`. */}
         <p className="text-base">
-          <strong className="font-semibold">{verdictLine(head, mark.note).strong}</strong>
-          {verdictLine(head, mark.note).rest}
+          <strong className="font-semibold">{verdictLine(head, note).strong}</strong>
+          {verdictLine(head, note).rest}
         </p>
       </div>
 
@@ -710,15 +721,15 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
 
       <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
         {task.provenance === "ekilex"
-          ? "This form comes straight from the dictionary."
-          : "We worked this form out from the dictionary, using the regular pattern."}{" "}
+          ? t("This form comes straight from the dictionary.")
+          : t("We worked this form out from the dictionary, using the regular pattern.")}{" "}
         {spec && (
           <Link
             href={`/grammar/${task.slot.toLowerCase()}`}
             className="font-semibold underline underline-offset-2"
             style={{ color: "var(--accent-deep)" }}
           >
-            What the {spec.et} is for
+            {rich(t("What the {case} is for"), { case: spec.et })}
           </Link>
         )}
       </p>
@@ -728,13 +739,15 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
 
 /** How far this word is from being done, which is the thing the round moves. */
 function Standing({ task, named }: { task: FlashPrompt; named: string }) {
+  const t = useT();
+  const locale = useLocale();
   const { correct, needCorrect, slots, needSlots } = task.progress;
   const pct = Math.round(
     Math.min(1, Math.min(correct / needCorrect, slots / Math.max(1, needSlots))) * 100,
   );
   return (
     <div className="mt-4">
-      <Meter pct={pct} label={`${named} toward mastered`} />
+      <Meter pct={pct} label={fill(t("{word} toward mastered"), { word: named })} />
       {/*
           Two facts, and each carries its target only while it is unmet. It read
           "6 of 5 right" on the first word of the first real round, which is a
@@ -743,13 +756,13 @@ function Standing({ task, named }: { task: FlashPrompt; named: string }) {
           about, and it is what the sentence has to say plainly.
         */}
       <p className="mt-2 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-        {named === task.lemma ? <span lang="et">{task.lemma}</span> : "This word"}:{" "}
+        {named === task.lemma ? <span lang="et">{task.lemma}</span> : t("This word")}:{" "}
         {correct >= needCorrect
-          ? `right ${correct} times`
-          : `right ${correct} of ${needCorrect} times`}
+          ? fill(t("right {times}"), { times: countOf(locale, correct, "time") })
+          : fill(t("right {n} of {total} times"), { n: correct, total: needCorrect })}
         {slots >= needSlots
-          ? `, in ${slots} ${slots === 1 ? "form" : "forms"}.`
-          : `, in ${slots} of the ${needSlots} ${needSlots === 1 ? "form" : "forms"} it needs.`}
+          ? fill(t(", in {forms}."), { forms: countOf(locale, slots, "form") })
+          : fill(t(needSlots === 1 ? ", in {n} of the {total} form it needs." : ", in {n} of the {total} forms it needs."), { n: slots, total: needSlots })}
       </p>
     </div>
   );

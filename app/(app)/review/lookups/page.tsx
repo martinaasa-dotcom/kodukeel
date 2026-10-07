@@ -1,3 +1,5 @@
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
@@ -74,7 +76,7 @@ export default async function LookupsRoundPage() {
     own is a read of their deck, and which language a meaning is printed in is
     one settings row. On the deployment's own pooler each `await` is a trip.
   */
-  const [cards, glossSetting] = await Promise.all([
+  const [cards, glossSetting, locale] = await Promise.all([
     prisma.card.findMany({
       where: {
         ownerId, suspended: false, source: { in: [...YOUR_OWN_SOURCES] }, ...notOnLadder(ownerId),
@@ -93,6 +95,7 @@ export default async function LookupsRoundPage() {
       include,
     }),
     readSetting(ownerId, SETTING_KEYS.glossLanguage),
+    localeFor(ownerId),
   ]);
 
   /*
@@ -108,13 +111,13 @@ export default async function LookupsRoundPage() {
   if (picked.length === 0) {
     return (
       <Page
-        title="Words you looked up"
-        lead="The words you picked up yourself, rather than the ones the course gave you."
+        title={tr(locale, "Words you looked up")}
+        lead={tr(locale, "The words you picked up yourself, rather than the ones the course gave you.")}
       >
         <Empty
-          title="Nothing here yet"
-          body="Add a word from the dictionary, a photo or a chat with Anu, and it'll turn up here."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={tr(locale, "Nothing here yet")}
+          body={tr(locale, "Add a word from the dictionary, a photo or a chat with Anu, and it'll turn up here.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>}
         />
       </Page>
     );
@@ -129,7 +132,7 @@ export default async function LookupsRoundPage() {
         cards={round}
         totalCards={round.length}
         mode="type"
-        title="Words you looked up"
+        title={tr(locale, "Words you looked up")}
       />
     </BeforeYouStart>
   );

@@ -1,3 +1,5 @@
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
@@ -171,12 +173,13 @@ export default async function ConjugationPage({
   }
 
   if (questions.length === 0) {
+    const locale = await localeFor(ownerId);
     return (
-      <Page title="Conjugation" lead="One verb at a time: I, you, he or she, we, you all and they.">
+      <Page title={tr(locale, "Conjugation")} lead={tr(locale, "One verb at a time: I, you, he or she, we, you all and they.")}>
         <Empty
-          title="No verbs to practise yet"
-          body="Start a unit with verbs in it, or look a verb up in the dictionary."
-          action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
+          title={tr(locale, "No verbs to practise yet")}
+          body={tr(locale, "Start a unit with verbs in it, or look a verb up in the dictionary.")}
+          action={<ButtonLink href="/learn" variant="primary">{tr(locale, "Open the learning path")}</ButtonLink>}
         />
       </Page>
     );

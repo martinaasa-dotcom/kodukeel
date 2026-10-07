@@ -92,7 +92,7 @@ describe("hearing conditions", () => {
   });
 
   it("says the room only when it was not a quiet one", () => {
-    expect(describeHearing("Mari", CLEAN)).toBe("Read by Mari.");
-    expect(describeHearing("Mari", conditionById("cafe"))).toBe("Read by Mari, over café noise.");
+    expect(describeHearing("Mari", CLEAN, "en")).toBe("Read by Mari.");
+    expect(describeHearing("Mari", conditionById("cafe"), "en")).toBe("Read by Mari, over café noise.");
   });
 });

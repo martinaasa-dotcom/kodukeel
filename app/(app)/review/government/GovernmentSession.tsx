@@ -1,5 +1,8 @@
 "use client";
 
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { rich } from "@/components/round/rich";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, Scale } from "lucide-react";
@@ -69,6 +72,7 @@ const caseLabel = (key: CaseKey) => CASES.find((c) => c.key === key);
  */
 export function GovernmentSession({ questions: initialQuestions }: { questions: GovernmentQuestion[] }) {
   const grade = useGrade();
+  const t = useT();
   /*
     Snapshotted once on mount, never updated from later props. gradeCard() is a
     Server Action and Next refreshes this route's Server Component after every
@@ -183,23 +187,22 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          That&rsquo;s the round done
+          {t("That's the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          There&rsquo;s no rule for which case a verb wants. You just get to know them, one
-          verb at a time, a little and often.
+          {t("There's no rule for which case a verb wants. You just get to know them, one verb at a time, a little and often.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={questions.length} label="Verbs" />
-          <Stat value={`${accuracy}%`} label="Right" />
-          <Stat value={`${minutes}m`} label="Time" />
+          <Stat value={questions.length} label={t("Verbs")} />
+          <Stat value={`${accuracy}%`} label={t("Right")} />
+          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/government">Another round</ButtonLink>
-          <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
+          <ButtonLink href="/review/government">{t("Another round")}</ButtonLink>
+          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -211,7 +214,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
           in the other five modes: an `Empty` state and a finished state each
           carry one, so the only screen without a heading was the one a learner
           spends the round on. */}
-      <h1 className="sr-only">Verb government</h1>
+      <h1 className="sr-only">{t("Verb government")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -222,11 +225,11 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={questions.length}
-            aria-label="Round progress"
+            aria-label={t("Round progress")}
           />
         </div>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {questions.length - index} left
+          {fill(t("{n} left"), { n: questions.length - index })}
         </span>
       </div>
 
@@ -238,7 +241,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent"><Scale size={12} aria-hidden /> Rektsioon</Chip>
           {question.cefr && <Chip>{question.cefr}</Chip>}
-          {!question.inDeck && <Chip tone="good">new to you</Chip>}
+          {!question.inDeck && <Chip tone="good">{t("new to you")}</Chip>}
           {/* The corner of the card, which is where somebody looks for this
               the moment a word turns out to be worth keeping. */}
           <div className="ml-auto">
@@ -263,7 +266,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
               answers, which is how a class writes it on the board
               (`õpetama keda? mida?`), so that is what is asked. */}
           <p className="mt-5 text-sm" style={{ color: "var(--ink-2)" }}>
-            Which question comes after it?
+            {t("Which question comes after it?")}
           </p>
         </div>
 
@@ -292,14 +295,14 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                       bar of 4.5 on the unrevealed option alone. */}
                   <KeyCap>{i + 1}</KeyCap>
                   <span className={`min-w-0 ${!revealed && struck.includes(option) ? "line-through" : ""}`}>
-                    {!revealed && struck.includes(option) && <span className="sr-only">Ruled out by a hint. </span>}
+                    {!revealed && struck.includes(option) && <span className="sr-only">{t("Ruled out by a hint.")} </span>}
                     {/* The case and the question it answers, drawn as one
                         label: the dictionary records government as the question
                         a verb answers ("aitama" takes "keda?"), and the label
                         carries that question with what it asks. */}
                     {spec ? <CaseLabel label={spec} className="text-base" /> : null}
                   </span>
-                  {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label="Right" />}
+                  {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label={t("Right")} />}
                 </button>
               );
             })}
@@ -341,8 +344,12 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             )}
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
               {question.experiencer
-                ? `Here the person goes in the ${question.answerEt}, and the thing itself is the subject.`
-                : `${question.lemma} takes the ${question.answerEt}${questionInEnglish(question.answerQuestion) ? `, the one that asks ${questionInEnglish(question.answerQuestion)}` : ""}. English gives you no hint here, so learn the two together.`}
+                ? fill(t("Here the person goes in the {case}, and the thing itself is the subject."), { case: question.answerEt })
+                : questionInEnglish(question.answerQuestion)
+                  ? fill(t("{verb} takes the {case}, the one that asks {question}. English gives you no hint here, so learn the two together."), {
+                    verb: question.lemma, case: question.answerEt, question: questionInEnglish(question.answerQuestion) ?? "",
+                  })
+                  : fill(t("{verb} takes the {case}. English gives you no hint here, so learn the two together."), { verb: question.lemma, case: question.answerEt })}
             </p>
             {/*
               A verb often governs more than one case. Those are true of it, so
@@ -357,32 +364,32 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             */}
             {question.alsoGoverned.length > 0 && (
               <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-                It can also take{" "}
-                {question.alsoGoverned.map((key, i) => (
-                  <span key={key}>
-                    {i > 0 && (i === question.alsoGoverned.length - 1 ? " and " : ", ")}
-                    the <span lang="et">{caseLabel(key)?.et}</span>
-                    {caseLabel(key)?.question && <>, <span lang="et">{caseLabel(key)?.question}</span></>}
-                  </span>
-                ))}
-                , for another part of the sentence or in another sense.
+                {rich(t("It can also take {cases}, for another part of the sentence or in another sense."), {
+                  cases: question.alsoGoverned.map((key, i) => (
+                    <span key={key}>
+                      {i > 0 && (i === question.alsoGoverned.length - 1 ? ` ${t("and")} ` : ", ")}
+                      {rich(t("the {case}"), { case: <span lang="et">{caseLabel(key)?.et}</span> })}
+                      {caseLabel(key)?.question && <>, <span lang="et">{caseLabel(key)?.question}</span></>}
+                    </span>
+                  )),
+                })}
               </p>
             )}
 
             <KeepWordChoice keeper={keeper} className="mt-4" />
             <div className="mt-4 flex flex-wrap gap-2">
               <Button variant="primary" onClick={next} autoFocus>
-                Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                {t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
               {!question.inDeck && (
                 <>
                   {keeper.asking && (
-                    <Button variant="ghost" onClick={keeper.cancel}>Cancel</Button>
+                    <Button variant="ghost" onClick={keeper.cancel}>{t("Cancel")}</Button>
                   )}
                   <Button disabled={added === question.lexemeId || keeper.pending} onClick={keeper.press}>
                     {added === question.lexemeId
-                      ? "Added to your deck"
-                      : keeper.asking ? "Keep it" : "Add to my deck"}
+                      ? t("Added to your deck")
+                      : keeper.asking ? t("Keep it") : t("Add to my deck")}
                   </Button>
                 </>
               )}
@@ -402,15 +409,18 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
       <p className="sr-only" role="status">
         {revealed && question && (
           picked === question.answer
-            ? "Right."
-            : <>Not quite. <span lang="et">{question.lemma}</span> takes <span lang="et">{caseLabel(question.answer)?.question}</span>.</>
+            ? t("Right.")
+            : rich(t("Not quite. {verb} takes {question}."), {
+              verb: <span lang="et">{question.lemma}</span>,
+              question: <span lang="et">{caseLabel(question.answer)?.question}</span>,
+            })
         )}
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span>
           {index + (revealed ? 1 : 0) > 0
-            ? <>{correct}/{index + (revealed ? 1 : 0)} right, press 1 to 4 to answer</>
-            : <>Press 1 to 4 to answer</>}
+            ? fill(t("{n}/{total} right, press 1 to 4 to answer"), { n: correct, total: index + (revealed ? 1 : 0) })
+            : t("Press 1 to 4 to answer")}
         </span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>

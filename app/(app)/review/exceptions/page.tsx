@@ -1,3 +1,5 @@
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
@@ -189,13 +191,16 @@ function cardFor(
 }
 
 /** The one empty state, whichever of the two reasons there is nothing to ask. */
-function NothingToDrill() {
+async function NothingToDrill() {
+  // `requireUserId` is memoised for the render, so this is the session the page already read.
+  const ownerId = await requireUserId();
+  const locale = await localeFor(ownerId);
   return (
-    <Page title="Exceptions" lead="Words that don't follow the usual pattern, so you just have to know them.">
+    <Page title={tr(locale, "Exceptions")} lead={tr(locale, "Words that don't follow the usual pattern, so you just have to know them.")}>
       <Empty
-        title="Nothing to practise here yet"
-        body="None of the rule-breakers are near your level yet. Have a look through the full list instead."
-        action={<ButtonLink href="/grammar/exceptions" variant="primary">Browse the exceptions</ButtonLink>}
+        title={tr(locale, "Nothing to practise here yet")}
+        body={tr(locale, "None of the rule-breakers are near your level yet. Have a look through the full list instead.")}
+        action={<ButtonLink href="/grammar/exceptions" variant="primary">{tr(locale, "Browse the exceptions")}</ButtonLink>}
       />
     </Page>
   );

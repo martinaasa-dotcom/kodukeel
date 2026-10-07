@@ -621,6 +621,10 @@ function captions(source: string): string[] {
   while ((m = re.exec(source))) {
     const text = (m[3] ?? "")
       .replace(/<[^>]*>/g, " ")
+      // A translated caption is still an English caption: `{t("...")}` and
+      // `{tr(locale, "...")}` render the English for most readers, so the cap
+      // reads the string inside rather than treating it as a two-letter hole.
+      .replace(/\{\s*(?:t\(|tr\(\s*\w+\s*,)\s*"((?:[^"\\]|\\.)*)"\s*\)\s*\}/g, "$1")
       .replace(/\{[^{}]*\}/g, "xx")
       .replace(/&[a-z]+;/g, "'")
       .replace(/\s+/g, " ")

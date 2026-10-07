@@ -8923,8 +8923,8 @@ check("dictation says which kind of mistake it was, in text", () => {
     Asserted by calling the function rather than by matching markup: two
     different, non-empty notes, and a component that actually renders them.
   */
-  const diacritics = wordNote({ expected: "õues", typed: "oues", status: "diacritics" });
-  const typo = wordNote({ expected: "kool", typed: "koll", status: "typo" });
+  const diacritics = wordNote({ expected: "õues", typed: "oues", status: "diacritics" }, "en");
+  const typo = wordNote({ expected: "kool", typed: "koll", status: "typo" }, "en");
 
   assert.ok(diacritics, "a dropped diacritic is marked with no words on it");
   assert.ok(typo, "a typo is marked with no words on it");
@@ -15173,8 +15173,11 @@ check("a frequency list is named once, asked one way, and never built by a rende
     const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     // As a string, a template, or a run of JSX text.
     const written = new RegExp(`["'\`]${escaped}["'\`]|>\\s*${escaped}\\s*<`);
+    // A translation table is keyed on the English it translates, so it names
+    // every label by construction and is the table speaking another language
+    // rather than a second copy of it.
     const naming = haystack.filter((f) =>
-      f !== "lib/collections/commonGroups.ts" && written.test(code(f)));
+      f !== "lib/collections/commonGroups.ts" && !f.startsWith("lib/copy/i18n/") && written.test(code(f)));
     assert.deepEqual(
       naming, [],
       `"${label}" is written down somewhere other than the one table of what a list is called`,

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Mic, Play, Square } from "lucide-react";
+import { useT } from "@/components/Locale";
 
 type State = "idle" | "recording" | "ready" | "unavailable";
 
@@ -90,11 +91,12 @@ export function Recorder({ onRecorded, targetSeconds }: {
   };
 
   const stop = () => recorder.current?.stop();
+  const t = useT();
 
   if (state === "unavailable") {
     return (
       <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-        There&apos;s no microphone to record with. Say it out loud anyway, then listen to the native voice and compare.
+        {t("There's no microphone to record with. Say it out loud anyway, then listen to the native voice and compare.")}
       </p>
     );
   }
@@ -108,7 +110,7 @@ export function Recorder({ onRecorded, targetSeconds }: {
           role="timer"
         >
           {clock(elapsed)}
-          {targetSeconds ? <span style={{ color: "var(--ink-3)" }}> of {clock(targetSeconds)}</span> : null}
+          {targetSeconds ? <span style={{ color: "var(--ink-3)" }}> {t("of")} {clock(targetSeconds)}</span> : null}
         </span>
       )}
 
@@ -119,7 +121,7 @@ export function Recorder({ onRecorded, targetSeconds }: {
           className="press inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ borderColor: "var(--again)", background: "var(--again-soft)", color: "var(--again-ink)" }}
         >
-          <Square size={14} aria-hidden /> Stop
+          <Square size={14} aria-hidden /> {t("Stop")}
           <span className="ml-1 h-2 w-2 animate-pulse rounded-full" style={{ background: "var(--again)" }} aria-hidden />
         </button>
       ) : (
@@ -129,7 +131,7 @@ export function Recorder({ onRecorded, targetSeconds }: {
           className="press inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
         >
-          <Mic size={14} aria-hidden /> {url ? "Record again" : "Record yourself"}
+          <Mic size={14} aria-hidden /> {url ? t("Record again") : t("Record yourself")}
         </button>
       )}
 
@@ -140,7 +142,7 @@ export function Recorder({ onRecorded, targetSeconds }: {
           className="press inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink-2)" }}
         >
-          <Play size={14} aria-hidden /> Hear yourself
+          <Play size={14} aria-hidden /> {t("Hear yourself")}
         </button>
       )}
     </div>

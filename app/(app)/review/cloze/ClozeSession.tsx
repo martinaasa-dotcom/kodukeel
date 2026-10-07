@@ -18,6 +18,9 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { rich } from "@/components/round/rich";
 
 /** A gap, plus the card it is practicing. */
 type Gap = ClozeItem & { cardId: string | null };
@@ -26,6 +29,7 @@ type Phase = "paste" | "drill" | "done";
 
 export function ClozeSession() {
   const grade = useGrade();
+  const t = useT();
   const [phase, setPhase] = useState<Phase>("paste");
   const [text, setText] = useState("");
   const [items, setItems] = useState<Gap[]>([]);
@@ -64,11 +68,11 @@ export function ClozeSession() {
       setPhase("drill");
       startedAt.current = Date.now();
     } catch {
-      setError("We couldn't read that text. Check your connection and have another go.");
+      setError(t("We couldn't read that text. Check your connection and have another go."));
     } finally {
       setBusy(false);
     }
-  }, [text]);
+  }, [text, t]);
 
   const next = useCallback(() => {
     /* The sentence as it was drawn, with the word that filled the gap. A
@@ -77,7 +81,7 @@ export function ClozeSession() {
     if (item) {
       look.record({
         of: item.cardId ?? `${item.lemma}-${index}`,
-        label: "Fill the gap",
+        label: t("Fill the gap"),
         question: item.sentence,
         answer: item.answer,
         note: `${item.lemma}, ${item.translation}, the ${item.formLabel}`,
@@ -90,7 +94,7 @@ export function ClozeSession() {
     setAttempt("");
     if (index + 1 >= items.length) setPhase("done");
     else setIndex((i) => i + 1);
-  }, [index, items.length, item, look]);
+  }, [index, items.length, item, look, t]);
 
   const check = useCallback(() => {
     if (!item || checked || !attempt.trim()) return;
@@ -127,15 +131,15 @@ export function ClozeSession() {
   if (phase === "paste") {
     return (
       <Page
-        title="From your reading"
-        lead="Paste in an article, a message or your homework. The words you're learning become gaps."
+        title={t("From your reading")}
+        lead={t("Paste in an article, a message or your homework. The words you're learning become gaps.")}
       >
         <div
           className="rounded-lg border p-5"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
           <label htmlFor="passage" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-            Estonian text
+            {t("Estonian text")}
           </label>
           <textarea
             id="passage"
@@ -161,16 +165,16 @@ export function ClozeSession() {
           )}
 
           <WayOut className="mt-4 flex flex-wrap gap-3">
-            <ButtonLink href="/">Back to Today</ButtonLink>
+            <ButtonLink href="/">{t("Back to Today")}</ButtonLink>
             <Button variant="primary" disabled={busy || !text.trim()} onClick={() => void build()}>
               {busy
-                ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Reading…</>
-                : "Make the gaps"}
+                ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading…")}</>
+                : t("Make the gaps")}
             </Button>
           </WayOut>
 
           <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
-            We don&rsquo;t keep your text. We look for your words in it, then throw it away.
+            {t("We don't keep your text. We look for your words in it, then throw it away.")}
           </p>
         </div>
       </Page>
@@ -183,25 +187,24 @@ export function ClozeSession() {
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          That&rsquo;s the whole passage
+          {t("That's the whole passage")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          Every gap was a word a real Estonian writer chose, in a sentence they actually wrote.
-          Practice doesn&rsquo;t get much more real than that.
+          {t("Every gap was a word a real Estonian writer chose, in a sentence they actually wrote. Practice doesn't get much more real than that.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={items.length} label="Gaps" />
-          <Stat value={`${accuracy}%`} label="Right" />
-          <Stat value={`${minutes}m`} label="Time" />
+          <Stat value={items.length} label={t("Gaps")} />
+          <Stat value={`${accuracy}%`} label={t("Right")} />
+          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
           <Button onClick={() => { setPhase("paste"); setItems([]); setIndex(0); setCorrect(0); setText(""); }}>
-            Try another passage
+            {t("Try another passage")}
           </Button>
-          <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
+          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -221,7 +224,7 @@ export function ClozeSession() {
       {/* The heading a session screen has no room to draw. Same line as every
           other mode: the start screen and the finished screen each carry one
           and the round itself did not. */}
-      <h1 className="sr-only">From your reading</h1>
+      <h1 className="sr-only">{t("From your reading")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -232,11 +235,11 @@ export function ClozeSession() {
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={items.length}
-            aria-label="Passage progress"
+            aria-label={t("Passage progress")}
           />
         </div>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {items.length - index} left
+          {fill(t("{n} left"), { n: items.length - index })}
         </span>
       </div>
 
@@ -246,7 +249,7 @@ export function ClozeSession() {
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent"><ScissorsLineDashed size={12} aria-hidden /> Fill the gap</Chip>
+          <Chip tone="accent"><ScissorsLineDashed size={12} aria-hidden /> {t("Fill the gap")}</Chip>
           <Chip>{item.lemma}, {item.translation}</Chip>
         </div>
 
@@ -263,12 +266,12 @@ export function ClozeSession() {
           </p>
 
           <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-            Hint: the {item.formLabel} of <span lang="et">{item.lemma}</span>
+            {rich(t("Hint: the {form} of {word}"), { form: item.formLabel, word: <span lang="et">{item.lemma}</span> })}
           </p>
 
           <div className="mt-5">
             <label htmlFor="attempt" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-              The missing word
+              {t("The missing word")}
             </label>
             <input
               id="attempt"
@@ -300,10 +303,10 @@ export function ClozeSession() {
               the panel under it is for the eye. */}
           <p className="sr-only" role="status">
             {!checked ? "" : right
-              ? "Spot on, that's exactly what the writer used."
+              ? t("Spot on, that's exactly what the writer used.")
               : slip
-                ? `Right word, just missing an Estonian letter. It's ${item.answer}.`
-                : `The writer used ${item.answer}, the ${item.formLabel}.`}
+                ? fill(t("Right word, just missing an Estonian letter. It's {word}."), { word: item.answer })
+                : fill(t("The writer used {word}, the {form}."), { word: item.answer, form: item.formLabel })}
           </p>
           {checked && (
             <div className="mt-5">
@@ -313,10 +316,10 @@ export function ClozeSession() {
                   : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
                 <p className="text-base">
                   {right
-                    ? "Spot on, that's exactly what the writer used."
+                    ? t("Spot on, that's exactly what the writer used.")
                     : slip
-                      ? <>Right word, just missing an Estonian letter. It&rsquo;s <strong lang="et">{item.answer}</strong>. The letter bar under the box can help.</>
-                      : <>The writer used <strong lang="et">{item.answer}</strong>, the {item.formLabel}.</>}
+                      ? rich(t("Right word, just missing an Estonian letter. It's {word}. The letter bar under the box can help."), { word: <strong lang="et">{item.answer}</strong> })
+                      : rich(t("The writer used {word}, the {form}."), { word: <strong lang="et">{item.answer}</strong>, form: item.formLabel })}
                 </p>
               </div>
 
@@ -337,11 +340,11 @@ export function ClozeSession() {
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {!checked ? (
             <Button variant="primary" className="w-full py-3" disabled={!attempt.trim()} onClick={check}>
-              Check <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+              {t("Check")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              {index + 1 >= items.length ? "Finish" : "Next"} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+              {index + 1 >= items.length ? t("Finish") : t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>

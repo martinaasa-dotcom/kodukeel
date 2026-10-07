@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import { readableFront } from "@/lib/copy/caseHint";
 import { requireUserId } from "@/lib/auth/session";
 import { resolveProvider } from "@/lib/tutor/provider";
@@ -32,20 +34,23 @@ export default async function ClinicPage() {
     short list somebody works through over several sittings, which is exactly
     the case where a row quietly swapping out reads as the app losing track.
   */
-  const cards = await prisma.card.findMany({
-    where: { ownerId, lapses: { gte: LEECH_LAPSES } },
-    orderBy: [{ lapses: "desc" }, { id: "asc" }],
-    take: 30,
-    include: { lexeme: { select: { lemma: true, translation: true } } },
-  });
+  const [cards, locale] = await Promise.all([
+    prisma.card.findMany({
+      where: { ownerId, lapses: { gte: LEECH_LAPSES } },
+      orderBy: [{ lapses: "desc" }, { id: "asc" }],
+      take: 30,
+      include: { lexeme: { select: { lemma: true, translation: true } } },
+    }),
+    localeFor(ownerId),
+  ]);
 
   if (cards.length === 0) {
     return (
-      <Page title="Leech clinic" lead="The words that just won't stick, and a good guess at why.">
+      <Page title={tr(locale, "Leech clinic")} lead={tr(locale, "The words that just won't stick, and a good guess at why.")}>
         <Empty
-          title="Nothing's stuck. Good news."
-          body={`No card has slipped your mind ${LEECH_LAPSES} times or more, so there's nothing to fix.`}
-          action={<ButtonLink href="/review" variant="primary">Carry on reviewing</ButtonLink>}
+          title={tr(locale, "Nothing's stuck. Good news.")}
+          body={fill(tr(locale, "No card has slipped your mind {n} times or more, so there's nothing to fix."), { n: LEECH_LAPSES })}
+          action={<ButtonLink href="/review" variant="primary">{tr(locale, "Carry on reviewing")}</ButtonLink>}
         />
       </Page>
     );

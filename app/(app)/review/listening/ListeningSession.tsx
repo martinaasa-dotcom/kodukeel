@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, Headphones, X } from "lucide-react";
@@ -53,6 +55,8 @@ export interface ListeningCard {
 
 export function ListeningSession({ cards: initialCards }: { cards: ListeningCard[] }) {
   const grade = useGrade();
+  const t = useT();
+  const locale = useLocale();
   // Snapshotted once on mount, and never updated from later props. gradeCard()
   // is a Server Action, and Next.js refreshes this route's Server Component
   // after every call — which would hand down a shrinking `cards` prop as
@@ -134,7 +138,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     if (card) {
       look.record({
         of: card.id,
-        label: "Listening",
+        label: t("Listening"),
         question: card.lemma,
         answer: card.correct,
         note: null,
@@ -145,7 +149,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     }
     if (!answered) return;
     setIndex((i) => i + 1);
-  }, [answered, card, look]);
+  }, [answered, card, look, t]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -170,11 +174,11 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
 
   if (wasEmptyAtStart) {
     return (
-      <Page title="Listening" lead="Listen to a word, then pick what it means.">
+      <Page title={t("Listening")} lead={t("Listen to a word, then pick what it means.")}>
         <Empty
-          title="Nothing to listen to yet"
-          body="It plays words that are due, or that tripped you up before, and right now there aren't any."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={t("Nothing to listen to yet")}
+          body={t("It plays words that are due, or that tripped you up before, and right now there aren't any.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
         />
       </Page>
     );
@@ -187,27 +191,27 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
           <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            That&rsquo;s the round done
+            {t("That's the round done")}
           </h1>
           {/* Said off how it went. "Tubli töö" over nought right was praise
               for something that did not happen, which a learner sees through
               at once and then stops believing the screen when it is true. */}
           <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
             {accuracy >= 80
-              ? <><span lang="et">Tubli töö.</span> You caught {correct} of {attempted} by ear.</>
+              ? <><span lang="et">Tubli töö.</span> {fill(t("You caught {n} of {total} by ear."), { n: correct, total: attempted })}</>
               : accuracy >= 40
-                ? <>{correct} of {attempted} by ear. The ones you missed come back sooner, which is what they need.</>
-                : <>Picking a word out by ear is the hard part, and it gets easier fast. The ones you missed come back sooner.</>}
+                ? <>{fill(t("{n} of {total} by ear. The ones you missed come back sooner, which is what they need."), { n: correct, total: attempted })}</>
+                : <>{t("Picking a word out by ear is the hard part, and it gets easier fast. The ones you missed come back sooner.")}</>}
           </p>
         </div>
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={correct} label="Right" tone="accent" />
-          <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "sky" : "butter"} />
-          <StatTile value={attempted} label="Words heard" tone="sky" />
+          <StatTile value={correct} label={t("Right")} tone="accent" />
+          <StatTile value={`${accuracy}%`} label={t("Accuracy")} tone={accuracy >= 85 ? "sky" : "butter"} />
+          <StatTile value={attempted} label={t("Words heard")} tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
-          <ButtonLink href="/review/listening" variant="primary" size="lg">Listen again</ButtonLink>
+          <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
+          <ButtonLink href="/review/listening" variant="primary" size="lg">{t("Listen again")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -226,7 +230,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">Listening</h1>
+      <h1 className="sr-only">{t("Listening")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession />
         <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -237,14 +241,14 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={cards.length}
-            aria-label="Session progress"
+            aria-label={t("Session progress")}
           />
         </div>
         <span
           className="tnum label-xs rounded-full px-2.5 py-1"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
         >
-          {remaining} left
+          {fill(t("{n} left"), { n: remaining })}
         </span>
       </div>
 
@@ -254,8 +258,8 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent"><Headphones size={12} aria-hidden /> Listening</Chip>
-          <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{correct} correct</span>
+          <Chip tone="accent"><Headphones size={12} aria-hidden /> {t("Listening")}</Chip>
+          <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("{n} correct"), { n: correct })}</span>
           {/* ONLY ONCE THE ANSWER IS IN, WHICH IS NOT THE RULE ON ANY OTHER
               ROUND. The word here is played and deliberately never written
               down until it has been answered, and this button's own label
@@ -274,8 +278,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   {card.lemma}
                 </p>
                 <p className="max-w-[40ch] text-xs" style={{ color: "var(--ink-3)" }}>
-                  We couldn&rsquo;t reach the audio, so here&rsquo;s the word to read instead. It&rsquo;s still
-                  worth answering. Come back later to practise the listening part.
+                  {t("We couldn't reach the audio, so here's the word to read instead. It's still worth answering. Come back later to practise the listening part.")}
                 </p>
               </>
             ) : (
@@ -286,7 +289,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                     a screen reader before anybody had picked. */}
                 <Speak
                   text={card.lemma}
-                  label="Play the word"
+                  label={t("Play the word")}
                   size={30}
                   voice={voice.id}
                   condition={condition}
@@ -295,7 +298,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:scale-[1.02]"
                   style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "var(--shadow)" }}
                 />
-                <p className="text-xs" style={{ color: "var(--ink-3)" }}>Tap to hear the word, and again to replay it</p>
+                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{t("Tap to hear the word, and again to replay it")}</p>
               </>
             )
           ) : (
@@ -303,17 +306,17 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
               {/* The verdict in words, first, because the options below say it
                   in colour and a colour is not read out. */}
               <p className="sr-only">
-                {selected === card.correct ? "Right." : `Not quite. It means ${card.correct}.`}
+                {selected === card.correct ? t("Right.") : fill(t("Not quite. It means {meaning}."), { meaning: card.correct })}
               </p>
               <div className="flex items-center gap-2">
                 <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{card.lemma}</p>
-                <Speak text={card.lemma} voice={voice.id} label={`Hear "${card.lemma}" clearly`} />
+                <Speak text={card.lemma} voice={voice.id} label={fill(t('Hear "{text}" clearly'), { text: card.lemma })} />
               </div>
               <p className="text-2xs" style={{ color: "var(--ink-3)" }}>
                 {/* Who read it, and where the delivery was not a quiet room,
                     how. That the next word is a different voice is said once,
                     in the briefing, rather than under every card. */}
-                {condition ? describeHearing(voice.name, condition) : `Read by ${voice.name}.`}
+                {condition ? describeHearing(voice.name, condition, locale) : fill(t("Read by {name}."), { name: voice.name })}
               </p>
             </div>
           )}
@@ -343,9 +346,9 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                     four tones the option was wearing. */}
                 <KeyCap>{i + 1}</KeyCap>
                 <span className={`flex-1 ${!answered && struck.includes(choice) ? "line-through" : ""}`}>{choice}</span>
-                {!answered && struck.includes(choice) && <span className="sr-only"> (ruled out by a hint)</span>}
-                {answered && isCorrectChoice && <Check size={15} aria-label="Right" />}
-                {answered && isPicked && !isCorrectChoice && <X size={15} aria-label="Your pick" />}
+                {!answered && struck.includes(choice) && <span className="sr-only"> {t("(ruled out by a hint)")}</span>}
+                {answered && isCorrectChoice && <Check size={15} aria-label={t("Right")} />}
+                {answered && isPicked && !isCorrectChoice && <X size={15} aria-label={t("Your pick")} />}
               </button>
             );
           })}
@@ -368,7 +371,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
             {/* Takes the focus, because the option that had it has just been
                 disabled and a disabled button hands the caret to the page. */}
             <Button variant="primary" size="lg" className="w-full" autoFocus onClick={next}>
-              Continue
+              {t("Continue")}
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           </div>

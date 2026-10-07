@@ -1,3 +1,5 @@
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -73,10 +75,13 @@ export default async function CommonRoundPage({ params }: {
     fact about the dictionary; which language the meaning is printed in is one
     settings row. On the deployment's own pooler each `await` is a round trip.
   */
-  const [lexemeIds, glossSetting] = await Promise.all([
+  const [lexemeIds, glossSetting, locale] = await Promise.all([
     commonLexemeIds(group.key),
     readSetting(ownerId, SETTING_KEYS.glossLanguage),
+    localeFor(ownerId),
   ]);
+  // The four headings are whole lines in the table, never "Most common" glued to a word.
+  const heading = tr(locale, `Most common ${group.title.toLowerCase()}`);
 
   /*
     Ordered, because this is a `take`: without one, which of a word's cards the
@@ -99,25 +104,25 @@ export default async function CommonRoundPage({ params }: {
   if (picked.length === 0) {
     return (
       <Page
-        title={`Most common ${group.title.toLowerCase()}`}
-        lead="Each word comes back looking a little different, until it sticks."
+        title={heading}
+        lead={tr(locale, "Each word comes back looking a little different, until it sticks.")}
       >
         <div className="flex flex-col gap-4">
           <Empty
             title={
               lexemeIds.length === 0
-                ? "The dictionary isn't loaded yet"
-                : "None of these are in your deck yet"
+                ? tr(locale, "The dictionary isn't loaded yet")
+                : tr(locale, "None of these are in your deck yet")
             }
             body={
               lexemeIds.length === 0
-                ? "This round comes from the dictionary, so there's nothing to ask until it's loaded."
-                : `Add the first ${COMMON_BATCH} and you'll practise each one in all its forms.`
+                ? tr(locale, "This round comes from the dictionary, so there's nothing to ask until it's loaded.")
+                : fill(tr(locale, "Add the first {n} and you'll practise each one in all its forms."), { n: COMMON_BATCH })
             }
             action={
               lexemeIds.length === 0
-                ? <ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>
-                : <DeepenButton group={group.key} label={`Add the first ${COMMON_BATCH}`} />
+                ? <ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>
+                : <DeepenButton group={group.key} label={fill(tr(locale, "Add the first {n}"), { n: COMMON_BATCH })} />
             }
           />
           {/*
@@ -143,7 +148,7 @@ export default async function CommonRoundPage({ params }: {
         cards={round}
         totalCards={round.length}
         mode="type"
-        title={`Most common ${group.title.toLowerCase()}`}
+        title={heading}
       />
     </BeforeYouStart>
   );

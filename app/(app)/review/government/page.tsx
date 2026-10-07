@@ -1,3 +1,5 @@
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
@@ -140,12 +142,13 @@ export default async function GovernmentPage({
     .filter((x): x is { v: (typeof governed)[number]; g: NonNullable<ReturnType<typeof parseGovernment>> } => x.g !== null);
 
   if (parsed.length === 0) {
+    const locale = await localeFor(ownerId);
     return (
-      <Page title="Verb government" lead="Every verb wants a certain case after it, and English won't tell you which.">
+      <Page title={tr(locale, "Verb government")} lead={tr(locale, "Every verb wants a certain case after it, and English won't tell you which.")}>
         <Empty
-          title="No verbs to practise yet"
-          body="Look up a few verbs in the dictionary. Each one comes with the case it takes."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={tr(locale, "No verbs to practise yet")}
+          body={tr(locale, "Look up a few verbs in the dictionary. Each one comes with the case it takes.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>}
         />
       </Page>
     );

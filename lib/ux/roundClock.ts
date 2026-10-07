@@ -1,3 +1,5 @@
+import { countOf, type Locale } from "@/lib/copy/locale";
+
 /**
  * HOW LONG A TIMED ROUND RUNS, AND WHOSE CHOICE THAT IS.
  *
@@ -128,13 +130,17 @@ export function secondsFor(baseSeconds: number, pace: RoundPace): number {
  * where a minute would round away the difference between 60 and 90, and whole
  * minutes above wherever the figure is one.
  */
-export function roundLength(seconds: number): string {
+export function roundLength(seconds: number, locale?: Locale): string {
+  /*
+    The language is optional here and nowhere else in the rounds, on purpose:
+    Today, the scan page and Settings say a length too and belong to other
+    screens' translations, and an absent locale is the English those screens
+    print today. Every round passes its learner's.
+  */
+  const lang = locale ?? "en";
   const whole = Math.max(0, Math.round(seconds));
-  if (whole >= 120 && whole % 60 === 0) {
-    const minutes = whole / 60;
-    return `${minutes} minutes`;
-  }
-  return `${whole} seconds`;
+  if (whole >= 120 && whole % 60 === 0) return countOf(lang, whole / 60, "minute");
+  return countOf(lang, whole, "second");
 }
 
 /**
@@ -147,7 +153,7 @@ export function roundLength(seconds: number): string {
  * go through this rather than `roundPaceFrom` directly, so that calling
  * `roundPaceFrom` stays what marks a page as a round with a clock.
  */
-export function lengthAtPace(base: number, stored: string | null | undefined): string {
-  const said = roundLength(secondsFor(base, roundPaceFrom(stored)));
+export function lengthAtPace(base: number, stored: string | null | undefined, locale?: Locale): string {
+  const said = roundLength(secondsFor(base, roundPaceFrom(stored)), locale);
   return `${said[0]!.toUpperCase()}${said.slice(1)}`;
 }

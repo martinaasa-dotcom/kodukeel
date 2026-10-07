@@ -1,5 +1,8 @@
 "use client";
 
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { rich } from "@/components/round/rich";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CornerDownLeft, Delete } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -103,6 +106,8 @@ export function SonadSession({ puzzle, day, guessable }: {
   /** Every Estonian word of this length, so a guess is checked without a call. */
   guessable: string[];
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [guesses, setGuesses] = useState<string[]>([]);
   const [typed, setTyped] = useState("");
   const [refused, setRefused] = useState<string | null>(null);
@@ -171,17 +176,17 @@ export function SonadSession({ puzzle, day, guessable }: {
     if (over) return;
     const guess = typed.toLocaleLowerCase("et");
     if (!wellFormed(guess)) {
-      setRefused(`It needs to be ${SONAD_LENGTH} letters, in Estonian.`);
+      setRefused(fill(t("It needs to be {n} letters, in Estonian."), { n: SONAD_LENGTH }));
       return;
     }
     if (!words.has(guess)) {
-      setRefused("The dictionary doesn't know that one. Try another word.");
+      setRefused(t("The dictionary doesn't know that one. Try another word."));
       return;
     }
     setRefused(null);
     setTyped("");
     setGuesses((made) => [...made, guess]);
-  }, [over, typed, words]);
+  }, [over, typed, words, t]);
 
   /*
     Typing anywhere on the page, because a board you have to click into first
@@ -229,7 +234,7 @@ export function SonadSession({ puzzle, day, guessable }: {
   /* What the board is allowed to say, and what it may promise. Both are pure
      functions of how many guesses have been made: see `cluesAt`. */
   const clue = cluesAt(guesses.length);
-  const coming = nextClue(guesses.length, puzzle.category !== null);
+  const coming = nextClue(guesses.length, puzzle.category !== null, locale);
   const vowels = vowelCount(puzzle.answer);
 
   /*
@@ -241,8 +246,8 @@ export function SonadSession({ puzzle, day, guessable }: {
     if (!last) return "";
     const scored = scoreGuess(last, puzzle.answer);
     const count = (mark: Mark) => scored.filter((m) => m === mark).length;
-    return `${last}: ${count("here")} in place, ${count("elsewhere")} elsewhere.`;
-  }, [guesses, puzzle.answer]);
+    return fill(t("{guess}: {here} in place, {elsewhere} elsewhere."), { guess: last, here: count("here"), elsewhere: count("elsewhere") });
+  }, [guesses, puzzle.answer, t]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -253,10 +258,10 @@ export function SonadSession({ puzzle, day, guessable }: {
             is meant to be. Enough to make a first guess informed rather than a
             probe, and nowhere near enough to give it away.
           */}
-          <Chip tone="neutral">{puzzle.pos.toLowerCase()}</Chip>
+          <Chip tone="neutral">{t(puzzle.pos.toLowerCase())}</Chip>
           {puzzle.cefr && <Chip tone="neutral">{puzzle.cefr}</Chip>}
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            {SONAD_LENGTH} letters, {SONAD_GUESSES - guesses.length} left
+            {fill(t("{letters} letters, {n} left"), { letters: SONAD_LENGTH, n: SONAD_GUESSES - guesses.length })}
           </span>
         </div>
 
@@ -276,13 +281,13 @@ export function SonadSession({ puzzle, day, guessable }: {
           <p className="mt-2.5 text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
             {clue.category && puzzle.category && (
               <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>
-                It&apos;s {puzzle.category}.
+                {fill(t("It's {category}."), { category: t(puzzle.category) })}
               </span>
             )}
             {clue.vowels && (
               <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>
                 {clue.category && puzzle.category ? " " : ""}
-                {vowels} of the six letters {vowels === 1 ? "is a vowel" : "are vowels"}.
+                {fill(t(vowels === 1 ? "{n} of the six letters is a vowel." : "{n} of the six letters are vowels."), { n: vowels })}
               </span>
             )}
             {coming && (
@@ -337,6 +342,7 @@ function Row({ guess, typed, answer, refused, won }: {
   refused: boolean;
   won: boolean;
 }) {
+  const t = useT();
   const marks = guess ? scoreGuess(guess, answer) : null;
   const letters = [...(guess ?? typed ?? "")];
   const slots = Array.from({ length: SONAD_LENGTH }, (_, i) => i);
@@ -351,7 +357,7 @@ function Row({ guess, typed, answer, refused, won }: {
           <span
             key={i}
             lang="et"
-            aria-label={mark ? `${letter}, ${SPOKEN[mark]}` : undefined}
+            aria-label={mark ? `${letter}, ${t(SPOKEN[mark])}` : undefined}
             /*
               The circles settle when a guess lands and rise when it was the
               answer, staggered along the row by `--sonad-at`. See the block in
@@ -385,6 +391,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
   onDelete: () => void;
   onSubmit: () => void;
 }) {
+  const t = useT();
   return (
     /*
       PINNED ABOVE THE TAB BAR ON A PHONE, BECAUSE THIS ROUND IS ALL TAPS.
@@ -432,7 +439,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
                 boxShadow: RING[mark] === "0" ? "none" : `inset 0 0 0 2px ${HUE[mark].ring}`,
               }}
             />
-            {SPOKEN[mark]}
+            {t(SPOKEN[mark])}
           </li>
         ))}
       </ul>
@@ -481,10 +488,10 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
       </div>
       <div className="mt-3 flex gap-2">
         <Button type="button" variant="secondary" onClick={onDelete} className="flex-1">
-          <Delete size={16} aria-hidden /> Delete
+          <Delete size={16} aria-hidden /> {t("Delete")}
         </Button>
         <Button type="button" variant="primary" onClick={onSubmit} className="flex-1">
-          <CornerDownLeft size={16} aria-hidden /> Guess
+          <CornerDownLeft size={16} aria-hidden /> {t("Guess")}
         </Button>
       </div>
     </Card>
@@ -498,6 +505,7 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
   kept: boolean;
   onKeep: () => void;
 }) {
+  const t = useT();
   const keeper = useKeepWord(puzzle.lexemeId, async (deckIds) => {
     const result = await addToDeck(puzzle.lexemeId, ["RECOGNITION", "PRODUCTION"], "LOOKUP", deckIds).catch(() => null);
     if (result?.ok) onKeep();
@@ -507,8 +515,8 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
     <Card>
       <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
         {outcome === "won"
-          ? at === 1 ? "Got it in one." : `Got it in ${at} guesses.`
-          : "Not this time. Here's what it was."}
+          ? at === 1 ? t("Got it in one.") : fill(t("Got it in {n} guesses."), { n: at ?? 0 })
+          : t("Not this time. Here's what it was.")}
       </p>
       <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
         {/*
@@ -523,16 +531,19 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
           the word; what goes is the door. The button under it is what this
           screen offers instead, and it keeps the learner where they are.
         */}
-        <WordLink
-          lemma={puzzle.answer}
-          className="font-semibold"
-          linkClass="underline underline-offset-2"
-          style={{ color: "var(--accent-deep)" }}
-        >
-          {puzzle.answer}
-        </WordLink>
-        {" is "}
-        {puzzle.translation}.
+        {rich(t("{word} is {meaning}."), {
+          word: (
+            <WordLink
+              lemma={puzzle.answer}
+              className="font-semibold"
+              linkClass="underline underline-offset-2"
+              style={{ color: "var(--accent-deep)" }}
+            >
+              {puzzle.answer}
+            </WordLink>
+          ),
+          meaning: puzzle.translation,
+        })}
       </p>
       {/*
         The offer, and only where there is one to make. A word already in the
@@ -544,21 +555,21 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
           <KeepWordChoice keeper={keeper} className="mt-4" />
           <div className="mt-4 flex flex-wrap items-center gap-2">
             {keeper.asking && (
-              <Button type="button" variant="ghost" onClick={keeper.cancel}>Cancel</Button>
+              <Button type="button" variant="ghost" onClick={keeper.cancel}>{t("Cancel")}</Button>
             )}
             <Button type="button" variant="primary" disabled={keeper.pending} onClick={keeper.press}>
-              {keeper.pending ? "Adding…" : keeper.asking ? "Keep it" : "Keep this word"}
+              {keeper.pending ? t("Adding…") : keeper.asking ? t("Keep it") : t("Keep this word")}
             </Button>
           </div>
         </>
       )}
       {kept && (
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-          It&apos;s in your deck, so today&apos;s game counted as practice.
+          {t("It's in your deck, so today's game counted as practice.")}
         </p>
       )}
       <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-        There&apos;s a new word tomorrow morning.
+        {t("There's a new word tomorrow morning.")}
       </p>
     </Card>
   );

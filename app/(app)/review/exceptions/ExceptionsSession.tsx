@@ -1,5 +1,9 @@
 "use client";
 
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { answerNote } from "@/lib/copy/answerNote";
+import { rich } from "@/components/round/rich";
 import { PARTS } from "@/lib/copy/values";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert, TriangleAlert } from "lucide-react";
@@ -51,6 +55,7 @@ import { caseLabelOf } from "@/lib/copy/caseLabel";
  * the form again once every word has been met.
  */
 export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTask[] }) {
+  const t = useT();
   /*
     Snapshotted once on mount. `gradeCard` is a Server Action and Next
     re-renders this route's Server Component after every call, which would deal
@@ -191,25 +196,25 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          That&rsquo;s the round done
+          {t("That's the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          These are the ones the rules don&rsquo;t cover. A few at a time, little and often, is how they stick.
+          {t("These are the ones the rules don't cover. A few at a time, little and often, is how they stick.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={asked} label="Asked" />
+          <Stat value={asked} label={t("Asked")} />
           <Stat
             value={asked > 0 ? `${Math.round((right / asked) * 100)}%` : "0%"}
-            label="Right"
+            label={t("Right")}
           />
-          <Stat value={`${minutes}m`} label="Time" />
+          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/exceptions">Another round</ButtonLink>
-          <ButtonLink href="/grammar/exceptions" variant="primary">See the whole list</ButtonLink>
+          <ButtonLink href="/review/exceptions">{t("Another round")}</ButtonLink>
+          <ButtonLink href="/grammar/exceptions" variant="primary">{t("See the whole list")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -220,7 +225,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
       {/* The heading a session screen has no room to draw. Every mode carries
           one, since an empty state with a heading and a round without it is an
           accessibility run that passes on the wrong screen. */}
-      <h1 className="sr-only">Exceptions</h1>
+      <h1 className="sr-only">{t("Exceptions")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession href="/practice" size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -231,11 +236,11 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={tasks.length}
-            aria-label="Round progress"
+            aria-label={t("Round progress")}
           />
         </div>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {tasks.length - index} left
+          {fill(t("{n} left"), { n: tasks.length - index })}
         </span>
       </div>
 
@@ -248,7 +253,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
           className="flex flex-wrap items-center gap-2 border-b px-6 py-3"
           style={{ borderColor: "var(--rule-soft)" }}
         >
-          <Chip tone="accent">{rungLine(task)}</Chip>
+          <Chip tone="accent">{t(rungLine(task))}</Chip>
           {/*
             AND NOT THE ALTERNATION CHIP.
 
@@ -273,7 +278,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
           {!meeting && (
             <div className="mt-7">
               <label htmlFor="answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-                Your answer
+                {t("Your answer")}
               </label>
               <input
                 id="answer"
@@ -311,7 +316,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {meeting ? (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              Got it <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+              {t("Got it")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : !mark ? (
             <Button
@@ -320,11 +325,11 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
               disabled={typed.trim().length === 0}
               onClick={() => void check()}
             >
-              Check it <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+              {t("Check it")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+              {t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>
@@ -418,6 +423,7 @@ function Meeting({ task }: { task: ExceptionTask }) {
  */
 function MoreOnThis({ task, className }: { task: ExceptionTask; className?: string }) {
   const topic = task.topic ? grammarTopic(task.topic) : undefined;
+  const t = useT();
   /*
     AND THERE IS NO "MORE ON THIS" INSIDE A MODULE.
 
@@ -432,7 +438,7 @@ function MoreOnThis({ task, className }: { task: ExceptionTask; className?: stri
   if (!topic) return null;
   return (
     <p className={className} style={{ color: "var(--ink-3)" }}>
-      More on this:{" "}
+      {t("More on this:")}{" "}
       <Link
         href={`/grammar/topic/${task.topic}`}
         className="font-semibold underline underline-offset-2"
@@ -446,6 +452,7 @@ function MoreOnThis({ task, className }: { task: ExceptionTask; className?: stri
 
 /** The two rungs that ask for something: cold, then inside a sentence. */
 function Asking({ task, answered }: { task: ExceptionTask; answered: boolean }) {
+  const t = useT();
   const plain = sayLine(task.slot, task.translation);
 
   if (task.rung === "use") {
@@ -491,7 +498,7 @@ function Asking({ task, answered }: { task: ExceptionTask; answered: boolean }) 
               {meaning && !answered && <GapMeaning meaning={meaning} />}
               {cue && (
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
-                  The missing word means <strong style={{ color: "var(--ink)" }}>{cue}</strong>.
+                  {rich(t("The missing word means {meaning}."), { meaning: <strong style={{ color: "var(--ink)" }}>{cue}</strong> })}
                 </p>
               )}
             </div>
@@ -537,8 +544,11 @@ function Asking({ task, answered }: { task: ExceptionTask; answered: boolean }) 
  * The hue is never the only thing carrying it, so the heading says which.
  */
 function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
+  const t = useT();
+  const locale = useLocale();
   const verdict = mark.right ? "right" : verdictOfRating(mark.rating);
-  const head = { right: "That's it", nearly: "Nearly", wrong: "Not quite" }[verdict];
+  const head = t({ right: "That's it", nearly: "Nearly", wrong: "Not quite" }[verdict]);
+  const note = answerNote(mark.note, locale);
 
   return (
     <div className="mt-6" aria-live="polite">
@@ -548,8 +558,8 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
         {/* Said once, where the note opens on the verdict: see `verdictLine`. */}
         <p className="text-base">
-          <strong className="font-semibold">{verdictLine(head, mark.note).strong}</strong>
-          {verdictLine(head, mark.note).rest}
+          <strong className="font-semibold">{verdictLine(head, note).strong}</strong>
+          {verdictLine(head, note).rest}
         </p>
       </div>
 
@@ -593,7 +603,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
           className="font-semibold underline underline-offset-2"
           style={{ color: "var(--accent-deep)" }}
         >
-          Other words that do the same thing
+          {t("Other words that do the same thing")}
         </Link>
       </p>
 

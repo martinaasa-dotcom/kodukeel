@@ -13,6 +13,9 @@ import { OPTION_CLASS } from "@/lib/ux/verdict";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart, RoundChip } from "@/components/round/RoundStart";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
+import { rich } from "@/components/round/rich";
 
 export interface MatchPair {
   cardId: string;
@@ -42,6 +45,8 @@ interface Tile {
  */
 export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]; best: number }) {
   const queueGrades = useQueueGrades();
+  const t = useT();
+  const locale = useLocale();
   const { drainFirst } = useOffline();
   /*
     Snapshotted once on mount. This round grades every pair at the end, and the
@@ -161,7 +166,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       const nextMatched = new Set(matched).add(tile.cardId);
       setMatched(nextMatched);
       setSelected(null);
-      setSaid(tile.side === "et" ? `${tile.text} is ${selected.text}.` : `${selected.text} is ${tile.text}.`);
+      setSaid(fill(t("{word} is {meaning}."), tile.side === "et" ? { word: tile.text, meaning: selected.text } : { word: selected.text, meaning: tile.text }));
       if (nextMatched.size === pairs.length) {
         const finalSeconds = Math.max(1, Math.round((Date.now() - startedAt.current) / 1000));
         setSeconds(finalSeconds);
@@ -172,7 +177,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
 
     // Wrong pair: flash both, count it against the card being learned.
     setWrong([selected.key, tile.key]);
-    setSaid("Those two don't go together.");
+    setSaid(t("Those two don't go together."));
     setMisses((m) => ({ ...m, [tile.cardId]: (m[tile.cardId] ?? 0) + 1, [selected.cardId]: (m[selected.cardId] ?? 0) + 1 }));
     if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(50);
     window.setTimeout(() => { setWrong(null); setSelected(null); }, 450);
@@ -180,11 +185,11 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
 
   if (pairs.length === 0) {
     return (
-      <Page title="Match" lead="Pair each Estonian word with its meaning, as fast as you can.">
+      <Page title={t("Match")} lead={t("Pair each Estonian word with its meaning, as fast as you can.")}>
         <Empty
-          title="A few more words needed"
-          body="Match needs at least four words in your deck. Learn a couple more and come back."
-          action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
+          title={t("A few more words needed")}
+          body={t("Match needs at least four words in your deck. Learn a couple more and come back.")}
+          action={<ButtonLink href="/learn" variant="primary">{t("Open the learning path")}</ButtonLink>}
         />
       </Page>
     );
@@ -194,12 +199,12 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
     return (
       <RoundStart
         icon={<Timer size={26} aria-hidden />}
-        title="Match"
-        lead="Clear the board as fast as you can."
+        title={t("Match")}
+        lead={t("Clear the board as fast as you can.")}
         hue="sky"
         chips={<>
-          <RoundChip>{pairs.length} pairs</RoundChip>
-          {best > 0 && <RoundChip icon={<Trophy size={14} aria-hidden />}>Personal best {best}s</RoundChip>}
+          <RoundChip>{countOf(locale, pairs.length, "pair")}</RoundChip>
+          {best > 0 && <RoundChip icon={<Trophy size={14} aria-hidden />}>{fill(t("Personal best {n}s"), { n: best })}</RoundChip>}
         </>}
         actions={
           <Button
@@ -208,11 +213,11 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
             className="px-10"
             onClick={() => { startedAt.current = Date.now(); setPhase("playing"); }}
           >
-            Start the clock
+            {t("Start the clock")}
           </Button>
         }
       >
-        <BriefingSteps id="match" more="A pair right first time counts as a good review of that word." />
+        <BriefingSteps id="match" more={t("A pair right first time counts as a good review of that word.")} />
       </RoundStart>
     );
   }
@@ -223,27 +228,27 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <Confetti count={40} />
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          All matched up.
+          {t("All matched up.")}
         </h1>
         <p className="mt-2 flex items-center gap-2 text-base" style={{ color: "var(--ink-2)" }}>
           {/* A first round beats nothing, so it is the time on the board
               rather than a record. `best` is what the page read before this
               round, and nought means there was none. */}
           {isNewBest && best > 0 && <Trophy size={17} aria-hidden style={{ color: "var(--hard-ink)" }} />}
-          {best === 0 ? "That's your first time on the board, and the one to beat." : isNewBest ? "That's a new personal best." : `Your best so far is ${best}s.`}
+          {best === 0 ? t("That's your first time on the board, and the one to beat.") : isNewBest ? t("That's a new personal best.") : fill(t("Your best so far is {n}s."), { n: best })}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-[var(--r-lg)] border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={`${seconds}s`} label="Time" tone="var(--accent-deep)" />
-          <Stat value={pairs.length} label="Pairs" />
-          <Stat value={missed} label="Wrong taps" />
+          <Stat value={fill(t("{n}s"), { n: seconds })} label={t("Time")} tone="var(--accent-deep)" />
+          <Stat value={pairs.length} label={t("Pairs")} />
+          <Stat value={missed} label={t("Wrong taps")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/practice">Try something else</ButtonLink>
-          <ButtonLink href="/">Back to Today</ButtonLink>
-          <ButtonLink href="/review/match" variant="primary">Another round</ButtonLink>
+          <ButtonLink href="/practice">{t("Try something else")}</ButtonLink>
+          <ButtonLink href="/">{t("Back to Today")}</ButtonLink>
+          <ButtonLink href="/review/match" variant="primary">{t("Another round")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -254,14 +259,14 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       {/* The heading a session screen has no room to draw. Same line as every
           other mode: the start screen and the finished screen each carry one
           and the round itself did not. */}
-      <h1 className="sr-only">Match</h1>
+      <h1 className="sr-only">{t("Match")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession label="End round" />
+        <EndSession label={t("End round")} />
         <div
           className="tnum flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold"
           style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}
         >
-          <Timer size={14} aria-hidden /> {seconds}s
+          <Timer size={14} aria-hidden /> {fill(t("{n}s"), { n: seconds })}
         </div>
         <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
           {matched.size}/{pairs.length}
@@ -323,8 +328,10 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       </div>
 
       <p className="mt-5 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-        <span style={{ color: "var(--accent-deep)" }}>Estonian</span> on the lilac tiles, its meaning
-        on the white ones. A wrong tap just costs you a little time.
+        {/* The colored word sits where the reader's own language puts it. */}
+        {rich(t("{estonian} on the lilac tiles, its meaning on the white ones. A wrong tap just costs you a little time."), {
+          estonian: <span style={{ color: "var(--accent-deep)" }}>{t("Estonian")}</span>,
+        })}
       </p>
     </div>
   );

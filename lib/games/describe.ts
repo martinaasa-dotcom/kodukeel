@@ -1,4 +1,5 @@
 import { CASES } from "@/lib/estonian/cases";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 import { caseFits } from "@/lib/estonian/caseQuestion";
 import { caseAnswer, shownForms, stemsFromParts } from "@/lib/estonian/derive";
 import { caseIndex, caseWritten, tidyForm, type CaseVerdict } from "@/lib/estonian/whichCase";
@@ -213,10 +214,10 @@ export function markDescription(task: DescribeTask, sentence: string): DescribeM
  * both of those without turning a line into a list: 26 of the 169 pictured
  * words carry more than one sense, and none needs a third to be named.
  */
-export function pictureLabel(glosses: readonly string[]): string {
+export function pictureLabel(glosses: readonly string[], locale: Locale): string {
   const things = glosses.map((gloss) => {
     const senses = gloss.split(/[,;]/).map((s) => s.trim()).filter(Boolean).slice(0, 2);
-    return senses.length === 2 ? `${senses[0]} or ${senses[1]}` : senses[0] ?? "";
+    return senses.length === 2 ? fill(tr(locale, "{a} or {b}"), { a: senses[0]!, b: senses[1]! }) : senses[0] ?? "";
   }).filter(Boolean);
   if (things.length === 0) return "";
   /*
@@ -225,5 +226,5 @@ export function pictureLabel(glosses: readonly string[]): string {
     window" read as broken English, and "a water" or "a bread" is what a
     letter rule would put in front of the mass nouns half the pictures are.
   */
-  return `In the picture: ${things.join(", ")}.`;
+  return fill(tr(locale, "In the picture: {things}."), { things: things.join(", ") });
 }
