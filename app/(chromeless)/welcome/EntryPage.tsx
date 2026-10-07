@@ -94,7 +94,7 @@ export function EntryPage({ locale }: { locale: EntryLocale }) {
             {copy.sub}
           </p>
           <div className="mt-8 flex justify-center">
-            <ButtonLink href="/sign-in" variant="primary" size="lg" className="w-full sm:w-auto">
+            <ButtonLink href={`/sign-in?lang=${locale}`} variant="primary" size="lg" className="w-full sm:w-auto">
               {copy.cta} <ArrowRight size={17} aria-hidden />
             </ButtonLink>
           </div>
@@ -136,7 +136,7 @@ export function EntryPage({ locale }: { locale: EntryLocale }) {
             ))}
           </ul>
           <div className="mt-10 flex flex-col items-center gap-4">
-            <ButtonLink href="/sign-in" variant="primary" size="lg" className="w-full sm:w-auto">
+            <ButtonLink href={`/sign-in?lang=${locale}`} variant="primary" size="lg" className="w-full sm:w-auto">
               {copy.cta} <ArrowRight size={17} aria-hidden />
             </ButtonLink>
             <Link href="/state-exam" className="text-sm font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>

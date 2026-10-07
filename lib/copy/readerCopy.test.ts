@@ -575,6 +575,8 @@ function sentences(file: string): string[] {
     const text = run
       .replace(/\{" "\}/g, " ")
       .replace(/<[^>]*>/g, " ")
+      // A line passed through the translator is still that English on screen.
+      .replace(/\{\s*(?:t|tr\(\s*locale\s*,)\(?\s*"([^"]*)"\s*\)\s*\}/g, "$1")
       .replace(/\{[^{}]*\}/g, "xx")
       .replace(/&[a-z]+;/g, "'")
       .replace(/\s+/g, " ")
@@ -621,6 +623,8 @@ function captions(source: string): string[] {
   while ((m = re.exec(source))) {
     const text = (m[3] ?? "")
       .replace(/<[^>]*>/g, " ")
+      // A line passed through the translator is still that English on screen.
+      .replace(/\{\s*(?:t|tr\(\s*locale\s*,)\(?\s*"([^"]*)"\s*\)\s*\}/g, "$1")
       .replace(/\{[^{}]*\}/g, "xx")
       .replace(/&[a-z]+;/g, "'")
       .replace(/\s+/g, " ")

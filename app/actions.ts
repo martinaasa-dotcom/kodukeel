@@ -2165,6 +2165,11 @@ export async function completeOnboarding(input: {
    * people who would never go looking for this setting are the ones it is for.
    */
   glossLanguage?: string;
+  /**
+   * The language the app's own words are in, chosen at the top of the first
+   * screen. Read through `localeFrom`, so anything but "ru" or "uk" is English.
+   */
+  uiLocale?: string;
   /** What the learner said they are here for. Absent when they skipped it. */
   goals?: {
     reason?: string | null;
@@ -2212,6 +2217,13 @@ export async function completeOnboarding(input: {
     writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(goal)),
     writeSetting(ownerId, SETTING_KEYS.letterBar, letterBarFrom(input.letterBar)),
     writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(text(input.glossLanguage))),
+    writeSetting(ownerId, SETTING_KEYS.uiLocale, localeFrom(text(input.uiLocale))),
+    /*
+      The wizard printed the machine-translation notice under the choice, in
+      both languages, so the shell's one-time notice would be the same sentence
+      a minute later. Marked as seen for the language chosen, and only for that.
+    */
+    writeSetting(ownerId, SETTING_KEYS.uiLocaleNoticed, localeFrom(text(input.uiLocale))),
     writeSetting(ownerId, SETTING_KEYS.onboardedAt, new Date().toISOString()),
     input.goals
       ? saveGoals(ownerId, normaliseGoals({

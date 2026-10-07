@@ -4,10 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
 import { Button } from "@/components/Button";
 import { Skeleton } from "@/components/ui";
+import { fillNodes } from "@/components/TemplateNodes";
 import { createClient } from "@/lib/supabase/client";
 import { safeNext } from "@/lib/auth/access";
 import { ssoDomainFor } from "@/lib/auth/sso";
 import { GSI_LOCALE, GSI_SCRIPT_SRC, hashNonce, randomNonce } from "@/lib/auth/googleIdentity";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * The one shape of Google Identity Services this file reads. There is no
@@ -171,6 +173,7 @@ export function SignInForm({
   emailLink,
   ssoDomains = [],
   googleClientId,
+  locale = "en",
 }: {
   emailLink: boolean;
   /** Domains this deployment has an identity provider for. Empty means none. */
@@ -185,7 +188,13 @@ export function SignInForm({
     with different environments, exactly as `EMAIL_SIGN_IN` is read.
   */
   googleClientId?: string;
+  /**
+   * The language this screen was opened in, off its `?lang=` query, since
+   * nobody signed in has a setting to read it from. Carried on to first run.
+   */
+  locale?: Locale;
 }) {
+  const t = (english: string) => tr(locale, english);
   const [pending, setPending] = useState<"google" | "email" | "sso" | null>(null);
   const [error, setError] = useState<string | null>(null);
   /** The address we mailed, which is also the flag that we mailed anything. */
@@ -227,7 +236,15 @@ export function SignInForm({
    * with a session freshly minted a second earlier.
    */
   function nextPath(): string {
-    return safeNext(new URLSearchParams(window.location.search).get("next"));
+    /*
+      Somebody who came in through the Russian or Ukrainian front page and asked
+      for nowhere in particular lands on first run in that language. Only where
+      no page was asked for: an explicit `next` still wins, and still goes
+      through `safeNext`. An account already set up is sent on from /start to
+      Today, where its own setting decides the language.
+    */
+    const asked = new URLSearchParams(window.location.search).get("next");
+    return safeNext(asked ?? (locale === "en" ? null : `/start?lang=${locale}`));
   }
 
   /** Where the provider sends somebody back to, carrying the page they wanted. */
@@ -244,7 +261,7 @@ export function SignInForm({
       options: { redirectTo: callbackUrl() },
     });
     if (error) {
-      setError(`${error.message}. If this keeps happening, Google sign-in may not be turned on for this copy yet.`);
+      setError(`${error.message}. ${t("If this keeps happening, Google sign-in may not be turned on for this copy yet.")}`);
       setPending(null);
     }
   }
@@ -260,7 +277,7 @@ export function SignInForm({
       nonce,
     });
     if (error) {
-      setError(`${error.message}. Try again, or reload the page.`);
+      setError(`${error.message}. ${t("Try again, or reload the page.")}`);
       setPending(null);
       return;
     }
@@ -360,7 +377,7 @@ export function SignInForm({
         shape: "rectangular",
         text: "continue_with",
         logo_alignment: "left",
-        locale: GSI_LOCALE,
+        locale: locale === "en" ? GSI_LOCALE : locale,
         width,
       });
       drawnWidth.current = width;
@@ -443,12 +460,12 @@ export function SignInForm({
       options: { redirectTo: callbackUrl() },
     });
     if (error) {
-      setError(`${error.message}. If this keeps happening, ${domain} may not be set up for single sign-on here yet.`);
+      setError(`${error.message}. ${fill(t("If this keeps happening, {domain} may not be set up for single sign-on here yet."), { domain })}`);
       setPending(null);
       return;
     }
     if (!data?.url) {
-      setError(`We couldn’t reach the sign-in page for ${domain}. Try again, and if it keeps happening, let whoever set this up know.`);
+      setError(fill(t("We couldn’t reach the sign-in page for {domain}. Try again, and if it keeps happening, let whoever set this up know."), { domain }));
       setPending(null);
       return;
     }
@@ -462,7 +479,7 @@ export function SignInForm({
     const domain = ssoDomainFor(address, ssoPolicy);
     if (domain) return signInWithSso(domain);
     if (!emailLink) {
-      setError("That address can’t sign in through a company account here. Use Google above, or ask whoever set this up.");
+      setError(t("That address can’t sign in through a company account here. Use Google above, or ask whoever set this up."));
       return;
     }
     setPending("email");
@@ -474,7 +491,7 @@ export function SignInForm({
     });
     setPending(null);
     if (error) {
-      setError(`${error.message}. If this keeps happening, email sign-in may not be turned on for this copy yet.`);
+      setError(`${error.message}. ${t("If this keeps happening, email sign-in may not be turned on for this copy yet.")}`);
       return;
     }
     setSentTo(address);
@@ -484,11 +501,12 @@ export function SignInForm({
     return (
       <div className="rounded-[var(--r-lg)] p-5 text-left" style={{ background: "var(--raised)" }}>
         <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
-          Check your email
+          {t("Check your email")}
         </p>
         <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          We&rsquo;ve sent a link to <span style={{ color: "var(--ink)" }}>{sentTo}</span>. Open it in
-          this browser and you&rsquo;re in. It stops working after an hour.
+          {fillNodes(t("We’ve sent a link to {address}. Open it in this browser and you’re in. It stops working after an hour."), {
+            address: <span style={{ color: "var(--ink)" }}>{sentTo}</span>,
+          })}
         </p>
         <button
           type="button"
@@ -496,7 +514,7 @@ export function SignInForm({
           className="tap-tint mt-3 rounded-[var(--r)] text-sm font-semibold underline underline-offset-2"
           style={{ color: "var(--accent-deep)" }}
         >
-          Use a different address
+          {t("Use a different address")}
         </button>
       </div>
     );
@@ -553,7 +571,7 @@ export function SignInForm({
           disabled={pending !== null}
           className="w-full"
         >
-          {pending === "google" ? "Taking you to Google…" : "Continue with Google"}
+          {pending === "google" ? t("Taking you to Google…") : t("Continue with Google")}
         </Button>
       )}
 
@@ -561,13 +579,13 @@ export function SignInForm({
         <>
           <div className="flex items-center gap-3" aria-hidden>
             <span className="h-px flex-1" style={{ background: "var(--rule-soft)" }} />
-            <span className="text-xs font-medium" style={{ color: "var(--ink-3)" }}>or</span>
+            <span className="text-xs font-medium" style={{ color: "var(--ink-3)" }}>{t("or")}</span>
             <span className="h-px flex-1" style={{ background: "var(--rule-soft)" }} />
           </div>
 
           <form onSubmit={continueWithEmail} className="text-left">
             <label htmlFor="sign-in-email" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-              {sso ? "Your email or work address" : "Your email address"}
+              {sso ? t("Your email or work address") : t("Your email address")}
             </label>
             <input
               id="sign-in-email"
@@ -587,14 +605,14 @@ export function SignInForm({
               disabled={pending !== null || email.trim() === ""}
               className="mt-3 w-full"
             >
-              {pending === "email" ? "Sending…" : null}
-              {pending === "sso" ? "Taking you there…" : null}
+              {pending === "email" ? t("Sending…") : null}
+              {pending === "sso" ? t("Taking you there…") : null}
               {pending === null
                 ? ssoDomain
-                  ? "Continue with your work account"
+                  ? t("Continue with your work account")
                   : emailLink
-                    ? "Email me a link"
-                    : "Continue"
+                    ? t("Email me a link")
+                    : t("Continue")
                 : null}
             </Button>
             {/*
@@ -605,12 +623,12 @@ export function SignInForm({
             */}
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
               {ssoDomain
-                ? `We’ll take you to the ${ssoDomain} sign-in you already use.`
+                ? fill(t("We’ll take you to the {domain} sign-in you already use."), { domain: ssoDomain })
                 : emailLink
                   ? sso
-                    ? "No password to make up or forget. A work address takes you to your company’s sign-in, and any other address gets a link to open in this browser."
-                    : "No password to make up or forget. Just open the link in this browser."
-                  : "Use the work address your company signs in with."}
+                    ? t("No password to make up or forget. A work address takes you to your company’s sign-in, and any other address gets a link to open in this browser.")
+                    : t("No password to make up or forget. Just open the link in this browser.")
+                  : t("Use the work address your company signs in with.")}
             </p>
           </form>
         </>
