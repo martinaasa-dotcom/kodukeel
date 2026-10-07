@@ -160,7 +160,7 @@ describe("a situation, rung by rung", () => {
     const pace = r.struggles.find((s) => s.id === "pace")!;
     expect(pace.blocks).toBe("lead");
     expect(pace.title).toMatch(/10 seconds/);
-    expect(pace.href).toBe("/review/sprint");
+    expect(pace.href).toBe("/review/flashcards");
 
     const steady = everyWord(DOCTOR, word({ rec: 4, prod: 6, forms: 2, ms: CONVERSATIONAL_MS + 1_000 }), leadReady(DOCTOR));
     expect(readSituation(DOCTOR, steady).rung).toBe("takePart");

@@ -316,8 +316,8 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
           ? "In real life you get about two before the other person fills the silence, usually in English. Speed is its own skill, and you can practice it on its own."
           : "Fast enough for a patient person. Leading means reaching for your next word while they're still finishing theirs.",
         blocks: "lead",
-        href: "/review/sprint",
-        cta: "Play a round against the clock",
+        href: "/review/flashcards",
+        cta: "Type some answers against the clock",
       });
     } else if (pace.label === null) {
       leads = false;

@@ -286,6 +286,8 @@ export function joinWithOr(items: readonly string[]): string {
  */
 export const ORDER_EXACT = "That's exactly how the sentence goes.";
 export const ORDER_WRONG = "That's not the order the writer used.";
+/** The words are in an order Estonian allows and a comma, a dash or a closing mark is not where it goes. */
+export const ORDER_MARKS = "The words are right. Check where the punctuation goes.";
 
 /**
  * What is said about an order Estonian allows that the writer did not choose.

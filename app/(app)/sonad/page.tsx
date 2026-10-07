@@ -43,6 +43,7 @@ export default async function SonadPage() {
   return (
     <BeforeYouStart id="sonad" ready={puzzle !== null}>
       <Page
+        compact
         title="Sõnad"
         lead={`One word a day. ${SONAD_LENGTH} letters, ${SONAD_GUESSES} guesses, ${taught ? "a word you've met" : "at your level"}.`}
       >

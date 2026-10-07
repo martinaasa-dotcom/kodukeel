@@ -312,6 +312,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
             autoplay
             size={20}
             label="Hear the word"
+            spaceKey={!answered}
             className="press flex h-11 w-11 items-center justify-center rounded-full"
             style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
           />
@@ -320,7 +321,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
           {/* Said for the way it went, since "here it is" over a word the
               learner has just built reads as the board giving it away. */}
           {!answered
-            ? "Put the letters in order. Tap the speaker as often as you like."
+            ? "Put the letters in order. Tap the speaker, or press Space, as often as you like."
             : verdict === "right" ? "Spelled right first time."
               : verdict === "nearly" ? "You got there on the second go."
                 : "Here it is, letter by letter."}

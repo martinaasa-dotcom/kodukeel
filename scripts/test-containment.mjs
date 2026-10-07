@@ -133,7 +133,6 @@ const ROUTES = [
   "/review/match",
   "/review/sentences",
   "/review/speaking",
-  "/review/sprint",
   "/review/flashcards",
   /*
     The frequency rounds. The index is four cards each carrying a title, a
@@ -145,7 +144,6 @@ const ROUTES = [
   "/review/common",
   "/review/common/noun",
   "/review/describe",
-  "/review/target",
   "/practice",
   "/quest",
   "/sonad",
@@ -384,7 +382,7 @@ const SPARSE = new Map([
 // And 2475 rather than 2500: Picture match was taken out of the app, and
 // `/review/emoji` was one of the routes this walks, which is one route's worth
 // of passes at the checks each pass now asks.
-const { check, absent, done } = suite("Containment", { floor: 2475 });
+const { check, absent, done } = suite("Containment", { floor: 2425 });
 
 /**
  * An A2 unit, whose lesson meets words with their sentence under them: A1

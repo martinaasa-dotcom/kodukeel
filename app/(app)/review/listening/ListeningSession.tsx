@@ -15,6 +15,7 @@ import { narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { VOICES } from "@/lib/audio/voice";
 import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "@/components/AudioPrefs";
+import { SpaceKeyCap } from "@/components/KeyCaps";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -291,11 +292,14 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   voice={voice.id}
                   condition={condition}
                   autoplay
+                  spaceKey="silent"
                   onUnavailable={() => setNoAudio(true)}
                   className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:scale-[1.02]"
                   style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "var(--shadow)" }}
                 />
-                <p className="text-xs" style={{ color: "var(--ink-3)" }}>Tap to hear the word, and again to replay it</p>
+                <p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
+                  Tap or press <SpaceKeyCap /> to hear the word, and again to replay it
+                </p>
               </>
             )
           ) : (

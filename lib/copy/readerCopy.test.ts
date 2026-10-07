@@ -81,6 +81,17 @@ const ALLOWED = new Map<string, { rules: Rule[]; only?: string[]; why: string }>
     },
   ],
   [
+    "lib/collections/pictures.ts",
+    {
+      rules: ["emoji"],
+      why:
+        "Is the twelve scenes of the picture game, each laid out in emoji, because an emoji is the " +
+        "picture: the artwork this app cannot afford yet. They are drawn on a card the learner writes " +
+        "five sentences about, never set in a sentence of copy, which is what this rule bans. " +
+        "Excused for the emoji rule only, so a brochure word or a stray dash in it still fails.",
+    },
+  ],
+  [
     "prisma/data/harvested.ts",
     {
       rules: ["dash"],

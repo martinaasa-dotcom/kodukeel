@@ -10,8 +10,9 @@ import { Mascot } from "@/components/brand";
 import { SpeakPair } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { useResumeCard } from "@/components/useResumeCard";
-import { SELF_GRADES, type RatingValue } from "@/lib/srs/scheduler";
-import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
+import { type RatingValue } from "@/lib/srs/scheduler";
+import { SelfGradeButtons } from "@/components/round/SelfGradeButtons";
+import { inEditable, isAdvanceKey, isGotItKey, isNotYetKey } from "@/lib/ux/advanceKey";
 import { Explain } from "@/components/Explain";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -101,6 +102,30 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
     setIndex((i) => i + 1);
     setBusy(false);
   }, [card, busy, look, grade]);
+
+  /*
+    THE KEYBOARD, WHICH THE ROUND NEVER HAD. Enter shows the answer and then
+    says "Got it", Space says "Not yet", the same two keys every other card
+    with these two buttons answers to. A key aimed at a button the learner has
+    focused (the recorder, a play button) is that button's own and is left
+    alone, and a look back owns the keyboard while it is open.
+  */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (finished || look.looking || busy) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (inEditable(e.target)) return;
+      if (e.target instanceof HTMLElement && e.target.closest("button, a, summary, [role=button]")) return;
+      if (!revealed) {
+        if (isAdvanceKey(e) && !e.repeat) { e.preventDefault(); setRevealed(true); }
+        return;
+      }
+      if (isNotYetKey(e)) { e.preventDefault(); void submit(1); }
+      else if (isGotItKey(e)) { e.preventDefault(); void submit(3); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [finished, look.looking, busy, revealed, submit]);
 
   if (cards.length === 0) {
     return (
@@ -240,19 +265,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
                four they were offered asked them to sort their own pronunciation
                into a scheduler's grades. Whether it sounded like the native
                rendering has two answers. */
-            <div className="grid grid-cols-2 gap-2.5">
-              {SELF_GRADES.map((g) => (
-                <button
-                  key={g.rating}
-                  type="button"
-                  disabled={busy}
-                  onClick={() => void submit(g.rating)}
-                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center rounded-[var(--r)] px-2 py-3.5 transition-ui hover:scale-[1.02] disabled:opacity-40`}
-                >
-                  <span className="text-base font-bold">{g.label}</span>
-                </button>
-              ))}
-            </div>
+            <SelfGradeButtons busy={busy} onGrade={(rating) => void submit(rating)} />
           )}
         </div>
       </div>

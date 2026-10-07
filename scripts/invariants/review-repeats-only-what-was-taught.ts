@@ -42,7 +42,7 @@ export default function reviewRepeatsOnlyWhatWasTaught(kit: InvariantKit) {
 
   check("a stored front reaches no screen with a Latin case name on it", () => {
     for (const file of [
-      "app/(app)/review/cards.ts", "app/(app)/review/sprint/page.tsx", "app/(app)/review/clinic/page.tsx",
+      "app/(app)/review/cards.ts", "app/(app)/review/clinic/page.tsx",
       "app/(app)/progress/page.tsx", "app/(app)/words/page.tsx", "lib/progress/quest.ts",
     ]) {
       const src = code(file);

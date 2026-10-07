@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_ROUND_PACE, lengthAtPace, QUEST_SECONDS, ROUND_PACES, roundLength, roundPaceFrom, secondsFor,
-  SPRINT_SECONDS,
 } from "./roundClock";
 
 describe("roundPaceFrom", () => {
@@ -92,8 +91,8 @@ describe("roundLength", () => {
 
 describe("lengthAtPace", () => {
   it("says the length the round will run for this learner, ready to open a sentence", () => {
-    expect(lengthAtPace(SPRINT_SECONDS, null)).toBe("60 seconds");
-    expect(lengthAtPace(SPRINT_SECONDS, "five-times")).toBe("5 minutes");
+    expect(lengthAtPace(QUEST_SECONDS, null)).toBe("2 minutes");
+    expect(lengthAtPace(QUEST_SECONDS, "five-times")).toBe("10 minutes");
     expect(lengthAtPace(QUEST_SECONDS, "double")).toBe("4 minutes");
   });
 

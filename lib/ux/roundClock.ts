@@ -1,11 +1,9 @@
 /**
  * HOW LONG A TIMED ROUND RUNS, AND WHOSE CHOICE THAT IS.
  *
- * Three rounds in this app run to a clock: the Case Sprint at sixty seconds,
- * the daily quest at two minutes, and Target at eight seconds a question
- * (`lib/games/target.ts`). Every one of those numbers was chosen for its round
- * and every one was fixed, which is WCAG 2.2 success criterion 2.2.1, Timing
- * Adjustable, failed three times. A learner who reads slowly, who is hearing
+ * The daily quest runs to a clock, two minutes. That number was chosen for its
+ * round and was fixed, which is WCAG 2.2 success criterion 2.2.1, Timing
+ * Adjustable, failed. A learner who reads slowly, who is hearing
  * a card read out before answering it, or who types with one hand is not
  * playing a faster version of the same round. They are shut out of it.
  *
@@ -81,12 +79,10 @@ export const DEFAULT_ROUND_PACE: RoundPace = "standard";
 /**
  * Each timed round's length as it was written, before the learner's pace.
  *
- * One place, because the Case Sprint's sixty seconds was typed three times: in
- * the round, in the Settings panel that says what a pace does to it, and as a
- * bare "60 seconds" under its tile on Practice, which went on saying sixty to a
- * learner who had asked for five minutes.
+ * One place, because the daily quest's two minutes was typed three times: in
+ * the round, in the Settings panel that says what a pace does to it, and on
+ * Today, which went on saying two to a learner who had asked for longer.
  */
-export const SPRINT_SECONDS = 60;
 export const QUEST_SECONDS = 120;
 
 /** A stored value, or the default. Never throws: a stored row can be anything. */

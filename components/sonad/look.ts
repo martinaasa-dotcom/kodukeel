@@ -13,7 +13,16 @@ import type { Mark } from "@/lib/games/sonad";
 export const HUE: Record<Mark, { bg: string; ink: string; ring: string }> = {
   here: { bg: "var(--sky)", ink: "var(--on-sky)", ring: "transparent" },
   elsewhere: { bg: "var(--butter-soft)", ink: "var(--butter-ink)", ring: "var(--butter-ink)" },
-  absent: { bg: "var(--raised)", ink: "var(--ink-3)", ring: "transparent" },
+  /*
+    Spent is a deeper lavender than the lavender board it sits on, with the
+    second ink for its letter: `--raised` is two percent of lightness from that
+    ground and would read as a circle nobody has used yet.
+  */
+  absent: {
+    bg: "color-mix(in srgb, var(--accent-deep) 16%, var(--accent-soft))",
+    ink: "var(--ink-2)",
+    ring: "transparent",
+  },
 };
 
 /** How thick each ring is, which is the half of the signal that is not color. */
@@ -33,4 +42,8 @@ export const SPOKEN: Record<Mark, string> = {
   absent: "not in the word",
 };
 
-export const EMPTY = { bg: "transparent", ink: "var(--ink)", ring: "var(--rule)" };
+/** The same three, short enough that the legend is one line on a phone. */
+export const LEGEND: Record<Mark, string> = { here: "in place", elsewhere: "in the word", absent: "not in it" };
+
+/** An open circle: the ground shows through, ringed in the deep accent at half strength. */
+export const EMPTY = { bg: "transparent", ink: "var(--ink)", ring: "color-mix(in srgb, var(--accent-deep) 45%, transparent)" };

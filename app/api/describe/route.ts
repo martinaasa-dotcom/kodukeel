@@ -1,15 +1,16 @@
 import { after } from "next/server";
+import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
-import { CASES } from "@/lib/estonian/cases";
-import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
-import { grammarTerm } from "@/lib/estonian/terms";
-import { markDescription } from "@/lib/games/describe";
+import { pictureById, SENTENCES_PER_PICTURE } from "@/lib/collections/pictures";
+import { isKnownForm } from "@/lib/dict/forms";
+import { oneEntryPerLemma } from "@/lib/dict/search";
+import { acceptedUses } from "@/lib/exam/written";
+import { markPicture, spellingsToCheck, type PictureWord } from "@/lib/games/picture";
 import { MAX_SENTENCE_CHARS, looksLikeSentence } from "@/lib/estonian/writing";
 import { reportError } from "@/lib/observability/report";
-import { taskById } from "@/lib/progress/describe";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { gradeDescription } from "@/lib/tutor/grader";
-import { resolveProvider, resolveProviders, TutorError } from "@/lib/tutor/provider";
+import { resolveProviders, TutorError } from "@/lib/tutor/provider";
 import { verifyVerdict, type WithholdReason } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -20,99 +21,103 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 /**
- * Marks one sentence a learner wrote about a scene.
+ * Marks the five sentences a learner wrote about one picture.
  *
- * `/api/write` with a picture in front of it, and deliberately the same order,
- * which is the whole design of both: the dictionary decides what it can decide
- * before any model is asked, so a learner who used the right case is told so
- * with the AI off, a model that hallucinates cannot mark a right form wrong,
- * and an answer that is not a sentence never costs a call.
+ * `/api/write` with a scene in front of it, and deliberately the same order,
+ * which is the design of both: the dictionary decides what it can decide
+ * before any model is asked, so a learner whose sentences are spelled and
+ * about the picture is told so with the AI off, a model that hallucinates
+ * cannot mark a right sentence wrong, and an answer that is not a sentence
+ * never costs a call.
  *
- * THE PAPER IS REBUILT HERE (ADR-022). The browser posts a scene id, a case
- * and what it wrote, never a mark and never the forms it was marked against.
- * `taskById` assembles the task out of the dictionary again, so the marking is
- * over what the server believes rather than over what the client claimed.
+ * The browser posts a picture id and five strings, never a mark and never the
+ * forms it was marked against. The picture and the words in it are read here
+ * (ADR-022), and the learner's level is read off their own log rather than
+ * taken from the request, which is the fix `/api/tutor` needed: a level typed
+ * into a client is a level anybody can type.
  *
- * The learner's level is read off their own log rather than taken from the
- * request, which is the fix `/api/tutor` needed: a level typed into a client
- * is a level anybody can type.
+ * One call reads all five. Nothing is written to the review log: there is no
+ * card behind a picture, and a row about a card that does not exist would be
+ * worse than none.
  */
 export async function POST(request: Request) {
   const ownerId = await requireUserId();
 
-  // The ceiling its twin has, and for the same reason: a grader that costs a
-  // call is exactly the shape that gets looped. Six a minute is one every ten
-  // seconds, which nobody writing a sentence and reading the marking meets.
+  // A grader that costs a call is exactly the shape that gets looped. Six a
+  // minute is one every ten seconds, which nobody writing five sentences and
+  // reading the marking meets.
   const limit = checkRateLimit(`describe:${bucketForOwner(ownerId)}`, 6, 60_000);
   if (!limit.ok) return rateLimited(limit, "Anu's still reading the last one. Give her a moment.");
 
-  let sceneId: string;
-  let caseKey: string;
-  let askLemma: string;
-  let sentence: string;
+  const bad = () => Response.json(
+    { error: "Something went wrong sending that. Reload the page and try again." },
+    { headers: NO_STORE, status: 400 },
+  );
+
+  let pictureId: string;
+  let sentences: string[];
   try {
     const body = (await request.json()) as Record<string, unknown>;
-    if (typeof body.sceneId !== "string" || typeof body.caseKey !== "string" ||
-        typeof body.askLemma !== "string" || typeof body.sentence !== "string") {
-      return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
-    }
-    sceneId = body.sceneId;
-    caseKey = body.caseKey;
-    askLemma = body.askLemma;
-    sentence = clip(body.sentence.trim(), MAX_SENTENCE_CHARS);
+    if (typeof body.pictureId !== "string" || !Array.isArray(body.sentences)
+        || body.sentences.length !== SENTENCES_PER_PICTURE
+        || body.sentences.some((s) => typeof s !== "string")) return bad();
+    pictureId = body.pictureId;
+    sentences = (body.sentences as string[]).map((s) => clip(s.trim(), MAX_SENTENCE_CHARS));
   } catch {
-    return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
+    return bad();
   }
 
-  if (!looksLikeSentence(sentence)) {
+  const picture = pictureById(pictureId);
+  if (!picture) return Response.json({ error: "That picture isn't available any more." }, { headers: NO_STORE, status: 404 });
+
+  const short = sentences.findIndex((s) => !looksLikeSentence(s));
+  if (short >= 0) {
     return Response.json(
-      { error: "Write a whole sentence, at least three words long." },
+      { error: `Sentence ${short + 1} needs at least three words.`, index: short },
       { headers: NO_STORE, status: 400 },
     );
   }
 
-  const rebuilt = await taskById(sceneId, caseKey, askLemma);
-  if (!rebuilt) {
-    return Response.json({ error: "That picture isn't available any more." }, { headers: NO_STORE, status: 404 });
-  }
-  const { task, answer } = rebuilt;
+  /*
+    The words in the picture, read off the dictionary. A lemma can hold two
+    entries (`hall` is a noun and an adjective, and a word somebody confirmed
+    off a photograph sits beside the seeded one), so `oneEntryPerLemma`
+    decides rather than the query plan.
+  */
+  const lemmas = picture.things.map((t) => t.lemma);
+  const rows = await prisma.lexeme.findMany({
+    where: { lemma: { in: lemmas } },
+    select: {
+      id: true, lemma: true, pos: true, translation: true, provenance: true,
+      forms: { select: { formType: true, value: true } },
+    },
+    orderBy: [{ lemma: "asc" }, { id: "asc" }],
+  });
+  const entry = new Map(oneEntryPerLemma(rows, lemmas).map((row) => [row.lemma, row]));
+  const words: PictureWord[] = picture.things.flatMap((thing) => {
+    const row = entry.get(thing.lemma);
+    return row
+      ? [{ lemma: row.lemma, pos: row.pos, translation: row.translation, emoji: thing.emoji, forms: row.forms }]
+      : [];
+  });
 
   // The part that is never in doubt, computed before anything can fail.
-  const mark = markDescription(task, sentence);
-  const spec = CASES.find((c) => c.key === task.caseKey)!;
-  const asked = task.words[task.askIndex]!;
+  const spellings = spellingsToCheck(sentences).slice(0, 120);
+  const known = new Set<string>();
+  await Promise.all(spellings.map(async (w) => { if (await isKnownForm(w)) known.add(w); }));
+  const mark = markPicture(words, sentences, known);
 
   /*
-    Everything the model is allowed to spell: every form of every word in the
-    scene, plus the forms of the case that was asked for. The derived ones
-    matter and are not rows in `Form` (ADR-009), so an allowlist built from the
-    table alone would withhold a comment for correctly quoting the very form
-    the task asked for.
-  */
-  const vouchedForms = [
-    ...task.words.flatMap((w) => [w.lemma, ...w.forms.map((f) => f.value)]),
-    ...task.accepted,
-  ];
-
-  /*
-    What the screen may show now that the sentence has been marked: the three
-    words with their glosses, and the form or forms that would have been right.
-    None of it is sent before the answer, because naming the other two things
-    in the picture is most of the exercise and printing the target form is all
-    of it. `shown` rather than `accepted`, since accepted is deliberately wider
-    and holds a suffix guess sitting beside a form Ekilex retrieved: printing
-    that pair would assert the guess is a word.
+    What the screen may print now that the five are marked: what each thing in
+    the picture is called, and which of them were talked about. None of it is
+    sent before, because naming the things is most of the exercise.
   */
   const reveal = {
-    words: task.words.map((w) => ({ emoji: w.emoji, lemma: w.lemma, translation: w.translation })),
-    wanted: task.shown,
-    // A sentence to compare against, and where it came from, because "a native
-    // wrote this about this picture" and "a lexicographer wrote this to
-    // illustrate this word" are two different claims and only one of them is
-    // about the picture.
-    answer,
-    // Whether this deployment has a model that could translate that sentence.
-    canTranslate: resolveProvider() !== null,
+    things: words.map((w) => ({
+      emoji: w.emoji, lemma: w.lemma, translation: w.translation,
+      used: mark.mentioned.includes(w.lemma),
+    })),
+    example: picture.example,
   };
 
   // The grader's own chain, not the general head (see `PURPOSE_CHAINS`).
@@ -121,8 +126,7 @@ export async function POST(request: Request) {
 
   const decision = await authoriseCall(ownerId, "GRADER");
   if (!decision.allowed) {
-    // The mechanical verdict stands, so this is a partial answer rather than a
-    // failure: the learner is still told whether the case was right.
+    // The mechanical marking stands, so this is a partial answer rather than a failure.
     return Response.json(
       { mark, reveal, graded: null, aiAvailable: false, quotaMessage: decision.message },
       { headers: NO_STORE, status: 200 },
@@ -135,34 +139,27 @@ export async function POST(request: Request) {
   let settled = false;
   try {
     const level = await courseLevelFor(ownerId);
-      /*
-    The grader's chain (`PURPOSE_CHAINS`): the measured model first, the other
-    measured one behind it, and the paid tail only while the day's fallback
-    budget has room. A note that cannot be written is dropped exactly as it was
-    before this existed. The verdict the learner acts on was decided by string
-    comparison against the dictionary before any of this ran.
-  */
-  const chain = resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed });
-  const { graded, usage, config: answered } = await gradeDescription(chain, {
-      situation: task.situation,
-      things: task.words.map((w) => ({ emoji: w.emoji, lemma: w.lemma, translation: w.translation })),
-      asked: {
-        lemma: asked.lemma,
-        caseEt: grammarTerm(spec.key)?.et ?? spec.et,
-        // What Anu is told the learner was asked, which has to be what the
-        // screen printed: see lib/estonian/caseQuestion.ts.
-        caseQuestion: caseQuestionFor(spec, {
-        lemma: asked.lemma,
-        semanticTypes: asked.semanticTypes,
-        nomSg: asked.forms.find((f) => f.formType === "NOM_SG")?.value ?? null,
-      }),
-      },
-      rightCase: mark.rightCase,
-      knownForms: task.words.flatMap((w) => [
-        { label: w.lemma, value: w.lemma },
-        ...w.forms.map((f) => ({ label: `${w.lemma} (${f.formType})`, value: f.value })),
-      ]).concat(task.shown.map((v) => ({ label: `${asked.lemma} (${spec.et})`, value: v }))),
-      sentence,
+    const chain = resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed });
+
+    /*
+      Everything the model is allowed to spell: every form of every thing in
+      the picture, including the ones the rules build off the stored parts and
+      no row holds (ADR-009). An allowlist built from the table alone would
+      withhold a note for correctly quoting `kooki`.
+    */
+    const knownForms = words.flatMap((w) => [
+      { label: w.lemma, value: w.lemma },
+      ...w.forms.map((f) => ({ label: `${w.lemma} (${f.formType.replace(/^EKILEX:/, "")})`, value: f.value })),
+      ...[...acceptedUses(w)].map((value) => ({ label: `${w.lemma} (a form)`, value })),
+    ]);
+
+    const { graded, usage, config: answered } = await gradeDescription(chain, {
+      situation: picture.title,
+      things: words.map((w) => ({ emoji: w.emoji, lemma: w.lemma, translation: w.translation })),
+      knownForms,
+      sentences: sentences.map((text, i) => ({
+        text, unknown: mark.sentences[i]!.unknown, mentions: mark.sentences[i]!.mentions,
+      })),
       level,
     });
 
@@ -175,26 +172,42 @@ export async function POST(request: Request) {
     }));
     settled = true;
 
-    // ADR-005, enforced rather than requested. The verdict above came from the
-    // dictionary and stands whatever happens here; what is withheld is only
-    // what the model said about the rest of the sentence.
+    /*
+      ADR-005, enforced rather than requested. The marking above came from the
+      dictionary and stands whatever happens here; what is withheld is only a
+      note that introduced an Estonian form nobody supplied, and only that
+      note: the other four are independent remarks.
+    */
+    const vouched = knownForms.map((f) => f.value);
+    const glosses = words.map((w) => w.translation);
+    const everything = sentences.join(" ");
     let withheld: string[] = [];
     let withheldReason: WithholdReason | null = null;
     let reply = graded;
     if (reply) {
-      const verified = verifyVerdict(
-        reply, vouchedForms, sentence, task.words.map((w) => w.translation),
-      );
-      if (verified.reason) {
-        withheld = verified.unverified;
-        withheldReason = verified.reason;
+      const note = (verified: { unverified: string[]; reason: WithholdReason | null }) => {
+        if (!verified.reason) return;
+        withheld = [...withheld, ...verified.unverified];
+        withheldReason = withheldReason === "estonian-form" ? withheldReason : verified.reason;
+      };
+      const one = reply.sentences.map((g, i) => {
+        const verified = verifyVerdict(g, vouched, sentences[i]!, glosses);
+        note(verified);
+        return verified.graded;
+      });
+      const summary = verifyVerdict({ comment: reply.wentWell, rule: reply.workOn }, vouched, everything, glosses);
+      note(summary);
+      reply = {
+        sentences: one,
+        wentWell: summary.graded.comment,
+        workOn: summary.graded.rule,
+      };
+      if (withheldReason) {
         reportError(new Error("grader introduced an unverified Estonian form"), {
-          at: "api/describe/verify",
-          ownerId,
-          extra: { model: answered.model, unverified: verified.unverified, scene: task.sceneId },
+          at: "api/describe/verify", ownerId,
+          extra: { model: answered.model, unverified: withheld, picture: picture.id },
         });
       }
-      reply = verified.graded;
     }
 
     return Response.json({ mark, reveal, graded: reply, aiAvailable: true, withheld, withheldReason }, { headers: NO_STORE });
