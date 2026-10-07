@@ -24,7 +24,7 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
 - A count is `countOf(locale, n, "card")`, never `n + " cards"`. Both languages have three plural
   forms (1 карточка, 2 карточки, 5 карточек) and `Intl.PluralRules` picks the right one. A new noun
   goes in its area's `counted` table with all three forms.
-- Each area of the app is a file in `lib/copy/i18n/areas/`, listed in `lib/copy/i18n/index.ts`.
+- Each area of the app is a file under `lib/copy/i18n/`, listed in `lib/copy/i18n/index.ts`.
   Two areas translating one English line differently fails `locale.test.ts`.
 - A server component reads the locale with `localeFor(ownerId)` from `lib/progress/locale.ts`; a
   client component with `useLocale()` from `components/Locale.tsx`.
