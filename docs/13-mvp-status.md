@@ -3072,3 +3072,38 @@ first paper. Each is fixed. The result now groups the wrong answers by part and 
 question each one was, and folds the blanks away. And because the server rebuilds a paper from its
 seed to mark it, a paper begun before this pass is refused with a sentence saying so
 (`PAPER_FORMAT`) rather than marked against questions nobody was asked.
+
+## 52. The forty-sixth pass: the start of a sentence picks the ending
+
+`/review/openers`, called Lause algus, drills one fact English cannot predict: what the first words
+of a sentence do to the last one. After `mulle meeldib` and `mul on` the thing keeps its dictionary
+form; after `ma tahan` and `mul ei ole` it takes the "some of it" ending. The government drill asks
+the neighbouring fact as "which case does this verb take", which names a case and is not how anybody
+speaks. This asks it in the sentence, with the opener as the cue.
+
+**One word to a round, and a different word next time.** A round holds every opener of the stage on
+one word, so the ending changes under the learner while the word does not. The words are a request
+list in `lib/estonian/openers.ts` and are countable on purpose: a mass noun (milk, coffee) is also
+said in the other form after `mul on`, which would make one question carry two right answers. Each
+word's two forms are the stored `NOM_SG` and `PART_SG`, or `NOM_PL` and `PART_PL` for the plural
+stage. A word whose two forms are spelled alike is dropped.
+
+**Six stages.** Four core openers, then more verbs, then every negative (including `mulle ei meeldi`,
+which does not flip), then the past, then plurals where the verb agrees, then everything mixed.
+`lib/stats/openers.ts` reads which stage a learner has settled off their own answers and stores
+nothing: the last twenty answers on a stage, at least 85 percent right, over at least three days.
+The next stage is offered and never forced.
+
+**A2 picks, B1 and above type.** Below A2 the screen says it opens at A2. A2 meets stages one and two
+as a choice between two forms. From B1 all six are typed, marked by `checkAnswer` with the other form
+as a rival so the wrong ending is never read as a slip.
+
+**What it writes.** An answer grades the word's production card through `gradeCard` carrying the
+slot `OP_<opener>`, which is on the closed list in `lib/srs/slots.ts`. A card is needed for a row, so
+the first answer about a word makes its recognition and production cards (`openerCard`). That is the
+one place a round adds a word behind the learner, and it is deliberate: without it there would be no
+answers to read a stage from. It is a decision for the operator to overrule.
+
+**What is written by hand.** The opener phrases and the English lines are authored and read in the
+pull request by the native Estonian speaker who develops this app, which is the standing the scene
+bank has (ADR-005 amendment 4). No form is written: every ending comes off the dictionary.

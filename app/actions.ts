@@ -184,6 +184,60 @@ export async function addToDeck(
   return result;
 }
 
+/**
+ * The card an answer in the openers round is graded on, made on the first one.
+ *
+ * Every answer is a `Review` row and a row needs a card (ADR-016), and the
+ * words the round uses are plain A1 nouns a learner would meet in the first
+ * month, so the first answer about one puts it in the deck. That is the one
+ * place a round adds a word behind the learner's back, and it is deliberate:
+ * a round whose answers could not be written down would have no stage to move
+ * a learner on from, which is what it is for. The production card is the one
+ * graded, as in the flash round, and the recognition card comes with it.
+ */
+export async function openerCard(lexemeId: string) {
+  lexemeId = text(lexemeId);
+  const ownerId = await requireUserId();
+  const find = () => prisma.card.findFirst({
+    where: { ownerId, lexemeId, cardType: "PRODUCTION" },
+    select: { id: true },
+    orderBy: { id: "asc" },
+  });
+  let card = await find();
+  let made = false;
+  if (!card) {
+    const added = await addCardsFor(ownerId, lexemeId, ["RECOGNITION", "PRODUCTION"], DEFAULT_SOURCE);
+    if (!added.ok) return { ok: false as const };
+    card = await find();
+    made = true;
+  }
+  // `made` lets the round say a word has just joined the deck, since nobody asked for it.
+  return card ? { ok: true as const, cardId: card.id, made } : { ok: false as const };
+}
+
+/**
+ * Takes back what `openerCard` just added. Only the two cards it makes, only from
+ * the default source, and only if the word arrived within the last day, so a word
+ * the learner has had for months is never touched. Review rows carry no key to the
+ * card, so the history stays.
+ */
+export async function undoOpenerCards(lexemeIds: string[]) {
+  const ownerId = await requireUserId();
+  const ids = (Array.isArray(lexemeIds) ? lexemeIds : []).slice(0, 20).map(text);
+  await prisma.card.deleteMany({
+    where: {
+      ownerId,
+      lexemeId: { in: ids },
+      source: DEFAULT_SOURCE,
+      cardType: { in: ["RECOGNITION", "PRODUCTION"] },
+      createdAt: { gte: new Date(Date.now() - 24 * 3600 * 1000) },
+    },
+  });
+  revalidatePath("/words");
+  revalidatePath("/");
+  return { ok: true as const };
+}
+
 /** Every deck this learner has named, for the picker and the management page. */
 export async function listMyDecks() {
   return listDecks(await requireUserId());

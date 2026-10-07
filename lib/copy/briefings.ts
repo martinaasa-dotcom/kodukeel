@@ -149,6 +149,12 @@ export const BRIEFINGS = {
     you: "Just have a look at the first step, nothing's scored there. After that, the typing counts.",
     action: "Start",
   },
+  openers: {
+    title: "How a sentence start picks the ending",
+    what: "The first words of a sentence and a gap at the end, always for the same word within a round.",
+    you: "Choose the right form, or type it from B1. Nothing is timed. A wrong answer shows where that form would have fit.",
+    action: "Start",
+  },
   government: {
     title: "Which case does this verb want?",
     what: "A verb, and four cases it might take. Only one is right.",

@@ -42,6 +42,15 @@ const TOPIC_DRILL: Record<string, string> = {
   conditional: "/review/conjugation",
 };
 
+/**
+ * A second drill on the same page, for the topic whose fact is asked two ways:
+ * rektsioon as "which case does this verb take", and as the start of a
+ * sentence deciding the ending of its last word.
+ */
+const TOPIC_ALSO_DRILL: Record<string, string> = {
+  government: "/review/openers",
+};
+
 /** The topics with a table of real verbs, and which slots that table shows. */
 const VERB_TOPICS: Record<string, "present" | "negative" | "conditional" | "imperative" | "past"> = {
   /*
@@ -325,7 +334,10 @@ export default async function TopicPage({
         {!inModule && TOPIC_DRILL[id] && (
           <section>
             <SectionTitle hint="from your own deck">Drill it</SectionTitle>
-            <DrillLink href={TOPIC_DRILL[id]!} />
+            <div className="flex flex-col gap-3">
+              <DrillLink href={TOPIC_DRILL[id]!} />
+              {TOPIC_ALSO_DRILL[id] && <DrillLink href={TOPIC_ALSO_DRILL[id]!} />}
+            </div>
           </section>
         )}
         {inModule && <ReadingEnd />}

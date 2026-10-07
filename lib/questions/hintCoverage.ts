@@ -69,6 +69,12 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
     why: "a board rather than a card: every word and every meaning is already on the screen and the exercise is pairing them",
   },
   {
+    file: "app/(app)/review/openers/OpenersSession.tsx",
+    why: "the start of the sentence is the cue and the choice is between two forms, so there is no"
+      + " shorter way to ask; a wrong answer already says which opener the form belongs to, which is"
+      + " the whole of what a hint would add",
+  },
+  {
     file: "app/(app)/review/pairs/PairsSession.tsx",
     why: "a board rather than a card: every tile is already face up by the time a pair can be got wrong",
   },
