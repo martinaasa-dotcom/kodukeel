@@ -330,6 +330,15 @@ ceiling on the bill and default to three dollars a day, and a deployment whose G
 runs out composes on qwen at $0.8 and $4 a million, which is dearer than either Gemini link, so an
 empty Gemini balance raises the bill rather than lowering it.
 
+**And a native Gemini call asks for a thinking level, because the budget is going.** Google's notice of
+2026-10-07 says `thinkingBudget` returns 400 on its coming models. The three native callers (`geminiCachedReply`,
+`play-scene.ts`, `critic-scenes.ts`) go through `thinkingFor`, which was probed rather than assumed: the Lite takes
+`minimal` and writes a line with no thinking tokens, while `gemini-3.8-flash` refuses `minimal`, `none` and `off`
+and thinks a few hundred tokens a call at `low`. The same few hundred showed up with the old budget of nought and
+on the compat layer's `reasoning_effort`, so this adds no cost to the flash that was not already there; it is
+billed as output and the ledger counts it. Moving the primary to the Lite would remove it and is the operator's
+call, for the reason given above. An invariant fails on `thinkingBudget` coming back.
+
 **And the translations reach a word looked up live, which was the hole left after the seed.**
 `mapEkilexDetails` built a new row's sentences as `({ et, source })`, the same `.et`-only shape the
 lesson page had one layer further out, so a deployment holding an Ekilex key and no model key looked
