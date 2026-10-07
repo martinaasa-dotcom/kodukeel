@@ -222,7 +222,7 @@ function ModuleNext({ focus, steps, onShown }: {
     <div ref={box} data-module-next="" className="dock-clear flex w-full flex-col items-center gap-2">
       <Button variant="primary" size="lg" onClick={carryOn} disabled={pending}>
         {last ? (
-          <>Finish today's module <ArrowRight size={16} aria-hidden /></>
+          <>Finish today&rsquo;s module <ArrowRight size={16} aria-hidden /></>
         ) : (
           <>
             {next ? `Next, step ${focus.n + 1}: ${next.title}` : `Next, step ${focus.n + 1}`}
@@ -460,7 +460,7 @@ function ModuleBar({ focus, atEnd }: { focus: ModuleFocus; atEnd: boolean }) {
             </Button>
           )}
           <ButtonLink href={MODULE_HOME} variant="secondary" className="shrink-0">
-            <ListChecks size={15} aria-hidden /> Today's module
+            <ListChecks size={15} aria-hidden /> Today&rsquo;s module
           </ButtonLink>
         </div>
         {failed && (

@@ -843,7 +843,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                 <p className="mt-3 text-sm" style={{ color: "var(--accent-deep)" }}>
                   {openingPart.days} evenings, about {COURSE_DAY_MINUTES} minutes each.
                   {openingPart.firstDay && (
-                    <> Today's module is <span lang="et">{openingPart.firstDay.title}</span>,{" "}
+                    <> Today&rsquo;s module is <span lang="et">{openingPart.firstDay.title}</span>,{" "}
                       {openingPart.firstDay.words} new words and one short round.</>
                   )}
                 </p>
