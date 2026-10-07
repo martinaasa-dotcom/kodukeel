@@ -120,6 +120,7 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
         language and in English, and what language the app itself opens in.
       */}
       {copy && !copy.reviewed && (
+        <aside className="relative">
         <p
           role="note"
           className="relative mx-auto mt-4 flex max-w-3xl items-start gap-2 rounded-[var(--r)] px-4 py-3 text-sm"
@@ -130,6 +131,7 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
             {copy.notice} <span lang="en">{MACHINE_TRANSLATED_EN}</span> {copy.appLanguage} {MACHINE_SHORT[copy.lang]}
           </span>
         </p>
+        </aside>
       )}
 
       {/*
