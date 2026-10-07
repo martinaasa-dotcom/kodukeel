@@ -444,7 +444,7 @@ function MoreOnThis({ task, className }: { task: ExceptionTask; className?: stri
         className="font-semibold underline underline-offset-2"
         style={{ color: "var(--accent-deep)" }}
       >
-        {topic.title}
+        {t(topic.title)}
       </Link>
     </p>
   );

@@ -86,7 +86,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     title: term
       ? fill(tr(locale, "Grammar, {topic}, or {term}"), { topic: tr(locale, topic.title).toLowerCase(), term: term.et })
       : fill(tr(locale, "Grammar, {topic}"), { topic: tr(locale, topic.title) }),
-    description: topic.summary,
+    description: tr(locale, topic.summary),
   };
 }
 

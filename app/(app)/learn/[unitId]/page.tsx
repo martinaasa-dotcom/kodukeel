@@ -215,7 +215,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
                   style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
                 >
                   <span lang={point.estonian ? "et" : undefined} className="underline">
-                    {point.title}
+                    {point.estonian ? point.title : t(point.title)}
                   </span>
                   <span className="text-xs">{t(point.english)}</span>
                 </Link>
