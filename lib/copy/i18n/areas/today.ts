@@ -97,7 +97,7 @@ export const TODAY: Area = {
   "to go tonight":
     "осталось на этот вечер",
   "Start tonight":
-    "Начать вечер",
+    "Начать урок",
   "Carry on":
     "Продолжить",
   "{done} of {days} done, {run} evenings in a row":
@@ -105,7 +105,7 @@ export const TODAY: Area = {
   "{done} of {days} done":
     "Пройдено {done} из {days}",
   "That's tonight done. Go and enjoy your evening.":
-    "На сегодня всё. Отдыхайте и наслаждайтесь вечером.",
+    "На сегодня всё. Хорошего вечера!",
   "Tomorrow you'll carry on with {unit}, part {n} of {of}.":
     "Завтра продолжим раздел {unit}, часть {n} из {of}.",
   "See you tomorrow for {unit}.":
@@ -233,7 +233,7 @@ export const TODAY: Area = {
   "Unscramble a word you've met. Every letter has its place.":
     "Соберите знакомое слово из букв. У каждой буквы своё место.",
   "Midweek, train your ear: hear a word and pick what it means.":
-    "Середина недели, тренируем слух: услышьте слово и выберите, что оно значит.",
+    "Середина недели, тренируем слух: послушайте слово и выберите, что оно значит.",
   "It's Friday: say this week's words out loud, then hear them said.":
     "Пятница: скажите слова этой недели вслух, а потом послушайте, как они звучат.",
   "Long sound or short? A Saturday ear test, no words needed.":
@@ -293,7 +293,7 @@ export const TODAY: Area = {
   "Getting stuck is just what learning a language out loud looks like. It still counts, and it's on the board.":
     "Сбиться посреди разговора нормально: так и выглядит язык, который учат вслух. Разговор всё равно засчитан.",
   "They switched to English. Next time, keep going in Estonian anyway. Most people switch back.":
-    "Собеседник перешёл на английский. В следующий раз всё равно продолжайте по-эстонски: большинство переходят обратно.",
+    "Собеседник перешёл на английский. В следующий раз всё равно продолжайте по-эстонски: большинство возвращаются к эстонскому.",
   "Running out of words costs nothing in a practice conversation, and the person there will wait while you find them.":
     "В тренировочном разговоре не страшно, если не хватает слов: собеседник подождёт, пока вы их найдёте.",
   "They can switch to English in there too, so you can practise steering it back to Estonian.":
@@ -357,7 +357,7 @@ export const TODAY: Area = {
   "Ask somebody what an Estonian word means, then use it yourself before bed.":
     "Спросите у кого-нибудь, что значит эстонское слово, и до сна используйте его сами.",
   "Tell somebody what you do for a living, and one thing you're good at.":
-    "Расскажите кому-нибудь, чем вы зарабатываете на жизнь, и что у вас хорошо получается.",
+    "Расскажите кому-нибудь, чем вы зарабатываете на жизнь и что у вас хорошо получается.",
   "Take something back to a shop, or report something broken, and say what's wrong with it.":
     "Верните что-нибудь в магазин или сообщите о поломке и скажите, что не так.",
   "Before you get on, ask whether this bus or tram goes where you're going.":
@@ -435,7 +435,7 @@ export const TODAY: Area = {
   "{part}, day {day}":
     "{part}, день {day}",
   "{credited} of {total} words":
-    "{credited} из {total} слов",
+    "Слов: {credited} из {total}",
   "You've reached {target}":
     "Вы достигли {target}",
   "On the way to {target}":
@@ -461,7 +461,7 @@ export const TODAY: Area = {
   "Every level up to {target} counts as yours already. What's left is proving it, and that's what the evenings are for.":
     "Все уровни до {target} уже засчитаны вам. Осталось это подтвердить, для этого и нужны вечера.",
   "Pick a target in Settings and this becomes the one number worth keeping an eye on.":
-    "Выберите цель в настройках, и это станет единственной цифрой, за которой стоит следить.",
+    "Выберите цель в настройках, и это станет главной цифрой, за которой стоит следить.",
   "Your level check put you at {level}, so {levels} count as yours. You won't have to redo anything below your level.":
     "Проверка уровня показала {level}, поэтому {levels} мы засчитали вам. Ничего ниже вашего уровня проходить заново не придётся.",
   "You told us you're at {level}, so {levels} count as yours. You won't have to redo anything below your level.":
@@ -491,7 +491,7 @@ export const TODAY: Area = {
   "Your evenings, already planned":
     "Ваши вечера уже спланированы",
   "{evenings} short evenings, from your very first word all the way to C1. We've planned every one.":
-    "Коротких вечеров от самого первого слова до C1: {evenings}. Мы спланировали каждый.",
+    "{evenings} от самого первого слова до C1, и все короткие. Мы спланировали каждый.",
   "You've been choosing what to do each evening, and that's fine. Starting this won't change anything else.":
     "Вы сами выбирали, чем заниматься каждый вечер, и это нормально. Если начать курс, больше ничего не изменится.",
   "It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.":
@@ -503,11 +503,11 @@ export const TODAY: Area = {
   "All {total} evenings done. Every word you met is in your reviews now.":
     "Все вечера пройдены, их было {total}. Каждое встреченное слово теперь в ваших повторениях.",
   "our guess, not a rule":
-    "наша догадка, а не правило",
+    "наше предположение, а не правило",
   "Not ready for {part} yet":
-    "К {part} пока рано",
+    "Переходить к {part} пока рано",
   "We'd give it a few more days to settle before you build the next part on it.":
-    "Мы бы дали этому ещё несколько дней улечься, прежде чем строить на этом следующую часть.",
+    "Мы бы дали знаниям ещё несколько дней улечься, прежде чем браться за следующую часть.",
   "Start {part} anyway":
     "Всё равно начать {part}",
   "Review what's due":
@@ -563,11 +563,11 @@ export const TODAY: Area = {
   "A few of these aren't in your deck yet. The first step adds them.":
     "Некоторых из них ещё нет в вашей колоде. Первый шаг их добавит.",
   "What you do tonight":
-    "Что вы делаете этим вечером",
+    "Что вас ждёт этим вечером",
   "How a step gets ticked":
     "Как отмечается шаг",
   "Meeting the words and the review at the end tick themselves off as you answer. The others you tick yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.":
-    "Знакомство со словами и повторение в конце отмечаются сами, пока вы отвечаете. Остальное вы отмечаете сами, потому что мы не видим, из какого упражнения пришёл ответ, и лучше честно это признать, чем делать вид, что следили.",
+    "Знакомство со словами и повторение в конце отмечаются сами, пока вы отвечаете. Остальные шаги отмечаете вы, потому что мы не видим, из какого упражнения пришёл ответ, и лучше честно это признать, чем делать вид, что следили.",
   "{done} of {total} evenings":
     "Вечеров: {done} из {total}",
   "This part":
@@ -645,7 +645,7 @@ export const TODAY: Area = {
   "Pair each word with its meaning against the clock. It's quick, it's fun, and the meanings stick before you ever have to say them.":
     "Соединяйте каждое слово с его значением на время. Это быстро и весело, и значения запоминаются ещё до того, как их придётся произносить.",
   "The same words, but this time you only hear them. Reading a word and catching it when somebody says it are two different skills.":
-    "Те же слова, но теперь вы их только слышите. Прочитать слово и узнать его, когда его кто-то произносит, это два разных навыка.",
+    "Те же слова, но теперь вы их только слышите. Прочитать слово и узнать его на слух совсем не одно и то же.",
   "A race through the words you've met, and their endings once you've read about them. Answer fast enough and you stop working words out and simply know them.":
     "Гонка по знакомым словам, а когда прочитаете про окончания, то и по окончаниям. Отвечайте быстро, и вы перестанете вычислять слова и начнёте просто их знать.",
   "Put a real Estonian sentence back together, word by word. Do it a few times and you start to feel where things go.":
@@ -689,7 +689,7 @@ export const TODAY: Area = {
   "{minutes} min, once this one's done":
     "{minutes} мин, после этого шага",
   "That didn't reach us.":
-    "До нас это не дошло.",
+    "Запрос до нас не дошёл.",
   "Nothing has changed.":
     "Ничего не изменилось.",
   "Try again":
@@ -707,11 +707,11 @@ export const TODAY: Area = {
   "That's the end of the page":
     "Это конец страницы",
   "Move on and that's step {n} of {of} done.":
-    "Идите дальше, и шаг {n} из {of} будет пройден.",
+    "Переходите дальше, и шаг {n} из {of} засчитается.",
   "That didn't reach us, so this step isn't ticked yet.":
-    "До нас это не дошло, поэтому шаг пока не отмечен.",
+    "Запрос до нас не дошёл, поэтому шаг пока не отмечен.",
   "Finish tonight":
-    "Завершить вечер",
+    "Завершить урок",
   "Next, step {n}: {title}":
     "Дальше, шаг {n}: {title}",
   "Next, step {n}":
@@ -739,7 +739,7 @@ export const TODAY: Area = {
   "Each verb makes its past its own way, so learn them a few at a time. Listen, then try three.":
     "Каждый глагол образует прошедшее время по-своему, поэтому учите их понемногу. Послушайте, а потом ответьте на три вопроса.",
   "No verbs to learn here tonight":
-    "Сегодня здесь нет глаголов",
+    "Сегодня здесь учить нечего",
   "We don't have the past forms of tonight's verbs yet. Carry on to the next step.":
     "Форм прошедшего времени для сегодняшних глаголов у нас пока нет. Переходите к следующему шагу.",
   "the ones you've met":
@@ -767,9 +767,9 @@ export const TODAY: Area = {
   "{lemma} means {translation}. Which one is \"I would\"?":
     "Слово {lemma} значит «{translation}». Какая форма для «я бы»?",
   "{lemma} means {translation}. Which one is \"you\", talking to one person?":
-    "Слово {lemma} значит «{translation}». Какая форма для «ты», когда обращаетесь к одному человеку?",
+    "Слово {lemma} значит «{translation}». Какая форма для «ты», при обращении к одному человеку?",
   "{lemma} means {translation}. Which one is \"you would\", talking to one person?":
-    "Слово {lemma} значит «{translation}». Какая форма для «ты бы», когда обращаетесь к одному человеку?",
+    "Слово {lemma} значит «{translation}». Какая форма для «ты бы», при обращении к одному человеку?",
   "{lemma} means {translation}. Which one is \"he or she\"?":
     "Слово {lemma} значит «{translation}». Какая форма для «он или она»?",
   "{lemma} means {translation}. Which one is \"he or she would\"?":
@@ -779,17 +779,17 @@ export const TODAY: Area = {
   "{lemma} means {translation}. Which one is \"we would\"?":
     "Слово {lemma} значит «{translation}». Какая форма для «мы бы»?",
   "{lemma} means {translation}. Which one is \"you\", talking to several people or politely?":
-    "Слово {lemma} значит «{translation}». Какая форма для «вы», когда обращаетесь к нескольким людям или вежливо?",
+    "Слово {lemma} значит «{translation}». Какая форма для «вы», при обращении к нескольким людям или из вежливости?",
   "{lemma} means {translation}. Which one is \"you would\", talking to several people or politely?":
-    "Слово {lemma} значит «{translation}». Какая форма для «вы бы», когда обращаетесь к нескольким людям или вежливо?",
+    "Слово {lemma} значит «{translation}». Какая форма для «вы бы», при обращении к нескольким людям или из вежливости?",
   "{lemma} means {translation}. Which one is \"they\"?":
     "Слово {lemma} значит «{translation}». Какая форма для «они»?",
   "{lemma} means {translation}. Which one is \"they would\"?":
     "Слово {lemma} значит «{translation}». Какая форма для «они бы»?",
   "Yes. {value} is {lemma} for {pronoun}.":
-    "Да, {value} это форма глагола {lemma} для {pronoun}.",
+    "Да. С {pronoun} у глагола {lemma} форма {value}.",
   "Yes. {value} is {lemma} for {pronoun}, and for {shared} too.":
-    "Да, {value} это форма глагола {lemma} для {pronoun}, а также для {shared}.",
+    "Да. С {pronoun} у глагола {lemma} форма {value}, как и с {shared}.",
   "Not that one. With {pronoun} it's {value}.":
     "Не эта. С {pronoun} будет {value}.",
   "Not that one. With {pronoun} it's {value}, and the same with {shared}.":
@@ -799,9 +799,9 @@ export const TODAY: Area = {
   "{lemma} means {translation}. Which one tells somebody to do it?":
     "Слово {lemma} значит «{translation}». Какая форма велит кому-то это сделать?",
   "Yes. {answer} is how you say not with {lemma}, {translation}.":
-    "Да, {answer} это отрицание глагола {lemma}, «{translation}».",
+    "Да, {answer}: так звучит отрицание глагола {lemma}, «{translation}».",
   "Yes. {answer} is how you tell one person to do it with {lemma}, {translation}.":
-    "Да, {answer} это повелительная форма глагола {lemma}, «{translation}», для одного человека.",
+    "Да, {answer}: так глаголом {lemma}, «{translation}», просят одного человека что-то сделать.",
   "Not that one. For {lemma}, it's {answer}.":
     "Не эта. У {lemma} будет {answer}.",
   "{lemma} means {translation}. Which one says \"I did it\", back in the past?":
@@ -809,21 +809,21 @@ export const TODAY: Area = {
   "{lemma} means {translation}. Which one says \"he or she did it\", back in the past?":
     "Слово {lemma} значит «{translation}». Какая форма о прошлом, когда это делал кто-то другой?",
   "Yes. {answer} is the past, when you did it yourself. {now} is happening right now.":
-    "Да, {answer} это прошлое, когда это делали вы сами. А {now} это то, что происходит сейчас.",
+    "Да. {answer} говорит о прошлом, когда это делали вы сами, а {now} о том, что происходит сейчас.",
   "Yes. {answer} is the past, when somebody else did it. {now} is happening right now.":
-    "Да, {answer} это прошлое, когда это делал кто-то другой. А {now} это то, что происходит сейчас.",
+    "Да. {answer} говорит о прошлом, когда это делал кто-то другой, а {now} о том, что происходит сейчас.",
   "Not that one. {answer} is the past, when you did it yourself.":
-    "Не эта. {answer} это прошлое, когда это делали вы сами.",
+    "Не эта. О прошлом, когда это делали вы сами, говорит {answer}.",
   "Not that one. {answer} is the past, when somebody else did it.":
-    "Не эта. {answer} это прошлое, когда это делал кто-то другой.",
+    "Не эта. О прошлом, когда это делал кто-то другой, говорит {answer}.",
   "{lemma} means {translation}. Which one says \"{reading}\"?":
     "Слово {lemma} значит «{translation}». Какая форма значит «{reading}»?",
   "Which one is {lemma}, {translation}, in the {case}?":
     "Какая форма у слова {lemma}, «{translation}», в падеже {case}?",
   "Yes. {form} is {lemma} in the {case}.":
-    "Да, {form} это {lemma} в падеже {case}.",
+    "Да, в падеже {case} слово {lemma} выглядит так: {form}.",
   "Yes. {form} is {lemma} in the {case}. It's {stem} with {ending} on the end.":
-    "Да, {form} это {lemma} в падеже {case}. Это {stem} с окончанием {ending}.",
+    "Да, в падеже {case} слово {lemma} выглядит так: {form}. Это {stem} с окончанием {ending}.",
   "Not that one. {lemma} becomes {form}.":
     "Не эта. {lemma} превращается в {form}.",
   "Not that one. {lemma} becomes {form}. It's {stem} with {ending} on the end.":
@@ -833,7 +833,7 @@ export const TODAY: Area = {
   "You're flying through this":
     "У вас всё идёт как по маслу",
   "You're flying through the top of the course":
-    "Вы легко проходите вершину курса",
+    "Вы легко проходите самую сложную часть курса",
   "This part is a tough one":
     "Эта часть непростая",
   "Lately you've been getting every answer right.":
@@ -845,17 +845,17 @@ export const TODAY: Area = {
   "There's no part above this one, so stretch yourself with your reviews and the tougher conversations.":
     "Выше этой части ничего нет, так что испытайте себя в повторениях и в более трудных разговорах.",
   "A lot of recent answers have been misses. This part is a step ahead of you for now, and that's normal.":
-    "Многие последние ответы были неверными. Эта часть пока на шаг впереди вас, и это нормально.",
+    "Среди последних ответов много ошибок. Эта часть пока на шаг впереди вас, и это нормально.",
   "Lately you've been getting {seen} out of a hundred right. This part is a step ahead of you for now, and that's normal.":
     "В последнее время вы отвечаете правильно на {seen} из ста. Эта часть пока на шаг впереди вас, и это нормально.",
   "Your reviews will bring back the words that are slipping. Give it a few days.":
-    "Повторения вернут слова, которые ускользают. Дайте этому несколько дней.",
+    "Повторения вернут слова, которые ускользают. Дайте себе несколько дней.",
   "The level you started at was a first guess. Going over {level} first will make this part much easier. It's a refresher, and this part waits for you afterwards.":
     "Уровень, с которого вы начали, был лишь первой догадкой. Если сначала пройтись по {level}, эта часть станет намного легче. Это просто освежит знания, а эта часть подождёт вас.",
   "Going over {level} first will make this part much easier. It's a refresher, and this part waits for you afterwards.":
     "Если сначала пройтись по {level}, эта часть станет намного легче. Это просто освежит знания, а эта часть подождёт вас.",
   "{part} is the part you skipped, and this one leans on it. Going back fills in the gaps.":
-    "{part} это часть, которую вы пропустили, а эта на неё опирается. Вернувшись, вы заполните пробелы.",
+    "Вы пропустили {part}, а эта часть на неё опирается. Если вернуться, пробелы заполнятся.",
   "Refresh {level} first":
     "Сначала освежить {level}",
   "Go back to {part}":
@@ -863,11 +863,11 @@ export const TODAY: Area = {
   "Skip ahead to {part}":
     "Перейти сразу к {part}",
   "For now, recordings play a little slower and conversations start a little simpler. That goes back to normal on its own as your answers pick up.":
-    "Пока что записи звучат чуть медленнее, а разговоры начинаются чуть проще. Всё вернётся к обычному само, когда ответы станут лучше.",
+    "Пока что записи звучат чуть медленнее, а разговоры начинаются чуть проще. Когда ответы станут лучше, всё само вернётся к обычному.",
   "For now, recordings play a little slower. That goes back to normal on its own as your answers pick up.":
-    "Пока что записи звучат чуть медленнее. Всё вернётся к обычному само, когда ответы станут лучше.",
+    "Пока что записи звучат чуть медленнее. Когда ответы станут лучше, всё само вернётся к обычному.",
   "For now, conversations start a little simpler. That goes back to normal on its own as your answers pick up.":
-    "Пока что разговоры начинаются чуть проще. Всё вернётся к обычному само, когда ответы станут лучше.",
+    "Пока что разговоры начинаются чуть проще. Когда ответы станут лучше, всё само вернётся к обычному.",
   "For now, conversations start a little harder and recordings play a little quicker. If your answers change, that goes back to normal on its own.":
     "Пока что разговоры начинаются чуть сложнее, а записи звучат чуть быстрее. Если ответы изменятся, всё само вернётся к обычному.",
   "For now, conversations start a little harder. If your answers change, that goes back to normal on its own.":
@@ -891,7 +891,7 @@ export const TODAY: Area = {
   "Your name and where you live, how to count, the rooms of your home, and the eleven verbs you'll need in almost every sentence you ever say. By the end you can introduce yourself, count, and describe where you live.":
     "Ваше имя и где вы живёте, как считать, комнаты вашего дома и одиннадцать глаголов, которые понадобятся почти в каждом вашем предложении. К концу вы сможете представиться, посчитать и описать, где живёте.",
   "Food, the time, your day, and what things are like":
-    "Еда, время, ваш день и какие вещи бывают",
+    "Еда, время, ваш день и описание вещей",
   "Food and drink, the days and the clock, what you do from morning to night, and your first words for what things look like, colors included. By the end you can say what you're doing, when, and what it's like.":
     "Еда и напитки, дни недели и часы, что вы делаете с утра до вечера, и первые слова о том, как выглядят вещи, включая цвета. К концу вы сможете сказать, что делаете, когда и каково это.",
   "Clothes, weather, prices, and a shop":
@@ -917,7 +917,7 @@ export const TODAY: Area = {
   "Life outside your front door: school, trips, the town, your weekends, and saying which of two things is better. There are four conversations to practise on along the way. By the end you can buy a ticket, ask the way and say what you did on Saturday.":
     "Жизнь за порогом дома: учёба, поездки, город, ваши выходные и как сказать, какая из двух вещей лучше. По пути вас ждут четыре разговора для практики. К концу вы сможете купить билет, спросить дорогу и рассказать, что делали в субботу.",
   "Eating out, making plans, keeping in touch, and how you feel":
-    "Еда вне дома, планы, общение и чувства",
+    "Кафе и рестораны, планы, общение и чувства",
   "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about it all. It has five conversations, more than any other part. By the end you can get through a whole meal in Estonian, book an appointment and ring somebody about it.":
     "Разговор о том, что ещё не случилось, общение с людьми и как сказать, что вы обо всём этом чувствуете. Здесь пять разговоров, больше, чем в любой другой части. К концу вы сможете пообедать в ресторане целиком по-эстонски, записаться на приём и позвонить, чтобы о нём договориться.",
   "Objects, the people in your life, what each verb asks for, money, and would":
@@ -931,21 +931,21 @@ export const TODAY: Area = {
   "Disagreeing with somebody, the things the papers argue about, and coping when something breaks. B1 ends on verbs that come in two parts, because they follow the same object rule you met at the start of B1. By the end you can argue your side without switching to English.":
     "Как спорить с собеседником, о чём спорят в газетах и как справиться, когда что-то сломалось. B1 заканчивается глаголами из двух частей, потому что они подчиняются тому же правилу дополнения, которое вы встретили в начале B1. К концу вы сможете отстоять свою точку зрения, не переходя на английский.",
   "Leaving out who did it, society, hearsay, the economy, and doing two things at once":
-    "Без указания, кто это сделал, общество, пересказ, экономика и два действия сразу",
+    "Безличные формы, общество, пересказ, экономика и два действия сразу",
   "History, building new words, politics, health and science":
     "История, образование новых слов, политика, здоровье и наука",
   "It opens on had done, the past before the past, learned on history, where you'll meet it most. Then how to work out a word you've never seen from one you already know, and three subjects to try it on. By the end you can read an opinion piece on any of them without a dictionary open.":
-    "Часть открывается давнопрошедшим временем, прошлым до прошлого, и учите вы его на истории, где оно встречается чаще всего. Потом как понять незнакомое слово по уже знакомому и три темы, чтобы это опробовать. К концу вы сможете прочитать мнение на любую из этих тем, не открывая словарь.",
+    "Часть открывается давнопрошедшим временем, прошлым до прошлого, и учите вы его на истории, где оно встречается чаще всего. Потом как понять незнакомое слово по уже знакомому и три темы, чтобы это опробовать. К концу вы сможете прочитать авторскую колонку на любую из этих тем, не открывая словарь.",
   "The arts, the law, the mind, working life, figures, and making a case":
     "Искусство, закон, психология, работа, цифры и аргументация",
   "The end of B2: the arts, making a proper complaint, describing how people behave, working in Estonian, reading a table of figures, and building an argument that gives a little ground before it wins.":
     "Конец B2: искусство, как подать настоящую жалобу, как описать поведение людей, работа на эстонском, чтение таблицы с цифрами и аргумент, который сначала немного уступает, а потом побеждает.",
   "Saying more in fewer words, and long sentences that hold together":
-    "Сказать больше меньшим числом слов, и длинные предложения, которые держатся вместе",
+    "Больше смысла в меньшем числе слов и длинные предложения, которые не разваливаются",
   "Ethics, persuasion, how formal to be, idioms, and holding a text together":
     "Этика, убеждение, насколько официально говорить, идиомы и связный текст",
   "Knowing how formal to be and getting it right, winning over somebody who disagrees, and the set phrases no rule will ever explain.":
-    "Понимать, насколько официально говорить, и попадать в тон, переубеждать несогласных и устойчивые выражения, которые не объяснит никакое правило.",
+    "Как выбрать нужную степень официальности и попасть в тон, как переубедить несогласного и устойчивые выражения, которые не объяснит никакое правило.",
   "New ideas, the wider world, literature, and words that almost mean the same":
     "Новые идеи, большой мир, литература и почти синонимы",
   "The last part of the course. By the end you've met everything in it, and what's left is reading Estonian because you want to.":

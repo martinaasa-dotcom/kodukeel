@@ -68,7 +68,7 @@ export const START: Area = {
       "Мы отправили ссылку на {address}. Откройте её в этом браузере, и вы войдёте. Через час она перестанет работать.",
     "Use a different address": "Указать другой адрес",
     "Taking you to Google…": "Переходим в Google…",
-    "Continue with Google": "Продолжить с Google",
+    "Continue with Google": "Войти через Google",
     "or": "или",
     "Your email or work address": "Личная или рабочая почта",
     "Your email address": "Адрес электронной почты",
@@ -109,7 +109,7 @@ export const START: Area = {
     "What should we call you?": "Как к вам обращаться?",
     "Your name or a nickname": "Ваше имя или прозвище",
     "We only use it to say hello, and to show your teacher if you ever join a class.":
-      "Мы используем его только для приветствия и чтобы показать вашему преподавателю, если вы присоединитесь к группе.",
+      "Оно нужно только для того, чтобы поздороваться с вами, а если вы вступите в группу, его увидит преподаватель.",
     "How do you type {a}, {b}, {c} and {d}?": "Как вы набираете {a}, {b}, {c} и {d}?",
     "Show the letters": "Показывать буквы",
     "Buttons for these letters appear under every box where you type Estonian.":
@@ -127,17 +127,17 @@ export const START: Area = {
     "You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.":
       "Английское значение вы тоже будете видеть всегда. Русские и украинские значения взяты прямо из эстонского словаря, их писали те же люди, что и эстонскую часть.",
     "One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.":
-      "Честно, прежде чем начать: Kodukeel не оценивает ваше произношение, не даёт ИИ ставить вам оценки и не заменяет преподавателя. Здесь вы репетируете. А настоящие разговоры ждут вас в жизни.",
+      "Одно честное замечание перед началом: Kodukeel не оценивает ваше произношение, не даёт ИИ ставить вам оценки и не заменяет преподавателя. Здесь вы репетируете. А настоящие разговоры ждут вас в жизни.",
 
     // FIRST RUN: LEVEL.
     "Where are you now?": "Какой у вас сейчас уровень?",
     "Take the level check to find out, or just pick the one that sounds like you. The check stops as soon as it has found your level. Either way, you can change it later in Settings.":
-      "Пройдите проверку уровня, чтобы узнать, или просто выберите тот, что больше на вас похож. Проверка закончится, как только определит ваш уровень. В любом случае его можно потом изменить в настройках.",
+      "Пройдите проверку уровня, чтобы узнать, или просто выберите тот, что подходит по описанию. Проверка закончится, как только определит ваш уровень. В любом случае его можно потом изменить в настройках.",
     "Measured just now": "Только что проверено",
     "Take it again": "Пройти ещё раз",
     "Take the level check": "Пройти проверку уровня",
     "The level check isn’t ready on this copy of Kodukeel yet, because its dictionary hasn’t been loaded. For now, pick the level that sounds most like you.":
-      "В этой копии Kodukeel проверка уровня пока недоступна: словарь ещё не загружен. А пока выберите уровень, который больше всего на вас похож.",
+      "В этой копии Kodukeel проверка уровня пока недоступна: словарь ещё не загружен. А пока выберите уровень, который больше всего вам подходит.",
     "Or make a guess": "Или оцените сами",
     "Guess your level": "Оцените свой уровень",
     "Just starting": "Только начинаю",
@@ -166,10 +166,10 @@ export const START: Area = {
       "Магазин, врач, автобус, соседи, бланки. Повседневная жизнь на языке, который звучит вокруг.",
     "Citizenship or residence": "Гражданство или вид на жительство",
     "There's a state exam at the end of this one, and it picks the level for you.":
-      "В конце вас ждёт государственный экзамен, и уровень за вас выберет он.",
+      "В конце вас ждёт государственный экзамен, и нужный уровень задаёт он.",
     "Work": "Работа",
     "Meetings, emails and colleagues who talk at full speed. At work you need to be understood exactly, not roughly.":
-      "Совещания, письма и коллеги, которые говорят в полную скорость. На работе вас должны понимать точно, а не приблизительно.",
+      "Совещания, письма и коллеги, которые говорят на полной скорости. На работе вас должны понимать точно, а не приблизительно.",
     "School or university": "Школа или университет",
     "A course with a syllabus, homework, and a mark waiting at the end of term.":
       "Курс с программой, домашними заданиями и оценкой в конце семестра.",
@@ -200,9 +200,9 @@ export const START: Area = {
     "In two years": "За два года",
     "No deadline, I'm in no hurry": "Без срока, я не тороплюсь",
     "Days a week you will really practice": "Сколько дней в неделю вы правда будете заниматься",
-    "be honest, the plan is built on it": "честно, на этом строится план",
+    "be honest, the plan is built on it": "честно: на этом строится план",
     "What this is going to take": "Что для этого потребуется",
-    "from your answers and published estimates": "по вашим ответам и опубликованным расчётам",
+    "from your answers and published estimates": "по вашим ответам и опубликованным оценкам",
     "This plan starts from your own guess at your level. Take the level check whenever you like, and it’ll redo the sums with your real one.":
       "Этот план исходит из вашей собственной оценки уровня. Пройдите проверку уровня, когда захотите, и всё пересчитается по вашему настоящему уровню.",
 
@@ -211,7 +211,7 @@ export const START: Area = {
     "This copy of Kodukeel has no dictionary loaded yet, so there are no first words to give you. Whoever runs it can load one with {command}. You can still pick your pace below, and add words yourself as you come across them.":
       "В этой копии Kodukeel ещё не загружен словарь, поэтому первых слов пока нет. Тот, кто ею управляет, может загрузить его командой {command}. А темп вы можете выбрать уже сейчас, ниже, и добавлять слова сами, когда будете их встречать.",
     "How much a day": "Сколько в день",
-    "changeable any time in Settings": "можно изменить в настройках",
+    "changeable any time in Settings": "можно изменить в любой момент в настройках",
     "Casual": "Спокойно",
     "Regular": "Регулярно",
     "Serious": "Серьёзно",
@@ -241,13 +241,13 @@ export const START: Area = {
 
     // WHY THIS PART.
     "If it turns out too hard or too easy, the course will notice and offer to move you.":
-      "Если окажется слишком сложно или слишком легко, курс это заметит и предложит вас перевести.",
+      "Если окажется слишком сложно или слишком легко, курс это заметит и предложит вам перейти.",
     "You start at the very beginning, with the first words anybody needs.":
       "Вы начинаете с самого начала, с первых слов, которые нужны любому.",
     "Your level check put you at {level}, which is the top of this course, so you start on its first part.":
-      "Проверка уровня показала {level}, а это вершина курса, поэтому вы начинаете с первой части этого уровня.",
+      "Проверка уровня показала {level}, а это высший уровень курса, поэтому вы начинаете с первой части этого уровня.",
     "You said you’re at {level}, which is the top of this course, so you start on its first part.":
-      "Вы указали уровень {level}, а это вершина курса, поэтому вы начинаете с первой части этого уровня.",
+      "Вы указали уровень {level}, а это высший уровень курса, поэтому вы начинаете с первой части этого уровня.",
     "Your level check put you at {level} and you’re aiming for {level}, so you start at its first part to make it solid.":
       "Проверка уровня показала {level}, и ваша цель тоже {level}, поэтому вы начинаете с первой части этого уровня, чтобы закрепить его.",
     "You said you’re at {level} and you’re aiming for {level}, so you start at its first part to make it solid.":
@@ -259,9 +259,9 @@ export const START: Area = {
 
     // THE FIRST CONVERSATION, OFF THE REASON.
     "Going to the shop for milk": "Сходить в магазин за молоком",
-    "Your kitchen, then the corner shop, with a friend on the phone": "Ваша кухня, потом магазин за углом, а на телефоне друг",
+    "Your kitchen, then the corner shop, with a friend on the phone": "Ваша кухня, потом магазин за углом, а друг на телефоне",
     "Handing in a form at a counter": "Сдать бланк в окошке",
-    "The desk at an office that wants your paperwork": "Стойка в учреждении, где требуют ваши документы",
+    "The desk at an office that wants your paperwork": "Стойка в учреждении, где от вас ждут документы",
     "Ordering a drink": "Заказать напиток",
     "The counter of a small café": "Стойка маленького кафе",
     "Buying a bus ticket": "Купить билет на автобус",
@@ -295,7 +295,7 @@ export const START: Area = {
     "A2 starts with what makes a conversation possible: asking for something without sounding like a robot. Then the past tense, and your first case endings, starting with the one all the others are built on. By the end you can say what you did yesterday and what's wrong with you, and your first two conversations are waiting.":
       "A2 начинается с того, без чего разговор невозможен: как попросить что-то и не звучать как робот. Потом прошедшее время и первые падежные окончания, начиная с того, на котором строятся все остальные. В конце вы сможете рассказать, что делали вчера и что у вас болит, а вас будут ждать первые два разговора.",
     "Two things separate knowing Estonian words from knowing Estonian: getting the object of a sentence right, and knowing which ending each verb wants after it. You learn each one on everyday words, first the people in your life, then work and money. Then comes would, for wishes and polite requests. Grammar and new words take turns, so it's never two weeks of tables.":
-      "Знать эстонские слова и знать эстонский отличают две вещи: правильное дополнение в предложении и знание того, какое окончание требует после себя каждый глагол. Каждую вы учите на повседневных словах: сначала люди в вашей жизни, потом работа и деньги. Затем условное наклонение, для желаний и вежливых просьб. Грамматика и новые слова чередуются, так что двух недель сплошных таблиц не будет.",
+      "Знать эстонские слова и знать эстонский отличают две вещи: правильное дополнение в предложении и знание того, какое окончание требует после себя каждый глагол. Каждую вы учите на повседневных словах: сначала люди в вашей жизни, потом работа и деньги. Затем условное наклонение для желаний и вежливых просьб. Грамматика и новые слова чередуются, так что двух недель сплошных таблиц не будет.",
     "Estonian has three ways of telling you what happened without saying who did it. You learn each one alongside the words it usually comes with: the impersonal with society, the reported form with the economy, and then the form for doing two things at once. By the end you can read a report that never names anybody.":
       "В эстонском есть три способа рассказать, что произошло, не говоря, кто это сделал. Каждый вы учите вместе со словами, рядом с которыми он обычно встречается: безличную форму с темой общества, пересказывательное наклонение с экономикой, а потом форму для двух действий одновременно. В конце вы сможете прочитать отчёт, в котором никто не назван.",
     "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole clause for. You practise it on academic writing, research and philosophy, which is where you'll need it most.":

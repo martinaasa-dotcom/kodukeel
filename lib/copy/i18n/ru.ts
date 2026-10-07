@@ -26,12 +26,12 @@ export const RU: Readonly<Record<string, string>> = {
   "Look up any word, in any form": "Любое слово в любой форме",
   "Grammar": "Грамматика",
   "What each of the fourteen cases is for": "Зачем нужен каждый из четырнадцати падежей",
-  "Build a word": "Собери слово",
+  "Build a word": "Собрать слово",
   "Learn three forms of a word and get eleven more for free": "Выучите три формы слова, и ещё одиннадцать получите бесплатно",
   "Exceptions": "Исключения",
   "The words that break the usual rules": "Слова, которые нарушают обычные правила",
   "Commonest words": "Самые частые слова",
-  "The 400 words Estonians use most, in four lists": "400 слов, которые эстонцы говорят чаще всего, в четырёх списках",
+  "The 400 words Estonians use most, in four lists": "400 слов, которые эстонцы используют чаще всего, в четырёх списках",
   "Scan a page": "Сфотографировать страницу",
   "Photograph a word list and turn it into cards": "Сфотографируйте список слов и превратите его в карточки",
   "Ask Anu": "Спросить Ану",
@@ -41,13 +41,13 @@ export const RU: Readonly<Record<string, string>> = {
   "Calendar": "Календарь",
   "Your classes, study times and what's due": "Ваши занятия, время учёбы и сроки",
   "Classes": "Группы",
-  "Teach a class, or join one": "Ведите группу или присоединяйтесь к ней",
+  "Teach a class, or join one": "Ведите свою группу или вступите в чужую",
   "Progress": "Прогресс",
-  "What's sticking, what isn't, and when you study": "Что запоминается, что нет, и когда вы учитесь",
+  "What's sticking, what isn't, and when you study": "Что запоминается, а что нет, и когда вы занимаетесь",
   "My words": "Мои слова",
   "Every word you're learning, card by card": "Каждое слово, которое вы учите, карточка за карточкой",
   "Word mastery": "Знание слов",
-  "Your favorites, what you've mastered and what needs work": "Избранное, что вы уже знаете и над чем ещё стоит поработать",
+  "Your favorites, what you've mastered and what needs work": "Избранное, что уже выучено и над чем стоит поработать",
   "Decks": "Колоды",
   "Make your own word lists and add to them as you go": "Составляйте свои списки слов и пополняйте их по ходу",
   "In real life": "В реальной жизни",
@@ -88,18 +88,18 @@ export const RU: Readonly<Record<string, string>> = {
   "A few quick questions on the words you've just learned, and any older ones that are due today.":
     "Несколько быстрых вопросов о словах, которые вы только что выучили, и о старых, которые пора повторить сегодня.",
   "Type your answer where there's a box, or pick one where there's a choice. Then the evening's done.":
-    "Впишите ответ, если есть поле, или выберите вариант, если они даны. И на сегодня всё.",
+    "Впишите ответ, если есть поле, или выберите вариант, если есть выбор. И на сегодня всё.",
   "Start": "Начать",
   "Your words, asked a new way": "Ваши слова, но по-новому",
   "Words you've already met, one at a time: from their meaning, as a form in a sentence, read out to you, or for a sentence of your own, depending on how well each has settled.":
-    "Слова, которые вы уже встречали, по одному: по значению, как форма в предложении, на слух или в вашем собственном предложении, смотря насколько хорошо каждое уже запомнилось.",
+    "Слова, которые вы уже встречали, по одному: по значению, как форма в предложении, на слух или в вашем собственном предложении, смотря по тому, насколько хорошо каждое уже запомнилось.",
   "Type each answer and check it. Each time a word comes back right, it's asked a harder way next time.":
     "Впишите каждый ответ и проверьте его. Каждый раз, когда вы отвечаете правильно, в следующий раз вопрос будет сложнее.",
   "The words you'll hear most": "Слова, которые вы будете слышать чаще всего",
   "Words from one of the lists of what Estonians say most, counted from real films and TV rather than picked by us.":
     "Слова из списка того, что эстонцы говорят чаще всего. Список посчитан по настоящим фильмам и сериалам, а не составлен нами.",
   "Type each answer. A word comes back with a new ending each time, so you learn it the way it's really used.":
-    "Впишите каждый ответ. Слово каждый раз возвращается с новым окончанием, так что вы учите его таким, каким его на самом деле используют.",
+    "Впишите каждый ответ. Слово каждый раз возвращается с новым окончанием, так что вы учите его так, как его на самом деле используют.",
   "Your own deck": "Ваша колода",
   "The cards you put in this deck, one at a time, the most overdue first.":
     "Карточки, которые вы положили в эту колоду, по одной, начиная с самых просроченных.",
@@ -133,16 +133,16 @@ export const RU: Readonly<Record<string, string>> = {
   "Words that don't do what the usual pattern says. You'll see each one first, then type it, then put it in a real sentence.":
     "Слова, которые ведут себя не так, как обычно. Сначала вы увидите каждое, потом напечатаете его, а потом вставите в настоящее предложение.",
   "Just have a look at the first step, nothing's scored there. After that, the typing counts.":
-    "На первом шаге просто посмотрите, он не оценивается. Дальше то, что вы печатаете, уже засчитывается.",
+    "На первом шаге просто посмотрите, он не оценивается. Дальше ваши ответы уже засчитываются.",
   "Which case does this verb want?": "Какой падеж нужен этому глаголу?",
   "A verb, and four cases it might take. Only one is right.": "Глагол и четыре падежа, которые ему могли бы подойти. Правильный только один.",
-  "Pick it. There's nothing to type and no clock.": "Выберите его. Печатать ничего не нужно, и времени никто не считает.",
+  "Pick it. There's nothing to type and no clock.": "Выберите его. Печатать ничего не нужно, таймера нет.",
   "Put the word back together": "Соберите слово",
   "A word you know, read out loud with its meaning shown, and its letters jumbled up on tiles.":
     "Знакомое вам слово звучит вслух, его значение показано, а буквы перемешаны на плитках.",
   "Tap the letters in the right order. Miss once and we'll put the first letter in for you.":
     "Нажимайте на буквы в правильном порядке. Если ошибётесь, мы поставим первую букву за вас.",
-  "Hear a word, pick what it means": "Услышьте слово и выберите его значение",
+  "Hear a word, pick what it means": "Послушайте слово и выберите значение",
   "One word at a time, read out loud by a different voice each time, with four meanings to choose from. You won't see it written until you've answered.":
     "По одному слову, каждый раз новым голосом, и четыре значения на выбор. Как слово пишется, вы увидите только после ответа.",
   "Pick the meaning. Play the word again as often as you like.": "Выберите значение. Слово можно включать сколько угодно раз.",
@@ -154,7 +154,7 @@ export const RU: Readonly<Record<string, string>> = {
   "Two words that sound almost the same, except one sound is held a little longer. You'll hear one of them.":
     "Два слова звучат почти одинаково, только в одном звук тянется чуть дольше. Вы услышите одно из них.",
   "Say which one you heard. Play it again if you need to, it's recorded in a quiet room.":
-    "Скажите, какое вы услышали. Если нужно, включите ещё раз: запись сделана в тихой комнате.",
+    "Выберите, какое вы услышали. Если нужно, включите ещё раз: запись сделана в тихой комнате.",
   "Put the sentence back in order": "Соберите предложение",
   "A real sentence, cut up into words and shuffled.": "Настоящее предложение, разрезанное на слова и перемешанное.",
   "Tap the words into order. Estonian often allows more than one order, and we'll accept those too.":
@@ -167,24 +167,24 @@ export const RU: Readonly<Record<string, string>> = {
   "As many as you can": "Сколько успеете",
   "Cards from your deck against the clock. You turn them over instead of typing.": "Карточки из вашей колоды на время. Вы переворачиваете их, а не печатаете.",
   "Go as fast as you can until time's up. Stopping early costs you nothing.": "Отвечайте как можно быстрее, пока не выйдет время. Если остановитесь раньше, ничего не потеряете.",
-  "Start the clock": "Запустить время",
-  "Hit the right ending": "Попади в нужное окончание",
+  "Start the clock": "Запустить таймер",
+  "Hit the right ending": "Попадите в нужное окончание",
   "A word, a question, and four answers to pick from, mostly the same word with different endings. Every hit makes the next clock a little shorter.":
     "Слово, вопрос и четыре ответа на выбор, чаще всего одно и то же слово с разными окончаниями. С каждым попаданием время на следующий вопрос немного сокращается.",
   "Tap the one the question is asking for.": "Нажмите на тот ответ, о котором спрашивает вопрос.",
   "Write your own sentence": "Напишите своё предложение",
-  "One word, and the ending we'd like you to give it.": "Одно слово и окончание, которое мы просим ему дать.",
+  "One word, and the ending we'd like you to give it.": "Одно слово и окончание, которое ему нужно дать.",
   "Write a sentence with it. The dictionary checks the ending, and Anu leaves you a note on the rest.":
     "Напишите с ним предложение. Окончание проверит словарь, а об остальном Ану оставит вам заметку.",
   "The endings you keep missing": "Окончания, в которых вы чаще ошибаетесь",
   "Cards from the cases you get wrong most, picked from your own answers, against the clock.":
     "Карточки на падежи, в которых вы чаще всего ошибаетесь, отобранные по вашим же ответам, на время.",
-  "Answer as many as you can before time runs out.": "Ответьте на как можно больше вопросов, пока не закончилось время.",
+  "Answer as many as you can before time runs out.": "Ответьте на как можно больше вопросов, пока не закончится время.",
   "Guess today's word": "Угадайте слово дня",
   "One six-letter Estonian word a day, and seven tries to find it. After each guess, the letters show whether they're in the right spot, somewhere else, or not in the word at all.":
     "Одно эстонское слово из шести букв в день и семь попыток его найти. После каждой попытки буквы показывают, стоят ли они на своём месте, есть ли они в слове в другом месте или их в слове нет совсем.",
   "Type any real six-letter word and send it. If it's getting close to the end, we'll slip you a clue.":
-    "Напечатайте любое настоящее слово из шести букв и отправьте. Когда попытки будут подходить к концу, мы подкинем подсказку.",
+    "Напечатайте любое настоящее слово из шести букв и отправьте. Когда попытки начнут заканчиваться, мы подкинем подсказку.",
   "Today's crossword": "Кроссворд дня",
   "Estonian words crossing each other, with English clues. Each clue also says whether it wants a noun, a verb or so on, so only one word fits.":
     "Эстонские слова пересекаются друг с другом, подсказки на английском. Каждая подсказка ещё говорит, нужно ли существительное, глагол и так далее, поэтому подходит только одно слово.",
@@ -197,7 +197,7 @@ export const RU: Readonly<Record<string, string>> = {
   "A short set of questions from across the level. You'll find out how you did at the end, not after each one.":
     "Короткий набор вопросов по всему уровню. Результат вы узнаете в конце, а не после каждого вопроса.",
   "Answer each one as best you can and keep going. Leaving one blank is an honest answer.":
-    "Отвечайте на каждый как можете и двигайтесь дальше. Оставить вопрос пустым тоже честный ответ.",
+    "Отвечайте на каждый как можете и двигайтесь дальше. Если оставите вопрос без ответа, это тоже честный ответ.",
 
   // THE BRIEFING'S OWN CHROME.
   "{count} in this round": "{count} в этом раунде",
@@ -207,6 +207,6 @@ export const RU: Readonly<Record<string, string>> = {
 
   // SETTINGS: THE LANGUAGE ITSELF.
   "Language of the app": "Язык приложения",
-  "The words around the Estonian. The Estonian itself never changes.": "Слова вокруг эстонского текста. Сам эстонский не меняется.",
+  "The words around the Estonian. The Estonian itself never changes.": "Меняются слова вокруг эстонского, а сам эстонский остаётся прежним.",
   "Got it": "Понятно",
 };
