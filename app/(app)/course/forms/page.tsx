@@ -7,6 +7,8 @@ import { Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { ReadingEnd } from "@/components/course/ReadingEnd";
 import { TryIt } from "@/components/course/TryIt";
 import { VerbTable } from "@/app/(app)/grammar/topic/[id]/VerbTable";
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
 export const metadata = { title: "The past of your verbs" };
 
@@ -49,23 +51,25 @@ export default async function CourseFormsPage({
   const verbs = lemmas.length > 0 ? await verbExamples(ownerId, lemmas.length, lemmas) : [];
   // Teaching order, which is the order the evening names them in.
   const ordered = [...verbs].sort((a, b) => lemmas.indexOf(a.lemma) - lemmas.indexOf(b.lemma));
+  const locale = await localeFor(ownerId);
+  const t = (english: string) => tr(locale, english);
 
   return (
     <Page
-      eyebrow="Tonight's module"
-      title="The past of your verbs"
-      lead="Each verb makes its past its own way, so learn them a few at a time. Listen, then try three."
+      eyebrow={t("Tonight's module")}
+      title={t("The past of your verbs")}
+      lead={t("Each verb makes its past its own way, so learn them a few at a time. Listen, then try three.")}
     >
       <Stack>
         {ordered.length === 0 ? (
           <Empty
-            title="No verbs to learn here tonight"
-            body="We don't have the past forms of tonight's verbs yet. Carry on to the next step."
+            title={t("No verbs to learn here tonight")}
+            body={t("We don't have the past forms of tonight's verbs yet. Carry on to the next step.")}
           />
         ) : (
           <>
             <section>
-              <SectionTitle hint="the ones you've met">Tonight&apos;s verbs</SectionTitle>
+              <SectionTitle hint={t("the ones you've met")}>{t("Tonight's verbs")}</SectionTitle>
               <VerbTable verbs={ordered} show={polite ? "forms" : "past"} />
             </section>
             <TryIt asks={verbAsks(ordered, "past")} />

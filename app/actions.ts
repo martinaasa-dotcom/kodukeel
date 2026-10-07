@@ -83,8 +83,9 @@ import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
-  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, levelHeldOnHandOff, programmeById,
+  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, levelHeldOnHandOff, programmeById, stepText,
 } from "@/lib/course";
+import { localeFor } from "@/lib/progress/locale";
 import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
@@ -4051,7 +4052,7 @@ export async function tonightSteps(programmeId: string, dayId: string) {
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   if (!programme || !day) return null;
-  const clock = await learnerDayClock(ownerId);
+  const [clock, locale] = await Promise.all([learnerDayClock(ownerId), localeFor(ownerId)]);
   const reading = await courseReading(ownerId, programme, clock);
   const current = reading.current;
   const done = (id: string) => !current
@@ -4059,7 +4060,8 @@ export async function tonightSteps(programmeId: string, dayId: string) {
     || (day.id === current.day.id && current.done.has(id));
   return focusedSteps(programme.id, day.id, day.steps).map((f) => ({
     id: f.step.id,
-    title: f.step.title,
+    // Worded for this learner, since the rail draws it as it comes.
+    title: stepText(day, f.step, locale).title,
     href: f.href,
     done: done(f.step.id),
   }));

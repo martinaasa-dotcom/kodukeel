@@ -69,8 +69,8 @@ describe("what it says", () => {
   };
 
   it("prints a share somebody can check, and never a bare percentage of nothing", () => {
-    expect(holdReason(hold({ taught: 80, known: 20 }))).toContain("25 out of every hundred");
-    expect(holdReason(hold({ right: 80, answers: 200 }))).toContain("40 out of a hundred");
+    expect(holdReason(hold({ taught: 80, known: 20 }), "en")).toContain("25 out of every hundred");
+    expect(holdReason(hold({ right: 80, answers: 200 }), "en")).toContain("40 out of a hundred");
   });
 
   /*
@@ -80,7 +80,7 @@ describe("what it says", () => {
   */
   it("never tells anybody to start again", () => {
     for (const verdict of [hold({ taught: 80, known: 20 }), hold({ right: 80, answers: 200 })]) {
-      const said = `${holdReason(verdict)} ${holdAdvice(verdict)}`.toLowerCase();
+      const said = `${holdReason(verdict, "en")} ${holdAdvice(verdict, "en")}`.toLowerCase();
       /*
         The meaning rather than three spellings of it. This forbade "start
         again", "repeat" and "redo", and "Start the part again from its first
