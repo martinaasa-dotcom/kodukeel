@@ -7910,7 +7910,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **3909.** Ask Anu to read it  
   → Попросити Ану прочитати
 - [ ] **3910.** Ask about  
-  → Запитайте про
+  → Запитайте
 - [ ] **3911.** Assessed at {level}  
   → Оцінка: {level}
 - [ ] **3912.** At a glance  
@@ -8120,11 +8120,11 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4014.** In this app, each week  
   → У застосунку, на тиждень
 - [ ] **4015.** In {unit}. These figures are made up for practice, so don't quote them as facts.  
-  → У розділі «{unit}». Ці цифри вигадані для практики, тож не наводьте їх як факти.
+  → Одиниці виміру: {unit}. Ці цифри вигадані для практики, тож не наводьте їх як факти.
 - [ ] **4016.** It fits if you really commit: about {time} a week, all told.  
-  → Вийде, якщо взятися всерйоз: загалом близько {time} на тиждень.
+  → Вийде, якщо взятися всерйоз: загалом приблизно {time} на тиждень.
 - [ ] **4017.** It fits. Plan on about {time} a week, all told.  
-  → Виходить. Закладайте загалом близько {time} на тиждень.
+  → Виходить. Закладайте загалом приблизно {time} на тиждень.
 - [ ] **4018.** It starts easy and gets harder until it finds your level. For speaking, you judge yourself.  
   → Починається легко й стає складніше, доки не знайде ваш рівень. Говоріння ви оцінюєте самі.
 - [ ] **4019.** It was saved in an older format that this version can't show in full. Your score still stands: {pct} percent, which counted as a fail.  
@@ -8390,7 +8390,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4149.** Put in about {need} a week of Estonian beyond this app and you'll make your date. You {where}, which usually gives you {held} a week without booking anything, so most of it is already there.  
   → Додавайте приблизно {need} естонської на тиждень окрім застосунку, і ви встигнете до своєї дати. Ви {where}, а це зазвичай дає {held} на тиждень без жодних записів на курси, тож більша частина вже є.
 - [ ] **4150.** Put in about {need} a week of Estonian beyond this app and you'll make your date: a class, a conversation partner, reading, a film without subtitles. A normal week has room for {held} of that, and at that pace you're about {lands} away.  
-  → Додавайте приблизно {need} естонської на тиждень окрім застосунку, і ви встигнете до своєї дати: курси, співрозмовник, читання, фільм без субтитрів. У звичайному тижні знайдеться місце для {held} цього, і в такому темпі вам ще приблизно {lands}.
+  → Додавайте приблизно {need} естонської на тиждень окрім застосунку, і ви встигнете до своєї дати: курси, співрозмовник, читання, фільм без субтитрів. Звичайний тиждень дає змогу приділити цьому {held}, і в такому темпі вам ще приблизно {lands}.
 - [ ] **4151.** Put it back  
   → Повернути на місце
 - [ ] **4152.** Quick enough to answer before the other person fills the silence.  
@@ -8560,7 +8560,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4234.** That's long enough.  
   → Цього досить.
 - [ ] **4235.** That's more than most weeks can hold on top of everything else. At {held} a week beyond this app, it's about {lands} away. Move your date to then, or raise the daily goal, and the plan works again.  
-  → Це більше, ніж вміщується у звичайний тиждень понад усе інше. За {held} на тиждень окрім застосунку до мети приблизно {lands}. Перенесіть дату туди або підніміть денну мету, і план знову спрацює.
+  → Це більше, ніж вміщується у звичайний тиждень понад усе інше. Якщо приділяти {held} на тиждень окрім застосунку до мети приблизно {lands}. Перенесіть дату туди або підніміть денну мету, і план знову спрацює.
 - [ ] **4236.** That's one short check to plan a paper on, but it's all we have for this part. Your other practice here can't show us your listening and speaking on their own.  
   → Для планування іспиту це лише одна коротка перевірка, але з цієї частини в нас більше нічого немає. Інші ваші заняття тут не можуть показати нам аудіювання й говоріння окремо.
 - [ ] **4237.** That's over the limit, which costs length marks, as on the real paper. Cut it back to {max}.  
@@ -8660,7 +8660,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4284.** The {case} is the case you find hardest  
   → Найважчий для вас відмінок: {case}
 - [ ] **4285.** Their call: you're {who}  
-  → Їхній дзвінок: ви {who}
+  → Телефонують вам: ви {who}
 - [ ] **4286.** Then debate this  
   → Потім обговоріть це
 - [ ] **4287.** Then decide together  
@@ -8698,7 +8698,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4303.** This situation leans on the {case}, as in “{gloss}”. {n} answers isn't enough to tell whether you have it yet.  
   → Ця ситуація спирається на {case}, як у «{gloss}». Відповідей поки {n}, цього замало, щоб зрозуміти, чи опанували ви його.
 - [ ] **4304.** Thoughts on the card  
-  → Думки про картку
+  → Думки на картці
 - [ ] **4305.** Throw it away and start fresh  
   → Викинути й почати заново
 - [ ] **4306.** Time is counted in sittings, from the first answer of an evening to the last. A card counts as known once it has come back days later and been answered again.  
@@ -8926,7 +8926,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4417.** You've hardly been asked the {case} yet  
   → Вас майже не питали {case}
 - [ ] **4418.** You've spent about {pace} a week here over the last {weeks}, so that's the pace we're using.  
-  → Ви проводили тут близько {pace} на тиждень за {weeks}, тому ми беремо цей темп.
+  → Ви проводили тут приблизно {pace} на тиждень за {weeks}, тому ми беремо цей темп.
 - [ ] **4419.** You've swapped your card. The real paper lets you do that once.  
   → Ви поміняли картку. На справжньому іспиті це можна зробити один раз.
 - [ ] **4420.** Your answer  
@@ -14648,4 +14648,1265 @@ _lib/copy/i18n/areas/sweep.ts_
   → Це більше за межу в {max} слів, і за довжину знімаються бали.
 - [ ] **7246.** You didn't use {words}.  
   → Ви не використали {words}.
+
+## exam (628 lines)
+
+_lib/copy/i18n/areas/exam.ts_
+
+- [ ] **7247.** Write {scenario}.  
+  → Напишіть {scenario}.
+- [ ] **7248.** This is {name}'s business card. Write a short text about them for somebody who has never met them.  
+  → Перед вами візитна картка: {name}. Напишіть короткий текст про цю людину для того, хто з нею не знайомий.
+- [ ] **7249.** Describe {subject}.  
+  → Опишіть {subject}.
+- [ ] **7250.** Write a story about {topic}: something that happened to you or somebody you know.  
+  → Напишіть розповідь {topic}: історію, яка сталася з вами або з кимось із ваших знайомих.
+- [ ] **7251.** Write a personal letter to a friend about {topic}.  
+  → Напишіть особистого листа другові {topic}.
+- [ ] **7252.** Write {scenario}. Address them politely, as you would somebody in an office you don't know, and open and close the letter the way that kind of letter does.  
+  → Напишіть {scenario}. Звертайтеся ввічливо, як до незнайомої людини в установі, а почніть і закінчіть листа так, як заведено в таких листах.
+- [ ] **7253.** Write {scenario}. Write the way you would to a friend.  
+  → Напишіть {scenario}. Пишіть так, як написали б другові.
+- [ ] **7254.** Write a text arguing for or against this statement: "{statement}"  
+  → Напишіть текст на підтримку цього твердження або проти нього: «{statement}»
+- [ ] **7255.** {situation} Write an opinion piece about it for {reader}.  
+  → {situation} Напишіть про це колонку зі своєю думкою для {reader}.
+- [ ] **7256.** develop the first point: {point}  
+  → розкрийте перший пункт: {point}
+- [ ] **7257.** develop the second point: {point}  
+  → розкрийте другий пункт: {point}
+- [ ] **7258.** Describe the picture for {time}: what is in it, where you might see it and what might be going on. The examiner's questions come once you've spoken.  
+  → Описуйте картинку {time}: що на ній зображено, де таке можна побачити і що, можливо, відбувається. Запитання екзаменатора будуть після вашої розповіді.
+- [ ] **7259.** Ask about {about} using the card, then answer the same questions about yourself. On the real day you ask another candidate; here you play both sides.  
+  → Поставте запитання {about} за карткою, а потім дайте відповідь на ті самі запитання про себе. На справжньому іспиті ви запитуєте іншого кандидата, а тут граєте обидві ролі.
+- [ ] **7260.** First you ring {call} and ask for everything on your card. Then somebody rings you, and you answer as {answerAs}, with the facts on the second card.  
+  → Спочатку ви телефонуєте {call} і дізнаєтеся все, що зазначено на вашій картці. Потім телефонують вам, і ви відповідаєте як {answerAs}, за фактами з другої картки.
+- [ ] **7261.** You have {prep} to prepare and may make notes. Then speak for {time}, and answer the question after it.  
+  → На підготовку у вас {prep}, можна робити нотатки. Потім говоріть {time} і дайте відповідь на запитання після виступу.
+- [ ] **7262.** Choose one of the two topics. You have {prep} to prepare and may make notes. Then speak for {time} and answer the questions after it.  
+  → Оберіть одну з двох тем. На підготовку у вас {prep}, можна робити нотатки. Потім говоріть {time} і дайте відповідь на запитання після виступу.
+- [ ] **7263.** Discuss the question as if with a partner, for {time}. Cover the thoughts on the card, and keep it a conversation rather than a speech.  
+  → Обговорюйте запитання {time}, ніби з партнером. Торкніться думок із картки й ведіть розмову, а не виголошуйте промову.
+- [ ] **7264.** The business card _(context: brief)_  
+  → Візитна картка
+- [ ] **7265.** A note _(context: brief)_  
+  → Записка
+- [ ] **7266.** A description _(context: brief)_  
+  → Опис
+- [ ] **7267.** A story _(context: brief)_  
+  → Розповідь
+- [ ] **7268.** A personal letter _(context: brief)_  
+  → Особистий лист
+- [ ] **7269.** A semi-formal letter _(context: brief)_  
+  → Напівофіційний лист
+- [ ] **7270.** An informal letter _(context: brief)_  
+  → Неофіційний лист
+- [ ] **7271.** A summary with your comment _(context: brief)_  
+  → Огляд із вашим коментарем
+- [ ] **7272.** An argument _(context: brief)_  
+  → Аргументований текст
+- [ ] **7273.** A summary of the figures _(context: brief)_  
+  → Огляд цифр
+- [ ] **7274.** An opinion piece _(context: brief)_  
+  → Колонка з власною думкою
+- [ ] **7275.** about 45 seconds _(context: brief)_  
+  → близько 45 секунд
+- [ ] **7276.** about a minute _(context: brief)_  
+  → близько хвилини
+- [ ] **7277.** about a minute and a half _(context: brief)_  
+  → близько півтори хвилини
+- [ ] **7278.** about 2 minutes _(context: brief)_  
+  → близько 2 хвилин
+- [ ] **7279.** about 3 minutes _(context: brief)_  
+  → близько 3 хвилин
+- [ ] **7280.** 2 minutes _(context: brief)_  
+  → 2 хвилини
+- [ ] **7281.** 3 minutes _(context: brief)_  
+  → 3 хвилини
+- [ ] **7282.** Monday to Friday, 9:00 to 17:00 _(context: brief)_  
+  → З понеділка до п'ятниці, з 9:00 до 17:00
+- [ ] **7283.** Monday to Thursday, 8:00 to 16:00 _(context: brief)_  
+  → З понеділка до четверга, з 8:00 до 16:00
+- [ ] **7284.** Tuesday to Saturday, 10:00 to 18:00 _(context: brief)_  
+  → З вівторка до суботи, з 10:00 до 18:00
+- [ ] **7285.** Every day, 12:00 to 20:00 _(context: brief)_  
+  → Щодня, з 12:00 до 20:00
+- [ ] **7286.** what happened, and when _(context: brief)_  
+  → що сталося і коли
+- [ ] **7287.** why it happened _(context: brief)_  
+  → чому це сталося
+- [ ] **7288.** what you think of it now _(context: brief)_  
+  → що ви думаєте про це тепер
+- [ ] **7289.** greet them and ask how they are _(context: brief)_  
+  → привітайтеся й запитайте, як у нього справи
+- [ ] **7290.** tell them your news on the topic _(context: brief)_  
+  → розкажіть свої новини на цю тему
+- [ ] **7291.** ask them something _(context: brief)_  
+  → запитайте його про щось
+- [ ] **7292.** sign off _(context: brief)_  
+  → попрощайтеся й підпишіться
+- [ ] **7293.** Write a summary of the figures in the table for the general public, then say what you think they mean. _(context: brief)_  
+  → Напишіть для широкої публіки огляд цифр із таблиці, а потім скажіть, що, на вашу думку, вони означають.
+- [ ] **7294.** Write a general summary of the figures in the table for the readers of a newspaper. Keep your own opinion out of it. _(context: brief)_  
+  → Напишіть для читачів газети загальний огляд цифр із таблиці. Власної думки не висловлюйте.
+- [ ] **7295.** compare the figures _(context: brief)_  
+  → порівняйте цифри
+- [ ] **7296.** say what has changed or stands out _(context: brief)_  
+  → скажіть, що змінилося або вирізняється
+- [ ] **7297.** give your own comment, with a reason _(context: brief)_  
+  → дайте свій коментар і обґрунтуйте його
+- [ ] **7298.** compare the two columns _(context: brief)_  
+  → порівняйте два стовпці
+- [ ] **7299.** pick out what matters most _(context: brief)_  
+  → виокремте найважливіше
+- [ ] **7300.** say what follows from the figures, without an opinion _(context: brief)_  
+  → скажіть, що випливає з цифр, не висловлюючи власної думки
+- [ ] **7301.** say where you stand _(context: brief)_  
+  → скажіть, якою є ваша позиція
+- [ ] **7302.** give two reasons, each with an example _(context: brief)_  
+  → наведіть два аргументи, кожен із прикладом
+- [ ] **7303.** answer one argument on the other side _(context: brief)_  
+  → дайте відповідь на один аргумент іншої сторони
+- [ ] **7304.** end with a conclusion _(context: brief)_  
+  → завершіть висновком
+- [ ] **7305.** introduce the issue _(context: brief)_  
+  → представте проблему
+- [ ] **7306.** end with a short conclusion _(context: brief)_  
+  → завершіть коротким висновком
+- [ ] **7307.** Answer the examiner's questions and say why. Then read the situation, talk the choices over as if with a partner, and agree on one. _(context: brief)_  
+  → Дайте відповідь на запитання екзаменатора й поясніть чому. Потім прочитайте ситуацію, обговоріть варіанти ніби з партнером і домовтеся про один.
+- [ ] **7308.** Give your view on the examiner's questions. Then read the situation, argue it out using both sides of the card and arguments of your own, and end with a decision. _(context: brief)_  
+  → Висловіть свою думку щодо запитань екзаменатора. Потім прочитайте ситуацію, обговоріть її, спираючись на обидва боки картки й власні аргументи, і наприкінці ухваліть рішення.
+- [ ] **7309.** a note to a neighbor who took in a parcel for you _(context: brief)_  
+  → записку сусідові, який прийняв для вас посилку
+- [ ] **7310.** say who you are _(context: brief)_  
+  → скажіть, хто ви
+- [ ] **7311.** say what you're picking up _(context: brief)_  
+  → скажіть, що ви заберете
+- [ ] **7312.** say when you'll come by _(context: brief)_  
+  → скажіть, коли зайдете
+- [ ] **7313.** an e-mail canceling an appointment you can't keep _(context: brief)_  
+  → електронного листа зі скасуванням запису, на який ви не можете прийти
+- [ ] **7314.** say which appointment _(context: brief)_  
+  → скажіть, про який запис ідеться
+- [ ] **7315.** give a reason _(context: brief)_  
+  → назвіть причину
+- [ ] **7316.** suggest another time _(context: brief)_  
+  → запропонуйте інший час
+- [ ] **7317.** a message to your landlord about something broken in the flat _(context: brief)_  
+  → повідомлення орендодавцеві про те, що в квартирі щось зламалося
+- [ ] **7318.** say what is broken _(context: brief)_  
+  → скажіть, що зламалося
+- [ ] **7319.** say how long it has been broken _(context: brief)_  
+  → скажіть, як давно це зламалося
+- [ ] **7320.** ask what happens next _(context: brief)_  
+  → запитайте, що буде далі
+- [ ] **7321.** a note to a colleague who will cover your work tomorrow _(context: brief)_  
+  → записку колезі, який завтра вас підмінятиме
+- [ ] **7322.** say why you're away _(context: brief)_  
+  → скажіть, чому вас не буде
+- [ ] **7323.** say what needs doing _(context: brief)_  
+  → скажіть, що треба зробити
+- [ ] **7324.** say how to reach you _(context: brief)_  
+  → скажіть, як із вами зв'язатися
+- [ ] **7325.** an invitation to a friend to come somewhere with you _(context: brief)_  
+  → запрошення другові сходити з вами кудись
+- [ ] **7326.** say where and when _(context: brief)_  
+  → скажіть, де й коли
+- [ ] **7327.** say what you'll do there _(context: brief)_  
+  → скажіть, що ви там робитимете
+- [ ] **7328.** ask them to let you know _(context: brief)_  
+  → попросіть дати вам відповідь
+- [ ] **7329.** an e-mail to a course you want to join _(context: brief)_  
+  → електронного листа організаторам курсу, на який ви хочете записатися
+- [ ] **7330.** give your name and details _(context: brief)_  
+  → назвіть своє ім'я та контактні дані
+- [ ] **7331.** say which course _(context: brief)_  
+  → скажіть, який курс
+- [ ] **7332.** ask what it costs _(context: brief)_  
+  → запитайте, скільки це коштує
+- [ ] **7333.** a note to a shop about something you bought that is faulty _(context: brief)_  
+  → листа до магазину про куплену річ, яка виявилася бракованою
+- [ ] **7334.** say what you bought and when _(context: brief)_  
+  → скажіть, що й коли ви купили
+- [ ] **7335.** say what is wrong _(context: brief)_  
+  → скажіть, у чому проблема
+- [ ] **7336.** say what you want done _(context: brief)_  
+  → скажіть, що, на вашу думку, треба зробити
+- [ ] **7337.** a message to a doctor's surgery asking for an appointment _(context: brief)_  
+  → повідомлення до поліклініки з проханням записати вас на прийом
+- [ ] **7338.** give your name _(context: brief)_  
+  → назвіть своє ім'я
+- [ ] **7339.** say when you can come _(context: brief)_  
+  → скажіть, коли ви можете прийти
+- [ ] **7340.** an invitation to your birthday party _(context: brief)_  
+  → запрошення на ваш день народження
+- [ ] **7341.** say when and where _(context: brief)_  
+  → скажіть, коли й де
+- [ ] **7342.** say what you're planning _(context: brief)_  
+  → скажіть, що ви плануєте
+- [ ] **7343.** say what to bring _(context: brief)_  
+  → скажіть, що принести
+- [ ] **7344.** a note to your flatmate about what to buy for dinner _(context: brief)_  
+  → записку сусідові по квартирі про те, що купити на вечерю
+- [ ] **7345.** say what you're cooking _(context: brief)_  
+  → скажіть, що ви готуєте
+- [ ] **7346.** list what to buy _(context: brief)_  
+  → перелічіть, що купити
+- [ ] **7347.** say when you'll eat _(context: brief)_  
+  → скажіть, коли будете їсти
+- [ ] **7348.** a message to a friend who is picking you up from the station _(context: brief)_  
+  → повідомлення другові, який зустрічає вас на вокзалі
+- [ ] **7349.** say which train you're on _(context: brief)_  
+  → скажіть, яким потягом ви їдете
+- [ ] **7350.** say when it arrives _(context: brief)_  
+  → скажіть, коли він прибуває
+- [ ] **7351.** say how they'll recognize you _(context: brief)_  
+  → скажіть, як вас упізнати
+- [ ] **7352.** a note to your neighbors about a change in the building _(context: brief)_  
+  → записку сусідам про зміни в будинку
+- [ ] **7353.** say what is changing _(context: brief)_  
+  → скажіть, що змінюється
+- [ ] **7354.** say when _(context: brief)_  
+  → скажіть, коли
+- [ ] **7355.** say what they need to do _(context: brief)_  
+  → скажіть, що їм треба зробити
+- [ ] **7356.** your home _(context: brief)_  
+  → ваш дім
+- [ ] **7357.** where it is _(context: brief)_  
+  → де це розташовано
+- [ ] **7358.** what it is like inside _(context: brief)_  
+  → як там усередині
+- [ ] **7359.** what you like about it _(context: brief)_  
+  → що вам у цьому подобається
+- [ ] **7360.** the town you live in _(context: brief)_  
+  → місто, у якому ви живете
+- [ ] **7361.** what there is to do _(context: brief)_  
+  → чим там можна зайнятися
+- [ ] **7362.** what you would change _(context: brief)_  
+  → що б ви змінили
+- [ ] **7363.** your usual weekday _(context: brief)_  
+  → ваш звичайний будній день
+- [ ] **7364.** when you get up _(context: brief)_  
+  → коли ви встаєте
+- [ ] **7365.** what you do during the day _(context: brief)_  
+  → що ви робите вдень
+- [ ] **7366.** how you spend the evening _(context: brief)_  
+  → як ви проводите вечір
+- [ ] **7367.** your favorite way to spend a free day _(context: brief)_  
+  → ваш улюблений спосіб провести вільний день
+- [ ] **7368.** what you do _(context: brief)_  
+  → що ви робите
+- [ ] **7369.** who with _(context: brief)_  
+  → з ким
+- [ ] **7370.** why you like it _(context: brief)_  
+  → чому вам це подобається
+- [ ] **7371.** somebody close to you _(context: brief)_  
+  → близьку вам людину
+- [ ] **7372.** who they are _(context: brief)_  
+  → хто ця людина
+- [ ] **7373.** what they are like _(context: brief)_  
+  → яка це людина
+- [ ] **7374.** what you do together _(context: brief)_  
+  → що ви робите разом
+- [ ] **7375.** a meal you like _(context: brief)_  
+  → страву, яка вам подобається
+- [ ] **7376.** what it is _(context: brief)_  
+  → що це за страва
+- [ ] **7377.** when you eat it _(context: brief)_  
+  → коли ви її їсте
+- [ ] **7378.** the weather where you live _(context: brief)_  
+  → погоду там, де ви живете
+- [ ] **7379.** what it is like now _(context: brief)_  
+  → яка погода зараз
+- [ ] **7380.** your favorite season _(context: brief)_  
+  → ваша улюблена пора року
+- [ ] **7381.** what you do when it rains _(context: brief)_  
+  → що ви робите, коли йде дощ
+- [ ] **7382.** a place you have visited _(context: brief)_  
+  → місце, де ви побували
+- [ ] **7383.** what you saw _(context: brief)_  
+  → що ви там бачили
+- [ ] **7384.** whether you would go again _(context: brief)_  
+  → чи поїхали б ви туди знову
+- [ ] **7385.** a letter to your housing association about building work that keeps you awake _(context: brief)_  
+  → листа до об'єднання співвласників будинку про будівельні роботи, через які ви не можете спати
+- [ ] **7386.** say what the problem is _(context: brief)_  
+  → скажіть, у чому полягає проблема
+- [ ] **7387.** say how it affects you _(context: brief)_  
+  → скажіть, як це на вас позначається
+- [ ] **7388.** say what you want them to do _(context: brief)_  
+  → скажіть, що, на вашу думку, вони мають зробити
+- [ ] **7389.** a letter to a language school asking about a course for your team at work _(context: brief)_  
+  → листа до мовної школи із запитанням про курс для вашої команди на роботі
+- [ ] **7390.** say who you are and what your team does _(context: brief)_  
+  → скажіть, хто ви і чим займається ваша команда
+- [ ] **7391.** say what the team needs _(context: brief)_  
+  → скажіть, що потрібно команді
+- [ ] **7392.** ask about times, length and price _(context: brief)_  
+  → запитайте про час занять, тривалість і ціну
+- [ ] **7393.** a letter to your manager asking to change your working hours _(context: brief)_  
+  → листа керівникові з проханням змінити ваш робочий графік
+- [ ] **7394.** say what you'd like to change _(context: brief)_  
+  → скажіть, що ви хотіли б змінити
+- [ ] **7395.** explain why _(context: brief)_  
+  → поясніть чому
+- [ ] **7396.** say how your work will still be done _(context: brief)_  
+  → скажіть, як вашу роботу все одно буде зроблено
+- [ ] **7397.** a letter to a hotel about a stay that went wrong _(context: brief)_  
+  → листа до готелю про невдале перебування
+- [ ] **7398.** say when you stayed _(context: brief)_  
+  → скажіть, коли ви там зупинялися
+- [ ] **7399.** say what went wrong _(context: brief)_  
+  → скажіть, що пішло не так
+- [ ] **7400.** say what you expect them to do _(context: brief)_  
+  → скажіть, чого ви від них очікуєте
+- [ ] **7401.** a letter to your town council about the state of a local park _(context: brief)_  
+  → листа до міської ради про стан місцевого парку
+- [ ] **7402.** describe the problem _(context: brief)_  
+  → опишіть проблему
+- [ ] **7403.** say who it affects _(context: brief)_  
+  → скажіть, кого це стосується
+- [ ] **7404.** suggest what could be done _(context: brief)_  
+  → запропонуйте, що можна зробити
+- [ ] **7405.** a letter to your sports club about a change you'd like to see _(context: brief)_  
+  → листа до вашого спортивного клубу про зміни, які ви хотіли б побачити
+- [ ] **7406.** say how long you've been a member _(context: brief)_  
+  → скажіть, як давно ви в клубі
+- [ ] **7407.** say why it would help others too _(context: brief)_  
+  → скажіть, чому це допоможе й іншим
+- [ ] **7408.** a letter to a friend who is moving to Estonia _(context: brief)_  
+  → листа другові, який переїжджає до Естонії
+- [ ] **7409.** give advice on finding somewhere to live _(context: brief)_  
+  → порадьте, як знайти житло
+- [ ] **7410.** invite them to visit you _(context: brief)_  
+  → запросіть його в гості
+- [ ] **7411.** a letter to a friend you haven't seen for a year _(context: brief)_  
+  → листа другові, якого ви не бачили рік
+- [ ] **7412.** say what has changed in your life _(context: brief)_  
+  → розкажіть, що змінилося у вашому житті
+- [ ] **7413.** ask about theirs _(context: brief)_  
+  → запитайте, як справи в нього
+- [ ] **7414.** suggest a time to meet _(context: brief)_  
+  → запропонуйте час для зустрічі
+- [ ] **7415.** a letter thanking a friend for a weekend at their place _(context: brief)_  
+  → листа другові з подякою за вихідні в нього в гостях
+- [ ] **7416.** say what you enjoyed most _(context: brief)_  
+  → скажіть, що вам сподобалося найбільше
+- [ ] **7417.** say what has happened since _(context: brief)_  
+  → розкажіть, що сталося відтоді
+- [ ] **7418.** invite them back _(context: brief)_  
+  → запросіть його до себе у відповідь
+- [ ] **7419.** a letter to a friend about your new job _(context: brief)_  
+  → листа другові про вашу нову роботу
+- [ ] **7420.** say what the job is _(context: brief)_  
+  → скажіть, що це за робота
+- [ ] **7421.** say what you like and don't like about it _(context: brief)_  
+  → скажіть, що вам у ній подобається, а що ні
+- [ ] **7422.** ask for their advice on something _(context: brief)_  
+  → попросіть у нього поради
+- [ ] **7423.** a letter to a friend who has had a hard month _(context: brief)_  
+  → листа другові, у якого був важкий місяць
+- [ ] **7424.** say you heard what happened _(context: brief)_  
+  → скажіть, що ви чули про те, що сталося
+- [ ] **7425.** say something that might help _(context: brief)_  
+  → скажіть щось, що може допомогти
+- [ ] **7426.** offer to do something together _(context: brief)_  
+  → запропонуйте чимось зайнятися разом
+- [ ] **7427.** How people in one town get to work _(context: brief)_  
+  → Як мешканці одного міста добираються на роботу
+- [ ] **7428.** percent of people who work _(context: brief)_  
+  → відсоток тих, хто працює
+- [ ] **7429.** By car _(context: brief)_  
+  → Автомобілем
+- [ ] **7430.** By bus _(context: brief)_  
+  → Автобусом
+- [ ] **7431.** By bicycle _(context: brief)_  
+  → Велосипедом
+- [ ] **7432.** On foot _(context: brief)_  
+  → Пішки
+- [ ] **7433.** Working from home _(context: brief)_  
+  → Працюють із дому
+- [ ] **7434.** Hours a week spent reading, by age _(context: brief)_  
+  → Скільки годин на тиждень люди читають, за віком
+- [ ] **7435.** hours a week _(context: brief)_  
+  → години на тиждень
+- [ ] **7436.** Printed books _(context: brief)_  
+  → Друковані книжки
+- [ ] **7437.** On a screen _(context: brief)_  
+  → З екрана
+- [ ] **7438.** Aged 15 to 24 _(context: brief)_  
+  → Від 15 до 24 років
+- [ ] **7439.** Aged 25 to 44 _(context: brief)_  
+  → Від 25 до 44 років
+- [ ] **7440.** Aged 45 to 64 _(context: brief)_  
+  → Від 45 до 64 років
+- [ ] **7441.** Aged 65 and over _(context: brief)_  
+  → 65 років і більше
+- [ ] **7442.** Where households buy their food _(context: brief)_  
+  → Де родини купують продукти
+- [ ] **7443.** percent of households, main place _(context: brief)_  
+  → відсоток родин, основне місце
+- [ ] **7444.** Large supermarket _(context: brief)_  
+  → Великий супермаркет
+- [ ] **7445.** Small local shop _(context: brief)_  
+  → Невелика крамниця біля дому
+- [ ] **7446.** Market _(context: brief)_  
+  → Ринок
+- [ ] **7447.** Online _(context: brief)_  
+  → Через інтернет
+- [ ] **7448.** Where households get their heating _(context: brief)_  
+  → Як родини опалюють житло
+- [ ] **7449.** percent of households _(context: brief)_  
+  → відсоток родин
+- [ ] **7450.** District heating _(context: brief)_  
+  → Централізоване опалення
+- [ ] **7451.** Wood _(context: brief)_  
+  → Дрова
+- [ ] **7452.** Electricity and heat pumps _(context: brief)_  
+  → Електрика й теплові насоси
+- [ ] **7453.** Gas _(context: brief)_  
+  → Газ
+- [ ] **7454.** How satisfied students are with their course _(context: brief)_  
+  → Наскільки студенти задоволені своїм навчанням
+- [ ] **7455.** percent satisfied _(context: brief)_  
+  → відсоток задоволених
+- [ ] **7456.** First year _(context: brief)_  
+  → Перший курс
+- [ ] **7457.** Final year _(context: brief)_  
+  → Останній курс
+- [ ] **7458.** Teaching _(context: brief)_  
+  → Викладання
+- [ ] **7459.** Course materials _(context: brief)_  
+  → Навчальні матеріали
+- [ ] **7460.** Online tools _(context: brief)_  
+  → Онлайн-інструменти
+- [ ] **7461.** Support and advice _(context: brief)_  
+  → Підтримка й консультації
+- [ ] **7462.** Time spent online each day, by age _(context: brief)_  
+  → Скільки часу на день люди проводять в інтернеті, за віком
+- [ ] **7463.** hours a day _(context: brief)_  
+  → години на день
+- [ ] **7464.** Weekdays _(context: brief)_  
+  → Будні
+- [ ] **7465.** Weekends _(context: brief)_  
+  → Вихідні
+- [ ] **7466.** Visitors to a national park, by season _(context: brief)_  
+  → Відвідувачі національного парку, за сезонами
+- [ ] **7467.** thousands of visitors _(context: brief)_  
+  → тисячі відвідувачів
+- [ ] **7468.** Winter _(context: brief)_  
+  → Зима
+- [ ] **7469.** Spring _(context: brief)_  
+  → Весна
+- [ ] **7470.** Summer _(context: brief)_  
+  → Літо
+- [ ] **7471.** Autumn _(context: brief)_  
+  → Осінь
+- [ ] **7472.** How people found their current job _(context: brief)_  
+  → Як люди знайшли свою теперішню роботу
+- [ ] **7473.** percent of people in work _(context: brief)_  
+  → відсоток людей, які працюють
+- [ ] **7474.** Under 30 _(context: brief)_  
+  → До 30 років
+- [ ] **7475.** 30 and over _(context: brief)_  
+  → 30 років і більше
+- [ ] **7476.** A job website _(context: brief)_  
+  → Сайт вакансій
+- [ ] **7477.** Friends or family _(context: brief)_  
+  → Друзі або родичі
+- [ ] **7478.** Contacting the employer directly _(context: brief)_  
+  → Напряму через роботодавця
+- [ ] **7479.** A recruitment agency _(context: brief)_  
+  → Кадрова агенція
+- [ ] **7480.** Social media _(context: brief)_  
+  → Соціальні мережі
+- [ ] **7481.** How often adults exercise _(context: brief)_  
+  → Як часто дорослі займаються спортом
+- [ ] **7482.** percent of adults _(context: brief)_  
+  → відсоток дорослих
+- [ ] **7483.** Several times a week _(context: brief)_  
+  → Кілька разів на тиждень
+- [ ] **7484.** About once a week _(context: brief)_  
+  → Приблизно раз на тиждень
+- [ ] **7485.** Now and then _(context: brief)_  
+  → Час від часу
+- [ ] **7486.** Never _(context: brief)_  
+  → Ніколи
+- [ ] **7487.** Everybody who can should work from home at least two days a week. _(context: brief)_  
+  → Кожен, хто має таку змогу, має працювати з дому принаймні два дні на тиждень.
+- [ ] **7488.** Public transport in towns should be free for everybody. _(context: brief)_  
+  → Громадський транспорт у містах має бути безкоштовним для всіх.
+- [ ] **7489.** Children shouldn't have their own phone before they're twelve. _(context: brief)_  
+  → Діти не повинні мати власного телефона до дванадцяти років.
+- [ ] **7490.** Shops should be closed on Sundays. _(context: brief)_  
+  → У неділю магазини мають бути зачинені.
+- [ ] **7491.** A language is learned better online than in a classroom. _(context: brief)_  
+  → Мову краще вчити онлайн, ніж у класі.
+- [ ] **7492.** Cars should not be allowed in town centers. _(context: brief)_  
+  → Автомобілям не слід дозволяти в'їзд до центру міста.
+- [ ] **7493.** Every young person should work for a year before going to university. _(context: brief)_  
+  → Кожна молода людина має рік попрацювати, перш ніж вступати до університету.
+- [ ] **7494.** Tourism does a small town more good than harm. _(context: brief)_  
+  → Туризм приносить невеликому місту більше користі, ніж шкоди.
+- [ ] **7495.** Sport should be a bigger part of every school day. _(context: brief)_  
+  → У кожному шкільному дні має бути більше спорту.
+- [ ] **7496.** Your town council plans to close two small libraries and build one large one in the center. _(context: brief)_  
+  → Міська рада планує закрити дві невеликі бібліотеки й збудувати одну велику в центрі.
+- [ ] **7497.** what the town would gain _(context: brief)_  
+  → що місто виграє
+- [ ] **7498.** what it would lose _(context: brief)_  
+  → що воно втратить
+- [ ] **7499.** A large employer wants all its staff back in the office five days a week. _(context: brief)_  
+  → Великий роботодавець хоче, щоб усі працівники знову працювали в офісі п'ять днів на тиждень.
+- [ ] **7500.** the effect on productivity _(context: brief)_  
+  → вплив на продуктивність
+- [ ] **7501.** the effect on people's lives _(context: brief)_  
+  → вплив на життя людей
+- [ ] **7502.** The government is considering a four day working week. _(context: brief)_  
+  → Уряд розглядає перехід на чотириденний робочий тиждень.
+- [ ] **7503.** what it would mean for the economy _(context: brief)_  
+  → що це означало б для економіки
+- [ ] **7504.** what it would mean for wellbeing _(context: brief)_  
+  → що це означало б для самопочуття людей
+- [ ] **7505.** Universities may start teaching master's courses only in English. _(context: brief)_  
+  → Університети можуть почати викладати в магістратурі лише англійською мовою.
+- [ ] **7506.** the international benefits _(context: brief)_  
+  → міжнародні переваги
+- [ ] **7507.** the future of the national language in science _(context: brief)_  
+  → майбутнє національної мови в науці
+- [ ] **7508.** Social media platforms may be required to check the age of every user. _(context: brief)_  
+  → Соціальні мережі можуть зобов'язати перевіряти вік кожного користувача.
+- [ ] **7509.** protecting children _(context: brief)_  
+  → захист дітей
+- [ ] **7510.** privacy _(context: brief)_  
+  → приватність
+- [ ] **7511.** Your city wants to build housing on the site of a large park. _(context: brief)_  
+  → Ваше місто хоче збудувати житло на місці великого парку.
+- [ ] **7512.** the need for housing _(context: brief)_  
+  → потреба в житлі
+- [ ] **7513.** the value of green space _(context: brief)_  
+  → цінність зелених зон
+- [ ] **7514.** Schools may replace printed textbooks with tablets. _(context: brief)_  
+  → Школи можуть замінити друковані підручники планшетами.
+- [ ] **7515.** what pupils would gain _(context: brief)_  
+  → що виграють учні
+- [ ] **7516.** what they might lose _(context: brief)_  
+  → що вони можуть втратити
+- [ ] **7517.** Supermarkets may be required to give their unsold food away. _(context: brief)_  
+  → Супермаркети можуть зобов'язати безкоштовно віддавати непродані продукти.
+- [ ] **7518.** the case against waste _(context: brief)_  
+  → аргументи проти того, щоб викидати їжу
+- [ ] **7519.** the cost and the practical problems _(context: brief)_  
+  → витрати й практичні труднощі
+- [ ] **7520.** Your country is considering lowering the voting age to sixteen. _(context: brief)_  
+  → У вашій країні обговорюють зниження віку голосування до шістнадцяти років.
+- [ ] **7521.** young people's voice _(context: brief)_  
+  → голос молоді
+- [ ] **7522.** whether sixteen is ready _(context: brief)_  
+  → чи готові шістнадцятирічні
+- [ ] **7523.** Where might you see these things together? _(context: brief)_  
+  → Де можна побачити всі ці речі разом?
+- [ ] **7524.** When did you last see or use one of them? Tell me about it. _(context: brief)_  
+  → Коли ви востаннє бачили або використовували одну з них? Розкажіть про це.
+- [ ] **7525.** Do you like this kind of place? Why, or why not? _(context: brief)_  
+  → Вам подобаються такі місця? Чому так або чому ні?
+- [ ] **7526.** Breakfast _(context: brief)_  
+  → Сніданок
+- [ ] **7527.** At the market _(context: brief)_  
+  → На ринку
+- [ ] **7528.** Getting to work _(context: brief)_  
+  → Дорога на роботу
+- [ ] **7529.** The house _(context: brief)_  
+  → Будинок
+- [ ] **7530.** Pets _(context: brief)_  
+  → Домашні тварини
+- [ ] **7531.** Fruit _(context: brief)_  
+  → Фрукти
+- [ ] **7532.** In the classroom _(context: brief)_  
+  → У класі
+- [ ] **7533.** The family _(context: brief)_  
+  → Родина
+- [ ] **7534.** Setting off _(context: brief)_  
+  → У дорогу
+- [ ] **7535.** Something cold _(context: brief)_  
+  → Щось холодне
+- [ ] **7536.** The bathroom _(context: brief)_  
+  → Ванна кімната
+- [ ] **7537.** Cooking _(context: brief)_  
+  → Готуємо їжу
+- [ ] **7538.** The face _(context: brief)_  
+  → Обличчя
+- [ ] **7539.** An evening in _(context: brief)_  
+  → Вечір удома
+- [ ] **7540.** Sport _(context: brief)_  
+  → Спорт
+- [ ] **7541.** In town _(context: brief)_  
+  → У місті
+- [ ] **7542.** On the farm _(context: brief)_  
+  → На фермі
+- [ ] **7543.** The children _(context: brief)_  
+  → Діти
+- [ ] **7544.** Lunch _(context: brief)_  
+  → Обід
+- [ ] **7545.** By the fire _(context: brief)_  
+  → Біля вогню
+- [ ] **7546.** Getting dressed _(context: brief)_  
+  → Одягаємося
+- [ ] **7547.** At the doctor _(context: brief)_  
+  → У лікаря
+- [ ] **7548.** Farm animals _(context: brief)_  
+  → Тварини на фермі
+- [ ] **7549.** In the forest _(context: brief)_  
+  → У лісі
+- [ ] **7550.** News and dates _(context: brief)_  
+  → Новини й дати
+- [ ] **7551.** Flowers _(context: brief)_  
+  → Квіти
+- [ ] **7552.** On holiday _(context: brief)_  
+  → У відпустці
+- [ ] **7553.** Washing _(context: brief)_  
+  → Миття
+- [ ] **7554.** Strong flavors _(context: brief)_  
+  → Яскраві смаки
+- [ ] **7555.** Small animals _(context: brief)_  
+  → Маленькі тварини
+- [ ] **7556.** An emergency _(context: brief)_  
+  → Надзвичайна ситуація
+- [ ] **7557.** At the bank _(context: brief)_  
+  → У банку
+- [ ] **7558.** Birds _(context: brief)_  
+  → Птахи
+- [ ] **7559.** Something sweet _(context: brief)_  
+  → Щось солодке
+- [ ] **7560.** Old buildings _(context: brief)_  
+  → Старі будівлі
+- [ ] **7561.** Music _(context: brief)_  
+  → Музика
+- [ ] **7562.** At the zoo _(context: brief)_  
+  → У зоопарку
+- [ ] **7563.** Tools _(context: brief)_  
+  → Інструменти
+- [ ] **7564.** Waiting _(context: brief)_  
+  → Очікування
+- [ ] **7565.** In the water _(context: brief)_  
+  → У воді
+- [ ] **7566.** Insects _(context: brief)_  
+  → Комахи
+- [ ] **7567.** Leaving the house _(context: brief)_  
+  → Виходимо з дому
+- [ ] **7568.** A wedding _(context: brief)_  
+  → Весілля
+- [ ] **7569.** After the rain _(context: brief)_  
+  → Після дощу
+- [ ] **7570.** Large birds _(context: brief)_  
+  → Великі птахи
+- [ ] **7571.** Mending something _(context: brief)_  
+  → Лагодимо щось
+- [ ] **7572.** Slow creatures _(context: brief)_  
+  → Повільні істоти
+- [ ] **7573.** Underground _(context: brief)_  
+  → Під землею
+- [ ] **7574.** Farm work _(context: brief)_  
+  → Робота на фермі
+- [ ] **7575.** Late evening _(context: brief)_  
+  → Пізній вечір
+- [ ] **7576.** Camping _(context: brief)_  
+  → У поході
+- [ ] **7577.** Far from here _(context: brief)_  
+  → Далеко звідси
+- [ ] **7578.** Out at sea _(context: brief)_  
+  → У відкритому морі
+- [ ] **7579.** Building _(context: brief)_  
+  → Будівництво
+- [ ] **7580.** Across town _(context: brief)_  
+  → Через усе місто
+- [ ] **7581.** After dark _(context: brief)_  
+  → Коли стемніло
+- [ ] **7582.** Looking up _(context: brief)_  
+  → Погляд угору
+- [ ] **7583.** Made by hand _(context: brief)_  
+  → Ручна робота
+- [ ] **7584.** In the garden _(context: brief)_  
+  → У саду
+- [ ] **7585.** free time _(context: brief)_  
+  → вільний час
+- [ ] **7586.** what they like doing _(context: brief)_  
+  → що ви любите робити
+- [ ] **7587.** when _(context: brief)_  
+  → коли
+- [ ] **7588.** how much it costs _(context: brief)_  
+  → скільки це коштує
+- [ ] **7589.** food _(context: brief)_  
+  → їжа
+- [ ] **7590.** what they like to eat _(context: brief)_  
+  → що ви любите їсти
+- [ ] **7591.** where they shop _(context: brief)_  
+  → де ви купуєте продукти
+- [ ] **7592.** who cooks at home _(context: brief)_  
+  → хто у вас удома готує
+- [ ] **7593.** what they ate today _(context: brief)_  
+  → що ви їли сьогодні
+- [ ] **7594.** a trip _(context: brief)_  
+  → поїздка
+- [ ] **7595.** where they went _(context: brief)_  
+  → куди ви їздили
+- [ ] **7596.** how they got there _(context: brief)_  
+  → як ви туди добиралися
+- [ ] **7597.** how long they stayed _(context: brief)_  
+  → скільки ви там пробули
+- [ ] **7598.** what they liked _(context: brief)_  
+  → що вам сподобалося
+- [ ] **7599.** home _(context: brief)_  
+  → дім
+- [ ] **7600.** where they live _(context: brief)_  
+  → де ви живете
+- [ ] **7601.** how many rooms there are _(context: brief)_  
+  → скільки у вас кімнат
+- [ ] **7602.** who they live with _(context: brief)_  
+  → з ким ви живете
+- [ ] **7603.** what they like about it _(context: brief)_  
+  → що вам подобається у вашому домі
+- [ ] **7604.** work _(context: brief)_  
+  → робота
+- [ ] **7605.** what they do _(context: brief)_  
+  → ким ви працюєте
+- [ ] **7606.** where they work _(context: brief)_  
+  → де ви працюєте
+- [ ] **7607.** when they start and finish _(context: brief)_  
+  → коли ви починаєте й закінчуєте роботу
+- [ ] **7608.** whether they like it _(context: brief)_  
+  → чи подобається вам ваша робота
+- [ ] **7609.** shopping _(context: brief)_  
+  → покупки
+- [ ] **7610.** what they buy most often _(context: brief)_  
+  → що ви купуєте найчастіше
+- [ ] **7611.** where _(context: brief)_  
+  → де
+- [ ] **7612.** how they pay _(context: brief)_  
+  → як ви платите
+- [ ] **7613.** what they bought last _(context: brief)_  
+  → що ви купили востаннє
+- [ ] **7614.** staying healthy _(context: brief)_  
+  → здоровий спосіб життя
+- [ ] **7615.** what sport they do _(context: brief)_  
+  → яким спортом ви займаєтеся
+- [ ] **7616.** how often _(context: brief)_  
+  → як часто
+- [ ] **7617.** when they go to the doctor _(context: brief)_  
+  → коли ви ходите до лікаря
+- [ ] **7618.** how they sleep _(context: brief)_  
+  → як ви спите
+- [ ] **7619.** the weekend _(context: brief)_  
+  → вихідні
+- [ ] **7620.** when they get up _(context: brief)_  
+  → коли ви встаєте
+- [ ] **7621.** who they meet _(context: brief)_  
+  → з ким ви зустрічаєтеся
+- [ ] **7622.** what they did last weekend _(context: brief)_  
+  → що ви робили минулих вихідних
+- [ ] **7623.** What do you do in your free time? _(context: brief)_  
+  → Чим ви займаєтеся у вільний час?
+- [ ] **7624.** Do you prefer staying in or going out? Why? _(context: brief)_  
+  → Ви більше любите проводити час удома чи кудись виходити? Чому?
+- [ ] **7625.** What did you do last weekend? _(context: brief)_  
+  → Що ви робили минулих вихідних?
+- [ ] **7626.** A friend is visiting you for one weekend. Decide together what to do on Saturday. _(context: brief)_  
+  → До вас на вихідні приїжджає друг. Вирішіть разом, чим зайнятися в суботу.
+- [ ] **7627.** a museum _(context: brief)_  
+  → музей
+- [ ] **7628.** a walk in the forest _(context: brief)_  
+  → прогулянка лісом
+- [ ] **7629.** a concert _(context: brief)_  
+  → концерт
+- [ ] **7630.** What do you usually eat in a day? _(context: brief)_  
+  → Що ви зазвичай їсте за день?
+- [ ] **7631.** Do you like cooking? Why or why not? _(context: brief)_  
+  → Ви любите готувати? Чому так або чому ні?
+- [ ] **7632.** Where did you last eat out? _(context: brief)_  
+  → Де ви востаннє їли не вдома?
+- [ ] **7633.** Your course is ending and the group wants to celebrate. Decide together where. _(context: brief)_  
+  → Ваш курс закінчується, і група хоче це відзначити. Вирішіть разом, де.
+- [ ] **7634.** a café _(context: brief)_  
+  → кав'ярня
+- [ ] **7635.** a picnic in the park _(context: brief)_  
+  → пікнік у парку
+- [ ] **7636.** somebody's home _(context: brief)_  
+  → у когось удома
+- [ ] **7637.** Where do you usually shop? _(context: brief)_  
+  → Де ви зазвичай робите покупки?
+- [ ] **7638.** What do you buy online? _(context: brief)_  
+  → Що ви купуєте в інтернеті?
+- [ ] **7639.** What was the last thing you bought for somebody else? _(context: brief)_  
+  → Що ви востаннє купували для іншої людини?
+- [ ] **7640.** A colleague is leaving. Decide together on a present. _(context: brief)_  
+  → Колега йде з роботи. Вирішіть разом, що йому подарувати.
+- [ ] **7641.** flowers _(context: brief)_  
+  → квіти
+- [ ] **7642.** a book _(context: brief)_  
+  → книжка
+- [ ] **7643.** a gift card _(context: brief)_  
+  → подарункова картка
+- [ ] **7644.** Where did you last travel? _(context: brief)_  
+  → Куди ви востаннє їздили?
+- [ ] **7645.** How do you prefer to travel, and why? _(context: brief)_  
+  → Як ви волієте подорожувати і чому?
+- [ ] **7646.** Where would you like to go next? _(context: brief)_  
+  → Куди ви хотіли б поїхати наступного разу?
+- [ ] **7647.** You and a friend have three days off. Decide together where to go. _(context: brief)_  
+  → У вас із другом три вихідні дні. Вирішіть разом, куди поїхати.
+- [ ] **7648.** a city you don't know _(context: brief)_  
+  → незнайоме місто
+- [ ] **7649.** an island by the sea _(context: brief)_  
+  → острів у морі
+- [ ] **7650.** a spa hotel _(context: brief)_  
+  → спа-готель
+- [ ] **7651.** What do you do to stay healthy? _(context: brief)_  
+  → Що ви робите, щоб залишатися здоровими?
+- [ ] **7652.** How often do you do sport? _(context: brief)_  
+  → Як часто ви займаєтеся спортом?
+- [ ] **7653.** What do you do when you're ill? _(context: brief)_  
+  → Що ви робите, коли хворієте?
+- [ ] **7654.** You both want to get fitter this year. Decide together how. _(context: brief)_  
+  → Ви обоє хочете цього року покращити свою фізичну форму. Вирішіть разом, як.
+- [ ] **7655.** running together _(context: brief)_  
+  → спільні пробіжки
+- [ ] **7656.** joining a gym _(context: brief)_  
+  → абонемент у спортзал
+- [ ] **7657.** cycling to work _(context: brief)_  
+  → поїздки на роботу велосипедом
+- [ ] **7658.** Describe where you live. _(context: brief)_  
+  → Опишіть, де ви живете.
+- [ ] **7659.** What do you like about your neighborhood? _(context: brief)_  
+  → Що вам подобається у вашому районі?
+- [ ] **7660.** Would you rather live in town or in the country? Why? _(context: brief)_  
+  → Де б ви воліли жити: у місті чи за містом? Чому?
+- [ ] **7661.** You share a flat and have money for one new thing. Decide together what to buy. _(context: brief)_  
+  → Ви разом винаймаєте квартиру, і у вас є гроші на одну нову річ. Вирішіть разом, що купити.
+- [ ] **7662.** a new sofa _(context: brief)_  
+  → новий диван
+- [ ] **7663.** a dishwasher _(context: brief)_  
+  → посудомийна машина
+- [ ] **7664.** bicycles for both of you _(context: brief)_  
+  → велосипеди для вас обох
+- [ ] **7665.** when there is a free appointment _(context: brief)_  
+  → коли можна записатися на прийом
+- [ ] **7666.** what a check-up costs _(context: brief)_  
+  → скільки коштує огляд
+- [ ] **7667.** where the surgery is _(context: brief)_  
+  → де розташована клініка
+- [ ] **7668.** what to bring _(context: brief)_  
+  → що взяти із собою
+- [ ] **7669.** somebody who works at a sports club _(context: brief)_  
+  → працівник спортивного клубу
+- [ ] **7670.** Open every day, 7:00 to 22:00 _(context: brief)_  
+  → Відчинено щодня з 7:00 до 22:00
+- [ ] **7671.** A month's membership costs 45 euros _(context: brief)_  
+  → Абонемент на місяць коштує 45 євро
+- [ ] **7672.** No need to book, just come in _(context: brief)_  
+  → Записуватися не треба, просто приходьте
+- [ ] **7673.** Bring sports shoes and a towel _(context: brief)_  
+  → Візьміть спортивне взуття й рушник
+- [ ] **7674.** when the next course starts _(context: brief)_  
+  → коли починається наступний курс
+- [ ] **7675.** how many hours a week it is _(context: brief)_  
+  → скільки годин на тиждень тривають заняття
+- [ ] **7676.** what it costs _(context: brief)_  
+  → скільки це коштує
+- [ ] **7677.** how to sign up _(context: brief)_  
+  → як записатися
+- [ ] **7678.** somebody who works at a library _(context: brief)_  
+  → працівник бібліотеки
+- [ ] **7679.** Open Monday to Saturday, 10:00 to 19:00 _(context: brief)_  
+  → Відчинено з понеділка до суботи, з 10:00 до 19:00
+- [ ] **7680.** Joining is free _(context: brief)_  
+  → Записатися можна безкоштовно
+- [ ] **7681.** You can borrow ten books for three weeks _(context: brief)_  
+  → Можна взяти десять книжок на три тижні
+- [ ] **7682.** Bring an ID card _(context: brief)_  
+  → Візьміть із собою посвідчення особи
+- [ ] **7683.** whether there is a free time on Friday _(context: brief)_  
+  → чи є вільний час у п'ятницю
+- [ ] **7684.** what a haircut costs _(context: brief)_  
+  → скільки коштує стрижка
+- [ ] **7685.** how long it takes _(context: brief)_  
+  → скільки це триває
+- [ ] **7686.** whether you can pay by card _(context: brief)_  
+  → чи можна заплатити карткою
+- [ ] **7687.** somebody who works at a theater box office _(context: brief)_  
+  → касир театру
+- [ ] **7688.** Tickets cost 15 and 25 euros _(context: brief)_  
+  → Квитки коштують 15 і 25 євро
+- [ ] **7689.** The show starts at 19:00 _(context: brief)_  
+  → Вистава починається о 19:00
+- [ ] **7690.** It lasts two and a half hours _(context: brief)_  
+  → Вона триває дві з половиною години
+- [ ] **7691.** Children under 12 pay half _(context: brief)_  
+  → Діти до 12 років платять половину
+- [ ] **7692.** whether a room is free next weekend _(context: brief)_  
+  → чи є вільний номер на наступні вихідні
+- [ ] **7693.** what a night costs _(context: brief)_  
+  → скільки коштує одна ніч
+- [ ] **7694.** whether breakfast is included _(context: brief)_  
+  → чи входить сніданок у ціну
+- [ ] **7695.** how far it is from the station _(context: brief)_  
+  → чи далеко це від вокзалу
+- [ ] **7696.** somebody who works at a car hire company _(context: brief)_  
+  → працівник компанії з прокату автомобілів
+- [ ] **7697.** A small car costs 35 euros a day _(context: brief)_  
+  → Невеликий автомобіль коштує 35 євро на день
+- [ ] **7698.** Open 8:00 to 20:00 _(context: brief)_  
+  → Відчинено з 8:00 до 20:00
+- [ ] **7699.** You need a driving license and a bank card _(context: brief)_  
+  → Потрібні посвідчення водія й банківська картка
+- [ ] **7700.** Bring the car back with a full tank _(context: brief)_  
+  → Поверніть автомобіль із повним баком
+- [ ] **7701.** when it is open _(context: brief)_  
+  → коли він відчинений
+- [ ] **7702.** what a ticket costs _(context: brief)_  
+  → скільки коштує квиток
+- [ ] **7703.** whether there are guided tours _(context: brief)_  
+  → чи є екскурсії з гідом
+- [ ] **7704.** whether you can take photos _(context: brief)_  
+  → чи можна фотографувати
+- [ ] **7705.** somebody who works at a doctor's surgery _(context: brief)_  
+  → працівник поліклініки
+- [ ] **7706.** The doctor sees patients 8:00 to 16:00 _(context: brief)_  
+  → Лікар приймає з 8:00 до 16:00
+- [ ] **7707.** Book by phone or online _(context: brief)_  
+  → Записатися можна телефоном або онлайн
+- [ ] **7708.** The next free time is Thursday at 10:30 _(context: brief)_  
+  → Найближчий вільний час: четвер, 10:30
+- [ ] **7709.** Bring your ID card _(context: brief)_  
+  → Візьміть своє посвідчення особи
+- [ ] **7710.** whether they are free on the 15th _(context: brief)_  
+  → чи вільні вони 15-го числа
+- [ ] **7711.** what a small flat costs to move _(context: brief)_  
+  → скільки коштує перевезти невелику квартиру
+- [ ] **7712.** whether they bring boxes _(context: brief)_  
+  → чи привозять вони коробки
+- [ ] **7713.** how to pay _(context: brief)_  
+  → як платити
+- [ ] **7714.** somebody who works at a swimming pool _(context: brief)_  
+  → працівник басейну
+- [ ] **7715.** Open 6:30 to 21:00, closed on Mondays _(context: brief)_  
+  → Відчинено з 6:30 до 21:00, у понеділок зачинено
+- [ ] **7716.** One swim costs 7 euros _(context: brief)_  
+  → Одне відвідування коштує 7 євро
+- [ ] **7717.** A swimming cap is required _(context: brief)_  
+  → Потрібна шапочка для плавання
+- [ ] **7718.** Lessons for adults on Tuesdays at 18:00 _(context: brief)_  
+  → Заняття для дорослих щовівторка о 18:00
+- [ ] **7719.** At a team meeting, give a short talk on why your team should try working from home two days a week. _(context: brief)_  
+  → На нараді команди коротко розкажіть, чому вашій команді варто спробувати працювати з дому два дні на тиждень.
+- [ ] **7720.** What would be the hardest part to organize? _(context: brief)_  
+  → Що було б найважче організувати?
+- [ ] **7721.** A new colleague starts on Monday. Give a short talk on what they need to know in their first week. _(context: brief)_  
+  → У понеділок виходить новий колега. Коротко розкажіть, що йому треба знати першого тижня.
+- [ ] **7722.** What mistake do newcomers make most often? _(context: brief)_  
+  → Якої помилки новачки припускаються найчастіше?
+- [ ] **7723.** At a staff meeting, propose one change that would make your workplace greener. _(context: brief)_  
+  → На зборах працівників запропонуйте одну зміну, яка зробить вашу роботу екологічнішою.
+- [ ] **7724.** How much would it cost, and who would pay? _(context: brief)_  
+  → Скільки б це коштувало і хто б за це заплатив?
+- [ ] **7725.** At a training day, give a short talk on a skill that matters in your work and how to learn it. _(context: brief)_  
+  → На навчальному семінарі коротко розкажіть про навичку, важливу у вашій роботі, і про те, як її опанувати.
+- [ ] **7726.** How long does it take to learn it well? _(context: brief)_  
+  → Скільки часу треба, щоб добре її опанувати?
+- [ ] **7727.** Your company is choosing between a team trip and a bonus for everyone. Speak for one of them. _(context: brief)_  
+  → Ваша компанія обирає між поїздкою всією командою та премією для всіх. Виступіть на підтримку одного з варіантів.
+- [ ] **7728.** What would the others say against it? _(context: brief)_  
+  → Що інші сказали б проти?
+- [ ] **7729.** Give a short talk on how meetings at work could take less time. _(context: brief)_  
+  → Коротко розкажіть, як зробити робочі наради коротшими.
+- [ ] **7730.** Which meeting would you get rid of first? _(context: brief)_  
+  → Від якої наради ви відмовилися б насамперед?
+- [ ] **7731.** Present a tool or an app that makes work easier. _(context: brief)_  
+  → Представте інструмент або застосунок, який полегшує роботу.
+- [ ] **7732.** What would you change about it? _(context: brief)_  
+  → Що б ви в ньому змінили?
+- [ ] **7733.** What does your town need most? _(context: brief)_  
+  → Чого найбільше потребує ваше місто?
+- [ ] **7734.** Who should decide how its money is spent? _(context: brief)_  
+  → Хто має вирішувати, на що витрачати його гроші?
+- [ ] **7735.** Your town has money for one project this year: a new sports hall or better bus connections. Debate it and agree on one. _(context: brief)_  
+  → Цього року у вашого міста є гроші на один проєкт: новий спортивний зал або краще автобусне сполучення. Обговоріть це й оберіть щось одне.
+- [ ] **7736.** A sports hall _(context: brief)_  
+  → Спортивний зал
+- [ ] **7737.** keeps young people active _(context: brief)_  
+  → молодь більше рухатиметься
+- [ ] **7738.** can hold events that bring visitors _(context: brief)_  
+  → у ньому можна проводити заходи, що приваблять гостей
+- [ ] **7739.** Better buses _(context: brief)_  
+  → Кращі автобуси
+- [ ] **7740.** help everybody get to work _(context: brief)_  
+  → усім буде простіше добиратися на роботу
+- [ ] **7741.** mean fewer cars and cleaner air _(context: brief)_  
+  → менше машин і чистіше повітря
+- [ ] **7742.** Is it better to rent a home or to buy one? _(context: brief)_  
+  → Що краще: винаймати житло чи купити своє?
+- [ ] **7743.** Why do people move house? _(context: brief)_  
+  → Чому люди переїжджають?
+- [ ] **7744.** A friend has saved enough for a deposit. Debate whether they should buy now or keep renting, and agree on your advice. _(context: brief)_  
+  → Ваш друг накопичив на перший внесок. Обговоріть, чи варто йому купувати житло зараз, чи поки що винаймати, і домовтеся, що йому порадити.
+- [ ] **7745.** Buy now _(context: brief)_  
+  → Купити зараз
+- [ ] **7746.** paying off a loan is a kind of saving _(context: brief)_  
+  → виплачувати кредит теж своєрідне заощадження
+- [ ] **7747.** you can make the home your own _(context: brief)_  
+  → житло можна облаштувати по-своєму
+- [ ] **7748.** Keep renting _(context: brief)_  
+  → Поки що винаймати
+- [ ] **7749.** you can move easily for a new job _(context: brief)_  
+  → заради нової роботи легко переїхати
+- [ ] **7750.** repairs are not your problem _(context: brief)_  
+  → ремонт не ваш клопіт
+- [ ] **7751.** Do children spend too much time on screens? _(context: brief)_  
+  → Чи не забагато часу діти проводять біля екранів?
+- [ ] **7752.** What did children do before phones? _(context: brief)_  
+  → Чим займалися діти, коли телефонів ще не було?
+- [ ] **7753.** A school is deciding whether to ban phones for the whole school day. Debate it and agree on a position. _(context: brief)_  
+  → Школа вирішує, чи заборонити телефони на весь навчальний день. Обговоріть це й дійдіть спільної думки.
+- [ ] **7754.** Ban them _(context: brief)_  
+  → Заборонити
+- [ ] **7755.** pupils concentrate better _(context: brief)_  
+  → учні краще зосереджуються
+- [ ] **7756.** breaks become more social _(context: brief)_  
+  → на перервах більше спілкуються
+- [ ] **7757.** Allow them _(context: brief)_  
+  → Дозволити
+- [ ] **7758.** phones help in an emergency _(context: brief)_  
+  → телефон допомагає в надзвичайній ситуації
+- [ ] **7759.** pupils have to learn to use them sensibly _(context: brief)_  
+  → учням треба вчитися користуватися ними розумно
+- [ ] **7760.** How long should a working week be? _(context: brief)_  
+  → Якої тривалості має бути робочий тиждень?
+- [ ] **7761.** What makes a good employer? _(context: brief)_  
+  → Яким має бути добрий роботодавець?
+- [ ] **7762.** Your workplace wants a four day week with longer days. Debate it and agree on a position. _(context: brief)_  
+  → На вашій роботі хочуть запровадити чотириденний тиждень із довшими робочими днями. Обговоріть це й дійдіть спільної думки.
+- [ ] **7763.** Four longer days _(context: brief)_  
+  → Чотири довші дні
+- [ ] **7764.** three days off leave time for family _(context: brief)_  
+  → три вихідні залишають час для родини
+- [ ] **7765.** fewer journeys to work _(context: brief)_  
+  → менше поїздок на роботу
+- [ ] **7766.** Keep five days _(context: brief)_  
+  → Залишити п'ять днів
+- [ ] **7767.** long days are tiring _(context: brief)_  
+  → довгі дні втомлюють
+- [ ] **7768.** customers expect service every weekday _(context: brief)_  
+  → клієнти чекають обслуговування щобудня
+- [ ] **7769.** Do you prefer holidays at home or abroad? _(context: brief)_  
+  → Де ви більше любите відпочивати: удома чи за кордоном?
+- [ ] **7770.** What makes a team work well together? _(context: brief)_  
+  → Що допомагає команді добре працювати разом?
+- [ ] **7771.** Your company offers the team either a trip abroad or a summer party at home. Debate it and agree on one. _(context: brief)_  
+  → Ваша компанія пропонує команді на вибір поїздку за кордон або літнє свято вдома. Обговоріть це й оберіть щось одне.
+- [ ] **7772.** A trip abroad _(context: brief)_  
+  → Поїздка за кордон
+- [ ] **7773.** it builds a team _(context: brief)_  
+  → вона згуртовує команду
+- [ ] **7774.** people remember it for years _(context: brief)_  
+  → її пам'ятають роками
+- [ ] **7775.** A party at home _(context: brief)_  
+  → Свято вдома
+- [ ] **7776.** more people can come _(context: brief)_  
+  → прийти зможе більше людей
+- [ ] **7777.** it costs much less _(context: brief)_  
+  → це набагато дешевше
+- [ ] **7778.** Should cities be built for people or for cars? _(context: brief)_  
+  → Для кого треба будувати міста: для людей чи для машин?
+- [ ] **7779.** How do you get around your town? _(context: brief)_  
+  → Як ви пересуваєтеся своїм містом?
+- [ ] **7780.** Your city is deciding whether to close its old town to cars. Debate it and agree on a position. _(context: brief)_  
+  → Ваше місто вирішує, чи закрити старе місто для автомобілів. Обговоріть це й дійдіть спільної думки.
+- [ ] **7781.** Close it _(context: brief)_  
+  → Закрити
+- [ ] **7782.** it's safer for people on foot _(context: brief)_  
+  → пішоходам безпечніше
+- [ ] **7783.** cafés and shops get more customers _(context: brief)_  
+  → у кав'ярень і крамниць більше відвідувачів
+- [ ] **7784.** Keep it open _(context: brief)_  
+  → Залишити відкритим
+- [ ] **7785.** older people find it harder to get around _(context: brief)_  
+  → літнім людям важче пересуватися
+- [ ] **7786.** delivery vans need to get in _(context: brief)_  
+  → фургонам доставки треба проїжджати
+- [ ] **7787.** How to keep a team motivated when the work gets hard _(context: brief)_  
+  → Як підтримувати мотивацію команди, коли робота стає важкою
+- [ ] **7788.** What a good manager does differently _(context: brief)_  
+  → Що добрий керівник робить інакше
+- [ ] **7789.** What is the most common mistake here? _(context: brief)_  
+  → Яка помилка тут трапляється найчастіше?
+- [ ] **7790.** How would you know whether it was working? _(context: brief)_  
+  → Як зрозуміти, що це працює?
+- [ ] **7791.** The benefits and risks of working from home _(context: brief)_  
+  → Переваги й ризики роботи з дому
+- [ ] **7792.** How technology is changing a profession you know _(context: brief)_  
+  → Як технології змінюють знайому вам професію
+- [ ] **7793.** Which change matters most? _(context: brief)_  
+  → Яка зміна найважливіша?
+- [ ] **7794.** What should employers do about it? _(context: brief)_  
+  → Що з цим робити роботодавцям?
+- [ ] **7795.** Why learning never stops in working life _(context: brief)_  
+  → Чому в професійному житті навчання не закінчується
+- [ ] **7796.** How to bring young people into your field _(context: brief)_  
+  → Як залучити молодь у вашу галузь
+- [ ] **7797.** Who should pay for it? _(context: brief)_  
+  → Хто має за це платити?
+- [ ] **7798.** What stands in the way? _(context: brief)_  
+  → Що цьому заважає?
+- [ ] **7799.** How a workplace can cut its environmental footprint _(context: brief)_  
+  → Як організації зменшити свій екологічний слід
+- [ ] **7800.** Why every company should report its energy use _(context: brief)_  
+  → Чому кожна компанія має звітувати про споживання енергії
+- [ ] **7801.** What would be the first step? _(context: brief)_  
+  → Яким був би перший крок?
+- [ ] **7802.** What would it cost? _(context: brief)_  
+  → Скільки б це коштувало?
+- [ ] **7803.** What makes a meeting worth having _(context: brief)_  
+  → Коли нарада справді потрібна
+- [ ] **7804.** How to give and take feedback well _(context: brief)_  
+  → Як правильно давати й отримувати зворотний зв'язок
+- [ ] **7805.** What goes wrong most often? _(context: brief)_  
+  → Що найчастіше йде не так?
+- [ ] **7806.** How would you train people in it? _(context: brief)_  
+  → Як би ви цього навчали?
+- [ ] **7807.** Artificial intelligence at work: a help or a threat? _(context: brief)_  
+  → Штучний інтелект на роботі: допомога чи загроза?
+- [ ] **7808.** How to plan a large project _(context: brief)_  
+  → Як спланувати великий проєкт
+- [ ] **7809.** What would you warn people about? _(context: brief)_  
+  → Про що б ви попередили людей?
+- [ ] **7810.** Where should a beginner start? _(context: brief)_  
+  → З чого почати новачкові?
+- [ ] **7811.** Should higher education be free for everybody? _(context: brief)_  
+  → Чи має вища освіта бути безкоштовною для всіх?
+- [ ] **7812.** who pays now, and who would pay _(context: brief)_  
+  → хто платить зараз і хто платив би тоді
+- [ ] **7813.** the quality of teaching _(context: brief)_  
+  → якість викладання
+- [ ] **7814.** fairness between people from different backgrounds _(context: brief)_  
+  → рівні можливості для людей із різних верств суспільства
+- [ ] **7815.** Does social media do more good than harm to public debate? _(context: brief)_  
+  → Чи приносять соціальні мережі громадській дискусії більше користі, ніж шкоди?
+- [ ] **7816.** access to information _(context: brief)_  
+  → доступ до інформації
+- [ ] **7817.** misinformation _(context: brief)_  
+  → дезінформація
+- [ ] **7818.** what can be regulated, and by whom _(context: brief)_  
+  → що можна регулювати і хто має це робити
+- [ ] **7819.** Should cities be built around people rather than cars? _(context: brief)_  
+  → Чи треба будувати міста довкола людей, а не машин?
+- [ ] **7820.** safety and health _(context: brief)_  
+  → безпека та здоров'я
+- [ ] **7821.** business and deliveries _(context: brief)_  
+  → бізнес і доставка
+- [ ] **7822.** people who live outside the city _(context: brief)_  
+  → люди, які живуть за містом
+- [ ] **7823.** Is it the state's job to make people live more healthily? _(context: brief)_  
+  → Чи має держава дбати про те, щоб люди жили здоровіше?
+- [ ] **7824.** taxes on sugar and alcohol _(context: brief)_  
+  → податки на цукор і алкоголь
+- [ ] **7825.** personal freedom _(context: brief)_  
+  → особиста свобода
+- [ ] **7826.** the cost of health care _(context: brief)_  
+  → вартість охорони здоров'я
+- [ ] **7827.** Should everybody retire at the same age? _(context: brief)_  
+  → Чи мають усі виходити на пенсію в однаковому віці?
+- [ ] **7828.** physical work and office work _(context: brief)_  
+  → фізична й офісна праця
+- [ ] **7829.** pensions _(context: brief)_  
+  → пенсії
+- [ ] **7830.** experience in the workplace _(context: brief)_  
+  → досвід на робочому місці
+- [ ] **7831.** Can a small language thrive in a global world? _(context: brief)_  
+  → Чи може невелика мова процвітати в глобальному світі?
+- [ ] **7832.** education _(context: brief)_  
+  → освіта
+- [ ] **7833.** the internet and entertainment _(context: brief)_  
+  → інтернет і розваги
+- [ ] **7834.** what each of us can do _(context: brief)_  
+  → що може зробити кожен із нас
+- [ ] **7835.** who they are and what they do _(context: card)_  
+  → хто ця людина і чим вона займається
+- [ ] **7836.** where they work _(context: card)_  
+  → де вона працює
+- [ ] **7837.** when and how to get in touch _(context: card)_  
+  → коли і як із нею зв'язатися
+- [ ] **7838.** your family and the people close to you _(context: about)_  
+  → про вашу родину й близьких вам людей
+- [ ] **7839.** where you live _(context: about)_  
+  → про те, де ви живете
+- [ ] **7840.** an ordinary day _(context: about)_  
+  → про звичайний день
+- [ ] **7841.** free time _(context: about)_  
+  → про вільний час
+- [ ] **7842.** travel _(context: about)_  
+  → про подорожі
+- [ ] **7843.** health _(context: about)_  
+  → про здоров'я
+- [ ] **7844.** studying _(context: about)_  
+  → про навчання
+- [ ] **7845.** shopping _(context: about)_  
+  → про покупки
+- [ ] **7846.** food and drink _(context: about)_  
+  → про їжу та напої
+- [ ] **7847.** your town and its services _(context: about)_  
+  → про ваше місто та його служби
+- [ ] **7848.** the weather and nature _(context: about)_  
+  → про погоду й природу
+- [ ] **7849.** work _(context: about)_  
+  → про роботу
+- [ ] **7850.** people and how they feel _(context: about)_  
+  → про людей та їхні почуття
+- [ ] **7851.** media and technology _(context: about)_  
+  → про медіа й технології
+- [ ] **7852.** the environment _(context: about)_  
+  → про довкілля
+- [ ] **7853.** society _(context: about)_  
+  → про суспільство
+- [ ] **7854.** the economy _(context: about)_  
+  → про економіку
+- [ ] **7855.** science and new ideas _(context: about)_  
+  → про науку й нові ідеї
+- [ ] **7856.** culture and the arts _(context: about)_  
+  → про культуру й мистецтво
+- [ ] **7857.** food _(context: about)_  
+  → про їжу
+- [ ] **7858.** a trip _(context: about)_  
+  → про поїздку
+- [ ] **7859.** home _(context: about)_  
+  → про дім
+- [ ] **7860.** staying healthy _(context: about)_  
+  → про здоровий спосіб життя
+- [ ] **7861.** the weekend _(context: about)_  
+  → про вихідні
+- [ ] **7862.** a dentist's surgery _(context: ring)_  
+  → до стоматологічної клініки
+- [ ] **7863.** a language school _(context: ring)_  
+  → до мовної школи
+- [ ] **7864.** a hairdresser _(context: ring)_  
+  → до перукарні
+- [ ] **7865.** a hotel _(context: ring)_  
+  → до готелю
+- [ ] **7866.** a museum _(context: ring)_  
+  → до музею
+- [ ] **7867.** a removal company _(context: ring)_  
+  → до компанії з перевезень
+- [ ] **7868.** the readers of the local paper _(context: for)_  
+  → читачів місцевої газети
+- [ ] **7869.** the company's management _(context: for)_  
+  → керівництва компанії
+- [ ] **7870.** the readers of a national paper _(context: for)_  
+  → читачів загальнонаціональної газети
+- [ ] **7871.** the ministry of education _(context: for)_  
+  → міністерства освіти
+- [ ] **7872.** the readers of a news website _(context: for)_  
+  → читачів новинного сайту
+- [ ] **7873.** the city government _(context: for)_  
+  → міської влади
+- [ ] **7874.** the readers of an education magazine _(context: for)_  
+  → читачів журналу про освіту
 

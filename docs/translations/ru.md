@@ -7916,7 +7916,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **3912.** Ask Anu to read it  
   → Попросить Ану прочитать
 - [ ] **3913.** Ask about  
-  → Спросите про
+  → Спросите
 - [ ] **3914.** Assessed at {level}  
   → Оценка: {level}
 - [ ] **3915.** At a glance  
@@ -8126,11 +8126,11 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4017.** In this app, each week  
   → В приложении, в неделю
 - [ ] **4018.** In {unit}. These figures are made up for practice, so don't quote them as facts.  
-  → В разделе «{unit}». Эти цифры придуманы для практики, так что не приводите их как факты.
+  → Единицы измерения: {unit}. Эти цифры придуманы для практики, так что не приводите их как факты.
 - [ ] **4019.** It fits if you really commit: about {time} a week, all told.  
-  → Получится, если взяться всерьёз: в целом около {time} в неделю.
+  → Получится, если взяться всерьёз: в целом примерно {time} в неделю.
 - [ ] **4020.** It fits. Plan on about {time} a week, all told.  
-  → Получается. Закладывайте в целом около {time} в неделю.
+  → Получается. Закладывайте в целом примерно {time} в неделю.
 - [ ] **4021.** It starts easy and gets harder until it finds your level. For speaking, you judge yourself.  
   → Начинается легко и становится сложнее, пока не найдёт ваш уровень. Говорение вы оцениваете сами.
 - [ ] **4022.** It was saved in an older format that this version can't show in full. Your score still stands: {pct} percent, which counted as a fail.  
@@ -8396,7 +8396,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4152.** Put in about {need} a week of Estonian beyond this app and you'll make your date. You {where}, which usually gives you {held} a week without booking anything, so most of it is already there.  
   → Добавляйте примерно {need} эстонского в неделю помимо приложения, и вы успеете к своей дате. Вы {where}, а это обычно даёт {held} в неделю без всяких записей на курсы, так что большая часть уже есть.
 - [ ] **4153.** Put in about {need} a week of Estonian beyond this app and you'll make your date: a class, a conversation partner, reading, a film without subtitles. A normal week has room for {held} of that, and at that pace you're about {lands} away.  
-  → Добавляйте примерно {need} эстонского в неделю помимо приложения, и вы успеете к своей дате: курсы, собеседник, чтение, фильм без субтитров. В обычной неделе найдётся место для {held} этого, и в таком темпе вам ещё примерно {lands}.
+  → Добавляйте примерно {need} эстонского в неделю помимо приложения, и вы успеете к своей дате: курсы, собеседник, чтение, фильм без субтитров. Обычная неделя позволяет уделить этому {held}, и в таком темпе вам ещё примерно {lands}.
 - [ ] **4154.** Put it back  
   → Вернуть на место
 - [ ] **4155.** Quick enough to answer before the other person fills the silence.  
@@ -8566,7 +8566,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4237.** That's long enough.  
   → Этого достаточно.
 - [ ] **4238.** That's more than most weeks can hold on top of everything else. At {held} a week beyond this app, it's about {lands} away. Move your date to then, or raise the daily goal, and the plan works again.  
-  → Это больше, чем помещается в обычную неделю поверх всего остального. При {held} в неделю помимо приложения до цели примерно {lands}. Перенесите дату туда или поднимите дневную цель, и план снова сработает.
+  → Это больше, чем помещается в обычную неделю поверх всего остального. Если уделять {held} в неделю помимо приложения до цели примерно {lands}. Перенесите дату туда или поднимите дневную цель, и план снова сработает.
 - [ ] **4239.** That's one short check to plan a paper on, but it's all we have for this part. Your other practice here can't show us your listening and speaking on their own.  
   → Для планирования экзамена это лишь одна короткая проверка, но по этой части у нас больше ничего нет. Другие ваши занятия здесь не могут показать нам аудирование и говорение по отдельности.
 - [ ] **4240.** That's over the limit, which costs length marks, as on the real paper. Cut it back to {max}.  
@@ -8666,7 +8666,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4287.** The {case} is the case you find hardest  
   → Самый трудный для вас падеж: {case}
 - [ ] **4288.** Their call: you're {who}  
-  → Их звонок: вы {who}
+  → Звонят вам: вы {who}
 - [ ] **4289.** Then debate this  
   → Потом обсудите это
 - [ ] **4290.** Then decide together  
@@ -8704,7 +8704,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4306.** This situation leans on the {case}, as in “{gloss}”. {n} answers isn't enough to tell whether you have it yet.  
   → Эта ситуация опирается на {case}, как в «{gloss}». Ответов пока {n}, этого мало, чтобы понять, освоили ли вы его.
 - [ ] **4307.** Thoughts on the card  
-  → Мысли о карточке
+  → Мысли на карточке
 - [ ] **4308.** Throw it away and start fresh  
   → Выбросить и начать заново
 - [ ] **4309.** Time is counted in sittings, from the first answer of an evening to the last. A card counts as known once it has come back days later and been answered again.  
@@ -8932,7 +8932,7 @@ _lib/copy/i18n/areas/progress.ts_
 - [ ] **4420.** You've hardly been asked the {case} yet  
   → Вас почти не спрашивали {case}
 - [ ] **4421.** You've spent about {pace} a week here over the last {weeks}, so that's the pace we're using.  
-  → Вы проводили здесь около {pace} в неделю за {weeks}, поэтому мы берём этот темп.
+  → Вы проводили здесь примерно {pace} в неделю за {weeks}, поэтому мы берём этот темп.
 - [ ] **4422.** You've swapped your card. The real paper lets you do that once.  
   → Вы поменяли карточку. На настоящем экзамене это можно сделать один раз.
 - [ ] **4423.** Your answer  
@@ -14654,4 +14654,1265 @@ _lib/copy/i18n/areas/sweep.ts_
   → Это больше предела в {max} слов, и за длину снимаются баллы.
 - [ ] **7249.** You didn't use {words}.  
   → Вы не использовали {words}.
+
+## exam (628 lines)
+
+_lib/copy/i18n/areas/exam.ts_
+
+- [ ] **7250.** Write {scenario}.  
+  → Напишите {scenario}.
+- [ ] **7251.** This is {name}'s business card. Write a short text about them for somebody who has never met them.  
+  → Перед вами визитная карточка: {name}. Напишите короткий текст об этом человеке для того, кто с ним не знаком.
+- [ ] **7252.** Describe {subject}.  
+  → Опишите {subject}.
+- [ ] **7253.** Write a story about {topic}: something that happened to you or somebody you know.  
+  → Напишите рассказ {topic}: историю, которая случилась с вами или с кем-то из ваших знакомых.
+- [ ] **7254.** Write a personal letter to a friend about {topic}.  
+  → Напишите личное письмо другу {topic}.
+- [ ] **7255.** Write {scenario}. Address them politely, as you would somebody in an office you don't know, and open and close the letter the way that kind of letter does.  
+  → Напишите {scenario}. Обращайтесь вежливо, как к незнакомому человеку в учреждении, а начните и закончите письмо так, как принято в таких письмах.
+- [ ] **7256.** Write {scenario}. Write the way you would to a friend.  
+  → Напишите {scenario}. Пишите так, как написали бы другу.
+- [ ] **7257.** Write a text arguing for or against this statement: "{statement}"  
+  → Напишите текст за или против этого утверждения: «{statement}»
+- [ ] **7258.** {situation} Write an opinion piece about it for {reader}.  
+  → {situation} Напишите об этом колонку со своим мнением для {reader}.
+- [ ] **7259.** develop the first point: {point}  
+  → раскройте первый пункт: {point}
+- [ ] **7260.** develop the second point: {point}  
+  → раскройте второй пункт: {point}
+- [ ] **7261.** Describe the picture for {time}: what is in it, where you might see it and what might be going on. The examiner's questions come once you've spoken.  
+  → Описывайте картинку {time}: что на ней изображено, где такое можно увидеть и что, возможно, происходит. Вопросы экзаменатора будут после вашего рассказа.
+- [ ] **7262.** Ask about {about} using the card, then answer the same questions about yourself. On the real day you ask another candidate; here you play both sides.  
+  → Задайте вопросы {about} по карточке, а потом ответьте на те же вопросы о себе. На настоящем экзамене вы спрашиваете другого кандидата, а здесь играете обе роли.
+- [ ] **7263.** First you ring {call} and ask for everything on your card. Then somebody rings you, and you answer as {answerAs}, with the facts on the second card.  
+  → Сначала вы звоните {call} и узнаёте всё, что указано на вашей карточке. Потом звонят вам, и вы отвечаете как {answerAs}, по фактам со второй карточки.
+- [ ] **7264.** You have {prep} to prepare and may make notes. Then speak for {time}, and answer the question after it.  
+  → На подготовку у вас {prep}, можно делать заметки. Потом говорите {time} и ответьте на вопрос после выступления.
+- [ ] **7265.** Choose one of the two topics. You have {prep} to prepare and may make notes. Then speak for {time} and answer the questions after it.  
+  → Выберите одну из двух тем. На подготовку у вас {prep}, можно делать заметки. Потом говорите {time} и ответьте на вопросы после выступления.
+- [ ] **7266.** Discuss the question as if with a partner, for {time}. Cover the thoughts on the card, and keep it a conversation rather than a speech.  
+  → Обсуждайте вопрос {time}, как будто с партнёром. Затроньте мысли с карточки и ведите разговор, а не произносите речь.
+- [ ] **7267.** The business card _(context: brief)_  
+  → Визитная карточка
+- [ ] **7268.** A note _(context: brief)_  
+  → Записка
+- [ ] **7269.** A description _(context: brief)_  
+  → Описание
+- [ ] **7270.** A story _(context: brief)_  
+  → Рассказ
+- [ ] **7271.** A personal letter _(context: brief)_  
+  → Личное письмо
+- [ ] **7272.** A semi-formal letter _(context: brief)_  
+  → Полуофициальное письмо
+- [ ] **7273.** An informal letter _(context: brief)_  
+  → Неофициальное письмо
+- [ ] **7274.** A summary with your comment _(context: brief)_  
+  → Обзор с вашим комментарием
+- [ ] **7275.** An argument _(context: brief)_  
+  → Аргументированный текст
+- [ ] **7276.** A summary of the figures _(context: brief)_  
+  → Обзор цифр
+- [ ] **7277.** An opinion piece _(context: brief)_  
+  → Колонка с мнением
+- [ ] **7278.** about 45 seconds _(context: brief)_  
+  → около 45 секунд
+- [ ] **7279.** about a minute _(context: brief)_  
+  → около минуты
+- [ ] **7280.** about a minute and a half _(context: brief)_  
+  → около полутора минут
+- [ ] **7281.** about 2 minutes _(context: brief)_  
+  → около 2 минут
+- [ ] **7282.** about 3 minutes _(context: brief)_  
+  → около 3 минут
+- [ ] **7283.** 2 minutes _(context: brief)_  
+  → 2 минуты
+- [ ] **7284.** 3 minutes _(context: brief)_  
+  → 3 минуты
+- [ ] **7285.** Monday to Friday, 9:00 to 17:00 _(context: brief)_  
+  → С понедельника по пятницу, с 9:00 до 17:00
+- [ ] **7286.** Monday to Thursday, 8:00 to 16:00 _(context: brief)_  
+  → С понедельника по четверг, с 8:00 до 16:00
+- [ ] **7287.** Tuesday to Saturday, 10:00 to 18:00 _(context: brief)_  
+  → Со вторника по субботу, с 10:00 до 18:00
+- [ ] **7288.** Every day, 12:00 to 20:00 _(context: brief)_  
+  → Каждый день, с 12:00 до 20:00
+- [ ] **7289.** what happened, and when _(context: brief)_  
+  → что случилось и когда
+- [ ] **7290.** why it happened _(context: brief)_  
+  → почему это случилось
+- [ ] **7291.** what you think of it now _(context: brief)_  
+  → что вы думаете об этом сейчас
+- [ ] **7292.** greet them and ask how they are _(context: brief)_  
+  → поздоровайтесь и спросите, как у него дела
+- [ ] **7293.** tell them your news on the topic _(context: brief)_  
+  → расскажите свои новости на эту тему
+- [ ] **7294.** ask them something _(context: brief)_  
+  → спросите его о чём-нибудь
+- [ ] **7295.** sign off _(context: brief)_  
+  → попрощайтесь и подпишитесь
+- [ ] **7296.** Write a summary of the figures in the table for the general public, then say what you think they mean. _(context: brief)_  
+  → Напишите для широкой публики обзор цифр из таблицы, а затем скажите, что, по-вашему, они означают.
+- [ ] **7297.** Write a general summary of the figures in the table for the readers of a newspaper. Keep your own opinion out of it. _(context: brief)_  
+  → Напишите для читателей газеты общий обзор цифр из таблицы. Своё мнение не высказывайте.
+- [ ] **7298.** compare the figures _(context: brief)_  
+  → сравните цифры
+- [ ] **7299.** say what has changed or stands out _(context: brief)_  
+  → скажите, что изменилось или выделяется
+- [ ] **7300.** give your own comment, with a reason _(context: brief)_  
+  → дайте свой комментарий и обоснуйте его
+- [ ] **7301.** compare the two columns _(context: brief)_  
+  → сравните два столбца
+- [ ] **7302.** pick out what matters most _(context: brief)_  
+  → выделите самое важное
+- [ ] **7303.** say what follows from the figures, without an opinion _(context: brief)_  
+  → скажите, что следует из цифр, не высказывая своего мнения
+- [ ] **7304.** say where you stand _(context: brief)_  
+  → скажите, какова ваша позиция
+- [ ] **7305.** give two reasons, each with an example _(context: brief)_  
+  → приведите два довода, каждый с примером
+- [ ] **7306.** answer one argument on the other side _(context: brief)_  
+  → ответьте на один довод другой стороны
+- [ ] **7307.** end with a conclusion _(context: brief)_  
+  → закончите выводом
+- [ ] **7308.** introduce the issue _(context: brief)_  
+  → представьте проблему
+- [ ] **7309.** end with a short conclusion _(context: brief)_  
+  → закончите коротким выводом
+- [ ] **7310.** Answer the examiner's questions and say why. Then read the situation, talk the choices over as if with a partner, and agree on one. _(context: brief)_  
+  → Ответьте на вопросы экзаменатора и объясните почему. Потом прочитайте ситуацию, обсудите варианты как будто с партнёром и договоритесь об одном.
+- [ ] **7311.** Give your view on the examiner's questions. Then read the situation, argue it out using both sides of the card and arguments of your own, and end with a decision. _(context: brief)_  
+  → Выскажите своё мнение по вопросам экзаменатора. Потом прочитайте ситуацию, обсудите её, опираясь на обе стороны карточки и собственные доводы, и в конце примите решение.
+- [ ] **7312.** a note to a neighbor who took in a parcel for you _(context: brief)_  
+  → записку соседу, который принял для вас посылку
+- [ ] **7313.** say who you are _(context: brief)_  
+  → скажите, кто вы
+- [ ] **7314.** say what you're picking up _(context: brief)_  
+  → скажите, что вы заберёте
+- [ ] **7315.** say when you'll come by _(context: brief)_  
+  → скажите, когда зайдёте
+- [ ] **7316.** an e-mail canceling an appointment you can't keep _(context: brief)_  
+  → электронное письмо с отменой записи, на которую вы не можете прийти
+- [ ] **7317.** say which appointment _(context: brief)_  
+  → скажите, о какой записи речь
+- [ ] **7318.** give a reason _(context: brief)_  
+  → назовите причину
+- [ ] **7319.** suggest another time _(context: brief)_  
+  → предложите другое время
+- [ ] **7320.** a message to your landlord about something broken in the flat _(context: brief)_  
+  → сообщение арендодателю о том, что в квартире что-то сломалось
+- [ ] **7321.** say what is broken _(context: brief)_  
+  → скажите, что сломалось
+- [ ] **7322.** say how long it has been broken _(context: brief)_  
+  → скажите, как давно это сломалось
+- [ ] **7323.** ask what happens next _(context: brief)_  
+  → спросите, что будет дальше
+- [ ] **7324.** a note to a colleague who will cover your work tomorrow _(context: brief)_  
+  → записку коллеге, который завтра будет вас замещать
+- [ ] **7325.** say why you're away _(context: brief)_  
+  → скажите, почему вас не будет
+- [ ] **7326.** say what needs doing _(context: brief)_  
+  → скажите, что нужно сделать
+- [ ] **7327.** say how to reach you _(context: brief)_  
+  → скажите, как с вами связаться
+- [ ] **7328.** an invitation to a friend to come somewhere with you _(context: brief)_  
+  → приглашение другу сходить с вами куда-нибудь
+- [ ] **7329.** say where and when _(context: brief)_  
+  → скажите, где и когда
+- [ ] **7330.** say what you'll do there _(context: brief)_  
+  → скажите, что вы там будете делать
+- [ ] **7331.** ask them to let you know _(context: brief)_  
+  → попросите дать вам ответ
+- [ ] **7332.** an e-mail to a course you want to join _(context: brief)_  
+  → электронное письмо организаторам курса, на который вы хотите записаться
+- [ ] **7333.** give your name and details _(context: brief)_  
+  → назовите своё имя и контактные данные
+- [ ] **7334.** say which course _(context: brief)_  
+  → скажите, какой курс
+- [ ] **7335.** ask what it costs _(context: brief)_  
+  → спросите, сколько это стоит
+- [ ] **7336.** a note to a shop about something you bought that is faulty _(context: brief)_  
+  → письмо в магазин о купленной вещи, которая оказалась с браком
+- [ ] **7337.** say what you bought and when _(context: brief)_  
+  → скажите, что и когда вы купили
+- [ ] **7338.** say what is wrong _(context: brief)_  
+  → скажите, в чём проблема
+- [ ] **7339.** say what you want done _(context: brief)_  
+  → скажите, что, по-вашему, нужно сделать
+- [ ] **7340.** a message to a doctor's surgery asking for an appointment _(context: brief)_  
+  → сообщение в поликлинику с просьбой записать вас на приём
+- [ ] **7341.** give your name _(context: brief)_  
+  → назовите своё имя
+- [ ] **7342.** say when you can come _(context: brief)_  
+  → скажите, когда вы можете прийти
+- [ ] **7343.** an invitation to your birthday party _(context: brief)_  
+  → приглашение на ваш день рождения
+- [ ] **7344.** say when and where _(context: brief)_  
+  → скажите, когда и где
+- [ ] **7345.** say what you're planning _(context: brief)_  
+  → скажите, что вы планируете
+- [ ] **7346.** say what to bring _(context: brief)_  
+  → скажите, что принести
+- [ ] **7347.** a note to your flatmate about what to buy for dinner _(context: brief)_  
+  → записку соседу по квартире о том, что купить к ужину
+- [ ] **7348.** say what you're cooking _(context: brief)_  
+  → скажите, что вы готовите
+- [ ] **7349.** list what to buy _(context: brief)_  
+  → перечислите, что купить
+- [ ] **7350.** say when you'll eat _(context: brief)_  
+  → скажите, когда будете есть
+- [ ] **7351.** a message to a friend who is picking you up from the station _(context: brief)_  
+  → сообщение другу, который встречает вас на вокзале
+- [ ] **7352.** say which train you're on _(context: brief)_  
+  → скажите, на каком поезде вы едете
+- [ ] **7353.** say when it arrives _(context: brief)_  
+  → скажите, когда он прибывает
+- [ ] **7354.** say how they'll recognize you _(context: brief)_  
+  → скажите, как вас узнать
+- [ ] **7355.** a note to your neighbors about a change in the building _(context: brief)_  
+  → записку соседям об изменениях в доме
+- [ ] **7356.** say what is changing _(context: brief)_  
+  → скажите, что меняется
+- [ ] **7357.** say when _(context: brief)_  
+  → скажите, когда
+- [ ] **7358.** say what they need to do _(context: brief)_  
+  → скажите, что им нужно сделать
+- [ ] **7359.** your home _(context: brief)_  
+  → ваш дом
+- [ ] **7360.** where it is _(context: brief)_  
+  → где это находится
+- [ ] **7361.** what it is like inside _(context: brief)_  
+  → как там внутри
+- [ ] **7362.** what you like about it _(context: brief)_  
+  → что вам в этом нравится
+- [ ] **7363.** the town you live in _(context: brief)_  
+  → город, в котором вы живёте
+- [ ] **7364.** what there is to do _(context: brief)_  
+  → чем там можно заняться
+- [ ] **7365.** what you would change _(context: brief)_  
+  → что бы вы изменили
+- [ ] **7366.** your usual weekday _(context: brief)_  
+  → ваш обычный будний день
+- [ ] **7367.** when you get up _(context: brief)_  
+  → когда вы встаёте
+- [ ] **7368.** what you do during the day _(context: brief)_  
+  → что вы делаете днём
+- [ ] **7369.** how you spend the evening _(context: brief)_  
+  → как вы проводите вечер
+- [ ] **7370.** your favorite way to spend a free day _(context: brief)_  
+  → ваш любимый способ провести свободный день
+- [ ] **7371.** what you do _(context: brief)_  
+  → что вы делаете
+- [ ] **7372.** who with _(context: brief)_  
+  → с кем
+- [ ] **7373.** why you like it _(context: brief)_  
+  → почему вам это нравится
+- [ ] **7374.** somebody close to you _(context: brief)_  
+  → близкого вам человека
+- [ ] **7375.** who they are _(context: brief)_  
+  → кто этот человек
+- [ ] **7376.** what they are like _(context: brief)_  
+  → какой это человек
+- [ ] **7377.** what you do together _(context: brief)_  
+  → что вы делаете вместе
+- [ ] **7378.** a meal you like _(context: brief)_  
+  → блюдо, которое вам нравится
+- [ ] **7379.** what it is _(context: brief)_  
+  → что это за блюдо
+- [ ] **7380.** when you eat it _(context: brief)_  
+  → когда вы его едите
+- [ ] **7381.** the weather where you live _(context: brief)_  
+  → погоду там, где вы живёте
+- [ ] **7382.** what it is like now _(context: brief)_  
+  → какая погода сейчас
+- [ ] **7383.** your favorite season _(context: brief)_  
+  → ваше любимое время года
+- [ ] **7384.** what you do when it rains _(context: brief)_  
+  → что вы делаете, когда идёт дождь
+- [ ] **7385.** a place you have visited _(context: brief)_  
+  → место, где вы побывали
+- [ ] **7386.** what you saw _(context: brief)_  
+  → что вы там видели
+- [ ] **7387.** whether you would go again _(context: brief)_  
+  → поехали бы вы туда снова
+- [ ] **7388.** a letter to your housing association about building work that keeps you awake _(context: brief)_  
+  → письмо в товарищество собственников жилья о строительных работах, из-за которых вы не можете спать
+- [ ] **7389.** say what the problem is _(context: brief)_  
+  → скажите, в чём состоит проблема
+- [ ] **7390.** say how it affects you _(context: brief)_  
+  → скажите, как это на вас сказывается
+- [ ] **7391.** say what you want them to do _(context: brief)_  
+  → скажите, что, по-вашему, они должны сделать
+- [ ] **7392.** a letter to a language school asking about a course for your team at work _(context: brief)_  
+  → письмо в языковую школу с вопросом о курсе для вашей команды на работе
+- [ ] **7393.** say who you are and what your team does _(context: brief)_  
+  → скажите, кто вы и чем занимается ваша команда
+- [ ] **7394.** say what the team needs _(context: brief)_  
+  → скажите, что нужно команде
+- [ ] **7395.** ask about times, length and price _(context: brief)_  
+  → спросите о времени занятий, продолжительности и цене
+- [ ] **7396.** a letter to your manager asking to change your working hours _(context: brief)_  
+  → письмо руководителю с просьбой изменить ваш рабочий график
+- [ ] **7397.** say what you'd like to change _(context: brief)_  
+  → скажите, что вы хотели бы изменить
+- [ ] **7398.** explain why _(context: brief)_  
+  → объясните почему
+- [ ] **7399.** say how your work will still be done _(context: brief)_  
+  → скажите, как ваша работа всё равно будет сделана
+- [ ] **7400.** a letter to a hotel about a stay that went wrong _(context: brief)_  
+  → письмо в гостиницу о неудачном проживании
+- [ ] **7401.** say when you stayed _(context: brief)_  
+  → скажите, когда вы там останавливались
+- [ ] **7402.** say what went wrong _(context: brief)_  
+  → скажите, что пошло не так
+- [ ] **7403.** say what you expect them to do _(context: brief)_  
+  → скажите, чего вы от них ожидаете
+- [ ] **7404.** a letter to your town council about the state of a local park _(context: brief)_  
+  → письмо в городской совет о состоянии местного парка
+- [ ] **7405.** describe the problem _(context: brief)_  
+  → опишите проблему
+- [ ] **7406.** say who it affects _(context: brief)_  
+  → скажите, кого это касается
+- [ ] **7407.** suggest what could be done _(context: brief)_  
+  → предложите, что можно сделать
+- [ ] **7408.** a letter to your sports club about a change you'd like to see _(context: brief)_  
+  → письмо в ваш спортивный клуб о переменах, которые вы хотели бы увидеть
+- [ ] **7409.** say how long you've been a member _(context: brief)_  
+  → скажите, как давно вы в клубе
+- [ ] **7410.** say why it would help others too _(context: brief)_  
+  → скажите, почему это поможет и другим
+- [ ] **7411.** a letter to a friend who is moving to Estonia _(context: brief)_  
+  → письмо другу, который переезжает в Эстонию
+- [ ] **7412.** give advice on finding somewhere to live _(context: brief)_  
+  → посоветуйте, как найти жильё
+- [ ] **7413.** invite them to visit you _(context: brief)_  
+  → пригласите его в гости
+- [ ] **7414.** a letter to a friend you haven't seen for a year _(context: brief)_  
+  → письмо другу, которого вы не видели год
+- [ ] **7415.** say what has changed in your life _(context: brief)_  
+  → расскажите, что изменилось в вашей жизни
+- [ ] **7416.** ask about theirs _(context: brief)_  
+  → спросите, как дела у него
+- [ ] **7417.** suggest a time to meet _(context: brief)_  
+  → предложите время для встречи
+- [ ] **7418.** a letter thanking a friend for a weekend at their place _(context: brief)_  
+  → письмо другу с благодарностью за выходные у него в гостях
+- [ ] **7419.** say what you enjoyed most _(context: brief)_  
+  → скажите, что вам понравилось больше всего
+- [ ] **7420.** say what has happened since _(context: brief)_  
+  → расскажите, что случилось с тех пор
+- [ ] **7421.** invite them back _(context: brief)_  
+  → пригласите его к себе в ответ
+- [ ] **7422.** a letter to a friend about your new job _(context: brief)_  
+  → письмо другу о вашей новой работе
+- [ ] **7423.** say what the job is _(context: brief)_  
+  → скажите, что это за работа
+- [ ] **7424.** say what you like and don't like about it _(context: brief)_  
+  → скажите, что вам в ней нравится, а что нет
+- [ ] **7425.** ask for their advice on something _(context: brief)_  
+  → попросите у него совета
+- [ ] **7426.** a letter to a friend who has had a hard month _(context: brief)_  
+  → письмо другу, у которого был тяжёлый месяц
+- [ ] **7427.** say you heard what happened _(context: brief)_  
+  → скажите, что вы слышали о случившемся
+- [ ] **7428.** say something that might help _(context: brief)_  
+  → скажите что-нибудь, что может помочь
+- [ ] **7429.** offer to do something together _(context: brief)_  
+  → предложите чем-нибудь заняться вместе
+- [ ] **7430.** How people in one town get to work _(context: brief)_  
+  → Как жители одного города добираются до работы
+- [ ] **7431.** percent of people who work _(context: brief)_  
+  → процент работающих
+- [ ] **7432.** By car _(context: brief)_  
+  → На машине
+- [ ] **7433.** By bus _(context: brief)_  
+  → На автобусе
+- [ ] **7434.** By bicycle _(context: brief)_  
+  → На велосипеде
+- [ ] **7435.** On foot _(context: brief)_  
+  → Пешком
+- [ ] **7436.** Working from home _(context: brief)_  
+  → Работают из дома
+- [ ] **7437.** Hours a week spent reading, by age _(context: brief)_  
+  → Сколько часов в неделю люди читают, по возрасту
+- [ ] **7438.** hours a week _(context: brief)_  
+  → часы в неделю
+- [ ] **7439.** Printed books _(context: brief)_  
+  → Печатные книги
+- [ ] **7440.** On a screen _(context: brief)_  
+  → С экрана
+- [ ] **7441.** Aged 15 to 24 _(context: brief)_  
+  → От 15 до 24 лет
+- [ ] **7442.** Aged 25 to 44 _(context: brief)_  
+  → От 25 до 44 лет
+- [ ] **7443.** Aged 45 to 64 _(context: brief)_  
+  → От 45 до 64 лет
+- [ ] **7444.** Aged 65 and over _(context: brief)_  
+  → 65 лет и старше
+- [ ] **7445.** Where households buy their food _(context: brief)_  
+  → Где семьи покупают продукты
+- [ ] **7446.** percent of households, main place _(context: brief)_  
+  → процент семей, основное место
+- [ ] **7447.** Large supermarket _(context: brief)_  
+  → Большой супермаркет
+- [ ] **7448.** Small local shop _(context: brief)_  
+  → Небольшой магазин рядом с домом
+- [ ] **7449.** Market _(context: brief)_  
+  → Рынок
+- [ ] **7450.** Online _(context: brief)_  
+  → Через интернет
+- [ ] **7451.** Where households get their heating _(context: brief)_  
+  → Как семьи отапливают жильё
+- [ ] **7452.** percent of households _(context: brief)_  
+  → процент семей
+- [ ] **7453.** District heating _(context: brief)_  
+  → Центральное отопление
+- [ ] **7454.** Wood _(context: brief)_  
+  → Дрова
+- [ ] **7455.** Electricity and heat pumps _(context: brief)_  
+  → Электричество и тепловые насосы
+- [ ] **7456.** Gas _(context: brief)_  
+  → Газ
+- [ ] **7457.** How satisfied students are with their course _(context: brief)_  
+  → Насколько студенты довольны своей учёбой
+- [ ] **7458.** percent satisfied _(context: brief)_  
+  → процент довольных
+- [ ] **7459.** First year _(context: brief)_  
+  → Первый курс
+- [ ] **7460.** Final year _(context: brief)_  
+  → Последний курс
+- [ ] **7461.** Teaching _(context: brief)_  
+  → Преподавание
+- [ ] **7462.** Course materials _(context: brief)_  
+  → Учебные материалы
+- [ ] **7463.** Online tools _(context: brief)_  
+  → Онлайн-инструменты
+- [ ] **7464.** Support and advice _(context: brief)_  
+  → Поддержка и консультации
+- [ ] **7465.** Time spent online each day, by age _(context: brief)_  
+  → Сколько времени в день люди проводят в интернете, по возрасту
+- [ ] **7466.** hours a day _(context: brief)_  
+  → часы в день
+- [ ] **7467.** Weekdays _(context: brief)_  
+  → Будни
+- [ ] **7468.** Weekends _(context: brief)_  
+  → Выходные
+- [ ] **7469.** Visitors to a national park, by season _(context: brief)_  
+  → Посетители национального парка, по сезонам
+- [ ] **7470.** thousands of visitors _(context: brief)_  
+  → тысячи посетителей
+- [ ] **7471.** Winter _(context: brief)_  
+  → Зима
+- [ ] **7472.** Spring _(context: brief)_  
+  → Весна
+- [ ] **7473.** Summer _(context: brief)_  
+  → Лето
+- [ ] **7474.** Autumn _(context: brief)_  
+  → Осень
+- [ ] **7475.** How people found their current job _(context: brief)_  
+  → Как люди нашли свою нынешнюю работу
+- [ ] **7476.** percent of people in work _(context: brief)_  
+  → процент работающих людей
+- [ ] **7477.** Under 30 _(context: brief)_  
+  → До 30 лет
+- [ ] **7478.** 30 and over _(context: brief)_  
+  → 30 лет и старше
+- [ ] **7479.** A job website _(context: brief)_  
+  → Сайт вакансий
+- [ ] **7480.** Friends or family _(context: brief)_  
+  → Друзья или родственники
+- [ ] **7481.** Contacting the employer directly _(context: brief)_  
+  → Напрямую через работодателя
+- [ ] **7482.** A recruitment agency _(context: brief)_  
+  → Кадровое агентство
+- [ ] **7483.** Social media _(context: brief)_  
+  → Социальные сети
+- [ ] **7484.** How often adults exercise _(context: brief)_  
+  → Как часто взрослые занимаются спортом
+- [ ] **7485.** percent of adults _(context: brief)_  
+  → процент взрослых
+- [ ] **7486.** Several times a week _(context: brief)_  
+  → Несколько раз в неделю
+- [ ] **7487.** About once a week _(context: brief)_  
+  → Примерно раз в неделю
+- [ ] **7488.** Now and then _(context: brief)_  
+  → Время от времени
+- [ ] **7489.** Never _(context: brief)_  
+  → Никогда
+- [ ] **7490.** Everybody who can should work from home at least two days a week. _(context: brief)_  
+  → Каждый, у кого есть такая возможность, должен работать из дома хотя бы два дня в неделю.
+- [ ] **7491.** Public transport in towns should be free for everybody. _(context: brief)_  
+  → Общественный транспорт в городах должен быть бесплатным для всех.
+- [ ] **7492.** Children shouldn't have their own phone before they're twelve. _(context: brief)_  
+  → У детей не должно быть своего телефона до двенадцати лет.
+- [ ] **7493.** Shops should be closed on Sundays. _(context: brief)_  
+  → По воскресеньям магазины должны быть закрыты.
+- [ ] **7494.** A language is learned better online than in a classroom. _(context: brief)_  
+  → Язык лучше учить онлайн, чем в классе.
+- [ ] **7495.** Cars should not be allowed in town centers. _(context: brief)_  
+  → Машинам нельзя разрешать въезд в центр города.
+- [ ] **7496.** Every young person should work for a year before going to university. _(context: brief)_  
+  → Каждый молодой человек должен год поработать, прежде чем поступать в университет.
+- [ ] **7497.** Tourism does a small town more good than harm. _(context: brief)_  
+  → Туризм приносит маленькому городу больше пользы, чем вреда.
+- [ ] **7498.** Sport should be a bigger part of every school day. _(context: brief)_  
+  → В каждом школьном дне должно быть больше спорта.
+- [ ] **7499.** Your town council plans to close two small libraries and build one large one in the center. _(context: brief)_  
+  → Городской совет собирается закрыть две небольшие библиотеки и построить одну большую в центре.
+- [ ] **7500.** what the town would gain _(context: brief)_  
+  → что город выиграет
+- [ ] **7501.** what it would lose _(context: brief)_  
+  → что он потеряет
+- [ ] **7502.** A large employer wants all its staff back in the office five days a week. _(context: brief)_  
+  → Крупный работодатель хочет, чтобы все сотрудники снова работали в офисе пять дней в неделю.
+- [ ] **7503.** the effect on productivity _(context: brief)_  
+  → влияние на производительность
+- [ ] **7504.** the effect on people's lives _(context: brief)_  
+  → влияние на жизнь людей
+- [ ] **7505.** The government is considering a four day working week. _(context: brief)_  
+  → Правительство рассматривает переход на четырёхдневную рабочую неделю.
+- [ ] **7506.** what it would mean for the economy _(context: brief)_  
+  → что это значило бы для экономики
+- [ ] **7507.** what it would mean for wellbeing _(context: brief)_  
+  → что это значило бы для самочувствия людей
+- [ ] **7508.** Universities may start teaching master's courses only in English. _(context: brief)_  
+  → Университеты могут начать преподавать в магистратуре только на английском языке.
+- [ ] **7509.** the international benefits _(context: brief)_  
+  → международные преимущества
+- [ ] **7510.** the future of the national language in science _(context: brief)_  
+  → будущее национального языка в науке
+- [ ] **7511.** Social media platforms may be required to check the age of every user. _(context: brief)_  
+  → Социальные сети могут обязать проверять возраст каждого пользователя.
+- [ ] **7512.** protecting children _(context: brief)_  
+  → защита детей
+- [ ] **7513.** privacy _(context: brief)_  
+  → неприкосновенность частной жизни
+- [ ] **7514.** Your city wants to build housing on the site of a large park. _(context: brief)_  
+  → Ваш город хочет построить жильё на месте большого парка.
+- [ ] **7515.** the need for housing _(context: brief)_  
+  → потребность в жилье
+- [ ] **7516.** the value of green space _(context: brief)_  
+  → ценность зелёных зон
+- [ ] **7517.** Schools may replace printed textbooks with tablets. _(context: brief)_  
+  → Школы могут заменить печатные учебники планшетами.
+- [ ] **7518.** what pupils would gain _(context: brief)_  
+  → что выиграют ученики
+- [ ] **7519.** what they might lose _(context: brief)_  
+  → что они могут потерять
+- [ ] **7520.** Supermarkets may be required to give their unsold food away. _(context: brief)_  
+  → Супермаркеты могут обязать бесплатно отдавать непроданные продукты.
+- [ ] **7521.** the case against waste _(context: brief)_  
+  → доводы против того, чтобы выбрасывать еду
+- [ ] **7522.** the cost and the practical problems _(context: brief)_  
+  → расходы и практические трудности
+- [ ] **7523.** Your country is considering lowering the voting age to sixteen. _(context: brief)_  
+  → В вашей стране обсуждают снижение возраста голосования до шестнадцати лет.
+- [ ] **7524.** young people's voice _(context: brief)_  
+  → голос молодёжи
+- [ ] **7525.** whether sixteen is ready _(context: brief)_  
+  → готовы ли шестнадцатилетние
+- [ ] **7526.** Where might you see these things together? _(context: brief)_  
+  → Где можно увидеть все эти вещи вместе?
+- [ ] **7527.** When did you last see or use one of them? Tell me about it. _(context: brief)_  
+  → Когда вы в последний раз видели или использовали одну из них? Расскажите об этом.
+- [ ] **7528.** Do you like this kind of place? Why, or why not? _(context: brief)_  
+  → Вам нравятся такие места? Почему да или почему нет?
+- [ ] **7529.** Breakfast _(context: brief)_  
+  → Завтрак
+- [ ] **7530.** At the market _(context: brief)_  
+  → На рынке
+- [ ] **7531.** Getting to work _(context: brief)_  
+  → Дорога на работу
+- [ ] **7532.** The house _(context: brief)_  
+  → Дом
+- [ ] **7533.** Pets _(context: brief)_  
+  → Домашние животные
+- [ ] **7534.** Fruit _(context: brief)_  
+  → Фрукты
+- [ ] **7535.** In the classroom _(context: brief)_  
+  → В классе
+- [ ] **7536.** The family _(context: brief)_  
+  → Семья
+- [ ] **7537.** Setting off _(context: brief)_  
+  → В путь
+- [ ] **7538.** Something cold _(context: brief)_  
+  → Что-то холодное
+- [ ] **7539.** The bathroom _(context: brief)_  
+  → Ванная
+- [ ] **7540.** Cooking _(context: brief)_  
+  → Готовим еду
+- [ ] **7541.** The face _(context: brief)_  
+  → Лицо
+- [ ] **7542.** An evening in _(context: brief)_  
+  → Вечер дома
+- [ ] **7543.** Sport _(context: brief)_  
+  → Спорт
+- [ ] **7544.** In town _(context: brief)_  
+  → В городе
+- [ ] **7545.** On the farm _(context: brief)_  
+  → На ферме
+- [ ] **7546.** The children _(context: brief)_  
+  → Дети
+- [ ] **7547.** Lunch _(context: brief)_  
+  → Обед
+- [ ] **7548.** By the fire _(context: brief)_  
+  → У огня
+- [ ] **7549.** Getting dressed _(context: brief)_  
+  → Одеваемся
+- [ ] **7550.** At the doctor _(context: brief)_  
+  → У врача
+- [ ] **7551.** Farm animals _(context: brief)_  
+  → Животные на ферме
+- [ ] **7552.** In the forest _(context: brief)_  
+  → В лесу
+- [ ] **7553.** News and dates _(context: brief)_  
+  → Новости и даты
+- [ ] **7554.** Flowers _(context: brief)_  
+  → Цветы
+- [ ] **7555.** On holiday _(context: brief)_  
+  → В отпуске
+- [ ] **7556.** Washing _(context: brief)_  
+  → Мытьё
+- [ ] **7557.** Strong flavors _(context: brief)_  
+  → Яркие вкусы
+- [ ] **7558.** Small animals _(context: brief)_  
+  → Маленькие животные
+- [ ] **7559.** An emergency _(context: brief)_  
+  → Экстренный случай
+- [ ] **7560.** At the bank _(context: brief)_  
+  → В банке
+- [ ] **7561.** Birds _(context: brief)_  
+  → Птицы
+- [ ] **7562.** Something sweet _(context: brief)_  
+  → Что-то сладкое
+- [ ] **7563.** Old buildings _(context: brief)_  
+  → Старые здания
+- [ ] **7564.** Music _(context: brief)_  
+  → Музыка
+- [ ] **7565.** At the zoo _(context: brief)_  
+  → В зоопарке
+- [ ] **7566.** Tools _(context: brief)_  
+  → Инструменты
+- [ ] **7567.** Waiting _(context: brief)_  
+  → Ожидание
+- [ ] **7568.** In the water _(context: brief)_  
+  → В воде
+- [ ] **7569.** Insects _(context: brief)_  
+  → Насекомые
+- [ ] **7570.** Leaving the house _(context: brief)_  
+  → Выходим из дома
+- [ ] **7571.** A wedding _(context: brief)_  
+  → Свадьба
+- [ ] **7572.** After the rain _(context: brief)_  
+  → После дождя
+- [ ] **7573.** Large birds _(context: brief)_  
+  → Крупные птицы
+- [ ] **7574.** Mending something _(context: brief)_  
+  → Чиним что-то
+- [ ] **7575.** Slow creatures _(context: brief)_  
+  → Медлительные существа
+- [ ] **7576.** Underground _(context: brief)_  
+  → Под землёй
+- [ ] **7577.** Farm work _(context: brief)_  
+  → Работа на ферме
+- [ ] **7578.** Late evening _(context: brief)_  
+  → Поздний вечер
+- [ ] **7579.** Camping _(context: brief)_  
+  → В походе
+- [ ] **7580.** Far from here _(context: brief)_  
+  → Далеко отсюда
+- [ ] **7581.** Out at sea _(context: brief)_  
+  → В открытом море
+- [ ] **7582.** Building _(context: brief)_  
+  → Стройка
+- [ ] **7583.** Across town _(context: brief)_  
+  → Через весь город
+- [ ] **7584.** After dark _(context: brief)_  
+  → Когда стемнело
+- [ ] **7585.** Looking up _(context: brief)_  
+  → Взгляд вверх
+- [ ] **7586.** Made by hand _(context: brief)_  
+  → Ручная работа
+- [ ] **7587.** In the garden _(context: brief)_  
+  → В саду
+- [ ] **7588.** free time _(context: brief)_  
+  → свободное время
+- [ ] **7589.** what they like doing _(context: brief)_  
+  → что вы любите делать
+- [ ] **7590.** when _(context: brief)_  
+  → когда
+- [ ] **7591.** how much it costs _(context: brief)_  
+  → сколько это стоит
+- [ ] **7592.** food _(context: brief)_  
+  → еда
+- [ ] **7593.** what they like to eat _(context: brief)_  
+  → что вы любите есть
+- [ ] **7594.** where they shop _(context: brief)_  
+  → где вы покупаете продукты
+- [ ] **7595.** who cooks at home _(context: brief)_  
+  → кто у вас дома готовит
+- [ ] **7596.** what they ate today _(context: brief)_  
+  → что вы ели сегодня
+- [ ] **7597.** a trip _(context: brief)_  
+  → поездка
+- [ ] **7598.** where they went _(context: brief)_  
+  → куда вы ездили
+- [ ] **7599.** how they got there _(context: brief)_  
+  → как вы туда добирались
+- [ ] **7600.** how long they stayed _(context: brief)_  
+  → сколько вы там пробыли
+- [ ] **7601.** what they liked _(context: brief)_  
+  → что вам понравилось
+- [ ] **7602.** home _(context: brief)_  
+  → дом
+- [ ] **7603.** where they live _(context: brief)_  
+  → где вы живёте
+- [ ] **7604.** how many rooms there are _(context: brief)_  
+  → сколько у вас комнат
+- [ ] **7605.** who they live with _(context: brief)_  
+  → с кем вы живёте
+- [ ] **7606.** what they like about it _(context: brief)_  
+  → что вам нравится в вашем доме
+- [ ] **7607.** work _(context: brief)_  
+  → работа
+- [ ] **7608.** what they do _(context: brief)_  
+  → кем вы работаете
+- [ ] **7609.** where they work _(context: brief)_  
+  → где вы работаете
+- [ ] **7610.** when they start and finish _(context: brief)_  
+  → когда вы начинаете и заканчиваете работу
+- [ ] **7611.** whether they like it _(context: brief)_  
+  → нравится ли вам ваша работа
+- [ ] **7612.** shopping _(context: brief)_  
+  → покупки
+- [ ] **7613.** what they buy most often _(context: brief)_  
+  → что вы покупаете чаще всего
+- [ ] **7614.** where _(context: brief)_  
+  → где
+- [ ] **7615.** how they pay _(context: brief)_  
+  → как вы платите
+- [ ] **7616.** what they bought last _(context: brief)_  
+  → что вы купили в последний раз
+- [ ] **7617.** staying healthy _(context: brief)_  
+  → здоровый образ жизни
+- [ ] **7618.** what sport they do _(context: brief)_  
+  → каким спортом вы занимаетесь
+- [ ] **7619.** how often _(context: brief)_  
+  → как часто
+- [ ] **7620.** when they go to the doctor _(context: brief)_  
+  → когда вы ходите к врачу
+- [ ] **7621.** how they sleep _(context: brief)_  
+  → как вы спите
+- [ ] **7622.** the weekend _(context: brief)_  
+  → выходные
+- [ ] **7623.** when they get up _(context: brief)_  
+  → когда вы встаёте
+- [ ] **7624.** who they meet _(context: brief)_  
+  → с кем вы встречаетесь
+- [ ] **7625.** what they did last weekend _(context: brief)_  
+  → что вы делали в прошлые выходные
+- [ ] **7626.** What do you do in your free time? _(context: brief)_  
+  → Чем вы занимаетесь в свободное время?
+- [ ] **7627.** Do you prefer staying in or going out? Why? _(context: brief)_  
+  → Вы больше любите проводить время дома или выходить куда-нибудь? Почему?
+- [ ] **7628.** What did you do last weekend? _(context: brief)_  
+  → Что вы делали в прошлые выходные?
+- [ ] **7629.** A friend is visiting you for one weekend. Decide together what to do on Saturday. _(context: brief)_  
+  → К вам на выходные приезжает друг. Решите вместе, чем заняться в субботу.
+- [ ] **7630.** a museum _(context: brief)_  
+  → музей
+- [ ] **7631.** a walk in the forest _(context: brief)_  
+  → прогулка по лесу
+- [ ] **7632.** a concert _(context: brief)_  
+  → концерт
+- [ ] **7633.** What do you usually eat in a day? _(context: brief)_  
+  → Что вы обычно едите за день?
+- [ ] **7634.** Do you like cooking? Why or why not? _(context: brief)_  
+  → Вы любите готовить? Почему да или почему нет?
+- [ ] **7635.** Where did you last eat out? _(context: brief)_  
+  → Где вы в последний раз ели не дома?
+- [ ] **7636.** Your course is ending and the group wants to celebrate. Decide together where. _(context: brief)_  
+  → Ваш курс заканчивается, и группа хочет это отметить. Решите вместе, где.
+- [ ] **7637.** a café _(context: brief)_  
+  → кафе
+- [ ] **7638.** a picnic in the park _(context: brief)_  
+  → пикник в парке
+- [ ] **7639.** somebody's home _(context: brief)_  
+  → у кого-нибудь дома
+- [ ] **7640.** Where do you usually shop? _(context: brief)_  
+  → Где вы обычно делаете покупки?
+- [ ] **7641.** What do you buy online? _(context: brief)_  
+  → Что вы покупаете в интернете?
+- [ ] **7642.** What was the last thing you bought for somebody else? _(context: brief)_  
+  → Что вы в последний раз покупали для другого человека?
+- [ ] **7643.** A colleague is leaving. Decide together on a present. _(context: brief)_  
+  → Коллега уходит с работы. Решите вместе, что ему подарить.
+- [ ] **7644.** flowers _(context: brief)_  
+  → цветы
+- [ ] **7645.** a book _(context: brief)_  
+  → книга
+- [ ] **7646.** a gift card _(context: brief)_  
+  → подарочная карта
+- [ ] **7647.** Where did you last travel? _(context: brief)_  
+  → Куда вы в последний раз ездили?
+- [ ] **7648.** How do you prefer to travel, and why? _(context: brief)_  
+  → Как вы предпочитаете путешествовать и почему?
+- [ ] **7649.** Where would you like to go next? _(context: brief)_  
+  → Куда вы хотели бы поехать в следующий раз?
+- [ ] **7650.** You and a friend have three days off. Decide together where to go. _(context: brief)_  
+  → У вас с другом три выходных дня. Решите вместе, куда поехать.
+- [ ] **7651.** a city you don't know _(context: brief)_  
+  → незнакомый город
+- [ ] **7652.** an island by the sea _(context: brief)_  
+  → остров в море
+- [ ] **7653.** a spa hotel _(context: brief)_  
+  → спа-отель
+- [ ] **7654.** What do you do to stay healthy? _(context: brief)_  
+  → Что вы делаете, чтобы оставаться здоровыми?
+- [ ] **7655.** How often do you do sport? _(context: brief)_  
+  → Как часто вы занимаетесь спортом?
+- [ ] **7656.** What do you do when you're ill? _(context: brief)_  
+  → Что вы делаете, когда болеете?
+- [ ] **7657.** You both want to get fitter this year. Decide together how. _(context: brief)_  
+  → Вы оба хотите в этом году улучшить свою физическую форму. Решите вместе, как.
+- [ ] **7658.** running together _(context: brief)_  
+  → совместные пробежки
+- [ ] **7659.** joining a gym _(context: brief)_  
+  → абонемент в спортзал
+- [ ] **7660.** cycling to work _(context: brief)_  
+  → поездки на работу на велосипеде
+- [ ] **7661.** Describe where you live. _(context: brief)_  
+  → Опишите, где вы живёте.
+- [ ] **7662.** What do you like about your neighborhood? _(context: brief)_  
+  → Что вам нравится в вашем районе?
+- [ ] **7663.** Would you rather live in town or in the country? Why? _(context: brief)_  
+  → Где бы вы предпочли жить: в городе или за городом? Почему?
+- [ ] **7664.** You share a flat and have money for one new thing. Decide together what to buy. _(context: brief)_  
+  → Вы вместе снимаете квартиру, и у вас есть деньги на одну новую вещь. Решите вместе, что купить.
+- [ ] **7665.** a new sofa _(context: brief)_  
+  → новый диван
+- [ ] **7666.** a dishwasher _(context: brief)_  
+  → посудомоечная машина
+- [ ] **7667.** bicycles for both of you _(context: brief)_  
+  → велосипеды для вас обоих
+- [ ] **7668.** when there is a free appointment _(context: brief)_  
+  → когда можно записаться на приём
+- [ ] **7669.** what a check-up costs _(context: brief)_  
+  → сколько стоит осмотр
+- [ ] **7670.** where the surgery is _(context: brief)_  
+  → где находится клиника
+- [ ] **7671.** what to bring _(context: brief)_  
+  → что взять с собой
+- [ ] **7672.** somebody who works at a sports club _(context: brief)_  
+  → сотрудник спортивного клуба
+- [ ] **7673.** Open every day, 7:00 to 22:00 _(context: brief)_  
+  → Открыто каждый день с 7:00 до 22:00
+- [ ] **7674.** A month's membership costs 45 euros _(context: brief)_  
+  → Абонемент на месяц стоит 45 евро
+- [ ] **7675.** No need to book, just come in _(context: brief)_  
+  → Записываться не нужно, просто приходите
+- [ ] **7676.** Bring sports shoes and a towel _(context: brief)_  
+  → Возьмите спортивную обувь и полотенце
+- [ ] **7677.** when the next course starts _(context: brief)_  
+  → когда начинается следующий курс
+- [ ] **7678.** how many hours a week it is _(context: brief)_  
+  → сколько часов в неделю идут занятия
+- [ ] **7679.** what it costs _(context: brief)_  
+  → сколько это стоит
+- [ ] **7680.** how to sign up _(context: brief)_  
+  → как записаться
+- [ ] **7681.** somebody who works at a library _(context: brief)_  
+  → сотрудник библиотеки
+- [ ] **7682.** Open Monday to Saturday, 10:00 to 19:00 _(context: brief)_  
+  → Открыто с понедельника по субботу, с 10:00 до 19:00
+- [ ] **7683.** Joining is free _(context: brief)_  
+  → Записаться можно бесплатно
+- [ ] **7684.** You can borrow ten books for three weeks _(context: brief)_  
+  → Можно взять десять книг на три недели
+- [ ] **7685.** Bring an ID card _(context: brief)_  
+  → Возьмите с собой удостоверение личности
+- [ ] **7686.** whether there is a free time on Friday _(context: brief)_  
+  → есть ли свободное время в пятницу
+- [ ] **7687.** what a haircut costs _(context: brief)_  
+  → сколько стоит стрижка
+- [ ] **7688.** how long it takes _(context: brief)_  
+  → сколько это длится
+- [ ] **7689.** whether you can pay by card _(context: brief)_  
+  → можно ли заплатить картой
+- [ ] **7690.** somebody who works at a theater box office _(context: brief)_  
+  → кассир театра
+- [ ] **7691.** Tickets cost 15 and 25 euros _(context: brief)_  
+  → Билеты стоят 15 и 25 евро
+- [ ] **7692.** The show starts at 19:00 _(context: brief)_  
+  → Спектакль начинается в 19:00
+- [ ] **7693.** It lasts two and a half hours _(context: brief)_  
+  → Он идёт два с половиной часа
+- [ ] **7694.** Children under 12 pay half _(context: brief)_  
+  → Дети до 12 лет платят половину
+- [ ] **7695.** whether a room is free next weekend _(context: brief)_  
+  → есть ли свободный номер на следующие выходные
+- [ ] **7696.** what a night costs _(context: brief)_  
+  → сколько стоит одна ночь
+- [ ] **7697.** whether breakfast is included _(context: brief)_  
+  → входит ли завтрак в цену
+- [ ] **7698.** how far it is from the station _(context: brief)_  
+  → далеко ли это от вокзала
+- [ ] **7699.** somebody who works at a car hire company _(context: brief)_  
+  → сотрудник компании по прокату автомобилей
+- [ ] **7700.** A small car costs 35 euros a day _(context: brief)_  
+  → Небольшая машина стоит 35 евро в день
+- [ ] **7701.** Open 8:00 to 20:00 _(context: brief)_  
+  → Открыто с 8:00 до 20:00
+- [ ] **7702.** You need a driving license and a bank card _(context: brief)_  
+  → Нужны водительские права и банковская карта
+- [ ] **7703.** Bring the car back with a full tank _(context: brief)_  
+  → Верните машину с полным баком
+- [ ] **7704.** when it is open _(context: brief)_  
+  → когда он открыт
+- [ ] **7705.** what a ticket costs _(context: brief)_  
+  → сколько стоит билет
+- [ ] **7706.** whether there are guided tours _(context: brief)_  
+  → есть ли экскурсии с гидом
+- [ ] **7707.** whether you can take photos _(context: brief)_  
+  → можно ли фотографировать
+- [ ] **7708.** somebody who works at a doctor's surgery _(context: brief)_  
+  → сотрудник поликлиники
+- [ ] **7709.** The doctor sees patients 8:00 to 16:00 _(context: brief)_  
+  → Врач принимает с 8:00 до 16:00
+- [ ] **7710.** Book by phone or online _(context: brief)_  
+  → Записаться можно по телефону или онлайн
+- [ ] **7711.** The next free time is Thursday at 10:30 _(context: brief)_  
+  → Ближайшее свободное время: четверг, 10:30
+- [ ] **7712.** Bring your ID card _(context: brief)_  
+  → Возьмите своё удостоверение личности
+- [ ] **7713.** whether they are free on the 15th _(context: brief)_  
+  → свободны ли они 15-го числа
+- [ ] **7714.** what a small flat costs to move _(context: brief)_  
+  → сколько стоит перевезти небольшую квартиру
+- [ ] **7715.** whether they bring boxes _(context: brief)_  
+  → привозят ли они коробки
+- [ ] **7716.** how to pay _(context: brief)_  
+  → как платить
+- [ ] **7717.** somebody who works at a swimming pool _(context: brief)_  
+  → сотрудник бассейна
+- [ ] **7718.** Open 6:30 to 21:00, closed on Mondays _(context: brief)_  
+  → Открыто с 6:30 до 21:00, по понедельникам закрыто
+- [ ] **7719.** One swim costs 7 euros _(context: brief)_  
+  → Одно посещение стоит 7 евро
+- [ ] **7720.** A swimming cap is required _(context: brief)_  
+  → Нужна шапочка для плавания
+- [ ] **7721.** Lessons for adults on Tuesdays at 18:00 _(context: brief)_  
+  → Занятия для взрослых по вторникам в 18:00
+- [ ] **7722.** At a team meeting, give a short talk on why your team should try working from home two days a week. _(context: brief)_  
+  → На собрании команды коротко расскажите, почему вашей команде стоит попробовать работать из дома два дня в неделю.
+- [ ] **7723.** What would be the hardest part to organize? _(context: brief)_  
+  → Что было бы сложнее всего организовать?
+- [ ] **7724.** A new colleague starts on Monday. Give a short talk on what they need to know in their first week. _(context: brief)_  
+  → В понедельник выходит новый коллега. Коротко расскажите, что ему нужно знать в первую неделю.
+- [ ] **7725.** What mistake do newcomers make most often? _(context: brief)_  
+  → Какую ошибку новички совершают чаще всего?
+- [ ] **7726.** At a staff meeting, propose one change that would make your workplace greener. _(context: brief)_  
+  → На собрании сотрудников предложите одно изменение, которое сделает вашу работу экологичнее.
+- [ ] **7727.** How much would it cost, and who would pay? _(context: brief)_  
+  → Сколько бы это стоило и кто бы за это заплатил?
+- [ ] **7728.** At a training day, give a short talk on a skill that matters in your work and how to learn it. _(context: brief)_  
+  → На учебном семинаре коротко расскажите о навыке, важном в вашей работе, и о том, как ему научиться.
+- [ ] **7729.** How long does it take to learn it well? _(context: brief)_  
+  → Сколько времени нужно, чтобы хорошо его освоить?
+- [ ] **7730.** Your company is choosing between a team trip and a bonus for everyone. Speak for one of them. _(context: brief)_  
+  → Ваша компания выбирает между поездкой всей командой и премией для всех. Выступите в поддержку одного из вариантов.
+- [ ] **7731.** What would the others say against it? _(context: brief)_  
+  → Что другие сказали бы против?
+- [ ] **7732.** Give a short talk on how meetings at work could take less time. _(context: brief)_  
+  → Коротко расскажите, как сделать рабочие совещания короче.
+- [ ] **7733.** Which meeting would you get rid of first? _(context: brief)_  
+  → От какого совещания вы отказались бы в первую очередь?
+- [ ] **7734.** Present a tool or an app that makes work easier. _(context: brief)_  
+  → Представьте инструмент или приложение, которое облегчает работу.
+- [ ] **7735.** What would you change about it? _(context: brief)_  
+  → Что бы вы в нём изменили?
+- [ ] **7736.** What does your town need most? _(context: brief)_  
+  → Что больше всего нужно вашему городу?
+- [ ] **7737.** Who should decide how its money is spent? _(context: brief)_  
+  → Кто должен решать, на что тратить его деньги?
+- [ ] **7738.** Your town has money for one project this year: a new sports hall or better bus connections. Debate it and agree on one. _(context: brief)_  
+  → В этом году у вашего города есть деньги на один проект: новый спортивный зал или лучшее автобусное сообщение. Обсудите это и выберите что-то одно.
+- [ ] **7739.** A sports hall _(context: brief)_  
+  → Спортивный зал
+- [ ] **7740.** keeps young people active _(context: brief)_  
+  → молодёжь будет больше двигаться
+- [ ] **7741.** can hold events that bring visitors _(context: brief)_  
+  → в нём можно проводить мероприятия, которые привлекут гостей
+- [ ] **7742.** Better buses _(context: brief)_  
+  → Автобусы получше
+- [ ] **7743.** help everybody get to work _(context: brief)_  
+  → всем будет проще добираться до работы
+- [ ] **7744.** mean fewer cars and cleaner air _(context: brief)_  
+  → меньше машин и чище воздух
+- [ ] **7745.** Is it better to rent a home or to buy one? _(context: brief)_  
+  → Что лучше: снимать жильё или купить своё?
+- [ ] **7746.** Why do people move house? _(context: brief)_  
+  → Почему люди переезжают?
+- [ ] **7747.** A friend has saved enough for a deposit. Debate whether they should buy now or keep renting, and agree on your advice. _(context: brief)_  
+  → Ваш друг накопил на первый взнос. Обсудите, стоит ли ему покупать жильё сейчас или пока снимать, и договоритесь, что ему посоветовать.
+- [ ] **7748.** Buy now _(context: brief)_  
+  → Купить сейчас
+- [ ] **7749.** paying off a loan is a kind of saving _(context: brief)_  
+  → выплачивать кредит тоже своего рода накопление
+- [ ] **7750.** you can make the home your own _(context: brief)_  
+  → жильё можно обустроить по-своему
+- [ ] **7751.** Keep renting _(context: brief)_  
+  → Пока снимать
+- [ ] **7752.** you can move easily for a new job _(context: brief)_  
+  → ради новой работы легко переехать
+- [ ] **7753.** repairs are not your problem _(context: brief)_  
+  → ремонт не ваша забота
+- [ ] **7754.** Do children spend too much time on screens? _(context: brief)_  
+  → Не слишком ли много времени дети проводят у экранов?
+- [ ] **7755.** What did children do before phones? _(context: brief)_  
+  → Чем занимались дети, когда телефонов ещё не было?
+- [ ] **7756.** A school is deciding whether to ban phones for the whole school day. Debate it and agree on a position. _(context: brief)_  
+  → Школа решает, запретить ли телефоны на весь учебный день. Обсудите это и придите к общему мнению.
+- [ ] **7757.** Ban them _(context: brief)_  
+  → Запретить
+- [ ] **7758.** pupils concentrate better _(context: brief)_  
+  → ученики лучше сосредоточиваются
+- [ ] **7759.** breaks become more social _(context: brief)_  
+  → на переменах больше общаются
+- [ ] **7760.** Allow them _(context: brief)_  
+  → Разрешить
+- [ ] **7761.** phones help in an emergency _(context: brief)_  
+  → телефон помогает в экстренной ситуации
+- [ ] **7762.** pupils have to learn to use them sensibly _(context: brief)_  
+  → ученикам нужно учиться пользоваться ими разумно
+- [ ] **7763.** How long should a working week be? _(context: brief)_  
+  → Какой длины должна быть рабочая неделя?
+- [ ] **7764.** What makes a good employer? _(context: brief)_  
+  → Каким должен быть хороший работодатель?
+- [ ] **7765.** Your workplace wants a four day week with longer days. Debate it and agree on a position. _(context: brief)_  
+  → На вашей работе хотят ввести четырёхдневную неделю с более длинными рабочими днями. Обсудите это и придите к общему мнению.
+- [ ] **7766.** Four longer days _(context: brief)_  
+  → Четыре длинных дня
+- [ ] **7767.** three days off leave time for family _(context: brief)_  
+  → три выходных оставляют время для семьи
+- [ ] **7768.** fewer journeys to work _(context: brief)_  
+  → меньше поездок на работу
+- [ ] **7769.** Keep five days _(context: brief)_  
+  → Оставить пять дней
+- [ ] **7770.** long days are tiring _(context: brief)_  
+  → длинные дни утомляют
+- [ ] **7771.** customers expect service every weekday _(context: brief)_  
+  → клиенты ждут обслуживания каждый будний день
+- [ ] **7772.** Do you prefer holidays at home or abroad? _(context: brief)_  
+  → Где вы больше любите отдыхать: дома или за границей?
+- [ ] **7773.** What makes a team work well together? _(context: brief)_  
+  → Что помогает команде хорошо работать вместе?
+- [ ] **7774.** Your company offers the team either a trip abroad or a summer party at home. Debate it and agree on one. _(context: brief)_  
+  → Ваша компания предлагает команде на выбор поездку за границу или летний праздник дома. Обсудите это и выберите что-то одно.
+- [ ] **7775.** A trip abroad _(context: brief)_  
+  → Поездка за границу
+- [ ] **7776.** it builds a team _(context: brief)_  
+  → она сплачивает команду
+- [ ] **7777.** people remember it for years _(context: brief)_  
+  → её помнят годами
+- [ ] **7778.** A party at home _(context: brief)_  
+  → Праздник дома
+- [ ] **7779.** more people can come _(context: brief)_  
+  → прийти смогут больше людей
+- [ ] **7780.** it costs much less _(context: brief)_  
+  → это гораздо дешевле
+- [ ] **7781.** Should cities be built for people or for cars? _(context: brief)_  
+  → Для кого нужно строить города: для людей или для машин?
+- [ ] **7782.** How do you get around your town? _(context: brief)_  
+  → Как вы передвигаетесь по своему городу?
+- [ ] **7783.** Your city is deciding whether to close its old town to cars. Debate it and agree on a position. _(context: brief)_  
+  → Ваш город решает, закрыть ли старый город для машин. Обсудите это и придите к общему мнению.
+- [ ] **7784.** Close it _(context: brief)_  
+  → Закрыть
+- [ ] **7785.** it's safer for people on foot _(context: brief)_  
+  → пешеходам безопаснее
+- [ ] **7786.** cafés and shops get more customers _(context: brief)_  
+  → у кафе и магазинов больше посетителей
+- [ ] **7787.** Keep it open _(context: brief)_  
+  → Оставить открытым
+- [ ] **7788.** older people find it harder to get around _(context: brief)_  
+  → пожилым людям труднее передвигаться
+- [ ] **7789.** delivery vans need to get in _(context: brief)_  
+  → фургонам доставки нужно проезжать
+- [ ] **7790.** How to keep a team motivated when the work gets hard _(context: brief)_  
+  → Как поддерживать мотивацию команды, когда работа становится трудной
+- [ ] **7791.** What a good manager does differently _(context: brief)_  
+  → Что хороший руководитель делает иначе
+- [ ] **7792.** What is the most common mistake here? _(context: brief)_  
+  → Какая ошибка здесь встречается чаще всего?
+- [ ] **7793.** How would you know whether it was working? _(context: brief)_  
+  → Как понять, что это работает?
+- [ ] **7794.** The benefits and risks of working from home _(context: brief)_  
+  → Плюсы и риски работы из дома
+- [ ] **7795.** How technology is changing a profession you know _(context: brief)_  
+  → Как технологии меняют знакомую вам профессию
+- [ ] **7796.** Which change matters most? _(context: brief)_  
+  → Какое изменение самое важное?
+- [ ] **7797.** What should employers do about it? _(context: brief)_  
+  → Что с этим делать работодателям?
+- [ ] **7798.** Why learning never stops in working life _(context: brief)_  
+  → Почему в профессиональной жизни учёба не заканчивается
+- [ ] **7799.** How to bring young people into your field _(context: brief)_  
+  → Как привлечь молодёжь в вашу сферу
+- [ ] **7800.** Who should pay for it? _(context: brief)_  
+  → Кто должен за это платить?
+- [ ] **7801.** What stands in the way? _(context: brief)_  
+  → Что этому мешает?
+- [ ] **7802.** How a workplace can cut its environmental footprint _(context: brief)_  
+  → Как организации уменьшить свой экологический след
+- [ ] **7803.** Why every company should report its energy use _(context: brief)_  
+  → Почему каждая компания должна отчитываться о потреблении энергии
+- [ ] **7804.** What would be the first step? _(context: brief)_  
+  → Каким был бы первый шаг?
+- [ ] **7805.** What would it cost? _(context: brief)_  
+  → Сколько бы это стоило?
+- [ ] **7806.** What makes a meeting worth having _(context: brief)_  
+  → Когда совещание действительно нужно
+- [ ] **7807.** How to give and take feedback well _(context: brief)_  
+  → Как правильно давать и принимать обратную связь
+- [ ] **7808.** What goes wrong most often? _(context: brief)_  
+  → Что чаще всего идёт не так?
+- [ ] **7809.** How would you train people in it? _(context: brief)_  
+  → Как бы вы этому учили?
+- [ ] **7810.** Artificial intelligence at work: a help or a threat? _(context: brief)_  
+  → Искусственный интеллект на работе: помощь или угроза?
+- [ ] **7811.** How to plan a large project _(context: brief)_  
+  → Как спланировать крупный проект
+- [ ] **7812.** What would you warn people about? _(context: brief)_  
+  → О чём бы вы предупредили людей?
+- [ ] **7813.** Where should a beginner start? _(context: brief)_  
+  → С чего начать новичку?
+- [ ] **7814.** Should higher education be free for everybody? _(context: brief)_  
+  → Должно ли высшее образование быть бесплатным для всех?
+- [ ] **7815.** who pays now, and who would pay _(context: brief)_  
+  → кто платит сейчас и кто платил бы тогда
+- [ ] **7816.** the quality of teaching _(context: brief)_  
+  → качество преподавания
+- [ ] **7817.** fairness between people from different backgrounds _(context: brief)_  
+  → равные возможности для людей из разных слоёв общества
+- [ ] **7818.** Does social media do more good than harm to public debate? _(context: brief)_  
+  → Приносят ли социальные сети общественной дискуссии больше пользы, чем вреда?
+- [ ] **7819.** access to information _(context: brief)_  
+  → доступ к информации
+- [ ] **7820.** misinformation _(context: brief)_  
+  → дезинформация
+- [ ] **7821.** what can be regulated, and by whom _(context: brief)_  
+  → что можно регулировать и кто должен это делать
+- [ ] **7822.** Should cities be built around people rather than cars? _(context: brief)_  
+  → Нужно ли строить города вокруг людей, а не машин?
+- [ ] **7823.** safety and health _(context: brief)_  
+  → безопасность и здоровье
+- [ ] **7824.** business and deliveries _(context: brief)_  
+  → бизнес и доставка
+- [ ] **7825.** people who live outside the city _(context: brief)_  
+  → люди, которые живут за городом
+- [ ] **7826.** Is it the state's job to make people live more healthily? _(context: brief)_  
+  → Должно ли государство заботиться о том, чтобы люди жили здоровее?
+- [ ] **7827.** taxes on sugar and alcohol _(context: brief)_  
+  → налоги на сахар и алкоголь
+- [ ] **7828.** personal freedom _(context: brief)_  
+  → личная свобода
+- [ ] **7829.** the cost of health care _(context: brief)_  
+  → стоимость здравоохранения
+- [ ] **7830.** Should everybody retire at the same age? _(context: brief)_  
+  → Должны ли все выходить на пенсию в одном и том же возрасте?
+- [ ] **7831.** physical work and office work _(context: brief)_  
+  → физический и офисный труд
+- [ ] **7832.** pensions _(context: brief)_  
+  → пенсии
+- [ ] **7833.** experience in the workplace _(context: brief)_  
+  → опыт на рабочем месте
+- [ ] **7834.** Can a small language thrive in a global world? _(context: brief)_  
+  → Может ли небольшой язык процветать в глобальном мире?
+- [ ] **7835.** education _(context: brief)_  
+  → образование
+- [ ] **7836.** the internet and entertainment _(context: brief)_  
+  → интернет и развлечения
+- [ ] **7837.** what each of us can do _(context: brief)_  
+  → что может сделать каждый из нас
+- [ ] **7838.** who they are and what they do _(context: card)_  
+  → кто этот человек и чем он занимается
+- [ ] **7839.** where they work _(context: card)_  
+  → где он работает
+- [ ] **7840.** when and how to get in touch _(context: card)_  
+  → когда и как с ним связаться
+- [ ] **7841.** your family and the people close to you _(context: about)_  
+  → о вашей семье и близких вам людях
+- [ ] **7842.** where you live _(context: about)_  
+  → о том, где вы живёте
+- [ ] **7843.** an ordinary day _(context: about)_  
+  → об обычном дне
+- [ ] **7844.** free time _(context: about)_  
+  → о свободном времени
+- [ ] **7845.** travel _(context: about)_  
+  → о путешествиях
+- [ ] **7846.** health _(context: about)_  
+  → о здоровье
+- [ ] **7847.** studying _(context: about)_  
+  → об учёбе
+- [ ] **7848.** shopping _(context: about)_  
+  → о покупках
+- [ ] **7849.** food and drink _(context: about)_  
+  → о еде и напитках
+- [ ] **7850.** your town and its services _(context: about)_  
+  → о вашем городе и его службах
+- [ ] **7851.** the weather and nature _(context: about)_  
+  → о погоде и природе
+- [ ] **7852.** work _(context: about)_  
+  → о работе
+- [ ] **7853.** people and how they feel _(context: about)_  
+  → о людях и их чувствах
+- [ ] **7854.** media and technology _(context: about)_  
+  → о СМИ и технологиях
+- [ ] **7855.** the environment _(context: about)_  
+  → об окружающей среде
+- [ ] **7856.** society _(context: about)_  
+  → об обществе
+- [ ] **7857.** the economy _(context: about)_  
+  → об экономике
+- [ ] **7858.** science and new ideas _(context: about)_  
+  → о науке и новых идеях
+- [ ] **7859.** culture and the arts _(context: about)_  
+  → о культуре и искусстве
+- [ ] **7860.** food _(context: about)_  
+  → о еде
+- [ ] **7861.** a trip _(context: about)_  
+  → о поездке
+- [ ] **7862.** home _(context: about)_  
+  → о доме
+- [ ] **7863.** staying healthy _(context: about)_  
+  → о здоровом образе жизни
+- [ ] **7864.** the weekend _(context: about)_  
+  → о выходных
+- [ ] **7865.** a dentist's surgery _(context: ring)_  
+  → в стоматологическую клинику
+- [ ] **7866.** a language school _(context: ring)_  
+  → в языковую школу
+- [ ] **7867.** a hairdresser _(context: ring)_  
+  → в парикмахерскую
+- [ ] **7868.** a hotel _(context: ring)_  
+  → в гостиницу
+- [ ] **7869.** a museum _(context: ring)_  
+  → в музей
+- [ ] **7870.** a removal company _(context: ring)_  
+  → в компанию по переездам
+- [ ] **7871.** the readers of the local paper _(context: for)_  
+  → читателей местной газеты
+- [ ] **7872.** the company's management _(context: for)_  
+  → руководства компании
+- [ ] **7873.** the readers of a national paper _(context: for)_  
+  → читателей общенациональной газеты
+- [ ] **7874.** the ministry of education _(context: for)_  
+  → министерства образования
+- [ ] **7875.** the readers of a news website _(context: for)_  
+  → читателей новостного сайта
+- [ ] **7876.** the city government _(context: for)_  
+  → городских властей
+- [ ] **7877.** the readers of an education magazine _(context: for)_  
+  → читателей журнала об образовании
 
