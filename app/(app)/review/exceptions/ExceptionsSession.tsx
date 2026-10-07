@@ -354,6 +354,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
  * hoping nobody memorized it (ADR-005).
  */
 function Meeting({ task }: { task: ExceptionTask }) {
+  const t = useT();
   return (
     <div>
       <FitText as="p" text={task.lemma} max="var(--text-3xl)" lang="et" className="font-bold leading-tight" style={{ color: "var(--ink)" }} />
@@ -381,7 +382,7 @@ function Meeting({ task }: { task: ExceptionTask }) {
 
       <p className="mt-5 flex items-start gap-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
         <TriangleAlert size={16} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--ink-3)" }} />
-        <span>{departureLine(task)}</span>
+        <span>{t(departureLine(task))}</span>
       </p>
 
       {/*
@@ -526,8 +527,8 @@ function Asking({ task, answered }: { task: ExceptionTask; answered: boolean }) 
         ) : caseLabelOf(task.label) ? (
           <SlotLabel label={task.label} className="text-lg" />
         ) : (
-          <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-            {task.label}
+          <p lang={t(task.label) === task.label ? "et" : undefined} className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
+            {t(task.label)}
           </p>
         )}
       </div>
@@ -594,7 +595,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
       )}
 
       <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {departureLine(task)}
+        {t(departureLine(task))}
       </p>
 
       <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
@@ -619,13 +620,17 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
  */
 function SlotLabel({ label, className }: { label: string; className: string }) {
   const named = caseLabelOf(label);
+  // A verb slot is named in Estonian and prints as it is; the da and tud
+  // kinds are named in English ("da form") and are translated like any line.
+  const t = useT();
+  const shown = t(label);
   return named ? (
     <p className={className} style={{ color: "var(--ink-3)" }}>
       <CaseLabel label={named} />
     </p>
   ) : (
-    <p lang="et" className={className} style={{ color: "var(--ink-3)" }}>
-      {label}
+    <p lang={shown === label ? "et" : undefined} className={className} style={{ color: "var(--ink-3)" }}>
+      {shown}
     </p>
   );
 }

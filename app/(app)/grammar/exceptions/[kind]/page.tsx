@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ kind: str
   const locale = await localeFor(await requireUserId());
   if (!key) return { title: tr(locale, "Exceptions") };
   const note = KIND_NOTES[key as keyof typeof KIND_NOTES];
-  return { title: fill(tr(locale, "{kind}, exceptions"), { kind: tr(locale, note.title) }), description: note.what };
+  return { title: fill(tr(locale, "{kind}, exceptions"), { kind: tr(locale, note.title) }), description: tr(locale, note.what) };
 }
 
 /**

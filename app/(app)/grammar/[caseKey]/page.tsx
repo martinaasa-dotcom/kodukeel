@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<{ caseKey: 
   if (!ref) return { title: tr(locale, "Grammar") };
   return {
     title: fill(tr(locale, "{ending} means {meaning}, {name}"), { ending: endingOf(ref), meaning: tr(locale, ref.plain), name: ref.spec.et }),
-    description: ref.summary,
+    description: tr(locale, ref.summary),
   };
 }
 

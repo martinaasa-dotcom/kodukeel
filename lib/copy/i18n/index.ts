@@ -12,6 +12,7 @@ import { PROGRESS } from "./areas/progress";
 import { COURSE } from "./areas/course";
 import { SHELL } from "./areas/shell";
 import { FINISH } from "./areas/finish";
+import { GRAMMAR_CASES } from "./areas/grammarCases";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -31,4 +32,5 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["course", COURSE],
   ["shell", SHELL],
   ["finish", FINISH],
+  ["grammarCases", GRAMMAR_CASES],
 ];
