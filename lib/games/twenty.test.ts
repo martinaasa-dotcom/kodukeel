@@ -280,6 +280,43 @@ describe("what the reviewer found", () => {
   });
 });
 
+describe("opposites and the last open questions", () => {
+  it("an opposite that is plainly so answers no", () => {
+    expect(said("Kas see on lühike?", "banaan")).toBe("no");
+    expect(said("Kas see on nõrk?", "elevant")).toBe("no");
+    expect(said("Kas see on soe?", "jäätis")).toBe("no");
+    expect(said("Kas see on aeglane?", "lennuk")).toBe("no");
+    expect(said("Kas see on pehme?", "mägi")).toBe("no");
+  });
+
+  it("wet and shape words are not answered where nothing is said", () => {
+    expect(said("Kas see on kuiv?", "koer")).toBe("unknown");
+    expect(said("Kas see on märg?", "kala")).toBe("yes");
+  });
+
+  it("looduslik is yes for wild things and water, sometimes for farm animals and plant foods", () => {
+    expect(said("Kas see on looduslik?", "karu")).toBe("yes");
+    expect(said("Kas see on looduslik?", "vesi")).toBe("yes");
+    expect(said("Kas see on looduslik?", "lehm")).toBe("sometimes");
+    expect(said("Kas see on looduslik?", "õun")).toBe("sometimes");
+    expect(said("Kas see on looduslik?", "auto")).toBe("no");
+  });
+
+  it("alive is sometimes for a forest and for plant foods", () => {
+    expect(said("Kas see on elus?", "mets")).toBe("sometimes");
+    expect(said("Kas see on elus?", "porgand")).toBe("sometimes");
+    expect(said("Kas see on elus?", "leib")).toBe("no");
+  });
+
+  it("paws and hooves, and one rule for smell", () => {
+    expect(said("Kas sellel on käpad?", "koer")).toBe("yes");
+    expect(said("Kas sellel on kabjad?", "hobune")).toBe("yes");
+    expect(said("Kas see lõhnab?", "kohv")).toBe("yes");
+    expect(said("Kas see lõhnab?", "leib")).toBe("sometimes");
+    expect(said("Kas see lõhnab?", "õun")).toBe("sometimes");
+  });
+});
+
 describe("a round", () => {
   it("counts the questions that were answered and the hints, and not the ones turned away", () => {
     const answered = answerTo("Kas see on suur?", "part");

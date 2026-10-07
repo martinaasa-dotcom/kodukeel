@@ -31,7 +31,7 @@ export type Kind = "animal" | "plant" | "food" | "drink" | "object" | "clothes" 
 export const PARTS = [
   "jalg", "tiib", "saba", "ratas", "uks", "aken", "sulg", "karv", "leht", "nokk",
   "silm", "kõrv", "nina", "suu", "pea", "hammas", "kõht", "selg", "sarv", "nahk", "koor",
-  "seeme", "juur", "oks", "rool", "ekraan", "nupp", "klaviatuur", "kaas", "uim",
+  "seeme", "juur", "oks", "rool", "ekraan", "nupp", "klaviatuur", "kaas", "uim", "käpp", "kabi",
 ] as const;
 export type Part = (typeof PARTS)[number];
 
@@ -224,10 +224,13 @@ interface Extra {
   c?: string; cs?: string;
 }
 
+const DOMESTIC = new Set(["lehm", "siga", "lammas", "kana", "hobune", "koer", "kass"]);
+const STRONG_SMELL = new Set(["juust", "kohv", "lill", "sibul"]);
+
 const words = (s: string | undefined): string[] => (s ? s.split(" ").filter(Boolean) : []);
 
 const KIND_DEFAULT: Record<Kind, Extra> = {
-  animal: { t: "natural", p: "silm pea suu selg kõht nahk", d: "sleep born", ds: "buy sell smell" },
+  animal: { p: "silm pea suu selg kõht nahk", d: "sleep born", ds: "buy sell smell" },
   plant: { p: "juur", ps: "seeme", d: "grow", t: "natural" },
   food: { d: "buy sell", ws: "shop" },
   drink: { d: "buy sell", ws: "shop" },
@@ -239,25 +242,25 @@ const KIND_DEFAULT: Record<Kind, Extra> = {
 };
 
 const EXTRA: Record<string, Extra> = {
-  koer: { d: "bark walk play", ds: "scratch", ts: "strong dangerous smelly", ws: "country garden street bed" },
-  kass: { d: "walk play scratch", ts: "smelly", ws: "garden street bed country" },
+  koer: { p: "käpp", d: "bark walk play", ds: "scratch", ts: "strong dangerous smelly", ws: "country garden street bed" },
+  kass: { p: "käpp", d: "walk play scratch", ts: "smelly", ws: "garden street bed country" },
   part: { d: "walk", ws: "country sky sea" },
   kana: { d: "walk", w: "country", ws: "garden" },
-  kala: { ds: "", ts: "smelly", ws: "sea", p: "", ps: "" },
-  hobune: { d: "walk", ds: "work play", t: "strong", w: "country", ws: "street" },
-  lehm: { d: "walk", ts: "smelly strong", w: "country", ps: "sarv" },
-  siga: { d: "walk", ts: "smelly", w: "country", cs: "roosa" },
-  jänes: { d: "walk", ws: "country garden" },
-  karu: { d: "walk", t: "strong dangerous", ws: "country" },
-  hunt: { d: "walk", t: "dangerous strong", ws: "country" },
-  rebane: { d: "walk", ws: "country garden", cs: "oranž" },
-  lammas: { d: "walk", ts: "smelly", w: "country" },
-  hiir: { d: "walk", ws: "garden country bed" },
+  kala: { t: "wet", ts: "smelly", ws: "sea", p: "", ps: "" },
+  hobune: { p: "kabi", d: "walk", ds: "work play", t: "strong", w: "country", ws: "street" },
+  lehm: { p: "kabi", d: "walk", ts: "smelly strong", w: "country", ps: "sarv" },
+  siga: { p: "kabi", d: "walk", ts: "smelly", w: "country", cs: "roosa" },
+  jänes: { p: "käpp", d: "walk", ws: "country garden" },
+  karu: { p: "käpp", d: "walk", t: "strong dangerous", ws: "country" },
+  hunt: { p: "käpp", d: "walk", t: "dangerous strong", ws: "country" },
+  rebane: { p: "käpp", d: "walk", ws: "country garden", cs: "oranž" },
+  lammas: { p: "kabi", d: "walk", ts: "smelly", w: "country" },
+  hiir: { p: "käpp", d: "walk", ws: "garden country bed" },
   konn: { ds: "walk", ts: "wet", ws: "garden country" },
   elevant: { d: "walk", t: "strong thick", ts: "dangerous" },
   liblikas: { ds: "walk", t: "thin", ws: "garden sky" },
   mesilane: { ds: "walk", ts: "dangerous sharp", ws: "garden sky country" },
-  lõvi: { d: "walk", t: "strong dangerous" },
+  lõvi: { p: "käpp", d: "walk", t: "strong dangerous" },
 
   leib: { p: "koor", ts: "dry", d: "smell", ws: "fridge" },
   õun: { p: "koor seeme", t: "round", ts: "sweet sour wet", d: "grow", ds: "smell", ws: "garden fridge country" },
@@ -344,10 +347,19 @@ function widen(t: Thing): Thing {
   const whereS = merge(t.whereS, pick("ws")).filter((x) => !where.includes(x as Where)) as Where[];
   const colour = merge(t.colour, pick("c")) as Colour[];
   const colourS = merge(t.colourS, pick("cs")).filter((x) => !colour.includes(x as Colour)) as Colour[];
-  const trait = merge(t.trait, pick("t"));
-  const traitS = merge(t.traitS, pick("ts")).filter((x) => !trait.includes(x));
-  const does = merge(t.does, pick("d"));
-  const doesS = merge(t.doesS, pick("ds")).filter((x) => !does.includes(x));
+  // "Natural" means not made by people: wild animals, plants and nature are, a farm animal or a plant food only sometimes.
+  const natural: string[] = [];
+  const naturalS: string[] = [];
+  if (t.kind === "animal") (DOMESTIC.has(t.lemma) ? naturalS : natural).push("natural");
+  if (t.kind === "food" || t.kind === "drink") (t.lemma === "vesi" ? natural : /puuvili|köögivili/.test(t.isa.join(" ")) ? naturalS : []).push("natural");
+  const trait = merge(t.trait, [...pick("t"), ...natural]);
+  const traitS = merge(t.traitS, [...pick("ts"), ...naturalS]).filter((x) => !trait.includes(x));
+  // One rule for smell: strong-smelling things say yes, every other food, drink or animal says "sometimes".
+  const smellS = (t.kind === "food" || t.kind === "drink" || t.kind === "animal") && !STRONG_SMELL.has(t.lemma);
+  const does0 = merge(t.does, pick("d")).filter((x) => !(smellS && x === "smell"));
+  const doesS0 = merge(t.doesS, [...pick("ds"), ...(smellS ? ["smell"] : [])]);
+  const does = STRONG_SMELL.has(t.lemma) ? merge(does0, ["smell"]) : does0;
+  const doesS = doesS0.filter((x) => !does.includes(x));
   const made = merge(t.made, pick("m"));
   const madeS = merge(t.madeS, pick("ms")).filter((x) => !made.includes(x));
   // The categories a learner can name for what is not an animal, a plant or food.

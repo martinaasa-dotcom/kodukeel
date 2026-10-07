@@ -114,6 +114,39 @@ export const REFUSAL_EN: Record<Refusal, string> = {
 const yes = (on: boolean, maybe = false): Answer => (on ? "yes" : maybe ? "sometimes" : "no");
 const listed = <T>(list: readonly T[], maybe: readonly T[], x: T): Answer => yes(list.includes(x), maybe.includes(x));
 
+/*
+  DEGREES. A property with an opposite is answered through the pair: the thing says it
+  is long, so short is a plain no, and the other way round. Where it says neither, a
+  shape or wetness word answers "I don't know" (a dog is neither long nor short), an
+  opinion answers "sometimes", and anything else is a plain no.
+*/
+const PAIRS: readonly (readonly [string, string])[] = [
+  ["long", "short"], ["wide", "narrow"], ["thick", "thin"], ["wet", "dry"], ["cold", "warm"],
+  ["fast", "slow"], ["hard", "soft"], ["old", "new"], ["bright", "dark"], ["cheap", "expensive"], ["strong", "weak"],
+];
+const OPPOSITE = new Map<string, string>(PAIRS.flatMap(([a, b]) => [[a, b], [b, a]] as [string, string][]));
+const UNKNOWN_WITHOUT_FACTS = new Set(["long", "short", "wide", "narrow", "thick", "thin", "wet", "dry"]);
+const OPINION_KEYS: readonly string[] = OPINIONS;
+
+function level(t: Thing, key: string): "yes" | "sometimes" | null {
+  if (t.trait.includes(key) || (t.feel as readonly string[]).includes(key)) return "yes";
+  if (t.traitS.includes(key) || (t.feelS as readonly string[]).includes(key)) return "sometimes";
+  return null;
+}
+
+function degree(t: Thing, key: string): Answer {
+  if (t.traitNo.includes(key)) return "no";
+  const own = level(t, key);
+  if (own === "yes") return "yes";
+  const other = OPPOSITE.get(key);
+  const opp = other ? level(t, other) : null;
+  if (opp === "yes") return "no";
+  if (own === "sometimes" || opp === "sometimes") return "sometimes";
+  if (UNKNOWN_WITHOUT_FACTS.has(key)) return "unknown";
+  return OPINION_KEYS.includes(key) ? "sometimes" : "no";
+}
+
+
 interface Intent {
   id: string;
   en: string;
@@ -122,17 +155,20 @@ interface Intent {
   copula: boolean;
 }
 
-const alive = (t: Thing): Answer => yes(t.kind === "animal" || t.kind === "plant");
+const alive = (t: Thing): Answer =>
+  t.kind === "animal" || t.kind === "plant" ? "yes"
+  // A forest is a living thing, and an apple or a carrot was one.
+  : t.lemma === "mets" || t.isa.includes("puuvili") || t.isa.includes("köögivili") ? "sometimes" : "no";
 
 const ADJECTIVES: Record<string, Intent> = {
   suur: { id: "big", en: "Is it big?", copula: true, test: (t) => (t.size >= 6 ? "yes" : t.size === 5 ? "sometimes" : "no") },
   väike: { id: "small", en: "Is it small?", copula: true, test: (t) => (t.size <= 3 ? "yes" : t.size === 4 ? "sometimes" : "no") },
-  kiire: { id: "fast", en: "Is it fast?", copula: true, test: (t) => listed(t.feel, t.feelS, "fast") },
-  aeglane: { id: "slow", en: "Is it slow?", copula: true, test: (t) => listed(t.feel, t.feelS, "slow") },
-  kõva: { id: "hard", en: "Is it hard?", copula: true, test: (t) => listed(t.feel, t.feelS, "hard") },
-  pehme: { id: "soft", en: "Is it soft?", copula: true, test: (t) => listed(t.feel, t.feelS, "soft") },
-  külm: { id: "cold", en: "Is it cold?", copula: true, test: (t) => listed(t.feel, t.feelS, "cold") },
-  soe: { id: "warm", en: "Is it warm?", copula: true, test: (t) => listed(t.feel, t.feelS, "warm") },
+  kiire: { id: "fast", en: "Is it fast?", copula: true, test: (t) => degree(t, "fast") },
+  aeglane: { id: "slow", en: "Is it slow?", copula: true, test: (t) => degree(t, "slow") },
+  kõva: { id: "hard", en: "Is it hard?", copula: true, test: (t) => degree(t, "hard") },
+  pehme: { id: "soft", en: "Is it soft?", copula: true, test: (t) => degree(t, "soft") },
+  külm: { id: "cold", en: "Is it cold?", copula: true, test: (t) => degree(t, "cold") },
+  soe: { id: "warm", en: "Is it warm?", copula: true, test: (t) => degree(t, "warm") },
   elus: { id: "alive", en: "Is it alive?", copula: true, test: alive },
   elav: { id: "alive", en: "Is it alive?", copula: true, test: alive },
   elama: { id: "alive", en: "Is it alive?", copula: false, test: alive },
@@ -158,7 +194,7 @@ const PART_EN: Record<Part, string> = {
   silm: "eyes", kõrv: "ears", nina: "a nose", suu: "a mouth", pea: "a head", hammas: "teeth", kõht: "a belly",
   selg: "a back", sarv: "horns", nahk: "skin", koor: "a peel, bark or crust", seeme: "seeds", juur: "roots",
   oks: "branches", rool: "a steering wheel or handlebars", ekraan: "a screen", nupp: "buttons",
-  klaviatuur: "a keyboard", kaas: "a cover", uim: "fins",
+  klaviatuur: "a keyboard", kaas: "a cover", uim: "fins", käpp: "paws", kabi: "hooves",
 };
 
 /** Part words that are also things: "uks" is a door you can have and a door you can guess. */
@@ -271,8 +307,6 @@ const DOES_TERMS: Record<string, { key: (typeof DOES)[number]; en: string }> = {
   haisema: { key: "smell", en: "Does it smell?" },
   lõhnama: { key: "smell", en: "Does it smell?" },
 };
-
-const SHAPE: readonly string[] = ["long", "short", "wide", "narrow", "thick", "thin"];
 
 const MATERIAL_EN: Record<(typeof MATERIALS)[number], string> = {
   puit: "wood", metall: "metal", klaas: "glass", paber: "paper", kivi: "stone", raud: "iron",
@@ -436,9 +470,7 @@ export function ask(
       if (trait) {
         found.push({ raw: w.raw, intent: {
           id: `trait:${trait.key}`, en: trait.en, copula: true,
-          // Shape words are only answered where the thing says something about its shape; a dog is neither long nor short.
-          test: (t) => (SHAPE.includes(trait.key) && !SHAPE.some((k) => t.trait.includes(k) || t.traitS.includes(k))
-            ? "unknown" : listed(t.trait, t.traitS, trait.key)),
+          test: (t) => degree(t, trait.key),
         } });
         return;
       }
@@ -446,7 +478,7 @@ export function ask(
       if (opinion) {
         found.push({ raw: w.raw, intent: {
           id: `opinion:${opinion.key}`, en: opinion.en, copula: true,
-          test: (t) => (t.traitNo.includes(opinion.key) ? "no" : t.trait.includes(opinion.key) ? "yes" : "sometimes"),
+          test: (t) => degree(t, opinion.key),
         } });
         return;
       }
