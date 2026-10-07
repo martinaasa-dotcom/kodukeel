@@ -424,7 +424,7 @@ export default async function CoursePage({
                 : { value: String(standing.complete ? 0 : standing.minutesLeft), unit: t("min"), label: t("left") },
               { value: `${standing.pct}%`, label: t("done") },
             ].map((figure) => (
-              <div key={figure.label} className="flex flex-col-reverse items-center justify-end gap-1.5 px-2" style={{ borderColor: "rgb(255 255 255 / 0.12)" }}>
+              <div key={figure.label} className="flex flex-col-reverse items-center justify-end gap-1.5 px-1" style={{ borderColor: "rgb(255 255 255 / 0.12)" }}>
                 <dt className="text-sm" style={{ color: "var(--ink-2)" }}>{figure.label}</dt>
                 <dd data-figure className="tnum font-display whitespace-nowrap text-3xl sm:text-4xl font-bold leading-none" style={{ color: "var(--ink)" }}>{figure.value}{"unit" in figure && figure.unit ? <span className="text-base font-semibold"> {figure.unit}</span> : null}</dd>
               </div>

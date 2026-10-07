@@ -545,7 +545,7 @@ export const REVIEW: Area = {
     "Continue the lesson": "Продовжити урок",
     "Start the lesson": "Почати урок",
     "Practice these words": "Повторити ці слова",
-    "Printable worksheet": "Робочий аркуш для друку",
+    "Printable worksheet": "Аркуш для друку",
     "Try it in a conversation": "Спробувати в розмові",
     "Grammar": "Граматика",
     "{n} words, {types} cards": "Слів: {n}. Картки: {types}",

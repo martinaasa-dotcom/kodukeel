@@ -9,7 +9,7 @@ import type { Area } from "../area";
  * There is no Russian half, on purpose. The page is about Ukrainian, a Russian
  * line may not name Ukraine or the Ukrainian language (`purity-ru.test.ts`),
  * and it is linked only for a learner who reads the app or its meanings in
- * Ukrainian. A Russian reader who reaches it reads it in English.
+ * Ukrainian. A Russian reader who reaches it by its address is sent to /grammar.
  */
 export const SPEAKERS: Area = {
   ru: {

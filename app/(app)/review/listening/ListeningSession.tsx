@@ -315,7 +315,10 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:scale-[1.02]"
                   style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "var(--shadow)" }}
                 />
-                <p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
+                <p className="max-w-xs text-center text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
+                  {/* A run of text rather than a flex row: each piece of a flex
+                      row shrinks on its own, which broke a word letter by letter
+                      in the longer Russian and Ukrainian sentence. */}
                   {rich(t("Tap or press {space} to hear the word, and again to replay it"), { space: <SpaceKeyCap /> })}
                 </p>
               </>

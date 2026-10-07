@@ -1,6 +1,7 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
+import { redirect } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -43,6 +44,10 @@ export async function generateMetadata() {
 export default async function UkrainianSpeakersPage() {
   const ownerId = await requireUserId();
   const [locale, glosses] = await Promise.all([localeFor(ownerId), dictionaryGlosses()]);
+  // A Russian screen does not name Ukraine or Ukrainian, and this page has no
+  // Russian half to read in, so a Russian reader who reaches it by its address
+  // is sent to the reference it turns round.
+  if (locale === "ru") redirect("/grammar");
   const t = (english: string) => tr(locale, english);
 
   /** An Estonian word in a slot, marked as Estonian so it is read as one. */

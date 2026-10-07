@@ -71,7 +71,9 @@ export default async function GrammarIndexPage() {
     English with Ukrainian meanings. Either says Ukrainian is the language they
     compare Estonian with, so either puts the page that does that at the top.
   */
-  const ukrainian = locale === "uk" || glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]) === "uk";
+  // Never in a Russian interface: a Russian screen does not name Ukrainian, and
+  // the page itself sends a Russian reader back here.
+  const ukrainian = locale !== "ru" && (locale === "uk" || glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]) === "uk");
   const weakest = caseAccuracy(reviews).slice(0, 3);
 
   return (

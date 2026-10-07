@@ -1520,7 +1520,7 @@ export const TODAY: Area = {
   "{minutes}m":
     "{minutes} хв",
   "left":
-    "лишилося",
+    "лишилось",
   "min":
     "хв",
   "Today's words":
