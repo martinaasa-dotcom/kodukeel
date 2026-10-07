@@ -17,7 +17,7 @@ import { DEADLINES, REASONS, TARGETS, deadlineFrom, firstSceneFor, impliedTarget
 import { sceneById } from "@/lib/scenes/catalogue";
 import { weeksToLearn, type Standing } from "@/lib/assessment/plan";
 import { PRE_A1, type Band, type Item, type Level, type Placement } from "@/lib/assessment/types";
-import { DEFAULT_LETTER_BAR, LETTER_BAR_CHOICES, type LetterBar } from "@/lib/ux/letterBar";
+import { LETTER_BAR_CHOICES, letterBarDefaultFor, type LetterBar } from "@/lib/ux/letterBar";
 import {
   LOCALES, LOCALE_NAMES, MACHINE_NOTICE, MACHINE_NOTICE_EN, countOf, fill, tr, type Locale,
 } from "@/lib/copy/locale";
@@ -236,7 +236,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
     card.current?.querySelector<HTMLElement>("h1")?.focus({ preventScroll: true });
   }, [presses]);
   const [name, setName] = useState(suggestedName);
-  const [letters, setLetters] = useState<LetterBar>(DEFAULT_LETTER_BAR);
+  // A Cyrillic keyboard has none of the four letters, so a Ukrainian or
+  // Russian reader starts on "Show the letters" (`letterBarDefaultFor`).
+  const [letters, setLetters] = useState<LetterBar>(letterBarDefaultFor(initialLocale));
   const [gloss, setGloss] = useState<GlossLanguage>(DEFAULT_GLOSS_LANGUAGE);
 
   // A set, because almost nobody has one reason: living here, an Estonian

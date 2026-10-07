@@ -92,6 +92,44 @@ describe("learnerNote", () => {
     different learners has to be byte-identical or the `cache_control`
     breakpoint in `callAnthropic` is marking a prefix that is not shared.
   */
+  /*
+    A learner who thinks in Ukrainian or Russian is taught through it. The
+    parallels live in the per-learner block, so the cached prompt is unchanged
+    and the two languages never meet in one note.
+  */
+  it("explains through Ukrainian parallels for a Ukrainian reader, and names the traps", () => {
+    const note = learnerNote({ level: "A2", weakestCase: null, unit: null, language: "uk" });
+    expect(note).toMatch(/through Ukrainian/);
+    expect(note).toMatch(/do not reach for English analogies/);
+    expect(note).toContain("«налий води»");
+    expect(note).toContain("«у мене є»");
+    expect(note).toMatch(/aspect/);
+    expect(note).toMatch(/no grammatical gender/);
+    expect(note).toMatch(/never dropped in the present/);
+    expect(note).toMatch(/partitive singular/);
+    expect(note).toMatch(/straight double quotes/);
+    expect(note).not.toMatch(/Russian parallel|«налей|«у меня|меня/);
+    expect(note).not.toMatch(/compare with Ukrainian or English/);
+  });
+
+  it("explains through Russian parallels for a Russian reader", () => {
+    const note = learnerNote({ level: "A2", weakestCase: null, unit: null, language: "ru" });
+    expect(note).toMatch(/through Russian/);
+    expect(note).toMatch(/do not reach for English analogies/);
+    expect(note).toContain("«у меня есть»");
+    expect(note).toContain("«налей воды»");
+    expect(note).toMatch(/aspect/);
+    expect(note).not.toMatch(/Ukrainian parallel|«у мене|[іїєґ]/);
+  });
+
+  it("says nothing about parallels to an English reader", () => {
+    for (const language of [undefined, "en" as const]) {
+      const note = learnerNote({ level: "A2", weakestCase: null, unit: null, language });
+      expect(note).not.toMatch(/parallel|English analogies/);
+    }
+    expect(buildSystemPrompt()).not.toMatch(/Ukrainian|Russian/);
+  });
+
   it("is the same static prompt for every learner, which is what makes it cacheable", () => {
     expect(buildSystemPrompt()).not.toContain("ABOUT THIS LEARNER");
     expect(buildSystemPrompt()).not.toMatch(/current level is/);
