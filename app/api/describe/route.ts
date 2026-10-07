@@ -15,6 +15,7 @@ import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledg
 import { courseLevelFor } from "@/lib/progress/level";
 import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
+import { localeFor } from "@/lib/progress/locale";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -143,6 +144,8 @@ export async function POST(request: Request) {
     comparison against the dictionary before any of this ran.
   */
   const chain = resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed });
+  // The note is written in the language the learner reads the app in.
+  const language = await localeFor(ownerId).catch(() => "en" as const);
   const { graded, usage, config: answered } = await gradeDescription(chain, {
       situation: task.situation,
       things: task.words.map((w) => ({ emoji: w.emoji, lemma: w.lemma, translation: w.translation })),
@@ -164,6 +167,7 @@ export async function POST(request: Request) {
       ]).concat(task.shown.map((v) => ({ label: `${asked.lemma} (${spec.et})`, value: v }))),
       sentence,
       level,
+      language,
     });
 
     after(() => recordUsage({

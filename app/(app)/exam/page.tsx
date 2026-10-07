@@ -240,7 +240,7 @@ export default async function ExamPage() {
                     <span className="inline-flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
                       <Clock size={12} aria-hidden />
                       <span className="sr-only">{fill(t("Predicted {pct} percent, {band}."), { pct: level.expectedTotal, band: t(band.label) })} </span>
-                      {writtenMinutes(spec)} + {spec.parts[3]?.minutes ?? 15} min
+                      {fill(t("{written} + {spoken} min"), { written: writtenMinutes(spec), spoken: spec.parts[3]?.minutes ?? 15 })}
                     </span>
                     <span className="flex flex-wrap items-center gap-3">
                       <Link

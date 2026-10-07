@@ -113,7 +113,7 @@ export function AnuReading({ text, level, title, marks }: {
               <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{reading.rule}</p>
             )}
             {reading.quotaMessage && (
-              <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{reading.quotaMessage}</p>
+              <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{t(reading.quotaMessage)}</p>
             )}
           </div>
         ) : (

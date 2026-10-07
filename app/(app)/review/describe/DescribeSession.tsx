@@ -269,7 +269,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
       {/* The heading a session screen has no room to draw. Every mode carries
           one: the empty state had a heading and the round did not, so an
           accessibility run that met an empty deck saw one and passed. */}
-      <h1 className="sr-only">Say what you see</h1>
+      <h1 className="sr-only">{t("Say what you see")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -578,7 +578,7 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
       )}
 
       {quotaMessage && (
-        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{quotaMessage}</p>
+        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t(quotaMessage)}</p>
       )}
     </div>
   );

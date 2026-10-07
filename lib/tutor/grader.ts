@@ -2,6 +2,7 @@ import type { WritingTask } from "@/lib/estonian/writing";
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { estimateTokens } from "@/lib/usage/pricing";
 import { VOICE_RULES } from "@/lib/copy/voice";
+import type { Locale } from "@/lib/copy/locale";
 import { humanizeReply } from "./humanize";
 import { liveLinks, noteRefusal } from "./exhausted";
 import {
@@ -39,6 +40,29 @@ export interface GraderInput {
   /** Every authoritative form, so the model never has to guess one. */
   knownForms: { label: string; value: string }[];
   level: string;
+  /** The language the learner reads the app in; the note is written in it. English when absent. */
+  language?: Locale;
+}
+
+/**
+ * THE NOTE IN THE LANGUAGE THE LEARNER READS THE APP IN.
+ *
+ * Said at the end of the user prompt rather than in the system prompt, so the
+ * cached system prompt stays one prompt for everybody, which is the shape the
+ * tutor's `explainIn` and the conversation's coach note already take. Only the
+ * language of the note moves: every rule about Estonian still holds word for
+ * word, the Estonian is quoted in straight double quotes exactly as given, so
+ * `verifyVerdict` reads it as a form presented and checks it, and their own
+ * language goes in «ёлочки», which the verifier never mistakes for one.
+ */
+const NOTE_LANGUAGE: Readonly<Record<Exclude<Locale, "en">, string>> = { ru: "Russian", uk: "Ukrainian" };
+
+export function writtenIn(language: Locale | undefined): string {
+  if (!language || language === "en") return "";
+  const name = NOTE_LANGUAGE[language];
+  return `
+
+LANGUAGE OF YOUR NOTE: the learner reads ${name} better than English, so write "comment" and "rule" in ${name}: natural, warm ${name}, the way a ${name}-speaking teacher of Estonian writes to an adult student (${language === "ru" ? "вы" : "ви"}), never a translation of English sentences.${language === "uk" ? " Real Ukrainian, never Russian spelled with Ukrainian letters." : ""} Wherever the rules say plain English, read plain ${name}. Every rule about Estonian still holds exactly: quote any Estonian word in straight double quotes exactly as it is given above, never spell one you were not given, and put ${name} words in «» quotes, never straight ones. The JSON keys and the verdict stay in English.`;
 }
 
 /**
@@ -96,7 +120,7 @@ KNOWN FORMS of ${input.task.lemma}, from the dictionary. These are the only form
 ${forms || "  (none beyond the required form)"}
 
 THE LEARNER WROTE:
-${input.sentence}`;
+${input.sentence}${writtenIn(input.language)}`;
 }
 
 /**
@@ -437,11 +461,11 @@ Reply with a single JSON object and nothing else:
 Do not use an em dash or an en dash anywhere in your comment. Use a comma, a full stop, or a pair of brackets.`;
 }
 
-export function buildCompositionUserPrompt(text: string, level: string): string {
+export function buildCompositionUserPrompt(text: string, level: string, language?: Locale): string {
   return `LEARNER LEVEL: ${level}
 
 THIS IS WHAT THEY WROTE. Every Estonian word you may use is somewhere in it:
-${text}`;
+${text}${writtenIn(language)}`;
 }
 
 /**
@@ -492,10 +516,11 @@ export async function gradeComposition(
   provider: ProviderConfig | readonly ProviderConfig[],
   text: string,
   level: string,
+  language?: Locale,
 ): Promise<{ graded: GradedSentence | null; usage: UsageReport; config: ProviderConfig }> {
   const { text: reply, usage, config } = await callChainForJson(
     asChain(provider), buildCompositionSystemPrompt(),
-    buildCompositionUserPrompt(text, level), COMPOSITION_REPLY_TOKENS,
+    buildCompositionUserPrompt(text, level, language), COMPOSITION_REPLY_TOKENS,
   );
   return { graded: parseVerdict(reply), usage, config };
 }
@@ -567,6 +592,8 @@ export interface DescribeGraderInput {
   knownForms: { label: string; value: string }[];
   sentence: string;
   level: string;
+  /** The language the learner reads the app in; the note is written in it. English when absent. */
+  language?: Locale;
 }
 
 export function buildDescribeUserPrompt(input: DescribeGraderInput): string {
@@ -590,7 +617,7 @@ KNOWN FORMS, from the dictionary. These are the only Estonian forms you may writ
 ${forms || "  (none)"}
 
 THE LEARNER WROTE:
-${input.sentence}`;
+${input.sentence}${writtenIn(input.language)}`;
 }
 
 export async function gradeDescription(

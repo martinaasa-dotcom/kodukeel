@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { ACTION_LIMITS, type ActionLimit, throttleAction } from "./actionLimits";
+import { ACTION_LIMITS, type ActionLimit, busyMessage, throttleAction } from "./actionLimits";
 import { resetRateLimitForTests } from "./rateLimit";
 
 /**
@@ -78,5 +78,24 @@ describe("throttleAction", () => {
     for (const action of actions) {
       expect(ACTION_LIMITS[action].perMinute).toBeGreaterThanOrEqual(4);
     }
+  });
+});
+
+describe("the refusal, in the learner's language", () => {
+  it("counts the wait rather than gluing a number to a noun", () => {
+    expect(busyMessage("en", 1)).toMatch(/Try again in 1 second\.$/);
+    expect(busyMessage("en", 30)).toMatch(/Try again in 30 seconds\.$/);
+    expect(busyMessage("ru", 1)).toMatch(/через 1 секунду\.$/);
+    expect(busyMessage("ru", 3)).toMatch(/через 3 секунды\.$/);
+    expect(busyMessage("ru", 25)).toMatch(/через 25 секунд\.$/);
+    expect(busyMessage("uk", 22)).toMatch(/через 22 секунди\.$/);
+  });
+
+  it("hands the seconds back as a value, so a caller can say it again in another language", () => {
+    const owner = "owner-language";
+    for (let i = 0; i < ACTION_LIMITS.restoreBackup.perMinute; i += 1) throttleAction(owner, "restoreBackup");
+    const refused = throttleAction(owner, "restoreBackup");
+    expect(refused?.retryAfterSec).toBeGreaterThan(0);
+    expect(refused?.error).toBe(busyMessage("en", refused!.retryAfterSec));
   });
 });

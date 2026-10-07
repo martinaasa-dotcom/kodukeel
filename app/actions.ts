@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { throttleAction } from "@/lib/security/actionLimits";
+import { busyMessage, throttleAction, type ActionRefusal } from "@/lib/security/actionLimits";
 import { recordSuggestion } from "@/lib/suggestions/record";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { setTaskDone } from "@/lib/progress/tasks";
@@ -143,6 +143,19 @@ import { safeMessage } from "@/lib/observability/report";
  * that line in this file and the other side in that round.
  */
 const CARD_SOURCES = new Set<string>(KNOWN_SOURCES);
+
+/**
+ * A throttle refusal in the language the learner reads the app in.
+ *
+ * The refusal carries a count of seconds, so the screen's own `t()` could
+ * never match it against a table: the sentence is said here, with the wait
+ * counted in the learner's language, and the locale is read only on the rare
+ * call that is refused. A locale that cannot be read is English.
+ */
+async function sayRefusal(ownerId: string, busy: ActionRefusal): Promise<ActionRefusal> {
+  const locale = await localeFor(ownerId).catch(() => "en" as const);
+  return { ...busy, error: busyMessage(locale, busy.retryAfterSec) };
+}
 
 /**
  * Add a word to the deck.
@@ -730,7 +743,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   */
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "editDictionary");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const et = visibleLine(sentence, LIMITS.example);
   if (et.length < 4) return { ok: false as const, error: "That's a bit short for a sentence. Try a few more words." };
@@ -853,7 +866,7 @@ export async function createLexeme(input: { lemma: string; translation: string }
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "editDictionary");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
@@ -942,7 +955,7 @@ export async function createLexemeWithForms(input: {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "editDictionary");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
@@ -1060,7 +1073,7 @@ export async function putWordAside(lexemeId: string, context: string) {
   lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "putAside");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const id = text(lexemeId).slice(0, 64);
   if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
 
@@ -1127,7 +1140,7 @@ export async function importWords(rows: { lemma: string; translation: string; po
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "importWords");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   let created = 0;
   let cards = 0;
   const skipped: string[] = [];
@@ -1447,7 +1460,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   // Its own allowance, not the one finishing a conversation needs: see
   // `lib/security/actionLimits.ts`.
   const busy = throttleAction(ownerId, "beginScene");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const scene = sceneById(text(sceneId).slice(0, 64));
   if (!scene) return { ok: false as const, error: "We couldn't find that conversation." };
@@ -1546,7 +1559,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
 export async function sceneHelp(runId: unknown, turns: unknown) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "sceneHelp");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const id = text(runId).slice(0, 64);
   if (!id) return { ok: false as const, error: "That conversation has already ended." };
@@ -1626,7 +1639,7 @@ export async function finishScene(input: {
 }) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "finishScene");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
 
   /*
@@ -2202,7 +2215,7 @@ export async function completeOnboarding(input: {
     return { ok: false as const, error: "Pick a level from the list." };
   }
   const busy = throttleAction(ownerId, "completeOnboarding");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
 
   await Promise.all([
@@ -2302,7 +2315,7 @@ export async function completeOnboarding(input: {
 export async function addCommonWords(group: string) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "addCommonWords");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
     return { ok: false as const, error: "We couldn't find that word list." };
   }
@@ -2352,7 +2365,7 @@ export async function deepenCommonWords(group: string) {
   }
 
   const busy = throttleAction(ownerId, "deepenCommonWords");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const batch = await nextCommonBatch(ownerId, group as FrequencyGroup);
   if (batch.length === 0) {
@@ -2503,7 +2516,7 @@ export async function completeLesson(
   unitId = text(unitId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "completeLesson");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "We couldn't find that unit." };
 
@@ -2710,7 +2723,7 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "createClassroom");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   // Shown to everybody who is handed the code, on the screen they read before
   // they decide to join, so it is cleaned like a name rather than trimmed.
   const trimmed = visibleLine(name, CLASS_NAME_MAX);
@@ -2754,7 +2767,7 @@ export async function joinClassroom(code: string, displayName?: string) {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "joinClassroom");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   if (!isValidCode(code)) {
     return { ok: false as const, error: "That code doesn't look quite right. Check it and try again." };
   }
@@ -2837,7 +2850,7 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
   if (!classroomId) return { ok: false as const, error: "Only the person who runs this class can do that." };
 
   const busy = throttleAction(ownerId, "assignUnit");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
     select: { id: true, name: true, archived: true },
@@ -2893,7 +2906,7 @@ export async function assignHomework(
   if (!classroomId) return { ok: false as const, error: "Only the person who runs this class can do that." };
 
   const busy = throttleAction(ownerId, "assignHomework");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
     select: { id: true, name: true, archived: true },
@@ -3168,7 +3181,7 @@ export async function buildClozeFromText(passageIn: string) {
   const raw = text(passageIn);
 
   const busy = throttleAction(ownerId, "buildCloze");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const passage = clip(raw, MAX_PASSAGE_CHARS);
   if (!passage.trim()) return { ok: false as const, error: "Paste some Estonian first." };
 
@@ -3472,7 +3485,7 @@ export async function inspectBackup(json: string): Promise<
     free.
   */
   const busy = throttleAction(ownerId, "inspectBackup");
-  if (busy) return { ok: false as const, error: busy.error };
+  if (busy) return { ok: false as const, error: (await sayRefusal(ownerId, busy)).error };
 
   let parsed: unknown;
   try {
@@ -3513,7 +3526,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "restoreBackup");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const check = await inspectBackup(json);
   if (!check.ok) return { ok: false as const, error: check.error };
 
@@ -3905,7 +3918,7 @@ export async function startCourseDay(programmeId: string, dayId: string) {
   dayId = text(dayId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "startCourseDay");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   if (!programme || !day) {
@@ -4247,7 +4260,7 @@ export async function saveScan(input: {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "saveScan");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
   const sent = sanitiseItems(input.items, SCAN_MAX_ITEMS);
   if (sent.length === 0) {
@@ -4377,7 +4390,7 @@ export async function addScanToDeck(scanId: string) {
   scanId = text(scanId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "addScanToDeck");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const scan = await prisma.scan.findFirst({
     where: { id: scanId, ownerId },
     select: { items: true },
@@ -4550,7 +4563,7 @@ export async function recordAssessment(input: unknown) {
   const parsed = ASSESSMENT.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "We couldn't read that result, so it wasn't saved." };
   const busy = throttleAction(ownerId, "recordAssessment");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const { seed, builtAt, answers } = parsed.data;
   const result = await markSitting(ownerId, seed, Math.min(builtAt, Date.now()), answers);
@@ -4657,7 +4670,7 @@ const ExamSubmissionSchema = z.object({
 export async function submitExam(input: unknown) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "submitExam");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   /*
     Counted before the schema walks them: a record with no ceiling is a free
@@ -4776,7 +4789,7 @@ export async function submitSuggestion(input: unknown) {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "sendSuggestion");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const parsed = SuggestionInput.safeParse(input);
   if (!parsed.success) {
@@ -4845,7 +4858,7 @@ export async function reviewSuggestion(input: unknown) {
   const reviewerId = await requireAdminId();
 
   const busy = throttleAction(reviewerId, "reviewSuggestion");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(reviewerId, busy);
 
   const parsed = ReviewInput.safeParse(input);
   if (!parsed.success) {

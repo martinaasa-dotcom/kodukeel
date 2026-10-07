@@ -6,6 +6,8 @@ import { bucketForOwner, rateLimited } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { reportError } from "@/lib/observability/report";
 import { NO_STORE } from "@/lib/security/headers";
+import { fill, tr } from "@/lib/copy/locale";
+import { localeFor } from "@/lib/progress/locale";
 
 /**
  * Restoring a backup, as a Route Handler rather than a Server Action.
@@ -147,10 +149,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         ok: false,
-        error:
-          `Only part of that file arrived: ${Math.round(json.length / 1_048_576)} MB of it, ` +
-          "and it stops mid-way rather than at the end. Nothing was changed and your file is " +
-          "untouched. This is a limit on the upload rather than anything wrong with the backup.",
+        // The size is a value, so the sentence is said here in the learner's
+        // language rather than left for a table on the screen to miss.
+        error: fill(
+          tr(
+            await localeFor(ownerId).catch(() => "en" as const),
+            "Only part of that file arrived: {mb} MB of it, and it stops mid-way rather than at the end. Nothing was changed and your file is untouched. This is a limit on the upload rather than anything wrong with the backup.",
+          ),
+          { mb: Math.round(json.length / 1_048_576) },
+        ),
       },
       { headers: NO_STORE, status: 413 },
     );
