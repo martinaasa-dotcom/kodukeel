@@ -16,9 +16,11 @@ import type { InvariantKit } from "../lib/invariantKit";
  *
  * And a word drawn one element per letter is read letter by letter by some
  * screen readers, so `WaveWord` hides its letters and says the word once,
- * whole. Three arms, each read off the code rather than the comments.
+ * whole, and a rolling figure does the same with its digits. A tonight's-list
+ * check lands only on a step ticked in this sitting, never on every visit.
+ * Each arm is read off the code rather than the comments.
  */
-const DELIGHTS = [".option-right", ".option-wrong", ".wave-letter", ".tile-land", ".flame-lit", ".flame", ".word-arrive"];
+const DELIGHTS = [".option-right", ".option-wrong", ".wave-letter", ".tile-land", ".flame-lit", ".flame", ".word-arrive", ".roll-digit", ".tick-land"];
 
 export default function theSmallDelightsStandStillWhenAsked({ check, read, code }: InvariantKit) {
   check("every small delight is switched off under reduced motion", () => {
@@ -37,6 +39,19 @@ export default function theSmallDelightsStandStillWhenAsked({ check, read, code 
     const wave = code("components/motion/WaveWord.tsx");
     assert.match(wave, /aria-hidden className=\{`wave-word/, "WaveWord's letters are no longer hidden from a screen reader");
     assert.match(wave, /!named && <span className="sr-only">\{text\}<\/span>/, "WaveWord no longer says the word whole");
+  });
+
+  check("a rolling figure hides its digits and says the figure once, after them", () => {
+    const roll = code("components/motion/RollNumber.tsx");
+    assert.match(roll, /<span aria-hidden className="roll-number">/, "RollNumber's digits are no longer hidden from a screen reader");
+    assert.match(roll, /<\/span>\s*<span className="sr-only">\{text\}<\/span>/, "RollNumber no longer says the figure whole, after the digits");
+    const ui = code("components/ui.tsx");
+    assert.equal((ui.match(/<RollNumber value=\{value\} \/>/g) ?? []).length, 2, "Stat and StatTile no longer both roll their figure");
+  });
+
+  check("a step's check lands only when it was ticked in this sitting", () => {
+    const list = code("components/course/StepList.tsx");
+    assert.match(list, /arrivedDone\.current\.has\(step\.id\) \? undefined : "tick-land"/, "every done step's check springs in on every visit again");
   });
 
   check("a word that ripples only when reached names the end of the ripple, not its first letter", () => {

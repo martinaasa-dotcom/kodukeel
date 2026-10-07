@@ -30,6 +30,7 @@ import { Board, BoardSkeleton } from "./Board";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { lemmasByCardLexeme } from "@/lib/dict/facts";
 import { courseLevelFor } from "@/lib/progress/level";
+import { RollNumber } from "@/components/motion/RollNumber";
 import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, Stat } from "@/components/ui";
 import { NO_VALUE } from "@/lib/copy/values";
 import { formatHour } from "@/lib/time/clock";
@@ -237,13 +238,13 @@ export default async function ProgressPage() {
             lines, so "Shields banked" sat off the three beside it. */}
         <Card tone="night" className="grid grid-cols-2 items-start gap-x-6 gap-y-6 sm:flex sm:flex-wrap sm:gap-10">
           <Stat
-            value={<span className="inline-flex items-center gap-1.5">{summary.streak}<Flame size={18} aria-hidden style={{ color: "var(--hard-ink)" }} /></span>}
+            value={<span className="inline-flex items-center gap-1.5"><RollNumber value={summary.streak} /><Flame size={18} aria-hidden style={{ color: "var(--hard-ink)" }} /></span>}
             label={t("Day streak")}
           />
           <Stat value={snapshot.knownCards} label={t("Cards known")} />
           <Stat value={breakdown.accuracy === null ? NO_VALUE : `${breakdown.accuracy}%`} label={t("Answered right")} />
           <Stat
-            value={<span className="inline-flex items-center gap-1.5">{shields}<Shield size={16} aria-hidden style={{ color: "var(--accent-deep)" }} /></span>}
+            value={<span className="inline-flex items-center gap-1.5"><RollNumber value={shields} /><Shield size={16} aria-hidden style={{ color: "var(--accent-deep)" }} /></span>}
             label={t(shields === 1 ? "Shield banked" : "Shields banked")}
           />
           <span className="col-span-2 sm:ml-auto sm:self-center"><ShareProgress /></span>

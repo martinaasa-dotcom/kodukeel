@@ -256,7 +256,7 @@ export default async function CoursePage({
           <Lettered celebrate>
             <Card tone="accent" className="evening">
               <div className="flex items-start gap-3">
-                <CalendarCheck size={22} aria-hidden style={{ color: "var(--accent-deep)" }} />
+                <CalendarCheck size={22} aria-hidden className="tick-land" style={{ color: "var(--accent-deep)" }} />
                 <div className="min-w-0">
                   {justDone && (
                     <>
