@@ -592,11 +592,19 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
               className="mt-4 rounded-[var(--r-lg)] border p-5"
               style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
             >
+              {/*
+                Somebody reading this in Russian or Ukrainian is offered English
+                and their own language, never the other one, which a great many
+                of them would rightly find out of place in their own setting.
+                The same rule as the Settings panel (GlossLanguagePanel).
+              */}
               <ChoiceGroup
                 label={t("What language would you like meanings in?")}
-                className="grid gap-3 sm:grid-cols-3"
+                className={`grid gap-3 ${locale === "en" ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
               >
-                {GLOSS_LANGUAGES.map((o) => (
+                {GLOSS_LANGUAGES.filter((o) =>
+                  locale === "en" || o.id === "en" || o.id === locale || o.id === gloss,
+                ).map((o) => (
                   <ChoiceCard
                     key={o.id}
                     layout="stacked"

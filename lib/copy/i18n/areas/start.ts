@@ -121,7 +121,6 @@ export const START: Area = {
     "What language would you like meanings in?": "На каком языке показывать значения слов?",
     "English": "Английский",
     "Russian": "Русский",
-    "Ukrainian": "Украинский",
     "Plain English meanings": "Значения на английском",
     "What stays in English": "Что остаётся на английском",
     "You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.":
@@ -259,7 +258,7 @@ export const START: Area = {
 
     // THE FIRST CONVERSATION, OFF THE REASON.
     "Going to the shop for milk": "Сходить в магазин за молоком",
-    "Your kitchen, then the corner shop, with a friend on the phone": "Ваша кухня, потом магазин за углом, а друг на телефоне",
+    "Your kitchen, then the corner shop, with a friend on the phone": "Ваша кухня, потом магазин за углом, а друг на связи по телефону",
     "Handing in a form at a counter": "Сдать бланк в окошке",
     "The desk at an office that wants your paperwork": "Стойка в учреждении, где от вас ждут документы",
     "Ordering a drink": "Заказать напиток",

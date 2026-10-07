@@ -62,7 +62,7 @@ export function writtenIn(language: Locale | undefined): string {
   const name = NOTE_LANGUAGE[language];
   return `
 
-LANGUAGE OF YOUR NOTE: the learner reads ${name} better than English, so write "comment" and "rule" in ${name}: natural, warm ${name}, the way a ${name}-speaking teacher of Estonian writes to an adult student (${language === "ru" ? "вы" : "ви"}), never a translation of English sentences.${language === "uk" ? " Real Ukrainian, never Russian spelled with Ukrainian letters." : ""} Wherever the rules say plain English, read plain ${name}. Every rule about Estonian still holds exactly: quote any Estonian word in straight double quotes exactly as it is given above, never spell one you were not given, and put ${name} words in «» quotes, never straight ones. The JSON keys and the verdict stay in English.`;
+LANGUAGE OF YOUR NOTE: the learner reads ${name} better than English, so write "comment" and "rule" in ${name}: natural, warm ${name}, the way a ${name}-speaking teacher of Estonian writes to an adult student (${language === "ru" ? "вы" : "ви"}), never a translation of English sentences.${language === "uk" ? " Real Ukrainian, never Russian spelled with Ukrainian letters." : " Standard literary Russian only: not one Ukrainian word, letter or turn of phrase, no surzhyk, and never mention Ukrainian or Ukraine or compare anything with them."} Wherever the rules say plain English, read plain ${name}. Every rule about Estonian still holds exactly: quote any Estonian word in straight double quotes exactly as it is given above, never spell one you were not given, and put ${name} words in «» quotes, never straight ones. The JSON keys and the verdict stay in English.`;
 }
 
 /**

@@ -273,7 +273,7 @@ export const SITUATIONS: Area = {
     "you stopped at the {case}. That's the base the ending gets added to, so only the ending went missing.": "вы остановились на форме {case}. К ней и добавляется окончание, так что не хватило только окончания.",
     "that's how a dictionary lists a verb, so it's the form you've seen most.": "так глагол записан в словаре, поэтому эту форму вы видели чаще всего.",
     "Going to the shop for milk": "Сходить в магазин за молоком",
-    "Your kitchen, then the corner shop, with a friend on the phone": "Ваша кухня, потом магазин за углом, а друг на телефоне",
+    "Your kitchen, then the corner shop, with a friend on the phone": "Ваша кухня, потом магазин за углом, а друг на связи по телефону",
     "You've run out of milk, so you're walking to the corner shop. A friend rings a few times on the way to see how you're getting on.": "У вас закончилось молоко, и вы идёте в магазин за углом. По дороге друг несколько раз звонит узнать, как у вас дела.",
     "Say hello back to your friend.": "Поздоровайтесь с другом в ответ.",
     "Your friend rings and says hello.": "Друг звонит и здоровается.",
