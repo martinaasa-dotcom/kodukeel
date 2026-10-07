@@ -56,7 +56,7 @@ export const MACHINE_NOTICE: Readonly<Record<Exclude<Locale, "en">, string>> = {
 
 /** The same, short enough for the line under a choice. */
 export const MACHINE_SHORT: Readonly<Record<Exclude<Locale, "en">, string>> = {
-  ru: "Переведено с помощью ИИ, носитель языка ещё не проверял.",
+  ru: "Переведено с помощью ИИ и ещё не проверено носителем языка.",
   uk: "Перекладено за допомогою ШІ, носій мови ще не перевіряв.",
 };
 
