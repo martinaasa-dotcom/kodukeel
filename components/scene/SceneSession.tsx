@@ -8,7 +8,6 @@ import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Card, CardLink, toneInk } from "@/components/ui";
 import { kindOf } from "@/lib/scenes/kinds";
-import { SuggestFix } from "@/components/SuggestFix";
 import { Dots } from "@/components/Dots";
 import { Speak } from "@/components/Speak";
 import { isSaid, isSpokenEstonian, type Provenance as SceneProvenance } from "@/lib/scenes/line";
@@ -26,6 +25,12 @@ import { SceneFace } from "./SceneFace";
 import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import { SceneStage } from "./SceneStage";
 import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
+import { untilQuiet } from "@/lib/audio/clip";
+import { AFTER_BREAK_MS, VOICE_CAP_MS, readingPause } from "@/lib/scenes/pacing";
+
+/** A frame or two for a line's own speaker to mount and start asking for its clip. */
+const MOUNT_MS = 250;
+const sleep = (ms: number) => new Promise<void>((resume) => window.setTimeout(resume, ms));
 import { SceneVignette } from "./SceneVignette";
 import { SceneVoiceChoice } from "./SceneVoiceChoice";
 import { cueFor, movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
@@ -185,17 +190,6 @@ const DIFFICULTIES: { id: Difficulty; label: string; blurb: string }[] = [
 const spokenEstonian = (line: Line) => isSpokenEstonian(line.provenance);
 /** Whether a line was said at all, in either language. */
 const spoken = (line: Line) => isSaid(line.provenance);
-/**
- * Whether "this is not how anybody says it" is a thing to say about a line.
- *
- * Not about a line said once more, since the report belongs on the first
- * time it was said, and not about the learner's own word handed back to
- * them: a report there is somebody reporting themselves. A recast is
- * reportable, because the form in it is the dictionary's.
- */
-const reportable = (line: Line) =>
-  spokenEstonian(line) && line.provenance !== "again" && line.provenance !== "echo";
-
 /**
  * A REPLY IS ONE THING SAID, NOT A LIST OF BUBBLES.
  *
@@ -774,7 +768,18 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       const moves = lines.findIndex((line) => line.provenance === "meanwhile");
       if (moves >= 0) {
         const before = lines.slice(0, moves);
-        if (before.length > 0) setTurns((was) => [...was, { who: "them", lines: before }]);
+        if (before.length > 0) {
+          setTurns((was) => [...was, { who: "them", lines: before }]);
+          /*
+            AND IT IS LEFT IN THE AIR BEFORE THE ROOM MOVES (lib/scenes/pacing.ts).
+            A frame for the line's own speaker to mount and start, then its voice
+            to the end, then long enough to read. The cover used to come up in
+            the same frame and cut the line off mid-word.
+          */
+          await sleep(MOUNT_MS);
+          await untilQuiet(VOICE_CAP_MS);
+          await sleep(readingPause(before.map((line) => line.text)));
+        }
         /*
           The room this beat moves into, if it moves anybody at all. Read here
           rather than after the cover clears, because the cover is what draws
@@ -787,9 +792,37 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         });
         if (into) setRoom(into);
       }
-      /* The move itself stays in the transcript, so the record of the
-         conversation still says where it happened. */
-      const said = moves >= 0 ? lines.slice(moves) : lines;
+      /*
+        The move itself stays in the transcript, so the record of the
+        conversation still says where it happened, and it is the only thing
+        the fading cover reveals. What is said in the new place waits a beat
+        after the fade (`AFTER_BREAK_MS`), so the next line arrives and speaks
+        once the learner is back in the room rather than in the frame the
+        cover left.
+      */
+      if (moves >= 0) {
+        setTurns((was) => [...was, { who: "them", lines: [lines[moves]!] }]);
+        window.setTimeout(() => {
+          setInterlude(null);
+          /*
+            AND THE CARET GOES BACK IN THE BOX.
+
+            The cover takes focus while it is up, which is right: the screen has
+            stopped for a moment that has to be read, and a learner on a
+            keyboard whose caret is in a box they cannot type into has been told
+            nothing. But the button it took focus onto is removed here, and a
+            browser drops focus to the body when that happens, so without this
+            the conversation resumed with the caret nowhere and the next turn
+            had to be started with the mouse.
+
+            On the next frame, because React removes the button in this commit
+            and focusing before that lands on an element about to go.
+          */
+          requestAnimationFrame(() => box.current?.focus({ preventScroll: true }));
+        }, VEIL_OUT_MS);
+        await sleep(VEIL_OUT_MS + AFTER_BREAK_MS);
+      }
+      const said = moves >= 0 ? lines.slice(moves + 1) : lines;
 
       setBeatId(data.beatId ?? null);
       /*
@@ -809,35 +842,6 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       if (data.queued) setQueued(true);
       setDone(data.done ?? []);
       if (said.length > 0) setTurns((was) => [...was, { who: "them", lines: said }]);
-      /*
-        And the cover comes off last, over the new place rather than over the
-        old one. It is cleared on a timer rather than in the line above so the
-        fade has something to fade to: the lines said after the move are
-        already underneath it by the time it starts going, which is the whole
-        of why the room appears to have changed while nobody was looking.
-      */
-      if (moves >= 0) {
-        window.setTimeout(() => {
-          setInterlude(null);
-          /*
-            AND THE CARET GOES BACK IN THE BOX.
-
-            The cover takes focus while it is up, which is right: the screen has
-            stopped for a moment that has to be read, and a learner on a
-            keyboard whose caret is in a box they cannot type into has been told
-            nothing. But the button it took focus onto is removed here, and a
-            browser drops focus to the body when that happens, so without this
-            the conversation resumed with the caret nowhere and the next turn
-            had to be started with the mouse. The effect that usually puts it
-            back only runs when a turn arrives, and the turn arrived while the
-            cover still had it.
-
-            On the next frame, because React removes the button in this commit
-            and focusing before that lands on an element about to go.
-          */
-          requestAnimationFrame(() => box.current?.focus({ preventScroll: true }));
-        }, VEIL_OUT_MS);
-      }
       if (lines.length > 0) {
         /*
           Read off the whole reply rather than off the half that waited: the
@@ -1728,8 +1732,9 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             </div>
           ) : (
             <div key={index} className="flex items-start gap-2">
-              <SceneFace who="them" />
-              <div className="flex min-w-0 flex-col items-start gap-2">
+              {/* A break in time on its own is nobody speaking, so no face beside it. */}
+              {turn.lines.some((line) => line.provenance !== "meanwhile") && <SceneFace who="them" />}
+              <div className={`flex min-w-0 flex-col items-start gap-2 ${turn.lines.every((line) => line.provenance === "meanwhile") ? "w-full" : ""}`}>
               <span className="sr-only">They said: </span>
               {inOneBreath(turn.lines).map((line, at) => (
                 spoken(line) ? (
@@ -1847,36 +1852,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
                       )}
                     </div>
                     {/*
-                      Where the line came from, in words rather than a chip
-                      shouting in capitals under every bubble (ADR-025), and
-                      the report button beside it, because "this is not how
-                      anybody says it" needs the line it is about.
+                      NOTHING UNDER THE BUBBLE. Every line used to carry where
+                      it came from and a Report button, which under every line
+                      of a conversation is a second conversation, and the
+                      learner asked for it gone. Which model is composing is
+                      said once at the top of the conversation (ADR-025), and
+                      the rung still rides on `data-rung` above for a suite.
                     */}
-                    <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                      {/*
-                        Every rung that wrote a piece of the bubble, in the
-                        order it was said and each named once: two lines from
-                        the course in one breath is one claim, not the same
-                        sentence twice.
-                      */}
-                      {/*
-                        The move's own rung, in a few words. Every piece of the
-                        bubble used to be named, "your word, the way they say
-                        it · written for this turn", which under every line of
-                        a conversation is a second conversation; the word the
-                        other side said back is the dictionary's by
-                        construction, and what a reader is owed is which lines
-                        a model wrote (ADR-025), which is the move's rung.
-                      */}
-                      <span>{PROVENANCE[line.provenance]}</span>
-                      {reportable(line) && (
-                        <SuggestFix
-                          category="WRONG_CONTENT"
-                          trigger={`Situations, ${scene.id}, ${line.text}`}
-                          label="Report"
-                        />
-                      )}
-                    </p>
                   </div>
                 ) : line.provenance === "meanwhile" ? (
                   /*

@@ -22208,22 +22208,26 @@ check("the primary button is the last one in its row", () => {
   possible run is a hole wearing a waiver's clothes.
 
   So the rung travels as an attribute on the line's own wrapper, which is a fact
-  about the line rather than a shape in the markup, and the label stays beside
-  it for the reader. Both, or the suite goes blind again in silence.
+  about the line rather than a shape in the markup. The label beside it for the
+  reader has since gone, on the operator's word, below.
 */
 check("every line a scene says carries its rung", () => {
   const source = code("components/scene/SceneSession.tsx");
   assert.match(source, /data-rung=\{line\.provenance\}/,
     "a line has to carry the rung the server chose, or test-scene.mjs cannot pair a line with its label");
   /*
-    The move's own rung, in words, under the bubble. Every rung that wrote a
-    piece of it used to be named, and under every line of a conversation that
-    was a second conversation; the word said back is the dictionary's by
-    construction, and what a reader is owed is which lines a model wrote
-    (ADR-025), which is the move's rung.
+    AND NOTHING UNDER THE BUBBLE FOR THE READER (operator's call, 2026-10-07).
+    The rung in words and a Report button sat under every line, and under every
+    line of a conversation that was a second conversation; the learner asked for
+    both gone. What a reader is owed by ADR-025 is which model is composing,
+    and that is said once, at the top, off `composedBy`.
   */
-  assert.match(source, /PROVENANCE\[line\.provenance\]/,
-    "and the words under it are what a reader is told, which is ADR-025 itself");
+  assert.doesNotMatch(source, /<span>\{PROVENANCE\[line\.provenance\]\}<\/span>/,
+    "the rung is not printed under every line of a conversation");
+  assert.doesNotMatch(source, /SuggestFix/,
+    "and a conversation carries no Report button under its lines");
+  assert.match(source, /composedBy/,
+    "the model composing is still named once, at the top (ADR-025)");
   const suite = readFileSync("scripts/test-scene.mjs", "utf8");
   assert.match(suite, /\[data-rung\]/,
     "test-scene.mjs reads the rung off the attribute rather than by walking the markup");
