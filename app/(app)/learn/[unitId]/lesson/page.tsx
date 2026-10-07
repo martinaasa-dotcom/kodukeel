@@ -65,6 +65,7 @@ export default async function LessonPage({
   if (!unit) notFound();
 
   const ownerId = await requireUserId();
+  const locale = await localeFor(ownerId);
 
   const select = {
     id: true, lemma: true, translation: true, pos: true, provenance: true,
@@ -310,7 +311,7 @@ export default async function LessonPage({
     <BeforeYouStart id="lesson" ready={steps.length > 0}>
       <LessonSession
         unitId={unit.id}
-        unitTitle={uiText(placement, unit.title, unit.subtitle)}
+        unitTitle={uiText(placement, unit.title, tr(locale, unit.subtitle))}
         unitLevel={unit.level}
         initialSteps={steps}
         tokens={tokens}

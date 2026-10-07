@@ -46,6 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
  */
 export default async function ScenePage({ params }: { params: Promise<{ id: string }> }) {
   const ownerId = await requireUserId();
+  const locale = await localeFor(ownerId);
   const scene = sceneById((await params).id);
   if (!scene) notFound();
 
@@ -56,7 +57,7 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
     <SceneSession
       scene={scene}
       minutes={minutesFor(scene)}
-      unit={unit ? { id: unit.id, title: uiText(learnerLevel, unit.title, unit.subtitle) } : null}
+      unit={unit ? { id: unit.id, title: uiText(learnerLevel, unit.title, tr(locale, unit.subtitle)) } : null}
       learnerLevel={learnerLevel}
       openAt={tiltedLevel(learnerLevel, tilt)}
     />

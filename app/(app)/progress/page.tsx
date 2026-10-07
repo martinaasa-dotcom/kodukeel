@@ -361,7 +361,7 @@ export default async function ProgressPage() {
             {t("Study history")}
           </SectionTitle>
           <Card>
-            <Heatmap days={heatmap} />
+            <Heatmap days={heatmap} locale={locale} />
           </Card>
         </section>
 

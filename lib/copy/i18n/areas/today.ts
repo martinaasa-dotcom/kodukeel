@@ -1494,7 +1494,7 @@ export const TODAY: Area = {
   "{minutes}m":
     "{minutes}",
   "left":
-    "хв залишилося",
+    "хв до кінця",
   "Tonight's words":
     "Слова цього вечора",
   "A few of these aren't in your deck yet. The first step adds them.":

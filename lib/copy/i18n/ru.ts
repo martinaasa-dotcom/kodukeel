@@ -210,4 +210,9 @@ export const RU: Readonly<Record<string, string>> = {
   "The words around the Estonian. The Estonian itself never changes.": "Меняются слова вокруг эстонского, а сам эстонский остаётся прежним.",
   "Got it": "Понятно",
   "More about your progress": "Ещё о ваших успехах",
+  "{day}: {count} reviews": "{day}, повторений: {count}",
+  "{total} reviews, spread over {active} of the last {days} days": "Повторений: {total}. Дней с занятиями: {active} из {days}.",
+  "Quiet": "Мало",
+  "Busy": "Много",
+  "Reviews per day, last six months": "Повторения по дням за последние полгода",
 };

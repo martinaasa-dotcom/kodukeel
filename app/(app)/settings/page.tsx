@@ -318,7 +318,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <Card>
               <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {programme
-                  ? fill(t("You’re following {course}. Each evening it picks your words and games for you, and tonight’s plan sits at the top of Today."), { course: uiText(courseLevel, programme.title, programme.subtitle) })
+                  ? fill(t("You’re following {course}. Each evening it picks your words and games for you, and tonight’s plan sits at the top of Today."), { course: uiText(courseLevel, programme.title, t(programme.subtitle)) })
                   : <>{opening ? t(opening.blurb) : null}</>}
               </p>
               <div className="mt-4">

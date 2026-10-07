@@ -70,9 +70,16 @@ export function localeFrom(stored: string | null | undefined): Locale {
 
 /** Every area merged, per language. Two areas translating one line differently is a test failure, not a merge. */
 const TABLES: Readonly<Record<Exclude<Locale, "en">, Readonly<Record<string, string>>>> = {
-  ru: Object.assign({}, ...AREAS.map(([, a]) => a.ru)),
-  uk: Object.assign({}, ...AREAS.map(([, a]) => a.uk)),
+  ru: plainKeys(Object.assign({}, ...AREAS.map(([, a]) => a.ru))),
+  uk: plainKeys(Object.assign({}, ...AREAS.map(([, a]) => a.uk))),
 };
+
+/** A table with every key written with the straight apostrophe, which is what a lookup asks with. */
+function plainKeys(table: Record<string, string>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [english, line] of Object.entries(table)) out[keyOf(english)] = line;
+  return out;
+}
 
 /**
  * The line in this locale, or the English where nobody has translated it yet.

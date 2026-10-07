@@ -307,7 +307,7 @@ export default async function TopicPage({
                       className="text-md font-bold hover:underline"
                       style={{ color: "var(--ink)" }}
                     >
-                      {uiText(placement, unit.title, unit.subtitle)}
+                      {uiText(placement, unit.title, t(unit.subtitle))}
                     </Link>
                     <Chip tone="sky">{unit.level}</Chip>
                   </span>

@@ -857,7 +857,7 @@ export const APP: Area = {
     "She explains why a word takes the form it does, and checks sentences you write. Everything else works without her, and Settings walks you through getting a free key.": "Вона пояснює, чому слово набуває тієї чи іншої форми, і перевіряє ваші речення. Усе інше працює без неї, а в налаштуваннях пояснено, як отримати безкоштовний ключ.",
     "Everything else here works just fine without her.": "Усе інше тут чудово працює й без неї.",
     "Here's the question you came with: {question}": "Ось запитання, з яким ви прийшли: {question}",
-    "Get a free key in Settings": "Безкоштовний ключ у налаштуваннях",
+    "Get a free key in Settings": "Безплатний ключ у налаштуваннях",
     "Ask me anything about Estonian grammar. I'll tell you why, as well as what, and if I'm not sure of a form I'll say so instead of guessing.": "Питайте мене про що завгодно з естонської граматики. Я поясню не лише що, а й чому, а якщо не певна щодо форми, так і скажу, а не вгадуватиму.",
     "Pick a question below to start, or just ask your own.": "Щоб почати, виберіть запитання нижче або просто поставте своє.",
     "Conversation with Anu": "Розмова з Ану",

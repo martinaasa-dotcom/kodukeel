@@ -114,6 +114,9 @@ describe("the interface language", () => {
     expect(tr("ru", "That\u2019s the round done")).toMatch(/[\u0400-\u04FF]/);
     expect(tr("en", "That\u2019s the round done")).toBe("That\u2019s the round done");
     expect(translated("uk", "That\u2019s the round done")).toBe(true);
+    // And a table that happens to hold the curly one is found by both too.
+    expect(tr("ru", "Now it\u2019s your turn")).not.toBe("Now it\u2019s your turn");
+    expect(tr("ru", "Now it's your turn")).toBe(tr("ru", "Now it\u2019s your turn"));
   });
 
   it("carries an Estonian word with an Estonian letter in a slot, so the table never holds one", () => {

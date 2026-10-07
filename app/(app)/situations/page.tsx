@@ -78,7 +78,7 @@ export default async function SituationsPage() {
       objectives: scene.beats.filter((beat) => beat.required).length,
       minutes: minutesFor(scene),
       kind: kindOf(scene.id).id,
-      lesson: unit ? uiText(learnerLevel, unit.title, unit.subtitle) : null,
+      lesson: unit ? uiText(learnerLevel, unit.title, tr(locale, unit.subtitle)) : null,
       // How it went last time, derived from the runs and never counted
       // (ADR-014). A tile that remembers is what turns a menu into a place
       // somebody comes back to.

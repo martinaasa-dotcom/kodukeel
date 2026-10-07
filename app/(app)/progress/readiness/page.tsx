@@ -131,7 +131,7 @@ export default async function ReadinessPage() {
             <>
               {level},{" "}
               <span lang={uiWantsEnglish(picture.level) ? undefined : "et"}>
-                {uiText(picture.level, LEVEL_INFO[level].title, LEVEL_INFO[level].titleEn)}
+                {uiText(picture.level, LEVEL_INFO[level].title, t(LEVEL_INFO[level].titleEn))}
               </span>
             </>
           );
@@ -147,7 +147,7 @@ export default async function ReadinessPage() {
           if (level === picture.level) {
             return (
               <section key={level}>
-                <SectionTitle hint={LEVEL_INFO[level].arrival}>{name}</SectionTitle>
+                <SectionTitle hint={t(LEVEL_INFO[level].arrival)}>{name}</SectionTitle>
                 {list}
               </section>
             );
