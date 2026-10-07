@@ -3,7 +3,7 @@ import { launchChromium, eventually } from "./lib/browser.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
-import { missCard } from "./lib/miss.mjs";
+import { cardReady, missCard } from "./lib/miss.mjs";
 import { startRound } from "./lib/briefing.mjs";
 
 /**
@@ -133,6 +133,9 @@ check("no hint is offered before the learner has missed anything", (await hints(
 */
 let opened = false;
 for (let i = 0; i < 24 && !opened; i += 1) {
+  // The hint is drawn with the card, so the card has to be there before
+  // anybody can say whether the hint is.
+  if (!(await cardReady(page))) break;
   if ((await hints(page).count()) > 0) { opened = true; break; }
   if ((await missCard(page)) === null) break;
 }

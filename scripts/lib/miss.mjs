@@ -38,8 +38,34 @@ import { retypeMiss } from "./review.mjs";
  * Returns the shape (`"meet"`, `"typed"`, `"choice"`, `"flip"`), or null when
  * there was nothing left to answer.
  */
+/**
+ * Waits for a card a learner could answer, or for the round to have ended.
+ *
+ * `missCard` used to look once, in the instant after the last answer, and
+ * report "nothing left" when the next card had simply not rendered yet. On a
+ * slow runner that is most instants: `scripts/test-hints.mjs` broke its walk
+ * on the first such gap and waived nine of its ten checks as "a deck that
+ * never asks one word twice", which was false. True once a card shape is on
+ * screen; false once the summary is, or the budget runs out.
+ */
+export async function cardReady(page, { budget = 10_000 } = {}) {
+  const app = page.locator("main");
+  const shape = app
+    .getByRole("button", { name: /Got it, ask me later/ })
+    .or(app.locator("input#answer"))
+    .or(app.locator("button.choice-btn"))
+    .or(app.getByRole("button", { name: /Show answer/ }));
+  try {
+    await shape.first().waitFor({ state: "visible", timeout: budget });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function missCard(page, { settle = 1200 } = {}) {
   const app = page.locator("main");
+  if (!(await cardReady(page))) return null;
 
   const meet = app.getByRole("button", { name: /Got it, ask me later/ });
   if (await meet.count()) {
