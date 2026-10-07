@@ -2,6 +2,7 @@
 
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { useCaseGloss } from "@/components/CaseGloss";
+import { useT } from "@/components/Locale";
 
 /**
  * A CASE QUESTION, AND WHAT IT IS ASKING.
@@ -42,8 +43,14 @@ export function CaseQuestion({ question, className = "", inline = false }: {
   inline?: boolean;
 }) {
   const wantsGloss = useCaseGloss();
+  const t = useT();
   if (!question) return null;
-  const english = wantsGloss ? questionInEnglish(question) : null;
+  /* Read word by word, so each question word's reading is said in the
+     learner's language; in English this is exactly `questionInEnglish`. */
+  const readings = wantsGloss
+    ? question.trim().split(/\s+/).map((word) => questionInEnglish(word)).filter((x): x is string => Boolean(x))
+    : [];
+  const english = readings.length > 0 ? readings.map(t).join(" ") : null;
   if (!english) {
     return <span lang="et" className={className}>{question}</span>;
   }

@@ -621,6 +621,8 @@ function captions(source: string): string[] {
   while ((m = re.exec(source))) {
     const text = (m[3] ?? "")
       .replace(/<[^>]*>/g, " ")
+      // A line put through the translator is still that line, in English.
+      .replace(/\{t\("((?:[^"\\]|\\.)*)"\)\}/g, "$1")
       .replace(/\{[^{}]*\}/g, "xx")
       .replace(/&[a-z]+;/g, "'")
       .replace(/\s+/g, " ")

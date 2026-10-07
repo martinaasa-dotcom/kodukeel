@@ -10,6 +10,7 @@ import { Chip, Empty, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { useUiText } from "@/components/UiLanguage";
+import { useLocale } from "@/components/Locale";
 import { useResumeCard } from "@/components/useResumeCard";
 import { sentenceTiles, tileFaces } from "@/lib/estonian/cloze";
 import { orderIsRight, readOrder, type OrderVerdict } from "@/lib/estonian/wordOrder";
@@ -81,6 +82,7 @@ export function SentenceSession(
 ) {
   const grade = useGrade();
   const uiText = useUiText();
+  const locale = useLocale();
   const [tasks, setTasks] = useState(initialTasks);
   // Which task to reopen on after a detour to its dictionary entry. See
   // components/useResumeCard.ts.
@@ -408,7 +410,7 @@ export function SentenceSession(
               */}
               <p className="font-semibold">
                 {checked === "wrong" ? ORDER_WRONG
-                  : <>{uiText("Õige!", "Correct!")} {variant === null ? ORDER_EXACT : orderVariantNote(variant.moved, variant.writerPut)}</>}
+                  : <>{uiText("Õige!", "Correct!")} {variant === null ? ORDER_EXACT : orderVariantNote(variant.moved, variant.writerPut, locale)}</>}
               </p>
               <p className="mt-1 flex items-center justify-center gap-2">
                 <span lang="et" className="text-md" style={{ color: "var(--ink)" }}>{task.et}</span>

@@ -25,8 +25,10 @@ import type { GlossedToken } from "@/lib/dict/glossed";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
 import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
-import { ORDER_EXACT, orderVariantNote, ORDER_WRONG, NOT_REACHED } from "@/lib/copy/values";
-import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
+import { ORDER_EXACT, orderVariantNote, ORDER_WRONG, NOT_REACHED, quoted } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { checkAnswer, countsAsRecalled, noteIn } from "@/lib/estonian/answer";
 import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
 import { grammarPoint } from "@/lib/estonian/grammar";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
@@ -131,6 +133,7 @@ export function LessonSession({
   const [aside, setAside] = useState<string | null>(null);
 
   const step = steps[at];
+  const t = useT();
   /* The way back to the step before this one. See `lib/ux/lookBack.ts`. */
   const look = useLookBack();
   const total = useMemo(() => steps.filter(isAnswerable).length, [steps]);
@@ -193,11 +196,11 @@ export function LessonSession({
 
   if (steps.length === 0 || !step) {
     return (
-      <Page title={unitTitle} lead="Nothing to learn here just yet.">
+      <Page title={t(unitTitle)} lead={t("Nothing to learn here just yet.")}>
         <Empty
-          title="This unit's words aren't in the dictionary yet"
-          body="They'll turn up once live dictionary lookups are switched on, or you can add them yourself."
-          action={<ButtonLink href={`/learn/${unitId}`}>Back to the unit</ButtonLink>}
+          title={t("This unit's words aren't in the dictionary yet")}
+          body={t("They'll turn up once live dictionary lookups are switched on, or you can add them yourself.")}
+          action={<ButtonLink href={`/learn/${unitId}`}>{t("Back to the unit")}</ButtonLink>}
         />
       </Page>
     );
@@ -207,16 +210,16 @@ export function LessonSession({
 
   return (
     <Page
-      title={unitTitle}
-      eyebrow={parts > 1 ? `Lesson ${part} of ${parts}` : "Lesson"}
+      title={t(unitTitle)}
+      eyebrow={parts > 1 ? fill(t("Lesson {part} of {parts}"), { part, parts }) : t("Lesson")}
       actions={
         <Link href={`/learn/${unitId}`} className="text-sm" style={{ color: "var(--accent-deep)" }}>
-          Leave
+          {t("Leave")}
         </Link>
       }
     >
       <div className="flex flex-col gap-5">
-        <Meter pct={pct} label={`${answered} of ${total} questions answered`} />
+        <Meter pct={pct} label={fill(t("{answered} of {total} questions answered"), { answered, total })} />
         {/* A look back stands in the step's place rather than over it, so the
             step underneath cannot be answered while an older one is read. */}
         {look.panel ? <LookBackCard {...look.panel} /> : (
@@ -245,9 +248,9 @@ export function LessonSession({
         </div>
         {aside && (
           <p className="text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
-            {aside}{" "}
+            {t(aside)}{" "}
             <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
-              Bring it back
+              {t("Bring it back")}
             </Link>
           </p>
         )}
@@ -258,18 +261,20 @@ export function LessonSession({
 
 /** Feedback shown after an answer, in the palette's fixed meanings (lib/ux/verdict.ts). */
 function Verdict({ ok, note }: { ok: boolean; note?: string }) {
+  const t = useT();
   return (
     <div
       className={`${VERDICT_CLASS[ok ? "right" : "wrong"]} verdict-panel flex items-start gap-2`}
       role="status"
     >
       {ok ? <Check size={18} aria-hidden /> : <X size={18} aria-hidden />}
-      <span>{note ?? (ok ? "Correct." : "Not quite.")}</span>
+      <span>{note ?? (ok ? t("Correct.") : t("Not quite."))}</span>
     </div>
   );
 }
 
 function Continue({ onNext, label = "Continue" }: { onNext: () => void; label?: string }) {
+  const t = useT();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       /*
@@ -294,7 +299,7 @@ function Continue({ onNext, label = "Continue" }: { onNext: () => void; label?: 
       two lines above it, on the way into the course.
     */
     <Button variant="primary" onClick={onNext} className="self-start">
-      {label} <ArrowRight size={15} aria-hidden />
+      {t(label)} <ArrowRight size={15} aria-hidden />
     </Button>
   );
 }
@@ -373,6 +378,8 @@ function StepCard({
   /** The unit's own band, so a first meeting can decide whether to show a sentence. */
   unitLevel: string;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [chosen, setChosen] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
   const [checked, setChecked] = useState<{ ok: boolean; note: string } | null>(null);
@@ -410,7 +417,7 @@ function StepCard({
         taken={hints.taken}
         onTake={hints.take}
         open={hints.open}
-        label={step.lemma ?? "this one"}
+        label={step.lemma ?? t("this one")}
       />
     )
     : null;
@@ -429,7 +436,11 @@ function StepCard({
     if (checked) { onNext(); return; }
     const result = checkAnswer(typed, expected, "et", rivals, kin);
     const ok = countsAsRecalled(result.verdict);
-    setChecked({ ok, note: result.note || (ok ? "Correct." : `The answer is “${result.expected}”.`) });
+    setChecked({
+      ok,
+      note: noteIn(result, locale)
+        || (ok ? t("Correct.") : fill(t("The answer is {form}."), { form: quoted(result.expected, locale) })),
+    });
     // A hint is paid for: see the block above and `lib/questions/hints.ts`.
     onAnswer(lemma, kind, ok && hints.ceiling > 1);
   };
@@ -439,13 +450,13 @@ function StepCard({
       return (
         <Card className="flex flex-col gap-4">
           <div className="flex items-center gap-2 text-sm" style={{ color: "var(--accent-deep)" }}>
-            <Sparkles size={16} aria-hidden /> By the end of this lesson
+            <Sparkles size={16} aria-hidden /> {t("By the end of this lesson")}
           </div>
-          <p className="text-lg">{step.canDo}</p>
-          <p style={{ color: "var(--ink-2)" }}>{step.blurb}</p>
+          <p className="text-lg">{t(step.canDo)}</p>
+          <p style={{ color: "var(--ink-2)" }}>{t(step.blurb)}</p>
           {step.grammar.length > 0 && (
             <div className="flex flex-col gap-1.5">
-              <p className="text-sm" style={{ color: "var(--ink-3)" }}>Grammar in this lesson</p>
+              <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Grammar in this lesson")}</p>
               <ul className="flex flex-wrap gap-2">
                 {step.grammar.map((id) => {
                   const point = grammarPoint(id);
@@ -460,7 +471,7 @@ function StepCard({
                         <span lang={point.estonian ? "et" : undefined} className="underline">
                           {point.title}
                         </span>
-                        <span className="text-xs">{point.english}</span>
+                        <span className="text-xs">{t(point.english)}</span>
                       </Link>
                     </li>
                   );
@@ -468,7 +479,7 @@ function StepCard({
               </ul>
             </div>
           )}
-          <Continue onNext={onNext} label={`Start these ${step.words} words`} />
+          <Continue onNext={onNext} label={fill(t("Start these {n} words"), { n: step.words })} />
         </Card>
       );
 
@@ -476,7 +487,7 @@ function StepCard({
       return (
         <Card className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm" style={{ color: "var(--ink-3)" }}>A new word</span>
+            <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("A new word")}</span>
             {/* The corner of the card, which is where somebody looks for this
                 the moment a word turns out to be worth keeping. */}
             <div className="ml-auto flex flex-wrap items-center gap-1">
@@ -530,7 +541,7 @@ function StepCard({
     case "choose":
       return (
         <Card className="flex flex-col gap-4">
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>What does this mean?</span>
+          <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("What does this mean?")}</span>
           <div className="flex flex-wrap items-center gap-3">
             <Et className="text-3xl">{step.lemma}</Et>
             <Speak text={step.lemma} size={18} />
@@ -545,7 +556,7 @@ function StepCard({
     case "produce":
       return (
         <Card className="flex flex-col gap-4">
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>Which word is this?</span>
+          <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Which word is this?")}</span>
           <p className="text-2xl">{step.gloss}</p>
           {/* Each option is a case question, and a question word is Estonian a
               beginner cannot cash in, so it carries what it asks, the way the
@@ -562,14 +573,14 @@ function StepCard({
       return (
         <Card className="flex flex-col gap-4">
           <span className="flex items-center gap-2 text-sm" style={{ color: "var(--ink-3)" }}>
-            <Ear size={15} aria-hidden /> Listen, then choose what it means
+            <Ear size={15} aria-hidden /> {t("Listen, then choose what it means")}
           </span>
-          <Speak text={step.lemma} size={30} label="Play the word" className="self-start p-3" />
+          <Speak text={step.lemma} size={30} label={t("Play the word")} className="self-start p-3" />
           <Options options={step.options} answer={step.answer} chosen={chosen} lang="en"
             onChoose={(i) => choose(i, step.answer, step.lemma, step.kind)} />
           {chosen !== null && (
             <>
-              <Verdict ok={chosen === step.answer} note={`It was “${step.lemma}”.`} />
+              <Verdict ok={chosen === step.answer} note={fill(t("It was {word}."), { word: quoted(step.lemma, locale) })} />
               <Continue onNext={onNext} />
             </>
           )}
@@ -579,17 +590,17 @@ function StepCard({
     case "type":
       return (
         <Card className="flex flex-col gap-4">
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>Write it in Estonian</span>
+          <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Write it in Estonian")}</span>
           <p className="text-2xl">{step.gloss}</p>
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
-            ariaLabel="Your answer in Estonian"
+            ariaLabel={t("Your answer in Estonian")}
             onEnter={() => checkTyped(step.lemma, step.lemma, step.kind, [], step.kin)}
           />
           {hint}
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.lemma, step.lemma, step.kind, [], step.kin)} className="self-start">
-              Check
+              {t("Check")}
             </Button>
           )}
           {checked && <Verdict ok={checked.ok} note={checked.note} />}
@@ -613,6 +624,7 @@ function StepCard({
         lemma: step.lemma,
       });
       const gloss = gapCue({ hint: step.gloss, lemma: null, marked: meaning?.marked ?? false });
+      const [meansBefore, meansAfter] = t("It means {gloss}.").split("{gloss}");
       return (
         <Card className="flex flex-col gap-4">
           {/* THE WORD, THEN WHAT TO DO WITH IT, THEN THE SENTENCE CLOSEST TO
@@ -634,17 +646,17 @@ function StepCard({
               <Et className="block text-3xl font-bold leading-tight">{step.lemma}</Et>
               {gloss && <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>{gloss}</p>}
               <p className="mt-4 text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
-                Write it in the form this sentence needs.
+                {t("Write it in the form this sentence needs.")}
               </p>
             </div>
           ) : (
             <div>
               <p className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
-                Which word goes in the gap?
+                {t("Which word goes in the gap?")}
               </p>
               {step.cue === "meaning" && gloss && (
                 <p className="mt-1.5 text-base" style={{ color: "var(--ink-2)" }}>
-                  It means <strong style={{ color: "var(--ink)" }}>{gloss}</strong>.
+                  {meansBefore}<strong style={{ color: "var(--ink)" }}>{gloss}</strong>{meansAfter}
                 </p>
               )}
             </div>
@@ -671,14 +683,14 @@ function StepCard({
           {meaning && !checked && <GapMeaning meaning={meaning} />}
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
-            ariaLabel="The missing form"
+            ariaLabel={t("The missing form")}
             placeholder={sizedBlank(BLANK, step.answer)}
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)}
           />
           {hint}
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)} className="self-start">
-              Check
+              {t("Check")}
             </Button>
           )}
           {checked && (
@@ -731,7 +743,7 @@ function StepCard({
           {hint}
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)} className="self-start">
-              Check
+              {t("Check")}
             </Button>
           )}
           {checked && <Verdict ok={checked.ok} note={checked.note} />}
@@ -749,7 +761,7 @@ function StepCard({
       return (
         <Card className="flex flex-col gap-4">
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Which question does this verb answer? That tells you the case it takes.
+            {t("Which question does this verb answer? That tells you the case it takes.")}
           </span>
           <div className="flex flex-wrap items-center gap-3">
             <Et className="text-3xl">{step.lemma}</Et>
@@ -773,7 +785,7 @@ function StepCard({
       return (
         <Card className="flex flex-col gap-4">
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Put the words back in the right order.
+            {t("Put the words back in the right order.")}
           </span>
           <div
             className="min-h-[52px] rounded-[var(--r-sm)] border p-3"
@@ -804,7 +816,7 @@ function StepCard({
           </div>
           <div className="flex flex-wrap gap-2">
             {built.length > 0 && !done && (
-              <Button variant="ghost" onClick={() => setBuilt((b) => b.slice(0, -1))}>Undo</Button>
+              <Button variant="ghost" onClick={() => setBuilt((b) => b.slice(0, -1))}>{t("Undo")}</Button>
             )}
             {!done && (
               <Button
@@ -822,14 +834,14 @@ function StepCard({
                   setChecked({
                     ok,
                     note:
-                      verdict.reading === "exact" ? ORDER_EXACT
-                      : verdict.reading === "variant" ? orderVariantNote(verdict.moved, verdict.writerPut)
-                      : ORDER_WRONG,
+                      verdict.reading === "exact" ? t(ORDER_EXACT)
+                      : verdict.reading === "variant" ? orderVariantNote(verdict.moved, verdict.writerPut, locale)
+                      : t(ORDER_WRONG),
                   });
                   onAnswer(step.lemma, step.kind, ok);
                 }}
               >
-                Check
+                {t("Check")}
               </Button>
             )}
           </div>
@@ -858,20 +870,24 @@ function StepCard({
       return (
         <Card className="flex flex-col gap-4">
           {pct >= 80 && <Confetti />}
-          <h2 className="text-2xl">That&apos;s the lesson done</h2>
+          <h2 className="text-2xl">{t("That's the lesson done")}</h2>
           <p className="text-lg">
-            {summary.correct} of {summary.total} right, and {step.learned} new words are in your deck.
+            {fill(t("{correct} of {total} right, and {learned} new words are in your deck."), {
+              correct: summary.correct,
+              total: summary.total,
+              learned: step.learned,
+            })}
           </p>
           <p style={{ color: "var(--ink-2)" }}>
-            They&apos;ll come back in review just before you&apos;re likely to forget them.
+            {t("They'll come back in review just before you're likely to forget them.")}
           </p>
-          {summary.saving && <p className="text-sm" style={{ color: "var(--ink-3)" }}>Saving your answers…</p>}
+          {summary.saving && <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Saving your answers…")}</p>}
           {summary.saved && !summary.saved.ok && (
-            <Verdict ok={false} note={summary.saved.error ?? "We couldn't save your answers."} />
+            <Verdict ok={false} note={t(summary.saved.error ?? "We couldn't save your answers.")} />
           )}
           <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/learn">Back to the course</ButtonLink>
-            <ButtonLink href="/review" variant="ghost">Review now</ButtonLink>
+            <ButtonLink href="/learn">{t("Back to the course")}</ButtonLink>
+            <ButtonLink href="/review" variant="ghost">{t("Review now")}</ButtonLink>
           </div>
         </Card>
       );

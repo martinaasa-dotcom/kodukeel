@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { BookOpen, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useModuleFocus, useModuleNext } from "@/components/course/moduleFocus";
+import { useT } from "@/components/Locale";
 
 /**
  * THE TWO WAYS OUT OF A ROUND, DRAWN ONCE, AND WHAT BECOMES OF THEM INSIDE A
@@ -52,11 +53,12 @@ export function EndSession({ href = "/", label = "End session", size = 18 }: {
   size?: number;
 }) {
   const focus = useModuleFocus();
+  const t = useT();
   if (focus) return null;
   return (
     <Link
       href={href}
-      aria-label={label}
+      aria-label={t(label)}
       data-round-live=""
       className="press flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
       style={{ color: "var(--ink-3)" }}
@@ -110,6 +112,7 @@ export function NextStep({ className = "" }: { className?: string }) {
  */
 export function FullEntry({ lemma, icon = true }: { lemma: string; icon?: boolean }) {
   const focus = useModuleFocus();
+  const t = useT();
   if (focus) return null;
   return (
     <Link
@@ -120,7 +123,7 @@ export function FullEntry({ lemma, icon = true }: { lemma: string; icon?: boolea
       {/* Icon alone on a phone, where the label wrapped the card's header
           onto two lines; the words stay for a screen reader. */}
       {icon && <BookOpen size={13} aria-hidden />}
-      <span className={icon ? "sr-only whitespace-nowrap sm:not-sr-only" : "whitespace-nowrap"}>Full entry</span>
+      <span className={icon ? "sr-only whitespace-nowrap sm:not-sr-only" : "whitespace-nowrap"}>{t("Full entry")}</span>
     </Link>
   );
 }

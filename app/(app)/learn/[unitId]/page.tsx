@@ -21,13 +21,17 @@ import { readingFor } from "@/lib/progress/readiness";
 import { verdictFor } from "@/lib/readiness/narrative";
 import { EVIDENCE_LABEL } from "@/lib/exam/readiness";
 import { RungChip } from "@/components/readiness/Rung";
+import { localeFor } from "@/lib/progress/locale";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
   const unit = unitById(unitId);
-  if (!unit) return { title: "Unit" };
-  const placement = await courseLevelFor(await requireUserId());
-  return { title: uiText(placement, unit.title, unit.subtitle) };
+  const ownerId = await requireUserId();
+  const locale = await localeFor(ownerId);
+  if (!unit) return { title: tr(locale, "Unit") };
+  const placement = await courseLevelFor(ownerId);
+  return { title: tr(locale, uiText(placement, unit.title, unit.subtitle)) };
 }
 
 export const dynamic = "force-dynamic";
@@ -46,7 +50,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
   if (!unit) notFound();
 
   const ownerId = await requireUserId();
-  const [placement, snapshot, rows, reading] = await Promise.all([
+  const [placement, snapshot, rows, reading, locale] = await Promise.all([
     courseLevelFor(ownerId),
     deckSnapshot(ownerId),
     prisma.lexeme.findMany({
@@ -59,7 +63,9 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
     }),
     // The claim two lines up, answered: could you actually do this yet.
     readingFor(ownerId, unitId),
+    localeFor(ownerId),
   ]);
+  const t = (english: string) => tr(locale, english);
 
   // One row per lemma, in the unit's own order. A lemma can hold two entries
   // and this page counted both.
@@ -89,18 +95,18 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
 
   return (
     <Page
-      title={uiText(placement, unit.title, unit.subtitle)}
+      title={t(uiText(placement, unit.title, unit.subtitle))}
       titleLang={uiWantsEnglish(placement) ? undefined : "et"}
-      lead={unit.blurb}
+      lead={t(unit.blurb)}
       actions={
         <Link href="/learn" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
-          <ArrowLeft size={14} aria-hidden /> Back to the course
+          <ArrowLeft size={14} aria-hidden /> {t("Back to the course")}
         </Link>
       }
     >
       <div className="flex flex-col gap-5">
         <Card className="@container flex flex-wrap items-center gap-5">
-          <Ring pct={progress.pct} size={70} label={`${progress.pct}% of this unit learned`}>
+          <Ring pct={progress.pct} size={70} label={fill(t("{pct}% of this unit learned"), { pct: progress.pct })}>
             <NamedIcon name={unit.icon} size={22} aria-hidden style={{ color: "var(--accent-deep)" }} />
           </Ring>
           {/* A floor rather than `min-w-0`: at 768 the ring and the 208px
@@ -110,29 +116,32 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
           <div className="min-w-[12rem] flex-1">
             <div className="flex flex-wrap items-center gap-2">
               {!uiWantsEnglish(placement) && (
-                <span className="text-base" style={{ color: "var(--ink)" }}>{unit.subtitle}</span>
+                <span className="text-base" style={{ color: "var(--ink)" }}>{t(unit.subtitle)}</span>
               )}
               <Chip tone="accent">{unit.cefr}</Chip>
-              {progress.state === "done" && <Chip tone="good">Finished</Chip>}
+              {progress.state === "done" && <Chip tone="good">{t("Finished")}</Chip>}
             </div>
-            <p className="mt-1.5 text-md" style={{ color: "var(--ink)" }}>{unit.canDo}</p>
+            <p className="mt-1.5 text-md" style={{ color: "var(--ink)" }}>{t(unit.canDo)}</p>
             {reading && reading.rung !== "unmet" && (
               <p className="mt-2 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
                 <RungChip rung={reading.rung} />
-                <span>{verdictFor(reading)} {EVIDENCE_LABEL[reading.evidence].charAt(0).toUpperCase()}{EVIDENCE_LABEL[reading.evidence].slice(1)}.</span>
+                <span>{t(verdictFor(reading))} {t(`${EVIDENCE_LABEL[reading.evidence].charAt(0).toUpperCase()}${EVIDENCE_LABEL[reading.evidence].slice(1)}.`)}</span>
                 <Link href={`/progress/readiness/${unit.id}`} className="underline" style={{ color: "var(--accent-deep)" }}>
-                  See where you might get stuck
+                  {t("See where you might get stuck")}
                 </Link>
               </p>
             )}
             <p className="mt-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
-              {progress.known} of {progress.available} words known, {progress.started} started
-              {lessons > 1 && `, ${lessons} lessons`}
+              {fill(t(lessons > 1
+                ? "{known} of {available} words known, {started} started, {lessons} lessons"
+                : "{known} of {available} words known, {started} started"), {
+                known: progress.known, available: progress.available, started: progress.started, lessons,
+              })}
             </p>
             <div className="mt-2 max-w-sm">
               <Meter
                 pct={progress.pct}
-                label={`${uiText(placement, unit.title, unit.subtitle)}: ${progress.pct}% learned`}
+                label={fill(t("{unit}: {pct}% learned"), { unit: t(uiText(placement, unit.title, unit.subtitle)), pct: progress.pct })}
                 tone="var(--accent)"
               />
             </div>
@@ -164,17 +173,17 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
             {progress.available > 0 && (
               <ButtonLink href={`/learn/${unit.id}/lesson`} variant="primary" className="justify-center">
                 <PlayCircle size={15} aria-hidden />
-                {progress.started > 0 ? "Continue the lesson" : "Start the lesson"}
+                {progress.started > 0 ? t("Continue the lesson") : t("Start the lesson")}
               </ButtonLink>
             )}
             {progress.started > 0 && (
               <ButtonLink href={`/review?unit=${unit.id}`} variant="ghost" className="justify-center">
-                <GraduationCap size={15} aria-hidden /> Practise these words
+                <GraduationCap size={15} aria-hidden /> {t("Practise these words")}
               </ButtonLink>
             )}
             {/* For the half of a class that happens on paper. */}
             <ButtonLink href={`/learn/${unit.id}/worksheet`} variant="ghost" size="sm" className="justify-center">
-              <Printer size={14} aria-hidden /> Printable worksheet
+              <Printer size={14} aria-hidden /> {t("Printable worksheet")}
             </ButtonLink>
             {/*
               And the scene that checks this unit's promise, where one exists.
@@ -185,7 +194,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
             */}
             {tested && (
               <ButtonLink href={`/situations/${tested.id}`} variant="ghost" size="sm" className="justify-center">
-                <MessagesSquare size={14} aria-hidden /> Try it in a conversation
+                <MessagesSquare size={14} aria-hidden /> {t("Try it in a conversation")}
               </ButtonLink>
             )}
           </div>
@@ -193,7 +202,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
 
         {unit.grammar.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="label-xs" style={{ color: "var(--ink-3)" }}>Grammar</span>
+            <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Grammar")}</span>
             {unit.grammar.map((id) => {
               const point = grammarPoint(id);
               if (!point) return null;
@@ -207,7 +216,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
                   <span lang={point.estonian ? "et" : undefined} className="underline">
                     {point.title}
                   </span>
-                  <span className="text-xs">{point.english}</span>
+                  <span className="text-xs">{t(point.english)}</span>
                 </Link>
               );
             })}
@@ -216,7 +225,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
 
         <div className="@container">
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            {words.length} words, {offered.map(cardTypeLabel).join(", ")} cards
+            {fill(t("{n} words, {types} cards"), { n: words.length, types: offered.map((type) => t(cardTypeLabel(type))).join(", ") })}
           </p>
           <ul className="grid gap-2 @lg:grid-cols-2 @3xl:grid-cols-3">
             {words.map((l) => {
@@ -257,9 +266,9 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
                   {l.gradationNote && <Chip tone="hard" caseSensitive>{l.gradationNote}</Chip>}
                   <Speak text={l.lemma} />
                   {known ? (
-                    <Check size={16} aria-label="Known" style={{ color: "var(--good-ink)" }} />
+                    <Check size={16} aria-label={t("Known")} style={{ color: "var(--good-ink)" }} />
                   ) : started ? (
-                    <span className="label-xs" style={{ color: "var(--ink-3)" }}>Learning</span>
+                    <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Learning")}</span>
                   ) : null}
                 </li>
               );
@@ -267,15 +276,23 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
           </ul>
           {missing > 0 && (
             <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-              {missing} word{missing === 1 ? "" : "s"} in this unit {missing === 1 ? "isn't" : "aren't"} in
-              your dictionary yet. Look {missing === 1 ? "it" : "them"} up once and
-              {missing === 1 ? " it's" : " they're"} saved for good.
+              {missingLine(missing, locale)}
             </p>
           )}
         </div>
       </div>
     </Page>
   );
+}
+
+/** How many of the unit's words the dictionary does not hold yet, in a sentence. */
+function missingLine(missing: number, locale: Locale): string {
+  return fill(tr(locale, missing === 1
+    ? "{words} in this unit isn't in your dictionary yet. Look it up once and it's saved for good."
+    : "{words} in this unit aren't in your dictionary yet. Look them up once and they're saved for good."), {
+    // The genitive Russian and Ukrainian put after "there is no".
+    words: countOf(locale, missing, locale === "en" ? "word" : "word missing"),
+  });
 }
 
 function cardTypeLabel(type: string): string {

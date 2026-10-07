@@ -13,10 +13,18 @@ import { CheckpointSession } from "./CheckpointSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
+
 export async function generateMetadata({ params }: { params: Promise<{ level: string }> }) {
   const { level } = await params;
   const upper = level.toUpperCase();
-  return { title: (LEVELS as readonly string[]).includes(upper) ? `${upper} checkpoint` : "Checkpoint" };
+  const locale = await localeFor(await requireUserId());
+  return {
+    title: (LEVELS as readonly string[]).includes(upper)
+      ? fill(tr(locale, "{level} checkpoint"), { level: upper })
+      : tr(locale, "Checkpoint"),
+  };
 }
 
 export const dynamic = "force-dynamic";

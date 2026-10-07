@@ -5720,10 +5720,8 @@ check("an empty cell goes through NO_VALUE, never a literal", () => {
 const PLURAL_COUNT_EXEMPT: Readonly<Record<string, string>> = {
   "app/(chromeless)/welcome/page.tsx": "the dictionary's size, which is thousands",
   "app/(app)/dictionary/page.tsx": "the dictionary's size, which is thousands",
-  "app/(app)/review/ReviewSession.tsx": "the one live count is guarded a line above; the other is a case name",
   "app/(app)/page.tsx": "said only once the goal is met, and the smallest goal is five",
   "app/(app)/settings/page.tsx": "the daily goal, whose smallest setting is five",
-  "app/(app)/learn/[unitId]/lesson/LessonSession.tsx": "a sitting folds a trailing one or two words into the one before it",
   "components/WeakestCases.tsx": "a case is listed only above its floor of answers",
   "app/(app)/exam/[level]/ExamSession.tsx": "a dictation is a sentence, and a single word is said as one word",
 };
@@ -23331,7 +23329,7 @@ check("the words put aside are listed, and one button puts them there", () => {
       `${file} stopped offering the button on the screen a word is met on`,
     );
     assert.match(
-      code(file), /\{aside\}/,
+      code(file), /\{(?:t\()?aside\)?\}/,
       `${file} draws the button and never prints what it did, so the press reads `
       + "as a card vanishing.",
     );
@@ -25745,7 +25743,9 @@ check("nothing but the hint ladder decides what a hint gives away", () => {
 
   // And the encouragement is one sentence, from one table, for the same reason
   // a second copy of any line of copy in this app is a second copy: they drift.
-  const notes = ALL.filter((f) => /fine not to know this one yet/.test(read(f)));
+  // The translation tables hold it as the key they translate, which is the
+  // line being said in another language rather than a second copy of it.
+  const notes = ALL.filter((f) => !/lib[\\/]copy[\\/]i18n[\\/]/.test(f) && /fine not to know this one yet/.test(read(f)));
   assert.deepEqual(
     notes.map((f) => f.replace(/\\/g, "/")), ["lib/copy/firstTry.ts"],
     "the first-try line is written out somewhere other than the one table that holds it",
