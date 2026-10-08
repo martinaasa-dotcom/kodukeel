@@ -5,7 +5,8 @@ import type { InvariantKit } from "../lib/invariantKit";
 import { ENTRY_COPY, ENTRY_LOCALES } from "../../lib/copy/entryLocales";
 
 /*
-  A translation nobody fluent has read says so, at the top, in both languages.
+  A translation nobody fluent has read says so, in both languages (a quiet
+  line in the landing footer, a note under the heading on the other pages).
 
   The Russian and Ukrainian landing pages were translated by a model. That is
   worth doing, because a stranger closes a page in their third language, and

@@ -38,7 +38,7 @@ import { LocaleProvider } from "@/components/Locale";
 import { rich } from "@/components/Rich";
 import { MACHINE_SHORT, countOf, languagesBeside, fill, tr, type Locale } from "@/lib/copy/locale";
 import { LANDING_HREF, langParam, localeHref } from "@/lib/copy/publicLocale";
-import { ENTRY_COPY, ENTRY_LOCALES, MACHINE_TRANSLATED_EN } from "@/lib/copy/entryLocales";
+import { ENTRY_COPY, ENTRY_LOCALES, MACHINE_TRANSLATED_EN, type EntryLocale } from "@/lib/copy/entryLocales";
 import { questionReading } from "@/lib/estonian/cases";
 import { stepText } from "@/lib/course/stepText";
 
@@ -115,22 +115,6 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
       />
 
       <Nav say={say} />
-      {/*
-        A translation nobody fluent has read says so, first, in its own
-        language and in English, and what language the app itself opens in.
-      */}
-      {copy && !copy.reviewed && (
-        <aside
-          aria-label={say.t("About this translation")}
-          className="translation-notice relative mx-auto mt-4 flex max-w-3xl items-start gap-2 rounded-[var(--r)] px-4 py-3 text-sm"
-          style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}
-        >
-          <Languages size={16} aria-hidden className="mt-0.5 shrink-0" />
-          <span>
-            {copy.notice} <span lang="en">{MACHINE_TRANSLATED_EN}</span> {copy.appLanguage} {MACHINE_SHORT[copy.lang]}
-          </span>
-        </aside>
-      )}
 
       {/*
         Ten sections became eight, and eight became five.
@@ -169,7 +153,7 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
         <FinalCta say={say} />
       </main>
 
-      <Footer say={say} />
+      <Footer say={say} copy={copy} />
       <LandingAnu lines={anuLines(say)} />
     </div>
     </LocaleProvider>
@@ -1578,7 +1562,7 @@ function FootLink({ href, say, children }: { href: string; say: Say; children: R
   return <li><Link href={to} className="underline underline-offset-4 transition-opacity hover:opacity-70">{children}</Link></li>;
 }
 
-function Footer({ say }: { say: Say }) {
+function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale] | null }) {
   const { t, locale } = say;
   return (
     <footer className="landing-foot relative px-5 pb-14 md:px-8 md:pb-20">
@@ -1648,6 +1632,27 @@ function Footer({ say }: { say: Say }) {
             </ul>
           </div>
         </div>
+        {/*
+          A translation nobody fluent has read says so, in its own language
+          and in English, and says what language the app itself opens in. It
+          was a butter banner above the nav, which was louder than anything
+          else on the first screen; it is a quiet line at the foot now, where
+          the rest of the page's small print lives. Still drawn off the
+          table's `reviewed` flag, so it goes only when somebody fluent signs
+          the locale off.
+        */}
+        {copy && !copy.reviewed && (
+          <aside
+            aria-label={say.t("About this translation")}
+            className="mt-10 flex max-w-3xl items-start gap-2 text-sm leading-relaxed"
+            style={{ color: "var(--ink-3)" }}
+          >
+            <Languages size={16} aria-hidden className="mt-0.5 shrink-0" />
+            <span>
+              {copy.notice} <span lang="en">{MACHINE_TRANSLATED_EN}</span> {copy.appLanguage} {MACHINE_SHORT[copy.lang]}
+            </span>
+          </aside>
+        )}
       </div>
     </footer>
   );
