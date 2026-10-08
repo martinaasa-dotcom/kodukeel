@@ -1,3 +1,7 @@
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
+import { meaningShown } from "@/lib/collections/glossLanguage";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples, type Example } from "@/lib/dict/examples";
@@ -16,7 +20,9 @@ import { sentenceWithin, slotWithin, type ModuleScope } from "@/lib/course/scope
 import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
-export const metadata = { title: "Flash cards" };
+export async function generateMetadata() {
+  return titleFor("Flash cards");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -72,19 +78,20 @@ export default async function FlashcardsPage({
     .filter((w) => !taught || taught.has(w.lemma));
 
   if (unfinished.length === 0) {
+    const locale = await localeFor(ownerId);
     return (
-      <Page title="Flash cards" lead="Words you've met, asked in a way you haven't seen yet.">
+      <Page title={tr(locale, "Flash cards")} lead={tr(locale, "Words you've met, asked in a way you haven't seen yet.")}>
         <Empty
-          title={words.length === 0 ? "No words to practise yet" : "You've mastered every word you've met"}
+          title={words.length === 0 ? tr(locale, "No words to practice yet") : tr(locale, "You've mastered every word you've met")}
           body={
             words.length === 0
-              ? "This works on words you've already met. Review a few and they'll turn up here."
+              ? tr(locale, "This works on words you've already met. Review a few and they'll turn up here.")
               : undefined
           }
           action={
             words.length === 0
-              ? <ButtonLink href="/review" variant="primary">Open review</ButtonLink>
-              : <ButtonLink href="/words/mastery" variant="primary">See the list</ButtonLink>
+              ? <ButtonLink href="/review" variant="primary">{tr(locale, "Open review")}</ButtonLink>
+              : <ButtonLink href="/words/mastery" variant="primary">{tr(locale, "See the list")}</ButtonLink>
           }
         />
       </Page>
@@ -119,11 +126,13 @@ export default async function FlashcardsPage({
     shortfall out of a longer list is one query; discovering it afterwards
     would be another.
   */
-  const [lexemes, cards, borrowed, reach, starred] = await Promise.all([
+  const [lexemes, cards, borrowed, reach, starred, prefs] = await Promise.all([
     prisma.lexeme.findMany({
       where: { id: { in: lexemeIds } },
       select: {
         id: true, lemma: true, translation: true, pos: true, examples: true, cefr: true,
+        // The Institute's equivalents, in this read, for the meaning line.
+        translationRu: true, translationUk: true,
         // Which local cases the word takes and which pronoun asks for it, both
         // of which are facts about the meaning rather than the spelling.
         semanticTypes: true,
@@ -146,6 +155,7 @@ export default async function FlashcardsPage({
     // Which of the round's words are already favorites, so the star in the
     // corner of each card is drawn in the state it is actually in.
     starredAmong(ownerId, lexemeIds),
+    meaningPrefsFor(ownerId),
   ]);
 
   const byLexeme = new Map(lexemes.map((l) => [l.id, l]));
@@ -162,16 +172,24 @@ export default async function FlashcardsPage({
       word, byLexeme.get(word.lexemeId), cardsFor.get(word.lexemeId) ?? [], prompts.length,
       borrowed.get(word.lexemeId) ?? [], reach, scope, readable,
     );
-    if (prompt) prompts.push({ ...prompt, starred: starred.has(word.lexemeId) });
+    if (!prompt) continue;
+    const lexeme = byLexeme.get(word.lexemeId);
+    const shown = lexeme && prefs.lead !== "en" ? meaningShown(prompt.translation, lexeme, prefs) : null;
+    prompts.push({
+      ...prompt,
+      starred: starred.has(word.lexemeId),
+      meaning: shown?.english ? shown : null,
+    });
   }
 
   if (prompts.length === 0) {
+    const locale = await localeFor(ownerId);
     return (
-      <Page title="Flash cards" lead="Words you've met, asked in a way you haven't seen yet.">
+      <Page title={tr(locale, "Flash cards")} lead={tr(locale, "Words you've met, asked in a way you haven't seen yet.")}>
         <Empty
-          title="Nothing left to ask right now"
-          body="Every word you've met is either mastered or has been asked every way we can, for now."
-          action={<ButtonLink href="/words/mastery" variant="primary">See how your words are doing</ButtonLink>}
+          title={tr(locale, "Nothing left to ask right now")}
+          body={tr(locale, "Every word you've met is either mastered or has been asked every way we can, for now.")}
+          action={<ButtonLink href="/words/mastery" variant="primary">{tr(locale, "See how your words are doing")}</ButtonLink>}
         />
       </Page>
     );

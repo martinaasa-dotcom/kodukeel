@@ -21,8 +21,15 @@ import { adaptOfferFor } from "@/lib/progress/adapt";
 import { leanSentence, moveLabel, offerParts, offerTitle, type AdaptOffer, type LeanEffects, type Tilt } from "@/lib/course";
 import { Speak } from "@/components/Speak";
 import { Lettered } from "@/components/HeroLetters";
+import { WaveWord, WAVE_END } from "@/components/motion/WaveWord";
+import type { CSSProperties } from "react";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { stepsIn } from "@/lib/course";
 
-export const metadata = { title: "Today's module" };
+export async function generateMetadata() {
+  return titleFor("Today's module");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -55,12 +62,17 @@ export default async function CoursePage({
   searchParams: Promise<{ next?: string | string[] }>;
 }) {
   const ownerId = await requireUserId();
-  const [programme, chosen, level, { next: startNow }] = await Promise.all([
+  const [programme, chosen, level, { next: startNow }, locale] = await Promise.all([
     programmeFor(ownerId),
     hasChosenProgramme(ownerId),
     courseLevelFor(ownerId),
     searchParams,
+    localeFor(ownerId),
   ]);
+  /* The screen's own words in the learner's language, and a unit's or a
+     part's name the way the rest of the course reads it at their level. */
+  const t = (english: string) => tr(locale, english);
+  const ui = (et: string, en: string) => (uiWantsEnglish(level) ? t(en) : et);
 
   const evenings = PROGRAMMES.reduce((n, p) => n + p.days.length, 0);
 
@@ -74,34 +86,35 @@ export default async function CoursePage({
       that it ends.
     */
     const opening = await openingPartFor(ownerId);
+    const planned = fill(t("{evenings} short evenings, from your very first word all the way to C1. We've planned every one."), { evenings });
     return (
       <Page
-        title="Your evenings, already planned"
-        lead={`${evenings} short evenings, from your very first word all the way to C1. We've planned every one.`}
+        title={t("Your evenings, already planned")}
+        lead={planned}
       >
         <Stack>
           <Card tone="accent">
-            <SectionTitle hint={`${opening.id.toUpperCase()}, ${opening.days.length} evenings`}>
+            <SectionTitle hint={fill(t("{part}, {evenings}"), { part: opening.id.toUpperCase(), evenings: eveningsIn(locale, opening.days.length) })}>
               <span lang={uiWantsEnglish(level) ? undefined : "et"}>
-                {uiText(level, opening.title, opening.subtitle)}
+                {ui(opening.title, opening.subtitle)}
               </span>
             </SectionTitle>
             <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {opening.blurb}
+              {t(opening.blurb)}
             </p>
             <div className="mt-4">
               <StartProgramme programmeId={opening.id} />
             </div>
             <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
               {chosen
-                ? "You've been choosing what to do each evening, and that's fine. Starting this won't change anything else."
+                ? t("You've been choosing what to do each evening, and that's fine. Starting this won't change anything else.")
                 : opening.level === level
-                  ? `It starts at ${opening.level}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.`
-                  : `It starts at ${opening.level}, the level after the ${level} you already have. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is.`}
+                  ? fill(t("It starts at {start}, where you are now. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is."), { start: opening.level })
+                  : fill(t("It starts at {start}, the level after the {level} you already have. It's a plan to lean on, not a track you're stuck on, and everything else in the app stays where it is."), { start: opening.level, level })}
             </p>
           </Card>
 
-          <Ladder learnerLevel={level} />
+          <Ladder learnerLevel={level} locale={locale} />
         </Stack>
       </Page>
     );
@@ -142,22 +155,22 @@ export default async function CoursePage({
     return (
       <Page
         eyebrow={<span>{programme.id.toUpperCase()}</span>}
-        title={`${uiText(level, programme.title, programme.subtitle)} is finished`}
-        lead={`All ${total} evenings done. Every word you met is in your reviews now.`}
+        title={fill(t("{part} is finished"), { part: ui(programme.title, programme.subtitle) })}
+        lead={fill(t("All {total} evenings done. Every word you met is in your reviews now."), { total })}
       >
         <Stack>
           <Card tone={verdict.kind === "hold" ? "butter" : "sky"}>
             {verdict.kind === "hold" ? (
               <>
-                <SectionTitle hint="our guess, not a rule">
-                  Not ready for {after!.id.toUpperCase()} yet
+                <SectionTitle hint={t("our guess, not a rule")}>
+                  {fill(t("Not ready for {part} yet"), { part: after!.id.toUpperCase() })}
                 </SectionTitle>
                 <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {holdReason(verdict)} We&apos;d give it a few more days to settle before you build
-                  the next part on it.
+                  {holdReason(verdict, locale)}{" "}
+                  {t("We'd give it a few more days to settle before you build the next part on it.")}
                 </p>
                 <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {holdAdvice(verdict)}
+                  {holdAdvice(verdict, locale)}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {/*
@@ -169,11 +182,11 @@ export default async function CoursePage({
                   */}
                   <NextPart
                     programmeId={after!.id}
-                    label={`Start ${after!.id.toUpperCase()} anyway`}
+                    label={fill(t("Start {part} anyway"), { part: after!.id.toUpperCase() })}
                     quiet
                   />
                   <ButtonLink href="/review" variant="primary">
-                    Review what&apos;s due <ArrowRight size={15} aria-hidden />
+                    {t("Review what's due")} <ArrowRight size={15} aria-hidden />
                   </ButtonLink>
                 </div>
               </>
@@ -181,18 +194,18 @@ export default async function CoursePage({
               <>
                 <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {after
-                    ? <>Next is {after.id.toUpperCase()} ({after.subtitle}). It picks
-                        up where this one stopped, and it only asks about things you&apos;ve already met.</>
-                    : <>That&apos;s the whole course, start to finish. Every word is in your reviews, and
-                        each one will come back just as you&apos;re about to forget it.</>}
+                    ? fill(t("Next is {part} ({about}). It picks up where this one stopped, and it only asks about things you've already met."), {
+                      part: after.id.toUpperCase(), about: t(after.subtitle),
+                    })
+                    : t("That's the whole course, start to finish. Every word is in your reviews, and each one will come back just as you're about to forget it.")}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <ButtonLink href="/progress/readiness">See what you could handle out there</ButtonLink>
+                  <ButtonLink href="/progress/readiness">{t("See what you could handle out there")}</ButtonLink>
                   {after
-                    ? <NextPart programmeId={after.id} label={`Start ${after.id.toUpperCase()}`} />
+                    ? <NextPart programmeId={after.id} label={fill(t("Start {part}"), { part: after.id.toUpperCase() })} />
                     : (
                       <ButtonLink href="/learn" variant="primary">
-                        Open the course <ArrowRight size={15} aria-hidden />
+                        {t("Open the course")} <ArrowRight size={15} aria-hidden />
                       </ButtonLink>
                     )}
                 </div>
@@ -223,10 +236,10 @@ export default async function CoursePage({
       <Page
         eyebrow={
           <span lang={uiWantsEnglish(level) ? undefined : "et"}>
-            {programme.id.toUpperCase()}, {uiText(level, programme.title, programme.subtitle)}
+            {programme.id.toUpperCase()}, {ui(programme.title, programme.subtitle)}
           </span>
         }
-        title="Today's module is done"
+        title={t("Today's module is done")}
         lead={
           /*
             THE RUN OF EVENINGS IS THE ONE FIGURE WORTH SAYING HERE. "Six days
@@ -235,15 +248,15 @@ export default async function CoursePage({
             nothing, since "one evening in a row" is a sentence nobody says.
           */
           reading.eveningsInARow >= 2
-            ? `${reading.eveningsInARow} evenings in a row now, and ${reading.daysDone} of ${total} done.`
-            : `${reading.daysDone} of ${total} evenings done. See you tomorrow.`
+            ? fill(t("{run} evenings in a row now, and {done} of {total} done."), { run: reading.eveningsInARow, done: reading.daysDone, total })
+            : fill(t("{done} of {total} evenings done. See you tomorrow."), { done: reading.daysDone, total })
         }
       >
         <Stack>
           <Lettered celebrate>
             <Card tone="accent" className="evening">
               <div className="flex items-start gap-3">
-                <CalendarCheck size={22} aria-hidden style={{ color: "var(--accent-deep)" }} />
+                <CalendarCheck size={22} aria-hidden className="tick-land" style={{ color: "var(--accent-deep)" }} />
                 <div className="min-w-0">
                   {justDone && (
                     <>
@@ -252,10 +265,10 @@ export default async function CoursePage({
                         lang={uiWantsEnglish(level) ? undefined : "et"}
                         style={{ color: "var(--accent-deep)" }}
                       >
-                        {uiText(level, justDone.title, justDone.subtitle)}
+                        {ui(justDone.title, justDone.subtitle)}
                       </p>
                       <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                        {justDone.canDo}
+                        {t(justDone.canDo)}
                       </p>
                     </>
                   )}
@@ -270,12 +283,11 @@ export default async function CoursePage({
                   */}
                   <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                     {justDone && justDone.unitId === day.unitId
-                      ? <>Tomorrow you&apos;ll carry on with {uiText(level, day.title, day.subtitle)}, part {day.part.n} of {day.part.of}.</>
+                      ? fill(t("Tomorrow you'll continue with {unit}, part {n} of {of}."), { unit: ui(day.title, day.subtitle), n: day.part.n, of: day.part.of })
                       : uiWantsEnglish(level)
-                        ? <>Come back tomorrow for {day.subtitle}.</>
-                        : <>Come back tomorrow for {day.title} ({day.subtitle}).</>}
-                    {" "}Sleep does half the work of making today&apos;s words stick, so stopping here is
-                    part of the plan.
+                        ? fill(t("Come back tomorrow for {unit}."), { unit: t(day.subtitle) })
+                        : fill(t("Come back tomorrow for {unit} ({english})."), { unit: day.title, english: t(day.subtitle) })}
+                    {" "}{t("Sleep does half the work of making today's words stick, so stopping here is part of the plan.")}
                   </p>
                 </div>
               </div>
@@ -290,17 +302,22 @@ export default async function CoursePage({
               {justDone && justDone.words.length > 0 && (
                 <div className="mt-4">
                   <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-                    Hear today&rsquo;s words once more
+                    {t("Hear today’s words once more")}
                   </p>
                   <ul className="mt-2 flex flex-wrap gap-2" data-recap-words>
-                    {justDone.words.map((word) => (
+                    {justDone.words.map((word, i) => (
+                      /* They come in one after another, and each ripples
+                         when reached for, which is the word saying itself
+                         once more beside the speaker that says it aloud. */
                       <li
                         key={word}
-                        className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5"
-                        style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
+                        data-hop-on="hover"
+                        data-hop-end={WAVE_END}
+                        className="word-arrive inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5"
+                        style={{ borderColor: "var(--rule)", background: "var(--surface)", "--i": i } as CSSProperties}
                       >
                         <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                          {word}
+                          <WaveWord text={word} />
                         </span>
                         <Speak text={word} size={14} />
                       </li>
@@ -309,20 +326,20 @@ export default async function CoursePage({
                 </div>
               )}
               <div className="mt-4 flex flex-wrap gap-2">
-                <ButtonLink href="/course?next=1">Start the next one now</ButtonLink>
+                <ButtonLink href="/course?next=1">{t("Start the next one now")}</ButtonLink>
                 <ButtonLink href="/" variant="primary">
-                  Back to Today <ArrowRight size={15} aria-hidden />
+                  {t("Back to Today")} <ArrowRight size={15} aria-hidden />
                 </ButtonLink>
               </div>
             </Card>
           </Lettered>
 
-          <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} />
+          <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} locale={locale} />
 
           <Card>
-            <SectionTitle hint={`${reading.daysDone} of ${total}`}>Where you are</SectionTitle>
+            <SectionTitle hint={fill(t("{done} of {total}"), { done: reading.daysDone, total })}>{t("Where you are")}</SectionTitle>
             <div className="mt-3">
-              <Meter pct={Math.round((reading.daysDone / total) * 100)} label={programme.subtitle} />
+              <Meter pct={Math.round((reading.daysDone / total) * 100)} label={t(programme.subtitle)} />
             </div>
           </Card>
         </Stack>
@@ -341,12 +358,12 @@ export default async function CoursePage({
     <Page
       eyebrow={
         <span lang={uiWantsEnglish(level) ? undefined : "et"}>
-          {programme.id.toUpperCase()}, {uiText(level, programme.title, programme.subtitle)}
+          {programme.id.toUpperCase()}, {ui(programme.title, programme.subtitle)}
         </span>
       }
-      title={uiText(level, day.title, day.subtitle)}
+      title={ui(day.title, day.subtitle)}
       titleLang={uiWantsEnglish(level) ? undefined : "et"}
-      lead={uiWantsEnglish(level) ? undefined : day.subtitle}
+      lead={uiWantsEnglish(level) ? undefined : t(day.subtitle)}
     >
       <Stack>
         {/*
@@ -356,7 +373,7 @@ export default async function CoursePage({
           of the part they are about to leave. Nothing at all here for a steady
           learner, which is nearly everybody nearly always.
         */}
-        <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} />
+        <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} locale={locale} />
 
         <Card tone="night" className="md:p-9">
           {/*
@@ -372,10 +389,10 @@ export default async function CoursePage({
           */}
           <SectionTitle
             hint={day.part.of > 1
-              ? `Day ${day.index} of ${total}, part ${day.part.n} of ${day.part.of}`
-              : `Day ${day.index} of ${total}`}
+              ? fill(t("Day {day} of {total}, part {n} of {of}"), { day: day.index, total, n: day.part.n, of: day.part.of })
+              : fill(t("Day {day} of {days}"), { day: day.index, days: total })}
           >
-            {day.part.of > 1 ? "By the end of this unit" : "By the end of today's module"}
+            {day.part.of > 1 ? t("By the end of this unit") : t("By the end of today's module")}
           </SectionTitle>
           {/*
             THE UNIT'S OWN CLAIM, AND WHICH PART OF IT TONIGHT IS.
@@ -388,7 +405,7 @@ export default async function CoursePage({
             person did not write.
           */}
           <p className="font-display mt-2 text-2xl font-bold leading-snug md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-            {day.canDo}
+            {t(day.canDo)}
           </p>
           {/* Three figures on one line, set as type rather than three boxes:
               three tiles broke onto two rows on a phone, one alone under two,
@@ -397,22 +414,27 @@ export default async function CoursePage({
             {[
               // An evening of words met before says so rather than "0 new words".
               newWordsIn(day) > 0
-                ? { value: String(newWordsIn(day)), label: newWordsIn(day) === 1 ? "new word" : "new words" }
-                : { value: String(day.words.length), label: "words again" },
-              { value: standing.complete ? "0m" : `${standing.minutesLeft}m`, label: "left" },
-              { value: `${standing.pct}%`, label: "done" },
+                ? { value: String(newWordsIn(day)), label: nounOnly(locale, newWordsIn(day), "new word", newWordsIn(day) === 1 ? "new word" : "new words") }
+                : { value: String(day.words.length), label: locale === "en" ? "words again" : fill(t("{words} again"), { words: nounOnly(locale, day.words.length, "word", "words") }) },
+              // The unit is set small beside the number off English: "14 мин" at
+              // display size is wider than a third of a phone, and the number is
+              // the figure while the unit only says what it counts.
+              locale === "en"
+                ? { value: standing.complete ? t("0m") : fill(t("{minutes}m"), { minutes: standing.minutesLeft }), label: t("left") }
+                : { value: String(standing.complete ? 0 : standing.minutesLeft), unit: t("min"), label: t("left") },
+              { value: `${standing.pct}%`, label: t("done") },
             ].map((figure) => (
-              <div key={figure.label} className="flex flex-col-reverse items-center justify-end gap-1.5 px-2" style={{ borderColor: "rgb(255 255 255 / 0.12)" }}>
+              <div key={figure.label} className="flex flex-col-reverse items-center justify-end gap-1.5 px-1" style={{ borderColor: "rgb(255 255 255 / 0.12)" }}>
                 <dt className="text-sm" style={{ color: "var(--ink-2)" }}>{figure.label}</dt>
-                <dd data-figure className="tnum font-display whitespace-nowrap text-3xl sm:text-4xl font-bold leading-none" style={{ color: "var(--ink)" }}>{figure.value}</dd>
+                <dd data-figure className="tnum font-display whitespace-nowrap text-3xl sm:text-4xl font-bold leading-none" style={{ color: "var(--ink)" }}>{figure.value}{"unit" in figure && figure.unit ? <span className="text-base font-semibold"> {figure.unit}</span> : null}</dd>
               </div>
             ))}
           </dl>
         </Card>
 
         <div>
-          <SectionTitle hint={unit ? uiText(level, unit.title, unit.subtitle) : undefined}>
-            Today&rsquo;s words
+          <SectionTitle hint={unit ? ui(unit.title, unit.subtitle) : undefined}>
+            {t("Today’s words")}
           </SectionTitle>
           {/*
             Printed rather than hidden, because seeing the eight at the start is
@@ -431,18 +453,18 @@ export default async function CoursePage({
           </ul>
           {missing.length > 0 && missing.length < day.words.length && (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-              A few of these aren&apos;t in your deck yet. The first step adds them.
+              {t("A few of these aren't in your deck yet. The first step adds them.")}
             </p>
           )}
         </div>
 
         <div>
-          <SectionTitle hint={`${day.minutes} min`}>What you do today</SectionTitle>
+          <SectionTitle hint={fill(t("{minutes} min"), { minutes: day.minutes })}>{t("What you do today")}</SectionTitle>
           <div className="mt-2">
             <StepList
               programmeId={programme.id}
               dayId={day.id}
-              steps={day.steps}
+              steps={stepsIn(day, locale)}
               done={done}
               closing={closing}
             />
@@ -456,16 +478,14 @@ export default async function CoursePage({
           is worth knowing and it is not worth the room, which is the rule
           `components/Explain.tsx` exists for.
         */}
-        <Explain label="How a step gets ticked">
-          Meeting the words and the review at the end tick themselves off as you answer. The
-          others you tick yourself, because we can&apos;t tell which exercise an answer came
-          from, and we&apos;d rather admit that than pretend we were watching.
+        <Explain label={t("How a step gets checked off")}>
+          {t("Meeting the words and the review at the end check themselves off as you answer. The others you check off yourself, because we can't tell which exercise an answer came from, and we'd rather admit that than pretend we were watching.")}
         </Explain>
 
         <Card>
-          <SectionTitle hint={`${reading.daysDone} of ${total} evenings`}>This part</SectionTitle>
+          <SectionTitle hint={fill(t("{done} of {total} evenings"), { done: reading.daysDone, total })}>{t("This part")}</SectionTitle>
           <div className="mt-3">
-            <Meter pct={Math.round((reading.daysDone / total) * 100)} label={programme.subtitle} />
+            <Meter pct={Math.round((reading.daysDone / total) * 100)} label={t(programme.subtitle)} />
           </div>
           {/*
             ONE ROW PER UNIT, WITH A DOT PER EVENING. A unit taught over five
@@ -512,13 +532,13 @@ export default async function CoursePage({
                         lang={uiWantsEnglish(level) ? undefined : "et"}
                         style={{ color: state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}
                       >
-                        {uiText(level, first.title, first.subtitle)}
+                        {ui(first.title, first.subtitle)}
                       </span>
-                      {state === "now" && <Chip tone="accent">Today</Chip>}
+                      {state === "now" && <Chip tone="accent">{t("Today")}</Chip>}
                     </span>
                   </div>
                   {!uiWantsEnglish(level) && (
-                    <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>{first.subtitle}</span>
+                    <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>{t(first.subtitle)}</span>
                   )}
                   {/* Every item carries this line, one evening or several, so the
                       list reads as relatives: a unit of one evening used to have
@@ -530,7 +550,9 @@ export default async function CoursePage({
                           never the words under the strip, and nothing is held
                           to one line past the card's edge. */}
                       <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                        {run.length > 1 ? `evenings ${first.index} to ${last.index}` : `evening ${first.index}`}
+                        {run.length > 1
+                          ? fill(t("evenings {from} to {to}"), { from: first.index, to: last.index })
+                          : fill(t("evening {n}"), { n: first.index })}
                       </span>
                       <span aria-hidden className="flex shrink-0 items-center gap-1">
                         {run.map((d) => (
@@ -555,16 +577,18 @@ export default async function CoursePage({
               so they are one card: the part in detail and the whole climb as a
               strip under it, rather than two cards of the same answer. */}
           <div className="mt-5 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>The whole course, {PROGRAMMES.length} parts</p>
-            <LadderBody here={programme.id} learnerLevel={level} />
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{fill(t("The whole course, {parts}"), { parts: partsIn(locale, PROGRAMMES.length) })}</p>
+            <LadderBody here={programme.id} learnerLevel={level} locale={locale} />
           </div>
         </Card>
 
         {/* Everything else is in the rail already; what is worth one line is
             that this is optional and where to switch it off. */}
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          This is the easy way in, not the only one.{" "}
-          <Link href="/settings" className="underline">Turn it off</Link> whenever you&apos;d rather choose for yourself.
+          {t("This is the easy way in, not the only one.")}{" "}
+          {locale === "en"
+            ? <><Link href="/settings" className="underline">Turn it off</Link> whenever you&apos;d rather choose for yourself.</>
+            : <Linked template={t("{link} whenever you'd rather choose for yourself.")} href="/settings" label={t("Turn it off")} />}
         </p>
       </Stack>
     </Page>
@@ -580,17 +604,18 @@ export default async function CoursePage({
  * rather than listed flat, because five rows of "A1.1, A1.2" is the shape
  * somebody already has in their head from a language school.
  */
-function Ladder({ learnerLevel }: { learnerLevel: Level }) {
+function Ladder({ learnerLevel, locale }: { learnerLevel: Level; locale: Locale }) {
   return (
     <Card>
-      <SectionTitle hint={`${PROGRAMMES.length} parts`}>The whole course</SectionTitle>
-      <LadderBody learnerLevel={learnerLevel} />
+      <SectionTitle hint={partsIn(locale, PROGRAMMES.length)}>{tr(locale, "The whole course")}</SectionTitle>
+      <LadderBody learnerLevel={learnerLevel} locale={locale} />
     </Card>
   );
 }
 
 /** The strip of parts and the list of them on a press, with no card of its own. */
-function LadderBody({ here, learnerLevel }: { here?: string; learnerLevel: Level }) {
+function LadderBody({ here, learnerLevel, locale }: { here?: string; learnerLevel: Level; locale: Locale }) {
+  const t = (english: string) => tr(locale, english);
   const groupLevels = [...new Set(PROGRAMMES.map((p) => p.level))];
   const wantsEnglish = uiWantsEnglish(learnerLevel);
   return (
@@ -627,7 +652,7 @@ function LadderBody({ here, learnerLevel }: { here?: string; learnerLevel: Level
         ))}
       </div>
       <details className="explain mt-3">
-        <summary>Every part, by name</summary>
+        <summary>{t("Every part, by name")}</summary>
       <div className="mt-3 flex flex-col gap-4">
         {groupLevels.map((groupLevel) => (
           <div key={groupLevel}>
@@ -647,12 +672,12 @@ function LadderBody({ here, learnerLevel }: { here?: string; learnerLevel: Level
                   </span>
                   <span className="flex min-w-0 flex-wrap items-baseline gap-x-2">
                     <span data-course-title lang={wantsEnglish ? undefined : "et"} style={{ color: "var(--ink)" }}>
-                      {uiText(learnerLevel, p.title, p.subtitle)}
+                      {uiText(learnerLevel, p.title, t(p.subtitle))}
                     </span>
                     <span style={{ color: "var(--ink-3)" }}>
-                      {p.days.length} evenings
+                      {eveningsIn(locale, p.days.length)}
                     </span>
-                    {p.id === here && <Chip tone="accent">You are here</Chip>}
+                    {p.id === here && <Chip tone="accent">{t("You are here")}</Chip>}
                   </span>
                 </li>
               ))}
@@ -694,18 +719,19 @@ function courseRuns<T extends { title: string; part: { n: number; of: number } }
  * already mean on every marked answer in the app, and the heading says it in
  * words as well, since a hue is never the only thing carrying a distinction.
  */
-function CourseFit({ offer, tilt, snoozed, effects }: {
+function CourseFit({ offer, tilt, snoozed, effects, locale }: {
   offer: AdaptOffer | null;
   tilt: Tilt;
   snoozed: boolean;
   effects: LeanEffects;
+  locale: Locale;
 }) {
   if (offer) {
-    const text = offerParts(offer, effects);
+    const text = offerParts(offer, effects, locale);
     return (
       <Card tone={offer.reading.kind === "struggling" ? "butter" : "sky"}>
         <div data-course-fit={offer.reading.kind}>
-          <SectionTitle hint="based on your last two weeks">{offerTitle(offer)}</SectionTitle>
+          <SectionTitle hint={tr(locale, "based on your last two weeks")}>{offerTitle(offer, locale)}</SectionTitle>
           <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {text.lead}
           </p>
@@ -720,14 +746,14 @@ function CourseFit({ offer, tilt, snoozed, effects }: {
           <div className="mt-4">
             <CourseMove
               kind={offer.move?.kind ?? null}
-              label={offer.move ? moveLabel(offer.move) : null}
+              label={offer.move ? moveLabel(offer.move, locale) : null}
             />
           </div>
         </div>
       </Card>
     );
   }
-  const lean = snoozed ? leanSentence(tilt, effects) : "";
+  const lean = snoozed ? leanSentence(tilt, effects, locale) : "";
   if (lean) {
     return (
       <p className="text-sm" data-course-fit="lean" style={{ color: "var(--ink-2)" }}>
@@ -736,4 +762,35 @@ function CourseFit({ offer, tilt, snoozed, effects }: {
     );
   }
   return null;
+}
+
+/** "12 evenings", in the reader's own plural. English keeps the line it always printed. */
+function eveningsIn(locale: Locale, n: number): string {
+  return locale === "en" ? `${n} evenings` : countOf(locale, n, "evening");
+}
+
+/** "18 parts", the same way. */
+function partsIn(locale: Locale, n: number): string {
+  return locale === "en" ? `${n} parts` : countOf(locale, n, "part");
+}
+
+/**
+ * The noun of a count whose number is set apart in large type, in the form
+ * that number takes: "5" over "new words", or over «новых слов».
+ */
+function nounOnly(locale: Locale, n: number, noun: string, english: string): string {
+  if (locale === "en") return english;
+  return countOf(locale, n, noun).replace(/^\d+\s/, "");
+}
+
+/** A sentence with one link in it, wherever the reader's language puts the link. */
+function Linked({ template, href, label }: { template: string; href: string; label: string }) {
+  const [before, after = ""] = template.split(/\{\w+\}/);
+  return (
+    <>
+      {before}
+      <Link href={href} className="underline">{label}</Link>
+      {after}
+    </>
+  );
 }

@@ -1,4 +1,4 @@
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { meaningPrefsFrom } from "@/lib/collections/glossLanguage";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { nextCardLine } from "@/lib/time/day";
 import { prisma } from "@/lib/db";
@@ -24,8 +24,12 @@ import {
 } from "@/lib/srs/reviewQueue";
 import { include, withChoices, type CardRow } from "./cards";
 import { firstParams } from "@/lib/ux/queryParam";
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Review" };
+export async function generateMetadata() {
+  return { title: tr(await localeFor(await requireUserId()), "Review") };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -103,16 +107,19 @@ export default async function ReviewPage({
   // beside the deck reads below rather than in front of them. On a hosted
   // database that is a round trip off the daily path.
   const settingsPromise = readSettings(ownerId, [
-    SETTING_KEYS.reviewMode, SETTING_KEYS.glossLanguage,
+    SETTING_KEYS.reviewMode, SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso,
   ]);
   const modeChosen = async () => reviewModeFrom((await settingsPromise)[SETTING_KEYS.reviewMode]);
   /*
-    Which language a first meeting gives the meaning in. One read for the whole
-    render: `readSettings` is memoised per request, so asking for both keys here
-    costs the same round trip the review mode already made.
+    Which language a meaning leads in, on every card rather than on the first
+    meeting alone, and what follows it. One read for the whole render:
+    `readSettings` is memoised per request, so asking for these keys here costs
+    the same round trip the review mode already made.
   */
-  const glossChosen = async () =>
-    glossLanguageFrom((await settingsPromise)[SETTING_KEYS.glossLanguage]);
+  const glossChosen = async () => {
+    const settings = await settingsPromise;
+    return meaningPrefsFrom(settings[SETTING_KEYS.glossLanguage], settings[SETTING_KEYS.glossAlso]);
+  };
 
 
   // A drill ignores scheduling: the point is to attack one weakness — a case the
@@ -407,7 +414,7 @@ export default async function ReviewPage({
         cards={cards}
         totalCards={totalCards}
         mode={mode}
-        nextDue={next && clock ? nextCardLine(next.due, now, clock) : null}
+        nextDue={next && clock ? nextCardLine(next.due, now, clock, await localeFor(ownerId)) : null}
         waitingOnCourse={unseenAnywhere > 0}
       />
     </BeforeYouStart>

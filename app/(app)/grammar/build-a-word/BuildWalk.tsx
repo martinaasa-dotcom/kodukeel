@@ -12,7 +12,7 @@ import { Card, KeyCap, Note, SectionTitle, Stack } from "@/components/ui";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { caseByKey } from "@/lib/estonian/cases";
 import { CASE_GROUPS, caseReference } from "@/lib/estonian/grammar";
-import { sayLine } from "@/lib/estonian/sayIt";
+import { sayPhrase } from "@/lib/estonian/sayIt";
 import type { CaseWalk, WalkForm, WalkSentence, WalkWord } from "@/lib/progress/caseWalk";
 import { endingOptions } from "@/lib/questions/caseEndings";
 import { rng, seedFrom } from "@/lib/random/seeded";
@@ -20,6 +20,9 @@ import { shuffle } from "@/lib/random/shuffle";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { FitText } from "@/components/FitText";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/reference/fillNodes";
 
 /**
  * THE CASE SYSTEM, WALKED THROUGH ONCE, ON A WORD THE READER PICKS.
@@ -58,6 +61,7 @@ export function BuildWalk({ walk, canTranslate }: {
   /** Whether this deployment has a model to ask a sentence's English of. */
   canTranslate: boolean;
 }) {
+  const t = useT();
   const [wordAt, setWordAt] = useState(0);
   const [act, setAct] = useState(0);
   /*
@@ -118,7 +122,7 @@ export function BuildWalk({ walk, canTranslate }: {
         five are the awkward ones on purpose: see lib/collections/demoWords.ts.
       */}
       <Card>
-        <ChoiceGroup label="Pick a word to build" select="one">
+        <ChoiceGroup label={t("Pick a word to build")} select="one">
           {walk.words.map((w, n) => (
             <ChoiceChip key={w.lemma} selected={n === wordAt} onSelect={() => setWordAt(n)}>
               <span lang="et">{w.lemma}</span>
@@ -152,9 +156,9 @@ export function BuildWalk({ walk, canTranslate }: {
           style={{ color: "var(--ink)" }}
         >
           <span className="label-xs mb-1 block" style={{ color: "var(--accent-deep)" }}>
-            Step {act + 1} of {ACTS.length}
+            {fill(t("Step {n} of {total}"), { n: act + 1, total: ACTS.length })}
           </span>
-          {here.title}
+          {t(here.title)}
         </h2>
       </div>
 
@@ -215,11 +219,12 @@ function ActRail({ act, furthest, onGo }: {
   furthest: number;
   onGo: (n: number) => void;
 }) {
+  const t = useT();
   // Three across by the walk's own width rather than the window's: at 768 the
   // window said three and each button held 85px, which broke `raamatut`.
   return (
     <div className="@container">
-      <ChoiceGroup ariaLabel="Which part to read" select="one" className="grid gap-2 @lg:grid-cols-3">
+      <ChoiceGroup ariaLabel={t("Which part to read")} select="one" className="grid gap-2 @lg:grid-cols-3">
         {ACTS.map((a, n) => {
           const on = n === act;
           // Been past rather than merely visited: the part you are standing in
@@ -255,9 +260,9 @@ function ActRail({ act, furthest, onGo }: {
                 >
                   {done ? <Check size={13} strokeWidth={3} /> : n + 1}
                 </span>
-                <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{a.title}</span>
+                <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{t(a.title)}</span>
               </span>
-              <span className="text-xs leading-snug" style={{ color: "var(--ink-3)" }}>{a.hint}</span>
+              <span className="text-xs leading-snug" style={{ color: "var(--ink-3)" }}>{t(a.hint)}</span>
             </button>
           );
         })}
@@ -283,6 +288,7 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
   canTranslate: boolean;
   onNext: () => void;
 }) {
+  const t = useT();
   const [at, setAt] = useState(1);
   const shown = word.principal[at] ?? word.principal[0];
 
@@ -290,8 +296,7 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
     <Stack>
       <Card tone="accent">
         <p className="text-base leading-relaxed" style={{ color: "var(--ink)" }}>
-          Every Estonian word has three forms you learn. Not fourteen, three. The rest you build from
-          the second one, and that&apos;s the whole trick.
+          {t("Every Estonian word has three forms you learn. Not fourteen, three. The rest you build from the second one, and that's the whole trick.")}
         </p>
       </Card>
 
@@ -303,7 +308,7 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
         `components/Choice.tsx` makes at the top of its own file.
       */}
       <div className="@container">
-        <ChoiceGroup ariaLabel="Which of the three to explain" select="one" className="grid gap-2 @lg:grid-cols-3">
+        <ChoiceGroup ariaLabel={t("Which of the three to explain")} select="one" className="grid gap-2 @lg:grid-cols-3">
           {word.principal.map((form, n) => {
             const ref = caseReference(form.key);
             const isStem = form.value === word.genitive;
@@ -332,7 +337,7 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
                 </span>
                 {isStem && (
                   <span className="text-2xs font-semibold" style={{ color: "var(--accent-deep)" }}>
-                    the one the endings go on
+                    {t("the one the endings go on")}
                   </span>
                 )}
               </button>
@@ -360,13 +365,12 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
       )}
 
       <Note tone="neutral">
-        No rule gives you these three, so each word&apos;s three come straight from the dictionary.
-        We never make one up.
+        {t("No rule gives you these three, so each word's three come straight from the dictionary. We never make one up.")}
       </Note>
 
       <div className="flex flex-wrap items-center justify-end gap-3">
         <Button variant="primary" onClick={onNext}>
-          Now the other eleven <ArrowRight size={15} aria-hidden />
+          {t("Now the other eleven")} <ArrowRight size={15} aria-hidden />
         </Button>
       </div>
     </Stack>
@@ -395,6 +399,7 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
  * front of it rather than a replacement for it.
  */
 function Reading({ of }: { of: WalkForm }) {
+  const t = useT();
   /*
     AND WHERE THERE IS NO READING BECAUSE NOBODY SAYS THE FORM, THAT IS THE
     SENTENCE, RATHER THAN A BLANK.
@@ -416,7 +421,7 @@ function Reading({ of }: { of: WalkForm }) {
   if (of.unsaid) {
     return (
       <p className="mt-3 text-base" data-unsaid={of.unsaid} style={{ color: "var(--ink-2)" }}>
-        <span className="font-bold" style={{ color: "var(--ink)" }}>Estonians don&apos;t say this one.</span>{" "}
+        <span className="font-bold" style={{ color: "var(--ink)" }}>{t("Estonians don't say this one.")}</span>{" "}
         {/*
           "a person" only where the word is one. The row fires for a `-maa`
           word too, which is a country rather than somebody, and the first
@@ -424,8 +429,12 @@ function Reading({ of }: { of: WalkForm }) {
           one commit earlier, committed inside the fix for it. What is left
           names no class, so it stays true whatever the reason turns out to be.
         */}
-        For {of.unsaid === "person" ? "a person" : "this word"}, they use the endings under{" "}
-        “On top” instead.
+        {fill(
+          of.unsaid === "person"
+            ? t("For a person, they use the endings under “{group}” instead.")
+            : t("For this word, they use the endings under “{group}” instead."),
+          { group: t("On top") },
+        )}
       </p>
     );
   }
@@ -435,7 +444,7 @@ function Reading({ of }: { of: WalkForm }) {
       className="mt-3 flex flex-wrap items-baseline gap-x-2"
       data-reading={of.reading}
     >
-      <span className="text-sm" style={{ color: "var(--ink-3)" }}>which means</span>
+      <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("which means")}</span>
       <span className="text-xl font-bold" style={{ color: "var(--ink)" }}>
         “{of.reading}”
       </span>
@@ -450,6 +459,7 @@ function FormPanel({ word, form, sentence, canTranslate }: {
   sentence: WalkSentence | null;
   canTranslate: boolean;
 }) {
+  const t = useT();
   const ref = caseReference(form.key);
   if (!ref) return null;
 
@@ -464,18 +474,18 @@ function FormPanel({ word, form, sentence, canTranslate }: {
             / {form.alsoRight}
           </span>
         )}
-        <Speak text={form.value} label={`Hear ${form.value}`} />
+        <Speak text={form.value} label={fill(t("Hear {word}"), { word: form.value })} />
         <span className="ml-auto text-md font-bold" style={{ color: "var(--accent-deep)" }}>
-          {ref.plain}
+          {t(ref.plain)}
         </span>
       </div>
       <Reading of={form} />
       <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {ref.summary}
+        {t(ref.summary)}
       </p>
       {ref.englishHook && (
         <p className="mt-1.5 max-w-[62ch] text-sm" style={{ color: "var(--ink-3)" }}>
-          In English: {ref.englishHook}
+          {fill(t("In English: {hook}"), { hook: t(ref.englishHook) })}
         </p>
       )}
       {/*
@@ -501,6 +511,7 @@ function FormPanel({ word, form, sentence, canTranslate }: {
  * and the sentence is otherwise printed as recorded.
  */
 function Attested({ sentence, lemma, canTranslate }: { sentence: WalkSentence; lemma: string; canTranslate: boolean }) {
+  const t = useT();
   const borrowed = sentence.lemma && sentence.lemma !== lemma ? sentence.lemma : null;
   return (
     <div className="mt-4 rounded-[var(--r)] p-3.5" style={{ background: "var(--raised)" }}>
@@ -517,7 +528,7 @@ function Attested({ sentence, lemma, canTranslate }: { sentence: WalkSentence; l
       */}
       {borrowed && (
         <p className="mb-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-          The same case, on a different word:
+          {t("The same case, on a different word:")}
         </p>
       )}
       {/*
@@ -537,8 +548,11 @@ function Attested({ sentence, lemma, canTranslate }: { sentence: WalkSentence; l
       />
       <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
         {borrowed
-          ? <><span lang="et">{borrowed}</span>{sentence.translation ? `, ${sentence.translation}` : ""}, recorded in Ekilex.</>
-          : <>Recorded against this word in Ekilex.</>}
+          ? fillNodes(
+            sentence.translation ? t("{word}, {meaning}, recorded in Ekilex.") : t("{word}, recorded in Ekilex."),
+            { word: <span lang="et">{borrowed}</span>, meaning: sentence.translation },
+          )
+          : t("Recorded against this word in Ekilex.")}
       </p>
     </div>
   );
@@ -567,6 +581,7 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
   canTranslate: boolean;
   onNext: () => void;
 }) {
+  const t = useT();
   const [at, setAt] = useState(0);
   const forms = word.derived;
   const form = forms[at] ?? forms[0];
@@ -612,7 +627,7 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
     <Stack>
       <div className="case-explorer flex flex-col gap-4">
         <Card tone="accent">
-          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>The form everything is built on</p>
+          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>{t("The form everything is built on")}</p>
           {/*
             THE THREE PIECES CARRY WHAT THEY ARE, RATHER THAN WHERE THEY SIT.
 
@@ -643,7 +658,7 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
                 sisseütlev tuppa" read out with the operators hidden is three
                 words with no arithmetic in them. */}
             <span className="text-2xl" style={{ color: "var(--ink-3)" }} aria-hidden>+</span>
-            <span className="sr-only">plus</span>
+            <span className="sr-only">{t("plus")}</span>
             <span
               key={`${word.lemma}-${form.key}`}
               className="pop-in rounded-[var(--r)] px-4 py-2"
@@ -654,24 +669,23 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
               </span>
             </span>
             <span className="text-2xl" style={{ color: "var(--ink-3)" }} aria-hidden>=</span>
-            <span className="sr-only">makes</span>
+            <span className="sr-only">{t("makes")}</span>
             <span key={`${word.lemma}-${form.key}-out`} className="settle flex items-center gap-2">
               <FitText text={form.value} max="var(--text-3xl)" lang="et" className="font-bold" style={{ color: "var(--ink)" }}>
                 <WithEnding value={form.value} suffix={form.stored ? "" : form.suffix} />
               </FitText>
-              <Speak text={form.value} label={`Hear ${form.value}`} size={17} />
+              <Speak text={form.value} label={fill(t("Hear {word}"), { word: form.value })} size={17} />
             </span>
           </div>
           <Reading of={form} />
           {form.stored && (
             <p className="mt-3 max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
-              This one&apos;s the exception. No ending on the stem gives you this form, so it&apos;s
-              one to learn by heart.
+              {t("This one's the exception. No ending on the stem gives you this form, so it's one to learn by heart.")}
             </p>
           )}
           {form.alsoRight && (
             <p className="mt-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
-              <span lang="et">{form.alsoRight}</span> is right too. You learn them as a pair.
+              {fillNodes(t("{form} is right too. You learn them as a pair."), { form: <span lang="et">{form.alsoRight}</span> })}
             </p>
           )}
         </Card>
@@ -679,10 +693,10 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
         <div>
           <SectionTitle
             hint={<span className="inline-flex items-center gap-1.5" style={{ textTransform: "none" }}>
-              <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap> {ADVANCE_KEY_LABEL} steps through them
+              {fillNodes(t("{key} {name} steps through them"), { key: <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>, name: ADVANCE_KEY_LABEL })}
             </span>}
           >
-            Try an ending
+            {t("Try an ending")}
           </SectionTitle>
           {/*
             ONE GROUP ACROSS THE THREE HEADINGS, NOT ONE PER HEADING.
@@ -694,10 +708,10 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
             sit inside it and the reading stays "4 of 11".
           */}
           <div ref={endings}>
-            <ChoiceGroup ariaLabel="Which ending" select="one" className="flex flex-col gap-3">
+            <ChoiceGroup ariaLabel={t("Which ending")} select="one" className="flex flex-col gap-3">
               {CASE_GROUPS.filter((g) => g.keys.some((k) => !caseByKey(k)?.principal)).map((group) => (
                 <div key={group.title}>
-                  <p className="mb-1.5 text-xs" style={{ color: "var(--ink-3)" }}>{group.title}</p>
+                  <p className="mb-1.5 text-xs" style={{ color: "var(--ink-3)" }}>{t(group.title)}</p>
                   <div className="flex flex-wrap gap-2">
                     {group.keys.map((key) => {
                       const n = forms.findIndex((f) => f.key === key);
@@ -735,7 +749,7 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
             className="tap-tint mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
             style={{ color: "var(--accent-deep)" }}
           >
-            Next ending <ArrowRight size={14} aria-hidden />
+            {t("Next ending")} <ArrowRight size={14} aria-hidden />
           </button>
         </div>
       </div>
@@ -743,35 +757,35 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
       {ref && (
         <Card>
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="text-xl font-bold" style={{ color: "var(--accent-deep)" }}>{ref.plain}</span>
+            <span className="text-xl font-bold" style={{ color: "var(--accent-deep)" }}>{t(ref.plain)}</span>
             <span className="text-xs" style={{ color: "var(--ink-3)" }}>
               <CaseLabel label={{ et: ref.spec.et, question: form.question }} />
             </span>
           </div>
           <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {ref.summary}
+            {t(ref.summary)}
           </p>
           {ref.englishHook && (
             <p className="mt-1.5 max-w-[62ch] text-sm" style={{ color: "var(--ink-3)" }}>
-              In English: {ref.englishHook}
+              {fill(t("In English: {hook}"), { hook: t(ref.englishHook) })}
             </p>
           )}
           {sentence
             ? <Attested sentence={sentence} lemma={word.lemma} canTranslate={canTranslate} />
             : (
               <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-                No recorded sentence for this one yet.
+                {t("No recorded sentence for this one yet.")}
               </p>
             )}
           <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-            Watch out: {ref.watchOut}
+            {fill(t("Watch out: {note}"), { note: t(ref.watchOut) })}
           </p>
         </Card>
       )}
 
       <div className="flex flex-wrap items-center justify-end gap-3">
         <Button variant="primary" onClick={onNext}>
-          Try one yourself <ArrowRight size={15} aria-hidden />
+          {t("Try one yourself")} <ArrowRight size={15} aria-hidden />
         </Button>
       </div>
     </Stack>
@@ -802,7 +816,8 @@ function WithEnding({ value, suffix }: { value: string; suffix: string }) {
  * frame, which is the sentence this line carried before the reading existed.
  */
 function Means({ form, ref_ }: { form: WalkForm; ref_: ReturnType<typeof caseReference> }) {
-  return form.reading ? <>“{form.reading}”</> : <>{ref_?.plain}</>;
+  const t = useT();
+  return form.reading ? <>“{form.reading}”</> : <>{ref_ ? t(ref_.plain) : null}</>;
 }
 
 /** How many endings to ask about. Short enough to finish standing up. */
@@ -823,6 +838,7 @@ const QUESTIONS = 4;
  * form nobody says.
  */
 function YourTurn({ word }: { word: WalkWord }) {
+  const t = useT();
   const asks = useMemo(() => {
     const pool = word.derived.filter((f) => f.askable);
     return shuffle(pool, rng(seedFrom(word.lemma))).slice(0, QUESTIONS);
@@ -869,8 +885,7 @@ function YourTurn({ word }: { word: WalkWord }) {
     return (
       <Card>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          This word doesn&rsquo;t follow the rule, so there&apos;s nothing to build here. Pick another
-          word above to try the endings.
+          {t("This word doesn’t follow the rule, so there's nothing to build here. Pick another word above to try the endings.")}
         </p>
       </Card>
     );
@@ -880,7 +895,8 @@ function YourTurn({ word }: { word: WalkWord }) {
   const ref = caseReference(form.key);
   // The row's own reading where it has one, which knows `mees` is a person:
   // asked blind, the outside endings read "onto it, or to someone" for him.
-  const ask = form.reading ? `Say “${form.reading}”` : sayLine(form.key, word.translation);
+  const phrase = form.reading ?? sayPhrase(form.key, word.translation);
+  const ask = phrase ? fill(t("Say “{phrase}”"), { phrase }) : null;
 
   const next = () => {
     setPicked(null);
@@ -891,10 +907,10 @@ function YourTurn({ word }: { word: WalkWord }) {
     <Stack>
       <Card>
         <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-          Question {at + 1} of {asks.length}
+          {fill(t("Question {n} of {total}"), { n: at + 1, total: asks.length })}
         </p>
         <p className="mt-2 text-lg font-bold" style={{ color: "var(--ink)" }}>
-          {ask ?? `Which ending makes the ${ref?.spec.et}?`}
+          {ask ?? fill(t("Which ending makes the {case}?"), { case: ref?.spec.et ?? "" })}
         </p>
         <p className="mt-1 text-sm" data-ask={form.question} style={{ color: "var(--ink-3)" }}>
           <CaseQuestion question={form.question} inline />
@@ -912,7 +928,7 @@ function YourTurn({ word }: { word: WalkWord }) {
         </div>
 
         <ChoiceGroup
-          ariaLabel="Which ending"
+          ariaLabel={t("Which ending")}
           select="one"
           className="choice-grid mt-4"
         >
@@ -950,22 +966,25 @@ function YourTurn({ word }: { word: WalkWord }) {
         */}
         <p role="status" aria-live="polite" className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>
           {picked === null ? "" : picked === form.suffix ? (
-            <>
-              Yes. <span lang="et">{word.genitive}</span> plus <span lang="et">-{form.suffix}</span>{" "}
-              is <span lang="et">{form.value}</span>, which means <Means form={form} ref_={ref} />.
-            </>
+            fillNodes(t("Yes. {stem} plus {ending} is {form}, which means {means}."), {
+              stem: <span lang="et">{word.genitive}</span>,
+              ending: <span lang="et">-{form.suffix}</span>,
+              form: <span lang="et">{form.value}</span>,
+              means: <Means form={form} ref_={ref} />,
+            })
           ) : (
-            <>
-              Not that one. It&apos;s <span lang="et">{form.value}</span>, the stem with{" "}
-              <span lang="et">-{form.suffix}</span> on the end, which means <Means form={form} ref_={ref} />.
-            </>
+            fillNodes(t("Not that one. It's {form}, the stem with {ending} on the end, which means {means}."), {
+              form: <span lang="et">{form.value}</span>,
+              ending: <span lang="et">-{form.suffix}</span>,
+              means: <Means form={form} ref_={ref} />,
+            })
           )}
         </p>
 
         {picked !== null && !done && (
           <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
             <Button variant="primary" onClick={next}>
-              Next <ArrowRight size={15} aria-hidden />
+              {t("Next")} <ArrowRight size={15} aria-hidden />
             </Button>
           </div>
         )}
@@ -984,15 +1003,14 @@ function YourTurn({ word }: { word: WalkWord }) {
           */}
           <Card>
             <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-              {right} of {asks.length} endings right
+              {fill(t("{right} of {total} endings right"), { right, total: asks.length })}
             </p>
             <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              This was just to show you how it works, so none of it counts. The round below is the
-              one that does.
+              {t("This was just to show you how it works, so none of it counts. The round below is the one that does.")}
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
               <Button onClick={() => { setAt(0); setPicked(null); setRight(0); }}>
-                <RotateCcw size={15} aria-hidden /> Try again
+                <RotateCcw size={15} aria-hidden /> {t("Try again")}
               </Button>
             </div>
           </Card>

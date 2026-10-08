@@ -5,6 +5,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { Speak } from "@/components/Speak";
 import { splitOnForm } from "@/lib/dict/examples";
 import type { GlossedToken } from "@/lib/dict/glossed";
+import { useT } from "@/components/Locale";
 
 /**
  * AN ATTESTED SENTENCE SHOWN TO A LEARNER, WITH WHAT IT MEANS UNDER IT.
@@ -79,6 +80,7 @@ export function EstonianSentence({
   /** Told what came back, for a caller keeping its own copy of the sentence. */
   onTranslated?: (en: string) => void;
 }) {
+  const t = useT();
   return (
     <>
       {tokens ? (
@@ -110,7 +112,7 @@ export function EstonianSentence({
           </p>
           <Speak
             text={et}
-            label={speakLabel ?? "Hear the sentence"}
+            label={t(speakLabel ?? "Hear the sentence")}
             voice={speak?.voice}
             rate={speak?.rate}
             autoplay={speak?.autoplay}

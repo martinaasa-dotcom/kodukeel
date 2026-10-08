@@ -530,7 +530,7 @@ export const ASSUMPTIONS: readonly Assumption[] = [
     id: "peak",
     what: "Learners on the app at the same moment, at the busiest",
     value: 3,
-    unit: "per cent of the month's learners",
+    unit: "percent of the month's learners",
     why: "A class arrives together, so this is higher than it looks. It decides the database instance and nothing else.",
   },
   {

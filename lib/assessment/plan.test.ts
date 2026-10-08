@@ -472,27 +472,27 @@ describe("the distance in one sentence", () => {
 
   it("quotes the projection's own weeks and the date, and names the pace for what it is", () => {
     const p = project(base);
-    const line = distanceLine(p);
+    const line = distanceLine(p, "en");
     expect(line).toContain(`about ${p.weeksAbout} weeks away`);
     // One figure, never "45 to 61": a range reads as the app not knowing.
     expect(line).not.toMatch(/\d+ to \d+/);
     expect(line).toContain("52 weeks off");
     expect(line).toContain("the pace you said");
-    expect(distanceLine(project({ ...base, pace: { hoursPerWeek: 1, daysPerWeek: 3, weeks: 4, cardsPerMinute: 3 } })))
+    expect(distanceLine(project({ ...base, pace: { hoursPerWeek: 1, daysPerWeek: 3, weeks: 4, cardsPerMinute: 3 } }), "en"))
       .toContain("the pace you have kept");
-    expect(distanceLine(project({ ...base, pace: { hoursPerWeek: 0, daysPerWeek: 0, weeks: 4, cardsPerMinute: null } })))
+    expect(distanceLine(project({ ...base, pace: { hoursPerWeek: 0, daysPerWeek: 0, weeks: 4, cardsPerMinute: null } }), "en"))
       .toContain("nothing has been reviewed here lately");
   });
 
   it("says a different last sentence for every verdict, and each one is the verdict", () => {
     const lines = new Map<Verdict, string>();
-    lines.set("open", distanceLine(project({ ...base, weeksAvailable: null })));
-    lines.set("passed", distanceLine(project({ ...base, weeksAvailable: 0 })));
-    lines.set("short", distanceLine(project({ ...base, weeksAvailable: 10 })));
-    lines.set("tight", distanceLine(project({ ...base, minutesPerDay: 60, daysPerWeek: 7, weeksAvailable: 40 })));
-    lines.set("possible", distanceLine(project({ ...base, weeksAvailable: 30 })));
-    lines.set("comfortable", distanceLine(project({ ...base, minutesPerDay: 240, daysPerWeek: 7 })));
-    lines.set("arrived", distanceLine(project({ ...base, standing: at("B2") })));
+    lines.set("open", distanceLine(project({ ...base, weeksAvailable: null }), "en"));
+    lines.set("passed", distanceLine(project({ ...base, weeksAvailable: 0 }), "en"));
+    lines.set("short", distanceLine(project({ ...base, weeksAvailable: 10 }), "en"));
+    lines.set("tight", distanceLine(project({ ...base, minutesPerDay: 60, daysPerWeek: 7, weeksAvailable: 40 }), "en"));
+    lines.set("possible", distanceLine(project({ ...base, weeksAvailable: 30 }), "en"));
+    lines.set("comfortable", distanceLine(project({ ...base, minutesPerDay: 240, daysPerWeek: 7 }), "en"));
+    lines.set("arrived", distanceLine(project({ ...base, standing: at("B2") }), "en"));
     const seen = new Set(lines.values());
     expect(seen.size).toBe(lines.size);
     expect(lines.get("open")).toContain("No date is set");

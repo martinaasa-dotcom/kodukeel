@@ -41,7 +41,8 @@ export default function aConversationSaysHowItIsHeard({ check, code }: Invariant
     const src = code(SESSION);
     const branch = src.slice(src.indexOf("hidesLines(voiceMode)"));
     const speaker = /<Speak\b([\s\S]*?)\/>/.exec(branch)?.[1] ?? "";
-    assert.match(speaker, /\blabel="[^"]+"/, "the hidden line's speaker falls back to a label built from the words it is hiding");
+    // A written label, or the same label put through the translator: either way not the words it hides.
+    assert.match(speaker, /\blabel=(?:"[^"]+"|\{t\("[^"]+"\)\})/, "the hidden line's speaker falls back to a label built from the words it is hiding");
     assert.match(speaker, /\binsist\b/, "the hidden line's speaker waits for an autoplay setting the learner was never asked about here");
   });
 }

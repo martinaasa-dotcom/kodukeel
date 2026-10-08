@@ -1,5 +1,6 @@
 import { CASES } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
+import { say, sayEnglish, type Said } from "@/lib/copy/said";
 
 /**
  * What the learner is actually bad at.
@@ -36,6 +37,8 @@ export interface Finding {
   /** One sentence, written to be acted on. */
   headline: string;
   detail: string;
+  /** The same two sentences as templates, for a screen that prints them in the learner's language. */
+  said: { headline: Said; detail: Said };
   /** Accuracy within the difficult group, 0–100. */
   weakPct: number;
   /** Accuracy outside it, for the contrast that makes the finding meaningful. */
@@ -104,13 +107,21 @@ function gradationFindings(facts: ReviewFact[]): Finding[] {
     const strong = pct(plain.ok, plain.total);
     if (strong - weak < MIN_GAP_PCT) continue;
 
+    const said = {
+      headline: say("Your {case} slips when the word changes in the middle", { case: caseName(key) }),
+      detail: say(
+        "You get the {case} ({asks}) right {strong}% of the time when the word " +
+        "keeps its shape, but only {weak}% when it changes in the middle. So the ending isn't the " +
+        "problem, the change inside the word is. Practice astmevaheldus rather than the case.",
+        { case: caseName(key), strong, weak },
+        { asks: caseNameEn(key) },
+      ),
+    };
     findings.push({
       caseKey: key as CaseKey,
-      headline: `Your ${caseName(key)} slips when the word changes in the middle`,
-      detail:
-        `You get the ${caseName(key)} (${caseNameEn(key)}) right ${strong}% of the time when the word ` +
-        `keeps its shape, but only ${weak}% when it changes in the middle. So the ending isn't the ` +
-        `problem, the change inside the word is. Practise astmevaheldus rather than the case.`,
+      headline: sayEnglish(said.headline),
+      detail: sayEnglish(said.detail),
+      said,
       weakPct: weak,
       strongPct: strong,
       sample: grading.total + plain.total,
@@ -141,12 +152,20 @@ function caseFindings(facts: ReviewFact[]): Finding[] {
     const weak = pct(tally.ok, tally.total);
     if (overallPct - weak < MIN_GAP_PCT) continue;
 
+    const said = {
+      headline: say("The {case} is the case you find hardest", { case: caseName(key) }),
+      detail: say(
+        "You get the {case} ({asks}) right {weak}% of the time, against {overall}% " +
+        "for the rest. A short round on just this case would help most.",
+        { case: caseName(key), weak, overall: overallPct },
+        { asks: caseNameEn(key) },
+      ),
+    };
     findings.push({
       caseKey: key as CaseKey,
-      headline: `The ${caseName(key)} is the case you find hardest`,
-      detail:
-        `You get the ${caseName(key)} (${caseNameEn(key)}) right ${weak}% of the time, against ${overallPct}% ` +
-        `for the rest. A short round on just this case would help most.`,
+      headline: sayEnglish(said.headline),
+      detail: sayEnglish(said.detail),
+      said,
       weakPct: weak,
       strongPct: overallPct,
       sample: tally.total,
@@ -174,12 +193,19 @@ function pluralFindings(facts: ReviewFact[]): Finding[] {
   const strong = pct(regular.ok, regular.total);
   if (strong - weak < MIN_GAP_PCT) return [];
 
+  const said = {
+    headline: say("Plurals that break the pattern are tripping you up"),
+    detail: say(
+      "You get {strong}% right on words whose plural follows the pattern, but {weak}% on words with an " +
+      "omastav plural of their own. Those have to be learned by heart. No rule gets you there, for us or for you.",
+      { strong, weak },
+    ),
+  };
   return [{
     caseKey: null,
-    headline: "Plurals that break the pattern are tripping you up",
-    detail:
-      `You get ${strong}% right on words whose plural follows the pattern, but ${weak}% on words with an ` +
-      `omastav plural of their own. Those have to be learned by heart. No rule gets you there, for us or for you.`,
+    headline: sayEnglish(said.headline),
+    detail: sayEnglish(said.detail),
+    said,
     weakPct: weak,
     strongPct: strong,
     sample: irregular.total + regular.total,

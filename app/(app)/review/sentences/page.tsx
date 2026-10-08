@@ -1,3 +1,4 @@
+import { titleFor } from "@/lib/progress/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
@@ -16,7 +17,9 @@ import { BUILD_FROM, maySortWords } from "@/lib/collections/levels";
 import { lemmaFilter, sentenceWithin } from "@/lib/course/scope";
 import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 
-export const metadata = { title: "Sentences" };
+export async function generateMetadata() {
+  return titleFor("Sentences");
+}
 
 export const dynamic = "force-dynamic";
 

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, type CSSProperties } from "react";
 import { Button } from "@/components/Button";
+import { useLocale, useT } from "@/components/Locale";
 import { SceneVignette } from "./SceneVignette";
 import type { Setting } from "@/lib/scenes/scenery";
 
@@ -76,6 +77,8 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
   onDone: () => void;
 }) {
   const labelled = useId();
+  const locale = useLocale();
+  const t = useT();
   const carryOn = useRef<HTMLButtonElement>(null);
   /*
     Called once, whatever happens. The hold can finish while a press is in
@@ -126,6 +129,7 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
       role="dialog"
       aria-modal="true"
       aria-labelledby={labelled}
+      lang={locale}
       onClick={() => finish()}
       className="scene-veil fixed inset-0 z-[120] flex items-center justify-center px-6"
       style={{ background: "var(--ground)" }}
@@ -198,7 +202,7 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
         />
 
         <p className="scene-told label-xs" style={{ color: "var(--accent-deep)", "--told-at": 0 } as CSSProperties}>
-          A little later
+          {t("A little later")}
         </p>
 
         <p
@@ -210,7 +214,7 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
         </p>
 
         <p className="scene-place text-sm" style={{ color: "var(--ink-2)" }}>
-          The conversation picks up from here.
+          {t("The conversation picks up from here.")}
         </p>
 
         <span
@@ -226,7 +230,7 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
           by looking.
         */}
         <Button ref={carryOn} variant="primary" size="lg" onClick={() => finish()}>
-          Carry on
+          {t("Keep going")}
         </Button>
       </div>
     </div>

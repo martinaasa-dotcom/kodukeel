@@ -60,7 +60,7 @@ export const THEMES: readonly Theme[] = [
   },
   {
     id: "sugis",
-    reason: "Autumn: weather, nature and warm clothes",
+    reason: "Fall: weather, nature and warm clothes",
     from: [9, 16],
     to: [10, 31],
     units: ["loodus", "ilm", "riided"],

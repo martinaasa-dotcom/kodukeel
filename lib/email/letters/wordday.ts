@@ -28,8 +28,11 @@
 */
 import { wordCard } from "../art";
 import type { Block, Letter } from "../letter";
+import { sayer, type Locale } from "../say";
 
 export interface WorddayInput {
+  /** The language the letter is written in. The occasion arrives already in it. */
+  readonly locale: Locale;
   readonly origin: string;
   readonly word: {
     readonly lemma: string;
@@ -42,7 +45,8 @@ export interface WorddayInput {
 }
 
 export function worddayLetter(input: WorddayInput): Letter {
-  const { word } = input;
+  const { word, locale } = input;
+  const say = sayer(locale);
   const blocks: Block[] = [];
 
   blocks.push({
@@ -72,14 +76,15 @@ export function worddayLetter(input: WorddayInput): Letter {
   */
   blocks.push({
     t: "link",
-    label: `See ${word.lemma} in the dictionary`,
+    label: say("See {word} in the dictionary", { word: word.lemma }),
     href: `${input.origin}/dictionary?q=${encodeURIComponent(word.lemma)}`,
   });
 
   return {
     kind: "wordday",
+    locale,
     subject: `${word.lemma}: ${word.translation}`,
-    preheader: word.occasion ?? "One word for today. Nothing to do but enjoy it.",
+    preheader: word.occasion ?? say("One word for today. Nothing to do but enjoy it."),
     blocks,
   };
 }

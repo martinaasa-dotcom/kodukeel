@@ -166,7 +166,11 @@ const shown = () => page.locator("main").innerText();
   was green on a screen nobody had looked at. Folding the case is the
   difference between asking about the screen and asking about the stylesheet.
 */
-const shows = async (needle) => (await shown()).toLowerCase().includes(needle.toLowerCase());
+/* Either apostrophe: copy moved through the translation tables, which hold
+   the straight one, so a check pinned to the curly one fails on a screen that
+   says exactly the right thing. */
+const plainQuotes = (s) => s.replace(/[\u2018\u2019]/g, "'").toLowerCase();
+const shows = async (needle) => plainQuotes(await shown()).includes(plainQuotes(needle));
 
 // ── With no shelf named, the panel asks nothing about shelves ──────────────
 // The honest half of the gate, and the only check here that a learner's own

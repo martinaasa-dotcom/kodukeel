@@ -30,8 +30,11 @@
 */
 import { meter } from "../art";
 import type { Block, Letter } from "../letter";
+import { figured, sayer, type Locale } from "../say";
 
 export interface MilestoneInput {
+  /** The language the letter is written in. `level.arrival` arrives already in it. */
+  readonly locale: Locale;
   readonly origin: string;
   readonly level: {
     /** A1, A2 and so on. The thing being announced. */
@@ -51,10 +54,13 @@ export interface MilestoneInput {
 }
 
 export function milestoneLetter(input: MilestoneInput): Letter {
-  const { level } = input;
+  const { level, locale } = input;
+  const say = sayer(locale);
   const blocks: Block[] = [];
+  /* "493 words", always plural in English, which is how it always read. */
+  const words = figured(locale, level.words, "word", { always: true });
 
-  blocks.push({ t: "heading", text: `You've made it through ${level.key}.` });
+  blocks.push({ t: "heading", text: say("You've made it through {level}.", { level: level.key }) });
 
   /*
     THE CLAIM FIRST, AND IT IS THE UNIT'S OWN SENTENCE.
@@ -71,22 +77,27 @@ export function milestoneLetter(input: MilestoneInput): Letter {
   */
   blocks.push({
     t: "text",
-    text:
-      `That's ${level.words} words that are properly yours now. Each one came back days after you ` +
-      `met it, and you still knew it. So this letter is a little late: you did the work a while ` +
-      `ago, and it stuck.`,
+    text: say(
+      "That's {words} that are properly yours now. Each one came back days after you " +
+        "met it, and you still knew it. So this letter is a little late: you did the work a while " +
+        "ago, and it stuck.",
+      { words },
+    ),
   });
 
   blocks.push({
     t: "art",
     html: meter(input.pct),
-    alt: `About ${Math.round(input.pct)} percent of the way to ${input.target}.`,
+    alt: say("About {pct} percent of the way to {target}.", { pct: Math.round(input.pct), target: input.target }),
   });
 
   if (input.next) {
     blocks.push({
       t: "quiet",
-      text: `Next stop is ${input.next.level}, about ${input.next.wordsAway} words away.`,
+      text: say("Next stop is {level}, about {words} away.", {
+        level: input.next.level,
+        words: figured(locale, input.next.wordsAway, "word", { always: true }),
+      }),
     });
   } else {
     /*
@@ -96,16 +107,17 @@ export function milestoneLetter(input: MilestoneInput): Letter {
     */
     blocks.push({
       t: "quiet",
-      text: `That was the level you set out to reach. There are always more words, and the course keeps going as long as you do.`,
+      text: say("That was the level you set out to reach. There are always more words, and the course keeps going as long as you do."),
     });
   }
 
-  blocks.push({ t: "button", label: "Keep going", href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: say("Keep going"), href: `${input.origin}/course` });
 
   return {
     kind: "milestone",
-    subject: `You've made it through ${level.key}`,
-    preheader: `${level.words} words that are properly yours now. ${level.title}.`,
+    locale,
+    subject: say("You've made it through {level}", { level: level.key }),
+    preheader: say("{words} that are properly yours now. {title}.", { words, title: level.title }),
     blocks,
   };
 }

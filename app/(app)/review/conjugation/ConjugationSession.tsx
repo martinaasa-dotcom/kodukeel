@@ -1,5 +1,9 @@
 "use client";
 
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { answerNote } from "@/lib/copy/answerNote";
+import { rich } from "@/components/round/rich";
 import { createRef, useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, Repeat } from "lucide-react";
@@ -70,6 +74,8 @@ const GROUP: Record<Tense, "PRESENT" | "CONDITIONAL"> = { present: "PRESENT", co
  * it. The verdicts are what `checkAnswer` says and nothing else.
  */
 export function ConjugationSession({ questions: initialQuestions }: { questions: ConjugationQuestion[] }) {
+  const t = useT();
+  const locale = useLocale();
   const grade = useGrade();
   // Snapshotted once: gradeCard is a Server Action and the page re-renders
   // after every call with a freshly drawn round. See GovernmentSession.
@@ -236,7 +242,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     if (question) {
       look.record({
         of: question.cardId ?? question.lexemeId,
-        label: "Verb forms",
+        label: t("Verb forms"),
         question: `${question.lemma}, ${question.translation}`,
         answer: [question.given.value, ...question.blanks.map((b) => b.answer)].join(", "),
         note: [question.given.person, ...question.blanks.map((b) => b.person)].join(", "),
@@ -246,7 +252,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
       });
     }
     setIndex((i) => i + 1);
-  }, [question, look]);
+  }, [question, look, t]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -283,24 +289,24 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          That&rsquo;s the round done
+          {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           {tablesRight === questions.length
-            ? "Every table spotless. You've got the endings down. All that's left is meeting more verbs."
-            : "Here's the good news: the endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up."}
+            ? t("Every table spotless. You've got the endings down. All that's left is meeting more verbs.")
+            : t("Here's the good news: the endings are the same for every verb. What catches people out is the part they're stuck onto, so when a table goes wrong, look the verb up.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={`${tablesRight}/${questions.length}`} label="Tables" />
-          <Stat value={`${accuracy}%`} label="Forms right" />
-          <Stat value={`${minutes}m`} label="Time" />
+          <Stat value={`${tablesRight}/${questions.length}`} label={t("Tables")} />
+          <Stat value={`${accuracy}%`} label={t("Forms right")} />
+          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/conjugation">Another round</ButtonLink>
-          <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
+          <ButtonLink href="/review/conjugation">{t("Another round")}</ButtonLink>
+          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -311,7 +317,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
-      <h1 className="sr-only">Conjugation</h1>
+      <h1 className="sr-only">{t("Conjugation")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -322,11 +328,11 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={questions.length}
-            aria-label="Round progress"
+            aria-label={t("Round progress")}
           />
         </div>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {questions.length - index} left
+          {fill(t("{n} left"), { n: questions.length - index })}
         </span>
       </div>
 
@@ -338,7 +344,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent"><Repeat size={12} aria-hidden /> <span lang="et">{group.et}</span></Chip>
           {question.cefr && <Chip>{question.cefr}</Chip>}
-          {!question.inDeck && <Chip tone="good">new to you</Chip>}
+          {!question.inDeck && <Chip tone="good">{t("new to you")}</Chip>}
           {/* The corner of the card, which is where somebody looks for this
               the moment a word turns out to be worth keeping. */}
           <div className="ml-auto">
@@ -354,10 +360,10 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
             {question.shape === "match"
-              ? "We've filled in the first one for you. Put each of the other five next to its person."
+              ? t("We've filled in the first one for you. Put each of the other five next to its person.")
               : question.tense === "present"
-                ? "We've filled in the first one for you. Type the other five."
-                : "This time it's the \"would\" form, as in \"I would go\". Type the other five."}
+                ? t("We've filled in the first one for you. Type the other five.")
+                : t("This time it's the \"would\" form, as in \"I would go\". Type the other five.")}
           </p>
         </div>
 
@@ -391,8 +397,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
                           lang={typed[i] ? "et" : undefined}
                           className="choice-btn field w-full text-left text-lg"
                           aria-label={typed[i]
-                            ? `${blank.person}: ${typed[i]}. Press to put it back.`
-                            : `${blank.person}: nothing yet`}
+                            ? fill(t("{person}: {form}. Press to put it back."), { person: blank.person, form: typed[i] })
+                            : fill(t("{person}: nothing yet"), { person: blank.person })}
                           onClick={() => (typed[i] ? unplace(i) : undefined)}
                         >
                           {typed[i] ? <Ending stem={question.given.value} form={typed[i]!} /> : (
@@ -423,12 +429,12 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
                           </span>
                           <Speak text={blank.answer} size={13} />
                           {mark.verdict === "correct" ? (
-                            <Check size={15} aria-label="Right" style={{ color: VERDICT_INK.right }} />
+                            <Check size={15} aria-label={t("Right")} style={{ color: VERDICT_INK.right }} />
                           ) : (
                             <span className="text-xs" style={{ color: "var(--ink-3)" }}>
                               {typed[i]?.trim()
-                                ? <>You typed <span lang="et">{typed[i]?.trim()}</span>. {mark.verdict === "wrong" ? "" : mark.note}</>
-                                : question.shape === "match" ? "Nothing chosen." : "Nothing typed."}
+                                ? <>{rich(t("You typed {form}."), { form: <span lang="et">{typed[i]?.trim()}</span> })} {mark.verdict === "wrong" ? "" : answerNote(mark.note, locale)}</>
+                                : question.shape === "match" ? t("Nothing chosen.") : t("Nothing typed.")}
                             </span>
                           )}
                         </div>
@@ -463,7 +469,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           )}
           {!revealed && question.shape === "match" && (
             <div className="under-field pl-16">
-              <p className="sr-only" id="conjugation-bank">The forms to place</p>
+              <p className="sr-only" id="conjugation-bank">{t("The forms to place")}</p>
               <div className="flex flex-wrap gap-2" role="group" aria-labelledby="conjugation-bank">
                 {bank.map(({ slot, form }) => (
                   <button
@@ -472,7 +478,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
                     lang="et"
                     className="choice-btn rounded-full px-3 py-1.5 text-base"
                     disabled={spent.has(slot)}
-                    aria-label={spent.has(slot) ? `${form}, placed` : form}
+                    aria-label={spent.has(slot) ? fill(t("{letter}, placed"), { letter: form }) : form}
                     onClick={() => place(form)}
                   >
                     {form}
@@ -486,29 +492,29 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }} aria-live="polite">
           {!revealed ? (
             <Button variant="primary" onClick={check} disabled={question.shape === "match" && !typed.every(Boolean)}>
-              Check the table <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+              {t("Check the table")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <>
               {derivedOnly && (
                 <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-                  We worked these out from the regular endings, not from the dictionary.
+                  {t("We worked these out from the regular endings, not from the dictionary.")}
                 </p>
               )}
               <KeepWordChoice keeper={keeper} className="mt-4" />
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button variant="primary" onClick={next} autoFocus>
-                  Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                  {t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                 </Button>
                 {!question.inDeck && (
                   <>
                     {keeper.asking && (
-                      <Button variant="ghost" onClick={keeper.cancel}>Cancel</Button>
+                      <Button variant="ghost" onClick={keeper.cancel}>{t("Cancel")}</Button>
                     )}
                     <Button disabled={added === question.lexemeId || keeper.pending} onClick={keeper.press}>
                       {added === question.lexemeId
-                        ? "Added to your deck"
-                        : keeper.asking ? "Keep it" : "Add to my deck"}
+                        ? t("Added to your deck")
+                        : keeper.asking ? t("Keep it") : t("Add to my deck")}
                     </Button>
                   </>
                 )}
@@ -518,7 +524,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
                     categories={["MARKED_WRONG", "WRONG_FORM"]}
                     lemma={question.lemma}
                     trigger={`Conjugation of ${question.lemma}, ${group.et}. Expected ${question.blanks.map((b) => b.answer).join(", ")}.`}
-                    label="I think that was right"
+                    label={t("I think that was right")}
                   />
                 )}
               </div>
@@ -533,10 +539,10 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           {/* A tally of nought out of nought is not a score, it is noise
               under the first table, so the line opens on the instruction and
               the count arrives with the first table checked. */}
-          {index + (revealed ? 1 : 0) > 0 && <>{tablesRight} of {index + (revealed ? 1 : 0)} tables perfect, </>}
+          {index + (revealed ? 1 : 0) > 0 && <>{fill(t("{n} of {total} tables perfect,"), { n: tablesRight, total: index + (revealed ? 1 : 0) })} </>}
           {question.shape === "type"
-            ? <>{ADVANCE_KEY_LABEL} moves down the table</>
-            : index + (revealed ? 1 : 0) > 0 ? <>tap a form to place it</> : <>Tap a form to place it</>}
+            ? fill(t("{key} moves down the table"), { key: ADVANCE_KEY_LABEL })
+            : index + (revealed ? 1 : 0) > 0 ? t("tap a form to place it") : t("Tap a form to place it")}
         </span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>

@@ -5,6 +5,8 @@ import { ArrowLeft } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { SceneMotif } from "./SceneMotif";
 import { useModuleFocus } from "@/components/course/moduleFocus";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * The room a conversation happens in, and the website taken off the screen for
@@ -84,6 +86,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
      rather than a thing chosen off a catalogue, so the door back to the
      catalogue stands down. See components/course/ModuleScope.tsx. */
   const inModule = useModuleFocus() !== null;
+  const t = useT();
   const met = progress?.filter((one) => one.met).length ?? 0;
 
   return (
@@ -112,7 +115,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
           {inModule ? <span className="-ml-2 h-10 w-10 shrink-0" aria-hidden /> : (
             <Link
               href="/situations"
-              aria-label="Back to Situations"
+              aria-label={t("Back to Situations")}
               className="tap-tint -ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
               style={{ color: "var(--ink-2)" }}
             >
@@ -132,8 +135,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
               {title}
             </h1>
             <p className="truncate text-xs" style={{ color: "var(--ink-3)" }}>
-              {place}
-              {minutes ? `, about ${minutes} min` : ""}
+              {minutes ? fill(t("{place}, about {minutes} min"), { place, minutes }) : place}
             </p>
           </div>
 
@@ -147,7 +149,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
               has already had.
             */
             <div className="flex shrink-0 items-center gap-2">
-              <span className="sr-only">{met} of {progress.length} things done</span>
+              <span className="sr-only">{fill(t("{met} of {total} things done"), { met, total: progress.length })}</span>
               {/*
                 A COUNT ON A PHONE AND DOTS ON A DESKTOP, RATHER THAN BOTH.
 

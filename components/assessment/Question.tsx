@@ -15,6 +15,23 @@ import type { Given } from "@/lib/assessment/score";
 import { wordNote, type WordStatus } from "@/lib/estonian/dictation";
 import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCredit, verdictOfDictation } from "@/lib/ux/verdict";
 import { FitText } from "@/components/FitText";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+
+/**
+ * A written answer's note, in the reader's language. The marker in
+ * `lib/assessment/score.ts` writes it in English, on the server as well as
+ * here, so it is read back rather than rewritten: a note naming the word is
+ * matched against the two shapes the marker builds around it, and anything
+ * else is a fixed line the table answers for.
+ */
+function writeNote(note: string, lemma: string, t: (english: string) => string): string {
+  if (note === `That isn't a form of ${lemma}.`) return fill(t("That isn't a form of {word}."), { word: lemma });
+  if (note === `That's another form of ${lemma}, but not the one this sentence needs.`) {
+    return fill(t("That's another form of {word}, but not the one this sentence needs."), { word: lemma });
+  }
+  return t(note);
+}
 
 /**
  * One question, and its answer.
@@ -61,6 +78,7 @@ const WORD_TONE: Record<WordStatus, { className: string; title: string }> = {
  * sentence.
  */
 export function EstonianPrompt({ text }: { text: string }) {
+  const t = useT();
   const parts = text.split(BLANK);
   const size = text.includes(" ") ? "text-2xl" : "text-3xl";
   return (
@@ -72,7 +90,7 @@ export function EstonianPrompt({ text }: { text: string }) {
               className="mx-0.5 inline-block rounded-[var(--r-sm)] px-3 align-baseline"
               style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
             >
-              <span className="sr-only">blank</span>
+              <span className="sr-only">{t("blank")}</span>
               <span aria-hidden>&nbsp;&nbsp;&nbsp;</span>
             </span>
           )}
@@ -128,6 +146,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
   /** Called when the audio a heard question depends on cannot be produced. */
   onNoAudio: () => void;
 }) {
+  const t = useT();
   const [picked, setPicked] = useState<number | null>(null);
   const [played, setPlayed] = useState(!item.heard);
   const [silent, setSilent] = useState(false);
@@ -152,7 +171,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
 
   return (
     <div>
-      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.question}</p>
+      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(item.question)}</p>
 
       {item.heard ? (
         /*
@@ -164,7 +183,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
         <div className="mt-5 flex flex-wrap items-center gap-3" onClick={() => setPlayed(true)}>
           <Speak
             text={item.et}
-            label="Play the Estonian"
+            label={t("Play the Estonian")}
             size={26}
             className="flex h-16 w-16 items-center justify-center rounded-full"
             style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
@@ -173,14 +192,14 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
           <Speak
             text={item.et}
             slow
-            label="Play it slowly"
+            label={t("Play it slowly")}
             size={18}
             className="flex h-12 w-12 items-center justify-center rounded-full"
             style={{ background: "var(--raised)", color: "var(--ink-2)" }}
             onUnavailable={() => { setSilent(true); onNoAudio(); }}
           />
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            {played ? "Pick the meaning" : "Play it, then pick the meaning"}
+            {t(played ? "Pick the meaning" : "Play it, then pick the meaning")}
           </span>
         </div>
       ) : item.et ? (
@@ -190,8 +209,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
       {silent && (
         <div className="mt-4">
           <Note tone="sky">
-            We couldn&apos;t make the audio. That&apos;s our problem, not a mark against your
-            listening, so this section is left out rather than scored as zero.
+            {t("We couldn't make the audio. That's our problem, not a mark against your listening, so this section is left out rather than scored as zero.")}
           </Note>
         </div>
       )}
@@ -236,7 +254,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
         <div className="mt-3">
           <Button variant="ghost" disabled={!played} onClick={() => choose(-1)}>
             <KeyCap>0</KeyCap>
-            I don&apos;t know
+            {t("I don't know")}
           </Button>
         </div>
       )}
@@ -259,7 +277,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
       <div className={picked !== null ? "pop-in mt-5" : undefined} role="status">
         {picked !== null && (
         <>
-          <Chip tone={right ? "good" : "again"}>{right ? "Right" : picked === -1 ? "Not sure" : "Not this time"}</Chip>
+          <Chip tone={right ? "good" : "again"}>{t(right ? "Right" : picked === -1 ? "Not sure" : "Not this time")}</Chip>
           {/*
             Not marked lang="et": this line is English prose with an Estonian
             word or two inside it, and telling a screen reader the whole
@@ -274,7 +292,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             autoFocus
             onClick={() => onAnswer(picked === -1 ? { kind: "unsure" } : { kind: "picked", option: item.options[picked] ?? "" })}
           >
-            Next question
+            {t("Next question")}
           </Button>
         </>
         )}
@@ -290,18 +308,19 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
   onAnswer: (answer: Answer) => void;
   onNoAudio: () => void;
 }) {
+  const t = useT();
   const [typed, setTyped] = useState("");
   const [mark, setMark] = useState<ReturnType<typeof gradeDictation> | null>(null);
   const [silent, setSilent] = useState(false);
 
   return (
     <div>
-      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.question}</p>
+      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(item.question)}</p>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <Speak
           text={item.et}
-          label="Play the sentence"
+          label={t("Play the sentence")}
           rate={LEARNING_RATE}
           size={26}
           className="flex h-16 w-16 items-center justify-center rounded-full"
@@ -311,7 +330,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
         <Speak
           text={item.et}
           slow
-          label="Play it slowly"
+          label={t("Play it slowly")}
           size={18}
           className="flex h-12 w-12 items-center justify-center rounded-full"
           style={{ background: "var(--raised)", color: "var(--ink-2)" }}
@@ -319,15 +338,14 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
         />
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>
           <Ear size={14} className="mr-1.5 inline" aria-hidden />
-          Play it as many times as you like
+          {t("Play it as many times as you like")}
         </span>
       </div>
 
       {silent && (
         <div className="mt-4">
           <Note tone="sky">
-            There&apos;s no audio, so there&apos;s nothing to write down. Skip this one, and listening
-            is left out rather than scored as zero.
+            {t("There's no audio, so there's nothing to write down. Skip this one, and listening is left out rather than scored as zero.")}
           </Note>
         </div>
       )}
@@ -337,8 +355,8 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
           <EstonianInput
             value={typed}
             onChange={setTyped}
-            ariaLabel="What you heard"
-            placeholder="Write the sentence"
+            ariaLabel={t("What you heard")}
+            placeholder={t("Write the sentence")}
             large
             autoFocus
             onEnter={() => setMark(gradeDictation(item, typed))}
@@ -352,7 +370,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
           */}
           <div className="mt-4">
             <Button variant="primary" size="lg" onClick={() => setMark(gradeDictation(item, typed))}>
-              Check
+              {t("Check")}
             </Button>
           </div>
         </div>
@@ -369,7 +387,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
               one of: how a mark looks is one decision, wherever the reading it
               was made from came from. */}
           <div className={`${VERDICT_CLASS[verdictOfDictation(mark.result.verdict)]} verdict-panel`}>
-            {mark.result.note}
+            {t(mark.result.note)}
           </div>
           {/*
             What was typed stays on screen, not only in a `title` tooltip: a
@@ -381,12 +399,12 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
             {mark.result.words.map((word, i) => {
               const tone = WORD_TONE[word.status];
               const shown = word.expected ?? word.typed ?? "";
-              const note = wordNote(word);
+              const note = wordNote(word, "en");
               return (
                 <span
                   key={`${shown}-${i}`}
-                  aria-label={`${shown}, ${tone.title}${
-                    word.typed && word.typed !== shown ? `. You typed ${word.typed}` : ""
+                  aria-label={`${shown}, ${t(tone.title)}${
+                    word.typed && word.typed !== shown ? `. ${fill(t("You typed {typed}."), { typed: word.typed })}` : ""
                   }`}
                   className={`${tone.className} flex flex-col items-center rounded-[var(--r-sm)] px-2 py-1`}
                   style={word.status === "extra" ? { background: "var(--raised)", color: "var(--ink-3)" } : undefined}
@@ -400,12 +418,12 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
                   </span>
                   {word.status !== "right" && word.status !== "extra" && (
                     <span className="text-2xs" style={{ color: "var(--ink-3)" }} aria-hidden>
-                      {word.typed ? `you: ${word.typed}` : "left out"}
+                      {word.typed ? fill(t("you: {typed}"), { typed: word.typed }) : t("left out", "word")}
                     </span>
                   )}
                   {note && (
                     <span className="text-2xs" style={{ color: "var(--hard-ink)" }} aria-hidden>
-                      {note}
+                      {t(note)}
                     </span>
                   )}
                 </span>
@@ -414,7 +432,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
           </div>
           <p lang="et" className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>{item.et}</p>
           <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ kind: "typed", text: typed })}>
-            Next question
+            {t("Next question")}
           </Button>
         </>
         )}
@@ -426,12 +444,13 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
 // ── Writing ──────────────────────────────────────────────────────────────────
 
 export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (answer: Answer) => void }) {
+  const t = useT();
   const [text, setText] = useState("");
   const [mark, setMark] = useState<ReturnType<typeof gradeWrite> | null>(null);
 
   return (
     <div>
-      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.question}</p>
+      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(item.question)}</p>
       {/*
         The word and what it means, with the gap between them drawn rather than
         typed. A bold Estonian word butted up against the English after it read
@@ -441,7 +460,7 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
       */}
       <p className="mt-2 flex flex-wrap items-baseline gap-2 text-lg" style={{ color: "var(--ink-2)" }}>
         <span lang="et" className="font-bold" style={{ color: "var(--ink)" }}>{item.lemma}</span>
-        <span className="text-base" style={{ color: "var(--ink-3)" }}>means {item.translation}</span>
+        <span className="text-base" style={{ color: "var(--ink-3)" }}>{fill(t("means {meaning}"), { meaning: item.translation })}</span>
       </p>
 
       <EstonianPrompt text={item.sentence} />
@@ -451,15 +470,15 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
           <EstonianInput
             value={text}
             onChange={setText}
-            ariaLabel="The missing word"
-            placeholder="One word"
+            ariaLabel={t("The missing word")}
+            placeholder={t("One word")}
             large
             autoFocus
             onEnter={() => setMark(gradeWrite(item, text))}
           />
           <div className="mt-4">
             <Button variant="primary" size="lg" onClick={() => setMark(gradeWrite(item, text))}>
-              Check
+              {t("Check")}
             </Button>
           </div>
         </div>
@@ -477,7 +496,7 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
             this screen was the one that had not caught up.
           */}
           <div className={`${VERDICT_CLASS[verdictOfCredit(mark.credit)]} verdict-panel`}>
-            {mark.note}
+            {writeNote(mark.note, item.lemma, t)}
           </div>
           {/*
             Then the sentence with the wanted form picked out, and under it
@@ -490,7 +509,7 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
             <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.because}</p>
           )}
           <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ kind: "typed", text })}>
-            Next question
+            {t("Next question")}
           </Button>
         </>
         )}
@@ -539,9 +558,10 @@ const SELF_RATINGS = [
  * contributes nothing to the level, which the screen says out loud.
  */
 export function SpeakQuestion({ item, onAnswer }: { item: SpeakItem; onAnswer: (answer: Answer) => void }) {
+  const t = useT();
   return (
     <div>
-      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.question}</p>
+      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(item.question)}</p>
       <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{item.translation}</p>
 
       <FitText as="p" text={item.et} max="var(--text-3xl)" lang="et" className="mt-5 font-bold leading-snug" style={{ color: "var(--ink)" }} />
@@ -549,7 +569,7 @@ export function SpeakQuestion({ item, onAnswer }: { item: SpeakItem; onAnswer: (
       <div className="mt-5">
         <Speak
           text={item.et}
-          label="Hear a native voice say it"
+          label={t("Hear a native voice say it")}
           size={20}
           className="flex min-h-[44px] items-center gap-2 rounded-full px-4"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
@@ -565,11 +585,11 @@ export function SpeakQuestion({ item, onAnswer }: { item: SpeakItem; onAnswer: (
         stop anybody wondering whether this counts.
       */}
       <Note tone="neutral">
-        This part isn&apos;t scored. We keep your answer as your own view, and it never changes your level.
+        {t("This part isn't scored. We keep your answer as your own view, and it never changes your level.")}
       </Note>
 
       <p className="mt-5 text-base font-semibold" style={{ color: "var(--ink)" }}>
-        How confident would you feel saying this out loud?
+        {t("How confident would you feel saying this out loud?")}
       </p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {SELF_RATINGS.map((rating) => (
@@ -579,8 +599,8 @@ export function SpeakQuestion({ item, onAnswer }: { item: SpeakItem; onAnswer: (
             onClick={() => onAnswer({ kind: "rated", rating: rating.value })}
             className="choice-btn min-h-[52px] rounded-[var(--r-lg)] border px-4 py-3 text-left"
           >
-            <span className="block text-base font-medium" style={{ color: "var(--ink)" }}>{rating.label}</span>
-            <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{rating.detail}</span>
+            <span className="block text-base font-medium" style={{ color: "var(--ink)" }}>{t(rating.label)}</span>
+            <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{t(rating.detail)}</span>
           </button>
         ))}
       </div>

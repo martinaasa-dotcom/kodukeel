@@ -3,6 +3,7 @@ import { SuggestFix } from "@/components/SuggestFix";
 import { Mascot } from "@/components/brand";
 import { FitText } from "@/components/FitText";
 import { Lettered } from "@/components/HeroLetters";
+import { Tr } from "@/components/Tr";
 
 /**
  * What a reader is told when the page they asked for is not there.
@@ -28,12 +29,11 @@ export function NoPage() {
         <Mascot size={72} mood="thinking" className="float" />
         <FitText as="h1" text="Seda lehte pole" lang="et" className="font-display font-bold leading-tight tracking-tight [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]" style={{ color: "var(--ink)", textWrap: "balance" }} />
         <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          There&rsquo;s nothing at this address. If you were looking for a word, try the dictionary.
-          Type it in Estonian or English, in whatever form you&rsquo;ve got in front of you.
+          <Tr>{"There’s nothing at this address. If you were looking for a word, try the dictionary. Type it in Estonian or English, in whatever form you’ve got in front of you."}</Tr>
         </p>
         <div className="mt-2 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/">Back to Today</ButtonLink>
-          <ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>
+          <ButtonLink href="/"><Tr>Back to Today</Tr></ButtonLink>
+          <ButtonLink href="/dictionary" variant="primary"><Tr>Open the dictionary</Tr></ButtonLink>
         </div>
         {/* A link inside the app that leads nowhere is our fault, not the reader's. */}
         <div className="mt-2 w-full">

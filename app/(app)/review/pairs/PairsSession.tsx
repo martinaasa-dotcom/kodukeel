@@ -14,6 +14,9 @@ import { SpaceKeyCap } from "@/components/KeyCaps";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey, isPlayKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { rich } from "@/components/round/rich";
 
 export interface PairQuestion {
   /** The form that is actually played. */
@@ -36,6 +39,7 @@ export interface PairQuestion {
  */
 export function PairsSession({ questions: initialQuestions }: { questions: PairQuestion[] }) {
   const grade = useGrade();
+  const t = useT();
   /*
     Snapshotted once on mount, never updated from later props. gradeCard() is a
     Server Action and Next refreshes this route's Server Component after every
@@ -143,7 +147,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
       const heard = question.options.find((o) => o.value === question.heard);
       look.record({
         of: question.cardId ?? question.heard,
-        label: "Minimal pairs",
+        label: t("Minimal pairs"),
         question: question.options.map((o) => o.value).join(" ,  "),
         answer: question.heard,
         note: heard ? `${heard.lemma}, ${heard.translation}` : null,
@@ -154,7 +158,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     }
     setPicked(null);
     setIndex((i) => i + 1);
-  }, [question, look]);
+  }, [question, look, t]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -184,14 +188,13 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     return (
       <div className="mx-auto max-w-lg px-5 py-20 text-center">
         <h1 className="text-xl font-bold" style={{ color: "var(--ink)" }}>
-          This one needs sound
+          {t("This one needs sound")}
         </h1>
         <p className="mx-auto mt-2 max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>
-          This one is all about how a word sounds, and we couldn&rsquo;t get the audio to play.
-          Try again once you&rsquo;re back online.
+          {t("This one is all about how a word sounds, and we couldn’t get the audio to play. Try again once you’re back online.")}
         </p>
         <WayOut className="mt-6 flex justify-center">
-          <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
+          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -203,24 +206,25 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          That&rsquo;s the round done
+          {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          In Estonian, how long you hold a sound changes the meaning: <span lang="et">maja</span> and{" "}
-          <span lang="et">majja</span> aren&rsquo;t the same thing said twice. Ears take a while
-          to catch up with eyes, so be patient with them.
+          {rich(t("In Estonian, how long you hold a sound changes the meaning: {a} and {b} aren’t the same thing said twice. Ears take a while to catch up with eyes, so be patient with them."), {
+            a: <span lang="et">maja</span>,
+            b: <span lang="et">majja</span>,
+          })}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={questions.length} label="Heard" />
-          <Stat value={`${accuracy}%`} label="Right" />
-          <Stat value={`${minutes}m`} label="Time" />
+          <Stat value={questions.length} label={t("Heard")} />
+          <Stat value={`${accuracy}%`} label={t("Right")} />
+          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/pairs">Another round</ButtonLink>
-          <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
+          <ButtonLink href="/review/pairs">{t("Another round")}</ButtonLink>
+          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -231,7 +235,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
       {/* The heading a session screen has no room to draw. Same line as every
           other mode: the start screen and the finished screen each carry one
           and the round itself did not. */}
-      <h1 className="sr-only">Minimal pairs</h1>
+      <h1 className="sr-only">{t("Minimal pairs")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -242,11 +246,11 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={questions.length}
-            aria-label="Round progress"
+            aria-label={t("Round progress")}
           />
         </div>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {questions.length - index} left
+          {fill(t("{n} left"), { n: questions.length - index })}
         </span>
       </div>
 
@@ -256,8 +260,8 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent"><Ear size={12} aria-hidden /> Which did you hear?</Chip>
-          {question.sameWord && <Chip>same word, two cases</Chip>}
+          <Chip tone="accent"><Ear size={12} aria-hidden /> {t("Which did you hear?")}</Chip>
+          {question.sameWord && <Chip>{t("same word, two cases")}</Chip>}
         </div>
 
         <div className="flex flex-col items-center gap-4 px-6 py-10">
@@ -269,7 +273,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
             // more: a screen reader announces this button and nothing else on
             // the card, so "Play again" before anything has played is the only
             // thing that reader is told.
-            aria-label={needsPress ? "Play the word" : "Play again"}
+            aria-label={needsPress ? t("Play the word") : t("Play again")}
             className="press flex h-20 w-20 items-center justify-center rounded-full transition-ui hover:scale-[1.02] disabled:hover:scale-100"
             style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
           >
@@ -280,11 +284,15 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>
             {/* "Play again" is a lie before anything has played, which is
                 every arrival on a browser that blocks autoplay. */}
-            {needsPress ? "Tap to hear it" : "Play again"} <SpaceKeyCap /> or <KeyCap>R</KeyCap>, or hear it{" "}
-            <span className="inline-flex items-center align-middle">
-              <Speak text={question.heard} slow voice={voice} label="Hear it slowly" />
-            </span>{" "}
-            slowly
+            {rich(t(needsPress ? "Tap to hear it {space} or {key}, or hear it {speaker} slowly" : "Play again {space} or {key}, or hear it {speaker} slowly"), {
+              space: <SpaceKeyCap />,
+              key: <KeyCap>R</KeyCap>,
+              speaker: (
+                <span className="inline-flex items-center align-middle">
+                  <Speak text={question.heard} slow voice={voice} label={t("Hear it slowly")} />
+                </span>
+              ),
+            })}
           </p>
         </div>
 
@@ -323,10 +331,10 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
                   <span className="min-w-0">
                     <span lang="et" className="block text-lg font-semibold">{option.value}</span>
                     <span className="block text-xs">
-                      {option.formLabel} of {option.lemma}, {option.translation}
+                      {fill(t("{form} of {lemma}, {meaning}"), { form: option.formLabel, lemma: option.lemma, meaning: option.translation })}
                     </span>
                   </span>
-                  {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label="Right" />}
+                  {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label={t("Right")} />}
                 </button>
               );
             })}
@@ -337,10 +345,12 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
               {question.letter
-                ? <>The only difference is how long the <strong lang="et">{question.letter}</strong> is held.
-                    The one with the double letter, <strong lang="et">{question.longer}</strong>, is the longer one.</>
-                : <>The only difference is how long a sound is held.</>}
-              {question.sameWord && " Both are forms of the same word. Here the length changes the grammar, not the meaning of the word."}
+                ? rich(t("The only difference is how long the {letter} is held. The one with the double letter, {longer}, is the longer one."), {
+                    letter: <strong lang="et">{question.letter}</strong>,
+                    longer: <strong lang="et">{question.longer}</strong>,
+                  })
+                : t("The only difference is how long a sound is held.")}
+              {question.sameWord && ` ${t("Both are forms of the same word. Here the length changes the grammar, not the meaning of the word.")}`}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-3">
               {question.options.map((o) => (
@@ -352,7 +362,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
             </div>
             <div className="mt-4">
               <Button variant="primary" onClick={next} autoFocus>
-                Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                {t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
             </div>
           </div>
@@ -369,15 +379,15 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
       <p className="sr-only" role="status">
         {revealed && question && (
           picked?.toLowerCase() === question.heard.toLowerCase()
-            ? "Right."
-            : <>Not quite. It was <span lang="et">{question.heard}</span>.</>
+            ? t("Right.")
+            : rich(t("Not quite. It was {word}."), { word: <span lang="et">{question.heard}</span> })
         )}
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span>
           {index + (revealed ? 1 : 0) > 0
-            ? <>{correct}/{index + (revealed ? 1 : 0)} right, press 1 or 2 to answer</>
-            : <>Press 1 or 2 to answer</>}
+            ? fill(t("{n}/{total} right, press 1 or 2 to answer"), { n: correct, total: index + (revealed ? 1 : 0) })
+            : t("Press 1 or 2 to answer")}
         </span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>

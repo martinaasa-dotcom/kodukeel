@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { scoreGuess, SONAD_GUESSES, SONAD_LENGTH } from "@/lib/games/sonad";
 import { EMPTY, HUE, RING, SPOKEN } from "@/components/sonad/look";
 import { Card, SectionTitle } from "@/components/ui";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * SÕNAD ON THE HOME PAGE, SHOWN RATHER THAN DESCRIBED.
@@ -31,10 +32,11 @@ import { Card, SectionTitle } from "@/components/ui";
 const EXAMPLE_ANSWER = "lennuk";
 const EXAMPLE_GUESSES = ["leping", "kohvik", "lennuk"] as const;
 
-export function SonadPreview({ href, why }: { href: string; why: string }) {
+export function SonadPreview({ href, why, locale = "en" }: { href: string; why: string; locale?: Locale }) {
+  const t = (english: string) => tr(locale, english);
   return (
     <Card className="flex h-full flex-col">
-      <SectionTitle hint="a new word every day">Today&rsquo;s game</SectionTitle>
+      <SectionTitle hint={t("a new word every day")}>{t("Today’s game")}</SectionTitle>
       <div className="flex flex-1 flex-col gap-5">
         <div
           aria-hidden
@@ -84,17 +86,19 @@ export function SonadPreview({ href, why }: { href: string; why: string }) {
             {why}
           </p>
           <p className="sr-only">
-            An example board: three guesses, each circle marked {SPOKEN.here}, {SPOKEN.elsewhere} or {SPOKEN.absent}.
+            {fill(t("An example board: three guesses, each circle marked {here}, {elsewhere} or {absent}."), {
+              here: t(SPOKEN.here), elsewhere: t(SPOKEN.elsewhere), absent: t(SPOKEN.absent),
+            })}
           </p>
           <div className="mt-4">
             <ButtonLink href={href} variant="primary">
-              Play Sõnad <ArrowRight size={15} aria-hidden />
+              {t("Play Sõnad")} <ArrowRight size={15} aria-hidden />
             </ButtonLink>
           </div>
         </div>
       </div>
       <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-        Six letters, {SONAD_GUESSES} tries, a clue if you get stuck.
+        {fill(t("Six letters, {tries} tries, a clue if you get stuck."), { tries: SONAD_GUESSES })}
       </p>
     </Card>
   );

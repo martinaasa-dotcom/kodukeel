@@ -45,8 +45,13 @@ import { SonadPreview } from "@/components/SonadPreview";
 import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
 import { FitText } from "@/components/FitText";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { stepText } from "@/lib/course";
 
-export const metadata = { title: "Today" };
+export async function generateMetadata() {
+  return titleFor("Today");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -103,7 +108,7 @@ export default async function TodayPage() {
     two are now one query between them (lib/settings/store.ts). What is left is
     the deck, and the level this learner placed at.
   */
-  const [clock, snapshot, settings, placement] = await Promise.all([
+  const [clock, snapshot, settings, placement, locale] = await Promise.all([
     /*
       The learner's own midnight, not this server's. Every day-shaped figure on
       this page reads it: the streak, the goal ring, the quests and the week
@@ -123,7 +128,20 @@ export default async function TodayPage() {
       away.
     */
     courseLevelFor(ownerId),
+    localeFor(ownerId),
   ]);
+  /*
+    THE PAGE'S OWN WORDS IN THE LEARNER'S LANGUAGE. `t` is a fixed line; `say`
+    is a line with a count in it, where English keeps the sentence it always
+    printed and Russian and Ukrainian get a template with the noun already in
+    the right one of their three plural forms.
+  */
+  const t = (english: string) => tr(locale, english);
+  const say = (english: string, template: string, values: Readonly<Record<string, string | number>>) =>
+    locale === "en" ? english : fill(tr(locale, template), values);
+  /* A unit's or a part's name: the Estonian from A2 up, and below it the
+     English line in the reader's own language where it has been translated. */
+  const ui = (et: string, en: string) => (uiWantsEnglish(placement) ? t(en) : et);
 
   // A brand-new learner gets the wizard instead of an empty dashboard. Anyone
   // with a deck or a finished setup never sees it again.
@@ -295,8 +313,8 @@ export default async function TodayPage() {
   const figures = shows(stage, "streak") ? (
     <div className="flex flex-wrap items-center gap-4">
       <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:min-w-[200px] sm:flex-1">
-        <StatTile value={snapshot.dueCount} label="Due now" tone="accent" />
-        <StatTile value={toLearn} label="New words" tone="sky" />
+        <StatTile value={snapshot.dueCount} label={t("Due now")} tone="accent" />
+        <StatTile value={toLearn} label={t("New words")} tone="sky" />
       </div>
       {/* On a phone the ring wraps onto its own line, where a bare
           circle says nothing — so it is captioned there and only there. */}
@@ -305,7 +323,7 @@ export default async function TodayPage() {
           pct={summary.goalPct}
           size={74}
           thickness={8}
-          label={`${summary.reviewsToday} of today's ${summary.dailyGoal} reviews done`}
+          label={fill(t("{done} of today's {goal} reviews done"), { done: summary.reviewsToday, goal: summary.dailyGoal })}
         >
           <span
             className="tnum text-base font-bold"
@@ -322,11 +340,11 @@ export default async function TodayPage() {
           fault rather than as a day gone well.
         */}
         <div aria-hidden>
-          <p className="label-xs" style={{ color: "var(--ink-3)" }}>Daily goal</p>
+          <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Daily goal")}</p>
           <p className="tnum mt-1 text-xs" style={{ color: "var(--ink-2)" }}>
             {summary.reviewsToday >= summary.dailyGoal
-              ? `${summary.reviewsToday} done, goal met`
-              : `${summary.reviewsToday} of ${summary.dailyGoal} reviews`}
+              ? fill(t("{done} done, goal met"), { done: summary.reviewsToday })
+              : fill(t("{done} of {goal} reviews"), { done: summary.reviewsToday, goal: summary.dailyGoal })}
           </p>
         </div>
       </div>
@@ -372,29 +390,36 @@ export default async function TodayPage() {
   */
   const caughtUpNote = (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      Going over cards before they&rsquo;re due doesn&rsquo;t help them stick. Take the break, or start something new.
+      {t("Going over cards before they’re due doesn’t help them stick. Take the break, or start something new.")}
     </p>
+  );
+  const orReview = say(
+    `Or review ${toReview} due card${toReview === 1 ? "" : "s"}`,
+    "Or review {cards} that are due",
+    { cards: countOf(locale, toReview, "card") },
   );
   const actions = learnFirst ? (
     <>
       <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full">
-        {stage === "arriving" ? "Meet your first words" : `Learn ${Math.min(toLearn, LEARN_BATCH)} new words`}{" "}
+        {stage === "arriving"
+          ? t("Meet your first words")
+          : say(`Learn ${Math.min(toLearn, LEARN_BATCH)} new words`, "Learn {words}", { words: countOf(locale, Math.min(toLearn, LEARN_BATCH), "new word") })}{" "}
         <ArrowRight size={17} aria-hidden />
       </ButtonLink>
       {toReview > 0 && (
         <ButtonLink href="/review" variant="secondary" className="w-full justify-center">
-          Or review {toReview} due card{toReview === 1 ? "" : "s"} <ArrowRight size={16} aria-hidden />
+          {orReview} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       )}
     </>
   ) : !caughtUp ? (
     <>
       <ButtonLink href="/review" variant="primary" size="lg" className="w-full">
-        Start reviewing <ArrowRight size={17} aria-hidden />
+        {t("Start reviewing")} <ArrowRight size={17} aria-hidden />
       </ButtonLink>
       {toLearn > 0 && (
         <ButtonLink href="/learn/new" variant="secondary" className="w-full justify-center">
-          Or learn {Math.min(toLearn, LEARN_BATCH)} new words <ArrowRight size={16} aria-hidden />
+          {say(`Or learn ${Math.min(toLearn, LEARN_BATCH)} new words`, "Or learn {words}", { words: countOf(locale, Math.min(toLearn, LEARN_BATCH), "new word") })} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       )}
     </>
@@ -402,11 +427,11 @@ export default async function TodayPage() {
     <>
       {nextUnit ? (
         <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} variant="secondary" className="w-full justify-center">
-          Start {uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)} <ArrowRight size={16} aria-hidden />
+          {fill(t("Start {unit}"), { unit: ui(nextUnit.unit.title, nextUnit.unit.subtitle) })} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       ) : (
         <ButtonLink href="/practice" variant="secondary" className="w-full justify-center">
-          Go and practise <ArrowRight size={16} aria-hidden />
+          {t("Go and practice")} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       )}
     </>
@@ -419,13 +444,15 @@ export default async function TodayPage() {
   */
   const opening = figures ? null : caughtUp ? caughtUpNote : learnFirst ? (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      {toLearn} new word{toLearn === 1 ? " is" : "s are"} waiting for you, and you&rsquo;ll take them {LEARN_BATCH} at a time. You see
-      each word in a sentence, pick what it means, then fill it back into the sentence yourself.
+      {say(
+        `${toLearn} new word${toLearn === 1 ? " is" : "s are"} waiting for you, and you’ll take them ${LEARN_BATCH} at a time. You see each word in a sentence, pick what it means, then fill it back into the sentence yourself.`,
+        "New words waiting for you: {words}. You'll take them {batch} at a time. You see each word in a sentence, pick what it means, then fill it back into the sentence yourself.",
+        { words: countOf(locale, toLearn, "word"), batch: LEARN_BATCH },
+      )}
     </p>
   ) : (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      Most cards ask you to type or pick the answer. A few just show it and ask whether you knew
-      it. Be honest there: that&rsquo;s how the app knows when to bring each word back.
+      {t("Most cards ask you to type or pick the answer. A few just show it and ask whether you knew it. Be honest there: that’s how the app knows when to bring each word back.")}
     </p>
   );
 
@@ -458,26 +485,26 @@ export default async function TodayPage() {
     <Card tone="night" className="flex flex-col gap-6 md:p-9 lg:flex-row lg:items-center lg:gap-10">
       <div className="min-w-0 flex-1">
         <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
-          <span style={{ color: "var(--cta)" }}>Today&rsquo;s module</span>
+          <span style={{ color: "var(--cta)" }}>{t("Today’s module")}</span>
           <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
-          <span>Day {courseDay.day.index} of {programme!.days.length}</span>
+          <span>{fill(t("Day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}</span>
         </p>
         <FitText
           as="h2"
-          text={uiText(placement, courseDay.day.title, courseDay.day.subtitle)}
+          text={ui(courseDay.day.title, courseDay.day.subtitle)}
           className="font-display mt-3 font-bold leading-tight [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"
           lang={uiWantsEnglish(placement) ? undefined : "et"}
           style={{ color: "var(--ink)", textWrap: "balance" }}
         />
         <p className="mt-3 max-w-[46ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {courseDay.day.canDo}
+          {t(courseDay.day.canDo)}
         </p>
         <p
           className="mt-5 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-full px-3.5 py-1.5 text-sm"
           style={{ background: "rgb(255 255 255 / 0.08)", color: "var(--ink)" }}
         >
-          <span className="font-semibold" style={{ color: "var(--sky-ink)" }}>Next</span>
-          <span>{courseStep.title}</span>
+          <span className="font-semibold" style={{ color: "var(--sky-ink)" }}>{t("Next")}</span>
+          <span>{stepText(courseDay.day, courseStep, locale).title}</span>
         </p>
       </div>
       <div className="flex flex-col items-stretch gap-4 lg:w-[19rem] lg:shrink-0">
@@ -488,19 +515,19 @@ export default async function TodayPage() {
             thickness={7}
             tone="var(--cta)"
             track="rgb(255 255 255 / 0.1)"
-            label={`${courseDay.pct} percent of today's module done`}
+            label={fill(t("{pct} percent of today's module done"), { pct: courseDay.pct })}
           >
             <span className="text-sm font-bold tabular-nums" style={{ color: "var(--ink)" }}>{courseDay.pct}%</span>
           </Ring>
           <p className="text-sm leading-snug" style={{ color: "var(--ink-2)" }}>
             <span className="font-display block text-2xl font-bold tabular-nums" style={{ color: "var(--ink)" }}>
-              {courseDay.minutesLeft} min
+              {fill(t("{minutes} min"), { minutes: courseDay.minutesLeft })}
             </span>
-            to go today
+            {t("to go today")}
           </p>
         </div>
         <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
-          {courseDay.pct === 0 ? "Start today's module" : "Carry on"} <ArrowRight size={17} aria-hidden />
+          {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
@@ -509,27 +536,29 @@ export default async function TodayPage() {
       <div className="min-w-0 flex-1">
         <SectionTitle
           hint={courseNow.eveningsInARow >= 2
-            ? `${courseNow.daysDone} of ${programme!.days.length} done, ${courseNow.eveningsInARow} evenings in a row`
-            : `${courseNow.daysDone} of ${programme!.days.length} done`}
+            ? fill(t("{done} of {days} done, {run} evenings in a row"), { done: courseNow.daysDone, days: programme!.days.length, run: courseNow.eveningsInARow })
+            : fill(t("{done} of {days} done"), { done: courseNow.daysDone, days: programme!.days.length })}
         >
-          Today&rsquo;s module
+          {t("Today’s module")}
         </SectionTitle>
         <p className="mt-1 text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-          Today&rsquo;s module is done. Go and enjoy the rest of your day.
+          {t("Today’s module is done. Go and enjoy the rest of your day.")}
         </p>
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay
             ? courseDay.day.part.n > 1
-              ? <>Tomorrow you&rsquo;ll carry on with {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}, part {courseDay.day.part.n} of {courseDay.day.part.of}.</>
+              ? fill(t("Tomorrow you’ll continue with {unit}, part {n} of {of}."), {
+                unit: ui(courseDay.day.title, courseDay.day.subtitle), n: courseDay.day.part.n, of: courseDay.day.part.of,
+              })
               : uiWantsEnglish(placement)
-                ? <>See you tomorrow for {courseDay.day.subtitle}.</>
-                : <>See you tomorrow for {courseDay.day.title} ({courseDay.day.subtitle}).</>
-            : <>That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.</>}
+                ? fill(t("See you tomorrow for {unit}."), { unit: t(courseDay.day.subtitle) })
+                : fill(t("See you tomorrow for {unit} ({english})."), { unit: courseDay.day.title, english: t(courseDay.day.subtitle) })
+            : t("That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.")}
         </p>
       </div>
       <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
         <ButtonLink href="/course" variant="secondary" className="w-full justify-center">
-          See what&rsquo;s next <ArrowRight size={16} aria-hidden />
+          {t("See what’s next")} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
@@ -538,9 +567,9 @@ export default async function TodayPage() {
   const doNowCard = courseCard ?? (snapshot.totalCards === 0 ? (
     <Card>
       <Empty
-        title="No cards yet"
-        body="Choose a unit to begin with. Its words become cards you can learn, hear and practise."
-        action={<ButtonLink href="/learn" variant="primary">Choose your first unit</ButtonLink>}
+        title={t("No cards yet")}
+        body={t("Choose a unit to begin with. Its words become cards you can learn, hear and practice.")}
+        action={<ButtonLink href="/learn" variant="primary">{t("Choose your first unit")}</ButtonLink>}
       />
     </Card>
   ) : (
@@ -582,7 +611,7 @@ export default async function TodayPage() {
               {e.title}
             </span>
             <span className="text-xs" style={{ color: "var(--ink-2)" }}>
-              {KIND_LABEL[e.kind]}
+              {t(KIND_LABEL[e.kind])}
             </span>
           </span>
           <span className="shrink-0 text-sm font-semibold tabular-nums" style={{ color: "var(--ink-2)" }}>
@@ -601,11 +630,18 @@ export default async function TodayPage() {
   */
   const streakShown = shows(stage, "streak");
   const calendarCard = streakShown || eventsList ? (
+
+    /* Reaching for the card flickers the flame, and on a day the run was
+       kept it catches once as the page arrives. A run that has not been kept
+       today stays still: the flame is not there to nag. */
+    <div data-hop-on="hover" data-hop-end="flame-flicker">
     <Card className="flex h-full flex-col gap-4">
       <SectionTitle
-        hint={streakShown ? `${summary.reviewsToday} reviewed today` : todayEvents.length === 1 ? "one thing today" : `${todayEvents.length} things today`}
+        hint={streakShown
+          ? fill(t("{n} reviewed today"), { n: summary.reviewsToday })
+          : todayEvents.length === 1 ? t("one thing today") : fill(t("{things} today"), { things: countOf(locale, todayEvents.length, "thing") })}
       >
-        Calendar
+        {t("Calendar")}
       </SectionTitle>
 
       {/*
@@ -615,9 +651,11 @@ export default async function TodayPage() {
       */}
       {streakShown && (<>
       <p className="flex items-baseline gap-2">
-        <Flame size={18} aria-hidden className="self-center" style={{ color: "var(--butter-ink)" }} />
+        <Flame size={18} aria-hidden className={`${summary.reviewsToday > 0 && summary.streak > 0 ? "flame-lit" : "flame"} self-center`} style={{ color: "var(--butter-ink)" }} />
         <span className="tnum font-display text-3xl font-bold leading-none" style={{ color: "var(--ink)" }}>{summary.streak}</span>
-        <span className="text-base" style={{ color: "var(--ink-2)" }}>{summary.streak === 1 ? "day in a row" : "days in a row"}</span>
+        <span className="text-base" style={{ color: "var(--ink-2)" }}>
+          {locale === "en" ? (summary.streak === 1 ? "day in a row" : "days in a row") : daysInARow(locale, summary.streak)}
+        </span>
       </p>
       <div className="flex flex-wrap items-center gap-4">
         {/* A week at a glance: the streak, made concrete. */}
@@ -682,7 +720,9 @@ export default async function TodayPage() {
                 {d.done ? "✓" : ""}
               </span>
               <span className="sr-only">
-                {d.day}{d.isToday ? " (today)" : ""}: {d.done ? "reviewed" : "no reviews"}
+                {d.isToday
+                  ? fill(t(d.done ? "{day} (today): reviewed" : "{day} (today): no reviews"), { day: d.day })
+                  : fill(t(d.done ? "{day}: reviewed" : "{day}: no reviews"), { day: d.day })}
               </span>
               <span
                 className="text-2xs font-semibold"
@@ -698,8 +738,11 @@ export default async function TodayPage() {
       {summary.shieldsAvailable > 0 && (
         <p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
           <Shield size={13} aria-hidden style={{ color: "var(--accent-deep)" }} />
-          {summary.shieldsAvailable} streak shield{summary.shieldsAvailable === 1 ? "" : "s"} saved up, so
-          missing a day won&rsquo;t break your run.
+          {say(
+            `${summary.shieldsAvailable} streak shield${summary.shieldsAvailable === 1 ? "" : "s"} saved up, so missing a day won’t break your run.`,
+            "Streak shields saved up: {shields}. Missing a day won't break your run.",
+            { shields: summary.shieldsAvailable },
+          )}
         </p>
       )}
       </>)}
@@ -711,7 +754,7 @@ export default async function TodayPage() {
         className="mt-auto inline-block text-sm font-semibold underline underline-offset-2"
         style={{ color: "var(--accent-deep)" }}
       >
-        {eventsList ? "See your whole week" : "Plan your week"}
+        {eventsList ? t("See your whole week") : t("Plan your week")}
       </Link>
 
       {/*
@@ -724,13 +767,14 @@ export default async function TodayPage() {
         minutes to spend.
       */}
     </Card>
+    </div>
   ) : null;
 
   /* What a teacher has assigned, under headings rather than loose dates. Only
      drawn when there is something in it: the manual homework list is gone, so
      a learner studying alone has nothing to put here and no reason to see it. */
   const planCard = shows(stage, "tasks") && tasks.length > 0 ? (
-    <TodayPlan tasks={tasks.map(taskView)} open={openTasks} late={lateTasks} clock={clock} now={now} />
+    <TodayPlan tasks={tasks.map(taskView)} open={openTasks} late={lateTasks} clock={clock} now={now} locale={locale} />
   ) : null;
 
   /*
@@ -747,14 +791,14 @@ export default async function TodayPage() {
       unitTitle={(() => {
         const errandUnit = unitById(errand.unit);
         if (!errandUnit) return errand.unit;
-        return uiText(placement, errandUnit.title, errandUnit.subtitle);
+        return ui(errandUnit.title, errandUnit.subtitle);
       })()}
     />
   ) : null;
 
   /* The one panel here that is not about this learner's own deck. */
   const wordCard = shows(stage, "word")
-    ? <WordOfDayCard word={word} canTranslate={resolveProvider() !== null} />
+    ? <WordOfDayCard word={word} canTranslate={resolveProvider() !== null} locale={locale} />
     : null;
 
   /*
@@ -768,7 +812,7 @@ export default async function TodayPage() {
   const nextCard = shows(stage, "next") && nextUnit && !programme ? (
 
     <Card>
-      <SectionTitle hint={nextUnit.unit.cefr}>Your next unit</SectionTitle>
+      <SectionTitle hint={nextUnit.unit.cefr}>{t("Your next unit")}</SectionTitle>
       <div className="flex items-center gap-3">
         <NextUnitIcon name={nextUnit.unit.icon} />
         <div className="min-w-0">
@@ -777,25 +821,25 @@ export default async function TodayPage() {
             className="text-lg font-bold leading-tight"
             style={{ color: "var(--ink)" }}
           >
-            {uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)}
+            {ui(nextUnit.unit.title, nextUnit.unit.subtitle)}
           </p>
           {!uiWantsEnglish(placement) && (
-            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{nextUnit.unit.subtitle}</p>
+            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{t(nextUnit.unit.subtitle)}</p>
           )}
         </div>
       </div>
       {/* The can-do statement, not the blurb: what you will be able to
           do is a better reason to press the button than what the unit
           is about. */}
-      <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{nextUnit.unit.canDo}</p>
+      <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(nextUnit.unit.canDo)}</p>
       <div className="mt-3.5">
         <Meter
           pct={nextUnit.pct}
-          label={`${uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)}: ${nextUnit.pct}% complete`}
+          label={fill(t("{unit}: {pct}% complete"), { unit: ui(nextUnit.unit.title, nextUnit.unit.subtitle), pct: nextUnit.pct })}
         />
       </div>
       <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} className="mt-4 w-full">
-        {nextUnit.state === "learning" ? "Pick up where you left off" : "Start this unit"}
+        {nextUnit.state === "learning" ? t("Pick up where you left off") : t("Start this unit")}
         <ArrowRight size={15} aria-hidden />
       </ButtonLink>
     </Card>
@@ -815,14 +859,14 @@ export default async function TodayPage() {
     the first evenings deal, as it always did, and says so plainly.
   */
   const gameCard = featured.href === "/sonad" ? (
-    <SonadPreview href={featured.href} why={featured.why} />
+    <SonadPreview href={featured.href} why={t(featured.why)} locale={locale} />
   ) : (
     <Card className="flex h-full flex-col">
-      <SectionTitle>Today&rsquo;s game</SectionTitle>
-      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{featured.why}</p>
+      <SectionTitle>{t("Today’s game")}</SectionTitle>
+      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(featured.why)}</p>
       <div className="mt-3">
         <ButtonLink href={featured.href} variant="primary">
-          {featuredTitle(featured.href) ?? "Play"} <ArrowRight size={15} aria-hidden />
+          {t(featuredTitle(featured.href) ?? "Play")} <ArrowRight size={15} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
@@ -840,12 +884,12 @@ export default async function TodayPage() {
   */
   const conversationCard = sceneToday ? (
     <Card className="flex h-full flex-col">
-      <SectionTitle hint={`about ${minutesFor(sceneToday)} minutes`}>Today&rsquo;s conversation</SectionTitle>
-      <p className="text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{sceneToday.title}</p>
-      <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{sceneToday.place}</p>
+      <SectionTitle hint={say(`about ${minutesFor(sceneToday)} minutes`, "about {minutes}", { minutes: countOf(locale, minutesFor(sceneToday), "minute", "gen") })}>{t("Today’s conversation")}</SectionTitle>
+      <p className="text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{t(sceneToday.title)}</p>
+      <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(sceneToday.place)}</p>
       <div className="mt-auto pt-4">
         <ButtonLink href={`/situations/${sceneToday.id}`} variant="primary">
-          Start the conversation <ArrowRight size={15} aria-hidden />
+          {t("Start the conversation")} <ArrowRight size={15} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
@@ -864,8 +908,9 @@ export default async function TodayPage() {
   const ladderCard = ladder ? (
     <LadderBar
       progress={ladder}
-      partLabel={programme && courseDay ? `${programme.id.toUpperCase()}, day ${courseDay.day.index}` : undefined}
+      partLabel={programme && courseDay ? fill(t("{part}, day {day}"), { part: programme.id.toUpperCase(), day: courseDay.day.index }) : undefined}
       learnerLevel={placement}
+      locale={locale}
     />
   ) : null;
 
@@ -884,9 +929,9 @@ export default async function TodayPage() {
   const reviewStrip = (moduleTonight || courseNow?.finishedToday) && toReview > 0 ? (
     <Card className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
       <p className="text-base" style={{ color: "var(--ink)" }}>
-        <span className="font-semibold">Review cards</span>
+        <span className="font-semibold">{t("Review cards")}</span>
         <span style={{ color: "var(--ink-2)" }}>
-          {" "}({toReview} due, if you&rsquo;d rather practise what you know)
+          {" "}{say(`(${toReview} due, if you’d rather practice what you know)`, "({cards} due, if you'd rather practice what you know)", { cards: countOf(locale, toReview, "card") })}
         </span>
       </p>
       <Link
@@ -894,7 +939,7 @@ export default async function TodayPage() {
         className="inline-flex items-center gap-1.5 text-base font-semibold underline underline-offset-2"
         style={{ color: "var(--accent-deep)" }}
       >
-        Review now <ArrowRight size={15} aria-hidden />
+        {t("Review now")} <ArrowRight size={15} aria-hidden />
       </Link>
     </Card>
   ) : null;
@@ -941,10 +986,13 @@ export default async function TodayPage() {
           />
         )
       }
-      title={name ? `${greeting(clock, now, placement)}, ${name}` : greeting(clock, now, placement)}
+      /* Ukrainian addresses a person in the vocative, which cannot be built
+         from a name somebody typed, and the nominative in its place reads as
+         a mistake. So the Ukrainian greeting goes without the name. */
+      title={name && locale !== "uk" ? `${greeting(clock, now, placement, locale)}, ${name}` : greeting(clock, now, placement, locale)}
       lead={courseNow && (moduleTonight || courseNow.finishedToday)
         ? undefined
-        : lead(stage, toReview, toLearn, ownCardsPerMinute(pace))}
+        : lead(stage, toReview, toLearn, ownCardsPerMinute(pace), locale)}
     >
       {/*
         ONE CARD ACROSS THE TOP, AND FIVE UNDER IT AT THE MOST.
@@ -1038,12 +1086,13 @@ function lead(
   toLearn: number,
   /** This learner's own cards a minute, off the log. Null before it has one. */
   cardsPerMinute: number | null,
+  locale: Locale,
 ): string {
   // Nothing due is only "a good moment for something new" while there is
   // something new. A deck whose words are all learned needs a unit, and saying
   // otherwise sends somebody to a screen with nothing on it.
-  if (toReview === 0 && toLearn > 0) return "You're all caught up. A good moment to meet some new words.";
-  if (toReview === 0) return "You're all caught up, and every word you've added is learned. Time for a new unit.";
+  if (toReview === 0 && toLearn > 0) return tr(locale, "You're all caught up. A good moment to meet some new words.");
+  if (toReview === 0) return tr(locale, "You're all caught up, and every word you've added is learned. Time for a new unit.");
   /*
     At the learner's own rate where the log has one, and at the one default
     the plan uses otherwise. This divided by six while the plan divided by
@@ -1052,6 +1101,12 @@ function lead(
   */
   const minutes = minutesForCards(toReview, cardsPerMinute);
   const span = `${minutes} minute${minutes === 1 ? "" : "s"}`;
+  if (locale !== "en") {
+    const values = { cards: countOf(locale, toReview, "card"), minutes: countOf(locale, minutes, "minute") };
+    return fill(tr(locale, stage === "arriving"
+      ? "Your first cards are ready: {cards}. That's about {minutes}."
+      : "Cards waiting for you: {cards}. That's about {minutes}."), values);
+  }
   if (stage === "arriving") {
     return `Your first ${toReview} card${toReview === 1 ? " is" : "s are"} ready. That's about ${span}.`;
   }
@@ -1083,11 +1138,16 @@ function weekdayLetter(day: string): string {
   Estonian in English there instead, and hands it back the moment the course
   says they have reached A2 (`lib/copy/uiLanguage.ts`).
 */
-function greeting(clock: DayClock, now: Date, level: Level): string {
+function greeting(clock: DayClock, now: Date, level: Level, locale: Locale): string {
   const h = clock.hourOf(now);
   const et = h < 5 ? "Tere" : h < 11 ? "Tere hommikust" : h < 18 ? "Tere päevast" : "Tere õhtust";
   const en = h < 5 ? "Hello" : h < 11 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-  return uiText(level, et, en);
+  return uiText(level, et, tr(locale, en));
+}
+
+/** "6 days in a row", in the reader's own plural. English keeps its own two lines above. */
+function daysInARow(locale: Locale, n: number): string {
+  return fill(tr(locale, "{days} in a row"), { days: countOf(locale, n, "day") }).replace(/^\d+\s/, "");
 }
 
 /** A `Task` row in the shape `TaskRow` can hold, which is a client component. */

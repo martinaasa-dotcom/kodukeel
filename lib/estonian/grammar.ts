@@ -812,7 +812,7 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
     points: [
       "Carried by tone of voice, understatement and context",
       "Understatement is the most common kind here",
-      "Rarely signalled, so you have to pick up on it",
+      "Rarely signaled, so you have to pick up on it",
     ],
     watchOut:
       "It's the last thing a learner picks up and the easiest to get wrong. Irony nobody notices comes across as rudeness, or as a mistake.",

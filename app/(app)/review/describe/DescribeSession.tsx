@@ -15,6 +15,9 @@ import type { GradedPicture } from "@/lib/tutor/grader";
 import type { WithholdReason } from "@/lib/tutor/verify";
 import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 import { VERDICT_CLASS, verdictOfCredit, type Verdict } from "@/lib/ux/verdict";
+import { useLocale, useT } from "@/components/Locale";
+import { fill, type Locale } from "@/lib/copy/locale";
+import { quoted } from "@/lib/copy/values";
 
 export interface PicturePrompt {
   pictureId: string;
@@ -67,6 +70,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     under somebody who is mid-sentence.
   */
   const [prompts] = useState(initialPrompts);
+  const t = useT();
   const [index, setIndex] = useState(0);
   const [texts, setTexts] = useState<string[]>(() => Array.from({ length: SENTENCES_PER_PICTURE }, () => ""));
   const [busy, setBusy] = useState(false);
@@ -100,7 +104,9 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ?? "Sorry, we couldn't mark that one. Try again?");
+        setError(typeof body.index === "number"
+          ? fill(t("Sentence {n} needs at least three words."), { n: body.index + 1 })
+          : body.error ? t(body.error) : t("Sorry, we couldn't mark that one. Try again?"));
         return;
       }
       const result = body as Marked;
@@ -108,7 +114,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
       setSound((n) => n + result.mark.sound);
       setWritten((n) => n + SENTENCES_PER_PICTURE);
     } catch {
-      setError("You're offline, so we can't mark it yet. Your sentences are safe here.");
+      setError(t("You're offline, so we can't mark it yet. Your sentences are safe here."));
     } finally {
       setBusy(false);
     }
@@ -118,8 +124,8 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     if (prompt) {
       look.record({
         of: prompt.pictureId,
-        label: prompt.title,
-        question: prompt.alt,
+        label: t(prompt.title),
+        question: t(prompt.alt),
         answer: texts.map((t) => t.trim()).join(" "),
         note: null,
         questionLang: "en",
@@ -140,22 +146,22 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          That&rsquo;s the round done
+          {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          Describing what&rsquo;s in front of you is as close to real talking as a screen gets.
+          {t("Describing what’s in front of you is as close to real talking as a screen gets.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={written} label="Sentences" />
-          <Stat value={sound} label="Spelled and on topic" />
-          <Stat value={`${minutes}m`} label="Time" />
+          <Stat value={written} label={t("Sentences")} />
+          <Stat value={sound} label={t("Spelled and on topic")} />
+          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/describe">Another round</ButtonLink>
-          <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
+          <ButtonLink href="/review/describe">{t("Another round")}</ButtonLink>
+          <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -166,7 +172,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
       {/* The heading a session screen has no room to draw. */}
-      <h1 className="sr-only">Say what you see</h1>
+      <h1 className="sr-only">{t("Say what you see")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -177,11 +183,11 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={prompts.length}
-            aria-label="Round progress"
+            aria-label={t("Round progress")}
           />
         </div>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {prompts.length - index} left
+          {fill(t("{n} left"), { n: prompts.length - index })}
         </span>
       </div>
 
@@ -191,9 +197,9 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent">{prompt.title}</Chip>
+          <Chip tone="accent">{t(prompt.title)}</Chip>
           <span className="tnum ml-auto text-xs" style={{ color: "var(--ink-3)" }}>
-            Picture {index + 1} of {prompts.length}
+            {fill(t("Picture {n} of {total}"), { n: index + 1, total: prompts.length })}
           </span>
         </div>
 
@@ -209,7 +215,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
             className="rounded-[var(--r-lg)] px-3 py-5 text-center"
             style={{ background: "var(--accent-soft)" }}
           >
-            <p className="sr-only">{prompt.alt}</p>
+            <p className="sr-only">{t(prompt.alt)}</p>
             <div aria-hidden className="flex flex-col items-center gap-1.5" style={{ fontSize: "clamp(34px, 11vw, 52px)", lineHeight: 1.15 }}>
               {prompt.rows.map((row, i) => (
                 <div key={i} className="whitespace-nowrap">{row}</div>
@@ -218,24 +224,24 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           </div>
 
           <p className="mt-5 text-base font-semibold" style={{ color: "var(--ink)" }}>
-            Write five sentences about this picture.
+            {t("Write five sentences about this picture.")}
           </p>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            Say what you see and what might be going on. Use your imagination: who are they, what are they doing?
+            {t("Say what you see and what might be going on. Use your imagination: who are they, what are they doing?")}
           </p>
 
           <div
             className="mt-4 rounded-[var(--r)] border px-4 py-3"
             style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
           >
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>An example of the kind of sentence we mean</p>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("An example of the kind of sentence we mean")}</p>
             <p lang="et" className="mt-1.5 text-md font-semibold" style={{ color: "var(--ink)" }}>{prompt.example.et}</p>
-            <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>{prompt.example.en}</p>
+            <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>{t(prompt.example.en)}</p>
           </div>
 
           <ol
             className="mt-5 flex flex-col gap-2.5"
-            aria-label="Your five sentences"
+            aria-label={t("Your five sentences")}
             onKeyDown={(e) => {
               // Anywhere in the five boxes, as the button under them says.
               if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); void submit(); }
@@ -259,7 +265,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
                     <EstonianInput
                       bar={false}
                       id={`sentence-${i + 1}`}
-                      ariaLabel={`Sentence ${i + 1} of ${SENTENCES_PER_PICTURE}`}
+                      ariaLabel={fill(t("Sentence {n} of {total}"), { n: i + 1, total: SENTENCES_PER_PICTURE })}
                       inputRef={inputs[i]}
                       value={text}
                       autoFocus={i === 0}
@@ -304,16 +310,16 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
                 onClick={() => void submit()}
               >
                 {busy
-                  ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Marking…</>
-                  : <>Check my sentences <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
+                  ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Marking…")}</>
+                  : <>{t("Check my sentences")} <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
               </Button>
               <p className="text-center text-xs" style={{ color: "var(--ink-3)" }} aria-live="polite">
-                {ready ? "All five written. Ready when you are." : `${done} of ${SENTENCES_PER_PICTURE} written. Each one needs at least three words.`}
+                {ready ? t("All five written. Ready when you are.") : fill(t("{done} of {total} written. Each one needs at least three words."), { done, total: SENTENCES_PER_PICTURE })}
               </p>
             </div>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              {last ? "Finish" : "Next picture"}
+              {last ? t("Finish") : t("Next picture")}
             </Button>
           )}
         </div>
@@ -340,19 +346,24 @@ function SentenceFeedback({ mark, note, graded }: {
   note: { verdict: "correct" | "almost" | "wrong"; comment: string; rule: string } | undefined;
   graded: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const verdict = verdictFor(mark, note);
   const lines: string[] = [];
-  if (!mark.isSentence) lines.push("That's not quite a sentence yet. Try three words or more.");
+  if (!mark.isSentence) lines.push(t("That's not quite a sentence yet. Try three words or more."));
   if (mark.unknown.length > 0) {
     lines.push(
-      `We couldn't find ${mark.unknown.map((w) => `“${w}”`).join(", ")} in the dictionary. Check the spelling, and the õ, ä, ö and ü.`,
+      fill(t("We couldn't find {words} in the dictionary. Check the spelling, and the {letters}."), {
+        words: mark.unknown.map((w) => quoted(w, locale)).join(", "),
+        letters: fill(t("{a}, {b}, {c} and {d}"), { a: "õ", b: "ä", c: "ö", d: "ü" }),
+      }),
     );
   }
-  if (mark.repeated) lines.push("You already wrote this one. Try saying something different about the picture.");
+  if (mark.repeated) lines.push(t("You already wrote this one. Try saying something different about the picture."));
   if (mark.isSentence && mark.mentions.length === 0) {
-    lines.push("We couldn't match this to anything in the picture. Name something you can see: a person, an animal or an object.");
+    lines.push(t("We couldn't match this to anything in the picture. Name something you can see: a person, an animal or an object."));
   }
-  if (mark.sound && !note && !graded) lines.push("Every word is spelled right and it's about the picture.");
+  if (mark.sound && !note && !graded) lines.push(t("Every word is spelled right and it's about the picture."));
   const Icon = verdict === "right" ? Check : CircleAlert;
 
   return (
@@ -363,9 +374,9 @@ function SentenceFeedback({ mark, note, graded }: {
         {note?.rule && <p className="mt-1">{note.rule}</p>}
         {lines.map((line) => <p key={line} className={note?.comment ? "mt-1" : undefined}>{line}</p>)}
         {!mark.tidy && mark.isSentence && (
-          <p className="mt-1">Start with a capital letter and finish with a full stop.</p>
+          <p className="mt-1">{t("Start with a capital letter and finish with a period.")}</p>
         )}
-        {!note?.comment && lines.length === 0 && mark.tidy && <p>Spelled right and about the picture.</p>}
+        {!note?.comment && lines.length === 0 && mark.tidy && <p>{t("Spelled right and about the picture.")}</p>}
       </div>
     </div>
   );
@@ -381,6 +392,8 @@ function SentenceFeedback({ mark, note, graded }: {
  * exercise.
  */
 function Summary({ marked, aiAvailable }: { marked: Marked; aiAvailable: boolean }) {
+  const t = useT();
+  const locale = useLocale();
   const { mark, reveal, graded, quotaMessage, withheld, withheldReason } = marked;
   const total = mark.sentences.length;
 
@@ -391,39 +404,39 @@ function Summary({ marked, aiAvailable }: { marked: Marked; aiAvailable: boolean
 
   const wentWell = graded?.wentWell
     || (mark.sound > 0
-      ? `${mark.sound} of your ${total} sentences are spelled right and about the picture.`
-      : "You wrote all five, which is the hardest part to start.");
+      ? fill(t("{n} of your {total} sentences are spelled right and about the picture."), { n: mark.sound, total })
+      : t("You wrote all five, which is the hardest part to start."));
   const workOn = graded?.workOn
     || [
-      spelling > 0 ? `Spelling: ${spelling} sentence${spelling === 1 ? "" : "s"} had a word we couldn't find.` : "",
-      offTopic > 0 ? `Staying on the picture: ${offTopic} sentence${offTopic === 1 ? "" : "s"} didn't name anything in it.` : "",
-      repeated > 0 ? "Saying something new in each sentence." : "",
-      untidy > 0 ? "A capital at the start and a full stop at the end." : "",
+      spelling > 0 ? sentencesLine(locale, t, spelling, "spelling") : "",
+      offTopic > 0 ? sentencesLine(locale, t, offTopic, "topic") : "",
+      repeated > 0 ? t("Saying something new in each sentence.") : "",
+      untidy > 0 ? t("A capital at the start and a period at the end.") : "",
     ].filter(Boolean).join(" ");
 
   return (
     <div className="mt-6 flex flex-col gap-3" aria-live="polite">
       <div className="rounded-md border px-3.5 py-3" style={{ borderColor: "var(--rule)", background: "var(--raised)" }}>
-        <p className="label-xs" style={{ color: "var(--ink-3)" }}>What went well</p>
+        <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("What went well")}</p>
         <p className="mt-1.5 text-base" style={{ color: "var(--ink)" }}>{wentWell}</p>
         {workOn && (
           <>
-            <p className="label-xs mt-3" style={{ color: "var(--ink-3)" }}>What to work on</p>
+            <p className="label-xs mt-3" style={{ color: "var(--ink-3)" }}>{t("What to work on")}</p>
             <p className="mt-1.5 text-base" style={{ color: "var(--ink)" }}>{workOn}</p>
           </>
         )}
-        {graded && <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>Notes from Anu. The spelling and picture checks come from the dictionary.</p>}
+        {graded && <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>{t("Notes from Anu. The spelling and picture checks come from the dictionary.")}</p>}
       </div>
 
       <div className="rounded-md border px-3.5 py-3" style={{ borderColor: "var(--rule)", background: "var(--raised)" }}>
-        <p className="label-xs" style={{ color: "var(--ink-3)" }}>What was in the picture</p>
+        <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("What was in the picture")}</p>
         <ul className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2">
           {reveal.things.map((thing) => (
             <li key={thing.lemma} className="flex items-baseline gap-2 text-base">
               <span aria-hidden className="text-lg leading-none">{thing.emoji}</span>
               <strong lang="et" style={{ color: "var(--ink)" }}>{thing.lemma}</strong>
               <span style={{ color: "var(--ink-3)" }}>{thing.translation}</span>
-              {thing.used && <Check size={13} aria-label="you used this one" style={{ color: "var(--good-ink)" }} />}
+              {thing.used && <Check size={13} aria-label={t("you used this one")} style={{ color: "var(--good-ink)" }} />}
             </li>
           ))}
         </ul>
@@ -432,15 +445,31 @@ function Summary({ marked, aiAvailable }: { marked: Marked; aiAvailable: boolean
       {withheld && withheld.length > 0 && (
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
           {withheldReason === "unvouched-word"
-            ? "We hid one of Anu's notes. It used a word we couldn't confirm as Estonian. The spelling check comes from the dictionary, so you can trust that."
-            : "We hid one of Anu's notes. It used an Estonian form we couldn't confirm, and a wrong form is worse than no note. The spelling check comes from the dictionary, so you can trust that."}
+            ? t("We hid one of Anu's notes. It used a word we couldn't confirm as Estonian. The spelling check comes from the dictionary, so you can trust that.")
+            : t("We hid one of Anu's notes. It used an Estonian form we couldn't confirm, and a wrong form is worse than no note. The spelling check comes from the dictionary, so you can trust that.")}
         </p>
       )}
       {!aiAvailable && !graded && (
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          {quotaMessage ?? "Anu isn't around right now, so we only checked spelling and whether each sentence is about the picture. Word order and endings need her."}
+          {quotaMessage ? t(quotaMessage) : t("Anu isn't around right now, so we only checked spelling and whether each sentence is about the picture. Word order and endings need her.")}
         </p>
       )}
     </div>
   );
+}
+
+/**
+ * "Spelling: 2 sentences had a word we couldn't find." English keeps the line
+ * it always printed; Russian and Ukrainian get the count in its own plural.
+ */
+function sentencesLine(locale: Locale, t: (english: string) => string, n: number, which: "spelling" | "topic"): string {
+  if (locale === "en") {
+    const s = `${n} sentence${n === 1 ? "" : "s"}`;
+    return which === "spelling"
+      ? `Spelling: ${s} had a word we couldn't find.`
+      : `Staying on the picture: ${s} didn't name anything in it.`;
+  }
+  return fill(t(which === "spelling"
+    ? "Spelling: sentences with a word we couldn't find: {n}."
+    : "Staying on the picture: sentences that named nothing in it: {n}."), { n });
 }

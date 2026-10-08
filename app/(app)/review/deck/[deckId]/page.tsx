@@ -1,8 +1,9 @@
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
-import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { shuffle } from "@/lib/random/shuffle";
 import { leastPractisedSlot } from "@/lib/srs/mastery";
 import { deckLexemeIds, deckName } from "@/lib/progress/decks";
@@ -28,7 +29,7 @@ const ROUND = 200;
 export async function generateMetadata({ params }: { params: Promise<{ deckId: string }> }) {
   const ownerId = await requireUserId();
   const name = await deckName(ownerId, (await params).deckId);
-  return { title: name ?? "Deck" };
+  return { title: name ?? tr(await localeFor(ownerId), "Deck") };
 }
 
 export const dynamic = "force-dynamic";
@@ -73,9 +74,10 @@ export default async function DeckRoundPage({ params }: {
   const name = await deckName(ownerId, deckId);
   if (!name) notFound();
 
-  const [lexemeIds, glossSetting] = await Promise.all([
+  const [lexemeIds, meaningPrefs, locale] = await Promise.all([
     deckLexemeIds(ownerId, deckId),
-    readSetting(ownerId, SETTING_KEYS.glossLanguage),
+    meaningPrefsFor(ownerId),
+    localeFor(ownerId),
   ]);
 
   const cards = lexemeIds.length === 0 ? [] : await prisma.card.findMany({
@@ -95,16 +97,16 @@ export default async function DeckRoundPage({ params }: {
       hold on My words. The second is not broken and says so.
     */
     return (
-      <Page title={name} lead="Every word in this deck, asked until it sticks.">
+      <Page title={name} lead={tr(locale, "Every word in this deck, asked until it sticks.")}>
         <div className="flex flex-col gap-4">
           <Empty
-            title={lexemeIds.length === 0 ? "There's nothing in this deck yet" : "Every card here is on hold"}
+            title={lexemeIds.length === 0 ? tr(locale, "There's nothing in this deck yet") : tr(locale, "Every card here is on hold")}
             body={
               lexemeIds.length === 0
-                ? "Add words to it from the dictionary, or move over some you already have."
-                : "You paused all of them. You can bring them back from My words whenever you like."
+                ? tr(locale, "Add words to it from the dictionary, or move over some you already have.")
+                : tr(locale, "You paused all of them. You can bring them back from My words whenever you like.")
             }
-            action={<ButtonLink href="/words/decks" variant="primary">Open your decks</ButtonLink>}
+            action={<ButtonLink href="/words/decks" variant="primary">{tr(locale, "Open your decks")}</ButtonLink>}
           />
           {lexemeIds.length > 0 && (
             <SuggestFix category="BROKEN" trigger={`/review/deck/${deckId} had no cards to ask`} />
@@ -114,8 +116,7 @@ export default async function DeckRoundPage({ params }: {
     );
   }
 
-  const gloss = glossLanguageFrom(glossSetting);
-  const round = await withChoices(picked, gloss, ownerId);
+  const round = await withChoices(picked, meaningPrefs, ownerId);
 
   return (
     <BeforeYouStart id="deck" ready={round.length > 0} count={{ n: round.length, noun: "card" }}>

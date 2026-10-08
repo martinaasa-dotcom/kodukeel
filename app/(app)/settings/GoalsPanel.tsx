@@ -7,6 +7,8 @@ import { NOT_REACHED } from "@/lib/copy/values";
 import { Button } from "@/components/Button";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { NamedIcon } from "@/components/icons";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 import { DEADLINES, REASONS, TARGETS, deadlineFrom, reasonsFor, reasonsToStored, weeksUntil, type Goals } from "@/lib/assessment/goals";
 import type { Band } from "@/lib/assessment/types";
 
@@ -22,6 +24,7 @@ import type { Band } from "@/lib/assessment/types";
 export function GoalsPanel({ current }: { current: Goals }) {
   // A set rather than one id: almost nobody is learning Estonian for one
   // reason, and first run asks it the same way.
+  const t = useT();
   const [reasons, setReasons] = useState<string[]>(() => reasonsFor(current.reason).map((r) => r.id));
   const [target, setTarget] = useState<Band | null>(current.target);
   const [deadline, setDeadline] = useState<string | null>(current.deadline);
@@ -53,7 +56,7 @@ export function GoalsPanel({ current }: { current: Goals }) {
         screen that decides a learner's year read as a legend rather than a
         form, and the chosen answer was a hue shift of almost no luminance.
       */}
-      <ChoiceGroup label="Why you're learning Estonian" hint="pick all that apply" select="many">
+      <ChoiceGroup label={t("Why you're learning Estonian")} hint={t("pick all that apply")} select="many">
         {REASONS.map((r) => {
           const on = reasons.includes(r.id);
           return (
@@ -65,38 +68,38 @@ export function GoalsPanel({ current }: { current: Goals }) {
               onSelect={() => setReasons((all) => on ? all.filter((id) => id !== r.id) : [...all, r.id])}
               icon={<NamedIcon name={r.icon} size={14} aria-hidden />}
             >
-              {r.label}
+              {t(r.label)}
             </ChoiceChip>
           );
         })}
       </ChoiceGroup>
 
-      <ChoiceGroup label="Where you want to get to">
-        {TARGETS.map((t) => (
+      <ChoiceGroup label={t("Where you want to get to")}>
+        {TARGETS.map((goal) => (
           <ChoiceChip
-            key={t.band}
-            selected={target === t.band}
-            onSelect={() => setTarget(t.band)}
-            title={t.can}
+            key={goal.band}
+            selected={target === goal.band}
+            onSelect={() => setTarget(goal.band)}
+            title={t(goal.can)}
           >
-            {t.band}, {t.label}
+            {goal.band}, {t(goal.label)}
           </ChoiceChip>
         ))}
       </ChoiceGroup>
 
-      <ChoiceGroup label={`By when${weeks === null ? "" : `, ${weeks} weeks away`}`}>
+      <ChoiceGroup label={weeks === null ? t("By when") : fill(t("By when, {n} weeks away"), { n: weeks })}>
         {DEADLINES.map((d) => {
           const value = deadlineFrom(d, new Date());
           const on = value === null ? deadline === null : weeks !== null && Math.abs(weeks - (weeksUntil(value, new Date()) ?? 0)) <= 1;
           return (
             <ChoiceChip key={d.id} selected={on} onSelect={() => setDeadline(value)}>
-              {d.label}
+              {t(d.label)}
             </ChoiceChip>
           );
         })}
       </ChoiceGroup>
 
-      <ChoiceGroup label="Days a week you practice">
+      <ChoiceGroup label={t("Days a week you practice")}>
         {[2, 3, 4, 5, 6, 7].map((n) => (
           <ChoiceChip key={n} even selected={days === n} onSelect={() => setDays(n)}>
             {n}
@@ -106,14 +109,14 @@ export function GoalsPanel({ current }: { current: Goals }) {
 
       <div>
         <label htmlFor="goal-note-setting" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-          In your own words
+          {t("In your own words")}
         </label>
         <input
           id="goal-note-setting"
           value={note}
           onChange={(e) => setNote(e.target.value)}
           maxLength={280}
-          placeholder="Something you'd love to be able to do in Estonian"
+          placeholder={t("Something you'd love to be able to do in Estonian")}
           className="field-lg w-full text-base"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         />
@@ -121,14 +124,14 @@ export function GoalsPanel({ current }: { current: Goals }) {
 
       <div className="flex items-center gap-3">
         <Button variant="primary" onClick={save} disabled={pending}>
-          {pending ? <><Loader2 size={14} className="animate-spin" aria-hidden /> Saving</> : "Save goals"}
+          {pending ? <><Loader2 size={14} className="animate-spin" aria-hidden /> {t("Saving")}</> : t("Save goals")}
         </Button>
         {failed && !pending && (
-          <span role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>{NOT_REACHED}</span>
+          <span role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>{t(NOT_REACHED)}</span>
         )}
         {saved && !pending && (
           <span className="flex items-center gap-1.5 text-sm" style={{ color: "var(--good-ink)" }}>
-            <Check size={14} aria-hidden /> Saved
+            <Check size={14} aria-hidden /> {t("Saved")}
           </span>
         )}
       </div>

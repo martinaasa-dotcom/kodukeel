@@ -8,6 +8,7 @@ import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { paperFor } from "@/lib/progress/assessment";
 import { previewUnits } from "@/lib/srs/deck";
 import { PROGRAMMES } from "@/lib/course";
+import { localeFrom } from "@/lib/copy/locale";
 import { WelcomeWizard, type CoursePart, type StarterDeck } from "./WelcomeWizard";
 
 export const metadata = { title: "Getting set up" };
@@ -22,12 +23,15 @@ export const dynamic = "force-dynamic";
  * onboarding wizard that reappears for an established learner is worse than no
  * wizard at all.
  */
-export default async function WelcomePage() {
+export default async function WelcomePage({ searchParams }: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
-  const [settings, cards, learner] = await Promise.all([
-    readSettings(ownerId, [SETTING_KEYS.onboardedAt, SETTING_KEYS.displayName]),
+  const [settings, cards, learner, params] = await Promise.all([
+    readSettings(ownerId, [SETTING_KEYS.onboardedAt, SETTING_KEYS.displayName, SETTING_KEYS.uiLocale]),
     prisma.card.count({ where: { ownerId } }),
     currentLearner(),
+    searchParams,
   ]);
 
   if (settings[SETTING_KEYS.onboardedAt] || cards > 0) redirect("/");
@@ -100,12 +104,25 @@ export default async function WelcomePage() {
   */
   const paper = await paperFor(ownerId, Date.now() % 1_000_000);
 
+  /*
+    THE LANGUAGE FIRST RUN OPENS IN.
+
+    A Russian or Ukrainian front page carries its language through sign-in as
+    `?lang=`, and that is the strongest thing known about a newcomer: it is the
+    page they chose to read. `localeFrom` honours "ru" and "uk" and nothing
+    else. Where the query names neither, a language already stored is kept,
+    and otherwise it is English, which is what this screen always opened in.
+  */
+  const asked = typeof params.lang === "string" ? localeFrom(params.lang) : "en";
+  const initialLocale = asked !== "en" ? asked : localeFrom(settings[SETTING_KEYS.uiLocale]);
+
   return (
     <WelcomeWizard
       starters={starters}
       parts={parts}
       suggestedName={suggestedName}
       paper={paper}
+      initialLocale={initialLocale}
     />
   );
 }

@@ -1,6 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { learnBatch, learnCounts } from "./learn";
+import { ENGLISH_MEANINGS } from "@/lib/collections/glossLanguage";
 import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { deferWord } from "./deferrals";
 
@@ -168,8 +169,8 @@ describe("learnBatch", () => {
     await ladderCard(w.id, 0, NOW);
     await ladderCard(p.id, 0, NOW);
 
-    const words = await learnBatch(MINE, "A1", "en", 5, { kind: "word", now: NOW });
-    const phrases = await learnBatch(MINE, "A1", "en", 5, { kind: "phrase", now: NOW });
+    const words = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 5, { kind: "word", now: NOW });
+    const phrases = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 5, { kind: "phrase", now: NOW });
 
     expect(words.map((x) => x.lemma)).toEqual(["zzlearnword"]);
     expect(phrases.map((x) => x.lemma)).toEqual(["zzlearnphrase"]);
@@ -183,7 +184,7 @@ describe("learnBatch", () => {
 
     await deferWord(MINE, a.id, "A1", "/learn", NOW);
 
-    const served = await learnBatch(MINE, "A1", "en", 5, { kind: "word", now: NOW });
+    const served = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 5, { kind: "word", now: NOW });
     expect(served.map((x) => x.lemma)).toEqual(["zzlearnwordb"]);
   });
 
@@ -198,7 +199,7 @@ describe("learnBatch", () => {
     await ladderCard(w.id, 0, NOW);
     await ladderCard(p.id, 0, NOW);
 
-    const served = await learnBatch(MINE, "A1", "en", 5, {
+    const served = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 5, {
       only: ["zzlearnword", "zzlearnphrase"], now: NOW,
     });
     expect(served.map((x) => x.lemma).sort()).toEqual(["zzlearnphrase", "zzlearnword"]);
@@ -210,7 +211,7 @@ describe("learnBatch", () => {
     await ladderCard(a.id, 0, NOW);
     await ladderCard(b.id, 0, NOW);
 
-    const served = await learnBatch(MINE, "A1", "en", 5, { only: ["zzlearnwordb"], now: NOW });
+    const served = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 5, { only: ["zzlearnwordb"], now: NOW });
     expect(served.map((x) => x.lemma)).toEqual(["zzlearnwordb"]);
   });
 });
@@ -234,8 +235,8 @@ describe("the count and the round agree", () => {
     await deferWord(MINE, p.id, "A1", "/learn", NOW);
 
     const counts = await learnCounts(MINE, NOW);
-    const words = await learnBatch(MINE, "A1", "en", 20, { kind: "word", now: NOW });
-    const phrases = await learnBatch(MINE, "A1", "en", 20, { kind: "phrase", now: NOW });
+    const words = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 20, { kind: "word", now: NOW });
+    const phrases = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 20, { kind: "phrase", now: NOW });
 
     expect(words.length).toBe(counts.started);
     expect(phrases.length).toBe(counts.phrases.started);
@@ -279,7 +280,7 @@ describe("learnBatch — an A1 word carries no gap", () => {
     const w = await gapWord("A1");
     await ladderCard(w.id, 0, NOW);
 
-    const [word] = await learnBatch(MINE, "A1", "en", 5, { kind: "word", now: NOW });
+    const [word] = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 5, { kind: "word", now: NOW });
     expect(word?.sentence?.et).toBe("See on minu zzlearngapword.");
     expect(word?.gap).toBeNull();
   });
@@ -288,7 +289,7 @@ describe("learnBatch — an A1 word carries no gap", () => {
     const w = await gapWord("A2");
     await ladderCard(w.id, 0, NOW);
 
-    const [word] = await learnBatch(MINE, "A2", "en", 5, { kind: "word", now: NOW });
+    const [word] = await learnBatch(MINE, "A2", ENGLISH_MEANINGS, 5, { kind: "word", now: NOW });
     expect(word?.sentence?.et).toBe("See on minu zzlearngapword.");
     expect(word?.gap?.answer).toBe("zzlearngapword");
   });

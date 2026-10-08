@@ -99,7 +99,7 @@ describe("stickingPoints", () => {
     // The worst of the word's cards stands for the rest, and says how many.
     expect(points[0]?.siblings).toBe(2);
     expect(points[1]?.siblings).toBe(0);
-    expect(stickingNote(points[0]!)).toMatch(/2 more cards for this word are stuck too/);
+    expect(stickingNote(points[0]!, "en")).toMatch(/2 more cards for this word are stuck too/);
   });
 
   it("counts one sibling in the singular", () => {
@@ -108,7 +108,7 @@ describe("stickingPoints", () => {
       card({ id: "b", cardType: "PRODUCTION", lapses: 4 }),
     ];
     // "Another 1 card ... is stuck too" is not a sentence anybody writes.
-    expect(stickingNote(stickingPoints(cards, [])[0]!)).toMatch(/One more card for this word is stuck too/);
+    expect(stickingNote(stickingPoints(cards, [])[0]!, "en")).toMatch(/One more card for this word is stuck too/);
   });
 
   it("names no percentage for a card with lapses but no reviews in the window", () => {
@@ -123,8 +123,8 @@ describe("stickingPoints", () => {
     expect(points[0]?.reviews).toBe(0);
     expect(points[0]?.accuracy).toBe(null);
     expect(points[0]?.reason).toBe("lapses");
-    expect(stickingNote(points[0]!)).not.toMatch(/%/);
-    expect(stickingNote(points[0]!)).toMatch(/hasn't come up lately/);
+    expect(stickingNote(points[0]!, "en")).not.toMatch(/%/);
+    expect(stickingNote(points[0]!, "en")).toMatch(/hasn't come up lately/);
   });
 
   it("returns nothing for an empty deck", () => {
@@ -140,11 +140,11 @@ describe("stickingNote", () => {
       the same fact twice on one row. What the chip cannot say is how the card
       has done over how many attempts, which is what this is for.
     */
-    expect(stickingNote(point!)).toBe("You learned it, then it slipped away. 50% right over 10 reviews.");
+    expect(stickingNote(point!, "en")).toBe("You learned it, then it slipped away. 50% right over 10 reviews.");
   });
 
   it("talks about settling when accuracy is what flagged it", () => {
     const [point] = stickingPoints([card()], log("c1", 8, 3));
-    expect(stickingNote(point!)).toMatch(/never really settled/);
+    expect(stickingNote(point!, "en")).toMatch(/never really settled/);
   });
 });

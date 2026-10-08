@@ -14,6 +14,12 @@ import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/Lo
 import { familyTitle, markPick, MIXED_STAGE, markTyped, type OpenerMark, type OpenerQuestion } from "@/lib/estonian/openers";
 import { OPTION_CLASS, optionState, VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { rich } from "@/components/round/rich";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { quoted } from "@/lib/copy/values";
+import { openerSentence } from "@/lib/copy/i18n/openerSentences";
+import { checkAnswer, noteIn } from "@/lib/estonian/answer";
 
 export type OpenerCard = OpenerQuestion & { starred: boolean };
 
@@ -45,6 +51,8 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
   reading: StageLine[];
 }) {
   const grade = useGrade();
+  const t = useT();
+  const locale = useLocale();
   // Frozen on mount: grading revalidates the route and hands down a new round.
   const [questions] = useState(initialQuestions);
   // The stage and the reading are frozen with the questions: grading revalidates
@@ -107,7 +115,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
         label: "Lause algus",
         question: `${question.text} ${question.lemma}`,
         answer: `${question.text} ${question.answer}`,
-        note: question.en,
+        note: openerSentence(locale, question.id, question.lemma, question.en),
         questionLang: "et",
         answerLang: "et",
         speak: `${question.text} ${question.answer}`,
@@ -117,7 +125,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
     setPicked(null);
     setTyped("");
     setIndex((i) => i + 1);
-  }, [question, look]);
+  }, [question, look, locale]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -148,28 +156,28 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
-          That&rsquo;s the round done
+          {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           {stage.n >= MIXED_STAGE
-            ? `${questions.length} sentences, each on a different word.`
-            : `One word, ${questions.length} ways to start a sentence.`}{" "}
-          The next round uses different words, so you learn the openers and not the words.
+            ? fill(t("{n} sentences, each on a different word."), { n: questions.length })
+            : fill(t("One word, {n} ways to start a sentence."), { n: questions.length })}{" "}
+          {t("The next round uses different words, so you learn the openers and not the words.")}
         </p>
         <div
           className="mt-8 grid grid-cols-3 gap-6 rounded-lg border p-6"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <Stat value={questions.length} label="Sentences" />
-          <Stat value={`${accuracy}%`} label="Right" />
-          <Stat value={`${minutes}m`} label="Time" />
+          <Stat value={questions.length} label={t("Sentences")} />
+          <Stat value={`${accuracy}%`} label={t("Right")} />
+          <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         {joined.length > 0 && (
           <div className="mt-6 flex flex-wrap items-center gap-3 text-base" style={{ color: "var(--ink-2)" }}>
             <p>
               {undone
-                ? "Taken out of your deck again."
-                : `Added to your deck: ${joined.map((j) => j.lemma).join(", ")}.`}
+                ? t("Taken out of your deck again.")
+                : fill(t("Added to your deck: {words}."), { words: joined.map((j) => j.lemma).join(", ") })}
             </p>
             {!undone && (
               <Button
@@ -180,25 +188,39 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
                     .catch(() => {});
                 }}
               >
-                Undo
+                {t("Undo")}
               </Button>
             )}
           </div>
         )}
         {afterThis && (
           <p className="mt-6 text-base" style={{ color: "var(--ink-2)" }}>
-            Stage {afterThis.n} is open: {afterThis.title}.
+            {fill(t("Stage {n} is open: {title}."), { n: afterThis.n, title: t(afterThis.title) })}
           </p>
         )}
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          {afterThis && <ButtonLink href={`/review/openers?stage=${afterThis.n}`}>Try stage {afterThis.n}</ButtonLink>}
-          <ButtonLink href="/review/openers" variant="primary">Another round</ButtonLink>
+          {afterThis && <ButtonLink href={`/review/openers?stage=${afterThis.n}`}>{fill(t("Try stage {n}"), { n: afterThis.n })}</ButtonLink>}
+          <ButtonLink href="/review/openers" variant="primary">{t("Another round")}</ButtonLink>
         </WayOut>
       </div>
     );
   }
 
   const verdict = mark ? verdictOfRating(mark.rating) : null;
+  /*
+    What is said about a wrong answer, in the reader's language. The mark
+    carries an English sentence with the Estonian in it; it is rebuilt here
+    from the same facts, so a translation never has a form spliced into it.
+  */
+  const noteSaid = !mark || mark.right ? "" : locale === "en" ? mark.note
+    : mark.wrote === "other"
+      ? question.elsewhere
+        ? fill(t("That is the form that goes after {elsewhere}. After {start} it is {form}."), {
+            elsewhere: quoted(question.elsewhere, locale), start: quoted(question.text, locale), form: quoted(question.answer, locale),
+          })
+        : fill(t("After {start} it is {form}."), { start: quoted(question.text, locale), form: quoted(question.answer, locale) })
+      : noteIn(checkAnswer(typed, question.answer, "et", [question.other]), locale)
+        || fill(t("This one wanted {form}."), { form: quoted(question.answer, locale) });
   const shown = mark ? question.answer : "";
 
   return (
@@ -214,11 +236,11 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={questions.length}
-            aria-label="Round progress"
+            aria-label={t("Round progress")}
           />
         </div>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {questions.length - index} left
+          {fill(t("{n} left"), { n: questions.length - index })}
         </span>
       </div>
 
@@ -228,8 +250,8 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent"><Shuffle size={12} aria-hidden /> Stage {stage.n}</Chip>
-          <Chip>{familyTitle(question.family)}</Chip>
+          <Chip tone="accent"><Shuffle size={12} aria-hidden /> {fill(t("Stage {n}"), { n: stage.n })}</Chip>
+          <Chip>{t(familyTitle(question.family))}</Chip>
           <div className="ml-auto">
             <StarWord lexemeId={question.lexemeId} starred={question.starred} label={question.lemma} />
           </div>
@@ -237,7 +259,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
 
         <div className="round-pad px-6">
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            {mode === "pick" ? "Which ending goes at the end?" : "Type the word with the ending this start needs."}
+            {mode === "pick" ? t("Which ending goes at the end?") : t("Type the word with the ending this start needs.")}
           </p>
 
           {/* The start of the sentence is the whole cue, so it leads and it is big. */}
@@ -250,9 +272,9 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
               {shown || " "}
             </span>
           </p>
-          <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>{question.en}</p>
+          <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>{openerSentence(locale, question.id, question.lemma, question.en)}</p>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-            The word is <span lang="et">{question.lemma}</span>.
+            {rich(t("The word is {word}."), { word: <span lang="et">{question.lemma}</span> })}
           </p>
         </div>
 
@@ -273,14 +295,14 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
                   >
                     <KeyCap>{i + 1}</KeyCap>
                     <span lang="et" className="min-w-0 text-lg font-semibold">{form}</span>
-                    {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label="Right" />}
+                    {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label={t("Right")} />}
                   </button>
                 );
               })}
             </div>
           ) : (
             <div>
-              <label htmlFor="answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>Your answer</label>
+              <label htmlFor="answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>{t("Your answer")}</label>
               <input
                 id="answer"
                 value={typed}
@@ -299,7 +321,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
               {!revealed && (
                 <div className="mt-4">
                   <Button variant="primary" onClick={check} disabled={!typed.trim()}>
-                    Check <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                    {t("Check")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                   </Button>
                 </div>
               )}
@@ -314,8 +336,8 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
                 ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
                 : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
               <p className="text-base">
-                {mark.right ? "Yes." : mark.note}
-                <span className="mt-1 block text-sm">{question.why}</span>
+                {mark.right ? t("Yes.") : noteSaid}
+                <span className="mt-1 block text-sm">{t(question.why)}</span>
               </p>
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -326,7 +348,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <Button variant="primary" onClick={next} autoFocus>
-                Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+                {t("Next")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
             </div>
           </div>
@@ -335,13 +357,13 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
       )}
 
       <p className="sr-only" role="status">
-        {revealed && mark && (mark.right ? "Right." : `Not quite. ${mark.note}`)}
+        {revealed && mark && (mark.right ? t("Right.") : `${t("Not quite.")} ${noteSaid}`)}
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span>
           {index + (revealed ? 1 : 0) > 0
-            ? <>{correct}/{index + (revealed ? 1 : 0)} right{mode === "pick" ? ", press 1 or 2 to answer" : ""}</>
-            : mode === "pick" ? <>Press 1 or 2 to answer</> : <>Type, then press Enter</>}
+            ? fill(t(mode === "pick" ? "{n}/{total} right, press 1 or 2 to answer" : "{n}/{total} right"), { n: correct, total: index + (revealed ? 1 : 0) })
+            : mode === "pick" ? t("Press 1 or 2 to answer") : t("Type, then press Enter")}
         </span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>

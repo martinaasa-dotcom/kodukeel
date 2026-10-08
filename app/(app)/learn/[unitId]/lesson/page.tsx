@@ -1,5 +1,5 @@
 import { plainPhrase } from "@/lib/copy/values";
-import { equivalentIn, glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { equivalentIn, firstSenses, meaningPrefsFrom } from "@/lib/collections/glossLanguage";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -27,13 +27,17 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { orderContextFor } from "@/lib/dict/wordOrder";
 import { ordinaryStarters } from "@/lib/dict/openers";
 import { firstParams } from "@/lib/ux/queryParam";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
   const unit = unitById(unitId);
-  if (!unit) return { title: "Lesson" };
-  const placement = await courseLevelFor(await requireUserId());
-  return { title: `${uiText(placement, unit.title, unit.subtitle)}, lesson` };
+  const ownerId = await requireUserId();
+  const locale = await localeFor(ownerId);
+  if (!unit) return { title: tr(locale, "Lesson") };
+  const placement = await courseLevelFor(ownerId);
+  return { title: fill(tr(locale, "{title}, lesson"), { title: tr(locale, uiText(placement, unit.title, unit.subtitle)) }) };
 }
 
 export const dynamic = "force-dynamic";
@@ -62,6 +66,7 @@ export default async function LessonPage({
   if (!unit) notFound();
 
   const ownerId = await requireUserId();
+  const locale = await localeFor(ownerId);
 
   const select = {
     id: true, lemma: true, translation: true, pos: true, provenance: true,
@@ -125,7 +130,7 @@ export default async function LessonPage({
     })),
     // Which language the meeting step gives a meaning in. Memoised per render,
     // so this shares the read every other page of this request already made.
-    readSettings(ownerId, [SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss]),
+    readSettings(ownerId, [SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso, SETTING_KEYS.wordGloss]),
     // And how a beginner's word orders its own sentences, so the gap-fill is
     // cut from the plainest rather than the shortest. See lib/dict/plainness.ts.
     sentenceReach(),
@@ -146,14 +151,17 @@ export default async function LessonPage({
     */
     everydaySpellings(),
   ]);
-  const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
+  const prefs = meaningPrefsFrom(settings[SETTING_KEYS.glossLanguage], settings[SETTING_KEYS.glossAlso]);
 
   const toWord = (row: (typeof rows)[number]): LessonWord => ({
     lexemeId: row.id,
     lemma: plainPhrase(row.lemma, row.pos),
     gloss: plainPhrase(row.translation, row.pos),
-    equivalent: equivalentIn(row, glossLanguage)
-      ? { text: equivalentIn(row, glossLanguage)!, lang: glossLanguage }
+    equivalent: equivalentIn(row, prefs.lead)
+      ? { text: firstSenses(equivalentIn(row, prefs.lead)!), lang: prefs.lead }
+      : null,
+    also: equivalentIn(row, prefs.lead) && prefs.also && equivalentIn(row, prefs.also)
+      ? { text: firstSenses(equivalentIn(row, prefs.also)!), lang: prefs.also }
       : null,
     /*
       `mina` and `ma` are one word twice, and this lesson teaches the headword
@@ -313,7 +321,7 @@ export default async function LessonPage({
     <BeforeYouStart id="lesson" ready={steps.length > 0}>
       <LessonSession
         unitId={unit.id}
-        unitTitle={uiText(placement, unit.title, unit.subtitle)}
+        unitTitle={uiText(placement, unit.title, tr(locale, unit.subtitle))}
         unitLevel={unit.level}
         initialSteps={steps}
         tokens={tokens}

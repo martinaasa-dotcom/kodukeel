@@ -23,6 +23,8 @@ import { isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { WordLink } from "@/components/course/WordLink";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 export interface SentenceTask {
   /** The card this counts against — every mode grades through the same log. */
@@ -83,6 +85,8 @@ export function SentenceSession(
 ) {
   const grade = useGrade();
   const uiText = useUiText();
+  const t = useT();
+  const locale = useLocale();
   const [tasks, setTasks] = useState(initialTasks);
   // Which task to reopen on after a detour to its dictionary entry. See
   // components/useResumeCard.ts.
@@ -219,7 +223,7 @@ export function SentenceSession(
     if (task) {
       look.record({
         of: task.cardId,
-        label: "Word order",
+        label: t("Word order"),
         question: task.lemma,
         answer: task.et,
         note: task.en,
@@ -229,7 +233,7 @@ export function SentenceSession(
       });
     }
     setIndex((i) => i + 1);
-  }, [task, look]);
+  }, [task, look, t]);
 
   /* Once the sentence is marked, Enter or Space is "next", as on every other
      round. The tiles are buttons, so before the mark a Space on a focused tile
@@ -251,18 +255,18 @@ export function SentenceSession(
 
   if (initialTasks.length === 0) {
     return (
-      <Page title="Sentences" lead="Real Estonian sentences, jumbled up. Put them back in order.">
+      <Page title={t("Sentences")} lead={t("Real Estonian sentences, jumbled up. Put them back in order.")}>
         {opensAt ? (
           <Empty
-            title={`This one starts at ${opensAt}`}
-            body="Words first, then word order. Keep learning and this will be waiting for you."
-            action={<ButtonLink href="/learn" variant="primary">Carry on learning</ButtonLink>}
+            title={fill(t("This one starts at {level}"), { level: opensAt })}
+            body={t("Words first, then word order. Keep learning and this will be waiting for you.")}
+            action={<ButtonLink href="/learn" variant="primary">{t("Keep learning")}</ButtonLink>}
           />
         ) : (
           <Empty
-            title="No sentences to build yet"
-            body="The sentences come from words in your deck. Add a few more and check back."
-            action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+            title={t("No sentences to build yet")}
+            body={t("The sentences come from words in your deck. Add a few more and check back.")}
+            action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
           />
         )}
       </Page>
@@ -277,21 +281,21 @@ export function SentenceSession(
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
           <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
-            All sentences built
+            {t("All sentences built")}
           </h1>
           {/* The provenance disclaimer is off every round in the app; see the
               level check. The sentence in front of it was this app telling
               somebody who has just finished why the round was worth doing. */}
         </div>
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={attempts} label="Built" tone="accent" />
-          <StatTile value={`${accuracy}%`} label="First time" tone={accuracy >= 70 ? "sky" : "butter"} />
-          <StatTile value={`${minutes}m`} label="Time" tone="sky" />
+          <StatTile value={attempts} label={t("Built")} tone="accent" />
+          <StatTile value={`${accuracy}%`} label={t("First time")} tone={accuracy >= 70 ? "sky" : "butter"} />
+          <StatTile value={fill(t("{n}m"), { n: minutes })} label={t("Time")} tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/practice" size="lg">Try something else</ButtonLink>
-          <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
-          <ButtonLink href="/review/sentences" variant="primary" size="lg">Another round</ButtonLink>
+          <ButtonLink href="/practice" size="lg">{t("Try something else")}</ButtonLink>
+          <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
+          <ButtonLink href="/review/sentences" variant="primary" size="lg">{t("Another round")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -310,7 +314,7 @@ export function SentenceSession(
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">Sentences</h1>
+      <h1 className="sr-only">{t("Sentences")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession />
         <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -321,14 +325,14 @@ export function SentenceSession(
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={tasks.length}
-            aria-label={`Sentence ${index + 1} of ${tasks.length}`}
+            aria-label={fill(t("Sentence {n} of {total}"), { n: index + 1, total: tasks.length })}
           />
         </div>
         <span
           className="tnum label-xs rounded-full px-2.5 py-1"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
         >
-          {tasks.length - index} left
+          {fill(t("{n} left"), { n: tasks.length - index })}
         </span>
       </div>
 
@@ -338,7 +342,7 @@ export function SentenceSession(
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent">Build the sentence</Chip>
+          <Chip tone="accent">{t("Build the sentence")}</Chip>
           <WordLink lemma={task.lemma} className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>
             {task.lemma}
           </WordLink>
@@ -348,13 +352,13 @@ export function SentenceSession(
           <div className="text-center">
             {task.en ? (
               <>
-                <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Say this in Estonian</p>
+                <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Say this in Estonian")}</p>
                 <p className="text-lg leading-snug" style={{ color: "var(--ink)" }}>{task.en}</p>
               </>
             ) : previewing ? (
               <>
                 <p className="label-xs mb-2 flex items-center justify-center gap-1.5" style={{ color: "var(--ink-3)" }}>
-                  <Eye size={12} aria-hidden /> Read it. The words get jumbled in a moment
+                  <Eye size={12} aria-hidden /> {t("Read it. The words get jumbled in a moment")}
                 </p>
                 <p lang="et" className="text-xl leading-snug" style={{ color: "var(--ink)" }}>
                   {task.et}
@@ -362,7 +366,7 @@ export function SentenceSession(
               </>
             ) : (
               <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-                Now put it back together
+                {t("Now put it back together")}
               </p>
             )}
           </div>
@@ -373,7 +377,7 @@ export function SentenceSession(
             style={checked ? undefined : { borderColor: "var(--rule)", background: "transparent" }}
           >
             {built.length === 0 && (
-              <span className="text-xs" style={{ color: "var(--ink-3)" }}>Tap the words and marks in order…</span>
+              <span className="text-xs" style={{ color: "var(--ink-3)" }}>{t("Tap the words and marks in order…")}</span>
             )}
             {built.map((tileIndex) => {
               const tile = tiles.find((t) => t.index === tileIndex);
@@ -385,7 +389,7 @@ export function SentenceSession(
                   disabled={checked !== null}
                   onClick={() => setBuilt((b) => b.filter((i) => i !== tileIndex))}
                   lang={tile.mark ? undefined : "et"}
-                  aria-label={`Remove ${tile.mark ? markName(tile.word) : tile.word}`}
+                  aria-label={tile.mark ? t(`Remove ${markName(tile.word)}`) : fill(t("Remove {word}"), { word: tile.word })}
                   className={`press rounded-[var(--r-sm)] border py-1.5 text-md transition-ui hover:-translate-y-px ${tile.mark ? "min-w-9 px-2.5 font-bold" : "px-3"}`}
                   style={{
                     borderColor: "var(--edge)",
@@ -411,7 +415,7 @@ export function SentenceSession(
                   disabled={used || checked !== null || previewing}
                   onClick={() => setBuilt((b) => [...b, tile.index])}
                   lang={tile.mark ? undefined : "et"}
-                  aria-label={`Add ${tile.mark ? markName(tile.word) : tile.word}`}
+                  aria-label={tile.mark ? t(`Add ${markName(tile.word)}`) : fill(t("Add {word}"), { word: tile.word })}
                   className={`press rounded-[var(--r-sm)] border py-1.5 text-md transition-ui hover:-translate-y-px disabled:opacity-25 disabled:hover:translate-y-0 ${tile.mark ? "min-w-9 px-2.5 font-bold" : "px-3"}`}
                   style={{ borderColor: "transparent", background: "var(--raised)", color: "var(--ink)" }}
                 >
@@ -435,8 +439,8 @@ export function SentenceSession(
               */}
               <p className="font-semibold">
                 {checked === "wrong"
-                  ? (verdictNow && verdictNow.reading !== "wrong" && !verdictNow.punctuationRight ? ORDER_MARKS : ORDER_WRONG)
-                  : <>{uiText("Õige!", "Correct!")} {variant === null ? ORDER_EXACT : orderVariantNote(variant.moved, variant.writerPut)}</>}
+                  ? t(verdictNow && verdictNow.reading !== "wrong" && !verdictNow.punctuationRight ? ORDER_MARKS : ORDER_WRONG)
+                  : <>{uiText("Õige!", t("Correct!"))} {variant === null ? t(ORDER_EXACT) : orderVariantNote(variant.moved, variant.writerPut, locale)}</>}
               </p>
               <p className="mt-1 flex items-center justify-center gap-2">
                 <span lang="et" className="text-md" style={{ color: "var(--ink)" }}>{joinTokens(orderTokens(task.et))}</span>
@@ -449,7 +453,7 @@ export function SentenceSession(
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {checked ? (
             <Button variant="primary" size="lg" className="w-full" onClick={next}>
-              Next sentence <ArrowRight size={15} aria-hidden />
+              {t("Next sentence")} <ArrowRight size={15} aria-hidden />
             </Button>
           ) : (
             <div className="flex flex-col gap-3">
@@ -462,7 +466,7 @@ export function SentenceSession(
               />
               <div className="flex gap-2">
               <Button variant="ghost" onClick={() => setBuilt([])} disabled={built.length === 0}>
-                <RotateCcw size={14} aria-hidden /> Clear
+                <RotateCcw size={14} aria-hidden /> {t("Clear")}
               </Button>
               <Button
                 variant="primary"
@@ -471,7 +475,7 @@ export function SentenceSession(
                 onClick={() => void check()}
                 disabled={built.length !== tiles.length || busy}
               >
-                <Check size={15} aria-hidden /> Check
+                <Check size={15} aria-hidden /> {t("Check")}
               </Button>
               </div>
             </div>
@@ -482,7 +486,7 @@ export function SentenceSession(
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         {/* Nothing on the first sentence: "0 of 0" is a tally of nothing. */}
-        {attempts > 0 && <span>{correct} of {attempts} first time</span>}
+        {attempts > 0 && <span>{fill(t("{n} of {total} first time"), { n: correct, total: attempts })}</span>}
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>

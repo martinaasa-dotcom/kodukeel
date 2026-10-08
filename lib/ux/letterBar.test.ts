@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_LETTER_BAR, ESTONIAN_LETTERS, LETTER_BAR_CHOICES, letterBarFrom,
+  DEFAULT_LETTER_BAR, ESTONIAN_LETTERS, LETTER_BAR_CHOICES, letterBarDefaultFor, letterBarFrom,
 } from "./letterBar";
 
 describe("letterBarFrom", () => {
@@ -43,5 +43,16 @@ describe("the letters", () => {
       expect(choice.label.length).toBeGreaterThan(0);
       expect(choice.detail.length).toBeGreaterThan(20);
     }
+  });
+});
+
+describe("letterBarDefaultFor", () => {
+  it("starts a Ukrainian or Russian reader on the row, since a Cyrillic keyboard has none of the letters", () => {
+    expect(letterBarDefaultFor("uk")).toBe("on");
+    expect(letterBarDefaultFor("ru")).toBe("on");
+  });
+
+  it("starts everybody else on the general default", () => {
+    expect(letterBarDefaultFor("en")).toBe(DEFAULT_LETTER_BAR);
   });
 });

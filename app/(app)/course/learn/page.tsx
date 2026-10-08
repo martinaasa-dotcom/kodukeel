@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { meaningPrefsFrom } from "@/lib/collections/glossLanguage";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { learnBatch, learnCounts } from "@/lib/progress/learn";
@@ -10,8 +10,12 @@ import { courseReading, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { LearnSession } from "@/app/(app)/learn/new/LearnSession";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Today's words" };
+export async function generateMetadata() {
+  return titleFor("Today's words");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +47,7 @@ export default async function CourseLearnPage() {
   const day = reading.current.day;
 
   const lookups = Promise.all([
-    readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
+    readSettings(ownerId, [SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso]),
     courseLevelFor(ownerId),
     /*
       Every spelling of every course word. Which of them this learner has been
@@ -62,7 +66,7 @@ export default async function CourseLearnPage() {
     lookups.then(([settings, level, courseSpellings]) => learnBatch(
       ownerId,
       level,
-      glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]),
+      meaningPrefsFrom(settings[SETTING_KEYS.glossLanguage], settings[SETTING_KEYS.glossAlso]),
       day.words.length,
       {
         only: day.words,
@@ -94,7 +98,7 @@ export default async function CourseLearnPage() {
       words={words}
       waiting={counts.waiting}
       started={counts.started}
-      back={{ href: "/course", label: "Back to today's module" }}
+      back={{ href: "/course", label: tr(await localeFor(ownerId), "Back to today's module") }}
     />
   );
 }

@@ -4,13 +4,15 @@ import {
   type MeasuredPace, type Projection, type Standing,
 } from "@/lib/assessment/plan";
 import { describeSituation, reasonsFor, targetByBand, weeksUntil, type Goals, type Reason } from "@/lib/assessment/goals";
-import { formatDuration } from "@/lib/time/duration";
+import { formatDurationIn } from "@/lib/time/duration";
 import { minutesForCards, minutesPerStudyDay } from "@/lib/stats/pace";
 import { PRE_A1, type Band, type Level } from "@/lib/assessment/types";
 import { ChevronRight } from "lucide-react";
 import { Card, Note, SectionTitle, StatTile } from "@/components/ui";
 import { NamedIcon } from "@/components/icons";
 import { Explain } from "@/components/Explain";
+import { countOf, fill, tr, type CountCase, type Locale } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 
 /**
  * The honest timeline.
@@ -35,9 +37,9 @@ import { Explain } from "@/components/Explain";
  * the figure says which.
  */
 
-export function levelLabel(level: Level | null): string {
-  if (level === null) return "not measured";
-  return level === PRE_A1 ? "below A1" : level;
+export function levelLabel(level: Level | null, locale: Locale): string {
+  if (level === null) return tr(locale, "not measured");
+  return level === PRE_A1 ? tr(locale, "below A1") : level;
 }
 
 /**
@@ -62,6 +64,12 @@ function hoursAbout(low: number, high: number, unit: string): string {
   return central(low, high, unit, 10);
 }
 
+/** A rounded count of hours, as a sentence says it. */
+function hoursWords(low: number, high: number, locale: Locale): string {
+  if (locale === "en") return hoursAbout(low, high, "hours");
+  return countOf(locale, Math.round((low + high) / 2 / 10) * 10, "hour");
+}
+
 /**
  * The hours a whole deadline's worth of daily goals adds up to.
  *
@@ -73,6 +81,11 @@ function hoursAbout(low: number, high: number, unit: string): string {
  * The projection keeps every figure exact precisely so that a number shaped
  * for a screen never becomes a divisor. Rounding happens here, on the way out.
  */
+/** A figure with one decimal, written with the comma Russian and Ukrainian use. */
+function decimal(n: number, locale: Locale): string {
+  return locale === "en" ? String(n) : String(n).replace(".", ",");
+}
+
 function hours1(n: number): number {
   return Math.round(n * 10) / 10;
 }
@@ -85,22 +98,23 @@ function hours1(n: number): number {
  * number: B2 in a year is about five hours a week, all in, and that is a
  * thing a person can decide to do.
  */
-function verdictFor(plan: Projection): { tone: "neutral" | "good" | "warn"; headline: string } {
+function verdictFor(plan: Projection, locale: Locale): { tone: "neutral" | "good" | "warn"; headline: string } {
+  const t = (english: string) => tr(locale, english);
   const allIn = plan.otherHoursPerWeek
-    ? formatDuration(plan.appHoursPerWeek + about(plan.otherHoursPerWeek), "long")
-    : formatDuration(plan.appHoursPerWeek, "long");
+    ? formatDurationIn(plan.appHoursPerWeek + about(plan.otherHoursPerWeek), locale, "long", "acc")
+    : formatDurationIn(plan.appHoursPerWeek, locale, "long", "acc");
   switch (plan.verdict) {
-    case "arrived": return { tone: "good", headline: "By this measure, you're already there." };
-    case "comfortable": return { tone: "good", headline: "Your usual pace gets you there, with room to spare." };
-    case "tight": return { tone: "good", headline: `It fits. Plan on about ${allIn} a week, all told.` };
-    case "possible": return { tone: "neutral", headline: `It fits if you really commit: about ${allIn} a week, all told.` };
-    case "short": return { tone: "warn", headline: "Not by that date at any normal pace. Here's what would change that." };
-    case "open": return { tone: "neutral", headline: "There's no deadline yet, so here's how far you have to go." };
-    default: return { tone: "neutral", headline: "That date has already passed. Pick a new one and we can plan again." };
+    case "arrived": return { tone: "good", headline: t("By this measure, you're already there.") };
+    case "comfortable": return { tone: "good", headline: t("Your usual pace gets you there, with room to spare.") };
+    case "tight": return { tone: "good", headline: fill(t("It fits. Plan on about {time} a week, all told."), { time: allIn }) };
+    case "possible": return { tone: "neutral", headline: fill(t("It fits if you really commit: about {time} a week, all told."), { time: allIn }) };
+    case "short": return { tone: "warn", headline: t("Not by that date at any normal pace. Here's what would change that.") };
+    case "open": return { tone: "neutral", headline: t("There's no deadline yet, so here's how far you have to go.") };
+    default: return { tone: "neutral", headline: t("That date has already passed. Pick a new one and we can plan again.") };
   }
 }
 
-export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, now = new Date(), compact = false }: {
+export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, now = new Date(), compact = false, locale = "en" }: {
   /** Where the learner is, and whether a paper measured it or they guessed. */
   standing: Standing;
   goals: Goals;
@@ -127,7 +141,14 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
    * can go and find it.
    */
   compact?: boolean;
+  /**
+   * The language the panel is written in. The signed-in level check hands in
+   * the learner's own; first run is drawn outside the shell and in English,
+   * so it passes nothing.
+   */
+  locale?: Locale;
 }) {
+  const t = (english: string) => tr(locale, english);
   const target = goals.target ?? null;
   const from = standing.level;
   const weeks = weeksUntil(goals.deadline, now);
@@ -135,7 +156,7 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
   if (!target) {
     return (
       <Card>
-        <SectionTitle>Your plan</SectionTitle>
+        <SectionTitle>{t("Your plan")}</SectionTitle>
         {/*
           In first run the question is directly above this card, so the card
           points at it rather than at Settings: a link out of the wizard on its
@@ -143,9 +164,9 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
           back to the step they were on, and nothing saved.
         */}
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          {compact ? "Pick a level to aim for above" : "Pick a level to aim for"} and we&apos;ll work out how long
-          it&apos;ll take: roughly how many hours of study, how many your evenings here cover, and how
-          many you&apos;ll need to find elsewhere.
+          {t(compact
+            ? "Pick a level to aim for above and we'll work out how long it'll take: roughly how many hours of study, how many your evenings here cover, and how many you'll need to find elsewhere."
+            : "Pick a level to aim for and we'll work out how long it'll take: roughly how many hours of study, how many your evenings here cover, and how many you'll need to find elsewhere.")}
         </p>
         {!compact && (
           <Link
@@ -153,7 +174,7 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
             className="mt-4 inline-block text-sm underline underline-offset-2"
             style={{ color: "var(--accent-deep)" }}
           >
-            Set a goal
+            {t("Set a goal")}
           </Link>
         )}
       </Card>
@@ -176,71 +197,71 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
     found: foundHours(reasons),
     pace,
   });
-  const verdict = verdictFor(plan);
+  const verdict = verdictFor(plan, locale);
   const spec = targetByBand(target);
   const newCards = sustainableNewCardsPerDay(dailyGoal);
   const bySkill = countedBySkill(standing, target);
   const guessed = standing.source === "estimated" && from !== PRE_A1;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4" lang={locale}>
       <Card tone={verdict.tone === "good" ? "accent" : verdict.tone === "warn" ? "butter" : "sky"}>
         <p className="text-xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
           {verdict.headline}
         </p>
         <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {sentence(plan, weeks, levelLabel(from), target, { guessed, bySkill, onCourse })}
+          {sentence(plan, weeks, levelLabel(from, locale), target, { guessed, bySkill, onCourse }, locale)}
         </p>
-        <DistanceBar plan={plan} />
+        <DistanceBar plan={plan} locale={locale} />
       </Card>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatTile
           value={plan.hours.high === 0 ? "0" : hoursAbout(plan.hours.low, plan.hours.high, "")}
-          label="Study hours to go"
+          label={t("Study hours to go")}
           tone="accent"
-          hint={guessed ? "from published figures, with room for a guessed level"
+          hint={t(guessed ? "from published figures, with room for a guessed level"
             : bySkill ? "from published figures, skill by skill"
-              : "from published figures, not our guess"}
+              : "from published figures, not our guess")}
         />
         <StatTile
-          value={formatDuration(plan.appHoursPerWeek)}
-          label="In this app, each week"
+          value={formatDurationIn(plan.appHoursPerWeek, locale)}
+          label={t("In this app, each week")}
           tone="sky"
-          hint={paceHint(plan, goals, dailyGoal, onCourse)}
+          hint={paceHint(plan, goals, dailyGoal, onCourse, locale)}
         />
         {/* What the date asks for, all in, rather than how long the app alone
             would take: the second is a number nobody can act on and the first
             is the whole plan in one figure. */}
         <StatTile
           value={plan.otherHoursPerWeek
-            ? formatDuration(plan.appHoursPerWeek + about(plan.otherHoursPerWeek))
+            ? formatDurationIn(plan.appHoursPerWeek + about(plan.otherHoursPerWeek), locale)
             : plan.weeksOnAppAlone.high === 0 ? "0" : central(plan.weeksOnAppAlone.low, plan.weeksOnAppAlone.high, "")}
-          label={plan.otherHoursPerWeek ? "Each week, all told" : "Weeks with just this app"}
+          label={t(plan.otherHoursPerWeek ? "Each week, all told" : "Weeks with just this app")}
           tone="blush"
-          hint={plan.otherHoursPerWeek ? "here and elsewhere, to make your date" : "set a date to see hours a week"}
+          hint={t(plan.otherHoursPerWeek ? "here and elsewhere, to make your date" : "set a date to see hours a week")}
         />
         <StatTile
-          value={weeks === null ? "open" : `${weeks}`}
-          label="Weeks until your date"
+          value={weeks === null ? t("open") : `${weeks}`}
+          label={t("Weeks until your date")}
           tone="butter"
-          hint={weeks === null ? "no deadline set" : weeks === 0 ? "that date has passed" : "from today"}
+          hint={t(weeks === null ? "no deadline set" : weeks === 0 ? "that date has passed" : "from today")}
         />
       </div>
 
       {plan.otherHoursPerWeek && plan.otherHoursPerWeek.high > 0 && (
-        <Note tone="sky">{foundNote(plan, reasons)}</Note>
+        <Note tone="sky">{foundNote(plan, reasons, locale)}</Note>
       )}
 
       {compact && (
-        <Explain label="Where the hours come from">
-          The hours are published estimates for an English speaker, averaged over other people on
-          other courses. We then adjust them for your level, your week and, once you have some,
-          your reviews. The sources, and the research behind the pace, are on the{" "}
-          <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
-            level check screen
-          </Link>
-          .
+        <Explain label={t("Where the hours come from")}>
+          {fillNodes(t("The hours are published estimates for an English speaker, averaged over other people on other courses. We then adjust them for your level, your week and, once you have some, your reviews. The sources, and the research behind the pace, are on the {link}."), {
+            link: (
+              <Link href="/assess" className="underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
+                {t("level check screen")}
+              </Link>
+            ),
+          })}
         </Explain>
       )}
 
@@ -261,34 +282,31 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
           style={{ color: "var(--accent-deep)" }}
         >
           <ChevronRight size={15} aria-hidden className="transition-ui group-open:rotate-90" />
-          Where these numbers come from, and what the pace is based on
+          {t("Where these numbers come from, and what the pace is based on")}
         </summary>
         <div className="mt-4 flex flex-col gap-6">
         <Card>
-          <SectionTitle hint="what the numbers assume">How we worked it out</SectionTitle>
+          <SectionTitle hint={t("what the numbers assume")}>{t("How we worked it out")}</SectionTitle>
         <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          Getting to {target} from scratch takes an English speaker about {hoursAbout(CUMULATIVE_HOURS[target].low, CUMULATIVE_HOURS[target].high, "hours")} of
-          study. Estonian takes longer than French or Spanish, and most of the extra time comes in
-          the middle: the cases and the gradation make A2 to B1 the longest step. B1 to B2 is closer
-          to any other language, once the grammar underneath is working. These are averages from
-          other people, on other courses.
+          {fill(t("Getting to {level} from scratch takes an English speaker about {hours} of study. Estonian takes longer than French or Spanish, and most of the extra time comes in the middle: the cases and the gradation make A2 to B1 the longest step. B1 to B2 is closer to any other language, once the grammar underneath is working. These are averages from other people, on other courses."), {
+            level: target, hours: hoursWords(CUMULATIVE_HOURS[target].low, CUMULATIVE_HOURS[target].high, locale),
+          })}
         </p>
         <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {standing.source === "measured"
+          {t(standing.source === "measured"
             ? bySkill
               ? "Your level was measured, and your skills came out at different levels. So the distance is the average of what each skill still has to cover, not the distance from your overall level."
               : "Your level was measured, so we didn't pad the distance for a guess."
-            : "Your level is your own estimate, so the figure allows for you being half a level lower than you think. Take the level check and that padding goes."}{" "}
+            : "Your level is your own estimate, so the figure allows for you being half a level lower than you think. Take the level check and that padding goes.")}{" "}
           {plan.paceSource === "measured"
-            ? `Your pace comes from what you actually did here over the last ${weeksWord(plan.paceWeeks)}, not from what you said you'd do.`
+            ? fill(t("Your pace comes from what you actually did here over the last {weeks}, not from what you said you'd do."), { weeks: weeksWord(plan.paceWeeks, locale) })
             : plan.paceSource === "lapsed"
-              ? `You haven't reviewed anything here in the last ${weeksWord(plan.paceWeeks)}, so we're using the pace you told us. Review for a fortnight and we'll use your real one.`
-              : "Once you've had two weeks of reviews here, the pace comes from what you actually do, not what you said you'd do."}
+              ? fill(t("You haven't reviewed anything here in the last {weeks}, so we're using the pace you told us. Review for two weeks and we'll use your real one."), { weeks: weeksWord(plan.paceWeeks, locale) })
+              : t("Once you've had two weeks of reviews here, the pace comes from what you actually do, not what you said you'd do.")}
         </p>
         {spec && (
           <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            <strong>{target}, {spec.label.toLowerCase()}.</strong> {spec.can} What it still won&apos;t
-            get you: {lowerFirst(spec.cannot)}
+            <strong>{target}, {t(spec.label).toLowerCase()}.</strong> {t(spec.can)} {fill(t("What it still won't get you: {what}"), { what: lowerFirst(t(spec.cannot)) })}
           </p>
         )}
         {/*
@@ -303,17 +321,16 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
           they will not have. Both halves are said now.
         */}
         <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          A daily goal of {dailyGoal} cards means {dailyGoal} cards to answer, not {dailyGoal} new
-          ones. A card you learn today needs about ten more reviews in its first year. Once those
-          reviews pile up, your daily goal works out at about {newCards} brand new{" "}
-          {newCards === 1 ? "card" : "cards"} a day. A higher goal does bring new words in faster,
-          but it also makes every day from here on longer, and that&apos;s usually where week six
-          falls apart. Pick the goal you&apos;d still keep on a rotten Wednesday.
+          {fill(t("A daily goal of {cards} means {cards} to answer, not {newOnes}. A card you learn today needs about ten more reviews in its first year. Once those reviews pile up, your daily goal works out at about {fresh} a day. A higher goal does bring new words in faster, but it also makes every day from here on longer, and that's usually where week six falls apart. Pick the goal you'd still keep on a rotten Wednesday."), {
+            cards: countOf(locale, dailyGoal, "card"),
+            newOnes: countOf(locale, dailyGoal, "new one"),
+            fresh: countOf(locale, newCards, "brand new card"),
+          })}
         </p>
         </Card>
 
         <div>
-          <SectionTitle hint="each one with a source you can check">Good to know before you start</SectionTitle>
+          <SectionTitle hint={t("each one with a source you can check")}>{t("Good to know before you start")}</SectionTitle>
         <ul className="flex flex-col gap-3">
           {FACTS.map((fact) => {
             return (
@@ -326,8 +343,8 @@ export function PlanPanel({ standing, goals, dailyGoal, onCourse, pace = null, n
                     <NamedIcon name={fact.icon} size={17} aria-hidden />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{fact.claim}</p>
-                    <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>{fact.source}</p>
+                    <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(fact.claim)}</p>
+                    <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>{t(fact.source)}</p>
                   </div>
                 </Card>
               </li>
@@ -358,19 +375,28 @@ function lowerFirst(text: string): string {
 }
 
 /** "3 weeks", for a pace read over a stretch of log. Never under one. */
-function weeksWord(weeks: number | null): string {
+function weeksWord(weeks: number | null, locale: Locale): string {
   const n = Math.max(1, Math.round(weeks ?? 0));
-  return n === 1 ? "week" : `${n} weeks`;
+  if (locale === "en") return n === 1 ? "week" : `${n} weeks`;
+  /* Every sentence it fills reads "за {weeks}", which takes the accusative:
+     "за 21 неделю", never "за 21 неделя". */
+  return n === 1 ? tr(locale, "a single week (span)") : countOf(locale, n, "week", "acc");
+}
+
+/** A number of weeks in a sentence: always "N weeks" in English, as it was. */
+function weeksCount(n: number, locale: Locale, grammaticalCase: CountCase = "nom"): string {
+  return locale === "en" ? `${n} weeks` : countOf(locale, n, "week", grammaticalCase);
 }
 
 /** The small print under the pace tile: what the figure is a figure of. */
-function paceHint(plan: Projection, goals: Goals, dailyGoal: number, onCourse: boolean): string {
-  if (plan.paceSource === "measured") return `measured over your last ${weeksWord(plan.paceWeeks)}`;
-  if (plan.paceSource === "lapsed") return "your own estimate, as you haven't reviewed lately";
+function paceHint(plan: Projection, goals: Goals, dailyGoal: number, onCourse: boolean, locale: Locale): string {
+  const t = (english: string) => tr(locale, english);
+  if (plan.paceSource === "measured") return fill(t("measured over your last {weeks}"), { weeks: weeksWord(plan.paceWeeks, locale) });
+  if (plan.paceSource === "lapsed") return t("your own estimate, as you haven't reviewed lately");
   const minutes = minutesPerStudyDay(dailyGoal, onCourse);
   return onCourse
-    ? `a ${minutes}-minute evening, ${goals.daysPerWeek} days`
-    : `${minutes} minutes, ${goals.daysPerWeek} days`;
+    ? fill(t("a {minutes}-minute evening, {days} days"), { minutes, days: goals.daysPerWeek })
+    : fill(t("{minutes} minutes, {days} days"), { minutes, days: goals.daysPerWeek });
 }
 
 /**
@@ -380,8 +406,8 @@ function paceHint(plan: Projection, goals: Goals, dailyGoal: number, onCourse: b
  * Anu's briefing reads the same ones, so the note here and what she is told
  * cannot describe one learner two ways.
  */
-function situation(reasons: readonly Reason[]): string | null {
-  return describeSituation(reasons);
+function situation(reasons: readonly Reason[], locale: Locale): string | null {
+  return describeSituation(reasons, locale);
 }
 
 /**
@@ -393,19 +419,20 @@ function situation(reasons: readonly Reason[]): string | null {
  * the sentence read different numbers the headline said a plan fitted over a
  * note saying it was years out.
  */
-function foundNote(plan: Projection, reasons: readonly Reason[]): string {
+function foundNote(plan: Projection, reasons: readonly Reason[], locale: Locale): string {
+  const t = (english: string) => tr(locale, english);
   const other = plan.otherHoursPerWeek!;
-  const need = formatDuration(about(other), "long");
-  const lands = `${plan.weeksAbout} weeks`;
-  const where = situation(reasons);
-  const held = formatDuration(about(plan.found), "long");
+  const need = formatDurationIn(about(other), locale, "long", "acc");
+  const lands = weeksCount(plan.weeksAbout, locale);
+  const where = situation(reasons, locale);
+  const held = formatDurationIn(about(plan.found), locale, "long", "acc");
   if (plan.verdict === "short") {
-    return `That's more than most weeks can hold on top of everything else. At ${held} a week beyond this app, it's about ${lands} away. Move your date to then, or raise the daily goal, and the plan works again.`;
+    return fill(t("That's more than most weeks can hold on top of everything else. At {held} a week beyond this app, it's about {lands} away. Move your date to then, or raise the daily goal, and the plan works again."), { held, lands });
   }
   if (where) {
-    return `Put in about ${need} a week of Estonian beyond this app and you'll make your date. You ${where}, which usually gives you ${held} a week without booking anything, so most of it is already there.`;
+    return fill(t("Put in about {need} a week of Estonian beyond this app and you'll make your date. You {where}, which usually gives you {held} a week without booking anything, so most of it is already there."), { need, where, held });
   }
-  return `Put in about ${need} a week of Estonian beyond this app and you'll make your date: a class, a conversation partner, reading, a film without subtitles. A normal week has room for ${held} of that, and at that pace you're about ${lands} away.`;
+  return fill(t("Put in about {need} a week of Estonian beyond this app and you'll make your date: a class, a conversation partner, reading, a film without subtitles. A normal week has room for {held} of that, and at that pace you're about {lands} away."), { need, held, lands });
 }
 
 function sentence(
@@ -414,45 +441,49 @@ function sentence(
   from: string,
   to: Band,
   why: { guessed: boolean; bySkill: boolean; onCourse: boolean },
+  locale: Locale,
 ): string {
+  const t = (english: string) => tr(locale, english);
   if (plan.verdict === "arrived") {
-    return `You're already at ${to} or above. Pick a higher target, or keep your reviews ticking over and take the check again in a couple of months.`;
+    return fill(t("You're already at {level} or above. Pick a higher target, or keep your reviews going and take the check again in a couple of months."), { level: to });
   }
   const qualifier = why.guessed
-    ? " That level is your own estimate, so the figure allows for you starting half a level lower."
+    ? ` ${t("That level is your own estimate, so the figure allows for you starting half a level lower.")}`
     : why.bySkill
-      ? " Your skills came out at different levels, so we counted the distance skill by skill."
+      ? ` ${t("Your skills came out at different levels, so we counted the distance skill by skill.")}`
       : "";
-  const distance = `Going from ${from} to ${to} takes about ${hoursAbout(plan.hours.low, plan.hours.high, "hours")} of study.${qualifier}`;
-  const pace = formatDuration(plan.appHoursPerWeek, "long");
+  const distance = `${fill(t("Going from {from} to {to} takes about {hours} of study."), { from, to, hours: hoursWords(plan.hours.low, plan.hours.high, locale) })}${qualifier}`;
+  const pace = formatDurationIn(plan.appHoursPerWeek, locale, "long", "acc");
   const covers = plan.paceSource === "measured"
-    ? `You've spent about ${pace} a week here over the last ${weeksWord(plan.paceWeeks)}, so that's the pace we're using`
+    ? fill(t("You've spent about {pace} a week here over the last {weeks}, so that's the pace we're using."), { pace, weeks: weeksWord(plan.paceWeeks, locale) })
     : plan.paceSource === "lapsed"
-      ? `You haven't reviewed anything here in the last ${weeksWord(plan.paceWeeks)}, so this counts the ${pace} a week you told us`
-      : `At the pace you told us, you'll do ${pace} a week of that here`;
+      ? fill(t("You haven't reviewed anything here in the last {weeks}, so this counts the {pace} a week you told us."), { pace, weeks: weeksWord(plan.paceWeeks, locale) })
+      : fill(t("At the pace you told us, you'll do {pace} a week of that here."), { pace });
   if (weeks === null) {
-    return `${distance} ${covers}. Set a date and we'll turn the rest into a real timeline.`;
+    return `${distance} ${covers} ${t("Set a date and we'll turn the rest into a real timeline.")}`;
   }
   /*
     A date behind them divides by nothing, so it gets the distance and the pace
     and no arithmetic over the deadline at all.
   */
   if (plan.verdict === "passed") {
-    return `${distance} ${covers}. Pick a date that's still ahead of you and we can plan again.`;
+    return `${distance} ${covers} ${t("Pick a date that's still ahead of you and we can plan again.")}`;
   }
   const covered = hours1(plan.appHoursAvailable ?? 0);
   const whose = plan.paceSource === "measured" ? "your real pace"
     : plan.paceSource === "lapsed" ? "the pace you said"
       : why.onCourse ? "your evenings here" : "your daily goal";
+  /* "За {weeks}": the accusative. */
+  const counts = { weeks: weeksCount(weeks, locale, "acc"), covered: decimal(covered, locale) };
   if (plan.verdict === "comfortable") {
-    return `${distance} In ${weeks} weeks ${whose} alone ${puts(whose)} in about ${covered} hours, which covers it.`;
+    return `${distance} ${fill(t(`In {weeks} ${whose} alone ${puts(whose)} in about {covered} hours, which covers it.`), counts)}`;
   }
-  const rest = plan.verdict === "tight"
+  const rest = t(plan.verdict === "tight"
     ? "The rest can come from a class, some reading and the Estonian around you. That fits into a normal week."
     : plan.verdict === "possible"
       ? "The rest means real work beyond this app, every week. People who put that in do get there."
-      : "The rest is more than most weeks can hold on top of everything else, so either the date or the pace needs to move.";
-  return `${distance} In ${weeks} weeks ${whose} ${puts(whose)} in about ${covered} of those hours. ${rest}`;
+      : "The rest is more than most weeks can hold on top of everything else, so either the date or the pace needs to move.");
+  return `${distance} ${fill(t(`In {weeks} ${whose} ${puts(whose)} in about {covered} of those hours.`), counts)} ${rest}`;
 }
 
 /** "puts" or "put", since "your evenings" is the one plural subject. */
@@ -468,7 +499,8 @@ function puts(subject: string): string {
  * only where there is a date, since without one nothing is being measured
  * against the track.
  */
-function DistanceBar({ plan }: { plan: Projection }) {
+function DistanceBar({ plan, locale }: { plan: Projection; locale: Locale }) {
+  const t = (english: string) => tr(locale, english);
   if (plan.weeksAvailable === null || plan.appHoursAvailable === null || plan.hours.high <= 0) return null;
   const total = about(plan.hours);
   const app = Math.min(plan.appHoursAvailable, total);
@@ -492,14 +524,14 @@ function DistanceBar({ plan }: { plan: Projection }) {
         {segments.map((segment) => (
           <li key={segment.key} className="flex items-center gap-2">
             <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: segment.fill }} />
-            {segment.label}
-            <span className="tnum font-bold" style={{ color: "var(--ink)" }}>{formatDuration(segment.hours)}</span>
+            {t(segment.label)}
+            <span className="tnum font-bold" style={{ color: "var(--ink)" }}>{formatDurationIn(segment.hours, locale)}</span>
           </li>
         ))}
         <li className="flex items-center gap-2">
           <span aria-hidden className="h-2.5 w-2.5 rounded-full border" style={{ borderColor: "var(--ink-3)", background: "var(--surface)" }} />
-          {left > 0 ? "Still to find" : "All covered"}
-          {left > 0 && <span className="tnum font-bold" style={{ color: "var(--ink)" }}>{formatDuration(left)}</span>}
+          {t(left > 0 ? "Still to find" : "All covered")}
+          {left > 0 && <span className="tnum font-bold" style={{ color: "var(--ink)" }}>{formatDurationIn(left, locale)}</span>}
         </li>
       </ul>
     </div>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useModuleFocus, useModuleNext } from "./moduleFocus";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * WHERE A READING ENDS, INSIDE TODAY'S MODULE.
@@ -17,6 +19,7 @@ import { useModuleFocus, useModuleNext } from "./moduleFocus";
 export function ReadingEnd() {
   const focus = useModuleFocus();
   const next = useModuleNext();
+  const t = useT();
   if (!focus || !next) return null;
   return (
     <div
@@ -25,9 +28,9 @@ export function ReadingEnd() {
       style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
     >
       <div>
-        <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>That&apos;s the end of the page</p>
+        <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>{t("That's the end of the page")}</p>
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          Move on and that&apos;s step {focus.n} of {focus.of} done.
+          {fill(t("Move on and that's step {n} of {of} done."), { n: focus.n, of: focus.of })}
         </p>
       </div>
       <div className="ml-auto">{next}</div>

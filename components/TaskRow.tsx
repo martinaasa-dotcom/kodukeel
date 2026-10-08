@@ -6,6 +6,9 @@ import { toggleTask } from "@/app/actions";
 import { DUE_DATE_FORMAT, TASK_TAGS, bucketFor } from "@/lib/ux/agenda";
 import { dayClock } from "@/lib/time/day";
 import { LocalDate, stableDate } from "@/components/LocalDate";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 
 export interface TaskView {
   id: string;
@@ -17,6 +20,7 @@ export interface TaskView {
 
 export function TaskRow({ task }: { task: TaskView }) {
   const [pending, start] = useTransition();
+  const t = useT();
   const due = task.dueAt ? new Date(task.dueAt) : null;
   /*
     Late by the calendar, not by the clock, and through the same function the
@@ -44,7 +48,7 @@ export function TaskRow({ task }: { task: TaskView }) {
       <button
         type="button"
         onClick={() => start(() => void toggleTask(task.id, !task.completed).catch(() => {}))}
-        aria-label={task.completed ? `Mark "${task.title}" as not done` : `Mark "${task.title}" as done`}
+        aria-label={fill(t(task.completed ? "Mark \"{task}\" as not done" : "Mark \"{task}\" as done"), { task: task.title })}
         className="press flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors"
         style={{
           borderColor: task.completed ? "var(--good)" : "var(--rule)",
@@ -68,20 +72,25 @@ export function TaskRow({ task }: { task: TaskView }) {
           {/* The tag a deployment can actually write, from the one table.
               A row restored from an old backup may carry a kind that was cut,
               and printing it as it stands is better than printing nothing. */}
-          <span>{TASK_TAGS[task.tag] ?? task.tag}</span>
+          <span>{TASK_TAGS[task.tag] ? t(TASK_TAGS[task.tag]!) : task.tag}</span>
           {due && (
             <span style={{ color: overdue ? "var(--again-ink)" : undefined }}>
-              {overdue ? "Overdue, " : "Due "}
-              {/* A day stored at midnight UTC, so written in UTC: the reader's own
-                  zone named the day before anywhere west of Greenwich. Through
-                  LocalDate, and pinned to one locale until it has mounted, since
-                  this renders on the server first and the two have to agree. */}
-              <LocalDate
-                iso={due.toISOString()}
-                zone="UTC"
-                options={DUE_DATE_FORMAT}
-                fallback={stableDate(due, DUE_DATE_FORMAT)}
-              />
+              {/* One sentence with the date in its slot, since "Overdue, " and a
+                  date beside it were two pieces in English word order. */}
+              {fillNodes(t(overdue ? "Overdue since {date}" : "Due {date}"), {
+                /* A day stored at midnight UTC, so written in UTC: the reader's own
+                   zone named the day before anywhere west of Greenwich. Through
+                   LocalDate, and pinned to one locale until it has mounted, since
+                   this renders on the server first and the two have to agree. */
+                date: (
+                  <LocalDate
+                    iso={due.toISOString()}
+                    zone="UTC"
+                    options={DUE_DATE_FORMAT}
+                    fallback={stableDate(due, DUE_DATE_FORMAT)}
+                  />
+                ),
+              })}
             </span>
           )}
         </div>

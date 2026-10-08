@@ -1,6 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { CaseLabel } from "@/components/CaseLabel";
-import { ChevronRight, Puzzle, Sparkles, Target, TriangleAlert } from "lucide-react";
+import { ChevronRight, Languages, Puzzle, Sparkles, Target, TriangleAlert } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -14,14 +14,20 @@ import { caseAccuracy } from "@/lib/stats/history";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { Card, Chip, Meter, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { Lettered } from "@/components/HeroLetters";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/reference/fillNodes";
+import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Grammar: the endings and what they mean",
-  description:
-    "All fourteen Estonian cases in plain English, each with the name your teacher uses and the question it answers, shown on real words.",
-};
+export async function generateMetadata() {
+  return titleFor("Grammar: the endings and what they mean", {
+    description:
+      "All fourteen Estonian cases in plain English, each with the name your teacher uses and the question it answers, shown on real words.",
+  });
+}
 
 /**
  * The reference layer.
@@ -46,34 +52,79 @@ const ENDING_HUES = ["var(--butter-ink)", "var(--blush-ink)", "var(--sky-ink)", 
 export default async function GrammarIndexPage() {
   const ownerId = await requireUserId();
 
-  const [reviews, demo] = await Promise.all([
+  const [reviews, demo, locale, settings] = await Promise.all([
     // Through the one reader, so this page and Practice and Progress cannot
     // name three different weakest cases at the same learner. See
     // lib/progress/cases.ts.
     caseReviewsFor(ownerId),
     endingStrip(),
+    localeFor(ownerId),
+    readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
   ]);
+  const t = (english: string, context?: string) => tr(locale, english, context);
+  /*
+    UKRAINIAN IS READ TWO WAYS, AND EITHER IS ENOUGH.
+
+    The interface language is what the app is read in and the gloss language
+    is what a meaning is printed in, and a learner can choose one without the
+    other: somebody fluent in English who thinks in Ukrainian reads the app in
+    English with Ukrainian meanings. Either says Ukrainian is the language they
+    compare Estonian with, so either puts the page that does that at the top.
+  */
+  // Never in a Russian interface: a Russian screen does not name Ukrainian, and
+  // the page itself sends a Russian reader back here.
+  const ukrainian = locale !== "ru" && (locale === "uk" || glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]) === "uk");
   const weakest = caseAccuracy(reviews).slice(0, 3);
 
   return (
     <Page route="/grammar"
-      eyebrow="Reference"
-      title="Grammar"
-      lead="Fourteen endings. Three you learn by heart, and eleven you can work out."
+      eyebrow={t("Reference")}
+      title={t("Grammar")}
+      lead={t("Fourteen endings. Three you learn by heart, and eleven you can work out.")}
     >
       <Stack>
+        {/*
+          FIRST, FOR SOMEBODY WHOSE OTHER LANGUAGE IS UKRAINIAN.
+
+          Everything under this explains Estonian against English. For a
+          learner who thinks in Ukrainian there is a page that explains it
+          against what they already have, and it is the better first read, so
+          it leads rather than sitting at the foot of a long reference.
+        */}
+        {ukrainian && (
+          <Link
+            href="/grammar/ukrainian"
+            className="lift flex items-start gap-4 rounded-[var(--r-lg)] border p-5"
+            style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+          >
+            <span
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+              style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}
+            >
+              <Languages size={19} aria-hidden />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>
+                {t("Estonian for Ukrainian speakers")}
+              </span>
+              <span className="mt-1.5 block text-sm" style={{ color: "var(--ink-2)" }}>
+                {t("What your Ukrainian already gives you, and where it leads you astray.")}
+              </span>
+            </span>
+          </Link>
+        )}
+
         <Lettered>
           <Card tone="night" className="md:p-9">
             <p className="label-xs flex items-center gap-2" style={{ color: "var(--butter-ink)" }}>
               <Sparkles size={14} aria-hidden className="shrink-0" />
-              How the cases work
+              {t("How the cases work")}
             </p>
             <h2 className="font-display mt-3 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-              One word, eleven endings
+              {t("One word, eleven endings")}
             </h2>
             <p className="mt-3 max-w-[58ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              You learn three forms of a word by heart. Every other case is one of those three with an
-              ending stuck on, and it&apos;s the same ending for every word in the language.
+              {t("You learn three forms of a word by heart. Every other case is one of those three with an ending stuck on, and it's the same ending for every word in the language.")}
             </p>
             {demo && (
               <ul className="mt-6 flex flex-wrap gap-2">
@@ -94,7 +145,7 @@ export default async function GrammarIndexPage() {
                       {row.suffix}
                     </span>
                     <span className="ml-2 text-sm" style={{ color: "var(--ink-3)" }}>
-                      {row.plain}
+                      {t(row.plain)}
                     </span>
                   </li>
                 ))}
@@ -128,11 +179,10 @@ export default async function GrammarIndexPage() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>
-              Build a word
+              {t("Build a word")}
             </span>
             <span className="mt-1.5 block text-sm" style={{ color: "var(--ink-2)" }}>
-              Pick a word, meet the three forms you learn by heart, then add the other eleven endings
-              one at a time. Each comes with what it means and a real sentence that uses it.
+              {t("Pick a word, meet the three forms you learn by heart, then add the other eleven endings one at a time. Each comes with what it means and a real sentence that uses it.")}
             </span>
           </span>
         </Link>
@@ -160,19 +210,17 @@ export default async function GrammarIndexPage() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>
-              Words that break the pattern
+              {t("Words that break the pattern")}
             </span>
             <span className="mt-1.5 block text-sm" style={{ color: "var(--ink-2)" }}>
-              Some words go their own way, like tuba becoming tuppa, and when a word&apos;s stem
-              changes, eleven cases change with it. Here&apos;s which words do that, and how to practise
-              them.
+              {t("Some words go their own way, like tuba becoming tuppa, and when a word's stem changes, eleven cases change with it. Here's which words do that, and how to practice them.")}
             </span>
           </span>
         </Link>
 
         {weakest.length > 0 && (
           <section>
-            <SectionTitle hint="from your own reviews">Start with these</SectionTitle>
+            <SectionTitle hint={t("from your own reviews")}>{t("Start with these")}</SectionTitle>
             <Card>
               <ul className="flex flex-col gap-2">
                 {weakest.map((c) => {
@@ -196,19 +244,19 @@ export default async function GrammarIndexPage() {
                                 -{ref.spec.suffix}
                               </span>
                             )}
-                            <span className="font-semibold" style={{ color: "var(--ink)" }}>{ref.plain}</span>
+                            <span className="font-semibold" style={{ color: "var(--ink)" }}>{t(ref.plain)}</span>
                             <span lang="et" className="text-xs" style={{ color: "var(--ink-3)" }}>
                               {ref.spec.et}
                             </span>
                           </span>
                           <span className="tnum shrink-0 text-xs" style={{ color: "var(--ink-3)" }}>
-                            {c.accuracy}% over {c.total}
+                            {fill(t("{accuracy}% over {total}"), { accuracy: c.accuracy, total: c.total })}
                           </span>
                         </span>
                         <span className="block max-w-[320px]">
                           <Meter
                             pct={c.accuracy}
-                            label={`${ref.spec.et} accuracy`}
+                            label={fill(t("{case} accuracy"), { case: ref.spec.et })}
                             tone="var(--accent)"
                             height={5}
                           />
@@ -235,10 +283,10 @@ export default async function GrammarIndexPage() {
                 <span lang="et" style={{ textTransform: "none" }}>{endings.join(", ")}</span>
               ) : undefined}
             >
-              {group.title}
+              {t(group.title)}
             </SectionTitle>
             <p className="mb-3 max-w-[68ch] text-sm" style={{ color: "var(--ink-2)" }}>
-              {group.blurb}
+              {t(group.blurb)}
             </p>
             <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {group.keys.map((key) => {
@@ -257,18 +305,18 @@ export default async function GrammarIndexPage() {
                     >
                       <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                         {ref.spec.principal ? (
-                          <Chip tone="hard">memorized</Chip>
+                          <Chip tone="hard">{t("memorized")}</Chip>
                         ) : (
                           <span lang="et" className="text-xl font-bold" style={{ color: "var(--accent-deep)" }}>
                             -{ref.spec.suffix}
                           </span>
                         )}
                         <span className="text-md font-bold" style={{ color: "var(--ink)" }}>
-                          {ref.plain}
+                          {t(ref.plain)}
                         </span>
                       </span>
                       <span className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                        {ref.summary}
+                        {t(ref.summary)}
                       </span>
                       {/* The two names, quietly, under the thing they name.
                           A class says the first and an English reference
@@ -294,24 +342,22 @@ export default async function GrammarIndexPage() {
         */}
         <Card>
           <p className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-            Estonian verbs have just two tenses
+            {t("Estonian verbs have just two tenses")}
           </p>
           <p className="mt-2 max-w-[64ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            A present and a past. Two more are made with a helper verb, the way English says
-            &ldquo;have done&rdquo;. Mood, voice and person are separate switches on top, so you
-            describe any form by saying how each switch is set.
+            {t("A present and a past. Two more are made with a helper verb, the way English says “have done”. Mood, voice and person are separate switches on top, so you describe any form by saying how each switch is set.")}
           </p>
           <dl className="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
             {VERB_AXES.map((axis) => (
               <div key={axis.et} className="min-w-0">
                 <dt className="flex flex-wrap items-baseline gap-2">
                   <span className="text-md font-bold" style={{ color: "var(--ink)" }}>
-                    {axis.en}
+                    {t(axis.en, "grammar")}
                   </span>
                   <span lang="et" className="text-xs" style={{ color: "var(--ink-3)" }}>{axis.et}</span>
                 </dt>
                 <dd className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {axis.blurb}
+                  {t(axis.blurb)}
                 </dd>
               </div>
             ))}
@@ -319,9 +365,9 @@ export default async function GrammarIndexPage() {
         </Card>
 
         <section>
-          <SectionTitle hint={`${TOPIC_NOTES.length} points`}>Beyond the endings</SectionTitle>
+          <SectionTitle hint={countOf(locale, TOPIC_NOTES.length, "point")}>{t("Beyond the endings")}</SectionTitle>
           <p className="mt-1 max-w-[68ch] text-sm" style={{ color: "var(--ink-2)" }}>
-            Grouped by the kind of word they&apos;re about, in the order a course would teach them.
+            {t("Grouped by the kind of word they're about, in the order a course would teach them.")}
           </p>
           <div className="mt-4 flex flex-col gap-6">
             {TOPIC_GROUPS.map((group) => {
@@ -329,7 +375,7 @@ export default async function GrammarIndexPage() {
               return (
                 <div key={group.id}>
                   <h3 className="flex flex-wrap items-baseline gap-2">
-                    <span className="text-md font-bold" style={{ color: "var(--ink)" }}>{group.title}</span>
+                    <span className="text-md font-bold" style={{ color: "var(--ink)" }}>{t(group.title)}</span>
                     {groupTerm && (
                       <span lang="et" className="text-xs" style={{ color: "var(--ink-3)" }}>
                         {groupTerm}
@@ -337,7 +383,7 @@ export default async function GrammarIndexPage() {
                     )}
                   </h3>
                   <p className="mt-1 max-w-[68ch] text-sm" style={{ color: "var(--ink-3)" }}>
-                    {group.blurb}
+                    {t(group.blurb)}
                   </p>
                   {/*
                     ONE LINE A POINT. Each was a card carrying a paragraph,
@@ -366,7 +412,7 @@ export default async function GrammarIndexPage() {
                           >
                             <span className="min-w-0 flex-1">
                               <span className="block text-base font-semibold group-hover:underline" style={{ color: "var(--ink)" }}>
-                                {topic.title}
+                                {t(topic.title)}
                               </span>
                               {term && (
                                 <span lang="et" className="block text-xs" style={{ color: "var(--ink-3)" }}>{term.et}</span>
@@ -391,17 +437,17 @@ export default async function GrammarIndexPage() {
         </section>
 
         <Note tone="neutral">
-          The singular endings go on the omastav singular, and the plural ones on the omastav
-          plural. If the dictionary has no omastav plural for a word, its table shows a gap
-          rather than a guess.
+          {t("The singular endings go on the omastav singular, and the plural ones on the omastav plural. If the dictionary has no omastav plural for a word, its table shows a gap rather than a guess.")}
         </Note>
 
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-          Still stuck on one?{" "}
-          <Link href="/tutor" className="underline" style={{ color: "var(--accent-deep)" }}>
-            Ask Anu
-          </Link>{" "}
-          and she&apos;ll explain the rule behind a sentence you wrote.
+          {fillNodes(t("Still stuck on one? {ask} and she'll explain the rule behind a sentence you wrote."), {
+            ask: (
+              <Link href="/tutor" className="underline" style={{ color: "var(--accent-deep)" }}>
+                {t("Ask Anu")}
+              </Link>
+            ),
+          })}
         </p>
       </Stack>
     </Page>

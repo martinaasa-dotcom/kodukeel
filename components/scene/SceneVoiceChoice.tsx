@@ -3,6 +3,7 @@
 import { Ear, Type, Volume2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
+import { useT } from "@/components/Locale";
 import { SCENE_VOICES, type SceneVoice } from "@/lib/audio/sceneVoice";
 
 /**
@@ -31,9 +32,10 @@ export function SceneVoiceChoice({ value, onSelect, compact }: {
   /** Chips in a row, for the conversation, where the cards would be a wall. */
   compact?: boolean;
 }) {
+  const t = useT();
   if (compact) {
     return (
-      <ChoiceGroup ariaLabel="How you hear them" className="scene-voice flex flex-wrap gap-1">
+      <ChoiceGroup ariaLabel={t("How you hear them")} className="scene-voice flex flex-wrap gap-1">
         {SCENE_VOICES.map((one) => (
           <ChoiceChip
             key={one.id}
@@ -42,10 +44,10 @@ export function SceneVoiceChoice({ value, onSelect, compact }: {
             /* The word carries it on a phone, where three icons cost the
                row it takes to keep the three chips on one line. */
             icon={<span className="hidden sm:inline-flex">{ICONS[one.id]}</span>}
-            title={one.label}
+            title={t(one.label)}
             small
           >
-            {one.short}
+            {t(one.short, "voice")}
           </ChoiceChip>
         ))}
       </ChoiceGroup>
@@ -53,8 +55,8 @@ export function SceneVoiceChoice({ value, onSelect, compact }: {
   }
   return (
     <ChoiceGroup
-      label="How you hear them"
-      hint="You can change this during the conversation too."
+      label={t("How you hear them")}
+      hint={t("You can change this during the conversation too.")}
       className="grid gap-2 sm:grid-cols-3"
     >
       {SCENE_VOICES.map((one) => (
@@ -63,8 +65,8 @@ export function SceneVoiceChoice({ value, onSelect, compact }: {
           selected={value === one.id}
           onSelect={() => onSelect(one.id)}
           icon={ICONS[one.id]}
-          title={one.label}
-          detail={one.detail}
+          title={t(one.label)}
+          detail={t(one.detail)}
           layout="stacked"
         />
       ))}

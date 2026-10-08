@@ -1,10 +1,13 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { Meaning } from "@/components/Meaning";
+import { ENGLISH_MEANINGS, meaningShown, type MeaningPrefs } from "@/lib/collections/glossLanguage";
 import { Card, Meter, SectionTitle, StatTile } from "@/components/ui";
 import {
   MASTERY_CORRECT, MASTERY_LABEL, MASTERY_ORDER, MASTERY_SLOTS, type Mastery,
 } from "@/lib/srs/mastery";
 import { slotShort } from "@/lib/srs/slots";
 import { wordsAt, type MasteredWord } from "@/lib/progress/mastery";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * WHERE EVERY WORD STANDS, WORD BY WORD.
@@ -38,47 +41,56 @@ import { wordsAt, type MasteredWord } from "@/lib/progress/mastery";
 
 /** What each tier means, in the learner's terms rather than the rule's. */
 const EXPLAINS: Record<Mastery, string> = {
-  mastered: `These are yours. You've got each one right ${MASTERY_CORRECT} times, in different forms.`,
+  mastered: "These are yours. You've got each one right {times}, in different forms.",
   almost: "Nearly there. Get them right in a couple more forms and they're yours.",
   struggling: "These keep tripping you up. A round of flash cards is the best help for them.",
   learning: "You've met these, but haven't answered them enough yet for us to tell how they're going.",
 };
 
 export function MasteryBoard({
-  words, counts,
-}: { words: readonly MasteredWord[]; counts: Record<Mastery, number> }) {
+  words, counts, locale, prefs = ENGLISH_MEANINGS,
+}: {
+  words: readonly MasteredWord[];
+  counts: Record<Mastery, number>;
+  locale: Locale;
+  /** Which language a meaning leads in, so each row's meaning is the learner's. */
+  prefs?: MeaningPrefs;
+}) {
+  const t = (english: string) => tr(locale, english);
   return (
     <>
       <Card tone="night">
-        <SectionTitle hint="each word counted once">At a glance</SectionTitle>
+        <SectionTitle hint={t("each word counted once")}>{t("At a glance")}</SectionTitle>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {MASTERY_ORDER.map((tier) => (
-            <StatTile key={tier} value={counts[tier]} label={MASTERY_LABEL[tier]} tone="accent" />
+            <StatTile key={tier} value={counts[tier]} label={t(MASTERY_LABEL[tier])} tone="accent" />
           ))}
         </div>
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
           {/* "Three different forms" is the bar for a word that has three; `yes` and
               `thank you` have one, and the counter asks of a word only what it can
               carry (`lib/srs/mastery.ts`), so the sentence says so too. */}
-          A word counts as mastered once you get it right {MASTERY_CORRECT} times, in up to{" "}
-          {MASTERY_SLOTS} different forms if it has them.
+          {fill(t("A word counts as mastered once you get it right {times}, in up to {forms} different forms if it has them."), { times: countOf(locale, MASTERY_CORRECT, "time"), forms: MASTERY_SLOTS })}
         </p>
       </Card>
 
       {MASTERY_ORDER.filter((tier) => counts[tier] > 0).map((tier) => (
-        <Tier key={tier} tier={tier} words={wordsAt(words, tier)} total={counts[tier]} />
+        <Tier key={tier} tier={tier} words={wordsAt(words, tier)} total={counts[tier]} locale={locale} prefs={prefs} />
       ))}
     </>
   );
 }
 
-function Tier({ tier, words, total }: { tier: Mastery; words: MasteredWord[]; total: number }) {
+function Tier({ tier, words, total, locale, prefs }: {
+  tier: Mastery; words: MasteredWord[]; total: number; locale: Locale; prefs: MeaningPrefs;
+}) {
+  const t = (english: string) => tr(locale, english);
   return (
     <Card>
-      <SectionTitle hint={`${total} ${total === 1 ? "word" : "words"}`}>
-        {MASTERY_LABEL[tier]}
+      <SectionTitle hint={countOf(locale, total, "word")}>
+        {t(MASTERY_LABEL[tier])}
       </SectionTitle>
-      <p className="text-sm" style={{ color: "var(--ink-3)" }}>{EXPLAINS[tier]}</p>
+      <p className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t(EXPLAINS[tier]), { times: countOf(locale, MASTERY_CORRECT, "time") })}</p>
 
       {/* One list with hairlines rather than a bordered box per word: forty
           boxes down a page is forty edges to read past before the words. Two
@@ -87,7 +99,7 @@ function Tier({ tier, words, total }: { tier: Mastery; words: MasteredWord[]; to
         <ul className="grid gap-x-6 @2xl:grid-cols-2">
           {words.map((word) => (
             <li key={word.lexemeId} className="border-b" style={{ borderColor: "var(--rule-soft)" }}>
-              <Row word={word} />
+              <Row word={word} locale={locale} prefs={prefs} />
             </li>
           ))}
         </ul>
@@ -95,18 +107,19 @@ function Tier({ tier, words, total }: { tier: Mastery; words: MasteredWord[]; to
 
       {total > words.length && (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-          Showing the {words.length} you&apos;ve practised most, out of {total}.
+          {fill(t("Showing the {shown} you've practiced most, out of {total}."), { shown: words.length, total })}
         </p>
       )}
     </Card>
   );
 }
 
-function Row({ word }: { word: MasteredWord }) {
+function Row({ word, locale, prefs }: { word: MasteredWord; locale: Locale; prefs: MeaningPrefs }) {
+  const t = (english: string) => tr(locale, english);
   const { correct, total, slots, slotsNeeded, filled, progress } = word.verdict;
   /* Which forms is for a reader who asks, so it rides on the bar's label; the
      row says the word, what it means, and how far along it is. */
-  const forms = filled.length > 0 ? `: ${filled.map((slot) => slotShort(slot)).join(", ")}` : "";
+  const forms = filled.length > 0 ? `: ${filled.map((slot) => t(slotShort(slot))).join(", ")}` : "";
   return (
     /* Straight to the entry, because the question a list like this raises is
        "which one was that again", and the entry is where every form of it is. */
@@ -119,19 +132,26 @@ function Row({ word }: { word: MasteredWord }) {
           <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
             {word.lemma}
           </span>
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
+          <Meaning
+            meaning={meaningShown(word.translation, word.equivalents, prefs)}
+            inline
+            className="text-sm"
+            leadStyle={{ color: "var(--ink-2)" }}
+            englishClassName="text-xs"
+          />
         </span>
         <span className="block text-sm" style={{ color: "var(--ink-3)" }}>
-          <span className="tnum">{correct}</span> of <span className="tnum">{total}</span> right,
-          in <span className="tnum">{slots}</span>
-          {slots < slotsNeeded ? <> of <span className="tnum">{slotsNeeded}</span></> : null}{" "}
-          {slots === 1 ? "form" : "forms"}
+          <span className="tnum">
+            {slots < slotsNeeded
+              ? fill(t(slots === 1 ? "{correct} of {total} right, in {slots} of {needed} form" : "{correct} of {total} right, in {slots} of {needed} forms"), { correct, total, slots, needed: slotsNeeded })
+              : fill(t(slots === 1 ? "{correct} of {total} right, in {slots} form" : "{correct} of {total} right, in {slots} forms"), { correct, total, slots })}
+          </span>
         </span>
       </span>
       <span className="w-16 shrink-0">
         <Meter
           pct={Math.round(progress * 100)}
-          label={`${word.lemma}, on the way to mastered${forms}`}
+          label={fill(t("{word}, on the way to mastered{forms}"), { word: word.lemma, forms })}
           tone="var(--accent)"
           height={5}
         />

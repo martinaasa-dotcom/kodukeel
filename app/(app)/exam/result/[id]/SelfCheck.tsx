@@ -1,6 +1,8 @@
 "use client";
 
 import { useId, useState } from "react";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * Questions to read one's own text back against, ticked by the reader.
@@ -11,6 +13,7 @@ import { useId, useState } from "react";
  */
 export function SelfCheck({ items }: { items: readonly string[] }) {
   const id = useId();
+  const t = useT();
   const [done, setDone] = useState<ReadonlySet<number>>(new Set());
   const toggle = (i: number) =>
     setDone((was) => {
@@ -23,7 +26,7 @@ export function SelfCheck({ items }: { items: readonly string[] }) {
   return (
     <fieldset className="mt-3 rounded-[var(--r)] border px-4 py-3" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
       <legend className="label-xs px-1" style={{ color: "var(--ink-3)" }}>
-        Read it back yourself, {done.size} of {items.length}
+        {fill(t("Read it back yourself, {done} of {total}"), { done: done.size, total: items.length })}
       </legend>
       <ul className="flex flex-col gap-1">
         {items.map((line, i) => (
@@ -37,7 +40,7 @@ export function SelfCheck({ items }: { items: readonly string[] }) {
                 className="mt-1 h-4 w-4 shrink-0"
                 style={{ accentColor: "var(--accent)" }}
               />
-              <span>{line}</span>
+              <span>{t(line)}</span>
             </label>
           </li>
         ))}

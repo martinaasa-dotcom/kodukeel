@@ -237,7 +237,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     tone: "blush", group: "targeted", note: "Multiple choice",
     blurb:
       "Aitan sind, but helistan sulle. English gives you no hint which case a verb wants, so " +
-      "you learn it verb by verb, and this is where you practise that.",
+      "you learn it verb by verb, and this is where you practice that.",
     within: "/grammar/topic/government",
   },
   {

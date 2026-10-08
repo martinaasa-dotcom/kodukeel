@@ -16,6 +16,7 @@ import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledg
 import { courseLevelFor } from "@/lib/progress/level";
 import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
+import { localeFor } from "@/lib/progress/locale";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -140,6 +141,8 @@ export async function POST(request: Request) {
   try {
     const level = await courseLevelFor(ownerId);
     const chain = resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed });
+    // The notes are written in the language the learner reads the app in.
+    const language = await localeFor(ownerId).catch(() => "en" as const);
 
     /*
       Everything the model is allowed to spell: every form of every thing in
@@ -161,6 +164,7 @@ export async function POST(request: Request) {
         text, unknown: mark.sentences[i]!.unknown, mentions: mark.sentences[i]!.mentions,
       })),
       level,
+      language,
     });
 
     after(() => recordUsage({

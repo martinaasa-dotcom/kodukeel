@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { throttleAction } from "@/lib/security/actionLimits";
+import { busyMessage, throttleAction, type ActionRefusal } from "@/lib/security/actionLimits";
 import { recordSuggestion } from "@/lib/suggestions/record";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { setTaskDone } from "@/lib/progress/tasks";
@@ -69,7 +69,8 @@ import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
 import { SPEECH_PACES } from "@/lib/audio/pace";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { alsoShowFrom, glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { localeFrom, tr } from "@/lib/copy/locale";
 import { serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { serialiseNavOrder } from "@/lib/ux/navOrder";
 import { roundPaceFrom } from "@/lib/ux/roundClock";
@@ -83,12 +84,14 @@ import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
-  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, levelHeldOnHandOff, programmeById,
+  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, levelHeldOnHandOff, programmeById, stepText,
 } from "@/lib/course";
+import { localeFor } from "@/lib/progress/locale";
 import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
+import { isConfirmed } from "@/lib/copy/confirmWord";
 
 import { CARD_SOURCES as KNOWN_SOURCES, DEFAULT_SOURCE } from "@/lib/srs/sources";
 import { ratingFor, SONAD_GUESSES } from "@/lib/games/sonad";
@@ -142,6 +145,19 @@ import { safeMessage } from "@/lib/observability/report";
  * that line in this file and the other side in that round.
  */
 const CARD_SOURCES = new Set<string>(KNOWN_SOURCES);
+
+/**
+ * A throttle refusal in the language the learner reads the app in.
+ *
+ * The refusal carries a count of seconds, so the screen's own `t()` could
+ * never match it against a table: the sentence is said here, with the wait
+ * counted in the learner's language, and the locale is read only on the rare
+ * call that is refused. A locale that cannot be read is English.
+ */
+async function sayRefusal(ownerId: string, busy: ActionRefusal): Promise<ActionRefusal> {
+  const locale = await localeFor(ownerId).catch(() => "en" as const);
+  return { ...busy, error: busyMessage(locale, busy.retryAfterSec) };
+}
 
 /**
  * Add a word to the deck.
@@ -783,7 +799,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   */
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "editDictionary");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const et = visibleLine(sentence, LIMITS.example);
   if (et.length < 4) return { ok: false as const, error: "That's a bit short for a sentence. Try a few more words." };
@@ -906,7 +922,7 @@ export async function createLexeme(input: { lemma: string; translation: string }
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "editDictionary");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
@@ -995,7 +1011,7 @@ export async function createLexemeWithForms(input: {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "editDictionary");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
@@ -1113,7 +1129,7 @@ export async function putWordAside(lexemeId: string, context: string) {
   lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "putAside");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const id = text(lexemeId).slice(0, 64);
   if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
 
@@ -1180,7 +1196,7 @@ export async function importWords(rows: { lemma: string; translation: string; po
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "importWords");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   let created = 0;
   let cards = 0;
   const skipped: string[] = [];
@@ -1483,7 +1499,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   // Its own allowance, not the one finishing a conversation needs: see
   // `lib/security/actionLimits.ts`.
   const busy = throttleAction(ownerId, "beginScene");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const scene = sceneById(text(sceneId).slice(0, 64));
   if (!scene) return { ok: false as const, error: "We couldn't find that conversation." };
@@ -1582,7 +1598,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
 export async function sceneHelp(runId: unknown, turns: unknown) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "sceneHelp");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const id = text(runId).slice(0, 64);
   if (!id) return { ok: false as const, error: "That conversation has already ended." };
@@ -1662,7 +1678,7 @@ export async function finishScene(input: {
 }) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "finishScene");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
 
   /*
@@ -1929,6 +1945,22 @@ export async function setGlossLanguage(value: string) {
 }
 
 /**
+ * Whether the other of Russian and Ukrainian is shown small after the first
+ * meaning. Read against the lead the learner holds now, so a value that is not
+ * the other language of that lead is stored as nothing (`alsoShowFrom`): a
+ * forged "uk" under a Ukrainian lead is the same line twice, and under English
+ * it means nothing. Revalidated at the layout, like the lead it sits beside.
+ */
+export async function setGlossAlso(value: string) {
+  const ownerId = await requireUserId();
+  const lead = glossLanguageFrom(await readSetting(ownerId, SETTING_KEYS.glossLanguage));
+  const normalised = alsoShowFrom(text(value), lead) ?? "none";
+  await writeSetting(ownerId, SETTING_KEYS.glossAlso, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+/**
  * Whether the dictionary is put under every word of an attested sentence.
  *
  * Revalidated at the layout rather than at a path, for `setLetterBar`'s
@@ -1938,6 +1970,33 @@ export async function setGlossLanguage(value: string) {
  * itself, which is where somebody is standing when they decide they are done
  * with it, so this action is reached from there as well as from Settings.
  */
+/** Closes the machine-translation notice for the language it was shown in. */
+export async function dismissLocaleNotice(value: string) {
+  const ownerId = await requireUserId();
+  await writeSetting(ownerId, SETTING_KEYS.uiLocaleNoticed, localeFrom(text(value)));
+  revalidatePath("/", "layout");
+  return { ok: true as const };
+}
+
+/**
+ * The language the app's own words are in. Revalidated at the layout, since the
+ * rail, every round's opening screen and Settings all read it.
+ */
+export async function setUiLocale(value: string) {
+  const ownerId = await requireUserId();
+  const normalised = localeFrom(text(value));
+  await writeSetting(ownerId, SETTING_KEYS.uiLocale, normalised);
+  /* Somebody who reads the app in Russian or Ukrainian wants a word's meaning
+     there too, and the Institute records one for most of the course. Only
+     where they have never chosen: a stored choice is theirs and is left alone,
+     and the English is printed beside it either way. */
+  if (normalised !== "en" && (await readSetting(ownerId, SETTING_KEYS.glossLanguage)) === null) {
+    await writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(normalised));
+  }
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
 export async function setWordGloss(value: WordGloss) {
   const ownerId = await requireUserId();
   const normalised = wordGlossFrom(value);
@@ -2203,6 +2262,11 @@ export async function completeOnboarding(input: {
    * people who would never go looking for this setting are the ones it is for.
    */
   glossLanguage?: string;
+  /**
+   * The language the app's own words are in, chosen at the top of the first
+   * screen. Read through `localeFrom`, so anything but "ru" or "uk" is English.
+   */
+  uiLocale?: string;
   /** What the learner said they are here for. Absent when they skipped it. */
   goals?: {
     reason?: string | null;
@@ -2227,7 +2291,7 @@ export async function completeOnboarding(input: {
     return { ok: false as const, error: "Pick a level from the list." };
   }
   const busy = throttleAction(ownerId, "completeOnboarding");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
 
   await Promise.all([
@@ -2250,6 +2314,13 @@ export async function completeOnboarding(input: {
     writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(goal)),
     writeSetting(ownerId, SETTING_KEYS.letterBar, letterBarFrom(input.letterBar)),
     writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(text(input.glossLanguage))),
+    writeSetting(ownerId, SETTING_KEYS.uiLocale, localeFrom(text(input.uiLocale))),
+    /*
+      The wizard printed the machine-translation notice under the choice, in
+      both languages, so the shell's one-time notice would be the same sentence
+      a minute later. Marked as seen for the language chosen, and only for that.
+    */
+    writeSetting(ownerId, SETTING_KEYS.uiLocaleNoticed, localeFrom(text(input.uiLocale))),
     writeSetting(ownerId, SETTING_KEYS.onboardedAt, new Date().toISOString()),
     input.goals
       ? saveGoals(ownerId, normaliseGoals({
@@ -2320,7 +2391,7 @@ export async function completeOnboarding(input: {
 export async function addCommonWords(group: string) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "addCommonWords");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
     return { ok: false as const, error: "We couldn't find that word list." };
   }
@@ -2370,7 +2441,7 @@ export async function deepenCommonWords(group: string) {
   }
 
   const busy = throttleAction(ownerId, "deepenCommonWords");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const batch = await nextCommonBatch(ownerId, group as FrequencyGroup);
   if (batch.length === 0) {
@@ -2521,7 +2592,7 @@ export async function completeLesson(
   unitId = text(unitId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "completeLesson");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "We couldn't find that unit." };
 
@@ -2728,7 +2799,7 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "createClassroom");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   // Shown to everybody who is handed the code, on the screen they read before
   // they decide to join, so it is cleaned like a name rather than trimmed.
   const trimmed = visibleLine(name, CLASS_NAME_MAX);
@@ -2772,7 +2843,7 @@ export async function joinClassroom(code: string, displayName?: string) {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "joinClassroom");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   if (!isValidCode(code)) {
     return { ok: false as const, error: "That code doesn't look quite right. Check it and try again." };
   }
@@ -2855,7 +2926,7 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
   if (!classroomId) return { ok: false as const, error: "Only the person who runs this class can do that." };
 
   const busy = throttleAction(ownerId, "assignUnit");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
     select: { id: true, name: true, archived: true },
@@ -2911,7 +2982,7 @@ export async function assignHomework(
   if (!classroomId) return { ok: false as const, error: "Only the person who runs this class can do that." };
 
   const busy = throttleAction(ownerId, "assignHomework");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
     select: { id: true, name: true, archived: true },
@@ -3186,7 +3257,7 @@ export async function buildClozeFromText(passageIn: string) {
   const raw = text(passageIn);
 
   const busy = throttleAction(ownerId, "buildCloze");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const passage = clip(raw, MAX_PASSAGE_CHARS);
   if (!passage.trim()) return { ok: false as const, error: "Paste some Estonian first." };
 
@@ -3279,7 +3350,8 @@ export async function buildClozeFromText(passageIn: string) {
  */
 export async function deleteMyAccount(confirmation: string) {
   const ownerId = await requireUserId();
-  if (text(confirmation).trim().toLowerCase() !== "delete") {
+  /* The word in any of the three languages: the screen asks in the reader's own. */
+  if (!isConfirmed(text(confirmation), "delete")) {
     return { ok: false as const, error: 'Type "delete" to confirm.' };
   }
 
@@ -3380,7 +3452,7 @@ export async function deleteMyAccount(confirmation: string) {
       ok: false as const,
       // Redacted: what the database says can name the deployment's own host and
       // user, and this sentence goes to a browser. See lib/observability/report.
-      error: `Something went wrong partway, so nothing was deleted. ${safeMessage(error)}`.trim(),
+      error: `${tr(await localeFor(ownerId), "Something went wrong partway, so nothing was deleted.")} ${safeMessage(error)}`.trim(),
     };
   }
 
@@ -3490,7 +3562,7 @@ export async function inspectBackup(json: string): Promise<
     free.
   */
   const busy = throttleAction(ownerId, "inspectBackup");
-  if (busy) return { ok: false as const, error: busy.error };
+  if (busy) return { ok: false as const, error: (await sayRefusal(ownerId, busy)).error };
 
   let parsed: unknown;
   try {
@@ -3531,7 +3603,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "restoreBackup");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const check = await inspectBackup(json);
   if (!check.ok) return { ok: false as const, error: check.error };
 
@@ -3879,7 +3951,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   } catch (error) {
     return {
       ok: false as const,
-      error: `The restore didn't finish, so nothing was changed. ${safeMessage(error)}`.trim(),
+      error: `${tr(await localeFor(ownerId), "The restore didn't finish, so nothing was changed.")} ${safeMessage(error)}`.trim(),
     };
   }
 
@@ -3923,7 +3995,7 @@ export async function startCourseDay(programmeId: string, dayId: string) {
   dayId = text(dayId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "startCourseDay");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   if (!programme || !day) {
@@ -3973,7 +4045,7 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
     return { ok: false as const, error: "That step isn't part of that evening." };
   }
   if (step.derived) {
-    return { ok: false as const, error: "That step ticks itself off as you go." };
+    return { ok: false as const, error: "That step checks itself off as you go." };
   }
   /* A tick is the pointer: `dayReached` is the furthest day carrying one, so a
      forged tick on a day nobody has reached would move the course onto it and
@@ -4077,7 +4149,7 @@ export async function tonightSteps(programmeId: string, dayId: string) {
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   if (!programme || !day) return null;
-  const clock = await learnerDayClock(ownerId);
+  const [clock, locale] = await Promise.all([learnerDayClock(ownerId), localeFor(ownerId)]);
   const reading = await courseReading(ownerId, programme, clock);
   const current = reading.current;
   const done = (id: string) => !current
@@ -4085,7 +4157,8 @@ export async function tonightSteps(programmeId: string, dayId: string) {
     || (day.id === current.day.id && current.done.has(id));
   return focusedSteps(programme.id, day.id, day.steps).map((f) => ({
     id: f.step.id,
-    title: f.step.title,
+    // Worded for this learner, since the rail draws it as it comes.
+    title: stepText(day, f.step, locale).title,
     href: f.href,
     done: done(f.step.id),
   }));
@@ -4264,11 +4337,11 @@ export async function saveScan(input: {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "saveScan");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
   const sent = sanitiseItems(input.items, SCAN_MAX_ITEMS);
   if (sent.length === 0) {
-    return { ok: false as const, error: "Tick at least one word on that page first." };
+    return { ok: false as const, error: "Check at least one word on that page first." };
   }
   // What the dictionary says about each spelling, asked again here rather
   // than taken from the request: see `vouchScanItems`.
@@ -4394,7 +4467,7 @@ export async function addScanToDeck(scanId: string) {
   scanId = text(scanId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "addScanToDeck");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const scan = await prisma.scan.findFirst({
     where: { id: scanId, ownerId },
     select: { items: true },
@@ -4567,7 +4640,7 @@ export async function recordAssessment(input: unknown) {
   const parsed = ASSESSMENT.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "We couldn't read that result, so it wasn't saved." };
   const busy = throttleAction(ownerId, "recordAssessment");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const { seed, builtAt, answers } = parsed.data;
   const result = await markSitting(ownerId, seed, Math.min(builtAt, Date.now()), answers);
@@ -4674,7 +4747,7 @@ const ExamSubmissionSchema = z.object({
 export async function submitExam(input: unknown) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "submitExam");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   /*
     Counted before the schema walks them: a record with no ceiling is a free
@@ -4793,7 +4866,7 @@ export async function submitSuggestion(input: unknown) {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "sendSuggestion");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const parsed = SuggestionInput.safeParse(input);
   if (!parsed.success) {
@@ -4862,7 +4935,7 @@ export async function reviewSuggestion(input: unknown) {
   const reviewerId = await requireAdminId();
 
   const busy = throttleAction(reviewerId, "reviewSuggestion");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(reviewerId, busy);
 
   const parsed = ReviewInput.safeParse(input);
   if (!parsed.success) {
@@ -4928,7 +5001,7 @@ export async function reviewSuggestion(input: unknown) {
  * are not touched (`lib/progress/courseReset.ts`).
  */
 export async function resetCourseFor(target: unknown) {
-  await requireAdminId();
+  const adminId = await requireAdminId();
   const all = target === "all";
   const ownerId = all ? "" : text(target).trim();
   if (!all && !ownerId) return { ok: false as const, error: "Nobody was named, so nothing was reset." };
@@ -4937,6 +5010,6 @@ export async function resetCourseFor(target: unknown) {
     revalidatePath("/admin/suggestions");
     return { ok: true as const, ...done };
   } catch (error) {
-    return { ok: false as const, error: `Nothing was reset. ${safeMessage(error)}`.trim() };
+    return { ok: false as const, error: `${tr(await localeFor(adminId), "Nothing was reset.")} ${safeMessage(error)}`.trim() };
   }
 }

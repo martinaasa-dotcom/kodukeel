@@ -797,7 +797,7 @@ export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
     "tone of voice and situation carry it, and a recorded sentence arrives without either",
   "topic:irony|Understatement is the most common kind here":
     "you only hear understatement in the situation it was said in, and the dictionary doesn't record that",
-  "topic:irony|Rarely signalled, so you have to pick up on it":
+  "topic:irony|Rarely signaled, so you have to pick up on it":
     "the point is that nothing marks it, and no sentence can show an absence on its own",
   "topic:nuance|Told apart by how formal, how strong or how loaded they are":
     "it's a difference between two words, so it needs both, and the dictionary files a sentence under just one",

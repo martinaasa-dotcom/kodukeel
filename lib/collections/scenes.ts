@@ -93,7 +93,7 @@ export const SCENES: readonly Scene[] = [
   { id: "in-the-forest", situation: "In the forest", lemmas: ["karu", "hunt", "siil"] },
   { id: "the-post", situation: "News and dates", lemmas: ["meil", "ajaleht", "kalender"] },
   { id: "flowers", situation: "Flowers", lemmas: ["roos", "tulp", "korv"] },
-  { id: "a-holiday", situation: "On holiday", lemmas: ["hotell", "fotoaparaat", "kirik"] },
+  { id: "a-holiday", situation: "On vacation", lemmas: ["hotell", "fotoaparaat", "kirik"] },
   { id: "washing", situation: "Washing", lemmas: ["seep", "hambahari", "peegel"] },
   { id: "strong-flavours", situation: "Strong flavors", lemmas: ["küüslauk", "sidrun", "ananass"] },
   { id: "small-animals", situation: "Small animals", lemmas: ["hiir", "rott", "konn"] },
@@ -116,7 +116,7 @@ export const SCENES: readonly Scene[] = [
   { id: "large-birds", situation: "Large birds", lemmas: ["öökull", "kotkas", "luik"] },
   { id: "mending", situation: "Mending something", lemmas: ["kruvikeeraja", "redel", "niit"] },
   { id: "slow-creatures", situation: "Slow creatures", lemmas: ["kilpkonn", "tigu", "madu"] },
-  { id: "underground", situation: "Underground", lemmas: ["metroo", "kviitung", "isik"] },
+  { id: "underground", situation: "Subway", lemmas: ["metroo", "kviitung", "isik"] },
   { id: "farm-work", situation: "Farm work", lemmas: ["traktor", "eesel", "kits"] },
   { id: "late-evening", situation: "Late evening", lemmas: ["teekann", "taskulamp", "kastan"] },
 

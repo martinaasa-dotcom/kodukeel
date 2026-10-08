@@ -16,7 +16,9 @@ import { Speak } from "@/components/Speak";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { VOICES } from "@/lib/audio/voice";
-import { checkDictation, wordNote, type DictationResult, type WordStatus } from "@/lib/estonian/dictation";
+import { checkDictation, dictationNote, wordNote, type DictationResult, type WordStatus } from "@/lib/estonian/dictation";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 import type { RatingValue } from "@/lib/srs/scheduler";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfDictation } from "@/lib/ux/verdict";
@@ -79,6 +81,8 @@ const WORD_TONE: Record<WordStatus, { className: string; label: string }> = {
  */
 export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask[] }) {
   const grade = useGrade();
+  const t = useT();
+  const locale = useLocale();
   /*
     Snapshotted once on mount. gradeCard refreshes this route's Server
     Component, which would hand down a task list shrinking as graded cards leave the
@@ -172,7 +176,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
     if (task) {
       look.record({
         of: task.cardId,
-        label: "Dictation",
+        label: t("Dictation"),
         question: task.lemma,
         answer: task.et,
         note: task.en,
@@ -182,7 +186,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
       });
     }
     setIndex((i) => i + 1);
-  }, [task, look]);
+  }, [task, look, t]);
 
   /* Once the sentence is marked, Enter or Space is "next", the same two keys
      every other round takes for moving on. Before the mark the field owns
@@ -213,11 +217,11 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
 
   if (round.length === 0) {
     return (
-      <Page title="Dictation" lead="Listen to a sentence, then write down what you heard.">
+      <Page title={t("Dictation")} lead={t("Listen to a sentence, then write down what you heard.")}>
         <Empty
-          title="Not enough sentences yet"
-          body="This needs short sentences made of words in your deck. Add a few more words and come back."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={t("Not enough sentences yet")}
+          body={t("This needs short sentences made of words in your deck. Add a few more words and come back.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
         />
       </Page>
     );
@@ -231,7 +235,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={68} mood="cheer" className="float mx-auto" />
           <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
-            Dictation done
+            {t("Dictation done")}
           </h1>
           {/*
             No paragraph here. The first sentence was this app telling somebody
@@ -243,14 +247,14 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           */}
         </div>
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={done} label="Written" tone="accent" />
-          <StatTile value={`${accuracy}%`} label="Word perfect" tone={accuracy >= 50 ? "sky" : "butter"} />
-          <StatTile value={`${minutes}m`} label="Time" tone="sky" />
+          <StatTile value={done} label={t("Written")} tone="accent" />
+          <StatTile value={`${accuracy}%`} label={t("Word perfect")} tone={accuracy >= 50 ? "sky" : "butter"} />
+          <StatTile value={fill(t("{n}m"), { n: minutes })} label={t("Time")} tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/practice" size="lg">Try something else</ButtonLink>
-          <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
-          <ButtonLink href="/review/dictation" variant="primary" size="lg">Another round</ButtonLink>
+          <ButtonLink href="/practice" size="lg">{t("Try something else")}</ButtonLink>
+          <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
+          <ButtonLink href="/review/dictation" variant="primary" size="lg">{t("Another round")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -269,7 +273,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">Dictation</h1>
+      <h1 className="sr-only">{t("Dictation")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession />
         <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -280,14 +284,14 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={round.length}
-            aria-label={`Sentence ${index + 1} of ${round.length}`}
+            aria-label={fill(t("Sentence {n} of {total}"), { n: index + 1, total: round.length })}
           />
         </div>
         <span
           className="tnum label-xs rounded-full px-2.5 py-1"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
         >
-          {round.length - index} left
+          {fill(t("{n} left"), { n: round.length - index })}
         </span>
       </div>
 
@@ -297,7 +301,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent"><Ear size={12} aria-hidden /> Write what you hear</Chip>
+          <Chip tone="accent"><Ear size={12} aria-hidden /> {t("Write what you hear")}</Chip>
           {/* Only once the answer is in. This is a word *from the sentence being
               dictated*, so printing it above the box hands over part of what the
               exercise is asking for, which the review session's own header never
@@ -324,11 +328,10 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                 className="flex flex-col items-center gap-2 rounded-[var(--r-lg)] px-5 py-4 text-center"
                 style={{ background: "var(--hard-soft)" }}
               >
-                <p className="label-xs" style={{ color: "var(--hard-ink)" }}>No sound right now</p>
+                <p className="label-xs" style={{ color: "var(--hard-ink)" }}>{t("No sound right now")}</p>
                 <p lang="et" className="text-lg" style={{ color: "var(--ink)" }}>{task.et}</p>
                 <p className="max-w-[42ch] text-xs" style={{ color: "var(--ink-2)" }}>
-                  We couldn&rsquo;t reach the audio, so here&rsquo;s the sentence to read instead.
-                  Copying it out still helps your spelling. Come back later to hear it.
+                  {t("We couldn’t reach the audio, so here’s the sentence to read instead. Copying it out still helps your spelling. Come back later to hear it.")}
                 </p>
               </div>
             ) : (
@@ -336,7 +339,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                 <Speak
                   text={task.et}
                   size={30}
-                  label="Play the sentence"
+                  label={t("Play the sentence")}
                   voice={reader.id}
                   condition={condition}
                   autoplay
@@ -350,15 +353,15 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                     text={task.et}
                     slow
                     voice={reader.id}
-                    label="Play it slowly"
+                    label={t("Play it slowly")}
                     size={14}
                     className="press tap-tint inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold"
                     style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
                   >
-                    <Volume2 size={14} strokeWidth={2} aria-hidden /> Slow
+                    <Volume2 size={14} strokeWidth={2} aria-hidden /> {t("Slow")}
                   </Speak>
                   <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                    {played ? "Play it as often as you like" : "Tap to hear it. Need it slower? Press Slow."}
+                    {played ? t("Play it as often as you like") : t("Tap to hear it. Need it slower? Press Slow.")}
                   </span>
                 </div>
               </>
@@ -370,9 +373,9 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
               <Marked result={result} />
               {condition && (
                 <p className="flex items-center justify-center gap-1 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-                  {describeHearing(reader.name, condition)}
+                  {describeHearing(reader.name, condition, locale)}
                   {condition.id !== "clean" && (
-                    <Speak text={task.et} voice={reader.id} label="Hear it clearly" size={12} />
+                    <Speak text={task.et} voice={reader.id} label={t("Hear it clearly")} size={12} />
                   )}
                 </p>
               )}
@@ -383,8 +386,8 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                 value={typed}
                 onChange={(v) => { setTyped(v); setPlayed(true); }}
                 onEnter={() => void submit()}
-                ariaLabel="What you heard"
-                placeholder="Type the sentence…"
+                ariaLabel={t("What you heard")}
+                placeholder={t("Type the sentence…")}
                 autoFocus
               />
               <HintLadder
@@ -413,7 +416,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {result ? (
             <Button variant="primary" size="lg" className="w-full" onClick={next}>
-              Next sentence <ArrowRight size={15} aria-hidden />
+              {t("Next sentence")} <ArrowRight size={15} aria-hidden />
             </Button>
           ) : (
             <Button
@@ -423,7 +426,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
               onClick={() => void submit()}
               disabled={busy}
             >
-              <Check size={15} aria-hidden /> Check what I wrote
+              <Check size={15} aria-hidden /> {t("Check what I wrote")}
             </Button>
           )}
         </div>
@@ -431,7 +434,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
       )}
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{correct} word-perfect of {done} so far</span>
+        <span>{fill(t("{n} word-perfect of {total} so far"), { n: correct, total: done })}</span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>
@@ -446,6 +449,8 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
  * actually get wrong" without making the learner diff two lines by eye.
  */
 function Marked({ result }: { result: DictationResult }) {
+  const t = useT();
+  const locale = useLocale();
   return (
     <div className="flex flex-col gap-3">
       {/*
@@ -459,13 +464,13 @@ function Marked({ result }: { result: DictationResult }) {
         sentence still says it in words.
       */}
       <p className="text-center text-md font-semibold" style={{ color: VERDICT_INK[verdictOfDictation(result.verdict)] }}>
-        {result.note}
+        {dictationNote(result, locale)}
       </p>
       <div className="pop-in flex flex-wrap justify-center gap-1.5">
         {result.words.map((word, i) => {
           const tone = WORD_TONE[word.status];
           const shown = word.expected ?? word.typed ?? "";
-          const note = wordNote(word);
+          const note = wordNote(word, locale);
           return (
             <span
               key={`${shown}-${i}`}
@@ -476,8 +481,8 @@ function Marked({ result }: { result: DictationResult }) {
                 stays on the Estonian span inside so the word itself is still
                 pronounced as Estonian in the visual reading.
               */
-              aria-label={`${shown}, ${tone.label}${
-                word.typed && word.typed !== shown ? `. You typed ${word.typed}` : ""
+              aria-label={`${shown}, ${t(tone.label)}${
+                word.typed && word.typed !== shown ? `. ${fill(t("You typed {typed}."), { typed: word.typed })}` : ""
               }`}
               className={`${tone.className} flex flex-col items-center rounded-[var(--r-sm)] px-2 py-1`}
               style={word.status === "extra" ? { background: "var(--raised)", color: "var(--ink-3)" } : undefined}
@@ -493,7 +498,7 @@ function Marked({ result }: { result: DictationResult }) {
                   word underneath itself is noise. */}
               {word.status !== "right" && word.status !== "extra" && (
                 <span className="text-2xs" style={{ color: "var(--ink-3)" }} aria-hidden>
-                  {word.typed ? `you: ${word.typed}` : "left out"}
+                  {word.typed ? fill(t("you: {typed}"), { typed: word.typed }) : t("left out", "word")}
                 </span>
               )}
               {/*
@@ -516,7 +521,7 @@ function Marked({ result }: { result: DictationResult }) {
         })}
       </div>
       <p className="tnum text-center text-xs" style={{ color: "var(--ink-3)" }}>
-        {result.right} of {result.total} words exactly right
+        {fill(t("{right} of {total} words exactly right"), { right: result.right, total: result.total })}
       </p>
     </div>
   );

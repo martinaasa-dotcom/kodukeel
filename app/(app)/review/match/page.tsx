@@ -1,3 +1,4 @@
+import { titleFor } from "@/lib/progress/locale";
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
@@ -5,8 +6,11 @@ import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store"
 import { RECENT_WORDS, byRecency, lemmaFilter, recentLemmas } from "@/lib/course/scope";
 import { MatchSession, type MatchPair } from "./MatchSession";
 import { practiceScope } from "@/lib/progress/moduleScope";
+import { meaningPrefsFrom, meaningsShown } from "@/lib/collections/glossLanguage";
 
-export const metadata = { title: "Match" };
+export async function generateMetadata() {
+  return titleFor("Match");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +48,8 @@ export default async function MatchPage({
     ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null },
     ...(scope ? { lexeme: lemmaFilter(scope) } : {}),
   } as const;
-  const include = { lexeme: { select: { lemma: true, pos: true } } } as const;
+  // The equivalents ride in the select that already loads the word, for drawing the meaning tiles.
+  const include = { lexeme: { select: { lemma: true, pos: true, translationRu: true, translationUk: true } } } as const;
 
   /*
     The best score is one settings row and has nothing to do with which cards
@@ -72,8 +77,9 @@ export default async function MatchPage({
       take: PAIRS * 2,
       include,
     }),
-    readSettings(ownerId, [SETTING_KEYS.matchBest]),
+    readSettings(ownerId, [SETTING_KEYS.matchBest, SETTING_KEYS.glossLanguage, SETTING_KEYS.glossAlso]),
   ]);
+  const prefs = meaningPrefsFrom(settings[SETTING_KEYS.glossLanguage], settings[SETTING_KEYS.glossAlso]);
 
   const led = scope ? byRecency(scope, recent, (c) => c.lexeme?.lemma) : [];
   const ledIds = new Set(led.map((c) => c.id));
@@ -98,16 +104,27 @@ export default async function MatchPage({
   }
 
   const seenAnswers = new Set<string>();
-  const pairs: MatchPair[] = [];
+  const chosen: { pair: MatchPair; entry: (typeof pool)[number]["lexeme"] }[] = [];
   for (const card of pool) {
     const english = card.back.trim();
     const estonian = plainPhrase(card.lexeme?.lemma ?? card.front, card.lexeme?.pos);
     const key = english.toLowerCase();
     if (seenAnswers.has(key)) continue;
     seenAnswers.add(key);
-    pairs.push({ cardId: card.id, estonian, english });
-    if (pairs.length === PAIRS) break;
+    chosen.push({ pair: { cardId: card.id, estonian, english }, entry: card.lexeme });
+    if (chosen.length === PAIRS) break;
   }
+  /*
+    The meaning tiles in the learner's language where every one of them has an
+    equivalent and no two read the same, and in English otherwise. Drawing
+    only: a pair is matched by its card.
+  */
+  const shown = prefs.lead === "en" ? null : meaningsShown(
+    chosen.map((c) => ({ english: c.pair.english, entry: c.entry })), prefs,
+  );
+  const pairs: MatchPair[] = chosen.map((c, i) => (
+    shown && shown[i]?.english ? { ...c.pair, meaning: shown[i] } : c.pair
+  ));
 
   const best = numberSetting(settings[SETTING_KEYS.matchBest], 0);
 

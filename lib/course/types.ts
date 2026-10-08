@@ -139,7 +139,7 @@ export const ACTIVITIES = {
   },
   letters: {
     href: "/review/letters", kind: "game",
-    why: "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like a's and o's.",
+    why: "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like plain a's, o's and u's.",
   },
   flash: {
     href: "/review/flashcards", kind: "drill",

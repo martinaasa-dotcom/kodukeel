@@ -6,6 +6,7 @@ import { Mail, Clock } from "lucide-react";
 import { setEmailKind, setReminderHour } from "@/app/actions";
 import { Explain } from "@/components/Explain";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
+import { useT } from "@/components/Locale";
 import type { EmailKind } from "@/lib/email/letter";
 
 /**
@@ -52,7 +53,7 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
   {
     kind: "comeback",
     title: "One friendly note if you've been away a while",
-    detail: "At most once a fortnight, and it never counts the days you missed.",
+    detail: "At most once every two weeks, and it never counts the days you missed.",
   },
   {
     kind: "errand",
@@ -95,6 +96,7 @@ export function EmailPanel({
   /** Whether this installation can send at all. */
   sending: boolean;
 }) {
+  const t = useT();
   const [state, setState] = useState<Record<string, boolean>>(
     Object.fromEntries(LETTERS.map((l) => [l.kind, on.has(l.kind)])),
   );
@@ -134,13 +136,12 @@ export function EmailPanel({
           `/privacy` takes about an operator nobody has named.
         */
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          This copy of Kodukeel isn&rsquo;t set up to send email, so none of these will arrive.
-          We&rsquo;ll remember your choices in case that changes.
+          {t("This copy of Kodukeel isn’t set up to send email, so none of these will arrive. We’ll remember your choices in case that changes.")}
         </p>
       )}
 
       <fieldset className="flex flex-col gap-2 border-0 p-0">
-        <legend className="sr-only">Which emails to send</legend>
+        <legend className="sr-only">{t("Which emails to send")}</legend>
         {LETTERS.map((letter) => (
           <label
             key={letter.kind}
@@ -153,8 +154,8 @@ export function EmailPanel({
               className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--accent)]"
             />
             <span>
-              <span className="block text-sm" style={{ color: "var(--ink)" }}>{letter.title}</span>
-              <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{letter.detail}</span>
+              <span className="block text-sm" style={{ color: "var(--ink)" }}>{t(letter.title)}</span>
+              <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{t(letter.detail)}</span>
             </span>
           </label>
         ))}
@@ -163,7 +164,7 @@ export function EmailPanel({
       <div>
         <p className="flex items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
           <Clock size={16} aria-hidden style={{ color: "var(--accent-deep)" }} />
-          The evening nudge and the calendar reminder both come at this time, in your own time zone.
+          {t("The evening nudge and the calendar reminder both come at this time, in your own time zone.")}
         </p>
         {/*
           A RADIO GROUP, NOT FOUR SWITCHES.
@@ -174,7 +175,7 @@ export function EmailPanel({
           costs four tab stops, where the group says "2 of 4" and takes one,
           which is the exact fault CLAUDE.md records the goal chips having had.
         */}
-        <ChoiceGroup ariaLabel="Reminder hour" className="mt-2 flex flex-wrap items-center gap-2">
+        <ChoiceGroup ariaLabel={t("Reminder hour")} className="mt-2 flex flex-wrap items-center gap-2">
           {HOURS.map((at) => (
             <ChoiceChip key={at} selected={hour === at} onSelect={() => pickHour(at)} even>
               {at}
@@ -197,14 +198,11 @@ export function EmailPanel({
             style={{ color: "var(--accent-deep)" }}
           >
             <Mail size={14} aria-hidden />
-            Add it to your calendar
+            {t("Add it to your calendar")}
           </a>
         </p>
-        <Explain label="What the calendar reminder is">
-          It&rsquo;s an ordinary repeating event, not a notification. It pops up on your phone whether
-          or not the app is open, and you delete it like any other event. It follows your own
-          clock wherever you are, so it stays put when the clocks change, and it works whether
-          or not the emails above are on.
+        <Explain label={t("What the calendar reminder is")}>
+          {t("It’s an ordinary repeating event, not a notification. It pops up on your phone whether or not the app is open, and you delete it like any other event. It follows your own clock wherever you are, so it stays put when the clocks change, and it works whether or not the emails above are on.")}
         </Explain>
       </div>
     </div>

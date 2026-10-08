@@ -10,6 +10,8 @@ import { Speak } from "@/components/Speak";
 import { playFeedback } from "@/lib/audio/feedback";
 import { type Autoplay, type FeedbackSounds, VOICES } from "@/lib/audio/voice";
 import { SPEECH_PACES, type Pace, type SpeechPaceId } from "@/lib/audio/pace";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * The voice, and whether it speaks unasked.
@@ -23,6 +25,7 @@ import { SPEECH_PACES, type Pace, type SpeechPaceId } from "@/lib/audio/pace";
 const SAMPLE = "Kodukeel. Tere tulemast!";
 
 export function VoicePanel({ current }: { current: string }) {
+  const t = useT();
   const [voice, setVoiceState] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -44,7 +47,7 @@ export function VoicePanel({ current }: { current: string }) {
       columns rather than wrapping into a ragged paragraph.
     */
     <ChoiceGroup
-      ariaLabel="Which voice reads Estonian"
+      ariaLabel={t("Which voice reads Estonian")}
       className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,8.5rem),1fr))] gap-2"
     >
       {VOICES.map((v) => (
@@ -57,7 +60,7 @@ export function VoicePanel({ current }: { current: string }) {
             {v.name}
           </ChoiceChip>
           <span className="ml-auto">
-            <Speak text={SAMPLE} voice={v.id} label={`Hear ${v.name}`} size={14} />
+            <Speak text={SAMPLE} voice={v.id} label={fill(t("Hear {name}"), { name: v.name })} size={14} />
           </span>
         </span>
       ))}
@@ -93,6 +96,7 @@ export function SpeechPacePanel({ current, fromLevel, level, tilt }: {
   /** Which way the course is leaning the delivery just now (`lib/course/adapt.ts`). */
   tilt: -1 | 0 | 1;
 }) {
+  const t = useT();
   const [value, setValue] = useState<SpeechPaceId | "auto">(current.chosen ? current.id : "auto");
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -113,25 +117,25 @@ export function SpeechPacePanel({ current, fromLevel, level, tilt }: {
   // asked the window broke its title mid-letter there.
   return (
     <ChoiceSegment
-      ariaLabel="How fast Estonian is read aloud"
+      ariaLabel={t("How fast Estonian is read aloud")}
       value={value}
       disabled={pending}
       onSelect={pick}
       options={[
         {
           id: "auto" as const,
-          title: "Follow my level",
+          title: t("Follow my level"),
           icon: <Gauge size={15} aria-hidden />,
           /* The lean is said here because this is the row it changes, and a
              pace that played a notch slower than the level promises with no
              word about why would read as the setting not working. */
           detail: tilt === 0
-            ? `At ${level} that's ${levelPace?.label.toLowerCase() ?? "full speed"}, and it speeds up as your level goes up.`
+            ? fill(t("At {level} that's {pace}, and it speeds up as your level goes up."), { level, pace: t(levelPace?.label ?? "Full speed").toLowerCase() })
             : tilt < 0
-              ? `${levelPace?.label ?? "Slower"} for now. That's a notch slower than usual at ${level}, because things have felt tricky lately. It goes back by itself.`
-              : `${levelPace?.label ?? "Natural"} for now. That's a notch quicker than usual at ${level}, because you're getting nearly everything right.`,
+              ? fill(t("{pace} for now. That's a notch slower than usual at {level}, because things have felt tricky lately. It goes back by itself."), { level, pace: t(levelPace?.label ?? "Slower") })
+              : fill(t("{pace} for now. That's a notch quicker than usual at {level}, because you're getting nearly everything right."), { level, pace: t(levelPace?.label ?? "Natural") }),
         },
-        ...SPEECH_PACES.map((p) => ({ id: p.id, title: p.label, detail: p.detail })),
+        ...SPEECH_PACES.map((p) => ({ id: p.id, title: t(p.label), detail: t(p.detail) })),
       ]}
     />
   );
@@ -139,7 +143,8 @@ export function SpeechPacePanel({ current, fromLevel, level, tilt }: {
 
 /** A speaker for the pace sample, at whatever the learner currently hears. */
 export function CurrentPaceSample() {
-  return <Speak text={PACE_SAMPLE} label="Hear your current speed" />;
+  const t = useT();
+  return <Speak text={PACE_SAMPLE} label={t("Hear your current speed")} />;
 }
 
 /**
@@ -163,6 +168,7 @@ const AUTOPLAY: { value: Autoplay; label: string; detail: string; icon: typeof E
 ];
 
 export function AutoplayPanel({ current }: { current: Autoplay }) {
+  const t = useT();
   const [value, setValue] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -178,11 +184,11 @@ export function AutoplayPanel({ current }: { current: Autoplay }) {
 
   return (
     <ChoiceSegment
-      ariaLabel="When Estonian is read aloud"
+      ariaLabel={t("When Estonian is read aloud")}
       value={value}
       disabled={pending}
       onSelect={pick}
-      options={AUTOPLAY.map((o) => ({ id: o.value, title: o.label, detail: o.detail, icon: <o.icon size={15} aria-hidden /> }))}
+      options={AUTOPLAY.map((o) => ({ id: o.value, title: t(o.label), detail: t(o.detail), icon: <o.icon size={15} aria-hidden /> }))}
     />
   );
 }
@@ -203,6 +209,7 @@ const SOUNDS: { value: FeedbackSounds; label: string; detail: string; icon: type
 ];
 
 export function FeedbackSoundsPanel({ current }: { current: FeedbackSounds }) {
+  const t = useT();
   const [value, setValue] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -220,11 +227,11 @@ export function FeedbackSoundsPanel({ current }: { current: FeedbackSounds }) {
 
   return (
     <ChoiceSegment
-      ariaLabel="Whether answers make a sound"
+      ariaLabel={t("Whether answers make a sound")}
       value={value}
       disabled={pending}
       onSelect={pick}
-      options={SOUNDS.map((o) => ({ id: o.value, title: o.label, detail: o.detail, icon: <o.icon size={15} aria-hidden /> }))}
+      options={SOUNDS.map((o) => ({ id: o.value, title: t(o.label), detail: t(o.detail), icon: <o.icon size={15} aria-hidden /> }))}
     />
   );
 }
@@ -237,6 +244,14 @@ export function FeedbackSoundsPanel({ current }: { current: FeedbackSounds }) {
  * silent room. The studio stays one press away for somebody with a bad
  * connection, a hearing aid, or a headache.
  */
+const STREET = CONDITIONS.slice(1).filter((c) => !removesWords(c)).map((c) => c.said);
+
+/** "a, b or c", with the last joiner in the reader's own language. */
+function listOf(items: readonly string[], last: string): string {
+  if (items.length < 2) return items.join("");
+  return `${items.slice(0, -1).join(", ")}${last}${items[items.length - 1]}`;
+}
+
 const HEARING: { value: Hearing; label: string; detail: string; icon: typeof Coffee }[] = [
   {
     value: "on",
@@ -250,9 +265,7 @@ const HEARING: { value: Hearing; label: string; detail: string; icon: typeof Cof
       conversation opens it. So the sentence promised the learner a delivery
       the two rounds it is about will never use.
     */
-    detail: `Once you know a word well, you'll sometimes hear it ${
-      CONDITIONS.slice(1).filter((c) => !removesWords(c)).map((c) => c.said).join(", ").replace(/, ([^,]*)$/, " or $1")
-    }, just like real life. New words always come nice and clear.`,
+    detail: `Once you know a word well, you'll sometimes hear it ${listOf(STREET, " or ")}, just like real life. New words always come nice and clear.`,
     icon: Coffee,
   },
   {
@@ -264,6 +277,8 @@ const HEARING: { value: Hearing; label: string; detail: string; icon: typeof Cof
 ];
 
 export function HearingPanel({ current }: { current: Hearing }) {
+  const t = useT();
+  const locale = useLocale();
   const [value, setValue] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -279,11 +294,16 @@ export function HearingPanel({ current }: { current: Hearing }) {
 
   return (
     <ChoiceSegment
-      ariaLabel="How the listening rounds sound"
+      ariaLabel={t("How the listening rounds sound")}
       value={value}
       disabled={pending}
       onSelect={pick}
-      options={HEARING.map((o) => ({ id: o.value, title: o.label, detail: o.detail, icon: <o.icon size={15} aria-hidden /> }))}
+      options={HEARING.map((o) => ({
+        id: o.value,
+        title: t(o.label),
+        detail: o.value === "on"
+          ? fill(t("Once you know a word well, you'll sometimes hear it {ways}, just like real life. New words always come nice and clear."), { ways: locale === "en" ? listOf(STREET, " or ") : new Intl.ListFormat(locale, { type: "disjunction" }).format(STREET.map((said) => t(said))) })
+          : t(o.detail), icon: <o.icon size={15} aria-hidden /> }))}
     />
   );
 }
@@ -325,6 +345,7 @@ const SUPPORT_LEVELS: { value: Support; label: string; detail: string; icon: typ
 ];
 
 export function SupportPanel({ current }: { current: Support }) {
+  const t = useT();
   const [value, setValue] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -340,16 +361,17 @@ export function SupportPanel({ current }: { current: Support }) {
 
   return (
     <ChoiceSegment
-      ariaLabel="How much the app helps in a conversation"
+      ariaLabel={t("How much the app helps in a conversation")}
       value={value}
       disabled={pending}
       onSelect={pick}
-      options={SUPPORT_LEVELS.map((o) => ({ id: o.value, title: o.label, detail: o.detail, icon: <o.icon size={15} aria-hidden /> }))}
+      options={SUPPORT_LEVELS.map((o) => ({ id: o.value, title: t(o.label), detail: t(o.detail), icon: <o.icon size={15} aria-hidden /> }))}
     />
   );
 }
 
 /** A speaker for the sample line in the learner's own current voice. */
 export function CurrentVoiceSample() {
-  return <Speak text={SAMPLE} label="Hear the voice you've chosen" />;
+  const t = useT();
+  return <Speak text={SAMPLE} label={t("Hear the voice you've chosen")} />;
 }

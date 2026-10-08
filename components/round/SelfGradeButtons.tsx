@@ -4,6 +4,8 @@ import { useState } from "react";
 import { EnterKeyCap, SpaceKeyCap } from "@/components/KeyCaps";
 import { SELF_GRADES, type RatingValue } from "@/lib/srs/scheduler";
 import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * THE TWO SELF-GRADES, ONE DRAWING, AND THE KEYS THAT PRESS THEM.
@@ -24,6 +26,7 @@ export function SelfGradeButtons({
   onGrade: (rating: RatingValue) => void;
 }) {
   const [said, setSaid] = useState("");
+  const t = useT();
   return (
     <div className="grid grid-cols-2 gap-2.5">
       {/* The tint is all a sighted reader needs and nothing at all to a screen reader. */}
@@ -33,7 +36,7 @@ export function SelfGradeButtons({
           key={g.rating}
           type="button"
           disabled={busy}
-          onClick={() => { setSaid(`Marked: ${g.label}`); onGrade(g.rating); }}
+          onClick={() => { setSaid(fill(t("Marked: {grade}"), { grade: t(g.label) })); onGrade(g.rating); }}
           aria-keyshortcuts={g.rating === 1 ? "Space" : "Enter"}
           /* No `-translate-y` on hover: the buttons sit in a `gap-2.5` grid and
              a hover that moves the box up loses contact with a pointer resting
@@ -42,7 +45,7 @@ export function SelfGradeButtons({
              under the pointer. */
           className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center gap-2 rounded-[var(--r)] px-2 py-3.5 transition-ui hover:scale-[1.02] disabled:opacity-40`}
         >
-          <span className="text-base font-bold">{g.label}</span>
+          <span className="text-base font-bold">{t(g.label)}</span>
           {g.rating === 1 ? <SpaceKeyCap /> : <EnterKeyCap />}
         </button>
       ))}

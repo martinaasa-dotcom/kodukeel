@@ -1,3 +1,5 @@
+import { fill, tr, type Locale } from "@/lib/copy/locale";
+
 /**
  * HOW PEOPLE ACTUALLY TALK, AS A TABLE.
  *
@@ -251,8 +253,8 @@ export function conditionFor(
  * Said only once the answer is on screen: before it, "over café noise" is a
  * hint about the sentence and the noise is audible anyway.
  */
-export function describeHearing(voiceName: string, condition: Condition): string {
+export function describeHearing(voiceName: string, condition: Condition, locale: Locale): string {
   return condition.id === "clean"
-    ? `Read by ${voiceName}.`
-    : `Read by ${voiceName}, ${condition.said}.`;
+    ? fill(tr(locale, "Read by {name}."), { name: voiceName })
+    : fill(tr(locale, "Read by {name}, {how}."), { name: voiceName, how: tr(locale, condition.said) });
 }

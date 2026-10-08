@@ -9,6 +9,8 @@ import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { SceneVignette } from "@/components/scene/SceneVignette";
 import { toneInk } from "@/components/ui";
 import { KINDS, type SceneKind } from "@/lib/scenes/kinds";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 /**
  * THE CHOOSER, AS SOMETHING TO BROWSE RATHER THAN A WALL TO READ.
@@ -56,6 +58,8 @@ export function SituationsBoard({ tiles, firstPick }: {
   /** Where the stage opens: an id from `tiles`, chosen on the server. */
   firstPick: string;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [kind, setKind] = useState<SceneKind | "all">("all");
   const [pick, setPick] = useState(firstPick);
   // Which offer this is, so the stage's contents arrive again on a shuffle
@@ -86,16 +90,16 @@ export function SituationsBoard({ tiles, firstPick }: {
 
       <section aria-labelledby="all-heading" className="flex flex-col gap-4">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h2 id="all-heading" className="text-xl font-bold tracking-tight">Every situation</h2>
+          <h2 id="all-heading" className="text-xl font-bold tracking-tight">{t("Every situation")}</h2>
           {/* The count is what a filter press announces, never the list itself:
               a live region round fifteen tiles reads every one of them out. */}
           <p className="text-sm" style={{ color: "var(--ink-3)" }} aria-live="polite">
-            {shown.length === tiles.length ? `${tiles.length} places` : `${shown.length} of ${tiles.length}`}
+            {shown.length === tiles.length ? countOf(locale, tiles.length, "place") : fill(t("{shown} of {total}"), { shown: shown.length, total: tiles.length })}
           </p>
         </div>
-        <ChoiceGroup ariaLabel="Kind of place">
+        <ChoiceGroup ariaLabel={t("Kind of place")}>
           <ChoiceChip selected={kind === "all"} onSelect={() => setKind("all")}>
-            Everywhere
+            {t("Everywhere")}
           </ChoiceChip>
           {KINDS.map((k) => (
             <ChoiceChip
@@ -104,7 +108,7 @@ export function SituationsBoard({ tiles, firstPick }: {
               onSelect={() => setKind(k.id)}
               icon={<span aria-hidden className="situation-dot" style={{ background: `var(--${k.hue})` }} />}
             >
-              {k.label}
+              {t(k.label)}
             </ChoiceChip>
           ))}
         </ChoiceGroup>
@@ -124,15 +128,16 @@ function hueOf(kind: SceneKind) {
 }
 
 function Facts({ tile }: { tile: SituationTile }) {
+  const t = useT();
   return (
     <>
       <span className="inline-flex items-center gap-1.5">
         <ListChecks aria-hidden size={16} />
-        {tile.objectives} things to get done
+        {fill(t("{count} things to get done"), { count: tile.objectives })}
       </span>
       <span className="inline-flex items-center gap-1.5">
         <Clock aria-hidden size={16} />
-        about {tile.minutes} min
+        {fill(t("about {minutes} min"), { minutes: tile.minutes })}
       </span>
     </>
   );
@@ -152,6 +157,7 @@ function Stage({ tile, turn, onAnother }: {
   onAnother: (() => void) | null;
 }) {
   const kind = KINDS.find((k) => k.id === tile.kind)!;
+  const t = useT();
   return (
     <section aria-labelledby="pick-heading" className="night situation-stage rounded-[var(--r-xl)] border">
       <div key={turn} className="situation-stage-grid">
@@ -162,21 +168,21 @@ function Stage({ tile, turn, onAnother }: {
           <p className="flex flex-wrap items-center gap-2 text-sm font-semibold" style={{ color: "var(--ink-2)" }}>
             <span className="situation-glass inline-flex items-center gap-2 rounded-full px-3 py-1">
               <span aria-hidden className="situation-dot" style={{ background: `var(--${kind.hue})` }} />
-              {kind.label}
+              {t(kind.label)}
             </span>
             <span>
-              {tile.early ? "Your course brings this one in later" : tile.plays === 0 ? "One you have not tried" : "Worth another go"}
+              {t(tile.early ? "Your course brings this one in later" : tile.plays === 0 ? "One you have not tried" : "Worth another go")}
             </span>
           </p>
           <h2 id="pick-heading" className="font-display text-2xl font-bold leading-tight tracking-tight md:text-3xl">
-            {tile.title}
+            {t(tile.title)}
           </h2>
-          <p className="text-md" style={{ color: "var(--ink-2)" }}>{tile.place}</p>
+          <p className="text-md" style={{ color: "var(--ink-2)" }}>{t(tile.place)}</p>
           {tile.chips.length > 0 && (
-            <ul className="flex flex-wrap gap-2" aria-label="What it practices">
+            <ul className="flex flex-wrap gap-2" aria-label={t("What it practices")}>
               {tile.chips.map((c) => (
                 <li key={c.text} lang={c.et ? "et" : undefined} className="situation-glass rounded-full px-3 py-1 text-sm font-semibold">
-                  {c.text}
+                  {c.et ? c.text : t(c.text)}
                 </li>
               ))}
             </ul>
@@ -188,11 +194,11 @@ function Stage({ tile, turn, onAnother }: {
             {onAnother && (
               <Button variant="ghost" size="lg" onClick={onAnother} className="situation-shuffle">
                 <Shuffle aria-hidden size={16} />
-                Another one
+                {t("Another one")}
               </Button>
             )}
             <ButtonLink variant="primary" size="lg" href={`/situations/${tile.id}`}>
-              Step in
+              {t("Step in")}
               <ArrowUpRight aria-hidden size={16} />
             </ButtonLink>
           </div>
@@ -220,6 +226,8 @@ const TILE_ROWS = "row-span-6";
 function Tile({ tile }: { tile: SituationTile }) {
   const hue = hueOf(tile.kind);
   const kind = KINDS.find((k) => k.id === tile.kind)!;
+  const t = useT();
+  const locale = useLocale();
   return (
     <li className={`situation-in grid grid-rows-subgrid gap-y-0 ${TILE_ROWS}`}>
       <Link
@@ -232,7 +240,7 @@ function Tile({ tile }: { tile: SituationTile }) {
           {tile.plays > 0 && (
             <span className="situation-played absolute right-3 top-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold">
               <Check aria-hidden size={14} />
-              {tile.plays === 1 ? "Played once" : `Played ${tile.plays} times`}
+              {tile.plays === 1 ? t("Played once") : fill(t("Played {times}"), { times: countOf(locale, tile.plays, "time") })}
             </span>
           )}
         </div>
@@ -240,12 +248,12 @@ function Tile({ tile }: { tile: SituationTile }) {
             only thing saying which. */}
         <p className="label-xs inline-flex items-center gap-2 self-end px-5 pt-2" style={{ color: toneInk(hue) }}>
           <span aria-hidden className="situation-dot" style={{ background: `var(--${hue})` }} />
-          {kind.label}
+          {t(kind.label)}
         </p>
-        <h3 className="px-5 text-lg font-bold leading-snug tracking-tight">{tile.title}</h3>
-        <p className="px-5 text-sm" style={{ color: "var(--ink-2)" }}>{tile.place}</p>
+        <h3 className="px-5 text-lg font-bold leading-snug tracking-tight">{t(tile.title)}</h3>
+        <p className="px-5 text-sm" style={{ color: "var(--ink-2)" }}>{t(tile.place)}</p>
         {tile.chips.length > 0 ? (
-          <ul className="flex flex-wrap content-start gap-1.5 px-5 pt-1" aria-label="What it practices">
+          <ul className="flex flex-wrap content-start gap-1.5 px-5 pt-1" aria-label={t("What it practices")}>
             {tile.chips.map((c) => (
               <li
                 key={c.text}
@@ -253,7 +261,7 @@ function Tile({ tile }: { tile: SituationTile }) {
                 className="situation-chip text-xs font-semibold"
                 style={{ color: toneInk(hue) }}
               >
-                {c.text}
+                {c.et ? c.text : t(c.text)}
               </li>
             ))}
           </ul>
@@ -265,10 +273,10 @@ function Tile({ tile }: { tile: SituationTile }) {
             <Facts tile={tile} />
           </p>
           {tile.last && (
-            <p className="text-xs" style={{ color: "var(--ink-3)" }}>Last time: {tile.last}</p>
+            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("Last time: {outcome}"), { outcome: t(tile.last) })}</p>
           )}
           {tile.early && (
-            <p className="text-xs" style={{ color: "var(--ink-3)" }}>Your course brings this one in later</p>
+            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{t("Your course brings this one in later")}</p>
           )}
         </div>
       </Link>

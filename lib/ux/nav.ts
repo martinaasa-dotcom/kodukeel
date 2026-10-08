@@ -191,7 +191,7 @@ export const SECTIONS: NavSection[] = [
         it is not a row of its own.
       */
       {
-        href: "/situations", label: "Situations", blurb: "Book a doctor, order a coffee, ring your landlord",
+        href: "/situations", label: "Situations", blurb: "Book a doctor, order a coffee, call your landlord",
         icon: "MessagesSquare", tone: "sky",
         keywords: "conversation scene role play speaking doctor counter landlord",
         within: "/practice",

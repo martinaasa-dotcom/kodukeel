@@ -12,6 +12,8 @@ import {
 } from "@/app/actions";
 import type { DeckSummary, DeckWordRow } from "@/lib/progress/decks";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 /**
  * CREATING, RENAMING, REMOVING A SHELF, AND SEEING WHAT IS ON IT.
@@ -22,14 +24,15 @@ import { NOT_REACHED } from "@/lib/copy/values";
  */
 export function DecksClient({ decks: initial }: { decks: DeckSummary[] }) {
   const [decks, setDecks] = useState(initial);
+  const t = useT();
 
   return (
     <Stack>
       <NewDeck onCreated={(deck) => setDecks((d) => [...d, deck])} />
       {decks.length === 0 ? (
         <Empty
-          title="No decks yet"
-          body="All your words are in one pile for now. Make a deck and the dictionary asks where new words go."
+          title={t("No decks yet")}
+          body={t("All your words are in one pile for now. Make a deck and the dictionary asks where new words go.")}
         />
       ) : (
         <div className="flex flex-col gap-3">
@@ -62,12 +65,13 @@ function NewDeck({ onCreated }: { onCreated: (deck: DeckSummary) => void }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const router = useRouter();
+  const t = useT();
 
   const submit = () => {
     if (!name.trim() || pending) return;
     start(async () => {
       const result = await createMyDeck(name).catch(() => null);
-      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+      if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
       setError(null);
       setName("");
       onCreated(result.deck);
@@ -83,21 +87,21 @@ function NewDeck({ onCreated }: { onCreated: (deck: DeckSummary) => void }) {
       >
         <div className="min-w-0 flex-1">
           <label htmlFor="new-deck-name" className="label-xs mb-1 block" style={{ color: "var(--ink-3)" }}>
-            New deck
+            {t("New deck")}
           </label>
           <input
             id="new-deck-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Work Estonian, Grandma's recipes, ..."
+            placeholder={t("Work Estonian, Grandma's recipes, ...")}
             className="field w-full text-sm"
           />
         </div>
         <Button type="submit" variant="primary" disabled={pending || !name.trim()}>
-          <Plus size={15} aria-hidden /> Create
+          <Plus size={15} aria-hidden /> {t("Create")}
         </Button>
       </form>
-      {error && <p role="alert" className="mt-2 text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
+      {error && <p role="alert" className="mt-2 text-xs" style={{ color: "var(--again-ink)" }}>{t(error)}</p>}
     </Card>
   );
 }
@@ -133,13 +137,15 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
 
   const rename = () => {
     if (pending) return; // a blur chasing an Enter submit must not fire this twice
     if (!name.trim() || name === deck.name) { setEditing(false); setName(deck.name); return; }
     start(async () => {
       const result = await renameMyDeck(deck.id, name).catch(() => null);
-      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+      if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
       setError(null);
       setEditing(false);
       onRenamed(name.trim());
@@ -155,7 +161,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
   const remove = () => {
     start(async () => {
       const result = await deleteMyDeck(deck.id).catch(() => null);
-      if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+      if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
       onDeleted();
       router.refresh();
     });
@@ -186,7 +192,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
                 onBlur={rename}
                 onKeyDown={(e) => { if (e.key === "Escape") cancelRename(); }}
                 className="field text-sm"
-                aria-label={`Rename ${deck.name}`}
+                aria-label={fill(t("Rename {deck}"), { deck: deck.name })}
               />
             </form>
           ) : (
@@ -207,7 +213,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
               style={{ color: "var(--ink-3)" }}
               aria-expanded={expanded}
             >
-              {deck.wordCount === 1 ? "1 word" : `${deck.wordCount} words`}
+              {countOf(locale, deck.wordCount, "word")}
               {deck.wordCount > 0 && (expanded ? <ChevronUp size={12} aria-hidden /> : <ChevronDown size={12} aria-hidden />)}
             </button>
             <button
@@ -217,15 +223,15 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
               style={{ color: "var(--ink-3)" }}
               aria-expanded={filing}
             >
-              <Plus size={12} aria-hidden /> Add words
+              <Plus size={12} aria-hidden /> {t("Add words")}
             </button>
           </div>
         </div>
         {confirming ? (
           <span className="flex items-center gap-2 text-xs" style={{ color: "var(--ink-2)" }}>
-            The words themselves won&rsquo;t be deleted.
-            <Button variant="danger" size="sm" disabled={pending} onClick={remove}>Remove</Button>
-            <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>Cancel</Button>
+            {t("The words themselves won’t be deleted.")}
+            <Button variant="danger" size="sm" disabled={pending} onClick={remove}>{t("Remove")}</Button>
+            <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>{t("Cancel")}</Button>
           </span>
         ) : (
           <span className="flex items-center gap-2">
@@ -235,7 +241,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
               className="tap-tint inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
               style={{ color: "var(--ink-3)" }}
             >
-              <Trash2 size={13} aria-hidden /> Remove
+              <Trash2 size={13} aria-hidden /> {t("Remove")}
             </button>
             {deck.wordCount > 0 && (
               // `size="sm"` alone leaves this under the 44px floor: the
@@ -243,18 +249,18 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
               // `a.pill`, not a bare `ButtonLink` anchor, so a thumb-sized
               // minimum has to be asked for explicitly here.
               <ButtonLink href={`/review/deck/${deck.id}`} variant="primary" size="sm" className="min-h-11">
-                <Play size={13} aria-hidden /> Practice
+                <Play size={13} aria-hidden /> {t("Practice")}
               </ButtonLink>
             )}
           </span>
         )}
-        {error && <p role="alert" className="w-full text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
+        {error && <p role="alert" className="w-full text-xs" style={{ color: "var(--again-ink)" }}>{t(error)}</p>}
       </div>
       {/* What is on the shelf, newest first, so a deck reads as its words
           rather than as a count. Hidden while the full list is open, which
           says the same thing at length. */}
       {!expanded && deck.preview.length > 0 && (
-        <ul className="mt-4 flex flex-wrap gap-1.5" aria-label={`Newest on ${deck.name}`}>
+        <ul className="mt-4 flex flex-wrap gap-1.5" aria-label={fill(t("Newest on {deck}"), { deck: deck.name })}>
           {deck.preview.map((lemma) => (
             <li
               key={lemma}
@@ -267,7 +273,7 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
           ))}
           {deck.wordCount > deck.preview.length && (
             <li className="px-1.5 py-1 text-sm" style={{ color: "var(--ink-3)" }}>
-              and {deck.wordCount - deck.preview.length} more
+              {fill(t("and {n} more"), { n: deck.wordCount - deck.preview.length })}
             </li>
           )}
         </ul>
@@ -304,6 +310,7 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
   */
   const [words, setWords] = useState<DeckWordRow[] | null | "failed">(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const t = useT();
 
   useEffect(() => {
     let cancelled = false;
@@ -328,19 +335,19 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
   };
 
   if (words === null) {
-    return <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>Loading…</p>;
+    return <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>{t("Loading…")}</p>;
   }
   if (words === "failed") {
     return (
       <p role="status" className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-        The words in this deck didn&rsquo;t load. Close it and open it again to try once more.
+        {t("The words in this deck didn’t load. Close it and open it again to try once more.")}
       </p>
     );
   }
   if (words.length === 0) {
     return (
       <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-        No words in this deck yet.
+        {t("No words in this deck yet.")}
       </p>
     );
   }
@@ -356,7 +363,7 @@ function DeckWordList({ deckId, version, onWordRemoved }: {
             type="button"
             onClick={() => remove(word.lexemeId)}
             disabled={pendingId === word.lexemeId}
-            aria-label={`Take ${word.lemma} out of this deck`}
+            aria-label={fill(t("Take {word} out of this deck"), { word: word.lemma })}
             className="tap-tint shrink-0 rounded-md p-1"
             style={{ color: "var(--ink-3)" }}
           >
@@ -400,6 +407,7 @@ function FileWords({ deckId, deckName, onFiled }: {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [said, setSaid] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   /*
     Debounced, because this is a keystroke against a query that groups every
@@ -420,7 +428,7 @@ function FileWords({ deckId, deckName, onFiled }: {
     setPendingId(word.lexemeId);
     fileMyWord(deckId, word.lexemeId)
       .then((result) => {
-        if (!result.ok) { setError(result.error); return; }
+        if (!result.ok) { setError(t(result.error)); return; }
         setError(null);
         /*
           Spliced out here as well as re-fetched by the row above, because the
@@ -428,38 +436,38 @@ function FileWords({ deckId, deckName, onFiled }: {
           see the word go would read as a button that did nothing.
         */
         setWords((w) => (Array.isArray(w) ? w.filter((x) => x.lexemeId !== word.lexemeId) : w));
-        setSaid(`${word.lemma} is on ${deckName}.`);
+        setSaid(fill(t("{word} is on {deck}."), { word: word.lemma, deck: deckName }));
         onFiled(word.lemma);
       })
-      .catch(() => setError("That didn't save. Try again in a moment."))
+      .catch(() => setError(t("That didn't save. Try again in a moment.")))
       .finally(() => setPendingId(null));
   };
 
   return (
     <div className="mt-3 border-t pt-3" style={{ borderColor: "var(--rule)" }}>
       <label htmlFor={`file-${deckId}`} className="label-xs mb-1 block" style={{ color: "var(--ink-3)" }}>
-        Add a word you already have
+        {t("Add a word you already have")}
       </label>
       <input
         id={`file-${deckId}`}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Newest first, or search"
+        placeholder={t("Newest first, or search")}
         className="field w-full text-sm"
       />
       <p aria-live="polite" className="sr-only">{said}</p>
       {error && <p role="alert" className="mt-2 text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
       {words === null ? (
-        <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>Loading…</p>
+        <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>{t("Loading…")}</p>
       ) : words === "failed" ? (
         <p role="status" className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-          Your words didn&rsquo;t load. Change the search to try again.
+          {t("Your words didn’t load. Change the search to try again.")}
         </p>
       ) : words.length === 0 ? (
         <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
           {query
-            ? "None of your words match that."
-            : "Every word you have is already in this deck."}
+            ? t("None of your words match that.")
+            : t("Every word you have is already in this deck.")}
         </p>
       ) : (
         <ul className="mt-2 flex flex-col gap-1">

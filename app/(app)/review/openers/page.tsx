@@ -9,8 +9,12 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { OpenersSession } from "./OpenersSession";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
-export const metadata = { title: "Lause algus" };
+export async function generateMetadata() {
+  return titleFor("Lause algus");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +38,8 @@ export default async function OpenersPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const ownerId = await requireUserId();
-  const level = await courseLevelFor(ownerId);
+  const [level, locale] = await Promise.all([courseLevelFor(ownerId), localeFor(ownerId)]);
+  const t = (english: string) => tr(locale, english);
   const params = firstParams(await searchParams);
 
   const typed = level !== "A2";
@@ -42,11 +47,11 @@ export default async function OpenersPage({
 
   if (maxStage === 0) {
     return (
-      <Page title="Lause algus" lead="The start of the sentence picks the ending.">
+      <Page title="Lause algus" titleLang="et" lead={t("The start of the sentence picks the ending.")}>
         <Empty
-          title="This opens at A2"
-          body="It leans on the first month of phrases, so it waits until you have them."
-          action={<ButtonLink href="/practice" variant="primary">Back to Practice</ButtonLink>}
+          title={t("This opens at A2")}
+          body={t("It leans on the first month of phrases, so it waits until you have them.")}
+          action={<ButtonLink href="/practice" variant="primary">{t("Back to Practice")}</ButtonLink>}
         />
       </Page>
     );
@@ -61,11 +66,11 @@ export default async function OpenersPage({
   const questions = buildRound(stage, words, shuffle);
   if (questions.length === 0) {
     return (
-      <Page title="Lause algus" lead="The start of the sentence picks the ending.">
+      <Page title="Lause algus" titleLang="et" lead={t("The start of the sentence picks the ending.")}>
         <Empty
-          title="No words to practise with yet"
-          body="The dictionary has none of the words this round uses."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={t("No words to practice with yet")}
+          body={t("The dictionary has none of the words this round uses.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
         />
       </Page>
     );

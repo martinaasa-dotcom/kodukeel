@@ -377,7 +377,7 @@ const BLUEPRINTS: Record<TaskKind, Blueprint> = {
     instruction:
       "Each Estonian verb wants a particular case after it, and English gives you no hint " +
       "which. Pick the right one for each verb. Like the task above, this one is ours rather " +
-      "than the real paper's, so leave it till last.",
+      "than the real paper's, so leave it until last.",
     standsFor:
       "not a task the real paper sets: it asks directly which case each verb takes, which an " +
       "examiner checks inside your two texts",
@@ -542,7 +542,7 @@ const SPEAKING: Record<SpeakingShape, Partial<Blueprint>> = {
     standsFor: "küsimustele vastamine ja arutelu, answering questions and reaching an agreement",
   },
   phone: {
-    title: "Ring up and ask",
+    title: "Call up and ask",
     standsFor: "dialoog (rollimäng), a phone call where one of you asks and the other answers",
   },
   talk: {

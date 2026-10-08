@@ -5,6 +5,7 @@ import { slotLabel, slotShort } from "@/lib/srs/slots";
 import type { Confusion } from "@/lib/stats/confusions";
 import type { SlotAnswerTime } from "@/lib/stats/answerTime";
 import { formatAnswerTime } from "@/lib/time/duration";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * THE TWO THINGS AN ACCURACY CHART CANNOT SAY.
@@ -33,27 +34,29 @@ import { formatAnswerTime } from "@/lib/time/duration";
 /** A row per slot, and per pair. Enough to act on, short enough to read. */
 const MAX_ROWS = 5;
 
-export function NotAutomatic({ slow, mixedUp, medianMs }: {
+export function NotAutomatic({ slow, mixedUp, medianMs, locale }: {
+  locale: Locale;
   slow: readonly SlotAnswerTime[];
   mixedUp: readonly Confusion[];
   /** The learner's own median, which is what "slow" is measured against. */
   medianMs: number | null;
 }) {
+  const t = (english: string) => tr(locale, english);
   return (
-    <div className="flex flex-col gap-5">
+    <div lang={locale} className="flex flex-col gap-5">
       {slow.length > 0 && (
         <div>
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            You get these right, just slowly
+            {t("You get these right, just slowly")}
           </p>
           <ul className="flex flex-col gap-1.5">
             {slow.slice(0, MAX_ROWS).map((s) => (
-              <SlowRow key={s.slot} pace={s} />
+              <SlowRow key={s.slot} pace={s} locale={locale} />
             ))}
           </ul>
           {medianMs !== null && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-              For comparison, your usual answer takes {formatAnswerTime(medianMs)}.
+              {fill(t("For comparison, your usual answer takes {time}."), { time: formatAnswerTime(medianMs) })}
             </p>
           )}
         </div>
@@ -62,11 +65,11 @@ export function NotAutomatic({ slow, mixedUp, medianMs }: {
       {mixedUp.length > 0 && (
         <div>
           <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-            Endings you mix up
+            {t("Endings you mix up")}
           </p>
           <ul className="flex flex-col gap-1.5">
             {mixedUp.slice(0, MAX_ROWS).map((c) => (
-              <MixedRow key={c.pair.join(" ")} confusion={c} />
+              <MixedRow key={c.pair.join(" ")} confusion={c} locale={locale} />
             ))}
           </ul>
         </div>
@@ -82,7 +85,8 @@ export function NotAutomatic({ slow, mixedUp, medianMs }: {
  * one and that is the drill. A named part of the verb has no such door, so it
  * is a row and not a link rather than a link that goes somewhere vague.
  */
-function SlowRow({ pace }: { pace: SlotAnswerTime }) {
+function SlowRow({ pace, locale }: { pace: SlotAnswerTime; locale: Locale }) {
+  const t = (english: string) => tr(locale, english);
   const spec = caseByKey(pace.slot as CaseKey);
   /*
     The short name on the row and the question in the label, which is the
@@ -103,21 +107,22 @@ function SlowRow({ pace }: { pace: SlotAnswerTime }) {
         {time}
       </span>
       <span className="tnum w-20 shrink-0 text-right text-xs" style={{ color: "var(--ink-3)" }}>
-        {pace.accuracy}% of {pace.answers}
+        {fill(t("{pct}% of {n}"), { pct: pace.accuracy, n: pace.answers })}
       </span>
     </>
   );
 
-  const label =
-    `${full}: right ${pace.accuracy} percent of the time over ${pace.answers} timed answers, ` +
-    `taking ${time} each`;
+  const label = fill(
+    t("{name}: right {pct} percent of the time over {n} timed answers, taking {time} each"),
+    { name: full, pct: pace.accuracy, n: pace.answers, time },
+  );
 
   return (
     <li className="flex min-w-0 items-center">
       {spec ? (
         <Link
           href={`/review?case=${pace.slot}`}
-          aria-label={`${label}. Practise it.`}
+          aria-label={fill(t("{label}. Practice it."), { label })}
           className="pill tap-tint flex min-w-0 flex-1 items-center gap-3 rounded-[var(--r)] px-2 py-1.5 text-sm"
         >
           {inside}
@@ -140,7 +145,8 @@ function SlowRow({ pace }: { pace: SlotAnswerTime }) {
  * character rather than as `&#8596;`, because an entity is a hex-shaped string
  * and the rule that no component carries a raw color reads it as one.
  */
-function MixedRow({ confusion }: { confusion: Confusion }) {
+function MixedRow({ confusion, locale }: { confusion: Confusion; locale: Locale }) {
+  const t = (english: string) => tr(locale, english);
   const [a, b] = confusion.pair;
   const first = slotShort(a);
   const second = slotShort(b);
@@ -149,12 +155,12 @@ function MixedRow({ confusion }: { confusion: Confusion }) {
       <span
         lang="et"
         className="min-w-0 flex-1"
-        aria-label={`${slotLabel(a)} and ${slotLabel(b)}, mixed up ${confusion.times} times`}
+        aria-label={fill(t("{a} and {b}, mixed up {n} times"), { a: slotLabel(a), b: slotLabel(b), n: confusion.times })}
       >
         {first} <span aria-hidden style={{ color: "var(--ink-3)" }}>↔</span> {second}
       </span>
       <span className="tnum shrink-0 text-xs" style={{ color: "var(--ink-3)" }}>
-        {confusion.times} times
+        {fill(t("{n} times"), { n: confusion.times })}
       </span>
     </li>
   );

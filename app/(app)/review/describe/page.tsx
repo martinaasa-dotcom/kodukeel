@@ -6,8 +6,11 @@ import { practiceScope } from "@/lib/progress/moduleScope";
 import { resolveProviders } from "@/lib/tutor/provider";
 import { DescribeSession, type PicturePrompt } from "./DescribeSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
+import { titleFor } from "@/lib/progress/locale";
 
-export const metadata = { title: "Say what you see" };
+export async function generateMetadata() {
+  return titleFor("Say what you see");
+}
 
 export const dynamic = "force-dynamic";
 

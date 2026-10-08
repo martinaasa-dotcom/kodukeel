@@ -33,7 +33,8 @@ export default function aHeardWordIsNotReadOut({ check, code }: InvariantKit) {
         if (!/\bautoplay\b/.test(props)) continue;
         seen++;
         assert.match(
-          props, /\blabel="[^"]+"/,
+          // Written out, or written out and read in the learner's language.
+          props, /\blabel=(?:"[^"]+"|\{t\("[^"]+"\)\})/,
           `${file} autoplays a speaker with no written label, so its default names the word before it is answered`,
         );
       }

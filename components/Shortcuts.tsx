@@ -5,6 +5,7 @@ import { Keyboard, X } from "lucide-react";
 import { KeyCap } from "@/components/ui";
 import { Explain } from "@/components/Explain";
 import { useModalFocus } from "@/components/useModalFocus";
+import { useT } from "@/components/Locale";
 
 /** The event the command palette fires to open this without a keyboard. */
 export const SHORTCUTS_EVENT = "kodukeel:shortcuts";
@@ -56,7 +57,7 @@ const GROUPS: Group[] = [
       { press: ["2"], does: "…the second, and so on" },
       { press: ["Space"], does: "Play the word, while you're still choosing" },
       { press: ["R"], does: "Play the word again, in minimal pairs" },
-      { press: ["Enter", "Space"], does: "Carry on once you've answered" },
+      { press: ["Enter", "Space"], does: "Keep going once you've answered" },
     ],
   },
 ];
@@ -69,6 +70,7 @@ const GROUPS: Group[] = [
  * feature — this is documentation with a keyboard binding.
  */
 export function Shortcuts() {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const sheet = useRef<HTMLDivElement>(null);
   // The caret goes to the close button, Tab stays in the sheet, and closing
@@ -121,7 +123,7 @@ export function Shortcuts() {
       onClick={() => setOpen(false)}
       role="dialog"
       aria-modal="true"
-      aria-label="Keyboard shortcuts"
+      aria-label={t("Keyboard shortcuts")}
     >
       <div
         ref={sheet}
@@ -135,12 +137,12 @@ export function Shortcuts() {
         >
           <Keyboard size={17} aria-hidden style={{ color: "var(--accent-deep)" }} />
           <h2 className="text-md font-bold" style={{ color: "var(--ink)" }}>
-            Keyboard shortcuts
+            {t("Keyboard shortcuts")}
           </h2>
           <button
             type="button"
             onClick={() => setOpen(false)}
-            aria-label="Close"
+            aria-label={t("Close")}
             className="press ml-auto flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
             style={{ color: "var(--ink-3)" }}
           >
@@ -151,17 +153,17 @@ export function Shortcuts() {
         <div className="grid gap-6 p-5 sm:grid-cols-2">
           {GROUPS.map((group) => (
             <section key={group.title}>
-              <h3 className="label-xs" style={{ color: "var(--ink-3)" }}>{group.title}</h3>
-              <p className="mb-2.5 text-xs" style={{ color: "var(--ink-3)" }}>{group.hint}</p>
+              <h3 className="label-xs" style={{ color: "var(--ink-3)" }}>{t(group.title)}</h3>
+              <p className="mb-2.5 text-xs" style={{ color: "var(--ink-3)" }}>{t(group.hint)}</p>
               <ul className="flex flex-col gap-1.5">
                 {group.keys.map((row) => (
                   <li key={`${group.title}-${row.press.join("+")}-${row.does}`} className="flex items-baseline gap-3">
                     <span className="flex shrink-0 gap-1">
                       {row.press.map((key) => (
-                        <KeyCap key={key}>{key}</KeyCap>
+                        <KeyCap key={key}>{t(key)}</KeyCap>
                       ))}
                     </span>
-                    <span className="text-xs" style={{ color: "var(--ink-2)" }}>{row.does}</span>
+                    <span className="text-xs" style={{ color: "var(--ink-2)" }}>{t(row.does)}</span>
                   </li>
                 ))}
               </ul>
@@ -170,9 +172,8 @@ export function Shortcuts() {
         </div>
 
         <div className="border-t px-5 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Explain label="Rather not use shortcuts?">
-          You can Tab to every control, and you&apos;ll always see which one you&apos;re on. Shortcuts are
-          only a faster way in, never the only way.
+          <Explain label={t("Rather not use shortcuts?")}>
+          {t("You can Tab to every control, and you'll always see which one you're on. Shortcuts are only a faster way in, never the only way.")}
           </Explain>
         </div>
       </div>

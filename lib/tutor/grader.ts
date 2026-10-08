@@ -2,6 +2,7 @@ import type { WritingTask } from "@/lib/estonian/writing";
 import { questionInEnglish } from "@/lib/estonian/cases";
 import { estimateTokens } from "@/lib/usage/pricing";
 import { VOICE_RULES } from "@/lib/copy/voice";
+import type { Locale } from "@/lib/copy/locale";
 import { humanizeReply } from "./humanize";
 import { liveLinks, noteRefusal } from "./exhausted";
 import {
@@ -39,6 +40,29 @@ export interface GraderInput {
   /** Every authoritative form, so the model never has to guess one. */
   knownForms: { label: string; value: string }[];
   level: string;
+  /** The language the learner reads the app in; the note is written in it. English when absent. */
+  language?: Locale;
+}
+
+/**
+ * THE NOTE IN THE LANGUAGE THE LEARNER READS THE APP IN.
+ *
+ * Said at the end of the user prompt rather than in the system prompt, so the
+ * cached system prompt stays one prompt for everybody, which is the shape the
+ * tutor's `explainIn` and the conversation's coach note already take. Only the
+ * language of the note moves: every rule about Estonian still holds word for
+ * word, the Estonian is quoted in straight double quotes exactly as given, so
+ * `verifyVerdict` reads it as a form presented and checks it, and their own
+ * language goes in «ёлочки», which the verifier never mistakes for one.
+ */
+const NOTE_LANGUAGE: Readonly<Record<Exclude<Locale, "en">, string>> = { ru: "Russian", uk: "Ukrainian" };
+
+export function writtenIn(language: Locale | undefined, fields = '"comment" and "rule"'): string {
+  if (!language || language === "en") return "";
+  const name = NOTE_LANGUAGE[language];
+  return `
+
+LANGUAGE OF YOUR NOTE: the learner reads ${name} better than English, so write ${fields} in ${name}: natural, warm ${name}, the way a ${name}-speaking teacher of Estonian writes to an adult student (${language === "ru" ? "вы" : "ви"}), never a translation of English sentences.${language === "uk" ? " Write standard literary Ukrainian and nothing else: no Russian words, no Russianisms or calques from Russian, no surzhyk, and never Russian spelled with Ukrainian letters. Never mention Russia, Russian or the Russian language, and never compare anything to Russian; where a comparison helps, compare with Ukrainian or English." : " Standard literary Russian only: not one Ukrainian word, letter or turn of phrase, no surzhyk, and never mention Ukrainian or Ukraine or compare anything with them."} Wherever the rules say plain English, read plain ${name}. Every rule about Estonian still holds exactly: quote any Estonian word in straight double quotes exactly as it is given above, never spell one you were not given, and put ${name} words in «» quotes, never straight ones. The JSON keys and the verdict stay in English.`;
 }
 
 /**
@@ -77,7 +101,7 @@ Reply with a single JSON object and nothing else:
 
 "correct" means the sentence works. "almost" means understandable but with an error worth naming. "wrong" means it does not mean what they intended, or is not Estonian.
 
-Do not use an em dash or an en dash anywhere in your comment. Use a comma, a full stop, or a pair of brackets.`;
+Do not use an em dash or an en dash anywhere in your comment. Use a comma, a period, or a pair of parentheses.`;
 }
 
 export function buildGraderUserPrompt(input: GraderInput, formWasUsed: boolean): string {
@@ -96,7 +120,7 @@ KNOWN FORMS of ${input.task.lemma}, from the dictionary. These are the only form
 ${forms || "  (none beyond the required form)"}
 
 THE LEARNER WROTE:
-${input.sentence}`;
+${input.sentence}${writtenIn(input.language)}`;
 }
 
 /**
@@ -444,14 +468,14 @@ OUTPUT
 Reply with a single JSON object and nothing else:
 {"verdict":"correct"|"almost"|"wrong","comment":"two or three sentences","rule":"the one thing to work on, in a few words, or an empty string"}
 
-Do not use an em dash or an en dash anywhere in your comment. Use a comma, a full stop, or a pair of brackets.`;
+Do not use an em dash or an en dash anywhere in your comment. Use a comma, a period, or a pair of parentheses.`;
 }
 
-export function buildCompositionUserPrompt(text: string, level: string): string {
+export function buildCompositionUserPrompt(text: string, level: string, language?: Locale): string {
   return `LEARNER LEVEL: ${level}
 
 THIS IS WHAT THEY WROTE. Every Estonian word you may use is somewhere in it:
-${text}`;
+${text}${writtenIn(language)}`;
 }
 
 /**
@@ -502,10 +526,11 @@ export async function gradeComposition(
   provider: ProviderConfig | readonly ProviderConfig[],
   text: string,
   level: string,
+  language?: Locale,
 ): Promise<{ graded: GradedSentence | null; usage: UsageReport; config: ProviderConfig }> {
   const { text: reply, usage, config } = await callChainForJson(
     asChain(provider), buildCompositionSystemPrompt(),
-    buildCompositionUserPrompt(text, level), COMPOSITION_REPLY_TOKENS,
+    buildCompositionUserPrompt(text, level, language), COMPOSITION_REPLY_TOKENS,
   );
   return { graded: parseVerdict(reply), usage, config };
 }
@@ -553,11 +578,11 @@ ${VOICE}
 
 OUTPUT
 Reply with a single JSON object and nothing else, with exactly five entries in "sentences", in the order they were written:
-{"sentences":[{"verdict":"correct"|"almost"|"wrong","comment":"one or two sentences","rule":"the grammatical rule at issue, or an empty string"}],"went_well":"one or two sentences on what they did well across the five","work_on":"one or two sentences naming what to practise next, or an empty string if nothing stood out"}
+{"sentences":[{"verdict":"correct"|"almost"|"wrong","comment":"one or two sentences","rule":"the grammatical rule at issue, or an empty string"}],"went_well":"one or two sentences on what they did well across the five","work_on":"one or two sentences naming what to practice next, or an empty string if nothing stood out"}
 
 "correct" means the sentence works and is about the picture. "almost" means it is understandable but has an error worth naming, or is only loosely about the picture. "wrong" means it is not Estonian, or is about something else entirely.
 
-Do not use an em dash or an en dash anywhere in your reply. Use a comma, a full stop, or a pair of brackets.`;
+Do not use an em dash or an en dash anywhere in your reply. Use a comma, a period, or a pair of parentheses.`;
 }
 
 export interface DescribeGraderInput {
@@ -570,6 +595,8 @@ export interface DescribeGraderInput {
   /** The five, in order, with what the dictionary already found out about each. */
   sentences: { text: string; unknown: readonly string[]; mentions: readonly string[] }[];
   level: string;
+  /** The language the learner reads the app in; the notes are written in it. English when absent. */
+  language?: Locale;
 }
 
 export function buildDescribeUserPrompt(input: DescribeGraderInput): string {
@@ -601,7 +628,7 @@ KNOWN FORMS, from the dictionary. These are the only Estonian forms you may writ
 ${forms || "  (none)"}
 
 THE LEARNER WROTE:
-${written}`;
+${written}${writtenIn(input.language, 'every "comment", "rule", "went_well" and "work_on"')}`;
 }
 
 export interface GradedPicture {

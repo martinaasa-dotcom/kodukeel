@@ -81,6 +81,22 @@ export interface Tip {
   example?: string;
 }
 
+/**
+ * What the game took a question to mean, put so a screen in another language
+ * can say it in its own words. `en` is a template: `{word}` is an English word
+ * a screen translates under the same `context`, and `{thing}` is a headword the
+ * screen glosses itself, with `text` as the English to fall back on. A
+ * template rather than the finished English, because "Does it have wings?"
+ * and "У него есть крылья?" are built differently and a lookup on the whole
+ * sentence would need a row for every part the game knows.
+ */
+export interface Said {
+  en: string;
+  context?: string;
+  word?: string;
+  thing?: { lemma: string | null; text: string };
+}
+
 export type Refusal = "empty" | "wh" | "or" | "many" | "compare" | "unknown";
 
 export type Reply =
@@ -90,6 +106,8 @@ export type Reply =
       answer: Answer;
       /** What the game took the question to mean, in English. */
       reading: string;
+      /** The same, as a template a screen can put into the reader's language. */
+      said: Said;
       /** The question named a thing (or a kind of thing) rather than describing one. */
       guess: boolean;
       won: boolean;
@@ -157,6 +175,8 @@ function degree(t: Thing, key: string): Answer {
 interface Intent {
   id: string;
   en: string;
+  /** Where `en` is built from a word, the template it was built from. */
+  said?: Said;
   test: (t: Thing) => Answer;
   /** Needs "on" (is) in front of it to be a sentence: "kas see on suur". */
   copula: boolean;
@@ -191,6 +211,7 @@ const COLOUR_EN: Record<Colour, string> = {
 for (const c of COLOURS) {
   ADJECTIVES[c] = {
     id: `colour:${c}`, en: `Is it ${COLOUR_EN[c]}?`, copula: true,
+    said: { en: "Is it {word}?", context: "colour", word: COLOUR_EN[c] },
     test: (t) => listed(t.colour, t.colourS, c),
   };
 }
@@ -416,12 +437,16 @@ export function ask(
     }
     const label = (refThing ? glossOf(refThing.lemma) ?? refThing.lemma : ref.raw);
     const en = `Is it ${direction} than “${label}”?`;
+    const said: Said = {
+      en: direction === "bigger" ? "Is it bigger than “{thing}”?" : "Is it smaller than “{thing}”?",
+      thing: { lemma: refThing?.lemma ?? null, text: label },
+    };
     if (!refThing || SIZELESS.has(refThing.lemma) || SIZELESS.has(secret.lemma)) {
-      comparison = { reply: { kind: "answer", answer: "unknown", reading: en, guess: false, won: false, counts: true, tips: [] }, tips: sentence };
+      comparison = { reply: { kind: "answer", answer: "unknown", reading: en, said, guess: false, won: false, counts: true, tips: [] }, tips: sentence };
     } else {
       const diff = secret.size - refThing.size;
       const answer: Answer = diff === 0 ? "no" : (direction === "bigger" ? diff > 0 : diff < 0) ? "yes" : "no";
-      comparison = { reply: { kind: "answer", answer, reading: en, guess: false, won: false, counts: true, tips: [] }, tips: sentence };
+      comparison = { reply: { kind: "answer", answer, reading: en, said, guess: false, won: false, counts: true, tips: [] }, tips: sentence };
     }
   }
 
@@ -454,6 +479,7 @@ export function ask(
       const p = part.lemma as Part;
       found.push({ raw: w.raw, intent: {
         id: `has:${p}`, en: `Does it have ${PART_EN[p]}?`, copula: false,
+        said: { en: "Does it have {word}?", context: "part", word: PART_EN[p] },
         test: (t) => listed(t.has, t.hasS, p),
       } });
       return;
@@ -505,6 +531,7 @@ export function ask(
         const key = r.lemma as (typeof MATERIALS)[number];
         found.push({ raw: w.raw, intent: {
           id: `made:${key}`, en: `Is it made of ${MATERIAL_EN[key]}?`, copula: false, test: (t) => listed(t.made, t.madeS, key),
+          said: { en: "Is it made of {word}?", context: "material", word: MATERIAL_EN[key] },
         } });
         return;
       }
@@ -530,7 +557,7 @@ export function ask(
     const known = words.filter((w, i) => !taken.has(i) && w.readings.length > 0).length;
     if (startsWithKas && words.length >= 3 && known * 2 >= words.length) {
       const reading = "Taken as a yes or no question I have no facts for.";
-      return finish({ kind: "answer", answer: "unknown", reading, guess: false, won: false, counts: false, tips: [] }, []);
+      return finish({ kind: "answer", answer: "unknown", reading, said: { en: reading }, guess: false, won: false, counts: false, tips: [] }, []);
     }
     return { kind: "refused", why: "unknown", tips: startsWithKas ? [] : [kasTip()] };
   }
@@ -552,7 +579,7 @@ export function ask(
     if (intent.copula && adjectiveAt !== -1 && seeAt !== -1 && adjectiveAt < seeAt) {
       tips.push({ id: "order", en: "Put see (it) straight after kas, then on, then the describing word.", example: `Kas see on ${raw}?` });
     }
-    return finish({ kind: "answer", answer: flip(intent.test(secret)), reading: intent.en, guess: false, won: false, counts: true, tips: [] }, tips);
+    return finish({ kind: "answer", answer: flip(intent.test(secret)), reading: intent.en, said: intent.said ?? { en: intent.en }, guess: false, won: false, counts: true, tips: [] }, tips);
   }
 
   // A guess: one thing or kind, named.
@@ -569,7 +596,8 @@ export function ask(
     : secret.isa.includes(name.lemma) ? "yes"
     : secret.isaS.includes(name.lemma) ? "sometimes" : "no";
   const won = name.lemma === secret.lemma && !negated;
-  return finish({ kind: "answer", answer: flip(answer), reading, guess: true, won, counts: true, tips: [] }, tips);
+  const said: Said = { en: "Is it “{thing}”?", thing: { lemma: name.lemma, text: gloss } };
+  return finish({ kind: "answer", answer: flip(answer), reading, said, guess: true, won, counts: true, tips: [] }, tips);
 
   function finish(reply: Reply, extra: Tip[]): Reply {
     const all = [...extra];
