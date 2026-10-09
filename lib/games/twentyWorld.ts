@@ -102,7 +102,7 @@ export const CLASSES = {
     isa: "loom lind elusolend olend",
     has: "jalg tiib saba sulg nokk kael luu süda keel küünis",
     can: "move fly", canS: "run jump",
-    d: "walk die eggs sound", dS: "sing", w: "outdoors nature sky", wS: "forest country garden city",
+    d: "walk die eggs sound", dS: "sing", w: "outdoors nature", wS: "sky forest country garden city",
   },
   fish: {
     kind: "animal",
@@ -313,7 +313,7 @@ export const CLASSES = {
     kind: "building",
     isa: "hoone koht",
     has: "uks aken katus",
-    w: `city outdoors ${EVERYWHERE}`, wS: "africa country",
+    w: `city ${EVERYWHERE}`, wS: "africa outdoors country",
     mat: "kivi", matS: "puit klaas metall", feel: "hard", t: "tall",
   },
 
@@ -615,7 +615,7 @@ export const ROWS: readonly Row[] = [
   r("restoran", "building", 8, 20, {}),
   r("kohvik", "building", 7, 15, {}),
   r("jaam", "building", 8, 60, {}),
-  r("sild", "building", 9, 200, { isa: "-hoone", has: "-uks -aken -katus", w: "water", mat: "metall kivi", matS: "puit", t: "long" }),
+  r("sild", "building", 9, 200, { isa: "-hoone", has: "-uks -aken -katus", w: "water outdoors", mat: "metall kivi", matS: "puit", t: "long" }),
   r("torn", "building", 9, 50, { t: "tall thin", tN: "wide" }),
   r("loss", "building", 9, 100, { t: "old", tS: "tall" }),
   r("tehas", "building", 9, 200, { t: "loud", tS: "smelly" }),
@@ -713,7 +713,7 @@ export const BASE_EXTRA: Readonly<Record<string, Facts>> = {
   part: { isa: "koduloom", w: "estonia water", d: "plants" },
   kana: { isa: "koduloom", w: "estonia country" , d: "plants" },
   kala: { w: "estonia" , d: "meat" },
-  hobune: { use: "ride", notable: "pikk:saba pikk:kael" },
+  hobune: { use: "ride", notable: "pikk:saba ~pikk:kael" },
   lehm: { notable: "suur:kõht" },
   siga: { notable: "lühike:saba" },
   jänes: { d: "plants", w: "estonia", notable: "pikk:kõrv lühike:saba" },
@@ -731,4 +731,79 @@ export const BASE_EXTRA: Readonly<Record<string, Facts>> = {
   mägi: { w: "-estonia africa", wS: "estonia" },
   jõgi: { w: "estonia africa" },
   mets: { w: "estonia africa" },
+};
+
+/**
+ * The fifth native-speaker review, cell by cell: what it found wrong in the answers,
+ * laid over every thing last so no class, table or audit underneath can put it back.
+ * `twentyReview.test.ts` holds each cell, so a later edit that undoes one fails.
+ */
+export const REVIEWED: Readonly<Record<string, Facts>> = {
+  // Animals
+  koer: { d: "meat", isaS: "kiskja", can: "swim" },
+  kass: { isa: "kiskja" },
+  karu: { col: "pruun", w: "forest" },
+  hunt: { w: "forest" }, rebane: { w: "forest" }, jänes: { w: "forest" }, siil: { w: "forest" },
+  tiiger: { colS: "valge must" },
+  kits: { has: "sarv", colS: "valge" }, põder: { has: "sarv" }, hirv: { has: "sarv" }, lammas: { hasS: "sarv" },
+  jõehobu: { hasS: "karv" }, ninasarvik: { hasS: "karv" }, elevant: { hasS: "karv" },
+  küülik: { wS: "home", colS: "valge" },
+  kaelkirjak: { colS: "kollane" },
+  konn: { canS: "run", d: "sound" },
+  // Birds: the ones that walk about on the ground run, and the ones that cannot fly are never in the sky.
+  part: { can: "run", w: "water" },
+  kana: { can: "run", w: "-sky" },
+  kukk: { can: "run", d: "-eggs", w: "-sky", colS: "punane" },
+  hani: { can: "run" },
+  kalkun: { can: "run", w: "-sky" },
+  toonekurg: { can: "run", colS: "must", notable: "~pikk:kael" },
+  pingviin: { w: "-sky", wS: "water" },
+  kajakas: { wS: "sea" },
+  pääsuke: { colS: "valge" }, rähn: { colS: "punane valge must" }, tihane: { colS: "kollane" }, vares: { colS: "must" },
+  papagoi: { colS: "roheline" },
+  // Insects, reptiles and the rest
+  mesilane: { can: "-run", hasS: "karv", d: "sound" },
+  herilane: { d: "sound" },
+  sääsk: { wS: "water" }, kiil: { wS: "water" },
+  kärbes: { wS: "home" }, ämblik: { wS: "home" },
+  lepatriinu: { colS: "must" }, krabi: { colS: "punane" },
+  madu: { colS: "roheline" }, sisalik: { colS: "roheline" }, kilpkonn: { colS: "roheline" },
+  // Food and drink
+  õun: { tS: "sweet" }, pirn: { tS: "sweet", colS: "roheline" },
+  maasikas: { isaS: "puuvili" },
+  hernes: { feel: "hard -soft" },
+  küpsis: { feelS: "hard", colS: "pruun" },
+  salat: { wS: "fridge" },
+  jogurt: { feelS: "cold" }, limonaad: { feelS: "cold" },
+  pitsa: { colS: "punane" }, vein: { colS: "punane" }, arbuus: { colS: "punane" }, sõstar: { colS: "punane must" },
+  viinamari: { colS: "roheline" }, ananass: { colS: "pruun" }, seen: { colS: "pruun" }, võileib: { colS: "pruun" },
+  puder: { colS: "valge" },
+  // Objects
+  telefon: { use: "call", has: "ekraan", matS: "klaas metall", dS: "shine" },
+  televiisor: { matS: "metall", dS: "shine" }, arvuti: { dS: "shine" },
+  tolmuimeja: { matS: "metall", w: "-kitchen" }, triikraud: { w: "-kitchen" },
+  veekeetja: { matS: "metall" }, raadio: { matS: "metall" }, kaamera: { matS: "metall" },
+  pesumasin: { wS: "kitchen" }, kapp: { wS: "kitchen" },
+  taldrik: { matS: "klaas" },
+  kahvel: { has: "käepide" }, lusikas: { has: "käepide" }, käärid: { has: "käepide" },
+  kirves: { tS: "dangerous" },
+  klaver: { colS: "must" },
+  rahakott: { use: "wear", colS: "must" },
+  diivan: { feel: "soft -hard" },
+  // Clothes
+  särk: { has: "varrukas" }, jope: { has: "varrukas" },
+  vöö: { matS: "kangas" },
+  saabas: { feelS: "hard soft" },
+  // Vehicles: you sit in all of them; a horse is ridden and skis are skied rather than ridden.
+  auto: { tS: "dangerous", use: "sit" }, rong: { use: "sit", tS: "electric" }, buss: { use: "sit" },
+  tramm: { use: "sit", t: "electric" }, lennuk: { use: "sit" },
+  laev: { has: "mootor" },
+  jalgratas: { can: "move" },
+  traktor: { feel: "-fast" },
+  hobune: { useS: "ride" },
+  suusk: { useS: "ride" },
+  // Places
+  korter: { w: "-outdoors" },
+  rakett: { w: "-city" },
+  udu: { feelS: "cold" },
 };

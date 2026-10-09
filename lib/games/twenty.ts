@@ -209,11 +209,19 @@ function degree(t: Thing, key: string): Answer {
   return unsaid(t, key);
 }
 
-/* Size, on the one-to-ten scale, and the five things that have a serving instead of a size. */
-const SIZELESS = new Set(["supp", "kohv", "liha", "piim", "vesi", "mahl", "õlu", "vein", "limonaad", "õli", "äädikas", "kaste", "mesi", "moos", "jogurt"]);
+/*
+  Size, on the one-to-ten scale. What you have a serving or a heap of (a cup of milk, a
+  bag of sugar, a pile of sand) has no size of its own and answers Ei tea, and weather
+  is as big as it is that day, so it answers Mõnikord.
+*/
+const SIZELESS = new Set([
+  "supp", "kohv", "liha", "piim", "vesi", "mahl", "õlu", "vein", "limonaad", "õli", "äädikas", "kaste", "mesi", "moos", "jogurt",
+  "suhkur", "sool", "pipar", "riis", "puder", "liiv", "muld",
+]);
+const SIZE_VARIES = new Set(["vihm", "lumi", "tuul", "udu", "pilv"]);
 
 function bySize(t: Thing, rule: (size: number) => Answer): Answer {
-  return SIZELESS.has(t.lemma) ? "unknown" : rule(t.size);
+  return SIZELESS.has(t.lemma) ? "unknown" : SIZE_VARIES.has(t.lemma) ? "sometimes" : rule(t.size);
 }
 
 const big = (t: Thing) => bySize(t, (n) => (n >= 7 ? "yes" : n >= 5 ? "sometimes" : "no"));
@@ -367,6 +375,8 @@ function notablePart(adjective: string, p: Part): (t: Thing) => Answer {
     const has = listed(t.has, t.hasS, p);
     if (has === "no") return "no";
     if (t.notable.includes(`${adjective}:${p}`)) return has;
+    // "~pikk:kael": notable on some of them, as a horse's neck is.
+    if (t.notable.includes(`~${adjective}:${p}`)) return "sometimes";
     const same = NOTABLE_SAME[adjective];
     if (same && t.notable.includes(`${same}:${p}`)) return has;
     return "no";
@@ -385,7 +395,12 @@ function legCount(n: number): (t: Thing) => Answer {
   };
 }
 
-/* Comparing two things, by their longest dimension and, for speed, by what they are. */
+/*
+  Comparing two things. Size reads the one-to-ten steps a learner can see on the board,
+  and two things on the same step are not bigger than each other. Only where the steps
+  are equal and one thing is many times the other (the sun and a mountain are both a
+  ten) does the longest dimension decide. Speed reads what the things are.
+*/
 type Measure = "size" | "speed";
 const speedOf = (t: Thing) => (t.feel.includes("fast") ? 2 : t.feel.includes("slow") ? 0 : t.can.includes("move") ? 1 : -1);
 
@@ -398,9 +413,13 @@ function compared(measure: Measure, more: boolean, ref: { metres: number | null;
       return (more ? a > b : a < b) ? "yes" : "no";
     }
     if (SIZELESS.has(t.lemma) || (ref.thing && SIZELESS.has(ref.thing.lemma)) || ref.metres === null) return "unknown";
+    if (SIZE_VARIES.has(t.lemma) || (ref.thing && SIZE_VARIES.has(ref.thing.lemma))) return "sometimes";
+    if (ref.thing && t.size !== ref.thing.size) return (more ? t.size > ref.thing.size : t.size < ref.thing.size) ? "yes" : "no";
     const ratio = t.metres / ref.metres;
-    // Within a quarter of each other is the same size, and the same size is not bigger.
-    if (ratio < 1.25 && ratio > 0.8) return "no";
+    // On the same step, or measured against a length rather than a thing: within a factor
+    // of four (with a thing) or a quarter (with a length) is the same size, and not bigger.
+    const same = ref.thing ? 4 : 1.25;
+    if (ratio < same && ratio > 1 / same) return "no";
     return (more ? ratio > 1 : ratio < 1) ? "yes" : "no";
   };
 }
@@ -543,6 +562,15 @@ const canDo = (a: "fly" | "swim" | "jump" | "move" | "run" | "climb" | "crawl" |
     return listed(t.can, t.canS, a);
   };
 const usedFor = (u: Parameters<typeof listed<string>>[2]) => (t: Thing): Answer => listed(t.use as readonly string[], t.useS as readonly string[], u);
+/*
+  "Kas seda saab kanda?" is wearing or carrying about: yes for what is worn or carried on
+  you (clothes, a bag, a ring, a wallet), sometimes for the small things carried in a hand.
+*/
+const CARRIED_IN_HAND = new Set(["raamat", "pliiats", "telefon", "võti", "pilet"]);
+const carried = (t: Thing): Answer => {
+  if (CARRIED_IN_HAND.has(t.lemma)) return "sometimes";
+  return usedFor("wear")(t);
+};
 
 /** Verbs, read active ("it flies") and, where it differs, passive ("you can eat it"). */
 const VERBS: Record<string, Verb> = {
@@ -550,8 +578,9 @@ const VERBS: Record<string, Verb> = {
   ujuma: both(fixed("swim", "Does it swim?", canDo("swim"), false)),
   hüppama: both(fixed("jump", "Does it jump?", canDo("jump"), false)),
   liikuma: both(fixed("move", "Does it move?", canDo("move"), false)),
-  // An animal on legs that runs at all runs: "sometimes" is for a fish that is said to.
-  jooksma: both(fixed("run", "Does it run?", (t) => (t.kind === "animal" && (t.legs ?? 0) >= 2 && t.canS.includes("run") ? "yes" : canDo("run")(t)), false)),
+  // A four-legged mammal that runs at all runs. A bird runs only if it is said to: a hen
+  // and a goose do, a sparrow hops and a swallow does not land to run.
+  jooksma: both(fixed("run", "Does it run?", (t) => (t.isa.includes("imetaja") && t.legs === 4 && t.canS.includes("run") ? "yes" : canDo("run")(t)), false)),
   kõndima: both(fixed("walk", "Does it walk?", canDo("walk"), false)),
   ronima: both(fixed("climb", "Does it climb?", canDo("climb"), false)),
   roomama: both(fixed("crawl", "Does it crawl?", canDo("crawl"), false)),
@@ -559,8 +588,9 @@ const VERBS: Record<string, Verb> = {
     active: fixed("drives", "Does it drive along?", (t) => (t.kind === "vehicle" ? listed(t.can, t.canS, "move") : "no"), false),
     passive: fixed("ride", "Can you ride it?", usedFor("ride"), false),
   },
-  ratsutama: both(fixed("ride", "Can you ride it?", usedFor("ride"), false)),
-  kandma: both(fixed("wear", "Can you wear or carry it?", usedFor("wear"), false)),
+  // Riding an animal is ratsutama, so a horse is plainly ridden even where "sõita" is only sometimes.
+  ratsutama: both(fixed("ride", "Can you ride it?", (t) => (t.kind === "animal" && usedFor("ride")(t) !== "no" ? "yes" : usedFor("ride")(t)), false)),
+  kandma: both(fixed("wear", "Can you wear or carry it?", carried, false)),
   lugema: both(fixed("read", "Can you read it?", usedFor("read"), false)),
   kirjutama: both(fixed("write", "Can you write with it?", usedFor("write"), false)),
   lõikama: both(fixed("cut", "Can you cut with it?", usedFor("cut"), false)),
@@ -1337,12 +1367,12 @@ export const SUGGESTIONS: readonly Suggestion[] = [
   sugg("Kas see liigub?", "Does it move?", canDo("move")),
   sugg("Kas seda saab süüa?", "Can you eat it?", usedFor("eat")),
   sugg("Kas sellega saab sõita?", "Can you ride it?", usedFor("ride")),
-  sugg("Kas seda saab kanda?", "Can you wear or carry it?", usedFor("wear")),
+  sugg("Kas seda saab kanda?", "Can you wear or carry it?", carried),
   sugg("Kas sellel on jalad?", "Does it have legs?", part("jalg")),
   sugg("Kas sellel on neli jalga?", "Does it have four legs?", legCount(4)),
   sugg("Kas sellel on tiivad?", "Does it have wings?", part("tiib")),
   sugg("Kas sellel on rattad?", "Does it have wheels?", part("ratas")),
-  sugg("Kas sellel on karvad?", "Does it have fur?", part("karv")),
+  sugg("Kas see on karvane?", "Is it furry?", part("karv")),
   sugg("Kas sellel on lehed?", "Does it have leaves or pages?", part("leht")),
   sugg("Kas see on kodus?", "Is it at home?", where("home")),
   sugg("Kas see on köögis?", "Is it in the kitchen?", where("kitchen")),
@@ -1369,7 +1399,6 @@ export const SUGGESTIONS: readonly Suggestion[] = [
   sugg("Kas see on hapu?", "Is it sour?", (t) => degree(t, "sour")),
   sugg("Kas see on pehme?", "Is it soft?", (t) => degree(t, "soft")),
   sugg("Kas see on ümmargune?", "Is it round?", (t) => degree(t, "round")),
-  sugg("Kas see on pikk?", "Is it long?", (t) => degree(t, "long")),
   sugg("Kas see on terav?", "Is it sharp?", (t) => degree(t, "sharp")),
   sugg("Kas see on sinine?", "Is it blue?", (t) => listed(t.colour, t.colourS, "sinine")),
   sugg("Kas see on must?", "Is it black?", (t) => listed(t.colour, t.colourS, "must")),
@@ -1377,7 +1406,6 @@ export const SUGGESTIONS: readonly Suggestion[] = [
   sugg("Kas see helendab?", "Does it shine?", does("shine")),
   sugg("Kas see muneb?", "Does it lay eggs?", does("eggs")),
   sugg("Kas see on külmkapis?", "Is it in the fridge?", where("fridge")),
-  sugg("Kas see on poes?", "Is it in a shop?", where("shop")),
   sugg("Kas see on õues?", "Is it outdoors?", where("outdoors")),
   sugg("Kas see on linnas?", "Is it in the city?", where("city")),
   sugg("Kas see on meres?", "Is it in the sea?", where("sea")),

@@ -232,7 +232,7 @@ describe("the wide layer", () => {
     expect(said("Kas see on klaasist?", "koer")).toBe("no");
     expect(said("Kas sellel on silmad?", "kass")).toBe("yes");
     expect(said("Kas sellel on kõrvad?", "part")).toBe("no");
-    expect(said("Kas sellel on ekraan?", "telefon")).toBe("sometimes");
+    expect(said("Kas sellel on ekraan?", "telefon")).toBe("yes");
     expect(said("Kas see haugub?", "koer")).toBe("yes");
     expect(said("Kas see kasvab?", "puu")).toBe("yes");
     expect(said("Kas see magab?", "kass")).toBe("yes");

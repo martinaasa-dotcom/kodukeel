@@ -21,14 +21,16 @@
  * against), 5 is a dog, 7 a horse, 9 something you ride in, 10 something you
  * stand in. Big and heavy are yes at 7 to 10 and sometimes at 5 to 6; small and
  * light are yes at 1 to 2 and sometimes at 3 to 4. Two things on the same step
- * are not bigger than each other, so "bigger than" answers no. Drinks, soup and
- * meat have a serving rather than a size and answer Ei tea (`SIZELESS`).
+ * are not bigger than each other, so "bigger than" answers no, unless one is
+ * many times the other (the sun and a mountain). Drinks, soup, meat and what comes
+ * in a heap (sugar, rice, sand) have a serving rather than a size and answer
+ * Ei tea (`SIZELESS`); rain, snow, wind, fog and a cloud answer Mõnikord.
  *
  * Pure: no React, no Prisma.
  */
 
 import { AUDIT, AUDIT_VOCAB } from "./twentyAudit";
-import { BASE_CLASS, BASE_EXTRA, BASE_METRES, CLASSES, ROWS, type ClassSpec, type Facts } from "./twentyWorld";
+import { BASE_CLASS, BASE_EXTRA, BASE_METRES, CLASSES, REVIEWED, ROWS, type ClassSpec, type Facts } from "./twentyWorld";
 
 export type Kind = "animal" | "plant" | "food" | "drink" | "object" | "clothes" | "vehicle" | "building" | "nature" | "body";
 
@@ -159,7 +161,7 @@ const BASE: readonly Thing[] = [
   thing("lammas", "animal", 6, { useS: ["eat"], isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["outdoors"], colourS: ["valge", "must"], feelS: ["soft"] }),
   thing("hiir", "animal", 2, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["home", "outdoors"], colourS: ["hall", "valge", "pruun"], feelS: ["fast", "soft"] }),
   thing("konn", "animal", 2, { isa: ["loom"], has: ["jalg"], can: ["move", "swim", "jump"], whereS: ["water", "outdoors"], colourS: ["roheline", "pruun"] }),
-  thing("elevant", "animal", 8, { isa: MAMMAL, has: ["jalg", "saba"], can: ["move"], canS: ["swim"], whereS: ["outdoors"], colour: ["hall"], feelS: ["slow"] }),
+  thing("elevant", "animal", 9, { isa: MAMMAL, has: ["jalg", "saba"], can: ["move"], canS: ["swim"], whereS: ["outdoors"], colour: ["hall"], feelS: ["slow"] }),
   thing("liblikas", "animal", 1, { isa: ["loom", "putukas"], has: ["tiib", "jalg"], can: ["move", "fly"], whereS: ["outdoors"], colourS: ["kollane", "punane", "sinine", "valge", "must"] }),
   thing("mesilane", "animal", 1, { isa: ["loom", "putukas"], has: ["tiib", "jalg"], can: ["move", "fly"], whereS: ["outdoors"], colourS: ["kollane", "must"] }),
   thing("lõvi", "animal", 6, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["outdoors"], colourS: ["kollane", "pruun"], feelS: ["fast"] }),
@@ -535,7 +537,16 @@ const BUILT: readonly Thing[] = ROWS.map((row) => {
   return widen({ ...facts, legs: row.legs ?? cls.legs ?? null });
 });
 
-export const THINGS: readonly Thing[] = [...BASE.map((t) => classed(audited(widen(t)))), ...BUILT];
+/**
+ * The review laid over everything last. Every animal grows (an insect only changes shape,
+ * so "sometimes"), and then each thing's own reviewed cells.
+ */
+function reviewed(t: Thing): Thing {
+  const grows: Facts = t.kind === "animal" ? (t.isa.includes("putukas") ? { dS: "grow" } : { d: "grow" }) : {};
+  return apply(apply(t, grows), REVIEWED[t.lemma] ?? {});
+}
+
+export const THINGS: readonly Thing[] = [...BASE.map((t) => classed(audited(widen(t)))), ...BUILT].map(reviewed);
 
 export const THING_BY_LEMMA: ReadonlyMap<string, Thing> = new Map(THINGS.map((t) => [t.lemma, t]));
 
