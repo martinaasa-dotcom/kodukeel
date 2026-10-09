@@ -476,8 +476,12 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
               );
             })}
             {i === SONAD_KEY_ROWS.length - 1 && (
-              <Button type="button" variant="primary" onClick={onSubmit} className="h-12 min-w-0 flex-[2] basis-0 px-0 text-sm">
-                <CornerDownLeft size={16} aria-hidden /> {t("Guess")}
+              <Button type="button" variant="primary" onClick={onSubmit} className="h-12 min-w-0 flex-[2.4] basis-0 px-1 text-xs sm:text-sm">
+                {/* The icon on a phone, where the key is a thumb wide; the word
+                    from `sm`, where it fits in every language the app is read
+                    in ("Перевірити" is the long one). */}
+                <CornerDownLeft size={16} aria-hidden className="sm:hidden" />
+                <span className="sr-only sm:not-sr-only">{t("Guess")}</span>
               </Button>
             )}
           </div>
