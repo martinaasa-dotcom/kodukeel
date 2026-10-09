@@ -1,9 +1,12 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
 import { ask, ANSWER_ET, IDEAS, NEEDED_LEMMAS, QUESTION_LIMIT, spent, tokensOf, type Reply } from "./twenty";
 import { buildIndex, lookupFrom } from "./twentyLookup";
 import { CATEGORIES, COLOURS, DOES, MATERIALS, OPINIONS, PARTS, THING_BY_LEMMA, THINGS, TRAITS } from "./twentyThings";
 
+const extra = JSON.parse(fs.readFileSync(path.join(process.cwd(), "prisma", "data", "twenty-forms.json"), "utf8")) as Record<string, string>;
 const rows = dictionaryRows();
 const byLemma = new Map<string, typeof rows>();
 for (const r of rows) byLemma.set(r.lemma, [...(byLemma.get(r.lemma) ?? []), r]);
@@ -23,8 +26,10 @@ const said = (q: string, secret: string) => {
 };
 
 describe("the vocabulary is the dictionary's", () => {
-  it("every headword the game asks for is one the shipped dictionary holds", () => {
-    const missing = NEEDED_LEMMAS.filter((l) => !byLemma.has(l));
+  it("every headword the game asks for is one the shipped dictionary or the forms list holds", () => {
+    // A describing word the dictionary has no entry for is still read, through the forms list
+    // (Ekilex and Vabamorf, guessing off), which carries its own spelling as a form of it.
+    const missing = NEEDED_LEMMAS.filter((l) => !byLemma.has(l) && !(extra[l] ?? "").split(" ").includes(l));
     expect(missing).toEqual([]);
   });
 

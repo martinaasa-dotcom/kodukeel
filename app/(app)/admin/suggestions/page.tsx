@@ -9,6 +9,8 @@ import {
 import { Card, Chip, Empty, Page } from "@/components/ui";
 import { QueueRows } from "./QueueRows";
 import { TooHard } from "./TooHard";
+import { TwentyLearnedPanel } from "./TwentyLearned";
+import { gapReading } from "@/lib/progress/twentyLearned";
 import { ResetCourse } from "./ResetCourse";
 import { courseProgressRoster } from "@/lib/progress/courseReset";
 import { hardWordReadings } from "@/lib/progress/hard";
@@ -70,10 +72,11 @@ export default async function SuggestionsQueuePage({
     trip: what learners wrote, and what they said with the button that asks for
     no writing at all.
   */
-  const [queue, tooHard, resetRoster] = await Promise.all([
+  const [queue, tooHard, resetRoster, twenty] = await Promise.all([
     readQueue({ status, category, page }),
     hardWordReadings(),
     courseProgressRoster(),
+    gapReading(),
   ]);
   const openTotal = queue.totals.OPEN;
 
@@ -166,6 +169,11 @@ export default async function SuggestionsQueuePage({
       <QueueRows rows={queue.rows} status={status} />
 
       <TooHard words={tooHard} locale={locale} />
+
+      <TwentyLearnedPanel
+        waiting={twenty.waiting.map(({ lastAt: _lastAt, ...row }) => row)}
+        learned={twenty.learned.map(({ learnedAt: _learnedAt, ...row }) => row)}
+      />
 
       <ResetCourse
         rows={resetRoster.map((r) => ({ ...r, lastAt: r.lastAt ? r.lastAt.toISOString() : null }))}

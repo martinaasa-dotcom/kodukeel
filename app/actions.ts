@@ -1,5 +1,7 @@
 "use server";
 
+import { relearn, reportGaps, retireLearned } from "@/lib/progress/twentyLearned";
+import { reportable } from "@/lib/games/twentyLearned";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -1407,6 +1409,48 @@ export async function recordTwentyWin(questions: number) {
   if (!Number.isFinite(questions)) return { ok: false as const, error: "That count didn't come through properly." };
   const rounded = Math.min(25, Math.max(1, Math.round(questions)));
   return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.twentyBest, rounded, "lower")) };
+}
+
+/**
+ * Reports the words a twenty questions round could not read. A real word is
+ * learned once, after the reply has gone, for every later round
+ * (`lib/progress/twentyLearned.ts`). Says whether one is being learned, so the
+ * screen can tell the learner the game will know it next time.
+ */
+export async function reportTwentyGap(words: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "reportTwentyGap");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const spellings = reportable(Array.isArray(words) ? words.filter((w): w is string => typeof w === "string") : []);
+  if (spellings.length === 0) return { ok: true as const, learning: false };
+  return { ok: true as const, learning: await reportGaps(ownerId, spellings) };
+}
+
+/**
+ * A reviewer retiring a word twenty questions learned badly, or asking again
+ * about one. Gated on `requireAdminId` for the reason `reviewSuggestion` is:
+ * what this changes is answered to every player.
+ */
+const TwentyWordInput = z.union([
+  z.object({ action: z.literal("retire"), lemma: z.string().min(1).max(40) }),
+  z.object({ action: z.literal("relearn"), spelling: z.string().min(1).max(40) }),
+]);
+
+export async function reviewTwentyWord(input: unknown) {
+  const reviewerId = await requireAdminId();
+  const busy = throttleAction(reviewerId, "reviewSuggestion");
+  if (busy) return await sayRefusal(reviewerId, busy);
+  const parsed = TwentyWordInput.safeParse(input);
+  if (!parsed.success) return { ok: false as const, error: "Something went wrong there, so nothing has changed." };
+  if (parsed.data.action === "retire") {
+    await retireLearned(parsed.data.lemma);
+    revalidatePath("/review/twenty");
+    return { ok: true as const, message: "Retired. Rounds stop using it within a minute." };
+  }
+  const outcome = await relearn(reviewerId, parsed.data.spelling).catch(() => "failed" as const);
+  return outcome === "learned" || outcome === "joined"
+    ? { ok: true as const, message: "Learned. Rounds use it within a minute." }
+    : { ok: true as const, message: "It didn’t learn this time. A model may not be set up, or the day’s allowance is spent." };
 }
 
 export async function recordMatchTime(seconds: number) {

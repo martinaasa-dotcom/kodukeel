@@ -191,6 +191,13 @@ export const ACTION_LIMITS = {
    * learner who has graded a card gets a vote at all.
    */
   putAside: { perMinute: 20 },
+  /**
+   * A word twenty questions could not read, reported so it can be learned. The
+   * first report of a real word spends one model call, charged through the
+   * ledger to whoever asked; every later one is a counter going up. A round
+   * meets a handful at most, so twenty a minute is never met by a player.
+   */
+  reportTwentyGap: { perMinute: 20 },
 } as const;
 
 export type ActionLimit = keyof typeof ACTION_LIMITS;

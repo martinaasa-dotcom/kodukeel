@@ -18,7 +18,8 @@ import {
 import { lookupFrom, repairFrom, withExtra, type Extra, type Index } from "@/lib/games/twentyLookup";
 import { THING_BY_LEMMA, type Thing } from "@/lib/games/twentyThings";
 import { VERDICT_CLASS, type Verdict } from "@/lib/ux/verdict";
-import { realSpellings, recordTwentyWin } from "@/app/actions";
+import { realSpellings, recordTwentyWin, reportTwentyGap } from "@/app/actions";
+import type { LearnedWord } from "@/lib/games/twentyLearned";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useLocale, useT } from "@/components/Locale";
 import { Meaning } from "@/components/Meaning";
@@ -28,6 +29,8 @@ import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 interface Turn {
   id: number;
   typed: string;
+  /** The game could not read a word here, reported it, and will know it in a later round. */
+  noted?: boolean;
   reply: Reply | { kind: "hint"; hint: Hint } | { kind: "english"; example: string | null };
 }
 
@@ -65,7 +68,7 @@ const ANSWER_VERDICT: Record<Answer, Verdict | null> = { yes: "right", no: "wron
  * question or asks two things at once, does not, since the game cannot answer it
  * and a learner should not be charged for finding that out.
  */
-export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents, index, extra, pool, starred, topic, best }: {
+export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents, index, extra, pool, starred, topic, best, learned }: {
   secret: Thing;
   lexemeId: string;
   meaning: ShownMeaning;
@@ -79,6 +82,8 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
   topic: string;
   /** The fewest questions a thing has been named in, or null before the first win. */
   best: number | null;
+  /** Words the game learned from earlier rounds' "Ei tea" (`lib/progress/twentyLearned.ts`). */
+  learned: LearnedWord[];
 }) {
   const t = useT();
   const locale = useLocale();
@@ -166,7 +171,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
       for (const w of unread) checked.current.add(w);
       for (const w of found) real.current.add(w);
     }
-    const asked0 = ask(question, secret, lookup, { glossOf: (lemma) => glosses[lemma], repair, real: real.current });
+    const asked0 = ask(question, secret, lookup, { glossOf: (lemma) => glosses[lemma], repair, real: real.current, learned });
     // An English word inside an Estonian question ("Kas see on animal?"): say the Estonian for it.
     const englished = (asked0.kind === "refused" || (asked0.kind === "answer" && asked0.answer === "unknown"))
       ? tokensOf(question).flatMap((w) => {
@@ -177,6 +182,13 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
     const withEnglish: Reply = englished.length > 0 ? { ...asked0, tips: [...englished, ...asked0.tips] } : asked0;
     const reply = asRepeat(withEnglish, turns.flatMap((x) => (x.reply.kind === "answer" ? [x.reply] : [])));
     const id = nextId.current++;
+    // A word the game could not read is reported, so a later round can answer it.
+    const unknown = reply.kind === "answer" || reply.kind === "refused" ? reply.unknownWords ?? [] : [];
+    if (unknown.length > 0) {
+      void reportTwentyGap(unknown)
+        .then((r) => { if (r.ok && r.learning) setTurns((now) => now.map((x) => (x.id === id ? { ...x, noted: true } : x))); })
+        .catch(() => null);
+    }
     setText("");
     setBusy(false);
     field.current?.focus();
@@ -420,11 +432,6 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
   );
 }
 
-/**
- * What the game took a question to mean, in the reader's language. A part, a
- * material or a colour is translated under its own context, and a thing is
- * said with the Institute's equivalent where it recorded one, else the English.
- */
 /** A hint in the reader's language, its colour word translated under its own context. */
 function sayHint(t: (english: string, context?: string) => string, hint: Hint): string {
   const vars: Record<string, string | number> = { ...(hint.vars ?? {}) };
@@ -432,6 +439,11 @@ function sayHint(t: (english: string, context?: string) => string, hint: Hint): 
   return fill(t(hint.en, hint.context), vars);
 }
 
+/**
+ * What the game took a question to mean, in the reader's language. A part, a
+ * material or a colour is translated under its own context, and a thing is
+ * said with the Institute's equivalent where it recorded one, else the English.
+ */
 function sayIn(
   t: (english: string, context?: string) => string,
   locale: Locale,
@@ -439,6 +451,11 @@ function sayIn(
   said: Said,
 ): string {
   if (said.all && said.all.length > 0) return said.all.map((part) => sayIn(t, locale, equivalents, part)).join(" ");
+  // A question the game learned carries its own line in the other two languages.
+  if (said.local && locale !== "en") {
+    const own = said.local[locale];
+    if (own) return own;
+  }
   const local = said.thing?.lemma && locale !== "en" ? equivalents[said.thing.lemma]?.[locale] : null;
   return fill(t(said.en, said.context), {
     word: said.word ? t(said.word, said.context) : "",
@@ -534,6 +551,11 @@ function TurnView({ turn, number, say, onPick, thinking, fresh }: {
           <p className={`mt-1 text-base ${fresh ? "emoji-shake" : ""}`} style={{ color: "var(--ink-2)" }}>
             {t(REFUSAL_EN[reply.why])}{" "}
             <span style={{ color: "var(--ink-3)" }}>{t("That one didn’t cost a question.")}</span>
+          </p>
+        )}
+        {turn.noted && (
+          <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>
+            {t("I don’t know that word yet. I’ve noted it, so I can answer it in a later round.")}
           </p>
         )}
         {reply.tips.length > 0 && (
