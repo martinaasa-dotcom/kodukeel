@@ -14,14 +14,14 @@ built:
 
 ```
 Every day         Today (default route), Learn, Practice
-Look it up        Dictionary
+Look it up        Grammar, Dictionary
 How it's going    Progress
 This app          Settings, Suggested fixes
 ```
 
 Everything else carries `within` and lives on the screen of the place it belongs to, where
 `components/InsideHere.tsx` lists it: Today's module under Today, Situations and Review under
-Practice, Grammar and the scanner under Dictionary, the calendar, the deck and the exam under
+Practice, the grammar stops under Grammar, the scanner under Dictionary, the calendar, the deck and the exam under
 Progress. Settings and the reports are under the learner's name at the foot of the rail, with the
 theme, signing out and "Edit sidebar", which is where a place is pinned back into the column. Anu is
 not a row: her button is in the corner of every signed-in screen.

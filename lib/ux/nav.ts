@@ -1,5 +1,5 @@
 /**
- * Every destination in the app, and which of five places it lives in.
+ * Every destination in the app, and which of six places it lives in.
  *
  * FIVE ROWS, BECAUSE A RAIL IS READ AT A GLANCE AND NOT LEARNED.
  *
@@ -86,8 +86,8 @@ export interface Destination {
    *   - `/words/mastery` — a reading of how it is going, under Progress.
    *   - `/words/decks` — the learner's own shelves, under Progress beside the
    *     deck they file.
-   *   - `/grammar` — the rule behind a word, reached from the page you look
-   *     the word up on.
+   *   - `/grammar/cases` — stop two of the grammar path, on the Grammar page
+   *     beside the other three.
    *   - `/review` — the schedule working, which is one of the ways Practice
    *     asks a word you have already learned rather than a place beside it.
    *     It leads that page, because on a day with cards due it is the thing to
@@ -203,14 +203,19 @@ export const SECTIONS: NavSection[] = [
     title: "Look it up",
     blurb: "Any word, any ending, and why it works that way.",
     items: [
-      {
-        href: "/dictionary", label: "Dictionary", blurb: "Look up any word, in any form", icon: "BookOpen",
-        tone: "sky", keywords: "search lookup declension cases forms", bar: true,
-      },
+      /*
+        The sixth place, put in front of the dictionary at the operator's word:
+        grammar was filed under the dictionary and a learner could not find it,
+        so it is the one row added to the five. It is a path of four stops, and
+        the stops live inside it.
+      */
       {
         href: "/grammar", label: "Grammar", blurb: "Four short stops through how the grammar works", icon: "Languages",
         tone: "butter", keywords: "grammar path start here learn cases endings rules how it works order",
-        within: "/dictionary",
+      },
+      {
+        href: "/dictionary", label: "Dictionary", blurb: "Look up any word, in any form", icon: "BookOpen",
+        tone: "sky", keywords: "search lookup declension cases forms", bar: true,
       },
       {
         /*
@@ -219,7 +224,7 @@ export const SECTIONS: NavSection[] = [
           of `/grammar` before the path went in front of it.
         */
         href: "/grammar/cases", label: "The fourteen cases", blurb: "What each of the fourteen cases is for",
-        icon: "Languages", tone: "butter", within: "/dictionary",
+        icon: "Languages", tone: "butter", within: "/grammar",
         keywords: "cases reference partitive genitive inessive endings rules seesutlev",
       },
       {
@@ -231,7 +236,7 @@ export const SECTIONS: NavSection[] = [
         */
         href: "/grammar/build-a-word", label: "Build a word",
         blurb: "Learn three forms of a word and get eleven more for free", icon: "Puzzle",
-        tone: "butter", within: "/dictionary",
+        tone: "butter", within: "/grammar",
         keywords: "cases introduction beginner stem genitive omastav endings how it works walkthrough learn system",
       },
       {
@@ -243,7 +248,7 @@ export const SECTIONS: NavSection[] = [
         */
         href: "/grammar/exceptions", label: "Exceptions",
         blurb: "The words that break the usual rules", icon: "TriangleAlert",
-        tone: "butter", within: "/dictionary",
+        tone: "butter", within: "/grammar",
         keywords: "irregular exception gradation stem change tuppa illative unpredictable memorize astmevaheldus",
       },
       {
