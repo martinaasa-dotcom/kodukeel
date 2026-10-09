@@ -1,6 +1,7 @@
 import { titleFor } from "@/lib/progress/locale";
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
+import { sameMeaning } from "@/lib/questions/distractors";
 import { requireUserId } from "@/lib/auth/session";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { RECENT_WORDS, byRecency, lemmaFilter, recentLemmas } from "@/lib/course/scope";
@@ -103,14 +104,13 @@ export default async function MatchPage({
     pool = [...pool, ...rest];
   }
 
-  const seenAnswers = new Set<string>();
   const chosen: { pair: MatchPair; entry: (typeof pool)[number]["lexeme"] }[] = [];
   for (const card of pool) {
     const english = card.back.trim();
     const estonian = plainPhrase(card.lexeme?.lemma ?? card.front, card.lexeme?.pos);
-    const key = english.toLowerCase();
-    if (seenAnswers.has(key)) continue;
-    seenAnswers.add(key);
+    // Two tiles that mean the same cannot both be on the board, whatever the
+    // inflection: "carrying out" and "to carry out" would each be right.
+    if (chosen.some((c) => sameMeaning(c.pair.english, english))) continue;
     chosen.push({ pair: { cardId: card.id, estonian, english }, entry: card.lexeme });
     if (chosen.length === PAIRS) break;
   }
