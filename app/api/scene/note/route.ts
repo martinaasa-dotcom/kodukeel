@@ -3,7 +3,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { resolveProviders, TutorError } from "@/lib/tutor/provider";
 import { callChainForJson } from "@/lib/tutor/grader";
-import { verifyVerdict } from "@/lib/tutor/verify";
+import { verifyComment, verifyVerdict } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
 import { clip } from "@/lib/copy/clip";
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
   let settled = false;
   try {
     const chain = resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed });
-    const { text, usage, config } = await callChainForJson(chain, buildCoachNoteSystem(language), buildCoachNoteUser(input), 600);
+    const { text, usage, config } = await callChainForJson(chain, buildCoachNoteSystem(language), buildCoachNoteUser(input), 900);
     after(() => recordUsage({
       ownerId, kind: "GRADER", provider: config.name, model: config.model,
       inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
@@ -89,15 +89,18 @@ export async function POST(request: Request) {
     if (!note) return Response.json({ note: null }, { headers: NO_STORE });
     // Every Estonian word the note uses has to be one the conversation or the recasts hold.
     const said = input.turns.map((t) => t.text).join(" \n ");
-    const verified = verifyVerdict(note, input.fixes.map((f) => f.form), said, []);
+    const knownForms = input.fixes.map((f) => f.form);
+    const verified = verifyVerdict(note, knownForms, said, []);
+    // Each suggestion stands or falls alone: one that reached for a form nobody used costs that one.
+    const improve = note.improve.filter((item) => verifyComment(item, knownForms, said, []).unverified.length === 0);
     if (verified.reason) {
       reportError(new Error("scene note introduced an unverified Estonian form"), {
         at: "api/scene/note/verify", ownerId, extra: { model: config.model, unverified: verified.unverified },
       });
       // Only the sentences carrying it go; the rest of the note still reaches the learner.
-      return Response.json({ note: withoutUnverified(note, verified.unverified) }, { headers: NO_STORE });
+      return Response.json({ note: withoutUnverified({ ...note, improve }, verified.unverified) }, { headers: NO_STORE });
     }
-    return Response.json({ note: verified.graded }, { headers: NO_STORE });
+    return Response.json({ note: { ...verified.graded, improve } }, { headers: NO_STORE });
   } catch (error) {
     if (!settled) after(() => releaseReservation(reservation));
     if (!(error instanceof TutorError)) reportError(error, { at: "api/scene/note", ownerId });
