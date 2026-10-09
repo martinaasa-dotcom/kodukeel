@@ -103,7 +103,7 @@ export const CATEGORIES = [
   "hoone", "ese", "riideese", "täht",
   "asi", "elusolend", "olend", "metsloom", "koduloom", "lemmikloom", "kiskja", "roomaja", "kala", "puu", "lill",
   "seen", "mari", "maiustus", "mänguasi", "tööriist", "pill", "masin", "seade", "nõu", "kehaosa", "ilm",
-  "loodus", "koht", "taevakeha", "vedelik", "materjal", "rõivas",
+  "loodus", "koht", "taevakeha", "vedelik", "materjal", "rõivas", "riie",
 ] as const;
 
 type Rest = Partial<Omit<Thing, "lemma" | "kind" | "size">>;

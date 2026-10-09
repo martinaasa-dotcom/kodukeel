@@ -1396,6 +1396,18 @@ export async function recordMatchGrades(grades: unknown) {
  * hence the explicit "0 means never played" rather than a plain Math.min,
  * which would leave a first-ever round competing against zero and always losing.
  */
+/**
+ * A round of Kakskümmend küsimust named in so many questions, kept if it is the
+ * fewest. The client says how many, since the round is played in the browser and
+ * nothing in it is graded; a best somebody forges is a best only they see.
+ */
+export async function recordTwentyWin(questions: number) {
+  const ownerId = await requireUserId();
+  if (!Number.isFinite(questions)) return { ok: false as const, error: "That count didn't come through properly." };
+  const rounded = Math.min(25, Math.max(1, Math.round(questions)));
+  return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.twentyBest, rounded, "lower")) };
+}
+
 export async function recordMatchTime(seconds: number) {
   const ownerId = await requireUserId();
   if (!Number.isFinite(seconds)) return { ok: false as const, error: "That time didn't come through properly." };

@@ -7,6 +7,8 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { practiceScope } from "@/lib/progress/moduleScope";
 import { starredAmong } from "@/lib/progress/stars";
 import { twentyRound } from "@/lib/progress/twenty";
+import { topicFrom } from "@/lib/games/twenty";
+import { numberSetting, readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { firstParams } from "@/lib/ux/queryParam";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
@@ -43,14 +45,17 @@ export default async function TwentyPage({
   const ownerId = await requireUserId();
   const query = await searchParams;
   const params = firstParams(query);
-  const [level, scope, locale, prefs] = await Promise.all([
+  const topic = topicFrom(params.topic);
+  const [level, scope, locale, prefs, bestRow] = await Promise.all([
     courseLevelFor(ownerId), practiceScope(ownerId, query), localeFor(ownerId), meaningPrefsFor(ownerId),
+    readSetting(ownerId, SETTING_KEYS.twentyBest),
   ]);
 
   const round = await twentyRound({
     level,
     taught: new Set(scope?.lemmas ?? []),
     not: params.not ?? null,
+    kinds: topic.kinds,
   });
 
   if (!round) {
@@ -81,6 +86,8 @@ export default async function TwentyPage({
         extra={round.extra}
         pool={round.pool}
         starred={starred.has(round.lexemeId)}
+        topic={topic.id}
+        best={numberSetting(bestRow, 0) || null}
       />
     </BeforeYouStart>
   );

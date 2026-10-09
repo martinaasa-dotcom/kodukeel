@@ -390,8 +390,8 @@ export const ROUNDS: Area = {
     "More on this:": "Подробнее:",
     "Flash cards": "Карточки",
     "Twenty questions": "Двадцать вопросов",
-    "A box to type in and a list of your questions. I'm thinking of something, and I answer each question yes, no or sometimes.":
-      "Поле для ввода и список ваших вопросов. Я загадываю что-то и на каждый вопрос отвечаю «да», «нет» или «иногда».",
+    "I'm thinking of something, and I tell you first what kind of thing it is. You get twenty yes or no questions, and I answer each yes, no or sometimes.":
+      "Я загадываю что-то и сначала говорю, что это за вещь. У вас двадцать вопросов, на которые можно ответить «да» или «нет», и на каждый я отвечаю «да», «нет» или «иногда».",
     "Ask yes or no questions in Estonian, and name it when you can. Each question you type comes back with a tip if it could be better.":
       "Задавайте по-эстонски вопросы, на которые можно ответить «да» или «нет», и назовите загаданное, когда догадаетесь. Если вопрос можно задать лучше, к нему придёт подсказка.",
     "Words you've met, asked in a way you haven't seen yet.": "Знакомые слова в вопросах, каких вы ещё не видели.",
@@ -1343,8 +1343,8 @@ export const ROUNDS: Area = {
     "More on this:": "Докладніше:",
     "Flash cards": "Картки",
     "Twenty questions": "Двадцять запитань",
-    "A box to type in and a list of your questions. I'm thinking of something, and I answer each question yes, no or sometimes.":
-      "Поле для введення і список ваших запитань. Я загадую щось і на кожне запитання відповідаю «так», «ні» або «іноді».",
+    "I'm thinking of something, and I tell you first what kind of thing it is. You get twenty yes or no questions, and I answer each yes, no or sometimes.":
+      "Я загадую щось і спершу кажу, що це за річ. У вас двадцять запитань, на які можна відповісти «так» чи «ні», і на кожне я відповідаю «так», «ні» або «іноді».",
     "Ask yes or no questions in Estonian, and name it when you can. Each question you type comes back with a tip if it could be better.":
       "Ставте естонською запитання, на які можна відповісти «так» чи «ні», і назвіть загадане, коли здогадаєтеся. Якщо запитання можна поставити краще, до нього прийде підказка.",
     "Words you've met, asked in a way you haven't seen yet.": "Знайомі слова, але запитання поставлено так, як ви ще не бачили.",

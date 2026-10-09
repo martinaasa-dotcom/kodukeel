@@ -14,6 +14,8 @@ import { prisma } from "@/lib/db";
 export const SETTING_KEYS = {
   dailyGoal: "dailyGoal",
   matchBest: "matchBest",
+  /** Kakskümmend küsimust: the fewest questions a thing has been named in. */
+  twentyBest: "twentyBest",
   streakShields: "streakShields",
   streakShieldDates: "streakShieldDates",
   /**
