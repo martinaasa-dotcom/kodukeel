@@ -21,29 +21,35 @@
  * against), 5 is a dog, 7 a horse, 9 something you ride in, 10 something you
  * stand in. Big and heavy are yes at 7 to 10 and sometimes at 5 to 6; small and
  * light are yes at 1 to 2 and sometimes at 3 to 4. Two things on the same step
- * are not bigger than each other, so "bigger than" answers no. Drinks, soup and
- * meat have a serving rather than a size and answer Ei tea (`SIZELESS`).
+ * are not bigger than each other, so "bigger than" answers no, unless one is
+ * many times the other (the sun and a mountain). Drinks, soup, meat and what comes
+ * in a heap (sugar, rice, sand) have a serving rather than a size and answer
+ * Ei tea (`SIZELESS`); rain, snow, wind, fog and a cloud answer Mõnikord.
  *
  * Pure: no React, no Prisma.
  */
 
 import { AUDIT, AUDIT_VOCAB } from "./twentyAudit";
+import { BASE_CLASS, BASE_EXTRA, BASE_METRES, CLASSES, REVIEWED, ROWS, type ClassSpec, type Facts } from "./twentyWorld";
 
-export type Kind = "animal" | "plant" | "food" | "drink" | "object" | "clothes" | "vehicle" | "building" | "nature";
+export type Kind = "animal" | "plant" | "food" | "drink" | "object" | "clothes" | "vehicle" | "building" | "nature" | "body";
 
 /** Parts a thing can have. A lemma, because the learner asks for one by its name. */
 export const PARTS = [
   "jalg", "tiib", "saba", "ratas", "uks", "aken", "sulg", "karv", "leht", "nokk",
   "silm", "kõrv", "nina", "suu", "pea", "hammas", "kõht", "selg", "sarv", "nahk", "koor",
   "seeme", "juur", "oks", "rool", "ekraan", "nupp", "klaviatuur", "kaas", "uim", "käpp", "kabi",
+  "kael", "küünis", "soomus", "õis", "tüvi", "lont", "mootor", "katus", "käepide", "keel", "kest",
+  "tasku", "varrukas", "tera", "juhe", "luu", "süda", "sõrm", "vars",
 ] as const;
 export type Part = (typeof PARTS)[number];
 
-export type Action = "fly" | "swim" | "move" | "jump";
-export type Use = "eat" | "drink" | "wear" | "read" | "ride" | "write";
+export type Action = "fly" | "swim" | "move" | "jump" | "run" | "climb" | "crawl" | "walk";
+export type Use = "eat" | "drink" | "wear" | "read" | "ride" | "write" | "sit" | "sleep" | "play" | "cut" | "call" | "listen" | "watch";
 export type Where =
   | "home" | "kitchen" | "outdoors" | "forest" | "water" | "city"
-  | "country" | "garden" | "sky" | "sea" | "school" | "shop" | "street" | "fridge" | "bed";
+  | "country" | "garden" | "sky" | "sea" | "school" | "shop" | "street" | "fridge" | "bed"
+  | "nature" | "space" | "estonia" | "africa" | "field" | "beach" | "mountains" | "table";
 export type Feel = "fast" | "slow" | "hard" | "soft" | "cold" | "warm";
 
 /** The eight colours the course teaches, as lemmas. */
@@ -58,6 +64,12 @@ export interface Thing {
   kind: Kind;
   /** One to ten. See the header. */
   size: number;
+  /** The longest dimension in metres, typical rather than extreme, for "bigger than". */
+  metres: number;
+  /** How many legs, where that is a fact about the thing. */
+  legs: number | null;
+  /** Notable parts, as `adjective:part`: a giraffe's long neck is `pikk:kael`. */
+  notable: readonly string[];
   /** Category headwords it is a kind of, so "is it an animal?" has an answer. */
   isa: readonly string[];
   isaS: readonly string[];
@@ -88,14 +100,17 @@ export interface Thing {
 /** Category headwords a question can name besides a thing. */
 export const CATEGORIES = [
   "loom", "lind", "imetaja", "putukas", "taim", "toit", "jook", "puuvili", "köögivili", "sõiduk", "mööbel",
-  "hoone", "ese", "riideese",
+  "hoone", "ese", "riideese", "täht",
+  "asi", "elusolend", "olend", "metsloom", "koduloom", "lemmikloom", "kiskja", "roomaja", "kala", "puu", "lill",
+  "seen", "mari", "maiustus", "mänguasi", "tööriist", "pill", "masin", "seade", "nõu", "kehaosa", "ilm",
+  "loodus", "koht", "taevakeha", "vedelik", "materjal", "rõivas",
 ] as const;
 
 type Rest = Partial<Omit<Thing, "lemma" | "kind" | "size">>;
 
 function thing(lemma: string, kind: Kind, size: number, rest: Rest = {}): Thing {
   return {
-    lemma, kind, size,
+    lemma, kind, size, metres: BASE_METRES[lemma] ?? 0, legs: null, notable: [],
     isa: [], isaS: [], has: [], hasS: [], can: [], canS: [], use: [], useS: [],
     where: [], whereS: [], colour: [], colourS: [], feel: [], feelS: [],
     trait: [], traitS: [], traitNo: [], does: [], doesS: [], made: [], madeS: [],
@@ -107,6 +122,7 @@ function thing(lemma: string, kind: Kind, size: number, rest: Rest = {}): Thing 
 export const TRAITS = [
   "wet", "dry", "sweet", "salty", "sour", "sharp", "round", "long", "short", "wide", "narrow", "thick", "thin",
   "smelly", "dangerous", "strong", "natural",
+  "bitter", "square", "tall", "poisonous", "electric", "transparent", "loud", "hot", "heavy", "light",
 ] as const;
 
 /** Subjective ones. Not listed means "sometimes", unless the thing says it is plainly not so (`traitNo`). */
@@ -116,9 +132,12 @@ export const OPINIONS = [
 
 export const DOES = [
   "bark", "grow", "sleep", "sing", "walk", "play", "work", "buy", "sell", "burn", "ring", "born", "use", "wash", "scratch", "smell", "shine",
+  "bite", "sting", "eggs", "bloom", "melt", "die", "sound", "meat", "plants",
 ] as const;
 
-export const MATERIALS = ["puit", "metall", "klaas", "paber", "kivi", "raud", "kuld", "kumm", "vill", "puuvill"] as const;
+export const MATERIALS = [
+  "puit", "metall", "klaas", "paber", "kivi", "raud", "kuld", "kumm", "vill", "puuvill", "plast", "kangas", "nahk",
+] as const;
 
 const MAMMAL = ["loom", "imetaja"] as const;
 const BIRD = ["loom", "lind"] as const;
@@ -142,7 +161,7 @@ const BASE: readonly Thing[] = [
   thing("lammas", "animal", 6, { useS: ["eat"], isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["outdoors"], colourS: ["valge", "must"], feelS: ["soft"] }),
   thing("hiir", "animal", 2, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["home", "outdoors"], colourS: ["hall", "valge", "pruun"], feelS: ["fast", "soft"] }),
   thing("konn", "animal", 2, { isa: ["loom"], has: ["jalg"], can: ["move", "swim", "jump"], whereS: ["water", "outdoors"], colourS: ["roheline", "pruun"] }),
-  thing("elevant", "animal", 8, { isa: MAMMAL, has: ["jalg", "saba"], can: ["move"], canS: ["swim"], whereS: ["outdoors"], colour: ["hall"], feelS: ["slow"] }),
+  thing("elevant", "animal", 9, { isa: MAMMAL, has: ["jalg", "saba"], can: ["move"], canS: ["swim"], whereS: ["outdoors"], colour: ["hall"], feelS: ["slow"] }),
   thing("liblikas", "animal", 1, { isa: ["loom", "putukas"], has: ["tiib", "jalg"], can: ["move", "fly"], whereS: ["outdoors"], colourS: ["kollane", "punane", "sinine", "valge", "must"] }),
   thing("mesilane", "animal", 1, { isa: ["loom", "putukas"], has: ["tiib", "jalg"], can: ["move", "fly"], whereS: ["outdoors"], colourS: ["kollane", "must"] }),
   thing("lõvi", "animal", 6, { isa: MAMMAL, has: ["jalg", "saba", "karv"], can: ["move"], whereS: ["outdoors"], colourS: ["kollane", "pruun"], feelS: ["fast"] }),
@@ -229,7 +248,8 @@ interface Extra {
 }
 
 const DOMESTIC = new Set(["lehm", "siga", "lammas", "kana", "hobune", "koer", "kass"]);
-const STRONG_SMELL = new Set(["juust", "kohv", "lill", "sibul"]);
+/** The one rule for smell: these say yes, every other food, drink or animal "sometimes". Roses and garlic joined the four. */
+const STRONG_SMELL = new Set(["juust", "kohv", "lill", "sibul", "roos", "küüslauk"]);
 
 const words = (s: string | undefined): string[] => (s ? s.split(" ").filter(Boolean) : []);
 
@@ -243,6 +263,7 @@ const KIND_DEFAULT: Record<Kind, Extra> = {
   vehicle: { d: "buy sell use wash work" },
   building: { d: "buy sell use" },
   nature: { t: "natural" },
+  body: {},
 };
 
 const EXTRA: Record<string, Extra> = {
@@ -354,7 +375,7 @@ function widen(t: Thing): Thing {
   // "Natural" means not made by people: wild animals, plants and nature are, a farm animal or a plant food only sometimes.
   const natural: string[] = [];
   const naturalS: string[] = [];
-  if (t.kind === "animal") (DOMESTIC.has(t.lemma) ? naturalS : natural).push("natural");
+  if (t.kind === "animal") (DOMESTIC.has(t.lemma) || t.isa.includes("koduloom") ? naturalS : natural).push("natural");
   if (t.kind === "food" || t.kind === "drink") (t.lemma === "vesi" ? natural : /puuvili|köögivili/.test(t.isa.join(" ")) ? naturalS : []).push("natural");
   const trait = merge(t.trait, [...pick("t"), ...natural]);
   const traitS = merge(t.traitS, [...pick("ts"), ...naturalS]).filter((x) => !trait.includes(x));
@@ -381,6 +402,12 @@ type Lists = Record<string, string[]>;
 const DESCRIBES = new Set(["trait", "colour", "feel", "isa", "where", "made"]);
 
 /** Lay the audited factbase over a widened thing: y goes to the plain list, s to "sometimes", a covered token left out is a no, u is left as it was. */
+/**
+ * Tokens the hand table never ruled on, so its silence about them is not a no:
+ * the research's "sometimes" on a cat running is the only word there is.
+ */
+const UNDECIDED_BY_HAND = new Set(["kael", "küünis", "soomus", "õis", "tüvi", "lont", "run", "climb", "sit", "plast", "kangas", "kuld"]);
+
 function audited(t: Thing): Thing {
   const raw = AUDIT[t.lemma];
   if (!raw) return t;
@@ -402,7 +429,7 @@ function audited(t: Thing): Thing {
       // A plain no that the research calls "sometimes" is left as no: it lists dogs as food and cars as red
       // and would turn the game into a row of "Mõnikord". And a plain yes on a description (a carrot is long,
       // an apple is round) stays yes. Everything else the audit says is taken as it is.
-      if (was === "n" && now === "s") continue;
+      if (was === "n" && now === "s" && !UNDECIDED_BY_HAND.has(token)) continue;
       if (was === "y" && now === "s" && DESCRIBES.has(field)) continue;
       yes[field] = (yes[field] ?? []).filter((x) => x !== token);
       some[field] = (some[field] ?? []).filter((x) => x !== token);
@@ -425,7 +452,101 @@ function audited(t: Thing): Thing {
   };
 }
 
-export const THINGS: readonly Thing[] = BASE.map((t) => audited(widen(t)));
+/*
+  FACT FAMILIES. The class templates in `twentyWorld.ts` speak the same keys as
+  the lists above; `apply` lays one set of facts over a thing. A key in a yes
+  list goes in (and out of "sometimes"), a key in an `S` list goes in as
+  "sometimes" unless it is already a plain yes, and a key written `-key` comes
+  out of both.
+*/
+type Family = "isa" | "has" | "can" | "use" | "where" | "colour" | "feel" | "trait" | "does" | "made";
+const FAMILY_OF: Record<string, [Family, "yes" | "some" | "no"]> = {
+  isa: ["isa", "yes"], isaS: ["isa", "some"], has: ["has", "yes"], hasS: ["has", "some"],
+  can: ["can", "yes"], canS: ["can", "some"], use: ["use", "yes"], useS: ["use", "some"],
+  w: ["where", "yes"], wS: ["where", "some"], col: ["colour", "yes"], colS: ["colour", "some"],
+  feel: ["feel", "yes"], feelS: ["feel", "some"], t: ["trait", "yes"], tS: ["trait", "some"], tN: ["trait", "no"],
+  d: ["does", "yes"], dS: ["does", "some"], mat: ["made", "yes"], matS: ["made", "some"],
+};
+const SOME_OF: Record<Family, keyof Thing> = {
+  isa: "isaS", has: "hasS", can: "canS", use: "useS", where: "whereS", colour: "colourS",
+  feel: "feelS", trait: "traitS", does: "doesS", made: "madeS",
+};
+
+/** The vocabulary the hand table and the research already decide, which a class may not overrule on the 72. */
+const DECIDED: Record<Family, ReadonlySet<string>> = {
+  isa: new Set(["loom", "lind", "imetaja", "putukas", "taim", "toit", "jook", "puuvili", "köögivili", "sõiduk", "mööbel", "hoone", "ese", "riideese"]),
+  has: new Set([...PARTS.slice(0, 32), ...(AUDIT_VOCAB.has ?? [])]),
+  can: new Set(["move", "fly", "swim", "jump", ...(AUDIT_VOCAB.can ?? [])]),
+  use: new Set(["eat", "drink", "wear", "read", "ride", "write", ...(AUDIT_VOCAB.use ?? [])]),
+  where: new Set(AUDIT_VOCAB.where ?? []),
+  colour: new Set(COLOURS),
+  feel: new Set(["fast", "slow", "hard", "soft", "cold", "warm"]),
+  trait: new Set(["wet", "dry", "sweet", "salty", "sour", "sharp", "round", "long", "short", "wide", "narrow", "thick", "thin", "smelly", "dangerous", "strong", "natural"]),
+  does: new Set(["bark", "grow", "sleep", "sing", "walk", "play", "work", "buy", "sell", "burn", "ring", "born", "use", "wash", "scratch", "smell", "shine"]),
+  made: new Set(AUDIT_VOCAB.made ?? []),
+};
+
+type Mutable = { -readonly [K in keyof Thing]: Thing[K] extends readonly (infer U)[] ? U[] : Thing[K] };
+
+/** Lay `facts` over `t`. With `onlyNew`, keys the hand table and the research already decide are left alone. */
+function apply(t: Thing, facts: Facts, onlyNew = false): Thing {
+  const out = { ...t } as unknown as Mutable;
+  const list = (k: keyof Thing) => out[k] as unknown as string[];
+  for (const [key, value] of Object.entries(facts)) {
+    if (key === "notable") {
+      out.notable = [...new Set([...out.notable, ...words(value as string)])];
+      continue;
+    }
+    const at = FAMILY_OF[key];
+    if (!at || typeof value !== "string") continue;
+    const [family, how] = at;
+    const yesKey = family as keyof Thing;
+    const someKey = SOME_OF[family];
+    for (const raw of words(value)) {
+      const removing = raw.startsWith("-");
+      const token = removing ? raw.slice(1) : raw;
+      if (!token || (onlyNew && DECIDED[family].has(token))) continue;
+      (out as Record<string, unknown>)[yesKey] = list(yesKey).filter((x) => x !== token);
+      (out as Record<string, unknown>)[someKey] = list(someKey).filter((x) => x !== token);
+      if (family === "trait") out.traitNo = out.traitNo.filter((x) => x !== token);
+      if (removing) continue;
+      if (how === "yes") list(yesKey).push(token);
+      else if (how === "some") list(someKey).push(token);
+      else out.traitNo.push(token);
+    }
+  }
+  return out as unknown as Thing;
+}
+
+const BASE_LEGS: Readonly<Record<string, number>> = { laud: 4, tool: 4, voodi: 4 };
+
+/** A researched thing, with its class's facts in the families the research did not cover. */
+function classed(t: Thing): Thing {
+  const cls: ClassSpec | undefined = BASE_CLASS[t.lemma] ? CLASSES[BASE_CLASS[t.lemma]!] : undefined;
+  let out = cls ? apply(t, cls, true) : t;
+  const extra = BASE_EXTRA[t.lemma];
+  if (extra) out = apply(out, extra, true);
+  return { ...out, legs: BASE_LEGS[t.lemma] ?? cls?.legs ?? null };
+}
+
+/** One of the things past the 72, built from its class and its own row. */
+const BUILT: readonly Thing[] = ROWS.map((row) => {
+  const cls: ClassSpec = CLASSES[row.cls];
+  const blank = thing(row.lemma, cls.kind, row.size);
+  const facts = apply(apply({ ...blank, metres: row.metres }, cls), row.facts ?? {});
+  return widen({ ...facts, legs: row.legs ?? cls.legs ?? null });
+});
+
+/**
+ * The review laid over everything last. Every animal grows (an insect only changes shape,
+ * so "sometimes"), and then each thing's own reviewed cells.
+ */
+function reviewed(t: Thing): Thing {
+  const grows: Facts = t.kind === "animal" ? (t.isa.includes("putukas") ? { dS: "grow" } : { d: "grow" }) : {};
+  return apply(apply(t, grows), REVIEWED[t.lemma] ?? {});
+}
+
+export const THINGS: readonly Thing[] = [...BASE.map((t) => classed(audited(widen(t)))), ...BUILT].map(reviewed);
 
 export const THING_BY_LEMMA: ReadonlyMap<string, Thing> = new Map(THINGS.map((t) => [t.lemma, t]));
 
@@ -440,4 +561,5 @@ export const KIND_HINT: Record<Kind, string> = {
   vehicle: "It is something you can ride in or on.",
   building: "It is a building.",
   nature: "It is part of nature, or a place.",
+  body: "It is a part of the body.",
 };

@@ -983,7 +983,7 @@
     is not a circle, between 26px and 44px. Phones hold back more, for the tab
     bar the keys are pinned above.
   */
-  .sonad-board { --sonad-cell: clamp(1.625rem, calc((100dvh - 38rem) / 7), 2.5rem); }
+  .sonad-board { --sonad-cell: min(clamp(1.625rem, calc((100dvh - 24.5rem) / 7.3), 3.75rem), calc((100vw - 3.5rem) / 6.4)); }
   /*
     A phone with its toolbar showing is about 660px tall. The keys are pinned
     over the board there, so what has to give is what is not the board or the
@@ -1000,7 +1000,7 @@
     .sonad-board .sonad-hint:not(:has(.font-semibold)) { display: none; }
   }
   @media (min-width: 768px) {
-    .sonad-board { --sonad-cell: clamp(1.75rem, calc((100dvh - 34rem) / 7), 2.75rem); }
+    .sonad-board { --sonad-cell: clamp(1.75rem, calc((100dvh - 24.5rem) / 7.3), 3.75rem); }
   }
 
   @media (max-width: 767px) {
@@ -1288,6 +1288,44 @@
     0% { transform: translateY(0); }
     45% { transform: translateY(-12px); }
     100% { transform: translateY(0); }
+  }
+
+  /*
+    TWENTY QUESTIONS, ALIVE.
+
+    The game thinks for half a second before it answers, as three dots that
+    breathe in turn, so a question is read back before the verdict lands. The
+    meter of what still fits shrinks rather than jumps, on `transform` so the
+    compositor runs it. A win lifts the word letter by letter and lights the
+    panel once. All of it is nothing under `prefers-reduced-motion`, where the
+    session skips the beat too: the answer is the information, not the wait.
+  */
+  .twenty-thinking span {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--ink-3);
+    animation: twenty-dot 900ms ease-in-out infinite;
+  }
+  .twenty-thinking span:nth-child(2) { animation-delay: 150ms; }
+  .twenty-thinking span:nth-child(3) { animation-delay: 300ms; }
+  @keyframes twenty-dot {
+    0%, 100% { transform: translateY(0); opacity: 0.4; }
+    40% { transform: translateY(-4px); opacity: 1; }
+  }
+  .twenty-meter {
+    transform-origin: left center;
+    transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .twenty-rise {
+    animation: sonad-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--twenty-at, 0) * 70ms);
+  }
+  .twenty-won { animation: twenty-glow 1.2s ease-out both; }
+  @keyframes twenty-glow {
+    0% { box-shadow: inset 0 0 0 0 var(--accent-soft); }
+    30% { box-shadow: inset 0 0 0 999px var(--accent-soft); }
+    100% { box-shadow: inset 0 0 0 0 var(--accent-soft); }
   }
 
   /*
@@ -1619,6 +1657,10 @@
   */
   @media (max-height: 560px) {
     .scene-room[data-stage] { --scene-stage: 4.25rem; }
+  }
+  /* From `lg` the room lives in the column beside the conversation, not in a band under the bar. */
+  @media (min-width: 1024px) {
+    .scene-room[data-stage] { --scene-stage: 0px; }
   }
 
   /*
@@ -2032,6 +2074,7 @@
   @media (prefers-reduced-motion: reduce) {
     .quest-pulse, .quest-card, .quest-pop, .emoji-shake,
     .sonad-settle, .sonad-refuse, .sonad-rise,
+    .twenty-thinking span, .twenty-rise, .twenty-won,
     .scene-break, .scene-break-rule,
     .scene-say, .scene-say-you, .scene-pip-met, .scene-open,
     .scene-veil, .scene-veil-out, .scene-bloom, .scene-dial, .scene-hand,

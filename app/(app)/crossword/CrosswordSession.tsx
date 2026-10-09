@@ -177,11 +177,18 @@ export function CrosswordSession({ puzzle, day, clueMeanings = null }: {
       grid and the lists are for jumping about.
     */
     <div
-      className="flex flex-col gap-3"
-      style={{ "--cw-cell": `min(clamp(2rem, calc((100dvh - 24rem) / ${puzzle.rows}), 2.75rem), calc((100vw - 4.5rem - ${(puzzle.cols - 1) * 4}px) / ${puzzle.cols}))` } as React.CSSProperties}
+      className="mx-auto grid w-full grid-cols-1 items-start gap-4 xl:w-fit xl:grid-cols-[17rem_auto] xl:gap-8"
+      style={{ "--cw-cell": `min(clamp(2rem, calc((100dvh - 20rem) / ${puzzle.rows} - 4px), 3.25rem), calc((100vw - 4.5rem - ${(puzzle.cols - 1) * 4}px) / ${puzzle.cols}))` } as React.CSSProperties}
     >
-      {/* The board is a lavender panel: squares lit where the word you are on
-          runs, the clue under it in the display face. */}
+      {/* Both lists in one column, on the near side, so the grid is not the
+          thing pressed up against the navigation. */}
+      <div className="order-2 xl:order-none xl:max-h-[calc(100dvh-8rem)] xl:overflow-y-auto">
+      <Clues puzzle={puzzle} meanings={clueMeanings} active={active} solved={solved} onPick={(i) => {
+        setActive(i);
+        focusCell(cellsOf(puzzle.entries[i]!, puzzle.cols)[0]!);
+      }} />
+      </div>
+      <div className="flex flex-col gap-2 xl:order-none">
       <Card tone="accent" dense className="crossword-board">
         <div
           className="mx-auto grid w-fit gap-1"
@@ -271,8 +278,7 @@ export function CrosswordSession({ puzzle, day, clueMeanings = null }: {
         </div>
       </Card>
 
-      <span className="sr-only" role="status">{said}</span>
-
+        <span className="sr-only" role="status">{said}</span>
       {done ? (
         <Finish puzzle={puzzle} helped={helped.length} />
       ) : (
@@ -326,10 +332,7 @@ export function CrosswordSession({ puzzle, day, clueMeanings = null }: {
         </div>
       )}
 
-      <Clues puzzle={puzzle} meanings={clueMeanings} active={active} solved={solved} onPick={(i) => {
-        setActive(i);
-        focusCell(cellsOf(puzzle.entries[i]!, puzzle.cols)[0]!);
-      }} />
+      </div>
     </div>
   );
 }
@@ -384,13 +387,13 @@ function Clues({ puzzle, meanings, active, solved, onPick }: {
 
   return (
     /*
-      Side by side from `lg` rather than `sm`. At 768 the rail takes the side
-      of the screen and two clue cards left each clue about 93px, which is
-      narrower than "grandmother": the word was broken across two lines,
-      which is what `test-containment.mjs` refuses. A clue list is read top
-      to bottom anyway, so a phone and a tablet get one column.
+      One column holding both lists, beside the grid from `xl` up and under it
+      below that. Side by side they were each about 93px wide at 768, narrower
+      than "grandmother", which `test-containment.mjs` refuses; stacked they
+      have the whole column, and the grid is not the thing pressed against the
+      navigation.
     */
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-4">
       {(["across", "down"] as const).map((direction) => (
         <Card key={direction}>
           <SectionTitle>{direction === "across" ? t("Across") : t("Down")}</SectionTitle>

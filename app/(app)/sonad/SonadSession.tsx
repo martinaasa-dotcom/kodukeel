@@ -234,8 +234,10 @@ export function SonadSession({ puzzle, day, guessable }: {
       30px and 44px. On a phone the keys are pinned (see `.sonad-keys`) and
       the board is the thing that gives.
     */
-    <div className="sonad-board flex flex-col gap-3">
-      <Card tone="accent" dense>
+    <div className="sonad-board flex flex-col items-center gap-3">
+      {/* What is known from the first row, in one centred line. No card round
+          any of it: the board and the keys are the screen. */}
+      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
         <div className="flex flex-wrap items-center gap-2">
           {/*
             What is known from the first row: what kind of word and how hard it
@@ -282,6 +284,8 @@ export function SonadSession({ puzzle, day, guessable }: {
           </p>
         )}
 
+      </div>
+      <div className="flex flex-col items-center">
         <div className="mt-3 flex flex-col items-center gap-1.5">
           {rows.map((row) => (
             <Row
@@ -300,8 +304,7 @@ export function SonadSession({ puzzle, day, guessable }: {
         {refused && (
           <p className="mt-3 text-center text-sm" style={{ color: "var(--again-ink)" }}>{refused}</p>
         )}
-      </Card>
-
+      </div>
       {over ? (
         <Finish puzzle={puzzle} outcome={outcome} at={at} kept={kept} onKeep={() => setKept(true)} />
       ) : (
@@ -389,7 +392,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
       scrolls. See `.sonad-keys` in globals.css for why sticky rather than
       fixed, and for what the suites were measuring instead.
     */
-    <Card className="sonad-keys" dense>
+    <div className="sonad-keys w-full max-w-[34rem]">
       {/*
         WHAT THE THREE CIRCLES MEAN, IN WORDS, ON THE SCREEN.
 
@@ -412,7 +415,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
         Drawn from the same `HUE` and `RING` tables the circles are, so a
         legend cannot go on describing a colour the board has stopped using.
       */}
-      <ul className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-2xs" style={{ color: "var(--ink-3)" }}>
+      <ul className="mb-1.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-2xs" style={{ color: "var(--ink-3)" }}>
         {(["here", "elsewhere", "absent"] as const).map((mark) => (
           <li key={mark} className="flex items-center gap-1.5">
             <span
@@ -444,6 +447,11 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
       <div className="flex flex-col gap-1">
         {SONAD_KEY_ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1 sm:gap-1.5">
+            {i === SONAD_KEY_ROWS.length - 1 && (
+              <Button type="button" variant="secondary" onClick={onDelete} aria-label={t("Delete", "key")} className="h-12 min-w-0 flex-[2] basis-0 px-0">
+                <Delete size={18} aria-hidden />
+              </Button>
+            )}
             {row.map((letter) => {
               const mark = marks.get(letter);
               const hue = mark ? HUE[mark] : { bg: "var(--surface)", ink: "var(--ink)", ring: "var(--rule)" };
@@ -456,7 +464,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
                   lang="et"
                   aria-label={letter}
                   data-keyboard-key
-                  className="press tap-tint grid h-11 min-w-0 flex-1 md:h-10 basis-0 place-items-center rounded-[var(--r-sm)] text-sm font-semibold uppercase transition-ui sm:text-base"
+                  className={`press tap-tint grid h-12 min-w-0 flex-1 basis-0 place-items-center rounded-[var(--r-sm)] text-sm font-semibold uppercase transition-ui sm:text-base`}
                   style={{
                     background: hue.bg,
                     color: hue.ink,
@@ -467,18 +475,19 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
                 </button>
               );
             })}
+            {i === SONAD_KEY_ROWS.length - 1 && (
+              <Button type="button" variant="primary" onClick={onSubmit} className="h-12 min-w-0 flex-[2.4] basis-0 px-1 text-xs sm:text-sm">
+                {/* The icon on a phone, where the key is a thumb wide; the word
+                    from `sm`, where it fits in every language the app is read
+                    in ("Перевірити" is the long one). */}
+                <CornerDownLeft size={16} aria-hidden className="sm:hidden" />
+                <span className="sr-only sm:not-sr-only">{t("Guess")}</span>
+              </Button>
+            )}
           </div>
         ))}
       </div>
-      <div className="mt-2 flex gap-2">
-        <Button type="button" variant="secondary" onClick={onDelete} className="flex-1">
-          <Delete size={16} aria-hidden /> {t("Delete", "key")}
-        </Button>
-        <Button type="button" variant="primary" onClick={onSubmit} className="flex-1">
-          <CornerDownLeft size={16} aria-hidden /> {t("Guess")}
-        </Button>
-      </div>
-    </Card>
+    </div>
   );
 }
 
