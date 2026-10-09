@@ -238,35 +238,24 @@ export default async function ProgressPage() {
             centred: a centred row drops a figure whose label wraps to two
             lines, so "Shields banked" sat off the three beside it. */}
         <HeroSplit
-          aside={
+          eyebrow={t("How it is going")}
+          title={breakdown.accuracy === null
+            ? fill(t("{n} cards known."), { n: snapshot.knownCards })
+            : fill(t("{n} cards known, {pct}% answered right."), { n: snapshot.knownCards, pct: breakdown.accuracy })}
+          text={
             <>
-              <div className="grid grid-cols-2 gap-6">
-                <Stat value={snapshot.knownCards} label={t("Cards known")} />
-                <Stat value={breakdown.accuracy === null ? NO_VALUE : `${breakdown.accuracy}%`} label={t("Answered right")} />
-              </div>
-              <ShareProgress />
+              {fill(t(shields === 1 ? "{n} shield banked." : "{n} shields banked."), { n: shields })}
+              <span className="mt-2 block"><Explain label={t("What a shield does")}>
+                {t("A shield keeps your streak alive through one missed day. You earn one at 7, 30 and 100 days.")}
+              </Explain></span>
             </>
           }
-        >
-          <div className="grid grid-cols-[auto_1fr] items-end gap-x-8 gap-y-4">
-            <div>
-              <div className="font-display tnum inline-flex items-center gap-2 text-7xl font-bold leading-none" style={{ color: "var(--ink)" }}>
-                <RollNumber value={summary.streak} />
-                <Flame size={28} aria-hidden style={{ color: "var(--hard-ink)" }} />
-              </div>
-              <p className="label-xs mt-2" style={{ color: "var(--ink-3)" }}>{t("Day streak")}</p>
-            </div>
-            <Stat
-              value={<span className="inline-flex items-center gap-1.5"><RollNumber value={shields} /><Shield size={16} aria-hidden style={{ color: "var(--accent-deep)" }} /></span>}
-              label={t(shields === 1 ? "Shield banked" : "Shields banked")}
-            />
-          </div>
-          <div className="mt-4">
-            <Explain label={t("What a shield does")}>
-              {t("A shield keeps your streak alive through one missed day. You earn one at 7, 30 and 100 days.")}
-            </Explain>
-          </div>
-        </HeroSplit>
+          figure={{
+            value: <span className="inline-flex items-center gap-3"><RollNumber value={summary.streak} /><Flame size={32} aria-hidden style={{ color: "var(--hard-ink)" }} /></span>,
+            label: t("Day streak"),
+          }}
+          actions={<ShareProgress />}
+        />
 
         {/*
           Two by two, by the page's width rather than the window's, so no panel

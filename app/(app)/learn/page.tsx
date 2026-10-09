@@ -403,26 +403,19 @@ function LearnCard({
   const batch = Math.min(ready, LEARN_BATCH);
   return (
     <div className="mb-10">
-    <HeroSplit
-      aside={
-        <>
-          {ready > 0 && (
-            <ol className="flex flex-col gap-2.5" aria-label={t("How a word is learned")}>
-              {[t("Meet it"), t("Pick what it means"), t("Fit it into a sentence")].map((step, i) => (
-                <li key={step} className="flex items-center gap-3 text-md font-semibold" style={{ color: "var(--ink)" }}>
-                  <span
-                    aria-hidden
-                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold"
-                    style={{ background: "var(--butter)", color: "var(--on-butter, var(--stage))" }}
-                  >
-                    {i + 1}
-                  </span>
-                  {step}
-                </li>
-              ))}
-            </ol>
-          )}
-          <div className="flex flex-col gap-2">
+      <HeroSplit
+        eyebrow={ready > 0 ? t("Today’s new words") : t("New words")}
+        title={ready > 0
+          ? t("Meet each one, then use it in a sentence.")
+          : onCourse ? t("They come with each evening") : t("No new words yet")}
+        text={ready > 0
+          ? (started > 0 ? fill(t("You're already part way through {n}."), { n: started }) : undefined)
+          : onCourse
+            ? t("Your course hands you a few new words each evening, in an order where each one builds on the last. Or open any unit below to meet its words now.")
+            : t("Open a unit below and its words will turn up here, ready to meet.")}
+        figure={ready > 0 ? { value: batch, label: t(batch === 1 ? "word waiting" : "words waiting") } : undefined}
+        actions={
+          <>
             {ready > 0 && (
               <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap">
                 {fill(t("Learn {n} words"), { n: batch })} <ArrowRight size={17} aria-hidden />
@@ -438,28 +431,9 @@ function LearnCard({
                 {t("Open today’s module")} <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             )}
-          </div>
-        </>
-      }
-    >
-      <p className="label-xs" style={{ color: "var(--butter-ink)" }}>
-        {ready > 0 ? t("Today’s new words") : t("New words")}
-      </p>
-      <h2 className="font-display mt-3 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-        {ready > 0
-          ? <>{fill(t("{n} words are waiting for you"), { n: batch })}</>
-          : onCourse ? <>{t("They come with each evening")}</> : <>{t("No new words yet")}</>}
-      </h2>
-      <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>
-        {ready > 0
-          ? (started > 0
-              ? fill(t("You're already part way through {n}."), { n: started })
-              : t("A few at a time, so each one sticks."))
-          : onCourse
-            ? t("Your course hands you a few new words each evening, in an order where each one builds on the last. Or open any unit below to meet its words now.")
-            : t("Open a unit below and its words will turn up here, ready to meet.")}
-      </p>
-    </HeroSplit>
+          </>
+        }
+      />
     </div>
   );
 }

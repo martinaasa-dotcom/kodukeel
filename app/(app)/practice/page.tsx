@@ -160,27 +160,17 @@ export default async function PracticePage() {
             whose round moves it.
           */}
           <HeroSplit
-            label="practice-review"
-            aside={
-              <>
-                <p className="font-display flex items-baseline gap-3 font-bold leading-none" style={{ color: "var(--ink)" }}>
-                  <span className="text-7xl tabular-nums">{ready}</span>
-                  <span className="text-xl">{countOf(locale, ready, "card waiting").slice(String(ready).length + 1)}</span>
-                </p>
-                <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full justify-center whitespace-nowrap">
-                  {ready > 0 ? tr(locale, "Review now") : tr(locale, "Nothing due, open it anyway")} <ArrowRight size={17} aria-hidden />
-                </ButtonLink>
-              </>
+            eyebrow={tr(locale, "Review")}
+            titleId="practice-review"
+            title={tr(locale, "Each word comes back just before you'd forget it.")}
+            text={tr(locale, "We keep track of when, so you don't have to.")}
+            figure={{ value: ready, label: countOf(locale, ready, "card waiting").slice(String(ready).length + 1) }}
+            actions={
+              <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full justify-center whitespace-nowrap">
+                {ready > 0 ? tr(locale, "Review now") : tr(locale, "Nothing due, open it anyway")} <ArrowRight size={17} aria-hidden />
+              </ButtonLink>
             }
-          >
-            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{tr(locale, "Review")}</p>
-            <h2 id="practice-review" className="font-display mt-3 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-              {tr(locale, "Each word comes back just before you'd forget it.")}
-            </h2>
-            <p className="mt-3 max-w-[44ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {tr(locale, "We keep track of when, so you don't have to.")}
-            </p>
-          </HeroSplit>
+          />
 
           {flash && common && (
             <section
