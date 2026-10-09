@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { readFileSync } from "node:fs";
 
-import { bothLocalSetsOrdinary, isAnimate, semanticCategory, semanticGroup, kindStated } from "./semantics";
+import { bothLocalSetsOrdinary, isAnimate, isPhysical, semanticCategory, semanticGroup, kindStated } from "./semantics";
 
 /*
   PINNED AGAINST REAL ENTRIES, NOT AGAINST INVENTED CODES.
@@ -158,5 +158,28 @@ describe("kindStated", () => {
     expect(kindStated("omadus omadus_kval")).toBe(false);
     expect(kindStated("omadus ese")).toBe(true);
     expect(kindStated(null)).toBe(false);
+  });
+});
+
+describe("isPhysical", () => {
+  it("says an object, a place, a body part or a plant is something a picture can go into or onto", () => {
+    for (const codes of ["ese_instru", "ese", "koht_hoone", "koht", "koht_loodus", "kehaosa", "taim"]) {
+      expect(isPhysical(codes), codes).toBe(true);
+    }
+  });
+
+  it("refuses the abstract, the temporal and signs, and a word nobody classified", () => {
+    for (const codes of ["abstr", "aeg", "tegevus", "seisund", "nähtus_psühh", "esitus_keel", "ese_semio", "", null, undefined]) {
+      expect(isPhysical(codes as string | null | undefined), String(codes)).toBe(false);
+    }
+  });
+
+  it("matches a family exactly, so `esitus` is not an `ese`", () => {
+    expect(isPhysical("esitus")).toBe(false);
+    expect(isPhysical("esitus_kujutis")).toBe(false);
+  });
+
+  it("reads any code on the entry, not only the first", () => {
+    expect(isPhysical("abstr koht_hoone")).toBe(true);
   });
 });

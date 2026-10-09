@@ -215,6 +215,15 @@ export const BRIEFINGS = {
     you: "Record yourself, listen to both, and decide how close you got. No machine grades your accent.",
     action: "Start",
   },
+  map: {
+    title: "See what the ending means",
+    what:
+      "A small picture, a word under it, and three forms of that word. The picture shows " +
+      "something moving, having, becoming or going without. Words you know well lose the picture " +
+      "and then the choices, until you're typing the form yourself.",
+    you: "Pick or type the form that fits. Afterwards you'll see a real sentence using it. There's no clock.",
+    action: "Start",
+  },
   write: {
     title: "Write your own sentence",
     what: "One word, and the ending we'd like you to give it.",

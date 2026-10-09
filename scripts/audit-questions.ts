@@ -67,6 +67,7 @@ import { clueClashes, clueFrom, clueKey } from "../lib/games/clue";
 import { mentions } from "../lib/estonian/cloze";
 import { PARTS } from "../lib/copy/values";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
+import { questionsForWord } from "../lib/progress/map";
 import { orderContextFrom } from "../lib/estonian/wordOrder";
 import { planLesson, type LessonWord } from "../lib/collections/lesson";
 import { taughtSpellings } from "../lib/progress/lessonWords";
@@ -200,6 +201,14 @@ const REACHES: Record<string, number> = {
   // illatives in this dictionary are spelled like a principal part. 5,216 over
   // the whole of it.
   exceptions: 4_100,
+  /*
+    Map, over the graded dictionary: a noun, a case Map draws, and a recorded
+    sentence holding that form as exactly one case. 2,732 before a house, a
+    table or a person was drawn only for a word that is a thing, a place, a body
+    part, a plant or a being; 1,849 after, which is measured and not estimated.
+    The sentence rule is the stricter reading and it is what this figure costs.
+  */
+  map: 1_849,
   /*
     The guided unit lesson and the end-of-level checkpoint, neither of which
     had ever been in this script. Both build a gap out of an attested sentence
@@ -618,6 +627,29 @@ for (const e of entries) {
   if (clashes.has(clueKey(e.lemma, e.pos))) continue;
   const clue = clueFrom(e.translation ?? "", e.lemma, e.pos);
   if (clue) ask(`crossword ${e.lemma}`, clue, e.lemma);
+}
+});
+
+/* ── Map ─────────────────────────────────────────────────────────────────── */
+/*
+  The round that shows a picture and asks for the form that matches it. What a
+  learner is shown is the word, its gloss and the English question about the
+  picture, and the answer is one of three forms of that same word, so the fault
+  to look for is the word or its gloss spelling the answer, which is what the
+  builder refuses and this asks again. Every question here also stands on a
+  recorded sentence, so a question that exists is one a lexicographer wrote.
+*/
+timed("map", () => {
+for (const e of entries) {
+  if (e.pos !== "NOUN") continue;
+  const row = {
+    id: e.lemma, lemma: e.lemma, translation: e.translation, pos: e.pos, cefr: e.cefr ?? null,
+    semanticTypes: e.semanticTypes ?? null, examples: JSON.stringify(e.examples ?? []),
+    forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
+  };
+  for (const q of questionsForWord(row, borrowed.get(e.lemma) ?? [], plainerFirst(e.cefr ?? null, reach), null)) {
+    ask(`map ${e.lemma} ${q.caseKey}`, `${q.lemma}, ${q.gloss} ${q.scene.ask}`, q.options[q.answer]!.text);
+  }
 }
 });
 
