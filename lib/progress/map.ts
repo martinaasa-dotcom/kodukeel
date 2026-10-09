@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { CASES } from "@/lib/estonian/cases";
-import { asksAboutPerson, caseFitsInSentence, caseQuestionFor } from "@/lib/estonian/caseQuestion";
+import { asksAboutPerson, canPicturePlace, caseFitsInSentence, caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { mentions } from "@/lib/estonian/cloze";
 import { caseAnswer, followsEndingRule, stemsFrom, type NounStems } from "@/lib/estonian/derive";
 import { caseIndex, readCase } from "@/lib/estonian/whichCase";
@@ -138,6 +138,9 @@ export function questionsForWord(
     if (answer.accepted.some((f) => mentions(label, f))) continue;
     const scene = sceneFor(key, animate);
     if (!scene) continue;
+    // A house, a table or a person is only a true picture of a word that is one.
+    if ((scene.kind === "container" || scene.kind === "surface" || scene.kind === "person")
+      && !canPicturePlace(subject)) continue;
 
     /*
       A sentence holding the asked form as a whole word, and `readCase` reads

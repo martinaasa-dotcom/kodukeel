@@ -18,6 +18,7 @@ import { useKeepInView } from "@/components/round/useKeepInView";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
+import { MAP_CASES } from "@/lib/games/map";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import type { MapQuestion } from "@/lib/progress/map";
 
@@ -246,7 +247,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
               </p>
 
               <div className="grid grid-cols-3 gap-2">
-                {[...q.options].sort((a, b) => a.key.localeCompare(b.key)).map((o) => {
+                {[...q.options].sort((a, b) => MAP_CASES.indexOf(a.key) - MAP_CASES.indexOf(b.key)).map((o) => {
                   const on = o.key === q.caseKey;
                   return (
                     <div key={o.key} className="rounded-[var(--r-lg)] border px-2 py-3 text-center"
@@ -254,7 +255,9 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
                       <p lang="et" className="text-lg font-bold" style={{ color: on ? "var(--accent-deep)" : "var(--ink)" }}>
                         {o.ending ?? o.text}
                       </p>
-                      {o.ending && <p lang="et" className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>{o.text}</p>}
+                      {o.ending
+                        ? <p lang="et" className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>{o.text}</p>
+                        : <p className="text-sm" style={{ color: "var(--ink-3)" }}>one to learn</p>}
                       <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
                         <CaseQuestion question={o.ask} inline />
                       </p>
