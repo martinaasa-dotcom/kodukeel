@@ -176,7 +176,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       `lib/games/twenty.ts`. A game, so it sits with the other games on
       `/practice`; it grades nothing, for the reason Say what you see does not.
     */
-    href: "/review/twenty", title: "Kakskümmend küsimust", subtitle: "Twenty questions",
+    href: "/review/twenty", title: "20 küsimust", subtitle: "Twenty questions",
     icon: "MessageCircleQuestion", tone: "blush", group: "targeted", note: "Ask in Estonian",
     within: "/practice",
     blurb:

@@ -106,7 +106,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
-      <h1 className="sr-only">Kakskümmend küsimust</h1>
+      <h1 className="sr-only">20 küsimust</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession href="/practice" size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
@@ -128,7 +128,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent"><MessageCircleQuestion size={12} aria-hidden /> Kakskümmend küsimust</Chip>
+          <Chip tone="accent"><MessageCircleQuestion size={12} aria-hidden /> 20 küsimust</Chip>
           <Chip>{fill(t("{n} of {total}"), { n: used, total: QUESTION_LIMIT })}</Chip>
         </div>
 

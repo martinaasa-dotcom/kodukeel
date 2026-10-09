@@ -14,7 +14,7 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { TwentySession } from "./TwentySession";
 
 export async function generateMetadata() {
-  return titleFor("Kakskümmend küsimust");
+  return titleFor("20 küsimust");
 }
 
 export const dynamic = "force-dynamic";
@@ -55,7 +55,7 @@ export default async function TwentyPage({
 
   if (!round) {
     return (
-      <Page title="Kakskümmend küsimust" lead={tr(locale, "Twenty questions, in Estonian.")}>
+      <Page title="20 küsimust" lead={tr(locale, "Twenty questions, in Estonian.")}>
         <Empty
           title={tr(locale, "Nothing to think of yet")}
           body={tr(locale, "The dictionary holds none of the words this game uses.")}
