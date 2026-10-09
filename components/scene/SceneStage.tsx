@@ -54,7 +54,9 @@ import { fill } from "@/lib/copy/locale";
  * every phase, which is what the accessibility sweep asks for and what
  * somebody moving by headings needs when the screen changes under them.
  */
-export function SceneStage({ sceneId, title, place, minutes, progress, stage, children }: {
+export function SceneStage({ sceneId, title, place, minutes, progress, stage, split, aside, children }: {
+  split?: boolean;
+  aside?: ReactNode;
   /** Which room this is, for the mark on the bar (`lib/scenes/scenery.ts`). */
   sceneId: string;
   title: string;
@@ -90,13 +92,13 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
   const met = progress?.filter((one) => one.met).length ?? 0;
 
   return (
-    <div className="scene-room relative flex min-h-screen flex-col" data-stage={stage ? "" : undefined}>
+    <div className="scene-room relative flex min-h-screen flex-col" data-stage={stage && !split ? "" : undefined}>
       {/* The room's own light, behind everything and fixed, so a long
           transcript does not drag it up the screen. */}
       <div aria-hidden className="scene-ground" />
 
       <header className="scene-top sticky top-0 z-30">
-        <div className="mx-auto flex h-14 w-full max-w-3xl items-center gap-3 px-4 md:px-6">
+        <div className={`mx-auto flex h-14 w-full ${split ? "max-w-6xl" : "max-w-3xl"} items-center gap-3 px-4 md:px-6`}>
           {/*
             The way out, which is a door rather than a chevron with nothing
             beside it: a learner who steps into a room with no navigation has
@@ -201,7 +203,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
           either side of it on a wide screen is the same quiet ground the bar is
           painted in rather than a second thing to look at.
         */}
-        {stage && (
+        {stage && !split && (
           /*
             `data-scene-stage` is how anything else finds this, and it is the
             marker rather than a shape in the markup for the reason a line
@@ -233,7 +235,19 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
         )}
       </header>
 
+      {split ? (
+        <div className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 pt-4 md:px-6">
+          <div className="grid gap-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start">
+            <aside className="flex flex-col gap-3 lg:sticky lg:top-[4.75rem] lg:max-h-[calc(100dvh-5.5rem)] lg:overflow-y-auto">
+              <div className="night flex h-36 w-full shrink-0 items-end justify-center rounded-[var(--r-lg)] border px-3 pt-2">{stage}</div>
+              {aside}
+            </aside>
+            <div>{children}</div>
+          </div>
+        </div>
+      ) : (
       <div className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-5 md:px-6">{children}</div>
+      )}
     </div>
   );
 }

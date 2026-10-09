@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { BookOpen, Clock, CornerDownLeft, DoorOpen, Heart, Info, LifeBuoy, ListChecks, MessageCircle, RotateCcw, Shuffle } from "lucide-react";
 import { RoundChip } from "@/components/round/RoundStart";
@@ -293,6 +294,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
    */
   openAt: Level;
 }) {
+  /* MOCKUP ONLY: ?v=split puts the scene and card on the left, the chat on the right. */
+  const split = useSearchParams().get("v") === "split";
   /* Whether this conversation is a step of today's module, which decides
      whether the briefing carries a door out of it. See
      components/course/moduleFocus.ts. */
@@ -1356,107 +1359,10 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
   */
   const cue = cueFor(hurdle) ?? (queued ? "behind" : null);
 
-  return (
-    <SceneStage
-      sceneId={scene.id}
-      title={t(scene.title)}
-      place={t(scene.place)}
-      progress={progress}
-      /*
-        THE ROOM, STILL THERE WHILE THE CONVERSATION IS HAD IN IT.
-
-        It was drawn on the briefing and then taken away, so every question
-        after the first was asked about a place the learner could no longer
-        see, and a learner said so: the drawings were gone. All four things a
-        drawing is for happen here rather than on the briefing. Where you are
-        is what every beat asks about. Who is talking is what a column of
-        bubbles carries worst. How many people are in the room is pressure
-        nobody announces. And a curveball was a sentence of English above a
-        question in Estonian, where a person at a counter would simply have
-        seen the man who started talking over them.
-      */
-      stage={<SceneVignette sceneId={scene.id} setting={room} speaking={saying} cue={cue} fit="band" />}
-    >
-    {/*
-      THE COVER, WHICH IS THE ONE MOMENT NOTHING CAN BE TYPED.
-
-      Drawn here rather than inside the conversation, because it covers the
-      conversation: the composer under it is closed for the whole of it
-      (`busy` is still true, and the field is handed `disabled` as well, since
-      a disabled field and a disabled button are two different promises to a
-      keyboard), and the lines said after the move are held until it clears.
-    */}
-    {interlude && (
-      <SceneInterlude
-        sceneId={scene.id}
-        from={interlude.from}
-        to={interlude.to}
-        text={onStage(interlude.text)}
-        onDone={interlude.done}
-      />
-    )}
-    <div className="scene-open flex flex-col gap-4" lang={locale}>
-      {/*
-        THE CARD IS ONE LINE UNTIL SOMEBODY ASKS FOR MORE, WHICH IS THE WHOLE
-        OF WHAT WAS WRONG WITH IT.
-
-        It used to be open. On a phone that is a wall: forty words of role,
-        two labelled values, a line about the persona, and then every
-        objective in the scene written out as a sentence, all of it above the
-        conversation and all of it read once. A learner sent a screenshot of
-        it and called it cluttered and confusing, which it was.
-
-        Almost none of that is wanted mid-conversation. What is wanted is what
-        the card *dealt*, because a beat asks the learner to read a value off
-        it, and that is two words. So the strip is the values, it sticks, and
-        everything else is behind it for whoever wants it. Nothing was
-        deleted: the role and the persona are the first thing on the briefing,
-        the objective in play is named in the panel a learner types into, and
-        how many are behind them is a pip apiece on the bar above.
-
-        A `details` rather than a state flag, because the browser gives the
-        disclosure a keyboard and a screen reader for free.
-      */}
-      {/*
-        THE ONE LINE STICKS AND THE PROSE DOES NOT, BECAUSE ONE OF THEM IS
-        NEEDED AT THE MOMENT OF TYPING AND THE OTHER IS READ ONCE.
-
-        Measured at 360x640, which is the width this app is measured at: the
-        card open is 300 to 400 pixels and the composer with its buttons is
-        another 200, so the column is half again as tall as the screen and the
-        card is off the top of it for the whole conversation. With a keyboard up
-        it is off the top twice over. That is not a cosmetic loss: the values on
-        the card are exactly what a beat asks for, so a learner asked what time
-        suits them was being asked about a time they could no longer see.
-
-        Sticking the whole disclosure is the obvious fix and is worse, since a
-        40vh block pinned over the conversation leaves it reading underneath.
-        What has to stay is the facts, and they are one line. They are also
-        drawn twice, here and under the prop line that asks for them, and that
-        is the right kind of twice: the pairing in the body says which value
-        answers which line, and this says the value is still true while you
-        type. A reminder is not a second answer to a question.
-
-        AND THE THING THAT STICKS IS THE DISCLOSURE, NOT ITS SUMMARY, WHICH IS
-        THE HALF THAT WAS WRONG FOR THE WHOLE OF THIS FEATURE'S LIFE.
-
-        `position: sticky` moves a box inside its own containing block and no
-        further, and a `summary`'s containing block is the `details` around it.
-        Closed, that is exactly as tall as the summary: there is nowhere to
-        travel, so the line marked sticky scrolled away with the page like
-        anything else, and every word of the paragraph above described a thing
-        that never happened. Driven in a browser at 390 after two turns, the
-        pill was simply gone.
-
-        So the `details` is what sticks, and only while it is closed, which is
-        when it *is* the one line. Open it and it is an ordinary block in the
-        flow again, which is the whole of the rule above kept: nothing pins 400
-        pixels over a conversation. `:not([open])` is the browser's own
-        attribute rather than a flag of ours, so this stays a real disclosure
-        with the keyboard and the screen reader it came with.
-      */}
+  const cardBlock = (
       <details
-        className="scene-sticky z-10"
+        open={split || undefined}
+        className={split ? "z-10 lg:[&>summary]:hidden" : "scene-sticky z-10"}
         /*
           Opening it while it is pinned unpins it, and its place in the flow can
           be a screenful above where the learner is standing, so the card would
@@ -1613,6 +1519,110 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
           </div>
         </Card>
       </details>
+  );
+
+  return (
+    <SceneStage
+      sceneId={scene.id}
+      title={t(scene.title)}
+      place={t(scene.place)}
+      progress={progress}
+      /*
+        THE ROOM, STILL THERE WHILE THE CONVERSATION IS HAD IN IT.
+
+        It was drawn on the briefing and then taken away, so every question
+        after the first was asked about a place the learner could no longer
+        see, and a learner said so: the drawings were gone. All four things a
+        drawing is for happen here rather than on the briefing. Where you are
+        is what every beat asks about. Who is talking is what a column of
+        bubbles carries worst. How many people are in the room is pressure
+        nobody announces. And a curveball was a sentence of English above a
+        question in Estonian, where a person at a counter would simply have
+        seen the man who started talking over them.
+      */
+      stage={<SceneVignette sceneId={scene.id} setting={room} speaking={saying} cue={cue} fit="band" />}
+      split={split}
+      aside={split ? cardBlock : undefined}
+    >
+    {/*
+      THE COVER, WHICH IS THE ONE MOMENT NOTHING CAN BE TYPED.
+
+      Drawn here rather than inside the conversation, because it covers the
+      conversation: the composer under it is closed for the whole of it
+      (`busy` is still true, and the field is handed `disabled` as well, since
+      a disabled field and a disabled button are two different promises to a
+      keyboard), and the lines said after the move are held until it clears.
+    */}
+    {interlude && (
+      <SceneInterlude
+        sceneId={scene.id}
+        from={interlude.from}
+        to={interlude.to}
+        text={onStage(interlude.text)}
+        onDone={interlude.done}
+      />
+    )}
+    <div className="scene-open flex flex-col gap-4" lang={locale}>
+      {/*
+        THE CARD IS ONE LINE UNTIL SOMEBODY ASKS FOR MORE, WHICH IS THE WHOLE
+        OF WHAT WAS WRONG WITH IT.
+
+        It used to be open. On a phone that is a wall: forty words of role,
+        two labelled values, a line about the persona, and then every
+        objective in the scene written out as a sentence, all of it above the
+        conversation and all of it read once. A learner sent a screenshot of
+        it and called it cluttered and confusing, which it was.
+
+        Almost none of that is wanted mid-conversation. What is wanted is what
+        the card *dealt*, because a beat asks the learner to read a value off
+        it, and that is two words. So the strip is the values, it sticks, and
+        everything else is behind it for whoever wants it. Nothing was
+        deleted: the role and the persona are the first thing on the briefing,
+        the objective in play is named in the panel a learner types into, and
+        how many are behind them is a pip apiece on the bar above.
+
+        A `details` rather than a state flag, because the browser gives the
+        disclosure a keyboard and a screen reader for free.
+      */}
+      {/*
+        THE ONE LINE STICKS AND THE PROSE DOES NOT, BECAUSE ONE OF THEM IS
+        NEEDED AT THE MOMENT OF TYPING AND THE OTHER IS READ ONCE.
+
+        Measured at 360x640, which is the width this app is measured at: the
+        card open is 300 to 400 pixels and the composer with its buttons is
+        another 200, so the column is half again as tall as the screen and the
+        card is off the top of it for the whole conversation. With a keyboard up
+        it is off the top twice over. That is not a cosmetic loss: the values on
+        the card are exactly what a beat asks for, so a learner asked what time
+        suits them was being asked about a time they could no longer see.
+
+        Sticking the whole disclosure is the obvious fix and is worse, since a
+        40vh block pinned over the conversation leaves it reading underneath.
+        What has to stay is the facts, and they are one line. They are also
+        drawn twice, here and under the prop line that asks for them, and that
+        is the right kind of twice: the pairing in the body says which value
+        answers which line, and this says the value is still true while you
+        type. A reminder is not a second answer to a question.
+
+        AND THE THING THAT STICKS IS THE DISCLOSURE, NOT ITS SUMMARY, WHICH IS
+        THE HALF THAT WAS WRONG FOR THE WHOLE OF THIS FEATURE'S LIFE.
+
+        `position: sticky` moves a box inside its own containing block and no
+        further, and a `summary`'s containing block is the `details` around it.
+        Closed, that is exactly as tall as the summary: there is nowhere to
+        travel, so the line marked sticky scrolled away with the page like
+        anything else, and every word of the paragraph above described a thing
+        that never happened. Driven in a browser at 390 after two turns, the
+        pill was simply gone.
+
+        So the `details` is what sticks, and only while it is closed, which is
+        when it *is* the one line. Open it and it is an ordinary block in the
+        flow again, which is the whole of the rule above kept: nothing pins 400
+        pixels over a conversation. `:not([open])` is the browser's own
+        attribute rather than a flag of ours, so this stays a real disclosure
+        with the keyboard and the screen reader it came with.
+      */}
+      {!split && cardBlock}
 
       {opened && (!opened.composed || note) && !modelDown && (
         /* A quiet status row rather than two lines of small grey prose loose
