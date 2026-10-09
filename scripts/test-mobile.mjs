@@ -151,7 +151,7 @@ for (const width of [320, ...PHONES]) {
 //      below the 360 the app is built for, because a phone held at 320 is
 //      still a phone somebody owns and a word broken there is the same fault.
 const WORD_SPLIT = [
-  ...["/progress", "/progress/readiness", "/grammar", "/quest", "/settings", "/admin/suggestions",
+  ...["/progress", "/progress/readiness", "/grammar", "/grammar/cases", "/quest", "/settings", "/admin/suggestions",
     "/exam", "/learn", "/learn/kodu", "/situations", "/course", "/grammar/build-a-word", "/welcome"]
     .flatMap((path) => [[320, path], [360, path], [768, path]]),
   [1280, "/welcome"],

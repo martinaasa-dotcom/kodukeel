@@ -208,9 +208,19 @@ export const SECTIONS: NavSection[] = [
         tone: "sky", keywords: "search lookup declension cases forms", bar: true,
       },
       {
-        href: "/grammar", label: "Grammar", blurb: "What each of the fourteen cases is for", icon: "Languages",
-        tone: "butter", keywords: "cases reference partitive genitive inessive endings rules seesutlev",
+        href: "/grammar", label: "Grammar", blurb: "Four short stops through how the grammar works", icon: "Languages",
+        tone: "butter", keywords: "grammar path start here learn cases endings rules how it works order",
         within: "/dictionary",
+      },
+      {
+        /*
+          Stop two of the grammar path: the fourteen endings, one card each, for
+          somebody who already knows which one they are after. It was the whole
+          of `/grammar` before the path went in front of it.
+        */
+        href: "/grammar/cases", label: "The fourteen cases", blurb: "What each of the fourteen cases is for",
+        icon: "Languages", tone: "butter", within: "/dictionary",
+        keywords: "cases reference partitive genitive inessive endings rules seesutlev",
       },
       {
         /*

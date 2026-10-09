@@ -41,7 +41,21 @@ page.on("response", (r) => {
 
 // ─── The grammar reference ────────────────────────────────────────────────────
 
+/*
+  The front door is a path of four stops, not the fourteen cards: the reference
+  and the introduction were both filed under the dictionary and nobody found
+  them. Each stop is a link, and the reference they lead to is /grammar/cases.
+*/
 await page.goto(`${B}/grammar`, { waitUntil: "networkidle" });
+const stopHrefs = await page.locator("main ol a").evaluateAll((els) => els.map((a) => a.getAttribute("href")));
+check("the grammar front door offers four stops in order",
+  stopHrefs.length === 4
+    && stopHrefs[0] === "/grammar/build-a-word"
+    && stopHrefs[1] === "/grammar/cases"
+    && stopHrefs[2] === "/grammar/exceptions",
+  stopHrefs.join(" "));
+
+await page.goto(`${B}/grammar/cases`, { waitUntil: "networkidle" });
 check("the reference lists all fourteen cases",
   (await page.locator('a[href^="/grammar/"]').count()) >= 14,
   `${await page.locator('a[href^="/grammar/"]').count()} links`);
@@ -200,7 +214,7 @@ check("a case in the dictionary links to its explanation",
   `data-built`, so this reads a fact about the line rather than counting hops
   through the markup. See the note beside them.
 */
-await page.goto(`${B}/grammar`, { waitUntil: "networkidle" });
+await page.goto(`${B}/grammar/cases`, { waitUntil: "networkidle" });
 check("the reference points at the screen that comes before it",
   (await page.locator('a[href="/grammar/build-a-word"]').count()) > 0);
 
@@ -483,7 +497,7 @@ check("and a word the language does take is never told nobody says it",
   word's own entry says where that word departs, and the round refuses to ask
   for a form that is spelled like the word in the question.
 */
-await page.goto(`${B}/grammar`, { waitUntil: "networkidle" });
+await page.goto(`${B}/grammar/cases`, { waitUntil: "networkidle" });
 check("the reference says where the endings stop",
   (await page.locator('a[href="/grammar/exceptions"]').count()) > 0);
 
