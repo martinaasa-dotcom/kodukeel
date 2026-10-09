@@ -206,6 +206,14 @@ const REACHES: Record<string, number> = {
   // the whole of it.
   exceptions: 4_100,
   /*
+    Map, over the graded dictionary: a noun, a case Map draws, and a recorded
+    sentence holding that form as exactly one case. 2,732 before a house, a
+    table or a person was drawn only for a word that is a thing, a place, a body
+    part, a plant or a being; 1,849 after, which is measured and not estimated.
+    The sentence rule is the stricter reading and it is what this figure costs.
+  */
+  map: 1_849,
+  /*
     The guided unit lesson and the end-of-level checkpoint, neither of which
     had ever been in this script. Both build a gap out of an attested sentence
     and both print the word above it, which is the whole subject of this file;
