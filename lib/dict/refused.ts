@@ -107,6 +107,21 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
       "which is what Ma ei ole tema means and not what this says, so the " +
       "translation pass had quietly written down the sentence that was meant.",
   },
+  {
+    et: "Haige on palavikust nõrk.",
+    why:
+      "Not what anybody would say, reported by the native speaker who develops " +
+      "this app off a gap card. Haige as a noun for a person is dated and cold. " +
+      "The word people use for somebody under care is patsient. Withheld " +
+      "rather than reworded, since this app writes no Estonian.",
+  },
+  {
+    et: "Haige on suremas.",
+    why:
+      "Same word as the sentence above: haige as a noun for a person is not what " +
+      "people say, patsient is. Refused by the native speaker who develops this " +
+      "app, and withheld rather than reworded since this app writes no Estonian.",
+  },
 ];
 
 /**
