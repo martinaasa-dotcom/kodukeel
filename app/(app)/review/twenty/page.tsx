@@ -7,6 +7,7 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { practiceScope } from "@/lib/progress/moduleScope";
 import { starredAmong } from "@/lib/progress/stars";
 import { twentyRound } from "@/lib/progress/twenty";
+import { forPool, learnedWords } from "@/lib/progress/twentyLearned";
 import { topicFrom } from "@/lib/games/twenty";
 import { numberSetting, readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { firstParams } from "@/lib/ux/queryParam";
@@ -70,7 +71,11 @@ export default async function TwentyPage({
     );
   }
 
-  const starred = await starredAmong(ownerId, [round.lexemeId]);
+  // What earlier rounds' "Ei tea" taught the game, for everybody, trimmed to this round's things.
+  const [starred, learned] = await Promise.all([
+    starredAmong(ownerId, [round.lexemeId]),
+    learnedWords().catch(() => []),
+  ]);
 
   return (
     <BeforeYouStart id="twenty">
@@ -88,6 +93,7 @@ export default async function TwentyPage({
         starred={starred.has(round.lexemeId)}
         topic={topic.id}
         best={numberSetting(bestRow, 0) || null}
+        learned={forPool(learned, round.pool)}
       />
     </BeforeYouStart>
   );

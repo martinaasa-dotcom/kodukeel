@@ -204,3 +204,51 @@ describe("asking the same thing twice", () => {
     expect(other.kind === "answer" && other.counts && !other.repeated).toBe(true);
   });
 });
+
+describe("describing words read off the facts", () => {
+  const word = (q: string, lemma: string) => {
+    const r = ask(q, THINGS.find((t) => t.lemma === lemma)!, lookup, { repair });
+    return r.kind === "answer" ? r.answer : r.why;
+  };
+  it("answers juicy, crisp, ripe, striped and the rest for every thing", () => {
+    const words = ["mahlane", "krõbe", "küps", "triibuline", "täpiline", "läikiv", "okkaline", "kuri", "rasvane", "vürtsikas", "libe", "sile", "kare", "ohutu", "kunstlik", "lõhnav", "kole", "mugav"];
+    let asked = 0;
+    for (const w of words) for (const t of THINGS) {
+      expect(word(`Kas see on ${w}?`, t.lemma), `${w} ${t.lemma}`).not.toBe("unknown");
+      asked++;
+    }
+    expect(asked).toBe(words.length * THINGS.length);
+  });
+  it("says what a person would", () => {
+    expect(word("Kas see on mahlane?", "õun")).toBe("yes");
+    expect(word("Kas see on mahlane?", "koer")).toBe("no");
+    expect(word("Kas see on mahlased?", "apelsin")).toBe("yes");
+    expect(word("Kas see on triibuline?", "tiiger")).toBe("yes");
+    expect(word("Kas see on okkaline?", "siil")).toBe("yes");
+    expect(word("Kas see on hiiglaslik?", "elevant")).toBe("yes");
+    expect(word("Kas see on pisike?", "elevant")).toBe("no");
+    expect(word("Kas see ei ole mahlane?", "kivi")).toBe("yes");
+  });
+});
+
+describe("what the game learned from an Ei tea", () => {
+  const sticky = { lemma: "kleepuv", spellings: ["kleepuv", "kleepuvad"], en: "Is it sticky?", ru: "Он липкий?", uk: "Він липкий?", answers: { mesi: "yes" as const, moos: "yes" as const, kivi: "no" as const } };
+  const thing = (l: string) => THINGS.find((t) => t.lemma === l)!;
+  it("reports a word it could not read, and answers it once learned", () => {
+    const before = ask("Kas see on kleepuv?", thing("mesi"), lookup, { repair });
+    const words = before.kind === "answer" ? before.unknownWords : before.unknownWords;
+    expect(words).toContain("kleepuv");
+    const after = ask("Kas see on kleepuv?", thing("mesi"), lookup, { repair, learned: [sticky] });
+    expect(after.kind === "answer" && after.answer).toBe("yes");
+    expect(after.kind === "answer" && after.counts).toBe(true);
+    const plural = ask("Kas need on kleepuvad?", thing("kivi"), lookup, { repair, learned: [sticky] });
+    expect(plural.kind === "answer" && plural.answer).toBe("no");
+    // A thing the model did not sort is an honest Ei tea, and free.
+    const unsorted = ask("Kas see on kleepuv?", thing("koer"), lookup, { repair, learned: [sticky] });
+    expect(unsorted.kind === "answer" && unsorted.answer).toBe("unknown");
+    expect(unsorted.kind === "answer" && unsorted.counts).toBe(false);
+    // Negation and a second condition still work around it.
+    const both = ask("Kas see on magus ja kleepuv?", thing("mesi"), lookup, { repair, learned: [sticky] });
+    expect(both.kind === "answer" && both.answer).toBe("yes");
+  });
+});

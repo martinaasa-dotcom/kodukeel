@@ -69,6 +69,7 @@ an account's ledger rows go with the account, immediately, like everything else.
 | Category | Kept for | Trigger | Enforced by |
 | --- | --- | --- | --- |
 | Shared rate limit windows (`RateLimit`) | Until the window has passed, at most an hour. Each row is an unsalted SHA-256 digest of the caller and the endpoint, a window start and a count. The caller is a user id, or an IP address where nobody is signed in, so the row is pseudonymous rather than anonymous: it does not hold the id or the address, and anybody holding a candidate can confirm it by hashing | The next prune after the window, which runs at most once a minute per instance while a limited route is being called. There is no scheduled job, so on an idle deployment an expired row stays until the next call | `pruneSoon` in `lib/usage/sharedLimit.ts`. Not in the export or the erasure, since it carries no owner id to find it by |
+| Words twenty questions could not read (`TwentyGap`, `TwentyLearned`) | Kept while the game is, since what it learned is answered to every later round. A row holds an Estonian spelling, a count of reports, and what a model said the word asks of each thing; nothing about who asked, and the question it came from is neither stored nor sent anywhere | An admin retiring a learned word, which keeps the row so it is not learned again | `lib/progress/twentyLearned.ts`. Not in the export or the erasure, since it carries no owner id |
 
 ### Reference data, owned by nobody
 

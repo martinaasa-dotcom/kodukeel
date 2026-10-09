@@ -54,6 +54,7 @@
  * Pure: no React, no Prisma.
  */
 
+import { learnedBySpelling, learnedSaid, type LearnedWord } from "./twentyLearned";
 import {
   CATEGORIES, COLOURS, KIND_HINT, PARTS, THINGS, THING_BY_LEMMA,
   type Colour, type Kind, type Part, type Thing, type Where,
@@ -113,6 +114,8 @@ export interface Said {
   word?: string;
   thing?: { lemma: string | null; text: string };
   all?: readonly Said[];
+  /** The whole line already in the other languages, for a question the game learned (`twentyLearned.ts`). */
+  local?: { ru: string | null; uk: string | null };
 }
 
 export type Refusal = "empty" | "wh" | "or" | "compare" | "unknown";
@@ -139,6 +142,8 @@ export type Reply =
       check?: (t: Thing) => Answer;
       /** The same question as one already answered, which is told again and costs nothing. */
       repeated?: boolean;
+      /** Words in the question the game could not read, reported so it can learn them. */
+      unknownWords?: string[];
       /** A guess at a word the game knows but could never be thinking of. */
       outside?: boolean;
     };
@@ -536,6 +541,105 @@ for (const c of COLOURS) {
   };
 }
 
+/*
+  More describing words a learner reaches for, each read off facts the things already
+  carry or off a short named list, so none of them is a guess about one thing. A word
+  with nothing honest to read is left out and goes to the learning loop instead
+  (`lib/progress/twentyLearned.ts`), which is how the game hears about the next one.
+*/
+const fruitLike = (t: Thing) => t.isa.includes("puuvili") || t.isa.includes("mari");
+const veg = (t: Thing) => t.isa.includes("köögivili");
+const eaten = (t: Thing) => t.use.includes("eat") || t.useS.includes("eat");
+const STRIPED = new Set(["sebra", "tiiger", "mesilane", "herilane", "arbuus"]);
+const SPOTTED = new Set(["kaelkirjak", "lepatriinu", "ilves", "leopard", "seen"]);
+const FATTY = new Set(["vorst", "juust", "sink", "õli", "pähkel", "šokolaad", "kook", "pitsa"]);
+const CRISP = new Set(["küpsis", "õun", "porgand", "kapsas", "pähkel", "leib", "sai"]);
+const SPICY = new Set(["pipar", "küüslauk", "sibul", "kaste", "vorst", "pitsa"]);
+const FEELINGS = (t: Thing): Answer => (t.kind === "animal" ? "sometimes" : "no");
+const shiny = (t: Thing): Answer => (t.does.includes("shine") || t.made.includes("kuld") || t.lemma === "jää" || t.lemma === "peegel" ? "yes"
+  : t.made.includes("metall") || t.made.includes("klaas") || t.made.includes("raud") || t.madeS.includes("metall") || t.madeS.includes("klaas") || t.isa.includes("kala") ? "sometimes" : "no");
+const opposite = (test: (t: Thing) => Answer) => (t: Thing): Answer => {
+  const a = test(t);
+  return a === "yes" ? "no" : a === "no" ? "yes" : a;
+};
+const tiny = (t: Thing) => bySize(t, (n) => (n <= 1 ? "yes" : n === 2 ? "sometimes" : "no"));
+const huge = (t: Thing) => bySize(t, (n) => (n >= 9 ? "yes" : n === 8 ? "sometimes" : "no"));
+const madeOf = (m: string) => (t: Thing): Answer => listed(t.made, t.madeS, m);
+const pretty = opinion("pretty");
+const dangerous = (t: Thing) => degree(t, "dangerous");
+const harmful = (t: Thing): Answer => {
+  const both = [dangerous(t), degree(t, "poisonous")];
+  return both.includes("yes") ? "yes" : both.includes("sometimes") ? "sometimes" : "no";
+};
+
+Object.assign(DESCRIBING, {
+  mahlane: fixed("juicy", "Is it juicy?", (t) => (fruitLike(t) ? "yes" : veg(t) || t.lemma === "tomat" ? "sometimes" : "no"), true),
+  krõbe: fixed("crisp", "Is it crisp?", (t) => (CRISP.has(t.lemma) ? "sometimes" : t.kind === "food" && veg(t) ? "sometimes" : "no"), true),
+  küps: fixed("ripe", "Is it ripe?", (t) => (fruitLike(t) || veg(t) ? "sometimes" : "no"), true),
+  värske: fixed("fresh", "Is it fresh?", (t) => (t.kind === "food" || t.kind === "drink" || t.kind === "plant" ? "sometimes" : "no"), true),
+  toores: fixed("raw", "Is it raw?", (t) => (fruitLike(t) ? "yes" : veg(t) || t.lemma === "liha" || t.lemma === "muna" || t.lemma === "kala" ? "sometimes" : "no"), true),
+  rasvane: fixed("fatty", "Is it fatty?", (t) => (FATTY.has(t.lemma) ? "yes" : t.kind === "food" ? "sometimes" : t.lemma === "siga" || t.lemma === "hüljes" || t.lemma === "vaal" ? "sometimes" : "no"), true),
+  vürtsikas: fixed("spicy", "Is it spicy?", (t) => (t.lemma === "pipar" ? "yes" : SPICY.has(t.lemma) ? "sometimes" : "no"), true),
+  kibe: fixed("bitter", "Is it bitter?", (t) => degree(t, "bitter"), true),
+  mage: fixed("bland", "Is it bland?", (t) => (eaten(t) || t.kind === "drink" ? (degree(t, "salty") === "yes" || degree(t, "sweet") === "yes" || degree(t, "sour") === "yes" ? "no" : "sometimes") : "no"), true),
+  vedel: fixed("liquid", "Is it a liquid?", isaTest("vedelik"), true),
+  libe: fixed("slippery", "Is it slippery?", (t) => (t.lemma === "jää" || t.lemma === "seep" || t.lemma === "õli" ? "yes" : t.isa.includes("kala") || t.lemma === "tigu" || t.lemma === "uss" || degree(t, "wet") === "yes" ? "sometimes" : "no"), true),
+  sile: fixed("smooth", "Is it smooth?", (t) => (t.made.includes("klaas") || t.lemma === "jää" || t.lemma === "peegel" ? "yes"
+    : listed(t.has, t.hasS, "karv") !== "no" || listed(t.has, t.hasS, "sulg") !== "no" || t.isa.includes("puu") || SPINY.has(t.lemma) ? "no" : "sometimes"), true),
+  kare: fixed("rough", "Is it rough?", (t) => (t.isa.includes("puu") || t.lemma === "kivi" || t.lemma === "liiv" || t.lemma === "saag" ? "yes"
+    : t.made.includes("klaas") || t.lemma === "jää" || t.lemma === "peegel" ? "no" : "sometimes"), true),
+  karune: fixed("hairy", "Is it hairy?", part("karv"), true),
+  okkaline: fixed("prickly", "Is it prickly?", (t) => (SPINY.has(t.lemma) ? "yes" : "no"), true),
+  triibuline: fixed("striped", "Is it striped?", (t) => (STRIPED.has(t.lemma) ? "yes" : "no"), true),
+  täpiline: fixed("spotted", "Is it spotted?", (t) => (SPOTTED.has(t.lemma) ? "yes" : "no"), true),
+  läikiv: fixed("shiny", "Is it shiny?", shiny, true),
+  kuldne: fixed("golden", "Is it golden?", (t) => (t.made.includes("kuld") ? "yes" : listed(t.colour, t.colourS, "kollane") !== "no" || t.madeS.includes("kuld") ? "sometimes" : "no"), true),
+  hõbedane: fixed("silver", "Is it silver?", (t) => (t.made.includes("metall") || t.madeS.includes("metall") ? "sometimes" : "no"), true),
+  raudne: fixed("iron", "Is it made of iron?", madeOf("raud"), true),
+  puuvillane: fixed("cotton", "Is it made of cotton?", madeOf("puuvill"), true),
+  lõhnav: fixed("fragrant", "Does it smell nice?", (t) => (t.isa.includes("lill") || t.lemma === "seep" || t.lemma === "kohv" ? "yes" : does("smell")(t) === "no" ? "no" : "sometimes"), true),
+  haisev: fixed("smelly", "Does it smell bad?", (t) => (degree(t, "smelly") === "yes" ? "yes" : does("smell")(t) === "no" ? "no" : "sometimes"), true),
+  pisike: fixed("tiny", "Is it tiny?", tiny, true),
+  tilluke: fixed("tiny", "Is it tiny?", tiny, true),
+  hiiglaslik: fixed("huge", "Is it huge?", huge, true),
+  peenike: fixed("thin", "Is it thin?", (t) => degree(t, "thin"), true),
+  jäme: fixed("thick", "Is it thick?", (t) => degree(t, "thick"), true),
+  kõhn: fixed("skinny", "Is it skinny?", (t) => (t.kind === "animal" ? (degree(t, "thin") === "yes" ? "yes" : "sometimes") : "no"), true),
+  ovaalne: fixed("oval", "Is it oval?", (t) => (t.lemma === "muna" || t.lemma === "ploom" || t.lemma === "melon" || t.lemma === "arbuus" ? "yes" : degree(t, "round") === "yes" ? "sometimes" : "no"), true),
+  jahe: fixed("cool", "Is it cool?", (t) => degree(t, "cold"), true),
+  jääkülm: fixed("ice cold", "Is it ice cold?", (t) => (t.lemma === "jää" || t.lemma === "lumi" || t.lemma === "jäätis" ? "yes" : degree(t, "cold") === "no" ? "no" : "sometimes"), true),
+  tuline: fixed("hot", "Is it hot?", (t) => (t.trait.includes("hot") ? "yes" : t.feel.includes("warm") || t.feelS.includes("warm") ? "sometimes" : "no"), true),
+  pime: fixed("dark", "Is it dark?", opinion("dark"), true),
+  ere: fixed("bright", "Is it bright?", opinion("bright"), true),
+  ohutu: fixed("safe", "Is it safe?", opposite(harmful), true),
+  kahjulik: fixed("harmful", "Is it harmful?", harmful, true),
+  loomulik: fixed("natural", "Is it a natural thing, not made by people?", (t) => degree(t, "natural"), true),
+  kunstlik: fixed("artificial", "Is it made by people?", opposite((t) => degree(t, "natural")), true),
+  elektrooniline: fixed("electric", "Does it run on electricity?", electric, true),
+  noor: fixed("young", "Is it young?", (t) => (living(t) ? "sometimes" : "no"), true),
+  näljane: fixed("hungry", "Is it hungry?", FEELINGS, true),
+  haige: fixed("ill", "Is it ill?", FEELINGS, true),
+  rõõmus: fixed("cheerful", "Is it cheerful?", FEELINGS, true),
+  kurb: fixed("sad", "Is it sad?", FEELINGS, true),
+  vihane: fixed("angry", "Is it angry?", FEELINGS, true),
+  kuri: fixed("fierce", "Is it fierce?", (t) => (t.kind !== "animal" ? "no" : dangerous(t) === "yes" ? "yes" : "sometimes"), true),
+  sõbralik: fixed("friendly", "Is it friendly?", (t) => (t.kind !== "animal" ? "no" : dangerous(t) === "yes" ? "no" : "sometimes"), true),
+  laisk: fixed("lazy", "Is it lazy?", FEELINGS, true),
+  julge: fixed("brave", "Is it brave?", FEELINGS, true),
+  arg: fixed("timid", "Is it timid?", (t) => (t.kind !== "animal" ? "no" : t.lemma === "jänes" || t.lemma === "hiir" || t.lemma === "hirv" ? "yes" : "sometimes"), true),
+  rumal: fixed("stupid", "Is it stupid?", FEELINGS, true),
+  loll: fixed("stupid", "Is it stupid?", FEELINGS, true),
+  arukas: fixed("clever", "Is it clever?", FEELINGS, true),
+  unine: fixed("sleepy", "Is it sleepy?", FEELINGS, true),
+  kole: fixed("ugly", "Is it ugly?", opposite(pretty), true),
+  kaunis: fixed("pretty", "Is it pretty?", pretty, true),
+  kena: fixed("nice", "Is it nice?", pretty, true),
+  naljakas: fixed("funny", "Is it funny?", opinion("fun"), true),
+  huvitav: fixed("interesting", "Is it interesting?", opposite(opinion("boring")), true),
+  kasutu: fixed("useless", "Is it useless?", opposite(opinion("useful")), true),
+  mugav: fixed("comfortable", "Is it comfortable?", (t) => (t.isa.includes("mööbel") || t.kind === "clothes" || t.lemma === "padi" || t.lemma === "tekk" ? "sometimes" : "no"), true),
+});
+
 const SPINY = new Set(["kuusk", "mänd", "kaktus", "roos", "siil", "kibuvits", "nõges"]);
 const DERIVED_PARTS: Record<string, { en: string; test: (t: Thing) => Answer }> = {
   kroon: { en: "a crown", test: (t) => (t.isa.includes("puu") ? "yes" : "no") },
@@ -833,6 +937,8 @@ export interface AskOptions {
    * repaired, which is the right side to err on offline.
    */
   real?: ReadonlySet<string>;
+  /** Words the game learned from earlier questions, for everybody (`twentyLearned.ts`). */
+  learned?: readonly LearnedWord[];
 }
 
 /**
@@ -852,10 +958,11 @@ export function ask(
   if (raws.length === 0) return { kind: "refused", why: "empty", tips: [] };
 
   const tips: Tip[] = [];
+  const learnedWords = learnedBySpelling(opts.learned);
   const repaired: { from: string; to: string }[] = [];
   const words: Word[] = raws.map((raw) => {
     const readings = lookup(raw);
-    if (readings.length > 0 || NAMES[raw] || raw in COMPARATIVES || NEGATION.has(raw) || raw === "kõrgel") return { raw, read: raw, readings };
+    if (readings.length > 0 || NAMES[raw] || raw in COMPARATIVES || NEGATION.has(raw) || raw === "kõrgel" || learnedWords.has(raw)) return { raw, read: raw, readings };
     const fix = opts.real?.has(raw) ? null : opts.repair?.(raw) ?? null;
     if (fix) {
       repaired.push({ from: raw, to: fix });
@@ -1050,6 +1157,16 @@ export function ask(
 
   // Everything else, word by word.
   const unknownWords: string[] = [];
+  /** A word the game learned from an earlier "Ei tea", read before giving up on it. */
+  const learnedFor = (w: Word): boolean => {
+    const word = learnedWords.get(w.read) ?? learnedWords.get(w.raw) ?? lemmasOf(w).map((l) => learnedWords.get(l)).find(Boolean);
+    if (!word) return false;
+    found.push({ raw: w.raw, role: "describing", meaning: {
+      id: `learned:${word.lemma}`, en: word.en, said: learnedSaid(word), copula: false,
+      test: (t) => word.answers[t.lemma] ?? "unknown",
+    } });
+    return true;
+  };
   words.forEach((w, i) => {
     if (used.has(i)) return;
     const readings = w.readings;
@@ -1064,6 +1181,7 @@ export function ask(
       if (w.read === "kõrgel") { found.push({ raw: w.raw, role: "place", meaning: fixed(`where:${HIGH_UP.id}`, HIGH_UP.en, HIGH_UP.at, true) }); return; }
       if (NEGATION.has(w.read)) return;
       if (w.raw === "sa" || w.raw === "te") return;
+      if (learnedFor(w)) return;
       unknownWords.push(w.raw);
       return;
     }
@@ -1167,7 +1285,8 @@ export function ask(
 
     // A verb that only frames the question.
     if (lemmas.some((l) => FRAME_VERBS.has(l) || MODAL.has(l))) return;
-    // A word the dictionary knows, and the game has nothing to say about.
+    // A word the dictionary knows, and the game has nothing to say about, unless it has since learned it.
+    if (learnedFor(w)) return;
     unknownWords.push(w.raw);
   });
 
@@ -1226,7 +1345,7 @@ export function ask(
     const known = words.filter((w) => w.readings.length > 0).length;
     if (startsWithKas && words.length >= 3 && known * 2 >= words.length && unknownWords.length <= 1) {
       const reading = "Taken as a yes or no question I have no facts for.";
-      return finish({ kind: "answer", answer: "unknown", reading, said: { en: reading }, guess: false, won: false, counts: false, tips: [] }, tips);
+      return finish({ kind: "answer", answer: "unknown", reading, said: { en: reading }, guess: false, won: false, counts: false, tips: [], unknownWords }, tips);
     }
     return { kind: "refused", why: "unknown", tips: dedupe(startsWithKas ? tips : [kasTip(), ...tips]), unknownWords };
   }
@@ -1264,6 +1383,7 @@ export function ask(
   return finish({
     kind: "answer", answer: negate(answer), reading, said, guess: named !== null, won,
     counts: answer !== "unknown", tips: [], check: (t) => negate(test(t)),
+    ...(unknownWords.length > 0 ? { unknownWords } : {}),
   }, tips);
 
   function finish(reply: Reply, extra: Tip[]): Reply {
