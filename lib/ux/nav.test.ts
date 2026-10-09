@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { BAR, CORE, DESTINATIONS, isUnder, LISTED, litRow, PLACES, SECTIONS } from "./nav";
-import { GAMES, PRACTICE_MODES, QUICK_MODES, TARGETED_MODES } from "./modes";
+import { GAMES, PRACTICE_MODES, QUICK_MODES, SHELVES, TARGETED_MODES, shelfItems } from "./modes";
 import { SYLLABUS } from "../collections/syllabus/index";
 import { ICONS } from "../../components/icons";
 
@@ -344,7 +344,7 @@ describe("the practice modes", () => {
       */
       const sources = files.map((f) => code(readFileSync(f, "utf8")));
       const groups: Record<string, readonly { href: string }[]> =
-        { GAMES, QUICK_MODES, TARGETED_MODES, PRACTICE_MODES };
+        { GAMES, QUICK_MODES, TARGETED_MODES, PRACTICE_MODES, SHELVES: SHELVES.flatMap((s) => shelfItems(s)) };
       const linked = sources.some((source) =>
         source.includes(mode.href)
         || Object.entries(groups).some(([name, list]) =>
@@ -352,6 +352,17 @@ describe("the practice modes", () => {
 
       expect(linked, `${mode.href} is reached from ${mode.within} and nothing there links to it`)
         .toBe(true);
+    }
+  });
+
+  it("puts every round on exactly one shelf", () => {
+    const placed = SHELVES.flatMap((s) => s.hrefs);
+    const expected = [...QUICK_MODES, ...GAMES].map((m) => m.href).concat("/situations");
+    expect([...placed].sort()).toEqual([...expected].sort());
+    expect(new Set(placed).size).toBe(placed.length);
+    for (const shelf of SHELVES) {
+      expect(shelfItems(shelf), `${shelf.id} names a round nothing knows`)
+        .toHaveLength(shelf.hrefs.filter((h) => h !== "/situations").length);
     }
   });
 

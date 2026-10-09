@@ -1,7 +1,7 @@
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { deckSnapshot } from "@/lib/progress/summary";
@@ -11,7 +11,7 @@ import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { isOrderable } from "@/lib/estonian/orderTiles";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { GAMES, QUICK_MODES, modeAt, type PracticeMode } from "@/lib/ux/modes";
+import { SHELVES, modeAt, shelfItems, type PracticeMode, type ShelfItem } from "@/lib/ux/modes";
 import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
@@ -24,6 +24,14 @@ export async function generateMetadata() {
 }
 
 export const dynamic = "force-dynamic";
+
+/** Situations has its own row in the rail, so the Workshop shelf describes it here. */
+const EXTRAS: Record<string, ShelfItem> = {
+  "/situations": {
+    href: "/situations", tone: "sky", icon: "MessagesSquare", title: "Situations",
+    subtitle: "A café, a ticket window, the doctor's",
+  },
+};
 
 /**
  * Every way to practice, in one place, with the state that decides whether each
@@ -120,7 +128,7 @@ export default async function PracticePage() {
     "/review/sentences": !maySortWords(level) ? fill(tr(locale, "from {level}"), { level: BUILD_FROM }) : sentenceCount > 0 ? fill(tr(locale, "{n} ready"), { n: sentenceCount }) : undefined,
     "/review/dictation": dictationCount > 0 ? fill(tr(locale, "{n} ready"), { n: dictationCount }) : undefined,
   };
-  const lineFor = (mode: PracticeMode) => {
+  const lineFor = (mode: Pick<PracticeMode, "href" | "subtitle">) => {
     const what = tr(locale, mode.subtitle);
     const now = live[mode.href];
     return now ? `${what}, ${now}` : what;
@@ -227,15 +235,14 @@ export default async function PracticePage() {
           )}
 
           {/*
-            EVERY OTHER ROUND, IN ONE GRID DRAWN ONE WAY.
+            THREE SHELVES, BY WHAT YOU ARE DOING IN THEM.
 
-            The six rounds and the six games were two sections, each cycling
-            the whole palette, stacked on top of each other: the same six
-            colours twice in a row with two headings over them. What separates
-            a round from a game is not a decision anybody makes before pressing
-            one, so they are one shelf, rounds first. Drawn from the table
-            rather than listed here, so a round added to `lib/ux/modes.ts` with
-            `within: "/practice"` appears without anybody remembering this file.
+            The rounds were one grid of twelve, which is a menu somebody reads
+            top to bottom to find the kind of thing they feel like. Steady
+            practice is the classic way of keeping words fresh, Word games are
+            for fun, and the Workshop is where you have to think and type.
+            Drawn from `SHELVES` in `lib/ux/modes.ts`, so a round added there
+            appears here without anybody remembering this file.
           */}
           <section aria-labelledby="practice-rounds">
             <SectionTitle hint={tr(locale, "a few minutes each")}>
@@ -243,23 +250,29 @@ export default async function PracticePage() {
             </SectionTitle>
             {/* Columns by the room the page has rather than by the window:
                 at 768 the rail takes a column and a viewport breakpoint laid
-                out three tiles where two fit. */}
-            <div className="@container"><div className="grid grid-cols-1 gap-3 @lg:grid-cols-2 @3xl:grid-cols-3">
-              {/* A conversation is one more way of using a word, so it is on
-                  this shelf rather than a row in the rail (`lib/ux/nav.ts`),
-                  drawn like the rounds under it and across the whole row, so the
-                  twelve under it still fill their rows. */}
-              <div className="@lg:col-span-2 @3xl:col-span-3">
-                <ModeTile
-                  mode={{ href: "/situations", tone: "sky", icon: "MessagesSquare", title: tr(locale, "Situations") }}
-                  line={tr(locale, "Talk your way through a real moment, at a café, a ticket window or the doctor's. Five to eight minutes.")}
-                />
-              </div>
-              {QUICK_MODES.map((m) => (
-                <ModeTile key={m.href} mode={{ ...m, title: tr(locale, m.title) }} line={lineFor(m)} />
-              ))}
-              {GAMES.map((m) => (
-                <ModeTile key={m.href} mode={{ ...m, title: tr(locale, m.title) }} line={lineFor(m)} />
+                out three cards where two fit. */}
+            <div className="@container"><div className="grid grid-cols-1 gap-4 @3xl:grid-cols-3">
+              {SHELVES.map((shelf) => (
+                <section
+                  key={shelf.id}
+                  aria-labelledby={`practice-shelf-${shelf.id}`}
+                  className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
+                  style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+                >
+                  <div className="px-5 pb-4 pt-5" style={{ background: `var(--${shelf.tone}-soft)` }}>
+                    <h3 id={`practice-shelf-${shelf.id}`} className="font-display text-xl font-bold" style={{ color: toneInk(shelf.tone) }}>
+                      {tr(locale, shelf.name)}
+                    </h3>
+                    <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{tr(locale, shelf.hint)}</p>
+                  </div>
+                  <ul className="flex flex-col p-2">
+                    {shelfItems(shelf, EXTRAS).map((m) => (
+                      <li key={m.href}>
+                        <ShelfRow mode={{ ...m, title: tr(locale, m.title) }} line={lineFor(m)} />
+                      </li>
+                    ))}
+                  </ul>
+                </section>
               ))}
             </div></div>
           </section>
@@ -270,33 +283,31 @@ export default async function PracticePage() {
 }
 
 /**
- * One round, drawn exactly like every other one.
+ * One round on a shelf, drawn exactly like every other one.
  *
- * The icon sits against the title's line rather than the middle of the tile,
- * so a tile whose second line wraps puts its icon where every other tile puts
- * it; `items-center` left the icon level with the middle of a three-line block
- * on one tile and a two-line block on its neighbour, and the row read uneven.
+ * The icon sits against the title's line rather than the middle of the row, so
+ * a row whose second line wraps puts its icon where every other row puts it.
  * One line under the title, never two: what the round is, and a live figure
  * after it where there is one.
  */
-function ModeTile({ mode, line }: { mode: Pick<PracticeMode, "href" | "tone" | "icon" | "title">; line: string }) {
+function ShelfRow({ mode, line }: { mode: Pick<PracticeMode, "href" | "tone" | "icon" | "title">; line: string }) {
   return (
     <Link
       href={mode.href}
-      className="lift flex h-full items-start gap-3 rounded-[var(--r-lg)] border p-4"
-      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+      className="tap-tint flex items-center gap-3 rounded-[var(--r)] px-3 py-3"
     >
       <span
         aria-hidden
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
         style={{ background: `var(--${mode.tone}-soft)`, color: toneInk(mode.tone) }}
       >
-        <NamedIcon name={mode.icon} size={18} aria-hidden />
+        <NamedIcon name={mode.icon} size={16} aria-hidden />
       </span>
-      <span className="min-w-0 flex-1 pt-0.5">
-        <span className="block text-base font-bold leading-snug" style={{ color: "var(--ink)" }}>{mode.title}</span>
-        <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-3)" }}>{line}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{mode.title}</span>
+        <span className="block text-sm" style={{ color: "var(--ink-3)" }}>{line}</span>
       </span>
+      <ChevronRight size={16} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
     </Link>
   );
 }
