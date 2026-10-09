@@ -983,7 +983,7 @@
     is not a circle, between 26px and 44px. Phones hold back more, for the tab
     bar the keys are pinned above.
   */
-  .sonad-board { --sonad-cell: clamp(1.625rem, calc((100dvh - 38rem) / 7), 2.5rem); }
+  .sonad-board { --sonad-cell: min(clamp(1.625rem, calc((100dvh - 24.5rem) / 7.3), 3.75rem), calc((100vw - 3.5rem) / 6.4)); }
   /*
     A phone with its toolbar showing is about 660px tall. The keys are pinned
     over the board there, so what has to give is what is not the board or the
@@ -1000,7 +1000,7 @@
     .sonad-board .sonad-hint:not(:has(.font-semibold)) { display: none; }
   }
   @media (min-width: 768px) {
-    .sonad-board { --sonad-cell: clamp(1.75rem, calc((100dvh - 34rem) / 7), 2.75rem); }
+    .sonad-board { --sonad-cell: clamp(1.75rem, calc((100dvh - 24.5rem) / 7.3), 3.75rem); }
   }
 
   @media (max-width: 767px) {
@@ -1619,6 +1619,10 @@
   */
   @media (max-height: 560px) {
     .scene-room[data-stage] { --scene-stage: 4.25rem; }
+  }
+  /* From `lg` the room lives in the column beside the conversation, not in a band under the bar. */
+  @media (min-width: 1024px) {
+    .scene-room[data-stage] { --scene-stage: 0px; }
   }
 
   /*

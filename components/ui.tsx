@@ -24,7 +24,7 @@ export function Wash() {
   );
 }
 
-export function Page({ title, titleLang, lead, actions, children, eyebrow, route, compact, wide }: {
+export function Page({ title, titleLang, lead, actions, children, eyebrow, route, compact }: {
   title: string;
   /**
    * Set to "et" where the heading is the Estonian name of a grammar point
@@ -61,12 +61,10 @@ export function Page({ title, titleLang, lead, actions, children, eyebrow, route
    * has to scroll to reach the keys has spent the game on the page.
    */
   compact?: boolean;
-  /** A game that wants the whole of a laptop screen: the column opens to 72rem. */
-  wide?: boolean;
 }) {
   const place = route ? DESTINATIONS.find((d) => d.href === route) : undefined;
   return (
-    <div className={compact ? `mx-auto ${wide ? "max-w-6xl" : "max-w-4xl"} px-4 py-3 md:px-8 md:py-4` : "mx-auto max-w-4xl px-5 py-8 md:px-10 md:py-12"}>
+    <div className={compact ? "mx-auto max-w-4xl px-4 py-3 md:px-8 md:py-4" : "mx-auto max-w-4xl px-5 py-8 md:px-10 md:py-12"}>
       <header className={`fade-up ${compact ? "mb-3" : "mb-9"} flex flex-wrap items-end justify-between gap-x-6 gap-y-4`}>
         <div className="min-w-0 flex-[1_1_28rem]">
           {eyebrow && (

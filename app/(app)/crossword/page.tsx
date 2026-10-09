@@ -62,7 +62,6 @@ export default async function CrosswordPage() {
     <BeforeYouStart id="crossword" ready={puzzle !== null}>
       <Page
         compact
-        wide
         title="Ristsõna"
         lead={tr(locale, "Clues in English, answers in Estonian, and a fresh grid every morning.")}
       >

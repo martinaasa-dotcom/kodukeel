@@ -1,6 +1,5 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useT } from "@/components/Locale";
 import { Meaning } from "@/components/Meaning";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
@@ -156,10 +155,6 @@ export function CrosswordSession({ puzzle, day, clueMeanings = null }: {
     }
   }
 
-  const pickClue = (i: number) => { setActive(i); focusCell(cellsOf(puzzle.entries[i]!, puzzle.cols)[0]!); };
-  /* MOCKUP ONLY: ?v=a|b|c */
-  const v = useSearchParams().get("v") ?? "a";
-
   function onKey(cell: number, key: string) {
     const at = activeCells.indexOf(cell);
     if (key === "Backspace" && !typed[cell] && at > 0) {
@@ -182,11 +177,18 @@ export function CrosswordSession({ puzzle, day, clueMeanings = null }: {
       grid and the lists are for jumping about.
     */
     <div
-      className={v === "d" ? "mx-auto grid w-fit grid-cols-[17rem_auto] items-start gap-8" : v === "c" ? "grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4" : "grid grid-cols-[auto_minmax(0,1fr)] items-start gap-5"}
-      style={{ "--cw-cell": `min(clamp(2rem, calc((100dvh - ${v === "c" || v === "d" ? "20rem" : "16rem"}) / ${puzzle.rows} - 4px), 3.25rem), calc((100vw - 4.5rem - ${(puzzle.cols - 1) * 4}px) / ${puzzle.cols}))` } as React.CSSProperties}
+      className="mx-auto grid w-full grid-cols-1 items-start gap-4 lg:w-fit lg:grid-cols-[17rem_auto] lg:gap-8"
+      style={{ "--cw-cell": `min(clamp(2rem, calc((100dvh - 20rem) / ${puzzle.rows} - 4px), 3.25rem), calc((100vw - 4.5rem - ${(puzzle.cols - 1) * 4}px) / ${puzzle.cols}))` } as React.CSSProperties}
     >
-      {(() => {
-        const gridCard = (
+      {/* Both lists in one column, on the near side, so the grid is not the
+          thing pressed up against the navigation. */}
+      <div className="order-2 lg:order-none lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto">
+      <Clues puzzle={puzzle} meanings={clueMeanings} active={active} solved={solved} onPick={(i) => {
+        setActive(i);
+        focusCell(cellsOf(puzzle.entries[i]!, puzzle.cols)[0]!);
+      }} />
+      </div>
+      <div className="flex flex-col gap-2 lg:order-none">
       <Card tone="accent" dense className="crossword-board">
         <div
           className="mx-auto grid w-fit gap-1"
@@ -276,9 +278,7 @@ export function CrosswordSession({ puzzle, day, clueMeanings = null }: {
         </div>
       </Card>
 
-        );
-        const actions = (
-          <>
+        <span className="sr-only" role="status">{said}</span>
       {done ? (
         <Finish puzzle={puzzle} helped={helped.length} />
       ) : (
@@ -332,49 +332,7 @@ export function CrosswordSession({ puzzle, day, clueMeanings = null }: {
         </div>
       )}
 
-          </>
-        );
-        const clues = (
-      <Clues tabs={v === "b"} puzzle={puzzle} meanings={clueMeanings} active={active} solved={solved} onPick={(i) => {
-        setActive(i);
-        focusCell(cellsOf(puzzle.entries[i]!, puzzle.cols)[0]!);
-      }} />
-        );
-        const sr = <span className="sr-only" role="status">{said}</span>;
-        if (v === "d") return (
-          <>
-            <div className="max-h-[calc(100dvh-8rem)] overflow-y-auto"><Clues single puzzle={puzzle} meanings={clueMeanings} active={active} solved={solved} onPick={pickClue} /></div>
-            <div className="flex flex-col gap-2">
-              {gridCard}
-              {sr}
-              {actions}
-            </div>
-          </>
-        );
-        if (v === "c") return (
-          <>
-            <Clues only="across" puzzle={puzzle} meanings={clueMeanings} active={active} solved={solved} onPick={pickClue} />
-            <div className="flex flex-col gap-2">
-              {gridCard}
-              {sr}
-              {actions}
-            </div>
-            <Clues only="down" puzzle={puzzle} meanings={clueMeanings} active={active} solved={solved} onPick={pickClue} />
-          </>
-        );
-        return (
-          <>
-            <div className="flex flex-col gap-2">
-              {gridCard}
-              {sr}
-            </div>
-            <div className="flex flex-col gap-3">
-              {actions}
-              <div className="max-h-[calc(100dvh-14rem)] overflow-y-auto">{clues}</div>
-            </div>
-          </>
-        );
-      })()}
+      </div>
     </div>
   );
 }
@@ -416,10 +374,7 @@ function ClueText({ t, clue, meaning, className, inline = false }: {
   );
 }
 
-function Clues({ puzzle, meanings, active, solved, onPick, tabs, only, single }: {
-  single?: boolean;
-  tabs?: boolean;
-  only?: "across" | "down";
+function Clues({ puzzle, meanings, active, solved, onPick }: {
   puzzle: DailyCrossword;
   meanings: (ShownMeaning | null)[] | null;
   active: number;
@@ -427,29 +382,19 @@ function Clues({ puzzle, meanings, active, solved, onPick, tabs, only, single }:
   onPick: (index: number) => void;
 }) {
   const t = useT();
-  const [tab, setTab] = useState<"across" | "down">("across");
   const half = (direction: Entry["direction"]) =>
     puzzle.entries.map((e, i) => ({ e, i })).filter(({ e }) => e.direction === direction);
 
   return (
     /*
-      Side by side from `lg` rather than `sm`. At 768 the rail takes the side
-      of the screen and two clue cards left each clue about 93px, which is
-      narrower than "grandmother": the word was broken across two lines,
-      which is what `test-containment.mjs` refuses. A clue list is read top
-      to bottom anyway, so a phone and a tablet get one column.
+      One column holding both lists, beside the grid from `lg` up and under it
+      below that. Side by side they were each about 93px wide at 768, narrower
+      than "grandmother", which `test-containment.mjs` refuses; stacked they
+      have the whole column, and the grid is not the thing pressed against the
+      navigation.
     */
-    <div className={`grid gap-4 ${tabs || only || single ? "" : "lg:grid-cols-2"}`}>
-      {tabs && (
-        <div className="flex gap-2">
-          {(["across", "down"] as const).map((d) => (
-            <button key={d} type="button" onClick={() => setTab(d)} className="press tap-tint flex-1 rounded-full px-3 py-1.5 text-sm font-semibold" style={{ background: tab === d ? "var(--accent-soft)" : "var(--surface)", color: tab === d ? "var(--accent-deep)" : "var(--ink-2)", boxShadow: "inset 0 0 0 1px var(--rule)" }}>
-              {d === "across" ? t("Across") : t("Down")}
-            </button>
-          ))}
-        </div>
-      )}
-      {(["across", "down"] as const).filter((d) => (only ? d === only : !tabs || d === tab)).map((direction) => (
+    <div className="grid gap-4">
+      {(["across", "down"] as const).map((direction) => (
         <Card key={direction}>
           <SectionTitle>{direction === "across" ? t("Across") : t("Down")}</SectionTitle>
           <ul className="mt-2 flex flex-col gap-1">

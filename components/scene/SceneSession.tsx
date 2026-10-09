@@ -1,7 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { BookOpen, Clock, CornerDownLeft, DoorOpen, Heart, Info, LifeBuoy, ListChecks, MessageCircle, RotateCcw, Shuffle } from "lucide-react";
 import { RoundChip } from "@/components/round/RoundStart";
 import { Button } from "@/components/Button";
@@ -294,8 +293,13 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
    */
   openAt: Level;
 }) {
-  /* MOCKUP ONLY: ?v=split puts the scene and card on the left, the chat on the right. */
-  const split = useSearchParams().get("v") === "split";
+  /* From `lg` the card is open in the column beside the conversation; below it
+     it stays the one pinned line it was. One element either way. */
+  const wide = useSyncExternalStore(
+    (notify) => { const q = window.matchMedia("(min-width: 1024px)"); q.addEventListener("change", notify); return () => q.removeEventListener("change", notify); },
+    () => window.matchMedia("(min-width: 1024px)").matches,
+    () => false,
+  );
   /* Whether this conversation is a step of today's module, which decides
      whether the briefing carries a door out of it. See
      components/course/moduleFocus.ts. */
@@ -1361,8 +1365,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
 
   const cardBlock = (
       <details
-        open={split || undefined}
-        className={split ? "z-10 lg:[&>summary]:hidden" : "scene-sticky z-10"}
+        open={wide || undefined}
+        className="scene-sticky z-10 mb-4 lg:mb-0 lg:[&>summary]:hidden"
         /*
           Opening it while it is pinned unpins it, and its place in the flow can
           be a screenful above where the learner is standing, so the card would
@@ -1541,8 +1545,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         seen the man who started talking over them.
       */
       stage={<SceneVignette sceneId={scene.id} setting={room} speaking={saying} cue={cue} fit="band" />}
-      split={split}
-      aside={split ? cardBlock : undefined}
+      aside={cardBlock}
     >
     {/*
       THE COVER, WHICH IS THE ONE MOMENT NOTHING CAN BE TYPED.
@@ -1622,7 +1625,6 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         attribute rather than a flag of ours, so this stays a real disclosure
         with the keyboard and the screen reader it came with.
       */}
-      {!split && cardBlock}
 
       {opened && (!opened.composed || note) && !modelDown && (
         /* A quiet status row rather than two lines of small grey prose loose
