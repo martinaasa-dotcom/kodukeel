@@ -47,7 +47,7 @@ import { unitById } from "@/lib/collections/syllabus";
 import { FitText } from "@/components/FitText";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
-import { stepText } from "@/lib/course";
+import { stepText, stepsIn } from "@/lib/course";
 
 export async function generateMetadata() {
   return titleFor("Today");
@@ -482,8 +482,13 @@ export default async function TodayPage() {
   const moduleTonight = Boolean(courseNow && courseDay && !courseNow.finishedToday && courseStep);
 
   const courseCard = moduleTonight && courseDay && courseStep ? (
-    <Card tone="night" className="grid items-stretch gap-6 md:p-9 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-10">
-      <div className="min-w-0 flex-1">
+    <Card tone="night" className="grid items-center gap-8 md:p-9 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-12">
+      {/* Left: what today is, and nothing else. The ring, the minutes, the
+          "next step" chip and the description were four things competing in
+          one column while the other column held a button. The minutes went
+          into the eyebrow and the steps went to the right, where they fill
+          the space and say what "the module" actually is. */}
+      <div className="min-w-0">
         <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
           <span style={{ color: "var(--cta)" }}>{t("Today’s module")}</span>
           <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
@@ -499,55 +504,42 @@ export default async function TodayPage() {
         <p className="mt-3 max-w-[46ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {t(courseDay.day.canDo)}
         </p>
-        <p
-          className="mt-5 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-full px-3.5 py-1.5 text-sm"
-          style={{ background: "rgb(255 255 255 / 0.08)", color: "var(--ink)" }}
-        >
-          {/* Before the first press the card is about the whole evening, not
-              about whichever step happens to come first: it used to read
-              "Next: Learn today's 5 new words", which made the home page
-              sound like a new-words page and the module an afterthought. Once
-              somebody is part way through, the next step is the useful news. */}
-          {courseDay.pct === 0 ? (
-            <span>{fill(t("{n} short steps, picked for you"), { n: courseDay.day.steps.length })}</span>
-          ) : (
-            <>
-              <span className="font-semibold" style={{ color: "var(--sky-ink)" }}>{t("Next")}</span>
-              <span>{stepText(courseDay.day, courseStep, locale).title}</span>
-            </>
-          )}
-        </p>
       </div>
-      {/* The same tile as the other leading cards (components/HeroSplit.tsx),
-          stretched to the height of the words beside it and centred inside
-          itself, so the right half is a filled panel and not an island with
-          air round it. */}
-      <div
-        data-hero-aside
-        className="flex min-w-0 flex-col justify-center gap-5 rounded-[var(--r-lg)] border p-6"
-        style={{
-          background: "color-mix(in srgb, var(--ink) 6%, transparent)",
-          borderColor: "color-mix(in srgb, var(--ink) 12%, transparent)",
-        }}
-      >
-        <div className="flex items-center gap-4">
-          <Ring
-            pct={courseDay.pct}
-            size={72}
-            thickness={7}
-            tone="var(--cta)"
-            track="rgb(255 255 255 / 0.1)"
-            label={fill(t("{pct} percent of today's module done"), { pct: courseDay.pct })}
-          >
-            <span className="text-sm font-bold tabular-nums" style={{ color: "var(--ink)" }}>{courseDay.pct}%</span>
-          </Ring>
-          <p className="text-sm leading-snug" style={{ color: "var(--ink-2)" }}>
-            <span className="font-display block text-2xl font-bold tabular-nums" style={{ color: "var(--ink)" }}>
-              {fill(t("{minutes} min"), { minutes: courseDay.minutesLeft })}
-            </span>
-            {t("to go today")}
-          </p>
-        </div>
+      {/* Right: the evening as a list of its steps, the finished ones ticked,
+          and the one button under it. No box and no ring: the list is the
+          content, and the progress is the ticks. */}
+      <div className="flex min-w-0 flex-col gap-5">
+        <ol
+          className="flex flex-col"
+          aria-label={fill(t("{minutes} min to go today"), { minutes: courseDay.minutesLeft })}
+        >
+          {stepsIn(courseDay.day, locale).map((step, i) => {
+            const done = courseDay.done.has(step.id);
+            return (
+              <li
+                key={step.id}
+                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-t py-3 first:border-t-0 first:pt-0"
+                style={{ borderColor: "color-mix(in srgb, var(--ink) 12%, transparent)" }}
+              >
+                <span
+                  aria-hidden
+                  className="grid h-7 w-7 place-items-center rounded-full text-sm font-bold"
+                  style={done
+                    ? { background: "var(--cta)", color: "var(--stage)" }
+                    : { boxShadow: "inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 30%, transparent)", color: "var(--ink-2)" }}
+                >
+                  {done ? "✓" : i + 1}
+                </span>
+                <span className="text-md font-semibold leading-snug" style={{ color: done ? "var(--ink-2)" : "var(--ink)" }}>
+                  {step.title}
+                </span>
+                <span className="text-sm tabular-nums" style={{ color: "var(--ink-2)" }}>
+                  {fill(t("{minutes} min"), { minutes: step.minutes })}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
         <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
           {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
         </ButtonLink>
