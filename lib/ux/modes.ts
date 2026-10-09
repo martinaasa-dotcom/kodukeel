@@ -189,7 +189,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     blurb: "Eight words and eight meanings, all jumbled up. Pair them off as fast as you can.",
   },
   {
-    href: "/review/sentences", title: "Sentences", subtitle: "Put a sentence in order", icon: "Puzzle", tone: "accent",
+    href: "/review/sentences", title: "Laused", subtitle: "Put a sentence in order", icon: "Puzzle", tone: "accent",
     group: "quick", note: "Needs sentences",
     blurb: "A real Estonian sentence, cut up and shuffled. Tap the words back into order.",
   },
