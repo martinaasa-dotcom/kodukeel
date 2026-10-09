@@ -3113,7 +3113,15 @@ level, and a word with no card writes nothing. Following the course, both are he
 the evenings have taught, case by case. Not on the module rotation: it is a game in
 Practice.
 
-**Left for later.** The ladder inside a round (picture, then the question word alone, then
-typed) is designed and not built: this pass is the picture rung. The three stored forms.
-`audit:questions` asks every Map question the shipped dictionary can build whether the
-answer is on the screen.
+**Three rungs, read off the log.** A word is first met as the picture, then asked by the
+question a class uses (`millesse?`) with the picture gone, then typed from an empty box and
+marked by the flash round's own `markForm`, which names the ending a wrong answer was. Which
+rung a word is on in a case is `rungFrom` in `lib/games/map.ts` over the learner's own answers
+in that case, newest six, oldest first: a Good answer climbs one, anything else steps down one,
+never below the picture. Nothing is stored (ADR-014), answers from every mode count because a
+case typed right on a card is the same fact, and a hint-capped answer is Hard, so needing help
+is not yet knowing. The picture returns after the answer on the two harder rungs, which is
+where it teaches. A word with no card has no log and is on the picture.
+
+**Left for later.** The three stored forms. `audit:questions` asks every Map question the
+shipped dictionary can build whether the answer is on the screen.

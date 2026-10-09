@@ -17,9 +17,10 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { starredAmong } from "@/lib/progress/stars";
 import { differentText, formNearness } from "@/lib/questions/distractors";
 import { shuffle } from "@/lib/random/shuffle";
+import { formIndex } from "@/lib/games/flash";
 import {
-  MAP_CASES, MAP_QUESTIONS, dealByCase, pickWrong, sceneFor,
-  type FormChoice, type MapScene,
+  MAP_CASES, MAP_QUESTIONS, dealByCase, pickWrong, rungFrom, sceneFor,
+  type FormChoice, type MapScene, type Rung,
 } from "@/lib/games/map";
 
 /**
@@ -72,6 +73,21 @@ export interface MapQuestion {
   /** The case's Estonian name, for the note after an answer. */
   caseEt: string;
   scene: MapScene;
+  /** Which way this word is asked in this case, read off the learner's own answers. */
+  rung: Rung;
+  /**
+   * The question a class asks for this case, which is what the second and third
+   * rungs show in place of a picture. The pronoun that suits the word, and
+   * never the place adverb: `kus?` answers two cases and would make a right
+   * answer wrong.
+   */
+  ask: string;
+  /** Every spelling of the asked form, for marking what is typed on the top rung. */
+  accepted: string[];
+  /** Every spelling of this word, to the slots that claim it, so a wrong ending is named. */
+  index: Record<string, string[]>;
+  /** The case's name as a class says it, for the line a wrong ending gets. */
+  label: string;
   /** The recorded sentence, exactly as written, and the form in it. */
   sentence: string;
   form: string;
@@ -94,7 +110,7 @@ interface WordRow {
 interface Candidate {
   row: WordRow;
   cardId: string | null;
-  question: Omit<MapQuestion, "starred">;
+  question: Omit<MapQuestion, "starred" | "rung">;
 }
 
 /**
@@ -109,7 +125,7 @@ export function questionsForWord(
   borrowed: readonly Example[],
   rank: ((a: Example, b: Example) => number) | undefined,
   scope: ModuleScope | null,
-): Omit<MapQuestion, "starred" | "cardId">[] {
+): Omit<MapQuestion, "starred" | "cardId" | "rung">[] {
   if (row.pos !== "NOUN") return [];
   const stems = stemsFrom(row.forms);
   const index = caseIndex(stems);
@@ -128,7 +144,8 @@ export function questionsForWord(
     answers.set(key, caseAnswer(stems, key));
   }
 
-  const out: Omit<MapQuestion, "starred" | "cardId">[] = [];
+  const out: Omit<MapQuestion, "starred" | "cardId" | "rung">[] = [];
+  const spellings = formIndex({ lemma: row.lemma, pos: row.pos, forms: row.forms });
   for (const key of MAP_CASES) {
     if (!caseWithin(scope, key)) continue;
     const answer = answers.get(key);
@@ -195,6 +212,10 @@ export function questionsForWord(
       caseKey: key,
       caseEt: grammarTerm(key)?.et ?? CASES.find((c) => c.key === key)?.et ?? "",
       scene,
+      ask: caseQuestionFor(CASES.find((c) => c.key === key)!, subject),
+      accepted: [...answer.accepted],
+      index: spellings,
+      label: CASES.find((c) => c.key === key)?.et ?? "",
       sentence: hit.example.et,
       form: hit.form,
       en: sentenceEnglish(parseExamples(row.examples), hit.example.et) ?? hit.example.en ?? null,
@@ -273,8 +294,15 @@ export async function mapRound(ownerId: string, scope: ModuleScope | null = null
     chosen = [...chosen, ...dealBy(more, MAP_QUESTIONS - chosen.length)];
   }
 
-  const starred = await starredAmong(ownerId, chosen.map((c) => c.row.id));
-  return shuffle(chosen).map((c) => ({ ...c.question, starred: starred.has(c.row.id) }));
+  const [starred, rungs] = await Promise.all([
+    starredAmong(ownerId, chosen.map((c) => c.row.id)),
+    rungsFor(ownerId, chosen.map((c) => ({ lexemeId: c.row.id, caseKey: c.question.caseKey }))),
+  ]);
+  return shuffle(chosen).map((c) => ({
+    ...c.question,
+    starred: starred.has(c.row.id),
+    rung: rungs.get(`${c.row.id}|${c.question.caseKey}`) ?? 1,
+  }));
 }
 
 function dealBy(candidates: Candidate[], take: number): Candidate[] {
@@ -285,4 +313,41 @@ function dealBy(candidates: Candidate[], take: number): Candidate[] {
     byCase.set(c.question.caseKey, list);
   }
   return dealByCase(byCase, take, (c) => c.row.id);
+}
+
+/**
+ * Which rung each word is on in the case it is about to be asked, off the log.
+ *
+ * One read for the whole round rather than one per question. The newest answers
+ * first and ending on the id, because this is a `take` and `reviewedAt` is not
+ * unique; then each word and case keeps the last few, oldest first, which is the
+ * order `rungFrom` climbs in. A row with no slot is ignored: before the column
+ * existed `targetCase` was all there was and it was written by a different
+ * reading of the question, so it is not evidence about this one.
+ */
+async function rungsFor(
+  ownerId: string, asked: readonly { lexemeId: string; caseKey: CaseKey }[],
+): Promise<Map<string, Rung>> {
+  const out = new Map<string, Rung>();
+  const ids = [...new Set(asked.map((a) => a.lexemeId))];
+  if (ids.length === 0) return out;
+  const rows = await prisma.review.findMany({
+    where: { ownerId, lexemeId: { in: ids }, slot: { in: [...MAP_CASES] } },
+    select: { lexemeId: true, slot: true, rating: true },
+    orderBy: [{ reviewedAt: "desc" }, { id: "desc" }],
+    take: 4000,
+  });
+  const byKey = new Map<string, number[]>();
+  for (const r of rows) {
+    const key = `${r.lexemeId}|${r.slot}`;
+    const list = byKey.get(key) ?? [];
+    list.push(r.rating);
+    byKey.set(key, list);
+  }
+  for (const a of asked) {
+    const key = `${a.lexemeId}|${a.caseKey}`;
+    // Read newest first and handed over oldest first.
+    out.set(key, rungFrom([...(byKey.get(key) ?? [])].reverse()));
+  }
+  return out;
 }

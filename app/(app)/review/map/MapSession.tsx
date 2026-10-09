@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { Check, Map as MapIcon, X } from "lucide-react";
+import { Check, Keyboard, Map as MapIcon, X } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { EstonianSentence } from "@/components/EstonianSentence";
+import { DiacriticBar } from "@/components/DiacriticBar";
+import { FitText } from "@/components/FitText";
 import { StarWord } from "@/components/StarWord";
 import { MapPicture } from "@/components/round/MapScene";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -16,10 +18,13 @@ import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useKeepInView } from "@/components/round/useKeepInView";
 import { useFeedbackSound } from "@/components/AudioPrefs";
-import { narrowLadder, struckOptions } from "@/lib/questions/hints";
+import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { MAP_CASES } from "@/lib/games/map";
-import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { markForm, type FlashMark } from "@/lib/games/flash";
+import { caseByKey } from "@/lib/estonian/cases";
+import { isFormSlot } from "@/lib/srs/slots";
 import type { MapQuestion } from "@/lib/progress/map";
 
 /**
@@ -34,6 +39,11 @@ import type { MapQuestion } from "@/lib/progress/map";
  * pair somebody mixes up here is counted with the pair they mix up on a card.
  * A word the learner holds no card for writes nothing, which is what the round
  * says about itself and not a gap in it.
+ *
+ * THREE RUNGS, AND THE LOG DECIDES WHICH. A word is first met as a picture,
+ * then asked by the question a class uses with the picture gone, then typed
+ * from an empty box (`rungFrom` in `lib/games/map.ts`). The picture comes back
+ * after the answer on the two harder rungs, because that is the lesson.
  *
  * THE REVEAL IS THE SENTENCE. A form nobody can be shown in use is a form this
  * app cannot teach, so every question exists because a lexicographer's
@@ -55,12 +65,15 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   const [right, setRight] = useState(0);
   const [asked, setAsked] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [typed, setTyped] = useState("");
+  const [mark, setMark] = useState<FlashMark | null>(null);
   const shownAt = useRef(Date.now());
 
   const q = questions[index];
   const look = useLookBack();
   const finished = !q;
-  const answered = picked !== null;
+  const answered = picked !== null || mark !== null;
+  const typedRung = q?.rung === 3;
   const footer = useKeepInView<HTMLDivElement>(answered ? index : null);
 
   /*
@@ -70,11 +83,16 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   */
   const texts = q ? q.options.map((o) => o.text) : [];
   const correct = q ? q.options[q.answer]!.text : "";
-  const ladder = q ? narrowLadder(texts, correct) : [];
+  const ladder = !q ? []
+    : typedRung
+      /* Nothing to cross out when nothing is offered, so the top rung uncovers
+         the form from the end, where the ending is, the way the flash round does. */
+      ? hintLadder({ answer: correct, stems: [q.lemma], suffix: caseByKey(q.caseKey)?.suffix })
+      : narrowLadder(texts, correct);
   const hints = useHints({ word: q?.lexemeId ?? null, question: q ? `${q.lexemeId}:${q.caseKey}` : null, ladder });
-  const struck = q ? struckOptions(texts, correct, hints.taken) : [];
+  const struck = q && !typedRung ? struckOptions(texts, correct, hints.taken) : [];
 
-  useEffect(() => { shownAt.current = Date.now(); setPicked(null); }, [index]);
+  useEffect(() => { shownAt.current = Date.now(); setPicked(null); setMark(null); setTyped(""); }, [index]);
 
   const pick = useCallback(async (i: number) => {
     if (!q || answered || busy) return;
@@ -95,11 +113,31 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     setBusy(false);
   }, [q, answered, busy, hints, grade, sound]);
 
+  const check = useCallback(async () => {
+    if (!q || mark || busy || typed.trim().length === 0) return;
+    setBusy(true);
+    const marked = markForm({ accepted: q.accepted, slot: q.caseKey, label: q.label, index: q.index }, typed);
+    // A hint can only lower what the answer earned.
+    const result = { ...marked, rating: Math.min(marked.rating, hints.ceiling) as FlashMark["rating"] };
+    const duration = Date.now() - shownAt.current;
+    setMark(result);
+    sound(result.right ? "right" : "wrong");
+    if (!result.right) hints.noteMiss();
+    if (q.cardId) {
+      const reached = result.wroteSlot && result.wroteSlot !== q.caseKey && isFormSlot(result.wroteSlot)
+        ? result.wroteSlot : undefined;
+      await grade(q.cardId, result.rating, duration, q.caseKey, result.right ? undefined : reached);
+    }
+    setAsked((n) => n + 1);
+    if (result.right) setRight((n) => n + 1);
+    setBusy(false);
+  }, [q, mark, busy, typed, hints, grade, sound]);
+
   const next = useCallback(() => {
     if (!answered) return;
     if (q) {
       look.record({
-        of: q.lexemeId, label: "Map", question: `${q.lemma}: ${q.scene.ask}`, answer: correct,
+        of: q.lexemeId, label: "Map", question: `${q.lemma}: ${q.rung === 1 ? q.scene.ask : q.ask}`, answer: correct,
         note: null, questionLang: "et", answerLang: "et", speak: q.sentence,
       });
     }
@@ -114,14 +152,22 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
         if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
         return;
       }
-      if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (!inEditable(e.target) && e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (answered) { if (isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
+      // Typing a form: Enter checks, and then Enter moves on, one key for the round.
+      if (typedRung) {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        void check();
+        return;
+      }
       const n = Number(e.key);
       if (n >= 1 && n <= q.options.length) { e.preventDefault(); void pick(n - 1); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, answered, q, pick, next, look]);
+  }, [finished, answered, q, typedRung, pick, check, next, look]);
 
   if (wasEmptyAtStart) {
     return (
@@ -163,7 +209,10 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     );
   }
 
-  const wasRight = picked === q.answer;
+  const wasRight = typedRung ? mark?.right === true : picked === q.answer;
+  /* What is said once it is answered: the marker's own line where there is one,
+     which is how a wrong ending gets named and a dropped letter gets pointed at. */
+  const said = typedRung && mark?.note ? mark.note : null;
   const remaining = questions.length - index;
 
   return (
@@ -173,7 +222,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
           status region that arrives with its sentence already in it is one a
           screen reader may never read out. */}
       <p className="sr-only" role="status">
-        {answered ? `${wasRight ? "Right." : "Not that one."} ${correct} is what the picture shows.` : ""}
+        {answered ? `${wasRight ? "Right." : "Not that one."} ${correct} is the form.${said ? ` ${said}` : ""}` : ""}
       </p>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession href="/practice" />
@@ -194,42 +243,72 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
           style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}>
           <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
             <Chip tone="accent"><MapIcon size={12} aria-hidden /> Map</Chip>
+            <Chip>{q.rung === 1 ? "Picture" : q.rung === 2 ? "Question" : "Type it"}</Chip>
             <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{right} right</span>
             <StarWord lexemeId={q.lexemeId} starred={q.starred} label={q.lemma} />
           </div>
 
-          <div className="px-6 pt-4">
-            <MapPicture scene={q.scene} />
-            <p className="mt-1 text-center text-sm" style={{ color: "var(--ink-3)" }}>
-              <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{q.lemma}</span>, {q.gloss}
+          {/* The picture is the question on the first rung and the lesson on the
+              others, so it comes back once the answer is in. */}
+          {(q.rung === 1 || answered) ? (
+            <div className="px-6 pt-4">
+              <MapPicture scene={q.scene} />
+              <p className="mt-1 text-center text-sm" style={{ color: "var(--ink-3)" }}>
+                <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{q.lemma}</span>, {q.gloss}
+              </p>
+            </div>
+          ) : (
+            <div className="round-stage flex flex-col items-center justify-center gap-2 px-6 text-center">
+              <FitText as="p" text={q.lemma} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
+              <p className="text-base" style={{ color: "var(--ink-2)" }}>{q.gloss}</p>
+              <p className="mt-2 text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
+                <CaseQuestion question={q.ask} />
+              </p>
+            </div>
+          )}
+
+          {q.rung === 1 && (
+            <p className="px-6 pt-4 text-center text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
+              {q.scene.ask}
             </p>
-          </div>
+          )}
 
-          <p className="px-6 pt-4 text-center text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-            {q.scene.ask}
-          </p>
-
-          <div className="grid grid-cols-1 gap-2 px-6 py-4 lg:grid-cols-3">
-            {q.options.map((o, i) => {
-              const isAnswer = i === q.answer;
-              const isPicked = i === picked;
-              const state = answered ? OPTION_CLASS[optionState(isAnswer, isPicked)] : "";
-              const out = !answered && struck.includes(o.text);
-              return (
-                <button key={o.key} type="button" disabled={answered || busy} onClick={() => void pick(i)}
-                  className={`choice-btn ${state} flex items-center gap-2 rounded-[var(--r)] border px-4 py-3 text-left text-base font-semibold disabled:cursor-default`}
-                  style={answered ? undefined : {
-                    "--choice-bg": "var(--raised)", "--choice-border": "transparent", color: "var(--ink)",
-                  } as CSSProperties}>
-                  <KeyCap>{i + 1}</KeyCap>
-                  <span lang="et" className={`flex-1 ${out ? "line-through" : ""}`}>{o.text}</span>
-                  {out && <span className="sr-only"> (ruled out by a hint)</span>}
-                  {answered && isAnswer && <Check size={15} aria-label="Right" />}
-                  {answered && isPicked && !isAnswer && <X size={15} aria-label="Your pick" />}
-                </button>
-              );
-            })}
-          </div>
+          {typedRung ? (
+            <div className="px-6 py-4">
+              <label htmlFor="answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>
+                Say it in the form that answers the question
+              </label>
+              <input
+                id="answer" value={typed} lang="et" autoFocus autoComplete="off" autoCapitalize="off"
+                spellCheck={false} disabled={answered} onChange={(e) => setTyped(e.target.value)}
+                className="field-lg mt-2 w-full text-lg disabled:opacity-70"
+                style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
+              />
+              {!answered && <div className="under-field"><DiacriticBar /></div>}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-2 px-6 py-4 lg:grid-cols-3">
+              {q.options.map((o, i) => {
+                const isAnswer = i === q.answer;
+                const isPicked = i === picked;
+                const state = answered ? OPTION_CLASS[optionState(isAnswer, isPicked)] : "";
+                const out = !answered && struck.includes(o.text);
+                return (
+                  <button key={o.key} type="button" disabled={answered || busy} onClick={() => void pick(i)}
+                    className={`choice-btn ${state} flex items-center gap-2 rounded-[var(--r)] border px-4 py-3 text-left text-base font-semibold disabled:cursor-default`}
+                    style={answered ? undefined : {
+                      "--choice-bg": "var(--raised)", "--choice-border": "transparent", color: "var(--ink)",
+                    } as CSSProperties}>
+                    <KeyCap>{i + 1}</KeyCap>
+                    <span lang="et" className={`flex-1 ${out ? "line-through" : ""}`}>{o.text}</span>
+                    {out && <span className="sr-only"> (ruled out by a hint)</span>}
+                    {answered && isAnswer && <Check size={15} aria-label="Right" />}
+                    {answered && isPicked && !isAnswer && <X size={15} aria-label="Your pick" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {!answered && (
             <div className="border-t px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
@@ -241,9 +320,14 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
           {answered && (
             <div className="flex flex-col gap-4 border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
               <p className={`verdict-panel ${VERDICT_CLASS[wasRight ? "right" : "wrong"]}`}>
-                {wasRight ? "Yes. " : "Not that one. "}
-                <span lang="et" className="font-semibold">{correct}</span>
-                {" is what the picture shows."}
+                {/* Where the marker's own line already names the form, it is the whole
+                    sentence: saying the answer and then the answer again is noise. */}
+                {said && said.includes(correct) ? said : (<>
+                  {wasRight ? "Yes. " : "Not that one. "}
+                  <span lang="et" className="font-semibold">{correct}</span>
+                  {typedRung ? " is the form." : " is what the picture shows."}
+                  {said ? ` ${said}` : ""}
+                </>)}
               </p>
 
               <div className="grid grid-cols-3 gap-2">
@@ -270,6 +354,16 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
                 et={q.sentence} en={q.en} lexemeId={q.lexemeId} canTranslate={canTranslate}
                 form={q.form} ask="onArrival" speakLabel="Hear the sentence"
               />
+            </div>
+          )}
+
+          {typedRung && !answered && (
+            <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+              <Button variant="primary" size="lg" className="w-full" disabled={typed.trim().length === 0 || busy}
+                onClick={() => void check()}>
+                <Keyboard size={16} aria-hidden /> Check it
+                <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+              </Button>
             </div>
           )}
 

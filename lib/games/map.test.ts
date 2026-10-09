@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAP_CASES, MAP_OPTIONS, dealByCase, pickWrong, sceneFor, trioOf, type FormChoice } from "./map";
+import { MAP_CASES, MAP_OPTIONS, RUNG_WINDOW, dealByCase, pickWrong, rungFrom, sceneFor, trioOf, type FormChoice } from "./map";
 import { CASES } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -123,5 +123,40 @@ describe("dealByCase", () => {
 
   it("stops at what there is", () => {
     expect(dealByCase(new Map(), 10, () => "")).toEqual([]);
+  });
+});
+
+describe("rungFrom", () => {
+  it("starts every word on the picture, with no history at all", () => {
+    expect(rungFrom([])).toBe(1);
+  });
+
+  it("climbs one rung for each Good answer and stops at typing", () => {
+    expect(rungFrom([3])).toBe(2);
+    expect(rungFrom([3, 3])).toBe(3);
+    expect(rungFrom([3, 3, 3, 3, 3])).toBe(3);
+    expect(rungFrom([4, 4])).toBe(3);
+  });
+
+  it("steps down one for anything that was not Good, and never below the picture", () => {
+    expect(rungFrom([3, 3, 1])).toBe(2);
+    expect(rungFrom([3, 3, 1, 1])).toBe(1);
+    expect(rungFrom([1, 1, 1])).toBe(1);
+  });
+
+  it("does not climb on a hint-capped answer, which is Hard rather than Good", () => {
+    expect(rungFrom([2, 2, 2])).toBe(1);
+    expect(rungFrom([3, 2])).toBe(1);
+  });
+
+  it("reads only the newest answers, so a long history does not keep a word on the top rung", () => {
+    const old = Array.from({ length: 20 }, () => 3);
+    expect(rungFrom([...old, 1, 1, 1, 1, 1, 1])).toBe(1);
+    expect(RUNG_WINDOW).toBe(6);
+  });
+
+  it("is a function of the order, which is the point of a ladder", () => {
+    expect(rungFrom([1, 3, 3])).toBe(3);
+    expect(rungFrom([3, 3, 1])).toBe(2);
   });
 });

@@ -216,3 +216,41 @@ export function dealByCase<T>(
   }
   return out;
 }
+
+/**
+ * THE LADDER A WORD CLIMBS, READ OFF THE LOG AND NEVER STORED.
+ *
+ * A picture is how an ending is first met and it is the wrong thing to keep
+ * asking about a word somebody has had right three times, so the same word in
+ * the same case is asked three ways, a rung at a time:
+ *
+ * 1. the picture, and three forms to pick from;
+ * 2. only the question a class asks (`millesse?`), and three forms;
+ * 3. the question and an empty box, and the form is typed.
+ *
+ * Which rung a word is on is a fact about what the learner has done, so it is
+ * derived from the answers they gave in that case, oldest first: a Good answer
+ * climbs one, anything else steps down one, never below the picture. ADR-014
+ * says progress is derived and not counted, so there is no column and nothing
+ * to drift; the rung a word is on tomorrow is whatever the log says tomorrow.
+ *
+ * Answers from every mode count, because a case typed correctly on a review
+ * card is the same fact, and a learner who has produced `toas` three times has
+ * no use for a picture of one. A word with no card has no log and is on the
+ * picture. A hint-capped answer is Hard, which is not Good, so it does not
+ * climb: needing help is not yet knowing.
+ */
+export type Rung = 1 | 2 | 3;
+
+/** The newest answers read for one word and case: enough to climb to the top and fall once. */
+export const RUNG_WINDOW = 6;
+
+export function rungFrom(ratingsOldestFirst: readonly number[]): Rung {
+  let rung: Rung = 1;
+  for (const rating of ratingsOldestFirst.slice(-RUNG_WINDOW)) {
+    rung = rating >= 3
+      ? (Math.min(3, rung + 1) as Rung)
+      : (Math.max(1, rung - 1) as Rung);
+  }
+  return rung;
+}
