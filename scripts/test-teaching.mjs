@@ -497,7 +497,7 @@ check("it groups them by what breaks",
 
 const stemCard = await page.locator('a[href="/grammar/exceptions/stem"]').first().innerText();
 // The count is a chip, and a chip is set in `label-xs`, which uppercases.
-check("a kind names the words under its own count", /\d+ near you/i.test(stemCard), stemCard.split("\n")[0]);
+check("a kind names the words under its own count", /\d+ words near (pre-A1|A1|A2|B1|B2|C1|C2)/i.test(stemCard), stemCard.split("\n")[0]);
 
 await page.goto(`${B}/grammar/exceptions/stem`, { waitUntil: "networkidle" });
 const stemBody = (await page.textContent("body")) ?? "";
