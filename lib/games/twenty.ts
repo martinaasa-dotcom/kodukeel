@@ -1180,7 +1180,12 @@ export function ask(
     }
   }
 
-  const parts = distinct.map((f) => f.meaning);
+  // "Kas see elab Eestis?" asks where it lives, and only a living thing lives anywhere:
+  // a book is in Estonia and does not live there.
+  const lives = has("elama");
+  const parts = distinct.map((f) => (lives && f.role === "place"
+    ? { ...f.meaning, test: (t: Thing): Answer => (living(t) ? f.meaning.test(t) : "no") }
+    : f.meaning));
   const test = (t: Thing): Answer => allOf(parts.map((m) => m.test(t)));
   const answer = test(secret);
   const reading = parts.map((m) => m.en).join(" ");
@@ -1344,7 +1349,7 @@ export const SUGGESTIONS: readonly Suggestion[] = [
   sugg("Kas see on metsas?", "Is it in the forest?", where("forest")),
   sugg("Kas see on vees?", "Is it in the water?", where("water")),
   sugg("Kas see on taevas?", "Is it in the sky?", where("sky")),
-  sugg("Kas see elab Eestis?", "Does it live in Estonia?", where("estonia")),
+  sugg("Kas see elab Eestis?", "Does it live in Estonia?", (t) => (living(t) ? where("estonia")(t) : "no")),
   sugg("Kas see on elektriline?", "Does it run on electricity?", electric),
   sugg("Kas see on puidust?", "Is it made of wood?", (t) => listed(t.made, t.madeS, "puit")),
   sugg("Kas see on metallist?", "Is it made of metal?", (t) => listed(t.made, t.madeS, "metall")),

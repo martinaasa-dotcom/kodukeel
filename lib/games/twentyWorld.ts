@@ -53,10 +53,11 @@ export interface ClassSpec extends Facts {
 }
 
 /*
-  Places every class shares: a thing on sale is in Estonia and in Africa, and
-  `estonia` and `africa` on an animal or a plant is said by its class or its row.
+  A thing on sale is in Estonia; whether it is in Africa is sometimes, since a loaf of
+  bread or a book is not a fact about a continent. `estonia` and `africa` on an animal
+  or a plant is said by its class or its row.
 */
-const EVERYWHERE = "estonia africa";
+const EVERYWHERE = "estonia";
 
 export const CLASSES = {
   /* ---------------- Animals ---------------- */
@@ -180,44 +181,44 @@ export const CLASSES = {
     isa: "toit puuvili",
     has: "koor", hasS: "seeme",
     use: "eat", d: "grow buy sell", t: "sweet",
-    w: EVERYWHERE, wS: "kitchen home fridge shop garden table",
+    w: EVERYWHERE, wS: "africa kitchen home fridge shop garden table",
   },
   berry: {
     kind: "food",
     isa: "toit mari", isaS: "puuvili",
     hasS: "seeme",
     use: "eat", d: "grow buy sell", t: "sweet round",
-    w: EVERYWHERE, wS: "forest garden kitchen fridge shop", feel: "soft",
+    w: EVERYWHERE, wS: "africa forest garden kitchen fridge shop", feel: "soft",
   },
   vegetable: {
     kind: "food",
     isa: "toit köögivili",
     use: "eat", d: "grow buy sell",
-    w: EVERYWHERE, wS: "kitchen home fridge shop garden field", feel: "hard",
+    w: EVERYWHERE, wS: "africa kitchen home fridge shop garden field", feel: "hard",
   },
   dish: {
     kind: "food",
     isa: "toit",
     use: "eat", d: "buy sell",
-    w: EVERYWHERE, wS: "kitchen home fridge shop table",
+    w: EVERYWHERE, wS: "africa kitchen home fridge shop table",
   },
   sweet: {
     kind: "food",
     isa: "toit maiustus",
     use: "eat", d: "buy sell", t: "sweet",
-    w: EVERYWHERE, wS: "kitchen home shop table",
+    w: EVERYWHERE, wS: "africa kitchen home shop table",
   },
   pantry: {
     kind: "food",
     isaS: "toit",
     use: "eat", d: "buy sell",
-    w: EVERYWHERE, wS: "kitchen home shop table",
+    w: EVERYWHERE, wS: "africa kitchen home shop table",
   },
   drink: {
     kind: "drink",
     isa: "jook vedelik",
     use: "drink", d: "buy sell", t: "wet",
-    w: EVERYWHERE, wS: "kitchen home fridge shop table",
+    w: EVERYWHERE, wS: "africa kitchen home fridge shop table",
   },
 
   /* ---------------- Objects ---------------- */
@@ -225,68 +226,68 @@ export const CLASSES = {
     kind: "object",
     isa: "mööbel ese asi",
     hasS: "jalg",
-    w: `home ${EVERYWHERE}`, wS: "kitchen school",
+    w: `home ${EVERYWHERE}`, wS: "africa kitchen school",
     mat: "puit", matS: "metall plast kangas", feel: "hard",
   },
   kitchenware: {
     kind: "object",
     isa: "nõu ese asi",
-    d: "wash", w: `kitchen home ${EVERYWHERE}`, wS: "table shop",
+    d: "wash", w: `kitchen home ${EVERYWHERE}`, wS: "africa table shop",
     feel: "hard",
   },
   appliance: {
     kind: "object",
     isa: "masin seade ese asi",
     has: "nupp", hasS: "juhe",
-    d: "work sound", w: `home kitchen ${EVERYWHERE}`, wS: "shop",
+    d: "work sound", w: `home kitchen ${EVERYWHERE}`, wS: "africa shop",
     mat: "metall plast", feel: "hard", t: "electric",
   },
   electronics: {
     kind: "object",
     isa: "seade ese asi", isaS: "masin",
     has: "nupp", hasS: "juhe ekraan",
-    d: "work", dS: "sound", w: `home ${EVERYWHERE}`, wS: "school shop table",
+    d: "work", dS: "sound", w: `home ${EVERYWHERE}`, wS: "africa school shop table",
     mat: "plast metall", matS: "klaas", feel: "hard", t: "electric",
   },
   stationery: {
     kind: "object",
     isa: "ese asi",
-    w: `home school ${EVERYWHERE}`, wS: "shop table",
+    w: `home school ${EVERYWHERE}`, wS: "africa shop table",
   },
   tool: {
     kind: "object",
     isa: "tööriist ese asi",
     has: "käepide",
-    w: `home ${EVERYWHERE}`, wS: "garden shop",
+    w: `home ${EVERYWHERE}`, wS: "africa garden shop",
     mat: "metall", matS: "puit plast", feel: "hard",
   },
   toy: {
     kind: "object",
     isa: "mänguasi ese asi",
-    use: "play", w: `home ${EVERYWHERE}`, wS: "garden shop school",
+    use: "play", w: `home ${EVERYWHERE}`, wS: "africa garden shop school",
   },
   instrument: {
     kind: "object",
     isa: "pill ese asi",
-    use: "play", d: "sound", w: `home ${EVERYWHERE}`, wS: "school shop",
+    use: "play", d: "sound", w: `home ${EVERYWHERE}`, wS: "africa school shop",
     t: "loud", feel: "hard",
   },
   accessory: {
     kind: "object",
     isa: "ese asi",
-    use: "wear", w: `home ${EVERYWHERE}`, wS: "shop city",
+    use: "wear", w: `home ${EVERYWHERE}`, wS: "africa shop city",
   },
   household: {
     kind: "object",
     isa: "ese asi",
-    w: `home ${EVERYWHERE}`, wS: "shop",
+    w: `home ${EVERYWHERE}`, wS: "africa shop",
   },
 
   /* ---------------- Clothes ---------------- */
   garment: {
     kind: "clothes",
     isa: "riideese rõivas ese asi",
-    use: "wear", w: `home ${EVERYWHERE}`, wS: "city outdoors shop",
+    use: "wear", w: `home ${EVERYWHERE}`, wS: "africa city outdoors shop",
     mat: "kangas", matS: "puuvill vill", feel: "soft",
   },
 
@@ -296,14 +297,14 @@ export const CLASSES = {
     isa: "sõiduk", isaS: "masin",
     has: "ratas uks aken mootor rool",
     can: "move", use: "ride", d: "sound",
-    w: `street city outdoors ${EVERYWHERE}`, wS: "country",
+    w: `street city outdoors ${EVERYWHERE}`, wS: "africa country",
     mat: "metall", matS: "klaas kumm plast", feel: "hard fast",
   },
   pushVehicle: {
     kind: "vehicle",
     isa: "sõiduk",
     can: "move", use: "ride",
-    w: `outdoors ${EVERYWHERE}`, wS: "street city home",
+    w: `outdoors ${EVERYWHERE}`, wS: "africa street city home",
     feel: "hard",
   },
 
@@ -312,7 +313,7 @@ export const CLASSES = {
     kind: "building",
     isa: "hoone koht",
     has: "uks aken katus",
-    w: `city outdoors ${EVERYWHERE}`, wS: "country",
+    w: `city outdoors ${EVERYWHERE}`, wS: "africa country",
     mat: "kivi", matS: "puit klaas metall", feel: "hard", t: "tall",
   },
 

@@ -104,3 +104,21 @@ describe("a slip of the hand, and a real word", () => {
     expect(r.kind === "answer" && r.answer).toBe("yes");
   });
 });
+
+describe("where a thing is and where it lives", () => {
+  const by = (lemma: string) => THINGS.find((t) => t.lemma === lemma)!;
+  const answer = (q: string, lemma: string) => {
+    const r = ask(q, by(lemma), lookup, {});
+    return r.kind === "answer" ? r.answer : r.kind;
+  };
+  it("a loaf of bread is in Estonia and does not live there", () => {
+    expect(answer("Kas see on Eestis?", "leib")).toBe("yes");
+    expect(answer("Kas see elab Eestis?", "leib")).toBe("no");
+    expect(answer("Kas see elab Eestis?", "koer")).toBe("yes");
+  });
+  it("Africa is not a fact about bread or a book", () => {
+    expect(answer("Kas see on Aafrikas?", "leib")).toBe("sometimes");
+    expect(answer("Kas see on Aafrikas?", "raamat")).toBe("sometimes");
+    expect(answer("Kas see elab Aafrikas?", "lõvi")).toBe("yes");
+  });
+});
