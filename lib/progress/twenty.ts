@@ -4,7 +4,8 @@ import { rankBand } from "@/lib/collections/levels";
 import type { Level } from "@/lib/collections/syllabus";
 import { shuffle } from "@/lib/random/shuffle";
 import { NEEDED_LEMMAS } from "@/lib/games/twenty";
-import { buildIndex, type Index } from "@/lib/games/twentyLookup";
+import { buildIndex, type Extra, type Index } from "@/lib/games/twentyLookup";
+import EXTRA from "@/prisma/data/twenty-forms.json";
 import { THINGS, type Thing } from "@/lib/games/twentyThings";
 
 /**
@@ -24,6 +25,13 @@ export interface TwentyRound {
   glosses: Record<string, string>;
   /** Spelling to readings, for every headword the game reads. */
   index: Index;
+  /** The forms list's further spellings of those headwords (`scripts/build-twenty-forms.ts`). */
+  extra: Extra;
+  /**
+   * Every thing this round could have been, by headword: what "still fits" is
+   * counted over. Not a hint about which one it is, since it is the whole band.
+   */
+  pool: string[];
   /** The thing's Russian and Ukrainian equivalents, for the meaning line under it. */
   secretEquivalents: { translationRu: string | null; translationUk: string | null };
   /**
@@ -103,6 +111,8 @@ export async function twentyRound(opts: {
     gloss: picked.row.translation,
     glosses,
     index: buildIndex(rows),
+    extra: EXTRA as Extra,
+    pool: pool.map((p) => p.thing.lemma),
     secretEquivalents: { translationRu: picked.row.translationRu, translationUk: picked.row.translationUk },
     equivalents,
   };

@@ -20,6 +20,7 @@ function asLexeme(w: HarvestedWord): LexemeForCards {
   };
 }
 import { RETIRED_WORDS } from "./retired";
+import { GAME_WORDS } from "./gameWords";
 import { inferPos } from "./types";
 import { PHRASES } from "@/prisma/data/other";
 import { grammarPoint } from "@/lib/estonian/grammar";
@@ -84,6 +85,7 @@ describe("the course", () => {
     const asked = new Set<string>();
     for (const u of SYLLABUS) for (const v of u.vocabulary) asked.add(`${v.lemma}|${v.pos}`);
     for (const w of RETIRED_WORDS) asked.add(`${w[0]}|${inferPos(w[0], w[2])}`);
+    for (const w of GAME_WORDS) asked.add(`${w[0]}|${w[2]}`);
     const stale = HARVESTED.filter((w) => !asked.has(`${w.lemma}|${w.pos}`))
       .map((w) => `${w.lemma}|${w.pos}`);
     expect(stale, "a row nothing requested: a full `npm run harvest` drops it").toEqual([]);

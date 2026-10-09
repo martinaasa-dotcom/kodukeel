@@ -78,6 +78,8 @@ export default async function TwentyPage({
         glosses={round.glosses}
         equivalents={round.equivalents}
         index={round.index}
+        extra={round.extra}
+        pool={round.pool}
         starred={starred.has(round.lexemeId)}
       />
     </BeforeYouStart>
