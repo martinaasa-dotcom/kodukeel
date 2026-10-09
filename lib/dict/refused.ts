@@ -111,8 +111,8 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
     et: "Haige on palavikust nõrk.",
     why:
       "Not what anybody would say, reported by the native speaker who develops " +
-      "this app off a gap card: haige as a noun for a person is dated and cold, " +
-      "and the word people use for somebody under care is patsient. Withheld " +
+      "this app off a gap card. Haige as a noun for a person is dated and cold. " +
+      "The word people use for somebody under care is patsient. Withheld " +
       "rather than reworded, since this app writes no Estonian.",
   },
   {

@@ -1,9 +1,9 @@
 {
  "source": "Vabamorf through estnltk: the lexicon with guessing off for which spellings belong to more than one word, and the disambiguator over each sentence for which word it means",
  "corpus": {
-  "sentences": 15572,
-  "words": 29385,
-  "digest": "38bf91b03705fa77"
+  "sentences": 15570,
+  "words": 29383,
+  "digest": "1f87f06060cc7f71"
  },
  "homographs": [
   "-aastast",
@@ -1904,7 +1904,6 @@
   "summa",
   "sundisid",
   "supist",
-  "suremas",
   "surma",
   "surmamõistetu",
   "surmapõlglikult",
@@ -10894,7 +10893,6 @@
   "ccb491c9614b|küüni": "küün",
   "ccb491c9614b|muu": "muu",
   "ccbbf6d664d2|riimi": "riim",
-  "ccbd8e404ab8|suremas": "surema",
   "ccbdb3edc978|oma": "oma",
   "ccc510026596|vaja": "vaja",
   "ccc8777ac77f|kuue": "kuus",
