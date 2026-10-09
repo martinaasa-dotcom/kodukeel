@@ -54,7 +54,9 @@ import { fill } from "@/lib/copy/locale";
  * every phase, which is what the accessibility sweep asks for and what
  * somebody moving by headings needs when the screen changes under them.
  */
-export function SceneStage({ sceneId, title, place, minutes, progress, stage, children }: {
+export function SceneStage({ sceneId, title, place, minutes, progress, stage, aside, children }: {
+  /** From `lg` up: the room and the card stand in a column of their own beside the conversation. */
+  aside?: ReactNode;
   /** Which room this is, for the mark on the bar (`lib/scenes/scenery.ts`). */
   sceneId: string;
   title: string;
@@ -96,7 +98,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
       <div aria-hidden className="scene-ground" />
 
       <header className="scene-top sticky top-0 z-30">
-        <div className="mx-auto flex h-14 w-full max-w-3xl items-center gap-3 px-4 md:px-6">
+        <div className={`mx-auto flex h-14 w-full max-w-3xl items-center gap-3 px-4 md:px-6 ${aside ? "lg:max-w-6xl" : ""}`}>
           {/*
             The way out, which is a door rather than a chevron with nothing
             beside it: a learner who steps into a room with no navigation has
@@ -216,7 +218,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
           */
           <div
             data-scene-stage
-            className="scene-open mx-auto flex w-full max-w-3xl px-4 pb-1.5 md:px-6"
+            className={`scene-open mx-auto flex w-full max-w-3xl px-4 pb-1.5 md:px-6 ${aside ? "lg:hidden" : ""}`}
             style={{ height: "var(--scene-stage)" }}
           >
             {/*
@@ -233,7 +235,19 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
         )}
       </header>
 
-      <div className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-5 md:px-6">{children}</div>
+      <div className={`mx-auto w-full flex-1 px-4 pb-16 pt-5 md:px-6 ${aside ? "max-w-3xl lg:max-w-6xl lg:pb-8 lg:pt-4" : "max-w-3xl"}`}>
+        {aside ? (
+          <div className="lg:grid lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-4">
+            {/* Below `lg` this column does not exist (`contents`), so the card
+                falls into the page above the conversation exactly where it was. */}
+            <aside className="contents lg:sticky lg:top-[4.75rem] lg:flex lg:max-h-[calc(100dvh-5.5rem)] lg:flex-col lg:gap-3 lg:overflow-y-auto">
+              <div className="night hidden h-36 w-full shrink-0 items-end justify-center rounded-[var(--r-lg)] border px-3 pt-2 lg:flex">{stage}</div>
+              {aside}
+            </aside>
+            <div>{children}</div>
+          </div>
+        ) : children}
+      </div>
     </div>
   );
 }
