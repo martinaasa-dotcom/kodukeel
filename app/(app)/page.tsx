@@ -482,68 +482,79 @@ export default async function TodayPage() {
   const moduleTonight = Boolean(courseNow && courseDay && !courseNow.finishedToday && courseStep);
 
   const courseCard = moduleTonight && courseDay && courseStep ? (
-    <Card tone="night" className="grid items-center gap-8 md:p-9 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-12">
-      {/* Left: what today is, and nothing else. The ring, the minutes, the
-          "next step" chip and the description were four things competing in
-          one column while the other column held a button. The minutes went
-          into the eyebrow and the steps went to the right, where they fill
-          the space and say what "the module" actually is. */}
-      <div className="min-w-0">
-        <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
-          <span style={{ color: "var(--cta)" }}>{t("Today’s module")}</span>
-          <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
-          <span>{fill(t("Day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}</span>
-        </p>
-        <FitText
-          as="h2"
-          text={ui(courseDay.day.title, courseDay.day.subtitle)}
-          className="font-display mt-3 font-bold leading-tight [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"
-          lang={uiWantsEnglish(placement) ? undefined : "et"}
-          style={{ color: "var(--ink)", textWrap: "balance" }}
-        />
-        <p className="mt-3 max-w-[46ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t(courseDay.day.canDo)}
-        </p>
+    <Card tone="night" className="grid items-stretch gap-8 md:p-9 lg:grid-cols-2 lg:gap-14">
+      {/*
+        TWO HALVES THAT SHARE THE SAME TOP AND THE SAME BOTTOM.
+
+        Every earlier version of this card had one half heavier than the other
+        and centred the lighter one, which leaves air above and below it. Here
+        both halves are stretched to the card's height and each pins its
+        content to both edges: on the left the label and the title sit at the
+        top and the description and the button at the bottom; on the right the
+        four steps share the height equally, the first row level with the
+        label and the last level with the button. Nothing floats.
+      */}
+      <div className="flex min-w-0 flex-col justify-between gap-8">
+        <div>
+          <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
+            <span style={{ color: "var(--cta)" }}>{t("Today’s module")}</span>
+            <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
+            <span>{fill(t("Day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}</span>
+            <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
+            <span>{fill(t("{minutes} min"), { minutes: courseDay.minutesLeft })}</span>
+          </p>
+          <FitText
+            as="h2"
+            text={ui(courseDay.day.title, courseDay.day.subtitle)}
+            className="font-display mt-4 font-bold leading-tight [--fit-max:var(--text-3xl)] md:[--fit-max:var(--text-3xl)]"
+            lang={uiWantsEnglish(placement) ? undefined : "et"}
+            style={{ color: "var(--ink)", textWrap: "balance" }}
+          />
+        </div>
+        <div>
+          <p className="max-w-[46ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            {t(courseDay.day.canDo)}
+          </p>
+          <ButtonLink href="/course" variant="primary" size="lg" className="mt-5 w-full justify-center sm:w-auto">
+            {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
+          </ButtonLink>
+        </div>
       </div>
-      {/* Right: the evening as a list of its steps, the finished ones ticked,
-          and the one button under it. No box and no ring: the list is the
-          content, and the progress is the ticks. */}
-      <div className="flex min-w-0 flex-col gap-5">
-        <ol
-          className="flex flex-col"
-          aria-label={fill(t("{minutes} min to go today"), { minutes: courseDay.minutesLeft })}
-        >
-          {stepsIn(courseDay.day, locale).map((step, i) => {
-            const done = courseDay.done.has(step.id);
-            return (
-              <li
-                key={step.id}
-                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-t py-3 first:border-t-0 first:pt-0"
-                style={{ borderColor: "color-mix(in srgb, var(--ink) 12%, transparent)" }}
+      <ol
+        className="flex min-w-0 flex-col rounded-[var(--r-lg)] border"
+        style={{
+          background: "color-mix(in srgb, var(--ink) 5%, transparent)",
+          borderColor: "color-mix(in srgb, var(--ink) 12%, transparent)",
+        }}
+        aria-label={fill(t("{minutes} min to go today"), { minutes: courseDay.minutesLeft })}
+      >
+        {stepsIn(courseDay.day, locale).map((step, i) => {
+          const done = courseDay.done.has(step.id);
+          return (
+            <li
+              key={step.id}
+              className="grid flex-1 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 border-t px-5 py-4 first:border-t-0"
+              style={{ borderColor: "color-mix(in srgb, var(--ink) 12%, transparent)" }}
+            >
+              <span
+                aria-hidden
+                className="grid h-8 w-8 place-items-center rounded-full text-sm font-bold"
+                style={done
+                  ? { background: "var(--cta)", color: "var(--stage)" }
+                  : { boxShadow: "inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 30%, transparent)", color: "var(--ink-2)" }}
               >
-                <span
-                  aria-hidden
-                  className="grid h-7 w-7 place-items-center rounded-full text-sm font-bold"
-                  style={done
-                    ? { background: "var(--cta)", color: "var(--stage)" }
-                    : { boxShadow: "inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 30%, transparent)", color: "var(--ink-2)" }}
-                >
-                  {done ? "✓" : i + 1}
-                </span>
-                <span className="text-md font-semibold leading-snug" style={{ color: done ? "var(--ink-2)" : "var(--ink)" }}>
-                  {step.title}
-                </span>
-                <span className="text-sm tabular-nums" style={{ color: "var(--ink-2)" }}>
-                  {fill(t("{minutes} min"), { minutes: step.minutes })}
-                </span>
-              </li>
-            );
-          })}
-        </ol>
-        <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
-          {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
-        </ButtonLink>
-      </div>
+                {done ? "✓" : i + 1}
+              </span>
+              <span className="text-md font-semibold leading-snug" style={{ color: done ? "var(--ink-2)" : "var(--ink)" }}>
+                {step.title}
+              </span>
+              <span className="text-sm tabular-nums" style={{ color: "var(--ink-2)" }}>
+                {fill(t("{minutes} min"), { minutes: step.minutes })}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
     </Card>
   ) : courseNow?.finishedToday ? (
     <Card tone="accent" className="evening flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
