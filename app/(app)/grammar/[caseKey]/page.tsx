@@ -153,7 +153,7 @@ export default async function CasePage({
       lead={t(ref.summary)}
       actions={inModule ? undefined : (
         <Link
-          href="/grammar"
+          href="/grammar/cases"
           className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
         >

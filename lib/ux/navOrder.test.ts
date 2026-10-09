@@ -6,15 +6,15 @@ import {
 import { PINNABLE } from "./nav";
 
 describe("the rail's order", () => {
-  it("is the five places when nothing is stored", () => {
+  it("is the six places when nothing is stored", () => {
     expect(navOrderFrom(null)).toEqual([...DEFAULT_NAV_ORDER]);
     expect(navOrderFrom("")).toEqual([...DEFAULT_NAV_ORDER]);
-    expect(DEFAULT_NAV_ORDER).toHaveLength(5);
+    expect(DEFAULT_NAV_ORDER).toHaveLength(6);
   });
 
   it("keeps an order somebody set, pins included", () => {
-    const order = navOrderFrom("/practice / /calendar /learn /dictionary /progress");
-    expect(order).toEqual(["/practice", "/", "/calendar", "/learn", "/dictionary", "/progress"]);
+    const order = navOrderFrom("/practice / /calendar /learn /grammar /dictionary /progress");
+    expect(order).toEqual(["/practice", "/", "/calendar", "/learn", "/grammar", "/dictionary", "/progress"]);
   });
 
   it("never loses one of the five, and puts a missing one back beside its neighbour", () => {
@@ -40,7 +40,7 @@ describe("the rail's order", () => {
   });
 
   it("draws a row for every entry and offers what is not pinned", () => {
-    const order = navOrderFrom("/ /learn /practice /dictionary /progress /calendar");
+    const order = navOrderFrom("/ /learn /practice /grammar /dictionary /progress /calendar");
     expect(railRows(order).map((d) => d.href)).toEqual(order);
     expect(unpinned(order).map((d) => d.href)).not.toContain("/calendar");
     expect(unpinned(order).length).toBe(PINNABLE.length - 1);
