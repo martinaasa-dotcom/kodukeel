@@ -102,7 +102,7 @@ _lib/copy/i18n/{ru,uk}.ts_
   → Исключения
 - [ ] **36.** The words that break the usual rules  
   → Слова, которые нарушают обычные правила
-- [ ] **37.** Commonest words  
+- [ ] **37.** Common words  
   → Самые частые слова
 - [ ] **38.** The 400 words Estonians use most, in four lists  
   → 400 слов, которые эстонцы используют чаще всего, в четырёх списках

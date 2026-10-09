@@ -237,7 +237,7 @@ export const SECTIONS: NavSection[] = [
         keywords: "irregular exception gradation stem change tuppa illative unpredictable memorize astmevaheldus",
       },
       {
-        href: "/dictionary/common", label: "Commonest words",
+        href: "/dictionary/common", label: "Common words",
         blurb: "The 400 words Estonians use most, in four lists", icon: "TrendingUp",
         tone: "sky", within: "/dictionary",
         keywords: "frequency common most used top 100 hundred subtitles corpus first learn order",
