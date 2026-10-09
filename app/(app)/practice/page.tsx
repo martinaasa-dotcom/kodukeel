@@ -1,3 +1,4 @@
+import { HeroSplit } from "@/components/HeroSplit";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -158,23 +159,28 @@ export default async function PracticePage() {
             Progress, and where each word stands is a link inside the card
             whose round moves it.
           */}
-          <section className="night rounded-[var(--r-xl)] border p-6 md:p-9" aria-labelledby="practice-review">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-              <div className="min-w-0">
-                <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{tr(locale, "Review")}</p>
-                <h2 id="practice-review" className="font-display mt-3 flex items-baseline gap-3 font-bold leading-none" style={{ color: "var(--ink)" }}>
-                  <span className="text-7xl tabular-nums md:text-8xl">{ready}</span>
-                  <span className="text-2xl md:text-3xl">{countOf(locale, ready, "card waiting").slice(String(ready).length + 1)}</span>
-                </h2>
-                <p className="mt-4 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {tr(locale, "Each word comes back just before you'd forget it. We keep track of when, so you don't have to.")}
+          <HeroSplit
+            label="practice-review"
+            aside={
+              <>
+                <p className="font-display flex items-baseline gap-3 font-bold leading-none" style={{ color: "var(--ink)" }}>
+                  <span className="text-7xl tabular-nums">{ready}</span>
+                  <span className="text-xl">{countOf(locale, ready, "card waiting").slice(String(ready).length + 1)}</span>
                 </p>
-              </div>
-              <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full shrink-0 justify-center whitespace-nowrap lg:w-auto">
-                {ready > 0 ? tr(locale, "Review now") : tr(locale, "Nothing due, open it anyway")} <ArrowRight size={17} aria-hidden />
-              </ButtonLink>
-            </div>
-          </section>
+                <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full justify-center whitespace-nowrap">
+                  {ready > 0 ? tr(locale, "Review now") : tr(locale, "Nothing due, open it anyway")} <ArrowRight size={17} aria-hidden />
+                </ButtonLink>
+              </>
+            }
+          >
+            <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{tr(locale, "Review")}</p>
+            <h2 id="practice-review" className="font-display mt-3 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+              {tr(locale, "Each word comes back just before you'd forget it.")}
+            </h2>
+            <p className="mt-3 max-w-[44ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
+              {tr(locale, "We keep track of when, so you don't have to.")}
+            </p>
+          </HeroSplit>
 
           {flash && common && (
             <section

@@ -1,3 +1,4 @@
+import { HeroSplit } from "@/components/HeroSplit";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, ChevronRight, Compass, Flag, Lock } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
@@ -401,72 +402,64 @@ function LearnCard({
   const phrasesReady = phrases.waiting + phrases.started;
   const batch = Math.min(ready, LEARN_BATCH);
   return (
-    <div className="night mb-10 rounded-[var(--r-xl)] border p-6 md:p-9">
-      <div className="flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
-        <div className="min-w-0">
-          <p className="label-xs" style={{ color: "var(--butter-ink)" }}>
-            {ready > 0 ? t("Today’s new words") : t("New words")}
-          </p>
-          <h2 className="font-display mt-3 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-            {ready > 0
-              ? <>{fill(t("{n} words are waiting for you"), { n: batch })}</>
-              : onCourse ? <>{t("They come with each evening")}</> : <>{t("No new words yet")}</>}
-          </h2>
-          {/*
-            One line for what happens next, where there used to be two chips of
-            counts and three boxes spelling out the ladder under the button:
-            five things to read before pressing the one thing on the card.
-          */}
-          {ready > 0 ? (
-            <p className="mt-3 max-w-[48ch] text-md" style={{ color: "var(--ink-2)" }}>
-              {t("Meet each one, pick what it means, then fit it back into a sentence.")}
-              {started > 0 && <> {fill(t("You're already part way through {n}."), { n: started })}</>}
-            </p>
-          ) : onCourse ? (
-            <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>
-              {t("Your course hands you a few new words each evening, in an order where each one builds on the last. Or open any unit below to meet its words now.")}
-            </p>
-          ) : (
-            <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>
-              {t("Open a unit below and its words will turn up here, ready to meet.")}
-            </p>
-          )}
-        </div>
-        {/*
-          `shrink-0` and `items-center` are the whole of what keeps the two
-          buttons whole. Without them the row beside the heading was a flex
-          item the heading could squeeze, `overflow-wrap: anywhere` let it go
-          down to a letter, and "Learn 5 phrases" was drawn five letters a
-          line at 44px wide while the primary beside it stretched to 319px
-          tall. A button label is never broken (`components/Button.tsx`), so
-          what gives now is the heading's measure, which is prose.
-        */}
-        <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center xl:flex-nowrap">
-          {/*
-            A whole phrase (`Kas sa räägid inglise keelt?`) is taught on the same
-            ladder as a word, and for a while that meant "learn 5 new words" could
-            hand over five phrases in a row, the entire `tervitused` unit and
-            nothing else: a learner pressing "words" expecting words. So a phrase
-            is its own quieter button here rather than folded into the count
-            above, only where one is actually waiting.
-          */}
-          {phrasesReady > 0 && (
-            <ButtonLink href="/learn/new?kind=phrase" variant="secondary" className="w-full justify-center sm:w-auto">
-              {fill(t("Learn {n} phrases"), { n: Math.min(phrasesReady, LEARN_BATCH) })}
-            </ButtonLink>
-          )}
+    <div className="mb-10">
+    <HeroSplit
+      aside={
+        <>
           {ready > 0 && (
-            <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap sm:w-auto">
-              {fill(t("Learn {n} words"), { n: batch })} <ArrowRight size={17} aria-hidden />
-            </ButtonLink>
+            <ol className="flex flex-col gap-2.5" aria-label={t("How a word is learned")}>
+              {[t("Meet it"), t("Pick what it means"), t("Fit it into a sentence")].map((step, i) => (
+                <li key={step} className="flex items-center gap-3 text-md font-semibold" style={{ color: "var(--ink)" }}>
+                  <span
+                    aria-hidden
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold"
+                    style={{ background: "var(--butter)", color: "var(--on-butter, var(--stage))" }}
+                  >
+                    {i + 1}
+                  </span>
+                  {step}
+                </li>
+              ))}
+            </ol>
           )}
-          {ready === 0 && onCourse && (
-            <ButtonLink href="/course" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap sm:w-auto">
-              {t("Open today’s module")} <ArrowRight size={17} aria-hidden />
-            </ButtonLink>
-          )}
-        </div>
-      </div>
+          <div className="flex flex-col gap-2">
+            {ready > 0 && (
+              <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap">
+                {fill(t("Learn {n} words"), { n: batch })} <ArrowRight size={17} aria-hidden />
+              </ButtonLink>
+            )}
+            {phrasesReady > 0 && (
+              <ButtonLink href="/learn/new?kind=phrase" variant="secondary" className="w-full justify-center">
+                {fill(t("Learn {n} phrases"), { n: Math.min(phrasesReady, LEARN_BATCH) })}
+              </ButtonLink>
+            )}
+            {ready === 0 && onCourse && (
+              <ButtonLink href="/course" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap">
+                {t("Open today’s module")} <ArrowRight size={17} aria-hidden />
+              </ButtonLink>
+            )}
+          </div>
+        </>
+      }
+    >
+      <p className="label-xs" style={{ color: "var(--butter-ink)" }}>
+        {ready > 0 ? t("Today’s new words") : t("New words")}
+      </p>
+      <h2 className="font-display mt-3 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+        {ready > 0
+          ? <>{fill(t("{n} words are waiting for you"), { n: batch })}</>
+          : onCourse ? <>{t("They come with each evening")}</> : <>{t("No new words yet")}</>}
+      </h2>
+      <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>
+        {ready > 0
+          ? (started > 0
+              ? fill(t("You're already part way through {n}."), { n: started })
+              : t("A few at a time, so each one sticks."))
+          : onCourse
+            ? t("Your course hands you a few new words each evening, in an order where each one builds on the last. Or open any unit below to meet its words now.")
+            : t("Open a unit below and its words will turn up here, ready to meet.")}
+      </p>
+    </HeroSplit>
     </div>
   );
 }
