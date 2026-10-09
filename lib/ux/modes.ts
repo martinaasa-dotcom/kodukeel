@@ -383,7 +383,7 @@ export const SHELVES: readonly Shelf[] = [
   },
   {
     id: "workshop", name: "Workshop", hint: "You think, you type. Take your time.", tone: "accent",
-    hrefs: ["/situations", "/review/describe", "/review/twenty"],
+    hrefs: ["/situations", "/review/describe", "/review/openers", "/review/twenty"],
   },
 ];
 
