@@ -482,7 +482,7 @@ export default async function TodayPage() {
   const moduleTonight = Boolean(courseNow && courseDay && !courseNow.finishedToday && courseStep);
 
   const courseCard = moduleTonight && courseDay && courseStep ? (
-    <Card tone="night" className="flex flex-col gap-6 md:p-9 lg:flex-row lg:items-center lg:gap-10">
+    <Card tone="night" className="grid items-stretch gap-6 md:p-9 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-10">
       <div className="min-w-0 flex-1">
         <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
           <span style={{ color: "var(--cta)" }}>{t("Today’s module")}</span>
@@ -518,7 +518,18 @@ export default async function TodayPage() {
           )}
         </p>
       </div>
-      <div className="flex flex-col items-stretch gap-4 lg:w-[19rem] lg:shrink-0">
+      {/* The same tile as the other leading cards (components/HeroSplit.tsx),
+          stretched to the height of the words beside it and centred inside
+          itself, so the right half is a filled panel and not an island with
+          air round it. */}
+      <div
+        data-hero-aside
+        className="flex min-w-0 flex-col justify-center gap-5 rounded-[var(--r-lg)] border p-6"
+        style={{
+          background: "color-mix(in srgb, var(--ink) 6%, transparent)",
+          borderColor: "color-mix(in srgb, var(--ink) 12%, transparent)",
+        }}
+      >
         <div className="flex items-center gap-4">
           <Ring
             pct={courseDay.pct}
