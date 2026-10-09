@@ -730,12 +730,20 @@ export const ROUNDS: Area = {
       "Следующая картинка",
     "Picture {n} of {total}":
       "Картинка {n} из {total}",
+    "Setting: {title}. Use it if it helps. Any story you imagine is fine.":
+      "Место действия: {title}. Опирайтесь на него, если так проще. Подойдёт любая придуманная вами история.",
+    "Corrected":
+      "Исправлено",
+    "Nothing to correct.":
+      "Исправлять нечего.",
+    "The changed forms come from the dictionary.":
+      "Изменённые формы взяты из словаря.",
     "Sentence {n} needs at least three words.":
       "В предложении {n} нужно хотя бы три слова.",
     "You're offline, so we can't mark it yet. Your sentences are safe here.":
       "Вы офлайн, поэтому проверить пока не получится. Ваши предложения сохранены здесь.",
-    "Spelled and on topic":
-      "Без ошибок и по теме",
+    "Spelled right":
+      "Без ошибок",
     "That's not quite a sentence yet. Try three words or more.":
       "Это пока не совсем предложение. Попробуйте три слова или больше.",
     "We couldn't find {words} in the dictionary. Check the spelling, and the {letters}.":
@@ -744,36 +752,32 @@ export const ROUNDS: Area = {
       "{a}, {b}, {c} и {d}",
     "You already wrote this one. Try saying something different about the picture.":
       "Это вы уже писали. Попробуйте сказать о картинке что-то другое.",
-    "We couldn't match this to anything in the picture. Name something you can see: a person, an animal or an object.":
-      "Мы не нашли здесь ничего с картинки. Назовите то, что видите: человека, животное или предмет.",
-    "Every word is spelled right and it's about the picture.":
-      "Все слова написаны правильно, и предложение про картинку.",
+    "Every word is spelled right.":
+      "Все слова написаны правильно.",
     "Start with a capital letter and finish with a period.":
       "Начните с заглавной буквы и закончите точкой.",
-    "Spelled right and about the picture.":
-      "Без ошибок и про картинку.",
-    "{n} of your {total} sentences are spelled right and about the picture.":
-      "Без ошибок и про картинку: {n} из {total} ваших предложений.",
+    "Spelled right.":
+      "Без ошибок.",
+    "{n} of your {total} sentences are spelled right.":
+      "Без ошибок: {n} из {total} ваших предложений.",
     "You wrote all five, which is the hardest part to start.":
       "Вы написали все пять, а начать всегда труднее всего.",
     "Spelling: sentences with a word we couldn't find: {n}.":
       "Орфография: предложений со словом, которого мы не нашли: {n}.",
-    "Staying on the picture: sentences that named nothing in it: {n}.":
-      "Не отходить от картинки: предложений, где ничего с неё не названо: {n}.",
     "Saying something new in each sentence.":
       "Говорить в каждом предложении что-то новое.",
     "A capital at the start and a period at the end.":
       "Заглавная буква в начале и точка в конце.",
     "What to work on":
       "Над чем поработать",
-    "Notes from Anu. The spelling and picture checks come from the dictionary.":
-      "Заметки Ану. Написание и связь с картинкой мы проверили по словарю.",
+    "Notes from Anu. The spelling check comes from the dictionary.":
+      "Заметки Ану. Написание мы проверили по словарю.",
     "We hid one of Anu's notes. It used a word we couldn't confirm as Estonian. The spelling check comes from the dictionary, so you can trust that.":
       "Мы скрыли одну из заметок Ану: в ней было слово, которое мы не смогли подтвердить как эстонское. Написание мы проверили по словарю, этому можно доверять.",
     "We hid one of Anu's notes. It used an Estonian form we couldn't confirm, and a wrong form is worse than no note. The spelling check comes from the dictionary, so you can trust that.":
       "Мы скрыли одну из заметок Ану: в ней была эстонская форма, которую мы не смогли подтвердить, а неверная форма хуже, чем никакой заметки. Написание мы проверили по словарю, этому можно доверять.",
-    "Anu isn't around right now, so we only checked spelling and whether each sentence is about the picture. Word order and endings need her.":
-      "Ану сейчас нет, поэтому мы проверили только написание и то, про картинку ли каждое предложение. Порядок слов и окончания может проверить только она.",
+    "Anu isn't around right now, so we only checked spelling. Word order and endings need her.":
+      "Ану сейчас нет, поэтому мы проверили только написание. Порядок слов и окончания может проверить только она.",
     "A birthday party":
       "День рождения",
     "A day at the beach":
@@ -1679,12 +1683,20 @@ export const ROUNDS: Area = {
       "Наступна картинка",
     "Picture {n} of {total}":
       "Картинка {n} з {total}",
+    "Setting: {title}. Use it if it helps. Any story you imagine is fine.":
+      "Місце дії: {title}. Спирайтеся на нього, якщо так легше. Підійде будь-яка вигадана вами історія.",
+    "Corrected":
+      "Виправлено",
+    "Nothing to correct.":
+      "Виправляти нічого.",
+    "The changed forms come from the dictionary.":
+      "Змінені форми взято зі словника.",
     "Sentence {n} needs at least three words.":
       "У реченні {n} потрібно щонайменше три слова.",
     "You're offline, so we can't mark it yet. Your sentences are safe here.":
       "Ви офлайн, тож перевірити поки не вийде. Ваші речення збережено тут.",
-    "Spelled and on topic":
-      "Без помилок і за темою",
+    "Spelled right":
+      "Без помилок",
     "That's not quite a sentence yet. Try three words or more.":
       "Це поки не зовсім речення. Спробуйте три слова або більше.",
     "We couldn't find {words} in the dictionary. Check the spelling, and the {letters}.":
@@ -1693,36 +1705,32 @@ export const ROUNDS: Area = {
       "{a}, {b}, {c} і {d}",
     "You already wrote this one. Try saying something different about the picture.":
       "Це ви вже писали. Спробуйте сказати про картинку щось інше.",
-    "We couldn't match this to anything in the picture. Name something you can see: a person, an animal or an object.":
-      "Ми не знайшли тут нічого з картинки. Назвіть те, що бачите: людину, тварину чи предмет.",
-    "Every word is spelled right and it's about the picture.":
-      "Усі слова написано правильно, і речення про картинку.",
+    "Every word is spelled right.":
+      "Усі слова написано правильно.",
     "Start with a capital letter and finish with a period.":
       "Почніть з великої літери й закінчіть крапкою.",
-    "Spelled right and about the picture.":
-      "Без помилок і про картинку.",
-    "{n} of your {total} sentences are spelled right and about the picture.":
-      "Без помилок і про картинку: {n} з {total} ваших речень.",
+    "Spelled right.":
+      "Без помилок.",
+    "{n} of your {total} sentences are spelled right.":
+      "Без помилок: {n} із {total} ваших речень.",
     "You wrote all five, which is the hardest part to start.":
       "Ви написали всі п'ять, а почати завжди найважче.",
     "Spelling: sentences with a word we couldn't find: {n}.":
       "Правопис: речень зі словом, якого ми не знайшли: {n}.",
-    "Staying on the picture: sentences that named nothing in it: {n}.":
-      "Не відходити від картинки: речень, де нічого з неї не названо: {n}.",
     "Saying something new in each sentence.":
       "Казати в кожному реченні щось нове.",
     "A capital at the start and a period at the end.":
       "Велика літера на початку й крапка в кінці.",
     "What to work on":
       "Над чим попрацювати",
-    "Notes from Anu. The spelling and picture checks come from the dictionary.":
-      "Нотатки Ану. Написання і зв'язок із картинкою ми перевірили за словником.",
+    "Notes from Anu. The spelling check comes from the dictionary.":
+      "Нотатки Ану. Правопис ми перевірили за словником.",
     "We hid one of Anu's notes. It used a word we couldn't confirm as Estonian. The spelling check comes from the dictionary, so you can trust that.":
       "Ми приховали одну з нотаток Ану: у ній було слово, яке ми не змогли підтвердити як естонське. Написання ми перевірили за словником, цьому можна довіряти.",
     "We hid one of Anu's notes. It used an Estonian form we couldn't confirm, and a wrong form is worse than no note. The spelling check comes from the dictionary, so you can trust that.":
       "Ми приховали одну з нотаток Ану: у ній була естонська форма, яку ми не змогли підтвердити, а неправильна форма гірша, ніж жодної нотатки. Написання ми перевірили за словником, цьому можна довіряти.",
-    "Anu isn't around right now, so we only checked spelling and whether each sentence is about the picture. Word order and endings need her.":
-      "Ану зараз немає, тож ми перевірили лише написання і те, чи кожне речення про картинку. Порядок слів і закінчення може перевірити тільки вона.",
+    "Anu isn't around right now, so we only checked spelling. Word order and endings need her.":
+      "Ану зараз немає, тому ми перевірили лише правопис. Порядок слів і закінчення може перевірити тільки вона.",
     "A birthday party":
       "День народження",
     "A day at the beach":
