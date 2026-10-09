@@ -394,7 +394,7 @@ _lib/copy/i18n/{ru,uk}.ts_
   → Как начало предложения выбирает окончание
 - [ ] **182.** The first words of a sentence and a gap at the end, always for the same word within a round.  
   → Первые слова предложения и пропуск в конце, всё время для одного и того же слова в пределах раунда.
-- [ ] **183.** Choose the right form, or type it from B1. Nothing is timed. A wrong answer shows where that form would have fit.  
+- [ ] **183.** Choose the right form. Once a stage is settled you type it instead. Nothing is timed. A wrong answer shows where that form would have fit.  
   → Выберите нужную форму, а с уровня B1 впишите её сами. Время не ограничено. Неверный ответ покажет, где эта форма подошла бы.
 - [ ] **184.** Five sentences  
   → Пять предложений

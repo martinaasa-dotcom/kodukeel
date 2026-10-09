@@ -394,7 +394,7 @@ _lib/copy/i18n/{ru,uk}.ts_
   → Як початок речення вибирає закінчення
 - [ ] **182.** The first words of a sentence and a gap at the end, always for the same word within a round.  
   → Перші слова речення і пропуск у кінці, увесь час для того самого слова в межах раунду.
-- [ ] **183.** Choose the right form, or type it from B1. Nothing is timed. A wrong answer shows where that form would have fit.  
+- [ ] **183.** Choose the right form. Once a stage is settled you type it instead. Nothing is timed. A wrong answer shows where that form would have fit.  
   → Виберіть потрібну форму, а з рівня B1 впишіть її самі. Час не обмежено. Неправильна відповідь покаже, де ця форма підійшла б.
 - [ ] **184.** Five sentences  
   → П'ять речень

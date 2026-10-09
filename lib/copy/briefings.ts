@@ -152,7 +152,7 @@ export const BRIEFINGS = {
   openers: {
     title: "How a sentence start picks the ending",
     what: "The first words of a sentence and a gap at the end, always for the same word within a round.",
-    you: "Choose the right form, or type it from B1. Nothing is timed. A wrong answer shows where that form would have fit.",
+    you: "Choose the right form. Once a stage is settled you type it instead. Nothing is timed. A wrong answer shows where that form would have fit.",
     action: "Start",
   },
   twenty: {

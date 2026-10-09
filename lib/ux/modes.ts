@@ -246,7 +246,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     blurb:
       "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of " +
       "its last word, and this is where you learn to hear that.",
-    within: "/grammar/topic/government",
+    within: "/practice",
   },
   {
     href: "/review/pairs", title: "Minimal pairs", subtitle: "Long sound or short?", icon: "Ear", tone: "sky",
