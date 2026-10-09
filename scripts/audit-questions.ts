@@ -71,6 +71,7 @@ import { emojiFor } from "../lib/collections/emoji";
 import { ASKABLE_CASES, taskFor, type SceneWord } from "../lib/games/describe";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
 import { caseQuestion } from "../lib/progress/target";
+import { questionsForWord } from "../lib/progress/map";
 import { orderContextFrom } from "../lib/estonian/wordOrder";
 import { planLesson, type LessonWord } from "../lib/collections/lesson";
 import { taughtSpellings } from "../lib/progress/lessonWords";
@@ -710,6 +711,29 @@ for (const e of entries) {
     `${question.lemma} ${question.question ?? ""}`,
     question.options[question.answer] ?? "",
   );
+}
+});
+
+/* ── Map ─────────────────────────────────────────────────────────────────── */
+/*
+  The round that shows a picture and asks for the form that matches it. What a
+  learner is shown is the word, its gloss and the English question about the
+  picture, and the answer is one of three forms of that same word, so the fault
+  to look for is the word or its gloss spelling the answer, which is what the
+  builder refuses and this asks again. Every question here also stands on a
+  recorded sentence, so a question that exists is one a lexicographer wrote.
+*/
+timed("map", () => {
+for (const e of entries) {
+  if (e.pos !== "NOUN") continue;
+  const row = {
+    id: e.lemma, lemma: e.lemma, translation: e.translation, pos: e.pos, cefr: e.cefr ?? null,
+    semanticTypes: e.semanticTypes ?? null, examples: JSON.stringify(e.examples ?? []),
+    forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
+  };
+  for (const q of questionsForWord(row, borrowed.get(e.lemma) ?? [], plainerFirst(e.cefr ?? null, reach), null)) {
+    ask(`map ${e.lemma} ${q.caseKey}`, `${q.lemma}, ${q.gloss} ${q.scene.ask}`, q.options[q.answer]!.text);
+  }
 }
 });
 

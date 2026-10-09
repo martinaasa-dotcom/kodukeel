@@ -209,6 +209,14 @@ export const BRIEFINGS = {
     you: "Go as fast as you can until time's up. Stopping early costs you nothing.",
     action: "Start the clock",
   },
+  map: {
+    title: "See what the ending means",
+    what:
+      "A small picture, a word under it, and three forms of that word. The picture shows " +
+      "something moving, having, becoming or going without.",
+    you: "Tap the form that matches the picture. Afterwards you'll see a real sentence using it. There's no clock.",
+    action: "Start",
+  },
   target: {
     title: "Hit the right ending",
     what:

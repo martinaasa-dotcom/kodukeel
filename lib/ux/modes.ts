@@ -183,6 +183,15 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "what you want to say and you hunt for the word, which is exactly what speaking feels like.",
   },
   {
+    href: "/review/map", title: "Map", subtitle: "See what an ending means",
+    icon: "Map", tone: "sky", group: "targeted", note: "Pictures, no clock",
+    within: "/practice",
+    blurb:
+      "A small picture of something moving onto a table, into a house, off a shelf or towards " +
+      "a person, and three forms of one word. Only the ending tells them apart, and the picture " +
+      "is what it means. Afterwards you read a real sentence using it.",
+  },
+  {
     href: "/review/target", title: "Target", subtitle: "Hit the right ending",
     icon: "Target", tone: "blush", group: "targeted", note: "Shrinking clock",
     within: "/practice",

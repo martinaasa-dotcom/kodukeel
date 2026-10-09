@@ -3072,3 +3072,48 @@ first paper. Each is fixed. The result now groups the wrong answers by part and 
 question each one was, and folds the blanks away. And because the server rebuilds a paper from its
 seed to mark it, a paper begun before this pass is refused with a sentence saying so
 (`PAPER_FORMAT`) rather than marked against questions nobody was asked.
+
+## 52. The forty-sixth pass: Map, an ending shown rather than named
+
+A new round in Practice for the endings, built because the last one that asked for them
+was a quiz and a quiz asks a learner to recall a label. `/review/map` shows a small
+picture of a book moving, resting, becoming or going without, under a word, and offers
+three forms of that word. Only the ending tells them apart, and the picture is what the
+ending means. Untimed, because a clock turns it back into a reflex and Target already is
+one.
+
+**Eleven cases, not fourteen.** The eleven that are an ending on the genitive stem each
+have a picture that is true: in, out of and into, on, off and onto, with, becoming, up
+to, as and without. The three stored forms stay out: `lib/estonian/caseReading.ts` says
+English marks none of what the partitive does, so a picture saying "some of it" would
+contradict the paragraph printed under it. They come back when there is something true
+to draw.
+
+**Eight drawings and none per word.** A scene is chosen by the case and by whether the
+word is a person, never by the word, so a house is a house whichever noun is in it.
+Which trio of local cases a word takes is still `lib/estonian/caseQuestion.ts`'s to
+decide, so Map cannot ask `õpetajas` or `Venemaas`.
+
+**A sentence is required, which was the operator's call.** A question exists only where
+a lexicographer's sentence holds the asked form and `readCase` reads that spelling as
+exactly one case, the same test the deck builder applies. It is printed after the answer
+with the form marked, beside the endings as a set. The wrong answers need no sentence:
+they are other forms of the same word and nothing here teaches them.
+
+**What that cost, measured before building.** Of 4,520 nouns, 1,759 can be asked about at
+least one case, 2,599 questions over the eight cases the deck builds. Thin: `-lt` has 76
+words, `-sse` 141, and `-ni`, `-ta` and `-na` are at least 30, 32 and 73 (the deck never
+builds a card for those three, so the figure is a floor). Only 40 words have all three
+moves of a local set in a recorded sentence, which does not matter here because only the
+answer needs one. The round deals the cases in turn so a rare one is not drowned by `-ga`.
+
+**Deck first, the dictionary behind it.** The learner's own nouns lead, since those are the
+only ones that can be graded; a short round is topped up from the dictionary at their
+level, and a word with no card writes nothing. Following the course, both are held to what
+the evenings have taught, case by case. Not on the module rotation: it is a game in
+Practice.
+
+**Left for later.** The ladder inside a round (picture, then the question word alone, then
+typed) is designed and not built: this pass is the picture rung. The three stored forms.
+`audit:questions` asks every Map question the shipped dictionary can build whether the
+answer is on the screen.
