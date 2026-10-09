@@ -8304,7 +8304,19 @@ five boxes about each that must all hold a sentence. The dictionary decides firs
 picture, not repeated: `lib/games/picture.ts`), one grader call speaks to the grammar, and only a
 sentence whose Estonian is verified reaches the learner. It grades nothing into the review log, since
 no card stands behind a picture. The twelve example sentences are authored and are for the native
-speaker to read in the pull request. Sõnad and Ristsõna sit on the lavender (`tone="accent"`), their page
+speaker to read in the pull request. **And the picture is a spark, never a condition.** The round told a learner to use their imagination and
+then marked a farm story under a market scene wrong, three times, in red, which a reader took (rightly) for the
+app calling their own invention a mistake. The setting is a suggestion in the instruction line now ("Setting: At
+the market. Use it if it helps. Any story you imagine is fine."), `sound` no longer asks whether a sentence names
+something in the picture (a pictured word is a tick under "What was in the picture" and credit, nothing more), and
+the grader is told in words never to judge a story against the scene. Red is for a sentence a reader could not follow
+(the model's `wrong`, or half the words unplaceable); a slipped ending, a word the forms list could not place or a repeat
+is yellow, because the meaning got across. The end of a picture lists the learner's own sentences corrected
+(`correctionsFor`), and it writes no Estonian: a swap is kept only where the word replaced is one they wrote and the form
+put in is one the dictionary supplied for a thing in the picture (the model's proposal, checked) or sits a letter or two
+from one (`suggestSwaps`, silent on a tie). Word order has no entry there and stays in Anu's note, in words.
+
+Sõnad and Ristsõna sit on the lavender (`tone="accent"`), their page
 is `compact`, and the circle and the square are sized from the window's height (`--sonad-cell`,
 `--cw-cell`) so the board and the keys share one screen.
 
