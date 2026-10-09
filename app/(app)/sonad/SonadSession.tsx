@@ -238,8 +238,8 @@ export function SonadSession({ puzzle, day, guessable }: {
       the board is the thing that gives.
     */
     <div
-      className={`sonad-board ${v === "a" ? "grid grid-cols-[auto_1fr] items-center gap-6" : v === "c" ? "grid grid-cols-[11rem_auto_minmax(22rem,1fr)] items-start gap-4" : "flex flex-col gap-2"}`}
-      style={{ "--sonad-cell": v === "a" ? "clamp(2rem, calc((100dvh - 12rem) / 7.3), 3.25rem)" : v === "b" ? "clamp(1.75rem, calc((100dvh - 26rem) / 7.3), 3.25rem)" : "clamp(2rem, calc((100dvh - 12.5rem) / 7.3), 3.5rem)" } as React.CSSProperties}
+      className={`sonad-board ${v === "d" ? "flex flex-col items-center gap-3" : v === "a" ? "grid grid-cols-[auto_1fr] items-center gap-6" : v === "c" ? "grid grid-cols-[11rem_auto_minmax(22rem,1fr)] items-start gap-4" : "flex flex-col gap-2"}`}
+      style={{ "--sonad-cell": v === "d" ? "clamp(1.75rem, calc((100dvh - 24.5rem) / 7.3), 3.75rem)" : v === "a" ? "clamp(2rem, calc((100dvh - 12rem) / 7.3), 3.25rem)" : v === "b" ? "clamp(1.75rem, calc((100dvh - 26rem) / 7.3), 3.25rem)" : "clamp(2rem, calc((100dvh - 12.5rem) / 7.3), 3.5rem)" } as React.CSSProperties}
     >
       {(() => {
         const info = (
@@ -312,6 +312,12 @@ export function SonadSession({ puzzle, day, guessable }: {
         {refused && (
           <p className="mt-3 text-center text-sm" style={{ color: "var(--again-ink)" }}>{refused}</p>
         )}
+          </>
+        );
+        if (v === "d") return (
+          <>
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">{info}</div>
+            <div className="flex flex-col items-center">{board}</div>
           </>
         );
         if (v === "c") return (
@@ -403,6 +409,12 @@ function Row({ guess, typed, answer, refused, won }: {
   );
 }
 
+function Wrap({ v, children }: { v: string; children: React.ReactNode }) {
+  return v === "d"
+    ? <div className="sonad-keys w-full max-w-[34rem]">{children}</div>
+    : <Card className="sonad-keys" dense>{children}</Card>;
+}
+
 function Keys({ v, marks, onLetter, onDelete, onSubmit }: {
   v: string;
   marks: Map<string, Mark>;
@@ -424,7 +436,7 @@ function Keys({ v, marks, onLetter, onDelete, onSubmit }: {
       scrolls. See `.sonad-keys` in globals.css for why sticky rather than
       fixed, and for what the suites were measuring instead.
     */
-    <Card className="sonad-keys" dense>
+    <Wrap v={v}>
       {/*
         WHAT THE THREE CIRCLES MEAN, IN WORDS, ON THE SCREEN.
 
@@ -447,7 +459,7 @@ function Keys({ v, marks, onLetter, onDelete, onSubmit }: {
         Drawn from the same `HUE` and `RING` tables the circles are, so a
         legend cannot go on describing a colour the board has stopped using.
       */}
-      <ul className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-2xs" style={{ color: "var(--ink-3)" }}>
+      <ul className={`${v === "d" ? "mb-1.5" : "mb-2"} flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-2xs`} style={{ color: "var(--ink-3)" }}>
         {(["here", "elsewhere", "absent"] as const).map((mark) => (
           <li key={mark} className="flex items-center gap-1.5">
             <span
@@ -479,8 +491,8 @@ function Keys({ v, marks, onLetter, onDelete, onSubmit }: {
       <div className="flex flex-col gap-1">
         {SONAD_KEY_ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1 sm:gap-1.5">
-            {v === "b" && i === SONAD_KEY_ROWS.length - 1 && (
-              <button type="button" onClick={onDelete} className="press tap-tint flex h-9 basis-0 flex-[1.6] items-center justify-center gap-1 rounded-[var(--r-sm)] text-sm font-semibold" style={{ background: "var(--surface)", boxShadow: "inset 0 0 0 1px var(--rule)" }}><Delete size={16} aria-hidden /> {t("Delete", "key")}</button>
+            {(v === "b" || v === "d") && i === SONAD_KEY_ROWS.length - 1 && (
+              <button type="button" onClick={onDelete} className={`press tap-tint flex ${v === "d" ? "h-12" : "h-9"} basis-0 flex-[2] items-center justify-center gap-1 rounded-[var(--r-sm)] text-sm font-semibold`} style={{ background: "var(--surface)", boxShadow: "inset 0 0 0 1px var(--rule)" }}><Delete size={16} aria-hidden /> <span className={v === "d" ? "sr-only" : ""}>{t("Delete", "key")}</span></button>
             )}
             {row.map((letter) => {
               const mark = marks.get(letter);
@@ -494,7 +506,7 @@ function Keys({ v, marks, onLetter, onDelete, onSubmit }: {
                   lang="et"
                   aria-label={letter}
                   data-keyboard-key
-                  className={`press tap-tint grid ${v === "a" ? "h-14" : v === "b" ? "h-9" : "h-12"} min-w-0 flex-1 basis-0 place-items-center rounded-[var(--r-sm)] text-sm font-semibold uppercase transition-ui sm:text-base`}
+                  className={`press tap-tint grid ${v === "a" ? "h-14" : v === "b" ? "h-9" : v === "d" ? "h-12" : "h-12"} min-w-0 flex-1 basis-0 place-items-center rounded-[var(--r-sm)] text-sm font-semibold uppercase transition-ui sm:text-base`}
                   style={{
                     background: hue.bg,
                     color: hue.ink,
@@ -505,13 +517,13 @@ function Keys({ v, marks, onLetter, onDelete, onSubmit }: {
                 </button>
               );
             })}
-            {v === "b" && i === SONAD_KEY_ROWS.length - 1 && (
-              <button type="button" onClick={onSubmit} className="press flex h-9 basis-0 flex-[1.6] items-center justify-center gap-1 rounded-[var(--r-sm)] text-sm font-bold" style={{ background: "var(--butter)", color: "var(--ink)" }}><CornerDownLeft size={16} aria-hidden /> {t("Guess")}</button>
+            {(v === "b" || v === "d") && i === SONAD_KEY_ROWS.length - 1 && (
+              <button type="button" onClick={onSubmit} className={`press flex ${v === "d" ? "h-12" : "h-9"} basis-0 flex-[2] items-center justify-center gap-1 rounded-[var(--r-sm)] text-sm font-bold`} style={{ background: "var(--butter)", color: "var(--ink)" }}><CornerDownLeft size={16} aria-hidden /> <span className={v === "d" ? "text-xs" : ""}>{t("Guess")}</span></button>
             )}
           </div>
         ))}
       </div>
-      <div className={`mt-2 flex gap-2 ${v === "b" ? "hidden" : ""}`}>
+      <div className={`mt-2 flex gap-2 ${v === "b" || v === "d" ? "hidden" : ""}`}>
         <Button type="button" variant="secondary" onClick={onDelete} className="flex-1">
           <Delete size={16} aria-hidden /> {t("Delete", "key")}
         </Button>
@@ -519,7 +531,7 @@ function Keys({ v, marks, onLetter, onDelete, onSubmit }: {
           <CornerDownLeft size={16} aria-hidden /> {t("Guess")}
         </Button>
       </div>
-    </Card>
+    </Wrap>
   );
 }
 

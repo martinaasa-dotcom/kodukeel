@@ -182,8 +182,8 @@ export function CrosswordSession({ puzzle, day, clueMeanings = null }: {
       grid and the lists are for jumping about.
     */
     <div
-      className={v === "c" ? "grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4" : "grid grid-cols-[auto_minmax(0,1fr)] items-start gap-5"}
-      style={{ "--cw-cell": `min(clamp(2rem, calc((100dvh - ${v === "c" ? "20rem" : "16rem"}) / ${puzzle.rows} - 4px), 3.25rem), calc((100vw - 4.5rem - ${(puzzle.cols - 1) * 4}px) / ${puzzle.cols}))` } as React.CSSProperties}
+      className={v === "d" ? "mx-auto grid w-fit grid-cols-[17rem_auto] items-start gap-8" : v === "c" ? "grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4" : "grid grid-cols-[auto_minmax(0,1fr)] items-start gap-5"}
+      style={{ "--cw-cell": `min(clamp(2rem, calc((100dvh - ${v === "c" || v === "d" ? "20rem" : "16rem"}) / ${puzzle.rows} - 4px), 3.25rem), calc((100vw - 4.5rem - ${(puzzle.cols - 1) * 4}px) / ${puzzle.cols}))` } as React.CSSProperties}
     >
       {(() => {
         const gridCard = (
@@ -341,6 +341,16 @@ export function CrosswordSession({ puzzle, day, clueMeanings = null }: {
       }} />
         );
         const sr = <span className="sr-only" role="status">{said}</span>;
+        if (v === "d") return (
+          <>
+            <div className="max-h-[calc(100dvh-8rem)] overflow-y-auto"><Clues single puzzle={puzzle} meanings={clueMeanings} active={active} solved={solved} onPick={pickClue} /></div>
+            <div className="flex flex-col gap-2">
+              {gridCard}
+              {sr}
+              {actions}
+            </div>
+          </>
+        );
         if (v === "c") return (
           <>
             <Clues only="across" puzzle={puzzle} meanings={clueMeanings} active={active} solved={solved} onPick={pickClue} />
@@ -406,7 +416,8 @@ function ClueText({ t, clue, meaning, className, inline = false }: {
   );
 }
 
-function Clues({ puzzle, meanings, active, solved, onPick, tabs, only }: {
+function Clues({ puzzle, meanings, active, solved, onPick, tabs, only, single }: {
+  single?: boolean;
   tabs?: boolean;
   only?: "across" | "down";
   puzzle: DailyCrossword;
@@ -428,7 +439,7 @@ function Clues({ puzzle, meanings, active, solved, onPick, tabs, only }: {
       which is what `test-containment.mjs` refuses. A clue list is read top
       to bottom anyway, so a phone and a tablet get one column.
     */
-    <div className={`grid gap-4 ${tabs || only ? "" : "lg:grid-cols-2"}`}>
+    <div className={`grid gap-4 ${tabs || only || single ? "" : "lg:grid-cols-2"}`}>
       {tabs && (
         <div className="flex gap-2">
           {(["across", "down"] as const).map((d) => (
