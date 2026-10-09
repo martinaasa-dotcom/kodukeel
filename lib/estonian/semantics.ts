@@ -156,6 +156,27 @@ const isMixedCode = (code: string) =>
   MIXED_CODES.includes(code) || MIXED_PREFIXES.some((prefix) => code.startsWith(prefix));
 
 /**
+ * Codes for something you could draw a thing going into, onto or off: an
+ * object, a place, a body part, a plant. Whole families by prefix, with the
+ * one family that is signs rather than things taken out.
+ *
+ * ABSENT ON PURPOSE: `abstr`, `tegevus`, `aeg`, `seisund`, `nähtus` and the
+ * rest. A beginning is not a house, and a picture of a book going into one
+ * would teach nothing true about `algusse`. Map draws a place only for a word
+ * that has one in it, and a word nobody classified draws none.
+ */
+const PHYSICAL_FAMILIES: readonly string[] = ["ese", "koht", "kehaosa", "taim"];
+
+/** Signs, numbers and letters are filed under `ese_` and are not objects to put a book on. */
+const NOT_PHYSICAL: readonly string[] = ["ese_semio"];
+
+export function isPhysical(codes: readonly string[] | string | null | undefined): boolean {
+  return codesOf(codes).some((code) =>
+    !NOT_PHYSICAL.includes(code)
+    && PHYSICAL_FAMILIES.some((family) => code === family || code.startsWith(`${family}_`)));
+}
+
+/**
  * Reads the codes on one entry.
  *
  * ANY OF THE PRIMARY SENSE'S CODES, NOT THE FIRST. Ekilex puts several on one

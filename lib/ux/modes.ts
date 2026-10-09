@@ -167,6 +167,15 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "what you want to say and you hunt for the word, which is exactly what speaking feels like.",
   },
   {
+    href: "/review/map", title: "Map", subtitle: "See what an ending means",
+    icon: "Map", tone: "sky", group: "targeted", note: "Pictures, no clock",
+    within: "/practice",
+    blurb:
+      "A small picture of something moving onto a table, into a house, off a shelf or towards " +
+      "a person, and three forms of one word. Only the ending tells them apart, and the picture " +
+      "is what it means. Afterwards you read a real sentence using it.",
+  },
+  {
     /*
       Twenty questions, which is the classic game against a machine: it holds a
       thing in mind and the learner has twenty yes or no questions to name it.

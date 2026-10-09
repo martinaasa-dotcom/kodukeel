@@ -147,6 +147,7 @@ const ROUTES = [
   "/review/common",
   "/review/common/noun",
   "/review/describe",
+  "/review/map",
   "/practice",
   "/quest",
   "/sonad",

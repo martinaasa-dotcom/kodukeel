@@ -1,6 +1,6 @@
 import { questionInEnglish, type CaseSpec } from "./cases";
 import { INSIDE_CASES, OUTSIDE_CASES, bothSetsOrdinary, takesOutsideCases } from "./place";
-import { bothLocalSetsOrdinary, isAnimate } from "./semantics";
+import { bothLocalSetsOrdinary, isAnimate, isPhysical } from "./semantics";
 import type { CaseKey } from "./types";
 
 /**
@@ -231,6 +231,20 @@ export function caseQuestionFor(spec: CaseSpec, subject: CaseSubject): string {
     return `${spec.asksPerson} ${spec.asksThing}`;
   }
   return spec.asksThing;
+}
+
+/**
+ * CAN A PICTURE OF A PLACE BE DRAWN FOR THIS WORD?
+ *
+ * Map shows a book going into a house or onto a table or to a person, and that
+ * is only true of a word that is a thing, a place or a being. Asked here, beside
+ * the questions about which trio a word takes, because what a classification
+ * means is this pair's to decide (`semantics.ts` reads it, this asks it), and a
+ * round that answered it for itself would be a second rule about which words
+ * are things. Silence is not a thing: an unclassified word draws nothing.
+ */
+export function canPicturePlace(subject: CaseSubject): boolean {
+  return isAnimate(subject.semanticTypes) || isPhysical(subject.semanticTypes);
 }
 
 /**
