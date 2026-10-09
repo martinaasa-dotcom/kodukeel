@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { useT } from "@/components/Locale";
 import type { MapScene } from "@/lib/games/map";
 
 /**
@@ -44,10 +45,11 @@ const solid = { fill: "var(--raised)", stroke: INK, strokeWidth: 2.5, strokeLine
 const empty = { fill: "none", stroke: INK, strokeWidth: 2.5, strokeDasharray: "6 6", strokeLinejoin: "round" as const };
 
 export function MapPicture({ scene }: { scene: MapScene }) {
+  const t = useT();
   const marker = useId().replace(/:/g, "");
   const { kind, stage } = scene;
   return (
-    <svg viewBox="0 0 360 210" role="img" aria-label={scene.alt} className="h-auto w-full">
+    <svg viewBox="0 0 360 210" role="img" aria-label={t(scene.alt)} className="h-auto w-full">
       <defs>
         <marker id={marker} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M1 1 L9 5 L1 9" fill="none" stroke={ARROW} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
