@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/Button";
 import { COMMON_BATCH } from "@/lib/collections/commonGroups";
@@ -11,7 +12,7 @@ import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
 
 /**
- * ONE PRESS, THE NEXT TWENTY WORDS OF A LIST, BUILT OUT PROPERLY.
+ * ONE PRESS, ONE PART (TWENTY-FIVE WORDS) OF A LIST, BUILT OUT PROPERLY.
  *
  * The round asks the words a learner already has cards for, so a list nobody
  * has added is a round with nothing in it. This is the way out of that, and it
@@ -25,8 +26,12 @@ import { countOf, fill } from "@/lib/copy/locale";
  * on: a row that vanishes with no word about whether it worked is worse than
  * a slower one that says.
  */
-export function DeepenButton({ group, label, variant = "primary" }: {
+export function DeepenButton({ group, label, variant = "primary", part, goTo }: {
   group: FrequencyGroup;
+  /** One of the four parts of twenty-five; without it, the next unfinished words of the list. */
+  part?: number;
+  /** Where to go once the words are in, for a button that means "add and start". */
+  goTo?: string;
   /** What the button says when there is work to do. */
   label?: string;
   /**
@@ -37,13 +42,15 @@ export function DeepenButton({ group, label, variant = "primary" }: {
 }) {
   const t = useT();
   const locale = useLocale();
+  const router = useRouter();
   const [note, setNote] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
   function add() {
     start(async () => {
-      const result = await deepenCommonWords(group).catch(() => null);
+      const result = await deepenCommonWords(group, part).catch(() => null);
       if (!result || !result.ok) { setNote(t(result ? result.error : NOT_REACHED)); return; }
+      if (goTo) { router.push(goTo); return; }
       setNote(result.added === 0
         ? t("You've already got every word on this list, in every form.")
         : fill(t("Added {words}, with {cards} between them. They're ready when you are."), {

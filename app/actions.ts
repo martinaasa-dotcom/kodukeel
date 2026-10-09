@@ -104,6 +104,7 @@ import { heldLevel } from "@/lib/course/placement";
 import type { DayKey } from "@/lib/time/day";
 import { FREQUENCY_GROUPS, type FrequencyGroup } from "@/lib/collections/frequency";
 import { lemmasIn, nextCommonBatch } from "@/lib/progress/common";
+import { COMMON_BATCH, readPart } from "@/lib/collections/commonGroups";
 import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
@@ -2426,7 +2427,7 @@ export async function addCommonWords(group: string) {
  * cannot build is the `objekt` fault, and this cannot make it, because it never
  * names a type at all.
  *
- * Bounded by `nextCommonBatch`, which is twenty words and only ones that are
+ * Bounded by `nextCommonBatch`, which is one part of twenty-five words and only ones that are
  * short of something. Pressing again takes the next twenty; pressing when the
  * whole hundred is finished writes nothing and says so.
  *
@@ -2435,7 +2436,7 @@ export async function addCommonWords(group: string) {
  * the wire whatever the types say, so a group name indexing a table checked
  * into the repository is the argument that cannot name anything else.
  */
-export async function deepenCommonWords(group: string) {
+export async function deepenCommonWords(group: string, part?: number) {
   const ownerId = await requireUserId();
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
     return { ok: false as const, error: "We couldn't find that word list." };
@@ -2444,7 +2445,8 @@ export async function deepenCommonWords(group: string) {
   const busy = throttleAction(ownerId, "deepenCommonWords");
   if (busy) return await sayRefusal(ownerId, busy);
 
-  const batch = await nextCommonBatch(ownerId, group as FrequencyGroup);
+  const wanted = readPart(part === undefined ? undefined : String(part));
+  const batch = await nextCommonBatch(ownerId, group as FrequencyGroup, COMMON_BATCH, wanted);
   if (batch.length === 0) {
     return { ok: true as const, added: 0, words: 0 };
   }
