@@ -494,7 +494,7 @@ export default async function TodayPage() {
         four steps share the height equally, the first row level with the
         label and the last level with the button. Nothing floats.
       */}
-      <div className="flex min-w-0 flex-col justify-between gap-8">
+      <div className="flex min-w-0 flex-col justify-center">
         <div>
           <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
             <span style={{ color: "var(--cta)" }}>{t("Today’s module")}</span>
@@ -511,11 +511,11 @@ export default async function TodayPage() {
             style={{ color: "var(--ink)", textWrap: "balance" }}
           />
         </div>
-        <div>
+        <div className="mt-3">
           <p className="max-w-[46ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {t(courseDay.day.canDo)}
           </p>
-          <ButtonLink href="/course" variant="primary" size="lg" className="mt-5 w-full justify-center sm:w-auto">
+          <ButtonLink href="/course" variant="primary" size="lg" className="mt-6 w-full justify-center sm:w-auto">
             {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
           </ButtonLink>
         </div>
