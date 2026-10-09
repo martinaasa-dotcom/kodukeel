@@ -530,7 +530,15 @@ check("the entry says where that word breaks the pattern",
 check("and prints the other form only because it is also right, saying which is which",
   /is the short one, and .* is the long one you get from the ending/.test(entryBody));
 
+/*
+  A bare visit opens on the four areas rather than on a round: the drill drew
+  across every kind at once and felt random. The chooser is the first thing
+  asked, and the mixed round is one press from it.
+*/
 await page.goto(`${B}/review/exceptions`, { waitUntil: "networkidle" });
+const areaLinks = await page.locator('main a[href^="/review/exceptions?family="]').count();
+check("a bare visit offers the four areas rather than a round", areaLinks === 4, `${areaLinks} area links`);
+await page.goto(`${B}/review/exceptions?mixed=1`, { waitUntil: "networkidle" });
 await startRound(page);
 const roundBody = (await page.textContent("body")) ?? "";
 const met = await page.locator("h1.sr-only, h1").first().innerText();
