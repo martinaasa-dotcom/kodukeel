@@ -249,7 +249,7 @@ export const RU: Readonly<Record<string, string>> = {
   "Write five sentences about what you see and what might be going on, one in each box. Use your imagination.": "Напишите пять предложений о том, что видите и что, возможно, происходит, по одному в каждом поле. Дайте волю воображению.",
   "How a sentence start picks the ending": "Как начало предложения выбирает окончание",
   "The first words of a sentence and a gap at the end, always for the same word within a round.": "Первые слова предложения и пропуск в конце, всё время для одного и того же слова в пределах раунда.",
-  "Choose the right form, or type it from B1. Nothing is timed. A wrong answer shows where that form would have fit.": "Выберите нужную форму, а с уровня B1 впишите её сами. Время не ограничено. Неверный ответ покажет, где эта форма подошла бы.",
+  "Choose the right form. Once a stage is settled you type it instead. Nothing is timed. A wrong answer shows where that form would have fit.": "Выберите нужную форму. Когда этап освоен, форму нужно вписать самому. Время не ограничено. Неверный ответ покажет, где эта форма подошла бы.",
   "Five sentences": "Пять предложений",
   "Two or three scenes": "Две или три сцены",
   "A scene made of emoji. Write five sentences about what you see, one in each box. We check that each one is about the scene and that the Estonian is right, and tell you what to fix.": "Сцена из эмодзи. Напишите пять предложений о том, что видите, по одному в каждом поле. Мы проверим, что каждое про эту сцену и что эстонский верный, и подскажем, что исправить.",
