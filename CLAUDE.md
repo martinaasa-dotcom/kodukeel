@@ -1795,7 +1795,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,807 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,859 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -2044,8 +2044,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 1,930 forms across 421 of the
-1,807 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 1,954 forms across 427 of the
+1,859 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -4420,6 +4420,26 @@ Estonian is written at all.
 **English clues and Estonian answers, one direction only, because that is the direction that
 teaches.** You know what you mean and you are looking for the word, which is where a learner is
 every time they open their mouth. The other way round is a reading exercise with extra steps.
+
+**Kakskümmend küsimust answers a well-formed question, and that is a number held under one percent.**
+A round was reported as horrible, and the measure behind that was 39 percent: of 380 questions a
+learner asks, over every thing the game could be thinking of, that many came back "Ei tea" or turned
+away. `lib/games/twentyRate.test.ts` asks two hundred questions the engine was not tuned on of all
+316 things and fails at one percent; it sits at 0.16, and every "Ei tea" left is the size of a
+liquid, which is the operator's call (a cup of water is not big or small). Three things moved it.
+**The world is 316 things**, 72 audited by hand and 244 laid down in `lib/games/twentyWorld.ts` as a
+class plus what is particular to each, so a crocodile inherits being a reptile and only says it
+lives in Africa. **The reading is layered**: a slip is put right against the game's own spellings
+(`repairFrom`), never where the forms list says the word is real Estonian (`realSpellings`, asked
+once per unknown word, and skipped offline), since `halb` is "bad" and not a slip for `hall`; the
+impersonal and the plural cases come off the forms list (`npm run twenty:forms`, accept side only,
+ADR-005); two conditions are both asked
+(`allOf`) rather than refused. **And every answer carries the check that says it of any thing**, so
+the screen counts what still fits, lights the kind once everything fitting is one kind, and offers
+three questions that split what is left, only before the first question, after one it could not
+answer, or after three answers that narrowed nothing. A suggestion is checked to say exactly what
+the engine answers when it is typed, over every thing, and following them settles any thing inside
+twenty questions, both asserted.
 
 **A clue has one answer, or it is not set.** A learner read `3 down: human`, typed `inimene`, which
 is what a human is, watched it fill the seven squares, and was marked wrong: the grid wanted
@@ -8304,7 +8324,19 @@ five boxes about each that must all hold a sentence. The dictionary decides firs
 picture, not repeated: `lib/games/picture.ts`), one grader call speaks to the grammar, and only a
 sentence whose Estonian is verified reaches the learner. It grades nothing into the review log, since
 no card stands behind a picture. The twelve example sentences are authored and are for the native
-speaker to read in the pull request. Sõnad and Ristsõna sit on the lavender (`tone="accent"`), their page
+speaker to read in the pull request. **And the picture is a spark, never a condition.** The round told a learner to use their imagination and
+then marked a farm story under a market scene wrong, three times, in red, which a reader took (rightly) for the
+app calling their own invention a mistake. The setting is a suggestion in the instruction line now ("Setting: At
+the market. Use it if it helps. Any story you imagine is fine."), `sound` no longer asks whether a sentence names
+something in the picture (a pictured word is a tick under "What was in the picture" and credit, nothing more), and
+the grader is told in words never to judge a story against the scene. Red is for a sentence a reader could not follow
+(the model's `wrong`, or half the words unplaceable); a slipped ending, a word the forms list could not place or a repeat
+is yellow, because the meaning got across. The end of a picture lists the learner's own sentences corrected
+(`correctionsFor`), and it writes no Estonian: a swap is kept only where the word replaced is one they wrote and the form
+put in is one the dictionary supplied for a thing in the picture (the model's proposal, checked) or sits a letter or two
+from one (`suggestSwaps`, silent on a tie). Word order has no entry there and stays in Anu's note, in words.
+
+Sõnad and Ristsõna sit on the lavender (`tone="accent"`), their page
 is `compact`, and the circle and the square are sized from the window's height (`--sonad-cell`,
 `--cw-cell`) so the board and the keys share one screen.
 

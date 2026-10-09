@@ -255,7 +255,7 @@ export function SentenceSession(
 
   if (initialTasks.length === 0) {
     return (
-      <Page title={t("Sentences")} lead={t("Real Estonian sentences, jumbled up. Put them back in order.")}>
+      <Page title={t("Laused")} lead={t("Real Estonian sentences, jumbled up. Put them back in order.")}>
         {opensAt ? (
           <Empty
             title={fill(t("This one starts at {level}"), { level: opensAt })}
@@ -314,7 +314,7 @@ export function SentenceSession(
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">{t("Sentences")}</h1>
+      <h1 className="sr-only">{t("Laused")}</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
         <EndSession />
         <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>

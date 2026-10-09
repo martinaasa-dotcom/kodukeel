@@ -18,7 +18,7 @@ import { lemmaFilter, sentenceWithin } from "@/lib/course/scope";
 import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 
 export async function generateMetadata() {
-  return titleFor("Sentences");
+  return titleFor("Laused");
 }
 
 export const dynamic = "force-dynamic";

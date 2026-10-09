@@ -176,7 +176,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       `lib/games/twenty.ts`. A game, so it sits with the other games on
       `/practice`; it grades nothing, for the reason Say what you see does not.
     */
-    href: "/review/twenty", title: "Kakskümmend küsimust", subtitle: "Twenty questions",
+    href: "/review/twenty", title: "20 küsimust", subtitle: "Twenty questions",
     icon: "MessageCircleQuestion", tone: "blush", group: "targeted", note: "Ask in Estonian",
     within: "/practice",
     blurb:
@@ -189,7 +189,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     blurb: "Eight words and eight meanings, all jumbled up. Pair them off as fast as you can.",
   },
   {
-    href: "/review/sentences", title: "Sentences", subtitle: "Put a sentence in order", icon: "Puzzle", tone: "accent",
+    href: "/review/sentences", title: "Laused", subtitle: "Put a sentence in order", icon: "Puzzle", tone: "accent",
     group: "quick", note: "Needs sentences",
     blurb: "A real Estonian sentence, cut up and shuffled. Tap the words back into order.",
   },
@@ -352,4 +352,54 @@ export const GAMES = PRACTICE_MODES.filter((m) => m.within === "/practice" && !m
 /** Whichever mode drills a given thing, for the page that names it. */
 export function modeAt(href: string): PracticeMode | undefined {
   return PRACTICE_MODES.find((m) => m.href === href);
+}
+
+/**
+ * How `/practice` sorts its rounds, by what the learner is doing in them.
+ *
+ * Three shelves, in the order they are drawn. Steady practice is the classic
+ * way of keeping words fresh, Word games are the ones played for fun, and the
+ * Workshop is where you have to think and type. Every round is on exactly one
+ * shelf, asserted, so a round added to the table above is not quietly missing
+ * from the page. Items are hrefs, resolved by `shelfItems`, because the shelf
+ * is a decision about placement and what a round *is* lives in the table.
+ */
+export interface Shelf {
+  id: "steady" | "games" | "workshop";
+  name: string;
+  hint: string;
+  tone: Tone;
+  hrefs: readonly string[];
+}
+
+export const SHELVES: readonly Shelf[] = [
+  {
+    id: "steady", name: "Steady practice", hint: "The classic way to keep words fresh.", tone: "sky",
+    hrefs: ["/review/match", "/review/listening", "/review/dictation", "/review/speaking", "/quest"],
+  },
+  {
+    id: "games", name: "Word games", hint: "Just for the fun of it.", tone: "butter",
+    hrefs: ["/review/letters", "/sonad", "/crossword", "/review/sentences"],
+  },
+  {
+    id: "workshop", name: "Workshop", hint: "You think, you type. Take your time.", tone: "accent",
+    hrefs: ["/situations", "/review/describe", "/review/twenty"],
+  },
+];
+
+export type ShelfItem = Pick<PracticeMode, "href" | "title" | "subtitle" | "icon" | "tone">;
+
+/**
+ * The rounds on a shelf, in order.
+ *
+ * Situations is not a row of the table above, it has its own place in the rail
+ * (`lib/ux/nav.ts`), so the page that draws the shelf says what it looks like
+ * and hands it in as `extras`. A href nothing knows is dropped, and a test
+ * says so.
+ */
+export function shelfItems(shelf: Shelf, extras: Readonly<Record<string, ShelfItem>> = {}): ShelfItem[] {
+  return shelf.hrefs.flatMap((href) => {
+    const item = extras[href] ?? modeAt(href);
+    return item ? [item] : [];
+  });
 }

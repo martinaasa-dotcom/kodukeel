@@ -108,7 +108,7 @@ To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm
   flash cards over your whole deck, and the hundred most common words of each kind, counted from
   film and television subtitles rather than picked by anybody. Four games: Tähed (put the
   letters of a word you know back in order), Sõnad (one six-letter word a day, in seven guesses),
-  Ristsõna (a crossword with English clues and Estonian answers) and Kakskümmend küsimust (twenty
+  Ristsõna (a crossword with English clues and Estonian answers) and 20 küsimust (twenty
   questions: you ask yes or no questions in Estonian to find what the game is thinking of, and every
   question comes back with a plain grammar tip where it could be better; it grades nothing). A two-minute daily quest aimed at whatever's going worst. And nine
   drills, each tucked onto the page about the thing it drills: writing a sentence with a word in a
@@ -256,7 +256,7 @@ Estonian" without saying so.
 
 Everything except the two things that need a model: Anu, and reading a photo of a page.
 
-- **Dictionary**, 6,223 words (A1 to C2), with principal parts, consonant gradation and the full
+- **Dictionary**, 6,274 words (A1 to C2), with principal parts, consonant gradation and the full
   case table worked out from the genitive. Search for a form you met in class, like `toas`,
   `lugesin`, `tubadega` or `helistab`, and it finds the word *and* tells you which form you typed.
   Anything missing can be added by hand, principal parts and all.

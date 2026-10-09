@@ -67,7 +67,7 @@ const { check, absent, done } = suite("A conversation, end to end", {
     room and which drew none: that the band is still there once the
     conversation has ended, and that nobody is talking in it.
   */
-  floor: 62,
+  floor: 64,
 });
 
 /*
@@ -96,7 +96,10 @@ async function cleanUp() {
 await cleanUp();
 
 const browser = await launchChromium();
-const page = await (await browser.newContext({ viewport: { width: 1280, height: 1000 } })).newPage();
+/* 1000 wide, under the `lg` breakpoint: this is the pinned one-line card and
+   the band under the bar. The split layout that starts at 1024 is checked
+   below in a context of its own. */
+const page = await (await browser.newContext({ viewport: { width: 1000, height: 1000 } })).newPage();
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
 
@@ -755,6 +758,31 @@ if (scripted) {
     scripted.text);
 } else {
   absent(1, "no scripted line was said here: that needs lib/scenes/bank.ts to hold a row for a beat this run reached and retrieval did not fill");
+}
+
+/*
+  THE SPLIT, FROM `lg`: the room and the card on the left, the conversation on
+  the right, the card open with nothing to press and the whole of it beside the
+  conversation rather than above it.
+*/
+{
+  const wide = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
+  await wide.goto(`${B}/situations/${SCENE}`, { waitUntil: "domcontentloaded" });
+  await wide.getByRole("button", { name: /Start the conversation/i }).click();
+  await wide.waitForSelector('[role="log"] p', { timeout: TURN_MS });
+  const split = await wide.evaluate(() => {
+    const card = document.querySelector("details");
+    const log = document.querySelector('[role="log"]');
+    const room = [...document.querySelectorAll("svg")].find((el) => el.closest("aside"));
+    if (!card || !log || !room) return null;
+    const c = card.getBoundingClientRect();
+    const l = log.getBoundingClientRect();
+    return { open: card.open, cardRight: Math.round(c.right), logLeft: Math.round(l.left), cardTop: Math.round(c.top), summaryShown: getComputedStyle(card.querySelector("summary")).display !== "none" };
+  });
+  check("on a wide screen the card is open, with no pill to press", Boolean(split) && split.open && !split.summaryShown, JSON.stringify(split));
+  check("and stands beside the conversation rather than above it",
+    Boolean(split) && split.cardRight <= split.logLeft && split.cardTop < 720, JSON.stringify(split));
+  await wide.context().close();
 }
 
 check("nothing threw in the browser", errors.length === 0, errors.join(" · "));

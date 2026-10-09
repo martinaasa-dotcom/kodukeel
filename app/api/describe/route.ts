@@ -5,7 +5,7 @@ import { pictureById, SENTENCES_PER_PICTURE } from "@/lib/collections/pictures";
 import { isKnownForm } from "@/lib/dict/forms";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { acceptedUses } from "@/lib/exam/written";
-import { markPicture, spellingsToCheck, type PictureWord } from "@/lib/games/picture";
+import { correctionsFor, markPicture, spellingsToCheck, type PictureWord } from "@/lib/games/picture";
 import { MAX_SENTENCE_CHARS, looksLikeSentence } from "@/lib/estonian/writing";
 import { reportError } from "@/lib/observability/report";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
@@ -109,6 +109,19 @@ export async function POST(request: Request) {
   const mark = markPicture(words, sentences, known);
 
   /*
+    Every form the dictionary supplies for the things in the picture: what the
+    model may spell, and the only forms a correction may put into a sentence.
+  */
+  const knownForms = words.flatMap((w) => [
+    { label: w.lemma, value: w.lemma },
+    ...w.forms.map((f) => ({ label: `${w.lemma} (${f.formType.replace(/^EKILEX:/, "")})`, value: f.value })),
+    ...[...acceptedUses(w)].map((value) => ({ label: `${w.lemma} (a form)`, value })),
+  ]);
+  const vouched = knownForms.map((f) => f.value);
+  // What the dictionary alone can put right, which stands with the AI off.
+  const mechanical = correctionsFor(sentences, mark.sentences, vouched);
+
+  /*
     What the screen may print now that the five are marked: what each thing in
     the picture is called, and which of them were talked about. None of it is
     sent before, because naming the things is most of the exercise.
@@ -123,13 +136,13 @@ export async function POST(request: Request) {
 
   // The grader's own chain, not the general head (see `PURPOSE_CHAINS`).
   const config = resolveProviders({ purpose: "grader" })[0];
-  if (!config) return Response.json({ mark, reveal, graded: null, aiAvailable: false }, { headers: NO_STORE });
+  if (!config) return Response.json({ mark, reveal, graded: null, corrections: mechanical, aiAvailable: false }, { headers: NO_STORE });
 
   const decision = await authoriseCall(ownerId, "GRADER");
   if (!decision.allowed) {
     // The mechanical marking stands, so this is a partial answer rather than a failure.
     return Response.json(
-      { mark, reveal, graded: null, aiAvailable: false, quotaMessage: decision.message },
+      { mark, reveal, graded: null, corrections: mechanical, aiAvailable: false, quotaMessage: decision.message },
       { headers: NO_STORE, status: 200 },
     );
   }
@@ -144,24 +157,12 @@ export async function POST(request: Request) {
     // The notes are written in the language the learner reads the app in.
     const language = await localeFor(ownerId).catch(() => "en" as const);
 
-    /*
-      Everything the model is allowed to spell: every form of every thing in
-      the picture, including the ones the rules build off the stored parts and
-      no row holds (ADR-009). An allowlist built from the table alone would
-      withhold a note for correctly quoting `kooki`.
-    */
-    const knownForms = words.flatMap((w) => [
-      { label: w.lemma, value: w.lemma },
-      ...w.forms.map((f) => ({ label: `${w.lemma} (${f.formType.replace(/^EKILEX:/, "")})`, value: f.value })),
-      ...[...acceptedUses(w)].map((value) => ({ label: `${w.lemma} (a form)`, value })),
-    ]);
-
     const { graded, usage, config: answered } = await gradeDescription(chain, {
       situation: picture.title,
       things: words.map((w) => ({ emoji: w.emoji, lemma: w.lemma, translation: w.translation })),
       knownForms,
       sentences: sentences.map((text, i) => ({
-        text, unknown: mark.sentences[i]!.unknown, mentions: mark.sentences[i]!.mentions,
+        text, unknown: mark.sentences[i]!.unknown,
       })),
       level,
       language,
@@ -182,7 +183,6 @@ export async function POST(request: Request) {
       note that introduced an Estonian form nobody supplied, and only that
       note: the other four are independent remarks.
     */
-    const vouched = knownForms.map((f) => f.value);
     const glosses = words.map((w) => w.translation);
     const everything = sentences.join(" ");
     let withheld: string[] = [];
@@ -203,6 +203,7 @@ export async function POST(request: Request) {
       note(summary);
       reply = {
         sentences: one,
+        fixes: reply.fixes,
         wentWell: summary.graded.comment,
         workOn: summary.graded.rule,
       };
@@ -214,7 +215,12 @@ export async function POST(request: Request) {
       }
     }
 
-    return Response.json({ mark, reveal, graded: reply, aiAvailable: true, withheld, withheldReason }, { headers: NO_STORE });
+    // A swap is kept only for a sentence the model did not call correct, and only where the
+    // form it offers is one the dictionary supplied (see `correctionsFor`).
+    const proposed = (reply?.fixes ?? []).map((fixes, i) => (reply?.sentences[i]?.verdict === "correct" ? [] : fixes));
+    const corrections = correctionsFor(sentences, mark.sentences, vouched, proposed);
+    const shown = reply ? { sentences: reply.sentences, wentWell: reply.wentWell, workOn: reply.workOn } : null;
+    return Response.json({ mark, reveal, graded: shown, corrections, aiAvailable: true, withheld, withheldReason }, { headers: NO_STORE });
   } catch (error) {
     const booking = decision.reservation;
     if (!settled && booking) after(() => releaseReservation(booking));
@@ -222,6 +228,6 @@ export async function POST(request: Request) {
       reportError(error, { at: "api/describe", ownerId, extra: { model: config.model } });
     }
     // Degrades to the mechanical result, which is the important half anyway.
-    return Response.json({ mark, reveal, graded: null, aiAvailable: false }, { headers: NO_STORE });
+    return Response.json({ mark, reveal, graded: null, corrections: mechanical, aiAvailable: false }, { headers: NO_STORE });
   }
 }
