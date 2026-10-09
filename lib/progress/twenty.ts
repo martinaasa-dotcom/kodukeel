@@ -4,9 +4,9 @@ import { rankBand } from "@/lib/collections/levels";
 import type { Level } from "@/lib/collections/syllabus";
 import { shuffle } from "@/lib/random/shuffle";
 import { NEEDED_LEMMAS } from "@/lib/games/twenty";
-import { buildIndex, type Extra, type Index } from "@/lib/games/twentyLookup";
+import { buildIndex, shortGloss, type Extra, type Index } from "@/lib/games/twentyLookup";
 import EXTRA from "@/prisma/data/twenty-forms.json";
-import { THINGS, type Thing } from "@/lib/games/twentyThings";
+import { THINGS, type Kind, type Thing } from "@/lib/games/twentyThings";
 
 /**
  * What the question game needs from the dictionary, in one read.
@@ -42,11 +42,7 @@ export interface TwentyRound {
   equivalents: Record<string, { ru: string | null; uk: string | null }>;
 }
 
-/** One short sense, with the note in brackets taken off: "bread (dark)" is "bread". */
-export function shortGloss(translation: string): string {
-  const first = translation.split(/[,;]/)[0] ?? translation;
-  return first.replace(/\s*\([^)]*\)/g, "").trim() || translation;
-}
+export { shortGloss } from "@/lib/games/twentyLookup";
 
 /**
  * Which things a learner is asked to think of: their own band, and one above it.
@@ -65,6 +61,8 @@ export async function twentyRound(opts: {
   taught?: ReadonlySet<string>;
   /** The word of the round before, so "another word" is another one. */
   not?: string | null;
+  /** The kinds of thing the learner chose to play with, or every kind. */
+  kinds?: readonly Kind[] | null;
 }): Promise<TwentyRound | null> {
   const rows = await prisma.lexeme.findMany({
     where: { lemma: { in: [...NEEDED_LEMMAS] }, ...VOUCHED_ROW },
@@ -95,7 +93,8 @@ export async function twentyRound(opts: {
   const nouns = new Map(rows.filter((r) => r.pos === "NOUN").map((r) => [r.lemma, r]));
   const pool = THINGS.flatMap((thing) => {
     const row = nouns.get(thing.lemma);
-    return row && (row.cefr === null || bands.has(row.cefr)) && thing.lemma !== opts.not ? [{ thing, row }] : [];
+    const kindFits = !opts.kinds || opts.kinds.includes(thing.kind);
+    return row && kindFits && (row.cefr === null || bands.has(row.cefr)) && thing.lemma !== opts.not ? [{ thing, row }] : [];
   });
   if (pool.length === 0) return null;
 

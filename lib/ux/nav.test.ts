@@ -78,11 +78,12 @@ describe("the navigation table", () => {
     for (const section of SECTIONS) expect(section.items.length, section.id).toBeGreaterThan(0);
   });
 
-  it("keeps the rail to five places", () => {
-    // Five because a rail is read at a glance; everything else lives inside
-    // one of them. A sixth place is a decision about everybody's column, and
-    // a pin is how one learner makes it about theirs (lib/ux/navOrder.ts).
-    expect(CORE.map((d) => d.href)).toEqual(["/", "/learn", "/practice", "/dictionary", "/progress"]);
+  it("keeps the rail to six places", () => {
+    // Six because a rail is read at a glance; everything else lives inside
+    // one of them. Grammar was the sixth, put in front of the dictionary when
+    // a learner could not find it. A seventh is a decision about everybody's
+    // column, and a pin is how one learner makes it about theirs (lib/ux/navOrder.ts).
+    expect(CORE.map((d) => d.href)).toEqual(["/", "/learn", "/practice", "/grammar", "/dictionary", "/progress"]);
   });
 
   it("keeps the app's own settings out of the places a learner navigates by", () => {
@@ -205,7 +206,7 @@ describe("the navigation table", () => {
 
 describe("litRow", () => {
   it("lights the home of a page that lives inside a place", () => {
-    expect(litRow(CORE, "/grammar/exceptions")).toBe("/dictionary");
+    expect(litRow(CORE, "/grammar/exceptions")).toBe("/grammar");
     expect(litRow(CORE, "/review/sprint")).toBe("/practice");
     expect(litRow(CORE, "/words/mastery")).toBe("/progress");
     // The evening's list lights the row its steps light, so pressing a step
@@ -216,8 +217,8 @@ describe("litRow", () => {
   });
 
   it("lights a pinned row over its home", () => {
-    const rows = [...CORE, DESTINATIONS.find((d) => d.href === "/grammar")!];
-    expect(litRow(rows, "/grammar")).toBe("/grammar");
+    const rows = [...CORE, DESTINATIONS.find((d) => d.href === "/calendar")!];
+    expect(litRow(rows, "/calendar")).toBe("/calendar");
     expect(litRow(rows, "/dictionary/common")).toBe("/dictionary");
   });
 

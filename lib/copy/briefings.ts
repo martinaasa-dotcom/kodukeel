@@ -157,7 +157,7 @@ export const BRIEFINGS = {
   },
   twenty: {
     title: "Twenty questions",
-    what: "A box to type in and a list of your questions. I'm thinking of something, and I answer each question yes, no or sometimes.",
+    what: "I'm thinking of something, and I tell you first what kind of thing it is. You get twenty yes or no questions, and I answer each yes, no or sometimes.",
     you: "Ask yes or no questions in Estonian, and name it when you can. Each question you type comes back with a tip if it could be better.",
     action: "Start",
   },

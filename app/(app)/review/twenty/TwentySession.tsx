@@ -11,13 +11,14 @@ import { DiacriticBar } from "@/components/DiacriticBar";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { useKeepInView } from "@/components/round/useKeepInView";
 import {
-  ANSWER_EN, ANSWER_ET, ask, hintFor, IDEAS, nextQuestions, QUESTION_LIMIT, REFUSAL_EN, settledKind, spent, stillFitting, tokensOf,
-  type Answer, type Asked, type Outcome, type Reply, type Said, type Suggestion, type Tip,
+  ANSWER_EN, ANSWER_ET, ask, asRepeat, englishToLemma, cluesFor, IDEAS, inEstonian, nextQuestions, opening, QUESTION_LIMIT, REFUSAL_EN,
+  spent, stillFitting, tokensOf, TOPICS,
+  type Answer, type Asked, type Hint, type Outcome, type Reply, type Said, type Suggestion, type Tip,
 } from "@/lib/games/twenty";
 import { lookupFrom, repairFrom, withExtra, type Extra, type Index } from "@/lib/games/twentyLookup";
-import { KIND_HINT, THING_BY_LEMMA, type Thing } from "@/lib/games/twentyThings";
+import { THING_BY_LEMMA, type Thing } from "@/lib/games/twentyThings";
 import { VERDICT_CLASS, type Verdict } from "@/lib/ux/verdict";
-import { realSpellings } from "@/app/actions";
+import { realSpellings, recordTwentyWin } from "@/app/actions";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useLocale, useT } from "@/components/Locale";
 import { Meaning } from "@/components/Meaning";
@@ -27,8 +28,11 @@ import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 interface Turn {
   id: number;
   typed: string;
-  reply: Reply | { kind: "hint"; text: string };
+  reply: Reply | { kind: "hint"; hint: Hint } | { kind: "english"; example: string | null };
 }
+
+/** The twenty-questions toy gives five more where twenty were not enough, and so does this. */
+const EXTRA_QUESTIONS = 5;
 
 /** How many tips go under one question. The rest are said at the end. */
 const TIPS_SHOWN = 2;
@@ -61,7 +65,7 @@ const ANSWER_VERDICT: Record<Answer, Verdict | null> = { yes: "right", no: "wron
  * question or asks two things at once, does not, since the game cannot answer it
  * and a learner should not be charged for finding that out.
  */
-export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents, index, extra, pool, starred }: {
+export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents, index, extra, pool, starred, topic, best }: {
   secret: Thing;
   lexemeId: string;
   meaning: ShownMeaning;
@@ -71,6 +75,10 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
   extra: Extra;
   pool: string[];
   starred: boolean;
+  /** The topic the learner chose, kept for the next round. */
+  topic: string;
+  /** The fewest questions a thing has been named in, or null before the first win. */
+  best: number | null;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -78,15 +86,20 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
   const merged = useMemo(() => withExtra(index, extra), [index, extra]);
   const lookup = useMemo(() => lookupFrom(merged), [merged]);
   const repair = useMemo(() => repairFrom(merged), [merged]);
+  // The kind is said before the first question, so what still fits starts from things of that kind.
   const things = useMemo(() => {
-    const listed = pool.flatMap((l) => THING_BY_LEMMA.get(l) ?? []);
+    const listed = pool.flatMap((l) => THING_BY_LEMMA.get(l) ?? []).filter((x) => x.kind === secret.kind);
     return listed.some((x) => x.lemma === secret.lemma) ? listed : [...listed, secret];
   }, [pool, secret]);
+  const ladder = useMemo(() => cluesFor(secret), [secret]);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [text, setText] = useState("");
   const [outcome, setOutcome] = useState<Outcome>("playing");
   const [thinking, setThinking] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
+  const [limit, setLimit] = useState(QUESTION_LIMIT);
+  const [offer, setOffer] = useState(false);
+  const [bestNote, setBestNote] = useState<{ best: number; isNewBest: boolean } | null>(null);
   const field = useRef<HTMLInputElement>(null);
   const nextId = useRef(1);
   /** Spellings the forms list says are real words, so they are never repaired into another one. */
@@ -98,27 +111,49 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
   }, []);
 
   const used = spent(turns);
-  const left = QUESTION_LIMIT - used;
+  const left = limit - used;
   const over = outcome !== "playing" && thinking === null;
+  const hintsUsed = turns.filter((x) => x.reply.kind === "hint").length;
   const latest = useKeepInView<HTMLLIElement>(turns.length === 0 ? null : turns.length);
 
   // What still fits everything said so far, counted over every thing this round could have been.
   const asked: Asked[] = turns.flatMap((x) => (x.reply.kind === "answer" && x.reply.check && x.reply.counts ? [{ answer: x.reply.answer, check: x.reply.check }] : []));
   const shown = thinking === null ? asked : asked.slice(0, -1);
   const fitting = stillFitting(things, shown);
-  const kind = shown.length > 0 ? settledKind(fitting) : null;
   const askedEt = new Set(turns.map((x) => x.typed));
-  const suggestions = !over && thinking === null && wantsNudge(turns, things) ? nextQuestions(fitting, askedEt, 3) : [];
+  const suggestions = !over && !offer && thinking === null && wantsNudge(turns, things) ? nextQuestions(fitting, askedEt, 3) : [];
 
   function settle(next: Turn[], won: boolean) {
     setTurns(next);
-    if (won) setOutcome("won");
-    else if (spent(next) >= QUESTION_LIMIT) setOutcome("lost");
+    if (won) {
+      setOutcome("won");
+      void recordTwentyWin(spent(next))
+        .then((r) => { if (r.ok) setBestNote({ best: r.best, isNewBest: r.isNewBest }); })
+        .catch(() => null);
+    } else if (spent(next) >= limit) {
+      // Twenty were not enough: offer five more before saying what it was, as the toy does.
+      if (limit === QUESTION_LIMIT) setOffer(true);
+      else setOutcome("lost");
+    }
+  }
+
+  function moreQuestions() {
+    setLimit(QUESTION_LIMIT + EXTRA_QUESTIONS);
+    setOffer(false);
+    setTimeout(() => field.current?.focus(), 0);
   }
 
   async function submit() {
     const question = text.trim();
-    if (!question || over || busy || thinking !== null) return;
+    if (!question || over || offer || busy || thinking !== null) return;
+    // A question in English is met with the Estonian for it, and costs nothing.
+    const english = inEstonian(question, glosses);
+    if (english) {
+      setTurns([...turns, { id: nextId.current++, typed: question, reply: { kind: "english", example: english.example } }]);
+      setText("");
+      field.current?.focus();
+      return;
+    }
     setBusy(true);
     // Ask once about the words the game could not read, so a real word it does not know is
     // left as it is rather than read as a slip for one it does. Offline, nothing comes back.
@@ -131,7 +166,16 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
       for (const w of unread) checked.current.add(w);
       for (const w of found) real.current.add(w);
     }
-    const reply = ask(question, secret, lookup, { glossOf: (lemma) => glosses[lemma], repair, real: real.current });
+    const asked0 = ask(question, secret, lookup, { glossOf: (lemma) => glosses[lemma], repair, real: real.current });
+    // An English word inside an Estonian question ("Kas see on animal?"): say the Estonian for it.
+    const englished = (asked0.kind === "refused" || (asked0.kind === "answer" && asked0.answer === "unknown"))
+      ? tokensOf(question).flatMap((w) => {
+        const lemma = /^[a-z]+$/.test(w) ? englishToLemma(w, glosses) : null;
+        return lemma ? [{ id: `en:${lemma}`, en: "That word in Estonian is:", example: lemma }] : [];
+      })
+      : [];
+    const withEnglish: Reply = englished.length > 0 ? { ...asked0, tips: [...englished, ...asked0.tips] } : asked0;
+    const reply = asRepeat(withEnglish, turns.flatMap((x) => (x.reply.kind === "answer" ? [x.reply] : [])));
     const id = nextId.current++;
     setText("");
     setBusy(false);
@@ -150,8 +194,9 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
   }
 
   function hint() {
-    if (over || left <= 0) return;
-    settle([...turns, { id: nextId.current++, typed: "", reply: { kind: "hint", text: hintFor(secret) } }], false);
+    const next = ladder[hintsUsed];
+    if (over || offer || left <= 0 || !next) return;
+    settle([...turns, { id: nextId.current++, typed: "", reply: { kind: "hint", hint: next } }], false);
   }
 
   function idea(et: string) {
@@ -163,7 +208,8 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
   const announced = lastTurn
     ? lastTurn.reply.kind === "answer"
       ? `${ANSWER_ET[lastTurn.reply.answer]}. ${t(ANSWER_EN[lastTurn.reply.answer])}.`
-      : lastTurn.reply.kind === "hint" ? t(lastTurn.reply.text) : t(REFUSAL_EN[lastTurn.reply.why])
+      : lastTurn.reply.kind === "hint" ? sayHint(t, lastTurn.reply.hint)
+        : lastTurn.reply.kind === "english" ? t("Ask it in Estonian.") : t(REFUSAL_EN[lastTurn.reply.why])
     : "";
 
   const recap = over ? recapOf(turns) : [];
@@ -176,11 +222,11 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${(used / QUESTION_LIMIT) * 100}%`, background: "var(--accent)" }}
+            style={{ width: `${(used / limit) * 100}%`, background: "var(--accent)" }}
             role="progressbar"
             aria-valuenow={used}
             aria-valuemin={0}
-            aria-valuemax={QUESTION_LIMIT}
+            aria-valuemax={limit}
             aria-label={t("Questions used")}
           />
         </div>
@@ -195,12 +241,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent"><MessageCircleQuestion size={12} aria-hidden /> 20 küsimust</Chip>
-          <Chip>{fill(t("{n} of {total}"), { n: used, total: QUESTION_LIMIT })}</Chip>
-          {kind && !over && (
-            <span key={kind} className="quest-pop">
-              <Chip tone="accent"><Sparkles size={12} aria-hidden /> {t(KIND_HINT[kind])}</Chip>
-            </span>
-          )}
+          <Chip>{fill(t("{n} of {total}"), { n: used, total: limit })}</Chip>
         </div>
         {!over && <FitMeter fitting={fitting.length} total={things.length} asked={shown.length} />}
 
@@ -208,9 +249,33 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
           <p className="text-base" style={{ color: "var(--ink)" }}>
             {t("I’m thinking of something. Ask me yes or no questions, in Estonian.")}
           </p>
-          <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+          <p className="twenty-category mt-3 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-lg font-semibold" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>
+            <Sparkles size={16} aria-hidden /> {t(opening(secret))}
+          </p>
+          <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
             {t("When you know what it is, ask it as a question too:")} <span lang="et">Kas see on …?</span>
           </p>
+          {turns.length === 0 && (
+            <nav className="mt-4 flex flex-wrap items-center gap-2" aria-label={t("What should I think of?")}>
+              <span className="label-xs">{t("What should I think of?")}</span>
+              {TOPICS.map((tp) => (
+                <ButtonLink
+                  key={tp.id}
+                  href={`/review/twenty?topic=${tp.id}`}
+                  variant={tp.id === topic ? "primary" : "secondary"}
+                  size="sm"
+                  aria-current={tp.id === topic ? "true" : undefined}
+                >
+                  {t(tp.en)}
+                </ButtonLink>
+              ))}
+            </nav>
+          )}
+          {turns.length === 0 && best !== null && (
+            <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
+              {fill(t("Your best so far: {questions}."), { questions: countOf(locale, best, "questions", "nom") })}
+            </p>
+          )}
         </div>
 
         {turns.length > 0 && (
@@ -220,16 +285,32 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
                 <TurnView
                   turn={turn}
                   say={say}
+                  onPick={idea}
                   thinking={thinking === turn.id}
                   fresh={i === turns.length - 1}
-                  number={turn.reply.kind === "answer" || turn.reply.kind === "hint" ? spent(turns.slice(0, i + 1)) : null}
+                  number={(turn.reply.kind === "answer" && turn.reply.counts) || turn.reply.kind === "hint" ? spent(turns.slice(0, i + 1)) : null}
                 />
               </li>
             ))}
           </ol>
         )}
 
-        {!over && (
+        {offer && !over && (
+          <div className="border-t px-6 py-5" style={{ borderColor: "var(--rule-soft)" }}>
+            <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+              {t("That’s twenty. Want five more?")}
+            </p>
+            <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+              {fill(t("{n} things still fit everything you asked."), { n: fitting.length })}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Button variant="secondary" onClick={() => { setOffer(false); setOutcome("lost"); }}>{t("Show me what it was")}</Button>
+              <Button variant="primary" onClick={moreQuestions}>{t("Five more questions")}</Button>
+            </div>
+          </div>
+        )}
+
+        {!over && !offer && (
           <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
             <label htmlFor="question" className="label-xs">{t("Your question")}</label>
             <input
@@ -252,8 +333,8 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
             )}
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <Button variant="ghost" onClick={() => setOutcome("gave-up")}>{t("Give up")}</Button>
-              <Button variant="secondary" onClick={hint} disabled={left <= 0}>
-                <Lightbulb size={14} aria-hidden /> {t("Hint, costs a question")}
+              <Button variant="secondary" onClick={hint} disabled={left <= 0 || hintsUsed >= ladder.length}>
+                <Lightbulb size={14} aria-hidden /> {hintsUsed >= ladder.length ? t("No hints left") : t("Hint, costs a question")}
               </Button>
               <Button variant="primary" onClick={() => void submit()} disabled={!text.trim() || busy || thinking !== null} className="ml-auto">
                 {t("Ask", "question")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
@@ -262,7 +343,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
           </div>
         )}
 
-        {!over && (
+        {!over && !offer && (
           <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
             <Explain label={t("Not sure what to ask?")}>
               <p>{t("Tap one to put it in the box, then change it as you like.")}</p>
@@ -301,6 +382,13 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
               <StarWord lexemeId={lexemeId} starred={starred} label={secret.lemma} />
             </div>
             <Meaning meaning={meaning} className="mt-1 text-base" leadStyle={{ color: "var(--ink-2)" }} />
+            {outcome === "won" && bestNote && (
+              <p className="mt-3 text-base font-semibold" style={{ color: bestNote.isNewBest ? "var(--accent-deep)" : "var(--ink-2)" }}>
+                {bestNote.isNewBest
+                  ? t("Your best yet!")
+                  : fill(t("Your best so far: {questions}."), { questions: countOf(locale, bestNote.best, "questions", "nom") })}
+              </p>
+            )}
             {recap.length > 0 && (
               <div className="mt-5">
                 <p className="label-xs">{t("Worth remembering")}</p>
@@ -316,7 +404,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
             )}
             <WayOut className="mt-6 flex flex-wrap gap-3">
               <ButtonLink href="/practice" variant="secondary">{t("Back to Practice")}</ButtonLink>
-              <ButtonLink href={`/review/twenty?not=${encodeURIComponent(secret.lemma)}`} variant="primary">
+              <ButtonLink href={`/review/twenty?topic=${topic}&not=${encodeURIComponent(secret.lemma)}`} variant="primary">
                 {t("Another word")}
               </ButtonLink>
             </WayOut>
@@ -337,6 +425,13 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
  * material or a colour is translated under its own context, and a thing is
  * said with the Institute's equivalent where it recorded one, else the English.
  */
+/** A hint in the reader's language, its colour word translated under its own context. */
+function sayHint(t: (english: string, context?: string) => string, hint: Hint): string {
+  const vars: Record<string, string | number> = { ...(hint.vars ?? {}) };
+  if (typeof vars.word === "string") vars.word = t(vars.word, hint.context);
+  return fill(t(hint.en, hint.context), vars);
+}
+
 function sayIn(
   t: (english: string, context?: string) => string,
   locale: Locale,
@@ -351,10 +446,11 @@ function sayIn(
   });
 }
 
-function TurnView({ turn, number, say, thinking, fresh }: {
+function TurnView({ turn, number, say, onPick, thinking, fresh }: {
   turn: Turn;
   number: number | null;
   say: (said: Said) => string;
+  onPick: (et: string) => void;
   thinking: boolean;
   fresh: boolean;
 }) {
@@ -378,7 +474,30 @@ function TurnView({ turn, number, say, thinking, fresh }: {
       <div className="flex gap-3">
         <span className="tnum w-6 shrink-0 text-sm" style={{ color: "var(--ink-3)" }}>{number}</span>
         <div className="verdict-panel flex-1 text-base" style={{ background: "var(--raised)", color: "var(--ink)" }}>
-          <p><span className="font-semibold">{t("Hint.")}</span> {t(reply.text)}</p>
+          <p><span className="font-semibold">{t("Hint.")}</span> {sayHint(t, reply.hint)}</p>
+        </div>
+      </div>
+    );
+  }
+  if (reply.kind === "english") {
+    return (
+      <div className="flex gap-3">
+        <span className="tnum w-6 shrink-0 text-sm" style={{ color: "var(--ink-3)" }} />
+        <div className="min-w-0 flex-1">
+          <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{turn.typed}</p>
+          <p className={`mt-1 text-base ${fresh ? "quest-pop" : ""}`} style={{ color: "var(--ink-2)" }}>
+            {t("Ask it in Estonian.")}{" "}
+            <span style={{ color: "var(--ink-3)" }}>{t("That one didn’t cost a question.")}</span>
+          </p>
+          {reply.example ? (
+            <Button variant="secondary" size="sm" className="mt-2" onClick={() => onPick(reply.example!)}>
+              <span lang="et">{reply.example}</span>
+            </Button>
+          ) : (
+            <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+              {t("Start with kas, and ask about it with see:")} <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>Kas see …?</span>
+            </p>
+          )}
         </div>
       </div>
     );
@@ -401,9 +520,11 @@ function TurnView({ turn, number, say, thinking, fresh }: {
               <span className="text-base" style={{ color: "var(--ink-2)" }}>{t(ANSWER_EN[reply.answer])}</span>
             </p>
             <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>
-              {reply.counts
-                ? fill(t("Taken to mean: {reading}"), { reading: say(reply.said) })
-                : `${say(reply.said)} ${t("That one didn’t cost a question.")}`}
+              {reply.repeated
+                ? `${say(reply.said)} ${t("You asked that already, so it didn’t cost a question.")}`
+                : reply.counts
+                  ? fill(t("Taken to mean: {reading}"), { reading: say(reply.said) })
+                  : `${say(reply.said)} ${t("That one didn’t cost a question.")}`}
             </p>
             {reply.outside && (
               <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>{t("That isn’t one of the things I think of.")}</p>
@@ -434,7 +555,7 @@ function TurnView({ turn, number, say, thinking, fresh }: {
 function recapOf(turns: readonly Turn[]): { tip: Tip; count: number }[] {
   const seen = new Map<string, { tip: Tip; count: number }>();
   for (const t of turns) {
-    if (t.reply.kind === "hint") continue;
+    if (t.reply.kind === "hint" || t.reply.kind === "english") continue;
     for (const tip of t.reply.tips) {
       const held = seen.get(tip.id);
       if (held) held.count += 1;

@@ -67,7 +67,7 @@ export default async function ExceptionKindPage({ params }: { params: Promise<{ 
       <Stack>
         <Card tone="butter">
           <p className="max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {fill(t("{n} of these are near your level, out of {total} in the whole dictionary. We found each one by checking the rule against the form a lexicographer actually wrote down, so nobody typed this list by hand."), { n: group.entries.length, total: group.everywhere })}
+            {fill(t("{n} of these are within one level of {level}, out of {total} in the whole dictionary. We found each one by checking the rule against the form a lexicographer actually wrote down, so nobody typed this list by hand."), { n: group.entries.length, total: group.everywhere, level })}
           </p>
           {/*
             AND WHERE THE FORM IS ACTUALLY USED, WHICH IS A DIFFERENT QUESTION.

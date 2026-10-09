@@ -30,7 +30,7 @@ export const RU: Readonly<Record<string, string>> = {
   "Learn three forms of a word and get eleven more for free": "Выучите три формы слова, и ещё одиннадцать получите бесплатно",
   "Exceptions": "Исключения",
   "The words that break the usual rules": "Слова, которые нарушают обычные правила",
-  "Commonest words": "Самые частые слова",
+  "Common words": "Самые частые слова",
   "The 400 words Estonians use most, in four lists": "400 слов, которые эстонцы используют чаще всего, в четырёх списках",
   "Scan a page": "Сфотографировать страницу",
   "Photograph a word list and turn it into cards": "Сфотографируйте список слов и превратите его в карточки",

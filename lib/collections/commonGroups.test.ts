@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FREQUENCY_GROUPS } from "./frequency";
 import {
-  COMMON_GROUPS, commonGroup, groupBySlug, groupsAgree,
+  COMMON_BATCH, COMMON_GROUPS, COMMON_PARTS, commonGroup, groupBySlug, groupsAgree, partLemmas, readPart,
 } from "./commonGroups";
 
 describe("the commonest-word groups", () => {
@@ -62,5 +62,22 @@ describe("the commonest-word groups", () => {
   it("leads with the small words", () => {
     // The argument the lists make. See the module header.
     expect(COMMON_GROUPS[0]?.key).toBe("SMALL");
+  });
+});
+
+describe("the four parts of a list", () => {
+  it("cuts a hundred words into four parts of twenty-five, in order, with none lost", () => {
+    const hundred = Array.from({ length: 100 }, (_, i) => i);
+    const parts = Array.from({ length: COMMON_PARTS }, (_, i) => partLemmas(hundred, i + 1));
+    expect(parts.map((p) => p.length)).toEqual([COMMON_BATCH, COMMON_BATCH, COMMON_BATCH, COMMON_BATCH]);
+    expect(parts.flat()).toEqual(hundred);
+  });
+
+  it("reads only parts one to four off a URL", () => {
+    expect(readPart("1")).toBe(1);
+    expect(readPart(["3"])).toBe(3);
+    for (const bad of ["0", "5", "x", "", "1.5", undefined, 2, null]) {
+      expect(readPart(bad), String(bad)).toBeUndefined();
+    }
   });
 });

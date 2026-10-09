@@ -161,6 +161,7 @@ const ROUTES = [
   "/words/decks",
   "/words/mastery",
   "/grammar",
+  "/grammar/cases",
   "/grammar/build-a-word",
   "/grammar/ukrainian",
   "/grammar/partitive",
