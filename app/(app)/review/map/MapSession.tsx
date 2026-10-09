@@ -245,7 +245,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
           style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}>
           <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
             <Chip tone="accent"><MapIcon size={12} aria-hidden /> Map</Chip>
-            <Chip>{q.rung === 1 ? "Picture" : q.rung === 2 ? "Question" : "Type it"}</Chip>
+            <Chip>{q.rung === 1 ? t("Picture") : q.rung === 2 ? t("Question") : t("Type it")}</Chip>
             <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{right} right</span>
             <StarWord lexemeId={q.lexemeId} starred={q.starred} label={q.lemma} />
           </div>
@@ -278,7 +278,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
           {typedRung ? (
             <div className="px-6 py-4">
               <label htmlFor="answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-                Say it in the form that answers the question
+                {t("Say it in the form that answers the question")}
               </label>
               <input
                 id="answer" value={typed} lang="et" autoFocus autoComplete="off" autoCapitalize="off"
@@ -363,7 +363,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
             <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
               <Button variant="primary" size="lg" className="w-full" disabled={typed.trim().length === 0 || busy}
                 onClick={() => void check()}>
-                <Keyboard size={16} aria-hidden /> Check it
+                <Keyboard size={16} aria-hidden /> {t("Check it")}
                 <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
             </div>
