@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { Check, Keyboard, Map as MapIcon, X } from "lucide-react";
+import { useT } from "@/components/Locale";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
@@ -63,6 +64,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [right, setRight] = useState(0);
+  const t = useT();
   const [asked, setAsked] = useState(0);
   const [busy, setBusy] = useState(false);
   const [typed, setTyped] = useState("");
@@ -269,7 +271,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
 
           {q.rung === 1 && (
             <p className="px-6 pt-4 text-center text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-              {q.scene.ask}
+              {t(q.scene.ask)}
             </p>
           )}
 
