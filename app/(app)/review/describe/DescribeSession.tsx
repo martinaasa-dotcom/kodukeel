@@ -10,7 +10,7 @@ import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { SENTENCES_PER_PICTURE } from "@/lib/collections/pictures";
 import { looksLikeSentence } from "@/lib/estonian/writing";
-import type { PictureMark, SentenceMark } from "@/lib/games/picture";
+import type { Correction, PictureMark, SentenceMark } from "@/lib/games/picture";
 import type { GradedPicture } from "@/lib/tutor/grader";
 import type { WithholdReason } from "@/lib/tutor/verify";
 import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
@@ -38,7 +38,9 @@ interface Reveal {
 interface Marked {
   mark: PictureMark;
   reveal: Reveal;
-  graded: GradedPicture | null;
+  graded: Omit<GradedPicture, "fixes"> | null;
+  /** Wrong forms put right with forms the dictionary holds. Empty when there is nothing to swap. */
+  corrections: Correction[];
   aiAvailable: boolean;
   quotaMessage?: string;
   withheld?: string[];
@@ -156,7 +158,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
           <Stat value={written} label={t("Sentences")} />
-          <Stat value={sound} label={t("Spelled and on topic")} />
+          <Stat value={sound} label={t("Spelled right")} />
           <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
@@ -225,6 +227,9 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
 
           <p className="mt-5 text-base font-semibold" style={{ color: "var(--ink)" }}>
             {t("Write five sentences about this picture.")}
+          </p>
+          <p className="mt-1.5 text-md font-semibold" style={{ color: "var(--accent-deep)" }}>
+            {fill(t("Setting: {title}. Use it if it helps. Any story you imagine is fine."), { title: t(prompt.title) })}
           </p>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
             {t("Say what you see and what might be going on. Use your imagination: who are they, what are they doing?")}
@@ -333,11 +338,19 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   );
 }
 
-/** How a sentence stood, in the palette's three words. */
+/**
+ * How a sentence stood, in the palette's three words.
+ *
+ * Red is for a sentence a reader could not follow. A slipped ending, a word the
+ * dictionary could not place or a repeat is yellow, because the meaning got
+ * across and "nearly" is what that is. The scene is never part of it: the
+ * picture is a spark and the story is the learner's.
+ */
 function verdictFor(mark: SentenceMark, note: { verdict: "correct" | "almost" | "wrong" } | undefined): Verdict {
-  if (!mark.sound) return "wrong";
-  if (!note) return "right";
-  return verdictOfCredit(note.verdict === "correct" ? 1 : note.verdict === "almost" ? 0.5 : 0);
+  if (mark.garbled) return "wrong";
+  const credit = note ? (note.verdict === "correct" ? 1 : note.verdict === "almost" ? 0.5 : 0) : 1;
+  const flawed = mark.unknown.length > 0 || mark.repeated;
+  return verdictOfCredit(flawed ? Math.min(credit, 0.5) : credit);
 }
 
 /** What is said under one box once the five are marked. */
@@ -360,10 +373,7 @@ function SentenceFeedback({ mark, note, graded }: {
     );
   }
   if (mark.repeated) lines.push(t("You already wrote this one. Try saying something different about the picture."));
-  if (mark.isSentence && mark.mentions.length === 0) {
-    lines.push(t("We couldn't match this to anything in the picture. Name something you can see: a person, an animal or an object."));
-  }
-  if (mark.sound && !note && !graded) lines.push(t("Every word is spelled right and it's about the picture."));
+  if (mark.sound && !note && !graded) lines.push(t("Every word is spelled right."));
   const Icon = verdict === "right" ? Check : CircleAlert;
 
   return (
@@ -376,7 +386,7 @@ function SentenceFeedback({ mark, note, graded }: {
         {!mark.tidy && mark.isSentence && (
           <p className="mt-1">{t("Start with a capital letter and finish with a period.")}</p>
         )}
-        {!note?.comment && lines.length === 0 && mark.tidy && <p>{t("Spelled right and about the picture.")}</p>}
+        {!note?.comment && lines.length === 0 && mark.tidy && <p>{t("Spelled right.")}</p>}
       </div>
     </div>
   );
@@ -398,18 +408,16 @@ function Summary({ marked, aiAvailable }: { marked: Marked; aiAvailable: boolean
   const total = mark.sentences.length;
 
   const spelling = mark.sentences.filter((s) => s.unknown.length > 0).length;
-  const offTopic = mark.sentences.filter((s) => s.isSentence && s.mentions.length === 0).length;
   const repeated = mark.sentences.filter((s) => s.repeated).length;
   const untidy = mark.sentences.filter((s) => s.isSentence && !s.tidy).length;
 
   const wentWell = graded?.wentWell
     || (mark.sound > 0
-      ? fill(t("{n} of your {total} sentences are spelled right and about the picture."), { n: mark.sound, total })
+      ? fill(t("{n} of your {total} sentences are spelled right."), { n: mark.sound, total })
       : t("You wrote all five, which is the hardest part to start."));
   const workOn = graded?.workOn
     || [
-      spelling > 0 ? sentencesLine(locale, t, spelling, "spelling") : "",
-      offTopic > 0 ? sentencesLine(locale, t, offTopic, "topic") : "",
+      spelling > 0 ? sentencesLine(locale, t, spelling) : "",
       repeated > 0 ? t("Saying something new in each sentence.") : "",
       untidy > 0 ? t("A capital at the start and a period at the end.") : "",
     ].filter(Boolean).join(" ");
@@ -425,8 +433,10 @@ function Summary({ marked, aiAvailable }: { marked: Marked; aiAvailable: boolean
             <p className="mt-1.5 text-base" style={{ color: "var(--ink)" }}>{workOn}</p>
           </>
         )}
-        {graded && <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>{t("Notes from Anu. The spelling and picture checks come from the dictionary.")}</p>}
+        {graded && <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>{t("Notes from Anu. The spelling check comes from the dictionary.")}</p>}
       </div>
+
+      <Corrected marked={marked} />
 
       <div className="rounded-md border px-3.5 py-3" style={{ borderColor: "var(--rule)", background: "var(--raised)" }}>
         <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("What was in the picture")}</p>
@@ -451,7 +461,7 @@ function Summary({ marked, aiAvailable }: { marked: Marked; aiAvailable: boolean
       )}
       {!aiAvailable && !graded && (
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-          {quotaMessage ? t(quotaMessage) : t("Anu isn't around right now, so we only checked spelling and whether each sentence is about the picture. Word order and endings need her.")}
+          {quotaMessage ? t(quotaMessage) : t("Anu isn't around right now, so we only checked spelling. Word order and endings need her.")}
         </p>
       )}
     </div>
@@ -462,14 +472,50 @@ function Summary({ marked, aiAvailable }: { marked: Marked; aiAvailable: boolean
  * "Spelling: 2 sentences had a word we couldn't find." English keeps the line
  * it always printed; Russian and Ukrainian get the count in its own plural.
  */
-function sentencesLine(locale: Locale, t: (english: string) => string, n: number, which: "spelling" | "topic"): string {
-  if (locale === "en") {
-    const s = `${n} sentence${n === 1 ? "" : "s"}`;
-    return which === "spelling"
-      ? `Spelling: ${s} had a word we couldn't find.`
-      : `Staying on the picture: ${s} didn't name anything in it.`;
-  }
-  return fill(t(which === "spelling"
-    ? "Spelling: sentences with a word we couldn't find: {n}."
-    : "Staying on the picture: sentences that named nothing in it: {n}."), { n });
+function sentencesLine(locale: Locale, t: (english: string) => string, n: number): string {
+  if (locale === "en") return `Spelling: ${n} sentence${n === 1 ? "" : "s"} had a word we couldn't find.`;
+  return fill(t("Spelling: sentences with a word we couldn't find: {n}."), { n });
+}
+
+/**
+ * The learner's own sentences with the wrong forms put right, at the end.
+ *
+ * Only a form the dictionary holds is ever put in, and only in place of a word
+ * they wrote, so what is printed is their sentence with the changed words in
+ * bold. A sentence whose trouble is word order has no entry here: that is
+ * said in Anu's note, in words. When everything was right, it says so.
+ */
+function Corrected({ marked }: { marked: Marked }) {
+  const t = useT();
+  const { corrections, mark, graded } = marked;
+  const allRight = mark.sentences.every((m, i) => verdictFor(m, graded?.sentences[i]) === "right");
+  if (corrections.length === 0 && !allRight) return null;
+  return (
+    <div className="rounded-md border px-3.5 py-3" style={{ borderColor: "var(--rule)", background: "var(--raised)" }}>
+      <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Corrected")}</p>
+      {corrections.length === 0 ? (
+        <p className="mt-1.5 text-base" style={{ color: "var(--ink)" }}>{t("Nothing to correct.")}</p>
+      ) : (
+        <>
+          <ol className="mt-2 flex flex-col gap-2">
+            {corrections.map((c) => (
+              <li key={c.index} className="flex items-baseline gap-2.5 text-base">
+                <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>{c.index + 1}.</span>
+                <span lang="et" style={{ color: "var(--ink)" }}>{emphasise(c.text, c.swaps.map((x) => x.to))}</span>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>{t("The changed forms come from the dictionary.")}</p>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** The sentence with each swapped-in word in bold. */
+function emphasise(text: string, words: readonly string[]) {
+  const escaped = words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const parts = text.split(new RegExp(`(${escaped.join("|")})`, "giu"));
+  return parts.map((part, i) =>
+    words.some((w) => w.toLowerCase() === part.toLowerCase()) ? <strong key={i}>{part}</strong> : part);
 }

@@ -35,6 +35,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { courseWords, type CourseWord } from "../lib/collections/syllabus/index";
 import { RETIRED_WORDS } from "../lib/collections/syllabus/retired";
+import { GAME_WORDS } from "../lib/collections/syllabus/gameWords";
 import { inferPos } from "../lib/collections/syllabus/types";
 import { primarySemanticTypes } from "../lib/ekilex/client";
 import { formatGovernment } from "../lib/ekilex/mapper";
@@ -777,6 +778,7 @@ async function main() {
   const wanted = new Set([
     ...requests.map(rowKey),
     ...RETIRED_WORDS.map((w) => `${w[0]}|${inferPos(w[0], w[2])}`),
+    ...GAME_WORDS.map((w) => `${w[0]}|${w[2]}`),
   ]);
   if (ONLY) {
     requests = requests.filter((w) => w.units.includes(ONLY));
@@ -792,6 +794,13 @@ async function main() {
       const pos = inferPos(w[0], w[2]);
       if (named.has(`${w[0]}|${pos}`)) continue;
       requests.push({ lemma: w[0], gloss: w[1], pos, unitId: "", level: "C1", units: [] });
+      named.add(`${w[0]}|${pos}`);
+    }
+    // The words a game needs and no unit teaches (`gameWords.ts`), the same way.
+    for (const [lemma, gloss, pos, level] of GAME_WORDS) {
+      if (named.has(`${lemma}|${pos}`)) continue;
+      requests.push({ lemma, gloss, pos, unitId: "", level, units: [] });
+      named.add(`${lemma}|${pos}`);
     }
   }
 

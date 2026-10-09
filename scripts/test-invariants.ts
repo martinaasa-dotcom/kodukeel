@@ -22604,7 +22604,7 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     "the role card no longer sticks under the room, or it sticks while it is open as well",
   );
   assert.match(
-    code("components/scene/SceneSession.tsx"), /<details\s+className="scene-sticky/,
+    code("components/scene/SceneSession.tsx"), /<details\s+(?:open=\{[^}]*\}\s+)?className="scene-sticky/,
     "the class that pins the role card is back on something that cannot move: a summary inside a "
     + "closed details has nowhere to travel, which is the fault this replaced",
   );

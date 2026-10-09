@@ -1,0 +1,212 @@
+Kas see on roheline?
+Kas see on sinine?
+Kas see on kollane?
+Kas see on valge?
+Kas see on hall?
+Kas see on pruun?
+Kas see on oranž?
+Kas see on roosa?
+Kas see on lilla?
+Kas see on kirju?
+Kas see on pehme?
+Kas see on kõva?
+Kas see on terav?
+Kas see on kuum?
+Kas see on soe?
+Kas see on märg?
+Kas see on kuiv?
+Kas see on magus?
+Kas see on hapu?
+Kas see on soolane?
+Kas see on maitsev?
+Kas see on ilus?
+Kas see on ohtlik?
+Kas see on kallis?
+Kas see on odav?
+Kas see on vana?
+Kas see on uus?
+Kas see on kiire?
+Kas see on aeglane?
+Kas see on pikk?
+Kas see on lühike?
+Kas see on ümmargune?
+Kas see on kandiline?
+Kas see on läbipaistev?
+Kas see on mürgine?
+Kas see on elektriline?
+Kas see on lärmakas?
+Kas see on vaikne?
+Kas see on tugev?
+Kas see on nõrk?
+Kas see on metsik?
+Kas see on looduslik?
+Kas see on kodune?
+Kas see on loom?
+Kas see on lind?
+Kas see on kala?
+Kas see on putukas?
+Kas see on puu?
+Kas see on lill?
+Kas see on seen?
+Kas see on mari?
+Kas see on puuvili?
+Kas see on köögivili?
+Kas see on jook?
+Kas see on toit?
+Kas see on maiustus?
+Kas see on mänguasi?
+Kas see on tööriist?
+Kas see on pill?
+Kas see on mööbel?
+Kas see on riideese?
+Kas see on sõiduk?
+Kas see on hoone?
+Kas see on masin?
+Kas see on kehaosa?
+Kas see on ese?
+Kas see on asi?
+Kas see on elusolend?
+Kas see on metsloom?
+Kas see on koduloom?
+Kas see on lemmikloom?
+Kas see on kiskja?
+Kas see on roomaja?
+Kas see on taevakeha?
+Kas see on materjal?
+Kas see on ilm?
+Kas see lendab?
+Kas see ujub?
+Kas see jookseb?
+Kas see ronib?
+Kas see roomab?
+Kas see hüppab?
+Kas see hammustab?
+Kas see nõelab?
+Kas see muneb?
+Kas see õitseb?
+Kas see sulab?
+Kas see helendab?
+Kas see sööb liha?
+Kas see sööb rohtu?
+Kas see teeb häält?
+Kas see vajab elektrit?
+Kas see vajab vett?
+Kas see kasvab?
+Kas see liigub?
+Kas seda saab süüa?
+Kas seda saab juua?
+Kas seda saab selga panna?
+Kas sellega saab sõita?
+Kas sellel saab istuda?
+Kas sellega saab mängida?
+Kas sellega saab lõigata?
+Kas sellega saab helistada?
+Kas seda saab kuulata?
+Kas seda saab vaadata?
+Kas seda kasutatakse köögis?
+Kas seda süüakse hommikul?
+Kas sellel on jalad?
+Kas sellel on neli jalga?
+Kas sellel on kaks jalga?
+Kas sellel on tiivad?
+Kas sellel on saba?
+Kas sellel on karvad?
+Kas sellel on suled?
+Kas sellel on soomused?
+Kas sellel on sarved?
+Kas sellel on lehed?
+Kas sellel on juured?
+Kas sellel on rattad?
+Kas sellel on uks?
+Kas sellel on aknad?
+Kas sellel on mootor?
+Kas sellel on ekraan?
+Kas sellel on nupud?
+Kas sellel on käepide?
+Kas sellel on kest?
+Kas sellel on pikk kael?
+Kas sellel on suured kõrvad?
+Kas tal on hambad?
+Kas tal on silmad?
+Kas see elab metsas?
+Kas see elab meres?
+Kas see elab vees?
+Kas see elab Aafrikas?
+Kas see elab Eestis?
+Kas see on kodus?
+Kas see on köögis?
+Kas see on õues?
+Kas see on taevas?
+Kas see on kosmoses?
+Kas see on maa all?
+Kas see on laua peal?
+Kas see on põllul?
+Kas see on rannas?
+Kas see on mägedes?
+Kas see on linnas?
+Kas see on poes?
+Kas see on puidust?
+Kas see on metallist?
+Kas see on klaasist?
+Kas see on plastist?
+Kas see on paberist?
+Kas see on riidest?
+Kas see on kivist?
+Kas see on kullast?
+Kas see on kiirem kui auto?
+Kas see on pikem kui inimene?
+Kas see on raskem kui auto?
+Kas see on kergem kui raamat?
+Kas see on väiksem kui hiir?
+Kas see on suurem kui Eesti?
+Kas see on osa kehast?
+Kas see on osa loodusest?
+Kas see on suur loom?
+Kas see on väike punane puuvili?
+Kas see on koer?
+Kas see on kass?
+Kas see on auto?
+Kas see on päike?
+Kas see on õun?
+Kas see mahub taskusse?
+Kas see on raske?
+Kas seda süüakse?
+Kas seda juuakse?
+Kas see elab?
+Kas see on elus?
+Kas see on must?
+Kas seda kantakse?
+Kas see ei lenda?
+Kas see pole suur?
+Kas see on mitte suur?
+Kas see on väga ohtlik?
+Kas see on tavaliselt roheline?
+Kas see on harilikult kodus?
+Kas see on sageli märg?
+Kas inimesed söövad seda?
+Kas lapsed mängivad sellega?
+Kas see on lõbus?
+Kas see on igav?
+Kas see on hea?
+Kas see on halb?
+Kas see on tervislik?
+Kas see on külmkapis?
+Kas see on aias?
+Kas see on jões?
+Kas see on järves?
+Kas see on talus?
+Kas see on loomaaias?
+Kas see on koolis?
+Kas see on seinal?
+Kas see on põrandal?
+Kas sellel on kroon?
+Kas sellel on okkad?
+Kas sellel on nokk?
+Kas sellel on uimed?
+Kas see haugub?
+Kas see laulab?
+Kas see magab talvel?
+Kas see põleb?
+Kas see sõidab?
+Kas see lendab kõrgel?
+Kas see on väga kõrgel?

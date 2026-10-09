@@ -1301,7 +1301,17 @@ export function LearnSession({
             </div>
           )}
 
-          {phase === "feedback" && result && !sameMeaning && (
+          {/* On the choice rung a miss is already on the screen: the answer
+              carries the tick and the pick carries the cross, so a box under
+              the options saying both again is a second reading of one fact.
+              A screen reader still hears it, from a live region. */}
+          {phase === "feedback" && result && !sameMeaning && rung === "choice" && result.outcome !== "right" && (
+            <p role="status" className="sr-only">
+              {result.expected} {result.note}
+            </p>
+          )}
+
+          {phase === "feedback" && result && !sameMeaning && !(rung === "choice" && result.outcome !== "right") && (
             /* The panel that says how it went, in a live region like every
                other round's. The ladder is where a word is met for the first
                time, so this is the one panel a learner most needs read back. */

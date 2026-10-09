@@ -121,6 +121,18 @@ export async function lemmasOfForm(query: string): Promise<string[]> {
   return out;
 }
 
+/**
+ * Whether this exact spelling, diacritics and all, is a form of some word. The
+ * folded reading above is right for a search box and wrong for telling a slip of
+ * the hand from a real word: `poder` folds onto `põder` and is still a slip.
+ */
+export async function isExactForm(query: string): Promise<boolean> {
+  const trimmed = query.trim().toLowerCase();
+  const folded = fold(trimmed);
+  if (!folded) return false;
+  return ((await shard(shardKey(folded))).get(folded) ?? []).some((line) => line.form === trimmed);
+}
+
 /** Whether the spelling is a form of any Estonian word at all. */
 export async function isKnownForm(query: string): Promise<boolean> {
   return (await lemmasOfForm(query)).length > 0;

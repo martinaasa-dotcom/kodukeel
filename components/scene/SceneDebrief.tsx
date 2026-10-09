@@ -144,7 +144,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
     reached for Estonian nobody used and was withheld whole. Then the card
     simply is not there, rather than apologising for itself.
   */
-  const [note, setNote] = useState<{ comment: string; rule: string } | null | "waiting">("waiting");
+  const [note, setNote] = useState<{ comment: string; rule: string; improve?: readonly string[] } | null | "waiting">("waiting");
   useEffect(() => {
     let live = true;
     fetch("/api/scene/note", {
@@ -157,7 +157,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         met: objectives.met,
       }),
     })
-      .then((res) => (res.ok ? res.json() as Promise<{ note: { comment: string; rule: string } | null }> : { note: null }))
+      .then((res) => (res.ok ? res.json() as Promise<{ note: { comment: string; rule: string; improve?: readonly string[] } | null }> : { note: null }))
       .then((data) => { if (live) setNote(data.note && data.note.comment ? data.note : null); })
       .catch(() => { if (live) setNote(null); });
     return () => { live = false; };
@@ -235,6 +235,19 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
                     <span className="font-medium" style={{ color: "var(--ink)" }}>{t("Next time:")}{" "}</span>{note.rule}
                   </p>
+                )}
+                {note.improve && note.improve.length > 0 && (
+                  <div data-recap-improve className="mt-1 flex flex-col gap-1.5">
+                    <p className="font-medium text-sm">{t("How to say it even better")}</p>
+                    <ul className="flex flex-col gap-1.5">
+                      {note.improve.map((item) => (
+                        <li key={item} className="flex items-start gap-2">
+                          <ArrowRight size={16} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
+                          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{item}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </>
             )}
