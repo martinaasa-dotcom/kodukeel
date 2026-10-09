@@ -27,6 +27,7 @@ import { createWithFreshCode } from "@/lib/classroom/create";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
+import { isExactForm } from "@/lib/dict/forms";
 import { mergeExamples, parseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
 import { alsoAcceptedByLemma, borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
@@ -5012,4 +5013,21 @@ export async function resetCourseFor(target: unknown) {
   } catch (error) {
     return { ok: false as const, error: `${tr(await localeFor(adminId), "Nothing was reset.")} ${safeMessage(error)}`.trim() };
   }
+}
+
+/**
+ * Which of these spellings are real Estonian words, read off the forms list.
+ *
+ * The question game puts a slip of the hand right (`suuur` is `suur`), and a
+ * real word it simply does not know must not be put right into another one:
+ * `halb` is "bad", one letter from `hall`, grey. The game asks this about the
+ * words it could not read before it repairs any of them, and answers on its own
+ * if the network is gone. Accept-side only (ADR-005): the answer is a yes or a
+ * no, never a form.
+ */
+export async function realSpellings(tokens: unknown): Promise<string[]> {
+  await requireUserId();
+  const list = Array.isArray(tokens) ? tokens.slice(0, 12).map((t) => text(t).trim().toLowerCase()).filter((t) => t && t.length <= 40) : [];
+  const found = await Promise.all(list.map(async (t) => ((await isExactForm(t)) ? t : null)));
+  return found.filter((t): t is string => t !== null);
 }
