@@ -503,8 +503,19 @@ export default async function TodayPage() {
           className="mt-5 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-full px-3.5 py-1.5 text-sm"
           style={{ background: "rgb(255 255 255 / 0.08)", color: "var(--ink)" }}
         >
-          <span className="font-semibold" style={{ color: "var(--sky-ink)" }}>{t("Next")}</span>
-          <span>{stepText(courseDay.day, courseStep, locale).title}</span>
+          {/* Before the first press the card is about the whole evening, not
+              about whichever step happens to come first: it used to read
+              "Next: Learn today's 5 new words", which made the home page
+              sound like a new-words page and the module an afterthought. Once
+              somebody is part way through, the next step is the useful news. */}
+          {courseDay.pct === 0 ? (
+            <span>{fill(t("{n} short steps, picked for you"), { n: courseDay.day.steps.length })}</span>
+          ) : (
+            <>
+              <span className="font-semibold" style={{ color: "var(--sky-ink)" }}>{t("Next")}</span>
+              <span>{stepText(courseDay.day, courseStep, locale).title}</span>
+            </>
+          )}
         </p>
       </div>
       <div className="flex flex-col items-stretch gap-4 lg:w-[19rem] lg:shrink-0">
