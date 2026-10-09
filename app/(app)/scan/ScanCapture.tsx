@@ -15,6 +15,8 @@ import { MAX_EDGE } from "@/lib/scan/image";
 import { MAX_ITEMS } from "@/lib/scan/extract";
 import { summarise, type ResolvedItem } from "@/lib/scan/items";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
 
 /** A row on screen: what came back, plus whether the learner still wants it. */
 interface Row extends ResolvedItem {
@@ -42,6 +44,8 @@ type Phase = "idle" | "reading" | "review" | "saving" | "saved";
 export function ScanCapture() {
   const router = useRouter();
   const { online } = useOffline();
+  const t = useT();
+  const locale = useLocale();
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [preview, setPreview] = useState<string | null>(null);
@@ -78,7 +82,7 @@ export function ScanCapture() {
       });
       const body = (await response.json()) as { items?: ResolvedItem[]; error?: string };
       if (!response.ok) {
-        setError(body.error ?? "We couldn't read that photo.");
+        setError(body.error ? t(body.error) : t("We couldn't read that photo."));
         setPhase("idle");
         return;
       }
@@ -86,8 +90,7 @@ export function ScanCapture() {
       const found = body.items ?? [];
       if (found.length === 0) {
         setError(
-          "We couldn't find any Estonian words on that. Try a flatter angle, more light, and " +
-          "filling the frame with just the list.",
+          t("We couldn't find any Estonian words on that. Try a flatter angle, more light, and filling the frame with just the list."),
         );
         setPhase("idle");
         return;
@@ -97,10 +100,10 @@ export function ScanCapture() {
         `${response.headers.get("x-model-provider") ?? ""} ${response.headers.get("x-model-id") ?? ""}`.trim(),
       );
       setRows(found.map((item) => ({ ...item, keep: true })));
-      setTitle(defaultTitle());
+      setTitle(defaultTitle(t("Page from {date}")));
       setPhase("review");
     } catch {
-      setError("We couldn't send that photo. Check your connection and try again.");
+      setError(t("We couldn't send that photo. Check your connection and try again."));
       setPhase("idle");
     }
   };
@@ -139,7 +142,7 @@ export function ScanCapture() {
         addCards,
       }).catch(() => null);
       if (!result || !result.ok) {
-        setError(result ? result.error : NOT_REACHED);
+        setError(t(result ? result.error : NOT_REACHED));
         setPhase("review");
         return;
       }
@@ -156,11 +159,10 @@ export function ScanCapture() {
           <CloudOff size={18} aria-hidden style={{ color: "var(--sky-ink)" }} />
           <div>
             <p className="font-semibold" style={{ color: "var(--ink)" }}>
-              Reading a page needs a connection.
+              {t("Reading a page needs a connection.")}
             </p>
             <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-              Review still works offline, and so does everything already in your deck. Come back
-              once you have signal, or paste the list in from Settings.
+              {t("Review still works offline, and so does everything already in your deck. Come back once you have signal, or paste the list in from Settings.")}
             </p>
           </div>
         </div>
@@ -175,13 +177,17 @@ export function ScanCapture() {
           <Check size={20} aria-hidden style={{ color: "var(--good-ink)" }} />
           <div className="min-w-0 flex-1">
             <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
-              {title} is saved.
+              {fill(t("{title} is saved."), { title })}
             </p>
             <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-              {saved.words} word{saved.words === 1 ? "" : "s"} on the page
               {saved.cards > 0
-                ? `, and ${saved.cards} card${saved.cards === 1 ? "" : "s"} are in your deck.`
-                : ". Nothing's been added to your deck yet."}
+                ? fill(t("{words} on the page, and {cards} are in your deck."), {
+                  words: countOf(locale, saved.words, "word"),
+                  cards: countOf(locale, saved.cards, "card"),
+                })
+                : fill(t("{words} on the page. Nothing's been added to your deck yet."), {
+                  words: countOf(locale, saved.words, "word"),
+                })}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {/*
@@ -205,14 +211,14 @@ export function ScanCapture() {
               */}
               <Button variant="secondary" onClick={reset}>
                 <Camera size={15} aria-hidden />
-                Scan another
+                {t("Scan another")}
               </Button>
               <Button
                 variant="primary"
                 // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a document load on purpose, argued above
                 onClick={() => window.location.assign(`/scan/${saved.id}`)}
               >
-                Open the page
+                {t("Open the page")}
               </Button>
             </div>
           </div>
@@ -226,7 +232,7 @@ export function ScanCapture() {
       <div className="flex flex-col gap-4">
         <Card>
           <label htmlFor="scan-title" className="label-xs block" style={{ color: "var(--ink-3)" }}>
-            Give this page a name
+            {t("Give this page a name")}
           </label>
           <input
             id="scan-title"
@@ -238,13 +244,15 @@ export function ScanCapture() {
           />
 
           <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
-            {summary.total} word{summary.total === 1 ? "" : "s"} ticked
-            {summary.known > 0 && <>, {summary.known} matched the dictionary</>}
-            {summary.inflected > 0 && <>, {summary.inflected} with an ending on them</>}
+            {[
+              fill(t("{words} checked"), { words: countOf(locale, summary.total, "word") }),
+              ...(summary.known > 0 ? [fill(t("{n} matched the dictionary"), { n: summary.known })] : []),
+              ...(summary.inflected > 0 ? [fill(t("{n} with an ending on them"), { n: summary.inflected })] : []),
+            ].join(", ")}
           </p>
           {readBy && (
             <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-              Read by {readBy}. Compare it with your paper before you add anything.
+              {fill(t("Read by {model}. Compare it with your paper before you add anything."), { model: readBy })}
             </p>
           )}
         </Card>
@@ -268,10 +276,12 @@ export function ScanCapture() {
         {summary.unknown > 0 && (
           <div className="flex flex-col gap-3">
             <Note tone="again">
-              {summary.unknown} of these {summary.unknown === 1 ? "is" : "are"} not in the dictionary
-              yet. They came straight off the photo, so open each one and check the spelling against
-              your paper. If you add them as they are, you&apos;ll get cards for the meaning but not
-              for the case endings, since we have nothing checked to build those from.
+              {fill(
+                summary.unknown === 1
+                  ? t("{n} of these is not in the dictionary yet. They came straight off the photo, so open each one and check the spelling against your paper. If you add them as they are, you'll get cards for the meaning but not for the case endings, since we have nothing checked to build those from.")
+                  : t("{n} of these are not in the dictionary yet. They came straight off the photo, so open each one and check the spelling against your paper. If you add them as they are, you'll get cards for the meaning but not for the case endings, since we have nothing checked to build those from."),
+                { n: summary.unknown },
+              )}
             </Note>
             {/*
               A word the dictionary would not vouch for is a gap in the
@@ -281,13 +291,13 @@ export function ScanCapture() {
             */}
             <div className="flex flex-wrap items-center gap-3">
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                Spelled right on your paper and still not found? Tell us.
+                {t("Spelled right on your paper and still not found? Tell us.")}
               </p>
               <SuggestFix
                 category="MISSING_WORD"
                 lemma={rows.find((r) => !r.lexemeId)?.et ?? undefined}
                 trigger={`${summary.unknown} word(s) off a photographed page were not in the dictionary.`}
-                label="A word here is missing"
+                label={t("A word here is missing")}
               />
             </div>
           </div>
@@ -297,14 +307,14 @@ export function ScanCapture() {
 
         <Card className="flex flex-wrap items-center gap-3">
           <Button variant="ghost" onClick={reset} disabled={phase === "saving"}>
-            Start again
+            {t("Start again")}
           </Button>
           <Button
             variant="secondary"
             onClick={() => save(false)}
             disabled={phase === "saving" || kept.length === 0}
           >
-            Just save the page
+            {t("Just save the page")}
           </Button>
           <Button
             variant="primary"
@@ -312,7 +322,7 @@ export function ScanCapture() {
             disabled={phase === "saving" || kept.length === 0}
           >
             {phase === "saving" ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <Sparkles size={15} aria-hidden />}
-            Make {kept.length} flashcard{kept.length === 1 ? "" : "s"}
+            {fill(kept.length === 1 ? t("Make {n} flashcard") : t("Make {n} flashcards"), { n: kept.length })}
           </Button>
         </Card>
       </div>
@@ -323,9 +333,7 @@ export function ScanCapture() {
     <div className="flex flex-col gap-4">
       <Card>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          Photograph a vocabulary list, a page from your textbook or last night&apos;s homework. We
-          check every word against the dictionary, so the ones it knows come with all their real
-          forms. And if a word on your page has an ending on it, we&apos;ll find the word it came from.
+          {t("Photograph a vocabulary list, a page from your textbook or last night's homework. We check every word against the dictionary, so the ones it knows come with all their real forms. And if a word on your page has an ending on it, we'll find the word it came from.")}
         </p>
 
         {phase === "reading" ? (
@@ -347,24 +355,24 @@ export function ScanCapture() {
             <div>
               <p className="flex items-center gap-2 font-semibold" style={{ color: "var(--ink)" }}>
                 <Loader2 size={16} className="animate-spin" aria-hidden />
-                Reading the page
+                {t("Reading the page")}
               </p>
               <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-                This takes a few seconds. The picture is read once and then thrown away.
+                {t("This takes a few seconds. The picture is read once and then thrown away.")}
               </p>
             </div>
           </div>
         ) : (
           <div className="mt-5 flex flex-wrap gap-3">
             <PickFile
-              label="Take a photo"
+              label={t("Take a photo")}
               icon={<Camera size={17} aria-hidden />}
               capture
               primary
               onPick={onPick}
             />
             <PickFile
-              label="Choose a picture"
+              label={t("Choose a picture")}
               icon={<ImageIcon size={17} aria-hidden />}
               onPick={onPick}
             />
@@ -372,8 +380,7 @@ export function ScanCapture() {
         )}
 
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-          One page at a time, up to {MAX_ITEMS} words. The photo is made smaller on your device before
-          it&apos;s sent, and it&apos;s never saved anywhere.
+          {fill(t("One page at a time, up to {words}. The photo is made smaller on your device before it's sent, and it's never saved anywhere."), { words: countOf(locale, MAX_ITEMS, "word") })}
         </p>
       </Card>
 
@@ -461,6 +468,7 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
   onRecheck: () => void;
 }) {
   const known = row.lexemeId !== null;
+  const t = useT();
 
   return (
     <div
@@ -495,14 +503,14 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
 
         <div className="flex shrink-0 items-center gap-2">
           {known ? (
-            <Chip tone="good">In the dictionary</Chip>
+            <Chip tone="good">{t("In the dictionary")}</Chip>
           ) : (
-            <Chip tone="again">Read from the photo</Chip>
+            <Chip tone="again">{t("Read from the photo")}</Chip>
           )}
           <button
             type="button"
             onClick={onEdit}
-            aria-label={`Edit ${row.et}`}
+            aria-label={fill(t("Edit {word}"), { word: row.et })}
             aria-expanded={editing}
             className="press flex h-11 w-11 items-center justify-center rounded-full transition-ui"
             style={{ background: "var(--raised)", color: "var(--ink-2)" }}
@@ -514,7 +522,7 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
 
       {row.matchedAs && (
         <p className="pb-2 text-sm" style={{ color: "var(--sky-ink)" }}>
-          On the page as the {row.matchedAs}
+          {fill(t("On the page as the {form}"), { form: row.matchedAs })}
         </p>
       )}
 
@@ -522,7 +530,7 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
         <div className="flex flex-col gap-3 border-t py-4" style={{ borderColor: "var(--rule-soft)" }}>
           <div>
             <span className="label-xs block pb-2" style={{ color: "var(--ink-3)" }}>
-              Estonian, as it is printed
+              {t("Estonian, as it is printed")}
             </span>
             <EstonianInput
               value={row.et}
@@ -530,18 +538,18 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
                 // A new spelling is a new question: the match the old one had
                 // is dropped until "Look this up again" asks the dictionary.
                 onChange({ et: next, lexemeId: null, lemma: null, translation: null, matchedAs: null, cefr: null })}
-              ariaLabel="Estonian word"
+              ariaLabel={t("Estonian word")}
               onEnter={onRecheck}
             />
           </div>
           <div>
             <span className="label-xs block pb-2" style={{ color: "var(--ink-3)" }}>
-              English
+              {t("English")}
             </span>
             <input
               value={row.en}
               onChange={(e) => onChange({ en: e.target.value })}
-              aria-label="English translation"
+              aria-label={t("English translation")}
               className="field-lg w-full text-base"
               style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
             />
@@ -549,7 +557,7 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
           <div>
             <Button variant="soft" onClick={onRecheck} disabled={busy}>
               {busy ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <Search size={15} aria-hidden />}
-              Look this up again
+              {t("Look this up again")}
             </Button>
           </div>
         </div>
@@ -559,11 +567,12 @@ function ScanRow({ row, editing, busy, onToggle, onEdit, onChange, onRecheck }: 
 }
 
 /** "Page from 29.08", which is what a person would write on a folder tab. */
-function defaultTitle(): string {
+/** "Page from 07.10", in the learner's language: `template` is that line through `t`. */
+function defaultTitle(template: string): string {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, "0");
   const month = String(now.getMonth() + 1).padStart(2, "0");
-  return `Page from ${day}.${month}`;
+  return fill(template, { date: `${day}.${month}` });
 }
 
 /**

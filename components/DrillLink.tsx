@@ -1,4 +1,7 @@
+"use client";
+
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { useLocale, useT } from "@/components/Locale";
 import { modeAt } from "@/lib/ux/modes";
 import { NamedIcon } from "@/components/icons";
 import { toneInk } from "@/components/ui";
@@ -23,6 +26,8 @@ import { toneInk } from "@/components/ui";
  * component rather than four hand-drawn cards.
  */
 export function DrillLink({ href }: { href: string }) {
+  const t = useT();
+  const locale = useLocale();
   const mode = modeAt(href);
   // Rather than throwing on a page whose drill has been retired. The invariant
   // suite is what catches a stale href; a learner should not meet it.
@@ -31,6 +36,7 @@ export function DrillLink({ href }: { href: string }) {
   return (
     <Link
       href={mode.href}
+      lang={locale}
       className="lift grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2.5 rounded-[var(--r-lg)] border p-5 sm:items-start"
       style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
     >
@@ -44,10 +50,10 @@ export function DrillLink({ href }: { href: string }) {
           card's whole width under both, rather than a column the icon has
           already narrowed. */}
       <span className="min-w-0">
-        <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>{mode.title}</span>
-        <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{mode.subtitle}</span>
+        <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>{t(mode.title)}</span>
+        <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{t(mode.subtitle)}</span>
       </span>
-      <span className="col-span-2 block text-sm sm:col-span-1 sm:col-start-2" style={{ color: "var(--ink-2)" }}>{mode.blurb}</span>
+      <span className="col-span-2 block text-sm sm:col-span-1 sm:col-start-2" style={{ color: "var(--ink-2)" }}>{t(mode.blurb)}</span>
     </Link>
   );
 }

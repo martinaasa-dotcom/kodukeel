@@ -150,7 +150,7 @@ describe("checkDictation", () => {
     // the sentence, so it read "one needs a space moved" to somebody looking
     // at two of them, and nothing here said so.
     expect(result.note).toBe("You heard every word, but 2 spaces need moving.");
-    expect(wordNote(result.words[0]!)).toBe("missing 2 spaces");
+    expect(wordNote(result.words[0]!, "en")).toBe("missing 2 spaces");
   });
 
   it("does not let a two-word merge reach past the word right after it", () => {
@@ -188,41 +188,41 @@ describe("wordNote", () => {
     phone `diacritics` and `typo` were two identical chips.
   */
   it("names the letters that were dropped", () => {
-    expect(wordNote({ expected: "õues", typed: "oues", status: "diacritics" }))
+    expect(wordNote({ expected: "õues", typed: "oues", status: "diacritics" }, "en"))
       .toBe("õ, not o");
   });
 
   it("names every dropped letter, once each", () => {
-    expect(wordNote({ expected: "üksüs", typed: "uksus", status: "diacritics" }))
+    expect(wordNote({ expected: "üksüs", typed: "uksus", status: "diacritics" }, "en"))
       .toBe("ü, not u");
   });
 
   it("says only that a typo was a typo", () => {
     // Not which keystroke. Separating a slip from a lesson is the point; two
     // equally detailed notes would put them back on the same footing.
-    expect(wordNote({ expected: "kool", typed: "koll", status: "typo" }))
+    expect(wordNote({ expected: "kool", typed: "koll", status: "typo" }, "en"))
       .toBe("one letter out");
   });
 
   it("says nothing where the chip already says it", () => {
-    expect(wordNote({ expected: "maja", typed: "kool", status: "wrong" })).toBeNull();
-    expect(wordNote({ expected: "maja", typed: null, status: "missing" })).toBeNull();
-    expect(wordNote({ expected: null, typed: "ja", status: "extra" })).toBeNull();
-    expect(wordNote({ expected: "maja", typed: "maja", status: "right" })).toBeNull();
+    expect(wordNote({ expected: "maja", typed: "kool", status: "wrong" }, "en")).toBeNull();
+    expect(wordNote({ expected: "maja", typed: null, status: "missing" }, "en")).toBeNull();
+    expect(wordNote({ expected: null, typed: "ja", status: "extra" }, "en")).toBeNull();
+    expect(wordNote({ expected: "maja", typed: "maja", status: "right" }, "en")).toBeNull();
   });
 
   it("falls back to a phrase rather than an empty label", () => {
     // A `diacritics` verdict whose letters this cannot line up (a length
     // difference, say) must still say something: a blank line under a word is
     // worse than the tooltip was.
-    expect(wordNote({ expected: "õu", typed: "ou koos", status: "diacritics" }))
+    expect(wordNote({ expected: "õu", typed: "ou koos", status: "diacritics" }, "en"))
       .toBeTruthy();
   });
 
   it("never reaches for a word neither side wrote", () => {
     // Every character it names is read out of the expected form, which came
     // from Ekilex. ADR-005: nothing here composes Estonian.
-    const note = wordNote({ expected: "tänav", typed: "tanav", status: "diacritics" });
+    const note = wordNote({ expected: "tänav", typed: "tanav", status: "diacritics" }, "en");
     expect(note).toBe("ä, not a");
   });
 });

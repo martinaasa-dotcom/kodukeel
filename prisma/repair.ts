@@ -40,6 +40,7 @@ import { PARTS } from "../lib/copy/values";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { spellingFor } from "../lib/srs/cardSpelling";
 import { alsoAcceptedByLemma, sharedPrompts } from "../lib/collections/senses";
+import { conjugationSlotFromFront } from "../lib/srs/slots";
 import { generateCards, isBareCaseFront, type LexemeForCards } from "../lib/srs/cards";
 import { borrowSentences } from "../lib/dict/borrow";
 import { readableGovernment } from "../lib/estonian/government";
@@ -139,9 +140,9 @@ export async function repairProductionBacks(prisma: PrismaClient): Promise<numbe
  */
 export async function repairCaseFronts(prisma: PrismaClient): Promise<number> {
   const bare = await prisma.card.findMany({
-    where: { cardType: "CASE_FORM", targetCase: { not: null }, front: { contains: " → " } },
+    where: { cardType: { in: ["CASE_FORM", "CONJUGATION"] }, front: { contains: " → " } },
     select: {
-      id: true, front: true, targetCase: true, lexemeId: true,
+      id: true, front: true, targetCase: true, slot: true, cardType: true, lexemeId: true,
       lexeme: {
         select: {
           lemma: true, translation: true, pos: true, semanticTypes: true, cefr: true,
@@ -178,10 +179,17 @@ export async function repairCaseFronts(prisma: PrismaClient): Promise<number> {
   // card the builder would make today, ranking included.
   const reach = plainReach(all);
 
-  const rows: { id: string; from: string; front: string; hint: string | null; back: string }[] = [];
-  const builtFor = new Map<string, Map<string, { front: string; hint: string | null; back: string }>>();
+  const rows: { id: string; from: string; type: string; front: string; hint: string | null; back: string; slot: string | null }[] = [];
+  const builtFor = new Map<string, Map<string, { front: string; hint: string | null; back: string; slot: string | null }>>();
   for (const card of bare) {
-    if (!card.lexeme || !card.lexemeId || !card.targetCase || !isBareCaseFront(card.front)) continue;
+    if (!card.lexeme || !card.lexemeId || !isBareCaseFront(card.front)) continue;
+    // A case card is keyed on the case it is about; a person of a verb on the
+    // slot it carries, or the one its own front names for a card built before
+    // the column existed.
+    const wanted = card.cardType === "CASE_FORM"
+      ? card.targetCase
+      : card.slot ?? conjugationSlotFromFront(card.front);
+    if (!wanted) continue;
     let byCase = builtFor.get(card.lexemeId);
     if (!byCase) {
       const lex: LexemeForCards = {
@@ -190,27 +198,31 @@ export async function repairCaseFronts(prisma: PrismaClient): Promise<number> {
         plainest: plainerFirst(card.lexeme.cefr, reach),
       };
       byCase = new Map(
-        generateCards(lex, ["CASE_FORM"])
-          .filter((c) => c.targetCase)
-          .map((c) => [c.targetCase!, { front: c.front, hint: c.hint, back: c.back }]),
+        generateCards(lex, ["CASE_FORM", "CONJUGATION"])
+          .filter((c) => (c.cardType === "CASE_FORM" ? c.targetCase : c.slot))
+          .map((c) => [
+            `${c.cardType}:${c.cardType === "CASE_FORM" ? c.targetCase : c.slot}`,
+            { front: c.front, hint: c.hint, back: c.back, slot: c.slot },
+          ]),
       );
       builtFor.set(card.lexemeId, byCase);
     }
-    const built = byCase.get(card.targetCase);
+    const built = byCase.get(`${card.cardType}:${wanted}`);
     if (!built) continue;
-    rows.push({ id: card.id, from: card.front, ...built });
+    rows.push({ id: card.id, from: card.front, type: card.cardType, ...built });
   }
   if (rows.length === 0) return 0;
 
   let rewritten = 0;
   for (const batch of chunk(rows, CHUNK)) {
-    const values = batch.map((r) => Prisma.sql`(${r.id}, ${r.from}, ${r.front}, ${r.hint}, ${r.back})`);
+    const values = batch.map((r) => Prisma.sql`(${r.id}, ${r.from}, ${r.front}, ${r.hint}, ${r.back}, ${r.type}, ${r.slot})`);
     rewritten += await prisma.$executeRaw`
       UPDATE "Card" AS c
-      SET front = v.to_front, hint = v.to_hint, back = v.to_back
-      FROM (VALUES ${Prisma.join(values)}) AS v(id, from_front, to_front, to_hint, to_back)
+      SET front = v.to_front, hint = v.to_hint, back = v.to_back,
+          slot = COALESCE(v.to_slot, c.slot)
+      FROM (VALUES ${Prisma.join(values)}) AS v(id, from_front, to_front, to_hint, to_back, card_type, to_slot)
       WHERE c.id = v.id
-        AND c."cardType" = 'CASE_FORM'
+        AND c."cardType" = v.card_type
         AND c.front = v.from_front
     `;
   }

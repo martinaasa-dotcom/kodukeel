@@ -1,5 +1,8 @@
 "use client";
 
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+
 import { useCallback, useState } from "react";
 import { Award } from "lucide-react";
 import { recordCheckpoint } from "@/app/actions";
@@ -36,6 +39,7 @@ export function CheckpointSession({
   passMark: number;
   initialQuestions: CheckpointQuestion[];
 }) {
+  const t = useT();
   const [questions] = useState(initialQuestions);
   const [at, setAt] = useState(0);
   const [typed, setTyped] = useState("");
@@ -59,9 +63,9 @@ export function CheckpointSession({
     setSaving(true);
     const result = await recordCheckpoint(level, finalCorrect, total, finalAnswers).catch(() => null);
     setSaving(false);
-    if (!result || !result.ok) { setError(result ? result.error : NOT_REACHED); return; }
+    if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
     setDone({ passed: result.passed, level: result.level });
-  }, [level, total]);
+  }, [level, total, t]);
 
   const submit = useCallback(() => {
     if (!question || saving || done) return;
@@ -93,11 +97,11 @@ export function CheckpointSession({
 
   if (total === 0) {
     return (
-      <Page title={title} lead={blurb}>
+      <Page title={t(title)} lead={t(blurb)}>
         <Empty
-          title="Not enough words from this level yet"
-          body="A checkpoint asks about the whole level, so work through a few of its units first."
-          action={<ButtonLink href="/learn">Back to the course</ButtonLink>}
+          title={t("Not enough words from this level yet")}
+          body={t("A checkpoint asks about the whole level, so work through a few of its units first.")}
+          action={<ButtonLink href="/learn">{t("Back to the course")}</ButtonLink>}
         />
       </Page>
     );
@@ -106,27 +110,27 @@ export function CheckpointSession({
   if (done) {
     const pct = Math.round((correct / total) * 100);
     return (
-      <Page title={title} eyebrow={`${level} checkpoint`}>
+      <Page title={t(title)} eyebrow={fill(t("{level} checkpoint"), { level })}>
         <Card className="flex flex-col gap-4">
           {done.passed && <Confetti />}
           <div className="flex items-center gap-2 text-sm" style={{ color: "var(--accent-deep)" }}>
-            <Award size={16} aria-hidden /> {done.passed ? "Passed" : "Not this time"}
+            <Award size={16} aria-hidden /> {done.passed ? t("Passed") : t("Not this time")}
           </div>
-          <h2 className="text-3xl tnum">{correct} of {total}, {pct}%</h2>
+          <h2 className="text-3xl tnum">{fill(t("{correct} of {total}, {pct}%"), { correct, total, pct })}</h2>
           <p className="text-lg">
             {done.passed
-              ? `That's ${level} behind you. The course now starts you at ${done.level}.`
-              : `You need ${passMark}% to pass this one. Nothing's changed on your course, and you can try again whenever you like.`}
+              ? fill(t("That's {level} behind you. The course now starts you at {next}."), { level, next: done.level ?? "" })
+              : fill(t("You need {mark}% to pass this one. Nothing's changed on your course, and you can try again whenever you like."), { mark: passMark })}
           </p>
           {wrong.length > 0 && (
             <div className="flex flex-col gap-2">
-              <p className="text-sm" style={{ color: "var(--ink-3)" }}>Worth another look:</p>
+              <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Worth another look:")}</p>
               <ul className="flex flex-col gap-1 text-sm">
                 {wrong.map((w, i) => (
                   <li key={`${w.lemma}-${i}`} className="flex flex-wrap gap-2">
                     <Et className="font-semibold">{w.expected}</Et>
                     <span style={{ color: "var(--ink-3)" }}>
-                      {w.given ? <>you wrote <Et>{w.given}</Et></> : "left blank"}
+                      {w.given ? <>{t("you wrote")} <Et>{w.given}</Et></> : t("left blank")}
                     </span>
                   </li>
                 ))}
@@ -134,8 +138,8 @@ export function CheckpointSession({
             </div>
           )}
           <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/learn">Back to the course</ButtonLink>
-            <ButtonLink href="/review" variant="ghost">Review now</ButtonLink>
+            <ButtonLink href="/learn">{t("Back to the course")}</ButtonLink>
+            <ButtonLink href="/review" variant="ghost">{t("Review now")}</ButtonLink>
           </div>
         </Card>
       </Page>
@@ -143,25 +147,27 @@ export function CheckpointSession({
   }
 
   if (!question) return null;
+  const [wordIsBefore, wordIsAfter = ""] = t("The word is {word} ({gloss}). Write it in the form this sentence needs.").split("{word}");
 
   return (
     <Page
-      title={title}
-      eyebrow={`${level} checkpoint`}
-      lead={`${blurb} You'll find out how you did at the end, not after each answer.`}
+      title={t(title)}
+      eyebrow={fill(t("{level} checkpoint"), { level })}
+      lead={`${t(blurb)} ${t("You'll find out how you did at the end, not after each answer.")}`}
     >
       <div className="flex flex-col gap-5">
-        <Meter pct={Math.round((at / total) * 100)} label={`Question ${at + 1} of ${total}`} />
+        <Meter pct={Math.round((at / total) * 100)} label={fill(t("Question {n} of {total}"), { n: at + 1, total })} />
         <Card className="flex flex-col gap-4">
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Question {at + 1} of {total}
-            {question.kind === "gap" ? ", fill the gap" : ", write it in Estonian"}
+            {fill(t(question.kind === "gap"
+              ? "Question {n} of {total}, fill the gap"
+              : "Question {n} of {total}, write it in Estonian"), { n: at + 1, total })}
           </span>
           {question.kind === "gap" ? (
             <>
               <p className="text-xl"><Et>{question.sentence}</Et></p>
               <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-                The word is <Et>{question.lemma}</Et> ({question.gloss}). Write it in the form this sentence needs.
+                {wordIsBefore}<Et>{question.lemma}</Et>{wordIsAfter.replace("{gloss}", question.gloss)}
               </p>
             </>
           ) : (
@@ -173,19 +179,18 @@ export function CheckpointSession({
             onChange={setTyped}
             large
             autoFocus
-            ariaLabel="Your answer in Estonian"
+            ariaLabel={t("Your answer in Estonian")}
             placeholder={question.kind === "gap" ? BLANK : undefined}
             onEnter={submit}
           />
           {/* The one action on a checkpoint question, so the loud one. */}
           <Button variant="primary" onClick={submit} className="self-start" disabled={saving}>
-            {at + 1 === total ? "Finish" : "Next"}
+            {at + 1 === total ? t("Finish") : t("Next")}
           </Button>
-          {saving && <p className="text-sm" style={{ color: "var(--ink-3)" }}>Marking…</p>}
-          {error && <p className="text-sm" role="alert" style={{ color: "var(--again-ink)" }}>{error}</p>}
-          <Explain label="What happens if I pass, or don't">
-            Pass, and the course moves you up a level. Don&apos;t, and nothing changes: one bad
-            evening doesn&apos;t take away a level you already have.
+          {saving && <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Marking…")}</p>}
+          {error && <p className="text-sm" role="alert" style={{ color: "var(--again-ink)" }}>{t(error)}</p>}
+          <Explain label={t("What happens if I pass, or don't")}>
+            {t("Pass, and the course moves you up a level. Don't, and nothing changes: one bad evening doesn't take away a level you already have.")}
           </Explain>
         </Card>
       </div>

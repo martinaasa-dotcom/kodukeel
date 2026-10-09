@@ -61,6 +61,7 @@ import { createHash } from "node:crypto";
 import { cacheStorageAsInputTokens } from "@/lib/usage/pricing";
 import { singleFlight } from "@/lib/cache/singleFlight";
 import { isExhausted, noteRefusal } from "./exhausted";
+import { thinkingFor } from "./thinking";
 import { SCENE_REPLY_TOKENS, TutorError, type ChatMessage, type ProviderConfig, type UsageReport } from "./provider";
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
@@ -468,7 +469,7 @@ export async function geminiCachedReply(
   const generationConfig = {
     maxOutputTokens: maxTokens,
     // The chain's own answer to a flash model thinking by default (`ProviderConfig.reasoning`).
-    ...(config.reasoning === "none" ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+    ...(config.reasoning === "none" ? { thinkingConfig: thinkingFor(config.model) } : {}),
   };
   const contents = contentsFor(messages, live);
   /* A harness's recorded answer, before anything is made or asked (`ReplayRecord`). */

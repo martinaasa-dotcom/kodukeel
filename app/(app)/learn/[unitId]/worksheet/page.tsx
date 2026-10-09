@@ -14,13 +14,16 @@ import { PrintButton } from "@/components/PrintButton";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { caseByKey } from "@/lib/estonian/cases";
 import { CaseLabel } from "@/components/CaseLabel";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
   const unit = unitById(unitId);
-  return { title: unit ? `${unit.title}, worksheet` : "Worksheet" };
+  const locale = await localeFor(await requireUserId());
+  return { title: unit ? fill(tr(locale, "{title}, worksheet"), { title: unit.title }) : tr(locale, "Worksheet") };
 }
 
 /** A ruled line to write on. Paper needs somewhere to put the answer. */
@@ -73,7 +76,8 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
 
   // Signed in, like every other page here — a worksheet is generated from the
   // dictionary, not published.
-  await requireUserId();
+  const locale = await localeFor(await requireUserId());
+  const t = (english: string) => tr(locale, english);
 
   const [rows, reach] = await Promise.all([
     prisma.lexeme.findMany({
@@ -123,29 +127,29 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
           className="flex items-center gap-1.5 text-sm"
           style={{ color: "var(--accent-deep)" }}
         >
-          <ArrowLeft size={14} aria-hidden /> Back to {unit.title}
+          <ArrowLeft size={14} aria-hidden /> {fill(t("Back to {unit}"), { unit: unit.title })}
         </Link>
-        <PrintButton />
+        <PrintButton label={t("Print this worksheet")} />
       </div>
 
       {sheet.empty ? (
         <Empty
-          title="Nothing to print for this unit yet"
-          body="Look these words up once and the sheet will fill itself in from the dictionary."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={t("Nothing to print for this unit yet")}
+          body={t("Look these words up once and the sheet will fill itself in from the dictionary.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{t("Open the dictionary")}</ButtonLink>}
         />
       ) : (
         <>
           <header className="mb-8 border-b pb-5" style={{ borderColor: "var(--rule)" }}>
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-              Kodukeel, {unit.cefr}, {unit.subtitle}
+              Kodukeel, {unit.cefr}, {t(unit.subtitle)}
             </p>
             <h1 lang="et" className="mt-1 text-2xl font-bold" style={{ color: "var(--ink)" }}>
               {unit.title}
             </h1>
             <p className="mt-3 flex flex-wrap gap-x-8 gap-y-2 text-xs" style={{ color: "var(--ink-2)" }}>
-              <span>Nimi / Name: <Rule width={180} /></span>
-              <span>Kuupäev / Date: <Rule width={110} /></span>
+              <span><span lang="et">Nimi</span> / {t("Name")}: <Rule width={180} /></span>
+              <span><span lang="et">Kuupäev</span> / {t("Date")}: <Rule width={110} /></span>
             </p>
           </header>
 
@@ -161,10 +165,10 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 a correction inside a set rather than new Estonian on a screen.
               */}
               <h2 className="mb-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
-                A, Mida see tähendab? What does it mean?
+                A, <span lang="et">Mida see tähendab?</span> {t("What does it mean?")}
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
-                Write the English meaning next to each word.
+                {t("Write the English meaning next to each word.")}
               </p>
               <ol className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
                 {sheet.vocabulary.map((item, i) => (
@@ -183,10 +187,10 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
           {sheet.gaps.length > 0 && (
             <section className="avoid-break mb-9">
               <h2 className="mb-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
-                B, Täida lüngad. Fill the gaps
+                B, <span lang="et">Täida lüngad.</span> {t("Fill the gaps")}
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
-                Put the word in brackets into the form the sentence needs. Every sentence is real Estonian from the dictionary.
+                {t("Put the word in parentheses into the form the sentence needs. Every sentence is real Estonian from the dictionary.")}
               </p>
               <ol className="flex flex-col gap-4">
                 {sheet.gaps.map((gap, i) => (
@@ -212,11 +216,10 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
           {sheet.cases.length > 0 && (
             <section className="avoid-break mb-9">
               <h2 className="mb-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
-                C, Kääna. Complete the table
+                C, <span lang="et">Kääna.</span> {t("Complete the table")}
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
-                Fill in the missing forms. These are the three you learn by heart, and every
-                other case is built from the second one.
+                {t("Fill in the missing forms. These are the three you learn by heart, and every other case is built from the second one.")}
               </p>
               {/*
                 A blank to write on is 110px wide because that is what a hand
@@ -234,7 +237,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 `scrollable-region-focusable` named it the first time it was
                 walked here. The shape the setup guides in Settings already use.
               */}
-              <div tabIndex={0} role="region" aria-label="The table to complete" className="overflow-x-auto">
+              <div tabIndex={0} role="region" aria-label={t("The table to complete")} className="overflow-x-auto">
                 <table className="w-full min-w-[420px] text-base">
                   <thead>
                     <tr>
@@ -285,13 +288,12 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
           )}
 
           <p className="mt-10 text-2xs" style={{ color: "var(--ink-3)" }}>
-            Forms and sentences from the Institute of the Estonian Language, licensed CC BY 4.0.
-            This worksheet was put together by Kodukeel. Nothing on it was written by software.
+            {t("Forms and sentences from the Institute of the Estonian Language, licensed CC BY 4.0. This worksheet was put together by Kodukeel. Nothing on it was written by AI.")}
           </p>
 
           {/* The key, on its own sheet, so it can be printed and kept back. */}
           <section className="page-break mt-12 border-t pt-8" style={{ borderColor: "var(--rule)" }}>
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>Answer key</p>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Answer key")}</p>
             <h2 lang="et" className="mt-1 text-xl font-bold" style={{ color: "var(--ink)" }}>
               {unit.title}
             </h2>
@@ -341,10 +343,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
 
           <div className="no-print mt-10">
             <Note tone="neutral">
-              Print this page and you get the worksheet, with the answer key on a separate sheet you
-              can keep back. Everything on it comes from the dictionary, so if some of the unit&rsquo;s
-              words haven&rsquo;t been looked up yet, the sheet is just shorter. We never fill a gap
-              with made-up Estonian.
+              {t("Print this page and you get the worksheet, with the answer key on a separate sheet you can keep back. Everything on it comes from the dictionary, so if some of the unit’s words haven’t been looked up yet, the sheet is just shorter. We never fill a gap with made-up Estonian.")}
             </Note>
           </div>
         </>

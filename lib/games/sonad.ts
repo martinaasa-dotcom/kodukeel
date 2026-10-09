@@ -1,3 +1,5 @@
+import { fill, tr, type Locale } from "@/lib/copy/locale";
+
 /**
  * SÕNAD: SIX CIRCLES, SEVEN GUESSES, AND AN ESTONIAN WORD BEHIND THEM.
  *
@@ -199,7 +201,7 @@ export function cluesAt(guessed: number): Clues {
  * Saying "what kind of word it is, on your next try" is a reason to keep
  * going, which is the half of a hint that is not the hint.
  */
-export function nextClue(guessed: number, hasCategory: boolean): string | null {
+export function nextClue(guessed: number, hasCategory: boolean, locale: Locale): string | null {
   const clues = cluesAt(guessed);
   /*
     A WHOLE SENTENCE, SAYING WHAT A CLUE IS BEFORE SAYING WHEN. "How many
@@ -212,14 +214,14 @@ export function nextClue(guessed: number, hasCategory: boolean): string | null {
   if (!clues.category && hasCategory) {
     const away = CATEGORY_AFTER - guessed;
     return away === 1
-      ? "After your next guess you'll get a clue: what sort of thing the word is."
-      : `After ${away} more guesses you'll get a clue: what sort of thing the word is.`;
+      ? tr(locale, "After your next guess you'll get a clue: what sort of thing the word is.")
+      : fill(tr(locale, "After {n} more guesses you'll get a clue: what sort of thing the word is."), { n: away });
   }
   if (!clues.vowels) {
     const away = SONAD_GUESSES - 1 - guessed;
     return away === 1
-      ? "Before your last guess you'll get a clue: how many of its letters are vowels."
-      : `After ${away} more guesses you'll get a clue: how many of its letters are vowels.`;
+      ? tr(locale, "Before your last guess you'll get a clue: how many of its letters are vowels.")
+      : fill(tr(locale, "After {n} more guesses you'll get a clue: how many of its letters are vowels."), { n: away });
   }
   return null;
 }

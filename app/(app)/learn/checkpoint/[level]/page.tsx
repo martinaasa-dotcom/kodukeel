@@ -13,10 +13,18 @@ import { CheckpointSession } from "./CheckpointSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
+
 export async function generateMetadata({ params }: { params: Promise<{ level: string }> }) {
   const { level } = await params;
   const upper = level.toUpperCase();
-  return { title: (LEVELS as readonly string[]).includes(upper) ? `${upper} checkpoint` : "Checkpoint" };
+  const locale = await localeFor(await requireUserId());
+  return {
+    title: (LEVELS as readonly string[]).includes(upper)
+      ? fill(tr(locale, "{level} checkpoint"), { level: upper })
+      : tr(locale, "Checkpoint"),
+  };
 }
 
 export const dynamic = "force-dynamic";
@@ -38,6 +46,7 @@ export default async function CheckpointPage({
   if (!(LEVELS as readonly string[]).includes(level)) notFound();
 
   const ownerId = await requireUserId();
+  const locale = await localeFor(ownerId);
   const checkpoint = checkpointFor(level);
   const placement = await courseLevelFor(ownerId);
 
@@ -86,7 +95,7 @@ export default async function CheckpointPage({
     <BeforeYouStart id="checkpoint" ready={questions.length > 0}>
       <CheckpointSession
         level={level}
-        title={uiText(placement, checkpoint.title, checkpoint.titleEn)}
+        title={uiText(placement, checkpoint.title, tr(locale, checkpoint.titleEn))}
         blurb={checkpoint.blurb}
         passMark={checkpoint.passMark}
         initialQuestions={questions}

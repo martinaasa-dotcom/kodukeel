@@ -17,7 +17,6 @@ import type { InvariantKit } from "../lib/invariantKit";
 export default function theLearnerMovesOn({ check, code }: InvariantKit) {
   const rounds = [
     "app/(app)/learn/new/LearnSession.tsx",
-    "app/(app)/review/target/TargetSession.tsx",
     "app/(app)/review/ReviewSession.tsx",
     "app/(app)/review/letters/LettersSession.tsx",
   ];

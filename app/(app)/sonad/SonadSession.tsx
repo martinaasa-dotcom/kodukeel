@@ -1,5 +1,8 @@
 "use client";
 
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { rich } from "@/components/round/rich";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CornerDownLeft, Delete } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -14,6 +17,7 @@ import { addToDeck, recordSonad } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { loadBoard, saveBoard } from "./resume";
 import { WordLink } from "@/components/course/WordLink";
+import { EMPTY, HUE, LEGEND, RING, SPOKEN } from "@/components/sonad/look";
 
 /**
  * SÕNAD'S BOARD.
@@ -72,30 +76,6 @@ import { WordLink } from "@/components/course/WordLink";
  * `--on-butter` from inside a game to make the three look symmetrical would be
  * adding a token to a design system sideways.
  */
-const HUE: Record<Mark, { bg: string; ink: string; ring: string }> = {
-  here: { bg: "var(--sky)", ink: "var(--on-sky)", ring: "transparent" },
-  elsewhere: { bg: "var(--butter-soft)", ink: "var(--butter-ink)", ring: "var(--butter-ink)" },
-  absent: { bg: "var(--raised)", ink: "var(--ink-3)", ring: "transparent" },
-};
-
-/** How thick each ring is, which is the half of the signal that is not color. */
-const RING: Record<Mark, string> = { here: "0", elsewhere: "3px", absent: "0" };
-
-/**
- * And the third channel, for a reader who gets neither the fill nor the ring.
- *
- * A fill and a ring are two signals and both of them are visual. Every circle
- * that has been marked says what it is in words, and the row announces its
- * tally once rather than reading 36 labels out on every guess, which is what
- * an `aria-live` on the whole board was doing.
- */
-const SPOKEN: Record<Mark, string> = {
-  here: "in place",
-  elsewhere: "in the word, elsewhere",
-  absent: "not in the word",
-};
-
-const EMPTY = { bg: "transparent", ink: "var(--ink)", ring: "var(--rule)" };
 
 export function SonadSession({ puzzle, day, guessable }: {
   puzzle: Puzzle;
@@ -103,6 +83,8 @@ export function SonadSession({ puzzle, day, guessable }: {
   /** Every Estonian word of this length, so a guess is checked without a call. */
   guessable: string[];
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [guesses, setGuesses] = useState<string[]>([]);
   const [typed, setTyped] = useState("");
   const [refused, setRefused] = useState<string | null>(null);
@@ -171,17 +153,17 @@ export function SonadSession({ puzzle, day, guessable }: {
     if (over) return;
     const guess = typed.toLocaleLowerCase("et");
     if (!wellFormed(guess)) {
-      setRefused(`It needs to be ${SONAD_LENGTH} letters, in Estonian.`);
+      setRefused(fill(t("It needs to be {n} letters, in Estonian."), { n: SONAD_LENGTH }));
       return;
     }
     if (!words.has(guess)) {
-      setRefused("The dictionary doesn't know that one. Try another word.");
+      setRefused(t("The dictionary doesn't know that one. Try another word."));
       return;
     }
     setRefused(null);
     setTyped("");
     setGuesses((made) => [...made, guess]);
-  }, [over, typed, words]);
+  }, [over, typed, words, t]);
 
   /*
     Typing anywhere on the page, because a board you have to click into first
@@ -229,7 +211,7 @@ export function SonadSession({ puzzle, day, guessable }: {
   /* What the board is allowed to say, and what it may promise. Both are pure
      functions of how many guesses have been made: see `cluesAt`. */
   const clue = cluesAt(guesses.length);
-  const coming = nextClue(guesses.length, puzzle.category !== null);
+  const coming = nextClue(guesses.length, puzzle.category !== null, locale);
   const vowels = vowelCount(puzzle.answer);
 
   /*
@@ -241,22 +223,31 @@ export function SonadSession({ puzzle, day, guessable }: {
     if (!last) return "";
     const scored = scoreGuess(last, puzzle.answer);
     const count = (mark: Mark) => scored.filter((m) => m === mark).length;
-    return `${last}: ${count("here")} in place, ${count("elsewhere")} elsewhere.`;
-  }, [guesses, puzzle.answer]);
+    return fill(t("{guess}: {here} in place, {elsewhere} elsewhere."), { guess: last, here: count("here"), elsewhere: count("elsewhere") });
+  }, [guesses, puzzle.answer, t]);
 
   return (
-    <div className="flex flex-col gap-5">
-      <Card tone="night">
+    /*
+      ONE SCREEN. The board, its keys and the two buttons have to be in view
+      together, so every size below is read off `--sonad-cell`, which is the
+      room the window leaves after everything that is not a circle, between
+      30px and 44px. On a phone the keys are pinned (see `.sonad-keys`) and
+      the board is the thing that gives.
+    */
+    <div className="sonad-board flex flex-col items-center gap-3">
+      {/* What is known from the first row, in one centred line. No card round
+          any of it: the board and the keys are the screen. */}
+      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
         <div className="flex flex-wrap items-center gap-2">
           {/*
             What is known from the first row: what kind of word and how hard it
             is meant to be. Enough to make a first guess informed rather than a
             probe, and nowhere near enough to give it away.
           */}
-          <Chip tone="neutral">{puzzle.pos.toLowerCase()}</Chip>
+          <Chip tone="neutral">{t(puzzle.pos.toLowerCase())}</Chip>
           {puzzle.cefr && <Chip tone="neutral">{puzzle.cefr}</Chip>}
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            {SONAD_LENGTH} letters, {SONAD_GUESSES - guesses.length} left
+            {fill(t("{letters} letters, {n} left"), { letters: SONAD_LENGTH, n: SONAD_GUESSES - guesses.length })}
           </span>
         </div>
 
@@ -273,27 +264,29 @@ export function SonadSession({ puzzle, day, guessable }: {
           it lands under a board a screen reader has already been read.
         */}
         {!over && (clue.category || clue.vowels || coming) && (
-          <p className="mt-2.5 text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
+          <p className="sonad-hint mt-1.5 text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
             {clue.category && puzzle.category && (
               <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>
-                It&apos;s {puzzle.category}.
+                {fill(t("It's {category}."), { category: t(puzzle.category, "clue") })}
               </span>
             )}
             {clue.vowels && (
               <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>
                 {clue.category && puzzle.category ? " " : ""}
-                {vowels} of the six letters {vowels === 1 ? "is a vowel" : "are vowels"}.
+                {fill(t(vowels === 1 ? "{n} of the six letters is a vowel." : "{n} of the six letters are vowels."), { n: vowels })}
               </span>
             )}
             {coming && (
-              <span style={{ color: "var(--ink-3)" }}>
+              <span className="sonad-coming" style={{ color: "var(--ink-3)" }}>
                 {clue.category && puzzle.category ? " " : ""}{coming}
               </span>
             )}
           </p>
         )}
 
-        <div className="mt-4 flex flex-col items-center gap-2">
+      </div>
+      <div className="flex flex-col items-center">
+        <div className="mt-3 flex flex-col items-center gap-1.5">
           {rows.map((row) => (
             <Row
               key={row}
@@ -311,8 +304,7 @@ export function SonadSession({ puzzle, day, guessable }: {
         {refused && (
           <p className="mt-3 text-center text-sm" style={{ color: "var(--again-ink)" }}>{refused}</p>
         )}
-      </Card>
-
+      </div>
       {over ? (
         <Finish puzzle={puzzle} outcome={outcome} at={at} kept={kept} onKeep={() => setKept(true)} />
       ) : (
@@ -337,6 +329,7 @@ function Row({ guess, typed, answer, refused, won }: {
   refused: boolean;
   won: boolean;
 }) {
+  const t = useT();
   const marks = guess ? scoreGuess(guess, answer) : null;
   const letters = [...(guess ?? typed ?? "")];
   const slots = Array.from({ length: SONAD_LENGTH }, (_, i) => i);
@@ -351,13 +344,13 @@ function Row({ guess, typed, answer, refused, won }: {
           <span
             key={i}
             lang="et"
-            aria-label={mark ? `${letter}, ${SPOKEN[mark]}` : undefined}
+            aria-label={mark ? `${letter}, ${t(SPOKEN[mark])}` : undefined}
             /*
               The circles settle when a guess lands and rise when it was the
               answer, staggered along the row by `--sonad-at`. See the block in
               globals.css for why neither of those is a flip.
             */
-            className={`grid h-11 w-11 place-items-center rounded-full text-lg font-bold uppercase sm:h-12 sm:w-12 ${
+            className={`grid h-[var(--sonad-cell)] w-[var(--sonad-cell)] place-items-center rounded-full text-md font-bold uppercase ${
               won ? "sonad-rise" : marks ? "sonad-settle" : ""
             }`}
             style={{
@@ -385,6 +378,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
   onDelete: () => void;
   onSubmit: () => void;
 }) {
+  const t = useT();
   return (
     /*
       PINNED ABOVE THE TAB BAR ON A PHONE, BECAUSE THIS ROUND IS ALL TAPS.
@@ -398,7 +392,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
       scrolls. See `.sonad-keys` in globals.css for why sticky rather than
       fixed, and for what the suites were measuring instead.
     */
-    <Card className="sonad-keys">
+    <div className="sonad-keys w-full max-w-[34rem]">
       {/*
         WHAT THE THREE CIRCLES MEAN, IN WORDS, ON THE SCREEN.
 
@@ -421,7 +415,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
         Drawn from the same `HUE` and `RING` tables the circles are, so a
         legend cannot go on describing a colour the board has stopped using.
       */}
-      <ul className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-2xs" style={{ color: "var(--ink-3)" }}>
+      <ul className="mb-1.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-2xs" style={{ color: "var(--ink-3)" }}>
         {(["here", "elsewhere", "absent"] as const).map((mark) => (
           <li key={mark} className="flex items-center gap-1.5">
             <span
@@ -432,7 +426,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
                 boxShadow: RING[mark] === "0" ? "none" : `inset 0 0 0 2px ${HUE[mark].ring}`,
               }}
             />
-            {SPOKEN[mark]}
+            {t(LEGEND[mark])}
           </li>
         ))}
       </ul>
@@ -450,9 +444,14 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
         keyboard is, and the height stays 44 so a thumb has the target the
         floor asks for on the axis a thumb actually misses.
       */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1">
         {SONAD_KEY_ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1 sm:gap-1.5">
+            {i === SONAD_KEY_ROWS.length - 1 && (
+              <Button type="button" variant="secondary" onClick={onDelete} aria-label={t("Delete", "key")} className="h-12 min-w-0 flex-[2] basis-0 px-0">
+                <Delete size={18} aria-hidden />
+              </Button>
+            )}
             {row.map((letter) => {
               const mark = marks.get(letter);
               const hue = mark ? HUE[mark] : { bg: "var(--surface)", ink: "var(--ink)", ring: "var(--rule)" };
@@ -465,7 +464,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
                   lang="et"
                   aria-label={letter}
                   data-keyboard-key
-                  className="press tap-tint grid h-11 min-w-0 flex-1 basis-0 place-items-center rounded-[var(--r-sm)] text-sm font-semibold uppercase transition-ui sm:text-base"
+                  className={`press tap-tint grid h-12 min-w-0 flex-1 basis-0 place-items-center rounded-[var(--r-sm)] text-sm font-semibold uppercase transition-ui sm:text-base`}
                   style={{
                     background: hue.bg,
                     color: hue.ink,
@@ -476,18 +475,19 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
                 </button>
               );
             })}
+            {i === SONAD_KEY_ROWS.length - 1 && (
+              <Button type="button" variant="primary" onClick={onSubmit} className="h-12 min-w-0 flex-[2.4] basis-0 px-1 text-xs sm:text-sm">
+                {/* The icon on a phone, where the key is a thumb wide; the word
+                    from `sm`, where it fits in every language the app is read
+                    in ("Перевірити" is the long one). */}
+                <CornerDownLeft size={16} aria-hidden className="sm:hidden" />
+                <span className="sr-only sm:not-sr-only">{t("Guess")}</span>
+              </Button>
+            )}
           </div>
         ))}
       </div>
-      <div className="mt-3 flex gap-2">
-        <Button type="button" variant="secondary" onClick={onDelete} className="flex-1">
-          <Delete size={16} aria-hidden /> Delete
-        </Button>
-        <Button type="button" variant="primary" onClick={onSubmit} className="flex-1">
-          <CornerDownLeft size={16} aria-hidden /> Guess
-        </Button>
-      </div>
-    </Card>
+    </div>
   );
 }
 
@@ -498,6 +498,7 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
   kept: boolean;
   onKeep: () => void;
 }) {
+  const t = useT();
   const keeper = useKeepWord(puzzle.lexemeId, async (deckIds) => {
     const result = await addToDeck(puzzle.lexemeId, ["RECOGNITION", "PRODUCTION"], "LOOKUP", deckIds).catch(() => null);
     if (result?.ok) onKeep();
@@ -507,12 +508,12 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
     <Card>
       <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
         {outcome === "won"
-          ? at === 1 ? "Got it in one." : `Got it in ${at} guesses.`
-          : "Not this time. Here's what it was."}
+          ? at === 1 ? t("Got it in one.") : fill(t("Got it in {n} guesses."), { n: at ?? 0 })
+          : t("Not this time. Here's what it was.")}
       </p>
       <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
         {/*
-          THE WORD OPENS ITS ENTRY, EXCEPT INSIDE TONIGHT'S MODULE.
+          THE WORD OPENS ITS ENTRY, EXCEPT INSIDE TODAY'S MODULE.
 
           A word in the sentence saying what it means is content rather than
           navigation, which is why an inline link like this survives everywhere
@@ -523,16 +524,19 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
           the word; what goes is the door. The button under it is what this
           screen offers instead, and it keeps the learner where they are.
         */}
-        <WordLink
-          lemma={puzzle.answer}
-          className="font-semibold"
-          linkClass="underline underline-offset-2"
-          style={{ color: "var(--accent-deep)" }}
-        >
-          {puzzle.answer}
-        </WordLink>
-        {" is "}
-        {puzzle.translation}.
+        {rich(t("{word} is {meaning}."), {
+          word: (
+            <WordLink
+              lemma={puzzle.answer}
+              className="font-semibold"
+              linkClass="underline underline-offset-2"
+              style={{ color: "var(--accent-deep)" }}
+            >
+              {puzzle.answer}
+            </WordLink>
+          ),
+          meaning: puzzle.translation,
+        })}
       </p>
       {/*
         The offer, and only where there is one to make. A word already in the
@@ -544,21 +548,21 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
           <KeepWordChoice keeper={keeper} className="mt-4" />
           <div className="mt-4 flex flex-wrap items-center gap-2">
             {keeper.asking && (
-              <Button type="button" variant="ghost" onClick={keeper.cancel}>Cancel</Button>
+              <Button type="button" variant="ghost" onClick={keeper.cancel}>{t("Cancel")}</Button>
             )}
             <Button type="button" variant="primary" disabled={keeper.pending} onClick={keeper.press}>
-              {keeper.pending ? "Adding…" : keeper.asking ? "Keep it" : "Keep this word"}
+              {keeper.pending ? t("Adding…") : keeper.asking ? t("Keep it") : t("Keep this word")}
             </Button>
           </div>
         </>
       )}
       {kept && (
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-          It&apos;s in your deck, so today&apos;s game counted as practice.
+          {t("It's in your deck, so today's game counted as practice.")}
         </p>
       )}
       <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-        There&apos;s a new word tomorrow morning.
+        {t("There's a new word tomorrow morning.")}
       </p>
     </Card>
   );

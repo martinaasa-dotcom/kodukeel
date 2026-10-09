@@ -1,13 +1,17 @@
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import { TrendingUp } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { requireUserId } from "@/lib/auth/session";
-import { commonGroup } from "@/lib/collections/commonGroups";
+import { COMMON_BATCH, commonGroup } from "@/lib/collections/commonGroups";
 import { commonCounts } from "@/lib/progress/common";
 import { Card, Chip, Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { DeepenButton } from "./DeepenButton";
 
-export const metadata = { title: "Most common words" };
+export async function generateMetadata() {
+  return titleFor("Most common words");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -31,13 +35,13 @@ export const dynamic = "force-dynamic";
  */
 export default async function CommonRoundsPage() {
   const ownerId = await requireUserId();
-  const counts = await commonCounts(ownerId);
+  const [counts, locale] = await Promise.all([commonCounts(ownerId), localeFor(ownerId)]);
   const found = counts.reduce((sum, c) => sum + c.found, 0);
 
   return (
     <Page
-      title="Most common words"
-      lead="Counted from film and TV subtitles, so these are the words people really say."
+      title={tr(locale, "Most common words")}
+      lead={tr(locale, "Counted from film and TV subtitles, so these are the words people really say.")}
     >
       {found === 0 ? (
         /*
@@ -46,9 +50,9 @@ export default async function CommonRoundsPage() {
           a reseed, and saying so is more use than four empty cards.
         */
         <Empty
-          title="The dictionary isn't loaded yet"
-          body="These rounds come from the dictionary, so there's nothing to ask until it's loaded."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          title={tr(locale, "The dictionary isn't loaded yet")}
+          body={tr(locale, "These rounds come from the dictionary, so there's nothing to ask until it's loaded.")}
+          action={<ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>}
         />
       ) : (
         <Stack>
@@ -64,41 +68,64 @@ export default async function CommonRoundsPage() {
                   <TrendingUp size={18} aria-hidden />
                 </span>
                 <h2 className="min-w-0 text-base font-bold" style={{ color: "var(--ink)" }}>
-                  {group.title}
+                  {tr(locale, group.title)}
                 </h2>
                 <span className="ml-auto">
                   <Chip tone={count.inDeck >= count.found ? "good" : "neutral"}>
-                    {count.inDeck} of {count.found} in your deck
+                    {fill(tr(locale, "{n} of {total} in your deck"), { n: count.inDeck, total: count.found })}
                   </Chip>
                 </span>
               </div>
 
-              <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{group.blurb}</p>
+              <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{tr(locale, group.blurb)}</p>
 
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                {/*
-                  The app's own button rather than a link painted to look like
-                  one. The hand-rolled version set `--surface` on `--accent`,
-                  which is a hue's fill carrying text, and axe measured it under
-                  4.5 (docs/14-design-system.md: every hue has an ink).
-                */}
-                <DeepenButton group={group.key} variant="secondary" />
-                <ButtonLink href={`/review/common/${group.slug}`} variant="primary">
-                  Start the round
-                </ButtonLink>
-              </div>
+              <ul className="mt-4 flex flex-col gap-3">
+                {count.parts.filter((p) => p.found > 0).map((part, i) => {
+                  const n = i + 1;
+                  const first = i * COMMON_BATCH + 1;
+                  const last = i * COMMON_BATCH + part.found;
+                  const href = `/review/common/${group.slug}?part=${n}`;
+                  const whole = part.inDeck >= part.found;
+                  return (
+                    <li key={n} className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold" style={{ color: "var(--ink)" }}>
+                          {fill(tr(locale, "Part {n}"), { n })}
+                          <span className="font-normal" style={{ color: "var(--ink-2)" }}>
+                            {" "}{fill(tr(locale, "words {first} to {last}"), { first, last })}
+                          </span>
+                        </p>
+                        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                          {fill(tr(locale, "{n} of {total} in your deck"), { n: part.inDeck, total: part.found })}
+                        </p>
+                      </div>
+                      {whole ? (
+                        <ButtonLink href={href} variant="primary">{tr(locale, "Start")}</ButtonLink>
+                      ) : (
+                        <DeepenButton
+                          group={group.key}
+                          part={n}
+                          goTo={href}
+                          variant="primary"
+                          label={tr(locale, "Add and start")}
+                        />
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </Card>
           );
         })}
 
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            Every word on these lists is one you can learn here.{" "}
+            {tr(locale, "Every word on these lists is one you can learn here.")}{" "}
             <Link
               href="/dictionary/common"
               className="underline"
               style={{ color: "var(--accent-deep)" }}
             >
-              See the lists in full
+              {tr(locale, "See the lists in full")}
             </Link>
             .
           </p>

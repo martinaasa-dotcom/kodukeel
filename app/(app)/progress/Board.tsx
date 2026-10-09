@@ -4,6 +4,8 @@ import { classRoster } from "@/lib/classroom/roster";
 import { ButtonLink } from "@/components/Button";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Card, SectionTitle, Skeleton } from "@/components/ui";
+import { localeFor } from "@/lib/progress/locale";
+import { tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * WHO ELSE IS STUDYING, AT THE BOTTOM OF A PAGE OF CHARTS.
@@ -57,6 +59,8 @@ export async function Board({ ownerId, now }: { ownerId: string; now: Date }) {
     orderBy: { joinedAt: "desc" },
   });
 
+  const locale = await localeFor(ownerId);
+  const t = (english: string) => tr(locale, english);
   const [classroom, classBoard] = membership
     ? await Promise.all([
         prisma.classroom.findUnique({
@@ -72,8 +76,8 @@ export async function Board({ ownerId, now }: { ownerId: string; now: Date }) {
       {/* The figure in each row is what somebody reviewed this week, so the
           hint says so: it used to read "N XP" in the row itself and a bare
           number under "this week" says nothing. */}
-      <SectionTitle hint="reviews this week">
-        {classBoard ? classroom?.name : "Class leaderboard"}
+      <SectionTitle hint={t("reviews this week")}>
+        {classBoard ? classroom?.name : t("Class leaderboard")}
       </SectionTitle>
       <Card>
         {classBoard && membership ? (
@@ -102,17 +106,15 @@ export async function Board({ ownerId, now }: { ownerId: string; now: Date }) {
               className="mt-3 inline-block text-xs"
               style={{ color: "var(--accent-deep)" }}
             >
-              Open the class
+              {t("Open the class")}
             </Link>
           </>
         ) : (
           <>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              A leaderboard is more fun when you know the people on it. Start a class and share
-              the code, or join with the one your teacher gave you, and you&rsquo;ll see everybody&rsquo;s
-              week here.
+            <p lang={locale} className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+              {t("A leaderboard is more fun when you know the people on it. Start a class and share the code, or join with the one your teacher gave you, and you’ll see everybody’s week here.")}
             </p>
-            <ButtonLink href="/class" className="mt-4">Start or join a class</ButtonLink>
+            <ButtonLink href="/class" className="mt-4">{t("Start or join a class")}</ButtonLink>
           </>
         )}
       </Card>
@@ -126,10 +128,10 @@ export async function Board({ ownerId, now }: { ownerId: string; now: Date }) {
  * Its own height rather than a spinner, so the page below does not move once
  * the answer lands. Same argument as app/(app)/loading.tsx one level up.
  */
-export function BoardSkeleton() {
+export function BoardSkeleton({ locale }: { locale: Locale }) {
   return (
-    <section aria-busy="true" aria-label="Loading the board">
-      <SectionTitle hint="reviews this week">Class leaderboard</SectionTitle>
+    <section aria-busy="true" aria-label={tr(locale, "Loading the board")}>
+      <SectionTitle hint={tr(locale, "reviews this week")}>{tr(locale, "Class leaderboard")}</SectionTitle>
       <Card>
         <Skeleton height={132} />
       </Card>

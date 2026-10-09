@@ -8,6 +8,8 @@ import { Speak } from "@/components/Speak";
 import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { earlier, later, openAt, remember, forgetLast, type SeenCard } from "@/lib/ux/lookBack";
 import { FitText } from "@/components/FitText";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * SEEING THE LAST WORD AGAIN, DRAWN ONCE.
@@ -167,10 +169,11 @@ export function LookBackButton({ count, onOpen, disabled = false, ref }: {
   /** So closing the panel can put the caret back where it was opened from. */
   ref?: React.Ref<HTMLButtonElement>;
 }) {
+  const t = useT();
   if (count === 0) return null;
   return (
     <Button ref={ref} type="button" variant="secondary" size="sm" onClick={onOpen} disabled={disabled}>
-      <History size={13} aria-hidden /> See it again
+      <History size={13} aria-hidden /> {t("See it again")}
     </Button>
   );
 }
@@ -204,6 +207,8 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
     carries its own name. On mount alone, because moving the caret on every
     step would take it off the button the reader is pressing.
   */
+  const t = useT();
+  const locale = useLocale();
   const panel = useRef<HTMLDivElement>(null);
   useEffect(() => { panel.current?.focus(); }, []);
 
@@ -280,16 +285,17 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
       ref={panel}
       tabIndex={-1}
       role="group"
-      aria-label="Looking back at a word you have already answered"
+      lang={locale}
+      aria-label={t("Looking back at a word you have already answered")}
       className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border outline-none"
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
     >
       <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-        <Chip tone="neutral">{card.label}</Chip>
+        <Chip tone="neutral">{t(card.label)}</Chip>
         {/* Counting from the card the learner was on, so the one that just
             went is "1 back" rather than "0 back", which reads as a fault. */}
         <span className="tnum label-xs" style={{ color: "var(--ink-3)" }}>
-          {newest - position + 1} back
+          {fill(t("{n} back"), { n: newest - position + 1 })}
         </span>
         {/* Only while the forward button is not already the way out. At the
             newest card the two would be the same door twice, and the primary
@@ -302,7 +308,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
               className="tap-tint flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs font-semibold"
               style={{ color: "var(--ink-3)" }}
             >
-              <Undo2 size={13} aria-hidden /> Back to the round
+              <Undo2 size={13} aria-hidden /> {t("Back to the round")}
             </button>
           </div>
         )}
@@ -328,7 +334,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
           {card.speak && card.questionLang === "et" && <Speak text={card.speak} />}
         </div>
         {card.note && (
-          <p className="text-sm" style={{ color: "var(--ink-3)" }}>{card.note}</p>
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t(card.note)}</p>
         )}
         <div className="flex items-center gap-2">
           <FitText
@@ -351,13 +357,13 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
           }}
           disabled={!hasEarlier}
         >
-          <ArrowLeft size={14} aria-hidden /> One more back
+          <ArrowLeft size={14} aria-hidden /> {t("One more back")}
         </Button>
         {/* The primary is the forward one, and at the newest card forward is
             the way out: somebody two words back walks home the way they came
             rather than hunting for a different button. */}
         <Button ref={forwardButton} variant="primary" size="lg" onClick={onForward}>
-          {hasLater ? "Next" : "Back to the round"} <ArrowRight size={14} aria-hidden />
+          {hasLater ? t("Next") : t("Back to the round")} <ArrowRight size={14} aria-hidden />
         </Button>
       </div>
 
@@ -365,7 +371,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
           beside it is labelled with where it goes, so the shortcut was a second
           instruction for a control already on the screen. */}
       <p className="px-6 pb-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        Just a look. Nothing here counts for or against you.
+        {t("Just a look. Nothing here counts for or against you.")}
       </p>
     </div>
   );

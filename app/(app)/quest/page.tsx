@@ -1,3 +1,4 @@
+import { titleFor } from "@/lib/progress/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { questFor } from "@/lib/progress/quest";
 import { grammarTerm } from "@/lib/estonian/terms";
@@ -6,7 +7,9 @@ import { QuestSession } from "./QuestSession";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { roundPaceFrom, secondsFor, QUEST_SECONDS } from "@/lib/ux/roundClock";
 
-export const metadata = { title: "Daily quest" };
+export async function generateMetadata() {
+  return titleFor("Daily quest");
+}
 
 export const dynamic = "force-dynamic";
 

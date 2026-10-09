@@ -30,12 +30,18 @@ import { Board, BoardSkeleton } from "./Board";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { lemmasByCardLexeme } from "@/lib/dict/facts";
 import { courseLevelFor } from "@/lib/progress/level";
+import { RollNumber } from "@/components/motion/RollNumber";
 import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, Stat } from "@/components/ui";
 import { NO_VALUE } from "@/lib/copy/values";
 import { formatHour } from "@/lib/time/clock";
 import { Explain } from "@/components/Explain";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
+import { RETENTION_MINIMUM } from "@/lib/stats/history";
 
-export const metadata = { title: "Progress" };
+export async function generateMetadata() {
+  return titleFor("Progress");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -46,12 +52,14 @@ export default async function ProgressPage() {
   const now = new Date();
   // Every figure below is a fact about a *day*, and this page renders on the
   // server, whose midnight is the deployment's. See lib/time/day.ts.
-  const [clock, snapshot, level] = await Promise.all([
+  const [clock, snapshot, level, locale] = await Promise.all([
     learnerDayClock(ownerId), deckSnapshot(ownerId, now),
     // Which level the course is teaching, for what the case panel says while
     // it is empty: at A1 there are no case cards to answer, by design.
     courseLevelFor(ownerId),
+    localeFor(ownerId),
   ]);
+  const t = (english: string) => tr(locale, english);
 
   const [summary, units, reviews, deck, caseReviews, shieldRow, readiness, outside] = await Promise.all([
     dailySummary(ownerId, now, clock),
@@ -170,11 +178,11 @@ export default async function ProgressPage() {
 
   if (reviews.length === 0 && snapshot.totalCards === 0) {
     return (
-      <Page route="/progress" title="Progress" lead="How your Estonian is really going, worked out fresh from your answers every time you look.">
+      <Page route="/progress" title={t("Progress")} lead={t("How your Estonian is really going, worked out fresh from your answers every time you look.")}>
         <Empty
-          title="No history yet"
-          body="Answer your first cards and the charts will start filling in."
-          action={<ButtonLink href="/learn" variant="primary">Learn your first words</ButtonLink>}
+          title={t("No history yet")}
+          body={t("Answer your first cards and the charts will start filling in.")}
+          action={<ButtonLink href="/learn" variant="primary">{t("Learn your first words")}</ButtonLink>}
         />
       </Page>
     );
@@ -182,8 +190,8 @@ export default async function ProgressPage() {
 
   return (
     <Page route="/progress"
-      title="Progress"
-      lead="How your Estonian is really going, worked out fresh from your answers every time you look."
+      title={t("Progress")}
+      lead={t("How your Estonian is really going, worked out fresh from your answers every time you look.")}
       /*
         The three other readings of "how am I doing", reached from the page
         that asks it. Each is a `within` in `lib/ux/nav.ts` rather than a row
@@ -194,13 +202,13 @@ export default async function ProgressPage() {
       actions={
         <span className="flex flex-wrap gap-2">
           <ButtonLink href="/assess">
-            <Compass size={15} aria-hidden /> Level check
+            <Compass size={15} aria-hidden /> {t("Level check")}
           </ButtonLink>
           <ButtonLink href="/exam">
-            <ClipboardCheck size={15} aria-hidden /> Mock exam
+            <ClipboardCheck size={15} aria-hidden /> {t("Mock exam")}
           </ButtonLink>
           <ButtonLink href="/progress/record">
-            <FileText size={15} aria-hidden /> Record of study
+            <FileText size={15} aria-hidden /> {t("Record of study")}
           </ButtonLink>
         </span>
       }
@@ -230,14 +238,14 @@ export default async function ProgressPage() {
             lines, so "Shields banked" sat off the three beside it. */}
         <Card tone="night" className="grid grid-cols-2 items-start gap-x-6 gap-y-6 sm:flex sm:flex-wrap sm:gap-10">
           <Stat
-            value={<span className="inline-flex items-center gap-1.5">{summary.streak}<Flame size={18} aria-hidden style={{ color: "var(--hard-ink)" }} /></span>}
-            label="Day streak"
+            value={<span className="inline-flex items-center gap-1.5"><RollNumber value={summary.streak} /><Flame size={18} aria-hidden style={{ color: "var(--hard-ink)" }} /></span>}
+            label={t("Day streak")}
           />
-          <Stat value={snapshot.knownCards} label="Cards known" />
-          <Stat value={breakdown.accuracy === null ? NO_VALUE : `${breakdown.accuracy}%`} label="Answered right" />
+          <Stat value={snapshot.knownCards} label={t("Cards known")} />
+          <Stat value={breakdown.accuracy === null ? NO_VALUE : `${breakdown.accuracy}%`} label={t("Answered right")} />
           <Stat
-            value={<span className="inline-flex items-center gap-1.5">{shields}<Shield size={16} aria-hidden style={{ color: "var(--accent-deep)" }} /></span>}
-            label={`Shield${shields === 1 ? "" : "s"} banked`}
+            value={<span className="inline-flex items-center gap-1.5"><RollNumber value={shields} /><Shield size={16} aria-hidden style={{ color: "var(--accent-deep)" }} /></span>}
+            label={t(shields === 1 ? "Shield banked" : "Shields banked")}
           />
           <span className="col-span-2 sm:ml-auto sm:self-center"><ShareProgress /></span>
           {/* What the shield figure beside it means, behind a press rather than
@@ -246,8 +254,8 @@ export default async function ProgressPage() {
               wants to know what a shield is can ask, and everybody else gets
               the four numbers they came for. */}
           <div className="col-span-2 w-full">
-            <Explain label="What a shield does">
-              A shield keeps your streak alive through one missed day. You earn one at 7, 30 and 100 days.
+            <Explain label={t("What a shield does")}>
+              {t("A shield keeps your streak alive through one missed day. You earn one at 7, 30 and 100 days.")}
             </Explain>
           </div>
         </Card>
@@ -264,7 +272,7 @@ export default async function ProgressPage() {
         <div className="@container">
           <div className="grid gap-5 @xl:grid-cols-2">
             <section className="flex flex-col">
-              <SectionTitle>How much is actually sticking</SectionTitle>
+              <SectionTitle>{t("How much is actually sticking")}</SectionTitle>
               {/*
                 On the card's own surface, with the verdict carried by the ring's
                 colour and the headline. A whole panel painted peach was the
@@ -283,8 +291,8 @@ export default async function ProgressPage() {
                     tone="var(--accent)"
                     label={
                       retention.retention === null
-                        ? "Not enough reviews of older cards yet to tell how much is sticking"
-                        : `You remembered ${retention.retention}% of your older cards, against a ${retention.target}% target`
+                        ? t("Not enough reviews of older cards yet to tell how much is sticking")
+                        : fill(t("You remembered {pct}% of your older cards, against a {target}% target"), { pct: retention.retention, target: retention.target })
                     }
                   >
                     <span className="tnum text-lg font-bold" style={{ color: "var(--ink)" }}>
@@ -293,24 +301,27 @@ export default async function ProgressPage() {
                   </Ring>
                   </span>
                   <p className="text-md font-bold sm:self-end" style={{ color: "var(--ink)" }}>
-                    {retention.headline}
+                    {t(retention.headline)}
                   </p>
                   <div className="col-span-2 sm:col-span-1 sm:col-start-2 sm:self-start">
                     <p className="max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                      {retention.advice}
+                      {retention.verdict === "unknown"
+                        ? fill(t("We need about {minimum} reviews of words you already knew before this means anything. You have {count} so far."), { minimum: RETENTION_MINIMUM, count: retention.reviews })
+                        : t(retention.advice)}
                     </p>
                     <p className="tnum mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                      {retention.recalled} of {retention.reviews} older cards remembered. Your target is {retention.target}%.
+                      {fill(t("{recalled} of {reviews} older cards remembered. Your target is {target}%."), { recalled: retention.recalled, reviews: retention.reviews, target: retention.target })}
                     </p>
                   </div>
                 </div>
               </Card>
             </section>
             <section className="flex flex-col">
-              <SectionTitle hint="weakest first">Cases</SectionTitle>
+              <SectionTitle hint={t("weakest first")}>{t("Cases")}</SectionTitle>
               <Card className="flex-1">
                 <WeakestCases
                   cases={cases}
+                  locale={locale}
                   empty={
                     /*
                       Said off where the course is. A1 asks for no case at all
@@ -320,14 +331,12 @@ export default async function ProgressPage() {
                     */
                     level === "A1" ? (
                       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                        The cases start at A2. Until then the course gives you words and phrases, and
-                        this fills in once you&rsquo;re putting endings on them.
+                        {t("The cases start at A2. Until then the course gives you words and phrases, and this fills in once you’re putting endings on them.")}
                       </p>
                     ) : (
                       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                        You haven&rsquo;t answered any case cards yet. They come with the units that put
-                        endings on nouns, in{" "}
-                        <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>Learn</Link>.
+                        {t("You haven’t answered any case cards yet. They come with the units that put endings on nouns, in")}{" "}
+                        <Link href="/learn" className="underline" style={{ color: "var(--accent-deep)" }}>{t("Learn")}</Link>.
                       </p>
                     )
                   }
@@ -340,7 +349,7 @@ export default async function ProgressPage() {
                 */}
                 {(pace.slow.length > 0 || mixedUp.length > 0) && (
                   <div className="mt-5 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
-                    <NotAutomatic slow={pace.slow} mixedUp={mixedUp} medianMs={pace.medianMs} />
+                    <NotAutomatic slow={pace.slow} mixedUp={mixedUp} medianMs={pace.medianMs} locale={locale} />
                   </div>
                 )}
               </Card>
@@ -349,25 +358,24 @@ export default async function ProgressPage() {
         </div>
 
         <section>
-          <SectionTitle hint={hour === null ? `last ${HEATMAP_DAYS} days` : `${HEATMAP_DAYS} days, most at ${formatHour(hour)}`}>
-            Study history
+          <SectionTitle hint={hour === null ? fill(t("last {days}"), { days: countOf(locale, HEATMAP_DAYS, "day") }) : fill(t("{days} days, most at {hour}"), { days: HEATMAP_DAYS, hour: formatHour(hour) })}>
+            {t("Study history")}
           </SectionTitle>
           <Card>
-            <Heatmap days={heatmap} />
+            <Heatmap days={heatmap} locale={locale} />
           </Card>
         </section>
 
-        {readiness.totalReviews > 0 && <ReadinessPanel summary={readiness.summary} />}
+        {readiness.totalReviews > 0 && <ReadinessPanel summary={readiness.summary} locale={locale} />}
 
         <div className="@container">
           <div className="grid gap-5 @xl:grid-cols-2">
             <section className="flex flex-col">
-              <SectionTitle hint={`last ${outside.days} days`}>Real conversations</SectionTitle>
+              <SectionTitle hint={fill(t("last {days}"), { days: countOf(locale, outside.days, "day") })}>{t("Real conversations")}</SectionTitle>
               <Card className="flex-1">
                 {outside.total === 0 ? (
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    Nothing here yet. Each morning, Today asks whether you spoke Estonian to anyone the
-                    day before, and your answers show up here.
+                    {t("Nothing here yet. Each morning, Today asks whether you spoke Estonian to anyone the day before, and your answers show up here.")}
                   </p>
                 ) : (
                   <div className="flex flex-col gap-4">
@@ -393,14 +401,14 @@ export default async function ProgressPage() {
                         "conversations" and its icon 53px of the 114 they need at
                         1024, and the word broke. 7.5rem is that label and icon. */}
                     <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,7.5rem),1fr))] gap-3">
-                      <Stat value={outside.total} label="conversations" tone="var(--accent-deep)" icon={<Footprints size={14} aria-hidden />} />
-                      <Stat value={outside.byOutcome.UNDERSTOOD} label="understood you" />
-                      <Stat value={outside.byOutcome.STUCK} label="you got stuck" />
-                      <Stat value={outside.byOutcome.SWITCHED} label="switched to English" />
-                      <Stat value={outside.byOutcome.BAILED} label="days with none" />
+                      <Stat value={outside.total} label={t("conversations")} tone="var(--accent-deep)" icon={<Footprints size={14} aria-hidden />} />
+                      <Stat value={outside.byOutcome.UNDERSTOOD} label={t("understood you")} />
+                      <Stat value={outside.byOutcome.STUCK} label={t("you got stuck")} />
+                      <Stat value={outside.byOutcome.SWITCHED} label={t("switched to English")} />
+                      <Stat value={outside.byOutcome.BAILED} label={t("days with none")} />
                     </div>
                     <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-                      {outside.streak > 1 ? `${outside.streak} days in a row with a real conversation. ` : ""}
+                      {outside.streak > 1 ? `${fill(t("{n} days in a row with a real conversation."), { n: outside.streak })} ` : ""}
                       {/*
                         The figure to watch, watched against the thirty days before,
                         because "it falls as your Estonian holds" over one count is a
@@ -414,15 +422,15 @@ export default async function ProgressPage() {
                         line carries now.
                       */}
                       {outside.previous.total > 0
-                        ? `The month before, ${outside.previous.switched} of ${outside.previous.total} switched to English. These come from your own answers. Keep an eye on how often people switch to English: it falls as your Estonian gets stronger.`
-                        : "These come from your own answers. Keep an eye on how often people switch to English: it falls as your Estonian gets stronger."}
+                        ? fill(t("The month before, {switched} of {total} switched to English. These come from your own answers. Keep an eye on how often people switch to English: it falls as your Estonian gets stronger."), { switched: outside.previous.switched, total: outside.previous.total })
+                        : t("These come from your own answers. Keep an eye on how often people switch to English: it falls as your Estonian gets stronger.")}
                     </p>
                   </div>
                 )}
               </Card>
             </section>
             <section className="flex flex-col">
-              <SectionTitle hint={`${pathKnown} of the course's ${pathTotal}`}>How many words you know</SectionTitle>
+              <SectionTitle hint={fill(t("{known} of the course's {total}"), { known: pathKnown, total: pathTotal })}>{t("How many words you know")}</SectionTitle>
               <Card className="flex-1">
                 <ul className="flex flex-col gap-2">
                   {CEFR_LEVELS.map((level) => {
@@ -433,7 +441,7 @@ export default async function ProgressPage() {
                       <li key={level} className="flex items-center gap-3 text-sm">
                         <span className="w-8" style={{ color: "var(--ink-2)" }}>{level}</span>
                         <span className="flex-1">
-                          <Meter pct={pct} label={`${level}: ${entry.known.size} of ${entry.total.size} known`} height={5} />
+                          <Meter pct={pct} label={fill(t("{level}: {known} of {total} known"), { level, known: entry.known.size, total: entry.total.size })} height={5} />
                         </span>
                         <span className="tnum w-16 text-right text-xs" style={{ color: "var(--ink-3)" }}>
                           {entry.known.size}/{entry.total.size}
@@ -442,11 +450,10 @@ export default async function ProgressPage() {
                     );
                   })}
                 </ul>
-                <Explain label="What counts as known">
-                  A word only counts once you know every card for it, so the real number is probably
-                  a bit higher.{" "}
+                <Explain label={t("What counts as known")}>
+                  {t("A word only counts once you know every card for it, so the real number is probably a bit higher.")}{" "}
                   <Link href="/words" className="underline" style={{ color: "var(--accent-deep)" }}>
-                    See your deck card by card
+                    {t("See your deck card by card")}
                   </Link>.
                 </Explain>
               </Card>
@@ -456,7 +463,7 @@ export default async function ProgressPage() {
 
         {sticking.length > 0 && (
           <section>
-            <SectionTitle hint="learned and forgotten more than once">Sticking points</SectionTitle>
+            <SectionTitle hint={t("learned and forgotten more than once")}>{t("Sticking points")}</SectionTitle>
             <StickingPoints points={sticking} />
             {/* The drill for exactly the cards listed above it. It used to be
                 on the practice menu, five rows from anything saying which of
@@ -478,11 +485,11 @@ export default async function ProgressPage() {
           for, and it is three trips rather than four now that the name comes
           back beside the roster instead of in front of it. See ./Board.
         */}
-        <Suspense fallback={<BoardSkeleton />}>
+        <Suspense fallback={<BoardSkeleton locale={locale} />}>
           <Board ownerId={ownerId} now={now} />
         </Suspense>
 
-        <InsideHere place="/progress" title="More about your progress" />
+        <InsideHere place="/progress" title={tr(locale, "More about your progress")} locale={locale} />
       </Stack>
     </Page>
   );

@@ -1,6 +1,8 @@
 "use client";
 
 import { useVisit } from "./visit";
+import { countOf, fill } from "@/lib/copy/locale";
+import { useLocale, useT } from "@/components/Locale";
 
 /**
  * The close, said to the person who did something on the way down.
@@ -14,16 +16,22 @@ import { useVisit } from "./visit";
  */
 export function VisitRecap() {
   const { built, ordered } = useVisit();
+  const t = useT();
+  const locale = useLocale();
   if (built.length === 0 && !ordered) return null;
   const shown = built.slice(-8);
+  // One form is "a form" in English and a counted noun in the other two.
+  const forms = built.length === 1 ? t("a form") : countOf(locale, built.length, "form");
+  // The drink is stored in English and said in the case "ordered" takes.
+  const drink = ordered ? t(ordered, "ordered") : "";
   return (
     <div className="visit-recap mx-auto mt-8 max-w-2xl rounded-[var(--r-lg)] px-5 py-4" aria-live="polite">
       <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>
         {built.length > 0 && ordered
-          ? `You built ${built.length === 1 ? "a form" : `${built.length} forms`} and ordered ${ordered} in Estonian, before you’ve even signed up.`
+          ? fill(t("You built {forms} and ordered {drink} in Estonian, before you’ve even signed up."), { forms, drink })
           : built.length > 0
-            ? `You built ${built.length === 1 ? "a form" : `${built.length} forms`} of Estonian, before you’ve even signed up.`
-            : `You ordered ${ordered} in Estonian, before you’ve even signed up.`}
+            ? fill(t("You built {forms} of Estonian, before you’ve even signed up."), { forms })
+            : fill(t("You ordered {drink} in Estonian, before you’ve even signed up."), { drink })}
       </p>
       {shown.length > 0 && (
         <ul className="mt-3 flex flex-wrap justify-center gap-2">
@@ -33,7 +41,7 @@ export function VisitRecap() {
         </ul>
       )}
       <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-        Now imagine fifteen minutes of that every evening.
+        {t("Now imagine fifteen minutes of that every evening.")}
       </p>
     </div>
   );

@@ -1,5 +1,6 @@
 import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 import { levelBefore } from "./placement";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * HOW THE COURSE MEETS SOMEBODY WHO IS STRUGGLING, OR FLYING.
@@ -237,26 +238,36 @@ export interface LeanEffects {
   talk: boolean;
 }
 
-/** What the lean is doing, as one sentence, or nothing where it moved nothing. */
-export function leanSentence(tilt: Tilt, effects: LeanEffects): string {
-  if (tilt === 0) return "";
-  const parts = tilt < 0
-    ? [effects.pace && "recordings play a little slower", effects.talk && "conversations start a little simpler"]
-    : [effects.talk && "conversations start a little harder", effects.pace && "recordings play a little quicker"];
-  const said = parts.filter((p): p is string => Boolean(p));
-  if (said.length === 0) return "";
-  const joined = said.join(" and ");
-  return tilt < 0
-    ? `For now, ${joined}. That goes back to normal on its own as your answers pick up.`
-    : `For now, ${joined}. If your answers change, that goes back to normal on its own.`;
+/**
+ * What the lean is doing, as one sentence, or nothing where it moved nothing.
+ *
+ * Written out whole for each of the three things it can say rather than built
+ * from two clauses and an "and", because a sentence assembled from translated
+ * pieces is a sentence in English word order whatever language its words are in.
+ */
+export function leanSentence(tilt: Tilt, effects: LeanEffects, locale: Locale): string {
+  if (tilt === 0 || (!effects.pace && !effects.talk)) return "";
+  const both = effects.pace && effects.talk;
+  const english = tilt < 0
+    ? both
+      ? "For now, recordings play a little slower and conversations start a little simpler. That goes back to normal on its own as your answers pick up."
+      : effects.pace
+        ? "For now, recordings play a little slower. That goes back to normal on its own as your answers pick up."
+        : "For now, conversations start a little simpler. That goes back to normal on its own as your answers pick up."
+    : both
+      ? "For now, conversations start a little harder and recordings play a little quicker. If your answers change, that goes back to normal on its own."
+      : effects.talk
+        ? "For now, conversations start a little harder. If your answers change, that goes back to normal on its own."
+        : "For now, recordings play a little quicker. If your answers change, that goes back to normal on its own.";
+  return tr(locale, english);
 }
 
 /** The card's heading. */
-export function offerTitle(offer: AdaptOffer): string {
+export function offerTitle(offer: AdaptOffer, locale: Locale): string {
   if (offer.reading.kind === "flying") {
-    return offer.move ? "You're flying through this" : "You're flying through the top of the course";
+    return tr(locale, offer.move ? "You're flying through this" : "You're flying through the top of the course");
   }
-  return "This part is a tough one";
+  return tr(locale, "This part is a tough one");
 }
 
 /**
@@ -277,51 +288,51 @@ export interface OfferText {
   lean: string;
 }
 
-export function offerParts(offer: AdaptOffer, effects: LeanEffects): OfferText {
+export function offerParts(offer: AdaptOffer, effects: LeanEffects, locale: Locale): OfferText {
   const seen = Math.round(offer.reading.accuracy * 100);
-  const lean = leanSentence(tiltFor(offer.reading), effects);
+  const lean = leanSentence(tiltFor(offer.reading), effects, locale);
+  const t = (english: string, values: Readonly<Record<string, string | number>> = {}) => fill(tr(locale, english), values);
   if (offer.reading.kind === "flying") {
     // "100 out of a hundred" is arithmetic read aloud; every one is a sentence.
     const lead = seen >= 100
-      ? "Lately you've been getting every answer right."
-      : `Lately you've been getting ${seen} out of a hundred right.`;
+      ? t("Lately you've been getting every answer right.")
+      : t("Lately you've been getting {seen} out of a hundred right.", { seen });
     const advice = offer.move
-      ? `If this part feels too easy, skip ahead to ${offer.move.to.id.toUpperCase()}. `
-        + "Everything from this one stays in your reviews either way."
-      : "There's no part above this one, so stretch yourself with your reviews and the tougher conversations.";
+      ? t("If this part feels too easy, skip ahead to {part}. Everything from this one stays in your reviews either way.", { part: offer.move.to.id.toUpperCase() })
+      : t("There's no part above this one, so stretch yourself with your reviews and the tougher conversations.");
     return { lead, advice, lean };
   }
 
   const lead = offer.reading.because === "misses"
-    ? "A lot of recent answers have been misses. This part is a step ahead of you for now, and that's normal."
-    : `Lately you've been getting ${seen} out of a hundred right. This part is a step ahead of you for now, and that's normal.`;
+    ? t("A lot of recent answers have been misses. This part is a step ahead of you for now, and that's normal.")
+    : t("Lately you've been getting {seen} out of a hundred right. This part is a step ahead of you for now, and that's normal.", { seen });
   const move = offer.move;
   if (!move) {
-    return { lead, advice: "Your reviews will bring back the words that are slipping. Give it a few days.", lean };
+    return { lead, advice: t("Your reviews will bring back the words that are slipping. Give it a few days."), lean };
   }
   if (move.kind === "down") {
-    const below = move.to.level;
-    const first = offer.placed
-      ? `The level you started at was a first guess. Going over ${below} first will make this part much easier.`
-      : `Going over ${below} first will make this part much easier.`;
-    return {
-      lead,
-      advice: `${first} It's a refresher, and this part waits for you afterwards.`,
-      lean,
-    };
+    const level = move.to.level;
+    const advice = offer.placed
+      ? t("The level you started at was a first guess. Going over {level} first will make this part much easier. It's a refresher, and this part waits for you afterwards.", { level })
+      : t("Going over {level} first will make this part much easier. It's a refresher, and this part waits for you afterwards.", { level });
+    return { lead, advice, lean };
   }
-  return { lead, advice: `${move.to.id.toUpperCase()} is the part you skipped, and this one leans on it. Going back fills in the gaps.`, lean };
+  return {
+    lead,
+    advice: t("{part} is the part you skipped, and this one leans on it. Going back fills in the gaps.", { part: move.to.id.toUpperCase() }),
+    lean,
+  };
 }
 
 /** The same, as one string, for a reader that has room for one paragraph. */
-export function offerBody(offer: AdaptOffer, effects: LeanEffects): string {
-  const { lead, advice, lean } = offerParts(offer, effects);
+export function offerBody(offer: AdaptOffer, effects: LeanEffects, locale: Locale): string {
+  const { lead, advice, lean } = offerParts(offer, effects, locale);
   return [lead, advice, lean].filter(Boolean).join(" ");
 }
 
 /** The label on the button that makes the move. */
-export function moveLabel(move: AdaptMove): string {
-  if (move.kind === "down") return `Refresh ${move.to.level} first`;
-  if (move.kind === "back") return `Go back to ${move.to.id.toUpperCase()}`;
-  return `Skip ahead to ${move.to.id.toUpperCase()}`;
+export function moveLabel(move: AdaptMove, locale: Locale): string {
+  if (move.kind === "down") return fill(tr(locale, "Refresh {level} first"), { level: move.to.level });
+  if (move.kind === "back") return fill(tr(locale, "Go back to {part}"), { part: move.to.id.toUpperCase() });
+  return fill(tr(locale, "Skip ahead to {part}"), { part: move.to.id.toUpperCase() });
 }

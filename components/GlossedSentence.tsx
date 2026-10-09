@@ -10,7 +10,9 @@ import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Speak } from "@/components/Speak";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import type { Condition } from "@/lib/audio/conditions";
-import { counted, NOT_REACHED } from "@/lib/copy/values";
+import { NOT_REACHED } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill, translated } from "@/lib/copy/locale";
 
 /**
  * AN ATTESTED SENTENCE YOU CAN READ, RATHER THAN ONE YOU CAN ONLY LOOK AT.
@@ -64,9 +66,11 @@ export function GlossedSentence({ tokens, sentence, speak }: {
     condition?: Condition;
     rate?: number;
     autoplay?: boolean;
-  };
+    insist?: boolean;
+  } | false;
 }) {
   const panelId = useId();
+  const t = useT();
   const [open, setOpen] = useState<number | null>(null);
   /*
     Turned off from inside the panel, optimistically. The server stops handing
@@ -165,7 +169,10 @@ export function GlossedSentence({ tokens, sentence, speak }: {
             );
           })}
         </p>
-        <Speak text={sentence} label="Hear the sentence" {...speak} />
+        {/* `false` is a conversation read as text only, where a speaker
+            under a label saying nothing is played aloud would make the label
+            wrong (lib/audio/sceneVoice.ts). */}
+        {speak !== false && <Speak text={sentence} label={t("Hear the sentence")} {...speak} />}
       </div>
 
       <div id={panelId}>
@@ -213,6 +220,8 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
   /** Draw the sentence plain, now, while the answer is on its way to the server. */
   onTurnOff: () => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [result, setResult] = useState<string | null>(null);
   /*
     Its own transition, not the one the add button reads. Sharing it made
@@ -249,9 +258,12 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
   */
   const keeper = useKeepWord(entry.lexemeId, async (deckIds, named) => {
     const r = await addToDeck(entry.lexemeId, ["RECOGNITION", "PRODUCTION"], "SENTENCE", deckIds).catch(() => null);
-    if (!r || !r.ok) { setResult(r ? r.error : NOT_REACHED); return; }
-    const where = named.length > 0 ? ` On ${named.join(", ")}.` : "";
-    setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${counted(r.added, "card")}.${where}`);
+    if (!r || !r.ok) { setResult(t(r ? r.error : NOT_REACHED)); return; }
+    const decks = named.join(", ");
+    const cards = countOf(locale, r.added, "card");
+    setResult(r.added === 0
+      ? (decks ? fill(t("Already in your deck. On {decks}."), { decks }) : t("Already in your deck."))
+      : fill(t(decks ? "Added {cards}. On {decks}." : "Added {cards}."), { cards, decks }));
   });
 
   /* The spelling in the sentence and the headword are the same word often
@@ -259,6 +271,7 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
      opens `joon` as an inflected form and `kohvi` as its own headword. */
   const inflected = spelling.trim().toLocaleLowerCase("et") !== entry.lemma.toLocaleLowerCase("et");
   const meaning = entry.reading ?? entry.gloss;
+  const [alsoBefore, alsoAfter] = t(entry.alsoSaid?.everyday ? "People usually say {word}." : "The full form is {word}.").split("{word}");
 
   return (
     <div
@@ -296,7 +309,9 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
               what it is given instead. */}
           {!entry.reading && entry.clause && (
             <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
-              Used {entry.clause}.
+              {translated(locale, entry.clause)
+                ? fill(t("Used {clause}."), { clause: t(entry.clause) })
+                : `Used ${entry.clause}.`}
             </p>
           )}
           {/* THE PAIR, WHICH IS THE ONE THING A BEGINNER IS NEVER TOLD.
@@ -304,15 +319,14 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
               headword and every sentence the app draws says the other one. */}
           {entry.alsoSaid && (
             <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
-              {entry.alsoSaid.everyday ? "People usually say " : "The full form is "}
-              <span lang="et" className="font-semibold">{entry.alsoSaid.spelling}</span>.
+              {alsoBefore}<span lang="et" className="font-semibold">{entry.alsoSaid.spelling}</span>{alsoAfter}
             </p>
           )}
         </div>
         <button
           type="button"
           onClick={onClose}
-          aria-label={`Close ${entry.lemma}`}
+          aria-label={fill(t("Close {word}"), { word: entry.lemma })}
           className="tap-tint -mr-1 rounded-full p-1.5"
           style={{ color: "var(--ink-3)" }}
         >
@@ -322,15 +336,15 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
       <KeepWordChoice keeper={keeper} className="mt-2.5" />
       <div className="mt-2 flex flex-wrap items-center gap-2">
         {keeper.asking && (
-          <Button size="sm" variant="ghost" onClick={keeper.cancel}>Cancel</Button>
+          <Button size="sm" variant="ghost" onClick={keeper.cancel}>{t("Cancel")}</Button>
         )}
         <Button size="sm" variant="soft" onClick={keeper.press} disabled={keeper.pending || result !== null}>
           {keeper.pending ? (
-            <><Loader2 size={13} className="animate-spin" aria-hidden /> Adding…</>
+            <><Loader2 size={13} className="animate-spin" aria-hidden /> {t("Adding…")}</>
           ) : result ? (
             <><Check size={13} aria-hidden /> {result}</>
           ) : (
-            <><Plus size={13} aria-hidden /> {keeper.asking ? "Keep it" : "Add to my deck"}</>
+            <><Plus size={13} aria-hidden /> {keeper.asking ? t("Keep it") : t("Add to my deck")}</>
           )}
         </Button>
       </div>
@@ -348,11 +362,11 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
           type="button"
           onClick={turnOff}
           disabled={leaving}
-          title="Stop underlining words. You can switch it back on in Settings."
+          title={t("Stop underlining words. You can switch it back on in Settings.")}
           /* The accessible name carries the sentence the tooltip does, because
              a tooltip is a hover and this app is measured on a phone. It opens
              with the visible words, which is what "label in name" asks for. */
-          aria-label="Stop underlining words. You can switch it back on in Settings."
+          aria-label={t("Stop underlining words. You can switch it back on in Settings.")}
           /* Inset by its own padding rather than pulled back by a negative
              margin: this panel has none to absorb one, and a control hanging
              outside the box it belongs to is what `test-containment.mjs`
@@ -361,7 +375,7 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
           style={{ color: "var(--ink-3)" }}
         >
           <Underline size={13} aria-hidden />
-          Stop underlining words
+          {t("Stop underlining words")}
         </button>
       </div>
       <span className="sr-only" role="status">{result ? `${entry.lemma}: ${result}` : ""}</span>

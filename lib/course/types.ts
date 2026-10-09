@@ -105,29 +105,17 @@ export const ACTIVITIES = {
     href: "/review/listening", kind: "drill",
     why: "The same words, but this time you only hear them. Reading a word and catching it when somebody says it are two different skills.",
   },
-  sprint: {
-    href: "/review/sprint", kind: "game",
-    why: "A race through the words you've met, and their endings once you've read about them. Answer fast enough and you stop working words out and simply know them.",
-  },
   sentences: {
-    href: "/review/sentences", kind: "drill",
+    href: "/review/sentences", kind: "game",
     why: "Put a real Estonian sentence back together, word by word. Do it a few times and you start to feel where things go.",
   },
   dictation: {
     href: "/review/dictation", kind: "drill",
     why: "Hear a whole sentence and write it down. This is where long and short vowels stop being a rule and start being a sound.",
   },
-  describe: {
-    href: "/review/describe", kind: "drill",
-    why: "Look at a picture and write one sentence of your own about it. That's what all these words are for.",
-  },
   sonad: {
     href: "/sonad", kind: "game",
     why: "Guess today's six-letter word. Three minutes, and Estonian letters start feeling like old friends.",
-  },
-  target: {
-    href: "/review/target", kind: "game",
-    why: "Four versions of one word, and a question telling you which one to hit. Only the ending tells them apart, so you learn to read it fast.",
   },
   conjugation: {
     href: "/review/conjugation", kind: "drill",
@@ -151,7 +139,7 @@ export const ACTIVITIES = {
   },
   letters: {
     href: "/review/letters", kind: "game",
-    why: "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like a's and o's.",
+    why: "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like plain a's, o's and u's.",
   },
   flash: {
     href: "/review/flashcards", kind: "drill",
@@ -509,14 +497,14 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     id: MEET_STEP,
     kind: "meet",
     title: fresh === 0
-      ? `Go over tonight's ${spec.words.length} words`
+      ? `Go over today's ${spec.words.length} words`
       : met === 0
-        ? `Learn tonight's ${counted(fresh, "new word")}`
-        : `Learn tonight's ${counted(fresh, "new word")}, and ${met} from earlier`,
+        ? `Learn today's ${counted(fresh, "new word")}`
+        : `Learn today's ${counted(fresh, "new word")}, and ${met} from earlier`,
     // "From earlier in the course" rather than "you've met": somebody placed
     // at B1 had the levels below counted, not walked.
     why: fresh === 0
-      ? "Every one of these is from earlier in the course. Tonight they come back for what the page is about."
+      ? "Every one of these is from earlier in the course. Today they come back for what the page is about."
       : atA1
         ? "Hear each word and see what it means. A few minutes later you pick it out of four, and that's what makes it stay."
         : "See what each word means, pick it out of four a little later, then type it into a real Estonian sentence.",
@@ -543,10 +531,10 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: READ_STEP,
       kind: "read",
-      title: spec.readTitle ?? "Read how tonight's words work",
+      title: spec.readTitle ?? "Read how today's words work",
       // Not "three quick questions at the end": only the pages with a table of
       // forms end in them, and a page about word order or politeness has none.
-      why: "One short page on the grammar behind tonight's words, shown in real sentences.",
+      why: "One short page on the grammar behind today's words, shown in real sentences.",
       href: reads,
       minutes: READ_MINUTES,
       derived: false,
@@ -593,7 +581,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
         ? `${spec.sceneTitle ?? "The conversation"}, again at your level`
         : spec.sceneTitle ?? "Have the conversation",
       why: spec.sceneAgain
-        ? "You've had this one before. Tonight they talk to you the way they'd talk to anybody, and you've got far more to say back."
+        ? "You've had this one before. Today they talk to you the way they'd talk to anybody, and you've got far more to say back."
         : "Somebody wants something from you, and only Estonian will do. This is what all those words were for.",
       href: `/situations/${spec.scene}`,
       minutes: spec.sceneMinutes ?? TALK_MINUTES,
@@ -605,7 +593,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     id: REVIEW_STEP,
     kind: "review",
     title: "A quick review, then you're done",
-    why: "A few minutes on the words you're about to forget, tonight's included. This is the part that makes them stick.",
+    why: "A few minutes on the words you're about to forget, today's included. This is the part that makes them stick.",
     href: "/review",
     minutes: REVIEW_MINUTES,
     derived: true,

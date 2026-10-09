@@ -40,7 +40,7 @@ page.on("console", (m) => {
 // behind the panel not answering the key the panel names, which two of the
 // fifteen rounds drawing it did: 60, and one for the round's own undo standing
 // down beside the panel the way its key already did: 61.
-const { check, absent, done } = suite("Practice modes", { floor: 65 });
+const { check, absent, done } = suite("Practice modes", { floor: 64 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -140,7 +140,7 @@ check("a unit says which card types it makes", (await page.getByText(/recognitio
 
 // 2 — Practice hub, with live state per mode
 await page.goto(`${B}/practice`, { waitUntil: "networkidle" });
-for (const mode of ["Review", "Case Sprint", "Match", "Listening"]) {
+for (const mode of ["Review", "Match", "Listening"]) {
   check(`practice hub offers ${mode}`, (await page.getByText(mode, { exact: true }).count()) > 0);
 }
 
@@ -742,7 +742,7 @@ if ((await featured.count()) === 0) {
   /* Both weeks, since which one Today leads with is the learner's level:
      `FIRST_LEVEL_WEEK` until the course reaches the cases, `WEEK_GAMES` after. */
   const modes = [
-    "/sonad", "/crossword", "/review/target", "/review/match", "/review/sprint", "/situations",
+    "/sonad", "/crossword", "/review/match", "/situations",
     "/review/flashcards", "/review/letters", "/review/listening", "/review/speaking", "/review/pairs",
   ];
   check("the game of the day links to a round this app has",

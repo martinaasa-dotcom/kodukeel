@@ -60,8 +60,8 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     It was ten, and the second evening of the module was measured at forty
     minutes against a promise of sixteen. Eight of the ten put something in
     front of a beginner that nobody had taught them: Sõnad deals a word off
-    the dictionary, and dealt an A2 verb on the second evening; the sprint,
-    Target, the picture board and Describe all ask for a case; dictation and
+    the dictionary, and dealt an A2 verb on the second evening; the picture board
+    asks for a case; dictation and
     speaking put a whole attested sentence up, which at A1 is a sentence made
     of words further up the course (`npm run audit:readable`). None of that is
     a fault in the round. Each is the right round for somebody who opened it
@@ -91,7 +91,7 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     been read, a person of a verb. Three pairs rather than one, walked two an
     evening, so a fortnight of A1 is not the same fortnight three times.
 
-    Sõnad, the sprint and the rest stay on Practice, in the palette and as the
+    Sõnad and the rest stay on Practice, in the palette and as the
     game of the day, where a learner chooses them.
 
     AND THE PICTURE BOARD WENT, WHICH LEFT A1 WITH TWO GAMES. The operator
@@ -119,10 +119,21 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     the government page and a few governed verbs for government; and each
     reads the same ledger back off the step's address and narrows to it.
   */
-  A2: ["match", "dictation", "target", "sentences", "sprint", "write", "letters", "describe"],
-  B1: ["letters", "write", "target", "government", "sprint", "sentences", "match", "flash"],
-  B2: ["letters", "write", "target", "flash", "sprint", "describe", "match", "government"],
-  C1: ["letters", "write", "target", "exceptions", "sprint", "describe", "match", "flash"],
+  /*
+    THE CASE SPRINT AND TARGET ARE OUT OF THE APP, AND THE GAME SLOTS THEY
+    HELD ARE THE SENTENCE BUILDER'S. The operator called both bad games and had
+    them removed everywhere. Building a sentence is a game in the sense this
+    table means (something to play rather than something to be marked on), so
+    it takes the second game slot, and each list is the three games and three
+    drills there are to deal. "Say what you see" is not on any of them: it
+    asks for five sentences about a picture, which is its own sitting of eight
+    minutes or so and not a step of a fifteen-minute evening, so it stays on
+    Practice and in the palette.
+  */
+  A2: ["match", "dictation", "letters", "write", "sentences", "flash"],
+  B1: ["letters", "write", "sentences", "government", "match", "flash"],
+  B2: ["letters", "write", "match", "government", "sentences", "flash"],
+  C1: ["letters", "write", "match", "exceptions", "sentences", "flash"],
 };
 
 /**
@@ -260,7 +271,7 @@ export const PARTS: readonly PartSpec[] = [
     title: "Esimesed sõnad", subtitle: "Hello, you and me, the verb to be, and the people around you",
     blurb:
       "You start from nothing and build up the way a sentence does. Five words on the first "
-      + "evening, then I, you, he and she, then the verb to be with its six endings. After that "
+      + "evening, then I, you, he and she, then the verb to be, with a form for each person. After that "
       + "come the little words that hold a sentence together, a few greetings and questions, and "
       + "the people in your life. By the end you can say hello, ask where somebody lives and tell "
       + "them who's in your family.",
@@ -351,7 +362,7 @@ export const PARTS: readonly PartSpec[] = [
     title: "Linn ja liikumine", subtitle: "School, travel, the town, a free afternoon, and comparing things",
     blurb:
       "Life outside your front door: school, trips, the town, your weekends, and saying which "
-      + "of two things is better. There are four conversations to practise on along the way. By "
+      + "of two things is better. There are four conversations to practice on along the way. By "
       + "the end you can buy a ticket, ask the way and say what you did on Saturday.",
     units: ["kool-ja-keel", "reisimine", "linn-ja-teenused", "vaba-aeg", "vordlemine"],
   },
@@ -361,7 +372,7 @@ export const PARTS: readonly PartSpec[] = [
     blurb:
       "Talking about what hasn't happened yet, keeping in touch, and saying how you feel about "
       + "it all. It has five conversations, more than any other part. By the end you can get "
-      + "through a whole meal in Estonian, book an appointment and ring somebody about it.",
+      + "through a whole meal in Estonian, book an appointment and call somebody about it.",
     units: ["restoranis", "plaanid", "suhtlemine", "tunded", "kirjeldamine", "kuivord"],
   },
 
@@ -381,7 +392,7 @@ export const PARTS: readonly PartSpec[] = [
     title: "Kool, minevik ja kodu", subtitle: "School, two new past forms, renting, what people are like, and the news",
     blurb:
       "School and a job interview first. Then the verb forms ending in -nud and -tud, and the "
-      + "two past tenses built from them. Then renting a flat, what people are like, and the "
+      + "two past tenses built from them. Then renting an apartment, what people are like, and the "
       + "news, which leans on those same forms to say what happened without saying who did it. By "
       + "the end you can get through an interview, read a news story and phone a landlord.",
     units: ["haridus", "kesksonad", "eluase", "iseloom", "meedia"],
@@ -401,10 +412,10 @@ export const PARTS: readonly PartSpec[] = [
     id: "b2.1", level: "B2",
     title: "Kes seda ütles", subtitle: "Leaving out who did it, society, hearsay, the economy, and doing two things at once",
     blurb:
-      "Estonian has three ways of telling you what happened without saying who did it. You "
-      + "learn each one alongside the words it usually comes with: the impersonal with society, "
-      + "the reported form with the economy, and then the form for doing two things at once. By "
-      + "the end you can read a report that never names anybody.",
+      "Estonian has three forms you learn here: one for when nobody is named, one for passing "
+      + "on what you heard, and one for doing two things at once. Each comes with the words it "
+      + "usually goes with: the impersonal with society, the reported form with the economy, and "
+      + "the last on its own. By the end you can read a report that never names anybody.",
     units: ["umbisikuline", "uhiskond", "kaudne", "majandus", "des-vorm"],
   },
   {
@@ -433,7 +444,7 @@ export const PARTS: readonly PartSpec[] = [
     title: "Lause ja mõte", subtitle: "Saying more in fewer words, and long sentences that hold together",
     blurb:
       "C1 is mostly about saying more with less: fitting into a phrase what B2 needed a whole "
-      + "clause for. You practise it on academic writing, research and philosophy, which is where "
+      + "clause for. You practice it on academic writing, research and philosophy, which is where "
       + "you'll need it most.",
     units: ["nominalisatsioon", "lauseloome", "akadeemiline", "teadustoo", "filosoofia"],
   },

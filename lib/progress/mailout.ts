@@ -62,6 +62,9 @@ import type { ClassroomInput } from "@/lib/email/letters/classroom";
 import type { WorddayInput } from "@/lib/email/letters/wordday";
 import type { MilestoneInput } from "@/lib/email/letters/milestone";
 import { shieldToTell, type ShieldInput } from "@/lib/email/letters/shield";
+import { localeFrom, tr, type Locale } from "@/lib/copy/locale";
+import { sayIn } from "@/lib/copy/said";
+import { stepsIn } from "@/lib/course/stepText";
 
 /** A high-water mark to write once a letter has really gone. */
 export interface Remember {
@@ -138,6 +141,25 @@ export function rosterPage(now: Date, total: number, limit: number): number {
  * page at a time. Read as ids so the expensive reads happen once the decision
  * is made rather than for everybody.
  */
+/**
+ * Which language each learner on a page of the roster reads the app in.
+ *
+ * One read for the whole page rather than one per learner: the run walks up to
+ * two thousand people, and a letter in the learner's own language is a fact
+ * the run needs for every one it writes to. Absent is English, which is what
+ * every learner had before the choice existed (`localeFrom`).
+ */
+export async function localesFor(ownerIds: readonly string[]): Promise<Map<string, Locale>> {
+  const out = new Map<string, Locale>();
+  if (ownerIds.length === 0) return out;
+  const rows = await prisma.setting.findMany({
+    where: { key: SETTING_KEYS.uiLocale, ownerId: { in: [...ownerIds] } },
+    select: { ownerId: true, value: true },
+  });
+  for (const row of rows) out.set(row.ownerId, localeFrom(row.value));
+  return out;
+}
+
 export async function mailoutRoster(now: Date, limit: number): Promise<string[]> {
   const since = new Date(now.getTime() - LOOK_BACK_DAYS * 86_400_000);
 
@@ -264,8 +286,8 @@ export async function undeliverableRow(ownerId: string): Promise<string | null> 
  * day, so the only job left is to name it, and naming it on the server's
  * locale is the fault `components/LocalDate.tsx` exists for.
  */
-function dayLabel(key: string): string {
-  return new Date(`${key}T00:00:00Z`).toLocaleDateString("en-GB", {
+function dayLabel(key: string, locale: Locale): string {
+  return new Date(`${key}T00:00:00Z`).toLocaleDateString(locale === "en" ? "en-GB" : locale, {
     weekday: "narrow",
     timeZone: "UTC",
   });
@@ -540,6 +562,12 @@ export async function letterInputFor(
   kind: EmailKind,
   origin: string,
   now: Date,
+  /**
+   * The language the letter is written in, read for the whole roster page by
+   * `localesFor`. Every English line this gathers off the app (a step, the
+   * errand, the countdown's sentences) is handed to the letter already in it.
+   */
+  locale: Locale,
 ): Promise<
   | { kind: "tonight"; input: TonightInput }
   | { kind: "welcome"; input: WelcomeInput }
@@ -591,7 +619,7 @@ export async function letterInputFor(
       ? {
           lemma: word.lemma,
           translation: word.translation,
-          occasion: word.occasion?.note ?? null,
+          occasion: word.occasion ? tr(locale, word.occasion.note) : null,
         }
       : null;
   };
@@ -603,10 +631,11 @@ export async function letterInputFor(
     return {
       kind: "welcome",
       input: {
+        locale,
         origin,
         reminderAt: settings[SETTING_KEYS.reminderAt] ?? null,
         cardsWaiting: cards,
-        opensOn: opening ? { title: opening.title, subtitle: opening.subtitle } : null,
+        opensOn: opening ? { title: opening.title, subtitle: tr(locale, opening.subtitle) } : null,
       },
     };
   }
@@ -656,6 +685,7 @@ export async function letterInputFor(
     return {
       kind: "comeback",
       input: {
+        locale,
         origin,
         wordsKept: kept,
         shieldUsed,
@@ -667,7 +697,7 @@ export async function letterInputFor(
           through `gradeCard` like everything else, so doing it genuinely puts
           somebody back on the scheduler rather than only back on the screen.
         */
-        smallStep: { title: "Play a two-minute word-matching game", href: `${origin}/review/match`, minutes: 2 },
+        smallStep: { title: tr(locale, "Play a two-minute word-matching game"), href: `${origin}/review/match`, minutes: 2 },
         word,
       },
     };
@@ -734,9 +764,10 @@ export async function letterInputFor(
     return {
       kind: "weekly",
       input: {
+        locale,
         origin,
         week: weekKeys.map((key) => ({
-          label: dayLabel(key),
+          label: dayLabel(key, locale),
           studied: studiedKeys.has(key),
         })),
         reviews,
@@ -808,11 +839,12 @@ export async function letterInputFor(
       return {
         kind: "milestone",
         input: {
+          locale,
           origin,
           level: {
             key: reached.level,
             title: reached.title,
-            arrival: reached.arrival,
+            arrival: tr(locale, reached.arrival),
             words: ladderWordsAt(reached.level),
           },
           /*
@@ -864,6 +896,7 @@ export async function letterInputFor(
     return {
       kind: "shield",
       input: {
+        locale,
         origin,
         streak: summary.streak,
         remaining: summary.shieldsAvailable,
@@ -873,7 +906,7 @@ export async function letterInputFor(
         */
         nextAt: SHIELD_MILESTONES.find((m) => m > summary.streak) ?? null,
         week: weekKeys.map((key) => ({
-          label: dayLabel(key),
+          label: dayLabel(key, locale),
           studied: studiedKeys.has(key),
         })),
       },
@@ -906,11 +939,12 @@ export async function letterInputFor(
     return {
       kind: "wordday",
       input: {
+        locale,
         origin,
         word: {
           lemma: word.lemma,
           translation: word.translation,
-          occasion: word.occasion?.note ?? null,
+          occasion: word.occasion ? tr(locale, word.occasion.note) : null,
           example: word.example ? { et: word.example.et, en: word.example.en ?? null } : null,
         },
       },
@@ -933,19 +967,20 @@ export async function letterInputFor(
       is a state that can only arise between the two passes: somebody who
       cleared their deadline in the minute after the roster was read.
     */
-    const countdown = await examCountdown(ownerId, now, clock);
+    const countdown = await examCountdown(ownerId, now, clock, locale);
     if (!countdown || !countdown.phrase) return null;
     return {
       kind: "deadline",
       input: {
+        locale,
         origin,
         band: countdown.band,
         label: countdown.label,
         phrase: countdown.phrase,
         distance: countdown.distance,
         confidence: countdown.confidence,
-        evidence: EVIDENCE_NOTE[countdown.evidence],
-        gap: countdown.gap?.title ?? null,
+        evidence: tr(locale, EVIDENCE_NOTE[countdown.evidence]),
+        gap: countdown.gap ? sayIn(locale, countdown.gap.said.title) : null,
         onTrack: countdown.fits,
       },
     };
@@ -1010,7 +1045,7 @@ export async function letterInputFor(
       select: { ownerId: true, reviewedAt: true },
     });
     const studied = new Set(days.map((d) => clock.dayKey(d.reviewedAt)));
-    const week = weekKeys.map((key) => ({ label: dayLabel(key), studied: studied.has(key) }));
+    const week = weekKeys.map((key) => ({ label: dayLabel(key, locale), studied: studied.has(key) }));
 
     /*
       ONE POPULATION AND ONE WINDOW FOR ALL FOUR FIGURES, WHICH IS WHY NONE OF
@@ -1040,6 +1075,7 @@ export async function letterInputFor(
       return {
         kind: "classroom",
         input: {
+          locale,
           origin,
           groupName: group.name,
           ...headline,
@@ -1051,7 +1087,7 @@ export async function letterInputFor(
             close: cohort.counts.close,
             needTime: cohort.counts.far,
             tooEarly: cohort.counts.unknown,
-            evidence: EVIDENCE_NOTE[cohort.evidence],
+            evidence: tr(locale, EVIDENCE_NOTE[cohort.evidence]),
           },
         },
       };
@@ -1061,6 +1097,7 @@ export async function letterInputFor(
     return {
       kind: "classroom",
       input: {
+        locale,
         origin,
         groupName: group.name,
         ...headline,
@@ -1127,13 +1164,16 @@ export async function letterInputFor(
     return {
       kind: "errand",
       input: {
+        locale,
         origin,
         errand: {
-          says: errand.says,
-          places: errandPlaces(errand),
+          says: tr(locale, errand.says),
+          /* The English joins the places on "or" (`errandPlaces`); the other
+             two translate the errand's own list, as the debrief does. */
+          places: locale === "en" ? errandPlaces(errand) : tr(locale, errand.where),
           unitId: errand.unit,
           unitTitle: unit?.title ?? errand.unit,
-          scene: scene ? { id: scene.id, title: scene.title } : null,
+          scene: scene ? { id: scene.id, title: tr(locale, scene.title) } : null,
         },
         word: lemma ? { lemma: lemma.lemma, translation: lemma.translation } : null,
       },
@@ -1165,15 +1205,17 @@ export async function letterInputFor(
   return {
     kind: "tonight",
     input: {
+      locale,
       name,
       origin,
       day: {
         title: current.day.title,
-        subtitle: current.day.subtitle,
+        subtitle: tr(locale, current.day.subtitle),
         part: current.day.part,
-        canDo: current.day.canDo,
+        canDo: tr(locale, current.day.canDo),
         newWords: newWordsIn(current.day),
-        steps: current.day.steps.map((step) => ({
+        /* Worded for this reader the way the module screen words them. */
+        steps: stepsIn(current.day, locale).map((step) => ({
           title: step.title,
           minutes: step.minutes,
           done: done.has(step.id),

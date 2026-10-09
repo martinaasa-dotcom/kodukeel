@@ -1,6 +1,7 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { NamedIcon } from "@/components/icons";
 import { DESTINATIONS } from "@/lib/ux/nav";
+import { tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * THE PLACES THAT LIVE INSIDE THIS ONE, AS A ROW OF DOORS AT THE FOOT OF IT.
@@ -16,7 +17,7 @@ import { DESTINATIONS } from "@/lib/ux/nav";
  * something to press on an ordinary evening, so it sits at the bottom of the
  * page it belongs to in the smallest shape that is still a 44px target.
  */
-export function InsideHere({ place, title }: { place: string; title: string }) {
+export function InsideHere({ place, title, locale }: { place: string; title: string; locale: Locale }) {
   const inside = DESTINATIONS.filter((d) => d.within === place);
   if (inside.length === 0) return null;
   return (
@@ -27,12 +28,12 @@ export function InsideHere({ place, title }: { place: string; title: string }) {
           <li key={d.href}>
             <Link
               href={d.href}
-              title={d.blurb}
+              title={d.blurb ? tr(locale, d.blurb) : undefined}
               className="choice-btn inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold"
               style={{ borderColor: "var(--edge)", color: "var(--ink)" }}
             >
               <NamedIcon name={d.icon} size={15} strokeWidth={2.2} aria-hidden style={{ color: inkOf(d.tone) }} />
-              {d.label}
+              {tr(locale, d.label)}
             </Link>
           </li>
         ))}

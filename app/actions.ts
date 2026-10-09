@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { throttleAction } from "@/lib/security/actionLimits";
+import { busyMessage, throttleAction, type ActionRefusal } from "@/lib/security/actionLimits";
 import { recordSuggestion } from "@/lib/suggestions/record";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { setTaskDone } from "@/lib/progress/tasks";
@@ -27,6 +27,7 @@ import { createWithFreshCode } from "@/lib/classroom/create";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
+import { isExactForm } from "@/lib/dict/forms";
 import { mergeExamples, parseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
 import { alsoAcceptedByLemma, borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
@@ -54,7 +55,7 @@ import {
 } from "@/lib/progress/decks";
 import { canonicalZone } from "@/lib/time/day";
 import {
-  forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
+  forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 import { isEmailKind } from "@/lib/email/letter";
 import { switchOff, switchOn } from "@/lib/email/prefs";
@@ -64,11 +65,13 @@ import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
 import { caseGlossFrom } from "@/lib/estonian/caseGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
-import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
+import { hearingFrom, hidesWords, supportFrom } from "@/lib/audio/conditions";
+import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
 import { SPEECH_PACES } from "@/lib/audio/pace";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { alsoShowFrom, glossLanguageFrom } from "@/lib/collections/glossLanguage";
+import { localeFrom, tr } from "@/lib/copy/locale";
 import { serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { serialiseNavOrder } from "@/lib/ux/navOrder";
 import { roundPaceFrom } from "@/lib/ux/roundClock";
@@ -82,12 +85,14 @@ import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { ONE_PER_WORD, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
-  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, levelHeldOnHandOff, programmeById,
+  DEFAULT_PROGRAMME, MODULE_HOME, continueHref, dayById, focusedSteps, levelHeldOnHandOff, programmeById, stepText,
 } from "@/lib/course";
+import { localeFor } from "@/lib/progress/locale";
 import { courseReading, dayIsInPlay, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
+import { isConfirmed } from "@/lib/copy/confirmWord";
 
 import { CARD_SOURCES as KNOWN_SOURCES, DEFAULT_SOURCE } from "@/lib/srs/sources";
 import { ratingFor, SONAD_GUESSES } from "@/lib/games/sonad";
@@ -99,6 +104,7 @@ import { heldLevel } from "@/lib/course/placement";
 import type { DayKey } from "@/lib/time/day";
 import { FREQUENCY_GROUPS, type FrequencyGroup } from "@/lib/collections/frequency";
 import { lemmasIn, nextCommonBatch } from "@/lib/progress/common";
+import { COMMON_BATCH, readPart } from "@/lib/collections/commonGroups";
 import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
@@ -143,6 +149,19 @@ import { safeMessage } from "@/lib/observability/report";
 const CARD_SOURCES = new Set<string>(KNOWN_SOURCES);
 
 /**
+ * A throttle refusal in the language the learner reads the app in.
+ *
+ * The refusal carries a count of seconds, so the screen's own `t()` could
+ * never match it against a table: the sentence is said here, with the wait
+ * counted in the learner's language, and the locale is read only on the rare
+ * call that is refused. A locale that cannot be read is English.
+ */
+async function sayRefusal(ownerId: string, busy: ActionRefusal): Promise<ActionRefusal> {
+  const locale = await localeFor(ownerId).catch(() => "en" as const);
+  return { ...busy, error: busyMessage(locale, busy.retryAfterSec) };
+}
+
+/**
  * Add a word to the deck.
  *
  * Every argument here comes from a browser, because this file is
@@ -182,6 +201,60 @@ export async function addToDeck(
     await setDecksForWord(ownerId, lexemeId, deckIds.filter((id) => typeof id === "string"));
   }
   return result;
+}
+
+/**
+ * The card an answer in the openers round is graded on, made on the first one.
+ *
+ * Every answer is a `Review` row and a row needs a card (ADR-016), and the
+ * words the round uses are plain A1 nouns a learner would meet in the first
+ * month, so the first answer about one puts it in the deck. That is the one
+ * place a round adds a word behind the learner's back, and it is deliberate:
+ * a round whose answers could not be written down would have no stage to move
+ * a learner on from, which is what it is for. The production card is the one
+ * graded, as in the flash round, and the recognition card comes with it.
+ */
+export async function openerCard(lexemeId: string) {
+  lexemeId = text(lexemeId);
+  const ownerId = await requireUserId();
+  const find = () => prisma.card.findFirst({
+    where: { ownerId, lexemeId, cardType: "PRODUCTION" },
+    select: { id: true },
+    orderBy: { id: "asc" },
+  });
+  let card = await find();
+  let made = false;
+  if (!card) {
+    const added = await addCardsFor(ownerId, lexemeId, ["RECOGNITION", "PRODUCTION"], DEFAULT_SOURCE);
+    if (!added.ok) return { ok: false as const };
+    card = await find();
+    made = true;
+  }
+  // `made` lets the round say a word has just joined the deck, since nobody asked for it.
+  return card ? { ok: true as const, cardId: card.id, made } : { ok: false as const };
+}
+
+/**
+ * Takes back what `openerCard` just added. Only the two cards it makes, only from
+ * the default source, and only if the word arrived within the last day, so a word
+ * the learner has had for months is never touched. Review rows carry no key to the
+ * card, so the history stays.
+ */
+export async function undoOpenerCards(lexemeIds: string[]) {
+  const ownerId = await requireUserId();
+  const ids = (Array.isArray(lexemeIds) ? lexemeIds : []).slice(0, 20).map(text);
+  await prisma.card.deleteMany({
+    where: {
+      ownerId,
+      lexemeId: { in: ids },
+      source: DEFAULT_SOURCE,
+      cardType: { in: ["RECOGNITION", "PRODUCTION"] },
+      createdAt: { gte: new Date(Date.now() - 24 * 3600 * 1000) },
+    },
+  });
+  revalidatePath("/words");
+  revalidatePath("/");
+  return { ok: true as const };
 }
 
 /** Every deck this learner has named, for the picker and the management page. */
@@ -728,7 +801,7 @@ export async function addExample(lexemeId: string, sentence: string, translation
   */
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "editDictionary");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const et = visibleLine(sentence, LIMITS.example);
   if (et.length < 4) return { ok: false as const, error: "That's a bit short for a sentence. Try a few more words." };
@@ -851,7 +924,7 @@ export async function createLexeme(input: { lemma: string; translation: string }
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "editDictionary");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
@@ -940,7 +1013,7 @@ export async function createLexemeWithForms(input: {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "editDictionary");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
   const lemma = visibleLine(input.lemma, LIMITS.lemma);
   const translation = visibleLine(input.translation, LIMITS.translation);
@@ -1058,7 +1131,7 @@ export async function putWordAside(lexemeId: string, context: string) {
   lexemeId = text(lexemeId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "putAside");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const id = text(lexemeId).slice(0, 64);
   if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
 
@@ -1125,7 +1198,7 @@ export async function importWords(rows: { lemma: string; translation: string; po
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "importWords");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   let created = 0;
   let cards = 0;
   const skipped: string[] = [];
@@ -1266,10 +1339,9 @@ export async function setDailyGoal(goal: number) {
   three exceptions, because `Review` records no note of which mode wrote a row
   and so cannot say what a sixty-second sprint scored. That exception is why
   these two are stored, and it is not a reason to store whatever arrives.
-  Neither of these clamped anything: `recordSprintScore(NaN)` wrote the string
-  "NaN", `recordMatchTime(NaN)` slipped through its own `Math.max(1, ...)`
-  because `Math.max(1, NaN)` is `NaN`, and `1e21` came back on the sprint
-  screen as somebody's best score in scientific notation.
+  `recordMatchTime(NaN)` slipped through its own `Math.max(1, ...)` because
+  `Math.max(1, NaN)` is `NaN`, and a score of `1e21` came back as somebody's
+  best in scientific notation.
 
   What is *not* attempted is bounding a score against the review log. Every
   answer in both rounds grades through it (ADR-016), so a count is there, but
@@ -1279,25 +1351,9 @@ export async function setDailyGoal(goal: number) {
   themselves, on a board that no longer has anybody else on it.
 */
 
-/** A round of this app is a minute long; nothing honest reaches these. */
-const MAX_SPRINT_SCORE = 500;
 const MAX_MATCH_SECONDS = 3_600;
 /** Twice the board's own size (see PAIRS in the round's page.tsx). A ceiling, not a pace. */
 const MAX_MATCH_PAIRS = 16;
-
-/** Records a Case Sprint score, keeping only the personal best. */
-export async function recordSprintScore(score: number) {
-  const ownerId = await requireUserId();
-  if (!Number.isFinite(score)) return { ok: false as const, error: "That score didn't come through properly." };
-  const clamped = Math.min(MAX_SPRINT_SCORE, Math.max(0, Math.round(score)));
-  // A round of nothing beats no stored best and writes no row, as before.
-  if (clamped === 0) {
-    const best = numberSetting(await readSetting(ownerId, SETTING_KEYS.sprintBest), 0);
-    return { ok: true as const, best, isNewBest: false };
-  }
-  // Compared inside the write, so a slower round cannot lower it (lib/progress/personalBest.ts).
-  return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.sprintBest, clamped, "higher")) };
-}
 
 /**
  * Records a finished match round in the review log, one write rather than
@@ -1445,7 +1501,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   // Its own allowance, not the one finishing a conversation needs: see
   // `lib/security/actionLimits.ts`.
   const busy = throttleAction(ownerId, "beginScene");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const scene = sceneById(text(sceneId).slice(0, 64));
   if (!scene) return { ok: false as const, error: "We couldn't find that conversation." };
@@ -1544,7 +1600,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
 export async function sceneHelp(runId: unknown, turns: unknown) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "sceneHelp");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const id = text(runId).slice(0, 64);
   if (!id) return { ok: false as const, error: "That conversation has already ended." };
@@ -1624,7 +1680,7 @@ export async function finishScene(input: {
 }) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "finishScene");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
 
   /*
@@ -1891,6 +1947,22 @@ export async function setGlossLanguage(value: string) {
 }
 
 /**
+ * Whether the other of Russian and Ukrainian is shown small after the first
+ * meaning. Read against the lead the learner holds now, so a value that is not
+ * the other language of that lead is stored as nothing (`alsoShowFrom`): a
+ * forged "uk" under a Ukrainian lead is the same line twice, and under English
+ * it means nothing. Revalidated at the layout, like the lead it sits beside.
+ */
+export async function setGlossAlso(value: string) {
+  const ownerId = await requireUserId();
+  const lead = glossLanguageFrom(await readSetting(ownerId, SETTING_KEYS.glossLanguage));
+  const normalised = alsoShowFrom(text(value), lead) ?? "none";
+  await writeSetting(ownerId, SETTING_KEYS.glossAlso, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+/**
  * Whether the dictionary is put under every word of an attested sentence.
  *
  * Revalidated at the layout rather than at a path, for `setLetterBar`'s
@@ -1900,6 +1972,33 @@ export async function setGlossLanguage(value: string) {
  * itself, which is where somebody is standing when they decide they are done
  * with it, so this action is reached from there as well as from Settings.
  */
+/** Closes the machine-translation notice for the language it was shown in. */
+export async function dismissLocaleNotice(value: string) {
+  const ownerId = await requireUserId();
+  await writeSetting(ownerId, SETTING_KEYS.uiLocaleNoticed, localeFrom(text(value)));
+  revalidatePath("/", "layout");
+  return { ok: true as const };
+}
+
+/**
+ * The language the app's own words are in. Revalidated at the layout, since the
+ * rail, every round's opening screen and Settings all read it.
+ */
+export async function setUiLocale(value: string) {
+  const ownerId = await requireUserId();
+  const normalised = localeFrom(text(value));
+  await writeSetting(ownerId, SETTING_KEYS.uiLocale, normalised);
+  /* Somebody who reads the app in Russian or Ukrainian wants a word's meaning
+     there too, and the Institute records one for most of the course. Only
+     where they have never chosen: a stored choice is theirs and is left alone,
+     and the English is printed beside it either way. */
+  if (normalised !== "en" && (await readSetting(ownerId, SETTING_KEYS.glossLanguage)) === null) {
+    await writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(normalised));
+  }
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
 export async function setWordGloss(value: WordGloss) {
   const ownerId = await requireUserId();
   const normalised = wordGlossFrom(value);
@@ -1999,6 +2098,27 @@ export async function setSupport(value: string) {
   const ownerId = await requireUserId();
   const normalised = supportFrom(value);
   await writeSetting(ownerId, SETTING_KEYS.support, normalised);
+  /*
+    And the conversation's own mode follows, because hiding the words is now
+    said there (lib/audio/sceneVoice.ts): a stored mode beside this would win
+    over it, and somebody who turned "hear it first" on in Settings would open
+    the next scene with the words showing.
+  */
+  await writeSetting(ownerId, SETTING_KEYS.sceneVoice, hidesWords(normalised) ? "listen" : "voice");
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+/**
+ * How the other side of a conversation is heard: read, heard and read, or
+ * heard alone. Chosen on a scene's briefing and changed from the conversation
+ * itself, and remembered for the next one. Normalized on the way in, since an
+ * argument off the wire is whatever somebody sent.
+ */
+export async function setSceneVoice(value: unknown) {
+  const ownerId = await requireUserId();
+  const normalised = sceneVoiceFrom(value, "guided");
+  await writeSetting(ownerId, SETTING_KEYS.sceneVoice, normalised);
   revalidatePath("/", "layout");
   return { ok: true as const, value: normalised };
 }
@@ -2144,6 +2264,11 @@ export async function completeOnboarding(input: {
    * people who would never go looking for this setting are the ones it is for.
    */
   glossLanguage?: string;
+  /**
+   * The language the app's own words are in, chosen at the top of the first
+   * screen. Read through `localeFrom`, so anything but "ru" or "uk" is English.
+   */
+  uiLocale?: string;
   /** What the learner said they are here for. Absent when they skipped it. */
   goals?: {
     reason?: string | null;
@@ -2168,7 +2293,7 @@ export async function completeOnboarding(input: {
     return { ok: false as const, error: "Pick a level from the list." };
   }
   const busy = throttleAction(ownerId, "completeOnboarding");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
 
   await Promise.all([
@@ -2191,6 +2316,13 @@ export async function completeOnboarding(input: {
     writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(goal)),
     writeSetting(ownerId, SETTING_KEYS.letterBar, letterBarFrom(input.letterBar)),
     writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(text(input.glossLanguage))),
+    writeSetting(ownerId, SETTING_KEYS.uiLocale, localeFrom(text(input.uiLocale))),
+    /*
+      The wizard printed the machine-translation notice under the choice, in
+      both languages, so the shell's one-time notice would be the same sentence
+      a minute later. Marked as seen for the language chosen, and only for that.
+    */
+    writeSetting(ownerId, SETTING_KEYS.uiLocaleNoticed, localeFrom(text(input.uiLocale))),
     writeSetting(ownerId, SETTING_KEYS.onboardedAt, new Date().toISOString()),
     input.goals
       ? saveGoals(ownerId, normaliseGoals({
@@ -2261,7 +2393,7 @@ export async function completeOnboarding(input: {
 export async function addCommonWords(group: string) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "addCommonWords");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
     return { ok: false as const, error: "We couldn't find that word list." };
   }
@@ -2295,7 +2427,7 @@ export async function addCommonWords(group: string) {
  * cannot build is the `objekt` fault, and this cannot make it, because it never
  * names a type at all.
  *
- * Bounded by `nextCommonBatch`, which is twenty words and only ones that are
+ * Bounded by `nextCommonBatch`, which is one part of twenty-five words and only ones that are
  * short of something. Pressing again takes the next twenty; pressing when the
  * whole hundred is finished writes nothing and says so.
  *
@@ -2304,16 +2436,17 @@ export async function addCommonWords(group: string) {
  * the wire whatever the types say, so a group name indexing a table checked
  * into the repository is the argument that cannot name anything else.
  */
-export async function deepenCommonWords(group: string) {
+export async function deepenCommonWords(group: string, part?: number) {
   const ownerId = await requireUserId();
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
     return { ok: false as const, error: "We couldn't find that word list." };
   }
 
   const busy = throttleAction(ownerId, "deepenCommonWords");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
-  const batch = await nextCommonBatch(ownerId, group as FrequencyGroup);
+  const wanted = readPart(part === undefined ? undefined : String(part));
+  const batch = await nextCommonBatch(ownerId, group as FrequencyGroup, COMMON_BATCH, wanted);
   if (batch.length === 0) {
     return { ok: true as const, added: 0, words: 0 };
   }
@@ -2462,7 +2595,7 @@ export async function completeLesson(
   unitId = text(unitId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "completeLesson");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "We couldn't find that unit." };
 
@@ -2669,7 +2802,7 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "createClassroom");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   // Shown to everybody who is handed the code, on the screen they read before
   // they decide to join, so it is cleaned like a name rather than trimmed.
   const trimmed = visibleLine(name, CLASS_NAME_MAX);
@@ -2713,7 +2846,7 @@ export async function joinClassroom(code: string, displayName?: string) {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "joinClassroom");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   if (!isValidCode(code)) {
     return { ok: false as const, error: "That code doesn't look quite right. Check it and try again." };
   }
@@ -2796,7 +2929,7 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
   if (!classroomId) return { ok: false as const, error: "Only the person who runs this class can do that." };
 
   const busy = throttleAction(ownerId, "assignUnit");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
     select: { id: true, name: true, archived: true },
@@ -2852,7 +2985,7 @@ export async function assignHomework(
   if (!classroomId) return { ok: false as const, error: "Only the person who runs this class can do that." };
 
   const busy = throttleAction(ownerId, "assignHomework");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const classroom = await prisma.classroom.findFirst({
     where: { id: classroomId, ownerId },
     select: { id: true, name: true, archived: true },
@@ -3127,7 +3260,7 @@ export async function buildClozeFromText(passageIn: string) {
   const raw = text(passageIn);
 
   const busy = throttleAction(ownerId, "buildCloze");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const passage = clip(raw, MAX_PASSAGE_CHARS);
   if (!passage.trim()) return { ok: false as const, error: "Paste some Estonian first." };
 
@@ -3220,7 +3353,8 @@ export async function buildClozeFromText(passageIn: string) {
  */
 export async function deleteMyAccount(confirmation: string) {
   const ownerId = await requireUserId();
-  if (text(confirmation).trim().toLowerCase() !== "delete") {
+  /* The word in any of the three languages: the screen asks in the reader's own. */
+  if (!isConfirmed(text(confirmation), "delete")) {
     return { ok: false as const, error: 'Type "delete" to confirm.' };
   }
 
@@ -3321,7 +3455,7 @@ export async function deleteMyAccount(confirmation: string) {
       ok: false as const,
       // Redacted: what the database says can name the deployment's own host and
       // user, and this sentence goes to a browser. See lib/observability/report.
-      error: `Something went wrong partway, so nothing was deleted. ${safeMessage(error)}`.trim(),
+      error: `${tr(await localeFor(ownerId), "Something went wrong partway, so nothing was deleted.")} ${safeMessage(error)}`.trim(),
     };
   }
 
@@ -3431,7 +3565,7 @@ export async function inspectBackup(json: string): Promise<
     free.
   */
   const busy = throttleAction(ownerId, "inspectBackup");
-  if (busy) return { ok: false as const, error: busy.error };
+  if (busy) return { ok: false as const, error: (await sayRefusal(ownerId, busy)).error };
 
   let parsed: unknown;
   try {
@@ -3472,7 +3606,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "restoreBackup");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const check = await inspectBackup(json);
   if (!check.ok) return { ok: false as const, error: check.error };
 
@@ -3820,7 +3954,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   } catch (error) {
     return {
       ok: false as const,
-      error: `The restore didn't finish, so nothing was changed. ${safeMessage(error)}`.trim(),
+      error: `${tr(await localeFor(ownerId), "The restore didn't finish, so nothing was changed.")} ${safeMessage(error)}`.trim(),
     };
   }
 
@@ -3864,7 +3998,7 @@ export async function startCourseDay(programmeId: string, dayId: string) {
   dayId = text(dayId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "startCourseDay");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   if (!programme || !day) {
@@ -3914,7 +4048,7 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
     return { ok: false as const, error: "That step isn't part of that evening." };
   }
   if (step.derived) {
-    return { ok: false as const, error: "That step ticks itself off as you go." };
+    return { ok: false as const, error: "That step checks itself off as you go." };
   }
   /* A tick is the pointer: `dayReached` is the furthest day carrying one, so a
      forged tick on a day nobody has reached would move the course onto it and
@@ -3939,7 +4073,7 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
 }
 
 /**
- * A STEP OF TONIGHT'S MODULE, FINISHED FROM INSIDE IT.
+ * A STEP OF TODAY'S MODULE, FINISHED FROM INSIDE IT.
  *
  * `markCourseStep` is the module screen's own button and stays exactly what it
  * was: a learner on the list saying they did a round somewhere else. This is
@@ -4001,7 +4135,7 @@ export async function advanceCourseStep(programmeId: string, dayId: string, step
 }
 
 /**
- * TONIGHT'S STEPS, FOR THE RAIL TO DRAW UNDER LEARN.
+ * TODAY'S STEPS, FOR THE RAIL TO DRAW UNDER LEARN.
  *
  * The marker on a step's address says which step this is and not what the
  * others are called or which of them are done, so the rail asks. What is done
@@ -4018,7 +4152,7 @@ export async function tonightSteps(programmeId: string, dayId: string) {
   const programme = programmeById(text(programmeId));
   const day = programme ? dayById(programme, text(dayId)) : undefined;
   if (!programme || !day) return null;
-  const clock = await learnerDayClock(ownerId);
+  const [clock, locale] = await Promise.all([learnerDayClock(ownerId), localeFor(ownerId)]);
   const reading = await courseReading(ownerId, programme, clock);
   const current = reading.current;
   const done = (id: string) => !current
@@ -4026,7 +4160,8 @@ export async function tonightSteps(programmeId: string, dayId: string) {
     || (day.id === current.day.id && current.done.has(id));
   return focusedSteps(programme.id, day.id, day.steps).map((f) => ({
     id: f.step.id,
-    title: f.step.title,
+    // Worded for this learner, since the rail draws it as it comes.
+    title: stepText(day, f.step, locale).title,
     href: f.href,
     done: done(f.step.id),
   }));
@@ -4205,11 +4340,11 @@ export async function saveScan(input: {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "saveScan");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   input = fieldsOf(input);
   const sent = sanitiseItems(input.items, SCAN_MAX_ITEMS);
   if (sent.length === 0) {
-    return { ok: false as const, error: "Tick at least one word on that page first." };
+    return { ok: false as const, error: "Check at least one word on that page first." };
   }
   // What the dictionary says about each spelling, asked again here rather
   // than taken from the request: see `vouchScanItems`.
@@ -4335,7 +4470,7 @@ export async function addScanToDeck(scanId: string) {
   scanId = text(scanId);
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "addScanToDeck");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
   const scan = await prisma.scan.findFirst({
     where: { id: scanId, ownerId },
     select: { items: true },
@@ -4508,7 +4643,7 @@ export async function recordAssessment(input: unknown) {
   const parsed = ASSESSMENT.safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "We couldn't read that result, so it wasn't saved." };
   const busy = throttleAction(ownerId, "recordAssessment");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const { seed, builtAt, answers } = parsed.data;
   const result = await markSitting(ownerId, seed, Math.min(builtAt, Date.now()), answers);
@@ -4615,7 +4750,7 @@ const ExamSubmissionSchema = z.object({
 export async function submitExam(input: unknown) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "submitExam");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   /*
     Counted before the schema walks them: a record with no ceiling is a free
@@ -4734,7 +4869,7 @@ export async function submitSuggestion(input: unknown) {
   const ownerId = await requireUserId();
 
   const busy = throttleAction(ownerId, "sendSuggestion");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(ownerId, busy);
 
   const parsed = SuggestionInput.safeParse(input);
   if (!parsed.success) {
@@ -4803,7 +4938,7 @@ export async function reviewSuggestion(input: unknown) {
   const reviewerId = await requireAdminId();
 
   const busy = throttleAction(reviewerId, "reviewSuggestion");
-  if (busy) return busy;
+  if (busy) return await sayRefusal(reviewerId, busy);
 
   const parsed = ReviewInput.safeParse(input);
   if (!parsed.success) {
@@ -4869,7 +5004,7 @@ export async function reviewSuggestion(input: unknown) {
  * are not touched (`lib/progress/courseReset.ts`).
  */
 export async function resetCourseFor(target: unknown) {
-  await requireAdminId();
+  const adminId = await requireAdminId();
   const all = target === "all";
   const ownerId = all ? "" : text(target).trim();
   if (!all && !ownerId) return { ok: false as const, error: "Nobody was named, so nothing was reset." };
@@ -4878,6 +5013,23 @@ export async function resetCourseFor(target: unknown) {
     revalidatePath("/admin/suggestions");
     return { ok: true as const, ...done };
   } catch (error) {
-    return { ok: false as const, error: `Nothing was reset. ${safeMessage(error)}`.trim() };
+    return { ok: false as const, error: `${tr(await localeFor(adminId), "Nothing was reset.")} ${safeMessage(error)}`.trim() };
   }
+}
+
+/**
+ * Which of these spellings are real Estonian words, read off the forms list.
+ *
+ * The question game puts a slip of the hand right (`suuur` is `suur`), and a
+ * real word it simply does not know must not be put right into another one:
+ * `halb` is "bad", one letter from `hall`, grey. The game asks this about the
+ * words it could not read before it repairs any of them, and answers on its own
+ * if the network is gone. Accept-side only (ADR-005): the answer is a yes or a
+ * no, never a form.
+ */
+export async function realSpellings(tokens: unknown): Promise<string[]> {
+  await requireUserId();
+  const list = Array.isArray(tokens) ? tokens.slice(0, 12).map((t) => text(t).trim().toLowerCase()).filter((t) => t && t.length <= 40) : [];
+  const found = await Promise.all(list.map(async (t) => ((await isExactForm(t)) ? t : null)));
+  return found.filter((t): t is string => t !== null);
 }

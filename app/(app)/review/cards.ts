@@ -9,7 +9,9 @@ import { conjugationSlotFromFront } from "@/lib/srs/slots";
 import { glossSentences } from "@/lib/dict/glossed";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { isPhrase } from "@/lib/dict/pos";
-import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
+import {
+  equivalentIn, firstSenses, meaningShown, meaningsShown, type MeaningPrefs,
+} from "@/lib/collections/glossLanguage";
 import { isStillLearning } from "@/lib/srs/scheduler";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { decoyOptions, decoysAmong, everydaySpellings, sentenceReach } from "@/lib/dict/facts";
@@ -23,6 +25,7 @@ import { acceptedAnswers } from "@/lib/estonian/answer";
 import { stemsFrom } from "@/lib/estonian/derive";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { starredAmong } from "@/lib/progress/stars";
+import { sentenceFronts } from "@/lib/progress/formCards";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 
@@ -56,6 +59,9 @@ export { notOnLadder, pastTheLadder } from "@/lib/srs/reviewQueue";
 /** Four options, one of them right. */
 const CHOICES = 4;
 
+/** The preferences a card is read under where only its shape is wanted. */
+const ENGLISH_ONLY: MeaningPrefs = { lead: "en", also: null };
+
 /**
  * What a card row carries. Shared, because `inBandPool` and the Flash cards
  * round read it too, and a second copy is two selects that can come apart.
@@ -72,9 +78,11 @@ export const include = {
       // For the one-line ask on a case card: "with the bird" rather than
       // "with it" needs to know whether the word is a person or a thing.
       semanticTypes: true,
-      // For the first meeting only, which is the one screen where a meaning in
-      // the learner's own language earns the most: the word is being learned
-      // there rather than tested.
+      // The Institute's own equivalents, so every card that shows a meaning
+      // as a meaning leads with the learner's language: the first meeting, the
+      // back of a recognition card, its options and the prompt of a production
+      // card. In this select rather than a second query, because this is the
+      // hottest read in the app.
       translationRu: true, translationUk: true,
     },
   },
@@ -101,7 +109,7 @@ export type CardRow = Awaited<ReturnType<typeof prisma.card.findMany>>[number] &
  * nothing is derived (ADR-005).
  */
 function introFor(
-  c: CardRow, glossLanguage: GlossLanguage, reach: PlainReach | null, firstCardEver: boolean,
+  c: CardRow, prefs: MeaningPrefs, reach: PlainReach | null, firstCardEver: boolean,
 ): ReviewCard["intro"] {
   if (!c.lexeme) return null;
 
@@ -126,13 +134,15 @@ function introFor(
   const found = teachingSentence(authoredFor(c.lexeme.lemma), [asked, c.lexeme.lemma])
     ?? teachingSentence(parseExamples(c.lexeme.examples), [asked, c.lexeme.lemma], undefined, plainest);
 
-  const equivalent = equivalentIn(c.lexeme, glossLanguage);
+  const equivalent = equivalentIn(c.lexeme, prefs.lead);
+  const also = equivalent && prefs.also ? equivalentIn(c.lexeme, prefs.also) : null;
 
   return {
     lemma: plainPhrase(c.lexeme.lemma, c.lexeme.pos),
     gloss: plainPhrase(c.lexeme.translation, c.lexeme.pos),
     lexemeId: c.lexemeId,
-    equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
+    equivalent: equivalent ? { text: firstSenses(equivalent), lang: prefs.lead } : null,
+    also: also && prefs.also ? { text: firstSenses(also), lang: prefs.also } : null,
     sentence: found
       ? { et: found.example.et, en: found.example.en ?? null, form: found.form, authored: isAuthored(found.example) }
       : null,
@@ -291,8 +301,22 @@ function sayFor(c: CardRow): string | null {
   );
 }
 
+/**
+ * The English side of a card read as a meaning, or null where the card is not
+ * one. A recognition card's back and a production card's prompt are a word's
+ * English meaning; every other type's English is a cue or a sentence, which is
+ * not what the learner's language is chosen for.
+ */
+function meaningOf(c: CardRow, prefs: MeaningPrefs): ReviewCard["meaning"] {
+  if (!c.lexeme || prefs.lead === "en") return null;
+  const english = c.cardType === "RECOGNITION" ? c.back : c.cardType === "PRODUCTION" ? c.front : null;
+  if (english === null) return null;
+  const shown = meaningShown(english, c.lexeme, prefs);
+  return shown.english === null ? null : shown;
+}
+
 function toReviewCard(
-  c: CardRow, glossLanguage: GlossLanguage, reach: PlainReach | null = null,
+  c: CardRow, prefs: MeaningPrefs, reach: PlainReach | null = null,
   firstCardEver = false,
 ): ReviewCard {
   return {
@@ -317,7 +341,9 @@ function toReviewCard(
     isNew: c.state === 0,
     // Only on a card that has never been seen. Every other card in the session
     // would carry a sentence nothing renders.
-    intro: c.state === 0 ? introFor(c, glossLanguage, reach, firstCardEver) : null,
+    intro: c.state === 0 ? introFor(c, prefs, reach, firstCardEver) : null,
+    meaning: meaningOf(c, prefs),
+    choiceMeanings: null,
     sentenceEn: clozeSentenceEn(c),
     say: sayFor(c),
     canTranslate: resolveProvider() !== null,
@@ -411,7 +437,7 @@ type HeldForms = { formType: string; value: string; morphCode: string | null }[]
 
 async function formsForCases(rows: CardRow[]): Promise<Map<string, HeldForms>> {
   const ids = [...new Set(
-    rows.filter((r) => (wantsFormChoices(toReviewCard(r, "en")) || r.cardType === "PRODUCTION") && r.lexemeId)
+    rows.filter((r) => (wantsFormChoices(toReviewCard(r, ENGLISH_ONLY)) || r.cardType === "PRODUCTION") && r.lexemeId)
       .map((r) => r.lexemeId!),
   )];
   if (ids.length === 0) return new Map();
@@ -466,10 +492,26 @@ async function formsForCases(rows: CardRow[]): Promise<Map<string, HeldForms>> {
  * apart.
  */
 export async function withChoices(
-  rows: CardRow[], glossLanguage: GlossLanguage, ownerId: string,
+  inputRows: CardRow[], prefs: MeaningPrefs, ownerId: string,
   /** The module's taught words, so the options stay among them; null elsewhere. */
   only: readonly string[] | null = null,
 ): Promise<ReviewCard[]> {
+  /*
+    A FORM IS NEVER ASKED BARE. A deck built before a case or a person of a
+    verb was drilled in a sentence still holds `juhtuma → lihtminevik, ma`,
+    which asks for a form and says nothing about when anybody would use it.
+    Each such card is read as the sentence the builder makes for it today,
+    and one with no recorded sentence behind it is held back from the session
+    rather than asked as a suffix on a stem. Only what is read changes; the
+    row, its schedule and its history are exactly as they were. See
+    lib/progress/formCards.ts.
+  */
+  const upgrades = await sentenceFronts(inputRows);
+  const rows = inputRows.flatMap((row): CardRow[] => {
+    if (!upgrades.has(row.id)) return [row];
+    const upgrade = upgrades.get(row.id);
+    return upgrade ? [{ ...row, front: upgrade.front, back: upgrade.back, hint: upgrade.hint, slot: upgrade.slot ?? row.slot }] : [];
+  });
   /*
     WHICH OF THESE WORDS ARE ALREADY FAVORITES, AND THE GLOSSED SENTENCE.
 
@@ -546,7 +588,7 @@ export async function withChoices(
   ]);
   const [glossed, contrasts] = await Promise.all([
     withGlosses(
-      rows.map((c) => toReviewCard(c, glossLanguage, reach, firstCardEver)), ownerId,
+      rows.map((c) => toReviewCard(c, prefs, reach, firstCardEver)), ownerId,
     ).then(withEveryday),
     productionContrasts(rows, reach),
   ]);
@@ -621,6 +663,8 @@ export async function withChoices(
   */
   const pool = decoysAmong(await decoyOptions(), only, CHOICES);
   if (pool.length < CHOICES) return withForms;
+  // One lookup per option rather than a scan of the pool, which is the whole dictionary.
+  const byText = prefs.lead === "en" ? null : new Map(pool.map((o) => [o.text, o]));
 
   return withForms.map((card, i) => {
     if (!wantsChoices(card)) return card;
@@ -638,6 +682,25 @@ export async function withChoices(
       distinct: differentMeaning,
       nearness: glossNearness,
     });
-    return picked ? { ...card, choices: picked.options } : card;
+    if (!picked) return card;
+    /*
+      What each option looks like in the learner's language, which is drawing
+      and nothing else: `choices` stays the English, and a pick is marked by
+      `choiceIsRight` against the back exactly as before. The answer's own
+      equivalents are the card's lexeme; a decoy's are the entry it came from,
+      read in the same cached pool query.
+    */
+    const choiceMeanings = prefs.lead === "en" ? null : meaningsShown(
+      picked.options.map((text) => {
+        if (text === card.back) return { english: text, entry: lexeme ?? null };
+        return { english: text, entry: byText?.get(text)?.equivalents ?? null };
+      }),
+      prefs,
+    );
+    return {
+      ...card,
+      choices: picked.options,
+      choiceMeanings: choiceMeanings && choiceMeanings.some((m) => m.english !== null) ? choiceMeanings : null,
+    };
   });
 }

@@ -51,6 +51,7 @@ import { shippedDictionary } from "./lib/dictionary";
 import { COMPOSE_USAGE, chain as providerChain, vouchOf, HARNESS_LEVEL } from "./lib/sceneDraft";
 import type { Level } from "../lib/collections/syllabus";
 import { installMeter } from "./lib/meter";
+import { thinkingFor } from "../lib/tutor/thinking";
 
 // What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay on, because it reads transcripts, so a turn asked before is answered from the record.
 installMeter({ replay: true });
@@ -182,7 +183,7 @@ async function simulatedLearner(kind: string, title: string, role: string, card:
   ].filter(Boolean).join("\n");
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`, {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 60, thinkingConfig: { thinkingBudget: 0 } } }),
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 60, thinkingConfig: thinkingFor("gemini-3.1-flash-lite") } }),
   }).catch(() => null);
   const data = res && res.ok ? await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] } : null;
   return (data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "jah").split("\n")[0]!.replace(/^You:\s*/i, "").trim() || "jah";
@@ -399,7 +400,7 @@ async function play(sceneId: string) {
     if (move) heard = isSaid(move.provenance) ? move.text : "";
     if (isOver(scene, state)) {
       console.log(`   -> over: ${state.done.join(", ")}`);
-      const review = reviewOf(scene, state);
+      const review = reviewOf(scene, state, "en");
       console.log(`   REVIEW: ${review.lead}`);
       for (const note of review.notes) {
         console.log(`     - ${note.said}${note.times ? ` x${note.times}` : ""} (turn ${note.at + 1})`);

@@ -3,8 +3,10 @@ import { BookOpen } from "lucide-react";
 import { ALMANAC_SOURCE, type WordOfDay } from "@/lib/progress/wordOfDay";
 import { AddWordButton } from "@/components/AddWordButton";
 import { Speak } from "@/components/Speak";
+import { WaveWord, WAVE_END } from "@/components/motion/WaveWord";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { Card, SectionTitle } from "@/components/ui";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * ONE WORD A DAY, WITH A REASON, THAT THE REST OF THE APP IS NOT GOING TO SHOW
@@ -28,26 +30,28 @@ import { Card, SectionTitle } from "@/components/ui";
  * day the card claims pancakes over the word for a cupboard is the day nobody
  * reads it again.
  */
-export function WordOfDayCard({ word, canTranslate, className }: {
+export function WordOfDayCard({ word, canTranslate, locale, className }: {
   word: WordOfDay | null;
   /** Whether this deployment has a model to ask for a sentence's English. */
   canTranslate: boolean;
+  /** The language the card's own words are in. The word and its sentence never change. */
+  locale: Locale;
   className?: string;
 }) {
+  const t = (english: string) => tr(locale, english);
   if (!word) {
     return (
       <Card className={className}>
-        <SectionTitle>Word of the day</SectionTitle>
-        <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          You&apos;ve already met every word we could pick for today, which is a first. Have a
-          browse in the dictionary, and there&apos;ll be a new one here tomorrow.
+        <SectionTitle>{t("Word of the day")}</SectionTitle>
+        <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }} lang={locale}>
+          {t("You've already met every word we could pick for today, which is a first. Have a browse in the dictionary, and there'll be a new one here tomorrow.")}
         </p>
         <Link
           href="/dictionary"
           className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold"
           style={{ color: "var(--accent-deep)" }}
         >
-          <BookOpen size={14} aria-hidden /> Open the dictionary
+          <BookOpen size={14} aria-hidden /> {t("Open the dictionary")}
         </Link>
       </Card>
     );
@@ -55,7 +59,7 @@ export function WordOfDayCard({ word, canTranslate, className }: {
 
   return (
     <Card className={className}>
-      <SectionTitle>Word of the day</SectionTitle>
+      <SectionTitle>{t("Word of the day")}</SectionTitle>
 
       {/*
         The number this card is about, at the size a number on a card is set,
@@ -69,12 +73,18 @@ export function WordOfDayCard({ word, canTranslate, className }: {
         <Link
           href={`/dictionary?q=${encodeURIComponent(word.lemma)}`}
           lang="et"
+          /* The word ripples, letter by letter, when it is reached for: the
+             one bit of play on a card whose whole subject is a word. The link
+             carries the word as its name, since the letters are hidden. */
+          aria-label={word.lemma}
+          data-hop-on="hover"
+          data-hop-end={WAVE_END}
           className="text-2xl font-bold leading-tight underline decoration-transparent underline-offset-4 transition-ui hover:decoration-current"
           style={{ color: "var(--ink)" }}
         >
-          {word.lemma}
+          <WaveWord text={word.lemma} named />
         </Link>
-        <Speak text={word.lemma} label={`Hear ${word.lemma}`} />
+        <Speak text={word.lemma} label={fill(t("Hear {word}"), { word: word.lemma })} />
       </div>
       <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>{word.translation}</p>
 

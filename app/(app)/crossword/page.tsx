@@ -1,3 +1,5 @@
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { learnerDayClock } from "@/lib/progress/dayClock";
@@ -6,9 +8,14 @@ import { taughtAtDayStart } from "@/lib/progress/moduleScope";
 import { Empty, Page } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { CrosswordSession } from "./CrosswordSession";
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
+import { meaningShown } from "@/lib/collections/glossLanguage";
+import { clueParts } from "@/lib/games/clue";
 import { BeforeYouStart } from "@/components/round/Briefing";
 
-export const metadata = { title: "Ristsõna" };
+export async function generateMetadata() {
+  return titleFor("Ristsõna");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -33,31 +40,45 @@ export const dynamic = "force-dynamic";
  */
 export default async function CrosswordPage() {
   const ownerId = await requireUserId();
-  const [level, clock] = await Promise.all([courseLevelFor(ownerId), learnerDayClock(ownerId)]);
+  const [level, clock, locale] = await Promise.all([courseLevelFor(ownerId), learnerDayClock(ownerId), localeFor(ownerId)]);
   const day = clock.dayKey(new Date());
   // Memoised: `crosswordFor` asks the same question of the same day.
-  const [puzzle, taught] = await Promise.all([crosswordFor(ownerId, day, level), taughtAtDayStart(ownerId, day)]);
+  const [puzzle, taught, prefs] = await Promise.all([
+    crosswordFor(ownerId, day, level), taughtAtDayStart(ownerId, day), meaningPrefsFor(ownerId),
+  ]);
+  /*
+    Each clue's meaning in the learner's language, the English kept beneath:
+    a clue is a word's meaning shown as one. Drawn only; the grid and its
+    marking are the English clue's.
+  */
+  const clueMeanings = puzzle && prefs.lead !== "en"
+    ? puzzle.entries.map((entry, i) => {
+        const shown = meaningShown(clueParts(entry.clue).gloss, puzzle.equivalents[i] ?? {}, prefs);
+        return shown.english ? shown : null;
+      })
+    : null;
 
   return (
     <BeforeYouStart id="crossword" ready={puzzle !== null}>
       <Page
+        compact
         title="Ristsõna"
-        lead="Clues in English, answers in Estonian, and a fresh grid every morning."
+        lead={tr(locale, "Clues in English, answers in Estonian, and a fresh grid every morning.")}
       >
         {puzzle ? (
-          <CrosswordSession puzzle={puzzle} day={day} />
+          <CrosswordSession puzzle={puzzle} day={day} clueMeanings={clueMeanings} />
         ) : (
           taught ? (
             <Empty
-              title="Not enough words yet"
-              body="Today's grid is built from your evenings' words, and there aren't enough to cross yet."
-              action={<ButtonLink href="/course">Tonight&rsquo;s evening</ButtonLink>}
+              title={tr(locale, "Not enough words yet")}
+              body={tr(locale, "Today's grid is built from your evenings' words, and there aren't enough to cross yet.")}
+              action={<ButtonLink href="/course">{tr(locale, "Today’s evening")}</ButtonLink>}
             />
           ) : (
             <Empty
-              title="No grid for today"
-              body="We couldn't fit enough words at your level into a grid today. Try again tomorrow."
-              action={<ButtonLink href="/dictionary">Look something up</ButtonLink>}
+              title={tr(locale, "No grid for today")}
+              body={tr(locale, "We couldn't fit enough words at your level into a grid today. Try again tomorrow.")}
+              action={<ButtonLink href="/dictionary">{tr(locale, "Look something up")}</ButtonLink>}
             />
           )
         )}

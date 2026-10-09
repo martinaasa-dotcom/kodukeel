@@ -1,11 +1,11 @@
+import { countOf, type Locale } from "@/lib/copy/locale";
+
 /**
  * HOW LONG A TIMED ROUND RUNS, AND WHOSE CHOICE THAT IS.
  *
- * Three rounds in this app run to a clock: the Case Sprint at sixty seconds,
- * the daily quest at two minutes, and Target at eight seconds a question
- * (`lib/games/target.ts`). Every one of those numbers was chosen for its round
- * and every one was fixed, which is WCAG 2.2 success criterion 2.2.1, Timing
- * Adjustable, failed three times. A learner who reads slowly, who is hearing
+ * The daily quest runs to a clock, two minutes. That number was chosen for its
+ * round and was fixed, which is WCAG 2.2 success criterion 2.2.1, Timing
+ * Adjustable, failed. A learner who reads slowly, who is hearing
  * a card read out before answering it, or who types with one hand is not
  * playing a faster version of the same round. They are shut out of it.
  *
@@ -34,6 +34,7 @@
  *
  * Pure: a string in, a number of seconds out. No React, no Prisma, no clock.
  */
+
 
 export const ROUND_PACES = [
   {
@@ -81,12 +82,10 @@ export const DEFAULT_ROUND_PACE: RoundPace = "standard";
 /**
  * Each timed round's length as it was written, before the learner's pace.
  *
- * One place, because the Case Sprint's sixty seconds was typed three times: in
- * the round, in the Settings panel that says what a pace does to it, and as a
- * bare "60 seconds" under its tile on Practice, which went on saying sixty to a
- * learner who had asked for five minutes.
+ * One place, because the daily quest's two minutes was typed three times: in
+ * the round, in the Settings panel that says what a pace does to it, and on
+ * Today, which went on saying two to a learner who had asked for longer.
  */
-export const SPRINT_SECONDS = 60;
 export const QUEST_SECONDS = 120;
 
 /** A stored value, or the default. Never throws: a stored row can be anything. */
@@ -128,13 +127,19 @@ export function secondsFor(baseSeconds: number, pace: RoundPace): number {
  * where a minute would round away the difference between 60 and 90, and whole
  * minutes above wherever the figure is one.
  */
-export function roundLength(seconds: number): string {
+export function roundLength(seconds: number, locale?: Locale): string {
+  return roundLengthIn(locale ?? "en", seconds);
+}
+
+/**
+ * The same length in the learner's own language, where "5 minutes" is
+ * «5 минут» and two minutes is «2 минуты», which only a counted noun gets
+ * right. See `countOf` in lib/copy/locale.ts.
+ */
+export function roundLengthIn(locale: Locale, seconds: number): string {
   const whole = Math.max(0, Math.round(seconds));
-  if (whole >= 120 && whole % 60 === 0) {
-    const minutes = whole / 60;
-    return `${minutes} minutes`;
-  }
-  return `${whole} seconds`;
+  if (whole >= 120 && whole % 60 === 0) return countOf(locale, whole / 60, "minute");
+  return countOf(locale, whole, "second");
 }
 
 /**
@@ -147,7 +152,16 @@ export function roundLength(seconds: number): string {
  * go through this rather than `roundPaceFrom` directly, so that calling
  * `roundPaceFrom` stays what marks a page as a round with a clock.
  */
-export function lengthAtPace(base: number, stored: string | null | undefined): string {
-  const said = roundLength(secondsFor(base, roundPaceFrom(stored)));
+export function lengthAtPace(base: number, stored: string | null | undefined, locale?: Locale): string {
+  const said = roundLength(secondsAtPace(base, stored), locale);
   return `${said[0]!.toUpperCase()}${said.slice(1)}`;
+}
+
+/**
+ * The whole seconds a round runs at the learner's stored pace, for a screen
+ * that says the length in a language other than English and counts the units
+ * with that language's own plurals. `lengthAtPace` is this said in English.
+ */
+export function secondsAtPace(base: number, stored: string | null | undefined): number {
+  return Math.max(0, Math.round(secondsFor(base, roundPaceFrom(stored))));
 }

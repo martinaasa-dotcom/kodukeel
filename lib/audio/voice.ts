@@ -45,6 +45,22 @@ export const VOICES: readonly Voice[] = [
 
 export const DEFAULT_VOICE = "mari";
 
+/**
+ * The voice the other side of a conversation speaks in, by default.
+ *
+ * Measured rather than chosen, on 2026-10-07: every voice on the list read the
+ * same eight short scene lines and then the five that heard every word read
+ * eight long ones, each clip put to a recognizer. Tambet was the one voice
+ * whose long sentences came back word for word, its only differences being a
+ * digit written for a spoken number, which is the recognizer and not the
+ * voice; it was also the quickest of the clear five to answer. Külli and
+ * Indrek, two of the voices personas used to speak in, were misheard on the
+ * short lines already (`Millal te sobiks`, `Alustuge`), which in a scene is a
+ * learner misheard on a word they are trying to learn. Every persona speaks
+ * in it (`lib/scenes/personas.ts`).
+ */
+export const SCENE_VOICE = "tambet";
+
 /** A stored or requested voice, or the default when it is not one we offer. */
 export function voiceFrom(value: string | null | undefined): string {
   return VOICES.some((v) => v.id === value) ? (value as string) : DEFAULT_VOICE;

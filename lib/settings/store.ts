@@ -13,7 +13,6 @@ import { prisma } from "@/lib/db";
  */
 export const SETTING_KEYS = {
   dailyGoal: "dailyGoal",
-  sprintBest: "sprintBest",
   matchBest: "matchBest",
   streakShields: "streakShields",
   streakShieldDates: "streakShieldDates",
@@ -128,6 +127,13 @@ export const SETTING_KEYS = {
    */
   support: "support",
   /**
+   * How the other side of a conversation reaches the learner: read, heard and
+   * read, or heard alone. Chosen on a scene's briefing and changeable mid-scene;
+   * a missing row reads off `support` above. The values and the reasoning live
+   * in lib/audio/sceneVoice.ts.
+   */
+  sceneVoice: "sceneVoice",
+  /**
    * Which language a meaning is given in beside the English.
    *
    * English is the default and stays the default, because a missing row has to
@@ -136,6 +142,27 @@ export const SETTING_KEYS = {
    * Ekilex rather than from anything this app or a model wrote.
    */
   glossLanguage: "glossLanguage",
+  /**
+   * The other of Russian and Ukrainian, shown small after the first meaning,
+   * or nothing. Read only beside `glossLanguage` and only where that leads in
+   * one of the two (`alsoShowFrom` in lib/collections/glossLanguage.ts), so a
+   * stored value under an English lead means nothing at all. Absent is
+   * nothing, which is what everybody had.
+   */
+  glossAlso: "glossAlso",
+  /**
+   * The language the app's own words are in, around the Estonian. English is
+   * the default because a missing row reads as what everybody had. The values
+   * and why the other two are marked as machine translated live in
+   * lib/copy/locale.ts.
+   */
+  uiLocale: "uiLocale",
+  /**
+   * The locale whose machine-translation notice this learner has closed, so it
+   * is said once per language rather than on every visit. Stored here rather
+   * than on the device, which /privacy would have to account for.
+   */
+  uiLocaleNoticed: "uiLocaleNoticed",
   /**
    * Whether the dictionary is put under every word of an attested sentence.
    *

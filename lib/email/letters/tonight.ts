@@ -3,7 +3,7 @@
 
   This is the letter the whole system is for: a learner chose fifteen minutes
   an evening, and the thing that decides whether they get a language out of
-  this app is whether they sit down for those fifteen minutes tonight. Nothing
+  this app is whether they sit down for those fifteen minutes today. Nothing
   about the teaching moves that number. The letter does.
 
   So it is written to work, and the levers it pulls are real ones. Every one of
@@ -47,9 +47,11 @@
 */
 import { stepLadder, wordCard, type StepRow } from "../art";
 import type { Block, Letter } from "../letter";
-import { SpelledCount, spelledCount } from "@/lib/copy/values";
+import { lowerFirst, sayer, spelled, type Locale } from "../say";
 
 export interface TonightInput {
+  /** The language the letter is written in. The English fields below arrive already in it. */
+  readonly locale: Locale;
   /** What they asked to be called, or null. */
   readonly name: string | null;
   /** Where the app lives, for the links. */
@@ -57,7 +59,7 @@ export interface TonightInput {
   readonly day: {
     /** Estonian. A course in Estonian names its evenings in Estonian. */
     readonly title: string;
-    /** English, so the title is never itself the thing blocking a beginner. */
+    /** In the reader's language, so the title is never itself the thing blocking a beginner. */
     readonly subtitle: string;
     /** Which slice of its unit this is. `of` is 1 where the unit is one evening. */
     readonly part: { readonly n: number; readonly of: number };
@@ -73,7 +75,7 @@ export interface TonightInput {
   readonly theirWords: string | null;
   /** The run of days, for the one quiet line at the end. Nought is fine. */
   readonly streak: number;
-  /** Tonight's gift. Null where the dictionary had nothing to offer. */
+  /** Today's gift. Null where the dictionary had nothing to offer. */
   readonly word: {
     readonly lemma: string;
     readonly translation: string;
@@ -82,23 +84,16 @@ export interface TonightInput {
   } | null;
 }
 
-/** The first letter lowered, so "Say I, you" does not become "say i, you". */
-function lowerFirst(text: string): string {
-  return text.charAt(0).toLowerCase() + text.slice(1);
-}
-
 /** Minutes left in the evening, off the steps that are not ticked. */
 function minutesLeft(steps: readonly StepRow[]): number {
   return steps.filter((s) => !s.done).reduce((total, s) => total + s.minutes, 0);
 }
 
-/**
- * A count, written the way a person writes one.
- *
- * Small numbers as words, which is what a sentence wants, and the figure above
- * ten, which is what a glance wants. The line falls at ten because that is
- * where English puts it and because nothing in an evening is ever eleven.
- */
+/*
+  A count, written the way a person writes one: small numbers as words in
+  English, which is what a sentence wants, and the figure with the noun's own
+  plural in Russian and Ukrainian (`lib/email/say.ts`).
+*/
 
 /**
  * The subject, which is most of the work.
@@ -110,14 +105,38 @@ function minutesLeft(steps: readonly StepRow[]): number {
  * strongest true thing this letter has to say.
  */
 function subjectFor(input: TonightInput): string {
+  const say = sayer(input.locale);
+  const title = titled(input);
   const done = input.day.steps.filter((s) => s.done).length;
   const left = input.day.steps.length - done;
   if (done > 0 && left > 0) {
     return left === 1
-      ? `One step left in ${input.day.title}`
-      : `${SpelledCount(left)} steps left in ${input.day.title}`;
+      ? say("One step left in {title}", { title })
+      : say("{steps} left in {title}", {
+          steps: spelled(input.locale, left, "step", { capital: true }),
+          title,
+        });
   }
-  return newWordsLine(input.day.newWords) ?? `Back to ${input.day.title} tonight`;
+  return newWordsLine(input.locale, input.day.newWords) ?? say("Back to {title} today", { title });
+}
+
+/**
+ * The evening's name as a sentence carries it. English sets it bare; Russian
+ * and Ukrainian quote it, since it follows a noun there ("в занятии «Kodus»")
+ * and an unquoted title mid-sentence reads as a word out of place.
+ */
+function titled(input: TonightInput): string {
+  return input.locale === "en" ? input.day.title : `«${input.day.title}»`;
+}
+
+/**
+ * Whether a line may open on the learner's name. Ukrainian addresses somebody
+ * in the vocative ("Олено"), which a name typed into a form cannot be put in,
+ * so a Ukrainian letter takes the line that names nobody rather than one that
+ * gets the name's ending wrong. Russian addresses in the nominative and keeps it.
+ */
+function addressable(input: TonightInput): string | null {
+  return input.locale === "uk" ? null : input.name || null;
 }
 
 /**
@@ -125,9 +144,21 @@ function subjectFor(input: TonightInput): string {
  * taught before: the object and government units bring back verbs on purpose,
  * and "Zero new words tonight" is a sentence nobody would write.
  */
-function newWordsLine(n: number): string | null {
+function newWordsLine(locale: Locale, n: number): string | null {
   if (n <= 0) return null;
-  return `${SpelledCount(n)} new ${n === 1 ? "word" : "words"} tonight`;
+  return sayer(locale)("{newWords} today", {
+    newWords: spelled(locale, n, "new word", { capital: true }),
+  });
+}
+
+/**
+ * Which slice of its unit tonight is, after whatever names it: "At home, part
+ * 2 of 3". The caller says what it follows, so the title and the subtitle can
+ * each carry it.
+ */
+function partOf(input: TonightInput, what: string): string {
+  const { part } = input.day;
+  return part.of > 1 ? sayer(input.locale)("{what}, part {n} of {of}", { what, n: part.n, of: part.of }) : what;
 }
 
 /**
@@ -136,19 +167,24 @@ function newWordsLine(n: number): string | null {
  * argument: the reason to open this is that it is smaller than it looks.
  */
 function preheaderFor(input: TonightInput): string {
+  const say = sayer(input.locale);
   const left = minutesLeft(input.day.steps);
-  const shape = input.day.part.of > 1
-    ? `${input.day.subtitle}, part ${input.day.part.n} of ${input.day.part.of}.`
-    : `${input.day.subtitle}.`;
+  const shape = partOf(input, input.day.subtitle);
   const started = input.day.steps.some((s) => s.done);
-  return started ? `${shape} About ${left} minutes left.` : `${shape} About ${left} minutes, start to finish.`;
+  return started
+    ? say("{shape}. About {minutes} minutes left.", { shape, minutes: left })
+    : say("{shape}. About {minutes} minutes, start to finish.", { shape, minutes: left });
 }
 
 export function tonightLetter(input: TonightInput): Letter {
-  const { day } = input;
+  const { day, locale } = input;
+  const say = sayer(locale);
   const done = day.steps.filter((s) => s.done).length;
   const left = minutesLeft(day.steps);
   const blocks: Block[] = [];
+  /* English lowers the subtitle to set it mid-sentence; Russian and Ukrainian
+     quote it whole, since it reads as the evening's name there. */
+  const subtitle = locale === "en" ? lowerFirst(day.subtitle) : `«${day.subtitle}»`;
 
   /*
     THE OPENING IS THE FACT, NOT THE GREETING.
@@ -162,27 +198,36 @@ export function tonightLetter(input: TonightInput): Letter {
   if (done > 0) {
     blocks.push({
       t: "heading",
-      text: left <= 1 ? "You're nearly done for tonight." : `About ${left} minutes to go tonight.`,
+      text: left <= 1 ? say("You're nearly done for today.") : say("About {minutes} minutes to go today.", { minutes: left }),
     });
+    const steps = spelled(locale, done, "step");
+    const where = partOf(input, titled(input));
+    const name = addressable(input);
     blocks.push({
       t: "text",
-      text:
-        `${input.name ? `${input.name}, you` : "You"}'re ${spelledCount(done)} ${done === 1 ? "step" : "steps"} into ${day.title}` +
-        (day.part.of > 1 ? `, part ${day.part.n} of ${day.part.of}` : "") +
-        `. The rest is right where you left it.`,
+      text: name
+        ? say("{name}, you're {steps} into {where}. The rest is right where you left it.", { name, steps, where })
+        : say("You're {steps} into {where}. The rest is right where you left it.", { steps, where }),
     });
   } else {
+    const fresh = newWordsLine(locale, day.newWords);
     blocks.push({
       t: "heading",
-      text: `${newWordsLine(day.newWords) ?? "Words you know, put to work tonight"}, in about ${left} minutes.`,
+      text: fresh
+        ? say("{newWords}, in about {minutes} minutes.", { newWords: fresh, minutes: left })
+        : say("Words you know, put to work today, in about {minutes} minutes.", { minutes: left }),
     });
+    const evening = partOf(input, subtitle);
+    /* The can-do opens on a verb in all three, so lowering it sets it after "able to". */
+    const canDo = lowerFirst(day.canDo);
+    const name = addressable(input);
     blocks.push({
       t: "text",
-      text:
-        (input.name ? `${input.name}, this is ` : "") +
-        `${day.title}, ${lowerFirst(day.subtitle)}` +
-        (day.part.of > 1 ? `, part ${day.part.n} of ${day.part.of}` : "") +
-        `. By the end you'll be able to ${lowerFirst(day.canDo)}`,
+      text: name
+        ? say("{name}, this is {title}, {evening}. By the end you'll be able to {canDo}", {
+            name, title: titled(input), evening, canDo,
+          })
+        : say("{title}, {evening}. By the end you'll be able to {canDo}", { title: titled(input), evening, canDo }),
     });
   }
 
@@ -195,21 +240,21 @@ export function tonightLetter(input: TonightInput): Letter {
     a footnote.
   */
   if (input.theirWords) {
-    blocks.push({ t: "quiet", text: "What you told yourself when you started:" });
+    blocks.push({ t: "quiet", text: say("What you told yourself when you started:") });
     blocks.push({ t: "theirs", text: input.theirWords });
   }
 
   blocks.push({
     t: "art",
-    html: stepLadder(day.steps),
+    html: stepLadder(day.steps, locale),
     alt: day.steps
-      .map((s) => `${s.done ? "[done]" : "[    ]"} ${s.title} (${s.minutes} min)`)
+      .map((s) => `${s.done ? say("[done]") : "[    ]"} ${s.title} (${say("{n} min", { n: s.minutes })})`)
       .join("\n"),
   });
 
   blocks.push({
     t: "button",
-    label: done > 0 ? "Pick up where you left off" : "Start tonight",
+    label: done > 0 ? say("Pick up where you left off") : say("Start today's module"),
     href: `${input.origin}/course`,
   });
 
@@ -223,7 +268,7 @@ export function tonightLetter(input: TonightInput): Letter {
   */
   if (input.word) {
     blocks.push({ t: "rule" });
-    blocks.push({ t: "quiet", text: "And a word for you, whether you study tonight or not:" });
+    blocks.push({ t: "quiet", text: say("And a word for you, whether you study today or not:") });
     blocks.push({
       t: "art",
       html: wordCard(input.word.lemma, input.word.translation, input.word.occasion ?? undefined),
@@ -247,11 +292,15 @@ export function tonightLetter(input: TonightInput): Letter {
     would be inventing a stake the app refuses to have.
   */
   if (input.streak >= 2) {
-    blocks.push({ t: "quiet", text: `That's ${spelledCount(input.streak)} days in a row so far.` });
+    blocks.push({
+      t: "quiet",
+      text: say("That's {days} in a row so far.", { days: spelled(locale, input.streak, "day") }),
+    });
   }
 
   return {
     kind: "tonight",
+    locale,
     subject: subjectFor(input),
     preheader: preheaderFor(input),
     blocks,

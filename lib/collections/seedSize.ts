@@ -135,5 +135,10 @@
  * the homonym meaning "whole", with its seven principal parts, where the
  * course teaches "full", which Ekilex records as a separate word that does not
  * inflect. Pinning the right one took the forms that belonged to the other.
+ *
+ * Fifty-one came with the question game (`lib/collections/syllabus/gameWords.ts`):
+ * the things it can be thinking of and the words a learner reaches for to ask
+ * about them, `krokodill`, `kaelkirjak`, `soomus`, `ronima`, `läbipaistev`, each
+ * a request the harvest honored like any other.
  */
-export const SEED_SET_SIZE = { words: 6_221, forms: 39_970 };
+export const SEED_SET_SIZE = { words: 6_274, forms: 40_327 };

@@ -32,6 +32,23 @@
 import { CASES } from "@/lib/estonian/cases";
 import { propBySlot, type RoleCard } from "./props";
 import { leafNeeds, type BeatSpec, type LeafRequirement } from "./types";
+import { fill } from "@/lib/copy/locale";
+
+/**
+ * Every hint this module can say, as the template it is filled from. Named
+ * here so the screen can put a hint into the learner's interface language
+ * (`lib/scenes/onScreen.ts`) by reading it back against the same templates,
+ * rather than the server learning a second language for a line only the
+ * learner reads. The English these produce is unchanged.
+ */
+export const COACH_TEMPLATES = {
+  word: "Tip: try an answer with “{word}” in it. Any form of it is fine.",
+  wordOrAnother: "Tip: try an answer with “{word}” in it (or another word for the same thing). Any form of it is fine.",
+  case: "Tip: try “{lemma}” in the {case}, the form that answers {question} ({questionEn}). The ending is the part being practiced here.",
+  card: "Tip: your card has it, under “{card}”. Just say that in Estonian.",
+  question: "Tip: try asking them something. Any sentence ending in a question mark works.",
+  negation: "Tip: try saying no.",
+} as const;
 
 /**
  * How many misses on one beat before the app says something.
@@ -88,8 +105,7 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
         which is the moment this module is built never to make anybody feel
         stupid in.
       */
-      const also = need.oneOf.length > 1 ? " (or another word for the same thing)" : "";
-      return `Tip: try an answer with “${word}” in it${also}. Any form of it is fine.`;
+      return fill(need.oneOf.length > 1 ? COACH_TEMPLATES.wordOrAnother : COACH_TEMPLATES.word, { word });
     }
     /*
       The word and the case, and never the form. Which ending goes on it is
@@ -108,8 +124,9 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
         wrong sends somebody to fix the half that was fine. And the question is
         said in English beside the Estonian, as on every screen that prints one.
       */
-      return `Tip: try “${need.lemma}” in the ${spec.et}, the form that answers `
-        + `${spec.question} (${spec.questionEn}). The ending is the part being practised here.`;
+      return fill(COACH_TEMPLATES.case, {
+        lemma: need.lemma, case: spec.et, question: spec.question, questionEn: spec.questionEn,
+      });
     }
     /*
       A value off the card, so the answer is already in front of them and the
@@ -120,12 +137,12 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
     case "datum": {
       const prop = card ? propBySlot(card, need.slot) : undefined;
       if (!prop) return null;
-      return `Tip: your card has it, under “${prop.card.replace(/\.$/, "")}”. Just say that in Estonian.`;
+      return fill(COACH_TEMPLATES.card, { card: prop.card.replace(/\.$/, "") });
     }
     case "question":
-      return "Tip: try asking them something. Any sentence ending in a question mark works.";
+      return COACH_TEMPLATES.question;
     case "negation":
-      return "Tip: try saying no.";
+      return COACH_TEMPLATES.negation;
     /*
       Nothing for `register` or `any`. The first is a thing to notice rather
       than a thing to be told mid-turn, and the second is a beat that cannot

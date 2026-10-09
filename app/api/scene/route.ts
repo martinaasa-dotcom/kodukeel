@@ -27,7 +27,7 @@ import { words } from "@/lib/scenes/lexicon";
 import { fold } from "@/lib/estonian/fold";
 import { currentBeat, hurdleBeat, isOver } from "@/lib/scenes/state";
 import { personaById, type PersonaSpec } from "@/lib/scenes/personas";
-import { DEFAULT_VOICE } from "@/lib/audio/voice";
+import { SCENE_VOICE } from "@/lib/audio/voice";
 import { glossSentences } from "@/lib/dict/glossed";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
@@ -165,7 +165,7 @@ export async function POST(request: Request) {
   }
 
   const persona = personaOf(row!.transcript);
-  const voice = persona?.voice ?? DEFAULT_VOICE;
+  const voice = persona?.voice ?? SCENE_VOICE;
 
   /*
     MARKED HERE, BY THE SAME FUNCTION THAT MARKS IT AT THE END.

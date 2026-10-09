@@ -1,9 +1,8 @@
 import { Lettered } from "@/components/HeroLetters";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { lengthAtPace, QUEST_SECONDS } from "@/lib/ux/roundClock";
 import { redirect } from "next/navigation";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
-import { ArrowRight, Flame, Shield, Target } from "lucide-react";
+import { ArrowRight, Flame, Shield } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
@@ -17,22 +16,18 @@ import { nextUnit as pickNextUnit } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
 import type { Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
-import { caseAccuracy } from "@/lib/stats/history";
-import { grammarTerm } from "@/lib/estonian/terms";
-import { caseReviewsFor } from "@/lib/progress/cases";
 import type { DayClock } from "@/lib/time/day";
 import { shows, stageOf, TODAY_CARDS } from "@/lib/ux/disclosure";
 import { orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
-import { modeAt } from "@/lib/ux/modes";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
-import { Card, Columns, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { LocalDate } from "@/components/LocalDate";
 import { dateLine } from "@/lib/time/estonianDate";
 import type { TaskView } from "@/components/TaskRow";
 import { TodayPlan } from "@/components/TodayPlan";
-import { eventsOn, kindFrom, span, weekdayOf, KIND_LABEL, KIND_TONE, WEEKDAY_LONG } from "@/lib/ux/schedule";
-import { featuredTitle, gameAfter, gameOn, PUZZLE_STAND_IN, type FeaturedGame } from "@/lib/ux/weekGames";
+import { eventsOn, kindFrom, span, KIND_LABEL, KIND_TONE } from "@/lib/ux/schedule";
+import { featuredTitle, GAME_OF_THE_DAY, PUZZLE_STAND_IN, type FeaturedGame } from "@/lib/ux/weekGames";
 import { taughtAtDayStart } from "@/lib/progress/moduleScope";
 import { puzzleFor } from "@/lib/progress/sonad";
 import { crosswordFor } from "@/lib/progress/crossword";
@@ -41,12 +36,22 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { SayItToday } from "@/components/SayItToday";
 import { errandForDay } from "@/lib/collections/errands";
 import { startedUnits } from "@/lib/collections/syllabus";
-import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
+import { courseReading, ladderPosition, moduleReached, programmeFor, targetFrom } from "@/lib/progress/course";
+import { unitsThrough } from "@/lib/course";
+import { SCENES } from "@/lib/scenes/catalogue";
+import { minutesFor } from "@/lib/scenes/run";
+import { sceneOfDay } from "@/lib/scenes/ofTheDay";
+import { SonadPreview } from "@/components/SonadPreview";
 import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
 import { FitText } from "@/components/FitText";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { stepText } from "@/lib/course";
 
-export const metadata = { title: "Today" };
+export async function generateMetadata() {
+  return titleFor("Today");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -103,7 +108,7 @@ export default async function TodayPage() {
     two are now one query between them (lib/settings/store.ts). What is left is
     the deck, and the level this learner placed at.
   */
-  const [clock, snapshot, settings, placement] = await Promise.all([
+  const [clock, snapshot, settings, placement, locale] = await Promise.all([
     /*
       The learner's own midnight, not this server's. Every day-shaped figure on
       this page reads it: the streak, the goal ring, the quests and the week
@@ -114,7 +119,7 @@ export default async function TodayPage() {
     deckSnapshot(ownerId, now),
     readSettings(ownerId, [
       SETTING_KEYS.onboardedAt, SETTING_KEYS.displayName, SETTING_KEYS.cefrPlacement,
-      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget, SETTING_KEYS.roundPace,
+      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget,
     ]),
     /*
       Which level the course opens at. It was read last, after everything else
@@ -123,7 +128,20 @@ export default async function TodayPage() {
       away.
     */
     courseLevelFor(ownerId),
+    localeFor(ownerId),
   ]);
+  /*
+    THE PAGE'S OWN WORDS IN THE LEARNER'S LANGUAGE. `t` is a fixed line; `say`
+    is a line with a count in it, where English keeps the sentence it always
+    printed and Russian and Ukrainian get a template with the noun already in
+    the right one of their three plural forms.
+  */
+  const t = (english: string) => tr(locale, english);
+  const say = (english: string, template: string, values: Readonly<Record<string, string | number>>) =>
+    locale === "en" ? english : fill(tr(locale, template), values);
+  /* A unit's or a part's name: the Estonian from A2 up, and below it the
+     English line in the reader's own language where it has been translated. */
+  const ui = (et: string, en: string) => (uiWantsEnglish(placement) ? t(en) : et);
 
   // A brand-new learner gets the wizard instead of an empty dashboard. Anyone
   // with a deck or a finished setup never sees it again.
@@ -201,23 +219,19 @@ export default async function TodayPage() {
     that still runs their queries has kept the cost and thrown away the reason.
   */
   const errand = shows(stage, "errand") ? errandForDay(summary.dayKey, startedUnits(snapshot.startedLemmas)) : null;
-  /*
-    ONE ROUND A DAY, AND THE WEEK TABLE ALREADY DECIDED WHICH.
-
-    Today used to draw the daily quest every settled morning *and* the game of
-    the day beside it, which is two cards for one decision: press something
-    short. `lib/ux/weekGames.ts` gives Sunday to `/quest`, so the two are one
-    slot and the table is what fills it. On the six days the table names a
-    game, that is the round; on the seventh the quest is, and only then is the
-    weakest case worth the query behind it.
-  */
-  /* Off the course's own level: a beginner's week has no endings in it, since
-     the course leaves the cases to A2 (lib/ux/weekGames.ts). */
-  const featured = await withPuzzleReady(ownerId, summary.dayKey, gameOn(weekdayOf(summary.dayKey), placement));
-  const questDay = featured.href === "/quest" && shows(stage, "quest");
-  const [word, weakest, outside, ladder] = await Promise.all([
+  /* Sõnad, every day, for now. See the game card below for why, and for the
+     fall-back where the module has not taught enough words to build a board. */
+  const [featured, reached] = await Promise.all([
+    withPuzzleReady(ownerId, summary.dayKey, GAME_OF_THE_DAY),
+    programme ? moduleReached(ownerId) : null,
+  ]);
+  const sceneToday = sceneOfDay(
+    summary.dayKey,
+    SCENES,
+    reached ? new Set(unitsThrough(reached.programme, reached.day.index)) : programme ? new Set<string>() : null,
+  );
+  const [word, outside, ladder] = await Promise.all([
     shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement, { forLevel: true }) : null,
-    questDay ? weakestCase(ownerId, now) : null,
     // Whether the day's question has been answered, and the month behind it,
     // off one read rather than one for each.
     errand ? outThereToday(ownerId, clock, now) : null,
@@ -299,8 +313,8 @@ export default async function TodayPage() {
   const figures = shows(stage, "streak") ? (
     <div className="flex flex-wrap items-center gap-4">
       <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:min-w-[200px] sm:flex-1">
-        <StatTile value={snapshot.dueCount} label="Due now" tone="accent" />
-        <StatTile value={toLearn} label="New words" tone="sky" />
+        <StatTile value={snapshot.dueCount} label={t("Due now")} tone="accent" />
+        <StatTile value={toLearn} label={t("New words")} tone="sky" />
       </div>
       {/* On a phone the ring wraps onto its own line, where a bare
           circle says nothing — so it is captioned there and only there. */}
@@ -309,7 +323,7 @@ export default async function TodayPage() {
           pct={summary.goalPct}
           size={74}
           thickness={8}
-          label={`${summary.reviewsToday} of today's ${summary.dailyGoal} reviews done`}
+          label={fill(t("{done} of today's {goal} reviews done"), { done: summary.reviewsToday, goal: summary.dailyGoal })}
         >
           <span
             className="tnum text-base font-bold"
@@ -326,11 +340,11 @@ export default async function TodayPage() {
           fault rather than as a day gone well.
         */}
         <div aria-hidden>
-          <p className="label-xs" style={{ color: "var(--ink-3)" }}>Daily goal</p>
+          <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Daily goal")}</p>
           <p className="tnum mt-1 text-xs" style={{ color: "var(--ink-2)" }}>
             {summary.reviewsToday >= summary.dailyGoal
-              ? `${summary.reviewsToday} done, goal met`
-              : `${summary.reviewsToday} of ${summary.dailyGoal} reviews`}
+              ? fill(t("{done} done, goal met"), { done: summary.reviewsToday })
+              : fill(t("{done} of {goal} reviews"), { done: summary.reviewsToday, goal: summary.dailyGoal })}
           </p>
         </div>
       </div>
@@ -376,29 +390,36 @@ export default async function TodayPage() {
   */
   const caughtUpNote = (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      Going over cards before they&rsquo;re due doesn&rsquo;t help them stick. Take the break, or start something new.
+      {t("Going over cards before they’re due doesn’t help them stick. Take the break, or start something new.")}
     </p>
+  );
+  const orReview = say(
+    `Or review ${toReview} due card${toReview === 1 ? "" : "s"}`,
+    "Or review {cards} that are due",
+    { cards: countOf(locale, toReview, "card") },
   );
   const actions = learnFirst ? (
     <>
       <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full">
-        {stage === "arriving" ? "Meet your first words" : `Learn ${Math.min(toLearn, LEARN_BATCH)} new words`}{" "}
+        {stage === "arriving"
+          ? t("Meet your first words")
+          : say(`Learn ${Math.min(toLearn, LEARN_BATCH)} new words`, "Learn {words}", { words: countOf(locale, Math.min(toLearn, LEARN_BATCH), "new word") })}{" "}
         <ArrowRight size={17} aria-hidden />
       </ButtonLink>
       {toReview > 0 && (
         <ButtonLink href="/review" variant="secondary" className="w-full justify-center">
-          Or review {toReview} due card{toReview === 1 ? "" : "s"} <ArrowRight size={16} aria-hidden />
+          {orReview} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       )}
     </>
   ) : !caughtUp ? (
     <>
       <ButtonLink href="/review" variant="primary" size="lg" className="w-full">
-        Start reviewing <ArrowRight size={17} aria-hidden />
+        {t("Start reviewing")} <ArrowRight size={17} aria-hidden />
       </ButtonLink>
       {toLearn > 0 && (
         <ButtonLink href="/learn/new" variant="secondary" className="w-full justify-center">
-          Or learn {Math.min(toLearn, LEARN_BATCH)} new words <ArrowRight size={16} aria-hidden />
+          {say(`Or learn ${Math.min(toLearn, LEARN_BATCH)} new words`, "Or learn {words}", { words: countOf(locale, Math.min(toLearn, LEARN_BATCH), "new word") })} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       )}
     </>
@@ -406,11 +427,11 @@ export default async function TodayPage() {
     <>
       {nextUnit ? (
         <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} variant="secondary" className="w-full justify-center">
-          Start {uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)} <ArrowRight size={16} aria-hidden />
+          {fill(t("Start {unit}"), { unit: ui(nextUnit.unit.title, nextUnit.unit.subtitle) })} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       ) : (
         <ButtonLink href="/practice" variant="secondary" className="w-full justify-center">
-          Go and practise <ArrowRight size={16} aria-hidden />
+          {t("Go and practice")} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       )}
     </>
@@ -423,13 +444,15 @@ export default async function TodayPage() {
   */
   const opening = figures ? null : caughtUp ? caughtUpNote : learnFirst ? (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      {toLearn} new word{toLearn === 1 ? " is" : "s are"} waiting for you, and you&rsquo;ll take them {LEARN_BATCH} at a time. You see
-      each word in a sentence, pick what it means, then fill it back into the sentence yourself.
+      {say(
+        `${toLearn} new word${toLearn === 1 ? " is" : "s are"} waiting for you, and you’ll take them ${LEARN_BATCH} at a time. You see each word in a sentence, pick what it means, then fill it back into the sentence yourself.`,
+        "New words waiting for you: {words}. You'll take them {batch} at a time. You see each word in a sentence, pick what it means, then fill it back into the sentence yourself.",
+        { words: countOf(locale, toLearn, "word"), batch: LEARN_BATCH },
+      )}
     </p>
   ) : (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      Most cards ask you to type or pick the answer. A few just show it and ask whether you knew
-      it. Be honest there: that&rsquo;s how the app knows when to bring each word back.
+      {t("Most cards ask you to type or pick the answer. A few just show it and ask whether you knew it. Be honest there: that’s how the app knows when to bring each word back.")}
     </p>
   );
 
@@ -454,7 +477,7 @@ export default async function TodayPage() {
   const courseStep = courseDay?.next ?? null;
   /* An evening still to do, which is one condition and was written out twice:
      the hero draws the module off it and the line above the hero has to agree,
-     or the page says "tonight's module is the whole evening" over a card that
+     or the page says "today's module is the whole evening" over a card that
      has just said the evening is over. */
   const moduleTonight = Boolean(courseNow && courseDay && !courseNow.finishedToday && courseStep);
 
@@ -462,26 +485,26 @@ export default async function TodayPage() {
     <Card tone="night" className="flex flex-col gap-6 md:p-9 lg:flex-row lg:items-center lg:gap-10">
       <div className="min-w-0 flex-1">
         <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
-          <span style={{ color: "var(--cta)" }}>Today&rsquo;s module</span>
+          <span style={{ color: "var(--cta)" }}>{t("Today’s module")}</span>
           <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
-          <span>Day {courseDay.day.index} of {programme!.days.length}</span>
+          <span>{fill(t("Day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}</span>
         </p>
         <FitText
           as="h2"
-          text={uiText(placement, courseDay.day.title, courseDay.day.subtitle)}
-          className="font-display mt-3 font-bold leading-[1.02] [--fit-max:var(--text-3xl)] md:[--fit-max:var(--text-4xl)]"
+          text={ui(courseDay.day.title, courseDay.day.subtitle)}
+          className="font-display mt-3 font-bold leading-tight [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"
           lang={uiWantsEnglish(placement) ? undefined : "et"}
           style={{ color: "var(--ink)", textWrap: "balance" }}
         />
         <p className="mt-3 max-w-[46ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {courseDay.day.canDo}
+          {t(courseDay.day.canDo)}
         </p>
         <p
           className="mt-5 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-full px-3.5 py-1.5 text-sm"
           style={{ background: "rgb(255 255 255 / 0.08)", color: "var(--ink)" }}
         >
-          <span className="font-semibold" style={{ color: "var(--sky-ink)" }}>Next</span>
-          <span>{courseStep.title}</span>
+          <span className="font-semibold" style={{ color: "var(--sky-ink)" }}>{t("Next")}</span>
+          <span>{stepText(courseDay.day, courseStep, locale).title}</span>
         </p>
       </div>
       <div className="flex flex-col items-stretch gap-4 lg:w-[19rem] lg:shrink-0">
@@ -492,25 +515,20 @@ export default async function TodayPage() {
             thickness={7}
             tone="var(--cta)"
             track="rgb(255 255 255 / 0.1)"
-            label={`${courseDay.pct} percent of tonight done`}
+            label={fill(t("{pct} percent of today's module done"), { pct: courseDay.pct })}
           >
             <span className="text-sm font-bold tabular-nums" style={{ color: "var(--ink)" }}>{courseDay.pct}%</span>
           </Ring>
           <p className="text-sm leading-snug" style={{ color: "var(--ink-2)" }}>
             <span className="font-display block text-2xl font-bold tabular-nums" style={{ color: "var(--ink)" }}>
-              {courseDay.minutesLeft} min
+              {fill(t("{minutes} min"), { minutes: courseDay.minutesLeft })}
             </span>
-            to go tonight
+            {t("to go today")}
           </p>
         </div>
         <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
-          {courseDay.pct === 0 ? "Start tonight" : "Carry on"} <ArrowRight size={17} aria-hidden />
+          {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
         </ButtonLink>
-        {toReview > 0 && (
-          <ButtonLink href="/review" variant="secondary" className="w-full justify-center">
-            Or review {toReview} due card{toReview === 1 ? "" : "s"} <ArrowRight size={16} aria-hidden />
-          </ButtonLink>
-        )}
       </div>
     </Card>
   ) : courseNow?.finishedToday ? (
@@ -518,27 +536,29 @@ export default async function TodayPage() {
       <div className="min-w-0 flex-1">
         <SectionTitle
           hint={courseNow.eveningsInARow >= 2
-            ? `${courseNow.daysDone} of ${programme!.days.length} done, ${courseNow.eveningsInARow} evenings in a row`
-            : `${courseNow.daysDone} of ${programme!.days.length} done`}
+            ? fill(t("{done} of {days} done, {run} evenings in a row"), { done: courseNow.daysDone, days: programme!.days.length, run: courseNow.eveningsInARow })
+            : fill(t("{done} of {days} done"), { done: courseNow.daysDone, days: programme!.days.length })}
         >
-          Today&rsquo;s module
+          {t("Today’s module")}
         </SectionTitle>
         <p className="mt-1 text-xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-          That&rsquo;s tonight done. Go and enjoy your evening.
+          {t("Today’s module is done. Go and enjoy the rest of your day.")}
         </p>
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay
             ? courseDay.day.part.n > 1
-              ? <>Tomorrow you&rsquo;ll carry on with {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}, part {courseDay.day.part.n} of {courseDay.day.part.of}.</>
+              ? fill(t("Tomorrow you’ll continue with {unit}, part {n} of {of}."), {
+                unit: ui(courseDay.day.title, courseDay.day.subtitle), n: courseDay.day.part.n, of: courseDay.day.part.of,
+              })
               : uiWantsEnglish(placement)
-                ? <>See you tomorrow for {courseDay.day.subtitle}.</>
-                : <>See you tomorrow for {courseDay.day.title} ({courseDay.day.subtitle}).</>
-            : <>That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.</>}
+                ? fill(t("See you tomorrow for {unit}."), { unit: t(courseDay.day.subtitle) })
+                : fill(t("See you tomorrow for {unit} ({english})."), { unit: courseDay.day.title, english: t(courseDay.day.subtitle) })
+            : t("That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.")}
         </p>
       </div>
       <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
         <ButtonLink href="/course" variant="secondary" className="w-full justify-center">
-          See what&rsquo;s next <ArrowRight size={16} aria-hidden />
+          {t("See what’s next")} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
@@ -547,9 +567,9 @@ export default async function TodayPage() {
   const doNowCard = courseCard ?? (snapshot.totalCards === 0 ? (
     <Card>
       <Empty
-        title="No cards yet"
-        body="Choose a unit to begin with. Its words become cards you can learn, hear and practise."
-        action={<ButtonLink href="/learn" variant="primary">Choose your first unit</ButtonLink>}
+        title={t("No cards yet")}
+        body={t("Choose a unit to begin with. Its words become cards you can learn, hear and practice.")}
+        action={<ButtonLink href="/learn" variant="primary">{t("Choose your first unit")}</ButtonLink>}
       />
     </Card>
   ) : (
@@ -566,25 +586,76 @@ export default async function TodayPage() {
   ));
 
   /*
+    What is on today, from the learner's own calendar, which is the second half
+    of the Calendar card. Which events fall on today is `eventsOn`, pure and
+    needing no query; the rows themselves come off the batch above.
+  */
+  const todayEvents = eventsOn(
+    events.map((e) => ({
+      id: e.id, title: e.title, notes: e.notes, kind: kindFrom(e.kind),
+      startMinute: e.startMinute, durationMinutes: e.durationMinutes,
+      weekdays: e.weekdays, onDate: e.onDate,
+    })),
+    clock.dayKey(now),
+  );
+  const eventsList = todayEvents.length > 0 ? (
+    <ul className="flex flex-col gap-2">
+      {todayEvents.map((e) => (
+        <li
+          key={e.id}
+          className="flex items-center justify-between gap-3 rounded-[var(--r)] px-3.5 py-3"
+          style={{ background: `var(--${KIND_TONE[e.kind]}-soft)` }}
+        >
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold" style={{ color: "var(--ink)" }}>
+              {e.title}
+            </span>
+            <span className="text-xs" style={{ color: "var(--ink-2)" }}>
+              {t(KIND_LABEL[e.kind])}
+            </span>
+          </span>
+          <span className="shrink-0 text-sm font-semibold tabular-nums" style={{ color: "var(--ink-2)" }}>
+            {span(e.startMinute, e.durationMinutes)}
+          </span>
+        </li>
+      ))}
+    </ul>
+  ) : null;
+
+  /*
     Everything that reports on the run of days, in one card that says so. The
     streak, the week it is drawn from, the shields that protect it and the XP
     the same reviews earned are one story, and they used to be told in three
     places inside the card above.
   */
-  const streakCard = shows(stage, "streak") ? (
+  const streakShown = shows(stage, "streak");
+  const calendarCard = streakShown || eventsList ? (
 
-    <Card className="flex flex-col gap-4">
-      <SectionTitle hint={`${summary.reviewsToday} reviewed today`}>Your streak</SectionTitle>
+    /* Reaching for the card flickers the flame, and on a day the run was
+       kept it catches once as the page arrives. A run that has not been kept
+       today stays still: the flame is not there to nag. */
+    <div data-hop-on="hover" data-hop-end="flame-flicker">
+    <Card className="flex h-full flex-col gap-4">
+      <SectionTitle
+        hint={streakShown
+          ? fill(t("{n} reviewed today"), { n: summary.reviewsToday })
+          : todayEvents.length === 1 ? t("one thing today") : fill(t("{things} today"), { things: countOf(locale, todayEvents.length, "thing") })}
+      >
+        {t("Calendar")}
+      </SectionTitle>
 
       {/*
         The run is a number and a word, set like type, with the week under it.
         It was a boxed tile of its own inside this card, a card inside a card
         for one figure, which is the dashboard shape `StatTile` warns about.
       */}
+      {streakShown && (<>
       <p className="flex items-baseline gap-2">
-        <Flame size={18} aria-hidden className="self-center" style={{ color: "var(--butter-ink)" }} />
+        <Flame size={18} aria-hidden className={`${summary.reviewsToday > 0 && summary.streak > 0 ? "flame-lit" : "flame"} self-center`} style={{ color: "var(--butter-ink)" }} />
         <span className="tnum font-display text-3xl font-bold leading-none" style={{ color: "var(--ink)" }}>{summary.streak}</span>
-        <span className="text-base" style={{ color: "var(--ink-2)" }}>{summary.streak === 1 ? "day in a row" : "days in a row"}</span>
+        <span className="text-base" style={{ color: "var(--ink-2)" }}>
+          {locale === "en" ? (summary.streak === 1 ? "day in a row" : "days in a row") : daysInARow(locale, summary.streak)}
+        </span>
       </p>
       <div className="flex flex-wrap items-center gap-4">
         {/* A week at a glance: the streak, made concrete. */}
@@ -649,7 +720,9 @@ export default async function TodayPage() {
                 {d.done ? "✓" : ""}
               </span>
               <span className="sr-only">
-                {d.day}{d.isToday ? " (today)" : ""}: {d.done ? "reviewed" : "no reviews"}
+                {d.isToday
+                  ? fill(t(d.done ? "{day} (today): reviewed" : "{day} (today): no reviews"), { day: d.day })
+                  : fill(t(d.done ? "{day}: reviewed" : "{day}: no reviews"), { day: d.day })}
               </span>
               <span
                 className="text-2xs font-semibold"
@@ -665,10 +738,24 @@ export default async function TodayPage() {
       {summary.shieldsAvailable > 0 && (
         <p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
           <Shield size={13} aria-hidden style={{ color: "var(--accent-deep)" }} />
-          {summary.shieldsAvailable} streak shield{summary.shieldsAvailable === 1 ? "" : "s"} saved up, so
-          missing a day won&rsquo;t break your run.
+          {say(
+            `${summary.shieldsAvailable} streak shield${summary.shieldsAvailable === 1 ? "" : "s"} saved up, so missing a day won’t break your run.`,
+            "Streak shields saved up: {shields}. Missing a day won't break your run.",
+            { shields: summary.shieldsAvailable },
+          )}
         </p>
       )}
+      </>)}
+
+      {eventsList}
+
+      <Link
+        href="/calendar"
+        className="mt-auto inline-block text-sm font-semibold underline underline-offset-2"
+        style={{ color: "var(--accent-deep)" }}
+      >
+        {eventsList ? t("See your whole week") : t("Plan your week")}
+      </Link>
 
       {/*
         THE XP AND THE LEVEL BAR ARE NOT HERE, AND THAT IS THE POINT OF THE
@@ -680,115 +767,14 @@ export default async function TodayPage() {
         minutes to spend.
       */}
     </Card>
+    </div>
   ) : null;
 
   /* What a teacher has assigned, under headings rather than loose dates. Only
      drawn when there is something in it: the manual homework list is gone, so
      a learner studying alone has nothing to put here and no reason to see it. */
   const planCard = shows(stage, "tasks") && tasks.length > 0 ? (
-    <TodayPlan tasks={tasks.map(taskView)} open={openTasks} late={lateTasks} clock={clock} now={now} />
-  ) : null;
-
-  /*
-     What is on today, from the learner's own calendar.
-     
-     Held to a day that actually has something on it rather than to a
-     disclosure stage: an empty schedule card is a skeleton where an answer
-     should be, and a learner with no calendar yet is told about it by the rail
-     rather than by a card saying "nothing". It sits above the plan because a
-     class at six decides what the evening looks like and a due date does not.
-  */
-  const todayEvents = eventsOn(
-    events.map((e) => ({
-      id: e.id, title: e.title, notes: e.notes, kind: kindFrom(e.kind),
-      startMinute: e.startMinute, durationMinutes: e.durationMinutes,
-      weekdays: e.weekdays, onDate: e.onDate,
-    })),
-    clock.dayKey(now),
-  );
-  const scheduleCard = todayEvents.length > 0 ? (
-    <Card>
-      <SectionTitle hint={todayEvents.length === 1 ? "one thing" : `${todayEvents.length} things`}>
-        What&rsquo;s on today
-      </SectionTitle>
-      <ul className="flex flex-col gap-2">
-        {todayEvents.map((e) => (
-          <li
-            key={e.id}
-            className="flex items-center justify-between gap-3 rounded-[var(--r)] px-3.5 py-3"
-            style={{ background: `var(--${KIND_TONE[e.kind]}-soft)` }}
-          >
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold" style={{ color: "var(--ink)" }}>
-                {e.title}
-              </span>
-              <span className="text-xs" style={{ color: "var(--ink-2)" }}>
-                {KIND_LABEL[e.kind]}
-              </span>
-            </span>
-            <span className="shrink-0 text-sm font-semibold tabular-nums" style={{ color: "var(--ink-2)" }}>
-              {span(e.startMinute, e.durationMinutes)}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <Link
-        href="/calendar"
-        className="mt-3 inline-block text-sm font-semibold underline underline-offset-2"
-        style={{ color: "var(--accent-deep)" }}
-      >
-        See your whole week
-      </Link>
-    </Card>
-  ) : null;
-
-  /*
-    A Card like every one of its neighbors. It was a bare `<section>`, so its
-    heading sat 25px further left than the four above it and its rows read as
-    three loose boxes under a heading belonging to nothing. The rows keep their
-    own borders, because a quest that is done is drawn as a filled row and
-    losing that would lose the only thing the panel says at a glance.
-  */
-  /*
-     THE DAILY QUEST, ON THE SCREEN THAT KNOWS WHAT IS GOING WRONG.
-
-     Held to `settled` rather than shown from day one, and the reason is the
-     rule the disclosure module states: this is a figure computed from the
-     learner's own log, and on a log with nothing in it the card would be a
-     button promising two minutes on weaknesses nobody has measured yet. That
-     is the "does this say something true and useful on an empty log" test, and
-     this one fails it where the word of the day passes.
-  */
-  // The quest's length at this learner's pace, which is what the round runs
-  // for: "two minutes" was the standard figure printed to somebody who had
-  // asked for five.
-  const questLength = lengthAtPace(QUEST_SECONDS, settings[SETTING_KEYS.roundPace]);
-  const questCard = questDay ? (
-    <Card>
-      {/* No "two minutes" hint: the line under this says it, and a figure
-          printed twice on one card is a figure nobody is checking. */}
-      <SectionTitle>Daily quest</SectionTitle>
-      <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {weakest ? (
-          <>
-            Your{" "}
-            {/* Named in Estonian, because that is what a class calls it and a
-                learner who has only met "inessive" cannot follow their teacher. */}
-            <span lang="et" className="font-semibold">
-              {grammarTerm(weakest.grammCase)?.et ?? weakest.grammCase.toLowerCase()}
-            </span>{" "}
-            is at {weakest.accuracy}%. Give it {questLength} today.
-          </>
-        ) : (
-          `${questLength} on the cards that trip you up most.`
-        )}
-      </p>
-      <div className="mt-3">
-        <ButtonLink href="/quest" variant="primary">
-          <Target size={15} aria-hidden /> Start the quest
-        </ButtonLink>
-      </div>
-    </Card>
+    <TodayPlan tasks={tasks.map(taskView)} open={openTasks} late={lateTasks} clock={clock} now={now} locale={locale} />
   ) : null;
 
   /*
@@ -805,14 +791,14 @@ export default async function TodayPage() {
       unitTitle={(() => {
         const errandUnit = unitById(errand.unit);
         if (!errandUnit) return errand.unit;
-        return uiText(placement, errandUnit.title, errandUnit.subtitle);
+        return ui(errandUnit.title, errandUnit.subtitle);
       })()}
     />
   ) : null;
 
   /* The one panel here that is not about this learner's own deck. */
   const wordCard = shows(stage, "word")
-    ? <WordOfDayCard word={word} canTranslate={resolveProvider() !== null} />
+    ? <WordOfDayCard word={word} canTranslate={resolveProvider() !== null} locale={locale} />
     : null;
 
   /*
@@ -826,7 +812,7 @@ export default async function TodayPage() {
   const nextCard = shows(stage, "next") && nextUnit && !programme ? (
 
     <Card>
-      <SectionTitle hint={nextUnit.unit.cefr}>Your next unit</SectionTitle>
+      <SectionTitle hint={nextUnit.unit.cefr}>{t("Your next unit")}</SectionTitle>
       <div className="flex items-center gap-3">
         <NextUnitIcon name={nextUnit.unit.icon} />
         <div className="min-w-0">
@@ -835,89 +821,79 @@ export default async function TodayPage() {
             className="text-lg font-bold leading-tight"
             style={{ color: "var(--ink)" }}
           >
-            {uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)}
+            {ui(nextUnit.unit.title, nextUnit.unit.subtitle)}
           </p>
           {!uiWantsEnglish(placement) && (
-            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{nextUnit.unit.subtitle}</p>
+            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{t(nextUnit.unit.subtitle)}</p>
           )}
         </div>
       </div>
       {/* The can-do statement, not the blurb: what you will be able to
           do is a better reason to press the button than what the unit
           is about. */}
-      <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{nextUnit.unit.canDo}</p>
+      <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(nextUnit.unit.canDo)}</p>
       <div className="mt-3.5">
         <Meter
           pct={nextUnit.pct}
-          label={`${uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)}: ${nextUnit.pct}% complete`}
+          label={fill(t("{unit}: {pct}% complete"), { unit: ui(nextUnit.unit.title, nextUnit.unit.subtitle), pct: nextUnit.pct })}
         />
       </div>
       <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} className="mt-4 w-full">
-        {nextUnit.state === "learning" ? "Pick up where you left off" : "Start this unit"}
+        {nextUnit.state === "learning" ? t("Pick up where you left off") : t("Start this unit")}
         <ArrowRight size={15} aria-hidden />
       </ButtonLink>
     </Card>
   ) : null;
 
   /*
-    THE GAME OF THE DAY.
+    THE GAME OF THE DAY, WHICH IS SÕNAD.
 
-    Asked for in one line of the brief and given its own reason there: "it
-    becomes predictable and also something to look forward to". Eleven rounds
-    on a menu is a decision to make before you can start; one on the home page
-    with a reason beside it is an invitation, and Thursday being Match every
-    week is a thing somebody comes to know about their own Thursdays.
-
-    `lib/ux/weekGames.ts` is the table and nothing is hidden by it: every round
-    is still on /practice, in the palette and at its own URL, every day.
-
-    Not drawn on the day the quest is featured, because that day's round *is*
-    the quest and the quest card is the better drawing of it: it names the
-    learner's own weakest case and what it is at. Two cards for one round is
-    furniture, which is what this page had every other day of the week as
-    well. The cost is the "tomorrow" line one day in seven, which is the right
-    way round.
+    The week table (`lib/ux/weekGames.ts`) used to rotate a different round
+    through this card every day, and the feedback on it was that Today should
+    lead with the one game that is eye-catching on sight. Sõnad is that, so it
+    is the game of the day every day for now, drawn with a small example board
+    so a stranger can see what pressing it will give them, and the table is
+    kept for the day this is made dynamic again. Every other round is still on
+    /practice, in the palette and at its own URL. Where the module has not yet
+    taught enough words to build today's puzzle the card falls back to the round
+    the first evenings deal, as it always did, and says so plainly.
   */
-  /*
-    A mode's title, or a place's label where the row is not a round: the
-    conversation on Wednesday is a destination in lib/ux/nav.ts, not a mode
-    in lib/ux/modes.ts, and `featuredTitle` reads whichever table owns the name.
-  */
-  const featuredMode = modeAt(featured.href);
-  const featuredName = featuredTitle(featured.href);
-  const tomorrow = gameAfter(weekdayOf(summary.dayKey), placement);
-  const gameCard = featuredName && featured.href !== "/quest" ? (
-    <Card>
-      <SectionTitle hint={WEEKDAY_LONG[weekdayOf(summary.dayKey)]}>
-        {featuredMode ? "Today's game" : "Today's conversation"}
-      </SectionTitle>
-      {/* The name once, on the button that opens it. It used to be a heading
-          of its own as well, so a card of four lines spent two of them saying
-          the same word. */}
-      <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {featured.why}
-      </p>
+  const gameCard = featured.href === "/sonad" ? (
+    <SonadPreview href={featured.href} why={t(featured.why)} locale={locale} />
+  ) : (
+    <Card className="flex h-full flex-col">
+      <SectionTitle>{t("Today’s game")}</SectionTitle>
+      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(featured.why)}</p>
       <div className="mt-3">
         <ButtonLink href={featured.href} variant="primary">
-          {featuredName} <ArrowRight size={15} aria-hidden />
+          {t(featuredTitle(featured.href) ?? "Play")} <ArrowRight size={15} aria-hidden />
         </ButtonLink>
       </div>
-      <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-        Tomorrow&rsquo;s {tomorrow.weekday}, which means {featuredTitle(tomorrow.game.href) ?? "something different"}.
-      </p>
     </Card>
-  ) : null;
+  );
 
   /*
-    THE ONE SHORT ROUND, WHICHEVER OF THE TWO IT IS TODAY.
+    TODAY'S CONVERSATION, CHOSEN BY THE DATE.
 
-    Exactly one of these is ever non-null, because `questDay` and the game
-    card's own condition are the same test read from opposite sides. Written
-    as a slot rather than as two entries in the list below so that stays true
-    the day somebody changes one of them: two rounds on this page is the thing
-    the cap was added to stop.
+    The thing `docs/22-real-life.md` says this app is for is a conversation
+    somebody has outside it, and the rehearsal is the nearest thing inside it,
+    so it gets a card of its own rather than one day in seven. Which scene is
+    `sceneOfDay`, held to the ones the course has reached for a learner it
+    holds, so the card never offers a conversation whose words the evenings
+    have not handed over; where there is none yet it is absent.
   */
-  const roundCard = gameCard ?? questCard;
+  const conversationCard = sceneToday ? (
+    <Card className="flex h-full flex-col">
+      <SectionTitle hint={say(`about ${minutesFor(sceneToday)} minutes`, "about {minutes}", { minutes: countOf(locale, minutesFor(sceneToday), "minute", "gen") })}>{t("Today’s conversation")}</SectionTitle>
+      <p className="text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{t(sceneToday.title)}</p>
+      <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(sceneToday.place)}</p>
+      <div className="mt-auto pt-4">
+        <ButtonLink href={`/situations/${sceneToday.id}`} variant="primary">
+          {t("Start the conversation")} <ArrowRight size={15} aria-hidden />
+        </ButtonLink>
+      </div>
+    </Card>
+  ) : null;
 
   /*
     THE CLIMB TO THE BAND THEY SAID THEY WERE AIMING AT.
@@ -932,9 +908,40 @@ export default async function TodayPage() {
   const ladderCard = ladder ? (
     <LadderBar
       progress={ladder}
-      partLabel={programme && courseDay ? `${programme.id.toUpperCase()}, day ${courseDay.day.index}` : undefined}
+      partLabel={programme && courseDay ? fill(t("{part}, day {day}"), { part: programme.id.toUpperCase(), day: courseDay.day.index }) : undefined}
       learnerLevel={placement}
+      locale={locale}
     />
+  ) : null;
+
+  /*
+    THE WAY BACK TO THE CARDS, WHEN THE HERO IS TONIGHT'S MODULE.
+
+    The line under the greeting used to say how many cards were due and that
+    they would come up at the end of the module, and the feedback on it was
+    that it was busy and added little: this page is for the module that is due
+    today. What it was for is the learner who does not feel like anything new
+    tonight, so they get a smaller card under the hero that points at the
+    words already outstanding, and the greeting stands alone. It is a plain
+    link in a white card rather than a second button, since the hero already
+    has the one loud action, and it is absent when nothing is due.
+  */
+  const reviewStrip = (moduleTonight || courseNow?.finishedToday) && toReview > 0 ? (
+    <Card className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
+      <p className="text-base" style={{ color: "var(--ink)" }}>
+        <span className="font-semibold">{t("Review cards")}</span>
+        <span style={{ color: "var(--ink-2)" }}>
+          {" "}{say(`(${toReview} due, if you’d rather practice what you know)`, "({cards} due, if you'd rather practice what you know)", { cards: countOf(locale, toReview, "card") })}
+        </span>
+      </p>
+      <Link
+        href="/review"
+        className="inline-flex items-center gap-1.5 text-base font-semibold underline underline-offset-2"
+        style={{ color: "var(--accent-deep)" }}
+      >
+        {t("Review now")} <ArrowRight size={15} aria-hidden />
+      </Link>
+    </Card>
   ) : null;
 
   return (
@@ -979,10 +986,13 @@ export default async function TodayPage() {
           />
         )
       }
-      title={name ? `${greeting(clock, now, placement)}, ${name}` : greeting(clock, now, placement)}
+      /* Ukrainian addresses a person in the vocative, which cannot be built
+         from a name somebody typed, and the nominative in its place reads as
+         a mistake. So the Ukrainian greeting goes without the name. */
+      title={name && locale !== "uk" ? `${greeting(clock, now, placement, locale)}, ${name}` : greeting(clock, now, placement, locale)}
       lead={courseNow && (moduleTonight || courseNow.finishedToday)
-        ? courseLead(toReview, courseNow.finishedToday)
-        : lead(stage, toReview, toLearn, ownCardsPerMinute(pace))}
+        ? undefined
+        : lead(stage, toReview, toLearn, ownCardsPerMinute(pace), locale)}
     >
       {/*
         ONE CARD ACROSS THE TOP, AND FIVE UNDER IT AT THE MOST.
@@ -1017,31 +1027,36 @@ export default async function TodayPage() {
         anything.
       */}
       <Stack className="min-w-0">
-        {/* Tonight's card is the one big thing on this page, and the only one
+        {/* Today's card is the one big thing on this page, and the only one
             the letters lie on here, calm rather than hopping, since it is opened every
             evening. See `Lettered` in components/HeroLetters.tsx. */}
         <Lettered show={!!courseCard}>{doNowCard}</Lettered>
-        <Columns>
+        {reviewStrip}
+        {/*
+          THE WHITE CARDS, TWO ACROSS AND IN ROWS. A grid rather than `Columns`,
+          which fills down the first column and then the second and so cannot
+          promise that two cards sit side by side: the order asked for is
+          rows (game and word, calendar and conversation, progress and out
+          there), and a row is what a grid deals. Each row's cards share a
+          height, which is what makes a pair read as a pair.
+        */}
+        <div className="grid items-stretch gap-6 lg:grid-cols-2">
           {(() => {
             const dealt = orderTodayCards({
+              game: gameCard,
+              word: wordCard,
+              calendar: calendarCard,
+              conversation: conversationCard,
               ladder: ladderCard,
               errand: errandCard,
-              schedule: scheduleCard,
               plan: planCard,
-              round: roundCard,
-              streak: streakCard,
-              word: wordCard,
               next: nextCard,
             }, todayOrderFrom(settings[SETTING_KEYS.todayOrder]));
-            const cut = dealt.slice(0, TODAY_CARDS);
-            /* The word of the day is on everyone's Today, whatever order they
-               set and however many other cards are dealt ahead of it. It takes
-               the last place when the cap would have cut it. */
-            return wordCard && !cut.includes(wordCard)
-              ? [...cut.slice(0, TODAY_CARDS - 1), wordCard]
-              : cut;
+            return dealt.slice(0, TODAY_CARDS).map((card, i) => (
+              <div key={i} className="min-w-0 [&>*]:h-full" data-column-item>{card}</div>
+            ));
           })()}
-        </Columns>
+        </div>
       </Stack>
     </Page>
   );
@@ -1065,43 +1080,19 @@ function NextUnitIcon({ name }: { name: string }) {
  * count and the minutes are the useful sentence once there is a routine, and
  * they are an instruction to nobody on the first morning.
  */
-/**
- * THE LINE UNDER THE GREETING WHERE AN EVENING IS ALREADY PLANNED.
- *
- * `lead` answers "what now" out of the review queue, and on a morning with a
- * module waiting that is the wrong question asked a second time: the card
- * below it has already answered it. It read "Nothing due, and no new words
- * waiting. A good moment to open a unit." directly above a card saying day two
- * of seventeen was waiting, which is the app arguing with itself on the one
- * screen a planned course exists to make simple.
- *
- * So where there is a module to do, the lead says what else there is rather
- * than what to do, which is the one thing the card underneath cannot say. The
- * module stands down once it is finished for the day and the ordinary line
- * comes back with it.
- */
-function courseLead(toReview: number, finishedToday: boolean): string {
-  const cards = `${toReview} card${toReview === 1 ? "" : "s"}`;
-  if (finishedToday) {
-    return toReview === 0 ? "Nothing else is due today. Enjoy the rest of your day." : `${cards} still due, if you fancy a few more.`;
-  }
-  return toReview === 0
-    ? "Nothing else is due today, so tonight's module is all you need to do."
-    : `${cards} due as well. They'll come up at the end of tonight's module.`;
-}
-
 function lead(
   stage: "arriving" | "starting" | "settled",
   toReview: number,
   toLearn: number,
   /** This learner's own cards a minute, off the log. Null before it has one. */
   cardsPerMinute: number | null,
+  locale: Locale,
 ): string {
   // Nothing due is only "a good moment for something new" while there is
   // something new. A deck whose words are all learned needs a unit, and saying
   // otherwise sends somebody to a screen with nothing on it.
-  if (toReview === 0 && toLearn > 0) return "You're all caught up. A good moment to meet some new words.";
-  if (toReview === 0) return "You're all caught up, and every word you've added is learned. Time for a new unit.";
+  if (toReview === 0 && toLearn > 0) return tr(locale, "You're all caught up. A good moment to meet some new words.");
+  if (toReview === 0) return tr(locale, "You're all caught up, and every word you've added is learned. Time for a new unit.");
   /*
     At the learner's own rate where the log has one, and at the one default
     the plan uses otherwise. This divided by six while the plan divided by
@@ -1110,6 +1101,12 @@ function lead(
   */
   const minutes = minutesForCards(toReview, cardsPerMinute);
   const span = `${minutes} minute${minutes === 1 ? "" : "s"}`;
+  if (locale !== "en") {
+    const values = { cards: countOf(locale, toReview, "card"), minutes: countOf(locale, minutes, "minute") };
+    return fill(tr(locale, stage === "arriving"
+      ? "Your first cards are ready: {cards}. That's about {minutes}."
+      : "Cards waiting for you: {cards}. That's about {minutes}."), values);
+  }
   if (stage === "arriving") {
     return `Your first ${toReview} card${toReview === 1 ? " is" : "s are"} ready. That's about ${span}.`;
   }
@@ -1141,11 +1138,16 @@ function weekdayLetter(day: string): string {
   Estonian in English there instead, and hands it back the moment the course
   says they have reached A2 (`lib/copy/uiLanguage.ts`).
 */
-function greeting(clock: DayClock, now: Date, level: Level): string {
+function greeting(clock: DayClock, now: Date, level: Level, locale: Locale): string {
   const h = clock.hourOf(now);
   const et = h < 5 ? "Tere" : h < 11 ? "Tere hommikust" : h < 18 ? "Tere päevast" : "Tere õhtust";
   const en = h < 5 ? "Hello" : h < 11 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-  return uiText(level, et, en);
+  return uiText(level, et, tr(locale, en));
+}
+
+/** "6 days in a row", in the reader's own plural. English keeps its own two lines above. */
+function daysInARow(locale: Locale, n: number): string {
+  return fill(tr(locale, "{days} in a row"), { days: countOf(locale, n, "day") }).replace(/^\d+\s/, "");
 }
 
 /** A `Task` row in the shape `TaskRow` can hold, which is a client component. */
@@ -1156,27 +1158,6 @@ function taskView(task: {
     id: task.id, title: task.title, tag: task.tag, completed: task.completed,
     dueAt: task.dueAt ? task.dueAt.toISOString() : null,
   };
-}
-
-/**
- * THE ONE CASE MOST IN THE WAY, FOR THE DAY THE ROUND IS THE QUEST.
- *
- * `caseReviewsFor` is the query Progress and Practice ask, rather than a
- * fourth of its own: this page used to draw `WeakestCases` off five thousand
- * rows of all time with no `orderBy` between them, so a learner could be told
- * one number here and another on Progress about the same case on the same
- * day, and which five thousand rows decided it was the plan's answer rather
- * than theirs.
- *
- * The sticking points that used to come back with it are gone from this page
- * rather than moved: `/progress` draws them under their own heading from the
- * same `stickingPoints`, and a home page with two minutes to spend is not
- * where a list of lapsed cards earns its place. That takes three queries and
- * a dictionary read off every render of this page, and leaves this one, on
- * one day in seven.
- */
-async function weakestCase(ownerId: string, now: Date) {
-  return caseAccuracy(await caseReviewsFor(ownerId, now))[0] ?? null;
 }
 
 /**

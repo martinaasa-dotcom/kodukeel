@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { Blocks, Delete } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
@@ -56,6 +58,7 @@ const SHAKE_MS = 420;
 export function LettersSession({ words: initial }: { words: LettersWord[] }) {
   // Snapshotted once, for the reason every round gives: gradeCard refreshes
   // the route and the prop shrinks as words are graded away.
+  const t = useT();
   const [words] = useState(initial);
   const [wasEmptyAtStart] = useState(initial.length === 0);
   const [index, setIndex] = useState(0);
@@ -109,11 +112,11 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
 
   if (wasEmptyAtStart) {
     return (
-      <Page title="Tähed" lead="A word you know, with its letters jumbled up. Put it back together.">
+      <Page title="Tähed" lead={t("A word you know, with its letters jumbled up. Put it back together.")}>
         <Empty
-          title="No words to spell yet"
-          body="It uses words you've already met that are at least three letters long. Meet a few first."
-          action={<ButtonLink href="/learn" variant="primary">Meet some words</ButtonLink>}
+          title={t("No words to spell yet")}
+          body={t("It uses words you've already met that are at least three letters long. Meet a few first.")}
+          action={<ButtonLink href="/learn" variant="primary">{t("Meet some words")}</ButtonLink>}
         />
       </Page>
     );
@@ -126,8 +129,8 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
         <Lettered celebrate>
           <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
             <Mascot size={68} mood="cheer" className="float mx-auto" />
-            <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-              {correct === attempted ? "Every word spelled" : `${correct} of ${attempted} spelled`}
+            <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
+              {correct === attempted ? t("Every word spelled") : fill(t("{n} of {total} spelled"), { n: correct, total: attempted })}
             </h1>
             <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
               {/* What happens to the rest, rather than advice to go and hear
@@ -135,19 +138,19 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
                   took two goes was graded Hard and one the board had to show
                   was graded Again, so both come round sooner on their own. */}
               {firstTry === attempted && attempted > 0
-                ? "Every one on the first try. You know these letters now."
-                : `Tubli. ${firstTry} of ${attempted} on the first try, and the others come back a little sooner in your reviews.`}
+                ? t("Every one on the first try. You know these letters now.")
+                : fill(t("Tubli. {n} of {total} on the first try, and the others come back a little sooner in your reviews."), { n: firstTry, total: attempted })}
             </p>
           </div>
         </Lettered>
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={firstTry} label="First time" tone="sky" />
-          <StatTile value={`${accuracy}%`} label="Spelled" tone={accuracy >= 85 ? "sky" : "butter"} />
-          <StatTile value={attempted} label="Words" tone="sky" />
+          <StatTile value={firstTry} label={t("First time")} tone="sky" />
+          <StatTile value={`${accuracy}%`} label={t("Spelled")} tone={accuracy >= 85 ? "sky" : "butter"} />
+          <StatTile value={attempted} label={t("Words")} tone="sky" />
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
-          <ButtonLink href="/review/letters" variant="primary" size="lg">Play again</ButtonLink>
+          <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
+          <ButtonLink href="/review/letters" variant="primary" size="lg">{t("Play again")}</ButtonLink>
         </WayOut>
       </div>
     );
@@ -168,14 +171,14 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
             aria-valuenow={index}
             aria-valuemin={0}
             aria-valuemax={words.length}
-            aria-label="Session progress"
+            aria-label={t("Session progress")}
           />
         </div>
         <span
           className="tnum label-xs rounded-full px-2.5 py-1"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
         >
-          {remaining} left
+          {fill(t("{n} left"), { n: remaining })}
         </span>
       </div>
       {look.panel && <LookBackCard {...look.panel} />}
@@ -212,6 +215,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
   onNext: () => void;
 }) {
   const grade = useGrade();
+  const t = useT();
   const letters = useMemo(() => lettersOf(word.lemma), [word.lemma]);
   const tiles = word.tiles;
   const [placed, setPlaced] = useState<Tile[]>([]);
@@ -232,16 +236,16 @@ function Board({ word, streak, correct, onSettled, onNext }: {
     setVerdict(rating === 3 ? "right" : rating === 2 ? "nearly" : "wrong");
     if (solved) {
       sound("right", streak + 1);
-      setLive(`Right. ${word.lemma}, ${word.meaning}.`);
+      setLive(fill(t("Right. {word}, {meaning}."), { word: word.lemma, meaning: word.meaning }));
     } else {
       sound("wrong");
-      setLive(`Not this time. It's ${word.lemma}, ${word.meaning}.`);
+      setLive(fill(t("Not this time. It's {word}, {meaning}."), { word: word.lemma, meaning: word.meaning }));
     }
     onSettled(solved, missCount);
     const duration = shownAt.current === null ? 0 : Date.now() - shownAt.current;
     await grade(word.cardId, rating, duration, "PRODUCTION");
     setBusy(false);
-  }, [word, sound, streak, onSettled, grade]);
+  }, [word, sound, streak, onSettled, grade, t]);
 
   const check = useCallback((row: Tile[]) => {
     const built = row.map((t) => t.letter).join("");
@@ -252,13 +256,13 @@ function Board({ word, streak, correct, onSettled, onNext }: {
     // Shake, hand the tiles back, and place the first letter for them.
     sound("wrong");
     setShaking(true);
-    setLive("Not quite. Have another go. We've put the first letter in for you.");
+    setLive(t("Not quite. Have another go. We've put the first letter in for you."));
     window.setTimeout(() => {
       setShaking(false);
       const first = tiles.find((t) => t.letter === letters[0]);
       setPlaced(first ? [first] : []);
     }, SHAKE_MS);
-  }, [word.lemma, misses, settle, sound, tiles, letters]);
+  }, [word.lemma, misses, settle, sound, tiles, letters, t]);
 
   const place = useCallback((tile: Tile) => {
     if (answered || shaking || busy || used.has(tile.id)) return;
@@ -298,8 +302,8 @@ function Board({ word, streak, correct, onSettled, onNext }: {
     >
       <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
         <Chip tone="accent"><Blocks size={12} aria-hidden /> Tähed</Chip>
-        {streak >= 2 && <Chip tone="good">{streak} in a row</Chip>}
-        <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{correct} spelled</span>
+        {streak >= 2 && <Chip tone="good">{fill(t("{n} in a row"), { n: streak })}</Chip>}
+        <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("{n} spelled"), { n: correct })}</span>
         {/* After the answer, since the label names the word the board is hiding. */}
         {answered && <StarWord lexemeId={word.lexemeId} starred={word.starred} label={word.lemma} />}
       </div>
@@ -311,7 +315,8 @@ function Board({ word, streak, correct, onSettled, onNext }: {
             text={word.lemma}
             autoplay
             size={20}
-            label="Hear the word"
+            label={t("Hear the word")}
+            spaceKey={!answered}
             className="press flex h-11 w-11 items-center justify-center rounded-full"
             style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
           />
@@ -320,19 +325,19 @@ function Board({ word, streak, correct, onSettled, onNext }: {
           {/* Said for the way it went, since "here it is" over a word the
               learner has just built reads as the board giving it away. */}
           {!answered
-            ? "Put the letters in order. Tap the speaker as often as you like."
-            : verdict === "right" ? "Spelled right first time."
-              : verdict === "nearly" ? "You got there on the second go."
-                : "Here it is, letter by letter."}
+            ? t("Put the letters in order. Tap the speaker, or press Space, as often as you like.")
+            : verdict === "right" ? t("Spelled right first time.")
+              : verdict === "nearly" ? t("You got there on the second go.")
+                : t("Here it is, letter by letter.")}
         </p>
 
         {/* THE ROW. One slot per letter, filled as tiles land. Wearing the
             verdict once there is one, and shaking once on a miss. */}
         <div
           lang="et"
-          className={`flex flex-wrap justify-center gap-1.5 rounded-[var(--r)] px-3 py-3 ${shaking ? "emoji-shake" : ""} ${answered ? VERDICT_CLASS[verdict] : ""}`}
+          className={`flex flex-wrap justify-center gap-1.5 rounded-[var(--r)] px-3 py-3 ${shaking ? "emoji-shake" : ""} ${answered ? `${VERDICT_CLASS[verdict]} wave-arrive` : ""}`}
           style={answered ? undefined : { background: "var(--raised)" }}
-          aria-label="Your spelling"
+          aria-label={t("Your spelling")}
         >
           {letters.map((letter, i) => {
             const tile = answered ? null : placed[i];
@@ -344,7 +349,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
                 type="button"
                 disabled={answered || !tile || locked || i !== placed.length - 1}
                 onClick={takeBack}
-                aria-label={shown ? `${shown}, take it back` : `Empty slot ${i + 1}`}
+                aria-label={shown ? fill(t("{letter}, take it back"), { letter: shown }) : fill(t("Empty slot {n}"), { n: i + 1 })}
                 className="tap-tint flex h-11 w-11 items-center justify-center rounded-[var(--r-sm)] border text-xl font-bold disabled:cursor-default"
                 /* An empty slot is drawn as a dashed box, so the row says how many
                    letters are still to come; a filled one is a card on the ground. */
@@ -355,14 +360,29 @@ function Board({ word, streak, correct, onSettled, onNext }: {
                   color: answered ? "inherit" : "var(--ink)",
                 }}
               >
-                {shown ?? ""}
+                {/* A letter lands in its slot with a squash, keyed on the tile
+                    so it plays as the tile arrives and not on every render. A
+                    word spelled right ripples through, left to right, which is
+                    the word assembling itself once more as the reward; a miss
+                    is shown still, since what it needs is reading. */}
+                {shown === undefined ? "" : answered ? (
+                  <span
+                    key={`spelled-${i}`}
+                    className={verdict === "right" ? "wave-letter" : undefined}
+                    style={verdict === "right" ? ({ "--i": i } as CSSProperties) : undefined}
+                  >
+                    {shown}
+                  </span>
+                ) : (
+                  <span key={tile?.id} className="tile-land">{shown}</span>
+                )}
               </button>
             );
           })}
         </div>
 
         {!answered && (
-          <div className="flex flex-wrap justify-center gap-2" aria-label="Letters to place">
+          <div className="flex flex-wrap justify-center gap-2" aria-label={t("Letters to place")}>
             {tiles.map((tile) => {
               const spent = used.has(tile.id);
               return (
@@ -372,7 +392,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
                   lang="et"
                   disabled={spent || shaking || busy}
                   onClick={() => place(tile)}
-                  aria-label={spent ? `${tile.letter}, placed` : tile.letter}
+                  aria-label={spent ? fill(t("{letter}, placed"), { letter: tile.letter }) : tile.letter}
                   className="press letter-key flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold shadow-[var(--shadow)] disabled:cursor-default"
                   /* A placed tile keeps its room on the board and shows nothing, so the
                      row of tiles does not reflow under a finger mid-word. */
@@ -391,16 +411,16 @@ function Board({ word, streak, correct, onSettled, onNext }: {
       <div className="flex items-center gap-2 border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
         {answered ? (
           <Button variant="primary" size="lg" className="w-full" onClick={onNext}>
-            Continue
+            {t("Continue")}
             <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
           </Button>
         ) : (
           <>
             <span className="min-w-0 text-xs" style={{ color: "var(--ink-3)" }}>
-              {misses > 0 ? "One more go. The first letter's in place." : "Tap the letters, or type them."}
+              {misses > 0 ? t("One more go. The first letter's in place.") : t("Tap the letters, or type them.")}
             </span>
             <Button variant="secondary" className="ml-auto shrink-0 whitespace-nowrap" onClick={takeBack} disabled={placed.length === 0 || shaking || busy}>
-              <Delete size={15} aria-hidden /> Take back
+              <Delete size={15} aria-hidden /> {t("Take back")}
               <KeyCap className="ml-1">⌫</KeyCap>
             </Button>
           </>

@@ -40,6 +40,7 @@
 */
 import { meter, weekStrip } from "../art";
 import type { Block, Letter } from "../letter";
+import { figured, sayer, type Locale } from "../say";
 
 /** The class half: effort, and the cases to plan a lesson around. */
 export interface ClassroomClassInput {
@@ -73,6 +74,8 @@ export interface ClassroomWorkplaceInput {
 }
 
 export interface ClassroomInput {
+  /** The language the letter is written in, which is the owner's. The week's labels and the evidence arrive already in it. */
+  readonly locale: Locale;
   readonly origin: string;
   /** What the group is called, as its owner named it. */
   readonly groupName: string;
@@ -86,10 +89,12 @@ export interface ClassroomInput {
 }
 
 export function classroomLetter(input: ClassroomInput): Letter {
+  const { locale } = input;
+  const say = sayer(locale);
   const blocks: Block[] = [];
   const quiet = Math.max(0, input.members - input.active);
 
-  blocks.push({ t: "heading", text: `Last week in ${input.groupName}` });
+  blocks.push({ t: "heading", text: say("Last week in {group}", { group: input.groupName }) });
 
   /*
     THE ONE SENTENCE, AND THE QUIET HALF OF IT IS SAID OUT LOUD.
@@ -102,15 +107,17 @@ export function classroomLetter(input: ClassroomInput): Letter {
   blocks.push({
     t: "text",
     text:
-      `${input.active} of ${input.members} practised, with ` +
-      `${input.reviews} answer${input.reviews === 1 ? "" : "s"} between them.` +
-      (quiet > 0 ? ` ${quiet} didn't open the app.` : ""),
+      say("{active} of {members} practiced, with {answers} between them.", {
+        active: input.active,
+        members: input.members,
+        answers: figured(locale, input.reviews, "answer"),
+      }) + (quiet > 0 ? ` ${say("{quiet} didn't open the app.", { quiet })}` : ""),
   });
 
   blocks.push({
     t: "art",
     html: weekStrip(input.week),
-    alt: input.week.map((d) => `${d.label}: ${d.studied ? "somebody studied" : "nobody studied"}`).join("\n"),
+    alt: input.week.map((d) => `${d.label}: ${d.studied ? say("somebody studied") : say("nobody studied")}`).join("\n"),
   });
 
   blocks.push({ t: "rule" });
@@ -126,18 +133,25 @@ export function classroomLetter(input: ClassroomInput): Letter {
         to a teacher is the last place to translate it into a Latin one they do
         not use in the room.
       */
-      blocks.push({ t: "heading", text: `The class finds ${worst.grammCase} hardest.` });
+      blocks.push({ t: "heading", text: say("The class finds {case} hardest.", { case: worst.grammCase }) });
       blocks.push({
         t: "text",
-        text:
-          `${worst.accuracy} percent right, across ${worst.total} answers from the whole class. ` +
-          `That's the one to give them extra practice on this week.`,
+        text: say(
+          "{accuracy} percent right, across {total} answers from the whole class. " +
+            "That's the one to give them extra practice on this week.",
+          { accuracy: worst.accuracy, total: worst.total },
+        ),
       });
-      const rest = input.detail.weakestCases.slice(1, 3);
-      if (rest.length > 0) {
+      const rest = input.detail.weakestCases
+        .slice(1, 3)
+        .map((c) => say("{case} at {accuracy} percent", { case: c.grammCase, accuracy: c.accuracy }));
+      const [first, second] = rest;
+      if (first) {
         blocks.push({
           t: "quiet",
-          text: `After that comes ${rest.map((c) => `${c.grammCase} at ${c.accuracy} percent`).join(", and ")}.`,
+          text: second
+            ? say("After that comes {first}, and {second}.", { first, second })
+            : say("After that comes {first}.", { first }),
         });
       }
     } else {
@@ -151,24 +165,27 @@ export function classroomLetter(input: ClassroomInput): Letter {
       */
       blocks.push({
         t: "text",
-        text: "Not enough answers yet to say which case the class finds hardest. Give it another week.",
+        text: say("Not enough answers yet to say which case the class finds hardest. Give it another week."),
       });
     }
   } else {
     const { detail } = input;
     const ready = detail.onTrack + detail.close;
-    blocks.push({ t: "heading", text: `${detail.onTrack} on track for ${detail.level}.` });
+    blocks.push({ t: "heading", text: say("{onTrack} on track for {level}.", { onTrack: detail.onTrack, level: detail.level }) });
     blocks.push({
       t: "art",
       html: meter(input.members === 0 ? 0 : Math.round((ready / input.members) * 100)),
-      alt: `${ready} of ${input.members} on track or close for ${detail.level}.`,
+      alt: say("{ready} of {members} on track or close for {level}.", { ready, members: input.members, level: detail.level }),
     });
     blocks.push({
       t: "text",
-      text:
-        `${detail.close} close, ${detail.needTime} need more time` +
-        (detail.tooEarly > 0 ? `, ${detail.tooEarly} too early to say` : "") +
-        ".",
+      text: detail.tooEarly > 0
+        ? say("{close} close, {needTime} need more time, {tooEarly} too early to say.", {
+            close: detail.close,
+            needTime: detail.needTime,
+            tooEarly: detail.tooEarly,
+          })
+        : say("{close} close, {needTime} need more time.", { close: detail.close, needTime: detail.needTime }),
     });
     /*
       AND THE TIER, IN THE SAME BREATH AS THE BANDS (ADR-022).
@@ -188,18 +205,23 @@ export function classroomLetter(input: ClassroomInput): Letter {
     presses this, signs in, and reads it on the board their group's members
     were told about.
   */
-  blocks.push({ t: "button", label: "Open the group's board", href: `${input.origin}/class` });
+  blocks.push({ t: "button", label: say("Open the group's board"), href: `${input.origin}/class` });
 
   return {
     kind: "classroom",
+    locale,
     subject:
       quiet === 0 && input.members > 0
-        ? `Everybody in ${input.groupName} practised last week`
-        : `${input.active} of ${input.members} in ${input.groupName} practised last week`,
+        ? say("Everybody in {group} practiced last week", { group: input.groupName })
+        : say("{active} of {members} in {group} practiced last week", {
+            active: input.active,
+            members: input.members,
+            group: input.groupName,
+          }),
     preheader:
       input.detail.kind === "CLASS"
-        ? "How the week went, and which case to work on next."
-        : `How the week went, and how the group is doing toward ${input.detail.level}.`,
+        ? say("How the week went, and which case to work on next.")
+        : say("How the week went, and how the group is doing toward {level}.", { level: input.detail.level }),
     blocks,
   };
 }

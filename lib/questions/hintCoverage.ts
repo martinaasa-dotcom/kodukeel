@@ -50,12 +50,18 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
     THE SCREENS WHERE THE HINT WOULD BE THE BUTTON THAT IS ALREADY THERE.
   */
   {
-    file: "app/(app)/review/sprint/SprintSession.tsx",
-    why: "a flip card against a clock: the answer is already behind one press the learner controls, so a ladder under it offers nothing shorter",
-  },
-  {
     file: "app/(app)/review/speaking/SpeakingSession.tsx",
     why: "the word is played properly before the learner says it, so the answer is the exercise, and ADR-018 leaves the judging to them",
+  },
+
+  {
+    file: "app/(app)/review/twenty/TwentySession.tsx",
+    why: "the learner is the one asking, so there is no answer to uncover; the hint is a button of its own that"
+      + " gives the kind of thing and costs one of the twenty questions, and the ideas under the box are the help",
+  },
+  {
+    file: "app/(app)/review/describe/DescribeSession.tsx",
+    why: "the learner writes five sentences of their own about a picture, so there is no one answer to uncover; the example above the boxes is the help",
   },
 
   /*
@@ -68,14 +74,14 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
     why: "a board rather than a card: every word and every meaning is already on the screen and the exercise is pairing them",
   },
   {
-    file: "app/(app)/review/pairs/PairsSession.tsx",
-    why: "a board rather than a card: every tile is already face up by the time a pair can be got wrong",
+    file: "app/(app)/review/openers/OpenersSession.tsx",
+    why: "the start of the sentence is the cue and the choice is between two forms, so there is no"
+      + " shorter way to ask; a wrong answer already says which opener the form belongs to, which is"
+      + " the whole of what a hint would add",
   },
   {
-    file: "app/(app)/review/target/TargetSession.tsx",
-    why: "the answer is one of four forms drawn against a clock that shortens on every hit, so a"
-      + " press that spends seconds is the drill rather than a way through it, and the round"
-      + " already shows the answer on the miss it moves on from",
+    file: "app/(app)/review/pairs/PairsSession.tsx",
+    why: "a board rather than a card: every tile is already face up by the time a pair can be got wrong",
   },
 
   /*

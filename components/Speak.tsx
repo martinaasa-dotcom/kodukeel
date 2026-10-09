@@ -2,9 +2,13 @@
 
 import { Volume2, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { inEditable } from "@/lib/ux/advanceKey";
+import { SpaceKeyCap } from "./KeyCaps";
 import { playClip } from "@/lib/audio/clip";
 import type { Condition } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "./AudioPrefs";
+import { useT } from "./Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * Pronunciation button.
@@ -22,7 +26,7 @@ import { useAudioPrefs } from "./AudioPrefs";
  * takes the button away.
  */
 export function Speak({
-  text, slow, label, size = 15, className, style, onUnavailable, onPlay, disabled, children, autoplay, voice: askedVoice, condition, rate,
+  text, slow, label, size = 15, className, style, onUnavailable, onPlay, disabled, children, autoplay, insist, voice: askedVoice, condition, rate, spaceKey,
 }: {
   text: string; slow?: boolean; label?: string;
   /** A playback rate other than the clip's own, with the pitch held (`LEARNING_RATE`). */
@@ -74,7 +78,27 @@ export function Speak({
    * hole in it. Counts as a play for `onPlay`, since it is one.
    */
   autoplay?: boolean;
+  /**
+   * Autoplay even where the learner's autoplay setting is off, because the
+   * learner asked for this one in so many words: a conversation chosen as
+   * "Voice and text" or "Voice only" (lib/audio/sceneVoice.ts). The setting
+   * answers whether a card reads itself unasked, and this is not unasked.
+   */
+  insist?: boolean;
+  /**
+   * Space plays this clip, and the button says so with a Space key beside it.
+   *
+   * ONLY WHERE SPACE HAS NOTHING ELSE TO DO. Most rounds use it to move on or
+   * to say "not yet", and a key that did two things would play a clip when
+   * somebody meant to carry on, so the screen that draws this says when it
+   * is free: before an answer, not after. `"silent"` binds the key and draws
+   * no cap, for a screen that has its own place to say it. The key is a
+   * letter inside a text box and belongs to a control that has the keyboard,
+   * so neither is taken; and a held key plays once.
+   */
+  spaceKey?: boolean | "silent";
 }) {
+  const t = useT();
   const [state, setState] = useState<"idle" | "loading" | "gone">("idle");
   const prefs = useAudioPrefs();
   const voice = askedVoice ?? prefs.voice;
@@ -125,8 +149,28 @@ export function Speak({
     }
   };
 
+  /* The latest `play`, so the key listener never closes over a stale one. */
+  const playRef = useRef(play);
+  playRef.current = play;
+  const busy = state === "loading";
+  const keyed = Boolean(spaceKey) && !disabled && state !== "gone";
   useEffect(() => {
-    if (!autoplay || wanted !== "on" || disabled) return;
+    if (!keyed) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== " " || e.repeat || e.defaultPrevented) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      if (inEditable(e.target)) return;
+      // A control that has the keyboard answers its own Space.
+      if (e.target instanceof HTMLElement && e.target.closest("button, a, summary, select, [role=button], [role=radio]")) return;
+      e.preventDefault();
+      if (!busy) void playRef.current();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [keyed, busy]);
+
+  useEffect(() => {
+    if (!autoplay || (wanted !== "on" && !insist) || disabled) return;
     const key = `${text}|${slow ? 1 : 0}|${voice}|${condition?.id ?? ""}|${pace.id}`;
     if (played.current === key) return;
     played.current = key;
@@ -134,7 +178,7 @@ export function Speak({
     // `play` closes over the props it needs; re-running on them would replay
     // the same clip on an unrelated re-render, which `played` also guards.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoplay, wanted, disabled, text, slow, voice, condition?.id, pace.id]);
+  }, [autoplay, wanted, insist, disabled, text, slow, voice, condition?.id, pace.id]);
 
   /*
     A BUTTON THAT HAS GONE SAYS SO, TO THE ONE READER WHO CANNOT SEE IT GO.
@@ -142,13 +186,14 @@ export function Speak({
     sighted reader sees the gap. A screen reader whose focus was on it is left
     on the page with nothing said, so a quiet status stands where it was.
   */
-  if (state === "gone") return <span role="status" className="sr-only">No audio for this one.</span>;
+  if (state === "gone") return <span role="status" className="sr-only">{t("No audio for this one.")}</span>;
 
   const loading = state === "loading";
 
-  return (
+  const button = (
     <button
       type="button"
+      aria-keyshortcuts={spaceKey ? "Space" : undefined}
       /*
         NOT `disabled` WHILE ITS OWN CLIP LOADS. The press is what starts the
         load, and a browser moves focus off a control the moment it is
@@ -160,7 +205,7 @@ export function Speak({
       disabled={disabled}
       aria-disabled={loading || undefined}
       aria-busy={loading || undefined}
-      aria-label={label ?? `Hear "${text}"${slow ? " slowly" : ""} in Estonian`}
+      aria-label={label ?? hear(t, text, !!slow)}
       className={className ?? "press inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"}
       style={{ color: "var(--ink-3)", opacity: disabled ? 0.4 : undefined, ...style }}
     >
@@ -168,6 +213,13 @@ export function Speak({
         ? <Loader2 size={size} className="animate-spin" aria-hidden />
         : children ?? <Volume2 size={size} strokeWidth={2} aria-hidden />}
     </button>
+  );
+  if (spaceKey !== true) return button;
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      {button}
+      <SpaceKeyCap />
+    </span>
   );
 }
 
@@ -191,7 +243,7 @@ export function Speak({
  * lone button.
  */
 export function SpeakPair({
-  text, label, slowLabel, disabled, onPlay, onUnavailable, size = 15, className = "", autoplay, voice,
+  text, label, slowLabel, disabled, onPlay, onUnavailable, size = 15, className = "", autoplay, voice, spaceKey,
 }: {
   text: string;
   /** A voice other than the learner's own, as on `Speak`; both halves read in it. */
@@ -205,9 +257,12 @@ export function SpeakPair({
   onUnavailable?: () => void;
   /** Reads the normal-speed half aloud on appearing, as `Speak` does. */
   autoplay?: boolean;
+  /** Space plays the normal-speed half, as on `Speak`; the slow half keeps its button. */
+  spaceKey?: boolean;
 }) {
   const [gone, setGone] = useState(false);
-  if (gone) return <span role="status" className="sr-only">No audio for this one.</span>;
+  const t = useT();
+  if (gone) return <span role="status" className="sr-only">{t("No audio for this one.")}</span>;
 
   const lost = () => {
     setGone(true);
@@ -216,7 +271,7 @@ export function SpeakPair({
 
   const half = "press tap-tint inline-flex items-center justify-center rounded-full";
 
-  return (
+  const pair = (
     <span
       className={`inline-flex items-center rounded-full border ${className}`}
       style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
@@ -224,12 +279,13 @@ export function SpeakPair({
       <Speak
         text={text}
         size={size}
-        label={label ?? `Hear "${text}" in Estonian`}
+        label={label ?? hear(t, text, false)}
         disabled={disabled}
         onPlay={onPlay}
         onUnavailable={lost}
         autoplay={autoplay}
         voice={voice}
+        spaceKey={spaceKey ? "silent" : undefined}
         className={`${half} px-2.5 py-1.5`}
         style={{ color: "var(--ink-2)" }}
       />
@@ -238,7 +294,7 @@ export function SpeakPair({
         text={text}
         slow
         size={size}
-        label={slowLabel ?? `Hear "${text}" slowly in Estonian`}
+        label={slowLabel ?? hear(t, text, true)}
         disabled={disabled}
         onPlay={onPlay}
         onUnavailable={lost}
@@ -246,8 +302,20 @@ export function SpeakPair({
         className={`${half} gap-1 whitespace-nowrap px-2.5 py-1.5 text-xs font-semibold`}
         style={{ color: "var(--ink-3)" }}
       >
-        Slow
+        {t("Slow")}
       </Speak>
     </span>
   );
+  if (!spaceKey) return pair;
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      {pair}
+      <SpaceKeyCap />
+    </span>
+  );
+}
+
+/** The speaker's name for a screen reader, in the reader's language. The English is the key. */
+function hear(t: (english: string) => string, text: string, slow: boolean): string {
+  return fill(slow ? t('Hear "{text}" slowly in Estonian') : t('Hear "{text}" in Estonian'), { text });
 }

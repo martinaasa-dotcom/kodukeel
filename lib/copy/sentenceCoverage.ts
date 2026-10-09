@@ -89,17 +89,23 @@ export const SENTENCE_WITHOUT_ENGLISH: Readonly<Record<string, string>> = {
     "and the exercise. The marking afterwards is `lib/exam/written.ts`'s and is in " +
     "English already.",
 
+  "app/(app)/review/describe/DescribeSession.tsx":
+    "The boxes hold the learner's own sentences, theirs and unfinished, and the one " +
+    "authored example above them prints its English directly beneath it. The picture " +
+    "round says what each sentence got right and wrong in English afterwards.",
+
+  "app/(app)/review/twenty/TwentySession.tsx":
+    "The Estonian here is the learner's own question, typed by them and read back to them with " +
+    "what the game took it to mean in English beside it, and a short closed list of question " +
+    "shapes to start from, each printed with its English. None is a recorded sentence.",
+
   "app/(app)/dictionary/AddWord.tsx":
-    "Not a sentence. `{example}` is the greyed-out hint inside a form field, showing " +
+    "Not a sentence. `{example}` is the grayed-out hint inside a form field, showing " +
     "what a principal part looks like, and the label beside it is already English.",
 
   "app/(app)/settings/ImportPanel.tsx":
     "Not a sentence. `{EXAMPLE}` is the two-column paste format spelled out, so " +
     "somebody can see what a line of their own list should look like.",
-
-  "components/NotAutomatic.tsx":
-    "Not a sentence. `full` is the name of a slot, `sisseütlev` or `olevik, ma`, " +
-    "built for the label a screen reader is given about a figure on the Progress page.",
 
   "components/SuggestFix.tsx":
     "Not a sentence. `{sentence}` is the selected value of a dropdown listing an " +

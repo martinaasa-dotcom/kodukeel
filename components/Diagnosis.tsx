@@ -3,6 +3,9 @@ import { ArrowRight, Microscope } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { diagnose, reviewsNeeded, type ReviewFact } from "@/lib/analysis/diagnosis";
 import { Card, SectionTitle } from "@/components/ui";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
+import { sayIn } from "@/lib/copy/said";
 
 /**
  * The diagnosis panel.
@@ -48,18 +51,18 @@ export async function Diagnosis({ ownerId }: { ownerId: string }) {
 
   const findings = diagnose(facts);
   const needed = reviewsNeeded(facts);
+  const locale = await localeFor(ownerId);
+  const t = (english: string) => tr(locale, english);
 
   if (findings.length === 0) {
     return (
       <section>
-        <SectionTitle>Diagnosis</SectionTitle>
+        <SectionTitle>{t("Diagnosis")}</SectionTitle>
         <Card>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+          <p lang={locale} className="text-sm" style={{ color: "var(--ink-2)" }}>
             {needed > 0
-              ? <>Not enough answers on case endings yet to spot a pattern. Do about {needed} more and
-                  this will show you which kinds of word keep catching you out.</>
-              : <>Nothing stands out. You do about as well on every ending and every kind of word,
-                  which is a dull thing to read and a very good thing to be.</>}
+              ? fill(t("Not enough answers on case endings yet to spot a pattern. Do about {n} more and this will show you which kinds of word keep catching you out."), { n: needed })
+              : t("Nothing stands out. You do about as well on every ending and every kind of word, which is a dull thing to read and a very good thing to be.")}
           </p>
         </Card>
       </section>
@@ -68,7 +71,7 @@ export async function Diagnosis({ ownerId }: { ownerId: string }) {
 
   return (
     <section>
-      <SectionTitle hint="from your reviews">Diagnosis</SectionTitle>
+      <SectionTitle hint={t("from your reviews")}>{t("Diagnosis")}</SectionTitle>
       <div className="flex flex-col gap-3">
         {findings.map((finding) => (
           <Card key={finding.headline}>
@@ -76,27 +79,27 @@ export async function Diagnosis({ ownerId }: { ownerId: string }) {
               <Microscope size={17} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent)" }} />
               <div className="min-w-0 flex-1">
                 <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                  {finding.headline}
+                  {sayIn(locale, finding.said.headline)}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {finding.detail}
+                  {sayIn(locale, finding.said.detail)}
                 </p>
 
                 <div className="mt-3 flex items-center gap-4">
-                  <Bar label="these words" pct={finding.weakPct} tone="var(--again)" ink="var(--again-ink)" />
-                  <Bar label="elsewhere" pct={finding.strongPct} tone="var(--good)" ink="var(--good-ink)" />
+                  <Bar label={t("these words")} pct={finding.weakPct} tone="var(--again)" ink="var(--again-ink)" />
+                  <Bar label={t("elsewhere")} pct={finding.strongPct} tone="var(--good)" ink="var(--good-ink)" />
                 </div>
 
                 <div className="mt-3 flex items-center justify-between gap-3">
                   <span className="text-xs" style={{ color: "var(--ink-3)" }}>
-                    from {finding.sample} reviews
+                    {fill(t("from {n} reviews"), { n: finding.sample })}
                   </span>
                   <Link
                     href={finding.href}
                     className="flex items-center gap-1.5 text-sm"
                     style={{ color: "var(--accent-deep)" }}
                   >
-                    Drill it <ArrowRight size={13} aria-hidden />
+                    {t("Drill it")} <ArrowRight size={13} aria-hidden />
                   </Link>
                 </div>
               </div>

@@ -2,6 +2,7 @@ import { agenda, type AgendaGroup } from "@/lib/ux/agenda";
 import type { DayClock } from "@/lib/time/day";
 import { Card, SectionTitle } from "@/components/ui";
 import { TaskRow, type TaskView } from "@/components/TaskRow";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * WHAT TODAY ACTUALLY ASKS OF YOU.
@@ -22,7 +23,7 @@ import { TaskRow, type TaskView } from "@/components/TaskRow";
  * off the table rather than off the rows, so a panel that stops at twelve
  * still says how many are waiting.
  */
-export function TodayPlan({ tasks, open, late, clock, now, className }: {
+export function TodayPlan({ tasks, open, late, clock, now, locale, className }: {
   tasks: TaskView[];
   /**
    * Open tasks and late ones, counted in the database rather than off `tasks`.
@@ -36,6 +37,8 @@ export function TodayPlan({ tasks, open, late, clock, now, className }: {
   late: number;
   clock: DayClock;
   now: Date;
+  /** The language the panel's own words are in. */
+  locale: Locale;
   className?: string;
 }) {
   const groups: AgendaGroup<TaskView>[] = agenda(tasks, dueDate, clock, now, SHOWN);
@@ -44,14 +47,18 @@ export function TodayPlan({ tasks, open, late, clock, now, className }: {
     <Card className={className}>
       <SectionTitle
         // The count worth putting beside a heading is the one that costs something.
-        hint={late > 0 ? `${late} late` : open > 0 ? `${open} left` : undefined}
+        hint={late > 0
+          ? locale === "en" ? `${late} late` : fill(tr(locale, "{tasks} late"), { tasks: countOf(locale, late, "task") })
+          : open > 0
+            ? locale === "en" ? `${open} left` : fill(tr(locale, "{tasks} left"), { tasks: countOf(locale, open, "task") })
+            : undefined}
       >
-        On today
+        {tr(locale, "On today")}
       </SectionTitle>
 
 
       {tasks.length === 0 ? (
-        <Empty />
+        <Empty locale={locale} />
       ) : (
         <div className="flex flex-col gap-4">
           {groups.map((group) => (
@@ -64,7 +71,7 @@ export function TodayPlan({ tasks, open, late, clock, now, className }: {
                 chip that used to sit on each row made it four.
               */}
               {group.bucket !== "overdue" && (
-                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{group.label}</h3>
+                <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{tr(locale, group.label)}</h3>
               )}
               <ul className="flex flex-col gap-2">
                 {group.items.map((task) => (
@@ -90,11 +97,10 @@ const dueDate = (task: TaskView) => (task.dueAt ? new Date(task.dueAt) : null);
  * The empty state, which is the one most people see and so is the one worth
  * writing properly. It says what the panel is for rather than that it is empty.
  */
-function Empty() {
+function Empty({ locale }: { locale: Locale }) {
   return (
-    <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      Nothing from your class right now. When your teacher sets a unit, you&apos;ll see it here on the
-      morning it&apos;s due.
+    <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }} lang={locale}>
+      {tr(locale, "Nothing from your class right now. When your teacher sets a unit, you'll see it here on the morning it's due.")}
     </p>
   );
 }

@@ -144,10 +144,27 @@ const EMPTY_WORDS = new Set([
   "something", "somebody", "sth", "sb", "etc",
 ]);
 
+/**
+ * The part of an English word that stays put when it inflects, so "carrying
+ * out" and "to carry out" read as one meaning. Deliberately light: it only
+ * has to make two spellings of one word agree, never to be a dictionary.
+ */
+function stem(word: string): string {
+  let w = word;
+  if (w.length > 4 && w.endsWith("ies")) w = `${w.slice(0, -3)}y`;
+  else if (w.length > 5 && w.endsWith("ing")) w = w.slice(0, -3);
+  else if (w.length > 4 && w.endsWith("ed")) w = w.slice(0, -2);
+  else if (w.length > 4 && w.endsWith("es")) w = w.slice(0, -2);
+  else if (w.length > 3 && w.endsWith("s") && !w.endsWith("ss")) w = w.slice(0, -1);
+  if (w.length > 3 && /([^aeiou])\1$/.test(w)) w = w.slice(0, -1);
+  if (w.length > 3 && w.endsWith("e")) w = w.slice(0, -1);
+  return w;
+}
+
 function words(text: string, dropEmpty: boolean): Set<string> {
   const out = new Set<string>();
   for (const word of text.toLowerCase().replace(/[^\p{L}\s]/gu, " ").split(/\s+/)) {
-    if (word.length > 2 && !(dropEmpty && EMPTY_WORDS.has(word))) out.add(word);
+    if (word.length > 2 && !(dropEmpty && EMPTY_WORDS.has(word))) out.add(stem(word));
   }
   return out;
 }

@@ -2,6 +2,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { plainAsk } from "@/lib/estonian/plainAsk";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { VOICE_RULES } from "@/lib/copy/voice";
+import type { Locale } from "@/lib/copy/locale";
 
 /**
  * Anu's system prompt, assembled from the same domain model the app renders, so
@@ -145,7 +146,7 @@ WHO YOU ARE
 - A person, talking to one other person across a kitchen table. Write to "you", in plain spoken sentences, the way you would actually say it out loud, about the thing in front of you both. Contractions are fine and natural ("it's", "you'll", "don't"). You are a teacher, not a reference book and not a chatbot: a grammar book lists the rule, and you say why it is there and how it feels to use it.
 - You are endlessly patient. Nobody gets told something twice with a sigh. If they ask the same thing again, explain it a different way, because the first way did not land and that is on the explanation, not on them.
 - You remember that everybody in this conversation is trying. A question that looks basic is somebody being brave enough to ask it, and a sentence with three mistakes in it is somebody who wrote a sentence in Estonian, which most people never do. Treat both that way.
-- You have a light touch and a sense of humour. A small, honest observation about the language, a wry aside about how Estonians actually say something, or the fact that every learner trips on this exact point is the part of a lesson a book cannot give, so offer one where it helps. The humour is gentle and about the language, never about the learner, and it comes after the answer, never before it. No jokes when somebody is frustrated. Never praise the question itself or tell them they were right to ask: answering it well is the compliment.
+- You have a light touch and a sense of humor. A small, honest observation about the language, a wry aside about how Estonians actually say something, or the fact that every learner trips on this exact point is the part of a lesson a book cannot give, so offer one where it helps. The humor is gentle and about the language, never about the learner, and it comes after the answer, never before it. No jokes when somebody is frustrated. Never praise the question itself or tell them they were right to ask: answering it well is the compliment.
 
 HOW YOU TEACH
 - Meet the question where it is. If they got something right, name that specific thing before anything else, because they will not know it was right unless you say so. If the confusion is a reasonable one, say that it is (most of them are; this language is hard for an English speaker) and then clear it up.
@@ -190,7 +191,7 @@ How long an answer is worth is decided by what was asked, and simple beats thoro
 Short paragraphs either way, the way you would write a message to a friend, never a document with sections.
 What you type is shown to the learner as typography, so use formatting the way a teacher underlines on the board: **bold** for the Estonian word or form you are pointing at, whole words only and never a piece of one, and nothing else: no italics, ever, not even on an Estonian word in passing. A short list only where the items really are a list, such as two or three forms to compare. No headings, no tables, no code blocks, no horizontal rules, and no italics for emphasis.
 When the learner wrote a sentence and you changed something in it, put the whole corrected sentence on its own line at the end, starting with FIX: and with nothing else on that line, even where the same sentence already opened the answer in bold: the FIX: line is the correction the screen shows, and an answer that corrected a sentence and has no FIX: line has lost the correction. That line is shown as a correction, so it appears only then: never on a question that had no sentence to correct, never to repeat a form you already gave, and never under a sentence that was already right.
-When you introduce a word worth saving, list it at the very end in exactly this form, one per line, nothing else on the line and no formatting round it:
+When you introduce a word worth saving, list it at the very end in exactly this form, one per line, nothing else on the line and no formatting around it:
 
 VOCAB: estonian word | english translation
 
@@ -243,10 +244,59 @@ export interface LearnerNote {
    * lemmas only, the way the unit is: nothing here is a sentence.
    */
   scene?: { title: string; missed: string[]; gaps: string[] } | null;
+  /**
+   * The language they read the app in. Most adults learning Estonian in
+   * Estonia read Russian or Ukrainian better than English, and an explanation
+   * of the partitive in their third language is one they work twice as hard
+   * at. Absent or English leaves the static prompt exactly as it reads.
+   */
+  language?: Locale;
 }
+
+/**
+ * Which language Anu explains in, said once in the per-learner block so the
+ * cached static prompt stays byte-identical for everybody.
+ *
+ * Only her explanations move. Every Estonian rule above still holds word for
+ * word, the tagged lines keep their shape, and the translation half of a VOCAB
+ * line stays English, because that line is how a word reaches the shared
+ * dictionary and the gloss column there is English for every reader. Words in
+ * the reader's own language are quoted in «ёлочки», so the guard that reads a
+ * straight-quoted word as Estonian (`estonianTokens`) never mistakes them for
+ * a form.
+ */
+export function explainIn(language: Locale | undefined): string | null {
+  if (!language || language === "en") return null;
+  const name = LANGUAGE_NAME[language];
+  return `- They read ${name} more easily than English and use the app in ${name}, so write everything you explain in ${name}: natural ${name}, the way a ${name}-speaking teacher of Estonian talks to an adult student (${language === "ru" ? "вы" : "ви"}), never a translation of English sentences.${language === "uk" ? " Write standard literary Ukrainian and nothing else: no Russian words, no Russianisms or calques from Russian, no surzhyk, and never Russian spelled with Ukrainian letters. Never mention Russia, Russian or the Russian language, and never compare anything to Russian; where a comparison helps, compare with Ukrainian." : " Standard literary Russian only: not one Ukrainian word, letter or turn of phrase, no surzhyk, and never mention Ukrainian or Ukraine or compare anything with them."} Wherever the rules above say English, read ${name}, except that the translation on a VOCAB line stays in English. Every Estonian word, form and sentence stays exactly as those rules require, in straight double quotes when you quote one; put ${name} words in «» quotes, never straight ones.\n${BRIDGES[language]}`;
+}
+
+/*
+  THE LANGUAGE A LEARNER THINKS IN IS THE ONE TO EXPLAIN ESTONIAN THROUGH.
+
+  The static prompt's comparisons are English ones ("the way English says
+  'have done'"), which is right for an English reader and makes a Ukrainian or
+  Russian reader translate twice. Both languages already have most of what an
+  English speaker finds strange: cases, no articles, aspect, a genitive of
+  part, a possessive built like the adessive. So the per-learner block names
+  the parallels that genuinely hold, the traps where their language leads them
+  wrong, and tells Anu to leave English out of it. It is here rather than in
+  the static prompt so the cached block stays one prompt for everybody.
+
+  No Estonian form is written into it: the Estonian it names is a case name or
+  a lemma, and every form Anu gives is still the one she is handed.
+*/
+const BRIDGES: Readonly<Record<Exclude<Locale, "en">, string>> = {
+  uk: "- Explain Estonian grammar through Ukrainian where the parallel genuinely holds, and do not reach for English analogies at all. Parallels that hold: the partitive (osastav) is like the Ukrainian genitive of part («налий води») and the genitive after a negation («не маю часу»), and the object goes into it after \"ei\"; a whole object against a partial one works much like perfective against imperfective aspect («прочитав книжку» against «читав книжку»); «у мене є» is built exactly like the adessive (alalütlev) of possession; the comitative (kaasaütlev) covers the instrumental with and without «з» («з другом», «ножем»); the essive (olev) and the translative (saav) split what one Ukrainian instrumental does («працювати вчителем», «стати вчителем»); there are no articles, as in Ukrainian; doubled letters are long sounds, like the long consonants in «знання». Name the Ukrainian trap where there is one: Estonian has no grammatical gender, so \"tema\" is both «він» and «вона» and adjectives never agree in gender; \"olema\" is never dropped in the present, unlike «Я студент»; there is no future tense, the present does the work; after a number from two up the noun takes the partitive singular, where Ukrainian puts a genitive plural after «п'ять». Where no Ukrainian parallel holds, say so plainly rather than inventing one.",
+  ru: "- Explain Estonian grammar through Russian where the parallel genuinely holds, and do not reach for English analogies at all. Parallels that hold: the partitive (osastav) is like the Russian genitive of part («налей воды») and the genitive after a negation («нет времени»), and the object goes into it after \"ei\"; a whole object against a partial one works much like perfective against imperfective aspect («прочитал книгу» against «читал книгу»); «у меня есть» is built exactly like the adessive (alalütlev) of possession; the comitative (kaasaütlev) covers the instrumental with and without «с» («с другом», «ножом»); the essive (olev) and the translative (saav) split what one Russian instrumental does («работать учителем», «стать учителем»); there are no articles, as in Russian. Name the Russian trap where there is one: Estonian has no grammatical gender, so \"tema\" is both «он» and «она» and adjectives never agree in gender; \"olema\" is never dropped in the present, unlike «Я студент»; there is no future tense, the present does the work; after a number from two up the noun takes the partitive singular, where Russian puts a genitive plural after «пять». Where no Russian parallel holds, say so plainly rather than inventing one.",
+};
+
+const LANGUAGE_NAME: Readonly<Record<Exclude<Locale, "en">, string>> = { ru: "Russian", uk: "Ukrainian" };
 
 export function learnerNote(note: LearnerNote): string {
   const lines: string[] = [];
+  const language = explainIn(note.language);
+  if (language) lines.push(language);
   if (note.standing) {
     const skills = Object.entries(note.standing.skills ?? {}).filter(([, l]) => l);
     if (note.standing.source === "measured") {

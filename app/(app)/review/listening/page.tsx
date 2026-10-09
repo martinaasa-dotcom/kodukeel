@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
@@ -14,8 +16,12 @@ import {
   bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
 } from "@/lib/questions/distractors";
 import { practiceScope } from "@/lib/progress/moduleScope";
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
+import { meaningsShown } from "@/lib/collections/glossLanguage";
 
-export const metadata = { title: "Listening" };
+export async function generateMetadata() {
+  return titleFor("Listening");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +58,10 @@ export default async function ListeningPage({
   const scope = await practiceScope(ownerId, await searchParams);
   const scoped = scope ? { lexeme: lemmaFilter(scope) } : {};
 
-  const include = { lexeme: { select: { lemma: true, translation: true, pos: true, cefr: true } } } as const;
+  // The equivalents ride in the select that already loads the word, for drawing the options.
+  const include = {
+    lexeme: { select: { lemma: true, translation: true, pos: true, cefr: true, translationRu: true, translationUk: true } },
+  } as const;
   const [recent, due] = await Promise.all([
     /* Inside the module it leads with tonight and the evenings just before, as Match does. */
     scope
@@ -86,7 +95,7 @@ export default async function ListeningPage({
       },
       orderBy: { lapses: "desc" },
       take: POOL_SIZE - cards.length,
-      include: { lexeme: { select: { lemma: true, translation: true, pos: true, cefr: true } } },
+      include,
     });
     cards = [...cards, ...weak];
   }
@@ -105,7 +114,7 @@ export default async function ListeningPage({
       },
       orderBy: [{ due: "asc" }, { id: "asc" }],
       take: POOL_SIZE - cards.length,
-      include: { lexeme: { select: { lemma: true, translation: true, pos: true, cefr: true } } },
+      include,
     });
     cards = [...cards, ...met];
   }
@@ -120,12 +129,13 @@ export default async function ListeningPage({
     // reach four, so nothing on the screen is a word nobody has shown.
     const pool = decoysAmong(await decoyOptions(), scope?.lemmas, MIN_LEXEMES_FOR_CHOICES);
     if (pool.length < MIN_LEXEMES_FOR_CHOICES) {
+      const locale = await localeFor(ownerId);
       return (
-        <Page title="Listening" lead="Listen to a word, then pick what it means.">
+        <Page title={tr(locale, "Listening")} lead={tr(locale, "Listen to a word, then pick what it means.")}>
           <Empty
-            title="A few more words needed"
-            body={`The wrong answers come from your other words, so you'll need at least ${MIN_LEXEMES_FOR_CHOICES} in your deck.`}
-            action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+            title={tr(locale, "A few more words needed")}
+            body={fill(tr(locale, "The wrong answers come from your other words, so you'll need at least {n} in your deck."), { n: MIN_LEXEMES_FOR_CHOICES })}
+            action={<ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>}
           />
         </Page>
       );
@@ -144,9 +154,11 @@ export default async function ListeningPage({
     */
     // Which of the pool are already favorites, in one read rather than one
     // per card, so the star drawn after an answer is in the right state.
-    const starred = await starredAmong(
-      ownerId, cards.map((c) => c.lexemeId).filter((id): id is string => !!id),
-    );
+    const [starred, prefs] = await Promise.all([
+      starredAmong(ownerId, cards.map((c) => c.lexemeId).filter((id): id is string => !!id)),
+      meaningPrefsFor(ownerId),
+    ]);
+    const byText = prefs.lead === "en" ? null : new Map(pool.map((o) => [o.text, o]));
 
     const listeningCards: ListeningCard[] = [];
     for (const c of shuffle(cards)) {
@@ -165,8 +177,20 @@ export default async function ListeningPage({
       // dropped rather than padded, because this round has no shape to fall
       // back to: it is four options or it is nothing.
       if (!picked) continue;
+      /*
+        Drawn in the learner's language where every option has an equivalent,
+        and in English otherwise; `choices` stays the English that is marked.
+      */
+      const shown = byText ? meaningsShown(
+        picked.options.map((text) => ({
+          english: text,
+          entry: text === correct ? c.lexeme ?? null : byText.get(text)?.equivalents ?? null,
+        })),
+        prefs,
+      ) : null;
       listeningCards.push({
         id: c.id, lemma: plainPhrase(c.lexeme?.lemma ?? c.front, c.lexeme?.pos), correct, choices: picked.options, reps: c.reps,
+        choiceMeanings: shown && shown.some((m) => m.english !== null) ? shown : null,
         lexemeId: c.lexemeId,
         starred: !!c.lexemeId && starred.has(c.lexemeId),
       });

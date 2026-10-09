@@ -32,6 +32,7 @@
   Every function here is pure and returns `Html`. Nothing reads a clock, a
   database or an environment.
 */
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 import { esc, html, join, raw, type Html } from "./html";
 import { PALETTE as P } from "./palette";
 
@@ -93,7 +94,7 @@ export interface StepRow {
 }
 
 /**
- * Tonight's steps, ticked or waiting. The engine of the whole letter.
+ * Today's steps, ticked or waiting. The engine of the whole letter.
  *
  * A course day is a short list and some of it is finished, which is a real
  * unfinished task rather than a manufactured one: the ticks are read off the
@@ -106,7 +107,7 @@ export interface StepRow {
  * waiting is the ordinary ink with an open circle. Neither is red, and nothing
  * here is scolded: a step not yet taken is a step waiting, which is what it is.
  */
-export function stepLadder(steps: readonly StepRow[]): Html {
+export function stepLadder(steps: readonly StepRow[], locale: Locale = "en"): Html {
   const rows = steps.map((step) => {
     const mark = step.done ? TICK : RING;
     const markInk = step.done ? P.skyInk : P.ink3;
@@ -131,7 +132,7 @@ export function stepLadder(steps: readonly StepRow[]): Html {
         "line-height": "22px",
         "padding": "5px 0",
         "white-space": "nowrap",
-      })}">${step.minutes} min</td>
+      })}">${fill(tr(locale, "{n} min"), { n: step.minutes })}</td>
     </tr>`;
   });
   return html`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${join(rows)}</table>`;

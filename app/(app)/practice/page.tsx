@@ -1,3 +1,5 @@
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db";
@@ -6,11 +8,10 @@ import { deckSnapshot } from "@/lib/progress/summary";
 import { listDecks } from "@/lib/progress/decks";
 import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
-import { isBuildable } from "@/lib/estonian/cloze";
+import { isOrderable } from "@/lib/estonian/orderTiles";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { GAMES, QUICK_MODES, modeAt, type PracticeMode } from "@/lib/ux/modes";
-import { lengthAtPace, SPRINT_SECONDS } from "@/lib/ux/roundClock";
 import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
@@ -18,21 +19,23 @@ import { Empty, Page, SectionTitle, Stack, toneInk } from "@/components/ui";
 import { courseLevelFor } from "@/lib/progress/level";
 import { BUILD_FROM, maySortWords } from "@/lib/collections/levels";
 
-export const metadata = { title: "Practice" };
+export async function generateMetadata() {
+  return titleFor("Practice");
+}
 
 export const dynamic = "force-dynamic";
 
 /**
  * Every way to practice, in one place, with the state that decides whether each
- * one is worth doing right now: how many cards are due, your best sprint, your
+ * one is worth doing right now: how many cards are due, your
  * fastest match. A hub that just lists modes makes you guess; this one answers
  * "what should I do with the next five minutes".
  */
 export default async function PracticePage() {
   const ownerId = await requireUserId();
-  const [snapshot, settings, sentenceReady, words, decks, level] = await Promise.all([
+  const [snapshot, settings, sentenceReady, words, decks, level, locale] = await Promise.all([
     deckSnapshot(ownerId),
-    readSettings(ownerId, [SETTING_KEYS.sprintBest, SETTING_KEYS.matchBest, SETTING_KEYS.roundPace]),
+    readSettings(ownerId, [SETTING_KEYS.matchBest]),
     /*
       The learner's own words, asked for as words.
 
@@ -70,9 +73,9 @@ export default async function PracticePage() {
     // The band the sentences round itself asks, so the tile cannot count
     // sentences ready on a round that will open on "from A2".
     courseLevelFor(ownerId),
+    localeFor(ownerId),
   ]);
 
-  const sprintBest = numberSetting(settings[SETTING_KEYS.sprintBest], 0);
   /*
     Parsed once and asked twice. Each of these used to call `parseExamples` for
     itself, which is a `JSON.parse` per word per question, and the cap above is
@@ -83,7 +86,7 @@ export default async function PracticePage() {
     since it has to be short enough to hold in your head.
   */
   const usable = sentenceReady.map((w) => usableExamples(parseExamples(w.examples)));
-  const sentenceCount = usable.filter((es) => es.some((e) => isBuildable(e.et))).length;
+  const sentenceCount = usable.filter((es) => es.some((e) => isOrderable(e.et))).length;
   const dictationCount = usable.filter((es) => es.some((e) => {
     const count = dictationWords(e.et).length;
     return count >= 3 && count <= 9 && e.et.length <= 80;
@@ -101,8 +104,8 @@ export default async function PracticePage() {
   const counts = masteryCounts(words);
   const unfinished = counts.struggling + counts.almost + counts.learning;
   const flashMeta = unfinished > 0
-    ? `${unfinished} to work on`
-    : words.length > 0 ? "All mastered" : "No words yet";
+    ? fill(tr(locale, "{n} to work on"), { n: unfinished })
+    : words.length > 0 ? tr(locale, "All mastered") : tr(locale, "No words yet");
 
   /*
     What is ready right now, per round, where there is a figure worth saying.
@@ -111,21 +114,14 @@ export default async function PracticePage() {
     told nobody anything they needed in order to choose.
   */
   const live: Record<string, string | undefined> = {
-    "/review/sprint": sprintBest > 0 ? `Best: ${sprintBest}` : undefined,
-    "/review/match": matchBest > 0 ? `Best: ${matchBest}s` : undefined,
+    "/review/match": matchBest > 0 ? fill(tr(locale, "best {n}s"), { n: matchBest }) : undefined,
     /* "34 ready" on a round that answers an A1 learner with "word order
        starts at A2" is the tile and the round disagreeing about one press. */
-    "/review/sentences": !maySortWords(level) ? `From ${BUILD_FROM}` : sentenceCount > 0 ? `${sentenceCount} ready` : undefined,
-    "/review/dictation": dictationCount > 0 ? `${dictationCount} ready` : undefined,
+    "/review/sentences": !maySortWords(level) ? fill(tr(locale, "from {level}"), { level: BUILD_FROM }) : sentenceCount > 0 ? fill(tr(locale, "{n} ready"), { n: sentenceCount }) : undefined,
+    "/review/dictation": dictationCount > 0 ? fill(tr(locale, "{n} ready"), { n: dictationCount }) : undefined,
   };
-  /*
-    The one tile whose subtitle is a length, and the length is the learner's:
-    the sprint runs to whatever pace they set in Settings, so a fixed "60
-    seconds" here was wrong for everybody who had asked for longer.
-  */
-  const sprintLength = lengthAtPace(SPRINT_SECONDS, settings[SETTING_KEYS.roundPace]);
   const lineFor = (mode: PracticeMode) => {
-    const what = mode.href === "/review/sprint" ? sprintLength : mode.subtitle;
+    const what = tr(locale, mode.subtitle);
     const now = live[mode.href];
     return now ? `${what}, ${now}` : what;
   };
@@ -134,12 +130,12 @@ export default async function PracticePage() {
   const common = modeAt("/review/common");
 
   return (
-    <Page route="/practice" title="Practice" lead="The words you've met, asked every which way until they stick.">
+    <Page route="/practice" title={tr(locale, "Practice")} lead={tr(locale, "The words you've met, asked every which way until they stick.")}>
       {snapshot.totalCards === 0 ? (
         <Empty
-          title="Nothing to practice yet"
-          body="Every round here uses words from your own deck, so meet a few first."
-          action={<ButtonLink href="/learn" variant="primary">Learn some words first</ButtonLink>}
+          title={tr(locale, "Nothing to practice yet")}
+          body={tr(locale, "Every round here uses words from your own deck, so meet a few first.")}
+          action={<ButtonLink href="/learn" variant="primary">{tr(locale, "Learn some words first")}</ButtonLink>}
         />
       ) : (
         <Stack>
@@ -165,17 +161,17 @@ export default async function PracticePage() {
           <section className="night rounded-[var(--r-xl)] border p-6 md:p-9" aria-labelledby="practice-review">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
-                <p className="label-xs" style={{ color: "var(--butter-ink)" }}>Review</p>
+                <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{tr(locale, "Review")}</p>
                 <h2 id="practice-review" className="font-display mt-3 flex items-baseline gap-3 font-bold leading-none" style={{ color: "var(--ink)" }}>
                   <span className="text-7xl tabular-nums md:text-8xl">{ready}</span>
-                  <span className="text-2xl md:text-3xl">{ready === 1 ? "card waiting" : "cards waiting"}</span>
+                  <span className="text-2xl md:text-3xl">{countOf(locale, ready, "card waiting").slice(String(ready).length + 1)}</span>
                 </h2>
                 <p className="mt-4 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  Each word comes back just before you&apos;d forget it. We keep track of when, so you don&apos;t have to.
+                  {tr(locale, "Each word comes back just before you'd forget it. We keep track of when, so you don't have to.")}
                 </p>
               </div>
               <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full shrink-0 justify-center whitespace-nowrap lg:w-auto">
-                {ready > 0 ? "Review now" : "Nothing due, open it anyway"} <ArrowRight size={17} aria-hidden />
+                {ready > 0 ? tr(locale, "Review now") : tr(locale, "Nothing due, open it anyway")} <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             </div>
           </section>
@@ -187,39 +183,43 @@ export default async function PracticePage() {
               style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
             >
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h2 id="practice-flash" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{flash.title}</h2>
+                <h2 id="practice-flash" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{tr(locale, flash.title)}</h2>
                 <Link
                   href="/words/mastery"
                   className="text-sm font-semibold underline-offset-4 hover:underline"
                   style={{ color: "var(--accent-deep)" }}
                 >
-                  Where your words stand
+                  {tr(locale, "Where your words stand")}
                 </Link>
               </div>
               <p className="-mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                Your words, asked a new way each time: typed, heard in a sentence, or used in one you write. Pick which words.
+                {tr(locale, "Your words, asked a new way each time: typed, heard in a sentence, or used in one you write. Pick which words.")}
               </p>
 
-              <ChoiceGroup label="Your words">
-                <Choice href={flash.href} title="All your words" meta={flashMeta} />
+              <ChoiceGroup label={tr(locale, "Your words")}>
+                <Choice href={flash.href} title={tr(locale, "All your words")} meta={flashMeta} />
                 {stocked.map((deck) => (
                   <Choice
                     key={deck.id}
                     href={`/review/deck/${deck.id}`}
                     title={deck.name}
-                    meta={deck.wordCount === 1 ? "1 word" : `${deck.wordCount} words`}
+                    meta={countOf(locale, deck.wordCount, "word")}
                   />
                 ))}
               </ChoiceGroup>
 
-              <ChoiceGroup label={common.title} href={common.href}>
+              <ChoiceGroup label={tr(locale, common.title)} href={common.href}>
                 {COMMON_GROUPS.map((group) => (
                   <Choice
                     key={group.key}
                     href={`/review/common/${group.slug}`}
-                    title={group.title}
-                    meta="100 words"
-                    label={`${flash.title}: ${common.title.toLowerCase()}, ${group.title.toLowerCase()}`}
+                    title={tr(locale, group.title)}
+                    meta={countOf(locale, 100, "word")}
+                    label={fill(tr(locale, "{round}: {list}, {group}"), {
+                      round: tr(locale, flash.title),
+                      list: tr(locale, common.title).toLowerCase(),
+                      group: tr(locale, group.title).toLowerCase(),
+                    })}
                   />
                 ))}
               </ChoiceGroup>
@@ -238,8 +238,8 @@ export default async function PracticePage() {
             `within: "/practice"` appears without anybody remembering this file.
           */}
           <section aria-labelledby="practice-rounds">
-            <SectionTitle hint="a few minutes each">
-              <span id="practice-rounds">Rounds and games</span>
+            <SectionTitle hint={tr(locale, "a few minutes each")}>
+              <span id="practice-rounds">{tr(locale, "Rounds and games")}</span>
             </SectionTitle>
             {/* Columns by the room the page has rather than by the window:
                 at 768 the rail takes a column and a viewport breakpoint laid
@@ -251,15 +251,15 @@ export default async function PracticePage() {
                   twelve under it still fill their rows. */}
               <div className="@lg:col-span-2 @3xl:col-span-3">
                 <ModeTile
-                  mode={{ href: "/situations", tone: "sky", icon: "MessagesSquare", title: "Situations" }}
-                  line="Talk your way through a real moment, at a café, a ticket window or the doctor's. Five to eight minutes."
+                  mode={{ href: "/situations", tone: "sky", icon: "MessagesSquare", title: tr(locale, "Situations") }}
+                  line={tr(locale, "Talk your way through a real moment, at a café, a ticket window or the doctor's. Five to eight minutes.")}
                 />
               </div>
               {QUICK_MODES.map((m) => (
-                <ModeTile key={m.href} mode={m} line={lineFor(m)} />
+                <ModeTile key={m.href} mode={{ ...m, title: tr(locale, m.title) }} line={lineFor(m)} />
               ))}
               {GAMES.map((m) => (
-                <ModeTile key={m.href} mode={m} line={lineFor(m)} />
+                <ModeTile key={m.href} mode={{ ...m, title: tr(locale, m.title) }} line={lineFor(m)} />
               ))}
             </div></div>
           </section>

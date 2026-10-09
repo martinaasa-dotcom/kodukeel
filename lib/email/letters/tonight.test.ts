@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { tonightLetter, type TonightInput } from "./tonight";
 
 const base = (over: Partial<TonightInput> = {}): TonightInput => ({
+  locale: "en",
   name: null,
   origin: "https://example.test",
   day: {
@@ -54,15 +55,15 @@ describe("an evening with no new words", () => {
 
   it("does not promise zero new words, in the subject or the heading", () => {
     const letter = tonightLetter(base({ day: { ...base().day, newWords: 0, steps: unstarted } }));
-    expect(letter.subject).toBe("Back to Kodus tonight");
+    expect(letter.subject).toBe("Back to Kodus today");
     const headings = letter.blocks.flatMap((b) => ("text" in b && b.t === "heading" ? [b.text] : []));
-    expect(headings.join(" ")).toContain("Words you know, put to work tonight");
+    expect(headings.join(" ")).toContain("Words you know, put to work today");
     expect(JSON.stringify(letter)).not.toMatch(/Zero new/);
   });
 
   it("says one new word in the singular", () => {
     const letter = tonightLetter(base({ day: { ...base().day, newWords: 1, steps: unstarted } }));
-    expect(letter.subject).toBe("One new word tonight");
+    expect(letter.subject).toBe("One new word today");
   });
 });
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/Button";
 import { Card, Note } from "@/components/ui";
 import { AnuProse } from "@/components/anu/Prose";
 import type { WithholdReason } from "@/lib/tutor/verify";
+import { useT } from "@/components/Locale";
 
 interface Reading {
   comment: string;
@@ -45,6 +46,7 @@ export function AnuReading({ text, level, title, marks }: {
   const [reading, setReading] = useState<Reading | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   async function ask() {
     setBusy(true);
@@ -57,12 +59,12 @@ export function AnuReading({ text, level, title, marks }: {
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ?? "We couldn't read that.");
+        setError(body.error ? t(body.error) : t("We couldn't read that."));
         return;
       }
       setReading(body as Reading);
     } catch {
-      setError("Anu needs a connection to read it. Your result is safe either way.");
+      setError(t("Anu needs a connection to read it. Your result is safe either way."));
     } finally {
       setBusy(false);
     }
@@ -89,7 +91,7 @@ export function AnuReading({ text, level, title, marks }: {
           <div>
             <p className="label-xs mb-2" style={{ color: "var(--blush-ink)" }}>
               <MessageCircleQuestion size={12} className="mr-1 inline" aria-hidden />
-              Anu&apos;s read it. None of this changes your marks.
+              {t("Anu's read it. None of this changes your marks.")}
             </p>
             {reading.comment ? (
               <AnuProse text={reading.comment} className="text-md" />
@@ -98,15 +100,11 @@ export function AnuReading({ text, level, title, marks }: {
                 <ShieldCheck size={14} className="mr-1.5 inline" aria-hidden />
                 {reading.withheldReason === "unvouched-word" ? (
                   <>
-                    Anu used a word the dictionary couldn&apos;t check, so we&apos;ve held her note back.
-                    It may well be English, but we&apos;d rather not guess. Nothing&apos;s broken here:
-                    we just never show you an Estonian word in feedback unless we can check it.
+                    {t("Anu used a word the dictionary couldn't check, so we've held her note back. It may well be English, but we'd rather not guess. Nothing's broken here: we just never show you an Estonian word in feedback unless we can check it.")}
                   </>
                 ) : (
                   <>
-                    Anu used an Estonian word the dictionary couldn&apos;t check, so we&apos;ve held her
-                    note back. Nothing&apos;s broken here: we just never show you an Estonian word in
-                    feedback unless we can check it.
+                    {t("Anu used an Estonian word the dictionary couldn't check, so we've held her note back. Nothing's broken here: we just never show you an Estonian word in feedback unless we can check it.")}
                   </>
                 )}
               </Note>
@@ -115,18 +113,18 @@ export function AnuReading({ text, level, title, marks }: {
               <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{reading.rule}</p>
             )}
             {reading.quotaMessage && (
-              <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{reading.quotaMessage}</p>
+              <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{t(reading.quotaMessage)}</p>
             )}
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
             <Button onClick={ask} disabled={busy}>
               {busy
-                ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Reading</>
-                : <><MessageCircleQuestion size={15} aria-hidden /> Ask Anu to read it</>}
+                ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</>
+                : <><MessageCircleQuestion size={15} aria-hidden /> {t("Ask Anu to read it")}</>}
             </Button>
             <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-              She doesn&apos;t mark anything, so your result stays exactly as it is.
+              {t("She doesn't mark anything, so your result stays exactly as it is.")}
             </span>
           </div>
         )}

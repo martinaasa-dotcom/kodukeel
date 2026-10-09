@@ -33,21 +33,76 @@ import { oneEntryPerLemma } from "@/lib/dict/search";
 import { Explain } from "@/components/Explain";
 import { SOURCE_CREDITS } from "@/lib/legal/credits";
 import { SpelledCount, spelledCount } from "@/lib/copy/values";
+import { Languages } from "lucide-react";
+import { LocaleProvider } from "@/components/Locale";
+import { rich } from "@/components/Rich";
+import { MACHINE_SHORT, countOf, languagesBeside, fill, tr, type Locale } from "@/lib/copy/locale";
+import { LANDING_HREF, langParam, localeHref } from "@/lib/copy/publicLocale";
+import { ENTRY_COPY, ENTRY_LOCALES, MACHINE_TRANSLATED_EN, type EntryLocale } from "@/lib/copy/entryLocales";
+import { questionReading } from "@/lib/estonian/cases";
+import { stepText } from "@/lib/course/stepText";
 
 export const metadata: Metadata = {
   title: { absolute: "kodukeel. Estonian that finally sticks" },
   description:
     "Kodukeel means home language. Fifteen minutes of Estonian an evening, a safe place to practice the conversations you're dreading, and a gentle push to go and have them for real. Free, for anyone making a home in Estonia.",
+  alternates: { languages: { en: "/welcome", ...Object.fromEntries(ENTRY_LOCALES.map((l) => [l, ENTRY_COPY[l].href])) } },
 };
 
 /** The landing page is public and read-only, so it can be cached hard. */
 export const revalidate = 3600;
 
-export default async function WelcomePage() {
-  const { words, stats } = await loadDemo();
+/**
+ * THE SAME PAGE IN THREE LANGUAGES, AND THE ADDRESS IS WHAT SAYS WHICH.
+ *
+ * `/welcome` is English, and `/welcome/ru` and `/welcome/uk` render this
+ * component with their language in `params`, so the three stay one page
+ * rather than a short translated copy drifting beside a long original. No
+ * search parameter is read, which is what keeps every one of them static.
+ * Every line goes through `t`, the area is `lib/copy/i18n/areas/landing.ts`,
+ * and the Estonian on it is the dictionary's whatever the page is read in.
+ */
+interface Say {
+  readonly locale: Locale;
+  readonly t: (english: string, context?: string) => string;
+  /** A link onto another public page, in the language this one is read in. */
+  readonly href: (path: string) => string;
+  /** A count in prose: spelled out in English, a figure in Russian and Ukrainian. */
+  readonly count: (n: number) => string;
+  /** A large number with the reader's own grouping. */
+  readonly big: (n: number) => string;
+  /** "6,153 words", in the reader's own plural and grouping. */
+  readonly counted: (n: number, noun: string) => string;
+}
+
+function sayIn(locale: Locale): Say {
+  return {
+    locale,
+    t: (english, context) => tr(locale, english, context),
+    href: (path) => localeHref(path, locale),
+    count: (n) => (locale === "en" ? spelledCount(n) : String(n)),
+    big: (n) => n.toLocaleString(locale === "en" ? "en-GB" : locale),
+    counted: (n, noun) => countOf(locale, n, noun).replace(String(n), n.toLocaleString(locale === "en" ? "en-GB" : locale)),
+  };
+}
+
+export default async function WelcomePage({ params }: { params?: Promise<{ lang?: string }> }) {
+  const locale = langParam((await params)?.lang) ?? "en";
+  const say = sayIn(locale);
+  const copy = locale === "en" ? null : ENTRY_COPY[locale];
+  const { words: loaded, stats } = await loadDemo();
+  // What each form means, in the reader's language: the question it answers,
+  // because the short English readings ("into the book") are built from an
+  // English gloss and have no Russian or Ukrainian of their own.
+  const words = locale === "en" ? loaded : loaded.map((w) => ({
+    ...w,
+    principal: w.principal.map((p) => ({ ...p, english: questionReading(p.label.split(", ")[1], locale) ?? p.english })),
+    cases: w.cases.map((demo) => ({ ...demo, english: questionReading(demo.question, locale) ?? demo.english })),
+  }));
 
   return (
-    <div className="landing relative overflow-x-hidden" style={{ background: "var(--ground)" }}>
+    <LocaleProvider locale={locale}>
+    <div lang={locale} className="landing relative overflow-x-hidden" style={{ background: "var(--ground)" }}>
       {/*
         One faint light at the top of the page, in the accent's own tint. It
         was three drifting pastel blobs, which banded into rings on a warm
@@ -59,7 +114,7 @@ export default async function WelcomePage() {
         style={{ background: "radial-gradient(60% 70% at 50% 0%, var(--wash-1), transparent 70%)" }}
       />
 
-      <Nav />
+      <Nav say={say} />
 
       {/*
         Ten sections became eight, and eight became five.
@@ -86,21 +141,22 @@ export default async function WelcomePage() {
         section of its own, which is where the person asking it looks.
       */}
       <main className="landing-flow relative">
-        <Hero stats={stats} words={words} />
-        <WhoFor />
-        <Cases words={words} />
-        <Evening />
-        <Talk />
-        <Features />
-        <Compare />
-        <Plan />
-        <Questions />
-        <FinalCta />
+        <Hero say={say} stats={stats} words={words} />
+        <WhoFor say={say} />
+        <Cases say={say} words={words} />
+        <Evening say={say} />
+        <Talk say={say} />
+        <Features say={say} />
+        <Compare say={say} />
+        <Plan say={say} />
+        <Questions say={say} />
+        <FinalCta say={say} />
       </main>
 
-      <Footer />
-      <LandingAnu lines={ANU_LINES} />
+      <Footer say={say} copy={copy} />
+      <LandingAnu lines={anuLines(say)} />
     </div>
+    </LocaleProvider>
   );
 }
 
@@ -112,17 +168,17 @@ export default async function WelcomePage() {
  * every other authored line on this page is English (ADR-005); the Estonian
  * on this page all came out of the dictionary.
  */
-const ANU_LINES: readonly AnuLine[] = [
-  { at: "top", mood: "happy", text: "Hi, I’m Anu, the tutor. Mind if I walk down the page with you?" },
-  { at: "who", mood: "happy", text: "Whichever one you are, you start the same way: fifteen minutes tonight." },
-  { at: "cases", mood: "thinking", text: "Press an ending and watch it snap on. That’s the whole trick, honestly." },
-  { at: "evening", mood: "happy", text: "This really is how your first evening starts. Five new words, and then they come back to check on you." },
-  { at: "talk", mood: "cheer", text: "Go on, order something. The person behind the counter is very patient." },
-  { at: "features", mood: "happy", text: "Ask me the thing you’d be too shy to ask in class. I never sigh." },
-  { at: "compare", mood: "thinking", text: "Keep your class. I’m here for the evenings in between." },
-  { at: "plan", mood: "happy", text: "Have a play with it. Inside, I do the same sum with your real pace." },
-  { at: "faq", mood: "thinking", text: "Short, straight answers. How we compare with other apps is the last one." },
-  { at: "start", mood: "cheer", text: "Fifteen minutes a day. See you inside." },
+const anuLines = ({ t }: Say): readonly AnuLine[] => [
+  { at: "top", mood: "happy", text: t("Hi, I’m Anu, the tutor. Mind if I walk down the page with you?") },
+  { at: "who", mood: "happy", text: t("Whichever one you are, you start the same way: fifteen minutes today.") },
+  { at: "cases", mood: "thinking", text: t("Press an ending and watch it snap on. That’s the whole trick, honestly.") },
+  { at: "evening", mood: "happy", text: t("This really is how your first evening starts. Five new words, and then they come back to check on you.") },
+  { at: "talk", mood: "cheer", text: t("Go on, order something. The person behind the counter is very patient.") },
+  { at: "features", mood: "happy", text: t("Ask me the thing you’d be too shy to ask in class. I never sigh.") },
+  { at: "compare", mood: "thinking", text: t("Keep your class. I’m here for the evenings in between.") },
+  { at: "plan", mood: "happy", text: t("Play around with it. Inside, I do the same math with your real pace.") },
+  { at: "faq", mood: "thinking", text: t("Short, straight answers. How we compare with other apps is the last one.") },
+  { at: "start", mood: "cheer", text: t("Fifteen minutes a day. See you inside.") },
 ];
 
 /**
@@ -141,7 +197,9 @@ function Reveal({ children }: { children: React.ReactNode }) {
 
 /* ─────────────────────────────────────────────────────────── nav ── */
 
-function Nav() {
+function Nav({ say }: { say: Say }) {
+  const { t, locale } = say;
+  const signIn = locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`;
   return (
     <header className="sticky top-0 z-50 px-4 pt-4">
       <nav
@@ -159,7 +217,7 @@ function Nav() {
           that is a lone icon, and this one is an icon and a word. The row is
           already 45px for the button beside it, so the nav does not grow.
         */}
-        <BrandLink href="/welcome" label="Kodukeel, home" className="flex min-h-11 items-center">
+        <BrandLink href={LANDING_HREF[locale]} label={t("Kodukeel, home")} className="flex min-h-11 items-center">
           <Wordmark size={30} />
         </BrandLink>
         {/*
@@ -183,27 +241,57 @@ function Nav() {
           rather than quietly folding again.
         */}
         <div className="hidden items-center gap-7 whitespace-nowrap text-sm font-medium lg:flex" style={{ color: "var(--ink-2)" }}>
-          <a href="#who" className="transition-opacity hover:opacity-60">Who it’s for</a>
-          <a href="#cases" className="transition-opacity hover:opacity-60">The cases</a>
-          <a href="#plan" className="transition-opacity hover:opacity-60">Your plan</a>
+          <a href="#who" className="transition-opacity hover:opacity-60">{t("Who it’s for")}</a>
+          <a href="#cases" className="transition-opacity hover:opacity-60">{t("The cases")}</a>
+          <a href="#plan" className="transition-opacity hover:opacity-60">{t("Your plan")}</a>
         </div>
         <div className="flex items-center gap-2">
+          {/*
+            The other languages, by their codes from `sm` up and by their own
+            names from `xl`: both on the English page, English alone on the
+            Russian and the Ukrainian (`languagesBeside`), which never name each
+            other. Below `sm` the pill has room for the wordmark and the button
+            alone, so a phone finds them in the footer. Real links, each marked
+            with its own language.
+          */}
+          <span className="hidden items-center text-sm font-semibold sm:flex">
+            {languagesBeside(locale).filter((l) => l !== locale).map((l) => (
+              <Link
+                key={l}
+                href={LANDING_HREF[l]}
+                lang={l}
+                hrefLang={l}
+                aria-label={l === "en" ? "English" : ENTRY_COPY[l].name}
+                className="tap-tint whitespace-nowrap rounded-full px-2.5 py-2"
+                style={{ color: "var(--ink-2)" }}
+              >
+                <span className="hidden xl:inline">{l === "en" ? "English" : ENTRY_COPY[l].name}</span>
+                <span aria-hidden className="xl:hidden">{l.toUpperCase()}</span>
+              </Link>
+            ))}
+          </span>
           <Link
-            href="/sign-in"
+            href={signIn}
             className="hidden whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-60 sm:block"
             style={{ color: "var(--ink-2)" }}
           >
-            Sign in
+            {t("Sign in")}
           </Link>
           {/* Under 360 the pill holds the wordmark and "Start" and no more:
               "Start free" with its arrow came to 290px in a 256px pill and
               broke "Start" in half, and "Start" with the arrow still did at 94px.
               Two whole labels rather than one with a word hidden, so each is a
               single run of text wherever it shows, and no arrow down there. */}
-          <ButtonLink href="/sign-in" variant="primary" className="group">
-            <span className="max-[359px]:hidden">Start free</span>
-            <span className="hidden max-[359px]:inline">Start</span>
-            <ArrowRight size={15} aria-hidden className="transition-transform group-hover:translate-x-0.5 max-[359px]:hidden" />
+          {/* Russian and Ukrainian say "Start free" in about half as many
+              letters again, so their short label takes over below 420. */}
+          <ButtonLink href={signIn} variant="primary" className="group">
+            <span className={locale === "en" ? "max-[359px]:hidden" : "max-[419px]:hidden"}>{t("Start free")}</span>
+            <span className={locale === "en" ? "hidden max-[359px]:inline" : "hidden max-[419px]:inline"}>{t("Start", "begin")}</span>
+            <ArrowRight
+              size={15}
+              aria-hidden
+              className={`transition-transform group-hover:translate-x-0.5 ${locale === "en" ? "max-[359px]:hidden" : "max-[419px]:hidden"}`}
+            />
           </ButtonLink>
         </div>
       </nav>
@@ -240,7 +328,9 @@ function Nav() {
  * half: the eye goes down the middle to the button rather than across to a card
  * and back.
  */
-function Hero({ stats, words }: { stats: { words: number; forms: number }; words: DemoWord[] }) {
+function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: number }; words: DemoWord[] }) {
+  const { t, locale, counted } = say;
+  const signIn = locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`;
   /*
     The four figures that were a panel of their own, as one line of evidence
     under the button. A stat panel three screens down is a claim nobody has a
@@ -259,10 +349,12 @@ function Hero({ stats, words }: { stats: { words: number; forms: number }; words
       a dictionary put each form there and no model did. The FAQ names the three
       sources one screen down; this line is the promise they add up to.
     */
-    `${stats.words.toLocaleString("en-GB")} words, ${stats.forms.toLocaleString("en-GB")} forms, and not one of them made up by AI`,
-    `${PATH.length} units, from your first hello at ${LEVELS[0]} all the way to ${LEVELS[LEVELS.length - 1]}`,
-    "Free, and it works offline",
-    "Counts the real conversations you have, not the days you open the app",
+    fill(t("{words}, {forms}, and not one of them made up by AI"), { words: counted(stats.words, "word"), forms: counted(stats.forms, "form") }),
+    fill(t("{units}, from your first hello at {first} all the way to {last}"), {
+      units: counted(PATH.length, "unit"), first: LEVELS[0]!, last: LEVELS[LEVELS.length - 1]!,
+    }),
+    t("Free, and it works offline"),
+    t("Counts the real conversations you have, not the days you open the app"),
   ];
   /*
     As tall as what is in it, and one section gap from the next beat. The
@@ -289,22 +381,41 @@ function Hero({ stats, words }: { stats: { words: number; forms: number }; words
         <div className="hero-copy">
           <p className="hero-kicker fade-up">
             <span className="hero-kicker-dot" aria-hidden />
-            Estonian for the life you live here
+            {t("Estonian for the life you live here")}
           </p>
-          <h1 className="hero-display">
-            <span className="word-in" style={{ "--w": "60ms" } as React.CSSProperties}>Estonian</span>{" "}
-            <span className="word-in" style={{ "--w": "160ms" } as React.CSSProperties}>that</span>{" "}
-            <span className="word-in" style={{ "--w": "220ms" } as React.CSSProperties}>finally</span>{" "}
-            <span className="word-in hero-sticker" style={{ "--w": "380ms" } as React.CSSProperties}>sticks</span>
+          {/*
+            In Russian and Ukrainian the headline is one phrase rather than
+            four English words: the last word still wears the sticker, and the
+            stagger runs over whatever words the phrase has.
+          */}
+          <h1 className={locale === "en" ? "hero-display" : "hero-display hero-display-long"}>
+            {locale === "en" ? (
+              <>
+                <span className="word-in" style={{ "--w": "60ms" } as React.CSSProperties}>Estonian</span>{" "}
+                <span className="word-in" style={{ "--w": "160ms" } as React.CSSProperties}>that</span>{" "}
+                <span className="word-in" style={{ "--w": "220ms" } as React.CSSProperties}>finally</span>{" "}
+                <span className="word-in hero-sticker" style={{ "--w": "380ms" } as React.CSSProperties}>sticks</span>
+              </>
+            ) : (
+              t("Estonian that finally sticks").split(" ").map((word, n, all) => (
+                <span key={n}>
+                  {n > 0 ? " " : null}
+                  <span
+                    className={n === all.length - 1 ? "word-in hero-sticker" : "word-in"}
+                    style={{ "--w": `${60 + n * 100}ms` } as React.CSSProperties}
+                  >
+                    {word}
+                  </span>
+                </span>
+              ))
+            )}
           </h1>
           <p className="fade-up hero-lead hero-sub max-w-[44ch] leading-relaxed" style={{ animationDelay: "420ms" }}>
-            The neighbor says hello. A coworker asks you something. Even the dog seems to expect
-            Estonian. You need the right words when someone&rsquo;s actually looking at you, and
-            Kodukeel gets you there, fifteen minutes at a time.
+            {t("The neighbor says hello. A coworker asks you something. Even the dog seems to expect Estonian. You need the right words when someone’s actually looking at you, and Kodukeel gets you there, fifteen minutes at a time.")}
           </p>
           <div className="fade-up hero-action flex flex-wrap items-center gap-x-5 gap-y-3" style={{ animationDelay: "520ms" }}>
-            <ButtonLink href="/sign-in" variant="primary" size="lg" hop="hover" className="hero-cta group w-full sm:w-auto">
-              Start learning for free{" "}
+            <ButtonLink href={signIn} variant="primary" size="lg" hop="hover" className="hero-cta group w-full sm:w-auto">
+              {t("Start learning for free")}{" "}
               <ArrowRight size={17} aria-hidden className="transition-transform group-hover:translate-x-1" />
             </ButtonLink>
           </div>
@@ -336,43 +447,45 @@ function Hero({ stats, words }: { stats: { words: number; forms: number }; words
  * as an adult, and they are the reasons first run asks for, so picking the
  * card that is you here is picking the plan you will be shown inside.
  */
-const WHO = [
+const whoCards = ({ t, href }: Say) => [
   {
     icon: House,
     tone: "accent",
-    title: "You live here now",
-    body: "The pharmacist, the parents at the school gate, the letter from the city. Learn the Estonian you'll actually bump into this week.",
+    title: t("You live here now"),
+    body: t("The pharmacist, the parents at the school gate, the letter from the city. Learn the Estonian you'll actually bump into this week."),
   },
   {
     icon: Heart,
     tone: "blush",
-    title: "You love someone who speaks it",
-    body: "Their mum on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it.",
+    title: t("You love someone who speaks it"),
+    body: t("Their mom on the phone, their friends' jokes, the toast at the birthday party. Get the words ready before Sunday lunch, not halfway through it."),
   },
   {
     icon: ClipboardCheck,
     tone: "butter",
-    title: "You have an exam to pass",
-    body: "Full mock papers from A2 to C1, marked by clear rules you can check, not an AI's hunch. Walk in on the day knowing exactly what's coming.",
-    href: "/state-exam",
-    link: "How the real exam works",
+    title: t("You have an exam to pass"),
+    body: t("Full mock papers from A2 to C1, marked by clear rules you can check, not an AI's hunch. Walk in on the day knowing exactly what's coming."),
+    href: href("/state-exam"),
+    link: t("How the real exam works"),
   },
   {
     icon: Briefcase,
     tone: "sky",
-    title: "You work in Estonian",
-    body: "Meetings, emails, a chat by the coffee machine. Get to know the words you'll hear at work every day, and try the tricky conversations here first, where getting it wrong costs nothing.",
+    title: t("You work in Estonian"),
+    body: t("Meetings, emails, a chat by the coffee machine. Get to know the words you'll hear at work every day, and try the tricky conversations here first, where getting it wrong costs nothing."),
   },
 ] as const;
 
-function WhoFor() {
+function WhoFor({ say }: { say: Say }) {
+  const { t } = say;
+  const WHO = whoCards(say);
   return (
     <section id="who" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
         <div className="section-head">
-          <p className="section-tag" data-tone="blush">Who it’s for</p>
+          <p className="section-tag" data-tone="blush">{t("Who it’s for")}</p>
           <h2 className="landing-title">
-            Whatever brought you to Estonian
+            {t("Whatever brought you to Estonian")}
           </h2>
         </div>
       </Reveal>
@@ -429,20 +542,22 @@ function WhoFor() {
  * tool-by-tool table, checked against each product's own pages, stays in the
  * questions below for the reader who wants names.
  */
-const KINDS = [
-  { name: "A streak app", good: "A daily habit and your first few hundred words.", stops: "The fourteen cases, which is exactly where Estonian gets hard." },
-  { name: "A class or a textbook", good: "A teacher, a syllabus and people to talk to.", stops: "Bringing each word back the day before you'd forget it." },
-  { name: "An AI chatbot", good: "An answer at eleven at night, about anything.", stops: "Getting the forms right. It writes Estonian that looks perfect and isn't." },
+const kinds = ({ t }: Say) => [
+  { name: t("A streak app"), good: t("A daily habit and your first few hundred words."), stops: t("The fourteen cases, which is exactly where Estonian gets hard.") },
+  { name: t("A class or a textbook"), good: t("A teacher, a syllabus and people to talk to."), stops: t("Bringing each word back the day before you'd forget it.") },
+  { name: t("An AI chatbot"), good: t("An answer at eleven at night, about anything."), stops: t("Getting the forms right. It writes Estonian that looks perfect and isn't.") },
 ] as const;
 
-function Compare() {
+function Compare({ say }: { say: Say }) {
+  const { t } = say;
+  const KINDS = kinds(say);
   return (
     <section id="compare" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
         <div className="section-head">
-          <p className="section-tag" data-tone="sky">How it compares</p>
+          <p className="section-tag" data-tone="sky">{t("How it compares")}</p>
           <h2 className="landing-title">
-            Keep what you already use. The fourteen cases are the bit it&rsquo;s missing.
+            {t("Keep what you already use. The fourteen cases are the bit it’s missing.")}
           </h2>
         </div>
       </Reveal>
@@ -452,11 +567,11 @@ function Compare() {
             <div key={kind.name} className="rounded-[var(--r-xl)] border p-6" style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth)" }}>
               <h3 className="text-md font-semibold" style={{ color: "var(--ink)" }}>{kind.name}</h3>
               <p className="mt-4 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                <Check size={16} aria-label="Good at" className="mt-0.5 shrink-0" style={{ color: "var(--sky-ink)" }} />
+                <Check size={16} aria-label={t("Good at")} className="mt-0.5 shrink-0" style={{ color: "var(--sky-ink)" }} />
                 <span>{kind.good}</span>
               </p>
               <p className="mt-3 flex gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                <Minus size={16} aria-label="Stops at" className="mt-0.5 shrink-0" style={{ color: "var(--ink-3)" }} />
+                <Minus size={16} aria-label={t("Stops at")} className="mt-0.5 shrink-0" style={{ color: "var(--ink-3)" }} />
                 <span>{kind.stops}</span>
               </p>
             </div>
@@ -464,17 +579,15 @@ function Compare() {
           <div className="compare-ours night rounded-[var(--r-xl)] border p-6">
             <h3 className="font-display text-xl font-bold" style={{ color: "var(--cta)" }}>kodukeel</h3>
             <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink)" }}>
-              The cases taught one at a time, every word brought back just before you&rsquo;d
-              forget it, a tutor awake at any hour, and every form straight from a dictionary, never
-              an AI. Free, and it works offline.
+              {t("The cases taught one at a time, every word brought back just before you’d forget it, a tutor awake at any hour, and every form straight from a dictionary, never an AI. Free, and it works offline.")}
             </p>
           </div>
         </div>
       </Reveal>
       <p className="mt-6 max-w-[60ch] text-sm" style={{ color: "var(--ink-3)" }}>
-        Weighing up particular apps? There&rsquo;s a side-by-side table in{" "}
-        <a href="#comparison" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>the questions below</a>,
-        checked against each app&rsquo;s own website.
+        {rich(t("Weighing up particular apps? There’s a side-by-side table in {below}, checked against each app’s own website in August 2026."), {
+          below: <a href="#comparison" className="font-semibold underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>{t("the questions below")}</a>,
+        })}
       </p>
     </section>
   );
@@ -482,18 +595,18 @@ function Compare() {
 
 /* ────────────────────────────────────────────────────────── plan ── */
 
-function Plan() {
+function Plan({ say }: { say: Say }) {
+  const { t } = say;
   return (
     <section id="plan" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
         <div className="section-head">
-          <p className="section-tag" data-tone="butter">Your plan</p>
+          <p className="section-tag" data-tone="butter">{t("Your plan")}</p>
           <h2 className="landing-title">
-            When could you get there?
+            {t("When could you get there?")}
           </h2>
           <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Answer four questions and we&rsquo;ll do the same sum the app does inside. You get a
-            range, because anyone who gives you one exact number is guessing.
+            {t("Answer four questions and we’ll do the same math the app does inside. You get a range, because anyone who gives you one exact number is guessing.")}
           </p>
         </div>
       </Reveal>
@@ -501,11 +614,8 @@ function Plan() {
         <div className="plan-card mt-10 rounded-[var(--r-xl)] border p-5 md:mt-12 md:p-10">
           <PlanCalculator />
           <div className="mt-6">
-          <Explain label="Where the hours come from">
-            We start from the study hours usually published for each level, add extra where
-            Estonian&rsquo;s cases start to bite, and keep the total inside what the US Foreign
-            Service Institute estimates for the language. It isn&rsquo;t measured on people using
-            this app. Once you&rsquo;re inside, the same sum runs on your own pace instead.
+          <Explain label={t("Where the hours come from")}>
+            {t("We start from the study hours usually published for each level, add extra where Estonian’s cases start to bite, and keep the total inside what the US Foreign Service Institute estimates for the language. It isn’t measured on people using this app. Once you’re inside, the same math runs on your own pace instead.")}
           </Explain>
           </div>
         </div>
@@ -527,7 +637,8 @@ function Plan() {
  * it. The third is on Anu's card and in the line of evidence under the hero,
  * where it is a promise about the whole app rather than one grievance in three.
  */
-function Cases({ words }: { words: DemoWord[] }) {
+function Cases({ say, words }: { say: Say; words: DemoWord[] }) {
+  const { t, count } = say;
   const derivable = words.filter((w) => w.cases.some((c) => !c.principal && c.singular));
   if (derivable.length === 0) return null;
   const learnCount = derivable[0]!.principal.length;
@@ -565,16 +676,12 @@ function Cases({ words }: { words: DemoWord[] }) {
           for it.
         */}
         <div className="section-head">
-          <p className="section-tag" data-tone="accent">You didn&rsquo;t fail Estonian. Your tools did.</p>
+          <p className="section-tag" data-tone="accent">{t("You didn’t fail Estonian. Your tools did.")}</p>
           <h2 className="landing-title">
-            Learn {spelledCount(learnCount)} forms.<br className="lg:hidden" /> Build the other {spelledCount(buildCount)}.
+            {fill(t("Learn {n} forms."), { n: say.locale === "en" ? count(learnCount) : say.counted(learnCount, "form") })}<br className="lg:hidden" /> {fill(t("Build the other {n}."), { n: count(buildCount) })}
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Fourteen cases is the number that makes people give up on Estonian. Here&rsquo;s the
-            secret: you learn three forms of a word, sometimes four, and the rest are the same
-            endings glued on, for every word in the language. When a word breaks the pattern,
-            you&rsquo;ll see what Estonians actually say right beside what the rule predicts. Press
-            an ending and build one yourself.
+            {t("Fourteen cases is the number that makes people give up on Estonian. Here’s the secret: you learn three forms of a word, sometimes four, and the rest are the same endings glued on, for every word in the language. When a word breaks the pattern, you’ll see what Estonians actually say right beside what the rule predicts. Press an ending and build one yourself.")}
           </p>
         </div>
       </Reveal>
@@ -700,41 +807,47 @@ function Cases({ words }: { words: DemoWord[] }) {
  * evenings. No database: the course is code, which is also why this section is
  * there on a deployment whose dictionary has not answered yet.
  */
-function eveningOne(): { words: EveningWord[]; steps: EveningStep[]; title: string; canDo: string; evenings: number } | null {
+function eveningOne({ t, locale }: Say): { words: EveningWord[]; steps: EveningStep[]; title: string; canDo: string; evenings: number } | null {
   const day = DEFAULT_PROGRAMME.days[0];
   if (!day) return null;
   const unit = unitById(day.unitId);
   const gloss = new Map((unit?.words ?? []).map(([lemma, en]) => [lemma, en] as const));
   const words = day.words.flatMap((et) => {
     const en = gloss.get(et);
-    return en ? [{ et, en }] : [];
+    // A word's meaning in Russian or Ukrainian is the landing area's, read
+    // under "gloss" so a short English word cannot collide with a button.
+    return en ? [{ et, en: locale === "en" ? en : t(en, "gloss") }] : [];
   });
   if (words.length < 4) return null;
   return {
     words,
-    steps: day.steps.map((s) => ({ title: s.title, minutes: s.minutes, why: s.why })),
+    steps: day.steps.map((s) => ({ ...stepText(day, s, locale), minutes: s.minutes })),
     title: day.title,
-    canDo: unit?.canDo ?? "",
+    canDo: unit?.canDo ? t(unit.canDo) : "",
     evenings: PROGRAMMES.reduce((n, p) => n + p.days.length, 0),
   };
 }
 
-function Evening() {
-  const evening = eveningOne();
+function Evening({ say }: { say: Say }) {
+  const { t, count } = say;
+  const evening = eveningOne(say);
   if (!evening) return null;
   const minutes = evening.steps.reduce((n, s) => n + s.minutes, 0);
   return (
     <section id="evening" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
         <div className="section-head">
-          <p className="section-tag" data-tone="sky">Your first evening</p>
+          <p className="section-tag" data-tone="sky">{t("Your first evening")}</p>
           <h2 className="landing-title">
-            {minutes} minutes, {spelledCount(evening.words.length)} words. Try the first step now.
+            {fill(t("{minutes} minutes, {words} words. Try the first step now."), {
+              // Russian and Ukrainian take the noun's form from the number, so
+              // the template there holds no noun and is handed the counted phrase.
+              minutes: say.locale === "en" ? minutes : say.counted(minutes, "minute"),
+              words: say.locale === "en" ? count(evening.words.length) : say.counted(evening.words.length, "word"),
+            })}
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Every evening is one button. You meet a handful of new words, and they pop back a
-            moment later to check you kept them. A quick game or two puts them to work, and then
-            the app says you&rsquo;re done for the night.
+            {t("Every evening is one button. You meet a handful of new words, and they pop back a moment later to check you kept them. A quick game or two puts them to work, and then the app says you’re done for the night.")}
           </p>
         </div>
       </Reveal>
@@ -756,19 +869,18 @@ function Evening() {
  * on it let a visitor say anything to anybody. This is the café scene through
  * the app's own machinery, keyless (`app/api/demo-scene/route.ts`).
  */
-function Talk() {
+function Talk({ say }: { say: Say }) {
+  const { t } = say;
   return (
     <section id="talk" className="mx-auto w-full max-w-6xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
         <div className="section-head">
-          <p className="section-tag" data-tone="blush">Say it to somebody</p>
+          <p className="section-tag" data-tone="blush">{t("Say it to somebody")}</p>
           <h2 className="landing-title">
-            Order a drink in Estonian. Right now, no account needed.
+            {t("Order a drink in Estonian. Right now, no account needed.")}
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            This is one of the fifteen conversations inside: a café counter, and somebody waiting for
-            your order. Here you pick what to say, from hello to paying. Inside the app, you type it
-            yourself.
+            {t("This is one of the fifteen conversations inside: a café counter, and somebody waiting for your order. Here you pick what to say, from hello to paying. Inside the app, you type it yourself.")}
           </p>
         </div>
       </Reveal>
@@ -781,7 +893,8 @@ function Talk() {
   );
 }
 
-function Features() {
+function Features({ say }: { say: Say }) {
+  const { t } = say;
   /*
     THREE CARDS, AND WHAT EACH ONE IS FOR CHANGED.
 
@@ -846,24 +959,23 @@ function Features() {
           one clause each, and the line under it says how the three fit.
         */}
         <div className="section-head">
-          <p className="section-tag" data-tone="butter">What you get</p>
+          <p className="section-tag" data-tone="butter">{t("What you get")}</p>
           <h2 className="landing-title">
-            Someone to ask, words that stay, and a nudge out the door
+            {t("Someone to ask, words that stay, and a nudge out the door")}
           </h2>
           <p className="mt-5 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            The three feed each other. A word Anu explains goes into your practice with one press,
-            and it comes back on the evening you&rsquo;re about to forget it.
+            {t("The three feed each other. A word Anu explains goes into your practice with one press, and it comes back on the evening you’re about to forget it.")}
           </p>
         </div>
       </Reveal>
 
-      <div className="mt-10 grid gap-5 md:mt-14 md:grid-cols-3">
+      <div className="mt-10 grid gap-5 md:mt-14 lg:grid-cols-3">
         <Reveal>
           <Feature
             tone="blush"
             icon={<Sparkles size={18} aria-hidden />}
-            title="Anu, who never sighs"
-            body="Ask her the thing you'd never ask in class. She'll build a sentence with you, read the one you wrote, and tell you why the ending changed. Every Estonian word she shows you is checked in the dictionary, never guessed."
+            title={t("Anu, who never sighs")}
+            body={t("Ask her the thing you'd never ask in class. She'll build a sentence with you, read the one you wrote, and tell you why the ending changed. Every Estonian word she shows you is checked in the dictionary, never guessed.")}
           >
             <TutorPeek />
           </Feature>
@@ -872,16 +984,16 @@ function Features() {
           <Feature
             tone="accent"
             icon={<BookOpen size={18} aria-hidden />}
-            title="Words that stay"
-            body={`Look up any word and keep it with one press, every form included, read aloud in ten different voices. Then there are ${PATH.length} units of words like it. Each comes back the day before you'd forget it, and you hear it the way people really say it: fast, over café noise, down a crackly phone line.`}
+            title={t("Words that stay")}
+            body={fill(t("Look up any word and keep it with one press, every form included, read aloud in ten different voices. Then there are {units} of words like it. Each comes back the day before you'd forget it, and you hear it the way people really say it: fast, over café noise, down a crackly phone line."), { units: say.counted(PATH.length, "unit") })}
           />
         </Reveal>
         <Reveal>
           <Feature
             tone="sky"
             icon={<Target size={18} aria-hidden />}
-            title="Then the real thing"
-            body="A receptionist with no slot on Thursday, a landlord on a bad line, a queue at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count."
+            title={t("Then the real thing")}
+            body={t("A receptionist with no slot on Thursday, a landlord on a bad line, a line at the counter. Rehearse it here first, where nobody's watching. Then say one thing to a real person today and tell us how it went. Those are the conversations that really count.")}
           />
         </Reveal>
       </div>
@@ -974,35 +1086,34 @@ const TOOLS = [
   { name: "Anki", short: "Anki", ours: false },
 ] as const;
 
-const ROWS: readonly { label: string; cells: readonly [Verdict, Verdict, Verdict, Verdict] }[] = [
-  { label: "Free, with no subscription", cells: ["yes", "no", "yes", "yes"] },
-  { label: "Built for Estonian and nothing else", cells: ["yes", "no", "yes", "no"] },
-  { label: "Teaches the cases one at a time", cells: ["yes", "unsure", "yes", "no"] },
-  { label: "Every form shows the dictionary it came from", cells: ["yes", "no", "no", "no"] },
-  { label: "Brings a word back on the day you would forget it", cells: ["yes", "yes", "no", "yes"] },
-  { label: "Any word you look up becomes a card", cells: ["yes", "no", "no", "yes"] },
-  { label: "Explains why the answer was wrong", cells: ["yes", "yes", "yes", "no"] },
-  { label: "Keeps working with no connection", cells: ["yes", "unsure", "no", "yes"] },
-  { label: "Lets you rehearse a conversation with somebody who wants something from you", cells: ["yes", "unsure", "no", "no"] },
-  { label: "Counts the conversations you have outside it", cells: ["yes", "no", "no", "no"] },
+const rowsIn = ({ t }: Say): readonly { label: string; cells: readonly [Verdict, Verdict, Verdict, Verdict] }[] => [
+  { label: t("Free, with no subscription"), cells: ["yes", "no", "yes", "yes"] },
+  { label: t("Built for Estonian and nothing else"), cells: ["yes", "no", "yes", "no"] },
+  { label: t("Teaches the cases one at a time"), cells: ["yes", "unsure", "yes", "no"] },
+  { label: t("Every form shows the dictionary it came from"), cells: ["yes", "no", "no", "no"] },
+  { label: t("Brings a word back on the day you would forget it"), cells: ["yes", "yes", "no", "yes"] },
+  { label: t("Any word you look up becomes a card"), cells: ["yes", "no", "no", "yes"] },
+  { label: t("Explains why the answer was wrong"), cells: ["yes", "yes", "yes", "no"] },
+  { label: t("Keeps working with no connection"), cells: ["yes", "unsure", "no", "yes"] },
+  { label: t("Lets you rehearse a conversation with somebody who wants something from you"), cells: ["yes", "unsure", "no", "no"] },
+  { label: t("Counts the conversations you have outside it"), cells: ["yes", "no", "no", "no"] },
 ];
 
 /**
- * Rows where a product other than ours also earns a tick. Read off `ROWS`,
+ * Rows where a product other than ours also earns a tick. Read off the rows,
  * because the summary above the table says the number out loud.
  *
  * Spelled rather than printed as a digit, because the sentence around it is
- * prose and the rest of this page counts in words. The table is eight rows
- * long, so the list only has to reach as far as the table can.
+ * prose and the rest of this page counts in words; in Russian and Ukrainian
+ * it is a figure, which is how both write a count in prose.
  */
-const shared = ROWS.filter((row) => row.cells.slice(1).includes("yes")).length;
-/**
- * Capitalized at the source and lowered at the one call site that needs it
- * mid-sentence, rather than the other way about: this is the count of claims
- * in the table and is the kind of thing a second caller wants to open with.
- */
-const CLAIM_COUNT = SpelledCount(ROWS.length);
-const SHARED_ROWS = spelledCount(shared);
+function sharedRows(say: Say, rows: ReturnType<typeof rowsIn>): { claims: string; shared: string } {
+  const shared = rows.filter((row) => row.cells.slice(1).includes("yes")).length;
+  // Capitalized at the source and lowered where it sits mid-sentence: the
+  // count of claims is the kind of thing a second caller wants to open with.
+  const claims = say.locale === "en" ? SpelledCount(rows.length).toLowerCase() : String(rows.length);
+  return { claims, shared: say.locale === "en" ? spelledCount(shared) : String(shared) };
+}
 
 /*
   ONE LINE EACH, AND THE LINE IS WHAT THEY ARE BETTER AT.
@@ -1014,33 +1125,33 @@ const SHARED_ROWS = spelledCount(shared);
   a chapter count, which platforms are free) is theirs to publish and is a
   click away on their own site, where it will also be current.
 */
-const CREDITS = [
+const creditsIn = ({ t }: Say) => [
   {
     name: "Speakly",
-    body: "Made in Estonia, and the quickest way to get 4,000 common words into your ear. It's a paid app.",
+    body: t("Made in Estonia, and the quickest way to get 4,000 common words into your ear. It's a paid app."),
   },
   {
-    name: "Keeleklikk and Keeletee",
-    body: "Free, state-funded courses where a real teacher answers you by email. Start there, and keep this open alongside.",
+    name: t("Keeleklikk and Keeletee"),
+    body: t("Free, state-funded courses where a real teacher answers you by email. Start there, and keep this open alongside."),
   },
   {
     name: "Anki",
-    body: "Schedules anything you're willing to type in. Finding the Estonian is up to you, and so is getting it right.",
+    body: t("Schedules anything you're willing to type in. Finding the Estonian is up to you, and so is getting it right."),
   },
   {
-    name: "The vocabulary apps",
-    body: "Drops, Mondly, Memrise, Ling and the rest are good at words. This is about which form of the word to use, and why.",
+    name: t("The vocabulary apps"),
+    body: t("Drops, Mondly, Memrise, Ling and the rest are good at words. This is about which form of the word to use, and why."),
   },
 ] as const;
 
-function Mark({ verdict }: { verdict: Verdict }) {
+function Mark({ verdict, t }: { verdict: Verdict; t: Say["t"] }) {
   if (verdict === "yes") {
     return (
       <span
         className="flex h-7 w-7 items-center justify-center rounded-full"
         style={{ background: "var(--sky-soft)", color: "var(--sky-ink)" }}
       >
-        <Check size={15} strokeWidth={3} aria-label="yes" />
+        <Check size={15} strokeWidth={3} aria-label={t("yes", "mark")} />
       </span>
     );
   }
@@ -1050,7 +1161,7 @@ function Mark({ verdict }: { verdict: Verdict }) {
         className="flex h-7 w-7 items-center justify-center rounded-full"
         style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}
       >
-        <CircleHelp size={15} strokeWidth={2.5} aria-label="we could not tell" />
+        <CircleHelp size={15} strokeWidth={2.5} aria-label={t("we could not tell")} />
       </span>
     );
   }
@@ -1059,7 +1170,7 @@ function Mark({ verdict }: { verdict: Verdict }) {
       className="flex h-7 w-7 items-center justify-center rounded-full"
       style={{ background: "var(--raised)", color: "var(--ink-3)" }}
     >
-      <Minus size={15} strokeWidth={3} aria-label="no" />
+      <Minus size={15} strokeWidth={3} aria-label={t("no", "mark")} />
     </span>
   );
 }
@@ -1081,9 +1192,13 @@ function Mark({ verdict }: { verdict: Verdict }) {
  * below still holds: a page that will not say what it is not better at is a
  * page whose claims cannot be checked.
  */
-function Comparison() {
+function Comparison({ say }: { say: Say }) {
+  const { t } = say;
+  const ROWS = rowsIn(say);
+  const CREDITS = creditsIn(say);
+  const { claims, shared } = sharedRows(say, ROWS);
   return (
-    <FaqItem id="comparison" question="How does it compare with Speakly, Keeleklikk and Anki?">
+    <FaqItem id="comparison" question={t("How does it compare with Speakly, Keeleklikk and Anki?")}>
       {/*
         No Reveal inside here. It fades a section up as it enters the
         viewport, and an element that is display:none until somebody opens
@@ -1093,12 +1208,12 @@ function Comparison() {
         for by name.
       */}
       <p className="mt-3 max-w-[68ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        Duolingo has never offered Estonian, so the real choice is between the tools that do. We
-        checked {CLAIM_COUNT.toLowerCase()} claims against each tool&rsquo;s own website, and
-        another tool earns a tick on {SHARED_ROWS} of them. None of them is trying to get you
-        saying{" "}
-        <span lang="et" className="font-semibold">ma lähen tuppa</span> and knowing why it isn&rsquo;t{" "}
-        <span lang="et" className="font-semibold">tuba</span>.
+        {rich(t("As of August 2026, Duolingo has never offered Estonian, so the real choice is between the tools that do. That month we checked {claims} claims against each tool’s own website, and another tool earns a check mark on {shared} of them. None of them is trying to get you saying {e1} and knowing why it isn’t {e2}."), {
+          claims,
+          shared,
+          e1: <span lang="et" className="font-semibold">ma lähen tuppa</span>,
+          e2: <span lang="et" className="font-semibold">tuba</span>,
+        })}
       </p>
 
       {/* Phones get a card per claim: four columns of ticks at 390px would
@@ -1117,7 +1232,7 @@ function Comparison() {
             <div className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-2">
               {TOOLS.map((tool, i) => (
                 <span key={tool.name} className="flex items-center gap-2">
-                  <Mark verdict={row.cells[i] ?? "unsure"} />
+                  <Mark t={t} verdict={row.cells[i] ?? "unsure"} />
                   <span
                     className="text-xs font-semibold"
                     style={{ color: tool.ours ? "var(--accent-deep)" : "var(--ink-3)" }}
@@ -1164,7 +1279,7 @@ function Comparison() {
             <span className="text-base" style={{ color: "var(--ink-2)" }}>{row.label}</span>
             {TOOLS.map((tool, i) => (
               <span key={tool.name} className="flex justify-center">
-                <Mark verdict={row.cells[i] ?? "unsure"} />
+                <Mark t={t} verdict={row.cells[i] ?? "unsure"} />
               </span>
             ))}
           </div>
@@ -1184,11 +1299,8 @@ function Comparison() {
         ))}
       </div>
 
-      <Explain label="How this table was checked">
-        A tick means yes, a dash means their own pages don&rsquo;t say so, and a question mark
-        means we couldn&rsquo;t tell. We checked each product&rsquo;s own website in August 2026.
-        Every name belongs to its owner, and none of them has endorsed this. If we&rsquo;ve got
-        something wrong, tell us and we&rsquo;ll fix it.
+      <Explain label={t("How this table was checked")}>
+        {t("A check mark means yes, a dash means their own pages don’t say so, and a question mark means we couldn’t tell. We checked each product’s own website in August 2026. Every name belongs to its owner, and none of them has endorsed this. If we’ve got something wrong, tell us and we’ll fix it.")}
       </Explain>
     </FaqItem>
   );
@@ -1210,17 +1322,17 @@ function Comparison() {
   reader only wants once they are inside, which is a screen they reach by
   signing in rather than a paragraph they scroll past to reach the button.
 */
-const FAQS = [
+const faqsIn = ({ t }: Say) => [
   [
-    "Do I need to pay for anything?",
-    "No, and there's nothing to install either. A few things cost us real money to run, so Anu, the writing feedback and the camera each have a daily limit. A normal evening never gets near it.",
+    t("Do I need to pay for anything?"),
+    t("No, and there's nothing to install either. A few things cost us real money to run, so Anu, the writing feedback and the camera each have a daily limit. A normal evening never gets near it."),
   ],
   [
-    "Where do the Estonian forms come from?",
-    "From a real dictionary, never from AI. AI makes up forms that look right and aren't, and a flashcard would drill that mistake straight into your head. When Anu translates a sentence for you, the app says so.",
+    t("Where do the Estonian forms come from?"),
+    t("From a real dictionary, never from AI. AI makes up forms that look right and aren't, and a flashcard would drill that mistake straight into your head. When Anu translates a sentence for you, the app says so."),
   ],
   [
-    "Is this only for beginners?",
+    t("Is this only for beginners?"),
     /*
       Main's rewrite of this answer, with the one word this branch is here for
       taken out of it. "A ten-minute check" was written when the paper was
@@ -1230,15 +1342,15 @@ const FAQS = [
       misleads. The shorter answer is main's and is better than what this
       branch had.
     */
-    "Not at all. It runs from A1 to C1, and the bits that trip up even advanced learners get extra practice: letters that change in the middle of a word, the case each verb insists on, and when an object takes which ending. Not sure where you are? Take the level check. There are mock state exam papers at A2, B1, B2 and C1 too, built fresh from real sentences and marked by clear rules rather than a model. The one exception is the spoken part, which you mark yourself.",
+    t("Not at all. It runs from A1 to C1, and the bits that trip up even advanced learners get extra practice: letters that change in the middle of a word, the case each verb insists on, and when an object takes which ending. Not sure where you are? Take the level check. There are mock state exam papers at A2, B1, B2 and C1 too, built fresh from real sentences and marked by clear rules rather than a model. The one exception is the spoken part, which you mark yourself."),
   ],
   [
-    "Will it actually get me talking to people?",
-    "That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It won't score your pronunciation, though. The best speech recognizer we could find gets native speakers wrong, and we'd rather tell you that than pretend.",
+    t("Will it actually get me talking to people?"),
+    t("That's the whole point. You'll practice with people who want something from you: a receptionist, a landlord, a clerk. What you say is checked against the dictionary, never graded by an AI, so you can't be told you were wrong when you were right. Every morning the app asks whether you spoke Estonian to anyone yesterday, and if not, it gives you one small thing to say out loud. It counts those conversations, even the ones where somebody switched to English. It won't score your pronunciation, though. The best speech recognizer we could find gets native speakers wrong, and we'd rather tell you that than pretend."),
   ],
   [
-    "What happens to my data?",
-    "It stays in your account, and you can download every bit of it from Settings whenever you like. Your record of every answer you've given is the one thing we could never rebuild, so we never change or delete any of it, unless you delete your account.",
+    t("What happens to my data?"),
+    t("It stays in your account, and you can download every bit of it from Settings whenever you like. Your record of every answer you've given is the one thing we could never rebuild, so we never change or delete any of it, unless you delete your account."),
   ],
 ] as const;
 
@@ -1309,7 +1421,9 @@ function FaqItem({ id, question, children }: { id?: string; question: string; ch
   );
 }
 
-function Questions() {
+function Questions({ say }: { say: Say }) {
+  const { t } = say;
+  const FAQS = faqsIn(say);
   return (
     <section id="faq" className="mx-auto w-full max-w-4xl scroll-mt-24 px-5 md:px-8">
       <Reveal>
@@ -1320,12 +1434,12 @@ function Questions() {
           and this is the reference part of the page.
         */}
         <div className="section-head">
-          <p className="section-tag" data-tone="accent">Questions</p>
+          <p className="section-tag" data-tone="accent">{t("Questions")}</p>
           <h2 className="landing-title">
-            Things people ask us
+            {t("Things people ask us")}
           </h2>
           <p className="mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Short answers, straight to the point. How this compares with other apps is the last one.
+            {t("Short answers, straight to the point. How this compares with other apps is the last one.")}
           </p>
         </div>
       </Reveal>
@@ -1341,7 +1455,7 @@ function Questions() {
           </Reveal>
         ))}
         <Reveal>
-          <Comparison />
+          <Comparison say={say} />
         </Reveal>
       </div>
     </section>
@@ -1362,7 +1476,9 @@ function Questions() {
  * screens up rather than eight, and a "see it first" link at the bottom of a
  * short page is an invitation to leave the one screen that asks for a decision.
  */
-function FinalCta() {
+function FinalCta({ say }: { say: Say }) {
+  const { t, locale } = say;
+  const signIn = locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`;
   return (
     <section id="start" className="w-full px-5 md:px-8">
       <Reveal>
@@ -1385,7 +1501,7 @@ function FinalCta() {
               break at all, and only one of those is available at every width.
             */}
             <h2 className="landing-title cta-title mx-auto mt-6">
-              Fifteen minutes here.<br />Then <span className="hero-sticker">say it</span> to somebody.
+              {t("Fifteen minutes here.")}<br />{rich(t("Then {say} to somebody."), { say: <span className="hero-sticker">{t("say it", "sticker")}</span> })}
             </h2>
             {/*
               The close pays off the section that opens the page's argument.
@@ -1405,17 +1521,16 @@ function FinalCta() {
               the payoff and nothing else.
             */}
             <p className="mx-auto mt-6 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--stage-ink-2)" }}>
-              Next time somebody speaks to you in Estonian, you&rsquo;ll have something to say
-              back. And it won&rsquo;t be the first time you&rsquo;ve said it.
+              {t("Next time somebody speaks to you in Estonian, you’ll have something to say back. And it won’t be the first time you’ve said it.")}
             </p>
             <VisitRecap />
             <div className="mt-8 flex justify-center">
-              <ButtonLink href="/sign-in" variant="primary" size="lg" hop="hover" className="w-full sm:w-auto">
-                Start learning for free <ArrowRight size={17} aria-hidden />
+              <ButtonLink href={signIn} variant="primary" size="lg" hop="hover" className="w-full sm:w-auto">
+                {t("Start learning for free")} <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             </div>
             <p className="mt-5 text-xs" style={{ color: "var(--stage-ink-2)" }}>
-              Sign in with Google in a click. Nothing to install, and you can take your data with you any time.
+              {t("Sign in with Google in a click. Nothing to install, and you can take your data with you any time.")}
             </p>
           </div>
         </div>
@@ -1437,7 +1552,18 @@ function FinalCta() {
  * screen can afford. The rule still sits well clear of the closing panel, so
  * the credits read as the end of the page and not as part of the card above.
  */
-function Footer() {
+/**
+ * A footer link onto another public page, in the language the page is read
+ * in. The English address stays written out at every call, which is what
+ * the invariant that every public page is linked from here reads.
+ */
+function FootLink({ href, say, children }: { href: string; say: Say; children: React.ReactNode }) {
+  const to = href === "/sign-in" ? (say.locale === "en" ? href : `/sign-in?lang=${say.locale}`) : say.href(href);
+  return <li><Link href={to} className="underline underline-offset-4 transition-opacity hover:opacity-70">{children}</Link></li>;
+}
+
+function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale] | null }) {
+  const { t, locale } = say;
   return (
     <footer className="landing-foot relative px-5 pb-14 md:px-8 md:pb-20">
       <div className="mx-auto max-w-6xl border-t pt-12 md:pt-16" style={{ borderColor: "var(--rule)" }}>
@@ -1445,13 +1571,12 @@ function Footer() {
           <div>
             <Wordmark size={32} />
             <p className="mt-5 max-w-[34ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Kodukeel means home language. It&rsquo;s free, and every Estonian form in it comes
-              from a dictionary, never from AI.
+              {t("Kodukeel means home language. It’s free, and every Estonian form in it comes from a dictionary, never from AI.")}
             </p>
           </div>
 
           <div>
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>Built on</p>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Built on")}</p>
             <ul className="mt-4 flex flex-col gap-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
               {SOURCE_CREDITS.map((src) => (
                 <li key={src.name} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
@@ -1459,9 +1584,9 @@ function Footer() {
                     <a href={src.href} target="_blank" rel="noreferrer" className="underline underline-offset-4 transition-opacity hover:opacity-70">
                       {src.name}
                     </a>
-                    {src.by ? <span className="font-normal" style={{ color: "var(--ink-2)" }}>, {src.by}</span> : null}
+                    {src.by ? <span className="font-normal" style={{ color: "var(--ink-2)" }}>, {t(src.by)}</span> : null}
                   </span>
-                  <span>{src.gives}</span>
+                  <span>{t(src.gives)}</span>
                   {src.licence ? <span style={{ color: "var(--ink-3)" }}>{src.licence}</span> : null}
                 </li>
               ))}
@@ -1485,20 +1610,49 @@ function Footer() {
             is a page nobody has read.
           */}
           <div>
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>Read more</p>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Read more")}</p>
             <ul className="mt-4 flex flex-col gap-3 text-sm font-medium" style={{ color: "var(--ink-2)" }}>
-              <li><Link href="/privacy" className="underline underline-offset-4 transition-opacity hover:opacity-70">Privacy</Link></li>
-              <li><Link href="/terms" className="underline underline-offset-4 transition-opacity hover:opacity-70">Terms</Link></li>
-              <li><Link href="/funding" className="underline underline-offset-4 transition-opacity hover:opacity-70">What it costs to run</Link></li>
-              <li><Link href="/trust" className="underline underline-offset-4 transition-opacity hover:opacity-70">Security and trust</Link></li>
-              <li><Link href="/accessibility" className="underline underline-offset-4 transition-opacity hover:opacity-70">Accessibility</Link></li>
-              <li><Link href="/state-exam" className="underline underline-offset-4 transition-opacity hover:opacity-70">The state examination</Link></li>
-              <li><Link href="/welcome/ru" lang="ru" className="underline underline-offset-4 transition-opacity hover:opacity-70">Русский</Link></li>
-              <li><Link href="/welcome/uk" lang="uk" className="underline underline-offset-4 transition-opacity hover:opacity-70">Українська</Link></li>
-              <li><Link href="/sign-in" className="underline underline-offset-4 transition-opacity hover:opacity-70">Sign in</Link></li>
+              <FootLink say={say} href="/privacy">{t("Privacy")}</FootLink>
+              <FootLink say={say} href="/terms">{t("Terms")}</FootLink>
+              <FootLink say={say} href="/funding">{t("What it costs to run")}</FootLink>
+              <FootLink say={say} href="/trust">{t("Security and trust")}</FootLink>
+              <FootLink say={say} href="/accessibility">{t("Accessibility")}</FootLink>
+              <FootLink say={say} href="/state-exam">{t("The state examination")}</FootLink>
+              {locale !== "en" && (
+                <li><Link href="/welcome" lang="en" hrefLang="en" className="underline underline-offset-4 transition-opacity hover:opacity-70">English</Link></li>
+              )}
+              {locale === "en" && ENTRY_LOCALES.map((l) => (
+                <li key={l}>
+                  <Link href={ENTRY_COPY[l].href} lang={l} hrefLang={l} className="underline underline-offset-4 transition-opacity hover:opacity-70">
+                    {ENTRY_COPY[l].name}
+                  </Link>
+                </li>
+              ))}
+              <FootLink say={say} href="/sign-in">{t("Sign in")}</FootLink>
             </ul>
           </div>
         </div>
+        {/*
+          A translation nobody fluent has read says so, in its own language
+          and in English, and says what language the app itself opens in. It
+          was a butter banner above the nav, which was louder than anything
+          else on the first screen; it is a quiet line at the foot now, where
+          the rest of the page's small print lives. Still drawn off the
+          table's `reviewed` flag, so it goes only when somebody fluent signs
+          the locale off.
+        */}
+        {copy && !copy.reviewed && (
+          <aside
+            aria-label={say.t("About this translation")}
+            className="mt-10 flex max-w-3xl items-start gap-2 text-sm leading-relaxed"
+            style={{ color: "var(--ink-3)" }}
+          >
+            <Languages size={16} aria-hidden className="mt-0.5 shrink-0" />
+            <span>
+              {copy.notice} <span lang="en">{MACHINE_TRANSLATED_EN}</span> {copy.appLanguage} {MACHINE_SHORT[copy.lang]}
+            </span>
+          </aside>
+        )}
       </div>
     </footer>
   );

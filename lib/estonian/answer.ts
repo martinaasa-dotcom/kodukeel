@@ -17,6 +17,7 @@
  */
 
 import { FOLD, fold } from "@/lib/estonian/fold";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 export type Verdict = "correct" | "diacritics" | "typo" | "form" | "wrong";
 
@@ -70,6 +71,21 @@ export interface AnswerCheck {
   note: string;
   /** The rating to suggest for FSRS. The learner can still override it. */
   suggestedRating: 1 | 2 | 3;
+  /**
+   * The note as a template and the values in it, so `noteIn` can say it in
+   * the learner's language. `note` stays the English, which is what the
+   * marker's tests and the screens not yet translated read.
+   */
+  say?: NoteSay;
+}
+
+/** What `noteIn` needs to rebuild a note in another language. */
+export interface NoteSay {
+  template: string;
+  /** The form the note names, quoted at the end of the sentence. */
+  form?: string;
+  /** The dropped diacritics, each as the letter wanted and the letter typed. */
+  letters?: readonly (readonly [right: string, typed: string])[];
 }
 
 /** Estonian letters that are their own letter, not an accented Latin one. */
@@ -182,12 +198,36 @@ export function droppedDiacritics(typed: string, expected: string): string[] {
   return [...new Set(missed)];
 }
 
+/** The same letters as pairs, the one wanted and the one typed. */
+function droppedPairs(typed: string, expected: string): [string, string][] {
+  const seen = new Set<string>();
+  const out: [string, string][] = [];
+  for (let i = 0; i < expected.length && i < typed.length; i++) {
+    const e = expected[i]!;
+    const t = typed[i]!;
+    if (e !== t && FOLD[e] === t && !seen.has(e + t)) {
+      seen.add(e + t);
+      out.push([e, t]);
+    }
+  }
+  return out;
+}
+
 /** Which diacritics were dropped, e.g. "õ, not o" — the actually useful hint. */
-function diacriticNote(typed: string, expected: string): string {
-  const unique = droppedDiacritics(typed, expected);
-  return unique.length > 0
-    ? `Almost, it's ${unique.join(" and ")}.`
-    : "Almost. Check the letters with dots and tildes.";
+function diacriticSay(typed: string, expected: string): NoteSay {
+  const letters = droppedPairs(typed, expected);
+  return letters.length > 0
+    ? { template: "Almost, it's {letters}.", letters }
+    : { template: "Almost. Check the letters with dots and tildes." };
+}
+
+/** "õ, not o and ä, not a", in the learner's language. */
+function lettersIn(letters: NonNullable<NoteSay["letters"]>, locale: Locale): string {
+  /* Joined the way the reader's language joins a list, never with a
+     translated " and " glued between two translated pieces. */
+  return new Intl.ListFormat(locale, { type: "conjunction" }).format(
+    letters.map(([right, typed]) => fill(tr(locale, "{right}, not {typed}"), { right, typed })),
+  );
 }
 
 /**
@@ -196,8 +236,29 @@ function diacriticNote(typed: string, expected: string): string {
  * Some stored answers carry their own terminal punctuation, and a full stop
  * after `Head aega!` reads as a second one.
  */
-function closing(form: string): string {
-  return /[!?.]$/.test(form) ? `“${form}”` : `“${form}”.`;
+function closing(form: string, locale: Locale): string {
+  const [open, close] = locale === "en" ? ["“", "”"] : ["«", "»"];
+  return /[!?.]$/.test(form) ? `${open}${form}${close}` : `${open}${form}${close}.`;
+}
+
+/**
+ * A note said in the learner's language, built from the same template the
+ * English `note` was. A form the dictionary holds is quoted, never translated.
+ * A check with no template (an empty note) comes back as the note, through
+ * the table.
+ */
+export function noteIn(check: Pick<AnswerCheck, "note" | "say">, locale: Locale): string {
+  const say = check.say;
+  if (!say) return check.note ? tr(locale, check.note) : "";
+  return fill(tr(locale, say.template), {
+    form: say.form === undefined ? "" : closing(say.form, locale),
+    letters: say.letters ? lettersIn(say.letters, locale) : "",
+  });
+}
+
+/** The English note and the template it was filled from, kept together. */
+function said(say: NoteSay): { note: string; say: NoteSay } {
+  return { note: noteIn({ note: "", say }, "en"), say };
 }
 
 /**
@@ -248,7 +309,7 @@ export function checkAnswer(
   const primary = answers[0]?.shown ?? expected.trim();
 
   if (!given) {
-    return { verdict: "wrong", expected, note: "Nothing typed.", suggestedRating: 1 };
+    return { verdict: "wrong", expected, ...said({ template: "Nothing typed." }), suggestedRating: 1 };
   }
 
   if (answers.some((answer) => answer.compared === given)) {
@@ -265,7 +326,7 @@ export function checkAnswer(
       return {
         verdict: "diacritics",
         expected: answer.shown,
-        note: diacriticNote(given, answer.compared),
+        ...said(diacriticSay(given, answer.compared)),
         suggestedRating: 2,
       };
     }
@@ -288,7 +349,7 @@ export function checkAnswer(
         return {
           verdict: "wrong",
           expected: primary,
-          note: `That's another form of the word. This one wanted ${closing(primary)}`,
+          ...said({ template: "That's another form of the word. This one wanted {form}", form: primary }),
           suggestedRating: 1,
         };
       }
@@ -302,7 +363,7 @@ export function checkAnswer(
         return {
           verdict: "form",
           expected: primary,
-          note: `Right word, in another form. This one wanted ${closing(primary)}`,
+          ...said({ template: "Right word, in another form. This one wanted {form}", form: primary }),
           suggestedRating: 2,
         };
       }
@@ -342,7 +403,7 @@ export function checkAnswer(
       return {
         verdict: "typo",
         expected: answer.shown,
-        note: `So close. The word is ${closing(answer.shown)}`,
+        ...said({ template: "So close. The word is {form}", form: answer.shown }),
         suggestedRating: 2,
       };
     }
@@ -351,7 +412,7 @@ export function checkAnswer(
   return {
     verdict: "wrong",
     expected: primary,
-    note: `Not quite, it's ${closing(primary)}`,
+    ...said({ template: "Not quite, it's {form}", form: primary }),
     suggestedRating: 1,
   };
 }

@@ -169,7 +169,7 @@ const base =
  * is most of why the goal chips read as a legend instead of a form.
  */
 export function ChoiceChip({
-  selected, onSelect, disabled, icon, title, even, children,
+  selected, onSelect, disabled, icon, title, even, small, children,
 }: {
   selected: boolean;
   onSelect: () => void;
@@ -178,6 +178,12 @@ export function ChoiceChip({
   title?: string;
   /** Holds a common width, for a row of one- or two-character answers. */
   even?: boolean;
+  /**
+   * A chip set in a row that has to fit beside other things, like the voice
+   * mode inside a conversation's panel. Smaller type and padding, and never
+   * smaller as a target: the 44px floor under a coarse pointer still holds.
+   */
+  small?: boolean;
   children: ReactNode;
 }) {
   const select = useContext(GroupContext);
@@ -189,7 +195,7 @@ export function ChoiceChip({
       onClick={onSelect}
       {...optionRole(select, selected)}
       data-on={selected ? "" : undefined}
-      className={`${base} choice-chip rounded-full px-4 py-2.5 text-sm ${even ? "min-w-11" : ""}`}
+      className={`${base} choice-chip rounded-full ${small ? "gap-1.5 whitespace-nowrap px-2.5 py-1.5 text-xs" : "px-4 py-2.5 text-sm"} ${even ? "min-w-11" : ""}`}
     >
       {icon}
       {children}

@@ -13,6 +13,8 @@ import type { Item, ItemRef, Placement, Response, Skill } from "@/lib/assessment
 import { ChoiceQuestion, DictationQuestion, SpeakQuestion, WriteQuestion, type Answer } from "./Question";
 import { ResultPanel } from "./ResultPanel";
 import { Explain } from "@/components/Explain";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 
 /**
  * Sitting the check.
@@ -82,6 +84,8 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
   onFinish?: (result: Placement) => void;
 }) {
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
   /*
     Snapshotted on mount. The page above is a Server Component and any refresh
     of it would otherwise hand down a freshly assembled paper, changing the
@@ -148,9 +152,9 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
       return (
         <div className="py-6 text-center">
           <Mascot size={56} mood="cheer" className="mx-auto float" />
-          <p className="mt-4 text-xl font-bold" style={{ color: "var(--ink)" }}>That&apos;s the level check done.</p>
+          <p className="mt-4 text-xl font-bold" style={{ color: "var(--ink)" }}>{t("That's the level check done.")}</p>
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-            {saving ? "Working out your results…" : "Working out your results… done."}
+            {t(saving ? "Working out your results…" : "Working out your results… done.")}
           </p>
         </div>
       );
@@ -161,16 +165,15 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
           <div className="mb-5">
             <Note tone="sky">
               <WifiOff size={14} className="mr-1.5 inline" aria-hidden />
-              We couldn&apos;t save this result, so it won&apos;t show up in your history. Everything
-              below is still exactly what you scored.
+              {t("We couldn't save this result, so it won't show up in your history. Everything below is still exactly what you scored.")}
             </Note>
           </div>
         )}
-        <ResultPanel result={result} />
+        <ResultPanel result={result} locale={locale} />
         <div className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/learn" size="lg">Pick words to work on</ButtonLink>
+          <ButtonLink href="/learn" size="lg">{t("Pick words to work on")}</ButtonLink>
           <Button variant="primary" size="lg" onClick={() => { router.push("/assess"); router.refresh(); }}>
-            What this means for my goal <ArrowRight size={15} aria-hidden />
+            {t("What this means for my goal")} <ArrowRight size={15} aria-hidden />
           </Button>
         </div>
       </div>
@@ -181,7 +184,7 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
     return (
       <div className="mx-auto w-full max-w-2xl px-5 py-16 text-center md:px-8">
         <Mascot size={56} mood="thinking" className="mx-auto" />
-        <p className="mt-4 text-xl font-bold" style={{ color: "var(--ink)" }}>Working out your level…</p>
+        <p className="mt-4 text-xl font-bold" style={{ color: "var(--ink)" }}>{t("Working out your level…")}</p>
       </div>
     );
   }
@@ -195,15 +198,15 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
       {/* The check is four sections in one screen, so the section's own name is
           an h2 and there was nothing above it. Named for the whole sitting
           rather than for the section, which is what changes underneath it. */}
-      <h1 className="sr-only">Level check</h1>
+      <h1 className="sr-only">{t("Level check")}</h1>
       <div className="mb-7">
         <div className="mb-2 flex items-center justify-between gap-3">
           <span className="label-xs" style={{ color: "var(--ink-3)" }}>
-            {section.title}, question {responses.filter((r) => !r.skipped).length + 1}
+            {fill(t("{section}, question {n}"), { section: t(section.title), n: responses.filter((r) => !r.skipped).length + 1 })}
           </span>
           <Chip tone="neutral">{item.band}</Chip>
         </div>
-        <Meter pct={pct} label={`Level check, ${pct} percent through`} />
+        <Meter pct={pct} label={fill(t("Level check, {pct} percent through"), { pct })} />
       </div>
 
       {needsIntro ? (
@@ -215,14 +218,14 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
             >
               <section.icon size={20} aria-hidden />
             </span>
-            <h2 className="text-2xl font-bold" style={{ color: "var(--ink)" }}>{section.title}</h2>
+            <h2 className="text-2xl font-bold" style={{ color: "var(--ink)" }}>{t(section.title)}</h2>
           </div>
           <p className="mt-4 max-w-[58ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {section.body}
+            {t(section.body)}
           </p>
           {missing.includes(item.skill) && (
             <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
-              This section is shorter than usual, because the dictionary here didn&apos;t have enough to fill it.
+              {t("This section is shorter than usual, because the dictionary here didn't have enough to fill it.")}
             </p>
           )}
           {/*
@@ -243,7 +246,7 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
           */}
           <div className="mt-6">
             <Button variant="primary" size="lg" onClick={() => setSeenIntro([...seenIntro, item.skill])}>
-              Start this section <ArrowRight size={15} aria-hidden />
+              {t("Start this section")} <ArrowRight size={15} aria-hidden />
             </Button>
           </div>
         </Card>
@@ -296,16 +299,15 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
             className="min-h-[44px] text-xs underline underline-offset-2"
             style={{ color: "var(--ink-3)" }}
           >
-            The audio won&apos;t play. Skip listening, and your level comes from the other two skills.
+            {t("The audio won't play. Skip listening, and your level comes from the other two skills.")}
           </button>
         </div>
       )}
 
       <div className="mt-8">
-        <SectionTitle>How this is marked</SectionTitle>
-        <Explain label="Why some sections are longer">
-          Each skill stops one level after the first one you don&apos;t pass, so the further up you
-          get, the more questions you see. Nothing you answer here turns into a flashcard.
+        <SectionTitle>{t("How this is marked")}</SectionTitle>
+        <Explain label={t("Why some sections are longer")}>
+          {t("Each skill stops one level after the first one you don't pass, so the further up you get, the more questions you see. Nothing you answer here turns into a flashcard.")}
         </Explain>
       </div>
     </div>

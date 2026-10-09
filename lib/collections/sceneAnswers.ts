@@ -16,9 +16,9 @@
  * dictionary decides, and this is the fourth door onto the one rule.
  *
  * EMPTY IS A CORRECT STATE. The mode is complete without a single row here:
- * `lib/progress/describe.ts` falls back to an attested Ekilex usage carrying
- * the form the task asked for, which is a real Estonian sentence a
- * lexicographer wrote down. What a contributed sentence adds is the thing the
+ * nothing reads it today, since the picture round shows its own
+ * authored example (`lib/collections/pictures.ts`) and marks the learner's
+ * sentences against the dictionary. What a contributed sentence adds is the thing the
  * dictionary structurally cannot have, a sentence about a *situation* rather
  * than about a word. So this starts empty and gets better, rather than the
  * feature waiting on it.
@@ -34,7 +34,4 @@ export interface SceneAnswer {
 /** Keyed on `Scene.id`. See `docs/20-contributed-sentences.md`. */
 export const SCENE_ANSWERS: Readonly<Record<string, SceneAnswer>> = {};
 
-export function sceneAnswerFor(sceneId: string): SceneAnswer | undefined {
-  return SCENE_ANSWERS[sceneId];
-}
 

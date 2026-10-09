@@ -10,9 +10,11 @@ import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { addReminder, addStudyEvent, deleteReminder, deleteStudyEvent } from "@/app/actions";
 import {
   EVENT_KINDS, KIND_LABEL, KIND_TONE, WEEKDAY_LONG, WEEKDAY_SHORT,
-  eventsOn, repeatLabel, span, weekdayOf, type EventKind, type StudyEvent,
+  eventsOn, repeatLabelIn, spanIn, weekdayOf, type EventKind, type StudyEvent,
 } from "@/lib/ux/schedule";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill, type Locale } from "@/lib/copy/locale";
 
 export interface Reminder {
   id: string;
@@ -62,22 +64,24 @@ export function CalendarWeek({
     So two buttons onto one form, each landing it on the right kind. `null`
     means the form is closed.
   */
+  const t = useT();
+  const locale = useLocale();
   const [adding, setAdding] = useState<EventKind | "REMINDER" | null>(null);
 
   return (
     <>
       <Card tone="night">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <SectionTitle hint={weekLabel(days, offset)}>This week</SectionTitle>
+          <SectionTitle hint={weekLabel(days, offset, locale, t)}>{t("This week")}</SectionTitle>
           <div className="flex items-center gap-2">
-            <WeekStep to={offset - 1} label="Previous week"><ChevronLeft size={16} aria-hidden /></WeekStep>
+            <WeekStep to={offset - 1} label={t("Previous week")}><ChevronLeft size={16} aria-hidden /></WeekStep>
             {offset !== 0 && (
               <Link href="/calendar" className="tap-tint rounded-full px-3 py-1.5 text-xs font-semibold"
                 style={{ color: "var(--accent-deep)" }}>
-                Today
+                {t("Today")}
               </Link>
             )}
-            <WeekStep to={offset + 1} label="Next week"><ChevronRight size={16} aria-hidden /></WeekStep>
+            <WeekStep to={offset + 1} label={t("Next week")}><ChevronRight size={16} aria-hidden /></WeekStep>
           </div>
         </div>
 
@@ -124,7 +128,7 @@ export function CalendarWeek({
       ) : (
         <div className="flex flex-wrap gap-2">
           <Button size="lg" onClick={() => setAdding("REMINDER")}>
-            <BellPlus size={16} aria-hidden /> Add a task or reminder
+            <BellPlus size={16} aria-hidden /> {t("Add a task or reminder")}
           </Button>
           {/*
             A reminder is a `Task`, which is the row Today already draws and
@@ -134,7 +138,7 @@ export function CalendarWeek({
             are one form and two different things to want.
           */}
           <Button variant="primary" size="lg" onClick={() => setAdding("CLASS")}>
-            <CalendarPlus size={16} aria-hidden /> Add a class or study slot
+            <CalendarPlus size={16} aria-hidden /> {t("Add a class or study slot")}
           </Button>
         </div>
       )}
@@ -158,6 +162,7 @@ function WeekStep({ to, label, children }: { to: number; label: string; children
 function DayColumn({ dayKey, isToday, events, reminders }: {
   dayKey: string; isToday: boolean; events: StudyEvent[]; reminders: Reminder[];
 }) {
+  const t = useT();
   const weekday = weekdayOf(dayKey);
   const empty = events.length === 0 && reminders.length === 0;
   const quiet = empty && !isToday;
@@ -190,8 +195,8 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
     >
       <p className="label-xs w-32 shrink-0 @min-[64rem]:w-auto" style={{ color: isToday ? "var(--cta)" : "var(--ink-3)" }}>
         {/* The short name is for a column, so it arrives with the columns. */}
-        <span className="@min-[64rem]:hidden">{WEEKDAY_LONG[weekday]}</span>
-        <span className="hidden @min-[64rem]:inline">{WEEKDAY_SHORT[weekday]}</span>{" "}
+        <span className="@min-[64rem]:hidden">{t(WEEKDAY_LONG[weekday] ?? "")}</span>
+        <span className="hidden @min-[64rem]:inline">{t(WEEKDAY_SHORT[weekday] ?? "")}</span>{" "}
         {Number(dayKey.slice(8, 10))}
       </p>
 
@@ -212,12 +217,14 @@ function DayColumn({ dayKey, isToday, events, reminders }: {
       {empty && (
         <p className="mt-2 hidden h-6 rounded-[var(--r-sm)] border border-dashed @min-[64rem]:block" style={{ borderColor: "var(--rule-soft)" }} aria-hidden />
       )}
-      {empty && <span className="sr-only">Nothing</span>}
+      {empty && <span className="sr-only">{t("Nothing")}</span>}
     </div>
   );
 }
 
 function EventRow({ event }: { event: StudyEvent }) {
+  const t = useT();
+  const locale = useLocale();
   const [pending, start] = useTransition();
   const router = useRouter();
 
@@ -231,11 +238,11 @@ function EventRow({ event }: { event: StudyEvent }) {
           the whole width of a column that is about ninety pixels wide. */}
       <div className="flex items-center justify-between gap-1.5">
         <p className="text-2xs" style={{ color: "var(--ink-2)" }}>
-          {span(event.startMinute, event.durationMinutes)}
+          {spanIn(locale, event.startMinute, event.durationMinutes)}
         </p>
         <button
           type="button"
-          aria-label={`Remove ${event.title}`}
+          aria-label={fill(t("Remove {title}"), { title: event.title })}
           disabled={pending}
           onClick={() => start(async () => {
             const landed = await deleteStudyEvent(event.id).then(() => true).catch(() => false);
@@ -253,6 +260,7 @@ function EventRow({ event }: { event: StudyEvent }) {
 }
 
 function ReminderRow({ reminder }: { reminder: Reminder }) {
+  const t = useT();
   const [pending, start] = useTransition();
   const router = useRouter();
 
@@ -285,12 +293,12 @@ function ReminderRow({ reminder }: { reminder: Reminder }) {
           className="block min-w-0 text-2xs font-semibold"
           style={{ color: reminder.completed ? "var(--good-ink)" : "var(--hard-ink)" }}
         >
-          {reminder.completed ? "Done" : "To do"}
+          {t(reminder.completed ? "Done" : "To do")}
         </span>
         {reminder.mine && (
           <button
             type="button"
-            aria-label={`Remove ${reminder.title}`}
+            aria-label={fill(t("Remove {title}"), { title: reminder.title })}
             disabled={pending}
             onClick={() => start(async () => {
               const landed = await deleteReminder(reminder.id).then(() => true).catch(() => false);
@@ -323,6 +331,8 @@ function AddPanel({ days, opensAs, onDone }: {
   opensAs: EventKind | "REMINDER";
   onDone: () => void;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const [kind, setKind] = useState<EventKind | "REMINDER">(opensAs);
   const [title, setTitle] = useState("");
   const [time, setTime] = useState("18:00");
@@ -348,9 +358,9 @@ function AddPanel({ days, opensAs, onDone }: {
             weekdays,
             onDate: weekdays.length > 0 ? null : date,
           }).catch(() => null);
-      if (!result) { setError(NOT_REACHED); return; }
+      if (!result) { setError(t(NOT_REACHED)); return; }
       if (!result.ok) {
-        setError(("error" in result && result.error) || "That didn't save. Try again?");
+        setError(t(("error" in result && result.error) || "That didn't save. Try again?"));
         return;
       }
       setTitle("");
@@ -362,25 +372,25 @@ function AddPanel({ days, opensAs, onDone }: {
 
   return (
     <Card>
-      <SectionTitle hint="classes, study slots, things due">
-        {isReminder ? "Add a task or reminder" : "Add to your week"}
+      <SectionTitle hint={t("classes, study slots, things due")}>
+        {t(isReminder ? "Add a task or reminder" : "Add to your week")}
       </SectionTitle>
 
-      <ChoiceGroup ariaLabel="What kind of thing" className="mt-3 flex flex-wrap gap-2">
+      <ChoiceGroup ariaLabel={t("What kind of thing")} className="mt-3 flex flex-wrap gap-2">
         {EVENT_KINDS.map((k) => (
           <ChoiceChip key={k} selected={kind === k} onSelect={() => setKind(k)}>
-            {KIND_LABEL[k]}
+            {t(KIND_LABEL[k])}
           </ChoiceChip>
         ))}
-        <ChoiceChip selected={isReminder} onSelect={() => setKind("REMINDER")}>Task or reminder</ChoiceChip>
+        <ChoiceChip selected={isReminder} onSelect={() => setKind("REMINDER")}>{t("Task or reminder")}</ChoiceChip>
       </ChoiceGroup>
 
       <label className="mt-4 block">
-        <span className="label-xs" style={{ color: "var(--ink-3)" }}>What is it?</span>
+        <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("What is it?")}</span>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder={isReminder ? "Hand in the essay" : "Eesti keel B1"}
+          placeholder={isReminder ? t("Hand in the essay") : "Eesti keel B1"}
           className="field mt-1 w-full text-base"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         />
@@ -390,7 +400,7 @@ function AddPanel({ days, opensAs, onDone }: {
         <>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className="block">
-              <span className="label-xs" style={{ color: "var(--ink-3)" }}>Starts</span>
+              <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Starts")}</span>
               <input
                 type="time"
                 value={time}
@@ -400,7 +410,7 @@ function AddPanel({ days, opensAs, onDone }: {
               />
             </label>
             <label className="block">
-              <span className="label-xs" style={{ color: "var(--ink-3)" }}>For how long</span>
+              <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("For how long")}</span>
               <select
                 value={minutes}
                 onChange={(e) => setMinutes(Number(e.target.value))}
@@ -408,13 +418,13 @@ function AddPanel({ days, opensAs, onDone }: {
                 style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
               >
                 {[30, 45, 60, 90, 120, 180].map((m) => (
-                  <option key={m} value={m}>{m < 60 ? `${m} minutes` : `${m / 60} hour${m === 60 ? "" : "s"}`}</option>
+                  <option key={m} value={m}>{lengthOf(locale, m)}</option>
                 ))}
               </select>
             </label>
           </div>
 
-          <p className="mt-4 label-xs" style={{ color: "var(--ink-3)" }}>Repeats on</p>
+          <p className="mt-4 label-xs" style={{ color: "var(--ink-3)" }}>{t("Repeats on")}</p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {[1, 2, 3, 4, 5, 6, 0].map((d) => (
               <button
@@ -427,12 +437,12 @@ function AddPanel({ days, opensAs, onDone }: {
                   ? { ["--choice-bg" as string]: "var(--accent-soft)", color: "var(--accent-deep)" }
                   : undefined}
               >
-                {WEEKDAY_SHORT[d]}
+                {t(WEEKDAY_SHORT[d] ?? "")}
               </button>
             ))}
           </div>
           <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-            {weekdays.length > 0 ? repeatLabel(weekdays) : "For a one-off, leave these blank and pick a date."}
+            {weekdays.length > 0 ? repeatLabelIn(locale, weekdays) : t("For a one-off, leave these blank and pick a date.")}
           </p>
         </>
       )}
@@ -440,7 +450,7 @@ function AddPanel({ days, opensAs, onDone }: {
       {(isReminder || weekdays.length === 0) && (
         <label className="mt-3 block">
           <span className="label-xs" style={{ color: "var(--ink-3)" }}>
-            {isReminder ? "Due" : "On"}
+            {t(isReminder ? "Due" : "On")}
           </span>
           <input
             type="date"
@@ -457,9 +467,9 @@ function AddPanel({ days, opensAs, onDone }: {
       )}
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Button onClick={onDone} disabled={pending}>Cancel</Button>
+        <Button onClick={onDone} disabled={pending}>{t("Cancel")}</Button>
         <Button variant="primary" onClick={submit} disabled={pending || !title.trim()}>
-          {pending ? "Saving" : "Add it"}
+          {t(pending ? "Saving" : "Add it")}
         </Button>
       </div>
     </Card>
@@ -474,13 +484,27 @@ function minuteOf(value: string): number {
 }
 
 /** "1 to 7 September", the week a column of days covers. */
-function weekLabel(days: string[], offset: number): string {
+/** "90 minutes" is "1.5 hours" in English and «90 минут» in the other two, which say a half hour in minutes. */
+function lengthOf(locale: Locale, minutes: number): string {
+  if (minutes < 60 || (locale !== "en" && minutes % 60 !== 0)) return countOf(locale, minutes, "minute");
+  return countOf(locale, minutes / 60, "hour");
+}
+
+function weekLabel(days: string[], offset: number, locale: Locale, t: (english: string, context?: string) => string): string {
   const first = days[0];
   const last = days[6];
   if (!first || !last) return "";
-  const when = offset === 0 ? "this week" : offset < 0 ? `${-offset} back` : `${offset} ahead`;
-  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  // A number of weeks is said with its noun outside English, where "2 back" is not a phrase.
+  const weeks = (n: number) => (locale === "en" ? String(n) : countOf(locale, n, "week, as a span"));
+  const when = offset === 0 ? t("this week") : offset < 0 ? fill(t("{n} back", "time"), { n: weeks(-offset) }) : fill(t("{n} ahead"), { n: weeks(offset) });
   const d = (key: string) => Number(key.slice(8, 10));
+  if (locale !== "en") {
+    // The month in the case a date takes, «7 марта», from the browser's own table.
+    const dated = (key: string) => new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(`${key}T12:00:00Z`));
+    const sameMonth = first.slice(0, 7) === last.slice(0, 7);
+    return `${fill(t("{from} to {to}"), { from: sameMonth ? String(d(first)) : dated(first), to: dated(last) })}, ${when}`;
+  }
+  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const m = (key: string) => MONTHS[Number(key.slice(5, 7)) - 1] ?? "";
   const range = m(first) === m(last) ? `${d(first)} to ${d(last)} ${m(last)}` : `${d(first)} ${m(first)} to ${d(last)} ${m(last)}`;
   return `${range}, ${when}`;

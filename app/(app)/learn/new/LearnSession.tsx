@@ -20,7 +20,7 @@ import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
 import { useResumeCard } from "@/components/useResumeCard";
 import { prefetchClip } from "@/lib/audio/clip";
-import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
+import { checkAnswer, countsAsRecalled, noteIn, type AnswerCheck } from "@/lib/estonian/answer";
 import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
 import { SameMeaning } from "@/components/round/SameMeaning";
 import { BLANK } from "@/lib/estonian/cloze";
@@ -39,10 +39,14 @@ import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useUiText } from "@/components/UiLanguage";
+import { useLocale, useT } from "@/components/Locale";
+import { countOf, fill } from "@/lib/copy/locale";
+import { quoted } from "@/lib/copy/values";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { type SeenCard } from "@/lib/ux/lookBack";
 import { FitText } from "@/components/FitText";
+import { Meaning } from "@/components/Meaning";
 import { useKeepInView } from "@/components/round/useKeepInView";
 import { useOncePerRound } from "@/components/round/useOncePerRound";
 
@@ -153,7 +157,9 @@ export function LearnSession({
   back?: { href: string; label: string };
 }) {
   const noun = kind === "phrase" ? "phrase" : "word";
-  const nouns = kind === "phrase" ? "phrases" : "words";
+  const t = useT();
+  const locale = useLocale();
+  const phrases = kind === "phrase";
   /*
     Snapshotted once. `gradeCard` is a Server Action and Next refreshes this
     route's server component after every one, which would hand down a batch
@@ -606,9 +612,9 @@ export function LearnSession({
     void send(won ? "right" : "wrong", {
       outcome: won ? "right" : "wrong",
       expected: word.gloss,
-      note: won ? "" : `You picked “${option}”.`,
+      note: won ? "" : fill(t("You picked {option}."), { option: quoted(option, locale) }),
     });
-  }, [word, busy, phase, cheer, send]);
+  }, [word, busy, phase, cheer, send, t, locale]);
 
   const answerGap = useCallback(() => {
     if (!word || busy || phase === "feedback") return;
@@ -638,9 +644,9 @@ export function LearnSession({
     cheer(countsAsRecalled(check.verdict));
     void send(
       won ? "right" : countsAsRecalled(check.verdict) ? "near" : "wrong",
-      { outcome: won ? "right" : "wrong", expected: check.expected, note: check.note },
+      { outcome: won ? "right" : "wrong", expected: check.expected, note: noteIn(check, locale) },
     );
-  }, [word, busy, phase, typed, cheer, send]);
+  }, [word, busy, phase, typed, cheer, send, locale]);
 
   /** Whether the gap is waiting for the miss to be typed again. */
   const needsRetype = phase === "feedback" && rung === "gap" && result?.outcome === "wrong" && !retypeOk;
@@ -689,9 +695,9 @@ export function LearnSession({
       setRetypeOk(true);
       setRetypeNote(null);
     } else {
-      setRetypeNote("Not quite. Copy the word above exactly, letter for letter.");
+      setRetypeNote(t("Not quite. Copy the word above exactly, letter for letter."));
     }
-  }, [word, result, retyped, retypeOk]);
+  }, [word, result, retyped, retypeOk, t]);
 
   /*
     The digits pick an option, exactly as they do in review, and Enter carries
@@ -750,20 +756,20 @@ export function LearnSession({
 
   if (total === 0) {
     return (
-      <Page title="Learn">
+      <Page title={t("Learn")}>
         <Empty
-          title={back ? "Nothing left to meet here" : `No new ${nouns} waiting`}
+          title={back ? t("Nothing left to meet here") : t(phrases ? "No new phrases waiting" : "No new words waiting")}
           body={
             back
-              ? "You've met these already. The rest of tonight's module is waiting."
+              ? t("You've met these already. The rest of today's module is waiting.")
               : kind === "phrase"
-                ? "Phrases turn up here as you open the units that teach them."
-                : "Open a unit from the course and its words will turn up here."
+                ? t("Phrases turn up here as you open the units that teach them.")
+                : t("Open a unit from the course and its words will turn up here.")
           }
           action={
             back
-              ? <ButtonLink href={back.href} variant="primary">{back.label}</ButtonLink>
-              : <ButtonLink href="/learn" variant="primary">Open the course</ButtonLink>
+              ? <ButtonLink href={back.href} variant="primary">{t(back.label)}</ButtonLink>
+              : <ButtonLink href="/learn" variant="primary">{t("Open the course")}</ButtonLink>
           }
         />
       </Page>
@@ -775,17 +781,18 @@ export function LearnSession({
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={72} className="mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            First, just meet them
+          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
+            {t("First, just meet them")}
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            You&rsquo;ll see {total} {total === 1 ? noun : nouns} in this round, one at a time.
-            Just have a look. Nothing counts until you start answering.
+            {fill(t("You\u2019ll see {count} in this round, one at a time. Just have a look. Nothing counts until you start answering."), {
+              count: countOf(locale, total, noun),
+            })}
           </p>
         </div>
         <div className="mt-8 flex justify-center">
           <Button variant="primary" size="lg" onClick={() => setShowMeetIntro(false)}>
-            Show me <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+            {t("Show me")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
           </Button>
         </div>
       </div>
@@ -799,9 +806,9 @@ export function LearnSession({
   */
   const asideNote = aside ? (
     <p className="mt-5 text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
-      {aside}{" "}
+      {t(aside)}{" "}
       <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
-        Bring it back
+        {t("Bring it back")}
       </Link>
     </p>
   ) : null;
@@ -814,20 +821,24 @@ export function LearnSession({
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={72} mood="cheer" className="float mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            Round done
+          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
+            {t("Round done")}
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {counts.kept > 0
-              ? <>{uiText("Tubli töö.", "Good work.")} {counts.kept} {counts.kept === 1 ? `${noun} is` : `${nouns} are`} learned for now. From here {counts.kept === 1 ? "it comes" : "they come"} back in your reviews, just before you&rsquo;d forget.</>
-              : <>{uiText("Tubli töö.", "Good work.")} These stay here until you can put them in a sentence. That&rsquo;s when they start to stick.</>}
+              ? <>{t(uiText("Tubli töö.", "Good work."))} {fill(t(counts.kept === 1
+                ? "{count} is learned for now. From here it comes back in your reviews, just before you\u2019d forget."
+                : "{count} are learned for now. From here they come back in your reviews, just before you\u2019d forget."), {
+                count: countOf(locale, counts.kept, noun),
+              })}</>
+              : <>{t(uiText("Tubli töö.", "Good work."))} {t("These stay here until you can put them in a sentence. That\u2019s when they start to stick.")}</>}
           </p>
         </div>
 
         <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={counts.kept} label="Learned" tone="sky" />
-          <StatTile value={counts.staying} label="Still learning" tone="butter" />
-          <StatTile value={`${minutes}m`} label="Time" tone="sky" />
+          <StatTile value={counts.kept} label={t("Learned")} tone="sky" />
+          <StatTile value={counts.staying} label={t("Still learning")} tone="butter" />
+          <StatTile value={fill(t("{n}m"), { n: minutes })} label={t("Time")} tone="sky" />
         </div>
 
         <ul className="mt-6 flex flex-col gap-2">
@@ -840,13 +851,15 @@ export function LearnSession({
                 style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
               >
                 <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{w.lemma}</span>
-                <span className="text-sm" style={{ color: "var(--ink-3)" }}>{w.gloss}</span>
+                {w.meaning
+                  ? <Meaning meaning={w.meaning} inline className="text-sm" leadStyle={{ color: "var(--ink-2)" }} englishClassName="text-xs" />
+                  : <span className="text-sm" style={{ color: "var(--ink-3)" }}>{w.gloss}</span>}
                 <span className="ml-auto flex items-center gap-2">
                   <Ladder rung={where} />
                   <Chip tone={where === "kept" ? "good" : "neutral"}>
-                    {where === "kept"
+                    {t(where === "kept"
                       ? "Learned"
-                      : where === "meet" && w.isPhrase ? "New phrase" : RUNG_LABEL[where]}
+                      : where === "meet" && w.isPhrase ? "New phrase" : RUNG_LABEL[where])}
                   </Chip>
                 </span>
               </li>
@@ -861,8 +874,9 @@ export function LearnSession({
             className="mt-4 rounded-[var(--r)] px-4 py-3 text-sm"
             style={{ background: "var(--hard-soft)", color: "var(--hard-ink)" }}
           >
-            {pendingOffline} answer{pendingOffline === 1 ? "" : "s"} saved here while you were offline.
-            They&rsquo;ll be sent the moment you&rsquo;re back online. You can close the tab.
+            {fill(t("{count} saved here while you were offline. They\u2019ll be sent the moment you\u2019re back online. You can close the tab."), {
+              count: countOf(locale, pendingOffline, "answer"),
+            })}
           </p>
         )}
 
@@ -875,15 +889,15 @@ export function LearnSession({
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           {back ? (
             <ButtonLink href={back.href} variant="primary" size="lg">
-              {back.label} <ArrowRight size={15} aria-hidden />
+              {t(back.label)} <ArrowRight size={15} aria-hidden />
             </ButtonLink>
           ) : (
             <>
-              <ButtonLink href="/review" size="lg">Practise what&apos;s due</ButtonLink>
-              <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
+              <ButtonLink href="/review" size="lg">{t("Practice what's due")}</ButtonLink>
+              <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
               {more > 0 && (
                 <ButtonLink href={moreHref} variant="primary" size="lg">
-                  <Sparkles size={15} aria-hidden /> Learn {Math.min(more, LEARN_BATCH)} more
+                  <Sparkles size={15} aria-hidden /> {fill(t("Learn {n} more"), { n: Math.min(more, LEARN_BATCH) })}
                 </ButtonLink>
               )}
             </>
@@ -908,21 +922,26 @@ export function LearnSession({
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
         <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
           <Mascot size={72} className="mx-auto" />
-          <h1 className="font-display mt-5 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--ink)" }}>
-            Now it&rsquo;s your turn
+          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
+            {t("Now it’s your turn")}
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {/* Said the way this batch will ask it: a beginner's words have no
                 sentence to go back into, so the top rung there asks for the
                 word itself, and promising a sentence would be a promise the
                 next screen breaks. */}
-            Same {nouns}. First you pick what each one means, then you
-            {initial.some((w) => w.gap) ? " put it back into the sentence it came from." : " type it yourself, in Estonian."}
+            {t(initial.some((w) => w.gap)
+              ? (phrases
+                ? "Same phrases. First you pick what each one means, then you put it back into the sentence it came from."
+                : "Same words. First you pick what each one means, then you put it back into the sentence it came from.")
+              : (phrases
+                ? "Same phrases. First you pick what each one means, then you type it yourself, in Estonian."
+                : "Same words. First you pick what each one means, then you type it yourself, in Estonian."))}
           </p>
         </div>
         <div className="mt-8 flex justify-center">
           <Button variant="primary" size="lg" onClick={() => setShowAnswerIntro(false)}>
-            Ready <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+            {t("Ready")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
           </Button>
         </div>
       </div>
@@ -956,25 +975,26 @@ export function LearnSession({
     : null;
 
   const progress = total > 0 ? ((total - left) / total) * 100 : 0;
+  const [wordIsBefore, wordIsAfter = ""] = t("The word is {word}").split("{word}");
   /* The top rung asks for the word itself, so until it is answered the
      controls in the card's corner and the hint call it "this word" rather
      than reading the answer out (`wordName`). */
-  const named = word ? wordName(word.lemma, rung !== "gap" || phase === "feedback") : "";
+  const named = word ? t(wordName(word.lemma, rung !== "gap" || phase === "feedback")) : "";
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
       {/* The heading a session screen has no room to draw. */}
-      <h1 className="sr-only">Learn</h1>
+      <h1 className="sr-only">{t("Learn")}</h1>
       <div className="mb-7 flex items-center gap-4">
         <EndSession href="/learn" />
         <div className="flex-1">
-          <Meter pct={progress} label={`${left} of ${total} ${nouns} still to learn`} height={10} />
+          <Meter pct={progress} label={fill(t(phrases ? "{left} of {total} phrases still to learn" : "{left} of {total} words still to learn"), { left, total })} height={10} />
         </div>
         <span
           className="tnum label-xs rounded-full px-2.5 py-1"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
         >
-          {left} left
+          {fill(t("{n} left"), { n: left })}
         </span>
       </div>
 
@@ -992,9 +1012,9 @@ export function LearnSession({
           <Chip tone="accent">
             {/* With no sentence to put it in, the top rung asks for the word
                 itself from its meaning, which is what the chip says. */}
-            {rung === "meet" && word.isPhrase
+            {t(rung === "meet" && word.isPhrase
               ? "New phrase"
-              : rung === "gap" && !word.gap ? "Say it in Estonian" : RUNG_LABEL[rung]}
+              : rung === "gap" && !word.gap ? "Say it in Estonian" : RUNG_LABEL[rung])}
           </Chip>
           <Ladder rung={rung} />
           <div className="ml-auto flex items-center gap-1">
@@ -1027,6 +1047,7 @@ export function LearnSession({
               gloss={word.gloss}
               alsoSaid={word.alsoSaid}
               equivalent={word.equivalent}
+              also={word.also}
               sentence={word.sentence}
               tokens={word.tokens}
               lexemeId={word.lexemeId}
@@ -1047,6 +1068,8 @@ export function LearnSession({
                 <div className="mt-2 grid w-full max-w-md gap-2">
                   {word.choices.map((option, i) => {
                     const isAnswer = option === word.gloss;
+                    // How it is drawn, never what is compared: a pick is still `option`.
+                    const shown = word.choiceMeanings?.[i] ?? null;
                     const marked = phase === "feedback";
                     /* The option the learner pressed is marked as well as the
                        answer. It used to look exactly like the two nobody
@@ -1078,10 +1101,10 @@ export function LearnSession({
                         style={out ? { color: "var(--ink-3)" } : undefined}
                       >
                         <KeyCap>{i + 1}</KeyCap>
-                        <span className="min-w-0 flex-1">{option}</span>
-                        {out && <span className="sr-only"> (ruled out by a hint)</span>}
-                        {state === "right" && <Check size={16} aria-label="Right" />}
-                        {state === "wrong" && <X size={16} aria-label="Your pick" />}
+                        {shown ? <Meaning meaning={shown} className="flex-1" /> : <span className="min-w-0 flex-1">{option}</span>}
+                        {out && <span className="sr-only"> {t("(ruled out by a hint)")}</span>}
+                        {state === "right" && <Check size={16} aria-label={t("Right")} />}
+                        {state === "wrong" && <X size={16} aria-label={t("Your pick")} />}
                       </button>
                     );
                   })}
@@ -1091,7 +1114,9 @@ export function LearnSession({
                    word is asked the way the gap rung asks it. `pickOptions`
                    returns nothing rather than padding a question out with a
                    second right answer. */
-                <p className="text-sm" style={{ color: "var(--ink-2)" }}>{word.gloss}</p>
+                word.meaning
+                  ? <Meaning meaning={word.meaning} leadClassName="text-sm" leadStyle={{ color: "var(--ink)" }} className="items-center" />
+                  : <p className="text-sm" style={{ color: "var(--ink-2)" }}>{word.gloss}</p>
               )}
               {phase === "ask" && (
                 <HintLadder
@@ -1155,17 +1180,17 @@ export function LearnSession({
                   <div>
                     {gapWord ? (
                       <>
-                        <p className="label-xs" style={{ color: "var(--ink-3)" }}>The word</p>
+                        <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("The word")}</p>
                         <p className="mt-1 text-2xl font-bold leading-tight" style={{ color: "var(--accent-deep)" }}>
                           {gapWord}
                         </p>
                         <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                          Put it into the sentence, in whatever form it needs.
+                          {t("Put it into the sentence, in whatever form it needs.")}
                         </p>
                       </>
                     ) : (
                       <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                        Which word goes in the gap?
+                        {t("Which word goes in the gap?")}
                       </p>
                     )}
                   </div>
@@ -1208,7 +1233,17 @@ export function LearnSession({
                   </div>
                 </div>
               ) : (
-                <p className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{word.gloss}</p>
+                word.meaning ? (
+                  <Meaning
+                    meaning={word.meaning}
+                    className="items-center text-center"
+                    leadClassName="text-2xl font-semibold"
+                    leadStyle={{ color: "var(--ink)" }}
+                    englishClassName="text-base"
+                  />
+                ) : (
+                  <p className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{word.gloss}</p>
+                )
               )}
               {/*
                 THE ONE LINE THAT SAYS NOT KNOWING IT IS THE ORDINARY STATE.
@@ -1221,7 +1256,7 @@ export function LearnSession({
                 every box for ever.
               */}
               {firstTry && phase === "ask" && (
-                <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>{FIRST_TRY_NOTE}</p>
+                <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>{t(FIRST_TRY_NOTE)}</p>
               )}
               <div className="w-full max-w-sm text-left">
                 <EstonianInput
@@ -1229,8 +1264,8 @@ export function LearnSession({
                   onChange={setTyped}
                   onEnter={phase === "feedback" ? carryOn : answerGap}
                   autoFocus
-                  ariaLabel={word.gap ? "The word that goes in the gap" : "The Estonian word"}
-                  placeholder="Type in Estonian"
+                  ariaLabel={word.gap ? t("The word that goes in the gap") : t("The Estonian word")}
+                  placeholder={t("Type in Estonian")}
                   large
                 />
               </div>
@@ -1253,7 +1288,7 @@ export function LearnSession({
               */}
               {phase === "ask" && (
                 <Button variant="primary" onClick={answerGap} disabled={busy}>
-                  Check
+                  {t("Check")}
                   <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                 </Button>
               )}
@@ -1266,7 +1301,17 @@ export function LearnSession({
             </div>
           )}
 
-          {phase === "feedback" && result && !sameMeaning && (
+          {/* On the choice rung a miss is already on the screen: the answer
+              carries the tick and the pick carries the cross, so a box under
+              the options saying both again is a second reading of one fact.
+              A screen reader still hears it, from a live region. */}
+          {phase === "feedback" && result && !sameMeaning && rung === "choice" && result.outcome !== "right" && (
+            <p role="status" className="sr-only">
+              {result.expected} {result.note}
+            </p>
+          )}
+
+          {phase === "feedback" && result && !sameMeaning && !(rung === "choice" && result.outcome !== "right") && (
             /* The panel that says how it went, in a live region like every
                other round's. The ladder is where a word is met for the first
                time, so this is the one panel a learner most needs read back. */
@@ -1314,10 +1359,10 @@ export function LearnSession({
               */}
               <p className={saidOnce ? undefined : "font-semibold"}>
                 {result.outcome === "right"
-                  ? uiText("Õige!", "Correct!")
+                  ? t(uiText("Õige!", "Correct!"))
                   : saidOnce
                     ? saidOnce
-                    : rung === "gap" ? <>The word is <span lang="et" data-answer>{result.expected}</span></> : result.expected}
+                    : rung === "gap" ? <>{wordIsBefore}<span lang="et" data-answer>{result.expected}</span>{wordIsAfter}</> : result.expected}
               </p>
               {result.note && !saidOnce && <p className="mt-1">{result.note}</p>}
               {rung === "gap" && word.gap && (
@@ -1352,7 +1397,7 @@ export function LearnSession({
               */}
               {rung === "gap" && word.gap?.explanation && (
                 <p className="mt-1" style={{ color: "var(--ink-3)" }}>
-                  {word.gap.explanation}
+                  {t(word.gap.explanation)}
                 </p>
               )}
             </div>
@@ -1362,18 +1407,18 @@ export function LearnSession({
             <div className="w-full max-w-sm text-left">
               {retypeOk ? (
                 <p className={`pop-in ${VERDICT_CLASS.right} verdict-panel`}>
-                  {uiText("Õige!", "Correct!")} That&rsquo;s the one.
+                  {t(uiText("Õige!", "Correct!"))} {t("That\u2019s the one.")}
                 </p>
               ) : (
                 <>
-                  <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Now type it again</p>
+                  <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Now type it again")}</p>
                   <EstonianInput
                     value={retyped}
                     onChange={(v) => { setRetyped(v); setRetypeNote(null); }}
                     onEnter={checkRetype}
                     autoFocus
-                    ariaLabel="Type the word again"
-                    placeholder="Type in Estonian"
+                    ariaLabel={t("Type the word again")}
+                    placeholder={t("Type in Estonian")}
                     large
                   />
                   {retypeNote && (
@@ -1393,7 +1438,7 @@ export function LearnSession({
                 onClick={needsRetype ? checkRetype : carryOn}
                 disabled={busy}
               >
-                {needsRetype ? "Check it again" : "Continue"}
+                {needsRetype ? t("Check it again") : t("Continue")}
                 <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
               {rung === "gap" && result?.outcome !== "right" && (
@@ -1406,7 +1451,7 @@ export function LearnSession({
                     `Learn, gap rung. Expected: ${result?.expected ?? ""}. ` +
                     `Typed: ${typed.trim() || "nothing"}.`
                   }
-                  label="I think that was right"
+                  label={t("I think that was right")}
                 />
               )}
             </>
@@ -1426,12 +1471,12 @@ export function LearnSession({
                 onClick={() => { cheer(true); void send("known", { outcome: "known", expected: word.gloss, note: "" }); }}
                 disabled={busy}
               >
-                I already know this one
+                {t("I already know this one")}
               </Button>
               {/* The primary action sits on the right of the pair, where the
                   sprint already puts "Got it" and where a thumb and a reading
                   eye both end up. The claim is the quieter button beside it. */}
-              <Button variant="primary" size="lg" onClick={met} disabled={busy}>Got it</Button>
+              <Button variant="primary" size="lg" onClick={met} disabled={busy}>{t("Got it")}</Button>
             </>
           ) : null}
         </div>
@@ -1452,7 +1497,7 @@ export function LearnSession({
       */}
       {answered > 0 && (
         <p className="mt-3 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-          {right} of {answered} right this round.
+          {fill(t("{right} of {answered} right this round."), { right, answered })}
         </p>
       )}
     </div>

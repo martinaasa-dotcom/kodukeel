@@ -1704,7 +1704,7 @@ check("a bare case card is rewritten into a sentence, or reported", () => {
   assert.ok(fn.length > 0, "repairCaseFronts is gone from prisma/repair.ts");
   assert.match(
     fn,
-    /generateCards\(lex, \["CASE_FORM"\]\)/,
+    /generateCards\(lex, \["CASE_FORM", "CONJUGATION"\]\)/,
     "repairCaseFronts no longer asks the builder for the sentence card, so a repaired card and " +
     "a fresh one can stop being the same card",
   );
@@ -1958,7 +1958,6 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // `lib/estonian/grammarExamples.ts` rather than one a beginner's reading
     // level decides.
     "lib/progress/grammarExamples.ts": "looks one named sentence up to read its English back, picks none",
-    "app/(app)/review/sprint/page.tsx": "reads back the English of the card's own sentence, picks none",
     "lib/progress/quest.ts": "reads back the English of the card's own sentence, picks none",
     // Asks which cases a word can build a card for at all, as a set. No
     // sentence it could pick reaches a screen, only whether one exists.
@@ -2057,8 +2056,6 @@ check("every generator that picks a case asks which ones the word takes", () => 
     "lib/collections/lesson.ts",
     "lib/progress/caseExamples.ts",
     "lib/estonian/caseBuild.ts",
-    "lib/progress/target.ts",
-    "lib/games/describe.ts",
     "lib/games/flash.ts",
   ];
   const asks = /caseFits\(|localCasesFor\(/;
@@ -2107,13 +2104,10 @@ check("a question about one word is worded for that word", () => {
     "lib/estonian/writing.ts",
     "lib/collections/lesson.ts",
     "lib/estonian/caseBuild.ts",
-    "lib/progress/target.ts",
     "lib/games/flash.ts",
     "app/(app)/dictionary/Forms.tsx",
     "app/(app)/dictionary/DictionaryClient.tsx",
     "app/(chromeless)/welcome/page.tsx",
-    "app/(app)/review/describe/page.tsx",
-    "app/api/describe/route.ts",
   ];
   for (const file of perWord) {
     const source = code(file);
@@ -2525,7 +2519,6 @@ check("every exercise built from a sentence checks that it is one", () => {
     "lib/collections/worksheet.ts",
     "lib/exam/paper.ts",
     "lib/assessment/items.ts",
-    "lib/progress/describe.ts",
     "app/(app)/learn/[unitId]/lesson/page.tsx",
     "app/(app)/learn/checkpoint/[level]/page.tsx",
     "app/(app)/review/speaking/page.tsx",
@@ -3017,8 +3010,15 @@ check("a review is only ever deleted by something the learner asked for", () => 
     actions,
     // Coerced first, because the argument is JSON off the wire: see "a malformed
     // argument to a server action is refused, not thrown or stored".
-    /text\(confirmation\)\.trim\(\)\.toLowerCase\(\) !== "delete"/,
+    /!isConfirmed\(text\(confirmation\), "delete"\)/,
     "account deletion no longer asks the learner to confirm",
+  );
+  /* The word is asked for in the reader's own language and the English is
+     still accepted; what may not happen is the check accepting anything. */
+  assert.match(
+    code("lib/copy/confirmWord.ts"),
+    /delete: \{ en: "delete", ru: "[^"]+", uk: "[^"]+" \}/,
+    "the word that confirms deleting an account lost one of its three languages",
   );
   assert.match(actions, /mode === "replace"/, "the restore no longer guards on an explicit replace");
   assert.equal(
@@ -3096,7 +3096,16 @@ const GRADING_DOORS =
  * put grades against cards that do not exist and tell the scheduler somebody had
  * practiced material they have not yet met.
  */
-const MEASURES_RATHER_THAN_PRACTISES: string[] = [];
+/*
+  The picture round: five sentences of the learner's own about a drawing. There
+  is no card behind a picture, so a row in the log would tell the scheduler
+  about a recall that did not happen.
+*/
+const MEASURES_RATHER_THAN_PRACTISES: string[] = [
+  "app/(app)/review/describe/DescribeSession.tsx",
+  // Twenty questions: asking a good question is not recalling a card, so there is no grade to write.
+  "app/(app)/review/twenty/TwentySession.tsx",
+];
 
 
 check("every practice mode writes to the same review log", () => {
@@ -5010,8 +5019,11 @@ check("Today draws at most TODAY_CARDS under the hero, and every card goes throu
     So the cards are named in priority order and the first `TODAY_CARDS` are
     drawn. What rots is not the constant, it is somebody adding `{newCard}`
     beside the sliced array, which reads as a card being added and is a card
-    that cannot be cut. That is what this fails on: every child of `Columns` on
-    this page comes out of the one expression the cap is applied to.
+    that cannot be cut. That is what this fails on: every child of the card grid
+    on this page comes out of the one expression the cap is applied to. (It was
+    `Columns` until the order was asked for in rows, game and word, calendar
+    and conversation, progress and out there: columns fill down the first and
+    then the second, so they cannot promise that two cards sit side by side.)
   */
   const today = code("app/(app)/page.tsx");
   assert.match(today, /TODAY_CARDS/, "Today no longer reads the cap");
@@ -5020,9 +5032,9 @@ check("Today draws at most TODAY_CARDS under the hero, and every card goes throu
     "Today names its cards and draws all of them again; the cap is what keeps the page glanceable",
   );
 
-  const open = today.indexOf("<Columns>");
-  const close = today.indexOf("</Columns>", open);
-  assert.ok(open >= 0 && close > open, "Today no longer lays its cards out in Columns");
+  const open = today.indexOf('className="grid items-stretch gap-6 lg:grid-cols-2"');
+  const close = today.indexOf("</Stack>", open);
+  assert.ok(open >= 0 && close > open, "Today no longer lays its cards out in the two-across grid");
   const columns = today.slice(open, close);
   /*
     A card interpolated on its own, rather than named inside the array. Written
@@ -5064,15 +5076,14 @@ check("Today deals its cards in the learner's order, under the same cap", () => 
     "the cap is no longer applied to what orderTodayCards returns",
   );
   /*
-    One round a day, which CLAUDE.md says is asserted on the slot. The cap
-    above counts slots, so a quest dealt as a slot of its own beside the round
-    passes it and puts two rounds on Today; what holds the rule is that the
-    game and the quest reach the deal only through the one slot.
+    One game a day, which is Sõnad. The cap above counts slots, so a quest
+    dealt as a slot of its own beside the game would put two rounds on Today;
+    the quest is not on this page at all, and the game reaches the deal through
+    its one slot.
   */
-  assert.match(today, /const roundCard = gameCard \?\? questCard;/, "the day's round is no longer one slot");
   const deal = /orderTodayCards\(\{([\s\S]*?)\}/.exec(today)?.[1] ?? "";
-  assert.ok(deal.includes("roundCard"), "the round slot is not dealt");
-  assert.doesNotMatch(deal, /\b(gameCard|questCard)\b/, "a round is dealt beside the round slot, which is two rounds on Today");
+  assert.ok(/\bgame:\s*gameCard\b/.test(deal), "the game slot is not dealt");
+  assert.doesNotMatch(today, /questCard/, "the daily quest is back on Today beside the game of the day, which is two rounds");
 
   const panel = code("app/(app)/settings/TodayOrderPanel.tsx");
   assert.match(panel, /setTodayOrder\(/, "the Settings panel no longer writes the order");
@@ -5215,7 +5226,7 @@ check("where a screen lives is decided in one table", () => {
     ["components/Sidebar.tsx", /lib\/ux\/nav/],
     ["components/CommandPalette.tsx", /lib\/ux\/nav/],
     ["app/(app)/practice/page.tsx", /lib\/ux\/modes/],
-    ["app/(app)/page.tsx", /lib\/ux\/modes/],
+    ["app/(app)/page.tsx", /lib\/ux\/weekGames/],
   ];
   for (const [file, table] of readers) {
     assert.match(code(file), table, `${file} navigates by a list of its own again`);
@@ -5718,13 +5729,6 @@ check("an empty cell goes through NO_VALUE, never a literal", () => {
  * here with the reason it can never be one.
  */
 const PLURAL_COUNT_EXEMPT: Readonly<Record<string, string>> = {
-  "app/(chromeless)/welcome/page.tsx": "the dictionary's size, which is thousands",
-  "app/(app)/dictionary/page.tsx": "the dictionary's size, which is thousands",
-  "app/(app)/review/ReviewSession.tsx": "the one live count is guarded a line above; the other is a case name",
-  "app/(app)/page.tsx": "said only once the goal is met, and the smallest goal is five",
-  "app/(app)/settings/page.tsx": "the daily goal, whose smallest setting is five",
-  "app/(app)/learn/[unitId]/lesson/LessonSession.tsx": "a sitting folds a trailing one or two words into the one before it",
-  "components/WeakestCases.tsx": "a case is listed only above its floor of answers",
   "app/(app)/exam/[level]/ExamSession.tsx": "a dictation is a sentence, and a single word is said as one word",
 };
 
@@ -6418,8 +6422,12 @@ check("a rating key works wherever a rating button is drawn", () => {
   assert.equal(longhand, 1, `"revealed || ask === intro" is spelled out ${longhand} times; read answerShown instead`);
 
   assert.match(
-    source, /SELF_GRADES\.map\(/,
+    code("components/round/SelfGradeButtons.tsx"), /SELF_GRADES\.map\(/,
     "the rating buttons are no longer drawn from SELF_GRADES, so the keys can disagree with them",
+  );
+  assert.match(
+    source, /<SelfGradeButtons\b/,
+    "the review card no longer draws its two buttons through SelfGradeButtons",
   );
   assert.match(
     source, /SELF_GRADES\.find\(/,
@@ -6709,7 +6717,7 @@ check("a row of stat tiles fits a phone: three across only with a narrow gap and
       assert.ok(count <= 3, `${file}:${line} lays ${count} StatTiles in a row of three columns, so they wrap to an orphan`);
     }
   }
-  assert.ok(rows >= 15, `only ${rows} StatTile rows found, so this check stopped looking`);
+  assert.ok(rows >= 13, `only ${rows} StatTile rows found, so this check stopped looking`);
 });
 
 /*
@@ -7592,26 +7600,16 @@ check("the subprocessor register names every recipient the list can generate, an
 */
 check("a timed round's length is written once and shown at the learner's pace", () => {
   for (const [file, base] of [
-    ["app/(app)/review/sprint/page.tsx", "SPRINT_SECONDS"],
     ["app/(app)/quest/page.tsx", "QUEST_SECONDS"],
-    ["app/(app)/settings/RoundPacePanel.tsx", "SPRINT_SECONDS"],
+    ["app/(app)/settings/RoundPacePanel.tsx", "QUEST_SECONDS"],
   ] as const) {
     const src = code(file);
     assert.match(src, new RegExp(`secondsFor\\(\\s*${base},`), `${file} does not take its length from ${base}`);
     assert.doesNotMatch(src, /const \w+ = (60|120);/, `${file} types a round length of its own`);
   }
-  const practice = code("app/(app)/practice/page.tsx");
-  assert.match(practice, /lengthAtPace\(SPRINT_SECONDS,/, "Practice shows the sprint's length without the learner's pace");
-  const sprintMode = /href: "\/review\/sprint"[^}]*subtitle: "([^"]*)"/.exec(code("lib/ux/modes.ts"))?.[1];
-  assert.ok(sprintMode !== undefined, "the sprint's mode entry was not found");
-  assert.doesNotMatch(sprintMode, /\d/, "the sprint's mode entry states a length the pace can change");
-  assert.match(
-    code("app/(app)/scan/[scanId]/page.tsx"), /lengthAtPace\(SPRINT_SECONDS,/,
-    "the scan page's sprint tile states a length without the learner's pace",
-  );
-  assert.match(
-    code("app/(app)/page.tsx"), /lengthAtPace\(QUEST_SECONDS,/,
-    "Today's quest card states a length without the learner's pace",
+  assert.doesNotMatch(
+    code("app/(app)/page.tsx"), /QUEST_SECONDS|lengthAtPace\(/,
+    "Today states a round length again; the quest left it for Practice and the length is the pace's to say",
   );
   /*
     And no screen types the standard length as words. What a comment says is
@@ -8575,7 +8573,7 @@ check("every dead end in the app offers a way to report it", () => {
         here, so this is the file that has to keep both.
       */
       "components/ScreenFailed.tsx",
-      /didn&rsquo;t load|did not load/,
+      /didn&rsquo;t load|didn['’]t load|did not load/,
       "a screen that threw",
     ],
     [
@@ -8923,8 +8921,8 @@ check("dictation says which kind of mistake it was, in text", () => {
     Asserted by calling the function rather than by matching markup: two
     different, non-empty notes, and a component that actually renders them.
   */
-  const diacritics = wordNote({ expected: "õues", typed: "oues", status: "diacritics" });
-  const typo = wordNote({ expected: "kool", typed: "koll", status: "typo" });
+  const diacritics = wordNote({ expected: "õues", typed: "oues", status: "diacritics" }, "en");
+  const typo = wordNote({ expected: "kool", typed: "koll", status: "typo" }, "en");
 
   assert.ok(diacritics, "a dropped diacritic is marked with no words on it");
   assert.ok(typo, "a typo is marked with no words on it");
@@ -10486,7 +10484,6 @@ check("a screen that asks for a form reads the plain table rather than only nami
     "app/(app)/review/ReviewSession.tsx",
     "app/(app)/review/flashcards/FlashSession.tsx",
     "app/(app)/review/write/WriteSession.tsx",
-    "app/(app)/review/target/TargetSession.tsx",
   ];
   for (const file of ASKS) {
     const source = code(file);
@@ -10935,7 +10932,9 @@ check("a screen that prints a case question says what it is asking", () => {
   // round, which is a letter rather than a case, is not swept in.
   // `<Words text={label.question} />` is the label printing it a word per run.
   const PRINTS = /lang="et"[^>]*>\s*(?:<Words text=)?\{[^{}]*\b(caseQuestion|question)\}/;
-  const READS = /questionInEnglish|<CaseQuestion|\bquestionEn\b|plainAsk/;
+  // `questionReading` and `caseQuestionReading` are `questionInEnglish` and
+  // `questionEn` in the learner's own language, English byte for byte.
+  const READS = /questionInEnglish|<CaseQuestion|\bquestionEn\b|plainAsk|\b(?:case)?[qQ]uestionReading\b/;
   let found = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     // The one drawing of a case question is not a screen printing one.
@@ -11664,6 +11663,37 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     */
     join("lib", "progress", "learn.ts"),
     join("app", "(app)", "learn", "[unitId]", "lesson", "page.tsx"),
+    /*
+      And then every surface that shows a meaning as a meaning, because a
+      learner who reads Ukrainian better than English was meeting the
+      equivalent on the first meeting and then being quizzed in English for
+      the rest of the evening. Each of these only selects the two columns in
+      the query that already loads the word and hands them to `meaningShown`
+      or `meaningsShown` in lib/collections/glossLanguage.ts, which decides
+      what is drawn; none of them writes either column, and none hands them to
+      a model. `review/cards.ts` imports the provider
+      check for an unrelated reason (whether a sentence may be offered in
+      English), and pass it nothing from these columns.
+
+      The decoy pool carries each option's equivalents so a choice is drawn in
+      the learner's language without a second query per question; the
+      crossword pool carries them so a clue can lead in it, while the grid is
+      still compiled and marked on the English clue alone.
+    */
+    join("lib", "dict", "facts.ts"),
+    join("lib", "progress", "crossword.ts"),
+    join("lib", "progress", "mastery.ts"),
+    join("app", "(app)", "review", "listening", "page.tsx"),
+    join("app", "(app)", "review", "match", "page.tsx"),
+    join("app", "(app)", "review", "flashcards", "page.tsx"),
+    join("app", "(app)", "words", "page.tsx"),
+    /*
+      Twenty questions reads them in the query that loads its words, so its
+      page can show the thing it was thinking of through `meaningShown` and a
+      guess is said back in the learner's own language. Nothing is written and nothing
+      reaches a model: the game answers in the browser.
+    */
+    join("lib", "progress", "twenty.ts"),
   ]);
 
   const roots = ["app", "lib", "components", "scripts", "prisma"];
@@ -13458,7 +13488,7 @@ check("every timed practice round reads the learner's pace", () => {
     (file) => file.endsWith("Session.tsx") && (COUNTDOWN.test(code(file)) || DEADLINE.test(code(file))),
   );
   assert.ok(
-    timed.length >= 4,
+    timed.length >= 2,
     `only ${timed.length} timed rounds found; the countdown shapes moved and this stopped looking`,
   );
   for (const file of timed) {
@@ -13495,11 +13525,12 @@ check("the copy about the round pace names every round that reads it", () => {
   const rounds = APP.filter((f) => f.endsWith("/page.tsx") && !f.includes("/settings/"))
     .filter((f) => /\broundPaceFrom\(/.test(code(f)))
     .map((f) => {
-      const title = /title:\s*"([^"]+)"/.exec(read(f))?.[1];
+      // A signed-in page names itself through `titleFor` (lib/progress/locale.ts).
+      const title = (/titleFor\("([^"]+)"/.exec(read(f)) ?? /title:\s*"([^"]+)"/.exec(read(f)))?.[1];
       assert.ok(title, `${f} reads the round pace and has no title to be named by`);
       return title!;
     });
-  assert.ok(rounds.length >= 3, `only ${rounds.length} rounds read the pace, so this stopped looking`);
+  assert.ok(rounds.length >= 1, `only ${rounds.length} rounds read the pace, so this stopped looking`);
   const settings = code("app/(app)/settings/page.tsx");
   const section = settings.slice(settings.indexOf('id="round-pace"'), settings.indexOf("<RoundPacePanel"));
   assert.ok(section.length > 40, "the round-pace section of Settings has moved, so this checks nothing");
@@ -13781,7 +13812,7 @@ check("Anu's briefing reads the shared level rule and the reasons table", () => 
   const note = between(code("lib/tutor/prompt.ts"), "export function learnerNote");
   assert.match(note, /standing/, "learnerNote no longer says how the level is known");
   assert.match(note, /situation/, "learnerNote no longer says what Estonian the learner lives in");
-  const phrases = ALL.filter((f) => f !== "lib/assessment/goals.ts" && /"live in Estonia"/.test(code(f)));
+  const phrases = ALL.filter((f) => f !== "lib/assessment/goals.ts" && !f.startsWith("lib/copy/i18n/") && /"live in Estonia"/.test(code(f)));
   assert.deepEqual(phrases, [], "a situation phrase is typed outside the reasons table");
 });
 
@@ -14432,8 +14463,14 @@ check("every screen that draws the weakest cases reads the one query behind them
     );
   }
 
+  /*
+    Three until Today stopped drawing the daily quest, which was the third: the
+    home page leads with Sõnad now and the quest lives on Practice, so the screens
+    left are Progress and Practice. The floor is what is there, so a check that
+    stops finding either of them still fails.
+  */
   assert.ok(
-    screens.length >= 3,
+    screens.length >= 2,
     `only ${screens.length} screens draw the weakest cases, so this check stopped looking`,
   );
 });
@@ -14828,11 +14865,17 @@ check("the game of the day comes from the one table of them", () => {
     is what the home page leads with.
   */
   const page = code("app/(app)/page.tsx");
-  assert.match(page, /gameOn\(/, "Today no longer asks which game today's is");
-  assert.match(page, /gameAfter\(/, "Today stopped saying what is on tomorrow, which is what makes it a week");
   assert.match(
-    page, /modeAt\(/,
-    "Today names the featured round itself rather than reading lib/ux/modes.ts, so a rename splits",
+    page, /GAME_OF_THE_DAY/,
+    "Today no longer asks the table which game today's is, so the game of the day is typed in a screen",
+  );
+  assert.match(
+    page, /featuredTitle\(/,
+    "Today names the featured round itself rather than reading the tables that own the name, so a rename splits",
+  );
+  assert.match(
+    page, /<SonadPreview /,
+    "the game of the day is Sõnad and it is drawn with its example board, which is what makes it worth pressing",
   );
 
   const table = code("lib/ux/weekGames.ts");
@@ -15173,8 +15216,10 @@ check("a frequency list is named once, asked one way, and never built by a rende
     const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     // As a string, a template, or a run of JSX text.
     const written = new RegExp(`["'\`]${escaped}["'\`]|>\\s*${escaped}\\s*<`);
+    // A translation table keys a line by its English, which is the label
+    // looked up rather than the label written down a second time.
     const naming = haystack.filter((f) =>
-      f !== "lib/collections/commonGroups.ts" && written.test(code(f)));
+      f !== "lib/collections/commonGroups.ts" && !f.startsWith("lib/copy/i18n/") && written.test(code(f)));
     assert.deepEqual(
       naming, [],
       `"${label}" is written down somewhere other than the one table of what a list is called`,
@@ -17289,7 +17334,6 @@ check("a wrong answer records the form it reached for, and only between forms", 
   // itself about the form they asked for, so neither fact survives without them.
   for (const file of [
     "app/(app)/review/flashcards/FlashSession.tsx",
-    "app/(app)/review/describe/DescribeSession.tsx",
   ]) {
     assert.match(
       code(file),
@@ -19375,7 +19419,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     learner sitting a course still gets the word their teacher uses.
   */
   assert.match(
-    review, /whatFor\(slip\.kind, plain, spec\?\.suffix\)/,
+    review, /whatFor\(slip\.kind, plain, spec\?\.suffix(, locale)?\)/,
     "the review names an ending without saying what it is for, which is the heading a learner could not read",
   );
   /*
@@ -19416,7 +19460,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     of it is that the first word is pronounced like the second.
   */
   assert.match(
-    debrief, /\{"It should be "\}/,
+    debrief, /\{"It should be "\}|t\("It should be \{form\}/,
     "the debrief prints the learner's form and the dictionary's with nothing saying which is which",
   );
   /*
@@ -19440,7 +19484,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     two languages on the screen whose point is reading the exchange back.
   */
   assert.match(
-    debrief, /className="sr-only">\{turn\.who === "you" \? "You said/,
+    debrief, /className="sr-only">\{(t\()?turn\.who === "you" \? "You said/,
     "the debrief's transcript says who spoke with position and colour alone, which is nothing to a screen reader",
   );
   /*
@@ -19457,7 +19501,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     "the debrief puts its transcript back in front of its teaching, so the review is a screen down again",
   );
   assert.match(
-    code("lib/progress/scene.ts"), /reviewOf\(scene, state\)/,
+    code("lib/progress/scene.ts"), /reviewOf\(scene, state(, locale)?\)/,
     "finishRun no longer derives the review from the run it just marked",
   );
 });
@@ -19589,7 +19633,8 @@ check("an objective carries the value the card dealt for it, and every line says
   assert.match(session, /<SceneFace who="them" \/>/, "the other side's lines lost their speaker");
   for (const said of ["You said: ", "They said: "]) {
     assert.ok(
-      session.includes(`<span className="sr-only">${said}</span>`),
+      session.includes(`<span className="sr-only">${said}</span>`)
+        || session.includes(`<span className="sr-only">{t("${said.trim()}")}{" "}</span>`),
       `a conversation no longer says "${said.trim()}" to a reader who cannot see the sides`,
     );
   }
@@ -20741,7 +20786,7 @@ check("nothing but the dictionary can advance a scene", () => {
 
 check("the scene route marks mechanically before it reaches a provider", () => {
   const src = code("app/api/describe/route.ts");
-  const marked = src.indexOf("markDescription(");
+  const marked = src.indexOf("markPicture(");
   // Either spelling: the route resolves the whole chain now, and the rule is
   // about the order, not about which of the two functions it calls.
   const provider = src.search(/resolveProviders?\(/);
@@ -21524,19 +21569,21 @@ check("a verdict is painted once, in the tint and the ink", () => {
   }
 
   // The screens that mark an answer are the ones that call the app's markers.
-  const marks = /\b(gradeCard|useGrade|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markDescription|isClozeCorrect|wrongCells|allMarks)\(/;
+  const marks = /\b(gradeCard|useGrade|checkAnswer|gradeChoice|gradeDictation|gradeWrite|markFlash|markPicture|isClozeCorrect|wrongCells|allMarks)\(/;
   // Sõnad is not on this list and is not exempt from it: it marks letters with
   // three kinds of object rather than three tints, by a design argued at the
   // top of its own file, and it calls none of the markers above.
   const exempt: Record<string, string> = {
     // Marks a paper whole and shows no per-answer verdict, on purpose (line 22).
     "app/(app)/learn/checkpoint/[level]/CheckpointSession.tsx": "no per-answer verdict by design",
+    // Its two buttons are SelfGradeButtons, which reads the vocabulary itself.
+    "app/(app)/review/speaking/SpeakingSession.tsx": "marks nothing of its own; components/round/SelfGradeButtons.tsx draws the verdict",
   };
   // Screens, not the server actions and page files that call the same markers and draw nothing.
   const marking = [...APP, ...COMPONENTS].filter(
     (file) => file.endsWith(".tsx") && !file.endsWith("page.tsx") && marks.test(code(file)),
   );
-  assert.ok(marking.length >= 20, `only ${marking.length} marking screens found; the marker list has rotted`);
+  assert.ok(marking.length >= 19, `only ${marking.length} marking screens found; the marker list has rotted`);
   for (const file of marking) {
     const body = code(file);
     if (file in exempt) {
@@ -21936,10 +21983,8 @@ check("every round that puts one word up carries the favorite button", () => {
       "a board of pairs: several words at once, and no card to put a corner on",
     [join("app", "(app)", "review", "pairs", "PairsSession.tsx")]:
       "the same, a board rather than a card",
-    [join("app", "(app)", "review", "target", "TargetSession.tsx")]:
-      "four forms of one word to aim at, and a clock: the round is a gesture",
     [join("app", "(app)", "review", "describe", "DescribeSession.tsx")]:
-      "a picture and three words, only one of which is named",
+      "a picture and five sentences of the learner's own, with no one word the round is about",
     [join("app", "(app)", "review", "cloze", "ClozeSession.tsx")]:
       "the subject is a sentence with a hole in it rather than a word",
     [join("app", "(app)", "review", "sentences", "SentenceSession.tsx")]:
@@ -22204,22 +22249,26 @@ check("the primary button is the last one in its row", () => {
   possible run is a hole wearing a waiver's clothes.
 
   So the rung travels as an attribute on the line's own wrapper, which is a fact
-  about the line rather than a shape in the markup, and the label stays beside
-  it for the reader. Both, or the suite goes blind again in silence.
+  about the line rather than a shape in the markup. The label beside it for the
+  reader has since gone, on the operator's word, below.
 */
 check("every line a scene says carries its rung", () => {
   const source = code("components/scene/SceneSession.tsx");
   assert.match(source, /data-rung=\{line\.provenance\}/,
     "a line has to carry the rung the server chose, or test-scene.mjs cannot pair a line with its label");
   /*
-    The move's own rung, in words, under the bubble. Every rung that wrote a
-    piece of it used to be named, and under every line of a conversation that
-    was a second conversation; the word said back is the dictionary's by
-    construction, and what a reader is owed is which lines a model wrote
-    (ADR-025), which is the move's rung.
+    AND NOTHING UNDER THE BUBBLE FOR THE READER (operator's call, 2026-10-07).
+    The rung in words and a Report button sat under every line, and under every
+    line of a conversation that was a second conversation; the learner asked for
+    both gone. What a reader is owed by ADR-025 is which model is composing,
+    and that is said once, at the top, off `composedBy`.
   */
-  assert.match(source, /PROVENANCE\[line\.provenance\]/,
-    "and the words under it are what a reader is told, which is ADR-025 itself");
+  assert.doesNotMatch(source, /<span>\{PROVENANCE\[line\.provenance\]\}<\/span>/,
+    "the rung is not printed under every line of a conversation");
+  assert.doesNotMatch(source, /SuggestFix/,
+    "and a conversation carries no Report button under its lines");
+  assert.match(source, /composedBy/,
+    "the model composing is still named once, at the top (ADR-025)");
   const suite = readFileSync("scripts/test-scene.mjs", "utf8");
   assert.match(suite, /\[data-rung\]/,
     "test-scene.mjs reads the rung off the attribute rather than by walking the markup");
@@ -22555,7 +22604,7 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     "the role card no longer sticks under the room, or it sticks while it is open as well",
   );
   assert.match(
-    code("components/scene/SceneSession.tsx"), /<details\s+className="scene-sticky/,
+    code("components/scene/SceneSession.tsx"), /<details\s+(?:open=\{[^}]*\}\s+)?className="scene-sticky/,
     "the class that pins the role card is back on something that cannot move: a summary inside a "
     + "closed details has nowhere to travel, which is the fault this replaced",
   );
@@ -23330,7 +23379,7 @@ check("the words put aside are listed, and one button puts them there", () => {
       `${file} stopped offering the button on the screen a word is met on`,
     );
     assert.match(
-      code(file), /\{aside\}/,
+      code(file), /\{(?:t\()?aside\)?\}/,
       `${file} draws the button and never prints what it did, so the press reads `
       + "as a card vanishing.",
     );
@@ -23659,7 +23708,7 @@ check("every round a rotation can deal reads the module's scope off its address"
     assert.match(page, /practiceScope\(ownerId, /, `${spec.href} is a round the module can deal and never asks what the module has taught`);
     reads += 1;
   }
-  assert.ok(reads >= 12, `only ${reads} round pages read the scope; the table has more rounds than that`);
+  assert.ok(reads >= 11, `only ${reads} round pages read the scope; the table has more rounds than that`);
   // And the closing review reads it too, since it is the last step of every evening.
   assert.match(code("app/(app)/review/page.tsx"), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
   assert.match(code("app/(app)/review/page.tsx"), /reviewable\(/, "the closing review stopped holding a case card to the case pages read");
@@ -24123,7 +24172,7 @@ check("an order the writer did not choose is not a wrong order", () => {
   ];
   for (const file of markers) {
     const body = code(file);
-    assert.match(body, /readOrder\(/, `${file} does not read the word order, it compares it`);
+    assert.match(body, /\b(?:readOrder|readBuiltOrder)\(/, `${file} does not read the word order, it compares it`);
     assert.doesNotMatch(
       body, /sentenceMatches\(/,
       `${file} marks a built sentence with the exact comparison again, so another order Estonian allows is wrong there`,
@@ -24138,7 +24187,7 @@ check("an order the writer did not choose is not a wrong order", () => {
   */
   for (const file of markers) {
     assert.match(
-      code(file), /orderIsRight\(/,
+      code(file), /\b(?:orderIsRight|buildIsRight)\(/,
       `${file} decides for itself whether a variant counts, which is how one screen starts penalising what another accepts`,
     );
   }
@@ -24347,7 +24396,7 @@ check("an order the writer did not choose is not a wrong order", () => {
 });
 
 /*
-  ────────────────────────── TONIGHT'S MODULE IS A ROOM ──────────────────────
+  ────────────────────────── TODAY'S MODULE IS A ROOM ──────────────────────
 
   A step opened from the module used to hand the learner back to the ordinary
   website. It was reported off the reading step and the report is the whole
@@ -24374,7 +24423,7 @@ check("an order the writer did not choose is not a wrong order", () => {
   taking the raw href exactly one step of the evening quietly leaves the
   module, which looks like a step somebody has not opened yet.
 */
-check("a step opened from tonight's module carries the marker", () => {
+check("a step opened from today's module carries the marker", () => {
   const list = code("components/course/StepList.tsx");
   assert.match(
     list, /focusedSteps\(/,
@@ -24460,7 +24509,7 @@ check("the module frame is mounted once in the shell, keeps the rail and Anu, an
   */
   const exit = code("components/round/RoundExit.tsx");
   assert.match(exit, /if \(focus\) return opening \? null : <div className=\{className\}>\{next\}<\/div>/,
-    "`WayOut` no longer draws tonight's Next inside a module, so a round finishes with no way on");
+    "`WayOut` no longer draws today's Next inside a module, so a round finishes with no way on");
   for (const page of [
     "app/(app)/grammar/topic/[id]/page.tsx",
     "app/(app)/grammar/[caseKey]/page.tsx",
@@ -24468,7 +24517,7 @@ check("the module frame is mounted once in the shell, keeps the rail and Anu, an
     // learner finished the three taps and had nothing to press.
     "app/(app)/course/forms/page.tsx",
   ]) {
-    assert.match(code(page), /<ReadingEnd \/>/, `${page} stopped ending on tonight's Next inside a module`);
+    assert.match(code(page), /<ReadingEnd \/>/, `${page} stopped ending on today's Next inside a module`);
   }
   assert.match(code("components/scene/SceneDebrief.tsx"), /<NextStep \/>/,
     "a conversation's debrief inside a module has no way on");
@@ -24481,7 +24530,7 @@ check("the module frame is mounted once in the shell, keeps the rail and Anu, an
   const rail = code("components/Sidebar.tsx");
   assert.match(rail, /const lit = focus \? LEARN_HREF :/, "the rail stopped lighting Learn during a module");
   assert.match(rail, /const classLinks = focus \? \[\] :/, "the rail draws the class group during a module again");
-  assert.match(rail, /<TonightRows /, "the rail stopped hanging tonight's steps under Learn");
+  assert.match(rail, /<TonightRows /, "the rail stopped hanging today's steps under Learn");
 });
 
 /*
@@ -24683,7 +24732,7 @@ check("the module's reading step carries no drill and no way off the page", () =
     const src = code(page);
     assert.match(
       src, /focusFrom\((await searchParams|query)\)/,
-      `${page} does not ask whether it was opened from tonight's module`,
+      `${page} does not ask whether it was opened from today's module`,
     );
     assert.match(
       src, /inModule \? undefined : \(/,
@@ -24756,10 +24805,10 @@ check("the reading's Try it is drawn on both reference pages and grades nothing"
   read off the step log through `computeStreak` (the same midnight the review
   streak breaks at) and stored nowhere, which is ADR-014.
 */
-check("the finished module plays tonight's words back and counts evenings off the log", () => {
+check("the finished module plays today's words back and counts evenings off the log", () => {
   const page = code("app/(app)/course/page.tsx");
-  assert.match(page, /data-recap-words/, "the finished module screen stopped listing tonight's words");
-  assert.match(page, /<Speak text=\{word\}/, "tonight's words on the finished screen carry no speaker");
+  assert.match(page, /data-recap-words/, "the finished module screen stopped listing today's words");
+  assert.match(page, /<Speak text=\{word\}/, "today's words on the finished screen carry no speaker");
   assert.match(page, /reading\.eveningsInARow >= 2/, "the finished module screen stopped saying the run of evenings");
   const reading = code("lib/progress/course.ts");
   assert.match(reading, /computeStreak\(ticks\.at, now, clock\)/, "the run of evenings is no longer read off the step log through computeStreak");
@@ -25047,12 +25096,10 @@ check("every screen that teaches a word draws its sentence the same way", () => 
     "app/(app)/learn/new/LearnSession.tsx",
     "app/(app)/learn/[unitId]/lesson/LessonSession.tsx",
     "app/(app)/quest/QuestSession.tsx",
-    "app/(app)/review/sprint/SprintSession.tsx",
     "app/(app)/review/flashcards/FlashSession.tsx",
     "app/(app)/review/exceptions/ExceptionsSession.tsx",
     "app/(app)/review/dictation/DictationSession.tsx",
     "app/(app)/review/government/GovernmentSession.tsx",
-    "app/(app)/review/describe/DescribeSession.tsx",
     "app/(app)/grammar/[caseKey]/page.tsx",
     "app/(app)/grammar/build-a-word/BuildWalk.tsx",
     "app/(app)/dictionary/Examples.tsx",
@@ -25159,22 +25206,6 @@ check("a sentence's English is never printed where it would be the answer", () =
     "form wrong is shown the sentence and still not told what it says",
   );
 
-  /*
-    AND WHAT MOVED IS WHAT IS DRAWN, NEVER WHAT IS ASKED FOR. A gap question
-    prints the English the dictionary already holds, which costs no call, no
-    wait and no daily allowance and works on a deployment with no model at all.
-    `SentenceTranslation` is what spends a call, and it stays where it was, on
-    the reveal: the sprint had it on the front for an hour and was wrong about
-    that for a reason that has not changed.
-  */
-  const sprint = code("app/(app)/review/sprint/SprintSession.tsx");
-  const revealAt = sprint.indexOf("{revealed && (");
-  const translationAt = sprint.indexOf("<SentenceTranslation");
-  assert.ok(
-    revealAt >= 0 && translationAt > revealAt,
-    "the sprint asks for its sentence's English before the answer again. Drawing what is already stored " +
-    "is free; asking belongs inside the reveal, like every other round's",
-  );
 });
 
 
@@ -25270,7 +25301,7 @@ check("every gap question says what its sentence means, one rule and one drawing
     if (marked.test(code(file))) drawn.push(file);
   }
   assert.ok(
-    drawn.length >= 12,
+    drawn.length >= 10,
     `only ${drawn.length} files name a gap at all, so this sweep has stopped looking at the app`,
   );
 
@@ -25744,7 +25775,9 @@ check("nothing but the hint ladder decides what a hint gives away", () => {
 
   // And the encouragement is one sentence, from one table, for the same reason
   // a second copy of any line of copy in this app is a second copy: they drift.
-  const notes = ALL.filter((f) => /fine not to know this one yet/.test(read(f)));
+  // The translation tables hold it as the key they translate, which is the
+  // line being said in another language rather than a second copy of it.
+  const notes = ALL.filter((f) => !/lib[\\/]copy[\\/]i18n[\\/]/.test(f) && /fine not to know this one yet/.test(read(f)));
   assert.deepEqual(
     notes.map((f) => f.replace(/\\/g, "/")), ["lib/copy/firstTry.ts"],
     "the first-try line is written out somewhere other than the one table that holds it",
@@ -25783,12 +25816,13 @@ check("looking back at the last word is one drawing, and it grades nothing", () 
   const exempt: Record<string, string> = {
     // A burst against a stopwatch: stopping to re-read spends the one thing
     // the round is made of, and the finish screen lists what was asked.
-    "app/(app)/review/sprint/SprintSession.tsx": "timed",
-    "app/(app)/review/target/TargetSession.tsx": "timed",
     "app/(app)/quest/QuestSession.tsx": "timed",
     // A board puts several words up at once, so there is no last word: what
     // was asked is still on the screen until the board is cleared.
     "app/(app)/review/match/MatchSession.tsx": "a board",
+    // The whole transcript of questions and answers stays on the screen, in order, so there is no
+    // last word to look back at: every earlier question is already there.
+    "app/(app)/review/twenty/TwentySession.tsx": "the transcript is the round",
     // A list of the cards you keep failing, with nothing stepping through.
     "app/(app)/review/clinic/ClinicList.tsx": "a list rather than a round",
     // A measurement that withholds every answer until the end, deliberately
@@ -26991,7 +27025,7 @@ check("a word-ordering tile does not say which tile goes first", () => {
     is a marked instrument and its items are built in \`lib/exam/paper.ts\`.
   */
   for (const file of ["app/(app)/review/sentences/SentenceSession.tsx", "app/(app)/learn/[unitId]/lesson/page.tsx"]) {
-    assert.match(code(file), /\btileFaces\(/, `${file} hands a learner tiles still carrying the sentence's opening capital`);
+    assert.match(code(file), /\b(?:orderFaces|ordinaryStarters)\(/, `${file} hands a learner tiles still carrying the sentence's opening capital`);
   }
   assert.match(code("lib/dict/openers.ts"), /\bisKnownForm\(/, "the opener is no longer decided against the forms list");
 });
@@ -27123,7 +27157,6 @@ check("a round that asks one case says which when it grades", () => {
   */
   const rounds: Record<string, RegExp> = {
     "app/(app)/review/write/WriteSession.tsx": /\b(?:gradeCard|grade)\([^;]{0,200}?prompt\.caseKey/,
-    "app/(app)/review/target/TargetSession.tsx": /\b(?:gradeCard|grade)\([^;]{0,200}?question\.caseKey/,
   };
   for (const [file, pattern] of Object.entries(rounds)) {
     assert.match(code(file).replace(/\s+/g, " "), pattern, `${file} grades without saying which case it asked`);

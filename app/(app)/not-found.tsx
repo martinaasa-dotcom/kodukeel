@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { titleFor } from "@/lib/progress/locale";
 import { NO_PAGE_FRAME, NoPage } from "@/components/NoPage";
 
 /*
@@ -23,8 +24,13 @@ import { NO_PAGE_FRAME, NoPage } from "@/components/NoPage";
   It sets its own title for the reason the root one does, so the tab stops
   naming the page that is missing, and it draws no `main`: the group's layout
   already has one, and that was the whole fault.
+
+  Inside the shell somebody is signed in, so the tab says it in the language
+  they read the app in, through `titleFor` like every other signed-in page.
 */
-export const metadata: Metadata = { title: "No page here" };
+export async function generateMetadata(): Promise<Metadata> {
+  return titleFor("No page here");
+}
 
 export default function AppNotFound() {
   return (

@@ -5,6 +5,7 @@ import { DEFAULT_AUTOPLAY, DEFAULT_FEEDBACK_SOUNDS, DEFAULT_VOICE, type Autoplay
 import { playFeedback, type Feedback } from "@/lib/audio/feedback";
 import { DEFAULT_HEARING, DEFAULT_SUPPORT, type Hearing, type Support } from "@/lib/audio/conditions";
 import { DEFAULT_PACE, type Pace } from "@/lib/audio/pace";
+import { sceneVoiceFrom, type SceneVoice } from "@/lib/audio/sceneVoice";
 
 /**
  * How this learner wants to hear things, published once by the signed-in
@@ -24,6 +25,8 @@ export interface AudioPrefs {
   readonly hearing: Hearing;
   /** Whether a conversation is heard before its words are shown. */
   readonly support: Support;
+  /** How the other side of a conversation is heard (lib/audio/sceneVoice.ts). */
+  readonly sceneVoice: SceneVoice;
   /**
    * How fast Estonian is read aloud, off this learner's own level or their own
    * answer (lib/audio/pace.ts). Every caller of `playClip` and `prefetchClip`
@@ -40,6 +43,7 @@ const Context = createContext<AudioPrefs>({
   sounds: DEFAULT_FEEDBACK_SOUNDS,
   hearing: DEFAULT_HEARING,
   support: DEFAULT_SUPPORT,
+  sceneVoice: sceneVoiceFrom(null, DEFAULT_SUPPORT),
   pace: DEFAULT_PACE,
 });
 

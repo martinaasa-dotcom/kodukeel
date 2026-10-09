@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Compass, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Compass, Languages, Loader2 } from "lucide-react";
 import { completeOnboarding } from "@/app/actions";
 import { AssessmentRunner } from "@/components/assessment/AssessmentRunner";
 import { PlanPanel, minutesFor } from "@/components/assessment/PlanPanel";
@@ -17,8 +17,12 @@ import { DEADLINES, REASONS, TARGETS, deadlineFrom, firstSceneFor, impliedTarget
 import { sceneById } from "@/lib/scenes/catalogue";
 import { weeksToLearn, type Standing } from "@/lib/assessment/plan";
 import { PRE_A1, type Band, type Item, type Level, type Placement } from "@/lib/assessment/types";
-import { DEFAULT_LETTER_BAR, LETTER_BAR_CHOICES, type LetterBar } from "@/lib/ux/letterBar";
-import { counted } from "@/lib/copy/values";
+import { LETTER_BAR_CHOICES, letterBarDefaultFor, type LetterBar } from "@/lib/ux/letterBar";
+import {
+  LOCALES, LOCALE_NAMES, MACHINE_NOTICE, MACHINE_NOTICE_EN, countOf, fill, tr, type Locale,
+} from "@/lib/copy/locale";
+import { LocaleProvider } from "@/components/Locale";
+import { fillNodes } from "@/components/TemplateNodes";
 import { DAY_MINUTES as COURSE_DAY_MINUTES } from "@/lib/course/types";
 import { heldLevel, startingLevel } from "@/lib/course/placement";
 import {
@@ -83,8 +87,14 @@ export interface StarterDeck {
   same shape as the first two, which is the shape CEFR itself uses: what you
   can already do.
 */
+/*
+  The beginner's row quotes two Estonian words, and no translation table may
+  hold an Estonian letter (ADR-005), so the words go into a slot and only the
+  sentence around them is translated. In English it reads exactly as it did.
+*/
+const FIRST_WORDS = "Tere, aitäh";
 const LEVELS = [
-  { key: "A1", label: "Just starting", detail: "Tere, aitäh, and not much else yet." },
+  { key: "A1", label: "Just starting", detail: "{words}, and not much else yet." },
   { key: "A2", label: "I get by", detail: "You can shop, order things and put a simple sentence together." },
   { key: "B1", label: "Conversational", detail: "You can hold up your end of a clear conversation." },
   { key: "B2", label: "Confident", detail: "You can follow a meeting and read an article without stopping." },
@@ -103,11 +113,13 @@ const LEVELS = [
   the check just placed them there, since both are the same beginner meeting
   the same four letters for the first time.
 */
-function NewLettersNote() {
+/** The four letters, kept out of the translated sentences that name them. */
+const NEW_LETTERS = { a: "õ", b: "ä", c: "ö", d: "ü" } as const;
+
+function NewLettersNote({ t }: { t: (english: string) => string }) {
   return (
     <Note tone="sky">
-      Estonian has four letters English doesn&rsquo;t: õ, ä, ö and ü. You&rsquo;ll see them
-      everywhere. Don&rsquo;t worry about saying them right yet. That comes with time.
+      {fill(t("Estonian has four letters English doesn’t: {a}, {b}, {c} and {d}. You’ll see them everywhere. Don’t worry about saying them right yet. That comes with time."), NEW_LETTERS)}
     </Note>
   );
 }
@@ -129,7 +141,7 @@ const GOALS = [
   { value: 40, label: "Intense" },
 ] as const;
 
-const STEPS = ["You", "Level", "Goal", "Tonight"] as const;
+const STEPS = ["You", "Level", "Goal", "Today"] as const;
 
 /**
  * First run.
@@ -162,7 +174,7 @@ const STEPS = ["You", "Level", "Goal", "Tonight"] as const;
  * because that is where they earn their place: before the investment, not
  * after seven screens of it.
  */
-export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
+export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLocale }: {
   /** The starter deck for each level, sized by the server. */
   starters: StarterDeck[];
   /** The whole planned ladder, A1.1 to C1.3. */
@@ -170,8 +182,24 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   suggestedName: string;
   /** The level check, built server side. Empty when the dictionary cannot fill one. */
   paper: { items: Item[]; missing: string[]; seed: number; builtAt: number };
+  /**
+   * The language the wizard opens in: the one a Russian or Ukrainian front
+   * page carried through sign-in, or English. Changed on the first screen.
+   */
+  initialLocale: Locale;
 }) {
   const router = useRouter();
+  /*
+    THE LANGUAGE OF THE APP, CHOSEN BEFORE ANYTHING ELSE IS ASKED.
+
+    Held here rather than read from the shell, because there is no shell yet
+    and nothing has been saved: pressing a language redraws the whole wizard in
+    it at once, and `completeOnboarding` stores it with everything else. The
+    provider is for the panels drawn inside the wizard, the level check, its
+    result and the plan, which read the language the way every screen does.
+  */
+  const [locale, setLocale] = useState<Locale>(initialLocale);
+  const t = (english: string) => tr(locale, english);
   const [step, setStep] = useState(0);
   /*
     A new step opens at the top of the page. The Continue button sits at the
@@ -208,7 +236,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
     card.current?.querySelector<HTMLElement>("h1")?.focus({ preventScroll: true });
   }, [presses]);
   const [name, setName] = useState(suggestedName);
-  const [letters, setLetters] = useState<LetterBar>(DEFAULT_LETTER_BAR);
+  // A Cyrillic keyboard has none of the four letters, so a Ukrainian or
+  // Russian reader starts on "Show the letters" (`letterBarDefaultFor`).
+  const [letters, setLetters] = useState<LetterBar>(letterBarDefaultFor(initialLocale));
   const [gloss, setGloss] = useState<GlossLanguage>(DEFAULT_GLOSS_LANGUAGE);
 
   // A set, because almost nobody has one reason: living here, an Estonian
@@ -336,6 +366,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
         unitIds: deck?.unitIds ?? [],
         letterBar: letters,
         glossLanguage: gloss,
+        uiLocale: locale,
         goals: {
           reason: goals.reason,
           target: goals.target,
@@ -347,7 +378,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
       if (!result) { setFailed("That didn’t go through, so nothing’s been saved yet. Press it again."); return; }
       if (!result.ok) { setFailed(result.error); return; }
       /*
-        Straight to tonight's module rather than to Today. Somebody who has
+        Straight to today's module rather than to Today. Somebody who has
         just been told what the evening is wants the evening, and a dashboard
         in between is one more screen to read before anything happens.
       */
@@ -360,8 +391,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   // Back button somebody presses by accident nine questions in.
   if (checking) {
     return (
+      <LocaleProvider locale={locale}>
       <LetterBarScope value={letters}>
-        <main className="min-h-screen" style={{ background: "var(--ground)" }}>
+        <main lang={locale === "en" ? undefined : locale} className="min-h-screen" style={{ background: "var(--ground)" }}>
           <AssessmentRunner
           items={paper.items}
           missing={paper.missing}
@@ -385,6 +417,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
         />
         </main>
       </LetterBarScope>
+      </LocaleProvider>
     );
   }
 
@@ -401,8 +434,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
     not jump into, and it is four steps of form.
   */
   return (
+    <LocaleProvider locale={locale}>
     <LetterBarScope value={letters}>
-      <main className="relative flex min-h-screen flex-col justify-center px-5 py-10 md:px-8">
+      <main lang={locale === "en" ? undefined : locale} className="relative flex min-h-screen flex-col justify-center px-5 py-10 md:px-8">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -418,14 +452,56 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
           <Mascot size={44} className="float shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="label-xs mb-2" style={{ color: "var(--accent-deep)" }}>
-              Step {step + 1} of {STEPS.length}, {STEPS[step]}
+              {fill(t("Step {n} of {total}, {name}"), { n: step + 1, total: STEPS.length, name: t(STEPS[step]!) })}
             </p>
-            <Meter pct={((step + 1) / STEPS.length) * 100} label={`Setup progress, step ${step + 1} of ${STEPS.length}`} />
+            <Meter pct={((step + 1) / STEPS.length) * 100} label={fill(t("Setup progress, step {n} of {total}"), { n: step + 1, total: STEPS.length })} />
           </div>
         </div>
 
         {step === 0 && (
           <section>
+            {/*
+              THE LANGUAGE, FIRST AND SMALL.
+
+              Before the welcome, because everything under it is read in
+              whatever is chosen here, and a newcomer who reads Russian or
+              Ukrainian better than English should not have to get through a
+              screen of English to find the switch. Each name is written in its
+              own language, so it can be found by somebody who reads only that
+              one. Choosing one redraws the wizard at once.
+
+              The notice under it is the machine-translation one Settings and
+              the shell carry, in the language chosen and in English beside it,
+              said where the language is chosen because that is when it is
+              true and worth knowing.
+            */}
+            <div className="mb-7">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <Languages size={18} aria-hidden style={{ color: "var(--ink-3)" }} />
+                <ChoiceGroup ariaLabel={t("Language of the app")} className="flex flex-wrap gap-2">
+                  {/* English, and the language on screen: a Ukrainian page does
+                      not offer Russian by name, or the reverse. Either is one
+                      press away from English. */}
+                  {LOCALES.filter((l) => locale === "en" || l === "en" || l === locale).map((l) => (
+                    <ChoiceChip key={l} selected={locale === l} onSelect={() => {
+                      setLocale(l);
+                      /* A meaning language the new interface language no longer
+                         offers goes back to English rather than staying hidden. */
+                      if (gloss !== "en" && l !== "en" && gloss !== l) setGloss("en");
+                    }}>
+                      <span lang={l}>{LOCALE_NAMES[l]}</span>
+                    </ChoiceChip>
+                  ))}
+                </ChoiceGroup>
+              </div>
+              {locale !== "en" && (
+                <p data-machine-notice className="mt-3 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                  <span lang={locale}>{MACHINE_NOTICE[locale]}</span>{" "}
+                  <span lang="en">{MACHINE_NOTICE_EN}</span>
+                </p>
+              )}
+            </div>
+
             {/*
               The heading, then straight into the first question.
 
@@ -443,19 +519,19 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             <FitText as="h1" text="Tere tulemast!" max="var(--text-3xl)" tabIndex={-1} lang="et" className="font-bold leading-tight outline-none" style={{ color: "var(--ink)" }} />
 
             <label htmlFor="learner-name" className="label-xs mt-8 block" style={{ color: "var(--ink-3)" }}>
-              What should we call you?
+              {t("What should we call you?")}
             </label>
             <input
               id="learner-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={32}
-              placeholder="Your name or a nickname"
+              placeholder={t("Your name or a nickname")}
               className="field-lg mt-2 w-full text-md"
               style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
             />
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-              We only use it to say hello, and to show your teacher if you ever join a class.
+              {t("We only use it to say hello, and to show your teacher if you ever join a class.")}
             </p>
 
             {/*
@@ -488,7 +564,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
             >
               <ChoiceGroup
-                label="How do you type õ, ä, ö and ü?"
+                label={fill(t("How do you type {a}, {b}, {c} and {d}?"), NEW_LETTERS)}
                 className="grid gap-3 sm:grid-cols-2"
               >
                 {LETTER_BAR_CHOICES.map((o) => (
@@ -497,13 +573,13 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                     layout="stacked"
                     selected={letters === o.value}
                     onSelect={() => setLetters(o.value)}
-                    title={o.label}
-                    detail={<><LetterSample lit={o.value === "on"} />{o.detail}</>}
+                    title={t(o.label)}
+                    detail={<><LetterSample lit={o.value === "on"} />{t(o.detail)}</>}
                   />
                 ))}
               </ChoiceGroup>
               <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
-                You can change this any time, in Settings or right from the row of letters.
+                {t("You can change this any time, in Settings or right from the row of letters.")}
               </p>
             </div>
 
@@ -526,24 +602,34 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               className="mt-4 rounded-[var(--r-lg)] border p-5"
               style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
             >
+              {/*
+                Somebody reading this in Russian or Ukrainian is offered English
+                and their own language, never the other one, which a great many
+                of them would rightly find out of place in their own setting.
+                The same rule as the Settings panel (GlossLanguagePanel).
+              */}
               <ChoiceGroup
-                label="What language would you like meanings in?"
-                className="grid gap-3 sm:grid-cols-3"
+                label={t("What language would you like meanings in?")}
+                className={`grid gap-3 ${locale === "en" ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
               >
-                {GLOSS_LANGUAGES.map((o) => (
+                {/* Somebody reading the app in Russian or Ukrainian is offered
+                    English and their own language, never the other one, which
+                    is the rule the Settings panel keeps for the same choice. */}
+                {GLOSS_LANGUAGES.filter((o) =>
+                  locale === "en" || o.id === "en" || o.id === locale || o.id === gloss,
+                ).map((o) => (
                   <ChoiceCard
                     key={o.id}
                     layout="stacked"
                     selected={gloss === o.id}
                     onSelect={() => setGloss(o.id)}
-                    title={o.label}
-                    detail={o.id === "en" ? "Plain English meanings" : o.native}
+                    title={t(o.label)}
+                    detail={o.id === "en" ? t("Plain English meanings") : o.native}
                   />
                 ))}
               </ChoiceGroup>
-              <Explain label="What stays in English">
-                You&rsquo;ll always see the English as well. The Russian and Ukrainian meanings come
-                straight from the Estonian dictionary, written by the same people as the Estonian.
+              <Explain label={t("What stays in English")}>
+                {t("You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.")}
               </Explain>
             </div>
 
@@ -560,9 +646,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             */}
             <div className="mt-10">
               <Note tone="hard">
-                One honest note before you start: Kodukeel will not score your pronunciation, let an AI
-                grade you, or replace a teacher. It&rsquo;s where you rehearse. The real conversations
-                happen out there.
+                {t("One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.")}
               </Note>
             </div>
           </section>
@@ -571,7 +655,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
         {step === 1 && (
           <section>
             <h1 tabIndex={-1} className="text-2xl font-bold leading-tight outline-none" style={{ color: "var(--ink)" }}>
-              Where are you now?
+              {t("Where are you now?")}
             </h1>
             {/*
               NO NUMBER OF MINUTES, AND THAT IS THE HONEST VERSION.
@@ -587,58 +671,54 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               learner who is furthest through is the one who was told wrong.
             */}
             <p className="mt-3 max-w-[54ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Take the level check to find out, or just pick the one that sounds like you. The check
-              stops as soon as it has found your level. Either way, you can change it later in
-              Settings.
+              {t("Take the level check to find out, or just pick the one that sounds like you. The check stops as soon as it has found your level. Either way, you can change it later in Settings.")}
             </p>
 
             {measured ? (
               <div className="mt-6">
-                <ResultPanel result={measured} heading="Measured just now" />
+                <ResultPanel result={measured} heading={t("Measured just now")} />
                 {(measured.overall === "A1" || measured.overall === PRE_A1) && (
                   <div className="mt-4">
-                    <NewLettersNote />
+                    <NewLettersNote t={t} />
                   </div>
                 )}
                 <Button variant="ghost" className="mt-4" onClick={() => { setMeasured(null); setChecking(true); }}>
-                  Take it again
+                  {t("Take it again")}
                 </Button>
               </div>
             ) : (
               <>
                 {paper.items.length > 0 ? (
                   <Button variant="primary" size="lg" className="mt-7 w-full" onClick={() => setChecking(true)}>
-                    <Compass size={16} aria-hidden /> Take the level check
+                    <Compass size={16} aria-hidden /> {t("Take the level check")}
                   </Button>
                 ) : (
                   <div className="mt-6">
                     <Note tone="sky">
-                      The level check isn&rsquo;t ready on this copy of Kodukeel yet, because its
-                      dictionary hasn&rsquo;t been loaded. For now, pick the level that sounds most
-                      like you.
+                      {t("The level check isn’t ready on this copy of Kodukeel yet, because its dictionary hasn’t been loaded. For now, pick the level that sounds most like you.")}
                     </Note>
                   </div>
                 )}
 
                 <div className="mt-8">
-                  <SectionTitle>Or make a guess</SectionTitle>
+                  <SectionTitle>{t("Or make a guess")}</SectionTitle>
                 </div>
-                <ChoiceGroup ariaLabel="Guess your level" className="flex flex-col gap-3">
+                <ChoiceGroup ariaLabel={t("Guess your level")} className="flex flex-col gap-3">
                   {LEVELS.map((l) => (
                     <ChoiceCard
                       key={l.key}
                       selected={estimated === l.key}
                       onSelect={() => chooseLevel(l.key)}
                       lead={l.key}
-                      title={l.label}
-                      detail={l.detail}
+                      title={t(l.label)}
+                      detail={fill(t(l.detail), { words: FIRST_WORDS })}
                     />
                   ))}
                 </ChoiceGroup>
 
                 {estimated === "A1" && (
                   <div className="mt-4">
-                    <NewLettersNote />
+                    <NewLettersNote t={t} />
                   </div>
                 )}
               </>
@@ -649,11 +729,10 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
         {step === 2 && (
           <section>
             <h1 tabIndex={-1} className="text-2xl font-bold leading-tight outline-none" style={{ color: "var(--ink)" }}>
-              Why Estonian?
+              {t("Why Estonian?")}
             </h1>
             <p className="mt-3 max-w-[54ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Pick every one that&rsquo;s true. We&rsquo;ll suggest a level to aim for, and the plan at
-              the bottom changes as you answer.
+              {t("Pick every one that’s true. We’ll suggest a level to aim for, and the plan at the bottom changes as you answer.")}
             </p>
 
             {/*
@@ -665,7 +744,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               without one.
             */}
             <ChoiceGroup
-              ariaLabel="Why you are learning Estonian"
+              ariaLabel={t("Why you are learning Estonian")}
               select="many"
               className="mt-6 grid gap-3 sm:grid-cols-2"
             >
@@ -676,8 +755,8 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                     selected={reasons.includes(r.id)}
                     onSelect={() => toggleReason(r.id)}
                     icon={<NamedIcon name={r.icon} size={18} aria-hidden />}
-                    title={r.label}
-                    detail={r.detail}
+                    title={t(r.label)}
+                    detail={t(r.detail)}
                   />
                 );
               })}
@@ -699,33 +778,33 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
             */}
             <div className="mt-8 flex flex-col gap-7">
               <div>
-                <SectionTitle>What level are you aiming for?</SectionTitle>
-                <ChoiceGroup ariaLabel="What level are you aiming for">
-                  {TARGETS.map((t) => (
-                    <ChoiceChip key={t.band} selected={target === t.band} onSelect={() => chooseTarget(t.band)}>
-                      {t.band}, {t.label}
+                <SectionTitle>{t("What level are you aiming for?")}</SectionTitle>
+                <ChoiceGroup ariaLabel={t("What level are you aiming for")}>
+                  {TARGETS.map((tg) => (
+                    <ChoiceChip key={tg.band} selected={target === tg.band} onSelect={() => chooseTarget(tg.band)}>
+                      {tg.band}, {t(tg.label)}
                     </ChoiceChip>
                   ))}
                 </ChoiceGroup>
               </div>
 
               <div>
-                <SectionTitle>By when?</SectionTitle>
-                <ChoiceGroup ariaLabel="By when">
+                <SectionTitle>{t("By when?")}</SectionTitle>
+                <ChoiceGroup ariaLabel={t("By when")}>
                   {DEADLINES.map((d) => (
                     <ChoiceChip key={d.id} selected={deadlineId === d.id} onSelect={() => setDeadlineId(d.id)}>
-                      {d.label}
+                      {t(d.label)}
                     </ChoiceChip>
                   ))}
                 </ChoiceGroup>
               </div>
 
               <div>
-                <SectionTitle hint="be honest, the plan is built on it">Days a week you will really practice</SectionTitle>
+                <SectionTitle hint={t("be honest, the plan is built on it")}>{t("Days a week you will really practice")}</SectionTitle>
                 {/* Six to a row, always: wrapped as free chips, the 7 fell onto a
                     line of its own at 390, which reads as a seventh option the
                     app forgot about rather than the end of the week. */}
-                <ChoiceGroup ariaLabel="Days a week you will really practice" className="grid max-w-sm grid-cols-6 gap-2">
+                <ChoiceGroup ariaLabel={t("Days a week you will really practice")} className="grid max-w-sm grid-cols-6 gap-2">
                   {[2, 3, 4, 5, 6, 7].map((days) => (
                     <ChoiceChip key={days} even selected={daysPerWeek === days} onSelect={() => setDaysPerWeek(days)}>
                       {days}
@@ -742,12 +821,11 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               which it still is: the deck is the step after this one.
             */}
             <div className="mt-7">
-              <SectionTitle hint="from your answers and published estimates">What this is going to take</SectionTitle>
+              <SectionTitle hint={t("from your answers and published estimates")}>{t("What this is going to take")}</SectionTitle>
               {!measured && (
                 <div className="mb-4">
                   <Note tone="sky">
-                    This plan starts from your own guess at your level. Take the level check whenever
-                    you like, and it&rsquo;ll redo the sums with your real one.
+                    {t("This plan starts from your own guess at your level. Take the level check whenever you like, and it’ll redo the math with your real one.")}
                   </Note>
                 </div>
               )}
@@ -768,28 +846,32 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
         {step === 3 && (!deck || deck.cards === 0) && (
           <section>
             <h1 tabIndex={-1} className="text-2xl font-bold leading-tight outline-none" style={{ color: "var(--ink)" }}>
-              Your first words
+              {t("Your first words")}
             </h1>
             <Note tone="hard">
-              This copy of Kodukeel has no dictionary loaded yet, so there are no first words to give
-              you. Whoever runs it can load one with <code>npm run db:seed</code>. You can still pick
-              your pace below, and add words yourself as you come across them.
+              {fillNodes(t("This copy of Kodukeel has no dictionary loaded yet, so there are no first words to give you. Whoever runs it can load one with {command}. You can still pick your pace below, and add words yourself as you come across them."), {
+                command: <code>npm run db:seed</code>,
+              })}
             </Note>
 
             <div className="mt-7">
-              <SectionTitle hint="changeable any time in Settings">How much a day</SectionTitle>
+              <SectionTitle hint={t("changeable any time in Settings")}>{t("How much a day")}</SectionTitle>
             </div>
-            <ChoiceGroup ariaLabel="How much a day">
+            <ChoiceGroup ariaLabel={t("How much a day")}>
               {GOALS.map((g) => (
                 <ChoiceChip key={g.value} selected={goal === g.value} onSelect={() => setGoal(g.value)}>
-                  {g.label}, {g.value} cards
+                  {fill(t("{label}, {cards}"), { label: t(g.label), cards: countOf(locale, g.value, "card") })}
                 </ChoiceChip>
               ))}
             </ChoiceGroup>
             <p className="mt-2.5 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {minutesFor(goal)} minutes a day, {daysPerWeek} days a week. That&rsquo;s {goal} cards to
-              answer, not {goal} new ones. About nine in ten will be words you&rsquo;ve already met,
-              coming back just as you start to forget them.
+              {fill(t("{minutes} a day, {days} a week. That’s {cards} to answer, not {goal} new ones. About nine in ten will be words you’ve already met, coming back just as you start to forget them."), {
+                minutes: countOf(locale, minutesFor(goal), "minute"),
+                days: countOf(locale, daysPerWeek, "day"),
+                /* "answer on" takes the accusative in both languages. */
+                cards: countOf(locale, goal, "card", "acc"),
+                goal,
+              })}
             </p>
           </section>
         )}
@@ -797,23 +879,21 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
         {step === 3 && deck && deck.cards > 0 && (
           <section>
             <h1 tabIndex={-1} className="text-2xl font-bold leading-tight outline-none" style={{ color: "var(--ink)" }}>
-              Tonight, and every night after
+              {t("Today, and every day after")}
             </h1>
             <p className="mt-2 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
-              You never have to work out what to study. Kodukeel plans each evening for you: which
-              words, in what order, and which games. About fifteen minutes, and then it tells you
-              you&rsquo;re done.
+              {t("You never have to work out what to study. Kodukeel plans each evening for you: which words, in what order, and which games. About fifteen minutes, and then it tells you you’re done.")}
             </p>
 
             {/*
               THE LADDER, AS THE LAST THING FIRST RUN SAYS.
 
               A stranger who has answered four questions wants to be told what
-              to do tonight, and the honest answer is a named part with a named
+              to do today, and the honest answer is a named part with a named
               first evening. The whole climb is under it because seventeen
               parts is a course and one part with nothing behind it is a trial:
               somebody deciding whether this is worth starting is deciding
-              about the shape, not about tonight.
+              about the shape, not about today.
             */}
             {openingPart && (
               <div
@@ -821,13 +901,13 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                 style={{ borderColor: "var(--accent-soft)", background: "var(--accent-soft)" }}
               >
                 <p className="label-xs" style={{ color: "var(--accent-deep)" }}>
-                  You start at {openingPart.id.toUpperCase()}
+                  {fill(t("You start at {part}"), { part: openingPart.id.toUpperCase() })}
                 </p>
                 <p lang="et" className="mt-1 text-xl font-bold" style={{ color: "var(--ink)" }}>
                   {openingPart.title}
                 </p>
                 <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {openingPart.blurb}
+                  {t(openingPart.blurb)}
                 </p>
                 {/*
                   WHY THIS PART, SAID WHERE THE PART IS NAMED. A B1 speaker who
@@ -838,20 +918,26 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                   it notices and offers to move them (`lib/course/adapt.ts`).
                 */}
                 <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }} data-opening-why>
-                  {openingWhy(held, openLevel, measured !== null)}
+                  {openingWhy(held, openLevel, measured !== null, t)}
                 </p>
                 <p className="mt-3 text-sm" style={{ color: "var(--accent-deep)" }}>
-                  {openingPart.days} evenings, about {COURSE_DAY_MINUTES} minutes each.
+                  {fill(t("{evenings}, about {minutes} each."), {
+                    evenings: countOf(locale, openingPart.days, "evening"),
+                    /* After "около" and "близько", which take the genitive. */
+                    minutes: countOf(locale, COURSE_DAY_MINUTES, "minute", "gen"),
+                  })}
                   {openingPart.firstDay && (
-                    <> Tonight is <span lang="et">{openingPart.firstDay.title}</span>,{" "}
-                      {openingPart.firstDay.words} new words and one short round.</>
+                    <> {fillNodes(t("Today’s module is {title}, {words} and one short round."), {
+                      title: <span lang="et">{openingPart.firstDay.title}</span>,
+                      words: countOf(locale, openingPart.firstDay.words, "new word"),
+                    })}</>
                   )}
                 </p>
               </div>
             )}
 
             <div className="mt-5">
-              <SectionTitle hint={`${parts.length} parts`}>The whole way to C1</SectionTitle>
+              <SectionTitle hint={countOf(locale, parts.length, "part")}>{t("The whole way to C1")}</SectionTitle>
             </div>
             <ul className="mt-2 flex flex-wrap gap-1.5">
               {parts.map((part) => (
@@ -863,17 +949,19 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               ))}
             </ul>
             <p className="mt-2 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {totalEvenings} evenings in all, and every word in the course turns up in one of them.
-              You can step off the plan whenever you like and use the app your own way. Nothing
-              disappears, and everything you do still counts.
+              {fill(t("{evenings} in all, and every word in the course turns up in one of them. You can step off the plan whenever you like and use the app your own way. Nothing disappears, and everything you do still counts."), {
+                evenings: countOf(locale, totalEvenings, "evening"),
+              })}
             </p>
 
             <div className="mt-7">
-              <SectionTitle hint="picked for your level">Your first words</SectionTitle>
+              <SectionTitle hint={t("picked for your level")}>{t("Your first words")}</SectionTitle>
             </div>
             <p className="mt-1 max-w-[54ch] text-sm" style={{ color: "var(--ink-2)" }}>
-              Tonight&rsquo;s words come from your first {counted(deck.units.length, "unit")} at {openLevel}.
-              Each word becomes a flashcard you can hear read aloud, with all its forms.
+              {fill(t("Today’s words come from your first {units} at {level}. Each word becomes a flashcard you can hear read aloud, with all its forms."), {
+                units: countOf(locale, deck.units.length, "unit"),
+                level: openLevel,
+              })}
             </p>
 
             {/*
@@ -906,19 +994,24 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                       <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
                         {u.title}
                       </p>
-                      <p className="text-xs" style={{ color: "var(--ink-3)" }}>{u.subtitle}</p>
+                      <p className="text-xs" style={{ color: "var(--ink-3)" }}>{t(u.subtitle)}</p>
                     </div>
                   </li>
                 );
               })}
             </ul>
             <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-              {counted(deck.words, "word")}, {counted(deck.cards, "card")}.{" "}
+              {fill(t("{words}, {cards}."), {
+                words: countOf(locale, deck.words, "word"),
+                cards: countOf(locale, deck.cards, "card"),
+              })}{" "}
               {deck.remaining > 0 && (
-                <>The other {counted(deck.remaining, "unit")} at {openLevel}, and every other level, are on
-                the path whenever you want them. </>
+                <>{fill(t("The other {units} at {level}, and every other level, are on the path whenever you want them."), {
+                  units: countOf(locale, deck.remaining, "unit"),
+                  level: openLevel,
+                })} </>
               )}
-              Nothing here is locked in.
+              {t("Nothing here is locked in.")}
             </p>
 
             {/*
@@ -934,12 +1027,12 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                 className="mt-5 rounded-[var(--r-lg)] border px-4 py-3"
                 style={{ borderColor: "var(--rule)", background: "var(--sky-soft)" }}
               >
-                <p className="label-xs" style={{ color: "var(--sky-ink)" }}>Your first conversation</p>
-                <p className="mt-1 text-base font-semibold" style={{ color: "var(--sky-ink)" }}>{firstScene.title}</p>
+                <p className="label-xs" style={{ color: "var(--sky-ink)" }}>{t("Your first conversation")}</p>
+                <p className="mt-1 text-base font-semibold" style={{ color: "var(--sky-ink)" }}>{t(firstScene.title)}</p>
                 <p className="mt-1 text-sm" style={{ color: "var(--sky-ink)" }}>
-                  {firstScene.place}. Once you know these words, you can practice this exact
-                  conversation here, typing your side to a stranger who wants something from you.
-                  Then go and have the real one.
+                  {fill(t("{place}. Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one."), {
+                    place: t(firstScene.place),
+                  })}
                 </p>
               </div>
             )}
@@ -951,12 +1044,12 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               consequential answer in the walkthrough.
             */}
             <div className="mt-7">
-              <SectionTitle hint="changeable any time in Settings">How much a day</SectionTitle>
+              <SectionTitle hint={t("changeable any time in Settings")}>{t("How much a day")}</SectionTitle>
             </div>
-            <ChoiceGroup ariaLabel="How much a day">
+            <ChoiceGroup ariaLabel={t("How much a day")}>
               {GOALS.map((g) => (
                 <ChoiceChip key={g.value} selected={goal === g.value} onSelect={() => setGoal(g.value)}>
-                  {g.label}, {g.value} cards
+                  {fill(t("{label}, {cards}"), { label: t(g.label), cards: countOf(locale, g.value, "card") })}
                 </ChoiceChip>
               ))}
             </ChoiceGroup>
@@ -985,14 +1078,12 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               the evening keeps its minutes.
             */}
             <p className="mt-2.5 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              That&rsquo;s {goal} cards to answer a day, not {goal} new ones, and on a course evening
-              they&rsquo;re part of the fifteen minutes. About nine in ten will be words you&rsquo;ve
-              already met, coming back just as you start to forget them. These{" "}
-              {counted(deck.cards, "card")} take roughly{" "}
-              {counted(weeksToLearn(deck.cards, goal, daysPerWeek), "week")} to work through this way.
-              A faster setting really does get you through them sooner, but it makes every
-              evening longer for the next year too. Pick the one you&rsquo;d still open on a bad
-              Wednesday.
+              {fill(t("That’s {cards} to answer a day, not {goal} new ones, and on a course evening they’re part of the fifteen minutes. About nine in ten will be words you’ve already met, coming back just as you start to forget them. These {deck} take roughly {weeks} to work through this way. A faster setting really does get you through them sooner, but it makes every evening longer for the next year too. Pick the one you’d still open on a bad Wednesday."), {
+                cards: countOf(locale, goal, "card", "acc"),
+                goal,
+                deck: countOf(locale, deck.cards, "card"),
+                weeks: countOf(locale, weeksToLearn(deck.cards, goal, daysPerWeek), "week"),
+              })}
             </p>
           </section>
         )}
@@ -1000,12 +1091,12 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
         <div className="mt-10 flex items-center gap-3">
           {step > 0 && (
             <Button variant="ghost" onClick={() => go((s) => s - 1)} disabled={pending}>
-              <ArrowLeft size={15} aria-hidden /> Back
+              <ArrowLeft size={15} aria-hidden /> {t("Back")}
             </Button>
           )}
           {step === 1 && level !== null && (
             <Chip tone="accent">
-              {measured ? "Measured" : "Estimated"} {level === PRE_A1 ? "below A1" : level}
+              {fill(t(measured ? "Measured {level}" : "Estimated {level}"), { level: level === PRE_A1 ? t("below A1") : level })}
             </Chip>
           )}
           {step < STEPS.length - 1 ? (
@@ -1016,18 +1107,18 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               onClick={() => go((s) => s + 1)}
               disabled={pending || !canContinue}
             >
-              Continue <ArrowRight size={15} aria-hidden />
+              {t("Continue")} <ArrowRight size={15} aria-hidden />
             </Button>
           ) : (
             <Button variant="primary" size="lg" className="ml-auto" onClick={finish} disabled={pending}>
               {pending
-                ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Building your deck...</>
-                : <>Start learning <ArrowRight size={15} aria-hidden /></>}
+                ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Building your deck...")}</>
+                : <>{t("Start learning")} <ArrowRight size={15} aria-hidden /></>}
             </Button>
           )}
         </div>
         <p role="status" className="mt-3 text-right text-sm" style={{ color: "var(--ink-2)" }}>
-          {failed}
+          {failed && t(failed)}
         </p>
 
         {/*
@@ -1055,13 +1146,14 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               className="text-xs underline underline-offset-2 transition-opacity hover:opacity-70"
               style={{ color: "var(--ink-3)" }}
             >
-              Skip this and go straight to your words
+              {t("Skip this and go straight to your words")}
             </button>
           </div>
         )}
       </div>
       </main>
     </LetterBarScope>
+    </LocaleProvider>
   );
 }
 
@@ -1073,16 +1165,26 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
  * name or a check did not find, and it ends on the same promise each time: the
  * course watches how the first evenings go and offers to move them either way.
  */
-function openingWhy(held: Level | null, open: string, measured: boolean): string {
-  const later = "If it turns out too hard or too easy, the course will notice and offer to move you.";
+function openingWhy(held: Level | null, open: string, measured: boolean, t: (english: string) => string): string {
+  const later = t("If it turns out too hard or too easy, the course will notice and offer to move you.");
   if (held === null || held === PRE_A1) {
-    return `You start at the very beginning, with the first words anybody needs. ${later}`;
+    return `${t("You start at the very beginning, with the first words anybody needs.")} ${later}`;
   }
-  const source = measured ? `Your level check put you at ${held}` : `You said you’re at ${held}`;
-  if (open === held) {
-    return held === "C1"
-      ? `${source}, which is the top of this course, so you start on its first part. ${later}`
-      : `${source} and you’re aiming for ${held}, so you start at its first part to make it solid. ${later}`;
-  }
-  return `${source}, so we’ll treat ${held} as done and start you on the next level up. ${later}`;
+  /*
+    Each branch is one whole sentence to translate, never a clause dropped into
+    another: "your check put you at" and "you said you're at" take different
+    word order once they are not English.
+  */
+  const sentence = open === held
+    ? held === "C1"
+      ? measured
+        ? "Your level check put you at {level}, which is the top of this course, so you start on its first part."
+        : "You said you’re at {level}, which is the top of this course, so you start on its first part."
+      : measured
+        ? "Your level check put you at {level} and you’re aiming for {level}, so you start at its first part to make it solid."
+        : "You said you’re at {level} and you’re aiming for {level}, so you start at its first part to make it solid."
+    : measured
+      ? "Your level check put you at {level}, so we’ll treat {level} as done and start you on the next level up."
+      : "You said you’re at {level}, so we’ll treat {level} as done and start you on the next level up.";
+  return `${fill(t(sentence), { level: held })} ${later}`;
 }

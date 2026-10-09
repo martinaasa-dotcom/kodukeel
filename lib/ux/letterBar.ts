@@ -31,6 +31,22 @@ export type LetterBar = "on" | "off";
 
 export const DEFAULT_LETTER_BAR: LetterBar = "on";
 
+/**
+ * What the first-run question starts on for a learner reading the app in
+ * `locale`.
+ *
+ * A Cyrillic keyboard has none of the four letters, so somebody reading the
+ * app in Ukrainian or Russian is the one learner the app can be sure needs
+ * the row: it is "on" for them whatever the general default becomes. It is
+ * "on" for everybody today, so this is a pin rather than a change, written
+ * down so that moving `DEFAULT_LETTER_BAR` cannot take the row away from the
+ * readers least able to type õ. Only the starting answer: the question is
+ * still asked and the learner still decides.
+ */
+export function letterBarDefaultFor(locale: string): LetterBar {
+  return locale === "uk" || locale === "ru" ? "on" : DEFAULT_LETTER_BAR;
+}
+
 /** A stored answer, or the default when it is absent or unrecognised. */
 export function letterBarFrom(value: string | undefined | null): LetterBar {
   return value === "off" ? "off" : DEFAULT_LETTER_BAR;

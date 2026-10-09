@@ -7,7 +7,9 @@ import { ChoiceGroup } from "@/components/Choice";
 import { Card, KeyCap, SectionTitle } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { useFeedbackSound } from "@/components/AudioPrefs";
-import type { TryItAsk } from "@/lib/course/tryIt";
+import { askText, type TryItAsk } from "@/lib/course/tryIt";
+import { useLocale, useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 
 /**
@@ -39,9 +41,12 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
   const [rightSoFar, setRightSoFar] = useState(0);
   const [over, setOver] = useState(false);
   const sound = useFeedbackSound();
+  const t = useT();
+  const locale = useLocale();
 
   if (asks.length === 0) return null;
   const ask = asks[Math.min(at, asks.length - 1)]!;
+  const said = askText(ask, locale);
   const last = at >= asks.length - 1;
 
   const pick = (option: string) => {
@@ -72,12 +77,12 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
           <Sparkles size={20} aria-hidden style={{ color: "var(--good-ink)" }} />
           <div className="min-w-0">
             <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-              You just looked forms up in the table. That&apos;s exactly what it&apos;s there for.
+              {t("You just looked forms up in the table. That's exactly what it's there for.")}
             </p>
             <p role="status" className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
               {rightSoFar === asks.length
-                ? "You got every one right. Later tonight you'll get questions like these about tonight's words."
-                : "Glance back at the table whenever a form looks odd. It'll look a lot less odd by tomorrow."}
+                ? t("You got every one right. Later today you'll get questions like these about today's words.")
+                : t("Glance back at the table whenever a form looks odd. It'll look a lot less odd by tomorrow.")}
             </p>
           </div>
         </div>
@@ -92,13 +97,13 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
        own marker. */
     <div data-try-it={at + 1}>
     <Card>
-      <SectionTitle hint={`${at + 1} of ${asks.length}, just practice`}>Try it</SectionTitle>
+      <SectionTitle hint={fill(t("{n} of {total}, just practice"), { n: at + 1, total: asks.length })}>{t("Try it")}</SectionTitle>
       <p className="mt-2 text-lg font-bold" style={{ color: "var(--ink)" }}>
-        <Prompt ask={ask} />
+        <Estonianised text={said.prompt} words={[ask.about]} />
       </p>
 
       <ChoiceGroup
-        ariaLabel="Which form"
+        ariaLabel={t("Which form")}
         select="one"
         className="choice-grid mt-4"
       >
@@ -123,7 +128,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
 
       <p role="status" aria-live="polite" className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>
         {picked === null ? "" : (
-          <Estonianised text={picked === ask.answer ? ask.yes : ask.no} words={ask.options} />
+          <Estonianised text={picked === ask.answer ? said.yes : said.no} words={ask.options} />
         )}
       </p>
 
@@ -133,10 +138,10 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
               beginner wants the sound of a word is when it has just surprised
               them. */}
           <span className="inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-            <Speak text={ask.answer} size={15} /> hear it
+            <Speak text={ask.answer} size={15} /> {t("hear it")}
           </span>
           <Button variant="primary" onClick={next}>
-            {last ? "Done" : "Next"} <ArrowRight size={15} aria-hidden />
+            {last ? t("Done") : t("Next")} <ArrowRight size={15} aria-hidden />
           </Button>
         </div>
       )}
@@ -146,9 +151,6 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
 }
 
 /** The prompt with the word it is about set as Estonian. */
-function Prompt({ ask }: { ask: TryItAsk }) {
-  return <Estonianised text={ask.prompt} words={[ask.about]} />;
-}
 
 /**
  * A sentence of English with the Estonian words in it marked `lang="et"`.

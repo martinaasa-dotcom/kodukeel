@@ -42,9 +42,9 @@ describe("the goal options", () => {
     for (const reason of REASONS) {
       expect(Boolean(reason.situation)).toBe(reason.exposure.high > 0);
     }
-    expect(describeSituation(reasonsFor("living family citizenship"))).toBe("live in Estonia and have Estonian at home");
-    expect(describeSituation(reasonsFor("living family work"))).toBe("live in Estonia, work in Estonian and have Estonian at home");
-    expect(describeSituation(reasonsFor("curiosity"))).toBeNull();
+    expect(describeSituation(reasonsFor("living family citizenship"), "en")).toBe("live in Estonia and have Estonian at home");
+    expect(describeSituation(reasonsFor("living family work"), "en")).toBe("live in Estonia, work in Estonian and have Estonian at home");
+    expect(describeSituation(reasonsFor("curiosity"), "en")).toBeNull();
   });
 
   it("describes every level by what it does not get you as well as what it does", () => {
@@ -164,24 +164,24 @@ describe("daysUntil", () => {
 
 describe("countdownPhrase", () => {
   it("counts in days while a day still means something", () => {
-    expect(countdownPhrase(0)).toBe("today");
-    expect(countdownPhrase(1)).toBe("tomorrow");
-    expect(countdownPhrase(2)).toBe("2 days");
-    expect(countdownPhrase(47)).toBe("47 days");
-    expect(countdownPhrase(60)).toBe("60 days");
+    expect(countdownPhrase(0, "en")).toBe("today");
+    expect(countdownPhrase(1, "en")).toBe("tomorrow");
+    expect(countdownPhrase(2, "en")).toBe("2 days");
+    expect(countdownPhrase(47, "en")).toBe("47 days");
+    expect(countdownPhrase(60, "en")).toBe("60 days");
   });
 
   it("changes unit rather than printing a number nobody can hold", () => {
-    expect(countdownPhrase(61)).toBe("9 weeks");
-    expect(countdownPhrase(182)).toBe("26 weeks");
-    expect(countdownPhrase(200)).toBe("7 months");
-    expect(countdownPhrase(365)).toBe("1 year");
-    expect(countdownPhrase(730)).toBe("2 years");
+    expect(countdownPhrase(61, "en")).toBe("9 weeks");
+    expect(countdownPhrase(182, "en")).toBe("26 weeks");
+    expect(countdownPhrase(200, "en")).toBe("7 months");
+    expect(countdownPhrase(365, "en")).toBe("1 year");
+    expect(countdownPhrase(730, "en")).toBe("2 years");
   });
 
   it("has something to say about a date that has gone", () => {
-    expect(countdownPhrase(-1)).toBe("that date has gone");
-    expect(countdownPhrase(-400)).toBe("that date has gone");
+    expect(countdownPhrase(-1, "en")).toBe("that date has gone");
+    expect(countdownPhrase(-400, "en")).toBe("that date has gone");
   });
 });
 

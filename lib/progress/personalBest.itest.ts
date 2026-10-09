@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
-import { SETTING_KEYS } from "@/lib/settings/store";
+import { SETTING_KEYS, type SettingKey } from "@/lib/settings/store";
 import { keepBest } from "./personalBest";
 
 /**
@@ -9,6 +9,8 @@ import { keepBest } from "./personalBest";
  */
 
 const MINE = "itest-owner-personal-best";
+/** A key standing in for a best that is higher-is-better; no screen keeps one now. */
+const HIGH = "itestHighBest" as SettingKey;
 
 async function wipe() {
   await prisma.setting.deleteMany({ where: { ownerId: MINE } });
@@ -32,8 +34,8 @@ describe("keepBest", () => {
   it("never lowers a high score when rounds finish together", async () => {
     for (let round = 0; round < 3; round++) {
       await wipe();
-      await Promise.all(scores(20).map((s) => keepBest(MINE, SETTING_KEYS.sprintBest, s, "higher")));
-      expect(await stored(SETTING_KEYS.sprintBest)).toBe("20");
+      await Promise.all(scores(20).map((s) => keepBest(MINE, HIGH, s, "higher")));
+      expect(await stored(HIGH)).toBe("20");
     }
   });
 
@@ -46,17 +48,17 @@ describe("keepBest", () => {
   });
 
   it("says which call set the best, and reports the stored best to the others", async () => {
-    expect(await keepBest(MINE, SETTING_KEYS.sprintBest, 12, "higher")).toEqual({ best: 12, isNewBest: true });
-    expect(await keepBest(MINE, SETTING_KEYS.sprintBest, 9, "higher")).toEqual({ best: 12, isNewBest: false });
-    expect(await keepBest(MINE, SETTING_KEYS.sprintBest, 12, "higher")).toEqual({ best: 12, isNewBest: false });
+    expect(await keepBest(MINE, HIGH, 12, "higher")).toEqual({ best: 12, isNewBest: true });
+    expect(await keepBest(MINE, HIGH, 9, "higher")).toEqual({ best: 12, isNewBest: false });
+    expect(await keepBest(MINE, HIGH, 12, "higher")).toEqual({ best: 12, isNewBest: false });
     expect(await keepBest(MINE, SETTING_KEYS.matchBest, 40, "lower")).toEqual({ best: 40, isNewBest: true });
     expect(await keepBest(MINE, SETTING_KEYS.matchBest, 55, "lower")).toEqual({ best: 40, isNewBest: false });
     expect(await keepBest(MINE, SETTING_KEYS.matchBest, 31, "lower")).toEqual({ best: 31, isNewBest: true });
   });
 
   it("replaces a stored value nobody can read as a number", async () => {
-    await prisma.setting.create({ data: { ownerId: MINE, key: SETTING_KEYS.sprintBest, value: "NaN" } });
-    expect(await keepBest(MINE, SETTING_KEYS.sprintBest, 3, "higher")).toEqual({ best: 3, isNewBest: true });
+    await prisma.setting.create({ data: { ownerId: MINE, key: HIGH, value: "NaN" } });
+    expect(await keepBest(MINE, HIGH, 3, "higher")).toEqual({ best: 3, isNewBest: true });
     await prisma.setting.create({ data: { ownerId: MINE, key: SETTING_KEYS.matchBest, value: "0" } });
     expect(await keepBest(MINE, SETTING_KEYS.matchBest, 50, "lower")).toEqual({ best: 50, isNewBest: true });
   });

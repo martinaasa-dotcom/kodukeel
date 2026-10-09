@@ -31,8 +31,11 @@
 */
 import { wordCard } from "../art";
 import type { Block, Letter } from "../letter";
+import { figured, sayer, type Locale } from "../say";
 
 export interface ComebackInput {
+  /** The language the letter is written in. `smallStep.title` arrives already in it. */
+  readonly locale: Locale;
   readonly origin: string;
   /** Words the scheduler says they still hold, which is the reassuring number. */
   readonly wordsKept: number;
@@ -50,7 +53,11 @@ export interface ComebackInput {
 }
 
 export function comebackLetter(input: ComebackInput): Letter {
+  const { locale } = input;
+  const say = sayer(locale);
   const blocks: Block[] = [];
+  /* "212 words", always plural in English, which is how it always read. */
+  const words = figured(locale, input.wordsKept, "word", { always: true });
 
   /*
     THE FIRST LINE IS ABOUT WHAT SURVIVED, NOT ABOUT WHAT WAS MISSED.
@@ -60,13 +67,15 @@ export function comebackLetter(input: ComebackInput): Letter {
     spaced repetition works. It is the true fact that answers the fear, so it
     leads.
   */
-  blocks.push({ t: "heading", text: "Your Estonian hasn't gone anywhere." });
+  blocks.push({ t: "heading", text: say("Your Estonian hasn't gone anywhere.") });
 
   blocks.push({
     t: "text",
-    text:
-      `You still know ${input.wordsKept} words. That's what spacing the cards out is for: ` +
-      `the words stay put while you're away. Nothing is lost, and you don't have to start over.`,
+    text: say(
+      "You still know {words}. That's what spacing the cards out is for: " +
+        "the words stay put while you're away. Nothing is lost, and you don't have to start over.",
+      { words },
+    ),
   });
 
   if (input.shieldUsed && input.streak >= 2) {
@@ -79,7 +88,9 @@ export function comebackLetter(input: ComebackInput): Letter {
     */
     blocks.push({
       t: "text",
-      text: `A shield you'd saved up covered the gap, so your ${input.streak}-day run is still going.`,
+      text: say("A shield you'd saved up covered the gap, so your {run} run is still going.", {
+        run: locale === "en" ? `${input.streak}-day` : figured(locale, input.streak, "day"),
+      }),
     });
   }
 
@@ -89,21 +100,23 @@ export function comebackLetter(input: ComebackInput): Letter {
   blocks.push({ t: "rule" });
   blocks.push({
     t: "text",
-    text:
-      `No need for a whole evening. One quick round takes about ` +
-      `${input.smallStep.minutes} minutes, and that's enough to say you're back.`,
+    text: say(
+      "No need for a whole evening. One quick round takes about " +
+        "{minutes} minutes, and that's enough to say you're back.",
+      { minutes: input.smallStep.minutes },
+    ),
   });
 
   blocks.push({ t: "button", label: input.smallStep.title, href: input.smallStep.href });
   blocks.push({
     t: "link",
-    label: "Or jump straight into tonight's fifteen minutes",
+    label: say("Or jump straight into today's fifteen minutes"),
     href: `${input.origin}/course`,
   });
 
   if (input.word) {
     blocks.push({ t: "rule" });
-    blocks.push({ t: "quiet", text: "And today's word, whatever you decide:" });
+    blocks.push({ t: "quiet", text: say("And today's word, whatever you decide:") });
     blocks.push({
       t: "art",
       html: wordCard(input.word.lemma, input.word.translation, input.word.occasion ?? undefined),
@@ -115,8 +128,9 @@ export function comebackLetter(input: ComebackInput): Letter {
 
   return {
     kind: "comeback",
-    subject: "Your Estonian is right where you left it",
-    preheader: `You still know ${input.wordsKept} words. Two minutes is all it takes to pick things up again.`,
+    locale,
+    subject: say("Your Estonian is right where you left it"),
+    preheader: say("You still know {words}. Two minutes is all it takes to pick things up again.", { words }),
     blocks,
   };
 }

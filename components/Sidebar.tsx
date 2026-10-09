@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/Locale";
+import { fill } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { usePathname, useRouter } from "next/navigation";
 import { Check, LogOut, MessageSquareWarning, MoreHorizontal, Moon, Settings, SlidersHorizontal, Sun, X } from "lucide-react";
@@ -49,6 +51,7 @@ import { useModuleFocus, useModuleSteps, type ModuleStepRow } from "@/components
 export function Sidebar({ order: stored, name, classes = [] }: {
   order: readonly string[]; name: string | null; classes?: readonly RailClass[];
 }) {
+  const t = useT();
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   /*
@@ -117,13 +120,13 @@ export function Sidebar({ order: stored, name, classes = [] }: {
     joins and go when they leave or the class is archived.
   */
   /*
-    INSIDE TONIGHT'S MODULE THE RAIL IS THE SAME RAIL, WITH LEARN LIT AND THE
+    INSIDE TODAY'S MODULE THE RAIL IS THE SAME RAIL, WITH LEARN LIT AND THE
     EVENING HUNG UNDER IT.
 
     A step opens a practice round, a grammar page or the review queue, and
     lighting the row those live under would say the learner had wandered off to
     Practice in the middle of an evening they are walking. So Learn is lit,
-    whatever the path, and tonight's steps are listed under it. The class group
+    whatever the path, and today's steps are listed under it. The class group
     is not drawn: nothing about tonight is in it, and a column that grows a
     second section during a module is a column with more in it than the room
     it is in.
@@ -189,7 +192,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
       */}
       <nav
         data-chrome="rail"
-        aria-label="Main"
+        aria-label={t("Main")}
         className="rail sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r px-4 pb-4 pt-6 md:flex"
         style={{ borderColor: "var(--rule-soft)" }}
       >
@@ -201,11 +204,11 @@ export function Sidebar({ order: stored, name, classes = [] }: {
         */}
         <BrandLink
           href="/"
-          title="Today"
+          title={t("Today")}
           className="brand-tap tap-tint mb-7 mr-1 block shrink-0 cursor-pointer rounded-[var(--r)] px-2 py-2"
         >
           <span className="brand-mark">
-            <Wordmark size={48} subtitle="Estonian, daily" />
+            <Wordmark size={48} subtitle={t("Estonian, daily")} />
           </span>
         </BrandLink>
 
@@ -259,7 +262,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               style={{ borderColor: "var(--rule-soft)" }}
             >
               <span id="rail-classes" className="px-3.5 text-xs font-semibold" style={{ color: "var(--ink-3)" }}>
-                {classLinks.length === 1 ? "Your class" : "Your classes"}
+                {t(classLinks.length === 1 ? "Your class" : "Your classes")}
               </span>
               {classLinks.map((item) => (
                 <RailLink key={item.href} item={item} active={lit === item.href} pinned={false} classRow />
@@ -288,29 +291,36 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               data-account
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((open) => !open)}
-              className="tap-tint flex min-w-0 flex-1 items-center gap-3 rounded-[var(--r)] px-2 py-2 text-left"
+              className="tap-tint flex min-w-0 flex-1 items-center gap-2 rounded-[var(--r)] px-2 py-2 text-left"
             >
               <span
                 aria-hidden
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold"
                 style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
               >
-                {(name ?? "You").trim().charAt(0).toUpperCase() || "Y"}
+                {(name ?? t("You", "person")).trim().charAt(0).toUpperCase() || "Y"}
               </span>
+              {/*
+                The avatar is 32px and the gap 8 rather than 36 and 12 because
+                the account row is as wide as the rail and no wider, and the
+                Ukrainian for Settings is one word six pixels wider than what
+                was left beside them, so it was drawn broken across two lines.
+                `scripts/test-locales.mjs` found it.
+              */}
               <span className="min-w-0">
                 <span className="block text-sm font-semibold" style={{ color: "var(--ink)" }}>
-                  {name ?? "You"}
+                  {name ?? t("You", "person")}
                 </span>
                 <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
-                  Settings
+                  {t("Settings")}
                 </span>
               </span>
             </button>
             <button
               type="button"
               onClick={() => setEditing(true)}
-              aria-label="Edit sidebar"
-              title="Edit sidebar"
+              aria-label={t("Edit sidebar")}
+              title={t("Edit sidebar")}
               className="tap-tint flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
               style={{ color: "var(--ink-3)" }}
             >
@@ -358,7 +368,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
       <nav
         ref={measure}
         data-chrome="dock"
-        aria-label="Main"
+        aria-label={t("Main")}
         /*
           The raised Today button stands up out of this box rather than being
           measured into it. Padding here for it was tried: it put a 36px
@@ -455,7 +465,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
                     <NamedIcon name={item.icon} size={16} strokeWidth={2.2} aria-hidden />
                   </span>
                 )}
-                {item.label}
+                {t(item.label)}
               </Link>
             );
           })}
@@ -486,7 +496,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
             >
               <MoreHorizontal size={16} strokeWidth={2.2} aria-hidden />
             </span>
-            More
+            {t("More")}
           </button>
         </div>
       </nav>
@@ -501,11 +511,11 @@ export function Sidebar({ order: stored, name, classes = [] }: {
           className="fixed inset-0 z-[100] flex flex-col justify-end md:hidden"
           role="dialog"
           aria-modal="true"
-          aria-label="More places to go"
+          aria-label={t("More places to go")}
         >
           <button
             type="button"
-            aria-label="Close"
+            aria-label={t("Close")}
             onClick={() => setMoreOpen(false)}
             className="flex-1"
             style={{ background: "rgb(20 16 32 / 0.4)" }}
@@ -520,12 +530,12 @@ export function Sidebar({ order: stored, name, classes = [] }: {
             }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-2xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>More</h2>
+              <h2 className="font-display text-2xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>{t("More")}</h2>
               <button
                 ref={sheetClose}
                 type="button"
                 onClick={() => setMoreOpen(false)}
-                aria-label="Close"
+                aria-label={t("Close")}
                 className="press rounded-full p-1.5"
                 style={{ color: "var(--ink-3)", background: "var(--raised)" }}
               >
@@ -536,7 +546,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               {classLinks.length > 0 && (
                 <section aria-labelledby="sheet-classes" data-sheet-classes>
                   <h3 id="sheet-classes" className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>
-                    {classLinks.length === 1 ? "Your class" : "Your classes"}
+                    {t(classLinks.length === 1 ? "Your class" : "Your classes")}
                   </h3>
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     {classLinks.map((item) => <SheetLink key={item.href} item={item} active={active(item.href)} />)}
@@ -546,11 +556,11 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               {sheet.map((section) => (
                 <section key={section.id} aria-labelledby={`sheet-${section.id}`}>
                   <h3 id={`sheet-${section.id}`} className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>
-                    {section.title}
+                    {t(section.title)}
                   </h3>
                   {section.blurb && (
                     <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
-                      {section.blurb}
+                      {t(section.blurb)}
                     </p>
                   )}
                   <div className="mt-2 grid grid-cols-2 gap-2">
@@ -560,7 +570,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               ))}
             </div>
             <section aria-labelledby="sheet-app" className="mt-5">
-              <h3 id="sheet-app" className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>You</h3>
+              <h3 id="sheet-app" className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>{t("You", "person")}</h3>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {app.map((item) => <SheetLink key={item.href} item={item} active={active(item.href)} />)}
               </div>
@@ -599,6 +609,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
 function RailLink({ item, active, pinned, classRow = false }: {
   item: Destination; active: boolean; pinned: boolean; classRow?: boolean;
 }) {
+  const t = useT();
   const home = item.href === "/";
   return (
     <Link
@@ -609,7 +620,7 @@ function RailLink({ item, active, pinned, classRow = false }: {
       data-hop-end="nav-bob"
       data-nav-on={active ? "" : undefined}
       aria-current={active ? "page" : undefined}
-      title={item.blurb}
+      title={item.blurb ? t(item.blurb) : undefined}
       className="nav-cell flex min-h-12 items-center gap-3.5 rounded-[var(--r)] px-3.5 py-2.5 text-base"
       style={{
         color: active ? "var(--ink)" : "var(--nav-ink, var(--ink-2))",
@@ -627,17 +638,17 @@ function RailLink({ item, active, pinned, classRow = false }: {
           boxShadow: active ? `0 0 0 4px color-mix(in oklab, var(${home ? "--butter" : "--accent"}) 24%, transparent)` : undefined,
         }}
       />
-      <span className="min-w-0">{item.label}</span>
-      {pinned && <span className="sr-only">, pinned</span>}
+      <span className="min-w-0">{t(item.label)}</span>
+      {pinned && <span className="sr-only">{t(", pinned")}</span>}
     </Link>
   );
 }
 
-/** The row tonight's module hangs off. */
+/** The row today's module hangs off. */
 const LEARN_HREF = "/learn";
 
 /**
- * TONIGHT'S STEPS, NESTED UNDER LEARN.
+ * TODAY'S STEPS, NESTED UNDER LEARN.
  *
  * A thread down the left edge rather than a card of its own, so it reads as
  * part of the Learn row above it. Each step is a link carrying the module's
@@ -648,10 +659,11 @@ const LEARN_HREF = "/learn";
  * one of them.
  */
 function TonightRows({ steps, at }: { steps: readonly ModuleStepRow[]; at: string }) {
+  const t = useT();
   if (steps.length === 0) return null;
   return (
     <ol
-      aria-label="Tonight"
+      aria-label={t("Today’s module")}
       data-rail-tonight=""
       className="mb-1.5 ml-[1.1875rem] mt-0.5 flex flex-col gap-0.5 border-l-2 py-1 pl-3"
       style={{ borderColor: "color-mix(in oklab, var(--accent) 28%, transparent)" }}
@@ -672,11 +684,11 @@ function TonightRows({ steps, at }: { steps: readonly ModuleStepRow[]; at: strin
             >
               <span className="min-w-0 flex-1 py-1.5">{step.title}</span>
               {now ? (
-                <span className="shrink-0 text-xs font-medium">now</span>
+                <span className="shrink-0 text-xs font-medium">{t("now")}</span>
               ) : step.done ? (
                 <>
                   <Check size={14} aria-hidden className="shrink-0" style={{ color: "var(--good-ink)" }} />
-                  <span className="sr-only">, done</span>
+                  <span className="sr-only">{t(", done")}</span>
                 </>
               ) : null}
             </Link>
@@ -698,6 +710,7 @@ function TonightRows({ steps, at }: { steps: readonly ModuleStepRow[]; at: strin
 function AccountMenu({ onClose, onEdit, active }: {
   onClose: () => void; onEdit: () => void; active: (href: string) => boolean;
 }) {
+  const t = useT();
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
     box.current?.querySelector<HTMLElement>("button, a")?.focus();
@@ -715,21 +728,21 @@ function AccountMenu({ onClose, onEdit, active }: {
     <div
       ref={box}
       role="group"
-      aria-label="You"
+      aria-label={t("You", "person")}
       className="menu-pop absolute bottom-full left-0 z-50 mb-2 w-72 rounded-[var(--r-lg)] border p-2"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--shadow-lg)" }}
     >
       <button type="button" onClick={onEdit} className={item} style={{ color: "var(--ink)" }}>
         <SlidersHorizontal size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
-        Edit sidebar
+        {t("Edit sidebar")}
       </button>
       <Link href="/settings" className={item} aria-current={active("/settings") ? "page" : undefined} style={{ color: "var(--ink)" }}>
         <Settings size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
-        Settings
+        {t("Settings")}
       </Link>
       <Link href="/suggestions" className={item} aria-current={active("/suggestions") ? "page" : undefined} style={{ color: "var(--ink)" }}>
         <MessageSquareWarning size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
-        Suggested fixes
+        {t("Suggested fixes")}
       </Link>
       <div className="my-1 border-t" style={{ borderColor: "var(--rule-soft)" }} />
       <ThemeChoice />
@@ -748,10 +761,11 @@ function AccountMenu({ onClose, onEdit, active }: {
  * is still the tile's `title` and still what the command palette searches.
  */
 function SheetLink({ item, active }: { item: Destination; active: boolean }) {
+  const t = useT();
   return (
     <Link
       href={item.href}
-      title={item.blurb}
+      title={item.blurb ? t(item.blurb) : undefined}
       aria-current={active ? "page" : undefined}
       className="choice-btn flex min-h-12 items-center gap-2 rounded-[var(--r)] border px-3 py-2 text-sm font-semibold"
       style={{
@@ -767,7 +781,7 @@ function SheetLink({ item, active }: { item: Destination; active: boolean }) {
         aria-hidden
         style={{ color: active ? "var(--accent-deep)" : "var(--ink-3)" }}
       />
-      <span className="min-w-0">{item.label}</span>
+      <span className="min-w-0">{t(item.label)}</span>
     </Link>
   );
 }
@@ -784,6 +798,7 @@ function SheetLink({ item, active }: { item: Destination; active: boolean }) {
  * stay signed in until the tunnel ends.
  */
 function SignOutButton() {
+  const t = useT();
   const router = useRouter();
   const { flush } = useOffline();
   // Local installs have no accounts to sign out of — see lib/auth/mode.ts.
@@ -793,9 +808,10 @@ function SignOutButton() {
     await flush();
     const stranded = await outboxSize();
     if (stranded > 0) {
-      const grades = stranded === 1 ? "1 answer" : `${stranded} answers`;
       const ok = window.confirm(
-        `${grades} on this device ${stranded === 1 ? "hasn't" : "haven't"} reached your account yet. If you sign out now, ${stranded === 1 ? "it will be" : "they will be"} lost. Sign out anyway?`,
+        stranded === 1
+          ? t("1 answer on this device hasn't reached your account yet. If you sign out now, it will be lost. Sign out anyway?")
+          : fill(t("{n} answers on this device haven't reached your account yet. If you sign out now, they will be lost. Sign out anyway?"), { n: stranded }),
       );
       if (!ok) return;
     }
@@ -816,7 +832,7 @@ function SignOutButton() {
       error = failed;
     }
     if (error) {
-      window.alert("We couldn't reach the sign-in service, so you're still signed in. Try again once you're back online.");
+      window.alert(t("We couldn't reach the sign-in service, so you're still signed in. Try again once you're back online."));
       return;
     }
     await forgetThisDevice();
@@ -832,7 +848,7 @@ function SignOutButton() {
       style={{ color: "var(--ink)" }}
     >
       <LogOut size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
-      Sign out
+      {t("Sign out")}
     </button>
   );
 }
@@ -867,6 +883,7 @@ function applyTheme(next: "light" | "dark") {
  * the browser's own colour as the toggle, through `applyTheme`.
  */
 function ThemeChoice() {
+  const t = useT();
   const [theme, setTheme] = useState<"light" | "dark">("light");
   useEffect(() => {
     // Read after mount: the server cannot see localStorage, and the page's
@@ -876,8 +893,8 @@ function ThemeChoice() {
   const pick = (next: "light" | "dark") => { setTheme(next); applyTheme(next); };
   return (
     <div className="flex items-center justify-between gap-3 px-3 py-2">
-      <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>Theme</span>
-      <span role="radiogroup" aria-label="Theme" className="flex rounded-full p-1" style={{ background: "var(--raised)" }}>
+      <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{t("Theme")}</span>
+      <span role="radiogroup" aria-label={t("Theme")} className="flex rounded-full p-1" style={{ background: "var(--raised)" }}>
         {(["light", "dark"] as const).map((option) => (
           <button
             key={option}
@@ -893,7 +910,7 @@ function ThemeChoice() {
             }}
           >
             {option === "light" ? <Sun size={14} aria-hidden /> : <Moon size={14} aria-hidden />}
-            {option === "light" ? "Light" : "Dark"}
+            {t(option === "light" ? "Light" : "Dark")}
           </button>
         ))}
       </span>

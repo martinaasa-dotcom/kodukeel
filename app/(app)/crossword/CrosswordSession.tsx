@@ -1,5 +1,10 @@
 "use client";
 
+import { useT } from "@/components/Locale";
+import { Meaning } from "@/components/Meaning";
+import type { ShownMeaning } from "@/lib/collections/glossLanguage";
+import { fill } from "@/lib/copy/locale";
+import { clueParts } from "@/lib/games/clue";
 import { playOnce } from "@/components/motion/PlayOnce";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, Eye } from "lucide-react";
@@ -29,7 +34,17 @@ import { OPTION_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
  * construction, and a nine by nine grid with sixty black squares in it reads as
  * a rendering fault rather than as a puzzle.
  */
-export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day: string }) {
+export function CrosswordSession({ puzzle, day, clueMeanings = null }: {
+  puzzle: DailyCrossword;
+  day: string;
+  /**
+   * Each clue's meaning as the learner's language leads it, by entry index,
+   * or null for English. The part of speech stays on the clue either way, and
+   * the grid is still the English clue's.
+   */
+  clueMeanings?: (ShownMeaning | null)[] | null;
+}) {
+  const t = useT();
   const [typed, setTyped] = useState<Record<number, string>>({});
   const [active, setActive] = useState(0);
   const [checked, setChecked] = useState<number[]>([]);
@@ -153,10 +168,28 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      {/* The board is the night panel: squares lit where the word you are on
-          runs, the clue under it in the display face. */}
-      <Card tone="night">
+    /*
+      ONE SCREEN. The grid, the clue, the letter bar and the two buttons are
+      in view together, so the square is read off `--cw-cell`: the room the
+      window leaves once everything that is not a square is counted, between
+      32px and 44px. The two clue lists are the one part that may sit below
+      the fold, since the clue for the word you are on is printed under the
+      grid and the lists are for jumping about.
+    */
+    <div
+      className="mx-auto grid w-full grid-cols-1 items-start gap-4 xl:w-fit xl:grid-cols-[17rem_auto] xl:gap-8"
+      style={{ "--cw-cell": `min(clamp(2rem, calc((100dvh - 20rem) / ${puzzle.rows} - 4px), 3.25rem), calc((100vw - 4.5rem - ${(puzzle.cols - 1) * 4}px) / ${puzzle.cols}))` } as React.CSSProperties}
+    >
+      {/* Both lists in one column, on the near side, so the grid is not the
+          thing pressed up against the navigation. */}
+      <div className="order-2 xl:order-none xl:max-h-[calc(100dvh-8rem)] xl:overflow-y-auto">
+      <Clues puzzle={puzzle} meanings={clueMeanings} active={active} solved={solved} onPick={(i) => {
+        setActive(i);
+        focusCell(cellsOf(puzzle.entries[i]!, puzzle.cols)[0]!);
+      }} />
+      </div>
+      <div className="flex flex-col gap-2 xl:order-none">
+      <Card tone="accent" dense className="crossword-board">
         <div
           className="mx-auto grid w-fit gap-1"
           style={{ gridTemplateColumns: `repeat(${puzzle.cols}, minmax(0, 1fr))` }}
@@ -179,10 +212,10 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
             exactly what is true.
           */
           role="group"
-          aria-label="Crossword grid"
+          aria-label={t("Crossword grid")}
         >
           {Array.from({ length: puzzle.rows * puzzle.cols }, (_, cell) => {
-            if (!puzzle.filled.has(cell)) return <span key={cell} aria-hidden className="h-9 w-9 sm:h-10 sm:w-10" />;
+            if (!puzzle.filled.has(cell)) return <span key={cell} aria-hidden className="h-[var(--cw-cell)] w-[var(--cw-cell)]" />;
             const number = puzzle.entries.find(
               (e) => e.row * puzzle.cols + e.col === cell,
             )?.number;
@@ -193,7 +226,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                one peach square in a field of nothing. */
             const isRight = checked.includes(cell) && Boolean(typed[cell]) && !isWrong;
             return (
-              <span key={cell} className="relative h-9 w-9 sm:h-10 sm:w-10">
+              <span key={cell} className="relative h-[var(--cw-cell)] w-[var(--cw-cell)]">
                 {number !== undefined && (
                   <span
                     aria-hidden
@@ -222,12 +255,12 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                   onFocus={() => { if (!activeCells.includes(cell)) pick(cell); }}
                   onClick={() => pick(cell)}
                   lang="et"
-                  aria-label={`Row ${Math.floor(cell / puzzle.cols) + 1}, column ${(cell % puzzle.cols) + 1}`}
+                  aria-label={fill(t("Row {row}, column {col}"), { row: Math.floor(cell / puzzle.cols) + 1, col: (cell % puzzle.cols) + 1 })}
                   className={`${isWrong ? OPTION_CLASS.wrong : isRight ? OPTION_CLASS.right : ""} h-full w-full rounded-[var(--r-sm)] border-0 text-center text-base font-bold uppercase transition-ui`}
                   style={isWrong || isRight ? undefined : {
-                    background: inWord ? "color-mix(in srgb, var(--cta) 20%, var(--surface))" : "var(--surface)",
+                    background: inWord ? "color-mix(in srgb, var(--accent-deep) 16%, var(--surface))" : "var(--surface)",
                     color: "var(--ink)",
-                    boxShadow: inWord ? "inset 0 0 0 1.5px var(--cta)" : "inset 0 0 0 1px var(--rule)",
+                    boxShadow: inWord ? "inset 0 0 0 1.5px var(--accent-deep)" : "inset 0 0 0 1px var(--rule)",
                   }}
                 />
               </span>
@@ -235,18 +268,17 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
           })}
         </div>
 
-        <div className="mt-4 flex flex-col items-center gap-3">
+        <div className="mt-3 flex flex-col items-center gap-2">
           <p className="text-center text-base" style={{ color: "var(--ink-2)" }}>
-            <span className="font-semibold" style={{ color: "var(--cta)" }}>{entry.number} {entry.direction}</span>
+            <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>{entry.number} {t(entry.direction)}</span>
             {": "}
-            <span className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>{entry.clue}</span>
+            <ClueText t={t} clue={entry.clue} meaning={clueMeanings?.[active] ?? null} className="font-display text-xl font-bold" />
           </p>
-          <DiacriticBar standalone={false} label="Insert Estonian character" />
+          <DiacriticBar standalone={false} label={t("Insert Estonian character")} />
         </div>
       </Card>
 
-      <span className="sr-only" role="status">{said}</span>
-
+        <span className="sr-only" role="status">{said}</span>
       {done ? (
         <Finish puzzle={puzzle} helped={helped.length} />
       ) : (
@@ -276,7 +308,7 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                 });
               }}
             >
-              <Eye size={16} aria-hidden /> Show this one
+              <Eye size={16} aria-hidden /> {t("Show this one")}
             </Button>
             <Button
               type="button"
@@ -289,46 +321,82 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
                 const bad = wrongCells(puzzle, typed).size;
                 setSaid(
                   bad === 0
-                    ? "Every letter you've filled in so far is right."
-                    : `${bad} ${bad === 1 ? "letter needs" : "letters need"} another look.`,
+                    ? t("Every letter you've filled in so far is right.")
+                    : bad === 1 ? t("1 letter needs another look.") : fill(t("{n} letters need another look."), { n: bad }),
                 );
               }}
             >
-              <Check size={16} aria-hidden /> Check
+              <Check size={16} aria-hidden /> {t("Check")}
             </Button>
           </div>
         </div>
       )}
 
-      <Clues puzzle={puzzle} active={active} solved={solved} onPick={(i) => {
-        setActive(i);
-        focusCell(cellsOf(puzzle.entries[i]!, puzzle.cols)[0]!);
-      }} />
+      </div>
     </div>
   );
 }
 
-function Clues({ puzzle, active, solved, onPick }: {
+/**
+ * The clue's gloss is the dictionary's English and stays as it is; the kind of
+ * word it names is a label of ours, so that half is read in the reader's language.
+ */
+function clueIn(t: (english: string) => string, clue: string): string {
+  const { gloss, kind } = clueParts(clue);
+  return kind ? `${gloss}, ${t(kind)}` : clue;
+}
+
+/**
+ * A clue drawn in the learner's language where the Institute recorded the
+ * meaning: the equivalent and the part-of-speech cue lead, the English clue
+ * sits under it. The cue is what keeps one clue to one answer, so it travels
+ * with whichever language leads.
+ */
+function ClueText({ t, clue, meaning, className, inline = false }: {
+  t: (english: string) => string;
+  clue: string;
+  meaning: ShownMeaning | null;
+  className?: string;
+  inline?: boolean;
+}) {
+  if (!meaning) return <span className={className} style={inline ? undefined : { color: "var(--ink)" }}>{clueIn(t, clue)}</span>;
+  const { kind } = clueParts(clue);
+  return (
+    <Meaning
+      meaning={meaning}
+      inline={inline}
+      className={className}
+      leadStyle={inline ? undefined : { color: "var(--ink)" }}
+      englishClassName={inline ? "text-xs" : "text-sm font-normal font-sans"}
+    >
+      {kind ? `${meaning.lead.text}, ${t(kind)}` : meaning.lead.text}
+    </Meaning>
+  );
+}
+
+function Clues({ puzzle, meanings, active, solved, onPick }: {
   puzzle: DailyCrossword;
+  meanings: (ShownMeaning | null)[] | null;
   active: number;
   solved: Set<number>;
   onPick: (index: number) => void;
 }) {
+  const t = useT();
   const half = (direction: Entry["direction"]) =>
     puzzle.entries.map((e, i) => ({ e, i })).filter(({ e }) => e.direction === direction);
 
   return (
     /*
-      Side by side from `lg` rather than `sm`. At 768 the rail takes the side
-      of the screen and two clue cards left each clue about 93px, which is
-      narrower than "grandmother": the word was broken across two lines,
-      which is what `test-containment.mjs` refuses. A clue list is read top
-      to bottom anyway, so a phone and a tablet get one column.
+      One column holding both lists, beside the grid from `xl` up and under it
+      below that. Side by side they were each about 93px wide at 768, narrower
+      than "grandmother", which `test-containment.mjs` refuses; stacked they
+      have the whole column, and the grid is not the thing pressed against the
+      navigation.
     */
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-4">
       {(["across", "down"] as const).map((direction) => (
         <Card key={direction}>
-          <SectionTitle>{direction === "across" ? "Across" : "Down"}</SectionTitle>
+          <SectionTitle>{direction === "across" ? t("Across") : t("Down")}</SectionTitle>
           <ul className="mt-2 flex flex-col gap-1">
             {half(direction).map(({ e, i }) => (
               <li key={i}>
@@ -342,7 +410,7 @@ function Clues({ puzzle, active, solved, onPick }: {
                   }}
                 >
                   <span className="font-bold" style={{ color: "var(--ink-3)" }}>{e.number}</span>
-                  <span className="min-w-0 flex-1">{e.clue}</span>
+                  <ClueText t={t} clue={e.clue} meaning={meanings?.[i] ?? null} className="min-w-0 flex-1" inline />
                   {solved.has(i) && <Check size={13} aria-hidden style={{ color: VERDICT_INK.right }} />}
                 </button>
               </li>
@@ -355,15 +423,18 @@ function Clues({ puzzle, active, solved, onPick }: {
 }
 
 function Finish({ puzzle, helped }: { puzzle: DailyCrossword; helped: number }) {
+  const t = useT();
   return (
     <Card>
       <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
-        {helped === 0 ? "Solved, and every square of it was yours." : "Solved, with a little help. That still counts."}
+        {helped === 0 ? t("Solved, and every square of it was yours.") : t("Solved, with a little help. That still counts.")}
       </p>
       <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
         {puzzle.inDeck.length > 0
-          ? `${puzzle.inDeck.length} of these ${puzzle.inDeck.length === 1 ? "is" : "are"} in your deck, so this counted as practice for ${puzzle.inDeck.length === 1 ? "it" : "them"}.`
-          : "None of these are in your deck yet. Tap any word you liked to look it up and keep it."}
+          ? puzzle.inDeck.length === 1
+            ? t("1 of these is in your deck, so this counted as practice for it.")
+            : fill(t("{n} of these are in your deck, so this counted as practice for them."), { n: puzzle.inDeck.length })
+          : t("None of these are in your deck yet. Tap any word you liked to look it up and keep it.")}
       </p>
       <ul className="mt-4 flex flex-wrap gap-2">
         {puzzle.entries.map((entry) => (
@@ -377,7 +448,7 @@ function Finish({ puzzle, helped }: { puzzle: DailyCrossword; helped: number }) 
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>There&apos;s a new grid every morning.</p>
+      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>{t("There's a new grid every morning.")}</p>
     </Card>
   );
 }

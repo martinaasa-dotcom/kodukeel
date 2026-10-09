@@ -29,6 +29,7 @@
 import { curveballById } from "./curveballs";
 import type { SceneState, TurnRecord } from "./state";
 import type { SceneSpec } from "./types";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 
 /** How a turn went, in the palette's own three words plus a neutral. */
 export type MomentTone = "right" | "nearly" | "neutral";
@@ -78,42 +79,42 @@ function wordCount(text: string): number {
 }
 
 /** A turn, labeled in a line a learner reads without feeling marked. */
-function momentOf(turn: TurnRecord, at: number, goalOf: (beatId: string) => string | null): Moment {
+function momentOf(turn: TurnRecord, at: number, goalOf: (beatId: string) => string | null, locale: Locale): Moment {
   const fixes = (turn.slips ?? [])
     .filter((slip) => slip.kind !== "english" && slip.form && slip.form !== slip.said)
     .map((slip) => ({ said: slip.said, form: slip.form! }));
   const base = { at, said: turn.said, heard: turn.heard ?? null, goal: goalOf(turn.beatId), fixes };
   const english = (turn.slips ?? []).some((slip) => slip.kind === "english");
   if (turn.reading === "complete") {
-    if (fixes.length > 0) return { ...base, tone: "nearly", label: "Understood, with an ending to polish" };
-    if (english) return { ...base, tone: "right", label: "Understood, with a word in English" };
-    if (turn.helped) return { ...base, tone: "right", label: "Done, with a word from the app" };
-    if (turn.conceded && turn.conceded.length > 0) return { ...base, tone: "right", label: "Understood, in your own words" };
-    if (turn.asked) return { ...base, tone: "right", label: "Answered, and you asked something back" };
-    return { ...base, tone: "right", label: "Understood" };
+    if (fixes.length > 0) return { ...base, tone: "nearly", label: tr(locale, "Understood, with an ending to polish") };
+    if (english) return { ...base, tone: "right", label: tr(locale, "Understood, with a word in English") };
+    if (turn.helped) return { ...base, tone: "right", label: tr(locale, "Done, with a word from the app") };
+    if (turn.conceded && turn.conceded.length > 0) return { ...base, tone: "right", label: tr(locale, "Understood, in your own words") };
+    if (turn.asked) return { ...base, tone: "right", label: tr(locale, "Answered, and you asked something back") };
+    return { ...base, tone: "right", label: tr(locale, "Understood") };
   }
-  if (turn.met.some(Boolean)) return { ...base, tone: "nearly", label: "Part of it landed" };
+  if (turn.met.some(Boolean)) return { ...base, tone: "nearly", label: tr(locale, "Part of it landed") };
   switch (turn.reading) {
-    case "declined": return { ...base, tone: "neutral", label: "You said no, so they tried again" };
-    case "lost": return { ...base, tone: "neutral", label: "You said you were stuck, which is allowed" };
-    case "english": return { ...base, tone: "neutral", label: "In English, so they helped you along" };
-    case "unrecognised": return { ...base, tone: "neutral", label: "They could not quite catch this one" };
-    case "fragment": return { ...base, tone: "neutral", label: "A word on its own, so they waited for more" };
-    case "echo": return { ...base, tone: "neutral", label: "Their own words back" };
+    case "declined": return { ...base, tone: "neutral", label: tr(locale, "You said no, so they tried again") };
+    case "lost": return { ...base, tone: "neutral", label: tr(locale, "You said you were stuck, which is allowed") };
+    case "english": return { ...base, tone: "neutral", label: tr(locale, "In English, so they helped you along") };
+    case "unrecognised": return { ...base, tone: "neutral", label: tr(locale, "They could not quite catch this one") };
+    case "fragment": return { ...base, tone: "neutral", label: tr(locale, "A word on its own, so they waited for more") };
+    case "echo": return { ...base, tone: "neutral", label: tr(locale, "Their own words back") };
     default:
       return turn.asked
-        ? { ...base, tone: "neutral", label: "You asked your own question" }
-        : { ...base, tone: "neutral", label: "Understood, but it answered something else" };
+        ? { ...base, tone: "neutral", label: tr(locale, "You asked your own question") }
+        : { ...base, tone: "neutral", label: tr(locale, "Understood, but it answered something else") };
   }
 }
 
-export function recapOf(scene: SceneSpec, state: SceneState): SceneRecap {
+export function recapOf(scene: SceneSpec, state: SceneState, locale: Locale): SceneRecap {
   const goalOf = (beatId: string): string | null => {
     if (beatId.startsWith("hurdle:")) return curveballById(beatId.slice("hurdle:".length))?.out ?? null;
     return scene.beats.find((beat) => beat.id === beatId)?.goal ?? null;
   };
   const turns = state.turns;
-  const moments = turns.map((turn, at) => momentOf(turn, at, goalOf));
+  const moments = turns.map((turn, at) => momentOf(turn, at, goalOf, locale));
   const real = turns.filter((t) => t.reading !== "fragment" && t.reading !== "echo");
   const understood = real.filter(landed).length;
 
@@ -130,19 +131,20 @@ export function recapOf(scene: SceneSpec, state: SceneState): SceneRecap {
   const questions = turns.filter((t) => Boolean(t.asked)).length;
   const handled = state.hurdles.filter((h) => h.met).length;
 
+  const say = (line: string, values: Readonly<Record<string, string | number>> = {}) => fill(tr(locale, line), values);
   const headline = met.length === required.length && required.length > 0
-    ? state.walkedOut ? "You got everything done before you left." : "You got everything done."
+    ? state.walkedOut ? say("You got everything done before you left.") : say("You got everything done.")
     : met.length === 0
-      ? "A first go at a hard conversation, and every go counts."
-      : `You got ${met.length} of the ${required.length} things done.`;
+      ? say("A first go at a hard conversation, and every go counts.")
+      : say("You got {met} of the {total} things done.", { met: met.length, total: required.length });
 
   const stats = [
-    { label: "Things done", value: met.length },
-    { label: "Turns understood", value: understood },
-    { label: "Right first time", value: firstTime },
+    { label: tr(locale, "Things done"), value: met.length },
+    { label: tr(locale, "Turns understood"), value: understood },
+    { label: tr(locale, "Right first time"), value: firstTime },
     questions > 0
-      ? { label: "Questions you asked", value: questions }
-      : { label: "Surprises handled", value: handled },
+      ? { label: tr(locale, "Questions you asked"), value: questions }
+      : { label: tr(locale, "Surprises handled"), value: handled },
   ];
 
   /*
@@ -156,45 +158,45 @@ export function recapOf(scene: SceneSpec, state: SceneState): SceneRecap {
     .sort((a, b) => wordCount(b.said) - wordCount(a.said))[0];
   if (longest) {
     highlights.push({
-      title: "Your longest sentence",
+      title: say("Your longest sentence"),
       said: longest.said,
-      detail: `${wordCount(longest.said)} words, and they understood every one of them.`,
+      detail: say("{words}, and they understood every one of them.", { words: countOf(locale, wordCount(longest.said), "word") }),
     });
   }
   const dealtWith = state.hurdles.find((h) => h.met);
   if (dealtWith) {
     const spec = curveballById(dealtWith.id);
-    if (spec) highlights.push({ title: "You handled a surprise", detail: `${spec.says} You dealt with it and kept going.` });
+    if (spec) highlights.push({ title: say("You handled a surprise"), detail: `${say(spec.says)} ${say("You dealt with it and kept going.")}` });
   }
   const ownQuestion = turns.find((t) => t.asked && t.asked !== "?" && landed(t))
     ?? turns.find((t) => Boolean(t.asked));
   if (ownQuestion && highlights.length < 3) {
     highlights.push({
-      title: "You asked your own question",
+      title: say("You asked your own question"),
       said: ownQuestion.said,
-      detail: "Asking back is what turns an exchange into a conversation.",
+      detail: say("Asking back is what turns an exchange into a conversation."),
     });
   }
   const chose = turns.find((t) => t.chose && t.chose.length > 0);
   if (chose && highlights.length < 3) {
     highlights.push({
-      title: "You made it your own",
+      title: say("You made it your own"),
       said: chose.said,
-      detail: "You said something different from your card, and they went with it.",
+      detail: say("You said something different from your card, and they went with it."),
     });
   }
   const polished = turns.find((t) => t.reading === "complete" && (t.slips ?? []).some((s) => s.kind !== "english"));
   if (polished && highlights.length < 3) {
     highlights.push({
-      title: "Understood even with an ending off",
+      title: say("Understood even with an ending off"),
       said: polished.said,
-      detail: "They knew exactly what you meant. That is what a conversation needs first.",
+      detail: say("They knew exactly what you meant. That is what a conversation needs first."),
     });
   }
   if (firstTime >= 2 && highlights.length < 3) {
     highlights.push({
-      title: `${firstTime} answers landed first time`,
-      detail: "No second try needed.",
+      title: say("{count} answers landed first time", { count: firstTime }),
+      detail: say("No second try needed."),
     });
   }
 
@@ -207,43 +209,43 @@ export function recapOf(scene: SceneSpec, state: SceneState): SceneRecap {
   const missed = required.filter((beat) => !state.done.includes(beat.id));
   if (missed[0]) {
     nextTime.push({
-      title: "One thing left to get done",
+      title: say("One thing left to get done"),
       detail: missed.length === 1
-        ? `${missed[0].goal} Try that one first next time.`
-        : `${missed[0].goal} It was the first of ${missed.length} things left, and the one to start with.`,
+        ? `${say(missed[0].goal)} ${say("Try that one first next time.")}`
+        : `${say(missed[0].goal)} ${say("It was the first of {count} things left, and the one to start with.", { count: missed.length })}`,
     });
   }
   const fixes = moments.flatMap((m) => m.fixes);
   if (fixes[0]) {
     nextTime.push({
-      title: "An ending to polish",
-      detail: `You said “${fixes[0].said}” and they understood; the form they would use is “${fixes[0].form}”.`,
+      title: say("An ending to polish"),
+      detail: say("You said “{said}” and they understood; the form they would use is “{form}”.", { said: fixes[0].said, form: fixes[0].form }),
     });
   }
   const notCaught = real.filter((t) => t.reading === "unrecognised").length;
   if (notCaught > 0 && nextTime.length < 3) {
     nextTime.push({
-      title: "Shorter lands more often",
-      detail: "When they could not catch something, one idea in a short sentence usually gets through.",
+      title: say("Shorter lands more often"),
+      detail: say("When they could not catch something, one idea in a short sentence usually gets through."),
     });
   }
   const inEnglish = real.filter((t) => t.reading === "english").length;
   if (inEnglish > 0 && nextTime.length < 3) {
     nextTime.push({
-      title: "Reach for the Estonian word first",
-      detail: "When one is missing, “I need a word” hands you the one they are waiting for.",
+      title: say("Reach for the Estonian word first"),
+      detail: say("When one is missing, “I need a word” hands you the one they are waiting for."),
     });
   }
   if (questions === 0 && nextTime.length < 3 && real.length >= 3) {
     nextTime.push({
-      title: "Ask them something back",
-      detail: "One question of your own makes the other side talk more, which is more to learn from.",
+      title: say("Ask them something back"),
+      detail: say("One question of your own makes the other side talk more, which is more to learn from."),
     });
   }
   if (nextTime.length === 0) {
     nextTime.push({
-      title: "Try it one level harder",
-      detail: "This one went smoothly. A harder difficulty brings a surprise or two.",
+      title: say("Try it one level harder"),
+      detail: say("This one went smoothly. A harder difficulty brings a surprise or two."),
     });
   }
 

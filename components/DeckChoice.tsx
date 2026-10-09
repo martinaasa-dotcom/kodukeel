@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { listMyDecks, myDeckMembership } from "@/app/actions";
 import type { DeckSummary } from "@/lib/progress/decks";
+import { useT } from "@/components/Locale";
 
 /**
  * WHICH SHELF A WORD GOES ON, ASKED THE SAME WAY WHEREVER IT IS ASKED.
@@ -89,9 +90,10 @@ export function DeckChoiceList({ decks, deckIds, toggle }: {
   deckIds: string[];
   toggle: (id: string, on: boolean) => void;
 }) {
+  const t = useT();
   return (
     <div>
-      <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which deck?</p>
+      <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>{t("Which deck?")}</p>
       <div className="flex flex-col gap-2">
         {decks.map((deck) => (
           <label

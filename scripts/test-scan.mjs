@@ -130,7 +130,7 @@ await page.locator('input[type="file"]').first().setInputFiles({
   name: "page.png", mimeType: "image/png", buffer: photo,
 });
 
-await page.getByText(/word.* ticked/i).first().waitFor({ timeout: 20_000 });
+await page.getByText(/word.* (?:ticked|checked)/i).first().waitFor({ timeout: 20_000 });
 
 check("the photo is shrunk before it is sent", sentBytes > 0 && sentBytes < 4_500_000, `${sentBytes} chars`);
 check(

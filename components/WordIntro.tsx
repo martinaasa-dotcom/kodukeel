@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/Locale";
+
 import { Speak } from "@/components/Speak";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
@@ -48,7 +50,7 @@ import { FitText } from "@/components/FitText";
  * the sentence, since there is no claim here that it is a beginner's word.
  */
 export function WordIntro({
-  lemma, gloss, alsoSaid, equivalent, sentence, tokens, lexemeId, canTranslate = false,
+  lemma, gloss, alsoSaid, equivalent, also = null, sentence, tokens, lexemeId, canTranslate = false,
   isPhrase, autoplay = true, cefr = null, firstCardEver = false, children,
 }: {
   lemma: string;
@@ -72,6 +74,8 @@ export function WordIntro({
   alsoSaid: string | null;
   /** The Institute's own equivalent in the learner's chosen language, or null. */
   equivalent: { text: string; lang: string } | null;
+  /** The other of Russian and Ukrainian, small after the first, where the learner asked for it. */
+  also?: { text: string; lang: string } | null;
   /**
    * A sentence, which form of the word it carries, and whether it was written
    * for a beginner rather than recorded (`lib/dict/authored.ts`). Required, so
@@ -109,6 +113,8 @@ export function WordIntro({
     evening it arrives, which is exactly the sentence the paragraph above says
     a beginner could not be given: a word doing something, in words they have.
   */
+  const t = useT();
+  const [usuallyBefore, usuallyAfter = ""] = t("People usually say {word}.").split("{word}");
   const showSentence = sentence !== null && (cefr !== "A1" || sentence.authored);
   // A sentence exists and is deliberately not shown: an A1 word is met on
   // its own. "No example sentence for this one yet" would be untrue here,
@@ -123,20 +129,34 @@ export function WordIntro({
             hearing it is worth more than reading it. */}
         <Speak text={lemma} autoplay={autoplay} />
       </div>
+      {/*
+        THE MEANING IN THE LANGUAGE THE LEARNER THINKS IN LEADS, AND THE
+        ENGLISH SITS UNDER IT IN THE SECONDARY INK.
+
+        It was the other way round, the English first and the equivalent a line
+        of the same weight beneath, which made somebody who reads Ukrainian
+        better than English read the English first on the one screen where a
+        word is being learned. The English stays, because it is the one column
+        every entry has (lib/collections/glossLanguage.ts).
+      */}
+      {equivalent && (
+        <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>
+          <span lang={equivalent.lang}>{equivalent.text}</span>
+          {also && (
+            <span lang={also.lang} className="ml-2 text-sm font-normal" style={{ color: "var(--ink-3)" }}>
+              {also.text}
+            </span>
+          )}
+        </p>
+      )}
       {gloss && (
-        <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          {sameSpelling(lemma, gloss) ? SAME_SPELLING : gloss}
+        <p lang="en" className={equivalent ? "text-sm" : "text-base"} style={{ color: "var(--ink-2)" }}>
+          {sameSpelling(lemma, gloss) ? t(SAME_SPELLING) : gloss}
         </p>
       )}
       {alsoSaid && (
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          People usually say{" "}
-          <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{alsoSaid}</span>.
-        </p>
-      )}
-      {equivalent && (
-        <p lang={equivalent.lang} className="text-base" style={{ color: "var(--ink-2)" }}>
-          {equivalent.text}
+          {usuallyBefore}<span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{alsoSaid}</span>{usuallyAfter}
         </p>
       )}
 
@@ -144,7 +164,7 @@ export function WordIntro({
 
       {firstCardEver && (
         <p className="max-w-md text-sm" style={{ color: "var(--ink-2)" }}>
-          {firstMeetingNote(showSentence)}
+          {t(firstMeetingNote(showSentence))}
         </p>
       )}
 
@@ -190,8 +210,8 @@ export function WordIntro({
            on the first cards anybody meets. */
         <p className="max-w-[38ch] text-sm" style={{ color: "var(--ink-3)" }}>
           {isPhrase
-            ? "This one's a whole phrase, used just as it is. Say it out loud a couple of times."
-            : "No example sentence for this one yet. Try saying it out loud a couple of times."}
+            ? t("This one's a whole phrase, used just as it is. Say it out loud a couple of times.")
+            : t("No example sentence for this one yet. Try saying it out loud a couple of times.")}
         </p>
       )}
 

@@ -54,6 +54,7 @@ import { recapOf, type SceneRecap } from "@/lib/scenes/recap";
 import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
 import { saysGoodbye, CLOSING_WORDS } from "@/lib/scenes/casual";
 import { clip } from "@/lib/copy/clip";
+import { localeFor } from "@/lib/progress/locale";
 
 /**
  * The units that supply the machinery every scene's marker needs.
@@ -1183,7 +1184,8 @@ export async function finishRun(input: {
   const objectives = objectivesOf(scene, state);
   const outcome = outcomeOf(scene, state);
   const grades = gradesFor(scene, state, draw?.card ?? null, context.lexicon);
-  const review = reviewOf(scene, state);
+  const locale = await localeFor(input.ownerId);
+  const review = reviewOf(scene, state, locale);
 
   /*
     Closed only if it is still open, in the one statement that closes it. The
@@ -1277,7 +1279,7 @@ export async function finishRun(input: {
     turns: state.turns,
     grades,
     review,
-    recap: recapOf(scene, state),
+    recap: recapOf(scene, state, locale),
     gaps: wanted.map((lemma) => ({ lemma, lexemeId: byLemma.get(lemma) ?? null })),
   };
 }

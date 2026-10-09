@@ -14,6 +14,10 @@ import { resolveProviders } from "@/lib/tutor/provider";
 import { requireUserId } from "@/lib/auth/session";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { supabaseConfigured } from "@/lib/auth/mode";
+import { REVIEWED, localeFrom, tr } from "@/lib/copy/locale";
+import { LocaleProvider } from "@/components/Locale";
+import { LocaleNotice } from "@/components/LocaleNotice";
+import { ShellLocale } from "@/components/ShellLocale";
 import { letterBarFrom } from "@/lib/ux/letterBar";
 import { navOrderFrom } from "@/lib/ux/navOrder";
 import { railClasses } from "@/lib/progress/classes";
@@ -21,6 +25,7 @@ import { visibleLine } from "@/lib/security/visibleText";
 import { AudioPrefsProvider } from "@/components/AudioPrefs";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
+import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
 import { paceFrom } from "@/lib/audio/pace";
 import { adaptTiltFor } from "@/lib/progress/adapt";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -82,8 +87,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       [
         SETTING_KEYS.letterBar, SETTING_KEYS.timeZone,
         SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
-        SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
+        SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.sceneVoice, SETTING_KEYS.speechPace,
         SETTING_KEYS.caseQuestionGloss, SETTING_KEYS.navOrder, SETTING_KEYS.displayName,
+        SETTING_KEYS.uiLocale, SETTING_KEYS.uiLocaleNoticed,
       ],
     ),
     courseLevelFor(ownerId),
@@ -103,35 +109,50 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     railClasses(ownerId),
   ]);
   const letters = letterBarFrom(settings[SETTING_KEYS.letterBar]);
+  // The language the app's own words are in. See lib/copy/locale.ts.
+  const locale = localeFrom(settings[SETTING_KEYS.uiLocale]);
   const storedZone = settings[SETTING_KEYS.timeZone] ?? null;
   const caseGloss = wantsCaseGloss(level, settings[SETTING_KEYS.caseQuestionGloss]);
   // How Estonian is read aloud, published once for every speaker button and
   // every round inside the shell. See components/AudioPrefs.tsx.
+  const support = supportFrom(settings[SETTING_KEYS.support]);
   const audio = {
     voice: voiceFrom(settings[SETTING_KEYS.ttsVoice]),
     autoplay: autoplayFrom(settings[SETTING_KEYS.autoplayAudio]),
     sounds: feedbackSoundsFrom(settings[SETTING_KEYS.feedbackSounds]),
     hearing: hearingFrom(settings[SETTING_KEYS.hearing]),
-    support: supportFrom(settings[SETTING_KEYS.support]),
+    support,
+    sceneVoice: sceneVoiceFrom(settings[SETTING_KEYS.sceneVoice], support),
     pace: paceFrom(settings[SETTING_KEYS.speechPace], level, tilt),
   };
   return (
+    <LocaleProvider locale={locale}>
     <UiLanguageProvider level={level}>
     <CaseGlossProvider on={caseGloss}>
     <AudioPrefsProvider value={audio}>
     <LetterBarScope value={letters} dismissible>
       <DeviceOwner owner={ownerDigest(ownerId)} />
+      {/* The language handed to what sits outside this shell: the offline
+          banner in the root layout, and `lang` on the document for anything
+          drawn in a portal. See the component. */}
+      <ShellLocale locale={locale} />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-[200] focus:rounded-full focus:px-4 focus:py-2"
         style={{ background: "var(--surface)", color: "var(--ink)", boxShadow: "var(--shadow)" }}
       >
-        Skip to content
+        {tr(locale, "Skip to content")}
       </a>
       {/* Around the rail as well as the page, because inside a module the rail
-          draws tonight's steps under Learn and has to know which step this is. */}
+          draws today's steps under Learn and has to know which step this is. */}
       <ModuleScope>
-      <div className="flex min-h-screen flex-col md:flex-row">
+      {/*
+        `lang` here from the first paint, so a screen reader reads the rail
+        and the page in Russian or Ukrainian rather than with English sounds.
+        Every Estonian word on them carries its own `lang="et"`, which wins
+        inside it. The document's own `lang` follows on mount.
+      */}
+      <div lang={locale} className="flex min-h-screen flex-col md:flex-row">
         <Wash />
         <Sidebar
           order={navOrderFrom(settings[SETTING_KEYS.navOrder])}
@@ -164,10 +185,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           the column gives it room instead.
         */}
         {/*
-          TONIGHT'S MODULE IS A ROOM, AND THIS IS WHERE IT IS MOUNTED.
+          TODAY'S MODULE IS A ROOM, AND THIS IS WHERE IT IS MOUNTED.
 
           A step opened from the module says so in its own address, and this
-          reads it: the rail hangs tonight's steps under Learn, the way on is
+          reads it: the rail hangs today's steps under Learn, the way on is
           one "Next" where the step ends, and pressing it ticks the step and
           opens the next one. Mounted once here rather than wired into each
           step's own page, because a day's steps open eighteen screens today
@@ -185,6 +206,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           the other. Installed to a home screen there is no address bar and so
           no reload button anywhere in this app. */}
       <TimeZoneSync stored={storedZone} />
+      {locale !== "en" && !REVIEWED[locale] && settings[SETTING_KEYS.uiLocaleNoticed] !== locale && <LocaleNotice locale={locale} />}
       <PullToRefresh />
       <CommandPalette />
       {/* `?` anywhere. Documentation with a keyboard binding — see the component. */}
@@ -199,6 +221,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     </AudioPrefsProvider>
     </CaseGlossProvider>
     </UiLanguageProvider>
+    </LocaleProvider>
   );
 }
 

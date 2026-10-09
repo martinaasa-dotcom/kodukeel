@@ -3,13 +3,14 @@ import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { resolveProviders, TutorError } from "@/lib/tutor/provider";
 import { callChainForJson } from "@/lib/tutor/grader";
-import { verifyVerdict } from "@/lib/tutor/verify";
+import { verifyComment, verifyVerdict } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
 import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
 import { buildCoachNoteSystem, buildCoachNoteUser, parseCoachNote, withoutUnverified, type CoachNoteInput } from "@/lib/scenes/coachNote";
 import { sceneById } from "@/lib/scenes/catalogue";
+import { localeFor } from "@/lib/progress/locale";
 
 /**
  * ANU'S NOTE ON A FINISHED CONVERSATION (`lib/scenes/coachNote.ts`).
@@ -65,14 +66,18 @@ export async function POST(request: Request) {
   if (!input.turns.some((t) => t.who === "you")) return Response.json({ note: null }, { headers: NO_STORE });
 
   if (!resolveProviders({ purpose: "grader" })[0]) return Response.json({ note: null }, { headers: NO_STORE });
-  const decision = await authoriseCall(ownerId, "GRADER");
+  // Written in the language the learner reads the app in (lib/scenes/coachNote.ts).
+  const [language, decision] = await Promise.all([
+    localeFor(ownerId).catch(() => "en" as const),
+    authoriseCall(ownerId, "GRADER"),
+  ]);
   if (!decision.allowed || !decision.reservation) return Response.json({ note: null }, { headers: NO_STORE });
   const reservation = decision.reservation;
 
   let settled = false;
   try {
     const chain = resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed });
-    const { text, usage, config } = await callChainForJson(chain, buildCoachNoteSystem(), buildCoachNoteUser(input), 600);
+    const { text, usage, config } = await callChainForJson(chain, buildCoachNoteSystem(language), buildCoachNoteUser(input), 900);
     after(() => recordUsage({
       ownerId, kind: "GRADER", provider: config.name, model: config.model,
       inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
@@ -84,15 +89,18 @@ export async function POST(request: Request) {
     if (!note) return Response.json({ note: null }, { headers: NO_STORE });
     // Every Estonian word the note uses has to be one the conversation or the recasts hold.
     const said = input.turns.map((t) => t.text).join(" \n ");
-    const verified = verifyVerdict(note, input.fixes.map((f) => f.form), said, []);
+    const knownForms = input.fixes.map((f) => f.form);
+    const verified = verifyVerdict(note, knownForms, said, []);
+    // Each suggestion stands or falls alone: one that reached for a form nobody used costs that one.
+    const improve = note.improve.filter((item) => verifyComment(item, knownForms, said, []).unverified.length === 0);
     if (verified.reason) {
       reportError(new Error("scene note introduced an unverified Estonian form"), {
         at: "api/scene/note/verify", ownerId, extra: { model: config.model, unverified: verified.unverified },
       });
       // Only the sentences carrying it go; the rest of the note still reaches the learner.
-      return Response.json({ note: withoutUnverified(note, verified.unverified) }, { headers: NO_STORE });
+      return Response.json({ note: withoutUnverified({ ...note, improve }, verified.unverified) }, { headers: NO_STORE });
     }
-    return Response.json({ note: verified.graded }, { headers: NO_STORE });
+    return Response.json({ note: { ...verified.graded, improve } }, { headers: NO_STORE });
   } catch (error) {
     if (!settled) after(() => releaseReservation(reservation));
     if (!(error instanceof TutorError)) reportError(error, { at: "api/scene/note", ownerId });

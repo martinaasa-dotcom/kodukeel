@@ -23,8 +23,14 @@ import { SelfCheck } from "./SelfCheck";
 import { SELF_CHECK, isWrittenKind } from "@/lib/exam/selfCheck";
 import { writtenSampleFor } from "@/lib/exam/official";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
+import { localeFor, titleFor } from "@/lib/progress/locale";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
+import { sayIn } from "@/lib/copy/said";
+import { fillNodes } from "@/components/fillNodes";
 
-export const metadata = { title: "Exam result" };
+export async function generateMetadata() {
+  return titleFor("Exam result");
+}
 
 export const dynamic = "force-dynamic";
 
@@ -40,16 +46,18 @@ export const dynamic = "force-dynamic";
 export default async function ExamResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const ownerId = await requireUserId();
-  const attempt = await attemptById(ownerId, id);
+  const [attempt, locale] = await Promise.all([attemptById(ownerId, id), localeFor(ownerId)]);
   if (!attempt) notFound();
+  const t = (english: string, context?: string) => tr(locale, english, context);
 
   const result = attempt.parsed;
   if (!result) {
     return (
-      <Page title="We can't open this result any more" eyebrow="Mock examination">
+      <Page title={t("We can't open this result any more")} eyebrow={t("Mock examination")}>
         <Note tone="again">
-          It was saved in an older format that this version can&apos;t show in full. Your score still
-          stands: {attempt.pct} percent, which counted as {attempt.passed ? "a pass" : "a fail"}.
+          {fill(t(attempt.passed
+            ? "It was saved in an older format that this version can't show in full. Your score still stands: {pct} percent, which counted as a pass."
+            : "It was saved in an older format that this version can't show in full. Your score still stands: {pct} percent, which counted as a fail."), { pct: attempt.pct })}
         </Note>
       </Page>
     );
@@ -83,24 +91,33 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
     <Page
       eyebrow={
         <>
-          {result.level}
-          {result.number ? `, paper ${result.number}` : ""}
-          {result.part ? `, ${SKILL_LABEL[result.part].toLowerCase()} only` : ""}, sat{" "}
-          <DateText iso={attempt.finishedAt.toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
+          {/* One sentence per shape rather than four pieces glued in English
+              order, and "sat" kept apart from "passed" in every language. */}
+          {fillNodes(t(
+            result.number && result.part ? "{level}, paper {n}, {part} only, sat {date}"
+              : result.number ? "{level}, paper {n}, sat {date}"
+              : result.part ? "{level}, {part} only, sat {date}"
+              : "{level}, sat {date}",
+          ), {
+            level: result.level,
+            n: result.number ?? "",
+            part: result.part ? t(SKILL_LABEL[result.part]).toLocaleLowerCase(locale) : "",
+            date: <DateText iso={attempt.finishedAt.toISOString()} zone={clock.zone} options={DATE_AND_TIME} />,
+          })}
         </>
       }
       title={
         result.part
-          ? `${SKILL_LABEL[result.part]}: ${result.pct} percent`
-          : result.passed ? "Passed" : "Not this time"
+          ? fill(t("{part}: {pct} percent"), { part: t(SKILL_LABEL[result.part]), pct: result.pct })
+          : (result.passed ? t("Passed", "exam") : t("Not this time"))
       }
-      lead={report.headline}
+      lead={sayIn(locale, report.said.headline)}
       actions={
         <ButtonLink
           href={result.number ? `/exam/${result.level}/papers` : `/exam/${result.level}`}
           variant="secondary"
         >
-          <Repeat size={15} aria-hidden /> {result.number ? "The numbered papers" : "Another paper"}
+          <Repeat size={15} aria-hidden /> {t(result.number ? "The numbered papers" : "Another paper")}
         </ButtonLink>
       }
     >
@@ -112,7 +129,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
               size={92}
               thickness={8}
               tone={result.passed ? "var(--sky)" : "var(--blush)"}
-              label={`${result.pct} percent`}
+              label={fill(t("{pct} percent"), { pct: result.pct })}
             >
               <span className="tnum text-2xl font-bold" style={{ color: "var(--ink)" }}>
                 {result.pct}%
@@ -120,24 +137,27 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
             </Ring>
             <div className="min-w-[16rem] flex-1">
               <p className="text-xl font-bold" style={{ color: "var(--ink)" }}>
-                {result.points} of {result.maxPoints} points, {result.band.label}
+                {fill(t("{points} of {max} points, {band}"), { points: result.points, max: result.maxPoints, band: t(result.band.label) })}
               </p>
               <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                {report.consequence}
+                {sayIn(locale, report.said.consequence)}
               </p>
               {result.absentParts.length > 0 && (
                 <p className="mt-2 flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
                   <FileWarning size={14} aria-hidden />
-                  {result.absentParts.map((skill) => SKILL_ET[skill]).join(" and ")} couldn&apos;t be
-                  set at all, so {result.absentParts.length === 1 ? "it's" : "they're"} left out
-                  of your total rather than counted as zero.
+                  <span>
+                    {fillNodes(t(result.absentParts.length === 1
+                      ? "{parts} couldn't be set at all, so it's left out of your total rather than counted as zero."
+                      : "{parts} couldn't be set at all, so they're left out of your total rather than counted as zero."), {
+                      parts: <span lang="et">{result.absentParts.map((skill) => SKILL_ET[skill]).join(` ${t("and")} `)}</span>,
+                    })}
+                  </span>
                 </p>
               )}
               {result.thin && (
                 <p className="mt-2 flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
                   <FileWarning size={14} aria-hidden />
-                  The dictionary couldn&apos;t fill every task, so this percentage comes from a
-                  shorter paper than usual.
+                  {t("The dictionary couldn't fill every task, so this percentage comes from a shorter paper than usual.")}
                 </p>
               )}
             </div>
@@ -147,7 +167,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
 
       {(previous || best === null || result.pct > best) && (
         <section className="mb-10">
-          <SectionTitle>{previous ? "How it compares with last time" : "Where you start from"}</SectionTitle>
+          <SectionTitle>{t(previous ? "How it compares with last time" : "Where you start from")}</SectionTitle>
           <ul className="grid gap-3 md:grid-cols-2">
             {previous && moved !== null && (
               <Card as="li" tone={moved >= 0 ? "sky" : "blush"}>
@@ -157,18 +177,18 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                 >
                   {moved >= 0 ? <TrendingUp size={16} aria-hidden /> : <TrendingDown size={16} aria-hidden />}
                   {moved === 0
-                    ? `The same as your last ${result.level}`
-                    : `${moved > 0 ? "Up" : "Down"} ${Math.abs(moved)} points on your last ${result.level}`}
+                    ? fill(t("The same as your last {level}"), { level: result.level })
+                    : fill(t(moved > 0 ? "Up {n} points on your last {level}" : "Down {n} points on your last {level}"), { n: Math.abs(moved), level: result.level })}
                 </p>
                 <p
                   className="mt-1 text-sm leading-relaxed"
                   style={{ color: moved >= 0 ? "var(--sky-ink)" : "var(--blush-ink)" }}
                 >
-                  {previous.pct} percent on{" "}
-                  <DateText iso={new Date(previous.at).toISOString()} zone={clock.zone} options={DATE_AND_TIME} />
-                  , {result.pct} today. The
-                  questions were different each time, so think of it as two tries at the level, not
-                  the same paper twice.
+                  {fillNodes(t("{before} percent on {date}, {now} today. The questions were different each time, so think of it as two tries at the level, not the same paper twice."), {
+                    before: previous.pct,
+                    date: <DateText iso={new Date(previous.at).toISOString()} zone={clock.zone} options={DATE_AND_TIME} />,
+                    now: result.pct,
+                  })}
                 </p>
               </Card>
             )}
@@ -179,12 +199,12 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                   {/* "Your best yet" over a first attempt at one percent is a
                       cheer for a number nobody would cheer, so a first paper is
                       called what it is. */}
-                  {best === null ? `Your first ${result.level} paper` : `Your best ${result.level} yet`}
+                  {fill(t(best === null ? "Your first {level} paper" : "Your best {level} yet"), { level: result.level })}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {best === null
-                    ? `${result.pct} percent is the score to beat next time.`
-                    : `Better than anything you've sat at this level. Your old best was ${best} percent.`}
+                    ? fill(t("{pct} percent is the score to beat next time."), { pct: result.pct })
+                    : fill(t("Better than anything you've sat at this level. Your old best was {pct} percent."), { pct: best })}
                 </p>
               </Card>
             )}
@@ -193,24 +213,24 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
       )}
 
       <section className="mb-10">
-        <SectionTitle hint={`${PASS_PCT} percent to pass`}>The four parts</SectionTitle>
+        <SectionTitle hint={fill(t("{pct} percent to pass"), { pct: PASS_PCT })}>{t("The four parts")}</SectionTitle>
         <ul className="grid gap-3 lg:grid-cols-2">
           {result.parts.map((part) => (
             <Card as="li" key={part.skill}>
               <div className="flex items-baseline justify-between gap-3">
                 <span>
                   <span className="text-md font-semibold" style={{ color: "var(--ink)" }}>
-                    {part.label}
+                    {t(part.label)}
                   </span>
-                  <span className="ml-2 text-sm" style={{ color: "var(--ink-3)" }}>
+                  <span lang="et" className="ml-2 whitespace-nowrap text-sm" style={{ color: "var(--ink-3)" }}>
                     {SKILL_ET[part.skill]}
                   </span>
                 </span>
-                <span className="tnum text-lg font-bold" style={{ color: "var(--ink)" }}>
+                <span className="tnum shrink-0 text-lg font-bold" style={{ color: "var(--ink)" }}>
                   {part.rawAvailable === 0 ? NO_VALUE : part.points}
                   {part.rawAvailable > 0 && (
                     <span className="text-sm font-normal" style={{ color: "var(--ink-3)" }}>
-                      {" "}of {part.maxPoints}
+                      {" "}{fill(t("of {max}"), { max: part.maxPoints })}
                     </span>
                   )}
                 </span>
@@ -218,18 +238,18 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
               <div className="mt-2">
                 <Meter
                   pct={part.pct}
-                  label={`${part.label} at ${part.pct} percent`}
+                  label={fill(t("{part} at {pct} percent"), { part: t(part.label), pct: part.pct })}
                   tone={part.pct >= PASS_PCT ? "var(--sky)" : "var(--blush)"}
                 />
               </div>
               <ul className="mt-3 grid gap-1">
                 {part.tasks.map((task) => (
                   <li key={task.taskId} className="flex items-baseline justify-between gap-3 text-sm">
-                    <span style={{ color: "var(--ink-2)" }}>{task.title}</span>
+                    <span style={{ color: "var(--ink-2)" }}>{t(task.title)}</span>
                     <span className="tnum shrink-0" style={{ color: "var(--ink-3)" }}>
                       {task.rawAvailable === 0
                         ? NO_VALUE
-                        : `${Math.round(task.raw * 10) / 10} of ${task.rawAvailable}`}
+                        : fill(t("{n} of {total}"), { n: Math.round(task.raw * 10) / 10, total: task.rawAvailable })}
                     </span>
                   </li>
                 ))}
@@ -241,18 +261,18 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
 
       <div className="mb-10 grid gap-6 md:grid-cols-2">
         <section>
-          <SectionTitle>What went well</SectionTitle>
+          <SectionTitle>{t("What went well")}</SectionTitle>
           {report.strengths.length === 0 ? (
-            <Note tone="neutral">No part reached three quarters this time. Where the marks went shows what to work on next.</Note>
+            <Note tone="neutral">{t("No part reached three quarters this time. Where the marks went shows what to work on next.")}</Note>
           ) : (
             <ul className="grid gap-3">
               {report.strengths.map((item) => (
                 <Card as="li" key={item.id} tone="sky">
                   <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--sky-ink)" }}>
-                    <BadgeCheck size={16} aria-hidden /> {item.title}
+                    <BadgeCheck size={16} aria-hidden /> {sayIn(locale, item.said.title)}
                   </p>
                   <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--sky-ink)" }}>
-                    {item.detail}
+                    {sayIn(locale, item.said.detail)}
                   </p>
                 </Card>
               ))}
@@ -261,18 +281,18 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
         </section>
 
         <section>
-          <SectionTitle>Where the marks went</SectionTitle>
+          <SectionTitle>{t("Where the marks went")}</SectionTitle>
           {report.gaps.length === 0 ? (
-            <Note tone="good">Every part reached three quarters or more. Nothing to fix here.</Note>
+            <Note tone="good">{t("Every part reached three quarters or more. Nothing to fix here.")}</Note>
           ) : (
             <ul className="grid gap-3">
               {report.gaps.map((item) => (
                 <Card as="li" key={item.id} tone="blush">
                   <p className="flex items-center gap-2 text-md font-semibold" style={{ color: "var(--blush-ink)" }}>
-                    <TriangleAlert size={16} aria-hidden /> {item.title}
+                    <TriangleAlert size={16} aria-hidden /> {sayIn(locale, item.said.title)}
                   </p>
                   <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--blush-ink)" }}>
-                    {item.detail}
+                    {sayIn(locale, item.said.detail)}
                   </p>
                   {item.href && (
                     <Link
@@ -280,7 +300,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                       className="mt-3 inline-flex items-center gap-1 text-sm font-semibold underline underline-offset-4"
                       style={{ color: "var(--blush-ink)" }}
                     >
-                      {item.cta ?? "Practice it"} <ArrowRight size={13} aria-hidden />
+                      {t(item.cta ?? "Practice it")} <ArrowRight size={13} aria-hidden />
                     </Link>
                   )}
                 </Card>
@@ -292,14 +312,14 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
 
       {report.repeatOffenders.length > 0 && (
         <section className="mb-10">
-          <SectionTitle hint="wrong more than once across the paper">Words that kept tripping you up</SectionTitle>
+          <SectionTitle hint={t("wrong more than once across the paper")}>{t("Words that kept tripping you up")}</SectionTitle>
           <ul className="flex flex-wrap gap-2">
             {report.repeatOffenders.map((word) => (
               <li key={word.lexemeId}>
                 <Link href={`/dictionary?q=${encodeURIComponent(word.lemma)}`}>
                   <Chip tone="again" caseSensitive>
                     <span lang="et">{word.lemma}</span>
-                    <span>{word.times} times</span>
+                    <span>{fill(t("{n} times"), { n: word.times })}</span>
                   </Chip>
                 </Link>
               </li>
@@ -310,8 +330,8 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
 
       {written.length > 0 && (
         <section className="mb-10">
-          <SectionTitle hint={written.length > 1 ? "both of them" : undefined}>
-            What you wrote
+          <SectionTitle hint={written.length > 1 ? t("both of them") : undefined}>
+            {t("What you wrote")}
           </SectionTitle>
           {/*
             THE ONE PLACE THIS SCORE CAN FLATTER SOMEBODY, SAID OUT LOUD. The
@@ -325,10 +345,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
           <div className="mb-4">
             <Note tone="neutral">
               <Info size={14} className="mr-1.5 inline" aria-hidden />
-              These marks are for length and for using the words you were given. A real examiner also
-              checks that your Estonian is correct, and we can&apos;t judge that here. So read this
-              score as the most you could get, not what an examiner would give you. Anu can read
-              either text and tell you what she thinks, but she doesn&apos;t mark anything.
+              {t("These marks are for length and for using the words you were given. A real examiner also checks that your Estonian is correct, and we can't judge that here. So read this score as the most you could get, not what an examiner would give you. Anu can read either text and tell you what she thinks, but she doesn't mark anything.")}
             </Note>
           </div>
           <ul className="grid gap-4">
@@ -342,8 +359,8 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                   <AnuReading
                     text={mark.raw ?? ""}
                     level={result.level}
-                    title={task?.title}
-                    marks={`${Math.round(mark.scored * 10) / 10} of ${mark.available}`}
+                    title={task?.title ? t(task.title) : undefined}
+                    marks={fill(t("{n} of {total}"), { n: Math.round(mark.scored * 10) / 10, total: mark.available })}
                   />
                   {isWrittenKind(kind) && <SelfCheck items={SELF_CHECK[kind]} />}
                 </li>
@@ -358,11 +375,10 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
           {sample && (
             <Card className="mt-4">
               <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
-                How examiners marked real {result.level} texts
+                {fill(t("How examiners marked real {level} texts"), { level: result.level })}
               </p>
               <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-                The Board published real candidates&rsquo; texts with the examiners&rsquo; comments beside
-                them. Reading one next to yours is the closest you&apos;ll get to a second opinion here.
+                {t("The Board published real candidates’ texts with the examiners’ comments beside them. Reading one next to yours is the closest you'll get to a second opinion here.")}
               </p>
               <a
                 href={sample.href}
@@ -371,18 +387,18 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                 className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold underline underline-offset-4"
                 style={{ color: "var(--accent-deep)" }}
               >
-                Open the {result.level} samples on harno.ee <ArrowRight size={14} aria-hidden />
+                {fill(t("Open the {level} samples on harno.ee"), { level: result.level })} <ArrowRight size={14} aria-hidden />
               </a>
-              <p className="text-xs" style={{ color: "var(--ink-3)" }}>A PDF, in Estonian.</p>
+              <p className="text-xs" style={{ color: "var(--ink-3)" }}>{t("A PDF, in Estonian.")}</p>
             </Card>
           )}
         </section>
       )}
 
       <section>
-        <SectionTitle hint={`${report.missed.length} of them`}>Everything you got wrong</SectionTitle>
+        <SectionTitle hint={fill(t("{n} of them"), { n: report.missed.length })}>{t("Everything you got wrong")}</SectionTitle>
         {report.missed.length === 0 ? (
-          <Note tone="good">None. You got every question right.</Note>
+          <Note tone="good">{t("None. You got every question right.")}</Note>
         ) : (
           /*
             BY TASK, WITH THE QUESTION. A flat list of answer chips said "you
@@ -404,7 +420,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
               return (
                 <div key={part.skill}>
                   <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
-                    {part.label} <span lang="et">{SKILL_ET[part.skill]}</span>
+                    {t(part.label)} <span lang="et">{SKILL_ET[part.skill]}</span>
                   </p>
                   <ul className="grid gap-4">
                     {tasks.map(({ task, wrong }) => {
@@ -412,19 +428,19 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                       const answered = wrong.filter((m) => !blank.includes(m));
                       return (
                         <li key={task.taskId}>
-                          <p className="mb-2 text-md font-semibold" style={{ color: "var(--ink)" }}>{task.title}</p>
+                          <p className="mb-2 text-md font-semibold" style={{ color: "var(--ink)" }}>{t(task.title)}</p>
                           <ul className="grid gap-2">
-                            {answered.map((mark) => <WrongAnswer key={mark.itemId} mark={mark} />)}
+                            {answered.map((mark) => <WrongAnswer key={mark.itemId} mark={mark} locale={locale} />)}
                           </ul>
                           {blank.length > 0 && (
                             <div className={answered.length > 0 ? "mt-2" : ""}>
-                              <Explain label={blank.length === 1 ? "One left blank, and its answer" : `${blank.length} left blank, and their answers`}>
+                              <Explain label={blank.length === 1 ? t("One left blank, and its answer") : fill(t("{n} left blank, and their answers"), { n: blank.length })}>
                                 <ul className="grid gap-1.5">
                                   {blank.map((mark) => (
                                     <li key={mark.itemId} className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                                      {mark.prompt && <span lang="et" className="mr-2">{mark.prompt}</span>}
+                                      {mark.prompt && <span className="mr-2" {...promptLang(mark, locale)}>{promptIn(mark, locale)}</span>}
                                       <span className="font-semibold" style={{ color: "var(--sky-ink)" }} lang={mark.language === "et" ? "et" : undefined}>
-                                        {mark.expected}
+                                        {expectedIn(mark, locale)}
                                       </span>
                                     </li>
                                   ))}
@@ -451,13 +467,13 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
               have spotted that.
             */}
             <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-              Think we marked a right answer wrong?
+              {t("Think we marked a right answer wrong?")}
             </p>
             <SuggestFix
               category="MARKED_WRONG"
               categories={["MARKED_WRONG", "WRONG_CONTENT"]}
               trigger={`A ${result.level} mock paper marked ${report.missed.length} answer(s) wrong.`}
-              label="Tell us about the marking"
+              label={t("Tell us about the marking")}
             />
           </div>
         )}
@@ -480,7 +496,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
       */}
       {report.accepted.length > 0 && (
         <section className="mt-8">
-          <SectionTitle hint={`${report.accepted.length} of them`}>Right, with a note</SectionTitle>
+          <SectionTitle hint={fill(t("{n} of them"), { n: report.accepted.length })}>{t("Right, with a note")}</SectionTitle>
           <ul className="grid gap-2">
             {report.accepted.map((mark) => {
               const et = mark.language !== "en";
@@ -491,15 +507,15 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                       className={`${VERDICT_CLASS.right} inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-2 py-1 text-md`}
                       lang={et && mark.given ? "et" : undefined}
                     >
-                      <Check size={14} aria-label="Your answer, and it counted" />
+                      <Check size={14} aria-label={t("Your answer, and it counted")} />
                       {mark.given || NO_VALUE}
                     </span>
-                    <span className="text-sm" style={{ color: "var(--ink-3)" }}>the recording has</span>
+                    <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("the recording has")}</span>
                     <span className="text-md" lang={et ? "et" : undefined} style={{ color: "var(--ink)" }}>
                       {mark.expected}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{mark.note}</p>
+                  <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{t(mark.note)}</p>
                 </Card>
               );
             })}
@@ -527,27 +543,28 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
       */}
       <p className="mt-8 text-sm" style={{ color: "var(--ink-3)" }}>
         {spec.official
-          ? "The shape of this paper is real. The questions aren't, and neither is the result. "
-            + "It's practice, not a certificate, and Kodukeel has nothing to do with "
-            + "Haridus- ja Noorteamet, who run the exams that count."
-          : "Estonia doesn't test at this level, so nothing about this paper is official. It's just for you."}
+          ? fillNodes(t("The shape of this paper is real. The questions aren't, and neither is the result. It's practice, not a certificate, and Kodukeel has nothing to do with {board}, who run the exams that count."), {
+            board: <span lang="et">Haridus- ja Noorteamet</span>,
+          })
+          : t("Estonia doesn't test at this level, so nothing about this paper is official. It's just for you.")}
         {" "}
-        <Link href="/exam" className="underline underline-offset-4">Back to the exam hub</Link>
+        <Link href="/exam" className="underline underline-offset-4">{t("Back to the exam hub")}</Link>
       </p>
     </Page>
   );
 }
 
 /** One wrong answer, under the question it answered. */
-function WrongAnswer({ mark }: { mark: ItemMark }) {
+function WrongAnswer({ mark, locale }: { mark: ItemMark; locale: Locale }) {
+  const t = (english: string) => tr(locale, english);
   // Three question shapes answer in English. Tagging those Estonian had a
   // screen reader pronounce "cheese" as an Estonian word.
   const et = mark.language !== "en";
   return (
     <Card as="li" className="!py-3">
       {mark.prompt && (
-        <p className="mb-2 text-md leading-relaxed" style={{ color: "var(--ink)" }} lang={mark.promptLanguage === "en" ? undefined : "et"}>
-          {mark.prompt}
+        <p className="mb-2 text-md leading-relaxed" style={{ color: "var(--ink)" }} {...promptLang(mark, locale)}>
+          {promptIn(mark, locale)}
         </p>
       )}
       {/* The answer and what was written, each in the palette's own word for
@@ -558,22 +575,56 @@ function WrongAnswer({ mark }: { mark: ItemMark }) {
           className={`${VERDICT_CLASS.right} inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-2 py-1 text-md`}
           lang={et ? "et" : undefined}
         >
-          <Check size={14} aria-label="The answer" />
-          {mark.expected}
+          <Check size={14} aria-label={t("The answer")} />
+          {expectedIn(mark, locale)}
         </span>
-        <span className="text-sm" style={{ color: "var(--ink-3)" }}>you wrote</span>
+        <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("you wrote")}</span>
         <span
           /* The same step as the answer beside it: one object said twice. */
           className={`${VERDICT_CLASS.wrong} inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-2 py-1 text-md`}
           lang={et && mark.given ? "et" : undefined}
         >
-          <X size={14} aria-label="Your answer" />
-          {mark.given || NO_VALUE}
+          <X size={14} aria-label={t("Your answer")} />
+          {givenIn(mark, locale) || NO_VALUE}
         </span>
       </div>
       {mark.note && (
-        <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{mark.note}</p>
+        <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{noteIn(mark, locale)}</p>
       )}
     </Card>
   );
+}
+
+/*
+  A written task's lines in the learner's language, off the templates the
+  marker kept; a mark stored before it kept them is printed as it was.
+*/
+function expectedIn(mark: ItemMark, locale: Locale): string {
+  return mark.said ? sayIn(locale, mark.said.expected) : mark.expected;
+}
+function givenIn(mark: ItemMark, locale: Locale): string {
+  return mark.said && mark.given ? sayIn(locale, mark.said.given) : mark.given;
+}
+function noteIn(mark: ItemMark, locale: Locale): string {
+  return mark.said ? mark.said.note.map((s) => sayIn(locale, s)).join(" ") : tr(locale, mark.note);
+}
+
+/*
+  The prompt's language, said. A sentence asked about is Estonian. A written
+  or spoken task's brief is built from the paper's own tables and kept as a
+  template beside its English (`promptSaid`), so it is said in the learner's
+  language and carries theirs. A mark stored before the template existed has
+  only the English, and says so: `data-untranslated` is what
+  `scripts/test-locales.mjs` counts as a known gap rather than a new leftover.
+*/
+function promptLang(mark: ItemMark, locale: Locale): { lang: string; "data-untranslated"?: string } {
+  if (mark.promptLanguage !== "en") return { lang: "et" };
+  if (locale === "en") return { lang: "en" };
+  return mark.promptSaid ? { lang: locale } : { lang: "en", "data-untranslated": "exam brief" };
+}
+
+/** The prompt itself, in the learner's language where the mark kept its template. */
+function promptIn(mark: ItemMark, locale: Locale): string | undefined {
+  if (mark.promptLanguage !== "en" || locale === "en" || !mark.promptSaid) return mark.prompt;
+  return sayIn(locale, mark.promptSaid);
 }

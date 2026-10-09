@@ -38,6 +38,8 @@
  * Pure: four numbers in, a verdict out.
  */
 
+import { fill, tr, type Locale } from "@/lib/copy/locale";
+
 /** The share of a part's words that have to have stuck. */
 export const READY_KNOWN_SHARE = 0.6;
 
@@ -106,18 +108,16 @@ export function ladderVerdict(evidence: LadderEvidence): LadderVerdict {
 }
 
 /** The one sentence the screen leads with, in the app's own voice. */
-export function holdReason(verdict: Extract<LadderVerdict, { kind: "hold" }>): string {
+export function holdReason(verdict: Extract<LadderVerdict, { kind: "hold" }>, locale: Locale): string {
   const seen = Math.round(verdict.seen * 100);
-  return verdict.because === "retention"
-    ? `So far, ${seen} out of every hundred words from that part have stuck. `
-      + "The rest are waiting in your reviews, and they'll keep coming back until they do."
-    : `Right now you're getting ${seen} out of a hundred answers right. `
-      + "Moving on to a harder part would only bring that down.";
+  return fill(tr(locale, verdict.because === "retention"
+    ? "So far, {seen} out of every hundred words from that part have stuck. The rest are waiting in your reviews, and they'll keep coming back until they do."
+    : "Right now you're getting {seen} out of a hundred answers right. Moving on to a harder part would only bring that down."), { seen });
 }
 
 /** What to do about it, which is never "start again". */
-export function holdAdvice(verdict: Extract<LadderVerdict, { kind: "hold" }>): string {
-  return verdict.because === "retention"
+export function holdAdvice(verdict: Extract<LadderVerdict, { kind: "hold" }>, locale: Locale): string {
+  return tr(locale, verdict.because === "retention"
     ? "Give it a few more days of reviews and that number will climb on its own. You won't lose anything, and nothing has to be done twice."
-    : "A few gentler days will sort this out. Your reviews already know which words are giving you trouble.";
+    : "A few gentler days will sort this out. Your reviews already know which words are giving you trouble.");
 }

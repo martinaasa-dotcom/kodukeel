@@ -1,12 +1,13 @@
-import { notFound } from "next/navigation";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
-import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
-import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { shuffle } from "@/lib/random/shuffle";
 import { leastPractisedSlot } from "@/lib/srs/mastery";
-import { COMMON_BATCH, groupBySlug } from "@/lib/collections/commonGroups";
-import { commonLexemeIds } from "@/lib/progress/common";
+import { COMMON_BATCH, groupBySlug, readPart } from "@/lib/collections/commonGroups";
+import { commonCounts, commonLexemeIds } from "@/lib/progress/common";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
@@ -15,12 +16,10 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { include, notOnLadder, withChoices } from "../../cards";
 import { DeepenButton } from "../DeepenButton";
 
-/** Cards in one round. The same twenty Flash cards asks, for the same reason. */
-const ROUND = 20;
-
 export async function generateMetadata({ params }: { params: Promise<{ group: string }> }) {
   const group = groupBySlug((await params).group);
-  return { title: group ? `Most common ${group.title.toLowerCase()}` : "Most common words" };
+  const locale = await localeFor(await requireUserId());
+  return { title: tr(locale, group ? `Most common ${group.title.toLowerCase()}` : "Most common words") };
 }
 
 export const dynamic = "force-dynamic";
@@ -60,8 +59,9 @@ export const dynamic = "force-dynamic";
  * query ordered by lapses and by when it is due, which is FSRS deciding rather
  * than this file.
  */
-export default async function CommonRoundPage({ params }: {
+export default async function CommonRoundPage({ params, searchParams }: {
   params: Promise<{ group: string }>;
+  searchParams: Promise<{ part?: string | string[] }>;
 }) {
   const group = groupBySlug((await params).group);
   if (!group) notFound();
@@ -69,14 +69,30 @@ export default async function CommonRoundPage({ params }: {
   const ownerId = await requireUserId();
 
   /*
+    A list is four parts of twenty-five, and a round is one part. With none
+    named the page picks the first part the learner has not got in their deck
+    yet, so a bare link from Practice lands somewhere sensible rather than on a
+    chooser.
+  */
+  const part = readPart((await searchParams).part);
+  if (!part) {
+    const counts = (await commonCounts(ownerId)).find((c) => c.group === group.key);
+    const next = (counts?.parts ?? []).findIndex((p) => p.found > 0 && p.inDeck < p.found);
+    redirect(`/review/common/${group.slug}?part=${next >= 0 ? next + 1 : 1}`);
+  }
+
+  /*
     Two answers that do not need each other. Which words are on the list is a
     fact about the dictionary; which language the meaning is printed in is one
     settings row. On the deployment's own pooler each `await` is a round trip.
   */
-  const [lexemeIds, glossSetting] = await Promise.all([
-    commonLexemeIds(group.key),
-    readSetting(ownerId, SETTING_KEYS.glossLanguage),
+  const [lexemeIds, meaningPrefs, locale] = await Promise.all([
+    commonLexemeIds(group.key, part),
+    meaningPrefsFor(ownerId),
+    localeFor(ownerId),
   ]);
+  // The four headings are whole lines in the table, never "Most common" glued to a word.
+  const heading = `${tr(locale, `Most common ${group.title.toLowerCase()}`)}, ${fill(tr(locale, "part {n}"), { n: part })}`;
 
   /*
     Ordered, because this is a `take`: without one, which of a word's cards the
@@ -90,34 +106,44 @@ export default async function CommonRoundPage({ params }: {
       ownerId, suspended: false, lexemeId: { in: lexemeIds }, ...notOnLadder(ownerId),
     },
     orderBy: [{ lapses: "desc" }, { due: "asc" }, { id: "asc" }],
-    take: ROUND * 8,
+    // A part is twenty-five words and a deepened word carries a dozen cards.
+    take: COMMON_BATCH * 20,
     include,
   });
 
-  const picked = leastPractisedSlot(cards, new Set(lexemeIds)).slice(0, ROUND);
+  /*
+    Every word of the part, one card each, and no cap: a part is twenty-five
+    and the round asks twenty-five. Resuming is the schedule's doing rather
+    than a stored position. Cards answered are scheduled away, so what is new
+    or due leads and what was done goes to the back, in a fresh order each time.
+  */
+  const now = Date.now();
+  const open = (c: { state: number; due: Date }) => c.state === 0 || c.due.getTime() <= now;
+  const shuffled = shuffle(leastPractisedSlot(cards, new Set(lexemeIds)));
+  const picked = [...shuffled.filter(open), ...shuffled.filter((c) => !open(c))];
 
   if (picked.length === 0) {
     return (
       <Page
-        title={`Most common ${group.title.toLowerCase()}`}
-        lead="Each word comes back looking a little different, until it sticks."
+        title={heading}
+        lead={tr(locale, "Each word comes back looking a little different, until it sticks.")}
       >
         <div className="flex flex-col gap-4">
           <Empty
             title={
               lexemeIds.length === 0
-                ? "The dictionary isn't loaded yet"
-                : "None of these are in your deck yet"
+                ? tr(locale, "The dictionary isn't loaded yet")
+                : tr(locale, "None of these are in your deck yet")
             }
             body={
               lexemeIds.length === 0
-                ? "This round comes from the dictionary, so there's nothing to ask until it's loaded."
-                : `Add the first ${COMMON_BATCH} and you'll practise each one in all its forms.`
+                ? tr(locale, "This round comes from the dictionary, so there's nothing to ask until it's loaded.")
+                : fill(tr(locale, "Add these {n} and you'll practice each one in all its forms."), { n: lexemeIds.length })
             }
             action={
               lexemeIds.length === 0
-                ? <ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>
-                : <DeepenButton group={group.key} label={`Add the first ${COMMON_BATCH}`} />
+                ? <ButtonLink href="/dictionary" variant="primary">{tr(locale, "Open the dictionary")}</ButtonLink>
+                : <DeepenButton group={group.key} part={part} goTo={`/review/common/${group.slug}?part=${part}`} label={fill(tr(locale, "Add these {n}"), { n: lexemeIds.length })} />
             }
           />
           {/*
@@ -127,15 +153,14 @@ export default async function CommonRoundPage({ params }: {
           */}
           <SuggestFix
             category="BROKEN"
-            trigger={`/review/common/${group.slug} had no cards to ask`}
+            trigger={`/review/common/${group.slug}?part=${part} had no cards to ask`}
           />
         </div>
       </Page>
     );
   }
 
-  const gloss = glossLanguageFrom(glossSetting);
-  const round = await withChoices(shuffle(picked), gloss, ownerId);
+  const round = await withChoices(picked, meaningPrefs, ownerId);
 
   return (
     <BeforeYouStart id="common" ready={round.length > 0} count={{ n: round.length, noun: "card" }}>
@@ -143,7 +168,7 @@ export default async function CommonRoundPage({ params }: {
         cards={round}
         totalCards={round.length}
         mode="type"
-        title={`Most common ${group.title.toLowerCase()}`}
+        title={heading}
       />
     </BeforeYouStart>
   );

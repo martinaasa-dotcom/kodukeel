@@ -21,7 +21,7 @@ import { SETTING_KEYS } from "@/lib/settings/store";
  * chose. A tick is the learner saying they follow the module, which is
  * `moduleReached`'s own rule.
  *
- * THE SECOND IS AN EVENING ALREADY DONE. Finishing tonight's module and then
+ * THE SECOND IS AN EVENING ALREADY DONE. Finishing today's module and then
  * pressing "start the next one now" ticks a step of tomorrow's, so the reading
  * stands on tomorrow's day, unfinished, and the letter asked somebody who had
  * just done their evening to go and do it.
@@ -113,7 +113,7 @@ describe("the evening letter", () => {
     expect(await owed()).toBe("tonight");
   });
 
-  it("is not sent after tonight's module was finished and the next one started", async () => {
+  it("is not sent after today's module was finished and the next one started", async () => {
     const [one, two] = PROGRAMME.days;
     await zone();
     await deck([...one!.words, ...two!.words]);

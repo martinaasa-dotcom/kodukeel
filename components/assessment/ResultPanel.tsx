@@ -3,6 +3,7 @@ import { Card, Chip, SectionTitle } from "@/components/ui";
 import { NO_VALUE } from "@/lib/copy/values";
 import { PRE_A1, type Confidence, type Placement, type SkillResult } from "@/lib/assessment/types";
 import { levelLabel } from "./PlanPanel";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import type { ReactNode } from "react";
 import { Lettered } from "@/components/HeroLetters";
 
@@ -30,7 +31,13 @@ const CONFIDENCE_COPY: Record<Confidence, string> = {
   reasonable: "Enough to be worth acting on, though it's still not an exam.",
 };
 
-function SkillRow({ result }: { result: SkillResult }) {
+/** A figure with one decimal, written with the comma Russian and Ukrainian use. */
+function decimal(n: number, locale: Locale): string {
+  return locale === "en" ? String(n) : String(n).replace(".", ",");
+}
+
+function SkillRow({ result, locale }: { result: SkillResult; locale: Locale }) {
+  const t = (english: string) => tr(locale, english);
   const meta = SKILL_META[result.skill]!;
   const Icon = meta.icon;
   const speaking = result.skill === "speaking";
@@ -45,25 +52,25 @@ function SkillRow({ result }: { result: SkillResult }) {
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>{meta.label}</span>
+          <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>{t(meta.label)}</span>
           <span className="tnum text-lg font-bold" style={{ color: "var(--accent-deep)" }}>
             {speaking
               ? result.selfRating
-                ? `${Math.round(result.selfRating * 10) / 10} of 4, your own rating`
+                ? fill(t("{n} of 4, your own rating"), { n: decimal(Math.round(result.selfRating * 10) / 10, locale) })
                 : NO_VALUE
               : result.measured
-                ? levelLabel(result.level)
-                : "not measured"}
+                ? levelLabel(result.level, locale)
+                : t("not measured")}
           </span>
         </div>
-        <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{meta.note}</p>
+        <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{t(meta.note)}</p>
         {!speaking && result.bands.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
             {result.bands.map((band) => (
               <Chip
                 key={band.band}
                 tone={band.ratio >= 2 / 3 ? "good" : band.ratio >= 0.5 ? "hard" : "again"}
-                title={`${Math.round(band.credit * 10) / 10} of ${band.items} at ${band.band}`}
+                title={fill(t("{credit} of {items} at {band}"), { credit: decimal(Math.round(band.credit * 10) / 10, locale), items: band.items, band: band.band })}
               >
                 {band.band} {Math.round(band.ratio * 100)}%
               </Chip>
@@ -75,54 +82,64 @@ function SkillRow({ result }: { result: SkillResult }) {
   );
 }
 
-export function ResultPanel({ result, heading = "Where you are" }: { result: Placement; heading?: ReactNode }) {
+export function ResultPanel({ result, heading = "Where you are", locale = "en" }: {
+  result: Placement;
+  heading?: ReactNode;
+  /**
+   * The language the panel is written in. The signed-in level check hands in
+   * the learner's own; first run is drawn outside the shell and in English,
+   * so it passes nothing.
+   */
+  locale?: Locale;
+}) {
+  const t = (english: string) => tr(locale, english);
   const measured = result.skills.filter((s) => s.measured && s.skill !== "speaking");
-  const overall = levelLabel(result.overall);
+  const overall = levelLabel(result.overall, locale);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5" lang={locale}>
       <Lettered celebrate className="mb-2">
         <Card tone="night" className="md:p-9">
-          <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{heading}</p>
+          <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{typeof heading === "string" ? t(heading) : heading}</p>
           <p className="font-display mt-3 text-6xl font-bold leading-none xl:text-8xl" style={{ color: "var(--ink)" }}>
             {overall}
           </p>
           {result.nearly && (
             <p className="mt-2 text-lg font-semibold" style={{ color: "var(--accent-deep)" }}>
-              A solid {overall}, and nearly {levelLabel(result.nearly)}.
+              {fill(t("A solid {level}, and nearly {next}."), { level: overall, next: levelLabel(result.nearly, locale) })}
             </p>
           )}
           <p className="mt-3 max-w-[58ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {result.overall === null
+            {t(result.overall === null
               ? "Nothing got measured, so there's no level to show. That's a blank, not a zero."
               : result.overall === PRE_A1
                 ? "You're not at A1 yet, and that's where almost everybody starts. It's a starting point, not a verdict."
                 : result.nearly
                   ? "Your skills averaged out between two levels, so this shows the lower one. You're near the top of it, not the bottom."
-                  : "This is the average of the skills we measured. One weak section doesn't drag the whole level down, and one strong one doesn't carry it."}
+                  : "This is the average of the skills we measured. One weak section doesn't drag the whole level down, and one strong one doesn't carry it.")}
             {result.ceiling && result.ceiling !== result.overall && (
-              <> Your strongest skill looks like {levelLabel(result.ceiling)}, which is good to know too.</>
+              <> {fill(t("Your strongest skill looks like {level}, which is good to know too."), { level: levelLabel(result.ceiling, locale) })}</>
             )}
           </p>
           <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-            {result.itemsAnswered} scored {result.itemsAnswered === 1 ? "question" : "questions"}
+            {countOf(locale, result.itemsAnswered, "scored question")}
             {result.decisive > 0 && result.decisive < result.itemsAnswered
-              ? `, ${result.decisive} of them at the levels that decided it`
+              ? fill(t(", {n} of them at the levels that decided it"), { n: result.decisive })
               : ""}.{" "}
-            {CONFIDENCE_COPY[result.confidence]}
+            {t(CONFIDENCE_COPY[result.confidence])}
           </p>
         </Card>
       </Lettered>
 
       <Card>
-        <SectionTitle hint={`${measured.length} of 3 skills measured`}>Skill by skill</SectionTitle>
+        <SectionTitle hint={fill(t("{n} of 3 skills measured"), { n: measured.length })}>{t("Skill by skill")}</SectionTitle>
         <ul className="flex flex-col">
-          {result.skills.map((skill) => <SkillRow key={skill.skill} result={skill} />)}
+          {result.skills.map((skill) => <SkillRow key={skill.skill} result={skill} locale={locale} />)}
         </ul>
       </Card>
 
       <Card>
-        <SectionTitle>What this is not</SectionTitle>
+        <SectionTitle>{t("What this is not")}</SectionTitle>
         {/* Four limits, each a mark and a line: a list of four paragraphs was
             the longest thing on the screen and said less than its first words. */}
         <ul className="grid gap-3 sm:grid-cols-2">
@@ -137,8 +154,8 @@ export function ResultPanel({ result, heading = "Where you are" }: { result: Pla
                 {limit.icon}
               </span>
               <span className="min-w-0">
-                <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{limit.head}</span>
-                <span className="block text-sm" style={{ color: "var(--ink-2)" }}>{limit.body}</span>
+                <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>{t(limit.head)}</span>
+                <span className="block text-sm" style={{ color: "var(--ink-2)" }}>{t(limit.body)}</span>
               </span>
             </li>
           ))}

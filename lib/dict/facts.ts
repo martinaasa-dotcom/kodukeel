@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { movedWords } from "@/lib/progress/hard";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { bandOf, glossOption, type GlossOption } from "@/lib/questions/distractors";
+import type { Equivalents } from "@/lib/collections/glossLanguage";
 import { clueClashes as clashingClues } from "@/lib/games/clue";
 import { MAX_LETTERS, MIN_LETTERS } from "@/lib/games/crossword";
 import {
@@ -368,6 +369,14 @@ export type DecoyOption = GlossOption & {
   /** The first entry glossed this way, in the dictionary's own order. */
   readonly lemma: string;
   /**
+   * That entry's own Russian and Ukrainian, so an option can be drawn leading
+   * in the learner's language (`meaningsShown`). Read in this same query, which
+   * is already the whole dictionary once a minute per instance, rather than in a
+   * second one per question. Drawing only: an option is still marked by its
+   * English text.
+   */
+  readonly equivalents: Equivalents;
+  /**
    * Every entry glossed this way. One option per meaning is right for the
    * screen, since two entries glossed the same way are two right answers
    * wearing different ids; but the *lemma* the option was filed under was
@@ -400,7 +409,10 @@ export function decoysAmong(
 export function decoyOptions(): Promise<DecoyOption[]> {
   return remember("decoy-options", FACTS_TTL_MS, async () => {
     const rows = await prisma.lexeme.findMany({
-      select: { translation: true, pos: true, cefr: true, lemma: true },
+      select: {
+        translation: true, pos: true, cefr: true, lemma: true,
+        translationRu: true, translationUk: true,
+      },
     });
     const seen = new Map<string, string[]>();
     const out: DecoyOption[] = [];
@@ -423,6 +435,7 @@ export function decoyOptions(): Promise<DecoyOption[]> {
           theme: unitIntroducing(row.lemma, row.pos),
         }),
         lemma: row.lemma,
+        equivalents: { translationRu: row.translationRu, translationUk: row.translationUk },
       });
     }
     return out;
@@ -503,7 +516,7 @@ export function crosswordPool(bands: readonly string[]): Promise<CrosswordWord[]
   const key = [...bands].sort().join(",");
   return remember(`crossword-pool:${key}`, FACTS_TTL_MS, async () => {
     return prisma.$queryRaw<CrosswordWord[]>`
-      SELECT id, lemma, pos, translation, "createdAt" FROM "Lexeme"
+      SELECT id, lemma, pos, translation, "translationRu", "translationUk", "createdAt" FROM "Lexeme"
       WHERE char_length(lemma) BETWEEN ${MIN_LETTERS} AND ${MAX_LETTERS}
         AND lemma ~ ${"^[a-zäöüõšž]+$"}
         AND cefr = ANY(${[...bands]})
@@ -529,6 +542,9 @@ export interface CrosswordWord {
   /** Named on the clue, because English does not mark one and Estonian does. */
   pos: string;
   translation: string;
+  /** The Institute's equivalents, for drawing a clue in the learner's language. Never compiled or marked on. */
+  translationRu: string | null;
+  translationUk: string | null;
   createdAt: Date;
 }
 

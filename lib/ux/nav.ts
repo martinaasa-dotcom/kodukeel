@@ -148,14 +148,14 @@ export const SECTIONS: NavSection[] = [
         It had a row of its own under Today, and the row and the card said the
         same thing twice on the one screen everybody opens, so it went inside
         Today. That made the list light Today while every step on it lit
-        Learn, with tonight's steps hung under that row
+        Learn, with today's steps hung under that row
         (`components/Sidebar.tsx`), so pressing a step moved the rail's marker
         from one row to another for a screen that had not changed place. The
         evening is the course and Learn is the course's row, so Learn lights on
         the list as it does on each step. Today's card still opens it.
       */
       {
-        href: "/course", label: "Today's module", blurb: "Tonight's words and games, already picked for you",
+        href: "/course", label: "Today's module", blurb: "Today's words and games, already picked for you",
         icon: "CalendarCheck", tone: "accent",
         keywords: "course planned programme a1 module day guided plan lesson schedule step by step",
         within: "/learn",
@@ -191,7 +191,7 @@ export const SECTIONS: NavSection[] = [
         it is not a row of its own.
       */
       {
-        href: "/situations", label: "Situations", blurb: "Book a doctor, order a coffee, ring your landlord",
+        href: "/situations", label: "Situations", blurb: "Book a doctor, order a coffee, call your landlord",
         icon: "MessagesSquare", tone: "sky",
         keywords: "conversation scene role play speaking doctor counter landlord",
         within: "/practice",

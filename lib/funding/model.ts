@@ -37,7 +37,7 @@ import type { Bill, Line, Shape, Volume } from "./types";
 
 export { ASSUMPTIONS, DEFAULT_SHAPE, TUTOR_MODELS } from "./facts";
 export { MODEL_CAP_USD, SERVICES } from "./services";
-export type { Bill, Line, Meter, Service, ServiceCost, Shape, TutorMode, Volume } from "./types";
+export type { Bill, Line, Meter, Phrase, Service, ServiceCost, Shape, TutorMode, Volume } from "./types";
 
 /** What a month at this size actually consists of, before anybody is billed. */
 export function volumeOf(shape: Shape): Volume {

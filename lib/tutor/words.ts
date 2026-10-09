@@ -310,7 +310,7 @@ export function wordsNote(words: readonly WordFacts[], forms = false): string {
   if (words.length === 0) return "";
   return [
     "WORDS IN THE QUESTION, AS THE DICTIONARY HOLDS THEM",
-    "These forms come from the dictionary and are checked. Use them exactly as given, build the regular cases on the genitive shown here, and never contradict them. If the question is about a word that is not listed here, you do not know its forms for certain: say so rather than guess. A grade change is exactly what the line says it is: one consonant becoming another, or dropping out, between two forms. It is never a vowel, a rhythm or a softening, so say which letters change and into what, and stop there. Where a word's cases are listed, the name in brackets after each form is the name of that case, and it is the only name you may give that form.",
+    "These forms come from the dictionary and are checked. Use them exactly as given, build the regular cases on the genitive shown here, and never contradict them. If the question is about a word that is not listed here, you do not know its forms for certain: say so rather than guess. A grade change is exactly what the line says it is: one consonant becoming another, or dropping out, between two forms. It is never a vowel, a rhythm or a softening, so say which letters change and into what, and stop there. Where a word's cases are listed, the name in parentheses after each form is the name of that case, and it is the only name you may give that form.",
     ...tabledLines(words.slice(0, MAX_QUESTION_WORDS), forms),
   ].join("\n");
 }

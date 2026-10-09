@@ -40,7 +40,8 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { CASE_NOTES } from "@/lib/estonian/grammar";
 import type { CaseKey } from "@/lib/estonian/types";
 import type { SceneState } from "./state";
-import { diagnose, diagnosePerson, type Hunch } from "./diagnose";
+import { diagnose, diagnosePerson, quotedPlain, type Hunch } from "./diagnose";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 import type { Slip } from "./turn";
 import type { SceneSpec } from "./types";
 
@@ -121,7 +122,7 @@ export interface SceneReview {
   readonly notes: readonly ReviewNote[];
 }
 
-export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
+export function reviewOf(_scene: SceneSpec, state: SceneState, locale: Locale): SceneReview {
   /*
     The turns that were turns. A fragment and an echo cost no patience and
     earn no rating (`advance`, `gradesFor`), and counting them here would tell
@@ -160,8 +161,8 @@ export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
 
   const englishAt = state.turns.findIndex((t) => t.reading === "english");
   const notes = onceEach([
-    ...notesFrom(state),
-    ...englishNote(turns.filter((t) => t.reading === "english").length, Math.max(englishAt, 0)),
+    ...notesFrom(state, locale),
+    ...englishNote(turns.filter((t) => t.reading === "english").length, Math.max(englishAt, 0), locale),
     /*
       And the words they reached for in English, which is this branch's note and
       not one `notesFrom` builds: it is read off `SceneGap` rather than off a
@@ -169,8 +170,8 @@ export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
       Last, because it is a list of things to learn rather than a reason
       something came out wrong.
     */
-    ...reachedNote(state),
-  ]);
+    ...reachedNote(state, locale),
+  ], locale);
 
   return {
     lead: lead({
@@ -181,7 +182,7 @@ export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
       slips: slips.length,
       spellings: slips.filter((s) => s.kind === "spelling").length,
       notes: notes.length,
-    }),
+    }, locale),
     notes,
   };
 }
@@ -224,7 +225,7 @@ function slipsInOrder(state: SceneState): Slipped[] {
  * equals the one said first is the one whose turn is nearest the top of the
  * transcript the note points into.
  */
-function notesFrom(state: SceneState): ReviewNote[] {
+function notesFrom(state: SceneState, locale: Locale): ReviewNote[] {
   const byWord = new Map<string, Slipped[]>();
   for (const row of slipsInOrder(state)) {
     const key = `${row.slip.kind}:${row.slip.grammCase ?? ""}:${row.slip.said.toLowerCase()}`;
@@ -241,12 +242,12 @@ function notesFrom(state: SceneState): ReviewNote[] {
         id,
         said: slip.said,
         form: slip.form,
-        what: whatFor(slip.kind, plain, spec?.suffix),
+        what: whatFor(slip.kind, plain, spec?.suffix, locale),
         ...(spec ? { term: `${spec.et}, ${spec.asksWhere ?? spec.asksThing}` } : {}),
-        ...(NOTE_BODY[slip.kind] ? { body: NOTE_BODY[slip.kind] } : {}),
+        ...(NOTE_BODY[slip.kind] ? { body: tr(locale, NOTE_BODY[slip.kind]!) } : {}),
         at: first.at,
         ...(rows.length > 1 ? { times: rows.length } : {}),
-        ...hunchFor(slip, rows),
+        ...hunchFor(slip, rows, locale),
       };
     });
 }
@@ -261,11 +262,11 @@ function notesFrom(state: SceneState): ReviewNote[] {
  * false about the language, and `CaseSpec.suffix` is the one place that fact
  * already lives.
  */
-function whatFor(kind: Slip["kind"], plain: string | undefined, suffix: string | undefined): string {
-  if (kind === "person") return "the verb with the right ending for who's doing it";
-  if (kind === "spelling") return "the spelling";
-  if (!plain) return "the form they were listening for";
-  return suffix ? `the ending for “${plain}”` : `the form for “${plain}”`;
+function whatFor(kind: Slip["kind"], plain: string | undefined, suffix: string | undefined, locale: Locale): string {
+  if (kind === "person") return tr(locale, "the verb with the right ending for who's doing it");
+  if (kind === "spelling") return tr(locale, "the spelling");
+  if (!plain) return tr(locale, "the form they were listening for");
+  return fill(tr(locale, suffix ? "the ending for {plain}" : "the form for {plain}"), { plain: quotedPlain(locale, plain) });
 }
 
 /**
@@ -285,11 +286,11 @@ const NOTE_BODY: Partial<Record<Slip["kind"], string>> = {
  * than the commonest, because a reason is about the moment it happened and the
  * transcript has that moment.
  */
-function hunchFor(slip: Slip, rows: readonly Slipped[]): { hunch?: Hunch } {
-  if (slip.kind === "person") return { hunch: diagnosePerson() };
+function hunchFor(slip: Slip, rows: readonly Slipped[], locale: Locale): { hunch?: Hunch } {
+  if (slip.kind === "person") return { hunch: diagnosePerson(locale) };
   if (slip.kind !== "case" || !slip.grammCase) return {};
   for (const row of rows) {
-    const hunch = diagnose(slip.grammCase, row.slip.reached, { grammCase: row.before });
+    const hunch = diagnose(slip.grammCase, row.slip.reached, { grammCase: row.before }, locale);
     if (hunch) return { hunch };
   }
   return {};
@@ -321,7 +322,7 @@ function hunchFor(slip: Slip, rows: readonly Slipped[]): { hunch?: Hunch } {
  * it: dropping a repeated reason is half the idea, and saying what it covers
  * is the half that tells the learner something they could not otherwise see.
  */
-function onceEach(notes: readonly ReviewNote[]): ReviewNote[] {
+function onceEach(notes: readonly ReviewNote[], locale: Locale): ReviewNote[] {
   const times = new Map<string, number>();
   for (const note of notes) {
     if (note.hunch) times.set(note.hunch.says, (times.get(note.hunch.says) ?? 0) + 1);
@@ -336,7 +337,7 @@ function onceEach(notes: readonly ReviewNote[]): ReviewNote[] {
     said.add(note.hunch.says);
     const count = times.get(note.hunch.says) ?? 1;
     return count > 1
-      ? { ...note, hunch: { ...note.hunch, says: `${note.hunch.says} ${covers(count)}` } }
+      ? { ...note, hunch: { ...note.hunch, says: `${note.hunch.says} ${covers(count, locale)}` } }
       : note;
   });
 }
@@ -349,10 +350,12 @@ function onceEach(notes: readonly ReviewNote[]): ReviewNote[] {
  * written out for the same reason, and past four the digit reads better than
  * the word, where a review has bigger news than a count anyway.
  */
-function covers(count: number): string {
-  return count === 2
-    ? "The same thing is behind both of these."
-    : `The same thing is behind all ${WORDS[count] ?? count} of these.`;
+function covers(count: number, locale: Locale): string {
+  if (count === 2) return tr(locale, "The same thing is behind both of these.");
+  const word = WORDS[count];
+  return word
+    ? tr(locale, `The same thing is behind all ${word} of these.`)
+    : fill(tr(locale, "The same thing is behind all {count} of these."), { count });
 }
 
 const WORDS: Record<number, string> = { 3: "three", 4: "four" };
@@ -360,8 +363,9 @@ const WORDS: Record<number, string> = { 3: "three", 4: "four" };
 function lead(n: {
   turns: number; landed: number; partly: number; read: number; slips: number; spellings: number;
   notes: number;
-}): string {
-  if (n.turns === 0) return "You didn't say anything this time, and that's fine. Watching a scene once is a good way to get a feel for it.";
+}, locale: Locale): string {
+  const say = (line: string, values: Readonly<Record<string, number>> = {}) => fill(tr(locale, line), values);
+  if (n.turns === 0) return say("You didn't say anything this time, and that's fine. Watching a scene once is a good way to get a feel for it.");
 
   /*
     Nothing landed. Saying what did happen is still worth more than a count
@@ -371,24 +375,24 @@ function lead(n: {
   */
   if (n.landed + n.partly === 0) {
     const seen = n.read === n.turns
-      ? "Your Estonian was understood every time. It just didn't answer what they were asking. "
+      ? say("Your Estonian was understood every time. It just didn't answer what they were asking.")
       : n.read > 0
-        ? `${n.read} of your ${n.turns} turns were understood as Estonian, but none of them answered the question. `
+        ? say("{read} of your {turns} turns were understood as Estonian, but none of them answered the question.", n)
         : "";
-    return `${seen}None of it got through this time, and that happens to everybody. Next time, the word button `
-      + "hands you one of the words they're waiting for, and telling them you're lost gets you one too.";
+    const rest = say("None of it got through this time, and that happens to everybody. Next time, the word button hands you one of the words they're waiting for, and telling them you're lost gets you one too.");
+    return seen ? `${seen} ${rest}` : rest;
   }
 
   const all = n.landed === n.turns;
   const opener = all
     ? n.turns === 1
-      ? "The one thing you said answered the question."
-      : `Every one of your ${n.turns} turns answered the question.`
+      ? say("The one thing you said answered the question.")
+      : say("Every one of your {turns} turns answered the question.", n)
     : n.landed === 0
-      ? `${n.partly} of your ${n.turns} turns answered part of the question.`
+      ? say("{partly} of your {turns} turns answered part of the question.", n)
       : n.partly > 0
-        ? `${n.landed} of your ${n.turns} turns answered the question, and ${n.partly} more answered part of it.`
-        : `${n.landed} of your ${n.turns} turns answered the question.`;
+        ? say("{landed} of your {turns} turns answered the question, and {partly} more answered part of it.", n)
+        : say("{landed} of your {turns} turns answered the question.", n);
   /*
     AND THE FLOURISH ONLY WHERE IT IS TRUE OF THE WHOLE RUN. It printed on any
     run with no slips, so "3 of your 4 turns answered what was asked. Nothing
@@ -397,7 +401,7 @@ function lead(n: {
   */
   if (n.slips === 0) {
     return n.notes === 0 && all
-      ? `${opener} Nothing needed putting right, which is rarer than it sounds.`
+      ? `${opener} ${say("Nothing needed putting right, which is rarer than it sounds.")}`
       : opener;
   }
   /*
@@ -413,8 +417,8 @@ function lead(n: {
       ? ["ending", "endings"]
       : ["ending or spelling", "endings and spellings"];
   return n.slips === 1
-    ? `${opener} One ${one} was off, and it didn't stop the conversation.`
-    : `${opener} ${n.slips} ${several} were off, and not one of them stopped the conversation.`;
+    ? `${opener} ${say(`One ${one} was off, and it didn't stop the conversation.`)}`
+    : `${opener} ${say(`{count} ${several} were off, and not one of them stopped the conversation.`, { count: n.slips })}`;
 }
 
 /**
@@ -440,7 +444,7 @@ function lead(n: {
  * those. Read through `slipsInOrder` rather than off a flat list, because that
  * is the one place the turn a slip happened in is known.
  */
-function reachedNote(state: SceneState): ReviewNote[] {
+function reachedNote(state: SceneState, locale: Locale): ReviewNote[] {
   const seen = new Map<string, Slipped>();
   for (const row of slipsInOrder(state)) {
     if (row.slip.kind !== "english") continue;
@@ -450,22 +454,20 @@ function reachedNote(state: SceneState): ReviewNote[] {
     id: `english-reach:${row.slip.lemma}`,
     said: row.slip.said,
     form: row.slip.form,
-    what: "the word you were reaching for",
-    body: "You knew what you wanted to say, just not how to say it yet. That makes it "
-      + "exactly the right word to learn next.",
+    what: tr(locale, "the word you were reaching for"),
+    body: tr(locale, "You knew what you wanted to say, just not how to say it yet. That makes it exactly the right word to learn next."),
     at: row.at,
   }));
 }
 
-function englishNote(count: number, at: number): ReviewNote[] {
+function englishNote(count: number, at: number, locale: Locale): ReviewNote[] {
   if (count === 0) return [];
   return [{
     id: "english",
-    said: count === 1 ? "One turn in English" : `${count} turns in English`,
+    said: count === 1 ? tr(locale, "One turn in English") : fill(tr(locale, "{count} turns in English"), { count }),
     form: null,
-    what: "Estonian, even a word or two",
-    body: "Staying in Estonian a little longer each time is what this practice is for. "
-      + "When you're stuck, the word button gives you a word to use.",
+    what: tr(locale, "Estonian, even a word or two"),
+    body: tr(locale, "Staying in Estonian a little longer each time is what this practice is for. When you're stuck, the word button gives you a word to use."),
     at,
   }];
 }

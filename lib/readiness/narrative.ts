@@ -1,5 +1,6 @@
 import { EVIDENCE_LABEL } from "@/lib/exam/readiness";
 import { RUNG_LABEL, type Reading, type Rung, type Summary } from "./rungs";
+import { fill, tr, type Locale } from "@/lib/copy/locale";
 
 /**
  * WHAT A RUNG SAYS, IN WORDS, AND THERE IS ONE COPY OF IT.
@@ -18,28 +19,30 @@ import { RUNG_LABEL, type Reading, type Rung, type Summary } from "./rungs";
 
 const VERDICT: Record<Rung, (r: Reading) => string> = {
   unmet: () => "You haven't met these words yet, so there's nothing to go on.",
-  lost: (r) =>
-    `You'd be lost here for now. You'd catch ${r.at.follow} of the ${r.total} words, and the ones you'd miss are the ones that carry the sentence.`,
-  follow: (r) =>
-    `You'd follow most of this. You recognize ${r.at.follow} of the ${r.total} words. Saying them back is the next step.`,
+  lost: () =>
+    "You'd be lost here for now. You'd catch {follow} of the {total} words, and the ones you'd miss are the ones that carry the sentence.",
+  follow: () =>
+    "You'd follow most of this. You recognize {follow} of the {total} words. Saying them back is the next step.",
   takePart: (r) =>
     r.situation.live
-      ? `You could take part in this if the other person is patient. You can say ${r.at.takePart} of the ${r.total} words reliably.`
-      : `You could do this. You can say ${r.at.takePart} of the ${r.total} words reliably.`,
+      ? "You could take part in this if the other person is patient. You can say {takePart} of the {total} words reliably."
+      : "You could do this. You can say {takePart} of the {total} words reliably.",
   lead: (r) =>
     r.situation.live
       ? "You could lead this one: start it, steer it, and get it back on track when it wobbles."
       : "You could do this well. Go and try it for real.",
 };
 
-export function verdictFor(reading: Reading): string {
-  return VERDICT[reading.rung](reading);
+export function verdictFor(reading: Reading, locale: Locale): string {
+  return fill(tr(locale, VERDICT[reading.rung](reading)), {
+    follow: reading.at.follow, takePart: reading.at.takePart, total: reading.total,
+  });
 }
 
 /** The rung and its evidence, as one short phrase for a row. */
-export function standingLine(reading: Reading): string {
-  if (reading.rung === "unmet") return RUNG_LABEL.unmet;
-  return `${RUNG_LABEL[reading.rung]}, ${EVIDENCE_LABEL[reading.evidence]}`;
+export function standingLine(reading: Reading, locale: Locale): string {
+  if (reading.rung === "unmet") return tr(locale, RUNG_LABEL.unmet);
+  return `${tr(locale, RUNG_LABEL[reading.rung])}, ${tr(locale, EVIDENCE_LABEL[reading.evidence])}`;
 }
 
 /**
@@ -48,21 +51,24 @@ export function standingLine(reading: Reading): string {
  * the situation you could lead with the one you would be lost in and reports
  * a number true of neither.
  */
-export function headline(summary: Summary): string {
+export function headline(summary: Summary, locale: Locale): string {
+  const t = (english: string) => tr(locale, english);
   const { counts, total, level } = summary;
-  if (total === 0) return `Nothing at ${level} yet.`;
+  if (total === 0) return fill(t("Nothing at {level} yet."), { level });
   const parts: string[] = [];
-  if (counts.lead > 0) parts.push(`${counts.lead} you could lead`);
-  if (counts.takePart > 0) parts.push(`${counts.takePart} you could take part in`);
-  if (counts.follow > 0) parts.push(`${counts.follow} you would follow`);
-  if (counts.lost > 0) parts.push(`${counts.lost} you would be lost in`);
-  if (counts.unmet > 0) parts.push(`${counts.unmet} not started`);
-  const list = parts.length <= 1 ? parts.join("") : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
-  return `Of the ${total} situations at ${level}: ${list}.`;
+  if (counts.lead > 0) parts.push(fill(t("{n} you could lead"), { n: counts.lead }));
+  if (counts.takePart > 0) parts.push(fill(t("{n} you could take part in"), { n: counts.takePart }));
+  if (counts.follow > 0) parts.push(fill(t("{n} you would follow"), { n: counts.follow }));
+  if (counts.lost > 0) parts.push(fill(t("{n} you would be lost in"), { n: counts.lost }));
+  if (counts.unmet > 0) parts.push(fill(t("{n} not started"), { n: counts.unmet }));
+  const list = parts.length <= 1
+    ? parts.join("")
+    : fill(t("{first} and {last}"), { first: parts.slice(0, -1).join(", "), last: parts[parts.length - 1]! });
+  return fill(t("Of the {total} situations at {level}: {list}."), { total, level, list });
 }
 
 /** Milliseconds as the seconds a person would say. */
-export function paceWords(medianMs: number): string {
+export function paceWords(medianMs: number, locale: Locale): string {
   const s = medianMs / 1000;
-  return s < 10 ? `${s.toFixed(1)} seconds` : `${Math.round(s)} seconds`;
+  return fill(tr(locale, "{n} seconds"), { n: s < 10 ? s.toFixed(1) : Math.round(s) });
 }

@@ -293,7 +293,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     move: "ask",
     cost: 1,
     says: "They start chatting about the weather.",
-    out: "Say something back about the weather, then carry on with what you came for.",
+    out: "Say something back about the weather, then continue with what you came for.",
     needs: [{ kind: "any" }],
   },
   {
@@ -345,7 +345,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     move: "ask",
     cost: 1,
     says: "They switch between the polite 'you' and the friendly one.",
-    out: "Switch with them, or carry on as you were. Either is fine.",
+    out: "Switch with them, or keep going as you were. Either is fine.",
     needs: [{ kind: "any" }],
     switchesRegister: true,
   },
@@ -386,7 +386,7 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
   {
     id: "queue",
     cost: 1,
-    says: "A queue forms behind you.",
+    says: "A line forms behind you.",
     out: "Nothing you need to do. They'll just be in more of a hurry now.",
     needs: [],
     silent: true,

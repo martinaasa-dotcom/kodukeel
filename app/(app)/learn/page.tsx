@@ -7,6 +7,8 @@ import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import {
   CHECKPOINTS, LEVELS, LEVEL_INFO, isUnitOpen, nextUnit,
 } from "@/lib/collections/syllabus";
+import { localeFor } from "@/lib/progress/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
 import { Chip, Meter, Page, SectionTitle } from "@/components/ui";
@@ -16,7 +18,9 @@ import { programmeFor } from "@/lib/progress/course";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { Explain } from "@/components/Explain";
 
-export const metadata = { title: "Learn" };
+export async function generateMetadata() {
+  return { title: tr(await localeFor(await requireUserId()), "Learn") };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +47,7 @@ export default async function LearnPage() {
     promising twelve words waiting, over a round the module then holds back,
     reads as a counting fault rather than as a rule.
   */
-  const [[snapshot, units], placement, counts, programme] = await Promise.all([
+  const [[snapshot, units], placement, counts, programme, locale] = await Promise.all([
     /*
       Each chain waits only on the answer it needs: the path is read off the
       deck, and the counts off where the module has taken the learner. They
@@ -55,7 +59,9 @@ export default async function LearnPage() {
     /* Whether a planned course is handing this learner their words, which
        decides what the card says when none are waiting. */
     programmeFor(ownerId),
+    localeFor(ownerId),
   ]);
+  const t = (english: string) => tr(locale, english);
 
   const doneIds = new Set(units.filter((u) => u.state === "done").map((u) => u.unit.id));
   const startedIds = new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id));
@@ -89,10 +95,11 @@ export default async function LearnPage() {
     };
   });
 
+  const [unitsBefore, unitsAfter] = t("A unit is just a handy bundle of dictionary words. You can find every one of them by searching too, and anything missing you can {link}. Nothing's ever really locked: a unit above your level tells you what it builds on, and you can still open it.").split("{link}");
   return (
     <Page route="/learn"
-      title="Learn"
-      lead="Pick up new words a few at a time, and see the whole course they come from."
+      title={t("Learn")}
+      lead={t("Pick up new words a few at a time. And see which course they come from.")}
     >
       {/*
         WHAT THIS PAGE LEADS WITH IS THE NEXT FIVE WORDS, NOT THE MAP.
@@ -109,6 +116,7 @@ export default async function LearnPage() {
         started={counts.started}
         phrases={counts.phrases}
         onCourse={programme !== null}
+        t={t}
       />
 
       {/*
@@ -123,7 +131,7 @@ export default async function LearnPage() {
         the explanation are at the foot of the page, where somebody who wants
         them goes looking.
       */}
-      <SectionTitle hint={`${placement}, ${knownWords} of ${totalWords} words known`}>The course</SectionTitle>
+      <SectionTitle hint={fill(t("{level}, {known} of {total} words known"), { level: placement, known: knownWords, total: totalWords })}>{t("The course")}</SectionTitle>
 
       <div className="flex flex-col gap-3">
         {byLevel.map(({ level, rows, words, known, pct, finished }) => {
@@ -181,11 +189,11 @@ export default async function LearnPage() {
                           className="block text-md font-bold group-hover:underline"
                           style={{ color: "var(--ink)" }}
                         >
-                          {uiText(placement, u.unit.title, u.unit.subtitle)}
+                          {t(uiText(placement, u.unit.title, u.unit.subtitle))}
                         </span>
                         {isNext && (
                           <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
-                            {u.unit.canDo}
+                            {t(u.unit.canDo)}
                           </span>
                         )}
                         {/* Under the name in a narrow row, beside it in a wide
@@ -198,7 +206,7 @@ export default async function LearnPage() {
                       <span className="tnum hidden shrink-0 text-xs @md:inline" style={{ color: "var(--ink-3)" }}>
                         {u.known}/{u.available}
                       </span>
-                      {locked && <span className="sr-only">, builds on an earlier unit, but you can still open it</span>}
+                      {locked && <span className="sr-only">{". "}{t("It builds on an earlier unit, but you can still open it.")}</span>}
                       {!isNext && (
                         <ChevronRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
                       )}
@@ -211,7 +219,7 @@ export default async function LearnPage() {
                           size="sm"
                           className="w-full justify-center @md:w-32"
                         >
-                          {u.state === "learning" ? "Continue" : "Start"}
+                          {u.state === "learning" ? t("Continue") : t("Start")}
                         </ButtonLink>
                       </span>
                     )}
@@ -263,18 +271,18 @@ export default async function LearnPage() {
                       className="text-lg font-bold"
                       style={{ color: "var(--ink)" }}
                     >
-                      {uiText(placement, info.title, info.titleEn)}
+                      {t(uiText(placement, info.title, info.titleEn))}
                     </span>
-                    {level === placement && <Chip tone="accent">You are here</Chip>}
+                    {level === placement && <Chip tone="accent">{t("You are here")}</Chip>}
                   </span>
                   <span className="mt-0.5 block max-w-[70ch] text-sm" style={{ color: "var(--ink-2)" }}>
-                    {info.summary}
+                    {t(info.summary)}
                   </span>
                   <span className="mt-2 flex items-center gap-3">
                     <span className="max-w-[220px] flex-1">
                       <Meter
                         pct={pct}
-                        label={`${level}: ${known} of ${words} words known`}
+                        label={fill(t("{level}: {known} of {total} words known"), { level, known, total: words })}
                         tone="var(--accent)"
                         height={7}
                       />
@@ -283,8 +291,9 @@ export default async function LearnPage() {
                         carries its figures in an `aria-label`, so this line is
                         the only place a sighted reader sees them. */}
                     <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                      {rows.length} units, {known}/{words} words
-                      {!open && inProgress > 0 && <>, {inProgress} in progress</>}
+                      {fill(t(!open && inProgress > 0
+                        ? "{units} units, {known}/{total} words, {progress} in progress"
+                        : "{units} units, {known}/{total} words"), { units: rows.length, known, total: words, progress: inProgress })}
                     </span>
                   </span>
                 </span>
@@ -297,7 +306,7 @@ export default async function LearnPage() {
                     <details className="group/more">
                       <summary className="tap-tint flex min-h-11 cursor-pointer items-center gap-3 rounded-[var(--r-sm)] px-3 py-2 text-sm font-semibold" style={{ color: "var(--accent-deep)" }}>
                         <ChevronRight size={16} aria-hidden className="shrink-0 transition-transform group-open/more:rotate-90" />
-                        The other {tucked.length} units at {level}
+                        {fill(t("The other {n} units at {level}"), { n: tucked.length, level })}
                       </summary>
                       <ol className="flex flex-col">{tucked.map(row)}</ol>
                     </details>
@@ -323,10 +332,10 @@ export default async function LearnPage() {
                           className="block text-md font-bold group-hover:underline"
                           style={{ color: "var(--ink)" }}
                         >
-                          {uiText(placement, checkpoint.title, checkpoint.titleEn)}
+                          {t(uiText(placement, checkpoint.title, checkpoint.titleEn))}
                         </span>
                         <span className="tnum block text-xs" style={{ color: "var(--ink-3)" }}>
-                          {checkpoint.questions} questions, {checkpoint.passMark}% to pass
+                          {fill(t("{n} questions, {mark}% to pass"), { n: checkpoint.questions, mark: checkpoint.passMark })}
                         </span>
                       </span>
                       <ChevronRight size={18} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
@@ -340,23 +349,20 @@ export default async function LearnPage() {
       </div>
 
       <div className="mt-2 flex flex-col gap-1">
-        <Explain label="What counts as known">
-          A word counts as known once you&apos;ve got it right on every one of its cards, often
-          enough that it&apos;s past the learning stage. One right answer isn&apos;t enough.
+        <Explain label={t("What counts as known")}>
+          {t("A word counts as known once you've got it right on every one of its cards, often enough that it's past the learning stage. One right answer isn't enough.")}
         </Explain>
-        <Explain label="Units and the dictionary">
-          A unit is just a handy bundle of dictionary words. You can find every one of them by
-          searching too, and anything missing you can{" "}
-          <Link href="/dictionary" className="underline" style={{ color: "var(--accent-deep)" }}>add yourself</Link>.
-          Nothing&apos;s ever really locked: a unit above your level tells you what it builds on,
-          and you can still open it.
+        <Explain label={t("Units and the dictionary")}>
+          {unitsBefore}
+          <Link href="/dictionary" className="underline" style={{ color: "var(--accent-deep)" }}>{t("add yourself")}</Link>
+          {unitsAfter}
         </Explain>
         <Link
           href="/assess"
           className="mt-1 inline-flex items-center gap-1.5 self-start text-sm underline"
           style={{ color: "var(--accent-deep)" }}
         >
-          <Compass size={14} aria-hidden /> Not sure of your level? Take the level check
+          <Compass size={14} aria-hidden /> {t("Not sure of your level? Take the level check")}
         </Link>
       </div>
     </Page>
@@ -373,8 +379,10 @@ export default async function LearnPage() {
  * which is why this says so rather than offering a dead button.
  */
 function LearnCard({
-  waiting, started, phrases, onCourse,
+  waiting, started, phrases, onCourse, t,
 }: {
+  /** The page's translator, so this card speaks the learner's language. */
+  t: (english: string) => string;
   waiting: number;
   started: number;
   /** The same two counts, over the fixed phrases (`Tere!`, `Kuidas läheb?`) rather than words. */
@@ -383,7 +391,7 @@ function LearnCard({
    * Whether the planned course is handing this learner their words.
    *
    * With nothing waiting, the card said "No new words yet. Open a unit below",
-   * to somebody whose course had just taught them tonight's five and planned
+   * to somebody whose course had just taught them today's five and planned
    * tomorrow's: the honest answer is where the next ones come from, and that
    * is the module, so that is what it says and where its button goes.
    */
@@ -397,12 +405,12 @@ function LearnCard({
       <div className="flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
         <div className="min-w-0">
           <p className="label-xs" style={{ color: "var(--butter-ink)" }}>
-            {ready > 0 ? "Tonight\u2019s new words" : "New words"}
+            {ready > 0 ? t("Today’s new words") : t("New words")}
           </p>
-          <h2 className="font-display mt-3 text-4xl font-bold leading-[1] md:text-5xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+          <h2 className="font-display mt-3 text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
             {ready > 0
-              ? <>{batch} words are waiting for you</>
-              : onCourse ? <>They come with each evening</> : <>No new words yet</>}
+              ? <>{fill(t("{n} words are waiting for you"), { n: batch })}</>
+              : onCourse ? <>{t("They come with each evening")}</> : <>{t("No new words yet")}</>}
           </h2>
           {/*
             One line for what happens next, where there used to be two chips of
@@ -411,17 +419,16 @@ function LearnCard({
           */}
           {ready > 0 ? (
             <p className="mt-3 max-w-[48ch] text-md" style={{ color: "var(--ink-2)" }}>
-              Meet each one, pick what it means, then fit it back into a sentence.
-              {started > 0 && <> You&apos;re already part way through {started}.</>}
+              {t("Meet each one, pick what it means, then fit it back into a sentence.")}
+              {started > 0 && <> {fill(t("You're already part way through {n}."), { n: started })}</>}
             </p>
           ) : onCourse ? (
             <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>
-              Your course hands you a few new words each evening, in an order where each one
-              builds on the last. Or open any unit below to meet its words now.
+              {t("Your course hands you a few new words each evening, in an order where each one builds on the last. Or open any unit below to meet its words now.")}
             </p>
           ) : (
             <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>
-              Open a unit below and its words will turn up here, ready to meet.
+              {t("Open a unit below and its words will turn up here, ready to meet.")}
             </p>
           )}
         </div>
@@ -445,17 +452,17 @@ function LearnCard({
           */}
           {phrasesReady > 0 && (
             <ButtonLink href="/learn/new?kind=phrase" variant="secondary" className="w-full justify-center sm:w-auto">
-              Learn {Math.min(phrasesReady, LEARN_BATCH)} phrases
+              {fill(t("Learn {n} phrases"), { n: Math.min(phrasesReady, LEARN_BATCH) })}
             </ButtonLink>
           )}
           {ready > 0 && (
             <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap sm:w-auto">
-              Learn {batch} words <ArrowRight size={17} aria-hidden />
+              {fill(t("Learn {n} words"), { n: batch })} <ArrowRight size={17} aria-hidden />
             </ButtonLink>
           )}
           {ready === 0 && onCourse && (
             <ButtonLink href="/course" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap sm:w-auto">
-              Open tonight&rsquo;s module <ArrowRight size={17} aria-hidden />
+              {t("Open today’s module")} <ArrowRight size={17} aria-hidden />
             </ButtonLink>
           )}
         </div>
