@@ -461,7 +461,14 @@ export function survey({ stress }) {
     if (!shown(svg)) continue;
     const want = { w: parseFloat(svg.getAttribute("width")), h: parseFloat(svg.getAttribute("height")) };
     if (!Number.isFinite(want.w) || !Number.isFinite(want.h)) continue;
-    const r = svg.getBoundingClientRect();
+    /*
+      The laid-out size rather than the box on screen: an icon on a card tilted
+      a few degrees has a bounding box a pixel or two wider than itself, and a
+      rotation is not a deformation. The computed width is the used width, so
+      an icon a flex row has squeezed still reads as squeezed.
+    */
+    const cs = getComputedStyle(svg);
+    const r = { width: parseFloat(cs.width), height: parseFloat(cs.height) };
     if (Math.abs(r.width - want.w) > 1 || Math.abs(r.height - want.h) > 1) {
       deformed.push(`${named(svg)} drawn ${Math.round(r.width)}x${Math.round(r.height)}, declared ${want.w}x${want.h}`);
     }

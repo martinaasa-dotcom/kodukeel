@@ -1,7 +1,8 @@
+import { HeroFan } from "@/components/HeroFan";
 import { InsideHere } from "@/components/InsideHere";
 import { readableFront } from "@/lib/copy/caseHint";
 import { Suspense } from "react";
-import { ClipboardCheck, Compass, FileText, Flame, Footprints, Shield } from "lucide-react";
+import { ClipboardCheck, Compass, FileText, Footprints } from "lucide-react";
 import { outThere } from "@/lib/progress/outThere";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -30,7 +31,6 @@ import { Board, BoardSkeleton } from "./Board";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { lemmasByCardLexeme } from "@/lib/dict/facts";
 import { courseLevelFor } from "@/lib/progress/level";
-import { RollNumber } from "@/components/motion/RollNumber";
 import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, Stat } from "@/components/ui";
 import { NO_VALUE } from "@/lib/copy/values";
 import { formatHour } from "@/lib/time/clock";
@@ -236,29 +236,20 @@ export default async function ProgressPage() {
             phone, where it is easiest to reach. Level with the top rather than
             centred: a centred row drops a figure whose label wraps to two
             lines, so "Shields banked" sat off the three beside it. */}
-        <Card tone="night" className="grid grid-cols-2 items-start gap-x-6 gap-y-6 sm:flex sm:flex-wrap sm:gap-10">
-          <Stat
-            value={<span className="inline-flex items-center gap-1.5"><RollNumber value={summary.streak} /><Flame size={18} aria-hidden style={{ color: "var(--hard-ink)" }} /></span>}
-            label={t("Day streak")}
-          />
-          <Stat value={snapshot.knownCards} label={t("Cards known")} />
-          <Stat value={breakdown.accuracy === null ? NO_VALUE : `${breakdown.accuracy}%`} label={t("Answered right")} />
-          <Stat
-            value={<span className="inline-flex items-center gap-1.5"><RollNumber value={shields} /><Shield size={16} aria-hidden style={{ color: "var(--accent-deep)" }} /></span>}
-            label={t(shields === 1 ? "Shield banked" : "Shields banked")}
-          />
-          <span className="col-span-2 sm:ml-auto sm:self-center"><ShareProgress /></span>
-          {/* What the shield figure beside it means, behind a press rather than
-              standing under four figures in 13px grey. It is an explanation
-              rather than a status, which is `Explain`'s own rule: somebody who
-              wants to know what a shield is can ask, and everybody else gets
-              the four numbers they came for. */}
-          <div className="col-span-2 w-full">
-            <Explain label={t("What a shield does")}>
-              {t("A shield keeps your streak alive through one missed day. You earn one at 7, 30 and 100 days.")}
-            </Explain>
-          </div>
-        </Card>
+        <HeroFan
+          eyebrow={t("How it is going")}
+          title={summary.streak > 0
+            ? fill(t("{days} in a row"), { days: countOf(locale, summary.streak, "day") })
+            : t("Every day you study starts a run")}
+          text={t("A shield keeps your streak alive through one missed day. You earn one at 7, 30 and 100 days.")}
+          cardsLabel={t("Your deck in three figures")}
+          cards={[
+            { figure: String(snapshot.knownCards), label: t("Cards known"), icon: "Layers" },
+            { figure: breakdown.accuracy === null ? NO_VALUE : `${breakdown.accuracy}%`, label: t("Answered right"), icon: "CheckCheck" },
+            { figure: String(shields), label: t(shields === 1 ? "Shield" : "Shields"), icon: "Shield" },
+          ]}
+          action={<ShareProgress />}
+        />
 
         {/*
           Two by two, by the page's width rather than the window's, so no panel

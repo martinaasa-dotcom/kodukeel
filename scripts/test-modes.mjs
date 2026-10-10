@@ -148,8 +148,11 @@ for (const mode of ["Review", "Match", "Listening"]) {
 await page.goto(`${B}/progress`, { waitUntil: "networkidle" });
 // XP and the level it drove were withdrawn; the streak is what the top of this
 // page carries now, and it is what the shields under it are about.
-check("progress shows the streak", (await page.getByText(/Day streak/i).count()) > 0);
-check("progress shows the shields that protect it", (await page.getByText(/Shields? banked/i).count()) > 0);
+// Both are the hero's now: the run of days is its headline and the shields a
+// card in its fan, read off the hero itself rather than anywhere on the page.
+const hero = page.locator("[data-hero-fan]").first();
+check("progress shows the streak", (await hero.getByText(/\bdays? in a row\b|starts a run/i).count()) > 0);
+check("progress shows the shields that protect it", (await hero.getByText(/^Shields?$/).count()) > 0);
 check("progress shows the study heatmap", (await page.getByText(/reviews, spread over \d+ of the last/).count()) > 0);
 // A class board where this learner is in a class, and the way into one where
 // they are not. There is no third state: the instance-wide board of everybody

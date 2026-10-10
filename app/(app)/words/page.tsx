@@ -1,3 +1,4 @@
+import { HeroFan } from "@/components/HeroFan";
 import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { meaningShown, type Equivalents, type MeaningPrefs, type ShownMeaning } from "@/lib/collections/glossLanguage";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -5,11 +6,11 @@ import { readableFront } from "@/lib/copy/caseHint";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { ButtonLink } from "@/components/Button";
-import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
+import { Empty, Page, Stack } from "@/components/ui";
 import { STATE_LABELS } from "@/lib/srs/scheduler";
 import { Diagnosis } from "@/components/Diagnosis";
 import { DrillLink } from "@/components/DrillLink";
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { countOf, fill, tr } from "@/lib/copy/locale";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { WordsTable, type CardRow } from "./WordsTable";
 
@@ -71,6 +72,8 @@ export default async function WordsPage() {
 
   const byState = Object.fromEntries(counts.map((c) => [c.state, c._count]));
   const totalCards = counts.reduce((sum, c) => sum + c._count, 0);
+  const known = byState[2] ?? 0;
+  const learning = (byState[1] ?? 0) + (byState[3] ?? 0);
 
   return (
     <Page route="/words"
@@ -95,25 +98,27 @@ export default async function WordsPage() {
         />
       ) : (
         <Stack>
-          <Card tone="night">
-            <SectionTitle hint={fill(t("{cards} in all"), { cards: countOf(locale, totalCards, "card") })}>{t("How your cards are doing")}</SectionTitle>
-            <DeckBar
-              locale={locale}
-              segments={[
-                { label: "New", value: byState[0] ?? 0, fill: "var(--sky)" },
-                { label: "Learning", value: (byState[1] ?? 0) + (byState[3] ?? 0), fill: "var(--cta)" },
-                { label: "Known", value: byState[2] ?? 0, fill: "var(--sky)" },
-              ]}
-            />
-            {/* Word by word is the header's other button; which cases keep
-                catching somebody out is Progress's, one link away. */}
-            <p className="mt-6 text-sm" style={{ color: "var(--ink-2)" }}>
-              {t("Want to see which case endings keep catching you out? They’re on")}{" "}
-              <Link href="/progress" className="font-semibold underline underline-offset-2" style={{ color: "var(--cta)" }}>
-                {t("Progress")}
-              </Link>.
-            </p>
-          </Card>
+          <HeroFan
+            eyebrow={t("How your cards are doing")}
+            title={known > 0
+              ? fill(t("{cards}, and {known} of them stick"), { cards: countOf(locale, totalCards, "card"), known })
+              : fill(t("{cards}, all still settling"), { cards: countOf(locale, totalCards, "card") })}
+            text={t("Known means you got it right days after you last saw it.")}
+            cardsLabel={t("Your cards by how well they stick")}
+            cards={[
+              { figure: String(known), label: t("Known"), icon: "Layers" },
+              { figure: String(learning), label: t("Learning"), icon: "Leaf" },
+              { figure: String(byState[0] ?? 0), label: t("New"), icon: "Sparkles" },
+            ]}
+          />
+          {/* Word by word is the header's other button; which cases keep
+              catching somebody out is Progress's, one link away. */}
+          <p className="text-base" style={{ color: "var(--ink-2)" }}>
+            {t("Want to see which case endings keep catching you out? They’re on")}{" "}
+            <Link href="/progress" className="font-semibold underline underline-offset-2" style={{ color: "var(--accent-deep)" }}>
+              {t("Progress")}
+            </Link>.
+          </p>
 
           <WordsTable rows={rows} total={totalCards} />
 
@@ -128,50 +133,6 @@ export default async function WordsPage() {
         </Stack>
       )}
     </Page>
-  );
-}
-
-/**
- * One bar showing how the deck splits between new, learning and known.
- *
- * The shape of the deck, whether it is mostly still ahead of you or mostly
- * behind you, with each part's count and share written under it. It used to
- * sit under four tiles of the same counts, which said the deck three times.
- */
-function DeckBar({ segments, locale }: { segments: { label: string; value: number; fill: string }[]; locale: Locale }) {
-  const t = (english: string) => tr(locale, english);
-  const total = segments.reduce((sum, s) => sum + s.value, 0);
-  if (total === 0) return null;
-
-  /* Drawn on the night panel: each state a lit bar as wide as its share, the
-     figure large under its own colour, so the deck reads at a glance. */
-  return (
-    <div>
-      <div className="flex h-3.5 gap-1">
-        {segments.filter((s) => s.value > 0).map((s) => (
-          <div
-            key={s.label}
-            className="rounded-full"
-            style={{ flexGrow: s.value, background: s.fill }}
-            title={`${t(s.label)}: ${s.value}`}
-          />
-        ))}
-      </div>
-      <div className="mt-5 grid grid-cols-3 gap-3">
-        {segments.map((s) => (
-          <span key={s.label} className="flex min-w-0 flex-col">
-            {/* The label takes the height the row leaves, so a label that wraps
-                does not drop its figure below the ones beside it. */}
-            <span className="flex flex-1 items-start gap-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
-              <span aria-hidden className="mt-[0.4em] h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.fill }} />
-              {t(s.label)}
-            </span>
-            <span data-figure className="tnum font-display mt-1 text-4xl font-bold leading-none md:text-5xl" style={{ color: "var(--ink)" }}>{s.value}</span>
-            <span className="tnum mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{Math.round((s.value / total) * 100)}%</span>
-          </span>
-        ))}
-      </div>
-    </div>
   );
 }
 

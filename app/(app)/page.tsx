@@ -44,10 +44,10 @@ import { sceneOfDay } from "@/lib/scenes/ofTheDay";
 import { SonadPreview } from "@/components/SonadPreview";
 import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
-import { FitText } from "@/components/FitText";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
-import { stepText } from "@/lib/course";
+import { stepCard, stepsIn } from "@/lib/course";
+import { HeroFan } from "@/components/HeroFan";
 
 export async function generateMetadata() {
   return titleFor("Today");
@@ -482,55 +482,35 @@ export default async function TodayPage() {
   const moduleTonight = Boolean(courseNow && courseDay && !courseNow.finishedToday && courseStep);
 
   const courseCard = moduleTonight && courseDay && courseStep ? (
-    <Card tone="night" className="flex flex-col gap-6 md:p-9 lg:flex-row lg:items-center lg:gap-10">
-      <div className="min-w-0 flex-1">
-        <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
-          <span style={{ color: "var(--cta)" }}>{t("Today’s module")}</span>
-          <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
-          <span>{fill(t("Day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}</span>
-        </p>
-        <FitText
-          as="h2"
-          text={ui(courseDay.day.title, courseDay.day.subtitle)}
-          className="font-display mt-3 font-bold leading-tight [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"
-          lang={uiWantsEnglish(placement) ? undefined : "et"}
-          style={{ color: "var(--ink)", textWrap: "balance" }}
-        />
-        <p className="mt-3 max-w-[46ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t(courseDay.day.canDo)}
-        </p>
-        <p
-          className="mt-5 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-full px-3.5 py-1.5 text-sm"
-          style={{ background: "rgb(255 255 255 / 0.08)", color: "var(--ink)" }}
-        >
-          <span className="font-semibold" style={{ color: "var(--sky-ink)" }}>{t("Next")}</span>
-          <span>{stepText(courseDay.day, courseStep, locale).title}</span>
-        </p>
-      </div>
-      <div className="flex flex-col items-stretch gap-4 lg:w-[19rem] lg:shrink-0">
-        <div className="flex items-center gap-4">
-          <Ring
-            pct={courseDay.pct}
-            size={72}
-            thickness={7}
-            tone="var(--cta)"
-            track="rgb(255 255 255 / 0.1)"
-            label={fill(t("{pct} percent of today's module done"), { pct: courseDay.pct })}
-          >
-            <span className="text-sm font-bold tabular-nums" style={{ color: "var(--ink)" }}>{courseDay.pct}%</span>
-          </Ring>
-          <p className="text-sm leading-snug" style={{ color: "var(--ink-2)" }}>
-            <span className="font-display block text-2xl font-bold tabular-nums" style={{ color: "var(--ink)" }}>
-              {fill(t("{minutes} min"), { minutes: courseDay.minutesLeft })}
-            </span>
-            {t("to go today")}
-          </p>
-        </div>
-        <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
+    /*
+      THE EVENING AS A FAN OF ITS STEPS, AND THE ONE BRIGHT HERO IN THE APP.
+
+      Every other page draws the same card in the night's greys, so this is
+      the one that is lit: what the learner can do by the end of it on the
+      left, and tonight's steps dealt out on the right, the finished ones ringed,
+      the next one lifted and breathing, the rest in the brand mix.
+    */
+    <HeroFan
+      bright
+      eyebrow={`${t("Today’s module")}, ${fill(t("day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}`}
+      title={ui(courseDay.day.title, courseDay.day.subtitle)}
+      titleLang={uiWantsEnglish(placement) ? undefined : "et"}
+      text={t(courseDay.day.canDo)}
+      action={
+        <ButtonLink href="/course" variant="primary" size="lg" className="whitespace-nowrap">
           {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
         </ButtonLink>
-      </div>
-    </Card>
+      }
+      cardsLabel={fill(t("{minutes} min to go today"), { minutes: courseDay.minutesLeft })}
+      cards={stepsIn(courseDay.day, locale).map((step) => {
+        const done = courseDay.done.has(step.id);
+        return {
+          ...stepCard(step, locale),
+          detail: done ? t("done") : fill(t("{minutes} min"), { minutes: step.minutes }),
+          state: done ? "done" : step.id === courseStep.id ? "now" : "later",
+        };
+      })}
+    />
   ) : courseNow?.finishedToday ? (
     <Card tone="accent" className="evening flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
       <div className="min-w-0 flex-1">
