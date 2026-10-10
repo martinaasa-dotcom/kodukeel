@@ -63,13 +63,53 @@ import { twinsOf } from "@/lib/estonian/pronouns";
  * one person's deck served to the next person through the same door.
  */
 
-/** How long a fact about the dictionary is reused before it is asked again. */
+/**
+ * How often a warm instance asks whether the dictionary has changed, and how
+ * long a fact that is not about the dictionary is reused before it is asked
+ * again.
+ */
 export const FACTS_TTL_MS = 60_000;
+
+/**
+ * THE DICTIONARY IS READ AGAIN WHEN IT CHANGES, NOT EVERY MINUTE.
+ *
+ * Every fact here used to expire after `FACTS_TTL_MS` and be read again in
+ * full, and between them they read the whole of `Lexeme` six times and the
+ * whole of `Form` five times. Measured through a byte counter on the socket
+ * against a freshly seeded database on 2026-10-10, one refill of all of them
+ * was about 25 MB off the database, and a refill happened every minute on
+ * every warm instance anybody was using. On Supabase's free plan that is the
+ * egress quota: the project went past its 5 GB in under three weeks with a
+ * handful of learners, on days that were nothing but somebody practising for
+ * an hour.
+ *
+ * So a dictionary fact passes `DICTIONARY` rather than a number. It is kept
+ * until the dictionary has had a row added or removed, which is asked at most
+ * once a minute through `dictionarySignature` (one row, a few dozen bytes),
+ * and in any case for no longer than `DICTIONARY_CEILING_MS`. Inserts and
+ * deletes are what the signature counts and updates are not, deliberately:
+ * a live Ekilex lookup rewrites `fetchedAt` on every search, so counting
+ * updates would put the refill straight back on the busiest path. A word
+ * added, a word removed and a hand edit's forms (which are deleted and
+ * written again) are seen within a minute; a gloss corrected in place is
+ * seen within the ceiling, which is an hour of a correction showing late and
+ * nothing that decides anything.
+ *
+ * And the columns are read once rather than per fact: `dictionaryEntries`,
+ * `dictionaryForms` and `dictionaryExamples` are three reads every fact below
+ * is built from, so a refill is the dictionary once rather than eleven times.
+ */
+export const DICTIONARY = Symbol("dictionary");
+export const DICTIONARY_CEILING_MS = 60 * 60_000;
+
+type Policy = number | typeof DICTIONARY;
 
 interface Held<T> {
   value: T;
-  /** When this stops being reused. */
+  /** When this stops being reused whatever else is true. */
   until: number;
+  /** The dictionary's signature when this was read, for a dictionary fact. */
+  signature?: string | null;
 }
 
 const held = new Map<string, Held<unknown>>();
@@ -80,10 +120,40 @@ export interface Entry {
   cefr: string | null;
 }
 
-export async function remember<T>(key: string, ttlMs: number, work: () => Promise<T>): Promise<T> {
+let lastSignature: { value: string | null; checkedAt: number } | null = null;
+
+/**
+ * A number that moves whenever a row is added to or removed from `Lexeme` or
+ * `Form`, read off Postgres's own counters rather than off the tables, so it
+ * costs one tiny row however large the dictionary is. Asked at most once per
+ * `FACTS_TTL_MS` per instance. A failure keeps the last answer, so a database
+ * that will not say leaves the facts to the ceiling rather than refilling them
+ * every minute, which is the bill this exists to stop.
+ */
+async function dictionarySignature(): Promise<string | null> {
+  const now = Date.now();
+  if (lastSignature && now - lastSignature.checkedAt < FACTS_TTL_MS) return lastSignature.value;
+  return singleFlight("dict-facts:signature", async () => {
+    let value = lastSignature?.value ?? null;
+    try {
+      const rows = await prisma.$queryRaw<{ v: string }[]>`
+        SELECT coalesce(sum(n_tup_ins + n_tup_del), 0)::text AS v
+        FROM pg_stat_user_tables WHERE relname IN ('Lexeme', 'Form')
+      `;
+      value = rows[0]?.v ?? null;
+    } catch {
+      // Keep the last answer; see above.
+    }
+    lastSignature = { value, checkedAt: Date.now() };
+    return value;
+  });
+}
+
+export async function remember<T>(key: string, policy: Policy, work: () => Promise<T>): Promise<T> {
+  const signature = policy === DICTIONARY ? await dictionarySignature() : undefined;
   const now = Date.now();
   const entry = held.get(key);
-  if (entry && now < entry.until) return entry.value as T;
+  if (entry && now < entry.until && entry.signature === signature) return entry.value as T;
 
   /*
     The gap between the miss above and the write below is exactly as wide as
@@ -92,13 +162,83 @@ export async function remember<T>(key: string, ttlMs: number, work: () => Promis
     waits on the one query rather than starting another. A throw is not
     remembered: the entry is only written on the way out of a call that
     resolved, so one bad moment at the database is retried by the next reader
-    rather than cached for a minute.
+    rather than cached.
+
+    The signature stored is the one read *before* the work, so a row written
+    while the read was in the air makes the next check refill rather than
+    letting the fact outlive it.
   */
   return singleFlight(`dict-facts:${key}`, async () => {
     const value = await work();
-    held.set(key, { value, until: Date.now() + ttlMs });
+    const ttl = policy === DICTIONARY ? DICTIONARY_CEILING_MS : policy;
+    held.set(key, { value, until: Date.now() + ttl, signature });
     return value;
   });
+}
+
+/** One entry's scalars, as every fact below reads them. */
+export interface DictionaryEntry {
+  id: string;
+  lemma: string;
+  pos: string;
+  cefr: string | null;
+  translation: string;
+  translationRu: string | null;
+  translationUk: string | null;
+}
+
+/** One stored form, as every fact below reads them. */
+export interface DictionaryForm {
+  formType: string;
+  value: string;
+  morphCode: string | null;
+}
+
+/** Every entry's scalars, in id order. */
+export function dictionaryEntries(): Promise<DictionaryEntry[]> {
+  return remember("entries", DICTIONARY, () =>
+    prisma.lexeme.findMany({
+      select: {
+        id: true, lemma: true, pos: true, cefr: true,
+        translation: true, translationRu: true, translationUk: true,
+      },
+      orderBy: { id: "asc" },
+    }),
+  );
+}
+
+/**
+ * Every stored form, by the entry it belongs to. Unordered, as every nested
+ * read it replaced was, because which of two parallel principal parts comes
+ * first is the order the rows were written in (see `stemsFrom`).
+ */
+function dictionaryForms(): Promise<ReadonlyMap<string, DictionaryForm[]>> {
+  return remember("forms", DICTIONARY, async () => {
+    const rows = await prisma.form.findMany({
+      select: { lexemeId: true, formType: true, value: true, morphCode: true },
+    });
+    const out = new Map<string, DictionaryForm[]>();
+    for (const { lexemeId, ...form } of rows) {
+      const list = out.get(lexemeId);
+      if (list) list.push(form);
+      else out.set(lexemeId, [form]);
+    }
+    return out;
+  });
+}
+
+/** Every entry's stored usages, as the raw JSON column, by id. */
+function dictionaryExamples(): Promise<ReadonlyMap<string, string>> {
+  return remember("examples", DICTIONARY, async () => {
+    const rows = await prisma.lexeme.findMany({ select: { id: true, examples: true } });
+    return new Map(rows.map((row) => [row.id, row.examples]));
+  });
+}
+
+/** Every entry with its forms, which is the shape most facts are built from. */
+async function entriesWithForms(): Promise<(DictionaryEntry & { forms: DictionaryForm[] })[]> {
+  const [entries, forms] = await Promise.all([dictionaryEntries(), dictionaryForms()]);
+  return entries.map((entry) => ({ ...entry, forms: forms.get(entry.id) ?? [] }));
 }
 
 /**
@@ -120,8 +260,8 @@ function dictionary(): Promise<{
   lemmas: Set<string>;
   byId: Map<string, Entry>;
 }> {
-  return remember("dictionary", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({ select: { id: true, lemma: true, cefr: true } });
+  return remember("dictionary", DICTIONARY, async () => {
+    const rows = await dictionaryEntries();
     return {
       rows: rows.map(({ lemma, cefr }) => ({ lemma, cefr })),
       lemmas: new Set(rows.map((row) => row.lemma)),
@@ -225,37 +365,17 @@ const spellingsIn = (text: string): string[] =>
  * Postgres a second question about the same rows.
  */
 export async function courseFormsByLemma(): Promise<ReadonlyMap<string, ReadonlySet<string>>> {
-  return remember("courseFormsByLemma", FACTS_TTL_MS, async () => {
+  return remember("courseFormsByLemma", DICTIONARY, async () => {
     const lemmas = [...new Set(SYLLABUS.flatMap((unit) => unit.lemmas))];
-    /*
-      Scalars only, in two statements asked at once rather than a nested
-      select, for the reason `lemmasByCardLexeme` gives at length: a nested
-      select is two statements anyway and the second carries every id.
-    */
     /*
       AND EVERY FORM THE APP DERIVES FOR THE WORD, which is `readableSpellings`:
       a regular verb stores five principal parts and nothing else, so read off
       the stored rows alone `elab` was a word nobody had been taught three
-      evenings after `elama`. Each entry's rows are grouped first, since the
-      derivation needs the principal parts together, and the part of speech
-      is read beside them.
+      evenings after `elama`. Built off the shared reads rather than a query of
+      its own, see `DICTIONARY`.
     */
-    const [rows, entries] = await Promise.all([
-      prisma.form.findMany({
-        where: { lexeme: { lemma: { in: lemmas } } },
-        select: { value: true, lexemeId: true, formType: true, morphCode: true },
-      }),
-      prisma.lexeme.findMany({
-        where: { lemma: { in: lemmas } },
-        select: { id: true, lemma: true, pos: true },
-      }),
-    ]);
-    const formsOf = new Map<string, { formType: string; value: string; morphCode: string | null }[]>();
-    for (const row of rows) {
-      const held = formsOf.get(row.lexemeId) ?? [];
-      held.push(row);
-      formsOf.set(row.lexemeId, held);
-    }
+    const wanted = new Set(lemmas);
+    const entries = (await entriesWithForms()).filter((entry) => wanted.has(entry.lemma));
     const out = new Map<string, Set<string>>();
     const add = (lemma: string, spellings: Iterable<string>) => {
       const held = out.get(lemma) ?? new Set<string>();
@@ -266,7 +386,7 @@ export async function courseFormsByLemma(): Promise<ReadonlyMap<string, Readonly
     // still counts as taught by the unit that names it.
     for (const lemma of lemmas) add(lemma, spellingsIn(lemma));
     for (const entry of entries) {
-      add(entry.lemma, readableSpellings({ lemma: entry.lemma, pos: entry.pos, forms: formsOf.get(entry.id) ?? [] }));
+      add(entry.lemma, readableSpellings({ lemma: entry.lemma, pos: entry.pos, forms: entry.forms }));
     }
     return out;
   });
@@ -288,15 +408,8 @@ export async function courseFormsByLemma(): Promise<ReadonlyMap<string, Readonly
  * `spokenForm` gives about itself.
  */
 export async function everydaySpellings(): Promise<ReadonlyMap<string, string>> {
-  return remember("everyday-pronouns", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({
-      where: { pos: "PRONOUN" },
-      select: {
-        lemma: true,
-        pos: true,
-        forms: { select: { formType: true, value: true, morphCode: true } },
-      },
-    });
+  return remember("everyday-pronouns", DICTIONARY, async () => {
+    const rows = (await entriesWithForms()).filter((row) => row.pos === "PRONOUN");
     const out = new Map<string, string>();
     for (const row of rows) {
       const everyday = twinsOf(row.pos, row.forms, row.lemma).shorter;
@@ -407,13 +520,8 @@ export function decoysAmong(
 }
 
 export function decoyOptions(): Promise<DecoyOption[]> {
-  return remember("decoy-options", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({
-      select: {
-        translation: true, pos: true, cefr: true, lemma: true,
-        translationRu: true, translationUk: true,
-      },
-    });
+  return remember("decoy-options", DICTIONARY, async () => {
+    const rows = await dictionaryEntries();
     const seen = new Map<string, string[]>();
     const out: DecoyOption[] = [];
     for (const row of rows) {
@@ -462,8 +570,8 @@ export function decoyOptions(): Promise<DecoyOption[]> {
  * would merge the noun `hall` meaning frost with the adjective meaning gray.
  */
 export function alsoAcceptedByLemma(): Promise<Map<string, string[]>> {
-  return remember("also-accepted", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({ select: { lemma: true, pos: true, translation: true } });
+  return remember("also-accepted", DICTIONARY, async () => {
+    const rows = await dictionaryEntries();
     return sharedAlsoAccepted(
       sharedPrompts(rows.map((r) => ({ lemma: r.lemma, pos: r.pos, gloss: r.translation }))),
     );
@@ -483,14 +591,8 @@ export function alsoAcceptedByLemma(): Promise<Map<string, string[]>> {
  * over the shipped dictionary, once a minute at most. See `lib/assessment/heard.ts`.
  */
 export function heardMeanings(): Promise<HeardIndex> {
-  return remember("heard-meanings", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({
-      select: {
-        lemma: true, pos: true, translation: true,
-        forms: { select: { formType: true, value: true, morphCode: true } },
-      },
-    });
-    return heardIndex(rows);
+  return remember("heard-meanings", DICTIONARY, async () => {
+    return heardIndex(await entriesWithForms());
   });
 }
 
@@ -514,7 +616,7 @@ export function heardMeanings(): Promise<HeardIndex> {
  */
 export function crosswordPool(bands: readonly string[]): Promise<CrosswordWord[]> {
   const key = [...bands].sort().join(",");
-  return remember(`crossword-pool:${key}`, FACTS_TTL_MS, async () => {
+  return remember(`crossword-pool:${key}`, DICTIONARY, async () => {
     return prisma.$queryRaw<CrosswordWord[]>`
       SELECT id, lemma, pos, translation, "translationRu", "translationUk", "createdAt" FROM "Lexeme"
       WHERE char_length(lemma) BETWEEN ${MIN_LETTERS} AND ${MAX_LETTERS}
@@ -586,24 +688,25 @@ export interface ExceptionEntry {
 const EXTRA_FORM_TYPES = ["EKILEX:IndIpfSg3", "EKILEX:ImpPrPl2", "EKILEX:SgAdt", "EKILEX:PlN"];
 
 export function exceptionIndex(): Promise<ExceptionEntry[]> {
-  return remember("exceptions", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({
-      where: { cefr: { not: null } },
-      select: {
-        id: true, lemma: true, pos: true, cefr: true, translation: true,
-        forms: {
-          where: { formType: { in: [...PRINCIPAL_FORM_TYPES, ...EXTRA_FORM_TYPES] } },
-          select: { formType: true, value: true, morphCode: true },
-          orderBy: [{ formType: "asc" }, { value: "asc" }],
-        },
-      },
-      orderBy: [{ lemma: "asc" }, { id: "asc" }],
-    });
+  return remember("exceptions", DICTIONARY, async () => {
+    const wanted = new Set<string>([...PRINCIPAL_FORM_TYPES, ...EXTRA_FORM_TYPES]);
+    const byCode = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+    const rows = (await entriesWithForms())
+      .filter((row) => row.cefr !== null)
+      .sort((a, b) => byCode(a.lemma, b.lemma) || byCode(a.id, b.id))
+      .map((row) => ({
+        ...row,
+        forms: row.forms
+          .filter((form) => wanted.has(form.formType))
+          .sort((a, b) => byCode(a.formType, b.formType) || byCode(a.value, b.value)),
+      }));
 
     const out: ExceptionEntry[] = [];
     for (const row of rows) {
       const exceptions = exceptionsFor({ lemma: row.lemma, pos: row.pos, forms: row.forms });
-      if (exceptions.length > 0) out.push({ ...row, exceptions });
+      if (exceptions.length > 0) {
+        out.push({ id: row.id, lemma: row.lemma, pos: row.pos, cefr: row.cefr, translation: row.translation, exceptions });
+      }
     }
     return out;
   });
@@ -620,15 +723,10 @@ export function exceptionIndex(): Promise<ExceptionEntry[]> {
  * at about a second to build, which is why it is not built per request.
  */
 export function borrowedSentences(): Promise<Map<string, Example[]>> {
-  return remember("borrowed-sentences", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({
-      select: {
-        id: true, lemma: true, pos: true, examples: true,
-        forms: { select: { formType: true, value: true, morphCode: true } },
-      },
-    });
+  return remember("borrowed-sentences", DICTIONARY, async () => {
+    const [rows, examples] = await Promise.all([entriesWithForms(), dictionaryExamples()]);
     return borrowSentences(rows.map((r) => ({
-      key: r.id, lemma: r.lemma, pos: r.pos, forms: r.forms, examples: parseExamples(r.examples),
+      key: r.id, lemma: r.lemma, pos: r.pos, forms: r.forms, examples: parseExamples(examples.get(r.id) ?? "[]"),
     })));
   });
 }
@@ -645,14 +743,8 @@ export function borrowedSentences(): Promise<Map<string, Example[]>> {
  * questions sharing a cache entry is how one of them stops being asked.
  */
 export function sentenceReach(): Promise<PlainReach> {
-  return remember("sentence-reach", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({
-      select: {
-        lemma: true, pos: true, cefr: true,
-        forms: { select: { formType: true, value: true, morphCode: true } },
-      },
-    });
-    return plainReach(rows);
+  return remember("sentence-reach", DICTIONARY, async () => {
+    return plainReach(await entriesWithForms());
   });
 }
 
@@ -671,11 +763,8 @@ export function sentenceReach(): Promise<PlainReach> {
  * coincidence is how one of them stops being asked.
  */
 export function clueClashes(): Promise<Set<string>> {
-  return remember("clue-clashes", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({
-      select: { lemma: true, pos: true, translation: true },
-    });
-    return clashingClues(rows);
+  return remember("clue-clashes", DICTIONARY, async () => {
+    return clashingClues(await dictionaryEntries());
   });
 }
 

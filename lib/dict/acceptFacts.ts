@@ -1,6 +1,5 @@
-import { prisma } from "@/lib/db";
 import { formsOfLength } from "@/lib/dict/forms";
-import { FACTS_TTL_MS, remember } from "@/lib/dict/facts";
+import { DICTIONARY, FACTS_TTL_MS, dictionaryEntries, remember } from "@/lib/dict/facts";
 import { substitutesFrom } from "./synonyms";
 
 /*
@@ -33,11 +32,8 @@ import { substitutesFrom } from "./synonyms";
  * is.
  */
 export async function substitutes(): Promise<ReadonlyMap<string, readonly string[]>> {
-  return remember("substitutes", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({
-      select: { lemma: true, pos: true, translation: true },
-      orderBy: { id: "asc" },
-    });
+  return remember("substitutes", DICTIONARY, async () => {
+    const rows = await dictionaryEntries();
     return substitutesFrom(
       rows
         .filter((row) => row.translation)
