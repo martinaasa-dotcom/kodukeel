@@ -1,5 +1,6 @@
 import { caseAsked } from "@/lib/srs/slots";
 import { prisma } from "@/lib/db";
+import { reviewLog } from "@/lib/progress/reviewLog";
 import { computeStreak } from "@/lib/stats/streak";
 import { caseAccuracy, matureRecall } from "@/lib/stats/history";
 import { dayClock } from "@/lib/time/day";
@@ -100,10 +101,17 @@ export async function classRoster(
   const historyStart = new Date(now.getTime() - HISTORY_DAYS * 86_400_000);
 
   const [reviews, known, zones, lasts] = await Promise.all([
-    prisma.review.findMany({
-      where: { reviewedAt: { gte: historyStart }, ownerId: { in: ids } },
-      select: { reviewedAt: true, rating: true, targetCase: true, slot: true, ownerId: true },
-    }),
+    /*
+      Each member's log through the per-learner cache (lib/progress/reviewLog.ts),
+      so a teacher opening the board reads what is new since the last view
+      rather than every member's whole window again.
+    */
+    Promise.all(ids.map(async (ownerId) => {
+      const since = historyStart.getTime();
+      return (await reviewLog(ownerId))
+        .filter((r) => r.reviewedAt.getTime() >= since)
+        .map(({ reviewedAt, rating, targetCase, slot }) => ({ reviewedAt, rating, targetCase, slot, ownerId }));
+    })).then((perMember) => perMember.flat()),
     /*
       WORDS, NOT CARDS, WHICH IS WHAT THE COLUMN SAYS.
 

@@ -25,19 +25,35 @@ const BUCKET = process.env.SUPABASE_AUDIO_BUCKET || "audio";
 const LOCAL_DIR = join(process.cwd(), ".data", "audio");
 
 /**
- * Hot clips for the life of this instance. Bounded, because a lambda that plays
- * a long text repeatedly should not grow without limit — 64 clips is a session's
- * worth of review at a few hundred kB.
+ * Clips for the life of this instance, bounded by bytes rather than by count.
+ *
+ * Every clip this map misses is a download from the object store, and on
+ * Supabase's free plan that is egress against the same 5 GB the database
+ * spends. Sixty-four clips was a session's worth, so a second learner on the
+ * same warm instance, or the same learner a few cards later, fetched the same
+ * words again. The whole store is about fifty megabytes at the time of
+ * writing (a clip is ~50 KB once trimmed and written as 16-bit), so a budget
+ * of 64 MB holds every clip anybody has asked for, and least recently used
+ * goes first once it does not. A Vercel function has a gigabyte or more.
  */
 const MEMO = new Map<string, Buffer>();
-const MEMO_MAX = 64;
+const MEMO_MAX_BYTES = 64 * 1024 * 1024;
+let memoBytes = 0;
 
 function memoise(key: string, value: Buffer): void {
-  if (MEMO.size >= MEMO_MAX) {
-    const oldest = MEMO.keys().next().value;
-    if (oldest !== undefined) MEMO.delete(oldest);
+  const before = MEMO.get(key);
+  if (before) {
+    MEMO.delete(key);
+    memoBytes -= before.byteLength;
   }
+  if (value.byteLength > MEMO_MAX_BYTES) return;
   MEMO.set(key, value);
+  memoBytes += value.byteLength;
+  for (const [oldest, clip] of MEMO) {
+    if (memoBytes <= MEMO_MAX_BYTES) break;
+    MEMO.delete(oldest);
+    memoBytes -= clip.byteLength;
+  }
 }
 
 /**
@@ -56,7 +72,11 @@ export type AudioSource = "memory" | "store" | "disk" | "upstream";
 
 export async function readAudio(hash: string): Promise<{ body: Buffer; from: AudioSource } | null> {
   const memo = MEMO.get(hash);
-  if (memo) return { body: memo, from: "memory" };
+  if (memo) {
+    // Touched, so the map's insertion order is least recently used first.
+    memoise(hash, memo);
+    return { body: memo, from: "memory" };
+  }
 
   const store = objectStore();
   if (store) {

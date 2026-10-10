@@ -8294,7 +8294,8 @@ check("the weakest case is read off the case that was asked, on every screen tha
   for (const file of ["lib/progress/cases.ts", "lib/classroom/roster.ts"]) {
     const src = code(file);
     assert.match(src, /\bcaseAsked\(/, `${file} reads the weakest case off the card rather than off what was asked`);
-    assert.match(src, /slot: true/, `${file} no longer selects the slot the answer was asked in`);
+    // Selected by the query, or carried off the cached review log (lib/progress/reviewLog.ts).
+    assert.match(src, /slot: true|\{[^}]*\bslot\b[^}]*\}\) => \(\{[^}]*\bslot\b/, `${file} no longer selects the slot the answer was asked in`);
   }
   assert.doesNotMatch(code("lib/classroom/roster.ts"), /targetCase: r(?:eview)?\.targetCase/,
     "the roster hands caseAccuracy the card's case again");
