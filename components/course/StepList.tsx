@@ -140,7 +140,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
   };
 
   return (
-    <ol className="flex flex-col gap-3">
+    <ol data-step-list className="flex flex-col gap-3">
       {steps.map((step, at) => {
         const isDone = finished(step.id);
         const isNext = next?.id === step.id;
