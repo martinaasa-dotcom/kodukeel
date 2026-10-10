@@ -69,7 +69,7 @@
 */
 .hero-fan-box {
   container-type: inline-size; position: relative; height: 236px; perspective: 900px;
-  --step: clamp(calc(var(--card-w) * var(--step-min)), calc((100cqw - var(--card-w) - 40px) / max(var(--n) - 1, 1)), calc(var(--card-w) * 0.96));
+  --step: clamp(max(calc(var(--card-w) * var(--step-min)), var(--step-floor, 0px)), calc((100cqw - var(--card-w) - 40px) / max(var(--n) - 1, 1)), max(calc(var(--card-w) * 0.96), var(--step-floor, 0px)));
 }
 .hero-fan-cards {
   position: absolute; inset: 0; display: grid; place-items: center; transform-style: preserve-3d;
@@ -98,7 +98,7 @@
   .hero-fan-box { height: auto; perspective: none; }
   .hero-fan-cards { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; transform: none; place-items: stretch; }
   .hero-fan-card:last-child:nth-child(odd) { grid-column: span 2; }
-  .hero-fan-card { position: relative; width: auto; height: auto; min-height: 7.5rem; gap: 0.875rem; transform: rotate(calc(var(--off) * 0.8deg)); }
+  .hero-fan-card { position: relative; width: auto; height: auto; min-height: 7.5rem; gap: 0.875rem; padding: 14px; transform: rotate(calc(var(--off) * 0.8deg)); }
   .hero-fan-card .hero-fan-body { max-width: none !important; }
 }
 @keyframes hero-fan-deal { from { transform: translateX(0) translateY(26px) rotate(0) scale(0.92); opacity: 0; } }

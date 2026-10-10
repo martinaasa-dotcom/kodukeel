@@ -144,13 +144,20 @@ export function HeroFan({
   const n = Math.max(1, Math.min(5, cards.length));
   const cardW = CARD_WIDTH[n] ?? 128;
   /* One label size for the whole fan, a step of the type scale (see `labelStep`). */
-  const labelSize = labelStep(cards.slice(0, 5).map((c) => c.label), n);
+  const labels = cards.slice(0, 5).map((c) => c.label);
+  const labelSize = labelStep(labels, n);
+  /*
+    Where the longest word will not fit a card's slice even at the smallest
+    step, which is a long Russian or Ukrainian word on four or five cards, the
+    cards open until it does and the words go above them to give the fan room.
+  */
+  const spread = labelSpread(labels, n);
   return (
     <section
       ref={ref}
       aria-labelledby={titleId}
       data-hero-fan={bright ? "bright" : "muted"}
-      className={`hero-fan hero-fan-n${n}${title.length > LONG_TITLE ? " hero-fan-long" : ""} night rounded-[var(--r-xl)] border${bright ? "" : " hero-fan-muted"}`}
+      className={`hero-fan hero-fan-n${n}${title.length > LONG_TITLE || spread ? " hero-fan-long" : ""} night rounded-[var(--r-xl)] border${bright ? "" : " hero-fan-muted"}`}
     >
       <div className="hero-fan-row">
         <div ref={words} className="hero-fan-words min-w-0">
@@ -171,7 +178,7 @@ export function HeroFan({
           )}
           {action && <div className="hero-fan-action mt-7 flex flex-wrap gap-3">{action}</div>}
         </div>
-        <div className="hero-fan-box" style={{ "--n": n, "--card-w": `${cardW}px` } as CSSProperties}>
+        <div className="hero-fan-box" style={{ "--n": n, "--card-w": `${cardW}px`, ...(spread ? { "--step-floor": `${spread}px` } : {}) } as CSSProperties}>
           <ol className="hero-fan-cards" aria-label={cardsLabel}>
             {cards.slice(0, 5).map((card, i) => (
               <Card key={i} card={card} i={i} n={n} bright={bright} labelSize={labelSize} />
@@ -251,9 +258,21 @@ const SIZES = [["text-sm", 16], ["text-xs", 15], ["text-2xs", 14]] as const;
  */
 function labelStep(labels: readonly string[], n: number): string {
   const room = LABEL_ROOM[n] ?? 73;
-  const widest = Math.max(0, ...labels.flatMap((l) => l.split(/\s+/)).map((w) => [...w].length * (/[\u0400-\u04FF]/.test(w) ? 0.63 : 0.53)));
+  const widest = widestEm(labels);
   for (const [cls, px] of SIZES) if (widest * px <= room) return cls;
   return SIZES[SIZES.length - 1]![0];
+}
+
+/** The step between cards a label needs where the smallest size will not fit, or 0. */
+function labelSpread(labels: readonly string[], n: number): number {
+  const smallest = SIZES[SIZES.length - 1]![1];
+  const need = widestEm(labels) * smallest;
+  return n > 1 && need > (LABEL_ROOM[n] ?? 73) ? Math.ceil(need + 26) : 0;
+}
+
+/** The fan's widest word, in ems of the label face. */
+function widestEm(labels: readonly string[]): number {
+  return Math.max(0, ...labels.flatMap((l) => l.split(/\s+/)).map((w) => [...w].length * (/[\u0400-\u04FF]/.test(w) ? 0.63 : 0.53)));
 }
 
 /*
