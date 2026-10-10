@@ -121,20 +121,20 @@
 .hero-fan-caption-dot { width: 0.625rem; height: 0.625rem; flex: none; }
 
 /*
-  Figures: one card each, sharing the row evenly, because a figure without
-  its word is a number nobody can read. Laid down with the smallest tilt that
-  still reads as cards rather than tiles.
+  Figures: a short stack of slim cards, one a line, the figure and then its word.
+  Side by side they were three cards a phone could not hold: a word like
+  "Answered", or "Участвовать" in Russian, was wider than its card and broke.
+  Stacked, every figure sits in one column and every word has the line.
 */
-.hero-fan-figures .hero-fan-cards { gap: 0.375rem; padding-top: 0.25rem; align-items: stretch; }
-.hero-fan-figures .hero-fan-card {
-  flex: 1 1 0; min-width: 0; width: auto; height: auto; margin-left: 0;
-  transform: rotate(calc(var(--off) * 1.5deg));
-}
-.hero-fan-figures .hero-fan-face { align-items: flex-start; justify-content: flex-start; gap: 0.625rem; padding: 0.75rem 0.625rem; }
+.hero-fan-figures .hero-fan-cards { flex-direction: column; align-items: stretch; gap: 0.5rem; padding-top: 0; }
+.hero-fan-figures .hero-fan-card { width: auto; height: auto; margin: 0; transform: rotate(calc(var(--off) * 0.6deg)); }
+.hero-fan-figures .hero-fan-card + .hero-fan-card { margin-left: 0; }
+.hero-fan-figures .hero-fan-face { flex-direction: row; justify-content: flex-start; gap: 0.875rem; padding: 0.625rem 1rem 0.625rem 0.75rem; }
 .hero-fan-figures .hero-fan-face .hero-fan-chip { width: 2rem; height: 2rem; }
-.hero-fan-figures .hero-fan-body { display: block; }
+.hero-fan-figures .hero-fan-body { display: flex; align-items: baseline; gap: 0.75rem; min-width: 0; }
+.hero-fan-figures .hero-fan-figure { min-width: 3.6ch; }
+.hero-fan-figures .hero-fan-label { font-size: var(--text-sm); margin-top: 0; }
 .hero-fan-figure { font-size: var(--text-2xl); }
-.hero-fan-label { font-size: var(--text-2xs); margin-top: 0.25rem; }
 .hero-fan-detail { margin-top: 0.125rem; }
 
 /*
@@ -183,12 +183,11 @@
     .hero-fan-face .hero-fan-chip { width: 2.25rem; height: 2.25rem; }
     .hero-fan-body { display: block; }
     .hero-fan-figure { font-size: var(--text-3xl); }
-    .hero-fan-label { font-size: var(--hero-fan-label); overflow-wrap: normal; }
+    .hero-fan-label { font-size: var(--hero-fan-label); overflow-wrap: normal; margin-top: 0.25rem; }
     .hero-fan-card:not(:last-child) .hero-fan-body { max-width: calc(var(--step) - 26px); }
     .hero-fan-caption { display: none; }
     @media (hover: hover) and (pointer: fine) {
       .hero-fan-box:hover .hero-fan-card { transform: translateX(calc(var(--off) * (var(--step) + 10px))) translateY(0) rotate(calc(var(--off) * 1.5deg)); }
-      .hero-fan-card:hover { z-index: 40 !important; }
       .hero-fan-card:hover .hero-fan-face { transform: translateY(-14px) scale(1.04); animation: none; }
     }
   }
@@ -210,12 +209,11 @@
     .hero-fan-face .hero-fan-chip { width: 2.25rem; height: 2.25rem; }
     .hero-fan-body { display: block; }
     .hero-fan-figure { font-size: var(--text-3xl); }
-    .hero-fan-label { font-size: var(--hero-fan-label); overflow-wrap: normal; }
+    .hero-fan-label { font-size: var(--hero-fan-label); overflow-wrap: normal; margin-top: 0.25rem; }
     .hero-fan-card:not(:last-child) .hero-fan-body { max-width: calc(var(--step) - 26px); }
     .hero-fan-caption { display: none; }
     @media (hover: hover) and (pointer: fine) {
       .hero-fan-box:hover .hero-fan-card { transform: translateX(calc(var(--off) * (var(--step) + 10px))) translateY(0) rotate(calc(var(--off) * 1.5deg)); }
-      .hero-fan-card:hover { z-index: 40 !important; }
       .hero-fan-card:hover .hero-fan-face { transform: translateY(-14px) scale(1.04); animation: none; }
     }
   }
