@@ -92,6 +92,16 @@ const ALLOWED = new Map<string, { rules: Rule[]; only?: string[]; why: string }>
     },
   ],
   [
+    "lib/games/map.ts",
+    {
+      rules: ["emoji"],
+      why:
+        "Is the Map round's scenes, each laid out in emoji: the companion, the arrow and the clock " +
+        "face beside the word's own picture. They are drawn as the picture on a card, never set in " +
+        "a sentence of copy, which is what this rule bans. Excused for the emoji rule only.",
+    },
+  ],
+  [
     "prisma/data/harvested.ts",
     {
       rules: ["dash"],
