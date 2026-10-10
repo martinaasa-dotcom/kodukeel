@@ -1,50 +1,136 @@
 import { describe, expect, it } from "vitest";
-import { MAP_CASES, MAP_OPTIONS, RUNG_WINDOW, dealByCase, pickWrong, rungFrom, sceneFor, trioOf, type FormChoice } from "./map";
+import {
+  ARROW, BALL, COIN, GIFT, MAP_CASES, STANDER, WALKER, MAP_OPTIONS, RUNG_WINDOW, dealByCase, hourGlyph, humansIn, pickWrong, rungFrom, sceneFor, trioOf,
+  type FormChoice,
+} from "./map";
 import { CASES } from "@/lib/estonian/cases";
+import { RU } from "@/lib/copy/i18n/ru";
+import { UK } from "@/lib/copy/i18n/uk";
 import type { CaseKey } from "@/lib/estonian/types";
 
 const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
 const nearness = (c: string, a: string) => (c.slice(0, 3) === a.slice(0, 3) ? 5 : 0) - Math.abs(c.length - a.length);
 
+const thing = { animate: false, glyph: "🏠", hour: null, place: "place" as const };
+const person = { animate: true, glyph: "👧", hour: null, place: null };
+const five = { animate: false, glyph: null, hour: 5, place: null };
+
 describe("sceneFor", () => {
   it("draws every case Map asks, and says what it asks without any Estonian", () => {
     let drawn = 0;
     for (const key of MAP_CASES) {
-      for (const animate of [false, true]) {
-        const scene = sceneFor(key, animate);
-        expect(scene, `${key} has a picture`).not.toBeNull();
+      for (const word of [thing, person, five]) {
+        const scene = sceneFor(key, word);
+        if (!scene) continue;
         drawn++;
-        expect(scene!.ask).toMatch(/\?$/);
-        expect(scene!.ask).not.toMatch(/[õäöüšž]/i);
-        expect(scene!.alt.length).toBeGreaterThan(10);
+        expect(scene.ask).toMatch(/\?$/);
+        expect(scene.ask).not.toMatch(/[õäöüšž]/i);
+        expect(scene.alt.length).toBeGreaterThan(10);
       }
     }
-    expect(drawn).toBe(MAP_CASES.length * 2);
+    // A place takes every case but the terminative; a person every case but the
+    // inside three, which ask about a place; an hour takes the terminative alone.
+    expect(drawn).toBe((MAP_CASES.length - 1) + (MAP_CASES.length - 4) + 1);
   });
 
-  it("draws the three principal forms nowhere, since there is nothing true to draw", () => {
-    for (const key of ["NOMINATIVE", "GENITIVE", "PARTITIVE"] as CaseKey[]) {
-      expect(MAP_CASES).not.toContain(key);
-      expect(sceneFor(key, false)).toBeNull();
+  it("puts the word's own emoji in the picture, marked as the word", () => {
+    for (const key of MAP_CASES.filter((k) => k !== "TERMINATIVE")) {
+      const { layout } = sceneFor(key, thing)!;
+      const word = layout.kind === "row" ? layout.parts.find((p) => p.word)?.glyph : layout.host;
+      expect(word, key).toBe("🏠");
     }
   });
 
-  it("covers eleven cases and every one of them is a real case", () => {
-    expect(MAP_CASES).toHaveLength(11);
+  it("says they of a person and it of a thing, which is the rule for every human emoji", () => {
+    let people = 0;
+    for (const key of MAP_CASES) {
+      for (const word of [thing, person, five]) {
+        const scene = sceneFor(key, word);
+        if (!scene) continue;
+        if (humansIn(scene.layout).length > 0) {
+          people++;
+          expect(scene.ask, key).toMatch(/\bthey\b/);
+          expect(scene.ask, key).not.toMatch(/\bit\b/);
+        } else {
+          expect(scene.ask, key).not.toMatch(/\bthey\b/);
+        }
+      }
+    }
+    expect(people).toBeGreaterThan(0);
+  });
+
+  it("asks nothing of a word with no emoji, and asks the terminative only of an hour", () => {
+    expect(sceneFor("ILLATIVE", { ...thing, glyph: null })).toBeNull();
+    expect(sceneFor("TERMINATIVE", thing)).toBeNull();
+    const until = sceneFor("TERMINATIVE", five)!;
+    expect(until.ask).toBe("Until when?");
+    expect(until.layout.kind === "row" && until.layout.parts.map((p) => p.glyph)).toEqual([ARROW, "5️⃣", "🕔"]);
+  });
+
+  it("draws the essive and the three principal forms nowhere", () => {
+    for (const key of ["ESSIVE", "NOMINATIVE", "GENITIVE", "PARTITIVE"] as CaseKey[]) {
+      expect(MAP_CASES).not.toContain(key);
+      expect(sceneFor(key, thing)).toBeNull();
+    }
+  });
+
+  it("covers ten cases and every one of them is a real case", () => {
+    expect(MAP_CASES).toHaveLength(10);
     for (const key of MAP_CASES) expect(CASES.some((c) => c.key === key)).toBe(true);
   });
 
-  it("turns the outside trio into a person only for something animate", () => {
-    expect(sceneFor("ADESSIVE", false)!.kind).toBe("surface");
-    expect(sceneFor("ADESSIVE", true)!.kind).toBe("person");
-    expect(sceneFor("ADESSIVE", true)!.ask).toBe("Who has it?");
-    // The inside trio is a house whoever it is asked of.
-    expect(sceneFor("INESSIVE", true)!.kind).toBe("container");
+  it("turns the outside trio into a present for a person, and a box for a thing", () => {
+    expect(sceneFor("ADESSIVE", thing)!.ask).toBe("Where is it?");
+    expect(sceneFor("ADESSIVE", person)!.ask).toBe("Who has it?");
+    expect(sceneFor("ALLATIVE", person)!.ask).toBe("Who is it going to?");
   });
 
   it("asks three different things of the three moves of a place", () => {
-    const asks = (["INESSIVE", "ELATIVE", "ILLATIVE"] as const).map((k) => sceneFor(k, false)!.ask);
+    const asks = (["INESSIVE", "ELATIVE", "ILLATIVE"] as const).map((k) => sceneFor(k, thing)!.ask);
     expect(new Set(asks).size).toBe(3);
+  });
+
+  it("walks a person into a place or a bus, a coin into a container, and nothing into a notebook", () => {
+    const glyphs = (key: CaseKey, word: Parameters<typeof sceneFor>[1]) => {
+      const layout = sceneFor(key, word)?.layout;
+      if (!layout) return null;
+      return layout.kind === "row" ? layout.parts.map((p) => p.glyph) : [layout.host, layout.guest];
+    };
+    expect(glyphs("ILLATIVE", thing)).toEqual([WALKER, ARROW, "🏠"]);
+    expect(glyphs("INESSIVE", { ...thing, glyph: "🚌", place: null })).toEqual(["🚌", STANDER]);
+    expect(glyphs("ELATIVE", { ...thing, glyph: "👜", place: "container" })).toEqual(["👜", ARROW, COIN]);
+    expect(sceneFor("ILLATIVE", { ...thing, glyph: "👜", place: "container" })!.ask).toBe("Where is it going?");
+    for (const key of ["INESSIVE", "ELATIVE", "ILLATIVE"] as CaseKey[]) {
+      expect(sceneFor(key, { ...thing, glyph: "📓", place: null }), key).toBeNull();
+    }
+    // On and off are a ball for any thing, a notebook included.
+    expect(glyphs("ALLATIVE", { ...thing, glyph: "📓", place: null })).toEqual([BALL, ARROW, "📓"]);
+  });
+
+  it("never draws a word with the same emoji as its companion", () => {
+    expect(sceneFor("ADESSIVE", { ...person, glyph: GIFT })).toBeNull();
+  });
+
+  it("has a Russian and a Ukrainian line for every question and description it can show", () => {
+    let lines = 0;
+    for (const key of MAP_CASES) {
+      for (const word of [thing, person, five]) {
+        const scene = sceneFor(key, word);
+        if (!scene) continue;
+        for (const line of [scene.ask, scene.alt]) {
+          lines++;
+          expect(RU[line], `ru: ${line}`).toBeTruthy();
+          expect(UK[line], `uk: ${line}`).toBeTruthy();
+        }
+      }
+    }
+    expect(lines).toBeGreaterThan(0);
+  });
+
+  it("draws the hours that have one keycap, one to ten, and no other", () => {
+    for (let h = 1; h <= 10; h++) expect([...hourGlyph(h)!].length, String(h)).toBeLessThanOrEqual(3);
+    for (const h of [0, 11, 12]) expect(hourGlyph(h), String(h)).toBeNull();
+    expect(sceneFor("TERMINATIVE", { ...five, hour: 11 })).toBeNull();
   });
 });
 
