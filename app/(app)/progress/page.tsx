@@ -1,8 +1,8 @@
-import { HeroSplit } from "@/components/HeroSplit";
+import { HeroFan } from "@/components/HeroFan";
 import { InsideHere } from "@/components/InsideHere";
 import { readableFront } from "@/lib/copy/caseHint";
 import { Suspense } from "react";
-import { ClipboardCheck, Compass, FileText, Flame, Footprints, Shield } from "lucide-react";
+import { ClipboardCheck, Compass, FileText, Footprints } from "lucide-react";
 import { outThere } from "@/lib/progress/outThere";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -31,7 +31,6 @@ import { Board, BoardSkeleton } from "./Board";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { lemmasByCardLexeme } from "@/lib/dict/facts";
 import { courseLevelFor } from "@/lib/progress/level";
-import { RollNumber } from "@/components/motion/RollNumber";
 import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, Stat } from "@/components/ui";
 import { NO_VALUE } from "@/lib/copy/values";
 import { formatHour } from "@/lib/time/clock";
@@ -237,24 +236,19 @@ export default async function ProgressPage() {
             phone, where it is easiest to reach. Level with the top rather than
             centred: a centred row drops a figure whose label wraps to two
             lines, so "Shields banked" sat off the three beside it. */}
-        <HeroSplit
+        <HeroFan
           eyebrow={t("How it is going")}
-          title={breakdown.accuracy === null
-            ? fill(t("{n} cards known."), { n: snapshot.knownCards })
-            : fill(t("{n} cards known, {pct}% answered right."), { n: snapshot.knownCards, pct: breakdown.accuracy })}
-          text={
-            <>
-              {fill(t(shields === 1 ? "{n} shield banked." : "{n} shields banked."), { n: shields })}
-              <span className="mt-2 block"><Explain label={t("What a shield does")}>
-                {t("A shield keeps your streak alive through one missed day. You earn one at 7, 30 and 100 days.")}
-              </Explain></span>
-            </>
-          }
-          figure={{
-            value: <span className="inline-flex items-center gap-3"><RollNumber value={summary.streak} /><Flame size={32} aria-hidden style={{ color: "var(--hard-ink)" }} /></span>,
-            label: t("Day streak"),
-          }}
-          actions={<ShareProgress />}
+          title={summary.streak > 0
+            ? fill(t("{days} in a row"), { days: countOf(locale, summary.streak, "day") })
+            : t("Every day you study starts a run")}
+          text={t("A shield keeps your streak alive through one missed day. You earn one at 7, 30 and 100 days.")}
+          cardsLabel={t("Your deck in three figures")}
+          cards={[
+            { figure: String(snapshot.knownCards), label: t("Cards known"), icon: "Layers" },
+            { figure: breakdown.accuracy === null ? NO_VALUE : `${breakdown.accuracy}%`, label: t("Answered right"), icon: "CheckCheck" },
+            { figure: String(shields), label: t(shields === 1 ? "Shield" : "Shields"), icon: "Shield" },
+          ]}
+          action={<ShareProgress />}
         />
 
         {/*

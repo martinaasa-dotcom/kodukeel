@@ -7,7 +7,7 @@ import {
   History, Hourglass, House, KeyRound, Landmark, Languages, Layers, Leaf, Library, LifeBuoy, Lightbulb, Link,
   Map, Megaphone, MessageCircle, MessageCircleQuestion, MessageSquareWarning, MessagesSquare, Mic, Microscope,
   Minimize2, Moon, Mountain, Network, Newspaper, Paintbrush, Palette, PenLine, Plane, Plus, Puzzle, Quote,
-  Repeat, Rocket, Scale, School, ScissorsLineDashed, ScrollText, Settings, Shirt, ShoppingBag, Shuffle,
+  Repeat, Rocket, Scale, School, ScissorsLineDashed, ScrollText, Settings, Shield, Shirt, ShoppingBag, Shuffle,
   SlidersHorizontal, Smile, Sparkles, Stamp, Stethoscope, Sun, Sunrise, Swords, Target, Trees, TrendingUp,
   TriangleAlert, Trophy, Users, UserX, Utensils, Vote, WifiOff, Zap, type LucideIcon, type LucideProps,
 } from "lucide-react";
@@ -30,7 +30,7 @@ export const ICONS: Record<string, LucideIcon> = {
   History, Hourglass, House, KeyRound, Landmark, Languages, Layers, Leaf, Library, LifeBuoy, Lightbulb, Link,
   Map, Megaphone, MessageCircle, MessageCircleQuestion, MessageSquareWarning, MessagesSquare, Mic, Microscope,
   Minimize2, Moon, Mountain, Network, Newspaper, Paintbrush, Palette, PenLine, Plane, Plus, Puzzle, Quote,
-  Repeat, Rocket, Scale, School, ScissorsLineDashed, ScrollText, Settings, Shirt, ShoppingBag, Shuffle,
+  Repeat, Rocket, Scale, School, ScissorsLineDashed, ScrollText, Settings, Shield, Shirt, ShoppingBag, Shuffle,
   SlidersHorizontal, Smile, Sparkles, Stamp, Stethoscope, Sun, Sunrise, Swords, Target, Trees, TrendingUp,
   TriangleAlert, Trophy, Users, UserX, Utensils, Vote, WifiOff, Zap,
 };

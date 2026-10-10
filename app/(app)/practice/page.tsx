@@ -1,4 +1,4 @@
-import { HeroSplit } from "@/components/HeroSplit";
+import { HeroFan } from "@/components/HeroFan";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -159,14 +159,20 @@ export default async function PracticePage() {
             Progress, and where each word stands is a link inside the card
             whose round moves it.
           */}
-          <HeroSplit
+          <HeroFan
             eyebrow={tr(locale, "Review")}
-            titleId="practice-review"
-            title={tr(locale, "Each word comes back just before you'd forget it.")}
-            text={tr(locale, "We keep track of when, so you don't have to.")}
-            figure={{ value: ready, label: countOf(locale, ready, "card waiting").slice(String(ready).length + 1) }}
-            actions={
-              <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full justify-center whitespace-nowrap">
+            title={ready > 0
+              ? fill(tr(locale, ready === 1 ? "{cards} is ready" : "{cards} are ready"), { cards: countOf(locale, ready, "card") })
+              : tr(locale, "Nothing is due right now")}
+            text={tr(locale, "Each word comes back just before you'd forget it.")}
+            cardsLabel={tr(locale, "Where your cards stand")}
+            cards={[
+              { figure: String(snapshot.dueCount), label: tr(locale, "Due now"), icon: "Clock" },
+              { figure: String(Math.min(snapshot.newForPractice, 10)), label: tr(locale, "New to meet"), icon: "Sparkles" },
+              { figure: String(unfinished), label: tr(locale, "To work on"), icon: "Target" },
+            ]}
+            action={
+              <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="whitespace-nowrap">
                 {ready > 0 ? tr(locale, "Review now") : tr(locale, "Nothing due, open it anyway")} <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             }

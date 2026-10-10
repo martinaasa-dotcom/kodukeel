@@ -44,10 +44,10 @@ import { sceneOfDay } from "@/lib/scenes/ofTheDay";
 import { SonadPreview } from "@/components/SonadPreview";
 import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
-import { FitText } from "@/components/FitText";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
-import { stepText, stepsIn } from "@/lib/course";
+import { stepCard, stepsIn } from "@/lib/course";
+import { HeroFan } from "@/components/HeroFan";
 
 export async function generateMetadata() {
   return titleFor("Today");
@@ -482,80 +482,35 @@ export default async function TodayPage() {
   const moduleTonight = Boolean(courseNow && courseDay && !courseNow.finishedToday && courseStep);
 
   const courseCard = moduleTonight && courseDay && courseStep ? (
-    <Card tone="night" className="grid items-stretch gap-8 md:p-9 lg:grid-cols-2 lg:gap-14">
-      {/*
-        TWO HALVES THAT SHARE THE SAME TOP AND THE SAME BOTTOM.
+    /*
+      THE EVENING AS A FAN OF ITS STEPS, AND THE ONE BRIGHT HERO IN THE APP.
 
-        Every earlier version of this card had one half heavier than the other
-        and centred the lighter one, which leaves air above and below it. Here
-        both halves are stretched to the card's height and each pins its
-        content to both edges: on the left the label and the title sit at the
-        top and the description and the button at the bottom; on the right the
-        four steps share the height equally, the first row level with the
-        label and the last level with the button. Nothing floats.
-      */}
-      <div className="flex min-w-0 flex-col justify-center">
-        <div>
-          <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
-            <span style={{ color: "var(--cta)" }}>{t("Today’s module")}</span>
-            <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
-            <span>{fill(t("Day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}</span>
-            <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
-            <span>{fill(t("{minutes} min"), { minutes: courseDay.minutesLeft })}</span>
-          </p>
-          <FitText
-            as="h2"
-            text={ui(courseDay.day.title, courseDay.day.subtitle)}
-            className="font-display mt-4 font-bold leading-tight [--fit-max:var(--text-3xl)] md:[--fit-max:var(--text-3xl)]"
-            lang={uiWantsEnglish(placement) ? undefined : "et"}
-            style={{ color: "var(--ink)", textWrap: "balance" }}
-          />
-        </div>
-        <div className="mt-3">
-          <p className="max-w-[46ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {t(courseDay.day.canDo)}
-          </p>
-          <ButtonLink href="/course" variant="primary" size="lg" className="mt-6 w-full justify-center sm:w-auto">
-            {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
-          </ButtonLink>
-        </div>
-      </div>
-      <ol
-        className="flex min-w-0 flex-col rounded-[var(--r-lg)] border"
-        style={{
-          background: "color-mix(in srgb, var(--ink) 5%, transparent)",
-          borderColor: "color-mix(in srgb, var(--ink) 12%, transparent)",
-        }}
-        aria-label={fill(t("{minutes} min to go today"), { minutes: courseDay.minutesLeft })}
-      >
-        {stepsIn(courseDay.day, locale).map((step, i) => {
-          const done = courseDay.done.has(step.id);
-          return (
-            <li
-              key={step.id}
-              className="grid flex-1 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 border-t px-5 py-4 first:border-t-0"
-              style={{ borderColor: "color-mix(in srgb, var(--ink) 12%, transparent)" }}
-            >
-              <span
-                aria-hidden
-                className="grid h-8 w-8 place-items-center rounded-full text-sm font-bold"
-                style={done
-                  ? { background: "var(--cta)", color: "var(--stage)" }
-                  : { boxShadow: "inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 30%, transparent)", color: "var(--ink-2)" }}
-              >
-                {done ? "✓" : i + 1}
-              </span>
-              <span className="text-md font-semibold leading-snug" style={{ color: done ? "var(--ink-2)" : "var(--ink)" }}>
-                {step.title}
-              </span>
-              <span className="text-sm tabular-nums" style={{ color: "var(--ink-2)" }}>
-                {fill(t("{minutes} min"), { minutes: step.minutes })}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
-    </Card>
+      Every other page draws the same card in the night's greys, so this is
+      the one that is lit: what the learner can do by the end of it on the
+      left, and tonight's steps dealt out on the right, the finished ones ringed,
+      the next one lifted and breathing, the rest in the brand mix.
+    */
+    <HeroFan
+      bright
+      eyebrow={`${t("Today’s module")}, ${fill(t("day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}`}
+      title={ui(courseDay.day.title, courseDay.day.subtitle)}
+      titleLang={uiWantsEnglish(placement) ? undefined : "et"}
+      text={t(courseDay.day.canDo)}
+      action={
+        <ButtonLink href="/course" variant="primary" size="lg" className="whitespace-nowrap">
+          {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
+        </ButtonLink>
+      }
+      cardsLabel={fill(t("{minutes} min to go today"), { minutes: courseDay.minutesLeft })}
+      cards={stepsIn(courseDay.day, locale).map((step) => {
+        const done = courseDay.done.has(step.id);
+        return {
+          ...stepCard(step, locale),
+          detail: done ? t("done") : fill(t("{minutes} min"), { minutes: step.minutes }),
+          state: done ? "done" : step.id === courseStep.id ? "now" : "later",
+        };
+      })}
+    />
   ) : courseNow?.finishedToday ? (
     <Card tone="accent" className="evening flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
       <div className="min-w-0 flex-1">

@@ -1,4 +1,4 @@
-import { HeroSplit } from "@/components/HeroSplit";
+import { HeroFan } from "@/components/HeroFan";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, ChevronRight, Compass, Flag, Lock } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
@@ -9,7 +9,7 @@ import {
   CHECKPOINTS, LEVELS, LEVEL_INFO, isUnitOpen, nextUnit,
 } from "@/lib/collections/syllabus";
 import { localeFor } from "@/lib/progress/locale";
-import { fill, tr } from "@/lib/copy/locale";
+import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
 import { Chip, Meter, Page, SectionTitle } from "@/components/ui";
@@ -118,6 +118,7 @@ export default async function LearnPage() {
         phrases={counts.phrases}
         onCourse={programme !== null}
         t={t}
+        locale={locale}
       />
 
       {/*
@@ -380,8 +381,9 @@ export default async function LearnPage() {
  * which is why this says so rather than offering a dead button.
  */
 function LearnCard({
-  waiting, started, phrases, onCourse, t,
+  waiting, started, phrases, onCourse, t, locale,
 }: {
+  locale: Locale;
   /** The page's translator, so this card speaks the learner's language. */
   t: (english: string) => string;
   waiting: number;
@@ -403,36 +405,43 @@ function LearnCard({
   const batch = Math.min(ready, LEARN_BATCH);
   return (
     <div className="mb-10">
-      <HeroSplit
+      <HeroFan
         eyebrow={ready > 0 ? t("Today’s new words") : t("New words")}
         title={ready > 0
-          ? t("Meet each one, then use it in a sentence.")
+          ? fill(t(batch === 1 ? "{words} is waiting for you" : "{words} are waiting for you"), { words: countOf(locale, batch, "word") })
           : onCourse ? t("They come with each evening") : t("No new words yet")}
         text={ready > 0
-          ? (started > 0 ? fill(t("You're already part way through {n}."), { n: started }) : undefined)
+          ? (started > 0
+            ? fill(t("Each one goes through three short steps. You're already part way through {n}."), { n: started })
+            : t("Each one goes through three short steps."))
           : onCourse
             ? t("Your course hands you a few new words each evening, in an order where each one builds on the last. Or open any unit below to meet its words now.")
             : t("Open a unit below and its words will turn up here, ready to meet.")}
-        figure={ready > 0 ? { value: batch, label: t(batch === 1 ? "word waiting" : "words waiting") } : undefined}
-        actions={
+        cardsLabel={t("How a new word is learned")}
+        cards={[
+          { label: t("Meet it"), detail: t("see and hear it"), icon: "Ear", state: "now" },
+          { label: t("Pick it"), detail: t("one of four"), icon: "Grid2x2", state: "later" },
+          { label: t("Use it"), detail: t("in a sentence"), icon: "PenLine", state: "later" },
+        ]}
+        action={(ready > 0 || phrasesReady > 0 || onCourse) ? (
           <>
+            {phrasesReady > 0 && (
+              <ButtonLink href="/learn/new?kind=phrase" variant="secondary" size="lg" className="whitespace-nowrap">
+                {fill(t(Math.min(phrasesReady, LEARN_BATCH) === 1 ? "Learn {n} phrase" : "Learn {n} phrases"), { n: Math.min(phrasesReady, LEARN_BATCH) })}
+              </ButtonLink>
+            )}
             {ready > 0 && (
-              <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap">
+              <ButtonLink href="/learn/new" variant="primary" size="lg" className="whitespace-nowrap">
                 {fill(t("Learn {n} words"), { n: batch })} <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             )}
-            {phrasesReady > 0 && (
-              <ButtonLink href="/learn/new?kind=phrase" variant="secondary" className="w-full justify-center">
-                {fill(t("Learn {n} phrases"), { n: Math.min(phrasesReady, LEARN_BATCH) })}
-              </ButtonLink>
-            )}
             {ready === 0 && onCourse && (
-              <ButtonLink href="/course" variant="primary" size="lg" className="w-full justify-center whitespace-nowrap">
+              <ButtonLink href="/course" variant="primary" size="lg" className="whitespace-nowrap">
                 {t("Open today’s module")} <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             )}
           </>
-        }
+        ) : undefined}
       />
     </div>
   );

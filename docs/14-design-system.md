@@ -542,6 +542,29 @@ throws a handful of pixels at the end of a round. Each is started by
 is cut off mid-move, and each animates `scale`, `translate` or `rotate` rather than `transform` so
 it composes with what the element is already doing.
 
+**A page leads with one hero, and only Today's is lit.** `components/HeroFan.tsx` is the leading
+card of Today, Learn, Practice, Progress, My words, In real life and the course: words on the left,
+a fan of cards on the right. Every one of those pages used to draw its own night card, and the
+reported fault was never one of them: it was that no two were balanced the same way. A headline
+ended on one stranded word, text ran up against a tile, the left edge sat somewhere different on
+every page and the middle of half of them was empty. So the balance is in the component and in
+`app/hero-fan.css` rather than in each page. The inset is the same on every card. The text block is
+exactly as wide as its widest drawn line, so the gap to the cards is measured from letters rather
+than from an empty box. The cards' column is never narrower than the fan at its tightest, so the
+gap matches the margin on the right. A headline too long for the column the cards leave goes
+above them, and so does everything once the card itself is too narrow for both, which is a
+container query rather than a window one. Every line is balanced. On a phone there is no room for
+a fan whose words a person can read, so the same cards are dealt into a grid.
+
+Today's fan wears the brand mix because the module is the one thing the app asks somebody to do;
+every other page draws the same fan in the night's greys, which is what lets Today stand out
+without anything shouting. The motion is fine rather than loud: the cards are dealt in, the words
+rise a beat behind them, figures count up once, a finished step's tick stamps in, a pointer tilts
+the fan a few degrees and lights the card under it, the fan opens under a pointer, and the card
+that is next breathes a few pixels over five seconds. All of it stops for anybody who has asked for
+less movement. `scripts/invariants/a-page-leads-with-one-hero.ts` holds the pages to the component
+and the bright fan to Today.
+
 ## 6. Routing and the landing page
 
 Two route groups:
