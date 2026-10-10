@@ -128,16 +128,12 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Игра не поняла, что вы хотите узнать. Попробуйте один из вариантов ниже.",
     "Гра не зрозуміла, що ви хочете дізнатися. Спробуйте один із варіантів нижче."],
 
-  // Hints.
+  // The group the game is thinking in.
   ["It is an animal.", "Это животное.", "Це тварина."],
-  ["It is a plant.", "Это растение.", "Це рослина."],
-  ["It is something you can eat.", "Это что-то съедобное.", "Це щось їстівне."],
-  ["It is something you drink.", "Это что-то, что пьют.", "Це щось, що п'ють."],
-  ["It is an object, the kind you find in a home or carry about.", "Это предмет из тех, что бывают дома или носят с собой.", "Це предмет із тих, що бувають удома або їх носять із собою."],
-  ["It is something you wear.", "Это что-то, что носят.", "Це щось, що носять."],
-  ["It is something you can ride in or on.", "Это то, на чём или в чём можно ехать.", "Це те, на чому або в чому можна їхати."],
-  ["It is a building.", "Это здание.", "Це будівля."],
-  ["It is part of nature, or a place.", "Это часть природы или место.", "Це частина природи або місце."],
+  ["It is a food or a drink.", "Это еда или напиток.", "Це їжа або напій."],
+  ["It is a thing you use, wear or ride in.", "Это вещь, которой пользуются, которую носят или на которой ездят.", "Це річ, якою користуються, яку носять або на якій їздять."],
+  ["It is a plant, a building, or part of nature.", "Это растение, здание или часть природы.", "Це рослина, будівля або частина природи."],
+  ["It is a part of the body.", "Это часть тела.", "Це частина тіла."],
 
   // Tips.
   ["After kui, the thing you compare with stays in its plain dictionary form.",
@@ -431,13 +427,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["plastic@material", "пластика", "пластику"],
   ["fabric@material", "ткани", "тканини"],
   ["leather@material", "кожи", "шкіри"],
-  // The category said up front, the topics, the hint ladder, five more, the best, English help.
-  ["What should I think of?", "Что мне загадать?", "Що мені загадати?"],
-  ["Anything", "Что угодно", "Що завгодно"],
-  ["Animals", "Животные", "Тварини"],
-  ["Food and drink", "Еда и напитки", "Їжа й напої"],
-  ["Things", "Вещи", "Речі"],
-  ["Nature and places", "Природа и места", "Природа та місця"],
+  // The hint ladder, five more, the best, English help.
   ["Your best so far: {questions}.", "Ваш лучший результат: {questions}.", "Ваш найкращий результат: {questions}."],
   ["Your best yet!", "Это ваш лучший результат!", "Це ваш найкращий результат!"],
   ["That’s twenty. Want five more?", "Это двадцать. Хотите ещё пять?", "Це двадцять. Хочете ще п'ять?"],

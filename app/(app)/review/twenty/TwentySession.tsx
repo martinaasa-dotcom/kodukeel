@@ -11,9 +11,9 @@ import { DiacriticBar } from "@/components/DiacriticBar";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { useKeepInView } from "@/components/round/useKeepInView";
 import {
-  ANSWER_EN, ANSWER_ET, ask, asRepeat, englishToLemma, cluesFor, IDEAS, inEstonian, nextQuestions, opening, QUESTION_LIMIT, REFUSAL_EN,
-  spent, stillFitting, tokensOf, TOPICS,
-  type Answer, type Asked, type Hint, type Outcome, type Reply, type Said, type Suggestion, type Tip,
+  ANSWER_EN, ANSWER_ET, ask, asRepeat, englishToLemma, cluesFor, IDEAS, inEstonian, nextQuestions, QUESTION_LIMIT, REFUSAL_EN,
+  spent, stillFitting, tokensOf,
+  type Answer, type Asked, type Hint, type Outcome, type Reply, type Said, type Suggestion, type Tip, type Topic,
 } from "@/lib/games/twenty";
 import { lookupFrom, repairFrom, withExtra, type Extra, type Index } from "@/lib/games/twentyLookup";
 import { THING_BY_LEMMA, type Thing } from "@/lib/games/twentyThings";
@@ -78,8 +78,8 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
   extra: Extra;
   pool: string[];
   starred: boolean;
-  /** The topic the learner chose, kept for the next round. */
-  topic: string;
+  /** The group the game chose to think in, said up front. */
+  topic: Topic;
   /** The fewest questions a thing has been named in, or null before the first win. */
   best: number | null;
   /** Words the game learned from earlier rounds' "Ei tea" (`lib/progress/twentyLearned.ts`). */
@@ -91,11 +91,11 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
   const merged = useMemo(() => withExtra(index, extra), [index, extra]);
   const lookup = useMemo(() => lookupFrom(merged), [merged]);
   const repair = useMemo(() => repairFrom(merged), [merged]);
-  // The kind is said before the first question, so what still fits starts from things of that kind.
+  // The group is said before the first question, so what still fits starts from things in that group.
   const things = useMemo(() => {
-    const listed = pool.flatMap((l) => THING_BY_LEMMA.get(l) ?? []).filter((x) => x.kind === secret.kind);
+    const listed = pool.flatMap((l) => THING_BY_LEMMA.get(l) ?? []).filter((x) => topic.kinds.includes(x.kind));
     return listed.some((x) => x.lemma === secret.lemma) ? listed : [...listed, secret];
-  }, [pool, secret]);
+  }, [pool, secret, topic]);
   const ladder = useMemo(() => cluesFor(secret), [secret]);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [text, setText] = useState("");
@@ -262,27 +262,11 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
             {t("I’m thinking of something. Ask me yes or no questions, in Estonian.")}
           </p>
           <p className="twenty-category mt-3 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-lg font-semibold" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>
-            <Sparkles size={16} aria-hidden /> {t(opening(secret))}
+            <Sparkles size={16} aria-hidden /> {t(topic.says)}
           </p>
           <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
             {t("When you know what it is, ask it as a question too:")} <span lang="et">Kas see on …?</span>
           </p>
-          {turns.length === 0 && (
-            <nav className="mt-4 flex flex-wrap items-center gap-2" aria-label={t("What should I think of?")}>
-              <span className="label-xs">{t("What should I think of?")}</span>
-              {TOPICS.map((tp) => (
-                <ButtonLink
-                  key={tp.id}
-                  href={`/review/twenty?topic=${tp.id}`}
-                  variant={tp.id === topic ? "primary" : "secondary"}
-                  size="sm"
-                  aria-current={tp.id === topic ? "true" : undefined}
-                >
-                  {t(tp.en)}
-                </ButtonLink>
-              ))}
-            </nav>
-          )}
           {turns.length === 0 && best !== null && (
             <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
               {fill(t("Your best so far: {questions}."), { questions: countOf(locale, best, "questions", "nom") })}
@@ -416,7 +400,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
             )}
             <WayOut className="mt-6 flex flex-wrap gap-3">
               <ButtonLink href="/practice" variant="secondary">{t("Back to Practice")}</ButtonLink>
-              <ButtonLink href={`/review/twenty?topic=${topic}&not=${encodeURIComponent(secret.lemma)}`} variant="primary">
+              <ButtonLink href={`/review/twenty?was=${topic.id}&not=${encodeURIComponent(secret.lemma)}`} variant="primary">
                 {t("Another word")}
               </ButtonLink>
             </WayOut>
