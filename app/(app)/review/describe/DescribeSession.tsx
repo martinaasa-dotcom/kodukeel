@@ -487,6 +487,7 @@ function sentencesLine(locale: Locale, t: (english: string) => string, n: number
  */
 function Corrected({ marked }: { marked: Marked }) {
   const t = useT();
+  const locale = useLocale();
   const { corrections, mark, graded } = marked;
   const allRight = mark.sentences.every((m, i) => verdictFor(m, graded?.sentences[i]) === "right");
   if (corrections.length === 0 && !allRight) return null;
@@ -501,7 +502,16 @@ function Corrected({ marked }: { marked: Marked }) {
             {corrections.map((c) => (
               <li key={c.index} className="flex items-baseline gap-2.5 text-base">
                 <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>{c.index + 1}.</span>
-                <span lang="et" style={{ color: "var(--ink)" }}>{emphasise(c.text, c.swaps.map((x) => x.to))}</span>
+                <span className="min-w-0">
+                  <span lang="et" style={{ color: "var(--ink)" }}>{emphasise(c.text, c.swaps.map((x) => x.to))}</span>
+                  {c.left.length > 0 && (
+                    <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-2)" }}>
+                      {fill(t("Not changed, because we couldn't find it: {words}"), {
+                        words: c.left.map((w) => quoted(w, locale)).join(", "),
+                      })}
+                    </span>
+                  )}
+                </span>
               </li>
             ))}
           </ol>
