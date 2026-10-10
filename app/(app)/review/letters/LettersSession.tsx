@@ -11,7 +11,8 @@ import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { useFeedbackSound } from "@/components/AudioPrefs";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { VERDICT_CLASS, type Verdict } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
@@ -161,26 +162,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
       <h1 className="sr-only">Tähed</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession />
-        <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="grad-accent h-full rounded-full transition-[width] duration-500"
-            style={{ width: `${Math.max((index / words.length) * 100, 2)}%` }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={words.length}
-            aria-label={t("Session progress")}
-          />
-        </div>
-        <span
-          className="tnum label-xs rounded-full px-2.5 py-1"
-          style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-        >
-          {fill(t("{n} left"), { n: remaining })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={words.length} left={remaining} label={t("Session progress")} />
       {look.panel && <LookBackCard {...look.panel} />}
       {/*
         HIDDEN RATHER THAN REPLACED, WHICH IS THIS ROUND AND NOT THE OTHERS.
@@ -325,7 +307,7 @@ function Board({ word, streak, correct, onSettled, onNext }: {
           {/* Said for the way it went, since "here it is" over a word the
               learner has just built reads as the board giving it away. */}
           {!answered
-            ? t("Put the letters in order. Tap the speaker, or press Space, as often as you like.")
+            ? t("Put the letters in order. Hear the word as often as you like.")
             : verdict === "right" ? t("Spelled right first time.")
               : verdict === "nearly" ? t("You got there on the second go.")
                 : t("Here it is, letter by letter.")}

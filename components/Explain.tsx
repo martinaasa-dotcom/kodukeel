@@ -49,7 +49,11 @@ export function Explain({ label, children }: {
         that it no longer has to apologise for the room it takes, so it stops
         being set in the size that was the apology.
       */}
-      <div className="mt-2 flex flex-col gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+      {/* Block flow with space between blocks, never a flex column: a caller
+          writing a sentence with a link in it hands over text nodes and an
+          anchor, and a flex column put each on a line of its own, so the full
+          stop after "add yourself" opened the next row. */}
+      <div className="mt-2 space-y-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
         {children}
       </div>
     </details>

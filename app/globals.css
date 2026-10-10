@@ -4714,7 +4714,13 @@ a:focus-visible .wave-word::after {
 */
 @media (hover: none) and (pointer: coarse) {
   :is(button, a, [role="radio"], [role="button"]) .key-cap { display: none; }
+  /* And a line of copy that is only about the keyboard ("Press 1 to 4 to
+     answer") goes with it, rather than telling a thumb about keys it lacks. */
+  .keys-hint { display: none !important; }
+  .touch-hint { display: inline !important; }
 }
+/* The same line said for a thumb, where the keyboard's version has gone. */
+.touch-hint { display: none; }
 
 /*
   VIKERKAAR ÖÖS: the rainbow at night, flattened. One panel per screen is

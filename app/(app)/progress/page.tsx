@@ -6,7 +6,7 @@ import { outThere } from "@/lib/progress/outThere";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { CEFR_LEVELS } from "@/lib/estonian/types";
-import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
+import { courseWordCount, dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import {
   bestStudyHour, buildHeatmap, caseAccuracy, ratingBreakdown,
@@ -173,8 +173,7 @@ export default async function ProgressPage() {
     byLevel.set(level, entry);
   }
 
-  const pathKnown = units.reduce((s, u) => s + u.known, 0);
-  const pathTotal = units.reduce((s, u) => s + u.available, 0);
+  const { known: pathKnown, words: pathTotal } = courseWordCount(units, snapshot.knownLemmas);
 
   if (reviews.length === 0 && snapshot.totalCards === 0) {
     return (

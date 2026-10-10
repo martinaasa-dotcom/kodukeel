@@ -253,7 +253,7 @@ export const UK: Readonly<Record<string, string>> = {
   "Five sentences": "П'ять речень",
   "Two or three scenes": "Дві або три сцени",
   "A scene made of emoji. Write five sentences about what you see, one in each box. We check that each one is about the scene and that the Estonian is right, and tell you what to fix.": "Сцена з емодзі. Напишіть п'ять речень про те, що бачите, по одному в кожному полі. Ми перевіримо, що кожне стосується сцени і що естонська правильна, і підкажемо, що виправити.",
-  "Start picks the ending": "Початок вибирає закінчення",
+  "Hear the ending coming": "Закінчення чути заздалегідь",
   "Choose, then type": "Спершу вибрати, потім вписати",
   "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of its last word, and this is where you learn to hear that.": "Mulle meeldib pasta, але ma tahan pastat. Перші слова речення вирішують, у якій формі буде останнє слово, і тут ви вчитеся це чути.",
 };

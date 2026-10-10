@@ -16,7 +16,8 @@ import {
 } from "@/lib/estonian/passage";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
@@ -225,23 +226,7 @@ export function ClozeSession() {
           other mode: the start screen and the finished screen each carry one
           and the round itself did not. */}
       <h1 className="sr-only">{t("From your reading")}</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession size={19} />
-        <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${(index / items.length) * 100}%`, background: "var(--accent)" }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={items.length}
-            aria-label={t("Passage progress")}
-          />
-        </div>
-        <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {fill(t("{n} left"), { n: items.length - index })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={items.length} label={t("Passage progress")} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div

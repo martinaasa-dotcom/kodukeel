@@ -250,7 +250,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     within: "/grammar/topic/government",
   },
   {
-    href: "/review/openers", title: "Lause algus", subtitle: "Start picks the ending", icon: "Shuffle",
+    href: "/review/openers", title: "Lause algus", subtitle: "Hear the ending coming", icon: "Shuffle",
     tone: "accent", group: "targeted", note: "Choose, then type",
     blurb:
       "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of " +

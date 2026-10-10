@@ -3160,3 +3160,46 @@ where it teaches. A word with no card has no log and is on the picture.
 
 **Left for later.** The three stored forms. `audit:questions` asks every Map question the
 shipped dictionary can build whether the answer is on the screen.
+
+## 54. The forty-eighth pass: every screen photographed, and what that found
+
+Every route the app has was taken at 390 and 1280 pixels with two months of history in the
+deck, every practice round was opened past its briefing, and each picture was read. Most of
+what turned up is small, and all of it is the kind a learner notices before a test does.
+
+**Two screens disagreed about how big the course is.** Learn said 1,661 words and Progress
+said 1,731, because Progress added up each unit's total and a grammar unit drills words an
+earlier unit introduced, which Learn had stopped counting twice long ago. `courseWordCount`
+in `lib/progress/summary.ts` is the one count and both pages read it.
+
+**A sentence handed to a flex box as loose pieces came apart at its punctuation.** The
+dictionary's "Näited, in a sentence" read "Näited , in a sentence", the goal chips in Settings
+read "A1 , Get by", and every `Explain` whose text held a link put the link on a line of its
+own with its full stop opening the next, because that body was a flex column. The body is
+block flow with space between blocks now, the other two are one string, and
+`scripts/test-containment.mjs` asks every route whether any flex or grid box has a text item
+opening on punctuation after an item of its own, which nothing else there could see.
+
+**The top of a round is one component.** Fourteen sessions wrote the way out, the bar and the
+count by hand in three looks: a four-pixel hairline with grey text, a ten-pixel bar with the
+count on a tint, and the daily path's own. `components/round/RoundProgress.tsx` is the daily
+path's look for all of them. Review and Learn keep their own bar, and 20 küsimust keeps its
+count, which turns red near the end, and drops the "0 of 20" chip that said the same thing.
+
+**A phone is not told about keys.** "Press 1 to 4 to answer", "or press Space" and the space
+key cap beside a speaker were drawn under a thumb. `.keys-hint` hides a line that is only
+about the keyboard where the only pointer is a finger, the way a key cap inside a button
+already was. The minimal-pairs line that put a speaker icon in the middle of a sentence about
+keys is a "Slow" pill and a keys-only line.
+
+**Smaller things.** First run says what Continue is waiting for. A level card's bar no longer
+collapses to nothing when its counts are long. Learn's "You're already part way through 5"
+reads as what it means. Lause algus says "from A2" on its Practice tile, as Laused does, and
+its subtitle says what the round is for. Settings puts "measured" beside the level rather than
+over the goals. The picture round's setting line is quiet type rather than the accent at the
+size of the heading. Dictation and speaking stop counting "0 of 0" before anything is
+answered. The Sõnad bottom row's letters are as wide as the top row's. The numbered papers
+grid goes to four columns only where "Paper 20" fits beside its button. The plan says "only 3
+minutes" rather than "about 0 of those hours". The offline page's button is the app's primary
+button rather than a violet one. And `/grammar/sisseütlev`, which is the name this app teaches,
+reaches the case page its Latin slug names instead of a dead end.

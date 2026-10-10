@@ -126,6 +126,8 @@ export default async function PracticePage() {
     /* "34 ready" on a round that answers an A1 learner with "word order
        starts at A2" is the tile and the round disagreeing about one press. */
     "/review/sentences": !maySortWords(level) ? fill(tr(locale, "from {level}"), { level: BUILD_FROM }) : sentenceCount > 0 ? fill(tr(locale, "{n} ready"), { n: sentenceCount }) : undefined,
+    /* The same for the openers round, which waits for A2 on its own screen. */
+    "/review/openers": level === "A1" ? fill(tr(locale, "from {level}"), { level: "A2" }) : undefined,
     "/review/dictation": dictationCount > 0 ? fill(tr(locale, "{n} ready"), { n: dictationCount }) : undefined,
   };
   const lineFor = (mode: Pick<PracticeMode, "href" | "subtitle">) => {
