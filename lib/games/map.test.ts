@@ -4,14 +4,16 @@ import {
   type FormChoice,
 } from "./map";
 import { CASES } from "@/lib/estonian/cases";
+import { RU } from "@/lib/copy/i18n/ru";
+import { UK } from "@/lib/copy/i18n/uk";
 import type { CaseKey } from "@/lib/estonian/types";
 
 const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
 const nearness = (c: string, a: string) => (c.slice(0, 3) === a.slice(0, 3) ? 5 : 0) - Math.abs(c.length - a.length);
 
-const thing = { animate: false, glyph: "🏠", gloss: "house, building", hour: null };
-const person = { animate: true, glyph: "👧", gloss: "girl", hour: null };
-const five = { animate: false, glyph: null, gloss: "five", hour: 5 };
+const thing = { animate: false, glyph: "🏠", hour: null };
+const person = { animate: true, glyph: "👧", hour: null };
+const five = { animate: false, glyph: null, hour: 5 };
 
 describe("sceneFor", () => {
   it("draws every case Map asks, and says what it asks without any Estonian", () => {
@@ -89,6 +91,22 @@ describe("sceneFor", () => {
 
   it("never draws a word with the same emoji as its companion", () => {
     expect(sceneFor("ADESSIVE", { ...person, glyph: GIFT })).toBeNull();
+  });
+
+  it("has a Russian and a Ukrainian line for every question and description it can show", () => {
+    let lines = 0;
+    for (const key of MAP_CASES) {
+      for (const word of [thing, person, five]) {
+        const scene = sceneFor(key, word);
+        if (!scene) continue;
+        for (const line of [scene.ask, scene.alt]) {
+          lines++;
+          expect(RU[line], `ru: ${line}`).toBeTruthy();
+          expect(UK[line], `uk: ${line}`).toBeTruthy();
+        }
+      }
+    }
+    expect(lines).toBeGreaterThan(0);
   });
 
   it("draws every hour from one to twelve", () => {

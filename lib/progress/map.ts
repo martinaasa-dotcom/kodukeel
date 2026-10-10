@@ -176,7 +176,7 @@ export function questionsForWord(
     if (answer.accepted.some((f) => f.trim().toLocaleLowerCase("et") === lemma)) continue;
     if (answer.accepted.some((f) => mentions(label, f))) continue;
     const scene = sceneFor(key, {
-      animate, glyph: WORD_EMOJI[row.lemma] ?? null, gloss: row.translation, hour: hourOf(row.lemma),
+      animate, glyph: WORD_EMOJI[row.lemma] ?? null, hour: hourOf(row.lemma),
     });
     if (!scene) continue;
     // Somebody walking into a word, or a box going onto it, is only a true

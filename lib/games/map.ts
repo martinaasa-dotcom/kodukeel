@@ -114,16 +114,8 @@ export interface SceneWord {
   readonly animate: boolean;
   /** The word's own emoji, or null where it has none. */
   readonly glyph: string | null;
-  /** The English gloss, for the description a screen reader reads. */
-  readonly gloss: string;
   /** The hour this word names, one to twelve, or null where it names none. */
   readonly hour: number | null;
-}
-
-/** The first sense of a gloss, without an article, for a sentence about it. */
-function noun(gloss: string): string {
-  const first = gloss.split(/[,;(/]/)[0]?.trim() ?? "";
-  return first.replace(/^(a|an|the)\s+/i, "") || "word";
 }
 
 /**
@@ -138,52 +130,51 @@ export function sceneFor(key: CaseKey, word: SceneWord): MapScene | null {
     if (!n || !clock) return null;
     return {
       layout: { kind: "row", parts: [{ glyph: ARROW }, { glyph: n, word: true }, { glyph: clock }] },
-      ask: "Until when?", alt: `Until ${word.hour} o'clock`,
+      ask: "Until when?", alt: "An arrow to a number and its clock face",
     };
   }
   const w = word.glyph?.trim();
   if (!w || COMPANIONS.includes(w)) return null;
-  const it = noun(word.gloss);
   const me: SceneGlyph = { glyph: w, word: true };
   const g = (glyph: string): SceneGlyph => ({ glyph });
   const row = (...parts: SceneGlyph[]): SceneLayout => ({ kind: "row", parts });
 
   switch (key) {
     case "INESSIVE":
-      return { layout: { kind: "inside", host: w, guest: STANDER }, ask: "Where are they?", alt: `A person inside the ${it}` };
+      return { layout: { kind: "inside", host: w, guest: STANDER }, ask: "Where are they?", alt: "A person standing inside it" };
     case "ELATIVE":
-      return { layout: row(me, g(ARROW), g(WALKER)), ask: "Where are they coming from?", alt: `A person walking out of the ${it}` };
+      return { layout: row(me, g(ARROW), g(WALKER)), ask: "Where are they coming from?", alt: "A person walking out of it" };
     case "ILLATIVE":
-      return { layout: row(g(WALKER), g(ARROW), me), ask: "Where are they going?", alt: `A person walking into the ${it}` };
+      return { layout: row(g(WALKER), g(ARROW), me), ask: "Where are they going?", alt: "A person walking into it" };
     case "ADESSIVE":
       return word.animate
-        ? { layout: row(me, g(GIFT)), ask: "Who has it?", alt: `The ${it} has a present` }
-        : { layout: { kind: "on", host: w, guest: BOX }, ask: "Where is it?", alt: `A box on the ${it}` };
+        ? { layout: row(me, g(GIFT)), ask: "Who has it?", alt: "Somebody holding a present" }
+        : { layout: { kind: "on", host: w, guest: BOX }, ask: "Where is it?", alt: "A box on top of it" };
     case "ABLATIVE":
       return word.animate
-        ? { layout: row(me, g(ARROW), g(GIFT)), ask: "Who is it coming from?", alt: `A present coming from the ${it}` }
-        : { layout: row(me, g(ARROW), g(BOX)), ask: "Where is it coming from?", alt: `A box coming off the ${it}` };
+        ? { layout: row(me, g(ARROW), g(GIFT)), ask: "Who is it coming from?", alt: "A present coming from somebody" }
+        : { layout: row(me, g(ARROW), g(BOX)), ask: "Where is it coming from?", alt: "A box coming off it" };
     case "ALLATIVE":
       return word.animate
-        ? { layout: row(g(GIFT), g(ARROW), me), ask: "Who is it going to?", alt: `A present going to the ${it}` }
-        : { layout: row(g(BOX), g(ARROW), me), ask: "Where is it going?", alt: `A box going onto the ${it}` };
+        ? { layout: row(g(GIFT), g(ARROW), me), ask: "Who is it going to?", alt: "A present going to somebody" }
+        : { layout: row(g(BOX), g(ARROW), me), ask: "Where is it going?", alt: "A box going onto it" };
     case "COMITATIVE":
       return {
         layout: row(g(WALKER), g(WITH), me),
         ask: word.animate ? "Who are they with?" : "What do they have with them?",
-        alt: `A person together with the ${it}`,
+        alt: word.animate ? "A person together with somebody" : "A person together with it",
       };
     case "ABESSIVE":
       return {
         layout: row(g(WALKER), g(WITHOUT), me),
         ask: word.animate ? "Who are they without?" : "What are they without?",
-        alt: `A person without the ${it}`,
+        alt: word.animate ? "A person without somebody" : "A person without it",
       };
     case "TRANSLATIVE":
       return {
         layout: row(g(SPARKLE), g(ARROW), me),
         ask: "What is it turning into?",
-        alt: `Something turning into the ${it}`,
+        alt: "Something turning into it",
       };
     default:
       return null;
