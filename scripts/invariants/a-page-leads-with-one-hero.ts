@@ -48,7 +48,7 @@ export default function aPageLeadsWithOneHero({ check, APP, COMPONENTS, code }: 
     assert.match(hero, /<FitText\b[\s\S]*?as="h2"/, "the headline is not fitted, so a long Estonian word would break");
     assert.match(hero, /textWrap: "balance"/, "the hero's lines are no longer balanced");
     assert.match(hero, /data-measure/, "the text block no longer shrinks to its widest line");
-    assert.match(hero, /--label-chars/, "a fan's labels are no longer one type size");
+    assert.match(hero, /labelStep\(/, "a fan's labels are no longer one size, on the scale");
   });
 
   check("the hero's stylesheet keeps the rules that hold the balance", () => {

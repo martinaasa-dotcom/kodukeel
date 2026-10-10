@@ -143,13 +143,8 @@ export function HeroFan({
 
   const n = Math.max(1, Math.min(5, cards.length));
   const cardW = CARD_WIDTH[n] ?? 128;
-  /*
-    Every label is sized to the longest word among them, so one fan is one type
-    size and no word has to break or hide under the next card. The arithmetic is
-    in the stylesheet (`.hero-fan-label`), from this count and the room a card
-    leaves, so it needs no script and is right on the first paint.
-  */
-  const longest = Math.max(4, ...cards.slice(0, 5).flatMap((c) => c.label.split(/\s+/)).map((w) => [...w].length));
+  /* One label size for the whole fan, a step of the type scale (see `labelStep`). */
+  const labelSize = labelStep(cards.slice(0, 5).map((c) => c.label), n);
   return (
     <section
       ref={ref}
@@ -177,9 +172,9 @@ export function HeroFan({
           {action && <div className="hero-fan-action mt-7 flex flex-wrap gap-3">{action}</div>}
         </div>
         <div className="hero-fan-box" style={{ "--n": n, "--card-w": `${cardW}px` } as CSSProperties}>
-          <ol className="hero-fan-cards" aria-label={cardsLabel} style={{ "--label-chars": longest } as CSSProperties}>
+          <ol className="hero-fan-cards" aria-label={cardsLabel}>
             {cards.slice(0, 5).map((card, i) => (
-              <Card key={i} card={card} i={i} n={n} bright={bright} />
+              <Card key={i} card={card} i={i} n={n} bright={bright} labelSize={labelSize} />
             ))}
           </ol>
         </div>
@@ -188,7 +183,7 @@ export function HeroFan({
   );
 }
 
-function Card({ card, i, n, bright }: { card: FanCard; i: number; n: number; bright: boolean }) {
+function Card({ card, i, n, bright, labelSize }: { card: FanCard; i: number; n: number; bright: boolean; labelSize: string }) {
   const state = card.state;
   const fill = hue(i);
   const done = state === "done";
@@ -232,11 +227,33 @@ function Card({ card, i, n, bright }: { card: FanCard; i: number; n: number; bri
         {card.figure !== undefined && (
           <p className="font-display text-3xl font-bold leading-none tabular-nums"><Count value={card.figure} /></p>
         )}
-        <p className="hero-fan-label mt-1 font-bold leading-tight" style={{ textWrap: "balance" }}>{card.label}</p>
+        <p className={`hero-fan-label mt-1 ${labelSize} font-bold leading-tight`} style={{ textWrap: "balance" }}>{card.label}</p>
         {card.detail && <p className="mt-0.5 text-xs font-semibold" style={{ color: quiet }}>{card.detail}</p>}
       </div>
     </li>
   );
+}
+
+/*
+  The room a card's words have at the fan's tightest, in pixels: the step
+  between two cards less the inset (app/hero-fan.css), or the whole card where
+  there is only one. Kept beside the card widths it is worked out from.
+*/
+const LABEL_ROOM: Record<number, number> = { 1: 108, 2: 108, 3: 77, 4: 73, 5: 69 };
+const SIZES = [["text-sm", 16], ["text-xs", 15], ["text-2xs", 14]] as const;
+
+/**
+ * The largest step of the type scale at which the fan's longest word fits the
+ * room a card leaves it, so every label in one fan is one size, a word is never
+ * broken or hidden under the next card, and no size falls between two steps.
+ * Measured in Onest bold, a Latin letter averages about 0.5em and a Cyrillic
+ * one about 0.63em; the estimate errs a little wide.
+ */
+function labelStep(labels: readonly string[], n: number): string {
+  const room = LABEL_ROOM[n] ?? 73;
+  const widest = Math.max(0, ...labels.flatMap((l) => l.split(/\s+/)).map((w) => [...w].length * (/[\u0400-\u04FF]/.test(w) ? 0.63 : 0.53)));
+  for (const [cls, px] of SIZES) if (widest * px <= room) return cls;
+  return SIZES[SIZES.length - 1]![0];
 }
 
 /*
