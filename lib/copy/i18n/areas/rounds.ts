@@ -369,6 +369,9 @@ export const ROUNDS: Area = {
     "Not quite, it's {form}.": "Не совсем, правильно «{form}».",
     "Words that don't follow the usual pattern, so you just have to know them.": "Слова, которые не следуют обычному образцу, поэтому их просто нужно знать.",
     "Nothing to practice here yet": "Здесь пока нечего тренировать",
+    "Pick one area and work through it, easiest words first.": "Выберите одну тему и пройдите её, начиная с самых лёгких слов.",
+    "Not started": "Не начато",
+    "Mixed round": "Смешанный раунд",
     "None of the rule-breakers are near your level yet. Have a look through the full list instead.": "Ни одно из слов-исключений пока не подходит вашему уровню. Загляните лучше в полный список.",
     "Browse the exceptions": "Посмотреть исключения",
     "These are the ones the rules don't cover. A few at a time, little and often, is how they stick.": "Это слова, на которые правила не распространяются. Запоминаются они понемногу, по несколько за раз.",
@@ -389,9 +392,19 @@ export const ROUNDS: Area = {
     "Right form. Now build a whole sentence around it.": "Форма верная. Теперь постройте вокруг неё целое предложение.",
     "More on this:": "Подробнее:",
     "Flash cards": "Карточки",
+    "A café, a ticket window, the doctor's": "Кафе, билетная касса, кабинет врача",
+    "Say it in the form that answers the question": "Скажите форму, которая отвечает на вопрос",
+    "Picture": "Картинка",
+    "Question": "Вопрос",
+    "Steady practice": "Регулярная практика",
+    "The classic way to keep words fresh.": "Классический способ не забывать слова.",
+    "Word games": "Игры со словами",
+    "Just for the fun of it.": "Просто ради удовольствия.",
+    "Workshop": "Мастерская",
+    "You think, you type. Take your time.": "Вы думаете, вы печатаете. Не торопитесь.",
     "Twenty questions": "Двадцать вопросов",
-    "A box to type in and a list of your questions. I'm thinking of something, and I answer each question yes, no or sometimes.":
-      "Поле для ввода и список ваших вопросов. Я загадываю что-то и на каждый вопрос отвечаю «да», «нет» или «иногда».",
+    "I'm thinking of something, and I tell you first what kind of thing it is. You get twenty yes or no questions, and I answer each yes, no or sometimes.":
+      "Я загадываю что-то и сначала говорю, что это за вещь. У вас двадцать вопросов, на которые можно ответить «да» или «нет», и на каждый я отвечаю «да», «нет» или «иногда».",
     "Ask yes or no questions in Estonian, and name it when you can. Each question you type comes back with a tip if it could be better.":
       "Задавайте по-эстонски вопросы, на которые можно ответить «да» или «нет», и назовите загаданное, когда догадаетесь. Если вопрос можно задать лучше, к нему придёт подсказка.",
     "Words you've met, asked in a way you haven't seen yet.": "Знакомые слова в вопросах, каких вы ещё не видели.",
@@ -486,6 +499,11 @@ export const ROUNDS: Area = {
     "This round comes from the dictionary, so there's nothing to ask until it's loaded.": "Этот раунд строится по словарю, поэтому, пока он не загружен, спрашивать нечего.",
     "Add the first {n} and you'll practice each one in all its forms.": "Добавьте первые {n}, и вы потренируете каждое слово во всех его формах.",
     "Add the first {n}": "Добавить первые {n}",
+    "Add and start": "Добавить и начать",
+    "words {first} to {last}": "слова с {first} по {last}",
+    "part {n}": "часть {n}",
+    "Add these {n}": "Добавить эти {n}",
+    "Add these {n} and you'll practice each one in all its forms.": "Добавьте эти {n}, и вы потренируете каждое слово во всех его формах.",
     "{length} on the endings that keep tripping you up.": "{length} на окончания, в которых вы часто спотыкаетесь.",
     "Daily quest": "Задание дня",
     "Nothing to work on yet": "Пока не над чем работать",
@@ -730,12 +748,22 @@ export const ROUNDS: Area = {
       "Следующая картинка",
     "Picture {n} of {total}":
       "Картинка {n} из {total}",
+    "Setting: {title}. Use it if it helps. Any story you imagine is fine.":
+      "Место действия: {title}. Опирайтесь на него, если так проще. Подойдёт любая придуманная вами история.",
+    "Corrected":
+      "Исправлено",
+    "Nothing to correct.":
+      "Исправлять нечего.",
+    "The changed forms come from the dictionary.":
+      "Изменённые формы взяты из словаря.",
+    "Not changed, because we couldn't find it: {words}":
+      "Не изменено, потому что мы не нашли слово: {words}",
     "Sentence {n} needs at least three words.":
       "В предложении {n} нужно хотя бы три слова.",
     "You're offline, so we can't mark it yet. Your sentences are safe here.":
       "Вы офлайн, поэтому проверить пока не получится. Ваши предложения сохранены здесь.",
-    "Spelled and on topic":
-      "Без ошибок и по теме",
+    "Spelled right":
+      "Без ошибок",
     "That's not quite a sentence yet. Try three words or more.":
       "Это пока не совсем предложение. Попробуйте три слова или больше.",
     "We couldn't find {words} in the dictionary. Check the spelling, and the {letters}.":
@@ -744,36 +772,32 @@ export const ROUNDS: Area = {
       "{a}, {b}, {c} и {d}",
     "You already wrote this one. Try saying something different about the picture.":
       "Это вы уже писали. Попробуйте сказать о картинке что-то другое.",
-    "We couldn't match this to anything in the picture. Name something you can see: a person, an animal or an object.":
-      "Мы не нашли здесь ничего с картинки. Назовите то, что видите: человека, животное или предмет.",
-    "Every word is spelled right and it's about the picture.":
-      "Все слова написаны правильно, и предложение про картинку.",
+    "Every word is spelled right.":
+      "Все слова написаны правильно.",
     "Start with a capital letter and finish with a period.":
       "Начните с заглавной буквы и закончите точкой.",
-    "Spelled right and about the picture.":
-      "Без ошибок и про картинку.",
-    "{n} of your {total} sentences are spelled right and about the picture.":
-      "Без ошибок и про картинку: {n} из {total} ваших предложений.",
+    "Spelled right.":
+      "Без ошибок.",
+    "{n} of your {total} sentences are spelled right.":
+      "Без ошибок: {n} из {total} ваших предложений.",
     "You wrote all five, which is the hardest part to start.":
       "Вы написали все пять, а начать всегда труднее всего.",
     "Spelling: sentences with a word we couldn't find: {n}.":
       "Орфография: предложений со словом, которого мы не нашли: {n}.",
-    "Staying on the picture: sentences that named nothing in it: {n}.":
-      "Не отходить от картинки: предложений, где ничего с неё не названо: {n}.",
     "Saying something new in each sentence.":
       "Говорить в каждом предложении что-то новое.",
     "A capital at the start and a period at the end.":
       "Заглавная буква в начале и точка в конце.",
     "What to work on":
       "Над чем поработать",
-    "Notes from Anu. The spelling and picture checks come from the dictionary.":
-      "Заметки Ану. Написание и связь с картинкой мы проверили по словарю.",
+    "Notes from Anu. The spelling check comes from the dictionary.":
+      "Заметки Ану. Написание мы проверили по словарю.",
     "We hid one of Anu's notes. It used a word we couldn't confirm as Estonian. The spelling check comes from the dictionary, so you can trust that.":
       "Мы скрыли одну из заметок Ану: в ней было слово, которое мы не смогли подтвердить как эстонское. Написание мы проверили по словарю, этому можно доверять.",
     "We hid one of Anu's notes. It used an Estonian form we couldn't confirm, and a wrong form is worse than no note. The spelling check comes from the dictionary, so you can trust that.":
       "Мы скрыли одну из заметок Ану: в ней была эстонская форма, которую мы не смогли подтвердить, а неверная форма хуже, чем никакой заметки. Написание мы проверили по словарю, этому можно доверять.",
-    "Anu isn't around right now, so we only checked spelling and whether each sentence is about the picture. Word order and endings need her.":
-      "Ану сейчас нет, поэтому мы проверили только написание и то, про картинку ли каждое предложение. Порядок слов и окончания может проверить только она.",
+    "Anu isn't around right now, so we only checked spelling. Word order and endings need her.":
+      "Ану сейчас нет, поэтому мы проверили только написание. Порядок слов и окончания может проверить только она.",
     "A birthday party":
       "День рождения",
     "A day at the beach":
@@ -1318,6 +1342,9 @@ export const ROUNDS: Area = {
     "Not quite, it's {form}.": "Не зовсім, правильно «{form}».",
     "Words that don't follow the usual pattern, so you just have to know them.": "Слова, що не йдуть за звичним зразком, тож їх просто треба знати.",
     "Nothing to practice here yet": "Тут поки нема чого тренувати",
+    "Pick one area and work through it, easiest words first.": "Оберіть одну тему й пройдіть її, починаючи з найлегших слів.",
+    "Not started": "Не розпочато",
+    "Mixed round": "Змішаний раунд",
     "None of the rule-breakers are near your level yet. Have a look through the full list instead.": "Жодне зі слів-винятків поки не пасує вашому рівню. Краще загляньте в повний список.",
     "Browse the exceptions": "Переглянути винятки",
     "These are the ones the rules don't cover. A few at a time, little and often, is how they stick.": "Це слова, на які правила не поширюються. Запам'ятовуються вони потроху, по кілька за раз.",
@@ -1338,9 +1365,19 @@ export const ROUNDS: Area = {
     "Right form. Now build a whole sentence around it.": "Форма правильна. Тепер побудуйте навколо неї ціле речення.",
     "More on this:": "Докладніше:",
     "Flash cards": "Картки",
+    "A café, a ticket window, the doctor's": "Кав'ярня, квиткова каса, кабінет лікаря",
+    "Say it in the form that answers the question": "Скажіть форму, яка відповідає на запитання",
+    "Picture": "Картинка",
+    "Question": "Запитання",
+    "Steady practice": "Регулярна практика",
+    "The classic way to keep words fresh.": "Класичний спосіб не забувати слова.",
+    "Word games": "Ігри зі словами",
+    "Just for the fun of it.": "Просто задля задоволення.",
+    "Workshop": "Майстерня",
+    "You think, you type. Take your time.": "Ви думаєте, ви друкуєте. Не поспішайте.",
     "Twenty questions": "Двадцять запитань",
-    "A box to type in and a list of your questions. I'm thinking of something, and I answer each question yes, no or sometimes.":
-      "Поле для введення і список ваших запитань. Я загадую щось і на кожне запитання відповідаю «так», «ні» або «іноді».",
+    "I'm thinking of something, and I tell you first what kind of thing it is. You get twenty yes or no questions, and I answer each yes, no or sometimes.":
+      "Я загадую щось і спершу кажу, що це за річ. У вас двадцять запитань, на які можна відповісти «так» чи «ні», і на кожне я відповідаю «так», «ні» або «іноді».",
     "Ask yes or no questions in Estonian, and name it when you can. Each question you type comes back with a tip if it could be better.":
       "Ставте естонською запитання, на які можна відповісти «так» чи «ні», і назвіть загадане, коли здогадаєтеся. Якщо запитання можна поставити краще, до нього прийде підказка.",
     "Words you've met, asked in a way you haven't seen yet.": "Знайомі слова, але запитання поставлено так, як ви ще не бачили.",
@@ -1434,6 +1471,11 @@ export const ROUNDS: Area = {
     "This round comes from the dictionary, so there's nothing to ask until it's loaded.": "Цей раунд будується за словником, тож, доки його не завантажено, нема про що питати.",
     "Add the first {n} and you'll practice each one in all its forms.": "Додайте перші {n}, і ви потренуєте кожне слово в усіх його формах.",
     "Add the first {n}": "Додати перші {n}",
+    "Add and start": "Додати й почати",
+    "words {first} to {last}": "слова з {first} по {last}",
+    "part {n}": "частина {n}",
+    "Add these {n}": "Додати ці {n}",
+    "Add these {n} and you'll practice each one in all its forms.": "Додайте ці {n}, і ви потренуєте кожне слово в усіх його формах.",
     "{length} on the endings that keep tripping you up.": "{length} на закінчення, на яких ви часто спотикаєтеся.",
     "Daily quest": "Завдання дня",
     "Nothing to work on yet": "Поки нема над чим працювати",
@@ -1679,12 +1721,22 @@ export const ROUNDS: Area = {
       "Наступна картинка",
     "Picture {n} of {total}":
       "Картинка {n} з {total}",
+    "Setting: {title}. Use it if it helps. Any story you imagine is fine.":
+      "Місце дії: {title}. Спирайтеся на нього, якщо так легше. Підійде будь-яка вигадана вами історія.",
+    "Corrected":
+      "Виправлено",
+    "Nothing to correct.":
+      "Виправляти нічого.",
+    "The changed forms come from the dictionary.":
+      "Змінені форми взято зі словника.",
+    "Not changed, because we couldn't find it: {words}":
+      "Не змінено, бо ми не знайшли слово: {words}",
     "Sentence {n} needs at least three words.":
       "У реченні {n} потрібно щонайменше три слова.",
     "You're offline, so we can't mark it yet. Your sentences are safe here.":
       "Ви офлайн, тож перевірити поки не вийде. Ваші речення збережено тут.",
-    "Spelled and on topic":
-      "Без помилок і за темою",
+    "Spelled right":
+      "Без помилок",
     "That's not quite a sentence yet. Try three words or more.":
       "Це поки не зовсім речення. Спробуйте три слова або більше.",
     "We couldn't find {words} in the dictionary. Check the spelling, and the {letters}.":
@@ -1693,36 +1745,32 @@ export const ROUNDS: Area = {
       "{a}, {b}, {c} і {d}",
     "You already wrote this one. Try saying something different about the picture.":
       "Це ви вже писали. Спробуйте сказати про картинку щось інше.",
-    "We couldn't match this to anything in the picture. Name something you can see: a person, an animal or an object.":
-      "Ми не знайшли тут нічого з картинки. Назвіть те, що бачите: людину, тварину чи предмет.",
-    "Every word is spelled right and it's about the picture.":
-      "Усі слова написано правильно, і речення про картинку.",
+    "Every word is spelled right.":
+      "Усі слова написано правильно.",
     "Start with a capital letter and finish with a period.":
       "Почніть з великої літери й закінчіть крапкою.",
-    "Spelled right and about the picture.":
-      "Без помилок і про картинку.",
-    "{n} of your {total} sentences are spelled right and about the picture.":
-      "Без помилок і про картинку: {n} з {total} ваших речень.",
+    "Spelled right.":
+      "Без помилок.",
+    "{n} of your {total} sentences are spelled right.":
+      "Без помилок: {n} із {total} ваших речень.",
     "You wrote all five, which is the hardest part to start.":
       "Ви написали всі п'ять, а почати завжди найважче.",
     "Spelling: sentences with a word we couldn't find: {n}.":
       "Правопис: речень зі словом, якого ми не знайшли: {n}.",
-    "Staying on the picture: sentences that named nothing in it: {n}.":
-      "Не відходити від картинки: речень, де нічого з неї не названо: {n}.",
     "Saying something new in each sentence.":
       "Казати в кожному реченні щось нове.",
     "A capital at the start and a period at the end.":
       "Велика літера на початку й крапка в кінці.",
     "What to work on":
       "Над чим попрацювати",
-    "Notes from Anu. The spelling and picture checks come from the dictionary.":
-      "Нотатки Ану. Написання і зв'язок із картинкою ми перевірили за словником.",
+    "Notes from Anu. The spelling check comes from the dictionary.":
+      "Нотатки Ану. Правопис ми перевірили за словником.",
     "We hid one of Anu's notes. It used a word we couldn't confirm as Estonian. The spelling check comes from the dictionary, so you can trust that.":
       "Ми приховали одну з нотаток Ану: у ній було слово, яке ми не змогли підтвердити як естонське. Написання ми перевірили за словником, цьому можна довіряти.",
     "We hid one of Anu's notes. It used an Estonian form we couldn't confirm, and a wrong form is worse than no note. The spelling check comes from the dictionary, so you can trust that.":
       "Ми приховали одну з нотаток Ану: у ній була естонська форма, яку ми не змогли підтвердити, а неправильна форма гірша, ніж жодної нотатки. Написання ми перевірили за словником, цьому можна довіряти.",
-    "Anu isn't around right now, so we only checked spelling and whether each sentence is about the picture. Word order and endings need her.":
-      "Ану зараз немає, тож ми перевірили лише написання і те, чи кожне речення про картинку. Порядок слів і закінчення може перевірити тільки вона.",
+    "Anu isn't around right now, so we only checked spelling. Word order and endings need her.":
+      "Ану зараз немає, тому ми перевірили лише правопис. Порядок слів і закінчення може перевірити тільки вона.",
     "A birthday party":
       "День народження",
     "A day at the beach":

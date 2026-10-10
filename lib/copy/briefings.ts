@@ -152,12 +152,12 @@ export const BRIEFINGS = {
   openers: {
     title: "How a sentence start picks the ending",
     what: "The first words of a sentence and a gap at the end, always for the same word within a round.",
-    you: "Choose the right form, or type it from B1. Nothing is timed. A wrong answer shows where that form would have fit.",
+    you: "Choose the right form. Once a stage is settled you type it instead. Nothing is timed. A wrong answer shows where that form would have fit.",
     action: "Start",
   },
   twenty: {
     title: "Twenty questions",
-    what: "A box to type in and a list of your questions. I'm thinking of something, and I answer each question yes, no or sometimes.",
+    what: "I'm thinking of something, and I tell you first what kind of thing it is. You get twenty yes or no questions, and I answer each yes, no or sometimes.",
     you: "Ask yes or no questions in Estonian, and name it when you can. Each question you type comes back with a tip if it could be better.",
     action: "Start",
   },
@@ -213,6 +213,15 @@ export const BRIEFINGS = {
     title: "Say it out loud",
     what: "A word to say, a recording of a native speaker saying it, and your own voice played back beside it.",
     you: "Record yourself, listen to both, and decide how close you got. No machine grades your accent.",
+    action: "Start",
+  },
+  map: {
+    title: "See what the ending means",
+    what:
+      "A row of emoji, a word under it, and three forms of that word. The emoji show what the " +
+      "ending means. Words you know well lose the picture and then the choices, until you're " +
+      "typing the form yourself.",
+    you: "Pick or type the form that fits. Afterwards you'll see a real sentence using it. There's no clock.",
     action: "Start",
   },
   write: {

@@ -3107,3 +3107,91 @@ answers to read a stage from. It is a decision for the operator to overrule.
 **What is written by hand.** The opener phrases and the English lines are authored and read in the
 pull request by the native Estonian speaker who develops this app, which is the standing the scene
 bank has (ADR-005 amendment 4). No form is written: every ending comes off the dictionary.
+
+## 53. The forty-seventh pass: Map, an ending shown rather than named
+
+A new round in Practice for the endings, built because the last one that asked for them
+was a quiz and a quiz asks a learner to recall a label. `/review/map` shows a small
+picture of a book moving, resting, becoming or going without, under a word, and offers
+three forms of that word. Only the ending tells them apart, and the picture is what the
+ending means. Untimed, because a clock turns it back into a reflex and Target already is
+one.
+
+**Eleven cases, not fourteen.** The eleven that are an ending on the genitive stem each
+have a picture that is true: in, out of and into, on, off and onto, with, becoming, up
+to, as and without. The three stored forms stay out: `lib/estonian/caseReading.ts` says
+English marks none of what the partitive does, so a picture saying "some of it" would
+contradict the paragraph printed under it. They come back when there is something true
+to draw.
+
+**Eight drawings and none per word.** A scene is chosen by the case and by whether the
+word is a person, never by the word, so a house is a house whichever noun is in it.
+Which trio of local cases a word takes is still `lib/estonian/caseQuestion.ts`'s to
+decide, so Map cannot ask `õpetajas` or `Venemaas`.
+
+**A sentence is required, which was the operator's call.** A question exists only where
+a lexicographer's sentence holds the asked form and `readCase` reads that spelling as
+exactly one case, the same test the deck builder applies. It is printed after the answer
+with the form marked, beside the endings as a set. The wrong answers need no sentence:
+they are other forms of the same word and nothing here teaches them.
+
+**What that cost, measured before building.** Of 4,520 nouns, 1,759 can be asked about at
+least one case, 2,599 questions over the eight cases the deck builds. Thin: `-lt` has 76
+words, `-sse` 141, and `-ni`, `-ta` and `-na` are at least 30, 32 and 73 (the deck never
+builds a card for those three, so the figure is a floor). Only 40 words have all three
+moves of a local set in a recorded sentence, which does not matter here because only the
+answer needs one. The round deals the cases in turn so a rare one is not drowned by `-ga`.
+
+**Deck first, the dictionary behind it.** The learner's own nouns lead, since those are the
+only ones that can be graded; a short round is topped up from the dictionary at their
+level, and a word with no card writes nothing. Following the course, both are held to what
+the evenings have taught, case by case. Not on the module rotation: it is a game in
+Practice.
+
+**Three rungs, read off the log.** A word is first met as the picture, then asked by the
+question a class uses (`millesse?`) with the picture gone, then typed from an empty box and
+marked by the flash round's own `markForm`, which names the ending a wrong answer was. Which
+rung a word is on in a case is `rungFrom` in `lib/games/map.ts` over the learner's own answers
+in that case, newest six, oldest first: a Good answer climbs one, anything else steps down one,
+never below the picture. Nothing is stored (ADR-014), answers from every mode count because a
+case typed right on a card is the same fact, and a hint-capped answer is Hard, so needing help
+is not yet knowing. The picture returns after the answer on the two harder rungs, which is
+where it teaches. A word with no card has no log and is on the picture.
+
+**Left for later.** The three stored forms. `audit:questions` asks every Map question the
+shipped dictionary can build whether the answer is on the screen.
+
+## 54. The forty-eighth pass: Map is drawn in emoji, and the word is in the picture
+
+The drawings were a book moving towards a box whatever the word was, so `abi`, help, was
+asked "what is it with?" over a book joined to an empty square. The operator called them
+horrible and said they added nothing, and that was right: a picture that is not of the word
+teaches nothing about the word. A scene is now the word's own emoji off
+`lib/collections/emoji.ts`, one companion, and an arrow emoji for a direction: somebody
+walking, an arrow and a house for into the house; the bus, an arrow and somebody walking
+for out of it; a ball sitting on a chair; a present, an arrow and a girl for to the girl;
+somebody walking, a plus and a dog for with the dog. The word's own emoji sits on the accent tint so it
+is clear which picture the forms are about. Five examples were shown as a mockup, taken off
+the running app, before anything was built.
+
+**A person is "they".** Where the companion is a human emoji the question says "they"
+("Where are they going?", "Who are they with?"), and where it is a present or a box it says
+"it". The operator's rule, and `map.test.ts` holds every scene to it.
+
+**Ten cases, chosen with the operator.** `-ks` is a sparkle and an arrow into the word, "What
+is it turning into?", which the operator asked for by name. `-ni` is a time, an arrow, the
+number and its clock face, "Until when?", so it is asked of the hour words alone. `-na` is out of the game, not even offered as a wrong answer,
+because no emoji makes "as" true of an arbitrary word.
+
+**What goes into a word depends on what the word is.** Somebody walks into a place, or into
+something a person gets into, which is read off the emoji since the dictionary files a bus and
+a notebook under one code; a coin goes into a container; a ball goes on and off any thing. A
+word that is none of those is not asked "in", "into" or "out of", because the first build drew
+a person walking into a notebook and into an ear.
+
+**What it costs.** A word with no emoji is not asked, so the round reads only pictured words,
+and the sentence rule still holds. `audit:questions` now builds 160 Map questions over the
+shipped dictionary, down from 1,849. `-ks` has two questions and `-ni` one, because a recorded
+sentence holding an hour in `-ni` is rare, and only one to ten are drawn, since eleven and
+twelve have no keycap of their own. More pictured words, or a contributed sentence, are what
+move those numbers.

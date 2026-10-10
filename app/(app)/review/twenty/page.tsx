@@ -7,6 +7,10 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { practiceScope } from "@/lib/progress/moduleScope";
 import { starredAmong } from "@/lib/progress/stars";
 import { twentyRound } from "@/lib/progress/twenty";
+import { forPool, learnedWords } from "@/lib/progress/twentyLearned";
+import { TOPICS, topicOrder } from "@/lib/games/twenty";
+import { shuffle } from "@/lib/random/shuffle";
+import { numberSetting, readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { firstParams } from "@/lib/ux/queryParam";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
@@ -14,7 +18,7 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { TwentySession } from "./TwentySession";
 
 export async function generateMetadata() {
-  return titleFor("Kakskümmend küsimust");
+  return titleFor("20 küsimust");
 }
 
 export const dynamic = "force-dynamic";
@@ -30,6 +34,10 @@ export const dynamic = "force-dynamic";
  * looks has spoiled their own round, which is the call Sõnad makes about its
  * word and for the same reason: nothing here is scored.
  *
+ * THE GAME CHOOSES THE GROUP. It thinks of an animal, a food or a drink, a
+ * thing, a plant or a place, or a part of the body, picked here each round and
+ * said up front; the learner is not asked to choose (`TOPICS`).
+ *
  * THE LEARNER'S WORDS ORDER THE DRAW AND NEVER FILTER IT, as in Say what you
  * see: a thing the evenings have taught comes first, and a thing they have not
  * is still a fair thing to be thinking of, since the exercise is the question
@@ -43,19 +51,22 @@ export default async function TwentyPage({
   const ownerId = await requireUserId();
   const query = await searchParams;
   const params = firstParams(query);
-  const [level, scope, locale, prefs] = await Promise.all([
+  const [level, scope, locale, prefs, bestRow] = await Promise.all([
     courseLevelFor(ownerId), practiceScope(ownerId, query), localeFor(ownerId), meaningPrefsFor(ownerId),
+    readSetting(ownerId, SETTING_KEYS.twentyBest),
   ]);
 
   const round = await twentyRound({
     level,
     taught: new Set(scope?.lemmas ?? []),
     not: params.not ?? null,
+    // The game picks the group, and leans away from the one the last round used.
+    topics: topicOrder(shuffle(TOPICS), params.was),
   });
 
   if (!round) {
     return (
-      <Page title="Kakskümmend küsimust" lead={tr(locale, "Twenty questions, in Estonian.")}>
+      <Page title="20 küsimust" lead={tr(locale, "Twenty questions, in Estonian.")}>
         <Empty
           title={tr(locale, "Nothing to think of yet")}
           body={tr(locale, "The dictionary holds none of the words this game uses.")}
@@ -65,7 +76,11 @@ export default async function TwentyPage({
     );
   }
 
-  const starred = await starredAmong(ownerId, [round.lexemeId]);
+  // What earlier rounds' "Ei tea" taught the game, for everybody, trimmed to this round's things.
+  const [starred, learned] = await Promise.all([
+    starredAmong(ownerId, [round.lexemeId]),
+    learnedWords().catch(() => []),
+  ]);
 
   return (
     <BeforeYouStart id="twenty">
@@ -78,7 +93,12 @@ export default async function TwentyPage({
         glosses={round.glosses}
         equivalents={round.equivalents}
         index={round.index}
+        extra={round.extra}
+        pool={round.pool}
         starred={starred.has(round.lexemeId)}
+        topic={round.topic}
+        best={numberSetting(bestRow, 0) || null}
+        learned={forPool(learned, round.pool)}
       />
     </BeforeYouStart>
   );

@@ -216,3 +216,11 @@ describe("one form is offered against the forms it is nearly", () => {
     expect(set.options).toContain("toas");
   });
 });
+
+describe("inflections of one word are one meaning", () => {
+  it("reads 'carrying out' and 'to carry out' as the same answer", () => {
+    expect(sameMeaning("carrying out", "to carry out")).toBe(true);
+    expect(sameMeaning("to apply (a rule)", "to apply, to implement")).toBe(true);
+    expect(sameMeaning("to confirm", "to cancel, to annul")).toBe(false);
+  });
+});

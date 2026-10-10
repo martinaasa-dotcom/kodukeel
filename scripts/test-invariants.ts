@@ -5032,7 +5032,7 @@ check("Today draws at most TODAY_CARDS under the hero, and every card goes throu
     "Today names its cards and draws all of them again; the cap is what keeps the page glanceable",
   );
 
-  const open = today.indexOf('className="grid items-stretch gap-6 lg:grid-cols-2"');
+  const open = today.indexOf('className="flex flex-col gap-6 lg:grid lg:grid-cols-2 lg:items-start"');
   const close = today.indexOf("</Stack>", open);
   assert.ok(open >= 0 && close > open, "Today no longer lays its cards out in the two-across grid");
   const columns = today.slice(open, close);
@@ -22604,7 +22604,7 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     "the role card no longer sticks under the room, or it sticks while it is open as well",
   );
   assert.match(
-    code("components/scene/SceneSession.tsx"), /<details\s+className="scene-sticky/,
+    code("components/scene/SceneSession.tsx"), /<details\s+(?:open=\{[^}]*\}\s+)?className="scene-sticky/,
     "the class that pins the role card is back on something that cannot move: a summary inside a "
     + "closed details has nowhere to travel, which is the fault this replaced",
   );

@@ -13,7 +13,7 @@ import { baseUrl, suite } from "./lib/checks.mjs";
  * of what was fixed, and the thing that stops it coming back.
  */
 const B = baseUrl();
-const PAGES = ["/", "/practice", "/grammar", "/grammar/partitive", "/grammar/build-a-word",
+const PAGES = ["/", "/practice", "/grammar", "/grammar/cases", "/grammar/partitive", "/grammar/build-a-word",
   "/progress", "/progress/readiness", "/progress/readiness/sook-ja-jook", "/learn",
   "/learn/kodu", "/dictionary?q=tuba", "/words", "/words/mastery", "/settings", "/review",
   "/review/dictation", "/class", "/tutor", "/scan", "/welcome", "/funding", "/exam",

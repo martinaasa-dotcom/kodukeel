@@ -135,7 +135,7 @@ const BASE = baseUrl();
 */
 const ROUTES = [
   "/", "/learn", "/learn/new", "/practice", "/progress", "/words", "/words/decks", "/dictionary",
-  "/grammar", "/grammar/inessive", "/grammar/build-a-word", "/grammar/ukrainian", "/settings", "/settings?tab=sound", "/settings?tab=words", "/settings?tab=account", "/scan", "/class", "/tutor",
+  "/grammar", "/grammar/cases", "/grammar/inessive", "/grammar/build-a-word", "/grammar/ukrainian", "/settings", "/settings?tab=sound", "/settings?tab=words", "/settings?tab=account", "/scan", "/class", "/tutor",
   "/assess", "/assess?take=1", "/exam", "/exam/B1/papers", "/privacy", "/terms", "/funding", "/state-exam", "/welcome/ru", "/welcome/uk", "/offline",
   "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions",
   "/course", "/course/learn", "/course/forms", "/review/letters", "/review/lookups",
@@ -154,7 +154,7 @@ const ROUTES = [
     and a second of wall clock is what it costs to enforce it.
   */
   "/quest", "/sonad", "/crossword", "/calendar", "/dictionary/common",
-  "/review/flashcards", "/review/describe",
+  "/review/map", "/review/flashcards", "/review/describe",
   "/words/mastery",
   "/progress/readiness", "/progress/readiness/riigid", "/progress/record",
   /*

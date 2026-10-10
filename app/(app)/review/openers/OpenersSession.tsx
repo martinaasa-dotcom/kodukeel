@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, CircleAlert, Shuffle } from "lucide-react";
 import { openerCard, undoOpenerCards } from "@/app/actions";
 import { useGrade } from "@/components/round/useGrade";
@@ -51,6 +52,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
   reading: StageLine[];
 }) {
   const grade = useGrade();
+  const router = useRouter();
   const t = useT();
   const locale = useLocale();
   // Frozen on mount: grading revalidates the route and hands down a new round.
@@ -200,7 +202,12 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
         )}
         <WayOut className="mt-8 flex flex-wrap gap-3">
           {afterThis && <ButtonLink href={`/review/openers?stage=${afterThis.n}`}>{fill(t("Try stage {n}"), { n: afterThis.n })}</ButtonLink>}
-          <ButtonLink href="/review/openers" variant="primary">{t("Another round")}</ButtonLink>
+          {/* The same address would keep this session mounted with its frozen
+              questions, so the press asks for a round by number: a new address
+              to fetch and a new key to remount on. */}
+          <Button variant="primary" onClick={() => router.push(`/review/openers?round=${Date.now()}`)}>
+            {t("Another round")}
+          </Button>
         </WayOut>
       </div>
     );

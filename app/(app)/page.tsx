@@ -1013,14 +1013,21 @@ export default async function TodayPage() {
         <Lettered show={!!courseCard}>{doNowCard}</Lettered>
         {reviewStrip}
         {/*
-          THE WHITE CARDS, TWO ACROSS AND IN ROWS. A grid rather than `Columns`,
-          which fills down the first column and then the second and so cannot
-          promise that two cards sit side by side: the order asked for is
-          rows (game and word, calendar and conversation, progress and out
-          there), and a row is what a grid deals. Each row's cards share a
-          height, which is what makes a pair read as a pair.
+          THE WHITE CARDS, TWO COLUMNS THAT EACH END WHERE THEY END. The order is
+          still read in rows (game and word, calendar and conversation, progress
+          and out there), so the cards are dealt left, right, left, right. But a
+          card is as tall as what is in it and no taller: they used to be
+          stretched to share a height with the one beside them, which left the
+          word of the day a screen of empty white under its button and made the
+          page read as a spreadsheet. Two independent columns instead, the right
+          one set a little lower so the tops step rather than line up, and
+          neither is padded out to match the other.
+
+          Under `lg` it is one column in the dealt order: the column wrappers
+          are `display: contents` and each card carries its position as `order`,
+          so there is one list of cards and not a second copy for the phone.
         */}
-        <div className="grid items-stretch gap-6 lg:grid-cols-2">
+        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-2 lg:items-start">
           {(() => {
             const dealt = orderTodayCards({
               game: gameCard,
@@ -1032,8 +1039,22 @@ export default async function TodayPage() {
               plan: planCard,
               next: nextCard,
             }, todayOrderFrom(settings[SETTING_KEYS.todayOrder]));
-            return dealt.slice(0, TODAY_CARDS).map((card, i) => (
-              <div key={i} className="min-w-0 [&>*]:h-full" data-column-item>{card}</div>
+            const cards = dealt.slice(0, TODAY_CARDS);
+            return [0, 1].map((side) => (
+              <div
+                key={side}
+                className={
+                  side === 0
+                    ? "contents lg:flex lg:min-w-0 lg:flex-col lg:gap-6"
+                    : "contents lg:flex lg:min-w-0 lg:flex-col lg:gap-6 lg:pt-14"
+                }
+              >
+                {cards.map((card, i) =>
+                  i % 2 === side ? (
+                    <div key={i} className="min-w-0" style={{ order: i }} data-column-item>{card}</div>
+                  ) : null,
+                )}
+              </div>
             ));
           })()}
         </div>

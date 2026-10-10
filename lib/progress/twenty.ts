@@ -3,8 +3,9 @@ import { VOUCHED_ROW } from "@/lib/dict/search";
 import { rankBand } from "@/lib/collections/levels";
 import type { Level } from "@/lib/collections/syllabus";
 import { shuffle } from "@/lib/random/shuffle";
-import { NEEDED_LEMMAS } from "@/lib/games/twenty";
-import { buildIndex, type Index } from "@/lib/games/twentyLookup";
+import { NEEDED_LEMMAS, type Topic } from "@/lib/games/twenty";
+import { buildIndex, shortGloss, type Extra, type Index } from "@/lib/games/twentyLookup";
+import EXTRA from "@/prisma/data/twenty-forms.json";
 import { THINGS, type Thing } from "@/lib/games/twentyThings";
 
 /**
@@ -16,6 +17,8 @@ import { THINGS, type Thing } from "@/lib/games/twentyThings";
  * a word the game does not understand. Nothing an AI wrote is read (`VOUCHED_ROW`).
  */
 export interface TwentyRound {
+  /** The group the game chose to think in, said before the first question. */
+  topic: Topic;
   secret: Thing;
   lexemeId: string;
   /** The dictionary's English for the thing, shown once the round is over. */
@@ -24,6 +27,14 @@ export interface TwentyRound {
   glosses: Record<string, string>;
   /** Spelling to readings, for every headword the game reads. */
   index: Index;
+  /** The forms list's further spellings of those headwords (`scripts/build-twenty-forms.ts`). */
+  extra: Extra;
+  /**
+   * Every thing this round could have been, by headword: what "still fits" is
+   * counted over. Not a hint about which one it is, since it is the whole group at
+   * the learner's band.
+   */
+  pool: string[];
   /** The thing's Russian and Ukrainian equivalents, for the meaning line under it. */
   secretEquivalents: { translationRu: string | null; translationUk: string | null };
   /**
@@ -34,11 +45,7 @@ export interface TwentyRound {
   equivalents: Record<string, { ru: string | null; uk: string | null }>;
 }
 
-/** One short sense, with the note in brackets taken off: "bread (dark)" is "bread". */
-export function shortGloss(translation: string): string {
-  const first = translation.split(/[,;]/)[0] ?? translation;
-  return first.replace(/\s*\([^)]*\)/g, "").trim() || translation;
-}
+export { shortGloss } from "@/lib/games/twentyLookup";
 
 /**
  * Which things a learner is asked to think of: their own band, and one above it.
@@ -57,6 +64,11 @@ export async function twentyRound(opts: {
   taught?: ReadonlySet<string>;
   /** The word of the round before, so "another word" is another one. */
   not?: string | null;
+  /**
+   * The groups to think in, in the order to try them: the first with anything at
+   * the learner's band is the one the round is played in.
+   */
+  topics: readonly Topic[];
 }): Promise<TwentyRound | null> {
   const rows = await prisma.lexeme.findMany({
     where: { lemma: { in: [...NEEDED_LEMMAS] }, ...VOUCHED_ROW },
@@ -85,11 +97,16 @@ export async function twentyRound(opts: {
   }
 
   const nouns = new Map(rows.filter((r) => r.pos === "NOUN").map((r) => [r.lemma, r]));
-  const pool = THINGS.flatMap((thing) => {
+  const candidates = THINGS.flatMap((thing) => {
     const row = nouns.get(thing.lemma);
     return row && (row.cefr === null || bands.has(row.cefr)) && thing.lemma !== opts.not ? [{ thing, row }] : [];
   });
-  if (pool.length === 0) return null;
+  // One read for every group, and the first group holding anything is the round's.
+  const found = opts.topics
+    .map((topic) => ({ topic, pool: candidates.filter((c) => topic.kinds.includes(c.thing.kind)) }))
+    .find((g) => g.pool.length > 0);
+  if (!found) return null;
+  const { topic, pool } = found;
 
   const taught = opts.taught ?? new Set<string>();
   const picked = shuffle(pool)
@@ -98,11 +115,14 @@ export async function twentyRound(opts: {
     .sort((a, b) => b.known - a.known)[0]!.p;
 
   return {
+    topic,
     secret: picked.thing,
     lexemeId: picked.row.id,
     gloss: picked.row.translation,
     glosses,
     index: buildIndex(rows),
+    extra: EXTRA as Extra,
+    pool: pool.map((p) => p.thing.lemma),
     secretEquivalents: { translationRu: picked.row.translationRu, translationUk: picked.row.translationUk },
     equivalents,
   };

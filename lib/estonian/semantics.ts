@@ -156,6 +156,47 @@ const isMixedCode = (code: string) =>
   MIXED_CODES.includes(code) || MIXED_PREFIXES.some((prefix) => code.startsWith(prefix));
 
 /**
+ * Codes for something you could draw a thing going into, onto or off: an
+ * object, a place, a body part, a plant. Whole families by prefix, with the
+ * one family that is signs rather than things taken out.
+ *
+ * ABSENT ON PURPOSE: `abstr`, `tegevus`, `aeg`, `seisund`, `nähtus` and the
+ * rest. A beginning is not a house, and a picture of a book going into one
+ * would teach nothing true about `algusse`. Map draws a place only for a word
+ * that has one in it, and a word nobody classified draws none.
+ */
+const PHYSICAL_FAMILIES: readonly string[] = ["ese", "koht", "kehaosa", "taim"];
+
+/** Signs, numbers and letters are filed under `ese_` and are not objects to put a book on. */
+const NOT_PHYSICAL: readonly string[] = ["ese_semio"];
+
+export function isPhysical(codes: readonly string[] | string | null | undefined): boolean {
+  return codesOf(codes).some((code) =>
+    !NOT_PHYSICAL.includes(code)
+    && PHYSICAL_FAMILIES.some((family) => code === family || code.startsWith(`${family}_`)));
+}
+
+/**
+ * A PLACE AND A CONTAINER, FOR A PICTURE OF GOING INTO ONE.
+ *
+ * Map draws somebody walking into a word only where the word is somewhere a
+ * person can be: the `koht` family, which is a building, a room, a town, a
+ * stretch of land. And it draws a small thing going into a word only where the
+ * word is a container (`ese_anum`): a handbag, a box, a bath. A notebook, an
+ * ear and an anchor are things too, and a person walking into one is the
+ * picture the operator called horrible, so they are neither. Written out for
+ * the reason the person codes are: a prefix reading is a guess about codes
+ * nobody has read.
+ */
+export function isPlace(codes: readonly string[] | string | null | undefined): boolean {
+  return codesOf(codes).some((code) => code === "koht" || code.startsWith("koht_"));
+}
+
+export function isContainer(codes: readonly string[] | string | null | undefined): boolean {
+  return codesOf(codes).includes("ese_anum");
+}
+
+/**
  * Reads the codes on one entry.
  *
  * ANY OF THE PRIMARY SENSE'S CODES, NOT THE FIRST. Ekilex puts several on one

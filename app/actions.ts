@@ -1,5 +1,7 @@
 "use server";
 
+import { relearn, reportGaps, retireLearned } from "@/lib/progress/twentyLearned";
+import { reportable } from "@/lib/games/twentyLearned";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -27,6 +29,7 @@ import { createWithFreshCode } from "@/lib/classroom/create";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
+import { isExactForm } from "@/lib/dict/forms";
 import { mergeExamples, parseExamples, MAX_CHARS as EXAMPLE_MAX_CHARS } from "@/lib/dict/examples";
 import { alsoAcceptedByLemma, borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
@@ -103,6 +106,7 @@ import { heldLevel } from "@/lib/course/placement";
 import type { DayKey } from "@/lib/time/day";
 import { FREQUENCY_GROUPS, type FrequencyGroup } from "@/lib/collections/frequency";
 import { lemmasIn, nextCommonBatch } from "@/lib/progress/common";
+import { COMMON_BATCH, readPart } from "@/lib/collections/commonGroups";
 import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
@@ -1395,6 +1399,60 @@ export async function recordMatchGrades(grades: unknown) {
  * hence the explicit "0 means never played" rather than a plain Math.min,
  * which would leave a first-ever round competing against zero and always losing.
  */
+/**
+ * A round of Kakskümmend küsimust named in so many questions, kept if it is the
+ * fewest. The client says how many, since the round is played in the browser and
+ * nothing in it is graded; a best somebody forges is a best only they see.
+ */
+export async function recordTwentyWin(questions: number) {
+  const ownerId = await requireUserId();
+  if (!Number.isFinite(questions)) return { ok: false as const, error: "That count didn't come through properly." };
+  const rounded = Math.min(25, Math.max(1, Math.round(questions)));
+  return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.twentyBest, rounded, "lower")) };
+}
+
+/**
+ * Reports the words a twenty questions round could not read. A real word is
+ * learned once, after the reply has gone, for every later round
+ * (`lib/progress/twentyLearned.ts`). Says whether one is being learned, so the
+ * screen can tell the learner the game will know it next time.
+ */
+export async function reportTwentyGap(words: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "reportTwentyGap");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const spellings = reportable(Array.isArray(words) ? words.filter((w): w is string => typeof w === "string") : []);
+  if (spellings.length === 0) return { ok: true as const, learning: false };
+  return { ok: true as const, learning: await reportGaps(ownerId, spellings) };
+}
+
+/**
+ * A reviewer retiring a word twenty questions learned badly, or asking again
+ * about one. Gated on `requireAdminId` for the reason `reviewSuggestion` is:
+ * what this changes is answered to every player.
+ */
+const TwentyWordInput = z.union([
+  z.object({ action: z.literal("retire"), lemma: z.string().min(1).max(40) }),
+  z.object({ action: z.literal("relearn"), spelling: z.string().min(1).max(40) }),
+]);
+
+export async function reviewTwentyWord(input: unknown) {
+  const reviewerId = await requireAdminId();
+  const busy = throttleAction(reviewerId, "reviewSuggestion");
+  if (busy) return await sayRefusal(reviewerId, busy);
+  const parsed = TwentyWordInput.safeParse(input);
+  if (!parsed.success) return { ok: false as const, error: "Something went wrong there, so nothing has changed." };
+  if (parsed.data.action === "retire") {
+    await retireLearned(parsed.data.lemma);
+    revalidatePath("/review/twenty");
+    return { ok: true as const, message: "Retired. Rounds stop using it within a minute." };
+  }
+  const outcome = await relearn(reviewerId, parsed.data.spelling).catch(() => "failed" as const);
+  return outcome === "learned" || outcome === "joined"
+    ? { ok: true as const, message: "Learned. Rounds use it within a minute." }
+    : { ok: true as const, message: "It didn’t learn this time. A model may not be set up, or the day’s allowance is spent." };
+}
+
 export async function recordMatchTime(seconds: number) {
   const ownerId = await requireUserId();
   if (!Number.isFinite(seconds)) return { ok: false as const, error: "That time didn't come through properly." };
@@ -2425,7 +2483,7 @@ export async function addCommonWords(group: string) {
  * cannot build is the `objekt` fault, and this cannot make it, because it never
  * names a type at all.
  *
- * Bounded by `nextCommonBatch`, which is twenty words and only ones that are
+ * Bounded by `nextCommonBatch`, which is one part of twenty-five words and only ones that are
  * short of something. Pressing again takes the next twenty; pressing when the
  * whole hundred is finished writes nothing and says so.
  *
@@ -2434,7 +2492,7 @@ export async function addCommonWords(group: string) {
  * the wire whatever the types say, so a group name indexing a table checked
  * into the repository is the argument that cannot name anything else.
  */
-export async function deepenCommonWords(group: string) {
+export async function deepenCommonWords(group: string, part?: number) {
   const ownerId = await requireUserId();
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
     return { ok: false as const, error: "We couldn't find that word list." };
@@ -2443,7 +2501,8 @@ export async function deepenCommonWords(group: string) {
   const busy = throttleAction(ownerId, "deepenCommonWords");
   if (busy) return await sayRefusal(ownerId, busy);
 
-  const batch = await nextCommonBatch(ownerId, group as FrequencyGroup);
+  const wanted = readPart(part === undefined ? undefined : String(part));
+  const batch = await nextCommonBatch(ownerId, group as FrequencyGroup, COMMON_BATCH, wanted);
   if (batch.length === 0) {
     return { ok: true as const, added: 0, words: 0 };
   }
@@ -5012,4 +5071,21 @@ export async function resetCourseFor(target: unknown) {
   } catch (error) {
     return { ok: false as const, error: `${tr(await localeFor(adminId), "Nothing was reset.")} ${safeMessage(error)}`.trim() };
   }
+}
+
+/**
+ * Which of these spellings are real Estonian words, read off the forms list.
+ *
+ * The question game puts a slip of the hand right (`suuur` is `suur`), and a
+ * real word it simply does not know must not be put right into another one:
+ * `halb` is "bad", one letter from `hall`, grey. The game asks this about the
+ * words it could not read before it repairs any of them, and answers on its own
+ * if the network is gone. Accept-side only (ADR-005): the answer is a yes or a
+ * no, never a form.
+ */
+export async function realSpellings(tokens: unknown): Promise<string[]> {
+  await requireUserId();
+  const list = Array.isArray(tokens) ? tokens.slice(0, 12).map((t) => text(t).trim().toLowerCase()).filter((t) => t && t.length <= 40) : [];
+  const found = await Promise.all(list.map(async (t) => ((await isExactForm(t)) ? t : null)));
+  return found.filter((t): t is string => t !== null);
 }

@@ -178,7 +178,7 @@ export default async function ProgressPage() {
 
   if (reviews.length === 0 && snapshot.totalCards === 0) {
     return (
-      <Page route="/progress" title={t("Progress")} lead={t("How your Estonian is really going, worked out fresh from your answers every time you look.")}>
+      <Page route="/progress" title={t("Progress")} lead={t("How your Estonian is really going, from your own answers.")}>
         <Empty
           title={t("No history yet")}
           body={t("Answer your first cards and the charts will start filling in.")}
@@ -191,7 +191,7 @@ export default async function ProgressPage() {
   return (
     <Page route="/progress"
       title={t("Progress")}
-      lead={t("How your Estonian is really going, worked out fresh from your answers every time you look.")}
+      lead={t("How your Estonian is really going, from your own answers.")}
       /*
         The three other readings of "how am I doing", reached from the page
         that asks it. Each is a `within` in `lib/ux/nav.ts` rather than a row

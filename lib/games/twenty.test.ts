@@ -1,9 +1,12 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
 import { ask, ANSWER_ET, IDEAS, NEEDED_LEMMAS, QUESTION_LIMIT, spent, tokensOf, type Reply } from "./twenty";
 import { buildIndex, lookupFrom } from "./twentyLookup";
-import { CATEGORIES, COLOURS, PARTS, THING_BY_LEMMA, THINGS } from "./twentyThings";
+import { CATEGORIES, COLOURS, DOES, MATERIALS, OPINIONS, PARTS, THING_BY_LEMMA, THINGS, TRAITS } from "./twentyThings";
 
+const extra = JSON.parse(fs.readFileSync(path.join(process.cwd(), "prisma", "data", "twenty-forms.json"), "utf8")) as Record<string, string>;
 const rows = dictionaryRows();
 const byLemma = new Map<string, typeof rows>();
 for (const r of rows) byLemma.set(r.lemma, [...(byLemma.get(r.lemma) ?? []), r]);
@@ -23,8 +26,10 @@ const said = (q: string, secret: string) => {
 };
 
 describe("the vocabulary is the dictionary's", () => {
-  it("every headword the game asks for is one the shipped dictionary holds", () => {
-    const missing = NEEDED_LEMMAS.filter((l) => !byLemma.has(l));
+  it("every headword the game asks for is one the shipped dictionary or the forms list holds", () => {
+    // A describing word the dictionary has no entry for is still read, through the forms list
+    // (Ekilex and Vabamorf, guessing off), which carries its own spelling as a form of it.
+    const missing = NEEDED_LEMMAS.filter((l) => !byLemma.has(l) && !(extra[l] ?? "").split(" ").includes(l));
     expect(missing).toEqual([]);
   });
 
@@ -40,10 +45,23 @@ describe("the vocabulary is the dictionary's", () => {
       for (const p of [...t.has, ...t.hasS]) { expect(PARTS).toContain(p); checked++; }
       for (const c of [...t.colour, ...t.colourS]) { expect(COLOURS).toContain(c); checked++; }
       for (const k of [...t.isa, ...t.isaS]) { expect(CATEGORIES).toContain(k); checked++; }
+      for (const k of [...t.trait, ...t.traitS]) { expect([...TRAITS, ...OPINIONS], `${t.lemma} ${k}`).toContain(k); checked++; }
       expect(t.size).toBeGreaterThanOrEqual(1);
       expect(t.size).toBeLessThanOrEqual(10);
     }
     expect(checked).toBeGreaterThan(200);
+  });
+
+  it("every fact is one the engine reads, so none is written into a list nothing asks", () => {
+    // A feel written as a trait (a rabbit "soft" as a trait) is a fact no question ever reaches.
+    const feel = ["fast", "slow", "hard", "soft", "cold", "warm"];
+    let checked = 0;
+    for (const t of THINGS) {
+      for (const k of [...t.feel, ...t.feelS]) { expect(feel, `${t.lemma} ${k}`).toContain(k); checked++; }
+      for (const k of [...t.does, ...t.doesS]) { expect(DOES, `${t.lemma} ${k}`).toContain(k); checked++; }
+      for (const k of [...t.made, ...t.madeS]) { expect(MATERIALS, `${t.lemma} ${k}`).toContain(k); checked++; }
+    }
+    expect(checked).toBeGreaterThan(1000);
   });
 
   it("no fact is both always and sometimes true of one thing", () => {
@@ -137,7 +155,9 @@ describe("reading the learner's question", () => {
 
   it("a serving has no size to speak of, and size 5 to 6 is only sometimes big", () => {
     expect(said("Kas see on suur?", "vesi")).toBe("unknown");
-    expect(said("Kas see on raske?", "kohv")).toBe("unknown");
+    // A liquid weighs what there is of it.
+    expect(said("Kas see on raske?", "kohv")).toBe("sometimes");
+    expect(said("Kas see mahub taskusse?", "piim")).toBe("no");
     expect(said("Kas see on suurem kui leib?", "piim")).toBe("unknown");
     expect(said("Kas see on suur?", "jalgratas")).toBe("sometimes");
     expect(said("Kas see on suur?", "buss")).toBe("yes");
@@ -149,15 +169,18 @@ describe("reading the learner's question", () => {
     expect(said("Mis see on?", "part")).toBe("refused:wh");
     expect(said("Kui suur see on?", "part")).toBe("refused:wh");
     expect(said("Kas see on suur või väike?", "part")).toBe("refused:or");
-    expect(said("Kas see on suur ja punane?", "part")).toBe("refused:many");
+    // Two conditions are both asked, and both have to hold.
+    expect(said("Kas see on suur ja punane?", "part")).toBe("no");
+    expect(said("Kas see on suur ja punane?", "buss")).toBe("sometimes");
     expect(said("", "part")).toBe("refused:empty");
     expect(said("Kas see on suurem?", "part")).toBe("refused:compare");
     expect(said("Kas banaan?", "part")).not.toBe("refused:empty");
     expect(said("Tere hommikust", "part")).toBe("refused:unknown");
   });
 
-  it("says it does not know a thing it has no size for", () => {
-    expect(said("Kas see on suurem kui lind?", "part")).toBe("unknown");
+  it("compares with a thing the game knows a size for, and not with a liquid", () => {
+    expect(said("Kas see on suurem kui lind?", "elevant")).toBe("yes");
+    expect(said("Kas see on suurem kui vesi?", "elevant")).toBe("unknown");
   });
 });
 
@@ -214,7 +237,7 @@ describe("the wide layer", () => {
     expect(said("Kas see on klaasist?", "koer")).toBe("no");
     expect(said("Kas sellel on silmad?", "kass")).toBe("yes");
     expect(said("Kas sellel on kõrvad?", "part")).toBe("no");
-    expect(said("Kas sellel on ekraan?", "telefon")).toBe("sometimes");
+    expect(said("Kas sellel on ekraan?", "telefon")).toBe("yes");
     expect(said("Kas see haugub?", "koer")).toBe("yes");
     expect(said("Kas see kasvab?", "puu")).toBe("yes");
     expect(said("Kas see magab?", "kass")).toBe("yes");
@@ -278,9 +301,10 @@ describe("what the reviewer found", () => {
     expect(said("Kas sellel on nahk?", "mesilane")).toBe("no");
   });
 
-  it("a shape word is not answered where the thing says nothing about its shape", () => {
-    expect(said("Kas see on pikk?", "koer")).toBe("unknown");
-    expect(said("Kas see on lühike?", "koer")).toBe("unknown");
+  it("a shape word is sometimes where the thing says nothing about its shape", () => {
+    // Some dogs are long and some are short: sometimes, rather than a shrug.
+    expect(said("Kas see on pikk?", "koer")).toBe("sometimes");
+    expect(said("Kas see on lühike?", "koer")).toBe("sometimes");
     expect(said("Kas see on pikk?", "porgand")).toBe("yes");
     expect(said("Kas see on lühike?", "porgand")).toBe("no");
   });
@@ -303,8 +327,8 @@ describe("opposites and the last open questions", () => {
     expect(said("Kas see on pehme?", "mägi")).toBe("no");
   });
 
-  it("wet and shape words are not answered where nothing is said", () => {
-    expect(said("Kas see on kuiv?", "koer")).toBe("unknown");
+  it("wet and shape words are sometimes where nothing is said", () => {
+    expect(said("Kas see on kuiv?", "koer")).toBe("sometimes");
     expect(said("Kas see on märg?", "kala")).toBe("yes");
   });
 
