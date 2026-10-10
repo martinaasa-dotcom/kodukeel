@@ -161,6 +161,8 @@ export function HeroFan({
     cards open until it does and the words go above them to give the fan room.
   */
   const spread = labelSpread(labels, n);
+  /* And a card never narrower than the word it carries, at the smallest step. */
+  const cardWidth = spread ? Math.max(cardW, Math.ceil(widestEm(labels) * SIZES[SIZES.length - 1]![1]) + 34) : cardW;
   return (
     <section
       ref={ref}
@@ -187,7 +189,7 @@ export function HeroFan({
           )}
           {action && <div className="hero-fan-action mt-7 flex flex-wrap gap-3">{action}</div>}
         </div>
-        <div className="hero-fan-box" style={{ "--n": n, "--card-w": `${cardW}px`, ...(spread ? { "--step-floor": `${spread}px` } : {}) } as CSSProperties}>
+        <div className="hero-fan-box" style={{ "--n": n, "--card-w": `${cardWidth}px`, ...(spread ? { "--step-floor": `${spread}px` } : {}) } as CSSProperties}>
           <ol className="hero-fan-cards" aria-label={cardsLabel}>
             {cards.slice(0, 5).map((card, i) => (
               <Card key={i} card={card} i={i} n={n} bright={bright} labelSize={labelSize} />
