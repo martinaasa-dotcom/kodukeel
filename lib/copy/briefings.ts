@@ -218,9 +218,9 @@ export const BRIEFINGS = {
   map: {
     title: "See what the ending means",
     what:
-      "A small picture, a word under it, and three forms of that word. The picture shows " +
-      "something moving, having, becoming or going without. Words you know well lose the picture " +
-      "and then the choices, until you're typing the form yourself.",
+      "A row of emoji, a word under it, and three forms of that word. The emoji show what the " +
+      "ending means. Words you know well lose the picture and then the choices, until you're " +
+      "typing the form yourself.",
     you: "Pick or type the form that fits. Afterwards you'll see a real sentence using it. There's no clock.",
     action: "Start",
   },

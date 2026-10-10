@@ -1,29 +1,48 @@
 import type { CaseKey } from "@/lib/estonian/types";
 
 /**
- * MAP: AN ENDING IS A DIRECTION, A HAVING, A BECOMING.
+ * MAP: AN ENDING IS A DIRECTION, A HAVING, A COMPANY.
  *
  * A learner meets `-lt` as a string of letters and a question word, and what it
- * means is "off", which is a picture. Map is that picture. A small drawing
- * shows something moving off a table, into a house, towards a person, and the
- * learner picks the form of the same word that matches. Every option is a form
- * of the one word, so meaning cannot help and only the ending can; the drawing
- * is what makes the ending mean something rather than be memorised.
+ * means is "off", which is a picture. Map is that picture. A row of emoji shows
+ * somebody walking into the very thing the word names, a present going to the
+ * very person, and the learner picks the form of the same word that matches.
+ * Every option is a form of the one word, so meaning cannot help and only the
+ * ending can; the picture is what makes the ending mean something rather than
+ * be memorised.
  *
- * ELEVEN CASES, AND WHY NOT FOURTEEN. The eleven that are built by gluing an
- * ending onto the genitive stem each have a picture that is honest: a place, a
- * direction, a becoming, a limit, a role, a lack, a company. The other three
- * are the stored forms, and the app's own grammar text says English marks none
- * of what the partitive does, so a picture claiming "some of it" would
- * contradict the paragraph printed under it (`lib/estonian/caseReading.ts`).
- * They stay out until there is something true to draw.
+ * THE WORD IS IN THE PICTURE. The first version drew a book moving towards a
+ * box whatever the word was, so `abi`, help, was asked "what is it with?" over
+ * a book joined to an empty square, and the operator called the drawings
+ * horrible and pointless, rightly: a picture that is not of the word teaches
+ * nothing about the word. So a scene is the word's own emoji off
+ * `lib/collections/emoji.ts`, which is a join of Unicode's names against the
+ * dictionary's glosses and writes neither side, plus one companion and an
+ * arrow emoji for the direction. A word with no emoji is not asked, which is
+ * the honest answer for `abi`.
  *
- * A SCENE IS CHOSEN BY THE CASE AND BY WHAT KIND OF WORD IT IS, NOT BY THE
- * WORD. There are eight drawings and no art per word, which is what makes this
- * possible to ship. Which trio of local cases a word takes is decided by
- * `lib/estonian/caseQuestion.ts` and is never decided here, so the drawing for
- * `-l` is a table unless the word is a person, and a word is never asked a
- * case Estonian does not use for it.
+ * A PERSON IS "THEY". Where the companion is a human emoji the question says
+ * "they" ("Where are they going?"), and where it is a thing it says "it"
+ * ("Who is it going to?" of a present). Asserted in `map.test.ts` over every
+ * scene, so a new one cannot ask "where is it?" of somebody walking.
+ *
+ * TEN CASES, AND WHY NOT FOURTEEN. The six local cases, the comitative, the
+ * abessive, the translative and the terminative each have an emoji picture
+ * that is honest: in, out of, into, on, off, onto, with, without, turning
+ * into, until. The translative is a sparkle and an arrow into the word, which
+ * the operator asked for by name. The terminative is a time, an arrow to a
+ * number and its clock face ("until five o'clock"), so it is asked of the hour
+ * words alone, since "as far as the bus" has no picture anybody reads the same
+ * way. The essive is "as", which no companion makes true of an arbitrary word,
+ * and the operator's call is to leave it out of this game, so its ending is
+ * never shown here, not even as a wrong answer. The three stored forms are out
+ * for the reason they always were: the app's own grammar text says English
+ * marks none of what the partitive does (`lib/estonian/caseReading.ts`).
+ *
+ * WHICH TRIO A WORD TAKES IS NOT DECIDED HERE. `lib/estonian/caseQuestion.ts`
+ * says whether the word is a person, so the outside trio is a present going to
+ * and from somebody rather than a box going on and off something, and a word
+ * is never asked a case Estonian does not use for it.
  *
  * Pure and holds no Estonian: the prompts are English and the forms come from
  * the dictionary (ADR-005).
@@ -32,79 +51,149 @@ import type { CaseKey } from "@/lib/estonian/types";
 /** The cases Map asks about, in the order the round weighs them. */
 export const MAP_CASES: readonly CaseKey[] = [
   "INESSIVE", "ELATIVE", "ILLATIVE", "ADESSIVE", "ABLATIVE", "ALLATIVE",
-  "COMITATIVE", "TRANSLATIVE", "ESSIVE", "ABESSIVE", "TERMINATIVE",
+  "COMITATIVE", "ABESSIVE", "TRANSLATIVE", "TERMINATIVE",
 ];
 
-/** What is drawn. Eight pictures, shared by eleven cases. */
-export type SceneKind =
-  | "container" | "surface" | "person"
-  | "change" | "limit" | "role" | "lack" | "together";
+/** One emoji in a scene. `word` marks the one the forms are about. */
+export interface SceneGlyph {
+  readonly glyph: string;
+  readonly word?: boolean;
+}
 
-/** Where the thing is in a scene that moves. `once` for the scenes that do not. */
-export type Stage = "rest" | "leave" | "arrive" | "once";
+/**
+ * How a scene is laid out. A row reads left to right with an arrow for a
+ * direction; `inside` puts the companion inside the word's emoji; `on` stands
+ * it on top.
+ */
+export type SceneLayout =
+  | { readonly kind: "row"; readonly parts: readonly SceneGlyph[] }
+  | { readonly kind: "inside"; readonly host: string; readonly guest: string }
+  | { readonly kind: "on"; readonly host: string; readonly guest: string };
 
 export interface MapScene {
-  readonly kind: SceneKind;
-  readonly stage: Stage;
+  readonly layout: SceneLayout;
   /** What is being asked, in English, about the picture. Never spells the answer. */
   readonly ask: string;
   /** What the picture says, for somebody who cannot see it. */
   readonly alt: string;
 }
 
-const PLACE_ASK: Record<Exclude<Stage, "once">, string> = {
-  rest: "Where is it?",
-  leave: "Where is it coming from?",
-  arrive: "Where is it going?",
-};
+/** Somebody walking, facing the way the arrow points. */
+export const WALKER = "🚶‍➡️";
+/** Somebody standing, for being inside a place. */
+export const STANDER = "🧍";
+/** What goes to and from a person, and what a person has. */
+export const GIFT = "🎁";
+/** What goes on and off a thing. */
+export const BOX = "📦";
+export const ARROW = "➡️";
+export const WITH = "➕";
+export const WITHOUT = "🚫";
+/** What something turns into. */
+export const SPARKLE = "✨";
 
-const PERSON_ASK: Record<Exclude<Stage, "once">, string> = {
-  rest: "Who has it?",
-  leave: "Who is it coming from?",
-  arrive: "Who is it going to?",
-};
+/** One to ten as keycaps, and every hour's clock face, for "until five o'clock". */
+const KEYCAPS = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
+const CLOCKS = ["🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"];
 
-const PLACE: Partial<Record<CaseKey, { kind: "container" | "surface"; stage: Exclude<Stage, "once"> }>> = {
-  INESSIVE: { kind: "container", stage: "rest" },
-  ELATIVE: { kind: "container", stage: "leave" },
-  ILLATIVE: { kind: "container", stage: "arrive" },
-  ADESSIVE: { kind: "surface", stage: "rest" },
-  ABLATIVE: { kind: "surface", stage: "leave" },
-  ALLATIVE: { kind: "surface", stage: "arrive" },
-};
+/** The glyph a number is drawn as: a keycap to ten, the digits after. */
+export function hourGlyph(hour: number): string | null {
+  if (!Number.isInteger(hour) || hour < 1 || hour > 12) return null;
+  return KEYCAPS[hour - 1] ?? [...String(hour)].map((d) => KEYCAPS[Number(d) - 1] ?? "0️⃣").join("");
+}
 
-const OTHER: Partial<Record<CaseKey, { kind: SceneKind; ask: string; alt: string }>> = {
-  TRANSLATIVE: { kind: "change", ask: "What is it turning into?", alt: "A book with an arrow pointing to an empty outline" },
-  TERMINATIVE: { kind: "limit", ask: "How far does it go?", alt: "A book travelling along a path that stops at a line" },
-  ESSIVE: { kind: "role", ask: "What is it acting as?", alt: "A book standing on a podium under an empty name tag" },
-  ABESSIVE: { kind: "lack", ask: "What is missing?", alt: "A book beside an empty outline with a cross through it" },
-  COMITATIVE: { kind: "together", ask: "What is it with?", alt: "A book side by side with something else, joined by a line" },
-};
+/** The companions that are people, whose question says "they". */
+export const HUMAN_COMPANIONS: readonly string[] = [WALKER, STANDER];
+
+/** Every companion and joiner, so a word drawn by one of them is not drawn twice. */
+const COMPANIONS = [WALKER, STANDER, GIFT, BOX, ARROW, WITH, WITHOUT, SPARKLE];
+
+/** What the scene is told about the word it is drawing. */
+export interface SceneWord {
+  /** Whether the word is a person or an animal, from `asksAboutPerson`. */
+  readonly animate: boolean;
+  /** The word's own emoji, or null where it has none. */
+  readonly glyph: string | null;
+  /** The English gloss, for the description a screen reader reads. */
+  readonly gloss: string;
+  /** The hour this word names, one to twelve, or null where it names none. */
+  readonly hour: number | null;
+}
+
+/** The first sense of a gloss, without an article, for a sentence about it. */
+function noun(gloss: string): string {
+  const first = gloss.split(/[,;(/]/)[0]?.trim() ?? "";
+  return first.replace(/^(a|an|the)\s+/i, "") || "word";
+}
 
 /**
- * The picture for one case.
- *
- * `animate` is whether the word is a person or an animal, which is the one fact
- * about the word that changes the drawing: the outside trio on a person is
- * "has it, from, to", and on a thing it is "on, off, onto". Null for a case
- * Map does not draw.
+ * The picture for one case, or null where Map does not draw it: a case it
+ * does not ask, or a word with no emoji of its own.
  */
-export function sceneFor(key: CaseKey, animate: boolean): MapScene | null {
-  const place = PLACE[key];
-  if (place) {
-    const person = animate && place.kind === "surface";
-    const kind: SceneKind = person ? "person" : place.kind;
-    const verb = place.stage === "rest" ? "at rest" : place.stage === "leave" ? "leaving" : "arriving";
-    const subject = person ? "a person" : place.kind === "container" ? "a house" : "a table";
+export function sceneFor(key: CaseKey, word: SceneWord): MapScene | null {
+  // An hour is drawn by its number and its clock, and only ever asked "until when?".
+  if (key === "TERMINATIVE") {
+    const n = word.hour === null ? null : hourGlyph(word.hour);
+    const clock = word.hour === null ? undefined : CLOCKS[word.hour - 1];
+    if (!n || !clock) return null;
     return {
-      kind, stage: place.stage,
-      ask: (person ? PERSON_ASK : PLACE_ASK)[place.stage],
-      alt: `A book ${verb}, with ${subject}`,
+      layout: { kind: "row", parts: [{ glyph: ARROW }, { glyph: n, word: true }, { glyph: clock }] },
+      ask: "Until when?", alt: `Until ${word.hour} o'clock`,
     };
   }
-  const other = OTHER[key];
-  if (!other) return null;
-  return { kind: other.kind, stage: "once", ask: other.ask, alt: other.alt };
+  const w = word.glyph?.trim();
+  if (!w || COMPANIONS.includes(w)) return null;
+  const it = noun(word.gloss);
+  const me: SceneGlyph = { glyph: w, word: true };
+  const g = (glyph: string): SceneGlyph => ({ glyph });
+  const row = (...parts: SceneGlyph[]): SceneLayout => ({ kind: "row", parts });
+
+  switch (key) {
+    case "INESSIVE":
+      return { layout: { kind: "inside", host: w, guest: STANDER }, ask: "Where are they?", alt: `A person inside the ${it}` };
+    case "ELATIVE":
+      return { layout: row(me, g(ARROW), g(WALKER)), ask: "Where are they coming from?", alt: `A person walking out of the ${it}` };
+    case "ILLATIVE":
+      return { layout: row(g(WALKER), g(ARROW), me), ask: "Where are they going?", alt: `A person walking into the ${it}` };
+    case "ADESSIVE":
+      return word.animate
+        ? { layout: row(me, g(GIFT)), ask: "Who has it?", alt: `The ${it} has a present` }
+        : { layout: { kind: "on", host: w, guest: BOX }, ask: "Where is it?", alt: `A box on the ${it}` };
+    case "ABLATIVE":
+      return word.animate
+        ? { layout: row(me, g(ARROW), g(GIFT)), ask: "Who is it coming from?", alt: `A present coming from the ${it}` }
+        : { layout: row(me, g(ARROW), g(BOX)), ask: "Where is it coming from?", alt: `A box coming off the ${it}` };
+    case "ALLATIVE":
+      return word.animate
+        ? { layout: row(g(GIFT), g(ARROW), me), ask: "Who is it going to?", alt: `A present going to the ${it}` }
+        : { layout: row(g(BOX), g(ARROW), me), ask: "Where is it going?", alt: `A box going onto the ${it}` };
+    case "COMITATIVE":
+      return {
+        layout: row(g(WALKER), g(WITH), me),
+        ask: word.animate ? "Who are they with?" : "What do they have with them?",
+        alt: `A person together with the ${it}`,
+      };
+    case "ABESSIVE":
+      return {
+        layout: row(g(WALKER), g(WITHOUT), me),
+        ask: word.animate ? "Who are they without?" : "What are they without?",
+        alt: `A person without the ${it}`,
+      };
+    case "TRANSLATIVE":
+      return {
+        layout: row(g(SPARKLE), g(ARROW), me),
+        ask: "What is it turning into?",
+        alt: `Something turning into the ${it}`,
+      };
+    default:
+      return null;
+  }
+}
+
+/** Every human companion a scene draws, which is what decides "they" over "it". */
+export function humansIn(layout: SceneLayout): string[] {
+  const glyphs = layout.kind === "row" ? layout.parts.filter((p) => !p.word).map((p) => p.glyph) : [layout.guest];
+  return glyphs.filter((g) => HUMAN_COMPANIONS.includes(g));
 }
 
 /**

@@ -1,13 +1,15 @@
 import { prisma } from "@/lib/db";
 import { CASES } from "@/lib/estonian/cases";
 import { asksAboutPerson, canPicturePlace, caseFitsInSentence, caseQuestionFor } from "@/lib/estonian/caseQuestion";
+import { WORD_EMOJI } from "@/lib/collections/emoji";
+import { HOUR_LEMMAS } from "@/lib/scenes/props";
 import { mentions } from "@/lib/estonian/cloze";
 import { caseAnswer, followsEndingRule, stemsFrom, type NounStems } from "@/lib/estonian/derive";
 import { caseIndex, readCase } from "@/lib/estonian/whichCase";
 import { grammarTerm } from "@/lib/estonian/terms";
 import type { CaseKey } from "@/lib/estonian/types";
 import { bandsAround } from "@/lib/collections/levels";
-import { caseWithin, lemmaFilter, type ModuleScope } from "@/lib/course/scope";
+import { caseWithin, type ModuleScope } from "@/lib/course/scope";
 import { VOUCHED_ROW } from "@/lib/dict/search";
 import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { lentFor, sentenceEnglish, sentenceWords, parseExamples, type Example } from "@/lib/dict/examples";
@@ -19,7 +21,7 @@ import { differentText, formNearness } from "@/lib/questions/distractors";
 import { shuffle } from "@/lib/random/shuffle";
 import { formIndex } from "@/lib/games/flash";
 import {
-  MAP_CASES, MAP_QUESTIONS, dealByCase, pickWrong, rungFrom, sceneFor,
+  MAP_CASES, MAP_QUESTIONS, dealByCase, pickWrong, rungFrom, sceneFor, trioOf,
   type FormChoice, type MapScene, type Rung,
 } from "@/lib/games/map";
 
@@ -41,6 +43,11 @@ import {
  * THE WRONG ANSWERS NEED NO SENTENCE. They are other forms of the same word,
  * and nothing here teaches them: they are what the picture is tested against.
  *
+ * ONLY A WORD THAT CAN BE PICTURED. A scene is the word's own emoji
+ * (`lib/collections/emoji.ts`) or, for an hour, its number and clock face, so
+ * a word with neither is never read: `MAP_LEMMAS` narrows both queries before
+ * anything is built, which keeps the pool spent on words that can be asked.
+ *
  * DECK FIRST, THE DICTIONARY BEHIND IT. A learner's own nouns lead, since those
  * are the words they have met and the only ones that can be graded. The rest of
  * the round is topped up from the dictionary at their level, ungraded, exactly
@@ -50,6 +57,21 @@ import {
 
 /** Nouns read per round, before the sentence rule thins them. */
 const POOL = 400;
+
+/** The hour a lemma names, one to twelve, off the table the scenes tell the time with. */
+function hourOf(lemma: string): number | null {
+  const at = HOUR_LEMMAS.indexOf(lemma);
+  return at === -1 ? null : at === 0 ? 12 : at;
+}
+
+/** Every lemma Map can draw: those with an emoji, and the hours. */
+export const MAP_LEMMAS: readonly string[] = [...new Set([...Object.keys(WORD_EMOJI), ...HOUR_LEMMAS])];
+
+/** The query clause for a pictured word, held to the module's words where there is a module. */
+function pictured(scope: ModuleScope | null): { lemma: { in: string[] } } {
+  const all = new Set(MAP_LEMMAS);
+  return { lemma: { in: scope ? scope.lemmas.filter((l) => all.has(l)) : [...all] } };
+}
 
 export interface MapOption {
   /** The form as printed. */
@@ -153,11 +175,13 @@ export function questionsForWord(
     // The word on the label may not be the answer, and neither may its gloss.
     if (answer.accepted.some((f) => f.trim().toLocaleLowerCase("et") === lemma)) continue;
     if (answer.accepted.some((f) => mentions(label, f))) continue;
-    const scene = sceneFor(key, animate);
+    const scene = sceneFor(key, {
+      animate, glyph: WORD_EMOJI[row.lemma] ?? null, gloss: row.translation, hour: hourOf(row.lemma),
+    });
     if (!scene) continue;
-    // A house, a table or a person is only a true picture of a word that is one.
-    if ((scene.kind === "container" || scene.kind === "surface" || scene.kind === "person")
-      && !canPicturePlace(subject)) continue;
+    // Somebody walking into a word, or a box going onto it, is only a true
+    // picture of a word that is a place, a thing or a being.
+    if (trioOf(key) && !canPicturePlace(subject)) continue;
 
     /*
       A sentence holding the asked form as a whole word, and `readCase` reads
@@ -248,7 +272,7 @@ export async function mapRound(ownerId: string, scope: ModuleScope | null = null
     // The learner's own met nouns. Ordered, and ending on the id, because this
     // is a `take` and neither `lapses` nor `due` is unique.
     prisma.card.findMany({
-      where: { ownerId, suspended: false, state: { not: 0 }, lexeme: { pos: "NOUN", ...lemmaFilter(scope) } },
+      where: { ownerId, suspended: false, state: { not: 0 }, lexeme: { pos: "NOUN", ...pictured(scope) } },
       orderBy: [{ lapses: "desc" }, { due: "asc" }, { id: "asc" }],
       take: POOL,
       select: { id: true, lexeme: { select } },
@@ -271,7 +295,8 @@ export async function mapRound(ownerId: string, scope: ModuleScope | null = null
   const extra = await prisma.lexeme.findMany({
     where: {
       pos: "NOUN", ...VOUCHED_ROW, id: { notIn: [...seen] },
-      ...(scope ? lemmaFilter(scope) : { cefr: { in: [...bandsAround(level)] } }),
+      ...pictured(scope),
+      ...(scope ? {} : { cefr: { in: [...bandsAround(level)] } }),
     },
     select,
     orderBy: { id: "asc" },
