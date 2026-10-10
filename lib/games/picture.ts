@@ -200,6 +200,39 @@ export interface Correction {
   /** The learner's own sentence with only the swapped words changed. */
   readonly text: string;
   readonly swaps: readonly Swap[];
+  /**
+   * Words the dictionary could not place and found nothing near enough to put
+   * in their place, as the learner wrote them. The sentence above still holds
+   * them, so the screen says so rather than presenting it as finished.
+   */
+  readonly left: readonly string[];
+}
+
+/** Every spelling an entry accepts, mapped to the headwords it is a form of. */
+export type WordFamily = ReadonlyMap<string, ReadonlySet<string>>;
+
+/** The farthest a model's swap may reach for a word no headword claims, which is a typo. */
+const TYPO_REACH = 3;
+
+/**
+ * WHETHER A SWAP KEEPS THE SAME WORD.
+ *
+ * The model chooses among forms the dictionary supplied, and the dictionary now
+ * supplies the forms of every word the learner wrote as well as of the things in
+ * the picture. So a fix that changes `vaatab` to `ootavad` would be a vouched
+ * form and a different verb: the learner's own word is replaced by one they did
+ * not choose, which is a rewrite and not a correction. A swap is allowed where
+ * the two spellings share a headword, and where the written word belongs to no
+ * headword at all (a typo) only when the form offered is within a few letters
+ * of it.
+ */
+export function sameWordIn(family: WordFamily): (from: string, to: string) => boolean {
+  return (from, to) => {
+    const a = family.get(from.toLowerCase());
+    if (!a || a.size === 0) return editDistance(from.toLowerCase(), to.toLowerCase(), TYPO_REACH) <= TYPO_REACH;
+    const b = family.get(to.toLowerCase());
+    return !!b && [...a].some((lemma) => b.has(lemma));
+  };
 }
 
 /**
@@ -212,12 +245,18 @@ export interface Correction {
  * that the learner did not type is a form from `vouched`, and nothing is
  * rewritten around it. A sentence with nothing to swap has no entry, so
  * word-order advice stays in Anu's note where it can be said in words.
+ *
+ * `sameWord` is asked of every swap the model proposed. Without it any vouched
+ * form may stand in for any written word, which was safe while the vouched
+ * forms were those of the things in the picture and is not once they include
+ * the forms of everything the learner wrote.
  */
 export function correctionsFor(
   sentences: readonly string[],
   marks: readonly SentenceMark[],
   vouched: readonly string[],
   proposed: readonly (readonly { wrong: string; right: string }[])[] = [],
+  sameWord: (from: string, to: string) => boolean = () => true,
 ): Correction[] {
   const vouchedSet = new Set(vouched.map((v) => v.toLowerCase()).filter(Boolean));
   const out: Correction[] = [];
@@ -228,12 +267,15 @@ export function correctionsFor(
       const from = fix.wrong.trim().toLowerCase();
       const to = fix.right.trim().toLowerCase();
       if (!written.has(from) || !vouchedSet.has(to) || from === to) continue;
+      if (!sameWord(from, to)) continue;
       if (swaps.some((x) => x.from.toLowerCase() === from)) continue;
       swaps.push({ from: fix.wrong.trim(), to });
     }
-    const left = (marks[index]?.unknown ?? []).filter((w) => !swaps.some((x) => x.from.toLowerCase() === w.toLowerCase()));
-    swaps.push(...suggestSwaps(left, vouchedSet));
-    if (swaps.length > 0) out.push({ index, text: applySwaps(sentence, swaps), swaps });
+    const notSwapped = (marks[index]?.unknown ?? []).filter((w) => !swaps.some((x) => x.from.toLowerCase() === w.toLowerCase()));
+    const nearest = suggestSwaps(notSwapped, vouchedSet);
+    swaps.push(...nearest);
+    const left = notSwapped.filter((w) => !nearest.some((x) => x.from.toLowerCase() === w.toLowerCase()));
+    if (swaps.length > 0) out.push({ index, text: applySwaps(sentence, swaps), swaps, left });
   });
   return out;
 }

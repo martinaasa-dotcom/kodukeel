@@ -549,17 +549,3 @@ function reviewed(t: Thing): Thing {
 export const THINGS: readonly Thing[] = [...BASE.map((t) => classed(audited(widen(t)))), ...BUILT].map(reviewed);
 
 export const THING_BY_LEMMA: ReadonlyMap<string, Thing> = new Map(THINGS.map((t) => [t.lemma, t]));
-
-/** What kind of thing, in the words a hint uses. English, and about the category, never the word. */
-export const KIND_HINT: Record<Kind, string> = {
-  animal: "It is an animal.",
-  plant: "It is a plant.",
-  food: "It is something you can eat.",
-  drink: "It is something you drink.",
-  object: "It is an object, the kind you find in a home or carry about.",
-  clothes: "It is something you wear.",
-  vehicle: "It is something you can ride in or on.",
-  building: "It is a building.",
-  nature: "It is part of nature, or a place.",
-  body: "It is a part of the body.",
-};

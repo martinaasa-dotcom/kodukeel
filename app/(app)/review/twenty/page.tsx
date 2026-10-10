@@ -8,7 +8,8 @@ import { practiceScope } from "@/lib/progress/moduleScope";
 import { starredAmong } from "@/lib/progress/stars";
 import { twentyRound } from "@/lib/progress/twenty";
 import { forPool, learnedWords } from "@/lib/progress/twentyLearned";
-import { topicFrom } from "@/lib/games/twenty";
+import { TOPICS, topicOrder } from "@/lib/games/twenty";
+import { shuffle } from "@/lib/random/shuffle";
 import { numberSetting, readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { firstParams } from "@/lib/ux/queryParam";
 import { ButtonLink } from "@/components/Button";
@@ -33,6 +34,10 @@ export const dynamic = "force-dynamic";
  * looks has spoiled their own round, which is the call Sõnad makes about its
  * word and for the same reason: nothing here is scored.
  *
+ * THE GAME CHOOSES THE GROUP. It thinks of an animal, a food or a drink, a
+ * thing, a plant or a place, or a part of the body, picked here each round and
+ * said up front; the learner is not asked to choose (`TOPICS`).
+ *
  * THE LEARNER'S WORDS ORDER THE DRAW AND NEVER FILTER IT, as in Say what you
  * see: a thing the evenings have taught comes first, and a thing they have not
  * is still a fair thing to be thinking of, since the exercise is the question
@@ -46,7 +51,6 @@ export default async function TwentyPage({
   const ownerId = await requireUserId();
   const query = await searchParams;
   const params = firstParams(query);
-  const topic = topicFrom(params.topic);
   const [level, scope, locale, prefs, bestRow] = await Promise.all([
     courseLevelFor(ownerId), practiceScope(ownerId, query), localeFor(ownerId), meaningPrefsFor(ownerId),
     readSetting(ownerId, SETTING_KEYS.twentyBest),
@@ -56,7 +60,8 @@ export default async function TwentyPage({
     level,
     taught: new Set(scope?.lemmas ?? []),
     not: params.not ?? null,
-    kinds: topic.kinds,
+    // The game picks the group, and leans away from the one the last round used.
+    topics: topicOrder(shuffle(TOPICS), params.was),
   });
 
   if (!round) {
@@ -91,7 +96,7 @@ export default async function TwentyPage({
         extra={round.extra}
         pool={round.pool}
         starred={starred.has(round.lexemeId)}
-        topic={topic.id}
+        topic={round.topic}
         best={numberSetting(bestRow, 0) || null}
         learned={forPool(learned, round.pool)}
       />

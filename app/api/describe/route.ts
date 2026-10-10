@@ -2,10 +2,10 @@ import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { pictureById, SENTENCES_PER_PICTURE } from "@/lib/collections/pictures";
-import { isKnownForm } from "@/lib/dict/forms";
-import { oneEntryPerLemma } from "@/lib/dict/search";
+import { lemmasOfForm } from "@/lib/dict/forms";
+import { oneEntryPerLemma, VOUCHED_ROW } from "@/lib/dict/search";
 import { acceptedUses } from "@/lib/exam/written";
-import { correctionsFor, markPicture, spellingsToCheck, type PictureWord } from "@/lib/games/picture";
+import { correctionsFor, markPicture, sameWordIn, spellingsToCheck, type PictureWord } from "@/lib/games/picture";
 import { MAX_SENTENCE_CHARS, looksLikeSentence } from "@/lib/estonian/writing";
 import { reportError } from "@/lib/observability/report";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
@@ -20,6 +20,13 @@ import { localeFor } from "@/lib/progress/locale";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+
+/**
+ * How many of the learner's own words the model is handed the forms of. Five
+ * sentences of a dozen words hold about twenty distinct headwords, so this
+ * never bites on an honest answer and bounds a hostile one.
+ */
+const MAX_OWN_WORDS = 40;
 
 /**
  * Marks the five sentences a learner wrote about one picture.
@@ -104,8 +111,13 @@ export async function POST(request: Request) {
 
   // The part that is never in doubt, computed before anything can fail.
   const spellings = spellingsToCheck(sentences).slice(0, 120);
-  const known = new Set<string>();
-  await Promise.all(spellings.map(async (w) => { if (await isKnownForm(w)) known.add(w); }));
+  // Which headwords each spelling is a form of. `known` is the spellings that have any.
+  const headwordsOf = new Map<string, string[]>();
+  await Promise.all(spellings.map(async (w) => {
+    const found = await lemmasOfForm(w);
+    if (found.length > 0) headwordsOf.set(w, found.slice(0, 3));
+  }));
+  const known = new Set(headwordsOf.keys());
   const mark = markPicture(words, sentences, known);
 
   /*
@@ -117,7 +129,47 @@ export async function POST(request: Request) {
     ...w.forms.map((f) => ({ label: `${w.lemma} (${f.formType.replace(/^EKILEX:/, "")})`, value: f.value })),
     ...[...acceptedUses(w)].map((value) => ({ label: `${w.lemma} (a form)`, value })),
   ]);
-  const vouched = knownForms.map((f) => f.value);
+
+  /*
+    AND THE FORMS OF EVERY OTHER WORD THEY WROTE THAT THE DICTIONARY HOLDS.
+
+    A swap used to reach only the things in the picture, so the commonest
+    mistakes in a sentence, the verb that does not agree and the ending on
+    a word that is not in the scene, were named in words and never put right.
+    The forms are the entry's own and the ones a rule derives off its stored
+    stem (`acceptedUses`), the same set the mock exam credits a word with, and
+    only for an entry the dictionary vouches for (`VOUCHED_ROW`). A word the
+    dictionary does not hold gets nothing, which is the honest answer.
+  */
+  const inPicture = new Set(lemmas);
+  const ownLemmas = [...new Set([...headwordsOf.values()].flat())]
+    .filter((lemma) => !inPicture.has(lemma))
+    .slice(0, MAX_OWN_WORDS);
+  const ownRows = ownLemmas.length === 0 ? [] : await prisma.lexeme.findMany({
+    where: { lemma: { in: ownLemmas }, ...VOUCHED_ROW },
+    select: { lemma: true, pos: true, forms: { select: { formType: true, value: true } } },
+    orderBy: [{ lemma: "asc" }, { id: "asc" }],
+    take: MAX_OWN_WORDS * 3,
+  });
+  const family = new Map<string, Set<string>>();
+  const claim = (spelling: string, lemma: string) => {
+    const key = spelling.toLowerCase();
+    (family.get(key) ?? family.set(key, new Set()).get(key)!).add(lemma);
+  };
+  const ownForms = new Map<string, Set<string>>();
+  for (const row of ownRows) {
+    const uses = acceptedUses(row);
+    const bucket = ownForms.get(row.lemma) ?? new Set<string>();
+    for (const use of uses) { bucket.add(use); claim(use, row.lemma); }
+    ownForms.set(row.lemma, bucket);
+  }
+  for (const w of words) for (const use of acceptedUses(w)) claim(use, w.lemma);
+  // The spelling they wrote belongs to the headwords the forms list gives it, even where no entry holds the form.
+  for (const [spelling, found] of headwordsOf) for (const lemma of found) claim(spelling, lemma);
+  const wordForms = [...ownForms].map(([lemma, forms]) => ({ lemma, forms: [...forms].sort() }));
+
+  const vouched = [...knownForms.map((f) => f.value), ...wordForms.flatMap((w) => w.forms)];
+  const sameWord = sameWordIn(family);
   // What the dictionary alone can put right, which stands with the AI off.
   const mechanical = correctionsFor(sentences, mark.sentences, vouched);
 
@@ -161,6 +213,7 @@ export async function POST(request: Request) {
       situation: picture.title,
       things: words.map((w) => ({ emoji: w.emoji, lemma: w.lemma, translation: w.translation })),
       knownForms,
+      wordForms,
       sentences: sentences.map((text, i) => ({
         text, unknown: mark.sentences[i]!.unknown,
       })),
@@ -218,7 +271,7 @@ export async function POST(request: Request) {
     // A swap is kept only for a sentence the model did not call correct, and only where the
     // form it offers is one the dictionary supplied (see `correctionsFor`).
     const proposed = (reply?.fixes ?? []).map((fixes, i) => (reply?.sentences[i]?.verdict === "correct" ? [] : fixes));
-    const corrections = correctionsFor(sentences, mark.sentences, vouched, proposed);
+    const corrections = correctionsFor(sentences, mark.sentences, vouched, proposed, sameWord);
     const shown = reply ? { sentences: reply.sentences, wentWell: reply.wentWell, workOn: reply.workOn } : null;
     return Response.json({ mark, reveal, graded: shown, corrections, aiAvailable: true, withheld, withheldReason }, { headers: NO_STORE });
   } catch (error) {

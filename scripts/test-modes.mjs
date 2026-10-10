@@ -768,19 +768,26 @@ if ((await featured.count()) === 0) {
     for (const el of els) {
       const r = el.getBoundingClientRect();
       const card = el.firstElementChild?.getBoundingClientRect();
-      const row = byX.get(Math.round(r.left)) ?? { bottom: 0, tallest: 0, whole: true };
+      const row = byX.get(Math.round(r.left)) ?? { bottom: 0, tallest: 0, whole: true, fitsContent: true };
       row.bottom = Math.max(row.bottom, r.bottom + scrollY);
       row.tallest = Math.max(row.tallest, r.height);
       // A card cut at the seam shows as a wrapper shorter than the card in it.
       if (card && card.height > r.height + 1) row.whole = false;
+      // A card stretched to match a neighbour shows as a wrapper taller than it.
+      if (card && r.height > card.height + 1) row.fitsContent = false;
       byX.set(Math.round(r.left), row);
     }
     return [...byX.values()];
   });
   check("Today deals its cards into two columns at 1280", cols.length === 2);
-  const [a, b] = cols;
-  check("and the two columns end level, within one card of each other",
-    cols.length === 2 && Math.abs(a.bottom - b.bottom) < Math.max(a.tallest, b.tallest));
+  /*
+    The columns are NOT meant to end level any more: each card is as tall as
+    what is in it, and the right column is set lower so the tops step. What is
+    asked instead is that no card is stretched to match its neighbour, which
+    shows as a wrapper taller than the card inside it.
+  */
+  check("and no card is stretched to the height of the one beside it",
+    cols.length === 2 && cols.every((c) => c.fitsContent));
   // Carrying the count like the check above it: a page that drew no columns
   // at all has no card split across a seam, which is not the same as passing.
   check("and no card is split across the seam", cols.length > 0 && cols.every((c) => c.whole));

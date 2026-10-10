@@ -5033,7 +5033,7 @@ check("Today draws at most TODAY_CARDS under the hero, and every card goes throu
     "Today names its cards and draws all of them again; the cap is what keeps the page glanceable",
   );
 
-  const open = today.indexOf('className="grid items-stretch gap-6 lg:grid-cols-2"');
+  const open = today.indexOf('className="flex flex-col gap-6 lg:grid lg:grid-cols-2 lg:items-start"');
   const close = today.indexOf("</Stack>", open);
   assert.ok(open >= 0 && close > open, "Today no longer lays its cards out in the two-across grid");
   const columns = today.slice(open, close);

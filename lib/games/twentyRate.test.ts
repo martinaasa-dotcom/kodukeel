@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
-import { ask, asRepeat, englishToLemma, cluesFor, inEstonian, letterPattern, NEEDED_LEMMAS, nextQuestions, settledKind, stillFitting, SUGGESTIONS, topicFrom, TOPICS, type Asked } from "./twenty";
+import { ask, asRepeat, englishToLemma, cluesFor, inEstonian, letterPattern, NEEDED_LEMMAS, nextQuestions, settledKind, stillFitting, SUGGESTIONS, topicFrom, topicOrder, TOPICS, type Asked } from "./twenty";
 import { buildIndex, lookupFrom, repairFrom, shortGloss, withExtra } from "./twentyLookup";
 import { THINGS } from "./twentyThings";
 
@@ -184,13 +184,21 @@ describe("hints and topics", () => {
   it("shows only the first and last letters", () => {
     expect(letterPattern("koer")).toBe("k _ _ r");
   });
-  it("every topic holds things to think of, and an unknown one is anything", () => {
-    for (const topic of TOPICS) {
-      const held = THINGS.filter((t) => !topic.kinds || topic.kinds.includes(t.kind));
-      expect(held.length, topic.id).toBeGreaterThan(10);
+  it("every kind of thing is in exactly one group, and every group holds some", () => {
+    const kinds = new Set(THINGS.map((t) => t.kind));
+    for (const kind of kinds) {
+      expect(TOPICS.filter((topic) => topic.kinds.includes(kind)).length, kind).toBe(1);
     }
-    expect(topicFrom("nonsense").id).toBe("all");
-    expect(topicFrom(undefined).id).toBe("all");
+    for (const topic of TOPICS) {
+      expect(THINGS.filter((t) => topic.kinds.includes(t.kind)).length, topic.id).toBeGreaterThanOrEqual(10);
+    }
+    expect(topicFrom("nonsense")).toBeNull();
+    expect(topicFrom("food")?.kinds).toEqual(["food", "drink"]);
+  });
+  it("puts the group the last round used last, and keeps the rest in the order given", () => {
+    const order = topicOrder(TOPICS, "food").map((t) => t.id);
+    expect(order).toEqual([...TOPICS.map((t) => t.id).filter((id) => id !== "food"), "food"]);
+    expect(topicOrder(TOPICS, null).map((t) => t.id)).toEqual(TOPICS.map((t) => t.id));
   });
 });
 
