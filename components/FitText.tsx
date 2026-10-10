@@ -36,6 +36,7 @@ export function FitText({
   className,
   style,
   lang,
+  id,
   tabIndex,
   steadyFor,
   as: Tag = "span",
@@ -55,6 +56,7 @@ export function FitText({
   className?: string;
   style?: CSSProperties;
   lang?: string;
+  id?: string;
   tabIndex?: number;
   /**
    * Other words this element will hold in turn. The size is fitted to the
@@ -135,6 +137,7 @@ export function FitText({
       {...rest}
       ref={inner as never}
       lang={lang}
+      id={id}
       tabIndex={tabIndex}
       data-fit=""
       className={`fit-text${className ? ` ${className}` : ""}`}

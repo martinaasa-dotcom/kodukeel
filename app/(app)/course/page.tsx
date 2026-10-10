@@ -25,7 +25,8 @@ import { WaveWord, WAVE_END } from "@/components/motion/WaveWord";
 import type { CSSProperties } from "react";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
-import { stepsIn } from "@/lib/course";
+import { stepCard, stepsIn } from "@/lib/course";
+import { HeroFan } from "@/components/HeroFan";
 
 export async function generateMetadata() {
   return titleFor("Today's module");
@@ -353,6 +354,7 @@ export default async function CoursePage({
   ]);
   const unit = unitOf(day);
   const done = day.steps.filter((s) => standing.done.has(s.id)).map((s) => s.id);
+  const nextUp = day.steps.find((s) => !standing.done.has(s.id))?.id ?? null;
 
   return (
     <Page
@@ -375,62 +377,41 @@ export default async function CoursePage({
         */}
         <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} locale={locale} />
 
-        <Card tone="night" className="md:p-9">
-          {/*
-            AND WHICH EVENING OF THE UNIT THIS IS, BESIDE WHICH DAY OF THE PART.
+        {/*
+          THE UNIT'S OWN CLAIM, AND WHICH EVENING OF IT THIS IS, WITH TONIGHT'S
+          STEPS DEALT OUT BESIDE IT.
 
-            The heading already says the claim under it is the unit's rather
-            than today's, and that is not the same as saying which slice
-            tonight is: a learner read "Say I, you, he, we and they" over an
-            evening teaching four of the six and reported it, correctly, as
-            the screen promising words it was not going to teach. The count
-            is the one honest answer the screen has, since the claim itself
-            is a person's sentence and a third of it is not a sentence.
-          */}
-          <SectionTitle
-            hint={day.part.of > 1
-              ? fill(t("Day {day} of {total}, part {n} of {of}"), { day: day.index, total, n: day.part.n, of: day.part.of })
-              : fill(t("Day {day} of {days}"), { day: day.index, days: total })}
-          >
-            {day.part.of > 1 ? t("By the end of this unit") : t("By the end of today's module")}
-          </SectionTitle>
-          {/*
-            THE UNIT'S OWN CLAIM, AND WHICH PART OF IT TONIGHT IS.
-
-            A unit of twenty words is three evenings and all three are the same
-            lesson, so the promise is the unit's and the heading says which
-            third this is. Writing a smaller promise per evening was the other
-            way and it is worse: nobody can say what a third of "describe your
-            home" is, and inventing one would be the app claiming something a
-            person did not write.
-          */}
-          <p className="font-display mt-2 text-2xl font-bold leading-snug md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
-            {t(day.canDo)}
-          </p>
-          {/* Three figures on one line, set as type rather than three boxes:
-              three tiles broke onto two rows on a phone, one alone under two,
-              and "tonight" said three times over was the card's heading again. */}
-          <dl className="mt-6 grid grid-cols-3 divide-x rounded-[var(--r-lg)] border py-4" style={{ borderColor: "rgb(255 255 255 / 0.12)", background: "rgb(255 255 255 / 0.06)" }}>
-            {[
-              // An evening of words met before says so rather than "0 new words".
-              newWordsIn(day) > 0
-                ? { value: String(newWordsIn(day)), label: nounOnly(locale, newWordsIn(day), "new word", newWordsIn(day) === 1 ? "new word" : "new words") }
-                : { value: String(day.words.length), label: locale === "en" ? "words again" : fill(t("{words} again"), { words: nounOnly(locale, day.words.length, "word", "words") }) },
-              // The unit is set small beside the number off English: "14 мин" at
-              // display size is wider than a third of a phone, and the number is
-              // the figure while the unit only says what it counts.
-              locale === "en"
-                ? { value: standing.complete ? t("0m") : fill(t("{minutes}m"), { minutes: standing.minutesLeft }), label: t("left") }
-                : { value: String(standing.complete ? 0 : standing.minutesLeft), unit: t("min"), label: t("left") },
-              { value: `${standing.pct}%`, label: t("done") },
-            ].map((figure) => (
-              <div key={figure.label} className="flex flex-col-reverse items-center justify-end gap-1.5 px-1" style={{ borderColor: "rgb(255 255 255 / 0.12)" }}>
-                <dt className="text-sm" style={{ color: "var(--ink-2)" }}>{figure.label}</dt>
-                <dd data-figure className="tnum font-display whitespace-nowrap text-3xl sm:text-4xl font-bold leading-none" style={{ color: "var(--ink)" }}>{figure.value}{"unit" in figure && figure.unit ? <span className="text-base font-semibold"> {figure.unit}</span> : null}</dd>
-              </div>
-            ))}
-          </dl>
-        </Card>
+          The claim is the unit's rather than tonight's: a learner read "Say I,
+          you, he, we and they" over an evening teaching four of the six and
+          reported it, correctly, as the screen promising words it was not
+          going to teach, so the eyebrow says which evening of the unit this
+          is. The fan is Today's, in the night's greys, because the bright one
+          is the home page's and the list under this card is where the steps
+          are pressed.
+        */}
+        <HeroFan
+          eyebrow={`${day.part.of > 1 ? t("By the end of this unit") : t("By the end of today's module")}, ${day.part.of > 1
+            ? fill(t("day {day} of {total}, part {n} of {of}"), { day: day.index, total, n: day.part.n, of: day.part.of })
+            : fill(t("day {day} of {days}"), { day: day.index, days: total })}`}
+          title={t(day.canDo)}
+          text={standing.complete
+            ? t("All of today’s steps are done.")
+            : fill(t("{words}, and {minutes} min to go."), {
+              words: newWordsIn(day) > 0
+                ? countOf(locale, newWordsIn(day), "new word")
+                : fill(t("{words} again"), { words: countOf(locale, day.words.length, "word") }),
+              minutes: standing.minutesLeft,
+            })}
+          cardsLabel={t("What you do today")}
+          cards={stepsIn(day, locale).map((step) => {
+            const isDone = standing.done.has(step.id);
+            return {
+              ...stepCard(step, locale),
+              detail: isDone ? t("done") : fill(t("{minutes} min"), { minutes: step.minutes }),
+              state: isDone ? "done" : step.id === nextUp ? "now" : "later",
+            };
+          })}
+        />
 
         <div>
           <SectionTitle hint={unit ? ui(unit.title, unit.subtitle) : undefined}>
@@ -772,15 +753,6 @@ function eveningsIn(locale: Locale, n: number): string {
 /** "18 parts", the same way. */
 function partsIn(locale: Locale, n: number): string {
   return locale === "en" ? `${n} parts` : countOf(locale, n, "part");
-}
-
-/**
- * The noun of a count whose number is set apart in large type, in the form
- * that number takes: "5" over "new words", or over «новых слов».
- */
-function nounOnly(locale: Locale, n: number, noun: string, english: string): string {
-  if (locale === "en") return english;
-  return countOf(locale, n, noun).replace(/^\d+\s/, "");
 }
 
 /** A sentence with one link in it, wherever the reader's language puts the link. */

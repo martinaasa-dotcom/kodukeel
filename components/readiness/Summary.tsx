@@ -66,25 +66,45 @@ export function ReadinessSummary({ summary, locale }: { summary: Summary; locale
           </li>
         ))}
       </ul>
-      {summary.commonest && (
-        <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
-          {fill(t("What trips you up most, in {n} of these situations: {what}."), { n: summary.commonest.times, what: sayIn(locale, summary.commonest.said).toLowerCase() })}
-          {summary.commonest.href && summary.commonest.cta && (
-            <>
-              {" "}
-              <Link
-                href={summary.commonest.href}
-                className="font-semibold underline underline-offset-2"
-                style={{ color: "var(--accent-deep)" }}
-              >
-                {t(summary.commonest.cta)}
-              </Link>
-              .
-            </>
-          )}
-        </p>
-      )}
+      <Commonest summary={summary} locale={locale} className="mt-4 text-sm" />
     </>
+  );
+}
+
+/** What trips somebody up most across a level, with the press that works on it. */
+function Commonest({ summary, locale, className }: { summary: Summary; locale: Locale; className: string }) {
+  const t = (english: string) => tr(locale, english);
+  if (!summary.commonest) return null;
+  return (
+    <p className={className} style={{ color: "var(--ink-2)" }}>
+      {fill(t("What trips you up most, in {n} of these situations: {what}."), { n: summary.commonest.times, what: sayIn(locale, summary.commonest.said).toLowerCase() })}
+      {summary.commonest.href && summary.commonest.cta && (
+        <>
+          {" "}
+          <Link
+            href={summary.commonest.href}
+            className="font-semibold underline underline-offset-2"
+            style={{ color: "var(--accent-deep)" }}
+          >
+            {t(summary.commonest.cta)}
+          </Link>
+          .
+        </>
+      )}
+    </p>
+  );
+}
+
+/**
+ * The same sentence on its own card, for the readiness page, whose hero says
+ * where somebody stands and leaves what trips them up to the card under it.
+ */
+export function CommonestTrip({ summary, locale }: { summary: Summary; locale: Locale }) {
+  if (!summary.commonest) return null;
+  return (
+    <Card>
+      <Commonest summary={summary} locale={locale} className="text-base leading-relaxed" />
+    </Card>
   );
 }
 
