@@ -3196,7 +3196,70 @@ sentence holding an hour in `-ni` is rare, and only one to ten are drawn, since 
 twelve have no keycap of their own. More pictured words, or a contributed sentence, are what
 move those numbers.
 
-## 55. The forty-ninth pass: every screen photographed, and what that found
+## 55. The forty-ninth pass: Kaksikud, words that look alike
+
+A learner reported it from their own study: `ostma` is to buy and `otsima` is to look for,
+`kuulma` is to hear and `kuulama` is to listen, `algama`, `alustama` and `hakkama` are all
+"to begin", and nothing in the app ever put the two side by side. So there is a round,
+`/review/twins`, and a reference page, `/grammar/twins`, linked from the foot of `/grammar`.
+
+**Three kinds of look-alike, because each needs a different kind of help.** The table is
+`lib/collections/twins.ts`. A pair a rule built (`kasvama` and `kasvatama`, `muutma` and
+`muutuma`, `kuulma` and `kuulama`) is taught by its rule, and once the rule is learned every
+pair after it is half known; the pairs whose meaning has drifted from the rule (`soovima` and
+`soovitama`, `keelama` and `keelduma`) say so, because there the rule misleads. One English
+word that Estonian splits in two or three (`teadma` and `tundma`, `minema` and `käima`, the
+four ways to say "can") is told apart by what comes after the verb. And a coincidence
+(`ostma` and `otsima`, `õpetama` and `lõpetama`, `kala` and `kana`) is learned side by side,
+with the letters that differ marked. 71 groups, 150 lemmas, every one a request the shipped
+dictionary answers under its part of speech, asserted. The table holds English and lemmas and
+no Estonian forms. The English was written by the developer's best judgement and is for a
+native speaker to read.
+
+**The sentence decides, and its English is what makes that fair.** A question is a recorded
+sentence with one word of the group taken out, every word of the group offered in the form
+the gap needs, and the sentence's shipped English above it. The English is necessary because
+a look-alike often fits a sentence grammatically and means something else. The other words
+are put into the gap's slot off the dictionary's own forms (`slotIndex`, `sameSlot` in
+`lib/progress/twinQuestions.ts`), and a word that cannot be put there drops the sentence
+rather than being guessed. What may be hidden is `gapForms`'s answer, like every other gap.
+Measured over the shipped dictionary with no borrowed sentences: all 71 groups get at least
+one question, `Kontsert ____ kell 18.` over "The concert starts at 6 p.m." among them.
+
+**Some words can stand in for each other, and those are accepted.** That is the operator's
+call: `hakkama` picked for `algama` is graded Hard and the screen says the writer used the
+other one, which is the review card's own rule about a second right word. An overlap applies
+only where the sentence's English uses the shared meaning (`Overlap.when`): `jõudma` and
+`saabuma` are both "to arrive", and only the first is "to afford".
+
+**Guess the other half.** For a pair a rule built and the meaning kept, and that shares a root,
+the round shows one word and its meaning and asks what the other means. It is reasoned, not
+recalled, so it grades nothing.
+
+**Grading.** A sentence question grades the answer's production card, or its recognition card
+where there is no production card, through `gradeCard` (ADR-016). A word with no card writes
+nothing. A group named in the address (`?group=`) is the whole round, which is what the
+reference page and the review card link to.
+
+**The review card names a mix-up.** A production card answered with a twin of its own word
+says which word that was and what it means, and links to the pair's drill outside the module.
+It is a miss even where the marker would have read a slip: `valutama` for `valetama` is one
+letter on an eight-letter word and `koht` for `kõht` is a dropped diacritic, and both are a
+different word that would otherwise have been graded as a recall.
+
+**A round leads with the pairs this learner loses.** Groups holding a word of their deck come
+first, and among those the groups whose words have the most lapses, which is the nearest thing
+the log already holds to "these are the two I mix up". Nothing new is stored for it.
+
+**`npm run audit:questions` asks it too**, 2,351 questions over the shipped dictionary, and its
+first run found a real fault: `halb` and `hall` built a question out of a sentence about Jerry
+Hall, where the English printed the answer. A capital away from the start of a sentence is a
+name and is never gapped now, and a sentence whose English carries the answer is never used.
+
+**Left for later.** Recording the mix-up itself (which twin was picked for which word), so the
+round can lead with exact pairs rather than with lapses. A native speaker's read of the table.
+
+## 56. The fiftieth pass: every screen photographed, and what that found
 
 Every route the app has was taken at 390 and 1280 pixels with two months of history in the
 deck, every practice round was opened past its briefing, and each picture was read. Most of

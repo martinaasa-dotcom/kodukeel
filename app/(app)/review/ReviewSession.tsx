@@ -61,6 +61,8 @@ import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { Lettered } from "@/components/HeroLetters";
 import { useKeepInView } from "@/components/round/useKeepInView";
 import { useOncePerRound } from "@/components/round/useOncePerRound";
+import { TrParts } from "@/components/TrParts";
+import { twinTyped, type TwinGroup, type TwinWord } from "@/lib/collections/twins";
 
 export interface ReviewCard {
   id: string;
@@ -224,6 +226,13 @@ export interface ReviewCard {
 }
 
 import type { Contrast, ContrastWord } from "@/lib/progress/contrast";
+
+/** A look-alike typed for the card's own word, and the pair the two belong to. */
+interface TwinMixup {
+  twin: TwinWord;
+  own: TwinWord;
+  group: TwinGroup;
+}
 export type { Contrast, ContrastWord };
 
 
@@ -667,7 +676,7 @@ export function ReviewSession({
     when it was (lib/questions/neighbours.ts). Held on the verdict rather than
     beside it so every place that clears the verdict clears it too.
   */
-  const [verdict, setVerdict] = useState<(AnswerCheck & { neighbour?: ContrastWord }) | null>(null);
+  const [verdict, setVerdict] = useState<(AnswerCheck & { neighbour?: ContrastWord; twin?: TwinMixup }) | null>(null);
   const [chosen, setChosen] = useState<string | null>(null);
   /*
     A MISS IS TYPED AGAIN BEFORE THE CARD GOES.
@@ -1235,9 +1244,28 @@ export function ReviewSession({
     const neighbour = marked.verdict === "wrong" && card.contrast
       ? typedNeighbour(typed, card.contrast.neighbours)
       : null;
+    /*
+      A LOOK-ALIKE IS A MIX-UP, NAMED. `otsima` typed for `ostma` is a real
+      word that means something else, so the card says which word it was and
+      what it means rather than "not quite", and links to that pair's drill
+      (`lib/collections/twins.ts`). It is a miss even where the marker read it
+      as a slip: `valutama` for `valetama` is one letter on an eight-letter
+      word, which the typo rule forgives, and `koht` for `kõht` is a dropped
+      diacritic, and both are a different word graded as a recall otherwise.
+    */
+    const mixed = !neighbour && marked.verdict !== "correct" && card.cardType === "PRODUCTION" && card.lemma
+      ? twinTyped(card.lemma, typed)
+      : null;
+    const own = mixed?.group.words.find((w) => w.lemma === card.lemma?.trim().toLocaleLowerCase("et"));
     const result = neighbour
       ? { verdict: "correct" as const, expected: card.back, note: "", suggestedRating: NEIGHBOUR_RATING, neighbour }
-      : marked;
+      : mixed && own
+        ? {
+            ...marked, verdict: "wrong" as const, suggestedRating: 1 as const,
+            note: `That's ${mixed.twin.lemma}, ${mixed.twin.means}.`, say: undefined,
+            twin: { twin: mixed.twin, own, group: mixed.group },
+          }
+        : marked;
     setVerdict(result);
     setRevealed(true);
     cheer(countsAsRecalled(result.verdict));
@@ -1895,9 +1923,28 @@ export function ReviewSession({
               <p
                 className={`${verdict.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(verdict.verdict)]} verdict-panel`}
               >
-                {verdict.verdict === "correct" ? t(uiText("Õige!", "Correct!")) : verdictNote}
+                {verdict.verdict === "correct" ? t(uiText("Õige!", "Correct!")) : verdict.twin ? (
+                  <TrParts template="That's {twin}, {means}. This card wanted {word}, {wanted}." parts={{
+                    twin: <span lang="et" className="font-semibold">{verdict.twin.twin.lemma}</span>,
+                    means: t(verdict.twin.twin.means),
+                    word: <span lang="et" className="font-semibold">{verdict.twin.own.lemma}</span>,
+                    wanted: t(verdict.twin.own.means),
+                  }} />
+                ) : verdictNote}
               </p>
-              {typed.trim() && verdict.verdict !== "correct" && (
+              {verdict.twin && !inModule && (
+                <p className="mt-2 text-sm">
+                  <Link
+                    href={`/review/twins?group=${encodeURIComponent(verdict.twin.group.id)}`}
+                    className="font-semibold underline"
+                    style={{ color: "var(--accent-deep)" }}
+                  >
+                    {t("These two are easy to mix up. Practise the pair")}
+                  </Link>
+                </p>
+              )}
+              {/* Not under a named mix-up, whose line already says what was typed. */}
+              {typed.trim() && verdict.verdict !== "correct" && !verdict.twin && (
                 <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
                   {t("You typed")} <span lang={backLang}>{typed.trim()}</span>
                 </p>
