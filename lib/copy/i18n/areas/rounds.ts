@@ -756,6 +756,8 @@ export const ROUNDS: Area = {
       "Исправлять нечего.",
     "The changed forms come from the dictionary.":
       "Изменённые формы взяты из словаря.",
+    "Not changed, because we couldn't find it: {words}":
+      "Не изменено, потому что мы не нашли слово: {words}",
     "Sentence {n} needs at least three words.":
       "В предложении {n} нужно хотя бы три слова.",
     "You're offline, so we can't mark it yet. Your sentences are safe here.":
@@ -1727,6 +1729,8 @@ export const ROUNDS: Area = {
       "Виправляти нічого.",
     "The changed forms come from the dictionary.":
       "Змінені форми взято зі словника.",
+    "Not changed, because we couldn't find it: {words}":
+      "Не змінено, бо ми не знайшли слово: {words}",
     "Sentence {n} needs at least three words.":
       "У реченні {n} потрібно щонайменше три слова.",
     "You're offline, so we can't mark it yet. Your sentences are safe here.":

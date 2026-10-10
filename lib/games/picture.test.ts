@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applySwaps, correctionsFor, markPicture, spellingsToCheck, suggestSwaps, writtenWords, type PictureWord } from "./picture";
+import { applySwaps, correctionsFor, markPicture, sameWordIn, spellingsToCheck, suggestSwaps, writtenWords, type PictureWord } from "./picture";
 
 const word = (lemma: string, translation: string, forms: Record<string, string>): PictureWord => ({
   lemma, translation, pos: "NOUN", emoji: "·",
@@ -142,5 +142,51 @@ describe("correctionsFor", () => {
 
   it("has no entry for a sentence with nothing to swap", () => {
     expect(correctionsFor([sentences[1]!], [marks[1]!], vouched)).toEqual([]);
+  });
+
+  it("names the words it could not put right, so a half-corrected sentence is not passed off as finished", () => {
+    const text = ["Nad vaatab konsert hiljem."];
+    const mark = markPicture([], text, new Set(["nad", "vaatab", "hiljem"])).sentences;
+    const out = correctionsFor(text, mark, ["vaatavad"], [[{ wrong: "vaatab", right: "vaatavad" }]]);
+    expect(out).toHaveLength(1);
+    expect(out[0]!.text).toBe("Nad vaatavad konsert hiljem.");
+    expect(out[0]!.left).toEqual(["konsert"]);
+  });
+});
+
+describe("sameWordIn", () => {
+  const family = new Map<string, Set<string>>([
+    ["vaatab", new Set(["vaatama"])],
+    ["vaatavad", new Set(["vaatama"])],
+    ["ootavad", new Set(["ootama"])],
+    ["buss", new Set(["buss"])],
+    ["bussiga", new Set(["buss"])],
+  ]);
+  const same = sameWordIn(family);
+
+  it("allows another form of the word the learner wrote", () => {
+    expect(same("vaatab", "vaatavad")).toBe(true);
+    expect(same("Buss", "bussiga")).toBe(true);
+  });
+
+  it("refuses a vouched form of a different word, which would be a rewrite and not a correction", () => {
+    expect(same("vaatab", "ootavad")).toBe(false);
+    expect(same("buss", "ootavad")).toBe(false);
+  });
+
+  it("lets a word no headword claims be put right only by a form a few letters away", () => {
+    expect(same("sibuleid", "sibulaid")).toBe(true);
+    expect(same("sibuleid", "vaatavad")).toBe(false);
+  });
+
+  it("drops a model's swap that changes the word, inside correctionsFor", () => {
+    const out = correctionsFor(
+      ["Nad vaatab rongi."],
+      markPicture([], ["Nad vaatab rongi."], new Set(["nad", "vaatab", "rongi"])).sentences,
+      ["vaatavad", "ootavad"],
+      [[{ wrong: "vaatab", right: "ootavad" }]],
+      same,
+    );
+    expect(out).toEqual([]);
   });
 });
