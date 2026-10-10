@@ -123,10 +123,10 @@ export interface Entry {
 let lastSignature: { value: string | null; checkedAt: number } | null = null;
 
 /**
- * A number that moves whenever a row is added to or removed from `Lexeme` or
- * `Form`, read off Postgres's own counters rather than off the tables, so it
- * costs one tiny row however large the dictionary is. Asked at most once per
- * `FACTS_TTL_MS` per instance. A failure keeps the last answer, so a database
+ * A string that moves whenever a row is added to or removed from `Lexeme` or
+ * `Form`: the entries counted, the newest entry, and Postgres's own counters
+ * for the forms, so it costs one tiny row however large the dictionary is.
+ * Asked at most once per `FACTS_TTL_MS` per instance. A failure keeps the last answer, so a database
  * that will not say leaves the facts to the ceiling rather than refilling them
  * every minute, which is the bill this exists to stop.
  */
@@ -136,9 +136,20 @@ async function dictionarySignature(): Promise<string | null> {
   return singleFlight("dict-facts:signature", async () => {
     let value = lastSignature?.value ?? null;
     try {
+      /*
+        The entries are counted exactly, because the counters below are
+        flushed by each backend up to about ten seconds after its write, and a
+        word deleted inside that window would otherwise be served until the
+        next check. Six thousand rows on an index is nothing; the Form table
+        is the large one and is left to the counters, where a lag of seconds
+        on a hand edit's forms decides nothing.
+      */
       const rows = await prisma.$queryRaw<{ v: string }[]>`
-        SELECT coalesce(sum(n_tup_ins + n_tup_del), 0)::text AS v
-        FROM pg_stat_user_tables WHERE relname IN ('Lexeme', 'Form')
+        SELECT concat_ws('|',
+          (SELECT count(*) FROM "Lexeme"),
+          (SELECT max("createdAt") FROM "Lexeme"),
+          (SELECT coalesce(sum(n_tup_ins + n_tup_del), 0) FROM pg_stat_user_tables WHERE relname = 'Form')
+        ) AS v
       `;
       value = rows[0]?.v ?? null;
     } catch {

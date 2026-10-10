@@ -10,9 +10,9 @@ import type { InvariantKit } from "../lib/invariantKit";
  * on every warm instance anybody was using. That is what took the Supabase
  * project past the free plan's 5 GB of egress in under three weeks. A
  * dictionary fact passes `DICTIONARY`, which keeps it until a row is added or
- * removed (asked once a minute through one tiny row of Postgres's own
- * counters), and builds on the three shared reads rather than a query of its
- * own, so a refill is the dictionary once.
+ * removed (asked once a minute through one tiny row: the entries counted
+ * and Postgres's counters for the forms), and builds on the three shared
+ * reads rather than a query of its own, so a refill is the dictionary once.
  *
  * Two arms. No cached fact in these files reads `Lexeme` or `Form` under a
  * clock, and the only whole-table reads of either are the shared ones.
