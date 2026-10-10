@@ -209,8 +209,13 @@ const REACHES: Record<string, number> = {
     table or a person was drawn only for a word that is a thing, a place, a body
     part, a plant or a being; 1,849 after, which is measured and not estimated.
     The sentence rule is the stricter reading and it is what this figure costs.
+    Then 187, once a scene had to be the word's own emoji: a word with no
+    picture is not asked, and the essive left the round. Then 160, once "in",
+    "into" and "out of" were asked only of a place, something a person gets
+    into, or a container, since a person walking into a notebook is a picture
+    of nothing. Measured on 2026-10-10.
   */
-  map: 1_849,
+  map: 128,
   // Kaksikud, over the whole dictionary: every word of every look-alike group
   // in every recorded sentence it can be gapped from, and the guessing
   // question both ways round for the rule pairs. Measured at 2,351, after a

@@ -171,9 +171,9 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "Map", tone: "sky", group: "targeted", note: "Pictures, no clock",
     within: "/practice",
     blurb:
-      "A small picture of something moving onto a table, into a house, off a shelf or towards " +
-      "a person, and three forms of one word. Only the ending tells them apart, and the picture " +
-      "is what it means. Afterwards you read a real sentence using it.",
+      "A row of emoji: somebody walking into a house, a present going to a girl, a caterpillar " +
+      "turning into a butterfly, and three forms of one word. Only the ending tells them apart, and " +
+      "the picture is what it means. Afterwards you read a real sentence using it.",
   },
   {
     /*

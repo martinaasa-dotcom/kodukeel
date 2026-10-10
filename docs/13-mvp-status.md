@@ -3161,7 +3161,42 @@ where it teaches. A word with no card has no log and is on the picture.
 **Left for later.** The three stored forms. `audit:questions` asks every Map question the
 shipped dictionary can build whether the answer is on the screen.
 
-## 54. The forty-eighth pass: Kaksikud, words that look alike
+## 54. The forty-eighth pass: Map is drawn in emoji, and the word is in the picture
+
+The drawings were a book moving towards a box whatever the word was, so `abi`, help, was
+asked "what is it with?" over a book joined to an empty square. The operator called them
+horrible and said they added nothing, and that was right: a picture that is not of the word
+teaches nothing about the word. A scene is now the word's own emoji off
+`lib/collections/emoji.ts`, one companion, and an arrow emoji for a direction: somebody
+walking, an arrow and a house for into the house; the bus, an arrow and somebody walking
+for out of it; a ball sitting on a chair; a present, an arrow and a girl for to the girl;
+somebody walking, a plus and a dog for with the dog. The word's own emoji sits on the accent tint so it
+is clear which picture the forms are about. Five examples were shown as a mockup, taken off
+the running app, before anything was built.
+
+**A person is "they".** Where the companion is a human emoji the question says "they"
+("Where are they going?", "Who are they with?"), and where it is a present or a box it says
+"it". The operator's rule, and `map.test.ts` holds every scene to it.
+
+**Ten cases, chosen with the operator.** `-ks` is a sparkle and an arrow into the word, "What
+is it turning into?", which the operator asked for by name. `-ni` is a time, an arrow, the
+number and its clock face, "Until when?", so it is asked of the hour words alone. `-na` is out of the game, not even offered as a wrong answer,
+because no emoji makes "as" true of an arbitrary word.
+
+**What goes into a word depends on what the word is.** Somebody walks into a place, or into
+something a person gets into, which is read off the emoji since the dictionary files a bus and
+a notebook under one code; a coin goes into a container; a ball goes on and off any thing. A
+word that is none of those is not asked "in", "into" or "out of", because the first build drew
+a person walking into a notebook and into an ear.
+
+**What it costs.** A word with no emoji is not asked, so the round reads only pictured words,
+and the sentence rule still holds. `audit:questions` now builds 160 Map questions over the
+shipped dictionary, down from 1,849. `-ks` has two questions and `-ni` one, because a recorded
+sentence holding an hour in `-ni` is rare, and only one to ten are drawn, since eleven and
+twelve have no keycap of their own. More pictured words, or a contributed sentence, are what
+move those numbers.
+
+## 55. The forty-ninth pass: Kaksikud, words that look alike
 
 A learner reported it from their own study: `ostma` is to buy and `otsima` is to look for,
 `kuulma` is to hear and `kuulama` is to listen, `algama`, `alustama` and `hakkama` are all
