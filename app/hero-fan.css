@@ -117,8 +117,8 @@
 .hero-fan-now .hero-fan-face { animation: hero-fan-breathe 5s ease-in-out 1.4s infinite; }
 
 /* The line under the hand: which step is next, and how long it takes. */
-.hero-fan-caption { display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; }
-.hero-fan-caption-dot { width: 0.625rem; height: 0.625rem; flex: none; }
+.hero-fan-caption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.5rem; margin-top: 1rem; overflow-wrap: normal; }
+.hero-fan-caption-dot { width: 0.625rem; height: 0.625rem; flex: none; align-self: center; }
 
 /*
   Figures: a short stack of slim cards, one a line, the figure and then its word.
