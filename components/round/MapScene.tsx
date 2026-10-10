@@ -12,6 +12,11 @@ import type { MapScene, SceneGlyph } from "@/lib/games/map";
  * the pictures the three forms are about. Emoji are drawn by the reader's own
  * font, so nothing is shipped and both themes work.
  *
+ * The emoji keep their smaller size until 1024px. At 768 the rail appears and
+ * the card is at its narrowest, about 320px inside, and the larger size filled
+ * a row of three to within two pixels of it. The row also wraps rather than
+ * overflowing, as a backstop.
+ *
  * It says nothing in words. The English question sits under it and the word
  * under that, and the row carries a description for somebody who cannot see
  * it. The emoji themselves are hidden from a screen reader, which would
@@ -23,30 +28,32 @@ import type { MapScene, SceneGlyph } from "@/lib/games/map";
 function Glyph({ glyph, word }: SceneGlyph) {
   return word
     ? (
-      <span className="grid size-24 shrink-0 place-items-center rounded-full text-6xl leading-none sm:size-28 sm:text-7xl"
+      <span className="grid size-24 shrink-0 place-items-center rounded-full text-6xl leading-none lg:size-28 lg:text-7xl"
         style={{ background: "var(--accent-soft)" }}>
         {glyph}
       </span>
     )
-    : <span className="shrink-0 text-5xl leading-none sm:text-6xl">{glyph}</span>;
+    : <span className="shrink-0 text-5xl leading-none lg:text-6xl">{glyph}</span>;
 }
 
 export function MapPicture({ scene }: { scene: MapScene }) {
   const t = useT();
   const { layout } = scene;
   return (
-    <div role="img" aria-label={t(scene.alt)} className="flex min-h-44 items-center justify-center gap-3 py-5 sm:gap-5">
+    <div role="img" aria-label={t(scene.alt)} className="flex min-h-44 flex-wrap items-center justify-center gap-3 py-5 lg:gap-5">
+      {/* Wraps rather than overflowing: a row of emoji fits one line at every
+          width, and a row that did not would sooner break than leave the card. */}
       <span aria-hidden className="contents">
         {layout.kind === "row" && layout.parts.map((p, i) => <Glyph key={i} {...p} />)}
         {layout.kind === "inside" && (
           <span className="relative grid place-items-center">
             <Glyph glyph={layout.host} word />
-            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-3xl leading-none sm:bottom-4 sm:text-4xl">{layout.guest}</span>
+            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-3xl leading-none lg:bottom-4 lg:text-4xl">{layout.guest}</span>
           </span>
         )}
         {layout.kind === "on" && (
           <span className="flex flex-col items-center">
-            <span className="-mb-3 text-5xl leading-none sm:text-6xl">{layout.guest}</span>
+            <span className="-mb-3 text-5xl leading-none lg:text-6xl">{layout.guest}</span>
             <Glyph glyph={layout.host} word />
           </span>
         )}

@@ -109,9 +109,10 @@ describe("sceneFor", () => {
     expect(lines).toBeGreaterThan(0);
   });
 
-  it("draws every hour from one to twelve", () => {
-    for (let h = 1; h <= 12; h++) expect(hourGlyph(h), String(h)).not.toBeNull();
-    expect(hourGlyph(0)).toBeNull();
+  it("draws the hours that have one keycap, one to ten, and no other", () => {
+    for (let h = 1; h <= 10; h++) expect([...hourGlyph(h)!].length, String(h)).toBeLessThanOrEqual(3);
+    for (const h of [0, 11, 12]) expect(hourGlyph(h), String(h)).toBeNull();
+    expect(sceneFor("TERMINATIVE", { ...five, hour: 11 })).toBeNull();
   });
 });
 

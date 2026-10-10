@@ -92,14 +92,18 @@ export const WITHOUT = "🚫";
 /** What something turns into. */
 export const SPARKLE = "✨";
 
-/** One to ten as keycaps, and every hour's clock face, for "until five o'clock". */
+/**
+ * One to ten as keycaps, and their clock faces, for "until five o'clock".
+ * Eleven and twelve have no keycap of their own, and two keycaps side by side
+ * do not fit the circle the word is drawn in, so those two hours are not drawn.
+ */
 const KEYCAPS = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
 const CLOCKS = ["🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"];
 
-/** The glyph a number is drawn as: a keycap to ten, the digits after. */
+/** The keycap an hour is drawn as, one to ten, or null for any other. */
 export function hourGlyph(hour: number): string | null {
-  if (!Number.isInteger(hour) || hour < 1 || hour > 12) return null;
-  return KEYCAPS[hour - 1] ?? [...String(hour)].map((d) => KEYCAPS[Number(d) - 1] ?? "0️⃣").join("");
+  if (!Number.isInteger(hour) || hour < 1 || hour > KEYCAPS.length) return null;
+  return KEYCAPS[hour - 1] ?? null;
 }
 
 /** The companions that are people, whose question says "they". */
