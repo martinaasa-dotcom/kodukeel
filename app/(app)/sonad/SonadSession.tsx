@@ -449,13 +449,15 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
         twenty pixels, narrower than any other key on the board. The padding
         is `!px-0`, because the button's own size class carries `px-4` and
         wins over a plain `px-0` in the stylesheet's order: that padding was
-        most of how wide those two keys were.
+        most of how wide those two keys were. Both keep `min-w-11`, the 44px
+        floor a control without a letter on it has to clear: at 360px one and
+        a half keys is about forty.
       */}
       <div className="flex flex-col gap-1">
         {SONAD_KEY_ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1 sm:gap-1.5">
             {i === SONAD_KEY_ROWS.length - 1 && (
-              <Button type="button" variant="secondary" onClick={onDelete} aria-label={t("Delete", "key")} className="h-12 min-w-0 flex-[1.5] basis-0 !px-0">
+              <Button type="button" variant="secondary" onClick={onDelete} aria-label={t("Delete", "key")} className="h-12 min-w-11 flex-[1.5] basis-0 !px-0">
                 <Delete size={18} aria-hidden />
               </Button>
             )}
@@ -483,7 +485,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
               );
             })}
             {i === SONAD_KEY_ROWS.length - 1 && (
-              <Button type="button" variant="primary" onClick={onSubmit} className="h-12 min-w-0 flex-[1.5] basis-0 !px-1 text-xs sm:text-sm">
+              <Button type="button" variant="primary" onClick={onSubmit} className="h-12 min-w-11 flex-[1.5] basis-0 !px-1 text-xs sm:text-sm">
                 {/* The icon on a phone, where the key is a thumb wide; the word
                     from `sm`, where it fits in every language the app is read
                     in ("Перевірити" is the long one). */}
