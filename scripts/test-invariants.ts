@@ -1970,6 +1970,7 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
   /* The pure builders, which take the rank as a field rather than reading it. */
   const BY_FIELD = [
     "lib/srs/cards.ts", "lib/collections/worksheet.ts", "lib/estonian/caseBuild.ts",
+    "lib/progress/twinQuestions.ts",
   ];
 
   const readsExamples = [...sourceFiles("app"), ...sourceFiles("lib")]

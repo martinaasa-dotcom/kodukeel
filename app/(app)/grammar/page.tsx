@@ -173,6 +173,9 @@ export default async function GrammarHubPage() {
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
             <Link href="/grammar/cases" className="underline" style={{ color: "var(--accent-deep)" }}>{t("Every ending and every grammar topic, in one list")}</Link>
           </p>
+          <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+            <Link href="/grammar/twins" className="underline" style={{ color: "var(--accent-deep)" }}>{t("Words that look alike, and how to tell them apart")}</Link>
+          </p>
         </Card>
       </Stack>
     </Page>

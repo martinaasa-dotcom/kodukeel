@@ -252,6 +252,18 @@ export const SECTIONS: NavSection[] = [
         keywords: "irregular exception gradation stem change tuppa illative unpredictable memorize astmevaheldus",
       },
       {
+        /*
+          Words that look alike and are not the same word, and the three rules
+          and coincidences behind them. A part of the grammar reference, linked
+          from the foot of it, and the page every group links into Kaksikud
+          from. See `lib/collections/twins.ts`.
+        */
+        href: "/grammar/twins", label: "Words that look alike",
+        blurb: "Pairs that are easy to mix up, and how to tell them apart", icon: "Scale",
+        tone: "butter", within: "/grammar",
+        keywords: "similar confusing look alike twins pairs kuulma kuulama ostma otsima verb pairs causative",
+      },
+      {
         href: "/dictionary/common", label: "Common words",
         blurb: "The 400 words Estonians use most, in four lists", icon: "TrendingUp",
         tone: "sky", within: "/dictionary",
