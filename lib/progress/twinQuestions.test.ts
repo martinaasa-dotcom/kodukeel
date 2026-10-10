@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
 import { TWIN_GROUPS, guessable, twinGroup } from "@/lib/collections/twins";
 import { BLANK, mentions } from "@/lib/estonian/cloze";
-import { guessQuestionFor, sameSlot, sentenceQuestionsFor, slotIndex, splitAtGap, type TwinRow } from "./twinQuestions";
+import { splitAtGap } from "@/lib/collections/twins";
+import { guessQuestionFor, sameSlot, sentenceQuestionsFor, slotIndex, type TwinRow } from "./twinQuestions";
 
 const ROWS = new Map<string, TwinRow>(
   dictionaryRows().map((r) => [`${r.lemma}|${r.pos}`, {

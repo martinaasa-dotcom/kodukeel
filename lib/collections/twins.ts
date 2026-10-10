@@ -27,8 +27,13 @@
  * differ. They were written by the developer's best judgement and are for a
  * native speaker to read; edit them here.
  *
- * Pure: no React, no Next, no Prisma, no network, no clock.
+ * Pure: no React, no Next, no Prisma, no network, no clock. The round's screen
+ * imports from here and from nothing that builds questions, because those reach
+ * the card builder and the card builder reaches the dictionary's own files,
+ * which would then ship to every browser that opens the round.
  */
+
+import { BLANK } from "@/lib/estonian/cloze";
 
 export type TwinKind = "makes" | "itself" | "attends" | "sense" | "lookalike";
 
@@ -378,4 +383,10 @@ export function guessable(g: TwinGroup): boolean {
   let shared = 0;
   while (shared < x.length && x[shared] === y[shared]) shared++;
   return shared >= 3;
+}
+
+/** Where the gap sits in a gapped sentence, for drawing it. */
+export function splitAtGap(gapped: string): [before: string, after: string] {
+  const at = gapped.indexOf(BLANK);
+  return at < 0 ? [gapped, ""] : [gapped.slice(0, at), gapped.slice(at + BLANK.length)];
 }

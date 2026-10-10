@@ -22,8 +22,8 @@ import { gapMeaning } from "@/lib/copy/gapMeaning";
 import { narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { OPTION_CLASS, VERDICT_CLASS, optionState, type Verdict } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { DRIFTED_NOTE, KIND_COPY, letterRuns, twinGroup } from "@/lib/collections/twins";
-import { splitAtGap, type TwinQuestion } from "@/lib/progress/twinQuestions";
+import { DRIFTED_NOTE, KIND_COPY, letterRuns, splitAtGap, twinGroup } from "@/lib/collections/twins";
+import type { TwinQuestion } from "@/lib/progress/twinQuestions";
 
 export type TwinsQuestion = TwinQuestion & { cardId: string | null; starred: boolean };
 

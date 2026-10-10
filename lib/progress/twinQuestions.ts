@@ -1,4 +1,4 @@
-import { BLANK, buildCloze, mentions } from "@/lib/estonian/cloze";
+import { buildCloze, mentions } from "@/lib/estonian/cloze";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { stemsFrom } from "@/lib/estonian/derive";
@@ -326,10 +326,4 @@ export function guessQuestionFor(
     options,
     answer: options.indexOf(asked.means),
   };
-}
-
-/** Where the gap sits in a gapped sentence, for drawing it. */
-export function splitAtGap(gapped: string): [before: string, after: string] {
-  const at = gapped.indexOf(BLANK);
-  return at < 0 ? [gapped, ""] : [gapped.slice(0, at), gapped.slice(at + BLANK.length)];
 }
