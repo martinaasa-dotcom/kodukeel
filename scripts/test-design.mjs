@@ -714,6 +714,60 @@ for (const [width, height, display] of [
 check("the hero sits under the nav and every beat of the page stands one gap from the next",
   heroFit.length === 0, heroFit.join(" | "));
 
+/*
+  THE LEADING CARD HOLDS STILL UNDER A STILL POINTER, AND IS A HAND ON A PHONE.
+  A fan card used to lift itself out from under the cursor, lose the hover,
+  drop back under it and lift again, many times a second: measured on the
+  version that shipped, the card under a pointer that had not moved changed on
+  791 of 936 positions. It is two boxes now, and only the drawing moves. And
+  on a phone the cards are a hand under the words, not a grid of tiles that
+  took a whole screen to say five words.
+*/
+if (live) {
+  await p.setViewportSize({ width: 1280, height: 1000 });
+  await p.goto(`${B}/practice`, { waitUntil: "load" });
+  await p.waitForTimeout(1600);
+  const fanCards = p.locator("[data-hero-fan] .hero-fan-card");
+  let positions = 0;
+  const flipped = [];
+  for (let i = 0; i < (await fanCards.count()); i++) {
+    const box = await fanCards.nth(i).boundingBox();
+    if (!box) continue;
+    for (const fy of [0.55, 0.8, 0.95]) {
+      for (const fx of [0.15, 0.5, 0.85]) {
+        await p.mouse.move(box.x + box.width * fx, box.y + box.height * fy);
+        const seen = new Set();
+        for (let k = 0; k < 5; k++) {
+          await p.waitForTimeout(70);
+          seen.add(await p.evaluate(() => [...document.querySelectorAll("[data-hero-fan] .hero-fan-card")].findIndex((c) => c.matches(":hover"))));
+        }
+        positions++;
+        if (seen.size > 1) flipped.push(`card ${i + 1} at ${fx},${fy}`);
+      }
+    }
+  }
+  await p.mouse.move(0, 0);
+  check("the card under a still pointer stays the card under it", positions > 0 && flipped.length === 0,
+    positions === 0 ? "no fan card found on /practice" : `${flipped.length} of ${positions}: ${flipped.slice(0, 4).join(", ")}`);
+
+  await p.setViewportSize({ width: 390, height: 844 });
+  await p.goto(`${B}/`, { waitUntil: "load" });
+  await p.waitForTimeout(1600);
+  const hand = await p.evaluate(() => {
+    const hero = document.querySelector("[data-hero-fan]");
+    const cards = [...(hero?.querySelectorAll(".hero-fan-card") ?? [])].map((c) => c.getBoundingClientRect());
+    if (!hero || cards.length === 0) return null;
+    /* One row: every card shares a band with every other, whatever its tilt or lift. */
+    const rows = Math.max(...cards.map((r) => r.top)) < Math.min(...cards.map((r) => r.bottom)) ? 1 : 2;
+    return { cards: cards.length, rows, height: Math.round(hero.getBoundingClientRect().height), tallest: Math.round(Math.max(...cards.map((r) => r.height))) };
+  });
+  if (!hand) absent(1, "Today drew no leading card at 390px, so there is no hand to measure");
+  else check("on a phone the leading card's cards are one short row, and the card fits a screen",
+    hand.rows === 1 && hand.tallest <= 112 && hand.height <= 640,
+    `${hand.cards} cards over ${hand.rows} rows, tallest ${hand.tallest}px, card ${hand.height}px`);
+  await p.setViewportSize({ width: 1280, height: 1000 });
+}
+
 console.log(`\n  ${sizes.size} type steps · ${weights.size} weights · ${radii.size} radii · ${contrast.length} contrast failures`);
 await b.close();
 done();
