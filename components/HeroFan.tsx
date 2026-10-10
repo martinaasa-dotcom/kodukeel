@@ -100,13 +100,22 @@ export function HeroFan({
         range.selectNodeContents(t);
         for (const r of range.getClientRects()) right = Math.max(right, r.right);
       }
-      if (right > left) el.style.width = `${Math.ceil(right - left) + 2}px`;
+      /* Never wider than the row: a word that overflows for a frame, before
+         the headline has fitted itself, is not the text's real width. */
+      if (right > left) el.style.width = `${Math.min(Math.ceil(right - left) + 2, parent.clientWidth)}px`;
     };
     fit();
     const seen = new ResizeObserver(fit);
     seen.observe(parent);
+    /* And measured again whenever the words change, or the width they had
+       outlives them. */
+    const edited = new MutationObserver(() => requestAnimationFrame(fit));
+    edited.observe(el, { characterData: true, childList: true, subtree: true });
     void document.fonts?.ready.then(fit);
-    return () => seen.disconnect();
+    return () => {
+      seen.disconnect();
+      edited.disconnect();
+    };
   }, [title]);
 
   /* The pointer, as two numbers between -1 and 1, written once a frame. */
