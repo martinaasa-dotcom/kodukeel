@@ -76,7 +76,9 @@ export function Examples({ lexemeId, examples, tutorReady, pos }: {
   return (
     <div>
       <h3 className="label-xs mb-2 flex items-center gap-2" style={{ color: "var(--ink-3)" }}>
-        {fillNodes(t("{term}, in a sentence"), { term: <span lang="et">Näited</span> })}
+        {/* One span, or each piece of the template becomes a flex item of its
+            own and the gap opens a space in front of the comma. */}
+        <span>{fillNodes(t("{term}, in a sentence"), { term: <span lang="et">Näited</span> })}</span>
         <span className="font-normal normal-case tracking-normal" style={{ letterSpacing: 0 }}>
           {list.length}
         </span>

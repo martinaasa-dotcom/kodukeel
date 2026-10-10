@@ -218,7 +218,7 @@ export function Speak({
   return (
     <span className="inline-flex items-center gap-1.5">
       {button}
-      <SpaceKeyCap />
+      <SpaceKeyCap className="keys-hint" />
     </span>
   );
 }
@@ -310,7 +310,7 @@ export function SpeakPair({
   return (
     <span className="inline-flex items-center gap-1.5">
       {pair}
-      <SpaceKeyCap />
+      <SpaceKeyCap className="keys-hint" />
     </span>
   );
 }

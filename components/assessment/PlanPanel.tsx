@@ -483,6 +483,16 @@ function sentence(
     : plan.verdict === "possible"
       ? "The rest means real work beyond this app, every week. People who put that in do get there."
       : "The rest is more than most weeks can hold on top of everything else, so either the date or the pace needs to move.");
+  /*
+    Under an hour, one decimal place of hours is a zero that is not one: a
+    learner whose pace comes to three minutes by the date read "puts in about
+    0 of those hours". Said in the unit that fits, the way every other
+    duration on this panel is.
+  */
+  if (covered < 1) {
+    const duration = formatDurationIn(plan.appHoursAvailable ?? 0, locale, "long", "acc");
+    return `${distance} ${fill(t(`In {weeks} ${whose} ${puts(whose)} in only {duration} of them.`), { ...counts, duration })} ${rest}`;
+  }
   return `${distance} ${fill(t(`In {weeks} ${whose} ${puts(whose)} in about {covered} of those hours.`), counts)} ${rest}`;
 }
 

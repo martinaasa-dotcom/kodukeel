@@ -1,6 +1,7 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ReadingEnd } from "@/components/course/ReadingEnd";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { fold } from "@/lib/estonian/fold";
 import {
   ArrowLeft, ArrowRight, BookOpen, MessageCircleQuestion, PenLine, Target, TriangleAlert,
 } from "lucide-react";
@@ -123,7 +124,17 @@ export default async function CasePage({
   // The words on the page are the module's own when it is opened from a step.
   const scope = moduleScopeFrom(query);
   const ref = caseReference(caseKey.toUpperCase());
-  if (!ref) notFound();
+  if (!ref) {
+    /* The app names a case by its Estonian name everywhere, so that is the
+       name somebody types: /grammar/sisseütlev, or sisseutlev with no õ key,
+       reaches the page the slug names rather than a dead end. */
+    let raw = caseKey;
+    try { raw = decodeURIComponent(caseKey); } catch { /* left as it came */ }
+    const typed = fold(raw.toLowerCase());
+    const named = CASES.find((c) => fold(c.et) === typed);
+    if (named) redirect(`/grammar/${named.key.toLowerCase()}`);
+    notFound();
+  }
 
   const ownerId = await requireUserId();
   const [examples, locale] = await Promise.all([

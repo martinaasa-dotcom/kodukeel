@@ -224,6 +224,15 @@ export const BRIEFINGS = {
     you: "Pick or type the form that fits. Afterwards you'll see a real sentence using it. There's no clock.",
     action: "Start",
   },
+  twins: {
+    title: "Tell the look-alikes apart",
+    what:
+      "A real sentence with one word missing, what the sentence means in English, and two or " +
+      "three words that look alike underneath. Some questions show one word of a pair and ask " +
+      "what the other one means.",
+    you: "Pick the word that fits. Afterwards you'll see the other word in a sentence of its own. There's no clock.",
+    action: "Start",
+  },
   write: {
     title: "Write your own sentence",
     what: "One word, and the ending we'd like you to give it.",

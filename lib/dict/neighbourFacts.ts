@@ -1,5 +1,4 @@
-import { prisma } from "@/lib/db";
-import { FACTS_TTL_MS, remember } from "@/lib/dict/facts";
+import { DICTIONARY, dictionaryEntries, remember } from "@/lib/dict/facts";
 import { neighbourIndex, type NeighbourIndex } from "@/lib/questions/neighbours";
 
 /**
@@ -13,10 +12,8 @@ import { neighbourIndex, type NeighbourIndex } from "@/lib/questions/neighbours"
  * `lib/questions/neighbours.ts` and `lib/dict/synonyms.ts`.
  */
 export function neighbours(): Promise<NeighbourIndex> {
-  return remember("neighbours", FACTS_TTL_MS, async () => {
-    const rows = await prisma.lexeme.findMany({
-      select: { id: true, lemma: true, pos: true, translation: true, cefr: true },
-    });
+  return remember("neighbours", DICTIONARY, async () => {
+    const rows = await dictionaryEntries();
     return neighbourIndex(rows.map((r) => ({
       id: r.id, lemma: r.lemma, pos: r.pos, gloss: r.translation, graded: r.cefr !== null,
     })));

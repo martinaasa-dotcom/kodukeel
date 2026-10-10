@@ -310,7 +310,7 @@ export const ROUNDS: Area = {
     "Your sentence": "Ваше предложение",
     "Marking…": "Проверяем…",
     "Check it": "Проверить",
-    "Anu isn't available here, so only the form is checked. That check is the reliable half.": "Ану здесь недоступна, поэтому проверяется только форма. Но именно эта проверка надёжна.",
+    "Anu isn't set up here, so we check the form of the word and not the rest of the sentence.": "Ану здесь не настроена, поэтому мы проверяем форму слова, а не всё предложение.",
     "Yes, that's the right ending.": "Да, окончание верное.",
     "Right word, but not the ending we asked for. It's {form}.": "Слово верное, но окончание не то, которое мы просили. Нужно {form}.",
     "The word we asked for isn't in your sentence. It's {form}.": "В вашем предложении нет слова, которое мы просили. Нужно {form}.",
@@ -690,14 +690,15 @@ export const ROUNDS: Area = {
     "The crossword, for a Saturday with time to spare.": "Кроссворд для субботы, когда есть свободное время.",
     "Marked: {grade}":
       "Отмечено: {grade}",
-    "Tap to hear it {space} or {key}, or hear it {speaker} slowly":
-      "Нажмите, чтобы услышать {space} или {key}, или послушайте {speaker} медленно",
-    "Play again {space} or {key}, or hear it {speaker} slowly":
-      "Ещё раз {space} или {key}, или послушайте {speaker} медленно",
-    "Tap or press {space} to hear the word, and again to replay it":
-      "Коснитесь или нажмите {space}, чтобы услышать слово, и ещё раз, чтобы повторить",
-    "Put the letters in order. Tap the speaker, or press Space, as often as you like.":
-      "Расставьте буквы по порядку. Нажимайте на динамик или на пробел сколько угодно.",
+    "Press {space} or {key} to hear it":
+      "Нажмите {space} или {key}, чтобы услышать",
+    "Press {space} or {key} to hear it again":
+      "Нажмите {space} или {key}, чтобы услышать ещё раз",
+    "Tap to hear the word, and again to replay it.":
+      "Коснитесь, чтобы услышать слово, и ещё раз, чтобы повторить.",
+    "{space} plays it too.": "{space} тоже включает его.",
+    "Put the letters in order. Hear the word as often as you like.":
+      "Расставьте буквы по порядку. Слушайте слово сколько угодно.",
     "Tap the words and marks in order…":
       "Нажимайте на слова и знаки по порядку…",
     "The words are right. Check where the punctuation goes.":
@@ -1283,7 +1284,7 @@ export const ROUNDS: Area = {
     "Your sentence": "Ваше речення",
     "Marking…": "Перевіряємо…",
     "Check it": "Перевірити",
-    "Anu isn't available here, so only the form is checked. That check is the reliable half.": "Ану тут недоступна, тож перевіряється лише форма. Але саме ця перевірка надійна.",
+    "Anu isn't set up here, so we check the form of the word and not the rest of the sentence.": "Ану тут не налаштована, тож ми перевіряємо форму слова, а не все речення.",
     "Yes, that's the right ending.": "Так, закінчення правильне.",
     "Right word, but not the ending we asked for. It's {form}.": "Слово правильне, але закінчення не те, про яке ми просили. Треба {form}.",
     "The word we asked for isn't in your sentence. It's {form}.": "У вашому реченні немає слова, про яке ми просили. Треба {form}.",
@@ -1663,14 +1664,15 @@ export const ROUNDS: Area = {
     "The crossword, for a Saturday with time to spare.": "Кросворд для суботи, коли є вільний час.",
     "Marked: {grade}":
       "Позначено: {grade}",
-    "Tap to hear it {space} or {key}, or hear it {speaker} slowly":
-      "Натисніть, щоб почути {space} або {key}, або послухайте {speaker} повільно",
-    "Play again {space} or {key}, or hear it {speaker} slowly":
-      "Ще раз {space} або {key}, або послухайте {speaker} повільно",
-    "Tap or press {space} to hear the word, and again to replay it":
-      "Торкніться або натисніть {space}, щоб почути слово, і ще раз, щоб повторити",
-    "Put the letters in order. Tap the speaker, or press Space, as often as you like.":
-      "Розставте літери по порядку. Натискайте на динамік або на пробіл скільки завгодно.",
+    "Press {space} or {key} to hear it":
+      "Натисніть {space} або {key}, щоб почути",
+    "Press {space} or {key} to hear it again":
+      "Натисніть {space} або {key}, щоб почути ще раз",
+    "Tap to hear the word, and again to replay it.":
+      "Торкніться, щоб почути слово, і ще раз, щоб повторити.",
+    "{space} plays it too.": "{space} теж вмикає його.",
+    "Put the letters in order. Hear the word as often as you like.":
+      "Розставте літери по порядку. Слухайте слово скільки завгодно.",
     "Tap the words and marks in order…":
       "Натискайте на слова й знаки по порядку…",
     "The words are right. Check where the punctuation goes.":

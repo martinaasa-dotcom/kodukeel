@@ -253,7 +253,6 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent"><MessageCircleQuestion size={12} aria-hidden /> 20 küsimust</Chip>
-          <Chip>{fill(t("{n} of {total}"), { n: used, total: limit })}</Chip>
         </div>
         {!over && <FitMeter fitting={fitting.length} total={things.length} asked={shown.length} />}
 

@@ -253,6 +253,20 @@ export async function pathWithProgress(ownerId: string, snapshot?: DeckSnapshot)
   });
 }
 
+/**
+ * How many distinct words a set of units teaches, and how many of them this
+ * learner knows. Distinct lemmas rather than a sum of per-unit totals: a grammar
+ * unit drills vocabulary an earlier unit introduced, so a sum counts those words
+ * twice. Learn and Progress both print this figure, and they printed two
+ * different numbers for one course while each counted it its own way.
+ */
+export function courseWordCount(rows: readonly UnitView[], knownLemmas: ReadonlySet<string>): { words: number; known: number } {
+  const lemmas = new Set(rows.flatMap((u) => u.lemmas));
+  let known = 0;
+  for (const l of lemmas) if (knownLemmas.has(l)) known += 1;
+  return { words: lemmas.size, known };
+}
+
 export interface DailySummary {
   dayKey: string;
   streak: number;

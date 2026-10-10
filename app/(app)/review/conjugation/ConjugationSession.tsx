@@ -24,7 +24,8 @@ import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/
 import { VERB_GROUP_LABELS } from "@/lib/estonian/morph";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfCheck } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { FitText } from "@/components/FitText";
 
@@ -318,23 +319,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
       <h1 className="sr-only">{t("Conjugation")}</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession size={19} />
-        <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${(index / questions.length) * 100}%`, background: "var(--accent)" }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={questions.length}
-            aria-label={t("Round progress")}
-          />
-        </div>
-        <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {fill(t("{n} left"), { n: questions.length - index })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={questions.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div

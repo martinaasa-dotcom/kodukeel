@@ -264,18 +264,21 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           <section id="level">
-            <SectionTitle hint={courseLevel}>{t("Your level")}</SectionTitle>
+            {/* The chips below already say which level is set, so the hint says
+                whether a check has measured one, which used to sit over the
+                goals section where it answered nothing on that card. */}
+            <SectionTitle
+              hint={latestCheck ? fill(t("measured {level}"), { level: levelLabel((latestCheck.overall ?? null) as never, locale) }) : t("not measured yet")}
+            >
+              {t("Your level")}
+            </SectionTitle>
             <Card>
               <LevelPanel current={courseLevel} measured={measuredIsCurrent} />
             </Card>
           </section>
 
           <section id="goals">
-            <SectionTitle
-              hint={latestCheck ? fill(t("measured {level}"), { level: levelLabel((latestCheck.overall ?? null) as never, locale) }) : t("not measured yet")}
-            >
-              {t("Why you’re learning")}
-            </SectionTitle>
+            <SectionTitle>{t("Why you’re learning")}</SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {t("Your plan is built from these. Change them whenever your life does.")}

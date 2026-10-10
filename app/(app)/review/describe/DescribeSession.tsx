@@ -6,7 +6,8 @@ import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Chip, KeyCap, Stat } from "@/components/ui";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { SENTENCES_PER_PICTURE } from "@/lib/collections/pictures";
 import { looksLikeSentence } from "@/lib/estonian/writing";
@@ -175,23 +176,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
       {/* The heading a session screen has no room to draw. */}
       <h1 className="sr-only">{t("Say what you see")}</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession size={19} />
-        <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${(index / prompts.length) * 100}%`, background: "var(--accent)" }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={prompts.length}
-            aria-label={t("Round progress")}
-          />
-        </div>
-        <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {fill(t("{n} left"), { n: prompts.length - index })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={prompts.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
@@ -228,10 +213,14 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           <p className="mt-5 text-base font-semibold" style={{ color: "var(--ink)" }}>
             {t("Write five sentences about this picture.")}
           </p>
-          <p className="mt-1.5 text-md font-semibold" style={{ color: "var(--accent-deep)" }}>
-            {fill(t("Setting: {title}. Use it if it helps. Any story you imagine is fine."), { title: t(prompt.title) })}
-          </p>
-          <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
+          {/* One quiet paragraph under the instruction. The setting line was set
+              in the accent at the size of the heading, three lines of loud
+              type over the boxes, which read as a second instruction rather
+              than as the permission it is. */}
+          <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            <span className="font-semibold" style={{ color: "var(--ink)" }}>
+              {fill(t("Setting: {title}. Use it if it helps. Any story you imagine is fine."), { title: t(prompt.title) })}
+            </span>{" "}
             {t("Say what you see and what might be going on. Use your imagination: who are they, what are they doing?")}
           </p>
 

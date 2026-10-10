@@ -22,7 +22,8 @@ import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { SpaceKeyCap } from "@/components/KeyCaps";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useKeepInView } from "@/components/round/useKeepInView";
 
@@ -247,26 +248,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
       <h1 className="sr-only">{t("Listening")}</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession />
-        <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="grad-accent h-full rounded-full transition-[width] duration-500"
-            style={{ width: `${Math.max((index / cards.length) * 100, 2)}%` }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={cards.length}
-            aria-label={t("Session progress")}
-          />
-        </div>
-        <span
-          className="tnum label-xs rounded-full px-2.5 py-1"
-          style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-        >
-          {fill(t("{n} left"), { n: remaining })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={cards.length} left={remaining} label={t("Session progress")} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
@@ -319,7 +301,9 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   {/* A run of text rather than a flex row: each piece of a flex
                       row shrinks on its own, which broke a word letter by letter
                       in the longer Russian and Ukrainian sentence. */}
-                  {rich(t("Tap or press {space} to hear the word, and again to replay it"), { space: <SpaceKeyCap /> })}
+                  {t("Tap to hear the word, and again to replay it.")}
+                  {/* The key, for a keyboard, and nothing about keys for a thumb. */}
+                  <span className="keys-hint"> {rich(t("{space} plays it too."), { space: <SpaceKeyCap /> })}</span>
                 </p>
               </>
             )

@@ -82,7 +82,7 @@ export function GoalsPanel({ current }: { current: Goals }) {
             onSelect={() => setTarget(goal.band)}
             title={t(goal.can)}
           >
-            {goal.band}, {t(goal.label)}
+            {`${goal.band}, ${t(goal.label)}`}
           </ChoiceChip>
         ))}
       </ChoiceGroup>
@@ -116,7 +116,7 @@ export function GoalsPanel({ current }: { current: Goals }) {
           value={note}
           onChange={(e) => setNote(e.target.value)}
           maxLength={280}
-          placeholder={t("Something you'd love to be able to do in Estonian")}
+          placeholder={t("What you'd love to do in Estonian")}
           className="field-lg w-full text-base"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
         />

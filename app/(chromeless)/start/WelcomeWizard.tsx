@@ -1118,7 +1118,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
           )}
         </div>
         <p role="status" className="mt-3 text-right text-sm" style={{ color: "var(--ink-2)" }}>
-          {failed && t(failed)}
+          {failed
+            ? t(failed)
+            : step === 0 && name.trim().length === 0 ? t("Type a name above to carry on.") : null}
         </p>
 
         {/*

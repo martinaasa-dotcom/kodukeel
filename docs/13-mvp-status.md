@@ -3195,3 +3195,109 @@ shipped dictionary, down from 1,849. `-ks` has two questions and `-ni` one, beca
 sentence holding an hour in `-ni` is rare, and only one to ten are drawn, since eleven and
 twelve have no keycap of their own. More pictured words, or a contributed sentence, are what
 move those numbers.
+
+## 55. The forty-ninth pass: Kaksikud, words that look alike
+
+A learner reported it from their own study: `ostma` is to buy and `otsima` is to look for,
+`kuulma` is to hear and `kuulama` is to listen, `algama`, `alustama` and `hakkama` are all
+"to begin", and nothing in the app ever put the two side by side. So there is a round,
+`/review/twins`, and a reference page, `/grammar/twins`, linked from the foot of `/grammar`.
+
+**Three kinds of look-alike, because each needs a different kind of help.** The table is
+`lib/collections/twins.ts`. A pair a rule built (`kasvama` and `kasvatama`, `muutma` and
+`muutuma`, `kuulma` and `kuulama`) is taught by its rule, and once the rule is learned every
+pair after it is half known; the pairs whose meaning has drifted from the rule (`soovima` and
+`soovitama`, `keelama` and `keelduma`) say so, because there the rule misleads. One English
+word that Estonian splits in two or three (`teadma` and `tundma`, `minema` and `käima`, the
+four ways to say "can") is told apart by what comes after the verb. And a coincidence
+(`ostma` and `otsima`, `õpetama` and `lõpetama`, `kala` and `kana`) is learned side by side,
+with the letters that differ marked. 71 groups, 150 lemmas, every one a request the shipped
+dictionary answers under its part of speech, asserted. The table holds English and lemmas and
+no Estonian forms. The English was written by the developer's best judgement and is for a
+native speaker to read.
+
+**The sentence decides, and its English is what makes that fair.** A question is a recorded
+sentence with one word of the group taken out, every word of the group offered in the form
+the gap needs, and the sentence's shipped English above it. The English is necessary because
+a look-alike often fits a sentence grammatically and means something else. The other words
+are put into the gap's slot off the dictionary's own forms (`slotIndex`, `sameSlot` in
+`lib/progress/twinQuestions.ts`), and a word that cannot be put there drops the sentence
+rather than being guessed. What may be hidden is `gapForms`'s answer, like every other gap.
+Measured over the shipped dictionary with no borrowed sentences: all 71 groups get at least
+one question, `Kontsert ____ kell 18.` over "The concert starts at 6 p.m." among them.
+
+**Some words can stand in for each other, and those are accepted.** That is the operator's
+call: `hakkama` picked for `algama` is graded Hard and the screen says the writer used the
+other one, which is the review card's own rule about a second right word. An overlap applies
+only where the sentence's English uses the shared meaning (`Overlap.when`): `jõudma` and
+`saabuma` are both "to arrive", and only the first is "to afford".
+
+**Guess the other half.** For a pair a rule built and the meaning kept, and that shares a root,
+the round shows one word and its meaning and asks what the other means. It is reasoned, not
+recalled, so it grades nothing.
+
+**Grading.** A sentence question grades the answer's production card, or its recognition card
+where there is no production card, through `gradeCard` (ADR-016). A word with no card writes
+nothing. A group named in the address (`?group=`) is the whole round, which is what the
+reference page and the review card link to.
+
+**The review card names a mix-up.** A production card answered with a twin of its own word
+says which word that was and what it means, and links to the pair's drill outside the module.
+It is a miss even where the marker would have read a slip: `valutama` for `valetama` is one
+letter on an eight-letter word and `koht` for `kõht` is a dropped diacritic, and both are a
+different word that would otherwise have been graded as a recall.
+
+**A round leads with the pairs this learner loses.** Groups holding a word of their deck come
+first, and among those the groups whose words have the most lapses, which is the nearest thing
+the log already holds to "these are the two I mix up". Nothing new is stored for it.
+
+**`npm run audit:questions` asks it too**, 2,351 questions over the shipped dictionary, and its
+first run found a real fault: `halb` and `hall` built a question out of a sentence about Jerry
+Hall, where the English printed the answer. A capital away from the start of a sentence is a
+name and is never gapped now, and a sentence whose English carries the answer is never used.
+
+**Left for later.** Recording the mix-up itself (which twin was picked for which word), so the
+round can lead with exact pairs rather than with lapses. A native speaker's read of the table.
+
+## 56. The fiftieth pass: every screen photographed, and what that found
+
+Every route the app has was taken at 390 and 1280 pixels with two months of history in the
+deck, every practice round was opened past its briefing, and each picture was read. Most of
+what turned up is small, and all of it is the kind a learner notices before a test does.
+
+**Two screens disagreed about how big the course is.** Learn said 1,661 words and Progress
+said 1,731, because Progress added up each unit's total and a grammar unit drills words an
+earlier unit introduced, which Learn had stopped counting twice long ago. `courseWordCount`
+in `lib/progress/summary.ts` is the one count and both pages read it.
+
+**A sentence handed to a flex box as loose pieces came apart at its punctuation.** The
+dictionary's "Näited, in a sentence" read "Näited , in a sentence", the goal chips in Settings
+read "A1 , Get by", and every `Explain` whose text held a link put the link on a line of its
+own with its full stop opening the next, because that body was a flex column. The body is
+block flow with space between blocks now, the other two are one string, and
+`scripts/test-containment.mjs` asks every route whether any flex or grid box has a text item
+opening on punctuation after an item of its own, which nothing else there could see.
+
+**The top of a round is one component.** Fourteen sessions wrote the way out, the bar and the
+count by hand in three looks: a four-pixel hairline with grey text, a ten-pixel bar with the
+count on a tint, and the daily path's own. `components/round/RoundProgress.tsx` is the daily
+path's look for all of them. Review and Learn keep their own bar, and 20 küsimust keeps its
+count, which turns red near the end, and drops the "0 of 20" chip that said the same thing.
+
+**A phone is not told about keys.** "Press 1 to 4 to answer", "or press Space" and the space
+key cap beside a speaker were drawn under a thumb. `.keys-hint` hides a line that is only
+about the keyboard where the only pointer is a finger, the way a key cap inside a button
+already was. The minimal-pairs line that put a speaker icon in the middle of a sentence about
+keys is a "Slow" pill and a keys-only line.
+
+**Smaller things.** First run says what Continue is waiting for. A level card's bar no longer
+collapses to nothing when its counts are long. Learn's "You're already part way through 5"
+reads as what it means. Lause algus says "from A2" on its Practice tile, as Laused does, and
+its subtitle says what the round is for. Settings puts "measured" beside the level rather than
+over the goals. The picture round's setting line is quiet type rather than the accent at the
+size of the heading. Dictation and speaking stop counting "0 of 0" before anything is
+answered. The Sõnad bottom row's letters are as wide as the top row's. The numbered papers
+grid goes to four columns only where "Paper 20" fits beside its button. The plan says "only 3
+minutes" rather than "about 0 of those hours". The offline page's button is the app's primary
+button rather than a violet one. And `/grammar/sisseütlev`, which is the name this app teaches,
+reaches the case page its Latin slug names instead of a dead end.

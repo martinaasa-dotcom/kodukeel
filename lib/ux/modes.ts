@@ -177,6 +177,21 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     /*
+      Words that look alike and are not the same word: kuulma and kuulama,
+      ostma and otsima. Reached from Practice and from the grammar page that
+      explains the three kinds, which links a group straight into it. See
+      `lib/collections/twins.ts`.
+    */
+    href: "/review/twins", title: "Kaksikud", subtitle: "Tell look-alikes apart",
+    icon: "Scale", tone: "blush", group: "targeted", note: "Ten pairs, no clock",
+    within: "/practice",
+    blurb:
+      "Two or three words that look alike, a real sentence with one of them missing, and what " +
+      "the sentence means in English. Pick the one the writer used, then see the other one in a " +
+      "sentence of its own.",
+  },
+  {
+    /*
       Twenty questions, which is the classic game against a machine: it holds a
       thing in mind and the learner has twenty yes or no questions to name it.
       The Estonian is the learner's own, a whole question typed with the forms
@@ -250,7 +265,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     within: "/grammar/topic/government",
   },
   {
-    href: "/review/openers", title: "Lause algus", subtitle: "Start picks the ending", icon: "Shuffle",
+    href: "/review/openers", title: "Lause algus", subtitle: "Hear the ending coming", icon: "Shuffle",
     tone: "accent", group: "targeted", note: "Choose, then type",
     blurb:
       "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of " +
@@ -388,7 +403,7 @@ export const SHELVES: readonly Shelf[] = [
   },
   {
     id: "games", name: "Word games", hint: "Just for the fun of it.", tone: "butter",
-    hrefs: ["/review/letters", "/sonad", "/crossword", "/review/sentences", "/review/map"],
+    hrefs: ["/review/letters", "/sonad", "/crossword", "/review/sentences", "/review/map", "/review/twins"],
   },
   {
     id: "workshop", name: "Workshop", hint: "You think, you type. Take your time.", tone: "accent",
