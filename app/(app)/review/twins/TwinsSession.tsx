@@ -217,15 +217,19 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
           <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
             <Chip tone="accent"><Scale size={12} aria-hidden /> Kaksikud</Chip>
             <Chip>{focusTitle ?? t(KIND_COPY[q.kind].short)}</Chip>
-            <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("{n} right"), { n: right })}</span>
-            {/* After the answer, since the label names the word the question is hiding. */}
-            {answered && (
-              <StarWord
-                lexemeId={q.shape === "sentence" ? q.lexemeId : q.asked.lexemeId}
-                starred={q.starred}
-                label={q.shape === "sentence" ? q.lemma : q.asked.lemma}
-              />
-            )}
+            {/* The count and the star travel together, so on a phone the star
+                never wraps onto a line of its own under the chips. */}
+            <span className="ml-auto flex shrink-0 items-center gap-2">
+              <span className="text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("{n} right"), { n: right })}</span>
+              {/* After the answer, since the label names the word the question is hiding. */}
+              {answered && (
+                <StarWord
+                  lexemeId={q.shape === "sentence" ? q.lexemeId : q.asked.lexemeId}
+                  starred={q.starred}
+                  label={q.shape === "sentence" ? q.lemma : q.asked.lemma}
+                />
+              )}
+            </span>
           </div>
 
           {q.shape === "sentence" ? (

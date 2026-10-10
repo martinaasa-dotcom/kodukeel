@@ -228,6 +228,12 @@ export function sentenceQuestionsFor(
 
     const cloze = buildCloze(found.example.et, [found.form]);
     if (!cloze) continue;
+    // A capital away from the start of the sentence is a name, not the word:
+    // `Jerry Hall` is somebody, and gapping it as the adjective for grey asks
+    // a question the English answers. `npm run audit:questions` found it.
+    if (cloze.index > 0 && /^\p{Lu}/u.test(cloze.answer)) continue;
+    // And the English may not print the answer, whatever the reason it does.
+    if (mentions(found.en, cloze.answer)) continue;
     const options: TwinOption[] = [{ lemma: word.lemma, text: cloze.answer, means: word.means }];
     let complete = true;
     for (const o of others) {

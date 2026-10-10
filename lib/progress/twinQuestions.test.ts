@@ -44,6 +44,10 @@ describe("the sentence a twin question is cut from", () => {
         expect(q.options[q.answer]!.lemma).toBe(q.lemma);
         expect(q.options[q.answer]!.text).toBe(q.form);
         for (const o of q.options) expect(mentions(q.gapped, o.text), `${q.gapped} / ${o.text}`).toBe(false);
+        expect(mentions(q.en, q.form), `${q.en} / ${q.form}`).toBe(false);
+        // A name is not the word: a capital away from the start is never the gap.
+        const at = q.gapped.indexOf(BLANK);
+        if (at > 0) expect(/^\p{Lu}/u.test(q.form), q.sentence).toBe(false);
         const texts = q.options.map((o) => o.text.toLowerCase());
         expect(new Set(texts).size).toBe(texts.length);
         const [before, after] = splitAtGap(q.gapped);

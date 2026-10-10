@@ -18,8 +18,9 @@ import {
  * `lib/progress/twinQuestions.ts` builds the questions and says what they are;
  * this decides which groups a round draws on and in what order.
  *
- * A GROUP THE LEARNER ALREADY HOLDS A WORD OF LEADS. Those are the mix-ups they
- * can make today, and the only answers that can be graded. Then the groups at
+ * A GROUP THE LEARNER ALREADY HOLDS A WORD OF LEADS, and among those the
+ * groups whose words they have lost most often. Those are the mix-ups they can
+ * make today, and the only answers that can be graded. Then the groups at
  * the learner's level, then the rest, so a round is never empty on a small
  * deck. One question a group, so ten questions are ten different pairs, and up
  * to three of them ask the guessing question where the group allows it.
@@ -77,15 +78,17 @@ export async function twinsRound(
   const ids = [...rows.values()].map((r) => r.id);
   const cards = ids.length === 0 ? [] : await prisma.card.findMany({
     where: { ownerId, suspended: false, lexemeId: { in: ids }, cardType: { in: ["PRODUCTION", "RECOGNITION"] } },
-    select: { id: true, lexemeId: true, cardType: true },
+    select: { id: true, lexemeId: true, cardType: true, lapses: true },
     orderBy: { id: "asc" },
   });
   // The production card where there is one, since picking the word for a
   // meaning is the production direction; the recognition card otherwise.
   const cardFor = new Map<string, string>();
+  const lapsesOf = new Map<string, number>();
   for (const c of cards) {
     if (!c.lexemeId) continue;
     if (c.cardType === "PRODUCTION" || !cardFor.has(c.lexemeId)) cardFor.set(c.lexemeId, c.id);
+    lapsesOf.set(c.lexemeId, Math.max(lapsesOf.get(c.lexemeId) ?? 0, c.lapses));
   }
 
   const taught = scope ? new Set(scope.lemmas) : null;
@@ -93,6 +96,10 @@ export async function twinsRound(
     g.words.every((w) => rows.has(`${w.lemma}|${w.pos}`) && (!taught || taught.has(w.lemma)));
   const bands = new Set<string>(bandsAround(level));
   const held = (g: TwinGroup) => g.words.some((w) => cardFor.has(rows.get(`${w.lemma}|${w.pos}`)?.id ?? ""));
+  // How often the learner has lost a word of the group, which is the nearest
+  // thing the log holds to "these two are the ones I mix up".
+  const struggle = (g: TwinGroup) =>
+    Math.max(0, ...g.words.map((w) => lapsesOf.get(rows.get(`${w.lemma}|${w.pos}`)?.id ?? "") ?? 0));
   const near = (g: TwinGroup) => g.words.every((w) => {
     const cefr = rows.get(`${w.lemma}|${w.pos}`)?.cefr;
     return !cefr || bands.has(cefr) || ["A1", "A2"].includes(cefr);
@@ -119,7 +126,10 @@ export async function twinsRound(
   } else {
     const groups = TWIN_GROUPS.filter(usable);
     const ordered = [
-      ...shuffle(groups.filter(held)),
+      // Shuffled, then the ones they lose most often first: a stable sort keeps
+      // the shuffle among groups tied on lapses, so a round is not the same
+      // ten every time.
+      ...shuffle(groups.filter(held)).sort((x, y) => struggle(y) - struggle(x)),
       ...shuffle(groups.filter((g) => !held(g) && near(g))),
       ...shuffle(groups.filter((g) => !held(g) && !near(g))),
     ];

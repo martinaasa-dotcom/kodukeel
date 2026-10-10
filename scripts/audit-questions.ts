@@ -68,6 +68,8 @@ import { mentions } from "../lib/estonian/cloze";
 import { PARTS } from "../lib/copy/values";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
 import { questionsForWord } from "../lib/progress/map";
+import { TWIN_GROUPS, guessable } from "../lib/collections/twins";
+import { guessQuestionFor, sentenceQuestionsFor, type TwinRow } from "../lib/progress/twinQuestions";
 import { orderContextFrom } from "../lib/estonian/wordOrder";
 import { planLesson, type LessonWord } from "../lib/collections/lesson";
 import { taughtSpellings } from "../lib/progress/lessonWords";
@@ -209,6 +211,11 @@ const REACHES: Record<string, number> = {
     The sentence rule is the stricter reading and it is what this figure costs.
   */
   map: 1_849,
+  // Kaksikud, over the whole dictionary: every word of every look-alike group
+  // in every recorded sentence it can be gapped from, and the guessing
+  // question both ways round for the rule pairs. Measured at 2,351, after a
+  // name mid-sentence stopped being gapped as the word (`Jerry Hall`).
+  twins: 2_351,
   /*
     The guided unit lesson and the end-of-level checkpoint, neither of which
     had ever been in this script. Both build a gap out of an attested sentence
@@ -651,6 +658,41 @@ for (const e of entries) {
     ask(`map ${e.lemma} ${q.caseKey}`, `${q.lemma}, ${q.gloss} ${q.scene.ask}`, q.options[q.answer]!.text);
   }
 }
+});
+
+/* ── Kaksikud ────────────────────────────────────────────────────────────── */
+/*
+  Words that look alike. A sentence question shows the sentence's English and
+  the sentence with one word taken out, and offers every word of the group in
+  the gap's slot; the answer is the form the writer used, so the fault to look
+  for is that form standing in the English or elsewhere in the line. A guess
+  question shows one word of a rule pair with its meaning and asks what the
+  other means, so the fault is that meaning printed beside the question.
+  Every sentence question stands on a recorded sentence.
+*/
+timed("twins", () => {
+  const rows = new Map<string, TwinRow>();
+  for (const e of entries) {
+    rows.set(`${e.lemma}|${e.pos}`, {
+      id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr ?? null, translation: e.translation,
+      examples: JSON.stringify(e.examples ?? []),
+      forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
+    });
+  }
+  const lent = (id: string) => borrowed.get(id) ?? [];
+  const rank = (row: TwinRow) => plainerFirst(row.cefr, reach);
+  for (const g of TWIN_GROUPS) {
+    for (const w of g.words) {
+      for (const q of sentenceQuestionsFor(g, w, rows, lent, rank, null, 50)) {
+        ask(`twins ${g.id} ${q.lemma}`, `${q.en} ${q.gapped}`, q.form);
+      }
+    }
+    if (!guessable(g)) continue;
+    for (const askLong of [true, false]) {
+      const q = guessQuestionFor(g, rows, askLong, "a decoy nobody wrote");
+      if (q) ask(`twins ${g.id} guess`, `${q.known.lemma} ${q.known.means} ${q.asked.lemma}`, q.options[q.answer]!);
+    }
+  }
 });
 
 /* ── The exceptions round ────────────────────────────────────────────────── */

@@ -1943,7 +1943,8 @@ export function ReviewSession({
                   </Link>
                 </p>
               )}
-              {typed.trim() && verdict.verdict !== "correct" && (
+              {/* Not under a named mix-up, whose line already says what was typed. */}
+              {typed.trim() && verdict.verdict !== "correct" && !verdict.twin && (
                 <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
                   {t("You typed")} <span lang={backLang}>{typed.trim()}</span>
                 </p>

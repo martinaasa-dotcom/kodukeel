@@ -3212,5 +3212,14 @@ It is a miss even where the marker would have read a slip: `valutama` for `valet
 letter on an eight-letter word and `koht` for `kõht` is a dropped diacritic, and both are a
 different word that would otherwise have been graded as a recall.
 
-**Left for later.** Leading a round with the pairs this learner actually mixes up, which needs
-the mix-up recorded. A native speaker's read of the table.
+**A round leads with the pairs this learner loses.** Groups holding a word of their deck come
+first, and among those the groups whose words have the most lapses, which is the nearest thing
+the log already holds to "these are the two I mix up". Nothing new is stored for it.
+
+**`npm run audit:questions` asks it too**, 2,351 questions over the shipped dictionary, and its
+first run found a real fault: `halb` and `hall` built a question out of a sentence about Jerry
+Hall, where the English printed the answer. A capital away from the start of a sentence is a
+name and is never gapped now, and a sentence whose English carries the answer is never used.
+
+**Left for later.** Recording the mix-up itself (which twin was picked for which word), so the
+round can lead with exact pairs rather than with lapses. A native speaker's read of the table.
