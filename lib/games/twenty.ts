@@ -56,7 +56,7 @@
 
 import { learnedBySpelling, learnedSaid, type LearnedWord } from "./twentyLearned";
 import {
-  CATEGORIES, COLOURS, KIND_HINT, PARTS, THINGS, THING_BY_LEMMA,
+  CATEGORIES, COLOURS, PARTS, THINGS, THING_BY_LEMMA,
   type Colour, type Kind, type Part, type Thing, type Where,
 } from "./twentyThings";
 
@@ -1776,31 +1776,39 @@ export function englishToLemma(english: string, glosses: Readonly<Record<string,
 
 /*
   TOPICS. Classroom twenty questions narrows the topic for a beginner, and the old
-  parlour game opened with "animal, vegetable or mineral", so the learner may pick
-  what the game thinks of. Each topic is a set of kinds; "anything" is all of them.
+  parlour game opened with "animal, vegetable or mineral", so the game says up front
+  which of a few groups the thing is in. It picks the group itself, every round:
+  a chooser on a screen whose whole job is a question was one more decision before
+  the first one, and the line it chose beside the line naming the thing's kind read
+  as the game saying the learner's own pick back to them. Every kind of thing is in
+  exactly one group, asserted, so nothing in the world is unreachable.
 */
 export interface Topic {
   id: string;
-  en: string;
-  kinds: readonly Kind[] | null;
+  kinds: readonly Kind[];
+  /** What the game says before the first question, in place of the thing's own kind. */
+  says: string;
 }
 
 export const TOPICS: readonly Topic[] = [
-  { id: "all", en: "Anything", kinds: null },
-  { id: "animals", en: "Animals", kinds: ["animal"] },
-  { id: "food", en: "Food and drink", kinds: ["food", "drink"] },
-  { id: "things", en: "Things", kinds: ["object", "clothes", "vehicle"] },
-  { id: "nature", en: "Nature and places", kinds: ["plant", "nature", "building"] },
+  { id: "animals", kinds: ["animal"], says: "It is an animal." },
+  { id: "food", kinds: ["food", "drink"], says: "It is a food or a drink." },
+  { id: "things", kinds: ["object", "clothes", "vehicle"], says: "It is a thing you use, wear or ride in." },
+  { id: "nature", kinds: ["plant", "nature", "building"], says: "It is a plant, a building, or part of nature." },
+  { id: "body", kinds: ["body"], says: "It is a part of the body." },
 ];
 
-/** The topic a query names, or "anything" for one it does not. */
-export function topicFrom(id: string | null | undefined): Topic {
-  return TOPICS.find((t) => t.id === id) ?? TOPICS[0]!;
+/** The topic an id names, or null for one it does not. */
+export function topicFrom(id: string | null | undefined): Topic | null {
+  return TOPICS.find((t) => t.id === id) ?? null;
 }
 
-/** What the game says before the first question: the kind of thing, as the classic game always has. */
-export function opening(secret: Thing): string {
-  return KIND_HINT[secret.kind];
+/**
+ * The order the game tries the groups in this round: shuffled, with the group the
+ * last round used put last, so "another word" is usually another kind of thing too.
+ */
+export function topicOrder(shuffled: readonly Topic[], was: string | null | undefined): Topic[] {
+  return [...shuffled.filter((t) => t.id !== was), ...shuffled.filter((t) => t.id === was)];
 }
 
 /**
