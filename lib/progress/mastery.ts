@@ -1,5 +1,6 @@
 import type { Equivalents } from "@/lib/collections/glossLanguage";
 import { prisma } from "@/lib/db";
+import { newestFirst, reviewLog } from "@/lib/progress/reviewLog";
 import { plainPhrase } from "@/lib/copy/values";
 import {
   MASTERY_SLOTS, masteryOf, type Mastery, type Verdict, type WordReview,
@@ -83,12 +84,9 @@ export async function masteryFor(ownerId: string): Promise<MasteredWord[]> {
     because a question this app cannot put to this learner is not a question.
   */
   const [reviews, cards] = await Promise.all([
-    prisma.review.findMany({
-      where: { ownerId, lexemeId: { not: null } },
-      select: { lexemeId: true, rating: true, targetCase: true, slot: true, reviewedAt: true },
-      orderBy: [{ reviewedAt: "desc" }, { id: "asc" }],
-      take: CAP,
-    }),
+    // The most recent CAP of the learner's log, read through the cached log
+    // rather than re-read in full on every page (lib/progress/reviewLog.ts).
+    reviewLog(ownerId).then((log) => newestFirst(log).filter((r) => r.lexemeId !== null).slice(0, CAP)),
     prisma.card.findMany({
       where: { ownerId, lexemeId: { not: null } },
       select: { lexemeId: true, cardType: true, targetCase: true },

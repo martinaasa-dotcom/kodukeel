@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { ClipboardCheck, Compass, FileText, Flame, Footprints, Shield } from "lucide-react";
 import { outThere } from "@/lib/progress/outThere";
 import { prisma } from "@/lib/db";
+import { reviewLog } from "@/lib/progress/reviewLog";
 import { requireUserId } from "@/lib/auth/session";
 import { CEFR_LEVELS } from "@/lib/estonian/types";
 import { courseWordCount, dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
@@ -64,23 +65,17 @@ export default async function ProgressPage() {
   const [summary, units, reviews, deck, caseReviews, shieldRow, readiness, outside] = await Promise.all([
     dailySummary(ownerId, now, clock),
     pathWithProgress(ownerId, snapshot),
-    prisma.review.findMany({
-      where: { ownerId, reviewedAt: { gte: new Date(now.getTime() - HEATMAP_DAYS * 86_400_000) } },
-      /*
-        `durationMs`, `slot` and `reachedSlot`. The first has been collected
-        since the scheduler was built and, until the plan began reading it as
-        the length of a sitting, was read by nothing; nothing had ever read it
-        as the time on one answer. The other two are what the flash and scene
-        rounds work out about a wrong answer and used to print and drop.
-        `lib/stats/answerTime.ts` and `lib/stats/confusions.ts` are the
-        readers, and they cost this query three columns over rows it already
-        reads.
-      */
-      select: {
-        reviewedAt: true, rating: true, targetCase: true, stateBefore: true, cardId: true,
-        durationMs: true, slot: true, reachedSlot: true,
-      },
-      orderBy: { reviewedAt: "asc" },
+    /*
+      The heatmap window of the log, oldest first, read through the cached log
+      (lib/progress/reviewLog.ts) rather than re-read in full on every view,
+      which at a year of answers was most of this page's database egress.
+      `durationMs`, `slot` and `reachedSlot` are on every row: the first is
+      read as the time on one answer by `lib/stats/answerTime.ts`, the other
+      two as a confusion by `lib/stats/confusions.ts`.
+    */
+    reviewLog(ownerId).then((log) => {
+      const since = now.getTime() - HEATMAP_DAYS * 86_400_000;
+      return log.filter((r) => r.reviewedAt.getTime() >= since);
     }),
     /*
       ONE READ OF THE DECK, NOT TWO, AND ONE ROUND TRIP RATHER THAN FOUR.

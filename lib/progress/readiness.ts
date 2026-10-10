@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/lib/db";
+import { newestFirst, reviewLog } from "@/lib/progress/reviewLog";
 import { dictionaryLemmas, lemmasByCardLexeme } from "@/lib/dict/facts";
 import { caseAccuracy } from "@/lib/stats/history";
 import { caseReviewsFor } from "@/lib/progress/cases";
@@ -60,14 +61,8 @@ async function evidenceByLemma(ownerId: string, now: Date): Promise<Map<string, 
   const [reviews, cards] = await Promise.all([
     // The most recent twenty thousand, ordered, for the reason every other
     // truncated read here is: a slice the planner chose moves on its own.
-    prisma.review.findMany({
-      where: { ownerId, lexemeId: { not: null } },
-      select: {
-        cardId: true, lexemeId: true, rating: true, slot: true, targetCase: true, durationMs: true, reviewedAt: true,
-      },
-      orderBy: [{ reviewedAt: "desc" }, { id: "asc" }],
-      take: CAP,
-    }),
+    // Read through the cached log (lib/progress/reviewLog.ts), newest first.
+    reviewLog(ownerId).then((log) => newestFirst(log).filter((r) => r.lexemeId !== null).slice(0, CAP)),
     prisma.card.findMany({
       where: { ownerId },
       select: { id: true, cardType: true, targetCase: true },
