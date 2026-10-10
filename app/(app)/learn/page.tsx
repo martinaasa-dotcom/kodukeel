@@ -406,6 +406,7 @@ function LearnCard({
           : onCourse
             ? t("Your course hands you a few new words each evening, in an order where each one builds on the last. Or open any unit below to meet its words now.")
             : t("Open a unit below and its words will turn up here, ready to meet.")}
+        nextLabel={t("Next")}
         cardsLabel={t("How a new word is learned")}
         cards={[
           { label: t("Meet it"), detail: t("see and hear it"), icon: "Ear", state: "now" },

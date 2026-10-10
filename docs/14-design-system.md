@@ -551,17 +551,30 @@ every page and the middle of half of them was empty. So the balance is in the co
 `app/hero-fan.css` rather than in each page. The inset is the same on every card. The text block is
 exactly as wide as its widest drawn line, so the gap to the cards is measured from letters rather
 than from an empty box. The cards' column is never narrower than the fan at its tightest, so the
-gap matches the margin on the right. A headline too long for the column the cards leave goes
-above them, and so does everything once the card itself is too narrow for both, which is a
-container query rather than a window one. Every line is balanced. On a phone there is no room for
-a fan whose words a person can read, so the same cards are dealt into a grid.
+gap matches the margin on the right. A headline too long for the column the cards leave runs
+across the top, with the line under it and the button beside the cards. Every line is balanced.
+
+**On a phone the cards are a hand, and that is the shape the rest is built from.** The first
+version folded the desktop fan up: on a narrow desktop it stacked under the words and centred, half
+the card empty above it, and on a phone it dealt the same cards into a two-column grid of big tiles
+that took a whole screen to say five words. Both were reported as awful and both were. A phone is
+held in one hand and read in a glance, so the cards are a small hand of them under the words,
+fanned and overlapping the way cards are held, the next step lifted out of it and named in one line
+underneath, and the button last and the full width of the card where a thumb is. A card that is a
+figure keeps its figure and its word, one card each across the row. Where the words and the hand
+both fit, the hand goes beside them; the fan is the same hand laid down once there is a table's
+worth of room, decided by the card's own width rather than the window's.
 
 Today's fan wears the brand mix because the module is the one thing the app asks somebody to do;
 every other page draws the same fan in the night's greys, which is what lets Today stand out
 without anything shouting. The motion is fine rather than loud: the cards are dealt in, the words
-rise a beat behind them, figures count up once, a finished step's tick stamps in, a pointer tilts
-the fan a few degrees and lights the card under it, the fan opens under a pointer, and the card
-that is next breathes a few pixels over five seconds. All of it stops for anybody who has asked for
+rise a beat behind them, figures count up once, a finished step's tick stamps in, the fan opens
+under a pointer and the card under it comes up, and the card that is next breathes a few pixels
+over five seconds. **A card is two boxes**, where it sits and what is drawn, and only the drawing
+moves: one box doing both lifted itself out from under the cursor, lost the hover, dropped back and
+lifted again, which was reported as twitching like crazy and measured at 791 of 936 still pointer
+positions. Hover belongs to a pointer that can hover, so a tap never leaves a card stuck half lifted
+with a band of light frozen across it. All of it stops for anybody who has asked for
 less movement. `scripts/invariants/a-page-leads-with-one-hero.ts` holds the pages to the component
 and the bright fan to Today.
 

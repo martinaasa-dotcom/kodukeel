@@ -402,6 +402,7 @@ export default async function CoursePage({
                 : fill(t("{words} again"), { words: countOf(locale, day.words.length, "word") }),
               minutes: standing.minutesLeft,
             })}
+          nextLabel={t("Next")}
           cardsLabel={t("What you do today")}
           cards={stepsIn(day, locale).map((step) => {
             const isDone = standing.done.has(step.id);

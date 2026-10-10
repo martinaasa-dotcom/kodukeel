@@ -501,6 +501,7 @@ export default async function TodayPage() {
           {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
         </ButtonLink>
       }
+      nextLabel={t("Next")}
       cardsLabel={fill(t("{minutes} min to go today"), { minutes: courseDay.minutesLeft })}
       cards={stepsIn(courseDay.day, locale).map((step) => {
         const done = courseDay.done.has(step.id);
