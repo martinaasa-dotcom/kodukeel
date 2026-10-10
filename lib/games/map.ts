@@ -39,9 +39,15 @@ import type { CaseKey } from "@/lib/estonian/types";
  * for the reason they always were: the app's own grammar text says English
  * marks none of what the partitive does (`lib/estonian/caseReading.ts`).
  *
+ * WHAT GOES INTO A WORD DEPENDS ON WHAT THE WORD IS. Somebody walks into a
+ * place, a bus or a tent; a coin goes into a handbag or a box; a ball goes on
+ * and off everything else. A word that is neither a place nor a container is
+ * not asked "in", "into" or "out of" here at all, because the alternative was a
+ * person walking into a notebook.
+ *
  * WHICH TRIO A WORD TAKES IS NOT DECIDED HERE. `lib/estonian/caseQuestion.ts`
  * says whether the word is a person, so the outside trio is a present going to
- * and from somebody rather than a box going on and off something, and a word
+ * and from somebody rather than a ball going on and off something, and a word
  * is never asked a case Estonian does not use for it.
  *
  * Pure and holds no Estonian: the prompts are English and the forms come from
@@ -84,8 +90,10 @@ export const WALKER = "🚶‍➡️";
 export const STANDER = "🧍";
 /** What goes to and from a person, and what a person has. */
 export const GIFT = "🎁";
-/** What goes on and off a thing. */
-export const BOX = "📦";
+/** What goes on and off a thing, and rolls onto a foot as readily as onto a chair. */
+export const BALL = "⚽";
+/** What goes into and out of a container: a handbag, a purse, a box. */
+export const COIN = "🪙";
 export const ARROW = "➡️";
 export const WITH = "➕";
 export const WITHOUT = "🚫";
@@ -110,7 +118,25 @@ export function hourGlyph(hour: number): string | null {
 export const HUMAN_COMPANIONS: readonly string[] = [WALKER, STANDER];
 
 /** Every companion and joiner, so a word drawn by one of them is not drawn twice. */
-const COMPANIONS = [WALKER, STANDER, GIFT, BOX, ARROW, WITH, WITHOUT, SPARKLE];
+const COMPANIONS = [WALKER, STANDER, GIFT, BALL, COIN, ARROW, WITH, WITHOUT, SPARKLE];
+
+/**
+ * THINGS A PERSON GETS INTO, BY THEIR EMOJI. The dictionary files a bus, a
+ * door, a bed and a notebook under one code, so whether somebody can walk into
+ * a word that is not a place is read off the picture instead: something you
+ * ride, and the handful of things you step into. Compared without the
+ * variation selector, which some emoji carry and some fonts drop.
+ */
+const STEP_INTO: ReadonlySet<string> = new Set([
+  "🚗", "🚕", "🚙", "🚌", "🚎", "🚐", "🚑", "🚒", "🚓", "🚚", "🚛", "🚜", "🚂", "🚆", "🚇", "🚊",
+  "🚋", "🚃", "🚄", "🚅", "🚈", "🚝", "🚞", "🚢", "⛴", "🛳", "🚤", "🛥", "⛵", "🛶", "🚁", "✈",
+  "🛩", "🚀", "🚡", "🚠", "🚟", "🚪", "🛁", "🚿", "🚽", "🛗", "⛺", "🛖",
+]);
+
+/** Whether a word's emoji is something a person gets into. */
+export function stepsInto(glyph: string | null): boolean {
+  return glyph !== null && STEP_INTO.has(glyph.replace(/\uFE0F/g, "").trim());
+}
 
 /** What the scene is told about the word it is drawing. */
 export interface SceneWord {
@@ -120,6 +146,11 @@ export interface SceneWord {
   readonly glyph: string | null;
   /** The hour this word names, one to twelve, or null where it names none. */
   readonly hour: number | null;
+  /**
+   * What the dictionary says the word is, from `placeKind`: somewhere a person
+   * can be, something that holds things, or neither.
+   */
+  readonly place: "place" | "container" | null;
 }
 
 /**
@@ -143,25 +174,37 @@ export function sceneFor(key: CaseKey, word: SceneWord): MapScene | null {
   const g = (glyph: string): SceneGlyph => ({ glyph });
   const row = (...parts: SceneGlyph[]): SceneLayout => ({ kind: "row", parts });
 
+  // Into, in, out of: a person where a person can be, a coin where a coin can
+  // be, and nothing at all where neither is true, since a person walking into a
+  // notebook is a picture of nothing.
+  const enter = word.place === "place" || stepsInto(w);
+  const holder = !enter && word.place === "container";
+
   switch (key) {
     case "INESSIVE":
-      return { layout: { kind: "inside", host: w, guest: STANDER }, ask: "Where are they?", alt: "A person standing inside it" };
+      if (enter) return { layout: { kind: "inside", host: w, guest: STANDER }, ask: "Where are they?", alt: "A person standing inside it" };
+      if (holder) return { layout: { kind: "inside", host: w, guest: COIN }, ask: "Where is it?", alt: "A coin inside it" };
+      return null;
     case "ELATIVE":
-      return { layout: row(me, g(ARROW), g(WALKER)), ask: "Where are they coming from?", alt: "A person walking out of it" };
+      if (enter) return { layout: row(me, g(ARROW), g(WALKER)), ask: "Where are they coming from?", alt: "A person walking out of it" };
+      if (holder) return { layout: row(me, g(ARROW), g(COIN)), ask: "Where is it coming from?", alt: "A coin coming out of it" };
+      return null;
     case "ILLATIVE":
-      return { layout: row(g(WALKER), g(ARROW), me), ask: "Where are they going?", alt: "A person walking into it" };
+      if (enter) return { layout: row(g(WALKER), g(ARROW), me), ask: "Where are they going?", alt: "A person walking into it" };
+      if (holder) return { layout: row(g(COIN), g(ARROW), me), ask: "Where is it going?", alt: "A coin going into it" };
+      return null;
     case "ADESSIVE":
       return word.animate
         ? { layout: row(me, g(GIFT)), ask: "Who has it?", alt: "Somebody holding a present" }
-        : { layout: { kind: "on", host: w, guest: BOX }, ask: "Where is it?", alt: "A box on top of it" };
+        : { layout: { kind: "on", host: w, guest: BALL }, ask: "Where is it?", alt: "A ball on top of it" };
     case "ABLATIVE":
       return word.animate
         ? { layout: row(me, g(ARROW), g(GIFT)), ask: "Who is it coming from?", alt: "A present coming from somebody" }
-        : { layout: row(me, g(ARROW), g(BOX)), ask: "Where is it coming from?", alt: "A box coming off it" };
+        : { layout: row(me, g(ARROW), g(BALL)), ask: "Where is it coming from?", alt: "A ball rolling off it" };
     case "ALLATIVE":
       return word.animate
         ? { layout: row(g(GIFT), g(ARROW), me), ask: "Who is it going to?", alt: "A present going to somebody" }
-        : { layout: row(g(BOX), g(ARROW), me), ask: "Where is it going?", alt: "A box going onto it" };
+        : { layout: row(g(BALL), g(ARROW), me), ask: "Where is it going?", alt: "A ball rolling onto it" };
     case "COMITATIVE":
       return {
         layout: row(g(WALKER), g(WITH), me),

@@ -177,6 +177,26 @@ export function isPhysical(codes: readonly string[] | string | null | undefined)
 }
 
 /**
+ * A PLACE AND A CONTAINER, FOR A PICTURE OF GOING INTO ONE.
+ *
+ * Map draws somebody walking into a word only where the word is somewhere a
+ * person can be: the `koht` family, which is a building, a room, a town, a
+ * stretch of land. And it draws a small thing going into a word only where the
+ * word is a container (`ese_anum`): a handbag, a box, a bath. A notebook, an
+ * ear and an anchor are things too, and a person walking into one is the
+ * picture the operator called horrible, so they are neither. Written out for
+ * the reason the person codes are: a prefix reading is a guess about codes
+ * nobody has read.
+ */
+export function isPlace(codes: readonly string[] | string | null | undefined): boolean {
+  return codesOf(codes).some((code) => code === "koht" || code.startsWith("koht_"));
+}
+
+export function isContainer(codes: readonly string[] | string | null | undefined): boolean {
+  return codesOf(codes).includes("ese_anum");
+}
+
+/**
  * Reads the codes on one entry.
  *
  * ANY OF THE PRIMARY SENSE'S CODES, NOT THE FIRST. Ekilex puts several on one

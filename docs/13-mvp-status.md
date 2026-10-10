@@ -3169,7 +3169,7 @@ horrible and said they added nothing, and that was right: a picture that is not 
 teaches nothing about the word. A scene is now the word's own emoji off
 `lib/collections/emoji.ts`, one companion, and an arrow emoji for a direction: somebody
 walking, an arrow and a house for into the house; the bus, an arrow and somebody walking
-for out of it; a box standing on a chair; a present, an arrow and a girl for to the girl;
+for out of it; a ball sitting on a chair; a present, an arrow and a girl for to the girl;
 somebody walking, a plus and a dog for with the dog. The word's own emoji sits on the accent tint so it
 is clear which picture the forms are about. Five examples were shown as a mockup, taken off
 the running app, before anything was built.
@@ -3183,8 +3183,15 @@ is it turning into?", which the operator asked for by name. `-ni` is a time, an 
 number and its clock face, "Until when?", so it is asked of the hour words alone. `-na` is out of the game, not even offered as a wrong answer,
 because no emoji makes "as" true of an arbitrary word.
 
+**What goes into a word depends on what the word is.** Somebody walks into a place, or into
+something a person gets into, which is read off the emoji since the dictionary files a bus and
+a notebook under one code; a coin goes into a container; a ball goes on and off any thing. A
+word that is none of those is not asked "in", "into" or "out of", because the first build drew
+a person walking into a notebook and into an ear.
+
 **What it costs.** A word with no emoji is not asked, so the round reads only pictured words,
-and the sentence rule still holds. `audit:questions` now builds 187 Map questions over the
-shipped dictionary, down from 1,849: 43 words at A1, 24 at A2, 30 at B1 and 14 at B2. `-ks`
-has two questions and `-ni` one, because a recorded sentence holding an hour in `-ni` is
-rare. More pictured words, or a contributed sentence, are what move those numbers.
+and the sentence rule still holds. `audit:questions` now builds 160 Map questions over the
+shipped dictionary, down from 1,849. `-ks` has two questions and `-ni` one, because a recorded
+sentence holding an hour in `-ni` is rare, and only one to ten are drawn, since eleven and
+twelve have no keycap of their own. More pictured words, or a contributed sentence, are what
+move those numbers.

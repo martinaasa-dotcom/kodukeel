@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { CASES } from "@/lib/estonian/cases";
-import { asksAboutPerson, canPicturePlace, caseFitsInSentence, caseQuestionFor } from "@/lib/estonian/caseQuestion";
+import { asksAboutPerson, canPicturePlace, caseFitsInSentence, caseQuestionFor, placeKind } from "@/lib/estonian/caseQuestion";
 import { WORD_EMOJI } from "@/lib/collections/emoji";
 import { HOUR_LEMMAS } from "@/lib/scenes/props";
 import { mentions } from "@/lib/estonian/cloze";
@@ -176,7 +176,7 @@ export function questionsForWord(
     if (answer.accepted.some((f) => f.trim().toLocaleLowerCase("et") === lemma)) continue;
     if (answer.accepted.some((f) => mentions(label, f))) continue;
     const scene = sceneFor(key, {
-      animate, glyph: WORD_EMOJI[row.lemma] ?? null, hour: hourOf(row.lemma),
+      animate, glyph: WORD_EMOJI[row.lemma] ?? null, hour: hourOf(row.lemma), place: placeKind(subject),
     });
     if (!scene) continue;
     // Somebody walking into a word, or a box going onto it, is only a true

@@ -1,6 +1,6 @@
 import { questionInEnglish, type CaseSpec } from "./cases";
 import { INSIDE_CASES, OUTSIDE_CASES, bothSetsOrdinary, takesOutsideCases } from "./place";
-import { bothLocalSetsOrdinary, isAnimate, isPhysical } from "./semantics";
+import { bothLocalSetsOrdinary, isAnimate, isContainer, isPhysical, isPlace } from "./semantics";
 import type { CaseKey } from "./types";
 
 /**
@@ -245,6 +245,17 @@ export function caseQuestionFor(spec: CaseSpec, subject: CaseSubject): string {
  */
 export function canPicturePlace(subject: CaseSubject): boolean {
   return isAnimate(subject.semanticTypes) || isPhysical(subject.semanticTypes);
+}
+
+/**
+ * WHAT A WORD IS, FOR A PICTURE OF GOING INTO IT: somewhere a person can be,
+ * something that holds things, or neither. The codes are `semantics.ts`'s to
+ * read; this is the one place a round asks them.
+ */
+export function placeKind(subject: CaseSubject): "place" | "container" | null {
+  if (isPlace(subject.semanticTypes)) return "place";
+  if (isContainer(subject.semanticTypes)) return "container";
+  return null;
 }
 
 /**

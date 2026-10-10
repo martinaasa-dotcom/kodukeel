@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  ARROW, GIFT, MAP_CASES, MAP_OPTIONS, RUNG_WINDOW, dealByCase, hourGlyph, humansIn, pickWrong, rungFrom, sceneFor, trioOf,
+  ARROW, BALL, COIN, GIFT, MAP_CASES, STANDER, WALKER, MAP_OPTIONS, RUNG_WINDOW, dealByCase, hourGlyph, humansIn, pickWrong, rungFrom, sceneFor, trioOf,
   type FormChoice,
 } from "./map";
 import { CASES } from "@/lib/estonian/cases";
@@ -11,9 +11,9 @@ import type { CaseKey } from "@/lib/estonian/types";
 const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
 const nearness = (c: string, a: string) => (c.slice(0, 3) === a.slice(0, 3) ? 5 : 0) - Math.abs(c.length - a.length);
 
-const thing = { animate: false, glyph: "🏠", hour: null };
-const person = { animate: true, glyph: "👧", hour: null };
-const five = { animate: false, glyph: null, hour: 5 };
+const thing = { animate: false, glyph: "🏠", hour: null, place: "place" as const };
+const person = { animate: true, glyph: "👧", hour: null, place: null };
+const five = { animate: false, glyph: null, hour: 5, place: null };
 
 describe("sceneFor", () => {
   it("draws every case Map asks, and says what it asks without any Estonian", () => {
@@ -28,8 +28,9 @@ describe("sceneFor", () => {
         expect(scene.alt.length).toBeGreaterThan(10);
       }
     }
-    // Every case but the terminative is drawn for a thing and a person; the terminative for an hour.
-    expect(drawn).toBe((MAP_CASES.length - 1) * 2 + 1);
+    // A place takes every case but the terminative; a person every case but the
+    // inside three, which ask about a place; an hour takes the terminative alone.
+    expect(drawn).toBe((MAP_CASES.length - 1) + (MAP_CASES.length - 4) + 1);
   });
 
   it("puts the word's own emoji in the picture, marked as the word", () => {
@@ -87,6 +88,23 @@ describe("sceneFor", () => {
   it("asks three different things of the three moves of a place", () => {
     const asks = (["INESSIVE", "ELATIVE", "ILLATIVE"] as const).map((k) => sceneFor(k, thing)!.ask);
     expect(new Set(asks).size).toBe(3);
+  });
+
+  it("walks a person into a place or a bus, a coin into a container, and nothing into a notebook", () => {
+    const glyphs = (key: CaseKey, word: Parameters<typeof sceneFor>[1]) => {
+      const layout = sceneFor(key, word)?.layout;
+      if (!layout) return null;
+      return layout.kind === "row" ? layout.parts.map((p) => p.glyph) : [layout.host, layout.guest];
+    };
+    expect(glyphs("ILLATIVE", thing)).toEqual([WALKER, ARROW, "🏠"]);
+    expect(glyphs("INESSIVE", { ...thing, glyph: "🚌", place: null })).toEqual(["🚌", STANDER]);
+    expect(glyphs("ELATIVE", { ...thing, glyph: "👜", place: "container" })).toEqual(["👜", ARROW, COIN]);
+    expect(sceneFor("ILLATIVE", { ...thing, glyph: "👜", place: "container" })!.ask).toBe("Where is it going?");
+    for (const key of ["INESSIVE", "ELATIVE", "ILLATIVE"] as CaseKey[]) {
+      expect(sceneFor(key, { ...thing, glyph: "📓", place: null }), key).toBeNull();
+    }
+    // On and off are a ball for any thing, a notebook included.
+    expect(glyphs("ALLATIVE", { ...thing, glyph: "📓", place: null })).toEqual([BALL, ARROW, "📓"]);
   });
 
   it("never draws a word with the same emoji as its companion", () => {
