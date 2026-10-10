@@ -1,7 +1,7 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, ChevronRight, Compass, Flag, Lock } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
-import { deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
+import { courseWordCount, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { courseLevelFor } from "@/lib/progress/level";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import {
@@ -67,18 +67,7 @@ export default async function LearnPage() {
   const startedIds = new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id));
   const next = nextUnit({ doneUnitIds: doneIds, startedUnitIds: startedIds, placement });
 
-  // Counted over distinct lemmas rather than summed across units. A grammar unit
-  // deliberately drills vocabulary an earlier unit introduced — the object unit
-  // teaches its rule with verbs from A1 — so adding up per-unit totals counted
-  // those words twice and told the learner the course was about seventy words
-  // bigger than it is.
-  const countWords = (rows: typeof units) => {
-    const lemmas = new Set(rows.flatMap((u) => u.lemmas));
-    return {
-      words: lemmas.size,
-      known: [...lemmas].filter((l) => snapshot.knownLemmas.has(l)).length,
-    };
-  };
+  const countWords = (rows: typeof units) => courseWordCount(rows, snapshot.knownLemmas);
 
   const { words: totalWords, known: knownWords } = countWords(units);
 
@@ -278,8 +267,8 @@ export default async function LearnPage() {
                   <span className="mt-0.5 block max-w-[70ch] text-sm" style={{ color: "var(--ink-2)" }}>
                     {t(info.summary)}
                   </span>
-                  <span className="mt-2 flex items-center gap-3">
-                    <span className="max-w-[220px] flex-1">
+                  <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span className="min-w-[140px] max-w-[220px] flex-1">
                       <Meter
                         pct={pct}
                         label={fill(t("{level}: {known} of {total} words known"), { level, known, total: words })}
@@ -420,7 +409,7 @@ function LearnCard({
           {ready > 0 ? (
             <p className="mt-3 max-w-[48ch] text-md" style={{ color: "var(--ink-2)" }}>
               {t("Meet each one, pick what it means, then fit it back into a sentence.")}
-              {started > 0 && <> {fill(t("You're already part way through {n}."), { n: started })}</>}
+              {started > 0 && <> {started >= batch ? t("You've already started these.") : fill(t("You've already started {n} of them."), { n: started })}</>}
             </p>
           ) : onCourse ? (
             <p className="mt-3 max-w-[44ch] text-md" style={{ color: "var(--ink-2)" }}>

@@ -2242,7 +2242,9 @@ export function ReviewSession({
             </Button>
           ) : ask === "choice" && !chosen ? (
             <p className="text-center text-xs" style={{ color: "var(--ink-3)" }}>
-              {fill(t("Pick the meaning, or press 1 to {n}"), { n: card.choices?.length ?? 4 })}
+              {/* The keys half goes where the only pointer is a finger. */}
+              <span className="keys-hint">{fill(t("Pick the meaning, or press 1 to {n}"), { n: card.choices?.length ?? 4 })}</span>
+              <span className="touch-hint">{t("Pick the meaning")}</span>
             </p>
           ) : ask === "choice" && chosen !== null && choiceIsRight(chosen, card.back, answerLanguage) ? (
             /* Right, and waiting: the tile has already turned mint, so the

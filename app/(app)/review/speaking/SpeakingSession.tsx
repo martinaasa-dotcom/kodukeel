@@ -14,7 +14,8 @@ import { type RatingValue } from "@/lib/srs/scheduler";
 import { SelfGradeButtons } from "@/components/round/SelfGradeButtons";
 import { inEditable, isAdvanceKey, isGotItKey, isNotYetKey } from "@/lib/ux/advanceKey";
 import { Explain } from "@/components/Explain";
-import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
+import { FullEntry, WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
@@ -185,26 +186,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
       <h1 className="sr-only">{t("Speaking")}</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession />
-        <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="grad-accent h-full rounded-full transition-[width] duration-500"
-            style={{ width: `${Math.max((index / cards.length) * 100, 2)}%` }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={cards.length}
-            aria-label={fill(t("Card {n} of {total}"), { n: index + 1, total: cards.length })}
-          />
-        </div>
-        <span
-          className="tnum label-xs rounded-full px-2.5 py-1"
-          style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-        >
-          {fill(t("{n} left"), { n: cards.length - index })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={cards.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
@@ -274,7 +256,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
       )}
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{fill(t("{n} spoken"), { n: done })}</span>
+        {done > 0 && <span>{fill(t("{n} spoken"), { n: done })}</span>}
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>

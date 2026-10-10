@@ -14,7 +14,8 @@ import { StarWord } from "@/components/StarWord";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { useGrade } from "@/components/round/useGrade";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useKeepInView } from "@/components/round/useKeepInView";
 import { useFeedbackSound } from "@/components/AudioPrefs";
@@ -197,19 +198,7 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
       <h1 className="sr-only">Kaksikud</h1>
       {/* Mounted before there is anything to say, so a screen reader hears the verdict. */}
       <p className="sr-only" role="status">{said}</p>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession href="/practice" />
-        <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div className="grad-accent h-full rounded-full transition-[width] duration-500"
-            style={{ width: `${Math.max((index / questions.length) * 100, 2)}%` }}
-            role="progressbar" aria-valuenow={index} aria-valuemin={0} aria-valuemax={questions.length}
-            aria-label={t("Session progress")} />
-        </div>
-        <span className="tnum label-xs rounded-full px-2.5 py-1"
-          style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>
-          {fill(t("{n} left"), { n: remaining })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={questions.length} left={remaining} label={t("Session progress")} endHref="/practice" />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
         <div className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"

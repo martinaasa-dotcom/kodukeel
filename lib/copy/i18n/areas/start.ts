@@ -77,6 +77,7 @@ export const START: Area = {
     "Continue with your work account": "Войти через рабочий аккаунт",
     "Email me a link": "Прислать ссылку на почту",
     "Continue": "Продолжить",
+    "Type a name above to carry on.": "Чтобы продолжить, впишите имя выше.",
     "We’ll take you to the {domain} sign-in you already use.":
       "Мы перенаправим вас на вход {domain}, которым вы уже пользуетесь.",
     "No password to make up or forget. A work address takes you to your company’s sign-in, and any other address gets a link to open in this browser.":
@@ -362,6 +363,7 @@ export const START: Area = {
     "Continue with your work account": "Увійти через робочий обліковий запис",
     "Email me a link": "Надіслати посилання на пошту",
     "Continue": "Продовжити",
+    "Type a name above to carry on.": "Щоб продовжити, впишіть імʼя вище.",
     "We’ll take you to the {domain} sign-in you already use.":
       "Ми переспрямуємо вас на вхід {domain}, яким ви вже користуєтеся.",
     "No password to make up or forget. A work address takes you to your company’s sign-in, and any other address gets a link to open in this browser.":

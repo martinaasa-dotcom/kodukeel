@@ -33,7 +33,8 @@ import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
 import { VERDICT_CLASS, verdictLine, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { FitText } from "@/components/FitText";
 import { CaseLabel } from "@/components/CaseLabel";
@@ -297,23 +298,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           one: the empty state had a heading and the round did not, so an
           accessibility run that met an empty deck saw one and passed. */}
       <h1 className="sr-only">{t("Flash cards")}</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession href="/practice" size={19} />
-        <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${(index / prompts.length) * 100}%`, background: "var(--accent)" }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={prompts.length}
-            aria-label={t("Round progress")}
-          />
-        </div>
-        <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {fill(t("{n} left"), { n: prompts.length - index })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={prompts.length} endHref="/practice" />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div

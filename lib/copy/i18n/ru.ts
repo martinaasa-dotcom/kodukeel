@@ -261,7 +261,7 @@ export const RU: Readonly<Record<string, string>> = {
   "Five sentences": "Пять предложений",
   "Two or three scenes": "Две или три сцены",
   "A scene made of emoji. Write five sentences about what you see, one in each box. We check that each one is about the scene and that the Estonian is right, and tell you what to fix.": "Сцена из эмодзи. Напишите пять предложений о том, что видите, по одному в каждом поле. Мы проверим, что каждое про эту сцену и что эстонский верный, и подскажем, что исправить.",
-  "Start picks the ending": "Начало выбирает окончание",
+  "Hear the ending coming": "Окончание слышно заранее",
   "Choose, then type": "Сначала выбрать, потом вписать",
   "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of its last word, and this is where you learn to hear that.": "Mulle meeldib pasta, но ma tahan pastat. Первые слова предложения решают, в какой форме будет последнее слово, и здесь вы учитесь это слышать.",
 };

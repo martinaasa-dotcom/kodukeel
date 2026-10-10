@@ -12,7 +12,8 @@ import { VOICES } from "@/lib/audio/voice";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { SpaceKeyCap } from "@/components/KeyCaps";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey, isPlayKey } from "@/lib/ux/advanceKey";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
@@ -236,23 +237,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           other mode: the start screen and the finished screen each carry one
           and the round itself did not. */}
       <h1 className="sr-only">{t("Minimal pairs")}</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession size={19} />
-        <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${(index / questions.length) * 100}%`, background: "var(--accent)" }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={questions.length}
-            aria-label={t("Round progress")}
-          />
-        </div>
-        <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {fill(t("{n} left"), { n: questions.length - index })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={questions.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
@@ -281,19 +266,31 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
               ? <Loader2 size={30} className="animate-spin" aria-hidden />
               : <Volume2 size={30} aria-hidden />}
           </button>
-          <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+          {/* The slow play as a control of its own, the pill dictation uses,
+              rather than a speaker icon in the middle of a sentence about keys:
+              on a phone that sentence was all keys it does not have, and the
+              icon split "hear it slowly" across a line break. */}
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm" style={{ color: "var(--ink-3)" }}>
+            <Speak
+              text={question.heard}
+              slow
+              voice={voice}
+              label={t("Hear it slowly")}
+              size={14}
+              className="press tap-tint inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold"
+              style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
+            >
+              <Volume2 size={14} strokeWidth={2} aria-hidden /> {t("Slow")}
+            </Speak>
             {/* "Play again" is a lie before anything has played, which is
                 every arrival on a browser that blocks autoplay. */}
-            {rich(t(needsPress ? "Tap to hear it {space} or {key}, or hear it {speaker} slowly" : "Play again {space} or {key}, or hear it {speaker} slowly"), {
-              space: <SpaceKeyCap />,
-              key: <KeyCap>R</KeyCap>,
-              speaker: (
-                <span className="inline-flex items-center align-middle">
-                  <Speak text={question.heard} slow voice={voice} label={t("Hear it slowly")} />
-                </span>
-              ),
-            })}
-          </p>
+            <span className="keys-hint">
+              {rich(t(needsPress ? "Press {space} or {key} to hear it" : "Press {space} or {key} to hear it again"), {
+                space: <SpaceKeyCap />,
+                key: <KeyCap>R</KeyCap>,
+              })}
+            </span>
+          </div>
         </div>
 
         <div className="px-4 pb-4">
@@ -384,11 +381,11 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         )}
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>
-          {index + (revealed ? 1 : 0) > 0
-            ? fill(t("{n}/{total} right, press 1 or 2 to answer"), { n: correct, total: index + (revealed ? 1 : 0) })
-            : t("Press 1 or 2 to answer")}
-        </span>
+        {index + (revealed ? 1 : 0) > 0 && (
+          <span>{fill(t("{n}/{total} right"), { n: correct, total: index + (revealed ? 1 : 0) })}</span>
+        )}
+        {/* A keyboard's shortcut, which a phone has no keys for. */}
+        <span className="keys-hint">{t("Press 1 or 2 to answer")}</span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>
