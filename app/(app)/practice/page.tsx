@@ -204,12 +204,8 @@ export default async function PracticePage() {
                   {tr(locale, "Where your words stand")}
                 </Link>
               </div>
-              <p className="-mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                {tr(locale, "Your words, asked a new way each time: typed, heard in a sentence, or used in one you write. Pick which words.")}
-              </p>
-
               <ChoiceGroup label={tr(locale, "Your words")}>
-                <Choice href={flash.href} title={tr(locale, "All your words")} meta={flashMeta} />
+                <Choice href={flash.href} title={tr(locale, "All words")} meta={flashMeta} />
                 {stocked.map((deck) => (
                   <Choice
                     key={deck.id}
