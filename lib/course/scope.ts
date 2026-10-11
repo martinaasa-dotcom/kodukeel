@@ -32,6 +32,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { conjugationSlotFromFront } from "@/lib/srs/slots";
 import { isAppsChoice } from "@/lib/srs/sources";
 import { caseFromFront } from "@/lib/copy/caseHint";
+import { refusedCardSentence } from "@/lib/srs/refusedCards";
 import { FORMS_STEP, READ_STEP, type CourseDay, type Programme } from "./types";
 
 export interface ModuleScope {
@@ -317,12 +318,16 @@ const isCaseKey = (slot: string): boolean => CASES.some((c) => c.key === slot);
 export function cardWithin(
   scope: ModuleScope | null,
   card: {
-    cardType: string; targetCase: string | null; front: string; slot?: string | null;
+    cardType: string; targetCase: string | null; front: string; back: string; slot?: string | null;
     /** The word the card is about, which a verb's past is held to (`slotWithin`). */
     lexeme?: { lemma: string } | null;
   },
   spellings: ReadonlySet<string> | null,
 ): boolean {
+  // A card cut from a sentence somebody has refused is never asked, inside the
+  // module or out of it: the row keeps the front it was built with, and this
+  // is the read every review surface goes through (`refusedCardSentence`).
+  if (refusedCardSentence(card) !== null) return false;
   if (!scope) return true;
   if (card.cardType === "CASE_FORM" || card.cardType === "GRADATION") {
     // A case card always asks a case. One built before `targetCase` was
@@ -393,13 +398,15 @@ export function lemmaFilter(scope: ModuleScope | null): { lemma: { in: string[] 
  * card held back keeps its schedule untouched and is asked the evening the
  * module reaches it; nothing is deleted.
  *
- * Null scope is a learner not following the module, and everything passes.
+ * Null scope is a learner not following the module, and everything passes but
+ * a card cut from a refused sentence, which nobody is asked.
  */
 export function reviewable(
   scope: ModuleScope | null,
   card: Parameters<typeof cardWithin>[1] & { source: string },
   spellings: ReadonlySet<string> | null,
 ): boolean {
+  if (refusedCardSentence(card) !== null) return false;
   if (!scope) return true;
   if (isAppsChoice(card.source) && !(card.lexeme && taughtSet(scope).has(card.lexeme.lemma))) return false;
   return cardWithin(scope, card, spellings);

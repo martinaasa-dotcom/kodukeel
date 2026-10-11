@@ -117,7 +117,7 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
       // so the count Today prints is the round Review will actually ask.
       select: {
         state: true, due: true, suspended: true, lexemeId: true, cardType: true,
-        source: true, targetCase: true, slot: true, front: true,
+        source: true, targetCase: true, slot: true, front: true, back: true,
       },
     }),
     /*

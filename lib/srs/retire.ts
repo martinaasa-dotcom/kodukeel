@@ -3,9 +3,7 @@ import { CASES } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 import { conjugationSlotFromFront } from "@/lib/srs/slots";
 import { generateCards, isBareCaseFront, type LexemeForCards } from "@/lib/srs/cards";
-import { BLANK } from "@/lib/estonian/cloze";
-import { PARTS } from "@/lib/copy/values";
-import { isRefusedSentence } from "@/lib/dict/refused";
+import { refusedCardSentence } from "@/lib/srs/refusedCards";
 
 /**
  * THE CASE CARDS A DECK KEPT THAT ARE WRONG ABOUT ESTONIAN.
@@ -282,20 +280,16 @@ export interface RefusedCard {
 export function refusedSentenceCards(cards: readonly SentenceFrontCard[]): RefusedCard[] {
   const out: RefusedCard[] = [];
   for (const card of cards) {
-    if (!card.front.includes(BLANK)) continue;
-    for (const answer of card.back.split(PARTS)) {
-      const filled = card.front.replace(BLANK, answer.trim());
-      if (!isRefusedSentence(filled)) continue;
-      out.push({
-        id: card.id,
-        ownerId: card.ownerId,
-        lemma: card.lexeme?.lemma ?? "",
-        targetCase: card.targetCase,
-        back: card.back,
-        sentence: filled,
-      });
-      break;
-    }
+    const sentence = refusedCardSentence(card);
+    if (sentence === null) continue;
+    out.push({
+      id: card.id,
+      ownerId: card.ownerId,
+      lemma: card.lexeme?.lemma ?? "",
+      targetCase: card.targetCase,
+      back: card.back,
+      sentence,
+    });
   }
   return out;
 }

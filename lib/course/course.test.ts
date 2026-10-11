@@ -705,7 +705,7 @@ describe("what a day reads and where it goes", () => {
         const scope = moduleScopeFrom({ module: `${programme.id}~${d.id}~do:review~3~5~0` })!;
         const card = {
           cardType: "CONJUGATION", targetCase: null, slot: null,
-          front: "juhtuma \u2192 lihtminevik, ma", lexeme: { lemma: "juhtuma" },
+          front: "juhtuma \u2192 lihtminevik, ma", back: "juhtusin", lexeme: { lemma: "juhtuma" },
         };
         expect(cardWithin(scope, card, null), d.id).toBe(scope.formsShown.includes("juhtuma"));
       }
@@ -946,7 +946,7 @@ describe("what a day reads and where it goes", () => {
     const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
     const first = a2.days[0]!;
     const scope = moduleScopeFrom({ module: `${a2.id}~${first.id}~do:review~3~5~0` })!;
-    const past = { cardType: "CONJUGATION", targetCase: null, front: "Ta ____ eile.", slot: "IndIpfSg3" };
+    const past = { cardType: "CONJUGATION", targetCase: null, front: "Ta ____ eile.", back: "luges", slot: "IndIpfSg3" };
     const present = { ...past, slot: "IndPrSg3" };
     const spellings = new Set(["ta", "eile"]);
     expect(cardWithin(scope, past, spellings)).toBe(false);
@@ -965,7 +965,7 @@ describe("what a day reads and where it goes", () => {
   it("reads the part off the front of a verb card built before Card.slot", () => {
     const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
     const scope = moduleScopeFrom({ module: `${a2.id}~${a2.days[0]!.id}~do:review~3~5~0` })!;
-    const old = { cardType: "CONJUGATION", targetCase: null, slot: null };
+    const old = { cardType: "CONJUGATION", targetCase: null, slot: null, back: "" };
     expect(cardWithin(scope, { ...old, front: "lugema \u2192 lihtminevik, ma" }, null)).toBe(false);
     expect(cardWithin(scope, { ...old, front: "lugema \u2192 olevik, ta" }, null)).toBe(true);
   });

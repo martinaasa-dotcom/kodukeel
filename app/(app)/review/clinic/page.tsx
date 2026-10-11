@@ -1,3 +1,4 @@
+import { refusedCardSentence } from "@/lib/srs/refusedCards";
 import { prisma } from "@/lib/db";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
@@ -101,7 +102,9 @@ export default async function ClinicPage() {
     byCard.set(r.cardId, list);
   }
 
-  const candidates: LeechCandidate[] = cards.map((c) => ({
+  // A card cut from a sentence somebody refused is not a leech to work on, it is
+  // a card nobody may be asked (`refusedCardSentence`).
+  const candidates: LeechCandidate[] = cards.filter((c) => refusedCardSentence(c) === null).map((c) => ({
     cardId: c.id,
     front: readableFront(c.front),
     back: c.back,
