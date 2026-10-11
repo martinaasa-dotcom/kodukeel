@@ -48,6 +48,7 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
+import { HeroMinimal } from "@/components/HeroMinimal";
 
 export async function generateMetadata() {
   return titleFor("Today");
@@ -91,7 +92,8 @@ export const dynamic = "force-dynamic";
  * told in three places. So the do-now card is now only what to do now, and
  * everything that reports on the run of days is one card that says so.
  */
-export default async function TodayPage() {
+export default async function TodayPage({ searchParams }: { searchParams: Promise<{ hero?: string }> }) {
+  const { hero: heroMock } = await searchParams; // MOCKUP ONLY
   const ownerId = await requireUserId();
   const now = new Date();
   /*
@@ -490,6 +492,20 @@ export default async function TodayPage() {
       left, and tonight's steps dealt out on the right, the finished ones ringed,
       the next one lifted and breathing, the rest in the brand mix.
     */
+    heroMock === "a" || heroMock === "b" ? (
+    <HeroMinimal
+      variant={heroMock === "a" ? "row" : "stack"}
+      eyebrow="Today’s module, day 2 of 12"
+      title="Umbisikuline tegumood"
+      titleLang="et"
+      text="Read and write the impersonal Estonian of notices, news and official writing."
+      action={
+        <ButtonLink href="/course" variant="primary" size="lg" className="whitespace-nowrap">
+          {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
+        </ButtonLink>
+      }
+    />
+    ) : (
     <HeroFan
       bright
       eyebrow={`${t("Today’s module")}, ${fill(t("day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}`}
@@ -512,6 +528,7 @@ export default async function TodayPage() {
         };
       })}
     />
+    )
   ) : courseNow?.finishedToday ? (
     <Card tone="accent" className="evening flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
       <div className="min-w-0 flex-1">
