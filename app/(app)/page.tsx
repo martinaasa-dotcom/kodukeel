@@ -92,7 +92,7 @@ export const dynamic = "force-dynamic";
  * told in three places. So the do-now card is now only what to do now, and
  * everything that reports on the run of days is one card that says so.
  */
-export default async function TodayPage({ searchParams }: { searchParams: Promise<{ hero?: string }> }) {
+export default async function TodayPage({ searchParams }: { searchParams: Promise<{ hero?: string | string[] }> }) {
   const { hero: heroMock } = await searchParams; // MOCKUP ONLY
   const ownerId = await requireUserId();
   const now = new Date();
