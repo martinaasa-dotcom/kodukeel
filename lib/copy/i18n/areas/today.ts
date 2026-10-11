@@ -962,14 +962,14 @@ export const TODAY: Area = {
     "(пора повторить: {cards}, если хочется потренировать то, что уже знаете)",
   "about {minutes}":
     "около {minutes}",
-  "a new word every day":
-    "новое слово каждый день",
+  "Play a word game":
+    "Сыграйте в словесную игру",
   "An example board: three guesses, each circle marked {here}, {elsewhere} or {absent}.":
     "Пример поля: три попытки, у каждого кружка пометка: {here}, {elsewhere} или {absent}.",
   "Play {e1}":
     "Играть в {e1}",
-  "Six letters, {tries} tries, a clue if you get stuck.":
-    "Шесть букв, попыток: {tries}, а если застрянете, будет подсказка.",
+  "Play now":
+    "Играть",
   "Game of the day":
     "Игра дня",
   "{e1}, with a small example board. A new word to guess every morning.":
@@ -982,8 +982,8 @@ export const TODAY: Area = {
     "Одна ситуация для репетиции, выбранная по дате из тех, до которых дошёл ваш курс.",
   "Progress bar":
     "Шкала прогресса",
-  "Guess the Estonian word in six letters. Every guess tells you which letters are right.":
-    "Угадайте эстонское слово из шести букв. Каждая попытка показывает, какие буквы верны.",
+  "Guess the Estonian word in six letters.":
+    "Угадайте эстонское слово из шести букв.",
   "Put a real sentence back together, commas and all.":
     "Соберите настоящее предложение заново, со всеми запятыми.",
   "It's Friday, so keep it quiet: words you know, asked in new ways.":
@@ -1937,14 +1937,14 @@ export const TODAY: Area = {
     "(час повторити: {cards}, якщо хочеться потренувати те, що вже знаєте)",
   "about {minutes}":
     "близько {minutes}",
-  "a new word every day":
-    "нове слово щодня",
+  "Play a word game":
+    "Зіграйте в словесну гру",
   "An example board: three guesses, each circle marked {here}, {elsewhere} or {absent}.":
     "Приклад поля: три спроби, кожен кружок позначено: {here}, {elsewhere} або {absent}.",
   "Play {e1}":
     "Грати в {e1}",
-  "Six letters, {tries} tries, a clue if you get stuck.":
-    "Шість літер, спроб: {tries}, а якщо застрягнете, буде підказка.",
+  "Play now":
+    "Грати",
   "Game of the day":
     "Гра дня",
   "{e1}, with a small example board. A new word to guess every morning.":
@@ -1957,8 +1957,8 @@ export const TODAY: Area = {
     "Одна ситуація для репетиції, вибрана за датою з тих, до яких дійшов ваш курс.",
   "Progress bar":
     "Шкала прогресу",
-  "Guess the Estonian word in six letters. Every guess tells you which letters are right.":
-    "Вгадайте естонське слово з шести літер. Кожна спроба показує, які літери правильні.",
+  "Guess the Estonian word in six letters.":
+    "Вгадайте естонське слово з шести літер.",
   "Put a real sentence back together, commas and all.":
     "Зберіть справжнє речення заново, з усіма комами.",
   "It's Friday, so keep it quiet: words you know, asked in new ways.":

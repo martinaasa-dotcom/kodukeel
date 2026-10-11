@@ -1,6 +1,6 @@
 import { ButtonLink } from "@/components/Button";
 import { ArrowRight } from "lucide-react";
-import { scoreGuess, SONAD_GUESSES, SONAD_LENGTH } from "@/lib/games/sonad";
+import { scoreGuess, SONAD_LENGTH } from "@/lib/games/sonad";
 import { EMPTY, HUE, RING, SPOKEN } from "@/components/sonad/look";
 import { Card, SectionTitle } from "@/components/ui";
 import { fill, tr, type Locale } from "@/lib/copy/locale";
@@ -36,8 +36,8 @@ export function SonadPreview({ href, why, locale = "en" }: { href: string; why: 
   const t = (english: string) => tr(locale, english);
   return (
     <Card className="flex h-full flex-col">
-      <SectionTitle hint={t("a new word every day")}>{t("Today’s game")}</SectionTitle>
-      <div className="flex flex-1 flex-col gap-5">
+      <SectionTitle>{t("Play a word game")}</SectionTitle>
+      <div className="flex flex-1 flex-col items-center gap-5 text-center">
         <div
           aria-hidden
           data-sonad-preview
@@ -78,11 +78,11 @@ export function SonadPreview({ href, why, locale = "en" }: { href: string; why: 
             ))}
           </div>
         </div>
-        <div className="min-w-0">
+        <div className="flex min-w-0 flex-1 flex-col items-center">
           <p className="font-display text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }} lang="et">
             Sõnad
           </p>
-          <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-1 max-w-[32ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             {why}
           </p>
           <p className="sr-only">
@@ -90,16 +90,13 @@ export function SonadPreview({ href, why, locale = "en" }: { href: string; why: 
               here: t(SPOKEN.here), elsewhere: t(SPOKEN.elsewhere), absent: t(SPOKEN.absent),
             })}
           </p>
-          <div className="mt-4">
+          <div className="mt-auto pt-5">
             <ButtonLink href={href} variant="primary">
-              {t("Play Sõnad")} <ArrowRight size={15} aria-hidden />
+              {t("Play now")} <ArrowRight size={15} aria-hidden />
             </ButtonLink>
           </div>
         </div>
       </div>
-      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
-        {fill(t("Six letters, {tries} tries, a clue if you get stuck."), { tries: SONAD_GUESSES })}
-      </p>
     </Card>
   );
 }

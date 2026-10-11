@@ -118,7 +118,7 @@ export const PUZZLE_STAND_IN: FeaturedGame = {
  */
 export const GAME_OF_THE_DAY: FeaturedGame = {
   href: "/sonad",
-  why: "Guess the Estonian word in six letters. Every guess tells you which letters are right.",
+  why: "Guess the Estonian word in six letters.",
 };
 
 /**
