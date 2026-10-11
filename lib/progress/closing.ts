@@ -53,7 +53,7 @@ import { isAround } from "@/lib/collections/levels";
  * them rather than a page of examples.
  */
 const SELECT = {
-  cardType: true, targetCase: true, front: true, slot: true,
+  cardType: true, targetCase: true, front: true, back: true, slot: true,
   // Which verb, since a verb's past is asked only once an evening showed it.
   lexeme: { select: { lemma: true } },
 } as const;
@@ -130,7 +130,7 @@ const reachable = cache(async (
     courseLevelFor(ownerId),
   ]);
 
-  const within = (card: { cardType: string; targetCase: string | null; front: string; slot: string | null }) =>
+  const within = (card: { cardType: string; targetCase: string | null; front: string; back: string; slot: string | null }) =>
     cardWithin(scope, card, spellings);
   /* The round asks the same question of a card about to be introduced, against
      what the module has taught. Inside a module that is this same scope, which
