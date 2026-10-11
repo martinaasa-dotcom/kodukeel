@@ -845,7 +845,7 @@ export default async function TodayPage() {
     <Card className="flex h-full flex-col">
       <SectionTitle>{t("Today’s game")}</SectionTitle>
       <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(featured.why)}</p>
-      <div className="mt-3">
+      <div className="mt-3 flex justify-center">
         <ButtonLink href={featured.href} variant="primary">
           {t(featuredTitle(featured.href) ?? "Play")} <ArrowRight size={15} aria-hidden />
         </ButtonLink>
@@ -868,7 +868,7 @@ export default async function TodayPage() {
       <SectionTitle hint={say(`about ${minutesFor(sceneToday)} minutes`, "about {minutes}", { minutes: countOf(locale, minutesFor(sceneToday), "minute", "gen") })}>{t("Today’s conversation")}</SectionTitle>
       <p className="text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{t(sceneToday.title)}</p>
       <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(sceneToday.place)}</p>
-      <div className="mt-auto pt-4">
+      <div className="mt-auto flex justify-center pt-4">
         <ButtonLink href={`/situations/${sceneToday.id}`} variant="primary">
           {t("Start the conversation")} <ArrowRight size={15} aria-hidden />
         </ButtonLink>
