@@ -204,12 +204,8 @@ export default async function PracticePage() {
                   {tr(locale, "Where your words stand")}
                 </Link>
               </div>
-              <p className="-mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                {tr(locale, "Your words, asked a new way each time: typed, heard in a sentence, or used in one you write. Pick which words.")}
-              </p>
-
               <ChoiceGroup label={tr(locale, "Your words")}>
-                <Choice href={flash.href} title={tr(locale, "All your words")} meta={flashMeta} />
+                <Choice href={flash.href} title={tr(locale, "All words")} meta={flashMeta} />
                 {stocked.map((deck) => (
                   <Choice
                     key={deck.id}
@@ -218,6 +214,7 @@ export default async function PracticePage() {
                     meta={countOf(locale, deck.wordCount, "word")}
                   />
                 ))}
+                <Choice href="/words/decks" title={tr(locale, "Add a deck")} />
               </ChoiceGroup>
 
               <ChoiceGroup label={tr(locale, common.title)} href={common.href}>
@@ -347,16 +344,16 @@ function ChoiceGroup({ label, href, children }: { label: string; href?: string; 
  * "Describing words", wrapped its name under its dot at every width, which
  * is the fault `scripts/test-containment.mjs` now asks about on every page.
  */
-function Choice({ href, title, meta, label }: { href: string; title: string; meta: string; label?: string }) {
+function Choice({ href, title, meta, label }: { href: string; title: string; meta?: string; label?: string }) {
   return (
     <Link
       href={href}
-      aria-label={label ? `${label}, ${meta}` : undefined}
+      aria-label={label && meta ? `${label}, ${meta}` : undefined}
       className="tap-tint flex min-h-11 flex-col justify-center rounded-[var(--r)] border px-3.5 py-2.5"
       style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
     >
       <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{title}</span>
-      <span className="text-xs" style={{ color: "var(--ink-3)" }}>{meta}</span>
+      {meta ? <span className="text-xs" style={{ color: "var(--ink-3)" }}>{meta}</span> : null}
     </Link>
   );
 }
