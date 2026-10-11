@@ -188,9 +188,11 @@ describe("the clue ladder", () => {
   });
 
   /* A word the Institute classified as nothing useful skips straight to the
-     vowels rather than promising a clue that will never come. */
+     vowels rather than promising a clue that will never come, so the count is
+     the distance to the vowel clue and not to the category. */
   it("does not promise a category the dictionary does not have", () => {
-    expect(nextClue(0, false, "en")).toContain("vowels");
+    expect(nextClue(0, false, "en")).toBe(`After ${SONAD_GUESSES - 1} guesses, you'll get a clue.`);
+    expect(nextClue(0, true, "en")).toBe(`After ${CATEGORY_AFTER} guesses, you'll get a clue.`);
   });
 });
 
