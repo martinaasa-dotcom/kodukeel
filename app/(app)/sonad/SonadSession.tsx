@@ -235,9 +235,10 @@ export function SonadSession({ puzzle, day, guessable }: {
       the board is the thing that gives.
     */
     <div className="sonad-board flex flex-col items-center gap-3">
-      {/* What is known from the first row, in one centred line. No card round
-          any of it: the board and the keys are the screen. */}
-      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+      {/* What is known from the first row, in one line that starts where the
+          title and the lead start. No card round any of it: the board and the
+          keys are the screen. */}
+      <div className="flex w-full flex-wrap items-center justify-start gap-x-3 gap-y-1">
         <div className="flex flex-wrap items-center gap-2">
           {/*
             What is known from the first row: what kind of word and how hard it
@@ -246,9 +247,6 @@ export function SonadSession({ puzzle, day, guessable }: {
           */}
           <Chip tone="neutral">{t(puzzle.pos.toLowerCase())}</Chip>
           {puzzle.cefr && <Chip tone="neutral">{puzzle.cefr}</Chip>}
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            {fill(t("{letters} letters, {n} left"), { letters: SONAD_LENGTH, n: SONAD_GUESSES - guesses.length })}
-          </span>
         </div>
 
         {/*
@@ -264,7 +262,7 @@ export function SonadSession({ puzzle, day, guessable }: {
           it lands under a board a screen reader has already been read.
         */}
         {!over && (clue.category || clue.vowels || coming) && (
-          <p className="sonad-hint mt-1.5 text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
+          <p className="sonad-hint text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
             {clue.category && puzzle.category && (
               <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>
                 {fill(t("It's {category}."), { category: t(puzzle.category, "clue") })}
