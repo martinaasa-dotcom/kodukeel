@@ -214,14 +214,14 @@ export function nextClue(guessed: number, hasCategory: boolean, locale: Locale):
   if (!clues.category && hasCategory) {
     const away = CATEGORY_AFTER - guessed;
     return away === 1
-      ? tr(locale, "After your next guess you'll get a clue: what sort of thing the word is.")
-      : fill(tr(locale, "After {n} more guesses you'll get a clue: what sort of thing the word is."), { n: away });
+      ? tr(locale, "After your next guess, you'll get a clue.")
+      : fill(tr(locale, "After {n} guesses, you'll get a clue."), { n: away });
   }
   if (!clues.vowels) {
     const away = SONAD_GUESSES - 1 - guessed;
     return away === 1
-      ? tr(locale, "Before your last guess you'll get a clue: how many of its letters are vowels.")
-      : fill(tr(locale, "After {n} more guesses you'll get a clue: how many of its letters are vowels."), { n: away });
+      ? tr(locale, "Before your last guess, you'll get a clue.")
+      : fill(tr(locale, "After {n} guesses, you'll get a clue."), { n: away });
   }
   return null;
 }

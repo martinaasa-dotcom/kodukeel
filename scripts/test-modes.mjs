@@ -610,7 +610,9 @@ const board = page.locator('[lang="et"].rounded-full.grid');
 */
 const rows = await page.evaluate(() => {
   const text = document.querySelector("main")?.textContent ?? "";
-  return Number(/6 letters, (\d+) left/.exec(text)?.[1] ?? 0);
+  // The page's own lead says it ("6 letters, 7 guesses, ..."), which is the
+  // one place the count is printed now that the board carries no tally.
+  return Number(/6 letters, (\d+) guesses/.exec(text)?.[1] ?? 0);
 });
 check("Sõnad draws a row of six for every try", (await board.count()) === rows * 6, `${rows} rows`);
 check("and gives seven tries", rows === 7, `${rows}`);
