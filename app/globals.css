@@ -1317,6 +1317,13 @@
   }
   .say-flip-back { transform: rotateY(180deg); }
   .say-flip-inner[data-flipped="true"] { transform: rotateY(180deg); }
+  /* The face turned away is hidden outright as well, at the middle of the
+     turn when it is edge on and nobody can see the swap. Backface culling
+     alone leaves it in the layout, so a hit test or a screen reader walking
+     the text finds two words stacked in one place. */
+  .say-flip-inner > * { transition: visibility 0s linear 260ms; }
+  .say-flip-inner:not([data-flipped="true"]) > .say-flip-back,
+  .say-flip-inner[data-flipped="true"] > :not(.say-flip-back) { visibility: hidden; }
   .say-strike {
     background-image: linear-gradient(currentColor, currentColor);
     background-repeat: no-repeat;
