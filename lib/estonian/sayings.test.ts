@@ -122,6 +122,35 @@ describe("sayings", () => {
     }
   });
 
+  it("says what each word of the phrase means on its own, one entry a word", () => {
+    for (const s of SAYINGS) {
+      expect(s.parts, s.id).toHaveLength(s.phrase.split(" ").length);
+      for (const part of s.parts) {
+        expect(part.trim(), s.id).not.toBe("");
+        expect(part, s.id).not.toMatch(/[õäöüšž]/i);
+      }
+    }
+  });
+
+  it("gives every saying a situation of its own, in English, that never quotes the saying", () => {
+    const seen = new Set<string>();
+    for (const s of SAYINGS) {
+      expect(s.when.length, s.id).toBeGreaterThan(20);
+      expect(s.when.length, s.id).toBeLessThanOrEqual(110);
+      expect(s.when, s.id).not.toMatch(/[õäöüšž]/i);
+      expect(s.when, s.id).toMatch(/[.]$/);
+      // A situation that carried the saying's own words would be the answer to the question it is put as.
+      // Short words are skipped: `on` is a word in both languages.
+      for (const word of wordsOf(s.phrase).filter((w) => w.length >= 4)) expect(wordsOf(s.when), `${s.id}: ${word}`).not.toContain(word);
+      expect(seen.has(s.when), s.id).toBe(false);
+      seen.add(s.when);
+      if (s.note !== undefined) {
+        expect(s.note.length, s.id).toBeGreaterThan(15);
+        expect(s.note, s.id).not.toMatch(/[õäöüšž]/i);
+      }
+    }
+  });
+
   it("cuts the sayings into sittings of five with no sitting too small to match", () => {
     let total = 0;
     for (let n = 0; n < setCount(); n++) {

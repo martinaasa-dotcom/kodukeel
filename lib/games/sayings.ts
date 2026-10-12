@@ -1,19 +1,29 @@
 /**
- * SAYINGS, THE ROUND: SEE IT, MATCH IT, FILL IT.
+ * SAYINGS, THE ROUND: UNPACK IT, MATCH IT, PLACE IT, FILL IT.
  *
- * Three steps and one thing to do on each, in the shape the Learn ladder
- * already teaches a word in. A saying is met once with the trap beside the
- * way out (what it says word for word, what it means), then the five of them
- * are matched to their meanings, then each is asked again inside a real
- * sentence with its second word missing.
+ * Four steps and one thing to do on each. A saying is unpacked: the learner
+ * taps its words one at a time and watches the literal reading build up (the
+ * trap), is asked to guess what it really means before being told, and is
+ * then shown the truth with the situation it is said in and a real sentence.
+ * The five are matched to their meanings, each is put to the learner as a
+ * situation ("which one would you say?"), and each is asked again inside a
+ * real sentence with its second word missing.
  *
  * NOTHING HERE IS WRITTEN AND NOTHING IS GRADED BY A MODEL. The Estonian is
  * `lib/estonian/sayings.ts`, every character of it a recorded sentence or a
- * word cut out of one. A match is right when two ids are the same id, and a
- * blank is right when the pick is the string that was taken out of the
- * sentence. All three steps are string comparisons.
+ * word cut out of one. A guess is right when it is the saying's own meaning,
+ * a match or a situation when two ids are the same id, and a blank when the
+ * pick is the string that was taken out of the sentence. Every step is a
+ * comparison and nothing more.
  *
- * WHERE A SAYING IS ASKED IS NOT WHERE IT WAS MET. The see step reads the
+ * THE GUESS COSTS NOTHING AND IS ASKED FIRST. Nobody can be wrong about a
+ * thing they have not met, so it is not marked against them and not asked
+ * again: it is there because a learner who has committed to a reading
+ * remembers the answer to it better than one who was only shown it, and
+ * because "I guessed it wrong" is the lesson in a pair that does not mean
+ * what it says. The end of the sitting says how many were guessed.
+ *
+ * WHERE A SAYING IS ASKED IS NOT WHERE IT WAS MET. The unpack step reads the
  * first recorded sentence and the fill step the second, where the dictionary
  * holds two, so the question is never the line the learner has just read.
  * That is the cheapest honest version of "the same pair in new surroundings",
@@ -53,8 +63,28 @@ export interface PlayableSaying {
 export interface SeeStep {
   readonly id: string;
   readonly phrase: string;
+  /** Each word of the phrase with what it says on its own, in order. */
+  readonly words: readonly { readonly word: string; readonly gloss: string }[];
   readonly means: string;
   readonly literal: string;
+  /** Where a person says it, and anything to mind about how strong it is. */
+  readonly when: string;
+  readonly note: string | null;
+  readonly sentence: ResolvedSentence;
+  /** What the learner is asked to guess between: the real meaning and its neighbours in the set, shuffled. */
+  readonly guesses: readonly string[];
+}
+
+/** A situation put to the learner, who picks the saying that fits it. */
+export interface FitQuestion {
+  readonly id: string;
+  readonly when: string;
+  /** The right saying and its neighbours in the set, shuffled. */
+  readonly options: readonly { readonly id: string; readonly phrase: string }[];
+  readonly phrase: string;
+  readonly means: string;
+  readonly literal: string;
+  /** Shown after the answer: the saying in a real sentence. */
   readonly sentence: ResolvedSentence;
 }
 
@@ -84,6 +114,7 @@ export interface FillQuestion {
 export interface SayingsPlan {
   readonly see: readonly SeeStep[];
   readonly match: MatchBoard;
+  readonly fit: readonly FitQuestion[];
   readonly fill: readonly FillQuestion[];
 }
 
@@ -93,7 +124,9 @@ export const WRONG_OPTIONS = 3;
 /**
  * A sentence cut round the one word that is missing, or null where it cannot
  * be done honestly: the word absent, or present twice, in which case the other
- * one would stand in the sentence and give the answer away.
+ * one would stand in the sentence and give the answer away, or spelled with a
+ * capital because it opens the sentence, in which case the answer put back
+ * would not be the sentence as recorded.
  */
 export function blankOut(
   sentence: string, particle: string,
@@ -101,6 +134,8 @@ export function blankOut(
   const pattern = new RegExp(`(?<![\\p{L}\\p{N}])${escape(particle)}(?![\\p{L}\\p{N}])`, "giu");
   const hits = [...sentence.matchAll(pattern)];
   if (hits.length !== 1) return null;
+  // A word opening the sentence is capitalised there, and the options are the word as the saying spells it.
+  if (hits[0]![0] !== particle) return null;
   const at = hits[0]!.index!;
   return { before: sentence.slice(0, at), after: sentence.slice(at + particle.length) };
 }
@@ -134,16 +169,37 @@ export function buildPlan(
   const usable = playable.filter((p) => blankOut(askedIn(p).et, p.saying.particle) !== null);
   if (usable.length < MIN_SET) return null;
 
-  const see: SeeStep[] = usable.map((p) => ({
-    id: p.saying.id,
-    phrase: p.saying.phrase,
-    means: p.saying.means,
-    literal: p.saying.literal,
-    sentence: firstWith(p),
-  }));
+  const meanings = usable.map((p) => p.saying.means);
+  const see: SeeStep[] = usable.map((p) => {
+    const wrong = shuffle(meanings.filter((m) => m !== p.saying.means), random).slice(0, WRONG_OPTIONS);
+    return {
+      id: p.saying.id,
+      phrase: p.saying.phrase,
+      words: p.saying.phrase.split(" ").map((word, i) => ({ word, gloss: p.saying.parts[i] ?? "" })),
+      means: p.saying.means,
+      literal: p.saying.literal,
+      when: p.saying.when,
+      note: p.saying.note ?? null,
+      sentence: firstWith(p),
+      guesses: shuffle([p.saying.means, ...wrong], random),
+    };
+  });
+
+  const fit: FitQuestion[] = shuffle(usable, random).map((p) => {
+    const wrong = shuffle(usable.filter((o) => o.saying.id !== p.saying.id), random).slice(0, WRONG_OPTIONS);
+    return {
+      id: p.saying.id,
+      when: p.saying.when,
+      options: shuffle([p, ...wrong], random).map((o) => ({ id: o.saying.id, phrase: o.saying.phrase })),
+      phrase: p.saying.phrase,
+      means: p.saying.means,
+      literal: p.saying.literal,
+      sentence: firstWith(p),
+    };
+  });
 
   const phrases = usable.map((p) => ({ id: p.saying.id, phrase: p.saying.phrase }));
-  const meanings = shuffleApart(
+  const matchMeanings = shuffleApart(
     usable.map((p) => ({ id: p.saying.id, means: p.saying.means })), random,
   );
 
@@ -165,7 +221,7 @@ export function buildPlan(
     };
   });
 
-  return { see, match: { phrases, meanings }, fill };
+  return { see, match: { phrases, meanings: matchMeanings }, fit, fill };
 }
 
 /** The sentence a saying is met in: the first, which is the one with the pair in it whole. */
@@ -190,6 +246,16 @@ function shuffleApart<T extends { id: string }>(items: readonly T[], random: () 
   }
   // Rotated by one, which has no fixed point however the dice fall.
   return [...items.slice(1), items[0]!];
+}
+
+/** A guess is right when it is the saying's own meaning. */
+export function isGuessRight(step: SeeStep, guess: string): boolean {
+  return guess === step.means;
+}
+
+/** A situation is answered right when the pick is the saying it was written for. */
+export function isFit(question: FitQuestion, pickedId: string): boolean {
+  return pickedId === question.id;
 }
 
 /** A match is right when both taps belong to the same saying. */

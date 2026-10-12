@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { SAYINGS, sayingSet, setCount } from "../estonian/sayings";
-import { askedIn, blankOut, buildPlan, isAskedElsewhere, isMatch, isRight, type PlayableSaying } from "./sayings";
+import { askedIn, blankOut, buildPlan, isAskedElsewhere, isFit, isGuessRight, isMatch, isRight, type PlayableSaying } from "./sayings";
 import { rng as seeded } from "../random/seeded";
 
 /** The sentences as the dictionary would hand them back, with a stand-in English line. */
@@ -22,6 +22,10 @@ describe("blankOut", () => {
     expect(blankOut("Katki läks, katki jäi.", "katki")).toBeNull();
   });
 
+  it("refuses a word that opens the sentence, since the answer would come back in lower case", () => {
+    expect(blankOut("Kokku saadi kohviku ees.", "kokku")).toBeNull();
+  });
+
   it("does not cut a word out of the middle of another", () => {
     expect(blankOut("Ta tegi katkist.", "katki")).toBeNull();
   });
@@ -38,6 +42,37 @@ describe("buildPlan", () => {
       expect(plan!.match.phrases).toHaveLength(set.length);
       expect(plan!.match.meanings).toHaveLength(set.length);
       expect(plan!.fill).toHaveLength(set.length);
+      expect(plan!.fit).toHaveLength(set.length);
+    });
+
+    it(`gives every word of every saying in sitting ${n + 1} something to say when it is tapped`, () => {
+      const plan = buildPlan(playable(set), seeded(5))!;
+      for (const step of plan.see) {
+        expect(step.words.length, step.id).toBe(step.phrase.split(" ").length);
+        for (const w of step.words) expect(w.gloss.trim(), `${step.id}: ${w.word}`).not.toBe("");
+        expect(step.words.map((w) => w.word).join(" ")).toBe(step.phrase);
+      }
+    });
+
+    it(`offers the right meaning once among the guesses in sitting ${n + 1}`, () => {
+      const plan = buildPlan(playable(set), seeded(9))!;
+      for (const step of plan.see) {
+        expect(step.guesses.filter((g) => g === step.means), step.id).toHaveLength(1);
+        expect(new Set(step.guesses).size, step.id).toBe(step.guesses.length);
+        expect(step.guesses.length, step.id).toBeGreaterThanOrEqual(3);
+      }
+    });
+
+    it(`puts each situation in sitting ${n + 1} to the learner with its own saying among the options, once`, () => {
+      const plan = buildPlan(playable(set), seeded(11))!;
+      expect(new Set(plan.fit.map((q) => q.id)).size).toBe(set.length);
+      for (const q of plan.fit) {
+        expect(q.options.filter((o) => o.id === q.id), q.id).toHaveLength(1);
+        expect(new Set(q.options.map((o) => o.id)).size, q.id).toBe(q.options.length);
+        expect(new Set(q.options.map((o) => o.phrase)).size, q.id).toBe(q.options.length);
+        expect(q.options.length, q.id).toBeGreaterThanOrEqual(3);
+        expect(q.when.length).toBeGreaterThan(10);
+      }
     });
 
     it(`puts the right word among the options in sitting ${n + 1}, once, with no repeats`, () => {
@@ -79,5 +114,12 @@ describe("buildPlan", () => {
     const q = buildPlan(playable(sayingSet(0)), seeded(3))!.fill[0]!;
     expect(isRight(q, q.answer)).toBe(true);
     expect(isRight(q, q.options.find((o) => o !== q.answer)!)).toBe(false);
+    const plan = buildPlan(playable(sayingSet(0)), seeded(3))!;
+    const step = plan.see[0]!;
+    expect(isGuessRight(step, step.means)).toBe(true);
+    expect(isGuessRight(step, step.guesses.find((g) => g !== step.means)!)).toBe(false);
+    const f = plan.fit[0]!;
+    expect(isFit(f, f.id)).toBe(true);
+    expect(isFit(f, f.options.find((o) => o.id !== f.id)!.id)).toBe(false);
   });
 });

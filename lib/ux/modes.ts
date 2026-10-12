@@ -201,9 +201,9 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "Quote", tone: "butter", group: "targeted", note: "Five at a time, no clock",
     within: "/practice",
     blurb:
-      "A verb and one small word that change what it means. See each pair with what it says word " +
-      "for word, match five of them to their meanings, then fill in the missing word in a real " +
-      "sentence.",
+      "A verb and one small word that change what it means. Take each pair apart word by word, " +
+      "guess what it means, then match five of them, place them in a situation and fill in the " +
+      "missing word in a real sentence.",
   },
   {
     /*
