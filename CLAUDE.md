@@ -11885,6 +11885,7 @@ npm run db:seed          # reload the built-in dictionary
 npm run harvest          # re-ask Ekilex for the syllabus vocabulary (cached, needs EKILEX_API_KEY)
 npm run harvest:semantics # ask what kind of thing each word is, for the built dictionary (--write applies)
 npm run harvest:translations # ask for the Russian and the Ukrainian, for the built dictionary (--write applies)
+npm run harvest:sayings # check the Väljendid sentences the dictionary never kept against Ekilex (--write applies)
 npm run build:frequency  # recount the commonest words (cached corpus, --refresh to re-fetch)
 npm run scenes:template  # write the spreadsheet a native speaker fills in, one sentence per scene
 npm run scenes:import    # read it back, gated word by word through the dictionary

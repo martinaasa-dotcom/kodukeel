@@ -224,6 +224,15 @@ export const BRIEFINGS = {
     you: "Pick or type the form that fits. Afterwards you'll see a real sentence using it. There's no clock.",
     action: "Start",
   },
+  sayings: {
+    title: "Learn five sayings",
+    what:
+      "Five pairs of words that mean something other than their parts. You take each apart " +
+      "word by word, guess its meaning, then read it in a real sentence. Then a match, a " +
+      "question about when you'd say each, and a gap to fill.",
+    you: "Tap the words, take a guess, then match and pick. There's no clock.",
+    action: "Start",
+  },
   twins: {
     title: "Tell the look-alikes apart",
     what:

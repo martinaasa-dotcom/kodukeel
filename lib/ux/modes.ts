@@ -192,6 +192,21 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     /*
+      A verb and one small word that changes what it means: läks katki is a
+      vase breaking, not a vase going anywhere. Five at a time, seen, matched
+      and filled in a real sentence. Reached from Practice. See
+      `lib/estonian/sayings.ts` and `lib/games/sayings.ts`.
+    */
+    href: "/review/sayings", title: "Väljendid", subtitle: "Pairs that fool you",
+    icon: "Quote", tone: "butter", group: "targeted", note: "Five at a time, no clock",
+    within: "/practice",
+    blurb:
+      "A verb and one small word that change what it means. Take each pair apart word by word, " +
+      "guess what it means, then match five of them, place them in a situation and fill in the " +
+      "missing word in a real sentence.",
+  },
+  {
+    /*
       Twenty questions, which is the classic game against a machine: it holds a
       thing in mind and the learner has twenty yes or no questions to name it.
       The Estonian is the learner's own, a whole question typed with the forms
@@ -403,7 +418,7 @@ export const SHELVES: readonly Shelf[] = [
   },
   {
     id: "games", name: "Word games", hint: "Just for the fun of it.", tone: "butter",
-    hrefs: ["/review/letters", "/sonad", "/crossword", "/review/sentences", "/review/map", "/review/twins"],
+    hrefs: ["/review/letters", "/sonad", "/crossword", "/review/sentences", "/review/map", "/review/twins", "/review/sayings"],
   },
   {
     id: "workshop", name: "Workshop", hint: "You think, you type. Take your time.", tone: "accent",
