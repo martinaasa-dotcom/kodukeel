@@ -197,7 +197,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       and filled in a real sentence. Reached from Practice. See
       `lib/estonian/sayings.ts` and `lib/games/sayings.ts`.
     */
-    href: "/review/sayings", title: "Väljendid", subtitle: "Pairs that don't mean what they say",
+    href: "/review/sayings", title: "Väljendid", subtitle: "Pairs that fool you",
     icon: "Quote", tone: "butter", group: "targeted", note: "Five at a time, no clock",
     within: "/practice",
     blurb:

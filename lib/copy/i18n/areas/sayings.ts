@@ -25,10 +25,8 @@ export const SAYINGS: Area = {
     "{n} of {total} on the first try. The rest came round again until they stuck.":
       "{n} из {total} с первого раза. Остальные возвращались, пока не запомнились.",
     "Another set": "Ещё набор",
-    "{n} of {total}": "{n} из {total}",
     "Word for word": "Слово в слово",
     "Word for word: {literal}.": "Слово в слово: {literal}.",
-    "What it means": "Что это значит",
     "Match them": "Сопоставить",
     "{n} of {total} matched": "Сопоставлено: {n} из {total}",
     "Which means which?": "Что что значит?",
@@ -43,7 +41,7 @@ export const SAYINGS: Area = {
     "Not quite. It's “{phrase}”, which means “{means}”.": "Не совсем. Это «{phrase}», то есть «{means}».",
 
     // The practice menu and the briefing.
-    "Pairs that don't mean what they say": "Пары, которые значат не то, что говорят",
+    "Pairs that fool you": "Пары, которые вводят в заблуждение",
     "Five at a time, no clock": "По пять, без таймера",
     "A verb and one small word that change what it means. See each pair with what it says word for word, match five of them to their meanings, then fill in the missing word in a real sentence.":
       "Глагол и одно маленькое слово, которое меняет смысл. Посмотрите на каждую пару: что она говорит слово в слово и что значит на самом деле. Сопоставьте пять пар с их значениями, потом вставьте пропущенное слово в настоящем предложении.",
@@ -95,10 +93,8 @@ export const SAYINGS: Area = {
     "{n} of {total} on the first try. The rest came round again until they stuck.":
       "{n} із {total} з першого разу. Решта поверталися, доки не запам'яталися.",
     "Another set": "Ще набір",
-    "{n} of {total}": "{n} із {total}",
     "Word for word": "Слово в слово",
     "Word for word: {literal}.": "Слово в слово: {literal}.",
-    "What it means": "Що це означає",
     "Match them": "Зіставити",
     "{n} of {total} matched": "Зіставлено: {n} із {total}",
     "Which means which?": "Що що означає?",
@@ -113,7 +109,7 @@ export const SAYINGS: Area = {
     "Not quite. It's “{phrase}”, which means “{means}”.": "Не зовсім. Це «{phrase}», тобто «{means}».",
 
     // The practice menu and the briefing.
-    "Pairs that don't mean what they say": "Пари, що означають не те, що кажуть",
+    "Pairs that fool you": "Пари, що вводять в оману",
     "Five at a time, no clock": "По п'ять, без таймера",
     "A verb and one small word that change what it means. See each pair with what it says word for word, match five of them to their meanings, then fill in the missing word in a real sentence.":
       "Дієслово і одне маленьке слово, яке змінює значення. Подивіться на кожну пару: що вона каже слово в слово і що означає насправді. Зіставте п'ять пар із їхніми значеннями, потім вставте пропущене слово в справжньому реченні.",
