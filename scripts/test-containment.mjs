@@ -179,6 +179,7 @@ const ROUTES = [
   "/grammar/exceptions/stem",
   "/review/exceptions",
   "/review/letters",
+  "/review/sayings",
   "/review/lookups",
 
   // The course.

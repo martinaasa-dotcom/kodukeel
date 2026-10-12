@@ -1958,6 +1958,9 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // `lib/estonian/grammarExamples.ts` rather than one a beginner's reading
     // level decides.
     "lib/progress/grammarExamples.ts": "looks one named sentence up to read its English back, picks none",
+    // The sayings round names its sentences by their text, the way the grammar pins do, so there is
+    // no list for a rank to order.
+    "lib/progress/sayings.ts": "looks the named sentences up to read their English back, picks none",
     "lib/progress/quest.ts": "reads back the English of the card's own sentence, picks none",
     // Asks which cases a word can build a card for at all, as a set. No
     // sentence it could pick reaches a screen, only whether one exists.
@@ -3106,6 +3109,9 @@ const MEASURES_RATHER_THAN_PRACTISES: string[] = [
   "app/(app)/review/describe/DescribeSession.tsx",
   // Twenty questions: asking a good question is not recalling a card, so there is no grade to write.
   "app/(app)/review/twenty/TwentySession.tsx",
+  // Väljendid: a saying is a pair of words and a sentence, not a card, so there is no review to write and no
+  // schedule to move. Handing sayings to the scheduler means a new kind of card, which is a later decision.
+  "app/(app)/review/sayings/SayingsSession.tsx",
 ];
 
 
@@ -21987,6 +21993,8 @@ check("every round that puts one word up carries the favorite button", () => {
       "the same, a board rather than a card",
     [join("app", "(app)", "review", "describe", "DescribeSession.tsx")]:
       "a picture and five sentences of the learner's own, with no one word the round is about",
+    [join("app", "(app)", "review", "sayings", "SayingsSession.tsx")]:
+      "a pair of words in a sentence, with no one dictionary entry the round is about",
     [join("app", "(app)", "review", "cloze", "ClozeSession.tsx")]:
       "the subject is a sentence with a hole in it rather than a word",
     [join("app", "(app)", "review", "sentences", "SentenceSession.tsx")]:
@@ -25825,6 +25833,10 @@ check("looking back at the last word is one drawing, and it grades nothing", () 
     // The whole transcript of questions and answers stays on the screen, in order, so there is no
     // last word to look back at: every earlier question is already there.
     "app/(app)/review/twenty/TwentySession.tsx": "the transcript is the round",
+    // Five sayings, seen one at a time with a Back of its own, matched on one board that keeps all
+    // five on the screen, and filled one at a time with the saying and what it means printed after
+    // every answer. There is no earlier card the learner cannot already see.
+    "app/(app)/review/sayings/SayingsSession.tsx": "has its own Back, a one-screen board, and prints each answer's saying",
     // A list of the cards you keep failing, with nothing stepping through.
     "app/(app)/review/clinic/ClinicList.tsx": "a list rather than a round",
     // A measurement that withholds every answer until the end, deliberately
