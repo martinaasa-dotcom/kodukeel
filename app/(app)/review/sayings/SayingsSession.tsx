@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Lightbulb, X } from "lucide-react";
+import { ArrowRight, Check, Flame, MessageCircle, TriangleAlert, X } from "lucide-react";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { Button, ButtonLink } from "@/components/Button";
@@ -13,7 +13,7 @@ import { useFeedbackSound } from "@/components/AudioPrefs";
 import { WayOut } from "@/components/round/RoundExit";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { gapMeaning } from "@/lib/copy/gapMeaning";
-import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
+import { OPTION_CLASS, VERDICT_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import {
   isFit, isGuessRight, isMatch, isRight,
@@ -23,23 +23,28 @@ import {
 /** How long a wrong pair stays marked before the board hands it back. Matches `shake`. */
 const SHAKE_MS = 420;
 
+/** From how many right answers in a row the flame shows. */
+const STREAK_FROM = 2;
+
 type Phase = "see" | "match" | "fit" | "fill" | "done";
-/** Within unpacking a saying: tap its words, then guess what it means. The truth shows once the guess is in. */
-type SeeStage = "words" | "guess";
 
 /**
- * SAYINGS, PLAYED. Four steps and one thing to do on each.
+ * SAYINGS, PLAYED. Four steps, each one thing to do, and as little to read as
+ * the step allows.
  *
- * UNPACK: one saying at a time. Its words are tapped one by one and each says
- * what it means on its own, so the literal reading builds up in front of the
- * learner (the trap). Then they guess what it really means, from the meanings
- * of the five in the sitting, and only then are told: the real meaning beside
- * the word-for-word one, the situation it is said in, anything to mind about
- * it and the recorded sentence it was met in. MATCH: the five phrases against
- * their five meanings. FIT: each situation put as a question, with the
- * sayings of the sitting to pick from. FILL: each saying again in a real
- * sentence with its second word missing, a different sentence from the one it
- * was met in wherever the dictionary has two.
+ * UNPACK: one saying at a time, on one card that changes as it is played. Its
+ * words are tiles that turn over to what each says on its own, so the literal
+ * reading is built by the learner's own taps and lands as a quote with a
+ * wobble. Then they guess what it really means. Then the literal reading is
+ * crossed out and the real meaning stamps in over it, with the situation it
+ * is said in and the recorded sentence underneath. MATCH: the five phrases
+ * against their five meanings. FIT: each situation put as a question, with
+ * the sayings of the sitting to pick from. FILL: each saying again in a real
+ * sentence with its second word missing.
+ *
+ * Every answer is told in one line, the same line everywhere: the saying,
+ * what it says word for word crossed out, and what it means. The verdict a
+ * screen reader hears is a sentence, read out in a live region.
  *
  * The guess is not marked against anyone and not asked twice. A wrong
  * situation or blank goes to the back of the queue and is asked again before
@@ -60,7 +65,6 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
   const [phase, setPhase] = useState<Phase>("see");
 
   const [seeAt, setSeeAt] = useState(0);
-  const [stage, setStage] = useState<SeeStage>("words");
   const [tapped, setTapped] = useState<Set<number>>(() => new Set());
   const [guess, setGuess] = useState<string | null>(null);
   const [guessedFirst, setGuessedFirst] = useState<Set<string>>(() => new Set());
@@ -80,6 +84,16 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
   const [picked, setPicked] = useState<string | null>(null);
   const [missed, setMissed] = useState<Set<string>>(() => new Set());
   const revealed = picked !== null;
+
+  const [streak, setStreak] = useState(0);
+  const [best, setBest] = useState(0);
+  const counted = useCallback((right: boolean) => {
+    setStreak((s) => {
+      const next = right ? s + 1 : 0;
+      setBest((b) => Math.max(b, next));
+      return next;
+    });
+  }, []);
 
   useEffect(() => () => { if (wrongTimer.current) clearTimeout(wrongTimer.current); }, []);
 
@@ -110,7 +124,6 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
     if (!plan) return;
     if (seeAt + 1 < plan.see.length) {
       setSeeAt(seeAt + 1);
-      setStage("words");
       setTapped(new Set());
       setGuess(null);
     } else {
@@ -156,9 +169,10 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
     if (!fitQuestion || fitRevealed) return;
     const right = isFit(fitQuestion, id);
     sound(right ? "right" : "wrong");
+    counted(right);
     if (!right) setFitMissed((m) => new Set(m).add(fitQuestion.id));
     setFitPicked(id);
-  }, [fitQuestion, fitRevealed, sound]);
+  }, [fitQuestion, fitRevealed, sound, counted]);
 
   const nextFit = useCallback(() => {
     if (!fitQuestion || fitPicked === null) return;
@@ -172,9 +186,10 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
     if (!question || revealed) return;
     const right = isRight(question, option);
     sound(right ? "right" : "wrong");
+    counted(right);
     if (!right) setMissed((m) => new Set(m).add(question.id));
     setPicked(option);
-  }, [question, revealed, sound]);
+  }, [question, revealed, sound, counted]);
 
   const next = useCallback(() => {
     if (!question || picked === null) return;
@@ -198,14 +213,14 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (phase === "see" && step) {
-        if (stage === "words") {
-          // A word that has the keyboard answers its own Enter; this is for everywhere else.
+        if (!allTapped) {
+          // A tile that has the keyboard answers its own Enter; this is for everywhere else.
           if (target?.closest?.("[data-saying-word]")) return;
-          const n = Number(e.key);
-          if (Number.isInteger(n) && n >= 1 && n <= step.words.length) { e.preventDefault(); tapWord(n - 1); return; }
+          // One key, one word, so a keyboard turns them in order the way a finger would.
           if (isAdvanceKey(e)) {
             e.preventDefault();
-            if (allTapped) setStage("guess"); else tapAll();
+            const next = step.words.findIndex((_, i) => !tapped.has(i));
+            if (next >= 0) tapWord(next);
           }
           return;
         }
@@ -235,8 +250,8 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [
-    plan, phase, step, stage, tapped, allTapped, guess, allMatched, fitQuestion, fitRevealed, question, revealed,
-    tapWord, tapAll, pickGuess, nextSaying, chooseFit, nextFit, choose, next,
+    plan, phase, step, tapped, allTapped, guess, allMatched, fitQuestion, fitRevealed, question, revealed,
+    tapWord, pickGuess, nextSaying, chooseFit, nextFit, choose, next,
   ]);
 
   if (!plan) {
@@ -253,7 +268,7 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
 
   const total = plan.see.length;
   const doneCount = phase === "see"
-    ? seeAt + (stage === "guess" && guess !== null ? 1 : 0)
+    ? seeAt + (guess !== null ? 1 : 0)
     : phase === "match" ? total + matched.size
       : phase === "fit" ? 2 * total + (total - fitQueue.length)
         : 3 * total + (total - queue.length);
@@ -261,45 +276,14 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
 
   if (phase === "done") {
     const slipped = new Set([...missed, ...fitMissed]);
-    const firstTime = total - slipped.size;
     return (
-      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
-          <Mascot size={68} mood="cheer" className="float mx-auto" />
-          <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
-            {t("That's the set done")}
-          </h1>
-          <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-            {slipped.size === 0
-              ? t("Every one on the first try.")
-              : fill(t("{n} of {total} on the first try. The rest came round again until they stuck."), { n: firstTime, total })}
-          </p>
-        </div>
-
-        <ul className="mt-8 flex flex-col gap-3">
-          {plan.see.map((s) => (
-            <li key={s.id} className="flex flex-col gap-0.5">
-              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-                <span lang="et" className="text-md font-semibold" style={{ color: "var(--ink)" }}>{s.phrase}</span>
-                <span className="text-base" style={{ color: "var(--ink-2)" }}>{t(s.means)}</span>
-              </div>
-              <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-                {fill(t("Word for word: {literal}."), { literal: t(s.literal) })}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-          <StatTile value={`${guessedFirst.size} / ${total}`} label={t("Guessed before reading")} tone="sky" />
-          <StatTile value={firstTime} label={t("First time")} tone="sky" />
-          <StatTile value={total} label={t("Sayings")} tone="sky" />
-        </div>
-        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
-          <ButtonLink href={`/review/sayings?set=${nextSet}`} variant="primary" size="lg">{t("Another set")}</ButtonLink>
-        </WayOut>
-      </div>
+      <DoneScreen
+        plan={plan}
+        guessed={guessedFirst.size}
+        firstTime={total - slipped.size}
+        best={best}
+        nextSet={nextSet}
+      />
     );
   }
 
@@ -311,20 +295,19 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
 
       {phase === "see" && step && (
         <UnpackCard
+          key={step.id}
           step={step}
           index={seeAt}
           total={total}
-          stage={stage}
           tapped={tapped}
           allTapped={allTapped}
           guess={guess}
           canTranslate={canTranslate}
+          isLast={seeAt + 1 >= total}
           onTap={tapWord}
           onTapAll={tapAll}
-          onToGuess={() => setStage("guess")}
           onGuess={pickGuess}
           onNext={nextSaying}
-          isLast={seeAt + 1 >= total}
         />
       )}
 
@@ -341,7 +324,6 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
           </div>
           <div className="px-6 pt-6 text-center">
             <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{t("Which means which?")}</p>
-            <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{t("Tap a saying, then its meaning.")}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 p-4 sm:gap-4 sm:p-6">
@@ -395,16 +377,13 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
           </div>
 
           {allMatched && (
-            <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
-              <div className={`${VERDICT_CLASS.right} verdict-panel flex items-start gap-2.5`}>
-                <Check size={18} className="mt-0.5 shrink-0" aria-hidden />
-                <p>{t("All matched. Next, which one would you say?")}</p>
-              </div>
-              <div className="mt-4 flex justify-end">
-                <Button variant="primary" onClick={() => setPhase("fit")} autoFocus>
-                  {t("Continue")} <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>
-                </Button>
-              </div>
+            <div className="flex items-center justify-between gap-3 border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+              <p className="pop-in flex items-center gap-2 text-md font-semibold" style={{ color: VERDICT_INK.right }}>
+                <Check size={18} aria-hidden /> {t("All matched!")}
+              </p>
+              <Button variant="primary" onClick={() => setPhase("fit")} autoFocus>
+                {t("Continue")} <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>
+              </Button>
             </div>
           )}
         </div>
@@ -415,8 +394,8 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
           question={fitQuestion}
           picked={fitPicked}
           revealed={fitRevealed}
+          streak={streak}
           isLast={fitQueue.length === 1 && (fitPicked === null || isFit(fitQuestion, fitPicked))}
-          canTranslate={canTranslate}
           onChoose={chooseFit}
           onNext={nextFit}
         />
@@ -427,6 +406,7 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
           question={question}
           picked={picked}
           revealed={revealed}
+          streak={streak}
           isLast={queue.length === 1 && (picked === null || isRight(question, picked))}
           canTranslate={canTranslate}
           onChoose={choose}
@@ -438,21 +418,54 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
 }
 
 /**
- * One saying, unpacked. First its words: each is a button that says what that
- * word means on its own when it is pressed, and the literal reading builds up
- * underneath as they are. Then the guess, with the sitting's meanings to pick
- * from. Once the guess is in, the truth is drawn under it in place: what it
- * really means beside what it said, where a person says it, anything to mind,
- * and the sentence it was met in with its English.
+ * One line that says a saying all three ways: the Estonian, what it says word
+ * for word crossed out, and what it means. It is how every answer in the round
+ * is told, so the learner meets the same shape on every screen.
+ */
+function MeaningLine({ phrase, literal, means, className = "" }: {
+  phrase: string;
+  literal: string;
+  means: string;
+  className?: string;
+}) {
+  const t = useT();
+  return (
+    <p className={`flex flex-wrap items-baseline gap-x-2.5 gap-y-1 ${className}`}>
+      <span lang="et" className="font-bold">{phrase}</span>
+      <span className="sr-only">{t("word for word")}</span>
+      <s className="text-base" style={{ color: "var(--ink-3)" }}>{t(literal)}</s>
+      <ArrowRight size={16} className="self-center" aria-hidden />
+      <span className="sr-only">{t("really")}</span>
+      <span className="font-semibold">{t(means)}</span>
+    </p>
+  );
+}
+
+/** A small flame and a count, from the second right answer in a row. */
+function Streak({ n }: { n: number }) {
+  const t = useT();
+  if (n < STREAK_FROM) return null;
+  return (
+    <span key={n} className="pop-in ml-auto inline-flex items-center gap-1 text-sm font-semibold tnum" style={{ color: "var(--hard-ink)" }}>
+      <Flame size={16} aria-hidden /> {fill(t("{n} in a row"), { n })}
+    </span>
+  );
+}
+
+/**
+ * One saying, unpacked on one card. The words are tiles that turn over to what
+ * each says on its own; with all of them turned, the literal reading lands as a
+ * quote and the guess is asked under it. Once the guess is in, the literal is
+ * crossed out and the real meaning stamps in on top, with the situation it is
+ * said in and the sentence it was met in.
  */
 function UnpackCard({
-  step, index, total, stage, tapped, allTapped, guess, canTranslate, isLast,
-  onTap, onTapAll, onToGuess, onGuess, onNext,
+  step, index, total, tapped, allTapped, guess, canTranslate, isLast,
+  onTap, onTapAll, onGuess, onNext,
 }: {
   step: SeeStep;
   index: number;
   total: number;
-  stage: SeeStage;
   tapped: ReadonlySet<number>;
   allTapped: boolean;
   guess: string | null;
@@ -460,7 +473,6 @@ function UnpackCard({
   isLast: boolean;
   onTap: (i: number) => void;
   onTapAll: () => void;
-  onToGuess: () => void;
   onGuess: (option: string) => void;
   onNext: () => void;
 }) {
@@ -470,7 +482,6 @@ function UnpackCard({
   const verdict = right
     ? fill(t("Yes. It really means “{means}”."), { means: t(step.means) })
     : fill(t("Not that one. It really means “{means}”."), { means: t(step.means) });
-  const building = step.words.map((w, i) => (tapped.has(i) ? t(w.gloss, "saying") : "…")).join(" ");
 
   return (
     <div
@@ -485,150 +496,126 @@ function UnpackCard({
         </span>
       </div>
 
-      {stage === "words" && (
-        <div className="px-6 py-6 text-center">
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("Tap each word to see what it says on its own.")}</p>
-          <div className="mt-5 flex flex-wrap justify-center gap-2.5 sm:gap-3">
-            {step.words.map((w, i) => {
-              const isTapped = tapped.has(i);
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  data-saying-word
-                  aria-pressed={isTapped}
-                  aria-label={isTapped ? `${w.word}: ${t(w.gloss, "saying")}` : fill(t("{word}: tap to see what it says on its own"), { word: w.word })}
-                  onClick={() => onTap(i)}
-                  className={`choice-btn ${isTapped ? "pop-in" : ""} flex min-w-[5.5rem] flex-col items-center gap-1 rounded-md border px-4 py-3`}
-                  style={{
-                    "--choice-bg": isTapped ? "var(--accent-soft)" : "var(--raised)",
-                    color: isTapped ? "var(--accent-deep)" : "var(--ink)",
-                  } as React.CSSProperties}
-                >
-                  <span lang="et" className="text-xl font-bold">{w.word}</span>
-                  <span className="min-h-[1.5rem] text-base font-semibold" aria-hidden>
-                    {isTapped ? t(w.gloss, "saying") : "?"}
-                  </span>
-                  {step.words.length > 1 && <KeyCap>{i + 1}</KeyCap>}
-                </button>
-              );
-            })}
-          </div>
+      <div className="px-5 py-6 text-center sm:px-6">
+        {!allTapped && (
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("Tap each word. What does it say?")}</p>
+        )}
 
-          <div className="mt-6 min-h-[4.5rem]">
-            {tapped.size > 0 && !allTapped && (
-              <p className="text-md font-semibold" style={{ color: "var(--ink-2)" }}>{building}</p>
-            )}
-            {allTapped && (
-              <div className="pop-in mx-auto max-w-sm rounded-md border border-dashed px-4 py-3" style={{ borderColor: "var(--rule)", background: "var(--raised)" }}>
-                <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Word for word")}</p>
-                <p className="mt-1 text-lg font-semibold" style={{ color: "var(--ink)" }}>{t(step.literal)}</p>
-              </div>
-            )}
-          </div>
-
-          {allTapped && (
-            <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>{t("Does that sound right? Take a guess.")}</p>
-          )}
-
-          <div className="mt-6 flex justify-end">
-            {allTapped ? (
-              <Button variant="primary" onClick={onToGuess} autoFocus>
-                {t("Guess what it means")} <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>
-              </Button>
-            ) : (
-              <Button variant="ghost" onClick={onTapAll}>
-                {t("Show all the words")} <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {stage === "guess" && (
-        <div>
-          <div className="px-6 pt-6 text-center">
-            <p lang="et" className="text-2xl font-bold" style={{ color: "var(--ink)" }}>{step.phrase}</p>
-            <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-              {fill(t("Word for word: {literal}."), { literal: t(step.literal) })}
-            </p>
-            <p className="mt-4 text-lg font-semibold" style={{ color: "var(--ink)" }}>{t("So what does it really mean?")}</p>
-          </div>
-
-          <div className="px-4 pb-4 pt-4">
-            <div className="choice-grid">
-              {step.guesses.map((option, i) => {
-                const isAnswer = option === step.means;
-                const state = answered ? OPTION_CLASS[optionState(isAnswer, option === guess)] : "";
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    disabled={answered}
-                    onClick={() => onGuess(option)}
-                    className={`choice-btn ${state} flex items-center gap-2.5 rounded-md border px-3.5 py-3 text-left disabled:cursor-default`}
-                    style={answered ? undefined : { "--choice-bg": "var(--raised)", color: "var(--ink)" } as React.CSSProperties}
+        <div className="mt-4 flex flex-wrap justify-center gap-2.5 sm:gap-3">
+          {step.words.map((w, i) => {
+            const turned = tapped.has(i);
+            const gloss = t(w.gloss, "saying");
+            return (
+              <button
+                key={i}
+                type="button"
+                data-saying-word
+                disabled={turned}
+                aria-pressed={turned}
+                aria-label={turned ? `${w.word}: ${gloss}` : fill(t("{word}: tap to see what it says on its own"), { word: w.word })}
+                onClick={() => onTap(i)}
+                className="say-flip rounded-lg disabled:cursor-default"
+              >
+                <span className="say-flip-inner" data-flipped={turned}>
+                  <span
+                    aria-hidden
+                    className="flex min-h-[5.5rem] min-w-[6rem] flex-col items-center justify-center gap-1 rounded-lg border-2 px-4 py-3"
+                    style={{ borderColor: "var(--accent)", background: "var(--accent-soft)", color: "var(--accent-deep)" }}
                   >
-                    <KeyCap>{i + 1}</KeyCap>
-                    <span className="min-w-0 text-base font-semibold">{t(option)}</span>
-                    {answered && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label={t("Right")} />}
-                    {answered && option === guess && !isAnswer && <X size={16} className="ml-auto shrink-0" aria-label={t("Wrong")} />}
-                  </button>
-                );
-              })}
+                    <span lang="et" className="text-2xl font-bold">{w.word}</span>
+                  </span>
+                  <span
+                    aria-hidden
+                    className="say-flip-back flex min-h-[5.5rem] min-w-[6rem] flex-col items-center justify-center gap-0.5 rounded-lg border-2 px-4 py-3"
+                    style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
+                  >
+                    <span lang="et" className="text-sm" style={{ color: "var(--ink-3)" }}>{w.word}</span>
+                    <span className="text-lg font-bold">{gloss}</span>
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {allTapped && (
+          <div className="mt-6">
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Word for word")}</p>
+            <p className={`mt-1 inline-block text-xl font-bold ${answered ? "" : "say-wobble"}`} style={{ color: answered ? "var(--ink-3)" : "var(--ink)" }}>
+              <span className="say-strike" data-struck={answered}>“{t(step.literal)}”</span>
+              {!answered && <span style={{ color: "var(--accent-deep)" }}> ?!</span>}
+            </p>
+          </div>
+        )}
+
+        {answered && (
+          <div className="mt-3">
+            <p className="label-xs" style={{ color: "var(--accent-deep)" }}>{t("Really")}</p>
+            <p className="say-stamp mt-1 inline-block rounded-md border-2 px-4 py-1.5 text-2xl font-bold" style={{ borderColor: "var(--accent-deep)", color: "var(--accent-deep)", background: "var(--accent-soft)" }}>
+              {t(step.means)}
+            </p>
+            <p className="pop-in mt-3 inline-flex items-center gap-1.5 text-md font-semibold" style={{ color: right ? VERDICT_INK.right : "var(--ink-2)" }}>
+              {right ? <Check size={16} aria-hidden /> : null}
+              {right ? t("You guessed it!") : t("Tricky one. Most people read it word for word.")}
+            </p>
+          </div>
+        )}
+
+        {allTapped && !answered && (
+          <div className="mt-6 text-left">
+            <p className="mb-3 text-center text-md font-semibold" style={{ color: "var(--ink)" }}>{t("So what does it really mean?")}</p>
+            <div className="choice-grid">
+              {step.guesses.map((option, i) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => onGuess(option)}
+                  className="choice-btn flex items-center gap-2.5 rounded-md border px-3.5 py-3 text-left"
+                  style={{ "--choice-bg": "var(--raised)", color: "var(--ink)" } as React.CSSProperties}
+                >
+                  <KeyCap>{i + 1}</KeyCap>
+                  <span className="min-w-0 text-base font-semibold">{t(option)}</span>
+                </button>
+              ))}
             </div>
           </div>
+        )}
 
-          {answered && (
-            <div className="border-t px-6 py-5" style={{ borderColor: "var(--rule-soft)" }}>
-              <div className={`${VERDICT_CLASS[right ? "right" : "wrong"]} verdict-panel flex items-start gap-2.5`}>
-                {right ? <Check size={18} className="mt-0.5 shrink-0" aria-hidden /> : <X size={18} className="mt-0.5 shrink-0" aria-hidden />}
-                <p>{verdict}</p>
-              </div>
+        {!allTapped && (
+          <div className="mt-6 flex justify-center">
+            <Button variant="ghost" onClick={onTapAll}>
+              {t("Turn them all")}
+            </Button>
+          </div>
+        )}
+      </div>
 
-              <div className="pop-in mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-md border border-dashed p-3" style={{ borderColor: "var(--rule)", background: "var(--raised)" }}>
-                  <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Word for word")}</p>
-                  <p className="mt-1 text-md font-semibold" style={{ color: "var(--ink-2)" }}>{t(step.literal)}</p>
-                </div>
-                <div className="rounded-md border p-3" style={{ borderColor: "var(--rule)", background: "var(--accent-soft)" }}>
-                  <p className="label-xs" style={{ color: "var(--accent-deep)" }}>{t("What it really means")}</p>
-                  <p className="mt-1 text-md font-semibold" style={{ color: "var(--ink)" }}>{t(step.means)}</p>
-                </div>
-              </div>
-
-              <div className="mt-3 rounded-md border p-3" style={{ borderColor: "var(--rule)", background: "var(--surface)" }}>
-                <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("When you'd say it")}</p>
-                <p className="mt-1 text-base" style={{ color: "var(--ink)" }}>{t(step.when)}</p>
-              </div>
-
-              {step.note && (
-                <div className="mt-3 flex items-start gap-2.5 rounded-md border p-3" style={{ borderColor: "var(--rule)", background: "var(--raised)" }}>
-                  <Lightbulb size={16} className="mt-1 shrink-0" style={{ color: "var(--ink-3)" }} aria-hidden />
-                  <div>
-                    <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Good to know")}</p>
-                    <p className="mt-1 text-base" style={{ color: "var(--ink)" }}>{t(step.note)}</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-4">
-                <EstonianSentence
-                  et={step.sentence.et}
-                  en={step.sentence.en}
-                  lexemeId={step.sentence.lexemeId}
-                  canTranslate={canTranslate}
-                  form={step.sentence.run}
-                />
-              </div>
-
-              <div className="mt-5 flex justify-end">
-                <Button variant="primary" onClick={onNext} autoFocus>
-                  {isLast ? t("Match them") : t("Next")} <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>
-                </Button>
-              </div>
-            </div>
+      {answered && (
+        <div className="border-t px-5 py-5 sm:px-6" style={{ borderColor: "var(--rule-soft)" }}>
+          <p className="flex items-start gap-2.5 text-base" style={{ color: "var(--ink-2)" }}>
+            <MessageCircle size={18} className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} aria-hidden />
+            <span><span className="sr-only">{t("When you'd say it")}: </span>{t(step.when)}</span>
+          </p>
+          {step.note && (
+            <p className="mt-2 flex items-start gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>
+              <TriangleAlert size={16} className="mt-0.5 shrink-0" style={{ color: "var(--hard-ink)" }} aria-hidden />
+              <span>{t(step.note)}</span>
+            </p>
           )}
+          <div className="mt-4 rounded-lg px-4 py-3" style={{ background: "var(--raised)" }}>
+            <EstonianSentence
+              et={step.sentence.et}
+              en={step.sentence.en}
+              lexemeId={step.sentence.lexemeId}
+              canTranslate={canTranslate}
+              form={step.sentence.run}
+            />
+          </div>
+          <div className="mt-5 flex justify-end">
+            <Button variant="primary" onClick={onNext} autoFocus>
+              {isLast ? t("Match them") : t("Next")} <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>
+            </Button>
+          </div>
         </div>
       )}
     </div>
@@ -637,15 +624,14 @@ function UnpackCard({
 
 /**
  * A situation put to the learner, who picks the saying a person would reach
- * for. Wrong ones come round again. After the answer it shows what the saying
- * means and the sentence it was met in.
+ * for. Wrong ones come round again. The answer is told in one line.
  */
-function FitCard({ question, picked, revealed, isLast, canTranslate, onChoose, onNext }: {
+function FitCard({ question, picked, revealed, streak, isLast, onChoose, onNext }: {
   question: FitQuestion;
   picked: string | null;
   revealed: boolean;
+  streak: number;
   isLast: boolean;
-  canTranslate: boolean;
   onChoose: (id: string) => void;
   onNext: () => void;
 }) {
@@ -661,17 +647,18 @@ function FitCard({ question, picked, revealed, isLast, canTranslate, onChoose, o
     >
       <p className="sr-only" aria-live="polite">{revealed ? verdict : ""}</p>
       <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-        <Chip tone="accent">{t("Which one fits?")}</Chip>
+        <Chip tone="accent">{t("What would you say?")}</Chip>
+        <Streak n={streak} />
       </div>
 
-      <div className="px-6 py-6 text-center">
-        <div className="mx-auto max-w-md rounded-md border px-4 py-4" style={{ borderColor: "var(--rule)", background: "var(--raised)" }}>
+      <div className="px-5 pt-6 sm:px-6">
+        <div className="mx-auto flex max-w-md items-start gap-3 rounded-2xl rounded-bl-sm px-4 py-4" style={{ background: "var(--accent-soft)" }}>
+          <MessageCircle size={22} className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} aria-hidden />
           <p className="text-lg font-semibold leading-snug" style={{ color: "var(--ink)" }}>{t(question.when)}</p>
         </div>
-        <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>{t("What would you say?")}</p>
       </div>
 
-      <div className="px-4 pb-4">
+      <div className="px-4 py-5">
         <div className="choice-grid">
           {question.options.map((option, i) => {
             const isAnswer = option.id === question.id;
@@ -687,7 +674,7 @@ function FitCard({ question, picked, revealed, isLast, canTranslate, onChoose, o
                 style={revealed ? undefined : { "--choice-bg": "var(--raised)", color: "var(--ink)" } as React.CSSProperties}
               >
                 <KeyCap>{i + 1}</KeyCap>
-                <span className="min-w-0 text-base font-semibold">{option.phrase}</span>
+                <span className="min-w-0 text-md font-semibold">{option.phrase}</span>
                 {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label={t("Right")} />}
                 {revealed && option.id === picked && !isAnswer && <X size={16} className="ml-auto shrink-0" aria-label={t("Wrong")} />}
               </button>
@@ -697,38 +684,31 @@ function FitCard({ question, picked, revealed, isLast, canTranslate, onChoose, o
       </div>
 
       {revealed && (
-        <div className="border-t px-6 py-5" style={{ borderColor: "var(--rule-soft)" }}>
-          <div className={`${VERDICT_CLASS[right ? "right" : "wrong"]} verdict-panel flex items-start gap-2.5`}>
-            {right ? <Check size={18} className="mt-0.5 shrink-0" aria-hidden /> : <X size={18} className="mt-0.5 shrink-0" aria-hidden />}
-            <p>{verdict}</p>
-          </div>
-          <div className="mt-4">
-            <EstonianSentence
-              et={question.sentence.et}
-              en={question.sentence.en}
-              lexemeId={question.sentence.lexemeId}
-              canTranslate={canTranslate}
-              form={question.sentence.run}
-            />
-          </div>
-          <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-            {fill(t("Word for word: {literal}."), { literal: t(question.literal) })}
-          </p>
-          <div className="mt-5 flex justify-end">
-            <Button variant="primary" onClick={onNext} autoFocus>
-              {isLast ? t("Finish") : t("Next")} <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>
-            </Button>
-          </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+          <MeaningLine
+            phrase={question.phrase}
+            literal={question.literal}
+            means={question.means}
+            className={`${VERDICT_CLASS[right ? "right" : "wrong"]} verdict-panel min-w-0 flex-1`}
+          />
+          <Button variant="primary" onClick={onNext} autoFocus>
+            {isLast ? t("Finish") : t("Next")} <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>
+          </Button>
         </div>
       )}
     </div>
   );
 }
 
-function FillCard({ question, picked, revealed, isLast, canTranslate, onChoose, onNext }: {
+/**
+ * A saying in a real sentence with its second word missing. After the answer,
+ * the sentence whole with its English, and the saying told in one line.
+ */
+function FillCard({ question, picked, revealed, streak, isLast, canTranslate, onChoose, onNext }: {
   question: FillQuestion;
   picked: string | null;
   revealed: boolean;
+  streak: number;
   isLast: boolean;
   canTranslate: boolean;
   onChoose: (option: string) => void;
@@ -749,24 +729,36 @@ function FillCard({ question, picked, revealed, isLast, canTranslate, onChoose, 
       <p className="sr-only" aria-live="polite">{revealed ? verdict : ""}</p>
       <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
         <Chip tone="accent">{t("Fill the gap")}</Chip>
+        <Streak n={streak} />
       </div>
 
       <div className="px-6 py-6 text-center">
-        <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("Which word is missing?")}</p>
-        {revealed ? null : (
-          <p lang="et" className="mt-3 text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
-            {question.before}
-            <span
-              aria-label={t("blank")}
-              className="mx-1 inline-block min-w-[4.5rem] border-b-2 align-baseline"
-              style={{ borderColor: "var(--accent-deep)" }}
-            >
-              &nbsp;
-            </span>
-            {question.after}
-          </p>
+        {revealed ? (
+          <div className="text-left">
+            <EstonianSentence
+              et={question.sentence.et}
+              en={question.sentence.en}
+              lexemeId={question.sentence.lexemeId}
+              canTranslate={canTranslate}
+              form={question.sentence.run}
+            />
+          </div>
+        ) : (
+          <>
+            <p lang="et" className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+              {question.before}
+              <span
+                aria-label={t("blank")}
+                className="mx-1 inline-block min-w-[4.5rem] border-b-2 align-baseline"
+                style={{ borderColor: "var(--accent-deep)" }}
+              >
+                &nbsp;
+              </span>
+              {question.after}
+            </p>
+            {!revealed && meaning && <GapMeaning meaning={meaning} className="mt-3 text-base leading-snug" />}
+          </>
         )}
-        {!revealed && meaning && <GapMeaning meaning={meaning} className="mt-3 text-base leading-snug" />}
       </div>
 
       <div className="px-4 pb-4">
@@ -795,30 +787,90 @@ function FillCard({ question, picked, revealed, isLast, canTranslate, onChoose, 
       </div>
 
       {revealed && (
-        <div className="border-t px-6 py-5" style={{ borderColor: "var(--rule-soft)" }}>
-          <div className={`${VERDICT_CLASS[right ? "right" : "wrong"]} verdict-panel flex items-start gap-2.5`}>
-            {right ? <Check size={18} className="mt-0.5 shrink-0" aria-hidden /> : <X size={18} className="mt-0.5 shrink-0" aria-hidden />}
-            <p>{verdict}</p>
-          </div>
-          <div className="mt-4">
-            <EstonianSentence
-              et={question.sentence.et}
-              en={question.sentence.en}
-              lexemeId={question.sentence.lexemeId}
-              canTranslate={canTranslate}
-              form={question.sentence.run}
-            />
-          </div>
-          <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-            {fill(t("Word for word: {literal}."), { literal: t(question.literal) })}
-          </p>
-          <div className="mt-5 flex justify-end">
-            <Button variant="primary" onClick={onNext} autoFocus>
-              {isLast ? t("Finish") : t("Next")} <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>
-            </Button>
-          </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+          <MeaningLine
+            phrase={question.phrase}
+            literal={question.literal}
+            means={question.means}
+            className={`${VERDICT_CLASS[right ? "right" : "wrong"]} verdict-panel min-w-0 flex-1`}
+          />
+          <Button variant="primary" onClick={onNext} autoFocus>
+            {isLast ? t("Finish") : t("Next")} <KeyCap>{ADVANCE_KEY_GLYPH}</KeyCap>
+          </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * The end of a sitting: the five as cards that turn over, Estonian on the
+ * front and the crossed-out literal with the real meaning on the back, so
+ * the last thing done is one more recall rather than a list to read.
+ */
+function DoneScreen({ plan, guessed, firstTime, best, nextSet }: {
+  plan: SayingsPlan;
+  guessed: number;
+  firstTime: number;
+  best: number;
+  nextSet: number;
+}) {
+  const t = useT();
+  const total = plan.see.length;
+  const [turned, setTurned] = useState<Set<string>>(() => new Set());
+  return (
+    <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
+      <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
+        <Mascot size={68} mood="cheer" className="float mx-auto" />
+        <h1 className="font-display mt-5 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)" }}>
+          {t("That's the set done")}
+        </h1>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>{t("Turn each card. Do you still know it?")}</p>
+      </div>
+
+      <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {plan.see.map((s) => {
+          const on = turned.has(s.id);
+          return (
+            <button
+              key={s.id}
+              type="button"
+              aria-pressed={on}
+              aria-label={on ? `${s.phrase}: ${t(s.means)}` : s.phrase}
+              onClick={() => setTurned((prev) => { const n = new Set(prev); if (n.has(s.id)) n.delete(s.id); else n.add(s.id); return n; })}
+              className="say-flip text-left"
+            >
+              <span className="say-flip-inner" data-flipped={on}>
+                <span
+                  aria-hidden
+                  className="flex min-h-[6.5rem] items-center justify-center rounded-lg border-2 px-4 py-4 text-center"
+                  style={{ borderColor: "var(--accent)", background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+                >
+                  <span lang="et" className="text-xl font-bold">{s.phrase}</span>
+                </span>
+                <span
+                  aria-hidden
+                  className="say-flip-back flex min-h-[6.5rem] flex-col items-center justify-center gap-1 rounded-lg border-2 px-4 py-4 text-center"
+                  style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
+                >
+                  <s className="text-sm" style={{ color: "var(--ink-3)" }}>{t(s.literal)}</s>
+                  <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>{t(s.means)}</span>
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
+        <StatTile value={`${guessed} / ${total}`} label={t("Guessed before reading")} tone="sky" />
+        <StatTile value={`${firstTime} / ${total}`} label={t("First time")} tone="sky" />
+        <StatTile value={best} label={t("Best streak")} tone="sky" />
+      </div>
+      <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
+        <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
+        <ButtonLink href={`/review/sayings?set=${nextSet}`} variant="primary" size="lg">{t("Another set")}</ButtonLink>
+      </WayOut>
     </div>
   );
 }
