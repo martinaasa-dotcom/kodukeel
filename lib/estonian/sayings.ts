@@ -149,6 +149,20 @@ const KOB = /^kobis/;
 const PUD = /^puden/;
 const VEE = /^veere/;
 const LOO = /^lõ/;
+const VAA = /^vaat/;
+const JOO = /^jooks/;
+const TOM = /^tõmb/;
+const SRU = /^suru/;
+const PIS = /^pist/;
+const SUR = /^sur[inm]/;
+const IST = /^ist/;
+const JAT = /^jät/;
+const RAH = /^rahun/;
+const SEA = /^sea/;
+const HII = /^hiil/;
+const PUH = /^puhu/;
+const PHK = /^puhk/;
+const VAL = /^val/;
 
 export const SAYINGS: readonly Saying[] = [
   /* A sitting is five sayings in order, so the order below is the order a learner meets them. */
@@ -685,24 +699,23 @@ export const SAYINGS: readonly Saying[] = [
   },
 
   {
-    id: "maksma-kinni", phrase: "maksis kinni", particle: "kinni", verb: MAK,
-    means: "covered the cost", literal: "paid shut",
-    parts: ["paid", "shut"],
-    when: "Your insurance pays for the repair, so you do not have to.",
+    id: "panema-paika", phrase: "pandi paika", particle: "paika", verb: PAN,
+    means: "it was settled, it was sorted out", literal: "it was put in place",
+    parts: ["was put", "in place"],
+    when: "The team agrees who does what and when.",
     sentences: [
-      { lemma: "kindlustus", et: "Kindlustus maksis auto parandamise kinni.", run: "maksis auto parandamise kinni" },
-      { lemma: "tellija", et: "Vraki tõstekulud peab kinni maksma tööde tellija.", run: "kinni maksma" },
+      { lemma: "stipendium", et: "Pandi paika, kes sportlastest stipendiumi saama hakkavad.", run: "Pandi paika" },
+      { lemma: "ning", et: "Võiksime veiniklaasi taga kohtuda ning maailma asjad paika panna.", run: "paika panna" },
     ],
   },
 
   {
-    id: "olema-motet", phrase: "pole mõtet", particle: "mõtet", verb: OLE,
-    means: "there is no point", literal: "is not sense",
-    parts: ["is not", "sense"],
-    when: "The shop is closed for the day, so going now is pointless.",
+    id: "pidama-viha", phrase: "pikka viha ei pea", particle: "viha", verb: PID,
+    means: "doesn't hold a grudge", literal: "doesn't hold long anger",
+    parts: ["long", "anger", "not", "holds"],
+    when: "Your father is cross for an hour, and then it is forgotten.",
     sentences: [
-      { lemma: "sapp", et: "Pole mõtet kogu oma sappi välja valada.", run: "Pole mõtet" },
-      { lemma: "supermarket", et: "Ilma autota pole supermarketisse mõtet minna.", run: "pole supermarketisse mõtet" },
+      { lemma: "viha", et: "Isa pikka viha ei pea.", run: "pikka viha ei pea" },
     ],
   },
 
@@ -718,33 +731,12 @@ export const SAYINGS: readonly Saying[] = [
   },
 
   {
-    id: "astuma-tagasi", phrase: "astus tagasi", particle: "tagasi", verb: AST,
-    means: "resigned", literal: "stepped back",
-    parts: ["stepped", "back"],
-    when: "The minister announces they are leaving the post.",
+    id: "olema-labi", phrase: "on läbi", particle: "läbi", verb: OLE,
+    means: "it is over, it has expired", literal: "is through",
+    parts: ["is", "through"],
+    when: "Your passport has run out of date.",
     sentences: [
-      { lemma: "vahendama", et: "President astus tagasi, vahendab uudisteagentuur.", run: "astus tagasi" },
-      { lemma: "vabandama", et: "Peaminister keeldus nii vabandamast kui tagasi astumast.", run: "tagasi astumast" },
-    ],
-  },
-
-  {
-    id: "poorduma-poole", phrase: "pöördun teie poole", particle: "poole", verb: POO,
-    means: "I am turning to you with a request", literal: "I turn toward you",
-    parts: ["I turn", "your", "toward"],
-    when: "You write a formal email asking an official for help.",
-    sentences: [
-      { lemma: "palve", et: "Pöördun teie poole suure palvega.", run: "Pöördun teie poole" },
-    ],
-  },
-
-  {
-    id: "jaksama-jaksa", phrase: "ei jaksa", particle: "jaksa", verb: JAK,
-    means: "I have no strength left", literal: "doesn't have the strength",
-    parts: ["not", "has strength"],
-    when: "At the end of a long run your legs simply give up.",
-    sentences: [
-      { lemma: "kõndima", et: "Ma ei jaksa enam joosta, kõnnime!", run: "ei jaksa" },
+      { lemma: "tähtaeg", et: "Mu passi tähtaeg on läbi.", run: "tähtaeg on läbi" },
     ],
   },
 
@@ -760,653 +752,12 @@ export const SAYINGS: readonly Saying[] = [
   },
 
   {
-    id: "panema-toole", phrase: "panin tööle", particle: "tööle", verb: PAN,
-    means: "I switched it on, I got it running", literal: "I put to work",
-    parts: ["I put", "to work"],
-    when: "You press the button and the coffee machine starts to hum.",
+    id: "valama-ule", phrase: "valati poriga üle", particle: "üle", verb: VAL,
+    means: "was dragged through the mud", literal: "was poured over with mud",
+    parts: ["was poured", "with mud", "over"],
+    when: "A talk show host spends the whole evening insulting you on air.",
     sentences: [
-      { lemma: "kohvimasin", et: "Panin kohvimasina tööle.", run: "Panin kohvimasina tööle" },
-      { lemma: "kepp", et: "Keppidega kõndimine paneb tööle kogu keha.", run: "paneb tööle" },
-    ],
-  },
-
-  {
-    id: "kirjutama-ules", phrase: "kirjuta üles", particle: "üles", verb: KIR,
-    means: "write it down", literal: "write up",
-    parts: ["write", "up"],
-    when: "A stranger tells you their number and you grab a pen.",
-    sentences: [
-      { lemma: "telefoninumber", et: "Kirjuta mu aadress ja telefoninumber üles.", run: "Kirjuta mu aadress ja telefoninumber üles" },
-      { lemma: "hääldus", et: "Kirjutasin ta nime häälduse järgi üles.", run: "Kirjutasin ta nime häälduse järgi üles" },
-    ],
-  },
-
-  {
-    id: "tegema-valja", phrase: "ei teinud välja", particle: "välja", verb: TEG,
-    means: "he took no notice", literal: "didn't make out",
-    parts: ["not", "made", "out"],
-    when: "Someone drops a big hint and you pretend not to notice.",
-    sentences: [
-      { lemma: "vihje", et: "Jaan ei teinud vihjest välja.", run: "ei teinud vihjest välja" },
-    ],
-  },
-
-  {
-    id: "poorama-tulli", phrase: "pöörasid tülli", particle: "tülli", verb: POO,
-    means: "they ended up in a row", literal: "turned into a quarrel",
-    parts: ["turned", "into a quarrel"],
-    when: "Two friends who always got on have a sudden falling out.",
-    sentences: [
-      { lemma: "pöörama", et: "Napsised noored pöörasid tülli.", run: "pöörasid tülli" },
-    ],
-  },
-
-  {
-    id: "kusima-kaest", phrase: "küsi käest", particle: "käest", verb: KUS,
-    means: "ask (someone)", literal: "ask from the hand",
-    parts: ["ask", "from the hand"],
-    when: "You do not know the answer, but your neighbour might.",
-    sentences: [
-      { lemma: "ehk", et: "Küsi Mari käest, ehk tema teab.", run: "Küsi Mari käest" },
-      { lemma: "too", et: "Küsis poja käest, kelleks too tahab saada.", run: "Küsis poja käest" },
-    ],
-  },
-
-  {
-    id: "olema-nalg", phrase: "on nälg", particle: "nälg", verb: OLE,
-    means: "I am hungry", literal: "there is hunger",
-    parts: ["is", "hunger"],
-    when: "It is noon and your stomach is rumbling.",
-    sentences: [
-      { lemma: "nälg", et: "Mul on nälg.", run: "Mul on nälg" },
-      { lemma: "hirmus", et: "Mul on hirmus nälg.", run: "Mul on hirmus nälg" },
-    ],
-  },
-
-  {
-    id: "viima-labi", phrase: "viidi läbi", particle: "läbi", verb: VII,
-    means: "it was carried out", literal: "it was taken through",
-    parts: ["was taken", "through"],
-    when: "The lab runs the experiment exactly as the instructions say.",
-    sentences: [
-      { lemma: "juhend", et: "Katse viidi läbi juhendi järgi.", run: "viidi läbi" },
-      { lemma: "kinnitus", et: "Oma väite kinnituseks viisin läbi uuringu.", run: "viisin läbi" },
-    ],
-  },
-
-  {
-    id: "tulema-mote", phrase: "tuli mõte", particle: "mõte", verb: TUL,
-    means: "I had an idea", literal: "a thought came",
-    parts: ["came", "a thought"],
-    when: "In the shower, the answer to yesterday's problem suddenly pops into your head.",
-    sentences: [
-      { lemma: "mõte", et: "Mulle tuli üks mõte.", run: "tuli üks mõte" },
-    ],
-  },
-
-  {
-    id: "kuluma-aega", phrase: "kulus aega", particle: "aega", verb: KUL,
-    means: "it took time", literal: "wore time",
-    parts: ["wore", "time"],
-    when: "The job took far longer than planned.",
-    sentences: [
-      { lemma: "tegelikult", et: "Tegelikult kulus töö peale aega rohkem, kui oli planeeritud.", run: "kulus töö peale aega" },
-    ],
-  },
-
-  {
-    id: "panema-nina", phrase: "nina ees", particle: "nina", verb: PAN,
-    means: "right in front of us", literal: "in front of the nose",
-    parts: ["the nose", "in front of"],
-    when: "The doors shut at the very moment you reach them.",
-    sentences: [
-      { lemma: "bussijuht", et: "Bussijuht pani meie nina ees uksed kinni ning sõitis minema.", run: "pani meie nina ees uksed kinni" },
-    ],
-  },
-
-  {
-    id: "tasuma-ara", phrase: "tasus end ära", particle: "ära", verb: TAS,
-    means: "it paid off", literal: "paid itself away",
-    parts: ["paid", "itself", "away"],
-    when: "You waited a long time, but the result was worth it.",
-    sentences: [
-      { lemma: "kannatlik", et: "Kannatlik ootamine tasus end ära.", run: "tasus end ära" },
-    ],
-  },
-
-  {
-    id: "astuma-valja", phrase: "astus välja", particle: "välja", verb: AST,
-    means: "stood up for", literal: "stepped out",
-    parts: ["stepped", "out"],
-    when: "A classmate is mocked and you speak up for them.",
-    sentences: [
-      { lemma: "kaitse", et: "Gea astus minu kaitseks välja.", run: "astus minu kaitseks välja" },
-    ],
-  },
-
-  {
-    id: "panema-selga", phrase: "panin selga", particle: "selga", verb: PAN,
-    means: "I put on (clothes)", literal: "I put onto the back",
-    parts: ["I put", "onto the back"],
-    when: "It is snowing, so you pull on a thick sweater.",
-    sentences: [
-      { lemma: "puhas", et: "Panin puhtad riided selga.", run: "Panin puhtad riided selga" },
-      { lemma: "sviiter", et: "Panin selga triibulise sviitri.", run: "Panin selga" },
-    ],
-  },
-
-  {
-    id: "viitsima-viitsi", phrase: "ei viitsi", particle: "viitsi", verb: VIT,
-    means: "I can't be bothered", literal: "doesn't bother",
-    parts: ["not", "bother"],
-    when: "You would go to the cinema, but the sofa is too comfortable.",
-    sentences: [
-      { lemma: "viitsima", et: "Läheks kinno, aga ei viitsi.", run: "ei viitsi" },
-      { lemma: "viitsima", et: "Ma ei viitsi praegu poodi minna.", run: "ei viitsi" },
-    ],
-  },
-
-  {
-    id: "tegema-ara", phrase: "tegime ära", particle: "ära", verb: TEG,
-    means: "we got it done", literal: "we made away",
-    parts: ["we made", "away"],
-    when: "At last the whole to-do list is finished.",
-    sentences: [
-      { lemma: "ju", et: "Me ju tegime kõik ära.", run: "tegime kõik ära" },
-    ],
-  },
-
-  {
-    id: "tooma-kaasa", phrase: "tõi kaasa", particle: "kaasa", verb: TOO,
-    means: "it led to, it brought about", literal: "brought along",
-    parts: ["brought", "along"],
-    when: "Breaking the rule means a fine.",
-    sentences: [
-      { lemma: "rikkumine", et: "Reeglite rikkumine tõi kaasa karistuse.", run: "tõi kaasa" },
-    ],
-  },
-
-  {
-    id: "kuulama-pealt", phrase: "kuulas pealt", particle: "pealt", verb: KUU,
-    means: "eavesdropped", literal: "listened from above",
-    parts: ["listened", "from above"],
-    when: "A child hides behind the door while the grown-ups talk.",
-    sentences: [
-      { lemma: "jutt", et: "Laps kuulas vanemate juttu pealt.", run: "kuulas vanemate juttu pealt" },
-    ],
-  },
-
-  {
-    id: "tulema-toime", phrase: "tulla toime", particle: "toime", verb: TUL,
-    means: "to cope", literal: "to come to action",
-    parts: ["to come", "to action"],
-    when: "A friend asks how you manage in a city where you know no one.",
-    sentences: [
-      { lemma: "harjumuspärane", et: "Harjumuspärases keskkonnas on lihtsam toime tulla.", run: "toime tulla" },
-    ],
-  },
-
-  {
-    id: "jaama-katte", phrase: "jäid kätte", particle: "kätte", verb: JAA,
-    means: "got caught out in", literal: "stayed into the hand",
-    parts: ["stayed", "into the hand"],
-    when: "A sudden storm catches the boats far from shore.",
-    sentences: [
-      { lemma: "torm", et: "Kalamehed jäid tormi kätte.", run: "jäid tormi kätte" },
-    ],
-  },
-
-  {
-    id: "votma-vastu", phrase: "võta vastu", particle: "vastu", verb: VOT,
-    means: "to accept, to receive", literal: "take against",
-    parts: ["take", "against"],
-    when: "Someone offers you a job or a gift and you say yes.",
-    sentences: [
-      { lemma: "kõhklema", et: "Ära kõhkle, võta pakkumine vastu.", run: "võta pakkumine vastu" },
-      { lemma: "hästi", et: "Publik võttis etenduse hästi vastu.", run: "võttis etenduse hästi vastu" },
-    ],
-  },
-
-  {
-    id: "olema-labi", phrase: "on läbi", particle: "läbi", verb: OLE,
-    means: "it is over, it has expired", literal: "is through",
-    parts: ["is", "through"],
-    when: "Your passport has run out of date.",
-    sentences: [
-      { lemma: "tähtaeg", et: "Mu passi tähtaeg on läbi.", run: "tähtaeg on läbi" },
-    ],
-  },
-
-  {
-    id: "leidma-aset", phrase: "leiab aset", particle: "aset", verb: LEI,
-    means: "it takes place", literal: "finds a place",
-    parts: ["finds", "a place"],
-    when: "A football match is scheduled for Sunday afternoon.",
-    sentences: [
-      { lemma: "pühapäev", et: "Järgmine mäng leiab aset pühapäeval, 31. mail.", run: "leiab aset" },
-    ],
-  },
-
-  {
-    id: "laskma-mooda", phrase: "lasi mööda", particle: "mööda", verb: LAS,
-    means: "missed (the target)", literal: "let past",
-    parts: ["let", "past"],
-    when: "The archer lets go and the arrow flies wide of the mark.",
-    sentences: [
-      { lemma: "märk", et: "Ta lasi märgist mööda.", run: "lasi märgist mööda" },
-    ],
-  },
-
-  {
-    id: "saama-korda", phrase: "saavad korda", particle: "korda", verb: SAA,
-    means: "it gets sorted out", literal: "get order",
-    parts: ["get", "order"],
-    when: "Your papers are a mess, but someone promises it will all be put right.",
-    sentences: [
-      { lemma: "varsti", et: "Küll asjad saavad varsti korda.", run: "saavad varsti korda" },
-    ],
-  },
-
-  {
-    id: "laskma-maha", phrase: "lasi maha", particle: "maha", verb: LAS,
-    means: "shot dead", literal: "let down",
-    parts: ["let", "down"],
-    when: "A hunter brings down a bear in the forest.",
-    sentences: [
-      { lemma: "jahimees", et: "Jahimees lasi karu maha.", run: "lasi karu maha" },
-      { lemma: "jahimees", et: "Jahimehed lasid metsas karu maha.", run: "lasid metsas karu maha" },
-    ],
-  },
-
-  {
-    id: "ajama-habet", phrase: "ajab habet", particle: "habet", verb: AJA,
-    means: "he shaves", literal: "drives the beard",
-    parts: ["drives", "beard"],
-    when: "Dad stands at the bathroom mirror with a razor.",
-    sentences: [
-      { lemma: "pardel", et: "Isa ajab habet pardliga.", run: "ajab habet" },
-      { lemma: "žilett", et: "Mees ajab habet žiletiga.", run: "ajab habet" },
-    ],
-  },
-
-  {
-    id: "panema-kinni", phrase: "pane kinni", particle: "kinni", verb: PAN,
-    means: "shut it, switch it off", literal: "put shut",
-    parts: ["put", "shut"],
-    when: "There is a draught from the window and the television is far too loud.",
-    sentences: [
-      { lemma: "kinni", et: "Pane aken kinni!", run: "Pane aken kinni" },
-      { lemma: "televiisor", et: "Pane televiisor kinni.", run: "Pane televiisor kinni" },
-    ],
-  },
-
-  {
-    id: "jaama-ara", phrase: "jääb ära", particle: "ära", verb: JAA,
-    means: "it is cancelled", literal: "it stays away",
-    parts: ["stays", "away"],
-    when: "The train you wanted is cancelled because of the storm.",
-    sentences: [
-      { lemma: "homne", et: "Homne koosolek jääb ära.", run: "jääb ära" },
-      { lemma: "vähene", et: "Vähese huvi tõttu jäi reis ära.", run: "jäi reis ära" },
-    ],
-  },
-
-  {
-    id: "pudenema-kaest", phrase: "pudenes käest", particle: "käest", verb: PUD,
-    means: "it slipped through my fingers", literal: "crumbled out of the hand",
-    parts: ["crumbled", "out of the hand"],
-    when: "You waited too long to apply and the job went to someone else.",
-    sentences: [
-      { lemma: "pudenema", et: "Suur võimalus pudenes käest.", run: "pudenes käest" },
-    ],
-  },
-
-  {
-    id: "tulema-valja", phrase: "tuli välja", particle: "välja", verb: TUL,
-    means: "it turned out", literal: "came out",
-    parts: ["came", "out"],
-    when: "You look into it and the truth is not what you expected.",
-    sentences: [
-      { lemma: "ligi", et: "Tuli välja, et mees on kuuekümne ligi.", run: "Tuli välja" },
-      { lemma: "kobras", et: "Tuli välja, et koprad on ehitanud magistraalkraavi tammi.", run: "Tuli välja" },
-    ],
-  },
-
-  {
-    id: "saama-vihma", phrase: "vihma käes", particle: "käes", verb: SAA,
-    means: "out in the rain", literal: "in the rain's hand",
-    parts: ["rain's", "in the hand"],
-    when: "You forgot your umbrella and walked home in a downpour.",
-    sentences: [
-      { lemma: "märg", et: "Sain vihma käes üleni märjaks.", run: "Sain vihma käes" },
-    ],
-  },
-
-  {
-    id: "panema-lukku", phrase: "suud lukku ei pane", particle: "lukku", verb: PAN,
-    means: "won't shut him up", literal: "won't put the mouth in a lock",
-    parts: ["the mouth", "into a lock", "not", "puts"],
-    when: "No ban can stop a stubborn critic from speaking out.",
-    sentences: [
-      { lemma: "tsensuur", et: "Mingi tsensuur tema suud lukku ei pane.", run: "suud lukku ei pane" },
-    ],
-  },
-
-  {
-    id: "hoidma-alles", phrase: "hoia alles", particle: "alles", verb: HOI,
-    means: "keep it, hold on to it", literal: "hold still there",
-    parts: ["hold", "still there"],
-    when: "The shop assistant hands you the receipt for the warranty.",
-    sentences: [
-      { lemma: "tšekk", et: "Hoia tšekk alles, muidu garantii ei kehti.", run: "Hoia tšekk alles" },
-      { lemma: "kviitung", et: "Kviitung tuleb alles hoida.", run: "alles hoida" },
-    ],
-  },
-
-  {
-    id: "jaama-hiljaks", phrase: "jäin hiljaks", particle: "hiljaks", verb: JAA,
-    means: "I was late", literal: "I stayed late",
-    parts: ["I stayed", "late"],
-    when: "You walk into the meeting ten minutes after it began.",
-    sentences: [
-      { lemma: "koosolek", et: "Jäin koosolekule hiljaks.", run: "Jäin koosolekule hiljaks" },
-      { lemma: "minut", et: "Ta jäi paar minutit hiljaks.", run: "jäi paar minutit hiljaks" },
-    ],
-  },
-
-  {
-    id: "andma-valja", phrase: "andis välja", particle: "välja", verb: AND,
-    means: "published, issued", literal: "gave out",
-    parts: ["gave", "out"],
-    when: "A publisher brings out a new book of poems.",
-    sentences: [
-      { lemma: "biograafia", et: "Kirjastus andis välja ridamisi kuulsuste biograafiaid.", run: "andis välja" },
-      { lemma: "luuletama", et: "Aastaid sahtlisse luuletanud pereema andis välja luulekogu.", run: "andis välja" },
-    ],
-  },
-
-  {
-    id: "saama-katte", phrase: "saime kätte", particle: "kätte", verb: SAA,
-    means: "we got hold of it", literal: "we got into the hand",
-    parts: ["we got", "into the hand"],
-    when: "After a short wait you finally have the tickets in your hand.",
-    sentences: [
-      { lemma: "lühida", et: "Pärast lühidat järjekorras seismist saime piletid kätte.", run: "saime piletid kätte" },
-      { lemma: "kannatamatu", et: "Olen pisut kannatamatu ja tahan kõike kohe kätte saada.", run: "kätte saada" },
-    ],
-  },
-
-  {
-    id: "saama-valmis", phrase: "sai valmis", particle: "valmis", verb: SAA,
-    means: "it got finished", literal: "got ready",
-    parts: ["got", "ready"],
-    when: "The builders finally hand over the new house.",
-    sentences: [
-      { lemma: "alles", et: "Täiesti uus maja, alles sai valmis.", run: "alles sai valmis" },
-      { lemma: "kirjanik", et: "Kirjanikul sai valmis uus teos.", run: "sai valmis" },
-    ],
-  },
-
-  {
-    id: "jaama-vahele", phrase: "jäid vahele", particle: "vahele", verb: JAA,
-    means: "they got caught", literal: "they stayed between",
-    parts: ["stayed", "between"],
-    when: "Two boys are caught by the police doing what they should not.",
-    note: "The sentence uses slang for the police.",
-    sentences: [
-      { lemma: "ment", et: "Poisid jäid mentidele vahele.", run: "jäid mentidele vahele" },
-    ],
-  },
-
-  {
-    id: "olema-oigus", phrase: "on õigus", particle: "õigus", verb: OLE,
-    means: "you are right", literal: "has right",
-    parts: ["is", "right"],
-    when: "You tell a friend they have got it exactly right.",
-    sentences: [
-      { lemma: "ikka", et: "Sul on õigus nagu ikka.", run: "Sul on õigus" },
-      { lemma: "kohe", et: "Kohe selgub, kellel oli õigus.", run: "oli õigus" },
-    ],
-  },
-
-  {
-    id: "votma-uhendust", phrase: "võttis ühendust", particle: "ühendust", verb: VOT,
-    means: "got in touch", literal: "took contact",
-    parts: ["took", "contact"],
-    when: "You write to the teacher because your child was ill.",
-    sentences: [
-      { lemma: "murelik", et: "Murelik ema võttis ühendust õpetajaga.", run: "võttis ühendust" },
-    ],
-  },
-
-  {
-    id: "jaama-seisma", phrase: "jäi seisma", particle: "seisma", verb: JAA,
-    means: "stopped", literal: "stayed to stand",
-    parts: ["stayed", "to stand"],
-    when: "A horse refuses to go on at the edge of a stream.",
-    sentences: [
-      { lemma: "seisma", et: "Hobune jäi oja ette seisma.", run: "jäi oja ette seisma" },
-      { lemma: "siia", et: "Jää siia seisma.", run: "Jää siia seisma" },
-    ],
-  },
-
-  {
-    id: "kargama-tais", phrase: "kargas süda täis", particle: "täis", verb: KAR,
-    means: "I got fed up, I lost my temper", literal: "the heart jumped full",
-    parts: ["jumped", "heart", "full"],
-    when: "Your neighbour plays drums at midnight for the third night running.",
-    sentences: [
-      { lemma: "kargama", et: "Mul kargas süda täis.", run: "Mul kargas süda täis" },
-    ],
-  },
-
-  {
-    id: "vajuma-looja", phrase: "silm vajus looja", particle: "looja", verb: VAJ,
-    means: "he dozed off", literal: "the eye sank to setting",
-    parts: ["eye", "sank", "to setting, like the sun"],
-    when: "Halfway through the film, your grandfather's head nods forward.",
-    sentences: [
-      { lemma: "vajuma", et: "Silm vajus looja.", run: "Silm vajus looja" },
-    ],
-  },
-
-  {
-    id: "ajama-juttu", phrase: "ajame juttu", particle: "juttu", verb: AJA,
-    means: "let's chat", literal: "we drive talk",
-    parts: ["we drive", "talk"],
-    when: "Over a drink you slow down and simply talk.",
-    sentences: [
-      { lemma: "naps", et: "Võtame napsu ja ajame juttu.", run: "ajame juttu" },
-      { lemma: "tervitama", et: "Tervitasime, aga pikemalt juttu ajama ei jäänud.", run: "juttu ajama" },
-    ],
-  },
-
-  {
-    id: "votma-kurdiks", phrase: "võtsid kõrvad kurdiks", particle: "kurdiks", verb: VOT,
-    means: "it was deafening", literal: "took the ears deaf",
-    parts: ["took", "ears", "deaf"],
-    when: "You stand right next to the speakers at a rock concert.",
-    sentences: [
-      { lemma: "möire", et: "Mootorite möirged võtsid kõrvad kurdiks.", run: "võtsid kõrvad kurdiks" },
-    ],
-  },
-
-  {
-    id: "pidama-viha", phrase: "pikka viha ei pea", particle: "viha", verb: PID,
-    means: "doesn't hold a grudge", literal: "doesn't hold long anger",
-    parts: ["long", "anger", "not", "holds"],
-    when: "Your father is cross for an hour, and then it is forgotten.",
-    sentences: [
-      { lemma: "viha", et: "Isa pikka viha ei pea.", run: "pikka viha ei pea" },
-    ],
-  },
-
-  {
-    id: "panema-jalga", phrase: "panin jalga", particle: "jalga", verb: PAN,
-    means: "I put on (shoes, trousers)", literal: "I put into the leg",
-    parts: ["I put", "onto the leg"],
-    when: "You are leaving the house and slip on your shoes.",
-    sentences: [
-      { lemma: "sandaal", et: "Panin sandaalid jalga.", run: "Panin sandaalid jalga" },
-      { lemma: "mugav", et: "Pange jalga mugavad jalanõud.", run: "Pange jalga" },
-    ],
-  },
-
-  {
-    id: "nagema-vaeva", phrase: "näha vaeva", particle: "vaeva", verb: NAG,
-    means: "to make an effort", literal: "to see trouble",
-    parts: ["to see", "trouble"],
-    when: "Finding a flat in town took weeks of searching.",
-    sentences: [
-      { lemma: "liitlane", et: "Liitlaste leidmiseks tuli kõvasti vaeva näha.", run: "vaeva näha" },
-      { lemma: "kõht", et: "Eks lameda kõhu saavutamiseks tule üksjagu vaeva näha.", run: "vaeva näha" },
-    ],
-  },
-
-  {
-    id: "pidama-meeles", phrase: "pidas meeles", particle: "meeles", verb: PID,
-    means: "remembered", literal: "held in mind",
-    parts: ["held", "in mind"],
-    when: "Your uncle never forgets a birthday.",
-    sentences: [
-      { lemma: "onu", et: "Minu onu Otto pidas iga tähtpäeva meeles.", run: "pidas iga tähtpäeva meeles" },
-    ],
-  },
-
-  {
-    id: "paistma-silma", phrase: "paistsid silma", particle: "silma", verb: PAI,
-    means: "they stood out", literal: "shone into the eye",
-    parts: ["shone", "into the eye"],
-    when: "One team plays so well that everyone talks about them afterwards.",
-    sentences: [
-      { lemma: "enam", et: "Kõige enam paistsid silma meie sportlased.", run: "paistsid silma" },
-      { lemma: "ladus", et: "Üritus on silma paistnud ka ladusa korralduse poolest.", run: "silma paistnud" },
-    ],
-  },
-
-  {
-    id: "minema-kassi", phrase: "mine kassi saba alla", particle: "kassi", verb: GO,
-    means: "go to hell (rude)", literal: "go under the cat's tail",
-    parts: ["go", "cat's", "tail", "under"],
-    when: "In a furious row, one person tells the other exactly where to go.",
-    note: "Rude, and a notch stronger than the other get-lost saying. Good to understand, not to say.",
-    sentences: [
-      { lemma: "minema", et: "Mine kassi saba alla!", run: "Mine kassi saba alla" },
-    ],
-  },
-
-  {
-    id: "vedama-veab", phrase: "tal veab", particle: "veab", verb: VED,
-    means: "he is lucky", literal: "to him it pulls",
-    parts: ["to him", "pulls"],
-    when: "Your friend wins the raffle for the third time.",
-    sentences: [
-      { lemma: "vedama", et: "Tal veab alati.", run: "Tal veab alati" },
-    ],
-  },
-
-  {
-    id: "sooma-suu", phrase: "söö suu tühjaks", particle: "tühjaks", verb: SOO,
-    means: "finish chewing before you talk", literal: "eat your mouth empty",
-    parts: ["eat", "mouth", "empty"],
-    when: "A child starts telling a story with a mouth full of bread.",
-    sentences: [
-      { lemma: "sööma", et: "Söö suu tühjaks!", run: "Söö suu tühjaks" },
-    ],
-  },
-
-  {
-    id: "olema-kurat", phrase: "on kurat lahti", particle: "lahti", verb: OLE,
-    means: "all hell has broken loose", literal: "the devil is loose",
-    parts: ["is", "devil", "loose"],
-    when: "The whole class starts shouting at once just as the teacher walks in.",
-    note: "Mild swearing, about as strong as all hell.",
-    sentences: [
-      { lemma: "kurat", et: "No nüüd on kurat lahti.", run: "nüüd on kurat lahti" },
-    ],
-  },
-
-  {
-    id: "votma-kokku", phrase: "end kokku võtta", particle: "kokku", verb: VOT,
-    means: "to pull yourself together", literal: "to take yourself together",
-    parts: ["oneself", "together", "to take"],
-    when: "You are nervous before the final, but you breathe in and go on.",
-    sentences: [
-      { lemma: "hetk", et: "Otsustaval hetkel suutis meeskond end siiski kokku võtta ja mängu võita.", run: "end siiski kokku võtta" },
-    ],
-  },
-
-  {
-    id: "veeretama-kaela", phrase: "teiste kaela veeretada", particle: "kaela", verb: VEE,
-    means: "to dump it on others", literal: "to roll onto others' necks",
-    parts: ["others'", "onto the neck", "to roll"],
-    when: "A colleague tries to pass their own mistakes on to the team.",
-    sentences: [
-      { lemma: "kohustus", et: "Ära üritagi oma kohustusi teiste kaela veeretada.", run: "teiste kaela veeretada" },
-    ],
-  },
-
-  {
-    id: "panema-paika", phrase: "pandi paika", particle: "paika", verb: PAN,
-    means: "it was settled, it was sorted out", literal: "it was put in place",
-    parts: ["was put", "in place"],
-    when: "The team agrees who does what and when.",
-    sentences: [
-      { lemma: "stipendium", et: "Pandi paika, kes sportlastest stipendiumi saama hakkavad.", run: "Pandi paika" },
-      { lemma: "ning", et: "Võiksime veiniklaasi taga kohtuda ning maailma asjad paika panna.", run: "paika panna" },
-    ],
-  },
-
-  {
-    id: "hoidma-poialt", phrase: "hoiame pöialt", particle: "pöialt", verb: HOI,
-    means: "we keep our fingers crossed", literal: "we hold the thumb",
-    parts: ["we hold", "thumb"],
-    when: "A friend has an exam tomorrow and you wish them luck.",
-    sentences: [
-      { lemma: "maasikas", et: "Maasikad õitsevad nii metsa all kui peenral, hoiame pöialt, et öökülma ei tule!", run: "hoiame pöialt" },
-    ],
-  },
-
-  {
-    id: "olema-kaes", phrase: "on käes", particle: "käes", verb: OLE,
-    means: "it is here, it has arrived", literal: "is in the hand",
-    parts: ["is", "in the hand"],
-    when: "The first snow falls and winter has clearly begun.",
-    sentences: [
-      { lemma: "suvi", et: "Suvi on käes.", run: "Suvi on käes" },
-      { lemma: "talv", et: "Talv on käes.", run: "Talv on käes" },
-    ],
-  },
-
-  {
-    id: "pidama-hoogu", phrase: "pea hoogu", particle: "hoogu", verb: PID,
-    means: "slow down, hold your horses", literal: "hold the momentum",
-    parts: ["hold", "momentum"],
-    when: "Your friend is driving far too fast on a wet road.",
-    sentences: [
-      { lemma: "hoog", et: "Pea hoogu!", run: "Pea hoogu" },
-    ],
-  },
-
-  {
-    id: "lugema-labi", phrase: "lugesin läbi", particle: "läbi", verb: LUG,
-    means: "I read it through", literal: "I read through",
-    parts: ["I read", "through"],
-    when: "You finish the whole book in one weekend.",
-    sentences: [
-      { lemma: "läbi lugema", et: "Lugesin raamatu läbi.", run: "Lugesin raamatu läbi" },
-      { lemma: "ümbrik", et: "Ta avas ümbriku ja luges kirja läbi.", run: "luges kirja läbi" },
-    ],
-  },
-
-  {
-    id: "jaama-haigeks", phrase: "jään haigeks", particle: "haigeks", verb: JAA,
-    means: "I'm coming down with something", literal: "I stay ill",
-    parts: ["I stay", "ill"],
-    when: "Your throat is scratchy and you feel the first signs of a cold.",
-    sentences: [
-      { lemma: "vist", et: "Ma jään vist haigeks.", run: "jään vist haigeks" },
-      { lemma: "pere", et: "Terve pere jäi haigeks.", run: "jäi haigeks" },
+      { lemma: "pori", et: "Mind valati saates poriga üle.", run: "valati saates poriga üle" },
     ],
   },
 
@@ -1417,68 +768,6 @@ export const SAYINGS: readonly Saying[] = [
     when: "A guest arrives at your door and you wave them in.",
     sentences: [
       { lemma: "nagu", et: "Tunne ennast nagu kodus.", run: "Tunne ennast nagu kodus" },
-    ],
-  },
-
-  {
-    id: "joudma-katte", phrase: "kätte jõudnud", particle: "kätte", verb: JOU,
-    means: "it has come, it is someone's turn", literal: "reached into the hand",
-    parts: ["into the hand", "reached"],
-    when: "The leaves turn yellow and autumn is finally here.",
-    sentences: [
-      { lemma: "sügis", et: "Värviline sügis on kätte jõudnud.", run: "on kätte jõudnud" },
-      { lemma: "järg", et: "Nüüd jõudis järg juhataja kätte.", run: "jõudis järg juhataja kätte" },
-    ],
-  },
-
-  {
-    id: "hoidma-vahet", phrase: "hoia vahet", particle: "vahet", verb: HOI,
-    means: "keep your distance", literal: "hold the gap",
-    parts: ["hold", "gap"],
-    when: "A stranger stands far too close to you on a crowded platform.",
-    sentences: [
-      { lemma: "vahe", et: "Hoia vahet!", run: "Hoia vahet" },
-    ],
-  },
-
-  {
-    id: "ajama-segi", phrase: "segi ajada", particle: "segi", verb: AJA,
-    means: "to mix up, to confuse", literal: "to drive mixed",
-    parts: ["mixed", "to drive"],
-    when: "A teacher warns you not to confuse cause with effect.",
-    sentences: [
-      { lemma: "tagajärg", et: "Põhjust ja tagajärge ei tohi segi ajada.", run: "segi ajada" },
-    ],
-  },
-
-  {
-    id: "viima-keele", phrase: "viib keele alla", particle: "keele", verb: VII,
-    means: "it's delicious", literal: "takes the tongue under",
-    parts: ["takes", "the tongue", "under"],
-    when: "Your grandmother's soup is so good you go back for a third bowl.",
-    sentences: [
-      { lemma: "supp", et: "Vürtsine supp viib keele alla.", run: "viib keele alla" },
-    ],
-  },
-
-  {
-    id: "laskma-teha", phrase: "lasen teha", particle: "teha", verb: LAS,
-    means: "I have it done", literal: "I let do",
-    parts: ["I let", "to do"],
-    when: "You do not give yourself the flu jab, you book someone to do it.",
-    sentences: [
-      { lemma: "vaktsiin", et: "Sügisel lasen teha vaktsiini gripi vastu.", run: "lasen teha" },
-      { lemma: "ilusalong", et: "Ilusalongis olen harv külaline, enne Eestisse tulemist lasin ainult oma küüned korda teha.", run: "lasin ainult oma küüned korda teha" },
-    ],
-  },
-
-  {
-    id: "kirjutama-maha", phrase: "kirjutasin maha", particle: "maha", verb: KIR,
-    means: "I copied it", literal: "I wrote down",
-    parts: ["I wrote", "down"],
-    when: "A student keeps glancing at the neighbour's paper during a test.",
-    sentences: [
-      { lemma: "pinginaaber", et: "Kirjutasin kontrolltöö pinginaabrilt maha.", run: "Kirjutasin kontrolltöö pinginaabrilt maha" },
     ],
   },
 
@@ -1494,12 +783,76 @@ export const SAYINGS: readonly Saying[] = [
   },
 
   {
-    id: "olema-pinnuks", phrase: "pinnuks silmas", particle: "pinnuks", verb: OLE,
-    means: "a thorn in someone's side", literal: "a splinter in the eye",
-    parts: ["as a splinter", "in the eye"],
-    when: "An honest journalist keeps annoying the people in power.",
+    id: "hoidma-alles", phrase: "hoia alles", particle: "alles", verb: HOI,
+    means: "keep it, hold on to it", literal: "hold still there",
+    parts: ["hold", "still there"],
+    when: "The shop assistant hands you the receipt for the warranty.",
     sentences: [
-      { lemma: "otsekohesus", et: "Oma aususe ja otsekohesusega on ta nii mõnelegi pinnuks silmas.", run: "on ta nii mõnelegi pinnuks silmas" },
+      { lemma: "tšekk", et: "Hoia tšekk alles, muidu garantii ei kehti.", run: "Hoia tšekk alles" },
+      { lemma: "kviitung", et: "Kviitung tuleb alles hoida.", run: "alles hoida" },
+    ],
+  },
+
+  {
+    id: "jaama-haigeks", phrase: "jään haigeks", particle: "haigeks", verb: JAA,
+    means: "I'm coming down with something", literal: "I stay ill",
+    parts: ["I stay", "ill"],
+    when: "Your throat is scratchy and you feel the first signs of a cold.",
+    sentences: [
+      { lemma: "vist", et: "Ma jään vist haigeks.", run: "jään vist haigeks" },
+      { lemma: "pere", et: "Terve pere jäi haigeks.", run: "jäi haigeks" },
+    ],
+  },
+
+  {
+    id: "andma-valja", phrase: "andis välja", particle: "välja", verb: AND,
+    means: "published, issued", literal: "gave out",
+    parts: ["gave", "out"],
+    when: "A publisher brings out a new book of poems.",
+    sentences: [
+      { lemma: "biograafia", et: "Kirjastus andis välja ridamisi kuulsuste biograafiaid.", run: "andis välja" },
+      { lemma: "luuletama", et: "Aastaid sahtlisse luuletanud pereema andis välja luulekogu.", run: "andis välja" },
+    ],
+  },
+
+  {
+    id: "kargama-tais", phrase: "kargas süda täis", particle: "täis", verb: KAR,
+    means: "I got fed up, I lost my temper", literal: "the heart jumped full",
+    parts: ["jumped", "heart", "full"],
+    when: "Your neighbour plays drums at midnight for the third night running.",
+    sentences: [
+      { lemma: "kargama", et: "Mul kargas süda täis.", run: "Mul kargas süda täis" },
+    ],
+  },
+
+  {
+    id: "panema-nina", phrase: "nina ees", particle: "nina", verb: PAN,
+    means: "right in front of us", literal: "in front of the nose",
+    parts: ["the nose", "in front of"],
+    when: "The doors shut at the very moment you reach them.",
+    sentences: [
+      { lemma: "bussijuht", et: "Bussijuht pani meie nina ees uksed kinni ning sõitis minema.", run: "pani meie nina ees uksed kinni" },
+    ],
+  },
+
+  {
+    id: "jaama-ellu", phrase: "jääb ellu", particle: "ellu", verb: JAA,
+    means: "survives, makes it", literal: "stays into life",
+    parts: ["stays", "into life"],
+    when: "Only one seedling in ten makes it through the winter frost.",
+    sentences: [
+      { lemma: "ükssarvik", et: "Vaid üks kümnest ükssarvikust jääb turul ellu.", run: "jääb turul ellu" },
+      { lemma: "leegiheitja", et: "Leegiheitjate, tankide ja helikopterite rünnaku all on raske ellu jääda.", run: "ellu jääda" },
+    ],
+  },
+
+  {
+    id: "laskma-mooda", phrase: "lasi mööda", particle: "mööda", verb: LAS,
+    means: "missed (the target)", literal: "let past",
+    parts: ["let", "past"],
+    when: "The archer lets go and the arrow flies wide of the mark.",
+    sentences: [
+      { lemma: "märk", et: "Ta lasi märgist mööda.", run: "lasi märgist mööda" },
     ],
   },
 
@@ -1514,6 +867,17 @@ export const SAYINGS: readonly Saying[] = [
   },
 
   {
+    id: "panema-selga", phrase: "panin selga", particle: "selga", verb: PAN,
+    means: "I put on (clothes)", literal: "I put onto the back",
+    parts: ["I put", "onto the back"],
+    when: "It is snowing, so you pull on a thick sweater.",
+    sentences: [
+      { lemma: "puhas", et: "Panin puhtad riided selga.", run: "Panin puhtad riided selga" },
+      { lemma: "sviiter", et: "Panin selga triibulise sviitri.", run: "Panin selga" },
+    ],
+  },
+
+  {
     id: "nagema-pealt", phrase: "nägi pealt", particle: "pealt", verb: NAG,
     means: "saw it happen, witnessed it", literal: "saw from above",
     parts: ["saw", "from above"],
@@ -1524,23 +888,501 @@ export const SAYINGS: readonly Saying[] = [
   },
 
   {
-    id: "ajama-taga", phrase: "ajab taga", particle: "taga", verb: AJA,
-    means: "chases", literal: "drives behind",
-    parts: ["drives", "behind"],
-    when: "A puppy runs round the garden after a ball.",
+    id: "poorama-tulli", phrase: "pöörasid tülli", particle: "tülli", verb: POO,
+    means: "they ended up in a row", literal: "turned into a quarrel",
+    parts: ["turned", "into a quarrel"],
+    when: "Two friends who always got on have a sudden falling out.",
     sentences: [
-      { lemma: "pall", et: "Kutsikas ajab palli taga.", run: "ajab palli taga" },
+      { lemma: "pöörama", et: "Napsised noored pöörasid tülli.", run: "pöörasid tülli" },
     ],
   },
 
   {
-    id: "looma-ara", phrase: "lõin ära", particle: "ära", verb: LOO,
-    means: "I banged it (and it hurts)", literal: "I hit away",
-    parts: ["I hit", "away"],
-    when: "You walk into the coffee table in the dark.",
+    id: "saama-korda", phrase: "saavad korda", particle: "korda", verb: SAA,
+    means: "it gets sorted out", literal: "get order",
+    parts: ["get", "order"],
+    when: "Your papers are a mess, but someone promises it will all be put right.",
     sentences: [
-      { lemma: "kivi", et: "Lõin varba vastu kivi ära.", run: "Lõin varba vastu kivi ära" },
-      { lemma: "küünarnukk", et: "Lõin küünarnuki valusasti ära.", run: "Lõin küünarnuki valusasti ära" },
+      { lemma: "varsti", et: "Küll asjad saavad varsti korda.", run: "saavad varsti korda" },
+    ],
+  },
+
+  {
+    id: "pidama-hoogu", phrase: "pea hoogu", particle: "hoogu", verb: PID,
+    means: "slow down, hold your horses", literal: "hold the momentum",
+    parts: ["hold", "momentum"],
+    when: "Your friend is driving far too fast on a wet road.",
+    sentences: [
+      { lemma: "hoog", et: "Pea hoogu!", run: "Pea hoogu" },
+    ],
+  },
+
+  {
+    id: "pidama-sammu", phrase: "sammu pidada", particle: "sammu", verb: PID,
+    means: "to keep up", literal: "to hold the step",
+    parts: ["the step", "to hold"],
+    when: "Your phone wants an update every week and you are always behind.",
+    sentences: [
+      { lemma: "muutus", et: "Kõik ei suuda kiirete muutustega sammu pidada.", run: "sammu pidada" },
+    ],
+  },
+
+  {
+    id: "tooma-kaasa", phrase: "tõi kaasa", particle: "kaasa", verb: TOO,
+    means: "it led to, it brought about", literal: "brought along",
+    parts: ["brought", "along"],
+    when: "Breaking the rule means a fine.",
+    sentences: [
+      { lemma: "rikkumine", et: "Reeglite rikkumine tõi kaasa karistuse.", run: "tõi kaasa" },
+    ],
+  },
+
+  {
+    id: "jaama-hiljaks", phrase: "jäin hiljaks", particle: "hiljaks", verb: JAA,
+    means: "I was late", literal: "I stayed late",
+    parts: ["I stayed", "late"],
+    when: "You walk into the meeting ten minutes after it began.",
+    sentences: [
+      { lemma: "koosolek", et: "Jäin koosolekule hiljaks.", run: "Jäin koosolekule hiljaks" },
+      { lemma: "minut", et: "Ta jäi paar minutit hiljaks.", run: "jäi paar minutit hiljaks" },
+    ],
+  },
+
+  {
+    id: "ajama-segi", phrase: "segi ajada", particle: "segi", verb: AJA,
+    means: "to mix up, to confuse", literal: "to drive mixed",
+    parts: ["mixed", "to drive"],
+    when: "A teacher warns you not to confuse cause with effect.",
+    sentences: [
+      { lemma: "tagajärg", et: "Põhjust ja tagajärge ei tohi segi ajada.", run: "segi ajada" },
+    ],
+  },
+
+  {
+    id: "jooksma-ringi", phrase: "jooksid ringi", particle: "ringi", verb: JOO,
+    means: "ran around all over the place", literal: "ran in a circle",
+    parts: ["ran", "in a circle"],
+    when: "The puppies are loose in the garden and tearing about everywhere.",
+    sentences: [
+      { lemma: "vabalt", et: "Koerad jooksid vabalt ringi.", run: "jooksid vabalt ringi" },
+      { lemma: "rott", et: "Keldris jooksid ringi hiired ja rotid.", run: "jooksid ringi" },
+    ],
+  },
+
+  {
+    id: "joudma-katte", phrase: "kätte jõudnud", particle: "kätte", verb: JOU,
+    means: "it has come, it is someone's turn", literal: "reached into the hand",
+    parts: ["into the hand", "reached"],
+    when: "The leaves turn yellow and autumn is finally here.",
+    sentences: [
+      { lemma: "sügis", et: "Värviline sügis on kätte jõudnud.", run: "on kätte jõudnud" },
+      { lemma: "järg", et: "Nüüd jõudis järg juhataja kätte.", run: "jõudis järg juhataja kätte" },
+    ],
+  },
+
+  {
+    id: "jaama-ara", phrase: "jääb ära", particle: "ära", verb: JAA,
+    means: "it is cancelled", literal: "it stays away",
+    parts: ["stays", "away"],
+    when: "The train you wanted is cancelled because of the storm.",
+    sentences: [
+      { lemma: "homne", et: "Homne koosolek jääb ära.", run: "jääb ära" },
+      { lemma: "vähene", et: "Vähese huvi tõttu jäi reis ära.", run: "jäi reis ära" },
+    ],
+  },
+
+  {
+    id: "jaama-jalgu", phrase: "ei jää jalgu", particle: "jalgu", verb: JAA,
+    means: "won't get in anyone's way", literal: "won't stay to the legs",
+    parts: ["not", "stay", "to the legs"],
+    when: "In a busy kitchen, the smallest helper keeps neatly out of everyone's path.",
+    sentences: [
+      { lemma: "amööb", et: "Oled amööb, siis ei jää sa kellelegi jalgu.", run: "ei jää sa kellelegi jalgu" },
+    ],
+  },
+
+  {
+    id: "laskma-teha", phrase: "lasen teha", particle: "teha", verb: LAS,
+    means: "I have it done", literal: "I let do",
+    parts: ["I let", "to do"],
+    when: "You do not give yourself the flu jab, you book someone to do it.",
+    sentences: [
+      { lemma: "vaktsiin", et: "Sügisel lasen teha vaktsiini gripi vastu.", run: "lasen teha" },
+      { lemma: "ilusalong", et: "Ilusalongis olen harv külaline, enne Eestisse tulemist lasin ainult oma küüned korda teha.", run: "lasin ainult oma küüned korda teha" },
+    ],
+  },
+
+  {
+    id: "olema-oigus", phrase: "on õigus", particle: "õigus", verb: OLE,
+    means: "you are right", literal: "has right",
+    parts: ["is", "right"],
+    when: "You tell a friend they have got it exactly right.",
+    sentences: [
+      { lemma: "ikka", et: "Sul on õigus nagu ikka.", run: "Sul on õigus" },
+      { lemma: "kohe", et: "Kohe selgub, kellel oli õigus.", run: "oli õigus" },
+    ],
+  },
+
+  {
+    id: "panema-katte", phrase: "pane käpikud kätte", particle: "kätte", verb: PAN,
+    means: "put your mittens on", literal: "put the mittens into the hand",
+    parts: ["put", "mittens", "into the hand"],
+    when: "It is minus ten and your child is heading out to build a snowman.",
+    sentences: [
+      { lemma: "käpik", et: "Väljas on külm, pane käpikud kätte!", run: "pane käpikud kätte" },
+    ],
+  },
+
+  {
+    id: "jaama-rahule", phrase: "jäin rahule", particle: "rahule", verb: JAA,
+    means: "I was happy with it", literal: "I stayed to peace",
+    parts: ["I stayed", "to peace"],
+    when: "The holiday cost what you planned and the hotel was lovely.",
+    sentences: [
+      { lemma: "kokkuvõttes", et: "Kokkuvõttes jäin reisiga rahule.", run: "jäin reisiga rahule" },
+      { lemma: "dialoog", et: "Jäin otsekohese dialoogiga väga rahule.", run: "Jäin otsekohese dialoogiga väga rahule" },
+    ],
+  },
+
+  {
+    id: "jaama-seisma", phrase: "jäi seisma", particle: "seisma", verb: JAA,
+    means: "stopped", literal: "stayed to stand",
+    parts: ["stayed", "to stand"],
+    when: "A horse refuses to go on at the edge of a stream.",
+    sentences: [
+      { lemma: "seisma", et: "Hobune jäi oja ette seisma.", run: "jäi oja ette seisma" },
+      { lemma: "siia", et: "Jää siia seisma.", run: "Jää siia seisma" },
+    ],
+  },
+
+  {
+    id: "tegema-ara", phrase: "tegime ära", particle: "ära", verb: TEG,
+    means: "we got it done", literal: "we made away",
+    parts: ["we made", "away"],
+    when: "At last the whole to-do list is finished.",
+    sentences: [
+      { lemma: "ju", et: "Me ju tegime kõik ära.", run: "tegime kõik ära" },
+    ],
+  },
+
+  {
+    id: "jaama-katte", phrase: "jäid kätte", particle: "kätte", verb: JAA,
+    means: "got caught out in", literal: "stayed into the hand",
+    parts: ["stayed", "into the hand"],
+    when: "A sudden storm catches the boats far from shore.",
+    sentences: [
+      { lemma: "torm", et: "Kalamehed jäid tormi kätte.", run: "jäid tormi kätte" },
+    ],
+  },
+
+  {
+    id: "vaatama-otsa", phrase: "vaatas mulle otsa", particle: "otsa", verb: VAA,
+    means: "looked me in the face", literal: "looked onto my end",
+    parts: ["looked", "to me", "onto the end"],
+    when: "Someone across the table stops talking and meets your eyes.",
+    sentences: [
+      { lemma: "arusaamatus", et: "Tüdruk vaatas arusaamatuses mulle otsa.", run: "vaatas arusaamatuses mulle otsa" },
+      { lemma: "ega", et: "Ta vaatas võõrale otsa ega lausunud sõnagi.", run: "vaatas võõrale otsa" },
+    ],
+  },
+
+  {
+    id: "suruma-pohja", phrase: "suru gaas põhja", particle: "põhja", verb: SRU,
+    means: "floor it, step on it", literal: "press the gas to the bottom",
+    parts: ["press", "the gas", "to the bottom"],
+    when: "You are already late and the road ahead is empty and straight.",
+    note: "The word for bottom is also the word for north, which makes it look stranger still.",
+    sentences: [
+      { lemma: "suruma", et: "Suru gaas põhja!", run: "Suru gaas põhja" },
+    ],
+  },
+
+  {
+    id: "votma-kurdiks", phrase: "võtsid kõrvad kurdiks", particle: "kurdiks", verb: VOT,
+    means: "it was deafening", literal: "took the ears deaf",
+    parts: ["took", "ears", "deaf"],
+    when: "You stand right next to the speakers at a rock concert.",
+    sentences: [
+      { lemma: "möire", et: "Mootorite möirged võtsid kõrvad kurdiks.", run: "võtsid kõrvad kurdiks" },
+    ],
+  },
+
+  {
+    id: "olema-motet", phrase: "pole mõtet", particle: "mõtet", verb: OLE,
+    means: "there is no point", literal: "is not sense",
+    parts: ["is not", "sense"],
+    when: "The shop is closed for the day, so going now is pointless.",
+    sentences: [
+      { lemma: "sapp", et: "Pole mõtet kogu oma sappi välja valada.", run: "Pole mõtet" },
+      { lemma: "supermarket", et: "Ilma autota pole supermarketisse mõtet minna.", run: "pole supermarketisse mõtet" },
+    ],
+  },
+
+  {
+    id: "laskma-vette", phrase: "lasti vette", particle: "vette", verb: LAS,
+    means: "were released, were launched", literal: "were let into the water",
+    parts: ["were let", "into the water"],
+    when: "A band's new album finally comes out after two years of work.",
+    note: "Said first of a new ship, now of songs, films and products too.",
+    sentences: [
+      { lemma: "lood", et: "Lood lasti vette.", run: "Lood lasti vette" },
+    ],
+  },
+
+  {
+    id: "astuma-valja", phrase: "astus välja", particle: "välja", verb: AST,
+    means: "stood up for", literal: "stepped out",
+    parts: ["stepped", "out"],
+    when: "A classmate is mocked and you speak up for them.",
+    sentences: [
+      { lemma: "kaitse", et: "Gea astus minu kaitseks välja.", run: "astus minu kaitseks välja" },
+    ],
+  },
+
+  {
+    id: "votma-vastu", phrase: "võta vastu", particle: "vastu", verb: VOT,
+    means: "to accept, to receive", literal: "take against",
+    parts: ["take", "against"],
+    when: "Someone offers you a job or a gift and you say yes.",
+    sentences: [
+      { lemma: "kõhklema", et: "Ära kõhkle, võta pakkumine vastu.", run: "võta pakkumine vastu" },
+      { lemma: "hästi", et: "Publik võttis etenduse hästi vastu.", run: "võttis etenduse hästi vastu" },
+    ],
+  },
+
+  {
+    id: "tombama-pahe", phrase: "tõmbas kapuutsi pähe", particle: "pähe", verb: TOM,
+    means: "pulled his hood up", literal: "pulled the hood into the head",
+    parts: ["pulled", "the hood", "into the head"],
+    when: "It starts to drizzle and a man at the bus stop covers up.",
+    sentences: [
+      { lemma: "kapuuts", et: "Ta tõmbas kapuutsi pähe.", run: "tõmbas kapuutsi pähe" },
+    ],
+  },
+
+  {
+    id: "tundma-kaasa", phrase: "tunneme kaasa", particle: "kaasa", verb: TUN,
+    means: "we offer our condolences", literal: "we feel along",
+    parts: ["we feel", "along"],
+    when: "A colleague's father has passed away and the office signs a card.",
+    sentences: [
+      { lemma: "lein", et: "Tunneme omastele kaasa nende leinas.", run: "Tunneme omastele kaasa" },
+    ],
+  },
+
+  {
+    id: "panema-rohku", phrase: "ei pandud rõhku", particle: "rõhku", verb: PAN,
+    means: "nobody cared much about it", literal: "no pressure was put",
+    parts: ["not", "put", "pressure"],
+    when: "Nobody minded what the old stove looked like, as long as it kept them warm.",
+    sentences: [
+      { lemma: "iludus", et: "Soojust andis raudahi, mille välimise iluduse peale ei pandud palju rõhku.", run: "ei pandud palju rõhku" },
+    ],
+  },
+
+  {
+    id: "pidama-piiri", phrase: "pidage piiri", particle: "piiri", verb: PID,
+    means: "go easy, keep it within limits", literal: "keep the border",
+    parts: ["keep", "the border"],
+    when: "Your doctor tells you to cut down on the wine for a while.",
+    sentences: [
+      { lemma: "planeerima", et: "Kuna planeerite rasedust, pidage alkoholiga piiri.", run: "pidage alkoholiga piiri" },
+    ],
+  },
+
+  {
+    id: "hoidma-poialt", phrase: "hoiame pöialt", particle: "pöialt", verb: HOI,
+    means: "we keep our fingers crossed", literal: "we hold the thumb",
+    parts: ["we hold", "thumb"],
+    when: "A friend has an exam tomorrow and you wish them luck.",
+    sentences: [
+      { lemma: "maasikas", et: "Maasikad õitsevad nii metsa all kui peenral, hoiame pöialt, et öökülma ei tule!", run: "hoiame pöialt" },
+    ],
+  },
+
+  {
+    id: "hoidma-vahet", phrase: "hoia vahet", particle: "vahet", verb: HOI,
+    means: "keep your distance", literal: "hold the gap",
+    parts: ["hold", "gap"],
+    when: "A stranger stands far too close to you on a crowded platform.",
+    sentences: [
+      { lemma: "vahe", et: "Hoia vahet!", run: "Hoia vahet" },
+    ],
+  },
+
+  {
+    id: "poorduma-poole", phrase: "pöördun teie poole", particle: "poole", verb: POO,
+    means: "I am turning to you with a request", literal: "I turn toward you",
+    parts: ["I turn", "your", "toward"],
+    when: "You write a formal email asking an official for help.",
+    sentences: [
+      { lemma: "palve", et: "Pöördun teie poole suure palvega.", run: "Pöördun teie poole" },
+    ],
+  },
+
+  {
+    id: "puhkema-naerma", phrase: "puhkes naerma", particle: "naerma", verb: PHK,
+    means: "burst out laughing", literal: "blossomed into laughing",
+    parts: ["blossomed", "to laugh"],
+    when: "The teacher trips over the bin and the whole room loses it.",
+    sentences: [
+      { lemma: "puhkema", et: "Terve klass puhkes naerma.", run: "puhkes naerma" },
+    ],
+  },
+
+  {
+    id: "viima-keele", phrase: "viib keele alla", particle: "keele", verb: VII,
+    means: "it's delicious", literal: "takes the tongue under",
+    parts: ["takes", "the tongue", "under"],
+    when: "Your grandmother's soup is so good you go back for a third bowl.",
+    sentences: [
+      { lemma: "supp", et: "Vürtsine supp viib keele alla.", run: "viib keele alla" },
+    ],
+  },
+
+  {
+    id: "pidama-meeles", phrase: "pidas meeles", particle: "meeles", verb: PID,
+    means: "remembered", literal: "held in mind",
+    parts: ["held", "in mind"],
+    when: "Your uncle never forgets a birthday.",
+    sentences: [
+      { lemma: "onu", et: "Minu onu Otto pidas iga tähtpäeva meeles.", run: "pidas iga tähtpäeva meeles" },
+    ],
+  },
+
+  {
+    id: "olema-kurat", phrase: "on kurat lahti", particle: "lahti", verb: OLE,
+    means: "all hell has broken loose", literal: "the devil is loose",
+    parts: ["is", "devil", "loose"],
+    when: "The whole class starts shouting at once just as the teacher walks in.",
+    note: "Mild swearing, about as strong as all hell.",
+    sentences: [
+      { lemma: "kurat", et: "No nüüd on kurat lahti.", run: "nüüd on kurat lahti" },
+    ],
+  },
+
+  {
+    id: "tulema-jalust", phrase: "tule jalust ära", particle: "jalust", verb: TUL,
+    means: "get out of the way", literal: "come away from the feet",
+    parts: ["come", "from the feet", "away"],
+    when: "You are standing in the doorway while everyone carries boxes in.",
+    sentences: [
+      { lemma: "ära", et: "Tule teistel jalust ära!", run: "Tule teistel jalust ära" },
+    ],
+  },
+
+  {
+    id: "vedama-veab", phrase: "tal veab", particle: "veab", verb: VED,
+    means: "he is lucky", literal: "to him it pulls",
+    parts: ["to him", "pulls"],
+    when: "Your friend wins the raffle for the third time.",
+    sentences: [
+      { lemma: "vedama", et: "Tal veab alati.", run: "Tal veab alati" },
+    ],
+  },
+
+  {
+    id: "votma-uhendust", phrase: "võttis ühendust", particle: "ühendust", verb: VOT,
+    means: "got in touch", literal: "took contact",
+    parts: ["took", "contact"],
+    when: "You write to the teacher because your child was ill.",
+    sentences: [
+      { lemma: "murelik", et: "Murelik ema võttis ühendust õpetajaga.", run: "võttis ühendust" },
+    ],
+  },
+
+  {
+    id: "tulema-ette", phrase: "tuleb ette", particle: "ette", verb: TUL,
+    means: "it happens, it comes up", literal: "it comes in front",
+    parts: ["comes", "in front"],
+    when: "You make a typo and someone says it can happen to anyone.",
+    sentences: [
+      { lemma: "muidugi", et: "Muidugi tuleb ette näpukaid.", run: "tuleb ette" },
+    ],
+  },
+
+  {
+    id: "tulema-valja", phrase: "tuli välja", particle: "välja", verb: TUL,
+    means: "it turned out", literal: "came out",
+    parts: ["came", "out"],
+    when: "You look into it and the truth is not what you expected.",
+    sentences: [
+      { lemma: "ligi", et: "Tuli välja, et mees on kuuekümne ligi.", run: "Tuli välja" },
+      { lemma: "kobras", et: "Tuli välja, et koprad on ehitanud magistraalkraavi tammi.", run: "Tuli välja" },
+    ],
+  },
+
+  {
+    id: "viima-labi", phrase: "viidi läbi", particle: "läbi", verb: VII,
+    means: "it was carried out", literal: "it was taken through",
+    parts: ["was taken", "through"],
+    when: "The lab runs the experiment exactly as the instructions say.",
+    sentences: [
+      { lemma: "juhend", et: "Katse viidi läbi juhendi järgi.", run: "viidi läbi" },
+      { lemma: "kinnitus", et: "Oma väite kinnituseks viisin läbi uuringu.", run: "viisin läbi" },
+    ],
+  },
+
+  {
+    id: "astuma-tagasi", phrase: "astus tagasi", particle: "tagasi", verb: AST,
+    means: "resigned", literal: "stepped back",
+    parts: ["stepped", "back"],
+    when: "The minister announces they are leaving the post.",
+    sentences: [
+      { lemma: "vahendama", et: "President astus tagasi, vahendab uudisteagentuur.", run: "astus tagasi" },
+      { lemma: "vabandama", et: "Peaminister keeldus nii vabandamast kui tagasi astumast.", run: "tagasi astumast" },
+    ],
+  },
+
+  {
+    id: "veeretama-kaela", phrase: "teiste kaela veeretada", particle: "kaela", verb: VEE,
+    means: "to dump it on others", literal: "to roll onto others' necks",
+    parts: ["others'", "onto the neck", "to roll"],
+    when: "A colleague tries to pass their own mistakes on to the team.",
+    sentences: [
+      { lemma: "kohustus", et: "Ära üritagi oma kohustusi teiste kaela veeretada.", run: "teiste kaela veeretada" },
+    ],
+  },
+
+  {
+    id: "tulema-kulla", phrase: "külla tuleb", particle: "külla", verb: TUL,
+    means: "comes to visit", literal: "comes to the village",
+    parts: ["to the village", "comes"],
+    when: "Your aunt rings to say she is popping round on Sunday afternoon.",
+    sentences: [
+      { lemma: "kellaaeg", et: "Kes nii hilisel kellaajal külla tuleb?", run: "külla tuleb" },
+      { lemma: "tagasihoidlik", et: "Tagasihoidlikul häälel küsis ta, kas võib suvel mulle külla tulla.", run: "mulle külla tulla" },
+    ],
+  },
+
+  {
+    id: "pidama-vastu", phrase: "ei pidanud vastu", particle: "vastu", verb: PID,
+    means: "could not take it, gave out", literal: "did not hold against",
+    parts: ["not", "held", "against"],
+    when: "Your old car breaks down for good on the third long trip in a week.",
+    sentences: [
+      { lemma: "seletama", et: "Arst seletas, et tüdruku süda ja kopsud ei pidanud vastu.", run: "ei pidanud vastu" },
+    ],
+  },
+
+  {
+    id: "viitsima-viitsi", phrase: "ei viitsi", particle: "viitsi", verb: VIT,
+    means: "I can't be bothered", literal: "doesn't bother",
+    parts: ["not", "bother"],
+    when: "You would go to the cinema, but the sofa is too comfortable.",
+    sentences: [
+      { lemma: "viitsima", et: "Läheks kinno, aga ei viitsi.", run: "ei viitsi" },
+      { lemma: "viitsima", et: "Ma ei viitsi praegu poodi minna.", run: "ei viitsi" },
+    ],
+  },
+
+  {
+    id: "kuulama-pealt", phrase: "kuulas pealt", particle: "pealt", verb: KUU,
+    means: "eavesdropped", literal: "listened from above",
+    parts: ["listened", "from above"],
+    when: "A child hides behind the door while the grown-ups talk.",
+    sentences: [
+      { lemma: "jutt", et: "Laps kuulas vanemate juttu pealt.", run: "kuulas vanemate juttu pealt" },
     ],
   },
 
@@ -1551,6 +1393,183 @@ export const SAYINGS: readonly Saying[] = [
     when: "Two friends agree to meet for coffee after work.",
     sentences: [
       { lemma: "sõbranna", et: "Kaks sõbrannat said kokku kohvikus.", run: "said kokku" },
+    ],
+  },
+
+  {
+    id: "leidma-aset", phrase: "leiab aset", particle: "aset", verb: LEI,
+    means: "it takes place", literal: "finds a place",
+    parts: ["finds", "a place"],
+    when: "A football match is scheduled for Sunday afternoon.",
+    sentences: [
+      { lemma: "pühapäev", et: "Järgmine mäng leiab aset pühapäeval, 31. mail.", run: "leiab aset" },
+    ],
+  },
+
+  {
+    id: "vajuma-looja", phrase: "silm vajus looja", particle: "looja", verb: VAJ,
+    means: "he dozed off", literal: "the eye sank to setting",
+    parts: ["eye", "sank", "to setting, like the sun"],
+    when: "Halfway through the film, your grandfather's head nods forward.",
+    sentences: [
+      { lemma: "vajuma", et: "Silm vajus looja.", run: "Silm vajus looja" },
+    ],
+  },
+
+  {
+    id: "tundma-kella", phrase: "kella ei tunne", particle: "kella", verb: TUN,
+    means: "can't tell the time", literal: "doesn't know the clock",
+    parts: ["the clock", "not", "knows"],
+    when: "A six-year-old keeps asking how long it is until the big hand reaches twelve.",
+    sentences: [
+      { lemma: "säga", et: "Leo on lahe säga, aga kella ei tunne.", run: "kella ei tunne" },
+    ],
+  },
+
+  {
+    id: "olema-kaes", phrase: "on käes", particle: "käes", verb: OLE,
+    means: "it is here, it has arrived", literal: "is in the hand",
+    parts: ["is", "in the hand"],
+    when: "The first snow falls and winter has clearly begun.",
+    sentences: [
+      { lemma: "suvi", et: "Suvi on käes.", run: "Suvi on käes" },
+      { lemma: "talv", et: "Talv on käes.", run: "Talv on käes" },
+    ],
+  },
+
+  {
+    id: "pistma-rinda", phrase: "pistis rinda", particle: "rinda", verb: PIS,
+    means: "took on, went head to head with", literal: "stuck the chest",
+    parts: ["stuck", "the chest"],
+    when: "A small local choir dares to sing the same piece as a world-famous one.",
+    sentences: [
+      { lemma: "hiiglane", et: "ERSO pistis rinda muusikamaailma hiiglaste Wagneri ja Bruckneriga.", run: "pistis rinda" },
+    ],
+  },
+
+  {
+    id: "jaama-meelde", phrase: "jääb meelde", particle: "meelde", verb: JAA,
+    means: "you'll remember it", literal: "stays into the mind",
+    parts: ["stays", "into the mind"],
+    when: "Some moments you never forget, however old you get.",
+    sentences: [
+      { lemma: "suudlus", et: "Esimene suudlus jääb elu lõpuni meelde.", run: "jääb elu lõpuni meelde" },
+    ],
+  },
+
+  {
+    id: "tulema-suhu", phrase: "tulid hambad suhu", particle: "suhu", verb: TUL,
+    means: "was teething", literal: "teeth came into the mouth",
+    parts: ["came", "teeth", "into the mouth"],
+    when: "The baby drools all day and chews on everything within reach.",
+    sentences: [
+      { lemma: "suu", et: "Lapsel tulid hambad suhu.", run: "tulid hambad suhu" },
+    ],
+  },
+
+  {
+    id: "surema-vahki", phrase: "suri vähki", particle: "vähki", verb: SUR,
+    means: "died of cancer", literal: "died into crayfish",
+    parts: ["died", "into crayfish"],
+    when: "A long obituary says which illness took the old actor in the end.",
+    note: "The one word names both the animal and the illness, much as Cancer is also a crab in the stars.",
+    sentences: [
+      { lemma: "vähk", et: "Ta suri vähki.", run: "Ta suri vähki" },
+    ],
+  },
+
+  {
+    id: "lugema-labi", phrase: "lugesin läbi", particle: "läbi", verb: LUG,
+    means: "I read it through", literal: "I read through",
+    parts: ["I read", "through"],
+    when: "You finish the whole book in one weekend.",
+    sentences: [
+      { lemma: "läbi lugema", et: "Lugesin raamatu läbi.", run: "Lugesin raamatu läbi" },
+      { lemma: "ümbrik", et: "Ta avas ümbriku ja luges kirja läbi.", run: "luges kirja läbi" },
+    ],
+  },
+
+  {
+    id: "saama-surma", phrase: "surma ei saanud", particle: "surma", verb: SAA,
+    means: "was not killed", literal: "did not get death",
+    parts: ["death", "not", "got"],
+    when: "A bus slides off an icy road and everyone walks away from it.",
+    sentences: [
+      { lemma: "lausa", et: "Lausa ime, et keegi surma ei saanud.", run: "surma ei saanud" },
+    ],
+  },
+
+  {
+    id: "kirjutama-maha", phrase: "kirjutasin maha", particle: "maha", verb: KIR,
+    means: "I copied it", literal: "I wrote down",
+    parts: ["I wrote", "down"],
+    when: "A student keeps glancing at the neighbour's paper during a test.",
+    sentences: [
+      { lemma: "pinginaaber", et: "Kirjutasin kontrolltöö pinginaabrilt maha.", run: "Kirjutasin kontrolltöö pinginaabrilt maha" },
+    ],
+  },
+
+  {
+    id: "tegema-valja", phrase: "ei teinud välja", particle: "välja", verb: TEG,
+    means: "he took no notice", literal: "didn't make out",
+    parts: ["not", "made", "out"],
+    when: "Someone drops a big hint and you pretend not to notice.",
+    sentences: [
+      { lemma: "vihje", et: "Jaan ei teinud vihjest välja.", run: "ei teinud vihjest välja" },
+    ],
+  },
+
+  {
+    id: "panema-lukku", phrase: "suud lukku ei pane", particle: "lukku", verb: PAN,
+    means: "won't shut him up", literal: "won't put the mouth in a lock",
+    parts: ["the mouth", "into a lock", "not", "puts"],
+    when: "No ban can stop a stubborn critic from speaking out.",
+    sentences: [
+      { lemma: "tsensuur", et: "Mingi tsensuur tema suud lukku ei pane.", run: "suud lukku ei pane" },
+    ],
+  },
+
+  {
+    id: "lukkama-umber", phrase: "lükkas ümber", particle: "ümber", verb: LUK,
+    means: "refuted, denied", literal: "pushed over",
+    parts: ["pushed", "over"],
+    when: "A minister faces reporters and says every accusation is false.",
+    note: "It also simply means knocking something over.",
+    sentences: [
+      { lemma: "ümber lükkama", et: "Poliitik lükkas kõik süüdistused ümber.", run: "lükkas kõik süüdistused ümber" },
+      { lemma: "teooria", et: "Teooria lükati ümber.", run: "lükati ümber" },
+    ],
+  },
+
+  {
+    id: "ajama-juttu", phrase: "ajame juttu", particle: "juttu", verb: AJA,
+    means: "let's chat", literal: "we drive talk",
+    parts: ["we drive", "talk"],
+    when: "Over a drink you slow down and simply talk.",
+    sentences: [
+      { lemma: "naps", et: "Võtame napsu ja ajame juttu.", run: "ajame juttu" },
+      { lemma: "tervitama", et: "Tervitasime, aga pikemalt juttu ajama ei jäänud.", run: "juttu ajama" },
+    ],
+  },
+
+  {
+    id: "saama-valmis", phrase: "sai valmis", particle: "valmis", verb: SAA,
+    means: "it got finished", literal: "got ready",
+    parts: ["got", "ready"],
+    when: "The builders finally hand over the new house.",
+    sentences: [
+      { lemma: "alles", et: "Täiesti uus maja, alles sai valmis.", run: "alles sai valmis" },
+      { lemma: "kirjanik", et: "Kirjanikul sai valmis uus teos.", run: "sai valmis" },
+    ],
+  },
+
+  {
+    id: "tombama-hinge", phrase: "hinge tõmbama", particle: "hinge", verb: TOM,
+    means: "to catch your breath", literal: "to pull the soul",
+    parts: ["the soul", "to pull"],
+    when: "Halfway up a steep hill you stop on a bench for a minute.",
+    sentences: [
+      { lemma: "känd", et: "Marjuline istus kännule hinge tõmbama.", run: "hinge tõmbama" },
     ],
   },
 
@@ -1566,12 +1585,348 @@ export const SAYINGS: readonly Saying[] = [
   },
 
   {
-    id: "tulema-jalust", phrase: "tule jalust ära", particle: "jalust", verb: TUL,
-    means: "get out of the way", literal: "come away from the feet",
-    parts: ["come", "from the feet", "away"],
-    when: "You are standing in the doorway while everyone carries boxes in.",
+    id: "minema-kassi", phrase: "mine kassi saba alla", particle: "kassi", verb: GO,
+    means: "go to hell (rude)", literal: "go under the cat's tail",
+    parts: ["go", "cat's", "tail", "under"],
+    when: "In a furious row, one person tells the other exactly where to go.",
+    note: "Rude, and a notch stronger than the other get-lost saying. Good to understand, not to say.",
     sentences: [
-      { lemma: "ära", et: "Tule teistel jalust ära!", run: "Tule teistel jalust ära" },
+      { lemma: "minema", et: "Mine kassi saba alla!", run: "Mine kassi saba alla" },
+    ],
+  },
+
+  {
+    id: "sooma-suu", phrase: "söö suu tühjaks", particle: "tühjaks", verb: SOO,
+    means: "finish chewing before you talk", literal: "eat your mouth empty",
+    parts: ["eat", "mouth", "empty"],
+    when: "A child starts telling a story with a mouth full of bread.",
+    sentences: [
+      { lemma: "sööma", et: "Söö suu tühjaks!", run: "Söö suu tühjaks" },
+    ],
+  },
+
+  {
+    id: "votma-kokku", phrase: "end kokku võtta", particle: "kokku", verb: VOT,
+    means: "to pull yourself together", literal: "to take yourself together",
+    parts: ["oneself", "together", "to take"],
+    when: "You are nervous before the final, but you breathe in and go on.",
+    sentences: [
+      { lemma: "hetk", et: "Otsustaval hetkel suutis meeskond end siiski kokku võtta ja mängu võita.", run: "end siiski kokku võtta" },
+    ],
+  },
+
+  {
+    id: "kusima-kaest", phrase: "küsi käest", particle: "käest", verb: KUS,
+    means: "ask (someone)", literal: "ask from the hand",
+    parts: ["ask", "from the hand"],
+    when: "You do not know the answer, but your neighbour might.",
+    sentences: [
+      { lemma: "ehk", et: "Küsi Mari käest, ehk tema teab.", run: "Küsi Mari käest" },
+      { lemma: "too", et: "Küsis poja käest, kelleks too tahab saada.", run: "Küsis poja käest" },
+    ],
+  },
+
+  {
+    id: "nagema-vaeva", phrase: "näha vaeva", particle: "vaeva", verb: NAG,
+    means: "to make an effort", literal: "to see trouble",
+    parts: ["to see", "trouble"],
+    when: "Finding a flat in town took weeks of searching.",
+    sentences: [
+      { lemma: "liitlane", et: "Liitlaste leidmiseks tuli kõvasti vaeva näha.", run: "vaeva näha" },
+      { lemma: "kõht", et: "Eks lameda kõhu saavutamiseks tule üksjagu vaeva näha.", run: "vaeva näha" },
+    ],
+  },
+
+  {
+    id: "kuluma-aega", phrase: "kulus aega", particle: "aega", verb: KUL,
+    means: "it took time", literal: "wore time",
+    parts: ["wore", "time"],
+    when: "The job took far longer than planned.",
+    sentences: [
+      { lemma: "tegelikult", et: "Tegelikult kulus töö peale aega rohkem, kui oli planeeritud.", run: "kulus töö peale aega" },
+    ],
+  },
+
+  {
+    id: "tasuma-ara", phrase: "tasus end ära", particle: "ära", verb: TAS,
+    means: "it paid off", literal: "paid itself away",
+    parts: ["paid", "itself", "away"],
+    when: "You waited a long time, but the result was worth it.",
+    sentences: [
+      { lemma: "kannatlik", et: "Kannatlik ootamine tasus end ära.", run: "tasus end ära" },
+    ],
+  },
+
+  {
+    id: "jaama-hinge", phrase: "jäi hinge", particle: "hinge", verb: JAA,
+    means: "it stayed with me, it lingered", literal: "stayed into the soul",
+    parts: ["stayed", "into the soul"],
+    when: "Long after the film ends, one sad scene keeps coming back to you.",
+    sentences: [
+      { lemma: "helge", et: "Hinge jäi helge tunne.", run: "Hinge jäi" },
+      { lemma: "jääma", et: "Mure jäi hinge.", run: "Mure jäi hinge" },
+    ],
+  },
+
+  {
+    id: "olema-nalg", phrase: "on nälg", particle: "nälg", verb: OLE,
+    means: "I am hungry", literal: "there is hunger",
+    parts: ["is", "hunger"],
+    when: "It is noon and your stomach is rumbling.",
+    sentences: [
+      { lemma: "nälg", et: "Mul on nälg.", run: "Mul on nälg" },
+      { lemma: "hirmus", et: "Mul on hirmus nälg.", run: "Mul on hirmus nälg" },
+    ],
+  },
+
+  {
+    id: "olema-sotid", phrase: "head sotid", particle: "sotid", verb: OLE,
+    means: "on good terms", literal: "good dealings",
+    parts: ["good", "dealings"],
+    when: "You and the neighbours swap keys and water each other's plants.",
+    sentences: [
+      { lemma: "sott", et: "Mul on nendega väga head sotid.", run: "on nendega väga head sotid" },
+    ],
+  },
+
+  {
+    id: "laskma-maha", phrase: "lasi maha", particle: "maha", verb: LAS,
+    means: "shot dead", literal: "let down",
+    parts: ["let", "down"],
+    when: "A hunter brings down a bear in the forest.",
+    sentences: [
+      { lemma: "jahimees", et: "Jahimees lasi karu maha.", run: "lasi karu maha" },
+      { lemma: "jahimees", et: "Jahimehed lasid metsas karu maha.", run: "lasid metsas karu maha" },
+    ],
+  },
+
+  {
+    id: "puhuma-juttu", phrase: "juttu puhuma", particle: "juttu", verb: PUH,
+    means: "to chat", literal: "to blow talk",
+    parts: ["talk", "to blow"],
+    when: "At the break, colleagues gather round the coffee machine.",
+    sentences: [
+      { lemma: "kohvitass", et: "Kolleegid kogunesid kohvitassi taha juttu puhuma.", run: "juttu puhuma" },
+    ],
+  },
+
+  {
+    id: "panema-toole", phrase: "panin tööle", particle: "tööle", verb: PAN,
+    means: "I switched it on, I got it running", literal: "I put to work",
+    parts: ["I put", "to work"],
+    when: "You press the button and the coffee machine starts to hum.",
+    sentences: [
+      { lemma: "kohvimasin", et: "Panin kohvimasina tööle.", run: "Panin kohvimasina tööle" },
+      { lemma: "kepp", et: "Keppidega kõndimine paneb tööle kogu keha.", run: "paneb tööle" },
+    ],
+  },
+
+  {
+    id: "panema-kirja", phrase: "pane kirja", particle: "kirja", verb: PAN,
+    means: "get it down on paper", literal: "put it into a letter",
+    parts: ["put", "into a letter"],
+    when: "Your grandmother tells a family story you have never heard before.",
+    sentences: [
+      { lemma: "lugu", et: "Pane see lugu kirja.", run: "Pane see lugu kirja" },
+      { lemma: "ununema", et: "Et asi ei ununeks, panin selle kirja.", run: "panin selle kirja" },
+    ],
+  },
+
+  {
+    id: "tulema-jarele", phrase: "tulen järele", particle: "järele", verb: TUL,
+    means: "I'll catch you up", literal: "I come after",
+    parts: ["I come", "after"],
+    when: "Friends set off for the café while you finish one last email.",
+    sentences: [
+      { lemma: "järele", et: "Minge ees, ma tulen pärast järele.", run: "tulen pärast järele" },
+    ],
+  },
+
+  {
+    id: "pidama-paika", phrase: "peab paika", particle: "paika", verb: PID,
+    means: "holds true", literal: "holds in place",
+    parts: ["holds", "in place"],
+    when: "An odd old rule of thumb about the weather turns out to be right.",
+    sentences: [
+      { lemma: "võrdlus", et: "Võib tunduda kohatu võrdlusena, kuid peab ometi paika.", run: "peab ometi paika" },
+    ],
+  },
+
+  {
+    id: "panema-kinni", phrase: "pane kinni", particle: "kinni", verb: PAN,
+    means: "shut it, switch it off", literal: "put shut",
+    parts: ["put", "shut"],
+    when: "There is a draught from the window and the television is far too loud.",
+    sentences: [
+      { lemma: "kinni", et: "Pane aken kinni!", run: "Pane aken kinni" },
+      { lemma: "televiisor", et: "Pane televiisor kinni.", run: "Pane televiisor kinni" },
+    ],
+  },
+
+  {
+    id: "olema-pinnuks", phrase: "pinnuks silmas", particle: "pinnuks", verb: OLE,
+    means: "a thorn in someone's side", literal: "a splinter in the eye",
+    parts: ["as a splinter", "in the eye"],
+    when: "An honest journalist keeps annoying the people in power.",
+    sentences: [
+      { lemma: "otsekohesus", et: "Oma aususe ja otsekohesusega on ta nii mõnelegi pinnuks silmas.", run: "on ta nii mõnelegi pinnuks silmas" },
+    ],
+  },
+
+  {
+    id: "tulema-pahe", phrase: "pähe tuleb", particle: "pähe", verb: TUL,
+    means: "comes to mind", literal: "comes into the head",
+    parts: ["into the head", "comes"],
+    when: "A bored toddler wants to try every wild idea at once.",
+    sentences: [
+      { lemma: "laskma", et: "Ära lase lapsel teha kõike, mis pähe tuleb.", run: "pähe tuleb" },
+    ],
+  },
+
+  {
+    id: "seadma-jalule", phrase: "seati jalule", particle: "jalule", verb: SEA,
+    means: "was restored", literal: "was set onto the feet",
+    parts: ["was set", "onto the feet"],
+    when: "After years of war the courts start working fairly again.",
+    sentences: [
+      { lemma: "õiglus", et: "Õiglus seati jalule ja põgenikud võisid koju tagasi pöörduda.", run: "Õiglus seati jalule" },
+    ],
+  },
+
+  {
+    id: "ajama-habet", phrase: "ajab habet", particle: "habet", verb: AJA,
+    means: "he shaves", literal: "drives the beard",
+    parts: ["drives", "beard"],
+    when: "Dad stands at the bathroom mirror with a razor.",
+    sentences: [
+      { lemma: "pardel", et: "Isa ajab habet pardliga.", run: "ajab habet" },
+      { lemma: "žilett", et: "Mees ajab habet žiletiga.", run: "ajab habet" },
+    ],
+  },
+
+  {
+    id: "saama-vihma", phrase: "vihma käes", particle: "käes", verb: SAA,
+    means: "out in the rain", literal: "in the rain's hand",
+    parts: ["rain's", "in the hand"],
+    when: "You forgot your umbrella and walked home in a downpour.",
+    sentences: [
+      { lemma: "märg", et: "Sain vihma käes üleni märjaks.", run: "Sain vihma käes" },
+    ],
+  },
+
+  {
+    id: "saama-katte", phrase: "saime kätte", particle: "kätte", verb: SAA,
+    means: "we got hold of it", literal: "we got into the hand",
+    parts: ["we got", "into the hand"],
+    when: "After a short wait you finally have the tickets in your hand.",
+    sentences: [
+      { lemma: "lühida", et: "Pärast lühidat järjekorras seismist saime piletid kätte.", run: "saime piletid kätte" },
+      { lemma: "kannatamatu", et: "Olen pisut kannatamatu ja tahan kõike kohe kätte saada.", run: "kätte saada" },
+    ],
+  },
+
+  {
+    id: "kirjutama-ules", phrase: "kirjuta üles", particle: "üles", verb: KIR,
+    means: "write it down", literal: "write up",
+    parts: ["write", "up"],
+    when: "A stranger tells you their number and you grab a pen.",
+    sentences: [
+      { lemma: "telefoninumber", et: "Kirjuta mu aadress ja telefoninumber üles.", run: "Kirjuta mu aadress ja telefoninumber üles" },
+      { lemma: "hääldus", et: "Kirjutasin ta nime häälduse järgi üles.", run: "Kirjutasin ta nime häälduse järgi üles" },
+    ],
+  },
+
+  {
+    id: "panema-jalga", phrase: "panin jalga", particle: "jalga", verb: PAN,
+    means: "I put on (shoes, trousers)", literal: "I put into the leg",
+    parts: ["I put", "onto the leg"],
+    when: "You are leaving the house and slip on your shoes.",
+    sentences: [
+      { lemma: "sandaal", et: "Panin sandaalid jalga.", run: "Panin sandaalid jalga" },
+      { lemma: "mugav", et: "Pange jalga mugavad jalanõud.", run: "Pange jalga" },
+    ],
+  },
+
+  {
+    id: "jaksama-jaksa", phrase: "ei jaksa", particle: "jaksa", verb: JAK,
+    means: "I have no strength left", literal: "doesn't have the strength",
+    parts: ["not", "has strength"],
+    when: "At the end of a long run your legs simply give up.",
+    sentences: [
+      { lemma: "kõndima", et: "Ma ei jaksa enam joosta, kõnnime!", run: "ei jaksa" },
+    ],
+  },
+
+  {
+    id: "maksma-kinni", phrase: "maksis kinni", particle: "kinni", verb: MAK,
+    means: "covered the cost", literal: "paid shut",
+    parts: ["paid", "shut"],
+    when: "Your insurance pays for the repair, so you do not have to.",
+    sentences: [
+      { lemma: "kindlustus", et: "Kindlustus maksis auto parandamise kinni.", run: "maksis auto parandamise kinni" },
+      { lemma: "tellija", et: "Vraki tõstekulud peab kinni maksma tööde tellija.", run: "kinni maksma" },
+    ],
+  },
+
+  {
+    id: "joudma-jarele", phrase: "ei jõua järele", particle: "järele", verb: JOU,
+    means: "can't keep up", literal: "don't reach after",
+    parts: ["not", "reach", "after"],
+    when: "Your tall friend strides off and the children trot behind.",
+    sentences: [
+      { lemma: "käima", et: "Käi natuke aeglasemalt, me ei jõua järele.", run: "ei jõua järele" },
+    ],
+  },
+
+  {
+    id: "hiilima-korvale", phrase: "kõrvale hiilida", particle: "kõrvale", verb: HII,
+    means: "to dodge, to sidestep", literal: "to sneak to the side",
+    parts: ["to the side", "to sneak"],
+    when: "Someone asks how much you earn and you change the subject.",
+    sentences: [
+      { lemma: "naljatama", et: "Üritasin naljatades sügavamast vestlusest kõrvale hiilida.", run: "kõrvale hiilida" },
+    ],
+  },
+
+  {
+    id: "tulema-mote", phrase: "tuli mõte", particle: "mõte", verb: TUL,
+    means: "I had an idea", literal: "a thought came",
+    parts: ["came", "a thought"],
+    when: "In the shower, the answer to yesterday's problem suddenly pops into your head.",
+    sentences: [
+      { lemma: "mõte", et: "Mulle tuli üks mõte.", run: "tuli üks mõte" },
+    ],
+  },
+
+  {
+    id: "looma-ara", phrase: "lõin ära", particle: "ära", verb: LOO,
+    means: "I banged it (and it hurts)", literal: "I hit away",
+    parts: ["I hit", "away"],
+    when: "You walk into the coffee table in the dark.",
+    sentences: [
+      { lemma: "kivi", et: "Lõin varba vastu kivi ära.", run: "Lõin varba vastu kivi ära" },
+      { lemma: "küünarnukk", et: "Lõin küünarnuki valusasti ära.", run: "Lõin küünarnuki valusasti ära" },
+    ],
+  },
+
+  {
+    id: "jaama-vahele", phrase: "jäid vahele", particle: "vahele", verb: JAA,
+    means: "they got caught", literal: "they stayed between",
+    parts: ["stayed", "between"],
+    when: "Two boys are caught by the police doing what they should not.",
+    note: "The sentence uses slang for the police.",
+    sentences: [
+      { lemma: "ment", et: "Poisid jäid mentidele vahele.", run: "jäid mentidele vahele" },
+    ],
+  },
+
+  {
+    id: "ajama-taga", phrase: "ajab taga", particle: "taga", verb: AJA,
+    means: "chases", literal: "drives behind",
+    parts: ["drives", "behind"],
+    when: "A puppy runs round the garden after a ball.",
+    sentences: [
+      { lemma: "pall", et: "Kutsikas ajab palli taga.", run: "ajab palli taga" },
     ],
   },
 
@@ -1586,12 +1941,64 @@ export const SAYINGS: readonly Saying[] = [
   },
 
   {
-    id: "tulema-ette", phrase: "tuleb ette", particle: "ette", verb: TUL,
-    means: "it happens, it comes up", literal: "it comes in front",
-    parts: ["comes", "in front"],
-    when: "You make a typo and someone says it can happen to anyone.",
+    id: "jatma-pooleli", phrase: "jättis pooleli", particle: "pooleli", verb: JAT,
+    means: "dropped out, left it unfinished", literal: "left it at half",
+    parts: ["left behind", "at half"],
+    when: "Your cousin quits university in the second year to start a band.",
     sentences: [
-      { lemma: "muidugi", et: "Muidugi tuleb ette näpukaid.", run: "tuleb ette" },
+      { lemma: "ülikool", et: "Ta jättis ülikooli pooleli.", run: "jättis ülikooli pooleli" },
+    ],
+  },
+
+  {
+    id: "istuma-selga", phrase: "istusin jalgratta selga", particle: "selga", verb: IST,
+    means: "I got on my bike", literal: "I sat onto the bike's back",
+    parts: ["I sat", "bike's", "onto the back"],
+    when: "The meeting ends and you head out to ride home on two wheels.",
+    sentences: [
+      { lemma: "jalgratas", et: "Istusin jalgratta selga ja sõitsin koju.", run: "Istusin jalgratta selga" },
+    ],
+  },
+
+  {
+    id: "rahunema-maha", phrase: "rahuned maha", particle: "maha", verb: RAH,
+    means: "you'll calm down", literal: "you calm onto the ground",
+    parts: ["you calm", "onto the ground"],
+    when: "Your friend is shaking with anger after a row with the landlord.",
+    note: "The sentence uses slang for a smoke.",
+    sentences: [
+      { lemma: "tobi", et: "Tõmba parem üks tobi ja rahuned maha kohe.", run: "rahuned maha" },
+    ],
+  },
+
+  {
+    id: "tulema-toime", phrase: "tulla toime", particle: "toime", verb: TUL,
+    means: "to cope", literal: "to come to action",
+    parts: ["to come", "to action"],
+    when: "A friend asks how you manage in a city where you know no one.",
+    sentences: [
+      { lemma: "harjumuspärane", et: "Harjumuspärases keskkonnas on lihtsam toime tulla.", run: "toime tulla" },
+    ],
+  },
+
+  {
+    id: "pudenema-kaest", phrase: "pudenes käest", particle: "käest", verb: PUD,
+    means: "it slipped through my fingers", literal: "crumbled out of the hand",
+    parts: ["crumbled", "out of the hand"],
+    when: "You waited too long to apply and the job went to someone else.",
+    sentences: [
+      { lemma: "pudenema", et: "Suur võimalus pudenes käest.", run: "pudenes käest" },
+    ],
+  },
+
+  {
+    id: "paistma-silma", phrase: "paistsid silma", particle: "silma", verb: PAI,
+    means: "they stood out", literal: "shone into the eye",
+    parts: ["shone", "into the eye"],
+    when: "One team plays so well that everyone talks about them afterwards.",
+    sentences: [
+      { lemma: "enam", et: "Kõige enam paistsid silma meie sportlased.", run: "paistsid silma" },
+      { lemma: "ladus", et: "Üritus on silma paistnud ka ladusa korralduse poolest.", run: "silma paistnud" },
     ],
   },
 

@@ -554,7 +554,7 @@ function UnpackCard({
             <p className="say-stamp mt-1 inline-block rounded-md border-2 px-4 py-1.5 text-2xl font-bold" style={{ borderColor: "var(--accent-deep)", color: "var(--accent-deep)", background: "var(--accent-soft)" }}>
               {t(step.means)}
             </p>
-            <p className="pop-in mt-3 inline-flex items-center gap-1.5 text-md font-semibold" style={{ color: right ? VERDICT_INK.right : "var(--ink-2)" }}>
+            <p className="pop-in mt-3 flex items-center justify-center gap-1.5 text-md font-semibold" style={{ color: right ? VERDICT_INK.right : "var(--ink-2)" }}>
               {right ? <Check size={16} aria-hidden /> : null}
               {right ? t("You guessed it!") : t("Tricky one. Most people read it word for word.")}
             </p>
