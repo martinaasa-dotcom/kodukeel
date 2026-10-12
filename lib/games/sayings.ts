@@ -36,8 +36,12 @@ export interface ResolvedSentence {
   readonly en: string | null;
   /** The stretch of it that is the saying. */
   readonly run: string;
-  /** The entry it hangs off, so a missing translation can be asked for and stored. */
-  readonly lexemeId: string;
+  /**
+   * The entry it hangs off, so a missing translation can be asked for and
+   * stored. Null for a sentence the dictionary never kept (`lib/dict/sayingUsages.ts`),
+   * which ships with its English and has no row to hang a translation on.
+   */
+  readonly lexemeId: string | null;
 }
 
 /** A saying together with the sentences the live dictionary still holds for it. */

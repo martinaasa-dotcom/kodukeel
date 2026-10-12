@@ -25491,6 +25491,15 @@ check("the English of a shipped sentence is built once and read in one place", (
         that holds the sentence answers for it and this is never asked.
       */
       "lib/dict/examples.ts",
+      /*
+        And the sentences the Väljendid round needs that the dictionary never
+        kept, which `npm run harvest:sayings` checked against Ekilex. They are
+        shown to a learner, so they are read from the same sentence-keyed table
+        as every other, and `lib/estonian/sayings.test.ts` asserts each one
+        ships its line before the round may name it.
+      */
+      "lib/dict/sayingUsages.ts",
+      "lib/estonian/sayings.test.ts",
     ].sort(),
     "somebody else reads the shipped translations. lib/dict/exampleEnglish.ts is the one table and " +
     "there are four places a sentence is written down: the two halves of the seed, the repair that " +

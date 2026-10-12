@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { parseExamples } from "@/lib/dict/examples";
+import { isVerifiedSayingUsage, sayingUsageEnglish } from "@/lib/dict/sayingUsages";
 import type { Saying } from "@/lib/estonian/sayings";
 import type { PlayableSaying, ResolvedSentence } from "@/lib/games/sayings";
 
@@ -14,6 +15,12 @@ import type { PlayableSaying, ResolvedSentence } from "@/lib/games/sayings";
  * dictionary no longer holds is dropped rather than drawn from the text in the
  * table: the file is a request against the dictionary and the dictionary is
  * the authority (ADR-005).
+ *
+ * A SENTENCE THE DICTIONARY NEVER KEPT is read from `prisma/data/saying-usages.json`
+ * instead, where `npm run harvest:sayings` wrote down that Ekilex records it.
+ * The dictionary wins when it holds the sentence, so the file's entry stops
+ * mattering the day a reseed brings it in, and a screen reads the same
+ * English table either way.
  *
  * ONE QUERY PER SITTING, whatever the set holds: the lemmas of every sentence
  * go into a single `findMany`. Ordered by id, because a lemma can carry two
@@ -44,9 +51,13 @@ export function resolveSayings(
   }
   const out: PlayableSaying[] = [];
   for (const saying of set) {
-    const sentences: ResolvedSentence[] = saying.sentences.flatMap((pin) => {
+    const sentences: ResolvedSentence[] = saying.sentences.flatMap((pin): ResolvedSentence[] => {
       const hit = found.get(pin.et);
-      return hit ? [{ et: pin.et, en: hit.en, run: pin.run, lexemeId: hit.id }] : [];
+      if (hit) return [{ et: pin.et, en: hit.en, run: pin.run, lexemeId: hit.id }];
+      if (isVerifiedSayingUsage(pin.lemma, pin.et)) {
+        return [{ et: pin.et, en: sayingUsageEnglish(pin.et), run: pin.run, lexemeId: null }];
+      }
+      return [];
     });
     const [first, ...rest] = sentences;
     if (first) out.push({ saying, sentences: [first, ...rest] });

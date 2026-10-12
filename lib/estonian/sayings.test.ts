@@ -13,6 +13,8 @@ import { describe, expect, it } from "vitest";
 import { naturalSentence } from "./cloze";
 import { MIN_SET, SAYINGS, SET_SIZE, sayingSet, setCount, wordsOf } from "./sayings";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
+import { allSayingUsages } from "../dict/sayingUsages";
+import { englishFor } from "../dict/exampleEnglish";
 
 const RECORDED_UNDER = new Map<string, Set<string>>();
 /** The English the shipped dictionary carries against a sentence, as the seed joins it. */
@@ -24,8 +26,18 @@ for (const row of dictionaryRows()) {
   }
 }
 
+/*
+  The few the dictionary never kept, which `npm run harvest:sayings` checked
+  against Ekilex itself. They count as recorded under their entry, and their
+  English is the same sentence-keyed table everything else reads.
+*/
+for (const { lemma, et } of allSayingUsages()) {
+  (RECORDED_UNDER.get(et) ?? RECORDED_UNDER.set(et, new Set()).get(et)!).add(lemma);
+  const en = englishFor(et);
+  if (en) ENGLISH.set(et, en);
+}
+
 const allSentences = SAYINGS.flatMap((s) => s.sentences.map((sentence) => ({ saying: s, sentence })));
-const GO = /^(l[äa](h|k|in)|min)/;
 
 describe("sayings", () => {
   it("has sayings to check", () => {
@@ -33,7 +45,7 @@ describe("sayings", () => {
     expect(allSentences.length).toBeGreaterThan(SAYINGS.length);
   });
 
-  it("pins only sentences the shipped dictionary holds, under the entry it names", () => {
+  it("pins only sentences the shipped dictionary or the checked file holds, under the entry it names", () => {
     const missing = allSentences
       .filter(({ sentence }) => !RECORDED_UNDER.get(sentence.et)?.has(sentence.lemma))
       .map(({ saying, sentence }) => `${saying.id}: ${sentence.et} (${sentence.lemma})`);
@@ -58,7 +70,7 @@ describe("sayings", () => {
       const after = sentence.et[at + sentence.run.length] ?? " ";
       const whole = at >= 0 && !/[\p{L}\p{N}]/u.test(before) && !/[\p{L}\p{N}]/u.test(after);
       const words = wordsOf(sentence.run);
-      if (!whole || !words.includes(saying.particle) || !words.some((w) => GO.test(w))) bad.push(`${saying.id}: ${sentence.et}`);
+      if (!whole || !words.includes(saying.particle) || !words.some((w) => saying.verb.test(w))) bad.push(`${saying.id}: ${sentence.et}`);
     }
     expect(bad).toEqual([]);
   });
@@ -79,11 +91,26 @@ describe("sayings", () => {
     expect(bad).toEqual([]);
   });
 
-  it("gives every saying its own id, its own word and its own meaning", () => {
-    for (const key of ["id", "particle", "means", "phrase"] as const) {
+  it("gives every saying its own id, its own meaning and its own phrase", () => {
+    for (const key of ["id", "means", "phrase"] as const) {
       const values = SAYINGS.map((s) => s[key].toLowerCase());
       expect(new Set(values).size, key).toBe(values.length);
     }
+  });
+
+  it("never puts two sayings with one blanked word in the same sitting", () => {
+    // `kinni` is in four of them and that is the language. A sitting offers each
+    // saying's word as a wrong answer to the others, so two of one word in a
+    // sitting would make two right answers to one blank.
+    const clashes: string[] = [];
+    for (let n = 0; n < setCount(); n++) {
+      const seen = new Set<string>();
+      for (const s of sayingSet(n)) {
+        if (seen.has(s.particle.toLowerCase())) clashes.push(`set ${n}: ${s.particle}`);
+        seen.add(s.particle.toLowerCase());
+      }
+    }
+    expect(clashes).toEqual([]);
   });
 
   it("writes the English in English", () => {
