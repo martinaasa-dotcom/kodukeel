@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { useQueueGrades } from "@/components/round/useGrade";
 import { Timer, Trophy } from "lucide-react";
 import { recordMatchGrades, recordMatchTime } from "@/app/actions";
@@ -257,7 +258,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
         <WayOut className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/practice">{t("Try something else")}</ButtonLink>
           <ButtonLink href="/">{t("Back to Today")}</ButtonLink>
-          <ButtonLink href="/review/match" variant="primary">{t("Another round")}</ButtonLink>
+          <AnotherRound variant="primary">{t("Another round")}</AnotherRound>
         </WayOut>
       </div>
     );

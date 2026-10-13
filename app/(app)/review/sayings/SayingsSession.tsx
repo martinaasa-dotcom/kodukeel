@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AnotherRound } from "@/components/round/AnotherRound";
+import { markSayingsServed } from "@/app/actions";
 import { ArrowRight, Check, Flame, MessageCircle, TriangleAlert, X } from "lucide-react";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
@@ -52,10 +54,8 @@ type Phase = "see" | "match" | "fit" | "fill" | "done";
  *
  * Nothing is written to the review log: a saying is not a card (see the page).
  */
-export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
+export function SayingsSession({ plan: initial, canTranslate }: {
   plan: SayingsPlan | null;
-  /** The sitting "another set" opens. */
-  nextSet: number;
   canTranslate: boolean;
 }) {
   const t = useT();
@@ -96,6 +96,22 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
   }, []);
 
   useEffect(() => () => { if (wrongTimer.current) clearTimeout(wrongTimer.current); }, []);
+
+  /*
+    WHAT WAS SHOWN IS WRITTEN DOWN WHEN THE SITTING STARTS.
+
+    So "Another set" deals five the learner has not met (`lib/games/sayingsDeal.ts`).
+    Here rather than on the page, because a page renders on a hover as well and
+    a set merely hovered over is not a set anybody saw; the session mounts only
+    once the briefing is pressed. A write that does not land costs a repeat,
+    never the round, so it is caught and let go.
+  */
+  const marked = useRef(false);
+  useEffect(() => {
+    if (marked.current || !initial) return;
+    marked.current = true;
+    markSayingsServed(initial.see.map((s) => s.id)).catch(() => {});
+  }, [initial]);
 
   const step: SeeStep | undefined = plan?.see[seeAt];
   const allTapped = step ? tapped.size >= step.words.length : false;
@@ -282,7 +298,6 @@ export function SayingsSession({ plan: initial, nextSet, canTranslate }: {
         guessed={guessedFirst.size}
         firstTime={total - slipped.size}
         best={best}
-        nextSet={nextSet}
       />
     );
   }
@@ -808,12 +823,11 @@ function FillCard({ question, picked, revealed, streak, isLast, canTranslate, on
  * front and the crossed-out literal with the real meaning on the back, so
  * the last thing done is one more recall rather than a list to read.
  */
-function DoneScreen({ plan, guessed, firstTime, best, nextSet }: {
+function DoneScreen({ plan, guessed, firstTime, best }: {
   plan: SayingsPlan;
   guessed: number;
   firstTime: number;
   best: number;
-  nextSet: number;
 }) {
   const t = useT();
   const total = plan.see.length;
@@ -869,7 +883,7 @@ function DoneScreen({ plan, guessed, firstTime, best, nextSet }: {
       </div>
       <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
         <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
-        <ButtonLink href={`/review/sayings?set=${nextSet}`} variant="primary" size="lg">{t("Another set")}</ButtonLink>
+        <AnotherRound variant="primary" size="lg">{t("Another set")}</AnotherRound>
       </WayOut>
     </div>
   );

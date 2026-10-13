@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, Ear, Loader2, Volume2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
@@ -224,7 +225,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/pairs">{t("Another round")}</ButtonLink>
+          <AnotherRound>{t("Another round")}</AnotherRound>
           <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>

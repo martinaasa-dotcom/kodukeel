@@ -1,6 +1,7 @@
 "use client";
 
 import { createRef, useMemo, useRef, useState, type RefObject } from "react";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { Check, CircleAlert, Loader2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -163,7 +164,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/describe">{t("Another round")}</ButtonLink>
+          <AnotherRound>{t("Another round")}</AnotherRound>
           <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>

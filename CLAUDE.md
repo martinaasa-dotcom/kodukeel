@@ -7117,6 +7117,21 @@ invariant fails on any other export reaching for `gradeCard`. And a run is close
 closes it with a compare-and-set on `endedAt`, driven four times at once against a real database,
 so two presses of the finish grade one set rather than two.
 
+**"Another round" is a new address and a new mount, or it does nothing.** Sixteen rounds ended on a
+link to the page they were on, Väljendid's "Another set" among them, and measured in a browser not
+one of them started a new round: a soft navigation to the same route keeps every client component
+whose place in the tree holds still, so the board, the clock and the finished screen stayed exactly
+where they were. `AnotherRound` is the one way to another round and types no path: it builds
+`againHref`, the same page with `round` one higher, and `BeforeYouStart` draws its round through
+`FreshRound`, keyed on that parameter, so the new round mounts and the briefing is not shown twice
+(`lib/ux/again.ts`). An invariant fails on any client screen linking bare to its own page, with a
+written exemption list checked both ways. **And Väljendid deals from what the learner has been
+shown**: `lib/games/sayingsDeal.ts` takes five unseen sayings at random from the front of the list,
+nothing comes back until every saying has been shown, and a new pass never opens with the sitting
+that closed the last one. Which sayings were shown is stored (`SETTING_KEYS.sayingsServed`), because
+a saying writes no review, and written when a sitting starts rather than when the page renders, since
+a page renders on a hover as well.
+
 **And a round that grades in bulk sends the round once, not a request per card.** `gradeCard` is a
 Server Action, so every call is a POST, a session read, a card lookup, a write and a
 `revalidatePath`. Match finished its board by looping over its pairs and awaiting one each, which
@@ -11853,7 +11868,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `OPENS_WITHOUT_BRIEFING`, `recordMatchGrades`, `matchGrades`, `awaitsGradeInLoop`, `tonightSteps`, `useModuleSteps`,
 `ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`, `withoutFarewell`,
 `withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`, `shrugFits`, `priceAsked`, `SAYS_FIRST`, `isFarewell`,
-`planTurn`, `speakTurn`, `composeTurn`, `harnessModel`, `asksTheirQuestion`.
+`planTurn`, `speakTurn`, `composeTurn`, `harnessModel`, `asksTheirQuestion`, `againHref`,
+`FreshRound`, `AnotherRound`, `dealSayings`, `afterServing`, `markSayingsServed`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

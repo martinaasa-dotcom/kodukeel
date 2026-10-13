@@ -40,7 +40,7 @@ page.on("console", (m) => {
 // behind the panel not answering the key the panel names, which two of the
 // fifteen rounds drawing it did: 60, and one for the round's own undo standing
 // down beside the panel the way its key already did: 61.
-const { check, absent, done } = suite("Practice modes", { floor: 64 });
+const { check, absent, done } = suite("Practice modes", { floor: 66 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -877,6 +877,43 @@ const manifestBody = await manifest.json();
 check("a web app manifest is served", manifest.ok() && /kodukeel/i.test(manifestBody.name));
 const sw = await page.request.get(`${B}/sw.js`);
 check("the service worker is served", sw.ok());
+
+// 9 — "Another round" starts another round (lib/ux/again.ts)
+/*
+  Sixteen rounds ended on a link to their own page and none of them did
+  anything: the round on screen was the round that had ended. A new `round`
+  in the address has to mount a new one. Asked of Match, whose start card is
+  the round's own first screen, so a fresh mount is visible as that card coming
+  back, and of a briefed round, where it is the first step coming back without
+  the briefing a second time. Driven through the router rather than by playing
+  a round to the end, because the link half is the invariant's.
+*/
+await page.goto(`${B}/review/match`);
+const matchStart = page.getByRole("button", { name: /Start the clock/ });
+if (await matchStart.count()) {
+  await matchStart.click();
+  await page.waitForTimeout(400);
+  await page.evaluate(() => window.next.router.push("/review/match?round=1"));
+  await page.getByRole("button", { name: /Start the clock/ }).waitFor({ timeout: 10_000 }).catch(() => {});
+  check("another round of Match is a new board, not the one that ended",
+    (await page.getByRole("button", { name: /Start the clock/ }).count()) > 0);
+} else {
+  absent(1, "Match had too few words to deal a board, so there was no round to start again");
+}
+await page.goto(`${B}/review/sayings`);
+if (await page.locator("[data-briefing-start]").count()) {
+  await page.locator("[data-briefing-start]").click();
+  await page.waitForTimeout(400);
+  const before = await page.locator("main").innerText();
+  await page.evaluate(() => window.next.router.push("/review/sayings?round=1"));
+  await page.waitForFunction((was) => document.querySelector("main")?.innerText !== was, before, { timeout: 10_000 }).catch(() => {});
+  const after = await page.locator("main").innerText();
+  check("another set of Väljendid opens new sayings at the first step, with no second briefing",
+    after !== before && /1 of \d/.test(after) && (await page.locator("[data-briefing-start]").count()) === 0,
+    after.slice(0, 120).replace(/\n/g, " | "));
+} else {
+  absent(1, "Väljendid dealt no sitting on this database");
+}
 
 console.log(errors.length ? `\nconsole/page errors:\n  ${errors.join("\n  ")}` : "\nno console errors");
 await browser.close();

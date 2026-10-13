@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { Check, Keyboard, Map as MapIcon, X } from "lucide-react";
 import { useT } from "@/components/Locale";
 import { Button, ButtonLink } from "@/components/Button";
@@ -205,7 +206,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/practice" size="lg">Back to practice</ButtonLink>
-          <ButtonLink href="/review/map" variant="primary" size="lg">Play again</ButtonLink>
+          <AnotherRound variant="primary" size="lg">Play again</AnotherRound>
         </WayOut>
       </div>
     );

@@ -209,6 +209,19 @@ export function DictionaryClient({
   const t = useT();
   const locale = useLocale();
   const [query, setQuery] = useState(initialQuery);
+  /*
+    The box follows the address. A spelling suggestion and the back button
+    both change `?q=` on this same page, and React keeps this component and
+    its state through that, so the entry below changed while the box went on
+    showing what was typed before. Adjusted during render, which is React's
+    own shape for state that follows a prop (`lib/ux/again.ts` is the same
+    fault on a round).
+  */
+  const [shownFor, setShownFor] = useState(initialQuery);
+  if (shownFor !== initialQuery) {
+    setShownFor(initialQuery);
+    setQuery(initialQuery);
+  }
   const [pending, start] = useTransition();
 
   const showingEntry = entry !== null;

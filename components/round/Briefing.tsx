@@ -9,6 +9,7 @@ import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey
 import { briefingFor, type BriefingId } from "@/lib/copy/briefings";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
+import { FreshRound } from "@/components/round/FreshRound";
 
 /**
  * THE SCREEN A ROUND OPENS ON, AND THE ROUND IS NOT BEHIND IT YET.
@@ -99,7 +100,10 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
     return () => window.removeEventListener("keydown", onKey);
   }, [started]);
 
-  if (started || !brief) return <>{children}</>;
+  /* The round mounts again for "Another round", whose link names a new
+     `round`; this component stays put, so the briefing is not shown twice
+     (`lib/ux/again.ts`). */
+  if (started || !brief) return <FreshRound>{children}</FreshRound>;
 
 
   return (

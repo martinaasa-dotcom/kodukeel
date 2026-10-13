@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { questionIn } from "@/lib/copy/questionReading";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
@@ -204,7 +205,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
           <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/government">{t("Another round")}</ButtonLink>
+          <AnotherRound>{t("Another round")}</AnotherRound>
           <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>

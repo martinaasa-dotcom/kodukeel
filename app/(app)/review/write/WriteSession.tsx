@@ -1,6 +1,7 @@
 "use client";
 
 import { useT } from "@/components/Locale";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
 import { endingName } from "@/lib/estonian/plainAsk";
@@ -224,7 +225,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
           <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/write">{t("Another round")}</ButtonLink>
+          <AnotherRound>{t("Another round")}</AnotherRound>
           <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>

@@ -22156,7 +22156,8 @@ check("a round's header, body and footer share one inset", () => {
   but whitespace, a comment or a `{cond && (...)}` wrapper between them.
 */
 function buttonRuns(source: string): { at: number; variants: string[]; container: string }[] {
-  const open = /<(Button|ButtonLink)\b/g;
+  // `AnotherRound` is a `ButtonLink` that builds its own address (lib/ux/again.ts).
+  const open = /<(Button|ButtonLink|AnotherRound)\b/g;
   const elementEnd = (pos: number): { end: number; attrs: string } => {
     const m = open.exec(source.slice(pos)) as RegExpExecArray;
     const name = m[1] as string;
@@ -26992,7 +26993,8 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     the screen for itself.
   */
   const briefing = code("components/round/Briefing.tsx");
-  assert.match(briefing, /if \(started \|\| !brief\) return <>\{children\}<\/>;/,
+  // Returned through `FreshRound`, which keys it for another round (lib/ux/again.ts).
+  assert.match(briefing, /if \(started \|\| !brief\) return <FreshRound>\{children\}<\/FreshRound>;/,
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);

@@ -1,12 +1,7 @@
 import { titleFor } from "@/lib/progress/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { resolveProvider } from "@/lib/tutor/provider";
-import { setCount, sayingSet } from "@/lib/estonian/sayings";
-import { buildPlan } from "@/lib/games/sayings";
-import { playableSayings } from "@/lib/progress/sayings";
-import { learnerDayClock } from "@/lib/progress/dayClock";
-import { dayIndex } from "@/lib/random/dayHash";
-import { rng, seedFrom } from "@/lib/random/seeded";
+import { sayingsSitting } from "@/lib/progress/sayings";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { SayingsSession } from "./SayingsSession";
 
@@ -20,53 +15,32 @@ export const dynamic = "force-dynamic";
  * SAYINGS: FIVE VERB PAIRS THAT DO NOT MEAN WHAT THEY SAY.
  *
  * See `lib/games/sayings.ts` for the three steps and `lib/estonian/sayings.ts`
- * for why nothing in them is written. This page is the plain part: it picks
- * which sitting, reads the sentences out of the dictionary, shuffles on the
- * server so the board is the same on arrival, and hands the plan down.
+ * for why nothing in them is written. This page is the plain part: it asks
+ * which five this learner is dealt and hands the plan down.
  *
- * WHICH SITTING. `?set=` names one, and with nothing asked the day does, by
- * the same walk the word of the day takes (`dayIndex`), so a learner who comes
- * back tomorrow meets the next five rather than the same five. A value that is
- * not a sitting is the day's, which is what a forged address gets.
+ * WHICH FIVE. `lib/games/sayingsDeal.ts` decides, off what this learner has
+ * been shown this pass: sayings they have not met, from the front of the list,
+ * a different five every time, and nothing seen again until every saying has
+ * been. The sittings used to be fixed slices picked by the day or by `?set=`,
+ * which dealt the same five together for ever.
  *
- * A NEW SET IS A NEW SESSION. "Another set" is a soft navigation to this
- * same route with a different `?set=`, and React keeps a client component's
- * state while its place in the tree holds still: the session holds its plan
- * in `useState` and was sitting on the finished screen, so the press changed
- * the address and nothing on the page. Keyed on the sitting, it remounts with
- * the new plan and starts at the first step, as Openers does with its round.
+ * A NEW SET IS A NEW ROUND. "Another set" is `AnotherRound`, which names a new
+ * `round`, and `BeforeYouStart` draws the session through `FreshRound`, keyed
+ * on it (`lib/ux/again.ts`). Without both, the press changed the address and
+ * left the finished screen exactly where it was.
  *
- * NOTHING IS GRADED OR STORED. A saying is not a card, so there is no review
- * to write and no schedule to move; the round is the sitting. That is a
- * decision rather than a gap: handing sayings to the scheduler means a new
- * kind of card, and the first thing worth knowing is whether the round does
- * its job.
+ * NOTHING IS GRADED. A saying is not a card, so there is no review to write
+ * and no schedule to move. What is stored is which sayings were shown, written
+ * by the session when it starts rather than here, because a page renders on a
+ * hover as well.
  */
-export default async function SayingsPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default async function SayingsPage() {
   const ownerId = await requireUserId();
-  const sets = setCount();
-  const asked = (await searchParams).set;
-  const wanted = typeof asked === "string" && /^\d{1,3}$/.test(asked) ? Number(asked) : NaN;
-  const today = (await learnerDayClock(ownerId)).dayKey();
-  const n = Number.isInteger(wanted) && wanted >= 0 && wanted < sets
-    ? wanted
-    : dayIndex(today, "sayings", sets);
-
-  const playable = await playableSayings(sayingSet(n));
-  const plan = buildPlan(playable, rng(seedFrom(`${today}:${n}`)));
+  const plan = await sayingsSitting(ownerId);
 
   return (
     <BeforeYouStart id="sayings" ready={plan !== null} count={plan ? { n: plan.see.length, noun: "saying" } : null}>
-      <SayingsSession
-        key={n}
-        plan={plan}
-        nextSet={(n + 1) % sets}
-        canTranslate={resolveProvider() !== null}
-      />
+      <SayingsSession plan={plan} canTranslate={resolveProvider() !== null} />
     </BeforeYouStart>
   );
 }
