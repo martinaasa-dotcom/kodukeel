@@ -29,6 +29,13 @@ export const dynamic = "force-dynamic";
  * back tomorrow meets the next five rather than the same five. A value that is
  * not a sitting is the day's, which is what a forged address gets.
  *
+ * A NEW SET IS A NEW SESSION. "Another set" is a soft navigation to this
+ * same route with a different `?set=`, and React keeps a client component's
+ * state while its place in the tree holds still: the session holds its plan
+ * in `useState` and was sitting on the finished screen, so the press changed
+ * the address and nothing on the page. Keyed on the sitting, it remounts with
+ * the new plan and starts at the first step, as Openers does with its round.
+ *
  * NOTHING IS GRADED OR STORED. A saying is not a card, so there is no review
  * to write and no schedule to move; the round is the sitting. That is a
  * decision rather than a gap: handing sayings to the scheduler means a new
@@ -55,6 +62,7 @@ export default async function SayingsPage({
   return (
     <BeforeYouStart id="sayings" ready={plan !== null} count={plan ? { n: plan.see.length, noun: "saying" } : null}>
       <SayingsSession
+        key={n}
         plan={plan}
         nextSet={(n + 1) % sets}
         canTranslate={resolveProvider() !== null}
