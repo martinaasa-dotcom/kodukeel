@@ -1020,9 +1020,10 @@ export default async function TodayPage() {
           card is as tall as what is in it and no taller: they used to be
           stretched to share a height with the one beside them, which left the
           word of the day a screen of empty white under its button and made the
-          page read as a spreadsheet. Two independent columns instead, the right
-          one set a little lower so the tops step rather than line up, and
-          neither is padded out to match the other.
+          page read as a spreadsheet. Two independent columns instead, starting
+          at the same height so the first two cards read as a pair, and neither
+          padded out to match the other, so everything under them settles where
+          it settles.
 
           Under `lg` it is one column in the dealt order: the column wrappers
           are `display: contents` and each card carries its position as `order`,
@@ -1044,11 +1045,7 @@ export default async function TodayPage() {
             return [0, 1].map((side) => (
               <div
                 key={side}
-                className={
-                  side === 0
-                    ? "contents lg:flex lg:min-w-0 lg:flex-col lg:gap-6"
-                    : "contents lg:flex lg:min-w-0 lg:flex-col lg:gap-6 lg:pt-14"
-                }
+                className="contents lg:flex lg:min-w-0 lg:flex-col lg:gap-6"
               >
                 {cards.map((card, i) =>
                   i % 2 === side ? (
