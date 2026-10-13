@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { Check, Scale, X } from "lucide-react";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
@@ -169,7 +170,7 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/grammar/twins" size="lg">{t("See all the pairs")}</ButtonLink>
-          <ButtonLink href="/review/twins" variant="primary" size="lg">{t("Play again")}</ButtonLink>
+          <AnotherRound variant="primary" size="lg">{t("Play again")}</AnotherRound>
         </WayOut>
       </div>
     );

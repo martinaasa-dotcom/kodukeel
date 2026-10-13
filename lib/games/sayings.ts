@@ -159,6 +159,11 @@ export function isAskedElsewhere(playable: PlayableSaying): boolean {
   return askedIn(playable).et !== playable.sentences[0].et;
 }
 
+/** Whether a saying can be asked at all: its question sentence has the particle to blank out. */
+export function isPlayable(p: PlayableSaying): boolean {
+  return blankOut(askedIn(p).et, p.saying.particle) !== null;
+}
+
 /**
  * One sitting, built. Null where there is not enough to make a board of: three
  * is the least a match has anything to rule out with.
@@ -166,7 +171,7 @@ export function isAskedElsewhere(playable: PlayableSaying): boolean {
 export function buildPlan(
   playable: readonly PlayableSaying[], random: () => number = Math.random,
 ): SayingsPlan | null {
-  const usable = playable.filter((p) => blankOut(askedIn(p).et, p.saying.particle) !== null);
+  const usable = playable.filter(isPlayable);
   if (usable.length < MIN_SET) return null;
 
   const meanings = usable.map((p) => p.saying.means);

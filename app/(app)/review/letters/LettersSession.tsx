@@ -1,6 +1,7 @@
 "use client";
 
 import { useT } from "@/components/Locale";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useGrade } from "@/components/round/useGrade";
@@ -151,7 +152,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
-          <ButtonLink href="/review/letters" variant="primary" size="lg">{t("Play again")}</ButtonLink>
+          <AnotherRound variant="primary" size="lg">{t("Play again")}</AnotherRound>
         </WayOut>
       </div>
     );

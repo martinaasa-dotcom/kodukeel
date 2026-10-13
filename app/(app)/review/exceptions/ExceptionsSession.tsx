@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { answerNote } from "@/lib/copy/answerNote";
 import { rich } from "@/components/round/rich";
@@ -214,7 +215,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
           <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/exceptions">{t("Another round")}</ButtonLink>
+          <AnotherRound>{t("Another round")}</AnotherRound>
           <ButtonLink href="/grammar/exceptions" variant="primary">{t("See the whole list")}</ButtonLink>
         </WayOut>
       </div>

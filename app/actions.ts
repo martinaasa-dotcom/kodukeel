@@ -56,6 +56,7 @@ import {
   removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
 import { canonicalZone } from "@/lib/time/day";
+import { markSayingsShown } from "@/lib/progress/sayings";
 import {
   forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
@@ -173,6 +174,19 @@ async function sayRefusal(ownerId: string, busy: ActionRefusal): Promise<ActionR
  * the length of that table, and deduplicated: an unbounded array of the same
  * key was a way to make the generator run a thousand times for one word.
  */
+/**
+ * Väljendid: write down the sayings a sitting showed, so the next one deals
+ * sayings this learner has not met (`lib/games/sayingsDeal.ts`). The ids are
+ * JSON off the wire, so only strings are kept, at most a sitting's worth, and
+ * `afterServing` stores none the catalogue does not hold.
+ */
+export async function markSayingsServed(ids: unknown): Promise<void> {
+  const shown = (Array.isArray(ids) ? ids : []).filter((id): id is string => typeof id === "string").slice(0, 10);
+  if (shown.length === 0) return;
+  const ownerId = await requireUserId();
+  await markSayingsShown(ownerId, shown);
+}
+
 export async function addToDeck(
   lexemeId: string, types: CardType[], source = "LOOKUP", deckIds?: string[],
 ) {

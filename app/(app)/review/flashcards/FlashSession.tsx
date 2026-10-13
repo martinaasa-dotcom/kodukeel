@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { Meaning } from "@/components/Meaning";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { countOf, fill } from "@/lib/copy/locale";
@@ -285,7 +286,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/flashcards">{t("Another round")}</ButtonLink>
+          <AnotherRound>{t("Another round")}</AnotherRound>
           <ButtonLink href="/words/mastery" variant="primary">{t("Where your words stand")}</ButtonLink>
         </WayOut>
       </div>

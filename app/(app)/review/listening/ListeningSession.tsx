@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { Meaning } from "@/components/Meaning";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { fill } from "@/lib/copy/locale";
@@ -228,7 +229,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         </div>
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
-          <ButtonLink href="/review/listening" variant="primary" size="lg">{t("Listen again")}</ButtonLink>
+          <AnotherRound variant="primary" size="lg">{t("Listen again")}</AnotherRound>
         </WayOut>
       </div>
     );

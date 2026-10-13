@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
 import { ArrowRight, Check, Ear, Volume2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
@@ -255,7 +256,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/practice" size="lg">{t("Try something else")}</ButtonLink>
           <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
-          <ButtonLink href="/review/dictation" variant="primary" size="lg">{t("Another round")}</ButtonLink>
+          <AnotherRound variant="primary" size="lg">{t("Another round")}</AnotherRound>
         </WayOut>
       </div>
     );

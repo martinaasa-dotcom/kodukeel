@@ -257,6 +257,19 @@ export const SETTING_KEYS = {
    */
   shieldToldFor: "shieldToldFor",
   /**
+   * Which Väljendid sayings this learner has been shown in the current pass,
+   * oldest first, as space-separated ids.
+   *
+   * One of the values no log can reconstruct (ADR-014): a saying is not a card
+   * and writes no review, so nothing else records that somebody has met it.
+   * It is what lets "Another set" deal sayings the learner has not seen yet
+   * until every one has been shown, and it empties itself at the end of each
+   * pass. `lib/games/sayingsDeal.ts` reads and writes it; written when a
+   * sitting is started, never when a page renders, because a page renders on
+   * a hover as well (`PrefetchLink`).
+   */
+  sayingsServed: "sayingsServed",
+  /**
    * Set once the sending provider has refused this address outright.
    *
    * Not a preference and never shown as one: it is a fact about the address

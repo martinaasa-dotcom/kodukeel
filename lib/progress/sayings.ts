@@ -1,8 +1,12 @@
 import { prisma } from "@/lib/db";
 import { parseExamples } from "@/lib/dict/examples";
 import { isVerifiedSayingUsage, sayingUsageEnglish } from "@/lib/dict/sayingUsages";
-import type { Saying } from "@/lib/estonian/sayings";
-import type { PlayableSaying, ResolvedSentence } from "@/lib/games/sayings";
+import { SAYINGS, type Saying } from "@/lib/estonian/sayings";
+import { buildPlan, isPlayable, type PlayableSaying, type ResolvedSentence, type SayingsPlan } from "@/lib/games/sayings";
+import { afterServing, dealSayings, servedFrom, servedValue } from "@/lib/games/sayingsDeal";
+import { DICTIONARY, remember } from "@/lib/dict/facts";
+import { readSetting, writeSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { rng, seedFrom } from "@/lib/random/seeded";
 
 /**
  * THE SENTENCES OF ONE SITTING, READ OUT OF THE DICTIONARY.
@@ -63,4 +67,49 @@ export function resolveSayings(
     if (first) out.push({ saying, sentences: [first, ...rest] });
   }
   return out;
+}
+
+/**
+ * Every saying this deployment can play, in teaching order.
+ *
+ * A fact about the shared dictionary rather than about the learner, so it is
+ * held across requests like the others in `lib/dict/facts.ts` and read again
+ * when the dictionary changes. It is the catalogue a sitting is dealt from and
+ * the one a served list is measured against, so the two cannot disagree about
+ * when a pass is over.
+ */
+export function playableCatalogue(): Promise<PlayableSaying[]> {
+  return remember("sayings-catalogue", DICTIONARY, async () =>
+    (await playableSayings(SAYINGS)).filter(isPlayable));
+}
+
+/**
+ * The sitting this learner is dealt now: sayings they have not been shown
+ * this pass, from the front of the list, in a random five (`dealSayings`).
+ *
+ * The draw is seeded on the learner and on what they have been served, so a
+ * reload before the round starts deals the same five, and the round that
+ * follows a started one deals the next.
+ */
+export async function sayingsSitting(ownerId: string): Promise<SayingsPlan | null> {
+  const [catalogue, stored] = await Promise.all([
+    playableCatalogue(),
+    readSetting(ownerId, SETTING_KEYS.sayingsServed),
+  ]);
+  const served = servedFrom(stored);
+  const random = rng(seedFrom(`${ownerId}:${servedValue(served)}`));
+  const ids = dealSayings(catalogue.map((p) => p.saying.id), served, random);
+  const byId = new Map(catalogue.map((p) => [p.saying.id, p]));
+  return buildPlan(ids.flatMap((id) => byId.get(id) ?? []), random);
+}
+
+/** Writes down that a sitting was shown. Ids the catalogue does not hold are never stored. */
+export async function markSayingsShown(ownerId: string, shown: readonly string[]): Promise<void> {
+  const [catalogue, stored] = await Promise.all([
+    playableCatalogue(),
+    readSetting(ownerId, SETTING_KEYS.sayingsServed),
+  ]);
+  const next = afterServing(catalogue.map((p) => p.saying.id), servedFrom(stored), shown);
+  const value = servedValue(next);
+  if (value !== (stored ?? "")) await writeSetting(ownerId, SETTING_KEYS.sayingsServed, value);
 }
