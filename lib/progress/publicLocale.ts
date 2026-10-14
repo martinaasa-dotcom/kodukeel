@@ -39,12 +39,44 @@ export async function resolvePublicLocale(searchParams: PublicSearch): Promise<P
   }
 }
 
-/** A public page's tab title in the language it is drawn in. */
+/** What a public page says about itself where it is shared, rather than the landing page's pitch. */
+export interface PublicPageCard {
+  /** One sentence in English, translated like every other line on the page. */
+  description: string;
+  /** The page's own path, so a share card does not point at /welcome. */
+  path: string;
+}
+
+/**
+ * A public page's tab title in the language it is drawn in, and, where the
+ * page says what it is, its own description and share card. Without one, a
+ * page inherits the root layout's description, which is the pitch to a
+ * learner: a teacher pasting /teachers into a staffroom chat would get a card
+ * about the shop counter, pointing at /welcome.
+ */
 export async function publicTitle(
   searchParams: PublicSearch,
   english: string,
   extra?: Omit<Metadata, "title">,
+  card?: PublicPageCard,
 ): Promise<Metadata> {
   const { locale } = await resolvePublicLocale(searchParams);
-  return { ...extra, title: tr(locale, english) };
+  const title = tr(locale, english);
+  if (!card) return { ...extra, title };
+  const description = tr(locale, card.description);
+  return {
+    ...extra,
+    title,
+    description,
+    openGraph: {
+      title: `${title} | kodukeel`,
+      description,
+      url: card.path,
+      type: "website",
+      siteName: "kodukeel",
+      // The card is in the language the page is drawn in, read in Estonia.
+      locale: `${locale}_EE`,
+    },
+    twitter: { card: "summary_large_image", title: `${title} | kodukeel`, description },
+  };
 }

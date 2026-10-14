@@ -20,6 +20,9 @@ import type { Area } from "../area";
  */
 const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   // HELP.
+  ["Whether Kodukeel is working, what to try when you cannot sign in, and where your data is.",
+    "Работает ли Kodukeel, что делать, если не получается войти, и где ваши данные.",
+    "Чи працює Kodukeel, що робити, якщо не вдається увійти, і де ваші дані."],
   ["Help", "Помощь", "Допомога"],
   ["Is it working?", "Всё работает?", "Усе працює?"],
   ["Checking…", "Проверяем…", "Перевіряємо…"],
