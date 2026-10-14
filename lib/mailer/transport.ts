@@ -191,3 +191,41 @@ export async function send(
   const body = (await response.json().catch(() => null)) as { id?: unknown } | null;
   return { ok: true, messageId: typeof body?.id === "string" ? body.id : null };
 }
+
+/**
+ * A plain note to whoever runs this copy, never to a learner.
+ *
+ * `send` is for letters to learners and only the mail run may call it, because
+ * a letter to a learner owes them the preference, the weekly cap and the way
+ * out in the footer. A note to the operator owes none of that: it goes to the
+ * addresses `ADMIN_EMAILS` names, which the deployment chose, and it carries no
+ * unsubscribe because there is nobody to unsubscribe. So it is its own export,
+ * and `scripts/invariants/operator-mail-goes-to-admins.ts` holds its one
+ * caller to those addresses.
+ *
+ * Never throws. A note that cannot go out is a note, not a second incident.
+ */
+export async function sendToOperator(
+  note: { readonly to: readonly string[]; readonly subject: string; readonly text: string },
+  config: MailerConfig,
+  transport: typeof fetch = fetch,
+): Promise<boolean> {
+  if (note.to.length === 0) return false;
+  try {
+    const response = await transport("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { authorization: `Bearer ${config.apiKey}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        from: config.from,
+        to: [...note.to],
+        subject: note.subject,
+        text: note.text,
+        headers: { "Auto-Submitted": "auto-generated" },
+      }),
+      signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}

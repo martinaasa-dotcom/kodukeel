@@ -3,6 +3,10 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { LanguageSwitcher, TranslationNotice } from "@/components/PublicLanguage";
 import { LOCALES, tr, type Locale } from "@/lib/copy/locale";
 import { LANDING_HREF, localeHref } from "@/lib/copy/publicLocale";
+import { resolveOperator } from "@/lib/legal/operator";
+import { BrandLink } from "@/components/BrandLink";
+import { Wordmark } from "@/components/brand";
+import { ButtonLink } from "@/components/Button";
 
 /**
  * "2 September 2026" in the page's language. The months are a table in the
@@ -50,18 +54,9 @@ export function Legal({ title, updated, children, locale = "en", explicit = fals
   */
   return (
     <main lang={locale} className="mx-auto max-w-2xl px-5 py-10 md:px-8 md:py-16">
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <Link
-          href={locale === "en" ? "/" : LANDING_HREF[locale]}
-          className="label-xs inline-block"
-          style={{ color: "var(--ink-3)" }}
-        >
-          Kodukeel
-        </Link>
-        <LanguageSwitcher locale={locale} hrefs={switcherHrefs(path)} />
-      </div>
+      <PublicHeader locale={locale} path={path} />
       <h1
-        className="mt-3 text-3xl font-bold leading-tight tracking-tight"
+        className="mt-8 text-3xl font-bold leading-tight tracking-tight"
         style={{ color: "var(--ink)" }}
       >
         {title}
@@ -76,6 +71,46 @@ export function Legal({ title, updated, children, locale = "en", explicit = fals
   );
 }
 
+/**
+ * THE TOP OF A PUBLIC PAGE: THE PRODUCT, THE LANGUAGE, AND ONE WAY IN.
+ *
+ * These are the pages a funder, a school and a ministry reader open, and their
+ * header was the word "Kodukeel" in small grey capitals: no mark, no sign of
+ * the product, nothing to press. It is the landing page's own lockup now,
+ * linking home, the language switcher beside it, and one quiet button to start.
+ * Quiet on purpose: the page is a document and the reader's one job on it is
+ * reading, so the loud action stays the landing page's.
+ */
+export function PublicHeader({ locale, path }: { locale: Locale; path: string }) {
+  const t = (english: string) => tr(locale, english);
+  return (
+    /*
+      On a phone the mark and the button share the first row and the switcher
+      takes the second, so the header is two rows rather than three; the button
+      says "Start" there, as the landing page's own does under 420.
+    */
+    <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <BrandLink href={LANDING_HREF[locale]} label={t("Kodukeel, home")} className="flex min-h-11 items-center">
+        <Wordmark size={28} />
+      </BrandLink>
+      <LanguageSwitcher locale={locale} hrefs={switcherHrefs(path)} className="order-3 w-full sm:order-2 sm:ml-auto sm:w-auto" />
+      <ButtonLink
+        href={locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`}
+        variant="secondary"
+        size="sm"
+        className="order-2 sm:order-3"
+      >
+        <span className="max-sm:hidden">{t("Start free")}</span>
+        {/* The short word for the eye, and the whole one for whoever reads the
+            link out of context: "Start" alone is the link text a crawler and a
+            screen reader's list of links both call meaningless. */}
+        <span className="sm:hidden" aria-hidden>{tr(locale, "Start", "begin")}</span>
+        <span className="sr-only sm:hidden">{t("Start free")}</span>
+      </ButtonLink>
+    </header>
+  );
+}
+
 /** The links at the foot of every public page, in the page's language. */
 export function PublicFooter({ locale, href, short = false }: {
   locale: Locale;
@@ -85,6 +120,7 @@ export function PublicFooter({ locale, href, short = false }: {
   short?: boolean;
 }) {
   const t = (english: string) => tr(locale, english);
+  const contact = resolveOperator().email;
   const links: readonly (readonly [string, string])[] = short
     ? [["/privacy", "Privacy"], ["/terms", "Terms"], ["/accessibility", "Accessibility"]]
     : [
@@ -102,6 +138,17 @@ export function PublicFooter({ locale, href, short = false }: {
       <Link href={locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`} className="underline underline-offset-2">
         {t("Sign in")}
       </Link>
+      {/*
+        A way to write to whoever runs this copy, where they have said who they
+        are. Where nobody is named there is nothing to print, rather than an
+        address that reaches nobody: the rule /trust follows for the same field.
+      */}
+      {contact && (
+        <>
+          {", "}
+          <a href={`mailto:${contact}`} className="underline underline-offset-2">{t("Contact")}</a>
+        </>
+      )}
     </p>
   );
 }

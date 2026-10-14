@@ -2,6 +2,12 @@
   "name": "kodukeel",
   "version": "0.1.0",
   "private": true,
+  "imports": {
+    "#i18n-tables": {
+      "browser": "./lib/copy/i18n/tables.browser.ts",
+      "default": "./lib/copy/i18n/tables.ts"
+    }
+  },
   "license": "MIT",
   "engines": {
     "node": ">=22.12"
@@ -27,6 +33,7 @@
     "build:ci": "prisma generate && next build",
     "check:secrets": "node scripts/check-secrets.mjs",
     "check:bundle": "node scripts/check-bundle-data.mjs",
+    "check:landing": "node scripts/check-landing-weight.mjs --budget",
     "check:licences": "node scripts/check-licences.mjs",
     "check:audit": "node scripts/check-audit.mjs",
     "test:db": "vitest run --config vitest.integration.config.mts",
@@ -90,7 +97,8 @@
     "audit:readable": "tsx scripts/audit-readable.ts",
     "audit:pins": "tsx scripts/audit-grammar-pins.ts",
     "check:authored": "tsx scripts/check-authored.ts",
-    "export:translations": "tsx scripts/export-translations.ts"
+    "export:translations": "tsx scripts/export-translations.ts",
+    "i18n:tables": "tsx scripts/build-locale-tables.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",

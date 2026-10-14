@@ -47,6 +47,17 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
  * except English the screen itself marks `data-untranslated`, which is a gap
  * somebody has named and is printed by name at the end rather than failed.
  *
+ * AND WHETHER IT HYDRATES. A browser holds no translation until it is handed
+ * one (`lib/copy/i18n/tables.browser.ts`): the signed-in shell loads the
+ * learner's language as a chunk before anything under it draws, and the landing
+ * page hands over its own lines. A screen that draws a line the browser was not
+ * handed is drawn in Russian by the server and in English by the browser, which
+ * React reports as a mismatch (#418) and redraws in English; a provider that
+ * suspends in the wrong place throws #467. So every route is asked whether its
+ * page threw, and the public entry pages are walked in both languages for the
+ * same question, with the landing page held to not downloading the whole
+ * language until somebody presses one of its demos.
+ *
  * NOTHING IS SELECTED BY ITS ENGLISH WORDS, since the point is that there are
  * none: a round is started through `data-briefing-start`, and every route is
  * read off the filesystem.
@@ -66,8 +77,12 @@ const B = baseUrl();
   `test-containment.mjs` makes earlier in the same shard (a marked paper and a
   scanned page); run alone, this waives their forty checks each by name rather
   than walking a not-found screen. Raise it when a route is added.
+
+  The hydration check adds one a route a pass, 402 over the signed-in walk,
+  and the entry pages add eleven in each language: six hundred in round
+  figures on top of the 2600 above.
 */
-const { check, absent, done } = suite("Russian and Ukrainian, on every screen", { floor: 2600 });
+const { check, absent, done } = suite("Russian and Ukrainian, on every screen", { floor: 3200 });
 
 const LOCALES = ["ru", "uk"];
 /** `LOCALE_ROUTES=/review,/words` walks only those, for working on one screen; the floor then fails, as it should. */
@@ -271,6 +286,72 @@ async function ready(page) {
   await page.waitForTimeout(250);
 }
 
+/**
+ * Errors the page throws, kept on a list the caller empties per route. React
+ * reports a hydration mismatch and a hook replayed into the wrong order as an
+ * uncaught error on the window, not on the console, so `pageerror` is where
+ * they arrive.
+ */
+function watchErrors(page) {
+  const thrown = [];
+  page.on("pageerror", (error) => thrown.push(String(error.message).slice(0, 160)));
+  return thrown;
+}
+
+/** A script body with a translation table in it: the Russian or Ukrainian interface, tens of thousands of characters of Cyrillic. */
+const TABLE_CHUNK = 20_000;
+
+/**
+ * THE PAGES A STRANGER MEETS BEFORE SIGNING IN, in both languages: hydrated
+ * without a mismatch, and the landing page carrying only its own lines until
+ * somebody reaches for a demo, at which point the whole language arrives and
+ * the page still has not thrown.
+ */
+async function entryPages(locale) {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+  const page = await ctx.newPage();
+  const thrown = watchErrors(page);
+  let tableLoads = 0;
+  page.on("response", async (response) => {
+    if (!/\/_next\/static\/.+\.js/.test(response.url())) return;
+    try {
+      const body = await response.text();
+      if ((body.match(/[\u0400-\u04FF]/g) ?? []).length > TABLE_CHUNK) tableLoads += 1;
+    } catch { /* a response with no body */ }
+  });
+  const pages = [
+    `/welcome/${locale}`, `/privacy?lang=${locale}`, `/terms?lang=${locale}`, `/trust?lang=${locale}`,
+    `/accessibility?lang=${locale}`, `/funding?lang=${locale}`, `/state-exam?lang=${locale}`,
+    `/sign-in?lang=${locale}`,
+  ];
+  for (const path of pages) {
+    thrown.length = 0;
+    tableLoads = 0;
+    await page.goto(`${B}${path}`, { waitUntil: "networkidle", timeout: 60_000 });
+    await page.waitForTimeout(400);
+    check(`${path} hydrates without a mismatch`, thrown.length === 0, thrown.slice(0, 2).join(" · "));
+    if (path.startsWith("/welcome")) {
+      check(`${path} arrives without the whole ${locale} table`, tableLoads === 0, `${tableLoads} table chunk(s) loaded`);
+      // A press on the plan calculator asks for the rest of the language.
+      // Pressed until the table arrives, within a budget, rather than once:
+      // the ask is a React capture handler, so a press that lands before the
+      // page has hydrated reaches nothing, and on a slow runner networkidle
+      // plus 400ms is not always hydrated. CI failed this once with 0 chunks
+      // on a page that loads its table perfectly well. A second press after
+      // the table is in asks for nothing, so "exactly once" still holds.
+      const asked = Date.now() + 15_000;
+      do {
+        await page.locator(".plan-calc button").first().dispatchEvent("pointerdown").catch(() => {});
+        await page.waitForLoadState("networkidle").catch(() => {});
+        await page.waitForTimeout(400);
+      } while (tableLoads === 0 && Date.now() < asked);
+      check(`${path} loads the whole ${locale} table once a demo is reached for`, tableLoads === 1, `${tableLoads} table chunk(s) loaded`);
+      check(`${path} draws again in ${locale} without throwing`, thrown.length === 0, thrown.slice(0, 2).join(" · "));
+    }
+  }
+  await ctx.close();
+}
+
 async function measure(page, label, { english }) {
   const rest = await page.evaluate(survey, { stress: false });
   check(`nothing is cut off on ${label}`, rest.cut === 0 && rest.counted >= 4,
@@ -311,6 +392,7 @@ const browser = await launchChromium();
 const started = Date.now();
 try {
   for (const p of unmade) absent(40, `a row for ${p}, which scripts/test-containment.mjs makes before this in CI`);
+  for (const locale of LOCALES) await entryPages(locale);
   for (const locale of LOCALES) {
     await setLocale(locale);
     for (const pass of PASSES) {
@@ -322,6 +404,7 @@ try {
       });
       if (pass.dark) await ctx.addInitScript(() => { try { localStorage.setItem("theme", "dark"); } catch { /* private */ } });
       const page = await ctx.newPage();
+      const thrown = watchErrors(page);
       // The language really is the one set, asked of the document the shell
       // writes rather than of any word on the screen.
       await page.goto(`${B}/`, { waitUntil: "domcontentloaded", timeout: 60_000 });
@@ -329,8 +412,10 @@ try {
       const lang = await page.evaluate(() => document.querySelector("main")?.closest("[lang]")?.getAttribute("lang"));
       check(`the shell is drawn in ${locale} at ${at}`, lang === locale, `lang is ${lang}`);
       for (const route of ONLY ? ROUTES.filter((r) => ONLY.some((o) => r.startsWith(o))) : ROUTES) {
+        thrown.length = 0;
         await page.goto(`${B}${route}`, { waitUntil: "domcontentloaded", timeout: 60_000 });
         await ready(page);
+        check(`${route} ${at} hydrates without a mismatch`, thrown.length === 0, thrown.slice(0, 2).join(" · "));
         await startRound(page, { waitMs: 400 });
         await measure(page, `${route} ${at}`, pass);
       }

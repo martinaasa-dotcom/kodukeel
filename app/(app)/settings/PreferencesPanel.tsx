@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AlignLeft, BarChart3, Eye, EyeOff, Keyboard, PenLine, Underline, Wand2 } from "lucide-react";
+import { AlignLeft, BarChart3, Eye, EyeOff, Keyboard, ListChecks, Underline, Wand2 } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import {
   setCaseQuestionGloss, setClassDisplayName, setLetterBar, setResearchParticipation,
@@ -22,12 +22,13 @@ import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { filled } from "@/components/Filled";
 
-const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof PenLine }[] = [
+const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof Keyboard }[] = [
   {
     value: "type",
     label: "Type the answer",
     detail: "You type every answer yourself. It's slower, and it sticks better. A small slip like a missing {letter} gets pointed out, not marked wrong.",
-    icon: PenLine,
+    // The keyboard is typing, and the list of options is picking; they were the other way round.
+    icon: Keyboard,
   },
   {
     value: "flip",
@@ -43,7 +44,7 @@ const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof Pe
       verdict. See `askFor`.
     */
     detail: "You tap the right answer out of four. Quicker on a phone, and the app still marks it for you.",
-    icon: Keyboard,
+    icon: ListChecks,
   },
 ];
 

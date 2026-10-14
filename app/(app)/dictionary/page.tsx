@@ -18,7 +18,7 @@ import { readableHeadlines } from "@/lib/dict/headlines";
 import { feedHost } from "@/lib/news/feed";
 import { Page } from "@/components/ui";
 import { localeFor, titleFor } from "@/lib/progress/locale";
-import { countOf, fill, tr } from "@/lib/copy/locale";
+import { countGrouped, fill, tr } from "@/lib/copy/locale";
 import { DictionaryClient, type EntryView } from "./DictionaryClient";
 import { firstParams } from "@/lib/ux/queryParam";
 
@@ -189,7 +189,7 @@ export default async function DictionaryPage({
       lead={
         ekilexConfigured()
           ? tr(locale, "Look up any Estonian word. Anything you've looked up works offline too.")
-          : fill(tr(locale, "{words}, each with its meaning, all its forms, and how to say it."), { words: countOf(locale, total, "word") })
+          : fill(tr(locale, "{words}, each with its meaning, all its forms, and how to say it."), { words: countGrouped(locale, total, "word") })
       }
     >
       <DictionaryClient

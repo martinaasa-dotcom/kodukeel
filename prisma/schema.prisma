@@ -280,15 +280,15 @@ model Card {
 /// to stay attributable and analysable once its card is gone. They also turn
 /// every "my reviews" query from a join into an index lookup.
 model Review {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   ownerId     String
   cardId      String
   /// Null only for reviews restored from a backup written before this column.
   lexemeId    String?
   rating      Int // 1 Again · 2 Hard · 3 Good · 4 Easy
-  reviewedAt  DateTime @default(now())
-  durationMs  Int      @default(0)
-  stateBefore Int      @default(0)
+  reviewedAt  DateTime  @default(now())
+  durationMs  Int       @default(0)
+  stateBefore Int       @default(0)
   targetCase  String?
   /// Which facet of the word this answer was about: a case, a named part of a
   /// verb, or the card's own type. `lib/srs/slots.ts` is the one table of what
@@ -1069,4 +1069,26 @@ model TwentyLearned {
   learnedAt DateTime  @default(now())
   /// Set by an admin to stop serving it; the row is kept so it is not learned again.
   retiredAt DateTime?
+}
+
+/// An error the app reported, kept so whoever runs this copy can read it
+/// without a third-party service (`lib/observability/store.ts`, `/admin/errors`).
+/// Carries no learner id and no email: what `reportError` hands over has
+/// already been through `redact`, and the row is deleted after 30 days.
+model ErrorEvent {
+  id          String   @id @default(uuid())
+  /// Where it happened, e.g. "api/tutor".
+  at          String
+  message     String
+  stack       String?
+  /// Anything else the call site added, redacted, as JSON text.
+  extra       String?
+  /// The same kind of error has the same fingerprint, so the page can group them.
+  fingerprint String
+  /// Whether this row is the one an admin was emailed about.
+  alerted     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([fingerprint, createdAt])
+  @@index([createdAt])
 }

@@ -246,6 +246,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Sit a mock paper", "Пройти пробный экзамен", "Пройти пробний іспит"],
   ["What Kodukeel is", "Что такое Kodukeel", "Що таке Kodukeel"],
   ["Sign in", "Войти", "Увійти"],
+  ["Contact", "Контакты", "Контакти"],
   ["What it is", "Что это такое", "Що це таке"],
   ["The state examines Estonian at four levels: A2, B1, B2 and C1. There's no exam at A1 or C2.",
     "Государство проверяет знание эстонского на четырёх уровнях: A2, B1, B2 и C1. Экзамена на A1 и C2 нет.",

@@ -92,18 +92,24 @@ export function FitText({
       let need = el.scrollWidth;
       if (room <= 0) return;
       if (others) {
+        /*
+          The other words are measured on a canvas in the element's own face
+          rather than in a hidden span on the page. A span had to be laid out
+          once per word, so the landing card's dozen forms were a dozen forced
+          layouts inside the hydration task, which is what a phone is busiest
+          with and what PageSpeed counts against the page's first paint. Text
+          metrics need no layout at all. Letter spacing is added per letter,
+          the way the browser draws it.
+        */
         const cs = getComputedStyle(el);
-        const probe = document.createElement("span");
-        probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;left:-9999px;top:0";
-        // The computed shorthand, so the probe draws in exactly the element's face.
-        probe.style.font = cs.font;
-        probe.style.letterSpacing = cs.letterSpacing;
-        document.body.appendChild(probe);
-        for (const word of others.split(/\s+/)) {
-          probe.textContent = word;
-          need = Math.max(need, probe.getBoundingClientRect().width);
+        const spacing = parseFloat(cs.letterSpacing) || 0;
+        const pen = measurer();
+        if (pen) {
+          pen.font = cs.font;
+          for (const word of others.split(/\s+/)) {
+            need = Math.max(need, pen.measureText(word).width + spacing * [...word].length);
+          }
         }
-        probe.remove();
       }
       // A hair under, so subpixel rounding can never tip it back over.
       let size = need > room ? Math.floor(((designed * room * 0.99) / need) * 10) / 10 : designed;
@@ -146,4 +152,11 @@ export function FitText({
       {children ?? text}
     </Tag>
   );
+}
+
+let pen: CanvasRenderingContext2D | null | undefined;
+/** One offscreen canvas for every fitted word on the page, made on first use. */
+function measurer(): CanvasRenderingContext2D | null {
+  if (pen === undefined) pen = document.createElement("canvas").getContext("2d");
+  return pen;
 }

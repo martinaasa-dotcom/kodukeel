@@ -218,6 +218,7 @@ const ROUTES = [
   "/scan",
   "/suggestions",
   "/admin/suggestions",
+  "/admin/errors",
 
   /*
     The conversations. The briefing at 360 is a role card, a four-cell dial of
@@ -571,6 +572,17 @@ async function screensToMake() {
   });
   if (classrooms) made.push(...classrooms.split(" "));
   else missing.push("a classroom, which local mode cannot create by hand: run `npm run demo`");
+  /*
+    The join poster, for each class this account teaches. It answers its
+    teacher and nobody else, so a group somebody only belongs to has none:
+    asked of the server rather than assumed, so a class the fixture makes
+    the other way round is skipped rather than measured as a not-found.
+  */
+  for (const path of classrooms ? classrooms.split(" ") : []) {
+    const poster = `${path}/poster`;
+    const status = await fetch(`${B}${poster}`, { redirect: "manual" }).then((r) => r.status).catch(() => 0);
+    if (status === 200) made.push(poster);
+  }
 
   /*
     A phrase waiting on the Learn page. The card offers "Learn N phrases" as a

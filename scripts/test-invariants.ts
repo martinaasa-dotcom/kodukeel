@@ -3605,6 +3605,10 @@ check("a page a stranger may read is a page the landing page links to", () => {
     // from the same table as the check below, which asserts the other half,
     // that each is reachable signed out at all.
     ...metadataRoutes().map((r) => r.path),
+    // The same, for a language model's crawler: the description of the site
+    // and the directory a crawler looks in for an agent catalog, which here
+    // answers 404 (app/llms.txt/route.ts says why).
+    "/llms.txt", "/.well-known/",
   ];
 
   const allowed = [...middleware.matchAll(/path\.startsWith\("(\/[^"]*)"\)/g)]
@@ -4741,10 +4745,13 @@ check("the photograph itself is never stored", () => {
     the fault: a helper in lib/ that saves what it was handed. The route books
     its model call in the ledger, so `UsageEvent` is the one table it may
     write, and `RateLimit` beside it for the shared limiter; neither has a
-    column a picture could go in.
+    column a picture could go in. `ErrorEvent` is the third, because the route
+    reports what goes wrong and `reportError` keeps a copy: what reaches it has
+    been through `redact`, which cuts every string at 500 characters, and the
+    store caps each column again, so no picture fits in one.
   */
   const WRITE = /\.(\w+)\.(?:create|createMany|update|updateMany|upsert)\s*\(|\$executeRaw[\s\S]{0,120}?(?:INSERT\s+INTO|UPDATE)\s+"?(\w+)/g;
-  const MAY_WRITE = new Set(["usageEvent", "UsageEvent", "rateLimit", "RateLimit"]);
+  const MAY_WRITE = new Set(["usageEvent", "UsageEvent", "rateLimit", "RateLimit", "errorEvent", "ErrorEvent"]);
   const reached = new Set(["app/api/scan/route.ts"]);
   const queue = ["app/api/scan/route.ts"];
   const writes: string[] = [];
@@ -12902,11 +12909,51 @@ check("every route group says it is loading rather than showing nothing", () => 
     }
   };
 
+  /*
+    Two screens with nothing to wait for, which a loading state would only slow
+    down: a `loading.tsx` wraps the page in a Suspense boundary, the page then
+    arrives hidden behind a skeleton, and React reveals it with a script it
+    throttles, so the headline paints hundreds of milliseconds after it was
+    already in the document. Measured on the landing page as most of its
+    largest contentful paint. Each is held to the reason it is exempt.
+  */
+  const NOTHING_TO_WAIT_FOR: Record<string, (src: string) => boolean> = {
+    // Prerendered and revalidated in the background, so a visitor is sent a
+    // finished page from the cache.
+    [join("app", "(chromeless)", "welcome")]: (src) => /export const revalidate = \d+/.test(src),
+    [join("app", "(chromeless)", "welcome", "ru")]: (src) => /export const revalidate = \d+/.test(src),
+    [join("app", "(chromeless)", "welcome", "uk")]: (src) => /export const revalidate = \d+/.test(src),
+    // Reads its query string and the deployment's own settings, and nothing else.
+    [join("app", "(chromeless)", "sign-in")]: (src) =>
+      !/@\/lib\/db|prisma|requireUserId|@\/lib\/progress\//.test(src),
+    /*
+      The public pages read which language to draw in: the query string, or
+      for somebody signed in one settings row, through the one helper. Behind
+      a loading state each arrived hidden and was revealed late, and Next sent
+      its <head> before the description was ready, so a crawler read the page
+      as having none.
+    */
+    ...Object.fromEntries(
+      ["privacy", "terms", "accessibility", "trust", "funding", "state-exam"].map((page) => [
+        join("app", page),
+        (src: string) =>
+          !/@\/lib\/db|\bprisma\.|requireUserId|@\/lib\/progress\/(?!publicLocale")/.test(src),
+      ]),
+    ),
+  };
+  for (const [dir, holds] of Object.entries(NOTHING_TO_WAIT_FOR)) {
+    const page = join(dir, "page.tsx");
+    assert.ok(APP.includes(page), `${page} is named as a screen with nothing to wait for, and there is no such page`);
+    assert.ok(holds(code(page)), `${page} now waits on something, so it needs a loading state again`);
+    assert.ok(!covered(dir), `${page} has a loading state above it, which hides a page that has nothing to wait for`);
+  }
+
   for (const file of APP.filter((f) => /[\\/]page\.tsx$/.test(f))) {
     const dir = file.replace(/[\\/]page\.tsx$/, "");
     // The offline page is static by construction and renders from the service
     // worker's cache, where there is nothing to wait for.
     if (dir.endsWith("offline")) continue;
+    if (dir in NOTHING_TO_WAIT_FOR) continue;
     assert.ok(covered(dir), `${file} has no loading state above it, so a slow request shows a blank screen`);
   }
 });
@@ -27445,6 +27492,7 @@ check("every route the app has is walked by the containment and accessibility sw
   /* Read off the page by the suite rather than typed, because a row has to exist first. */
   const MADE: Record<string, string> = {
     "/class/[classroomId]": "a classroom the demo fixture lays down, read off /class",
+    "/class/[classroomId]/poster": "the join poster of each classroom the account teaches, asked of the server",
     "/exam/result/[id]": "a paper the containment suite sits and hands in",
     "/scan/[scanId]": "a scanned page the containment suite makes with the model stubbed",
     "/review/deck/[deckId]": "a shelf the demo fixture lays down, read off /words/decks",
@@ -27461,7 +27509,7 @@ check("every route the app has is walked by the containment and accessibility sw
 
   for (const [file, made] of [
     ["scripts/test-containment.mjs", [...Object.keys(MADE), "/exam/[level]"]],
-    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", ...NOT_BY_AXE]],
+    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", "/class/[classroomId]/poster", ...NOT_BY_AXE]],
   ] as const) {
     const entries = listed(file);
     const missing = routes.filter((r) => !made.includes(r) && !entries.some((e) => matches(r, e)));

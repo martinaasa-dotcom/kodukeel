@@ -7,7 +7,7 @@ import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { countOf, fill } from "@/lib/copy/locale";
 import { answerNote } from "@/lib/copy/answerNote";
 import { rich } from "@/components/round/rich";
-import { endingName } from "@/lib/estonian/plainAsk";
+import { endingName, sayIn } from "@/lib/estonian/plainAsk";
 import { PARTS, partOfSpeechCue, UNNAMED_WORD, wordName } from "@/lib/copy/values";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert } from "lucide-react";
@@ -566,11 +566,12 @@ function Question({
  */
 function SlotLine({ task }: { task: FlashPrompt }) {
   const t = useT();
+  const locale = useLocale();
   const english = asksInEnglish(task.slot);
   const asks = english ? t(english) : null;
   // `plainAskFor` decides whether this shape gets a line at all; the line
   // itself carries the word's gloss here, where the screen holds it.
-  const phrase = plainAskFor(task) ? task.say : null;
+  const phrase = plainAskFor(task) ? sayIn(locale, task.slot, task.say) : null;
   const plain = phrase
     ? task.shape === "build" ? fill(t("Write a sentence with “{phrase}”."), { phrase }) : fill(t("Say “{phrase}”"), { phrase })
     : null;

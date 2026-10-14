@@ -153,6 +153,27 @@ export function orderByRung<T>(items: readonly T[], rungOfItem: (item: T) => Run
   return [...items].sort((a, b) => RUNGS.indexOf(rungOfItem(a)) - RUNGS.indexOf(rungOfItem(b)));
 }
 
+/**
+ * A planned day's unseen words in the order the course wrote them.
+ *
+ * A unit's cards are written in one insert, so they share `createdAt` to the
+ * millisecond and the read that fetches them settles the tie on a random id:
+ * the first evening of the course opened on `muidugi` rather than on `tere`,
+ * which is the word the unit is built round. Where the module names the day's
+ * words, their position in that list decides. Two entries can share a lemma
+ * (`hall` is a noun and an adjective), which is why the id settles what is
+ * left, and a lemma the list does not name goes last rather than first.
+ */
+export function inCourseOrder<T extends { id: string; lexeme: { lemma: string } | null }>(
+  cards: readonly T[],
+  only: readonly string[],
+): T[] {
+  const at = new Map<string, number>();
+  only.forEach((lemma, i) => { if (!at.has(lemma)) at.set(lemma, i); });
+  const place = (card: T) => at.get(card.lexeme?.lemma ?? "") ?? only.length;
+  return [...cards].sort((a, b) => place(a) - place(b) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
 /** How a session ended: what moved on, and what is coming back tomorrow. */
 export interface LadderTally {
   kept: number;
