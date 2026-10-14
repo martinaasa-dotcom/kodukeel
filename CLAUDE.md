@@ -4495,7 +4495,9 @@ and drops their English. It refuses a sentence the dictionary does not hold char
 character, because a sheet that came back with a dash turned into a comma refuses nothing anybody
 is shown. A second read of all 2,124 unread lines added two more source rules to `plainTarget`. A command
 with `ei` or `ega` anywhere ahead of it in its own clause is the negative, and a word in `-vad`
-beside a form of `olema` is the participle; both fire only on lines a reader had already refused. Vabamorf's
+beside a form of `olema` is the participle; both fire only on lines a reader had already refused.
+That read flagged 111 lines and a second reader kept six of them, so 105 lines, 90 sentences, are
+refused with the first read's reasons. Vabamorf's
 disambiguator was measured as a third and left out: on the 640 lines read it caught one fault the
 rules do not and refused eleven good lines, most of them a command at the start of a sentence.
 Ranking a case's lines by whether the English carries the case's preposition was measured too and
