@@ -137,15 +137,60 @@ for (const port of [PORT, OFF_PORT, GSI_PORT]) {
   }
 }
 
+const COLOUR_CODES = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, "g");
+
+/*
+  How a build that did not finish ended, and the last of what it said.
+
+  The build used to run with its output thrown away, so a run that died in
+  twenty-eight seconds on a CI runner left one line saying the build "did not
+  complete on this machine" and nothing to tell a runner that was starved from
+  a type error from a missing key. That is a failure naming no cause, and the
+  next one would have been just as unreadable. A build that exits non-zero has
+  a status, or a signal, or never started at all (`error`), and each of those
+  is a different fault, so all three are printed ahead of the tail.
+
+  stdout and stderr are both kept because Next does not keep its errors to one
+  of them, and the tail is read after joining them so whichever spoke last is
+  what shows. Colour codes come out, since a CI log renders them as noise.
+*/
+function buildFailure(result, tailLines = 60) {
+  const ended = result.error
+    ? `could not run: ${result.error.code ?? ""} ${result.error.message}`.replace(/\s+/g, " ")
+    : result.signal
+      ? `killed by ${result.signal}`
+      : `exited with status ${result.status}`;
+  const text = `${result.stdout ?? ""}${result.stderr ?? ""}`.replace(COLOUR_CODES, "");
+  const lines = text.trim() ? text.replace(/\n+$/, "").split("\n") : [];
+  const tail = lines.slice(-tailLines);
+  return [
+    `FAIL  the hosted-mode build ${ended}.`,
+    tail.length
+      ? `      Last ${tail.length} of ${lines.length} lines it wrote:\n${tail.map((line) => `      | ${line}`).join("\n")}`
+      : "      It wrote nothing, so the fault is before the build starts (the launcher, the environment or the machine).",
+  ].join("\n");
+}
+
 console.log(`Building in hosted mode into ${DIST}/ ...`);
-const built = spawnSync("npx", ["next", "build"], { env: hostedEnv, stdio: "ignore" });
+/*
+  `maxBuffer` is raised because the default is a megabyte, and a build that
+  fills it is killed with `ENOBUFS`, which would turn a chatty build into the
+  failure this is here to explain.
+*/
+const built = spawnSync("npx", ["next", "build"], {
+  env: hostedEnv, encoding: "utf8", maxBuffer: 64 * 1024 * 1024,
+});
 if (built.status !== 0) {
   /*
     A build that will not run is a fact about this machine rather than about
     the screen, so it is waived rather than failed, with the reason. It is also
     the whole suite, so `done()` will refuse to call that a pass: waiving more
     than half fails outright, which is exactly right here.
+
+    The build's own account of itself is printed first, so the line saying the
+    suite waived 29 checks has something above it saying why.
   */
+  console.log(buildFailure(built));
   absent(29, `a hosted-mode build into ${DIST}, which did not complete on this machine`);
   done();
 }

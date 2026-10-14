@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
  * picture, write what you see and what might be going on. The examination
  * uses drawings; this app has no artist yet, so the scenes are laid out in
  * emoji, which are characters drawn by the reader's own font (see
- * `lib/collections/pictures.ts`, which is also where the twelve are and why
+ * `lib/collections/pictures.ts`, which is also where the sixteen are and why
  * there are twelve and not an endless supply).
  *
  * TWO OR THREE PICTURES A ROUND, because five sentences is the tiring part,

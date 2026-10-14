@@ -24,6 +24,7 @@ import { availableCardTypes, CARD_TYPES, type CardType } from "@/lib/srs/cards";
 import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
 import { SAME_SPELLING, sameSpelling, PARTS } from "@/lib/copy/values";
+import { WordFun } from "@/components/WordFun";
 import { Examples } from "./Examples";
 import { DerivedVerbForms, WordForms } from "./Forms";
 import type { SearchHit } from "@/lib/dict/search";
@@ -662,7 +663,13 @@ function Entry({ entry, tutorReady, glossLanguage }: {
         header, panel and all, above the entry it opens over.
       */}
       <header className="night night-open relative z-10 -mx-5 -mt-5 flex flex-wrap items-start justify-between gap-4 rounded-t-[var(--r-xl)] px-5 pb-6 pt-7 md:-mx-7 md:-mt-7 md:px-7 md:pb-8 md:pt-9">
-        <div>
+        {/*
+          `min-w-0` on the column, or a long word on a phone sets the floor
+          of the header: a flex item is never narrower than its content unless
+          told so, and FitText can only shrink the type once the box it sits
+          in is allowed to be narrower than the word.
+        */}
+        <div className="min-w-0 max-w-full">
           <div className="flex items-center gap-3">
             <FitText as="h2" text={entry.lemma} lang="et" className="font-display font-bold leading-none [--fit-max:var(--text-4xl)] lg:[--fit-max:var(--text-5xl)] xl:[--fit-max:var(--text-6xl)]" style={{ color: "var(--ink)" }} />
             <SpeakPair text={entry.lemma} />
@@ -687,6 +694,8 @@ function Entry({ entry, tutorReady, glossLanguage }: {
               {equivalent}
             </p>
           )}
+          {/* A compound read word by word, or a word that only looks English. Nothing for most words. */}
+          <WordFun lemma={entry.lemma} gloss={entry.translation} t={t} locale={locale} className="mt-2" />
           <div className="mt-3 flex flex-wrap gap-1.5">
             <Chip>{t(entry.pos.toLowerCase())}</Chip>
             {entry.cefr && <Chip tone="accent">{entry.cefr}</Chip>}

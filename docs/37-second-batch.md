@@ -1,11 +1,12 @@
 # The second batch
 
-Written on 2026-10-14, after the first batch of launch quick wins was built (pull request #816). This
-page is a work order. A fresh session should be able to take any item below, finish it, and open a
-pull request without asking anybody anything. Where a choice had to be made, section 2 has made it.
+Written on 2026-10-14, after the first batch of launch quick wins was built (pull request #816, now
+merged to main). This page is a work order. A fresh session should be able to take any item below,
+finish it, and open a pull request without asking anybody anything. Where a choice had to be made,
+section 2 has made it.
 
-It assumes #816 has merged. Files that exist only on that branch today are written without backticks,
-and they are all on main once it lands.
+The first batch is on main, so every file this page names exists, except those marked "(to be
+written)".
 
 ## 1. How to use this page
 
@@ -20,14 +21,16 @@ and they are all on main once it lands.
 6. In that pull request, update your row in section 4 and delete the "(to be written)" markers on the
    files you created.
 
-**Preflight.** All items except SB-8 need pull request #816 on main.
+**Preflight.** Every item needs the first batch (#816), which is on main. Make sure your copy has it.
 
 ```bash
 git fetch origin main
 git cat-file -e origin/main:scripts/check-landing-weight.mjs 2>/dev/null \
-  && echo "ok: the first batch is on main" \
-  || echo "STOP: the first batch (#816) has not merged. Only SB-8 can start."
+  && echo "ok: main carries the first batch" \
+  || echo "STOP: this repository's main does not carry the first batch (#816). Report it."
 ```
+
+Start your branch from `origin/main` after that check, not from an older checkout.
 
 **Stop and report, rather than decide, when:**
 - an invariant or test you did not write fails for a reason your change cannot have caused, twice in a
@@ -61,7 +64,7 @@ to find them; read the file for the reasons.
   on small print, 36 words in a sentence.
 - **Every line a screen writes goes through `t()`** and has a Russian and a Ukrainian entry in an area
   file under `lib/copy/i18n/areas/`. Counts go through `countOf`. After editing an area, run the
-  table script from #816 (`i18n:tables`) and commit what it writes; `npm test` fails if you forget.
+  table script (`npm run i18n:tables`) and commit what it writes; `npm test` fails if you forget.
 - **No Estonian is written by the app** (ADR-005). A case name is read from `lib/estonian/cases.ts`, never
   typed, and never the Latin name.
 - **Tokens, not literals.** Type sizes are step names, colours are tokens, the middot is on no screen.
@@ -109,24 +112,25 @@ If pages start returning 503, Postgres has stopped with your shell: start it aga
 
 ## 4. Status
 
-"Done in #816" means built, tested and pushed on that branch.
+"Done in #816" means built and tested there, and it is on main.
 
 This page arrived after the items were assigned, so the rows below are kept by the pull request that
 adds the page rather than by each item's own, which would have had nine pull requests editing nine
-neighbouring lines of one table.
+neighbouring lines of one table. #829 is a fix found on the way, not an item: the workbook graded a
+bracket word copied out unchanged as a slip.
 
 | Item | Status |
 | --- | --- |
 | QW-1 to QW-9 | Done in #816. The branch ruleset for `main` is imported. |
-| SB-1 A join link and QR on the poster | Not started |
-| SB-2 A roster file | Not started |
-| SB-3 A `/teachers` page with a sample class | Not started |
-| SB-4 A `/pilots` page | Not started |
-| SB-5 A `/help` page and a status line | Not started |
-| SB-6 Spend alerts | Not started |
-| SB-7 Review export of new lines only | Not started |
-| SB-8 First run, steps 3 and 4 | Not started |
-| SB-9 Small cleanups | Not started |
+| SB-1 A join link and QR on the poster | Done in #823 |
+| SB-2 A roster file | Done in #825, stacked on #823 |
+| SB-3 A `/teachers` page with a sample class | Done in #830, stacked on #825 |
+| SB-4 A `/pilots` page | Done in #831, stacked on #830 |
+| SB-5 A `/help` page and a status line | Done in #832 |
+| SB-6 Spend alerts | Done in #827 |
+| SB-7 Review export of new lines only | Done in #824 |
+| SB-8 First run, steps 3 and 4 | Done in #828. Both steps still miss the 1,700px target at 390px; the pull request has the figures |
+| SB-9 Small cleanups | Done in #833. The Today flash did not reproduce in eight runs; `<html lang>` left alone |
 
 The 25-item plan these come from, for the record: item 4 (ship less JavaScript) and item 5 (first-run
 polish, first screen) are done in #816; items 2, 3, 6 and 8 are partly done by the QW items and by this
@@ -159,7 +163,7 @@ relying on it.
 - `app/(app)/class/ClassForms.tsx`: `JoinClass` takes `initialCode?: string` and starts its code state
   from it. It does not join on arrival: the sentence about what a class can see sits above the button
   and the pupil presses Join.
-- The poster page (the page named `poster` under the class route, from #816):
+- The poster page, `app/(app)/class/[classroomId]/poster/page.tsx`:
   - Under the code, print the link without its scheme, in the type size the address uses.
   - Render a QR code of the full link beside or under it. Add qrcode-generator as a dependency and
     jsqr as a dev dependency. Build the SVG yourself from `getModuleCount()` and `isDark(row, col)`
@@ -308,7 +312,7 @@ that for the file.
 - A browser check, in `scripts/test-locales.mjs` or a new small suite: `/teachers` loads signed out in all
   three languages, has one `h1`, draws "A sample class", and draws no real learner's name.
 
-**Verify.** Typecheck, lint, `npm test`, invariants, the check:landing script from #816 (the landing
+**Verify.** Typecheck, lint, `npm test`, invariants, `npm run check:landing` (the landing
 page's weight must not move), `node scripts/test-locales.mjs`, `node scripts/test-containment.mjs`,
 `node scripts/a11y-check.mjs`, and a screenshot of `/teachers` at 360 and 1280 in light and dark in
 English and Russian.
@@ -424,7 +428,7 @@ message text.
 - An invariant that the alert message strings contain no digit, because the message is the fingerprint.
 
 **Verify.** Typecheck, lint, `npm test`, `npm run test:db`, invariants (the invariant named
-operator-mail-goes-to-admins from #816 must stay green).
+operator-mail-goes-to-admins, in `scripts/invariants/`, must stay green).
 
 **Done when.** A local run that books spend across 80 percent of a small cap produces exactly one stored
 error and one attempted mail that day.
@@ -441,8 +445,8 @@ that is acceptable and should be said in the code comment. Never put a figure in
 - `scripts/export-translations.ts`: add `--since <git ref>` and `--out <path>`. Without `--since` the
   behaviour is unchanged. With it:
   1. For each of Russian and Ukrainian, read the generated table at that ref with `git show` (the
-     generated files from #816 are under lib/copy/i18n/generated, one per language; their format is
-     in lib/copy/i18n/table.ts) and parse it. If the ref has no such file, treat every line as new and
+     generated files are under `lib/copy/i18n/generated`, one per language; their format is
+     in `lib/copy/i18n/table.ts`) and parse it. If the ref has no such file, treat every line as new and
      say so.
   2. Compare with the current generated file by key. A key that is new, or whose value differs, is
      listed. A removed key is ignored.
@@ -552,7 +556,7 @@ and SB-8.
 
 - Cause one error on production and confirm the mail arrives at an `ADMIN_EMAILS` address. A mail path
   never seen to work is the same as none.
-- Run PageSpeed on production after #816 deploys, to put real figures beside the local ones. Done on
+- Run PageSpeed on production now that #816 is deployed, to put real figures beside the local ones. Done on
   2026-10-14 at 23:14, Lighthouse 13 on PageSpeed Insights, one run each:
 
   | Page | Form | Score | First paint | Largest paint | Blocking | Shift | Speed index |
