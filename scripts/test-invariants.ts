@@ -4741,10 +4741,13 @@ check("the photograph itself is never stored", () => {
     the fault: a helper in lib/ that saves what it was handed. The route books
     its model call in the ledger, so `UsageEvent` is the one table it may
     write, and `RateLimit` beside it for the shared limiter; neither has a
-    column a picture could go in.
+    column a picture could go in. `ErrorEvent` is the third, because the route
+    reports what goes wrong and `reportError` keeps a copy: what reaches it has
+    been through `redact`, which cuts every string at 500 characters, and the
+    store caps each column again, so no picture fits in one.
   */
   const WRITE = /\.(\w+)\.(?:create|createMany|update|updateMany|upsert)\s*\(|\$executeRaw[\s\S]{0,120}?(?:INSERT\s+INTO|UPDATE)\s+"?(\w+)/g;
-  const MAY_WRITE = new Set(["usageEvent", "UsageEvent", "rateLimit", "RateLimit"]);
+  const MAY_WRITE = new Set(["usageEvent", "UsageEvent", "rateLimit", "RateLimit", "errorEvent", "ErrorEvent"]);
   const reached = new Set(["app/api/scan/route.ts"]);
   const queue = ["app/api/scan/route.ts"];
   const writes: string[] = [];

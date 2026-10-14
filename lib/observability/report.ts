@@ -139,6 +139,33 @@ export function reportError(error: unknown, context: ErrorContext): void {
     console.error(`[${context.at}] error could not be serialized`);
   }
 
+  /*
+    Kept in the app's own database too (`./store`), for a deployment that runs
+    in Next's Node server. `NEXT_RUNTIME` is set by Next and by nothing else,
+    so a unit test, a script and the Edge middleware never open a database
+    from here, and the import is dynamic so this module stays free of Prisma
+    for everything that imports it. The write is handed to `after()` where
+    there is a request to hold it open, because the platform suspends a
+    function once its response is sent and a promise nobody is holding may
+    never finish; outside a request, `after` throws and the write simply runs.
+  */
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    const keep = import("./store")
+      .then(({ storeError }) => storeError(record))
+      .catch(() => {
+        // The store logs its own failures; a module that will not load is one more.
+      });
+    void import("next/server")
+      .then(({ after }) => {
+        try {
+          after(keep);
+        } catch {
+          // Not inside a request: nothing to hold open, and `keep` runs anyway.
+        }
+      })
+      .catch(() => {});
+  }
+
   const webhook = process.env.ERROR_WEBHOOK_URL;
   if (!webhook) return;
   void fetch(webhook, {

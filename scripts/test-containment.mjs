@@ -216,6 +216,7 @@ const ROUTES = [
   "/scan",
   "/suggestions",
   "/admin/suggestions",
+  "/admin/errors",
 
   /*
     The conversations. The briefing at 360 is a role card, a four-cell dial of
