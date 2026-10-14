@@ -26,6 +26,14 @@ const READERS = [
   // The lesson drawn when a learner types a second right word, which shows
   // that word in use for what is often the first time: an introduction.
   "lib/progress/contrast.ts",
+  // The workbook page, for an A1 or A2 learner: a line asks a form of a word
+  // the evenings have taught, in a sentence made of words they have taught,
+  // which is the ladder's gap rung on a page. It practises rather than
+  // measures, its screen claims nothing about who wrote a sentence, and its
+  // marking is the dictionary's comparison against a vouched form, exactly as
+  // the gap rung's is. `lib/games/` itself still may not import the module:
+  // the page hands the sentences in as examples.
+  "app/(app)/review/workbook/page.tsx",
 ] as const;
 
 /** Directories whose every file is a measurement, a card builder or a scene. */

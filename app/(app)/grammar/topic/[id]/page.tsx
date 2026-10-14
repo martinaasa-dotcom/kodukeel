@@ -4,14 +4,15 @@ import { questionReading } from "@/lib/estonian/cases";
 import { localeFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BookOpen, TriangleAlert } from "lucide-react";
+import { ArrowLeft, BookOpen } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { TOPIC_NOTES, grammarTopic } from "@/lib/estonian/grammar";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { SYLLABUS } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
-import { Card, Chip, Note, Page, SectionTitle, Stack } from "@/components/ui";
+import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
+import { WatchOut } from "@/components/RuleNote";
 import { DrillLink } from "@/components/DrillLink";
 import { PointExamples } from "@/components/grammar/PointExamples";
 import { VerbTable } from "./VerbTable";
@@ -272,12 +273,7 @@ export default async function TopicPage({
           </ul>
         </section>
 
-        <Note tone="hard">
-          <span className="flex items-start gap-2">
-            <TriangleAlert size={17} aria-hidden className="mt-0.5 shrink-0" />
-            <span>{t(topic.watchOut)}</span>
-          </span>
-        </Note>
+        <WatchOut text={topic.watchOut} />
 
         {!only && table}
 

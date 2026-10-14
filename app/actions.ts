@@ -112,6 +112,7 @@ import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
 import { matchGrades } from "@/lib/srs/matchGrades";
+import { workbookGrades } from "@/lib/srs/workbookGrades";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
 import { DEFAULT_DAYS_PER_WEEK, normaliseGoals } from "@/lib/assessment/goals";
 import { PAPER_SIZE } from "@/lib/assessment/items";
@@ -1401,6 +1402,35 @@ export async function recordMatchGrades(grades: unknown) {
     batch does not, so Today would show the old due count for as long as the
     router cache holds it.
   */
+  revalidatePath("/");
+  revalidatePath("/words");
+  return { ok: true as const, graded: result.settled.length };
+}
+
+/** The most lines one workbook page can hand in: two exercises and their examples, with room. */
+const MAX_WORKBOOK_LINES = 32;
+
+/**
+ * Records a checked workbook exercise in the review log, one write for the
+ * whole exercise.
+ *
+ * The shape `recordMatchGrades` takes, for the reason it gives: a page grades
+ * every line at once, and a line per Server Action is a round trip per line
+ * before the exercise can say how it went. What each line is worth is
+ * `workbookGrades`, pure and unit tested, off the page's own outcome table, so
+ * the screen and the log say the same thing about a line. The slot each line
+ * asked travels with it and `writeGrade` checks it against the closed list.
+ * Ids are minted on the client, so an exercise sent twice settles rather than
+ * counting twice, and one that does not land goes to the outbox with them.
+ */
+export async function recordWorkbookGrades(grades: unknown) {
+  const ownerId = await requireUserId();
+
+  const batch = workbookGrades(grades, MAX_WORKBOOK_LINES, Date.now());
+  if (batch.length === 0) return { ok: false as const, error: "There's nothing to save yet." };
+
+  const result = await applyGradeBatch(ownerId, batch);
+  if (!result.ok) return { ok: false as const, error: result.error ?? "We couldn't save that exercise." };
   revalidatePath("/");
   revalidatePath("/words");
   return { ok: true as const, graded: result.settled.length };

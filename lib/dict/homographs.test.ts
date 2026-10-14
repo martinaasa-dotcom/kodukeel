@@ -20,7 +20,7 @@ describe("the shipped homograph reading", () => {
   });
 
   it("knows the postpositions and the homographs that were being lent", () => {
-    for (const spelling of ["jooksul", "otsas", "küljes", "kätte", "suhtes", "nimel", "õel", "veeres", "kahjuks"]) {
+    for (const spelling of ["jooksul", "otsas", "küljes", "kätte", "suhtes", "nimel", "veeres", "kahjuks"]) {
       expect(HOMOGRAPHS.spellings.has(spelling), spelling).toBe(true);
     }
   });

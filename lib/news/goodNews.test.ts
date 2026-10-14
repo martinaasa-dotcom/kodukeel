@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { badEnglish, badStem, judgeInstruction, PICKS, plainlyGood, readJudgement, recentEnough, shownTitle } from "./goodNews";
+import { badStem, plainlyGood, recentEnough, shownTitle } from "./goodNews";
 import { parseNewsItems, type NewsItem } from "./headlines";
 
 const item = (title: string, description = ""): NewsItem => ({ title, description, link: null, at: null });
@@ -28,6 +28,69 @@ const BAD = [
   item("Eesti Kunstnike Liidu juhatus astus suurkoguks valmistudes tagasi"),
 ];
 
+/*
+  A YEAR OF ERR, READ BY A PERSON. The rule was run over 9,554 articles ERR
+  published between October 2025 and October 2026, read off its own search,
+  and every headline it offered was read. These are the ones it used to
+  offer and must not: none of them is bad news in a word the old list held,
+  and none of them is a reason to smile either.
+*/
+const SLIPPED = [
+  item("Paavsti sõnul tehakse talle lähipäevil kopsuoperatsioon"),
+  item("Tolliametnikud pidasid kinni Leedu veoki üheksa miljoni salasigaretiga"),
+  item("Vilniuses kogunesid tuhanded inimesed meediavabaduse kaitseks meelt avaldama"),
+  item("Euroopa Kohus: samasooliste abielu tuleb tunnustada riigipiiride üleselt"),
+  item("Pirita rannast võetud sinivetikate proov osutus positiivseks"),
+  item("Augustis kasvas kaupade eksport kolm ja import kümme protsenti"),
+  item("Coop panga kasum kasvas aastaga, LHV panga tulemus jäi mullusele alla"),
+  item("Küsitlus: Saksa parempopulistide toetus kerkis 29 protsendini"),
+  item("Kell 20 \"Impulsis\": mida teha, et Eestis sünniks rohkem lapsi?"),
+  item("Arukülas alustas tööd 100-megavatine akupark"),
+  item("Kormorani pesapaigas tuleb toime vaid paar linnuliiki"),
+  item("Patarei merekindluses lõpeb selle suvega öine kontserttegevus"),
+  item("The Exploitedi edasilükatud Tallinna kontsert toimub juulis"),
+  item("Harno lükkas põhikooli eesti keele e-eksami aasta võrra edasi"),
+  item("Tallinna lauluväljaku juhiks valiti Laine Randjärv"),
+  item("Arvustus. Liisa-Lota Jõelehe isikunäitus küsib, kas õige kuju on üldse olemas"),
+  item("Evelyn Raudsepp: kollektiivne kujutlusvõime võiks olla vastupanuvahend"),
+  item("Tiitlikaitsja jäi NHL-i hooaja avamängus nullile"),
+  item("New Yorgi juubelimaratoni võitnud Korir sai pika dopingukeelu"),
+  item("Manchester City loovutas tiitliheitluses väärtuslikke punkte"),
+  item("Esiliigas mängiv Peetri jättis kuuekordse karikavõitja TalTechi geimivõiduta"),
+  item("Chelsea toob uue peatreeneri Prantsusmaa liigast"),
+  item("Festival ei toimu tänavu"),
+];
+/* And some it rightly offers, off the same year. */
+const PICKED = [
+  item("Hariduse elutööpreemia pälvis hariduspsühholoog Eve Kikas"),
+  item("Galerii: Viljandis avati suur näitus tikkimisest"),
+  item("Eesti noortefilm \"Morten\" võitis Itaalias kolm auhinda"),
+  item("Vanemuise teatris esietendub Margo Kõlari ja Ivar Põllu ooper \"Libahunt\""),
+  item("Tänavune aasta kodanik on Piia Kallas"),
+  item("Aasta betoonehitis 2025 on Tallinna Linnateater"),
+  item("Eesti noorpurjetajad võitsid MM-il hõbeda"),
+  item("Sinimäe põhikoolis tähistati vastlapäeva"),
+  item("Astronaudid tegid Kuu ümber edukalt tiiru"),
+];
+
+describe("a year of ERR headlines", () => {
+  it("refuses everything the old rule used to offer and should not have", () => {
+    for (const news of SLIPPED) expect(plainlyGood(news), news.title).toBe(false);
+  });
+
+  it("offers the plainly happy ones", () => {
+    for (const news of PICKED) expect(plainlyGood(news), news.title).toBe(true);
+  });
+
+  it("reads a happy word only where a word starts, and a price only outside an award", () => {
+    // `avati` sits inside `megavatine`; `auhind` holds `hind`, a price.
+    expect(plainlyGood(item("Galavatine kontsert"))).toBe(true);
+    expect(plainlyGood(item("Uus jaam on 100-megavatine"))).toBe(false);
+    expect(badStem(item("Film võitis auhinna"))).toBeNull();
+    expect(badStem(item("Piima hind tõusis"))).not.toBeNull();
+  });
+});
+
 describe("the bad-news list", () => {
   it("refuses war, crime, decline, worry and politics, by a part of a compound if need be", () => {
     for (const news of BAD) expect(badStem(news), news.title).not.toBeNull();
@@ -42,57 +105,12 @@ describe("the bad-news list", () => {
   });
 });
 
-describe("good news with no model to ask", () => {
+describe("good news", () => {
   it("needs a stem that means good news as well as clearing the bad-news list", () => {
     for (const news of GOOD) expect(plainlyGood(news), news.title).toBe(true);
     for (const news of BAD) expect(plainlyGood(news), news.title).toBe(false);
     expect(plainlyGood(item("Riigikogu arutab eelnõu"))).toBe(false);
     expect(plainlyGood(item("Ilm on homme pilvine"))).toBe(false);
-  });
-});
-
-describe("the question put to a model", () => {
-  it("numbers every headline, shortens a long summary and asks for English only", () => {
-    const text = judgeInstruction([item("Üks", "x".repeat(400)), item("Kaks")]);
-    expect(text).toMatch(/^0\. Üks$/m);
-    expect(text).toMatch(/^1\. Kaks$/m);
-    expect(text).not.toContain("x".repeat(200));
-    expect(text).toMatch(/When unsure, reject/);
-    expect(text).toMatch(/"en"/);
-  });
-});
-
-describe("reading the judgement", () => {
-  const items = [GOOD[0]!, BAD[0]!, GOOD[1]!];
-
-  it("keeps the picks in the order given, with their English", () => {
-    const picks = readJudgement('Here: {"good":[{"i":2,"en":"A Danish scientist found 45 new species"},{"i":0,"en":"A gallery opened"}]}', items);
-    expect(picks).toEqual([
-      { index: 2, en: "A Danish scientist found 45 new species" },
-      { index: 0, en: "A gallery opened" },
-    ]);
-  });
-
-  it("drops a pick the bad-news list refuses, whatever the model said about it", () => {
-    expect(readJudgement('{"good":[{"i":1,"en":"Good news!"}]}', items)).toEqual([]);
-  });
-
-  it("picks nothing from a reply it cannot read, and drops indices that are not there", () => {
-    expect(readJudgement("no", items)).toEqual([]);
-    expect(readJudgement('{"good":"all"}', items)).toEqual([]);
-    expect(readJudgement('{"good":[{"i":9},{"i":"0"},{"i":0},{"i":0}]}', items)).toEqual([{ index: 0, en: null }]);
-  });
-
-  it("keeps a name's letters in the English and nothing else Estonian, and turns a dash into a comma", () => {
-    expect(readJudgement('{"good":[{"i":0,"en":"A gallery opened in Sillamäe — the first one"}]}', items))
-      .toEqual([{ index: 0, en: "A gallery opened in Sillamäe, the first one" }]);
-    expect(readJudgement('{"good":[{"i":0,"en":"a gallery opened, sõna"}]}', items)).toEqual([{ index: 0, en: null }]);
-  });
-
-  it("stops at the number it asked for", () => {
-    const many = Array.from({ length: 10 }, (_, i) => item(`Uus galerii avati ${i}`));
-    const reply = JSON.stringify({ good: many.map((_, i) => ({ i, en: `Gallery ${i}` })) });
-    expect(readJudgement(reply, many)).toHaveLength(PICKS);
   });
 });
 
@@ -149,38 +167,7 @@ describe("today's news, not last week's", () => {
   });
 });
 
-describe("the English, read for the same thing", () => {
-  it("refuses a pick whose English says it is bad news, whatever the Estonian slipped past", () => {
-    for (const en of [
-      "Two people died in a fire in Tartu",
-      "Police arrest a suspect after the robbery",
-      "Concert cancelled over fears of a storm",
-      "War in Ukraine enters a new phase",
-    ]) expect(badEnglish(en), en).toBe(true);
-  });
-
-  it("lets the plainly happy through, without catching a word inside another", () => {
-    for (const en of [
-      "A new gallery opened in Sillamäe",
-      "Fireworks light up Tallinn for the song festival",
-      "Estonian choir wins gold in Spain",
-      "Scientists find 45 new species of gall midges",
-    ]) expect(badEnglish(en), en).toBe(false);
-  });
-
-  it("refuses English that is not a headline at all", () => {
-    expect(badEnglish("Visit www.example.com for free gifts")).toBe(true);
-    expect(badEnglish("<script>")).toBe(true);
-  });
-
-  it("drops such a pick from the judgement whole", () => {
-    const items = [item("Uus galerii avati"), item("Kontsert toimus")];
-    const reply = JSON.stringify({ good: [{ i: 0, en: "Two people died at the gallery" }, { i: 1, en: "A concert took place" }] });
-    expect(readJudgement(reply, items)).toEqual([{ index: 1, en: "A concert took place" }]);
-  });
-});
-
-describe("the keyless good-news words", () => {
+describe("the good-news words", () => {
   it("do not take a word that only starts like a happy one", () => {
     // `sündmus` is an event, not a birth; `naeruväärne` is ridiculous, not a laugh.
     expect(plainlyGood(item("Linnas toimub suur sündmus"))).toBe(false);

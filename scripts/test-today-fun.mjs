@@ -47,6 +47,15 @@ async function axeOn(selector) {
   return page.evaluate(async (sel) => {
     const node = document.querySelector(sel);
     if (!node) return ["nothing to check"];
+    // A card still fading in is measured at part of its opacity, and axe reads
+    // that as low contrast: CI once failed this on a first run and passed the
+    // second run made for the message. Measure the card as it settles.
+    // Only the ones that end, and never for long, since a loop never finishes.
+    const ending = document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity);
+    await Promise.race([
+      Promise.all(ending.map((a) => a.finished.catch(() => {}))),
+      new Promise((r) => setTimeout(r, 3000)),
+    ]);
     const result = await window.axe.run(node);
     return result.violations.map((v) => `${v.id} (${v.nodes.length})`);
   }, selector);
@@ -75,8 +84,8 @@ try {
   check("the speaker reads only what is on the card", (await card.getByRole("button", { name: "Hear the joke" }).count()) === 1);
   check("the joke's words open their dictionary entries",
     (await joke.locator('a[href^="/dictionary"]').count()) > 0);
-  check("the joke card passes axe with the punchline held", (await axeOn("[data-joke]")).length === 0,
-    (await axeOn("[data-joke]")).join(", "));
+  const heldAxe = await axeOn("[data-joke]");
+  check("the joke card passes axe with the punchline held", heldAxe.length === 0, heldAxe.join(", "));
 
   await held.click();
   check("the punchline replaces the dots", await eventually(async () => (await held.count()) === 0));
@@ -93,8 +102,8 @@ try {
     await eventually(async () => (await card.getByRole("button", { name: "Hide English" }).count()) === 1));
   check("the English adds lines rather than replacing the Estonian",
     (await joke.innerText()).length > estonianOnly.length);
-  check("the joke card passes axe with the English and the punchline shown",
-    (await axeOn("[data-joke]")).length === 0, (await axeOn("[data-joke]")).join(", "));
+  const shownAxe = await axeOn("[data-joke]");
+  check("the joke card passes axe with the English and the punchline shown", shownAxe.length === 0, shownAxe.join(", "));
 
   const told = await joke.innerText();
   await another.click();

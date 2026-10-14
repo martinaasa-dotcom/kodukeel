@@ -3417,6 +3417,16 @@ it behind a press is that it no longer has to apologise for the room it takes. T
 now, across Settings, the class pages, the level check, the plan, the readiness page and the
 shortcut sheet.
 
+**And what opens is a panel, and a grammar rule is two things rather than one paragraph.** An
+`Explain` used to open into loose grey paragraphs with no edge, so nobody could tell how much there
+was before reading all of it; it opens into `.explain-panel` now, one soft box read or skipped as one
+thing. And a rule's summary and its warning were drawn four ways on four screens, the worst of them
+two grey paragraphs in the workbook's box, reported as too many words to take in. The fault was the
+shape rather than the length: `components/RuleNote.tsx` sets the point as one bold line with a
+lightbulb and the trap as a "Watch out" callout on `--hard-soft`, and the topic pages, the case pages,
+the build-a-word walk and the workbook all draw it. A sixth drawing of a grammar warning is the
+thing to avoid.
+
 **Three kinds of small print are not an explanation and stay on the screen**, each argued for by
 name in `CAPTION_EXEMPT`: a **status** a reader has to see to know what happened, which is the audio
 that would not load and the recording that has not been made; a **form instruction**, which is how
@@ -4420,6 +4430,61 @@ Estonian is written at all.
 **English clues and Estonian answers, one direction only, because that is the direction that
 teaches.** You know what you mean and you are looking for the word, which is where a learner is
 every time they open their mouth. The other way round is a reading exercise with extra steps.
+
+**Töövihik is the course book's own exercise, and it is a page rather than a card.** Every Estonian
+course book is built out of one shape: a heading saying what to do, a worked example, and eight or
+ten real sentences each with a word in brackets to write in the form the sentence needs, `Palun aita
+(mina) ____ põrand ära pesta!`. It is what a learner does with a pencil for an evening, and the app
+had every piece of it scattered one card at a time. `lib/games/workbook.ts` composes the page and is
+pure: a theme (a case, the present, the simple past, the would form, commands, personal pronouns or
+mixed forms) is chosen from the learner's own weakest cases and words, each line is cut from a
+sentence a lexicographer recorded (`buildCloze`, behind `gapForms`, so nothing is written), and a
+line is kept only where exactly one slot claims the spelling in that sentence, the `readCase` rule
+asked of verbs as well, with the negative's claim dropped unless `ei` stands before the gap. The
+page is checked whole, the lines that missed open again with their ending shown off `hintLadder`,
+and each line grades its word's own card through `recordWorkbookGrades` and `applyGradeBatch`
+(ADR-016): right first time Good, a slip or a second go Hard, missed Again, carrying the slot asked
+and the slot reached. The finish screen hands the page back corrected, with the English under every
+line, and names the one confusion that came back twice. It is the drill the module deals on an
+evening that read a case page (`CASE_ROUNDS`, `onTheCase`) and closes the A2 to C1 rotations, where
+the flash round used to. `whereWhole` in `lib/estonian/cloze.ts` was rewritten for it, a cached
+plain pattern and a static boundary class in place of a lookaround compiled per call, about
+forty-five times faster and proved equal to the old expression over the shipped sentences, because
+a page builds hundreds of candidate lines and the old match was the whole of its cost.
+`npm run measure:workbook` counts how many words can fill a page of each theme at each band. And four edge cases are held by `scripts/test-workbook.mjs`, each made to fail on the
+real fault: a second tap on Check a quarter of a second after the first checked the reopened page
+unchanged and wrote Again on every line, so the second pass waits for a change; a verb in a sentence
+that drops its pronoun had no right answer once the English was hidden, so the bracket names the
+person the way a course book does (`whoFor`, read off the pronoun table and the six entries' own
+spellings); the bracket word copied out unchanged is named for what it is; and a card is graded once
+a sitting, the worst of its lines, with a word kept to one page.
+
+**A page is three kinds of exercise, and its sentences are filtered for a person to read.**
+`ExerciseKind` is `write` ("Kirjutage õige vorm"), `choose`, three forms of the word under each line
+off the word's own forms (`choicesFor`, never the other object case, which a sentence often takes
+too), and `box`, the words over the page and none in brackets, so a sentence is read for its meaning
+before its ending; a form of another word in the box is said as that (`otherWordIn`). A beginner's
+sitting picks then writes, everybody else's writes then does the box, and the module's page is
+written. A line has an English line, a finite verb, every word one the dictionary knows and at most
+one above the learner's band (`withinReach`), and no other form of its own word beside the gap,
+plainest first (`workbookSentences`, off `plainnessCost`). For an A1 or A2 learner the page reads
+the sentences written for a beginner (ADR-005 amendment 4, which now names it). What no filter can
+judge is whether a native speaker would set the sentence, and `npm run audit:workbook` prints the
+lines a band is dealt for that reading; a refusal goes in `lib/dict/refused.ts`. All 640 were read
+once, and 41 are refused there; three of the faults that reading found are now refused at the source
+(`plainTarget`): a capitalised gap past the first word is a name, a verb after `ega` is the negative
+like one after `ei`, and a command spelled like the word's own infinitive is refused rather than guessed. **The gap is a
+ruled line**, the learner's writing in the accent on the sentence's baseline, a checked answer is
+the word with its line coloured and a tick or a cross, and a second go is one sentence, the note
+and then the hint ("It ends in …ks", "The word is arst"), never a pill: a boxed gap with its text
+off the line and letter-spaced yellow hints were reported as hideous, and were. **The word sits in
+the middle of its line and the line grows with it**: a gap starts as wide as the word in brackets,
+never the answer's width, and `.wb-gap-sizer` lays a hidden copy of what is typed in the same grid
+cell as the box, so past that the line is as wide as the letters really are; a checked answer keeps
+the same starting width, so pressing Check does not move the sentence. A half-filled page
+survives a reload (`resume.ts`), the lines got wrong can be done again ungraded, and
+`scripts/lib/workbook.mjs` walks every state for the layout and accessibility sweeps with every
+write cut off.
 
 **Kakskümmend küsimust answers a well-formed question, and that is a number held under one percent.**
 A round was reported as horrible, and the measure behind that was 39 percent: of 380 questions a
@@ -7943,9 +8008,11 @@ session and read by the native speaker in the pull request (ADR-005 amendment 5)
 to the shipped forms list by `jokes.test.ts`, and readable on the card alone, asserted in
 `scripts/invariants/jokes-stay-on-their-card.ts`. The good news is ERR's own headline, word for
 word, with the dictionary under every word (`annotateTexts`, the headlines' gate): a list of
-bad-news stems refuses on every path whatever anybody thinks, and then a metered model on the
-grader's chain picks what is plainly good and says it in English, or, with no model, a headline has
-to carry a good-news stem as well (`lib/news/goodNews.ts`). Held an hour for the instance, never
+bad-news stems refuses on every path, and then the headline itself has to report a happy event
+(opened, won, premiered, born, celebrated, discovered), as a report rather than a quote, a question
+or a negation (`lib/news/goodNews.ts`). **No model decides it**, which is the operator's call and an
+invariant: the two lists were read against a year of ERR, 9,554 articles, and every headline they
+still offer was read (`docs/13-mvp-status.md` §58). Held an hour for the instance, never
 waited for (it streams in behind a `Suspense` once the rest of Today has gone out, `GoodNewsSlot`),
 and absent rather than empty on an hour with nothing good. The joke's last line waits behind a tap, because a joke printed whole is a joke told
 badly, and the news card carries the best headline and up to two behind it for its own "Another one".
@@ -11888,6 +11955,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`, `withoutFarewell`,
 `withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`, `shrugFits`, `priceAsked`, `SAYS_FIRST`, `isFarewell`,
 `planTurn`, `speakTurn`, `composeTurn`, `harnessModel`, `asksTheirQuestion`, `againHref`,
+`linesFor`, `composeSheet`, `markLine`, `workbookGrades`, `recordWorkbookGrades`, `whereWhole`, `whoFor`,
 `FreshRound`, `AnotherRound`, `dealSayings`, `afterServing`, `markSayingsServed`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.

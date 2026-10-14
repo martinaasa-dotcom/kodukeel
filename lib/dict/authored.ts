@@ -44,7 +44,9 @@
  *
  * WHERE THEY ARE SHOWN, AND WHERE THEY MAY NOT BE. On the screens that
  * introduce a word: the Learn ladder's meeting and gap rungs, the first
- * meeting on the review card, and the unit lesson. Never in anything that
+ * meeting on the review card, and the unit lesson; and on the workbook page
+ * for an A1 or A2 learner, whose lines are the gap rung's question set on a
+ * page, so a beginner's page is made of sentences they can read. Never in anything that
  * marks or measures (the mock exam, the level check, the checkpoint), never
  * lent to another word (`lib/dict/borrow.ts`), never cut into a deck card,
  * and never in a scene, because each of those says on its own screen that its

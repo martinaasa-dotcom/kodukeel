@@ -3417,3 +3417,40 @@ saving the forest and `koolist koju minna` for going home from school were appli
 `Inglise kuningad` was declined a second time: it names the country (Inglismaa), and a country's
 name in the genitive keeps its capital, as in `Soome president` and `Rootsi kuningas`; it is a
 one-character change for a native reader to overrule.
+
+## 58. The fifty-second pass: good news without a model
+
+The operator's call: no model decides which ERR headline is good news, and what the word lists pass
+has to be genuinely good. So the model judge is gone, the card carries no English, and
+nothing on its path may reach a provider or the ledger, asserted in
+`scripts/invariants/jokes-stay-on-their-card.ts`. This supersedes §57 wherever it describes the
+judge, its English and the keyless fallback.
+
+**The old keyless rule was measured and was far too loose.** ERR's own search gave 9,554 articles
+from October 2025 to October 2026. Of the front page, culture and science, which are the feeds the
+card reads, it offered about 580, and the front page's were a pope's lung operation, cigarette
+smuggling, a protest in Vilnius, a European Court ruling, blue-green algae on Pirita beach, export
+statistics, a bank's profits and a party's poll numbers: no bad-news word in any of them, and a
+happy stem (`kasvas`, `positiiv`, `avati` inside `megavatine`) in each.
+
+**The rule now reads the headline for a happy event, and the whole text for anything that is not
+one.** A headline has to report that something opened, was won or awarded, premiered, was born,
+was celebrated or was discovered, read off the headline alone, with a verb matched only where a
+word starts. It may not be a quote or an opinion (`Name: ...`), a question, a review, a programme
+strapline or a broadcast notice, or carry a negation. And the bad-news list now refuses business,
+the economy, politics, health and the weather whole, beside the death, crime, war, accidents,
+closures and delays it already held, because none of those is the headline that cheers somebody up.
+
+**Every headline it still offers was read.** 189 of the year's articles on those three feeds pass,
+every one an opening, a premiere, a prize, a festival, a concert, a new species or a celebration.
+Over the 2,100 sport headlines the front page can also carry, the read found a goalless match, a
+doping ban, points given away, a match lost without a game and `liiga` (a league) read as a new
+species, and each is refused now. The ones it used to offer are fixtures in
+`lib/news/goodNews.test.ts`. On 2026-10-14 the live feeds gave eleven picks. In the year's sample
+only two weeks had none, and the sample is a fraction of what the feeds carry, so a day with
+nothing to show should be rare.
+
+**What it costs is good stories it does not offer.** A happy story told without one of the event
+words, or beside a business or health word in its summary, is passed over. That is the side to err
+on: a card that misses a good story costs nothing, and one that shows a bad story costs the card.
+

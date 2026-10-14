@@ -3,7 +3,7 @@ import { ReadingEnd } from "@/components/course/ReadingEnd";
 import { notFound, redirect } from "next/navigation";
 import { fold } from "@/lib/estonian/fold";
 import {
-  ArrowLeft, ArrowRight, BookOpen, MessageCircleQuestion, PenLine, Target, TriangleAlert,
+  ArrowLeft, ArrowRight, BookOpen, MessageCircleQuestion, PenLine, Target,
 } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { CASES, caseQuestionReading } from "@/lib/estonian/cases";
@@ -14,6 +14,7 @@ import { allCaseReferences, caseReference } from "@/lib/estonian/grammar";
 import { caseExamples, type CaseExample } from "@/lib/progress/caseExamples";
 import { ButtonLink } from "@/components/Button";
 import { Card, Empty, Note, Page, SectionTitle, Stack } from "@/components/ui";
+import { WatchOut } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { PointExamples } from "@/components/grammar/PointExamples";
@@ -252,17 +253,7 @@ export default async function CasePage({
           </Card>
         </section>
 
-        <section>
-          <SectionTitle>{t("Watch out")}</SectionTitle>
-          <Card tone="butter">
-            <div className="flex items-start gap-3">
-              <TriangleAlert size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--butter-ink)" }} />
-              <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                {t(ref.watchOut)}
-              </p>
-            </div>
-          </Card>
-        </section>
+        <WatchOut text={ref.watchOut} />
 
         <section>
           <SectionTitle hint={examples.some((e) => e.inDeck) ? t("words from your deck first") : t("from the dictionary")}>

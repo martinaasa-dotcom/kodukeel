@@ -14,9 +14,8 @@ import type { GoodNews } from "@/lib/dict/goodNews";
  * Real Estonian from this morning, chosen to be a reason to smile
  * (`lib/news/goodNews.ts` says how strictly). The headline is ERR's, word for
  * word, with the dictionary under every word it knows, so it is a few minutes
- * of reading somebody actually wrote today. The English, where there is one,
- * is under it rather than instead of it, because a headline is harder reading
- * than a joke and the point of this card is the smile; and the link goes to
+ * of reading somebody actually wrote today. No English is written for it: a
+ * word that will not open is the article's to explain, and the link goes to
  * the article, named as ERR's because these are somebody else's words.
  *
  * The page hands over the best headline and up to two behind it, so "another
@@ -49,11 +48,6 @@ export function GoodNewsCard({ stories }: { stories: GoodNews[] }) {
           <blockquote lang="et" className="text-md font-semibold leading-relaxed" style={{ color: "var(--ink)" }}>
             <LinkedWords tokens={news.tokens} />
           </blockquote>
-          {news.en && (
-            <figcaption className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {news.en}
-            </figcaption>
-          )}
         </figure>
       </div>
       <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-4">
