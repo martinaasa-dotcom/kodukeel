@@ -297,7 +297,7 @@ credentials and the paid keys, on a production build (`next build`, `next start`
 | `test-design.mjs` | 19, none failed |
 | `test-mobile.mjs` | 189, none failed |
 | `a11y-check.mjs` | 991, none failed, the poster included |
-| `test-flash.mjs`, `test-teaching.mjs`, `test-modes.mjs` after the section 11 fix | see the pull request |
+| `test-flash.mjs`, `test-teaching.mjs`, `test-modes.mjs` after the section 11 fix | 21, 91 and 60, none failed (one teaching check and six modes checks waived for reasons unrelated to this work) |
 | CI | green on the QW-8 commit and on the poster fix; the commit after it went red on the generated tables once main had moved, fixed by the merge (section 11) |
 
 Lighthouse was not rerun: it is not installed here and installing it would have meant pulling a
