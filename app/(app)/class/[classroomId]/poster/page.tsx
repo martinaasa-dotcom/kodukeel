@@ -82,7 +82,7 @@ export default async function JoinPosterPage({ params }: { params: Promise<{ cla
 
       <section
         aria-label={t("Join poster")}
-        className="join-poster rounded-[var(--r-xl)] border p-6 md:p-10 print:rounded-none print:border-0 print:p-0"
+        className="join-poster rounded-[var(--r-xl)] border p-6 lg:p-10 print:rounded-none print:border-0 print:p-0"
         style={{ background: "var(--surface)", borderColor: "var(--rule)" }}
       >
         <div className="flex flex-col items-center text-center">
@@ -90,12 +90,14 @@ export default async function JoinPosterPage({ params }: { params: Promise<{ cla
           <p className="mt-6 text-2xl font-bold md:text-3xl print:text-4xl" style={{ color: "var(--ink)" }}>{classroom.name}</p>
           {/*
             The tracking is cancelled after the last letter, or the code sits
-            off centre by the width of the space it leaves behind it. A phone
-            gets a step down, since six of the widest letters at the print size
-            would run off a 360 px screen; the paper gets the largest step.
+            off centre by the width of the space it leaves behind it. The screen
+            steps up with the width, and stays small at 768, where the rail
+            takes a third of it: six of the widest letters at 72 px ran 80 px
+            past the card there. The paper gets the largest step. The three
+            languages sit side by side from xl and on paper for the same reason.
           */}
           <p
-            className="font-display tnum mt-6 whitespace-nowrap text-4xl font-bold tracking-[0.18em] sm:text-7xl print:text-8xl"
+            className="font-display tnum mt-6 whitespace-nowrap text-4xl font-bold tracking-[0.18em] sm:text-5xl lg:text-7xl print:text-8xl"
             style={{ color: "var(--ink)", marginRight: "-0.18em" }}
             data-join-code
           >
@@ -106,7 +108,7 @@ export default async function JoinPosterPage({ params }: { params: Promise<{ cla
           )}
         </div>
 
-        <div className="mt-10 grid gap-8 md:grid-cols-3 print:mt-16 print:grid-cols-3 print:gap-8">
+        <div className="mt-10 grid gap-8 xl:grid-cols-3 print:mt-16 print:grid-cols-3 print:gap-8">
           {LOCALES.map((l) => (
             <JoinSteps key={l} locale={l} address={address} />
           ))}
