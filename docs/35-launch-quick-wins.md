@@ -364,11 +364,13 @@ the repository, and tick them off in the pull request that closes this page's wo
    keyed on the canonical host. Open `/trust` on the live address and expect a named controller, not
    "Not named on this copy yet".
 3. **Point `ERROR_WEBHOOK_URL` at somewhere a person reads.** Nothing watches the running deployment
-   today (`docs/33-certification-readiness.md`, Phase 0).
+   today (`docs/33-certification-readiness.md`, Phase 0). **Done another way:** every error is now
+   kept in the app and listed on `/admin/errors`, and the first of each new kind in a day is emailed
+   to `ADMIN_EMAILS` through the Resend key the letters use. The webhook stays optional.
 4. **Turn on branch protection for `main`** with the CI jobs as required checks. The default branch is
-   unprotected and CI is not required to pass before a merge.
-5. **Run the restore drill once.** Restore a provider backup into a scratch project, time it, write
-   down what broke, and put the dated result in `docs/28-incident-response.md` section 9.
+   unprotected and CI is not required to pass before a merge. A ruleset to import, naming every CI
+   job but the dependency audit, was handed to the operator with the report.
+5. **Closed.** The operator decided against it on 14 October 2026; it is not part of this work.
 6. **Know the fallback.** Read `docs/21-situations.md` for what a learner sees when the model balance
    runs out (the screen says so once, and conversations fall back to prepared lines).
 

@@ -25,7 +25,7 @@ Branch `claude/determined-ritchie-ptcr9g`, pull request #816. In order:
 | QW-4 | Done | A "For teachers" band at the foot of the landing page, in three languages |
 | QW-5 | Done | A printable join poster per class, one A4 sheet in English, Russian and Ukrainian |
 | QW-6 | Done | The two settings icons swapped; counts grouped by locale on the dictionary and the course |
-| QW-7 | Checked read-only; two settings missing | Site address and operator are set; the error webhook is not; branch protection unconfirmed |
+| QW-7 | Done | Site address and operator are set; errors are kept in the app and emailed to the admins; a branch ruleset was handed over |
 | QW-8 | Done, by a different route than planned | A browser never downloads a language it is not reading |
 | QW-9 | Done | The signed-in app loads one language as one chunk; a weight budget runs in CI |
 
@@ -203,9 +203,7 @@ at 360, `/trust` in Ukrainian at 1280. Containment and locale suites (section 10
     set.
 - Wording follows the standing decision in section 1 of the plan: "For learners aged 13 and older.
   Younger pupils need an agreement with their school first." It promises no pupil accounts and no
-  sign-in by code. **The operator should read the second sentence of the age line**: it is accurate
-  to the standing decision and does tell a teacher a route exists, so cut it if that reads as too
-  much of a promise.
+  sign-in by code. The operator read the second sentence of the age line and kept it.
 - Eight new lines in the landing area, in Russian and Ukrainian, inside the landing slice.
 
 **Checked.** Screenshots at 360 and 1280, light and dark, English and Russian. The landing page's
@@ -266,13 +264,16 @@ names and the live site:
    links and the sitemap is populated.
 2. **The operator is named** on the live `/trust`: Upthink Solutions OÜ, privacy@upthink.ee. This
    is also what makes the new Contact link and the pilot link appear in production.
-3. `ERROR_WEBHOOK_URL` **is not set** in production, so a server error reaches nobody. Also absent:
-   `RESEND_API_KEY` (no mail goes out, so the letters described in CLAUDE.md are dormant) and
-   `CRON_SECRET` (the scheduled mail run cannot authenticate). These are the operator's to set.
-4. **Branch protection on `main` could not be confirmed** from this session; the plan says it is
-   off. It needs a person with admin rights in GitHub's settings.
-5. **The restore drill** has not been run. It needs a scratch project in the database provider and
-   a person to time it.
+3. `ERROR_WEBHOOK_URL` **is not set** in production, so a server error reached nobody. The
+   operator asked for nothing extra to build, so errors are kept in the app instead (section 13).
+   `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_TOKEN_SECRET`, `CRON_SECRET`, `EMAIL_REPLY_TO` and
+   `RESEND_WEBHOOK_SECRET` were then set by the operator and production redeployed, which was
+   checked by reading the variable names, never their values.
+4. **Branch protection on `main`** cannot be set from this session. A ruleset to import was handed
+   to the operator: deletion and force pushes blocked, a pull request required, and every CI job
+   required to pass on an up-to-date branch, except the dependency audit, which can go red on an
+   advisory published upstream that no pull request caused.
+5. **Closed by the operator** (14 October 2026); not part of this work.
 6. **The fallback** is documented in `docs/21-situations.md` (section 79 and the paragraphs on
    `modelDown`); nothing to change.
 
@@ -300,10 +301,7 @@ credentials and the paid keys, on a production build (`next build`, `next start`
 | `test-flash.mjs`, `test-teaching.mjs`, `test-modes.mjs` after the section 11 fix | 21, 91 and 60, none failed (one teaching check and six modes checks waived for reasons unrelated to this work) |
 | CI | green on the QW-8 commit and on the poster fix; the commit after it went red on the generated tables once main had moved, fixed by the merge (section 11) |
 
-Lighthouse was not rerun: it is not installed here and installing it would have meant pulling a
-browser build the environment already pins. The script weight is the cause the plan named for the
-47 to 49 performance score; the next session should take the before and after Lighthouse figures on
-the production host (section 12).
+Lighthouse was not rerun at this point. It was later, after the operator ran PageSpeed on production, and the figures and what moved them are in section 13.
 
 ## 11. Where the work went differently from the plan
 
@@ -342,16 +340,14 @@ the production host (section 12).
 
 Ordered by what they cost to leave.
 
-1. **Set the three missing environment variables** (`ERROR_WEBHOOK_URL`, `RESEND_API_KEY`,
-   `CRON_SECRET`) and turn on branch protection. Operator work, under an hour, and nothing watches
-   production until it is done.
-2. **Take Lighthouse on the production host**, before and after this pull request deploys, for the
-   landing page, a dictionary entry and Today, and write the figures into `docs/35-launch-quick-wins.md`. The plan's
-   baseline was 47 to 49 on the landing page; expect a large move, but measure it.
+1. **Import the branch ruleset.** The mail variables are set; the ruleset is the one setting left.
+2. **Take PageSpeed on the production host again after this deploys** and compare with section 13's
+   local figures and the production ones before it.
 3. **Native review of the new Russian and Ukrainian.** Thirty-odd lines, all machine-written: the
-   teachers band, the poster's steps, "The same in English", "Contact", and the shortened
-   Ukrainian label on Anu's no-key button. They are listed in the
-   pull request. The poster's matter most, because they go on a classroom wall.
+   teachers band, the poster's steps, the error log, "The same in English", "Contact", and the
+   shortened Ukrainian label on Anu's no-key button. They went to the operator as one Markdown table
+   per language, with a column for a better version. The poster's matter most, because they go on a
+   classroom wall.
 4. **A slice for `/funding`**, the one public page still loading a whole language. Small, using the
    same `areaTable` and borrow list pattern; `test-locales.mjs` will name any line it misses.
 5. **Split the signed-in table by route.** A Russian learner still downloads all 316 KB of Russian on
@@ -378,7 +374,82 @@ Ordered by what they cost to leave.
     class board, the privacy boundary in full and a pilot contact is the next step once a school is
     interested.
 
-## 13. Files touched
+## 13. After the report: the error log and PageSpeed
+
+Two things the operator asked for once the report was written.
+
+**The error log.** The operator did not want to build anything to receive errors, so the app keeps
+them itself. `reportError` writes each error to `ErrorEvent` as well as to the server log, inside
+Next's Node server only, after `redact` has taken out keys and connection strings and with the
+learner's id dropped. `/admin/errors` lists them one line per kind, newest first, for 30 days, linked
+from the review queue. The first of each new kind in a day is emailed to `ADMIN_EMAILS` through the
+Resend key the letters use, at most ten a day. `lib/observability/store.ts` is the store,
+`lib/observability/fingerprint.ts` decides which errors are one kind, and
+`scripts/invariants/operator-mail-goes-to-admins.ts` holds the mail to the admins and the row to no
+owner id. `lib/observability/store.itest.ts` drives all of it against a real database.
+
+**PageSpeed.** The operator's runs on production (main, before this pull request) on 14 October 2026:
+
+| Page | Mobile | Desktop | Mobile LCP |
+| --- | --- | --- | --- |
+| `/welcome` | 64 | 73 | 7.0 s |
+| `/dictionary?q=tuba`, which redirects to `/sign-in` | 65 | 83 | 8.6 s |
+
+The same pages and the other public ones, measured locally with Lighthouse 12 on a production build
+of this branch, simulated mobile:
+
+| Page | Mobile | Desktop |
+| --- | --- | --- |
+| `/welcome` | 91 | 100 |
+| `/welcome/ru` | 91 | not run |
+| `/sign-in` | 91 | 100 |
+| `/privacy` | 91 | 100 |
+| `/terms`, `/accessibility` | 97 | not run |
+| `/trust`, `/state-exam` | 92 | not run |
+| `/funding` | 96 | 100 |
+
+Accessibility, best practices and SEO are 100 on every one of them except the landing page's SEO,
+which is 91 locally only because a local build has no site address for its `hreflang` links.
+Signed-in screens, which PageSpeed cannot reach, measure 84 to 87.
+
+What moved them, each found by tracing rather than by guessing:
+
+- **This pull request's QW-8.** Production's sign-in loads a 762 KB script chunk, which is both
+  translation tables. That is already fixed here.
+- **A loading state in front of pages with nothing to wait for.** A `loading.tsx` wraps its page in
+  a Suspense boundary, so the page arrived hidden and React revealed it with a throttled script.
+  The landing page's headline painted at 571 ms in a trace and at 281 ms without it. The landing
+  page, sign-in and the six public pages lose theirs; first run keeps one under `start/`.
+- **The brand's idle loops**, which animate SVG groups that no browser can composite, so each frame
+  was a layout on the main thread: about 300 layouts in three seconds. They wait for the page to
+  settle (a touch, a pointer, a key, a scroll, or four seconds after load).
+- **A fitted word measured each form in a hidden span**, one forced layout per form, inside
+  hydration. It measures on a canvas.
+- **The error and not-found screens** each shipped their own copy of the report button with every
+  page. They load it when drawn.
+- **Next's polyfill module** (14 KB of legacy JavaScript by Lighthouse's count) is aliased to an
+  empty file. Every browser Next 16 supports has the methods.
+- **Font preloads** are Latin and Cyrillic only. Latin Extended carries only š and ž for Estonian
+  and is fetched when drawn. Cyrillic stays, because the language switcher on every first screen
+  draws it.
+- **Sign-in's other faults**: the CSP refused Google's button stylesheet (the console error and the
+  Issues panel entry), and the email form jumped when Google's button replaced its skeleton.
+- **Agentic browsing**: `/llms.txt` exists, and `/.well-known/` answers 404 rather than the sign-in
+  page a checker read as an invalid agent catalog.
+
+Tried and taken back out: `inlineCss` (it put the 150 KB stylesheet into every document twice) and
+`content-visibility` on the landing sections (no measurable gain, and it froze scroll-driven
+reveals). Both are recorded where they were tried.
+
+**What is left, and why it stops at about 91 on mobile.** Lighthouse's simulated phone counts every
+byte the page requested before its real first paint, at 1.6 Mbps. For the landing page that is the
+HTML, four font files and about 205 KB of script, of which about 110 KB is React and Next's router.
+Going further means less JavaScript on the first screen (fewer interactive demos above the fold, or
+deferring their hydration) or smaller fonts, which are design decisions rather than fixes. The back
+and forward cache is refused on dynamic pages because they send `no-store`, which is deliberate for
+pages that can carry a learner's data; Lighthouse lists it as not actionable.
+
+## 14. Files touched
 
 QW-1:
 - `lib/learn/ladder.ts`, `lib/learn/ladder.test.ts`
