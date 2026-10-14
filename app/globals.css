@@ -1348,6 +1348,136 @@
   }
 
   /*
+    TÖÖVIHIK: A COURSE BOOK'S PAGE, AND A PEN.
+
+    The page is drawn the way the exercise is printed in every Estonian course
+    book: numbered lines on ruled paper, the word in brackets in a quieter ink
+    just before the gap, and the gap a line to write on rather than a box in a
+    form. The worked example is filled in with the accent, as a course book
+    prints its first line in red, and the mark at the end is a stamp a teacher
+    presses on, slightly crooked. A checked answer lands as a stamp of its own,
+    one line after another, so the page is read top to bottom as it is marked.
+
+    The gap is `.wb-gap` rather than `.field`: it sits inside a line of running
+    text, the way the crossword's cells sit inside a grid, and a form's padding
+    there would push the sentence apart. Under `prefers-reduced-motion` every
+    stamp simply arrives.
+  */
+  .wb-lines { counter-reset: none; }
+  .wb-line {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0.85rem 1.25rem;
+    border-top: 1px dashed var(--rule-soft);
+  }
+  .wb-line:first-child { border-top: 0; }
+  @media (min-width: 640px) { .wb-line { padding: 0.95rem 1.5rem; } }
+  .wb-num {
+    flex: none;
+    min-width: 1.6rem;
+    font-weight: 700;
+    color: var(--ink-3);
+  }
+  .wb-sentence {
+    font-size: var(--text-md);
+    line-height: 2.1;
+    color: var(--ink);
+  }
+  .wb-cue {
+    color: var(--ink-2);
+    font-style: italic;
+    white-space: nowrap;
+  }
+  .wb-example .wb-sentence { color: var(--ink-2); }
+  .wb-example-answer {
+    color: var(--accent-deep);
+    font-weight: 700;
+    font-style: italic;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+  .wb-gap {
+    display: inline-block;
+    max-width: 100%;
+    margin: 0 0.15rem;
+    padding: 0.05rem 0.4rem 0.1rem;
+    border: 0;
+    border-bottom: 2px solid var(--ink-3);
+    border-radius: var(--r) var(--r) 0 0;
+    background: var(--raised);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    line-height: 1.5;
+    vertical-align: baseline;
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  }
+  @media (hover: hover) {
+    .wb-gap:hover { border-bottom-color: var(--ink-2); }
+  }
+  .wb-gap:focus {
+    outline: none;
+    border-bottom-color: var(--accent);
+    background: var(--accent-soft);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .wb-gap-again {
+    border-bottom-color: var(--again-ink);
+    background: var(--again-soft);
+  }
+  .wb-filled {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0 0.15rem;
+    padding: 0.05rem 0.5rem;
+    border-radius: var(--r);
+    font-weight: 700;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  .wb-struck { font-weight: 500; opacity: 0.85; }
+  .wb-stamp { animation: wb-stamp 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  .wb-hint {
+    padding: 0.1rem 0.5rem;
+    border-radius: var(--r);
+    background: var(--hard-soft);
+    color: var(--hard-ink);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+  }
+  .wb-mark {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    width: 7.5rem;
+    height: 7.5rem;
+    border-radius: 9999px;
+    border: 4px double var(--accent-deep);
+    color: var(--accent-deep);
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    rotate: -8deg;
+    animation: wb-mark 620ms cubic-bezier(0.34, 1.56, 0.64, 1) 120ms both;
+  }
+  .wb-mark-of { font-size: var(--text-lg); font-weight: 700; }
+
+  @keyframes wb-stamp {
+    0% { transform: scale(1.35); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes wb-mark {
+    0% { transform: scale(1.8); opacity: 0; }
+    60% { transform: scale(0.94); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+
+  /*
     TWENTY QUESTIONS, ALIVE.
 
     The game thinks for half a second before it answers, as three dots that

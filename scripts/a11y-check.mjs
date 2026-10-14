@@ -138,7 +138,7 @@ const ROUTES = [
   "/grammar", "/grammar/cases", "/grammar/inessive", "/grammar/build-a-word", "/grammar/ukrainian", "/settings", "/settings?tab=sound", "/settings?tab=words", "/settings?tab=account", "/scan", "/class", "/tutor",
   "/assess", "/assess?take=1", "/exam", "/exam/B1/papers", "/privacy", "/terms", "/funding", "/state-exam", "/welcome/ru", "/welcome/uk", "/offline",
   "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions",
-  "/course", "/course/learn", "/course/forms", "/review/letters", "/review/sayings", "/review/lookups",
+  "/course", "/course/learn", "/course/forms", "/review/letters", "/review/workbook", "/review/sayings", "/review/lookups",
   "/exam/A1", "/grammar/topic/object", "/learn/checkpoint/A1",
   "/learn/kodu/lesson", "/learn/kodu/worksheet",
   "/review", "/review/write", "/review/government", "/review/openers", "/review/twenty", "/review/conjugation", "/review/cloze", "/review/clinic",

@@ -95,6 +95,27 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     /*
+      THE EXERCISE EVERY COURSE BOOK IS MADE OF, AND A HEADLINE FOR THAT REASON.
+
+      A numbered page of real sentences, each with a word in brackets and a
+      line to write its form on, the first one filled in as an example: the
+      homework every Estonian class sets, and the one exercise where a learner
+      has to read a whole sentence and work out what job the missing word is
+      doing before writing its ending. A card of its own on `/practice` rather
+      than a row on a shelf, with its themes as choices inside it, for the
+      reason Flash cards is one: there is a choice to make in it. See
+      `lib/games/workbook.ts`.
+    */
+    href: "/review/workbook", title: "Töövihik", subtitle: "Fill in the right form",
+    icon: "BookOpen", tone: "butter", group: "targeted", note: "A page of real sentences",
+    within: "/practice", headline: true,
+    blurb:
+      "A page from a course book, set from your own words: real sentences, each with a word in " +
+      "brackets to put into the right form. Check the page, fix what's wrong with a hint, then " +
+      "read it back corrected.",
+  },
+  {
+    /*
       The same round as Flash cards, pointed at one of the four frequency
       lists instead of at the whole deck. A card rather than a tile for the
       reason it carries `headline`: there is a choice inside it, which of the

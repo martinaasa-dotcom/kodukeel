@@ -4421,6 +4421,28 @@ Estonian is written at all.
 teaches.** You know what you mean and you are looking for the word, which is where a learner is
 every time they open their mouth. The other way round is a reading exercise with extra steps.
 
+**Töövihik is the course book's own exercise, and it is a page rather than a card.** Every Estonian
+course book is built out of one shape: a heading saying what to do, a worked example, and eight or
+ten real sentences each with a word in brackets to write in the form the sentence needs, `Palun aita
+(mina) ____ põrand ära pesta!`. It is what a learner does with a pencil for an evening, and the app
+had every piece of it scattered one card at a time. `lib/games/workbook.ts` composes the page and is
+pure: a theme (a case, the present, the simple past, the would form, commands, personal pronouns or
+mixed forms) is chosen from the learner's own weakest cases and words, each line is cut from a
+sentence a lexicographer recorded (`buildCloze`, behind `gapForms`, so nothing is written), and a
+line is kept only where exactly one slot claims the spelling in that sentence, the `readCase` rule
+asked of verbs as well, with the negative's claim dropped unless `ei` stands before the gap. The
+page is checked whole, the lines that missed open again with their ending shown off `hintLadder`,
+and each line grades its word's own card through `recordWorkbookGrades` and `applyGradeBatch`
+(ADR-016): right first time Good, a slip or a second go Hard, missed Again, carrying the slot asked
+and the slot reached. The finish screen hands the page back corrected, with the English under every
+line, and names the one confusion that came back twice. It is the drill the module deals on an
+evening that read a case page (`CASE_ROUNDS`, `onTheCase`) and closes the A2 to C1 rotations, where
+the flash round used to. `whereWhole` in `lib/estonian/cloze.ts` was rewritten for it, a cached
+plain pattern and a static boundary class in place of a lookaround compiled per call, about
+forty-five times faster and proved equal to the old expression over the shipped sentences, because
+a page builds hundreds of candidate lines and the old match was the whole of its cost.
+`npm run measure:workbook` counts how many words can fill a page of each theme at each band.
+
 **Kakskümmend küsimust answers a well-formed question, and that is a number held under one percent.**
 A round was reported as horrible, and the measure behind that was 39 percent: of 380 questions a
 learner asks, over every thing the game could be thinking of, that many came back "Ei tea" or turned
@@ -11869,6 +11891,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`, `withoutFarewell`,
 `withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`, `shrugFits`, `priceAsked`, `SAYS_FIRST`, `isFarewell`,
 `planTurn`, `speakTurn`, `composeTurn`, `harnessModel`, `asksTheirQuestion`, `againHref`,
+`linesFor`, `composeSheet`, `markLine`, `workbookGrades`, `recordWorkbookGrades`, `whereWhole`,
 `FreshRound`, `AnotherRound`, `dealSayings`, `afterServing`, `markSayingsServed`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.

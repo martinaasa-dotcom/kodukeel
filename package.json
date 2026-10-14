@@ -62,6 +62,7 @@
     "measure:scenes": "tsx scripts/measure-scenes.ts",
     "measure:speech": "tsx scripts/measure-speech.ts",
     "measure:placement": "tsx scripts/measure-placement.ts",
+    "measure:workbook": "tsx scripts/measure-workbook.ts",
     "measure:typo-collisions": "tsx scripts/measure-typo-collisions.ts",
     "measure:exam-volume": "tsx scripts/measure-exam-volume.ts",
     "play:scenes": "tsx scripts/play-scene.ts",

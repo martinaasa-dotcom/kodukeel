@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BLANK, buildCloze, filledSentence, isBuildable, naturalSentence, primaryAnswer, sentenceMatches, sentenceTiles, sizedBlank, mentions, tileFaces } from "./cloze";
+import { BLANK, buildCloze, filledSentence, isBuildable, naturalSentence, primaryAnswer, sentenceMatches, sentenceTiles, sizedBlank, mentions, tileFaces, whereWhole } from "./cloze";
+import { HARVESTED } from "@/prisma/data/harvested";
 
 describe("a blank sized to the answer it stands for", () => {
   it("matches the answer's own length", () => {
@@ -256,5 +257,60 @@ describe("the tiles a learner is handed", () => {
   it("changes nothing but the first letter of one tile", () => {
     expect(tileFaces(["Ülle", "Ülle"], "Ülle", true)).toEqual(["ülle", "Ülle"]);
     expect(tileFaces(tiles, "", true)).toEqual(tiles);
+  });
+});
+
+/*
+  THE FAST WHOLE-WORD MATCH IS THE OLD ONE, ANSWER FOR ANSWER.
+
+  `whereWhole` was one expression with the boundary as lookarounds, compiled
+  on every call, and is now a plain pattern with the boundary tested beside
+  it, because the compile was most of the cost of building a workbook page.
+  Every gap screen in the app turns on this answer, so the rewrite is held to
+  the expression it replaced over every recorded sentence the course ships,
+  asked about every word in it and about each word's neighbours' spellings,
+  plus the shapes that break naive matching: a hyphen, a capital, an Estonian
+  letter at the edge, a run of one letter, and a character outside the basic
+  plane.
+*/
+describe("whereWhole", () => {
+  const old = (text: string, word: string) => {
+    const wanted = word.trim();
+    if (!wanted) return null;
+    const escaped = wanted.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const found = new RegExp(`(?<![\\p{L}\\p{M}-])${escaped}(?![\\p{L}\\p{M}-])`, "iu").exec(text);
+    return found ? { index: found.index, length: found[0].length } : null;
+  };
+
+  it("answers exactly as the lookaround expression did, over the shipped sentences", () => {
+    let asked = 0;
+    const sentences = HARVESTED.flatMap((w) => w.usages).filter((_, i) => i % 12 === 0).slice(0, 400);
+    expect(sentences.length).toBe(400);
+    for (const sentence of sentences) {
+      const words = sentence.split(/\s+/).map((w) => w.replace(/[.,!?;:"]/g, "")).filter(Boolean);
+      for (const word of [...words, ...words.map((w) => w.slice(1)), ...words.map((w) => w.slice(0, -1))]) {
+        expect(whereWhole(sentence, word), `${word} in ${sentence}`).toEqual(old(sentence, word));
+        asked += 1;
+      }
+    }
+    expect(asked).toBeGreaterThan(2_500);
+  });
+
+  it("agrees on the shapes that break a naive match", () => {
+    const cases: [string, string][] = [
+      ["üle-eestiline võistlus", "eestiline"],
+      ["üle-eestiline võistlus", "üle-eestiline"],
+      ["Õun ja õunad", "õun"],
+      ["aaa aa a", "a"],
+      ["aaa aa a", "aa"],
+      ["Mul on külm.", "mul"],
+      ["Ta on 😀kodus täna", "kodus"],
+      ["Ta on kodus😀 täna", "kodus"],
+      ["kodu-kodus kodus", "kodus"],
+      ["(sina) sulle", "sina"],
+      ["", "x"],
+      ["x", ""],
+    ];
+    for (const [text, word] of cases) expect(whereWhole(text, word), `${word} in ${text}`).toEqual(old(text, word));
   });
 });

@@ -21999,6 +21999,8 @@ check("every round that puts one word up carries the favorite button", () => {
       "the subject is a sentence with a hole in it rather than a word",
     [join("app", "(app)", "review", "sentences", "SentenceSession.tsx")]:
       "the subject is the sentence, which is what the round asks about",
+    [join("app", "(app)", "review", "workbook", "WorkbookSession.tsx")]:
+      "a page of sentences at once, each about a different word, with no one card to put a corner on",
     [join("app", "(app)", "learn", "checkpoint", "[level]", "CheckpointSession.tsx")]:
       "a measurement rather than a round: it withholds every answer until the "
       + "end on purpose, and its questions carry no entry to keep",
@@ -25847,6 +25849,9 @@ check("looking back at the last word is one drawing, and it grades nothing", () 
     // five on the screen, and filled one at a time with the saying and what it means printed after
     // every answer. There is no earlier card the learner cannot already see.
     "app/(app)/review/sayings/SayingsSession.tsx": "has its own Back, a one-screen board, and prints each answer's saying",
+    // A whole page of sentences is on the screen at once and stays there, numbered,
+    // so there is no last word: every line already answered is above the one in hand.
+    "app/(app)/review/workbook/WorkbookSession.tsx": "a page, not a card at a time",
     // A list of the cards you keep failing, with nothing stepping through.
     "app/(app)/review/clinic/ClinicList.tsx": "a list rather than a round",
     // A measurement that withholds every answer until the end, deliberately

@@ -471,6 +471,33 @@ describe("what a day reads and where it goes", () => {
   });
 
   /*
+    THE EVENING AN ENDING IS READ, A PAGE OF IT. The workbook is a course
+    book's exercise on one subject, and on a case evening that subject is the
+    case just read; the writing round is the harder ask and takes the evenings
+    after. So a case evening deals the workbook wherever the words can carry
+    it and the evening before did not already, and it is dealt at every level
+    it is on.
+  */
+  it("deals the workbook on the evening a case is read, unless last night had it", () => {
+    let walked = 0;
+    for (const programme of PROGRAMMES) {
+      programme.days.forEach((day, at) => {
+        if (!day.grammarCase) return;
+        const taught = taughtBy(programme, day.index);
+        if (!supportedRounds(programme.level, taught).includes("workbook")) return;
+        const before = at > 0 ? programme.days[at - 1]!.practice : [];
+        if (before.includes("workbook")) return;
+        walked += 1;
+        expect(day.practice, `${day.id} reads ${day.grammarCase}`).toContain("workbook");
+      });
+    }
+    expect(walked).toBeGreaterThan(10);
+    for (const level of ["A2", "B1", "B2", "C1"]) {
+      expect(DAYS.some(({ programme, day }) => programme.level === level && day.practice.includes("workbook")), level).toBe(true);
+    }
+  });
+
+  /*
     A PAGE IS READ ONCE A LEVEL, AND A SECOND LOOK SAYS SO. A1 read the
     present tense four times as today's reading; across levels a page may
     come back, and its step says it is a second look.

@@ -139,6 +139,25 @@ export default async function PracticePage() {
   const stocked = decks.filter((d) => d.wordCount > 0);
   const flash = modeAt("/review/flashcards");
   const common = modeAt("/review/common");
+  const workbook = modeAt("/review/workbook");
+  /*
+    The workbook's themes, as choices inside its card. "Set for you" leads,
+    because what the page is for is the ending this learner keeps missing,
+    read off their own log. A1 asks no case anywhere in the course, so there
+    the only theme is the present tense.
+  */
+  const workbookThemes: { theme: string | null; title: string; meta: string }[] = level === "A1"
+    ? [
+      { theme: null, title: "Set for you", meta: "From the words you've met" },
+      { theme: "present", title: "Present tense", meta: "For whoever is doing it" },
+    ]
+    : [
+      { theme: null, title: "Set for you", meta: "Your weakest ending first" },
+      { theme: "pronouns", title: "Personal pronouns", meta: "Through every case" },
+      { theme: "present", title: "Present tense", meta: "For whoever is doing it" },
+      { theme: "past", title: "Simple past", meta: "What happened" },
+      { theme: "mixed", title: "Mixed forms", meta: "A bit of everything" },
+    ];
 
   return (
     <Page route="/practice" title={tr(locale, "Practice")} lead={tr(locale, "The words you've met, asked every which way until they stick.")}>
@@ -228,6 +247,48 @@ export default async function PracticePage() {
                       round: tr(locale, flash.title),
                       list: tr(locale, common.title).toLowerCase(),
                       group: tr(locale, group.title).toLowerCase(),
+                    })}
+                  />
+                ))}
+              </ChoiceGroup>
+            </section>
+          )}
+
+          {workbook && (
+            <section
+              aria-labelledby="practice-workbook"
+              className="flex flex-col gap-4 rounded-[var(--r-lg)] border p-5 md:p-6"
+              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+              data-practice-workbook=""
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  aria-hidden
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-[var(--r)]"
+                  style={{ background: "var(--butter-soft)", color: toneInk("butter") }}
+                >
+                  <NamedIcon name={workbook.icon} size={22} />
+                </span>
+                <div className="min-w-0">
+                  <h2 id="practice-workbook" lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>
+                    {workbook.title}
+                  </h2>
+                  <p className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
+                    {tr(locale, "A page of real sentences. Put each word into the form it needs, then check.")}
+                  </p>
+                </div>
+              </div>
+              <ChoiceGroup label={tr(locale, "Choose a page")}>
+                {workbookThemes.map((choice) => (
+                  <Choice
+                    key={choice.theme ?? "set"}
+                    href={choice.theme ? `${workbook.href}?theme=${choice.theme}` : workbook.href}
+                    title={tr(locale, choice.title)}
+                    meta={tr(locale, choice.meta)}
+                    label={fill(tr(locale, "{round}: {list}, {group}"), {
+                      round: workbook.title,
+                      list: tr(locale, choice.title).toLowerCase(),
+                      group: tr(locale, choice.meta).toLowerCase(),
                     })}
                   />
                 ))}

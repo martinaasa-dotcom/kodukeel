@@ -224,6 +224,19 @@ export const BRIEFINGS = {
     you: "Pick or type the form that fits. Afterwards you'll see a real sentence using it. There's no clock.",
     action: "Start",
   },
+  /* A page rather than a card, so it says what a page asks: read every line,
+     then check. The second pass is the thing worth knowing before starting,
+     because it is what makes a wrong answer the start of the lesson. */
+  workbook: {
+    title: "A page from your workbook",
+    what:
+      "Real Estonian sentences, numbered like a course book's page, each with a word in " +
+      "brackets and a gap. The first line is filled in to show you how.",
+    you:
+      "Put each word into the form its sentence needs, then check the page. Anything wrong " +
+      "opens again with a hint, for one more go.",
+    action: "Open the page",
+  },
   sayings: {
     title: "Learn five sayings",
     what:
