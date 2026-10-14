@@ -3310,12 +3310,12 @@ is only ever good news. Both are the fourth row of Today, so `TODAY_CARDS` is ei
 last in the shipped order, under the homework, so a teacher's work is never what the cut takes to
 make room for a joke. Both are true on the first morning, so both are drawn from the first minute.
 
-**The jokes are written, and that is ADR-005 amendment 5.** 190 of them in
+**The jokes are written, and that is ADR-005 amendment 5.** 188 of them in
 `lib/collections/jokes.ts`, each a short dialogue with an English line beside every line, typed in
 the session and for the native speaker to read in the pull request. `jokes.test.ts` holds every
 word of every Estonian line to the shipped forms list (names let through by name, two words on
 purpose with the reason beside them), no Estonian in the English, and no joke told twice. Which
-one is `dayIndex`'s stride walk, so none repeats for 190 days and two days running are far apart.
+one is `dayIndex`'s stride walk, so none repeats for 188 days and two days running are far apart.
 The card draws the joke as a little conversation, Juku's lines on the right in the accent's tint,
 puts the dictionary under every word it knows, offers the English behind a press rather than
 beside the Estonian (a joke worked out is funnier and teaches more), reads it aloud, and walks
@@ -3380,6 +3380,18 @@ thing, or take the page down with it:
 - **The gloss on a role** depends on every Estonian speaker always having the same English name,
   and every line ending like a sentence so the speech service reads it as one. Both are tests.
 
-**What it does not do.** 190 jokes is about half a year before one comes round again; more is a
+**What it does not do.** 188 jokes is about half a year before one comes round again; more is a
 pull request away and the test is the only gate on it. The keyless rule is blunter than the model
 and will sometimes miss a good story, which is the side it is built to err on.
+
+**The first read of the jokes cut two and corrected eleven lines.** Two did not work in
+Estonian: the smacked brother, whose punchline does not follow from its setup, and the skating
+pun, which rests on English "hardest" meaning both difficult and not soft where `kõva` means only
+the second. Eleven lines changed: a case ending (`teisel poolel`), an ordinal asked where a choice
+was meant (`millises kuus`, not `mitmes kuus`), medicine taken rather than drunk, a comma removed
+from inside `selle asemel et`, two words chosen to match their English (`maitsvad`, `räpane`), a
+pasture for an empty `plats`, a doubled `kui` split into two sentences, and three English lines (a
+hare, a crown put on rather than a coronation, and British "top marks"). One suggestion was
+declined: `Inglise kuningad` keeps its capital, because a country's name in the genitive is
+written with one (`Soome president`). That read was by a careful non-native reviewer checking
+against Sõnaveeb, so it narrows what the native read has to cover and does not replace it.

@@ -131,7 +131,7 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Teine kuldkala.", "Juku: Another goldfish."],
   ],
   [
-    ["Juku: Isa, kas ussid on head?", "Juku: Dad, are worms tasty?"],
+    ["Juku: Isa, kas ussid on maitsvad?", "Juku: Dad, are worms tasty?"],
     ["Isa: Ära räägi laua taga sellistest asjadest!", "Dad: Don't talk about things like that at the table!"],
     ["Pärast lõunat.", "After lunch."],
     ["Isa: Noh, mida sa küsida tahtsid?", "Dad: Well, what did you want to ask?"],
@@ -143,7 +143,7 @@ export const JOKES: readonly Joke[] = [
   ],
   [
     ["Ema: Juku, miks su sokk pahupidi on?", "Mum: Juku, why is your sock inside out?"],
-    ["Juku: Teisel pool oli auk.", "Juku: The other side had a hole in it."],
+    ["Juku: Teisel poolel oli auk.", "Juku: The other side had a hole in it."],
   ],
   [
     ["Ema: Juku, kas sa pesid käed?", "Mum: Juku, did you wash your hands?"],
@@ -170,7 +170,7 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Ma ei taha üle pingutada.", "Juku: I don't want to overdo it."],
   ],
   [
-    ["Juku: Ema, ma säästsin täna kaks eurot! Jooksin bussi kõrval, selle asemel, et bussi peale minna.", "Juku: Mum, I saved two euros today! I ran beside the bus instead of getting on it."],
+    ["Juku: Ema, ma säästsin täna kaks eurot! Jooksin bussi kõrval, selle asemel et bussi peale minna.", "Juku: Mum, I saved two euros today! I ran beside the bus instead of getting on it."],
     ["Ema: Rumal! Oleksid takso kõrval jooksnud, siis oleksid kümme säästnud.", "Mum: Silly! If you'd run beside a taxi, you'd have saved ten."],
   ],
   [
@@ -196,7 +196,7 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Ei, põrand lõhkus. Mina ainult pillasin.", "Juku: No, the floor did. I only dropped it."],
   ],
   [
-    ["Õpetaja: Juku, mitmes kuus on kakskümmend kaheksa päeva?", "Teacher: Juku, which month has twenty-eight days?"],
+    ["Õpetaja: Juku, millises kuus on kakskümmend kaheksa päeva?", "Teacher: Juku, which month has twenty-eight days?"],
     ["Juku: Kõigis.", "Juku: All of them."],
   ],
   [
@@ -245,7 +245,7 @@ export const JOKES: readonly Joke[] = [
   ],
   [
     ["Ema: Juku, miks sa hüppad?", "Mum: Juku, why are you jumping?"],
-    ["Juku: Ma jõin rohtu ja unustasin pudelit enne raputada.", "Juku: I took my medicine and forgot to shake the bottle first."],
+    ["Juku: Ma võtsin rohtu ja unustasin pudeli enne raputada.", "Juku: I took my medicine and forgot to shake the bottle first."],
   ],
   [
     ["Õpetaja: Juku, sa hilined sel nädalal juba kolmandat korda!", "Teacher: Juku, this is the third time you're late this week!"],
@@ -259,7 +259,7 @@ export const JOKES: readonly Joke[] = [
   [
     ["Ema: Juku, söö porgandit, see on silmadele hea.", "Mum: Juku, eat your carrot, it's good for your eyes."],
     ["Juku: Kust sa tead?", "Juku: How do you know?"],
-    ["Ema: Kas sa oled kunagi näinud jänest prillidega?", "Mum: Have you ever seen a rabbit wearing glasses?"],
+    ["Ema: Kas sa oled kunagi näinud jänest prillidega?", "Mum: Have you ever seen a hare wearing glasses?"],
   ],
   [
     ["Õpetaja: Juku, mis on sünonüüm?", "Teacher: Juku, what is a synonym?"],
@@ -270,15 +270,11 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Kaksikud.", "Juku: Twins."],
   ],
   [
-    ["Ema: Juku, miks sa oma vennale kõrvakiilu andsid?", "Mum: Juku, why did you smack your brother?"],
-    ["Juku: Ta lõi esimesena vastu.", "Juku: He hit back first."],
-  ],
-  [
     ["Õpetaja: Juku, mis lahingus Napoleon suri?", "Teacher: Juku, in which battle did Napoleon die?"],
     ["Juku: Oma viimases.", "Juku: In his last one."],
   ],
   [
-    ["Õpetaja: Juku, kuhu pandi Inglise kuningatele kroon?", "Teacher: Juku, where were the English kings crowned?"],
+    ["Õpetaja: Juku, kuhu pandi Inglise kuningatele kroon?", "Teacher: Juku, where did they put the crown on English kings?"],
     ["Juku: Pähe.", "Juku: On the head."],
   ],
   [
@@ -291,7 +287,7 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Teie vanus.", "Juku: Your age."],
   ],
   [
-    ["Õpetaja: Juku, miks sa alati nii must oled?", "Teacher: Juku, why are you always so dirty?"],
+    ["Õpetaja: Juku, miks sa alati nii räpane oled?", "Teacher: Juku, why are you always so dirty?"],
     ["Juku: Ma olen maapinnale lähemal kui teie.", "Juku: I'm closer to the ground than you are."],
   ],
   [
@@ -401,11 +397,6 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Hästi? See oli ju täiesti õige!", "Juku: Good? It was completely right!"],
   ],
   [
-    ["Juku: Isa, mis on uisutamises kõige kõvem?", "Juku: Dad, what's the hardest thing about skating?"],
-    ["Isa: Ei tea.", "Dad: I don't know."],
-    ["Juku: Jää!", "Juku: The ice!"],
-  ],
-  [
     ["Õpetaja: Juku, mida tähendab sõna „kannatlikkus“?", "Teacher: Juku, what does the word “patience” mean?"],
     ["Juku: Oodake, ma mõtlen.", "Juku: Wait, let me think."],
   ],
@@ -447,7 +438,7 @@ export const JOKES: readonly Joke[] = [
     ["Arst: Ära siis niimoodi tõsta.", "Doctor: Then don't lift it like that."],
   ],
   [
-    ["Isa: Juku, mina olin sinu vanuses viieline õpilane.", "Dad: Juku, at your age I was a straight-A pupil."],
+    ["Isa: Juku, mina olin sinu vanuses viieline õpilane.", "Dad: Juku, at your age I was a top-marks pupil."],
     ["Juku: Sinul olid ka teised õpetajad.", "Juku: You had different teachers."],
   ],
   [
@@ -568,7 +559,7 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Liiga palju.", "Juku: Too many."],
   ],
   [
-    ["Õpetaja: Juku, kui ühe maja ehitamiseks kulub kaks kuud, kui kaua kulub kahe maja ehitamiseks?", "Teacher: Juku, if it takes two months to build one house, how long does it take to build two?"],
+    ["Õpetaja: Juku, ühe maja ehitamiseks kulub kaks kuud. Kui kaua kulub kahe maja ehitamiseks?", "Teacher: Juku, it takes two months to build one house. How long does it take to build two?"],
     ["Juku: Ka kaks kuud, kui mõlemat korraga ehitada.", "Juku: Two months as well, if you build them both at once."],
   ],
   [
@@ -652,7 +643,7 @@ export const JOKES: readonly Joke[] = [
     ["Õpetaja: Aga kus rohi on?", "Teacher: But where's the grass?"],
     ["Juku: Lehm sõi ära.", "Juku: The cow ate it."],
     ["Õpetaja: Ja kus lehm on?", "Teacher: And where's the cow?"],
-    ["Juku: Mis ta seal tühjal platsil ikka teeb.", "Juku: Well, what would she be doing in an empty field?"],
+    ["Juku: Mis ta seal tühjal karjamaal ikka teeb.", "Juku: Well, what would she be doing in an empty pasture?"],
   ],
   [
     ["Juku: Ema, kas ma tohin kommi?", "Juku: Mum, can I have a sweet?"],
