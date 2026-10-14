@@ -47,8 +47,17 @@ export interface WordPart {
   readonly text: string;
   /** The entry the piece is a form of, or the piece itself where Ekilex lists it as a headword. */
   readonly lemma: string;
-  /** What the piece says on its own. English. */
+  /** What the piece says on its own, in the sense it has inside this word. English. */
   readonly en: string;
+  /**
+   * The meaning the dictionary gives the entry `lemma` names, where that is a
+   * different homonym from the one inside this word. `asesõna` is built on the
+   * `ase` that means a stead, as in instead, and the dictionary's `ase` is a
+   * bed: reading the part as the dictionary's meaning would be the one false
+   * thing a "word for word" line can say. Never shown; it is the evidence
+   * the test reads to accept a reading that the entry's own gloss does not.
+   */
+  readonly notThe?: string;
 }
 
 export interface Compound {
@@ -76,7 +85,8 @@ export interface FalseFriend {
   readonly quip: string;
 }
 
-const p = (text: string, lemma: string, en: string): WordPart => ({ text, lemma, en });
+const p = (text: string, lemma: string, en: string, notThe?: string): WordPart =>
+  (notThe ? { text, lemma, en, notThe } : { text, lemma, en });
 
 /**
  * The compounds, roughly from the commonest word to the rarest, which is the
@@ -105,9 +115,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "capital", word: "pealinn",
-    parts: [p("pea", "pea", "head"), p("linn", "linn", "town")],
-    literal: "head town", means: "capital city",
-    quip: "The town at the head of the country. Put the town first and you get its mayor.",
+    parts: [p("pea", "pea", "chief, head"), p("linn", "linn", "town")],
+    literal: "chief town", means: "capital city",
+    quip: "The first half is the head, as in the one in charge. Put the town first and you get its mayor.",
   },
   {
     id: "mayor", word: "linnapea",
@@ -123,15 +133,15 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "spouse", word: "abikaasa",
-    parts: [p("abi", "abi", "help"), p("kaasa", "kaasa", "along")],
-    literal: "help that comes along", means: "spouse",
-    quip: "The second half is also an old word for a companion. Romantic, in a very practical way.",
+    parts: [p("abi", "abi", "help"), p("kaasa", "kaasa", "companion", "along (coming with somebody)")],
+    literal: "help companion", means: "spouse",
+    quip: "The second half is an old word for a companion, and on its own it can still mean a spouse. Romantic, in a very practical way.",
   },
   {
     id: "world", word: "maailm",
-    parts: [p("maa", "maa", "land"), p("ilm", "ilm", "weather")],
-    literal: "land and weather", means: "world",
-    quip: "The second half also means world on its own. But land plus weather covers most of it anyway.",
+    parts: [p("maa", "maa", "land"), p("ilm", "ilm", "air, sky", "weather")],
+    literal: "land and air", means: "world",
+    quip: "The second half once meant the air and the world under it. Today it mostly means the weather, which some days is the whole world.",
   },
   {
     id: "kitten", word: "kassipoeg",
@@ -156,12 +166,6 @@ export const COMPOUNDS: readonly Compound[] = [
     parts: [p("köögi", "köök", "kitchen"), p("vili", "vili", "fruit")],
     literal: "kitchen fruit", means: "vegetable",
     quip: "A fruit that ended up in the kitchen. Ask any tomato how that feels.",
-  },
-  {
-    id: "toothbrush", word: "hambahari",
-    parts: [p("hamba", "hammas", "tooth"), p("hari", "hari", "brush, comb")],
-    literal: "tooth comb", means: "toothbrush",
-    quip: "Same brush as the one for your hair, just aimed a little lower.",
   },
   {
     id: "doorbell", word: "uksekell",
@@ -201,9 +205,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "character", word: "iseloom",
-    parts: [p("ise", "ise", "self"), p("loom", "loom", "animal")],
-    literal: "self animal", means: "character (a person's)",
-    quip: "The second half also once meant nature, but the animal you are when nobody's watching is a reading worth keeping.",
+    parts: [p("ise", "ise", "self"), p("loom", "loom", "nature", "animal")],
+    literal: "self nature", means: "character (a person's)",
+    quip: "Here the second half means your nature. The same word is also an animal, which some characters live up to.",
   },
   {
     id: "fire", word: "tulekahju",
@@ -237,9 +241,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "dream", word: "unenägu",
-    parts: [p("une", "uni", "sleep"), p("nägu", "nägu", "face")],
-    literal: "sleep face", means: "dream",
-    quip: "The second half is a face, and comes from seeing. Either way it's gone by breakfast.",
+    parts: [p("une", "uni", "sleep"), p("nägu", "nägu", "sight, face")],
+    literal: "sleep sight", means: "dream",
+    quip: "The second half is the word for a face, but here it is the older sense of what you see. Either way it's gone by breakfast.",
   },
   {
     id: "childhood", word: "lapsepõlv",
@@ -249,9 +253,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "deadline", word: "tähtaeg",
-    parts: [p("täht", "täht", "star, letter, mark"), p("aeg", "aeg", "time")],
-    literal: "star time", means: "deadline",
-    quip: "The first half is a star, a letter or a mark. A deadline is a time somebody marked, sadly not in the stars.",
+    parts: [p("täht", "täht", "mark, fixed point", "letter"), p("aeg", "aeg", "time")],
+    literal: "marked time", means: "deadline",
+    quip: "The first half is a fixed mark, as on a red-letter day. It is also a star, but a deadline is rarely written in the stars.",
   },
   {
     id: "slow-motion", word: "aegluup",
@@ -292,7 +296,7 @@ export const COMPOUNDS: readonly Compound[] = [
   {
     id: "earth", word: "maamuna",
     parts: [p("maa", "maa", "land, earth"), p("muna", "muna", "egg")],
-    literal: "earth egg", means: "the Earth",
+    literal: "land egg", means: "the Earth",
     quip: "The whole planet, as an egg. Handle with care.",
   },
   {
@@ -417,9 +421,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "arm", word: "käsivars",
-    parts: [p("käsi", "käsi", "hand"), p("vars", "vars", "stalk")],
-    literal: "hand stalk", means: "arm",
-    quip: "Your hand, growing on a stalk. Botanically sound.",
+    parts: [p("käsi", "käsi", "hand"), p("vars", "vars", "shaft, stalk")],
+    literal: "hand shaft", means: "arm",
+    quip: "The second half is the shaft of a limb, the same word for a plant's stalk. Picture the stalk version and you won't forget it.",
   },
   {
     id: "hanger", word: "riidepuu",
@@ -447,9 +451,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "pronoun", word: "asesõna",
-    parts: [p("ase", "ase", "bed, a place"), p("sõna", "sõna", "word")],
-    literal: "place word", means: "pronoun",
-    quip: "Not a word about beds. The first half is a place someone stands in for, which is all a pronoun does.",
+    parts: [p("ase", "ase", "stead, place", "bed"), p("sõna", "sõna", "word")],
+    literal: "instead word", means: "pronoun",
+    quip: "The first half means in place of, as in instead. A pronoun stands in for another word, so the name is the job description.",
   },
   {
     id: "interjection", word: "hüüdsõna",
@@ -462,12 +466,6 @@ export const COMPOUNDS: readonly Compound[] = [
     parts: [p("pesa", "pesa", "nest"), p("pall", "pall", "ball")],
     literal: "nest ball", means: "baseball",
     quip: "The bases are nests, which makes running home sound rather cosy.",
-  },
-  {
-    id: "fern", word: "sõnajalg",
-    parts: [p("sõna", "sõna", "word"), p("jalg", "jalg", "foot, leg")],
-    literal: "word foot", means: "fern, bracken",
-    quip: "Ferns are not known for talking or walking. It's a lovely word to say, though.",
   },
   {
     id: "dictionary", word: "sõnaraamat",
@@ -586,8 +584,8 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "Sounds like hi. If you ever meet one, a wave from the shore is plenty.",
   },
   {
-    id: "rand", word: "rand", looksLike: "rand", means: "beach",
-    quip: "A beach, not a currency. On a warm July weekend, it can feel as if everybody is on one.",
+    id: "hind", word: "hind", looksLike: "hind", means: "price",
+    quip: "The price, not the back end. Worth a look before you get to the till.",
   },
   {
     id: "tee", word: "tee", looksLike: "tee", means: "road, tea",
@@ -634,16 +632,12 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "There, not the animal. Point at one on the rocks and the word is right either way.",
   },
   {
-    id: "pool", word: "pool", looksLike: "pool", means: "half",
+    id: "pool", word: "pool", looksLike: "pool", means: "half, side",
     quip: "Half, not somewhere to swim. Order half a cake and nobody will hand you a towel.",
   },
   {
     id: "mood", word: "mood", looksLike: "mood", means: "fashion",
     quip: "Fashion, not a feeling. Though the right coat can do wonders for both.",
-  },
-  {
-    id: "maks", word: "maks", looksLike: "max", means: "tax",
-    quip: "Tax, not the maximum. Though at the end of the month it can feel like it.",
   },
 ];
 
@@ -693,9 +687,10 @@ export function wordFunFor(lemma: string, gloss: string | null): WordFun | null 
 /**
  * WHETHER THE JOKE IS ABOUT THE WORD ON THE SCREEN.
  *
- * A headword can carry two senses: `maks` is a tax and also a liver, and
- * "Tax, not the maximum" under the liver is the app telling a learner
- * something false about the word in front of them. So a screen hands in the
+ * A headword can carry two senses, and a line about one of them under the
+ * other is the app telling a learner something false about the word in front
+ * of them: "Half, not somewhere to swim" belongs to `pool` the half, and a
+ * screen glossing another sense of it gets nothing. So a screen hands in the
  * gloss it is printing and the line is drawn only where that gloss and the
  * line's own meaning share a word. A screen with no gloss to hand gets no
  * line, since it cannot say which sense it is showing.

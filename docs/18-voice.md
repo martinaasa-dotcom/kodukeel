@@ -325,7 +325,11 @@ sentence written for a laugh is held to every rule `lib/dict/authored.ts` states
   joke about Russians, Ukrainians, Estonians or anybody else is not one this app tells.
 - **Invent a fact.** "The word for month is the word for moon, from when the moon was the calendar"
   is true. A history that sounds good and is not is a lesson in something false. Where a reading is
-  a pun on a second sense rather than the etymology, the line says so.
+  a pun on a second sense rather than the etymology, the line says so. And where a part of a compound
+  has several homonyms, the reading uses the one actually inside the word: `asesõna` is built on
+  the `ase` that means a stead, not the one that means a bed, and `maailm` on the old `ilm` of the
+  air and the world, not on the weather. A part marked `notThe` in `lib/estonian/literally.ts`
+  names the homonym it is not, and the test checks both halves of that against the dictionary.
 - **Turn up everywhere.** A joke on every card stops being a joke by the second evening. Most words
   have nothing funny said about them, and that is the point.
 - **Promise a setting.** A conversation partner is drawn for every scene, a friend on the phone as

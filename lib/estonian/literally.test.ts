@@ -66,7 +66,18 @@ describe("compounds", () => {
     for (const c of COMPOUNDS) {
       for (const part of c.parts) {
         const gloss = glossesOf(part.lemma);
-        if (gloss && !sharesAWord(gloss, part.en)) disagree.push(`${c.word}: ${part.lemma} is "${gloss}", here "${part.en}"`);
+        if (!gloss) continue;
+        /*
+          A part may be the other homonym of the entry it names, which is the
+          whole of what `notThe` is for (`ase` here is a stead, the
+          dictionary's is a bed). Then what has to agree with the dictionary
+          is the meaning it says it is not, and the reading must not be that
+          meaning, or the word-for-word line is reading the wrong word.
+        */
+        if (part.notThe) {
+          if (!sharesAWord(gloss, part.notThe)) disagree.push(`${c.word}: ${part.lemma} is "${gloss}", not "${part.notThe}"`);
+          if (sharesAWord(part.en, part.notThe)) disagree.push(`${c.word}: ${part.lemma} is read as the very sense it is marked as not`);
+        } else if (!sharesAWord(gloss, part.en)) disagree.push(`${c.word}: ${part.lemma} is "${gloss}", here "${part.en}"`);
       }
     }
     expect(disagree).toEqual([]);
@@ -91,6 +102,20 @@ describe("compounds", () => {
   it("never gives away the meaning in the word-for-word reading", () => {
     const giveaway = COMPOUNDS.filter((c) => c.literal.toLowerCase() === c.means.toLowerCase()).map((c) => c.word);
     expect(giveaway).toEqual([]);
+  });
+
+  /*
+    The round asks what a word really means right under its word-for-word
+    reading, so a reading carrying the answer's own word is a question with
+    the answer printed above it. These five are the exception and each is the
+    joke itself: the brevity of the two days, the fire named after its bill,
+    the wind both languages call wind, and the pig English also gets wrong.
+  */
+  it("never carries the meaning's own word in its reading, but for the five where that is the joke", () => {
+    const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga"]);
+    const sharing = COMPOUNDS.filter((c) => sharesAWord(c.literal, c.means)).map((c) => c.word);
+    expect(sharing.filter((w) => !meant.has(w))).toEqual([]);
+    expect([...meant].filter((w) => !sharing.includes(w))).toEqual([]);
   });
 
   it("files each word once and keeps every id unique", () => {
@@ -181,9 +206,9 @@ describe("wordFunFor", () => {
   });
 
   it("tells the joke only about the sense the screen is showing", () => {
-    expect(wordFunFor("maks", "tax")?.quip).toMatch(/maximum/);
-    expect(wordFunFor("maks", "liver")).toBeNull();
-    expect(wordFunFor("maks", null)).toBeNull();
+    expect(wordFunFor("pea", "head")?.quip).toMatch(/doctor/);
+    expect(wordFunFor("pea", "pea (the vegetable)")).toBeNull();
+    expect(wordFunFor("pea", null)).toBeNull();
     expect(wordFunFor("nahkhiir", "bat")?.reading).toBe("leather mouse");
     expect(wordFunFor("nahkhiir", "something else entirely")).toBeNull();
   });
