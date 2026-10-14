@@ -13,6 +13,7 @@ import { EstonianSentence } from "@/components/EstonianSentence";
 import { caseByKey } from "@/lib/estonian/cases";
 import { CASE_GROUPS, caseReference } from "@/lib/estonian/grammar";
 import { sayPhrase } from "@/lib/estonian/sayIt";
+import { sayIn } from "@/lib/estonian/plainAsk";
 import type { CaseWalk, WalkForm, WalkSentence, WalkWord } from "@/lib/progress/caseWalk";
 import { endingOptions } from "@/lib/questions/caseEndings";
 import { rng, seedFrom } from "@/lib/random/seeded";
@@ -20,7 +21,7 @@ import { shuffle } from "@/lib/random/shuffle";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { FitText } from "@/components/FitText";
-import { useT } from "@/components/Locale";
+import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { fillNodes } from "@/components/reference/fillNodes";
 
@@ -400,6 +401,10 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
  */
 function Reading({ of }: { of: WalkForm }) {
   const t = useT();
+  const locale = useLocale();
+  // The reading is built out of the English gloss, so a Russian or Ukrainian
+  // screen prints that language's short phrase for the ending instead.
+  const reading = sayIn(locale, of.key, of.reading);
   /*
     AND WHERE THERE IS NO READING BECAUSE NOBODY SAYS THE FORM, THAT IS THE
     SENTENCE, RATHER THAN A BLANK.
@@ -438,7 +443,7 @@ function Reading({ of }: { of: WalkForm }) {
       </p>
     );
   }
-  if (!of.reading) return null;
+  if (!of.reading || !reading) return null;
   return (
     <p
       className="mt-3 flex flex-wrap items-baseline gap-x-2"
@@ -446,7 +451,7 @@ function Reading({ of }: { of: WalkForm }) {
     >
       <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("which means")}</span>
       <span className="text-xl font-bold" style={{ color: "var(--ink)" }}>
-        “{of.reading}”
+        {locale === "en" ? `“${reading}”` : `«${reading}»`}
       </span>
     </p>
   );
@@ -817,7 +822,10 @@ function WithEnding({ value, suffix }: { value: string; suffix: string }) {
  */
 function Means({ form, ref_ }: { form: WalkForm; ref_: ReturnType<typeof caseReference> }) {
   const t = useT();
-  return form.reading ? <>“{form.reading}”</> : <>{ref_ ? t(ref_.plain) : null}</>;
+  const locale = useLocale();
+  // English only: the reading is the English gloss in a frame, and the case's
+  // own `plain` is the line every other language has a translation of.
+  return form.reading && locale === "en" ? <>“{form.reading}”</> : <>{ref_ ? t(ref_.plain) : null}</>;
 }
 
 /** How many endings to ask about. Short enough to finish standing up. */
@@ -839,6 +847,7 @@ const QUESTIONS = 4;
  */
 function YourTurn({ word }: { word: WalkWord }) {
   const t = useT();
+  const locale = useLocale();
   const asks = useMemo(() => {
     const pool = word.derived.filter((f) => f.askable);
     return shuffle(pool, rng(seedFrom(word.lemma))).slice(0, QUESTIONS);
@@ -895,7 +904,7 @@ function YourTurn({ word }: { word: WalkWord }) {
   const ref = caseReference(form.key);
   // The row's own reading where it has one, which knows `mees` is a person:
   // asked blind, the outside endings read "onto it, or to someone" for him.
-  const phrase = form.reading ?? sayPhrase(form.key, word.translation);
+  const phrase = sayIn(locale, form.key, form.reading ?? sayPhrase(form.key, word.translation));
   const ask = phrase ? fill(t("Say “{phrase}”"), { phrase }) : null;
 
   const next = () => {

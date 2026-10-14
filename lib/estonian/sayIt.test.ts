@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { plainAskLine } from "./plainAsk";
+import { plainAskLine, sayIn, sayLineIn } from "./plainAsk";
 import { sayLine, sayPhrase } from "./sayIt";
 
 const thing = (lemma: string) => ({ lemma, semanticTypes: null, nomSg: lemma });
@@ -34,6 +34,16 @@ describe("sayPhrase", () => {
     expect(sayPhrase("IndIpfSg1")).toBe("I …, in the past");
   });
 
+  it("agrees with he/she in the past as well as the present", () => {
+    // A Russian screen showed "he/she think, but in the past": the past frame
+    // had no -s, so the third person read like the first.
+    expect(sayPhrase("IndIpfSg3", "to think")).toBe("he/she thinks, but in the past");
+    expect(sayPhrase("IndIpfSg1", "to think")).toBe("I think, but in the past");
+    for (const slot of ["IndPrSg3", "IndIpfSg3"]) {
+      expect(sayPhrase(slot, "to read")).toMatch(/^he\/she reads\b/);
+    }
+  });
+
   it("has nothing to add to a question about meaning", () => {
     expect(sayPhrase("PRODUCTION", "bird")).toBeNull();
     expect(plainAskLine("PRODUCTION")).toBeNull();
@@ -51,5 +61,33 @@ describe("a name", () => {
     expect(sayPhrase("INESSIVE", "America", { lemma: "Ameerika", semanticTypes: null, nomSg: "Ameerika" }))
       .toBe("in America");
     expect(sayPhrase("ILLATIVE", "Estonia")).toBe("into Estonia");
+  });
+});
+
+describe("on a Russian or Ukrainian screen", () => {
+  it("reads the short phrase in that language, never the English one", () => {
+    const english = sayPhrase("IndIpfSg3", "to think");
+    expect(sayIn("en", "IndIpfSg3", english)).toBe("he/she thinks, but in the past");
+    expect(sayIn("ru", "IndIpfSg3", english)).toBe("он/она …, в прошлом");
+    expect(sayIn("uk", "IndIpfSg3", english)).toBe("він/вона …, у минулому");
+    expect(sayLineIn("ru", "COMITATIVE", sayLine("COMITATIVE", "bird", thing("lind")))).toBe("Скажите «с этим»");
+    expect(sayLineIn("uk", "COMITATIVE", sayLine("COMITATIVE", "bird", thing("lind")))).toBe("Скажіть «з цим»");
+  });
+
+  it("has no phrase where the screen had none", () => {
+    expect(sayIn("ru", "COMITATIVE", null)).toBeNull();
+    expect(sayLineIn("uk", "PRODUCTION", sayLine("PRODUCTION", "bird"))).toBeNull();
+  });
+
+  it("covers every slot an English phrase can be built for", () => {
+    for (const slot of ["NOMINATIVE", "GENITIVE", "PARTITIVE", "ILLATIVE", "INESSIVE", "ELATIVE", "ALLATIVE",
+      "ADESSIVE", "ABLATIVE", "TRANSLATIVE", "TERMINATIVE", "ESSIVE", "ABESSIVE", "COMITATIVE",
+      "IndPrSg1", "IndPrSg3", "IndPrPl1", "IndPrPs_", "IndIpfSg1", "IndIpfSg3", "KndPrSg1",
+      "ImpPrSg2", "ImpPrPl2", "Inf", "PtsPrPs"]) {
+      for (const locale of ["ru", "uk"] as const) {
+        expect(sayIn(locale, slot, "x"), `${slot} in ${locale}`).not.toBeNull();
+        expect(sayIn(locale, slot, "x"), `${slot} in ${locale}`).not.toMatch(/[a-z]/i);
+      }
+    }
   });
 });
