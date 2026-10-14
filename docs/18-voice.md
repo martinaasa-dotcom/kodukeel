@@ -344,6 +344,9 @@ sentence written for a laugh is held to every rule `lib/dict/authored.ts` states
   word, so the joke may never contradict or blur what the word means. "I never drink tea. Only every
   day." is funny to somebody who already knows `kunagi` and teaches the opposite to somebody who
   does not. The everyday construction a word exists for, "Mul on külm", has to survive the joke.
+- **Say a thing twice.** The screen already prints "not “tool”" above a look-alike's line, so the
+  line opens on something new rather than "A chair, not a tool" again. And a word that only sounds
+  English (`kool`, `hai`) is labelled as sounding it, never as looking it.
 - **Run on one template.** "It's bad, but I do it anyway" is funny once. The sentences use several
   shapes, a second sentence that turns the first, a reversal, a callback, and "X, aga Y" is kept to
   about a fifth of them, because a learner meets these in a row and a formula shows by the second

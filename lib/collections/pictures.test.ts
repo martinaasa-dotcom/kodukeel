@@ -37,7 +37,7 @@ describe("the pictures", () => {
     can be told as the road it is drawn as, and never as a word the
     dictionary does not give.
   */
-  it("narrow a gloss only to a sense the dictionary already lists", () => {
+  it("say which sense they show, and only one the dictionary already lists", () => {
     const senses = new Map<string, string[]>();
     for (const e of shippedDictionary()) {
       const list = e.gloss.split(",").map((x) => x.trim().toLowerCase());
@@ -45,6 +45,11 @@ describe("the pictures", () => {
     }
     const narrowed = PICTURES.flatMap((p) => p.things.filter((t) => t.means));
     expect(narrowed.length).toBeGreaterThan(0);
+    // And where the gloss lists more than one sense, the picture says which it shows.
+    const loose = PICTURES.flatMap((p) => p.things)
+      .filter((t) => !t.means && (senses.get(t.lemma) ?? []).length > 1)
+      .map((t) => `${t.lemma}: ${(senses.get(t.lemma) ?? []).join(", ")}`);
+    expect([...new Set(loose)]).toEqual([]);
     for (const thing of narrowed) {
       expect(senses.get(thing.lemma) ?? [], `${thing.lemma}: ${thing.means}`).toContain(thing.means!.toLowerCase());
     }

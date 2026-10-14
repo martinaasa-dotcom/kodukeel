@@ -101,9 +101,10 @@ describe("compounds", () => {
     const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga"]);
     // Russian and Ukrainian build these from the very same picture: a fridge
     // from cold, a bat from a mouse, a kindergarten from children and a
-    // garden. Recognising it is the fun, and there is no other honest reading.
+    // garden, a vacuum cleaner from dust and sucking. The quip says so where
+    // it is the fun. Recognising it is the fun, and there is no other honest reading.
     const both = ["külmkapp", "uksekell", "liivakell", "silmamuna", "nahkhiir", "raamatukoi", "lasteaed", "käekell"];
-    const sameImage = { ru: new Set(both), uk: new Set([...both, "ööliblikas", "lumememm"]) };
+    const sameImage = { ru: new Set([...both, "tolmuimeja"]), uk: new Set([...both, "ööliblikas", "lumememm", "tolmuimeja", "linnapea"]) };
     const stems = (text: string) =>
       new Set((text.toLowerCase().match(/[\p{L}]{3,}/gu) ?? []).map((w) => w.slice(0, Math.min(w.length, 5))));
     for (const locale of ["ru", "uk"] as const) {

@@ -13,6 +13,7 @@ import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { FitText } from "@/components/FitText";
 import { lookalike } from "@/components/WordFun";
+import { friendLabel } from "@/lib/estonian/literally";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { WayOut } from "@/components/round/RoundExit";
 import { RoundProgress } from "@/components/round/RoundProgress";
@@ -581,13 +582,13 @@ function FriendCard({ question, index, total, picked, revealed, streak, isLast, 
   const verdict = right
     ? fill(t("Not fooled. It means “{means}”."), { means: t(question.means, W) })
     : trapped
-      ? fill(t("That's the English it looks like. It means “{means}”."), { means: t(question.means, W) })
+      ? fill(t(question.word === question.looksLike ? "That's the English it looks like. It means “{means}”." : "That's the English it sounds like. It means “{means}”."), { means: t(question.means, W) })
       : fill(t("Not quite. It means “{means}”."), { means: t(question.means, W) });
   return (
     <div className="rounded-xl border" style={CARD_STYLE}>
       <p className="sr-only" aria-live="polite">{revealed ? verdict : ""}</p>
       <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-        <Chip tone="accent">{t("Looks English, isn't")}</Chip>
+        <Chip tone="accent">{t(friendLabel(question))}</Chip>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
           {fill(t("{n} of {total}"), { n: index + 1, total })}
         </span>

@@ -76,7 +76,10 @@ export interface Compound {
 
 export interface FalseFriend {
   readonly id: string;
-  /** The Estonian word, spelled exactly like an English one. */
+  /**
+   * The Estonian word, spelled exactly like an English one, or for a few
+   * (`kool`, `hai`) said like one: `looksLike` is then the English spelling.
+   */
   readonly word: string;
   /** What an English reader takes it for. English. */
   readonly looksLike: string;
@@ -141,7 +144,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "world", word: "maailm",
     parts: [p("maa", "maa", "land"), p("ilm", "ilm", "air, sky", "weather")],
     literal: "land and air", means: "world",
-    quip: "The second half still means the world in a few old phrases. Today it mostly means the weather, which some days is the whole world.",
+    quip: "In a few phrases the second half still means everything under the sky. Today it mostly means the weather, which some days is the whole world.",
   },
   {
     id: "kitten", word: "kassipoeg",
@@ -159,7 +162,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "afternoon", word: "pärastlõuna",
     parts: [p("pärast", "pärast", "after"), p("lõuna", "lõuna", "south, noon")],
     literal: "after south", means: "afternoon",
-    quip: "After noon, not after the south. Though on a map you'd be in Latvia.",
+    quip: "After noon, which is when the sun has passed the south. So both readings are right.",
   },
   {
     id: "vegetable", word: "köögivili",
@@ -321,7 +324,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "rhino", word: "ninasarvik",
     parts: [p("nina", "nina", "nose"), p("sarvik", "sarvik", "horned one")],
     literal: "nose horned one", means: "rhinoceros",
-    quip: "The Greek says nose horn too. Some animals only need describing once.",
+    quip: "Named for the one thing you'd notice first, from a safe distance.",
   },
   {
     id: "turtle", word: "kilpkonn",
@@ -495,7 +498,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "zoo", word: "loomaaed",
     parts: [p("looma", "loom", "animal"), p("aed", "aed", "garden")],
     literal: "animal garden", means: "zoo",
-    quip: "A garden where the animals grow. Please don't water them.",
+    quip: "Planted with animals. Please don't water them.",
   },
   {
     id: "kindergarten", word: "lasteaed",
@@ -525,12 +528,15 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "spiderweb", word: "ämblikuvõrk",
     parts: [p("ämbliku", "ämblik", "spider"), p("võrk", "võrk", "net")],
     literal: "spider net", means: "spiderweb, cobweb",
-    quip: "The spider's own network. Reception is excellent, if you're a fly.",
+    quip: "The same word means your phone's network, so every spider is online.",
   },
 ];
 
 /**
- * Words spelled exactly like an English word and meaning something else.
+ * Words spelled exactly like an English word, or said like one, and meaning
+ * something else. A word whose `looksLike` is spelled differently is labelled
+ * as sounding English rather than looking it (`friendLabel`), so the screen
+ * never promises a spelling the word does not have.
  * Common words first, since meeting `pea` on a market stall is the moment this
  * is for.
  */
@@ -541,7 +547,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "kool", word: "kool", looksLike: "cool", means: "school",
-    quip: "School, not cool. Most teenagers would say it can't be both.",
+    quip: "Most teenagers would say it can't be both.",
   },
   {
     id: "must", word: "must", looksLike: "must", means: "black",
@@ -553,7 +559,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "tool", word: "tool", looksLike: "tool", means: "chair",
-    quip: "A chair, not a tool. In some meetings it's the most useful thing in the room.",
+    quip: "In some meetings it's the most useful thing in the room.",
   },
   {
     id: "seen", word: "seen", looksLike: "seen", means: "mushroom",
@@ -569,7 +575,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "vend", word: "vend", looksLike: "vend", means: "brother",
-    quip: "A brother, not a vending machine. He might still have a snack for you.",
+    quip: "He might still have a snack for you.",
   },
   {
     id: "hunt", word: "hunt", looksLike: "hunt", means: "wolf",
@@ -577,7 +583,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "luu", word: "luu", looksLike: "loo", means: "bone",
-    quip: "A bone, not the bathroom. Ask for the toilet instead and save everybody a confusing minute.",
+    quip: "If you need the toilet, ask for the toilet. It saves everybody a confusing minute.",
   },
   {
     id: "hai", word: "hai", looksLike: "hi", means: "shark",
@@ -585,7 +591,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "hind", word: "hind", looksLike: "hind", means: "price",
-    quip: "The price, not the back legs. A high one still makes people step back.",
+    quip: "The price, not the back legs. It's on every label, so it's worth learning early.",
   },
   {
     id: "tee", word: "tee", looksLike: "tee", means: "road, tea",
@@ -593,7 +599,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "pall", word: "pall", looksLike: "pall", means: "ball",
-    quip: "A ball, not a gloom. Few things lift one faster.",
+    quip: "Few things lift a gloom faster.",
   },
   {
     id: "tore", word: "tore", looksLike: "tore", means: "great, lovely",
@@ -601,31 +607,31 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "pill", word: "pill", looksLike: "pill", means: "musical instrument",
-    quip: "A musical instrument, not medicine. Though plenty of people swear by both.",
+    quip: "Plenty of people would say it works like one.",
   },
   {
     id: "torn", word: "torn", looksLike: "torn", means: "tower",
-    quip: "A tower, not ripped. Unless something has gone very wrong with the building.",
+    quip: "If it's torn as well, something has gone very wrong with the building.",
   },
   {
     id: "vale", word: "vale", looksLike: "vale", means: "wrong, false",
-    quip: "Wrong, or a lie. Not a valley, poets.",
+    quip: "Wrong, or a lie. English keeps vale for poems about valleys.",
   },
   {
     id: "veri", word: "veri", looksLike: "very", means: "blood",
     quip: "Blood, not very. Which is very dramatic either way.",
   },
   {
-    id: "arm", word: "arm", looksLike: "arm", means: "scar",
-    quip: "A scar, not a limb. You can get one on your arm, which helps nobody.",
+    id: "scar", word: "arm", looksLike: "arm", means: "scar",
+    quip: "You can get one on your arm, which helps nobody.",
   },
   {
     id: "kits", word: "kits", looksLike: "kits", means: "goat",
-    quip: "One goat, not a set of anything. Assembly not required.",
+    quip: "Just the one goat, and no assembly required.",
   },
   {
     id: "tuba", word: "tuba", looksLike: "tuba", means: "room",
-    quip: "A room, not a brass instrument. Though one of those would fill it nicely.",
+    quip: "A tuba would fill one nicely.",
   },
   {
     id: "seal", word: "seal", looksLike: "seal", means: "there",
@@ -637,7 +643,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "mood", word: "mood", looksLike: "mood", means: "fashion",
-    quip: "Fashion, not a feeling. Though the right coat can do wonders for both.",
+    quip: "The right coat can do wonders for your mood as well.",
   },
 ];
 
@@ -672,6 +678,11 @@ export interface WordFun {
   readonly quip: string;
 }
 
+/** What the screen calls a false friend: one spelled like English, or only said like it. */
+export function friendLabel(friend: Pick<FalseFriend, "word" | "looksLike">): string {
+  return friend.word === friend.looksLike ? "Looks English, isn't" : "Sounds English, isn't";
+}
+
 export function wordFunFor(lemma: string, gloss: string | null): WordFun | null {
   const compound = compoundFor(lemma);
   if (compound && meansWhatIsShown(compound.means, gloss)) {
@@ -679,7 +690,7 @@ export function wordFunFor(lemma: string, gloss: string | null): WordFun | null 
   }
   const friend = falseFriendFor(lemma);
   if (friend && meansWhatIsShown(friend.means, gloss)) {
-    return { kind: "false-friend", label: "Looks English, isn't", reading: friend.looksLike, quip: friend.quip };
+    return { kind: "false-friend", label: friendLabel(friend), reading: friend.looksLike, quip: friend.quip };
   }
   return null;
 }
