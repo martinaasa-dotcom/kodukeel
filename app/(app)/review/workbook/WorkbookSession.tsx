@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { BookOpen, Check, Eye, EyeOff, Info, Lightbulb, PenLine, Sparkles, X } from "lucide-react";
 import { recordWorkbookGrades } from "@/app/actions";
@@ -36,6 +36,7 @@ import {
   OUTCOME_RATING, markLine, outcomeAfter, pageReading, themeCase, verbSlot,
   type LineMark, type LineNote, type Outcome, type SheetItem, type Tense, type Theme,
 } from "@/lib/games/workbook";
+import { forgetWorkbook, loadWorkbook, saveWorkbook } from "./resume";
 
 /** A line as the page hands it down: the line, and the card it grades, if any. */
 export interface WorkbookLine extends SheetItem {
@@ -177,7 +178,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
   const { drainFirst } = useOffline();
   const themeName = useThemeName();
   // Snapshotted once: grading revalidates the route, and a refresh must not deal a new page under a pen.
-  const [exercises] = useState(initial);
+  const [exercises, setExercises] = useState(initial);
   const [at, setAt] = useState(0);
   const [pass, setPass] = useState<Pass>(1);
   const [typed, setTyped] = useState<Record<string, string>>({});
@@ -192,6 +193,49 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
   const inputs = useRef(new Map<string, HTMLInputElement>());
   const lastFocused = useRef<HTMLInputElement | null>(null);
   const sent = useRef(new Set<number>());
+  /* Picked up from the device after a reload, and said so once at the top of the page. */
+  const [resumed, setResumed] = useState(false);
+  const [looked, setLooked] = useState(false);
+  const pathname = usePathname() ?? "/review/workbook";
+  const search = useSearchParams()?.toString() ?? "";
+  const address = `${pathname}?${search}`;
+
+  /*
+    THE PAGE UNDER THE PEN SURVIVES A RELOAD. The server deals a page at random,
+    so without this a reload, or a detour to a word's dictionary entry and back,
+    dealt a fresh page and threw away every box filled in. Read before the first
+    paint, so the page somebody was writing on is the one drawn, and never
+    during render, since the server has no device to read.
+  */
+  useLayoutEffect(() => {
+    const saved = loadWorkbook<WorkbookExercise, Pass, LineMark, Outcome>(address);
+    if (saved) {
+      setExercises(saved.exercises);
+      setAt(saved.at);
+      setPass(saved.pass);
+      setTyped(saved.typed ?? {});
+      setMarks(saved.marks ?? {});
+      setFirstMarks(saved.firstMarks ?? {});
+      setCheckedAs(saved.checkedAs ?? {});
+      setOutcomes(saved.outcomes ?? {});
+      setEnglish(saved.english !== false);
+      sent.current = new Set(saved.sent ?? []);
+      setResumed(true);
+    }
+    setLooked(true);
+    // Once, on arrival: a page is restored the moment it opens and never after.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!looked) return;
+    if (finished) { forgetWorkbook(address); return; }
+    // Nothing written yet is nothing to lose, and a page nobody touched is dealt fresh next time.
+    if (Object.keys(typed).length === 0 && Object.keys(outcomes).length === 0) return;
+    saveWorkbook(address, {
+      exercises, at, pass, typed, marks, firstMarks, checkedAs, outcomes, english, sent: [...sent.current],
+    });
+  }, [looked, finished, address, exercises, at, pass, typed, marks, firstMarks, checkedAs, outcomes, english]);
 
   const exercise = exercises[at];
   const lines = useMemo(() => exercise?.lines ?? [], [exercise]);
@@ -330,6 +374,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
       setAt(at + 1);
       setPass(1);
       setSaid("");
+      setResumed(false);
       window.scrollTo({ top: 0 });
     } else {
       setFinished(true);
@@ -426,7 +471,13 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
         </header>
 
         <div className="px-5 pt-5 sm:px-6">
-          {missed && at === 0 && (
+          {resumed && (
+            <p className="mb-3 flex items-start gap-2.5 text-base leading-snug" style={{ color: "var(--ink-2)" }} data-workbook-resumed="">
+              <Info size={18} className="mt-0.5 shrink-0" aria-hidden />
+              <span>{t("Your page, as you left it.")}</span>
+            </p>
+          )}
+          {missed && at === 0 && !resumed && (
             <p className="mb-3 flex items-start gap-2.5 text-base leading-snug" style={{ color: "var(--ink-2)" }} data-workbook-missed="">
               <Info size={18} className="mt-0.5 shrink-0" aria-hidden />
               <span>

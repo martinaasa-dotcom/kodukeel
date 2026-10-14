@@ -19,7 +19,8 @@ import { startRound } from "./lib/briefing.mjs";
  *   copying the bracket word out unchanged got a bare "not quite";
  *   a verb in a sentence with no subject had no right answer once the English
  *   was hidden, until the bracket named the person;
- *   one card could be graded several times in one sitting.
+ *   one card could be graded several times in one sitting;
+ *   a reload dealt a different page and lost every box filled in.
  *
  * It grades, so it remembers the review ids that were there before it started
  * and deletes only what it wrote, which is `test-flash.mjs`'s discipline.
@@ -28,7 +29,7 @@ import { startRound } from "./lib/briefing.mjs";
 const B = baseUrl();
 const OWNER = "local-single-user";
 const prisma = newPrismaClient(requireLocalDatabase("write and delete the reviews this page grades"));
-const { check, absent, done } = suite("The workbook", { floor: 24 });
+const { check, absent, done } = suite("The workbook", { floor: 27 });
 
 const before = new Date();
 const alreadyThere = new Set(
@@ -47,7 +48,7 @@ await page.locator("[data-workbook-exercise]").first().waitFor({ timeout: 15_000
 
 const sheet = page.locator("[data-workbook-exercise]");
 if (await sheet.count() === 0) {
-  absent(18, "a deck whose words can fill a page, which the demo fixture holds");
+  absent(21, "a deck whose words can fill a page, which the demo fixture holds");
   await browser.close();
   await prisma.$disconnect();
   done();
@@ -93,6 +94,22 @@ if (await rule.count() > 0) {
 } else {
   absent(1, "a page on a case or a tense, which carries a rule box");
 }
+
+/*
+  A reload halfway down the page. The server deals at random, so before the
+  page was kept on the device a reload dealt a different page and the boxes
+  filled in were gone.
+*/
+await gaps.first().fill("qq");
+await page.waitForTimeout(300);
+await page.reload({ waitUntil: "domcontentloaded" });
+await startRound(page);
+await page.locator("[data-workbook-exercise]").first().waitFor({ timeout: 15_000 }).catch(() => {});
+check("a reload comes back to the same page and says so", await page.locator("[data-workbook-resumed]").count() === 1);
+check(
+  "with the box filled in still filled in, and the same sentences",
+  (await gaps.first().inputValue()) === "qq" && JSON.stringify(await lines.locator(".wb-cue").allInnerTexts()) === JSON.stringify(cues),
+);
 
 // Every box filled with the word exactly as its bracket has it.
 for (let i = 0; i < n; i++) {
@@ -165,6 +182,10 @@ await page.waitForTimeout(800);
 const finish = await page.locator("main").innerText();
 check("the page ends on itself, corrected", /corrected/i.test(finish), finish.slice(0, 80));
 check("the finish screen offers another page", await page.locator('a[href*="round="]').count() > 0);
+check(
+  "a finished page is taken off the device, so it cannot come back on a reload",
+  (await page.evaluate(() => Object.keys(window.localStorage).filter((k) => k.includes("workbook")).length)) === 0,
+);
 
 const written = (await prisma.review.findMany({
   where: { ownerId: OWNER, reviewedAt: { gte: before } },

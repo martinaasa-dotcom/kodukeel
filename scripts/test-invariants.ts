@@ -9605,6 +9605,11 @@ check("nothing is stored on a device that would need asking first", () => {
     // minutes rather than three. Letters and which clues were shown, never the
     // answers, which are rebuilt on the server to mark it.
     "app/(app)/crossword/resume.ts",
+    // A workbook page halfway filled in, which the server deals at random so a
+    // reload would otherwise deal a different one. The sentences dealt and what
+    // was typed, under the puzzle prefix the sign-out sweeps, removed when the
+    // page is finished and dropped after half a day.
+    "app/(app)/review/workbook/resume.ts",
     // Which card a review round was on, so a detour to its dictionary entry
     // and back does not read as the round restarting. Never necessary in the
     // sense the outbox is, since nothing is lost by starting over, but the
