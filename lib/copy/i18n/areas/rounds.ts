@@ -821,6 +821,30 @@ export const ROUNDS: Area = {
       "Дождливый день в городе",
     "In the garden":
       "В саду",
+    "A cow at the sauna":
+      "Корова в сауне",
+    "A cat at the wheel":
+      "Кошка за рулём",
+    "A dog at the office":
+      "Собака в офисе",
+    "A bear doing the shopping":
+      "Медведь за покупками",
+    "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a carton of juice, a basket and a spruce tree outside.":
+      "Корова сидит в жаркой сауне: ведро воды, банный веник, огонь, пакет сока, корзина и ель за окном.",
+    "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.":
+      "Кошка ведёт машину мимо светофора, за ней бежит собака, а ещё дорога, дерево, дом и клетчатый флаг.",
+    "A dog at a desk with a laptop and a cup of coffee, a phone, a printer and a calendar, a man and a woman watching, and a pot plant.":
+      "Собака сидит за столом с ноутбуком и чашкой кофе. Рядом телефон, принтер, календарь и растение в горшке, а мужчина и женщина на неё смотрят.",
+    "A bear pushing a shopping trolley with honey, bread, milk and cheese, a shop assistant, a receipt and some money.":
+      "Медведь толкает тележку с мёдом, хлебом, молоком и сыром, а ещё продавщица, чек и немного денег.",
+    "The cow is sitting in the sauna, drinking juice.":
+      "Корова сидит в сауне и пьёт сок.",
+    "The cat is driving the car and the dog is running after it.":
+      "Кошка ведёт машину, а собака бежит следом.",
+    "The dog is working on the computer and drinking coffee.":
+      "Собака работает за компьютером и пьёт кофе.",
+    "The bear is buying honey and bread at the shop.":
+      "Медведь покупает в магазине мёд и хлеб.",
     "Balloons and streamers over a girl, a boy and a child, with a birthday cake, a gift and a drink.":
       "Воздушные шары и серпантин над девочкой, мальчиком и малышом, а ещё праздничный торт, подарок и напиток.",
     "A sunny beach with palm trees and waves, a woman and a child with a watermelon, a crab, a shell and sunglasses.":
@@ -1793,6 +1817,30 @@ export const ROUNDS: Area = {
       "Дощовий день у місті",
     "In the garden":
       "У саду",
+    "A cow at the sauna":
+      "Корова в сауні",
+    "A cat at the wheel":
+      "Кіт за кермом",
+    "A dog at the office":
+      "Собака в офісі",
+    "A bear doing the shopping":
+      "Ведмідь за покупками",
+    "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a carton of juice, a basket and a spruce tree outside.":
+      "Корова сидить у гарячій сауні: відро води, банний віник, вогонь, пакет соку, кошик і ялина надворі.",
+    "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.":
+      "Кіт веде машину повз світлофор, за ним біжить собака, а ще дорога, дерево, будинок і картатий прапор.",
+    "A dog at a desk with a laptop and a cup of coffee, a phone, a printer and a calendar, a man and a woman watching, and a pot plant.":
+      "Собака сидить за столом із ноутбуком і чашкою кави. Поруч телефон, принтер, календар і рослина в горщику, а чоловік і жінка на нього дивляться.",
+    "A bear pushing a shopping trolley with honey, bread, milk and cheese, a shop assistant, a receipt and some money.":
+      "Ведмідь штовхає візок із медом, хлібом, молоком і сиром, а ще продавчиня, чек і трохи грошей.",
+    "The cow is sitting in the sauna, drinking juice.":
+      "Корова сидить у сауні й п'є сік.",
+    "The cat is driving the car and the dog is running after it.":
+      "Кіт веде машину, а собака біжить слідом.",
+    "The dog is working on the computer and drinking coffee.":
+      "Собака працює за комп'ютером і п'є каву.",
+    "The bear is buying honey and bread at the shop.":
+      "Ведмідь купує в магазині мед і хліб.",
     "Balloons and streamers over a girl, a boy and a child, with a birthday cake, a gift and a drink.":
       "Повітряні кульки й серпантин над дівчинкою, хлопчиком і малюком, а ще святковий торт, подарунок і напій.",
     "A sunny beach with palm trees and waves, a woman and a child with a watermelon, a crab, a shell and sunglasses.":

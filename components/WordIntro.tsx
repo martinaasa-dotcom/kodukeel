@@ -1,6 +1,6 @@
 "use client";
 
-import { useT } from "@/components/Locale";
+import { useLocale, useT } from "@/components/Locale";
 
 import { Speak } from "@/components/Speak";
 import { EstonianSentence } from "@/components/EstonianSentence";
@@ -8,6 +8,7 @@ import type { GlossedToken } from "@/lib/dict/glossed";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 import { firstMeetingNote } from "@/lib/copy/firstMeeting";
 import { FitText } from "@/components/FitText";
+import { WordFun } from "@/components/WordFun";
 
 /**
  * A WORD'S FIRST OUTING: WHAT IT MEANS, AND IT DOING ITS JOB IN A SENTENCE
@@ -114,6 +115,7 @@ export function WordIntro({
     a beginner could not be given: a word doing something, in words they have.
   */
   const t = useT();
+  const locale = useLocale();
   const [usuallyBefore, usuallyAfter = ""] = t("People usually say {word}.").split("{word}");
   const showSentence = sentence !== null && (cefr !== "A1" || sentence.authored);
   // A sentence exists and is deliberately not shown: an A1 word is met on
@@ -159,6 +161,14 @@ export function WordIntro({
           {usuallyBefore}<span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{alsoSaid}</span>{usuallyAfter}
         </p>
       )}
+
+      {/*
+        The one line that is funny on purpose, under the few words that have
+        one: a compound read word by word, or a word that only looks English.
+        It sits with the meaning because it is about the meaning, and above
+        the sentence because a joke after the example reads as an afterthought.
+      */}
+      <WordFun lemma={lemma} gloss={gloss} t={t} locale={locale} />
 
       <div className="my-1 h-1 w-14 rounded-full" style={{ background: "var(--accent-soft)" }} />
 
