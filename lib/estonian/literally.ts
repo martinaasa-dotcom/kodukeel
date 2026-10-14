@@ -204,7 +204,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "railway", word: "raudtee",
     parts: [p("raud", "raud", "iron"), p("tee", "tee", "road")],
     literal: "iron road", means: "railway",
-    quip: "Estonia's first trains ran on one in 1870, and the name has never needed changing.",
+    quip: "Estonia's first trains ran on one in 1870. The rails have been steel for well over a century, and nobody has suggested renaming it.",
   },
   {
     id: "character", word: "iseloom",
@@ -252,7 +252,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dream", word: "unenägu",
     parts: [p("une", "uni", "sleep"), p("nägu", "nägu", "sight, face")],
     literal: "sleep sight", means: "dream",
-    quip: "The second half is the word for a face, but here it is the older sense of what you see. By breakfast it's gone anyway.",
+    quip: "The second half is the word for a face, but here it is the older sense of what you see. By breakfast it has usually faded.",
   },
   {
     id: "childhood", word: "lapsepõlv",
@@ -300,7 +300,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "flatulence", word: "kõhutuul",
     parts: [p("kõhu", "kõht", "stomach"), p("tuul", "tuul", "wind")],
     literal: "stomach wind", means: "breaking wind (flatus)",
-    quip: "English calls it wind too. Estonian just says where it blows from.",
+    quip: "English calls it wind too. Estonian adds where it blows from.",
   },
   {
     id: "earth", word: "maamuna",
@@ -396,7 +396,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "moth", word: "ööliblikas",
     parts: [p("öö", "öö", "night"), p("liblikas", "liblikas", "butterfly")],
     literal: "night butterfly", means: "moth",
-    quip: "The butterfly that skips the flowers and heads straight for the nearest light.",
+    quip: "A butterfly that keeps late hours and can't fly past a lit window.",
   },
   {
     id: "bookworm", word: "raamatukoi",
@@ -438,7 +438,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "arm", word: "käsivars",
     parts: [p("käsi", "käsi", "hand"), p("vars", "vars", "shaft, stalk")],
     literal: "hand shaft", means: "arm",
-    quip: "The second half is a shaft, the same word as a plant's stalk. Your hand grows on the end of it.",
+    quip: "A plant's stalk is the same word, which makes your hand the flower on top.",
   },
   {
     id: "hanger", word: "riidepuu",
@@ -486,7 +486,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dictionary", word: "sõnaraamat",
     parts: [p("sõna", "sõna", "word"), p("raamat", "raamat", "book")],
     literal: "word book", means: "dictionary",
-    quip: "It'll be the book on your shelf with the most worn corners.",
+    quip: "The one book whose name you can look up inside it.",
   },
   {
     id: "snowman", word: "lumememm",
@@ -569,7 +569,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "must", word: "must", looksLike: "must", means: "black",
-    quip: "For some people a black coffee is a must anyway.",
+    quip: "For some people a black coffee is a must before anything else.",
   },
   {
     id: "all", word: "all", looksLike: "all", means: "under, below",
@@ -625,7 +625,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "pill", word: "pill", looksLike: "pill", means: "musical instrument",
-    quip: "Plenty of people would say music is a kind of medicine anyway.",
+    quip: "Plenty of people would call music a kind of medicine.",
   },
   {
     id: "torn", word: "torn", looksLike: "torn", means: "tower",
@@ -649,7 +649,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "kast", word: "kast", looksLike: "cast", means: "box",
-    quip: "Moving house takes a lot of them, and no actors at all.",
+    quip: "Moving house takes dozens of them. Not one of them can act.",
   },
   {
     id: "tuba", word: "tuba", looksLike: "tuba", means: "room",

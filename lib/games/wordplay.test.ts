@@ -154,6 +154,10 @@ describe("one sitting", () => {
     };
     // How a line about a piece starts, rather than what it says.
     const frame = new Set(["first half", "second half", "half means"]);
+    // And the small words a writer leans on: one of them twice in a sitting
+    // is a tic the reader hears even where no phrase repeats.
+    const tics = ["anyway", "just", "exactly", "really", "still", "honest", "though", "either", "plenty"];
+    const leansOn = (text: string) => new Set(tics.filter((w) => new RegExp(`\\b${w}\\b`, "i").test(text)));
     const twice: string[] = [];
     let sittings = 0;
     for (let round = 0; round < Math.ceil(COMPOUNDS.length / COMPOUNDS_PER_SITTING); round++) {
@@ -162,6 +166,8 @@ describe("one sitting", () => {
       for (const lines of [compounds, friends]) {
         for (let a = 0; a < lines.length; a++) {
           for (let b = a + 1; b < lines.length; b++) {
+            const otherTics = leansOn(lines[b]!.quip);
+            for (const w of leansOn(lines[a]!.quip)) if (otherTics.has(w)) twice.push(`${lines[a]!.word} / ${lines[b]!.word}: ${w}`);
             const other = pairs(lines[b]!.quip);
             for (const p of pairs(lines[a]!.quip)) {
               if (other.has(p) && !frame.has(p)) twice.push(`${lines[a]!.word} / ${lines[b]!.word}: ${p}`);
