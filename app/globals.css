@@ -13,7 +13,14 @@
   Everything else is a warm near-white so the colour that does appear is the
   colour that means something.
 
-  Tokens are duplicated into @theme (so Tailwind utilities like `bg-sky` work)
+  Tokens are duplicated into /* Registered so a tile's light can be tweened (see `.situation-tile`). */
+@property --tile-lit {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 12%;
+}
+
+@theme (so Tailwind utilities like `bg-sky` work)
   and into :root (so the inline `style` props the views use can read them). The
   :root copy is the one that flips in dark mode.
 */
@@ -220,10 +227,11 @@
       not let a distinction do without.
 
       It was `--on-mint` until mint left the palette and "recalled" moved to sky.
-      One value in both themes, because both skies are light enough for it:
-      about 7.8:1 on #17bfd9 and 13:1 on the dark theme's #4fe3f5. It is the
-      light theme's `--ink`, written out, because `var(--ink)` inverts with the
-      theme and would take the tick with it.
+      A dark ink in both themes, because both skies are light enough for it:
+      about 7.8:1 on #17bfd9, and the dark theme swaps in the Slate night
+      (`var(--stage)`) at 11.4:1 on its #6ad6ec. It is written out here rather
+      than `var(--ink)`, because `--ink` inverts with the theme and would take
+      the tick with it.
     */
     --on-sky: #0f1233;
 
@@ -273,22 +281,26 @@
     /* The one button a screen is built around is a firework: gold, with the
        night's ink on it, in both themes. The accent keeps every other job. */
     --cta: var(--butter);
-    /* Ink on a solid hue, the same night ink in both themes: every hue is
-       light enough for it, and it is what makes a coloured sticker read. */
+    /* Ink on a solid hue: a dark ink in both themes, the navy ink here and
+       the Slate night in the dark. Every hue is light enough for it, and it
+       is what makes a coloured sticker read. */
     --on-hue: #0f1233;
     --cta-ink: #0f1233;
 
     /* The landing stage: a night band the page scrolls out of, the same in
-       both themes, because it is a place rather than a surface. */
-    --stage: #0b0e2e;
-    --stage-ink: #fbfaff;
-    --stage-ink-2: #d2d5f2;
+       both themes, because it is a place rather than a surface. It is the
+       Slate night, the dark theme's own page ground (which reads it back as
+       `--ground: var(--stage)`), so the one night in this app is typed once
+       and a dark panel on a light page is the same object as the dark theme. */
+    --stage: #0c0e13;
+    --stage-ink: #f5f6fa;
+    --stage-ink-2: #c9ccd8;
     --stage-tick: var(--sky);
     --stage-glow: var(--blush);
 
     /*
       The key cap on a primary button, which is the one surface whose ink
-      flips. `--accent-ink` is white in the light theme and #171229 in the
+      flips. `--accent-ink` is white in the light theme and #15102f in the
       dark, so a cap tinted one way cannot serve both: measured against the
       worst of the accent ramp's three stops, white at 22% reads 3.32 under
       white text and black at 16% reads 2.65 under dark text. The cap has to
@@ -329,27 +341,55 @@
   :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --ground: #080a1f;
-    --surface: #101433;
-    --raised: #1a1f4a;
-    --ink: #f2f3ff;
-    --ink-2: #c4c8ec;
-    /* The same nudge as the media-query block above, for the same numbers. */
-    --ink-3: #a0a5d2;
-    --rule: #262b5a;
-    --rule-soft: #171b40;
+    /*
+      SLATE. Grey, with the faintest lean toward the brand violet, and the
+      brand kept in the accent rather than in the ground.
 
-    --accent: #9c8cff;
-    --accent-ink: #0c0a36;
-    --accent-soft: #26215c;
-    --accent-deep: #beb3ff;
+      The navy that was here measured an OKLCH chroma of 0.061 on the card
+      and 0.079 on a raised panel, roughly fifteen times Apple's own dark
+      greys (0.004 to 0.007), so every surface read as blue-violet and the
+      bright hues on top of it read as a glow. Above about 0.02 the eye calls
+      a dark surface coloured rather than grey, so every layer here sits at
+      0.02 or under (hue 269, the accent's side of blue). Depth is lightness
+      and nothing else: page, card and raised panel step by +0.046 and +0.047
+      in OKLCH L, which is the size of Apple's own elevated steps, and no
+      layer carries a glow or a tinted shadow.
+
+      The navy taken down to the same 0.02 lands 0.007 OKLab from these
+      three, under the smallest difference the eye can see, so this is the
+      night it always was with the colour taken out of the greys.
+
+      Measured before it shipped: injected into the running app, axe's
+      colour-contrast rule over thirty screens and about 2,400 text nodes per
+      run, zero failures, the weakest five percent of real text at 7.0:1.
+      Text is off-white rather than #fff, which halates on a dark ground for
+      a reader with astigmatism. The tints are mixed from each hue into the
+      card (22% accent, 15% gold and sky, 14% pink) so a chip always belongs
+      to the surface it sits on, and every ink clears 4.5:1 on every tint.
+    */
+    --ground: var(--stage);
+    --surface: #151820;
+    --raised: #1f232d;
+    --ink: #eeeff3;
+    --ink-2: #c3c5d1;
+    --ink-3: #a5a8b8;
+    --rule: #2c303c;
+    --rule-soft: #1c1f27;
+
+    /* Tonal, the way a dark system accent is drawn: a light violet with a
+       dark label. White on a violet dark enough to carry it fails the dark
+       label the hero cards put on the same fill, and no violet passes both. */
+    --accent: #a594ff;
+    --accent-ink: #15102f;
+    --accent-soft: #353351;
+    --accent-deep: #c4baff;
 
     --butter: #ffc400;
-    --butter-soft: #3a2f0e;
-    --sky: #4fe3f5;
-    --sky-soft: #0b3140;
-    --blush: #ff6ba8;
-    --blush-soft: #3d1328;
+    --butter-soft: #38321b;
+    --sky: #6ad6ec;
+    --sky-soft: #22353f;
+    --blush: #ff7aa8;
+    --blush-soft: #362633;
 
     --butter-ink: var(--butter);
     --sky-ink: var(--sky);
@@ -359,25 +399,29 @@
     --again-ink: var(--blush);
     --easy-ink: var(--accent-deep);
 
-    --wash-1: #121437;
-    --wash-2: #0f1230;
-    --wash-3: #141129;
+    /* No coloured blobs behind the page: the washes are the ground. */
+    --wash-1: var(--ground);
+    --wash-2: var(--ground);
+    --wash-3: var(--ground);
 
-    --shadow-sm: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow-lg: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.08), 0 16px 40px -20px rgb(0 0 0 / 0.8);
+    --shadow-sm: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow-lg: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.09), 0 18px 44px -18px rgb(0 0 0 / 0.85);
     --shadow-accent: none;
 
-    --edge: rgb(210 214 255 / 0.12);
+    --edge: rgb(255 255 255 / 0.09);
     --depth: none;
     --depth-sm: none;
     --depth-lift: none;
 
     --cta: var(--butter);
-    --cta-ink: #14110a;
+    --on-hue: var(--stage);
+    --on-sky: var(--stage);
+    --cta-ink: var(--stage);
 
-    --stage: #04051a;
+    --stage-ink: #f5f6fa;
+    --stage-ink-2: #c9ccd8;
     --stage-glow: var(--blush);
 
     --key-cap: rgb(255 255 255 / 0.28);
@@ -398,27 +442,26 @@
     --easy-soft: var(--accent-soft);
     color-scheme: dark;
 
-    --ground: #080a1f;
-    --surface: #101433;
-    --raised: #1a1f4a;
-    --ink: #f2f3ff;
-    --ink-2: #c4c8ec;
-    /* The same nudge as the media-query block above, for the same numbers. */
-    --ink-3: #a0a5d2;
-    --rule: #262b5a;
-    --rule-soft: #171b40;
+    --ground: var(--stage);
+    --surface: #151820;
+    --raised: #1f232d;
+    --ink: #eeeff3;
+    --ink-2: #c3c5d1;
+    --ink-3: #a5a8b8;
+    --rule: #2c303c;
+    --rule-soft: #1c1f27;
 
-    --accent: #9c8cff;
-    --accent-ink: #0c0a36;
-    --accent-soft: #26215c;
-    --accent-deep: #beb3ff;
+    --accent: #a594ff;
+    --accent-ink: #15102f;
+    --accent-soft: #353351;
+    --accent-deep: #c4baff;
 
     --butter: #ffc400;
-    --butter-soft: #3a2f0e;
-    --sky: #4fe3f5;
-    --sky-soft: #0b3140;
-    --blush: #ff6ba8;
-    --blush-soft: #3d1328;
+    --butter-soft: #38321b;
+    --sky: #6ad6ec;
+    --sky-soft: #22353f;
+    --blush: #ff7aa8;
+    --blush-soft: #362633;
 
     --butter-ink: var(--butter);
     --sky-ink: var(--sky);
@@ -428,25 +471,28 @@
     --again-ink: var(--blush);
     --easy-ink: var(--accent-deep);
 
-    --wash-1: #121437;
-    --wash-2: #0f1230;
-    --wash-3: #141129;
+    --wash-1: var(--ground);
+    --wash-2: var(--ground);
+    --wash-3: var(--ground);
 
-    --shadow-sm: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow-lg: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.08), 0 16px 40px -20px rgb(0 0 0 / 0.8);
+    --shadow-sm: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow-lg: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.09), 0 18px 44px -18px rgb(0 0 0 / 0.85);
     --shadow-accent: none;
 
-    --edge: rgb(210 214 255 / 0.12);
+    --edge: rgb(255 255 255 / 0.09);
     --depth: none;
     --depth-sm: none;
     --depth-lift: none;
 
     --cta: var(--butter);
-    --cta-ink: #14110a;
+    --on-hue: var(--stage);
+    --on-sky: var(--stage);
+    --cta-ink: var(--stage);
 
-    --stage: #04051a;
+    --stage-ink: #f5f6fa;
+    --stage-ink-2: #c9ccd8;
     --stage-glow: var(--blush);
 
     --key-cap: rgb(255 255 255 / 0.28);
@@ -3199,6 +3245,18 @@
     font-size: var(--text-md);
     line-height: 1.45;
   }
+  /*
+    A VERDICT ARRIVES. Feedback that is noticed is feedback that is used, so
+    the line saying how the answer went rises a few pixels into place as it
+    appears, and a right answer lands with a small give, the same curve the
+    right option settles on. Short enough to be over before the eye reaches
+    it, and nothing under reduced motion.
+  */
+  .verdict-panel { animation: verdict-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .verdict-panel.verdict-right { animation: verdict-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both, verdict-land 420ms 120ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes verdict-in { from { opacity: 0; translate: 0 6px; } }
+  @keyframes verdict-land { 40% { scale: 1.015; } }
+  @media (prefers-reduced-motion: reduce) { .verdict-panel, .verdict-panel.verdict-right { animation: none; } }
   .option-right {
     --choice-bg: var(--good-soft);
     --choice-border: var(--good);
@@ -3905,11 +3963,14 @@
       radial-gradient(16rem 12rem at 88% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
       var(--stage) !important;
   }
+  /* The same lamps in the dark, on the raised grey so the room still stands
+     off the page, at a hint of their light-theme strength: on a dark ground a
+     full-strength glow reads as a smear. Still, because a line is being read. */
   [data-theme="dark"] .scene-night {
     background:
-      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 40%, transparent), transparent 70%),
-      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 30%, transparent), transparent 70%),
-      radial-gradient(16rem 12rem at 88% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
+      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 16%, transparent), transparent 70%),
+      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 12%, transparent), transparent 70%),
+      radial-gradient(16rem 12rem at 88% 0%, color-mix(in srgb, var(--butter) 7%, transparent), transparent 70%),
       var(--raised) !important;
   }
   /* The place you say your line: glass on the same night, lifted a little. */
@@ -4020,20 +4081,45 @@
     drawing is in the ink the rest of the page is in rather than on fifteen
     slabs of night, which is what made the old page read as a wall.
   */
+  /*
+    THE LAMPS MOVE, SLOWLY, AND ONLY HERE.
+
+    The stage is the one showcase on the page, so it is lit in the mix and
+    the light drifts: a layer half as big again as the panel, behind its
+    contents, turning a few degrees over twenty-odd seconds. Slow enough that
+    nobody watches it and the panel still reads as a lit room rather than a
+    slab, which in the dark theme it was, grey on grey, for one release. The
+    conversation room keeps still lamps, because motion behind a line
+    somebody is reading costs them the line. Dark sits the lamps on the
+    raised grey so the panel still separates from the page, and turns them
+    down to a hint: on a dark ground a glow at the light theme's strength
+    reads as a smear rather than a lamp. Off for anybody who asks for less motion.
+  */
   .situation-stage {
+    --lamp: 1;
     padding: clamp(1.25rem, 3vw, 2.25rem);
-    background:
-      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 38%, transparent), transparent 70%),
-      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 28%, transparent), transparent 70%),
-      radial-gradient(16rem 12rem at 70% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
-      var(--stage) !important;
+    background: var(--stage) !important;
   }
   [data-theme="dark"] .situation-stage {
+    --lamp: 0.4;
+    background: var(--raised) !important;
+  }
+  .situation-stage::before {
+    content: "";
+    position: absolute;
+    inset: -25%;
+    z-index: -1;
+    pointer-events: none;
     background:
-      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 38%, transparent), transparent 70%),
-      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 28%, transparent), transparent 70%),
-      radial-gradient(16rem 12rem at 70% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
-      var(--raised) !important;
+      radial-gradient(26rem 20rem at 17% 17%, color-mix(in srgb, var(--stage-glow) calc(38% * var(--lamp)), transparent), transparent 70%),
+      radial-gradient(24rem 18rem at 83% 83%, color-mix(in srgb, var(--sky) calc(28% * var(--lamp)), transparent), transparent 70%),
+      radial-gradient(16rem 12rem at 63% 17%, color-mix(in srgb, var(--butter) calc(16% * var(--lamp)), transparent), transparent 70%);
+    animation: stage-lamps 24s ease-in-out infinite alternate;
+  }
+  @keyframes stage-lamps {
+    0% { transform: translate(-3%, -2%) rotate(-4deg); }
+    50% { transform: translate(2%, 3%) rotate(3deg); }
+    100% { transform: translate(4%, -2%) rotate(7deg); }
   }
   .situation-stage-grid {
     display: grid;
@@ -4066,6 +4152,35 @@
   @media (hover: hover) { .situation-shuffle:hover { background: rgb(255 255 255 / 0.1) !important; } }
   .situation-shuffle svg { transition: transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1); }
   @media (hover: hover) { .situation-shuffle:hover svg { transform: rotate(-12deg) scale(1.1); } }
+
+  /*
+    A TILE IS ITS KIND'S COLOUR, LIT FROM ABOVE.
+
+    In the light theme the tint is the tile. In the dark, a hue mixed into
+    grey is mud (gold becomes olive and pink becomes maroon), so the tile is
+    the card with its kind's colour falling on it from the top edge, which
+    reads as light rather than as a stain, and its border carries the hue so
+    four kinds are four colours at a glance. A pointer brings the light up:
+    `--tile-lit` is a registered property so the browser can tween it, which
+    a gradient on its own cannot (declared at the top of this file, since
+    `@property` is not a layered rule). Text never sits on the brightest part
+    alone; the chips keep their own ground.
+  */
+  .situation-tile {
+    background: var(--tile-soft);
+    border-color: var(--edge);
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+                --tile-lit 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  [data-theme="dark"] .situation-tile {
+    background:
+      radial-gradient(130% 75% at 50% 0%, color-mix(in oklab, var(--tile-hue) var(--tile-lit), transparent), transparent 72%),
+      var(--surface);
+    border-color: color-mix(in oklab, var(--tile-hue) 34%, var(--rule));
+  }
+  [data-theme="dark"] .situation-tile:focus-visible { --tile-lit: 20%; }
+  @media (hover: hover) { [data-theme="dark"] .situation-tile:hover { --tile-lit: 20%; } }
 
   .situation-window {
     position: relative;
@@ -4106,7 +4221,8 @@
   .situation-place { background: var(--surface); border: 1px solid var(--edge); }
 
   @media (prefers-reduced-motion: reduce) {
-    .situation-stage-grid, .situation-in { animation: none; }
+    .situation-stage-grid, .situation-in, .situation-stage::before { animation: none; }
+    .situation-tile { transition: none; }
     .situation-window > svg, .situation-shuffle svg { transition: none; transform: none !important; }
   }
 }
@@ -5049,9 +5165,9 @@ a:focus-visible .wave-word::after {
   shadow every other card already carries, with nothing that moves.
 
   [data-theme="dark"] is the reason this is two rules rather than one: the
-  panel's own ink (#0b0e2e) sits close enough in luminance to the dark
-  theme's own page ground (--ground: #080a1f) that the two would nearly
-  merge with no glow left to tell them apart. So on the dark theme the panel
+  panel's own ink is the dark theme's own page ground (--ground reads
+  --stage), so on that page the two would merge with nothing to tell them
+  apart. So on the dark theme the panel
   is promoted onto --raised instead, with a hairline and a plain dark shadow.
   It was a violet-tinted shadow for a while, and together with the page's
   own wash and the accent buttons' coloured lift it made the dark theme glow
@@ -5067,8 +5183,16 @@ a:focus-visible .wave-word::after {
   border-color: rgb(255 255 255 / 0.08) !important;
   box-shadow: none !important;
 }
+/*
+  One lamp, in the accent, on the dark theme's one hero per screen: a grey
+  panel on a grey page was correct and lifeless, and the panel is the thing
+  the screen is for. One faint light from the top corner, never three, so it
+  reads as lit rather than as glowing.
+*/
 [data-theme="dark"] .night {
-  background: var(--raised);
+  background:
+    radial-gradient(34rem 22rem at 0% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%),
+    var(--raised);
   border-color: rgb(255 255 255 / 0.1) !important;
   box-shadow: none !important;
 }

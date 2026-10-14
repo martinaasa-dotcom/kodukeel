@@ -18,7 +18,8 @@ import type { InvariantKit } from "../lib/invariantKit";
  * Satori draws, the root error boundary, and mail, which a mail client draws
  * with whatever it has. Each is checked for staleness.
  *
- * NIGHT. The navy of Vikerkaar öös is `--stage` and is typed once. `.night`
+ * NIGHT. The night of Vikerkaar öös is `--stage` (Slate, #0c0e13) and is typed
+ * once; the dark theme reads it back as its page ground. `.night`
  * read its own copy of the hex, which is two definitions of one colour.
  *
  * THE EVENING. A card that says today's module is done is the accent's tint
@@ -74,13 +75,13 @@ export default function theAgreedFontsAndPalette({ check, code, read, ALL }: Inv
     }
   });
 
-  check("the night navy is typed once, as --stage, and .night reads it", () => {
+  check("the night is typed once, as --stage, and .night reads it", () => {
     const css = read("app/globals.css");
-    const hits = css.match(/#0b0e2e\b/gi) ?? [];
-    const declared = /--stage:\s*#0b0e2e\s*;/i.test(css);
-    assert.ok(declared, "--stage is no longer the night navy of Vikerkaar öös");
-    const outsideComments = css.replace(/\/\*[\s\S]*?\*\//g, "").match(/#0b0e2e\b/gi) ?? [];
-    assert.equal(outsideComments.length, 1, `the night navy is typed ${outsideComments.length} times; it is --stage and nothing else (${hits.length} with comments)`);
+    const hits = css.match(/#0c0e13\b/gi) ?? [];
+    const declared = /--stage:\s*#0c0e13\s*;/i.test(css);
+    assert.ok(declared, "--stage is no longer the Slate night of Vikerkaar öös");
+    const outsideComments = css.replace(/\/\*[\s\S]*?\*\//g, "").match(/#0c0e13\b/gi) ?? [];
+    assert.equal(outsideComments.length, 1, `the night is typed ${outsideComments.length} times; it is --stage and nothing else (${hits.length} with comments)`);
     const painted = [...css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/(?:^|\n)\s*\.night\s*\{([^}]*)\}/g)]
       .map((m) => /background:\s*([^;]+);/.exec(m[1]!)?.[1]?.trim())
       .filter((b): b is string => Boolean(b));

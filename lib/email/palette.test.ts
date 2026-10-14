@@ -36,16 +36,24 @@ function declaredIn(selector: string, token: string): string | null {
   const start = CSS.indexOf(selector);
   if (start < 0) return null;
   const block = CSS.slice(start, CSS.indexOf("\n  }", start));
-  const found = new RegExp(`${token}:\\s*(#[0-9a-fA-F]{3,8})\\s*;`).exec(block);
-  return found?.[1]?.toLowerCase() ?? null;
+  const found = new RegExp(`${token}:\\s*(#[0-9a-fA-F]{3,8}|var\\(--[a-z0-9-]+\\))\\s*;`).exec(block);
+  const value = found?.[1]?.toLowerCase() ?? null;
+  // The dark ground is the night (`--ground: var(--stage)`), which is typed
+  // once, in the light block. One hop is followed there, so the letter is
+  // compared with the colour the app paints rather than with a name.
+  const ref = value ? /^var\((--[a-z0-9-]+)\)$/.exec(value) : null;
+  if (ref && selector !== LIGHT) return declaredIn(LIGHT, ref[1]!);
+  return ref ? null : value;
 }
+
+const LIGHT = "  :root {\n    color-scheme: light;";
 
 describe("the letter palette is the app's palette", () => {
   it("writes out the light theme exactly as the stylesheet declares it", () => {
     for (const [key, value] of Object.entries(PALETTE)) {
       const token = TOKEN_OF[key as keyof typeof PALETTE];
       expect(
-        declaredIn("  :root {\n    color-scheme: light;", token),
+        declaredIn(LIGHT, token),
         `${key} is ${value} in lib/email/palette.ts, and ${token} is something else in app/globals.css. ` +
           "An email cannot read a custom property, so this file is a copy, and a copy nothing " +
           "compares is a letter that quietly stops matching the app it links to.",
