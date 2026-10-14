@@ -25,7 +25,7 @@ import { CaseLabel } from "@/components/CaseLabel";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
-import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
+import { plainAsk, plainAskLine, sayLineIn } from "@/lib/estonian/plainAsk";
 import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
 import { BLANK, filledSentence, mentions, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, noteIn, type AnswerCheck } from "@/lib/estonian/answer";
@@ -51,7 +51,7 @@ import { useResumeCard } from "@/components/useResumeCard";
 import { useUiText } from "@/components/UiLanguage";
 import { useLocale, useT } from "@/components/Locale";
 import { localiseReadings } from "@/lib/copy/questionReading";
-import { countOf, fill } from "@/lib/copy/locale";
+import { countOf, fill, type Locale } from "@/lib/copy/locale";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { type SeenCard } from "@/lib/ux/lookBack";
@@ -270,7 +270,7 @@ const isGap = (card: ReviewCard) => card.front.includes(BLANK);
  * prints under it. A first meeting records the word and its meaning, since
  * that is what was on the screen and there was no question to ask.
  */
-function shownAs(card: ReviewCard, met: boolean): Omit<SeenCard, "key"> {
+function shownAs(card: ReviewCard, met: boolean, locale: Locale): Omit<SeenCard, "key"> {
   // A meeting is always the Estonian word over its English meaning, whatever
   // side the card it came from would have called Estonian.
   const word = card.intro?.lemma ?? card.lemma ?? card.front;
@@ -288,7 +288,7 @@ function shownAs(card: ReviewCard, met: boolean): Omit<SeenCard, "key"> {
       : typeLabel(card),
     question: met ? word : sizedBlank(card.front, card.back),
     answer: met ? card.intro?.gloss ?? card.back : card.back,
-    note: met ? null : card.say ?? (plainAsk(slotAsked(card)) ? plainAskLine(slotAsked(card)) : null),
+    note: met ? null : sayLineIn(locale, slotAsked(card), card.say) ?? (plainAsk(slotAsked(card)) ? plainAskLine(slotAsked(card), locale) : null),
     questionLang: met ? "et" : estonianSide(card.cardType, "front") ? "et" : "en",
     answerLang: met ? "en" : estonianSide(card.cardType, "back") ? "et" : "en",
     speak: speakable,
@@ -716,7 +716,7 @@ export function ReviewSession({
   */
   const look = useLookBack();
   const { record, forget } = look;
-  const recordSeen = useCallback((card: ReviewCard, met: boolean) => record(shownAs(card, met)), [record]);
+  const recordSeen = useCallback((card: ReviewCard, met: boolean) => record(shownAs(card, met, locale)), [record, locale]);
   /*
     WHAT UNDO PUTS BACK IS WHAT THE SERVER LAST WROTE.
 
@@ -1840,13 +1840,13 @@ export function ReviewSession({
               className="rounded-full px-4 py-1.5 text-lg font-semibold"
               style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
             >
-              {t(card.say)}
+              {sayLineIn(locale, slotAsked(card), card.say)}
             </p>
           )}
 
           {!card.say && (isGap(card) ? answerShown : !answerShown) && plainAsk(slotAsked(card)) && (
             <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              {t(plainAskLine(slotAsked(card)) ?? "")}
+              {plainAskLine(slotAsked(card), locale)}
             </p>
           )}
 

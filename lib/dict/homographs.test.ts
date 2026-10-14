@@ -36,8 +36,8 @@ describe("the shipped homograph reading", () => {
     expect(HOMOGRAPHS.reading("Õpin ülikoolis arstiks.", "arstiks")).toEqual(["arst"]);
     // A capital in the middle of a sentence is a name, so the town is not "kill!".
     expect(HOMOGRAPHS.reading("Rong väljub Tapa jaamast kell 12.00.", "tapa")).not.toContain("tapma");
-    // And the first word's capital is not, so this is the forest and not the surname Mets.
-    expect(HOMOGRAPHS.reading("Metsast saadavad hüved.", "metsast")).toEqual(["mets"]);
+    // And the first word's capital is not, so this is the spruce and not the surname Kuusk.
+    expect(HOMOGRAPHS.reading("Kuuse tüvel olid karu küüniste jäljed.", "kuuse")).toEqual(["kuusk"]);
   });
 
   it("folds a verb's own participle into the verb", () => {

@@ -212,6 +212,15 @@ export async function middleware(request: NextRequest) {
       and is `private, no-store` precisely because it does.
     */
     path.startsWith("/robots.txt") ||
+    /*
+      And the two a language model's crawler asks for. `/llms.txt` says what
+      the site is (app/llms.txt/route.ts); `/.well-known/` is where a crawler
+      looks for files like an agent catalog, and there is none here, so it
+      answers 404 rather than a sign-in form a checker then reads as a broken
+      catalog (PageSpeed's agentic browsing, 14 October 2026).
+    */
+    path.startsWith("/llms.txt") ||
+    path.startsWith("/.well-known/") ||
     path.startsWith("/sitemap.xml") ||
     path.startsWith("/opengraph-image") ||
     // The home-screen icon, drawn the same for everybody. A phone fetches it

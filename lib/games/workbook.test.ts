@@ -4,7 +4,7 @@ import { BLANK } from "@/lib/estonian/cloze";
 import type { FlashWord } from "./flash";
 import {
   MIN_LINES, OPEN, OUTCOME_RATING, choicesFor, composeSheet, indexFor, lineSentence, linesFor, markLine, otherWordIn,
-  outcomeAfter, pageReading, parseTheme, preferredThemes, slotsFor, themesOf, verbSlot, whoFor, withinReach,
+  outcomeAfter, pageReading, parseTheme, preferredThemes, themeOrder, canFill, OLEMA, slotsFor, themesOf, verbSlot, whoFor, withinReach,
   workbookSentences, type SheetItem, type Theme,
 } from "./workbook";
 import { plainReach } from "@/lib/dict/plainness";
@@ -278,6 +278,13 @@ describe("composeSheet", () => {
     expect(runs).toBeLessThan(slots.length - 1);
   });
 
+  it("passes over a theme whose words share their sentences, rather than setting no exercise", () => {
+    // Four words on the ablative, but two sentences between them: four by count, two lines on a page.
+    const shared = Array.from({ length: 4 }, (_, i) => ({ ...fake(60 + i, "ABLATIVE"), sentence: `Shared sentence ${i % 2}.` }));
+    const sheet = composeSheet([...shared, ...items], ["case:ABLATIVE", "case:INESSIVE"], [{ lines: 4 }], 1);
+    expect(sheet.exercises.map((e) => e.theme)).toEqual(["case:INESSIVE"]);
+  });
+
   it("sets nothing where no theme has enough lines", () => {
     expect(composeSheet(items.slice(-2), ["case:ELATIVE"], [{ lines: 6 }]).exercises).toEqual([]);
   });
@@ -295,6 +302,35 @@ describe("preferredThemes", () => {
     const order = preferredThemes({ themeOk: (t) => !t.startsWith("case:") && t !== "pronouns" });
     expect(order.some((t) => t.startsWith("case:") || t === "pronouns")).toBe(false);
     expect(order).toContain("present");
+  });
+
+  it("rotates the rest by the turn, and never what leads for who the learner is", () => {
+    const seen = new Set<string>();
+    const restSize = themeOrder({ requested: "past", weakest: ["PARTITIVE"] }).themes.length - 3;
+    for (let turn = 0; turn < restSize; turn++) {
+      const { themes, urgent } = themeOrder({ requested: "past", weakest: ["PARTITIVE"], turn });
+      expect(urgent).toBe(2);
+      expect(themes.slice(0, 2)).toEqual(["past", "case:PARTITIVE"]);
+      expect(themes.at(-1)).toBe("mixed");
+      expect(new Set(themes).size).toBe(themes.length);
+      seen.add(themes[2]!);
+    }
+    // As many turns as there are themes start the rest in as many places.
+    expect(restSize).toBeGreaterThan(10);
+    expect(seen.size).toBe(restSize);
+    expect(themeOrder({}).themes).toEqual(preferredThemes({}));
+  });
+
+  it("walks the turn over the themes a page can fill, and puts the others after", () => {
+    const fills = (t: string) => t === "present" || t === "case:ELATIVE" || t === "pronouns";
+    const firsts = new Set<string>();
+    for (let turn = 0; turn < 9; turn++) {
+      const { themes } = themeOrder({ turn, fills });
+      expect(themes.slice(0, 3).every(fills)).toBe(true);
+      expect(themes.slice(3, -1).some(fills)).toBe(false);
+      firsts.add(themes[0]!);
+    }
+    expect([...firsts].sort()).toEqual(["case:ELATIVE", "present", "pronouns"]);
   });
 
   it("reads a theme off an address and nothing that is not one", () => {
@@ -554,6 +590,22 @@ describe("a page heads with the learner's weakest case whenever the words can fi
     expect(checked).toBeGreaterThan(3);
   });
 
+  it("takes a theme on its turn only where it fills the page, and a weak case even short", () => {
+    const cases = [...new Set(items.flatMap((i) => i.themes.filter((t) => t.startsWith("case:"))))] as Theme[];
+    const short = cases.find((t) => canFill(items, t, 3) && !canFill(items, t, 6));
+    const full = cases.find((t) => canFill(items, t, 6));
+    expect(short && full).toBeTruthy();
+    const plans = [{ lines: 6 }];
+    // On its turn ahead of a full theme, the short one is passed over.
+    expect(composeSheet(items, [short!, full!], plans, 0).exercises[0]?.theme).toBe(full);
+    // As the weakest case, it is set however short.
+    const urgent = composeSheet(items, [short!, full!], plans, 1).exercises[0]!;
+    expect(urgent.theme).toBe(short);
+    expect(urgent.lines.length).toBeLessThan(6);
+    // Where nothing fills, a short theme on its turn is still better than no page.
+    expect(composeSheet(items, [short!], plans, 0).exercises[0]?.theme).toBe(short);
+  });
+
   it("puts tonight's case ahead of the weakest, and the asked-for theme ahead of both", () => {
     const sheet = composeSheet(items, preferredThemes({ requested: "case:ELATIVE", tonight: "INESSIVE", weakest: ["PARTITIVE"] }), [{ lines: 6 }, { lines: 4 }]);
     expect(sheet.exercises.map((e) => e.theme)).toEqual(["case:ELATIVE", "case:INESSIVE"]);
@@ -576,6 +628,31 @@ describe("a gap the spelling alone cannot settle is refused", () => {
   it("reads the verb after ega as the negative, not the command", () => {
     expect(linesFor(only(LUGEMA, "Ta ei kirjuta ega loe.")).filter((l) => l.slot === "ImpPrSg2")).toEqual([]);
     expect(linesFor(only(LUGEMA, "Loe see raamat läbi!")).filter((l) => l.slot === "ImpPrSg2")).toHaveLength(1);
+  });
+
+  it("reads a verb with ei or ega anywhere ahead of it in its clause as the negative", () => {
+    expect(linesFor(only(LUGEMA, "Ega ta raamatut loe.")).filter((l) => l.slot === "ImpPrSg2")).toEqual([]);
+    // A comma ends the clause, so a negated first clause leaves a command after it alone.
+    expect(linesFor(only(LUGEMA, "Ma ei tea, loe ise!")).filter((l) => l.slot === "ImpPrSg2")).toHaveLength(1);
+  });
+
+  it("reads a word in -vad beside a form of olema as the participle, not the verb", () => {
+    const mangima = shipped("mängima");
+    expect(linesFor(only(mangima, "Mängivad lapsed on rõõmsad.")).filter((l) => l.slot === "IndPrPl3")).toEqual([]);
+    expect(linesFor(only(mangima, "Lapsed mängivad pargis.")).filter((l) => l.slot === "IndPrPl3")).toHaveLength(1);
+    // A second clause after ja is its own: olema in the first does not make the verb a participle.
+    expect(linesFor(only(mangima, "Lapsed on õues ja mängivad palliga.")).filter((l) => l.slot === "IndPrPl3")).toHaveLength(1);
+  });
+
+  it("names only spellings the dictionary holds for olema", () => {
+    const olema = slotsFor(shipped("olema")).flatMap((s) => s.accepted.map((a) => a.toLocaleLowerCase("et")));
+    const stored = shipped("olema").forms.map((f) => f.value.toLocaleLowerCase("et"));
+    let checked = 0;
+    for (const spelling of OLEMA) {
+      checked++;
+      expect([...olema, ...stored]).toContain(spelling);
+    }
+    expect(checked).toBeGreaterThan(5);
   });
 
   it("refuses a command spelled like the word's own infinitive", () => {

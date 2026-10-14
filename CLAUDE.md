@@ -4486,6 +4486,32 @@ survives a reload (`resume.ts`), the lines got wrong can be done again ungraded,
 `scripts/lib/workbook.mjs` walks every state for the layout and accessibility sweeps with every
 write cut off.
 
+**What has been read is written down, and the next reading is the lines learners meet most.**
+`npm run reading:workbook` deals four hundred sittings a level and every module evening the way the
+page deals them, and lists the lines nobody has read, the module's first and the rest by how often
+they came up. A reading lands in `prisma/data/workbook-read.json` through `npm run
+apply:workbook-review`, which writes the refusals into `lib/dict/refused.ts` in the reader's words
+and drops their English. It refuses a sentence the dictionary does not hold character for
+character, because a sheet that came back with a dash turned into a comma refuses nothing anybody
+is shown. A second read of all 2,124 unread lines added two more source rules to `plainTarget`. A command
+with `ei` or `ega` anywhere ahead of it in its own clause is the negative, and a word in `-vad`
+beside a form of `olema` is the participle; both fire only on lines a reader had already refused.
+That read flagged 111 lines and a second reader kept six of them, so 105 lines, 90 sentences, are
+refused with the first read's reasons. Vabamorf's
+disambiguator was measured as a third and left out: on the 640 lines read it caught one fault the
+rules do not and refused eleven good lines, most of them a command at the start of a sentence.
+Ranking a case's lines by whether the English carries the case's preposition was measured too and
+left out, since `Leidsin sahtlist vana foto` says "in the drawer".
+
+**The themes take turns, and the one the learner needs is filled from further afield.** With the
+pronouns and the present at the head of a fixed order, a learner whose cases were all doing well
+was set the same two pages every sitting, so `themeOrder` rotates the rest by the learner's day and
+the round, over the themes their words can fill (`fills`). What leads for who the learner is
+(asked for, tonight's case, the weakest) still leads, is set even short (`urgent`), and is topped
+up from the rest of the dictionary draw when it is. Inside the module the evening decides, so only
+"Another page" turns it. And a theme whose words share their sentences is passed over for the next
+one, where it used to skip the exercise and leave one B2 sitting in four hundred empty.
+
 **Kakskümmend küsimust answers a well-formed question, and that is a number held under one percent.**
 A round was reported as horrible, and the measure behind that was 39 percent: of 380 questions a
 learner asks, over every thing the game could be thinking of, that many came back "Ei tea" or turned
@@ -11984,6 +12010,8 @@ npm run audit:order      # every alternative word order the sentence builder acc
 npm run course:ids       # agree a new shape for the day ids, after weighing what a shift costs
 npm run audit:merge      # after merging: what the other side added that is no longer here
 npm run check:secrets    # fails if a credential reached the client bundle
+npm run check:landing    # the landing page's script weight, Cyrillic for an English reader included
+npm run i18n:tables      # after changing a translation: the per-language tables a browser loads
 npm run db:seed          # reload the built-in dictionary
 npm run harvest          # re-ask Ekilex for the syllabus vocabulary (cached, needs EKILEX_API_KEY)
 npm run harvest:semantics # ask what kind of thing each word is, for the built dictionary (--write applies)

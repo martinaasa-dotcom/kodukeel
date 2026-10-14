@@ -568,8 +568,28 @@ function pres1sgStem(word: FlashWord): string | null {
  */
 const NEGATORS: ReadonlySet<string> = new Set(["ei", "ega"]);
 
+/** The forms of `olema` a participle is said with, each one the dictionary holds for it (asserted). */
+export const OLEMA: ReadonlySet<string> = new Set(["olen", "oled", "on", "oleme", "olete", "olin", "oli", "olnud", "pole"]);
+
+/**
+ * The words of the gap's own clause, before it and after it. A clause ends at
+ * a comma, a semicolon, a colon, a dash or a stop, and at the conjunctions
+ * that start another one, which is coarse and is only asked to refuse.
+ */
+const CLAUSE_WORDS: ReadonlySet<string> = new Set(["ja", "ning", "aga", "kuid", "sest", "et", "kui", "ega", "või"]);
+function clauseAround(before: string, after: string): [string[], string[]] {
+  const ahead = before.split(/[,;:\u2013\u2014.!?]/).at(-1) ?? "";
+  const behind = after.split(/[,;:\u2013\u2014.!?]/)[0] ?? "";
+  const back = sentenceWords(ahead);
+  const cut = back.map((w, i) => (CLAUSE_WORDS.has(w) ? i : -1)).filter((i) => i >= 0).at(-1);
+  const forward = sentenceWords(behind);
+  const stop = forward.findIndex((w) => CLAUSE_WORDS.has(w));
+  // The conjunction itself stays with the clause it opens, so `ega` before the gap is still read.
+  return [cut === undefined ? back : back.slice(cut), stop < 0 ? forward : forward.slice(0, stop)];
+}
+
 /*
-  THREE GAPS THE SPELLING ALONE CANNOT SETTLE, READ OFF THE SENTENCE.
+  GAPS THE SPELLING ALONE CANNOT SETTLE, READ OFF THE SENTENCE.
 
   All three were found by a reader going through every line the audit deals
   (`npm run audit:workbook`), and each is a real word in the gap that is not
@@ -586,11 +606,26 @@ const NEGATORS: ReadonlySet<string> = new Set(["ei", "ega"]);
   mõista olevikku` holds the infinitive after `võib`, and telling the two
   apart is a parse this module does not have. Where the gap's spelling is the
   word's own infinitive, the line is refused rather than guessed.
+
+  A second reading of every line the module and Practice deal found two more of
+  the same shape, both read off the gap's own clause (`clauseAround`). A verb
+  with `ei` or `ega` anywhere ahead of it in its clause is never the command,
+  where the first rule only looked at the word right before the gap. And a
+  third person plural in `-vad` beside a form of `olema` is the participle
+  describing a noun: `Inimesed on mõtlevad olendid`. Measured over the lines
+  read, both fire only on lines a reader had already refused.
 */
-function plainTarget(word: FlashWord, slot: Slot, answer: string, before: string): boolean {
+function plainTarget(word: FlashWord, slot: Slot, answer: string, before: string, after: string): boolean {
   const first = answer.trim()[0];
   if (first && first !== first.toLocaleLowerCase("et") && /\p{L}/u.test(before)) return false;
   if (slot.kind !== "verb") return true;
+  const [ahead, behind] = clauseAround(before, after);
+  // A command never has a negator in front of it in its own clause: `Ega hunt
+  // hunti murra` and `Ma ei muutnud kõnni rütmi` are the negative and a noun.
+  if (slot.slot.startsWith("ImpPr") && ahead.some((w) => NEGATORS.has(w))) return false;
+  // `Karjuvad lapsed on sageli andekad`: beside a form of olema in its own
+  // clause, a word in -vad is the participle describing a noun, not the verb.
+  if (slot.slot === "IndPrPl3" && [...ahead, ...behind].some((w) => OLEMA.has(w))) return false;
   const spelled = tidyForm(answer);
   return !word.forms.some((f) => {
     const code = morphCodeOf(f);
@@ -633,7 +668,7 @@ function lineFor(
       .filter((code) => !(code.startsWith("IndPrPs") && !negated));
     if (claims.length !== 1 || claims[0] !== slot.slot) continue;
     if (negated && slot.kind === "verb") continue;
-    if (!plainTarget(word, slot, cloze.answer, before)) continue;
+    if (!plainTarget(word, slot, cloze.answer, before, cloze.full.slice(cloze.index + cloze.answer.length))) continue;
 
     // And the gap may not leave another of its own answers standing.
     const blanked = cloze.text;
@@ -685,7 +720,7 @@ export interface ExercisePlan {
  * shortest sentence: a model to read, not a question.
  */
 export function composeSheet(
-  items: readonly SheetItem[], prefer: readonly Theme[], plans: readonly ExercisePlan[],
+  items: readonly SheetItem[], prefer: readonly Theme[], plans: readonly ExercisePlan[], urgent = prefer.length,
 ): Sheet {
   const taken = new Set<string>();
   /*
@@ -706,11 +741,37 @@ export function composeSheet(
       .flatMap((i) => (kind === "choose" ? withChoices(i) : [i]));
     const fits = (t: Theme) => !usedThemes.has(t) && !(kind === "box" && t === "pronouns")
       && available(free.filter((i) => i.themes.includes(t)), t, kind) >= MIN_LINES + 1;
-    const theme = prefer.find(fits);
+    /*
+      A THEME THAT LEADS FOR WHO THE LEARNER IS IS TAKEN EVEN SHORT; ONE
+      TAKING ITS TURN IS TAKEN FULL WHERE ANOTHER CAN BE. The first `urgent`
+      themes are what was asked for, tonight's case and the weakest, and a page
+      of five lines on the case somebody keeps getting wrong is worth more than
+      eight on one they do not. The rest are only taking their turn, so the
+      first of them that can fill the whole exercise goes ahead of one that
+      cannot, and a short one is used only where nothing fills.
+    */
+    const full = (t: Theme) => fits(t)
+      && available(free.filter((i) => i.themes.includes(t)), t, kind) >= plan.lines + 1;
+    const onTurn = prefer.slice(urgent);
+    const candidates = [
+      ...prefer.slice(0, urgent).filter(fits),
+      ...onTurn.filter(full),
+      ...onTurn.filter((t) => fits(t) && !full(t)),
+    ];
+    /*
+      AND A THEME THAT CANNOT BE PICKED IS PASSED OVER, NOT THE EXERCISE. A
+      theme can count four words and still give fewer lines, because two words
+      can share a sentence and a sentence is one line; measured over the shipped
+      dictionary that skipped the whole exercise, and one B2 sitting in four
+      hundred came out a page with nothing on it.
+    */
+    let theme: Theme | null = null;
+    let lines: SheetItem[] = [];
+    for (const t of candidates) {
+      const picked = pick(free.filter((i) => i.themes.includes(t)), plan.lines + 1, t === "mixed", t === "pronouns", kind === "box");
+      if (picked.length >= MIN_LINES + 1) { theme = t; lines = picked; break; }
+    }
     if (!theme) continue;
-    const pool = free.filter((i) => i.themes.includes(theme));
-    const lines = pick(pool, plan.lines + 1, theme === "mixed", theme === "pronouns", kind === "box");
-    if (lines.length < MIN_LINES + 1) continue;
     const example = [...lines].sort((a, b) => a.sentence.length - b.sentence.length)[0]!;
     const rest = lines.filter((l) => l !== example);
     for (const l of lines) { taken.add(l.id); usedWords.add(l.lexemeId); usedSentences.add(l.sentence); }
@@ -791,6 +852,11 @@ export function otherWordIn(written: string, item: SheetItem, lines: readonly Sh
   return null;
 }
 
+/** Whether `items` can fill an exercise of `lines` lines and its example on `theme`. */
+export function canFill(items: readonly SheetItem[], theme: Theme, lines: number, kind: ExerciseKind = "write"): boolean {
+  return available(items.filter((i) => i.themes.includes(theme)), theme, kind) >= lines + 1;
+}
+
 /**
  * How many lines a theme could set. One per word, except on the pronoun page:
  * there are six personal pronouns and the page is about putting them through
@@ -838,32 +904,74 @@ function pick(pool: readonly SheetItem[], n: number, spread: boolean, byCase = f
  *   elative practises the elative;
  *   the learner's weakest cases off their own review log, weakest first,
  *   which is `caseAccuracy`'s order;
- *   the personal pronouns, which every course book drills from the first
- *   month and which are short enough to be asked in every case;
- *   the present tense, the past, the conditional and the command;
- *   then every other case, and the mixed page last of all, which always has
- *   something.
+ *   then the rest of what a course book drills: the personal pronouns, the
+ *   four verb themes and every other case, in turn (`turn`, below);
+ *   and the mixed page last of all, which always has something.
  *
  * `themeOk` is the level's say: nothing about a case at A1, where the course
  * asks for none (`lib/course/plan.ts`).
+ *
+ * THE REST TAKES ITS TURN, BECAUSE A FIXED ORDER IS THE SAME PAGE FOR EVER.
+ * With the pronouns and the present at the head of the rest, every sitting by
+ * a learner whose cases were all doing well was the pronoun page and then the
+ * present tense, on every "Another page" and every day: measured over the
+ * shipped dictionary, the present on 84 percent of B2 sittings and the
+ * pronouns on half, and at A1 the present and then the past on every one.
+ * `turn` rotates where the rest starts, so a day and a second page each start
+ * somewhere new, and the things a learner most needs (what they asked for,
+ * tonight's case, their weakest) still lead whatever the turn.
  */
 export function preferredThemes(input: {
   requested?: Theme | null;
   tonight?: string | null;
   weakest?: readonly string[];
   themeOk?: (theme: Theme) => boolean;
+  /** Where the rest starts: the page's round and the learner's day. 0 is the course book's own order. */
+  turn?: number;
+  /** Whether the learner's words can fill a whole page on a theme; see `themeOrder`. */
+  fills?: (theme: Theme) => boolean;
 }): Theme[] {
+  return themeOrder(input).themes;
+}
+
+/**
+ * The same order, with how many of its themes lead because of who the learner
+ * is rather than because it is their turn. A page needs the second half: a
+ * weakest case is worth a short page, and a theme that is only taking its turn
+ * is not when another could fill the page (`composeSheet`'s `urgent`).
+ */
+export function themeOrder(input: {
+  requested?: Theme | null;
+  tonight?: string | null;
+  weakest?: readonly string[];
+  themeOk?: (theme: Theme) => boolean;
+  turn?: number;
+  /**
+   * Whether this learner's words can fill a whole page on a theme. The turn
+   * walks those alone, and the rest follow it: walked over all of them, the
+   * themes few words can fill were passed over every time their turn came,
+   * so the next fillable one took every one of their turns and the comitative
+   * led a third of A2 sittings.
+   */
+  fills?: (theme: Theme) => boolean;
+}): { themes: Theme[]; urgent: number } {
   const ok = input.themeOk ?? (() => true);
   const out: Theme[] = [];
   const push = (t: Theme | null | undefined) => { if (t && ok(t) && !out.includes(t)) out.push(t); };
   push(input.requested ?? null);
   if (input.tonight && caseByKey(input.tonight)) push(`case:${input.tonight}` as Theme);
   for (const key of input.weakest ?? []) if (caseByKey(key)) push(`case:${key}` as Theme);
-  push("pronouns");
-  for (const t of TENSES) push(t);
-  for (const c of CASES) if (!c.principal || c.key === "PARTITIVE" || c.key === "GENITIVE") push(`case:${c.key}`);
+  const urgent = out.length;
+  const rest: Theme[] = ["pronouns", ...TENSES];
+  for (const c of CASES) if (!c.principal || c.key === "PARTITIVE" || c.key === "GENITIVE") rest.push(`case:${c.key}`);
+  const fills = input.fills ?? (() => true);
+  const open = rest.filter((t) => ok(t) && !out.includes(t) && fills(t));
+  const turn = Math.abs(Math.trunc(input.turn ?? 0));
+  const start = open.length ? turn % open.length : 0;
+  for (const t of [...open.slice(start), ...open.slice(0, start)]) push(t);
+  for (const t of rest) push(t);
   push("mixed");
-  return out;
+  return { themes: out, urgent };
 }
 
 /** A theme from a query string, or null for anything that is not one. */

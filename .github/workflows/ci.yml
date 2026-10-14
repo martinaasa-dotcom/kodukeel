@@ -205,6 +205,14 @@ jobs:
       # decision, so this reads the bundle this job has just built.
       - name: Grep the client bundle for the shipped dictionary data
         run: npm run check:bundle
+      # And the weight of a first visit. Every page, the landing page included,
+      # once downloaded the whole Russian and Ukrainian interface in one 765 KB
+      # chunk, for a visitor reading English. The tables are handed over per
+      # language now (lib/copy/i18n/load.ts), and this reads the three landing
+      # pages the build has just prerendered and fails on Cyrillic reaching an
+      # English visitor, on the page's total and on any one script.
+      - name: Weigh the landing page's scripts
+        run: npm run check:landing
 
   build:
     name: Build against a real database

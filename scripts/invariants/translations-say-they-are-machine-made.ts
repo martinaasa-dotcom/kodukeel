@@ -54,7 +54,7 @@ export default function translationsSayTheyAreMachineMade({ check, code }: Invar
     switcher only on the landing page leaves somebody who arrived on /privacy
     from a search with no way to read it in the language the landing page
     offered them, so every switchable public page draws it, either through
-    `Legal`, which carries one, or on its own.
+    `Legal` or `PublicHeader`, which carry one, or on its own.
   */
   check("every public page that can be read in Russian and Ukrainian offers English and its own language", () => {
     const pages = [
@@ -63,10 +63,13 @@ export default function translationsSayTheyAreMachineMade({ check, code }: Invar
     ];
     for (const file of pages) {
       const page = code(file);
-      assert.match(page, /<Legal\b|<LanguageSwitcher\b/, `${file} offers no way to read it in another language`);
+      assert.match(page, /<Legal\b|<PublicHeader\b|<LanguageSwitcher\b/, `${file} offers no way to read it in another language`);
       assert.match(page, /resolvePublicLocale\(/, `${file} no longer reads the language it is asked for`);
     }
-    assert.match(code("components/Legal.tsx"), /<LanguageSwitcher\b/, "the shell of the policy pages stopped drawing the switcher");
+    const shell = code("components/Legal.tsx");
+    const header = shell.slice(shell.indexOf("export function PublicHeader"));
+    assert.match(header.slice(0, header.indexOf("\nexport ", 1)), /<LanguageSwitcher\b/, "the public header stopped drawing the switcher");
+    assert.match(shell.slice(shell.indexOf("export function Legal"), shell.indexOf("export function PublicHeader")), /<PublicHeader\b/, "the policy pages stopped drawing the public header");
     const landing = code("app/(chromeless)/welcome/page.tsx");
     assert.match(landing, /languagesBeside\(locale\)/, "the landing page stopped linking its other languages");
     // Russian and Ukrainian never link each other: each offers English beside

@@ -33,34 +33,10 @@ import { SCENES } from "@/lib/collections/scenes";
 import { candidatesFor } from "@/lib/dict/resolveScan";
 import { matchEstonianForm } from "@/lib/dict/search";
 import { sentenceWords } from "@/lib/dict/examples";
+import { parseCsv } from "./lib/csv";
 
 const IN = "scene-sentences.csv";
 const OUT = "lib/collections/sceneAnswers.ts";
-
-/** RFC 4180 enough for a spreadsheet export: quoted fields, doubled quotes. */
-function parseCsv(text: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = "";
-  let quoted = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i]!;
-    if (quoted) {
-      if (ch === '"') {
-        if (text[i + 1] === '"') { field += '"'; i++; } else quoted = false;
-      } else field += ch;
-      continue;
-    }
-    if (ch === '"') { quoted = true; continue; }
-    if (ch === ",") { row.push(field); field = ""; continue; }
-    if (ch === "\n") { row.push(field); rows.push(row); row = []; field = ""; continue; }
-    if (ch === "\r") continue;
-    field += ch;
-  }
-  if (field || row.length) { row.push(field); rows.push(row); }
-  return rows.filter((r) => r.some((c) => c.trim()));
-}
 
 async function main() {
   if (!existsSync(IN)) {

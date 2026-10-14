@@ -185,6 +185,34 @@ export function plainAskLine(slot: string, locale: Locale = "en"): string | null
 }
 
 /*
+  THE PHRASE WITH THE WORD IN IT IS ENGLISH, SO IT IS ENGLISH'S ALONE.
+
+  `lib/estonian/sayIt.ts` builds "with the bird" out of the word's English
+  gloss, and no rule here turns that into Russian or Ukrainian: it would be this
+  app inflecting a third language. So a screen in either of those reads the
+  short phrase in its own language instead, "с этим" rather than "with the
+  bird", which says less and is the language the learner chose. Before this a
+  Russian screen printed "he/she think, but in the past" under a Russian
+  heading, which is the English phrase and an English mistake at once.
+
+  These two are the one way a screen turns the server's English phrase into the
+  phrase it prints. Null stays null, so a screen with no phrase still falls back
+  to whatever it drew before.
+*/
+
+/** The bare phrase, `with the bird`, in the language the screen is in. */
+export function sayIn(locale: Locale, slot: string, english: string | null | undefined): string | null {
+  if (!english) return null;
+  return locale === "en" ? english : sayShort(slot, locale);
+}
+
+/** The whole line, `Say “with the bird”`, in the language the screen is in. */
+export function sayLineIn(locale: Locale, slot: string, english: string | null | undefined): string | null {
+  if (!english) return null;
+  return locale === "en" ? english : plainAskLine(slot, locale);
+}
+
+/*
   THE NAME OF AN ENDING, AFTER THE ANSWER, IN THE FEWEST WORDS.
 
   Once the answer is on the screen the card names the ending, so the learner

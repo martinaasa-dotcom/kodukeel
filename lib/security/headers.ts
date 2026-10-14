@@ -158,7 +158,9 @@ export function buildContentSecurityPolicy(): string {
   return [
     "default-src 'self'",
     `script-src ${scriptSrc.join(" ")}`,
-    "style-src 'self' 'unsafe-inline'",
+    // Google's button fetches a stylesheet of its own; refused, it logged a
+    // CSP violation on every sign-in screen (PageSpeed, 14 October 2026).
+    `style-src 'self' 'unsafe-inline'${google.length > 0 ? " https://accounts.google.com/gsi/style" : ""}`,
     "img-src 'self' data: blob: https:",
     // next/font self-hosts every face at build time, so no font CDN is needed.
     "font-src 'self'",

@@ -299,6 +299,366 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
     et: "Mis sa lakud seda õlut nii palju?",
     why: "Lakud õlut is rude slang about beer. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
   },
+  {
+    et: "Seda oli kuulda jah.",
+    why: "A reply pulled out of a conversation: \"Seda oli kuulda jah\" makes no sense on its own as an exercise line. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ta käib meil sageli külas.",
+    why: "Külas käima means to visit somebody, so külas here is not the seesütlev of küla (village) and the line teaches the wrong word. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kaheksateist eurot jääb puudu.",
+    why: "Puudu in \"jääb puudu\" is the adverb meaning short, not the command of puuduma, so the line teaches the wrong form. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Lubage, teie ausus!",
+    why: "\"Lubage, teie ausus\" is an old courtroom formula a learner will never need. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Sajad varesed kisavad ja roojavad.",
+    why: "Crows defecating, which is an unpleasant image for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Tuleb midagi ette võtta, ei saa ju nälja kätte kõngeda.",
+    why: "Kõngeda is the word for an animal dying, crude when said of people. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Loote esimesed liigutused.",
+    why: "A noun phrase with no verb, not a sentence: \"Loote esimesed liigutused\". Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Jüngri mõistust läbistas valguskiir.",
+    why: "A literary line about a disciple's mind pierced by light, too obscure to be a learner line. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Müts surub juustele.",
+    why: "\"Müts surub juustele\" is unclear, and the English is a guess. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Vanaema ehib juba magama.",
+    why: "Ehtima means to adorn, so \"ehib juba magama\" is an odd use and the English does not follow from it. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Lind tegi haava otsa pesa.",
+    why: "Haab (aspen) is a rare word, and haava reads first as the omastav of haav (wound). Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kirik on nad vande alla pannud.",
+    why: "Excommunication (vande alla panema) is church vocabulary no learner needs. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Eesti majandust mõjutavad oluliselt Euroopa Liidu liikmelisusest tulenevad võimalused ja kohustused.",
+    why: "Long officialese about EU membership, not a sentence a learner reads for its ending. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kaugus vajub hämusse.",
+    why: "A poetic line, \"Kaugus vajub hämusse\", too vague to be an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Sai printsiibiks võetud, et ei lähe Vene kroonusse.",
+    why: "Archaic and political: \"Vene kroonusse\" for joining the Russian army. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Poiss oli päti tegumoega.",
+    why: "Tegumood is an obscure word, and the line says little. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ära aja uhkust taga!",
+    why: "The idiom is unclear and the English does not match it. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ütlen sinu rahulduseks, et ettekanne oli hea.",
+    why: "\"Ütlen sinu rahulduseks\" is a stilted phrase nobody says. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Taskulambi valgus oli sinikat värvi.",
+    why: "Sinikas (bluish) is an obscure word. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Asusin lõbuga kuulama.",
+    why: "\"Asusin lõbuga kuulama\" is a stilted, odd sentence. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Huku äärele jõudnud tehas.",
+    why: "A noun phrase with no finite verb, not a sentence: \"Huku äärele jõudnud tehas\". Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Üle kogu ta olemuse lehvis naeratus.",
+    why: "A poetic line about a smile fluttering over a whole being, too vague for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kukk tallab kanu.",
+    why: "The rooster treading the hens is mating, not a line for a learner. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kõik oli ilus nii kaua, kui algas sõda.",
+    why: "\"nii kaua, kui algas sõda\" is awkward Estonian, and the line is about a war starting. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Toetan rohelist maailmavaadet ja valin seega alati rohelisi.",
+    why: "Party politics: the speaker always votes for the Greens. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ta suri vägivaldset surma.",
+    why: "A violent death, the same kind of grim line already refused once. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Jätkasin ruutu soldatiga.",
+    why: "Card-game jargon: \"ruutu soldatiga\" for the jack of diamonds. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Annaks taevas, et Eesti riigist ei saaks riigi paroodiat.",
+    why: "A political opinion about the Estonian state becoming a parody of one. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Nupu abil on võimalik kaale arreteerida.",
+    why: "Technical jargon: locking scales with a button (kaale arreteerima). Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Tänapäeva massihävitusrelvadega saab hävitada kogu inimkonna.",
+    why: "Weapons of mass destruction wiping out humanity is too dark for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Suure pea ja lühikese koonuga koer.",
+    why: "A noun phrase with no finite verb, not a sentence: a dog with a big head and a short muzzle. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Sellega sain ma hakkama oma loomulikust intelligentsist.",
+    why: "Intelligents is the intelligentsia, not intelligence, so the English is wrong. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mees jõi ennast pätiks.",
+    why: "Drinking himself into the gutter is a grim line for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mehisega oleme ammu tuttavad.",
+    why: "Mehisega is the name Mehis, so the cue mehine (manly) teaches the wrong word. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kreeklased aga lähtuvad põhimõttest, et täna pole mõtet teha midagi sellist, mida annab homsele edasi lükata.",
+    why: "A national stereotype about the Greeks putting things off. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ta valis vabasurma.",
+    why: "Suicide (vabasurm), the same kind of line already refused. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ütlen sulle seda tutvuse poolest.",
+    why: "\"tutvuse poolest\" is an obscure phrase, and the English is a guess. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Peremees võttis keti lõksust lahti.",
+    why: "The chain and the trap make no clear sense, and the English is a guess. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ka vene poisid pürivad Eesti kaitseväkke.",
+    why: "A politically loaded line about Russian boys joining the Estonian army. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Tuul puhub loodest.",
+    why: "The cue is loe, but loodest is the seestütlev of loode (northwest), so the line names the wrong word. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Torn pürib kõrgusesse.",
+    why: "A poetic line about a tower reaching the heights, too vague for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "ta oli gripis.",
+    why: "Starts in lower case, so it is the tail of a longer sentence rather than a sentence. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Käänasin teise külje.",
+    why: "Käänama is a dialect verb a learner will not meet. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Päike on praegu keskpäevas.",
+    why: "\"Päike on keskpäevas\" is an unusual phrase nobody says. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Vend vaatab õhtust õhtusse pornot.",
+    why: "About watching porn, not a line for a learner. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kuulsin, et otsid endale suvilist, tüdrukut.",
+    why: "The sentence is unclear (a summer lodger, then \"tüdrukut\"), and the English reads oddly. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Tagumiku peal on suur paise.",
+    why: "A boil on the buttocks is an unpleasant image for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ma kauplen ainult kasudega.",
+    why: "\"kauplen ainult kasudega\" is unclear, and the English is a guess. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ema pühib lapse tagumikku.",
+    why: "Wiping a child's bottom is an unpleasant image for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Hoiatavad näited minevikust.",
+    why: "No finite verb: hoiatavad is the participle (cautionary), so this is a phrase, not a sentence. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kolmas õlu muutis mehe kotkaks, kes tahtis rooli istuda.",
+    why: "A joke about drink-driving, and turning into an eagle (kotkaks) is an odd figure for a learner. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Keegi kobistab kojas.",
+    why: "Koda for a hallway is old and obscure, and kobistama is rare. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Matsin täna kalli inimese.",
+    why: "Burying a loved one is a heavy line to put in an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Politseinik võttis raha tänuga vastu.",
+    why: "A police officer gratefully taking money reads as a bribe. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kärnkonnade kudu moodustab keti või kee.",
+    why: "Kee for a string of toad spawn is an obscure word. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Maksis kümme eurot metallis.",
+    why: "\"kümme eurot metallis\" for coins is an unusual phrase. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kui otsest sundi pole, kisub mõnda rohkem kohviku poole.",
+    why: "A hard, roundabout sentence about compulsion and cafés that a learner cannot read for its ending. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kokkulepet ei ole lubatud edasi delegeerida.",
+    why: "Officialese about delegating an agreement, which no learner reads for its ending. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Metsast saadavad hüved.",
+    why: "No finite verb: saadavad is the participle, so this is a phrase, not a sentence. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Tõenäoliselt oli keegi kutsika sinna koolema jätnud.",
+    why: "A puppy left to die, and koolema is the crude word for an animal dying. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ohvrit oli läheda maa pealt tulistatud.",
+    why: "A victim shot at close range is too violent for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mina olen draakon ja mees rott, väge juhatan muidugi mina.",
+    why: "The Chinese zodiac joke and \"väge juhatan\" are unclear to a learner. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Poiss kerjab kaupluse ees sente ja suitsu.",
+    why: "A child begging for change and cigarettes is a grim line for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Protsent on antud kahvliga.",
+    why: "Jargon: kahvel for a range of figures, which a learner reads as a fork. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Lõin sõduriga ärtu kümmet.",
+    why: "Card-game jargon: taking the ten of hearts with the jack (sõdur). Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Akna peal on kärbse kaka.",
+    why: "A fly's droppings (kaka) is a crude image for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mida mõtleb igrek?",
+    why: "\"Mida mõtleb igrek?\" means nothing without the maths it came from. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Koolmeister laskis alati habemenoaga pealae paljaks ajada.",
+    why: "Archaic and obscure: a schoolmaster's head shaved with a straight razor (koolmeister, pealagi). Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kuul tabas paremat jalga.",
+    why: "A bullet hitting somebody's leg is too violent for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mees tundis kuklas surma hingust.",
+    why: "A literary line about the breath of death on a man's neck, too dark for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "See oli mulle hääks õpetuseks.",
+    why: "Hääks is a dialect spelling of heaks, so the line shows a form a learner should not copy. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Laps magas palja pepuga.",
+    why: "A child sleeping with a bare bottom, the same kind of line already refused. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kõik matuse ümber toimuv tundub silmakirjalik ja võlts.",
+    why: "A cynical line calling everything around a funeral hypocritical. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Maskuliinses kultuuris otsustab isa pere suuruse.",
+    why: "A generalisation about masculine cultures and who decides the size of a family. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Igasugust paska ma ei osta.",
+    why: "Pask (crap) is a vulgar word for a learner line. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Viiuli ümar toon.",
+    why: "A noun phrase with no verb, not a sentence: \"Viiuli ümar toon\". Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ta suri õnnetut surma.",
+    why: "A tragic death, the same kind of grim line already refused. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kuhu me vana inimese siis paneme, kas saadame seeki või?",
+    why: "Seek is a derogatory word for a care home. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Lapsi saab õnneks ka ilma meheta, spermapanga abiga.",
+    why: "Having children through a sperm bank without a man is a sensitive topic for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Millega te küll oma kobrulehe külgi täidate?!",
+    why: "\"kobrulehe külgi\" makes no sense to a learner, and the English is a guess. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Lähen tõmban ühe pläru.",
+    why: "Slang (pläru for a cigarette) and the colloquial \"lähen tõmban\", not a model sentence. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Valge alistus vältimatu mati tõttu.",
+    why: "Chess jargon: resigning to an unavoidable checkmate (mati). Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mark jäi sadamas vahele ligi nelja kilogrammi hašišiga.",
+    why: "Drug smuggling, caught with hashish at the port. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Peremees peksab oma koera.",
+    why: "An owner beating his dog is too unpleasant for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Lastega tegelevad institutsioonid.",
+    why: "No finite verb: tegelevad is the participle, so this is a phrase, and the line teaches the wrong form. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Oleks ometi proovid korras!",
+    why: "Proovid here is the plural noun (the test results), not the present of proovima, so the line teaches the wrong form. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Pane kohvile valgust ka!",
+    why: "Valgust is the osastav of valgus (light), so the English about milk does not follow and a learner cannot see the joke. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Tee jääb kura kätt.",
+    why: "Kura (left) is a dialect word a learner will not meet. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Laps roojas 3\u20137 korda päevas.",
+    why: "A child's bowel movements (roojas) is not a line for an exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kes selle sitase kõne kirjutas?",
+    why: "Sitane (shitty) is a vulgar word for a learner line. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
 ];
 
 /**

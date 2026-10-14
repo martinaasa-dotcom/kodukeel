@@ -9,6 +9,8 @@ import { MascotWatch } from "@/components/MascotWatch";
 import { fillNodes } from "@/components/TemplateNodes";
 import { fill, localeFrom, tr } from "@/lib/copy/locale";
 import { SignInForm } from "./SignInForm";
+import { LocaleProvider } from "@/components/Locale";
+import { areaTable } from "@/lib/copy/i18n/tables";
 
 export const metadata = { title: "Sign in" };
 
@@ -182,7 +184,10 @@ export default async function SignInPage({ searchParams }: {
 
           <div className="mt-7">
             {configured ? (
-              <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} googleClientId={googleClientId} locale={locale} />
+              /* The form's own lines, which are all in the first-run area, and no more of the language. */
+              <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, ["start"])}>
+                <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} googleClientId={googleClientId} locale={locale} />
+              </LocaleProvider>
             ) : (
               <div className="rounded-[var(--r-lg)] p-5 text-left" style={{ background: "var(--raised)" }}>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
