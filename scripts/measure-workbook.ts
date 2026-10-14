@@ -7,12 +7,23 @@
  * carry a line, with every word's own sentences and the ones lent to it
  * (`lib/dict/borrow.ts`), which is what the round itself reads. No database,
  * no key. Run before changing the page sizes in `app/(app)/review/workbook`.
+ *
+ *   npm run measure:workbook -- --show B1 case:PARTITIVE
+ *
+ * prints the lines one band and one theme can set, the way the page draws
+ * them, because a count says a page can be filled and only reading it says
+ * whether it is a page anybody would want to fill. A rate is not a reading.
  */
 import { borrowSentences } from "@/lib/dict/borrow";
 import { usableExamples } from "@/lib/dict/examples";
 import { linesFor, type Theme } from "@/lib/games/workbook";
 import type { FlashWord } from "@/lib/games/flash";
 import { dictionaryRows } from "./lib/dictionary";
+
+const args = process.argv.slice(2);
+const showAt = args.indexOf("--show");
+const show = showAt >= 0 ? { band: args[showAt + 1] ?? "B1", theme: args[showAt + 2] ?? "mixed" } : null;
+const shown: string[] = [];
 
 const rows = dictionaryRows();
 const keyOf = (r: { lemma: string; pos: string }) => `${r.lemma}|${r.pos}`;
@@ -38,6 +49,9 @@ for (const r of rows) {
   };
   for (const line of linesFor(word)) {
     lines += 1;
+    if (show && band === show.band && line.themes.includes(show.theme as Theme) && shown.length < 60) {
+      shown.push(`${line.before}(${line.cue}) ____${line.after}   ->  ${line.answer}${line.sentenceEn ? `\n      ${line.sentenceEn}` : ""}`);
+    }
     for (const theme of line.themes) {
       const bands = byTheme.get(theme) ?? new Map<string, Set<string>>();
       const words = bands.get(band) ?? new Set<string>();
@@ -56,4 +70,9 @@ for (const theme of ordered) {
   let running = 0;
   const cells = BANDS.map((b) => { running += bands.get(b)?.size ?? 0; return String(running).padStart(7); });
   console.log([theme.padEnd(22), ...cells].join(""));
+}
+
+if (show) {
+  console.log(`\n${shown.length} lines a ${show.band} page on ${show.theme} can be cut from (first 60):\n`);
+  for (const line of shown) console.log(`  ${line}`);
 }

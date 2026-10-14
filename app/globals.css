@@ -3311,6 +3311,29 @@
     .explain > summary { min-height: 44px; }
   }
 
+  /*
+    THE PANEL AN EXPLANATION OPENS INTO. It was loose grey paragraphs under the
+    summary, with nothing to say where the explanation ended and the screen
+    resumed, so a reader could not tell how much there was before reading all
+    of it. A soft panel is that edge: one box, read or skipped as one thing.
+  */
+  .explain-panel {
+    margin-top: 0.5rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--r);
+    background: var(--raised);
+  }
+  .explain-panel > * + * { margin-top: 0.5rem; }
+
+  /* The warning in a grammar rule, with its own heading (components/RuleNote.tsx). */
+  .rule-watch {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--r);
+    background: var(--hard-soft);
+  }
+
   .tap-tint {
     transition-property: box-shadow, transform, background-color, color;
     transition-duration: 160ms;

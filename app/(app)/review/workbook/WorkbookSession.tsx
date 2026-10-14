@@ -17,6 +17,7 @@ import { Confetti } from "@/components/Confetti";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { Explain } from "@/components/Explain";
+import { RuleNote } from "@/components/RuleNote";
 import { fillNodes } from "@/components/fillNodes";
 import { Speak } from "@/components/Speak";
 import { GapMeaning } from "@/components/GapMeaning";
@@ -414,10 +415,9 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
             </p>
           )}
           {exercise.rule && (
-            <div className="mt-3 pl-7" data-workbook-rule="">
-              <Explain label={t("How this works")}>
-                <p>{t(exercise.rule.summary)}</p>
-                <p>{fill(t("Watch out: {note}"), { note: t(exercise.rule.watchOut) })}</p>
+            <div className="mt-3 sm:pl-7" data-workbook-rule="">
+              <Explain label={t("How this works")} plain>
+                <RuleNote summary={exercise.rule.summary} watchOut={exercise.rule.watchOut} />
               </Explain>
             </div>
           )}

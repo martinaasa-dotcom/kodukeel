@@ -3417,6 +3417,16 @@ it behind a press is that it no longer has to apologise for the room it takes. T
 now, across Settings, the class pages, the level check, the plan, the readiness page and the
 shortcut sheet.
 
+**And what opens is a panel, and a grammar rule is two things rather than one paragraph.** An
+`Explain` used to open into loose grey paragraphs with no edge, so nobody could tell how much there
+was before reading all of it; it opens into `.explain-panel` now, one soft box read or skipped as one
+thing. And a rule's summary and its warning were drawn four ways on four screens, the worst of them
+two grey paragraphs in the workbook's box, reported as too many words to take in. The fault was the
+shape rather than the length: `components/RuleNote.tsx` sets the point as one bold line with a
+lightbulb and the trap as a "Watch out" callout on `--hard-soft`, and the topic pages, the case pages,
+the build-a-word walk and the workbook all draw it. A sixth drawing of a grammar warning is the
+thing to avoid.
+
 **Three kinds of small print are not an explanation and stay on the screen**, each argued for by
 name in `CAPTION_EXEMPT`: a **status** a reader has to see to know what happened, which is the audio
 that would not load and the recording that has not been made; a **form instruction**, which is how
