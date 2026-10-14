@@ -18,8 +18,11 @@ import { caseReviewsFor } from "@/lib/progress/cases";
 import { caseAccuracy } from "@/lib/stats/history";
 import { shuffle } from "@/lib/random/shuffle";
 import { resolveProvider } from "@/lib/tutor/provider";
+import { learnerDayClock } from "@/lib/progress/dayClock";
+import { dayOrdinal } from "@/lib/random/dayHash";
+import { roundOf } from "@/lib/ux/again";
 import {
-  MIN_LINES, cardForLine, composeSheet, linesFor, parseTheme, preferredThemes, whoFor,
+  MIN_LINES, canFill, cardForLine, composeSheet, linesFor, parseTheme, themeOrder, whoFor,
   type ExercisePlan, type LineQuality, type SheetItem, type Theme,
 } from "@/lib/games/workbook";
 import { focusFrom } from "@/lib/course/focus";
@@ -108,6 +111,8 @@ const IN_MODULE: Record<string, number> = { A1: 6, A2: 6, B1: 8, B2: 8, C1: 8 };
  */
 const OWN_WORDS = 120;
 const TOP_UP = 120;
+/** How many more of the top-up a short lead theme reads at a time (see `leadShort`). */
+const LEAD_CHUNK = 120;
 
 /** A case below this, over the half-year the weakest-case panel reads, is worth a page. */
 const WEAK_BELOW = 90;
@@ -153,10 +158,11 @@ export default async function WorkbookPage({
 }) {
   const ownerId = await requireUserId();
   const params = await searchParams;
-  const [level, scope, caseRows] = await Promise.all([
+  const [level, scope, caseRows, clock] = await Promise.all([
     courseLevelFor(ownerId),
     practiceScope(ownerId, params),
     caseReviewsFor(ownerId),
+    learnerDayClock(ownerId),
   ]);
   const opened = focusFrom(params) !== null;
   const requested = parseTheme(typeof params.theme === "string" ? params.theme : null);
@@ -238,19 +244,15 @@ export default async function WorkbookPage({
     ...shuffle(topUp.filter((r) => !ownSet.has(r.id))).slice(0, TOP_UP).map((r) => r.id),
   ])];
 
-  const lexemes = candidateIds.length
-    ? await prisma.lexeme.findMany({
-      where: { id: { in: candidateIds } },
-      select: {
-        id: true, lemma: true, translation: true, pos: true, cefr: true, examples: true, semanticTypes: true,
-        // Ordered for the reason the flash round gives: a parallel form has to
-        // be the same one on every load, since one is the answer shown.
-        forms: { select: { formType: true, value: true, morphCode: true }, orderBy: { id: "asc" } },
-      },
-      orderBy: { id: "asc" },
-    })
-    : [];
-  const byId = new Map(lexemes.map((l) => [l.id, l]));
+  const lexemeSelect = {
+    id: true, lemma: true, translation: true, pos: true, cefr: true, examples: true, semanticTypes: true,
+    // Ordered for the reason the flash round gives: a parallel form has to
+    // be the same one on every load, since one is the answer shown.
+    forms: { select: { formType: true, value: true, morphCode: true }, orderBy: { id: "asc" } },
+  } as const;
+  const lexemesFor = (ids: readonly string[]) => (ids.length
+    ? prisma.lexeme.findMany({ where: { id: { in: [...ids] } }, select: lexemeSelect, orderBy: { id: "asc" } })
+    : Promise.resolve([]));
 
   const readable = sentenceWithin(scope, spellings);
   const gates = {
@@ -279,35 +281,79 @@ export default async function WorkbookPage({
     reading a learner is ready for, so they alone are used.
   */
   const beginner = level === "A1" || level === "A2";
-
-  const items: SheetItem[] = [];
-  for (const id of candidateIds) {
-    const l = byId.get(id);
-    if (!l) continue;
-    items.push(...linesFor({
-      lexemeId: l.id,
-      lemma: l.lemma,
-      translation: l.translation,
-      pos: l.pos,
-      semanticTypes: l.semanticTypes,
-      forms: l.forms,
-      // The word's own sentences, plainest first for a beginner's word, then
-      // the ones lent from elsewhere in the dictionary (`lib/dict/borrow.ts`).
-      examples: [
-        ...(beginner ? authoredFor(l.lemma) : []),
-        ...usableExamples(parseExamples(l.examples), plainerFirst(l.cefr, reach)),
-        ...(borrowed.get(l.id) ?? []),
-      ],
-    }, gates, new Set(), quality));
-  }
+  const linesOf = (rows: Awaited<ReturnType<typeof lexemesFor>>, order: readonly string[]): SheetItem[] => {
+    const byId = new Map(rows.map((l) => [l.id, l]));
+    const out: SheetItem[] = [];
+    for (const id of order) {
+      const l = byId.get(id);
+      if (!l) continue;
+      out.push(...linesFor({
+        lexemeId: l.id,
+        lemma: l.lemma,
+        translation: l.translation,
+        pos: l.pos,
+        semanticTypes: l.semanticTypes,
+        forms: l.forms,
+        // The word's own sentences, plainest first for a beginner's word, then
+        // the ones lent from elsewhere in the dictionary (`lib/dict/borrow.ts`).
+        examples: [
+          ...(beginner ? authoredFor(l.lemma) : []),
+          ...usableExamples(parseExamples(l.examples), plainerFirst(l.cefr, reach)),
+          ...(borrowed.get(l.id) ?? []),
+        ],
+      }, gates, new Set(), quality));
+    }
+    return out;
+  };
+  const items: SheetItem[] = linesOf(await lexemesFor(candidateIds), candidateIds);
 
   const weakest = caseAccuracy(caseRows, 3).filter((c) => c.accuracy < WEAK_BELOW).map((c) => c.grammCase);
-  const prefer = preferredThemes({ requested, tonight: tonightsCase(scope), weakest, themeOk });
+  /*
+    THE TURN IS THE DAY AND THE ROUND. A new day starts the rest of the themes
+    somewhere new, and "Another page" moves one on, so a learner whose cases
+    are all doing well is not set the same two pages for ever (`themeOrder`).
+    Inside the module the evening decides the page, not the calendar, so there
+    only "Another page" moves it.
+  */
+  const round = roundOf({ get: (name) => (typeof params[name] === "string" ? (params[name] as string) : null) });
   const [firstKind, secondKind] = SITTING[level] ?? SITTING.B1!;
   const plans: ExercisePlan[] = opened
     ? [{ lines: IN_MODULE[level] ?? 8, kind: "write" }]
     : [{ lines: FIRST[level] ?? 10, kind: firstKind }, { lines: SECOND, kind: secondKind }];
-  const sheet = composeSheet(items, prefer, plans);
+  const { themes: prefer, urgent } = themeOrder({
+    requested, tonight: tonightsCase(scope), weakest, themeOk, turn: (opened ? 0 : dayOrdinal(clock.dayKey())) + round,
+    fills: (theme) => canFill(items, theme, plans[0]!.lines, plans[0]!.kind),
+  });
+  let sheet = composeSheet(items, prefer, plans, urgent);
+
+  /*
+    A PAGE ON THE CASE THEY NEED IS FILLED FROM FURTHER AFIELD. The first
+    theme that leads for who the learner is (what they asked for, tonight's
+    case, their weakest) is the page they most need, and a draw of a few
+    hundred words often holds too few that can carry it: measured over the
+    shipped dictionary, a third of sittings above A1 set the weakest case one
+    or two lines short, and a case with fewer than four lines among the draw
+    was not set at all. Where that happens the rest of the words the top-up
+    read are tried, a chunk at a time, until it fills or they run out. Only
+    then, since every word is a little under a millisecond of work.
+  */
+  const lead = prefer.slice(0, urgent)[0];
+  const fill = plans[0]!.lines;
+  const leadShort = () => {
+    const first = sheet.exercises[0];
+    return !first || first.theme !== lead || first.lines.length < fill;
+  };
+  if (lead && leadShort()) {
+    const tried = new Set(candidateIds);
+    const spare = shuffle(topUp.filter((r) => !tried.has(r.id))).map((r) => r.id);
+    for (let at = 0; at < spare.length && leadShort(); at += LEAD_CHUNK) {
+      const chunk = spare.slice(at, at + LEAD_CHUNK);
+      const more = linesOf(await lexemesFor(chunk), chunk).filter((i) => i.themes.includes(lead));
+      if (more.length === 0) continue;
+      items.push(...more);
+      sheet = composeSheet(items, prefer, plans, urgent);
+    }
+  }
 
   if (sheet.exercises.length === 0) {
     const locale = await localeFor(ownerId);
