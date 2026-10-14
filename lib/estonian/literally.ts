@@ -108,13 +108,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "bicycle", word: "jalgratas",
     parts: [p("jalg", "jalg", "foot"), p("ratas", "ratas", "wheel")],
     literal: "foot wheel", means: "bicycle",
-    quip: "Wheels you turn with your feet. Hard to argue with.",
+    quip: "Two wheels, and the name says whose legs do the work.",
   },
   {
     id: "shoe", word: "jalanõu",
     parts: [p("jala", "jalg", "foot"), p("nõu", "nõu", "dish, vessel")],
     literal: "foot dish", means: "a shoe, any footwear",
-    quip: "The second half is a vessel, the same word that gives you the dishes you wash. A little bowl for your foot, then.",
+    quip: "The second half is a vessel, the word that gives you the dishes you wash. A little bowl for your foot, then.",
   },
   {
     id: "capital", word: "pealinn",
@@ -126,7 +126,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "mayor", word: "linnapea",
     parts: [p("linna", "linn", "town"), p("pea", "pea", "head")],
     literal: "town head", means: "mayor",
-    quip: "Every town has one. Put the head first and you get the capital.",
+    quip: "Every town has one, and on a good day it uses it.",
   },
   {
     id: "marriage", word: "abielu",
@@ -138,7 +138,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "spouse", word: "abikaasa",
     parts: [p("abi", "abi", "help"), p("kaasa", "kaasa", "companion", "along (coming with somebody)")],
     literal: "help companion", means: "spouse",
-    quip: "Both halves are old words, one for marriage and one for a companion. Today the first one means help, which is romantic in a practical way.",
+    quip: "The first half reads as help today, and the second once meant a companion. Come along and help is most of the job.",
   },
   {
     id: "world", word: "maailm",
@@ -162,7 +162,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "afternoon", word: "pärastlõuna",
     parts: [p("pärast", "pärast", "after"), p("lõuna", "lõuna", "south, noon")],
     literal: "after south", means: "afternoon",
-    quip: "After noon, which is when the sun has passed the south. So both readings are right.",
+    quip: "The same word gives you lunch, so the afternoon starts the moment lunch is over.",
   },
   {
     id: "vegetable", word: "köögivili",
@@ -180,7 +180,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "hourglass", word: "liivakell",
     parts: [p("liiva", "liiv", "sand"), p("kell", "kell", "clock")],
     literal: "sand clock", means: "hourglass",
-    quip: "Sand that tells the time. Slowly, and only once you turn it over.",
+    quip: "It only starts when you turn it upside down, which is more than most clocks ask.",
   },
   {
     id: "weekend", word: "nädalavahetus",
@@ -258,7 +258,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "deadline", word: "tähtaeg",
     parts: [p("täht", "täht", "mark, fixed point", "letter"), p("aeg", "aeg", "time")],
     literal: "marked time", means: "deadline",
-    quip: "The first half is a mark, the kind you set on a calendar. It also means a star, but deadlines are rarely written in the stars.",
+    quip: "The first half is a mark you set on a calendar. It can mean a star too, but deadlines are rarely written in the stars.",
   },
   {
     id: "slow-motion", word: "aegluup",
@@ -360,7 +360,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "porcupine", word: "okassiga",
     parts: [p("okas", "okas", "needle, thorn"), p("siga", "siga", "pig")],
     literal: "needle pig", means: "porcupine",
-    quip: "It isn't a pig, and nobody has had the heart to tell it.",
+    quip: "Those needles are really hairs, grown stiff. A bad hair day that never ends.",
   },
   {
     id: "raccoon", word: "pesukaru",
@@ -372,7 +372,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "echidna", word: "sipelgasiil",
     parts: [p("sipelga", "sipelgas", "ant"), p("siil", "siil", "hedgehog")],
     literal: "ant hedgehog", means: "echidna",
-    quip: "Looks like a hedgehog, eats ants. Case closed.",
+    quip: "It also lays eggs, which the name politely leaves out.",
   },
   {
     id: "platypus", word: "nokkloom",
@@ -474,7 +474,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dictionary", word: "sõnaraamat",
     parts: [p("sõna", "sõna", "word"), p("raamat", "raamat", "book")],
     literal: "word book", means: "dictionary",
-    quip: "German builds it the same way. English went to Latin for its word instead.",
+    quip: "German builds it the same way. You'll be opening one a lot.",
   },
   {
     id: "snowman", word: "lumememm",
@@ -510,19 +510,19 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dentist", word: "hambaarst",
     parts: [p("hamba", "hammas", "tooth"), p("arst", "arst", "doctor")],
     literal: "tooth doctor", means: "dentist",
-    quip: "English went to French for its word. Estonian just said what it does. Open wide.",
+    quip: "A doctor for exactly one part of you, the part that bites. Open wide.",
   },
   {
     id: "wristwatch", word: "käekell",
     parts: [p("käe", "käsi", "hand"), p("kell", "kell", "clock")],
     literal: "hand clock", means: "wristwatch",
-    quip: "A clock you wear on your hand. The wrist is close enough.",
+    quip: "The wrist doesn't get a mention. In Estonian the hand covers it.",
   },
   {
     id: "torch", word: "taskulamp",
     parts: [p("tasku", "tasku", "pocket"), p("lamp", "lamp", "lamp")],
     literal: "pocket lamp", means: "torch, flashlight",
-    quip: "A light that fits in your pocket, which on a December afternoon here you'll be glad of.",
+    quip: "On a December afternoon here, it's the most useful thing in your coat.",
   },
   {
     id: "spiderweb", word: "ämblikuvõrk",

@@ -845,7 +845,7 @@ export const SITUATIONS: Area = {
   uk: {
     "Who you're talking to": "З ким ви говорите",
     "They're busy and won't wait long for an answer. Get to the point and you'll get on fine.": "Співрозмовник зайнятий і довго чекати на відповідь не буде. Кажіть по суті, і ви чудово порозумієтеся.",
-    "They're in no hurry at all, and they'll want every last detail from you. Get comfortable.": "Співрозмовникові зовсім нікуди поспішати, і він захоче знати всі подробиці до одної. Влаштовуйтеся зручніше.",
+    "They're in no hurry at all, and they'll want every last detail from you. Get comfortable.": "Співрозмовникові зовсім нікуди поспішати, і він захоче знати всі подробиці до однієї. Влаштовуйтеся зручніше.",
     "They check everything twice as they go, just to be sure. You'll have time to think twice too.": "Співрозмовник усе перевіряє двічі, просто про всяк випадок. Тож і у вас буде час подумати двічі.",
     "They go strictly by the book: one thing at a time, in their order, not yours. If there's a form, the form wins.": "Співрозмовник діє суворо за правилами: по одному питанню за раз, у своєму порядку, а не у вашому. Якщо є бланк, перемагає бланк.",
     "How you hear them": "Як ви їх чуєте",

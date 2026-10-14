@@ -445,7 +445,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["isegi", "Isegi laps teab seda.", "Even a child knows that."],
   ["ikka", "Ma elan ikka siin.", "I still live here."],
   ["rohkem", "Palun anna mulle rohkem vett.", "Please give me more water."],
-  ["liiga", "Mu kinnas on liiga väike. Või ma olen liiga suur.", "My glove is too small. Or I'm too big."],
+  ["liiga", "Mu kinnas on liiga väike. Või on see lapse kinnas.", "My glove is too small. Or maybe it's a child's glove."],
   ["päris", "Täna on päris külm.", "It's quite cold today."],
   ["natuke", "Ma räägin natuke eesti keelt.", "I speak a little Estonian."],
   ["üldse", "Ma ei tea üldse.", "I've got no idea at all."],
@@ -547,7 +547,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["tuli", "Köögis on tuli!", "There's a fire in the kitchen!"],
   ["ohtlik", "See tee on ohtlik.", "This road is dangerous."],
   ["varas", "Varas võttis mu telefoni.", "A thief took my phone."],
-  ["eksima", "Ma eksisin linnas, kuigi ma elan siin.", "I got lost in town, even though I live here."],
+  ["eksima", "Ma eksisin linnas ära, kuigi ma elan siin.", "I got lost in town, even though I live here."],
   ["helistama", "Ema helistab iga päev ja küsib, kas ma söön.", "Mum rings every day to ask whether I'm eating."],
   ["vaja", "Mul on vaja minna.", "I need to go."],
   // A2: korraldused

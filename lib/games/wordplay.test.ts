@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { COMPOUNDS, FALSE_FRIENDS } from "../estonian/literally";
+import { COMPOUNDS, FALSE_FRIENDS, contentWords } from "../estonian/literally";
 import {
   COMPOUNDS_PER_SITTING, FRIENDS_PER_SITTING, OPTIONS, buildWordplay, dealSitting,
   SAME_ANSWER, alsoRight, fellFor, isGuessRight, isNamed, isSeenThrough,
@@ -130,5 +130,41 @@ describe("buildWordplay", () => {
     expect([...alsoRight("world")]).toContain("the earth");
     expect([...alsoRight("the Earth")]).toContain("world");
     expect([...alsoRight("toad")]).toEqual(["toad"]);
+  });
+});
+
+/*
+  A sitting deals five compounds and three look-alikes that sit side by side,
+  so two lines that are each fine alone can tell one joke twice in a row:
+  "it isn't a pig" twice, "tells the time" twice, "put the town first" under
+  "put the head first". Two content words in a row shared by two lines of one
+  sitting is that, and every sitting the dealer can deal is read.
+*/
+describe("one sitting", () => {
+  it("never tells the same joke twice", () => {
+    const pairs = (text: string) => {
+      const said = text.toLowerCase().split(/[^a-z']+/).filter((w) => contentWords(w).size > 0);
+      return new Set(said.slice(1).map((w, i) => `${said[i]} ${w}`));
+    };
+    // How a line about a piece starts, rather than what it says.
+    const frame = new Set(["first half", "second half", "half means"]);
+    const twice: string[] = [];
+    let sittings = 0;
+    for (let round = 0; round < Math.ceil(COMPOUNDS.length / COMPOUNDS_PER_SITTING); round++) {
+      const { compounds, friends } = dealSitting("2026-01-01", round);
+      sittings++;
+      for (const lines of [compounds, friends]) {
+        for (let a = 0; a < lines.length; a++) {
+          for (let b = a + 1; b < lines.length; b++) {
+            const other = pairs(lines[b]!.quip);
+            for (const p of pairs(lines[a]!.quip)) {
+              if (other.has(p) && !frame.has(p)) twice.push(`${lines[a]!.word} / ${lines[b]!.word}: ${p}`);
+            }
+          }
+        }
+      }
+    }
+    expect(sittings).toBeGreaterThan(10);
+    expect(twice).toEqual([]);
   });
 });
