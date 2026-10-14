@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { TODAY_CARDS } from "./disclosure";
 import {
   DEFAULT_TODAY_ORDER, isDefaultTodayOrder, moveSlot, orderTodayCards,
-  serialiseTodayOrder, TODAY_SLOTS, todayOrderFrom,
+  hiddenSlotsFrom, serialiseTodayOrder, TODAY_SLOTS, todayOrderFrom,
 } from "./todayOrder";
 
 describe("todayOrderFrom", () => {
@@ -127,5 +127,41 @@ describe("TODAY_SLOTS", () => {
       expect(slot.title.length).toBeGreaterThan(3);
       expect(slot.detail.length).toBeGreaterThan(10);
     }
+  });
+});
+
+describe("hidden cards", () => {
+  const cards = {
+    game: "G", word: "W", calendar: "C", conversation: "V", ladder: "L", errand: "E",
+    plan: "P", joke: "J", news: "Nw", next: "N",
+  } as const;
+
+  it("reads a hidden mark without moving the card", () => {
+    const stored = "game -joke word";
+    expect(todayOrderFrom(stored).slice(0, 3)).toEqual(["game", "joke", "word"]);
+    expect([...hiddenSlotsFrom(stored)]).toEqual(["joke"]);
+  });
+
+  it("round-trips the order and what is hidden", () => {
+    const order = todayOrderFrom("news joke game");
+    const hidden = new Set(["joke", "calendar"] as const);
+    const stored = serialiseTodayOrder(order, hidden);
+    expect(todayOrderFrom(stored)).toEqual(order);
+    expect(hiddenSlotsFrom(stored)).toEqual(hidden);
+  });
+
+  it("ignores a hidden mark on an id it does not know, and reads nothing as hidden by default", () => {
+    expect(hiddenSlotsFrom("-exam -practice game").size).toBe(0);
+    expect(hiddenSlotsFrom(null).size).toBe(0);
+    expect(serialiseTodayOrder(DEFAULT_TODAY_ORDER)).not.toContain("-");
+  });
+
+  it("takes a hidden card out of the deal, so the next one up fills its place under the cap", () => {
+    const all = orderTodayCards(cards, DEFAULT_TODAY_ORDER);
+    expect(all.slice(0, TODAY_CARDS)).not.toContain("Nw");
+    const hidden = new Set(["joke"] as const);
+    const dealt = orderTodayCards(cards, DEFAULT_TODAY_ORDER, hidden);
+    expect(dealt).not.toContain("J");
+    expect(dealt.slice(0, TODAY_CARDS)).toContain("Nw");
   });
 });

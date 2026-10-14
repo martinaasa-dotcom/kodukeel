@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Lettered } from "@/components/HeroLetters";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { redirect } from "next/navigation";
@@ -18,7 +19,7 @@ import type { Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import type { DayClock } from "@/lib/time/day";
 import { shows, stageOf, TODAY_CARDS } from "@/lib/ux/disclosure";
-import { orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
+import { hiddenSlotsFrom, orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
 import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
@@ -49,12 +50,8 @@ import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
 import { JokeOfDayCard } from "@/components/JokeOfDay";
-import { GoodNewsCard } from "@/components/GoodNews";
+import { GoodNewsSlot } from "@/components/GoodNewsSlot";
 import { jokesToday } from "@/lib/progress/jokeOfDay";
-import { goodNewsWithin } from "@/lib/dict/goodNews";
-
-/** How long Today waits for the good news on a cold hour before drawing without it. */
-const GOOD_NEWS_WAIT_MS = 800;
 
 export async function generateMetadata() {
   return titleFor("Today");
@@ -237,7 +234,10 @@ export default async function TodayPage() {
     SCENES,
     reached ? new Set(unitsThrough(reached.programme, reached.day.index)) : programme ? new Set<string>() : null,
   );
-  const [word, outside, ladder, jokes, goodNews] = await Promise.all([
+  // The cards the learner hid in Settings: not dealt, and the two that cost a
+  // read are not even asked for.
+  const hiddenCards = hiddenSlotsFrom(settings[SETTING_KEYS.todayOrder]);
+  const [word, outside, ladder, jokes] = await Promise.all([
     shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement, { forLevel: true }) : null,
     // Whether the day's question has been answered, and the month behind it,
     // off one read rather than one for each.
@@ -255,16 +255,13 @@ export default async function TodayPage() {
       ? ladderPosition(ownerId, targetFrom(settings[SETTING_KEYS.goalTarget]))
       : null,
     /*
-      The joke and the good news, the two cards that ask nothing of anybody.
-      The joke is a table and one dictionary read, held for the day. The news
-      is three feeds and, once an hour, a model, so it is waited for no longer
-      than `GOOD_NEWS_WAIT_MS`: a cold hour carries on after the response and
-      the card is there on the next visit, rather than this page waiting on
-      somebody else's server for the one card that is a pleasure rather than
-      the point.
+      The joke, one of the two cards that ask nothing of anybody: a table and
+      one dictionary read, held for the day. The good news is not awaited here
+      at all; it streams in on its own (`GoodNewsSlot`), because it is three
+      feeds and a model and this page may not wait on somebody else's server
+      for the one card that is a pleasure rather than the point.
     */
-    shows(stage, "joke") ? jokesToday(summary.dayKey) : null,
-    shows(stage, "news") ? goodNewsWithin(ownerId, GOOD_NEWS_WAIT_MS) : null,
+    shows(stage, "joke") && !hiddenCards.has("joke") ? jokesToday(summary.dayKey) : null,
   ]);
 
   const today = dateLine(now, clock.zone);
@@ -881,7 +878,9 @@ export default async function TodayPage() {
     news card is simply absent on an hour it found nothing good to say.
   */
   const jokeCard = jokes && jokes.length > 0 ? <JokeOfDayCard jokes={jokes} /> : null;
-  const newsCard = goodNews && goodNews.length > 0 ? <GoodNewsCard stories={goodNews} /> : null;
+  const newsCard = shows(stage, "news") && !hiddenCards.has("news")
+    ? <Suspense fallback={null}><GoodNewsSlot ownerId={ownerId} /></Suspense>
+    : null;
 
   /*
     TODAY'S CONVERSATION, CHOSEN BY THE DATE.
@@ -1072,7 +1071,7 @@ export default async function TodayPage() {
               joke: jokeCard,
               news: newsCard,
               next: nextCard,
-            }, todayOrderFrom(settings[SETTING_KEYS.todayOrder]));
+            }, todayOrderFrom(settings[SETTING_KEYS.todayOrder]), hiddenCards);
             const cards = dealt.slice(0, TODAY_CARDS);
             return [0, 1].map((side) => (
               <div
@@ -1081,7 +1080,7 @@ export default async function TodayPage() {
               >
                 {cards.map((card, i) =>
                   i % 2 === side ? (
-                    <div key={i} className="min-w-0" style={{ order: i }} data-column-item>{card}</div>
+                    <div key={i} className="min-w-0 empty:hidden" style={{ order: i }} data-column-item>{card}</div>
                   ) : null,
                 )}
               </div>

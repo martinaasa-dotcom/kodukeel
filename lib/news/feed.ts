@@ -172,9 +172,9 @@ export async function goodNewsItems(now: number = Date.now()): Promise<NewsItem[
 
 /*
   Longer than the dictionary's deadline, on purpose. Nobody waits on this one:
-  Today races it against its own short budget and lets it finish after the
-  response (`goodNewsWithin`), so a slow minute at ERR costs a card on one
-  visit rather than a blank card for ten minutes. Measured on 2026-10-14 at
+  Today streams the card in after the rest of the page (`GoodNewsSlot`), so a
+  slow minute at ERR delays one card rather than the page, and never leaves a
+  blank card for ten minutes. Measured on 2026-10-14 at
   0.6 to 1.0 seconds a feed through a proxy, which the 1.5 above cut off.
 */
 const GOOD_NEWS_DEADLINE_MS = 5000;

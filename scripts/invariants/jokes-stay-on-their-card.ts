@@ -63,6 +63,12 @@ export default function jokesStayOnTheirCard({ check, ALL, code }: InvariantKit)
     const news = code("lib/dict/goodNews.ts");
     assert.match(news, /pickToday\(ownerId, now\)\.catch\(/, "a good news failure is thrown rather than remembered as a miss");
     assert.match(news, /goodNewsToday\(ownerId\)\.catch\(\(\) => null\)/, "Today waits on good news that can throw");
+    // Today may not wait on ERR or a model for a pleasure: the card streams.
+    const page = code("app/(app)/page.tsx");
+    assert.doesNotMatch(page, /goodNews(Within|Today)\(/, "Today awaits the good news rather than streaming it");
+    assert.match(page, /<Suspense fallback=\{null\}><GoodNewsSlot /, "the good news is no longer streamed behind a Suspense");
+    assert.match(page, /data-column-item/, "the column item hook moved");
+    assert.match(page, /empty:hidden[^>]*data-column-item/, "an hour with no good news leaves an empty slot drawn");
   });
 
   check("the good news judge is metered like every other call", () => {

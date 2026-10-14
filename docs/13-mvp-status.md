@@ -3327,8 +3327,8 @@ refused on the day this was built. A list of bad-news stems refuses on every pat
 refusing; then a metered model on the grader's chain picks what is plainly good and says it in
 English, told to reject whatever it is unsure of, and its picks go through the bad-news list
 again. With no model, a headline has to carry a good-news stem as well. The answer is held an hour
-for the instance, Today waits for it no longer than `GOOD_NEWS_WAIT_MS` on a cold hour, and on an
-hour with nothing good the card is absent rather than empty. The dictionary under the words is the
+for the instance, Today never waits for it (the card streams in behind a `Suspense` after the rest
+of the page, `GoodNewsSlot`), and on an hour with nothing good the card is absent rather than empty. The dictionary under the words is the
 headlines block's own gate, now one function (`annotateTexts`) and one drawing (`LinkedWords`)
 for the headlines, the good news and the joke.
 

@@ -65,11 +65,10 @@ export async function goodNewsToday(ownerId: string, now: number = Date.now()): 
 }
 
 /**
- * The same, waited for no longer than Today can afford. A cold hour is three
- * feeds and a model call, which is the one thing on the page that could take a
- * second, and the card is a pleasure rather than the point. So the page waits
- * `ms` and draws the card if the answer is in; if not, the work carries on
- * after the response (`after`) and the next render reads it from memory.
+ * The same, waited for no longer than `ms`. Today streams the card in
+ * (`components/GoodNewsSlot.tsx`), so this bounds how long the response is
+ * held open for it; past that the work carries on after the response
+ * (`after`) and the next render reads it from memory.
  */
 export async function goodNewsWithin(ownerId: string, ms: number): Promise<GoodNews[] | null> {
   const work = goodNewsToday(ownerId).catch(() => null);
