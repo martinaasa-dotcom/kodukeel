@@ -9,6 +9,7 @@ import { Speak } from "@/components/Speak";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { CaseLabel } from "@/components/CaseLabel";
 import { Card, KeyCap, Note, SectionTitle, Stack } from "@/components/ui";
+import { WatchOut } from "@/components/RuleNote";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { caseByKey } from "@/lib/estonian/cases";
 import { CASE_GROUPS, caseReference } from "@/lib/estonian/grammar";
@@ -777,9 +778,7 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
                 {t("No recorded sentence for this one yet.")}
               </p>
             )}
-          <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-            {fill(t("Watch out: {note}"), { note: t(ref.watchOut) })}
-          </p>
+          <WatchOut text={ref.watchOut} className="mt-3" />
         </Card>
       )}
 

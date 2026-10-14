@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Lettered } from "@/components/HeroLetters";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { redirect } from "next/navigation";
@@ -18,7 +19,7 @@ import type { Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import type { DayClock } from "@/lib/time/day";
 import { shows, stageOf, TODAY_CARDS } from "@/lib/ux/disclosure";
-import { orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
+import { hiddenSlotsFrom, orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
 import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
@@ -44,10 +45,13 @@ import { sceneOfDay } from "@/lib/scenes/ofTheDay";
 import { SonadPreview } from "@/components/SonadPreview";
 import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
-import { FitText } from "@/components/FitText";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
-import { stepText } from "@/lib/course";
+import { stepCard, stepsIn } from "@/lib/course";
+import { HeroFan } from "@/components/HeroFan";
+import { JokeOfDayCard } from "@/components/JokeOfDay";
+import { GoodNewsSlot } from "@/components/GoodNewsSlot";
+import { jokesToday } from "@/lib/progress/jokeOfDay";
 
 export async function generateMetadata() {
   return titleFor("Today");
@@ -230,7 +234,10 @@ export default async function TodayPage() {
     SCENES,
     reached ? new Set(unitsThrough(reached.programme, reached.day.index)) : programme ? new Set<string>() : null,
   );
-  const [word, outside, ladder] = await Promise.all([
+  // The cards the learner hid in Settings: not dealt, and the two that cost a
+  // read are not even asked for.
+  const hiddenCards = hiddenSlotsFrom(settings[SETTING_KEYS.todayOrder]);
+  const [word, outside, ladder, jokes] = await Promise.all([
     shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement, { forLevel: true }) : null,
     // Whether the day's question has been answered, and the month behind it,
     // off one read rather than one for each.
@@ -247,6 +254,14 @@ export default async function TodayPage() {
     shows(stage, "streak")
       ? ladderPosition(ownerId, targetFrom(settings[SETTING_KEYS.goalTarget]))
       : null,
+    /*
+      The joke, one of the two cards that ask nothing of anybody: a table and
+      one dictionary read, held for the day. The good news is not awaited here
+      at all; it streams in on its own (`GoodNewsSlot`), because it is three
+      feeds and a model and this page may not wait on somebody else's server
+      for the one card that is a pleasure rather than the point.
+    */
+    shows(stage, "joke") && !hiddenCards.has("joke") ? jokesToday(summary.dayKey) : null,
   ]);
 
   const today = dateLine(now, clock.zone);
@@ -482,55 +497,36 @@ export default async function TodayPage() {
   const moduleTonight = Boolean(courseNow && courseDay && !courseNow.finishedToday && courseStep);
 
   const courseCard = moduleTonight && courseDay && courseStep ? (
-    <Card tone="night" className="flex flex-col gap-6 md:p-9 lg:flex-row lg:items-center lg:gap-10">
-      <div className="min-w-0 flex-1">
-        <p className="label-xs flex flex-wrap items-center gap-x-2 gap-y-1" style={{ color: "var(--ink-2)" }}>
-          <span style={{ color: "var(--cta)" }}>{t("Today’s module")}</span>
-          <span aria-hidden className="h-3 w-px" style={{ background: "var(--rule)" }} />
-          <span>{fill(t("Day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}</span>
-        </p>
-        <FitText
-          as="h2"
-          text={ui(courseDay.day.title, courseDay.day.subtitle)}
-          className="font-display mt-3 font-bold leading-tight [--fit-max:var(--text-2xl)] md:[--fit-max:var(--text-3xl)]"
-          lang={uiWantsEnglish(placement) ? undefined : "et"}
-          style={{ color: "var(--ink)", textWrap: "balance" }}
-        />
-        <p className="mt-3 max-w-[46ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          {t(courseDay.day.canDo)}
-        </p>
-        <p
-          className="mt-5 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-full px-3.5 py-1.5 text-sm"
-          style={{ background: "rgb(255 255 255 / 0.08)", color: "var(--ink)" }}
-        >
-          <span className="font-semibold" style={{ color: "var(--sky-ink)" }}>{t("Next")}</span>
-          <span>{stepText(courseDay.day, courseStep, locale).title}</span>
-        </p>
-      </div>
-      <div className="flex flex-col items-stretch gap-4 lg:w-[19rem] lg:shrink-0">
-        <div className="flex items-center gap-4">
-          <Ring
-            pct={courseDay.pct}
-            size={72}
-            thickness={7}
-            tone="var(--cta)"
-            track="rgb(255 255 255 / 0.1)"
-            label={fill(t("{pct} percent of today's module done"), { pct: courseDay.pct })}
-          >
-            <span className="text-sm font-bold tabular-nums" style={{ color: "var(--ink)" }}>{courseDay.pct}%</span>
-          </Ring>
-          <p className="text-sm leading-snug" style={{ color: "var(--ink-2)" }}>
-            <span className="font-display block text-2xl font-bold tabular-nums" style={{ color: "var(--ink)" }}>
-              {fill(t("{minutes} min"), { minutes: courseDay.minutesLeft })}
-            </span>
-            {t("to go today")}
-          </p>
-        </div>
-        <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
+    /*
+      THE EVENING AS A FAN OF ITS STEPS, AND THE ONE BRIGHT HERO IN THE APP.
+
+      Every other page draws the same card in the night's greys, so this is
+      the one that is lit: what the learner can do by the end of it on the
+      left, and tonight's steps dealt out on the right, the finished ones ringed,
+      the next one lifted and breathing, the rest in the brand mix.
+    */
+    <HeroFan
+      bright
+      eyebrow={`${t("Today’s module")}, ${fill(t("day {day} of {days}"), { day: courseDay.day.index, days: programme!.days.length })}`}
+      title={ui(courseDay.day.title, courseDay.day.subtitle)}
+      titleLang={uiWantsEnglish(placement) ? undefined : "et"}
+      text={t(courseDay.day.canDo)}
+      action={
+        <ButtonLink href="/course" variant="primary" size="lg" className="whitespace-nowrap">
           {courseDay.pct === 0 ? t("Start today's module") : t("Keep going")} <ArrowRight size={17} aria-hidden />
         </ButtonLink>
-      </div>
-    </Card>
+      }
+      nextLabel={t("Next")}
+      cardsLabel={fill(t("{minutes} min to go today"), { minutes: courseDay.minutesLeft })}
+      cards={stepsIn(courseDay.day, locale).map((step) => {
+        const done = courseDay.done.has(step.id);
+        return {
+          ...stepCard(step, locale),
+          detail: done ? t("done") : fill(t("{minutes} min"), { minutes: step.minutes }),
+          state: done ? "done" : step.id === courseStep.id ? "now" : "later",
+        };
+      })}
+    />
   ) : courseNow?.finishedToday ? (
     <Card tone="accent" className="evening flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
       <div className="min-w-0 flex-1">
@@ -864,13 +860,27 @@ export default async function TodayPage() {
     <Card className="flex h-full flex-col">
       <SectionTitle>{t("Today’s game")}</SectionTitle>
       <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(featured.why)}</p>
-      <div className="mt-3">
+      <div className="mt-3 flex justify-center">
         <ButtonLink href={featured.href} variant="primary">
           {t(featuredTitle(featured.href) ?? "Play")} <ArrowRight size={15} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
   );
+
+  /*
+    THE JOKE AND THE GOOD NEWS, THE FOURTH ROW.
+
+    Two cards that are there to make the morning a little better and teach a
+    little on the way: a Juku joke out of `lib/collections/jokes.ts`, and one
+    happy headline from ERR (and two behind it) picked by `lib/news/goodNews.ts`. Both put the
+    dictionary under every word, both are true on the first morning, and the
+    news card is simply absent on an hour it found nothing good to say.
+  */
+  const jokeCard = jokes && jokes.length > 0 ? <JokeOfDayCard jokes={jokes} /> : null;
+  const newsCard = shows(stage, "news") && !hiddenCards.has("news")
+    ? <Suspense fallback={null}><GoodNewsSlot /></Suspense>
+    : null;
 
   /*
     TODAY'S CONVERSATION, CHOSEN BY THE DATE.
@@ -887,7 +897,7 @@ export default async function TodayPage() {
       <SectionTitle hint={say(`about ${minutesFor(sceneToday)} minutes`, "about {minutes}", { minutes: countOf(locale, minutesFor(sceneToday), "minute", "gen") })}>{t("Today’s conversation")}</SectionTitle>
       <p className="text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{t(sceneToday.title)}</p>
       <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(sceneToday.place)}</p>
-      <div className="mt-auto pt-4">
+      <div className="mt-auto flex justify-center pt-4">
         <ButtonLink href={`/situations/${sceneToday.id}`} variant="primary">
           {t("Start the conversation")} <ArrowRight size={15} aria-hidden />
         </ButtonLink>
@@ -995,7 +1005,7 @@ export default async function TodayPage() {
         : lead(stage, toReview, toLearn, ownCardsPerMinute(pace), locale)}
     >
       {/*
-        ONE CARD ACROSS THE TOP, AND FIVE UNDER IT AT THE MOST.
+        ONE CARD ACROSS THE TOP, AND EIGHT UNDER IT AT THE MOST.
 
         The page used to be two columns from the top, the wide one for today
         and the narrow one for what is ahead. That is a sound reading order and
@@ -1033,14 +1043,22 @@ export default async function TodayPage() {
         <Lettered show={!!courseCard}>{doNowCard}</Lettered>
         {reviewStrip}
         {/*
-          THE WHITE CARDS, TWO ACROSS AND IN ROWS. A grid rather than `Columns`,
-          which fills down the first column and then the second and so cannot
-          promise that two cards sit side by side: the order asked for is
-          rows (game and word, calendar and conversation, progress and out
-          there), and a row is what a grid deals. Each row's cards share a
-          height, which is what makes a pair read as a pair.
+          THE WHITE CARDS, TWO COLUMNS THAT EACH END WHERE THEY END. The order is
+          still read in rows (game and word, calendar and conversation, progress
+          and out there, the joke and the good news), so the cards are dealt left, right, left, right. But a
+          card is as tall as what is in it and no taller: they used to be
+          stretched to share a height with the one beside them, which left the
+          word of the day a screen of empty white under its button and made the
+          page read as a spreadsheet. Two independent columns instead, starting
+          at the same height so the first two cards read as a pair, and neither
+          padded out to match the other, so everything under them settles where
+          it settles.
+
+          Under `lg` it is one column in the dealt order: the column wrappers
+          are `display: contents` and each card carries its position as `order`,
+          so there is one list of cards and not a second copy for the phone.
         */}
-        <div className="grid items-stretch gap-6 lg:grid-cols-2">
+        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-2 lg:items-start">
           {(() => {
             const dealt = orderTodayCards({
               game: gameCard,
@@ -1050,10 +1068,22 @@ export default async function TodayPage() {
               ladder: ladderCard,
               errand: errandCard,
               plan: planCard,
+              joke: jokeCard,
+              news: newsCard,
               next: nextCard,
-            }, todayOrderFrom(settings[SETTING_KEYS.todayOrder]));
-            return dealt.slice(0, TODAY_CARDS).map((card, i) => (
-              <div key={i} className="min-w-0 [&>*]:h-full" data-column-item>{card}</div>
+            }, todayOrderFrom(settings[SETTING_KEYS.todayOrder]), hiddenCards);
+            const cards = dealt.slice(0, TODAY_CARDS);
+            return [0, 1].map((side) => (
+              <div
+                key={side}
+                className="contents lg:flex lg:min-w-0 lg:flex-col lg:gap-6"
+              >
+                {cards.map((card, i) =>
+                  i % 2 === side ? (
+                    <div key={i} className="min-w-0 empty:hidden" style={{ order: i }} data-column-item>{card}</div>
+                  ) : null,
+                )}
+              </div>
             ));
           })()}
         </div>

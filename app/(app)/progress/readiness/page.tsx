@@ -7,9 +7,10 @@ import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { readinessPicture } from "@/lib/progress/readiness";
 import { ButtonLink } from "@/components/Button";
 import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
-import { ReadinessSummary } from "@/components/readiness/Summary";
+import { CommonestTrip } from "@/components/readiness/Summary";
+import { HeroFan } from "@/components/HeroFan";
 import { SituationRow } from "@/components/readiness/SituationRow";
-import { RUNG_LABEL } from "@/lib/readiness/rungs";
+import { RUNG_LABEL, RUNG_ORDER, type Rung } from "@/lib/readiness/rungs";
 import { Explain } from "@/components/Explain";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
@@ -56,6 +57,7 @@ export default async function ReadinessPage() {
     );
   }
 
+  const tried = picture.summary.total - picture.summary.counts.unmet;
   const ordered: Level[] = [picture.level, ...LEVELS.filter((l) => l !== picture.level)];
   const worthTrying = picture.summary.couldTry.slice(0, 3);
 
@@ -71,17 +73,29 @@ export default async function ReadinessPage() {
       }
     >
       <Stack>
-        <section>
-          <SectionTitle hint={fill(t("at {level}, your level in Settings"), { level: picture.level })}>{t("Where you stand")}</SectionTitle>
-          <Card tone="night">
-            <ReadinessSummary summary={picture.summary} locale={locale} />
-            <Explain label={t("What the three ratings mean")}>
-              {fill(t("Each situation gets one of three ratings. {follow} means you’d understand most of it. {takePart} means you could answer with the right words and endings, without a long silence first. {lead} means you could start it, steer it, and get it back on track if it goes wrong. For a live conversation, that also takes some sign that you can follow spoken Estonian. Knowing words on cards never gets you past the first rating on its own."), {
-                follow: t(RUNG_LABEL.follow), takePart: t(RUNG_LABEL.takePart), lead: t(RUNG_LABEL.lead),
-              })}
-            </Explain>
-          </Card>
-        </section>
+        <HeroFan
+          eyebrow={fill(t("Where you stand at {level}"), { level: picture.level })}
+          title={tried > 0
+            ? fill(t("{total} situations, {tried} you’ve tried"), { total: picture.summary.total, tried })
+            : fill(t("{total} situations, none tried yet"), { total: picture.summary.total })}
+          text={
+            <>
+              {t("Based on your own answers, not a guess.")}
+              <span className="mt-2 block">
+                <Explain label={t("What the three ratings mean")}>
+                  {fill(t("Each situation gets one of three ratings. {follow} means you’d understand most of it. {takePart} means you could answer with the right words and endings, without a long silence first. {lead} means you could start it, steer it, and get it back on track if it goes wrong. For a live conversation, that also takes some sign that you can follow spoken Estonian. Knowing words on cards never gets you past the first rating on its own."), {
+                    follow: t(RUNG_LABEL.follow), takePart: t(RUNG_LABEL.takePart), lead: t(RUNG_LABEL.lead),
+                  })}
+                </Explain>
+              </span>
+            </>
+          }
+          cardsLabel={t("How many situations sit on each rung")}
+          cards={rungsShown(picture.summary.counts).map((rung) => ({
+            figure: String(picture.summary.counts[rung]), label: t(RUNG_LABEL[rung]), icon: RUNG_ICON[rung],
+          }))}
+        />
+        <CommonestTrip summary={picture.summary} locale={locale} />
 
         {worthTrying.length > 0 && (
           <section>
@@ -181,4 +195,24 @@ export default async function ReadinessPage() {
       </Stack>
     </Page>
   );
+}
+
+const RUNG_ICON: Record<Rung, string> = {
+  unmet: "CircleDot", lost: "CircleHelp", follow: "Ear", takePart: "MessagesSquare", lead: "Megaphone",
+};
+
+/**
+ * The rungs worth a card: the ones anything sits on, widened upward to three so
+ * the next rung to reach is in view rather than a fan of the ones already
+ * behind somebody, and never more than five.
+ */
+function rungsShown(counts: Record<Rung, number>): Rung[] {
+  const held = RUNG_ORDER.map((r, i) => (counts[r] > 0 ? i : -1)).filter((i) => i >= 0);
+  let lo = held.length ? Math.min(...held) : 0;
+  let hi = held.length ? Math.max(...held) : 0;
+  while (hi - lo + 1 < 3) {
+    if (hi < RUNG_ORDER.length - 1) hi++;
+    else lo--;
+  }
+  return RUNG_ORDER.slice(lo, hi + 1);
 }

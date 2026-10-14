@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { commonWords, type FrequencyGroup } from "@/lib/collections/frequency";
-import { COMMON_BATCH, COMMON_GROUP_KEYS } from "@/lib/collections/commonGroups";
+import { COMMON_BATCH, COMMON_GROUP_KEYS, COMMON_PARTS, partLemmas } from "@/lib/collections/commonGroups";
 import { availableCardTypes } from "@/lib/srs/cards";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 
@@ -107,8 +107,9 @@ export function lemmasIn(group: FrequencyGroup): string[] {
  * of speech, a hand-written provenance and the most forms. The same rule the
  * search box leads with, for the reason it is one function rather than two.
  */
-export async function commonLexemeIds(group: FrequencyGroup): Promise<string[]> {
-  const lemmas = commonWords(group).map((w) => w.lemma);
+export async function commonLexemeIds(group: FrequencyGroup, part?: number): Promise<string[]> {
+  const all = commonWords(group).map((w) => w.lemma);
+  const lemmas = part ? partLemmas(all, part) : all;
   const rows = await prisma.lexeme.findMany({
     where: { lemma: { in: lemmas } },
     select: {
@@ -127,6 +128,8 @@ export interface CommonCount {
   found: number;
   /** How many of those the learner already has a card for. */
   inDeck: number;
+  /** The same two figures for each of the four parts, in order. */
+  parts: { found: number; inDeck: number }[];
 }
 
 /**
@@ -165,7 +168,14 @@ export async function commonCounts(ownerId: string): Promise<CommonCount[]> {
       const id = byLemma.get(w.lemma);
       return id ? [id] : [];
     });
-    return { group, found: ids.length, inDeck: ids.filter((id) => held.has(id)).length };
+    const parts = Array.from({ length: COMMON_PARTS }, (_, i) => {
+      const inPart = partLemmas(commonWords(group), i + 1).flatMap((w) => {
+        const id = byLemma.get(w.lemma);
+        return id ? [id] : [];
+      });
+      return { found: inPart.length, inDeck: inPart.filter((id) => held.has(id)).length };
+    });
+    return { group, found: ids.length, inDeck: ids.filter((id) => held.has(id)).length, parts };
   });
 }
 
@@ -189,9 +199,10 @@ export async function commonCounts(ownerId: string): Promise<CommonCount[]> {
  * an id crossing an action boundary is a value the caller could choose.
  */
 export async function nextCommonBatch(
-  ownerId: string, group: FrequencyGroup, size = COMMON_BATCH,
+  ownerId: string, group: FrequencyGroup, size = COMMON_BATCH, part?: number,
 ): Promise<string[]> {
-  const lemmas = commonWords(group).map((w) => w.lemma);
+  const all = commonWords(group).map((w) => w.lemma);
+  const lemmas = part ? partLemmas(all, part) : all;
   const rows = await prisma.lexeme.findMany({
     where: { lemma: { in: lemmas } },
     select: {

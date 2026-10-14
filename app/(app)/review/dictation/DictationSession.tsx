@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
 import { ArrowRight, Check, Ear, Volume2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
@@ -23,7 +24,8 @@ import type { RatingValue } from "@/lib/srs/scheduler";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfDictation } from "@/lib/ux/verdict";
 import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { WordLink } from "@/components/course/WordLink";
 
@@ -254,13 +256,12 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/practice" size="lg">{t("Try something else")}</ButtonLink>
           <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
-          <ButtonLink href="/review/dictation" variant="primary" size="lg">{t("Another round")}</ButtonLink>
+          <AnotherRound variant="primary" size="lg">{t("Another round")}</AnotherRound>
         </WayOut>
       </div>
     );
   }
 
-  const progress = (index / round.length) * 100;
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
@@ -274,26 +275,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
       <h1 className="sr-only">{t("Dictation")}</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession />
-        <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="grad-accent h-full rounded-full transition-[width] duration-500"
-            style={{ width: `${Math.max(progress, 2)}%` }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={round.length}
-            aria-label={fill(t("Sentence {n} of {total}"), { n: index + 1, total: round.length })}
-          />
-        </div>
-        <span
-          className="tnum label-xs rounded-full px-2.5 py-1"
-          style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-        >
-          {fill(t("{n} left"), { n: round.length - index })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={round.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
@@ -434,7 +416,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
       )}
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>{fill(t("{n} word-perfect of {total} so far"), { n: correct, total: done })}</span>
+        {done > 0 && <span>{fill(t("{n} word-perfect of {total} so far"), { n: correct, total: done })}</span>}
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>

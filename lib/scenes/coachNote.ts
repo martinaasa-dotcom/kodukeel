@@ -45,7 +45,12 @@ export interface CoachNote {
   readonly comment: string;
   /** One concrete thing to practise, in the learner's language. `rule` so the verifier reads it. */
   readonly rule: string;
+  /** Up to three ways to make what they said more correct or more rounded, in the learner's language. Each one is verified on its own. */
+  readonly improve: readonly string[];
 }
+
+/** How many suggestions the note may carry, so it stays a note and not a lesson. */
+export const MAX_IMPROVE = 3;
 
 /** How long a note may be, so a model that runs on cannot fill the screen. */
 export const COACH_NOTE_CHARS = 700;
@@ -56,10 +61,11 @@ export function buildCoachNoteSystem(language: Locale = "en"): string {
     `Write in plain, friendly ${NOTE_LANGUAGE[language]}, as one person to another. No lists, no headings, no markdown, no emoji.`,
     ...(language === "en" ? [] : [inTheirLanguage(language)]),
     "comment: two or three sentences on what they did well, quoting their own words where it helps (in quotation marks, exactly as they wrote them). Be specific and honest: praise something real, never the generic 'great job'.",
-    "rule: one sentence with one concrete thing to practice next time, the most useful one. If a word came out differently, you may point at the form given in the list of fixes. Never correct anything else and never mark or grade them.",
-    "Never write an Estonian word or sentence that does not appear in the conversation or in the fixes: quote, never invent. Never mention scores, mistakes counts, or the app.",
+    "rule: one sentence with one concrete thing to practice next time, the most useful one. If a word came out differently, you may point at the form given in the list of fixes. Never mark or grade them.",
+    "improve: a list of two or three short suggestions for how they could have said it better, even when the conversation went smoothly. Each is one or two sentences and one of two kinds. A grammar one: pick something they actually said (quote it in quotation marks exactly as written) that came out with the wrong ending or form, and say in plain terms what the ending needed to do. A rounding-out one: pick one of their answers that was correct but thin and say what kind of detail a native speaker would add to make it fuller and easier to follow (where, how long, why, since when, what you liked), as in a real interview or shop exchange. Say what to add in words, not as a finished Estonian sentence.",
+    "You may show the correct Estonian only where the exact form appears in the conversation (the other person often says it) or in the fixes. Otherwise describe the change in plain words, for example that the place needs the in-ending. Never write an Estonian word or sentence that does not appear in the conversation or in the fixes: quote, never invent. Never mention scores, mistakes counts, or the app.",
     ...VOICE_RULES,
-    "Reply with JSON only: {\"comment\": \"...\", \"rule\": \"...\"}.",
+    "Reply with JSON only: {\"comment\": \"...\", \"rule\": \"...\", \"improve\": [\"...\", \"...\"]}.",
   ].join("\n");
 }
 
@@ -100,11 +106,17 @@ export function parseCoachNote(raw: string): CoachNote | null {
   const end = raw.lastIndexOf("}");
   if (start < 0 || end <= start) return null;
   try {
-    const parsed = JSON.parse(raw.slice(start, end + 1)) as { comment?: unknown; rule?: unknown };
+    const parsed = JSON.parse(raw.slice(start, end + 1)) as { comment?: unknown; rule?: unknown; improve?: unknown };
     if (typeof parsed.comment !== "string" || !parsed.comment.trim()) return null;
     return {
       comment: clip(parsed.comment.trim(), COACH_NOTE_CHARS),
       rule: typeof parsed.rule === "string" ? clip(parsed.rule.trim(), COACH_NOTE_CHARS) : "",
+      improve: Array.isArray(parsed.improve)
+        ? parsed.improve
+            .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+            .slice(0, MAX_IMPROVE)
+            .map((item) => clip(item.trim(), COACH_NOTE_CHARS))
+        : [],
     };
   } catch {
     return null;
@@ -130,5 +142,5 @@ export function withoutUnverified(note: CoachNote, unverified: readonly string[]
     .trim();
   const comment = keep(note.comment);
   if (!comment) return null;
-  return { comment, rule: keep(note.rule) };
+  return { comment, rule: keep(note.rule), improve: note.improve.map(keep).filter(Boolean) };
 }

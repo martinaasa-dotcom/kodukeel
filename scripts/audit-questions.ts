@@ -67,6 +67,9 @@ import { clueClashes, clueFrom, clueKey } from "../lib/games/clue";
 import { mentions } from "../lib/estonian/cloze";
 import { PARTS } from "../lib/copy/values";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
+import { questionsForWord } from "../lib/progress/map";
+import { TWIN_GROUPS, guessable } from "../lib/collections/twins";
+import { guessQuestionFor, sentenceQuestionsFor, type TwinRow } from "../lib/progress/twinQuestions";
 import { orderContextFrom } from "../lib/estonian/wordOrder";
 import { planLesson, type LessonWord } from "../lib/collections/lesson";
 import { taughtSpellings } from "../lib/progress/lessonWords";
@@ -200,6 +203,24 @@ const REACHES: Record<string, number> = {
   // illatives in this dictionary are spelled like a principal part. 5,216 over
   // the whole of it.
   exceptions: 4_100,
+  /*
+    Map, over the graded dictionary: a noun, a case Map draws, and a recorded
+    sentence holding that form as exactly one case. 2,732 before a house, a
+    table or a person was drawn only for a word that is a thing, a place, a body
+    part, a plant or a being; 1,849 after, which is measured and not estimated.
+    The sentence rule is the stricter reading and it is what this figure costs.
+    Then 187, once a scene had to be the word's own emoji: a word with no
+    picture is not asked, and the essive left the round. Then 160, once "in",
+    "into" and "out of" were asked only of a place, something a person gets
+    into, or a container, since a person walking into a notebook is a picture
+    of nothing. Measured on 2026-10-10.
+  */
+  map: 128,
+  // Kaksikud, over the whole dictionary: every word of every look-alike group
+  // in every recorded sentence it can be gapped from, and the guessing
+  // question both ways round for the rule pairs. Measured at 2,351, after a
+  // name mid-sentence stopped being gapped as the word (`Jerry Hall`).
+  twins: 2_351,
   /*
     The guided unit lesson and the end-of-level checkpoint, neither of which
     had ever been in this script. Both build a gap out of an attested sentence
@@ -619,6 +640,64 @@ for (const e of entries) {
   const clue = clueFrom(e.translation ?? "", e.lemma, e.pos);
   if (clue) ask(`crossword ${e.lemma}`, clue, e.lemma);
 }
+});
+
+/* ── Map ─────────────────────────────────────────────────────────────────── */
+/*
+  The round that shows a picture and asks for the form that matches it. What a
+  learner is shown is the word, its gloss and the English question about the
+  picture, and the answer is one of three forms of that same word, so the fault
+  to look for is the word or its gloss spelling the answer, which is what the
+  builder refuses and this asks again. Every question here also stands on a
+  recorded sentence, so a question that exists is one a lexicographer wrote.
+*/
+timed("map", () => {
+for (const e of entries) {
+  if (e.pos !== "NOUN") continue;
+  const row = {
+    id: e.lemma, lemma: e.lemma, translation: e.translation, pos: e.pos, cefr: e.cefr ?? null,
+    semanticTypes: e.semanticTypes ?? null, examples: JSON.stringify(e.examples ?? []),
+    forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
+  };
+  for (const q of questionsForWord(row, borrowed.get(e.lemma) ?? [], plainerFirst(e.cefr ?? null, reach), null)) {
+    ask(`map ${e.lemma} ${q.caseKey}`, `${q.lemma}, ${q.gloss} ${q.scene.ask}`, q.options[q.answer]!.text);
+  }
+}
+});
+
+/* ── Kaksikud ────────────────────────────────────────────────────────────── */
+/*
+  Words that look alike. A sentence question shows the sentence's English and
+  the sentence with one word taken out, and offers every word of the group in
+  the gap's slot; the answer is the form the writer used, so the fault to look
+  for is that form standing in the English or elsewhere in the line. A guess
+  question shows one word of a rule pair with its meaning and asks what the
+  other means, so the fault is that meaning printed beside the question.
+  Every sentence question stands on a recorded sentence.
+*/
+timed("twins", () => {
+  const rows = new Map<string, TwinRow>();
+  for (const e of entries) {
+    rows.set(`${e.lemma}|${e.pos}`, {
+      id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr ?? null, translation: e.translation,
+      examples: JSON.stringify(e.examples ?? []),
+      forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
+    });
+  }
+  const lent = (id: string) => borrowed.get(id) ?? [];
+  const rank = (row: TwinRow) => plainerFirst(row.cefr, reach);
+  for (const g of TWIN_GROUPS) {
+    for (const w of g.words) {
+      for (const q of sentenceQuestionsFor(g, w, rows, lent, rank, null, 50)) {
+        ask(`twins ${g.id} ${q.lemma}`, `${q.en} ${q.gapped}`, q.form);
+      }
+    }
+    if (!guessable(g)) continue;
+    for (const askLong of [true, false]) {
+      const q = guessQuestionFor(g, rows, askLong, "a decoy nobody wrote");
+      if (q) ask(`twins ${g.id} guess`, `${q.known.lemma} ${q.known.means} ${q.asked.lemma}`, q.options[q.answer]!);
+    }
+  }
 });
 
 /* ── The exceptions round ────────────────────────────────────────────────── */

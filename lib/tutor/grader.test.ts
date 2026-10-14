@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCompositionUserPrompt, buildGraderSystemPrompt, buildGraderUserPrompt, callChainForJson, gradeSentence, parseVerdict, writtenIn } from "./grader";
+import { buildCompositionUserPrompt, buildDescribeSystemPrompt, buildDescribeUserPrompt, buildGraderSystemPrompt, buildGraderUserPrompt, callChainForJson, gradeSentence, parsePictureGrade, parseVerdict, writtenIn } from "./grader";
 import { TutorError } from "./provider";
 import { PROVIDER_KEY_ENV, anthropicHeaders, openAiCompatible } from "./provider";
 import type { WritingTask } from "@/lib/estonian/writing";
@@ -345,5 +345,61 @@ describe("the note in the learner's language", () => {
     expect(writtenIn("ru")).not.toMatch(/Real Ukrainian/);
     // The system prompt carries no language, so it stays one cached prompt for everybody.
     expect(buildGraderSystemPrompt()).not.toMatch(/Russian|Ukrainian/);
+  });
+});
+
+describe("the picture grader", () => {
+  it("is told the picture is a spark and never to judge a story against the scene", () => {
+    const prompt = buildDescribeSystemPrompt();
+    expect(prompt).toMatch(/Any story they invent is right/);
+    expect(prompt).toMatch(/Never call a sentence wrong, almost or off for not matching the picture/);
+    expect(prompt).not.toMatch(/Is it about the picture\?/);
+  });
+
+  it("hands over spelling facts and no verdict on the scene", () => {
+    const user = buildDescribeUserPrompt({
+      situation: "At the market", things: [], knownForms: [], level: "A2",
+      sentences: [{ text: "Nad kasvavad köögivilju.", unknown: [] }],
+    });
+    expect(user).toMatch(/every word found in the dictionary/);
+    expect(user).not.toMatch(/names nothing from the picture/);
+  });
+
+  it("is told to name every error it is sure of, with a swap for each, and still to say nothing it doubts", () => {
+    const prompt = buildDescribeSystemPrompt();
+    expect(prompt).toMatch(/Name every error you are sure of in a sentence, not only the first one/);
+    expect(prompt).toMatch(/one swap for every wrong word/);
+    expect(prompt).toMatch(/change its ending, never the word/);
+    // The rule that a doubtful correction is worse than a missed one is not given up for completeness.
+    expect(prompt).toMatch(/If you are unsure whether something is an error, say the sentence is acceptable/);
+  });
+
+  it("hands over the forms of the words the learner wrote, one line a word, as the model's whole menu", () => {
+    const user = buildDescribeUserPrompt({
+      situation: "At the station", things: [], knownForms: [], level: "A2",
+      wordForms: [{ lemma: "vaatama", forms: ["vaatab", "vaatavad"] }, { lemma: "ei", forms: [] }],
+      sentences: [{ text: "Nad vaatab konsert hiljem.", unknown: ["konsert"] }],
+    });
+    expect(user).toMatch(/FORMS OF THE WORDS THEY WROTE/);
+    expect(user).toContain("  vaatama: vaatab, vaatavad");
+    expect(user).not.toMatch(/ ei:/);
+  });
+
+  it("keeps up to five swaps for one sentence", () => {
+    const fixes = ["a", "b", "c", "d", "e", "f"].map((w) => ({ wrong: w, right: `${w}x` }));
+    const graded = parsePictureGrade(JSON.stringify({
+      sentences: [{ verdict: "almost", comment: "c", rule: "r", fixes }], went_well: "w", work_on: "",
+    }), 1);
+    expect(graded?.fixes[0]).toHaveLength(5);
+  });
+
+  it("reads the swaps the model proposed, and tolerates a reply with none", () => {
+    const entry = (extra: object) => ({ verdict: "almost", comment: "c", rule: "r", ...extra });
+    const reply = JSON.stringify({
+      sentences: [entry({ fixes: [{ wrong: "sibuleid", right: "sibulaid" }, { wrong: 3 }] }), entry({})],
+      went_well: "w", work_on: "",
+    });
+    const graded = parsePictureGrade(reply, 2);
+    expect(graded?.fixes).toEqual([[{ wrong: "sibuleid", right: "sibulaid" }], []]);
   });
 });

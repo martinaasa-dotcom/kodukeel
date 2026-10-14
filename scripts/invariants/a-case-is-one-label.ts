@@ -38,7 +38,7 @@ const DRAWS_IT = [
   "app/(app)/dictionary/AddWord.tsx",
   "app/(app)/dictionary/DictionaryClient.tsx",
   "app/(app)/dictionary/Forms.tsx",
-  "app/(app)/grammar/page.tsx",
+  "app/(app)/grammar/cases/page.tsx",
   "app/(app)/grammar/build-a-word/BuildWalk.tsx",
   "app/(app)/learn/[unitId]/worksheet/page.tsx",
   "app/(app)/exam/[level]/ExamSession.tsx",

@@ -80,7 +80,7 @@ export default async function ExceptionsPage() {
         ) : (
           families.map((family) => (
             <section key={family}>
-              <SectionTitle hint={fill(t("at {level}"), { level })}>{t(FAMILY_TITLES[family])}</SectionTitle>
+              <SectionTitle hint={fill(t("words up to one level either side of {level}"), { level })}>{t(FAMILY_TITLES[family])}</SectionTitle>
               <ul className="grid gap-3 sm:grid-cols-2">
                 {live.filter((g) => g.family === family).map((group) => {
                   const note = KIND_NOTES[group.kind];
@@ -103,7 +103,7 @@ export default async function ExceptionsPage() {
                           <span className="text-md font-bold" style={{ color: "var(--ink)" }}>
                             {t(note.title)}
                           </span>
-                          <Chip tone="accent">{fill(t("{n} near you"), { n: group.entries.length })}</Chip>
+                          <Chip tone="accent">{fill(t("{n} words near {level}"), { n: group.entries.length, level })}</Chip>
                         </span>
                         <span className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                           {t(note.what)}

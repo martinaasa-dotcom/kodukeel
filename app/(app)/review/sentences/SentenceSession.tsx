@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
 import { shuffle } from "@/lib/random/shuffle";
 import { ArrowRight, Check, Eye, RotateCcw } from "lucide-react";
@@ -20,7 +21,8 @@ import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { hintLadder } from "@/lib/questions/hints";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { WordLink } from "@/components/course/WordLink";
 import { useLocale, useT } from "@/components/Locale";
@@ -255,7 +257,7 @@ export function SentenceSession(
 
   if (initialTasks.length === 0) {
     return (
-      <Page title={t("Sentences")} lead={t("Real Estonian sentences, jumbled up. Put them back in order.")}>
+      <Page title={t("Laused")} lead={t("Real Estonian sentences, jumbled up. Put them back in order.")}>
         {opensAt ? (
           <Empty
             title={fill(t("This one starts at {level}"), { level: opensAt })}
@@ -295,13 +297,12 @@ export function SentenceSession(
         <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/practice" size="lg">{t("Try something else")}</ButtonLink>
           <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
-          <ButtonLink href="/review/sentences" variant="primary" size="lg">{t("Another round")}</ButtonLink>
+          <AnotherRound variant="primary" size="lg">{t("Another round")}</AnotherRound>
         </WayOut>
       </div>
     );
   }
 
-  const progress = (index / tasks.length) * 100;
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
@@ -314,27 +315,8 @@ export function SentenceSession(
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">{t("Sentences")}</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession />
-        <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="grad-accent h-full rounded-full transition-[width] duration-500"
-            style={{ width: `${Math.max(progress, 2)}%` }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={tasks.length}
-            aria-label={fill(t("Sentence {n} of {total}"), { n: index + 1, total: tasks.length })}
-          />
-        </div>
-        <span
-          className="tnum label-xs rounded-full px-2.5 py-1"
-          style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-        >
-          {fill(t("{n} left"), { n: tasks.length - index })}
-        </span>
-      </div>
+      <h1 className="sr-only">{t("Laused")}</h1>
+      <RoundProgress done={index} total={tasks.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div

@@ -471,6 +471,33 @@ describe("what a day reads and where it goes", () => {
   });
 
   /*
+    THE EVENING AN ENDING IS READ, A PAGE OF IT. The workbook is a course
+    book's exercise on one subject, and on a case evening that subject is the
+    case just read; the writing round is the harder ask and takes the evenings
+    after. So a case evening deals the workbook wherever the words can carry
+    it and the evening before did not already, and it is dealt at every level
+    it is on.
+  */
+  it("deals the workbook on the evening a case is read, unless last night had it", () => {
+    let walked = 0;
+    for (const programme of PROGRAMMES) {
+      programme.days.forEach((day, at) => {
+        if (!day.grammarCase) return;
+        const taught = taughtBy(programme, day.index);
+        if (!supportedRounds(programme.level, taught).includes("workbook")) return;
+        const before = at > 0 ? programme.days[at - 1]!.practice : [];
+        if (before.includes("workbook")) return;
+        walked += 1;
+        expect(day.practice, `${day.id} reads ${day.grammarCase}`).toContain("workbook");
+      });
+    }
+    expect(walked).toBeGreaterThan(10);
+    for (const level of ["A2", "B1", "B2", "C1"]) {
+      expect(DAYS.some(({ programme, day }) => programme.level === level && day.practice.includes("workbook")), level).toBe(true);
+    }
+  });
+
+  /*
     A PAGE IS READ ONCE A LEVEL, AND A SECOND LOOK SAYS SO. A1 read the
     present tense four times as today's reading; across levels a page may
     come back, and its step says it is a second look.
@@ -705,7 +732,7 @@ describe("what a day reads and where it goes", () => {
         const scope = moduleScopeFrom({ module: `${programme.id}~${d.id}~do:review~3~5~0` })!;
         const card = {
           cardType: "CONJUGATION", targetCase: null, slot: null,
-          front: "juhtuma \u2192 lihtminevik, ma", lexeme: { lemma: "juhtuma" },
+          front: "juhtuma \u2192 lihtminevik, ma", back: "juhtusin", lexeme: { lemma: "juhtuma" },
         };
         expect(cardWithin(scope, card, null), d.id).toBe(scope.formsShown.includes("juhtuma"));
       }
@@ -946,7 +973,7 @@ describe("what a day reads and where it goes", () => {
     const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
     const first = a2.days[0]!;
     const scope = moduleScopeFrom({ module: `${a2.id}~${first.id}~do:review~3~5~0` })!;
-    const past = { cardType: "CONJUGATION", targetCase: null, front: "Ta ____ eile.", slot: "IndIpfSg3" };
+    const past = { cardType: "CONJUGATION", targetCase: null, front: "Ta ____ eile.", back: "luges", slot: "IndIpfSg3" };
     const present = { ...past, slot: "IndPrSg3" };
     const spellings = new Set(["ta", "eile"]);
     expect(cardWithin(scope, past, spellings)).toBe(false);
@@ -965,7 +992,7 @@ describe("what a day reads and where it goes", () => {
   it("reads the part off the front of a verb card built before Card.slot", () => {
     const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
     const scope = moduleScopeFrom({ module: `${a2.id}~${a2.days[0]!.id}~do:review~3~5~0` })!;
-    const old = { cardType: "CONJUGATION", targetCase: null, slot: null };
+    const old = { cardType: "CONJUGATION", targetCase: null, slot: null, back: "" };
     expect(cardWithin(scope, { ...old, front: "lugema \u2192 lihtminevik, ma" }, null)).toBe(false);
     expect(cardWithin(scope, { ...old, front: "lugema \u2192 olevik, ta" }, null)).toBe(true);
   });

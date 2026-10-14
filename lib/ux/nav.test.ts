@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { BAR, CORE, DESTINATIONS, isUnder, LISTED, litRow, PLACES, SECTIONS } from "./nav";
-import { GAMES, PRACTICE_MODES, QUICK_MODES, TARGETED_MODES } from "./modes";
+import { GAMES, PRACTICE_MODES, QUICK_MODES, SHELVES, TARGETED_MODES, shelfItems } from "./modes";
 import { SYLLABUS } from "../collections/syllabus/index";
 import { ICONS } from "../../components/icons";
 
@@ -78,11 +78,12 @@ describe("the navigation table", () => {
     for (const section of SECTIONS) expect(section.items.length, section.id).toBeGreaterThan(0);
   });
 
-  it("keeps the rail to five places", () => {
-    // Five because a rail is read at a glance; everything else lives inside
-    // one of them. A sixth place is a decision about everybody's column, and
-    // a pin is how one learner makes it about theirs (lib/ux/navOrder.ts).
-    expect(CORE.map((d) => d.href)).toEqual(["/", "/learn", "/practice", "/dictionary", "/progress"]);
+  it("keeps the rail to six places", () => {
+    // Six because a rail is read at a glance; everything else lives inside
+    // one of them. Grammar was the sixth, put in front of the dictionary when
+    // a learner could not find it. A seventh is a decision about everybody's
+    // column, and a pin is how one learner makes it about theirs (lib/ux/navOrder.ts).
+    expect(CORE.map((d) => d.href)).toEqual(["/", "/learn", "/practice", "/grammar", "/dictionary", "/progress"]);
   });
 
   it("keeps the app's own settings out of the places a learner navigates by", () => {
@@ -205,7 +206,7 @@ describe("the navigation table", () => {
 
 describe("litRow", () => {
   it("lights the home of a page that lives inside a place", () => {
-    expect(litRow(CORE, "/grammar/exceptions")).toBe("/dictionary");
+    expect(litRow(CORE, "/grammar/exceptions")).toBe("/grammar");
     expect(litRow(CORE, "/review/sprint")).toBe("/practice");
     expect(litRow(CORE, "/words/mastery")).toBe("/progress");
     // The evening's list lights the row its steps light, so pressing a step
@@ -216,8 +217,8 @@ describe("litRow", () => {
   });
 
   it("lights a pinned row over its home", () => {
-    const rows = [...CORE, DESTINATIONS.find((d) => d.href === "/grammar")!];
-    expect(litRow(rows, "/grammar")).toBe("/grammar");
+    const rows = [...CORE, DESTINATIONS.find((d) => d.href === "/calendar")!];
+    expect(litRow(rows, "/calendar")).toBe("/calendar");
     expect(litRow(rows, "/dictionary/common")).toBe("/dictionary");
   });
 
@@ -343,7 +344,7 @@ describe("the practice modes", () => {
       */
       const sources = files.map((f) => code(readFileSync(f, "utf8")));
       const groups: Record<string, readonly { href: string }[]> =
-        { GAMES, QUICK_MODES, TARGETED_MODES, PRACTICE_MODES };
+        { GAMES, QUICK_MODES, TARGETED_MODES, PRACTICE_MODES, SHELVES: SHELVES.flatMap((s) => shelfItems(s)) };
       const linked = sources.some((source) =>
         source.includes(mode.href)
         || Object.entries(groups).some(([name, list]) =>
@@ -351,6 +352,17 @@ describe("the practice modes", () => {
 
       expect(linked, `${mode.href} is reached from ${mode.within} and nothing there links to it`)
         .toBe(true);
+    }
+  });
+
+  it("puts every round on exactly one shelf", () => {
+    const placed = SHELVES.flatMap((s) => s.hrefs);
+    const expected = [...QUICK_MODES, ...GAMES].map((m) => m.href).concat("/situations");
+    expect([...placed].sort()).toEqual([...expected].sort());
+    expect(new Set(placed).size).toBe(placed.length);
+    for (const shelf of SHELVES) {
+      expect(shelfItems(shelf), `${shelf.id} names a round nothing knows`)
+        .toHaveLength(shelf.hrefs.filter((h) => h !== "/situations").length);
     }
   });
 

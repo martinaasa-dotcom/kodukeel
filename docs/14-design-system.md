@@ -30,7 +30,7 @@ never a second and third hue drifting in the background.
 | (accent) | `--easy` | easy, which only the confetti still draws |
 
 **Vikerkaar öös is the brand mix, and there is no other colour.** The mix is butter, blush, the
-accent violet, sky and the night navy (`--stage`). Right and wrong wear it too: a recalled answer
+accent violet, sky and the night (`--stage`, Slate since 2026-10-14). Right and wrong wear it too: a recalled answer
 is sky and a missed one is blush, each as its tint under its ink, with a tick or a cross and the
 verdict in words beside it, so the colour is never the only thing saying which. They were mint and
 peach, a green and a red belonging to no mix, and the answer a learner sees most often was the one
@@ -75,10 +75,10 @@ ink: the same colour walked down until it clears 4.5:1 on its own tint.
 contrast pass found the hole: the tick inside a reviewed day on Today's week
 strip was `--surface`, white on the solid fill at 2.52:1 when that fill was
 mint. The tint's ink is no use on the solid fill, so `--on-sky` is the one for
-that (it was `--on-mint`), and it is a single value in both themes because both
-skies are light enough for it: about 7.8:1 on `#17bfd9` and 13:1 on the dark
-theme's `#4fe3f5`. It is written out rather than `var(--ink)`, which inverts
-with the theme and would take the tick with it.
+that (it was `--on-mint`), and it is a dark ink in both themes because both
+skies are light enough for it: about 7.8:1 on `#17bfd9`, and the dark theme
+swaps in the Slate night at 11.4:1 on its `#6ad6ec`. It is written out rather
+than `var(--ink)`, which inverts with the theme and would take the tick with it.
 
 The accent is the trap: `--accent-ink` was already the white that sits on the
 solid button, so the accent's *tint* ink is `--accent-deep`. Anything building a
@@ -162,7 +162,7 @@ scale: nobody can tell from a hue which of two colours means "more".
 | A bar, a ring, a meter | `--accent` over the track, one colour at every value |
 | Categories in order (the rungs, a heatmap) | `--scale-1` to `--scale-4` over `--scale-track` |
 | A count or a percentage in type | `--ink`, or `--accent-deep` for the one headline figure |
-| A reading on the night panel | `--cta`, since the accent is too dim on the navy |
+| A reading on the night panel | `--cta`, the one hue that reads loudest on the night |
 
 The steps are declared once in `app/globals.css`, mixed from the accent and the surface, so each
 theme draws its own. Two things may still take a verdict hue beside a figure: a warning, one hue
@@ -202,6 +202,58 @@ read. It used to be, and it meant the landing page opened dark for about half it
 while being designed and measured in the light; a theme is either the default or the one
 somebody picked, and `scripts/test-invariants.ts` fails on a `prefers-color-scheme` palette
 coming back.
+
+### The dark theme is Slate
+
+Grey with the faintest lean toward the brand violet, chosen on 2026-10-14 from five measured
+candidates and replacing a navy that measured an OKLCH chroma of 0.061 on the card and 0.079 on a
+raised panel, about fifteen times Apple's own dark greys. Every layer was blue-violet and the bright
+hues on top read as a glow; the contrast was never the problem, since body text already cleared
+16:1. What the dark theme is held to now, and how each figure was measured:
+
+| Rule | Figure |
+|---|---|
+| The greys are grey: OKLCH chroma 0.02 or less on page, card and raised | 0.011 / 0.017 / 0.020, hue 269 |
+| Depth is lightness, never a glow: each layer step 0.035 to 0.10 in OKLCH L | +0.046 / +0.047 |
+| Real text is readable: axe colour-contrast over 30 screens, about 2,400 text nodes | zero failures, weakest 5% at 7.0:1 |
+| Every designed pairing at 4.5:1, every ink on every tint | worst 5.1:1 (`--ink-3` on `--accent-soft`) |
+| Meaningful fills at 3:1 on the card (SC 1.4.11) | weakest 7.0:1 |
+
+| Token | Value | Why |
+|---|---|---|
+| `--ground` | `var(--stage)`, `#0c0e13` | the night is typed once; the dark page *is* the night |
+| `--surface` | `#151820` | one step up |
+| `--raised` | `#1f232d` | one step up again |
+| `--ink` / `--ink-2` / `--ink-3` | `#eeeff3` / `#c3c5d1` / `#a5a8b8` | off-white, never `#fff`, which halates on a dark ground |
+| `--accent` / `--accent-ink` / `--accent-deep` | `#a594ff` / `#15102f` / `#c4baff` | tonal: a light violet with a dark label |
+| `--butter` / `--sky` / `--blush` | `#ffc400` / `#6ad6ec` / `#ff7aa8` | the one yellow in both themes; sky and pink calmer than full sRGB, so they don't vibrate on the dark |
+| tints | 22% accent, 15% butter and sky, 14% blush, mixed into the card | a chip always belongs to the surface it sits on |
+
+**The accent is tonal on purpose.** A white label on a violet dark enough to carry it is how a
+system button is usually drawn, and it cannot work here: the hero cards put the dark ink on the same
+fill, so the violet would have to be darker than relative luminance 0.18 for white and lighter than
+0.21 for the dark ink. No violet is both, and the first two drafts that tried failed 39 text nodes
+each.
+
+**There is one night.** `--stage` is the Slate night in both themes: the landing band, a `.night`
+panel lent to a light page, and the dark theme's own page ground all read it, so a dark panel on a
+light page is the same object as the dark theme. The navy taken down to the same chroma lands 0.007
+OKLab from Slate, under the smallest difference anybody can see, which is why this is the brand's
+night with the colour taken out of the greys rather than a different night.
+
+**Colour in the dark is a hint, and only where the screen is for it.** The washes behind the page are
+the ground. The one hero per screen carries a single faint lamp in the accent from its top corner;
+the situations stage and the conversation room keep their three lamps (blush, sky, gold) at a
+fraction of their light-theme strength, and the stage's drift slowly, which the room's do not,
+since a line is being read there. A situation tile in the dark is the card with its kind's colour
+falling faintly from the top edge and on its border, because a hue mixed into grey is mud: gold goes
+olive and pink goes maroon. The pointer brings the light up a little (`--tile-lit`, a registered
+property so it tweens). Measured at full strength first and reported as aggressive, which is the
+reading to trust: on a dark ground a glow at the light theme's strength reads as a smear. The
+landing page's night band keeps its lamps in both themes, because it is a place drawn the same in
+either, not a surface of the dark theme. The letter palette's dark values in
+`lib/email/palette.ts` are Slate too, and `palette.test.ts` follows `--ground: var(--stage)` to the
+hex it resolves to.
 
 Shape: `--r-sm` 10px, `--r` 16px, `--r-lg` 22px, `--r-xl` 30px. Buttons, chips and pills are
 fully round. Tailwind's own radius names are remapped onto those four in `@theme`, so a stray
@@ -455,6 +507,21 @@ Small, physical, and never blocking:
   under the global rule, and `scripts/invariants/the-small-delights-stand-still-when-asked.ts`
   holds the list.
 
+- Play that answers a pointer, which is the other half of "alive": none of it on a loop, all of it
+  a reply to something the reader is already doing. A card you could press carries `.glow`, and a
+  soft light follows the pointer across it (`components/motion/PointerLight.tsx`, one listener for
+  the whole shell writing `--gx` and `--gy`, mouse and pen only, since a finger has no position
+  between taps). It is the accent at a whisper in the light theme, plain white at five percent in
+  the dark, and a situation tile's own hue on the board, so a pointer crossing it warms each kind in
+  its colour. An arrow at the end of a link leans three pixels the way it goes, on a spring that
+  overshoots a pixel. An icon marked `data-pop` looks up when its row is pointed at, a tenth larger
+  and a few degrees of tilt. And an option picked in `components/Choice.tsx` springs, down a touch
+  and over a touch, through the Web Animations API so it plays on the press and never on a chip
+  that was already chosen when the page loaded, with the card's tick landing rather than
+  appearing. All of it is `translate`, `scale`, `rotate` or opacity, so the box a finger aims at
+  never moves, and `scripts/invariants/a-pointers-play-stands-still-when-asked.ts` holds each to
+  standing still under reduced motion.
+
 `prefers-reduced-motion: reduce` flattens all of it, and switches `.reveal` off outright, because a
 scroll-driven animation has no duration to shorten, so it needs removing rather than shrinking.
 
@@ -541,6 +608,42 @@ throws a handful of pixels at the end of a round. Each is started by
 `components/motion/PlayOnce.tsx` and cleared by its own end, never by the pointer, so none of them
 is cut off mid-move, and each animates `scale`, `translate` or `rotate` rather than `transform` so
 it composes with what the element is already doing.
+
+**A page leads with one hero, and only Today's is lit.** `components/HeroFan.tsx` is the leading
+card of Today, Learn, Practice, Progress, My words, In real life and the course: words on the left,
+a fan of cards on the right. Every one of those pages used to draw its own night card, and the
+reported fault was never one of them: it was that no two were balanced the same way. A headline
+ended on one stranded word, text ran up against a tile, the left edge sat somewhere different on
+every page and the middle of half of them was empty. So the balance is in the component and in
+`app/hero-fan.css` rather than in each page. The inset is the same on every card. The text block is
+exactly as wide as its widest drawn line, so the gap to the cards is measured from letters rather
+than from an empty box. The cards' column is never narrower than the fan at its tightest, so the
+gap matches the margin on the right. A headline too long for the column the cards leave runs
+across the top, with the line under it and the button beside the cards. Every line is balanced.
+
+**On a phone the cards are a hand, and that is the shape the rest is built from.** The first
+version folded the desktop fan up: on a narrow desktop it stacked under the words and centred, half
+the card empty above it, and on a phone it dealt the same cards into a two-column grid of big tiles
+that took a whole screen to say five words. Both were reported as awful and both were. A phone is
+held in one hand and read in a glance, so the cards are a small hand of them under the words,
+fanned and overlapping the way cards are held, the next step lifted out of it and named in one line
+underneath, and the button last and the full width of the card where a thumb is. A card that is a
+figure keeps its figure and its word, one card each across the row. Where the words and the hand
+both fit, the hand goes beside them; the fan is the same hand laid down once there is a table's
+worth of room, decided by the card's own width rather than the window's.
+
+Today's fan wears the brand mix because the module is the one thing the app asks somebody to do;
+every other page draws the same fan in the night's greys, which is what lets Today stand out
+without anything shouting. The motion is fine rather than loud: the cards are dealt in, the words
+rise a beat behind them, figures count up once, a finished step's tick stamps in, the fan opens
+under a pointer and the card under it comes up, and the card that is next breathes a few pixels
+over five seconds. **A card is two boxes**, where it sits and what is drawn, and only the drawing
+moves: one box doing both lifted itself out from under the cursor, lost the hover, dropped back and
+lifted again, which was reported as twitching like crazy and measured at 791 of 936 still pointer
+positions. Hover belongs to a pointer that can hover, so a tap never leaves a card stuck half lifted
+with a band of light frozen across it. All of it stops for anybody who has asked for
+less movement. `scripts/invariants/a-page-leads-with-one-hero.ts` holds the pages to the component
+and the bright fan to Today.
 
 ## 6. Routing and the landing page
 

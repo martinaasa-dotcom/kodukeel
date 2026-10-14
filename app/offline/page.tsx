@@ -34,10 +34,13 @@ export default async function OfflinePage({ searchParams }: { searchParams: Publ
       <p className="text-base" style={{ color: "var(--ink-2)" }}>
         {t("You’re offline right now. Pages you’ve already opened still work, and so does your review. Every answer you give is kept on this device and sent as soon as you’re back online.")}
       </p>
+      {/* A plain anchor, since this page is served from the cache and may not
+          have the router's script, but drawn as the app's primary button: it
+          was a violet pill, the one primary in the app that was not gold. */}
       <a
         href="/review"
-        className="grad-accent press mt-2 rounded-full px-6 py-3 text-base font-semibold"
-        style={{ color: "var(--accent-ink)", boxShadow: "var(--shadow-accent)" }}
+        className="btn press key key-cta btn-cta mt-2 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--r)] border px-5 py-3.5 text-sm font-semibold"
+        style={{ color: "var(--cta-ink)", borderColor: "var(--edge)" }}
       >
         {t("Review your words instead")}
       </a>

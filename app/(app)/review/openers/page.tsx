@@ -21,11 +21,14 @@ export const dynamic = "force-dynamic";
 /**
  * The openers: how the first words of a sentence decide the form of its last.
  *
- * WHICH LEVEL SEES WHAT. A2 picks between two forms and meets the first two
- * stages, which is enough to feel the idea. From B1 the same stages are typed
- * and the four after them open. Below A2 there is nothing yet, because the
- * openers are first-month phrases and the round assumes the plain and the
- * "some of it" forms of a noun have been met.
+ * WHICH LEVEL SEES WHAT. A2 meets the first two stages, which is enough to feel
+ * the idea; from B1 the four after them open. Below A2 there is nothing yet,
+ * because the openers are first-month phrases and the round assumes the plain
+ * and the "some of it" forms of a noun have been met.
+ *
+ * PICK, THEN TYPE. Every level picks between two forms first, and a stage the
+ * learner has settled is typed instead. Recognising the ending is the easier
+ * memory and producing it is the one that sticks, so one follows the other.
  *
  * WHICH STAGE. The highest one the learner's own answers have opened
  * (`readOpeners`), or any open one they ask for with `?stage=`, never one
@@ -42,7 +45,6 @@ export default async function OpenersPage({
   const t = (english: string) => tr(locale, english);
   const params = firstParams(await searchParams);
 
-  const typed = level !== "A2";
   const maxStage = level === "A1" ? 0 : level === "A2" ? 2 : MIXED_STAGE;
 
   if (maxStage === 0) {
@@ -63,6 +65,14 @@ export default async function OpenersPage({
     ? asked
     : reading.current;
 
+  /*
+    Pick first, type once it is settled, at every level. A stage the learner's
+    own answers have settled (`readOpeners`) is typed; one they are still
+    learning is picked from two. If typing slips, the stage stops reading as
+    settled and the next round picks again, which is the same rule run backwards.
+  */
+  const typed = reading.stages.find((s) => s.n === stage)?.settled === true;
+
   const questions = buildRound(stage, words, shuffle);
   if (questions.length === 0) {
     return (
@@ -82,6 +92,7 @@ export default async function OpenersPage({
   return (
     <BeforeYouStart id="openers" count={{ n: questions.length, noun: "sentence" }}>
       <OpenersSession
+        key={`${stage}:${params.round ?? ""}`}
         questions={questions.map((q) => ({ ...q, starred: starred.has(q.lexemeId) }))}
         mode={typed ? "type" : "pick"}
         stage={{ n: stage, title: stageSpec?.title ?? "", line: stageSpec?.line ?? "" }}

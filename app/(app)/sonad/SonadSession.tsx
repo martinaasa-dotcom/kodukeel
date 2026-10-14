@@ -235,9 +235,10 @@ export function SonadSession({ puzzle, day, guessable }: {
       the board is the thing that gives.
     */
     <div className="sonad-board flex flex-col items-center gap-3">
-      {/* What is known from the first row, in one centred line. No card round
-          any of it: the board and the keys are the screen. */}
-      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+      {/* What is known from the first row, in one line that starts where the
+          title and the lead start. No card round any of it: the board and the
+          keys are the screen. */}
+      <div className="flex w-full flex-wrap items-center justify-start gap-x-3 gap-y-1">
         <div className="flex flex-wrap items-center gap-2">
           {/*
             What is known from the first row: what kind of word and how hard it
@@ -246,9 +247,6 @@ export function SonadSession({ puzzle, day, guessable }: {
           */}
           <Chip tone="neutral">{t(puzzle.pos.toLowerCase())}</Chip>
           {puzzle.cefr && <Chip tone="neutral">{puzzle.cefr}</Chip>}
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            {fill(t("{letters} letters, {n} left"), { letters: SONAD_LENGTH, n: SONAD_GUESSES - guesses.length })}
-          </span>
         </div>
 
         {/*
@@ -264,7 +262,7 @@ export function SonadSession({ puzzle, day, guessable }: {
           it lands under a board a screen reader has already been read.
         */}
         {!over && (clue.category || clue.vowels || coming) && (
-          <p className="sonad-hint mt-1.5 text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
+          <p className="sonad-hint text-sm" role="status" aria-live="polite" style={{ color: "var(--ink-2)" }}>
             {clue.category && puzzle.category && (
               <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>
                 {fill(t("It's {category}."), { category: t(puzzle.category, "clue") })}
@@ -442,13 +440,22 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
         `flex-1 basis-0 min-w-0` rather than a fixed width: at 360px twelve
         keys and their gaps come to about 25px each, which is what every phone
         keyboard is, and the height stays 44 so a thumb has the target the
-        floor asks for on the axis a thumb actually misses.
+        floor asks for on the axis a thumb actually misses. Delete and Guess
+        take one and a half keys each, so the bottom row adds up to the
+        twelve of the top one and its letters are the same width: at two and
+        two and a half they squeezed the nine letters between them to about
+        twenty pixels, narrower than any other key on the board. The padding
+        is `!px-0`, because the button's own size class carries `px-4` and
+        wins over a plain `px-0` in the stylesheet's order: that padding was
+        most of how wide those two keys were. Both keep `min-w-11`, the 44px
+        floor a control without a letter on it has to clear: at 360px one and
+        a half keys is about forty.
       */}
       <div className="flex flex-col gap-1">
         {SONAD_KEY_ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1 sm:gap-1.5">
             {i === SONAD_KEY_ROWS.length - 1 && (
-              <Button type="button" variant="secondary" onClick={onDelete} aria-label={t("Delete", "key")} className="h-12 min-w-0 flex-[2] basis-0 px-0">
+              <Button type="button" variant="secondary" onClick={onDelete} aria-label={t("Delete", "key")} className="h-12 min-w-11 flex-[1.5] basis-0 !px-0">
                 <Delete size={18} aria-hidden />
               </Button>
             )}
@@ -476,7 +483,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
               );
             })}
             {i === SONAD_KEY_ROWS.length - 1 && (
-              <Button type="button" variant="primary" onClick={onSubmit} className="h-12 min-w-0 flex-[2.4] basis-0 px-1 text-xs sm:text-sm">
+              <Button type="button" variant="primary" onClick={onSubmit} className="h-12 min-w-11 flex-[1.5] basis-0 !px-1 text-xs sm:text-sm">
                 {/* The icon on a phone, where the key is a thumb wide; the word
                     from `sm`, where it fits in every language the app is read
                     in ("Перевірити" is the long one). */}

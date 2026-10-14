@@ -3107,3 +3107,350 @@ answers to read a stage from. It is a decision for the operator to overrule.
 **What is written by hand.** The opener phrases and the English lines are authored and read in the
 pull request by the native Estonian speaker who develops this app, which is the standing the scene
 bank has (ADR-005 amendment 4). No form is written: every ending comes off the dictionary.
+
+## 53. The forty-seventh pass: Map, an ending shown rather than named
+
+A new round in Practice for the endings, built because the last one that asked for them
+was a quiz and a quiz asks a learner to recall a label. `/review/map` shows a small
+picture of a book moving, resting, becoming or going without, under a word, and offers
+three forms of that word. Only the ending tells them apart, and the picture is what the
+ending means. Untimed, because a clock turns it back into a reflex and Target already is
+one.
+
+**Eleven cases, not fourteen.** The eleven that are an ending on the genitive stem each
+have a picture that is true: in, out of and into, on, off and onto, with, becoming, up
+to, as and without. The three stored forms stay out: `lib/estonian/caseReading.ts` says
+English marks none of what the partitive does, so a picture saying "some of it" would
+contradict the paragraph printed under it. They come back when there is something true
+to draw.
+
+**Eight drawings and none per word.** A scene is chosen by the case and by whether the
+word is a person, never by the word, so a house is a house whichever noun is in it.
+Which trio of local cases a word takes is still `lib/estonian/caseQuestion.ts`'s to
+decide, so Map cannot ask `õpetajas` or `Venemaas`.
+
+**A sentence is required, which was the operator's call.** A question exists only where
+a lexicographer's sentence holds the asked form and `readCase` reads that spelling as
+exactly one case, the same test the deck builder applies. It is printed after the answer
+with the form marked, beside the endings as a set. The wrong answers need no sentence:
+they are other forms of the same word and nothing here teaches them.
+
+**What that cost, measured before building.** Of 4,520 nouns, 1,759 can be asked about at
+least one case, 2,599 questions over the eight cases the deck builds. Thin: `-lt` has 76
+words, `-sse` 141, and `-ni`, `-ta` and `-na` are at least 30, 32 and 73 (the deck never
+builds a card for those three, so the figure is a floor). Only 40 words have all three
+moves of a local set in a recorded sentence, which does not matter here because only the
+answer needs one. The round deals the cases in turn so a rare one is not drowned by `-ga`.
+
+**Deck first, the dictionary behind it.** The learner's own nouns lead, since those are the
+only ones that can be graded; a short round is topped up from the dictionary at their
+level, and a word with no card writes nothing. Following the course, both are held to what
+the evenings have taught, case by case. Not on the module rotation: it is a game in
+Practice.
+
+**Three rungs, read off the log.** A word is first met as the picture, then asked by the
+question a class uses (`millesse?`) with the picture gone, then typed from an empty box and
+marked by the flash round's own `markForm`, which names the ending a wrong answer was. Which
+rung a word is on in a case is `rungFrom` in `lib/games/map.ts` over the learner's own answers
+in that case, newest six, oldest first: a Good answer climbs one, anything else steps down one,
+never below the picture. Nothing is stored (ADR-014), answers from every mode count because a
+case typed right on a card is the same fact, and a hint-capped answer is Hard, so needing help
+is not yet knowing. The picture returns after the answer on the two harder rungs, which is
+where it teaches. A word with no card has no log and is on the picture.
+
+**Left for later.** The three stored forms. `audit:questions` asks every Map question the
+shipped dictionary can build whether the answer is on the screen.
+
+## 54. The forty-eighth pass: Map is drawn in emoji, and the word is in the picture
+
+The drawings were a book moving towards a box whatever the word was, so `abi`, help, was
+asked "what is it with?" over a book joined to an empty square. The operator called them
+horrible and said they added nothing, and that was right: a picture that is not of the word
+teaches nothing about the word. A scene is now the word's own emoji off
+`lib/collections/emoji.ts`, one companion, and an arrow emoji for a direction: somebody
+walking, an arrow and a house for into the house; the bus, an arrow and somebody walking
+for out of it; a ball sitting on a chair; a present, an arrow and a girl for to the girl;
+somebody walking, a plus and a dog for with the dog. The word's own emoji sits on the accent tint so it
+is clear which picture the forms are about. Five examples were shown as a mockup, taken off
+the running app, before anything was built.
+
+**A person is "they".** Where the companion is a human emoji the question says "they"
+("Where are they going?", "Who are they with?"), and where it is a present or a box it says
+"it". The operator's rule, and `map.test.ts` holds every scene to it.
+
+**Ten cases, chosen with the operator.** `-ks` is a sparkle and an arrow into the word, "What
+is it turning into?", which the operator asked for by name. `-ni` is a time, an arrow, the
+number and its clock face, "Until when?", so it is asked of the hour words alone. `-na` is out of the game, not even offered as a wrong answer,
+because no emoji makes "as" true of an arbitrary word.
+
+**What goes into a word depends on what the word is.** Somebody walks into a place, or into
+something a person gets into, which is read off the emoji since the dictionary files a bus and
+a notebook under one code; a coin goes into a container; a ball goes on and off any thing. A
+word that is none of those is not asked "in", "into" or "out of", because the first build drew
+a person walking into a notebook and into an ear.
+
+**What it costs.** A word with no emoji is not asked, so the round reads only pictured words,
+and the sentence rule still holds. `audit:questions` now builds 160 Map questions over the
+shipped dictionary, down from 1,849. `-ks` has two questions and `-ni` one, because a recorded
+sentence holding an hour in `-ni` is rare, and only one to ten are drawn, since eleven and
+twelve have no keycap of their own. More pictured words, or a contributed sentence, are what
+move those numbers.
+
+## 55. The forty-ninth pass: Kaksikud, words that look alike
+
+A learner reported it from their own study: `ostma` is to buy and `otsima` is to look for,
+`kuulma` is to hear and `kuulama` is to listen, `algama`, `alustama` and `hakkama` are all
+"to begin", and nothing in the app ever put the two side by side. So there is a round,
+`/review/twins`, and a reference page, `/grammar/twins`, linked from the foot of `/grammar`.
+
+**Three kinds of look-alike, because each needs a different kind of help.** The table is
+`lib/collections/twins.ts`. A pair a rule built (`kasvama` and `kasvatama`, `muutma` and
+`muutuma`, `kuulma` and `kuulama`) is taught by its rule, and once the rule is learned every
+pair after it is half known; the pairs whose meaning has drifted from the rule (`soovima` and
+`soovitama`, `keelama` and `keelduma`) say so, because there the rule misleads. One English
+word that Estonian splits in two or three (`teadma` and `tundma`, `minema` and `käima`, the
+four ways to say "can") is told apart by what comes after the verb. And a coincidence
+(`ostma` and `otsima`, `õpetama` and `lõpetama`, `kala` and `kana`) is learned side by side,
+with the letters that differ marked. 71 groups, 150 lemmas, every one a request the shipped
+dictionary answers under its part of speech, asserted. The table holds English and lemmas and
+no Estonian forms. The English was written by the developer's best judgement and is for a
+native speaker to read.
+
+**The sentence decides, and its English is what makes that fair.** A question is a recorded
+sentence with one word of the group taken out, every word of the group offered in the form
+the gap needs, and the sentence's shipped English above it. The English is necessary because
+a look-alike often fits a sentence grammatically and means something else. The other words
+are put into the gap's slot off the dictionary's own forms (`slotIndex`, `sameSlot` in
+`lib/progress/twinQuestions.ts`), and a word that cannot be put there drops the sentence
+rather than being guessed. What may be hidden is `gapForms`'s answer, like every other gap.
+Measured over the shipped dictionary with no borrowed sentences: all 71 groups get at least
+one question, `Kontsert ____ kell 18.` over "The concert starts at 6 p.m." among them.
+
+**Some words can stand in for each other, and those are accepted.** That is the operator's
+call: `hakkama` picked for `algama` is graded Hard and the screen says the writer used the
+other one, which is the review card's own rule about a second right word. An overlap applies
+only where the sentence's English uses the shared meaning (`Overlap.when`): `jõudma` and
+`saabuma` are both "to arrive", and only the first is "to afford".
+
+**Guess the other half.** For a pair a rule built and the meaning kept, and that shares a root,
+the round shows one word and its meaning and asks what the other means. It is reasoned, not
+recalled, so it grades nothing.
+
+**Grading.** A sentence question grades the answer's production card, or its recognition card
+where there is no production card, through `gradeCard` (ADR-016). A word with no card writes
+nothing. A group named in the address (`?group=`) is the whole round, which is what the
+reference page and the review card link to.
+
+**The review card names a mix-up.** A production card answered with a twin of its own word
+says which word that was and what it means, and links to the pair's drill outside the module.
+It is a miss even where the marker would have read a slip: `valutama` for `valetama` is one
+letter on an eight-letter word and `koht` for `kõht` is a dropped diacritic, and both are a
+different word that would otherwise have been graded as a recall.
+
+**A round leads with the pairs this learner loses.** Groups holding a word of their deck come
+first, and among those the groups whose words have the most lapses, which is the nearest thing
+the log already holds to "these are the two I mix up". Nothing new is stored for it.
+
+**`npm run audit:questions` asks it too**, 2,351 questions over the shipped dictionary, and its
+first run found a real fault: `halb` and `hall` built a question out of a sentence about Jerry
+Hall, where the English printed the answer. A capital away from the start of a sentence is a
+name and is never gapped now, and a sentence whose English carries the answer is never used.
+
+**Left for later.** Recording the mix-up itself (which twin was picked for which word), so the
+round can lead with exact pairs rather than with lapses. A native speaker's read of the table.
+
+## 56. The fiftieth pass: every screen photographed, and what that found
+
+Every route the app has was taken at 390 and 1280 pixels with two months of history in the
+deck, every practice round was opened past its briefing, and each picture was read. Most of
+what turned up is small, and all of it is the kind a learner notices before a test does.
+
+**Two screens disagreed about how big the course is.** Learn said 1,661 words and Progress
+said 1,731, because Progress added up each unit's total and a grammar unit drills words an
+earlier unit introduced, which Learn had stopped counting twice long ago. `courseWordCount`
+in `lib/progress/summary.ts` is the one count and both pages read it.
+
+**A sentence handed to a flex box as loose pieces came apart at its punctuation.** The
+dictionary's "Näited, in a sentence" read "Näited , in a sentence", the goal chips in Settings
+read "A1 , Get by", and every `Explain` whose text held a link put the link on a line of its
+own with its full stop opening the next, because that body was a flex column. The body is
+block flow with space between blocks now, the other two are one string, and
+`scripts/test-containment.mjs` asks every route whether any flex or grid box has a text item
+opening on punctuation after an item of its own, which nothing else there could see.
+
+**The top of a round is one component.** Fourteen sessions wrote the way out, the bar and the
+count by hand in three looks: a four-pixel hairline with grey text, a ten-pixel bar with the
+count on a tint, and the daily path's own. `components/round/RoundProgress.tsx` is the daily
+path's look for all of them. Review and Learn keep their own bar, and 20 küsimust keeps its
+count, which turns red near the end, and drops the "0 of 20" chip that said the same thing.
+
+**A phone is not told about keys.** "Press 1 to 4 to answer", "or press Space" and the space
+key cap beside a speaker were drawn under a thumb. `.keys-hint` hides a line that is only
+about the keyboard where the only pointer is a finger, the way a key cap inside a button
+already was. The minimal-pairs line that put a speaker icon in the middle of a sentence about
+keys is a "Slow" pill and a keys-only line.
+
+**Smaller things.** First run says what Continue is waiting for. A level card's bar no longer
+collapses to nothing when its counts are long. Learn's "You're already part way through 5"
+reads as what it means. Lause algus says "from A2" on its Practice tile, as Laused does, and
+its subtitle says what the round is for. Settings puts "measured" beside the level rather than
+over the goals. The picture round's setting line is quiet type rather than the accent at the
+size of the heading. Dictation and speaking stop counting "0 of 0" before anything is
+answered. The Sõnad bottom row's letters are as wide as the top row's. The numbered papers
+grid goes to four columns only where "Paper 20" fits beside its button. The plan says "only 3
+minutes" rather than "about 0 of those hours". The offline page's button is the app's primary
+button rather than a violet one. And `/grammar/sisseütlev`, which is the name this app teaches,
+reaches the case page its Latin slug names instead of a dead end.
+
+## 57. The fifty-first pass: a joke and the good news on Today
+
+The operator asked for two cards that ask nothing of anybody: a joke of the day, the Juku kind
+every Estonian grew up on, never repeating if it can help it, and one piece of news from ERR that
+is only ever good news. Both are the fourth row of Today, so `TODAY_CARDS` is eight, and both sit
+last in the shipped order, under the homework, so a teacher's work is never what the cut takes to
+make room for a joke. Both are true on the first morning, so both are drawn from the first minute.
+
+**The jokes are written, and that is ADR-005 amendment 5.** 188 of them in
+`lib/collections/jokes.ts`, each a short dialogue with an English line beside every line, typed in
+the session and for the native speaker to read in the pull request. `jokes.test.ts` holds every
+word of every Estonian line to the shipped forms list (names let through by name, two words on
+purpose with the reason beside them), no Estonian in the English, and no joke told twice. Which
+one is `dayIndex`'s stride walk, so none repeats for 188 days and two days running are far apart.
+The card draws the joke as a little conversation, Juku's lines on the right in the accent's tint,
+puts the dictionary under every word it knows, offers the English behind a press rather than
+beside the Estonian (a joke worked out is funnier and teaches more), reads it aloud, and walks
+five spares on "Another one" without asking the server for anything.
+
+**The good news is ERR's own headline, word for word.** Culture and science first, where the
+openings, prizes and discoveries are, then the front page, which measured 32 of 50 headlines
+refused on the day this was built. A list of bad-news stems refuses on every path and errs toward
+refusing; then a metered model on the grader's chain picks what is plainly good and says it in
+English, told to reject whatever it is unsure of, and its picks go through the bad-news list
+again. With no model, a headline has to carry a good-news stem as well. The answer is held an hour
+for the instance, Today never waits for it (the card streams in behind a `Suspense` after the rest
+of the page, `GoodNewsSlot`), and on an hour with nothing good the card is absent rather than empty. The dictionary under the words is the
+headlines block's own gate, now one function (`annotateTexts`) and one drawing (`LinkedWords`)
+for the headlines, the good news and the joke.
+
+**And then a polish pass on both cards.** A joke is a setup, a beat and an answer, and printing
+all three at once tells it badly, since the eye lands on the last bubble first. So the last line
+waits in a bubble of three dots ("Tap for the punchline"), lands with the small pop a
+conversation's lines use, and takes focus so a screen reader reads it; the speaker reads only what
+is on the card, so it does not give the answer away either. A one-line joke is drawn whole. The
+English toggle's label lost a word so both buttons fit one row on a phone. The news card hands over
+the best headline and up to two behind it, so it gets its own "Another one", and its caption
+explaining the dotted words went, because the dotted underline already says it (the rule about
+"Any underlined word opens its meaning"). One joke had a wrong word: "Nende aukus pükstega?" is
+"Nende auklike pükstega?", holey rather than in a hole.
+
+**And the joke is heard as a little play.** The speaker reads it a line at a time, Juku in Tambet's
+voice (the clearest on the list), the women around him in Mari's, the men in Kalev's, Mari the
+classmate in Liivika's, and the narrator in the learner's own; the bubble being said lights up, and
+every line is fetched on the first press so the only pause between two people is the beat. Which
+voice is `voiceFor` beside the jokes, and `jokes.test.ts` holds every speaker to a voice the service
+offers and Juku to a different one from whoever he is talking to. With the English on, a role says
+what it is in English too, "Õpetaja (teacher)", which is a word learned for nothing. And the link to
+the article tells a screen reader it opens a new tab.
+
+**And then the edges, one at a time.** Each of these was a way either card could show the wrong
+thing, or take the page down with it:
+
+- **Last week's news under "today".** ERR's science feed reached back nine days on the day this
+  was measured. An item now carries its `pubDate`, and anything older than three days, or dated
+  more than a clock's slip into the future, is not offered. An undated item still is, since the
+  feed said nothing either way.
+- **A sad story with a happy-sounding Estonian headline.** The model's own English is read for
+  bad news too (`badEnglish`), and a pick whose English says somebody died, was arrested or lost
+  is dropped whole. So is English carrying an address or markup, which is a feed talking to the
+  model rather than a headline.
+- **A win and a loss in one headline.** "Neel võitis Wuhanis, Malõgina pudenes Birminghamis
+  välja" passed the keyless rule on its win. A loss beside a win now refuses the headline, and so
+  do farewells (`memoriam`) and the rest of the police report (`rööv`).
+- **The model asked on every page load.** A good-news failure is remembered as a miss for ten
+  minutes rather than thrown. A keyless answer given because the model could not be asked (the
+  allowance spent on whoever came first this hour) is held for ten minutes rather than the hour,
+  so the model gets its turn back. One story on two feeds is one story, by title or by link.
+- **Today not loading because of a joke.** The joke's dictionary lookup falls back to plain words
+  and is not remembered, so the next visit asks again. The day's jokes are held for three days at
+  once, because learners in two time zones are on two days for part of every day. Both properties
+  are invariants, and both were made to fail on the real line.
+- **A link that will not parse** is a plain label rather than a thrown render.
+- **"Hide English, pressed".** A toggle whose name changes and which also says it is pressed says
+  the state twice, so the English button carries it in its label alone.
+- **The gloss on a role** depends on every Estonian speaker always having the same English name,
+  and every line ending like a sentence so the speech service reads it as one. Both are tests.
+
+**What it does not do.** 188 jokes is about half a year before one comes round again; more is a
+pull request away and the test is the only gate on it. The keyless rule is blunter than the model
+and will sometimes miss a good story, which is the side it is built to err on.
+
+**The first read of the jokes cut two and corrected eleven lines.** Two did not work in
+Estonian: the smacked brother, whose punchline does not follow from its setup, and the skating
+pun, which rests on English "hardest" meaning both difficult and not soft where `kõva` means only
+the second. Eleven lines changed: a case ending (`teisel poolel`), an ordinal asked where a choice
+was meant (`millises kuus`, not `mitmes kuus`), medicine taken rather than drunk, a comma removed
+from inside `selle asemel et`, two words chosen to match their English (`maitsvad`, `räpane`), a
+pasture for an empty `plats`, a doubled `kui` split into two sentences, and three English lines (a
+hare, a crown put on rather than a coronation, and British "top marks"). One suggestion was
+declined: `Inglise kuningad` keeps its capital, because a country's name in the genitive is
+written with one (`Soome president`). That read was by a careful non-native reviewer checking
+against Sõnaveeb, so it narrows what the native read has to cover and does not replace it.
+
+**And then every gap the first rating named was closed.** Today no longer waits on the news at all:
+`GoodNewsSlot` streams the card in behind a `Suspense` after the rest of the page, at the bottom of
+the dealt order where arriving late moves nothing, and an hour with nothing good leaves no empty
+slot (`empty:hidden` on the column item). Measured warm on a dev server, the joke drew at 0.63 s
+and the news at 0.89 s. Any card on Today can be hidden from Settings, stored as a leading `-` on
+its id in the order row, keeping its place, so the eight-card page can be trimmed by whoever finds
+it busy. The keyless rule was measured against the live feeds and refused an opening that had been
+postponed, so postponed, cancelled, closed and resigned are refused now, and `naer` and `sündi`
+became stems that cannot match `naeruväärne` and `sündmus`. The judge was run live again through
+the app and chose Open House Tallinn's 8,100 visitors, a new gallery in Sillamäe and Shaun the
+Sheep topping the weekend, each with sound English. The jokes' English says marks run to five
+where a joke turns on a mark, and the sister who would wash up is a brother. And
+`scripts/test-today-fun.mjs` drives both cards in CI: the punchline held and handed the caret,
+the English, another joke, axe in both states, the news link, its live region and its cycling, and
+a card hidden in Settings staying off Today, made to fail first by dropping the hidden set.
+
+**The second read confirmed all sixteen changes and asked for three more.** `Ma säästan metsa` for
+saving the forest and `koolist koju minna` for going home from school were applied. Lowercasing
+`Inglise kuningad` was declined a second time: it names the country (Inglismaa), and a country's
+name in the genitive keeps its capital, as in `Soome president` and `Rootsi kuningas`; it is a
+one-character change for a native reader to overrule.
+
+## 58. The fifty-second pass: good news without a model
+
+The operator's call: no model decides which ERR headline is good news, and what the word lists pass
+has to be genuinely good. So the model judge is gone, the card carries no English, and
+nothing on its path may reach a provider or the ledger, asserted in
+`scripts/invariants/jokes-stay-on-their-card.ts`. This supersedes §57 wherever it describes the
+judge, its English and the keyless fallback.
+
+**The old keyless rule was measured and was far too loose.** ERR's own search gave 9,554 articles
+from October 2025 to October 2026. Of the front page, culture and science, which are the feeds the
+card reads, it offered about 580, and the front page's were a pope's lung operation, cigarette
+smuggling, a protest in Vilnius, a European Court ruling, blue-green algae on Pirita beach, export
+statistics, a bank's profits and a party's poll numbers: no bad-news word in any of them, and a
+happy stem (`kasvas`, `positiiv`, `avati` inside `megavatine`) in each.
+
+**The rule now reads the headline for a happy event, and the whole text for anything that is not
+one.** A headline has to report that something opened, was won or awarded, premiered, was born,
+was celebrated or was discovered, read off the headline alone, with a verb matched only where a
+word starts. It may not be a quote or an opinion (`Name: ...`), a question, a review, a programme
+strapline or a broadcast notice, or carry a negation. And the bad-news list now refuses business,
+the economy, politics, health and the weather whole, beside the death, crime, war, accidents,
+closures and delays it already held, because none of those is the headline that cheers somebody up.
+
+**Every headline it still offers was read.** 189 of the year's articles on those three feeds pass,
+every one an opening, a premiere, a prize, a festival, a concert, a new species or a celebration.
+Over the 2,100 sport headlines the front page can also carry, the read found a goalless match, a
+doping ban, points given away, a match lost without a game and `liiga` (a league) read as a new
+species, and each is refused now. The ones it used to offer are fixtures in
+`lib/news/goodNews.test.ts`. On 2026-10-14 the live feeds gave eleven picks. In the year's sample
+only two weeks had none, and the sample is a fraction of what the feeds carry, so a day with
+nothing to show should be rare.
+
+**What it costs is good stories it does not offer.** A happy story told without one of the event
+words, or beside a business or health word in its summary, is passed over. That is the side to err
+on: a card that misses a good story costs nothing, and one that shows a bad story costs the card.
+

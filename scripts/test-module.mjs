@@ -53,7 +53,7 @@ const MODULE_SCREENS = [
   "/review/match", "/review/listening", "/review/sentences", "/review/dictation",
   "/review/describe", "/sonad", "/review/conjugation",
   "/review/speaking", "/review/write", "/review/government", "/review/exceptions",
-  "/review/flashcards", "/review/letters",
+  "/review/flashcards", "/review/letters", "/review/workbook",
   "/review", "/course/learn", "/situations/poodi-piima",
   "/grammar/topic/imperative", "/grammar/topic/government", "/grammar/inessive",
 ];
@@ -91,13 +91,17 @@ async function openModule(page) {
   const take = page.getByRole("button", { name: /^Start the course/i }).first();
   if (await take.count()) {
     await take.click();
-    await page.waitForSelector("ol > li", { timeout: 20_000 });
+    await page.waitForSelector("ol[data-step-list] > li", { timeout: 20_000 });
   }
 }
 
-/** Every step on the list, with the href its own button opens. */
+/**
+ * Every step on the list, with the href its own button opens. Read off the
+ * list's own hook, since the hero above it is an `ol` of the same steps drawn
+ * as cards, which are not something a learner presses.
+ */
 async function stepsOn(page) {
-  return page.locator("ol > li").evaluateAll((rows) =>
+  return page.locator("ol[data-step-list] > li").evaluateAll((rows) =>
     rows.map((row) => ({
       title: row.querySelector("p.font-semibold")?.textContent?.trim() ?? "",
       chip: [...row.querySelectorAll("span")].map((s) => s.textContent?.trim()).filter(Boolean).at(-1) ?? "",

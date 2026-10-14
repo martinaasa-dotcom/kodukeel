@@ -60,7 +60,7 @@ export default async function NumberedPapersPage({ params }: { params: Promise<{
         through, and the one sat last is the one that stands out.
       */}
       <div className="@container mt-6">
-      <ol className="grid grid-cols-2 gap-3 @xl:grid-cols-3 @3xl:grid-cols-4">
+      <ol className="grid grid-cols-2 gap-3 @xl:grid-cols-3 @4xl:grid-cols-4">
         {papers.map((paper) => {
           const open = paper.number === nextUp || !!paper.whole || Object.values(paper.parts).some(Boolean);
           return (

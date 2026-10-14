@@ -107,6 +107,198 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
       "which is what Ma ei ole tema means and not what this says, so the " +
       "translation pass had quietly written down the sentence that was meant.",
   },
+  {
+    et: "Haige on palavikust nõrk.",
+    why:
+      "Not what anybody would say, reported by the native speaker who develops " +
+      "this app off a gap card. Haige as a noun for a person is dated and cold. " +
+      "The word people use for somebody under care is patsient. Withheld " +
+      "rather than reworded, since this app writes no Estonian.",
+  },
+  {
+    et: "Haige on suremas.",
+    why:
+      "Same word as the sentence above: haige as a noun for a person is not what " +
+      "people say, patsient is. Refused by the native speaker who develops this " +
+      "app, and withheld rather than reworded since this app writes no Estonian.",
+  },
+  /*
+    FORTY-ONE FROM ONE READING OF EVERY WORKBOOK LINE. `npm run audit:workbook`
+    prints the lines each band is dealt, and all 640 were read for whether a
+    learner should be handed them: offensive or crude lines, lines about
+    self-harm or a dark theme stated for a beginner, lines whose gap is a real
+    word but not the form the line teaches, and lines nobody learning the
+    language would meet. The native speaker who develops this app accepted
+    the refusals; each reason is the reader's own. One sentence the reader
+    refused is kept: they read `Lood lasti vette.` as plumb lines lowered into
+    water, and that plural would be `loodid`. It is songs being released, the
+    sense the saying `vette laskma` is taught in, and it is the only sentence
+    that saying has.
+  */
+  {
+    et: "Tema abikaasal on noor armuke.",
+    why: "An affair, adult theme at A1. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Poisil on pikad põtkad.",
+    why: "Põtkad is colloquial; an A1 learner should meet jalad. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Rahvale on näkku situtud.",
+    why: "Näkku situtud is crude. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Suveräänsus läks pojale üle.",
+    why: "Sovereignty at A1, not a learner sentence. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Parukas on pikaks kasvanud.",
+    why: "Parukas here is the informal 'hair' (Sõnaveeb), a learner will read 'wig'. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kurk sobib igaks otstarbeks.",
+    why: "Cucumber 'suitable for every purpose' is odd. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Et susi neid sööks.",
+    why: "A curse (Et susi neid sööks). Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mine kus kurat!",
+    why: "Swearing (kus kurat). Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mine tea, mis tulevik toob.",
+    why: "Mine tea is a set idiom, not a real use of the imperative of teadma. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "See pidi olema jube surm.",
+    why: "A horrible death, and pidi olema is the evidential, not a plain past. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ise oled pede!",
+    why: "An anti-gay slur. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Keskmisel prantslasel on 16,7 seksuaalpartnerit, ameeriklasel 12.",
+    why: "Sexual partner statistic and a national stereotype. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Metroo viib kesklinnast kohale kahe minutiga.",
+    why: "Estonia has no metro and the sentence is garbled. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mehed ja naised on juhina erinevad.",
+    why: "A generalisation about men and women as leaders. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ma olin viimane, kes teda elusana nägi.",
+    why: "'last to see him alive', a crime-story line. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kas sa mängid mõnda pilli ka?",
+    why: "Marked as the sisseütlev, but mõnda is the osastav here. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ma ei muutnud kõnni rütmi.",
+    why: "Kõnni is part of 'walking pace' here, not an imperative. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Naine otsustas vabasurma minna.",
+    why: "Suicide (vabasurma minna). Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kas sa politseinike toimetamisi kardad?",
+    why: "Toimetamisi is obscure, the English is a guess. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ta suri meessoost järglaseta.",
+    why: "Legal wording (meessoost järglane). Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kohus määras pensionäridest hagejale ja kostjale esindajad.",
+    why: "Legal jargon and clumsy phrasing. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ämm on paha tujuga õel.",
+    why: "Mother-in-law stereotype. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ema võttis lapse riidest lahti.",
+    why: "Undressing a child. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Vikatimees ei küsi ega hoiata \u2013 kui on aeg, siis ta tuleb.",
+    why: "The Grim Reaper, and hoiata is a connegative here, not an imperative. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ainult minevikku tundes võib mõista olevikku.",
+    why: "Mõista is an infinitive after võib. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Tüdruk nõustus grupiseksiga, aga pärast kahetses.",
+    why: "Group sex. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Naine sünnitas ja loobus siis lapsest ametlikult.",
+    why: "A mother gives up her child. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Küüslauk suurendab haigustele vastupanu.",
+    why: "'garlic increases resistance to disease' is not established. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Sulata kastrulis või ja šokolaad.",
+    why: "Sulata is the imperative of sulatama, marked as the ilmaütlev of sula. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ööbikule pakub õhtu eel konkurentsi ööbikuköster.",
+    why: "Ööbikuköster is not a learner word. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ta lõpetas oma elu enesetapuga.",
+    why: "Suicide (enesetapp). Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Inimene sünnib patusena.",
+    why: "'man is born in sin' stated as a fact. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Hein on kaarde niidetud.",
+    why: "Kaar as a windrow. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Maia ja Andrus on pruut ja peigmees.",
+    why: "Andrus is a name in the nimetav, marked as the seesütlev, and the cue says 'andur' (a sensor). Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kaablis oli survestatud lämmastik.",
+    why: "Pressurised nitrogen in a cable. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mees laob murret nagu kulda.",
+    why: "Laob murret nagu kulda is an opaque idiom and the English does not fit. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Vabal ajal armastan aiamaal näpud mulda pista.",
+    why: "Pista is an infinitive after armastan. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mees oli kõhn ja kitsa koonuga.",
+    why: "Koon (muzzle) for a man's face. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Rahvatarkuse kohaselt võtab maamuna tolm vere kinni.",
+    why: "'earth dust stops bleeding' is a dangerous folk remedy. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Täielik värdja tunne tuli peale.",
+    why: "Värdjas, a swear word. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mis sa lakud seda õlut nii palju?",
+    why: "Lakud õlut is rude slang about beer. Refused on a read of every workbook line, and accepted by the native speaker who develops this app.",
+  },
 ];
 
 /**

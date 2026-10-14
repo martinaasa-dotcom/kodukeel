@@ -133,6 +133,26 @@ export async function isExactForm(query: string): Promise<boolean> {
   return ((await shard(shardKey(folded))).get(folded) ?? []).some((line) => line.form === trimmed);
 }
 
+/**
+ * The spellings of one headword that share its shard, which is nearly all of
+ * them: an ending changes the end of a word and the shard is keyed on its first
+ * three letters. What a stem change moves into another shard (`tuba`, `toas`)
+ * is missed here and found the first time somebody asks it, which is how the
+ * question game's learned words widen (`lib/progress/twentyLearned.ts`).
+ */
+export async function formsOfHeadword(lemma: string): Promise<string[]> {
+  const head = lemma.trim().toLowerCase();
+  const folded = fold(head);
+  if (!folded) return [];
+  const out = new Set<string>([head]);
+  for (const lines of (await shard(shardKey(folded))).values()) {
+    for (const line of lines) {
+      if (line.form === line.form.toLowerCase() && line.lemmas.includes(head)) out.add(line.form);
+    }
+  }
+  return [...out].sort();
+}
+
 /** Whether the spelling is a form of any Estonian word at all. */
 export async function isKnownForm(query: string): Promise<boolean> {
   return (await lemmasOfForm(query)).length > 0;

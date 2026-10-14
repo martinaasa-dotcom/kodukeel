@@ -152,12 +152,12 @@ export const BRIEFINGS = {
   openers: {
     title: "How a sentence start picks the ending",
     what: "The first words of a sentence and a gap at the end, always for the same word within a round.",
-    you: "Choose the right form, or type it from B1. Nothing is timed. A wrong answer shows where that form would have fit.",
+    you: "Choose the right form. Once a stage is settled you type it instead. Nothing is timed. A wrong answer shows where that form would have fit.",
     action: "Start",
   },
   twenty: {
     title: "Twenty questions",
-    what: "A box to type in and a list of your questions. I'm thinking of something, and I answer each question yes, no or sometimes.",
+    what: "I'm thinking of something, and I tell you first what kind of thing it is. You get twenty yes or no questions, and I answer each yes, no or sometimes.",
     you: "Ask yes or no questions in Estonian, and name it when you can. Each question you type comes back with a tip if it could be better.",
     action: "Start",
   },
@@ -213,6 +213,45 @@ export const BRIEFINGS = {
     title: "Say it out loud",
     what: "A word to say, a recording of a native speaker saying it, and your own voice played back beside it.",
     you: "Record yourself, listen to both, and decide how close you got. No machine grades your accent.",
+    action: "Start",
+  },
+  map: {
+    title: "See what the ending means",
+    what:
+      "A row of emoji, a word under it, and three forms of that word. The emoji show what the " +
+      "ending means. Words you know well lose the picture and then the choices, until you're " +
+      "typing the form yourself.",
+    you: "Pick or type the form that fits. Afterwards you'll see a real sentence using it. There's no clock.",
+    action: "Start",
+  },
+  /* A page rather than a card, so it says what a page asks: read every line,
+     then check. The second pass is the thing worth knowing before starting,
+     because it is what makes a wrong answer the start of the lesson. */
+  workbook: {
+    title: "A page from your workbook",
+    what:
+      "Estonian sentences numbered like a course book's page, each with a gap. You pick the " +
+      "form, write it, or choose the word from a box. The first line is filled in.",
+    you:
+      "Fill in the page, then check it. Anything wrong opens again with a hint, for one more go.",
+    action: "Open the page",
+  },
+  sayings: {
+    title: "Learn five sayings",
+    what:
+      "Five pairs of words that mean something other than their parts. You take each apart " +
+      "word by word, guess its meaning, then read it in a real sentence. Then a match, a " +
+      "question about when you'd say each, and a gap to fill.",
+    you: "Tap the words, take a guess, then match and pick. There's no clock.",
+    action: "Start",
+  },
+  twins: {
+    title: "Tell the look-alikes apart",
+    what:
+      "A real sentence with one word missing, what the sentence means in English, and two or " +
+      "three words that look alike underneath. Some questions show one word of a pair and ask " +
+      "what the other one means.",
+    you: "Pick the word that fits. Afterwards you'll see the other word in a sentence of its own. There's no clock.",
     action: "Start",
   },
   write: {

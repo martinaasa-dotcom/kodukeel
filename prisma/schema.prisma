@@ -1033,3 +1033,40 @@ model EmailSend {
   /// And the run's own "who has already had one today", which walks a day.
   @@index([dayKey])
 }
+
+/// A word the question game could not read, as learners asked it.
+///
+/// Deployment-wide and keyed on the spelling alone, with no owner: it records
+/// what the game failed to understand, never who asked, so it is in no backup
+/// and no erasure. `reports` is presses, throttled per learner, not people.
+model TwentyGap {
+  /// The spelling as asked, lower case: "mahlased".
+  spelling String   @id
+  /// The headword the forms list names for it, once looked up.
+  lemma    String?
+  reports  Int      @default(1)
+  firstAt  DateTime @default(now())
+  lastAt   DateTime @default(now())
+  /// OPEN | LEARNING | LEARNED | NOT_A_WORD | FAILED | RETIRED.
+  status   String   @default("OPEN")
+
+  @@index([status, lastAt])
+}
+
+/// What a word the game could not read asks of every thing, learned once and
+/// read by every later round (`lib/progress/twentyLearned.ts`).
+model TwentyLearned {
+  lemma     String    @id
+  /// Space separated spellings that are this word.
+  spellings String
+  en        String
+  ru        String?
+  uk        String?
+  /// Thing headword to "yes", "no" or "sometimes".
+  answers   Json
+  /// The model that sorted the things, so a doubtful batch can be traced.
+  model     String
+  learnedAt DateTime  @default(now())
+  /// Set by an admin to stop serving it; the row is kept so it is not learned again.
+  retiredAt DateTime?
+}

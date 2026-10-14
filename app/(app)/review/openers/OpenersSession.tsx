@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, CircleAlert, Shuffle } from "lucide-react";
 import { openerCard, undoOpenerCards } from "@/app/actions";
 import { useGrade } from "@/components/round/useGrade";
@@ -9,7 +10,8 @@ import { Chip, KeyCap, Stat } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { DiacriticBar } from "@/components/DiacriticBar";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { familyTitle, markPick, MIXED_STAGE, markTyped, type OpenerMark, type OpenerQuestion } from "@/lib/estonian/openers";
 import { OPTION_CLASS, optionState, VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
@@ -51,6 +53,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
   reading: StageLine[];
 }) {
   const grade = useGrade();
+  const router = useRouter();
   const t = useT();
   const locale = useLocale();
   // Frozen on mount: grading revalidates the route and hands down a new round.
@@ -200,7 +203,12 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
         )}
         <WayOut className="mt-8 flex flex-wrap gap-3">
           {afterThis && <ButtonLink href={`/review/openers?stage=${afterThis.n}`}>{fill(t("Try stage {n}"), { n: afterThis.n })}</ButtonLink>}
-          <ButtonLink href="/review/openers" variant="primary">{t("Another round")}</ButtonLink>
+          {/* The same address would keep this session mounted with its frozen
+              questions, so the press asks for a round by number: a new address
+              to fetch and a new key to remount on. */}
+          <Button variant="primary" onClick={() => router.push(`/review/openers?round=${Date.now()}`)}>
+            {t("Another round")}
+          </Button>
         </WayOut>
       </div>
     );
@@ -226,23 +234,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
       <h1 className="sr-only">Lause algus</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession size={19} />
-        <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${(index / questions.length) * 100}%`, background: "var(--accent)" }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={questions.length}
-            aria-label={t("Round progress")}
-          />
-        </div>
-        <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {fill(t("{n} left"), { n: questions.length - index })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={questions.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
@@ -360,11 +352,11 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
         {revealed && mark && (mark.right ? t("Right.") : `${t("Not quite.")} ${noteSaid}`)}
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <span>
-          {index + (revealed ? 1 : 0) > 0
-            ? fill(t(mode === "pick" ? "{n}/{total} right, press 1 or 2 to answer" : "{n}/{total} right"), { n: correct, total: index + (revealed ? 1 : 0) })
-            : mode === "pick" ? t("Press 1 or 2 to answer") : t("Type, then press Enter")}
-        </span>
+        {index + (revealed ? 1 : 0) > 0 && (
+          <span>{fill(t("{n}/{total} right"), { n: correct, total: index + (revealed ? 1 : 0) })}</span>
+        )}
+        {/* A keyboard's shortcut, which a phone has no keys for. */}
+        <span className="keys-hint">{mode === "pick" ? t("Press 1 or 2 to answer") : t("Type, then press Enter")}</span>
         <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>

@@ -7,6 +7,8 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button, ButtonLink } from "@/components/Button";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { SceneVignette } from "@/components/scene/SceneVignette";
+import type { CSSProperties } from "react";
+
 import { toneInk } from "@/components/ui";
 import { KINDS, type SceneKind } from "@/lib/scenes/kinds";
 import { useLocale, useT } from "@/components/Locale";
@@ -232,8 +234,8 @@ function Tile({ tile }: { tile: SituationTile }) {
     <li className={`situation-in grid grid-rows-subgrid gap-y-0 ${TILE_ROWS}`}>
       <Link
         href={`/situations/${tile.id}`}
-        className={`situation-tile lift grid grid-rows-subgrid gap-y-2 rounded-[var(--r-xl)] border pb-5 ${TILE_ROWS}`}
-        style={{ background: `var(--${hue}-soft)`, borderColor: "var(--edge)" }}
+        className={`situation-tile lift glow grid grid-rows-subgrid gap-y-2 rounded-[var(--r-xl)] border pb-5 ${TILE_ROWS}`}
+        style={{ "--tile-hue": `var(--${hue})`, "--tile-soft": `var(--${hue}-soft)` } as CSSProperties}
       >
         <div className="situation-window">
           <SceneVignette sceneId={tile.id} fit="block" />

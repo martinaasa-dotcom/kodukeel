@@ -57,7 +57,7 @@ export default async function BuildPage() {
           className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
         >
-          <ArrowLeft size={14} aria-hidden /> {t("All endings")}
+          <ArrowLeft size={14} aria-hidden /> {t("Grammar")}
         </Link>
       }
     >
@@ -72,7 +72,7 @@ export default async function BuildPage() {
           <Empty
             title={t("The dictionary isn't answering")}
             body={t("Every word here comes from the dictionary, so without it there's nothing to build.")}
-            action={<Link href="/grammar" className="underline" style={{ color: "var(--accent-deep)" }}>{t("Read the endings instead")}</Link>}
+            action={<Link href="/grammar/cases" className="underline" style={{ color: "var(--accent-deep)" }}>{t("Read the endings instead")}</Link>}
           />
         </Stack>
       ) : (

@@ -130,10 +130,21 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     minutes or so and not a step of a fifteen-minute evening, so it stays on
     Practice and in the palette.
   */
-  A2: ["match", "dictation", "letters", "write", "sentences", "flash"],
-  B1: ["letters", "write", "sentences", "government", "match", "flash"],
-  B2: ["letters", "write", "match", "government", "sentences", "flash"],
-  C1: ["letters", "write", "match", "exceptions", "sentences", "flash"],
+  /*
+    AND FROM A2 THE WORKBOOK TAKES THE FLASH ROUND'S SLOT. A course book's
+    exercise is the drill every class sets as homework: a page of real
+    sentences with a word in brackets in each, and the form it needs written
+    on the line (`lib/games/workbook.ts`). It asks the same thing the flash
+    round's gap asked, a form because a sentence needs it, eight times over on
+    one subject rather than once a word, and on a case evening that subject
+    is tonight's case, which is what `CASE_ROUNDS` in `build.ts` deals it for.
+    The flash round stays A1's drill, where no case is asked, and stays on
+    Practice for everybody.
+  */
+  A2: ["match", "dictation", "letters", "write", "sentences", "workbook"],
+  B1: ["letters", "write", "sentences", "government", "match", "workbook"],
+  B2: ["letters", "write", "match", "government", "sentences", "workbook"],
+  C1: ["letters", "write", "match", "exceptions", "sentences", "workbook"],
 };
 
 /**

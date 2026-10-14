@@ -95,6 +95,27 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     /*
+      THE EXERCISE EVERY COURSE BOOK IS MADE OF, AND A HEADLINE FOR THAT REASON.
+
+      A numbered page of real sentences, each with a word in brackets and a
+      line to write its form on, the first one filled in as an example: the
+      homework every Estonian class sets, and the one exercise where a learner
+      has to read a whole sentence and work out what job the missing word is
+      doing before writing its ending. A card of its own on `/practice` rather
+      than a row on a shelf, with its themes as choices inside it, for the
+      reason Flash cards is one: there is a choice to make in it. See
+      `lib/games/workbook.ts`.
+    */
+    href: "/review/workbook", title: "Töövihik", subtitle: "Fill in the right form",
+    icon: "BookOpen", tone: "butter", group: "targeted", note: "A page of real sentences",
+    within: "/practice", headline: true,
+    blurb:
+      "A page from a course book, set from your own words: pick the right form, write it, or " +
+      "choose the word from a box. Check the page, fix what's wrong with a hint, then read it " +
+      "back corrected.",
+  },
+  {
+    /*
       The same round as Flash cards, pointed at one of the four frequency
       lists instead of at the whole deck. A card rather than a tile for the
       reason it carries `headline`: there is a choice inside it, which of the
@@ -167,6 +188,45 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "what you want to say and you hunt for the word, which is exactly what speaking feels like.",
   },
   {
+    href: "/review/map", title: "Map", subtitle: "See what an ending means",
+    icon: "Map", tone: "sky", group: "targeted", note: "Pictures, no clock",
+    within: "/practice",
+    blurb:
+      "A row of emoji: somebody walking into a house, a present going to a girl, a caterpillar " +
+      "turning into a butterfly, and three forms of one word. Only the ending tells them apart, and " +
+      "the picture is what it means. Afterwards you read a real sentence using it.",
+  },
+  {
+    /*
+      Words that look alike and are not the same word: kuulma and kuulama,
+      ostma and otsima. Reached from Practice and from the grammar page that
+      explains the three kinds, which links a group straight into it. See
+      `lib/collections/twins.ts`.
+    */
+    href: "/review/twins", title: "Kaksikud", subtitle: "Tell look-alikes apart",
+    icon: "Scale", tone: "blush", group: "targeted", note: "Ten pairs, no clock",
+    within: "/practice",
+    blurb:
+      "Two or three words that look alike, a real sentence with one of them missing, and what " +
+      "the sentence means in English. Pick the one the writer used, then see the other one in a " +
+      "sentence of its own.",
+  },
+  {
+    /*
+      A verb and one small word that changes what it means: läks katki is a
+      vase breaking, not a vase going anywhere. Five at a time, seen, matched
+      and filled in a real sentence. Reached from Practice. See
+      `lib/estonian/sayings.ts` and `lib/games/sayings.ts`.
+    */
+    href: "/review/sayings", title: "Väljendid", subtitle: "Pairs that fool you",
+    icon: "Quote", tone: "butter", group: "targeted", note: "Five at a time, no clock",
+    within: "/practice",
+    blurb:
+      "A verb and one small word that change what it means. Take each pair apart word by word, " +
+      "guess what it means, then match five of them, place them in a situation and fill in the " +
+      "missing word in a real sentence.",
+  },
+  {
     /*
       Twenty questions, which is the classic game against a machine: it holds a
       thing in mind and the learner has twenty yes or no questions to name it.
@@ -176,7 +236,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       `lib/games/twenty.ts`. A game, so it sits with the other games on
       `/practice`; it grades nothing, for the reason Say what you see does not.
     */
-    href: "/review/twenty", title: "Kakskümmend küsimust", subtitle: "Twenty questions",
+    href: "/review/twenty", title: "20 küsimust", subtitle: "Twenty questions",
     icon: "MessageCircleQuestion", tone: "blush", group: "targeted", note: "Ask in Estonian",
     within: "/practice",
     blurb:
@@ -189,7 +249,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     blurb: "Eight words and eight meanings, all jumbled up. Pair them off as fast as you can.",
   },
   {
-    href: "/review/sentences", title: "Sentences", subtitle: "Put a sentence in order", icon: "Puzzle", tone: "accent",
+    href: "/review/sentences", title: "Laused", subtitle: "Put a sentence in order", icon: "Puzzle", tone: "accent",
     group: "quick", note: "Needs sentences",
     blurb: "A real Estonian sentence, cut up and shuffled. Tap the words back into order.",
   },
@@ -241,12 +301,12 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     within: "/grammar/topic/government",
   },
   {
-    href: "/review/openers", title: "Lause algus", subtitle: "Start picks the ending", icon: "Shuffle",
+    href: "/review/openers", title: "Lause algus", subtitle: "Hear the ending coming", icon: "Shuffle",
     tone: "accent", group: "targeted", note: "Choose, then type",
     blurb:
       "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of " +
       "its last word, and this is where you learn to hear that.",
-    within: "/grammar/topic/government",
+    within: "/practice",
   },
   {
     href: "/review/pairs", title: "Minimal pairs", subtitle: "Long sound or short?", icon: "Ear", tone: "sky",
@@ -352,4 +412,54 @@ export const GAMES = PRACTICE_MODES.filter((m) => m.within === "/practice" && !m
 /** Whichever mode drills a given thing, for the page that names it. */
 export function modeAt(href: string): PracticeMode | undefined {
   return PRACTICE_MODES.find((m) => m.href === href);
+}
+
+/**
+ * How `/practice` sorts its rounds, by what the learner is doing in them.
+ *
+ * Three shelves, in the order they are drawn. Steady practice is the classic
+ * way of keeping words fresh, Word games are the ones played for fun, and the
+ * Workshop is where you have to think and type. Every round is on exactly one
+ * shelf, asserted, so a round added to the table above is not quietly missing
+ * from the page. Items are hrefs, resolved by `shelfItems`, because the shelf
+ * is a decision about placement and what a round *is* lives in the table.
+ */
+export interface Shelf {
+  id: "steady" | "games" | "workshop";
+  name: string;
+  hint: string;
+  tone: Tone;
+  hrefs: readonly string[];
+}
+
+export const SHELVES: readonly Shelf[] = [
+  {
+    id: "steady", name: "Steady practice", hint: "The classic way to keep words fresh.", tone: "sky",
+    hrefs: ["/review/match", "/review/listening", "/review/dictation", "/review/speaking", "/quest"],
+  },
+  {
+    id: "games", name: "Word games", hint: "Just for the fun of it.", tone: "butter",
+    hrefs: ["/review/letters", "/sonad", "/crossword", "/review/sentences", "/review/map", "/review/twins", "/review/sayings"],
+  },
+  {
+    id: "workshop", name: "Workshop", hint: "You think, you type. Take your time.", tone: "accent",
+    hrefs: ["/situations", "/review/describe", "/review/openers", "/review/twenty"],
+  },
+];
+
+export type ShelfItem = Pick<PracticeMode, "href" | "title" | "subtitle" | "icon" | "tone">;
+
+/**
+ * The rounds on a shelf, in order.
+ *
+ * Situations is not a row of the table above, it has its own place in the rail
+ * (`lib/ux/nav.ts`), so the page that draws the shelf says what it looks like
+ * and hands it in as `extras`. A href nothing knows is dropped, and a test
+ * says so.
+ */
+export function shelfItems(shelf: Shelf, extras: Readonly<Record<string, ShelfItem>> = {}): ShelfItem[] {
+  return shelf.hrefs.flatMap((href) => {
+    const item = extras[href] ?? modeAt(href);
+    return item ? [item] : [];
+  });
 }

@@ -38,11 +38,36 @@ import type { Tone } from "@/lib/ux/nav";
  * what that produces: ticking everything at A1 built 2,063 cards, a four year
  * backlog assembled by accident on the evening somebody installed the app.
  *
- * So the round deepens a batch at a time and the batch is twenty, which is one
- * round's worth of words and about the size of a course unit. Press it again
- * and it takes the next twenty that are not finished yet.
+ * So the round deepens a part at a time, and a part is twenty-five, which is a
+ * sitting's worth of words and about the size of a course unit.
  */
-export const COMMON_BATCH = 20;
+export const COMMON_BATCH = 25;
+
+/**
+ * A LIST OF A HUNDRED IS FOUR PARTS OF TWENTY-FIVE.
+ *
+ * A hundred is a list to read and not a thing to sit down to: the round used
+ * to ask whichever of the words happened to be in the deck, so it dealt four
+ * cards one day and twenty the next. A part is the commonest twenty-five, then
+ * the next twenty-five, and so on in the corpus's own order, which is the order
+ * worth learning them in. The learner picks which part to tackle today, and a
+ * part is the same words every time, so where they stopped is where it picks
+ * up again: the answered cards are scheduled away and the rest come first.
+ */
+export const COMMON_PARTS = 4;
+
+/** The one-based part a query value names, or nothing. Takes `unknown`: it is a URL. */
+export function readPart(value: unknown): number | undefined {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (typeof raw !== "string" || !/^\d$/.test(raw)) return undefined;
+  const n = Number(raw);
+  return n >= 1 && n <= COMMON_PARTS ? n : undefined;
+}
+
+/** The lemmas of one part, in the corpus's order. */
+export function partLemmas<T>(ordered: readonly T[], part: number): T[] {
+  return ordered.slice((part - 1) * COMMON_BATCH, part * COMMON_BATCH);
+}
 
 export interface CommonGroup {
   key: FrequencyGroup;

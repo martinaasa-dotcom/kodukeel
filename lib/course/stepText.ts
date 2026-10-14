@@ -2,6 +2,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { CASE_NOTES, grammarTopic } from "@/lib/estonian/grammar";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { countOf, fill, tr, translated, type Locale } from "@/lib/copy/locale";
+import { modeAt } from "@/lib/ux/modes";
 import {
   ACTIVITIES, activityTitle, newWordsIn, FORMS_STEP, MEET_STEP, READ_STEP, REVIEW_STEP, TALK_STEP,
   type ActivityKey, type CourseDay, type CourseStep,
@@ -102,4 +103,24 @@ function caseTitle(key: string, locale: Locale): string | null {
   return plain
     ? fill(tr(locale, "Read about {name}, \"{plain}\""), { name, plain })
     : fill(tr(locale, "Read about {name}"), { name });
+}
+
+/**
+ * A STEP AS A CARD IN THE HERO'S FAN: A NAME OF A WORD OR TWO, AND ITS ICON.
+ *
+ * The full title is a sentence ("Learn today's 5 new words, and 3 from
+ * earlier") and the module's own list prints it. A card the width of a thumb
+ * holds a name, so this is the short one: the round's own name where the step
+ * is a round, which is the name its tile on Practice carries, and a word for
+ * what the step is otherwise.
+ */
+export function stepCard(step: CourseStep, locale: Locale): { label: string; icon: string } {
+  if (step.id === MEET_STEP) return { label: tr(locale, "New words"), icon: "BookOpen" };
+  if (step.id === READ_STEP) return { label: tr(locale, "Reading"), icon: "Library" };
+  if (step.id === FORMS_STEP) return { label: tr(locale, "Past tense"), icon: "History" };
+  if (step.id === TALK_STEP) return { label: tr(locale, "Talk"), icon: "MessagesSquare" };
+  if (step.id === REVIEW_STEP) return { label: tr(locale, "Review"), icon: "Repeat" };
+  const mode = step.id.startsWith("do:") ? modeAt(ACTIVITIES[step.id.slice(3) as ActivityKey]?.href ?? "") : undefined;
+  if (mode) return { label: tr(locale, mode.title), icon: mode.icon };
+  return { label: tr(locale, step.title), icon: "Sparkles" };
 }

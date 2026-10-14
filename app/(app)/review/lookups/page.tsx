@@ -1,3 +1,4 @@
+import { refusedCardSentence } from "@/lib/srs/refusedCards";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
@@ -107,7 +108,9 @@ export default async function LookupsRoundPage() {
     a second answer waiting to disagree with the first.
   */
   const wanted = new Set(cards.map((c) => c.lexemeId).filter((id): id is string => id !== null));
-  const picked = leastPractisedSlot(cards, wanted).slice(0, ROUND);
+  // A card cut from a sentence somebody refused is never asked (`refusedCardSentence`).
+  const askable = cards.filter((c) => refusedCardSentence(c) === null);
+  const picked = leastPractisedSlot(askable, wanted).slice(0, ROUND);
 
   if (picked.length === 0) {
     return (

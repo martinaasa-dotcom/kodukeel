@@ -1,8 +1,9 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ReadingEnd } from "@/components/course/ReadingEnd";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { fold } from "@/lib/estonian/fold";
 import {
-  ArrowLeft, ArrowRight, BookOpen, MessageCircleQuestion, PenLine, Target, TriangleAlert,
+  ArrowLeft, ArrowRight, BookOpen, MessageCircleQuestion, PenLine, Target,
 } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { CASES, caseQuestionReading } from "@/lib/estonian/cases";
@@ -13,6 +14,7 @@ import { allCaseReferences, caseReference } from "@/lib/estonian/grammar";
 import { caseExamples, type CaseExample } from "@/lib/progress/caseExamples";
 import { ButtonLink } from "@/components/Button";
 import { Card, Empty, Note, Page, SectionTitle, Stack } from "@/components/ui";
+import { WatchOut } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { PointExamples } from "@/components/grammar/PointExamples";
@@ -123,7 +125,17 @@ export default async function CasePage({
   // The words on the page are the module's own when it is opened from a step.
   const scope = moduleScopeFrom(query);
   const ref = caseReference(caseKey.toUpperCase());
-  if (!ref) notFound();
+  if (!ref) {
+    /* The app names a case by its Estonian name everywhere, so that is the
+       name somebody types: /grammar/sisseütlev, or sisseutlev with no õ key,
+       reaches the page the slug names rather than a dead end. */
+    let raw = caseKey;
+    try { raw = decodeURIComponent(caseKey); } catch { /* left as it came */ }
+    const typed = fold(raw.toLowerCase());
+    const named = CASES.find((c) => fold(c.et) === typed);
+    if (named) redirect(`/grammar/${named.key.toLowerCase()}`);
+    notFound();
+  }
 
   const ownerId = await requireUserId();
   const [examples, locale] = await Promise.all([
@@ -153,7 +165,7 @@ export default async function CasePage({
       lead={t(ref.summary)}
       actions={inModule ? undefined : (
         <Link
-          href="/grammar"
+          href="/grammar/cases"
           className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
         >
@@ -241,17 +253,7 @@ export default async function CasePage({
           </Card>
         </section>
 
-        <section>
-          <SectionTitle>{t("Watch out")}</SectionTitle>
-          <Card tone="butter">
-            <div className="flex items-start gap-3">
-              <TriangleAlert size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--butter-ink)" }} />
-              <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                {t(ref.watchOut)}
-              </p>
-            </div>
-          </Card>
-        </section>
+        <WatchOut text={ref.watchOut} />
 
         <section>
           <SectionTitle hint={examples.some((e) => e.inDeck) ? t("words from your deck first") : t("from the dictionary")}>

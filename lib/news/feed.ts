@@ -26,7 +26,7 @@
  * behind this one and the row is never empty.
  */
 import { singleFlight } from "@/lib/cache/singleFlight";
-import { headlineWords, parseHeadlines } from "./headlines";
+import { headlineWords, parseHeadlines, parseNewsItems, type NewsItem } from "./headlines";
 
 /**
  * Eesti Rahvusringhääling, the national broadcaster. Its front page is
@@ -130,7 +130,71 @@ async function read(url: string): Promise<{ words: string[]; headlines: string[]
   }
 }
 
+/*
+  THE FEEDS THE GOOD NEWS CARD READS, WHICH ARE MORE THAN THE FRONT PAGE.
+
+  The front page is mostly the kind of news the good news card exists to
+  leave out, measured on 2026-10-14 at 32 of 50 headlines refused by the
+  bad-news list alone. ERR's culture and science desks are where the openings,
+  the premieres, the prizes and the discoveries are, so the card reads those
+  first and the front page after them. The same broadcaster, the same public
+  feeds, and the same switch: an operator who set `NEWS_FEED_URL` to `off` has
+  switched this off too, and one who pointed it somewhere else gets that feed
+  alone, since this list is ERR's and their feed may not be.
+*/
+const GOOD_NEWS_FEEDS = ["https://kultuur.err.ee/rss", "https://novaator.err.ee/rss"] as const;
+
+export function goodNewsFeeds(): string[] {
+  const front = feedUrl();
+  if (!front) return [];
+  return front === DEFAULT_FEED ? [...GOOD_NEWS_FEEDS, front] : [front];
+}
+
+let items: { at: number; items: NewsItem[] } | null = null;
+
+/**
+ * Every item on the good news feeds, culture and science first, or an empty
+ * list. The same hour, the same deadline and the same silence as the
+ * headlines above: a feed that will not answer is a miss for ten minutes, and
+ * one that does is good for an hour.
+ */
+export async function goodNewsItems(now: number = Date.now()): Promise<NewsItem[]> {
+  const urls = goodNewsFeeds();
+  if (urls.length === 0) return [];
+  const fresh = items && now - items.at < (items.items.length ? GOOD_FOR_MS : MISS_FOR_MS);
+  if (items && fresh) return items.items;
+  return singleFlight(`news:good:${urls.join(" ")}`, async () => {
+    const read = await Promise.all(urls.map(readItems));
+    items = { at: Date.now(), items: read.flat() };
+    return items.items;
+  });
+}
+
+/*
+  Longer than the dictionary's deadline, on purpose. Nobody waits on this one:
+  Today streams the card in after the rest of the page (`GoodNewsSlot`), so a
+  slow minute at ERR delays one card rather than the page, and never leaves a
+  blank card for ten minutes. Measured on 2026-10-14 at
+  0.6 to 1.0 seconds a feed through a proxy, which the 1.5 above cut off.
+*/
+const GOOD_NEWS_DEADLINE_MS = 5000;
+
+async function readItems(url: string): Promise<NewsItem[]> {
+  try {
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(GOOD_NEWS_DEADLINE_MS),
+      cache: "no-store",
+      headers: { accept: "application/rss+xml, application/xml;q=0.9, */*;q=0.8" },
+    });
+    if (!res.ok) return [];
+    return parseNewsItems(await res.text());
+  } catch {
+    return [];
+  }
+}
+
 /** Forgets what was read, so a test does not inherit another test's morning. */
 export function resetNewsCache(): void {
   cache = null;
+  items = null;
 }

@@ -341,6 +341,7 @@ jobs:
             suites: >-
               scripts/test-containment.mjs
               scripts/test-polish.mjs
+              scripts/test-today-fun.mjs
 
           # Every signed-in screen again in Russian and in Ukrainian, asking the
           # containment questions about text fitting and whether any English was
@@ -373,6 +374,7 @@ jobs:
             suites: >-
               scripts/test-scan.mjs
               scripts/test-flash.mjs
+              scripts/test-workbook.mjs
               scripts/test-exam.mjs
               scripts/test-suggestions.mjs
               scripts/test-scene.mjs

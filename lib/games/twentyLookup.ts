@@ -126,3 +126,9 @@ export function repairFrom(index: Readonly<Index>): (token: string) => string | 
     return found;
   };
 }
+
+/** One short sense, with the note in brackets taken off: "bread (dark)" is "bread". */
+export function shortGloss(translation: string): string {
+  const first = translation.split(/[,;]/)[0] ?? translation;
+  return first.replace(/\s*\([^)]*\)/g, "").trim() || translation;
+}

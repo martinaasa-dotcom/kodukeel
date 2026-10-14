@@ -40,7 +40,7 @@ page.on("console", (m) => {
 // behind the panel not answering the key the panel names, which two of the
 // fifteen rounds drawing it did: 60, and one for the round's own undo standing
 // down beside the panel the way its key already did: 61.
-const { check, absent, done } = suite("Practice modes", { floor: 64 });
+const { check, absent, done } = suite("Practice modes", { floor: 66 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -148,8 +148,11 @@ for (const mode of ["Review", "Match", "Listening"]) {
 await page.goto(`${B}/progress`, { waitUntil: "networkidle" });
 // XP and the level it drove were withdrawn; the streak is what the top of this
 // page carries now, and it is what the shields under it are about.
-check("progress shows the streak", (await page.getByText(/Day streak/i).count()) > 0);
-check("progress shows the shields that protect it", (await page.getByText(/Shields? banked/i).count()) > 0);
+// Both are the hero's now: the run of days is its headline and the shields a
+// card in its fan, read off the hero itself rather than anywhere on the page.
+const hero = page.locator("[data-hero-fan]").first();
+check("progress shows the streak", (await hero.getByText(/\bdays? in a row\b|starts a run/i).count()) > 0);
+check("progress shows the shields that protect it", (await hero.getByText(/^Shields?$/).count()) > 0);
 check("progress shows the study heatmap", (await page.getByText(/reviews, spread over \d+ of the last/).count()) > 0);
 // A class board where this learner is in a class, and the way into one where
 // they are not. There is no third state: the instance-wide board of everybody
@@ -607,7 +610,9 @@ const board = page.locator('[lang="et"].rounded-full.grid');
 */
 const rows = await page.evaluate(() => {
   const text = document.querySelector("main")?.textContent ?? "";
-  return Number(/6 letters, (\d+) left/.exec(text)?.[1] ?? 0);
+  // The page's own lead says it ("6 letters, 7 guesses, ..."), which is the
+  // one place the count is printed now that the board carries no tally.
+  return Number(/6 letters, (\d+) guesses/.exec(text)?.[1] ?? 0);
 });
 check("Sõnad draws a row of six for every try", (await board.count()) === rows * 6, `${rows} rows`);
 check("and gives seven tries", rows === 7, `${rows}`);
@@ -768,19 +773,26 @@ if ((await featured.count()) === 0) {
     for (const el of els) {
       const r = el.getBoundingClientRect();
       const card = el.firstElementChild?.getBoundingClientRect();
-      const row = byX.get(Math.round(r.left)) ?? { bottom: 0, tallest: 0, whole: true };
+      const row = byX.get(Math.round(r.left)) ?? { bottom: 0, tallest: 0, whole: true, fitsContent: true };
       row.bottom = Math.max(row.bottom, r.bottom + scrollY);
       row.tallest = Math.max(row.tallest, r.height);
       // A card cut at the seam shows as a wrapper shorter than the card in it.
       if (card && card.height > r.height + 1) row.whole = false;
+      // A card stretched to match a neighbour shows as a wrapper taller than it.
+      if (card && r.height > card.height + 1) row.fitsContent = false;
       byX.set(Math.round(r.left), row);
     }
     return [...byX.values()];
   });
   check("Today deals its cards into two columns at 1280", cols.length === 2);
-  const [a, b] = cols;
-  check("and the two columns end level, within one card of each other",
-    cols.length === 2 && Math.abs(a.bottom - b.bottom) < Math.max(a.tallest, b.tallest));
+  /*
+    The columns are NOT meant to end level any more: each card is as tall as
+    what is in it, and the right column is set lower so the tops step. What is
+    asked instead is that no card is stretched to match its neighbour, which
+    shows as a wrapper taller than the card inside it.
+  */
+  check("and no card is stretched to the height of the one beside it",
+    cols.length === 2 && cols.every((c) => c.fitsContent));
   // Carrying the count like the check above it: a page that drew no columns
   // at all has no card split across a seam, which is not the same as passing.
   check("and no card is split across the seam", cols.length > 0 && cols.every((c) => c.whole));
@@ -865,6 +877,43 @@ const manifestBody = await manifest.json();
 check("a web app manifest is served", manifest.ok() && /kodukeel/i.test(manifestBody.name));
 const sw = await page.request.get(`${B}/sw.js`);
 check("the service worker is served", sw.ok());
+
+// 9 — "Another round" starts another round (lib/ux/again.ts)
+/*
+  Sixteen rounds ended on a link to their own page and none of them did
+  anything: the round on screen was the round that had ended. A new `round`
+  in the address has to mount a new one. Asked of Match, whose start card is
+  the round's own first screen, so a fresh mount is visible as that card coming
+  back, and of a briefed round, where it is the first step coming back without
+  the briefing a second time. Driven through the router rather than by playing
+  a round to the end, because the link half is the invariant's.
+*/
+await page.goto(`${B}/review/match`);
+const matchStart = page.getByRole("button", { name: /Start the clock/ });
+if (await matchStart.count()) {
+  await matchStart.click();
+  await page.waitForTimeout(400);
+  await page.evaluate(() => window.next.router.push("/review/match?round=1"));
+  await page.getByRole("button", { name: /Start the clock/ }).waitFor({ timeout: 10_000 }).catch(() => {});
+  check("another round of Match is a new board, not the one that ended",
+    (await page.getByRole("button", { name: /Start the clock/ }).count()) > 0);
+} else {
+  absent(1, "Match had too few words to deal a board, so there was no round to start again");
+}
+await page.goto(`${B}/review/sayings`);
+if (await page.locator("[data-briefing-start]").count()) {
+  await page.locator("[data-briefing-start]").click();
+  await page.waitForTimeout(400);
+  const before = await page.locator("main").innerText();
+  await page.evaluate(() => window.next.router.push("/review/sayings?round=1"));
+  await page.waitForFunction((was) => document.querySelector("main")?.innerText !== was, before, { timeout: 10_000 }).catch(() => {});
+  const after = await page.locator("main").innerText();
+  check("another set of Väljendid opens new sayings at the first step, with no second briefing",
+    after !== before && /1 of \d/.test(after) && (await page.locator("[data-briefing-start]").count()) === 0,
+    after.slice(0, 120).replace(/\n/g, " | "));
+} else {
+  absent(1, "Väljendid dealt no sitting on this database");
+}
 
 console.log(errors.length ? `\nconsole/page errors:\n  ${errors.join("\n  ")}` : "\nno console errors");
 await browser.close();

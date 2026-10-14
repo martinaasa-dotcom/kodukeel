@@ -1,5 +1,7 @@
 "use server";
 
+import { relearn, reportGaps, retireLearned } from "@/lib/progress/twentyLearned";
+import { reportable } from "@/lib/games/twentyLearned";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -54,6 +56,7 @@ import {
   removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
 import { canonicalZone } from "@/lib/time/day";
+import { markSayingsShown } from "@/lib/progress/sayings";
 import {
   forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
@@ -72,7 +75,7 @@ import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { alsoShowFrom, glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { localeFrom, tr } from "@/lib/copy/locale";
-import { serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
+import { hiddenSlotsFrom, serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { serialiseNavOrder } from "@/lib/ux/navOrder";
 import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
@@ -104,10 +107,12 @@ import { heldLevel } from "@/lib/course/placement";
 import type { DayKey } from "@/lib/time/day";
 import { FREQUENCY_GROUPS, type FrequencyGroup } from "@/lib/collections/frequency";
 import { lemmasIn, nextCommonBatch } from "@/lib/progress/common";
+import { COMMON_BATCH, readPart } from "@/lib/collections/commonGroups";
 import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
 import { matchGrades } from "@/lib/srs/matchGrades";
+import { workbookGrades } from "@/lib/srs/workbookGrades";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
 import { DEFAULT_DAYS_PER_WEEK, normaliseGoals } from "@/lib/assessment/goals";
 import { PAPER_SIZE } from "@/lib/assessment/items";
@@ -170,6 +175,19 @@ async function sayRefusal(ownerId: string, busy: ActionRefusal): Promise<ActionR
  * the length of that table, and deduplicated: an unbounded array of the same
  * key was a way to make the generator run a thousand times for one word.
  */
+/**
+ * Väljendid: write down the sayings a sitting showed, so the next one deals
+ * sayings this learner has not met (`lib/games/sayingsDeal.ts`). The ids are
+ * JSON off the wire, so only strings are kept, at most a sitting's worth, and
+ * `afterServing` stores none the catalogue does not hold.
+ */
+export async function markSayingsServed(ids: unknown): Promise<void> {
+  const shown = (Array.isArray(ids) ? ids : []).filter((id): id is string => typeof id === "string").slice(0, 10);
+  if (shown.length === 0) return;
+  const ownerId = await requireUserId();
+  await markSayingsShown(ownerId, shown);
+}
+
 export async function addToDeck(
   lexemeId: string, types: CardType[], source = "LOOKUP", deckIds?: string[],
 ) {
@@ -1389,6 +1407,35 @@ export async function recordMatchGrades(grades: unknown) {
   return { ok: true as const, graded: result.settled.length };
 }
 
+/** The most lines one workbook page can hand in: two exercises and their examples, with room. */
+const MAX_WORKBOOK_LINES = 32;
+
+/**
+ * Records a checked workbook exercise in the review log, one write for the
+ * whole exercise.
+ *
+ * The shape `recordMatchGrades` takes, for the reason it gives: a page grades
+ * every line at once, and a line per Server Action is a round trip per line
+ * before the exercise can say how it went. What each line is worth is
+ * `workbookGrades`, pure and unit tested, off the page's own outcome table, so
+ * the screen and the log say the same thing about a line. The slot each line
+ * asked travels with it and `writeGrade` checks it against the closed list.
+ * Ids are minted on the client, so an exercise sent twice settles rather than
+ * counting twice, and one that does not land goes to the outbox with them.
+ */
+export async function recordWorkbookGrades(grades: unknown) {
+  const ownerId = await requireUserId();
+
+  const batch = workbookGrades(grades, MAX_WORKBOOK_LINES, Date.now());
+  if (batch.length === 0) return { ok: false as const, error: "There's nothing to save yet." };
+
+  const result = await applyGradeBatch(ownerId, batch);
+  if (!result.ok) return { ok: false as const, error: result.error ?? "We couldn't save that exercise." };
+  revalidatePath("/");
+  revalidatePath("/words");
+  return { ok: true as const, graded: result.settled.length };
+}
+
 /**
  * Records a finished match round, keeping the fastest time.
  *
@@ -1396,6 +1443,60 @@ export async function recordMatchGrades(grades: unknown) {
  * hence the explicit "0 means never played" rather than a plain Math.min,
  * which would leave a first-ever round competing against zero and always losing.
  */
+/**
+ * A round of Kakskümmend küsimust named in so many questions, kept if it is the
+ * fewest. The client says how many, since the round is played in the browser and
+ * nothing in it is graded; a best somebody forges is a best only they see.
+ */
+export async function recordTwentyWin(questions: number) {
+  const ownerId = await requireUserId();
+  if (!Number.isFinite(questions)) return { ok: false as const, error: "That count didn't come through properly." };
+  const rounded = Math.min(25, Math.max(1, Math.round(questions)));
+  return { ok: true as const, ...(await keepBest(ownerId, SETTING_KEYS.twentyBest, rounded, "lower")) };
+}
+
+/**
+ * Reports the words a twenty questions round could not read. A real word is
+ * learned once, after the reply has gone, for every later round
+ * (`lib/progress/twentyLearned.ts`). Says whether one is being learned, so the
+ * screen can tell the learner the game will know it next time.
+ */
+export async function reportTwentyGap(words: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "reportTwentyGap");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const spellings = reportable(Array.isArray(words) ? words.filter((w): w is string => typeof w === "string") : []);
+  if (spellings.length === 0) return { ok: true as const, learning: false };
+  return { ok: true as const, learning: await reportGaps(ownerId, spellings) };
+}
+
+/**
+ * A reviewer retiring a word twenty questions learned badly, or asking again
+ * about one. Gated on `requireAdminId` for the reason `reviewSuggestion` is:
+ * what this changes is answered to every player.
+ */
+const TwentyWordInput = z.union([
+  z.object({ action: z.literal("retire"), lemma: z.string().min(1).max(40) }),
+  z.object({ action: z.literal("relearn"), spelling: z.string().min(1).max(40) }),
+]);
+
+export async function reviewTwentyWord(input: unknown) {
+  const reviewerId = await requireAdminId();
+  const busy = throttleAction(reviewerId, "reviewSuggestion");
+  if (busy) return await sayRefusal(reviewerId, busy);
+  const parsed = TwentyWordInput.safeParse(input);
+  if (!parsed.success) return { ok: false as const, error: "Something went wrong there, so nothing has changed." };
+  if (parsed.data.action === "retire") {
+    await retireLearned(parsed.data.lemma);
+    revalidatePath("/review/twenty");
+    return { ok: true as const, message: "Retired. Rounds stop using it within a minute." };
+  }
+  const outcome = await relearn(reviewerId, parsed.data.spelling).catch(() => "failed" as const);
+  return outcome === "learned" || outcome === "joined"
+    ? { ok: true as const, message: "Learned. Rounds use it within a minute." }
+    : { ok: true as const, message: "It didn’t learn this time. A model may not be set up, or the day’s allowance is spent." };
+}
+
 export async function recordMatchTime(seconds: number) {
   const ownerId = await requireUserId();
   if (!Number.isFinite(seconds)) return { ok: false as const, error: "That time didn't come through properly." };
@@ -2025,17 +2126,18 @@ export async function setCaseQuestionGloss(value: string) {
 }
 
 /**
- * The order the cards on Today are dealt in.
+ * The order the cards on Today are dealt in, and which of them are hidden.
  *
- * Normalized through the one reader on the way in, so a request cannot store
+ * Normalized through the readers on the way in, so a request cannot store
  * an id Today does not know or leave a slot out: what is written is every
- * slot, once, in the order asked for. Revalidated on Today and on Settings,
+ * slot, once, in the order asked for, with the hidden ones marked. Revalidated on Today and on Settings,
  * which are the two screens that read it.
  */
 export async function setTodayOrder(value: string) {
   const ownerId = await requireUserId();
-  const order = todayOrderFrom(text(value));
-  await writeSetting(ownerId, SETTING_KEYS.todayOrder, serialiseTodayOrder(order));
+  const raw = text(value);
+  const order = todayOrderFrom(raw);
+  await writeSetting(ownerId, SETTING_KEYS.todayOrder, serialiseTodayOrder(order, hiddenSlotsFrom(raw)));
   revalidatePath("/");
   revalidatePath("/settings");
   return { ok: true as const, order };
@@ -2426,7 +2528,7 @@ export async function addCommonWords(group: string) {
  * cannot build is the `objekt` fault, and this cannot make it, because it never
  * names a type at all.
  *
- * Bounded by `nextCommonBatch`, which is twenty words and only ones that are
+ * Bounded by `nextCommonBatch`, which is one part of twenty-five words and only ones that are
  * short of something. Pressing again takes the next twenty; pressing when the
  * whole hundred is finished writes nothing and says so.
  *
@@ -2435,7 +2537,7 @@ export async function addCommonWords(group: string) {
  * the wire whatever the types say, so a group name indexing a table checked
  * into the repository is the argument that cannot name anything else.
  */
-export async function deepenCommonWords(group: string) {
+export async function deepenCommonWords(group: string, part?: number) {
   const ownerId = await requireUserId();
   if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup)) {
     return { ok: false as const, error: "We couldn't find that word list." };
@@ -2444,7 +2546,8 @@ export async function deepenCommonWords(group: string) {
   const busy = throttleAction(ownerId, "deepenCommonWords");
   if (busy) return await sayRefusal(ownerId, busy);
 
-  const batch = await nextCommonBatch(ownerId, group as FrequencyGroup);
+  const wanted = readPart(part === undefined ? undefined : String(part));
+  const batch = await nextCommonBatch(ownerId, group as FrequencyGroup, COMMON_BATCH, wanted);
   if (batch.length === 0) {
     return { ok: true as const, added: 0, words: 0 };
   }

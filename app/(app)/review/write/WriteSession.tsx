@@ -1,6 +1,7 @@
 "use client";
 
 import { useT } from "@/components/Locale";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
 import { endingName } from "@/lib/estonian/plainAsk";
@@ -20,7 +21,8 @@ import type { GradedSentence } from "@/lib/tutor/grader";
 import type { WithholdReason } from "@/lib/tutor/verify";
 import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WayOut } from "@/components/round/RoundExit";
+import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 export interface WritingPrompt {
@@ -223,7 +225,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
           <Stat value={fill(t("{n}m"), { n: minutes })} label={t("Time")} />
         </div>
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/review/write">{t("Another round")}</ButtonLink>
+          <AnotherRound>{t("Another round")}</AnotherRound>
           <ButtonLink href="/" variant="primary">{t("Back to Today")}</ButtonLink>
         </WayOut>
       </div>
@@ -237,23 +239,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
           which is why an accessibility run that happened to meet an empty deck
           saw a heading and passed. */}
       <h1 className="sr-only">{t("Writing")}</h1>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <EndSession size={19} />
-        <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
-          <div
-            className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${(index / prompts.length) * 100}%`, background: "var(--accent)" }}
-            role="progressbar"
-            aria-valuenow={index}
-            aria-valuemin={0}
-            aria-valuemax={prompts.length}
-            aria-label={t("Round progress")}
-          />
-        </div>
-        <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
-          {fill(t("{n} left"), { n: prompts.length - index })}
-        </span>
-      </div>
+      <RoundProgress done={index} total={prompts.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
@@ -369,7 +355,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
 
       {!aiAvailable && (
         <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-          {t("Anu isn’t available here, so only the form is checked. That check is the reliable half.")}
+          {t("Anu isn’t set up here, so we check the form of the word and not the rest of the sentence.")}
         </p>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { newestFirst, reviewLog } from "@/lib/progress/reviewLog";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { gradedLemmas, lemmaCountsByLevel } from "@/lib/dict/facts";
 import { caseByKey } from "@/lib/estonian/cases";
@@ -252,12 +253,8 @@ export async function readinessSignals(
         tallies below do not depend on their order. `(ownerId, reviewedAt)` is
         already indexed, which is what makes the ordering free.
       */
-      prisma.review.findMany({
-        where: { ownerId, stateBefore: MATURE_STATE },
-        select: { rating: true, stateBefore: true },
-        orderBy: [{ reviewedAt: "desc" }, { id: "asc" }],
-        take: 20_000,
-      }),
+      reviewLog(ownerId).then((log) =>
+        newestFirst(log).filter((r) => r.stateBefore === MATURE_STATE).slice(0, 20_000)),
       /*
         THE SHARED QUERY, BECAUSE THIS WAS THE FOURTH ANSWER.
 
@@ -369,12 +366,9 @@ async function skillEvidence(
   // The most recent twenty thousand, for the reason given where the other two
   // caps are ordered: past the cap an unordered slice makes the per-skill
   // percentages move on their own.
-  const reviews = await prisma.review.findMany({
-    where: { ownerId, cardId: { in: [...reading, ...writing] } },
-    select: { cardId: true, rating: true },
-    orderBy: [{ reviewedAt: "desc" }, { id: "asc" }],
-    take: 20_000,
-  });
+  const reviews = newestFirst(await reviewLog(ownerId))
+    .filter((r) => reading.has(r.cardId) || writing.has(r.cardId))
+    .slice(0, 20_000);
 
   return skillEvidenceFrom(cards, reviews, attempts);
 }

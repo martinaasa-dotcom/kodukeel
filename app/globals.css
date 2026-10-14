@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./nav.css";
+@import "./hero-fan.css";
 
 /*
   Palette: "rukkilill sunrise" — a pastel system built around the cornflower
@@ -12,7 +13,14 @@
   Everything else is a warm near-white so the colour that does appear is the
   colour that means something.
 
-  Tokens are duplicated into @theme (so Tailwind utilities like `bg-sky` work)
+  Tokens are duplicated into /* Registered so a tile's light can be tweened (see `.situation-tile`). */
+@property --tile-lit {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 12%;
+}
+
+@theme (so Tailwind utilities like `bg-sky` work)
   and into :root (so the inline `style` props the views use can read them). The
   :root copy is the one that flips in dark mode.
 */
@@ -219,10 +227,11 @@
       not let a distinction do without.
 
       It was `--on-mint` until mint left the palette and "recalled" moved to sky.
-      One value in both themes, because both skies are light enough for it:
-      about 7.8:1 on #17bfd9 and 13:1 on the dark theme's #4fe3f5. It is the
-      light theme's `--ink`, written out, because `var(--ink)` inverts with the
-      theme and would take the tick with it.
+      A dark ink in both themes, because both skies are light enough for it:
+      about 7.8:1 on #17bfd9, and the dark theme swaps in the Slate night
+      (`var(--stage)`) at 11.4:1 on its #6ad6ec. It is written out here rather
+      than `var(--ink)`, because `--ink` inverts with the theme and would take
+      the tick with it.
     */
     --on-sky: #0f1233;
 
@@ -272,22 +281,26 @@
     /* The one button a screen is built around is a firework: gold, with the
        night's ink on it, in both themes. The accent keeps every other job. */
     --cta: var(--butter);
-    /* Ink on a solid hue, the same night ink in both themes: every hue is
-       light enough for it, and it is what makes a coloured sticker read. */
+    /* Ink on a solid hue: a dark ink in both themes, the navy ink here and
+       the Slate night in the dark. Every hue is light enough for it, and it
+       is what makes a coloured sticker read. */
     --on-hue: #0f1233;
     --cta-ink: #0f1233;
 
     /* The landing stage: a night band the page scrolls out of, the same in
-       both themes, because it is a place rather than a surface. */
-    --stage: #0b0e2e;
-    --stage-ink: #fbfaff;
-    --stage-ink-2: #d2d5f2;
+       both themes, because it is a place rather than a surface. It is the
+       Slate night, the dark theme's own page ground (which reads it back as
+       `--ground: var(--stage)`), so the one night in this app is typed once
+       and a dark panel on a light page is the same object as the dark theme. */
+    --stage: #0c0e13;
+    --stage-ink: #f5f6fa;
+    --stage-ink-2: #c9ccd8;
     --stage-tick: var(--sky);
     --stage-glow: var(--blush);
 
     /*
       The key cap on a primary button, which is the one surface whose ink
-      flips. `--accent-ink` is white in the light theme and #171229 in the
+      flips. `--accent-ink` is white in the light theme and #15102f in the
       dark, so a cap tinted one way cannot serve both: measured against the
       worst of the accent ramp's three stops, white at 22% reads 3.32 under
       white text and black at 16% reads 2.65 under dark text. The cap has to
@@ -328,27 +341,55 @@
   :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --ground: #080a1f;
-    --surface: #101433;
-    --raised: #1a1f4a;
-    --ink: #f2f3ff;
-    --ink-2: #c4c8ec;
-    /* The same nudge as the media-query block above, for the same numbers. */
-    --ink-3: #a0a5d2;
-    --rule: #262b5a;
-    --rule-soft: #171b40;
+    /*
+      SLATE. Grey, with the faintest lean toward the brand violet, and the
+      brand kept in the accent rather than in the ground.
 
-    --accent: #9c8cff;
-    --accent-ink: #0c0a36;
-    --accent-soft: #26215c;
-    --accent-deep: #beb3ff;
+      The navy that was here measured an OKLCH chroma of 0.061 on the card
+      and 0.079 on a raised panel, roughly fifteen times Apple's own dark
+      greys (0.004 to 0.007), so every surface read as blue-violet and the
+      bright hues on top of it read as a glow. Above about 0.02 the eye calls
+      a dark surface coloured rather than grey, so every layer here sits at
+      0.02 or under (hue 269, the accent's side of blue). Depth is lightness
+      and nothing else: page, card and raised panel step by +0.046 and +0.047
+      in OKLCH L, which is the size of Apple's own elevated steps, and no
+      layer carries a glow or a tinted shadow.
+
+      The navy taken down to the same 0.02 lands 0.007 OKLab from these
+      three, under the smallest difference the eye can see, so this is the
+      night it always was with the colour taken out of the greys.
+
+      Measured before it shipped: injected into the running app, axe's
+      colour-contrast rule over thirty screens and about 2,400 text nodes per
+      run, zero failures, the weakest five percent of real text at 7.0:1.
+      Text is off-white rather than #fff, which halates on a dark ground for
+      a reader with astigmatism. The tints are mixed from each hue into the
+      card (22% accent, 15% gold and sky, 14% pink) so a chip always belongs
+      to the surface it sits on, and every ink clears 4.5:1 on every tint.
+    */
+    --ground: var(--stage);
+    --surface: #151820;
+    --raised: #1f232d;
+    --ink: #eeeff3;
+    --ink-2: #c3c5d1;
+    --ink-3: #a5a8b8;
+    --rule: #2c303c;
+    --rule-soft: #1c1f27;
+
+    /* Tonal, the way a dark system accent is drawn: a light violet with a
+       dark label. White on a violet dark enough to carry it fails the dark
+       label the hero cards put on the same fill, and no violet passes both. */
+    --accent: #a594ff;
+    --accent-ink: #15102f;
+    --accent-soft: #353351;
+    --accent-deep: #c4baff;
 
     --butter: #ffc400;
-    --butter-soft: #3a2f0e;
-    --sky: #4fe3f5;
-    --sky-soft: #0b3140;
-    --blush: #ff6ba8;
-    --blush-soft: #3d1328;
+    --butter-soft: #38321b;
+    --sky: #6ad6ec;
+    --sky-soft: #22353f;
+    --blush: #ff7aa8;
+    --blush-soft: #362633;
 
     --butter-ink: var(--butter);
     --sky-ink: var(--sky);
@@ -358,25 +399,29 @@
     --again-ink: var(--blush);
     --easy-ink: var(--accent-deep);
 
-    --wash-1: #121437;
-    --wash-2: #0f1230;
-    --wash-3: #141129;
+    /* No coloured blobs behind the page: the washes are the ground. */
+    --wash-1: var(--ground);
+    --wash-2: var(--ground);
+    --wash-3: var(--ground);
 
-    --shadow-sm: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow-lg: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.08), 0 16px 40px -20px rgb(0 0 0 / 0.8);
+    --shadow-sm: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow-lg: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.09), 0 18px 44px -18px rgb(0 0 0 / 0.85);
     --shadow-accent: none;
 
-    --edge: rgb(210 214 255 / 0.12);
+    --edge: rgb(255 255 255 / 0.09);
     --depth: none;
     --depth-sm: none;
     --depth-lift: none;
 
     --cta: var(--butter);
-    --cta-ink: #14110a;
+    --on-hue: var(--stage);
+    --on-sky: var(--stage);
+    --cta-ink: var(--stage);
 
-    --stage: #04051a;
+    --stage-ink: #f5f6fa;
+    --stage-ink-2: #c9ccd8;
     --stage-glow: var(--blush);
 
     --key-cap: rgb(255 255 255 / 0.28);
@@ -397,27 +442,26 @@
     --easy-soft: var(--accent-soft);
     color-scheme: dark;
 
-    --ground: #080a1f;
-    --surface: #101433;
-    --raised: #1a1f4a;
-    --ink: #f2f3ff;
-    --ink-2: #c4c8ec;
-    /* The same nudge as the media-query block above, for the same numbers. */
-    --ink-3: #a0a5d2;
-    --rule: #262b5a;
-    --rule-soft: #171b40;
+    --ground: var(--stage);
+    --surface: #151820;
+    --raised: #1f232d;
+    --ink: #eeeff3;
+    --ink-2: #c3c5d1;
+    --ink-3: #a5a8b8;
+    --rule: #2c303c;
+    --rule-soft: #1c1f27;
 
-    --accent: #9c8cff;
-    --accent-ink: #0c0a36;
-    --accent-soft: #26215c;
-    --accent-deep: #beb3ff;
+    --accent: #a594ff;
+    --accent-ink: #15102f;
+    --accent-soft: #353351;
+    --accent-deep: #c4baff;
 
     --butter: #ffc400;
-    --butter-soft: #3a2f0e;
-    --sky: #4fe3f5;
-    --sky-soft: #0b3140;
-    --blush: #ff6ba8;
-    --blush-soft: #3d1328;
+    --butter-soft: #38321b;
+    --sky: #6ad6ec;
+    --sky-soft: #22353f;
+    --blush: #ff7aa8;
+    --blush-soft: #362633;
 
     --butter-ink: var(--butter);
     --sky-ink: var(--sky);
@@ -427,25 +471,28 @@
     --again-ink: var(--blush);
     --easy-ink: var(--accent-deep);
 
-    --wash-1: #121437;
-    --wash-2: #0f1230;
-    --wash-3: #141129;
+    --wash-1: var(--ground);
+    --wash-2: var(--ground);
+    --wash-3: var(--ground);
 
-    --shadow-sm: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow-lg: 0 0 0 1px rgb(255 255 255 / 0.08);
-    --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.08), 0 16px 40px -20px rgb(0 0 0 / 0.8);
+    --shadow-sm: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow-lg: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.09), 0 18px 44px -18px rgb(0 0 0 / 0.85);
     --shadow-accent: none;
 
-    --edge: rgb(210 214 255 / 0.12);
+    --edge: rgb(255 255 255 / 0.09);
     --depth: none;
     --depth-sm: none;
     --depth-lift: none;
 
     --cta: var(--butter);
-    --cta-ink: #14110a;
+    --on-hue: var(--stage);
+    --on-sky: var(--stage);
+    --cta-ink: var(--stage);
 
-    --stage: #04051a;
+    --stage-ink: #f5f6fa;
+    --stage-ink-2: #c9ccd8;
     --stage-glow: var(--blush);
 
     --key-cap: rgb(255 255 255 / 0.28);
@@ -1291,6 +1338,249 @@
   }
 
   /*
+    VÄLJENDID: A WORD TURNS OVER, A READING IS CROSSED OUT, A MEANING LANDS.
+
+    Each word of a saying is a tile that turns over to what it says on its
+    own, so the literal reading is built by the learner's own taps. Both faces
+    sit in one grid cell rather than one of them being positioned, so the
+    tile is always as big as its larger face and nothing hangs out of it.
+    Once the real meaning is guessed the literal reading is struck through
+    (a line drawn across it, on `background-size` so it travels) and the
+    meaning stamps in on top. Under `prefers-reduced-motion` all of it is
+    instant and nothing is lost: the struck line and the stamp are still
+    there, they just arrive.
+  */
+  .say-flip { perspective: 900px; }
+  .say-flip-inner {
+    display: grid;
+    transform-style: preserve-3d;
+    transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .say-flip-inner > * {
+    grid-area: 1 / 1;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .say-flip-back { transform: rotateY(180deg); }
+  .say-flip-inner[data-flipped="true"] { transform: rotateY(180deg); }
+  /* The face turned away is hidden outright as well, at the middle of the
+     turn when it is edge on and nobody can see the swap. Backface culling
+     alone leaves it in the layout, so a hit test or a screen reader walking
+     the text finds two words stacked in one place. */
+  .say-flip-inner > * { transition: visibility 0s linear 260ms; }
+  .say-flip-inner:not([data-flipped="true"]) > .say-flip-back,
+  .say-flip-inner[data-flipped="true"] > :not(.say-flip-back) { visibility: hidden; }
+  .say-strike {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 58%;
+    background-size: 0% 3px;
+    transition: background-size 380ms ease 80ms;
+  }
+  .say-strike[data-struck="true"] { background-size: 100% 3px; }
+  .say-stamp { animation: say-stamp 560ms cubic-bezier(0.34, 1.56, 0.64, 1) 300ms both; }
+  .say-wobble { animation: say-wobble 700ms ease both; }
+
+  @keyframes say-stamp {
+    0% { transform: scale(1.7) rotate(-7deg); }
+    60% { transform: scale(0.95) rotate(-1deg); }
+    100% { transform: scale(1) rotate(-1.5deg); }
+  }
+  @keyframes say-wobble {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-2.5deg); }
+    50% { transform: rotate(2deg); }
+    75% { transform: rotate(-1deg); }
+  }
+
+  /*
+    TÖÖVIHIK: A COURSE BOOK'S PAGE, AND A PEN.
+
+    The page is drawn the way the exercise is printed in every Estonian course
+    book: numbered lines on ruled paper, the word in brackets in a quieter ink
+    just before the gap, and the gap a line to write on rather than a box in a
+    form. The worked example is filled in with the accent, as a course book
+    prints its first line in red, and the mark at the end is a stamp a teacher
+    presses on, slightly crooked. A checked answer lands as a stamp of its own,
+    one line after another, so the page is read top to bottom as it is marked.
+
+    The gap is `.wb-gap` rather than `.field`: it sits inside a line of running
+    text, the way the crossword's cells sit inside a grid, and a form's padding
+    there would push the sentence apart. Under `prefers-reduced-motion` every
+    stamp simply arrives.
+  */
+  .wb-lines { counter-reset: none; }
+  .wb-line {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0.85rem 1.25rem;
+    border-top: 1px dashed var(--rule-soft);
+  }
+  .wb-line:first-child { border-top: 0; }
+  @media (min-width: 640px) { .wb-line { padding: 0.95rem 1.5rem; } }
+  .wb-num {
+    flex: none;
+    min-width: 1.6rem;
+    font-weight: 700;
+    color: var(--ink-3);
+  }
+  .wb-sentence {
+    font-size: var(--text-md);
+    line-height: 1.8;
+    color: var(--ink);
+  }
+  .wb-cue {
+    color: var(--ink-2);
+    font-style: italic;
+    white-space: nowrap;
+  }
+  .wb-example .wb-sentence { color: var(--ink-2); }
+  .wb-example-answer {
+    color: var(--accent-deep);
+    font-weight: 700;
+    font-style: italic;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+  /*
+    THE GAP IS A RULED LINE YOU WRITE ON, which is what a course book prints.
+    No fill and no box: a box in the middle of a sentence is a form, and a
+    form's padding put the text off the line it was meant to sit on. The text
+    sits on the sentence's own baseline, in the accent, which is the pen; the
+    line under it deepens to the accent while the caret is there, and turns
+    blush once the line has been checked and is open for a second go.
+  */
+  .wb-gap {
+    display: inline-block;
+    max-width: 100%;
+    margin: 0 0.2rem;
+    padding: 0 0.45rem 0.05rem;
+    text-align: center;
+    border: 0;
+    border-bottom: 2px solid var(--ink-3);
+    border-radius: 0;
+    background: transparent;
+    color: var(--accent-deep);
+    font: inherit;
+    font-weight: 650;
+    line-height: 1.3;
+    vertical-align: baseline;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+  @media (hover: hover) {
+    .wb-gap:hover { border-bottom-color: var(--ink-2); }
+  }
+  .wb-gap:focus {
+    outline: none;
+    border-bottom-color: var(--accent);
+    box-shadow: 0 2px 0 0 var(--accent);
+  }
+  .wb-gap-again {
+    border-bottom-color: var(--again-ink);
+    color: var(--again-ink);
+  }
+  .wb-gap-again:focus { box-shadow: 0 2px 0 0 var(--again-ink); }
+  /*
+    A TYPED GAP GROWS WITH ITS WORD. The box and a hidden copy of what is typed
+    share one grid cell, so the cell is as wide as the wider of the two: the
+    starting line while the word is short, the word itself once it is longer.
+    The copy carries the box's own font, weight and padding, so the two measure
+    alike, and a trailing space keeps the caret clear of the line's end.
+  */
+  .wb-gap-sizer {
+    display: inline-grid;
+    max-width: 100%;
+    margin: 0 0.2rem;
+    vertical-align: baseline;
+  }
+  .wb-gap-sizer::after {
+    content: attr(data-value) " ";
+    grid-area: 1 / 1;
+    visibility: hidden;
+    white-space: pre;
+    overflow: hidden;
+    padding: 0 0.45rem 0.05rem;
+    border-bottom: 2px solid transparent;
+    font: inherit;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+  .wb-gap-sizer > .wb-gap {
+    grid-area: 1 / 1;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+  }
+  /* On a pick-the-form page the gap shows the form picked, and is not itself a control. */
+  .wb-gap-choice { min-height: 1.3em; white-space: nowrap; }
+  .wb-gap-picked { border-bottom-color: var(--accent); }
+  /* The word box over a course book's page, drawn as the book draws it: a ruled frame round a few words. */
+  .wb-box {
+    padding: 0.85rem 1.1rem;
+    border: 1.5px solid var(--rule);
+    border-radius: var(--r);
+  }
+  /*
+    A CHECKED ANSWER, IN PEN. The word written on its line with the line
+    coloured for how it went and a tick or a cross after it: sky for right,
+    blush for missed, where the learner's own attempt is struck through in
+    front of the answer the way a teacher corrects a page. No fill, so the
+    sentence still reads as a sentence.
+  */
+  .wb-filled {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.3rem;
+    margin: 0 0.2rem;
+    padding: 0 0.45rem 0.05rem;
+    border-bottom: 2px solid var(--wb-line, var(--good-ink));
+    color: var(--ink);
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  .wb-filled svg { align-self: center; color: var(--wb-line, var(--good-ink)); }
+  .wb-filled-right { --wb-line: var(--good-ink); }
+  .wb-filled-missed { --wb-line: var(--again-ink); }
+  .wb-struck { font-weight: 500; color: var(--again-ink); }
+  /* A gap or a filled word with a comma or a full stop straight after it sits against it, as the word did. */
+  .wb-tight { margin-right: 0; }
+  .wb-stamp { animation: wb-stamp 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  /* The letters a second go is given, read inside a sentence rather than set apart in a pill. */
+  .wb-hint { font-weight: 700; color: var(--ink); }
+  .wb-mark {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    width: 7.5rem;
+    height: 7.5rem;
+    border-radius: 9999px;
+    border: 4px double var(--accent-deep);
+    color: var(--accent-deep);
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    rotate: -8deg;
+    animation: wb-mark 620ms cubic-bezier(0.34, 1.56, 0.64, 1) 120ms both;
+  }
+  .wb-mark-of { font-size: var(--text-lg); font-weight: 700; }
+
+  @keyframes wb-stamp {
+    0% { transform: scale(1.35); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes wb-mark {
+    0% { transform: scale(1.8); opacity: 0; }
+    60% { transform: scale(0.94); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+
+  /*
     TWENTY QUESTIONS, ALIVE.
 
     The game thinks for half a second before it answers, as three dots that
@@ -1313,6 +1603,28 @@
     0%, 100% { transform: translateY(0); opacity: 0.4; }
     40% { transform: translateY(-4px); opacity: 1; }
   }
+  /*
+    THE PUNCHLINE, HELD BACK FOR ONE TAP.
+
+    The joke on Today keeps its last line behind a bubble of three dots, the
+    way a joke is told: the setup, a beat, then the answer. The dots are the
+    bubble the punchline will arrive in, so nothing moves on the card but
+    them, and the line lands with the same small pop a conversation's lines
+    do. Under `prefers-reduced-motion` the dots sit still and the line simply
+    appears.
+  */
+  .joke-dots span {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 9999px;
+    background: currentColor;
+    animation: twenty-dot 1100ms ease-in-out infinite;
+  }
+  .joke-dots span:nth-child(2) { animation-delay: 160ms; }
+  .joke-dots span:nth-child(3) { animation-delay: 320ms; }
+  .joke-told { animation: scene-say-you 340ms cubic-bezier(0.22, 1, 0.36, 1) both; transform-origin: bottom right; }
+  .joke-told-left { animation: scene-say 340ms cubic-bezier(0.22, 1, 0.36, 1) both; transform-origin: bottom left; }
+
   .twenty-meter {
     transform-origin: left center;
     transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -2075,6 +2387,7 @@
     .quest-pulse, .quest-card, .quest-pop, .emoji-shake,
     .sonad-settle, .sonad-refuse, .sonad-rise,
     .twenty-thinking span, .twenty-rise, .twenty-won,
+    .joke-dots span, .joke-told, .joke-told-left,
     .scene-break, .scene-break-rule,
     .scene-say, .scene-say-you, .scene-pip-met, .scene-open,
     .scene-veil, .scene-veil-out, .scene-bloom, .scene-dial, .scene-hand,
@@ -2421,15 +2734,42 @@
     background-size: 22px 22px;
     mask-image: linear-gradient(to bottom, black, transparent 85%);
   }
-  .hero-grid { display: grid; gap: clamp(2.5rem, 5vw, 4rem); align-items: center; }
+  /*
+    The six pieces of the hero are the grid's own children, in the order a
+    phone reads them: kicker, headline, the word card, the button, then the
+    paragraph and the claims. Stacked, the card used to come last and started
+    at 864px on a 390x844 phone, under 400px of prose, so the one thing on the
+    first screen that moves was off it. Now the headline, the card and the
+    button are the first screen and the prose is what scrolling finds.
+
+    No row gap: each piece carries the margin above it, because the distance
+    from the headline to the card and from the button to the paragraph are
+    different distances, and a grid gap is one.
+
+    From `lg` up it is the two columns it always was, placed by row: the copy
+    on the left with the lead back above the button, and the card spanning
+    every row on the right, centred against the column beside it.
+  */
+  .hero-grid { display: grid; row-gap: 0; column-gap: clamp(2.5rem, 5vw, 4rem); align-items: center; }
+  .hero-grid > * { min-width: 0; }
+  .hero-stage .hero-machine { margin-top: clamp(1.75rem, 3.4svh, 2.5rem); }
+  .hero-stage .hero-action { margin-top: clamp(1.25rem, 2.6svh, 2rem); }
+  .hero-stage .hero-lead { margin-top: clamp(2rem, 4.4svh, 3rem); }
+  .hero-stage .hero-claims { margin-top: clamp(1.5rem, 3.4svh, 2.25rem); }
   @media (min-width: 1024px) {
     .hero-grid { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+    .hero-grid > * { grid-column: 1; }
+    .hero-grid > .hero-kicker { grid-row: 1; }
+    .hero-grid > .hero-display { grid-row: 2; }
+    .hero-grid > .hero-lead { grid-row: 3; }
+    .hero-grid > .hero-action { grid-row: 4; }
+    .hero-grid > .hero-claims { grid-row: 5; }
+    .hero-grid > .hero-machine { grid-column: 2; grid-row: 1 / span 5; margin-top: 0; }
+    .hero-stage .hero-lead { margin-top: clamp(1.25rem, 2.6svh, 2rem); }
+    .hero-stage .hero-action { margin-top: clamp(1.5rem, 3.6svh, 2.5rem); }
   }
-  .hero-copy { min-width: 0; }
-  .hero-stage .hero-lead { margin-top: clamp(1.25rem, 2.6svh, 2rem); }
-  .hero-stage .hero-action { margin-top: clamp(1.5rem, 3.6svh, 2.5rem); }
-  .hero-stage .hero-claims { margin-top: clamp(1.5rem, 3.4svh, 2.25rem); }
   .hero-kicker {
+    justify-self: start;
     display: inline-flex; align-items: center; gap: 0.55rem;
     padding: 0.4rem 0.9rem; border-radius: 9999px;
     border: 1.5px solid color-mix(in srgb, var(--stage-ink) 30%, transparent);
@@ -2773,6 +3113,92 @@
   .press:active { transform: translateY(1px) scale(0.985); }
 
   /*
+    PLAY, KEPT SMALL ENOUGH TO BE TASTE RATHER THAN NOISE.
+
+    Four gestures, each an answer to something a reader is already doing and
+    none of them on a loop: a light that follows the pointer across a card you
+    could press, an arrow that leans the way it is about to take you, an icon
+    that looks up when its row is pointed at, and a spring when an option is
+    picked (that one is `components/Choice.tsx`, through the Web Animations
+    API, so a chip already chosen when a page loads does not pop at you).
+    Everything here is `translate`, `scale`, `rotate` or opacity, so the box a
+    finger aims at never moves, and all of it is nothing under
+    `prefers-reduced-motion`, in the block at the end of this rule.
+
+    The light is a `::after` behind the content and above the card's own
+    background, which is what `isolation` buys: `z-index: -1` inside a
+    stacking context of the card's own paints over its background and under
+    its words. `components/motion/PointerLight.tsx` writes `--gx` and `--gy`;
+    until it has, the light sits in the middle, which is where a keyboard's
+    focus ring already says the card is. It is the accent at a whisper in the
+    light theme and plain white at less in the dark, because a coloured glow
+    on Slate is exactly what was taken out of it.
+  */
+  .glow { position: relative; isolation: isolate; }
+  .glow::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 280ms cubic-bezier(0.22, 1, 0.36, 1);
+    background: radial-gradient(
+      260px circle at var(--gx, 50%) var(--gy, 50%),
+      var(--glow-color, color-mix(in oklab, var(--accent) 11%, transparent)),
+      transparent 70%
+    );
+  }
+  :root[data-theme="dark"] .glow { --glow-color: rgb(255 255 255 / 0.05); }
+  @media (hover: hover) {
+    .glow:hover::after { opacity: 1; }
+  }
+  .glow:focus-visible::after { opacity: 1; }
+
+  /*
+    An arrow at the end of a link leans the way it goes. `translate`, not
+    `transform`, so it composes with anything an icon is already doing, and a
+    spring that overshoots a pixel so the lean reads as a nudge rather than
+    as a slide. Three pixels, which the padding of every pill and row that
+    ends in one already has room for.
+  */
+  svg.lucide-arrow-right, svg.lucide-chevron-right, svg.lucide-arrow-up-right {
+    transition: translate 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @media (hover: hover) {
+    :is(a, button):hover svg:is(.lucide-arrow-right, .lucide-chevron-right) {
+      translate: 3px 0;
+    }
+    :is(a, button):hover svg.lucide-arrow-up-right { translate: 2px -2px; }
+  }
+  :is(a, button):focus-visible svg:is(.lucide-arrow-right, .lucide-chevron-right) { translate: 3px 0; }
+
+  /*
+    An icon marked `data-pop` looks up when its row is pointed at: a small
+    spring and a few degrees of tilt, the way somebody turns when they hear
+    their name.
+  */
+  [data-pop] {
+    transition: scale 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+                rotate 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @media (hover: hover) {
+    :is(a, button):hover [data-pop] { scale: 1.1; rotate: -6deg; }
+  }
+  :is(a, button):focus-visible [data-pop] { scale: 1.1; rotate: -6deg; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glow::after { display: none; }
+    svg.lucide-arrow-right, svg.lucide-chevron-right, svg.lucide-arrow-up-right, [data-pop] {
+      transition: none;
+      translate: none !important;
+      scale: none !important;
+      rotate: none !important;
+    }
+  }
+
+  /*
     A KEY: A BUTTON STANDING ON ITS OWN LIP.
 
     The lip is a hard shadow in a deeper shade of the button's own colour,
@@ -2905,6 +3331,18 @@
     font-size: var(--text-md);
     line-height: 1.45;
   }
+  /*
+    A VERDICT ARRIVES. Feedback that is noticed is feedback that is used, so
+    the line saying how the answer went rises a few pixels into place as it
+    appears, and a right answer lands with a small give, the same curve the
+    right option settles on. Short enough to be over before the eye reaches
+    it, and nothing under reduced motion.
+  */
+  .verdict-panel { animation: verdict-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .verdict-panel.verdict-right { animation: verdict-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both, verdict-land 420ms 120ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes verdict-in { from { opacity: 0; translate: 0 6px; } }
+  @keyframes verdict-land { 40% { scale: 1.015; } }
+  @media (prefers-reduced-motion: reduce) { .verdict-panel, .verdict-panel.verdict-right { animation: none; } }
   .option-right {
     --choice-bg: var(--good-soft);
     --choice-border: var(--good);
@@ -3093,6 +3531,29 @@
   }
   @media (pointer: coarse) {
     .explain > summary { min-height: 44px; }
+  }
+
+  /*
+    THE PANEL AN EXPLANATION OPENS INTO. It was loose grey paragraphs under the
+    summary, with nothing to say where the explanation ended and the screen
+    resumed, so a reader could not tell how much there was before reading all
+    of it. A soft panel is that edge: one box, read or skipped as one thing.
+  */
+  .explain-panel {
+    margin-top: 0.5rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--r);
+    background: var(--raised);
+  }
+  .explain-panel > * + * { margin-top: 0.5rem; }
+
+  /* The warning in a grammar rule, with its own heading (components/RuleNote.tsx). */
+  .rule-watch {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--r);
+    background: var(--hard-soft);
   }
 
   .tap-tint {
@@ -3588,11 +4049,14 @@
       radial-gradient(16rem 12rem at 88% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
       var(--stage) !important;
   }
+  /* The same lamps in the dark, on the raised grey so the room still stands
+     off the page, at a hint of their light-theme strength: on a dark ground a
+     full-strength glow reads as a smear. Still, because a line is being read. */
   [data-theme="dark"] .scene-night {
     background:
-      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 40%, transparent), transparent 70%),
-      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 30%, transparent), transparent 70%),
-      radial-gradient(16rem 12rem at 88% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
+      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 16%, transparent), transparent 70%),
+      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 12%, transparent), transparent 70%),
+      radial-gradient(16rem 12rem at 88% 0%, color-mix(in srgb, var(--butter) 7%, transparent), transparent 70%),
       var(--raised) !important;
   }
   /* The place you say your line: glass on the same night, lifted a little. */
@@ -3703,20 +4167,45 @@
     drawing is in the ink the rest of the page is in rather than on fifteen
     slabs of night, which is what made the old page read as a wall.
   */
+  /*
+    THE LAMPS MOVE, SLOWLY, AND ONLY HERE.
+
+    The stage is the one showcase on the page, so it is lit in the mix and
+    the light drifts: a layer half as big again as the panel, behind its
+    contents, turning a few degrees over twenty-odd seconds. Slow enough that
+    nobody watches it and the panel still reads as a lit room rather than a
+    slab, which in the dark theme it was, grey on grey, for one release. The
+    conversation room keeps still lamps, because motion behind a line
+    somebody is reading costs them the line. Dark sits the lamps on the
+    raised grey so the panel still separates from the page, and turns them
+    down to a hint: on a dark ground a glow at the light theme's strength
+    reads as a smear rather than a lamp. Off for anybody who asks for less motion.
+  */
   .situation-stage {
+    --lamp: 1;
     padding: clamp(1.25rem, 3vw, 2.25rem);
-    background:
-      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 38%, transparent), transparent 70%),
-      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 28%, transparent), transparent 70%),
-      radial-gradient(16rem 12rem at 70% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
-      var(--stage) !important;
+    background: var(--stage) !important;
   }
   [data-theme="dark"] .situation-stage {
+    --lamp: 0.4;
+    background: var(--raised) !important;
+  }
+  .situation-stage::before {
+    content: "";
+    position: absolute;
+    inset: -25%;
+    z-index: -1;
+    pointer-events: none;
     background:
-      radial-gradient(26rem 20rem at 0% 0%, color-mix(in srgb, var(--stage-glow) 38%, transparent), transparent 70%),
-      radial-gradient(24rem 18rem at 100% 100%, color-mix(in srgb, var(--sky) 28%, transparent), transparent 70%),
-      radial-gradient(16rem 12rem at 70% 0%, color-mix(in srgb, var(--butter) 16%, transparent), transparent 70%),
-      var(--raised) !important;
+      radial-gradient(26rem 20rem at 17% 17%, color-mix(in srgb, var(--stage-glow) calc(38% * var(--lamp)), transparent), transparent 70%),
+      radial-gradient(24rem 18rem at 83% 83%, color-mix(in srgb, var(--sky) calc(28% * var(--lamp)), transparent), transparent 70%),
+      radial-gradient(16rem 12rem at 63% 17%, color-mix(in srgb, var(--butter) calc(16% * var(--lamp)), transparent), transparent 70%);
+    animation: stage-lamps 24s ease-in-out infinite alternate;
+  }
+  @keyframes stage-lamps {
+    0% { transform: translate(-3%, -2%) rotate(-4deg); }
+    50% { transform: translate(2%, 3%) rotate(3deg); }
+    100% { transform: translate(4%, -2%) rotate(7deg); }
   }
   .situation-stage-grid {
     display: grid;
@@ -3749,6 +4238,38 @@
   @media (hover: hover) { .situation-shuffle:hover { background: rgb(255 255 255 / 0.1) !important; } }
   .situation-shuffle svg { transition: transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1); }
   @media (hover: hover) { .situation-shuffle:hover svg { transform: rotate(-12deg) scale(1.1); } }
+
+  /*
+    A TILE IS ITS KIND'S COLOUR, LIT FROM ABOVE.
+
+    In the light theme the tint is the tile. In the dark, a hue mixed into
+    grey is mud (gold becomes olive and pink becomes maroon), so the tile is
+    the card with its kind's colour falling on it from the top edge, which
+    reads as light rather than as a stain, and its border carries the hue so
+    four kinds are four colours at a glance. A pointer brings the light up:
+    `--tile-lit` is a registered property so the browser can tween it, which
+    a gradient on its own cannot (declared at the top of this file, since
+    `@property` is not a layered rule). Text never sits on the brightest part
+    alone; the chips keep their own ground.
+  */
+  .situation-tile {
+    background: var(--tile-soft);
+    border-color: var(--edge);
+    /* The pointer's light (`.glow`) in the tile's own hue, so a pointer
+       crossing the board warms each kind in its colour. */
+    --glow-color: color-mix(in oklab, var(--tile-hue) 26%, transparent);
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+                --tile-lit 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  [data-theme="dark"] .situation-tile {
+    background:
+      radial-gradient(130% 75% at 50% 0%, color-mix(in oklab, var(--tile-hue) var(--tile-lit), transparent), transparent 72%),
+      var(--surface);
+    border-color: color-mix(in oklab, var(--tile-hue) 34%, var(--rule));
+  }
+  [data-theme="dark"] .situation-tile:focus-visible { --tile-lit: 20%; }
+  @media (hover: hover) { [data-theme="dark"] .situation-tile:hover { --tile-lit: 20%; } }
 
   .situation-window {
     position: relative;
@@ -3789,7 +4310,8 @@
   .situation-place { background: var(--surface); border: 1px solid var(--edge); }
 
   @media (prefers-reduced-motion: reduce) {
-    .situation-stage-grid, .situation-in { animation: none; }
+    .situation-stage-grid, .situation-in, .situation-stage::before { animation: none; }
+    .situation-tile { transition: none; }
     .situation-window > svg, .situation-shuffle svg { transition: none; transform: none !important; }
   }
 }
@@ -4714,7 +5236,13 @@ a:focus-visible .wave-word::after {
 */
 @media (hover: none) and (pointer: coarse) {
   :is(button, a, [role="radio"], [role="button"]) .key-cap { display: none; }
+  /* And a line of copy that is only about the keyboard ("Press 1 to 4 to
+     answer") goes with it, rather than telling a thumb about keys it lacks. */
+  .keys-hint { display: none !important; }
+  .touch-hint { display: inline !important; }
 }
+/* The same line said for a thumb, where the keyboard's version has gone. */
+.touch-hint { display: none; }
 
 /*
   VIKERKAAR ÖÖS: the rainbow at night, flattened. One panel per screen is
@@ -4726,9 +5254,9 @@ a:focus-visible .wave-word::after {
   shadow every other card already carries, with nothing that moves.
 
   [data-theme="dark"] is the reason this is two rules rather than one: the
-  panel's own ink (#0b0e2e) sits close enough in luminance to the dark
-  theme's own page ground (--ground: #080a1f) that the two would nearly
-  merge with no glow left to tell them apart. So on the dark theme the panel
+  panel's own ink is the dark theme's own page ground (--ground reads
+  --stage), so on that page the two would merge with nothing to tell them
+  apart. So on the dark theme the panel
   is promoted onto --raised instead, with a hairline and a plain dark shadow.
   It was a violet-tinted shadow for a while, and together with the page's
   own wash and the accent buttons' coloured lift it made the dark theme glow
@@ -4744,8 +5272,16 @@ a:focus-visible .wave-word::after {
   border-color: rgb(255 255 255 / 0.08) !important;
   box-shadow: none !important;
 }
+/*
+  One lamp, in the accent, on the dark theme's one hero per screen: a grey
+  panel on a grey page was correct and lifeless, and the panel is the thing
+  the screen is for. One faint light from the top corner, never three, so it
+  reads as lit rather than as glowing.
+*/
 [data-theme="dark"] .night {
-  background: var(--raised);
+  background:
+    radial-gradient(34rem 22rem at 0% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%),
+    var(--raised);
   border-color: rgb(255 255 255 / 0.1) !important;
   box-shadow: none !important;
 }

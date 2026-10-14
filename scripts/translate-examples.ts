@@ -49,6 +49,7 @@
  *
  *   npm run translate:examples -- --limit 20     # a measured sample first
  *   npm run translate:examples -- --write
+ *   npm run translate:examples -- --sayings --budget 0.05 --write   # only the sayings' own
  */
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -60,6 +61,7 @@ import { estonianNotCopied } from "../lib/dict/copiedWords";
 import { openWithFallback, resolveProviders } from "../lib/tutor/provider";
 import { readExpanded } from "./lib/expandedFile";
 import { isRefusedSentence } from "../lib/dict/refused";
+import { allSayingUsages } from "../lib/dict/sayingUsages";
 import { installMeter } from "./lib/meter";
 
 // What this run spends, capped and said on exit (`scripts/lib/meter.ts`); replay off, because it keeps its own record of every answer it was given (`.translate-cache/`).
@@ -116,6 +118,8 @@ function quotes(text: string): number {
 
 const args = process.argv.slice(2);
 const write = args.includes("--write");
+/** Only the sayings' own sentences, for when that is all that is new. */
+const onlySayings = args.includes("--sayings");
 const limitAt = args.indexOf("--limit");
 const limit = limitAt >= 0 ? Number(args[limitAt + 1]) : Infinity;
 /**
@@ -155,6 +159,10 @@ function shippedSentences(): string[] {
       if (example.et && !isRefusedSentence(example.et)) seen.add(example.et);
     }
   }
+  // And the few the Väljendid round needs that the dictionary never kept
+  // (`prisma/data/saying-usages.json`). They are shown to a learner, so they
+  // ship with an English line like every other sentence does.
+  for (const { et } of allSayingUsages()) if (!isRefusedSentence(et)) seen.add(et);
   return [...seen];
 }
 
@@ -199,7 +207,9 @@ async function main() {
     .then((raw) => JSON.parse(raw))
     .catch(() => ({}));
 
-  const sentences = shippedSentences();
+  const sentences = onlySayings
+    ? allSayingUsages().map((x) => x.et).filter((et) => !isRefusedSentence(et))
+    : shippedSentences();
   const wanted = sentences.filter((et) => !existing[et]);
   console.log(
     `${sentences.length} sentences ship in the dictionary, ` +

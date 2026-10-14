@@ -962,14 +962,14 @@ export const TODAY: Area = {
     "(пора повторить: {cards}, если хочется потренировать то, что уже знаете)",
   "about {minutes}":
     "около {minutes}",
-  "a new word every day":
-    "новое слово каждый день",
+  "Play a word game":
+    "Сыграйте в словесную игру",
   "An example board: three guesses, each circle marked {here}, {elsewhere} or {absent}.":
     "Пример поля: три попытки, у каждого кружка пометка: {here}, {elsewhere} или {absent}.",
   "Play {e1}":
     "Играть в {e1}",
-  "Six letters, {tries} tries, a clue if you get stuck.":
-    "Шесть букв, попыток: {tries}, а если застрянете, будет подсказка.",
+  "Play now":
+    "Играть",
   "Game of the day":
     "Игра дня",
   "{e1}, with a small example board. A new word to guess every morning.":
@@ -982,12 +982,41 @@ export const TODAY: Area = {
     "Одна ситуация для репетиции, выбранная по дате из тех, до которых дошёл ваш курс.",
   "Progress bar":
     "Шкала прогресса",
-  "Guess the Estonian word in six letters. Every guess tells you which letters are right.":
-    "Угадайте эстонское слово из шести букв. Каждая попытка показывает, какие буквы верны.",
+  "Guess the Estonian word in six letters.":
+    "Угадайте эстонское слово из шести букв.",
   "Put a real sentence back together, commas and all.":
     "Соберите настоящее предложение заново, со всеми запятыми.",
   "It's Friday, so keep it quiet: words you know, asked in new ways.":
     "Пятница, так что без суеты: знакомые слова в новых вопросах.",
+  // TODAY: THE JOKE AND THE GOOD NEWS.
+  "Joke of the day":
+    "Шутка дня",
+  "The joke":
+    "Шутка",
+  "Hear the joke":
+    "Послушать шутку",
+  "Show English":
+    "Показать по-английски",
+  "Hide English":
+    "Скрыть английский",
+  "Tap for the punchline":
+    "Нажмите, чтобы узнать концовку",
+  "Another one@joke":
+    "Ещё одну",
+  "Good news today":
+    "Хорошая новость дня",
+  "Another one@news":
+    "Ещё одну",
+  "Read it on ERR":
+    "Читать на ERR",
+  "Read the article":
+    "Читать статью",
+  "(opens in a new tab)":
+    "(откроется в новой вкладке)",
+  "A Juku joke, the kind every Estonian grew up on, with the English a tap away.":
+    "Шутка про Юку, на каких вырос каждый эстонец, с английским переводом по нажатию.",
+  "One happy headline from ERR, with the dictionary under every word.":
+    "Один радостный заголовок с ERR, и под каждым словом словарь.",
   },
   uk: {
   // TODAY: THE GREETING AND THE LINE UNDER IT.
@@ -1937,14 +1966,14 @@ export const TODAY: Area = {
     "(час повторити: {cards}, якщо хочеться потренувати те, що вже знаєте)",
   "about {minutes}":
     "близько {minutes}",
-  "a new word every day":
-    "нове слово щодня",
+  "Play a word game":
+    "Зіграйте в словесну гру",
   "An example board: three guesses, each circle marked {here}, {elsewhere} or {absent}.":
     "Приклад поля: три спроби, кожен кружок позначено: {here}, {elsewhere} або {absent}.",
   "Play {e1}":
     "Грати в {e1}",
-  "Six letters, {tries} tries, a clue if you get stuck.":
-    "Шість літер, спроб: {tries}, а якщо застрягнете, буде підказка.",
+  "Play now":
+    "Грати",
   "Game of the day":
     "Гра дня",
   "{e1}, with a small example board. A new word to guess every morning.":
@@ -1957,12 +1986,41 @@ export const TODAY: Area = {
     "Одна ситуація для репетиції, вибрана за датою з тих, до яких дійшов ваш курс.",
   "Progress bar":
     "Шкала прогресу",
-  "Guess the Estonian word in six letters. Every guess tells you which letters are right.":
-    "Вгадайте естонське слово з шести літер. Кожна спроба показує, які літери правильні.",
+  "Guess the Estonian word in six letters.":
+    "Вгадайте естонське слово з шести літер.",
   "Put a real sentence back together, commas and all.":
     "Зберіть справжнє речення заново, з усіма комами.",
   "It's Friday, so keep it quiet: words you know, asked in new ways.":
     "П'ятниця, тож без метушні: знайомі слова в нових запитаннях.",
+  // TODAY: THE JOKE AND THE GOOD NEWS.
+  "Joke of the day":
+    "Жарт дня",
+  "The joke":
+    "Жарт",
+  "Hear the joke":
+    "Послухати жарт",
+  "Show English":
+    "Показати англійською",
+  "Hide English":
+    "Сховати англійську",
+  "Tap for the punchline":
+    "Натисніть, щоб дізнатися кінцівку",
+  "Another one@joke":
+    "Ще один",
+  "Good news today":
+    "Добра новина дня",
+  "Another one@news":
+    "Ще одну",
+  "Read it on ERR":
+    "Читати на ERR",
+  "Read the article":
+    "Читати статтю",
+  "(opens in a new tab)":
+    "(відкриється в новій вкладці)",
+  "A Juku joke, the kind every Estonian grew up on, with the English a tap away.":
+    "Жарт про Юку, на яких виріс кожен естонець, з англійським перекладом за одним натиском.",
+  "One happy headline from ERR, with the dictionary under every word.":
+    "Один радісний заголовок з ERR, і під кожним словом словник.",
   },
   counted: {
     "new word": { en: ["new word", "new words"], ru: ["новое слово", "новых слова", "новых слов"], uk: ["нове слово", "нові слова", "нових слів"] },

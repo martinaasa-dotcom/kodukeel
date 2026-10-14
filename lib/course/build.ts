@@ -291,6 +291,9 @@ export function supportsRound(key: ActivityKey, taught: Taught, _level = "A2"): 
   switch (key) {
     case "conjugation": return taught.verbs;
     case "write": return cases;
+    /* A page of sentences of taught words, on a case whose page has been read
+       or on the present tense: what `linesFor` can set inside the module. */
+    case "workbook": return taught.readable && (cases || taught.topics.has("present-tense"));
     case "dictation": case "sentences": return taught.readable;
     case "government": return taught.topics.has("government") && taught.governed >= GOVERNED_FOR_ROUND;
     case "letters": return taught.spellable >= WORDS_FOR_LETTERS;
@@ -731,12 +734,14 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
 
 /**
  * The rounds that ask a case off the word's own forms, which inside the
- * module lead with the case today's reading was about (`tonightsCase`).
+ * module lead with the case today's reading was about (`tonightsCase`): the
+ * writing round, and the workbook, whose page on a case evening is a page of
+ * tonight's case.
  * The sprint is not one: it turns over the deck's cards, and a module's deck
  * holds a word's meaning and its spelling, so on a module evening it asks no
  * ending at all.
  */
-export const CASE_ROUNDS: ReadonlySet<ActivityKey> = new Set(["write"]);
+export const CASE_ROUNDS: ReadonlySet<ActivityKey> = new Set(["write", "workbook"]);
 
 /**
  * AN EVENING THAT READS A CASE PRACTISES IT.
@@ -755,12 +760,20 @@ export function onTheCase(
 ): ActivityKey[] {
   if (!caseEvening) return [...dealt];
   const rotation = ROTATION[level] ?? ROTATION.A1!;
-  const drills = rotation.filter((key) =>
-    ACTIVITIES[key].kind === "drill" && CASE_ROUNDS.has(key) && supportsRound(key, taught, level));
+  /*
+    THE WORKBOOK FIRST, WHERE THE WORDS CAN CARRY IT. The evening an ending is
+    read is the evening a guided page of it does the most: eight recorded
+    sentences, each needing that ending, with the first filled in. Writing a
+    sentence of your own around it is the harder ask and the better one once
+    the ending is familiar, which is every other evening it comes round on.
+  */
+  const drills = rotation
+    .filter((key) => ACTIVITIES[key].kind === "drill" && CASE_ROUNDS.has(key) && supportsRound(key, taught, level))
+    .sort((a, b) => Number(b === "workbook") - Number(a === "workbook"));
   const drill = drills.find((key) => !before.includes(key)) ?? drills[0];
-  const out = dealt.some((key) => CASE_ROUNDS.has(key)) || !drill
-    ? [...dealt]
-    : dealt.map((key) => (ACTIVITIES[key].kind === "drill" ? drill : key));
+  const keep = !drill || dealt.includes(drill)
+    || (dealt.some((key) => CASE_ROUNDS.has(key)) && drill !== "workbook");
+  const out = keep ? [...dealt] : dealt.map((key) => (ACTIVITIES[key].kind === "drill" ? drill : key));
   /* And not last night's pair again, which the swap can make where last
      night was a case evening too: the game moves on along the rotation,
      a case game first where the words can carry one. */

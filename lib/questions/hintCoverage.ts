@@ -97,10 +97,21 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
     why: "the crossing letters are the hint, which is what a criss-cross is for, and Check marks what is filled in",
   },
   {
+    file: "app/(app)/review/sayings/SayingsSession.tsx",
+    why: "the learner has just seen every saying with its meaning and matched all of them, and the gap's English is on"
+      + " the screen with the options, so a ladder would add nothing shorter than the question itself",
+  },
+  {
     file: "app/(app)/review/letters/LettersSession.tsx",
     why: "every letter of the answer is already on the screen, scrambled, so there is nothing to"
       + " uncover: the ladder is the round's own two tries, the second of which places the first"
       + " letter, and then the word itself, and `ratingFor` charges for both the way a rung does",
+  },
+  {
+    file: "app/(app)/review/workbook/WorkbookSession.tsx",
+    why: "a workbook page is checked whole and then opened again on the lines that missed, each with its"
+      + " ending (or its start) shown off `hintLadder`, and a line right on that second go is graded Hard,"
+      + " so the page is its own one-rung ladder and a second one per line would be two",
   },
   {
     file: "components/scene/SceneSession.tsx",

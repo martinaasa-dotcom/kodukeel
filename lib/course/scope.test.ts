@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PROGRAMMES, formsThrough, grammarThrough, taughtThrough } from "./index";
 import {
-  byRecency, recentLemmas, reviewable, scopeFor, scopeSoFar, slotWithin, tonightFirst, tonightsCase,
+  byRecency, cardWithin, recentLemmas, reviewable, scopeFor, scopeSoFar, slotWithin, tonightFirst, tonightsCase,
 } from "./scope";
 import { FORMS_STEP, MEET_STEP, READ_STEP } from "./types";
 import { caseFromFront } from "@/lib/copy/caseHint";
@@ -17,7 +17,7 @@ import { CASES } from "@/lib/estonian/cases";
 const a1 = PROGRAMMES.filter((p) => p.level === "A1");
 
 const card = (over: Partial<Parameters<typeof reviewable>[1]>) => ({
-  cardType: "RECOGNITION", targetCase: null, front: "tool", slot: null, source: "COURSE",
+  cardType: "RECOGNITION", targetCase: null, front: "tool", back: "tool", slot: null, source: "COURSE",
   lexeme: { lemma: "tool" }, ...over,
 });
 
@@ -65,6 +65,22 @@ describe("reviewable", () => {
 
   it("holds nobody who is not following the module", () => {
     expect(reviewable(null, card({ cardType: "CASE_FORM", front: "tool → allative" }), null)).toBe(true);
+  });
+
+  /*
+    The card reported two days after its sentence was refused: a `Card` row keeps
+    the front it was built with, so the refusal has to hold on the read, inside
+    the module and out of it, or the card comes back due for ever.
+  */
+  it("never asks a card cut from a refused sentence, in the module or out of it", () => {
+    const refused = card({
+      cardType: "CASE_FORM", targetCase: "ELATIVE", front: "Haige on ____ nõrk.", back: "palavikust",
+      lexeme: { lemma: "palavik" }, source: "MANUAL",
+    });
+    expect(reviewable(null, refused, null)).toBe(false);
+    expect(cardWithin(null, refused, null)).toBe(false);
+    // The same front with another answer is a different sentence and is asked.
+    expect(reviewable(null, { ...refused, back: "külmast" }, null)).toBe(true);
   });
 });
 

@@ -1958,6 +1958,9 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // `lib/estonian/grammarExamples.ts` rather than one a beginner's reading
     // level decides.
     "lib/progress/grammarExamples.ts": "looks one named sentence up to read its English back, picks none",
+    // The sayings round names its sentences by their text, the way the grammar pins do, so there is
+    // no list for a rank to order.
+    "lib/progress/sayings.ts": "looks the named sentences up to read their English back, picks none",
     "lib/progress/quest.ts": "reads back the English of the card's own sentence, picks none",
     // Asks which cases a word can build a card for at all, as a set. No
     // sentence it could pick reaches a screen, only whether one exists.
@@ -1970,6 +1973,7 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
   /* The pure builders, which take the rank as a field rather than reading it. */
   const BY_FIELD = [
     "lib/srs/cards.ts", "lib/collections/worksheet.ts", "lib/estonian/caseBuild.ts",
+    "lib/progress/twinQuestions.ts",
   ];
 
   const readsExamples = [...sourceFiles("app"), ...sourceFiles("lib")]
@@ -3105,6 +3109,9 @@ const MEASURES_RATHER_THAN_PRACTISES: string[] = [
   "app/(app)/review/describe/DescribeSession.tsx",
   // Twenty questions: asking a good question is not recalling a card, so there is no grade to write.
   "app/(app)/review/twenty/TwentySession.tsx",
+  // Väljendid: a saying is a pair of words and a sentence, not a card, so there is no review to write and no
+  // schedule to move. Handing sayings to the scheduler means a new kind of card, which is a later decision.
+  "app/(app)/review/sayings/SayingsSession.tsx",
 ];
 
 
@@ -5032,7 +5039,7 @@ check("Today draws at most TODAY_CARDS under the hero, and every card goes throu
     "Today names its cards and draws all of them again; the cap is what keeps the page glanceable",
   );
 
-  const open = today.indexOf('className="grid items-stretch gap-6 lg:grid-cols-2"');
+  const open = today.indexOf('className="flex flex-col gap-6 lg:grid lg:grid-cols-2 lg:items-start"');
   const close = today.indexOf("</Stack>", open);
   assert.ok(open >= 0 && close > open, "Today no longer lays its cards out in the two-across grid");
   const columns = today.slice(open, close);
@@ -8293,7 +8300,8 @@ check("the weakest case is read off the case that was asked, on every screen tha
   for (const file of ["lib/progress/cases.ts", "lib/classroom/roster.ts"]) {
     const src = code(file);
     assert.match(src, /\bcaseAsked\(/, `${file} reads the weakest case off the card rather than off what was asked`);
-    assert.match(src, /slot: true/, `${file} no longer selects the slot the answer was asked in`);
+    // Selected by the query, or carried off the cached review log (lib/progress/reviewLog.ts).
+    assert.match(src, /slot: true|\{[^}]*\bslot\b[^}]*\}\) => \(\{[^}]*\bslot\b/, `${file} no longer selects the slot the answer was asked in`);
   }
   assert.doesNotMatch(code("lib/classroom/roster.ts"), /targetCase: r(?:eview)?\.targetCase/,
     "the roster hands caseAccuracy the card's case again");
@@ -9597,6 +9605,11 @@ check("nothing is stored on a device that would need asking first", () => {
     // minutes rather than three. Letters and which clues were shown, never the
     // answers, which are rebuilt on the server to mark it.
     "app/(app)/crossword/resume.ts",
+    // A workbook page halfway filled in, which the server deals at random so a
+    // reload would otherwise deal a different one. The sentences dealt and what
+    // was typed, under the puzzle prefix the sign-out sweeps, removed when the
+    // page is finished and dropped after half a day.
+    "app/(app)/review/workbook/resume.ts",
     // Which card a review round was on, so a detour to its dictionary entry
     // and back does not read as the round restarting. Never necessary in the
     // sense the outbox is, since nothing is lost by starting over, but the
@@ -9712,8 +9725,11 @@ check("a headline is read through the dictionary's gate, and the feed writes not
   assert.match(reader, /newsHeadlines\(\)/, "the reader no longer reads the feed's own cache");
   assert.doesNotMatch(reader, /prisma\.(lexeme|form|card)\.(create|update|upsert|delete)/, "the headline reader writes to the dictionary");
   const screen = code("components/Headlines.tsx");
-  assert.match(screen, /token\.lemma \?/, "the screen links something other than a vouched lemma");
-  assert.match(screen, /encodeURIComponent\(token\.lemma\)/, "a link carries the headline's spelling rather than the headword");
+  // The links are drawn by the one word-linker the joke and the good news share.
+  assert.match(screen, /<LinkedWords tokens=\{headline\.tokens\}/, "the headlines no longer go through the shared word-linker");
+  const links = code("components/LinkedWords.tsx");
+  assert.match(links, /token\.lemma \?/, "the screen links something other than a vouched lemma");
+  assert.match(links, /encodeURIComponent\(token\.lemma\)/, "a link carries the headline's spelling rather than the headword");
   assert.match(screen, /from \{host\}/, "the block no longer names where the headline came from");
   // The feed module stays pure: no database, no browser, nothing of the learner's goes out.
   const feed = code("lib/news/feed.ts");
@@ -21985,10 +22001,14 @@ check("every round that puts one word up carries the favorite button", () => {
       "the same, a board rather than a card",
     [join("app", "(app)", "review", "describe", "DescribeSession.tsx")]:
       "a picture and five sentences of the learner's own, with no one word the round is about",
+    [join("app", "(app)", "review", "sayings", "SayingsSession.tsx")]:
+      "a pair of words in a sentence, with no one dictionary entry the round is about",
     [join("app", "(app)", "review", "cloze", "ClozeSession.tsx")]:
       "the subject is a sentence with a hole in it rather than a word",
     [join("app", "(app)", "review", "sentences", "SentenceSession.tsx")]:
       "the subject is the sentence, which is what the round asks about",
+    [join("app", "(app)", "review", "workbook", "WorkbookSession.tsx")]:
+      "a page of sentences at once, each about a different word, with no one card to put a corner on",
     [join("app", "(app)", "learn", "checkpoint", "[level]", "CheckpointSession.tsx")]:
       "a measurement rather than a round: it withholds every answer until the "
       + "end on purpose, and its questions carry no entry to keep",
@@ -22146,7 +22166,8 @@ check("a round's header, body and footer share one inset", () => {
   but whitespace, a comment or a `{cond && (...)}` wrapper between them.
 */
 function buttonRuns(source: string): { at: number; variants: string[]; container: string }[] {
-  const open = /<(Button|ButtonLink)\b/g;
+  // `AnotherRound` is a `ButtonLink` that builds its own address (lib/ux/again.ts).
+  const open = /<(Button|ButtonLink|AnotherRound)\b/g;
   const elementEnd = (pos: number): { end: number; attrs: string } => {
     const m = open.exec(source.slice(pos)) as RegExpExecArray;
     const name = m[1] as string;
@@ -25481,6 +25502,15 @@ check("the English of a shipped sentence is built once and read in one place", (
         that holds the sentence answers for it and this is never asked.
       */
       "lib/dict/examples.ts",
+      /*
+        And the sentences the Väljendid round needs that the dictionary never
+        kept, which `npm run harvest:sayings` checked against Ekilex. They are
+        shown to a learner, so they are read from the same sentence-keyed table
+        as every other, and `lib/estonian/sayings.test.ts` asserts each one
+        ships its line before the round may name it.
+      */
+      "lib/dict/sayingUsages.ts",
+      "lib/estonian/sayings.test.ts",
     ].sort(),
     "somebody else reads the shipped translations. lib/dict/exampleEnglish.ts is the one table and " +
     "there are four places a sentence is written down: the two halves of the seed, the repair that " +
@@ -25823,6 +25853,13 @@ check("looking back at the last word is one drawing, and it grades nothing", () 
     // The whole transcript of questions and answers stays on the screen, in order, so there is no
     // last word to look back at: every earlier question is already there.
     "app/(app)/review/twenty/TwentySession.tsx": "the transcript is the round",
+    // Five sayings, seen one at a time with a Back of its own, matched on one board that keeps all
+    // five on the screen, and filled one at a time with the saying and what it means printed after
+    // every answer. There is no earlier card the learner cannot already see.
+    "app/(app)/review/sayings/SayingsSession.tsx": "has its own Back, a one-screen board, and prints each answer's saying",
+    // A whole page of sentences is on the screen at once and stays there, numbered,
+    // so there is no last word: every line already answered is above the one in hand.
+    "app/(app)/review/workbook/WorkbookSession.tsx": "a page, not a card at a time",
     // A list of the cards you keep failing, with nothing stepping through.
     "app/(app)/review/clinic/ClinicList.tsx": "a list rather than a round",
     // A measurement that withholds every answer until the end, deliberately
@@ -26969,7 +27006,8 @@ check("a briefing keeps the round unmounted until it is pressed through", () => 
     the screen for itself.
   */
   const briefing = code("components/round/Briefing.tsx");
-  assert.match(briefing, /if \(started \|\| !brief\) return <>\{children\}<\/>;/,
+  // Returned through `FreshRound`, which keys it for another round (lib/ux/again.ts).
+  assert.match(briefing, /if \(started \|\| !brief\) return <FreshRound>\{children\}<\/FreshRound>;/,
     "Briefing.tsx no longer withholds the round until the briefing is pressed through");
   const drawers = ALL.filter((f) => f !== "components/round/Briefing.tsx" && /data-briefing=/.test(code(f)));
   assert.deepEqual(drawers, [], `${drawers.join(", ")} draws its own briefing instead of reading components/round/Briefing.tsx`);

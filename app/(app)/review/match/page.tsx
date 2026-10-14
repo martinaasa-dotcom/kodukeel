@@ -5,6 +5,7 @@ import { sameMeaning } from "@/lib/questions/distractors";
 import { requireUserId } from "@/lib/auth/session";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { RECENT_WORDS, byRecency, lemmaFilter, recentLemmas } from "@/lib/course/scope";
+import { FreshRound } from "@/components/round/FreshRound";
 import { MatchSession, type MatchPair } from "./MatchSession";
 import { practiceScope } from "@/lib/progress/moduleScope";
 import { meaningPrefsFrom, meaningsShown } from "@/lib/collections/glossLanguage";
@@ -128,5 +129,11 @@ export default async function MatchPage({
 
   const best = numberSetting(settings[SETTING_KEYS.matchBest], 0);
 
-  return <MatchSession pairs={pairs.length >= MIN_PAIRS ? pairs : []} best={best} />;
+  // No briefing to draw it through, so the round is keyed here: "Another
+  // round" names a new `round` and this is what makes it a new board.
+  return (
+    <FreshRound>
+      <MatchSession pairs={pairs.length >= MIN_PAIRS ? pairs : []} best={best} />
+    </FreshRound>
+  );
 }

@@ -1,7 +1,8 @@
+import { HeroFan } from "@/components/HeroFan";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { deckSnapshot } from "@/lib/progress/summary";
@@ -11,7 +12,7 @@ import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { isOrderable } from "@/lib/estonian/orderTiles";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { GAMES, QUICK_MODES, modeAt, type PracticeMode } from "@/lib/ux/modes";
+import { SHELVES, modeAt, shelfItems, type PracticeMode, type ShelfItem } from "@/lib/ux/modes";
 import { COMMON_GROUPS } from "@/lib/collections/commonGroups";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
@@ -24,6 +25,14 @@ export async function generateMetadata() {
 }
 
 export const dynamic = "force-dynamic";
+
+/** Situations has its own row in the rail, so the Workshop shelf describes it here. */
+const EXTRAS: Record<string, ShelfItem> = {
+  "/situations": {
+    href: "/situations", tone: "sky", icon: "MessagesSquare", title: "Situations",
+    subtitle: "A café, a ticket window, the doctor's",
+  },
+};
 
 /**
  * Every way to practice, in one place, with the state that decides whether each
@@ -118,9 +127,11 @@ export default async function PracticePage() {
     /* "34 ready" on a round that answers an A1 learner with "word order
        starts at A2" is the tile and the round disagreeing about one press. */
     "/review/sentences": !maySortWords(level) ? fill(tr(locale, "from {level}"), { level: BUILD_FROM }) : sentenceCount > 0 ? fill(tr(locale, "{n} ready"), { n: sentenceCount }) : undefined,
+    /* The same for the openers round, which waits for A2 on its own screen. */
+    "/review/openers": level === "A1" ? fill(tr(locale, "from {level}"), { level: "A2" }) : undefined,
     "/review/dictation": dictationCount > 0 ? fill(tr(locale, "{n} ready"), { n: dictationCount }) : undefined,
   };
-  const lineFor = (mode: PracticeMode) => {
+  const lineFor = (mode: Pick<PracticeMode, "href" | "subtitle">) => {
     const what = tr(locale, mode.subtitle);
     const now = live[mode.href];
     return now ? `${what}, ${now}` : what;
@@ -128,6 +139,25 @@ export default async function PracticePage() {
   const stocked = decks.filter((d) => d.wordCount > 0);
   const flash = modeAt("/review/flashcards");
   const common = modeAt("/review/common");
+  const workbook = modeAt("/review/workbook");
+  /*
+    The workbook's themes, as choices inside its card. "Set for you" leads,
+    because what the page is for is the ending this learner keeps missing,
+    read off their own log. A1 asks no case anywhere in the course, so there
+    the only theme is the present tense.
+  */
+  const workbookThemes: { theme: string | null; title: string; meta: string }[] = level === "A1"
+    ? [
+      { theme: null, title: "Set for you", meta: "From the words you've met" },
+      { theme: "present", title: "Present tense", meta: "For whoever is doing it" },
+    ]
+    : [
+      { theme: null, title: "Set for you", meta: "Your weakest ending first" },
+      { theme: "pronouns", title: "Personal pronouns", meta: "Through every case" },
+      { theme: "present", title: "Present tense", meta: "For whoever is doing it" },
+      { theme: "past", title: "Simple past", meta: "What happened" },
+      { theme: "mixed", title: "Mixed forms", meta: "A bit of everything" },
+    ];
 
   return (
     <Page route="/practice" title={tr(locale, "Practice")} lead={tr(locale, "The words you've met, asked every which way until they stick.")}>
@@ -158,23 +188,24 @@ export default async function PracticePage() {
             Progress, and where each word stands is a link inside the card
             whose round moves it.
           */}
-          <section className="night rounded-[var(--r-xl)] border p-6 md:p-9" aria-labelledby="practice-review">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-              <div className="min-w-0">
-                <p className="label-xs" style={{ color: "var(--butter-ink)" }}>{tr(locale, "Review")}</p>
-                <h2 id="practice-review" className="font-display mt-3 flex items-baseline gap-3 font-bold leading-none" style={{ color: "var(--ink)" }}>
-                  <span className="text-7xl tabular-nums md:text-8xl">{ready}</span>
-                  <span className="text-2xl md:text-3xl">{countOf(locale, ready, "card waiting").slice(String(ready).length + 1)}</span>
-                </h2>
-                <p className="mt-4 max-w-[48ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {tr(locale, "Each word comes back just before you'd forget it. We keep track of when, so you don't have to.")}
-                </p>
-              </div>
-              <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="w-full shrink-0 justify-center whitespace-nowrap lg:w-auto">
+          <HeroFan
+            eyebrow={tr(locale, "Review")}
+            title={ready > 0
+              ? fill(tr(locale, ready === 1 ? "{cards} is ready" : "{cards} are ready"), { cards: countOf(locale, ready, "card") })
+              : tr(locale, "Nothing is due right now")}
+            text={tr(locale, "Each word comes back just before you'd forget it.")}
+            cardsLabel={tr(locale, "Where your cards stand")}
+            cards={[
+              { figure: String(snapshot.dueCount), label: tr(locale, "Due now"), icon: "Clock" },
+              { figure: String(Math.min(snapshot.newForPractice, 10)), label: tr(locale, "New to meet"), icon: "Sparkles" },
+              { figure: String(unfinished), label: tr(locale, "To work on"), icon: "Target" },
+            ]}
+            action={
+              <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="whitespace-nowrap">
                 {ready > 0 ? tr(locale, "Review now") : tr(locale, "Nothing due, open it anyway")} <ArrowRight size={17} aria-hidden />
               </ButtonLink>
-            </div>
-          </section>
+            }
+          />
 
           {flash && common && (
             <section
@@ -192,12 +223,8 @@ export default async function PracticePage() {
                   {tr(locale, "Where your words stand")}
                 </Link>
               </div>
-              <p className="-mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                {tr(locale, "Your words, asked a new way each time: typed, heard in a sentence, or used in one you write. Pick which words.")}
-              </p>
-
               <ChoiceGroup label={tr(locale, "Your words")}>
-                <Choice href={flash.href} title={tr(locale, "All your words")} meta={flashMeta} />
+                <Choice href={flash.href} title={tr(locale, "All words")} meta={flashMeta} />
                 {stocked.map((deck) => (
                   <Choice
                     key={deck.id}
@@ -206,6 +233,7 @@ export default async function PracticePage() {
                     meta={countOf(locale, deck.wordCount, "word")}
                   />
                 ))}
+                <Choice href="/words/decks" title={tr(locale, "Add a deck")} />
               </ChoiceGroup>
 
               <ChoiceGroup label={tr(locale, common.title)} href={common.href}>
@@ -226,16 +254,57 @@ export default async function PracticePage() {
             </section>
           )}
 
-          {/*
-            EVERY OTHER ROUND, IN ONE GRID DRAWN ONE WAY.
+          {workbook && (
+            <section
+              aria-labelledby="practice-workbook"
+              className="flex flex-col gap-4 rounded-[var(--r-lg)] border p-5 md:p-6"
+              style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+              data-practice-workbook=""
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  aria-hidden
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-[var(--r)]"
+                  style={{ background: "var(--butter-soft)", color: toneInk("butter") }}
+                >
+                  <NamedIcon name={workbook.icon} size={22} />
+                </span>
+                <div className="min-w-0">
+                  <h2 id="practice-workbook" lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>
+                    {workbook.title}
+                  </h2>
+                  <p className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
+                    {tr(locale, "A page of real sentences. Put each word into the form it needs, then check.")}
+                  </p>
+                </div>
+              </div>
+              <ChoiceGroup label={tr(locale, "Choose a page")}>
+                {workbookThemes.map((choice) => (
+                  <Choice
+                    key={choice.theme ?? "set"}
+                    href={choice.theme ? `${workbook.href}?theme=${choice.theme}` : workbook.href}
+                    title={tr(locale, choice.title)}
+                    meta={tr(locale, choice.meta)}
+                    label={fill(tr(locale, "{round}: {list}, {group}"), {
+                      round: workbook.title,
+                      list: tr(locale, choice.title).toLowerCase(),
+                      group: tr(locale, choice.meta).toLowerCase(),
+                    })}
+                  />
+                ))}
+              </ChoiceGroup>
+            </section>
+          )}
 
-            The six rounds and the six games were two sections, each cycling
-            the whole palette, stacked on top of each other: the same six
-            colours twice in a row with two headings over them. What separates
-            a round from a game is not a decision anybody makes before pressing
-            one, so they are one shelf, rounds first. Drawn from the table
-            rather than listed here, so a round added to `lib/ux/modes.ts` with
-            `within: "/practice"` appears without anybody remembering this file.
+          {/*
+            THREE SHELVES, BY WHAT YOU ARE DOING IN THEM.
+
+            The rounds were one grid of twelve, which is a menu somebody reads
+            top to bottom to find the kind of thing they feel like. Steady
+            practice is the classic way of keeping words fresh, Word games are
+            for fun, and the Workshop is where you have to think and type.
+            Drawn from `SHELVES` in `lib/ux/modes.ts`, so a round added there
+            appears here without anybody remembering this file.
           */}
           <section aria-labelledby="practice-rounds">
             <SectionTitle hint={tr(locale, "a few minutes each")}>
@@ -243,23 +312,29 @@ export default async function PracticePage() {
             </SectionTitle>
             {/* Columns by the room the page has rather than by the window:
                 at 768 the rail takes a column and a viewport breakpoint laid
-                out three tiles where two fit. */}
-            <div className="@container"><div className="grid grid-cols-1 gap-3 @lg:grid-cols-2 @3xl:grid-cols-3">
-              {/* A conversation is one more way of using a word, so it is on
-                  this shelf rather than a row in the rail (`lib/ux/nav.ts`),
-                  drawn like the rounds under it and across the whole row, so the
-                  twelve under it still fill their rows. */}
-              <div className="@lg:col-span-2 @3xl:col-span-3">
-                <ModeTile
-                  mode={{ href: "/situations", tone: "sky", icon: "MessagesSquare", title: tr(locale, "Situations") }}
-                  line={tr(locale, "Talk your way through a real moment, at a café, a ticket window or the doctor's. Five to eight minutes.")}
-                />
-              </div>
-              {QUICK_MODES.map((m) => (
-                <ModeTile key={m.href} mode={{ ...m, title: tr(locale, m.title) }} line={lineFor(m)} />
-              ))}
-              {GAMES.map((m) => (
-                <ModeTile key={m.href} mode={{ ...m, title: tr(locale, m.title) }} line={lineFor(m)} />
+                out three cards where two fit. */}
+            <div className="@container"><div className="grid grid-cols-1 gap-4 @3xl:grid-cols-3">
+              {SHELVES.map((shelf) => (
+                <section
+                  key={shelf.id}
+                  aria-labelledby={`practice-shelf-${shelf.id}`}
+                  className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
+                  style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+                >
+                  <div className="px-5 pb-4 pt-5" style={{ background: `var(--${shelf.tone}-soft)` }}>
+                    <h3 id={`practice-shelf-${shelf.id}`} className="font-display text-xl font-bold" style={{ color: toneInk(shelf.tone) }}>
+                      {tr(locale, shelf.name)}
+                    </h3>
+                    <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{tr(locale, shelf.hint)}</p>
+                  </div>
+                  <ul className="flex flex-col p-2">
+                    {shelfItems(shelf, EXTRAS).map((m) => (
+                      <li key={m.href}>
+                        <ShelfRow mode={{ ...m, title: tr(locale, m.title) }} line={lineFor(m)} />
+                      </li>
+                    ))}
+                  </ul>
+                </section>
               ))}
             </div></div>
           </section>
@@ -270,33 +345,32 @@ export default async function PracticePage() {
 }
 
 /**
- * One round, drawn exactly like every other one.
+ * One round on a shelf, drawn exactly like every other one.
  *
- * The icon sits against the title's line rather than the middle of the tile,
- * so a tile whose second line wraps puts its icon where every other tile puts
- * it; `items-center` left the icon level with the middle of a three-line block
- * on one tile and a two-line block on its neighbour, and the row read uneven.
+ * The icon sits against the title's line rather than the middle of the row, so
+ * a row whose second line wraps puts its icon where every other row puts it.
  * One line under the title, never two: what the round is, and a live figure
  * after it where there is one.
  */
-function ModeTile({ mode, line }: { mode: Pick<PracticeMode, "href" | "tone" | "icon" | "title">; line: string }) {
+function ShelfRow({ mode, line }: { mode: Pick<PracticeMode, "href" | "tone" | "icon" | "title">; line: string }) {
   return (
     <Link
       href={mode.href}
-      className="lift flex h-full items-start gap-3 rounded-[var(--r-lg)] border p-4"
-      style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
+      className="tap-tint glow flex items-center gap-3 rounded-[var(--r)] px-3 py-3"
     >
       <span
         aria-hidden
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+        data-pop
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
         style={{ background: `var(--${mode.tone}-soft)`, color: toneInk(mode.tone) }}
       >
-        <NamedIcon name={mode.icon} size={18} aria-hidden />
+        <NamedIcon name={mode.icon} size={16} aria-hidden />
       </span>
-      <span className="min-w-0 flex-1 pt-0.5">
-        <span className="block text-base font-bold leading-snug" style={{ color: "var(--ink)" }}>{mode.title}</span>
-        <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-3)" }}>{line}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{mode.title}</span>
+        <span className="block text-sm" style={{ color: "var(--ink-3)" }}>{line}</span>
       </span>
+      <ChevronRight size={16} aria-hidden className="shrink-0" style={{ color: "var(--ink-3)" }} />
     </Link>
   );
 }
@@ -332,16 +406,16 @@ function ChoiceGroup({ label, href, children }: { label: string; href?: string; 
  * "Describing words", wrapped its name under its dot at every width, which
  * is the fault `scripts/test-containment.mjs` now asks about on every page.
  */
-function Choice({ href, title, meta, label }: { href: string; title: string; meta: string; label?: string }) {
+function Choice({ href, title, meta, label }: { href: string; title: string; meta?: string; label?: string }) {
   return (
     <Link
       href={href}
-      aria-label={label ? `${label}, ${meta}` : undefined}
+      aria-label={label && meta ? `${label}, ${meta}` : undefined}
       className="tap-tint flex min-h-11 flex-col justify-center rounded-[var(--r)] border px-3.5 py-2.5"
       style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
     >
       <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{title}</span>
-      <span className="text-xs" style={{ color: "var(--ink-3)" }}>{meta}</span>
+      {meta ? <span className="text-xs" style={{ color: "var(--ink-3)" }}>{meta}</span> : null}
     </Link>
   );
 }

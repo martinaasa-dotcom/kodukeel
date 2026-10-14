@@ -72,6 +72,17 @@ export function EstonianInput({
         autoFocus={autoFocus}
         placeholder={placeholder}
         disabled={disabled}
+        // This box is where a form is recalled, so nothing may finish it for the
+        // learner: not the browser's history of earlier answers (which listed
+        // `palavikus`, `palvik` and `palavik` under a typed "p"), not the spell
+        // checker's underline, not autocorrect. The browser's own dropdown is not
+        // ours to draw, so it is switched off at the field.
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        data-1p-ignore
+        data-lpignore="true"
         onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
         onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
           if (e.key === "Enter" && onEnter) { e.preventDefault(); onEnter(); }

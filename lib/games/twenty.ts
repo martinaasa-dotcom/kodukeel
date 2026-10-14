@@ -54,8 +54,9 @@
  * Pure: no React, no Prisma.
  */
 
+import { learnedBySpelling, learnedSaid, type LearnedWord } from "./twentyLearned";
 import {
-  CATEGORIES, COLOURS, KIND_HINT, PARTS, THINGS, THING_BY_LEMMA,
+  CATEGORIES, COLOURS, PARTS, THINGS, THING_BY_LEMMA,
   type Colour, type Kind, type Part, type Thing, type Where,
 } from "./twentyThings";
 
@@ -113,6 +114,8 @@ export interface Said {
   word?: string;
   thing?: { lemma: string | null; text: string };
   all?: readonly Said[];
+  /** The whole line already in the other languages, for a question the game learned (`twentyLearned.ts`). */
+  local?: { ru: string | null; uk: string | null };
 }
 
 export type Refusal = "empty" | "wh" | "or" | "compare" | "unknown";
@@ -137,6 +140,10 @@ export type Reply =
        * screen keeps this to say which things still fit everything said so far.
        */
       check?: (t: Thing) => Answer;
+      /** The same question as one already answered, which is told again and costs nothing. */
+      repeated?: boolean;
+      /** Words in the question the game could not read, reported so it can learn them. */
+      unknownWords?: string[];
       /** A guess at a word the game knows but could never be thinking of. */
       outside?: boolean;
     };
@@ -192,6 +199,8 @@ function level(t: Thing, key: string): "yes" | "sometimes" | null {
 
 /** What a degree word says where the thing has no fact either way. */
 function unsaid(t: Thing, key: string): Answer {
+  // An animal is soft to stroke or hard to the touch depending on which part of it, so with nothing said, sometimes.
+  if ((key === "soft" || key === "hard") && t.kind === "animal") return "sometimes";
   if (SHAPES.has(key)) return t.kind === "nature" && t.isa.includes("ilm") ? "no" : "sometimes";
   if (key === "wet") return living(t) ? "sometimes" : "no";
   if (key === "dry") return living(t) ? "sometimes" : "yes";
@@ -267,6 +276,8 @@ function isaTest(cat: string): (t: Thing) => Answer {
       case "seade": return t.isa.includes("masin") ? "yes" : "no";
       case "rõivas": return t.isa.includes("riideese") ? "yes" : "no";
       case "riideese": return t.isa.includes("rõivas") ? "yes" : "no";
+      // "riie" is clothing as well as fabric: "Kas see on riie?" asks whether you wear it.
+      case "riie": return t.isa.includes("riideese") || t.isa.includes("rõivas") ? "yes" : "no";
       case "toit": return t.use.includes("eat") ? "sometimes" : "no";
       default: return "no";
     }
@@ -361,6 +372,11 @@ const onEarth = (t: Thing): Answer => (t.where.includes("space") || t.isa.includ
   : t.where.includes("sea") && !t.where.includes("outdoors") ? "no"
   : t.kind === "nature" && t.isa.includes("ilm") && t.where.includes("sky") ? "sometimes"
   : t.can.includes("fly") ? "sometimes" : "yes");
+/* In a tree: what grows on one, what climbs or sits in one. */
+const TREE_FRUIT = new Set(["õun", "pirn", "ploom", "kirss", "apelsin", "sidrun", "pähkel"]);
+const onTree = (t: Thing): Answer => (TREE_FRUIT.has(t.lemma) || t.lemma === "leht" || t.lemma === "oks" || t.lemma === "orav" || t.lemma === "rähn" ? "yes"
+  : t.kind === "animal" && t.can.includes("climb") ? "yes"
+  : t.lemma === "banaan" || t.isa.includes("lind") || (t.kind === "animal" && t.canS.includes("climb")) ? "sometimes" : "no");
 const onTable = (t: Thing): Answer => (t.where.includes("table") ? "yes" : t.whereS.includes("table") ? "sometimes"
   : (t.kind === "object" || t.kind === "food" || t.kind === "drink") && t.size <= 3 && (t.where.includes("home") || t.where.includes("kitchen")) ? "sometimes" : "no");
 const withPeople = (t: Thing): Answer => (t.isa.includes("lemmikloom") || t.isa.includes("koduloom") ? "yes" : t.where.includes("home") || t.whereS.includes("home") ? "sometimes" : "no");
@@ -501,6 +517,8 @@ const DESCRIBING: Record<string, Meaning> = {
   maitsev: fixed("tasty", "Is it tasty?", opinion("tasty"), true),
   tervislik: fixed("healthy", "Is it healthy?", opinion("healthy"), true),
   armas: fixed("cute", "Is it cute?", opinion("cute"), true),
+  tark: fixed("clever", "Is it clever?", (t) => (t.kind === "animal" ? "sometimes" : "no"), true),
+  nutikas: fixed("clever", "Is it clever?", (t) => (t.kind === "animal" ? "sometimes" : "no"), true),
   hirmus: fixed("scary", "Is it scary?", opinion("scary"), true),
   lõbus: fixed("fun", "Is it fun?", opinion("fun"), true),
   igav: fixed("boring", "Is it boring?", opinion("boring"), true),
@@ -522,6 +540,105 @@ for (const c of COLOURS) {
     test: (t) => listed(t.colour, t.colourS, c),
   };
 }
+
+/*
+  More describing words a learner reaches for, each read off facts the things already
+  carry or off a short named list, so none of them is a guess about one thing. A word
+  with nothing honest to read is left out and goes to the learning loop instead
+  (`lib/progress/twentyLearned.ts`), which is how the game hears about the next one.
+*/
+const fruitLike = (t: Thing) => t.isa.includes("puuvili") || t.isa.includes("mari");
+const veg = (t: Thing) => t.isa.includes("köögivili");
+const eaten = (t: Thing) => t.use.includes("eat") || t.useS.includes("eat");
+const STRIPED = new Set(["sebra", "tiiger", "mesilane", "herilane", "arbuus"]);
+const SPOTTED = new Set(["kaelkirjak", "lepatriinu", "ilves", "leopard", "seen"]);
+const FATTY = new Set(["vorst", "juust", "sink", "õli", "pähkel", "šokolaad", "kook", "pitsa"]);
+const CRISP = new Set(["küpsis", "õun", "porgand", "kapsas", "pähkel", "leib", "sai"]);
+const SPICY = new Set(["pipar", "küüslauk", "sibul", "kaste", "vorst", "pitsa"]);
+const FEELINGS = (t: Thing): Answer => (t.kind === "animal" ? "sometimes" : "no");
+const shiny = (t: Thing): Answer => (t.does.includes("shine") || t.made.includes("kuld") || t.lemma === "jää" || t.lemma === "peegel" ? "yes"
+  : t.made.includes("metall") || t.made.includes("klaas") || t.made.includes("raud") || t.madeS.includes("metall") || t.madeS.includes("klaas") || t.isa.includes("kala") ? "sometimes" : "no");
+const opposite = (test: (t: Thing) => Answer) => (t: Thing): Answer => {
+  const a = test(t);
+  return a === "yes" ? "no" : a === "no" ? "yes" : a;
+};
+const tiny = (t: Thing) => bySize(t, (n) => (n <= 1 ? "yes" : n === 2 ? "sometimes" : "no"));
+const huge = (t: Thing) => bySize(t, (n) => (n >= 9 ? "yes" : n === 8 ? "sometimes" : "no"));
+const madeOf = (m: string) => (t: Thing): Answer => listed(t.made, t.madeS, m);
+const pretty = opinion("pretty");
+const dangerous = (t: Thing) => degree(t, "dangerous");
+const harmful = (t: Thing): Answer => {
+  const both = [dangerous(t), degree(t, "poisonous")];
+  return both.includes("yes") ? "yes" : both.includes("sometimes") ? "sometimes" : "no";
+};
+
+Object.assign(DESCRIBING, {
+  mahlane: fixed("juicy", "Is it juicy?", (t) => (fruitLike(t) ? "yes" : veg(t) || t.lemma === "tomat" ? "sometimes" : "no"), true),
+  krõbe: fixed("crisp", "Is it crisp?", (t) => (CRISP.has(t.lemma) ? "sometimes" : t.kind === "food" && veg(t) ? "sometimes" : "no"), true),
+  küps: fixed("ripe", "Is it ripe?", (t) => (fruitLike(t) || veg(t) ? "sometimes" : "no"), true),
+  värske: fixed("fresh", "Is it fresh?", (t) => (t.kind === "food" || t.kind === "drink" || t.kind === "plant" ? "sometimes" : "no"), true),
+  toores: fixed("raw", "Is it raw?", (t) => (fruitLike(t) ? "yes" : veg(t) || t.lemma === "liha" || t.lemma === "muna" || t.lemma === "kala" ? "sometimes" : "no"), true),
+  rasvane: fixed("fatty", "Is it fatty?", (t) => (FATTY.has(t.lemma) ? "yes" : t.kind === "food" ? "sometimes" : t.lemma === "siga" || t.lemma === "hüljes" || t.lemma === "vaal" ? "sometimes" : "no"), true),
+  vürtsikas: fixed("spicy", "Is it spicy?", (t) => (t.lemma === "pipar" ? "yes" : SPICY.has(t.lemma) ? "sometimes" : "no"), true),
+  kibe: fixed("bitter", "Is it bitter?", (t) => degree(t, "bitter"), true),
+  mage: fixed("bland", "Is it bland?", (t) => (eaten(t) || t.kind === "drink" ? (degree(t, "salty") === "yes" || degree(t, "sweet") === "yes" || degree(t, "sour") === "yes" ? "no" : "sometimes") : "no"), true),
+  vedel: fixed("liquid", "Is it a liquid?", isaTest("vedelik"), true),
+  libe: fixed("slippery", "Is it slippery?", (t) => (t.lemma === "jää" || t.lemma === "seep" || t.lemma === "õli" ? "yes" : t.isa.includes("kala") || t.lemma === "tigu" || t.lemma === "uss" || degree(t, "wet") === "yes" ? "sometimes" : "no"), true),
+  sile: fixed("smooth", "Is it smooth?", (t) => (t.made.includes("klaas") || t.lemma === "jää" || t.lemma === "peegel" ? "yes"
+    : listed(t.has, t.hasS, "karv") !== "no" || listed(t.has, t.hasS, "sulg") !== "no" || t.isa.includes("puu") || SPINY.has(t.lemma) ? "no" : "sometimes"), true),
+  kare: fixed("rough", "Is it rough?", (t) => (t.isa.includes("puu") || t.lemma === "kivi" || t.lemma === "liiv" || t.lemma === "saag" ? "yes"
+    : t.made.includes("klaas") || t.lemma === "jää" || t.lemma === "peegel" ? "no" : "sometimes"), true),
+  karune: fixed("hairy", "Is it hairy?", part("karv"), true),
+  okkaline: fixed("prickly", "Is it prickly?", (t) => (SPINY.has(t.lemma) ? "yes" : "no"), true),
+  triibuline: fixed("striped", "Is it striped?", (t) => (STRIPED.has(t.lemma) ? "yes" : "no"), true),
+  täpiline: fixed("spotted", "Is it spotted?", (t) => (SPOTTED.has(t.lemma) ? "yes" : "no"), true),
+  läikiv: fixed("shiny", "Is it shiny?", shiny, true),
+  kuldne: fixed("golden", "Is it golden?", (t) => (t.made.includes("kuld") ? "yes" : listed(t.colour, t.colourS, "kollane") !== "no" || t.madeS.includes("kuld") ? "sometimes" : "no"), true),
+  hõbedane: fixed("silver", "Is it silver?", (t) => (t.made.includes("metall") || t.madeS.includes("metall") ? "sometimes" : "no"), true),
+  raudne: fixed("iron", "Is it made of iron?", madeOf("raud"), true),
+  puuvillane: fixed("cotton", "Is it made of cotton?", madeOf("puuvill"), true),
+  lõhnav: fixed("fragrant", "Does it smell nice?", (t) => (t.isa.includes("lill") || t.lemma === "seep" || t.lemma === "kohv" ? "yes" : does("smell")(t) === "no" ? "no" : "sometimes"), true),
+  haisev: fixed("smelly", "Does it smell bad?", (t) => (degree(t, "smelly") === "yes" ? "yes" : does("smell")(t) === "no" ? "no" : "sometimes"), true),
+  pisike: fixed("tiny", "Is it tiny?", tiny, true),
+  tilluke: fixed("tiny", "Is it tiny?", tiny, true),
+  hiiglaslik: fixed("huge", "Is it huge?", huge, true),
+  peenike: fixed("thin", "Is it thin?", (t) => degree(t, "thin"), true),
+  jäme: fixed("thick", "Is it thick?", (t) => degree(t, "thick"), true),
+  kõhn: fixed("skinny", "Is it skinny?", (t) => (t.kind === "animal" ? (degree(t, "thin") === "yes" ? "yes" : "sometimes") : "no"), true),
+  ovaalne: fixed("oval", "Is it oval?", (t) => (t.lemma === "muna" || t.lemma === "ploom" || t.lemma === "melon" || t.lemma === "arbuus" ? "yes" : degree(t, "round") === "yes" ? "sometimes" : "no"), true),
+  jahe: fixed("cool", "Is it cool?", (t) => degree(t, "cold"), true),
+  jääkülm: fixed("ice cold", "Is it ice cold?", (t) => (t.lemma === "jää" || t.lemma === "lumi" || t.lemma === "jäätis" ? "yes" : degree(t, "cold") === "no" ? "no" : "sometimes"), true),
+  tuline: fixed("hot", "Is it hot?", (t) => (t.trait.includes("hot") ? "yes" : t.feel.includes("warm") || t.feelS.includes("warm") ? "sometimes" : "no"), true),
+  pime: fixed("dark", "Is it dark?", opinion("dark"), true),
+  ere: fixed("bright", "Is it bright?", opinion("bright"), true),
+  ohutu: fixed("safe", "Is it safe?", opposite(harmful), true),
+  kahjulik: fixed("harmful", "Is it harmful?", harmful, true),
+  loomulik: fixed("natural", "Is it a natural thing, not made by people?", (t) => degree(t, "natural"), true),
+  kunstlik: fixed("artificial", "Is it made by people?", opposite((t) => degree(t, "natural")), true),
+  elektrooniline: fixed("electric", "Does it run on electricity?", electric, true),
+  noor: fixed("young", "Is it young?", (t) => (living(t) ? "sometimes" : "no"), true),
+  näljane: fixed("hungry", "Is it hungry?", FEELINGS, true),
+  haige: fixed("ill", "Is it ill?", FEELINGS, true),
+  rõõmus: fixed("cheerful", "Is it cheerful?", FEELINGS, true),
+  kurb: fixed("sad", "Is it sad?", FEELINGS, true),
+  vihane: fixed("angry", "Is it angry?", FEELINGS, true),
+  kuri: fixed("fierce", "Is it fierce?", (t) => (t.kind !== "animal" ? "no" : dangerous(t) === "yes" ? "yes" : "sometimes"), true),
+  sõbralik: fixed("friendly", "Is it friendly?", (t) => (t.kind !== "animal" ? "no" : dangerous(t) === "yes" ? "no" : "sometimes"), true),
+  laisk: fixed("lazy", "Is it lazy?", FEELINGS, true),
+  julge: fixed("brave", "Is it brave?", FEELINGS, true),
+  arg: fixed("timid", "Is it timid?", (t) => (t.kind !== "animal" ? "no" : t.lemma === "jänes" || t.lemma === "hiir" || t.lemma === "hirv" ? "yes" : "sometimes"), true),
+  rumal: fixed("stupid", "Is it stupid?", FEELINGS, true),
+  loll: fixed("stupid", "Is it stupid?", FEELINGS, true),
+  arukas: fixed("clever", "Is it clever?", FEELINGS, true),
+  unine: fixed("sleepy", "Is it sleepy?", FEELINGS, true),
+  kole: fixed("ugly", "Is it ugly?", opposite(pretty), true),
+  kaunis: fixed("pretty", "Is it pretty?", pretty, true),
+  kena: fixed("nice", "Is it nice?", pretty, true),
+  naljakas: fixed("funny", "Is it funny?", opinion("fun"), true),
+  huvitav: fixed("interesting", "Is it interesting?", opposite(opinion("boring")), true),
+  kasutu: fixed("useless", "Is it useless?", opposite(opinion("useful")), true),
+  mugav: fixed("comfortable", "Is it comfortable?", (t) => (t.isa.includes("mööbel") || t.kind === "clothes" || t.lemma === "padi" || t.lemma === "tekk" ? "sometimes" : "no"), true),
+});
 
 const SPINY = new Set(["kuusk", "mänd", "kaktus", "roos", "siil", "kibuvits", "nõges"]);
 const DERIVED_PARTS: Record<string, { en: string; test: (t: Thing) => Answer }> = {
@@ -688,6 +805,8 @@ const PLACES: Record<string, { at: (t: Thing) => Answer; id: string; en: string;
   loomaaed: { id: "zoo", at: inZoo, en: "Is it in a zoo?", cases: ["INESSIVE"] },
   sein: { id: "wall", at: onWall, en: "Is it on the wall?", cases: ["ADESSIVE"] },
   põrand: { id: "floor", at: onFloor, en: "Is it on the floor?", cases: ["ADESSIVE"] },
+  // "puul", "puule": on a tree. "puust" is wood, and is read as a material before this.
+  puu: { id: "tree", at: onTree, en: "Is it in a tree?", cases: ["ADESSIVE", "ALLATIVE", "ABLATIVE"] },
 };
 
 /** Where a postposition says it is: "maa all", "laua peal", "inimese juures". */
@@ -696,8 +815,13 @@ const POSTPOSITIONS: Record<string, Record<string, { id: string; at: (t: Thing) 
   peal: {
     maa: { id: "on-earth", at: onEarth, en: "Is it on the ground, on Earth?" },
     laud: { id: "table", at: onTable, en: "Is it on the table?" },
+    puu: { id: "tree", at: onTree, en: "Is it in a tree?" },
   },
   juures: { inimene: { id: "with-people", at: withPeople, en: "Does it live with people?" } },
+  // "puu otsas", "puu otsa", "puu otsast": in a tree, and never a guess that it is one.
+  otsas: { puu: { id: "tree", at: onTree, en: "Is it in a tree?" } },
+  otsa: { puu: { id: "tree", at: onTree, en: "Is it in a tree?" } },
+  otsast: { puu: { id: "tree", at: onTree, en: "Is it in a tree?" } },
 };
 
 /** "kõrgel": high up. A place word with no noun behind it. */
@@ -813,6 +937,8 @@ export interface AskOptions {
    * repaired, which is the right side to err on offline.
    */
   real?: ReadonlySet<string>;
+  /** Words the game learned from earlier questions, for everybody (`twentyLearned.ts`). */
+  learned?: readonly LearnedWord[];
 }
 
 /**
@@ -832,10 +958,11 @@ export function ask(
   if (raws.length === 0) return { kind: "refused", why: "empty", tips: [] };
 
   const tips: Tip[] = [];
+  const learnedWords = learnedBySpelling(opts.learned);
   const repaired: { from: string; to: string }[] = [];
   const words: Word[] = raws.map((raw) => {
     const readings = lookup(raw);
-    if (readings.length > 0 || NAMES[raw] || raw in COMPARATIVES || NEGATION.has(raw) || raw === "kõrgel") return { raw, read: raw, readings };
+    if (readings.length > 0 || NAMES[raw] || raw in COMPARATIVES || NEGATION.has(raw) || raw === "kõrgel" || learnedWords.has(raw)) return { raw, read: raw, readings };
     const fix = opts.real?.has(raw) ? null : opts.repair?.(raw) ?? null;
     if (fix) {
       repaired.push({ from: raw, to: fix });
@@ -859,7 +986,9 @@ export function ask(
   const object = words.some((w) => w.readings.some((r) => r.lemma === "see" && r.case === "PARTITIVE") || w.raw === "seda");
   const impersonal = words.some((w) => /(?:t|d)?akse$|kse$/.test(w.read) && w.readings.length > 0 && w.readings.every((r) => !r.base));
   const modal = words.some((w) => w.readings.some((r) => MODAL.has(r.lemma)));
-  const passive = impersonal || (modal && !words.some((w) => w.raw === "see" || w.raw === "ta")) || object;
+  // "Kas see on midagi süüa?": something to eat, so the verb is what is done to it.
+  const something = words.some((w) => w.raw === "midagi");
+  const passive = impersonal || something || (modal && !words.some((w) => w.raw === "see" || w.raw === "ta")) || object;
 
   const used = new Set<number>();
   const found: Found[] = [];
@@ -929,6 +1058,19 @@ export function ask(
       found.push({ raw: `${before.raw} ${w.raw}`, role: "place", meaning: fixed(`where:${at.id}`, at.en, at.at, false) });
       return;
     }
+  });
+
+  /** Spellings read as part of a set phrase, which a spelling tip may not then "correct". */
+  const phrased = new Set<string>();
+  // "mitme värvi": of many colours, which is colourful and not a guess at paint.
+  words.forEach((w, i) => {
+    if (used.has(i) || w.raw !== "mitme") return;
+    const next = words[i + 1];
+    // "värv" is not a word the game asks the dictionary for, so the spelling decides.
+    if (!next || !/^värvi(?:li\w*)?$/.test(next.raw)) return;
+    used.add(i); used.add(i + 1);
+    phrased.add(next.raw);
+    found.push({ raw: `${w.raw} ${next.raw}`, role: "describing", meaning: DESCRIBING.värviline! });
   });
 
   // "osa kehast", "osa loodusest": a part of something is a kind of it.
@@ -1015,6 +1157,16 @@ export function ask(
 
   // Everything else, word by word.
   const unknownWords: string[] = [];
+  /** A word the game learned from an earlier "Ei tea", read before giving up on it. */
+  const learnedFor = (w: Word): boolean => {
+    const word = learnedWords.get(w.read) ?? learnedWords.get(w.raw) ?? lemmasOf(w).map((l) => learnedWords.get(l)).find(Boolean);
+    if (!word) return false;
+    found.push({ raw: w.raw, role: "describing", meaning: {
+      id: `learned:${word.lemma}`, en: word.en, said: learnedSaid(word), copula: false,
+      test: (t) => word.answers[t.lemma] ?? "unknown",
+    } });
+    return true;
+  };
   words.forEach((w, i) => {
     if (used.has(i)) return;
     const readings = w.readings;
@@ -1029,6 +1181,7 @@ export function ask(
       if (w.read === "kõrgel") { found.push({ raw: w.raw, role: "place", meaning: fixed(`where:${HIGH_UP.id}`, HIGH_UP.en, HIGH_UP.at, true) }); return; }
       if (NEGATION.has(w.read)) return;
       if (w.raw === "sa" || w.raw === "te") return;
+      if (learnedFor(w)) return;
       unknownWords.push(w.raw);
       return;
     }
@@ -1132,12 +1285,13 @@ export function ask(
 
     // A verb that only frames the question.
     if (lemmas.some((l) => FRAME_VERBS.has(l) || MODAL.has(l))) return;
-    // A word the dictionary knows, and the game has nothing to say about.
+    // A word the dictionary knows, and the game has nothing to say about, unless it has since learned it.
+    if (learnedFor(w)) return;
     unknownWords.push(w.raw);
   });
 
   for (const { from, to } of repaired) {
-    if (!unknownWords.includes(from)) tips.push({ id: `spell:${from}`, en: "Check the spelling. I read your word as:", example: to });
+    if (!unknownWords.includes(from) && !phrased.has(from)) tips.push({ id: `spell:${from}`, en: "Check the spelling. I read your word as:", example: to });
   }
   if (addressed) {
     tips.push({ id: "see", en: "Ask about the thing, see (it), rather than sa (you).", example: exampleFrom(raws) });
@@ -1180,7 +1334,10 @@ export function ask(
     found.push({ raw: "elab", role: "describing", meaning: DESCRIBING.elus! });
   }
 
-  const distinct = [...new Map(found.map((f) => [f.meaning.id, f])).values()];
+  // "Kas see kasvab puu otsas?": growing frames the place, and the place says the rest.
+  const placed = found.some((f) => f.role === "place");
+  const framed = placed ? found.filter((f) => f.meaning.id !== "grow") : found;
+  const distinct = [...new Map(framed.map((f) => [f.meaning.id, f])).values()];
 
   if (distinct.length === 0) {
     // A well-formed question made of words the dictionary knows, about something the game has no
@@ -1188,7 +1345,7 @@ export function ask(
     const known = words.filter((w) => w.readings.length > 0).length;
     if (startsWithKas && words.length >= 3 && known * 2 >= words.length && unknownWords.length <= 1) {
       const reading = "Taken as a yes or no question I have no facts for.";
-      return finish({ kind: "answer", answer: "unknown", reading, said: { en: reading }, guess: false, won: false, counts: false, tips: [] }, tips);
+      return finish({ kind: "answer", answer: "unknown", reading, said: { en: reading }, guess: false, won: false, counts: false, tips: [], unknownWords }, tips);
     }
     return { kind: "refused", why: "unknown", tips: dedupe(startsWithKas ? tips : [kasTip(), ...tips]), unknownWords };
   }
@@ -1226,6 +1383,7 @@ export function ask(
   return finish({
     kind: "answer", answer: negate(answer), reading, said, guess: named !== null, won,
     counts: answer !== "unknown", tips: [], check: (t) => negate(test(t)),
+    ...(unknownWords.length > 0 ? { unknownWords } : {}),
   }, tips);
 
   function finish(reply: Reply, extra: Tip[]): Reply {
@@ -1490,10 +1648,175 @@ export interface Turn {
 }
 
 /** How many of the learner's turns spent a question. Turned-away ones did not. */
-export function spent(turns: readonly { reply: Reply | { kind: "hint" } }[]): number {
+export function spent(turns: readonly { reply: { kind: string; counts?: boolean } }[]): number {
   return turns.filter((t) => (t.reply.kind === "answer" && t.reply.counts) || t.reply.kind === "hint").length;
 }
 
-export function hintFor(secret: Thing): string {
-  return KIND_HINT[secret.kind];
+/*
+  HINTS ARE A LADDER, and each rung costs a question. The kind of thing is said
+  for free before the first question, which is how the game has always been
+  played ("animal, vegetable or mineral"), so the first rung is the next thing
+  a person would say: what sort of it, what you do with it, or where it is.
+  Then the first letter, then the shape of the word. The last rung still leaves
+  the word to be said, so a hint never answers for the learner.
+*/
+export interface Hint {
+  en: string;
+  /** Translation context, where the sentence carries a word that is translated under it. */
+  context?: string;
+  /** Values for the sentence's placeholders. A `word` is translated, the rest are not. */
+  vars?: Record<string, string | number>;
+}
+
+/** What sort of thing, past what its kind already said. In order, most telling first. */
+const SORT_HINT: readonly (readonly [string, string])[] = [
+  ["lind", "It is a bird."], ["kala", "It is a fish."], ["putukas", "It is an insect."],
+  ["roomaja", "It is a reptile."], ["imetaja", "It is a mammal."], ["puu", "It is a tree."],
+  ["lill", "It is a flower."], ["seen", "It is a mushroom."], ["puuvili", "It is a fruit."],
+  ["köögivili", "It is a vegetable."], ["mari", "It is a berry."], ["maiustus", "It is something sweet to eat."],
+  ["mööbel", "It is a piece of furniture."], ["tööriist", "It is a tool."], ["mänguasi", "It is a toy."],
+  ["pill", "It is a musical instrument."], ["nõu", "You eat, drink or cook with it."],
+  ["seade", "It is a machine or a device."], ["ilm", "It is a kind of weather."],
+  ["taevakeha", "You see it in the sky."], ["koht", "It is a place you can be in."],
+];
+
+/** What you do with it, where its kind has not said so already. */
+const USE_HINT: Partial<Record<string, string>> = {
+  wear: "You wear it.", read: "You read it.", write: "You write with it.", ride: "You ride on it or in it.",
+  sit: "You sit on it.", sleep: "You sleep on it or with it.", play: "You play with it.", cut: "You cut with it.",
+  call: "You can make a call with it.", listen: "You listen to it.", watch: "You watch it.",
+};
+
+/** Where it is, the most telling place first. */
+const PLACE_HINT: readonly (readonly [string, string])[] = [
+  ["fridge", "It is kept in the fridge."], ["sea", "You find it in or by the sea."], ["sky", "You see it in the sky."],
+  ["forest", "You find it in the forest."], ["water", "You find it in or by water."], ["kitchen", "You find it in the kitchen."],
+  ["garden", "You find it in a garden."], ["bed", "You find it in bed."], ["field", "You find it in a field."],
+  ["beach", "You find it on a beach."], ["school", "You find it at school."], ["home", "You find it at home."],
+];
+
+const TASTE_HINT: readonly (readonly [string, string])[] = [
+  ["sweet", "It tastes sweet."], ["salty", "It tastes salty."], ["sour", "It tastes sour."],
+];
+
+/** The first rung: one fact that narrows the kind, or nothing where the thing has none worth saying. */
+function sortHint(t: Thing): Hint | null {
+  const sort = SORT_HINT.find(([cat]) => t.isa.includes(cat));
+  if (sort) return { en: sort[1] };
+  const use = t.use.find((u) => USE_HINT[u] && !(u === "wear" && t.kind === "clothes") && !(u === "ride" && t.kind === "vehicle"));
+  if (use) return { en: USE_HINT[use]! };
+  const taste = (t.kind === "food" || t.kind === "drink") ? TASTE_HINT.find(([k]) => t.trait.includes(k)) : undefined;
+  if (taste) return { en: taste[1] };
+  const place = PLACE_HINT.find(([w]) => t.where.includes(w as Where));
+  if (place) return { en: place[1] };
+  if (t.colour.length === 1) return { en: "It is usually {word}.", context: "colour", vars: { word: COLOUR_EN[t.colour[0]!] } };
+  return null;
+}
+
+/** The word with its first and last letters shown and the rest as blanks: "k _ _ r". */
+export function letterPattern(word: string): string {
+  const letters = [...word];
+  return letters.map((ch, i) => (i === 0 || i === letters.length - 1 || ch === " " ? ch : "_")).join(" ");
+}
+
+/** Every hint the round can give, in the order they are given. */
+export function cluesFor(secret: Thing): Hint[] {
+  const first = [...secret.lemma][0]!.toUpperCase();
+  return [
+    ...(sortHint(secret) ? [sortHint(secret)!] : []),
+    { en: "The word starts with {letter}.", vars: { letter: first } },
+    { en: "The word has {n} letters: {pattern}", vars: { n: [...secret.lemma].length, pattern: letterPattern(secret.lemma) } },
+  ];
+}
+
+/*
+  A QUESTION ASKED IN ENGLISH is the commonest thing a beginner types when the
+  Estonian will not come, and turning it away teaches nothing. So it is met with
+  the Estonian for it, to put in the box: one of the game's own questions where
+  the English is one of theirs, or "Kas see on …?" around a thing or a kind of
+  thing the dictionary's own English names. Nothing is written here: every
+  Estonian word handed back is a headword or a question this file already holds.
+*/
+const ENGLISH_START = /^(?:is|are|does|do|can|has|have|was|would|could)\b/i;
+
+const plainEnglish = (s: string) => s.toLowerCase().replace(/[’']/g, "'").replace(/[^a-z' ]+/g, " ").replace(/\s+/g, " ").trim();
+
+/** English to Estonian for the game's own questions, by their English. */
+const ENGLISH_QUESTIONS: ReadonlyMap<string, string> = new Map(
+  [...SUGGESTIONS, ...IDEAS.flatMap((g) => g.ideas)].map((q) => [plainEnglish(q.en), q.et] as const),
+);
+
+/**
+ * The Estonian to offer for a question typed in English, or null where it is
+ * not English. `glosses` is headword to short English, as the round has it.
+ */
+export function inEstonian(question: string, glosses: Readonly<Record<string, string>>): { example: string | null } | null {
+  const text = plainEnglish(question);
+  if (!ENGLISH_START.test(text) || /[õäöüšž]/i.test(question) || /^kas\b/i.test(question.trim())) return null;
+  const own = ENGLISH_QUESTIONS.get(text);
+  if (own) return { example: own };
+  const named = /^(?:is|was) (?:it|this|that) (?:an? |the )?([a-z' ]+)$/.exec(text)?.[1];
+  if (named) {
+    const lemma = englishToLemma(named, glosses);
+    if (lemma) return { example: `Kas see on ${lemma}?` };
+  }
+  return { example: null };
+}
+
+/** A thing or a kind of thing whose short English is exactly this. */
+export function englishToLemma(english: string, glosses: Readonly<Record<string, string>>): string | null {
+  const want = plainEnglish(english);
+  const candidates = [...THINGS.map((t) => t.lemma), ...CATEGORIES];
+  for (const lemma of candidates) {
+    const g = glosses[lemma];
+    if (g && plainEnglish(g) === want) return lemma;
+  }
+  return null;
+}
+
+/*
+  TOPICS. Classroom twenty questions narrows the topic for a beginner, and the old
+  parlour game opened with "animal, vegetable or mineral", so the game says up front
+  which of a few groups the thing is in. It picks the group itself, every round:
+  a chooser on a screen whose whole job is a question was one more decision before
+  the first one, and the line it chose beside the line naming the thing's kind read
+  as the game saying the learner's own pick back to them. Every kind of thing is in
+  exactly one group, asserted, so nothing in the world is unreachable.
+*/
+export interface Topic {
+  id: string;
+  kinds: readonly Kind[];
+  /** What the game says before the first question, in place of the thing's own kind. */
+  says: string;
+}
+
+export const TOPICS: readonly Topic[] = [
+  { id: "animals", kinds: ["animal"], says: "It is an animal." },
+  { id: "food", kinds: ["food", "drink"], says: "It is a food or a drink." },
+  { id: "things", kinds: ["object", "clothes", "vehicle"], says: "It is a thing you use, wear or ride in." },
+  { id: "nature", kinds: ["plant", "nature", "building"], says: "It is a plant, a building, or part of nature." },
+  { id: "body", kinds: ["body"], says: "It is a part of the body." },
+];
+
+/** The topic an id names, or null for one it does not. */
+export function topicFrom(id: string | null | undefined): Topic | null {
+  return TOPICS.find((t) => t.id === id) ?? null;
+}
+
+/**
+ * The order the game tries the groups in this round: shuffled, with the group the
+ * last round used put last, so "another word" is usually another kind of thing too.
+ */
+export function topicOrder(shuffled: readonly Topic[], was: string | null | undefined): Topic[] {
+  return [...shuffled.filter((t) => t.id !== was), ...shuffled.filter((t) => t.id === was)];
+}
+
+/**
+ * A question taken to mean what an earlier one already did is answered again for
+ * free: asking twice is somebody checking, not somebody spending a question.
+ */
+export function asRepeat(reply: Reply, earlier: readonly Reply[]): Reply {
+  if (reply.kind !== "answer" || !reply.counts || reply.won) return reply;
+  const again = earlier.some((r) => r.kind === "answer" && r.counts && r.reading === reply.reading);
+  return again ? { ...reply, counts: false, repeated: true } : reply;
 }

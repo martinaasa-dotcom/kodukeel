@@ -3,7 +3,7 @@ import { fill, tr } from "@/lib/copy/locale";
 import { TrendingUp } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { requireUserId } from "@/lib/auth/session";
-import { commonGroup } from "@/lib/collections/commonGroups";
+import { COMMON_BATCH, commonGroup } from "@/lib/collections/commonGroups";
 import { commonCounts } from "@/lib/progress/common";
 import { Card, Chip, Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
@@ -79,18 +79,41 @@ export default async function CommonRoundsPage() {
 
               <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{tr(locale, group.blurb)}</p>
 
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                {/*
-                  The app's own button rather than a link painted to look like
-                  one. The hand-rolled version set `--surface` on `--accent`,
-                  which is a hue's fill carrying text, and axe measured it under
-                  4.5 (docs/14-design-system.md: every hue has an ink).
-                */}
-                <DeepenButton group={group.key} variant="secondary" />
-                <ButtonLink href={`/review/common/${group.slug}`} variant="primary">
-                  {tr(locale, "Start the round")}
-                </ButtonLink>
-              </div>
+              <ul className="mt-4 flex flex-col gap-3">
+                {count.parts.filter((p) => p.found > 0).map((part, i) => {
+                  const n = i + 1;
+                  const first = i * COMMON_BATCH + 1;
+                  const last = i * COMMON_BATCH + part.found;
+                  const href = `/review/common/${group.slug}?part=${n}`;
+                  const whole = part.inDeck >= part.found;
+                  return (
+                    <li key={n} className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold" style={{ color: "var(--ink)" }}>
+                          {fill(tr(locale, "Part {n}"), { n })}
+                          <span className="font-normal" style={{ color: "var(--ink-2)" }}>
+                            {" "}{fill(tr(locale, "words {first} to {last}"), { first, last })}
+                          </span>
+                        </p>
+                        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                          {fill(tr(locale, "{n} of {total} in your deck"), { n: part.inDeck, total: part.found })}
+                        </p>
+                      </div>
+                      {whole ? (
+                        <ButtonLink href={href} variant="primary">{tr(locale, "Start")}</ButtonLink>
+                      ) : (
+                        <DeepenButton
+                          group={group.key}
+                          part={n}
+                          goTo={href}
+                          variant="primary"
+                          label={tr(locale, "Add and start")}
+                        />
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </Card>
           );
         })}

@@ -312,7 +312,7 @@ export function naturalSentencesFor(lex: {
  * is capped at two a word, so widening its pool would change how big a deck is
  * without teaching a form the word could not already show.
  */
-function formSentencesFor(lex: LexemeForCards) {
+export function formSentencesFor(lex: LexemeForCards) {
   const own = naturalSentencesFor(lex);
   if (!lex.borrowed || lex.borrowed.length === 0) return own;
   const opener = nominalOpener(lex.pos, [lex.lemma, ...lex.forms.map((f) => f.value)]);
