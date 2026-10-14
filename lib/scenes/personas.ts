@@ -36,6 +36,15 @@ export interface PersonaSpec {
    */
   readonly who: string;
   /**
+   * The same person, introduced to the learner on their role card, with a
+   * smile. `who` is what the composer is told and stays plain, because a
+   * model handed a joke about lunch starts talking about lunch; this is the
+   * learner's line and only the learner's, and it says what the person will
+   * do exactly as `who` does, so the joke never promises a behaviour the
+   * conversation will not deliver (`docs/18-voice.md` §3c).
+   */
+  readonly meet: string;
+  /**
    * Added to every beat's patience. Never below one try in total, which
    * `patienceFor` enforces rather than every caller remembering.
    */
@@ -71,6 +80,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   {
     id: "brisk",
     who: "They're busy, and they won't wait long for an answer.",
+    meet: "They're busy, the queue behind you is long, and they'd like an answer before their coffee goes cold.",
     patience: -1,
     voice: SCENE_VOICE,
     speed: 1.1,
@@ -81,6 +91,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   {
     id: "thorough",
     who: "They're in no hurry, and they'll want every last detail from you.",
+    meet: "They're in no hurry at all, and they'll want every last detail from you. Get comfortable.",
     patience: 1,
     voice: SCENE_VOICE,
     speed: 0.95,
@@ -91,6 +102,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   {
     id: "new",
     who: "They're new in the job, so they check everything twice as they go.",
+    meet: "It's their first week, so they check everything twice. Be kind, everybody was new once.",
     patience: 1,
     voice: SCENE_VOICE,
     speed: 1,
@@ -101,6 +113,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   {
     id: "by-the-book",
     who: "They go strictly by the book: one thing at a time, in their order, not yours.",
+    meet: "They go strictly by the book: one thing at a time, in their order, not yours. The form always wins.",
     patience: 0,
     voice: SCENE_VOICE,
     speed: 1,

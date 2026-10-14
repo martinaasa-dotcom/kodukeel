@@ -102,6 +102,11 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
       + " the screen with the options, so a ladder would add nothing shorter than the question itself",
   },
   {
+    file: "app/(app)/review/wordplay/WordplaySession.tsx",
+    why: "every question is answered by a piece the learner has just turned over, and the guess is not marked, so a ladder"
+      + " would hand back what is already on the screen",
+  },
+  {
     file: "app/(app)/review/letters/LettersSession.tsx",
     why: "every letter of the answer is already on the screen, scrambled, so there is nothing to"
       + " uncover: the ladder is the round's own two tries, the second of which places the first"

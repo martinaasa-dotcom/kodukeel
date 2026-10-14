@@ -1,0 +1,644 @@
+/**
+ * WORDS THAT ARE FUNNY ON PURPOSE: COMPOUNDS READ WORD BY WORD, AND WORDS THAT
+ * ONLY LOOK ENGLISH.
+ *
+ * Estonian is already funny to an English speaker, and the funny part is a
+ * fact about the language rather than a joke anybody had to write. A bat is a
+ * `nahkhiir`, a skin mouse. A turtle is a `kilpkonn`, a shield frog. And `pea`
+ * is a head, which is the one thing you must not order at a market. This file
+ * is that, kept in one place so the screens that show it cannot say different
+ * things about one word: the first meeting of a word (`components/WordIntro.tsx`),
+ * the dictionary entry, and the Sõnamäng round (`lib/games/wordplay.ts`).
+ *
+ * THE ESTONIAN IS CHOSEN AND NEVER WRITTEN (ADR-005). Every word here is a
+ * request against the dictionary, the way a syllabus unit's lemmas are, and
+ * `literally.test.ts` holds each one to it: the word is an entry the seed
+ * writes, every part is either a form the dictionary stores for the entry the
+ * part names or a headword Ekilex lists (`prisma/data/wordlist.txt`), the parts
+ * spell the word exactly, and where the dictionary glosses a part or the word,
+ * the English here shares a word with that gloss. A part is cut out of a word
+ * a lexicographer recorded, which is choosing, the latitude
+ * `lib/estonian/sayings.ts` takes with a phrase cut out of a sentence.
+ *
+ * WHAT IS AUTHORED IS ENGLISH, which is the one language this project writes:
+ * what each part says on its own, the word-for-word reading, what the word
+ * means, and one line about it. The line is where the humour is, and it is held
+ * to the standard `docs/18-voice.md` §3c sets for humour: a true fact said with
+ * a wink, never a pun for its own sake, never an exclamation mark doing the
+ * work, and never at the learner's expense. It names no Estonian word, so the
+ * Russian and Ukrainian tables can carry it whole (`lib/copy/i18n/areas/wordplay.ts`).
+ *
+ * "WORD FOR WORD" MEANS THE SPELLING, NOT THE HISTORY. `lapsepõlv` is a child
+ * and a knee because `põlv` is a knee, and it is also a generation, which is
+ * what it means in that word. Where the reading is a pun on a second sense
+ * rather than the etymology, the line says so, because a learner told a false
+ * history of a word has been taught something.
+ *
+ * Read by a person before it ships. Every row arrives in the pull request
+ * that adds it and is read by the native Estonian speaker who develops this
+ * app, as the scene bank and the written sentences are.
+ *
+ * Pure: no React, no Prisma, no network.
+ */
+
+/** One piece of a compound. */
+export interface WordPart {
+  /** The piece exactly as it is spelled inside the word. */
+  readonly text: string;
+  /** The entry the piece is a form of, or the piece itself where Ekilex lists it as a headword. */
+  readonly lemma: string;
+  /** What the piece says on its own. English. */
+  readonly en: string;
+}
+
+export interface Compound {
+  /** Stable and ASCII, so a stored answer or a link survives a respelling. */
+  readonly id: string;
+  /** The compound, as the dictionary spells its headword. */
+  readonly word: string;
+  readonly parts: readonly [WordPart, WordPart, ...WordPart[]];
+  /** What it says if you read it piece by piece. English, lower case, no quotation marks. */
+  readonly literal: string;
+  /** What it actually means. English. */
+  readonly means: string;
+  /** One playful line about it, true and in no need of Estonian. */
+  readonly quip: string;
+}
+
+export interface FalseFriend {
+  readonly id: string;
+  /** The Estonian word, spelled exactly like an English one. */
+  readonly word: string;
+  /** What an English reader takes it for. English. */
+  readonly looksLike: string;
+  /** What it actually means. English. */
+  readonly means: string;
+  readonly quip: string;
+}
+
+const p = (text: string, lemma: string, en: string): WordPart => ({ text, lemma, en });
+
+/**
+ * The compounds, roughly from the commonest word to the rarest, which is the
+ * order the round deals them in. A compound earns its place by a literal
+ * reading that is surprising, vivid or honest to the point of being funny:
+ * `korvpall` is a basket ball in English too and is not here.
+ */
+export const COMPOUNDS: readonly Compound[] = [
+  {
+    id: "fridge", word: "külmkapp",
+    parts: [p("külm", "külm", "cold"), p("kapp", "kapp", "cupboard")],
+    literal: "cold cupboard", means: "fridge",
+    quip: "Which is exactly what a fridge is, once you stop and think about it.",
+  },
+  {
+    id: "bicycle", word: "jalgratas",
+    parts: [p("jalg", "jalg", "foot"), p("ratas", "ratas", "wheel")],
+    literal: "foot wheel", means: "bicycle",
+    quip: "Wheels you turn with your feet. Hard to argue with.",
+  },
+  {
+    id: "shoe", word: "jalanõu",
+    parts: [p("jala", "jalg", "foot"), p("nõu", "nõu", "dish, vessel")],
+    literal: "foot dish", means: "a shoe, any footwear",
+    quip: "A little bowl for your foot. Estonian shoes are practical like that.",
+  },
+  {
+    id: "capital", word: "pealinn",
+    parts: [p("pea", "pea", "head"), p("linn", "linn", "town")],
+    literal: "head town", means: "capital city",
+    quip: "The town at the head of the country. Swap the two halves round and you get its mayor.",
+  },
+  {
+    id: "mayor", word: "linnapea",
+    parts: [p("linna", "linn", "town"), p("pea", "pea", "head")],
+    literal: "town head", means: "mayor",
+    quip: "The head of the town. Swap the two halves round and you get the capital.",
+  },
+  {
+    id: "marriage", word: "abielu",
+    parts: [p("abi", "abi", "help"), p("elu", "elu", "life")],
+    literal: "help life", means: "marriage",
+    quip: "Make of that what you will.",
+  },
+  {
+    id: "spouse", word: "abikaasa",
+    parts: [p("abi", "abi", "help"), p("kaasa", "kaasa", "along")],
+    literal: "help that comes along", means: "spouse",
+    quip: "Romantic, in a very practical way.",
+  },
+  {
+    id: "world", word: "maailm",
+    parts: [p("maa", "maa", "land"), p("ilm", "ilm", "weather")],
+    literal: "land and weather", means: "world",
+    quip: "Land, plus weather. Honestly, that covers most of it.",
+  },
+  {
+    id: "kitten", word: "kassipoeg",
+    parts: [p("kassi", "kass", "cat"), p("poeg", "poeg", "son")],
+    literal: "cat's son", means: "kitten",
+    quip: "Every kitten is a cat's son. Even the daughters.",
+  },
+  {
+    id: "lunch", word: "lõunasöök",
+    parts: [p("lõuna", "lõuna", "south, noon"), p("söök", "söök", "food, a meal")],
+    literal: "south meal", means: "lunch",
+    quip: "The first half means both south and noon, because at noon the sun is in the south.",
+  },
+  {
+    id: "afternoon", word: "pärastlõuna",
+    parts: [p("pärast", "pärast", "after"), p("lõuna", "lõuna", "south, noon")],
+    literal: "after south", means: "afternoon",
+    quip: "After noon, not after the south. Though on a map you'd be in Latvia.",
+  },
+  {
+    id: "vegetable", word: "köögivili",
+    parts: [p("köögi", "köök", "kitchen"), p("vili", "vili", "fruit")],
+    literal: "kitchen fruit", means: "vegetable",
+    quip: "A fruit that ended up in the kitchen. Ask any tomato how that feels.",
+  },
+  {
+    id: "toothbrush", word: "hambahari",
+    parts: [p("hamba", "hammas", "tooth"), p("hari", "hari", "brush, comb")],
+    literal: "tooth comb", means: "toothbrush",
+    quip: "Same brush as the one for your hair, just aimed a little lower.",
+  },
+  {
+    id: "doorbell", word: "uksekell",
+    parts: [p("ukse", "uks", "door"), p("kell", "kell", "clock, bell")],
+    literal: "door clock", means: "doorbell",
+    quip: "One word does clocks and bells, so the door gets a clock.",
+  },
+  {
+    id: "hourglass", word: "liivakell",
+    parts: [p("liiva", "liiv", "sand"), p("kell", "kell", "clock")],
+    literal: "sand clock", means: "hourglass",
+    quip: "Sand that tells the time. Slowly, and only once you turn it over.",
+  },
+  {
+    id: "weekend", word: "nädalavahetus",
+    parts: [p("nädala", "nädal", "week"), p("vahetus", "vahetus", "change, changing")],
+    literal: "week change", means: "weekend",
+    quip: "The weekend as a shift change between one week and the next. Accurate.",
+  },
+  {
+    id: "day-before-yesterday", word: "üleeile",
+    parts: [p("üle", "üle", "over"), p("eile", "eile", "yesterday")],
+    literal: "over yesterday", means: "the day before yesterday",
+    quip: "One word where English needs four.",
+  },
+  {
+    id: "day-after-tomorrow", word: "ülehomme",
+    parts: [p("üle", "üle", "over"), p("homme", "homme", "tomorrow")],
+    literal: "over tomorrow", means: "the day after tomorrow",
+    quip: "Hop over tomorrow and you land here. Handy for putting things off.",
+  },
+  {
+    id: "date", word: "kuupäev",
+    parts: [p("kuu", "kuu", "moon, month"), p("päev", "päev", "day")],
+    literal: "moon day", means: "date",
+    quip: "The word for month is the word for moon, from when the moon was the calendar.",
+  },
+  {
+    id: "character", word: "iseloom",
+    parts: [p("ise", "ise", "self"), p("loom", "loom", "animal")],
+    literal: "self animal", means: "character (a person's)",
+    quip: "Your character is the animal you are when nobody's watching.",
+  },
+  {
+    id: "fire", word: "tulekahju",
+    parts: [p("tule", "tuli", "fire"), p("kahju", "kahju", "damage")],
+    literal: "fire damage", means: "fire (one that burns a house down)",
+    quip: "A house fire, named after the bill that comes afterwards.",
+  },
+  {
+    id: "umbrella", word: "vihmavari",
+    parts: [p("vihma", "vihm", "rain"), p("vari", "vari", "shadow, shade")],
+    literal: "rain shade", means: "umbrella",
+    quip: "Shade, but for rain. In Estonia you'll want one for both, sometimes on the same day.",
+  },
+  {
+    id: "grape", word: "viinamari",
+    parts: [p("viina", "viin", "vodka"), p("mari", "mari", "berry")],
+    literal: "vodka berry", means: "grape",
+    quip: "Wrong drink, right idea.",
+  },
+  {
+    id: "garlic", word: "küüslauk",
+    parts: [p("küüs", "küüs", "nail"), p("lauk", "lauk", "allium, onion")],
+    literal: "nail onion", means: "garlic",
+    quip: "Peel a clove and look at it. It does look a bit like a fingernail.",
+  },
+  {
+    id: "roe", word: "kalamari",
+    parts: [p("kala", "kala", "fish"), p("mari", "mari", "berry")],
+    literal: "fish berry", means: "roe",
+    quip: "Caviar, as a fish would describe it.",
+  },
+  {
+    id: "dream", word: "unenägu",
+    parts: [p("une", "uni", "sleep"), p("nägu", "nägu", "face")],
+    literal: "sleep face", means: "dream",
+    quip: "The face sleep shows you. Rather poetic, for something you forget by breakfast.",
+  },
+  {
+    id: "childhood", word: "lapsepõlv",
+    parts: [p("lapse", "laps", "child"), p("põlv", "põlv", "knee, generation")],
+    literal: "child knee", means: "childhood",
+    quip: "The second half means a generation here. It also means a knee, and childhood is mostly grazed knees anyway.",
+  },
+  {
+    id: "deadline", word: "tähtaeg",
+    parts: [p("täht", "täht", "star, letter, mark"), p("aeg", "aeg", "time")],
+    literal: "star time", means: "deadline",
+    quip: "The first half is a star, a letter or a mark. A deadline is a time somebody marked, sadly not in the stars.",
+  },
+  {
+    id: "slow-motion", word: "aegluup",
+    parts: [p("aeg", "aeg", "time"), p("luup", "luup", "magnifying glass")],
+    literal: "time magnifying glass", means: "slow motion",
+    quip: "A magnifying glass held up to time. Quietly one of the loveliest words in the language.",
+  },
+  {
+    id: "schadenfreude", word: "kahjurõõm",
+    parts: [p("kahju", "kahju", "damage, pity"), p("rõõm", "rõõm", "joy")],
+    literal: "damage joy", means: "schadenfreude",
+    quip: "German isn't the only language with a word for it.",
+  },
+  {
+    id: "volcano", word: "tulemägi",
+    parts: [p("tule", "tuli", "fire"), p("mägi", "mägi", "mountain")],
+    literal: "fire mountain", means: "volcano",
+    quip: "Exactly as alarming as it sounds. Estonia, happily, has none.",
+  },
+  {
+    id: "sunflower", word: "päevalill",
+    parts: [p("päeva", "päev", "day"), p("lill", "lill", "flower")],
+    literal: "day flower", means: "sunflower",
+    quip: "It follows the sun all day, so naming it was the easy part.",
+  },
+  {
+    id: "cream-puff", word: "tuuletasku",
+    parts: [p("tuule", "tuul", "wind"), p("tasku", "tasku", "pocket")],
+    literal: "wind pocket", means: "cream puff",
+    quip: "Mostly air, wrapped in pastry. The name is just being honest.",
+  },
+  {
+    id: "flatulence", word: "kõhutuul",
+    parts: [p("kõhu", "kõht", "stomach"), p("tuul", "tuul", "wind")],
+    literal: "stomach wind", means: "breaking wind (flatus)",
+    quip: "Polite enough for a doctor, clear enough for everybody else.",
+  },
+  {
+    id: "earth", word: "maamuna",
+    parts: [p("maa", "maa", "land, earth"), p("muna", "muna", "egg")],
+    literal: "earth egg", means: "the Earth",
+    quip: "The whole planet, as an egg. Handle with care.",
+  },
+  {
+    id: "eyeball", word: "silmamuna",
+    parts: [p("silma", "silm", "eye"), p("muna", "muna", "egg")],
+    literal: "eye egg", means: "eyeball",
+    quip: "Breakfast vocabulary, anatomy meaning.",
+  },
+  {
+    id: "puffball", word: "murumuna",
+    parts: [p("muru", "muru", "lawn"), p("muna", "muna", "egg")],
+    literal: "lawn egg", means: "puffball (a mushroom)",
+    quip: "A mushroom that looks as if somebody lost an egg on the grass.",
+  },
+  {
+    id: "hippo", word: "jõehobu",
+    parts: [p("jõe", "jõgi", "river"), p("hobu", "hobu", "horse")],
+    literal: "river horse", means: "hippopotamus",
+    quip: "The Greek name says the same thing, so nobody gets points for originality.",
+  },
+  {
+    id: "rhino", word: "ninasarvik",
+    parts: [p("nina", "nina", "nose"), p("sarvik", "sarvik", "horned one")],
+    literal: "nose horned one", means: "rhinoceros",
+    quip: "The Greek says nose horn too. Some animals only need describing once.",
+  },
+  {
+    id: "turtle", word: "kilpkonn",
+    parts: [p("kilp", "kilp", "shield"), p("konn", "konn", "frog")],
+    literal: "shield frog", means: "turtle",
+    quip: "A frog that brought its own shield. Nobody argued.",
+  },
+  {
+    id: "toad", word: "kärnkonn",
+    parts: [p("kärn", "kärn", "scab"), p("konn", "konn", "frog")],
+    literal: "scab frog", means: "toad",
+    quip: "Harsh. But you have seen a toad.",
+  },
+  {
+    id: "bat", word: "nahkhiir",
+    parts: [p("nahk", "nahk", "skin, leather"), p("hiir", "hiir", "mouse")],
+    literal: "leather mouse", means: "bat",
+    quip: "Estonian looked at a bat and said exactly what it saw.",
+  },
+  {
+    id: "giraffe", word: "kaelkirjak",
+    parts: [p("kael", "kael", "neck"), p("kirjak", "kirjak", "spotted one")],
+    literal: "neck spotty one", means: "giraffe",
+    quip: "Two facts about a giraffe, and Estonian kept both.",
+  },
+  {
+    id: "guinea-pig", word: "merisiga",
+    parts: [p("meri", "meri", "sea"), p("siga", "siga", "pig")],
+    literal: "sea pig", means: "guinea pig",
+    quip: "It has never seen the sea and it isn't a pig. In fairness, the English one isn't from Guinea either.",
+  },
+  {
+    id: "porcupine", word: "okassiga",
+    parts: [p("okas", "okas", "needle, thorn"), p("siga", "siga", "pig")],
+    literal: "needle pig", means: "porcupine",
+    quip: "A pig with needles. Hugs at your own risk.",
+  },
+  {
+    id: "raccoon", word: "pesukaru",
+    parts: [p("pesu", "pesu", "washing"), p("karu", "karu", "bear")],
+    literal: "washing bear", means: "raccoon",
+    quip: "It rinses its food before eating, which is more than some of us manage.",
+  },
+  {
+    id: "echidna", word: "sipelgasiil",
+    parts: [p("sipelga", "sipelgas", "ant"), p("siil", "siil", "hedgehog")],
+    literal: "ant hedgehog", means: "echidna",
+    quip: "Looks like a hedgehog, eats ants. Case closed.",
+  },
+  {
+    id: "platypus", word: "nokkloom",
+    parts: [p("nokk", "nokk", "beak"), p("loom", "loom", "animal")],
+    literal: "beak animal", means: "platypus",
+    quip: "Of all the strange things about a platypus, Estonian went with the beak.",
+  },
+  {
+    id: "owl", word: "öökull",
+    parts: [p("öö", "öö", "night"), p("kull", "kull", "hawk")],
+    literal: "night hawk", means: "owl",
+    quip: "A hawk on the night shift.",
+  },
+  {
+    id: "moth", word: "ööliblikas",
+    parts: [p("öö", "öö", "night"), p("liblikas", "liblikas", "butterfly")],
+    literal: "night butterfly", means: "moth",
+    quip: "A butterfly that keeps late hours and loves a lamp.",
+  },
+  {
+    id: "bookworm", word: "raamatukoi",
+    parts: [p("raamatu", "raamat", "book"), p("koi", "koi", "clothes moth")],
+    literal: "book moth", means: "bookworm",
+    quip: "Same reader, different insect.",
+  },
+  {
+    id: "starling", word: "kuldnokk",
+    parts: [p("kuld", "kuld", "gold"), p("nokk", "nokk", "beak")],
+    literal: "gold beak", means: "starling",
+    quip: "Its beak turns yellow in spring, so it got a golden name for it.",
+  },
+  {
+    id: "waxwing", word: "siidisaba",
+    parts: [p("siidi", "siid", "silk"), p("saba", "saba", "tail")],
+    literal: "silk tail", means: "waxwing",
+    quip: "A bird named after the fanciest part of it.",
+  },
+  {
+    id: "razor", word: "habemenuga",
+    parts: [p("habeme", "habe", "beard"), p("nuga", "nuga", "knife")],
+    literal: "beard knife", means: "razor",
+    quip: "Says exactly what it's for. Please use it slowly.",
+  },
+  {
+    id: "vacuum", word: "tolmuimeja",
+    parts: [p("tolmu", "tolm", "dust"), p("imeja", "imeja", "sucker")],
+    literal: "dust sucker", means: "vacuum cleaner",
+    quip: "No marketing department was consulted.",
+  },
+  {
+    id: "arm", word: "käsivars",
+    parts: [p("käsi", "käsi", "hand"), p("vars", "vars", "stalk")],
+    literal: "hand stalk", means: "arm",
+    quip: "Your hand, growing on a stalk. Botanically sound.",
+  },
+  {
+    id: "hanger", word: "riidepuu",
+    parts: [p("riide", "riie", "cloth"), p("puu", "puu", "tree")],
+    literal: "cloth tree", means: "clothes hanger",
+    quip: "A tree that grows coats, given a cupboard to live in.",
+  },
+  {
+    id: "ruler", word: "joonlaud",
+    parts: [p("joon", "joon", "line"), p("laud", "laud", "table, board")],
+    literal: "line board", means: "ruler",
+    quip: "A board for drawing lines. No crown involved.",
+  },
+  {
+    id: "noun", word: "nimisõna",
+    parts: [p("nimi", "nimi", "name"), p("sõna", "sõna", "word")],
+    literal: "name word", means: "noun",
+    quip: "A noun names things, and the Estonian just says so.",
+  },
+  {
+    id: "verb", word: "tegusõna",
+    parts: [p("tegu", "tegu", "deed, doing"), p("sõna", "sõna", "word")],
+    literal: "doing word", means: "verb",
+    quip: "Grammar that explains itself. Your teacher will be pleased.",
+  },
+  {
+    id: "pronoun", word: "asesõna",
+    parts: [p("ase", "ase", "bed, a place"), p("sõna", "sõna", "word")],
+    literal: "place word", means: "pronoun",
+    quip: "Not a word about beds. The first half is a place someone stands in for, which is all a pronoun does.",
+  },
+  {
+    id: "interjection", word: "hüüdsõna",
+    parts: [p("hüüd", "hüüd", "shout"), p("sõna", "sõna", "word")],
+    literal: "shout word", means: "interjection",
+    quip: "Ouch, wow, hey. Shout words, every one.",
+  },
+  {
+    id: "baseball", word: "pesapall",
+    parts: [p("pesa", "pesa", "nest"), p("pall", "pall", "ball")],
+    literal: "nest ball", means: "baseball",
+    quip: "The bases are nests, which makes running home sound rather cosy.",
+  },
+  {
+    id: "fern", word: "sõnajalg",
+    parts: [p("sõna", "sõna", "word"), p("jalg", "jalg", "foot, leg")],
+    literal: "word foot", means: "fern, bracken",
+    quip: "Ferns are not known for talking or walking. It's a lovely word to say, though.",
+  },
+];
+
+/**
+ * Words spelled exactly like an English word and meaning something else.
+ * Common words first, since meeting `pea` on a market stall is the moment this
+ * is for.
+ */
+export const FALSE_FRIENDS: readonly FalseFriend[] = [
+  {
+    id: "pea", word: "pea", looksLike: "pea", means: "head",
+    quip: "Tell a doctor your pea hurts and you'll get sympathy, not a recipe.",
+  },
+  {
+    id: "kool", word: "kool", looksLike: "cool", means: "school",
+    quip: "School, not cool. Most teenagers would say it can't be both.",
+  },
+  {
+    id: "must", word: "must", looksLike: "must", means: "black",
+    quip: "Black, not an order. Though a black coffee is a must for some.",
+  },
+  {
+    id: "all", word: "all", looksLike: "all", means: "under, below",
+    quip: "Under, not everything. A tiny word with a big misunderstanding in it.",
+  },
+  {
+    id: "tool", word: "tool", looksLike: "tool", means: "chair",
+    quip: "A chair, not a tool. In some meetings it's the most useful thing in the room.",
+  },
+  {
+    id: "hall", word: "hall", looksLike: "hall", means: "gray",
+    quip: "Gray, not a corridor. Look up at a November sky here and you'll see plenty of it.",
+  },
+  {
+    id: "seen", word: "seen", looksLike: "seen", means: "mushroom",
+    quip: "Not the past tense of see. It's what people head into the forest for every autumn, basket in hand.",
+  },
+  {
+    id: "kook", word: "kook", looksLike: "cook", means: "cake",
+    quip: "Nothing to do with cooking. Everything to do with eating.",
+  },
+  {
+    id: "sink", word: "sink", looksLike: "sink", means: "ham",
+    quip: "Order a sink sandwich with confidence. You'll get ham.",
+  },
+  {
+    id: "vend", word: "vend", looksLike: "vend", means: "brother",
+    quip: "A brother, not a vending machine. He might still have a snack for you.",
+  },
+  {
+    id: "hunt", word: "hunt", looksLike: "hunt", means: "wolf",
+    quip: "A wolf, which to be fair is the one doing the hunting.",
+  },
+  {
+    id: "luu", word: "luu", looksLike: "loo", means: "bone",
+    quip: "A bone, not the bathroom. Ask for the toilet instead and save everybody a confusing minute.",
+  },
+  {
+    id: "hai", word: "hai", looksLike: "hi", means: "shark",
+    quip: "Say hi to a shark. In Estonian that's a single word.",
+  },
+  {
+    id: "rand", word: "rand", looksLike: "rand", means: "beach",
+    quip: "A beach, not a currency. On a warm July weekend, it can feel as if everybody is on one.",
+  },
+  {
+    id: "tee", word: "tee", looksLike: "tee", means: "road, tea",
+    quip: "A road, or tea, depending on the sentence. Golf has nothing to do with it.",
+  },
+  {
+    id: "pall", word: "pall", looksLike: "pall", means: "ball",
+    quip: "A ball, not a gloomy mood. Most football matches end somewhere in between.",
+  },
+  {
+    id: "laud", word: "laud", looksLike: "laud", means: "table",
+    quip: "A table, not praise. Praise the cook instead, once the food is on it.",
+  },
+  {
+    id: "pill", word: "pill", looksLike: "pill", means: "musical instrument",
+    quip: "A musical instrument, not medicine. Though plenty of people swear by both.",
+  },
+  {
+    id: "torn", word: "torn", looksLike: "torn", means: "tower",
+    quip: "A tower, not ripped. Unless something has gone very wrong with the building.",
+  },
+  {
+    id: "vale", word: "vale", looksLike: "vale", means: "wrong",
+    quip: "Wrong, not a valley. Poets, take note.",
+  },
+  {
+    id: "veri", word: "veri", looksLike: "very", means: "blood",
+    quip: "Blood, not very. Though it does sound very dramatic.",
+  },
+  {
+    id: "arm", word: "arm", looksLike: "arm", means: "scar",
+    quip: "A scar, not a limb. You can get one on your arm, which helps nobody.",
+  },
+  {
+    id: "kits", word: "kits", looksLike: "kits", means: "goat",
+    quip: "One goat, not a set of anything. Assembly not required.",
+  },
+];
+
+const COMPOUND_BY_WORD: ReadonlyMap<string, Compound> = new Map(COMPOUNDS.map((c) => [c.word, c]));
+const FRIEND_BY_WORD: ReadonlyMap<string, FalseFriend> = new Map(FALSE_FRIENDS.map((f) => [f.word, f]));
+
+/** The compound filed under this headword, if there is one. */
+export function compoundFor(lemma: string): Compound | null {
+  return COMPOUND_BY_WORD.get(lemma) ?? null;
+}
+
+/** The false friend filed under this headword, if there is one. */
+export function falseFriendFor(lemma: string): FalseFriend | null {
+  return FRIEND_BY_WORD.get(lemma) ?? null;
+}
+
+/**
+ * What a screen showing one word can say about it that is fun: the literal
+ * reading of a compound, or the warning on a false friend, with its line.
+ *
+ * One shape for both, so the first meeting and the dictionary entry draw one
+ * thing rather than knowing about two tables. `label` is the short heading the
+ * line goes under; `reading` is the bit in quotation marks: the
+ * word-for-word reading of a compound, or the English a false friend is not. Null where the word
+ * has nothing, which is nearly every word, and is the point: a joke on every
+ * card is no joke at all.
+ */
+export interface WordFun {
+  readonly kind: "compound" | "false-friend";
+  readonly label: string;
+  readonly reading: string;
+  readonly quip: string;
+}
+
+export function wordFunFor(lemma: string, gloss?: string | null): WordFun | null {
+  const compound = compoundFor(lemma);
+  if (compound && meansWhatIsShown(compound.means, gloss)) {
+    return { kind: "compound", label: "Word for word", reading: compound.literal, quip: compound.quip };
+  }
+  const friend = falseFriendFor(lemma);
+  if (friend && meansWhatIsShown(friend.means, gloss)) {
+    return { kind: "false-friend", label: "Looks English, isn't", reading: friend.looksLike, quip: friend.quip };
+  }
+  return null;
+}
+
+/**
+ * WHETHER THE JOKE IS ABOUT THE WORD ON THE SCREEN.
+ *
+ * A headword can carry two entries: `hall` is gray as an adjective and frost
+ * as a noun, and "Gray, not a corridor" under frost is the app telling a
+ * learner something false about the word in front of them. So a screen hands
+ * in the gloss it is printing and the line is drawn only where that gloss and
+ * the line's own meaning share a word. A screen with no gloss to hand gets
+ * the line, which is right for every headword with one entry, and that is
+ * every headword here but one.
+ */
+function meansWhatIsShown(means: string, gloss: string | null | undefined): boolean {
+  if (!gloss) return true;
+  const shown = contentWords(gloss);
+  for (const w of contentWords(means)) if (shown.has(w)) return true;
+  return false;
+}
+
+/** The spellings American and British English disagree on, folded so two glosses can be compared. */
+const SPELLING: Readonly<Record<string, string>> = { grey: "gray", racoon: "raccoon", colour: "color", favourite: "favorite" };
+const FILLER = new Set(["a", "an", "the", "of", "or", "and", "any", "one", "who", "that", "it", "is", "to", "in", "on", "for", "with", "somebody"]);
+
+/** The words of a line of English that carry meaning, lower case and folded. */
+export function contentWords(text: string): Set<string> {
+  return new Set(
+    text.toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 1 && !FILLER.has(w)).map((w) => SPELLING[w] ?? w),
+  );
+}

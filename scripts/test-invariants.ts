@@ -3112,6 +3112,9 @@ const MEASURES_RATHER_THAN_PRACTISES: string[] = [
   // Väljendid: a saying is a pair of words and a sentence, not a card, so there is no review to write and no
   // schedule to move. Handing sayings to the scheduler means a new kind of card, which is a later decision.
   "app/(app)/review/sayings/SayingsSession.tsx",
+  // Sõnamäng: a compound read for fun is not a card either, for the same reason, and the false friends are asked
+  // as a joke about what a word looks like rather than as a recall the scheduler could use.
+  "app/(app)/review/wordplay/WordplaySession.tsx",
 ];
 
 
@@ -21995,6 +21998,8 @@ check("every round that puts one word up carries the favorite button", () => {
       "a picture and five sentences of the learner's own, with no one word the round is about",
     [join("app", "(app)", "review", "sayings", "SayingsSession.tsx")]:
       "a pair of words in a sentence, with no one dictionary entry the round is about",
+    [join("app", "(app)", "review", "wordplay", "WordplaySession.tsx")]:
+      "a word taken apart for its literal reading, played from a table rather than from a dictionary row to keep",
     [join("app", "(app)", "review", "cloze", "ClozeSession.tsx")]:
       "the subject is a sentence with a hole in it rather than a word",
     [join("app", "(app)", "review", "sentences", "SentenceSession.tsx")]:
@@ -25847,6 +25852,9 @@ check("looking back at the last word is one drawing, and it grades nothing", () 
     // five on the screen, and filled one at a time with the saying and what it means printed after
     // every answer. There is no earlier card the learner cannot already see.
     "app/(app)/review/sayings/SayingsSession.tsx": "has its own Back, a one-screen board, and prints each answer's saying",
+    // Five words taken apart one at a time, each one's meaning stamped on the card before Next, then named and
+    // told in one line after every answer, and all five are cards again on the last screen.
+    "app/(app)/review/wordplay/WordplaySession.tsx": "prints each word's reading and meaning after every answer, and all five at the end",
     // A list of the cards you keep failing, with nothing stepping through.
     "app/(app)/review/clinic/ClinicList.tsx": "a list rather than a round",
     // A measurement that withholds every answer until the end, deliberately

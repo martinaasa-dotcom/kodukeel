@@ -180,6 +180,7 @@ const ROUTES = [
   "/review/exceptions",
   "/review/letters",
   "/review/sayings",
+  "/review/wordplay",
   "/review/lookups",
 
   // The course.

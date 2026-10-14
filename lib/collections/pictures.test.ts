@@ -6,9 +6,9 @@ import { PICTURES, PICTURE_LEMMAS, SENTENCES_PER_PICTURE, pictureById, roundSize
 const words = (text: string) => [...text.matchAll(ESTONIAN_WORD)].map((m) => m[0].toLowerCase());
 
 describe("the pictures", () => {
-  it("are twelve, each with its own key", () => {
-    expect(PICTURES).toHaveLength(12);
-    expect(new Set(PICTURES.map((p) => p.id)).size).toBe(12);
+  it("are sixteen, each with its own key", () => {
+    expect(PICTURES).toHaveLength(16);
+    expect(new Set(PICTURES.map((p) => p.id)).size).toBe(16);
     expect(pictureById("market")?.title).toBe("At the market");
     expect(pictureById("nope")).toBeUndefined();
   });

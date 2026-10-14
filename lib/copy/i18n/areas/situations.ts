@@ -14,6 +14,11 @@ import { QUOTED_CASE_GLOSS_ROWS } from "../caseGlosses";
  */
 export const SITUATIONS: Area = {
   ru: {
+    "Who you're talking to": "С кем вы говорите",
+    "They're busy, the queue behind you is long, and they'd like an answer before their coffee goes cold.": "Они заняты, очередь за вами длинная, и ответ им нужен, пока не остыл кофе.",
+    "They're in no hurry at all, and they'll want every last detail from you. Get comfortable.": "Им совсем некуда спешить, и они захотят знать от вас все подробности до единой. Устраивайтесь поудобнее.",
+    "It's their first week, so they check everything twice. Be kind, everybody was new once.": "У них первая неделя на работе, поэтому они всё проверяют дважды. Будьте снисходительны, все когда-то были новичками.",
+    "They go strictly by the book: one thing at a time, in their order, not yours. The form always wins.": "Они действуют строго по правилам: по одному вопросу за раз, в их порядке, а не в вашем. Бланк всегда побеждает.",
     "How you hear them": "Как вы их слышите",
     "You can change this during the conversation too.": "Это можно поменять и во время разговора.",
     "Text only": "Только текст",
@@ -838,6 +843,11 @@ export const SITUATIONS: Area = {
     "brown": "коричневый",
   },
   uk: {
+    "Who you're talking to": "З ким ви говорите",
+    "They're busy, the queue behind you is long, and they'd like an answer before their coffee goes cold.": "Вони зайняті, черга за вами довга, і відповідь їм потрібна, поки не вистигла кава.",
+    "They're in no hurry at all, and they'll want every last detail from you. Get comfortable.": "Їм зовсім нікуди поспішати, і вони захочуть знати від вас усі подробиці до одної. Влаштовуйтеся зручніше.",
+    "It's their first week, so they check everything twice. Be kind, everybody was new once.": "У них перший тиждень на роботі, тому вони все перевіряють двічі. Будьте поблажливі, усі колись були новачками.",
+    "They go strictly by the book: one thing at a time, in their order, not yours. The form always wins.": "Вони діють суворо за правилами: по одному питанню за раз, у їхньому порядку, а не у вашому. Бланк завжди перемагає.",
     "How you hear them": "Як ви їх чуєте",
     "You can change this during the conversation too.": "Це можна змінити й під час розмови.",
     "Text only": "Лише текст",

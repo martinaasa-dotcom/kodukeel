@@ -24,6 +24,7 @@ import { availableCardTypes, CARD_TYPES, type CardType } from "@/lib/srs/cards";
 import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
 import { SAME_SPELLING, sameSpelling, PARTS } from "@/lib/copy/values";
+import { WordFun } from "@/components/WordFun";
 import { Examples } from "./Examples";
 import { DerivedVerbForms, WordForms } from "./Forms";
 import type { SearchHit } from "@/lib/dict/search";
@@ -687,6 +688,8 @@ function Entry({ entry, tutorReady, glossLanguage }: {
               {equivalent}
             </p>
           )}
+          {/* A compound read word by word, or a word that only looks English. Nothing for most words. */}
+          <WordFun lemma={entry.lemma} gloss={entry.translation} t={t} className="mt-2" />
           <div className="mt-3 flex flex-wrap gap-1.5">
             <Chip>{t(entry.pos.toLowerCase())}</Chip>
             {entry.cefr && <Chip tone="accent">{entry.cefr}</Chip>}

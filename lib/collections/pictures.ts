@@ -1,5 +1,5 @@
 /**
- * TWELVE PICTURES TO WRITE ABOUT, MADE OF EMOJI.
+ * SIXTEEN PICTURES TO WRITE ABOUT, MADE OF EMOJI.
  *
  * "Say what you see" is the writing part of the state examination in
  * miniature: look at a scene and write five sentences about what is in it and
@@ -7,9 +7,9 @@
  * artist yet and a generated picture is a licence question nobody here can
  * answer, so a picture is a scene laid out in emoji: characters drawn by the
  * reader's own font, so nothing ships and no licence is carried. When there is
- * money for an Estonian illustrator these twelve are the briefs.
+ * money for an Estonian illustrator these sixteen are the briefs.
  *
- * TWELVE AND NOT AN ENDLESS SUPPLY, on purpose. Each is composed to be rich
+ * SIXTEEN AND NOT AN ENDLESS SUPPLY, on purpose. Each is composed to be rich
  * enough for five different sentences (people, things, a place and something
  * happening), which a random draw of three nouns never was, and a learner who
  * meets the same one twice writes five new sentences about it. A round is two
@@ -229,6 +229,68 @@ export const PICTURES: readonly Picture[] = [
       { emoji: "🐈", lemma: "kass" },
     ],
     example: { et: "Kass istub puu all.", en: "The cat is sitting under the tree." },
+  },
+  /*
+    FOUR THAT ARE SILLY ON PURPOSE. A cow in the sauna is still a cow and a
+    sauna, so every word is as useful as a farm's, and a picture that makes
+    somebody smile is a picture they write five sentences about without
+    noticing. The round already says any story they invent is fine, and these
+    four are the invitation (docs/18-voice.md, section 3c).
+  */
+  {
+    id: "sauna-cow",
+    alt: "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a glass of beer, a basket and a fir tree outside.",
+    title: "A cow at the sauna",
+    rows: ["🧖 🐄 💦", "🪣 🌿 🔥", "🍺 🌲 🧺"],
+    things: [
+      { emoji: "🐄", lemma: "lehm" }, { emoji: "🧖", lemma: "saun" },
+      { emoji: "💦", lemma: "vesi" }, { emoji: "🪣", lemma: "ämber" },
+      { emoji: "🌿", lemma: "viht" }, { emoji: "🔥", lemma: "tuli" },
+      { emoji: "🍺", lemma: "õlu" }, { emoji: "🌲", lemma: "kuusk" },
+      { emoji: "🧺", lemma: "korv" },
+    ],
+    example: { et: "Lehm istub saunas ja joob õlut.", en: "The cow is sitting in the sauna and drinking beer." },
+  },
+  {
+    id: "cat-driver",
+    alt: "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.",
+    title: "A cat at the wheel",
+    rows: ["🐈 🚗 💨", "🚦 🐕 🛣️", "🌳 🏠 🏁"],
+    things: [
+      { emoji: "🐈", lemma: "kass" }, { emoji: "🚗", lemma: "auto" },
+      { emoji: "🚦", lemma: "foor" }, { emoji: "🐕", lemma: "koer" },
+      { emoji: "🛣️", lemma: "tee" }, { emoji: "🌳", lemma: "puu" },
+      { emoji: "🏠", lemma: "maja" }, { emoji: "🏁", lemma: "lipp" },
+    ],
+    example: { et: "Kass sõidab autoga ja koer jookseb järele.", en: "The cat is driving the car and the dog is running after it." },
+  },
+  {
+    id: "dog-office",
+    alt: "A dog at a desk with a laptop and a cup of coffee, a phone, a printer and a calendar, a man and a woman watching, and a pot plant.",
+    title: "A dog at the office",
+    rows: ["🐕 💻 ☕", "📞 🖨️ 📅", "👨 👩 🪴"],
+    things: [
+      { emoji: "🐕", lemma: "koer" }, { emoji: "💻", lemma: "arvuti" },
+      { emoji: "☕", lemma: "kohv" }, { emoji: "📞", lemma: "telefon" },
+      { emoji: "🖨️", lemma: "printer" }, { emoji: "📅", lemma: "kalender" },
+      { emoji: "👨", lemma: "mees" }, { emoji: "👩", lemma: "naine" },
+      { emoji: "🪴", lemma: "taim" },
+    ],
+    example: { et: "Koer töötab arvutiga ja joob kohvi.", en: "The dog is working on the computer and drinking coffee." },
+  },
+  {
+    id: "bear-shop",
+    alt: "A bear pushing a shopping trolley with honey, bread, milk and cheese, a shop assistant, a receipt and some money.",
+    title: "A bear doing the shopping",
+    rows: ["🐻 🛒 🍯", "🍞 🥛 🧀", "👩 🧾 💶"],
+    things: [
+      { emoji: "🐻", lemma: "karu" }, { emoji: "🛒", lemma: "ostukäru" },
+      { emoji: "🍯", lemma: "mesi" }, { emoji: "🍞", lemma: "leib" },
+      { emoji: "🥛", lemma: "piim" }, { emoji: "🧀", lemma: "juust" },
+      { emoji: "👩", lemma: "naine" }, { emoji: "🧾", lemma: "tšekk" },
+      { emoji: "💶", lemma: "raha" },
+    ],
+    example: { et: "Karu ostab poest mett ja leiba.", en: "The bear is buying honey and bread at the shop." },
   },
 ];
 

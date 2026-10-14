@@ -3301,3 +3301,30 @@ grid goes to four columns only where "Paper 20" fits beside its button. The plan
 minutes" rather than "about 0 of those hours". The offline page's button is the app's primary
 button rather than a violet one. And `/grammar/sisseütlev`, which is the name this app teaches,
 reaches the case page its Latin slug names instead of a dead end.
+
+## 57. The fifty-first pass: playful, true, and never at the learner's expense
+
+The operator asked for words, examples and games that lean on simple humour, so that learning
+Estonian feels less like an exam and more like something people enjoy. The standard is written
+down first, in `docs/18-voice.md` §3c: a true fact with a wink, never a joke at the learner, and
+never on a wrong answer, the exam, the level check, an error or anything about their data. Every
+line was drafted here and is for the native Estonian speaker who develops the app to read.
+
+**Estonian names things honestly, and that is the joke.** `lib/estonian/literally.ts` holds 64
+compounds read word for word (`nahkhiir` is a leather mouse, `kilpkonn` a shield frog) and 23
+words that look English and are not (`pea` is a head, `hai` is a shark). Each part is checked
+against the shipped dictionary and the forms list, so no reading invents a word. `WordFun`
+prints one line under a word on the dictionary entry, a first meeting and the word of the day,
+and only where the gloss on the screen agrees with it: `hall` the colour gets the line, `hall`
+the frost does not.
+
+**Sõnamäng is the round built on it.** Five compounds turned over piece by piece and guessed
+before the meaning is stamped on, the same five named the other way round, and three false
+friends. It grades nothing, since nobody can know a word before meeting it, and the verdicts are
+plain: the laugh is in the word and the line under it.
+
+**Smaller things.** Four sillier pictures for Say what you see, a cow in a sauna among them. Each
+persona in a conversation is introduced with a line of its own rather than a description meant
+for the model. Forty-five authored sentences at A1 and A2 swapped a flat example for a small
+story, still built only from words taught by that evening. And a review with nothing due says
+the cards are having a rest.

@@ -207,6 +207,20 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     /*
+      Compounds with honest names (a turtle is a shield frog, a bat a leather
+      mouse) and words that only look English. Five at a time, taken apart,
+      guessed and named. Reached from Practice. See `lib/estonian/literally.ts`
+      and `lib/games/wordplay.ts`.
+    */
+    href: "/review/wordplay", title: "Sõnamäng", subtitle: "Words with honest names",
+    icon: "Smile", tone: "butter", group: "targeted", note: "Five at a time, no clock",
+    within: "/practice",
+    blurb:
+      "Compound words read piece by piece, like a bat that's a leather mouse, and words that " +
+      "only look English. Take each one apart, guess what it means, then name it from what it says.",
+  },
+  {
+    /*
       Twenty questions, which is the classic game against a machine: it holds a
       thing in mind and the learner has twenty yes or no questions to name it.
       The Estonian is the learner's own, a whole question typed with the forms
@@ -418,7 +432,7 @@ export const SHELVES: readonly Shelf[] = [
   },
   {
     id: "games", name: "Word games", hint: "Just for the fun of it.", tone: "butter",
-    hrefs: ["/review/letters", "/sonad", "/crossword", "/review/sentences", "/review/map", "/review/twins", "/review/sayings"],
+    hrefs: ["/review/letters", "/sonad", "/crossword", "/review/sentences", "/review/map", "/review/twins", "/review/sayings", "/review/wordplay"],
   },
   {
     id: "workshop", name: "Workshop", hint: "You think, you type. Take your time.", tone: "accent",

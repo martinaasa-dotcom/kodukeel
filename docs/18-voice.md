@@ -288,6 +288,51 @@ English lines under example sentences and anything else a model writes for a lea
 copy. Every prompt that asks a model for English a learner will see carries `VOICE_RULES`, and the
 generated text passes through the same table on the way out (section 6).
 
+## 3c. Humour: playful, true, and never at the learner's expense
+
+The operator asked for the app to be funny, so that people take it a little less seriously and
+enjoy it more, and chose the tone from three drafts: **playful**. A playful line is a true fact said
+with a wink. It is not a pun for its own sake, not an exclamation mark, and not an emoji.
+
+> nahkhiir, bat. A leather mouse. Estonian looked at a bat and said exactly what it saw.
+
+against
+
+> 🦇 Holy leather mouse, Batman!
+
+The first is a fact about the word, and the joke is that the fact is funny. The second is a joke
+about a film, and the fact gets lost behind it.
+
+**Where the humour comes from.** Mostly from Estonian itself, which is the safest source there is,
+because a compound read word by word is a fact and nobody had to invent it.
+`lib/estonian/literally.ts` holds the compounds (`kilpkonn`, a shield frog) and the false friends
+(`pea` is a head), and a test holds every one to the shipped dictionary. The English around them,
+the scene briefings, the picture prompts and the empty states are written by hand, and an Estonian
+sentence written for a laugh is held to every rule `lib/dict/authored.ts` states.
+
+**What a funny line may not do:**
+
+- **Mock the learner.** A wrong answer is answered plainly and kindly, always. Somebody who has just
+  got something wrong is the one reader a joke can hurt, and the correction is the one thing on the
+  screen they need. The same goes for a slow week, a broken streak and a level that came out lower
+  than hoped.
+- **Appear on a screen that measures.** The mock exam, the level check, the readiness figures and
+  the checkpoint are plain, because a joke there reads as the app not taking the result seriously.
+- **Appear where something has gone wrong for the person.** Error screens, privacy, erasure,
+  sign-in failures and a spent allowance stay plain. Somebody whose deck did not load wants to know
+  why.
+- **Joke about a people or a nationality.** Most learners here speak Russian or Ukrainian, and a
+  joke about Russians, Ukrainians, Estonians or anybody else is not one this app tells.
+- **Invent a fact.** "The word for month is the word for moon, from when the moon was the calendar"
+  is true. A history that sounds good and is not is a lesson in something false. Where a reading is
+  a pun on a second sense rather than the etymology, the line says so.
+- **Turn up everywhere.** A joke on every card stops being a joke by the second evening. Most words
+  have nothing funny said about them, and that is the point.
+
+**Who reads it.** Every line is drafted in a session and read by the operator before it reaches
+anybody. Estonian in it is read by the native speaker who develops this app in the pull request,
+exactly as the scene bank and the written sentences are.
+
 ## 4. What this rule does not cover
 
 **Comments, and code quoted inside a document.** Comments are for whoever maintains the code and may
