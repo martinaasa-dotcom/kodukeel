@@ -5,8 +5,9 @@ It is meant to be read back into a planning session for the second batch, so it 
 how each change was checked, where the work went differently from the plan and why, and what was
 found on the way that belongs in the next list.
 
-Branch `claude/determined-ritchie-ptcr9g`, pull request #816. Three commits for the code (QW-1, then
-QW-8 and QW-9 together, then QW-2 to QW-6), then this page.
+Branch `claude/determined-ritchie-ptcr9g`, pull request #816. Four commits for the code (QW-1, then
+QW-8 and QW-9 together, then QW-2 to QW-6, then a fix to the poster at tablet width that the
+containment sweep found), plus this page.
 
 ## 1. Summary
 
@@ -228,7 +229,15 @@ weight is unchanged within a kilobyte.
   not, an archived class is not found.
 - The page printed to PDF is one A4 page with nothing from the shell on it.
 - Screenshots at 360 and 1280, light and dark.
-- `test-containment.mjs` now visits the poster when the fixture class exists.
+- `test-containment.mjs` now visits the poster when the fixture class exists, and on its first run
+  it failed the poster at 768. There the rail takes a third of the screen, the code at 72px ran
+  80px past the card, and the three language columns broke "Estonian" and "localhost" in half.
+  The fix (commit d23fd02):
+  - the code steps up with the width (40px, then 52px from sm, then 88px from lg);
+  - the card has less padding below lg;
+  - the three languages sit side by side only from xl and on paper.
+  Measured after the fix at 360, 768, 1024 and 1280: the code is inside the card's padding at every
+  width, and the print is still one page.
 
 ## 8. QW-6: small polish
 
