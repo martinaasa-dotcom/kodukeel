@@ -986,6 +986,11 @@ export interface Briefing {
      */
     given: readonly string[];
   }[];
+  /**
+   * Who is across the counter, as the learner is introduced to them: the
+   * persona's `meet` line, which says what `who` says with a smile. `who`
+   * stays with the composer and never reaches a screen.
+   */
   readonly persona: string;
 }
 
@@ -1050,7 +1055,7 @@ function briefingOf(run: SceneRunPlan, glosses: ReadonlyMap<string, string>): Br
         ? prop.shown
         : prop.lemmas.map((lemma) => glosses.get(lemma)).filter((v): v is string => !!v),
     })),
-    persona: run.persona.who,
+    persona: run.persona.meet,
   };
 }
 
