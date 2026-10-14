@@ -333,9 +333,18 @@ async function entryPages(locale) {
     if (path.startsWith("/welcome")) {
       check(`${path} arrives without the whole ${locale} table`, tableLoads === 0, `${tableLoads} table chunk(s) loaded`);
       // A press on the plan calculator asks for the rest of the language.
-      await page.locator(".plan-calc button").first().dispatchEvent("pointerdown").catch(() => {});
-      await page.waitForLoadState("networkidle").catch(() => {});
-      await page.waitForTimeout(400);
+      // Pressed until the table arrives, within a budget, rather than once:
+      // the ask is a React capture handler, so a press that lands before the
+      // page has hydrated reaches nothing, and on a slow runner networkidle
+      // plus 400ms is not always hydrated. CI failed this once with 0 chunks
+      // on a page that loads its table perfectly well. A second press after
+      // the table is in asks for nothing, so "exactly once" still holds.
+      const asked = Date.now() + 15_000;
+      do {
+        await page.locator(".plan-calc button").first().dispatchEvent("pointerdown").catch(() => {});
+        await page.waitForLoadState("networkidle").catch(() => {});
+        await page.waitForTimeout(400);
+      } while (tableLoads === 0 && Date.now() < asked);
       check(`${path} loads the whole ${locale} table once a demo is reached for`, tableLoads === 1, `${tableLoads} table chunk(s) loaded`);
       check(`${path} draws again in ${locale} without throwing`, thrown.length === 0, thrown.slice(0, 2).join(" · "));
     }
