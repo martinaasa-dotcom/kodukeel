@@ -21,7 +21,7 @@ const B = baseUrl();
   Raised by one: first run now asks what language a meaning should be given in,
   on the screen before any Estonian is shown.
 */
-const { check, absent, done } = suite("Level check", { floor: 51 });
+const { check, absent, done } = suite("Level check", { floor: 52 });
 
 const browser = await launchChromium();
 const context = await browser.newContext({ viewport: { width: 1280, height: 1100 } });
@@ -381,6 +381,15 @@ if (onboarded) {
   await page.getByRole("button", { name: /Citizenship or residence/ }).click();
   await page.getByRole("button", { name: /^Work/ }).click();
 
+  /*
+    The plan is one line here and the panel is behind a press, because open it
+    was most of the height of this step on a phone. The working is still on
+    the screen before a word goes into a deck, which is the property this
+    suite holds, so the press is made and the panel read.
+  */
+  check("the plan's verdict is on the step in one line",
+    ((await page.locator("[data-plan-headline]").textContent()) ?? "").trim().length > 0);
+  await page.getByText(/How we worked that out/).click();
   const goalStep = await page.locator("body").innerText();
   check("more than one reason can be true at once",
     (await page.locator('[aria-pressed="true"]').count()) >= 2);

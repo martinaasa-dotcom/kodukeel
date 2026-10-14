@@ -20,6 +20,7 @@ export const START: Area = {
   ru: {
     // SIGN-IN.
     "Back to the front page": "На главную страницу",
+    "How we worked that out": "Как мы это посчитали",
     "New here? Signing in is all it takes to start, and it’s free. Coming back? Everything you’ve learned is right where you left it.":
       "Вы здесь впервые? Чтобы начать, достаточно войти, и это бесплатно. Вернулись? Всё, что вы выучили, на своём месте.",
     "That address cannot use this copy of Kodukeel, because it’s set up for one particular group. Try the account you were invited with, or ask {email} to add you.":
@@ -307,6 +308,7 @@ export const START: Area = {
   uk: {
     // SIGN-IN.
     "Back to the front page": "На головну сторінку",
+    "How we worked that out": "Як ми це порахували",
     "New here? Signing in is all it takes to start, and it’s free. Coming back? Everything you’ve learned is right where you left it.":
       "Ви тут уперше? Щоб почати, досить увійти, і це безкоштовно. Повернулися? Усе, що ви вивчили, на своєму місці.",
     "That address cannot use this copy of Kodukeel, because it’s set up for one particular group. Try the account you were invited with, or ask {email} to add you.":
