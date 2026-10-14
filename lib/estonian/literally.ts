@@ -629,6 +629,26 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     id: "kits", word: "kits", looksLike: "kits", means: "goat",
     quip: "One goat, not a set of anything. Assembly not required.",
   },
+  {
+    id: "tuba", word: "tuba", looksLike: "tuba", means: "room",
+    quip: "A room, not a brass instrument. Though one of those would fill it nicely.",
+  },
+  {
+    id: "seal", word: "seal", looksLike: "seal", means: "there",
+    quip: "There, not the animal. Point at one on the rocks and the word is right either way.",
+  },
+  {
+    id: "pool", word: "pool", looksLike: "pool", means: "half",
+    quip: "Half, not somewhere to swim. Order half a cake and nobody will hand you a towel.",
+  },
+  {
+    id: "mood", word: "mood", looksLike: "mood", means: "fashion",
+    quip: "Fashion, not a feeling. Though the right coat can do wonders for both.",
+  },
+  {
+    id: "maks", word: "maks", looksLike: "max", means: "tax",
+    quip: "Tax, not the maximum. Though at the end of the month it can feel like it.",
+  },
 ];
 
 const COMPOUND_BY_WORD: ReadonlyMap<string, Compound> = new Map(COMPOUNDS.map((c) => [c.word, c]));
