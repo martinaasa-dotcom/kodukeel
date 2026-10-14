@@ -72,3 +72,23 @@ describe("a redirect after the session was read carries what reading it wrote", 
     expect(response.cookies.get("sb-proj-auth-token")?.value).toBe("");
   });
 });
+
+describe("a join link sent through sign-in", () => {
+  beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://proj.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
+    vi.stubEnv("ALLOWED_EMAILS", "");
+    vi.stubEnv("ALLOWED_EMAIL_DOMAINS", "");
+  });
+
+  it("keeps the code in next, so the box is filled on the far side", async () => {
+    answer = { state: "out" };
+    written = [];
+    const response = await middleware(request("/class?join=ABC234"));
+    expect(response.status).toBe(307);
+    const location = new URL(response.headers.get("location") ?? "");
+    expect(location.pathname).toBe("/sign-in");
+    expect(location.searchParams.get("next")).toBe("/class?join=ABC234");
+  });
+});
