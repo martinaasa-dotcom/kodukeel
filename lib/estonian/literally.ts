@@ -573,9 +573,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "cash", word: "sularaha",
-    parts: [p("sula", "sula", "melted, thawed"), p("raha", "raha", "money")],
-    literal: "melted money", means: "cash",
-    quip: "Here the first half is an old word for pure, as in pure gold. The melting is only a pun.",
+    parts: [p("sula", "sula", "pure, sheer", "melted"), p("raha", "raha", "money")],
+    literal: "pure money", means: "cash",
+    quip: "Read another way, the first half is melted, which is about how long cash lasts in a wallet.",
   },
   {
     id: "signature", word: "allkiri",
@@ -599,13 +599,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "tablet", word: "tahvelarvuti",
     parts: [p("tahvel", "tahvel", "blackboard"), p("arvuti", "arvuti", "computer")],
     literal: "blackboard computer", means: "a tablet",
-    quip: "A slate you carry about, which is what schoolchildren once wrote on.",
+    quip: "English tablet first meant a slab to write on too, so both languages named it after the school slate.",
   },
   {
     id: "season", word: "aastaaeg",
     parts: [p("aasta", "aasta", "year"), p("aeg", "aeg", "time")],
     literal: "year time", means: "a season",
-    quip: "One boggy national park in the west claims a fifth, when spring floods turn its roads into rivers.",
+    quip: "One boggy national park in the south-west claims a fifth, when spring floods turn its roads into rivers.",
   },
   {
     id: "history", word: "ajalugu",
@@ -617,19 +617,19 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "gingerbread", word: "piparkook",
     parts: [p("pipar", "pipar", "pepper"), p("kook", "kook", "cake")],
     literal: "pepper cake", means: "gingerbread",
-    quip: "German bakes one under the same name, and both fill a kitchen at Christmas.",
+    quip: "German bakes it under the same name, and in both countries December smells of it.",
   },
   {
     id: "cousin", word: "onupoeg",
     parts: [p("onu", "onu", "uncle"), p("poeg", "poeg", "son")],
-    literal: "uncle son", means: "a cousin",
-    quip: "Through an aunt the word changes. Estonian names a cousin by the route to them.",
+    literal: "uncle son", means: "a male cousin",
+    quip: "Through an aunt the word changes, and for a daughter it changes again. Each cousin is named by the route to them.",
   },
   {
     id: "driving-licence", word: "juhiluba",
     parts: [p("juhi", "juht", "leader, driver"), p("luba", "luba", "permission")],
     literal: "leader permission", means: "a driving licence",
-    quip: "The same first half leads a choir or a company. This permit stops at one car.",
+    quip: "The same first half leads a choir or a company. On the road it means whoever holds the wheel.",
   },
   {
     id: "gym", word: "jõusaal",
@@ -665,13 +665,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "page", word: "lehekülg",
     parts: [p("lehe", "leht", "leaf"), p("külg", "külg", "side")],
     literal: "leaf side", means: "a page",
-    quip: "Every leaf of a book has two of them, the front and the back.",
+    quip: "Every leaf has two, which is how a book of a hundred pages is only fifty leaves thick.",
   },
   {
     id: "magazine", word: "ajakiri",
     parts: [p("aja", "aeg", "time"), p("kiri", "kiri", "letter, writing")],
     literal: "time letter", means: "a magazine",
-    quip: "A letter from the times that turns up every week or month. Nobody ever writes back.",
+    quip: "A letter from the times that turns up every week or month, whether or not you wrote back.",
   },
   {
     id: "cobbler", word: "kingsepp",
@@ -683,7 +683,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "cornflower", word: "rukkilill",
     parts: [p("rukki", "rukis", "rye"), p("lill", "lill", "flower")],
     literal: "rye flower", means: "a cornflower",
-    quip: "Estonia's national flower, named for the grain fields it grows in.",
+    quip: "English cornflower means the same, since corn once meant any grain. It is Estonia's national flower.",
   },
   {
     id: "exclamation-mark", word: "hüüumärk",
@@ -731,7 +731,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "cotton", word: "puuvill",
     parts: [p("puu", "puu", "tree"), p("vill", "vill", "wool")],
     literal: "tree wool", means: "cotton",
-    quip: "Cotton grows on a bush, but the fluff does look like a fleece.",
+    quip: "German has the same name for it. Cotton grows on a bush, but both languages saw the fleece first.",
   },
   {
     id: "greenhouse", word: "kasvuhoone",
@@ -797,7 +797,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "pleasure", word: "heameel",
     parts: [p("hea", "hea", "good"), p("meel", "meel", "mind, mood")],
     literal: "good mind", means: "gladness, pleasure",
-    quip: "The good mood that makes you say yes to helping before the favour is even explained.",
+    quip: "The good mood you say yes in, without asking what the favour is.",
   },
   {
     id: "conspiracy", word: "vandenõu",
@@ -821,7 +821,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "goal", word: "eesmärk",
     parts: [p("ees", "ees", "in front of"), p("märk", "märk", "sign, mark")],
     literal: "front mark", means: "a goal, aim",
-    quip: "The mark out ahead of you, which is where an aim belongs.",
+    quip: "It stays out in front however far you walk, which is what an aim is for.",
   },
   {
     id: "standpoint", word: "vaatenurk",
@@ -872,12 +872,6 @@ export const COMPOUNDS: readonly Compound[] = [
     quip: "The first hives were hollow trees, and the name never moved out.",
   },
   {
-    id: "hypocritical", word: "silmakirjalik",
-    parts: [p("silma", "silm", "eye"), p("kirjalik", "kirjalik", "written")],
-    literal: "eye written", means: "hypocritical",
-    quip: "The root of the second half still means a pattern, as on a mitten, so think of a show put on for the eye.",
-  },
-  {
     id: "february", word: "küünlakuu",
     parts: [p("küünla", "küünal", "candle"), p("kuu", "kuu", "month")],
     literal: "candle month", means: "February",
@@ -899,7 +893,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "special-day", word: "tähtpäev",
     parts: [p("täht", "täht", "mark, fixed point", "letter"), p("päev", "päev", "day")],
     literal: "marked day", means: "a special date, anniversary",
-    quip: "The first half is also a star, and such a day often gets one in the diary.",
+    quip: "A birthday, an anniversary, a national holiday: the days it is unwise to forget.",
   },
   {
     id: "amber", word: "merevaik",
@@ -911,7 +905,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "namesake", word: "nimekaim",
     parts: [p("nime", "nimi", "name"), p("kaim", "kaim", "relative")],
     literal: "name relative", means: "a namesake",
-    quip: "Two people sharing a name, and related by nothing else.",
+    quip: "Related by name only, the one relative who never asks you to help them move.",
   },
   {
     id: "youngest-child", word: "pesamuna",
@@ -965,7 +959,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "forget-me-not", word: "lõosilm",
     parts: [p("lõo", "lõo", "lark"), p("silm", "silm", "eye")],
     literal: "lark eye", means: "a forget-me-not",
-    quip: "A tiny blue flower with a bright eye in the middle, small as a bird's.",
+    quip: "The English name begs to be remembered. This one only notices the bright yellow eye in the middle.",
   },
   {
     id: "pioneer", word: "teerajaja",
@@ -977,25 +971,25 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "department-store", word: "kaubamaja",
     parts: [p("kauba", "kaup", "goods"), p("maja", "maja", "house")],
     literal: "goods house", means: "a department store",
-    quip: "A whole house of things to buy, floor after floor.",
+    quip: "Everything in the house is for sale, apart from the house.",
   },
   {
     id: "glowworm", word: "jaaniuss",
     parts: [p("jaani", "jaan", "Midsummer"), p("uss", "uss", "worm")],
     literal: "Midsummer worm", means: "a glowworm",
-    quip: "It lights up in June, around Midsummer, and that is all its name says.",
+    quip: "It is a beetle, not a worm, but the date is right: it glows in the warm nights around Midsummer.",
   },
   {
     id: "crown", word: "pealagi",
     parts: [p("pea", "pea", "head"), p("lagi", "lagi", "ceiling")],
     literal: "head ceiling", means: "the crown",
-    quip: "The very top of you, where a room keeps its ceiling.",
+    quip: "If your head has a ceiling, a hat is the roof over it.",
   },
   {
     id: "infinitive", word: "tegevusnimi",
     parts: [p("tegevus", "tegevus", "activity"), p("nimi", "nimi", "name")],
     literal: "activity name", means: "the infinitive",
-    quip: "Latin named it the unbounded form, since it belongs to no person and no tense. Estonian is less poetic.",
+    quip: "Latin named it the unbounded form, since it belongs to no person and no tense.",
   },
   {
     id: "hammock", word: "võrkkiik",
@@ -1007,7 +1001,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "loofah", word: "käsnkõrvits",
     parts: [p("käsn", "käsn", "sponge"), p("kõrvits", "kõrvits", "pumpkin")],
     literal: "sponge pumpkin", means: "a loofah",
-    quip: "A loofah grows as a gourd before it ends up in the shower.",
+    quip: "It grows on a vine as a gourd, dries out, and ends up scrubbing your back.",
   },
   {
     id: "reindeer", word: "põhjapõder",
@@ -1019,25 +1013,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "nacre", word: "pärlmutter",
     parts: [p("pärl", "pärl", "pearl"), p("mutter", "mutter", "nut (for a bolt)")],
     literal: "pearl nut", means: "nacre",
-    quip: "Borrowed whole from German, where it is pearl mother. German calls a nut a mother too, which is where the hardware came from.",
-  },
-  {
-    id: "waist", word: "vöökoht",
-    parts: [p("vöö", "vöö", "belt"), p("koht", "koht", "place")],
-    literal: "belt place", means: "the waist",
-    quip: "Where a belt goes, and where a tailor's tape goes too.",
-  },
-  {
-    id: "adjective", word: "omadussõna",
-    parts: [p("omadus", "omadus", "quality"), p("sõna", "sõna", "word")],
-    literal: "quality word", means: "an adjective",
-    quip: "Words like tall, green and grumpy, which describe what things are like.",
-  },
-  {
-    id: "foundry", word: "valukoda",
-    parts: [p("valu", "valu", "pain"), p("koda", "koda", "chamber, hallway")],
-    literal: "pain chamber", means: "a foundry",
-    quip: "Here the first half means casting molten metal. Its other meaning is pain, as foundry workers could tell you.",
+    quip: "Borrowed whole from German, where it is pearl mother. German calls a bolt's nut a mother too, hence the hardware.",
   },
   {
     id: "pupil", word: "silmatera",
@@ -1059,9 +1035,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "rifle", word: "vintpüss",
-    parts: [p("vint", "vint", "finch"), p("püss", "püss", "gun")],
-    literal: "finch gun", means: "a rifle",
-    quip: "The first half here is the spiral groove cut inside the barrel. It is a finch too, oddly.",
+    parts: [p("vint", "vint", "screw, spiral", "finch"), p("püss", "püss", "gun")],
+    literal: "screw gun", means: "a rifle",
+    quip: "The screw is the spiral cut inside the barrel that spins the bullet. Russian named its rifle after the same screw.",
   },
   {
     id: "burglar", word: "murdvaras",
@@ -1073,7 +1049,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "gooseberry", word: "karusmari",
     parts: [p("karus", "karus", "furry"), p("mari", "mari", "berry")],
     literal: "furry berry", means: "a gooseberry",
-    quip: "Look closely and the skin is a little hairy. English blamed a goose instead.",
+    quip: "Rub one and the skin is faintly hairy. Why English brought a goose into it has never been settled.",
   },
   {
     id: "werewolf", word: "libahunt",
@@ -1091,7 +1067,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "allspice", word: "nelkpipar",
     parts: [p("nelk", "nelk", "carnation, clove"), p("pipar", "pipar", "pepper")],
     literal: "carnation pepper", means: "allspice, pimento",
-    quip: "The first half is a clove as well, and clove is much of what allspice tastes of.",
+    quip: "German calls it clove pepper too, and clove is much of what it tastes of.",
   },
   {
     id: "archer", word: "vibukütt",
@@ -1103,19 +1079,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "aphid", word: "lehetäi",
     parts: [p("lehe", "leht", "leaf"), p("täi", "täi", "louse")],
     literal: "leaf louse", means: "an aphid",
-    quip: "Gardeners have stronger words for them.",
-  },
-  {
-    id: "quarter", word: "veerand",
-    parts: [p("vee", "vesi", "water"), p("rand", "rand", "beach")],
-    literal: "water beach", means: "a quarter",
-    quip: "Spelled like water and a beach, which is pure coincidence. Nobody swims in a quarter.",
+    quip: "English gardeners call them plant lice when they are being polite.",
   },
   {
     id: "bookmark", word: "järjehoidja",
     parts: [p("järje", "järg", "one's place in a row"), p("hoidja", "hoidja", "keeper")],
     literal: "place keeper", means: "a bookmark",
-    quip: "It holds your place until you come back to the story.",
+    quip: "It remembers where you stopped reading better than you do.",
   },
 ];
 
@@ -1253,7 +1223,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "lai", word: "lai", looksLike: "lie", means: "wide",
-    quip: "Anglers use it about the one that got away, and the look-alike too.",
+    quip: "The one that got away is always this, and the look-alike usually comes with it.",
   },
   {
     id: "laps", word: "laps", looksLike: "laps", means: "child",
@@ -1293,7 +1263,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "miks", word: "miks", looksLike: "mix", means: "why",
-    quip: "Muddle up a sentence and somebody will ask this.",
+    quip: "Jumble a sentence and this is what comes back from the front of the class.",
   },
   {
     id: "tall", word: "tall", looksLike: "tall", means: "lamb",
@@ -1301,11 +1271,11 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "rong", word: "rong", looksLike: "wrong", means: "train",
-    quip: "Board the incorrect one and the trip gets longer than you planned.",
+    quip: "Get on the wrong one and you will have said both words before the next stop.",
   },
   {
     id: "lukk", word: "lukk", looksLike: "look", means: "lock",
-    quip: "Give the door one last glance before you leave.",
+    quip: "Locked out, you give it a very long look.",
   },
   {
     id: "siis", word: "siis", looksLike: "cease", means: "then",
@@ -1373,7 +1343,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "luud", word: "luud", looksLike: "lewd", means: "broom",
-    quip: "Nothing scandalous goes on with it, unless you count sweeping.",
+    quip: "The plural of bone looks identical. Sweep those up with this one.",
   },
   {
     id: "hani", word: "hani", looksLike: "honey", means: "goose",
@@ -1385,7 +1355,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "mutt", word: "mutt", looksLike: "mutt", means: "mole",
-    quip: "It digs up gardens, which a dog might also do.",
+    quip: "Like a scruffy dog it digs up the lawn, but it never comes when called.",
   },
   {
     id: "sool", word: "sool", looksLike: "soul", means: "salt",
@@ -1413,11 +1383,11 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "ämber", word: "ämber", looksLike: "amber", means: "bucket",
-    quip: "A bucket of the precious stuff would be worth a fortune.",
+    quip: "Slang uses it for a blunder too, so stepping in one is never good news. Amber would be.",
   },
   {
     id: "tint", word: "tint", looksLike: "tint", means: "smelt, a small fish",
-    quip: "Its tint is silver, and spring brings it to the frying pan by the plateful.",
+    quip: "It is ink as well, the darkest tint there is. This one is silver, with fins.",
   },
   {
     id: "peal", word: "peal", looksLike: "peal", means: "on top of",
@@ -1457,7 +1427,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "menu", word: "menu", looksLike: "menu", means: "success",
-    quip: "Behind many a restaurant's, there is a good menu.",
+    quip: "Every chef hopes a good menu leads to one.",
   },
   {
     id: "mall", word: "mall", looksLike: "mall", means: "protractor",
@@ -1473,7 +1443,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "seller", word: "seller", looksLike: "seller", means: "celery",
-    quip: "Say English celery aloud and you hear seller with a little extra on the end.",
+    quip: "At the market, the person behind the celery stall is the seller of the seller.",
   },
   {
     id: "soon", word: "soon", looksLike: "soon", means: "vein",

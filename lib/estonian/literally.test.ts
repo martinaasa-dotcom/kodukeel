@@ -59,11 +59,11 @@ function words(text: string): string[] {
   an iron road, a dictionary from words, a rhinoceros from a nose
   and a horn, a vacuum cleaner from dust and sucking, pollen from dust,
   the spinal cord from the back and the brain, a reindeer from the north,
-  and allspice from pepper. Recognising
-  it is the fun, there is no other honest reading, and the line says so where
-  it is the joke.
+  allspice from pepper, and a rifle from the screw cut inside its barrel,
+  which the rifle's own line says out loud. Recognising it is the fun, there
+  is no other honest reading, and the line says so where it is the joke.
 */
-const SAME_IMAGE_BOTH = ["külmkapp", "uksekell", "liivakell", "silmamuna", "nahkhiir", "raamatukoi", "lasteaed", "käekell", "tolmuimeja", "kiirabi", "raudtee", "õietolm", "seljaaju", "põhjapõder", "nelkpipar"];
+const SAME_IMAGE_BOTH = ["külmkapp", "uksekell", "liivakell", "silmamuna", "nahkhiir", "raamatukoi", "lasteaed", "käekell", "tolmuimeja", "kiirabi", "raudtee", "õietolm", "seljaaju", "põhjapõder", "nelkpipar", "vintpüss"];
 const SAME_IMAGE: Record<"ru" | "uk", ReadonlySet<string>> = {
   ru: new Set([...SAME_IMAGE_BOTH, "asesõna", "sõnaraamat", "ninasarvik"]),
   uk: new Set([...SAME_IMAGE_BOTH, "ööliblikas", "lumememm", "linnapea", "sõnaraamat", "ninasarvik"]),
