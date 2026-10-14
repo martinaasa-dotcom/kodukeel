@@ -560,6 +560,45 @@ function pres1sgStem(word: FlashWord): string | null {
   return first && first.endsWith("n") ? first.slice(0, -1) : null;
 }
 
+/**
+ * The words a negated verb stands after. `ei loe` is the plain negative and
+ * `ei küsi ega hoiata` the second half of a "neither, nor": in both the verb
+ * is the stem the negative stands on, which is spelled like the singular
+ * command, and a line tagging it as the command teaches the wrong form.
+ */
+const NEGATORS: ReadonlySet<string> = new Set(["ei", "ega"]);
+
+/*
+  THREE GAPS THE SPELLING ALONE CANNOT SETTLE, READ OFF THE SENTENCE.
+
+  All three were found by a reader going through every line the audit deals
+  (`npm run audit:workbook`), and each is a real word in the gap that is not
+  the form the line says it is, so a learner who answers it right has learned
+  the wrong rule.
+
+  A capital past the start of the sentence is a name: `Maia ja Andrus on
+  pruut ja peigmees` was cut as the inessive of `andur`, a sensor, and `Oleme
+  Anniga kälid` as the comitative of `and`, a gift. A name is nobody's case
+  form, so a capitalised gap anywhere but the first word is refused.
+
+  And a verb's command and its da-infinitive are one spelling for every verb
+  whose stem ends that way (`mõista`, `pista`): `Ainult minevikku tundes võib
+  mõista olevikku` holds the infinitive after `võib`, and telling the two
+  apart is a parse this module does not have. Where the gap's spelling is the
+  word's own infinitive, the line is refused rather than guessed.
+*/
+function plainTarget(word: FlashWord, slot: Slot, answer: string, before: string): boolean {
+  const first = answer.trim()[0];
+  if (first && first !== first.toLocaleLowerCase("et") && /\p{L}/u.test(before)) return false;
+  if (slot.kind !== "verb") return true;
+  const spelled = tidyForm(answer);
+  return !word.forms.some((f) => {
+    const code = morphCodeOf(f);
+    const infinitive = f.formType === "INF_DA" || f.formType === "INF_MA" || code === "Inf" || code === "Sup";
+    return infinitive && tidyForm(f.value) === spelled;
+  });
+}
+
 /** The sentence a slot is asked out of, or nothing. */
 function lineFor(
   word: FlashWord, slot: Slot, sentences: readonly Example[], index: Record<string, string[]>,
@@ -589,10 +628,12 @@ function lineFor(
     */
     const before = cloze.full.slice(0, cloze.index);
     const prior = sentenceWords(before).at(-1);
+    const negated = prior !== undefined && NEGATORS.has(prior);
     const claims = (index[tidyForm(cloze.answer)] ?? [])
-      .filter((code) => !(code.startsWith("IndPrPs") && prior !== "ei"));
+      .filter((code) => !(code.startsWith("IndPrPs") && !negated));
     if (claims.length !== 1 || claims[0] !== slot.slot) continue;
-    if (prior === "ei" && slot.kind === "verb") continue;
+    if (negated && slot.kind === "verb") continue;
+    if (!plainTarget(word, slot, cloze.answer, before)) continue;
 
     // And the gap may not leave another of its own answers standing.
     const blanked = cloze.text;

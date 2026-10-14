@@ -4470,7 +4470,10 @@ one above the learner's band (`withinReach`), and no other form of its own word 
 plainest first (`workbookSentences`, off `plainnessCost`). For an A1 or A2 learner the page reads
 the sentences written for a beginner (ADR-005 amendment 4, which now names it). What no filter can
 judge is whether a native speaker would set the sentence, and `npm run audit:workbook` prints the
-lines a band is dealt for that reading; a refusal goes in `lib/dict/refused.ts`. **The gap is a
+lines a band is dealt for that reading; a refusal goes in `lib/dict/refused.ts`. All 640 were read
+once, and 41 are refused there; three of the faults that reading found are now refused at the source
+(`plainTarget`): a capitalised gap past the first word is a name, a verb after `ega` is the negative
+like one after `ei`, and a command spelled like the word's own infinitive is refused rather than guessed. **The gap is a
 ruled line**, the learner's writing in the accent on the sentence's baseline, a checked answer is
 the word with its line coloured and a tick or a cross, and a second go is one sentence, the note
 and then the hint ("It ends in …ks", "The word is arst"), never a pill: a boxed gap with its text

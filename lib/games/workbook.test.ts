@@ -559,3 +559,38 @@ describe("a page heads with the learner's weakest case whenever the words can fi
     expect(sheet.exercises.map((e) => e.theme)).toEqual(["case:ELATIVE", "case:INESSIVE"]);
   });
 });
+
+/* ------------------------------------------------------------------------ */
+/* Gaps a reader found teaching the wrong form                               */
+/* ------------------------------------------------------------------------ */
+
+describe("a gap the spelling alone cannot settle is refused", () => {
+  const only = (word: FlashWord, et: string): FlashWord =>
+    ({ ...word, examples: [{ et, en: "An English line.", source: "EKILEX" as const }] });
+
+  it("never takes a name past the first word for a case form", () => {
+    expect(linesFor(only(TUBA, "Me istusime Toas ja sõime.")).filter((l) => l.slot === "INESSIVE")).toEqual([]);
+    expect(linesFor(only(TUBA, "Toas on täna soe.")).filter((l) => l.slot === "INESSIVE")).toHaveLength(1);
+  });
+
+  it("reads the verb after ega as the negative, not the command", () => {
+    expect(linesFor(only(LUGEMA, "Ta ei kirjuta ega loe.")).filter((l) => l.slot === "ImpPrSg2")).toEqual([]);
+    expect(linesFor(only(LUGEMA, "Loe see raamat läbi!")).filter((l) => l.slot === "ImpPrSg2")).toHaveLength(1);
+  });
+
+  it("refuses a command spelled like the word's own infinitive", () => {
+    const pistma: FlashWord = {
+      lexemeId: "lex-pistma", lemma: "pistma", translation: "to stick", pos: "VERB", semanticTypes: null,
+      forms: [
+        { formType: "INF_MA", value: "pistma" },
+        { formType: "INF_DA", value: "pista" },
+        { formType: "PRES_1SG", value: "pistan" },
+      ],
+      examples: [{ et: "Ma armastan näpud mulda pista.", en: "An English line.", source: "EKILEX" }],
+    };
+    const commands = linesFor(pistma).filter((l) => l.slot === "ImpPrSg2");
+    expect(commands).toEqual([]);
+    // And a verb whose command is spelled its own way keeps the line.
+    expect(slotsFor(pistma).some((s) => s.slot === "ImpPrSg2")).toBe(true);
+  });
+});
