@@ -3411,3 +3411,9 @@ where a joke turns on a mark, and the sister who would wash up is a brother. And
 `scripts/test-today-fun.mjs` drives both cards in CI: the punchline held and handed the caret,
 the English, another joke, axe in both states, the news link, its live region and its cycling, and
 a card hidden in Settings staying off Today, made to fail first by dropping the hidden set.
+
+**The second read confirmed all sixteen changes and asked for three more.** `Ma säästan metsa` for
+saving the forest and `koolist koju minna` for going home from school were applied. Lowercasing
+`Inglise kuningad` was declined a second time: it names the country (Inglismaa), and a country's
+name in the genitive keeps its capital, as in `Soome president` and `Rootsi kuningas`; it is a
+one-character change for a native reader to overrule.

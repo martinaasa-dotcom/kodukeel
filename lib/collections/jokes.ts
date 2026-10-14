@@ -189,7 +189,7 @@ export const JOKES: readonly Joke[] = [
   ],
   [
     ["Õpetaja: Juku, miks su kodutöö nii lühike on?", "Teacher: Juku, why is your homework so short?"],
-    ["Juku: Ma hoian metsa.", "Juku: I'm saving the forest."],
+    ["Juku: Ma säästan metsa.", "Juku: I'm saving the forest."],
   ],
   [
     ["Ema: Juku, kas sina lõhkusid taldriku?", "Mum: Juku, did you break the plate?"],
@@ -844,7 +844,7 @@ export const JOKES: readonly Joke[] = [
   ],
   [
     ["Mari: Juku, kas sulle meeldib koolis käia?", "Mari: Juku, do you like going to school?"],
-    ["Juku: Kõige rohkem meeldib mulle koolist koju käia.", "Juku: What I like best is going home from school."],
+    ["Juku: Kõige rohkem meeldib mulle koolist koju minna.", "Juku: What I like best is going home from school."],
   ],
   [
     ["Juku: Ema, õpetaja ütles, et mu käekiri on nagu arstil.", "Juku: Mum, the teacher said my handwriting is like a doctor's."],
