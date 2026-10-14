@@ -575,7 +575,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "cash", word: "sularaha",
     parts: [p("sula", "sula", "melted, thawed"), p("raha", "raha", "money")],
     literal: "melted money", means: "cash",
-    quip: "English calls ready money liquid too, and it slips through your fingers as fast.",
+    quip: "Here the first half is an old word for pure, as in pure gold. The melting is only a pun.",
   },
   {
     id: "signature", word: "allkiri",
@@ -605,7 +605,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "season", word: "aastaaeg",
     parts: [p("aasta", "aasta", "year"), p("aeg", "aeg", "time")],
     literal: "year time", means: "a season",
-    quip: "Estonia has four of them, and winter takes the biggest share.",
+    quip: "Soomaa claims a fifth one, when the spring floods turn its roads into rivers.",
   },
   {
     id: "history", word: "ajalugu",
@@ -627,7 +627,7 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "driving-licence", word: "juhiluba",
-    parts: [p("juhi", "juht", "leader, chief"), p("luba", "luba", "permission")],
+    parts: [p("juhi", "juht", "leader, driver"), p("luba", "luba", "permission")],
     literal: "leader permission", means: "a driving licence",
     quip: "The card that puts you in charge of a car.",
   },
@@ -674,12 +674,6 @@ export const COMPOUNDS: readonly Compound[] = [
     quip: "A letter from the times that turns up every week or month. Nobody ever writes back.",
   },
   {
-    id: "composer", word: "helilooja",
-    parts: [p("heli", "heli", "sound"), p("looja", "looja", "maker, creator")],
-    literal: "sound maker", means: "a composer",
-    quip: "A good one makes far more than sound, but that is where it starts.",
-  },
-  {
     id: "cobbler", word: "kingsepp",
     parts: [p("king", "king", "shoe"), p("sepp", "sepp", "smith")],
     literal: "shoe smith", means: "a cobbler",
@@ -695,7 +689,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "exclamation-mark", word: "hüüumärk",
     parts: [p("hüüu", "hüüd", "shout"), p("märk", "märk", "sign")],
     literal: "shout sign", means: "an exclamation mark",
-    quip: "This app's own lines are not allowed to use one.",
+    quip: "Every sale sign in town has at least one, and usually three.",
   },
   {
     id: "sink-basin", word: "kraanikauss",
@@ -756,12 +750,6 @@ export const COMPOUNDS: readonly Compound[] = [
     parts: [p("põlev", "põlev", "burning"), p("kivi", "kivi", "stone")],
     literal: "burning stone", means: "oil shale",
     quip: "A rock that burns. Estonia has been digging it up for over a century.",
-  },
-  {
-    id: "century", word: "aastasada",
-    parts: [p("aasta", "aasta", "year"), p("sada", "sada", "hundred")],
-    literal: "year hundred", means: "a century",
-    quip: "Count them on a birthday cake and you'd need a very big cake.",
   },
   {
     id: "nickname", word: "hüüdnimi",
@@ -884,16 +872,10 @@ export const COMPOUNDS: readonly Compound[] = [
     quip: "The first hives were hollow trees, and the name never moved out.",
   },
   {
-    id: "target", word: "märklaud",
-    parts: [p("märk", "märk", "mark, sign"), p("laud", "laud", "board, table")],
-    literal: "mark board", means: "a target",
-    quip: "Aim for the middle. Darts players know the rest.",
-  },
-  {
     id: "hypocritical", word: "silmakirjalik",
     parts: [p("silma", "silm", "eye"), p("kirjalik", "kirjalik", "written")],
     literal: "eye written", means: "hypocritical",
-    quip: "Written for the eye only, which is how a hypocrite behaves.",
+    quip: "The second half once also meant a pattern, so think of a show put on for the eye.",
   },
   {
     id: "february", word: "küünlakuu",
@@ -908,12 +890,6 @@ export const COMPOUNDS: readonly Compound[] = [
     quip: "It hops about on strings while somebody above does all the work.",
   },
   {
-    id: "peanut", word: "maapähkel",
-    parts: [p("maa", "maa", "earth, land"), p("pähkel", "pähkel", "nut")],
-    literal: "earth nut", means: "a peanut",
-    quip: "Peanuts ripen underground, so the name is accurate.",
-  },
-  {
     id: "orca", word: "mõõkvaal",
     parts: [p("mõõk", "mõõk", "sword"), p("vaal", "vaal", "whale")],
     literal: "sword whale", means: "an orca",
@@ -924,12 +900,6 @@ export const COMPOUNDS: readonly Compound[] = [
     parts: [p("täht", "täht", "star", "letter"), p("päev", "päev", "day")],
     literal: "star day", means: "an anniversary",
     quip: "A date important enough to mark with a star.",
-  },
-  {
-    id: "necktie", word: "kaelaside",
-    parts: [p("kaela", "kael", "neck"), p("side", "side", "band, binding")],
-    literal: "neck band", means: "a tie",
-    quip: "Office wear, described with no flattery at all.",
   },
   {
     id: "amber", word: "merevaik",
@@ -977,19 +947,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "spinal-cord", word: "seljaaju",
     parts: [p("selja", "selg", "back"), p("aju", "aju", "brain")],
     literal: "back brain", means: "the spinal cord",
-    quip: "It runs down your back and does a fair share of the body's thinking.",
+    quip: "It handles your reflexes before your brain has even heard about it.",
   },
   {
     id: "library", word: "raamatukogu",
     parts: [p("raamatu", "raamat", "book"), p("kogu", "kogu", "the whole, a gathering")],
     literal: "book gathering", means: "a library",
     quip: "Every volume in town under one roof, and free to borrow.",
-  },
-  {
-    id: "october", word: "viinakuu",
-    parts: [p("viina", "viin", "vodka, spirits"), p("kuu", "kuu", "month")],
-    literal: "vodka month", means: "October",
-    quip: "By the farm year, the harvest was in and there was grain to distil.",
   },
   {
     id: "shrew", word: "karihiir",
@@ -1022,12 +986,6 @@ export const COMPOUNDS: readonly Compound[] = [
     quip: "It lights up in June, around Midsummer, and that is all its name says.",
   },
   {
-    id: "royal-jelly", word: "linnupiim",
-    parts: [p("linnu", "lind", "bird"), p("piim", "piim", "milk")],
-    literal: "bird milk", means: "royal jelly",
-    quip: "Birds make no milk, so it also stands for anything impossible to get.",
-  },
-  {
     id: "crown", word: "pealagi",
     parts: [p("pea", "pea", "head"), p("lagi", "lagi", "ceiling")],
     literal: "head ceiling", means: "the crown",
@@ -1055,7 +1013,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "reindeer", word: "põhjapõder",
     parts: [p("põhja", "põhi", "north"), p("põder", "põder", "elk, moose")],
     literal: "north elk", means: "a reindeer",
-    quip: "An elk that moved further north, where the females grow antlers too.",
+    quip: "The only deer whose females grow antlers too.",
   },
   {
     id: "nacre", word: "pärlmutter",
@@ -1100,12 +1058,6 @@ export const COMPOUNDS: readonly Compound[] = [
     quip: "Every office has one, and every office argues about who refills it.",
   },
   {
-    id: "starter", word: "eelroog",
-    parts: [p("eel", "eel", "before"), p("roog", "roog", "dish, course")],
-    literal: "before dish", means: "a starter",
-    quip: "The course that comes first, so you know what you're in for.",
-  },
-  {
     id: "rifle", word: "vintpüss",
     parts: [p("vint", "vint", "finch"), p("püss", "püss", "gun")],
     literal: "finch gun", means: "a rifle",
@@ -1122,18 +1074,6 @@ export const COMPOUNDS: readonly Compound[] = [
     parts: [p("karus", "karus", "furry"), p("mari", "mari", "berry")],
     literal: "furry berry", means: "a gooseberry",
     quip: "Look closely and the skin is a little hairy. English blamed a goose instead.",
-  },
-  {
-    id: "parliament", word: "riigikogu",
-    parts: [p("riigi", "riik", "state"), p("kogu", "kogu", "the whole, a gathering")],
-    literal: "state gathering", means: "the parliament",
-    quip: "Estonia's parliament, where the country's business is talked through in one hall.",
-  },
-  {
-    id: "messenger", word: "käskjalg",
-    parts: [p("käsk", "käsk", "order, command"), p("jalg", "jalg", "foot, leg")],
-    literal: "order foot", means: "a messenger",
-    quip: "Somebody who ran with commands, from the days before email.",
   },
   {
     id: "werewolf", word: "libahunt",
@@ -1173,8 +1113,8 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "bookmark", word: "järjehoidja",
-    parts: [p("järje", "järg", "row, the next in line"), p("hoidja", "hoidja", "keeper")],
-    literal: "row keeper", means: "a bookmark",
+    parts: [p("järje", "järg", "one's place in a row"), p("hoidja", "hoidja", "keeper")],
+    literal: "place keeper", means: "a bookmark",
     quip: "It holds your place until you come back to the story.",
   },
 ];
@@ -1313,7 +1253,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "lai", word: "lai", looksLike: "lie", means: "wide",
-    quip: "Stretch your arms out as far as they go and you've shown it.",
+    quip: "Anglers use it about the one that got away, and the look-alike too.",
   },
   {
     id: "laps", word: "laps", looksLike: "laps", means: "child",
@@ -1337,7 +1277,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "see", word: "see", looksLike: "see", means: "this, it",
-    quip: "Point at whatever you like and it comes in handy.",
+    quip: "English see points with the eyes. This one points with a finger.",
   },
   {
     id: "tort", word: "tort", looksLike: "tort", means: "layer cake",
@@ -1381,7 +1321,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "till", word: "till", looksLike: "till", means: "dill",
-    quip: "Estonians scatter it over new potatoes in summer, and over most other things.",
+    quip: "New potatoes in summer hardly ever come without a handful of it on top.",
   },
   {
     id: "nii", word: "nii", looksLike: "knee", means: "so, like this",
@@ -1389,7 +1329,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "kallis", word: "kallis", looksLike: "callous", means: "dear, expensive",
-    quip: "Say it to somebody you love, or about the bill.",
+    quip: "The look-alike means unfeeling, the very last thing to call somebody you love.",
   },
   {
     id: "mull", word: "mull", looksLike: "mull", means: "bubble",
@@ -1397,7 +1337,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "ammu", word: "ammu", looksLike: "ammo", means: "long ago",
-    quip: "Grandparents open their best stories with it.",
+    quip: "Grandparents load their best stories with it.",
   },
   {
     id: "kivi", word: "kivi", looksLike: "kiwi", means: "stone",
@@ -1444,10 +1384,6 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "Bring the bottle back to the shop and you get it returned.",
   },
   {
-    id: "uus", word: "uus", looksLike: "ooze", means: "new",
-    quip: "Straight out of the box, and it says so in one syllable.",
-  },
-  {
     id: "mutt", word: "mutt", looksLike: "mutt", means: "mole",
     quip: "It digs up gardens, which a dog might also do.",
   },
@@ -1468,20 +1404,12 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "Keep your woollens well away from this one. The pond fish is harmless.",
   },
   {
-    id: "veel", word: "veel", looksLike: "veil", means: "still, yet, more",
-    quip: "Use it to ask for one more slice of cake.",
-  },
-  {
     id: "lint", word: "lint", looksLike: "lint", means: "ribbon, tape",
     quip: "It ties up presents instead of clogging the dryer.",
   },
   {
     id: "kruus", word: "kruus", looksLike: "cruise", means: "gravel",
-    quip: "Hardly a holiday, unless you like a crunchy path.",
-  },
-  {
-    id: "and", word: "and", looksLike: "and", means: "gift",
-    quip: "About the shortest word for a present you'll ever meet.",
+    quip: "It is also a mug, which is the half you would rather be handed on a cruise.",
   },
   {
     id: "ämber", word: "ämber", looksLike: "amber", means: "bucket",
@@ -1509,7 +1437,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "maks", word: "maks", looksLike: "max", means: "tax",
-    quip: "Governments do like to push it to the limit.",
+    quip: "Your liver goes by the same word. Both are best kept in good order.",
   },
 ];
 
