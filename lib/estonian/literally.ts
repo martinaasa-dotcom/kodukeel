@@ -132,13 +132,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "marriage", word: "abielu",
     parts: [p("abi", "abi", "help"), p("elu", "elu", "life")],
     literal: "help life", means: "marriage",
-    quip: "The first half is really an old word for marriage that just happens to be spelled like help. Most days that comes to the same thing.",
+    quip: "A life of helping each other. As definitions of marriage go, a sensible one.",
   },
   {
     id: "world", word: "maailm",
-    parts: [p("maa", "maa", "land"), p("ilm", "ilm", "air, sky", "weather")],
-    literal: "land and air", means: "world",
-    quip: "In a few phrases the second half still means everything under the sky. Today it mostly means the weather, which some days is the whole world.",
+    parts: [p("maa", "maa", "land"), p("ilm", "ilm", "realm", "weather")],
+    literal: "land realm", means: "world",
+    quip: "Alone, the second half is an old word for the world. Today it mostly means the weather, which some days is the whole world.",
   },
   {
     id: "kitten", word: "kassipoeg",
@@ -160,7 +160,7 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "vegetable", word: "köögivili",
-    parts: [p("köögi", "köök", "kitchen"), p("vili", "vili", "fruit")],
+    parts: [p("köögi", "köök", "kitchen"), p("vili", "vili", "fruit, produce")],
     literal: "kitchen fruit", means: "vegetable",
     quip: "A fruit that ended up in the kitchen. Ask any tomato how that feels.",
   },
@@ -436,9 +436,9 @@ export const COMPOUNDS: readonly Compound[] = [
   },
   {
     id: "arm", word: "käsivars",
-    parts: [p("käsi", "käsi", "hand"), p("vars", "vars", "shaft, stalk")],
+    parts: [p("käsi", "käsi", "hand"), p("vars", "vars", "shaft", "stalk")],
     literal: "hand shaft", means: "arm",
-    quip: "A plant's stalk is the same word, which makes your hand the flower on top.",
+    quip: "A plant's stalk is spelled the same, which makes your hand the flower on top.",
   },
   {
     id: "hanger", word: "riidepuu",
@@ -510,7 +510,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "spouse", word: "abikaasa",
     parts: [p("abi", "abi", "help"), p("kaasa", "kaasa", "companion", "along (coming with somebody)")],
     literal: "help companion", means: "spouse",
-    quip: "As in the word for marriage, the first half is an old word spelled like help. The second once meant a companion.",
+    quip: "The second half alone can already mean a spouse. The help is a promise added on top.",
   },
   {
     id: "zoo", word: "loomaaed",
