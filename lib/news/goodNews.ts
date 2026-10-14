@@ -9,21 +9,15 @@
  * every morning, often tired, and the one piece of real Estonian on it should
  * be a reason to smile, not a reason to close the app.
  *
- * TWO GATES, AND THE FIRST ONE IS NEVER SKIPPED. A list of word stems that
- * mean bad news refuses a headline outright, whatever anybody thinks of it,
- * and it errs on purpose toward refusing: `põlevkivi` is shale and not a fire,
- * and it is refused anyway, because a good-news card that misses a good story
- * costs nothing and one that shows a bad story costs the whole card. Then the
- * second gate decides among what is left:
- *
- *   - Where the deployment has a model, it is asked (`lib/tutor/goodNews.ts`,
- *     metered like every other call) to pick the headlines that are plainly
- *     good news and to say each in plain English, and it is told to reject
- *     whatever it is unsure of.
- *   - Where it has none, a headline has to carry a stem that means good news
- *     (`opened`, `won`, `discovered`, `award`) as well as clearing the first
- *     list. Stricter than the model and blunter, and it is what a keyless
- *     deployment gets rather than nothing.
+ * TWO LISTS, AND NO MODEL. A list of word stems that mean bad news refuses a
+ * headline outright, and it errs on purpose toward refusing: `põlevkivi` is
+ * shale and not a fire, and it is refused anyway, because a good-news card
+ * that misses a good story costs nothing and one that shows a bad story costs
+ * the whole card. What clears it then has to carry a stem that means good
+ * news (`opened`, `won`, `discovered`, `award`). No model is asked: the
+ * operator's call, so the rule is the same on every deployment, costs
+ * nothing, and is checked here against a sample of real ERR headlines rather
+ * than trusted to a judgement nobody can read.
  *
  * THE WORD LISTS ARE A FILTER AND NOT ESTONIAN WE TEACH. They are never shown,
  * never a form, never a card: they are spellings matched inside somebody
@@ -38,58 +32,114 @@ import type { NewsItem } from "./headlines";
 /*
   Bad news, as stems matched anywhere inside the folded headline and summary,
   so a compound (`liiklusõnnetus`, `droonirünnak`) is caught by its part. A
-  stem may catch an innocent word as well; that is the side this errs on.
+  stem may catch an innocent word as well; that is the side this errs on. It
+  reaches past what is sad into what is merely not a smile: business, the
+  economy, politics, health and the weather are refused whole, because a
+  headline about a bank's profit or a minister's plan is never the one that
+  cheers somebody up, and every one of those was a pick on a year of ERR's
+  headlines before they were listed. A space stands for a word's edge.
 */
 const BAD = [
   // death, violence, crime
-  "surm", "surn", "suri ", "surid", "hukk", "tapp", "tapet", "mõrv", "vägist", "rünn", "rünnak",
-  "kuritegu", "kurite", "kurjateg", "varast", "vargus", "pettu", "petis", "kelm", "korrupt",
-  "altkäemaks", "kohtuotsus", "kohtu", "süüdi", "süüdist", "vangi", "vangl", "karisti", "trahv",
-  "arreteer", "kahtlust", "politsei", "relv", "tulista", "lask",
-  // war and its places
+  "surm", "surn", "suri ", "surid", "hukk", "tapp", "tapet", "mõrv", "vägist", "rünn", "kuritegu",
+  "kurite", "kurjateg", "varas", "vargus", "varast", "pettu", "petis", "kelm", "korrupt",
+  "altkäemaks", "kohus", "kohtu", "süüdi", "süüdist", "vangi", "vangl", "karist", "trahv",
+  "arreteer", "kahtlust", "politsei", "relv", "tulista", "lask", "rööv", "pussita", "peks",
+  "ohver", "kannatan", "salasigar", "tolli", "kinni pid", "pidasid kinni", "smugel", "narko",
+  "joobe",
+  // war, military, foreign politics
   "sõda", "sõja", "agress", "terror", "plahvat", "pomm", "raket", "droon", "okupat", "vene",
-  "putin", "ukrain", "gaza", "iisrael", "hamas", "iraan", "kaitsev", "kaitseväe", "nato",
+  "putin", "ukrain", "gaza", "iisrael", "hamas", "iraan", "kaitse", "nato", "väge", "väed",
+  "armee", "sõdur", "vastupanu", "mobilis", "sanktsio", "hiina", "trump", "usa ",
   // accidents and disasters
   "õnnetu", "avarii", "kokkupõr", "tulekahj", "põle", "uppu", "torm", "üleujut", "tulv", "põud",
-  "maavärin", "orkaan", "evakuee", "päästj", "päästeam",
-  // illness
+  "maavärin", "orkaan", "evakuee", "pääst", "rike", "rikke", "häiri", "katki", "kahjust", "purune",
+  "lammut",
+  // illness and health
   "haig", "vigast", "haav", "kriis", "katk", "epideem", "pandeem", "viirus", "gripp", "nakk",
-  "vähk", "vähi ", "enesetap", "sõltuv", "narko", "alkohol", "joobe",
-  // money worries
-  "pankrot", "koonda", "kahjum", "kärbe", "kärbi", "inflats", "hinnatõus", "kallin", "maksutõus",
-  "võlg", "vaesus", "vaene", "töötu", "streik", "protest", "meeleavald",
-  // politics and quarrels
-  "valitsus", "minist", "riigikogu", "erakond", "valimis", "umbusald", "skandaal", "tüli", "vaidl",
-  "süüdista", "kriitik", "kritiseer", "trump",
-  // dread and sorrow
-  "hirm", "oht", "hoiat", "mure", "kurb", "lein", "kaotus", "kaota", "kadun", "kadus", "puudu",
-  "probleem", "raske", "halb", "halv", "kahju", "kannat", "valu", "nälg", "üksild", "stress",
-  "ärev", "depress", "katastroof", "kahane", "vähene", "langus", "langes", "hääbu", "murend", "rasvum", "kadu",
-  // farewells, which a headline says gently and a learner should not meet first thing
-  "memoriam", "elust lahk", "matus", "mälestusteenist", "igavikku",
-  // the rest of the police report
-  "rööv", "pussita", "peks", "ohver", "kannatan", "hädaolukor", "pommiähvard",
-  // a result that is somebody's loss, even beside somebody else's win
-  "pudene", "alistu", "kukkus välja", "jäi alla", "kaotu", "vigastu",
-  // a plan that fell through: postponed, cancelled, closed, somebody leaving
-  "lükkub", "lükatakse", "lükati", "edasi lükk", "tühista", " ära ",
-  "suletakse", "suleti", "sulgeb", "sulgemi", "uksed sulg", "lõpetab tegevuse", "tagasi astu",
-  "astus tagasi", "juhatus", "lahkub", "vaese", "naeruvää", "hädas",
+  "vähk", "vähi", "enesetap", "sõltuv", "alkohol", "operatsio", "opereer", "diagnoos", "ravi",
+  "tervis", "sinivetik", "toksil", "mürk", "arst", "kiirabi", "surev", "puue",
+  // money, business and the economy
+  "pankrot", "koonda", "kahjum", "kärbe", "kärbi", "inflats", "hind", "hinna", "hinn", "kallin",
+  "maks", "võlg", "vaesus", "vaene", "töötu", "streik", "majandus", "eksport", "import", "kasum",
+  "käive", "investee", "tehing", "pank", "panga", "börs", "aktsia", "laen", "intress", "palk",
+  "pension", "eelarve", "raha", "eur ", "euro", "miljon", "miljard", "protsent", "kulu", "firma",
+  "ettevõt", "kontsern", "osta", "müü", "turul", "turu ", "konkurents", "energ", "elektri",
+  "gaasi", "kütte", "tasu",
+  // politics, the state and argument
+  "valitsus", "minist", "riigikogu", "parlament", "senat", "erakond", "partei", "valimis",
+  "umbusald", "president", "peaminist", "linnapea", "volikogu", "seadus", "eelnõu", "keeld",
+  "keela", "määrus", "järelevalve", "menetlus", "uurima", "uurib", "skandaal", "tüli", "vaidl",
+  "vaidle", "süüdista", "kriitik", "kritiseer", "protest", "meelt aval", "meeleavald", "populist",
+  "kurd", "rikutakse", "nõua", "nõud", "hoiatus", "poliitik", "ametnik", "ministeer", "küsitlus",
+  "toetus",
+  // dread, sorrow, decline and trouble
+  "hirm", "oht", "ohu", "hoiat", "mure", "kurb", "lein", "kaotus", "kaota", "kadun", "kadus",
+  "puudu", "probleem", "raske", "halb", "halv", "kahju", "kannat", "valu", "nälg", "üksild",
+  "stress", "ärev", "depress", "katastroof", "kahane", "vähene", "vähem", "langus", "langes",
+  "hääbu", "murend", "rasvum", "kadu", "madal", "kehv", "keeruli", "segadus", "valesti", "virel",
+  "ebamugav", "eelarvamus", "lõhe", "ilmajäet", "mäsu", "hullus", "huligaan", "kadalipp",
+  "ellujää", "abivaja", "kliima", "soojene", "osoonia", "auk", "eba",
+  // farewells and memorials
+  "memoriam", "elust lahk", "matus", "mälest", "igavikku", "lahkunu", "viimane", "hüvast",
+  // plans that fell through, closures, people leaving
+  " ära ", "sulgu", "lükkub", "lükatakse", "lükati", "edasi lükk", "tühista", "jääb ära", "jäi ära", "suletakse",
+  "suleti", "sulgeb", "sulge", "lõpetab", "tagasi astu", "astus tagasi", "juhatus", "lahkub",
+  "lahkus", "vallandat", "vaese", "naeruvää", "hädas", "peata", "peatub", "peatas",
+  // weather reports
+  "temperatuur", "sünoptik", "kraadi", "veetase", "sadu", "sajab", "tuul", "külm", "kuumalaine",
+  "pakane",
+  // sport results that are somebody's loss
+  "pudene", "alistu", "kukkus välja", "jäi alla", "kaotu", "alla jäi", "viik", "nullile", "loovuta", "võiduta",
+  "doping", "keelu",
+  // endings and delays
+  "lõpe", "lõpp", "edasilük", "lükka", " vaid ", "juhuks",
+  // business plant and power, and a word nobody smiles at
+  "megavat", "akupark", "diktaator",
 ];
 
 /*
-  Good news, for a deployment with no model to ask. A headline has to carry
-  one of these to be offered at all, which keeps the keyless card to the
-  plainly happy kind: something opened, won, found, celebrated or born.
+  Good words that carry a bad stem inside them, taken out of the text before
+  the bad list reads it: `auhind` is an award and holds `hind`, a price.
+*/
+const INNOCENT = ["auhin", "aukoh", "auto", "maastik", "maaliline"];
+
+/*
+  Good news, read off the headline alone: it has to say a happy thing
+  happened, not mention one in passing in the summary. A leading space means
+  the word starts there, which is what keeps `avati` (opened) from being found
+  inside `megavatine`; a noun is matched anywhere, so a compound
+  (`filmifestival`, `fotonäitus`) still counts.
 */
 const GOOD = [
-  "avas", "avati", "avatakse", "avab ", "avamine", "sündis", "sündinud", "võitis", "võit",
-  "kuld", "medal", "rekord", "auhind", "preemia", "pälvis", "tunnust", "rõõm", "õnnelik", "naeris", "naerat",
-  "imeline", "edukas", "edu ", "avast", "leidis", "uus liik", "uut liiki", "festival", "kontsert",
-  "näitus", "esilinast", "stipendium", "tähista", "juubel", "sünnipäev", "kingit", "annet",
-  "vabatahtl", "positiiv", "parane", "kasvas", "taastu", "naasis", "pesitse", "poegi", "kutsik",
-  "tantsupidu", "laulupidu",
+  // something opened or was finished (a leading _ means the word starts here)
+  " avati", " avatakse", " taasavati", " taasavatakse", " avas ", " avasid", " avab uksed",
+  " valmis ", " valmisid",
+  // an award or a win
+  " pälvis", " võitis", " võitsid", " võidutse", " tunnustati", "auhin", "preemi", " parimaks",
+  " valiti aasta", "aastaks valiti", "tiitli", "kuldmedal", "medali",
+  // a premiere, a show, a festival
+  " esilinastu", " teleesilinastu", " esietendu", " tõi lavale", " jõuab lavale", "festival",
+  "laulupidu", "laulupeo", "tantsupidu", "tantsupeo", "kontsert", "näitus", " esines", " esineb",
+  // births and young animals
+  " sündis", " sündisid", " poegi", " talled", " tibud", " kutsikad",
+  // a celebration
+  " tähista", "sünnipäev", "juubel", "pidu ", "peoga",
+  // a discovery
+  " avastasid", " avastati", " avastas",
+  // kindness and joy
+  " kinki", " annetas", "rõõm", " edukalt",
 ];
+
+/*
+  Two happy events the list cannot say as one stem. New species, which ERR
+  writes with the count in between (`45 uut pahksääsklaste liiki`), read only
+  in the forms of `liik` so that `liiga`, a league, is never one. And an award
+  of the year (`Aasta betoonehitis`, `Tänavune aasta kodanik`), but not any
+  headline that mentions a year.
+*/
+const NEW_SPECIES = / uu[est] (?:.* )?(?:liik|liiki|liigi|liigid|liike) /u;
+const OF_THE_YEAR = /^ aasta | tänavu\S* aasta /u;
 
 /*
   "TODAY" MEANS THE LAST FEW DAYS, NOT THE LAST FEW WEEKS. A culture feed runs
@@ -109,27 +159,44 @@ export function recentEnough(item: NewsItem, now: number): boolean {
   return item.at <= now + CLOCK_SLACK_MS && now - item.at <= MAX_AGE_MS;
 }
 
-/** Lower case and one spelling of each letter, so a stem matches however the feed wrote it. */
+/** Lower case, quotes and runs of spaces flattened, so a stem matches however the feed wrote it. */
 function folded(text: string): string {
-  return ` ${text.normalize("NFC").toLocaleLowerCase("et")} `;
+  const flat = text.normalize("NFC").toLocaleLowerCase("et").replace(/<[^>]*>/g, " ").replace(/[“”„"«»()]/g, " ");
+  return ` ${flat.replace(/\s+/g, " ").trim()} `;
 }
 
-/** The headline and its summary, which is what both gates read. */
+/** The headline and its summary, with the innocent words taken out, which is what the bad list reads. */
 function textOf(item: NewsItem): string {
-  return folded(`${item.title} ${item.description}`);
+  let text = folded(`${item.title} ${item.description}`);
+  for (const word of INNOCENT) text = text.replaceAll(word, " ");
+  return text;
 }
 
-/** The bad-news stem this item carries, or null. Never skipped, whoever judges next. */
+/** The bad-news stem this item carries, or null. */
 export function badStem(item: NewsItem): string | null {
   const text = textOf(item);
   return BAD.find((stem) => text.includes(stem)) ?? null;
 }
 
-/** Whether a deployment with no model may offer this item as good news. */
+/*
+  A HEADLINE THAT REPORTS RATHER THAN ARGUES. A colon after the media label
+  comes off is somebody's quote or an opinion piece (`Name: what they think`),
+  a question mark is a question, a bar is a programme's strapline, and a
+  review, a live broadcast or a "watch at eight" is not news that something
+  good happened. And a negation turns any happy word around (`festival ei
+  toimu`), so a headline holding one is not offered either.
+*/
+const NOT_A_REPORT = /[:?|]|^(?:arvustus|otse|kell \d|kultuuriportaal soovitab)\b/iu;
+const NEGATION = / (?:ei|pole|polnud|mitte|ära) /u;
+
+/** Whether this item may be offered as good news: no bad stem, a report, and a happy event in the headline. */
 export function plainlyGood(item: NewsItem): boolean {
   if (badStem(item) !== null) return false;
-  const text = textOf(item);
-  return GOOD.some((stem) => text.includes(stem));
+  const head = shownTitle(item.title);
+  if (NOT_A_REPORT.test(head)) return false;
+  const title = folded(head);
+  if (NEGATION.test(title)) return false;
+  return GOOD.some((stem) => title.includes(stem)) || NEW_SPECIES.test(title) || OF_THE_YEAR.test(title);
 }
 
 /*
@@ -144,101 +211,4 @@ const MEDIA_LABEL = /^(?:galerii|video|pildid|fotod|otse|vaata|vaata täispikkus
 export function shownTitle(title: string): string {
   const shown = title.replace(MEDIA_LABEL, "");
   return shown.length > 0 ? shown.charAt(0).toLocaleUpperCase("et") + shown.slice(1) : title;
-}
-
-/** What the judge is shown of each item, short enough that forty fit one question. */
-const SUMMARY_CHARS = 180;
-/** How many it may pick. One is shown; the rest are spares for a headline the dictionary cannot read. */
-export const PICKS = 6;
-
-/**
- * The question put to a model, in English, about headlines in Estonian. It
- * asks for a choice and for English, which is the one direction ADR-005 lets a
- * model write in; it is never asked to write a word of Estonian.
- */
-export function judgeInstruction(items: readonly NewsItem[]): string {
-  const listed = items
-    .map((item, i) => {
-      const summary = item.description.length > SUMMARY_CHARS
-        ? `${item.description.slice(0, SUMMARY_CHARS)}...`
-        : item.description;
-      return `${i}. ${item.title}${summary ? `\n   ${summary}` : ""}`;
-    })
-    .join("\n");
-  return [
-    "Below are today's news headlines from ERR, in Estonian, each with a short summary.",
-    "Pick only the ones that are plainly good news: something new and nice opened or finished,",
-    "an achievement or a win, an award, a discovery, a celebration, a festival or a show, animals",
-    "or nature doing well, people being kind. They will be shown to somebody learning Estonian",
-    "on their home screen, as the one piece of news that makes them smile.",
-    "Reject anything about death, illness, accidents, crime, courts, war, the military, politics,",
-    "arguments, protests, money worries, prices, disasters, warnings, criticism or decline, and",
-    "anything that could leave a reader sad or anxious even if it ends well. When unsure, reject.",
-    "",
-    `Reply with JSON only, best first, at most ${PICKS} items, and an empty list if none qualify:`,
-    '{"good":[{"i":<the number>,"en":"<the headline in plain, natural English>"}]}',
-    "",
-    listed,
-  ].join("\n");
-}
-
-/*
-  THE SAME QUESTION ASKED OF THE ENGLISH. The stem list reads the Estonian, and
-  a headline can be bad news in words the list does not hold; the model's own
-  English says what it understood the story to be, so a pick whose English
-  carries one of these is dropped whole, whatever the model called it. And
-  English that carries an address or markup is not a headline's English, it is
-  a feed talking to the model, so that pick goes too.
-*/
-const BAD_ENGLISH = /\b(?:die[sd]?|dead|death|deaths|dying|kill|killed|killing|murder|war|wars|attack|attacked|bomb|missile|drone|shoot|shooting|shot|crash|crashed|accident|injur\w*|wound\w*|hurt|fire|blaze|flood\w*|storm|drought|earthquake|evacuat\w*|sick|illness|disease|cancer|virus|outbreak|epidemic|pandemic|hospital\w*|arrest\w*|police|court|trial|jail|prison|sentence[ds]?|fraud|crime\w*|criminal|stole|stolen|theft|robbery|victim\w*|protest\w*|strike|riot\w*|bankrupt\w*|layoffs?|redundanc\w*|debt|inflation|price rise|crisis|threat\w*|warn\w*|fear\w*|danger\w*|risk|worr\w*|sad|grief|mourn\w*|funeral|tragic|tragedy|disaster|decline[sd]?|falling|lost|loss|missing|scandal|resign\w*|government|minister|parliament|election\w*|russia\w*|ukrain\w*|putin|gaza|israel\w*|iran\w*|nato|military|army|soldier\w*)\b/i;
-const NOT_A_HEADLINE = /https?:|www\.|[<>{}]/i;
-
-/** Whether the English the judge gave describes bad news, or is not a headline at all. */
-export function badEnglish(en: string): boolean {
-  return BAD_ENGLISH.test(en) || NOT_A_HEADLINE.test(en);
-}
-
-/** One headline the judge picked, with the English it gave. */
-export interface Picked {
-  index: number;
-  en: string | null;
-}
-
-/**
- * The judge's reply, read as strictly as the question was put. Anything that is
- * not the shape asked for picks nothing, an index not in the list is dropped,
- * and an item that trips the bad-news list is dropped again here, so a model
- * cannot talk past the first gate. English longer than a headline, or carrying
- * an Estonian letter, is not kept: the item stays and its English goes.
- */
-export function readJudgement(reply: string, items: readonly NewsItem[]): Picked[] {
-  const start = reply.indexOf("{");
-  const end = reply.lastIndexOf("}");
-  if (start < 0 || end <= start) return [];
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(reply.slice(start, end + 1));
-  } catch {
-    return [];
-  }
-  const good = (parsed as { good?: unknown }).good;
-  if (!Array.isArray(good)) return [];
-  const out: Picked[] = [];
-  for (const entry of good) {
-    const index = (entry as { i?: unknown })?.i;
-    if (typeof index !== "number" || !Number.isInteger(index)) continue;
-    const item = items[index];
-    if (!item || badStem(item) !== null) continue;
-    if (out.some((p) => p.index === index)) continue;
-    const raw = (entry as { en?: unknown }).en;
-    // A dash a model put between two clauses becomes the comma this app writes.
-    const en = typeof raw === "string" ? raw.replace(/\s*[\u2013\u2014]\s*/g, ", ").trim() : "";
-    // A name keeps its letters (Pärnu, Tõnis); nothing else in the English may carry one.
-    if (en && badEnglish(en)) continue;
-    const unnamed = en.replace(/\p{Lu}[\p{L}\p{M}]*/gu, "");
-    const usable = en.length > 0 && en.length <= 200 && !/[õäöüšžÕÄÖÜŠŽ]/.test(unnamed);
-    out.push({ index, en: usable ? en : null });
-    if (out.length >= PICKS) break;
-  }
-  return out;
 }

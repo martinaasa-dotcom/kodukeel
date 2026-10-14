@@ -8034,9 +8034,11 @@ session and read by the native speaker in the pull request (ADR-005 amendment 5)
 to the shipped forms list by `jokes.test.ts`, and readable on the card alone, asserted in
 `scripts/invariants/jokes-stay-on-their-card.ts`. The good news is ERR's own headline, word for
 word, with the dictionary under every word (`annotateTexts`, the headlines' gate): a list of
-bad-news stems refuses on every path whatever anybody thinks, and then a metered model on the
-grader's chain picks what is plainly good and says it in English, or, with no model, a headline has
-to carry a good-news stem as well (`lib/news/goodNews.ts`). Held an hour for the instance, never
+bad-news stems refuses on every path, and then the headline itself has to report a happy event
+(opened, won, premiered, born, celebrated, discovered), as a report rather than a quote, a question
+or a negation (`lib/news/goodNews.ts`). **No model decides it**, which is the operator's call and an
+invariant: the two lists were read against a year of ERR, 9,554 articles, and every headline they
+still offer was read (`docs/13-mvp-status.md` §58). Held an hour for the instance, never
 waited for (it streams in behind a `Suspense` once the rest of Today has gone out, `GoodNewsSlot`),
 and absent rather than empty on an hour with nothing good. The joke's last line waits behind a tap, because a joke printed whole is a joke told
 badly, and the news card carries the best headline and up to two behind it for its own "Another one".
