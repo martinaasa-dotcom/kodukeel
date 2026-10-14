@@ -73,6 +73,11 @@ export async function readableHeadlines(limit = 3): Promise<ReadableHeadline[]> 
  * always did and is now the one place it is done, so the three cannot
  * disagree about which words open.
  */
+/** The same texts with no dictionary under them, for when the dictionary cannot be asked. */
+export function plainTexts(texts: readonly string[]): ReadableHeadline[] {
+  return texts.map((text) => ({ tokens: tokenise(text).map((token) => ({ ...token, lemma: null })), covered: 0 }));
+}
+
 export async function annotateTexts(texts: readonly string[]): Promise<ReadableHeadline[]> {
   if (texts.length === 0) return [];
   const tokenised = texts.map(tokenise);

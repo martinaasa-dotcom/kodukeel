@@ -3352,6 +3352,34 @@ offers and Juku to a different one from whoever he is talking to. With the Engli
 what it is in English too, "Õpetaja (teacher)", which is a word learned for nothing. And the link to
 the article tells a screen reader it opens a new tab.
 
+**And then the edges, one at a time.** Each of these was a way either card could show the wrong
+thing, or take the page down with it:
+
+- **Last week's news under "today".** ERR's science feed reached back nine days on the day this
+  was measured. An item now carries its `pubDate`, and anything older than three days, or dated
+  more than a clock's slip into the future, is not offered. An undated item still is, since the
+  feed said nothing either way.
+- **A sad story with a happy-sounding Estonian headline.** The model's own English is read for
+  bad news too (`badEnglish`), and a pick whose English says somebody died, was arrested or lost
+  is dropped whole. So is English carrying an address or markup, which is a feed talking to the
+  model rather than a headline.
+- **A win and a loss in one headline.** "Neel võitis Wuhanis, Malõgina pudenes Birminghamis
+  välja" passed the keyless rule on its win. A loss beside a win now refuses the headline, and so
+  do farewells (`memoriam`) and the rest of the police report (`rööv`).
+- **The model asked on every page load.** A good-news failure is remembered as a miss for ten
+  minutes rather than thrown. A keyless answer given because the model could not be asked (the
+  allowance spent on whoever came first this hour) is held for ten minutes rather than the hour,
+  so the model gets its turn back. One story on two feeds is one story, by title or by link.
+- **Today not loading because of a joke.** The joke's dictionary lookup falls back to plain words
+  and is not remembered, so the next visit asks again. The day's jokes are held for three days at
+  once, because learners in two time zones are on two days for part of every day. Both properties
+  are invariants, and both were made to fail on the real line.
+- **A link that will not parse** is a plain label rather than a thrown render.
+- **"Hide English, pressed".** A toggle whose name changes and which also says it is pressed says
+  the state twice, so the English button carries it in its label alone.
+- **The gloss on a role** depends on every Estonian speaker always having the same English name,
+  and every line ending like a sentence so the speech service reads it as one. Both are tests.
+
 **What it does not do.** 190 jokes is about half a year before one comes round again; more is a
 pull request away and the test is the only gate on it. The keyless rule is blunter than the model
 and will sometimes miss a good story, which is the side it is built to err on.

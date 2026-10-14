@@ -111,6 +111,8 @@ export interface NewsItem {
   description: string;
   /** The article, or null where the feed gave none worth linking to. */
   link: string | null;
+  /** When the feed says it was published, in milliseconds, or null where it does not say. */
+  at: number | null;
 }
 
 /** The text of one field of an item, decoded and in one spelling of each letter. */
@@ -130,8 +132,10 @@ function field(item: string, name: string): string {
  * `parseHeadlines`: items only, never the channel's own title, and a cap on a
  * surprise. A link is kept only where it is an https address, because it is
  * printed as a link on the learner's home page and a feed is outside text.
+ * The publication date is read as well, because a card headed "today" may not
+ * show last week's news, and ERR's science feed reaches back nine days.
  */
-export function parseItems(xml: string): NewsItem[] {
+export function parseNewsItems(xml: string): NewsItem[] {
   const source = xml.slice(0, MAX_XML);
   const out: NewsItem[] = [];
   for (const item of source.matchAll(/<item\b[\s\S]*?<\/item>/gi)) {
@@ -144,7 +148,8 @@ export function parseItems(xml: string): NewsItem[] {
     } catch {
       link = null;
     }
-    out.push({ title, description: field(item[0], "description"), link });
+    const published = Date.parse(field(item[0], "pubDate"));
+    out.push({ title, description: field(item[0], "description"), link, at: Number.isFinite(published) ? published : null });
     if (out.length >= MAX_HEADLINES) break;
   }
   return out;

@@ -1,7 +1,7 @@
 import { after } from "next/server";
 import { singleFlight } from "@/lib/cache/singleFlight";
 import { goodNewsItems } from "@/lib/news/feed";
-import { badStem, plainlyGood, shownTitle } from "@/lib/news/goodNews";
+import { badStem, plainlyGood, recentEnough, shownTitle } from "@/lib/news/goodNews";
 import { judgeGoodNews } from "@/lib/tutor/goodNews";
 import type { NewsItem } from "@/lib/news/headlines";
 import { annotateTexts, type ReadableHeadline } from "./headlines";
@@ -51,7 +51,14 @@ let memo: { at: number; value: GoodNews[] | null; good: number } | null = null;
 export async function goodNewsToday(ownerId: string, now: number = Date.now()): Promise<GoodNews[] | null> {
   if (memo && now - memo.at < memo.good) return memo.value;
   return singleFlight(`good-news:${Math.floor(now / NOTHING_FOR_MS)}`, async () => {
-    const { value, good } = await pickToday(ownerId, now);
+    /*
+      A throw anywhere in here (the dictionary's query, a feed parser meeting
+      something new) is remembered as a miss for ten minutes like any other.
+      Left to propagate, nothing would be remembered, so every page load in the
+      next ten minutes would read the feeds and ask the model again, and the
+      model is the part that costs.
+    */
+    const { value, good } = await pickToday(ownerId, now).catch(() => ({ value: null, good: NOTHING_FOR_MS }));
     memo = { at: Date.now(), value, good };
     return value;
   });
@@ -83,11 +90,15 @@ export async function goodNewsWithin(ownerId: string, ms: number): Promise<GoodN
   would not answer, or a model that would not, holds for ten.
 */
 async function pickToday(ownerId: string, now: number): Promise<{ value: GoodNews[] | null; good: number }> {
+  // One story often runs on two feeds under the same title, or the same link
+  // under a headline reworded later in the day; either is the same story.
   const seen = new Set<string>();
   const clean: NewsItem[] = [];
   for (const item of await goodNewsItems(now)) {
-    if (seen.has(item.title) || badStem(item) !== null) continue;
+    if (seen.has(item.title) || (item.link && seen.has(item.link))) continue;
+    if (!recentEnough(item, now) || badStem(item) !== null) continue;
     seen.add(item.title);
+    if (item.link) seen.add(item.link);
     clean.push(item);
     if (clean.length >= SHOWN) break;
   }
@@ -97,7 +108,14 @@ async function pickToday(ownerId: string, now: number): Promise<{ value: GoodNew
   const chosen = picks
     ? picks.map((p) => ({ item: clean[p.index]!, en: p.en }))
     : clean.filter(plainlyGood).map((item) => ({ item, en: null as string | null }));
-  if (chosen.length === 0) return { value: null, good: HOUR_MS };
+  /*
+    Where the model could not be asked (no key, the day's allowance spent on
+    whoever happened to be first this hour, a bad minute at the provider), the
+    keyless rule answers, and holds for ten minutes rather than the hour, so a
+    model that comes back gets to pick and say it in English.
+  */
+  const good = picks ? HOUR_MS : NOTHING_FOR_MS;
+  if (chosen.length === 0) return { value: null, good };
 
   // The ones a beginner can read most of first, then the rest that fit a
   // card, in the judge's order within each; a headline too short to say
@@ -113,7 +131,7 @@ async function pickToday(ownerId: string, now: number): Promise<{ value: GoodNew
   const shown = (best.length > 0 ? best : order.slice(0, 1)).slice(0, ON_THE_CARD);
   return {
     value: shown.map((i) => ({ tokens: annotated[i]!.tokens, en: chosen[i]!.en, link: chosen[i]!.item.link })),
-    good: HOUR_MS,
+    good,
   };
 }
 

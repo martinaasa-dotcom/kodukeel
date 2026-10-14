@@ -100,10 +100,12 @@ export function JokeOfDayCard({ jokes }: { jokes: DrawnJoke[] }) {
       </ol>
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-4">
+        {/* The label says what a press will do, so it carries the state and
+            no `aria-pressed` beside it: a toggle whose name changes as well
+            is read as "Hide English, pressed", which says it twice. */}
         <Button
           variant="ghost"
           size="sm"
-          aria-pressed={english}
           onClick={() => setEnglish((on) => !on)}
         >
           <Languages size={15} aria-hidden /> {english ? t("Hide English") : t("Show English")}

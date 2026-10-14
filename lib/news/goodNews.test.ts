@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { badStem, judgeInstruction, PICKS, plainlyGood, readJudgement, shownTitle } from "./goodNews";
-import { parseItems, type NewsItem } from "./headlines";
+import { badEnglish, badStem, judgeInstruction, PICKS, plainlyGood, readJudgement, recentEnough, shownTitle } from "./goodNews";
+import { parseNewsItems, type NewsItem } from "./headlines";
 
-const item = (title: string, description = ""): NewsItem => ({ title, description, link: null });
+const item = (title: string, description = ""): NewsItem => ({ title, description, link: null, at: null });
 
 /* Headlines off ERR's own feeds on 2026-10-14, which is what this was measured on. */
 const GOOD = [
@@ -18,6 +18,9 @@ const BAD = [
   item("Tallinna prantsuse lütseum on hädas spordihoone lekkiva katusega", "Katus on vana ja remont on raske."),
   item("Läänemets umbusaldusest: enne on vaja plaani uue valitsuse moodustamiseks"),
   item("Tehnoloogiahiiud valmistuvad vargsi tehisaru põhjustatud katastroofiks"),
+  item("In memoriam: Jaan Tamm"),
+  item("Tallinnas rööviti juuksurisalong"),
+  item("Neel võitis Wuhanis, Malõgina pudenes Birminghamis välja"),
 ];
 
 describe("the bad-news list", () => {
@@ -95,10 +98,20 @@ describe("reading the items in a feed", () => {
       <description><![CDATA[<p>Galerii on avatud &amp; tasuta.</p>]]></description></item>
       <item><title>Teine</title><link>javascript:alert(1)</link></item>
     </channel></rss>`;
-    expect(parseItems(xml)).toEqual([
-      { title: "Sillamäel avati galerii", description: "Galerii on avatud & tasuta.", link: "https://kultuur.err.ee/1/galerii" },
-      { title: "Teine", description: "", link: null },
+    expect(parseNewsItems(xml)).toEqual([
+      { title: "Sillamäel avati galerii", description: "Galerii on avatud & tasuta.", link: "https://kultuur.err.ee/1/galerii", at: null },
+      { title: "Teine", description: "", link: null, at: null },
     ]);
+  });
+
+  it("reads when an item was published, the way ERR writes it, and nothing from a date it cannot read", () => {
+    const xml = `<rss><channel>
+      <item><title>Üks</title><pubDate>Wed, 14 Oct 2026 16:38:48 +0300</pubDate></item>
+      <item><title>Kaks</title><pubDate>eile</pubDate></item>
+    </channel></rss>`;
+    const [one, two] = parseNewsItems(xml);
+    expect(one!.at).toBe(Date.UTC(2026, 9, 14, 13, 38, 48));
+    expect(two!.at).toBeNull();
   });
 });
 
@@ -108,5 +121,56 @@ describe("the headline as the card prints it", () => {
     expect(shownTitle("Vaata täispikkuses: ERSO kontsert")).toBe("ERSO kontsert");
     expect(shownTitle("Teadlane: muld on ülehoolitsetud")).toBe("Teadlane: muld on ülehoolitsetud");
     expect(shownTitle("Video:")).toBe("Video:");
+  });
+});
+
+describe("today's news, not last week's", () => {
+  const now = Date.UTC(2026, 9, 14, 9, 0, 0);
+  const dated = (hoursAgo: number): NewsItem => ({ ...item("Uus galerii avati"), at: now - hoursAgo * 3_600_000 });
+
+  it("keeps the last three days, a weekend included", () => {
+    expect(recentEnough(dated(1), now)).toBe(true);
+    expect(recentEnough(dated(70), now)).toBe(true);
+  });
+
+  it("drops what is older, and a date in the future beyond a clock's slip", () => {
+    expect(recentEnough(dated(24 * 9), now)).toBe(false);
+    expect(recentEnough(dated(-2), now)).toBe(true);
+    expect(recentEnough(dated(-48), now)).toBe(false);
+  });
+
+  it("lets an undated item through, since the feed said nothing either way", () => {
+    expect(recentEnough(item("Uus galerii avati"), now)).toBe(true);
+  });
+});
+
+describe("the English, read for the same thing", () => {
+  it("refuses a pick whose English says it is bad news, whatever the Estonian slipped past", () => {
+    for (const en of [
+      "Two people died in a fire in Tartu",
+      "Police arrest a suspect after the robbery",
+      "Concert cancelled over fears of a storm",
+      "War in Ukraine enters a new phase",
+    ]) expect(badEnglish(en), en).toBe(true);
+  });
+
+  it("lets the plainly happy through, without catching a word inside another", () => {
+    for (const en of [
+      "A new gallery opened in Sillamäe",
+      "Fireworks light up Tallinn for the song festival",
+      "Estonian choir wins gold in Spain",
+      "Scientists find 45 new species of gall midges",
+    ]) expect(badEnglish(en), en).toBe(false);
+  });
+
+  it("refuses English that is not a headline at all", () => {
+    expect(badEnglish("Visit www.example.com for free gifts")).toBe(true);
+    expect(badEnglish("<script>")).toBe(true);
+  });
+
+  it("drops such a pick from the judgement whole", () => {
+    const items = [item("Uus galerii avati"), item("Kontsert toimus")];
+    const reply = JSON.stringify({ good: [{ i: 0, en: "Two people died at the gallery" }, { i: 1, en: "A concert took place" }] });
+    expect(readJudgement(reply, items)).toEqual([{ index: 1, en: "A concert took place" }]);
   });
 });

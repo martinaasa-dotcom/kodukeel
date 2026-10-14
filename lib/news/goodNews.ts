@@ -65,6 +65,12 @@ const BAD = [
   "hirm", "oht", "hoiat", "mure", "kurb", "lein", "kaotus", "kaota", "kadun", "kadus", "puudu",
   "probleem", "raske", "halb", "halv", "kahju", "kannat", "valu", "nälg", "üksild", "stress",
   "ärev", "depress", "katastroof", "kahane", "vähene", "langus", "langes", "hääbu", "murend", "rasvum", "kadu",
+  // farewells, which a headline says gently and a learner should not meet first thing
+  "memoriam", "elust lahk", "matus", "mälestusteenist", "igavikku",
+  // the rest of the police report
+  "rööv", "pussita", "peks", "ohver", "kannatan", "hädaolukor", "pommiähvard",
+  // a result that is somebody's loss, even beside somebody else's win
+  "pudene", "alistu", "kukkus välja", "jäi alla", "kaotu", "vigastu",
 ];
 
 /*
@@ -80,6 +86,24 @@ const GOOD = [
   "vabatahtl", "positiiv", "parane", "kasvas", "taastu", "naasis", "pesitse", "poegi", "kutsik",
   "tantsupidu", "laulupidu",
 ];
+
+/*
+  "TODAY" MEANS THE LAST FEW DAYS, NOT THE LAST FEW WEEKS. A culture feed runs
+  for days and ERR's science feed reached back nine on the day this was
+  measured, so an item the feed dates further back than this is not offered,
+  and one it dates in the future is a clock somebody got wrong. Three days
+  rather than one, because a Monday morning's good news was often Saturday's.
+  An item with no date at all is let through: the feed is the only witness, and
+  it said nothing either way.
+*/
+const MAX_AGE_MS = 3 * 24 * 60 * 60 * 1000;
+const CLOCK_SLACK_MS = 6 * 60 * 60 * 1000;
+
+/** Whether an item is recent enough to be today's news. */
+export function recentEnough(item: NewsItem, now: number): boolean {
+  if (item.at === null) return true;
+  return item.at <= now + CLOCK_SLACK_MS && now - item.at <= MAX_AGE_MS;
+}
 
 /** Lower case and one spelling of each letter, so a stem matches however the feed wrote it. */
 function folded(text: string): string {
@@ -154,6 +178,22 @@ export function judgeInstruction(items: readonly NewsItem[]): string {
   ].join("\n");
 }
 
+/*
+  THE SAME QUESTION ASKED OF THE ENGLISH. The stem list reads the Estonian, and
+  a headline can be bad news in words the list does not hold; the model's own
+  English says what it understood the story to be, so a pick whose English
+  carries one of these is dropped whole, whatever the model called it. And
+  English that carries an address or markup is not a headline's English, it is
+  a feed talking to the model, so that pick goes too.
+*/
+const BAD_ENGLISH = /\b(?:die[sd]?|dead|death|deaths|dying|kill|killed|killing|murder|war|wars|attack|attacked|bomb|missile|drone|shoot|shooting|shot|crash|crashed|accident|injur\w*|wound\w*|hurt|fire|blaze|flood\w*|storm|drought|earthquake|evacuat\w*|sick|illness|disease|cancer|virus|outbreak|epidemic|pandemic|hospital\w*|arrest\w*|police|court|trial|jail|prison|sentence[ds]?|fraud|crime\w*|criminal|stole|stolen|theft|robbery|victim\w*|protest\w*|strike|riot\w*|bankrupt\w*|layoffs?|redundanc\w*|debt|inflation|price rise|crisis|threat\w*|warn\w*|fear\w*|danger\w*|risk|worr\w*|sad|grief|mourn\w*|funeral|tragic|tragedy|disaster|decline[sd]?|falling|lost|loss|missing|scandal|resign\w*|government|minister|parliament|election\w*|russia\w*|ukrain\w*|putin|gaza|israel\w*|iran\w*|nato|military|army|soldier\w*)\b/i;
+const NOT_A_HEADLINE = /https?:|www\.|[<>{}]/i;
+
+/** Whether the English the judge gave describes bad news, or is not a headline at all. */
+export function badEnglish(en: string): boolean {
+  return BAD_ENGLISH.test(en) || NOT_A_HEADLINE.test(en);
+}
+
 /** One headline the judge picked, with the English it gave. */
 export interface Picked {
   index: number;
@@ -190,6 +230,7 @@ export function readJudgement(reply: string, items: readonly NewsItem[]): Picked
     // A dash a model put between two clauses becomes the comma this app writes.
     const en = typeof raw === "string" ? raw.replace(/\s*[\u2013\u2014]\s*/g, ", ").trim() : "";
     // A name keeps its letters (Pärnu, Tõnis); nothing else in the English may carry one.
+    if (en && badEnglish(en)) continue;
     const unnamed = en.replace(/\p{Lu}[\p{L}\p{M}]*/gu, "");
     const usable = en.length > 0 && en.length <= 200 && !/[õäöüšžÕÄÖÜŠŽ]/.test(unnamed);
     out.push({ index, en: usable ? en : null });

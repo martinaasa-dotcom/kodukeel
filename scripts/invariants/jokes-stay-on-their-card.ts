@@ -47,6 +47,22 @@ export default function jokesStayOnTheirCard({ check, ALL, code }: InvariantKit)
     const today = code("lib/dict/goodNews.ts");
     assert.match(today, /badStem\(item\) !== null\) continue/, "the page shows the model items the bad-news list refused");
     assert.match(today, /: clean\.filter\(plainlyGood\)/, "a keyless deployment no longer goes through the stricter rule");
+    assert.match(today, /!recentEnough\(item, now\)/, "a card headed today is offered last week's news");
+    assert.match(reader, /if \(en && badEnglish\(en\)\) continue/, "a pick whose own English says it is bad news reaches the card");
+  });
+
+  /*
+    Two pleasures on the page a learner opens every morning, and neither may be
+    the reason it does not open. The joke's dictionary lookup falls back to
+    plain words, and the news remembers a failure as a miss rather than
+    throwing it at the page or asking the model again on every load.
+  */
+  check("the joke and the news never take Today down with them", () => {
+    const joke = code("lib/progress/jokeOfDay.ts");
+    assert.match(joke, /catch \{\s*annotated = plainTexts\(texts\);\s*keep = false;/, "a dictionary that will not answer throws the joke at Today");
+    const news = code("lib/dict/goodNews.ts");
+    assert.match(news, /pickToday\(ownerId, now\)\.catch\(/, "a good news failure is thrown rather than remembered as a miss");
+    assert.match(news, /goodNewsToday\(ownerId\)\.catch\(\(\) => null\)/, "Today waits on good news that can throw");
   });
 
   check("the good news judge is metered like every other call", () => {

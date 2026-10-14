@@ -26,7 +26,7 @@
  * behind this one and the row is never empty.
  */
 import { singleFlight } from "@/lib/cache/singleFlight";
-import { headlineWords, parseHeadlines, parseItems, type NewsItem } from "./headlines";
+import { headlineWords, parseHeadlines, parseNewsItems, type NewsItem } from "./headlines";
 
 /**
  * Eesti Rahvusringhääling, the national broadcaster. Its front page is
@@ -187,7 +187,7 @@ async function readItems(url: string): Promise<NewsItem[]> {
       headers: { accept: "application/rss+xml, application/xml;q=0.9, */*;q=0.8" },
     });
     if (!res.ok) return [];
-    return parseItems(await res.text());
+    return parseNewsItems(await res.text());
   } catch {
     return [];
   }

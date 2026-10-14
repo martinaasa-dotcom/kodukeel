@@ -31,7 +31,7 @@ export function GoodNewsCard({ stories }: { stories: GoodNews[] }) {
   const news = stories[at % stories.length];
   if (!news) return null;
   // Named as ERR's only where it is: an operator can point the feed elsewhere.
-  const errs = news.link !== null && /(^|\.)err\.ee$/.test(new URL(news.link).hostname);
+  const errs = news.link !== null && /(^|\.)err\.ee$/.test(hostOf(news.link));
   return (
     <Card className="flex h-full flex-col">
       <SectionTitle hint={<Sun size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />}>
@@ -78,4 +78,13 @@ export function GoodNewsCard({ stories }: { stories: GoodNews[] }) {
       </div>
     </Card>
   );
+}
+
+/** A link's host, or nothing where it will not parse; a bad link is a plain label, never a thrown render. */
+function hostOf(link: string): string {
+  try {
+    return new URL(link).hostname;
+  } catch {
+    return "";
+  }
 }

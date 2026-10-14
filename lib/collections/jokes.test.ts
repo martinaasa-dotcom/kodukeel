@@ -47,6 +47,32 @@ describe("the jokes", () => {
     expect(lines).toBeGreaterThan(JOKES.length);
   });
 
+  it("name each person the same way in English every time, which is what the card glosses a role with", () => {
+    const english = new Map<string, Set<string>>();
+    for (const joke of JOKES) {
+      for (const [et, en] of joke) {
+        const by = splitLine(et).by;
+        const byEn = splitLine(en).by;
+        if (by === null || byEn === null) continue;
+        english.set(by, (english.get(by) ?? new Set()).add(byEn));
+      }
+    }
+    expect(english.size).toBeGreaterThan(5);
+    for (const [by, names] of english) expect([...names], `${by} is called more than one thing`).toHaveLength(1);
+  });
+
+  it("end every line the way a sentence ends, so the speaker reads it as one", () => {
+    let lines = 0;
+    for (const joke of JOKES) {
+      for (const [et, en] of joke) {
+        lines += 1;
+        expect(et, et).toMatch(/[.!?…“”"»]$/u);
+        expect(en, en).toMatch(/[.!?…“”"»]$/u);
+      }
+    }
+    expect(lines).toBeGreaterThan(JOKES.length);
+  });
+
   it("are made of words the shipped forms list knows, or of names let through by name", async () => {
     const used = new Set<string>();
     // Every spelling once, in the order the forms list keeps its shards, so the
