@@ -141,6 +141,10 @@ export const ACTIVITIES = {
     href: "/review/letters", kind: "game",
     why: "A word you know, with its letters shuffled. Put them back and õ, ä, ö and ü stop looking like plain a's, o's and u's.",
   },
+  workbook: {
+    href: "/review/workbook", kind: "drill",
+    why: "A page from a course book: real sentences, each with a word in brackets to put into the form it needs. It's where tonight's ending gets used eight times, in eight sentences.",
+  },
   flash: {
     href: "/review/flashcards", kind: "drill",
     why: "Words you've already met, asked in new ways: read aloud, missing from a sentence, or in a sentence you write.",
