@@ -2608,15 +2608,42 @@
     background-size: 22px 22px;
     mask-image: linear-gradient(to bottom, black, transparent 85%);
   }
-  .hero-grid { display: grid; gap: clamp(2.5rem, 5vw, 4rem); align-items: center; }
+  /*
+    The six pieces of the hero are the grid's own children, in the order a
+    phone reads them: kicker, headline, the word card, the button, then the
+    paragraph and the claims. Stacked, the card used to come last and started
+    at 864px on a 390x844 phone, under 400px of prose, so the one thing on the
+    first screen that moves was off it. Now the headline, the card and the
+    button are the first screen and the prose is what scrolling finds.
+
+    No row gap: each piece carries the margin above it, because the distance
+    from the headline to the card and from the button to the paragraph are
+    different distances, and a grid gap is one.
+
+    From `lg` up it is the two columns it always was, placed by row: the copy
+    on the left with the lead back above the button, and the card spanning
+    every row on the right, centred against the column beside it.
+  */
+  .hero-grid { display: grid; row-gap: 0; column-gap: clamp(2.5rem, 5vw, 4rem); align-items: center; }
+  .hero-grid > * { min-width: 0; }
+  .hero-stage .hero-machine { margin-top: clamp(1.75rem, 3.4svh, 2.5rem); }
+  .hero-stage .hero-action { margin-top: clamp(1.25rem, 2.6svh, 2rem); }
+  .hero-stage .hero-lead { margin-top: clamp(2rem, 4.4svh, 3rem); }
+  .hero-stage .hero-claims { margin-top: clamp(1.5rem, 3.4svh, 2.25rem); }
   @media (min-width: 1024px) {
     .hero-grid { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+    .hero-grid > * { grid-column: 1; }
+    .hero-grid > .hero-kicker { grid-row: 1; }
+    .hero-grid > .hero-display { grid-row: 2; }
+    .hero-grid > .hero-lead { grid-row: 3; }
+    .hero-grid > .hero-action { grid-row: 4; }
+    .hero-grid > .hero-claims { grid-row: 5; }
+    .hero-grid > .hero-machine { grid-column: 2; grid-row: 1 / span 5; margin-top: 0; }
+    .hero-stage .hero-lead { margin-top: clamp(1.25rem, 2.6svh, 2rem); }
+    .hero-stage .hero-action { margin-top: clamp(1.5rem, 3.6svh, 2.5rem); }
   }
-  .hero-copy { min-width: 0; }
-  .hero-stage .hero-lead { margin-top: clamp(1.25rem, 2.6svh, 2rem); }
-  .hero-stage .hero-action { margin-top: clamp(1.5rem, 3.6svh, 2.5rem); }
-  .hero-stage .hero-claims { margin-top: clamp(1.5rem, 3.4svh, 2.25rem); }
   .hero-kicker {
+    justify-self: start;
     display: inline-flex; align-items: center; gap: 0.55rem;
     padding: 0.4rem 0.9rem; border-radius: 9999px;
     border: 1.5px solid color-mix(in srgb, var(--stage-ink) 30%, transparent);
