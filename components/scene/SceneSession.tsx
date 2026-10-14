@@ -1420,6 +1420,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             gap somebody has to notice.
           */}
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>{opened ? t(opened.card.you) : null}</p>
+          {/* No list at all where the card dealt nothing, or its two rules stand empty over the persona. */}
+          {(opened?.card.props.length ?? 0) > 0 && (
           <ul
             className="flex flex-col gap-3 border-y py-3"
             style={{ borderColor: "var(--rule)" }}
@@ -1457,7 +1459,22 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
               </li>
             ))}
           </ul>
-          {/* The persona was here too, and it is a fact about the briefing rather than one to type from. */}
+          )}
+          {/*
+            WHO YOU ARE TALKING TO, BELOW THE FACTS RATHER THAN AMONG THEM.
+
+            It came off the strip because it is not a value anybody types, and
+            it belongs on the card, which is read once and is where a learner
+            finds out who they are about to talk to. It is the persona's
+            `meet` line, which says what they will do and says it with a smile
+            (docs/18-voice.md, section 3c).
+          */}
+          {opened?.persona && (
+            <p data-scene-persona className="text-sm" style={{ color: "var(--ink-2)" }}>
+              <span className="font-semibold" style={{ color: "var(--ink)" }}>{t("Who you're talking to")}: </span>
+              {t(opened.persona)}
+            </p>
+          )}
           {/*
             WHAT TO GET DONE, AND WHICH OF IT IS IN PLAY.
 

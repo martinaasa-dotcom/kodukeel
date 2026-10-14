@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 
 import type { InvariantKit } from "../lib/invariantKit";
 
@@ -11,7 +12,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  * check said which colours and which faces were agreed. These do.
  *
  * FACES. Onest for everything and Schibsted Grotesk for display sizes, loaded
- * once in `app/layout.tsx` through `next/font`, and read everywhere else
+ * once in `app/layout.tsx` from the files in `app/fonts/`, and read everywhere else
  * through `--font-sans`, `--font-display` or `--font-mono`. No other file may
  * load a face, and no stylesheet or component may name a family itself. The
  * exemptions are the renderers that never see the stylesheet: two OG images
@@ -42,10 +43,16 @@ const MIX_TOKENS = new Set(["--butter", "--blush", "--accent", "--sky"]);
 export default function theAgreedFontsAndPalette({ check, code, read, ALL }: InvariantKit) {
   check("the app loads its two agreed faces once and names no other", () => {
     const layout = code("app/layout.tsx");
-    const imported = /import\s*\{([^}]*)\}\s*from\s*"next\/font\/google"/.exec(layout);
-    assert.ok(imported, "app/layout.tsx no longer loads its faces through next/font");
-    const faces = imported[1]!.split(",").map((s) => s.trim()).filter(Boolean).sort();
-    assert.deepEqual(faces, ["Onest", "Schibsted_Grotesk"], `the app loads ${faces.join(", ")}; the agreed faces are Onest and Schibsted Grotesk`);
+    assert.ok(/import\s+localFont\s+from\s*"next\/font\/local"/.test(layout), "app/layout.tsx no longer loads its faces through next/font/local");
+    const files = [...layout.matchAll(/src:\s*"\.\/fonts\/([^"]+)"/g)].map((m) => m[1]!);
+    assert.ok(files.length >= 2, `app/layout.tsx names ${files.length} font files; the pattern stopped matching`);
+    const faces = [...new Set(files.map((f) => (/^onest-/.test(f) ? "Onest" : /^schibsted-grotesk-/.test(f) ? "Schibsted Grotesk" : f)))].sort();
+    assert.deepEqual(faces, ["Onest", "Schibsted Grotesk"], `the app loads ${faces.join(", ")}; the agreed faces are Onest and Schibsted Grotesk`);
+    for (const file of files) assert.ok(existsSync(`app/fonts/${file}`), `app/layout.tsx loads app/fonts/${file}, which is not in the repository`);
+    for (const licence of ["OFL-Onest.txt", "OFL-SchibstedGrotesk.txt"]) {
+      assert.ok(existsSync(`app/fonts/${licence}`), `app/fonts/${licence} is gone; the Open Font License asks for it to travel with the files`);
+    }
+    assert.ok(/"--font-onest":/.test(layout) && /"--font-schibsted":/.test(layout), "app/layout.tsx no longer sets --font-onest and --font-schibsted, which --font-sans and --font-display read");
 
     const css = read("app/globals.css");
     const sans = /--font-sans:\s*([^;]+);/.exec(css)?.[1] ?? "";
@@ -69,6 +76,16 @@ export default function theAgreedFontsAndPalette({ check, code, read, ALL }: Inv
       if (!/^var\(--font-(?:sans|display|mono)\)|^inherit/.test(m[1]!.trim())) offenders.push(`app/globals.css: font-family ${m[1]!.trim()}`);
     }
     assert.deepEqual(offenders, [], "a face other than the agreed two, or a family named outside the tokens");
+
+    /*
+      NO BUILD ASKS GOOGLE FOR A FACE. `next/font/google` downloads the faces
+      during `next build`, and a build that cannot reach Google fails: that is
+      how the sign-in suite's hosted build could go red with nothing in the
+      log. The faces are committed files, and this holds every file, the
+      layout included, to never going back.
+    */
+    const google = ALL.filter((file) => /next\/font\/google/.test(code(file)));
+    assert.deepEqual(google, [], "next/font/google downloads the faces during every build, so a minute when Google does not answer fails it; load the committed files in app/fonts/ through next/font/local");
 
     for (const [file, why] of Object.entries(FACE_EXEMPT)) {
       assert.ok(/font-family|fontFamily/.test(read(file)), `${file} is exempt from the face rule (${why}) and no longer names a family; take the line out`);

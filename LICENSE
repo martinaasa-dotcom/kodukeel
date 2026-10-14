@@ -70,6 +70,14 @@ terms set by the people who made it:
       cached. Not redistributed as part of this repository.
       https://tartunlp.ai
 
+  Typefaces
+      `app/fonts/` holds Onest and Schibsted Grotesk as served by Google
+      Fonts, one file per subset. Both are under the SIL Open Font License
+      1.1, whose text sits beside them (OFL-Onest.txt and
+      OFL-SchibstedGrotesk.txt). They are committed so a build never has to
+      download them. https://github.com/googlefonts/onest
+      https://github.com/schibsted/schibsted-grotesk
+
 `prisma/data/expanded.json` is a build product of the first two and
 `lib/collections/frequency.ts` of the third, so the share-alike clause reaches
 both: they may be redistributed, and a redistribution carries CC BY-SA 4.0
