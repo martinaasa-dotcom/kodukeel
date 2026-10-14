@@ -35,6 +35,8 @@ import { SOURCE_CREDITS } from "@/lib/legal/credits";
 import { SpelledCount, spelledCount } from "@/lib/copy/values";
 import { Languages } from "lucide-react";
 import { LocaleProvider } from "@/components/Locale";
+import { areaTable } from "@/lib/copy/i18n/tables";
+import { LANDING_BORROWS } from "@/lib/copy/i18n/areas/landing";
 import { rich } from "@/components/Rich";
 import { MACHINE_SHORT, countOf, languagesBeside, fill, tr, type Locale } from "@/lib/copy/locale";
 import { LANDING_HREF, langParam, localeHref } from "@/lib/copy/publicLocale";
@@ -101,7 +103,15 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
   }));
 
   return (
-    <LocaleProvider locale={locale}>
+    /*
+      Only the landing page's own lines travel to the browser, inside the HTML
+      the page was sending anyway, and English sends none. The whole language
+      is fourteen times this and is for somebody who has signed in
+      (lib/copy/i18n/load.ts). A line a demo here draws on arrival from
+      another area is named in `LANDING_BORROWS`, and a press on a demo
+      loads the rest of the language before anything new is drawn.
+    */
+    <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, ["landing"], LANDING_BORROWS)}>
     <div lang={locale} className="landing relative overflow-x-hidden" style={{ background: "var(--ground)" }}>
       {/*
         One faint light at the top of the page, in the accent's own tint. It

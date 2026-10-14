@@ -7,7 +7,7 @@ import { distanceLine, foundHours, project } from "@/lib/assessment/plan";
 import { REASONS, impliedTarget } from "@/lib/assessment/goals";
 import { formatDurationIn } from "@/lib/time/duration";
 import { countOf, fill } from "@/lib/copy/locale";
-import { useLocale, useT } from "@/components/Locale";
+import { useLocale, useT, useWholeLanguage } from "@/components/Locale";
 import { TrParts } from "@/components/TrParts";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { FitText } from "@/components/FitText";
@@ -32,6 +32,8 @@ import type { DemoWord } from "./LandingDemo";
  */
 export function HeroWord({ words }: { words: DemoWord[] }) {
   const t = useT();
+  // A press here can draw a line the page did not arrive with. See components/Locale.tsx.
+  const reach = useWholeLanguage();
   const frames = useMemo(
     () =>
       words.flatMap((w) =>
@@ -78,6 +80,7 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
 
   return (
     <div
+      {...reach}
       className="hero-word"
       onMouseEnter={() => setHeld(true)}
       onMouseLeave={() => setHeld(false)}
@@ -162,6 +165,8 @@ function levelName(level: Level, t: (english: string) => string): string {
  */
 export function PlanCalculator() {
   const t = useT();
+  // A press here can draw a line the page did not arrive with. See components/Locale.tsx.
+  const reach = useWholeLanguage();
   const locale = useLocale();
   const [from, setFrom] = useState<Level>(PRE_A1);
   const [reasons, setReasons] = useState<string[]>(["living"]);
@@ -189,7 +194,7 @@ export function PlanCalculator() {
     setReasons((now) => (now.includes(id) ? now.filter((r) => r !== id) : [...now, id]));
 
   return (
-    <div className="plan-calc grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-12">
+    <div {...reach} className="plan-calc grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-12">
       <div className="flex flex-col gap-6">
         <ChoiceGroup label={t("Why you’re learning")} select="many">
           {SITUATIONS.map((r) => (

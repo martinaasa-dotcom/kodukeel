@@ -22,6 +22,7 @@ import {
   LOCALES, LOCALE_NAMES, MACHINE_NOTICE, MACHINE_NOTICE_EN, countOf, fill, tr, type Locale,
 } from "@/lib/copy/locale";
 import { LocaleProvider } from "@/components/Locale";
+import { loadTable, tableReady } from "@/lib/copy/i18n/load";
 import { fillNodes } from "@/components/TemplateNodes";
 import { DAY_MINUTES as COURSE_DAY_MINUTES } from "@/lib/course/types";
 import { heldLevel, startingLevel } from "@/lib/course/placement";
@@ -484,10 +485,17 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                       press away from English. */}
                   {LOCALES.filter((l) => locale === "en" || l === "en" || l === locale).map((l) => (
                     <ChoiceChip key={l} selected={locale === l} onSelect={() => {
-                      setLocale(l);
-                      /* A meaning language the new interface language no longer
-                         offers goes back to English rather than staying hidden. */
-                      if (gloss !== "en" && l !== "en" && gloss !== l) setGloss("en");
+                      const apply = () => {
+                        setLocale(l);
+                        /* A meaning language the new interface language no longer
+                           offers goes back to English rather than staying hidden. */
+                        if (gloss !== "en" && l !== "en" && gloss !== l) setGloss("en");
+                      };
+                      /* The browser holds only the language on screen, so a
+                         new one is loaded before the wizard is redrawn in it,
+                         or it would draw in English first and swap. */
+                      if (l === "en" || tableReady(l)) apply();
+                      else void loadTable(l).then(apply);
                     }}>
                       <span lang={l}>{LOCALE_NAMES[l]}</span>
                     </ChoiceChip>

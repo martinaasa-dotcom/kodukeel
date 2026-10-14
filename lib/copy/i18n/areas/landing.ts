@@ -371,3 +371,34 @@ export const LANDING: Area = {
     month: { en: ["month", "months"], ru: ["месяц", "месяца", "месяцев"], uk: ["місяць", "місяці", "місяців"] },
   },
 };
+
+/**
+ * LINES THE LANDING PAGE DRAWS ON ARRIVAL THAT ARE TRANSLATED IN ANOTHER AREA.
+ *
+ * The page hands its own lines to the browser rather than the whole language
+ * (docs/35-launch-quick-wins.md, QW-8), and its demos are built from parts the
+ * app uses inside too: the plan calculator's reasons and its sentence, the
+ * café's labels, the first evening's step lengths. Those are translated where
+ * the app uses them, so they are named here by their English and copied into
+ * the page's slice from wherever they live (\`areaTable\`). A line missing from
+ * this list is drawn in Russian by the server and in English by the browser,
+ * which React reports as a mismatch: \`scripts/test-locales.mjs\` fails on it.
+ *
+ * A line a demo draws only after a press does not have to be here: a press on
+ * a demo loads the whole language first (\`useWholeLanguage\`).
+ */
+export const LANDING_BORROWS: readonly string[] = [
+  // The word card.
+  "The word", "plus", "makes", "Endings", "Ask Anu",
+  // The first evening.
+  "{n} min", "What it means", "That\u2019s the one.",
+  // The café.
+  "You said:", "They said:", "They are answering", "What you say",
+  // The plan calculator.
+  "Why you\u2019re learning",
+  "I live in Estonia", "Citizenship or residence", "Work", "School or university", "Family or a partner",
+  "the pace you said",
+  "At {pace}, plus the Estonian already in your week, {level} is about {weeks} away.",
+  "No date is set, so that\u2019s the whole story.",
+  "As far as the app can tell, you\u2019re already {level}. All that\u2019s left is the exam itself.",
+];

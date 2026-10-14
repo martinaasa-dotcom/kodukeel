@@ -7,7 +7,7 @@ import { NOT_REACHED } from "@/lib/copy/values";
 import type { DemoOption, DemoReply, DemoTurn } from "@/lib/progress/demoScene";
 import { rememberOrdered } from "./visit";
 import { fill } from "@/lib/copy/locale";
-import { useLocale, useT } from "@/components/Locale";
+import { useLocale, useT, useWholeLanguage } from "@/components/Locale";
 
 interface Said {
   readonly who: "them" | "you" | "app";
@@ -54,6 +54,8 @@ function reducedMotion(): boolean {
  */
 export function CafeScene() {
   const t = useT();
+  // A press here can draw a line the page did not arrive with. See components/Locale.tsx.
+  const reach = useWholeLanguage();
   const locale = useLocale();
   /*
     The server answers in English, which is the scene's own: the goal, the
@@ -200,7 +202,7 @@ export function CafeScene() {
 
   const at = reply?.at ?? 0;
   return (
-    <div ref={stage} className="cafe-stage night rounded-[var(--r-xl)] border p-4 md:p-7">
+    <div ref={stage} {...reach} className="cafe-stage night rounded-[var(--r-xl)] border p-4 md:p-7">
       {/* What this is, and how far along it they are. */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
