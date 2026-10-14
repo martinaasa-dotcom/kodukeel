@@ -125,7 +125,7 @@ export function PublicFooter({ locale, href, short = false }: {
     ? [["/privacy", "Privacy"], ["/terms", "Terms"], ["/accessibility", "Accessibility"]]
     : [
         ["/privacy", "Privacy"], ["/terms", "Terms"], ["/funding", "Funding"], ["/trust", "Trust"],
-        ["/accessibility", "Accessibility"], ["/state-exam", "The state examination"],
+        ["/accessibility", "Accessibility"], ["/state-exam", "The state examination"], ["/help", "Help"],
       ];
   return (
     <p className="mt-14 text-sm" style={{ color: "var(--ink-3)" }}>

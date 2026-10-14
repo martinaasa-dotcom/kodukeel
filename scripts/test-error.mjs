@@ -32,7 +32,7 @@ import { suite } from "./lib/checks.mjs";
   else's machine, which is the same argument `baseUrl()` makes for the rest.
 */
 const PORT = Number(process.env.ERROR_SUITE_PORT ?? 3199);
-const { check, done, absent } = suite("The error state", { floor: 6 });
+const { check, done, absent } = suite("The error state", { floor: 8 });
 
 /*
   `detached`, because `child.kill()` on its own does not stop this server.
@@ -79,7 +79,7 @@ for (let i = 0; i < 60 && !up; i++) {
 }
 
 if (!up) {
-  absent(6, `no server came up on ${PORT}, so the error state could not be driven`);
+  absent(8, `no server came up on ${PORT}, so the error state could not be driven`);
   halt(server);
   done();
 } else {
@@ -121,6 +121,21 @@ if (!up) {
   check("and does not read the framework's own prose back to a learner",
     !/Server Components render|digest property|omitted in production/i.test(body),
     body.slice(0, 120));
+
+  /*
+    /help is the page somebody opens when they cannot get in, and its status
+    line asks the database the way /api/health does. Against a database that
+    is not there it has to say so, and say nothing else: no host, no driver
+    message.
+  */
+  const help = await page.goto(`${B}/help`, { waitUntil: "networkidle" }).catch(() => null);
+  await page.locator("[data-status]").waitFor({ timeout: 15_000 }).catch(() => {});
+  const status = await page.locator("[data-status]").getAttribute("data-status").catch(() => null);
+  const helpText = (await page.locator("main").innerText().catch(() => "")).replace(/\s+/g, " ");
+  check("/help still answers with the database gone, and says something is not working",
+    help !== null && help.status() === 200 && status === "not-working", `${help?.status()} ${status}`);
+  check("and names no host, port or driver message",
+    !/5599|127\.0\.0\.1|postgres|prisma|ECONNREFUSED/i.test(helpText), helpText.slice(0, 120));
 
   await browser.close();
   halt(server);

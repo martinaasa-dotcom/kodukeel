@@ -242,6 +242,7 @@ const ROUTES = [
   "/state-exam",
   "/welcome/ru", "/welcome/uk",
   "/trust",
+  "/help",
   "/accessibility",
   "/offline",
 ];

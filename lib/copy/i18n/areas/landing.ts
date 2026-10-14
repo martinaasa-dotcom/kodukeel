@@ -404,6 +404,8 @@ export const LANDING: Area = {
 export const LANDING_BORROWS: readonly string[] = [
   // The word card.
   "The word", "plus", "makes", "Endings", "Ask Anu",
+  // The footer's way to /help, translated with that page's own lines.
+  "Help",
   // The first evening.
   "{n} min", "What it means", "That\u2019s the one.",
   // The café.

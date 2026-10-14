@@ -184,10 +184,17 @@ export default async function SignInPage({ searchParams }: {
 
           <div className="mt-7">
             {configured ? (
-              /* The form's own lines, which are all in the first-run area, and no more of the language. */
-              <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, ["start"])}>
-                <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} googleClientId={googleClientId} locale={locale} />
-              </LocaleProvider>
+              <>
+                {/* The form's own lines, which are all in the first-run area, and no more of the language. */}
+                <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, ["start"])}>
+                  <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} googleClientId={googleClientId} locale={locale} />
+                </LocaleProvider>
+                <p className="mt-4 text-center text-sm">
+                  <Link href={locale === "en" ? "/help#sign-in" : `/help?lang=${locale}#sign-in`} className="underline underline-offset-2" style={{ color: "var(--ink-2)" }}>
+                    {t("Trouble signing in?")}
+                  </Link>
+                </p>
+              </>
             ) : (
               <div className="rounded-[var(--r-lg)] p-5 text-left" style={{ background: "var(--raised)" }}>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
