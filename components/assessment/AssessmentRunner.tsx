@@ -100,6 +100,8 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
   const [saveFailed, setSaveFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const shownAt = useRef(Date.now());
+  /** The save in flight, so the way on can wait for it rather than race it. */
+  const saved = useRef<Promise<void>>(Promise.resolve());
 
   const refs: ItemRef[] = useMemo(
     () => items.map(({ id, skill, band }) => ({ id, skill, band })),
@@ -112,14 +114,22 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
     const computed = placement(refs, all);
     setResult(computed);
     setSaving(true);
-    try {
-      const saved = await recordAssessment({ seed, builtAt, answers: given });
-      if (!saved.ok) setSaveFailed(true);
-    } catch {
-      // Offline, or the write failed. The result is still worth showing: it was
-      // measured, and the learner did the work. It just cannot be kept.
-      setSaveFailed(true);
-    }
+    // The result is drawn before the save lands, since marking it again on the
+    // server takes a moment and the learner has earned the answer now. What
+    // reads the stored row (the hub behind "What this means for my goal")
+    // waits on this rather than racing it.
+    const save = (async () => {
+      try {
+        const answer = await recordAssessment({ seed, builtAt, answers: given });
+        if (!answer.ok) setSaveFailed(true);
+      } catch {
+        // Offline, or the write failed. The result is still worth showing: it was
+        // measured, and the learner did the work. It just cannot be kept.
+        setSaveFailed(true);
+      }
+    })();
+    saved.current = save;
+    await save;
     setSaving(false);
     onFinish?.(computed);
   }, [refs, onFinish, seed, builtAt]);
@@ -160,7 +170,9 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
       );
     }
     return (
-      <div className="mx-auto w-full max-w-3xl px-5 py-10 md:px-8">
+      // data-saving is a hook for a suite: the result is on screen before the
+      // row is, and a check that the result was kept has to wait for the row.
+      <div className="mx-auto w-full max-w-3xl px-5 py-10 md:px-8" data-saving={saving ? "" : undefined}>
         {saveFailed && (
           <div className="mb-5">
             <Note tone="sky">
@@ -172,7 +184,7 @@ export function AssessmentRunner({ items: initialItems, missing, seed, builtAt, 
         <ResultPanel result={result} locale={locale} />
         <div className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/learn" size="lg">{t("Pick words to work on")}</ButtonLink>
-          <Button variant="primary" size="lg" onClick={() => { router.push("/assess"); router.refresh(); }}>
+          <Button variant="primary" size="lg" onClick={async () => { await saved.current; router.push("/assess"); router.refresh(); }}>
             {t("What this means for my goal")} <ArrowRight size={15} aria-hidden />
           </Button>
         </div>

@@ -153,18 +153,28 @@ await page.waitForTimeout(250);
 await checkButton.click({ force: true, timeout: 2000 }).catch(() => {});
 await page.waitForTimeout(600);
 
+/*
+  Copying the bracket word out is usually wrong, and not always: the page is
+  dealt at random, and where a line's answer is the bracket word itself, or a
+  letter from it, the marker takes the copy as right or as a slip and the line
+  settles on the first pass. CI dealt one such page and the suite, which had
+  assumed every line opens, failed with the app behaving correctly. So what is
+  asserted is the fault itself: the second tap marks nothing missed, and
+  whatever the first pass did not settle is still open.
+*/
 const afterDouble = await lines.evaluateAll((els) => els.map((e) => e.getAttribute("data-outcome")));
+const openAfter = afterDouble.filter((o) => o === "open").length;
 check(
   "a second tap on Check checks the page once and leaves the misses open",
-  afterDouble.length === n && afterDouble.every((o) => o === "open"),
+  afterDouble.length === n && openAfter > 0 && afterDouble.every((o) => o === "open" || o === "right" || o === "slip"),
   JSON.stringify(afterDouble),
 );
 check("the second check waits until an answer has changed", await page.locator("[data-workbook-check]").isDisabled());
 check(
   "copying the bracket word out is named for what it is",
-  /as it stands in brackets/i.test(await lines.first().innerText()),
+  /as it stands in brackets/i.test(await page.locator('[data-workbook-line][data-outcome="open"]').first().innerText()),
 );
-check("each reopened line shows how its answer ends or starts", await page.locator(".wb-hint").count() === n);
+check("each reopened line shows how its answer ends or starts", await page.locator(".wb-hint").count() === openAfter, `${await page.locator(".wb-hint").count()} of ${openAfter}`);
 
 await gaps.first().focus();
 const selected = await gaps.first().evaluate((el) => el.selectionStart === 0 && el.selectionEnd === el.value.length && el.value.length > 0);
@@ -176,7 +186,11 @@ check("one change is enough to check again", !(await page.locator("[data-workboo
 await page.locator("[data-workbook-show]").click();
 await page.waitForTimeout(600);
 const settled = await lines.evaluateAll((els) => els.map((e) => e.getAttribute("data-outcome")));
-check("showing the answers settles every line as missed", settled.length === n && settled.every((o) => o === "missed"), JSON.stringify(settled));
+check(
+  "showing the answers settles every open line as missed",
+  settled.length === n && settled.every((o, i) => (afterDouble[i] === "open" ? o === "missed" : o === afterDouble[i])),
+  JSON.stringify(settled),
+);
 check("every settled line prints its answer", await page.locator("[data-answer]").count() === n);
 const speakers = await page.getByRole("button", { name: /hear the sentence/i }).count();
 if (speakers > 0) check("a settled line can be heard", speakers >= 1, `${speakers}`);
@@ -271,7 +285,13 @@ const written = (await prisma.review.findMany({
   select: { id: true, cardId: true, slot: true, rating: true },
 })).filter((row) => !alreadyThere.has(row.id));
 check("the page wrote its grades to the review log", written.length > 0, `${written.length} rows`);
-check("every line missed twice is graded Again", written.length > 0 && written.every((r) => r.rating === 1), JSON.stringify(written.map((r) => r.rating)));
+// A line the first pass settled as right or slipped is graded on its own terms; every other line was missed twice.
+const settledFirst = n - openAfter;
+check(
+  "every line missed twice is graded Again",
+  written.length > 0 && written.filter((r) => r.rating !== 1).length <= settledFirst,
+  `${JSON.stringify(written.map((r) => r.rating))}, ${settledFirst} settled on the first pass`,
+);
 check("every grade says what was asked", written.length > 0 && written.every((r) => typeof r.slot === "string" && r.slot.length > 0));
 const cards = written.map((r) => r.cardId);
 check("no card is graded twice in one sitting", new Set(cards).size === cards.length, `${cards.length} grades, ${new Set(cards).size} cards`);
