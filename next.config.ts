@@ -139,7 +139,26 @@ const config: NextConfig = {
     "/manifest.webmanifest": ["./prisma/data/forms/**"],
   },
   serverExternalPackages: ["@prisma/client"],
+  /*
+    Next's polyfill module patches methods every browser Next 16 supports
+    already has, onto every page (lib/framework/noPolyfills.ts says which). Both
+    spellings, because the framework imports it by a relative path.
+  */
+  turbopack: {
+    resolveAlias: {
+      "next/dist/build/polyfills/polyfill-module": "./lib/framework/noPolyfills.ts",
+      "../build/polyfills/polyfill-module": "./lib/framework/noPolyfills.ts",
+    },
+  },
   experimental: {
+    /*
+      `inlineCss` was tried for PageSpeed's "render blocking requests" and
+      reverted: the stylesheet is 150 KB before compression, and inlined it
+      went into the HTML twice, once as a style tag and once escaped inside the
+      React payload, so every page's document grew by about 470 KB and the
+      landing page's by more than the round trip it saved (14 October 2026).
+    */
+
     /*
       A backup grows with the deck, and restore sends the whole file to a
       Server Action. The default ceiling is 1 MB, which a real learner passes

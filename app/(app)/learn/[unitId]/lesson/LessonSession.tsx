@@ -1,6 +1,6 @@
 "use client";
 
-import { endingName } from "@/lib/estonian/plainAsk";
+import { endingName, sayLineIn } from "@/lib/estonian/plainAsk";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
@@ -734,11 +734,11 @@ function StepCard({
               produce was fainter than the word they were producing it from. */}
           <Et className="text-3xl font-bold leading-tight">{step.lemma}</Et>
           <span data-say className="text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
-            {step.say}
+            {sayLineIn(locale, step.caseKey, step.say) ?? step.caseName}
           </span>
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
-            ariaLabel={`${step.lemma}, ${step.say}`}
+            ariaLabel={`${step.lemma}, ${sayLineIn(locale, step.caseKey, step.say) ?? step.caseName}`}
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)}
           />
           {hint}

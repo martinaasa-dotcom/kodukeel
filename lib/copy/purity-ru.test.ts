@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { AREAS } from "./i18n";
-import { COUNTED_CORE, MACHINE_NOTICE, MACHINE_SHORT } from "./locale";
+import { MACHINE_NOTICE, MACHINE_SHORT } from "./locale";
+import { COUNTED_CORE } from "./i18n/counted";
 import { ENTRY_COPY } from "./entryLocales";
 
 /**

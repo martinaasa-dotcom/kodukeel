@@ -1,10 +1,10 @@
 "use client";
 
-import { useT } from "@/components/Locale";
+import { useLocale, useT } from "@/components/Locale";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
-import { endingName } from "@/lib/estonian/plainAsk";
+import { endingName, sayIn } from "@/lib/estonian/plainAsk";
 import { useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, CircleAlert, Loader2, PenLine } from "lucide-react";
@@ -89,6 +89,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
 }) {
   const grade = useGrade();
   const t = useT();
+  const locale = useLocale();
   /*
     Snapshotted once on mount, never updated from later props. gradeCard() is a
     Server Action and Next refreshes this route's Server Component after every
@@ -113,7 +114,12 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   const finished = !prompt;
   // What the sentence has to say, `in the room`, and whether that already
   // carries the word's meaning so its gloss need not be printed twice.
-  const phrase = prompt ? prompt.say ?? prompt.caseEt : "";
+  // On a Russian or Ukrainian screen the phrase is that language's short one,
+  // since the gloss inside the English phrase cannot be carried over. Where
+  // there is none the Estonian name stands in, and the `lang` says which.
+  const said = prompt ? sayIn(locale, prompt.caseKey, prompt.say) : null;
+  const phrase = prompt ? said ?? prompt.caseEt : "";
+  const phraseLang = said ? locale : "et";
   const firstSense = prompt?.translation.split(/[,;(]/)[0]?.trim().toLowerCase() ?? "";
   const saysGloss = firstSense.length > 0 && phrase.toLowerCase().includes(firstSense);
 
@@ -277,8 +283,8 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
               ),
             })}
           </p>
-          <p data-say lang="en" className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
-            “{phrase}”
+          <p data-say lang={phraseLang} className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
+            {locale === "en" ? `“${phrase}”` : `«${phrase}»`}
           </p>
 
           <div className="mt-6">

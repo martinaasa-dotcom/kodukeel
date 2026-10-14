@@ -1,9 +1,9 @@
 import { BookOpen, Headphones, Mic, PenLine } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { P, PublicFooter, S, switcherHrefs } from "@/components/Legal";
-import { LanguageSwitcher, TranslationNotice } from "@/components/PublicLanguage";
+import { P, PublicFooter, PublicHeader, S } from "@/components/Legal";
+import { TranslationNotice } from "@/components/PublicLanguage";
 import { tr, type Locale } from "@/lib/copy/locale";
-import { LANDING_HREF, localeHref } from "@/lib/copy/publicLocale";
+import { localeHref } from "@/lib/copy/publicLocale";
 import { GUIDE, MATERIALS, READ_ON, SOURCES, type Fact } from "@/lib/exam/official";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 
@@ -43,13 +43,8 @@ export default async function StateExamPage({ searchParams }: { searchParams: Pu
   const href = (to: string) => localeHref(to, locale, explicit);
   return (
     <main lang={locale} className="mx-auto max-w-2xl px-5 py-10 md:px-8 md:py-16">
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <Link href={locale === "en" ? "/" : LANDING_HREF[locale]} className="label-xs inline-block" style={{ color: "var(--ink-3)" }}>
-          Kodukeel
-        </Link>
-        <LanguageSwitcher locale={locale} hrefs={switcherHrefs("/state-exam")} />
-      </div>
-      <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight" style={{ color: "var(--ink)" }}>
+      <PublicHeader locale={locale} path="/state-exam" />
+      <h1 className="mt-8 text-3xl font-bold leading-tight tracking-tight" style={{ color: "var(--ink)" }}>
         {t("The state examination")}
       </h1>
       <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>

@@ -28,7 +28,7 @@ import { gapForms } from "@/lib/estonian/gapForms";
 import { stemsFrom } from "@/lib/estonian/derive";
 import { explainForm, type WordRow } from "@/lib/assessment/items";
 import {
-  LADDER_CARD_TYPE, LEARN_BATCH, orderByRung, rungOf, type Rung,
+  LADDER_CARD_TYPE, LEARN_BATCH, inCourseOrder, orderByRung, rungOf, type Rung,
 } from "@/lib/learn/ladder";
 import {
   bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
@@ -633,8 +633,7 @@ export async function learnBatch(
     to leave alone for three weeks.
   */
   const raised = await hardWords();
-  const fresh = room === 0 ? [] : challengeFirst(
-    await prisma.card.findMany({
+  const candidates = room === 0 ? [] : await prisma.card.findMany({
       where: {
         ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
         ...scope,
@@ -644,15 +643,31 @@ export async function learnBatch(
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: NEW_CANDIDATES,
       include: INCLUDE,
-    }),
-    level,
-    /*
-      The band this deployment offers the word at, which is one step up from
-      the dictionary's own where enough learners have put it aside. The whole
-      point of counting those presses is that the next learner is taught the
-      word later than the one who reported it was (`lib/srs/defer.ts`).
-    */
-    (card) => offeredBand(card.lexeme?.cefr ?? null, card.lexemeId !== null && raised.has(card.lexemeId)),
+    });
+  /*
+    THE MODULE'S DAY IS TAUGHT IN THE COURSE'S ORDER.
+
+    A unit's cards are written in one insert and share `createdAt` to the
+    millisecond, so the read above settles their order on the id, which is a
+    random UUID: the first evening of the course opened on `muidugi` rather
+    than on `tere`, which is the word the unit is built round. `only` is the
+    day in the order the syllabus wrote it (`inCourseOrder`), so where it is
+    given it decides, and the band reorder below is for standalone Learn, where
+    there is no course order to respect.
+  */
+  const fresh = (only
+    ? inCourseOrder(candidates, only)
+    : challengeFirst(
+        candidates,
+        level,
+        /*
+          The band this deployment offers the word at, which is one step up from
+          the dictionary's own where enough learners have put it aside. The whole
+          point of counting those presses is that the next learner is taught the
+          word later than the one who reported it was (`lib/srs/defer.ts`).
+        */
+        (card) => offeredBand(card.lexeme?.cefr ?? null, card.lexemeId !== null && raised.has(card.lexemeId)),
+      )
   ).slice(0, room);
 
   const rows = [...started, ...fresh].filter((row) => row.lexeme !== null);

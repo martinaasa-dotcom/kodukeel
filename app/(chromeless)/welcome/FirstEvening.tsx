@@ -8,7 +8,7 @@ import { rng } from "@/lib/random/seeded";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { FitText } from "@/components/FitText";
 import { countOf, fill } from "@/lib/copy/locale";
-import { useLocale, useT } from "@/components/Locale";
+import { useLocale, useT, useWholeLanguage } from "@/components/Locale";
 import { TrParts } from "@/components/TrParts";
 
 export interface EveningWord {
@@ -43,6 +43,8 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
 }) {
   const t = useT();
   const locale = useLocale();
+  // A press here can draw a line the page did not arrive with. See components/Locale.tsx.
+  const reach = useWholeLanguage();
   const [stage, setStage] = useState<"meet" | "pick" | "done">("meet");
   const [at, setAt] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
@@ -80,7 +82,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+    <div {...reach} className="grid gap-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
       {/* The evening, as its steps, with the minutes added up rather than promised. */}
       <ol className="evening-steps flex flex-col gap-2">
         {steps.map((step, n) => (

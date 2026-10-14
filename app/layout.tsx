@@ -24,20 +24,36 @@ import "./globals.css";
  * Schibsted Grotesk has no Cyrillic, so the stack falls back to Onest for a
  * headline in Russian rather than to a system face, exactly as before.
  *
- * latin-ext is not optional here or on Onest: without it õ ä ö ü š ž fall
- * back to a different face mid-word, which is the fault this rule exists to
- * prevent. Estonian and the English around it stay in one face, since a
+ * Every subset is declared whatever is listed below, because next/font writes
+ * an @font-face with its unicode-range for each one Google serves: so õ ä ö ü
+ * š ž never fall back to a different face mid-word, which is the fault this
+ * rule exists to prevent. What `subsets` decides is which files are
+ * *preloaded*, and that is a cost paid on every first screen: õ ä ö and ü are
+ * in the basic Latin file, and only š and ž (and the letters of other
+ * languages) need Latin Extended, which no first screen draws. So Latin
+ * Extended is fetched the moment a glyph asks for it rather than ahead of the
+ * page, which took 49 KB out of what a phone downloads before it can paint. Estonian and the English around it stay in one face, since a
  * prompt in one typeface and its four answers in another is most of this
  * app.
  */
+/*
+  `subsets` is what next/font *preloads*; every subset Google serves is still
+  declared with its unicode-range and fetched the moment a glyph needs it.
+  Cyrillic stays preloaded because every first screen draws some: the
+  language switcher names Русский and Українська, and without the preload
+  that file was found only after the first layout and held the first text
+  back by most of a hundred milliseconds. Latin Extended and Cyrillic
+  Extended are drawn by nothing on a first screen (see above), so they are
+  fetched when a glyph asks for them.
+*/
 const onest = Onest({
-  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  subsets: ["latin", "cyrillic"],
   variable: "--font-onest",
   display: "swap",
 });
 
 const schibstedGrotesk = Schibsted_Grotesk({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   variable: "--font-schibsted",
   display: "swap",
   weight: ["600", "700", "800"],

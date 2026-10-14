@@ -13,6 +13,7 @@ import { SYLLABUS } from "@/lib/collections/syllabus";
 vi.mock("next/cache", () => ({ revalidatePath: () => {}, revalidateTag: () => {} }));
 
 const { archiveClassroom, assignHomework, assignUnit, classworkHistory, leaveClassroom } = await import("./actions");
+const { posterClassFor } = await import("@/lib/classroom/poster");
 
 const CODE = "ZZTSTQ";
 
@@ -51,5 +52,37 @@ describe("class actions", () => {
     const unit = SYLLABUS[0]!.id;
     expect((await assignUnit(archived.id, unit)).ok).toBe(false);
     expect((await assignHomework(archived.id, "Read", "itest-class-actions")).ok).toBe(false);
+  });
+});
+
+/**
+ * THE JOIN POSTER IS THE TEACHER'S, AND ONLY WHILE THE CODE WORKS.
+ *
+ * `/class/[id]/poster` prints the code in very large type, so it answers the
+ * account that runs the class and nobody else: a student holds a membership
+ * row and is refused, a stranger holds none, and an archived class has a code
+ * that no longer works. Each of the three is the same not-found on the page.
+ */
+describe("the join poster", () => {
+  it("is printed for the class's own teacher", async () => {
+    const live = await room(false);
+    expect((await posterClassFor(LOCAL_USER_ID, live.id))?.code).toBe(CODE);
+  });
+
+  it("is refused to a student in the class", async () => {
+    const live = await room(false);
+    await prisma.classroomMember.create({
+      data: { classroomId: live.id, ownerId: "itest-poster-student", displayName: "Student" },
+    });
+    expect(await posterClassFor("itest-poster-student", live.id)).toBeNull();
+  });
+
+  it("is refused to somebody outside the class and for an archived one", async () => {
+    const live = await room(false);
+    expect(await posterClassFor("itest-poster-stranger", live.id)).toBeNull();
+    await wipe();
+    const archived = await room(true);
+    expect(await posterClassFor(LOCAL_USER_ID, archived.id)).toBeNull();
+    expect(await posterClassFor(LOCAL_USER_ID, "")).toBeNull();
   });
 });

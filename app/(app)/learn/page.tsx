@@ -9,7 +9,7 @@ import {
   CHECKPOINTS, LEVELS, LEVEL_INFO, isUnitOpen, nextUnit,
 } from "@/lib/collections/syllabus";
 import { localeFor } from "@/lib/progress/locale";
-import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
+import { countOf, fill, grouped, tr, type Locale } from "@/lib/copy/locale";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
 import { Chip, Meter, Page, SectionTitle } from "@/components/ui";
@@ -122,7 +122,7 @@ export default async function LearnPage() {
         the explanation are at the foot of the page, where somebody who wants
         them goes looking.
       */}
-      <SectionTitle hint={fill(t("{level}, {known} of {total} words known"), { level: placement, known: knownWords, total: totalWords })}>{t("The course")}</SectionTitle>
+      <SectionTitle hint={fill(t("{level}, {known} of {total} words known"), { level: placement, known: grouped(locale, knownWords), total: grouped(locale, totalWords) })}>{t("The course")}</SectionTitle>
 
       <div className="flex flex-col gap-3">
         {byLevel.map(({ level, rows, words, known, pct, finished }) => {
@@ -273,7 +273,7 @@ export default async function LearnPage() {
                     <span className="min-w-[140px] max-w-[220px] flex-1">
                       <Meter
                         pct={pct}
-                        label={fill(t("{level}: {known} of {total} words known"), { level, known, total: words })}
+                        label={fill(t("{level}: {known} of {total} words known"), { level, known: grouped(locale, known), total: grouped(locale, words) })}
                         tone="var(--accent)"
                         height={7}
                       />
