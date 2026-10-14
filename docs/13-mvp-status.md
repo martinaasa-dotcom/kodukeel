@@ -3395,3 +3395,19 @@ hare, a crown put on rather than a coronation, and British "top marks"). One sug
 declined: `Inglise kuningad` keeps its capital, because a country's name in the genitive is
 written with one (`Soome president`). That read was by a careful non-native reviewer checking
 against Sõnaveeb, so it narrows what the native read has to cover and does not replace it.
+
+**And then every gap the first rating named was closed.** Today no longer waits on the news at all:
+`GoodNewsSlot` streams the card in behind a `Suspense` after the rest of the page, at the bottom of
+the dealt order where arriving late moves nothing, and an hour with nothing good leaves no empty
+slot (`empty:hidden` on the column item). Measured warm on a dev server, the joke drew at 0.63 s
+and the news at 0.89 s. Any card on Today can be hidden from Settings, stored as a leading `-` on
+its id in the order row, keeping its place, so the eight-card page can be trimmed by whoever finds
+it busy. The keyless rule was measured against the live feeds and refused an opening that had been
+postponed, so postponed, cancelled, closed and resigned are refused now, and `naer` and `sündi`
+became stems that cannot match `naeruväärne` and `sündmus`. The judge was run live again through
+the app and chose Open House Tallinn's 8,100 visitors, a new gallery in Sillamäe and Shaun the
+Sheep topping the weekend, each with sound English. The jokes' English says marks run to five
+where a joke turns on a mark, and the sister who would wash up is a brother. And
+`scripts/test-today-fun.mjs` drives both cards in CI: the punchline held and handed the caret,
+the English, another joke, axe in both states, the news link, its live region and its cycling, and
+a card hidden in Settings staying off Today, made to fail first by dropping the hidden set.
