@@ -1,6 +1,7 @@
 import { CommandPalette } from "@/components/CommandPalette";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { PointerLight } from "@/components/motion/PointerLight";
 import { Shortcuts } from "@/components/Shortcuts";
 import { createHash } from "node:crypto";
 import { Sidebar } from "@/components/Sidebar";
@@ -208,6 +209,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <TimeZoneSync stored={storedZone} />
       {locale !== "en" && !REVIEWED[locale] && settings[SETTING_KEYS.uiLocaleNoticed] !== locale && <LocaleNotice locale={locale} />}
       <PullToRefresh />
+      <PointerLight />
       <CommandPalette />
       {/* `?` anywhere. Documentation with a keyboard binding — see the component. */}
       <Shortcuts />

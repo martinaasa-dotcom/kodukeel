@@ -3113,6 +3113,92 @@
   .press:active { transform: translateY(1px) scale(0.985); }
 
   /*
+    PLAY, KEPT SMALL ENOUGH TO BE TASTE RATHER THAN NOISE.
+
+    Four gestures, each an answer to something a reader is already doing and
+    none of them on a loop: a light that follows the pointer across a card you
+    could press, an arrow that leans the way it is about to take you, an icon
+    that looks up when its row is pointed at, and a spring when an option is
+    picked (that one is `components/Choice.tsx`, through the Web Animations
+    API, so a chip already chosen when a page loads does not pop at you).
+    Everything here is `translate`, `scale`, `rotate` or opacity, so the box a
+    finger aims at never moves, and all of it is nothing under
+    `prefers-reduced-motion`, in the block at the end of this rule.
+
+    The light is a `::after` behind the content and above the card's own
+    background, which is what `isolation` buys: `z-index: -1` inside a
+    stacking context of the card's own paints over its background and under
+    its words. `components/motion/PointerLight.tsx` writes `--gx` and `--gy`;
+    until it has, the light sits in the middle, which is where a keyboard's
+    focus ring already says the card is. It is the accent at a whisper in the
+    light theme and plain white at less in the dark, because a coloured glow
+    on Slate is exactly what was taken out of it.
+  */
+  .glow { position: relative; isolation: isolate; }
+  .glow::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 280ms cubic-bezier(0.22, 1, 0.36, 1);
+    background: radial-gradient(
+      260px circle at var(--gx, 50%) var(--gy, 50%),
+      var(--glow-color, color-mix(in oklab, var(--accent) 11%, transparent)),
+      transparent 70%
+    );
+  }
+  :root[data-theme="dark"] .glow { --glow-color: rgb(255 255 255 / 0.05); }
+  @media (hover: hover) {
+    .glow:hover::after { opacity: 1; }
+  }
+  .glow:focus-visible::after { opacity: 1; }
+
+  /*
+    An arrow at the end of a link leans the way it goes. `translate`, not
+    `transform`, so it composes with anything an icon is already doing, and a
+    spring that overshoots a pixel so the lean reads as a nudge rather than
+    as a slide. Three pixels, which the padding of every pill and row that
+    ends in one already has room for.
+  */
+  svg.lucide-arrow-right, svg.lucide-chevron-right, svg.lucide-arrow-up-right {
+    transition: translate 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @media (hover: hover) {
+    :is(a, button):hover svg:is(.lucide-arrow-right, .lucide-chevron-right) {
+      translate: 3px 0;
+    }
+    :is(a, button):hover svg.lucide-arrow-up-right { translate: 2px -2px; }
+  }
+  :is(a, button):focus-visible svg:is(.lucide-arrow-right, .lucide-chevron-right) { translate: 3px 0; }
+
+  /*
+    An icon marked `data-pop` looks up when its row is pointed at: a small
+    spring and a few degrees of tilt, the way somebody turns when they hear
+    their name.
+  */
+  [data-pop] {
+    transition: scale 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+                rotate 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @media (hover: hover) {
+    :is(a, button):hover [data-pop] { scale: 1.1; rotate: -6deg; }
+  }
+  :is(a, button):focus-visible [data-pop] { scale: 1.1; rotate: -6deg; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glow::after { display: none; }
+    svg.lucide-arrow-right, svg.lucide-chevron-right, svg.lucide-arrow-up-right, [data-pop] {
+      transition: none;
+      translate: none !important;
+      scale: none !important;
+      rotate: none !important;
+    }
+  }
+
+  /*
     A KEY: A BUTTON STANDING ON ITS OWN LIP.
 
     The lip is a hard shadow in a deeper shade of the button's own colour,
@@ -4169,6 +4255,9 @@
   .situation-tile {
     background: var(--tile-soft);
     border-color: var(--edge);
+    /* The pointer's light (`.glow`) in the tile's own hue, so a pointer
+       crossing the board warms each kind in its colour. */
+    --glow-color: color-mix(in oklab, var(--tile-hue) 26%, transparent);
     transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
                 box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
                 --tile-lit 360ms cubic-bezier(0.22, 1, 0.36, 1);

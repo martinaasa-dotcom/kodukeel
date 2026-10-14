@@ -157,6 +157,26 @@ function optionRole(select: Select, selected: boolean) {
   from the other end on the multiple-choice answers. `.choice-btn` is theirs;
   this shares it rather than keeping a second copy of the same idea.
 */
+/**
+ * A small spring when an option is picked: down a touch, over a touch, home.
+ *
+ * Through the Web Animations API rather than a class, so it plays on the
+ * press and only on the press. An attribute keyed on `selected` would also
+ * play on every chip that is already chosen when a page loads, which is a
+ * screen bouncing at somebody who has not touched it. `scale` rather than
+ * `transform`, because the hover lift is a `transform` and the two compose
+ * instead of one cancelling the other. Nothing at all for somebody who asked
+ * for less motion.
+ */
+function spring(el: HTMLElement) {
+  if (typeof el.animate !== "function") return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  el.animate(
+    [{ scale: "1" }, { scale: "0.95", offset: 0.3 }, { scale: "1.025", offset: 0.65 }, { scale: "1" }],
+    { duration: 340, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+  );
+}
+
 const base =
   "choice-btn inline-flex items-center justify-center gap-2 border font-semibold " +
   "disabled:pointer-events-none";
@@ -192,7 +212,7 @@ export function ChoiceChip({
       type="button"
       title={title}
       disabled={disabled}
-      onClick={onSelect}
+      onClick={(e) => { spring(e.currentTarget); onSelect(); }}
       {...optionRole(select, selected)}
       data-on={selected ? "" : undefined}
       className={`${base} choice-chip rounded-full ${small ? "gap-1.5 whitespace-nowrap px-2.5 py-1.5 text-xs" : "px-4 py-2.5 text-sm"} ${even ? "min-w-11" : ""}`}
@@ -250,7 +270,14 @@ export function ChoiceCard({
       size={16}
       aria-hidden
       className="shrink-0"
-      style={{ color: "var(--accent-deep)", opacity: selected ? 1 : 0 }}
+      style={{
+        color: "var(--accent-deep)",
+        opacity: selected ? 1 : 0,
+        // The tick lands rather than appearing. Under reduced motion the
+        // stylesheet's global rule cuts this transition to nothing.
+        scale: selected ? "1" : "0.4",
+        transition: "opacity 180ms ease-out, scale 320ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+      }}
     />
   );
 
@@ -258,7 +285,7 @@ export function ChoiceCard({
     <button
       type="button"
       disabled={disabled}
-      onClick={onSelect}
+      onClick={(e) => { spring(e.currentTarget); onSelect(); }}
       {...optionRole(select, selected)}
       data-on={selected ? "" : undefined}
       className={`${base} choice-card rounded-[var(--r-lg)] px-4 py-3 text-left ${
