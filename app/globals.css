@@ -2459,6 +2459,20 @@
   */
   .landing { --section-gap: 5.5rem; }
   .landing-flow { display: flex; flex-direction: column; gap: var(--section-gap); }
+  /*
+    The sections below the first screen are not laid out or painted until
+    they come near it. The landing page is some thirteen hundred elements, and
+    laying all of them out was most of the first frame: on a phone that frame
+    lost the race against the page's own scripts, which then counted as
+    blocking it (PageSpeed, 14 October 2026). The guessed height keeps the
+    scrollbar honest until a section has been drawn once, and `auto` then
+    remembers the real one. The case explorer is left out because its letters
+    hang over its card's edges and containment would clip them.
+  */
+  .landing-flow > section:not(#top):not(#cases) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
+  }
 
   /*
     The word under the headline. The lemma sits still and the form beside it
@@ -2665,7 +2679,7 @@
   .hero-word-tick[data-held] { animation-play-state: paused; }
   @keyframes hero-word-tick { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   @keyframes hero-word-in {
-    from { opacity: 0; transform: translateY(0.3em); filter: blur(6px); }
+    from { opacity: 0; transform: translateY(0.3em); }
     to { opacity: 1; transform: none; }
   }
   @keyframes hero-word-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -3473,7 +3487,7 @@
   }
   .builder-out { animation: builder-out 520ms 120ms cubic-bezier(0.22, 1, 0.36, 1) both; }
   @keyframes builder-out {
-    from { opacity: 0; transform: scale(0.92); filter: blur(4px); }
+    from { opacity: 0; transform: scale(0.92); }
     to { opacity: 1; transform: none; }
   }
   .builder-means { animation: hero-word-fade 420ms 260ms ease both; }
@@ -4293,7 +4307,8 @@
 .mark-live .pixel-fly,
 .mark-live .pixel { transform-box: fill-box; transform-origin: 50% 50%; }
 
-.mark-live .mark-body { animation: mark-sway 6.8s ease-in-out infinite; }
+/* Every idle loop waits for the page to settle (lib/ux/loopSync.ts says why). */
+:root[data-awake] .mark-live .mark-body { animation: mark-sway 6.8s ease-in-out infinite; }
 /* The typing is two registered numbers rather than `opacity` and `transform`,
    so a hand on the mark can hold the tilde fully drawn without touching the
    loop: `--lit` goes to 1 under a hover or a press and each column shows the
@@ -4308,9 +4323,9 @@
   opacity: max(var(--pix-o), var(--lit));
   transform: scale(max(var(--pix-s), var(--lit)));
 }
-.mark-live.mark-happy .pixel-col { animation: pixel-type 3.4s ease-out calc(var(--c) * 0.09s) infinite; }
-.mark-live.mark-cheer .pixel-col { animation: pixel-hop 1.7s ease-in-out calc(var(--c) * 0.06s) infinite; }
-.mark-live.mark-thinking .pixel-col { animation: pixel-think 1.7s ease-in-out calc(var(--c) * 0.12s) infinite; }
+:root[data-awake] .mark-live.mark-happy .pixel-col { animation: pixel-type 3.4s ease-out calc(var(--c) * 0.09s) infinite; }
+:root[data-awake] .mark-live.mark-cheer .pixel-col { animation: pixel-hop 1.7s ease-in-out calc(var(--c) * 0.06s) infinite; }
+:root[data-awake] .mark-live.mark-thinking .pixel-col { animation: pixel-think 1.7s ease-in-out calc(var(--c) * 0.12s) infinite; }
 
 /* The hover. `data-play` is set by BrandLink rather than read off `:hover`,
    because `:hover` ends the moment the pointer leaves and takes the move with
@@ -4626,16 +4641,16 @@ a:focus-visible .wave-word::after {
   transform: translate(var(--watch-x, 0px), var(--watch-y, 0px));
   transition: transform 160ms ease-out;
 }
-.anu-live .anu-body { animation: anu-breathe 3.9s ease-in-out infinite; }
-.anu-live .anu-hair { animation: anu-hair 3.9s ease-in-out 0.18s infinite; }
-.anu-live .anu-eye { animation: anu-blink 5.3s ease-in-out infinite; }
-.anu-live.anu-happy .anu-look { animation: anu-glance 11.7s ease-in-out infinite; }
-.anu-live.anu-cheer .anu-body { animation: anu-bounce 1.5s cubic-bezier(0.34, 1.4, 0.64, 1) infinite; }
-.anu-live.anu-cheer .anu-hair { animation: anu-hair-hop 1.5s ease-in-out 0.08s infinite; }
-.anu-live.anu-cheer .anu-cheek { animation: anu-glow 1.5s ease-in-out infinite; }
-.anu-live.anu-thinking .anu-body { animation: anu-ponder 4.6s ease-in-out infinite; }
-.anu-live.anu-thinking .anu-hair { animation: anu-hair-think 4.6s ease-in-out infinite; }
-.anu-live.anu-talking .anu-talk { animation: anu-talk 0.46s ease-in-out infinite; }
+:root[data-awake] .anu-live .anu-body { animation: anu-breathe 3.9s ease-in-out infinite; }
+:root[data-awake] .anu-live .anu-hair { animation: anu-hair 3.9s ease-in-out 0.18s infinite; }
+:root[data-awake] .anu-live .anu-eye { animation: anu-blink 5.3s ease-in-out infinite; }
+:root[data-awake] .anu-live.anu-happy .anu-look { animation: anu-glance 11.7s ease-in-out infinite; }
+:root[data-awake] .anu-live.anu-cheer .anu-body { animation: anu-bounce 1.5s cubic-bezier(0.34, 1.4, 0.64, 1) infinite; }
+:root[data-awake] .anu-live.anu-cheer .anu-hair { animation: anu-hair-hop 1.5s ease-in-out 0.08s infinite; }
+:root[data-awake] .anu-live.anu-cheer .anu-cheek { animation: anu-glow 1.5s ease-in-out infinite; }
+:root[data-awake] .anu-live.anu-thinking .anu-body { animation: anu-ponder 4.6s ease-in-out infinite; }
+:root[data-awake] .anu-live.anu-thinking .anu-hair { animation: anu-hair-think 4.6s ease-in-out infinite; }
+:root[data-awake] .anu-live.anu-talking .anu-talk { animation: anu-talk 0.46s ease-in-out infinite; }
 .anu-still.anu-thinking .anu-hair { transform: rotate(-9deg); }
 /* A pointer over the button she sits in gets a wiggle and a flick of hair. */
 /* On layers of their own round the idle ones (components/anu/AnuFace.tsx), so

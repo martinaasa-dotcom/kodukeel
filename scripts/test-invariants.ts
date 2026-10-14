@@ -12900,11 +12900,37 @@ check("every route group says it is loading rather than showing nothing", () => 
     }
   };
 
+  /*
+    Two screens with nothing to wait for, which a loading state would only slow
+    down: a `loading.tsx` wraps the page in a Suspense boundary, the page then
+    arrives hidden behind a skeleton, and React reveals it with a script it
+    throttles, so the headline paints hundreds of milliseconds after it was
+    already in the document. Measured on the landing page as most of its
+    largest contentful paint. Each is held to the reason it is exempt.
+  */
+  const NOTHING_TO_WAIT_FOR: Record<string, (src: string) => boolean> = {
+    // Prerendered and revalidated in the background, so a visitor is sent a
+    // finished page from the cache.
+    [join("app", "(chromeless)", "welcome")]: (src) => /export const revalidate = \d+/.test(src),
+    [join("app", "(chromeless)", "welcome", "ru")]: (src) => /export const revalidate = \d+/.test(src),
+    [join("app", "(chromeless)", "welcome", "uk")]: (src) => /export const revalidate = \d+/.test(src),
+    // Reads its query string and the deployment's own settings, and nothing else.
+    [join("app", "(chromeless)", "sign-in")]: (src) =>
+      !/@\/lib\/db|prisma|requireUserId|@\/lib\/progress\//.test(src),
+  };
+  for (const [dir, holds] of Object.entries(NOTHING_TO_WAIT_FOR)) {
+    const page = join(dir, "page.tsx");
+    assert.ok(APP.includes(page), `${page} is named as a screen with nothing to wait for, and there is no such page`);
+    assert.ok(holds(code(page)), `${page} now waits on something, so it needs a loading state again`);
+    assert.ok(!covered(dir), `${page} has a loading state above it, which hides a page that has nothing to wait for`);
+  }
+
   for (const file of APP.filter((f) => /[\\/]page\.tsx$/.test(f))) {
     const dir = file.replace(/[\\/]page\.tsx$/, "");
     // The offline page is static by construction and renders from the service
     // worker's cache, where there is nothing to wait for.
     if (dir.endsWith("offline")) continue;
+    if (dir in NOTHING_TO_WAIT_FOR) continue;
     assert.ok(covered(dir), `${file} has no loading state above it, so a slow request shows a blank screen`);
   }
 });

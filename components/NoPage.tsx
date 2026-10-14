@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/Button";
-import { SuggestFix } from "@/components/SuggestFix";
+import { SuggestFix } from "@/components/SuggestFixLater";
 import { Mascot } from "@/components/brand";
 import { FitText } from "@/components/FitText";
 import { Lettered } from "@/components/HeroLetters";

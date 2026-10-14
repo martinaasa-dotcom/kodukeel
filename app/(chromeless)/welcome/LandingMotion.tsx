@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useAwake } from "@/components/motion/useAwake";
 import { PARTS } from "@/lib/copy/values";
 import { BANDS, PRE_A1, type Band, type Level } from "@/lib/assessment/types";
 import { distanceLine, foundHours, project } from "@/lib/assessment/plan";
@@ -52,13 +53,18 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
   /** Bumped on every tap, so the timer restarts and the card gives under the press. */
   const [taps, setTaps] = useState(0);
 
+  /* The card turns once the page has settled, with the brand's idle loops
+     (components/motion/useAwake.ts): until then it holds its first form,
+     which is what it shows anybody who asked for less movement anyway. */
+  const awake = useAwake();
+
   useEffect(() => {
-    if (frames.length < 2 || held) return;
+    if (frames.length < 2 || held || !awake) return;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (still.matches) return;
     const id = window.setInterval(() => setI((n) => (n + 1) % frames.length), 1700);
     return () => window.clearInterval(id);
-  }, [frames.length, held, taps]);
+  }, [frames.length, held, taps, awake]);
 
   /*
     A TAP DEALS THE NEXT FORM. The card was a picture of the machine and the
@@ -130,7 +136,7 @@ export function HeroWord({ words }: { words: DemoWord[] }) {
           />
           <span key={`q-${i}`} className="hero-word-question">{frame.question}</span>
           <span className="hero-word-track">
-            <span key={`t-${i}`} className="hero-word-tick" data-held={held ? "" : undefined} />
+            <span key={`t-${i}`} className="hero-word-tick" data-held={held || !awake ? "" : undefined} />
           </span>
         </span>
       </span>
