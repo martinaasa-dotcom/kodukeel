@@ -1,3 +1,4 @@
+import { WordFun } from "@/components/WordFun";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { BookOpen } from "lucide-react";
 import { ALMANAC_SOURCE, type WordOfDay } from "@/lib/progress/wordOfDay";
@@ -87,6 +88,8 @@ export function WordOfDayCard({ word, canTranslate, locale, className }: {
         <Speak text={word.lemma} label={fill(t("Hear {word}"), { word: word.lemma })} />
       </div>
       <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>{word.translation}</p>
+      {/* Where today's word is a compound with a funny reading, or a word that only looks English. */}
+      <WordFun lemma={word.lemma} gloss={word.translation} t={(english, context) => tr(locale, english, context)} locale={locale} className="mt-2" />
 
       {word.example && (
         <figure className="mt-4 rounded-[var(--r)] px-3.5 py-3" style={{ background: "var(--sky-soft)" }}>

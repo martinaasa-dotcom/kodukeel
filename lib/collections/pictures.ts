@@ -1,5 +1,5 @@
 /**
- * TWELVE PICTURES TO WRITE ABOUT, MADE OF EMOJI.
+ * SIXTEEN PICTURES TO WRITE ABOUT, MADE OF EMOJI.
  *
  * "Say what you see" is the writing part of the state examination in
  * miniature: look at a scene and write five sentences about what is in it and
@@ -7,9 +7,9 @@
  * artist yet and a generated picture is a licence question nobody here can
  * answer, so a picture is a scene laid out in emoji: characters drawn by the
  * reader's own font, so nothing ships and no licence is carried. When there is
- * money for an Estonian illustrator these twelve are the briefs.
+ * money for an Estonian illustrator these sixteen are the briefs.
  *
- * TWELVE AND NOT AN ENDLESS SUPPLY, on purpose. Each is composed to be rich
+ * SIXTEEN AND NOT AN ENDLESS SUPPLY, on purpose. Each is composed to be rich
  * enough for five different sentences (people, things, a place and something
  * happening), which a random draw of three nouns never was, and a learner who
  * meets the same one twice writes five new sentences about it. A round is two
@@ -40,6 +40,14 @@ export interface PictureThing {
   readonly emoji: string;
   /** A request against the dictionary: the word for it. */
   readonly lemma: string;
+  /**
+   * The one sense the picture shows, where the dictionary's gloss lists more
+   * than one and the others would be wrong under it: a road is `tee`, and
+   * "road, tea" printed under a road is a cup of tea on the motorway. It may
+   * only narrow, so it is always a sense the gloss already gives, word for
+   * word (`pictures.test.ts`). English, never Estonian.
+   */
+  readonly means?: string;
 }
 
 export interface Picture {
@@ -83,7 +91,7 @@ export const PICTURES: readonly Picture[] = [
     rows: ["☀️ 🌴 ☀️", "🌊 🏖️ 🌊", "👩 🧒 🍉", "🦀 🐚 🕶️"],
     things: [
       { emoji: "☀️", lemma: "päike" }, { emoji: "🌊", lemma: "laine" },
-      { emoji: "🏖️", lemma: "rand" }, { emoji: "👩", lemma: "naine" },
+      { emoji: "🏖️", lemma: "rand" }, { emoji: "👩", lemma: "naine", means: "woman" },
       { emoji: "🧒", lemma: "laps" }, { emoji: "🍉", lemma: "arbuus" },
       { emoji: "🦀", lemma: "krabi" }, { emoji: "🕶️", lemma: "päikeseprillid" },
     ],
@@ -98,7 +106,7 @@ export const PICTURES: readonly Picture[] = [
       { emoji: "🥕", lemma: "porgand" }, { emoji: "🍅", lemma: "tomat" },
       { emoji: "🧅", lemma: "sibul" }, { emoji: "🥔", lemma: "kartul" },
       { emoji: "🍎", lemma: "õun" }, { emoji: "🍐", lemma: "pirn" },
-      { emoji: "👩", lemma: "naine" }, { emoji: "👨", lemma: "mees" },
+      { emoji: "👩", lemma: "naine", means: "woman" }, { emoji: "👨", lemma: "mees", means: "man" },
       { emoji: "🧺", lemma: "korv" }, { emoji: "🧀", lemma: "juust" },
       { emoji: "🐟", lemma: "kala" },
     ],
@@ -110,7 +118,7 @@ export const PICTURES: readonly Picture[] = [
     title: "A winter day",
     rows: ["❄️ 🌲 ❄️ 🌲", "⛄ 🧒 🧒 🐕", "🧣 🧤 ☕"],
     things: [
-      { emoji: "❄️", lemma: "lumi" }, { emoji: "🌲", lemma: "kuusk" },
+      { emoji: "❄️", lemma: "lumi" }, { emoji: "🌲", lemma: "kuusk", means: "spruce" },
       { emoji: "⛄", lemma: "lumememm" }, { emoji: "🧒", lemma: "laps" },
       { emoji: "🐕", lemma: "koer" }, { emoji: "🧣", lemma: "sall" },
       { emoji: "☕", lemma: "kohv" },
@@ -124,9 +132,9 @@ export const PICTURES: readonly Picture[] = [
     rows: ["🍳 🥚 🧂", "👩 🔪 🥕", "🍲 🍞 🥄"],
     things: [
       { emoji: "🍳", lemma: "pann" }, { emoji: "🥚", lemma: "muna" },
-      { emoji: "🧂", lemma: "sool" }, { emoji: "👩", lemma: "naine" },
+      { emoji: "🧂", lemma: "sool" }, { emoji: "👩", lemma: "naine", means: "woman" },
       { emoji: "🔪", lemma: "nuga" }, { emoji: "🥕", lemma: "porgand" },
-      { emoji: "🍲", lemma: "supp" }, { emoji: "🍞", lemma: "leib" },
+      { emoji: "🍲", lemma: "supp" }, { emoji: "🍞", lemma: "sai" },
       { emoji: "🥄", lemma: "lusikas" },
     ],
     example: { et: "Naine lõikab noaga porgandit.", en: "The woman is cutting a carrot with a knife." },
@@ -138,9 +146,9 @@ export const PICTURES: readonly Picture[] = [
     rows: ["🚉 🚆 🚆", "🧳 👨 👩 🧒", "🎫 🕐 🚌"],
     things: [
       { emoji: "🚉", lemma: "jaam" }, { emoji: "🚆", lemma: "rong" },
-      { emoji: "🧳", lemma: "kohver" }, { emoji: "👨", lemma: "mees" },
-      { emoji: "👩", lemma: "naine" }, { emoji: "🧒", lemma: "laps" },
-      { emoji: "🎫", lemma: "pilet" }, { emoji: "🕐", lemma: "kell" },
+      { emoji: "🧳", lemma: "kohver" }, { emoji: "👨", lemma: "mees", means: "man" },
+      { emoji: "👩", lemma: "naine", means: "woman" }, { emoji: "🧒", lemma: "laps" },
+      { emoji: "🎫", lemma: "pilet" }, { emoji: "🕐", lemma: "kell", means: "clock" },
       { emoji: "🚌", lemma: "buss" },
     ],
     example: { et: "Mees ootab jaamas rongi.", en: "The man is waiting for the train at the station." },
@@ -152,10 +160,10 @@ export const PICTURES: readonly Picture[] = [
     rows: ["🐄 🐖 🐑", "🐓 🐎 🐕", "🚜 🌾 🏡", "👨 ☀️ 🌳"],
     things: [
       { emoji: "🐄", lemma: "lehm" }, { emoji: "🐖", lemma: "siga" },
-      { emoji: "🐑", lemma: "lammas" }, { emoji: "🐓", lemma: "kukk" },
+      { emoji: "🐑", lemma: "lammas" }, { emoji: "🐓", lemma: "kukk", means: "rooster" },
       { emoji: "🐎", lemma: "hobune" }, { emoji: "🐕", lemma: "koer" },
       { emoji: "🚜", lemma: "traktor" }, { emoji: "🌾", lemma: "nisu" },
-      { emoji: "🏡", lemma: "maja" }, { emoji: "👨", lemma: "mees" },
+      { emoji: "🏡", lemma: "maja" }, { emoji: "👨", lemma: "mees", means: "man" },
       { emoji: "☀️", lemma: "päike" }, { emoji: "🌳", lemma: "puu" },
     ],
     example: { et: "Hobune ja lehm on karjamaal.", en: "The horse and the cow are in the pasture." },
@@ -170,7 +178,7 @@ export const PICTURES: readonly Picture[] = [
       { emoji: "✏️", lemma: "pliiats" }, { emoji: "👩", lemma: "õpetaja" },
       { emoji: "👧", lemma: "tüdruk" }, { emoji: "👦", lemma: "poiss" },
       { emoji: "🧒", lemma: "laps" }, { emoji: "📓", lemma: "vihik" },
-      { emoji: "🕐", lemma: "kell" },
+      { emoji: "🕐", lemma: "kell", means: "clock" },
     ],
     example: { et: "Tüdruk kirjutab vihikusse.", en: "The girl is writing in a notebook." },
   },
@@ -195,8 +203,8 @@ export const PICTURES: readonly Picture[] = [
     rows: ["☕ 🍰 🥐", "👩 🪑 👨", "📖 🥤 🪟"],
     things: [
       { emoji: "☕", lemma: "kohv" }, { emoji: "🍰", lemma: "kook" },
-      { emoji: "🥐", lemma: "saiake" }, { emoji: "👩", lemma: "naine" },
-      { emoji: "👨", lemma: "mees" }, { emoji: "🪑", lemma: "tool" },
+      { emoji: "🥐", lemma: "saiake" }, { emoji: "👩", lemma: "naine", means: "woman" },
+      { emoji: "👨", lemma: "mees", means: "man" }, { emoji: "🪑", lemma: "tool" },
       { emoji: "📖", lemma: "raamat" }, { emoji: "🥤", lemma: "jook" },
       { emoji: "🪟", lemma: "aken" },
     ],
@@ -211,7 +219,7 @@ export const PICTURES: readonly Picture[] = [
       { emoji: "🌧️", lemma: "vihm" }, { emoji: "☂️", lemma: "vihmavari" },
       { emoji: "🏢", lemma: "maja" }, { emoji: "🚕", lemma: "takso" },
       { emoji: "🚌", lemma: "buss" }, { emoji: "🚦", lemma: "foor" },
-      { emoji: "👩", lemma: "naine" }, { emoji: "🧥", lemma: "mantel" },
+      { emoji: "👩", lemma: "naine", means: "woman" }, { emoji: "🧥", lemma: "mantel" },
       { emoji: "🌈", lemma: "vikerkaar" },
     ],
     example: { et: "Sajab vihma ja naine kannab mantlit.", en: "It is raining and the woman is wearing a coat." },
@@ -229,6 +237,68 @@ export const PICTURES: readonly Picture[] = [
       { emoji: "🐈", lemma: "kass" },
     ],
     example: { et: "Kass istub puu all.", en: "The cat is sitting under the tree." },
+  },
+  /*
+    FOUR THAT ARE SILLY ON PURPOSE. A cow in the sauna is still a cow and a
+    sauna, so every word is as useful as a farm's, and a picture that makes
+    somebody smile is a picture they write five sentences about without
+    noticing. The round already says any story they invent is fine, and these
+    four are the invitation (docs/18-voice.md, section 3c).
+  */
+  {
+    id: "sauna-cow",
+    alt: "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a carton of juice, a basket and a spruce tree outside.",
+    title: "A cow at the sauna",
+    rows: ["🧖 🐄 💦", "🪣 🌿 🔥", "🧃 🌲 🧺"],
+    things: [
+      { emoji: "🐄", lemma: "lehm" }, { emoji: "🧖", lemma: "saun" },
+      { emoji: "💦", lemma: "vesi" }, { emoji: "🪣", lemma: "ämber" },
+      { emoji: "🌿", lemma: "viht" }, { emoji: "🔥", lemma: "tuli" },
+      { emoji: "🧃", lemma: "mahl" }, { emoji: "🌲", lemma: "kuusk", means: "spruce" },
+      { emoji: "🧺", lemma: "korv" },
+    ],
+    example: { et: "Lehm istub saunas ja joob mahla.", en: "The cow is sitting in the sauna, drinking juice." },
+  },
+  {
+    id: "cat-driver",
+    alt: "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.",
+    title: "A cat at the wheel",
+    rows: ["🐈 🚗 💨", "🚦 🐕 🛣️", "🌳 🏠 🏁"],
+    things: [
+      { emoji: "🐈", lemma: "kass" }, { emoji: "🚗", lemma: "auto" },
+      { emoji: "🚦", lemma: "foor" }, { emoji: "🐕", lemma: "koer" },
+      { emoji: "🛣️", lemma: "tee", means: "road" }, { emoji: "🌳", lemma: "puu" },
+      { emoji: "🏠", lemma: "maja" }, { emoji: "🏁", lemma: "lipp" },
+    ],
+    example: { et: "Kass sõidab autoga ja koer jookseb talle järele.", en: "The cat is driving the car and the dog is running after it." },
+  },
+  {
+    id: "dog-office",
+    alt: "A dog at a desk with a laptop and a cup of coffee, a phone, a printer and a calendar, a man and a woman watching, and a pot plant.",
+    title: "A dog at the office",
+    rows: ["🐕 💻 ☕", "📞 🖨️ 📅", "👨 👩 🪴"],
+    things: [
+      { emoji: "🐕", lemma: "koer" }, { emoji: "💻", lemma: "arvuti" },
+      { emoji: "☕", lemma: "kohv" }, { emoji: "📞", lemma: "telefon" },
+      { emoji: "🖨️", lemma: "printer" }, { emoji: "📅", lemma: "kalender" },
+      { emoji: "👨", lemma: "mees", means: "man" }, { emoji: "👩", lemma: "naine", means: "woman" },
+      { emoji: "🪴", lemma: "taim" },
+    ],
+    example: { et: "Koer töötab arvutiga ja joob kohvi.", en: "The dog is working on the computer and drinking coffee." },
+  },
+  {
+    id: "bear-shop",
+    alt: "A bear pushing a shopping trolley with honey, bread, milk and cheese, a shop assistant, a receipt and some money.",
+    title: "A bear doing the shopping",
+    rows: ["🐻 🛒 🍯", "🍞 🥛 🧀", "👩 🧾 💶"],
+    things: [
+      { emoji: "🐻", lemma: "karu" }, { emoji: "🛒", lemma: "ostukäru" },
+      { emoji: "🍯", lemma: "mesi" }, { emoji: "🍞", lemma: "sai" },
+      { emoji: "🥛", lemma: "piim" }, { emoji: "🧀", lemma: "juust" },
+      { emoji: "👩", lemma: "naine", means: "woman" }, { emoji: "🧾", lemma: "kviitung", means: "receipt" },
+      { emoji: "💶", lemma: "raha" },
+    ],
+    example: { et: "Karu ostab poest mett ja saia.", en: "The bear is buying honey and bread at the shop." },
   },
 ];
 
