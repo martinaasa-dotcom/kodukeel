@@ -445,7 +445,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["isegi", "Isegi laps teab seda.", "Even a child knows that."],
   ["ikka", "Ma elan ikka siin.", "I still live here."],
   ["rohkem", "Palun anna mulle rohkem vett.", "Please give me more water."],
-  ["liiga", "Mu kinnas on liiga väike. Või on see lapse kinnas.", "My glove is too small. Or maybe it's a child's glove."],
+  ["liiga", "Mu kinnas on liiga väike. Või on see lapse kinnas?", "My glove is too small. Or is it a child's glove?"],
   ["päris", "Täna on päris külm.", "It's quite cold today."],
   ["natuke", "Ma räägin natuke eesti keelt.", "I speak a little Estonian."],
   ["üldse", "Ma ei tea üldse.", "I've got no idea at all."],

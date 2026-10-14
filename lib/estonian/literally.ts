@@ -132,13 +132,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "marriage", word: "abielu",
     parts: [p("abi", "abi", "help"), p("elu", "elu", "life")],
     literal: "help life", means: "marriage",
-    quip: "The first half is really an old word for marriage. Today it means help, which comes to much the same thing.",
-  },
-  {
-    id: "spouse", word: "abikaasa",
-    parts: [p("abi", "abi", "help"), p("kaasa", "kaasa", "companion", "along (coming with somebody)")],
-    literal: "help companion", means: "spouse",
-    quip: "The first half reads as help today, and the second once meant a companion. Come along and help is most of the job.",
+    quip: "The first half is really an old word for marriage that just happens to be spelled like help. Most days that comes to the same thing.",
   },
   {
     id: "world", word: "maailm",
@@ -162,7 +156,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "afternoon", word: "pärastlõuna",
     parts: [p("pärast", "pärast", "after"), p("lõuna", "lõuna", "south, noon")],
     literal: "after south", means: "afternoon",
-    quip: "The same word gives you lunch, so the afternoon starts the moment lunch is over.",
+    quip: "The second half is also lunch, so officially the afternoon starts the moment lunch is over.",
   },
   {
     id: "vegetable", word: "köögivili",
@@ -174,7 +168,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "doorbell", word: "uksekell",
     parts: [p("ukse", "uks", "door"), p("kell", "kell", "clock, bell")],
     literal: "door clock", means: "doorbell",
-    quip: "One word does clocks and bells, so the doorbell tells no time at all.",
+    quip: "The second half is a clock and a bell at once. This one only ever tells you somebody's at the door.",
   },
   {
     id: "hourglass", word: "liivakell",
@@ -207,6 +201,12 @@ export const COMPOUNDS: readonly Compound[] = [
     quip: "The word for month is the word for moon, from when the moon was the calendar.",
   },
   {
+    id: "railway", word: "raudtee",
+    parts: [p("raud", "raud", "iron"), p("tee", "tee", "road")],
+    literal: "iron road", means: "railway",
+    quip: "Estonia's first trains ran on one in 1870, and the name has never needed changing.",
+  },
+  {
     id: "character", word: "iseloom",
     parts: [p("ise", "ise", "self"), p("loom", "loom", "nature", "animal")],
     literal: "self nature", means: "character (a person's)",
@@ -217,6 +217,12 @@ export const COMPOUNDS: readonly Compound[] = [
     parts: [p("tule", "tuli", "fire"), p("kahju", "kahju", "damage")],
     literal: "fire damage", means: "fire (one that burns a house down)",
     quip: "A house fire, named after the bill that comes afterwards.",
+  },
+  {
+    id: "ambulance", word: "kiirabi",
+    parts: [p("kiir", "kiir", "quick", "ray, beam"), p("abi", "abi", "help")],
+    literal: "quick help", means: "ambulance",
+    quip: "The first half here is quick, not the ray of light it can also be. Dial 112 and that's what turns up.",
   },
   {
     id: "umbrella", word: "vihmavari",
@@ -246,7 +252,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dream", word: "unenägu",
     parts: [p("une", "uni", "sleep"), p("nägu", "nägu", "sight, face")],
     literal: "sleep sight", means: "dream",
-    quip: "The second half is the word for a face, but here it is the older sense of what you see. Either way it's gone by breakfast.",
+    quip: "The second half is the word for a face, but here it is the older sense of what you see. By breakfast it's gone anyway.",
   },
   {
     id: "childhood", word: "lapsepõlv",
@@ -390,7 +396,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "moth", word: "ööliblikas",
     parts: [p("öö", "öö", "night"), p("liblikas", "liblikas", "butterfly")],
     literal: "night butterfly", means: "moth",
-    quip: "A butterfly that keeps late hours and loves a light.",
+    quip: "The butterfly that skips the flowers and heads straight for the nearest light.",
   },
   {
     id: "bookworm", word: "raamatukoi",
@@ -415,6 +421,12 @@ export const COMPOUNDS: readonly Compound[] = [
     parts: [p("habeme", "habe", "beard"), p("nuga", "nuga", "knife")],
     literal: "beard knife", means: "razor",
     quip: "Says exactly what it's for, which is reassuring in something that sharp.",
+  },
+  {
+    id: "handkerchief", word: "taskurätik",
+    parts: [p("tasku", "tasku", "pocket"), p("rätik", "rätik", "towel")],
+    literal: "pocket towel", means: "handkerchief",
+    quip: "A towel, cut down to the size of one sneeze.",
   },
   {
     id: "vacuum", word: "tolmuimeja",
@@ -456,7 +468,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "pronoun", word: "asesõna",
     parts: [p("ase", "ase", "stead, place", "bed"), p("sõna", "sõna", "word")],
     literal: "instead word", means: "pronoun",
-    quip: "The first half means in place of, as in instead. A pronoun stands in for another word, so the name is the job description.",
+    quip: "The first half means in place of, as in instead. So he, she and it are all just standing in for somebody.",
   },
   {
     id: "interjection", word: "hüüdsõna",
@@ -474,7 +486,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dictionary", word: "sõnaraamat",
     parts: [p("sõna", "sõna", "word"), p("raamat", "raamat", "book")],
     literal: "word book", means: "dictionary",
-    quip: "German builds it the same way. You'll be opening one a lot.",
+    quip: "It'll be the book on your shelf with the most worn corners.",
   },
   {
     id: "snowman", word: "lumememm",
@@ -495,6 +507,12 @@ export const COMPOUNDS: readonly Compound[] = [
     quip: "Honest, if not exactly tactful. Best not to translate it for her.",
   },
   {
+    id: "spouse", word: "abikaasa",
+    parts: [p("abi", "abi", "help"), p("kaasa", "kaasa", "companion", "along (coming with somebody)")],
+    literal: "help companion", means: "spouse",
+    quip: "As in the word for marriage, the first half is an old word spelled like help. The second once meant a companion.",
+  },
+  {
     id: "zoo", word: "loomaaed",
     parts: [p("looma", "loom", "animal"), p("aed", "aed", "garden")],
     literal: "animal garden", means: "zoo",
@@ -504,7 +522,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "kindergarten", word: "lasteaed",
     parts: [p("laste", "laps", "child"), p("aed", "aed", "garden")],
     literal: "children garden", means: "kindergarten",
-    quip: "English borrowed the same idea from German: a garden where children grow.",
+    quip: "The German word, translated piece by piece, so the children are still in a garden.",
   },
   {
     id: "dentist", word: "hambaarst",
@@ -559,7 +577,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "tool", word: "tool", looksLike: "tool", means: "chair",
-    quip: "In some meetings it's the most useful thing in the room.",
+    quip: "The one thing in a long meeting nobody complains about.",
   },
   {
     id: "seen", word: "seen", looksLike: "seen", means: "mushroom",
@@ -603,7 +621,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "tore", word: "tore", looksLike: "tore", means: "great, lovely",
-    quip: "Say it about somebody's new coat and they'll be pleased.",
+    quip: "Say it about somebody's cooking and you'll be asked back.",
   },
   {
     id: "pill", word: "pill", looksLike: "pill", means: "musical instrument",
@@ -619,7 +637,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "veri", word: "veri", looksLike: "very", means: "blood",
-    quip: "Either way, it's very dramatic.",
+    quip: "It does sound very dramatic.",
   },
   {
     id: "scar", word: "arm", looksLike: "arm", means: "scar",
@@ -628,6 +646,10 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   {
     id: "kits", word: "kits", looksLike: "kits", means: "goat",
     quip: "Just the one goat, and no assembly required.",
+  },
+  {
+    id: "kast", word: "kast", looksLike: "cast", means: "box",
+    quip: "Moving house takes a lot of them, and no actors at all.",
   },
   {
     id: "tuba", word: "tuba", looksLike: "tuba", means: "room",

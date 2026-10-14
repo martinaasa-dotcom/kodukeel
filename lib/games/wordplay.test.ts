@@ -142,9 +142,15 @@ describe("buildWordplay", () => {
 */
 describe("one sitting", () => {
   it("never tells the same joke twice", () => {
+    // Every sitting is a full one: the tables are a whole number of sittings
+    // long, so no word is dealt twice as often by wrapping round.
+    expect(COMPOUNDS.length % COMPOUNDS_PER_SITTING).toBe(0);
+    expect(FALSE_FRIENDS.length % FRIENDS_PER_SITTING).toBe(0);
     const pairs = (text: string) => {
       const said = text.toLowerCase().split(/[^a-z']+/).filter((w) => contentWords(w).size > 0);
-      return new Set(said.slice(1).map((w, i) => `${said[i]} ${w}`));
+      // A pair with a word of five letters or more is a phrase; "as well" and
+      // "you may" are how English joins things, said by every other line.
+      return new Set(said.slice(1).flatMap((w, i) => (w.length >= 5 || said[i]!.length >= 5 ? [`${said[i]} ${w}`] : [])));
     };
     // How a line about a piece starts, rather than what it says.
     const frame = new Set(["first half", "second half", "half means"]);
@@ -165,6 +171,13 @@ describe("one sitting", () => {
       }
     }
     expect(sittings).toBeGreaterThan(10);
+    // And a compound sitting can be dealt beside any look-alike sitting.
+    for (const c of COMPOUNDS) {
+      const mine = pairs(c.quip);
+      for (const f of FALSE_FRIENDS) {
+        for (const p of pairs(f.quip)) if (mine.has(p) && !frame.has(p)) twice.push(`${c.word} / ${f.word}: ${p}`);
+      }
+    }
     expect(twice).toEqual([]);
   });
 });
