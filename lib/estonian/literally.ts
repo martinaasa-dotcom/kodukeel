@@ -4,7 +4,7 @@
  *
  * Estonian is already funny to an English speaker, and the funny part is a
  * fact about the language rather than a joke anybody had to write. A bat is a
- * `nahkhiir`, a skin mouse. A turtle is a `kilpkonn`, a shield frog. And `pea`
+ * `nahkhiir`, a leather mouse. A turtle is a `kilpkonn`, a shield frog. And `pea`
  * is a head, which is the one thing you must not order at a market. This file
  * is that, kept in one place so the screens that show it cannot say different
  * things about one word: the first meeting of a word (`components/WordIntro.tsx`),
@@ -383,7 +383,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "moth", word: "ööliblikas",
     parts: [p("öö", "öö", "night"), p("liblikas", "liblikas", "butterfly")],
     literal: "night butterfly", means: "moth",
-    quip: "A butterfly that keeps late hours and loves a lamp.",
+    quip: "A butterfly that keeps late hours and loves a light.",
   },
   {
     id: "bookworm", word: "raamatukoi",
@@ -407,7 +407,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "razor", word: "habemenuga",
     parts: [p("habeme", "habe", "beard"), p("nuga", "nuga", "knife")],
     literal: "beard knife", means: "razor",
-    quip: "Says exactly what it's for. Please use it slowly.",
+    quip: "Says exactly what it's for, which is reassuring in something that sharp.",
   },
   {
     id: "vacuum", word: "tolmuimeja",
@@ -468,6 +468,66 @@ export const COMPOUNDS: readonly Compound[] = [
     parts: [p("sõna", "sõna", "word"), p("jalg", "jalg", "foot, leg")],
     literal: "word foot", means: "fern, bracken",
     quip: "Ferns are not known for talking or walking. It's a lovely word to say, though.",
+  },
+  {
+    id: "dictionary", word: "sõnaraamat",
+    parts: [p("sõna", "sõna", "word"), p("raamat", "raamat", "book")],
+    literal: "word book", means: "dictionary",
+    quip: "A book of words. This app keeps one too, minus the paper.",
+  },
+  {
+    id: "snowman", word: "lumememm",
+    parts: [p("lume", "lumi", "snow"), p("memm", "memm", "granny")],
+    literal: "snow granny", means: "snowman",
+    quip: "English builds a snowman. Estonian builds a granny.",
+  },
+  {
+    id: "dandelion", word: "võilill",
+    parts: [p("või", "või", "butter"), p("lill", "lill", "flower")],
+    literal: "butter flower", means: "dandelion",
+    quip: "As yellow as butter, and every lawn in May agrees.",
+  },
+  {
+    id: "grandmother", word: "vanaema",
+    parts: [p("vana", "vana", "old"), p("ema", "ema", "mother")],
+    literal: "old mother", means: "grandmother",
+    quip: "Honest, if not exactly tactful. Best not to translate it for her.",
+  },
+  {
+    id: "zoo", word: "loomaaed",
+    parts: [p("looma", "loom", "animal"), p("aed", "aed", "garden")],
+    literal: "animal garden", means: "zoo",
+    quip: "A garden where the animals grow. Please don't water them.",
+  },
+  {
+    id: "kindergarten", word: "lasteaed",
+    parts: [p("laste", "laps", "child"), p("aed", "aed", "garden")],
+    literal: "children garden", means: "kindergarten",
+    quip: "English borrowed the same idea from German: a garden where children grow.",
+  },
+  {
+    id: "dentist", word: "hambaarst",
+    parts: [p("hamba", "hammas", "tooth"), p("arst", "arst", "doctor")],
+    literal: "tooth doctor", means: "dentist",
+    quip: "A doctor who is only interested in your teeth. Open wide.",
+  },
+  {
+    id: "wristwatch", word: "käekell",
+    parts: [p("käe", "käsi", "hand"), p("kell", "kell", "clock")],
+    literal: "hand clock", means: "wristwatch",
+    quip: "A clock you wear on your hand. The wrist is close enough.",
+  },
+  {
+    id: "torch", word: "taskulamp",
+    parts: [p("tasku", "tasku", "pocket"), p("lamp", "lamp", "lamp")],
+    literal: "pocket lamp", means: "torch, flashlight",
+    quip: "A light that fits in your pocket, which on a December afternoon here you'll be glad of.",
+  },
+  {
+    id: "spiderweb", word: "ämblikuvõrk",
+    parts: [p("ämbliku", "ämblik", "spider"), p("võrk", "võrk", "net")],
+    literal: "spider net", means: "spiderweb, cobweb",
+    quip: "The spider's own network. Reception is excellent, if you're a fly.",
   },
 ];
 

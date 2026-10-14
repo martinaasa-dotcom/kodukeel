@@ -3310,7 +3310,7 @@ down first, in `docs/18-voice.md` §3c: a true fact with a wink, never a joke at
 never on a wrong answer, the exam, the level check, an error or anything about their data. Every
 line was drafted here and is for the native Estonian speaker who develops the app to read.
 
-**Estonian names things honestly, and that is the joke.** `lib/estonian/literally.ts` holds 64
+**Estonian names things honestly, and that is the joke.** `lib/estonian/literally.ts` holds 74
 compounds read word for word (`nahkhiir` is a leather mouse, `kilpkonn` a shield frog) and 23
 words that look English and are not (`pea` is a head, `hai` is a shark). Each part is checked
 against the shipped dictionary and the forms list, so no reading invents a word. `WordFun`
