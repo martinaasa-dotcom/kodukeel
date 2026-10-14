@@ -377,60 +377,71 @@ function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: 
         slapped on at an angle, and the right half is the thing itself: a real
         word turning through its cases, read out of the dictionary.
       */}
+      {/*
+        THE WORD CARD IS THE SECOND THING A PHONE SHOWS, NOT THE LAST.
+
+        Stacked, the grid used to put the whole of the copy column first, so on
+        a 390x844 phone the card started at 864px: a stranger opening the page
+        got a kicker, a headline, a six-line paragraph and four claims, and the
+        one thing on it that moves was a scroll away. So the six pieces are the
+        grid's own children in the order a phone reads them, the headline, the
+        card, the button, and only then the paragraph and the claims, and from
+        the `lg` breakpoint up `app/globals.css` places them back into the
+        two columns, the lead above the button. One order in the markup, so a
+        screen reader and a keyboard meet the page the way a phone draws it.
+      */}
       <div className="hero-grid mx-auto w-full max-w-6xl px-5 md:px-8">
-        <div className="hero-copy">
-          <p className="hero-kicker fade-up">
-            <span className="hero-kicker-dot" aria-hidden />
-            {t("Estonian for the life you live here")}
-          </p>
-          {/*
-            In Russian and Ukrainian the headline is one phrase rather than
-            four English words: the last word still wears the sticker, and the
-            stagger runs over whatever words the phrase has.
-          */}
-          <h1 className={locale === "en" ? "hero-display" : "hero-display hero-display-long"}>
-            {locale === "en" ? (
-              <>
-                <span className="word-in" style={{ "--w": "60ms" } as React.CSSProperties}>Estonian</span>{" "}
-                <span className="word-in" style={{ "--w": "160ms" } as React.CSSProperties}>that</span>{" "}
-                <span className="word-in" style={{ "--w": "220ms" } as React.CSSProperties}>finally</span>{" "}
-                <span className="word-in hero-sticker" style={{ "--w": "380ms" } as React.CSSProperties}>sticks</span>
-              </>
-            ) : (
-              t("Estonian that finally sticks").split(" ").map((word, n, all) => (
-                <span key={n}>
-                  {n > 0 ? " " : null}
-                  <span
-                    className={n === all.length - 1 ? "word-in hero-sticker" : "word-in"}
-                    style={{ "--w": `${60 + n * 100}ms` } as React.CSSProperties}
-                  >
-                    {word}
-                  </span>
+        <p className="hero-kicker fade-up">
+          <span className="hero-kicker-dot" aria-hidden />
+          {t("Estonian for the life you live here")}
+        </p>
+        {/*
+          In Russian and Ukrainian the headline is one phrase rather than
+          four English words: the last word still wears the sticker, and the
+          stagger runs over whatever words the phrase has.
+        */}
+        <h1 className={locale === "en" ? "hero-display" : "hero-display hero-display-long"}>
+          {locale === "en" ? (
+            <>
+              <span className="word-in" style={{ "--w": "60ms" } as React.CSSProperties}>Estonian</span>{" "}
+              <span className="word-in" style={{ "--w": "160ms" } as React.CSSProperties}>that</span>{" "}
+              <span className="word-in" style={{ "--w": "220ms" } as React.CSSProperties}>finally</span>{" "}
+              <span className="word-in hero-sticker" style={{ "--w": "380ms" } as React.CSSProperties}>sticks</span>
+            </>
+          ) : (
+            t("Estonian that finally sticks").split(" ").map((word, n, all) => (
+              <span key={n}>
+                {n > 0 ? " " : null}
+                <span
+                  className={n === all.length - 1 ? "word-in hero-sticker" : "word-in"}
+                  style={{ "--w": `${60 + n * 100}ms` } as React.CSSProperties}
+                >
+                  {word}
                 </span>
-              ))
-            )}
-          </h1>
-          <p className="fade-up hero-lead hero-sub max-w-[44ch] leading-relaxed" style={{ animationDelay: "420ms" }}>
-            {t("The neighbor says hello. A coworker asks you something. Even the dog seems to expect Estonian. You need the right words when someone’s actually looking at you, and Kodukeel gets you there, fifteen minutes at a time.")}
-          </p>
-          <div className="fade-up hero-action flex flex-wrap items-center gap-x-5 gap-y-3" style={{ animationDelay: "520ms" }}>
-            <ButtonLink href={signIn} variant="primary" size="lg" hop="hover" className="hero-cta group w-full sm:w-auto">
-              {t("Start learning for free")}{" "}
-              <ArrowRight size={17} aria-hidden className="transition-transform group-hover:translate-x-1" />
-            </ButtonLink>
-          </div>
-          <ul className="fade-up hero-claims" style={{ animationDelay: "640ms" }}>
-            {claims.map((t) => (
-              <li key={t} className="flex items-start gap-2">
-                <Check size={16} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--stage-tick)" }} />
-                <span>{t}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+              </span>
+            ))
+          )}
+        </h1>
         <div className="hero-machine fade-up" style={{ animationDelay: "300ms" }}>
           <HeroWord words={words.filter((w) => w.cases.some((c) => !c.principal && c.singular))} />
         </div>
+        <div className="fade-up hero-action flex flex-wrap items-center gap-x-5 gap-y-3" style={{ animationDelay: "520ms" }}>
+          <ButtonLink href={signIn} variant="primary" size="lg" hop="hover" className="hero-cta group w-full sm:w-auto">
+            {t("Start learning for free")}{" "}
+            <ArrowRight size={17} aria-hidden className="transition-transform group-hover:translate-x-1" />
+          </ButtonLink>
+        </div>
+        <p className="fade-up hero-lead hero-sub max-w-[44ch] leading-relaxed" style={{ animationDelay: "420ms" }}>
+          {t("The neighbor says hello. A coworker asks you something. Even the dog seems to expect Estonian. You need the right words when someone’s actually looking at you, and Kodukeel gets you there, fifteen minutes at a time.")}
+        </p>
+        <ul className="fade-up hero-claims" style={{ animationDelay: "640ms" }}>
+          {claims.map((t) => (
+            <li key={t} className="flex items-start gap-2">
+              <Check size={16} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--stage-tick)" }} />
+              <span>{t}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
