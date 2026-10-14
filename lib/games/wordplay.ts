@@ -100,13 +100,30 @@ function unique<T>(items: readonly T[], key: (item: T) => string): T[] {
 }
 
 /**
+ * Meanings that are two names for one thing, so neither may stand as the
+ * wrong answer beside the other. `maailm` is the world and `maamuna` is the
+ * Earth, and a learner who picks "the Earth" for the world has not guessed
+ * wrong. Sharing a word is not the test, since "the day before yesterday"
+ * beside "the day after tomorrow" is exactly the decoy worth having.
+ */
+export const SAME_ANSWER: readonly (readonly string[])[] = [["world", "the Earth"]];
+
+/** Every meaning a right answer may not be shown beside, itself included. */
+export function alsoRight(right: string): Set<string> {
+  const fold = (s: string) => s.toLowerCase().trim();
+  const out = new Set([fold(right)]);
+  for (const group of SAME_ANSWER) if (group.some((m) => fold(m) === fold(right))) for (const m of group) out.add(fold(m));
+  return out;
+}
+
+/**
  * Meanings to stand beside a right one: drawn from the whole list rather than
  * the sitting, so the wrong answers are as plausible as the right one, and
  * never a second right one.
  */
 function otherMeanings(right: string, pool: readonly string[], n: number, random: () => number): string[] {
   const fold = (s: string) => s.toLowerCase().trim();
-  const taken = new Set([fold(right)]);
+  const taken = alsoRight(right);
   const out: string[] = [];
   for (const m of shuffle(pool, random)) {
     if (out.length >= n) break;

@@ -328,6 +328,14 @@ sentence written for a laugh is held to every rule `lib/dict/authored.ts` states
   a pun on a second sense rather than the etymology, the line says so.
 - **Turn up everywhere.** A joke on every card stops being a joke by the second evening. Most words
   have nothing funny said about them, and that is the point.
+- **Promise a setting.** A conversation partner is drawn for every scene, a friend on the phone as
+  readily as a clerk, so the line introducing them says how they talk and never where you are: "the
+  queue behind you" is nonsense on a call from a friend. `lib/scenes/personas.test.ts` holds it.
+- **Lose the joke in translation.** A word that only looks English is funny because of its spelling,
+  so in Russian and Ukrainian the English it looks like stays and its meaning follows in brackets,
+  «pea (горошина)». And a word-for-word reading may never come out as the meaning itself once
+  translated, or the answer is printed above its own question; `literally.test.ts` checks both
+  languages.
 
 **Who reads it.** Every line is drafted in a session and read by the operator before it reaches
 anybody. Estonian in it is read by the native speaker who develops this app in the pull request,

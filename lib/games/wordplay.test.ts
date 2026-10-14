@@ -3,9 +3,10 @@ import { describe, expect, it } from "vitest";
 import { COMPOUNDS, FALSE_FRIENDS } from "../estonian/literally";
 import {
   COMPOUNDS_PER_SITTING, FRIENDS_PER_SITTING, OPTIONS, buildWordplay, dealSitting,
-  fellFor, isGuessRight, isNamed, isSeenThrough,
+  SAME_ANSWER, alsoRight, fellFor, isGuessRight, isNamed, isSeenThrough,
 } from "./wordplay";
 import { rng } from "../random/seeded";
+import { tr } from "../copy/locale";
 
 const DAYS = ["2026-01-01", "2026-03-15", "2026-07-04", "2026-10-14", "2026-12-31"];
 
@@ -94,5 +95,40 @@ describe("buildWordplay", () => {
     expect(isSeenThrough(f, f.looksLike)).toBe(false);
     expect(fellFor(f, f.looksLike)).toBe(true);
     expect(fellFor(f, f.means)).toBe(false);
+  });
+
+  /*
+    Every sitting there is, not five days of them: a round walks the lists in
+    sittings, so the rounds from 0 to one past the last sitting reach each
+    sitting from every starting point a day can give it.
+  */
+  it("never offers two right answers or two options that read alike, in any language", () => {
+    const sittings = Math.ceil(COMPOUNDS.length / COMPOUNDS_PER_SITTING) + Math.ceil(FALSE_FRIENDS.length / FRIENDS_PER_SITTING);
+    let lists = 0;
+    for (let round = 0; round <= sittings; round++) {
+      const plan = buildWordplay("2026-10-14", round, rng(round + 7))!;
+      const optionLists = [
+        ...plan.apart.map((a) => ({ right: a.means, options: a.guesses })),
+        ...plan.friends.map((f) => ({ right: f.means, options: f.options })),
+      ];
+      for (const { right, options } of optionLists) {
+        const mates = alsoRight(right);
+        expect(options.filter((o) => mates.has(o.toLowerCase())), right).toEqual([right]);
+        for (const locale of ["ru", "uk"] as const) {
+          const read = options.map((o) => tr(locale, o, "wordplay").toLowerCase());
+          expect(new Set(read).size, `${locale}: ${options.join(" / ")}`).toBe(options.length);
+        }
+        lists++;
+      }
+    }
+    expect(lists).toBeGreaterThan(100);
+  });
+
+  it("names only meanings the lists hold as two names for one thing", () => {
+    const meanings = new Set(COMPOUNDS.map((c) => c.means));
+    expect(SAME_ANSWER.flat().filter((m) => !meanings.has(m))).toEqual([]);
+    expect([...alsoRight("world")]).toContain("the earth");
+    expect([...alsoRight("the Earth")]).toContain("world");
+    expect([...alsoRight("toad")]).toEqual(["toad"]);
   });
 });

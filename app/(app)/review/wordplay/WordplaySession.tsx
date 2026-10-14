@@ -3,18 +3,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { Check, Laugh, X } from "lucide-react";
 import { AnotherRound } from "@/components/round/AnotherRound";
-import { useT } from "@/components/Locale";
+import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
+import { quoted } from "@/lib/copy/values";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { FitText } from "@/components/FitText";
+import { lookalike } from "@/components/WordFun";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { WayOut } from "@/components/round/RoundExit";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import {
   fellFor, isGuessRight, isNamed, isSeenThrough,
   type ApartStep, type FriendQuestion, type NameQuestion, type WordplayPlan,
@@ -94,7 +96,8 @@ export function WordplaySession({ plan: initial }: { plan: WordplayPlan | null }
   const pickGuess = useCallback((option: string) => {
     if (!step || guess !== null) return;
     const right = isGuessRight(step, option);
-    sound(right ? "right" : "wrong");
+    // A guess before the word is known is never wrong in the buzzer's sense: a right one chimes, a miss is quiet.
+    if (right) sound("right");
     if (right) setGuessed((g) => new Set(g).add(step.id));
     setGuess(option);
   }, [step, guess, sound]);
@@ -155,6 +158,12 @@ export function WordplaySession({ plan: initial }: { plan: WordplayPlan | null }
     if (!plan) return;
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
+      /*
+        A digit typed into the command palette or Anu's box is a letter of
+        somebody's question, and Ctrl+1 is the browser's own tab switch, so
+        neither may answer the card behind them.
+      */
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || inEditable(target)) return;
       if (phase === "apart" && step) {
         if (!allTurned) {
           // A tile that has the keyboard answers its own Enter; this is for everywhere else.
@@ -324,6 +333,7 @@ function ApartCard({
   onNext: () => void;
 }) {
   const t = useT();
+  const locale = useLocale();
   const answered = guess !== null;
   const right = answered && isGuessRight(step, guess);
   const verdict = right
@@ -391,8 +401,8 @@ function ApartCard({
           <div className="mt-6">
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Word for word")}</p>
             <p className={`mt-1 inline-block text-xl font-bold ${answered ? "" : "say-wobble"}`} style={{ color: answered ? "var(--ink-3)" : "var(--ink)" }}>
-              <span className="say-strike" data-struck={answered}>“{t(step.literal, W)}”</span>
-              {!answered && <span style={{ color: "var(--accent-deep)" }}> ?!</span>}
+              <span className="say-strike" data-struck={answered}>{quoted(t(step.literal, W), locale)}</span>
+              {!answered && <span aria-hidden style={{ color: "var(--accent-deep)" }}> ?!</span>}
             </p>
           </div>
         )}
@@ -461,6 +471,7 @@ function NameCard({ question, picked, revealed, streak, onChoose, onNext }: {
   onNext: () => void;
 }) {
   const t = useT();
+  const locale = useLocale();
   const right = picked !== null && isNamed(question, picked);
   const line = fill(t("{word} is literally “{literal}”, and means “{means}”."), {
     word: question.word, literal: t(question.literal, W), means: t(question.means, W),
@@ -476,7 +487,7 @@ function NameCard({ question, picked, revealed, streak, onChoose, onNext }: {
       <div className="px-6 pt-6 text-center">
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("Which word is literally")}</p>
         <p className="mt-1 text-2xl font-bold" style={{ color: "var(--ink)" }}>
-          “{t(question.literal, W)}”
+          {quoted(t(question.literal, W), locale)}
         </p>
       </div>
 
@@ -539,7 +550,7 @@ function FriendCard({ question, index, total, picked, revealed, streak, isLast, 
   const verdict = right
     ? fill(t("Not fooled. It means “{means}”."), { means: t(question.means, W) })
     : trapped
-      ? fill(t("That's the trap. It means “{means}”, not “{english}”."), { means: t(question.means, W), english: t(question.looksLike, W) })
+      ? fill(t("That's the trap. It means “{means}”, not “{english}”."), { means: t(question.means, W), english: lookalike(question.looksLike, t) })
       : fill(t("Not quite. It means “{means}”."), { means: t(question.means, W) });
   return (
     <div className="rounded-xl border" style={CARD_STYLE}>

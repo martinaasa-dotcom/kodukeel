@@ -695,7 +695,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             </p>
           )}
           {/* A compound read word by word, or a word that only looks English. Nothing for most words. */}
-          <WordFun lemma={entry.lemma} gloss={entry.translation} t={t} className="mt-2" />
+          <WordFun lemma={entry.lemma} gloss={entry.translation} t={t} locale={locale} className="mt-2" />
           <div className="mt-3 flex flex-wrap gap-1.5">
             <Chip>{t(entry.pos.toLowerCase())}</Chip>
             {entry.cefr && <Chip tone="accent">{entry.cefr}</Chip>}

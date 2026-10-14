@@ -40,8 +40,9 @@ page.on("console", (m) => {
 // behind the panel not answering the key the panel names, which two of the
 // fifteen rounds drawing it did: 60, and one for the round's own undo standing
 // down beside the panel the way its key already did: 61.
-// Six more for Sõnamäng and the one funny line under a word: 72.
-const { check, absent, done } = suite("Practice modes", { floor: 72 });
+// Six more for Sõnamäng and the one funny line under a word: 72, and two for
+// its number keys leaving the browser's and the command palette's alone: 74.
+const { check, absent, done } = suite("Practice modes", { floor: 74 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -931,6 +932,31 @@ check("Sõnamäng opens on a word in pieces", (await pieces.count()) >= 2);
 for (let i = 0; i < (await pieces.count()); i++) await pieces.nth(i).click();
 await page.waitForTimeout(300);
 check("and the pieces read word for word once they are turned", /Word for word/.test(await page.locator("main").innerText()));
+/*
+  The number keys answer the card, and nothing else may: Ctrl+1 is the
+  browser's tab switch, and a digit typed into the command palette is a letter
+  of somebody's search. Asked here because a window-wide handler is exactly
+  the shape that forgets both.
+*/
+const ctrlPrevented = await page.evaluate(() => new Promise((resolve) => {
+  const seen = (e) => { window.removeEventListener("keydown", seen); setTimeout(() => resolve(e.defaultPrevented), 0); };
+  window.addEventListener("keydown", seen);
+  window.dispatchEvent(new KeyboardEvent("keydown", { key: "1", ctrlKey: true, bubbles: true, cancelable: true }));
+}));
+check("Sõnamäng leaves Ctrl+1 to the browser and answers nothing with it",
+  ctrlPrevented === false && (await page.locator("[data-wordplay-quip]").count()) === 0);
+await page.keyboard.press("Control+k");
+const palette = page.getByLabel("Search commands and words");
+await palette.waitFor({ timeout: 5000 }).catch(() => {});
+if (await palette.count()) {
+  await palette.type("2");
+  await page.waitForTimeout(200);
+  check("and a digit typed into the command palette answers nothing", (await page.locator("[data-wordplay-quip]").count()) === 0);
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(600);
+} else {
+  absent(1, "the command palette did not open, so there was no box to type a digit into");
+}
 await page.locator(".choice-grid button").first().click();
 await page.locator("[data-wordplay-quip]").waitFor({ timeout: 5000 }).catch(() => {});
 const quip = (await page.locator("[data-wordplay-quip]").innerText().catch(() => "")).trim();

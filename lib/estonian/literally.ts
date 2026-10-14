@@ -203,7 +203,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "character", word: "iseloom",
     parts: [p("ise", "ise", "self"), p("loom", "loom", "animal")],
     literal: "self animal", means: "character (a person's)",
-    quip: "Your character is the animal you are when nobody's watching.",
+    quip: "The second half also once meant nature, but the animal you are when nobody's watching is a reading worth keeping.",
   },
   {
     id: "fire", word: "tulekahju",
@@ -239,7 +239,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dream", word: "unenägu",
     parts: [p("une", "uni", "sleep"), p("nägu", "nägu", "face")],
     literal: "sleep face", means: "dream",
-    quip: "The face sleep shows you. Rather poetic, for something you forget by breakfast.",
+    quip: "The second half is a face, and comes from seeing. Either way it's gone by breakfast.",
   },
   {
     id: "childhood", word: "lapsepõlv",

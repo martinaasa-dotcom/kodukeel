@@ -29,6 +29,21 @@ describe("personas", () => {
     }
   });
 
+  /*
+    A persona is drawn for every scene, a friend on the phone and a neighbour
+    on the stairs as readily as a clerk, so the learner's line may promise a
+    way of talking and never a setting: "the queue behind you" or "their first
+    week" is nonsense on a call from a friend. A form may be named only on the
+    condition that there is one.
+  */
+  it("never name a setting the scene may not have", () => {
+    const settings = /\b(queue|counter|desk|office|shop|job|week|coffee|customer|boss|colleague)s?\b/i;
+    for (const p of PERSONAS) {
+      expect(p.meet, p.id).not.toMatch(settings);
+      expect(p.meet.replace(/if there's a form, the form/i, ""), p.id).not.toMatch(/\bform\b/i);
+    }
+  });
+
   it("never take a beat below one try", () => {
     for (const p of PERSONAS) expect(patienceFor(1, p)).toBeGreaterThanOrEqual(1);
   });

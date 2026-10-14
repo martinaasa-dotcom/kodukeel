@@ -15,6 +15,7 @@ import { describe, expect, it } from "vitest";
 import { COMPOUNDS, FALSE_FRIENDS, compoundFor, contentWords, falseFriendFor, wordFunFor } from "./literally";
 import { formValues, shippedDictionary } from "../../scripts/lib/dictionary";
 import { findTells } from "../copy/voice";
+import { tr } from "../copy/locale";
 
 const ENTRIES = new Map<string, ReturnType<typeof shippedDictionary>>();
 for (const e of shippedDictionary()) (ENTRIES.get(e.lemma) ?? ENTRIES.set(e.lemma, []).get(e.lemma)!).push(e);
@@ -76,6 +77,15 @@ describe("compounds", () => {
       .filter((c) => !sharesAWord(glossesOf(c.word), c.means))
       .map((c) => `${c.word}: "${glossesOf(c.word)}" against "${c.means}"`);
     expect(disagree).toEqual([]);
+  });
+
+  it("never gives away the meaning in the word-for-word reading, in any language", () => {
+    for (const locale of ["ru", "uk"] as const) {
+      const giveaway = COMPOUNDS.filter(
+        (c) => tr(locale, c.literal, "wordplay").toLowerCase() === tr(locale, c.means, "wordplay").toLowerCase(),
+      ).map((c) => `${locale}: ${c.word}`);
+      expect(giveaway).toEqual([]);
+    }
   });
 
   it("never gives away the meaning in the word-for-word reading", () => {
