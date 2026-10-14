@@ -3343,6 +3343,15 @@ explaining the dotted words went, because the dotted underline already says it (
 "Any underlined word opens its meaning"). One joke had a wrong word: "Nende aukus pükstega?" is
 "Nende auklike pükstega?", holey rather than in a hole.
 
+**And the joke is heard as a little play.** The speaker reads it a line at a time, Juku in Tambet's
+voice (the clearest on the list), the women around him in Mari's, the men in Kalev's, Mari the
+classmate in Liivika's, and the narrator in the learner's own; the bubble being said lights up, and
+every line is fetched on the first press so the only pause between two people is the beat. Which
+voice is `voiceFor` beside the jokes, and `jokes.test.ts` holds every speaker to a voice the service
+offers and Juku to a different one from whoever he is talking to. With the English on, a role says
+what it is in English too, "Õpetaja (teacher)", which is a word learned for nothing. And the link to
+the article tells a screen reader it opens a new tab.
+
 **What it does not do.** 190 jokes is about half a year before one comes round again; more is a
 pull request away and the test is the only gate on it. The keyless rule is blunter than the model
 and will sometimes miss a good story, which is the side it is built to err on.

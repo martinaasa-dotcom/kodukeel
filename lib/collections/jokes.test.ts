@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { isExactForm } from "@/lib/dict/forms";
-import { JOKES, jokeIndexFor, jokesFor, splitLine } from "./jokes";
+import { VOICES } from "@/lib/audio/voice";
+import { JOKES, jokeIndexFor, jokesFor, splitLine, voiceFor } from "./jokes";
 
 /*
   THE NAMES, AND THE TWO WORDS A JOKE IS ABOUT. The forms list holds no
@@ -92,6 +93,26 @@ describe("who says a line", () => {
     expect(splitLine("Õpetaja: Juku, too näide!")).toEqual({ by: "Õpetaja", text: "Juku, too näide!" });
     expect(splitLine("Juku kirjutab: kas.")).toEqual({ by: null, text: "Juku kirjutab: kas." });
     expect(splitLine("Pärast lõunat.")).toEqual({ by: null, text: "Pärast lõunat." });
+  });
+});
+
+describe("the voice a line is read in", () => {
+  it("is one the speech service offers, for every speaker in every joke", () => {
+    const offered = new Set(VOICES.map((v) => v.id));
+    const speakers = new Set(JOKES.flatMap((joke) => joke.map(([et]) => splitLine(et).by)));
+    expect(speakers.size).toBeGreaterThan(5);
+    for (const by of speakers) {
+      if (by === null) expect(voiceFor(by)).toBeNull();
+      else expect(offered.has(voiceFor(by) ?? ""), `${by} has no voice`).toBe(true);
+    }
+  });
+
+  it("is not the same for Juku and the person he is talking to", () => {
+    for (const joke of JOKES) {
+      const voices = new Set(joke.map(([et]) => splitLine(et).by).filter((by) => by !== null).map(voiceFor));
+      const people = new Set(joke.map(([et]) => splitLine(et).by).filter((by) => by !== null));
+      if (people.has("Juku") && people.size > 1) expect(voices.size, joke[0]![0]).toBeGreaterThan(1);
+    }
   });
 });
 

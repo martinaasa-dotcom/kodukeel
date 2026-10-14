@@ -66,6 +66,8 @@ export function GoodNewsCard({ stories }: { stories: GoodNews[] }) {
             style={{ color: "var(--accent-deep)" }}
           >
             {errs ? t("Read it on ERR") : t("Read the article")} <ArrowUpRight size={15} aria-hidden />
+            {/* The arrow says it leaves the app; a screen reader is told in words. */}
+            <span className="sr-only">{t("(opens in a new tab)")}</span>
           </a>
         ) : <span />}
         {stories.length > 1 && (

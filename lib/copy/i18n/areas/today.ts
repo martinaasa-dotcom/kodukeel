@@ -1011,6 +1011,8 @@ export const TODAY: Area = {
     "Читать на ERR",
   "Read the article":
     "Читать статью",
+  "(opens in a new tab)":
+    "(откроется в новой вкладке)",
   "A Juku joke, the kind every Estonian grew up on, with the English a tap away.":
     "Шутка про Юку, на каких вырос каждый эстонец, с английским переводом по нажатию.",
   "One happy headline from ERR, with the dictionary under every word.":
@@ -2013,6 +2015,8 @@ export const TODAY: Area = {
     "Читати на ERR",
   "Read the article":
     "Читати статтю",
+  "(opens in a new tab)":
+    "(відкриється в новій вкладці)",
   "A Juku joke, the kind every Estonian grew up on, with the English a tap away.":
     "Жарт про Юку, на яких виріс кожен естонець, з англійським перекладом за одним натиском.",
   "One happy headline from ERR, with the dictionary under every word.":

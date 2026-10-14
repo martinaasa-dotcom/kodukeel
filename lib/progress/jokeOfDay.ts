@@ -1,4 +1,4 @@
-import { JOKES, jokesFor, splitLine } from "@/lib/collections/jokes";
+import { JOKES, jokesFor, splitLine, voiceFor } from "@/lib/collections/jokes";
 import { annotateTexts, type ReadableHeadline } from "@/lib/dict/headlines";
 
 /**
@@ -23,6 +23,8 @@ export interface DrawnLine {
   tokens: ReadableHeadline["tokens"];
   /** The line said aloud: what is said, without who says it. */
   said: string;
+  /** The voice it is read in, or null for the learner's own. */
+  voice: string | null;
   en: string;
 }
 
@@ -44,7 +46,7 @@ export async function jokesToday(dayKey: string): Promise<DrawnJoke[]> {
       const line = lines[at]!;
       const tokens = annotated[at]!.tokens;
       at += 1;
-      return { by: line.et.by, byEn: line.en.by, tokens, said: line.et.text, en: line.en.text };
+      return { by: line.et.by, byEn: line.en.by, tokens, said: line.et.text, voice: voiceFor(line.et.by), en: line.en.text };
     }),
   );
   memo = { day: dayKey, jokes };

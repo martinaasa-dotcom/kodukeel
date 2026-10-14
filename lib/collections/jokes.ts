@@ -956,6 +956,33 @@ export function splitLine(line: string): SaidLine {
   return { by: match[1]!, text: match[2]! };
 }
 
+/*
+  WHO SAYS IT, IN WHICH VOICE, when the card reads the joke aloud. Juku gets
+  the clearest voice on the list (`SCENE_VOICE`, measured), because his line
+  is the one the joke turns on; the women and the men around him each get a
+  voice of their own, so a learner hears two people talking rather than one
+  person reading. The names are the speech service's own identifiers, and
+  `jokes.test.ts` holds every speaker in the table to one it offers. Mari is
+  not the teacher's voice, because in one joke she has the punchline in the
+  teacher's own lesson.
+*/
+const VOICE_OF: Readonly<Record<string, string>> = {
+  Juku: "tambet",
+  Õpetaja: "mari",
+  Ema: "mari",
+  Vanaema: "mari",
+  Mari: "liivika",
+  Isa: "kalev",
+  Vanaisa: "kalev",
+  Arst: "kalev",
+  Turist: "kalev",
+};
+
+/** The voice a speaker is read in, or null for the narrator, who is read in the learner's own. */
+export function voiceFor(by: string | null): string | null {
+  return by === null ? null : (VOICE_OF[by] ?? null);
+}
+
 /** Today's joke, as an index into `JOKES`, chosen by the learner's own date. */
 export function jokeIndexFor(dayKey: string): number {
   return dayIndex(dayKey, "joke-of-the-day", JOKES.length);
