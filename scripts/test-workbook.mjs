@@ -29,7 +29,7 @@ import { startRound } from "./lib/briefing.mjs";
 const B = baseUrl();
 const OWNER = "local-single-user";
 const prisma = newPrismaClient(requireLocalDatabase("write and delete the reviews this page grades"));
-const { check, absent, done } = suite("The workbook", { floor: 27 });
+const { check, absent, done } = suite("The workbook", { floor: 32 });
 
 const before = new Date();
 const alreadyThere = new Set(
@@ -48,7 +48,7 @@ await page.locator("[data-workbook-exercise]").first().waitFor({ timeout: 15_000
 
 const sheet = page.locator("[data-workbook-exercise]");
 if (await sheet.count() === 0) {
-  absent(21, "a deck whose words can fill a page, which the demo fixture holds");
+  absent(26, "a deck whose words can fill a page, which the demo fixture holds");
   await browser.close();
   await prisma.$disconnect();
   done();
@@ -186,6 +186,44 @@ check(
   "a finished page is taken off the device, so it cannot come back on a reload",
   (await page.evaluate(() => Object.keys(window.localStorage).filter((k) => k.includes("workbook")).length)) === 0,
 );
+
+/*
+  The lines got wrong, set again. Every line on this run was missed, so the
+  redo holds every one of them, and it writes nothing: each card is graded once
+  a sitting and the first go is the one that counted.
+*/
+const reviewsBeforeRedo = await prisma.review.count({ where: { ownerId: OWNER } });
+const redo = page.locator("[data-workbook-redo-start]");
+check("a corrected page with lines wrong offers to redo them", await redo.count() === 1);
+if (await redo.count()) {
+  await redo.click();
+  await page.locator("[data-workbook-exercise]").first().waitFor({ timeout: 10_000 }).catch(() => {});
+  check("the redo says it is not graded", await page.locator("[data-workbook-practice]").count() === 1);
+  const redoGaps = page.locator("[data-workbook-gap]");
+  const r = await redoGaps.count();
+  for (let i = 0; i < r; i++) await redoGaps.nth(i).fill("x");
+  await page.locator("[data-workbook-check]").click();
+  await page.waitForTimeout(400);
+  await page.locator("[data-workbook-show]").click();
+  await page.waitForTimeout(400);
+  await page.locator("[data-workbook-next]").click();
+  await page.waitForTimeout(800);
+  check("the redo writes nothing to the review log", (await prisma.review.count({ where: { ownerId: OWNER } })) === reviewsBeforeRedo);
+  await page.locator("[data-workbook-back]").click();
+  await page.waitForTimeout(500);
+  check("and leads back to the corrected page", /corrected/i.test(await page.locator("main").innerText()) && await page.locator("[data-workbook-redo-start]").count() === 1);
+  /*
+    On a phone the offer and its button stack: side by side, a button that
+    may not wrap squeezed the sentence beside it to a few letters a line.
+  */
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.waitForTimeout(200);
+  const offer = await page.locator("[data-workbook-redo] p").boundingBox();
+  check("on a phone the redo offer reads as a sentence, not a column of letters", (offer?.width ?? 0) >= 240, `${Math.round(offer?.width ?? 0)}px wide`);
+  await page.setViewportSize({ width: 1280, height: 900 });
+} else {
+  absent(4, "a redo button, whose absence is the failure above");
+}
 
 const written = (await prisma.review.findMany({
   where: { ownerId: OWNER, reviewedAt: { gte: before } },

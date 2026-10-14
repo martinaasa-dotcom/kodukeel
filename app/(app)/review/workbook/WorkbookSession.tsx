@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { BookOpen, Check, Eye, EyeOff, Info, Lightbulb, PenLine, Sparkles, X } from "lucide-react";
+import { BookOpen, Check, Eye, EyeOff, Info, Lightbulb, PenLine, RotateCcw, Sparkles, X } from "lucide-react";
 import { recordWorkbookGrades } from "@/app/actions";
 import { useLocale, useT } from "@/components/Locale";
 import { AnotherRound } from "@/components/round/AnotherRound";
@@ -160,7 +160,7 @@ const verdictOf = (outcome: Outcome | undefined, mark: LineMark | undefined): Ve
  * one thing worth saying about the page, which is the slot they kept reaching
  * for instead of the one wanted, where that happened twice.
  */
-export function WorkbookSession({ exercises: initial, missed, themes, canTranslate }: {
+export function WorkbookSession({ exercises: initial, missed, themes, canTranslate, practice = false, onBack }: {
   exercises: WorkbookExercise[];
   /**
    * A theme somebody asked for by name that their words cannot fill a page of
@@ -171,6 +171,14 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
   /** The themes this learner's words can fill a page of, for the finish screen. */
   themes: Theme[];
   canTranslate: boolean;
+  /**
+   * The lines missed, set again once the page is corrected. Nothing is graded
+   * (every line arrives with no card) and nothing is kept on the device, since
+   * the page that counted has already been sent and taken off it.
+   */
+  practice?: boolean;
+  /** Back to the corrected page this practice came from. */
+  onBack?: () => void;
 }) {
   const t = useT();
   const sound = useFeedbackSound();
@@ -190,6 +198,8 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
   const [english, setEnglish] = useState(true);
   const [finished, setFinished] = useState(false);
   const [said, setSaid] = useState("");
+  /* The missed lines, set again, and a counter so a second go at them mounts afresh. */
+  const [redo, setRedo] = useState<{ exercises: WorkbookExercise[]; round: number } | null>(null);
   const inputs = useRef(new Map<string, HTMLInputElement>());
   const lastFocused = useRef<HTMLInputElement | null>(null);
   const sent = useRef(new Set<number>());
@@ -208,6 +218,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
     during render, since the server has no device to read.
   */
   useLayoutEffect(() => {
+    if (practice) { setLooked(true); return; }
     const saved = loadWorkbook<WorkbookExercise, Pass, LineMark, Outcome>(address);
     if (saved) {
       setExercises(saved.exercises);
@@ -228,14 +239,14 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
   }, []);
 
   useEffect(() => {
-    if (!looked) return;
+    if (!looked || practice) return;
     if (finished) { forgetWorkbook(address); return; }
     // Nothing written yet is nothing to lose, and a page nobody touched is dealt fresh next time.
     if (Object.keys(typed).length === 0 && Object.keys(outcomes).length === 0) return;
     saveWorkbook(address, {
       exercises, at, pass, typed, marks, firstMarks, checkedAs, outcomes, english, sent: [...sent.current],
     });
-  }, [looked, finished, address, exercises, at, pass, typed, marks, firstMarks, checkedAs, outcomes, english]);
+  }, [looked, practice, finished, address, exercises, at, pass, typed, marks, firstMarks, checkedAs, outcomes, english]);
 
   const exercise = exercises[at];
   const lines = useMemo(() => exercise?.lines ?? [], [exercise]);
@@ -416,7 +427,21 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
     else setSaid(t("Change an answer first, or show the answers."));
   };
 
+  if (finished && redo) {
+    return (
+      <WorkbookSession
+        key={redo.round}
+        exercises={redo.exercises}
+        missed={null}
+        themes={themes}
+        canTranslate={canTranslate}
+        practice
+        onBack={() => { setRedo(null); window.scrollTo({ top: 0 }); }}
+      />
+    );
+  }
   if (finished) {
+    const again = missedAgain(exercises, outcomes);
     return (
       <Finished
         exercises={exercises}
@@ -425,6 +450,13 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
         firstMarks={firstMarks}
         themes={themes}
         canTranslate={canTranslate}
+        practice={practice}
+        onBack={onBack}
+        redoCount={again ? again.lines.length : 0}
+        onRedo={again ? () => {
+          setRedo((r) => ({ exercises: [again], round: (r?.round ?? 0) + 1 }));
+          window.scrollTo({ top: 0 });
+        } : undefined}
       />
     );
   }
@@ -471,6 +503,12 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
         </header>
 
         <div className="px-5 pt-5 sm:px-6">
+          {practice && at === 0 && (
+            <p className="mb-3 flex items-start gap-2.5 text-base leading-snug" style={{ color: "var(--ink-2)" }} data-workbook-practice="">
+              <RotateCcw size={18} className="mt-0.5 shrink-0" aria-hidden />
+              <span>{t("The lines you got wrong, once more. Nothing here is graded: the first go is the one that counted.")}</span>
+            </p>
+          )}
           {resumed && (
             <p className="mb-3 flex items-start gap-2.5 text-base leading-snug" style={{ color: "var(--ink-2)" }} data-workbook-resumed="">
               <Info size={18} className="mt-0.5 shrink-0" aria-hidden />
@@ -754,13 +792,19 @@ function reasonText(note: LineNote, t: (s: string) => string): string | null {
 }
 
 /** The page handed back, corrected, and where to go from it. */
-function Finished({ exercises, outcomes, typed, firstMarks, themes, canTranslate }: {
+function Finished({
+  exercises, outcomes, typed, firstMarks, themes, canTranslate, practice, onBack, redoCount, onRedo,
+}: {
   exercises: WorkbookExercise[];
   outcomes: Record<string, Outcome>;
   typed: Record<string, string>;
   firstMarks: Record<string, LineMark>;
   themes: Theme[];
   canTranslate: boolean;
+  practice: boolean;
+  onBack: (() => void) | undefined;
+  redoCount: number;
+  onRedo: (() => void) | undefined;
 }) {
   const t = useT();
   const themeName = useThemeName();
@@ -889,6 +933,22 @@ function Finished({ exercises, outcomes, typed, firstMarks, themes, canTranslate
         </section>
       ))}
 
+      {onRedo && (
+        <section
+          className="flex flex-col items-start gap-3 rounded-xl border px-5 py-4 sm:flex-row sm:items-center sm:gap-4 sm:px-6"
+          style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
+          data-workbook-redo=""
+        >
+          <p className="text-base sm:min-w-0 sm:flex-1" style={{ color: "var(--ink-2)" }}>
+            {t("Writing them once more, straight after the answer, is what makes them stick. It's not graded.")}
+          </p>
+          <Button variant="secondary" onClick={onRedo} data-workbook-redo-start="">
+            <RotateCcw size={16} aria-hidden />
+            {redoCount === 1 ? t("Redo the one you got wrong") : fill(t("Redo the {n} you got wrong"), { n: redoCount })}
+          </Button>
+        </section>
+      )}
+
       <WayOut className="flex flex-col gap-4">
         {themes.length > 1 && (
           <div className="flex flex-col gap-2">
@@ -903,7 +963,11 @@ function Finished({ exercises, outcomes, typed, firstMarks, themes, canTranslate
           </div>
         )}
         <div className="flex flex-wrap justify-end gap-3">
-          <ButtonLink href="/practice" variant="ghost">{t("Back to practice")}</ButtonLink>
+          {practice && onBack ? (
+            <Button variant="ghost" onClick={onBack} data-workbook-back="">{t("Back to the corrected page")}</Button>
+          ) : (
+            <ButtonLink href="/practice" variant="ghost">{t("Back to practice")}</ButtonLink>
+          )}
           <AnotherRound variant="primary">{t("Another page")}</AnotherRound>
         </div>
       </WayOut>
@@ -914,6 +978,26 @@ function Finished({ exercises, outcomes, typed, firstMarks, themes, canTranslate
       </p>
     </div>
   );
+}
+
+/**
+ * The lines not right first time, set again as one page with no card behind
+ * any of them, so nothing about the second look reaches the review log. Null
+ * where every line was right first time and there is nothing to do again.
+ */
+function missedAgain(exercises: WorkbookExercise[], outcomes: Record<string, Outcome>): WorkbookExercise | null {
+  const lines = exercises.flatMap((e) => e.lines)
+    .filter((l) => outcomes[l.id] === "missed" || outcomes[l.id] === "second")
+    .map((l) => ({ ...l, cardId: null }));
+  if (lines.length === 0) return null;
+  const themes = new Set(exercises.filter((e) => e.lines.some((l) => lines.some((m) => m.id === l.id))).map((e) => e.theme));
+  const only = themes.size === 1 ? exercises.find((e) => themes.has(e.theme)) ?? null : null;
+  return {
+    theme: only?.theme ?? "mixed",
+    rule: only?.rule ?? null,
+    example: null,
+    lines,
+  };
 }
 
 const OUTCOME_LABEL: Record<Outcome, string> = {
