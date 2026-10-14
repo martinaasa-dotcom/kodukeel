@@ -134,7 +134,7 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
 }) {
   return (
     <Tag
-      className={`rounded-[var(--r-xl)] border ${dense ? "p-3 md:p-4" : "p-5 md:p-7"} ${tone === "night" ? "night" : ""} ${hover ? "lift" : ""} ${className}`}
+      className={`rounded-[var(--r-xl)] border ${dense ? "p-3 md:p-4" : "p-5 md:p-7"} ${tone === "night" ? "night" : ""} ${hover ? "lift glow" : ""} ${className}`}
       style={{
         ...CARD_TONES[tone],
         borderColor: "var(--edge)",

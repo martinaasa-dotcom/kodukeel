@@ -356,10 +356,11 @@ function ShelfRow({ mode, line }: { mode: Pick<PracticeMode, "href" | "tone" | "
   return (
     <Link
       href={mode.href}
-      className="tap-tint flex items-center gap-3 rounded-[var(--r)] px-3 py-3"
+      className="tap-tint glow flex items-center gap-3 rounded-[var(--r)] px-3 py-3"
     >
       <span
         aria-hidden
+        data-pop
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
         style={{ background: `var(--${mode.tone}-soft)`, color: toneInk(mode.tone) }}
       >
