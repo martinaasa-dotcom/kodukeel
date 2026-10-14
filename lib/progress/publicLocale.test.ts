@@ -9,30 +9,32 @@ vi.mock("@/lib/progress/locale", () => ({ localeFor: async () => "en" }));
 
 const { publicTitle } = await import("./publicLocale");
 
+// A line /trust has carried since before the card existed, so the test reads
+// the same on every branch that adds a page of its own.
 const card = {
-  description: "Put a code on the board. See who is practising and what the group keeps getting wrong.",
-  path: "/teachers",
+  description: "This page is for whoever decides whether Kodukeel is safe for a class, a team or a grant. The short answers come first, and each one takes you to the detail below.",
+  path: "/trust",
 };
 
 describe("publicTitle", () => {
   it("leaves a page without a card to the root layout's description", async () => {
-    const meta = await publicTitle(Promise.resolve({}), "For teachers");
+    const meta = await publicTitle(Promise.resolve({}), "Trust and security");
     expect(meta.description).toBeUndefined();
     expect(meta.openGraph).toBeUndefined();
   });
 
   it("gives a page with a card its own description and share card, pointing at itself", async () => {
-    const meta = await publicTitle(Promise.resolve({}), "For teachers", undefined, card);
+    const meta = await publicTitle(Promise.resolve({}), "Trust and security", undefined, card);
     expect(meta.description).toBe(card.description);
-    expect(meta.openGraph).toMatchObject({ url: "/teachers", description: card.description, locale: "en_EE" });
-    expect((meta.openGraph as { title?: string }).title).toBe("For teachers | kodukeel");
+    expect(meta.openGraph).toMatchObject({ url: "/trust", description: card.description, locale: "en_EE" });
+    expect((meta.openGraph as { title?: string }).title).toBe("Trust and security | kodukeel");
   });
 
   it("writes the card in the language the page is drawn in", async () => {
-    const meta = await publicTitle(Promise.resolve({ lang: "ru" }), "For teachers", undefined, card);
-    expect(meta.title).toBe("Для преподавателей");
+    const meta = await publicTitle(Promise.resolve({ lang: "ru" }), "Trust and security", undefined, card);
+    expect(meta.title).toBe("Доверие и безопасность");
     expect(meta.description).not.toBe(card.description);
     expect(meta.description).toMatch(/[а-я]/);
-    expect(meta.openGraph).toMatchObject({ locale: "ru_EE", url: "/teachers" });
+    expect(meta.openGraph).toMatchObject({ locale: "ru_EE", url: "/trust" });
   });
 });
