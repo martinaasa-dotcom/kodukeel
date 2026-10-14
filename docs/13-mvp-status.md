@@ -3311,12 +3311,12 @@ never on a wrong answer, the exam, the level check, an error or anything about t
 line was drafted here and is for the native Estonian speaker who develops the app to read.
 
 **Estonian names things honestly, and that is the joke.** `lib/estonian/literally.ts` holds 74
-compounds read word for word (`nahkhiir` is a leather mouse, `kilpkonn` a shield frog) and 28
+compounds read word for word (`nahkhiir` is a leather mouse, `kilpkonn` a shield frog) and 27
 words that look English and are not (`pea` is a head, `hai` is a shark). Each part is checked
 against the shipped dictionary and the forms list, so no reading invents a word. `WordFun`
 prints one line under a word on the dictionary entry, a first meeting and the word of the day,
-and only where the gloss on the screen agrees with it: `hall` the colour gets the line, `hall`
-the frost does not.
+and only where the gloss on the screen agrees with it: `maks` the tax gets the line, `maks`
+the liver does not.
 
 **Sõnamäng is the round built on it.** Five compounds turned over piece by piece and guessed
 before the meaning is stamped on, the same five named the other way round, and three false

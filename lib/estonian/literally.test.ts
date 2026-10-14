@@ -164,26 +164,26 @@ describe("the English around them", () => {
 
 describe("wordFunFor", () => {
   it("reads a compound as its word-for-word reading", () => {
-    const fun = wordFunFor("nahkhiir")!;
+    const fun = wordFunFor("nahkhiir", "bat")!;
     expect(fun.kind).toBe("compound");
     expect(fun.reading).toBe("leather mouse");
   });
 
   it("reads a false friend as the English it is not", () => {
-    const fun = wordFunFor("pea")!;
+    const fun = wordFunFor("pea", "head")!;
     expect(fun.kind).toBe("false-friend");
     expect(fun.reading).toBe("pea");
     expect(falseFriendFor("pea")?.means).toBe("head");
   });
 
   it("says nothing about a word with nothing to say", () => {
-    expect(wordFunFor("raamat")).toBeNull();
+    expect(wordFunFor("raamat", "book")).toBeNull();
   });
 
   it("tells the joke only about the sense the screen is showing", () => {
-    expect(wordFunFor("hall", "gray")?.quip).toMatch(/corridor/);
-    expect(wordFunFor("hall", "grey")?.quip).toMatch(/corridor/);
-    expect(wordFunFor("hall", "frost")).toBeNull();
+    expect(wordFunFor("maks", "tax")?.quip).toMatch(/maximum/);
+    expect(wordFunFor("maks", "liver")).toBeNull();
+    expect(wordFunFor("maks", null)).toBeNull();
     expect(wordFunFor("nahkhiir", "bat")?.reading).toBe("leather mouse");
     expect(wordFunFor("nahkhiir", "something else entirely")).toBeNull();
   });

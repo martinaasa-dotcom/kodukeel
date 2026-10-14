@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Laugh, X } from "lucide-react";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { quoted } from "@/lib/copy/values";
+import { shuffle } from "@/lib/random/shuffle";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
@@ -128,7 +129,8 @@ export function WordplaySession({ plan: initial }: { plan: WordplayPlan | null }
     if (!nameQuestion || namePicked === null) return;
     const right = isNamed(nameQuestion, namePicked);
     setNamePicked(null);
-    setNameQueue((q) => (right ? q.slice(1) : [...q.slice(1), q[0]!]));
+    // A miss comes back with its options in a new order, so it is asked again rather than read off the last screen.
+    setNameQueue((q) => (right ? q.slice(1) : [...q.slice(1), { ...q[0]!, options: shuffle(q[0]!.options) }]));
   }, [nameQuestion, namePicked]);
 
   const friend: FriendQuestion | undefined = plan?.friends[friendAt];
@@ -164,6 +166,12 @@ export function WordplaySession({ plan: initial }: { plan: WordplayPlan | null }
         neither may answer the card behind them.
       */
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || inEditable(target)) return;
+      /*
+        A button or a link with the keyboard answers its own Enter and Space:
+        "Turn them all", the speaker and an option are each pressed for what
+        they say, and the window must not turn a tile or move on instead.
+      */
+      if (isAdvanceKey(e) && target?.closest?.("button, a, [role=button]")) return;
       if (phase === "apart" && step) {
         if (!allTurned) {
           // A tile that has the keyboard answers its own Enter; this is for everywhere else.
@@ -336,12 +344,34 @@ function ApartCard({
   const locale = useLocale();
   const answered = guess !== null;
   const right = answered && isGuessRight(step, guess);
+
+  /*
+    A turned tile is disabled and "Turn them all" goes once everything is
+    turned, and a control that disables itself hands its focus to nobody. So
+    the caret follows the round: to the next tile still face down, and to the
+    first guess once there is none, but only when it had nowhere else to be,
+    so a learner who has moved it on their own keeps it there.
+  */
+  const card = useRef<HTMLDivElement | null>(null);
+  const pieces = useRef<(HTMLButtonElement | null)[]>([]);
+  const firstGuess = useRef<HTMLButtonElement | null>(null);
+  const seenTurned = useRef(-1);
+  useEffect(() => {
+    if (turned.size === seenTurned.current) return;
+    const first = seenTurned.current === -1;
+    seenTurned.current = turned.size;
+    const active = document.activeElement;
+    const adrift = !active || active === document.body || (!first && card.current?.contains(active) && (active as HTMLButtonElement).disabled);
+    if (!adrift) return;
+    if (allTurned) firstGuess.current?.focus();
+    else pieces.current[step.parts.findIndex((_, i) => !turned.has(i))]?.focus();
+  }, [turned, allTurned, step]);
   const verdict = right
     ? fill(t("Yes. {word} means “{means}”."), { word: step.word, means: t(step.means, W) })
     : fill(t("Not that one. {word} means “{means}”."), { word: step.word, means: t(step.means, W) });
 
   return (
-    <div className="rounded-xl border" style={CARD_STYLE}>
+    <div ref={card} className="rounded-xl border" style={CARD_STYLE}>
       <p className="sr-only" aria-live="polite">{answered ? verdict : ""}</p>
       <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
         <Chip tone="accent">{t("Take it apart")}</Chip>
@@ -367,6 +397,7 @@ function ApartCard({
             return (
               <button
                 key={i}
+                ref={(el) => { pieces.current[i] = el; }}
                 type="button"
                 data-wordplay-piece
                 disabled={on}
@@ -427,6 +458,7 @@ function ApartCard({
               {step.guesses.map((option, i) => (
                 <button
                   key={option}
+                  ref={i === 0 ? firstGuess : undefined}
                   type="button"
                   onClick={() => onGuess(option)}
                   className="choice-btn flex items-center gap-2.5 rounded-md border px-3.5 py-3 text-left"
@@ -586,7 +618,8 @@ function FriendCard({ question, index, total, picked, revealed, streak, isLast, 
                 style={revealed ? undefined : { "--choice-bg": "var(--raised)", color: "var(--ink)" } as React.CSSProperties}
               >
                 <KeyCap>{i + 1}</KeyCap>
-                <span className="min-w-0 text-base font-semibold">{t(option, W)}</span>
+                {/* The trap is its English spelling, so it keeps it in every language: «pea (горошина)». */}
+                <span className="min-w-0 text-base font-semibold">{option === question.looksLike ? lookalike(option, t) : t(option, W)}</span>
                 {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-label={t("Right")} />}
                 {revealed && option === picked && !isAnswer && <X size={16} className="ml-auto shrink-0" aria-label={t("Wrong")} />}
               </button>

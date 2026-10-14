@@ -107,13 +107,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "capital", word: "pealinn",
     parts: [p("pea", "pea", "head"), p("linn", "linn", "town")],
     literal: "head town", means: "capital city",
-    quip: "The town at the head of the country. Swap the two halves round and you get its mayor.",
+    quip: "The town at the head of the country. Put the town first and you get its mayor.",
   },
   {
     id: "mayor", word: "linnapea",
     parts: [p("linna", "linn", "town"), p("pea", "pea", "head")],
     literal: "town head", means: "mayor",
-    quip: "The head of the town. Swap the two halves round and you get the capital.",
+    quip: "The head of the town. Put the head first and you get the capital.",
   },
   {
     id: "marriage", word: "abielu",
@@ -125,19 +125,19 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "spouse", word: "abikaasa",
     parts: [p("abi", "abi", "help"), p("kaasa", "kaasa", "along")],
     literal: "help that comes along", means: "spouse",
-    quip: "Romantic, in a very practical way.",
+    quip: "The second half is also an old word for a companion. Romantic, in a very practical way.",
   },
   {
     id: "world", word: "maailm",
     parts: [p("maa", "maa", "land"), p("ilm", "ilm", "weather")],
     literal: "land and weather", means: "world",
-    quip: "Land, plus weather. Honestly, that covers most of it.",
+    quip: "The second half also means world on its own. But land plus weather covers most of it anyway.",
   },
   {
     id: "kitten", word: "kassipoeg",
-    parts: [p("kassi", "kass", "cat"), p("poeg", "poeg", "son")],
+    parts: [p("kassi", "kass", "cat"), p("poeg", "poeg", "son, young one")],
     literal: "cat's son", means: "kitten",
-    quip: "Every kitten is a cat's son. Even the daughters.",
+    quip: "The second half is a son, and also the young of any animal. So every kitten counts, even the daughters.",
   },
   {
     id: "lunch", word: "lõunasöök",
@@ -275,7 +275,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "sunflower", word: "päevalill",
     parts: [p("päeva", "päev", "day"), p("lill", "lill", "flower")],
     literal: "day flower", means: "sunflower",
-    quip: "It follows the sun all day, so naming it was the easy part.",
+    quip: "The first half once meant the sun as well as the day, which a sunflower would agree with.",
   },
   {
     id: "cream-puff", word: "tuuletasku",
@@ -558,10 +558,6 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "A chair, not a tool. In some meetings it's the most useful thing in the room.",
   },
   {
-    id: "hall", word: "hall", looksLike: "hall", means: "gray",
-    quip: "Gray, not a corridor. Look up at a November sky here and you'll see plenty of it.",
-  },
-  {
     id: "seen", word: "seen", looksLike: "seen", means: "mushroom",
     quip: "Not the past tense of see. It's what people head into the forest for every autumn, basket in hand.",
   },
@@ -587,7 +583,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "hai", word: "hai", looksLike: "hi", means: "shark",
-    quip: "Say hi to a shark. In Estonian that's a single word.",
+    quip: "Sounds like hi. If you ever meet one, a wave from the shore is plenty.",
   },
   {
     id: "rand", word: "rand", looksLike: "rand", means: "beach",
@@ -682,7 +678,7 @@ export interface WordFun {
   readonly quip: string;
 }
 
-export function wordFunFor(lemma: string, gloss?: string | null): WordFun | null {
+export function wordFunFor(lemma: string, gloss: string | null): WordFun | null {
   const compound = compoundFor(lemma);
   if (compound && meansWhatIsShown(compound.means, gloss)) {
     return { kind: "compound", label: "Word for word", reading: compound.literal, quip: compound.quip };
@@ -697,16 +693,15 @@ export function wordFunFor(lemma: string, gloss?: string | null): WordFun | null
 /**
  * WHETHER THE JOKE IS ABOUT THE WORD ON THE SCREEN.
  *
- * A headword can carry two entries: `hall` is gray as an adjective and frost
- * as a noun, and "Gray, not a corridor" under frost is the app telling a
- * learner something false about the word in front of them. So a screen hands
- * in the gloss it is printing and the line is drawn only where that gloss and
- * the line's own meaning share a word. A screen with no gloss to hand gets
- * the line, which is right for every headword with one entry, and that is
- * every headword here but one.
+ * A headword can carry two senses: `maks` is a tax and also a liver, and
+ * "Tax, not the maximum" under the liver is the app telling a learner
+ * something false about the word in front of them. So a screen hands in the
+ * gloss it is printing and the line is drawn only where that gloss and the
+ * line's own meaning share a word. A screen with no gloss to hand gets no
+ * line, since it cannot say which sense it is showing.
  */
 function meansWhatIsShown(means: string, gloss: string | null | undefined): boolean {
-  if (!gloss) return true;
+  if (!gloss) return false;
   const shown = contentWords(gloss);
   for (const w of contentWords(means)) if (shown.has(w)) return true;
   return false;
