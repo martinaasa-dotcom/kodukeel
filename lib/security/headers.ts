@@ -162,7 +162,7 @@ export function buildContentSecurityPolicy(): string {
     // CSP violation on every sign-in screen (PageSpeed, 14 October 2026).
     `style-src 'self' 'unsafe-inline'${google.length > 0 ? " https://accounts.google.com/gsi/style" : ""}`,
     "img-src 'self' data: blob: https:",
-    // next/font self-hosts every face at build time, so no font CDN is needed.
+    // The faces are committed files in app/fonts/, served from this origin, so no font CDN is needed.
     "font-src 'self'",
     "media-src 'self' blob: data:",
     `connect-src ${connectSrc.join(" ")}`,
