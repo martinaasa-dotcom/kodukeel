@@ -16,6 +16,7 @@ import { COMPOUNDS, FALSE_FRIENDS, compoundFor, contentWords, falseFriendFor, wo
 import { formValues, shippedDictionary } from "../../scripts/lib/dictionary";
 import { findTells } from "../copy/voice";
 import { tr } from "../copy/locale";
+import { WORDPLAY } from "../copy/i18n/areas/wordplay";
 
 const ENTRIES = new Map<string, ReturnType<typeof shippedDictionary>>();
 for (const e of shippedDictionary()) (ENTRIES.get(e.lemma) ?? ENTRIES.set(e.lemma, []).get(e.lemma)!).push(e);
@@ -217,5 +218,36 @@ describe("wordFunFor", () => {
     const silent = [...COMPOUNDS.map((c) => c.word), ...FALSE_FRIENDS.map((f) => f.word)]
       .filter((w) => !(ENTRIES.get(w) ?? []).some((e) => wordFunFor(w, e.gloss)));
     expect(silent).toEqual([]);
+  });
+
+  /*
+    Every line a reader can meet from this table is in the Russian and the
+    Ukrainian, and nothing else is keyed there. A translation left behind when
+    a line is rewritten is a second draft nobody reads, and it is where the
+    old wording comes back from the day somebody copies the key.
+  */
+  it("translates every line it shows, and keeps no translation of a line it no longer has", () => {
+    const live = new Set<string>();
+    for (const c of COMPOUNDS) {
+      for (const part of c.parts) live.add(part.en);
+      live.add(c.literal);
+      live.add(c.means);
+      live.add(c.quip);
+    }
+    for (const f of FALSE_FRIENDS) {
+      live.add(f.looksLike);
+      live.add(f.means);
+      live.add(f.quip);
+    }
+    expect(live.size).toBeGreaterThan(300);
+    for (const locale of ["ru", "uk"] as const) {
+      const keyed = Object.keys(WORDPLAY[locale] ?? {})
+        .filter((k) => k.endsWith("@wordplay"))
+        .map((k) => k.slice(0, -"@wordplay".length));
+      expect(keyed.length, locale).toBeGreaterThan(300);
+      expect(keyed.filter((k) => !live.has(k)), `${locale}: stale`).toEqual([]);
+      const have = new Set(keyed);
+      expect([...live].filter((l) => !have.has(l)), `${locale}: untranslated`).toEqual([]);
+    }
   });
 });

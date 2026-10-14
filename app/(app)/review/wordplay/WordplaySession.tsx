@@ -214,7 +214,7 @@ export function WordplaySession({ plan: initial }: { plan: WordplayPlan | null }
 
   if (!plan) {
     return (
-      <Page title="Sõnamäng" lead={t("Words that aren't what they look like.")}>
+      <Page title="Sõnamäng" lead={t("Words that say exactly what they are, and a few that only look English.")}>
         <Empty
           title={t("No words to play with today")}
           action={<ButtonLink href="/practice" variant="primary">{t("Back to practice")}</ButtonLink>}
@@ -433,7 +433,6 @@ function ApartCard({
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Word for word")}</p>
             <p className={`mt-1 inline-block text-xl font-bold ${answered ? "" : "say-wobble"}`} style={{ color: answered ? "var(--ink-3)" : "var(--ink)" }}>
               <span className="say-strike" data-struck={answered}>{quoted(t(step.literal, W), locale)}</span>
-              {!answered && <span aria-hidden style={{ color: "var(--accent-deep)" }}> ?!</span>}
             </p>
           </div>
         )}
@@ -446,7 +445,7 @@ function ApartCard({
             </p>
             <p className="pop-in mt-3 flex items-center justify-center gap-1.5 text-md font-semibold" style={{ color: right ? VERDICT_INK.right : "var(--ink-2)" }}>
               {right ? <Check size={16} aria-hidden /> : null}
-              {right ? t("You guessed it!") : t("Not that one. The pieces were pulling the other way.")}
+              {right ? t("You guessed it.") : t("Not that one, but now you know.")}
             </p>
           </div>
         )}
@@ -704,8 +703,8 @@ function DoneScreen({ plan, guessed, firstTime, notFooled }: {
       </div>
 
       <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
-        <StatTile value={`${guessed} / ${total}`} label={t("Guessed before reading")} tone="sky" />
-        <StatTile value={`${firstTime} / ${total}`} label={t("First time")} tone="sky" />
+        <StatTile value={`${guessed} / ${total}`} label={t("Guessed right")} tone="sky" />
+        <StatTile value={`${firstTime} / ${total}`} label={t("Named first time")} tone="sky" />
         <StatTile value={`${notFooled} / ${plan.friends.length}`} label={t("Not fooled")} tone="sky" />
       </div>
       <WayOut className="mt-8 flex flex-wrap justify-center gap-3">

@@ -829,7 +829,7 @@ export const ROUNDS: Area = {
       "Собака в офисе",
     "A bear doing the shopping":
       "Медведь за покупками",
-    "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a glass of beer, a basket and a fir tree outside.":
+    "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a glass of beer, a basket and a spruce tree outside.":
       "Корова сидит в жаркой сауне: ведро воды, банный веник, огонь, стакан пива, корзина и ель за окном.",
     "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.":
       "Кошка ведёт машину мимо светофора, за ней бежит собака, а ещё дорога, дерево, дом и клетчатый флаг.",
@@ -1825,7 +1825,7 @@ export const ROUNDS: Area = {
       "Собака в офісі",
     "A bear doing the shopping":
       "Ведмідь на закупах",
-    "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a glass of beer, a basket and a fir tree outside.":
+    "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a glass of beer, a basket and a spruce tree outside.":
       "Корова сидить у гарячій сауні: відро води, банний віник, вогонь, склянка пива, кошик і ялина надворі.",
     "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.":
       "Кіт веде машину повз світлофор, за ним біжить собака, а ще дорога, дерево, будинок і картатий прапор.",

@@ -99,7 +99,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "fridge", word: "külmkapp",
     parts: [p("külm", "külm", "cold"), p("kapp", "kapp", "cupboard")],
     literal: "cold cupboard", means: "fridge",
-    quip: "Which is exactly what a fridge is, once you stop and think about it.",
+    quip: "A cupboard that's cold. Estonian saw no need to say more.",
   },
   {
     id: "bicycle", word: "jalgratas",
@@ -111,7 +111,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "shoe", word: "jalanõu",
     parts: [p("jala", "jalg", "foot"), p("nõu", "nõu", "dish, vessel")],
     literal: "foot dish", means: "a shoe, any footwear",
-    quip: "A little bowl for your foot. Estonian shoes are practical like that.",
+    quip: "The second half is a vessel, as in the dishes you wash. A little bowl for your foot, then.",
   },
   {
     id: "capital", word: "pealinn",
@@ -129,7 +129,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "marriage", word: "abielu",
     parts: [p("abi", "abi", "help"), p("elu", "elu", "life")],
     literal: "help life", means: "marriage",
-    quip: "Make of that what you will.",
+    quip: "A life of helping each other. As definitions of marriage go, a sensible one.",
   },
   {
     id: "spouse", word: "abikaasa",
@@ -141,7 +141,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "world", word: "maailm",
     parts: [p("maa", "maa", "land"), p("ilm", "ilm", "air, sky", "weather")],
     literal: "land and air", means: "world",
-    quip: "The second half once meant the air and the world under it. Today it mostly means the weather, which some days is the whole world.",
+    quip: "The second half still means the world in a few old phrases. Today it mostly means the weather, which some days is the whole world.",
   },
   {
     id: "kitten", word: "kassipoeg",
@@ -189,7 +189,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "day-before-yesterday", word: "üleeile",
     parts: [p("üle", "üle", "over"), p("eile", "eile", "yesterday")],
     literal: "over yesterday", means: "the day before yesterday",
-    quip: "One word where English needs four.",
+    quip: "One word where English needs four, and it has a twin for the other direction.",
   },
   {
     id: "day-after-tomorrow", word: "ülehomme",
@@ -219,13 +219,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "umbrella", word: "vihmavari",
     parts: [p("vihma", "vihm", "rain"), p("vari", "vari", "shadow, shade")],
     literal: "rain shade", means: "umbrella",
-    quip: "Shade, but for rain. In Estonia you'll want one for both, sometimes on the same day.",
+    quip: "Shade, but for rain. In an Estonian summer you may need it for sun and rain on the same day.",
   },
   {
     id: "grape", word: "viinamari",
     parts: [p("viina", "viin", "vodka"), p("mari", "mari", "berry")],
     literal: "vodka berry", means: "grape",
-    quip: "Wrong drink, right idea.",
+    quip: "The first half is vodka today, but it was borrowed from the German for wine. Wrong drink, right idea.",
   },
   {
     id: "garlic", word: "küüslauk",
@@ -237,7 +237,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "roe", word: "kalamari",
     parts: [p("kala", "kala", "fish"), p("mari", "mari", "berry")],
     literal: "fish berry", means: "roe",
-    quip: "Caviar, as a fish would describe it.",
+    quip: "Nothing to do with calamari. Fish berries is exactly what roe looks like on a plate.",
   },
   {
     id: "dream", word: "unenägu",
@@ -255,7 +255,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "deadline", word: "tähtaeg",
     parts: [p("täht", "täht", "mark, fixed point", "letter"), p("aeg", "aeg", "time")],
     literal: "marked time", means: "deadline",
-    quip: "The first half is a fixed mark, as on a red-letter day. It is also a star, but a deadline is rarely written in the stars.",
+    quip: "The first half is a mark, the kind you set on a calendar. It also means a star, but deadlines are rarely written in the stars.",
   },
   {
     id: "slow-motion", word: "aegluup",
@@ -267,7 +267,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "schadenfreude", word: "kahjurõõm",
     parts: [p("kahju", "kahju", "damage, pity"), p("rõõm", "rõõm", "joy")],
     literal: "damage joy", means: "schadenfreude",
-    quip: "German isn't the only language with a word for it.",
+    quip: "Translated piece by piece from the German, so it's the same mean little joy in another language.",
   },
   {
     id: "volcano", word: "tulemägi",
@@ -291,7 +291,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "flatulence", word: "kõhutuul",
     parts: [p("kõhu", "kõht", "stomach"), p("tuul", "tuul", "wind")],
     literal: "stomach wind", means: "breaking wind (flatus)",
-    quip: "Polite enough for a doctor, clear enough for everybody else.",
+    quip: "It names the thing plainly, and nobody is left wondering what you mean.",
   },
   {
     id: "earth", word: "maamuna",
@@ -303,7 +303,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "eyeball", word: "silmamuna",
     parts: [p("silma", "silm", "eye"), p("muna", "muna", "egg")],
     literal: "eye egg", means: "eyeball",
-    quip: "Breakfast vocabulary, anatomy meaning.",
+    quip: "Sounds like breakfast, means anatomy.",
   },
   {
     id: "puffball", word: "murumuna",
@@ -344,7 +344,7 @@ export const COMPOUNDS: readonly Compound[] = [
   {
     id: "giraffe", word: "kaelkirjak",
     parts: [p("kael", "kael", "neck"), p("kirjak", "kirjak", "spotted one")],
-    literal: "neck spotty one", means: "giraffe",
+    literal: "spotted neck one", means: "giraffe",
     quip: "Two facts about a giraffe, and Estonian kept both.",
   },
   {
@@ -363,7 +363,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "raccoon", word: "pesukaru",
     parts: [p("pesu", "pesu", "washing"), p("karu", "karu", "bear")],
     literal: "washing bear", means: "raccoon",
-    quip: "It rinses its food before eating, which is more than some of us manage.",
+    quip: "It's famous for dunking its food in water first, which is more than some of us manage.",
   },
   {
     id: "echidna", word: "sipelgasiil",
@@ -399,13 +399,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "starling", word: "kuldnokk",
     parts: [p("kuld", "kuld", "gold"), p("nokk", "nokk", "beak")],
     literal: "gold beak", means: "starling",
-    quip: "Its beak turns yellow in spring, so it got a golden name for it.",
+    quip: "Its beak turns yellow in spring, which may be how it earned the gold.",
   },
   {
     id: "waxwing", word: "siidisaba",
     parts: [p("siidi", "siid", "silk"), p("saba", "saba", "tail")],
     literal: "silk tail", means: "waxwing",
-    quip: "A bird named after the fanciest part of it.",
+    quip: "Its feathers really are silky. English named it for the wings, Estonian for the tail.",
   },
   {
     id: "razor", word: "habemenuga",
@@ -423,13 +423,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "arm", word: "käsivars",
     parts: [p("käsi", "käsi", "hand"), p("vars", "vars", "shaft, stalk")],
     literal: "hand shaft", means: "arm",
-    quip: "The second half is the shaft of a limb, the same word for a plant's stalk. Picture the stalk version and you won't forget it.",
+    quip: "The second half is the shaft of a limb, and the same word names a plant's stalk. Picture that and you won't forget it.",
   },
   {
     id: "hanger", word: "riidepuu",
-    parts: [p("riide", "riie", "cloth"), p("puu", "puu", "tree")],
-    literal: "cloth tree", means: "clothes hanger",
-    quip: "A tree that grows coats, given a cupboard to live in.",
+    parts: [p("riide", "riie", "cloth"), p("puu", "puu", "wood", "tree")],
+    literal: "cloth wood", means: "clothes hanger",
+    quip: "Here the second half is the wood a coat hangs on, but it is also the word for a tree. Picture one that grows coats.",
   },
   {
     id: "ruler", word: "joonlaud",
@@ -471,7 +471,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dictionary", word: "sõnaraamat",
     parts: [p("sõna", "sõna", "word"), p("raamat", "raamat", "book")],
     literal: "word book", means: "dictionary",
-    quip: "A book of words. This app keeps one too, minus the paper.",
+    quip: "German says the same: a word book.",
   },
   {
     id: "snowman", word: "lumememm",
@@ -549,7 +549,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "all", word: "all", looksLike: "all", means: "under, below",
-    quip: "Under, not everything. A tiny word with a big misunderstanding in it.",
+    quip: "Under, not everything. Though under the sofa is where everything ends up eventually.",
   },
   {
     id: "tool", word: "tool", looksLike: "tool", means: "chair",
@@ -557,7 +557,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "seen", word: "seen", looksLike: "seen", means: "mushroom",
-    quip: "Not the past tense of see. It's what people head into the forest for every autumn, basket in hand.",
+    quip: "Nothing to do with having seen anything. It's what people head into the forest for every autumn, basket in hand.",
   },
   {
     id: "kook", word: "kook", looksLike: "cook", means: "cake",
@@ -585,7 +585,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "hind", word: "hind", looksLike: "hind", means: "price",
-    quip: "The price, not the back end. Worth a look before you get to the till.",
+    quip: "The price, not the back legs. A high one still makes people step back.",
   },
   {
     id: "tee", word: "tee", looksLike: "tee", means: "road, tea",
@@ -596,8 +596,8 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "A ball, not a gloomy mood. Most football matches end somewhere in between.",
   },
   {
-    id: "laud", word: "laud", looksLike: "laud", means: "table",
-    quip: "A table, not praise. Praise the cook instead, once the food is on it.",
+    id: "tore", word: "tore", looksLike: "tore", means: "great, lovely",
+    quip: "Lovely, not ripped. You'll hear it about a party, a film and a sunny Saturday.",
   },
   {
     id: "pill", word: "pill", looksLike: "pill", means: "musical instrument",
@@ -608,8 +608,8 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "A tower, not ripped. Unless something has gone very wrong with the building.",
   },
   {
-    id: "vale", word: "vale", looksLike: "vale", means: "wrong",
-    quip: "Wrong, not a valley. Poets, take note.",
+    id: "vale", word: "vale", looksLike: "vale", means: "wrong, false",
+    quip: "Wrong, or a lie. Not a valley, poets.",
   },
   {
     id: "veri", word: "veri", looksLike: "very", means: "blood",

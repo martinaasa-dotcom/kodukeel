@@ -239,7 +239,7 @@ export const PICTURES: readonly Picture[] = [
   */
   {
     id: "sauna-cow",
-    alt: "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a glass of beer, a basket and a fir tree outside.",
+    alt: "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a glass of beer, a basket and a spruce tree outside.",
     title: "A cow at the sauna",
     rows: ["🧖 🐄 💦", "🪣 🌿 🔥", "🍺 🌲 🧺"],
     things: [

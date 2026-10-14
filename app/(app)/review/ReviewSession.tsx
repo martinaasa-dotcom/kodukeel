@@ -1508,7 +1508,7 @@ export function ReviewSession({
               title={t("You're all caught up")}
               body={nextDue ?? (totalCards === 1
                 ? t("Your one card is having a rest. It'll come back when it's time.")
-                : fill(t("All {n} of your cards are having a lie-down. Each one comes back when it's time."), { n: totalCards }))}
+                : fill(t("Your {n} cards are all having a lie-down. Each one comes back when it's time."), { n: totalCards }))}
               action={<ButtonLink href="/learn/new" variant="primary">{t("Learn some new words")}</ButtonLink>}
             />
           )

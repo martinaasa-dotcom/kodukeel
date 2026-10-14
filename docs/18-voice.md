@@ -339,7 +339,15 @@ sentence written for a laugh is held to every rule `lib/dict/authored.ts` states
   so in Russian and Ukrainian the English it looks like stays and its meaning follows in brackets,
   «pea (горошина)». And a word-for-word reading may never come out as the meaning itself once
   translated, or the answer is printed above its own question; `literally.test.ts` checks both
-  languages.
+  languages, and that no translation of a line the table no longer has is left behind.
+- **Undercut the word it teaches.** A written sentence is often the first time somebody meets a
+  word, so the joke may never contradict or blur what the word means. "I never drink tea. Only every
+  day." is funny to somebody who already knows `kunagi` and teaches the opposite to somebody who
+  does not. The everyday construction a word exists for, "Mul on külm", has to survive the joke.
+- **Run on one template.** "It's bad, but I do it anyway" is funny once. The sentences use several
+  shapes, a second sentence that turns the first, a reversal, a callback, and "X, aga Y" is kept to
+  about a fifth of them, because a learner meets these in a row and a formula shows by the second
+  week.
 
 **Who reads it.** Every line is drafted in a session and read by the operator before it reaches
 anybody. Estonian in it is read by the native speaker who develops this app in the pull request,
