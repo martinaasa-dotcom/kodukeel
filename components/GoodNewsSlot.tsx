@@ -4,7 +4,7 @@ import { goodNewsWithin } from "@/lib/dict/goodNews";
 /**
  * The good news, streamed in after the rest of Today.
  *
- * A cold hour is three feeds and a model call, which is the one thing on the
+ * A cold hour is three feeds and a dictionary read, which is the one thing on the
  * page that could take seconds, and the card is a pleasure rather than the
  * point. Drawn inside a `Suspense` with nothing as its fallback, so the page
  * goes out without waiting for it and the card arrives when it is ready, at
@@ -16,7 +16,7 @@ import { goodNewsWithin } from "@/lib/dict/goodNews";
  */
 const STREAM_MS = 8000;
 
-export async function GoodNewsSlot({ ownerId }: { ownerId: string }) {
-  const stories = await goodNewsWithin(ownerId, STREAM_MS);
+export async function GoodNewsSlot() {
+  const stories = await goodNewsWithin(STREAM_MS);
   return stories && stories.length > 0 ? <GoodNewsCard stories={stories} /> : null;
 }
