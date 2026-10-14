@@ -42,6 +42,15 @@ async function blocks(page) {
       document: document.documentElement.scrollHeight,
       section: section ? rect(section) : 0,
       blocks: [...inside, ...after],
+      // Where the way on sits on the screen before anybody scrolls, which is
+      // the third cut's whole point: on the window, not under it.
+      continueOnScreen: (() => {
+        window.scrollTo(0, 0);
+        const next = [...document.querySelectorAll("button")].find((b) => b.querySelector("svg.lucide-arrow-right"));
+        if (!next) return null;
+        const r = next.getBoundingClientRect();
+        return r.bottom <= window.innerHeight && r.top >= 0;
+      })(),
       continueTop: (() => {
         const next = [...document.querySelectorAll("button")].find((b) => b.querySelector("svg.lucide-arrow-right"));
         return next ? Math.round(next.getBoundingClientRect().top + window.scrollY) : null;
@@ -52,7 +61,7 @@ async function blocks(page) {
 
 function print(locale, step, m) {
   const verdict = m.document <= TARGET ? "under" : "over";
-  console.log(`\n${locale}, step ${step}: document ${m.document}px (${verdict} the ${TARGET}px target), step section ${m.section}px, Continue at ${m.continueTop ?? "?"}px`);
+  console.log(`\n${locale}, step ${step}: document ${m.document}px (${verdict} the ${TARGET}px target), step section ${m.section}px, Continue at ${m.continueTop ?? "?"}px, on screen before scrolling: ${m.continueOnScreen ? "yes" : "no"}`);
   for (const b of m.blocks) console.log(`  ${String(b.height).padStart(5)}px  ${b.what}`);
 }
 

@@ -1142,7 +1142,18 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
           </section>
         )}
 
-        <div className="mt-10 flex items-center gap-3">
+        {/*
+          Pinned to the foot of the window, so the way on is on the screen
+          whatever the step's height: on a phone the last two steps run to
+          several screens, and a Continue somebody has to scroll to find reads
+          as a form that never ends. The card's own ground behind it and a rule
+          above it, so what scrolls under it is not read through it.
+        */}
+        <div
+          className="sticky bottom-0 z-10 -mx-7 mt-10 flex items-center gap-3 border-t px-7 py-3 md:-mx-10 md:px-10"
+          style={{ background: "var(--surface)", borderColor: "var(--rule-soft)" }}
+          data-wizard-nav
+        >
           {step > 0 && (
             <Button variant="ghost" onClick={() => go((s) => s - 1)} disabled={pending}>
               <ArrowLeft size={15} aria-hidden /> {t("Back")}
