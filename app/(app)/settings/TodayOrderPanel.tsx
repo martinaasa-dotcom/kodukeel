@@ -2,7 +2,7 @@
 
 import { Fragment, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, EyeOff } from "lucide-react";
 import { setTodayOrder } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { TODAY_CARDS } from "@/lib/ux/disclosure";
@@ -30,25 +30,35 @@ import {
  * these, so the position a card is moved to is also what decides whether it
  * is drawn at all, and a rule that decides that silently is a rule somebody
  * discovers by their homework going missing. The rows past the cut say so.
+ *
+ * A CARD CAN BE HIDDEN, AND KEEPS ITS PLACE. The eye on each row takes the
+ * card off Today altogether and lets the next one up into its place; the row
+ * stays where it is, greyed and saying "Hidden" in words, so showing it again
+ * puts it back exactly where it was. Hidden rows do not count toward the cut,
+ * because they are not drawn.
  */
-export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) {
+export function TodayOrderPanel({ current, hidden: hiddenNow }: { current: readonly TodaySlot[]; hidden: readonly TodaySlot[] }) {
   const t = useT();
   const locale = useLocale();
   const [order, setOrder] = useState<readonly TodaySlot[]>(current);
+  const [hidden, setHidden] = useState<ReadonlySet<TodaySlot>>(() => new Set(hiddenNow));
   const [message, setMessage] = useState("");
   const [pending, start] = useTransition();
   const router = useRouter();
 
   const byId = new Map(TODAY_SLOTS.map((s) => [s.id, s] as const));
 
-  const save = (next: readonly TodaySlot[], said: string) => {
+  const save = (next: readonly TodaySlot[], said: string, nextHidden: ReadonlySet<TodaySlot> = hidden) => {
     const was = order;
+    const wasHidden = hidden;
     setOrder(next);
+    setHidden(nextHidden);
     setMessage(said);
     start(async () => {
-      const landed = await setTodayOrder(serialiseTodayOrder(next)).then(() => true).catch(() => false);
+      const landed = await setTodayOrder(serialiseTodayOrder(next, nextHidden)).then(() => true).catch(() => false);
       if (!landed) {
         setOrder(was);
+        setHidden(wasHidden);
         setMessage(t("That didn't save, so we've put the order back the way it was."));
         return;
       }
@@ -65,16 +75,31 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
     save(next, fill(t(to > TODAY_CARDS ? "{title} is now {place}, so it only appears on days when there's room." : "{title} is now {place}."), { title, place }));
   };
 
+  const toggle = (slot: TodaySlot) => {
+    const next = new Set(hidden);
+    const title = t(byId.get(slot)?.title ?? slot);
+    if (next.has(slot)) next.delete(slot);
+    else next.add(slot);
+    save(order, fill(t(next.has(slot) ? "{title} is hidden from Today." : "{title} is back on Today."), { title }), next);
+  };
+
+  const onlyHidden = isDefaultTodayOrder(order) && hidden.size > 0;
+  // A row's place among the cards that are drawn, which is what the cut counts.
+  let shown = 0;
+
   return (
     <div className="flex flex-col gap-3">
       <ol className="@container flex flex-col gap-2">
         {order.map((slot, i) => {
           const entry = byId.get(slot);
           if (!entry) return null;
-          const pastCut = i >= TODAY_CARDS;
+          const isHidden = hidden.has(slot);
+          const place = isHidden ? null : shown++;
+          const pastCut = place !== null && place >= TODAY_CARDS;
+          const muted = pastCut || isHidden;
           return (
             <Fragment key={slot}>
-            {i === TODAY_CARDS && (
+            {place === TODAY_CARDS && (
               /* The cut, said once in words where it falls rather than on
                  every row under it. Hidden from a screen reader, which hears
                  it on each row instead. */
@@ -87,19 +112,20 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
             <li
               className="flex items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3"
               style={{
-                borderColor: pastCut ? "var(--rule-soft)" : "var(--rule)",
-                background: pastCut ? "var(--raised)" : "var(--surface)",
+                borderColor: muted ? "var(--rule-soft)" : "var(--rule)",
+                background: muted ? "var(--raised)" : "var(--surface)",
               }}
+              data-hidden-card={isHidden || undefined}
             >
               <span
                 className="tnum w-6 shrink-0 text-center text-sm font-bold"
-                style={{ color: pastCut ? "var(--ink-3)" : "var(--accent-deep)" }}
+                style={{ color: muted ? "var(--ink-3)" : "var(--accent-deep)" }}
                 aria-hidden
               >
-                {i + 1}
+                {place === null ? <EyeOff size={14} className="mx-auto" /> : place + 1}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>
+                <span className="block text-base font-semibold" style={{ color: muted ? "var(--ink-2)" : "var(--ink)" }}>
                   {t(entry.title)}
                 </span>
                 <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
@@ -109,7 +135,22 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
                     greyer row is a hue carrying a distinction on its own.
                   */}
                   {pastCut ? <span className="sr-only"> {t("Only appears on days when a card above it has nothing to show.")}</span> : null}
+                  {isHidden ? <span className="block font-semibold"> {t("Hidden from Today.")}</span> : null}
                 </span>
+                {/* In words rather than an eye alone: an eye on a row reads
+                    as either "this is shown" or "press to hide", and the
+                    two are opposites. */}
+                <button
+                  type="button"
+                  className="tap-tint mt-1 inline-flex items-center gap-1.5 text-sm font-semibold"
+                  style={{ color: "var(--accent-deep)" }}
+                  aria-label={fill(t(isHidden ? "Show {title} on Today" : "Hide {title} from Today"), { title: t(entry.title) })}
+                  disabled={pending}
+                  onClick={() => toggle(slot)}
+                >
+                  {isHidden ? <Eye size={15} aria-hidden /> : <EyeOff size={15} aria-hidden />}
+                  {t(isHidden ? "Show" : "Hide")}
+                </button>
               </span>
               {/* Stacked until the list has room for them side by side: two
                   44px arrows in a row left the card's title 68px at 320 and
@@ -141,13 +182,13 @@ export function TodayOrderPanel({ current }: { current: readonly TodaySlot[] }) 
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p role="status" className="text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>
-        {!isDefaultTodayOrder(order) && (
+        {(!isDefaultTodayOrder(order) || hidden.size > 0) && (
           <Button
             size="sm"
             disabled={pending}
-            onClick={() => save(DEFAULT_TODAY_ORDER, t("Back to the usual order."))}
+            onClick={() => save(DEFAULT_TODAY_ORDER, t(onlyHidden ? "Every card is back on Today." : "Back to the usual order."), new Set())}
           >
-            {t("Go back to the usual order")}
+            {t(onlyHidden ? "Show every card again" : "Go back to the usual order")}
           </Button>
         )}
       </div>

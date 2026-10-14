@@ -48,26 +48,14 @@ export async function readableHeadlines(limit = 3): Promise<ReadableHeadline[]> 
   const key = headlines.join("\n");
   if (memo?.key === key) return memo.result.slice(0, limit);
 
-  const tokenised = headlines.map(tokenise);
-  const words = [...new Set(
-    tokenised.flatMap((tokens) => tokens.filter((t) => t.word).map((t) => t.text.toLocaleLowerCase("et"))),
-  )];
-  const candidates = await candidatesFor(words);
+  const annotated = await annotateTexts(headlines);
 
   const scored: ReadableHeadline[] = [];
-  for (const tokens of tokenised) {
-    const wordCount = tokens.filter((t) => t.word).length;
+  for (const headline of annotated) {
+    const wordCount = headline.tokens.filter((t) => t.word).length;
     if (wordCount < MIN_WORDS || wordCount > MAX_WORDS) continue;
-    let vouched = 0;
-    const annotated = tokens.map((token) => {
-      if (!token.word) return { ...token, lemma: null };
-      const match = matchEstonianForm(candidates, token.text.toLocaleLowerCase("et"));
-      if (match) vouched += 1;
-      return { ...token, lemma: match?.lemma ?? null };
-    });
-    const covered = vouched / wordCount;
-    if (covered < MIN_COVERED) continue;
-    scored.push({ tokens: annotated, covered });
+    if (headline.covered < MIN_COVERED) continue;
+    scored.push(headline);
   }
   // Most readable first; the feed's own order settles a tie so the pick is stable within the hour.
   const result = scored
@@ -78,3 +66,35 @@ export async function readableHeadlines(limit = 3): Promise<ReadableHeadline[]> 
   return result.slice(0, limit);
 }
 
+/**
+ * Any Estonian somebody else wrote, with the dictionary under every word it
+ * will vouch for: a headline, the good news on Today, the joke of the day.
+ * One query for every word of every text, which is what the headlines block
+ * always did and is now the one place it is done, so the three cannot
+ * disagree about which words open.
+ */
+/** The same texts with no dictionary under them, for when the dictionary cannot be asked. */
+export function plainTexts(texts: readonly string[]): ReadableHeadline[] {
+  return texts.map((text) => ({ tokens: tokenise(text).map((token) => ({ ...token, lemma: null })), covered: 0 }));
+}
+
+export async function annotateTexts(texts: readonly string[]): Promise<ReadableHeadline[]> {
+  if (texts.length === 0) return [];
+  const tokenised = texts.map(tokenise);
+  const words = [...new Set(
+    tokenised.flatMap((tokens) => tokens.filter((t) => t.word).map((t) => t.text.toLocaleLowerCase("et"))),
+  )];
+  const candidates = await candidatesFor(words);
+  return tokenised.map((tokens) => {
+    let vouched = 0;
+    let count = 0;
+    const annotated = tokens.map((token) => {
+      if (!token.word) return { ...token, lemma: null };
+      count += 1;
+      const match = matchEstonianForm(candidates, token.text.toLocaleLowerCase("et"));
+      if (match) vouched += 1;
+      return { ...token, lemma: match?.lemma ?? null };
+    });
+    return { tokens: annotated, covered: count === 0 ? 0 : vouched / count };
+  });
+}

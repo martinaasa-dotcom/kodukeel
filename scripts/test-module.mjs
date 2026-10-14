@@ -53,7 +53,7 @@ const MODULE_SCREENS = [
   "/review/match", "/review/listening", "/review/sentences", "/review/dictation",
   "/review/describe", "/sonad", "/review/conjugation",
   "/review/speaking", "/review/write", "/review/government", "/review/exceptions",
-  "/review/flashcards", "/review/letters",
+  "/review/flashcards", "/review/letters", "/review/workbook",
   "/review", "/course/learn", "/situations/poodi-piima",
   "/grammar/topic/imperative", "/grammar/topic/government", "/grammar/inessive",
 ];

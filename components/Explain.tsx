@@ -29,7 +29,7 @@ import { Tr } from "@/components/Tr";
  * open on a printed page. No state, no effect, no hydration, so it works in a
  * server component, which is where most of this copy lives.
  */
-export function Explain({ label, children }: {
+export function Explain({ label, children, plain }: {
   /**
    * What the reader is being offered, in three or four words.
    *
@@ -39,6 +39,11 @@ export function Explain({ label, children }: {
    */
   label?: string;
   children: ReactNode;
+  /**
+   * The content brings its own boxes (`RuleNote`), so it is not set in the
+   * panel as well: a box in a box in a card is three edges for one thing.
+   */
+  plain?: boolean;
 }) {
   return (
     <details className="explain">
@@ -53,9 +58,13 @@ export function Explain({ label, children }: {
           writing a sentence with a link in it hands over text nodes and an
           anchor, and a flex column put each on a line of its own, so the full
           stop after "add yourself" opened the next row. */}
-      <div className="mt-2 space-y-2 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-        {children}
-      </div>
+      {plain ? (
+        <div className="mt-2">{children}</div>
+      ) : (
+        <div className="explain-panel text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          {children}
+        </div>
+      )}
     </details>
   );
 }

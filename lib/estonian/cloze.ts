@@ -118,9 +118,73 @@ export function sizedBlank(textWithBlank: string, answer: string): string {
 export function whereWhole(text: string, word: string): { index: number; length: number } | null {
   const wanted = word.trim();
   if (!wanted) return null;
-  const escaped = wanted.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const found = new RegExp(`(?<![\\p{L}\\p{M}-])${escaped}(?![\\p{L}\\p{M}-])`, "iu").exec(text);
-  return found ? { index: found.index, length: found[0].length } : null;
+  const pattern = wholeWord(wanted);
+  pattern.lastIndex = 0;
+  for (let found = pattern.exec(text); found; found = pattern.exec(text)) {
+    const end = found.index + found[0].length;
+    if (!isWordChar(charBefore(text, found.index)) && !isWordChar(charAt(text, end))) {
+      return { index: found.index, length: found[0].length };
+    }
+    // Step one code unit on, so a run like `aaa` is tried at every position
+    // the old lookaround pattern would have tried it at.
+    pattern.lastIndex = found.index + 1;
+  }
+  return null;
+}
+
+/*
+  THE BOUNDARY IS ONE STATIC CLASS, AND THE WORD IS A PLAIN PATTERN.
+
+  This was a single expression with the boundary written as lookarounds,
+  `(?<![\p{L}\p{M}-])word(?![\p{L}\p{M}-])` under `iu`, compiled afresh on
+  every call. A case-folded Unicode property class is the expensive kind of
+  regular expression to build: measured at about a millisecond a compile, and
+  `mentions` is asked hundreds of times per word by every builder that refuses
+  a giveaway (`askableSlots` asks it for every case of every word, which made
+  it fourteen milliseconds a noun and a workbook page several seconds). The
+  same rule is now the escaped word matched case-insensitively, which compiles
+  in microseconds, and the character either side of each match tested against
+  `WORD_CHAR`, which is compiled once. Same characters, same case folding,
+  same answer; asserted against the old expression in `cloze.test.ts`.
+*/
+const WORD_CHAR = /^[\p{L}\p{M}-]$/u;
+
+function isWordChar(ch: string): boolean {
+  return ch !== "" && WORD_CHAR.test(ch);
+}
+
+/** The code point ending just before `index`, whole even where it is a surrogate pair. */
+function charBefore(text: string, index: number): string {
+  if (index <= 0) return "";
+  const low = text.charCodeAt(index - 1);
+  if (low >= 0xdc00 && low <= 0xdfff && index >= 2) return text.slice(index - 2, index);
+  return text.charAt(index - 1);
+}
+
+/** The code point starting at `index`, whole. */
+function charAt(text: string, index: number): string {
+  if (index >= text.length) return "";
+  return String.fromCodePoint(text.codePointAt(index)!);
+}
+
+/*
+  And the plain pattern is kept per word, since the same word is asked about
+  over and over (a gap's own answer against every candidate sentence). Bounded
+  and dropped whole when full, because a cache with no ceiling is a leak with
+  a hit rate. The `g` flag is what lets the loop above walk the matches;
+  `lastIndex` is reset before every use, so sharing one pattern is safe.
+*/
+const WHOLE_WORD = new Map<string, RegExp>();
+const WHOLE_WORD_MAX = 20_000;
+
+function wholeWord(wanted: string): RegExp {
+  let pattern = WHOLE_WORD.get(wanted);
+  if (!pattern) {
+    if (WHOLE_WORD.size >= WHOLE_WORD_MAX) WHOLE_WORD.clear();
+    pattern = new RegExp(wanted.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "giu");
+    WHOLE_WORD.set(wanted, pattern);
+  }
+  return pattern;
 }
 
 export function mentions(text: string, word: string): boolean {

@@ -134,7 +134,7 @@ are worth the top model (a wrong case explanation is actively harmful to a learn
 means the multi-thousand-token grammar prompt is paid for once per session rather than per turn.
 Details and cost model in `06-anu-tutor.md`.
 
-**ADR-005: Retrieve morphology, never generate it. (AMENDED, four times, below.)**
+**ADR-005: Retrieve morphology, never generate it. (AMENDED, five times, below.)**
 *Context:* an LLM will happily produce a plausible, wrong partitive plural. *Decision:* authoritative
 forms come from Ekilex only; AI output is tagged `provenance: AI` and requires explicit confirmation
 before entering a card's answer field. *Consequences:* the dictionary is bounded by Ekilex coverage;
@@ -205,13 +205,30 @@ filed under and passes `naturalSentence`; it has an English line with no Estonia
 not a sentence Ekilex already recorded, a duplicate, or one somebody refused. **Where they may go is
 the other half and is asserted**: the Learn ladder, the first meeting on a review card and the unit
 lesson, which are the screens that introduce a word, and nowhere that marks, measures, builds a card,
-lends a sentence or plays a scene, because each of those says its Estonian was recorded.
+lends a sentence or plays a scene, because each of those says its Estonian was recorded. The
+workbook page joined the list for an A1 or A2 learner: its lines ask the gap rung's question on a
+page, it practises rather than measures, and without written sentences a beginner's page was cut from
+sentences made of words they had not been taught, which left it short or empty.
 *Consequences:* the rule this ADR exists for is untouched, since no form is written, no model writes
 a row at runtime, and every word in a written sentence is one the dictionary vouches for. What is new
 is that the app now authors Estonian *sentences* out of attested words, and whether each is
 grammatical and natural is a person's judgement rather than a lexicographer's, which is why the rows
 are few, short, reviewed, never stored in `Lexeme.examples`, and removable through
 `lib/dict/refused.ts` like any other sentence somebody reads and refuses.
+
+*Amendment 5: a joke a day may be written, and goes on its card and nowhere else.* The operator
+asked for a Juku joke on Today, the kind every Estonian grew up on, and nobody records a joke in a
+dictionary. *Decision:* `lib/collections/jokes.ts` holds them, typed in a session and read by the
+native Estonian speaker who develops this app in the pull request that adds them, on the standing
+amendment 4 and ADR-025 amendment 1 already gave written Estonian. **A machine holds every line to
+the one rule it can check** (`lib/collections/jokes.test.ts`): every word is a spelling the shipped
+forms list knows, Ekilex and Vabamorf with guessing off, or a name let through by name, and every
+English line carries no Estonian letter. **Where they may go is asserted**
+(`scripts/invariants/jokes-stay-on-their-card.ts`): the joke card on Today is the one reader, and
+nothing that marks, measures, builds a card, plays a scene or lends a sentence may import the
+table. *Consequences:* no form is written, no model writes a line, and every word of a joke is one
+the language has; whether the joke is funny and natural is the person's reading, which is why it
+arrives in a pull request and is never stored, graded or put on a card.
 
 **ADR-006: Generic importer instead of a Speakly integration.**
 *Context:* Speakly has no public API and no verifiable export (audit A3). *Decision:* one

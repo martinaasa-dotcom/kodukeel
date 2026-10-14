@@ -75,7 +75,7 @@ import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { alsoShowFrom, glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { localeFrom, tr } from "@/lib/copy/locale";
-import { serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
+import { hiddenSlotsFrom, serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { serialiseNavOrder } from "@/lib/ux/navOrder";
 import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
@@ -112,6 +112,7 @@ import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
 import { matchGrades } from "@/lib/srs/matchGrades";
+import { workbookGrades } from "@/lib/srs/workbookGrades";
 import { MAX_PASSAGE_CHARS, buildPassageCloze, type KnownForm } from "@/lib/estonian/passage";
 import { DEFAULT_DAYS_PER_WEEK, normaliseGoals } from "@/lib/assessment/goals";
 import { PAPER_SIZE } from "@/lib/assessment/items";
@@ -1406,6 +1407,35 @@ export async function recordMatchGrades(grades: unknown) {
   return { ok: true as const, graded: result.settled.length };
 }
 
+/** The most lines one workbook page can hand in: two exercises and their examples, with room. */
+const MAX_WORKBOOK_LINES = 32;
+
+/**
+ * Records a checked workbook exercise in the review log, one write for the
+ * whole exercise.
+ *
+ * The shape `recordMatchGrades` takes, for the reason it gives: a page grades
+ * every line at once, and a line per Server Action is a round trip per line
+ * before the exercise can say how it went. What each line is worth is
+ * `workbookGrades`, pure and unit tested, off the page's own outcome table, so
+ * the screen and the log say the same thing about a line. The slot each line
+ * asked travels with it and `writeGrade` checks it against the closed list.
+ * Ids are minted on the client, so an exercise sent twice settles rather than
+ * counting twice, and one that does not land goes to the outbox with them.
+ */
+export async function recordWorkbookGrades(grades: unknown) {
+  const ownerId = await requireUserId();
+
+  const batch = workbookGrades(grades, MAX_WORKBOOK_LINES, Date.now());
+  if (batch.length === 0) return { ok: false as const, error: "There's nothing to save yet." };
+
+  const result = await applyGradeBatch(ownerId, batch);
+  if (!result.ok) return { ok: false as const, error: result.error ?? "We couldn't save that exercise." };
+  revalidatePath("/");
+  revalidatePath("/words");
+  return { ok: true as const, graded: result.settled.length };
+}
+
 /**
  * Records a finished match round, keeping the fastest time.
  *
@@ -2096,17 +2126,18 @@ export async function setCaseQuestionGloss(value: string) {
 }
 
 /**
- * The order the cards on Today are dealt in.
+ * The order the cards on Today are dealt in, and which of them are hidden.
  *
- * Normalized through the one reader on the way in, so a request cannot store
+ * Normalized through the readers on the way in, so a request cannot store
  * an id Today does not know or leave a slot out: what is written is every
- * slot, once, in the order asked for. Revalidated on Today and on Settings,
+ * slot, once, in the order asked for, with the hidden ones marked. Revalidated on Today and on Settings,
  * which are the two screens that read it.
  */
 export async function setTodayOrder(value: string) {
   const ownerId = await requireUserId();
-  const order = todayOrderFrom(text(value));
-  await writeSetting(ownerId, SETTING_KEYS.todayOrder, serialiseTodayOrder(order));
+  const raw = text(value);
+  const order = todayOrderFrom(raw);
+  await writeSetting(ownerId, SETTING_KEYS.todayOrder, serialiseTodayOrder(order, hiddenSlotsFrom(raw)));
   revalidatePath("/");
   revalidatePath("/settings");
   return { ok: true as const, order };

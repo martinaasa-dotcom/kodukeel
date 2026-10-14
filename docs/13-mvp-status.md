@@ -3302,7 +3302,159 @@ minutes" rather than "about 0 of those hours". The offline page's button is the 
 button rather than a violet one. And `/grammar/sisseütlev`, which is the name this app teaches,
 reaches the case page its Latin slug names instead of a dead end.
 
-## 57. The fifty-first pass: playful, true, and never at the learner's expense
+## 57. The fifty-first pass: a joke and the good news on Today
+
+The operator asked for two cards that ask nothing of anybody: a joke of the day, the Juku kind
+every Estonian grew up on, never repeating if it can help it, and one piece of news from ERR that
+is only ever good news. Both are the fourth row of Today, so `TODAY_CARDS` is eight, and both sit
+last in the shipped order, under the homework, so a teacher's work is never what the cut takes to
+make room for a joke. Both are true on the first morning, so both are drawn from the first minute.
+
+**The jokes are written, and that is ADR-005 amendment 5.** 188 of them in
+`lib/collections/jokes.ts`, each a short dialogue with an English line beside every line, typed in
+the session and for the native speaker to read in the pull request. `jokes.test.ts` holds every
+word of every Estonian line to the shipped forms list (names let through by name, two words on
+purpose with the reason beside them), no Estonian in the English, and no joke told twice. Which
+one is `dayIndex`'s stride walk, so none repeats for 188 days and two days running are far apart.
+The card draws the joke as a little conversation, Juku's lines on the right in the accent's tint,
+puts the dictionary under every word it knows, offers the English behind a press rather than
+beside the Estonian (a joke worked out is funnier and teaches more), reads it aloud, and walks
+five spares on "Another one" without asking the server for anything.
+
+**The good news is ERR's own headline, word for word.** Culture and science first, where the
+openings, prizes and discoveries are, then the front page, which measured 32 of 50 headlines
+refused on the day this was built. A list of bad-news stems refuses on every path and errs toward
+refusing; then a metered model on the grader's chain picks what is plainly good and says it in
+English, told to reject whatever it is unsure of, and its picks go through the bad-news list
+again. With no model, a headline has to carry a good-news stem as well. The answer is held an hour
+for the instance, Today never waits for it (the card streams in behind a `Suspense` after the rest
+of the page, `GoodNewsSlot`), and on an hour with nothing good the card is absent rather than empty. The dictionary under the words is the
+headlines block's own gate, now one function (`annotateTexts`) and one drawing (`LinkedWords`)
+for the headlines, the good news and the joke.
+
+**And then a polish pass on both cards.** A joke is a setup, a beat and an answer, and printing
+all three at once tells it badly, since the eye lands on the last bubble first. So the last line
+waits in a bubble of three dots ("Tap for the punchline"), lands with the small pop a
+conversation's lines use, and takes focus so a screen reader reads it; the speaker reads only what
+is on the card, so it does not give the answer away either. A one-line joke is drawn whole. The
+English toggle's label lost a word so both buttons fit one row on a phone. The news card hands over
+the best headline and up to two behind it, so it gets its own "Another one", and its caption
+explaining the dotted words went, because the dotted underline already says it (the rule about
+"Any underlined word opens its meaning"). One joke had a wrong word: "Nende aukus pükstega?" is
+"Nende auklike pükstega?", holey rather than in a hole.
+
+**And the joke is heard as a little play.** The speaker reads it a line at a time, Juku in Tambet's
+voice (the clearest on the list), the women around him in Mari's, the men in Kalev's, Mari the
+classmate in Liivika's, and the narrator in the learner's own; the bubble being said lights up, and
+every line is fetched on the first press so the only pause between two people is the beat. Which
+voice is `voiceFor` beside the jokes, and `jokes.test.ts` holds every speaker to a voice the service
+offers and Juku to a different one from whoever he is talking to. With the English on, a role says
+what it is in English too, "Õpetaja (teacher)", which is a word learned for nothing. And the link to
+the article tells a screen reader it opens a new tab.
+
+**And then the edges, one at a time.** Each of these was a way either card could show the wrong
+thing, or take the page down with it:
+
+- **Last week's news under "today".** ERR's science feed reached back nine days on the day this
+  was measured. An item now carries its `pubDate`, and anything older than three days, or dated
+  more than a clock's slip into the future, is not offered. An undated item still is, since the
+  feed said nothing either way.
+- **A sad story with a happy-sounding Estonian headline.** The model's own English is read for
+  bad news too (`badEnglish`), and a pick whose English says somebody died, was arrested or lost
+  is dropped whole. So is English carrying an address or markup, which is a feed talking to the
+  model rather than a headline.
+- **A win and a loss in one headline.** "Neel võitis Wuhanis, Malõgina pudenes Birminghamis
+  välja" passed the keyless rule on its win. A loss beside a win now refuses the headline, and so
+  do farewells (`memoriam`) and the rest of the police report (`rööv`).
+- **The model asked on every page load.** A good-news failure is remembered as a miss for ten
+  minutes rather than thrown. A keyless answer given because the model could not be asked (the
+  allowance spent on whoever came first this hour) is held for ten minutes rather than the hour,
+  so the model gets its turn back. One story on two feeds is one story, by title or by link.
+- **Today not loading because of a joke.** The joke's dictionary lookup falls back to plain words
+  and is not remembered, so the next visit asks again. The day's jokes are held for three days at
+  once, because learners in two time zones are on two days for part of every day. Both properties
+  are invariants, and both were made to fail on the real line.
+- **A link that will not parse** is a plain label rather than a thrown render.
+- **"Hide English, pressed".** A toggle whose name changes and which also says it is pressed says
+  the state twice, so the English button carries it in its label alone.
+- **The gloss on a role** depends on every Estonian speaker always having the same English name,
+  and every line ending like a sentence so the speech service reads it as one. Both are tests.
+
+**What it does not do.** 188 jokes is about half a year before one comes round again; more is a
+pull request away and the test is the only gate on it. The keyless rule is blunter than the model
+and will sometimes miss a good story, which is the side it is built to err on.
+
+**The first read of the jokes cut two and corrected eleven lines.** Two did not work in
+Estonian: the smacked brother, whose punchline does not follow from its setup, and the skating
+pun, which rests on English "hardest" meaning both difficult and not soft where `kõva` means only
+the second. Eleven lines changed: a case ending (`teisel poolel`), an ordinal asked where a choice
+was meant (`millises kuus`, not `mitmes kuus`), medicine taken rather than drunk, a comma removed
+from inside `selle asemel et`, two words chosen to match their English (`maitsvad`, `räpane`), a
+pasture for an empty `plats`, a doubled `kui` split into two sentences, and three English lines (a
+hare, a crown put on rather than a coronation, and British "top marks"). One suggestion was
+declined: `Inglise kuningad` keeps its capital, because a country's name in the genitive is
+written with one (`Soome president`). That read was by a careful non-native reviewer checking
+against Sõnaveeb, so it narrows what the native read has to cover and does not replace it.
+
+**And then every gap the first rating named was closed.** Today no longer waits on the news at all:
+`GoodNewsSlot` streams the card in behind a `Suspense` after the rest of the page, at the bottom of
+the dealt order where arriving late moves nothing, and an hour with nothing good leaves no empty
+slot (`empty:hidden` on the column item). Measured warm on a dev server, the joke drew at 0.63 s
+and the news at 0.89 s. Any card on Today can be hidden from Settings, stored as a leading `-` on
+its id in the order row, keeping its place, so the eight-card page can be trimmed by whoever finds
+it busy. The keyless rule was measured against the live feeds and refused an opening that had been
+postponed, so postponed, cancelled, closed and resigned are refused now, and `naer` and `sündi`
+became stems that cannot match `naeruväärne` and `sündmus`. The judge was run live again through
+the app and chose Open House Tallinn's 8,100 visitors, a new gallery in Sillamäe and Shaun the
+Sheep topping the weekend, each with sound English. The jokes' English says marks run to five
+where a joke turns on a mark, and the sister who would wash up is a brother. And
+`scripts/test-today-fun.mjs` drives both cards in CI: the punchline held and handed the caret,
+the English, another joke, axe in both states, the news link, its live region and its cycling, and
+a card hidden in Settings staying off Today, made to fail first by dropping the hidden set.
+
+**The second read confirmed all sixteen changes and asked for three more.** `Ma säästan metsa` for
+saving the forest and `koolist koju minna` for going home from school were applied. Lowercasing
+`Inglise kuningad` was declined a second time: it names the country (Inglismaa), and a country's
+name in the genitive keeps its capital, as in `Soome president` and `Rootsi kuningas`; it is a
+one-character change for a native reader to overrule.
+
+## 58. The fifty-second pass: good news without a model
+
+The operator's call: no model decides which ERR headline is good news, and what the word lists pass
+has to be genuinely good. So the model judge is gone, the card carries no English, and
+nothing on its path may reach a provider or the ledger, asserted in
+`scripts/invariants/jokes-stay-on-their-card.ts`. This supersedes §57 wherever it describes the
+judge, its English and the keyless fallback.
+
+**The old keyless rule was measured and was far too loose.** ERR's own search gave 9,554 articles
+from October 2025 to October 2026. Of the front page, culture and science, which are the feeds the
+card reads, it offered about 580, and the front page's were a pope's lung operation, cigarette
+smuggling, a protest in Vilnius, a European Court ruling, blue-green algae on Pirita beach, export
+statistics, a bank's profits and a party's poll numbers: no bad-news word in any of them, and a
+happy stem (`kasvas`, `positiiv`, `avati` inside `megavatine`) in each.
+
+**The rule now reads the headline for a happy event, and the whole text for anything that is not
+one.** A headline has to report that something opened, was won or awarded, premiered, was born,
+was celebrated or was discovered, read off the headline alone, with a verb matched only where a
+word starts. It may not be a quote or an opinion (`Name: ...`), a question, a review, a programme
+strapline or a broadcast notice, or carry a negation. And the bad-news list now refuses business,
+the economy, politics, health and the weather whole, beside the death, crime, war, accidents,
+closures and delays it already held, because none of those is the headline that cheers somebody up.
+
+**Every headline it still offers was read.** 189 of the year's articles on those three feeds pass,
+every one an opening, a premiere, a prize, a festival, a concert, a new species or a celebration.
+Over the 2,100 sport headlines the front page can also carry, the read found a goalless match, a
+doping ban, points given away, a match lost without a game and `liiga` (a league) read as a new
+species, and each is refused now. The ones it used to offer are fixtures in
+`lib/news/goodNews.test.ts`. On 2026-10-14 the live feeds gave eleven picks. In the year's sample
+only two weeks had none, and the sample is a fraction of what the feeds carry, so a day with
+nothing to show should be rare.
+
+**What it costs is good stories it does not offer.** A happy story told without one of the event
+words, or beside a business or health word in its summary, is passed over. That is the side to err
+on: a card that misses a good story costs nothing, and one that shows a bad story costs the card.
+
+## 59. The fifty-third pass: playful, true, and never at the learner's expense
 
 The operator asked for words, examples and games that lean on simple humour, so that learning
 Estonian feels less like an exam and more like something people enjoy. The standard is written

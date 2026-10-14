@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Lettered } from "@/components/HeroLetters";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { redirect } from "next/navigation";
@@ -18,7 +19,7 @@ import type { Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import type { DayClock } from "@/lib/time/day";
 import { shows, stageOf, TODAY_CARDS } from "@/lib/ux/disclosure";
-import { orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
+import { hiddenSlotsFrom, orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { ButtonLink } from "@/components/Button";
 import { NamedIcon } from "@/components/icons";
 import { Card, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
@@ -48,6 +49,9 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
+import { JokeOfDayCard } from "@/components/JokeOfDay";
+import { GoodNewsSlot } from "@/components/GoodNewsSlot";
+import { jokesToday } from "@/lib/progress/jokeOfDay";
 
 export async function generateMetadata() {
   return titleFor("Today");
@@ -230,7 +234,10 @@ export default async function TodayPage() {
     SCENES,
     reached ? new Set(unitsThrough(reached.programme, reached.day.index)) : programme ? new Set<string>() : null,
   );
-  const [word, outside, ladder] = await Promise.all([
+  // The cards the learner hid in Settings: not dealt, and the two that cost a
+  // read are not even asked for.
+  const hiddenCards = hiddenSlotsFrom(settings[SETTING_KEYS.todayOrder]);
+  const [word, outside, ladder, jokes] = await Promise.all([
     shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement, { forLevel: true }) : null,
     // Whether the day's question has been answered, and the month behind it,
     // off one read rather than one for each.
@@ -247,6 +254,14 @@ export default async function TodayPage() {
     shows(stage, "streak")
       ? ladderPosition(ownerId, targetFrom(settings[SETTING_KEYS.goalTarget]))
       : null,
+    /*
+      The joke, one of the two cards that ask nothing of anybody: a table and
+      one dictionary read, held for the day. The good news is not awaited here
+      at all; it streams in on its own (`GoodNewsSlot`), because it is three
+      feeds and a model and this page may not wait on somebody else's server
+      for the one card that is a pleasure rather than the point.
+    */
+    shows(stage, "joke") && !hiddenCards.has("joke") ? jokesToday(summary.dayKey) : null,
   ]);
 
   const today = dateLine(now, clock.zone);
@@ -854,6 +869,20 @@ export default async function TodayPage() {
   );
 
   /*
+    THE JOKE AND THE GOOD NEWS, THE FOURTH ROW.
+
+    Two cards that are there to make the morning a little better and teach a
+    little on the way: a Juku joke out of `lib/collections/jokes.ts`, and one
+    happy headline from ERR (and two behind it) picked by `lib/news/goodNews.ts`. Both put the
+    dictionary under every word, both are true on the first morning, and the
+    news card is simply absent on an hour it found nothing good to say.
+  */
+  const jokeCard = jokes && jokes.length > 0 ? <JokeOfDayCard jokes={jokes} /> : null;
+  const newsCard = shows(stage, "news") && !hiddenCards.has("news")
+    ? <Suspense fallback={null}><GoodNewsSlot /></Suspense>
+    : null;
+
+  /*
     TODAY'S CONVERSATION, CHOSEN BY THE DATE.
 
     The thing `docs/22-real-life.md` says this app is for is a conversation
@@ -976,7 +1005,7 @@ export default async function TodayPage() {
         : lead(stage, toReview, toLearn, ownCardsPerMinute(pace), locale)}
     >
       {/*
-        ONE CARD ACROSS THE TOP, AND FIVE UNDER IT AT THE MOST.
+        ONE CARD ACROSS THE TOP, AND EIGHT UNDER IT AT THE MOST.
 
         The page used to be two columns from the top, the wide one for today
         and the narrow one for what is ahead. That is a sound reading order and
@@ -1016,7 +1045,7 @@ export default async function TodayPage() {
         {/*
           THE WHITE CARDS, TWO COLUMNS THAT EACH END WHERE THEY END. The order is
           still read in rows (game and word, calendar and conversation, progress
-          and out there), so the cards are dealt left, right, left, right. But a
+          and out there, the joke and the good news), so the cards are dealt left, right, left, right. But a
           card is as tall as what is in it and no taller: they used to be
           stretched to share a height with the one beside them, which left the
           word of the day a screen of empty white under its button and made the
@@ -1039,8 +1068,10 @@ export default async function TodayPage() {
               ladder: ladderCard,
               errand: errandCard,
               plan: planCard,
+              joke: jokeCard,
+              news: newsCard,
               next: nextCard,
-            }, todayOrderFrom(settings[SETTING_KEYS.todayOrder]));
+            }, todayOrderFrom(settings[SETTING_KEYS.todayOrder]), hiddenCards);
             const cards = dealt.slice(0, TODAY_CARDS);
             return [0, 1].map((side) => (
               <div
@@ -1049,7 +1080,7 @@ export default async function TodayPage() {
               >
                 {cards.map((card, i) =>
                   i % 2 === side ? (
-                    <div key={i} className="min-w-0" style={{ order: i }} data-column-item>{card}</div>
+                    <div key={i} className="min-w-0 empty:hidden" style={{ order: i }} data-column-item>{card}</div>
                   ) : null,
                 )}
               </div>

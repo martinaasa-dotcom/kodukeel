@@ -30,6 +30,9 @@ import { baseUrl, suite } from "./lib/checks.mjs";
 import { gradeButtons, revealAnswer } from "./lib/review.mjs";
 import { missCard } from "./lib/miss.mjs";
 import { startRound } from "./lib/briefing.mjs";
+import { cutOffWrites, walkWorkbook } from "./lib/workbook.mjs";
+import { newPrismaClient } from "./lib/db.mjs";
+import { requireLocalDatabase } from "./lib/local-db.mjs";
 
 /*
   Read off disk and injected, rather than imported and called in Node: axe
@@ -138,7 +141,7 @@ const ROUTES = [
   "/grammar", "/grammar/cases", "/grammar/inessive", "/grammar/build-a-word", "/grammar/ukrainian", "/settings", "/settings?tab=sound", "/settings?tab=words", "/settings?tab=account", "/scan", "/class", "/tutor",
   "/assess", "/assess?take=1", "/exam", "/exam/B1/papers", "/privacy", "/terms", "/funding", "/state-exam", "/welcome/ru", "/welcome/uk", "/offline",
   "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions",
-  "/course", "/course/learn", "/course/forms", "/review/letters", "/review/sayings", "/review/wordplay", "/review/lookups",
+  "/course", "/course/learn", "/course/forms", "/review/letters", "/review/workbook", "/review/sayings", "/review/wordplay", "/review/lookups",
   "/exam/A1", "/grammar/topic/object", "/learn/checkpoint/A1",
   "/learn/kodu/lesson", "/learn/kodu/worksheet",
   "/review", "/review/write", "/review/government", "/review/openers", "/review/twenty", "/review/conjugation", "/review/cloze", "/review/clinic",
@@ -769,6 +772,51 @@ for (const theme of ["light", "dark"]) {
       "It needs a seeded dictionary and the scene catalogue to hold `arsti-aeg`");
   }
   await scene.close();
+}
+
+/*
+  A WORKBOOK SITTING, EVERY STATE OF IT, IN BOTH THEMES.
+
+  The walk of routes opens `/review/workbook` on its first page and nothing
+  else, and the states a learner spends the sitting in arrive by doing
+  something: a row of options under every line on a pick-the-form page, the
+  word box, the page open for a second go with a hint and a note under each
+  line, the corrected page, and the redo. `walkWorkbook` reaches each one and
+  axe is asked of it, at A1 (where the first exercise is pick the form) and at
+  B1 (where the second is the word box). Every write is cut off, so the walk
+  grades nothing, and the level is put back as it was.
+*/
+{
+  const prisma = newPrismaClient(requireLocalDatabase("write a level for the walk and put back what was there"));
+  const keys = ["cefrPlacement", "cefrPlacementAt"];
+  const before = await prisma.setting.findMany({ where: { ownerId: "local-single-user", key: { in: keys } } });
+  try {
+    for (const theme of ["light", "dark"]) {
+      for (const level of ["A1", "B1"]) {
+        for (const [key, value] of [["cefrPlacement", level], ["cefrPlacementAt", new Date().toISOString()]]) {
+          await prisma.setting.upsert({
+            where: { ownerId_key: { ownerId: "local-single-user", key } },
+            update: { value },
+            create: { ownerId: "local-single-user", key, value },
+          });
+        }
+        const wb = await measuring({ width: 1280, height: 1000 });
+        await cutOffWrites(wb.context());
+        if (theme === "dark") await chooseDark(wb);
+        const reached = await walkWorkbook(wb, BASE, async (name) => {
+          const violations = await axeViolations(wb);
+          check(`the workbook at ${level}, ${name}, in ${theme}: axe finds nothing`,
+            violations.length === 0, violations.slice(0, 2).join("; "));
+        });
+        check(`the workbook at ${level} in ${theme} was walked to its corrected page`, reached >= 4, `${reached} states`);
+        await wb.context().close();
+      }
+    }
+  } finally {
+    await prisma.setting.deleteMany({ where: { ownerId: "local-single-user", key: { in: keys } } });
+    if (before.length) await prisma.setting.createMany({ data: before });
+    await prisma.$disconnect();
+  }
 }
 
 // A visible focus ring on the primary action of the review path.

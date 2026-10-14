@@ -87,12 +87,12 @@ export const TOKEN_OF: Readonly<Record<keyof typeof PALETTE, string>> = {
  * them is measured in the stylesheet against the same ground the app uses.
  */
 export const DARK = {
-  ground: "#080a1f",
-  surface: "#101433",
-  raised: "#1a1f4a",
-  ink: "#f2f3ff",
-  ink2: "#c4c8ec",
-  accentSoft: "#26215c",
+  ground: "#0c0e13",
+  surface: "#151820",
+  raised: "#1f232d",
+  ink: "#eeeff3",
+  ink2: "#c3c5d1",
+  accentSoft: "#353351",
 } as const;
 
 export const DARK_TOKEN_OF: Readonly<Record<keyof typeof DARK, string>> = {

@@ -466,7 +466,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   "reported-speech": {
     "\"She said that...\" plus a clause, much like English": [
       { lemma: "imelik", et: "Imelik, et teda kodus pole.", form: "et" },
-      { lemma: "elus", et: "Ma olin viimane, kes teda elusana nägi.", form: "kes", slot: "CASE:NOMINATIVE" },
+      { lemma: "hotell", et: "Hotelli administraator ütles, et vabu tube ei ole.", form: "et" },
     ],
     "Or the -vat form, which needs no \"said\" at all": [
       { lemma: "tammetõru", et: "Tammetõrude rohkus ennustavat karmi talve.", form: "ennustavat" },
@@ -531,7 +531,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "ettevõte", et: "Töötan ettevõttes, mis tegeleb autode remondiga.", form: "mis", slot: "CASE:NOMINATIVE" },
     ],
     "Different pronouns for people and for things": [
-      { lemma: "elus", et: "Ma olin viimane, kes teda elusana nägi.", form: "kes", slot: "CASE:NOMINATIVE" },
+      { lemma: "hoolima", et: "Kusagil on keegi, kes sinust tõeliselt hoolib.", form: "kes", slot: "CASE:NOMINATIVE" },
       { lemma: "teadus", et: "Bioloogia on teadus, mis uurib elu.", form: "mis", slot: "CASE:NOMINATIVE" },
     ],
     "Its ending depends on its job in its own part of the sentence": [

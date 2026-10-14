@@ -113,6 +113,12 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
       + " letter, and then the word itself, and `ratingFor` charges for both the way a rung does",
   },
   {
+    file: "app/(app)/review/workbook/WorkbookSession.tsx",
+    why: "a workbook page is checked whole and then opened again on the lines that missed, each with its"
+      + " ending (or its start) shown off `hintLadder`, and a line right on that second go is graded Hard,"
+      + " so the page is its own one-rung ladder and a second one per line would be two",
+  },
+  {
     file: "components/scene/SceneSession.tsx",
     why: "a conversation has its own way out, in character and out of it: `lib/scenes/coach.ts`, `choiceOf` and the beat's own offered word",
   },

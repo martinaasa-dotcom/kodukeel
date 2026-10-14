@@ -1,7 +1,7 @@
 "use client";
 
 import { Newspaper } from "lucide-react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { LinkedWords } from "@/components/LinkedWords";
 import type { ReadableHeadline } from "@/lib/dict/headlines";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
@@ -38,21 +38,7 @@ export function Headlines({ headlines, host }: { headlines: ReadableHeadline[]; 
             className="rounded-[var(--r-lg)] border px-4 py-3 text-md leading-relaxed"
             style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
           >
-            {headline.tokens.map((token, j) =>
-              token.lemma ? (
-                <Link
-                  key={j}
-                  href={`/dictionary?q=${encodeURIComponent(token.lemma)}`}
-                  className="rounded-sm underline decoration-dotted underline-offset-4 transition-ui hover:decoration-solid"
-                  style={{ color: "var(--ink)", textDecorationColor: "var(--accent)" }}
-                  title={token.lemma === token.text.toLocaleLowerCase("et") ? undefined : token.lemma}
-                >
-                  {token.text}
-                </Link>
-              ) : (
-                <span key={j}>{token.text}</span>
-              ),
-            )}
+            <LinkedWords tokens={headline.tokens} />
           </li>
         ))}
       </ul>
