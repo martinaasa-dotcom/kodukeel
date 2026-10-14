@@ -575,7 +575,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "cash", word: "sularaha",
     parts: [p("sula", "sula", "pure, sheer", "melted"), p("raha", "raha", "money")],
     literal: "pure money", means: "cash",
-    quip: "Read another way, the first half is melted, which is about how long cash lasts in a wallet.",
+    quip: "Read another way, the first half is melted, and cash does have a way of melting in a wallet.",
   },
   {
     id: "signature", word: "allkiri",
@@ -599,7 +599,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "tablet", word: "tahvelarvuti",
     parts: [p("tahvel", "tahvel", "blackboard"), p("arvuti", "arvuti", "computer")],
     literal: "blackboard computer", means: "a tablet",
-    quip: "English tablet first meant a slab to write on too, so both languages named it after the school slate.",
+    quip: "English tablet first meant a slab to write on too, so both languages named the gadget after something you write on.",
   },
   {
     id: "season", word: "aastaaeg",
@@ -653,7 +653,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "coward", word: "argpüks",
     parts: [p("arg", "arg", "shy, timid"), p("püks", "püksid", "trousers")],
     literal: "timid trousers", means: "a coward",
-    quip: "English says scaredy-pants. Estonian got there with fewer letters.",
+    quip: "Somehow it is always the trousers that get the blame.",
   },
   {
     id: "gem", word: "kalliskivi",
@@ -677,13 +677,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "cobbler", word: "kingsepp",
     parts: [p("king", "king", "shoe"), p("sepp", "sepp", "smith")],
     literal: "shoe smith", means: "a cobbler",
-    quip: "A smith who works in leather rather than iron.",
+    quip: "A smith who swapped the anvil for a last.",
   },
   {
     id: "cornflower", word: "rukkilill",
     parts: [p("rukki", "rukis", "rye"), p("lill", "lill", "flower")],
     literal: "rye flower", means: "a cornflower",
-    quip: "English cornflower means the same, since corn once meant any grain. It is Estonia's national flower.",
+    quip: "English cornflower means the same, since in Britain corn is any grain. It is Estonia's national flower.",
   },
   {
     id: "exclamation-mark", word: "hüüumärk",
@@ -773,7 +773,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "revenge", word: "kättemaks",
     parts: [p("kätte", "käsi", "into the hand"), p("maks", "maks", "payment, tax")],
     literal: "into-hand payment", means: "revenge",
-    quip: "English calls it payback, which is the same deal.",
+    quip: "A debt settled by hand, and nobody ever asks for a receipt.",
   },
   {
     id: "chapter", word: "peatükk",
@@ -851,7 +851,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "pin", word: "nööpnõel",
     parts: [p("nööp", "nööp", "button"), p("nõel", "nõel", "needle")],
     literal: "button needle", means: "a pin",
-    quip: "A needle with a round head on top, a bit like a button.",
+    quip: "A needle that went to the trouble of growing a head.",
   },
   {
     id: "resentment", word: "pahameel",
@@ -982,14 +982,14 @@ export const COMPOUNDS: readonly Compound[] = [
   {
     id: "crown", word: "pealagi",
     parts: [p("pea", "pea", "head"), p("lagi", "lagi", "ceiling")],
-    literal: "head ceiling", means: "the crown",
+    literal: "head ceiling", means: "the crown (top of the skull)",
     quip: "If your head has a ceiling, a hat is the roof over it.",
   },
   {
     id: "infinitive", word: "tegevusnimi",
     parts: [p("tegevus", "tegevus", "activity"), p("nimi", "nimi", "name")],
     literal: "activity name", means: "the infinitive",
-    quip: "Latin named it the unbounded form, since it belongs to no person and no tense.",
+    quip: "Latin named it the unbounded form, since it is tied to no person and no number.",
   },
   {
     id: "hammock", word: "võrkkiik",
@@ -1043,7 +1043,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "burglar", word: "murdvaras",
     parts: [p("murd", "murd", "breaking, fracture"), p("varas", "varas", "thief")],
     literal: "break thief", means: "a burglar",
-    quip: "English says housebreaker, which is the same idea with the house left in.",
+    quip: "Breaking is the job description. Entering is implied.",
   },
   {
     id: "gooseberry", word: "karusmari",
@@ -1079,7 +1079,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "aphid", word: "lehetäi",
     parts: [p("lehe", "leht", "leaf"), p("täi", "täi", "louse")],
     literal: "leaf louse", means: "an aphid",
-    quip: "English gardeners call them plant lice when they are being polite.",
+    quip: "One rosebush can host thousands of them by midsummer.",
   },
   {
     id: "bookmark", word: "järjehoidja",
@@ -1383,11 +1383,11 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "ämber", word: "ämber", looksLike: "amber", means: "bucket",
-    quip: "Slang uses it for a blunder too, so stepping in one is never good news. Amber would be.",
+    quip: "Slang uses it for a blunder too, so stepping in one means putting your foot in it. Amber only ever trapped flies.",
   },
   {
     id: "tint", word: "tint", looksLike: "tint", means: "smelt, a small fish",
-    quip: "It is ink as well, the darkest tint there is. This one is silver, with fins.",
+    quip: "It is ink as well, which will tint anything it touches. This one is silver, with fins.",
   },
   {
     id: "peal", word: "peal", looksLike: "peal", means: "on top of",
@@ -1430,7 +1430,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
     quip: "Every chef hopes a good menu leads to one.",
   },
   {
-    id: "mall", word: "mall", looksLike: "mall", means: "protractor",
+    id: "mall", word: "mall", looksLike: "mall", means: "a template, protractor",
     quip: "Found in pencil cases, not on the edge of town.",
   },
   {
@@ -1443,7 +1443,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "seller", word: "seller", looksLike: "seller", means: "celery",
-    quip: "At the market, the person behind the celery stall is the seller of the seller.",
+    quip: "Ask the greengrocer for some and you are talking to a seller of seller.",
   },
   {
     id: "soon", word: "soon", looksLike: "soon", means: "vein",
