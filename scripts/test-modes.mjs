@@ -40,7 +40,9 @@ page.on("console", (m) => {
 // behind the panel not answering the key the panel names, which two of the
 // fifteen rounds drawing it did: 60, and one for the round's own undo standing
 // down beside the panel the way its key already did: 61.
-const { check, absent, done } = suite("Practice modes", { floor: 66 });
+// Six more for Sõnamäng and the one funny line under a word: 72, and two for
+// its number keys leaving the browser's and the command palette's alone: 74.
+const { check, absent, done } = suite("Practice modes", { floor: 74 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -914,6 +916,67 @@ if (await page.locator("[data-briefing-start]").count()) {
 } else {
   absent(1, "Väljendid dealt no sitting on this database");
 }
+
+// 10 — Sõnamäng, and the one funny line under a word (docs/18-voice.md §3c)
+/*
+  The humour is only worth having if it arrives where it was promised and stays
+  out of where it was not: under a word whose meaning is on the screen, never
+  under one the line would contradict, and never as a verdict. Asked of the
+  round, which plays without a deck, and of three dictionary entries: a
+  compound, a word that looks English, and an ordinary word with nothing to say.
+*/
+await page.goto(`${B}/review/wordplay`);
+await startRound(page);
+const pieces = page.locator("[data-wordplay-piece]");
+check("Sõnamäng opens on a word in pieces", (await pieces.count()) >= 2);
+for (let i = 0; i < (await pieces.count()); i++) await pieces.nth(i).click();
+await page.waitForTimeout(300);
+check("and the pieces read word for word once they are turned", /Word for word/.test(await page.locator("main").innerText()));
+/*
+  The number keys answer the card, and nothing else may: Ctrl+1 is the
+  browser's tab switch, and a digit typed into the command palette is a letter
+  of somebody's search. Asked here because a window-wide handler is exactly
+  the shape that forgets both.
+*/
+const ctrlPrevented = await page.evaluate(() => new Promise((resolve) => {
+  const seen = (e) => { window.removeEventListener("keydown", seen); setTimeout(() => resolve(e.defaultPrevented), 0); };
+  window.addEventListener("keydown", seen);
+  window.dispatchEvent(new KeyboardEvent("keydown", { key: "1", ctrlKey: true, bubbles: true, cancelable: true }));
+}));
+check("Sõnamäng leaves Ctrl+1 to the browser and answers nothing with it",
+  ctrlPrevented === false && (await page.locator("[data-wordplay-quip]").count()) === 0);
+await page.keyboard.press("Control+k");
+const palette = page.getByLabel("Search commands and words");
+await palette.waitFor({ timeout: 5000 }).catch(() => {});
+if (await palette.count()) {
+  await palette.type("2");
+  await page.waitForTimeout(200);
+  check("and a digit typed into the command palette answers nothing", (await page.locator("[data-wordplay-quip]").count()) === 0);
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(600);
+} else {
+  absent(1, "the command palette did not open, so there was no box to type a digit into");
+}
+await page.locator(".choice-grid button").first().click();
+await page.locator("[data-wordplay-quip]").waitFor({ timeout: 5000 }).catch(() => {});
+const quip = (await page.locator("[data-wordplay-quip]").innerText().catch(() => "")).trim();
+check("a guess is answered with what the word really means and one line about it",
+  quip.length > 10 && !/!/.test(quip), quip);
+const verdict = await page.locator("main").innerText();
+check("and the verdict itself is plain, never the joke",
+  /You guessed it\.|Not that one, but now you know\./.test(verdict));
+const lineFor = async (q) => {
+  await page.goto(`${B}/dictionary?q=${encodeURIComponent(q)}`);
+  await page.locator("main h1").waitFor({ timeout: 15_000 }).catch(() => {});
+  await page.waitForTimeout(400);
+  return (await page.locator("[data-word-fun]").allInnerTexts()).join(" | ");
+};
+const bat = await lineFor("nahkhiir");
+check("a compound in the dictionary reads word for word", /Word for word: .leather mouse./.test(bat), bat);
+const head = await lineFor("pea");
+const plain = await lineFor("raamat");
+check("a word that only looks English says so, and an ordinary word says nothing",
+  /Looks English, isn't: not .pea./.test(head) && plain === "", `${head} / ${plain || "(none)"}`);
 
 console.log(errors.length ? `\nconsole/page errors:\n  ${errors.join("\n  ")}` : "\nno console errors");
 await browser.close();

@@ -14,6 +14,11 @@ import { QUOTED_CASE_GLOSS_ROWS } from "../caseGlosses";
  */
 export const SITUATIONS: Area = {
   ru: {
+    "Who you're talking to": "С кем вы говорите",
+    "They're busy and won't wait long for an answer. Get to the point and you'll get on fine.": "Собеседник занят и долго ждать ответа не станет. Говорите по делу, и вы прекрасно поладите.",
+    "They're in no hurry at all, and they'll want every last detail from you. Get comfortable.": "Собеседнику совсем некуда спешить, и он захочет знать все подробности до единой. Устраивайтесь поудобнее.",
+    "They check everything twice as they go, just to be sure. You'll have time to think twice too.": "Собеседник всё проверяет дважды, просто на всякий случай. Значит, и у вас будет время подумать дважды.",
+    "They go strictly by the book: one thing at a time, in their order, not yours. If there's a form, the form wins.": "Собеседник действует строго по правилам: по одному вопросу за раз, в его порядке, а не в вашем. Если есть бланк, побеждает бланк.",
     "How you hear them": "Как вы их слышите",
     "You can change this during the conversation too.": "Это можно поменять и во время разговора.",
     "Text only": "Только текст",
@@ -838,6 +843,11 @@ export const SITUATIONS: Area = {
     "brown": "коричневый",
   },
   uk: {
+    "Who you're talking to": "З ким ви говорите",
+    "They're busy and won't wait long for an answer. Get to the point and you'll get on fine.": "Співрозмовник зайнятий і довго чекати на відповідь не буде. Кажіть по суті, і ви чудово порозумієтеся.",
+    "They're in no hurry at all, and they'll want every last detail from you. Get comfortable.": "Співрозмовникові зовсім нікуди поспішати, і він захоче знати всі подробиці до однієї. Влаштовуйтеся зручніше.",
+    "They check everything twice as they go, just to be sure. You'll have time to think twice too.": "Співрозмовник усе перевіряє двічі, просто про всяк випадок. Тож і у вас буде час подумати двічі.",
+    "They go strictly by the book: one thing at a time, in their order, not yours. If there's a form, the form wins.": "Співрозмовник діє суворо за правилами: по одному питанню за раз, у своєму порядку, а не у вашому. Якщо є бланк, перемагає бланк.",
     "How you hear them": "Як ви їх чуєте",
     "You can change this during the conversation too.": "Це можна змінити й під час розмови.",
     "Text only": "Лише текст",
