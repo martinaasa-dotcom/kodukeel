@@ -327,7 +327,8 @@ Lighthouse was not rerun at this point. It was later, after the operator ran Pag
     card, the writing round, the exceptions round, the case walkthrough (twice) and the unit
     lesson. The past third-person frame also lacked its -s.
   - Anu's no-key button ran 7px past its card in Ukrainian at 360px. The label is
-    "Безкоштовний ключ" now; the paragraph above it already says Settings walks you through it.
+    "Отримати ключ" now, on a reviewer's suggestion that a button should be an action; the paragraph
+    above it already says Settings walks you through getting a free one.
   - `scripts/invariants/the-say-it-phrase-is-read-in-the-screens-language.ts` fails on a screen
     that shows the phrase without the helpers, or draws it as it arrived. Both arms were made to
     fail on the real lines.
@@ -346,8 +347,10 @@ Ordered by what they cost to leave.
 3. **Native review of the new Russian and Ukrainian.** Thirty-odd lines, all machine-written: the
    teachers band, the poster's steps, the error log, "The same in English", "Contact", and the
    shortened Ukrainian label on Anu's no-key button. They went to the operator as one Markdown table
-   per language, with a column for a better version. The poster's matter most, because they go on a
-   classroom wall.
+   per language and came back read: 8 Russian and 9 Ukrainian lines were changed, mostly literal
+   copies of English ("веде цю копію" for "runs this copy"), a genitive after a negation, and "the
+   code is open", which read as the join code and now says the source code. The reviewer was not a
+   native speaker either, so a native read is still worth having before a school sees the poster.
 4. **A slice for `/funding`**, the one public page still loading a whole language. Small, using the
    same `areaTable` and borrow list pattern; `test-locales.mjs` will name any line it misses.
 5. **Split the signed-in table by route.** A Russian learner still downloads all 316 KB of Russian on
