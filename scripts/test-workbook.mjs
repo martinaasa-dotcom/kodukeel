@@ -20,7 +20,14 @@ import { startRound } from "./lib/briefing.mjs";
  *   a verb in a sentence with no subject had no right answer once the English
  *   was hidden, until the bracket named the person;
  *   one card could be graded several times in one sitting;
- *   a reload dealt a different page and lost every box filled in.
+ *   a reload dealt a different page and lost every box filled in;
+ *   a word box's English marked the word it wanted, which answered the half
+ *   of the line the box asks;
+ *   a pick-the-form page left the option checked wrong pickable again.
+ *
+ * Which kinds of exercise a sitting is turns on the level, so the level is
+ * written for each half (B1: a written page, then the word box; A1: pick the
+ * form first) and the rows that were there before are put back at the end.
  *
  * It grades, so it remembers the review ids that were there before it started
  * and deletes only what it wrote, which is `test-flash.mjs`'s discipline.
@@ -29,7 +36,20 @@ import { startRound } from "./lib/briefing.mjs";
 const B = baseUrl();
 const OWNER = "local-single-user";
 const prisma = newPrismaClient(requireLocalDatabase("write and delete the reviews this page grades"));
-const { check, absent, done } = suite("The workbook", { floor: 32 });
+const { check, absent, done } = suite("The workbook", { floor: 44 });
+
+const LEVEL_KEYS = ["cefrPlacement", "cefrPlacementAt"];
+const levelBefore = await prisma.setting.findMany({ where: { ownerId: OWNER, key: { in: LEVEL_KEYS } } });
+async function holdLevel(level) {
+  for (const [key, value] of [["cefrPlacement", level], ["cefrPlacementAt", new Date().toISOString()]]) {
+    await prisma.setting.upsert({ where: { ownerId_key: { ownerId: OWNER, key } }, update: { value }, create: { ownerId: OWNER, key, value } });
+  }
+}
+async function putLevelBack() {
+  await prisma.setting.deleteMany({ where: { ownerId: OWNER, key: { in: LEVEL_KEYS } } });
+  if (levelBefore.length) await prisma.setting.createMany({ data: levelBefore });
+}
+await holdLevel("B1");
 
 const before = new Date();
 const alreadyThere = new Set(
@@ -48,8 +68,9 @@ await page.locator("[data-workbook-exercise]").first().waitFor({ timeout: 15_000
 
 const sheet = page.locator("[data-workbook-exercise]");
 if (await sheet.count() === 0) {
-  absent(26, "a deck whose words can fill a page, which the demo fixture holds");
+  absent(38, "a deck whose words can fill a page, which the demo fixture holds");
   await browser.close();
+  await putLevelBack();
   await prisma.$disconnect();
   done();
 }
@@ -161,7 +182,8 @@ const speakers = await page.getByRole("button", { name: /hear the sentence/i }).
 if (speakers > 0) check("a settled line can be heard", speakers >= 1, `${speakers}`);
 else absent(1, "the speech service, which this machine cannot reach");
 
-// On through the pages to the corrected one.
+// On through the pages to the corrected one. At B1 the second exercise is the word box.
+let boxSeen = false;
 for (let k = 0; k < 4; k++) {
   const next = page.locator("[data-workbook-next]");
   if (await next.count() === 0) break;
@@ -169,15 +191,34 @@ for (let k = 0; k < 4; k++) {
   await next.click();
   await page.waitForTimeout(500);
   if (/corrected/i.test(label)) break;
-  const more = page.locator("[data-workbook-gap]");
+  const box = page.locator("[data-workbook-box] li");
+  const isBox = !boxSeen && await box.count() > 0;
+  if (isBox) {
+    boxSeen = true;
+    const words = await box.allInnerTexts();
+    const boxLines = await page.locator("li[data-workbook-line]").count();
+    check("the word box holds a word for every line and the example's", words.length === boxLines + 1, `${words.length} words, ${boxLines} lines`);
+    check("the example's word is crossed out in the box", await page.locator("[data-workbook-box] s").count() === 1);
+    const cueTexts = await page.locator("li[data-workbook-line] .wb-cue").allInnerTexts();
+    check("a box line's bracket never names its word", cueTexts.every((c) => !words.some((w) => c.includes(w))), cueTexts.join(" "));
+    check("a box line's English marks no word, which would say which word goes there",
+      await page.locator("li[data-workbook-line] strong, li[data-workbook-line] b").count() === 0);
+  }
+  const more = page.locator("input[data-workbook-gap]");
   const m = await more.count();
   for (let i = 0; i < m; i++) await more.nth(i).fill("x");
   await page.locator("[data-workbook-check]").click();
   await page.waitForTimeout(400);
+  if (isBox) {
+    check("a box line open for a second go names its word and not its ending",
+      await page.locator("[data-workbook-word-hint]").count() === m && !/It ends in|It starts with/.test(await page.locator("main").innerText()),
+      `${await page.locator("[data-workbook-word-hint]").count()} of ${m}`);
+  }
   const show = page.locator("[data-workbook-show]");
   if (await show.count()) await show.click();
   await page.waitForTimeout(400);
 }
+if (!boxSeen) absent(5, "a second exercise that is a word box: the deck filled one exercise only");
 await page.waitForTimeout(800);
 const finish = await page.locator("main").innerText();
 check("the page ends on itself, corrected", /corrected/i.test(finish), finish.slice(0, 80));
@@ -237,6 +278,61 @@ check("no card is graded twice in one sitting", new Set(cards).size === cards.le
 check("nothing threw", errors.length === 0, errors[0] ?? "");
 
 await prisma.review.deleteMany({ where: { id: { in: written.map((r) => r.id) } } });
+
+/*
+  A BEGINNER'S SITTING OPENS ON PICKING THE FORM. Three forms of the word
+  under every line, one of them right; a wrong pick opens the line again
+  with that option crossed out and out of reach, and the page cannot be
+  checked a second time until another one is picked.
+*/
+await holdLevel("A1");
+const beforeA1 = new Set((await prisma.review.findMany({ where: { ownerId: OWNER }, select: { id: true } })).map((r) => r.id));
+await page.goto(`${B}/review/workbook?theme=present`, { waitUntil: "domcontentloaded" });
+await startRound(page);
+await page.locator("[data-workbook-exercise]").first().waitFor({ timeout: 15_000 }).catch(() => {});
+const optionRows = page.locator("[data-workbook-options]");
+const rowCount = await optionRows.count();
+if (rowCount > 0) {
+  const sizes = await optionRows.evaluateAll((rows) => rows.map((r) => r.querySelectorAll('[role="radio"]').length));
+  check("a beginner's page opens on picking the form, three forms to a line", sizes.length >= 3 && sizes.every((n) => n === 3), JSON.stringify(sizes));
+  check("each row of forms is one radio group, named for its line",
+    (await page.locator("[data-workbook-options] [role='radiogroup'][aria-label]").count()) === rowCount);
+  check("nothing on a pick-the-form page is typed", await page.locator("input[data-workbook-gap]").count() === 0);
+  const picked = [];
+  for (let i = 0; i < rowCount; i++) {
+    const first = optionRows.nth(i).locator('[role="radio"]').first();
+    picked.push(await first.innerText());
+    await first.click();
+  }
+  const gapsShow = await page.locator("[data-workbook-gap]").allInnerTexts();
+  check("a picked form stands in its gap", picked.every((p, i) => gapsShow[i]?.trim() === p.trim()), `${picked.join(",")} / ${gapsShow.join(",")}`);
+  await page.locator("[data-workbook-check]").click();
+  await page.waitForTimeout(600);
+  const open = page.locator("li[data-workbook-line][data-outcome='open']");
+  const openCount = await open.count();
+  if (openCount > 0) {
+    const struck = await open.evaluateAll((lines) => lines.map((l) => {
+      const off = [...l.querySelectorAll('[role="radio"]')].filter((r) => r.disabled);
+      return off.length === 1 && off[0].getAttribute("aria-checked") !== "true" ? off[0].textContent.trim() : null;
+    }));
+    check("a wrong pick is crossed out, out of reach and no longer shown as chosen", struck.every((t) => t !== null), JSON.stringify(struck));
+    check("the second check waits until another form is picked", await page.locator("[data-workbook-check]").isDisabled());
+    await open.first().locator('[role="radio"]:not([disabled])').first().click();
+    check("picking another form lets the page be checked again", !(await page.locator("[data-workbook-check]").isDisabled()));
+    await page.locator("[data-workbook-show]").click();
+    await page.waitForTimeout(500);
+    check("showing the answers settles the page", await page.locator("li[data-workbook-line][data-outcome='open']").count() === 0);
+  } else {
+    absent(4, "a wrong first pick: every first option on this page happened to be right");
+  }
+} else {
+  absent(8, "a pick-the-form page at A1: the deck could not fill one");
+}
+const a1Rows = (await prisma.review.findMany({ where: { ownerId: OWNER }, select: { id: true } })).filter((r) => !beforeA1.has(r.id));
+await prisma.review.deleteMany({ where: { id: { in: a1Rows.map((r) => r.id) } } });
+check("nothing threw at A1 either", errors.length === 0, errors[0] ?? "");
+
+await putLevelBack();
 await browser.close();
 await prisma.$disconnect();
 done();

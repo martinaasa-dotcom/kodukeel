@@ -205,7 +205,10 @@ filed under and passes `naturalSentence`; it has an English line with no Estonia
 not a sentence Ekilex already recorded, a duplicate, or one somebody refused. **Where they may go is
 the other half and is asserted**: the Learn ladder, the first meeting on a review card and the unit
 lesson, which are the screens that introduce a word, and nowhere that marks, measures, builds a card,
-lends a sentence or plays a scene, because each of those says its Estonian was recorded.
+lends a sentence or plays a scene, because each of those says its Estonian was recorded. The
+workbook page joined the list for an A1 or A2 learner: its lines ask the gap rung's question on a
+page, it practises rather than measures, and without written sentences a beginner's page was cut from
+sentences made of words they had not been taught, which left it short or empty.
 *Consequences:* the rule this ADR exists for is untouched, since no form is written, no model writes
 a row at runtime, and every word in a written sentence is one the dictionary vouches for. What is new
 is that the app now authors Estonian *sentences* out of attested words, and whether each is

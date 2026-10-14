@@ -110,9 +110,9 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "BookOpen", tone: "butter", group: "targeted", note: "A page of real sentences",
     within: "/practice", headline: true,
     blurb:
-      "A page from a course book, set from your own words: real sentences, each with a word in " +
-      "brackets to put into the right form. Check the page, fix what's wrong with a hint, then " +
-      "read it back corrected.",
+      "A page from a course book, set from your own words: pick the right form, write it, or " +
+      "choose the word from a box. Check the page, fix what's wrong with a hint, then read it " +
+      "back corrected.",
   },
   {
     /*

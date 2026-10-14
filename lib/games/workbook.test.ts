@@ -3,9 +3,11 @@ import { HARVESTED } from "@/prisma/data/harvested";
 import { BLANK } from "@/lib/estonian/cloze";
 import type { FlashWord } from "./flash";
 import {
-  MIN_LINES, OUTCOME_RATING, composeSheet, indexFor, lineSentence, linesFor, markLine, outcomeAfter,
-  pageReading, parseTheme, preferredThemes, slotsFor, themesOf, verbSlot, whoFor, type SheetItem,
+  MIN_LINES, OPEN, OUTCOME_RATING, choicesFor, composeSheet, indexFor, lineSentence, linesFor, markLine, otherWordIn,
+  outcomeAfter, pageReading, parseTheme, preferredThemes, slotsFor, themesOf, verbSlot, whoFor, withinReach,
+  workbookSentences, type SheetItem, type Theme,
 } from "./workbook";
+import { plainReach } from "@/lib/dict/plainness";
 import { PRONOUN_LEMMAS } from "@/lib/estonian/pronouns";
 
 /** A course word exactly as the seed would hold it, read off the shipped harvest. */
@@ -22,7 +24,7 @@ function shipped(lemma: string, extra: { et: string }[] = []): FlashWord {
       ...Object.entries(entry.parts).map(([formType, value]) => ({ formType, value: value as string })),
       ...entry.extraForms.map((f) => ({ formType: `EKILEX:${f.code}`, value: f.value })),
     ],
-    examples: [...extra, ...entry.usages.map((et) => ({ et }))].map((e) => ({ et: e.et, source: "EKILEX" as const })),
+    examples: [...extra, ...entry.usages.map((et) => ({ et }))].map((e) => ({ et: e.et, en: "An English line.", source: "EKILEX" as const })),
   };
 }
 
@@ -39,10 +41,10 @@ const TUBA: FlashWord = {
     { formType: "ILL_SG_SHORT", value: "tuppa" },
   ],
   examples: [
-    { et: "Ma olen praegu toas.", source: "EKILEX" },
-    { et: "Lapsed jooksid toast välja.", source: "EKILEX" },
-    { et: "Tuba on suur ja valge.", source: "EKILEX" },
-    { et: "Ta tuli tuppa ja istus maha.", source: "EKILEX" },
+    { et: "Ma olen praegu toas.", en: "An English line.", source: "EKILEX" },
+    { et: "Lapsed jooksid toast välja.", en: "An English line.", source: "EKILEX" },
+    { et: "Tuba on suur ja valge.", en: "An English line.", source: "EKILEX" },
+    { et: "Ta tuli tuppa ja istus maha.", en: "An English line.", source: "EKILEX" },
   ],
 };
 
@@ -59,10 +61,10 @@ const LUGEMA: FlashWord = {
     { formType: "PAST_1SG", value: "lugesin" },
   ],
   examples: [
-    { et: "Ta loeb igal õhtul raamatut.", source: "EKILEX" },
-    { et: "Me loeme koos ajalehte.", source: "EKILEX" },
-    { et: "Ma ei loe ajalehti üldse.", source: "EKILEX" },
-    { et: "Loe see kiri kohe läbi!", source: "EKILEX" },
+    { et: "Ta loeb igal õhtul raamatut.", en: "An English line.", source: "EKILEX" },
+    { et: "Me loeme koos ajalehte.", en: "An English line.", source: "EKILEX" },
+    { et: "Ma ei loe ajalehti üldse.", en: "An English line.", source: "EKILEX" },
+    { et: "Loe see kiri kohe läbi!", en: "An English line.", source: "EKILEX" },
   ],
 };
 
@@ -242,7 +244,7 @@ function fake(n: number, slot: string, lexeme = `w${n}`): SheetItem {
     id: `${lexeme}:${slot}`, lexemeId: lexeme, cue: lexeme, translation: "x", pos: "NOUN", slot,
     kind: "case" as const, caseKey: slot as never, tense: null, person: null, pronoun: false,
     before: "A ", after: " b.", sentence: `Sentence number ${n} for ${slot}.`, sentenceEn: null,
-    answer: "x", accepted: ["x"], index: {}, hint: null, who: null,
+    answer: "x", accepted: ["x"], index: {}, hint: null, choices: null, who: null,
   };
   return { ...base, themes: themesOf(base) };
 }
@@ -311,7 +313,7 @@ describe("the partitive and the pronoun page", () => {
         { formType: "NOM_SG", value: "raamat" }, { formType: "GEN_SG", value: "raamatu" },
         { formType: "PART_SG", value: "raamatut" },
       ],
-      examples: [{ et: "Ma loen igal õhtul raamatut.", source: "EKILEX" }],
+      examples: [{ et: "Ma loen igal õhtul raamatut.", en: "An English line.", source: "EKILEX" }],
     };
     expect(linesFor(raamat).map((l) => l.slot)).toContain("PARTITIVE");
     // `tuba` is its own partitive, so it can never be a partitive line.
@@ -387,5 +389,173 @@ describe("composeSheet keeps a word to one page of a sitting", () => {
     const pages = sheet.exercises.map((e) => new Set([e.example, ...e.lines].filter(Boolean).map((l) => l!.lexemeId)));
     expect(pages).toHaveLength(2);
     for (const w of pages[0]!) expect(pages[1]!.has(w)).toBe(false);
+  });
+});
+
+/* ------------------------------------------------------------------------ */
+/* What makes a sentence a good line                                         */
+/* ------------------------------------------------------------------------ */
+
+/** A reach over the words these tests use, banded so one is above A1. */
+const REACH = plainReach([
+  { lemma: "tuba", pos: "NOUN", cefr: "A1", forms: TUBA.forms },
+  { lemma: "lugema", pos: "VERB", cefr: "A1", forms: LUGEMA.forms },
+  ...["ma", "olema", "praegu", "suur", "ja", "valge", "laps", "jooksma", "välja", "ta", "tulema", "istuma", "maha", "igal", "õhtul", "raamat", "me", "koos", "ajaleht", "ei", "üldse", "see", "kiri", "kohe", "läbi", "olen", "on", "loeb"]
+    .map((lemma) => ({ lemma, pos: "ADVERB", cefr: "A1", forms: [] })),
+  { lemma: "orhidee", pos: "NOUN", cefr: "C1", forms: [] },
+  { lemma: "akvaarium", pos: "NOUN", cefr: "C1", forms: [] },
+]);
+
+describe("workbookSentences", () => {
+  const ex = (et: string, en: string | null = "An English line.") => ({ et, en, source: "EKILEX" as const });
+
+  it("keeps only a sentence with an English line", () => {
+    expect(workbookSentences([ex("Ma olen praegu toas.", null)], OPEN, null)).toEqual([]);
+    expect(workbookSentences([ex("Ma olen praegu toas.")], OPEN, null)).toHaveLength(1);
+  });
+
+  it("drops a sentence with no finite verb, or with words nobody can look up", () => {
+    const quality = { reach: REACH, limit: 0 };
+    expect(workbookSentences([ex("Suur ja valge tuba toas.")], OPEN, quality)).toEqual([]);
+    expect(workbookSentences([ex("Ma loen praegu toas, qwertyuiop.")], OPEN, quality)).toEqual([]);
+    expect(workbookSentences([ex("Ma loen praegu toas.")], OPEN, quality)).toHaveLength(1);
+  });
+
+  it("lets one word above the band through and not two", () => {
+    const quality = { reach: REACH, limit: 0 };
+    expect(withinReach("Ma loen praegu orhidee toas.", quality)).toBe(true);
+    expect(withinReach("Ma loen praegu orhidee akvaarium toas.", quality)).toBe(false);
+  });
+
+  it("puts the plainest first and keeps the caller's order on a tie", () => {
+    const quality = { reach: REACH, limit: 0 };
+    const kept = workbookSentences([ex("Ma loen praegu orhidee toas."), ex("Ma loen toas."), ex("Ta loeb toas.")], OPEN, quality);
+    expect(kept.map((e) => e.et)).toEqual(["Ma loen toas.", "Ta loeb toas.", "Ma loen praegu orhidee toas."]);
+  });
+});
+
+describe("a line holds one form of its word", () => {
+  it("refuses a sentence that prints another form of the word beside the gap", () => {
+    const word = { ...LUGEMA, examples: [{ et: "Ma loen ja lugema on tore.", en: "x", source: "EKILEX" as const }] };
+    expect(linesFor(word).filter((l) => l.slot === "IndPrSg1")).toEqual([]);
+    const clean = { ...LUGEMA, examples: [{ et: "Ma loen õhtul raamatut.", en: "x", source: "EKILEX" as const }] };
+    expect(linesFor(clean).filter((l) => l.slot === "IndPrSg1")).toHaveLength(1);
+  });
+});
+
+/* ------------------------------------------------------------------------ */
+/* Pick the form, and the word box                                           */
+/* ------------------------------------------------------------------------ */
+
+describe("choicesFor", () => {
+  const lines = linesFor(TUBA);
+
+  it("offers three forms of the word, the answer one of them, none of them another right answer", () => {
+    let asked = 0;
+    for (const line of lines) {
+      const options = choicesFor(line);
+      if (!options) continue;
+      asked++;
+      expect(options).toHaveLength(3);
+      expect(options).toContain(line.answer);
+      const wrong = options.filter((o) => o !== line.answer).map((o) => o.toLocaleLowerCase("et"));
+      for (const a of line.accepted) expect(wrong).not.toContain(a.toLocaleLowerCase("et"));
+      expect(new Set(options.map((o) => o.toLocaleLowerCase("et"))).size).toBe(3);
+    }
+    expect(asked).toBeGreaterThan(0);
+  });
+
+  it("offers the same three on every load", () => {
+    const line = lines.find((l) => choicesFor(l));
+    expect(line).toBeDefined();
+    expect(choicesFor(line!)).toEqual(choicesFor(line!));
+  });
+
+  it("never offers the other object case against the one asked", () => {
+    const line = lines.find((l) => l.slot === "GENITIVE" || l.slot === "PARTITIVE");
+    if (!line) return;
+    const partner = line.slot === "GENITIVE" ? "PARTITIVE" : "GENITIVE";
+    for (const option of choicesFor(line) ?? []) {
+      expect(line.index[option.toLocaleLowerCase("et")] ?? []).not.toContain(partner);
+    }
+  });
+
+  it("writes every option with a capital where the answer opens the sentence", () => {
+    const capital = { ...fake(1, "INESSIVE"), answer: "Toas", accepted: ["toas"], index: { toast: ["ELATIVE"], toale: ["ALLATIVE"], toas: ["INESSIVE"] } };
+    const options = choicesFor(capital);
+    expect(options).not.toBeNull();
+    for (const o of options!) expect(o.charAt(0)).toBe(o.charAt(0).toLocaleUpperCase("et"));
+  });
+});
+
+describe("composeSheet sets three kinds of exercise", () => {
+  const letter = (i: number) => "abcdefghi"[i]!;
+  const items = Array.from({ length: 9 }, (_, i) => ({
+    ...fake(i, "INESSIVE"),
+    cue: `sõna${letter(i)}`,
+    index: { [`${letter(i)}aa`]: ["ELATIVE"], [`${letter(i)}bb`]: ["ALLATIVE"], x: ["INESSIVE"] },
+  }));
+
+  it("gives every line on a pick-the-form page its options, and none on a written one", () => {
+    const sheet = composeSheet(items, ["case:INESSIVE"], [{ lines: 4, kind: "choose" }]);
+    expect(sheet.exercises[0]!.kind).toBe("choose");
+    for (const line of sheet.exercises[0]!.lines) expect(line.choices).toHaveLength(3);
+    const written = composeSheet(items, ["case:INESSIVE"], [{ lines: 4 }]);
+    expect(written.exercises[0]!.kind).toBe("write");
+    for (const line of written.exercises[0]!.lines) expect(line.choices).toBeNull();
+  });
+
+  it("puts every word of a box page in its box, the example's included", () => {
+    const sheet = composeSheet(items, ["case:INESSIVE"], [{ lines: 5, kind: "box" }]);
+    const page = sheet.exercises[0]!;
+    expect(page.kind).toBe("box");
+    const words = [page.example!, ...page.lines].map((l) => l.cue);
+    expect([...page.box!].sort()).toEqual([...words].sort());
+  });
+
+  it("never sets a box on the pronoun page, where one word stands on several lines", () => {
+    const pronounLines = Array.from({ length: 6 }, (_, i) => ({ ...fake(i, "ALLATIVE", "lex-mina"), pronoun: true, themes: ["pronouns", "case:ALLATIVE", "mixed"] as Theme[] }));
+    const sheet = composeSheet(pronounLines, ["pronouns"], [{ lines: 4, kind: "box" }]);
+    expect(sheet.exercises.every((e) => e.theme !== "pronouns")).toBe(true);
+  });
+
+  it("names a form of another word in the box as the wrong word, not the wrong ending", () => {
+    const [a, b] = [items[0]!, items[1]!];
+    expect(otherWordIn("baa", a, [a, b])).toBe(b.cue);
+    expect(otherWordIn("aaa", a, [a, b])).toBeNull();
+    expect(otherWordIn("", a, [a, b])).toBeNull();
+  });
+});
+
+/* ------------------------------------------------------------------------ */
+/* Which theme a page is on, over the shipped course                         */
+/* ------------------------------------------------------------------------ */
+
+describe("a page heads with the learner's weakest case whenever the words can fill it", () => {
+  const items = HARVESTED.filter((w) => w.pos === "NOUN" || w.pos === "ADJECTIVE")
+    .slice(0, 400)
+    .flatMap((w) => linesFor(shipped(w.lemma)));
+
+  it("sets the weakest case first, every time one of them can carry a page", () => {
+    const cases = [...new Set(items.flatMap((i) => i.themes.filter((t) => t.startsWith("case:"))))];
+    expect(cases.length).toBeGreaterThan(3);
+    let checked = 0;
+    for (const theme of cases) {
+      const key = theme.slice(5);
+      const fillable = new Set(items.filter((i) => i.themes.includes(theme)).map((i) => i.lexemeId)).size >= MIN_LINES + 1;
+      const sheet = composeSheet(items, preferredThemes({ weakest: [key] }), [{ lines: 6 }, { lines: 4 }]);
+      if (fillable) {
+        checked++;
+        expect(sheet.exercises[0]?.theme).toBe(theme);
+      } else {
+        expect(sheet.exercises[0]?.theme).not.toBe(theme);
+      }
+    }
+    expect(checked).toBeGreaterThan(3);
+  });
+
+  it("puts tonight's case ahead of the weakest, and the asked-for theme ahead of both", () => {
+    const sheet = composeSheet(items, preferredThemes({ requested: "case:ELATIVE", tonight: "INESSIVE", weakest: ["PARTITIVE"] }), [{ lines: 6 }, { lines: 4 }]);
+    expect(sheet.exercises.map((e) => e.theme)).toEqual(["case:ELATIVE", "case:INESSIVE"]);
   });
 });

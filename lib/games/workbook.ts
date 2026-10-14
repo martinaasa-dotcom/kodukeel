@@ -14,6 +14,10 @@ import { CONJUGATION_SLOTS } from "@/lib/srs/slots";
 import type { CaseKey } from "@/lib/estonian/types";
 import { caseFits } from "@/lib/estonian/caseQuestion";
 import { askableSlots, formIndex, markForm, subjectOf, type FlashMark, type FlashWord } from "./flash";
+import { plainnessCost, type PlainReach } from "@/lib/dict/plainness";
+import { differentText, formNearness, pickOptions } from "@/lib/questions/distractors";
+import { rng, seedFrom } from "@/lib/random/seeded";
+import { shuffle } from "@/lib/random/shuffle";
 
 /**
  * TÖÖVIHIK: A WORKBOOK PAGE, THE WAY A COURSE BOOK SETS ONE.
@@ -116,6 +120,11 @@ export interface SheetItem {
   /** The letters of the answer the second pass uncovers. See `secondChance`. */
   hint: Hint | null;
   /**
+   * The forms offered to pick from, on a "pick the form" exercise, the answer
+   * among them. Null on every other kind of page. See `choicesFor`.
+   */
+  choices: string[] | null;
+  /**
    * The personal pronoun the bracket names beside the verb, where the
    * sentence does not say who is doing it. See `whoFor`. Null on every line
    * `linesFor` builds: whether the sentence names its subject is read against
@@ -124,8 +133,35 @@ export interface SheetItem {
   who: string | null;
 }
 
+/**
+ * THREE KINDS OF EXERCISE, WHICH IS WHAT A COURSE BOOK'S PAGE IS MADE OF.
+ *
+ *   `write`, "Kirjutage õige vorm": the word in brackets, written in the form
+ *   the sentence needs. The heart of every workbook and the default.
+ *
+ *   `choose`, "Valige õige vorm": the same line with three forms of the word
+ *   under it, one of them right. Recognising the form before producing it is
+ *   how a course book opens a new point, and it is where a beginner starts.
+ *
+ *   `box`, "Valige sobiv sõna": the brackets are gone and the words sit in a
+ *   box over the page. Each line wants one of them, in the right form, so a
+ *   learner has to read the sentence for what it means before they can choose
+ *   its ending, which is the step between drilling a form and using one.
+ *
+ * All three are marked by the same comparison against forms the dictionary
+ * vouches for (`markLine`), and grade the same cards the same way.
+ */
+export type ExerciseKind = "write" | "choose" | "box";
+
 export interface Exercise {
+  kind: ExerciseKind;
   theme: Theme;
+  /**
+   * The words in the box, shuffled, on a `box` exercise: every line's word
+   * and the worked example's, which a course book prints crossed out. Null
+   * on the other two kinds.
+   */
+  box: string[] | null;
   /** The worked example, filled in, as the first line of a course book is. */
   example: SheetItem | null;
   /** The lines to fill. */
@@ -403,11 +439,13 @@ export const OPEN: LineGates = { slotOk: () => true, sentenceOk: () => true, the
  * sentence that qualifies is the one to use. `used` is the sentences already
  * on the page, so one sentence is never two lines.
  */
-export function linesFor(word: FlashWord, gates: LineGates = OPEN, used: ReadonlySet<string> = new Set()): SheetItem[] {
+export function linesFor(
+  word: FlashWord, gates: LineGates = OPEN, used: ReadonlySet<string> = new Set(), quality: LineQuality | null = null,
+): SheetItem[] {
   const index = indexFor(word);
   const pronoun = isPersonalPronoun(word.lemma);
   const stems = stemsFrom(word.forms);
-  const sentences = word.examples.filter((e) => lineSentence(e.et) && gates.sentenceOk(e.et));
+  const sentences = workbookSentences(word.examples, gates, quality);
   if (sentences.length === 0) return [];
   // What a gap may hide is one answer for the whole app: a spelling outside
   // it is one nothing vouches for, so a line is never cut for it.
@@ -441,11 +479,78 @@ export function linesFor(word: FlashWord, gates: LineGates = OPEN, used: Readonl
       accepted: slot.accepted,
       index,
       hint: ladder.find((h) => h.kind === "ending") ?? ladder.find((h) => h.kind === "start") ?? null,
+      choices: null,
       who: null,
     };
     out.push({ ...base, themes: themesOf(base) });
   }
   return out;
+}
+
+/**
+ * WHAT MAKES A RECORDED SENTENCE A GOOD WORKBOOK LINE, AS FAR AS A MACHINE CAN SAY.
+ *
+ * Ekilex records a usage to illustrate a word to somebody who already reads
+ * Estonian, so what it holds is sometimes a noun phrase, sometimes an idiom,
+ * and sometimes a sentence full of words from further up the dictionary. A
+ * course book's lines are chosen; these are filtered, and this is the filter:
+ *
+ *   it has an English line, so the page can say what it means and the
+ *   corrected page can hand it back understood;
+ *   it has a finite verb in it, because a page of labels (`Laste joonistatud
+ *   pildid.`) is a page of puzzles about grammar nobody can see;
+ *   every word of it is one the dictionary knows, and at most one is above
+ *   the learner's band (`withinReach`);
+ *   and of the sentences left, the plainest at the learner's own band leads,
+ *   by the cost `lib/dict/plainness.ts` already puts on a sentence for a
+ *   beginner's first meeting: a word nobody can look up costs most, then a
+ *   missing verb, then a word above the band, then a clause.
+ *
+ * What it cannot judge is whether a native speaker would set the sentence as
+ * an exercise, which is the person's reading: `npm run audit:workbook` prints
+ * the lines a band can deal for that reading, and a sentence somebody refuses
+ * goes in `lib/dict/refused.ts`, which every line already asks.
+ */
+export interface LineQuality {
+  reach: PlainReach;
+  /** The learner's band, as a `LEVELS` index: a word above it costs more. */
+  limit: number;
+}
+
+/**
+ * AT MOST ONE WORD THE LEARNER HAS NOT REACHED, AND NONE NOBODY CAN LOOK UP.
+ *
+ * Every word of the sentence has to be one the dictionary places at some band,
+ * which keeps out the names and the rare words a learner cannot even look up,
+ * and at most one may sit above the learner's own band. One is a word to meet
+ * with the English underneath; two is a sentence read for its vocabulary
+ * rather than for its ending. Measured over the shipped dictionary, this still
+ * leaves 354 A1 words and 763 A2 words with a line, where the strict rule of
+ * none above the band left 234 and 594.
+ */
+export function withinReach(sentence: string, quality: LineQuality): boolean {
+  let above = 0;
+  for (const word of sentenceWords(sentence)) {
+    const band = quality.reach.bandOf.get(word);
+    if (band === undefined) return false;
+    if (band > quality.limit && ++above > 1) return false;
+  }
+  return true;
+}
+
+/** The sentences a word's lines may be cut from, best first. */
+export function workbookSentences(
+  examples: readonly Example[], gates: LineGates, quality: LineQuality | null,
+): Example[] {
+  const kept = examples.filter((e) => lineSentence(e.et) && !!e.en && gates.sentenceOk(e.et));
+  if (!quality) return kept;
+  const finite = (et: string) => sentenceWords(et).some((w) => quality.reach.finite.has(w));
+  return kept
+    .filter((e) => finite(e.et) && withinReach(e.et, quality))
+    .map((e, i) => ({ e, i, cost: plainnessCost(e.et, quality.reach, quality.limit) }))
+    // The order the caller gave settles a tie, which keeps a word's own sentences ahead of lent ones.
+    .sort((a, b) => a.cost - b.cost || a.i - b.i)
+    .map(({ e }) => e);
 }
 
 /** The stem a verb's present persons are built on, so the hint can name an ending. */
@@ -492,8 +597,17 @@ function lineFor(
     // And the gap may not leave another of its own answers standing.
     const blanked = cloze.text;
     if ([...accepted].some((form) => form !== tidyForm(cloze.answer) && mentions(blanked, form))) continue;
-    // Nor print the headword beside the gap, which a bracket already does.
-    if (mentions(blanked, word.lemma) && slot.kind === "case") continue;
+    /*
+      NOR ANY OTHER FORM OF THE SAME WORD. `Nii (arvama) ____ mina, teised ei
+      pea ju nii arvama.` is a real sentence and a poor line: the word is
+      printed beside its own gap, so the line reads as a repetition and hands
+      over the stem. One form of the word to a sentence, which is how a course
+      book's lines are written.
+    */
+    const answerForm = tidyForm(cloze.answer);
+    const ownForms = new Set([tidyForm(word.lemma), ...Object.keys(index)]);
+    ownForms.delete(answerForm);
+    if (sentenceWords(blanked).some((w) => ownForms.has(tidyForm(w)))) continue;
 
     return {
       before,
@@ -512,6 +626,8 @@ export const MIN_LINES = 3;
 export interface ExercisePlan {
   /** Lines to fill, not counting the worked example. */
   lines: number;
+  /** Which kind of exercise. `write` unless said. */
+  kind?: ExerciseKind;
 }
 
 /**
@@ -543,19 +659,95 @@ export function composeSheet(
   const exercises: Exercise[] = [];
 
   for (const plan of plans) {
-    const free = items.filter((i) => !taken.has(i.id) && !usedWords.has(i.lexemeId) && !usedSentences.has(i.sentence));
-    const theme = prefer.find((t) => !usedThemes.has(t) && available(free.filter((i) => i.themes.includes(t)), t) >= MIN_LINES + 1);
+    const kind = plan.kind ?? "write";
+    const free = items
+      .filter((i) => !taken.has(i.id) && !usedWords.has(i.lexemeId) && !usedSentences.has(i.sentence))
+      .flatMap((i) => (kind === "choose" ? withChoices(i) : [i]));
+    const fits = (t: Theme) => !usedThemes.has(t) && !(kind === "box" && t === "pronouns")
+      && available(free.filter((i) => i.themes.includes(t)), t, kind) >= MIN_LINES + 1;
+    const theme = prefer.find(fits);
     if (!theme) continue;
     const pool = free.filter((i) => i.themes.includes(theme));
-    const lines = pick(pool, plan.lines + 1, theme === "mixed", theme === "pronouns");
+    const lines = pick(pool, plan.lines + 1, theme === "mixed", theme === "pronouns", kind === "box");
     if (lines.length < MIN_LINES + 1) continue;
     const example = [...lines].sort((a, b) => a.sentence.length - b.sentence.length)[0]!;
     const rest = lines.filter((l) => l !== example);
     for (const l of lines) { taken.add(l.id); usedWords.add(l.lexemeId); usedSentences.add(l.sentence); }
     usedThemes.add(theme);
-    exercises.push({ theme, example, lines: rest });
+    const box = kind === "box"
+      ? shuffle(lines.map((l) => l.cue), rng(seedFrom(lines.map((l) => l.id).join("|"))))
+      : null;
+    exercises.push({ kind, theme, box, example, lines: rest });
   }
   return { exercises };
+}
+
+/** A line with its options set, or nothing where three honest options cannot be found. */
+function withChoices(item: SheetItem): SheetItem[] {
+  const choices = choicesFor(item);
+  return choices ? [{ ...item, choices }] : [];
+}
+
+/*
+  THE TWO OBJECT CASES ARE NEVER OFFERED AGAINST EACH OTHER. Whether an object
+  is in the omastav or the osastav turns on whether the action is finished,
+  and a sentence often reads both ways: `Ma lugesin raamatu` and `Ma lugesin
+  raamatut` are both Estonian. Typed, the learner wrote one and the marker
+  names which; offered, the other one would sit there as a wrong answer that
+  is not wrong.
+*/
+const OBJECT_PAIR: Readonly<Record<string, string>> = { GENITIVE: "PARTITIVE", PARTITIVE: "GENITIVE" };
+
+/**
+ * Three forms of the line's word to pick from, the answer among them, or null.
+ *
+ * The wrong ones are this word's own other forms, ranked by `formNearness`,
+ * which is the mock exam's and the quest's ranking: `toast` and `toale`
+ * against `toas`, `loeb` and `lugesin` against `loen`. The word as the
+ * bracket prints it is a candidate too, since writing it unchanged is the
+ * commonest mistake on a page like this. Nothing is written: every option is
+ * a spelling the word's own forms hold. Seeded on the line, so a reload
+ * offers the same three in the same order.
+ */
+export function choicesFor(item: SheetItem): string[] | null {
+  const barred = new Set([item.answer, ...item.accepted].map(tidyForm));
+  const partner = OBJECT_PAIR[item.slot];
+  const seen = new Set<string>();
+  const pool: { text: string }[] = [];
+  for (const form of [...Object.keys(item.index), tidyForm(item.cue)]) {
+    if (!form || /\s/.test(form) || barred.has(form) || seen.has(form)) continue;
+    if (partner && (item.index[form] ?? []).includes(partner)) continue;
+    seen.add(form);
+    pool.push({ text: form });
+  }
+  const picked = pickOptions({
+    answer: { text: tidyForm(item.answer) },
+    candidates: pool,
+    rng: rng(seedFrom(`${item.id}|${item.sentence}`)),
+    distinct: differentText,
+    nearness: formNearness,
+    count: 3,
+  });
+  if (!picked) return null;
+  // A line that opens on its gap writes the answer with a capital, so every option does.
+  const capital = item.answer.charAt(0) !== item.answer.charAt(0).toLocaleLowerCase("et");
+  return picked.options.map((o) => (o === tidyForm(item.answer) ? item.answer : capital ? o.charAt(0).toLocaleUpperCase("et") + o.slice(1) : o));
+}
+
+/**
+ * On a box page: the other word in the box the learner wrote a form of, or
+ * null. A form of the wrong word is a different mistake from the wrong form of
+ * the right one, and it is said differently: the sentence was read for the
+ * wrong meaning, not put in the wrong case.
+ */
+export function otherWordIn(written: string, item: SheetItem, lines: readonly SheetItem[]): string | null {
+  const form = tidyForm(written);
+  if (!form) return null;
+  for (const other of lines) {
+    if (other.lexemeId === item.lexemeId) continue;
+    if (tidyForm(other.cue) === form || other.index[form] || other.accepted.some((a) => tidyForm(a) === form)) return other.cue;
+  }
+  return null;
 }
 
 /**
@@ -565,7 +757,8 @@ export function composeSheet(
  * (`mina` five times on one page, in five cases), so there a line is one per
  * pronoun and case.
  */
-function available(items: readonly SheetItem[], theme: Theme): number {
+function available(items: readonly SheetItem[], theme: Theme, kind: ExerciseKind = "write"): number {
+  if (kind === "box") return new Set(items.map((i) => tidyForm(i.cue))).size;
   return new Set(items.map((i) => (theme === "pronouns" ? i.id : i.lexemeId))).size;
 }
 
@@ -574,11 +767,12 @@ function available(items: readonly SheetItem[], theme: Theme): number {
  * spreading the slots where the page is mixed, and never the same word twice
  * running where another is left.
  */
-function pick(pool: readonly SheetItem[], n: number, spread: boolean, byCase = false): SheetItem[] {
+function pick(pool: readonly SheetItem[], n: number, spread: boolean, byCase = false, byCue = false): SheetItem[] {
   const out: SheetItem[] = [];
   const keys = new Set<string>();
   const sentences = new Set<string>();
-  const keyOf = (i: SheetItem) => (byCase ? i.id : i.lexemeId);
+  // A box prints each word once, so two entries spelled alike (`hall`, frost and grey) are one word there.
+  const keyOf = (i: SheetItem) => (byCue ? tidyForm(i.cue) : byCase ? i.id : i.lexemeId);
   const ok = (i: SheetItem) => !keys.has(keyOf(i)) && !sentences.has(i.sentence);
   const take = (i: SheetItem) => { out.push(i); keys.add(keyOf(i)); sentences.add(i.sentence); };
   while (out.length < n) {
@@ -692,6 +886,8 @@ export type LineNote =
   | { kind: "otherTense"; got: Tense; wanted: Tense }
   /** The word copied out of the bracket as it stands, which is the commonest slip on any page like this. */
   | { kind: "unchanged" }
+  /** On a box page: a form of another word in the box. */
+  | { kind: "otherWord"; word: string }
   | { kind: "wrong" };
 
 /**

@@ -4459,6 +4459,30 @@ person the way a course book does (`whoFor`, read off the pronoun table and the 
 spellings); the bracket word copied out unchanged is named for what it is; and a card is graded once
 a sitting, the worst of its lines, with a word kept to one page.
 
+**A page is three kinds of exercise, and its sentences are filtered for a person to read.**
+`ExerciseKind` is `write` ("Kirjutage õige vorm"), `choose`, three forms of the word under each line
+off the word's own forms (`choicesFor`, never the other object case, which a sentence often takes
+too), and `box`, the words over the page and none in brackets, so a sentence is read for its meaning
+before its ending; a form of another word in the box is said as that (`otherWordIn`). A beginner's
+sitting picks then writes, everybody else's writes then does the box, and the module's page is
+written. A line has an English line, a finite verb, every word one the dictionary knows and at most
+one above the learner's band (`withinReach`), and no other form of its own word beside the gap,
+plainest first (`workbookSentences`, off `plainnessCost`). For an A1 or A2 learner the page reads
+the sentences written for a beginner (ADR-005 amendment 4, which now names it). What no filter can
+judge is whether a native speaker would set the sentence, and `npm run audit:workbook` prints the
+lines a band is dealt for that reading; a refusal goes in `lib/dict/refused.ts`. **The gap is a
+ruled line**, the learner's writing in the accent on the sentence's baseline, a checked answer is
+the word with its line coloured and a tick or a cross, and a second go is one sentence, the note
+and then the hint ("It ends in …ks", "The word is arst"), never a pill: a boxed gap with its text
+off the line and letter-spaced yellow hints were reported as hideous, and were. **The word sits in
+the middle of its line and the line grows with it**: a gap starts as wide as the word in brackets,
+never the answer's width, and `.wb-gap-sizer` lays a hidden copy of what is typed in the same grid
+cell as the box, so past that the line is as wide as the letters really are; a checked answer keeps
+the same starting width, so pressing Check does not move the sentence. A half-filled page
+survives a reload (`resume.ts`), the lines got wrong can be done again ungraded, and
+`scripts/lib/workbook.mjs` walks every state for the layout and accessibility sweeps with every
+write cut off.
+
 **Kakskümmend küsimust answers a well-formed question, and that is a number held under one percent.**
 A round was reported as horrible, and the measure behind that was 39 percent: of 380 questions a
 learner asks, over every thing the game could be thinking of, that many came back "Ei tea" or turned

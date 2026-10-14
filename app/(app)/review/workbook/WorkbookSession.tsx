@@ -22,6 +22,7 @@ import { fillNodes } from "@/components/fillNodes";
 import { Speak } from "@/components/Speak";
 import { GapMeaning } from "@/components/GapMeaning";
 import { Chip, KeyCap } from "@/components/ui";
+import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { answerNote } from "@/lib/copy/answerNote";
 import { caseLabelFor } from "@/lib/copy/caseLabel";
 import { gapMeaning } from "@/lib/copy/gapMeaning";
@@ -33,8 +34,8 @@ import { againHref } from "@/lib/ux/again";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { VERDICT_CLASS, VERDICT_INK, type Verdict } from "@/lib/ux/verdict";
 import {
-  OUTCOME_RATING, markLine, outcomeAfter, pageReading, themeCase, verbSlot,
-  type LineMark, type LineNote, type Outcome, type SheetItem, type Tense, type Theme,
+  OUTCOME_RATING, markLine, otherWordIn, outcomeAfter, pageReading, themeCase, verbSlot,
+  type ExerciseKind, type LineMark, type LineNote, type Outcome, type SheetItem, type Tense, type Theme,
 } from "@/lib/games/workbook";
 import { forgetWorkbook, loadWorkbook, saveWorkbook } from "./resume";
 
@@ -44,6 +45,9 @@ export interface WorkbookLine extends SheetItem {
 }
 
 export interface WorkbookExercise {
+  kind: ExerciseKind;
+  /** The words in the box, on a `box` exercise. */
+  box: string[] | null;
   theme: Theme;
   /** The grammar reference's two lines for the page's rule, or null where no one rule is behind it. */
   rule: { summary: string; watchOut: string } | null;
@@ -79,8 +83,10 @@ function useThemeName() {
   }, [t]);
 }
 
-/** The instruction a theme's exercise opens with, the way a course book words it. */
-function instructionFor(theme: Theme): string {
+/** The instruction an exercise opens with, the way a course book words it. */
+function instructionFor(theme: Theme, kind: ExerciseKind = "write"): string {
+  if (kind === "choose") return "Pick the form each sentence needs.";
+  if (kind === "box") return "Each sentence needs one word from the box. Put it in the form the sentence needs.";
   if (themeCase(theme)) return "Put the word in brackets into this form.";
   switch (theme) {
     case "pronouns": return "Put the pronoun in brackets into the form the sentence needs.";
@@ -93,8 +99,13 @@ function instructionFor(theme: Theme): string {
 }
 
 /** The headword in the brackets, with a capital where it opens the sentence, as a course book prints it. */
-function bracketed(line: SheetItem): string {
+function bracketed(line: SheetItem, kind: ExerciseKind = "write"): string {
+  if (kind === "box") return line.who ? `(${capitalFirst(line, line.who)})` : "";
   return `(${cueText(line)})`;
+}
+
+function capitalFirst(line: SheetItem, text: string): string {
+  return line.before.trim() === "" ? text.charAt(0).toLocaleUpperCase("et") + text.slice(1) : text;
 }
 
 /**
@@ -107,18 +118,39 @@ function cueText(line: SheetItem): string {
   return line.before.trim() === "" ? text.charAt(0).toLocaleUpperCase("et") + text.slice(1) : text;
 }
 
+/**
+ * What a line open for a second go is given, as words around the letters.
+ * The ladder's own covered spelling (`_____ks`) is read for the letters it
+ * shows rather than drawn, since a row of underscores counts out the answer.
+ */
+function secondGoHint(line: SheetItem, kind: ExerciseKind, t: (s: string) => string):
+  { lead: string; letters: string; tail: string; marker: Record<string, string> } | null {
+  if (kind === "choose") return null;
+  if (kind === "box") return { lead: t("The word is"), letters: line.cue, tail: ".", marker: { "data-workbook-word-hint": "" } };
+  if (!line.hint) return null;
+  const letters = line.hint.shown.replace(/_+/g, "").trim();
+  if (!letters) return null;
+  return line.hint.kind === "ending"
+    ? { lead: t("It ends in"), letters: `\u2026${letters}`, tail: ".", marker: {} }
+    : { lead: t("It starts with"), letters: `${letters}\u2026`, tail: ".", marker: {} };
+}
+
 /*
   HOW WIDE A GAP IS DRAWN, AND WHY IT IS NEVER THE ANSWER'S WIDTH.
 
   It was the answer's length plus two, which hands over how long the ending is:
   `tuppa` and `toasse` drew two different boxes, and so did `annab` beside
-  `andsin`. A course book draws one line for every gap. So the box is sized off
-  the word in brackets, which is on the page already, and then grows with what
-  is typed, so a long answer never scrolls inside a short box.
+  `andsin`. A course book draws one line for every gap. So the line starts as
+  wide as the word in brackets, which is on the page already, and the word
+  written on it sits in the middle, the way a hand writes on a ruled line.
+  Past that the line grows with the word itself: `.wb-gap-sizer` lays a hidden
+  copy of what is typed in the same grid cell as the box, so the box is as wide
+  as the letters really are rather than a guess at them in `ch`.
 */
-function gapWidth(line: SheetItem, value: string): string {
-  const room = Math.min(14, Math.max(7, line.cue.length + 2));
-  return `${Math.min(24, Math.max(room, value.length + 2))}ch`;
+function gapWidth(line: SheetItem, widest?: number): string {
+  // On a box page the line's own word is the answer to find, so every gap is as wide as the widest word.
+  const room = widest !== undefined ? Math.min(10, Math.max(7, widest)) : Math.min(14, Math.max(7, line.cue.length + 2));
+  return `${room}ch`;
 }
 
 const verdictOf = (outcome: Outcome | undefined, mark: LineMark | undefined): Verdict | null => {
@@ -200,7 +232,8 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
   const [said, setSaid] = useState("");
   /* The missed lines, set again, and a counter so a second go at them mounts afresh. */
   const [redo, setRedo] = useState<{ exercises: WorkbookExercise[]; round: number } | null>(null);
-  const inputs = useRef(new Map<string, HTMLInputElement>());
+  /* Each line's box, or on a pick-the-form page the row of options, so the caret can be sent to a line. */
+  const inputs = useRef(new Map<string, HTMLElement>());
   const lastFocused = useRef<HTMLInputElement | null>(null);
   const sent = useRef(new Set<number>());
   /* Picked up from the device after a reload, and said so once at the top of the page. */
@@ -249,6 +282,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
   }, [looked, practice, finished, address, exercises, at, pass, typed, marks, firstMarks, checkedAs, outcomes, english]);
 
   const exercise = exercises[at];
+  const kind: ExerciseKind = exercise?.kind ?? "write";
   const lines = useMemo(() => exercise?.lines ?? [], [exercise]);
   const total = exercises.reduce((n, e) => n + e.lines.length, 0);
   const settledCount = Object.keys(outcomes).length;
@@ -259,15 +293,19 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
      never on a phone, where focusing it would open the keyboard over the page
      somebody is about to read. */
   useEffect(() => {
-    if (!exercise || pass !== 1) return;
+    if (!exercise || pass !== 1 || kind !== "write" && kind !== "box") return;
     if (typeof window === "undefined" || !window.matchMedia?.("(pointer: fine)").matches) return;
     inputs.current.get(lines[0]?.id ?? "")?.focus({ preventScroll: true });
-  }, [exercise, lines, pass]);
+  }, [exercise, kind, lines, pass]);
 
   const focusLine = (id: string | undefined) => {
     if (!id) return;
     const el = inputs.current.get(id);
-    el?.focus();
+    // A row of options takes the caret on its first option still on offer.
+    const target = el && !(el instanceof HTMLInputElement)
+      ? el.querySelector<HTMLElement>('[role="radio"]:not([disabled])')
+      : el;
+    target?.focus();
   };
 
   /** Sends an exercise's grades once, the moment it settles. */
@@ -337,7 +375,16 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
     const nextOutcomes = { ...outcomes };
     const nextFirst = { ...firstMarks };
     for (const line of open) {
-      const mark = markLine(line, typed[line.id] ?? "");
+      let mark = markLine(line, typed[line.id] ?? "");
+      /*
+        On a box page a form of another word in the box is its own mistake:
+        the sentence was read for the wrong meaning, and saying "that's the
+        seestütlev" about a word the line never wanted would be beside the point.
+      */
+      if (kind === "box" && !mark.right && mark.note.kind !== "blank") {
+        const other = otherWordIn(typed[line.id] ?? "", line, exercise.example ? [...lines, exercise.example] : lines);
+        if (other) mark = { right: false, slip: false, reached: null, note: { kind: "otherWord", word: other } };
+      }
       nextMarks[line.id] = mark;
       if (pass === 1) nextFirst[line.id] = mark;
       const outcome = outcomeAfter(pass, mark);
@@ -366,7 +413,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
       right, total: lines.length, open: stillOpen.length,
     }));
     requestAnimationFrame(() => focusLine(stillOpen[0]?.id));
-  }, [exercise, pass, marks, outcomes, firstMarks, open, typed, checkedAs, lines, sound, t, send, at]);
+  }, [exercise, kind, pass, marks, outcomes, firstMarks, open, typed, checkedAs, lines, sound, t, send, at]);
 
   /** The second pass given up on: every open line is shown its answer. */
   const showAnswers = useCallback(() => {
@@ -528,12 +575,21 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
           )}
           <p className="flex items-start gap-2.5 text-md font-semibold leading-snug" style={{ color: "var(--ink)" }}>
             <PenLine size={18} className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} aria-hidden />
-            <span>{t(instructionFor(exercise.theme))}</span>
+            <span>{t(instructionFor(exercise.theme, kind))}</span>
           </p>
           {label && (
             <p className="mt-2 pl-7 text-base">
               <CaseLabel label={label} />
             </p>
+          )}
+          {kind === "box" && exercise.box && (
+            <WordBox
+              words={exercise.box}
+              used={new Set([
+                ...(exercise.example ? [exercise.example.cue] : []),
+                ...lines.filter((l) => outcomes[l.id] && outcomes[l.id] !== "missed").map((l) => l.cue),
+              ])}
+            />
           )}
           {exercise.rule && (
             <div className="mt-3 sm:pl-7" data-workbook-rule="">
@@ -551,7 +607,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
               <div className="min-w-0 flex-1">
                 <p lang="et" className="wb-sentence">
                   {exercise.example.before.trimEnd()}{exercise.example.before.trim() ? " " : ""}
-                  <span className="wb-cue">{bracketed(exercise.example)}</span>{" "}
+                  {bracketed(exercise.example, kind) && <><span className="wb-cue">{bracketed(exercise.example, kind)}</span>{" "}</>}
                   <span className="wb-example-answer">{exercise.example.answer}</span>
                   {exercise.example.after}
                 </p>
@@ -565,10 +621,13 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
             <SheetLine
               key={line.id}
               line={line}
+              kind={kind}
+              widest={exercise.box ? Math.max(...exercise.box.map((w) => w.length)) : undefined}
               number={i + (exercise.example ? 2 : 1)}
               index={i}
               value={typed[line.id] ?? ""}
               retyped={(typed[line.id] ?? "") !== (checkedAs[line.id] ?? "")}
+              checked={checkedAs[line.id] ?? ""}
               last={line.id === open.at(-1)?.id}
               mark={marks[line.id]}
               firstMark={firstMarks[line.id]}
@@ -587,7 +646,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
         </ol>
 
         <footer className="border-t px-5 py-4 sm:px-6" style={{ borderColor: "var(--rule-soft)" }}>
-          {pass !== "settled" && (
+          {pass !== "settled" && kind !== "choose" && (
             <div className="mb-4">
               <DiacriticBar fallbackRef={lastFocused} />
             </div>
@@ -600,7 +659,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
                 })
                 : pass === 2
                   ? fill(t("{n} of {total} tried again"), { n: open.filter((l) => changedSince(l.id)).length, total: open.length })
-                  : fill(t("{n} of {total} filled in"), { n: filled, total: open.length })}
+                  : fill(t(kind === "choose" ? "{n} of {total} picked" : "{n} of {total} filled in"), { n: filled, total: open.length })}
             </p>
             <div className="ml-auto flex flex-nowrap items-center gap-2">
               {pass === 2 && (
@@ -627,9 +686,15 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
 
 /** One numbered line: the sentence, the word in brackets, the box, and what was said about it. */
 function SheetLine({
-  line, number, index, value, retyped, last, mark, firstMark, outcome, pass, english, onChange, onKeyDown, register, onFocus,
+  line, kind, widest, number, index, value, retyped, checked, last, mark, firstMark, outcome, pass, english,
+  onChange, onKeyDown, register, onFocus,
 }: {
   line: WorkbookLine;
+  kind: ExerciseKind;
+  /** On a box page, the longest word in the box, which sizes every gap alike. */
+  widest: number | undefined;
+  /** What the line held when the page was last checked: on a pick-the-form page, the option checked wrong. */
+  checked: string;
   number: number;
   index: number;
   value: string;
@@ -644,17 +709,25 @@ function SheetLine({
   english: boolean;
   onChange: (value: string) => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  register: (el: HTMLInputElement | null) => void;
+  register: (el: HTMLElement | null) => void;
   onFocus: (el: HTMLInputElement) => void;
 }) {
   const t = useT();
   const locale = useLocale();
-  const verdict = verdictOf(outcome, mark);
   const settled = outcome !== undefined;
   const reopened = !settled && pass === 2;
   const meaning = gapMeaning({ en: line.sentenceEn, answer: line.answer, cue: line.translation });
-  const note = noteText(mark, firstMark, outcome, line, t, locale);
+  const note = noteText(mark, firstMark, outcome, line, t, locale, kind);
+  const hint = secondGoHint(line, kind, t);
+  const label = kind === "box"
+    ? (line.who
+      ? fill(t("Line {n}: a word from the box, for “{who}”, in the form the sentence needs"), { n: number, who: line.who })
+      : fill(t("Line {n}: a word from the box, in the form the sentence needs"), { n: number }))
+    : fill(t("Line {n}: {word}, in the form the sentence needs"), { n: number, word: cueText(line) });
   const tight = /^[,.!?;:)…]/.test(line.after);
+  /* The punctuation straight after a gap stays on the gap's line: a full stop alone on the next line reads as a line of its own. */
+  const stuck = line.after.match(/^[,.!?;:)…"»]+/u)?.[0] ?? "";
+  const rest = line.after.slice(stuck.length);
 
   return (
     <li className="wb-line" data-workbook-line={line.id} data-outcome={outcome ?? (reopened ? "open" : "")}>
@@ -662,11 +735,12 @@ function SheetLine({
       <div className="min-w-0 flex-1">
         <p lang="et" className="wb-sentence">
           {line.before.trimEnd()}{line.before.trim() ? " " : ""}
-          <span className="wb-cue">{bracketed(line)}</span>{" "}
+          {bracketed(line, kind) && <><span className="wb-cue">{bracketed(line, kind)}</span>{" "}</>}
+          <span className="whitespace-nowrap">
           {settled ? (
             <span
-              className={`wb-filled ${VERDICT_CLASS[verdict ?? "right"]} wb-stamp ${tight ? "wb-tight" : ""}`}
-              style={{ animationDelay: `${Math.min(index, 10) * 45}ms` }}
+              className={`wb-filled ${outcome === "missed" ? "wb-filled-missed" : "wb-filled-right"} wb-stamp ${tight ? "wb-tight" : ""}`}
+              style={{ animationDelay: `${Math.min(index, 10) * 45}ms`, minWidth: gapWidth(line, widest) }}
               data-answer={line.answer}
             >
               {outcome === "missed" ? (
@@ -682,10 +756,26 @@ function SheetLine({
                 </>
               )}
             </span>
+          ) : kind === "choose" ? (
+            <span
+              aria-hidden
+              className={`wb-gap wb-gap-choice ${value ? "wb-gap-picked" : ""} ${reopened && !retyped ? "wb-gap-again shake" : ""} ${tight ? "wb-tight" : ""}`}
+              style={{ minWidth: gapWidth(line) }}
+              data-workbook-gap=""
+            >
+              {value || "\u00a0"}
+            </span>
           ) : (
+            <span
+              className={`wb-gap-sizer ${tight ? "wb-tight" : ""}`}
+              data-value={value}
+              style={{ minWidth: gapWidth(line, widest) }}
+            >
             <input
               ref={register}
               type="text"
+              // One character of its own, so the hidden copy beside it decides how wide the line is.
+              size={1}
               lang="et"
               value={value}
               onChange={(e) => onChange(e.target.value)}
@@ -696,7 +786,7 @@ function SheetLine({
                 if (reopened && !retyped) e.currentTarget.select();
                 onFocus(e.currentTarget);
               }}
-              aria-label={fill(t("Line {n}: {word}, in the form the sentence needs"), { n: number, word: cueText(line) })}
+              aria-label={label}
               aria-invalid={reopened ? true : undefined}
               autoComplete="off"
               // A phone's own Enter key says what Enter does here: on to the next box, or check.
@@ -704,35 +794,67 @@ function SheetLine({
               autoCapitalize="off"
               autoCorrect="off"
               spellCheck={false}
-              className={`wb-gap ${reopened && !retyped ? "wb-gap-again shake" : ""} ${tight ? "wb-tight" : ""}`}
-              style={{ width: gapWidth(line, value) }}
+              className={`wb-gap ${reopened && !retyped ? "wb-gap-again shake" : ""}`}
               data-workbook-gap=""
             />
+            </span>
           )}
-          {line.after}
+          {stuck}
+          </span>
+          {rest}
         </p>
 
         {/* While the line is being answered the English marks the word it wants;
             once it is filled the marking has done its job and the line reads plain. */}
-        {english && !settled && meaning && <GapMeaning meaning={meaning} className="mt-1 text-base leading-snug" />}
-        {english && settled && line.sentenceEn && (
+        {/* On a box page the marked word in the English would say which word from the box goes
+            here, which is the half of the line the box is asking, so the English is the plain sentence. */}
+        {english && !settled && kind !== "box" && meaning && <GapMeaning meaning={meaning} className="mt-1 text-base leading-snug" />}
+        {english && (settled || kind === "box") && line.sentenceEn && (
           <p lang="en" className="mt-1 text-base leading-snug" style={{ color: "var(--ink-2)" }}>{line.sentenceEn}</p>
         )}
 
-        {reopened && line.hint && (
-          <p className="pop-in mt-2 inline-flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-            <Lightbulb size={14} style={{ color: "var(--hard-ink)" }} aria-hidden />
-            <span>{line.hint.kind === "ending" ? t("It ends like this:") : t("It starts like this:")}</span>
-            <code lang="et" className="wb-hint tnum">{line.hint.shown}</code>
-          </p>
+        {kind === "choose" && !settled && (
+          <div ref={register} className="mt-2" data-workbook-options="">
+            <ChoiceGroup ariaLabel={label} className="flex flex-wrap gap-2">
+              {(line.choices ?? []).map((option) => {
+                // The option checked wrong on the first pass is crossed out and cannot be picked again.
+                const struck = reopened && option === checked;
+                return (
+                  <ChoiceChip key={option} selected={value === option && !struck} disabled={struck} onSelect={() => onChange(option)}>
+                    {struck ? <s lang="et">{option}</s> : <span lang="et">{option}</span>}
+                  </ChoiceChip>
+                );
+              })}
+            </ChoiceGroup>
+          </div>
         )}
 
-        {note && (
-          <p
-            className="mt-1.5 text-base font-semibold leading-snug"
-            style={{ color: reopened && retyped ? "var(--ink-2)" : VERDICT_INK[verdict ?? "nearly"] }}
-          >
-            {note}
+        {/*
+          WHAT WENT WRONG AND HOW TO GET IT, AS ONE SENTENCE. The note in blush,
+          then the hint in the body ink with the letters it gives in bold: a box
+          line's second go names its word, which leaves the form to find as a
+          bracket does; a written line's names how the answer ends or starts.
+          A pick-the-form line needs neither, since the wrong option is crossed
+          out above it.
+        */}
+        {(note || (reopened && hint)) && (
+          <p className="mt-1.5 text-base leading-snug" data-workbook-note="">
+            {note && (
+              <span
+                className="font-semibold"
+                style={{ color: reopened && retyped ? "var(--ink-2)" : settled && outcome !== "missed" ? "var(--ink-2)" : VERDICT_INK.wrong }}
+              >
+                {note}
+              </span>
+            )}
+            {reopened && hint && (
+              <span style={{ color: "var(--ink-2)" }} {...hint.marker}>
+                {note ? " " : ""}
+                {hint.lead}{" "}
+                <span lang="et" className="wb-hint">{hint.letters}</span>
+                {hint.tail}
+              </span>
+            )}
           </p>
         )}
       </div>
@@ -752,7 +874,7 @@ function SheetLine({
 /** What to say under a line, in the reader's language, or nothing. */
 function noteText(
   mark: LineMark | undefined, firstMark: LineMark | undefined, outcome: Outcome | undefined,
-  line: SheetItem, t: (s: string) => string, locale: ReturnType<typeof useLocale>,
+  line: SheetItem, t: (s: string) => string, locale: ReturnType<typeof useLocale>, kind: ExerciseKind = "write",
 ): string | null {
   if (outcome === "right") return null;
   if (outcome === "missed") {
@@ -761,7 +883,7 @@ function noteText(
       typed, so the note says what the form is for rather than saying the
       answer a second time a hand's width under it.
     */
-    const why = firstMark ? reasonText(firstMark.note, t) : null;
+    const why = firstMark ? reasonText(firstMark.note, t, kind) : null;
     if (why && firstMark?.note.kind !== "blank") return why;
     const clause = plainAsk(line.slot, locale);
     return clause ? fill(t("That's the form you use {clause}."), { clause }) : why;
@@ -769,14 +891,19 @@ function noteText(
   if (outcome === "second") return t("Right on the second go.");
   if (outcome === "slip") return mark?.note.kind === "checker" ? answerNote(mark.note.text, locale) : t("Right, nearly to the letter.");
   if (!mark) return null;
-  return reasonText(mark.note, t) ?? t("Not quite. Have another go.");
+  return reasonText(mark.note, t, kind) ?? t("Not quite.");
 }
 
 /** Why a line was not right, where the marker could say. */
-function reasonText(note: LineNote, t: (s: string) => string): string | null {
+function reasonText(note: LineNote, t: (s: string) => string, kind: ExerciseKind = "write"): string | null {
   switch (note.kind) {
-    case "blank": return t("Nothing typed yet.");
-    case "unchanged": return t("That's the word as it stands in brackets. The sentence needs it changed.");
+    case "blank": return kind === "choose" ? t("Nothing picked yet.") : t("Nothing typed yet.");
+    case "unchanged":
+      return kind === "box"
+        ? t("That's the word as it stands in the box. The sentence needs it changed.")
+        : t("That's the word as it stands in brackets. The sentence needs it changed.");
+    case "otherWord":
+      return fill(t("That's a form of “{word}”, which belongs on another line."), { word: note.word });
     case "otherCase":
       return fill(t("That's the {got}. This one wants the {wanted}."), {
         got: caseByKey(note.got)?.et ?? note.got, wanted: caseByKey(note.wanted)?.et ?? note.wanted,
@@ -789,6 +916,27 @@ function reasonText(note: LineNote, t: (s: string) => string): string | null {
       });
     default: return null;
   }
+}
+
+/**
+ * THE BOX OVER A COURSE BOOK'S PAGE: the words the lines are made of, in no
+ * order, the worked example's crossed out as a book prints it, and every other
+ * one crossed out as its line is settled, so what is left is what is left.
+ */
+function WordBox({ words, used }: { words: string[]; used: ReadonlySet<string> }) {
+  const t = useT();
+  return (
+    <div className="wb-box mt-4 sm:ml-7" data-workbook-box="">
+      <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Word box")}</p>
+      <ul className="flex flex-wrap gap-x-4 gap-y-2" aria-label={t("Word box")}>
+        {words.map((word) => (
+          <li key={word} lang="et" className="text-md font-semibold" style={{ color: used.has(word) ? "var(--ink-3)" : "var(--ink)" }}>
+            {used.has(word) ? <s aria-label={fill(t("{word}, used"), { word })}>{word}</s> : word}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 /** The page handed back, corrected, and where to go from it. */
@@ -921,7 +1069,7 @@ function Finished({
                       <LineForm line={line} />
                       {outcome !== "right" && wrote && wrote.toLocaleLowerCase("et") !== line.answer.toLocaleLowerCase("et") && (
                         <span style={{ color: "var(--ink-3)" }}>
-                          {t("You wrote")} <s lang="et">{wrote}</s>
+                          {exercise.kind === "choose" ? t("You picked") : t("You wrote")} <s lang="et">{wrote}</s>
                         </span>
                       )}
                     </p>
@@ -993,10 +1141,13 @@ function missedAgain(exercises: WorkbookExercise[], outcomes: Record<string, Out
   const themes = new Set(exercises.filter((e) => e.lines.some((l) => lines.some((m) => m.id === l.id))).map((e) => e.theme));
   const only = themes.size === 1 ? exercises.find((e) => themes.has(e.theme)) ?? null : null;
   return {
+    // Written, whatever the page was: going back over a line means writing it this time.
+    kind: "write",
+    box: null,
     theme: only?.theme ?? "mixed",
     rule: only?.rule ?? null,
     example: null,
-    lines,
+    lines: lines.map((l) => ({ ...l, choices: null })),
   };
 }
 

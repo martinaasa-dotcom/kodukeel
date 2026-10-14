@@ -63,6 +63,7 @@ import { baseUrl, suite } from "./lib/checks.mjs";
 import { revealAnswer } from "./lib/review.mjs";
 import { ensureLetterBar, ensureWordGloss } from "./lib/prefs.mjs";
 import { startRound } from "./lib/briefing.mjs";
+import { cutOffWrites, walkWorkbook } from "./lib/workbook.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { fitsAnyWord, survey, wholeWords } from "./lib/containment.mjs";
 import { requireLocalDatabase, resolveDatabaseUrl } from "./lib/local-db.mjs";
@@ -1269,6 +1270,50 @@ async function creditedToday(ctx, at) {
 }
 
 /*
+  A WORKBOOK SITTING, EVERY STATE OF IT, AT TWO LEVELS.
+
+  `/review/workbook` is measured above as it opens, which is the first page of
+  the first exercise and nothing else. Everything a learner spends a sitting
+  looking at arrives by doing something: the page open for a second go with a
+  hint under each line, the next exercise, the corrected page and the redo.
+  And the kind of exercise turns on the level: a beginner picks the form
+  first, which is a row of three options under every line, and everybody else
+  ends on the word box. So it is walked at A1 and at B1 (`walkWorkbook`), in a
+  context of its own with every write cut off, since walking a page to its end
+  grades it and this suite's neighbors read the same deck. The level is
+  written for the walk and put back after it, as `creditedToday` does.
+*/
+async function workbookStates(width, at) {
+  const prisma = newPrismaClient(requireLocalDatabase("write a level for the walk and put back what was there"));
+  const keys = ["cefrPlacement", "cefrPlacementAt"];
+  const before = await prisma.setting.findMany({ where: { ownerId: LOCAL_OWNER, key: { in: keys } } });
+  try {
+    for (const level of ["A1", "B1"]) {
+      for (const [key, value] of [["cefrPlacement", level], ["cefrPlacementAt", new Date().toISOString()]]) {
+        await prisma.setting.upsert({
+          where: { ownerId_key: { ownerId: LOCAL_OWNER, key } },
+          update: { value },
+          create: { ownerId: LOCAL_OWNER, key, value },
+        });
+      }
+      const ctx = await browser.newContext({
+        viewport: { width, height: 900 }, hasTouch: width < 768, isMobile: width < 768, reducedMotion: "reduce",
+      });
+      await cutOffWrites(ctx);
+      const page = await ctx.newPage();
+      const reached = await walkWorkbook(page, B, (name) => measure(page, `the workbook at ${level}, ${name}, ${at}`));
+      // A sitting is at least a page, its second go and the corrected page at the end.
+      check(`the workbook at ${level} ${at} was walked to its corrected page`, reached >= 4, `${reached} states`);
+      await ctx.close();
+    }
+  } finally {
+    await prisma.setting.deleteMany({ where: { ownerId: LOCAL_OWNER, key: { in: keys } } });
+    if (before.length) await prisma.setting.createMany({ data: before });
+    await prisma.$disconnect();
+  }
+}
+
+/*
   THE STATES A ROUTE DOES NOT ARRIVE IN.
 
   Everything above measures a page as it loads, and three of the boxes in this
@@ -1454,6 +1499,7 @@ for (const width of WIDTHS) {
   await paperBeingSat(ctx, `at ${width}`);
   await creditedToday(ctx, `at ${width}`);
   if (width !== 768) await askedForStates(ctx, `at ${width}`);
+  if (width === 360 || width === 1280) await workbookStates(width, `at ${width}`);
 
   await ctx.close();
 }

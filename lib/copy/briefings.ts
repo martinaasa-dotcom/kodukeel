@@ -230,11 +230,10 @@ export const BRIEFINGS = {
   workbook: {
     title: "A page from your workbook",
     what:
-      "Real Estonian sentences, numbered like a course book's page, each with a word in " +
-      "brackets and a gap. The first line is filled in to show you how.",
+      "Estonian sentences numbered like a course book's page, each with a gap. You pick the " +
+      "form, write it, or choose the word from a box. The first line is filled in.",
     you:
-      "Put each word into the form its sentence needs, then check the page. Anything wrong " +
-      "opens again with a hint, for one more go.",
+      "Fill in the page, then check it. Anything wrong opens again with a hint, for one more go.",
     action: "Open the page",
   },
   sayings: {

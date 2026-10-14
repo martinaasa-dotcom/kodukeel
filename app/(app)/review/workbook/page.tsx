@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { bandsAround } from "@/lib/collections/levels";
+import { LEVELS } from "@/lib/collections/syllabus/index";
+import { authoredFor } from "@/lib/dict/authored";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
@@ -18,7 +20,7 @@ import { shuffle } from "@/lib/random/shuffle";
 import { resolveProvider } from "@/lib/tutor/provider";
 import {
   MIN_LINES, cardForLine, composeSheet, linesFor, parseTheme, preferredThemes, whoFor,
-  type ExercisePlan, type SheetItem, type Theme,
+  type ExercisePlan, type LineQuality, type SheetItem, type Theme,
 } from "@/lib/games/workbook";
 import { focusFrom } from "@/lib/course/focus";
 import { byRecency, recentLemmas, sentenceWithin, slotWithin, tonightsCase } from "@/lib/course/scope";
@@ -77,6 +79,24 @@ function ruleFor(theme: Theme): { summary: string; watchOut: string } | null {
  */
 const FIRST: Record<string, number> = { A1: 6, A2: 8, B1: 10, B2: 10, C1: 10 };
 const SECOND = 6;
+
+/*
+  WHICH KINDS OF EXERCISE A SITTING IS. A course book opens a point by having
+  the learner pick the right form before they write it, and moves on from
+  writing to choosing the word as well, so a sitting is two exercises of two
+  kinds (`ExerciseKind` in `lib/games/workbook.ts`). A beginner picks first
+  and writes second; everybody else writes first and then does the word box,
+  which asks them to read each sentence for its meaning before its ending.
+  Inside the module the page is one exercise and it is written, because that
+  is the step the evening schedules.
+*/
+const SITTING: Record<string, readonly ["write" | "choose" | "box", "write" | "choose" | "box"]> = {
+  A1: ["choose", "write"],
+  A2: ["write", "box"],
+  B1: ["write", "box"],
+  B2: ["write", "box"],
+  C1: ["write", "box"],
+};
 const IN_MODULE: Record<string, number> = { A1: 6, A2: 6, B1: 8, B2: 8, C1: 8 };
 
 /**
@@ -87,7 +107,7 @@ const IN_MODULE: Record<string, number> = { A1: 6, A2: 6, B1: 8, B2: 8, C1: 8 };
  * is about half a millisecond (`npm run measure:workbook`).
  */
 const OWN_WORDS = 120;
-const TOP_UP = 60;
+const TOP_UP = 120;
 
 /** A case below this, over the half-year the weakest-case panel reads, is worth a page. */
 const WEAK_BELOW = 90;
@@ -239,6 +259,27 @@ export default async function WorkbookPage({
     themeOk,
   };
 
+  /*
+    THE PLAINEST GOOD SENTENCE LEADS, AT THE LEARNER'S OWN BAND. Every line
+    needs an English line and a finite verb, and of the sentences left the one
+    a learner at this band can read most easily is cut first
+    (`workbookSentences`).
+  */
+  const quality: LineQuality = { reach, limit: Math.max(0, (LEVELS as readonly string[]).indexOf(level)) };
+  /*
+    AND A BEGINNER'S WORDS CARRY THE SENTENCES WRITTEN FOR A BEGINNER. Ekilex
+    records a usage for somebody who already reads Estonian, so at A1 and A2 a
+    page cut from recorded sentences alone was short, and inside the module
+    often empty: the evening's words sit in sentences made of words from
+    further up the course. `lib/dict/authored.ts` holds sentences written for
+    exactly this reader, each made of words taught by the evening the word
+    arrives and read by a native speaker in the pull request that added it,
+    and a line cut from one is marked against the dictionary's own forms like
+    any other (ADR-005 amendment 4). Above A2 the recorded sentences are the
+    reading a learner is ready for, so they alone are used.
+  */
+  const beginner = level === "A1" || level === "A2";
+
   const items: SheetItem[] = [];
   for (const id of candidateIds) {
     const l = byId.get(id);
@@ -253,17 +294,19 @@ export default async function WorkbookPage({
       // The word's own sentences, plainest first for a beginner's word, then
       // the ones lent from elsewhere in the dictionary (`lib/dict/borrow.ts`).
       examples: [
+        ...(beginner ? authoredFor(l.lemma) : []),
         ...usableExamples(parseExamples(l.examples), plainerFirst(l.cefr, reach)),
         ...(borrowed.get(l.id) ?? []),
       ],
-    }, gates));
+    }, gates, new Set(), quality));
   }
 
   const weakest = caseAccuracy(caseRows, 3).filter((c) => c.accuracy < WEAK_BELOW).map((c) => c.grammCase);
   const prefer = preferredThemes({ requested, tonight: tonightsCase(scope), weakest, themeOk });
+  const [firstKind, secondKind] = SITTING[level] ?? SITTING.B1!;
   const plans: ExercisePlan[] = opened
-    ? [{ lines: IN_MODULE[level] ?? 8 }]
-    : [{ lines: FIRST[level] ?? 10 }, { lines: SECOND }];
+    ? [{ lines: IN_MODULE[level] ?? 8, kind: "write" }]
+    : [{ lines: FIRST[level] ?? 10, kind: firstKind }, { lines: SECOND, kind: secondKind }];
   const sheet = composeSheet(items, prefer, plans);
 
   if (sheet.exercises.length === 0) {
@@ -286,6 +329,8 @@ export default async function WorkbookPage({
   ]));
   const withWho = <T extends SheetItem>(line: T): T => ({ ...line, who: whoFor(line, nominatives) });
   const exercises: WorkbookExercise[] = sheet.exercises.map((exercise) => ({
+    kind: exercise.kind,
+    box: exercise.box,
     theme: exercise.theme,
     rule: ruleFor(exercise.theme),
     example: exercise.example ? withWho(exercise.example) : null,
