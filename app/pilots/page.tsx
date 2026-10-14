@@ -2,21 +2,13 @@ import type { ReactNode } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Legal, P, S } from "@/components/Legal";
 import { resolveOperator } from "@/lib/legal/operator";
+import { shareCard } from "@/lib/progress/publicLocale";
 
-export const metadata = {
-  title: "Running a pilot",
-  // Its own words where it is shared, rather than the landing page's pitch to a learner.
-  description: "What a Kodukeel pilot is, what it costs, what is asked of you and what happens to your people’s data.",
-  openGraph: {
-    title: "Running a pilot | kodukeel",
-    description: "What a Kodukeel pilot is, what it costs, what is asked of you and what happens to your people’s data.",
-    url: "/pilots",
-    type: "website",
-    siteName: "kodukeel",
-    locale: "en_EE",
-  },
-  twitter: { card: "summary_large_image" },
-};
+const DESCRIPTION = "What a Kodukeel pilot is, what it costs, what is asked of you and what happens to your people’s data.";
+
+// Its own words where it is shared, rather than the landing page's pitch to a
+// learner, and English only, since the page is.
+export const metadata = { title: "Running a pilot", ...shareCard("en", "Running a pilot", DESCRIPTION, "/pilots") };
 
 /*
   Whether the address at the foot is drawn is a fact about the deployment,
