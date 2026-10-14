@@ -4451,7 +4451,13 @@ the flash round used to. `whereWhole` in `lib/estonian/cloze.ts` was rewritten f
 plain pattern and a static boundary class in place of a lookaround compiled per call, about
 forty-five times faster and proved equal to the old expression over the shipped sentences, because
 a page builds hundreds of candidate lines and the old match was the whole of its cost.
-`npm run measure:workbook` counts how many words can fill a page of each theme at each band.
+`npm run measure:workbook` counts how many words can fill a page of each theme at each band. And four edge cases are held by `scripts/test-workbook.mjs`, each made to fail on the
+real fault: a second tap on Check a quarter of a second after the first checked the reopened page
+unchanged and wrote Again on every line, so the second pass waits for a change; a verb in a sentence
+that drops its pronoun had no right answer once the English was hidden, so the bracket names the
+person the way a course book does (`whoFor`, read off the pronoun table and the six entries' own
+spellings); the bracket word copied out unchanged is named for what it is; and a card is graded once
+a sitting, the worst of its lines, with a word kept to one page.
 
 **Kakskümmend küsimust answers a well-formed question, and that is a number held under one percent.**
 A round was reported as horrible, and the measure behind that was 39 percent: of 380 questions a
@@ -11901,7 +11907,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `ModuleNextContext`, `ReadingEnd`, `NextStep`, `TonightRows`, `withoutFarewell`,
 `withoutUnverified`, `recapOf`, `parseCoachNote`, `composedBy`, `modelDown`, `shrugFits`, `priceAsked`, `SAYS_FIRST`, `isFarewell`,
 `planTurn`, `speakTurn`, `composeTurn`, `harnessModel`, `asksTheirQuestion`, `againHref`,
-`linesFor`, `composeSheet`, `markLine`, `workbookGrades`, `recordWorkbookGrades`, `whereWhole`,
+`linesFor`, `composeSheet`, `markLine`, `workbookGrades`, `recordWorkbookGrades`, `whereWhole`, `whoFor`,
 `FreshRound`, `AnotherRound`, `dealSayings`, `afterServing`, `markSayingsServed`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.

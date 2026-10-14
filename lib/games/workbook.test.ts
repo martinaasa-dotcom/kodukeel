@@ -4,8 +4,9 @@ import { BLANK } from "@/lib/estonian/cloze";
 import type { FlashWord } from "./flash";
 import {
   MIN_LINES, OUTCOME_RATING, composeSheet, indexFor, lineSentence, linesFor, markLine, outcomeAfter,
-  pageReading, parseTheme, preferredThemes, slotsFor, themesOf, verbSlot, type SheetItem,
+  pageReading, parseTheme, preferredThemes, slotsFor, themesOf, verbSlot, whoFor, type SheetItem,
 } from "./workbook";
+import { PRONOUN_LEMMAS } from "@/lib/estonian/pronouns";
 
 /** A course word exactly as the seed would hold it, read off the shipped harvest. */
 function shipped(lemma: string, extra: { et: string }[] = []): FlashWord {
@@ -241,7 +242,7 @@ function fake(n: number, slot: string, lexeme = `w${n}`): SheetItem {
     id: `${lexeme}:${slot}`, lexemeId: lexeme, cue: lexeme, translation: "x", pos: "NOUN", slot,
     kind: "case" as const, caseKey: slot as never, tense: null, person: null, pronoun: false,
     before: "A ", after: " b.", sentence: `Sentence number ${n} for ${slot}.`, sentenceEn: null,
-    answer: "x", accepted: ["x"], index: {}, hint: null,
+    answer: "x", accepted: ["x"], index: {}, hint: null, who: null,
   };
   return { ...base, themes: themesOf(base) };
 }
@@ -325,5 +326,66 @@ describe("the partitive and the pronoun page", () => {
     const ids = [set!.example!, ...set!.lines].map((l) => l.id);
     expect(new Set(ids).size).toBe(ids.length);
     expect(set!.lines.length).toBeGreaterThanOrEqual(MIN_LINES);
+  });
+});
+
+describe("markLine, against what a learner actually types", () => {
+  const lines = linesFor(TUBA).concat(linesFor(LUGEMA));
+  const asked = lines.filter((l) => l.answer.length > 2);
+
+  it("takes the answer however the keyboard sent it", () => {
+    expect(asked.length).toBeGreaterThan(0);
+    for (const line of asked) {
+      const a = line.answer;
+      for (const typed of [a, a.toLocaleLowerCase("et"), a.toLocaleUpperCase("et"), a.normalize("NFD"), `${a}.`, `  ${a}  `, `"${a}"`]) {
+        expect(markLine(line, typed).right, `${typed} for ${a}`).toBe(true);
+      }
+    }
+  });
+
+  it("names the bracket copied out as it stands, ahead of any other reading", () => {
+    expect(asked.length).toBeGreaterThan(0);
+    for (const line of asked) {
+      expect(markLine(line, line.cue).note).toEqual({ kind: "unchanged" });
+      expect(markLine(line, line.cue.toLocaleUpperCase("et")).note).toEqual({ kind: "unchanged" });
+    }
+  });
+});
+
+describe("whoFor", () => {
+  const nominatives = new Map([[PRONOUN_LEMMAS[0]!, ["ma"]], [PRONOUN_LEMMAS[3]!, ["me"]]]);
+  const verb = (person: SheetItem["person"], tense: SheetItem["tense"], before: string, after: string) => ({
+    kind: "verb" as const, person, tense, before, after, sentence: `${before}x${after}`,
+  });
+
+  it("names the person where the sentence drops the pronoun", () => {
+    expect(whoFor(verb("I", "present", "Homme ", " dieeti."), nominatives)).toBe(PRONOUN_LEMMAS[0]);
+    expect(whoFor(verb("we", "past", "Eile ", " kinno."), nominatives)).toBe(PRONOUN_LEMMAS[3]);
+  });
+
+  it("says nothing where the sentence names the subject, in either spelling", () => {
+    expect(whoFor(verb("I", "present", "Homme ", " ma dieeti."), nominatives)).toBeNull();
+    expect(whoFor(verb("I", "present", "Nii ", ` ${PRONOUN_LEMMAS[0]}.`), nominatives)).toBeNull();
+  });
+
+  it("always names who a command is to, and never a third person", () => {
+    expect(whoFor(verb("you", "imperative", "", " mulle raamat."), nominatives)).toBe(PRONOUN_LEMMAS[1]);
+    expect(whoFor(verb("you all", "imperative", "", " mulle raamat."), nominatives)).toBe(PRONOUN_LEMMAS[4]);
+    expect(whoFor(verb("he or she", "present", "Kontsert ", " kell 18."), nominatives)).toBeNull();
+    expect(whoFor(verb("they", "past", "Lapsed ", " õues."), nominatives)).toBeNull();
+  });
+
+  it("asks nothing of a case line", () => {
+    expect(whoFor({ kind: "case", person: null, tense: null, before: "Ma olen ", after: ".", sentence: "" }, nominatives)).toBeNull();
+  });
+});
+
+describe("composeSheet keeps a word to one page of a sitting", () => {
+  it("never deals the same word on two pages", () => {
+    const both = Array.from({ length: 10 }, (_, i) => i + 1).flatMap((n) => [fake(n, "INESSIVE"), fake(n + 100, "ELATIVE", `w${n}`)]);
+    const sheet = composeSheet(both, ["case:INESSIVE", "case:ELATIVE"], [{ lines: 4 }, { lines: 4 }]);
+    const pages = sheet.exercises.map((e) => new Set([e.example, ...e.lines].filter(Boolean).map((l) => l!.lexemeId)));
+    expect(pages).toHaveLength(2);
+    for (const w of pages[0]!) expect(pages[1]!.has(w)).toBe(false);
   });
 });

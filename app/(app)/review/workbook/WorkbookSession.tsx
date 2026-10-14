@@ -93,8 +93,17 @@ function instructionFor(theme: Theme): string {
 
 /** The headword in the brackets, with a capital where it opens the sentence, as a course book prints it. */
 function bracketed(line: SheetItem): string {
-  const cue = line.before.trim() === "" ? line.cue.charAt(0).toLocaleUpperCase("et") + line.cue.slice(1) : line.cue;
-  return `(${cue})`;
+  return `(${cueText(line)})`;
+}
+
+/**
+ * What the bracket holds: the word, and before it the person where the
+ * sentence does not say who (`whoFor`), the way a course book writes
+ * `(mina, alustama)`. Capitalised where it opens the sentence.
+ */
+function cueText(line: SheetItem): string {
+  const text = line.who ? `${line.who}, ${line.cue}` : line.cue;
+  return line.before.trim() === "" ? text.charAt(0).toLocaleUpperCase("et") + text.slice(1) : text;
 }
 
 /*
@@ -251,8 +260,24 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
     }
   }, [exercises, drainFirst, queueGrades]);
 
+  /*
+    A SECOND GO HAS TO BE A SECOND GO. The first check opens the missed lines
+    again with every box still holding what was written, so a double press of
+    Enter, or a thumb landing twice on the button, checked the same answers a
+    second time and marked every line missed, writing Again into the log over
+    a reflex. The second pass checks only once something on it has changed;
+    until then the page waits, and "Show answers" is there for a learner who
+    has nothing more to try.
+  */
+  const changedSince = (id: string) => (typed[id] ?? "") !== (checkedAs[id] ?? "");
+  const anyChanged = pass !== 2 || open.some((l) => changedSince(l.id));
+
   const check = useCallback(() => {
     if (!exercise || pass === "settled") return;
+    if (pass === 2 && !open.some((l) => (typed[l.id] ?? "") !== (checkedAs[l.id] ?? ""))) {
+      setSaid(t("Change an answer first, or show the answers."));
+      return;
+    }
     const nextMarks = { ...marks };
     const nextOutcomes = { ...outcomes };
     const nextFirst = { ...firstMarks };
@@ -286,7 +311,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
       right, total: lines.length, open: stillOpen.length,
     }));
     requestAnimationFrame(() => focusLine(stillOpen[0]?.id));
-  }, [exercise, pass, marks, outcomes, firstMarks, open, typed, lines, sound, t, send, at]);
+  }, [exercise, pass, marks, outcomes, firstMarks, open, typed, checkedAs, lines, sound, t, send, at]);
 
   /** The second pass given up on: every open line is shown its answer. */
   const showAnswers = useCallback(() => {
@@ -331,12 +356,19 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
     e.preventDefault();
     e.stopPropagation();
     if (e.metaKey || e.ctrlKey) { check(); return; }
+    /*
+      Down the page and never round it: Enter goes to the next box further
+      down still waiting (empty on the first pass, not tried again on the
+      second), and from the last of them checks the page. Wrapping back to the
+      top bounced between the boxes a learner meant to leave, and Enter then
+      never checked anything.
+    */
     const order = open.map((l) => l.id);
-    const from = order.indexOf(line.id);
-    const after = [...order.slice(from + 1), ...order.slice(0, from)];
-    const empty = after.find((id) => (typed[id] ?? "").trim() === "");
-    if (empty) { focusLine(empty); return; }
-    check();
+    const after = order.slice(order.indexOf(line.id) + 1);
+    const waiting = after.find((id) => pass === 2 ? !changedSince(id) : (typed[id] ?? "").trim() === "");
+    if (waiting) { focusLine(waiting); return; }
+    if (anyChanged) check();
+    else setSaid(t("Change an answer first, or show the answers."));
   };
 
   if (finished) {
@@ -476,14 +508,16 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
                 ? fill(t("{right} of {total} right"), {
                   right: lines.filter((l) => outcomes[l.id] !== "missed").length, total: lines.length,
                 })
-                : fill(t("{n} of {total} filled in"), { n: filled, total: open.length })}
+                : pass === 2
+                  ? fill(t("{n} of {total} tried again"), { n: open.filter((l) => changedSince(l.id)).length, total: open.length })
+                  : fill(t("{n} of {total} filled in"), { n: filled, total: open.length })}
             </p>
             <div className="ml-auto flex flex-nowrap items-center gap-2">
               {pass === 2 && (
-                <Button variant="ghost" onClick={showAnswers}>{t("Show answers")}</Button>
+                <Button variant="ghost" onClick={showAnswers} data-workbook-show="">{t("Show answers")}</Button>
               )}
               {pass !== "settled" ? (
-                <Button variant="primary" onClick={check} data-workbook-check="">
+                <Button variant="primary" onClick={check} disabled={!anyChanged} data-workbook-check="">
                   {pass === 1 ? t("Check the page") : t("Check again")}
                   <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                 </Button>
@@ -564,8 +598,13 @@ function SheetLine({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               onKeyDown={onKeyDown}
-              onFocus={(e) => onFocus(e.currentTarget)}
-              aria-label={fill(t("Line {n}: {word}, in the form the sentence needs"), { n: number, word: line.cue })}
+              onFocus={(e) => {
+                // The old answer is still in a reopened box, so it is selected
+                // and the next letter typed replaces it rather than joining it.
+                if (reopened && !retyped) e.currentTarget.select();
+                onFocus(e.currentTarget);
+              }}
+              aria-label={fill(t("Line {n}: {word}, in the form the sentence needs"), { n: number, word: cueText(line) })}
               aria-invalid={reopened ? true : undefined}
               autoComplete="off"
               autoCapitalize="off"
@@ -643,6 +682,7 @@ function noteText(
 function reasonText(note: LineNote, t: (s: string) => string): string | null {
   switch (note.kind) {
     case "blank": return t("Nothing typed yet.");
+    case "unchanged": return t("That's the word as it stands in brackets. The sentence needs it changed.");
     case "otherCase":
       return fill(t("That's the {got}. This one wants the {wanted}."), {
         got: caseByKey(note.got)?.et ?? note.got, wanted: caseByKey(note.wanted)?.et ?? note.wanted,

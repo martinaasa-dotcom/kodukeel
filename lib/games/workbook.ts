@@ -7,7 +7,7 @@ import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { stemsFrom } from "@/lib/estonian/derive";
 import { caseFromMorphCode, morphCodeOf } from "@/lib/estonian/morph";
-import { isPersonalPronoun } from "@/lib/estonian/pronouns";
+import { PRONOUN_LEMMAS, isPersonalPronoun } from "@/lib/estonian/pronouns";
 import { tidyForm } from "@/lib/estonian/whichCase";
 import { hintLadder, type Hint } from "@/lib/questions/hints";
 import { CONJUGATION_SLOTS } from "@/lib/srs/slots";
@@ -115,6 +115,13 @@ export interface SheetItem {
   themes: Theme[];
   /** The letters of the answer the second pass uncovers. See `secondChance`. */
   hint: Hint | null;
+  /**
+   * The personal pronoun the bracket names beside the verb, where the
+   * sentence does not say who is doing it. See `whoFor`. Null on every line
+   * `linesFor` builds: whether the sentence names its subject is read against
+   * the pronouns' own spellings, which the page holds and this word does not.
+   */
+  who: string | null;
 }
 
 export interface Exercise {
@@ -163,6 +170,50 @@ export function verbSlot(code: string): { tense: Tense; person: Person } | null 
   if (!tense) return null;
   const person = PERSON_OF[code.slice(TENSE_OF.find((t) => t.tense === tense)!.opens.length)];
   return person ? { tense, person } : null;
+}
+
+/*
+  WHO IS DOING IT, WHERE THE SENTENCE DOES NOT SAY.
+
+  Estonian drops the pronoun wherever the ending already says who: `Homme
+  alustan dieeti` is "I'm starting a diet tomorrow" with no "I" in it. On a
+  page that is a line with no right answer, because `alustan`, `alustame` and
+  `alustad` all make a sentence, and only the English underneath says which;
+  hide the English and the line is a guess. Course books meet this the same
+  way every time: the person goes in the bracket beside the verb, `(mina,
+  alustama)`. So does it here, read off the pronoun table rather than typed.
+
+  The first and second persons only, and every command. A third person is
+  nearly always named in the sentence (`Kontsert algab`, `Lapsed mängivad`),
+  and where a noun is the subject no rule here can see it, so a cue there
+  would sit beside a subject already in the line. A command never names its
+  subject, and its two persons (`anna`, `andke`) are the singular you and the
+  plural one, so it always carries the cue.
+*/
+const PERSON_ORDER: readonly Person[] = ["I", "you", "he or she", "we", "you all", "they"];
+
+/**
+ * The pronoun the bracket names beside a verb line, or null where the
+ * sentence already says who, or the line is not a verb.
+ *
+ * `nominatives` is each personal pronoun's subject spellings as the
+ * dictionary stores them (`mina` and `ma`), keyed on the headword, which the
+ * page reads off the six entries. A spelling of the right pronoun anywhere in
+ * the sentence settles the person, and the line needs no cue.
+ */
+export function whoFor(
+  item: Pick<SheetItem, "kind" | "person" | "tense" | "sentence" | "before" | "after">,
+  nominatives: ReadonlyMap<string, readonly string[]>,
+): string | null {
+  if (item.kind !== "verb" || !item.person) return null;
+  const at = PERSON_ORDER.indexOf(item.person);
+  const pronoun = at >= 0 ? PRONOUN_LEMMAS[at] ?? null : null;
+  if (!pronoun) return null;
+  if (item.tense === "imperative") return pronoun;
+  if (item.person === "he or she" || item.person === "they") return null;
+  const spellings = new Set([pronoun, ...(nominatives.get(pronoun) ?? [])].map((w) => w.toLocaleLowerCase("et")));
+  const words = sentenceWords(`${item.before} ${item.after}`);
+  return words.some((w) => spellings.has(w)) ? null : pronoun;
 }
 
 /** A case or a verb form this word can be asked in, with every right spelling of it. */
@@ -390,6 +441,7 @@ export function linesFor(word: FlashWord, gates: LineGates = OPEN, used: Readonl
       accepted: slot.accepted,
       index,
       hint: ladder.find((h) => h.kind === "ending") ?? ladder.find((h) => h.kind === "start") ?? null,
+      who: null,
     };
     out.push({ ...base, themes: themesOf(base) });
   }
@@ -479,12 +531,19 @@ export function composeSheet(
   items: readonly SheetItem[], prefer: readonly Theme[], plans: readonly ExercisePlan[],
 ): Sheet {
   const taken = new Set<string>();
+  /*
+    A word sits on one page of a sitting. Two pages are two themes, and a word
+    on both was graded twice in one sitting on the one card it has, which tells
+    the scheduler the same thing twice; and a learner who wrote `arvan` on the
+    first page and met `arvas` on the second had less of a second page.
+  */
+  const usedWords = new Set<string>();
   const usedSentences = new Set<string>();
   const usedThemes = new Set<Theme>();
   const exercises: Exercise[] = [];
 
   for (const plan of plans) {
-    const free = items.filter((i) => !taken.has(i.id) && !usedSentences.has(i.sentence));
+    const free = items.filter((i) => !taken.has(i.id) && !usedWords.has(i.lexemeId) && !usedSentences.has(i.sentence));
     const theme = prefer.find((t) => !usedThemes.has(t) && available(free.filter((i) => i.themes.includes(t)), t) >= MIN_LINES + 1);
     if (!theme) continue;
     const pool = free.filter((i) => i.themes.includes(theme));
@@ -492,7 +551,7 @@ export function composeSheet(
     if (lines.length < MIN_LINES + 1) continue;
     const example = [...lines].sort((a, b) => a.sentence.length - b.sentence.length)[0]!;
     const rest = lines.filter((l) => l !== example);
-    for (const l of lines) { taken.add(l.id); usedSentences.add(l.sentence); }
+    for (const l of lines) { taken.add(l.id); usedWords.add(l.lexemeId); usedSentences.add(l.sentence); }
     usedThemes.add(theme);
     exercises.push({ theme, example, lines: rest });
   }
@@ -631,6 +690,8 @@ export type LineNote =
   | { kind: "otherCase"; got: CaseKey; wanted: CaseKey }
   | { kind: "otherPerson"; got: Person; wanted: Person }
   | { kind: "otherTense"; got: Tense; wanted: Tense }
+  /** The word copied out of the bracket as it stands, which is the commonest slip on any page like this. */
+  | { kind: "unchanged" }
   | { kind: "wrong" };
 
 /**
@@ -657,6 +718,16 @@ export function markLine(item: SheetItem, typed: string): LineMark {
       reached: null,
       note: mark.rating < 3 && mark.note ? { kind: "checker", text: mark.note } : { kind: "none" },
     };
+  }
+  /*
+    THE BRACKET COPIED OUT. Writing the word as it stands is the first thing a
+    learner does when they have not yet seen that the line wants it changed,
+    and for a verb `markForm` has nothing to call it, since the infinitive is
+    no person. So it is named for what it is, ahead of any other reading: for
+    a noun "that's the nimetav" is true and less use than this.
+  */
+  if (tidyForm(written) === tidyForm(item.cue)) {
+    return { right: false, slip: false, reached: null, note: { kind: "unchanged" } };
   }
   const got = mark.wroteSlot;
   if (got && got !== item.slot) {

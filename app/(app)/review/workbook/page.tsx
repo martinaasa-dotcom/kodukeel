@@ -10,13 +10,14 @@ import { plainerFirst } from "@/lib/dict/plainness";
 import { VOUCHED_ROW } from "@/lib/dict/search";
 import { caseByKey } from "@/lib/estonian/cases";
 import { CASE_NOTES, grammarTopic } from "@/lib/estonian/grammar";
+import { morphCodeOf } from "@/lib/estonian/morph";
 import { PRONOUN_LEMMAS } from "@/lib/estonian/pronouns";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { caseAccuracy } from "@/lib/stats/history";
 import { shuffle } from "@/lib/random/shuffle";
 import { resolveProvider } from "@/lib/tutor/provider";
 import {
-  MIN_LINES, cardForLine, composeSheet, linesFor, parseTheme, preferredThemes,
+  MIN_LINES, cardForLine, composeSheet, linesFor, parseTheme, preferredThemes, whoFor,
   type ExercisePlan, type SheetItem, type Theme,
 } from "@/lib/games/workbook";
 import { focusFrom } from "@/lib/course/focus";
@@ -197,10 +198,12 @@ export default async function WorkbookPage({
     own.length
       ? prisma.lexeme.findMany({ where: { id: { in: own } }, select: { id: true, lemma: true }, orderBy: { id: "asc" } })
       : Promise.resolve([]),
-    // The six personal pronouns, which the pronoun page is made of whatever the deck holds.
+    // The six personal pronouns: what the pronoun page is made of, whatever the
+    // deck holds, and what says whether a verb's sentence already names its
+    // subject (`whoFor`), so all six are read even where the module has taught fewer.
     prisma.lexeme.findMany({
-      where: { lemma: { in: PRONOUN_LEMMAS.filter((l) => !taught || taught.has(l)) }, pos: "PRONOUN" },
-      select: { id: true },
+      where: { lemma: { in: PRONOUN_LEMMAS }, pos: "PRONOUN" },
+      select: { id: true, lemma: true, forms: { select: { formType: true, morphCode: true, value: true }, orderBy: { id: "asc" } } },
       orderBy: { id: "asc" },
     }),
   ]);
@@ -211,7 +214,7 @@ export default async function WorkbookPage({
   const ownSet = new Set(own);
   const candidateIds = [...new Set([
     ...ownOrdered.slice(0, OWN_WORDS),
-    ...pronouns.map((p) => p.id),
+    ...pronouns.filter((p) => !taught || taught.has(p.lemma)).map((p) => p.id),
     ...shuffle(topUp.filter((r) => !ownSet.has(r.id))).slice(0, TOP_UP).map((r) => r.id),
   ])];
 
@@ -276,11 +279,17 @@ export default async function WorkbookPage({
     );
   }
 
+  /* Each personal pronoun's subject spellings as stored, `mina` beside `ma`. */
+  const nominatives = new Map(pronouns.map((p) => [
+    p.lemma,
+    p.forms.filter((f) => ["SgN", "PlN", "NOM_SG", "NOM_PL"].includes(morphCodeOf(f) ?? "")).map((f) => f.value),
+  ]));
+  const withWho = <T extends SheetItem>(line: T): T => ({ ...line, who: whoFor(line, nominatives) });
   const exercises: WorkbookExercise[] = sheet.exercises.map((exercise) => ({
     theme: exercise.theme,
     rule: ruleFor(exercise.theme),
-    example: exercise.example,
-    lines: exercise.lines.map((line) => ({ ...line, cardId: cardForLine(cardsFor.get(line.lexemeId) ?? [], line.slot) })),
+    example: exercise.example ? withWho(exercise.example) : null,
+    lines: exercise.lines.map((line) => withWho({ ...line, cardId: cardForLine(cardsFor.get(line.lexemeId) ?? [], line.slot) })),
   }));
 
   /*
