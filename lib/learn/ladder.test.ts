@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createEmptyCard, fsrs, generatorParameters, type Grade } from "ts-fsrs";
 import {
-  isLearningWord, LEARN_BATCH, orderByRung, ratingFor, rungOf, tally, type Rung,
+  inCourseOrder, isLearningWord, LEARN_BATCH, orderByRung, ratingFor, rungOf, tally, type Rung,
 } from "./ladder";
 
 describe("rungOf", () => {
@@ -110,5 +110,30 @@ describe("LEARN_BATCH", () => {
   it("is a round a learner can hold in their head", () => {
     expect(LEARN_BATCH).toBeGreaterThanOrEqual(3);
     expect(LEARN_BATCH).toBeLessThanOrEqual(8);
+  });
+});
+
+describe("inCourseOrder", () => {
+  const card = (id: string, lemma: string | null) => ({ id, lexeme: lemma === null ? null : { lemma } });
+
+  it("puts a day's words in the order the day names them, whatever the ids", () => {
+    const cards = [card("c", "muidugi"), card("a", "ei"), card("e", "tere"), card("b", "aitäh"), card("d", "jah")];
+    const day = ["tere", "aitäh", "jah", "ei", "muidugi"];
+    expect(inCourseOrder(cards, day).map((c) => c.lexeme!.lemma)).toEqual(day);
+  });
+
+  it("settles two entries under one lemma on the id", () => {
+    const cards = [card("z", "hall"), card("a", "hall"), card("m", "tuba")];
+    expect(inCourseOrder(cards, ["hall", "tuba"]).map((c) => c.id)).toEqual(["a", "z", "m"]);
+  });
+
+  it("puts a lemma the list does not name last rather than first", () => {
+    const cards = [card("a", "muu"), card("b", "tere"), card("c", null)];
+    expect(inCourseOrder(cards, ["tere"]).map((c) => c.id)).toEqual(["b", "a", "c"]);
+  });
+
+  it("takes a lemma's first place where the list names it twice", () => {
+    const cards = [card("a", "jah"), card("b", "tere")];
+    expect(inCourseOrder(cards, ["tere", "jah", "tere"]).map((c) => c.id)).toEqual(["b", "a"]);
   });
 });
