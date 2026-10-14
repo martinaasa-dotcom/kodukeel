@@ -45,18 +45,48 @@ export const SYNCED_LOOPS = [
   "anu-talk",
 ] as const;
 
+/**
+ * AND NONE OF THEM STARTS UNTIL THE PAGE HAS SETTLED.
+ *
+ * An idle loop on an SVG group cannot be handed to the compositor, so every
+ * frame of every loop is a style recalculation and a layout on the main
+ * thread, and the mark and Anu are on every screen. Running from the first
+ * frame, they were the busiest thing on a phone while it was still parsing
+ * and hydrating the page somebody had asked for: measured on the landing page
+ * as about three hundred layouts in its first three seconds, which is most of
+ * what PageSpeed reported as a seven second largest contentful paint.
+ *
+ * So they wait for `data-awake` on <html>, which is set on the first sign of a
+ * person (a touch, a pointer moving, a key, a scroll) or `AWAKE_AFTER_MS`
+ * after the page has loaded, whichever comes first. Somebody who reaches for
+ * the screen meets a mark that is already moving; somebody who only reads
+ * sees it begin a few seconds in. Until then the mark is drawn still, which
+ * every keyframe here is built to be: a still frame of each loop is the mark.
+ * Nothing is synchronised before then either, since there is nothing running
+ * to pin, which also spares every early class change a forced style flush.
+ */
+export const AWAKE_ATTR = "data-awake";
+export const AWAKE_AFTER_MS = 4000;
+export const AWAKE_EVENTS = ["pointerdown", "pointermove", "touchstart", "keydown", "wheel", "scroll"] as const;
+
 export const LOOP_SYNC_SCRIPT =
   "try{(function(){" +
   "if(!document.getAnimations||!document.timeline)return;" +
-  `var N={${SYNCED_LOOPS.map((n) => `'${n}':1`).join(",")}},S=new WeakSet(),q=0;` +
-  "function s(){q=0;var t=document.timeline.currentTime;if(t==null)return;" +
+  `var N={${SYNCED_LOOPS.map((n) => `'${n}':1`).join(",")}},S=new WeakSet(),q=0,on=0,d=document.documentElement;` +
+  "function s(){q=0;if(!on)return;var t=document.timeline.currentTime;if(t==null)return;" +
   "var w=performance.timeOrigin+t;" +
   "document.getAnimations().forEach(function(a){" +
   "if(S.has(a)||!N[a.animationName])return;" +
   "var c=a.effect&&a.effect.getComputedTiming();" +
   "if(!c||c.iterations!==Infinity||!(c.duration>0))return;" +
   "S.add(a);a.startTime=t-(w%c.duration)})}" +
-  "function k(){if(!q){q=1;requestAnimationFrame(s)}}" +
-  "k();new MutationObserver(k).observe(document.documentElement," +
+  "function k(){if(on&&!q){q=1;requestAnimationFrame(s)}}" +
+  `var E=${JSON.stringify(AWAKE_EVENTS)};` +
+  "function g(){if(on)return;on=1;" +
+  `d.setAttribute('${AWAKE_ATTR}','');` +
+  "E.forEach(function(e){removeEventListener(e,g,true)});k()}" +
+  "E.forEach(function(e){addEventListener(e,g,{capture:true,passive:true})});" +
+  `addEventListener('load',function(){setTimeout(g,${AWAKE_AFTER_MS})});` +
+  "new MutationObserver(k).observe(d," +
   "{subtree:true,childList:true,attributes:true,attributeFilter:['class']})" +
   "})()}catch(e){}";

@@ -549,31 +549,39 @@ export function SignInForm({
         over it, which is what put one button on screen for a beat before
         Google's replaced it.
       */}
-      {googleState === "loading" && <Skeleton height={52} className="w-full" />}
       {/*
-        `gsi-button` is not styling: it is the one hook the stylesheet's
-        exemption for Google's own iframe is scoped to, and the reason is
-        written out beside that rule. Without it the frame Google draws is
-        capped at this container and the button inside it is painted ten
-        pixels short of its own right edge, which is the cut-off right side
-        this file has now been rewritten for three times.
+        One slot for all three, as tall as the skeleton, so whichever replaces
+        it moves nothing under it. Google's button is shorter than the
+        skeleton, and swapping one for the other pulled the email form up the
+        screen as it arrived: a layout shift PageSpeed counted on every visit.
       */}
-      <div
-        ref={googleButtonRef}
-        className="gsi-button flex w-full justify-center"
-        style={{ display: googleState === "gis" ? "flex" : "none" }}
-      />
-      {googleState === "fallback" && (
-        <Button
-          variant="primary"
-          size="lg"
-          onClick={signInWithGoogle}
-          disabled={pending !== null}
-          className="w-full"
-        >
-          {pending === "google" ? t("Taking you to Google…") : t("Continue with Google")}
-        </Button>
-      )}
+      <div className="flex min-h-[52px] flex-col justify-center">
+        {googleState === "loading" && <Skeleton height={52} className="w-full" />}
+        {/*
+          `gsi-button` is not styling: it is the one hook the stylesheet's
+          exemption for Google's own iframe is scoped to, and the reason is
+          written out beside that rule. Without it the frame Google draws is
+          capped at this container and the button inside it is painted ten
+          pixels short of its own right edge, which is the cut-off right side
+          this file has now been rewritten for three times.
+        */}
+        <div
+          ref={googleButtonRef}
+          className="gsi-button flex w-full justify-center"
+          style={{ display: googleState === "gis" ? "flex" : "none" }}
+        />
+        {googleState === "fallback" && (
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={signInWithGoogle}
+            disabled={pending !== null}
+            className="w-full"
+          >
+            {pending === "google" ? t("Taking you to Google…") : t("Continue with Google")}
+          </Button>
+        )}
+      </div>
 
       {(emailLink || sso) && (
         <>

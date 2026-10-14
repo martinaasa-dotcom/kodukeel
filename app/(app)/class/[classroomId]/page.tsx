@@ -1,6 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Flame, GraduationCap, Target, Trophy } from "lucide-react";
+import { ArrowLeft, Flame, GraduationCap, Printer, Target, Trophy } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { classworkHistory } from "@/app/actions";
@@ -149,7 +149,16 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                   {t(workplace ? "Colleagues enter this code under Classes to join." : "Students enter this code under Classes to join.")}
                 </p>
               </div>
-              <CopyCode code={classroom.code} />
+              <div className="flex flex-wrap items-center gap-3">
+                <Link
+                  href={`/class/${classroom.id}/poster`}
+                  className="tap-tint inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold underline underline-offset-4"
+                  style={{ color: "var(--ink-2)" }}
+                >
+                  <Printer size={14} aria-hidden /> {t("Print the join poster")}
+                </Link>
+                <CopyCode code={classroom.code} />
+              </div>
             </div>
           </Card>
         )}

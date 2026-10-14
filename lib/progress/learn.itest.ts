@@ -32,6 +32,7 @@ import { deferWord } from "./deferrals";
 const MINE = "itest-owner-learn";
 const LEMMAS = [
   "zzlearnword", "zzlearnwordb", "zzlearnphrase", "zzlearnphraseb", "zzlearngapword",
+  "zzorderqa", "zzorderqb", "zzorderqc", "zzorderqd", "zzorderqe",
 ];
 
 async function wipe() {
@@ -213,6 +214,52 @@ describe("learnBatch", () => {
 
     const served = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 5, { only: ["zzlearnwordb"], now: NOW });
     expect(served.map((x) => x.lemma)).toEqual(["zzlearnwordb"]);
+  });
+});
+
+/**
+ * THE DAY IS TAUGHT IN THE ORDER THE COURSE WROTE IT.
+ *
+ * A unit's cards are written in one `createMany`, so they share `createdAt`
+ * and the read settled their order on a random id: the first evening opened on
+ * `muidugi` rather than on `tere`. The fixture writes the five in one insert,
+ * which is the shape that hid it, and asks twice with the list reversed, so it
+ * is the list deciding rather than whatever the ids happened to be.
+ */
+describe("learnBatch: a named day keeps its order", () => {
+  const DAY = ["zzorderqa", "zzorderqb", "zzorderqc", "zzorderqd", "zzorderqe"];
+
+  async function oneInsert() {
+    const rows = [];
+    for (const lemma of DAY) rows.push(await entry(lemma, "NOUN"));
+    await prisma.card.createMany({
+      data: rows.map((row) => ({
+        ownerId: MINE, lexemeId: row.id, cardType: LADDER_CARD_TYPE,
+        front: "front", back: "back", due: NOW, state: 0, createdAt: NOW,
+      })),
+    });
+  }
+
+  it("serves the words in the order the day names them", async () => {
+    await oneInsert();
+    const served = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 5, { only: DAY, now: NOW });
+    expect(served.map((x) => x.lemma)).toEqual(DAY);
+  });
+
+  it("follows the list rather than the ids", async () => {
+    await oneInsert();
+    const reversed = [...DAY].reverse();
+    const served = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 5, { only: reversed, now: NOW });
+    expect(served.map((x) => x.lemma)).toEqual(reversed);
+  });
+
+  it("keeps a started word in the batch, after the unseen ones, which stay in course order", async () => {
+    await oneInsert();
+    const started = await prisma.lexeme.findFirstOrThrow({ where: { lemma: "zzorderqd" } });
+    await prisma.card.updateMany({ where: { ownerId: MINE, lexemeId: started.id }, data: { state: 1 } });
+    const served = await learnBatch(MINE, "A1", ENGLISH_MEANINGS, 5, { only: DAY, now: NOW });
+    // `orderByRung` teaches the words never seen before testing a returning one.
+    expect(served.map((x) => x.lemma)).toEqual(["zzorderqa", "zzorderqb", "zzorderqc", "zzorderqe", "zzorderqd"]);
   });
 });
 

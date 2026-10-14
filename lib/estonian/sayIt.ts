@@ -35,7 +35,7 @@ const VERB_FRAMES: Readonly<Record<string, string>> = {
   IndPrPl1: "we %",
   IndPrPs_: "don't %",
   IndIpfSg1: "I %, but in the past",
-  IndIpfSg3: "he/she %, but in the past",
+  IndIpfSg3: "he/she %s, but in the past",
   KndPrSg1: "I would %",
   ImpPrSg2: "%! (to a friend)",
   ImpPrPl2: "%! (politely)",

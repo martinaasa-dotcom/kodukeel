@@ -24,7 +24,9 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
 - A count is `countOf(locale, n, "card")`, never `n + " cards"`. Both languages have three plural
   forms (1 карточка, 2 карточки, 5 карточек) and `Intl.PluralRules` picks the right one. A new noun
   goes in its area's `counted` table with all three forms, and in `COUNT_CASES` in
-  `lib/copy/locale.ts` with its genitive and accusative singular. A count after a preposition
+  `lib/copy/i18n/counted.ts` with its genitive and accusative singular. Where its English is not
+  the key and an `s`, it goes in `ENGLISH_FORMS` in `lib/copy/locale.ts` too, which
+  `countCases.test.ts` says. A count after a preposition
   or a verb is asked for in its case: `countOf(locale, n, "minute", "acc")` after «через», «за»,
   «на» ("через 1 минуту"), `"gen"` after «около», «близько», «не хватает» ("около 1 минуты").
   A fraction takes the genitive singular in both languages ("1,5 тижня"), which `countOf` does by
@@ -80,6 +82,25 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
   `components/TrParts.tsx`, never pieces translated apart.
 - The offline banner and the document's `lang` sit above the shell, so `components/ShellLocale.tsx`
   hands the language up to them; the shell's own wrapper carries `lang` from the first paint.
+- **A browser carries one language, and only when its reader reads it.** Every page used to
+  download the whole Russian and Ukrainian interface in one 765 KB chunk, the English landing page
+  included. `lib/copy/locale.ts` reads its tables through `#i18n-tables`, which package.json
+  resolves to the full merge (`lib/copy/i18n/tables.ts`) everywhere but a browser and to an empty
+  registry (`tables.browser.ts`) there, so the seventy modules that call `tr` did not change. A
+  `LocaleProvider` for Russian or Ukrainian either hands a slice over as a prop or waits for the
+  whole language before anything under it draws: the signed-in shell, first run and `/funding`
+  load `lib/copy/i18n/generated/ru.json` or `uk.json` as a chunk of its own (`lib/copy/i18n/load.ts`),
+  which the service worker keeps for offline review; the landing page passes
+  `areaTable(locale, ["landing"], LANDING_BORROWS)` and loads the rest when somebody presses one
+  of its demos (`useWholeLanguage`); sign-in passes the `start` area. A slice is never a prop on a
+  page a Server Action refreshes, because the prop would travel again with every refresh.
+  **After changing any area, run `npm run i18n:tables`**, which writes the two generated files;
+  `generated.test.ts` fails until you do. A line a landing demo draws on arrival from another area
+  goes in `LANDING_BORROWS`, or the browser draws it in English over the server's Russian and
+  `scripts/test-locales.mjs` fails on the mismatch. `npm run check:landing` weighs the landing
+  page's scripts in CI, and `scripts/invariants/the-browser-carries-one-language.ts` walks the
+  import graph from every client file. The plan and the measurements are
+  `docs/35-launch-quick-wins.md` (QW-8 and QW-9).
 - Anu explains in the learner's language: the tutor is told so in the per-learner block
   (`explainIn` in `lib/tutor/prompt.ts`), so the cached prompt stays one prompt for everybody, and
   the note after a conversation is written in it (`lib/scenes/coachNote.ts`). Every Estonian rule is

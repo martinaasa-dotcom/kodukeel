@@ -11984,6 +11984,8 @@ npm run audit:order      # every alternative word order the sentence builder acc
 npm run course:ids       # agree a new shape for the day ids, after weighing what a shift costs
 npm run audit:merge      # after merging: what the other side added that is no longer here
 npm run check:secrets    # fails if a credential reached the client bundle
+npm run check:landing    # the landing page's script weight, Cyrillic for an English reader included
+npm run i18n:tables      # after changing a translation: the per-language tables a browser loads
 npm run db:seed          # reload the built-in dictionary
 npm run harvest          # re-ask Ekilex for the syllabus vocabulary (cached, needs EKILEX_API_KEY)
 npm run harvest:semantics # ask what kind of thing each word is, for the built dictionary (--write applies)

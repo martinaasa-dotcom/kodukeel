@@ -29,6 +29,7 @@ import { departureLine, rungLine, type ExceptionTask } from "@/lib/games/excepti
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { AlsoRight } from "@/components/WordExceptions";
 import { sayLine } from "@/lib/estonian/sayIt";
+import { sayLineIn } from "@/lib/estonian/plainAsk";
 import { VERDICT_CLASS, verdictLine, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { WayOut } from "@/components/round/RoundExit";
@@ -440,7 +441,8 @@ function MoreOnThis({ task, className }: { task: ExceptionTask; className?: stri
 /** The two rungs that ask for something: cold, then inside a sentence. */
 function Asking({ task, answered }: { task: ExceptionTask; answered: boolean }) {
   const t = useT();
-  const plain = sayLine(task.slot, task.translation);
+  const locale = useLocale();
+  const plain = sayLineIn(locale, task.slot, sayLine(task.slot, task.translation));
 
   if (task.rung === "use") {
     return (

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { TriangleAlert } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
-import { SuggestFix } from "@/components/SuggestFix";
+import { SuggestFix } from "@/components/SuggestFixLater";
 import { useT } from "@/components/Locale";
 import { filled } from "@/components/Filled";
 

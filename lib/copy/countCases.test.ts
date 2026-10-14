@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { COUNT_CASES, COUNTED_NOUNS, countOf, countedNoun, type CountCase } from "./locale";
+import { countGrouped, countOf, countedNoun, englishForms, grouped, type CountCase } from "./locale";
+import { COUNT_CASES, COUNTED, COUNTED_NOUNS } from "./i18n/counted";
 
 /*
   Every counted noun at the numbers that catch a plural rule out: nought, the
@@ -68,5 +69,36 @@ describe("every counted noun, at every number that matters, in every case", () =
   it("gives an animate noun its genitive for the accusative singular", () => {
     expect(countOf("ru", 1, "learner", "acc")).toBe("1 ученика");
     expect(countOf("uk", 21, "learner", "acc")).toBe("21 учня");
+  });
+});
+
+/*
+  ENGLISH TRAVELS WITHOUT THE TABLES, SO ITS FORMS ARE WRITTEN TWICE AND HELD TOGETHER.
+
+  A browser reading English is handed no table at all (docs/35-launch-quick-wins.md,
+  QW-8), so `countOf` in English cannot read the areas' `en` forms there. It reads
+  `englishForms`, which is the noun and an `s` except where locale.ts writes the
+  exception. A new counted noun whose English plural is irregular, or whose key is not
+  its singular, has to be added there too, and this is what says so.
+*/
+describe("English counts without the tables", () => {
+  it("says every counted noun's English the way its area writes it", () => {
+    const wrong = COUNTED_NOUNS.filter((noun) => {
+      const [one, many] = englishForms(noun);
+      return one !== COUNTED[noun]!.en[0] || many !== COUNTED[noun]!.en[1];
+    });
+    expect(wrong).toEqual([]);
+    expect(countOf("en", 1, "person")).toBe("1 person");
+    expect(countOf("en", 3, "person")).toBe("3 people");
+    expect(countOf("en", 2, "pages")).toBe("2 pages");
+  });
+});
+
+describe("a large count is grouped the way its reader groups digits", () => {
+  it("puts a comma in English and a no-break space in Russian and Ukrainian", () => {
+    expect(countGrouped("en", 6274, "word")).toBe("6,274 words");
+    expect(countGrouped("ru", 6274, "word")).toBe("6 274 слова");
+    expect(countGrouped("uk", 1661, "word")).toBe("1 661 слово");
+    expect(grouped("en", 999)).toBe("999");
   });
 });

@@ -14,7 +14,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { AREAS } from "@/lib/copy/i18n";
 import { ENTRY_COPY } from "@/lib/copy/entryLocales";
-import { COUNTED_CORE, MACHINE_NOTICE, MACHINE_NOTICE_EN, MACHINE_SHORT } from "@/lib/copy/locale";
+import { MACHINE_NOTICE, MACHINE_NOTICE_EN, MACHINE_SHORT } from "@/lib/copy/locale";
+import { COUNTED_CORE } from "@/lib/copy/i18n/counted";
 
 type L = "ru" | "uk";
 const NAMES: Record<L, string> = { ru: "Russian", uk: "Ukrainian" };

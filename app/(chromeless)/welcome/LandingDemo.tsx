@@ -9,7 +9,7 @@ import { FitText } from "@/components/FitText";
 import { rememberBuilt } from "./visit";
 import { PARTS, spelledCount } from "@/lib/copy/values";
 import { fill } from "@/lib/copy/locale";
-import { useLocale, useT } from "@/components/Locale";
+import { useLocale, useT, useWholeLanguage } from "@/components/Locale";
 import { TrParts } from "@/components/TrParts";
 
 /**
@@ -87,6 +87,8 @@ export interface DemoWord {
  */
 export function CaseExplorer({ words }: { words: DemoWord[] }) {
   const t = useT();
+  // A press here can draw a line the page did not arrive with. See components/Locale.tsx.
+  const reach = useWholeLanguage();
   const locale = useLocale();
   // A count in prose: spelled out in English, a figure in Russian and Ukrainian.
   const num = (n: number) => (locale === "en" ? counted(n) : String(n));
@@ -189,6 +191,7 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
   return (
     <div
       ref={root}
+      {...reach}
       // A press anywhere on the card throws the letters round it off and
       // lets them land; the card itself gives a little under the press.
       onPointerDown={() => document.dispatchEvent(new CustomEvent(LETTER_SCATTER_EVENT))}

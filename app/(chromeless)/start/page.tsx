@@ -9,6 +9,7 @@ import { paperFor } from "@/lib/progress/assessment";
 import { previewUnits } from "@/lib/srs/deck";
 import { PROGRAMMES } from "@/lib/course";
 import { localeFrom } from "@/lib/copy/locale";
+import { LocaleProvider } from "@/components/Locale";
 import { WelcomeWizard, type CoursePart, type StarterDeck } from "./WelcomeWizard";
 
 export const metadata = { title: "Getting set up" };
@@ -116,13 +117,20 @@ export default async function WelcomePage({ searchParams }: {
   const asked = typeof params.lang === "string" ? localeFrom(params.lang) : "en";
   const initialLocale = asked !== "en" ? asked : localeFrom(settings[SETTING_KEYS.uiLocale]);
 
+  /*
+    The language arrives before the wizard draws, since the wizard reads it
+    itself and not only through the providers inside it. See
+    components/Locale.tsx.
+  */
   return (
-    <WelcomeWizard
-      starters={starters}
-      parts={parts}
-      suggestedName={suggestedName}
-      paper={paper}
-      initialLocale={initialLocale}
-    />
+    <LocaleProvider locale={initialLocale}>
+      <WelcomeWizard
+        starters={starters}
+        parts={parts}
+        suggestedName={suggestedName}
+        paper={paper}
+        initialLocale={initialLocale}
+      />
+    </LocaleProvider>
   );
 }

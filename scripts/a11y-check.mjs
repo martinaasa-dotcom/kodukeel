@@ -140,7 +140,7 @@ const ROUTES = [
   "/", "/learn", "/learn/new", "/practice", "/progress", "/words", "/words/decks", "/dictionary",
   "/grammar", "/grammar/cases", "/grammar/inessive", "/grammar/build-a-word", "/grammar/ukrainian", "/settings", "/settings?tab=sound", "/settings?tab=words", "/settings?tab=account", "/scan", "/class", "/tutor",
   "/assess", "/assess?take=1", "/exam", "/exam/B1/papers", "/privacy", "/terms", "/funding", "/state-exam", "/welcome/ru", "/welcome/uk", "/offline",
-  "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions",
+  "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions", "/admin/errors",
   "/course", "/course/learn", "/course/forms", "/review/letters", "/review/workbook", "/review/sayings", "/review/wordplay", "/review/lookups",
   "/exam/A1", "/grammar/topic/object", "/learn/checkpoint/A1",
   "/learn/kodu/lesson", "/learn/kodu/worksheet",
@@ -242,6 +242,13 @@ await page.goto(`${BASE}/class`, { waitUntil: "load" });
 const groups = [...new Set(await page.locator('a[href^="/class/"]')
   .evaluateAll((links) => links.map((a) => a.getAttribute("href"))).catch(() => []))];
 ROUTES.push(...groups);
+/* And the join poster of each, which answers its teacher and nobody else, so
+   it is asked of the server rather than assumed (as the containment suite
+   does). A group this account only belongs to has none. */
+for (const g of groups) {
+  const status = await fetch(`${BASE}${g}/poster`, { redirect: "manual" }).then((r) => r.status).catch(() => 0);
+  if (status === 200) ROUTES.push(`${g}/poster`);
+}
 
 
 /*

@@ -101,6 +101,11 @@ export default async function SuggestionsQueuePage({
       title={t("Suggested fixes")}
       eyebrow={t("Review queue")}
       lead={lead}
+      actions={
+        <Link href="/admin/errors" className="text-sm underline" style={{ color: "var(--accent-deep)" }}>
+          {t("Errors the app reported")}
+        </Link>
+      }
     >
       {!supabaseConfigured() && (
         <p className="mb-6 rounded-[var(--r)] px-4 py-3 text-sm" style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}>

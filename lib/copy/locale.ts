@@ -1,4 +1,11 @@
-import { AREAS } from "./i18n";
+/*
+  Every area merged, per language, on the server; in a browser, only what the
+  page has handed over (`lib/copy/i18n/tables.browser.ts`). The specifier is
+  resolved by package.json ("imports"), so this module is one file in both
+  places and none of the seventy modules that call `tr` had to change.
+*/
+import { caseFormsFor, formsFor, lineFor } from "#i18n-tables";
+import { keyOf, type TranslatedLocale } from "./i18n/table";
 
 /**
  * THE LANGUAGE THE APP ITSELF IS WRITTEN IN, FOR A LEARNER WHO READS RUSSIAN
@@ -79,19 +86,6 @@ export function localeFrom(stored: string | null | undefined): Locale {
   return stored === "ru" || stored === "uk" ? stored : "en";
 }
 
-/** Every area merged, per language. Two areas translating one line differently is a test failure, not a merge. */
-const TABLES: Readonly<Record<Exclude<Locale, "en">, Readonly<Record<string, string>>>> = {
-  ru: plainKeys(Object.assign({}, ...AREAS.map(([, a]) => a.ru))),
-  uk: plainKeys(Object.assign({}, ...AREAS.map(([, a]) => a.uk))),
-};
-
-/** A table with every key written with the straight apostrophe, which is what a lookup asks with. */
-function plainKeys(table: Record<string, string>): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const [english, line] of Object.entries(table)) out[keyOf(english)] = line;
-  return out;
-}
-
 /**
  * The line in this locale, or the English where nobody has translated it yet.
  *
@@ -102,38 +96,27 @@ function plainKeys(table: Record<string, string>): Record<string, string> {
  */
 export function tr(locale: Locale, english: string, context?: string): string {
   if (locale === "en") return english;
-  const table = TABLES[locale];
   const key = keyOf(english);
   if (context) {
-    const specific = table[`${key}@${context}`];
+    const specific = lineFor(locale, `${key}@${context}`);
     if (specific !== undefined) return specific;
   }
-  const plain = table[key];
+  const plain = lineFor(locale, key);
   if (plain !== undefined) return plain;
   const slotted = estonianSlots(key);
   if (slotted) {
-    const template = table[slotted.key];
+    const template = lineFor(locale, slotted.key);
     if (template !== undefined) return fill(template, slotted.values);
   }
   return english;
 }
 
-/**
- * The English as the tables hold it: with the straight apostrophe. The screen
- * prints the curly one (`won’t`), which is what the English copy always used,
- * and the tables are keyed on the plain one, so a line looks itself up by
- * either and one apostrophe can never cost a translation.
- */
-function keyOf(english: string): string {
-  return english.includes("\u2019") ? english.replace(/\u2019/g, "'") : english;
-}
-
 /** Whether a line has a translation in this locale. English always has. */
 export function translated(locale: Locale, english: string): boolean {
   const key = keyOf(english);
-  if (locale === "en" || key in TABLES[locale]) return true;
+  if (locale === "en" || lineFor(locale, key) !== undefined) return true;
   const slotted = estonianSlots(key);
-  return slotted !== null && slotted.key in TABLES[locale];
+  return slotted !== null && lineFor(locale, slotted.key) !== undefined;
 }
 
 /**
@@ -172,125 +155,58 @@ export function fill(template: string, values: Readonly<Record<string, string | 
  * THE THREE PLURALS RUSSIAN AND UKRAINIAN HAVE, WHERE ENGLISH HAS TWO.
  *
  * "1 card, 2 cards, 5 cards" is one, few and many in both: 1 карточка,
- * 2 карточки, 5 карточек. A count built as the English noun plus an `s` reads
- * as a machine to anybody who speaks either language, so a counted noun is
- * written out per language and chosen by `Intl.PluralRules`, which knows that
- * 21 takes the singular and 12 does not.
- */
-type Forms = readonly [one: string, few: string, many: string];
-export const COUNTED_CORE: Readonly<Record<string, { en: readonly [string, string]; ru: Forms; uk: Forms }>> = {
-  card: { en: ["card", "cards"], ru: ["карточка", "карточки", "карточек"], uk: ["картка", "картки", "карток"] },
-  pair: { en: ["pair", "pairs"], ru: ["пара", "пары", "пар"], uk: ["пара", "пари", "пар"] },
-  picture: { en: ["picture", "pictures"], ru: ["картинка", "картинки", "картинок"], uk: ["картинка", "картинки", "картинок"] },
-  sentence: { en: ["sentence", "sentences"], ru: ["предложение", "предложения", "предложений"], uk: ["речення", "речення", "речень"] },
-  verb: { en: ["verb", "verbs"], ru: ["глагол", "глагола", "глаголов"], uk: ["дієслово", "дієслова", "дієслів"] },
-  word: { en: ["word", "words"], ru: ["слово", "слова", "слов"], uk: ["слово", "слова", "слів"] },
-};
-
-const COUNTED: Readonly<Record<string, { en: readonly [string, string]; ru: Forms; uk: Forms }>> =
-  Object.assign({}, COUNTED_CORE, ...AREAS.map(([, a]) => a.counted ?? {}));
-
-/**
- * THE CASE A COUNT STANDS IN, WHICH THE THREE FORMS ABOVE DO NOT COVER.
+ * 2 карточки, 5 карточек. The forms are written out per language in
+ * `lib/copy/i18n/counted.ts` and travel with each language's table, so a
+ * browser reading English carries none of them. English needs only its own
+ * two, which are the noun and an `s` except where this table says otherwise;
+ * `countCases.test.ts` holds every counted noun's English to what the areas
+ * write.
  *
- * The one, few and many forms are what a count takes as the subject of a
- * sentence. Put the same count after "через", "за" or "на" and a feminine
- * noun moves into the accusative ("через 1 минуту"); after "не хватает" or
- * "из" the whole count is genitive ("не хватает 2 слов"). And a fraction
- * takes none of the three: "1,5 минуты", "1,5 тижня", which is the genitive
- * singular in both languages.
- *
- * So a count is asked for in a case, and the two forms the tables do not
- * already hold are written out here per noun: the genitive singular and the
- * accusative singular. The genitive plural is the many form in both
- * languages, which is what a count of five or more already takes, so it is
- * not repeated. An animate noun's accusative singular is its genitive
- * ("1 ученика"), written out rather than worked out. A noun counted
- * anywhere and missing here fails `countCases.test.ts`.
+ * `grammaticalCase` is the case the sentence puts the count in: "acc" after
+ * "через", "за", "на" ("через 1 минуту"), "gen" after "не хватает", "из" or
+ * "до" ("не хватает 2 слов"). See `COUNT_CASES` for the two forms the
+ * three do not cover.
  */
 export type CountCase = "nom" | "acc" | "gen";
 
-type CaseForms = readonly [gen1: string, acc1: string];
-export const COUNT_CASES: Readonly<Record<string, { ru: CaseForms; uk: CaseForms }>> = {
-  card: { ru: ["карточки", "карточку"], uk: ["картки", "картку"] },
-  pair: { ru: ["пары", "пару"], uk: ["пари", "пару"] },
-  picture: { ru: ["картинки", "картинку"], uk: ["картинки", "картинку"] },
-  sentence: { ru: ["предложения", "предложение"], uk: ["речення", "речення"] },
-  verb: { ru: ["глагола", "глагол"], uk: ["дієслова", "дієслово"] },
-  word: { ru: ["слова", "слово"], uk: ["слова", "слово"] },
-  unit: { ru: ["раздела", "раздел"], uk: ["розділу", "розділ"] },
-  week: { ru: ["недели", "неделю"], uk: ["тижня", "тиждень"] },
-  minute: { ru: ["минуты", "минуту"], uk: ["хвилини", "хвилину"] },
-  day: { ru: ["дня", "день"], uk: ["дня", "день"] },
-  evening: { ru: ["вечера", "вечер"], uk: ["вечора", "вечір"] },
-  part: { ru: ["части", "часть"], uk: ["частини", "частину"] },
-  "new word": { ru: ["нового слова", "новое слово"], uk: ["нового слова", "нове слово"] },
-  second: { ru: ["секунды", "секунду"], uk: ["секунди", "секунду"] },
-  thing: { ru: ["дела", "дело"], uk: ["справи", "справу"] },
-  task: { ru: ["задания", "задание"], uk: ["завдання", "завдання"] },
-  letter: { ru: ["буквы", "букву"], uk: ["літери", "літеру"] },
-  phrase: { ru: ["фразы", "фразу"], uk: ["фрази", "фразу"] },
-  answer: { ru: ["ответа", "ответ"], uk: ["відповіді", "відповідь"] },
-  grade: { ru: ["ответа", "ответ"], uk: ["відповіді", "відповідь"] },
-  time: { ru: ["раза", "раз"], uk: ["разу", "раз"] },
-  place: { ru: ["места", "место"], uk: ["місця", "місце"] },
-  "other match": { ru: ["другого совпадения", "другое совпадение"], uk: ["іншого збігу", "інший збіг"] },
-  point: { ru: ["балла", "балл"], uk: ["бала", "бал"] },
-  review: { ru: ["повторения", "повторение"], uk: ["повторення", "повторення"] },
-  "scanned page": {
-    ru: ["отсканированной страницы", "отсканированную страницу"],
-    uk: ["відсканованої сторінки", "відскановану сторінку"],
-  },
-  member: { ru: ["участника", "участника"], uk: ["учасника", "учасника"] },
-  person: { ru: ["человека", "человека"], uk: ["людини", "людину"] },
-  hour: { ru: ["часа", "час"], uk: ["години", "годину"] },
-  "week, as a span": { ru: ["недели", "неделю"], uk: ["тижня", "тиждень"] },
-  "open report": {
-    ru: ["открытого сообщения", "открытое сообщение"],
-    uk: ["відкритого повідомлення", "відкрите повідомлення"],
-  },
-  report: { ru: ["сообщения", "сообщение"], uk: ["повідомлення", "повідомлення"] },
-  group: { ru: ["группы", "группу"], uk: ["групи", "групу"] },
-  match: { ru: ["совпадения", "совпадение"], uk: ["збігу", "збіг"] },
-  learner: { ru: ["ученика", "ученика"], uk: ["учня", "учня"] },
-  shot: { ru: ["выстрела", "выстрел"], uk: ["пострілу", "постріл"] },
-  form: { ru: ["формы", "форму"], uk: ["форми", "форму"] },
-  "card waiting": { ru: ["карточки ждут", "карточка ждёт"], uk: ["картки чекають", "картка чекає"] },
-  lapse: { ru: ["провала", "провал"], uk: ["провалу", "провал"] },
-  month: { ru: ["месяца", "месяц"], uk: ["місяця", "місяць"] },
-  year: { ru: ["года", "год"], uk: ["року", "рік"] },
-  mark: { ru: ["балла", "балл"], uk: ["бала", "бал"] },
-  sitting: { ru: ["попытки", "попытку"], uk: ["спроби", "спробу"] },
-  "scored question": {
-    ru: ["оцениваемого вопроса", "оцениваемый вопрос"],
-    uk: ["оцінюваного запитання", "оцінюване запитання"],
-  },
-  "new one": { ru: ["новой", "новую"], uk: ["нової", "нову"] },
-  "brand new card": {
-    ru: ["совсем новой карточки", "совсем новую карточку"],
-    uk: ["зовсім нової картки", "зовсім нову картку"],
-  },
-  step: { ru: ["шага", "шаг"], uk: ["кроку", "крок"] },
-  shield: { ru: ["щита", "щит"], uk: ["щита", "щит"] },
-  conversation: { ru: ["разговора", "разговор"], uk: ["розмови", "розмову"] },
-  cent: { ru: ["цента", "цент"], uk: ["цента", "цент"] },
-  pages: { ru: ["страницы", "страницу"], uk: ["сторінки", "сторінку"] },
-  clips: { ru: ["аудиозаписи", "аудиозапись"], uk: ["аудіозапису", "аудіозапис"] },
-  characters: { ru: ["символа", "символ"], uk: ["символу", "символ"] },
-  questions: { ru: ["вопроса", "вопрос"], uk: ["запитання", "запитання"] },
-  notes: { ru: ["отзыва", "отзыв"], uk: ["відгуку", "відгук"] },
-  emails: { ru: ["письма", "письмо"], uk: ["листа", "лист"] },
-  milliseconds: { ru: ["миллисекунды", "миллисекунду"], uk: ["мілісекунди", "мілісекунду"] },
-  kilobytes: { ru: ["килобайта", "килобайт"], uk: ["кілобайта", "кілобайт"] },
-  "percent of the month's learners": {
-    ru: ["процента учеников за месяц", "процент учеников за месяц"],
-    uk: ["відсотка учнів за місяць", "відсоток учнів за місяць"],
-  },
-  times: { ru: ["раза", "раз"], uk: ["разу", "раз"] },
+const ENGLISH_FORMS: Readonly<Record<string, readonly [string, string]>> = {
+  pages: ["page", "pages"],
+  clips: ["clip", "clips"],
+  characters: ["character", "characters"],
+  questions: ["question", "questions"],
+  notes: ["note", "notes"],
+  emails: ["email", "emails"],
+  milliseconds: ["millisecond", "milliseconds"],
+  kilobytes: ["kilobyte", "kilobytes"],
+  "percent of the month's learners": ["percent of the month's learners", "percent of the month's learners"],
+  times: ["time", "times"],
+  "card waiting": ["card waiting", "cards waiting"],
+  person: ["person", "people"],
+  "week, as a span": ["week", "weeks"],
+  match: ["match", "matches"],
+  "other match": ["other match", "other matches"],
 };
 
-/** Every counted noun, for the test that walks them all. */
-export const COUNTED_NOUNS: readonly string[] = Object.keys(COUNTED);
+/**
+ * A whole number grouped the way its reader groups digits: "6,274" in English
+ * and "6 274" in Russian and Ukrainian, with a no-break space so the figure
+ * never splits across two lines. One place, because the landing page grouped
+ * its counts and the dictionary and the course printed the same count as
+ * "6274", which reads as a different kind of number.
+ */
+export function grouped(locale: Locale, n: number): string {
+  return n.toLocaleString(locale === "en" ? "en-GB" : locale);
+}
+
+/** `countOf` with its figure grouped: "6,274 words", "6 274 слова". */
+export function countGrouped(locale: Locale, n: number, noun: string, grammaticalCase: CountCase = "nom"): string {
+  return countOf(locale, n, noun, grammaticalCase).replace(String(n), grouped(locale, n));
+}
+
+/** A counted noun's two English forms. */
+export function englishForms(noun: string): readonly [string, string] {
+  return ENGLISH_FORMS[noun] ?? [noun, `${noun}s`];
+}
 
 /** Which form a count takes: one, few, many, or "other", the genitive singular a fraction takes. */
 function categoryOf(locale: Exclude<Locale, "en">, n: number): "one" | "few" | "many" | "other" {
@@ -304,7 +220,7 @@ function categoryOf(locale: Exclude<Locale, "en">, n: number): "one" | "few" | "
  * genitive singular) and is the nearest of the three in Ukrainian; `countOf`
  * itself takes the genitive singular from `COUNT_CASES`.
  */
-export function pluralIndex(locale: Exclude<Locale, "en">, n: number): 0 | 1 | 2 {
+export function pluralIndex(locale: TranslatedLocale, n: number): 0 | 1 | 2 {
   const category = categoryOf(locale, n);
   return category === "one" ? 0 : category === "many" ? 2 : 1;
 }
@@ -318,10 +234,10 @@ export function pluralIndex(locale: Exclude<Locale, "en">, n: number): 0 | 1 | 2
  * standing as the subject, or after a colon, takes.
  */
 export function countOf(locale: Locale, n: number, noun: string, grammaticalCase: CountCase = "nom"): string {
-  const forms = COUNTED[noun];
-  if (!forms) return `${n} ${n === 1 ? noun : `${noun}s`}`;
-  if (locale === "en") return `${n} ${forms.en[n === 1 ? 0 : 1]}`;
-  return `${figure(locale, n)} ${countedNoun(locale, n, noun, grammaticalCase)}`;
+  if (locale !== "en" && formsFor(locale, noun)) {
+    return `${figure(locale, n)} ${countedNoun(locale, n, noun, grammaticalCase)}`;
+  }
+  return `${n} ${englishForms(noun)[n === 1 ? 0 : 1]}`;
 }
 
 /** The noun alone, in the form and the case a count of `n` takes. */
@@ -331,10 +247,10 @@ export function countedNoun(
   noun: string,
   grammaticalCase: CountCase = "nom",
 ): string {
-  const forms = COUNTED[noun];
+  const forms = formsFor(locale, noun);
   if (!forms) return noun;
-  const [one, few, many] = forms[locale];
-  const extra = COUNT_CASES[noun]?.[locale];
+  const [one, few, many] = forms;
+  const extra = caseFormsFor(locale, noun);
   const gen1 = extra?.[0] ?? few;
   const acc1 = extra?.[1] ?? one;
   const category = categoryOf(locale, n);
