@@ -29,4 +29,13 @@ describe("the pilots page", () => {
     expect(page).toMatch(/\{contact \? \(/);
     expect(page).not.toMatch(/@upthink\.ee|privacy@/);
   });
+
+  it("promises an address at the bottom only where there is one", () => {
+    // The opening used to say the address at the bottom reaches a person on a
+    // copy that names none, where the bottom says there is nobody to write to.
+    const promise = "the address at the bottom reaches a person";
+    const at = page.indexOf(promise);
+    expect(at).toBeGreaterThan(-1);
+    expect(page.slice(Math.max(0, at - 80), at)).toMatch(/\{contact && /);
+  });
 });

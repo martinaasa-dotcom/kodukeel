@@ -3,7 +3,20 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Legal, P, S } from "@/components/Legal";
 import { resolveOperator } from "@/lib/legal/operator";
 
-export const metadata = { title: "Running a pilot" };
+export const metadata = {
+  title: "Running a pilot",
+  // Its own words where it is shared, rather than the landing page's pitch to a learner.
+  description: "What a Kodukeel pilot is, what it costs, what is asked of you and what happens to your people’s data.",
+  openGraph: {
+    title: "Running a pilot | kodukeel",
+    description: "What a Kodukeel pilot is, what it costs, what is asked of you and what happens to your people’s data.",
+    url: "/pilots",
+    type: "website",
+    siteName: "kodukeel",
+    locale: "en_EE",
+  },
+  twitter: { card: "summary_large_image" },
+};
 
 /*
   Whether the address at the foot is drawn is a fact about the deployment,
@@ -47,8 +60,9 @@ export default function PilotsPage() {
       <P>
         For a company, a school, a ministry or a university deciding whether to put Kodukeel in front of
         a group of people. It says what a pilot is, what it costs, what is asked of you, what you get
-        back, and what happens to your people’s data. If something here is not answered, the address
-        at the bottom reaches a person.
+        back, and what happens to your people’s data.
+        {/* Only where there is an address to point at: unset, the last section says why there is none. */}
+        {contact && " If something here is not answered, the address at the bottom reaches a person."}
       </P>
 
       <S id="honest" title="What this is honest about first">
