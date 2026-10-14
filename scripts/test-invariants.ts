@@ -14556,7 +14556,8 @@ check("every screen that draws the weakest cases reads the one query behind them
 */
 check("Estonian is marked by its language, not by a second typeface", () => {
   const layout = code("app/layout.tsx");
-  const faces = [...layout.matchAll(/from "next\/font\/google"/g)].length;
+  // Either loader counts: the faces moved to committed files under next/font/local.
+  const faces = [...layout.matchAll(/from "next\/font\/(?:google|local)"/g)].length;
   assert.equal(
     faces, 1,
     `app/layout.tsx loads ${faces} font imports. Estonian is marked with lang, not with a face of its own`,
