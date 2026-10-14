@@ -605,7 +605,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "season", word: "aastaaeg",
     parts: [p("aasta", "aasta", "year"), p("aeg", "aeg", "time")],
     literal: "year time", means: "a season",
-    quip: "Soomaa claims a fifth one, when the spring floods turn its roads into rivers.",
+    quip: "One boggy national park in the west claims a fifth, when spring floods turn its roads into rivers.",
   },
   {
     id: "history", word: "ajalugu",
@@ -797,7 +797,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "pleasure", word: "heameel",
     parts: [p("hea", "hea", "good"), p("meel", "meel", "mind, mood")],
     literal: "good mind", means: "gladness, pleasure",
-    quip: "Said when something pleases you, or when you'd be glad to help.",
+    quip: "The good mood that makes you say yes to helping before the favour is even explained.",
   },
   {
     id: "conspiracy", word: "vandenõu",
@@ -833,7 +833,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "outlaw", word: "lindprii",
     parts: [p("lind", "lind", "bird"), p("prii", "prii", "free")],
     literal: "bird free", means: "an outlaw",
-    quip: "Free as a bird sounds lovely. It once meant nobody had to protect you.",
+    quip: "Free as a bird sounds lovely. Borrowed from German, it means nobody has to protect you.",
   },
   {
     id: "mercury", word: "elavhõbe",
@@ -898,8 +898,8 @@ export const COMPOUNDS: readonly Compound[] = [
   {
     id: "special-day", word: "tähtpäev",
     parts: [p("täht", "täht", "mark, fixed point", "letter"), p("päev", "päev", "day")],
-    literal: "marked day", means: "an anniversary",
-    quip: "A date worth marking on the calendar so nobody forgets it.",
+    literal: "marked day", means: "a special date, anniversary",
+    quip: "The first half is also a star, and such a day often gets one in the diary.",
   },
   {
     id: "amber", word: "merevaik",
@@ -995,7 +995,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "infinitive", word: "tegevusnimi",
     parts: [p("tegevus", "tegevus", "activity"), p("nimi", "nimi", "name")],
     literal: "activity name", means: "the infinitive",
-    quip: "The form a verb wears in the dictionary, named for what verbs do.",
+    quip: "Latin named it the unbounded form, since it belongs to no person and no tense. Estonian is less poetic.",
   },
   {
     id: "hammock", word: "võrkkiik",
@@ -1019,7 +1019,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "nacre", word: "pärlmutter",
     parts: [p("pärl", "pärl", "pearl"), p("mutter", "mutter", "nut (for a bolt)")],
     literal: "pearl nut", means: "nacre",
-    quip: "Borrowed from German, where the second half means mother. Here it turned into hardware.",
+    quip: "Borrowed whole from German, where it is pearl mother. German calls a nut a mother too, which is where the hardware came from.",
   },
   {
     id: "waist", word: "vöökoht",
@@ -1043,7 +1043,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "pupil", word: "silmatera",
     parts: [p("silma", "silm", "eye"), p("tera", "tera", "blade, grain")],
     literal: "eye grain", means: "the pupil",
-    quip: "It also means the person you love most, the apple of your eye.",
+    quip: "It also means the person you love most, and the English apple of the eye first meant the pupil too.",
   },
   {
     id: "guesthouse", word: "võõrastemaja",
@@ -1245,7 +1245,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "laud", word: "laud", looksLike: "laud", means: "table",
-    quip: "Set it well for guests and the praise follows, which comes close enough.",
+    quip: "Set a good one for your guests and they will praise you to the skies.",
   },
   {
     id: "king", word: "king", looksLike: "king", means: "shoe",
@@ -1269,7 +1269,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "hall", word: "hall", looksLike: "hall", means: "grey",
-    quip: "It is also the word for frost, and a frosty morning is exactly this colour.",
+    quip: "It is frost as well. An unheated hall in January manages both at once.",
   },
   {
     id: "kuu", word: "kuu", looksLike: "coo", means: "moon, month",
@@ -1313,7 +1313,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "lend", word: "lend", looksLike: "lend", means: "flight",
-    quip: "Airlines would rather you paid for one up front.",
+    quip: "No airline will lend you one. It is paid for before you board.",
   },
   {
     id: "pruun", word: "pruun", looksLike: "prune", means: "brown",
@@ -1417,7 +1417,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "tint", word: "tint", looksLike: "tint", means: "smelt, a small fish",
-    quip: "Its tint is silver, and spring fries it by the plateful.",
+    quip: "Its tint is silver, and spring brings it to the frying pan by the plateful.",
   },
   {
     id: "peal", word: "peal", looksLike: "peal", means: "on top of",
@@ -1437,7 +1437,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "keel", word: "keel", looksLike: "keel", means: "language, tongue",
-    quip: "A ship steers with the English one. You'll steer a conversation with this one.",
+    quip: "The English one keeps a ship on course. This one keeps a conversation going.",
   },
   {
     id: "part", word: "part", looksLike: "part", means: "duck",
@@ -1473,7 +1473,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "seller", word: "seller", looksLike: "seller", means: "celery",
-    quip: "Any greengrocer is happy to be its seller.",
+    quip: "Say English celery aloud and you hear seller with a little extra on the end.",
   },
   {
     id: "soon", word: "soon", looksLike: "soon", means: "vein",
@@ -1497,7 +1497,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "maks", word: "maks", looksLike: "max", means: "tax",
-    quip: "Pay it to the max, some say. The same word is also your liver.",
+    quip: "The same word is your liver, and neither enjoys being squeezed to the max.",
   },
 ];
 
