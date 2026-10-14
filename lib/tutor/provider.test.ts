@@ -738,6 +738,36 @@ describe("falling back", () => {
     expect(open.config.name).toBe("openai");
   });
 
+  it("reports a key with no credit left to the operator, naming the link and never the body", async () => {
+    /*
+      A 402 was thrown as a sentence for the learner and reported nowhere, so
+      a balance running out reached the operator only as learners falling to
+      the next link. It goes to the error log now, which is the path that
+      mails the admins once a kind a day, with the provider, the model and the
+      status, and none of the provider's own text.
+    */
+    vi.stubEnv("GROQ_API_KEY", "k");
+    vi.stubEnv("OPENAI_API_KEY", "k");
+    vi.stubEnv("GROQ_MODEL", "paid/one");
+    vi.stubGlobal("fetch", async (url: string) =>
+      url.includes("groq.com")
+        ? new Response('{"error":{"message":"This request requires more credits"}}', { status: 402 })
+        : sse("Partitive."));
+    const logged: string[] = [];
+    const spy = vi.spyOn(console, "error").mockImplementation((line: unknown) => { logged.push(String(line)); });
+    try {
+      await openWithFallback(resolveProviders(), "system", [{ role: "user", content: "why?" }]);
+    } finally {
+      spy.mockRestore();
+    }
+    const records = logged.flatMap((line) => {
+      try { return [JSON.parse(line) as { at: string; message: string; extra?: Record<string, unknown> }]; } catch { return []; }
+    }).filter((r) => r.at === "tutor/provider" && r.extra?.status === 402);
+    expect(records).toHaveLength(1);
+    expect(records[0]!.extra).toMatchObject({ provider: expect.any(String), model: "paid/one", status: 402 });
+    expect(records[0]!.message).not.toMatch(/credits|\{/);
+  });
+
   it("never puts a provider's raw body in front of a learner", async () => {
     vi.stubEnv("GROQ_API_KEY", "k");
     vi.stubEnv("GROQ_MODEL", "free/one");

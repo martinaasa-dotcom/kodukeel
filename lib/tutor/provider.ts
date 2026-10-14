@@ -1431,6 +1431,16 @@ async function assertOk(res: Response, config: ProviderConfig) {
     898". Accurate, and addressed to nobody who was there.
   */
   if (res.status === 402) {
+    /*
+      Said to the operator as well as to the learner, through the error log,
+      which mails the admins once for each new kind of error in a day. The
+      message names the provider and nothing the provider said, so it is the
+      same sentence every time and the day's first one is the one mailed.
+    */
+    reportError(new Error(`${config.label} is out of credit`), {
+      at: "tutor/provider",
+      extra: { provider: config.label, model: config.model, status: 402 },
+    });
     throw new TutorError(
       `${config.label} has run out of credit on this key. Top it up, or add a second provider ` +
       `key in .env as a backup.`,
