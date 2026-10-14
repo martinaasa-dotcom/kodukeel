@@ -71,6 +71,10 @@ const BAD = [
   "rööv", "pussita", "peks", "ohver", "kannatan", "hädaolukor", "pommiähvard",
   // a result that is somebody's loss, even beside somebody else's win
   "pudene", "alistu", "kukkus välja", "jäi alla", "kaotu", "vigastu",
+  // a plan that fell through: postponed, cancelled, closed, somebody leaving
+  "lükkub", "lükatakse", "lükati", "edasi lükk", "tühista", " ära ",
+  "suletakse", "suleti", "sulgeb", "sulgemi", "uksed sulg", "lõpetab tegevuse", "tagasi astu",
+  "astus tagasi", "juhatus", "lahkub", "vaese", "naeruvää", "hädas",
 ];
 
 /*
@@ -79,8 +83,8 @@ const BAD = [
   plainly happy kind: something opened, won, found, celebrated or born.
 */
 const GOOD = [
-  "avas", "avati", "avatakse", "avab ", "avamine", "sündis", "sündi", "võitis", "võit",
-  "kuld", "medal", "rekord", "auhind", "preemia", "pälvis", "tunnust", "rõõm", "õnnelik", "naer",
+  "avas", "avati", "avatakse", "avab ", "avamine", "sündis", "sündinud", "võitis", "võit",
+  "kuld", "medal", "rekord", "auhind", "preemia", "pälvis", "tunnust", "rõõm", "õnnelik", "naeris", "naerat",
   "imeline", "edukas", "edu ", "avast", "leidis", "uus liik", "uut liiki", "festival", "kontsert",
   "näitus", "esilinast", "stipendium", "tähista", "juubel", "sünnipäev", "kingit", "annet",
   "vabatahtl", "positiiv", "parane", "kasvas", "taastu", "naasis", "pesitse", "poegi", "kutsik",

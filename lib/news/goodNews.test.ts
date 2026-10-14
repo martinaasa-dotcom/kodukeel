@@ -21,6 +21,11 @@ const BAD = [
   item("In memoriam: Jaan Tamm"),
   item("Tallinnas rööviti juuksurisalong"),
   item("Neel võitis Wuhanis, Malõgina pudenes Birminghamis välja"),
+  // A plan that fell through reads as a happy word ("avamine") and is not good news.
+  item("Tallinna Kunstihoone avamine lükkub detsembrisse"),
+  item("Festival jääb tänavu ära"),
+  item("Kohvik sulgeb oktoobri lõpus uksed"),
+  item("Eesti Kunstnike Liidu juhatus astus suurkoguks valmistudes tagasi"),
 ];
 
 describe("the bad-news list", () => {
@@ -172,5 +177,14 @@ describe("the English, read for the same thing", () => {
     const items = [item("Uus galerii avati"), item("Kontsert toimus")];
     const reply = JSON.stringify({ good: [{ i: 0, en: "Two people died at the gallery" }, { i: 1, en: "A concert took place" }] });
     expect(readJudgement(reply, items)).toEqual([{ index: 1, en: "A concert took place" }]);
+  });
+});
+
+describe("the keyless good-news words", () => {
+  it("do not take a word that only starts like a happy one", () => {
+    // `sündmus` is an event, not a birth; `naeruväärne` is ridiculous, not a laugh.
+    expect(plainlyGood(item("Linnas toimub suur sündmus"))).toBe(false);
+    expect(plainlyGood(item("Naeruväärne otsus"))).toBe(false);
+    expect(plainlyGood(item("Loomaaias sündis kaks karupoega"))).toBe(true);
   });
 });
