@@ -104,6 +104,57 @@ export function parseHeadlines(xml: string): string[] {
   return out;
 }
 
+/** One news item: what it says, a line more of it, and where it is. */
+export interface NewsItem {
+  title: string;
+  /** The feed's own summary, a sentence or two, or empty. */
+  description: string;
+  /** The article, or null where the feed gave none worth linking to. */
+  link: string | null;
+  /** When the feed says it was published, in milliseconds, or null where it does not say. */
+  at: number | null;
+}
+
+/** The text of one field of an item, decoded and in one spelling of each letter. */
+function field(item: string, name: string): string {
+  const match = new RegExp(`<${name}\\b[^>]*>([\\s\\S]*?)</${name}>`, "i").exec(item);
+  if (!match?.[1]) return "";
+  return decodeEntities(match[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1"))
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .normalize("NFC");
+}
+
+/**
+ * The items in an RSS document, for the good news card, which wants the
+ * summary and the link as well as the headline. Same rules as
+ * `parseHeadlines`: items only, never the channel's own title, and a cap on a
+ * surprise. A link is kept only where it is an https address, because it is
+ * printed as a link on the learner's home page and a feed is outside text.
+ * The publication date is read as well, because a card headed "today" may not
+ * show last week's news, and ERR's science feed reaches back nine days.
+ */
+export function parseNewsItems(xml: string): NewsItem[] {
+  const source = xml.slice(0, MAX_XML);
+  const out: NewsItem[] = [];
+  for (const item of source.matchAll(/<item\b[\s\S]*?<\/item>/gi)) {
+    const title = field(item[0], "title");
+    if (!title) continue;
+    const href = field(item[0], "link");
+    let link: string | null = null;
+    try {
+      link = href && new URL(href).protocol === "https:" ? new URL(href).toString() : null;
+    } catch {
+      link = null;
+    }
+    const published = Date.parse(field(item[0], "pubDate"));
+    out.push({ title, description: field(item[0], "description"), link, at: Number.isFinite(published) ? published : null });
+    if (out.length >= MAX_HEADLINES) break;
+  }
+  return out;
+}
+
 /**
  * The words in those headlines worth asking the dictionary about.
  *

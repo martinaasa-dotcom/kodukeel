@@ -16,8 +16,17 @@
  * the deal, so moving a card up is also what decides whether it survives the
  * cut; the disclosure table still decides whether a card is worth drawing at
  * all for somebody this far in; and a card with nothing to say this morning
- * is still absent whatever position it holds. Ordering never adds a seventh
+ * is still absent whatever position it holds. Ordering never adds a ninth
  * box, and it never draws a card the learner is not ready for.
+ *
+ * AND A CARD CAN BE HIDDEN. Eight cards is a lot to scroll past for somebody
+ * who never wants the joke or the news, and moving a card below the cut only
+ * hides it until a card above has a quiet morning. So a slot can be marked
+ * hidden, which takes it out of the deal entirely and lets the next card up
+ * into its place; it keeps its position, so showing it again puts it back
+ * where it was. Stored in the same string as a leading `-` on the id
+ * (`game -joke word`), so an older build reading the row ignores nothing it
+ * understood and the order still reads back whole.
  *
  * ONE STRING, LIKE THE GOAL REASONS. The stored value is the slot ids in
  * order, space separated, which is the shape `goalReason` already takes, so
@@ -67,6 +76,16 @@ export const TODAY_SLOTS = [
     detail: "Anything your teacher has set you, sorted by when it's due.",
   },
   {
+    id: "joke",
+    title: "Joke of the day",
+    detail: "A Juku joke, the kind every Estonian grew up on, with the English a tap away.",
+  },
+  {
+    id: "news",
+    title: "Good news today",
+    detail: "One happy headline from ERR, with the dictionary under every word.",
+  },
+  {
     id: "next",
     title: "Your next unit",
     detail: "The next unit of the course, and how much of it you've done.",
@@ -94,7 +113,7 @@ function isSlot(value: string): value is TodaySlot {
 export function todayOrderFrom(value: string | null | undefined): TodaySlot[] {
   const seen = new Set<TodaySlot>();
   const order: TodaySlot[] = [];
-  for (const token of (value ?? "").split(/\s+/)) {
+  for (const token of (value ?? "").split(/\s+/).map(slotOf)) {
     if (!isSlot(token) || seen.has(token)) continue;
     seen.add(token);
     order.push(token);
@@ -105,9 +124,35 @@ export function todayOrderFrom(value: string | null | undefined): TodaySlot[] {
   return order;
 }
 
-/** The shape the settings store holds. The inverse of `todayOrderFrom`. */
-export function serialiseTodayOrder(order: readonly TodaySlot[]): string {
-  return todayOrderFrom(order.join(" ")).join(" ");
+/** A stored token with its hidden mark taken off. */
+function slotOf(token: string): string {
+  return token.startsWith(HIDDEN_MARK) ? token.slice(HIDDEN_MARK.length) : token;
+}
+
+const HIDDEN_MARK = "-";
+
+/** The slots the learner has hidden from Today. Unknown ids are dropped. */
+export function hiddenSlotsFrom(value: string | null | undefined): Set<TodaySlot> {
+  const hidden = new Set<TodaySlot>();
+  for (const token of (value ?? "").split(/\s+/)) {
+    if (!token.startsWith(HIDDEN_MARK)) continue;
+    const slot = slotOf(token);
+    if (isSlot(slot)) hidden.add(slot);
+  }
+  return hidden;
+}
+
+/**
+ * The shape the settings store holds. The inverse of `todayOrderFrom` and
+ * `hiddenSlotsFrom` together.
+ */
+export function serialiseTodayOrder(
+  order: readonly TodaySlot[],
+  hidden: ReadonlySet<TodaySlot> = new Set(),
+): string {
+  return todayOrderFrom(order.join(" "))
+    .map((slot) => (hidden.has(slot) ? `${HIDDEN_MARK}${slot}` : slot))
+    .join(" ");
 }
 
 /** True where the stored order is the shipped one, so a hint can say so. */
@@ -118,15 +163,17 @@ export function isDefaultTodayOrder(order: readonly TodaySlot[]): boolean {
 
 /**
  * Deal the cards in the learner's order, dropping the ones with nothing to
- * say. The cap is the caller's, applied after this, so the order is also what
+ * say and the ones they hid. The cap is the caller's, applied after this, so the order is also what
  * decides which cards survive it.
  */
 export function orderTodayCards<T>(
   cards: Readonly<Record<TodaySlot, T | null>>,
   order: readonly TodaySlot[],
+  hidden: ReadonlySet<TodaySlot> = new Set(),
 ): T[] {
   const dealt: T[] = [];
   for (const slot of todayOrderFrom(order.join(" "))) {
+    if (hidden.has(slot)) continue;
     const card = cards[slot];
     if (card !== null && card !== undefined) dealt.push(card);
   }

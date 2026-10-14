@@ -30,9 +30,9 @@ describe("stageOf", () => {
 });
 
 describe("shows", () => {
-  it("gives a beginner four things that are true on an empty log", () => {
+  it("gives a beginner six things that are true on an empty log", () => {
     const led = PANELS.filter((p) => shows("arriving", p));
-    expect(led).toEqual(["review", "next", "word", "errand"]);
+    expect(led).toEqual(["review", "next", "word", "errand", "joke", "news"]);
   });
 
   it("holds the quest back until there is a weakness to name", () => {
@@ -69,6 +69,9 @@ describe("shows", () => {
     // which is the fault the other half of this table caused.
     expect(shows("arriving", "word")).toBe(true);
     expect(shows("arriving", "next")).toBe(true);
+    // And a joke and the good news, which read the same on every morning.
+    expect(shows("arriving", "joke")).toBe(true);
+    expect(shows("arriving", "news")).toBe(true);
   });
 
   it("shows everything once a learner is settled", () => {
@@ -87,11 +90,12 @@ describe("shows", () => {
 });
 
 describe("TODAY_CARDS", () => {
-  it("leaves room for the hero and no more than six white boxes under it", () => {
-    // Three rows of two, which is the layout the home page was asked for:
-    // game and word, calendar and conversation, progress and out there. Still
-    // a screen somebody glances at before a bus rather than one they scroll.
-    expect(TODAY_CARDS).toBeLessThanOrEqual(6);
+  it("leaves room for the hero and no more than eight white boxes under it", () => {
+    // Four rows of two, which is the layout the home page was asked for:
+    // game and word, calendar and conversation, progress and out there, and
+    // the joke and the good news. Still a screen somebody glances at before a
+    // bus rather than one they scroll.
+    expect(TODAY_CARDS).toBeLessThanOrEqual(8);
     expect(TODAY_CARDS % 2).toBe(0);
   });
 

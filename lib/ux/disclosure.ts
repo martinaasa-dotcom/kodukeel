@@ -47,7 +47,7 @@
  * on a log with nothing in it", not "is this the way in".
  *
  * AND THE TABLE IS HALF THE ANSWER, WHICH IS WHAT `TODAY_CARDS` IS FOR. A
- * panel worth drawing is not the same claim as a panel worth one of the six
+ * panel worth drawing is not the same claim as a panel worth one of the eight
  * boxes on the screen everybody opens with two minutes to spare. See the
  * constant at the foot of this file.
  *
@@ -119,6 +119,18 @@ export const PANELS = [
    * the panel the whole app points at.
    */
   "errand",
+  /**
+   * A Juku joke, chosen by the date. Out of a table, never off the log, so it
+   * is as true on the first morning as on the four hundredth, and a home page
+   * that makes somebody smile on day one is a home page they come back to.
+   */
+  "joke",
+  /**
+   * One piece of good news from ERR. Out of the feeds, never off the log, for
+   * the same reason as the joke: it reads the same to everybody whatever they
+   * have done here. See lib/news/goodNews.ts for what counts.
+   */
+  "news",
 ] as const;
 
 export type Panel = (typeof PANELS)[number];
@@ -138,12 +150,12 @@ const SHOWN: Record<Stage, readonly Panel[]> = {
     deck gets is "say hello to the first person you deal with", which is a
     fair first day. Everything else here would be reporting a nought.
   */
-  arriving: ["review", "next", "word", "errand"],
+  arriving: ["review", "next", "word", "errand", "joke", "news"],
   /*
     The daily loop, the reason to come back tomorrow, and what is due this
     week. Not the quest: four reviews is not enough to call any case a problem.
   */
-  starting: ["review", "next", "word", "streak", "tasks", "errand"],
+  starting: ["review", "next", "word", "streak", "tasks", "errand", "joke", "news"],
   /** Everything. By now every figure on it is drawn from enough to mean something. */
   settled: [...PANELS],
 };
@@ -163,13 +175,15 @@ export function shows(stage: Stage, panel: Panel): boolean {
  * rather than things to do today. Somebody with two minutes before the bus
  * reads the top of that and nothing else.
  *
- * So the page names its cards in priority order and takes the first six. Six
- * because the hero above them is the sixth, and six is what fits on a phone
- * screen and a half: a card that has to be hunted for is a card that is not
- * being glanced at, which is the whole job of this screen.
+ * So the page names its cards in priority order and takes the first eight,
+ * in four rows of two. It was six, three rows, and the fourth row is the
+ * operator's: a joke and a piece of good news, the two cards on the page that
+ * ask nothing of anybody and are there to make the morning a little better.
+ * They sit last in the shipped order, under the homework, so a class's work is
+ * never the card that falls past the cut to make room for a joke.
  *
  * Nothing is deleted by this either. A card the cap drops is on its own page,
  * in the rail and in the palette, exactly as with the table above. What it
- * decides is which five earn the one screen everybody opens every morning.
+ * decides is which eight earn the one screen everybody opens every morning.
  */
-export const TODAY_CARDS = 6;
+export const TODAY_CARDS = 8;

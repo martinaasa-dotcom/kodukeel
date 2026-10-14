@@ -40,7 +40,7 @@ import { LOCALE_NAMES, REVIEWED, MACHINE_NOTICE, MACHINE_NOTICE_EN, countOf, fil
 import { RoundPacePanel } from "./RoundPacePanel";
 import { ROUND_PACES, roundPaceFrom } from "@/lib/ux/roundClock";
 import { TodayOrderPanel } from "./TodayOrderPanel";
-import { isDefaultTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
+import { hiddenSlotsFrom, isDefaultTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { TODAY_CARDS } from "@/lib/ux/disclosure";
 import { GLOSS_LANGUAGES, alsoShowFrom, glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom, VOICES } from "@/lib/audio/voice";
@@ -213,6 +213,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const wordGloss = wordGlossFrom(settings[SETTING_KEYS.wordGloss]);
   const caseGlossPref = caseGlossFrom(settings[SETTING_KEYS.caseQuestionGloss]);
   const todayOrder = todayOrderFrom(settings[SETTING_KEYS.todayOrder]);
+  const todayHidden = hiddenSlotsFrom(settings[SETTING_KEYS.todayOrder]);
   const roundPace = roundPaceFrom(settings[SETTING_KEYS.roundPace]);
   const roundPaceName =
     t(ROUND_PACES.find((p) => p.id === roundPace)?.label ?? "Standard");
@@ -337,14 +338,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </section>
 
           <section id="today">
-            <SectionTitle hint={t(isDefaultTodayOrder(todayOrder) ? "the usual order" : "your order")}>
+            <SectionTitle hint={t(isDefaultTodayOrder(todayOrder) && todayHidden.size === 0 ? "the usual order" : "your order")}>
               {t("Your Today page")}
             </SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                {fill(t("Put the cards on Today in the order you like. The big button at the top always stays put, and Today shows the first {n} of these that have something for you."), { n: TODAY_CARDS })}
+                {fill(t("Put the cards on Today in the order you like, and hide any you don't want. The big button at the top always stays put, and Today shows the first {n} of these that have something for you."), { n: TODAY_CARDS })}
               </p>
-              <TodayOrderPanel current={todayOrder} />
+              <TodayOrderPanel current={todayOrder} hidden={[...todayHidden]} />
             </Card>
           </section>
 
