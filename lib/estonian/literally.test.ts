@@ -36,6 +36,19 @@ function glossesOf(lemma: string): string {
   return (ENTRIES.get(lemma) ?? []).map((e) => e.gloss).join("; ");
 }
 
+/*
+  Russian and Ukrainian build these from the very same picture: a fridge from
+  cold, a bat from a mouse, a kindergarten from children and a garden, a
+  pronoun from "instead", a vacuum cleaner from dust and sucking. Recognising
+  it is the fun, there is no other honest reading, and the line says so where
+  it is the joke.
+*/
+const SAME_IMAGE_BOTH = ["külmkapp", "uksekell", "liivakell", "silmamuna", "nahkhiir", "raamatukoi", "lasteaed", "käekell", "tolmuimeja"];
+const SAME_IMAGE: Record<"ru" | "uk", ReadonlySet<string>> = {
+  ru: new Set([...SAME_IMAGE_BOTH, "asesõna"]),
+  uk: new Set([...SAME_IMAGE_BOTH, "ööliblikas", "lumememm", "linnapea"]),
+};
+
 describe("compounds", () => {
   it("has enough of them for a few sittings", () => {
     expect(COMPOUNDS.length).toBeGreaterThanOrEqual(40);
@@ -103,8 +116,7 @@ describe("compounds", () => {
     // from cold, a bat from a mouse, a kindergarten from children and a
     // garden, a vacuum cleaner from dust and sucking. The quip says so where
     // it is the fun. Recognising it is the fun, and there is no other honest reading.
-    const both = ["külmkapp", "uksekell", "liivakell", "silmamuna", "nahkhiir", "raamatukoi", "lasteaed", "käekell"];
-    const sameImage = { ru: new Set([...both, "tolmuimeja"]), uk: new Set([...both, "ööliblikas", "lumememm", "tolmuimeja", "linnapea"]) };
+    const sameImage = SAME_IMAGE;
     const stems = (text: string) =>
       new Set((text.toLowerCase().match(/[\p{L}]{3,}/gu) ?? []).map((w) => w.slice(0, Math.min(w.length, 5))));
     for (const locale of ["ru", "uk"] as const) {
@@ -136,6 +148,47 @@ describe("compounds", () => {
     expect([...meant].filter((w) => !sharing.includes(w))).toEqual([]);
   });
 
+  /*
+    The reading is printed right above the line, so a line that says it again
+    is the same words twice. Hopping over tomorrow is the one that uses it to
+    make a new picture rather than to repeat it.
+  */
+  it("never repeats its reading in its line", () => {
+    const repeated = COMPOUNDS.filter((c) => c.word !== "ülehomme")
+      .filter((c) => {
+        const quip = c.quip.toLowerCase();
+        const literal = c.literal.toLowerCase();
+        return quip.includes(literal) || quip.includes(`${literal}s`);
+      })
+      .map((c) => c.word);
+    expect(repeated).toEqual([]);
+  });
+
+  /*
+    A piece is turned over before the meaning is asked, so a piece whose
+    Russian or Ukrainian is the answer's own word hands the answer over a
+    step early. English builds many of these words the same way (a spider and
+    a spiderweb), so what is held is the giveaway a translation adds: the
+    piece names the answer in the translation and not in the English.
+  */
+  it("never turns over a piece that names the answer in translation and not in English", () => {
+    const stems = (text: string) =>
+      new Set((text.toLowerCase().match(/[\p{L}]{3,}/gu) ?? []).map((w) => w.slice(0, Math.min(w.length, 5))));
+    const shares = (a: string, b: string) => {
+      const x = stems(b);
+      return [...stems(a)].some((w) => x.has(w));
+    };
+    for (const locale of ["ru", "uk"] as const) {
+      const read = (s: string) => tr(locale, s, "wordplay");
+      const giveaway = COMPOUNDS.filter((c) => !SAME_IMAGE[locale].has(c.word)).flatMap((c) =>
+        c.parts
+          .filter((part) => !shares(part.en, c.means) && shares(read(part.en), read(c.means)))
+          .map((part) => `${locale}: ${c.word}: ${read(part.en)} / ${read(c.means)}`),
+      );
+      expect(giveaway).toEqual([]);
+    }
+  });
+
   it("files each word once and keeps every id unique", () => {
     expect(new Set(COMPOUNDS.map((c) => c.word)).size).toBe(COMPOUNDS.length);
     expect(new Set(COMPOUNDS.map((c) => c.id)).size).toBe(COMPOUNDS.length);
@@ -143,7 +196,25 @@ describe("compounds", () => {
 });
 
 describe("false friends", () => {
+  /*
+    A look-alike's line sits under "not “tool”" and, in the round, under "It
+    means “chair”", so a line that opens by saying either again says it a
+    third time. It opens on something new.
+  */
+  it("never opens its line by saying the meaning or the look-alike again", () => {
+    const repeating = FALSE_FRIENDS.filter((f) => {
+      const quip = f.quip.toLowerCase();
+      const first = f.means.split(",")[0]!.trim().toLowerCase().replace(/^(a|an|the) /, "");
+      const opening = quip.replace(/^(a|an|the) /, "");
+      return opening.startsWith(`${first},`) || opening.startsWith(`${first}.`)
+        || new RegExp(`\\bnot ${f.looksLike.toLowerCase()}\\b`).test(quip)
+        || quip.includes("nothing to do with") || quip.startsWith("sounds like");
+    }).map((f) => `${f.word}: ${f.quip}`);
+    expect(repeating).toEqual([]);
+  });
+
   it("has enough of them for a few sittings", () => {
+
     expect(FALSE_FRIENDS.length).toBeGreaterThanOrEqual(15);
   });
 

@@ -43,7 +43,7 @@ const STREAK_FROM = 2;
  * learner's own taps. Then a guess at what it really means, then the reading
  * crossed out and the meaning stamped over it, with one line about the word.
  * NAME IT: the same five asked the other way round, by their literal reading.
- * DON'T BE FOOLED: three words that only look English.
+ * DON'T BE FOOLED: three words that only look or sound English.
  *
  * The guess is not marked against anybody: nobody can know a word before they
  * have met it, and the point of it is the surprise. A wrong name goes to the
@@ -215,7 +215,7 @@ export function WordplaySession({ plan: initial }: { plan: WordplayPlan | null }
 
   if (!plan) {
     return (
-      <Page title="Sõnamäng" lead={t("Words that say exactly what they are, and a few that only look English.")}>
+      <Page title="Sõnamäng" lead={t("Words that say exactly what they are, and a few that only look or sound English.")}>
         <Empty
           title={t("No words to play with today")}
           action={<ButtonLink href="/practice" variant="primary">{t("Back to practice")}</ButtonLink>}

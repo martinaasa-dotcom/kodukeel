@@ -834,7 +834,7 @@ export const ROUNDS: Area = {
     "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.":
       "Кошка ведёт машину мимо светофора, за ней бежит собака, а ещё дорога, дерево, дом и клетчатый флаг.",
     "A dog at a desk with a laptop and a cup of coffee, a phone, a printer and a calendar, a man and a woman watching, and a pot plant.":
-      "Собака за столом с ноутбуком и чашкой кофе, телефон, принтер и календарь, на неё смотрят мужчина и женщина, а ещё растение в горшке.",
+      "Собака сидит за столом с ноутбуком и чашкой кофе. Рядом телефон, принтер, календарь и растение в горшке, а мужчина и женщина на неё смотрят.",
     "A bear pushing a shopping trolley with honey, bread, milk and cheese, a shop assistant, a receipt and some money.":
       "Медведь толкает тележку с мёдом, хлебом, молоком и сыром, а ещё продавщица, чек и немного денег.",
     "The cow is sitting in the sauna, drinking juice.":
@@ -1830,7 +1830,7 @@ export const ROUNDS: Area = {
     "A cat driving a car past a traffic light, with a dog running after it, a road, a tree, a house and a chequered flag.":
       "Кіт веде машину повз світлофор, за ним біжить собака, а ще дорога, дерево, будинок і картатий прапор.",
     "A dog at a desk with a laptop and a cup of coffee, a phone, a printer and a calendar, a man and a woman watching, and a pot plant.":
-      "Собака за столом із ноутбуком і чашкою кави, телефон, принтер і календар, на неї дивляться чоловік і жінка, а ще рослина в горщику.",
+      "Собака сидить за столом із ноутбуком і чашкою кави. Поруч телефон, принтер, календар і рослина в горщику, а чоловік і жінка на неї дивляться.",
     "A bear pushing a shopping trolley with honey, bread, milk and cheese, a shop assistant, a receipt and some money.":
       "Ведмідь штовхає візок із медом, хлібом, молоком і сиром, а ще продавчиня, чек і трохи грошей.",
     "The cow is sitting in the sauna, drinking juice.":

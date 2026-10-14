@@ -138,7 +138,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "spouse", word: "abikaasa",
     parts: [p("abi", "abi", "help"), p("kaasa", "kaasa", "companion", "along (coming with somebody)")],
     literal: "help companion", means: "spouse",
-    quip: "Both halves are old words, one for marriage and one for a companion. Read as they look today, a help companion. Romantic, in a practical way.",
+    quip: "Both halves are old words, one for marriage and one for a companion. Today the first one means help, which is romantic in a practical way.",
   },
   {
     id: "world", word: "maailm",
@@ -150,7 +150,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "kitten", word: "kassipoeg",
     parts: [p("kassi", "kass", "cat"), p("poeg", "poeg", "son, young one")],
     literal: "cat's son", means: "kitten",
-    quip: "The second half is a son, and also the young of any animal. So every kitten counts, even the daughters.",
+    quip: "The second half is a son, and also the young of any animal. So every kitten is a son, even the daughters.",
   },
   {
     id: "lunch", word: "lõunasöök",
@@ -444,7 +444,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "noun", word: "nimisõna",
     parts: [p("nimi", "nimi", "name"), p("sõna", "sõna", "word")],
     literal: "name word", means: "noun",
-    quip: "A name word. Every noun is somebody's name for something.",
+    quip: "Every noun is somebody's name for something.",
   },
   {
     id: "verb", word: "tegusõna",
@@ -462,7 +462,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "interjection", word: "hüüdsõna",
     parts: [p("hüüd", "hüüd", "shout"), p("sõna", "sõna", "word")],
     literal: "shout word", means: "interjection",
-    quip: "Ouch, wow, hey. Shout words, every one.",
+    quip: "Ouch, wow, hey. Every one of them is meant to be shouted.",
   },
   {
     id: "baseball", word: "pesapall",
@@ -474,7 +474,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dictionary", word: "sõnaraamat",
     parts: [p("sõna", "sõna", "word"), p("raamat", "raamat", "book")],
     literal: "word book", means: "dictionary",
-    quip: "German says the same, a word book. English went to Latin for its word instead.",
+    quip: "German builds it the same way. English went to Latin for its word instead.",
   },
   {
     id: "snowman", word: "lumememm",
@@ -551,11 +551,11 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "must", word: "must", looksLike: "must", means: "black",
-    quip: "Black, not an order. For some people a black coffee is a must anyway.",
+    quip: "For some people a black coffee is a must anyway.",
   },
   {
     id: "all", word: "all", looksLike: "all", means: "under, below",
-    quip: "Under, not everything. Though under the sofa is where everything ends up eventually.",
+    quip: "Under the sofa is where everything ends up eventually.",
   },
   {
     id: "tool", word: "tool", looksLike: "tool", means: "chair",
@@ -563,11 +563,11 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "seen", word: "seen", looksLike: "seen", means: "mushroom",
-    quip: "Nothing to do with having seen anything. It's what people head into the forest for every autumn, basket in hand.",
+    quip: "It's what people head into the forest for every autumn, basket in hand.",
   },
   {
     id: "kook", word: "kook", looksLike: "cook", means: "cake",
-    quip: "Nothing to do with cooking. Everything to do with eating.",
+    quip: "Somebody else did the cooking. You just eat it.",
   },
   {
     id: "sink", word: "sink", looksLike: "sink", means: "ham",
@@ -579,7 +579,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "hunt", word: "hunt", looksLike: "hunt", means: "wolf",
-    quip: "A wolf, which to be fair is the one doing the hunting.",
+    quip: "To be fair, it is the one doing the hunting.",
   },
   {
     id: "luu", word: "luu", looksLike: "loo", means: "bone",
@@ -587,27 +587,27 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "hai", word: "hai", looksLike: "hi", means: "shark",
-    quip: "Sounds like hi. If you ever meet one, a wave from the shore is plenty.",
+    quip: "If you ever meet one, a wave from the shore is plenty.",
   },
   {
     id: "hind", word: "hind", looksLike: "hind", means: "price",
-    quip: "The price, not the back legs. It's on every label, so it's worth learning early.",
+    quip: "It's on every price label, so it's worth learning early.",
   },
   {
     id: "tee", word: "tee", looksLike: "tee", means: "road, tea",
-    quip: "A road, or tea, depending on the sentence. Golf has nothing to do with it.",
+    quip: "Which one depends on the sentence, and golf never comes into it.",
   },
   {
     id: "pall", word: "pall", looksLike: "pall", means: "ball",
-    quip: "Few things lift a gloom faster.",
+    quip: "Few things lift a gloomy mood faster.",
   },
   {
     id: "tore", word: "tore", looksLike: "tore", means: "great, lovely",
-    quip: "Lovely, and nothing to do with tearing. Say it about somebody's new coat and they'll be pleased.",
+    quip: "Say it about somebody's new coat and they'll be pleased.",
   },
   {
     id: "pill", word: "pill", looksLike: "pill", means: "musical instrument",
-    quip: "Plenty of people would say it works like one.",
+    quip: "Plenty of people would say music is a kind of medicine anyway.",
   },
   {
     id: "torn", word: "torn", looksLike: "torn", means: "tower",
@@ -615,11 +615,11 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "vale", word: "vale", looksLike: "vale", means: "wrong, false",
-    quip: "Wrong, or a lie. English keeps vale for poems about valleys.",
+    quip: "It can also mean a lie. English keeps vale for poems about valleys.",
   },
   {
     id: "veri", word: "veri", looksLike: "very", means: "blood",
-    quip: "Blood, not very. Which is very dramatic either way.",
+    quip: "Either way, it's very dramatic.",
   },
   {
     id: "scar", word: "arm", looksLike: "arm", means: "scar",
@@ -635,11 +635,11 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "seal", word: "seal", looksLike: "seal", means: "there",
-    quip: "There, not the animal. Point at one on the rocks and the word is right either way.",
+    quip: "Point at one on the rocks and the word is right either way.",
   },
   {
     id: "pool", word: "pool", looksLike: "pool", means: "half, side",
-    quip: "Half, not somewhere to swim. Order half a cake and nobody will hand you a towel.",
+    quip: "Order half a cake and nobody will hand you a towel.",
   },
   {
     id: "mood", word: "mood", looksLike: "mood", means: "fashion",

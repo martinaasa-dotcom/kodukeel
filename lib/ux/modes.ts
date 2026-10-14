@@ -208,7 +208,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   {
     /*
       Compounds with honest names (a turtle is a shield frog, a bat a leather
-      mouse) and words that only look English. Five at a time, taken apart,
+      mouse) and words that only look or sound English. Five at a time, taken apart,
       guessed and named. Reached from Practice. See `lib/estonian/literally.ts`
       and `lib/games/wordplay.ts`.
     */
@@ -217,7 +217,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     within: "/practice",
     blurb:
       "Compound words read piece by piece, like a bat that's a leather mouse, and words that " +
-      "only look English. Take each one apart, guess what it means, then name it from what it says.",
+      "only look or sound English. Take each one apart, guess what it means, then name it from what it says.",
   },
   {
     /*

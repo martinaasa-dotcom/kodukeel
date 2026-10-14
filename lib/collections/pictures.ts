@@ -134,7 +134,7 @@ export const PICTURES: readonly Picture[] = [
       { emoji: "🍳", lemma: "pann" }, { emoji: "🥚", lemma: "muna" },
       { emoji: "🧂", lemma: "sool" }, { emoji: "👩", lemma: "naine", means: "woman" },
       { emoji: "🔪", lemma: "nuga" }, { emoji: "🥕", lemma: "porgand" },
-      { emoji: "🍲", lemma: "supp" }, { emoji: "🍞", lemma: "leib" },
+      { emoji: "🍲", lemma: "supp" }, { emoji: "🍞", lemma: "sai" },
       { emoji: "🥄", lemma: "lusikas" },
     ],
     example: { et: "Naine lõikab noaga porgandit.", en: "The woman is cutting a carrot with a knife." },
@@ -293,12 +293,12 @@ export const PICTURES: readonly Picture[] = [
     rows: ["🐻 🛒 🍯", "🍞 🥛 🧀", "👩 🧾 💶"],
     things: [
       { emoji: "🐻", lemma: "karu" }, { emoji: "🛒", lemma: "ostukäru" },
-      { emoji: "🍯", lemma: "mesi" }, { emoji: "🍞", lemma: "leib" },
+      { emoji: "🍯", lemma: "mesi" }, { emoji: "🍞", lemma: "sai" },
       { emoji: "🥛", lemma: "piim" }, { emoji: "🧀", lemma: "juust" },
       { emoji: "👩", lemma: "naine", means: "woman" }, { emoji: "🧾", lemma: "kviitung", means: "receipt" },
       { emoji: "💶", lemma: "raha" },
     ],
-    example: { et: "Karu ostab poest mett ja leiba.", en: "The bear is buying honey and bread at the shop." },
+    example: { et: "Karu ostab poest mett ja saia.", en: "The bear is buying honey and bread at the shop." },
   },
 ];
 
