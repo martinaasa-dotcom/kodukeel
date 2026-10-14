@@ -988,6 +988,31 @@ export const TODAY: Area = {
     "Соберите настоящее предложение заново, со всеми запятыми.",
   "It's Friday, so keep it quiet: words you know, asked in new ways.":
     "Пятница, так что без суеты: знакомые слова в новых вопросах.",
+  // TODAY: THE JOKE AND THE GOOD NEWS.
+  "Joke of the day":
+    "Шутка дня",
+  "The joke":
+    "Шутка",
+  "Hear the joke":
+    "Послушать шутку",
+  "Show the English":
+    "Показать перевод на английский",
+  "Hide the English":
+    "Скрыть английский",
+  "Another one@joke":
+    "Ещё одну",
+  "Good news today":
+    "Хорошая новость дня",
+  "Tap a dotted word to look it up.":
+    "Нажмите на слово с точечным подчёркиванием, чтобы найти его в словаре.",
+  "Read it on ERR":
+    "Читать на ERR",
+  "Read the article":
+    "Читать статью",
+  "A Juku joke, the kind every Estonian grew up on, with the English a tap away.":
+    "Шутка про Юку, на каких вырос каждый эстонец, с английским переводом по нажатию.",
+  "One happy headline from ERR, with the dictionary under every word.":
+    "Один радостный заголовок с ERR, и под каждым словом словарь.",
   },
   uk: {
   // TODAY: THE GREETING AND THE LINE UNDER IT.
@@ -1963,6 +1988,31 @@ export const TODAY: Area = {
     "Зберіть справжнє речення заново, з усіма комами.",
   "It's Friday, so keep it quiet: words you know, asked in new ways.":
     "П'ятниця, тож без метушні: знайомі слова в нових запитаннях.",
+  // TODAY: THE JOKE AND THE GOOD NEWS.
+  "Joke of the day":
+    "Жарт дня",
+  "The joke":
+    "Жарт",
+  "Hear the joke":
+    "Послухати жарт",
+  "Show the English":
+    "Показати переклад англійською",
+  "Hide the English":
+    "Сховати англійську",
+  "Another one@joke":
+    "Ще один",
+  "Good news today":
+    "Добра новина дня",
+  "Tap a dotted word to look it up.":
+    "Натисніть на слово з крапковим підкресленням, щоб знайти його в словнику.",
+  "Read it on ERR":
+    "Читати на ERR",
+  "Read the article":
+    "Читати статтю",
+  "A Juku joke, the kind every Estonian grew up on, with the English a tap away.":
+    "Жарт про Юку, на яких виріс кожен естонець, з англійським перекладом за одним натиском.",
+  "One happy headline from ERR, with the dictionary under every word.":
+    "Один радісний заголовок з ERR, і під кожним словом словник.",
   },
   counted: {
     "new word": { en: ["new word", "new words"], ru: ["новое слово", "новых слова", "новых слов"], uk: ["нове слово", "нові слова", "нових слів"] },

@@ -3301,3 +3301,37 @@ grid goes to four columns only where "Paper 20" fits beside its button. The plan
 minutes" rather than "about 0 of those hours". The offline page's button is the app's primary
 button rather than a violet one. And `/grammar/sisseütlev`, which is the name this app teaches,
 reaches the case page its Latin slug names instead of a dead end.
+
+## 57. The fifty-first pass: a joke and the good news on Today
+
+The operator asked for two cards that ask nothing of anybody: a joke of the day, the Juku kind
+every Estonian grew up on, never repeating if it can help it, and one piece of news from ERR that
+is only ever good news. Both are the fourth row of Today, so `TODAY_CARDS` is eight, and both sit
+last in the shipped order, under the homework, so a teacher's work is never what the cut takes to
+make room for a joke. Both are true on the first morning, so both are drawn from the first minute.
+
+**The jokes are written, and that is ADR-005 amendment 5.** 190 of them in
+`lib/collections/jokes.ts`, each a short dialogue with an English line beside every line, typed in
+the session and for the native speaker to read in the pull request. `jokes.test.ts` holds every
+word of every Estonian line to the shipped forms list (names let through by name, two words on
+purpose with the reason beside them), no Estonian in the English, and no joke told twice. Which
+one is `dayIndex`'s stride walk, so none repeats for 190 days and two days running are far apart.
+The card draws the joke as a little conversation, Juku's lines on the right in the accent's tint,
+puts the dictionary under every word it knows, offers the English behind a press rather than
+beside the Estonian (a joke worked out is funnier and teaches more), reads it aloud, and walks
+five spares on "Another one" without asking the server for anything.
+
+**The good news is ERR's own headline, word for word.** Culture and science first, where the
+openings, prizes and discoveries are, then the front page, which measured 32 of 50 headlines
+refused on the day this was built. A list of bad-news stems refuses on every path and errs toward
+refusing; then a metered model on the grader's chain picks what is plainly good and says it in
+English, told to reject whatever it is unsure of, and its picks go through the bad-news list
+again. With no model, a headline has to carry a good-news stem as well. The answer is held an hour
+for the instance, Today waits for it no longer than `GOOD_NEWS_WAIT_MS` on a cold hour, and on an
+hour with nothing good the card is absent rather than empty. The dictionary under the words is the
+headlines block's own gate, now one function (`annotateTexts`) and one drawing (`LinkedWords`)
+for the headlines, the good news and the joke.
+
+**What it does not do.** 190 jokes is about half a year before one comes round again; more is a
+pull request away and the test is the only gate on it. The keyless rule is blunter than the model
+and will sometimes miss a good story, which is the side it is built to err on.

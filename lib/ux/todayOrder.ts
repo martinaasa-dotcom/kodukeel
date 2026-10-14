@@ -16,7 +16,7 @@
  * the deal, so moving a card up is also what decides whether it survives the
  * cut; the disclosure table still decides whether a card is worth drawing at
  * all for somebody this far in; and a card with nothing to say this morning
- * is still absent whatever position it holds. Ordering never adds a seventh
+ * is still absent whatever position it holds. Ordering never adds a ninth
  * box, and it never draws a card the learner is not ready for.
  *
  * ONE STRING, LIKE THE GOAL REASONS. The stored value is the slot ids in
@@ -65,6 +65,16 @@ export const TODAY_SLOTS = [
     id: "plan",
     title: "Homework",
     detail: "Anything your teacher has set you, sorted by when it's due.",
+  },
+  {
+    id: "joke",
+    title: "Joke of the day",
+    detail: "A Juku joke, the kind every Estonian grew up on, with the English a tap away.",
+  },
+  {
+    id: "news",
+    title: "Good news today",
+    detail: "One happy headline from ERR, with the dictionary under every word.",
   },
   {
     id: "next",

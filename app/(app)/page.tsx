@@ -48,6 +48,13 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
+import { JokeOfDayCard } from "@/components/JokeOfDay";
+import { GoodNewsCard } from "@/components/GoodNews";
+import { jokesToday } from "@/lib/progress/jokeOfDay";
+import { goodNewsWithin } from "@/lib/dict/goodNews";
+
+/** How long Today waits for the good news on a cold hour before drawing without it. */
+const GOOD_NEWS_WAIT_MS = 800;
 
 export async function generateMetadata() {
   return titleFor("Today");
@@ -230,7 +237,7 @@ export default async function TodayPage() {
     SCENES,
     reached ? new Set(unitsThrough(reached.programme, reached.day.index)) : programme ? new Set<string>() : null,
   );
-  const [word, outside, ladder] = await Promise.all([
+  const [word, outside, ladder, jokes, goodNews] = await Promise.all([
     shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement, { forLevel: true }) : null,
     // Whether the day's question has been answered, and the month behind it,
     // off one read rather than one for each.
@@ -247,6 +254,17 @@ export default async function TodayPage() {
     shows(stage, "streak")
       ? ladderPosition(ownerId, targetFrom(settings[SETTING_KEYS.goalTarget]))
       : null,
+    /*
+      The joke and the good news, the two cards that ask nothing of anybody.
+      The joke is a table and one dictionary read, held for the day. The news
+      is three feeds and, once an hour, a model, so it is waited for no longer
+      than `GOOD_NEWS_WAIT_MS`: a cold hour carries on after the response and
+      the card is there on the next visit, rather than this page waiting on
+      somebody else's server for the one card that is a pleasure rather than
+      the point.
+    */
+    shows(stage, "joke") ? jokesToday(summary.dayKey) : null,
+    shows(stage, "news") ? goodNewsWithin(ownerId, GOOD_NEWS_WAIT_MS) : null,
   ]);
 
   const today = dateLine(now, clock.zone);
@@ -854,6 +872,18 @@ export default async function TodayPage() {
   );
 
   /*
+    THE JOKE AND THE GOOD NEWS, THE FOURTH ROW.
+
+    Two cards that are there to make the morning a little better and teach a
+    little on the way: a Juku joke out of `lib/collections/jokes.ts`, and one
+    happy headline from ERR picked by `lib/news/goodNews.ts`. Both put the
+    dictionary under every word, both are true on the first morning, and the
+    news card is simply absent on an hour it found nothing good to say.
+  */
+  const jokeCard = jokes && jokes.length > 0 ? <JokeOfDayCard jokes={jokes} /> : null;
+  const newsCard = goodNews ? <GoodNewsCard news={goodNews} locale={locale} /> : null;
+
+  /*
     TODAY'S CONVERSATION, CHOSEN BY THE DATE.
 
     The thing `docs/22-real-life.md` says this app is for is a conversation
@@ -976,7 +1006,7 @@ export default async function TodayPage() {
         : lead(stage, toReview, toLearn, ownCardsPerMinute(pace), locale)}
     >
       {/*
-        ONE CARD ACROSS THE TOP, AND FIVE UNDER IT AT THE MOST.
+        ONE CARD ACROSS THE TOP, AND EIGHT UNDER IT AT THE MOST.
 
         The page used to be two columns from the top, the wide one for today
         and the narrow one for what is ahead. That is a sound reading order and
@@ -1016,7 +1046,7 @@ export default async function TodayPage() {
         {/*
           THE WHITE CARDS, TWO COLUMNS THAT EACH END WHERE THEY END. The order is
           still read in rows (game and word, calendar and conversation, progress
-          and out there), so the cards are dealt left, right, left, right. But a
+          and out there, the joke and the good news), so the cards are dealt left, right, left, right. But a
           card is as tall as what is in it and no taller: they used to be
           stretched to share a height with the one beside them, which left the
           word of the day a screen of empty white under its button and made the
@@ -1039,6 +1069,8 @@ export default async function TodayPage() {
               ladder: ladderCard,
               errand: errandCard,
               plan: planCard,
+              joke: jokeCard,
+              news: newsCard,
               next: nextCard,
             }, todayOrderFrom(settings[SETTING_KEYS.todayOrder]));
             const cards = dealt.slice(0, TODAY_CARDS);

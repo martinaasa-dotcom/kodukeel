@@ -60,16 +60,16 @@ describe("isDefaultTodayOrder", () => {
 describe("orderTodayCards", () => {
   const cards = {
     game: "G", word: "W", calendar: "C", conversation: null, ladder: "L", errand: "E",
-    plan: "P", next: "N",
+    plan: "P", joke: "J", news: "Nw", next: "N",
   } as const;
 
   it("deals in the learner's order and drops what has nothing to say", () => {
     expect(orderTodayCards(cards, todayOrderFrom("next errand")))
-      .toEqual(["N", "E", "G", "W", "C", "L", "P"]);
+      .toEqual(["N", "E", "G", "W", "C", "L", "P", "J", "Nw"]);
   });
 
   it("is the shipped order when nothing was chosen", () => {
-    expect(orderTodayCards(cards, DEFAULT_TODAY_ORDER)).toEqual(["G", "W", "C", "L", "E", "P", "N"]);
+    expect(orderTodayCards(cards, DEFAULT_TODAY_ORDER)).toEqual(["G", "W", "C", "L", "E", "P", "J", "Nw", "N"]);
   });
 
   it("never grows the deal past the cap by itself", () => {
@@ -80,11 +80,17 @@ describe("orderTodayCards", () => {
     expect(TODAY_CARDS).toBeLessThan(TODAY_SLOTS.length);
   });
 
-  it("is the order the home page was asked for: rows of game and word, calendar and conversation, progress and out there", () => {
+  it("is the order the home page was asked for: rows of game and word, calendar and conversation, progress and out there, then the joke and the good news", () => {
     expect(DEFAULT_TODAY_ORDER.slice(0, 6)).toEqual(
       ["game", "word", "calendar", "conversation", "ladder", "errand"],
     );
-    expect(TODAY_CARDS).toBe(6);
+    expect(TODAY_CARDS).toBe(8);
+  });
+
+  it("keeps a teacher's homework above the joke, so the cut takes the joke first", () => {
+    const at = (slot: string) => DEFAULT_TODAY_ORDER.indexOf(slot as never);
+    expect(at("plan")).toBeLessThan(at("joke"));
+    expect(at("joke")).toBeLessThan(at("news"));
   });
 });
 

@@ -7932,8 +7932,22 @@ and, under it, whatever is on the learner's calendar today, which were two cards
 of the day walks the dictionary, held for a learner the module holds to scenes whose units the evenings
 have taught, so on the first weeks of A1 it is absent rather than offering a conversation whose words
 nobody has handed over. **Out there** is the existing question about yesterday under its new name.
-`TODAY_CARDS` is six for that reason, so a seventh card (homework, or the next unit off the course)
-falls under the cut when all six are drawn.
+`TODAY_CARDS` was six for that reason, so a seventh card (homework, or the next unit off the course)
+fell under the cut when all six were drawn.
+
+**And then a fourth row: a Juku joke and one piece of good news.** The operator asked for two
+cards that ask nothing of anybody, so `TODAY_CARDS` is eight and the shipped order ends on
+homework, the joke and the good news, in that order, so a teacher's work is never the card the cut
+takes to make room for a joke. The jokes are `lib/collections/jokes.ts`, Estonian typed in a
+session and read by the native speaker in the pull request (ADR-005 amendment 5), every word held
+to the shipped forms list by `jokes.test.ts`, and readable on the card alone, asserted in
+`scripts/invariants/jokes-stay-on-their-card.ts`. The good news is ERR's own headline, word for
+word, with the dictionary under every word (`annotateTexts`, the headlines' gate): a list of
+bad-news stems refuses on every path whatever anybody thinks, and then a metered model on the
+grader's chain picks what is plainly good and says it in English, or, with no model, a headline has
+to carry a good-news stem as well (`lib/news/goodNews.ts`). Held an hour for the instance, waited
+for no longer than `GOOD_NEWS_WAIT_MS` on a cold hour, and absent rather than empty on an hour with
+nothing good.
 
 **And the order is the learner's, because a home page's reading order is a fact about the
 reader.** The shipped order is an argument and it is still the default, and it is not the only
