@@ -19,6 +19,14 @@ import type { Area } from "../area";
  * (ADR-005): a place name with õ, ä, ö or ü travels in an `{e1}` slot.
  */
 const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
+  // PILOTS, which is English only, so each link says so in the other two.
+  ["what a pilot is", "что такое пилотный проект (на английском)", "що таке пілотний проєкт (англійською)"],
+  ["An organisation thinking of trying it with a group can read {pilots}, which says what it costs them, which is nothing to run.",
+    "Организация, которая думает попробовать приложение с группой, может прочитать {pilots}: там сказано, во что это им обойдётся, а запуск не стоит ничего.",
+    "Організація, яка думає спробувати застосунок із групою, може прочитати {pilots}: там сказано, у що це їм обійдеться, а запуск не коштує нічого."],
+  ["An organisation deciding whether to try it with a group can read {pilots}, including what it is not ready for.",
+    "Организация, которая решает, пробовать ли приложение с группой, может прочитать {pilots}, в том числе о том, к чему оно ещё не готово.",
+    "Організація, яка вирішує, чи пробувати застосунок із групою, може прочитати {pilots}, зокрема про те, до чого він ще не готовий."],
   // TEACHERS.
   ["Put a code on the board. See who is practising and what the group keeps getting wrong.",
     "Напишите код на доске. Смотрите, кто занимается и в чём группа ошибается чаще всего.",

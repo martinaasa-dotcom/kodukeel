@@ -165,6 +165,11 @@ export default async function TrustPage({ searchParams }: { searchParams: Public
             teachers: <Link href={href("/teachers")} className="underline underline-offset-2">{t("the page for teachers")}</Link>,
           })}
         </P>
+        <P>
+          {rich(t("An organisation deciding whether to try it with a group can read {pilots}, including what it is not ready for."), {
+            pilots: <Link href="/pilots" className="underline underline-offset-2">{t("what a pilot is")}</Link>,
+          })}
+        </P>
       </S>
 
       <S id="security" title={t("Security posture")}>

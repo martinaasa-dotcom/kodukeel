@@ -171,7 +171,7 @@ or paying for the compute somebody else is currently absorbing.
 
 One thing a grant would also buy that the page does not list, and it should be costed in an
 application rather than assumed: a first pilot with a class or a workplace, which
-`docs/30-pilots.md` scopes and prices at nothing to run. The Estonian itself is developed by a
+the `/pilots` page scopes and prices at nothing to run. The Estonian itself is developed by a
 native Estonian speaker.
 
 ## 5. What happens when the money stops
@@ -271,7 +271,7 @@ Everything above is an app, a set of measurements and a governance position, and
 evidence that people will use it. What exists instead of evidence is that the measurement machinery
 is built and honest before the first learner arrives, so a first cohort produces a number rather
 than an anecdote, and that the floors mean a small deployment publishes nothing rather than
-publishing something flattering. `docs/30-pilots.md` says at the top that there is no reference
+publishing something flattering. The `/pilots` page says at the top that there is no reference
 customer and no case study to send.
 
 **One maintainer.** A single person project stops when that person does. Three things reduce what

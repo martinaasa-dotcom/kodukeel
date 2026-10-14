@@ -1612,6 +1612,11 @@ function ForTeachers({ say, contact }: { say: Say; contact: string | null }) {
               {t("How the data is handled")}
             </Link>
           </li>
+          <li>
+            <Link href="/pilots" className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
+              {t("How a pilot works")}
+            </Link>
+          </li>
           {contact && (
             <li>
               <a href={`mailto:${contact}?subject=${subject}`} className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
@@ -1703,6 +1708,7 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
               <FootLink say={say} href="/funding">{t("What it costs to run")}</FootLink>
               <FootLink say={say} href="/trust">{t("Security and trust")}</FootLink>
               <FootLink say={say} href="/teachers">{t("For teachers")}</FootLink>
+              <FootLink say={say} href="/pilots">{t("Running a pilot")}</FootLink>
               <FootLink say={say} href="/accessibility">{t("Accessibility")}</FootLink>
               <FootLink say={say} href="/state-exam">{t("The state examination")}</FootLink>
               {locale !== "en" && (
