@@ -5,9 +5,15 @@ It is meant to be read back into a planning session for the second batch, so it 
 how each change was checked, where the work went differently from the plan and why, and what was
 found on the way that belongs in the next list.
 
-Branch `claude/determined-ritchie-ptcr9g`, pull request #816. Four commits for the code (QW-1, then
-QW-8 and QW-9 together, then QW-2 to QW-6, then a fix to the poster at tablet width that the
-containment sweep found), plus this page.
+Branch `claude/determined-ritchie-ptcr9g`, pull request #816. In order:
+- QW-1;
+- QW-8 and QW-9 together;
+- QW-2 to QW-6;
+- a fix to the poster at tablet width that the containment sweep found;
+- two faults on Russian and Ukrainian screens that test-locales found, which were already on main
+  (section 11);
+- a merge of main with the tables regenerated;
+- and this page.
 
 ## 1. Summary
 
@@ -278,16 +284,21 @@ credentials and the paid keys, on a production build (`next build`, `next start`
 | Check | Result |
 | --- | --- |
 | `npm run typecheck`, `npm run lint` | clean |
-| `npm test` | 5,860 passed before QW-2 to QW-6; rerun after, see the pull request |
-| `npm run test:invariants` | all held (757 before QW-2 to QW-6, plus the new file) |
+| `npm test` | 5,905 passed in 316 files, on the final tree with main merged in |
+| `npm run test:invariants` | 767 held, on the final tree; the two new files were each made to fail on the real fault first |
 | `npm run test:db` | the new learn and classroom tests pass |
 | `check:landing --budget` | within budget on all three landing pages |
 | `test-first-day.mjs` | 87 of 87, on an empty deck |
 | `test-assess.mjs` | 51 of 51 |
 | `test-module.mjs` | 65 of 65 |
 | `test-modes.mjs` | passed (6 checks waived for reasons unrelated to this work) |
-| `test-containment.mjs`, `test-locales.mjs`, `test-design.mjs`, `test-mobile.mjs`, `a11y-check.mjs` | see the pull request description for the final counts |
-| CI on the QW-8 commit | green |
+| `test-containment.mjs` | the first run failed eight checks, all the poster at 768 (section 7); after the fix, 2,929 at 768 with none failed, and the 360 and 1280 passes had already come back clean |
+| `test-locales.mjs` | the first run failed six checks, none of them this work's (section 11); after the fix, 3,386 with none failed |
+| `test-design.mjs` | 19, none failed |
+| `test-mobile.mjs` | 189, none failed |
+| `a11y-check.mjs` | 991, none failed, the poster included |
+| `test-flash.mjs`, `test-teaching.mjs`, `test-modes.mjs` after the section 11 fix | see the pull request |
+| CI | green on the QW-8 commit and on the poster fix; the commit after it went red on the generated tables once main had moved, fixed by the merge (section 11) |
 
 Lighthouse was not rerun: it is not installed here and installing it would have meant pulling a
 browser build the environment already pins. The script weight is the cause the plan named for the
@@ -307,6 +318,25 @@ the production host (section 12).
 - **Print.** Not in any item, found by printing the poster: Anu's button printed on every page.
 - **`docs/35-launch-quick-wins.md` is in the repository** now, because the invariant that checks
   every cited path exists failed on the comments pointing at it.
+- **Two faults on main, fixed here because test-locales found them.** Neither came from this work:
+  they depend on which card the deck deals, so CI can pass or fail them by chance.
+  - The flash round printed "he/she think, but in the past" on Russian and Ukrainian screens. The
+    "Say it" phrase (`lib/estonian/sayIt.ts`) is built out of the word's English gloss and reached
+    the screen as English, and the review card ran it through `t()`, which has no line for a
+    sentence built per word. `sayIn` and `sayLineIn` in `lib/estonian/plainAsk.ts` are now the one
+    way a screen turns it into what it prints: English stays English, and Russian and Ukrainian get
+    the short phrase in their own language. Seven screens use them: the flash round, the review
+    card, the writing round, the exceptions round, the case walkthrough (twice) and the unit
+    lesson. The past third-person frame also lacked its -s.
+  - Anu's no-key button ran 7px past its card in Ukrainian at 360px. The label is
+    "Безкоштовний ключ" now; the paragraph above it already says Settings walks you through it.
+  - `scripts/invariants/the-say-it-phrase-is-read-in-the-screens-language.ts` fails on a screen
+    that shows the phrase without the helpers, or draws it as it arrived. Both arms were made to
+    fail on the real lines.
+- **The generated tables drift when main moves.** main added Today's joke and good-news cards
+  (#812) with their Russian and Ukrainian lines while this was open, and the unit suite failed on
+  `generated.test.ts` until main was merged and `npm run i18n:tables` rerun. Every pull request
+  that touches a translation will meet this while the tables are committed (section 12).
 
 ## 12. Found on the way, and suggested for the second batch
 
@@ -319,7 +349,8 @@ Ordered by what they cost to leave.
    landing page, a dictionary entry and Today, and write the figures into `docs/35-launch-quick-wins.md`. The plan's
    baseline was 47 to 49 on the landing page; expect a large move, but measure it.
 3. **Native review of the new Russian and Ukrainian.** Thirty-odd lines, all machine-written: the
-   teachers band, the poster's steps, "The same in English", "Contact". They are listed in the
+   teachers band, the poster's steps, "The same in English", "Contact", and the shortened
+   Ukrainian label on Anu's no-key button. They are listed in the
    pull request. The poster's matter most, because they go on a classroom wall.
 4. **A slice for `/funding`**, the one public page still loading a whole language. Small, using the
    same `areaTable` and borrow list pattern; `test-locales.mjs` will name any line it misses.
@@ -335,7 +366,15 @@ Ordered by what they cost to leave.
    per-route root layout; low severity, unchanged.
 9. **First-run screen heights.** Steps 3 and 4 are still 2,900 to 3,300 px on a phone. The first
    screen is shorter now (section 4); the later ones are a layout redesign.
-10. **A teachers page.** The band is the cheap version. A `/teachers` page with a screenshot of the
+10. **Generate the language tables at build time** rather than committing them. Committed tables
+    make every open pull request red the moment main adds a translation line, as this one was. A
+    `prebuild` and `pretest` step running `npm run i18n:tables`, with the drift test kept, would
+    remove that. The cost is a build step; the test then checks the step ran.
+11. **Translate the gloss-bearing "Say it" phrase properly.** Russian and Ukrainian get "с этим"
+    where English gets "with the bird", which says less (section 11). Doing better needs the
+    Russian and Ukrainian equivalents the dictionary already stores (`translationRu`,
+    `translationUk`) in a frame per case, written by somebody who reads those languages.
+12. **A teachers page.** The band is the cheap version. A `/teachers` page with a screenshot of the
     class board, the privacy boundary in full and a pilot contact is the next step once a school is
     interested.
 
@@ -371,3 +410,11 @@ QW-2 to QW-6:
 - `app/globals.css`, `scripts/test-containment.mjs`
 - `lib/copy/countCases.test.ts`
 - `lib/copy/i18n/areas/app.ts`, `landing.ts`, `public.ts` and `start.ts`, and the regenerated tables
+
+The two faults on main (section 11):
+- `lib/estonian/sayIt.ts`, `lib/estonian/sayIt.test.ts`, `lib/estonian/plainAsk.ts`
+- `app/(app)/review/flashcards/FlashSession.tsx`, `app/(app)/review/ReviewSession.tsx`,
+  `app/(app)/review/write/WriteSession.tsx`, `app/(app)/review/exceptions/ExceptionsSession.tsx`,
+  `app/(app)/grammar/build-a-word/BuildWalk.tsx`, `app/(app)/learn/[unitId]/lesson/LessonSession.tsx`
+- `scripts/invariants/the-say-it-phrase-is-read-in-the-screens-language.ts`
+- `lib/copy/i18n/areas/app.ts` and the regenerated tables
