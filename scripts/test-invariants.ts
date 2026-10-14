@@ -9725,8 +9725,11 @@ check("a headline is read through the dictionary's gate, and the feed writes not
   assert.match(reader, /newsHeadlines\(\)/, "the reader no longer reads the feed's own cache");
   assert.doesNotMatch(reader, /prisma\.(lexeme|form|card)\.(create|update|upsert|delete)/, "the headline reader writes to the dictionary");
   const screen = code("components/Headlines.tsx");
-  assert.match(screen, /token\.lemma \?/, "the screen links something other than a vouched lemma");
-  assert.match(screen, /encodeURIComponent\(token\.lemma\)/, "a link carries the headline's spelling rather than the headword");
+  // The links are drawn by the one word-linker the joke and the good news share.
+  assert.match(screen, /<LinkedWords tokens=\{headline\.tokens\}/, "the headlines no longer go through the shared word-linker");
+  const links = code("components/LinkedWords.tsx");
+  assert.match(links, /token\.lemma \?/, "the screen links something other than a vouched lemma");
+  assert.match(links, /encodeURIComponent\(token\.lemma\)/, "a link carries the headline's spelling rather than the headword");
   assert.match(screen, /from \{host\}/, "the block no longer names where the headline came from");
   // The feed module stays pure: no database, no browser, nothing of the learner's goes out.
   const feed = code("lib/news/feed.ts");

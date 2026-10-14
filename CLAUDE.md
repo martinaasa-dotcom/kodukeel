@@ -7994,8 +7994,23 @@ and, under it, whatever is on the learner's calendar today, which were two cards
 of the day walks the dictionary, held for a learner the module holds to scenes whose units the evenings
 have taught, so on the first weeks of A1 it is absent rather than offering a conversation whose words
 nobody has handed over. **Out there** is the existing question about yesterday under its new name.
-`TODAY_CARDS` is six for that reason, so a seventh card (homework, or the next unit off the course)
-falls under the cut when all six are drawn.
+`TODAY_CARDS` was six for that reason, so a seventh card (homework, or the next unit off the course)
+fell under the cut when all six were drawn.
+
+**And then a fourth row: a Juku joke and one piece of good news.** The operator asked for two
+cards that ask nothing of anybody, so `TODAY_CARDS` is eight and the shipped order ends on
+homework, the joke and the good news, in that order, so a teacher's work is never the card the cut
+takes to make room for a joke. The jokes are `lib/collections/jokes.ts`, Estonian typed in a
+session and read by the native speaker in the pull request (ADR-005 amendment 5), every word held
+to the shipped forms list by `jokes.test.ts`, and readable on the card alone, asserted in
+`scripts/invariants/jokes-stay-on-their-card.ts`. The good news is ERR's own headline, word for
+word, with the dictionary under every word (`annotateTexts`, the headlines' gate): a list of
+bad-news stems refuses on every path whatever anybody thinks, and then a metered model on the
+grader's chain picks what is plainly good and says it in English, or, with no model, a headline has
+to carry a good-news stem as well (`lib/news/goodNews.ts`). Held an hour for the instance, never
+waited for (it streams in behind a `Suspense` once the rest of Today has gone out, `GoodNewsSlot`),
+and absent rather than empty on an hour with nothing good. The joke's last line waits behind a tap, because a joke printed whole is a joke told
+badly, and the news card carries the best headline and up to two behind it for its own "Another one".
 
 **And the order is the learner's, because a home page's reading order is a fact about the
 reader.** The shipped order is an argument and it is still the default, and it is not the only
@@ -8008,7 +8023,11 @@ is dropped, a duplicate kept once, and a slot the row leaves out is appended in 
 so a card added to Today after somebody set theirs still appears. Not drag and drop, because a list
 reordered once a year does not earn a gesture library, a phone takes a drag for a scroll, and two
 buttons a row say in words what they did. The rows past the cut say so in words as well, since a
-grayer row is a hue carrying a distinction on its own.
+grayer row is a hue carrying a distinction on its own. **And any card can be hidden**, stored as a
+leading `-` on its id in the same row (`hiddenSlotsFrom`): a hidden card is not dealt, so the next
+one up takes its place under the cut, and it keeps its position so showing it again puts it back.
+Eight cards is a lot for somebody who never wants the joke or the news, and moving a card below
+the cut only hides it until a card above has a quiet morning.
 
 **The cap fails on the shape that rots, which is not the constant.** Nobody lowers `TODAY_CARDS` by
 accident. What happens is somebody adds `{newCard}` beside the sliced array, which reads as a card

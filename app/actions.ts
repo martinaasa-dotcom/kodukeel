@@ -75,7 +75,7 @@ import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { alsoShowFrom, glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { localeFrom, tr } from "@/lib/copy/locale";
-import { serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
+import { hiddenSlotsFrom, serialiseTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { serialiseNavOrder } from "@/lib/ux/navOrder";
 import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
@@ -2126,17 +2126,18 @@ export async function setCaseQuestionGloss(value: string) {
 }
 
 /**
- * The order the cards on Today are dealt in.
+ * The order the cards on Today are dealt in, and which of them are hidden.
  *
- * Normalized through the one reader on the way in, so a request cannot store
+ * Normalized through the readers on the way in, so a request cannot store
  * an id Today does not know or leave a slot out: what is written is every
- * slot, once, in the order asked for. Revalidated on Today and on Settings,
+ * slot, once, in the order asked for, with the hidden ones marked. Revalidated on Today and on Settings,
  * which are the two screens that read it.
  */
 export async function setTodayOrder(value: string) {
   const ownerId = await requireUserId();
-  const order = todayOrderFrom(text(value));
-  await writeSetting(ownerId, SETTING_KEYS.todayOrder, serialiseTodayOrder(order));
+  const raw = text(value);
+  const order = todayOrderFrom(raw);
+  await writeSetting(ownerId, SETTING_KEYS.todayOrder, serialiseTodayOrder(order, hiddenSlotsFrom(raw)));
   revalidatePath("/");
   revalidatePath("/settings");
   return { ok: true as const, order };

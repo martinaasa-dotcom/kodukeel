@@ -134,7 +134,7 @@ are worth the top model (a wrong case explanation is actively harmful to a learn
 means the multi-thousand-token grammar prompt is paid for once per session rather than per turn.
 Details and cost model in `06-anu-tutor.md`.
 
-**ADR-005: Retrieve morphology, never generate it. (AMENDED, four times, below.)**
+**ADR-005: Retrieve morphology, never generate it. (AMENDED, five times, below.)**
 *Context:* an LLM will happily produce a plausible, wrong partitive plural. *Decision:* authoritative
 forms come from Ekilex only; AI output is tagged `provenance: AI` and requires explicit confirmation
 before entering a card's answer field. *Consequences:* the dictionary is bounded by Ekilex coverage;
@@ -215,6 +215,20 @@ is that the app now authors Estonian *sentences* out of attested words, and whet
 grammatical and natural is a person's judgement rather than a lexicographer's, which is why the rows
 are few, short, reviewed, never stored in `Lexeme.examples`, and removable through
 `lib/dict/refused.ts` like any other sentence somebody reads and refuses.
+
+*Amendment 5: a joke a day may be written, and goes on its card and nowhere else.* The operator
+asked for a Juku joke on Today, the kind every Estonian grew up on, and nobody records a joke in a
+dictionary. *Decision:* `lib/collections/jokes.ts` holds them, typed in a session and read by the
+native Estonian speaker who develops this app in the pull request that adds them, on the standing
+amendment 4 and ADR-025 amendment 1 already gave written Estonian. **A machine holds every line to
+the one rule it can check** (`lib/collections/jokes.test.ts`): every word is a spelling the shipped
+forms list knows, Ekilex and Vabamorf with guessing off, or a name let through by name, and every
+English line carries no Estonian letter. **Where they may go is asserted**
+(`scripts/invariants/jokes-stay-on-their-card.ts`): the joke card on Today is the one reader, and
+nothing that marks, measures, builds a card, plays a scene or lends a sentence may import the
+table. *Consequences:* no form is written, no model writes a line, and every word of a joke is one
+the language has; whether the joke is funny and natural is the person's reading, which is why it
+arrives in a pull request and is never stored, graded or put on a card.
 
 **ADR-006: Generic importer instead of a Speakly integration.**
 *Context:* Speakly has no public API and no verifiable export (audit A3). *Decision:* one
