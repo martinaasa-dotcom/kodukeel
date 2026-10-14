@@ -7,7 +7,7 @@ import type { NewsItem } from "@/lib/news/headlines";
 import { annotateTexts, type ReadableHeadline } from "./headlines";
 
 /**
- * TODAY'S GOOD NEWS: ONE HEADLINE FROM ERR, WITH THE DICTIONARY UNDER IT.
+ * TODAY'S GOOD NEWS: A FEW HEADLINES FROM ERR, WITH THE DICTIONARY UNDER THEM.
  *
  * `lib/news/goodNews.ts` decides what counts as good news and this does the
  * reading: the feeds, the judge where there is one, and the dictionary under
@@ -20,6 +20,11 @@ import { annotateTexts, type ReadableHeadline } from "./headlines";
  * and every learner's morning reads the same one; the model is asked at most
  * once an hour, and an hour with nothing to show is asked again in ten
  * minutes rather than an hour, because a feed that was down comes back.
+ *
+ * THE BEST ONE FIRST AND A COUPLE BEHIND IT. The card shows one and offers
+ * "another one", which is a handful of bytes handed over now rather than a
+ * second trip to the server; `ON_THE_CARD` is how many, and a quiet hour
+ * offers fewer rather than padding with something the judge did not pick.
  */
 export interface GoodNews {
   /** The headline as ERR wrote it, word by word, with the entries the dictionary vouches for. */
@@ -38,10 +43,12 @@ const SHOWN = 40;
 const READABLE = 0.5;
 const MIN_WORDS = 3;
 const MAX_WORDS = 16;
+/** The one shown and the spares behind it. */
+const ON_THE_CARD = 3;
 
-let memo: { at: number; value: GoodNews | null; good: number } | null = null;
+let memo: { at: number; value: GoodNews[] | null; good: number } | null = null;
 
-export async function goodNewsToday(ownerId: string, now: number = Date.now()): Promise<GoodNews | null> {
+export async function goodNewsToday(ownerId: string, now: number = Date.now()): Promise<GoodNews[] | null> {
   if (memo && now - memo.at < memo.good) return memo.value;
   return singleFlight(`good-news:${Math.floor(now / NOTHING_FOR_MS)}`, async () => {
     const { value, good } = await pickToday(ownerId, now);
@@ -57,7 +64,7 @@ export async function goodNewsToday(ownerId: string, now: number = Date.now()): 
  * `ms` and draws the card if the answer is in; if not, the work carries on
  * after the response (`after`) and the next render reads it from memory.
  */
-export async function goodNewsWithin(ownerId: string, ms: number): Promise<GoodNews | null> {
+export async function goodNewsWithin(ownerId: string, ms: number): Promise<GoodNews[] | null> {
   const work = goodNewsToday(ownerId).catch(() => null);
   after(() => work.then(() => undefined));
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -75,7 +82,7 @@ export async function goodNewsWithin(ownerId: string, ms: number): Promise<GoodN
   minutes about the same headlines is paying twice for one answer. A feed that
   would not answer, or a model that would not, holds for ten.
 */
-async function pickToday(ownerId: string, now: number): Promise<{ value: GoodNews | null; good: number }> {
+async function pickToday(ownerId: string, now: number): Promise<{ value: GoodNews[] | null; good: number }> {
   const seen = new Set<string>();
   const clean: NewsItem[] = [];
   for (const item of await goodNewsItems(now)) {
@@ -92,17 +99,20 @@ async function pickToday(ownerId: string, now: number): Promise<{ value: GoodNew
     : clean.filter(plainlyGood).map((item) => ({ item, en: null as string | null }));
   if (chosen.length === 0) return { value: null, good: HOUR_MS };
 
-  // The first one a beginner can read most of, or the first one at all.
+  // The ones a beginner can read most of first, then the rest that fit a
+  // card, in the judge's order within each; a headline too short to say
+  // anything or too long for a card is offered only where nothing else is.
   const annotated = await annotateTexts(chosen.map((c) => shownTitle(c.item.title)));
   const fits = (i: number) => {
     const words = annotated[i]!.tokens.filter((t) => t.word).length;
     return words >= MIN_WORDS && words <= MAX_WORDS;
   };
-  let best = annotated.findIndex((a, i) => fits(i) && a.covered >= READABLE);
-  if (best < 0) best = annotated.findIndex((_, i) => fits(i));
-  if (best < 0) best = 0;
+  const rank = (i: number) => (fits(i) ? (annotated[i]!.covered >= READABLE ? 0 : 1) : 2);
+  const order = chosen.map((_, i) => i).sort((a, b) => rank(a) - rank(b) || a - b);
+  const best = order.filter((i) => rank(i) < 2);
+  const shown = (best.length > 0 ? best : order.slice(0, 1)).slice(0, ON_THE_CARD);
   return {
-    value: { tokens: annotated[best]!.tokens, en: chosen[best]!.en, link: chosen[best]!.item.link },
+    value: shown.map((i) => ({ tokens: annotated[i]!.tokens, en: chosen[i]!.en, link: chosen[i]!.item.link })),
     good: HOUR_MS,
   };
 }

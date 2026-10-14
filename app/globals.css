@@ -1370,6 +1370,28 @@
     0%, 100% { transform: translateY(0); opacity: 0.4; }
     40% { transform: translateY(-4px); opacity: 1; }
   }
+  /*
+    THE PUNCHLINE, HELD BACK FOR ONE TAP.
+
+    The joke on Today keeps its last line behind a bubble of three dots, the
+    way a joke is told: the setup, a beat, then the answer. The dots are the
+    bubble the punchline will arrive in, so nothing moves on the card but
+    them, and the line lands with the same small pop a conversation's lines
+    do. Under `prefers-reduced-motion` the dots sit still and the line simply
+    appears.
+  */
+  .joke-dots span {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 9999px;
+    background: currentColor;
+    animation: twenty-dot 1100ms ease-in-out infinite;
+  }
+  .joke-dots span:nth-child(2) { animation-delay: 160ms; }
+  .joke-dots span:nth-child(3) { animation-delay: 320ms; }
+  .joke-told { animation: scene-say-you 340ms cubic-bezier(0.22, 1, 0.36, 1) both; transform-origin: bottom right; }
+  .joke-told-left { animation: scene-say 340ms cubic-bezier(0.22, 1, 0.36, 1) both; transform-origin: bottom left; }
+
   .twenty-meter {
     transform-origin: left center;
     transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -2132,6 +2154,7 @@
     .quest-pulse, .quest-card, .quest-pop, .emoji-shake,
     .sonad-settle, .sonad-refuse, .sonad-rise,
     .twenty-thinking span, .twenty-rise, .twenty-won,
+    .joke-dots span, .joke-told, .joke-told-left,
     .scene-break, .scene-break-rule,
     .scene-say, .scene-say-you, .scene-pip-met, .scene-open,
     .scene-veil, .scene-veil-out, .scene-bloom, .scene-dial, .scene-hand,

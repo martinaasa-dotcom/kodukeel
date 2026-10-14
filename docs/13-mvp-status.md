@@ -3332,6 +3332,17 @@ hour with nothing good the card is absent rather than empty. The dictionary unde
 headlines block's own gate, now one function (`annotateTexts`) and one drawing (`LinkedWords`)
 for the headlines, the good news and the joke.
 
+**And then a polish pass on both cards.** A joke is a setup, a beat and an answer, and printing
+all three at once tells it badly, since the eye lands on the last bubble first. So the last line
+waits in a bubble of three dots ("Tap for the punchline"), lands with the small pop a
+conversation's lines use, and takes focus so a screen reader reads it; the speaker reads only what
+is on the card, so it does not give the answer away either. A one-line joke is drawn whole. The
+English toggle's label lost a word so both buttons fit one row on a phone. The news card hands over
+the best headline and up to two behind it, so it gets its own "Another one", and its caption
+explaining the dotted words went, because the dotted underline already says it (the rule about
+"Any underlined word opens its meaning"). One joke had a wrong word: "Nende aukus pükstega?" is
+"Nende auklike pükstega?", holey rather than in a hole.
+
 **What it does not do.** 190 jokes is about half a year before one comes round again; more is a
 pull request away and the test is the only gate on it. The keyless rule is blunter than the model
 and will sometimes miss a good story, which is the side it is built to err on.

@@ -995,16 +995,18 @@ export const TODAY: Area = {
     "Шутка",
   "Hear the joke":
     "Послушать шутку",
-  "Show the English":
-    "Показать перевод на английский",
-  "Hide the English":
+  "Show English":
+    "Показать по-английски",
+  "Hide English":
     "Скрыть английский",
+  "Tap for the punchline":
+    "Нажмите, чтобы узнать концовку",
   "Another one@joke":
     "Ещё одну",
   "Good news today":
     "Хорошая новость дня",
-  "Tap a dotted word to look it up.":
-    "Нажмите на слово с точечным подчёркиванием, чтобы найти его в словаре.",
+  "Another one@news":
+    "Ещё одну",
   "Read it on ERR":
     "Читать на ERR",
   "Read the article":
@@ -1995,16 +1997,18 @@ export const TODAY: Area = {
     "Жарт",
   "Hear the joke":
     "Послухати жарт",
-  "Show the English":
-    "Показати переклад англійською",
-  "Hide the English":
+  "Show English":
+    "Показати англійською",
+  "Hide English":
     "Сховати англійську",
+  "Tap for the punchline":
+    "Натисніть, щоб дізнатися кінцівку",
   "Another one@joke":
     "Ще один",
   "Good news today":
     "Добра новина дня",
-  "Tap a dotted word to look it up.":
-    "Натисніть на слово з крапковим підкресленням, щоб знайти його в словнику.",
+  "Another one@news":
+    "Ще одну",
   "Read it on ERR":
     "Читати на ERR",
   "Read the article":

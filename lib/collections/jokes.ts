@@ -205,7 +205,7 @@ export const JOKES: readonly Joke[] = [
   ],
   [
     ["Juku: Ema, kas ma tohin õue mängima minna?", "Juku: Mum, can I go out to play?"],
-    ["Ema: Nende aukus pükstega?", "Mum: With those holey trousers?"],
+    ["Ema: Nende auklike pükstega?", "Mum: With those holey trousers?"],
     ["Juku: Ei, naabri poistega.", "Juku: No, with the boys next door."],
   ],
   [

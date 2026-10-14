@@ -876,12 +876,12 @@ export default async function TodayPage() {
 
     Two cards that are there to make the morning a little better and teach a
     little on the way: a Juku joke out of `lib/collections/jokes.ts`, and one
-    happy headline from ERR picked by `lib/news/goodNews.ts`. Both put the
+    happy headline from ERR (and two behind it) picked by `lib/news/goodNews.ts`. Both put the
     dictionary under every word, both are true on the first morning, and the
     news card is simply absent on an hour it found nothing good to say.
   */
   const jokeCard = jokes && jokes.length > 0 ? <JokeOfDayCard jokes={jokes} /> : null;
-  const newsCard = goodNews ? <GoodNewsCard news={goodNews} locale={locale} /> : null;
+  const newsCard = goodNews && goodNews.length > 0 ? <GoodNewsCard stories={goodNews} /> : null;
 
   /*
     TODAY'S CONVERSATION, CHOSEN BY THE DATE.

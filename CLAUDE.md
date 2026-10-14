@@ -7947,7 +7947,8 @@ bad-news stems refuses on every path whatever anybody thinks, and then a metered
 grader's chain picks what is plainly good and says it in English, or, with no model, a headline has
 to carry a good-news stem as well (`lib/news/goodNews.ts`). Held an hour for the instance, waited
 for no longer than `GOOD_NEWS_WAIT_MS` on a cold hour, and absent rather than empty on an hour with
-nothing good.
+nothing good. The joke's last line waits behind a tap, because a joke printed whole is a joke told
+badly, and the news card carries the best headline and up to two behind it for its own "Another one".
 
 **And the order is the learner's, because a home page's reading order is a fact about the
 reader.** The shipped order is an argument and it is still the default, and it is not the only
