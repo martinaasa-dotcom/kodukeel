@@ -21,6 +21,7 @@ const PAGES: readonly (readonly [string, string, string])[] = [
   ["/privacy", "Privacy", "what is stored, who receives it, and how to take it all away"],
   ["/terms", "Terms", "the terms of use and where the dictionary data comes from"],
   ["/trust", "Trust", "security, data protection and the controls behind them"],
+  ["/teachers", "For teachers", "what a teacher sees of a class, shown over an invented one"],
   ["/accessibility", "Accessibility", "how far the app meets WCAG 2.2, and where it falls short"],
   ["/funding", "Funding", "what it costs to run, and where every figure comes from"],
   ["/welcome/ru", "Kodukeel in Russian", "the front page for somebody who reads Russian first"],

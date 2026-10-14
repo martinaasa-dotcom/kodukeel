@@ -12934,7 +12934,7 @@ check("every route group says it is loading rather than showing nothing", () => 
       as having none.
     */
     ...Object.fromEntries(
-      ["privacy", "terms", "accessibility", "trust", "funding", "state-exam"].map((page) => [
+      ["privacy", "terms", "accessibility", "trust", "funding", "state-exam", "teachers"].map((page) => [
         join("app", page),
         (src: string) =>
           !/@\/lib\/db|\bprisma\.|requireUserId|@\/lib\/progress\/(?!publicLocale")/.test(src),

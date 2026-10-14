@@ -372,6 +372,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["For learners aged 13 and older. Younger pupils need an agreement with their school first.",
     "Для учеников от 13 лет. Для младших учеников сначала нужен договор со школой.",
     "Для учнів від 13 років. Для молодших учнів спершу потрібна угода зі школою."],
+  ["See what a teacher sees", "Посмотреть, что видит преподаватель", "Подивитися, що бачить викладач"],
   ["How the data is handled", "Как мы обращаемся с данными", "Як ми обробляємо дані"],
   ["Write to us about a pilot", "Напишите нам о пилотном проекте", "Напишіть нам про пілотний проєкт"],
   ["A Kodukeel pilot", "Пилотный проект Kodukeel", "Пілотний проєкт Kodukeel"],

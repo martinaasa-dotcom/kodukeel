@@ -19,6 +19,30 @@ import type { Area } from "../area";
  * (ADR-005): a place name with õ, ä, ö or ü travels in an `{e1}` slot.
  */
 const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
+  // TEACHERS.
+  ["Put a code on the board. See who is practising and what the group keeps getting wrong.",
+    "Напишите код на доске. Смотрите, кто занимается и в чём группа ошибается чаще всего.",
+    "Напишіть код на дошці. Дивіться, хто займається і в чому група помиляється найчастіше."],
+  ["A sample class", "Пример группы", "Приклад групи"],
+  ["These learners are invented. Nobody here is real.", "Эти ученики выдуманы. Здесь нет ни одного настоящего человека.", "Ці учні вигадані. Тут немає жодної справжньої людини."],
+  ["What you see", "Что вы видите", "Що ви бачите"],
+  ["A roster with each person’s reviews this week, streak, words known and days since their last review. The one case each person finds hardest. And what the whole class is weakest at, which is next week’s lesson.",
+    "Список группы: у каждого повторения за неделю, дни подряд, сколько слов знает и сколько дней прошло с последнего повторения. Один падеж, который каждому даётся труднее всего. И то, что хуже всего даётся всей группе, то есть тема следующего урока.",
+    "Список групи: у кожного повторення за тиждень, дні поспіль, скільки слів знає і скільки днів минуло від останнього повторення. Один відмінок, який кожному дається найважче. І те, що найгірше дається всій групі, тобто тема наступного уроку."],
+  ["What you never see", "Чего вы никогда не видите", "Чого ви ніколи не бачите"],
+  ["Anybody’s deck, their searches or their answers. A learner can leave a class at any time, and nothing they have learned goes with them.",
+    "Чужие карточки, поиски и ответы. Ученик может выйти из группы в любой момент, и всё выученное останется у него.",
+    "Чужі картки, пошуки й відповіді. Учень може вийти з групи будь-коли, і все вивчене залишиться в нього."],
+  ["Starting takes five minutes", "Начать можно за пять минут", "Почати можна за п'ять хвилин"],
+  ["Sign in and open Classes.", "Войдите и откройте «Группы».", "Увійдіть і відкрийте «Групи»."],
+  ["Create a class and print the poster.", "Создайте группу и распечатайте плакат.", "Створіть групу й роздрукуйте плакат."],
+  ["Learners scan the code or open the link, sign in and press Join.", "Ученики сканируют код или открывают ссылку, входят и нажимают «Вступить в группу».", "Учні сканують код або відкривають посилання, входять і натискають «Вступити до групи»."],
+  ["Set homework from any unit when you are ready.", "Когда будете готовы, задайте домашнее задание из любого раздела.", "Коли будете готові, задайте домашнє завдання з будь-якого розділу."],
+  ["Who it is for", "Для кого это", "Для кого це"],
+  ["What it costs", "Сколько это стоит", "Скільки це коштує"],
+  ["Nothing. The app is free and the code is open.", "Ничего. Приложение бесплатное, а исходный код открыт.", "Нічого. Застосунок безкоштовний, а вихідний код відкритий."],
+  ["What a teacher sees of a class is drawn over an invented one on {teachers}.", "То, что учитель видит о группе, показано на выдуманной группе на {teachers}.", "Те, що вчитель бачить про групу, показано на вигаданій групі на {teachers}."],
+  ["the page for teachers", "странице для преподавателей", "сторінці для викладачів"],
   // TRUST.
   ["Trust and security", "Доверие и безопасность", "Довіра й безпека"],
   ["Ekilex under CC BY 4.0, Wiktionary under CC BY-SA 4.0", "Ekilex по лицензии CC BY 4.0, Wiktionary по лицензии CC BY-SA 4.0", "Ekilex за ліцензією CC BY 4.0, Wiktionary за ліцензією CC BY-SA 4.0"],

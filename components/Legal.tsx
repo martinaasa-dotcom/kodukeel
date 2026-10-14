@@ -124,7 +124,7 @@ export function PublicFooter({ locale, href, short = false }: {
   const links: readonly (readonly [string, string])[] = short
     ? [["/privacy", "Privacy"], ["/terms", "Terms"], ["/accessibility", "Accessibility"]]
     : [
-        ["/privacy", "Privacy"], ["/terms", "Terms"], ["/funding", "Funding"], ["/trust", "Trust"],
+        ["/privacy", "Privacy"], ["/terms", "Terms"], ["/funding", "Funding"], ["/trust", "Trust"], ["/teachers", "For teachers"],
         ["/accessibility", "Accessibility"], ["/state-exam", "The state examination"],
       ];
   return (
