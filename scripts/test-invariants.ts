@@ -3605,6 +3605,10 @@ check("a page a stranger may read is a page the landing page links to", () => {
     // from the same table as the check below, which asserts the other half,
     // that each is reachable signed out at all.
     ...metadataRoutes().map((r) => r.path),
+    // The same, for a language model's crawler: the description of the site
+    // and the directory a crawler looks in for an agent catalog, which here
+    // answers 404 (app/llms.txt/route.ts says why).
+    "/llms.txt", "/.well-known/",
   ];
 
   const allowed = [...middleware.matchAll(/path\.startsWith\("(\/[^"]*)"\)/g)]
@@ -12917,6 +12921,20 @@ check("every route group says it is loading rather than showing nothing", () => 
     // Reads its query string and the deployment's own settings, and nothing else.
     [join("app", "(chromeless)", "sign-in")]: (src) =>
       !/@\/lib\/db|prisma|requireUserId|@\/lib\/progress\//.test(src),
+    /*
+      The public pages read which language to draw in: the query string, or
+      for somebody signed in one settings row, through the one helper. Behind
+      a loading state each arrived hidden and was revealed late, and Next sent
+      its <head> before the description was ready, so a crawler read the page
+      as having none.
+    */
+    ...Object.fromEntries(
+      ["privacy", "terms", "accessibility", "trust", "funding", "state-exam"].map((page) => [
+        join("app", page),
+        (src: string) =>
+          !/@\/lib\/db|\bprisma\.|requireUserId|@\/lib\/progress\/(?!publicLocale")/.test(src),
+      ]),
+    ),
   };
   for (const [dir, holds] of Object.entries(NOTHING_TO_WAIT_FOR)) {
     const page = join(dir, "page.tsx");

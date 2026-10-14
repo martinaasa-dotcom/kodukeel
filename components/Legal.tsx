@@ -101,7 +101,11 @@ export function PublicHeader({ locale, path }: { locale: Locale; path: string })
         className="order-2 sm:order-3"
       >
         <span className="max-sm:hidden">{t("Start free")}</span>
-        <span className="sm:hidden">{tr(locale, "Start", "begin")}</span>
+        {/* The short word for the eye, and the whole one for whoever reads the
+            link out of context: "Start" alone is the link text a crawler and a
+            screen reader's list of links both call meaningless. */}
+        <span className="sm:hidden" aria-hidden>{tr(locale, "Start", "begin")}</span>
+        <span className="sr-only sm:hidden">{t("Start free")}</span>
       </ButtonLink>
     </header>
   );

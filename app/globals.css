@@ -2459,20 +2459,6 @@
   */
   .landing { --section-gap: 5.5rem; }
   .landing-flow { display: flex; flex-direction: column; gap: var(--section-gap); }
-  /*
-    The sections below the first screen are not laid out or painted until
-    they come near it. The landing page is some thirteen hundred elements, and
-    laying all of them out was most of the first frame: on a phone that frame
-    lost the race against the page's own scripts, which then counted as
-    blocking it (PageSpeed, 14 October 2026). The guessed height keeps the
-    scrollbar honest until a section has been drawn once, and `auto` then
-    remembers the real one. The case explorer is left out because its letters
-    hang over its card's edges and containment would clip them.
-  */
-  .landing-flow > section:not(#top):not(#cases) {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 900px;
-  }
 
   /*
     The word under the headline. The lemma sits still and the form beside it
