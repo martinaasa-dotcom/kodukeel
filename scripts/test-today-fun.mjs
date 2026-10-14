@@ -87,7 +87,14 @@ try {
   check("the punchline waits behind a tap", (await held.count()) === 1);
   check("the held bubble says what pressing it does", /Tap for the punchline/.test(await held.innerText()));
   const before = await joke.locator("li").count();
-  check("the speaker reads only what is on the card", (await card.getByRole("button", { name: "Hear the joke" }).count()) === 1);
+  // Waited for rather than read once: the walk above may have just drawn
+  // another joke, and the speaker is remounted with it. The detail names every
+  // button the card held, so a miss says what was there instead.
+  const speaker = card.getByRole("button", { name: "Hear the joke", exact: true });
+  check("the speaker reads only what is on the card",
+    await eventually(async () => (await speaker.count()) === 1),
+    `buttons on the card: ${(await card.getByRole("button").evaluateAll((els) =>
+      els.map((e) => e.getAttribute("aria-label") || e.textContent?.trim()))).join(" | ")}`);
   check("the joke's words open their dictionary entries",
     (await joke.locator('a[href^="/dictionary"]').count()) > 0);
   const heldAxe = await axeOn("[data-joke]");
