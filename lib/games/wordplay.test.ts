@@ -177,6 +177,19 @@ describe("one sitting", () => {
       }
     }
     expect(sittings).toBeGreaterThan(10);
+    // "Another round" deals the next sitting, so a leaned-on word may not
+    // close one sitting and open the next either.
+    const rounds = Math.ceil(COMPOUNDS.length / COMPOUNDS_PER_SITTING);
+    for (let round = 0; round < rounds; round++) {
+      const here = dealSitting("2026-01-01", round).compounds;
+      const next = dealSitting("2026-01-01", round + 1).compounds;
+      for (const a of here) {
+        for (const b of next) {
+          const theirs = leansOn(b.quip);
+          for (const w of leansOn(a.quip)) if (theirs.has(w)) twice.push(`${a.word} / ${b.word} (next sitting): ${w}`);
+        }
+      }
+    }
     // And a compound sitting can be dealt beside any look-alike sitting.
     for (const c of COMPOUNDS) {
       const mine = pairs(c.quip);

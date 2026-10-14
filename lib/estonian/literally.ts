@@ -252,7 +252,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dream", word: "unenägu",
     parts: [p("une", "uni", "sleep"), p("nägu", "nägu", "sight, face")],
     literal: "sleep sight", means: "dream",
-    quip: "The second half is the word for a face, but here it is the older sense of what you see. By breakfast it has usually faded.",
+    quip: "The second half is the word for a face, but here it means what you see. By breakfast the dream has usually faded.",
   },
   {
     id: "childhood", word: "lapsepõlv",
@@ -528,7 +528,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dentist", word: "hambaarst",
     parts: [p("hamba", "hammas", "tooth"), p("arst", "arst", "doctor")],
     literal: "tooth doctor", means: "dentist",
-    quip: "A doctor for exactly one part of you, the part that bites. Open wide.",
+    quip: "A doctor for one part of you only, the part that bites. Open wide.",
   },
   {
     id: "wristwatch", word: "käekell",
