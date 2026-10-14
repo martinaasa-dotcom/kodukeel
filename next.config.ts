@@ -141,13 +141,13 @@ const config: NextConfig = {
   serverExternalPackages: ["@prisma/client"],
   /*
     Next's polyfill module patches methods every browser Next 16 supports
-    already has, onto every page (lib/build/noPolyfills.ts says which). Both
+    already has, onto every page (lib/framework/noPolyfills.ts says which). Both
     spellings, because the framework imports it by a relative path.
   */
   turbopack: {
     resolveAlias: {
-      "next/dist/build/polyfills/polyfill-module": "./lib/build/noPolyfills.ts",
-      "../build/polyfills/polyfill-module": "./lib/build/noPolyfills.ts",
+      "next/dist/build/polyfills/polyfill-module": "./lib/framework/noPolyfills.ts",
+      "../build/polyfills/polyfill-module": "./lib/framework/noPolyfills.ts",
     },
   },
   experimental: {

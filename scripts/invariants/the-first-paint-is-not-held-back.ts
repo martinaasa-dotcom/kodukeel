@@ -12,7 +12,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  * headline could be counted, so each is held here rather than remembered:
  *
  * - Next's polyfill module, for browsers older than any Next 16 supports, is
- *   aliased to nothing (`lib/build/noPolyfills.ts`).
+ *   aliased to nothing (`lib/framework/noPolyfills.ts`).
  * - The brand's idle loops animate SVG groups, which no browser composites,
  *   so each frame of each loop was a layout on the main thread. They wait for
  *   `data-awake` on <html> (lib/ux/loopSync.ts).
@@ -33,11 +33,11 @@ export default function theFirstPaintIsNotHeldBack({ check, code, read }: Invari
     const config = code("next.config.ts");
     for (const key of ['"next/dist/build/polyfills/polyfill-module"', '"../build/polyfills/polyfill-module"']) {
       assert.ok(
-        config.includes(`${key}: "./lib/build/noPolyfills.ts"`),
+        config.includes(`${key}: "./lib/framework/noPolyfills.ts"`),
         `next.config.ts no longer aliases ${key} away, so every page ships polyfills no supported browser needs`,
       );
     }
-    assert.doesNotMatch(code("lib/build/noPolyfills.ts"), /\bexport\s+(?!\{\s*\})/, "noPolyfills.ts has grown code of its own");
+    assert.doesNotMatch(code("lib/framework/noPolyfills.ts"), /\bexport\s+(?!\{\s*\})/, "noPolyfills.ts has grown code of its own");
     assert.doesNotMatch(config, /\binlineCss\s*:\s*true/, "inlineCss is back, which put the stylesheet into every document twice");
   });
 
