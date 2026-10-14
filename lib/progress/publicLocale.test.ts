@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 
 // The address names the language in every case below, so neither the cookie
@@ -7,7 +8,7 @@ vi.mock("next/headers", () => ({ cookies: async () => ({ getAll: () => [] }) }))
 vi.mock("@/lib/auth/session", () => ({ requireUserId: async () => "nobody" }));
 vi.mock("@/lib/progress/locale", () => ({ localeFor: async () => "en" }));
 
-const { publicTitle } = await import("./publicLocale");
+const { publicTitle, SHARE_IMAGE } = await import("./publicLocale");
 
 // A line /trust has carried since before the card existed, so the test reads
 // the same on every branch that adds a page of its own.
@@ -36,5 +37,17 @@ describe("publicTitle", () => {
     expect(meta.description).not.toBe(card.description);
     expect(meta.description).toMatch(/[а-я]/);
     expect(meta.openGraph).toMatchObject({ locale: "ru_EE", url: "/trust" });
+  });
+
+  it("keeps the share picture a page would otherwise lose by naming its own card", async () => {
+    const meta = await publicTitle(Promise.resolve({}), "Trust and security", undefined, card);
+    expect((meta.openGraph as { images?: unknown[] }).images).toEqual([SHARE_IMAGE]);
+    expect((meta.twitter as { images?: unknown[] }).images).toEqual([SHARE_IMAGE]);
+  });
+
+  it("names the picture at the size and with the words its route draws", () => {
+    const route = readFileSync("app/opengraph-image.tsx", "utf8");
+    expect(route).toContain(`width: ${SHARE_IMAGE.width}, height: ${SHARE_IMAGE.height}`);
+    expect(route).toContain(`alt = "${SHARE_IMAGE.alt}"`);
   });
 });

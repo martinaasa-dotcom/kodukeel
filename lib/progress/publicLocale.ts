@@ -48,6 +48,39 @@ export interface PublicPageCard {
 }
 
 /**
+ * The picture every share card carries: `app/opengraph-image.tsx`, the app's
+ * own card. Named here because a page that sets `openGraph` replaces the
+ * root's whole object, and the file-based image goes with it, so a page with
+ * a description of its own shared as a grey row with no picture. Its size and
+ * alt are the route's, which a test holds them to.
+ */
+export const SHARE_IMAGE = {
+  url: "/opengraph-image",
+  width: 1200,
+  height: 630,
+  alt: "kodukeel. Estonian that finally sticks",
+} as const;
+
+/** A page's own description, Open Graph and Twitter card, in the language it is drawn in. */
+export function shareCard(locale: Locale, title: string, description: string, path: string): Metadata {
+  const titled = `${title} | kodukeel`;
+  return {
+    description,
+    openGraph: {
+      title: titled,
+      description,
+      url: path,
+      type: "website",
+      siteName: "kodukeel",
+      // The card is in the language the page is drawn in, read in Estonia.
+      locale: `${locale}_EE`,
+      images: [SHARE_IMAGE],
+    },
+    twitter: { card: "summary_large_image", title: titled, description, images: [SHARE_IMAGE] },
+  };
+}
+
+/**
  * A public page's tab title in the language it is drawn in, and, where the
  * page says what it is, its own description and share card. Without one, a
  * page inherits the root layout's description, which is the pitch to a
@@ -63,20 +96,5 @@ export async function publicTitle(
   const { locale } = await resolvePublicLocale(searchParams);
   const title = tr(locale, english);
   if (!card) return { ...extra, title };
-  const description = tr(locale, card.description);
-  return {
-    ...extra,
-    title,
-    description,
-    openGraph: {
-      title: `${title} | kodukeel`,
-      description,
-      url: card.path,
-      type: "website",
-      siteName: "kodukeel",
-      // The card is in the language the page is drawn in, read in Estonia.
-      locale: `${locale}_EE`,
-    },
-    twitter: { card: "summary_large_image", title: `${title} | kodukeel`, description },
-  };
+  return { ...extra, title, ...shareCard(locale, title, tr(locale, card.description), card.path) };
 }
