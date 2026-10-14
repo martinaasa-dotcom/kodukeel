@@ -24,6 +24,8 @@ export const WORKBOOK: Area = {
     // The instruction an exercise opens with.
     "Put the word in brackets into this form.": "Поставьте слово в скобках в эту форму.",
     "That's the form you use {clause}.": "Эту форму используют {clause}.",
+    "Getting there.": "Уже получается.",
+    "Not enough of your words for a page on “{theme}” yet, so here's “{other}” instead.": "Пока ваших слов не хватает на страницу «{theme}», поэтому вот «{other}».",
     "Put the pronoun in brackets into the form the sentence needs.": "Поставьте местоимение в скобках в ту форму, которая нужна предложению.",
     "Put the verb in brackets into the present tense, for whoever is doing it.": "Поставьте глагол в скобках в настоящее время, в форму того, кто действует.",
     "Put the verb in brackets into the simple past, for whoever did it.": "Поставьте глагол в скобках в простое прошедшее, в форму того, кто действовал.",
@@ -119,6 +121,8 @@ export const WORKBOOK: Area = {
 
     "Put the word in brackets into this form.": "Поставте слово в дужках у цю форму.",
     "That's the form you use {clause}.": "Цю форму вживають {clause}.",
+    "Getting there.": "Вже виходить.",
+    "Not enough of your words for a page on “{theme}” yet, so here's “{other}” instead.": "Поки ваших слів не вистачає на сторінку «{theme}», тож ось «{other}».",
     "Put the pronoun in brackets into the form the sentence needs.": "Поставте займенник у дужках у ту форму, якої потребує речення.",
     "Put the verb in brackets into the present tense, for whoever is doing it.": "Поставте дієслово в дужках у теперішній час, у форму того, хто діє.",
     "Put the verb in brackets into the simple past, for whoever did it.": "Поставте дієслово в дужках у простий минулий, у форму того, хто діяв.",

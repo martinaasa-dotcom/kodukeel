@@ -9,6 +9,7 @@ import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { VOUCHED_ROW } from "@/lib/dict/search";
 import { caseByKey } from "@/lib/estonian/cases";
+import { CASE_NOTES, grammarTopic } from "@/lib/estonian/grammar";
 import { PRONOUN_LEMMAS } from "@/lib/estonian/pronouns";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { caseAccuracy } from "@/lib/stats/history";
@@ -31,6 +32,34 @@ export async function generateMetadata() {
 }
 
 export const dynamic = "force-dynamic";
+
+/** The grammar reference's own topic for each verb theme. */
+const VERB_TOPIC: Partial<Record<Theme, string>> = {
+  present: "present-tense",
+  past: "imperfect",
+  conditional: "conditional",
+  imperative: "imperative",
+};
+
+/*
+  THE GRAMMAR BOX ABOVE THE EXERCISE.
+
+  A course book puts the rule in a box over the page it drills, and the
+  learner glances up at it while they work. This is that box, and it is the
+  grammar reference's own two lines (`lib/estonian/grammar.ts`, which holds no
+  Estonian and is already translated), read here so the sheet does not ship the
+  whole reference to the browser. A mixed page and the pronoun page have no
+  one rule behind them, so they get no box rather than a vague one.
+*/
+function ruleFor(theme: Theme): { summary: string; watchOut: string } | null {
+  if (theme.startsWith("case:")) {
+    const note = CASE_NOTES.find((n) => `case:${n.key}` === theme);
+    return note ? { summary: note.summary, watchOut: note.watchOut } : null;
+  }
+  const id = VERB_TOPIC[theme];
+  const topic = id ? grammarTopic(id) : undefined;
+  return topic ? { summary: topic.summary, watchOut: topic.watchOut } : null;
+}
 
 /**
  * How many lines an exercise asks, not counting its worked example.
@@ -249,6 +278,7 @@ export default async function WorkbookPage({
 
   const exercises: WorkbookExercise[] = sheet.exercises.map((exercise) => ({
     theme: exercise.theme,
+    rule: ruleFor(exercise.theme),
     example: exercise.example,
     lines: exercise.lines.map((line) => ({ ...line, cardId: cardForLine(cardsFor.get(line.lexemeId) ?? [], line.slot) })),
   }));
@@ -269,6 +299,7 @@ export default async function WorkbookPage({
     <BeforeYouStart id="workbook" ready count={{ n: lineCount, noun: "sentence" }}>
       <WorkbookSession
         exercises={exercises}
+        missed={requested && !exercises.some((e) => e.theme === requested) ? requested : null}
         themes={fillable.slice(0, THEME_CHOICES)}
         canTranslate={resolveProvider() !== null}
       />

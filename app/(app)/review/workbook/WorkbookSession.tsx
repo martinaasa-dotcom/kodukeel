@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { BookOpen, Check, Eye, EyeOff, Lightbulb, PenLine, Sparkles, X } from "lucide-react";
+import { BookOpen, Check, Eye, EyeOff, Info, Lightbulb, PenLine, Sparkles, X } from "lucide-react";
 import { recordWorkbookGrades } from "@/app/actions";
 import { useLocale, useT } from "@/components/Locale";
 import { AnotherRound } from "@/components/round/AnotherRound";
@@ -16,6 +16,9 @@ import { CaseLabel } from "@/components/CaseLabel";
 import { Confetti } from "@/components/Confetti";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { EstonianSentence } from "@/components/EstonianSentence";
+import { Explain } from "@/components/Explain";
+import { fillNodes } from "@/components/fillNodes";
+import { Speak } from "@/components/Speak";
 import { GapMeaning } from "@/components/GapMeaning";
 import { Chip, KeyCap } from "@/components/ui";
 import { answerNote } from "@/lib/copy/answerNote";
@@ -40,6 +43,8 @@ export interface WorkbookLine extends SheetItem {
 
 export interface WorkbookExercise {
   theme: Theme;
+  /** The grammar reference's two lines for the page's rule, or null where no one rule is behind it. */
+  rule: { summary: string; watchOut: string } | null;
   example: SheetItem | null;
   lines: WorkbookLine[];
 }
@@ -91,10 +96,18 @@ function bracketed(line: SheetItem): string {
   return `(${cue})`;
 }
 
-/** How wide a gap is drawn, in characters: room for the answer and a little more, never a tell. */
-function gapWidth(line: SheetItem): string {
-  const longest = Math.max(...line.accepted.map((a) => a.length), line.answer.length);
-  return `${Math.min(16, Math.max(5, longest + 2))}ch`;
+/*
+  HOW WIDE A GAP IS DRAWN, AND WHY IT IS NEVER THE ANSWER'S WIDTH.
+
+  It was the answer's length plus two, which hands over how long the ending is:
+  `tuppa` and `toasse` drew two different boxes, and so did `annab` beside
+  `andsin`. A course book draws one line for every gap. So the box is sized off
+  the word in brackets, which is on the page already, and then grows with what
+  is typed, so a long answer never scrolls inside a short box.
+*/
+function gapWidth(line: SheetItem, value: string): string {
+  const room = Math.min(14, Math.max(7, line.cue.length + 2));
+  return `${Math.min(24, Math.max(room, value.length + 2))}ch`;
 }
 
 const verdictOf = (outcome: Outcome | undefined, mark: LineMark | undefined): Verdict | null => {
@@ -136,8 +149,14 @@ const verdictOf = (outcome: Outcome | undefined, mark: LineMark | undefined): Ve
  * one thing worth saying about the page, which is the slot they kept reaching
  * for instead of the one wanted, where that happened twice.
  */
-export function WorkbookSession({ exercises: initial, themes, canTranslate }: {
+export function WorkbookSession({ exercises: initial, missed, themes, canTranslate }: {
   exercises: WorkbookExercise[];
+  /**
+   * A theme somebody asked for by name that their words cannot fill a page of
+   * yet. Said rather than swallowed: a page on something else, with no word
+   * about why, reads as the link being broken.
+   */
+  missed: Theme | null;
   /** The themes this learner's words can fill a page of, for the finish screen. */
   themes: Theme[];
   canTranslate: boolean;
@@ -374,6 +393,17 @@ export function WorkbookSession({ exercises: initial, themes, canTranslate }: {
         </header>
 
         <div className="px-5 pt-5 sm:px-6">
+          {missed && at === 0 && (
+            <p className="mb-3 flex items-start gap-2.5 text-base leading-snug" style={{ color: "var(--ink-2)" }} data-workbook-missed="">
+              <Info size={18} className="mt-0.5 shrink-0" aria-hidden />
+              <span>
+                {fillNodes(t("Not enough of your words for a page on “{theme}” yet, so here's “{other}” instead."), {
+                  theme: <span lang={themeCase(missed) ? "et" : undefined}>{themeName(missed)}</span>,
+                  other: <span lang={themeCase(exercise.theme) ? "et" : undefined}>{themeName(exercise.theme)}</span>,
+                })}
+              </span>
+            </p>
+          )}
           <p className="flex items-start gap-2.5 text-md font-semibold leading-snug" style={{ color: "var(--ink)" }}>
             <PenLine size={18} className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} aria-hidden />
             <span>{t(instructionFor(exercise.theme))}</span>
@@ -382,6 +412,14 @@ export function WorkbookSession({ exercises: initial, themes, canTranslate }: {
             <p className="mt-2 pl-7 text-base">
               <CaseLabel label={label} />
             </p>
+          )}
+          {exercise.rule && (
+            <div className="mt-3 pl-7" data-workbook-rule="">
+              <Explain label={t("How this works")}>
+                <p>{t(exercise.rule.summary)}</p>
+                <p>{fill(t("Watch out: {note}"), { note: t(exercise.rule.watchOut) })}</p>
+              </Explain>
+            </div>
           )}
         </div>
 
@@ -490,6 +528,7 @@ function SheetLine({
   const reopened = !settled && pass === 2;
   const meaning = gapMeaning({ en: line.sentenceEn, answer: line.answer, cue: line.translation });
   const note = noteText(mark, firstMark, outcome, line, t, locale);
+  const tight = /^[,.!?;:)…]/.test(line.after);
 
   return (
     <li className="wb-line" data-workbook-line={line.id} data-outcome={outcome ?? (reopened ? "open" : "")}>
@@ -500,7 +539,7 @@ function SheetLine({
           <span className="wb-cue">{bracketed(line)}</span>{" "}
           {settled ? (
             <span
-              className={`wb-filled ${VERDICT_CLASS[verdict ?? "right"]} wb-stamp`}
+              className={`wb-filled ${VERDICT_CLASS[verdict ?? "right"]} wb-stamp ${tight ? "wb-tight" : ""}`}
               style={{ animationDelay: `${Math.min(index, 10) * 45}ms` }}
               data-answer={line.answer}
             >
@@ -532,8 +571,8 @@ function SheetLine({
               autoCapitalize="off"
               autoCorrect="off"
               spellCheck={false}
-              className={`wb-gap ${reopened && !retyped ? "wb-gap-again shake" : ""}`}
-              style={{ width: gapWidth(line) }}
+              className={`wb-gap ${reopened && !retyped ? "wb-gap-again shake" : ""} ${tight ? "wb-tight" : ""}`}
+              style={{ width: gapWidth(line, value) }}
               data-workbook-gap=""
             />
           )}
@@ -564,6 +603,15 @@ function SheetLine({
           </p>
         )}
       </div>
+      {/* Once the line is settled the whole sentence can be heard, put right, which is the
+          one thing a printed workbook cannot do. Never before: the answer is in it. */}
+      {settled && (
+        <Speak
+          text={line.sentence}
+          label={t("Hear the sentence")}
+          className="press mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center self-start rounded-full transition-colors hover:bg-[var(--raised)]"
+        />
+      )}
     </li>
   );
 }
@@ -632,7 +680,9 @@ function Finished({ exercises, outcomes, typed, firstMarks, themes, canTranslate
   const share = reading.total > 0 ? reading.firstTime / reading.total : 0;
   const lead = clean
     ? t("A clean page. Every line right first time.")
-    : share >= 0.7 ? t("A good page.") : t("A page worth doing again.");
+    : share >= 0.7 ? t("A good page.")
+      : share >= 0.4 ? t("Getting there.")
+        : t("A page worth doing again.");
 
   /* The page on a theme, as the next round: same address, a new round, and the theme named. */
   const themeHref = (theme: Theme) => {

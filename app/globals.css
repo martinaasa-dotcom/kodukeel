@@ -1439,6 +1439,8 @@
     white-space: nowrap;
   }
   .wb-struck { font-weight: 500; opacity: 0.85; }
+  /* A gap or a filled word with a comma or a full stop straight after it sits against it, as the word did. */
+  .wb-tight { margin-right: 0; }
   .wb-stamp { animation: wb-stamp 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
   .wb-hint {
     padding: 0.1rem 0.5rem;
