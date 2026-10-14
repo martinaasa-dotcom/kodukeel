@@ -102,7 +102,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "fridge", word: "külmkapp",
     parts: [p("külm", "külm", "cold"), p("kapp", "kapp", "cupboard")],
     literal: "cold cupboard", means: "fridge",
-    quip: "A cupboard that's cold. Estonian saw no need to say more.",
+    quip: "Everything a fridge does, in two words. Estonian saw no need for more.",
   },
   {
     id: "bicycle", word: "jalgratas",
@@ -126,13 +126,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "mayor", word: "linnapea",
     parts: [p("linna", "linn", "town"), p("pea", "pea", "head")],
     literal: "town head", means: "mayor",
-    quip: "The head of the town. Put the head first and you get the capital.",
+    quip: "Every town has one. Put the head first and you get the capital.",
   },
   {
     id: "marriage", word: "abielu",
     parts: [p("abi", "abi", "help"), p("elu", "elu", "life")],
     literal: "help life", means: "marriage",
-    quip: "Read as it looks today, a life of help. The first half is really an old word for marriage, which comes to much the same thing.",
+    quip: "The first half is really an old word for marriage. Today it means help, which comes to much the same thing.",
   },
   {
     id: "spouse", word: "abikaasa",
@@ -174,7 +174,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "doorbell", word: "uksekell",
     parts: [p("ukse", "uks", "door"), p("kell", "kell", "clock, bell")],
     literal: "door clock", means: "doorbell",
-    quip: "One word does clocks and bells, so the door gets a clock.",
+    quip: "One word does clocks and bells, so the doorbell tells no time at all.",
   },
   {
     id: "hourglass", word: "liivakell",
@@ -222,7 +222,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "umbrella", word: "vihmavari",
     parts: [p("vihma", "vihm", "rain"), p("vari", "vari", "shadow, shade")],
     literal: "rain shade", means: "umbrella",
-    quip: "Shade, but for rain. In an Estonian summer you may need it for sun and rain on the same day.",
+    quip: "In an Estonian summer you may need it for sun and rain on the same day.",
   },
   {
     id: "grape", word: "viinamari",
@@ -240,7 +240,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "roe", word: "kalamari",
     parts: [p("kala", "kala", "fish"), p("mari", "mari", "berry")],
     literal: "fish berry", means: "roe",
-    quip: "Not calamari, though it sounds close. Fish berries is exactly what roe looks like on a plate.",
+    quip: "Not calamari, though it sounds close. Look at roe on a plate and you'll see why.",
   },
   {
     id: "dream", word: "unenägu",
@@ -360,7 +360,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "porcupine", word: "okassiga",
     parts: [p("okas", "okas", "needle, thorn"), p("siga", "siga", "pig")],
     literal: "needle pig", means: "porcupine",
-    quip: "A pig with needles. Hugs at your own risk.",
+    quip: "It isn't a pig, and nobody has had the heart to tell it.",
   },
   {
     id: "raccoon", word: "pesukaru",
@@ -444,7 +444,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "noun", word: "nimisõna",
     parts: [p("nimi", "nimi", "name"), p("sõna", "sõna", "word")],
     literal: "name word", means: "noun",
-    quip: "Every noun is somebody's name for something.",
+    quip: "Your name is one. So is your cat's.",
   },
   {
     id: "verb", word: "tegusõna",
@@ -510,7 +510,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dentist", word: "hambaarst",
     parts: [p("hamba", "hammas", "tooth"), p("arst", "arst", "doctor")],
     literal: "tooth doctor", means: "dentist",
-    quip: "A doctor who is only interested in your teeth. Open wide.",
+    quip: "English went to French for its word. Estonian just said what it does. Open wide.",
   },
   {
     id: "wristwatch", word: "käekell",
@@ -543,7 +543,7 @@ export const COMPOUNDS: readonly Compound[] = [
 export const FALSE_FRIENDS: readonly FalseFriend[] = [
   {
     id: "pea", word: "pea", looksLike: "pea", means: "head",
-    quip: "Tell a doctor your pea hurts and you'll get sympathy, not a recipe.",
+    quip: "Tell a doctor your pea hurts and they'll check your head, not your soup.",
   },
   {
     id: "kool", word: "kool", looksLike: "cool", means: "school",
@@ -583,7 +583,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "luu", word: "luu", looksLike: "loo", means: "bone",
-    quip: "If you need the toilet, ask for the toilet. It saves everybody a confusing minute.",
+    quip: "Ask for the toilet by name. It saves everybody a confusing minute.",
   },
   {
     id: "hai", word: "hai", looksLike: "hi", means: "shark",
@@ -591,7 +591,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "hind", word: "hind", looksLike: "hind", means: "price",
-    quip: "It's on every price label, so it's worth learning early.",
+    quip: "It comes up at every till, usually just before you wince.",
   },
   {
     id: "tee", word: "tee", looksLike: "tee", means: "road, tea",
@@ -599,7 +599,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "pall", word: "pall", looksLike: "pall", means: "ball",
-    quip: "Few things lift a gloomy mood faster.",
+    quip: "In English it's a cloud of gloom. This one bounces.",
   },
   {
     id: "tore", word: "tore", looksLike: "tore", means: "great, lovely",
@@ -623,7 +623,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "scar", word: "arm", looksLike: "arm", means: "scar",
-    quip: "You can get one on your arm, which helps nobody.",
+    quip: "Fall off a bike and you may come home with one on your arm. Then both words fit.",
   },
   {
     id: "kits", word: "kits", looksLike: "kits", means: "goat",

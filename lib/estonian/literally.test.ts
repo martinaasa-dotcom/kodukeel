@@ -36,17 +36,34 @@ function glossesOf(lemma: string): string {
   return (ENTRIES.get(lemma) ?? []).map((e) => e.gloss).join("; ");
 }
 
+/**
+ * Two words with one stem: the shorter is a prefix of the longer, compared
+ * over at least three letters. A short piece (нос, сон, пил) is the start of
+ * the longer word built on it (носорог, сновидение, пылесос), which a fixed
+ * prefix length would miss.
+ */
+function sameStem(a: string, b: string): boolean {
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a];
+  const n = Math.max(3, Math.min(short.length, 5));
+  return short.length >= 3 && long.startsWith(short.slice(0, n));
+}
+
+function words(text: string): string[] {
+  return text.toLowerCase().match(/[\p{L}]{3,}/gu) ?? [];
+}
+
 /*
   Russian and Ukrainian build these from the very same picture: a fridge from
   cold, a bat from a mouse, a kindergarten from children and a garden, a
-  pronoun from "instead", a vacuum cleaner from dust and sucking. Recognising
+  pronoun from "instead", a dictionary from words, a rhinoceros from a nose
+  and a horn, a vacuum cleaner from dust and sucking. Recognising
   it is the fun, there is no other honest reading, and the line says so where
   it is the joke.
 */
 const SAME_IMAGE_BOTH = ["külmkapp", "uksekell", "liivakell", "silmamuna", "nahkhiir", "raamatukoi", "lasteaed", "käekell", "tolmuimeja"];
 const SAME_IMAGE: Record<"ru" | "uk", ReadonlySet<string>> = {
-  ru: new Set([...SAME_IMAGE_BOTH, "asesõna"]),
-  uk: new Set([...SAME_IMAGE_BOTH, "ööliblikas", "lumememm", "linnapea"]),
+  ru: new Set([...SAME_IMAGE_BOTH, "asesõna", "sõnaraamat", "ninasarvik"]),
+  uk: new Set([...SAME_IMAGE_BOTH, "ööliblikas", "lumememm", "linnapea", "sõnaraamat", "ninasarvik"]),
 };
 
 describe("compounds", () => {
@@ -112,18 +129,13 @@ describe("compounds", () => {
   */
   it("never carries the meaning's own word in its reading in Russian or Ukrainian either", () => {
     const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga"]);
-    // Russian and Ukrainian build these from the very same picture: a fridge
-    // from cold, a bat from a mouse, a kindergarten from children and a
-    // garden, a vacuum cleaner from dust and sucking. The quip says so where
-    // it is the fun. Recognising it is the fun, and there is no other honest reading.
-    const sameImage = SAME_IMAGE;
-    const stems = (text: string) =>
-      new Set((text.toLowerCase().match(/[\p{L}]{3,}/gu) ?? []).map((w) => w.slice(0, Math.min(w.length, 5))));
+    // SAME_IMAGE is the words both languages build from the very picture
+    // Estonian does, where there is no other honest reading.
     for (const locale of ["ru", "uk"] as const) {
       const giveaway = COMPOUNDS.filter((c) => {
-        if (meant.has(c.word) || sameImage[locale].has(c.word)) return false;
-        const reading = stems(tr(locale, c.literal, "wordplay"));
-        return [...stems(tr(locale, c.means, "wordplay"))].some((w) => reading.has(w));
+        if (meant.has(c.word) || SAME_IMAGE[locale].has(c.word)) return false;
+        const reading = words(tr(locale, c.literal, "wordplay"));
+        return words(tr(locale, c.means, "wordplay")).some((w) => reading.some((r) => sameStem(r, w)));
       }).map((c) => `${locale}: ${c.word}: ${tr(locale, c.literal, "wordplay")} / ${tr(locale, c.means, "wordplay")}`);
       expect(giveaway).toEqual([]);
     }
@@ -153,14 +165,18 @@ describe("compounds", () => {
     is the same words twice. Hopping over tomorrow is the one that uses it to
     make a new picture rather than to repeat it.
   */
-  it("never repeats its reading in its line", () => {
+  it("never repeats its reading in its line, whatever the ending", () => {
+    // The reading's words in a row, by their stems, is the reading said
+    // again: "fish berries" under "fish berry". A line that builds a new
+    // picture on the reading ("a frog that brought its own shield") is the
+    // joke, and is read by a person rather than refused here.
     const repeated = COMPOUNDS.filter((c) => c.word !== "ülehomme")
       .filter((c) => {
-        const quip = c.quip.toLowerCase();
-        const literal = c.literal.toLowerCase();
-        return quip.includes(literal) || quip.includes(`${literal}s`);
+        const reading = words(c.literal);
+        const said = words(c.quip);
+        return said.some((_, i) => reading.every((w, k) => said[i + k] !== undefined && sameStem(said[i + k]!, w)));
       })
-      .map((c) => c.word);
+      .map((c) => `${c.word}: ${c.quip}`);
     expect(repeated).toEqual([]);
   });
 
@@ -172,11 +188,9 @@ describe("compounds", () => {
     piece names the answer in the translation and not in the English.
   */
   it("never turns over a piece that names the answer in translation and not in English", () => {
-    const stems = (text: string) =>
-      new Set((text.toLowerCase().match(/[\p{L}]{3,}/gu) ?? []).map((w) => w.slice(0, Math.min(w.length, 5))));
     const shares = (a: string, b: string) => {
-      const x = stems(b);
-      return [...stems(a)].some((w) => x.has(w));
+      const x = words(b);
+      return words(a).some((w) => x.some((y) => sameStem(w, y)));
     };
     for (const locale of ["ru", "uk"] as const) {
       const read = (s: string) => tr(locale, s, "wordplay");

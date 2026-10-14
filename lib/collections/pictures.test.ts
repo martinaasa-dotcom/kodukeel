@@ -40,7 +40,7 @@ describe("the pictures", () => {
   it("say which sense they show, and only one the dictionary already lists", () => {
     const senses = new Map<string, string[]>();
     for (const e of shippedDictionary()) {
-      const list = e.gloss.split(",").map((x) => x.trim().toLowerCase());
+      const list = e.gloss.split(/[,;/]/).map((x) => x.trim().toLowerCase()).filter(Boolean);
       senses.set(e.lemma, [...(senses.get(e.lemma) ?? []), ...list]);
     }
     const narrowed = PICTURES.flatMap((p) => p.things.filter((t) => t.means));

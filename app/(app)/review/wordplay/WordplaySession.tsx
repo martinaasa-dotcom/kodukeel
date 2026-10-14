@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Laugh, X } from "lucide-react";
+import { Check, Laugh, Sparkles, X } from "lucide-react";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
@@ -311,7 +311,7 @@ function Quip({ text }: { text: string }) {
   const t = useT();
   return (
     <p data-wordplay-quip className="pop-in flex items-start gap-2.5 text-base" style={{ color: "var(--ink-2)" }}>
-      <Laugh size={18} className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} aria-hidden />
+      <Sparkles size={18} className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} aria-hidden />
       <span>{t(text, W)}</span>
     </p>
   );

@@ -270,7 +270,7 @@ export const PICTURES: readonly Picture[] = [
       { emoji: "🛣️", lemma: "tee", means: "road" }, { emoji: "🌳", lemma: "puu" },
       { emoji: "🏠", lemma: "maja" }, { emoji: "🏁", lemma: "lipp" },
     ],
-    example: { et: "Kass sõidab autoga ja koer jookseb järele.", en: "The cat is driving the car and the dog is running after it." },
+    example: { et: "Kass sõidab autoga ja koer jookseb talle järele.", en: "The cat is driving the car and the dog is running after it." },
   },
   {
     id: "dog-office",
