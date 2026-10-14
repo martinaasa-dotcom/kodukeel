@@ -11,10 +11,10 @@ import type { InvariantKit } from "../lib/invariantKit";
  * so the readers are a closed list, and nothing that marks, measures, builds a
  * card, plays a scene or lends a sentence may import the table at all.
  *
- * And the good news card has one rule the operator set, that it is only good
- * news, so the bad-news list may never be skipped: the judge's reading drops a
- * refused item whatever the model said, the page's reading refuses one before
- * the model is asked, and the keyless path goes through the stricter rule.
+ * And the good news card has two rules the operator set: it is only good
+ * news, so the bad-news list may never be skipped and a headline has to carry
+ * a good-news word as well; and no model decides it, so nothing on its path
+ * may reach a provider or the ledger.
  */
 const READERS = [
   // The day's joke and its spares, drawn with the dictionary under them.
@@ -38,17 +38,21 @@ export default function jokesStayOnTheirCard({ check, ALL, code }: InvariantKit)
     }
   });
 
-  check("good news goes through the bad-news list on every path", () => {
+  check("good news goes through both word lists on every path", () => {
     const pure = code("lib/news/goodNews.ts");
-    const reader = pure.slice(pure.indexOf("export function readJudgement"));
-    assert.match(reader, /badStem\(item\) !== null\) continue/, "the judge's picks no longer go through the bad-news list");
-    const keyless = pure.slice(pure.indexOf("export function plainlyGood"));
-    assert.match(keyless.slice(0, 200), /badStem\(item\) !== null\) return false/, "the keyless rule no longer refuses bad news first");
+    const rule = pure.slice(pure.indexOf("export function plainlyGood"));
+    assert.match(rule.slice(0, 200), /badStem\(item\) !== null\) return false/, "the good-news rule no longer refuses bad news first");
     const today = code("lib/dict/goodNews.ts");
-    assert.match(today, /badStem\(item\) !== null\) continue/, "the page shows the model items the bad-news list refused");
-    assert.match(today, /: clean\.filter\(plainlyGood\)/, "a keyless deployment no longer goes through the stricter rule");
+    assert.match(today, /badStem\(item\) !== null \|\| !plainlyGood\(item\)\) continue/, "the card offers a headline that cleared only one of the two lists");
     assert.match(today, /!recentEnough\(item, now\)/, "a card headed today is offered last week's news");
-    assert.match(reader, /if \(en && badEnglish\(en\)\) continue/, "a pick whose own English says it is bad news reaches the card");
+  });
+
+  check("no model decides what counts as good news", () => {
+    const judges = ALL.filter((f) => f.startsWith("lib/tutor/") && /@\/lib\/news\//.test(code(f)));
+    assert.deepEqual(judges, [], "a model is asked about the news again");
+    for (const file of ["lib/news/goodNews.ts", "lib/dict/goodNews.ts", "components/GoodNewsSlot.tsx", "components/GoodNews.tsx"]) {
+      assert.doesNotMatch(code(file), /@\/lib\/(tutor|usage)\//, `${file} reaches a model or the ledger`);
+    }
   });
 
   /*
@@ -61,23 +65,13 @@ export default function jokesStayOnTheirCard({ check, ALL, code }: InvariantKit)
     const joke = code("lib/progress/jokeOfDay.ts");
     assert.match(joke, /catch \{\s*annotated = plainTexts\(texts\);\s*keep = false;/, "a dictionary that will not answer throws the joke at Today");
     const news = code("lib/dict/goodNews.ts");
-    assert.match(news, /pickToday\(ownerId, now\)\.catch\(/, "a good news failure is thrown rather than remembered as a miss");
-    assert.match(news, /goodNewsToday\(ownerId\)\.catch\(\(\) => null\)/, "Today waits on good news that can throw");
-    // Today may not wait on ERR or a model for a pleasure: the card streams.
+    assert.match(news, /pickToday\(now\)\.catch\(/, "a good news failure is thrown rather than remembered as a miss");
+    assert.match(news, /goodNewsToday\(\)\.catch\(\(\) => null\)/, "Today waits on good news that can throw");
+    // Today may not wait on ERR for a pleasure: the card streams.
     const page = code("app/(app)/page.tsx");
     assert.doesNotMatch(page, /goodNews(Within|Today)\(/, "Today awaits the good news rather than streaming it");
-    assert.match(page, /<Suspense fallback=\{null\}><GoodNewsSlot /, "the good news is no longer streamed behind a Suspense");
+    assert.match(page, /<Suspense fallback=\{null\}><GoodNewsSlot \/>/, "the good news is no longer streamed behind a Suspense");
     assert.match(page, /data-column-item/, "the column item hook moved");
     assert.match(page, /empty:hidden[^>]*data-column-item/, "an hour with no good news leaves an empty slot drawn");
-  });
-
-  check("the good news judge is metered like every other call", () => {
-    const judge = code("lib/tutor/goodNews.ts");
-    assert.match(judge, /authoriseCall\(ownerId, "GRADER"\)/, "the judge asks a model without authorising the call");
-    assert.match(judge, /allowFallback: decision\.fallbackAllowed/, "the judge assumes the last resort rather than asking the ledger");
-    assert.match(judge, /after\(\(\) => recordUsage\(/, "the judge's spend is not recorded");
-    assert.match(judge, /releaseReservation\(booking\)/, "a judge nobody answered keeps its reservation");
-    assert.match(judge, /VOICE_RULES\.map/, "the judge's English is asked for without the voice rules");
-    assert.match(judge, /findTells\(/, "the judge's English reaches a learner without the tell check");
   });
 }

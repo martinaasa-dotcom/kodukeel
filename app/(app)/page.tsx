@@ -879,7 +879,7 @@ export default async function TodayPage() {
   */
   const jokeCard = jokes && jokes.length > 0 ? <JokeOfDayCard jokes={jokes} /> : null;
   const newsCard = shows(stage, "news") && !hiddenCards.has("news")
-    ? <Suspense fallback={null}><GoodNewsSlot ownerId={ownerId} /></Suspense>
+    ? <Suspense fallback={null}><GoodNewsSlot /></Suspense>
     : null;
 
   /*
