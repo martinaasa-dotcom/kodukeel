@@ -507,6 +507,21 @@ Small, physical, and never blocking:
   under the global rule, and `scripts/invariants/the-small-delights-stand-still-when-asked.ts`
   holds the list.
 
+- Play that answers a pointer, which is the other half of "alive": none of it on a loop, all of it
+  a reply to something the reader is already doing. A card you could press carries `.glow`, and a
+  soft light follows the pointer across it (`components/motion/PointerLight.tsx`, one listener for
+  the whole shell writing `--gx` and `--gy`, mouse and pen only, since a finger has no position
+  between taps). It is the accent at a whisper in the light theme, plain white at five percent in
+  the dark, and a situation tile's own hue on the board, so a pointer crossing it warms each kind in
+  its colour. An arrow at the end of a link leans three pixels the way it goes, on a spring that
+  overshoots a pixel. An icon marked `data-pop` looks up when its row is pointed at, a tenth larger
+  and a few degrees of tilt. And an option picked in `components/Choice.tsx` springs, down a touch
+  and over a touch, through the Web Animations API so it plays on the press and never on a chip
+  that was already chosen when the page loaded, with the card's tick landing rather than
+  appearing. All of it is `translate`, `scale`, `rotate` or opacity, so the box a finger aims at
+  never moves, and `scripts/invariants/a-pointers-play-stands-still-when-asked.ts` holds each to
+  standing still under reduced motion.
+
 `prefers-reduced-motion: reduce` flattens all of it, and switches `.reveal` off outright, because a
 scroll-driven animation has no duration to shorten, so it needs removing rather than shrinking.
 
