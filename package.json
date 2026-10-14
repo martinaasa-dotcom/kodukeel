@@ -71,6 +71,8 @@
     "measure:placement": "tsx scripts/measure-placement.ts",
     "measure:workbook": "tsx scripts/measure-workbook.ts",
     "audit:workbook": "tsx scripts/audit-workbook.ts",
+    "reading:workbook": "tsx scripts/workbook-reading-list.ts",
+    "apply:workbook-review": "tsx scripts/apply-workbook-review.ts",
     "measure:typo-collisions": "tsx scripts/measure-typo-collisions.ts",
     "measure:exam-volume": "tsx scripts/measure-exam-volume.ts",
     "play:scenes": "tsx scripts/play-scene.ts",

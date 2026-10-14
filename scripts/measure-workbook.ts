@@ -20,7 +20,7 @@ import { usableExamples, type Example } from "@/lib/dict/examples";
 import { plainReach } from "@/lib/dict/plainness";
 import { readableSpellings } from "@/lib/estonian/gapForms";
 import {
-  MIN_LINES, OPEN, composeSheet, linesFor, preferredThemes, type LineGates, type SheetItem, type Theme,
+  MIN_LINES, OPEN, canFill, composeSheet, linesFor, themeOrder, type LineGates, type SheetItem, type Theme,
 } from "@/lib/games/workbook";
 import type { FlashWord } from "@/lib/games/flash";
 import { PROGRAMMES } from "@/lib/course";
@@ -153,8 +153,9 @@ for (const programme of PROGRAMMES) {
           items.push(...linesFor(wordOf(r, authored && at <= 1), gates, new Set(), { reach, limit: at }));
         }
       }
-      const prefer = preferredThemes({ tonight: tonightsCase(scope) });
-      const sheet = composeSheet(items, prefer, [{ lines: IN_MODULE[programme.level] ?? 8, kind: "write" }]);
+      const plan = { lines: IN_MODULE[programme.level] ?? 8, kind: "write" as const };
+      const order = themeOrder({ tonight: tonightsCase(scope), fills: (t) => canFill(items, t, plan.lines, plan.kind) });
+      const sheet = composeSheet(items, order.themes, [plan], order.urgent);
       tallies[authored ? "on" : "off"].push(sheet.exercises[0]?.lines.length ?? 0);
     }
   }

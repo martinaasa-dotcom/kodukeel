@@ -255,7 +255,10 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-2 px-6 py-4 sm:grid-cols-2">
+          {/* `choice-grid` rather than `sm:grid-cols-2`, for PairsSession's
+              reason: at 768 two columns gave "kasvatavad" 91px of the 92 it
+              needs, drawn across two lines. */}
+          <div className="choice-grid px-6 py-4">
             {texts.map((text, i) => {
               const isAnswer = i === q.answer;
               const isPicked = i === picked;
