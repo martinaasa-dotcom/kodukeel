@@ -91,11 +91,27 @@ describe("compounds", () => {
     expect(disagree).toEqual([]);
   });
 
-  it("never gives away the meaning in the word-for-word reading, in any language", () => {
+  /*
+    Russian and Ukrainian draw lines English does not: one word is a hand and
+    an arm, one root is a sleep and a dream. So the reading is held to the
+    same rule in each language on its own, word against word, with the stem
+    compared rather than the spelling, since a case ending is not a new word.
+  */
+  it("never carries the meaning's own word in its reading in Russian or Ukrainian either", () => {
+    const meant = new Set(["üleeile", "ülehomme", "tulekahju", "kõhutuul", "merisiga"]);
+    // Russian and Ukrainian build these from the very same picture: a fridge
+    // from cold, a bat from a mouse, a kindergarten from children and a
+    // garden. Recognising it is the fun, and there is no other honest reading.
+    const both = ["külmkapp", "uksekell", "liivakell", "silmamuna", "nahkhiir", "raamatukoi", "lasteaed", "käekell"];
+    const sameImage = { ru: new Set(both), uk: new Set([...both, "ööliblikas", "lumememm"]) };
+    const stems = (text: string) =>
+      new Set((text.toLowerCase().match(/[\p{L}]{3,}/gu) ?? []).map((w) => w.slice(0, Math.min(w.length, 5))));
     for (const locale of ["ru", "uk"] as const) {
-      const giveaway = COMPOUNDS.filter(
-        (c) => tr(locale, c.literal, "wordplay").toLowerCase() === tr(locale, c.means, "wordplay").toLowerCase(),
-      ).map((c) => `${locale}: ${c.word}`);
+      const giveaway = COMPOUNDS.filter((c) => {
+        if (meant.has(c.word) || sameImage[locale].has(c.word)) return false;
+        const reading = stems(tr(locale, c.literal, "wordplay"));
+        return [...stems(tr(locale, c.means, "wordplay"))].some((w) => reading.has(w));
+      }).map((c) => `${locale}: ${c.word}: ${tr(locale, c.literal, "wordplay")} / ${tr(locale, c.means, "wordplay")}`);
       expect(giveaway).toEqual([]);
     }
   });

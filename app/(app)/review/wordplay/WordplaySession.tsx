@@ -299,7 +299,7 @@ function Streak({ n }: { n: number }) {
   const t = useT();
   if (n < STREAK_FROM) return null;
   return (
-    <span key={n} className="pop-in ml-auto inline-flex items-center gap-1 text-sm font-semibold tnum" style={{ color: "var(--hard-ink)" }}>
+    <span key={n} className="pop-in ml-auto inline-flex items-center gap-1 text-sm font-semibold tnum" style={{ color: "var(--accent-deep)" }}>
       <Laugh size={16} aria-hidden /> {fill(t("{n} in a row"), { n })}
     </span>
   );
@@ -581,7 +581,7 @@ function FriendCard({ question, index, total, picked, revealed, streak, isLast, 
   const verdict = right
     ? fill(t("Not fooled. It means “{means}”."), { means: t(question.means, W) })
     : trapped
-      ? fill(t("That's the trap. It means “{means}”, not “{english}”."), { means: t(question.means, W), english: lookalike(question.looksLike, t) })
+      ? fill(t("That's the English it looks like. It means “{means}”."), { means: t(question.means, W) })
       : fill(t("Not quite. It means “{means}”."), { means: t(question.means, W) });
   return (
     <div className="rounded-xl border" style={CARD_STYLE}>

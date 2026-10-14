@@ -40,6 +40,14 @@ export interface PictureThing {
   readonly emoji: string;
   /** A request against the dictionary: the word for it. */
   readonly lemma: string;
+  /**
+   * The one sense the picture shows, where the dictionary's gloss lists more
+   * than one and the others would be wrong under it: a road is `tee`, and
+   * "road, tea" printed under a road is a cup of tea on the motorway. It may
+   * only narrow, so it is always a sense the gloss already gives, word for
+   * word (`pictures.test.ts`). English, never Estonian.
+   */
+  readonly means?: string;
 }
 
 export interface Picture {
@@ -152,7 +160,7 @@ export const PICTURES: readonly Picture[] = [
     rows: ["🐄 🐖 🐑", "🐓 🐎 🐕", "🚜 🌾 🏡", "👨 ☀️ 🌳"],
     things: [
       { emoji: "🐄", lemma: "lehm" }, { emoji: "🐖", lemma: "siga" },
-      { emoji: "🐑", lemma: "lammas" }, { emoji: "🐓", lemma: "kukk" },
+      { emoji: "🐑", lemma: "lammas" }, { emoji: "🐓", lemma: "kukk", means: "rooster" },
       { emoji: "🐎", lemma: "hobune" }, { emoji: "🐕", lemma: "koer" },
       { emoji: "🚜", lemma: "traktor" }, { emoji: "🌾", lemma: "nisu" },
       { emoji: "🏡", lemma: "maja" }, { emoji: "👨", lemma: "mees" },
@@ -239,17 +247,17 @@ export const PICTURES: readonly Picture[] = [
   */
   {
     id: "sauna-cow",
-    alt: "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a glass of beer, a basket and a spruce tree outside.",
+    alt: "A cow sitting in a steamy sauna, with a bucket of water, a sauna whisk, a fire, a carton of juice, a basket and a spruce tree outside.",
     title: "A cow at the sauna",
-    rows: ["🧖 🐄 💦", "🪣 🌿 🔥", "🍺 🌲 🧺"],
+    rows: ["🧖 🐄 💦", "🪣 🌿 🔥", "🧃 🌲 🧺"],
     things: [
       { emoji: "🐄", lemma: "lehm" }, { emoji: "🧖", lemma: "saun" },
       { emoji: "💦", lemma: "vesi" }, { emoji: "🪣", lemma: "ämber" },
       { emoji: "🌿", lemma: "viht" }, { emoji: "🔥", lemma: "tuli" },
-      { emoji: "🍺", lemma: "õlu" }, { emoji: "🌲", lemma: "kuusk" },
+      { emoji: "🧃", lemma: "mahl" }, { emoji: "🌲", lemma: "kuusk" },
       { emoji: "🧺", lemma: "korv" },
     ],
-    example: { et: "Lehm istub saunas ja joob õlut.", en: "The cow is sitting in the sauna and drinking beer." },
+    example: { et: "Lehm istub saunas ja joob mahla.", en: "The cow is sitting in the sauna, drinking juice." },
   },
   {
     id: "cat-driver",
@@ -259,7 +267,7 @@ export const PICTURES: readonly Picture[] = [
     things: [
       { emoji: "🐈", lemma: "kass" }, { emoji: "🚗", lemma: "auto" },
       { emoji: "🚦", lemma: "foor" }, { emoji: "🐕", lemma: "koer" },
-      { emoji: "🛣️", lemma: "tee" }, { emoji: "🌳", lemma: "puu" },
+      { emoji: "🛣️", lemma: "tee", means: "road" }, { emoji: "🌳", lemma: "puu" },
       { emoji: "🏠", lemma: "maja" }, { emoji: "🏁", lemma: "lipp" },
     ],
     example: { et: "Kass sõidab autoga ja koer jookseb järele.", en: "The cat is driving the car and the dog is running after it." },

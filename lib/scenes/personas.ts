@@ -80,7 +80,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   {
     id: "brisk",
     who: "They're busy, and they won't wait long for an answer.",
-    meet: "They're busy and won't wait long for an answer. Short and to the point suits them best.",
+    meet: "They're busy and won't wait long for an answer. Get to the point and you'll get on fine.",
     patience: -1,
     voice: SCENE_VOICE,
     speed: 1.1,
@@ -102,7 +102,7 @@ export const PERSONAS: readonly PersonaSpec[] = [
   {
     id: "new",
     who: "They're new in the job, so they check everything twice as they go.",
-    meet: "They check everything twice as they go, just to be sure. There's no rush.",
+    meet: "They check everything twice as they go, just to be sure. You'll have time to think twice too.",
     patience: 1,
     voice: SCENE_VOICE,
     speed: 1,

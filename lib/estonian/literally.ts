@@ -111,7 +111,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "shoe", word: "jalanõu",
     parts: [p("jala", "jalg", "foot"), p("nõu", "nõu", "dish, vessel")],
     literal: "foot dish", means: "a shoe, any footwear",
-    quip: "The second half is a vessel, as in the dishes you wash. A little bowl for your foot, then.",
+    quip: "The second half is a vessel, the same word that gives you the dishes you wash. A little bowl for your foot, then.",
   },
   {
     id: "capital", word: "pealinn",
@@ -129,13 +129,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "marriage", word: "abielu",
     parts: [p("abi", "abi", "help"), p("elu", "elu", "life")],
     literal: "help life", means: "marriage",
-    quip: "A life of helping each other. As definitions of marriage go, a sensible one.",
+    quip: "Read as it looks today, a life of help. The first half is really an old word for marriage, which comes to much the same thing.",
   },
   {
     id: "spouse", word: "abikaasa",
     parts: [p("abi", "abi", "help"), p("kaasa", "kaasa", "companion", "along (coming with somebody)")],
     literal: "help companion", means: "spouse",
-    quip: "The second half is an old word for a companion, and on its own it can still mean a spouse. Romantic, in a very practical way.",
+    quip: "Both halves are old words, one for marriage and one for a companion. Read as they look today, a help companion. Romantic, in a practical way.",
   },
   {
     id: "world", word: "maailm",
@@ -231,13 +231,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "garlic", word: "küüslauk",
     parts: [p("küüs", "küüs", "nail"), p("lauk", "lauk", "allium, onion")],
     literal: "nail onion", means: "garlic",
-    quip: "Peel a clove and look at it. It does look a bit like a fingernail.",
+    quip: "A single clove is still called a nail, which makes peeling one sound worse than it is.",
   },
   {
     id: "roe", word: "kalamari",
     parts: [p("kala", "kala", "fish"), p("mari", "mari", "berry")],
     literal: "fish berry", means: "roe",
-    quip: "Nothing to do with calamari. Fish berries is exactly what roe looks like on a plate.",
+    quip: "Not calamari, though it sounds close. Fish berries is exactly what roe looks like on a plate.",
   },
   {
     id: "dream", word: "unenägu",
@@ -291,7 +291,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "flatulence", word: "kõhutuul",
     parts: [p("kõhu", "kõht", "stomach"), p("tuul", "tuul", "wind")],
     literal: "stomach wind", means: "breaking wind (flatus)",
-    quip: "It names the thing plainly, and nobody is left wondering what you mean.",
+    quip: "English calls it wind too. Estonian just says where it blows from.",
   },
   {
     id: "earth", word: "maamuna",
@@ -423,7 +423,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "arm", word: "käsivars",
     parts: [p("käsi", "käsi", "hand"), p("vars", "vars", "shaft, stalk")],
     literal: "hand shaft", means: "arm",
-    quip: "The second half is the shaft of a limb, and the same word names a plant's stalk. Picture that and you won't forget it.",
+    quip: "The second half is a shaft, the same word as a plant's stalk. Your hand grows on the end of it.",
   },
   {
     id: "hanger", word: "riidepuu",
@@ -435,13 +435,13 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "ruler", word: "joonlaud",
     parts: [p("joon", "joon", "line"), p("laud", "laud", "table, board")],
     literal: "line board", means: "ruler",
-    quip: "A board for drawing lines. No crown involved.",
+    quip: "The second half is the word for a table, shrunk to fit a pencil case.",
   },
   {
     id: "noun", word: "nimisõna",
     parts: [p("nimi", "nimi", "name"), p("sõna", "sõna", "word")],
     literal: "name word", means: "noun",
-    quip: "A noun names things, and the Estonian just says so.",
+    quip: "A name word. Every noun is somebody's name for something.",
   },
   {
     id: "verb", word: "tegusõna",
@@ -471,7 +471,7 @@ export const COMPOUNDS: readonly Compound[] = [
     id: "dictionary", word: "sõnaraamat",
     parts: [p("sõna", "sõna", "word"), p("raamat", "raamat", "book")],
     literal: "word book", means: "dictionary",
-    quip: "German says the same: a word book.",
+    quip: "German says the same, a word book. English went to Latin for its word instead.",
   },
   {
     id: "snowman", word: "lumememm",
@@ -545,7 +545,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "must", word: "must", looksLike: "must", means: "black",
-    quip: "Black, not an order. Though a black coffee is a must for some.",
+    quip: "Black, not an order. For some people a black coffee is a must anyway.",
   },
   {
     id: "all", word: "all", looksLike: "all", means: "under, below",
@@ -593,11 +593,11 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "pall", word: "pall", looksLike: "pall", means: "ball",
-    quip: "A ball, not a gloomy mood. Most football matches end somewhere in between.",
+    quip: "A ball, not a gloom. Few things lift one faster.",
   },
   {
     id: "tore", word: "tore", looksLike: "tore", means: "great, lovely",
-    quip: "Lovely, not ripped. You'll hear it about a party, a film and a sunny Saturday.",
+    quip: "Lovely, and nothing to do with tearing. Say it about somebody's new coat and they'll be pleased.",
   },
   {
     id: "pill", word: "pill", looksLike: "pill", means: "musical instrument",
@@ -613,7 +613,7 @@ export const FALSE_FRIENDS: readonly FalseFriend[] = [
   },
   {
     id: "veri", word: "veri", looksLike: "very", means: "blood",
-    quip: "Blood, not very. Though it does sound very dramatic.",
+    quip: "Blood, not very. Which is very dramatic either way.",
   },
   {
     id: "arm", word: "arm", looksLike: "arm", means: "scar",
