@@ -787,7 +787,11 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                     onSelect={() => toggleReason(r.id)}
                     icon={<NamedIcon name={r.icon} size={18} aria-hidden />}
                     title={t(r.label)}
-                    detail={t(r.detail)}
+                    // The line under a reason only once it is picked: eight
+                    // explanations under eight titles were most of the
+                    // height of this step on a phone, and the title is what
+                    // somebody choosing reads.
+                    detail={reasons.includes(r.id) ? t(r.detail) : undefined}
                   />
                 );
               })}
