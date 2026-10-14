@@ -105,7 +105,7 @@ export async function POST(request: Request) {
   const words: PictureWord[] = picture.things.flatMap((thing) => {
     const row = entry.get(thing.lemma);
     return row
-      ? [{ lemma: row.lemma, pos: row.pos, translation: row.translation, emoji: thing.emoji, forms: row.forms }]
+      ? [{ lemma: row.lemma, pos: row.pos, translation: thing.means ?? row.translation, emoji: thing.emoji, forms: row.forms }]
       : [];
   });
 

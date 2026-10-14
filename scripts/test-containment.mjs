@@ -182,6 +182,7 @@ const ROUTES = [
   "/review/letters",
   "/review/workbook",
   "/review/sayings",
+  "/review/wordplay",
   "/review/lookups",
 
   // The course.
