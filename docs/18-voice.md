@@ -288,6 +288,75 @@ English lines under example sentences and anything else a model writes for a lea
 copy. Every prompt that asks a model for English a learner will see carries `VOICE_RULES`, and the
 generated text passes through the same table on the way out (section 6).
 
+## 3c. Humour: playful, true, and never at the learner's expense
+
+The operator asked for the app to be funny, so that people take it a little less seriously and
+enjoy it more, and chose the tone from three drafts: **playful**. A playful line is a true fact said
+with a wink. It is not a pun for its own sake, not an exclamation mark, and not an emoji.
+
+> nahkhiir, bat. A leather mouse. Estonian looked at a bat and said exactly what it saw.
+
+against
+
+> 🦇 Holy leather mouse, Batman!
+
+The first is a fact about the word, and the joke is that the fact is funny. The second is a joke
+about a film, and the fact gets lost behind it.
+
+**Where the humour comes from.** Mostly from Estonian itself, which is the safest source there is,
+because a compound read word by word is a fact and nobody had to invent it.
+`lib/estonian/literally.ts` holds the compounds (`kilpkonn`, a shield frog) and the false friends
+(`pea` is a head), and a test holds every one to the shipped dictionary. The English around them,
+the scene briefings, the picture prompts and the empty states are written by hand, and an Estonian
+sentence written for a laugh is held to every rule `lib/dict/authored.ts` states.
+
+**What a funny line may not do:**
+
+- **Mock the learner.** A wrong answer is answered plainly and kindly, always. Somebody who has just
+  got something wrong is the one reader a joke can hurt, and the correction is the one thing on the
+  screen they need. The same goes for a slow week, a broken streak and a level that came out lower
+  than hoped.
+- **Appear on a screen that measures.** The mock exam, the level check, the readiness figures and
+  the checkpoint are plain, because a joke there reads as the app not taking the result seriously.
+- **Appear where something has gone wrong for the person.** Error screens, privacy, erasure,
+  sign-in failures and a spent allowance stay plain. Somebody whose deck did not load wants to know
+  why.
+- **Joke about a people or a nationality.** Most learners here speak Russian or Ukrainian, and a
+  joke about Russians, Ukrainians, Estonians or anybody else is not one this app tells.
+- **Invent a fact.** "The word for month is the word for moon, from when the moon was the calendar"
+  is true. A history that sounds good and is not is a lesson in something false. Where a reading is
+  a pun on a second sense rather than the etymology, the line says so. And where a part of a compound
+  has several homonyms, the reading uses the one actually inside the word: `asesõna` is built on
+  the `ase` that means a stead, not the one that means a bed, and `maailm` on the old `ilm` that
+  means the world itself, not on the weather. And where no source supports a history, the line does
+  not claim one: `abielu` is read as help, because help is what the dictionary says it is. A part marked `notThe` in `lib/estonian/literally.ts`
+  names the homonym it is not, and the test checks both halves of that against the dictionary.
+- **Turn up everywhere.** A joke on every card stops being a joke by the second evening. Most words
+  have nothing funny said about them, and that is the point.
+- **Promise a setting.** A conversation partner is drawn for every scene, a friend on the phone as
+  readily as a clerk, so the line introducing them says how they talk and never where you are: "the
+  queue behind you" is nonsense on a call from a friend. `lib/scenes/personas.test.ts` holds it.
+- **Lose the joke in translation.** A word that only looks English is funny because of its spelling,
+  so in Russian and Ukrainian the English it looks like stays and its meaning follows in brackets,
+  «pea (горошина)». And a word-for-word reading may never come out as the meaning itself once
+  translated, or the answer is printed above its own question; `literally.test.ts` checks both
+  languages, and that no translation of a line the table no longer has is left behind.
+- **Undercut the word it teaches.** A written sentence is often the first time somebody meets a
+  word, so the joke may never contradict or blur what the word means. "I never drink tea. Only every
+  day." is funny to somebody who already knows `kunagi` and teaches the opposite to somebody who
+  does not. The everyday construction a word exists for, "Mul on külm", has to survive the joke.
+- **Say a thing twice.** The screen already prints "not “tool”" above a look-alike's line, so the
+  line opens on something new rather than "A chair, not a tool" again. And a word that only sounds
+  English (`kool`, `hai`) is labelled as sounding it, never as looking it.
+- **Run on one template.** "It's bad, but I do it anyway" is funny once. The sentences use several
+  shapes, a second sentence that turns the first, a reversal, a callback, and "X, aga Y" is kept to
+  about a fifth of them, because a learner meets these in a row and a formula shows by the second
+  week.
+
+**Who reads it.** Every line is drafted in a session and read by the operator before it reaches
+anybody. Estonian in it is read by the native speaker who develops this app in the pull request,
+exactly as the scene bank and the written sentences are.
+
 ## 4. What this rule does not cover
 
 **Comments, and code quoted inside a document.** Comments are for whoever maintains the code and may

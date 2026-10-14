@@ -245,6 +245,15 @@ export const BRIEFINGS = {
     you: "Tap the words, take a guess, then match and pick. There's no clock.",
     action: "Start",
   },
+  wordplay: {
+    title: "Take five words apart",
+    what:
+      "Five compound words with very honest names, like a turtle that's a shield frog. You " +
+      "turn each piece over, guess what the whole word means, then name them from what they " +
+      "say. Three words that only look or sound English come last.",
+    you: "Tap the pieces, take a guess, then pick. There's no clock.",
+    action: "Start",
+  },
   twins: {
     title: "Tell the look-alikes apart",
     what:
