@@ -187,6 +187,22 @@ const ENGLISH_FORMS: Readonly<Record<string, readonly [string, string]>> = {
   "other match": ["other match", "other matches"],
 };
 
+/**
+ * A whole number grouped the way its reader groups digits: "6,274" in English
+ * and "6 274" in Russian and Ukrainian, with a no-break space so the figure
+ * never splits across two lines. One place, because the landing page grouped
+ * its counts and the dictionary and the course printed the same count as
+ * "6274", which reads as a different kind of number.
+ */
+export function grouped(locale: Locale, n: number): string {
+  return n.toLocaleString(locale === "en" ? "en-GB" : locale);
+}
+
+/** `countOf` with its figure grouped: "6,274 words", "6 274 слова". */
+export function countGrouped(locale: Locale, n: number, noun: string, grammaticalCase: CountCase = "nom"): string {
+  return countOf(locale, n, noun, grammaticalCase).replace(String(n), grouped(locale, n));
+}
+
 /** A counted noun's two English forms. */
 export function englishForms(noun: string): readonly [string, string] {
   return ENGLISH_FORMS[noun] ?? [noun, `${noun}s`];

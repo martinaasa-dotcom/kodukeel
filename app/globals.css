@@ -3930,8 +3930,13 @@
 
   body { background: #fff; color: var(--ink); }
 
-  /* The rail, the phone bar, and anything a page marks as screen-only. */
-  nav[aria-label="Main"], .no-print { display: none !important; }
+  /*
+    The rail, the phone bar, Anu's button, and anything a page marks as
+    screen-only. `[data-chrome]` is how the shell marks its own pieces, and
+    Anu's round button was printing in the corner of every worksheet and join
+    poster because only the rail was named here.
+  */
+  nav[aria-label="Main"], [data-chrome], .no-print { display: none !important; }
 
   .page-break { break-before: page; }
   .avoid-break { break-inside: avoid; }

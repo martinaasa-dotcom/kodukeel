@@ -27432,6 +27432,7 @@ check("every route the app has is walked by the containment and accessibility sw
   /* Read off the page by the suite rather than typed, because a row has to exist first. */
   const MADE: Record<string, string> = {
     "/class/[classroomId]": "a classroom the demo fixture lays down, read off /class",
+    "/class/[classroomId]/poster": "the join poster of each classroom the account teaches, asked of the server",
     "/exam/result/[id]": "a paper the containment suite sits and hands in",
     "/scan/[scanId]": "a scanned page the containment suite makes with the model stubbed",
     "/review/deck/[deckId]": "a shelf the demo fixture lays down, read off /words/decks",
@@ -27448,7 +27449,7 @@ check("every route the app has is walked by the containment and accessibility sw
 
   for (const [file, made] of [
     ["scripts/test-containment.mjs", [...Object.keys(MADE), "/exam/[level]"]],
-    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", ...NOT_BY_AXE]],
+    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", "/class/[classroomId]/poster", ...NOT_BY_AXE]],
   ] as const) {
     const entries = listed(file);
     const missing = routes.filter((r) => !made.includes(r) && !entries.some((e) => matches(r, e)));

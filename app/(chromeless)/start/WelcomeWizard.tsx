@@ -240,7 +240,20 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
   // A Cyrillic keyboard has none of the four letters, so a Ukrainian or
   // Russian reader starts on "Show the letters" (`letterBarDefaultFor`).
   const [letters, setLetters] = useState<LetterBar>(letterBarDefaultFor(initialLocale));
-  const [gloss, setGloss] = useState<GlossLanguage>(DEFAULT_GLOSS_LANGUAGE);
+  /*
+    THE MEANINGS FOLLOW THE LANGUAGE ON SCREEN UNTIL THE LEARNER PICKS THEM.
+
+    Choosing to read the app in Russian is the strongest signal there is that
+    somebody wants their meanings in Russian too, and English is printed beside
+    them either way. So a reader arriving in Russian starts with Russian ticked,
+    and the language pill moves the meanings with it, until the learner presses
+    a meanings option themselves; after that a pill press leaves their choice
+    alone, except to take back a language the new screen no longer offers.
+  */
+  const [gloss, setGloss] = useState<GlossLanguage>(
+    initialLocale === "en" ? DEFAULT_GLOSS_LANGUAGE : initialLocale,
+  );
+  const [glossTouched, setGlossTouched] = useState(false);
 
   // A set, because almost nobody has one reason: living here, an Estonian
   // partner and a job where the meetings are in Estonian are three answers to
@@ -487,9 +500,10 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                     <ChoiceChip key={l} selected={locale === l} onSelect={() => {
                       const apply = () => {
                         setLocale(l);
+                        if (!glossTouched) setGloss(l);
                         /* A meaning language the new interface language no longer
                            offers goes back to English rather than staying hidden. */
-                        if (gloss !== "en" && l !== "en" && gloss !== l) setGloss("en");
+                        else if (gloss !== "en" && l !== "en" && gloss !== l) setGloss("en");
                       };
                       /* The browser holds only the language on screen, so a
                          new one is loaded before the wizard is redrawn in it,
@@ -502,11 +516,20 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                   ))}
                 </ChoiceGroup>
               </div>
+              {/*
+                The notice stays on the first screen, in the reader's own
+                language, and the English of it is one press away. Both at
+                once took a third of a phone before the first question.
+              */}
               {locale !== "en" && (
-                <p data-machine-notice className="mt-3 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  <span lang={locale}>{MACHINE_NOTICE[locale]}</span>{" "}
-                  <span lang="en">{MACHINE_NOTICE_EN}</span>
-                </p>
+                <div data-machine-notice className="mt-3 max-w-[62ch]">
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }} lang={locale}>
+                    {MACHINE_NOTICE[locale]}
+                  </p>
+                  <Explain label={t("The same in English")}>
+                    <span lang="en">{MACHINE_NOTICE_EN}</span>
+                  </Explain>
+                </div>
               )}
             </div>
 
@@ -630,7 +653,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                     key={o.id}
                     layout="stacked"
                     selected={gloss === o.id}
-                    onSelect={() => setGloss(o.id)}
+                    onSelect={() => { setGloss(o.id); setGlossTouched(true); }}
                     title={t(o.label)}
                     detail={o.id === "en" ? t("Plain English meanings") : o.native}
                   />

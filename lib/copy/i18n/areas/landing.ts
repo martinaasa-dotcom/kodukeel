@@ -361,6 +361,20 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Short, straight answers. How we compare with other apps is the last one.", "Короткие прямые ответы. Сравнение с другими приложениями в самом конце.", "Короткі прямі відповіді. Порівняння з іншими застосунками в самому кінці."],
   ["Fifteen minutes a day. See you inside.", "Пятнадцать минут в день. До встречи внутри.", "П'ятнадцять хвилин на день. До зустрічі всередині."],
   ["Start learning, and ask Anu inside", "Начать учиться и спросить Ану внутри", "Почати вчитися й запитати Ану всередині"],
+
+  // FOR TEACHERS. A class is for learners of 13 and older (docs/35-launch-quick-wins.md, section 1).
+  ["For teachers", "Для преподавателей", "Для викладачів"],
+  ["Teaching a class or running a group?", "Ведёте класс или группу?", "Ведете клас чи групу?"],
+  ["Your learners join with a short code. You see who is practising and where the group gets stuck, never anybody’s answers or deck.",
+    "Ученики присоединяются по короткому коду. Вы видите, кто занимается и где группа застревает, но никогда не видите чужие ответы или карточки.",
+    "Учні приєднуються за коротким кодом. Ви бачите, хто займається і де група застрягає, але ніколи не бачите чужих відповідей чи карток."],
+  ["It’s free, and the code is open.", "Это бесплатно, а код открыт.", "Це безкоштовно, а код відкритий."],
+  ["For learners aged 13 and older. Younger pupils need an agreement with their school first.",
+    "Для учеников от 13 лет. Для младших сначала нужен договор со школой.",
+    "Для учнів від 13 років. Для молодших спершу потрібна угода зі школою."],
+  ["How the data is handled", "Как обращаются с данными", "Як поводяться з даними"],
+  ["Write to us about a pilot", "Напишите нам о пилотном проекте", "Напишіть нам про пілотний проєкт"],
+  ["A Kodukeel pilot", "Пилотный проект Kodukeel", "Пілотний проєкт Kodukeel"],
 ];
 
 export const LANDING: Area = {

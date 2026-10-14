@@ -124,6 +124,7 @@ export const START: Area = {
     "Russian": "Русский",
     "Plain English meanings": "Значения на английском",
     "What stays in English": "Что остаётся на английском",
+    "The same in English": "То же по-английски",
     "You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.":
       "Английское значение вы тоже будете видеть всегда. Русские значения взяты прямо из эстонского словаря, их писали те же люди, что и эстонскую часть.",
     "One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.":
@@ -410,6 +411,7 @@ export const START: Area = {
     "Ukrainian": "Українська",
     "Plain English meanings": "Значення англійською",
     "What stays in English": "Що залишається англійською",
+    "The same in English": "Те саме англійською",
     "You’ll always see the English as well. The Russian and Ukrainian meanings come straight from the Estonian dictionary, written by the same people as the Estonian.":
       "Англійське значення ви теж завжди бачитимете. Українські значення взято просто з естонського словника, їх писали ті самі люди, що й естонську частину.",
     "One honest note before you start: Kodukeel will not score your pronunciation, let an AI grade you, or replace a teacher. It’s where you rehearse. The real conversations happen out there.":

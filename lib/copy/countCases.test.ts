@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { countOf, countedNoun, englishForms, type CountCase } from "./locale";
+import { countGrouped, countOf, countedNoun, englishForms, grouped, type CountCase } from "./locale";
 import { COUNT_CASES, COUNTED, COUNTED_NOUNS } from "./i18n/counted";
 
 /*
@@ -91,5 +91,14 @@ describe("English counts without the tables", () => {
     expect(countOf("en", 1, "person")).toBe("1 person");
     expect(countOf("en", 3, "person")).toBe("3 people");
     expect(countOf("en", 2, "pages")).toBe("2 pages");
+  });
+});
+
+describe("a large count is grouped the way its reader groups digits", () => {
+  it("puts a comma in English and a no-break space in Russian and Ukrainian", () => {
+    expect(countGrouped("en", 6274, "word")).toBe("6,274 words");
+    expect(countGrouped("ru", 6274, "word")).toBe("6 274 слова");
+    expect(countGrouped("uk", 1661, "word")).toBe("1 661 слово");
+    expect(grouped("en", 999)).toBe("999");
   });
 });

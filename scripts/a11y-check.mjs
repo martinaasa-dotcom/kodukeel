@@ -239,6 +239,13 @@ await page.goto(`${BASE}/class`, { waitUntil: "load" });
 const groups = [...new Set(await page.locator('a[href^="/class/"]')
   .evaluateAll((links) => links.map((a) => a.getAttribute("href"))).catch(() => []))];
 ROUTES.push(...groups);
+/* And the join poster of each, which answers its teacher and nobody else, so
+   it is asked of the server rather than assumed (as the containment suite
+   does). A group this account only belongs to has none. */
+for (const g of groups) {
+  const status = await fetch(`${BASE}${g}/poster`, { redirect: "manual" }).then((r) => r.status).catch(() => 0);
+  if (status === 200) ROUTES.push(`${g}/poster`);
+}
 
 
 /*

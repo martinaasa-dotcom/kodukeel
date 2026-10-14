@@ -35,10 +35,11 @@ import { SOURCE_CREDITS } from "@/lib/legal/credits";
 import { SpelledCount, spelledCount } from "@/lib/copy/values";
 import { Languages } from "lucide-react";
 import { LocaleProvider } from "@/components/Locale";
+import { resolveOperator } from "@/lib/legal/operator";
 import { areaTable } from "@/lib/copy/i18n/tables";
 import { LANDING_BORROWS } from "@/lib/copy/i18n/areas/landing";
 import { rich } from "@/components/Rich";
-import { MACHINE_SHORT, countOf, languagesBeside, fill, tr, type Locale } from "@/lib/copy/locale";
+import { MACHINE_SHORT, countGrouped, grouped, languagesBeside, fill, tr, type Locale } from "@/lib/copy/locale";
 import { LANDING_HREF, langParam, localeHref } from "@/lib/copy/publicLocale";
 import { ENTRY_COPY, ENTRY_LOCALES, MACHINE_TRANSLATED_EN, type EntryLocale } from "@/lib/copy/entryLocales";
 import { questionReading } from "@/lib/estonian/cases";
@@ -83,8 +84,8 @@ function sayIn(locale: Locale): Say {
     t: (english, context) => tr(locale, english, context),
     href: (path) => localeHref(path, locale),
     count: (n) => (locale === "en" ? spelledCount(n) : String(n)),
-    big: (n) => n.toLocaleString(locale === "en" ? "en-GB" : locale),
-    counted: (n, noun) => countOf(locale, n, noun).replace(String(n), n.toLocaleString(locale === "en" ? "en-GB" : locale)),
+    big: (n) => grouped(locale, n),
+    counted: (n, noun) => countGrouped(locale, n, noun),
   };
 }
 
@@ -161,6 +162,7 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
         <Plan say={say} />
         <Questions say={say} />
         <FinalCta say={say} />
+        <ForTeachers say={say} contact={resolveOperator().email} />
       </main>
 
       <Footer say={say} copy={copy} />
@@ -1556,6 +1558,64 @@ function FinalCta({ say }: { say: Say }) {
           </div>
         </div>
       </Reveal>
+    </section>
+  );
+}
+
+/* ──────────────────────────────────────────────────── teachers ── */
+
+/**
+ * THE ONE WAY IN FOR A TEACHER, AND WHAT IS TRUE FOR THEM IN FOUR LINES.
+ *
+ * The page mentioned teachers four times and offered one no way in: nothing
+ * said this was for a class, and the trust page sat in the footer. So a
+ * compact band under the close, where a teacher or a programme officer who has
+ * read this far is looking, with only facts that are true today and checkable:
+ * a class joins with a code, the teacher sees effort and the group's sticking
+ * points and never anybody's answers (`lib/classroom/roster.ts`), it is free
+ * and open, and it is for learners aged 13 and older. That last is the
+ * operator's standing decision (docs/35-launch-quick-wins.md, section 1): no
+ * pupil accounts, no class-code sign-in and no under-13s are promised here,
+ * and there is no count of schools, because there are none to count.
+ *
+ * The mail link appears only where the deployment names who runs it, and the
+ * page is static, so that is read once when it is built.
+ */
+function ForTeachers({ say, contact }: { say: Say; contact: string | null }) {
+  const { t } = say;
+  const subject = encodeURIComponent(t("A Kodukeel pilot"));
+  return (
+    <section id="teachers" aria-labelledby="teachers-title" className="mx-auto w-full max-w-5xl scroll-mt-24 px-5 md:px-8">
+      <div
+        className="rounded-[var(--r-xl)] border p-6 md:p-8"
+        style={{ background: "var(--surface)", borderColor: "var(--edge)" }}
+      >
+        <p className="section-tag" data-tone="accent">{t("For teachers")}</p>
+        <h2 id="teachers-title" className="mt-3 text-xl font-semibold" style={{ color: "var(--ink)" }}>
+          {t("Teaching a class or running a group?")}
+        </h2>
+        <p className="mt-3 max-w-[64ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          {t("Your learners join with a short code. You see who is practising and where the group gets stuck, never anybody’s answers or deck.")}{" "}
+          {t("It’s free, and the code is open.")}
+        </p>
+        <p className="mt-2 max-w-[64ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          {t("For learners aged 13 and older. Younger pupils need an agreement with their school first.")}
+        </p>
+        <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold">
+          <li>
+            <Link href={say.href("/trust")} className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
+              {t("How the data is handled")}
+            </Link>
+          </li>
+          {contact && (
+            <li>
+              <a href={`mailto:${contact}?subject=${subject}`} className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
+                {t("Write to us about a pilot")}
+              </a>
+            </li>
+          )}
+        </ul>
+      </div>
     </section>
   );
 }
