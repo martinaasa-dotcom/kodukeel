@@ -9,7 +9,10 @@ import { resolveOperator } from "@/lib/legal/operator";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "For teachers");
+  return publicTitle(searchParams, "For teachers", undefined, {
+    description: "Put a code on the board. See who is practising and what the group keeps getting wrong.",
+    path: "/teachers",
+  });
 }
 
 /*
