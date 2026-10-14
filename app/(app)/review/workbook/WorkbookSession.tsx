@@ -480,6 +480,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
               index={i}
               value={typed[line.id] ?? ""}
               retyped={(typed[line.id] ?? "") !== (checkedAs[line.id] ?? "")}
+              last={line.id === open.at(-1)?.id}
               mark={marks[line.id]}
               firstMark={firstMarks[line.id]}
               outcome={outcomes[line.id]}
@@ -537,7 +538,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
 
 /** One numbered line: the sentence, the word in brackets, the box, and what was said about it. */
 function SheetLine({
-  line, number, index, value, retyped, mark, firstMark, outcome, pass, english, onChange, onKeyDown, register, onFocus,
+  line, number, index, value, retyped, last, mark, firstMark, outcome, pass, english, onChange, onKeyDown, register, onFocus,
 }: {
   line: WorkbookLine;
   number: number;
@@ -545,6 +546,8 @@ function SheetLine({
   value: string;
   /** Changed since the page was checked: a fresh try, so it is no longer drawn as the wrong one. */
   retyped: boolean;
+  /** The last box still open, whose Enter checks the page rather than moving on. */
+  last: boolean;
   mark: LineMark | undefined;
   firstMark: LineMark | undefined;
   outcome: Outcome | undefined;
@@ -607,6 +610,8 @@ function SheetLine({
               aria-label={fill(t("Line {n}: {word}, in the form the sentence needs"), { n: number, word: cueText(line) })}
               aria-invalid={reopened ? true : undefined}
               autoComplete="off"
+              // A phone's own Enter key says what Enter does here: on to the next box, or check.
+              enterKeyHint={last ? "done" : "next"}
               autoCapitalize="off"
               autoCorrect="off"
               spellCheck={false}
