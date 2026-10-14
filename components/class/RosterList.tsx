@@ -41,7 +41,12 @@ export function RosterList({ entries, viewerId, isTeacher, locale }: {
             {i === 0 && entry.reviewsThisWeek > 0
               ? <Trophy size={16} aria-hidden style={{ color: "var(--hard-ink)" }} />
               : <span className="w-4" aria-hidden />}
-            <span className="min-w-0 flex-1">
+            {/*
+              The name keeps at least 10rem, so where a translated count is
+              long the streak and the count wrap under it, pushed to the right,
+              rather than squeezing the name until its letters break apart.
+            */}
+            <span className="min-w-0 flex-1 basis-40">
               <span className="block text-base" style={{ color: "var(--ink)" }}>
                 {entry.displayName}
                 {entry.role === "TEACHER" && (
@@ -71,10 +76,10 @@ export function RosterList({ entries, viewerId, isTeacher, locale }: {
                 </span>
               )}
             </span>
-            <span className="flex items-center gap-1 text-xs" style={{ color: "var(--ink-2)" }}>
+            <span className="ml-auto flex items-center gap-1 text-xs" style={{ color: "var(--ink-2)" }}>
               {entry.streak}<Flame size={13} aria-hidden style={{ color: entry.streak > 0 ? "var(--hard-ink)" : "var(--ink-3)" }} />
             </span>
-            <span className="tnum w-24 text-right text-sm" style={{ color: "var(--ink)" }}>
+            <span className="tnum ml-auto min-w-24 whitespace-nowrap text-right text-sm" style={{ color: "var(--ink)" }}>
               {countOf(locale, entry.reviewsThisWeek, "review")}
             </span>
           </li>
