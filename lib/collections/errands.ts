@@ -141,6 +141,11 @@ export const ERRANDS: readonly Errand[] = [
   { id: "askmore", says: "Ask somebody how they are, and ask one more question about the answer.", where: "With a friend, work", unit: "tunded", scene: "sobra-mure" },
   { id: "wouldwork", says: "Ask for something at work using would: I would like, could we.", where: "Work", unit: "tingiv", scene: "palk" },
   { id: "ground", says: "Hold your ground politely when somebody says no.", where: "Anywhere", unit: "eluase", scene: "tagatisraha" },
+  { id: "twoyous", says: "Ask the same thing twice today: once of somebody you say sina to, and once of somebody you say teie to.", where: "Anywhere", unit: "register", scene: "kolm-palvet" },
+  { id: "heard", says: "Tell somebody one piece of news you read, as something you heard.", where: "Anywhere", unit: "kaudne", scene: "kuulsin" },
+  { id: "reason", says: "Give one reason for something you want, in Estonian, to more than one person.", where: "A meeting, a group", unit: "uhiskond", scene: "elanike-koosolek" },
+  { id: "figure", says: "Say one number and what it means out loud: it rose, it fell, by how much.", where: "Work, the news", unit: "statistika", scene: "graafik" },
+  { id: "opinion", says: "Say what you thought of something you read or watched, and one reason.", where: "With a friend", unit: "kirjandus", scene: "raamatuklubi" },
 ];
 
 /**

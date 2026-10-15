@@ -160,6 +160,11 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   "sobra-mure": { icon: "Heart", setting: "cafe" },
   palk: { icon: "TrendingUp", setting: "meeting" },
   tagatisraha: { icon: "KeyRound", setting: "home_phone" },
+  "kolm-palvet": { icon: "MessagesSquare", setting: "cafe" },
+  kuulsin: { icon: "Megaphone", setting: "stairwell" },
+  "elanike-koosolek": { icon: "Users", setting: "meeting" },
+  graafik: { icon: "TrendingUp", setting: "meeting" },
+  raamatuklubi: { icon: "BookOpen", setting: "cafe" },
 };
 
 /**
@@ -202,6 +207,8 @@ export const MOVES: Readonly<Record<string, Readonly<Record<string, Setting>>>> 
   "poodi-piima": { inside: "shop", back: "walking" },
   /* The stop, then the bus: the question about stops is asked of the driver. */
   bussipeatus: { stops: "bus" },
+  /* The friend at the café, the manager at work, the official at a desk. */
+  "kolm-palvet": { manager: "meeting", official: "office" },
 };
 
 /** The room a beat moves into, where it moves you at all. */

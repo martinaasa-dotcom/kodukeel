@@ -243,6 +243,11 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   kunst: "sobra-mure",
   sonamoodustus: "palk",
   psuhholoogia: "tagatisraha",
+  diskursus: "kolm-palvet",
+  nominalisatsioon: "kuulsin",
+  poliitika: "elanike-koosolek",
+  statistika: "graafik",
+  kirjandus: "raamatuklubi",
 };
 
 /**

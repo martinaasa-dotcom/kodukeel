@@ -264,6 +264,19 @@ export interface BeatSpec {
    */
   readonly says?: readonly SaysPart[];
   /**
+   * A REGISTER OF THIS BEAT'S OWN, WHERE THE SCENE'S DOES NOT HOLD FOR IT.
+   *
+   * A scene holds one register (`SceneSpec.register`), and one scene asks the
+   * same favour of a friend and then of an official, which is the whole of
+   * what `register`'s claim describes. Absent on every other beat, and then
+   * nothing reads it. Where it is set it does two things and no more: the
+   * gate holds this beat's lines to its pronoun (`runGate`), and a
+   * `{ kind: "register" }` requirement on it is read strictly, met by this
+   * register's pronoun or a second person verb in it and refused by the
+   * other one (`readTurn`), where on every other beat it takes any Estonian.
+   */
+  readonly register?: "teie" | "sina";
+  /**
    * What they say when the learner turns the offer down: a second offer.
    *
    * A person who hears "ei sobi" does not take it as the end of the

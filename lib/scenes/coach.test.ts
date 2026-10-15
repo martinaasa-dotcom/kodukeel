@@ -22,6 +22,23 @@ const CARD: RoleCard = {
 };
 
 describe("the hint the app gives", () => {
+  /*
+    A beat with a register of its own is asking for that register, and a
+    learner who used the other one cannot see why the turn did not land:
+    the words were right. The hint says which "you" this person gets, in
+    English, and never writes the pronoun.
+  */
+  it("says which you a beat with its own register wants, and nothing on other beats", () => {
+    const ask = (register?: "teie" | "sina"): BeatSpec => ({
+      ...BEAT, id: "ask", register, needs: [{ kind: "register" }, { kind: "lemma", oneOf: ["aitama"] }],
+    });
+    expect(coachFor(ask("sina"), null, [false, true])).toMatch(/informal/);
+    expect(coachFor(ask("teie"), null, [false, true])).toMatch(/formal/);
+    expect(coachFor(ask("teie"), null, [false, true])).not.toMatch(/\b(te|teie|sina|sa)\b/);
+    // The scene-wide register requirement (the English curveball's way out) still has nothing to say.
+    expect(coachFor(ask(), null, [false, true])).toBeNull();
+  });
+
   it("names the word and the case, and never the form", () => {
     const said = coachFor(BEAT, null);
     expect(said).toContain("pood");

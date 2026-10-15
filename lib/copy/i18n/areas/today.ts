@@ -364,6 +364,16 @@ export const TODAY: Area = {
     "Назовите вслух по-эстонски цену или этаж, на котором живёте, и попросите повторить.",
   "Ask for something politely with would: could I, would you.":
     "Попросите о чём-нибудь вежливо, в условном наклонении: не могли бы вы, можно было бы.",
+  "Ask the same thing twice today: once of somebody you say sina to, and once of somebody you say teie to.":
+    "Сегодня попросите об одном и том же дважды: один раз того, кому говорите sina, и один раз того, кому говорите teie.",
+  "Tell somebody one piece of news you read, as something you heard.":
+    "Расскажите кому-нибудь одну новость, которую вы прочитали, как то, что вы слышали.",
+  "Give one reason for something you want, in Estonian, to more than one person.":
+    "Назовите по-эстонски одну причину того, чего вы хотите, сразу нескольким людям.",
+  "Say one number and what it means out loud: it rose, it fell, by how much.":
+    "Скажите вслух одно число и что оно значит: выросло, упало, на сколько.",
+  "Say what you thought of something you read or watched, and one reason.":
+    "Скажите, что вы думаете о прочитанном или увиденном, и назовите одну причину.",
   "Describe a problem with a device in Estonian: one sentence for what it does, and one for what you tried.":
     "Опишите по-эстонски проблему с каким-нибудь устройством: одно предложение о том, что происходит, и одно о том, что вы пробовали.",
   "Say you disagree with something, politely, in Estonian.":
@@ -1402,6 +1412,20 @@ export const TODAY: Area = {
     "Назвіть уголос естонською ціну або поверх, на якому живете, і попросіть повторити.",
   "Ask for something politely with would: could I, would you.":
     "Попросіть про щось ввічливо, в умовному способі: чи не могли б ви, чи можна було б.",
+  "Ask the same thing twice today: once of somebody you say sina to, and once of somebody you say teie to.":
+    "Сьогодні попросіть про одне й те саме двічі: один раз того, кому кажете sina, і один раз того, кому кажете teie.",
+  "Tell somebody one piece of news you read, as something you heard.":
+    "Розкажіть комусь одну новину, яку ви прочитали, як те, що ви чули.",
+  "Give one reason for something you want, in Estonian, to more than one person.":
+    "Назвіть естонською одну причину того, чого ви хочете, одразу кільком людям.",
+  "A meeting, a group":
+    "Збори, група",
+  "Say one number and what it means out loud: it rose, it fell, by how much.":
+    "Скажіть уголос одне число і що воно означає: зросло, впало, на скільки.",
+  "Work, the news":
+    "Робота, новини",
+  "Say what you thought of something you read or watched, and one reason.":
+    "Скажіть, що ви думаєте про прочитане чи побачене, і назвіть одну причину.",
   "Describe a problem with a device in Estonian: one sentence for what it does, and one for what you tried.":
     "Опишіть естонською проблему з якимось пристроєм: одне речення про те, що відбувається, і одне про те, що ви пробували.",
   "Home, a shop":

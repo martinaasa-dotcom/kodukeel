@@ -487,6 +487,11 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
   const lexicon = buildLexicon(rows);
 
   const hasFiniteVerb = finiteVerbs(rows);
+  // Both registers' pronouns, for a beat that names one of its own (`BeatSpec.register`).
+  const pronounForms = {
+    teie: formsOfLemmas(rows, [REGISTER_PRONOUN.teie]),
+    sina: formsOfLemmas(rows, [REGISTER_PRONOUN.sina]),
+  };
   const marker = {
     lexicon,
     // What each slot on the card holds, so a datum can take a value the learner chose (ADR-025 amendment 3).
@@ -496,6 +501,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
     negators: formsOfLemmas(rows, NEGATORS),
     tooLittle: formsOfLemmas(rows, TOO_LITTLE),
     registerForms: formsOfLemmas(rows, [REGISTER_PRONOUN[scene.register]]),
+    pronounForms,
     hasFiniteVerb,
   };
 
@@ -507,7 +513,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
     scene,
     lexicon,
     gate: {
-      lexicon, wrongRegister, governed: governedIn(rows), caseOf: caseIndex(lexicon),
+      lexicon, wrongRegister, pronounForms, governed: governedIn(rows), caseOf: caseIndex(lexicon),
       subjects: subjectsIn(rows),
       /*
         AND THE QUESTION WORDS, which the gate's own government check names in
