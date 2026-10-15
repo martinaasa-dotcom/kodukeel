@@ -209,7 +209,7 @@ async function sweepScene(scene: SceneSpec) {
         next: (floor) => {
           const first = !firsts.has(floor.target.id);
           firsts.add(floor.target.id);
-          return learner(floor, rightAnswer(floor.target, floor.card, context.lexicon, scene.register), first);
+          return learner(floor, rightAnswer(floor.target, floor.card, context.lexicon, floor.target.register ?? scene.register), first);
         },
       });
       conversations += 1;

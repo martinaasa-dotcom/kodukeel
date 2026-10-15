@@ -48,8 +48,19 @@ import { countOf, fill, translated } from "@/lib/copy/locale";
  * off is handed no tokens on the next screen, so this component is never asked
  * to draw a feature nobody wants.
  */
-export function GlossedSentence({ tokens, sentence, speak }: {
+export function GlossedSentence({ tokens, sentence, speak, prose = false, offerTurnOff = true }: {
   tokens: GlossedToken[];
+  /**
+   * Set as running text rather than as a card's one bold line: reading mode
+   * draws a whole pasted paragraph out of these, sentence after sentence.
+   */
+  prose?: boolean;
+  /**
+   * Whether the panel offers to stop underlining words. Reading mode is the one
+   * place the underlines are the point, so it shows them whatever the setting
+   * says and does not offer to switch them off.
+   */
+  offerTurnOff?: boolean;
   /** The sentence as recorded, for the speaker. Joining the tokens gives the same string. */
   sentence: string;
   /**
@@ -106,7 +117,7 @@ export function GlossedSentence({ tokens, sentence, speak }: {
   return (
     <div className="w-full">
       <div className="flex items-start gap-2">
-        <p ref={line} tabIndex={-1} lang="et" className="flex-1 text-lg font-semibold leading-snug outline-none" style={{ color: "var(--ink)" }}>
+        <p ref={line} tabIndex={-1} lang="et" className={`flex-1 outline-none ${prose ? "text-md leading-relaxed" : "text-lg font-semibold leading-snug"}`} style={{ color: "var(--ink)" }}>
           {tokens.map((token, i) => {
             if (token.taught) {
               return (
@@ -186,7 +197,7 @@ export function GlossedSentence({ tokens, sentence, speak }: {
             spelling={chosen.text}
             entry={chosen.entry}
             onClose={close}
-            onTurnOff={() => setDismissed(true)}
+            onTurnOff={offerTurnOff ? () => setDismissed(true) : null}
           />
         )}
       </div>
@@ -217,8 +228,8 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
   spelling: string;
   entry: NonNullable<GlossedToken["entry"]>;
   onClose: () => void;
-  /** Draw the sentence plain, now, while the answer is on its way to the server. */
-  onTurnOff: () => void;
+  /** Draw the sentence plain, now, while the answer is on its way to the server. Null where the page does not offer it. */
+  onTurnOff: (() => void) | null;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -232,7 +243,7 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
   const router = useRouter();
 
   const turnOff = () => {
-    onTurnOff();
+    onTurnOff?.();
     startLeaving(async () => {
       // Caught so a dropped connection cannot take the card with it; the
       // refresh that would put the setting's own answer back is skipped too.
@@ -357,7 +368,7 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
         primary and a column leads with it, and a wrapping row of two is
         whichever of those the width decides. A line of its own is neither.
       */}
-      <div className="mt-2.5 border-t pt-2" style={{ borderColor: "var(--rule)" }}>
+      {onTurnOff && <div className="mt-2.5 border-t pt-2" style={{ borderColor: "var(--rule)" }}>
         <button
           type="button"
           onClick={turnOff}
@@ -377,7 +388,7 @@ function WordPanel({ spelling, entry, onClose, onTurnOff }: {
           <Underline size={13} aria-hidden />
           {t("Stop underlining words")}
         </button>
-      </div>
+      </div>}
       <span className="sr-only" role="status">{result ? `${entry.lemma}: ${result}` : ""}</span>
     </div>
   );

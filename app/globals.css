@@ -1229,23 +1229,22 @@
   .field:focus, .field-lg:focus { box-shadow: var(--shadow); }
 
   /*
-    A SET OF CHOICE CARDS TAKES AS MANY COLUMNS AS ITS OWN WIDTH HOLDS.
+    A SET OF ANSWER OPTIONS IS ONE COLUMN, 1 THEN 2 THEN 3 THEN 4.
 
-    Eleven groups on Settings were `grid sm:grid-cols-2` or `sm:grid-cols-3`,
-    which asks the window how wide it is. At 768 the window says 768 and the
-    rail, the gutter kept for Anu's button and the page padding leave 368px
-    of it, which Settings then splits into two columns of panels, so a group
-    of three cards was drawn in about 170px: 19px for "Always" and 43px for
-    "English". `overflow-wrap: anywhere` broke every title into letters
-    rather than let it overflow, which is why the containment sweep read the
-    page as clean. The count comes from the room the group actually has:
-    12rem is a card's icon, a two-word title and its tick, and `min(100%,
-    ...)` keeps a single column inside anything narrower than that.
+    It was `auto-fit`, which counted columns from the room the group had and
+    drew four options as three on a row with the fourth alone underneath.
+    The numbers are keys (1 to 4 press them), so the order a learner reads
+    them in has to be the order they press them in, and a stray option on a
+    row of its own reads as a layout fault rather than as a choice. One
+    column is also what the review card does. The width is no longer a
+    question, which is what the 12rem minimum was answering: a single column
+    takes whatever its card has, so a long Estonian form never gets squeezed
+    into a sliver beside its neighbour.
   */
   .choice-grid {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
   }
 
   /*
@@ -3281,6 +3280,58 @@
     }
   }
   .choice-btn:active:not(:disabled) { transform: translateY(0) scale(0.99); box-shadow: none; }
+
+  /*
+    THE MATCHING TABLE (`ConjugationSession`, `shape: "match"`).
+
+    A row there used to wear `.field`, the shape of a text box, and a learner
+    typed at it and nothing happened: it was a button dressed as an input. So
+    a slot is its own object now, a dashed outline while it is empty, solid
+    once a form is in it, and the one the next form will land in carries the
+    accent edge and says so. A form to place is a chip in the accent, set
+    above the table where the eye arrives first, and one that has been used
+    is crossed out and dashed rather than only dimmed, which is what tells two
+    spellings of `on` apart: the same word twice is the case a fade cannot
+    explain and a strike can. The strike is on the text, never an `opacity`
+    over the box, for the rule about faded words.
+  */
+  .match-bank {
+    background: var(--accent-soft);
+    border: 1.5px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: var(--r-lg);
+  }
+  .match-chip {
+    --choice-border: var(--accent);
+    --choice-bg: var(--surface);
+    border-width: 2px;
+    color: var(--accent-deep);
+    font-weight: 600;
+    box-shadow: var(--depth-sm);
+  }
+  .match-chip:disabled {
+    --choice-border: var(--edge);
+    --choice-bg: transparent;
+    border-style: dashed;
+    color: var(--ink-3);
+    font-weight: 500;
+    box-shadow: none;
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+  }
+  .match-slot {
+    border-width: 2px;
+    border-radius: var(--r);
+    padding: 10px 16px;
+    min-height: 3rem;
+  }
+  .match-slot[data-empty] { --choice-border: var(--edge); border-style: dashed; color: var(--ink-3); }
+  .match-slot[data-active] {
+    --choice-border: var(--accent);
+    --choice-bg: var(--accent-soft);
+    border-style: solid;
+    color: var(--accent-deep);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
 
   /*
     A VERDICT, PAINTED ONCE.

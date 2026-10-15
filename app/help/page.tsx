@@ -7,12 +7,10 @@ import { localeHref } from "@/lib/copy/publicLocale";
 import { databaseAnswersRecently } from "@/lib/health";
 import { resolveOperator } from "@/lib/legal/operator";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicCard } from "@/lib/copy/publicCards";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Help", undefined, {
-    description: "Whether Kodukeel is working, what to try when you cannot sign in, and where your data is.",
-    path: "/help",
-  });
+  return publicTitle(searchParams, "Help", undefined, publicCard("/help"));
 }
 
 /*

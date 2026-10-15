@@ -10,7 +10,7 @@ import { starredAmong } from "@/lib/progress/stars";
 import { DictationSession, type DictationTask } from "./DictationSession";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { shuffle } from "@/lib/random/shuffle";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { lemmaFilter, sentenceWithin } from "@/lib/course/scope";
 import { moduleSpellings, practiceScope } from "@/lib/progress/moduleScope";
 
@@ -45,7 +45,7 @@ export default async function DictationPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const ownerId = await requireUserId();
-  const canTranslate = resolveProvider() !== null;
+  const canTranslate = offered("translate");
 
   /*
     OPENED FROM THE MODULE, ONLY A SENTENCE MADE OF TAUGHT WORDS IS DICTATED.

@@ -1398,7 +1398,10 @@ export function ReviewSession({
         return;
       }
 
-      if (isAdvanceKey(e)) {
+      /* A first meeting, and a multiple choice not yet answered, play the
+         word's own audio on Space (the cap beside the speaker says so), so
+         only Enter moves on from either. */
+      if (isAdvanceKey(e, ask === "intro" || (ask === "choice" && !chosen))) {
         // While the answer box has focus it owns both keys: a space belongs in
         // the answer, and Enter is the input's own "check this". React flushes
         // discrete events synchronously, so without this the *same* Enter would
@@ -1481,25 +1484,19 @@ export function ReviewSession({
             deck can have plenty due and this round still have nothing to ask,
             and a screen saying every card is scheduled for later sends the
             learner off to check a deck that is fine. What is true is that
-            today's review is finished.
-
-            AND THE WAY ON HAS TO BE DRAWN HERE. The copy said "on to the next
-            step" and drew nothing to press: the phone's bar goes at the foot
-            of a step's end, and a desktop has no bar at all, so the learner
-            was left reading an instruction with no control under it. `Empty`
-            only draws its `WayOut` when it is handed an action, and inside a
-            module `WayOut` swaps whatever it is given for the module's own
-            button, "Next, step 4: ..." or, because the review closes the
-            evening, "Finish today's module". The `ButtonLink` is therefore
-            never the thing on screen here; it is what makes `Empty` draw the
-            slot, and the honest fallback if the frame ever is not there.
-            Before the two branches below, since both of them answer for
-            somebody who walked here themselves.
+            today's review is finished, and the way on is the module's own
+            bar underneath rather than an action here, which is why `Empty`
+            withholds one inside a step. Before the two branches below, since
+            both of them answer for somebody who walked here themselves.
           */
           <Empty
             title={t("That's today's review done")}
             body={t("You've been through every word today's module had for you. On to the next step.")}
-            action={<ButtonLink href="/course" variant="primary">{t("Open today's module")}</ButtonLink>}
+            /* `Empty` draws a way out only where it is handed one, and inside a
+               module `WayOut` swaps whatever it is handed for the module's own
+               "Next". Without one this was a dead end on a wide screen, where
+               there is no bar underneath to carry the evening on. */
+            action={<></>}
           />
         ) : totalCards === 0 ? (
           <Empty
@@ -1804,7 +1801,7 @@ export function ReviewSession({
                 sentence once the answer is in. Not just `CLOZE`: a `CASE_FORM`
                 or `CONJUGATION` front is a gap-fill sentence too now. */}
             {estonianSide(card.cardType, "front") && !isGap(card) && (
-              <Speak text={card.lemma ?? card.front} />
+              <Speak text={card.lemma ?? card.front} spaceKey={ask === "choice" && !chosen} />
             )}
           </div>
           )}

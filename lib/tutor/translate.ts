@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { buildSystemPrompt } from "./prompt";
 import { openWithFallback, resolveProviders } from "./provider";
+import { isOff } from "@/lib/usage/switches";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { findTells } from "@/lib/copy/voice";
 import { humanizeLine } from "./humanize";
@@ -81,7 +82,8 @@ async function ask(
   // here only for whether anything is configured at all, which decides the
   // screen; which links it holds is decided below, once the ledger has said
   // whether the last resort is affordable.
-  if (resolveProviders({ purpose: "grader" }).length === 0) {
+  // Switched off with `PAID_OFF` is the same answer as no key at all.
+  if (isOff("translate") || resolveProviders({ purpose: "grader" }).length === 0) {
     return { ok: false, reason: "unavailable" };
   }
 

@@ -598,7 +598,7 @@ function FriendCard({ question, index, total, picked, revealed, streak, isLast, 
       <div className="px-6 pt-6 text-center">
         <div className="flex items-center justify-center gap-2">
           <FitText as="p" text={question.word} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
-          <Speak text={question.word} />
+          <Speak text={question.word} spaceKey={!revealed} />
         </div>
         <p className="mt-2 text-md font-semibold" style={{ color: "var(--ink)" }}>{t("It's an Estonian word. What does it mean?")}</p>
       </div>

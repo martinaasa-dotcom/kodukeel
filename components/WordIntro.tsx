@@ -129,7 +129,7 @@ export function WordIntro({
         <FitText as="p" text={lemma} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
         {/* Read aloud on arrival: the first time a word is met is the one time
             hearing it is worth more than reading it. */}
-        <Speak text={lemma} autoplay={autoplay} />
+        <Speak text={lemma} autoplay={autoplay} spaceKey />
       </div>
       {/*
         THE MEANING IN THE LANGUAGE THE LEARNER THINKS IN LEADS, AND THE
@@ -141,20 +141,42 @@ export function WordIntro({
         word is being learned. The English stays, because it is the one column
         every entry has (lib/collections/glossLanguage.ts).
       */}
-      {equivalent && (
-        <p className="text-md font-semibold" style={{ color: "var(--ink)" }}>
-          <span lang={equivalent.lang}>{equivalent.text}</span>
-          {also && (
-            <span lang={also.lang} className="ml-2 text-sm font-normal" style={{ color: "var(--ink-3)" }}>
-              {also.text}
-            </span>
+      {/*
+        THE MEANING IS LABELLED AS A MEANING, BECAUSE A BARE GLOSS CAN LOOK
+        LIKE SOMETHING TO TYPE.
+
+        `mina` is glossed "I", one thin glyph in small grey type under a word
+        and over a rule, and a learner reported reading it as a text cursor
+        waiting for them on the very first card they ever saw. Nothing on
+        this screen asks for anything, so the screen has to say what each
+        thing on it is: a quiet "It means" over the meaning, and the meaning
+        set at a size and weight no cursor has. There is no rule under it
+        either, since a short line beneath a word is how every other screen
+        in the app draws a place to write.
+      */}
+      {(equivalent || gloss) && (
+        <div className="flex flex-col gap-1">
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("It means")}</p>
+          {equivalent && (
+            <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
+              <span lang={equivalent.lang}>{equivalent.text}</span>
+              {also && (
+                <span lang={also.lang} className="ml-2 text-sm font-normal" style={{ color: "var(--ink-3)" }}>
+                  {also.text}
+                </span>
+              )}
+            </p>
           )}
-        </p>
-      )}
-      {gloss && (
-        <p lang="en" className={equivalent ? "text-sm" : "text-base"} style={{ color: "var(--ink-2)" }}>
-          {sameSpelling(lemma, gloss) ? t(SAME_SPELLING) : gloss}
-        </p>
+          {gloss && (
+            <p
+              lang="en"
+              className={equivalent ? "text-sm" : "text-lg font-semibold"}
+              style={{ color: equivalent ? "var(--ink-2)" : "var(--ink)" }}
+            >
+              {sameSpelling(lemma, gloss) ? t(SAME_SPELLING) : gloss}
+            </p>
+          )}
+        </div>
       )}
       {alsoSaid && (
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
@@ -169,8 +191,6 @@ export function WordIntro({
         the sentence because a joke after the example reads as an afterthought.
       */}
       <WordFun lemma={lemma} gloss={gloss} t={t} locale={locale} />
-
-      <div className="my-1 h-1 w-14 rounded-full" style={{ background: "var(--accent-soft)" }} />
 
       {firstCardEver && (
         <p className="max-w-md text-sm" style={{ color: "var(--ink-2)" }}>

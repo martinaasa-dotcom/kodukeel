@@ -5501,6 +5501,17 @@ as contributed sentences land, and the two ways out are both worse than saying i
 readability rule open for the words that need it least, or inventing a question the dictionary
 cannot support.
 
+**And a B2 word spelled like a verb is not an A1 word.** `too`, the pronoun "that one over there", was
+the third word of the course's first evening. Ekilex bands it B2, and it is spelled exactly like the
+imperative of `tooma`, so `Too on tema, see olen mina.` under a card reading "bring" was unreadable even
+to a B1 learner, who reported it. It is out of `esimesed-verbid` and in `retired.ts`, so the dictionary
+keeps it and no evening teaches it, and `see` carries "this, it" for everything an A1 sentence needs. The
+first evening is four words and the second is still five, so no day id moved. The sentence written for it
+went too, and a second written row that used it (`Too mees elab siin.`) now says `See mees elab siin.`,
+which `npm run check:authored` found. **What was not reproduced is the gloss.** Nothing shipped glosses
+`too` as "bring", so a deployment showing that has a second `too` row older than the course, and written
+sentences are filed by lemma alone, which is how the pronoun's sentence reached it. It was found on 2026-10-15: a learner had added `too` by hand as "bring" (USER, part of speech OTHER, no forms), beside the seed's pronoun, and the pronoun's sentence reached it by lemma. So `authoredFor` takes the entry's provenance, required, and gives a USER or AI row nothing: the rows are written for the words the seed and Ekilex supplied, and `Lexeme` is unique on `(lemma, pos)`, so a spelling is not a word. The learner's row and its two cards are theirs and were left alone.
+
 **What is still outside the rule and is named rather than hidden**: dictation and the picture round
 stay in the A1 rotation and both put an attested sentence in front of a beginner, dictation asking
 for every word of it typed; and the grammar page a day reads prints attested examples. Each is a
@@ -5865,6 +5876,25 @@ read rather than against what the sitting shows**, and inside a module the two d
 for a single new word and produced the empty round in the first place. `roomFor` takes the shown
 count.
 
+**And on the evening a word is met, none of its cards is due, so the quick review asks them anyway.**
+Reported off a real module: the last step said a quick review was next, took the learner there,
+and the round held no card. Learn takes the recognition card to Review, Tähed and the flash round do
+the same to the production card, and the scheduler puts both days out, so a first evening, or any
+evening whose words were not already in the deck, had nothing due by the time it reached its own
+review. Measured against a real database: ten cards after five words, all of them two days away.
+The earlier answer to an empty round was to call the step finished, which is true of the counter and
+not of the evening, since a learner who is sent to a review and shown none has been told something
+false. A quick review of an evening is that evening's own words once more, after a game and a page
+of reading. So the round fills what is left of `MODULE_SESSION` from `day.words`
+(`tonightWhere`), after everything really due and every unseen card: not-yet-due, never a card still
+on the Learn ladder, never a word put aside, never a card answered since the closing round opened
+(`closingOpenedAt`), so a round with two cards to give is over after two. The page and the step's
+own count (`closingLeft`) read the same clause, which is the rule `lib/srs/reviewQueue.ts` is built
+on. Grading a card ahead of its date is what every practice round already does (ADR-016), and only
+this evening's words are touched: the rest of the deck stays the scheduler's. And the empty state
+inside a module is a way on rather than a dead end: `Empty` only draws `WayOut` where it is handed
+an action, so on a wide screen, with no bar underneath, it showed no button at all.
+
 **Meeting the words has the same shape of way out**, which is worth naming because it is the same
 sentence one step up: `cards.length > 0` is what stops that step ticking before anybody presses
 Start, and on a deployment whose dictionary holds none of the day's words it was also what stopped
@@ -6019,6 +6049,18 @@ preferred rather than refused, since early in a level the supported rounds may b
 verbs that pins the table on one evening does not meet it on the rotation the next, now that A1
 carries the table on its rotation: the drill after it stands in. Both asserted, and the rule that no
 pair repeats where the words allow another stands over every evening of the ladder unchanged.
+
+**And an A1 learner is never asked to write a sentence of their own.** A flash card read "Write a sentence
+with 'don't go'" over `minema`, which is a whole sentence from nothing, on the most irregular verb in the
+language, in the negative, in the first month. `build` was the last shape a word opened, so a beginner reached
+it by being right, which is the round punishing progress. The flash round takes a `beginner` flag now, drawn at
+`BUILD_FROM` through `mayWriteOwnSentence` so it cannot disagree with where ordering words starts: a beginner
+gets the gap, the heard sentence and the bare ask and no `build`, and a verb is asked in its six present persons
+and nothing harder (`beginnerSlot`), since the negative, the past, the conditional and the imperative are each a
+page of their own. The page reads the programme's level inside the module and the learner's own level anywhere
+else. Asserted in `scripts/invariants/a-beginner-never-writes-a-sentence.ts`. What this does not reach is the
+rounds a beginner can walk to from Practice that ask for a sentence (Say what you see, the workbook's written
+page), which are the learner's own difficulty to pick.
 
 **And then the same rule was asked of every evening of every level, because a beginner is not the
 only person who can be handed something nobody told them.** A2's first evening dealt a case sprint
@@ -10366,8 +10408,8 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 ## Conventions
 
 - TypeScript `strict` plus `noUncheckedIndexedAccess`. No `any` without a comment justifying it.
-- `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/email/`,
-  `lib/estonian/`, `lib/exam/`, `lib/funding/`, `lib/games/`, `lib/learn/`, `lib/offline/`,
+- `lib/assessment/`, `lib/collections/`, `lib/copy/`, `lib/course/`, `lib/curriculum/`,
+  `lib/email/`, `lib/estonian/`, `lib/evidence/`, `lib/exam/`, `lib/funding/`, `lib/games/`, `lib/learn/`, `lib/offline/`,
   `lib/questions/`, `lib/random/`, `lib/readiness/`, `lib/research/`, `lib/scan/`, `lib/scenes/`,
   `lib/security/`, `lib/stats/`, `lib/time/` and `lib/ux/` stay free of React, Next.js and Prisma,
   however many imports away: pure functions, unit tested. Anything that

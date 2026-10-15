@@ -92,7 +92,7 @@ function readWord(
   */
   const examples = [
     // The sentences written for a beginner count too, since the app shows them first (`lib/dict/authored.ts`).
-    ...authoredFor(lemma),
+    ...authoredFor(lemma, "SEED"),
     ...row.examples.map((e) => ({ ...e, source: "EKILEX" as const })),
   ];
   for (const example of usableExamples(examples)) {

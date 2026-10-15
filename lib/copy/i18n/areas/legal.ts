@@ -205,7 +205,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Ekilex, at the Institute of the Estonian Language", "Ekilex в Институте эстонского языка", "Ekilex в Інституті естонської мови"],
   ["a single word you looked up, with no account attached", "одно слово, которое вы искали, без привязки к аккаунту", "одне слово, яке ви шукали, без прив'язки до облікового запису"],
   ["Wikimedia, which runs Wiktionary", "Фонд Викимедиа, который ведёт Викисловарь", "Фонд Вікімедіа, який веде Вікісловник"],
-  ["the same single word, asked for its English meaning, with no account attached", "то же слово, с запросом его значения на английском, без привязки к аккаунту", "те саме слово, із запитом його значення англійською, без прив'язки до облікового запису"],
+  ["the same single word, asked for its English meaning, or an English word you searched for, asked for its Estonian, with no account attached", "то же слово, с запросом его значения на английском, или английское слово, которое вы искали, с запросом его эстонского, без привязки к аккаунту", "те саме слово, із запитом його значення англійською, або англійське слово, яке ви шукали, із запитом його естонською, без прив'язки до облікового запису"],
   ["Resend, which sends our emails", "Resend, который отправляет наши письма", "Resend, який надсилає наші листи"],
   ["your email address, and whatever a message to you says about your own course", "ваш адрес электронной почты и то, что в письме сказано о вашем собственном курсе", "ваша адреса електронної пошти і те, що в листі сказано про ваш власний курс"],
   ["TartuNLP, at the University of Tartu", "TartuNLP в Тартуском университете", "TartuNLP у Тартуському університеті"],

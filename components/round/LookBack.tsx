@@ -1,5 +1,6 @@
 "use client";
 
+import { EnterKeyCap } from "@/components/KeyCaps";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, History, Undo2 } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -363,7 +364,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
             the way out: somebody two words back walks home the way they came
             rather than hunting for a different button. */}
         <Button ref={forwardButton} variant="primary" size="lg" onClick={onForward}>
-          {hasLater ? t("Next") : t("Back to the round")} <ArrowRight size={14} aria-hidden />
+          {hasLater ? t("Next") : t("Back to the round")} <ArrowRight size={14} aria-hidden /> <EnterKeyCap className="ml-1" />
         </Button>
       </div>
 

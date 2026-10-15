@@ -4,6 +4,7 @@ import { LanguageSwitcher, TranslationNotice } from "@/components/PublicLanguage
 import { LOCALES, tr, type Locale } from "@/lib/copy/locale";
 import { LANDING_HREF, localeHref } from "@/lib/copy/publicLocale";
 import { resolveOperator } from "@/lib/legal/operator";
+import { impactIsListed } from "@/lib/progress/impactListed";
 import { BrandLink } from "@/components/BrandLink";
 import { Wordmark } from "@/components/brand";
 import { ButtonLink } from "@/components/Button";
@@ -115,8 +116,14 @@ export function PublicHeader({ locale, path, oneLanguage = false }: { locale: Lo
   );
 }
 
-/** The links at the foot of every public page, in the page's language. */
-export function PublicFooter({ locale, href, short = false }: {
+/**
+ * The links at the foot of every public page, in the page's language.
+ *
+ * /impact joins them only once its headline clears the research floors
+ * (`impactIsListed`, docs/38-third-batch.md D3): before that it is a page of
+ * "not enough data yet", and a footer link to it would send every reader there.
+ */
+export async function PublicFooter({ locale, href, short = false }: {
   locale: Locale;
   explicit?: boolean;
   href: (to: string) => string;
@@ -130,6 +137,7 @@ export function PublicFooter({ locale, href, short = false }: {
     : [
         ["/privacy", "Privacy"], ["/terms", "Terms"], ["/funding", "Funding"], ["/trust", "Trust"], ["/teachers", "For teachers"], ["/pilots", "Running a pilot"],
         ["/accessibility", "Accessibility"], ["/state-exam", "The state examination"], ["/help", "Help"],
+        ...(await impactIsListed() ? [["/impact", "What this installation has done"] as const] : []),
       ];
   return (
     <p className="mt-14 text-sm" style={{ color: "var(--ink-3)" }}>

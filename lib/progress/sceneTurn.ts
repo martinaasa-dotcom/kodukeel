@@ -128,9 +128,11 @@ export function planTurn(input: TurnInput) {
     stands down for that line alone; everything else in the gate is untouched.
   */
   const switched = Boolean(standing && hurdleSpec(state)?.switchesRegister);
+  // A beat may name a register of its own (`BeatSpec.register`); the scene's holds everywhere else.
+  const base = current?.register ?? scene.register;
   const register = switched
-    ? (scene.register === "teie" ? "sina" : "teie")
-    : scene.register;
+    ? (base === "teie" ? "sina" : "teie")
+    : base;
   /*
     The offer was turned down and they offer again: the beat is spoken as
     its counter, and from here on every line reads the second offer's values

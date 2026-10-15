@@ -1,18 +1,19 @@
 import { InsideHere } from "@/components/InsideHere";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { dictionaryLemmas, sentenceReach } from "@/lib/dict/facts";
+import { dictionaryEntries, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
-import { soundAlike } from "@/lib/estonian/sounds";
+import { mergeNearby, nearbyEntries, type Nearby } from "@/lib/dict/nearby";
+import { looksEnglish } from "@/lib/dict/english";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { searchLexemes } from "@/lib/dict/search";
 import { enrichWithinDeadline, lookupAndStore } from "@/lib/dict/lookup";
-import { didYouMean, knownAs as knownLemmas } from "@/lib/dict/known";
+import { didYouMean, knownAs as knownLemmas, vouchedTranslations } from "@/lib/dict/known";
 import { backfillClozeCards } from "@/lib/srs/backfill";
 import { ekilexConfigured } from "@/lib/ekilex/client";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
-import { resolveProvider, resolveProviders } from "@/lib/tutor/provider";
+import { offered, resolveProviders } from "@/lib/tutor/provider";
 import { suggestWords, type Suggestions } from "@/lib/dict/suggest";
 import { readableHeadlines } from "@/lib/dict/headlines";
 import { feedHost } from "@/lib/news/feed";
@@ -93,46 +94,67 @@ export default async function DictionaryPage({
   }
 
   /*
-    STILL NOTHING, SO ASK WHAT THEY MIGHT HAVE HEARD.
+    STILL NOTHING, SO ASK WHAT THEY MIGHT HAVE MEANT.
 
-    A search that found nothing is the commonest dead end in the app, and every
-    way out of it so far assumes the learner can spell the word: add it
-    yourself, or report it missing. Nobody here has only read these words.
-    Somebody who heard `poiss` writes "pois", somebody who heard `padi` writes
-    "pati", and the search folds diacritics and case endings and has nothing to
-    say about either.
+    A search that found nothing used to answer with a form for adding the word
+    yourself, and it was reported from exactly the screen that hurts most: a
+    learner wanted the word they had been missing in a conversation, typed
+    `championship`, and was handed that form while the dictionary held
+    `meistrivõistlused`, glossed "championships". Inviting somebody to add a
+    word the app already has is the app making them feel stupid.
 
-    Over the lemma list `lib/dict/facts.ts` already keeps in memory, so it is
-    no query at all, and only on the path where the answer was going to be a
-    dead end. See `lib/estonian/sounds.ts` for which confusions it forgives and
-    which it deliberately does not.
+    So the dead end asks every way a search misses something that is there
+    (`lib/dict/nearby.ts`), over the entries `lib/dict/facts.ts` already keeps
+    in memory, which is no query at all: the English in another shape or with
+    a slip in it, the Estonian a letter or two off or written the way it
+    sounds, and a compound the dictionary has the parts of. It subsumes the
+    sound-alike row this used to show on its own, since that read the same
+    lemma list with the same rule.
+
+    And where the query is English, which nothing local could reach once the
+    dictionary has no gloss for it, Wiktionary's translation table is asked
+    which Estonian word it is, and a word the forms list recognizes is offered
+    with the sense it was filed under (`lib/dict/englishToEstonian.ts`).
+    Behind Ekilex being configured, since that is the only way an entry it
+    names can be opened, and the recipients list on /privacy says so.
   */
-  const heard = hits.length === 0 && q ? soundAlike(q, await dictionaryLemmas()) : [];
+  const deadEnd = Boolean(q) && hits.length === 0;
+  const entries = deadEnd ? await dictionaryEntries() : [];
+  const english = deadEnd && !knownAs.length && looksEnglish(q);
+  const close = deadEnd ? nearbyEntries(q, entries) : [];
+  const answeredInEnglish = close.some((n) => n.why === "english");
+  // Only where the dictionary's own English found nothing: a request to
+  // somebody else's service is for the word nothing here could reach.
+  const translated = english && !answeredInEnglish && ekilexConfigured()
+    ? await vouchedTranslations(q, entries)
+    : [];
 
   /*
     AND WHETHER IT IS A WORD AT ALL, WHICH IS A DIFFERENT QUESTION.
 
-    Everything above searches the 5,363 entries this app can teach. The forms
-    list is every spelling of the 164,000 headwords Ekilex holds, and it knows
-    only that they exist and which word each belongs to. That is enough to
-    tell three dead ends apart which used to render identically:
+    Everything above searches the entries this app can teach. The forms list
+    is every spelling of the 164,000 headwords Ekilex holds, and it knows only
+    that they exist and which word each belongs to. That is enough to tell
+    three dead ends apart which used to render identically:
 
       - A real Estonian word the dictionary has no entry for. The screen can
         say so, which is the case that was reported: `uudishimulik` appears in
         this app's own copy and searching for it returned nothing at all.
-      - A misspelling of one. Offer it.
+      - A misspelling of one. Offer it, behind what the dictionary itself has.
       - Neither, in which case the blank really is the answer.
 
-    One file read and one indexed query, and only on the path that was going
-    to be a dead end.
-    `soundAlike` above stays and is the better answer where it fires, because
-    it knows which Estonian sounds a learner confuses; this is the wider net
-    behind it, over every word rather than the ones with entries.
+    Not for a query whose English already found something: Estonian words
+    spelled nearly like `championship` are noise beside the answer.
   */
-  const known = hits.length === 0 && knownAs.length > 0;
-  const spellings = hits.length === 0 && q && !known && heard.length === 0
-    ? await didYouMean(q)
+  const known = deadEnd && knownAs.length > 0;
+  const spellings = deadEnd && !known && translated.length === 0 && !answeredInEnglish
+    ? (await didYouMean(q)).map((lemma): Nearby => ({ lemma, gloss: null, why: "spelling" }))
     : [];
+  const nearby = mergeNearby([translated, close, spellings]);
+  // Read as English when that is how the dictionary answered it, so the form
+  // for adding a word puts what was typed in the meaning box rather than
+  // filing `championship` as an Estonian headword.
+  const typedEnglish = english && (translated.length > 0 || answeredInEnglish);
 
   // Open the first hit straight away — searching a word and then having to click it
   // again is a wasted step when you already know what you looked up. Unless the
@@ -196,14 +218,14 @@ export default async function DictionaryPage({
         // Anu's own chain: this offers a question to her, and her route reads
         // nothing else.
         tutorReady={resolveProviders({ purpose: "tutor" }).length > 0}
-        canScan={resolveProvider() !== null}
+        canScan={offered("scan")}
         justFetched={fetched}
         initialQuery={q}
         hits={hits}
-        heard={heard}
         known={known}
         knownAs={knownAs}
-        spellings={spellings}
+        nearby={nearby}
+        typedEnglish={typedEnglish}
         glossLanguage={glossLanguage}
         openedId={opened?.id ?? null}
         entry={entry}

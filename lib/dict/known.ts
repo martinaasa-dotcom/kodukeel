@@ -1,7 +1,10 @@
 import { prisma } from "@/lib/db";
 import { fold, FOLD_FROM, FOLD_TO } from "@/lib/estonian/fold";
+import { editDistance } from "@/lib/estonian/answer";
 import { lemmasOfForm } from "./forms";
 import { likeLiteral } from "./search";
+import { estonianFor } from "./englishToEstonian";
+import { shortGloss, type Nearby, type NearbyEntry } from "./nearby";
 
 /**
  * IS THAT AN ESTONIAN WORD?
@@ -153,31 +156,46 @@ export function nearest(folded: string, candidates: readonly string[]): string[]
     .map((s) => s.lemma);
 }
 
-/**
- * Levenshtein distance, abandoned once it is past `limit`.
- *
- * Two rows rather than a full matrix, and an early exit on a row whose every
- * cell is already past the limit: this runs several hundred times per search
- * and the answer is only ever read against a small threshold.
- */
-function editDistance(a: string, b: string, limit: number): number {
-  let previous = Array.from({ length: b.length + 1 }, (_, i) => i);
-  let current = new Array<number>(b.length + 1);
+/** Translations offered at most, before the dictionary's own suggestions. */
+const TRANSLATIONS_OFFERED = 4;
 
-  for (let i = 1; i <= a.length; i++) {
-    current[0] = i;
-    let best = i;
-    for (let j = 1; j <= b.length; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      current[j] = Math.min(
-        previous[j]! + 1,
-        current[j - 1]! + 1,
-        previous[j - 1]! + cost,
-      );
-      if (current[j]! < best) best = current[j]!;
+/**
+ * The Estonian words Wiktionary gives for an English query, kept only where
+ * the dictionary recognizes them.
+ *
+ * Wiktionary proposes and the dictionary decides (`lib/dict/englishToEstonian.ts`
+ * has the argument): a word this dictionary holds is offered with its own
+ * English, and a word only Ekilex holds, which is what the forms list knows,
+ * is offered with the sense Wiktionary's table filed it under, since that is
+ * the one piece of English anybody has written for it yet. Pressing it is an
+ * ordinary search, which fetches the entry from Ekilex.
+ *
+ * A spelling neither recognizes is dropped rather than offered, because a link
+ * to a word this app cannot open is the dead end again with a button on it.
+ */
+export async function vouchedTranslations(
+  query: string,
+  entries: readonly NearbyEntry[],
+): Promise<Nearby[]> {
+  const proposed = await estonianFor(query);
+  if (proposed.length === 0) return [];
+  const local = new Map<string, NearbyEntry>();
+  for (const entry of entries) if (!local.has(entry.lemma)) local.set(entry.lemma, entry);
+
+  const out: Nearby[] = [];
+  for (const { word, sense } of proposed) {
+    if (out.length >= TRANSLATIONS_OFFERED) break;
+    const held = local.get(word);
+    if (held) {
+      out.push({ lemma: word, gloss: shortGloss(held.translation), why: "translation" });
+      continue;
     }
-    if (best > limit) return limit + 1;
-    [previous, current] = [current, previous];
+    // The forms list answers headwords first; a word Wiktionary names is a
+    // headword or it is a phrase nobody looks up as one.
+    const headwords = await lemmasOfForm(word);
+    if (headwords.includes(word.toLowerCase())) {
+      out.push({ lemma: word, gloss: sense, why: "translation" });
+    }
   }
-  return previous[b.length]!;
+  return out;
 }

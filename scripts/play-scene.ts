@@ -220,7 +220,8 @@ function learnerTurn(
         and a hardcoded `teie` there is a word `registerForms` never holds, so
         this curveball read as unwinnable in every run of that one scene while
         every `teie` scene passed it outright. The app was never wrong; the
-        harness was answering every scene as the same one.
+        harness was answering every scene as the same one. And a beat with a
+        register of its own (`BeatSpec.register`) is answered in that one.
       */
       parts.push(register);
     }
@@ -414,7 +415,7 @@ async function play(sceneId: string) {
     if (!target) break;
     const said = SAY[n] ?? (LEARNER
       ? await simulatedLearner(LEARNER, scene.title, scene.role, run.card.props.filter((p) => !p.theirs).map((p) => `${p.card} ${p.value}`), talkLog)
-      : learnerTurn(target, card ?? draw.card, context.lexicon, n, scene.register));
+      : learnerTurn(target, card ?? draw.card, context.lexicon, n, target.register ?? scene.register));
     talkLog.push(`You: ${said}`);
     console.log(`   YOU: ${said}      (goal: ${target.goal})`);
     turns.push({ beatId: target.id, said, helped: false, heard });

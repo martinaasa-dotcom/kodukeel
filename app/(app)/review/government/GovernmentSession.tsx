@@ -240,7 +240,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         <div className="round-pad px-6 text-center">
           <div className="flex items-center justify-center gap-2">
             <FitText as="p" text={question.lemma} max="var(--text-3xl)" lang="et" className="font-semibold" style={{ color: "var(--ink)" }} />
-            <Speak text={question.lemma} />
+            <Speak text={question.lemma} spaceKey={!revealed} />
           </div>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
 

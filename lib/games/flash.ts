@@ -13,6 +13,8 @@ import { looksLikeSentence } from "@/lib/estonian/writing";
 import { attestedForms, conjugationAnswer } from "@/lib/srs/cards";
 import { CONJUGATION_SLOTS, isFormSlot, slotLabel } from "@/lib/srs/slots";
 import type { CaseKey } from "@/lib/estonian/types";
+import { maySortWords } from "@/lib/collections/levels";
+import type { Level } from "@/lib/collections/syllabus/types";
 
 /**
  * FLASH CARDS: THE WORDS YOU HAVE MET, ASKED IN A WAY REVIEW DOES NOT ASK THEM.
@@ -315,14 +317,47 @@ function attests(word: FlashWord, code: string, formType: string | undefined): b
  * padded with something invented.
  */
 export function shapesFor(
-  word: FlashWord, slot: FlashSlot, opts: { canSpeak: boolean } = { canSpeak: true },
+  word: FlashWord, slot: FlashSlot,
+  opts: { canSpeak?: boolean; beginner?: boolean } = {},
 ): FlashShape[] {
-  return shapesFrom(slot, sentenceFor(word, slot), opts.canSpeak);
+  return shapesFrom(slot, sentenceFor(word, slot), opts.canSpeak ?? true, opts.beginner ?? false);
+}
+
+/**
+ * WHAT AN A1 LEARNER IS NOT ASKED, WHICH IS TO WRITE.
+ *
+ * A1 is where you meet words and begin to hear how Estonian works, and the
+ * operator's report was a card reading "Write a sentence with 'don't go'" over
+ * `minema`: a whole sentence from nothing, on the most irregular verb in the
+ * language, in the negative. `build` is the hardest shape in the round and the
+ * last one a word opens, so a beginner reached it by being right a few times,
+ * which is the round punishing progress. A beginner is asked to recognise and
+ * to produce one word or one form, never to compose: the same boundary
+ * `BUILD_FROM` draws for putting words in order, read through
+ * `lib/collections/levels.ts` so the two exercises cannot disagree.
+ */
+export function mayWriteOwnSentence(level: Level): boolean {
+  return maySortWords(level);
+}
+
+/**
+ * Whether a beginner may be asked this slot of this word.
+ *
+ * A verb is asked in the present, the six persons and nothing else: the
+ * negative, the past, the conditional and the imperative are each a page of
+ * their own and not a thing to be asked cold in a first month. Cases and the
+ * plain "say it" are unaffected, since the module's own gates
+ * (`slotWithin`) already decide when a case may be asked.
+ */
+export function beginnerSlot(word: FlashWord, slot: FlashSlot): boolean {
+  if (word.pos !== "VERB" || slot.slot === "PRODUCTION") return true;
+  return slot.slot.startsWith("IndPrSg") || slot.slot.startsWith("IndPrPl");
 }
 
 /** The same answer for a caller that has already found the sentence. */
 function shapesFrom(
   slot: FlashSlot, sentence: { et: string; form: string } | null, canSpeak: boolean,
+  beginner: boolean,
 ): FlashShape[] {
   if (slot.slot === "PRODUCTION") return ["recall"];
 
@@ -331,10 +366,10 @@ function shapesFrom(
   if (sentence) {
     const out: FlashShape[] = ["gap"];
     if (canSpeak) out.push("heard");
-    out.push("build");
+    if (!beginner) out.push("build");
     return out;
   }
-  return ["inflect", "build"];
+  return beginner ? ["inflect"] : ["inflect", "build"];
 }
 
 /**
@@ -437,6 +472,8 @@ export function flashTask(input: {
   cardId: string;
   step: number;
   canSpeak?: boolean;
+  /** An A1 learner, who is never asked to write a sentence of their own. */
+  beginner?: boolean;
 }): FlashTask | null {
   const { word, slot, cardId, step } = input;
 
@@ -448,7 +485,7 @@ export function flashTask(input: {
   */
   const sentence = sentenceFor(word, slot);
   const shape = shapeFor(
-    shapesFrom(slot, sentence, input.canSpeak ?? true),
+    shapesFrom(slot, sentence, input.canSpeak ?? true, input.beginner ?? false),
     step,
   );
 

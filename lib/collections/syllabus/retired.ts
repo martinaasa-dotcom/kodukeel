@@ -155,6 +155,9 @@ export const RETIRED_WORDS: readonly WordSpec[] = [
   ["terminoloogia", "terminology", "NOUN"],
   ["tihedus", "density", "NOUN"],
   ["toimetamine", "editing", "NOUN"],
+  // Taught at A1 until a learner met `Too on tema` over the gloss "bring": the
+  // pronoun is B2 and is spelled like the imperative of `tooma`. See `esimesed-verbid`.
+  ["too", "that (one over there)", "PRONOUN"],
   ["tunnus", "feature, characteristic", "NOUN"],
   ["tõlge", "translation", "NOUN"],
   ["tõlkeviga", "translation error", "NOUN"],

@@ -88,7 +88,16 @@ export function authoredRows(): readonly AuthoredRow[] {
  * know it may show it to a beginner, and what the exclusion invariant reads to
  * know it is not a lexicographer's.
  */
-export function authoredFor(lemma: string): Example[] {
+export function authoredFor(lemma: string, provenance: string): Example[] {
+  /*
+    Filed by lemma, and `Lexeme` is unique on (lemma, pos): a learner who adds
+    `too` as "bring" gets a row of their own beside the course's pronoun, and a
+    sentence written for the pronoun is not a sentence for their word. Only the
+    entries the seed and Ekilex supplied are the words these rows were written
+    for, and the argument is required so a caller that has not asked cannot
+    attach one.
+  */
+  if (provenance !== "SEED" && provenance !== "EKILEX") return [];
   return (BY_LEMMA.get(lemma) ?? [])
     .filter(([, et]) => !isRefusedSentence(et))
     .map(([, et, en]) => ({ et, en, source: "AUTHORED" as const }));

@@ -6,6 +6,7 @@ import { supabaseConfigured } from "@/lib/auth/mode";
 import { hasSessionCookie } from "@/lib/auth/identity";
 import { requireUserId } from "@/lib/auth/session";
 import { localeFor } from "@/lib/progress/locale";
+import type { PublicPageCard } from "@/lib/copy/publicCards";
 
 /** What a public page is handed by Next as its query. */
 export type PublicSearch = Promise<Record<string, string | string[] | undefined>> | undefined;
@@ -39,13 +40,7 @@ export async function resolvePublicLocale(searchParams: PublicSearch): Promise<P
   }
 }
 
-/** What a public page says about itself where it is shared, rather than the landing page's pitch. */
-export interface PublicPageCard {
-  /** One sentence in English, translated like every other line on the page. */
-  description: string;
-  /** The page's own path, so a share card does not point at /welcome. */
-  path: string;
-}
+export type { PublicPageCard } from "@/lib/copy/publicCards";
 
 /**
  * The picture every share card carries: `app/opengraph-image.tsx`, the app's

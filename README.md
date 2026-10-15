@@ -438,6 +438,13 @@ The last quarter of each day's shared budget is kept back for people who haven't
 up the day, and everyone who arrives later, newcomers included, finds the tutor switched off. The
 reserve costs a heavy user their eleventh question and gives a newcomer their first.
 
+**Switch one feature off without touching the code.** `PAID_OFF` is a comma-separated list of
+`tutor`, `scenes`, `scan`, `grader` and `translate`. A feature named there behaves exactly as it does
+on a deployment with no key: Anu says she isn't set up, conversations play from their prepared lines,
+the camera isn't offered, the graders give their keyless answer and nothing is translated. It's the
+first thing to reach for when spending runs away (`docs/28-incident-response.md`), and it doesn't
+switch metering off for anything that is still on.
+
 The defaults apply whether or not you set anything. There's no way to switch metering off, because
 sign-up is open by default. If you'd rather run a private site, `ALLOWED_EMAILS` or
 `ALLOWED_EMAIL_DOMAINS` turns the same deployment into one.

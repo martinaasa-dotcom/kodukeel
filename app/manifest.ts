@@ -18,7 +18,12 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    orientation: "portrait",
+    /*
+      No orientation lock. "portrait" fixed an installed app upright, which is
+      WCAG 1.3.4 (Orientation) failed for anybody whose phone is mounted on
+      its side, and every screen here is measured at 844x390 anyway.
+    */
+    orientation: "any",
     background_color: "#fcfbf7",
     theme_color: "#0f1233",
     lang: "en",

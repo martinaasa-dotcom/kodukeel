@@ -86,7 +86,7 @@ export const WEEK_GAMES: readonly FeaturedGame[] = [
 export const FIRST_LEVEL_WEEK: readonly FeaturedGame[] = [
   { href: "/review/flashcards", why: "A quiet round on the words you've met, typed from their meaning." },
   { href: "/sonad", why: "A fresh word to guess every morning. Monday's a good day to start." },
-  { href: "/review/letters", why: "Unscramble a word you've met. Every letter has its place." },
+  { href: "/review/letters", why: "Unscramble a word you've met." },
   { href: "/review/listening", why: "Midweek, train your ear: hear a word and pick what it means." },
   { href: "/review/match", why: "Pairs against the clock, and a personal best to beat." },
   { href: "/review/speaking", why: "It's Friday: say this week's words out loud, then hear them said." },
@@ -103,7 +103,7 @@ export const FIRST_LEVEL_WEEK: readonly FeaturedGame[] = [
  * met, which is the game the module's own first evenings deal.
  */
 export const PUZZLE_STAND_IN: FeaturedGame = {
-  href: "/review/letters", why: "Unscramble a word you've met. Every letter has its place.",
+  href: "/review/letters", why: "Unscramble a word you've met.",
 };
 
 /**

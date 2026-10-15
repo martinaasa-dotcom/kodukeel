@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { canonicalOrigin } from "@/lib/auth/canonical";
+import { impactIsListed } from "@/lib/progress/impactListed";
 
 /**
  * The pages a stranger can read without an account, listed for whoever is
@@ -36,6 +37,8 @@ const PUBLIC_PATHS = [
   { path: "/help", priority: 0.6 },
   { path: "/teachers", priority: 0.8 },
   { path: "/pilots", priority: 0.6 },
+  { path: "/how-we-know", priority: 0.5 },
+  { path: "/curriculum", priority: 0.5 },
   { path: "/accessibility", priority: 0.6 },
   { path: "/funding", priority: 0.6 },
   // What the state examination is and how to register, for somebody who has
@@ -45,11 +48,24 @@ const PUBLIC_PATHS = [
   { path: "/welcome/uk", priority: 0.7 },
 ] as const;
 
-export default function sitemap(): MetadataRoute.Sitemap {
+/*
+  /impact is the one public page that lists itself only once it has something
+  to say: until the head count over the last thirty days clears the research
+  floors it carries `noindex` and is in no list (docs/38-third-batch.md, D3).
+  It is kept out of PUBLIC_PATHS on purpose, which is what the invariant
+  pairing this file with `llms.txt` reads, and added here by the same question
+  the page asks. That makes the sitemap a function of the database, so it is
+  answered per request (and the answer is held an hour per instance).
+*/
+const IMPACT_PAGE = { path: "/impact", priority: 0.6 } as const;
+export const dynamic = "force-dynamic";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = canonicalOrigin();
   if (!origin) return [];
   const lastModified = new Date();
-  return PUBLIC_PATHS.map(({ path, priority }) => ({
+  const paths = await impactIsListed() ? [...PUBLIC_PATHS, IMPACT_PAGE] : PUBLIC_PATHS;
+  return paths.map(({ path, priority }) => ({
     url: new URL(path, origin).toString(),
     lastModified,
     changeFrequency: "monthly" as const,

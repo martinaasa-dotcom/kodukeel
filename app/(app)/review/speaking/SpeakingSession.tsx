@@ -1,5 +1,6 @@
 "use client";
 
+import { EnterKeyCap } from "@/components/KeyCaps";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
@@ -242,7 +243,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {!revealed ? (
             <Button variant="primary" size="lg" className="w-full" onClick={() => setRevealed(true)}>
-              {t("I said it, show me")}
+              {t("I said it, show me")} <EnterKeyCap className="ml-1" />
             </Button>
           ) : (
             /* Two, from the one table in lib/srs/scheduler.ts. Nothing here can

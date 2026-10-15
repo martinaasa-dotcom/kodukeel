@@ -1,0 +1,38 @@
+{
+  "cases": {
+    "figure": "5,229 nouns, 1 disagreeing (grappa)",
+    "on": "2026-10-15"
+  },
+  "invariants": {
+    "figure": "803 checks, all holding",
+    "on": "2026-10-15"
+  },
+  "licences": {
+    "figure": "196 packages, none under a licence that would bind the code",
+    "on": "2026-10-15"
+  },
+  "placement": {
+    "figure": "At their own level 55% to 97% of the time across six levels, above it at most 3%",
+    "on": "2026-10-15"
+  },
+  "questions": {
+    "figure": "83,165 questions over 6,274 entries, none printing its answer",
+    "on": "2026-10-15"
+  },
+  "sense": {
+    "figure": "60,298 questions and sentences over 6,274 entries, none failing",
+    "on": "2026-10-15"
+  },
+  "typos": {
+    "figure": "140 pairs of real answers one letter apart at seven letters, 43 at eight",
+    "on": "2026-10-15"
+  },
+  "unit": {
+    "figure": "6,127 tests in 337 files, all passing",
+    "on": "2026-10-15"
+  },
+  "verbs": {
+    "figure": "806 verbs, none disagreeing",
+    "on": "2026-10-15"
+  }
+}

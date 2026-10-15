@@ -1,5 +1,6 @@
 "use client";
 
+import { EnterKeyCap } from "@/components/KeyCaps";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, RotateCcw } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -372,7 +373,7 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
 
       <div className="flex flex-wrap items-center justify-end gap-3">
         <Button variant="primary" onClick={onNext}>
-          {t("Now the other eleven")} <ArrowRight size={15} aria-hidden />
+          {t("Now the other eleven")} <ArrowRight size={15} aria-hidden /> <EnterKeyCap className="ml-1" />
         </Button>
       </div>
     </Stack>
@@ -789,7 +790,7 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
 
       <div className="flex flex-wrap items-center justify-end gap-3">
         <Button variant="primary" onClick={onNext}>
-          {t("Try one yourself")} <ArrowRight size={15} aria-hidden />
+          {t("Try one yourself")} <ArrowRight size={15} aria-hidden /> <EnterKeyCap className="ml-1" />
         </Button>
       </div>
     </Stack>
@@ -992,7 +993,7 @@ function YourTurn({ word }: { word: WalkWord }) {
         {picked !== null && !done && (
           <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
             <Button variant="primary" onClick={next}>
-              {t("Next")} <ArrowRight size={15} aria-hidden />
+              {t("Next")} <ArrowRight size={15} aria-hidden /> <EnterKeyCap className="ml-1" />
             </Button>
           </div>
         )}

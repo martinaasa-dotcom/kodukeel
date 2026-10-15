@@ -7,6 +7,7 @@ import { areaTable } from "@/lib/copy/i18n/tables";
 import { fill, tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicCard } from "@/lib/copy/publicCards";
 import { resolveOperator } from "@/lib/legal/operator";
 import { audioCacheIsDurable } from "@/lib/audio/store";
 import { supabaseConfigured } from "@/lib/auth/mode";
@@ -22,7 +23,7 @@ import {
 } from "@/lib/funding/facts";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Funding");
+  return publicTitle(searchParams, "Funding", undefined, publicCard("/funding"));
 }
 
 /*
@@ -169,6 +170,11 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
         <P>
           {rich(t("An organisation thinking of trying it with a group can read {pilots}, which says what it costs them, which is nothing to run."), {
             pilots: <Link href="/pilots" className="underline underline-offset-2">{t("what a pilot is")}</Link>,
+          })}
+        </P>
+        <P>
+          {rich(t("Every claim this project makes about itself is listed on {how}, with its figure, the day it was measured and the command that measures it again."), {
+            how: <Link href="/how-we-know" className="underline underline-offset-2">{t("how we know")}</Link>,
           })}
         </P>
       </S>

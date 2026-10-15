@@ -171,14 +171,23 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Say I am, you are and this is, and use a handful of everyday verbs with every person.",
-    blurb: "The verb to be, this and that, and seven verbs you'll use all the time. The six endings never change, so once you know them, each new verb only needs its first half.",
+    blurb: "The verb to be, this, and seven verbs you'll use all the time. The six endings never change, so once you know them, each new verb only needs its first half.",
     grammar: ["olema", "present-tense"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CONJUGATION"],
     requires: ["asesonad"],
     words: [
       ["olema", "to be"],
       ["see", "this, it", "PRONOUN"],
-      ["too", "that (one over there)", "PRONOUN"],
+      /*
+        No `too` here, on purpose. It is the pronoun "that one over there",
+        which Ekilex bands B2, and it is spelled exactly like the imperative of
+        `tooma`: `Palun too mulle tass` is "bring me a cup", and `Too on tema`
+        is "that one is him". A beginner who has just been taught `too` meaning
+        "bring" in the verbs unit, or who was shown "bring" over `Too on tema`,
+        cannot tell the two apart, and nor could a B1 learner who reported it.
+        `see` carries "this, it" for everything an A1 sentence needs. The word
+        stays in the dictionary through `retired.ts`.
+      */
       ["elama", "to live"],
       ["õppima", "to learn, to study"],
       ["rääkima", "to speak"],
@@ -188,7 +197,7 @@ export const A1 = [
       ["tulema", "to come", "VERB", 247802],
     ],
     evenings: [
-      ["olema", "see", "too", "elama", "õppima"],
+      ["olema", "see", "elama", "õppima"],
       ["rääkima", "töötama", "tahtma", "minema", "tulema"],
     ],
   }),
