@@ -91,10 +91,12 @@ export function CreateClass() {
   );
 }
 
-export function JoinClass({ suggestedName }: { suggestedName: string }) {
+export function JoinClass({ suggestedName, initialCode = "" }: { suggestedName: string; initialCode?: string }) {
   const t = useT();
   const router = useRouter();
-  const [code, setCode] = useState("");
+  // Filled from a join link, never joined from one: the sentence about what a
+  // class can see sits above the button, and pressing it is the decision.
+  const [code, setCode] = useState(initialCode);
   const [name, setName] = useState(suggestedName);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();

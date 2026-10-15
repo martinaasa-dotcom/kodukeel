@@ -54,3 +54,20 @@ export function isValidCode(input: unknown): boolean {
 
 /** The characters a code can contain, for the input's own guidance text. */
 export const CODE_ALPHABET = ALPHABET;
+
+/**
+ * The code a join link carried, or nothing.
+ *
+ * Takes what Next hands a page for a search parameter, which is a string, a
+ * list of strings when the parameter is repeated, or nothing at all, and is
+ * typed by whoever wrote the address. The first string is read and normalised
+ * exactly as a typed code is, and it comes back only where it is a code: a
+ * malformed one is an empty box rather than a box holding something that
+ * cannot work, and nothing here ever joins anybody.
+ */
+export function joinCodeFrom(value: unknown): string {
+  const first = Array.isArray(value) ? value[0] : value;
+  if (typeof first !== "string") return "";
+  const code = normaliseCode(first);
+  return isValidCode(code) ? code : "";
+}

@@ -5,6 +5,8 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { posterClassFor } from "@/lib/classroom/poster";
 import { requireUserId } from "@/lib/auth/session";
 import { canonicalOrigin } from "@/lib/auth/canonical";
+import { joinLink, withoutScheme } from "@/lib/classroom/qr";
+import { JoinQr } from "@/components/JoinQr";
 import { PrintButton } from "@/components/PrintButton";
 import { Wordmark } from "@/components/brand";
 import { localeFor } from "@/lib/progress/locale";
@@ -26,6 +28,12 @@ export const dynamic = "force-dynamic";
  * Owner only, like the code on the class page, and not for an archived class,
  * whose code no longer works: anybody else meets the not-found a stranger
  * meets, which confirms nothing about whether the class is real.
+ *
+ * Under the code sits the link that carries it, and a QR code of the same
+ * link: a pupil who scans it or opens it signs in and lands on Classes with
+ * the code already in the box (`joinCodeFrom`). The code still appears in the
+ * address, in a browser's history and in a server's log, which is acceptable
+ * for a code meant to be written on a board and killed by archiving the class.
  *
  * It says "13 and older" in every language, which is the operator's standing
  * decision about who may use the app (docs/35-launch-quick-wins.md, section 1),
@@ -52,10 +60,12 @@ export async function generateMetadata({ params }: { params: Promise<{ classroom
  * reached this page on, which is the one their class can reach too. Never a
  * path on its own, since a path on paper leads nowhere.
  */
-async function addressToType(): Promise<string> {
-  const origin = canonicalOrigin();
-  if (origin) return origin.host;
-  return (await headers()).get("host") ?? "";
+async function addresses(code: string): Promise<{ address: string; link: string | null }> {
+  const canonical = canonicalOrigin();
+  const head = await headers();
+  const host = head.get("host");
+  const link = joinLink(code, { canonical, host, proto: head.get("x-forwarded-proto") });
+  return { address: canonical ? canonical.host : host ?? "", link };
 }
 
 export default async function JoinPosterPage({ params }: { params: Promise<{ classroomId: string }> }) {
@@ -63,7 +73,7 @@ export default async function JoinPosterPage({ params }: { params: Promise<{ cla
   const own = await ownClass(classroomId);
   if (!own) notFound();
   const { classroom, ownerId } = own;
-  const [locale, address] = await Promise.all([localeFor(ownerId), addressToType()]);
+  const [locale, { address, link }] = await Promise.all([localeFor(ownerId), addresses(classroom.code)]);
   const t = (english: string) => tr(locale, english);
 
   return (
@@ -103,9 +113,16 @@ export default async function JoinPosterPage({ params }: { params: Promise<{ cla
           >
             {classroom.code}
           </p>
-          {address && (
+          {link ? (
+            <>
+              <p className="mt-4 text-xl font-semibold md:text-2xl print:text-3xl" style={{ color: "var(--accent-deep)" }} data-join-link>
+                {withoutScheme(link)}
+              </p>
+              <JoinQr link={link} className="mt-6 h-40 w-40 md:h-48 md:w-48 print:h-56 print:w-56" />
+            </>
+          ) : address ? (
             <p className="mt-4 text-xl font-semibold md:text-2xl print:text-3xl" style={{ color: "var(--accent-deep)" }}>{address}</p>
-          )}
+          ) : null}
         </div>
 
         <div className="mt-10 grid gap-8 xl:grid-cols-3 print:mt-16 print:grid-cols-3 print:gap-8">
@@ -126,7 +143,7 @@ function JoinSteps({ locale, address }: { locale: Locale; address: string }) {
       <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-base leading-relaxed print:text-md" style={{ color: "var(--ink-2)" }}>
         <li>{address ? fill(say("Open {address}."), { address }) : say("Open the address above.")}</li>
         <li>{say("Sign in.")}</li>
-        <li>{say("Choose Classes and enter the code.")}</li>
+        <li>{say("Choose Classes and enter the code. If you scanned the square or opened the link, it is already in the box.")}</li>
       </ol>
       <p className="mt-3 text-sm print:text-base" style={{ color: "var(--ink-3)" }}>{say("For learners aged 13 and older.")}</p>
     </div>
