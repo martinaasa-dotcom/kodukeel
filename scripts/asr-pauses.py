@@ -56,8 +56,12 @@ def energy(a, ms=10):
     return 20 * np.log10(e / e.max()), frame
 
 
-def trim(a, db=-45, margin=0.05):
-    """The word alone: from 50 ms before its first frame above `db` to 50 ms after its last."""
+def trim(a, db=-45, margin=0.15):
+    """The word alone: from 150 ms before its first frame above `db` to 150 ms after its last.
+
+    150 and not 50: cut 50 ms after the last loud frame, the Zipformer drops a
+    word's last syllable (`aeglane` heard as `aegla`) in 4 of 12 words; at 150 ms
+    or 300 ms it drops none. The app's own cuts keep the same margin."""
     level, frame = energy(a)
     on = np.where(level > db)[0]
     if not len(on):
@@ -170,6 +174,7 @@ def build():
 VARIANTS = {
     "as said": lambda a: a,
     "squeezed": squeeze,
+    "squeezed .3": lambda a: squeeze(a, keep=0.3),
 }
 
 
