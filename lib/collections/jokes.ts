@@ -1,5 +1,5 @@
 /**
- * JUKU JOKES, ONE A DAY, FOR THE CARD ON TODAY.
+ * JUKU JOKES, A FRESH ONE EVERY VISIT, FOR THE CARD ON TODAY.
  *
  * Every Estonian grew up on these. Juku is the boy in the joke, the way
  * Little Johnny is in English: the teacher asks him something, his mother
@@ -34,13 +34,14 @@
  * joke, because a joke explained is a joke gone, and a few of them only work
  * in Estonian, which the learner is here to find out.
  *
- * WHICH ONE TODAY is `dayIndex`'s stride walk, so nothing repeats until the
- * whole table has been used and two days running are far apart in it, which
- * reads as random without being a draw that repeats at the birthday rate.
+ * WHICH ONE is a draw on every visit rather than a walk by the date. One joke
+ * a day was the first shape, and the operator asked for a new one every time
+ * somebody comes back to Today or reloads it: a joke read is a joke spent, and
+ * the same one waiting all day is a card somebody learns to scroll past.
  *
  * Pure: no React, no Prisma, no clock.
  */
-import { dayIndex } from "@/lib/random/dayHash";
+import { shuffle } from "@/lib/random/shuffle";
 
 /** One line of a joke, in Estonian and in English. */
 export type JokeLine = readonly [et: string, en: string];
@@ -974,29 +975,11 @@ export function voiceFor(by: string | null): string | null {
   return by === null ? null : (VOICE_OF[by] ?? null);
 }
 
-/** Today's joke, as an index into `JOKES`, chosen by the learner's own date. */
-export function jokeIndexFor(dayKey: string): number {
-  return dayIndex(dayKey, "joke-of-the-day", JOKES.length);
-}
-
 /**
- * Today's joke and the few after it on the walk, for the card's "another one"
- * button. The next ones come off the same stride walk, a day further on each
- * time, so pressing it never shows the joke the card opened with and never
- * hands somebody tomorrow's joke early twice in a row by accident of a draw.
- * Ahead by `AHEAD` days rather than one, so the jokes it offers are not the
- * ones the next few mornings will open with.
+ * A few jokes for one visit, as indices into `JOKES`, all different: the one
+ * the card opens with and the spares its "another one" walks. `random` is a
+ * parameter so a test can hand in a fixed one.
  */
-const AHEAD = 97;
-
-export function jokesFor(dayKey: string, count: number): number[] {
-  const first = jokeIndexFor(dayKey);
-  const out = [first];
-  const ordinal = new Date(`${dayKey}T00:00:00Z`).getTime();
-  for (let k = 1; out.length < Math.min(count, JOKES.length) && k < JOKES.length * 2; k++) {
-    const later = new Date(ordinal + (AHEAD * k) * 86_400_000).toISOString().slice(0, 10);
-    const index = jokeIndexFor(later);
-    if (!out.includes(index)) out.push(index);
-  }
-  return out;
+export function jokesForVisit(count: number, random: () => number = Math.random): number[] {
+  return shuffle(JOKES.map((_, i) => i), random).slice(0, Math.min(count, JOKES.length));
 }

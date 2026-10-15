@@ -70,8 +70,30 @@ export default function jokesStayOnTheirCard({ check, ALL, code }: InvariantKit)
     // Today may not wait on ERR for a pleasure: the card streams.
     const page = code("app/(app)/page.tsx");
     assert.doesNotMatch(page, /goodNews(Within|Today)\(/, "Today awaits the good news rather than streaming it");
-    assert.match(page, /<Suspense fallback=\{null\}><GoodNewsSlot \/>/, "the good news is no longer streamed behind a Suspense");
+    assert.match(page, /<Suspense fallback=\{null\}><GoodNewsSlot [^>]*\/>/, "the good news is no longer streamed behind a Suspense");
     assert.match(page, /data-column-item/, "the column item hook moved");
     assert.match(page, /empty:hidden[^>]*data-column-item/, "an hour with no good news leaves an empty slot drawn");
+  });
+
+  /*
+    THE UNDERLINES ARE THE LEARNER'S, ON THE JOKE AND THE NEWS AS EVERYWHERE.
+
+    Both cards dotted every word the dictionary knew whatever the word-gloss
+    setting said, and it was reported by somebody who had turned that setting
+    off: not every word should be underlined. `LinkedWords` takes `linked` as a
+    required prop so a caller decides, Today hands both cards the setting, and
+    the joke does not ask the dictionary at all where it is off.
+  */
+  check("the joke and the news underline only where the learner asked for it", () => {
+    const links = code("components/LinkedWords.tsx");
+    assert.match(links, /linked: boolean/, "LinkedWords no longer requires a caller to say whether to link");
+    assert.match(links, /linked && token\.lemma \?/, "LinkedWords links a word whatever the caller said");
+    const page = code("app/(app)/page.tsx");
+    assert.match(page, /const linked = wordGlossFrom\(settings\[SETTING_KEYS\.wordGloss\]\) === "on"/, "Today no longer reads the underline setting");
+    assert.match(page, /jokesForThisVisit\(\{ linked \}\)/, "the joke is drawn without the underline setting");
+    assert.match(page, /<JokeOfDayCard jokes=\{jokes\} linked=\{linked\} \/>/, "the joke card is not handed the underline setting");
+    assert.match(page, /<GoodNewsSlot linked=\{linked\} \/>/, "the news card is not handed the underline setting");
+    const joke = code("lib/progress/jokeOfDay.ts");
+    assert.match(joke, /if \(!linked\) return [^\n]*plainTexts/, "the joke asks the dictionary even where the underlines are off");
   });
 }

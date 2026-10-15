@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
-import { Languages, Shuffle, Smile, Volume2 } from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { Languages, Shuffle, Volume2 } from "lucide-react";
 import { Card, SectionTitle } from "@/components/ui";
 import { Button } from "@/components/Button";
 import { useAudioPrefs } from "@/components/AudioPrefs";
@@ -16,8 +16,15 @@ import type { DrawnJoke, DrawnLine } from "@/lib/progress/jokeOfDay";
  * The joke is drawn the way it is told: who says what, one bubble a line,
  * Juku's on the right in the accent's tint because the joke is always his,
  * everybody else's on the left on the plain raised ground, and the narrator
- * in neither. Every word the dictionary knows is dotted and opens its entry,
- * so the joke is also the day's easiest reading.
+ * in neither. Where the learner has turned the underlines on
+ * (`lib/ux/wordGloss.ts`), every word the dictionary knows is dotted and opens
+ * its entry, so the joke is also the day's easiest reading.
+ *
+ * A NEW JOKE EVERY VISIT. The page draws a fresh handful on every render
+ * (`jokesForThisVisit`), which covers a reload. Coming back with the browser's
+ * back button reuses the page the router kept, so the card counts its own
+ * mounts in this tab and opens one further along on each, before the first
+ * paint; the first mount after a load opens where the server drew.
  *
  * THE PUNCHLINE WAITS FOR A TAP. A joke is a setup, a beat and an answer, and
  * a card that prints all three at once has told the joke badly: the eye lands
@@ -35,13 +42,19 @@ import type { DrawnJoke, DrawnLine } from "@/lib/progress/jokeOfDay";
  * The English is behind a press, never beside the Estonian. A joke you work
  * out yourself is funnier and teaches more than one handed to you, and the
  * press is right there for the morning it is not coming. "Another one" walks
- * the spares the page handed over, and goes back to today's after the last.
+ * the spares the page handed over, and goes back to the first after the last.
  *
  * Nothing here is graded or stored; it is a joke. See lib/collections/jokes.ts.
  */
-export function JokeOfDayCard({ jokes }: { jokes: DrawnJoke[] }) {
+export function JokeOfDayCard({ jokes, linked }: { jokes: DrawnJoke[]; linked: boolean }) {
   const t = useT();
   const [at, setAt] = useState(0);
+  // Before the first paint, so a joke coming back on a kept page never shows
+  // the one it showed last time for a frame.
+  useLayoutEffect(() => {
+    const visit = mounts++;
+    if (visit > 0) setAt(visit % jokes.length);
+  }, [jokes.length]);
   const [english, setEnglish] = useState(false);
   const [told, setTold] = useState(false);
   // The line being read aloud, so its bubble can light up.
@@ -63,10 +76,7 @@ export function JokeOfDayCard({ jokes }: { jokes: DrawnJoke[] }) {
   return (
     <Card className="flex h-full flex-col">
       <SectionTitle hint={<HearJoke key={`${at}-${told}`} lines={shown} label={t("Hear the joke")} onLine={setSpeaking} />}>
-        <span className="inline-flex items-center gap-2">
-          {t("Joke of the day")}
-          <Smile size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />
-        </span>
+        {t("Joke of the day")}
       </SectionTitle>
 
       <ol className="flex flex-col gap-2" aria-label={t("The joke")} data-joke>
@@ -75,6 +85,7 @@ export function JokeOfDayCard({ jokes }: { jokes: DrawnJoke[] }) {
             key={`${at}-${i}`}
             line={line}
             english={english}
+            linked={linked}
             speaking={speaking === i}
             refTo={told && i === joke.length - 1 ? punchline : undefined}
             arrived={told && i === joke.length - 1}
@@ -129,6 +140,9 @@ export function JokeOfDayCard({ jokes }: { jokes: DrawnJoke[] }) {
   );
 }
 
+/** How many times the card has mounted in this tab, which is how a kept page still opens on a new joke. */
+let mounts = 0;
+
 function side(line: DrawnLine): string {
   if (line.by === null) return "justify-center";
   return line.by === "Juku" ? "justify-end" : "justify-start";
@@ -170,10 +184,11 @@ function Speaker({ line, english = false }: { line: DrawnLine; english?: boolean
 }
 
 function Line({
-  line, english, speaking, refTo, arrived,
+  line, english, linked, speaking, refTo, arrived,
 }: {
   line: DrawnLine;
   english: boolean;
+  linked: boolean;
   speaking: boolean;
   refTo?: RefObject<HTMLLIElement | null>;
   arrived: boolean;
@@ -182,7 +197,7 @@ function Line({
   if (line.by === null) {
     return (
       <li ref={refTo} tabIndex={refTo ? -1 : undefined} className={`px-1 text-center text-sm italic outline-none ${arrived ? "joke-told-left" : ""}`} style={{ color: speaking ? "var(--accent-deep)" : "var(--ink-2)" }}>
-        <span lang="et"><LinkedWords tokens={line.tokens} /></span>
+        <span lang="et"><LinkedWords tokens={line.tokens} linked={linked} /></span>
         {english && <span className="mt-0.5 block not-italic" style={{ color: "var(--ink-3)" }}>{line.en}</span>}
       </li>
     );
@@ -196,7 +211,7 @@ function Line({
       >
         <Speaker line={line} english={english} />
         <p lang="et" className="text-base leading-relaxed" style={{ color: "var(--ink)" }}>
-          <LinkedWords tokens={line.tokens} />
+          <LinkedWords tokens={line.tokens} linked={linked} />
         </p>
         {english && (
           <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
