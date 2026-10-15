@@ -117,7 +117,7 @@ export const CLAIMS: readonly Claim[] = [
     script: "test:containment",
     assertedBy: "scripts/test-containment.mjs",
     assertedHow: "measures the rectangles and fails on one outside its box",
-    recorded: { figure: "8,054 checks, none failed", on: "2026-10-15", where: "a local run against a production build" },
+    recorded: { figure: "9,061 checks, none failed", on: "2026-10-15", where: "CI against a production build, the third-batch branch" },
   },
   {
     id: "phone",
@@ -133,7 +133,7 @@ export const CLAIMS: readonly Claim[] = [
     script: "test:a11y",
     assertedBy: "scripts/a11y-check.mjs",
     assertedHow: "runs axe on every route in both themes and fails on a violation",
-    recorded: { figure: "AXE", on: "2026-10-15", where: "a local run against a production build" },
+    recorded: { figure: "1,151 checks, none failed", on: "2026-10-15", where: "CI against a production build, the third-batch branch" },
   },
   {
     id: "load",
