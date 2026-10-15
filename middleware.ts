@@ -139,6 +139,8 @@ export async function middleware(request: NextRequest) {
     // What a teacher sees, drawn over an invented class, for somebody deciding
     // whether to put a code on a board before they have a class.
     path.startsWith("/teachers") ||
+    // What a pilot is, for an organisation deciding whether to run one. English only.
+    path.startsWith("/pilots") ||
     path.startsWith("/accessibility") ||
     // What the state examination is and how to register for it, which is the
     // question somebody told they need B1 asks before deciding anything else,

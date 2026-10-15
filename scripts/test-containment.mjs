@@ -244,6 +244,7 @@ const ROUTES = [
   "/welcome/ru", "/welcome/uk",
   "/trust",
   "/teachers",
+  "/pilots",
   "/accessibility",
   "/offline",
 ];

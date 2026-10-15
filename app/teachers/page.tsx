@@ -103,6 +103,11 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pub
             {t("How the data is handled")}
           </Link>
         </li>
+        <li>
+          <Link href="/pilots" className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>
+            {t("How a pilot works")}
+          </Link>
+        </li>
         {contact && (
           <li>
             <a href={`mailto:${contact}?subject=${subject}`} className="underline underline-offset-4" style={{ color: "var(--accent-deep)" }}>

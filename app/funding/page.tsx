@@ -165,6 +165,11 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
         <P>
           {t("The code is MIT licensed and the dictionary data is not ours to license: Ekilex is CC BY 4.0 and Wiktionary is CC BY-SA 4.0, which is share-alike and therefore reaches the built dictionary as well. Anyone may run their own copy, and at one learner it costs the price of a domain name.")}
         </P>
+        <P>
+          {rich(t("An organisation thinking of trying it with a group can read {pilots}, which says what it costs them, which is nothing to run."), {
+            pilots: <Link href="/pilots" className="underline underline-offset-2">{t("what a pilot is")}</Link>,
+          })}
+        </P>
       </S>
 
       <S title={t("What it runs on")}>
