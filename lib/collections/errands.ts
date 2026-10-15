@@ -146,6 +146,8 @@ export const ERRANDS: readonly Errand[] = [
   { id: "reason", says: "Give one reason for something you want, in Estonian, to more than one person.", where: "A meeting, a group", unit: "uhiskond", scene: "elanike-koosolek" },
   { id: "figure", says: "Say one number and what it means out loud: it rose, it fell, by how much.", where: "Work, the news", unit: "statistika", scene: "graafik" },
   { id: "opinion", says: "Say what you thought of something you read or watched, and one reason.", where: "With a friend", unit: "kirjandus", scene: "raamatuklubi" },
+  { id: "minute", says: "Talk about yourself for one minute in Estonian without stopping.", where: "Anywhere", unit: "haridus", scene: "eksam-b1" },
+  { id: "decision", says: "Explain a decision you made and one reason against it.", where: "With a friend", unit: "argumenteerimine", scene: "eksam-b2" },
 ];
 
 /**

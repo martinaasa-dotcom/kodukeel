@@ -768,7 +768,9 @@ describe("what a day reads and where it goes", () => {
         // since the step shows the polite imperative beside the past.
         expect(readPast, day.id).toBe(true);
         expect(imperativeRead, day.id).toBe(true);
-        expect(forms.length, day.id).toBeLessThanOrEqual(FORMS_PER_EVENING);
+        // A handful, except on the ladder's last evening, which shows
+        // whatever is still waiting because no evening comes after it.
+        if (day !== DAYS.at(-1)!.day) expect(forms.length, day.id).toBeLessThanOrEqual(FORMS_PER_EVENING);
         expect(day.steps.some((s) => s.id === FORMS_STEP), day.id).toBe(true);
         // One round rather than two: the evening is the same fifteen minutes.
         expect(day.practice.length, day.id).toBe(1);

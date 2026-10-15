@@ -165,6 +165,8 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   "elanike-koosolek": { icon: "Users", setting: "meeting" },
   graafik: { icon: "TrendingUp", setting: "meeting" },
   raamatuklubi: { icon: "BookOpen", setting: "cafe" },
+  "eksam-b1": { icon: "GraduationCap", setting: "meeting" },
+  "eksam-b2": { icon: "Mic", setting: "meeting" },
 };
 
 /**

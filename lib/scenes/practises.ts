@@ -234,6 +234,19 @@ export const BEAT_TAGS: Readonly<Record<string, string>> = {
   "raamatuklubi:hero": "talking about a character",
   "raamatuklubi:change": "saying what you'd change",
   "raamatuklubi:agree": "agreeing or not",
+  "eksam-b1:home": "saying where you live",
+  "eksam-b1:work": "saying what you do",
+  "eksam-b1:plan": "suggesting where to go",
+  "eksam-b1:why": "giving a reason",
+  "eksam-b1:agree": "agreeing on a plan",
+  "eksam-b1:call": "asking on the phone",
+  "eksam-b1:when": "agreeing a day and time",
+  "eksam-b2:work": "saying what you do",
+  "eksam-b2:like": "saying why you do it",
+  "eksam-b2:side": "taking a side",
+  "eksam-b2:reason": "giving a reason",
+  "eksam-b2:counter": "answering an objection",
+  "eksam-b2:decide": "agreeing a conclusion",
 };
 
 /** A move nobody would put on a tile: every scene opens and closes. */

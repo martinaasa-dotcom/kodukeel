@@ -248,6 +248,8 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   poliitika: "elanike-koosolek",
   statistika: "graafik",
   kirjandus: "raamatuklubi",
+  iseloom: "eksam-b1",
+  argumenteerimine: "eksam-b2",
 };
 
 /**

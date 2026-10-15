@@ -55,6 +55,8 @@ import KUULSIN_LINES from "./bank/kuulsin";
 import ELANIKE_KOOSOLEK_LINES from "./bank/elanike-koosolek";
 import GRAAFIK_LINES from "./bank/graafik";
 import RAAMATUKLUBI_LINES from "./bank/raamatuklubi";
+import EKSAM_B1_LINES from "./bank/eksam-b1";
+import EKSAM_B2_LINES from "./bank/eksam-b2";
 
 /** Every scene's prepared lines, one file a scene under `lib/scenes/bank/`, in scene order. */
 export const BANK: readonly ScriptedLine[] = [
@@ -99,4 +101,6 @@ export const BANK: readonly ScriptedLine[] = [
   ...ELANIKE_KOOSOLEK_LINES,
   ...GRAAFIK_LINES,
   ...RAAMATUKLUBI_LINES,
+  ...EKSAM_B1_LINES,
+  ...EKSAM_B2_LINES,
 ];

@@ -364,6 +364,10 @@ export const TODAY: Area = {
     "Назовите вслух по-эстонски цену или этаж, на котором живёте, и попросите повторить.",
   "Ask for something politely with would: could I, would you.":
     "Попросите о чём-нибудь вежливо, в условном наклонении: не могли бы вы, можно было бы.",
+  "Talk about yourself for one minute in Estonian without stopping.":
+    "Расскажите о себе по-эстонски одну минуту без остановки.",
+  "Explain a decision you made and one reason against it.":
+    "Объясните одно своё решение и один довод против него.",
   "Ask the same thing twice today: once of somebody you say sina to, and once of somebody you say teie to.":
     "Сегодня попросите об одном и том же дважды: один раз того, кому говорите sina, и один раз того, кому говорите teie.",
   "Tell somebody one piece of news you read, as something you heard.":
@@ -1412,6 +1416,10 @@ export const TODAY: Area = {
     "Назвіть уголос естонською ціну або поверх, на якому живете, і попросіть повторити.",
   "Ask for something politely with would: could I, would you.":
     "Попросіть про щось ввічливо, в умовному способі: чи не могли б ви, чи можна було б.",
+  "Talk about yourself for one minute in Estonian without stopping.":
+    "Розкажіть про себе естонською одну хвилину без зупинки.",
+  "Explain a decision you made and one reason against it.":
+    "Поясніть одне своє рішення й один аргумент проти нього.",
   "Ask the same thing twice today: once of somebody you say sina to, and once of somebody you say teie to.":
     "Сьогодні попросіть про одне й те саме двічі: один раз того, кому кажете sina, і один раз того, кому кажете teie.",
   "Tell somebody one piece of news you read, as something you heard.":
