@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 
-import { acceptedAnswers, acceptedForms, checkAnswer, countsAsRecalled, editDistance } from "./answer";
+import { acceptedAnswers, acceptedForms, checkAnswer, countsAsRecalled, editDistance, nearMiss } from "./answer";
 import { HARVESTED } from "../../prisma/data/harvested";
 
 describe("editDistance", () => {
@@ -142,6 +142,35 @@ describe("checkAnswer — English", () => {
 
   it("ignores trailing punctuation", () => {
     expect(checkAnswer("book.", "book", "en").verdict).toBe("correct");
+  });
+});
+
+describe("a miss within reach", () => {
+  it("is most of the letters, the reported muudama for muutuma", () => {
+    expect(nearMiss("muudama", "muutuma")).toBe(true);
+    const check = checkAnswer("muudama", "muutuma", "et");
+    // The colour moves and the grade does not.
+    expect(check.verdict).toBe("wrong");
+    expect(check.suggestedRating).toBe(1);
+    expect(check.close).toBe(true);
+  });
+
+  it("is never a blank, a word nowhere near, or a word too short to be half right", () => {
+    expect(checkAnswer("", "muutuma", "et").close).toBeFalsy();
+    expect(nearMiss("kass", "muutuma")).toBe(false);
+    expect(nearMiss("raamat", "muutuma")).toBe(false);
+    expect(nearMiss("me", "ma")).toBe(false);
+  });
+
+  it("does not count a dropped diacritic against the rest", () => {
+    // `oppiam` is two letters swapped on `õppima`, with the õ dropped as well.
+    expect(nearMiss("oppiam", "õppima")).toBe(true);
+  });
+
+  it("holds the right word in another ending to be close", () => {
+    const check = checkAnswer("toast", "toas", "et", ["toast"]);
+    expect(check.verdict).toBe("wrong");
+    expect(check.close).toBe(true);
   });
 });
 

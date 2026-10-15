@@ -570,6 +570,8 @@ export interface FlashMark {
   wroteSlot: string | null;
   /** One line, ready to print. Empty where the answer was simply right. */
   note: string;
+  /** A miss within reach (`nearMiss`), painted nearly rather than as a blank. Colour only. */
+  close?: boolean;
 }
 
 /**
@@ -653,7 +655,7 @@ export function markForm(task: FormAsk, typed: string): FlashMark {
     };
   }
 
-  return { right: false, rating: 1, wrote: null, wroteSlot: null, note: check.note };
+  return { right: false, rating: 1, wrote: null, wroteSlot: null, note: check.note, close: check.close ?? false };
 }
 
 /** Marking a sentence the learner wrote themselves. */

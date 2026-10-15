@@ -30,7 +30,7 @@ import { grammarTopic } from "@/lib/estonian/grammar";
 import { AlsoRight } from "@/components/WordExceptions";
 import { sayLine } from "@/lib/estonian/sayIt";
 import { sayLineIn } from "@/lib/estonian/plainAsk";
-import { VERDICT_CLASS, verdictLine, verdictOfRating } from "@/lib/ux/verdict";
+import { VERDICT_CLASS, verdictLine, verdictOfMark } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { WayOut } from "@/components/round/RoundExit";
 import { RoundProgress } from "@/components/round/RoundProgress";
@@ -535,7 +535,7 @@ function Asking({ task, answered }: { task: ExceptionTask; answered: boolean }) 
 function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
   const t = useT();
   const locale = useLocale();
-  const verdict = mark.right ? "right" : verdictOfRating(mark.rating);
+  const verdict = verdictOfMark(mark);
   const head = t({ right: "That's it", nearly: "Nearly", wrong: "Not quite" }[verdict]);
   const note = answerNote(mark.note, locale);
 

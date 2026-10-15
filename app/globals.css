@@ -1482,6 +1482,9 @@
     color: var(--again-ink);
   }
   .wb-gap-again:focus { box-shadow: 0 2px 0 0 var(--again-ink); }
+  /* A miss most of the way there (`nearMiss`) is nearly rather than missed. */
+  .wb-gap-again.wb-gap-close { border-bottom-color: var(--hard-ink); color: var(--hard-ink); }
+  .wb-gap-again.wb-gap-close:focus { box-shadow: 0 2px 0 0 var(--hard-ink); }
   /*
     A TYPED GAP GROWS WITH ITS WORD. The box and a hidden copy of what is typed
     share one grid cell, so the cell is as wide as the wider of the two: the
@@ -1546,6 +1549,8 @@
   .wb-filled-right { --wb-line: var(--good-ink); }
   .wb-filled-missed { --wb-line: var(--again-ink); }
   .wb-struck { font-weight: 500; color: var(--again-ink); }
+  .wb-filled-missed.wb-filled-close { --wb-line: var(--hard-ink); }
+  .wb-filled-close .wb-struck { color: var(--hard-ink); }
   /* A gap or a filled word with a comma or a full stop straight after it sits against it, as the word did. */
   .wb-tight { margin-right: 0; }
   .wb-stamp { animation: wb-stamp 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }

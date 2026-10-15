@@ -123,6 +123,14 @@ describe("checkForm", () => {
     expect(check).toEqual({ used: true, usedAnotherForm: false });
   });
 
+  it("calls a misspelling most of the way to the form close, and nothing else", () => {
+    // `tupa` is one letter short of `tuppa`: not used, not another form, close.
+    expect(checkForm("Ma lähen tupa.", illative, OTHER_FORMS))
+      .toEqual({ used: false, usedAnotherForm: false, close: true });
+    expect(checkForm("Ma lähen koju.", illative, OTHER_FORMS))
+      .toEqual({ used: false, usedAnotherForm: false });
+  });
+
   it("still reports a genuinely different form", () => {
     expect(checkForm("Ma olen toas.", illative, [...OTHER_FORMS, "toas"]))
       .toEqual({ used: false, usedAnotherForm: true });
