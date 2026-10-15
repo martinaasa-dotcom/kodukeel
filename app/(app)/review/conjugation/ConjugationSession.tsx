@@ -215,7 +215,13 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
 
   const check = useCallback(() => {
     if (!question || verdicts) return;
-    const marks = question.blanks.map((b, i) => checkAnswer(typed[i] ?? "", b.answer, "et"));
+    // A form placed in the wrong row of the matching table is another person of
+    // the same verb, so every miss there would read as close: only a typed miss
+    // can be most of the way there (`nearMiss`).
+    const marks = question.blanks.map((b, i) => {
+      const mark = checkAnswer(typed[i] ?? "", b.answer, "et");
+      return question.shape === "match" ? { ...mark, close: false } : mark;
+    });
     setVerdicts(marks);
     // A near miss counts as recalled, the way it does in review: a dropped õ is
     // a spelling slip and not a wrong form. A clean table is stricter, since
@@ -409,7 +415,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
                         <div className="flex flex-wrap items-center gap-2">
                           <span
                             lang="et"
-                            className={`${VERDICT_CLASS[verdictOfCheck(mark.verdict)]} pop-in rounded-[var(--r-sm)] px-1.5 text-lg font-semibold`}
+                            className={`${VERDICT_CLASS[verdictOfCheck(mark)]} pop-in rounded-[var(--r-sm)] px-1.5 text-lg font-semibold`}
                           >
                             <Ending stem={question.given.value} form={blank.answer} />
                           </span>

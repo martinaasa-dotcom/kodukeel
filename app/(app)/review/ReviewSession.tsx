@@ -1921,7 +1921,7 @@ export function ReviewSession({
           {ask === "type" && verdict && !verdict.neighbour && (
             <div className="w-full max-w-sm">
               <p
-                className={`${verdict.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(verdict.verdict)]} verdict-panel`}
+                className={`${verdict.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(verdict)]} verdict-panel`}
               >
                 {verdict.verdict === "correct" ? t(uiText("Õige!", "Correct!")) : verdict.twin ? (
                   <TrParts template="That's {twin}, {means}. This card wanted {word}, {wanted}." parts={{

@@ -156,8 +156,8 @@ function gapWidth(line: SheetItem, widest?: number): string {
 const verdictOf = (outcome: Outcome | undefined, mark: LineMark | undefined): Verdict | null => {
   if (outcome === "right") return "right";
   if (outcome === "slip" || outcome === "second") return "nearly";
-  if (outcome === "missed") return "wrong";
-  if (mark && !mark.right) return "wrong";
+  if (outcome === "missed") return mark?.close ? "nearly" : "wrong";
+  if (mark && !mark.right) return mark.close ? "nearly" : "wrong";
   return null;
 };
 
@@ -495,6 +495,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
         outcomes={outcomes}
         typed={typed}
         firstMarks={firstMarks}
+        marks={marks}
         themes={themes}
         canTranslate={canTranslate}
         practice={practice}
@@ -716,6 +717,12 @@ function SheetLine({
   const locale = useLocale();
   const settled = outcome !== undefined;
   const reopened = !settled && pass === 2;
+  /*
+    A miss most of the way there is drawn in butter rather than blush: the
+    right word in another form, or most of the letters (`nearMiss`). Never on
+    a pick between forms, where every option is a form of the word.
+  */
+  const close = kind !== "choose" && mark?.close === true;
   const meaning = gapMeaning({ en: line.sentenceEn, answer: line.answer, cue: line.translation });
   const note = noteText(mark, firstMark, outcome, line, t, locale, kind);
   const hint = secondGoHint(line, kind, t);
@@ -739,7 +746,7 @@ function SheetLine({
           <span className="whitespace-nowrap">
           {settled ? (
             <span
-              className={`wb-filled ${outcome === "missed" ? "wb-filled-missed" : "wb-filled-right"} wb-stamp ${tight ? "wb-tight" : ""}`}
+              className={`wb-filled ${outcome === "missed" ? `wb-filled-missed ${close ? "wb-filled-close" : ""}` : "wb-filled-right"} wb-stamp ${tight ? "wb-tight" : ""}`}
               style={{ animationDelay: `${Math.min(index, 10) * 45}ms`, minWidth: gapWidth(line, widest) }}
               data-answer={line.answer}
             >
@@ -794,7 +801,7 @@ function SheetLine({
               autoCapitalize="off"
               autoCorrect="off"
               spellCheck={false}
-              className={`wb-gap ${reopened && !retyped ? "wb-gap-again shake" : ""}`}
+              className={`wb-gap ${reopened && !retyped ? `wb-gap-again ${close ? "wb-gap-close" : ""} shake` : ""}`}
               data-workbook-gap=""
             />
             </span>
@@ -842,7 +849,7 @@ function SheetLine({
             {note && (
               <span
                 className="font-semibold"
-                style={{ color: reopened && retyped ? "var(--ink-2)" : settled && outcome !== "missed" ? "var(--ink-2)" : VERDICT_INK.wrong }}
+                style={{ color: reopened && retyped ? "var(--ink-2)" : settled && outcome !== "missed" ? "var(--ink-2)" : VERDICT_INK[close ? "nearly" : "wrong"] }}
               >
                 {note}
               </span>
@@ -941,12 +948,14 @@ function WordBox({ words, used }: { words: string[]; used: ReadonlySet<string> }
 
 /** The page handed back, corrected, and where to go from it. */
 function Finished({
-  exercises, outcomes, typed, firstMarks, themes, canTranslate, practice, onBack, redoCount, onRedo,
+  exercises, outcomes, typed, firstMarks, marks, themes, canTranslate, practice, onBack, redoCount, onRedo,
 }: {
   exercises: WorkbookExercise[];
   outcomes: Record<string, Outcome>;
   typed: Record<string, string>;
   firstMarks: Record<string, LineMark>;
+  /** The last mark each line got, which says whether a missed line was close. */
+  marks: Record<string, LineMark>;
   themes: Theme[];
   canTranslate: boolean;
   practice: boolean;
@@ -1046,7 +1055,8 @@ function Finished({
           <ol className="flex flex-col">
             {exercise.lines.map((line, i) => {
               const outcome = outcomes[line.id] ?? "missed";
-              const verdict = verdictOf(outcome, undefined) ?? "right";
+              // A pick between forms is never "close": every option is a form of the word.
+              const verdict = verdictOf(outcome, exercise.kind === "choose" ? undefined : marks[line.id]) ?? "right";
               const wrote = (typed[line.id] ?? "").trim();
               return (
                 <li key={line.id} className="wb-line" data-outcome={outcome}>

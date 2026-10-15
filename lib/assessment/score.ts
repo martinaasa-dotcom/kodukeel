@@ -66,6 +66,12 @@ export interface WriteMark {
   /** A real form of the right word, but not the one this sentence wants. */
   usedAnotherForm: boolean;
   note: string;
+  /**
+   * A miss most of the way there (`nearMiss`). The screen paints it nearly
+   * rather than as a blank; the credit is untouched, because this is a
+   * measurement and a colour may not move a level.
+   */
+  close?: boolean;
 }
 
 /**
@@ -141,6 +147,7 @@ export function gradeWrite(item: WriteItem, typed: string): WriteMark {
     right: false,
     usedAnotherForm: false,
     note: `That isn't a form of ${item.lemma}.`,
+    close: check.close === true,
   };
 }
 

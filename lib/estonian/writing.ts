@@ -2,6 +2,7 @@ import { CASES, type CaseSpec } from "./cases";
 import { caseFits, caseQuestionFor } from "./caseQuestion";
 import { caseAnswer, stemsFrom } from "./derive";
 import type { CaseKey } from "./types";
+import { nearMiss } from "./answer";
 
 /**
  * Free-production exercises: "write a sentence putting `tuba` in the inessive".
@@ -176,6 +177,12 @@ export interface FormCheck {
    * near-miss, and worth a different message from "you ignored the task".
    */
   usedAnotherForm: boolean;
+  /**
+   * True when neither is there but a word in the sentence is most of the way
+   * to the form asked for (`nearMiss`). Colour only: the screen paints it
+   * nearly rather than as a blank, and the grade is untouched.
+   */
+  close?: boolean;
 }
 
 /**
@@ -205,7 +212,10 @@ export function checkForm(sentence: string, task: WritingTask, allForms: string[
     .map(normalise)
     .filter((f) => f && !right.includes(f));
 
-  return { used, usedAnotherForm: !used && others.some((f) => words.has(f)) };
+  const usedAnotherForm = !used && others.some((f) => words.has(f));
+  const close = !used && !usedAnotherForm
+    && [...words].some((w) => right.some((f) => nearMiss(w, f)));
+  return close ? { used, usedAnotherForm, close } : { used, usedAnotherForm };
 }
 
 /** Rejects an "answer" that is too short to be a sentence, before spending a call. */
