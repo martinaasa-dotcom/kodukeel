@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  NUMBER_LEMMAS, drawCard, drawProp, numberFromText, priceOnCard, propBySlot, slotKinds, timeFromText, timeLiterals,
+  NUMBER_LEMMAS, drawCard, drawProp, numberFromText, priceOnCard, propBySlot, slotKinds, spokenNumbers, timeFromText, timeLiterals,
   type PropSpec,
 } from "./props";
 import { unitById } from "@/lib/collections/syllabus";
@@ -271,5 +271,24 @@ describe("a value the learner names themselves", () => {
     // A leading zero is dropped with the dot as well as with the colon: `9.30`.
     expect(timeLiterals("09:30")).toContain("9.30");
     expect(timeLiterals("14:30")).toEqual(["14:30", "14.30", "14:30", "14.30"]);
+  });
+});
+
+describe("a number said in words", () => {
+  it("is read as its digits, composed or read out one at a time", () => {
+    expect(spokenNumbers("kakskümmend viis")).toEqual(["25"]);
+    expect(spokenNumbers("sada kakskümmend eurot")).toEqual(["120"]);
+    expect(spokenNumbers("viisteist")).toEqual(["15"]);
+    expect(spokenNumbers("tuhat viissada")).toEqual(["1500"]);
+    expect(spokenNumbers("null viis neli null")).toEqual(["0540"]);
+    expect(spokenNumbers("kolm kaks üks kaheksa")).toEqual(["3218"]);
+    expect(spokenNumbers("kolm ja neli")).toEqual(["3", "4"]);
+  });
+
+  it("is never the unit inside a larger number", () => {
+    const forms = (lemma: string) => new Set([lemma]);
+    expect(numberFromText("kakskümmend viis", { min: 1, max: 10 }, forms)).toBeNull();
+    expect(numberFromText("kakskümmend viis", { min: 20, max: 30 }, forms)).toEqual({ value: "25" });
+    expect(numberFromText("viis", { min: 1, max: 10 }, forms)).toEqual({ value: "5", lemma: "viis" });
   });
 });

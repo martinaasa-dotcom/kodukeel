@@ -743,6 +743,70 @@ export function timeFromText(text: string, span: { from: number; to: number }): 
  * said with, so `kolmandal` reads as 3 exactly as `kolmas` on the card does.
  * Bounded to the slot's own span, so a house number is not read as a floor.
  */
+/**
+ * The numbers a turn says in words, as digits: `kakskümmend viis` is 25,
+ * `sada kakskümmend` is 120, and a run of single digits read one by one,
+ * `null viis neli null` or `kolm kaks üks kaheksa`, is the digit string a
+ * phone number or a reference is read out as.
+ *
+ * Only the nominative, which is how a number is read out, and only the
+ * compounds the language builds by plain concatenation of a digit's own
+ * nominative: `-teist` for the teens, `-kümmend` for the tens, `-sada` for
+ * the hundreds. Nothing here is a form to show anybody: it is read to
+ * accept, the way a learner's digits are (ADR-005).
+ */
+export function spokenNumbers(text: string): string[] {
+  const words = text.toLowerCase().split(/[^a-zõäöüšž]+/).filter(Boolean);
+  const unit = (word: string): number | null => {
+    const at = CARDINALS.indexOf(word as (typeof CARDINALS)[number]);
+    return at >= 0 && at <= 9 ? at : null;
+  };
+  const value = (word: string): { n: number; kind: "unit" | "teen" | "ten" | "hundred" | "thousand" } | null => {
+    if (word === "kümme") return { n: 10, kind: "teen" };
+    if (word === "sada") return { n: 100, kind: "hundred" };
+    if (word === "tuhat") return { n: 1000, kind: "thousand" };
+    const u = unit(word);
+    if (u !== null) return { n: u, kind: "unit" };
+    for (const [suffix, kind, scale] of [["teist", "teen", 0], ["kümmend", "ten", 10], ["sada", "hundred", 100]] as const) {
+      if (word.endsWith(suffix)) {
+        const head = unit(word.slice(0, -suffix.length));
+        if (head !== null && head > 0) return { n: kind === "teen" ? 10 + head : head * scale, kind };
+      }
+    }
+    return null;
+  };
+  const out: string[] = [];
+  let i = 0;
+  while (i < words.length) {
+    const first = value(words[i]!);
+    if (!first) { i += 1; continue; }
+    // A run of bare digits read one at a time: three or more is a number read out.
+    let j = i;
+    let digits = "";
+    while (j < words.length && unit(words[j]!) !== null) { digits += String(unit(words[j]!)); j += 1; }
+    if (j - i >= 3) { out.push(digits); i = j; continue; }
+    // A composed number: hundreds, then tens or a teen, then a unit.
+    let total = 0;
+    let last: string | null = null;
+    j = i;
+    while (j < words.length) {
+      const part = value(words[j]!);
+      if (!part) break;
+      const order = { thousand: 4, hundred: 3, ten: 2, teen: 1, unit: 0 }[part.kind];
+      if (last !== null) {
+        const before = { thousand: 4, hundred: 3, ten: 2, teen: 1, unit: 0 }[last as "unit"];
+        if (order >= before || (last === "teen" && part.kind === "unit")) break;
+      }
+      total = part.kind === "thousand" ? (total || 1) * 1000 : total + part.n;
+      last = part.kind;
+      j += 1;
+    }
+    out.push(String(total));
+    i = Math.max(j, i + 1);
+  }
+  return out;
+}
+
 export function numberFromText(
   text: string,
   span: { min: number; max: number },
@@ -752,6 +816,13 @@ export function numberFromText(
   for (const run of text.match(/\d+/g) ?? []) {
     if (fits(Number(run))) return { value: String(Number(run)) };
   }
+  // A number said in words past the ones a card names a lemma for: `kakskümmend viis`.
+  const composed = spokenNumbers(text).filter((said) => Number(said) > 10);
+  for (const said of composed) {
+    if (fits(Number(said))) return { value: String(Number(said)) };
+  }
+  // `kakskümmend viis` is 25 and not the 5 inside it.
+  if (composed.length > 0) return null;
   const spoken = new Set(text.toLowerCase().split(/[^a-zõäöüšž]+/).filter(Boolean));
   for (let n = span.min; n <= span.max; n += 1) {
     for (const lemma of numberWords(String(n))) {

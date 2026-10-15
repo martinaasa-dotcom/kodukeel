@@ -28,7 +28,7 @@
 import { looksLikeSentence } from "@/lib/estonian/writing";
 import { whereWhole } from "@/lib/estonian/cloze";
 import { ASK_ENGLISH, LOST } from "./catalogue";
-import { casualBye, casualHello } from "./casual";
+import { casualBye, casualHello, casualYes } from "./casual";
 import { fold } from "@/lib/estonian/fold";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -36,7 +36,7 @@ import type { DerivedVerbCode } from "@/lib/estonian/conjugate";
 import { clausesOf, words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
 import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
-import { numberFromText, timeFromText, type SlotKind } from "./props";
+import { numberFromText, spokenNumbers, timeFromText, type SlotKind } from "./props";
 import { CHOICE_WORD } from "./choice";
 import { leafNeeds, type BeatSpec, type Requirement } from "./types";
 
@@ -448,6 +448,12 @@ const FAREWELL_PHRASES: readonly (readonly string[])[] = [
 ];
 
 /** A turn's words with every fixed farewell taken out, so `head aega` cannot meet `hea` or `aeg`. */
+/** Whether the beat takes a plain yes: one of its requirements is a word list holding `jah`, `hästi` or `selge`. */
+function agreementBeat(beat: BeatSpec): boolean {
+  return leafNeeds(beat.needs).some(({ need }) => need.kind === "lemma" && need.oneOf.some((w) => YES_WORDS.has(w)));
+}
+const YES_WORDS: ReadonlySet<string> = new Set(["jah", "hästi", "selge", "sobima", "nõus"]);
+
 export function withoutFarewells(spoken: readonly string[]): string[] {
   const out: string[] = [];
   for (let i = 0; i < spoken.length; i++) {
@@ -679,6 +685,22 @@ export function readTurn(
   if (leaving !== null) {
     return shape("complete", {
       met: beat.needs.map(() => true), missing: [], matched: [], satisfiedBy: [leaving], slips: [],
+      substituted: beat.needs.map((_, i) => i), chose: [],
+    });
+  }
+  /*
+    AND "OK" IS YES. A beat that takes agreement names the course's words for
+    it, `jah`, `hästi`, `selge`, and a learner who said "ok", "olgu" or "hea
+    küll" was asked the same thing again, which every reviewer counted. Only
+    where the beat's own list holds a yes, only on a short turn, and never
+    with a no in it: "ei, aitäh" is a refusal and stays one. Met as a
+    substitution, so nothing is graded as the course's word.
+  */
+  const agreeing = missing.length > 0 && agreementBeat(beat) && !spoken.some((word) => context.negators.has(word))
+    ? casualYes(spoken) : null;
+  if (agreeing !== null) {
+    return shape("complete", {
+      met: beat.needs.map(() => true), missing: [], matched: [], satisfiedBy: [agreeing], slips: [],
       substituted: beat.needs.map((_, i) => i), chose: [],
     });
   }
@@ -1241,11 +1263,17 @@ function satisfies(
         `pool kaks` (13:30) inside `pool kaksteist` (11:30) and `KK-1234`
         inside `KK-12345`.
       */
-      const runs: string[] = text.toLowerCase().match(/\d{1,2}[:.]\d{2}|\d+/g) ?? [];
+      /*
+        And a number said in words counts as its digits: `kakskümmend viis`
+        for 25, and a reference read out digit by digit, `kolm kaks üks
+        kaheksa`, for the 3218 the card holds (`spokenNumbers`).
+      */
+      const said = spokenNumbers(text);
+      const runs: string[] = [...(text.toLowerCase().match(/\d{1,2}[:.]\d{2}|\d+/g) ?? []), ...said];
       const isDigits = (value: string) => /^\d{1,2}([:.]\d{2})?$/.test(value);
       const literal = [...accepted].find((value) => (isDigits(value)
         ? runs.includes(value)
-        : /\d|\s/.test(value) && wholeLiteral(lower, value)));
+        : /\d|\s/.test(value) && (wholeLiteral(lower, value) || said.includes(value.replace(/\D/g, "")))));
       if (literal) return { word: literal };
       const near = nearly(accepted);
       if (near) return { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma: near.form } };
@@ -1522,7 +1550,8 @@ function negatedIn(
 ): boolean {
   if (!hit || hit === YES) return false;
   const takesNo = leafNeeds(beat.needs).some(({ need }) =>
-    need.kind === "lemma" && need.oneOf.some((lemma) => context.negators.has(lemma.toLowerCase())));
+    need.kind === "lemma" && need.oneOf.some((lemma) => words(lemma).some((word) => context.negators.has(word))));
+  // A phrase the beat names that holds its own no, `Ma ei saa aru`, is not refused by that no.
   if (takesNo) return false;
   /*
     WHAT IS NEGATED DECIDES WHETHER THE ANSWER IS REFUSED. "Ma ei taha

@@ -42,7 +42,7 @@ export const CASUAL = {
     other: ["hi", "hello", "hey", "ciao", "hallo", "hej", "moi", "privet", "salut", "hola", "yo"],
   },
   bye: {
-    et: ["tsau", "tšau", "tsauki", "pakaa", "hüvasti", "nägemiseni", "kohtumiseni", "davai"],
+    et: ["tsau", "tšau", "tsauki", "pakaa", "hüvasti", "nägemiseni", "kohtumiseni", "davai", "näeme"],
     other: ["bye", "goodbye", "ciao", "tschüss", "adieu", "adios", "hejdå", "poka", "cheers", "later"],
   },
 } as const;
@@ -86,8 +86,51 @@ export function casualHello(spoken: readonly string[]): string | null {
 
 /** The casual goodbye in a short turn, or null. */
 export function casualBye(spoken: readonly string[]): string | null {
-  if (spoken.length === 0 || spoken.length > CASUAL_BYE_WORDS) return null;
+  if (spoken.length === 0) return null;
+  /*
+    A two-word goodbye is a goodbye at any length a goodbye is said in:
+    "Aitäh, kõike head ja head õhtut" is somebody leaving, and the length
+    limit below is about a single word that is also hello on the way in,
+    which none of these is.
+  */
+  const text = ` ${spoken.map(fold).join(" ")} `;
+  const phrase = BYE_PHRASES.find((bye) => text.includes(` ${fold(bye)} `));
+  if (phrase && spoken.length <= BYE_PHRASE_WORDS) return phrase;
+  if (spoken.length > CASUAL_BYE_WORDS) return null;
   return spoken.find((word) => BYE.has(fold(word))) ?? null;
+}
+
+/**
+ * Goodbyes of two or more words that no unit teaches whole and everybody
+ * says: "all the best", "good night", "have a good evening", "see you". Read
+ * to accept on a closing beat and never said (ADR-005: the other side says
+ * only the course's farewells).
+ */
+export const BYE_PHRASES = [
+  "kõike head", "head ööd", "head õhtut", "head päeva", "ilusat päeva", "ilusat õhtut",
+  "head nädalavahetust", "näeme homme", "näeme hiljem", "näeme veel", "näeme siis",
+] as const;
+const BYE_PHRASE_WORDS = 8;
+
+/**
+ * Yes, said the way people say it: "ok", "olgu", "hea küll", "hea mõte",
+ * "kokku lepitud". A beat that takes `jah` or `hästi` as agreement takes these
+ * too, met as a substitution so no row claims the learner produced the
+ * course's word. Read to accept and never to answer.
+ */
+export const AGREE = {
+  words: ["ok", "okei", "okay", "olgu", "kokkulepitud", "sobib", "selge", "kindlasti", "muidugi", "aitäh", "jaa", "jep"],
+  phrases: ["hea küll", "hea mõte", "kokku lepitud", "olgu siis", "nii teeme", "teeme nii", "väga hea"],
+} as const;
+const AGREE_WORDS = new Set(AGREE.words.map(fold));
+const AGREE_TURN_WORDS = 5;
+
+/** The agreement a short turn says, or null. */
+export function casualYes(spoken: readonly string[]): string | null {
+  if (spoken.length === 0 || spoken.length > AGREE_TURN_WORDS) return null;
+  const text = ` ${spoken.map(fold).join(" ")} `;
+  const phrase = AGREE.phrases.find((yes) => text.includes(` ${fold(yes)} `));
+  return phrase ?? spoken.find((word) => AGREE_WORDS.has(fold(word))) ?? null;
 }
 
 /**
