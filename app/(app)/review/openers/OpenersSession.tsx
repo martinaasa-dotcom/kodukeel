@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { useRouter } from "next/navigation";
 import { Check, CircleAlert, Shuffle } from "lucide-react";
 import { openerCard, undoOpenerCards } from "@/app/actions";
@@ -78,6 +79,9 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
   const question = questions[index];
   const finished = !question;
   const revealed = mark !== null;
+  const answerBox = useRef<HTMLInputElement>(null);
+  useFocusAnswer(answerBox, !revealed && !look.looking, index);
+
 
   useEffect(() => { answeredAt.current = Date.now(); }, [index]);
 
@@ -297,6 +301,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
               <label htmlFor="answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>{t("Your answer")}</label>
               <input
                 id="answer"
+                ref={answerBox}
                 value={typed}
                 lang="et"
                 autoFocus

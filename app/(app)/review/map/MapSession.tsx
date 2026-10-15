@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { Check, Keyboard, Map as MapIcon, X } from "lucide-react";
 import { useT } from "@/components/Locale";
@@ -76,6 +77,9 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
   const look = useLookBack();
   const finished = !q;
   const answered = picked !== null || mark !== null;
+  const answerBox = useRef<HTMLInputElement>(null);
+  useFocusAnswer(answerBox, !answered && !look.looking, index);
+
   const typedRung = q?.rung === 3;
   const footer = useKeepInView<HTMLDivElement>(answered ? index : null);
 
@@ -282,7 +286,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
                 {t("Say it in the form that answers the question")}
               </label>
               <input
-                id="answer" value={typed} lang="et" autoFocus autoComplete="off" autoCapitalize="off"
+                id="answer" ref={answerBox} value={typed} lang="et" autoFocus autoComplete="off" autoCapitalize="off"
                 spellCheck={false} disabled={answered} onChange={(e) => setTyped(e.target.value)}
                 className="field-lg mt-2 w-full text-lg disabled:opacity-70"
                 style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}

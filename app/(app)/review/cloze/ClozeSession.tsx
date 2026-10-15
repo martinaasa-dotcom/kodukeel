@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { useGrade } from "@/components/round/useGrade";
 import { Check, CircleAlert, Loader2, ScissorsLineDashed } from "lucide-react";
 import { buildClozeFromText } from "@/app/actions";
@@ -59,6 +60,9 @@ export function ClozeSession() {
   const hints = useHints({ word: item ? `${index}` : null, question: item ? `${index}` : null, ladder });
   /* The way back to the gap before this one. See `lib/ux/lookBack.ts`. */
   const look = useLookBack();
+  const answerBox = useRef<HTMLInputElement>(null);
+  useFocusAnswer(answerBox, !checked && !look.looking, index);
+
 
   const build = useCallback(async () => {
     setBusy(true);
@@ -267,6 +271,7 @@ export function ClozeSession() {
               id="attempt"
               lang="et"
               value={attempt}
+              ref={answerBox}
               autoFocus
               disabled={checked}
               onChange={(e) => setAttempt(e.target.value)}
