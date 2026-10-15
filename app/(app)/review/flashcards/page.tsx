@@ -7,7 +7,8 @@ import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples, type Example } from "@/lib/dict/examples";
 import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
-import { askableSlots, flashTask, hasSentence, subjectOf, type FlashWord } from "@/lib/games/flash";
+import { askableSlots, beginnerSlot, flashTask, hasSentence, mayWriteOwnSentence, subjectOf, type FlashWord } from "@/lib/games/flash";
+import { courseLevelFor } from "@/lib/progress/level";
 import { sayPhrase } from "@/lib/estonian/sayIt";
 import { masteryFor, type MasteredWord } from "@/lib/progress/mastery";
 import { MASTERY_CORRECT, MASTERY_ORDER } from "@/lib/srs/mastery";
@@ -71,6 +72,12 @@ export default async function FlashcardsPage({
   // only over a sentence of taught words. See lib/course/scope.ts.
   const scope = await practiceScope(ownerId, await searchParams);
   const readable = sentenceWithin(scope, await moduleSpellings(scope));
+
+  // A beginner is asked to recognise and to say, never to write a sentence of
+  // their own. Inside the module that is the programme's level, and anywhere
+  // else the level the app holds for them.
+  const level = scope ? scope.programme.level : await courseLevelFor(ownerId);
+  const beginner = !mayWriteOwnSentence(level);
 
   const words = await masteryFor(ownerId);
   const taught = scope ? new Set(scope.lemmas) : null;
@@ -170,7 +177,7 @@ export default async function FlashcardsPage({
     if (prompts.length >= ROUND) break;
     const prompt = promptFor(
       word, byLexeme.get(word.lexemeId), cardsFor.get(word.lexemeId) ?? [], prompts.length,
-      borrowed.get(word.lexemeId) ?? [], reach, scope, readable,
+      borrowed.get(word.lexemeId) ?? [], reach, scope, readable, beginner,
     );
     if (!prompt) continue;
     const lexeme = byLexeme.get(word.lexemeId);
@@ -227,6 +234,8 @@ function promptFor(
   reach?: PlainReach,
   scope: ModuleScope | null = null,
   readable: (sentence: string) => boolean = () => true,
+  /** An A1 learner: no sentence of their own to write, only the present of a verb. */
+  beginner = false,
 ): Omit<FlashPrompt, "starred"> | null {
   if (!lexeme || cards.length === 0) return null;
 
@@ -257,7 +266,9 @@ function promptFor(
   // Inside the module, a case once its page has been read and a part of a
   // verb once the page teaching it has, and a verb's past once an evening has
   // shown that verb's (`slotWithin`).
-  const askable = askableSlots(source).filter((s) => slotWithin(scope, s.slot, source.lemma));
+  const askable = askableSlots(source)
+    .filter((s) => slotWithin(scope, s.slot, source.lemma))
+    .filter((s) => !beginner || beginnerSlot(source, s));
   if (askable.length === 0) return null;
   const filled = new Set(word.verdict.filled);
   const open = askable.filter((s) => !filled.has(s.slot));
@@ -291,7 +302,7 @@ function promptFor(
   const slot = pool[(word.verdict.correct + offset) % pool.length]!;
 
   const card = cardFor(cards, slot.slot);
-  const task = flashTask({ word: source, slot, cardId: card.id, step: word.verdict.correct });
+  const task = flashTask({ word: source, slot, cardId: card.id, step: word.verdict.correct, beginner });
   if (!task) return null;
 
   return {
