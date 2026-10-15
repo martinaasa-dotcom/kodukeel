@@ -20372,7 +20372,8 @@ check("a learner who says they are lost is handed the word, never the question a
   */
   const vouch = code("lib/progress/scene.ts").match(/export async function sceneVouch[\s\S]*?\n\}/)?.[0] ?? "";
   assert.match(vouch, /courseForms\(\)/, "sceneVouch stopped reading the course");
-  assert.match(vouch, /isKnownForm\(/, "sceneVouch stopped reading the forms list");
+  // Exactly, so a line with a dropped diacritic is not vouched for as the word it meant.
+  assert.match(vouch, /isExactForm\(/, "sceneVouch stopped reading the forms list exactly");
   assert.doesNotMatch(
     vouch, /compose|provider|openWithFallback/,
     "sceneVouch reaches a model to decide whether a word is Estonian, which is the app vouching for "

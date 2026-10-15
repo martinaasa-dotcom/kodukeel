@@ -292,6 +292,20 @@ export interface TurnContext {
    */
   readonly course?: (word: string) => boolean;
   /**
+   * A spelling the forms list holds only with its diacritics put back, which
+   * is Estonian the learner meant and not a word they wrote.
+   *
+   * `known` is asked "is this a real word" by the slip rule, and it has to be
+   * asked exactly: the forms list is indexed folded, so read through
+   * `isKnownForm` it said yes to `vaike` because `väike` is a word, the slip
+   * rule took that to mean `vaike` was a different real word, and a learner
+   * on a keyboard with no ä who wrote "see on väike" without it was refused in
+   * every scene. So `known` holds exact spellings and this holds the folded
+   * ones, which still count as Estonian somebody could read (`isEstonian`)
+   * and never as a word that rules out a slip.
+   */
+  readonly understood?: (word: string) => boolean;
+  /**
    * WHAT ELSE THE LEARNER COULD HAVE SAID AND MEANT THE SAME THING.
    *
    * A beat names the words that meet it and may name only words the scene's
@@ -1552,7 +1566,8 @@ function placeName(text: string, context: TurnContext): string | null {
 function isEstonian(word: string, context: TurnContext): boolean {
   return context.lexicon.forms.has(word)
     || context.lexicon.folded.has(fold(word))
-    || Boolean(context.known?.(word));
+    || Boolean(context.known?.(word))
+    || Boolean(context.understood?.(word));
 }
 
 /** Two English function words and nothing the scene's list could vouch for. */

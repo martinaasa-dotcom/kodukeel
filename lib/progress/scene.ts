@@ -37,7 +37,7 @@ import { isPhrase } from "@/lib/dict/pos";
 import { courseForms } from "@/lib/dict/facts";
 import { substitutes } from "@/lib/dict/acceptFacts";
 import { sensesOf, substitutesFrom } from "@/lib/dict/synonyms";
-import { isKnownForm, lemmasOfForm } from "@/lib/dict/forms";
+import { isExactForm, isKnownForm, lemmasOfForm } from "@/lib/dict/forms";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { planRun, RECENCY_WINDOW, type Recency, type SceneRun as SceneRunPlan } from "@/lib/scenes/run";
@@ -270,17 +270,27 @@ export async function knowing(
     .slice(0, KNOWN_LOOKUPS);
   if (asking.length === 0) return context;
 
+  /*
+    EXACTLY, OR ONLY WITH ITS DIACRITICS PUT BACK, AND THE TWO ARE KEPT APART.
+    `known` is what the slip rule asks "is this a real word" of, so a folded
+    match there read `vaike` as a word of its own rather than as `väike`
+    typed without the ä (`TurnContext.understood`).
+  */
   const found = new Set<string>();
+  const folded = new Set<string>();
   await Promise.all(asking.map(async (word) => {
-    if (await isKnownForm(word)) found.add(word);
+    if (await isExactForm(word)) found.add(word);
+    else if (await isKnownForm(word)) folded.add(word);
   }));
-  if (found.size === 0) return context;
+  if (found.size === 0 && folded.size === 0) return context;
 
+  const understood = context.marker.understood;
   return {
     ...context,
     marker: {
       ...context.marker,
       known: (word: string) => found.has(word) || Boolean(already?.(word)),
+      understood: (word: string) => folded.has(word) || Boolean(understood?.(word)),
     },
   };
 }
@@ -330,8 +340,10 @@ export async function sceneVouch(
   */
   const course = await courseForms();
   const left = asking.filter((word) => (course.has(word) ? (out.add(word), false) : true));
+  /* Exactly, diacritics and all: a line the other side says with one dropped
+     is a misspelling on screen, however plainly it was meant. */
   await Promise.all(left.slice(0, KNOWN_LOOKUPS).map(async (word) => {
-    if (await isKnownForm(word)) out.add(word);
+    if (await isExactForm(word)) out.add(word);
   }));
   return out;
 }
