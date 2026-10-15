@@ -17,15 +17,15 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `tagatisraha`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "tagatisraha", beat: "why", text: "Miks te helistate?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "tagatisraha", beat: "why", text: "Kuidas ma saan aidata?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "tagatisraha", beat: "moved", text: "Millal oli teie kolimine?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "tagatisraha", beat: "moved", text: "Mis kuus oli teie kolimine?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "tagatisraha", beat: "clean", text: "Korter oli määrdunud, eks?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "tagatisraha", beat: "clean", text: "Korter oli väga määrdunud, eks?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "tagatisraha", beat: "hurdle:contradiction", text: "Ei, korter oli väga määrdunud.", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tagatisraha", beat: "why", text: "Mis asjas te helistate?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tagatisraha", beat: "why", text: "Jah, mis asjas te helistate?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tagatisraha", beat: "moved", text: "Millal korter tühjaks jäi?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tagatisraha", beat: "moved", text: "Mis kuus korter tühjaks jäi?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tagatisraha", beat: "clean", text: "Korter oli must, eks?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tagatisraha", beat: "clean", text: "Korter oli väga must, eks?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tagatisraha", beat: "hurdle:contradiction", text: "Ei, korter oli väga must.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "tagatisraha", beat: "hurdle:contradiction", text: "Ei, kolimine oli hiljem.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "tagatisraha", beat: "hurdle:other-register", text: "Miks sa helistad?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "tagatisraha", beat: "hurdle:other-register", text: "Mis asjas sa helistad?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "tagatisraha", beat: "hurdle:other-register", text: "Kuidas sul läheb?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "tagatisraha", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "tagatisraha", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15" },

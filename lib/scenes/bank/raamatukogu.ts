@@ -21,15 +21,15 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "raamatukogu", beat: "want", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "month", text: "Mis kuus on teie sünnipäev?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "month", text: "Hästi. Millal on teie sünnipäev, mis kuus?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "raamatukogu", beat: "phone", text: "Mis on teie telefoni number?", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "raamatukogu", beat: "phone", text: "Kas te ütleksite oma telefoni numbri?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "raamatukogu", beat: "phone", text: "Mis teie telefon on?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "raamatukogu", beat: "phone", text: "Teie telefon, palun?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "check", text: "Vabandust, ma ei kuulnud lõppu. Palun korrake.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "check", text: "Palun öelge uuesti, aeglaselt.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "hurdle:missing-document", text: "Kas teil on dokument kaasas?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "hurdle:missing-document", text: "Kas teil on mõni dokument kaasas?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "hurdle:misheard", text: "Kas teie sünnipäev on mais või märtsis?", model: "authored", draftedAt: "2026-10-15", about: "month" },
   { scene: "raamatukogu", beat: "hurdle:misheard", text: "Kas see on juunis või juulis?", model: "authored", draftedAt: "2026-10-15", about: "month" },
-  { scene: "raamatukogu", beat: "hurdle:other-register", text: "Mis su telefoni number on?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "raamatukogu", beat: "hurdle:other-register", text: "Mis su telefon on?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "raamatukogu", beat: "hurdle:other-register", text: "Kas sul on dokument kaasas?", model: "authored", draftedAt: "2026-10-15" },
 ];
 

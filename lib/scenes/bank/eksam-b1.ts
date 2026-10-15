@@ -27,7 +27,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "eksam-b1", beat: "why", text: "Miks te just selle valiksite?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "agree", text: "Läheme siis sinna.", model: "authored", draftedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "agree", text: "Olen nõus. Läheme siis sinna.", model: "authored", draftedAt: "2026-10-15" },
-  { scene: "eksam-b1", beat: "call", text: "Kool kuulab. Mida te soovite teada?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "eksam-b1", beat: "call", text: "Tere, kool kuuleb. Mida te soovite teada?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "hurdle:misheard", text: "Te elate maal, eks?", model: "authored", draftedAt: "2026-10-15", about: "home" },
   { scene: "eksam-b1", beat: "hurdle:other-register", text: "Kus sa elad?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "hurdle:faster", text: "Meil on kiire, jätkame kohe.", model: "authored", draftedAt: "2026-10-15" },
@@ -35,7 +35,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "eksam-b1", beat: "hurdle:misheard", text: "Te õpite ülikoolis, eks?", model: "authored", draftedAt: "2026-10-15", about: "work" },
   { scene: "eksam-b1", beat: "hurdle:other-register", text: "Kas sa töötad või õpid?", model: "authored", draftedAt: "2026-10-15" },
   { scene: "eksam-b1", beat: "hurdle:misheard", text: "Te elate linnas, eks?", model: "authored", draftedAt: "2026-10-15", about: "home" },
-  { scene: "eksam-b1", beat: "call", text: "Jah, kool kuulab. Kuidas ma saan teid aidata?", model: "authored", draftedAt: "2026-10-15" },
+  { scene: "eksam-b1", beat: "call", text: "Jah, kool kuuleb. Kuidas ma saan teid aidata?", model: "authored", draftedAt: "2026-10-15" },
 ];
 
 export default LINES;
