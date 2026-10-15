@@ -118,7 +118,7 @@ git cat-file -e origin/main:lib/speech/reconcile.ts 2>/dev/null \
 
 | # | Decision | Where it bites |
 | --- | --- | --- |
-| D1 | **The recognizer is TalTech's `streaming-zipformer-large.et-en`, int8, run on the learner's device through sherpa-onnx.** The small Zipformer is the fallback where a device cannot hold the large one (SP-0 measures where that line is). The Whisper verbatim model is a later, optional "second opinion" and not part of this batch; so is `xls-r-300m-et`, which SP-0 measures on real voices as the possible engine for SP-6 alone. Pin the Hugging Face revision and the SHA-256 of every file. | SP-1, SP-10 |
+| D1 | **The recognizer is TalTech's `streaming-zipformer-large.et-en`, int8, run on the learner's device through sherpa-onnx.** The small Zipformer is the fallback where a device cannot hold the large one (SP-0 measures where that line is). **Everything runs locally; no recognition is ever done on a server, ours or anybody's.** That is the operator's rule and it rules out the Whisper models for good: they need a server-class machine (10 seconds a clip on a server CPU). The one other candidate is `xls-r-300m-et`, which SP-0 measures on real voices as the possible engine for SP-6 alone, on the devices that can hold it. Pin the Hugging Face revision and the SHA-256 of every file. | SP-1, SP-10 |
 | D2 | **No audio leaves the device, and no audio is stored.** A clip lives in memory for the turn or the card and is released when it changes, which is `Recorder`'s rule today. Transcripts are stored only where typed text is stored already (a scene turn, an answer). No new recipient goes on `/privacy`. The one exception is SP-9's voice donation, which is its own consent, its own table and its own erasure. | Every item |
 | D3 | **Bars before features.** SP-0 measures real voices. A transcript is shown to learners only if correctly said test sentences are misheard under 8 percent of words. A contrast is judged (SP-6) only if a correctly said contrast word is heard as its partner under 2 percent of the time and a deliberately wrong one is caught at least 80 percent of the time. These are the operator's numbers to move; nobody else moves them. | SP-3 to SP-7 |
 | D4 | **Two transcripts, two jobs.** `heard` is decoded with no hotwords and no repair and is the only text any feedback about sounds may come from. `understood` is decoded with hotwords where SP-0 shows they help a learner's voice (off by default, section 3.2) and repaired against the dictionary (section 3.3), and is what a conversation advances on. They are computed from the same audio in one pass where the runtime allows, two where it does not. **Measured (section 3.5): the Zipformer writes a sound mistake as said only rarely** (a voicing slip once in 70, a length slip 7 times in 66) and corrects the rest into the right word, so its `heard` is no evidence about sounds. Where a line about a sound is shown at all (SP-5, SP-6), `heard` comes from `xls-r-300m-et`, which writes mistakes two to ten times as often, and only once SP-0 shows it clears D3. | SP-2, SP-3, SP-5, SP-6 |
@@ -307,9 +307,8 @@ a learner's half-way sound, so real voices could go either way; SP-0 decides. Th
 1. **The Zipformer is for understanding.** It turns a learner's slip back into the word they meant,
    which is exactly what a conversation wants and exactly what pronunciation feedback cannot use.
 2. **A sound line never comes from the Zipformer's `heard`** (D4), and SP-6 stays blocked until a
-   model clears D3 on real voices. The candidates, in the order to try them: `xls-r-300m-et` on
-   SP-0's recordings, then TalTech's Whisper verbatim model, which has not yet been measured on
-   mistakes and is the next free experiment.
+   model clears D3 on real voices. The one candidate is `xls-r-300m-et` on SP-0's
+   recordings. The Whisper models are not candidates, because they cannot run locally (D1).
 3. **Grading up stays safe** (D6): a mispronounced word heard as the right one grades Good for
    recall, which is what the card asks, and the sound is never graded.
 
@@ -556,8 +555,7 @@ ever sent to TalTech. Built only after the operator signs off section 9's first 
 The same model and the same rules, in each platform's own runtime:
 
 - **iOS**: sherpa-onnx's iOS framework with the Zipformer large; Core ML is optional and measured
-  first. The Whisper verbatim model can be an optional download ("Most accurate, 550 MB") through
-  whisper.cpp with Core ML, as a second opinion for SP-6.
+  first.
 - **Android**: sherpa-onnx's Android library with the Zipformer large, the small model on devices
   SP-0 finds too slow.
 - **Shared**: everything under `lib/speech/` (to be written) is pure TypeScript; whichever framework the apps are
@@ -587,8 +585,9 @@ Estonian written, tokens, one loud action, invariants in their own files), plus:
 
 - **A pronunciation score.** ADR-018 stands. A score needs a model trained to judge L2 speech and a
   measurement against human raters; SP-9 and section 3.4 are the road to that, and it is not a batch.
-- **Server-side recognition.** Only if SP-0 finds the devices learners actually have cannot run the
-  small model. It would be a new recipient, a new cost and a new section on `/privacy`.
+- **Server-side recognition.** Not coming back: everything runs locally (D1). If SP-0 finds a device
+  that cannot run the small model, that device gets no speech features and the typed path it has
+  today.
 - **A language model rewriting transcripts.** The scene judge already reads meaning; a second model
   on every utterance is cost the operator has said no to, and the reconcile rules are free.
 
