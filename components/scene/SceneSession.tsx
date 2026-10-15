@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { BookOpen, Clock, CornerDownLeft, DoorOpen, Heart, Info, LifeBuoy, ListChecks, MessageCircle, RotateCcw, Shuffle } from "lucide-react";
 import { RoundChip } from "@/components/round/RoundStart";
 import { Button } from "@/components/Button";
-import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
+import { ChoiceCard, ChoiceChip, ChoiceGroup, ChoiceSegment } from "@/components/Choice";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Card, CardLink, toneInk } from "@/components/ui";
 import { kindOf } from "@/lib/scenes/kinds";
@@ -140,6 +140,15 @@ interface Sent {
   conceded?: number[];
   /** Beats further along a judge said this same turn met, echoed like `conceded`. */
   alsoDone?: string[];
+  /** Picked off the offered lines rather than typed, which grades nothing (`SentTurn.picked`). */
+  picked?: boolean;
+}
+
+/** A line the learner may pick instead of typing, as the server built it (`lib/scenes/picks.ts`). */
+interface PickLine {
+  id: string;
+  et: string;
+  en: string;
 }
 
 /**
@@ -364,6 +373,16 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
   const [asked, setAsked] = useState<{ lemma: string; lexemeId: string | null }[]>([]);
   const [helped, setHelped] = useState(false);
   const [draft, setDraft] = useState("");
+  /*
+    PICKING OR TYPING. The lines to pick are two or three right answers to the
+    beat in front, built off this run's card (`lib/scenes/picks.ts`), so a
+    beginner can hold the whole conversation by recognising the right thing to
+    say before they can produce it. Picking is the default at A1 and typing
+    everywhere else, and either is one press away for the whole run: a learner
+    who knows the answer types it, and one who is stuck picks it.
+  */
+  const [picks, setPicks] = useState<PickLine[]>([]);
+  const [answerBy, setAnswerBy] = useState<"pick" | "type">(openAt === "A1" ? "pick" : "type");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [debrief, setDebrief] = useState<Debrief | null>(null);
@@ -701,6 +720,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
         conceded?: number[] | null;
         alsoDone?: string[] | null;
         chosen?: { slot: string; given: string[] }[];
+        picks?: PickLine[];
       };
       if (data.error) { setError(t(data.error)); return; }
       /*
@@ -857,6 +877,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
       setHurdle(data.hurdle ?? null);
       if (data.queued) setQueued(true);
       setDone(data.done ?? []);
+      setPicks(data.picks ?? []);
       if (said.length > 0) setTurns((was) => [...was, { who: "them", lines: said }]);
       if (lines.length > 0) {
         /*
@@ -899,6 +920,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
     setError(null);
     const result = await beginScene(scene.id, difficulty, level).catch(() => null);
     setBusy(false);
+    setAnswerBy(level === "A1" ? "pick" : "type");
     if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
 
     /*
@@ -927,12 +949,16 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
   }
 
   async function say() {
-    const said = draft.trim();
+    await answer(draft.trim(), false);
+  }
+
+  async function answer(said: string, picked: boolean) {
     if (!said || !beatId || busy) return;
-    const next = [...sent, { beatId, said, helped, heard }];
+    const next: Sent[] = [...sent, { beatId, said, helped, heard, ...(picked ? { picked: true } : {}) }];
     setSent(next);
     setTurns((was) => [...was, { who: "you", text: said }]);
-    setDraft("");
+    setPicks([]);
+    if (!picked) setDraft("");
     setHelped(false);
     setLent(null);
     await speak(next);
@@ -2147,24 +2173,59 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt }: {
             answer to a question that has not been asked yet, in a place they
             have not been told they are standing in.
           */}
-          <EstonianInput
-            value={draft}
-            onChange={setDraft}
-            onEnter={say}
-            inputRef={box}
-            disabled={moving}
-            ariaLabel={t("What you say")}
-            placeholder={moving ? t("Just a moment…") : t("Say it in Estonian")}
+          <ChoiceSegment
+            ariaLabel={t("How you answer")}
+            value={answerBy}
+            onSelect={setAnswerBy}
+            options={[
+              { id: "pick", title: t("Pick a line"), icon: <ListChecks size={16} aria-hidden /> },
+              { id: "type", title: t("Type it"), icon: <CornerDownLeft size={16} aria-hidden /> },
+            ]}
           />
-          {/*
-            Alone in its row, so the one action a learner takes every turn is the
-            loud one and nothing sits between it and the box. The three quieter
-            controls are a row of their own underneath, which also keeps Leave
-            away from the button being pressed twenty times a conversation.
-          */}
-          <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
-            <CornerDownLeft size={16} aria-hidden /> {t("Say it")}
-          </Button>
+          {answerBy === "pick" && picks.length > 0 ? (
+            /*
+              Each line is a button that says it, with what it means under it.
+              Nothing is marked before it is said: the reply is the marking, as it
+              is for a typed turn, and a picked line grades nothing.
+            */
+            <div className="flex flex-col gap-2" data-picks>
+              <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("Pick what you'd say. Picked lines don't count toward your words.")}</p>
+              {picks.map((pick) => (
+                <button
+                  key={pick.id}
+                  type="button"
+                  className="choice-btn press flex flex-col items-start gap-0.5 rounded-xl px-4 py-3 text-left"
+                  onClick={() => answer(pick.et, true)}
+                  disabled={busy || moving}
+                  data-pick={pick.id}
+                >
+                  <span lang="et" className="text-md font-medium">{pick.et}</span>
+                  <span className="text-sm" style={{ color: "var(--ink-2)" }}>{pick.en}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <>
+              <EstonianInput
+                value={draft}
+                onChange={setDraft}
+                onEnter={say}
+                inputRef={box}
+                disabled={moving}
+                ariaLabel={t("What you say")}
+                placeholder={moving ? t("Just a moment…") : t("Say it in Estonian")}
+              />
+              {/*
+                Alone in its row, so the one action a learner takes every turn is the
+                loud one and nothing sits between it and the box. The three quieter
+                controls are a row of their own underneath, which also keeps Leave
+                away from the button being pressed twenty times a conversation.
+              */}
+              <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
+                <CornerDownLeft size={16} aria-hidden /> {t("Say it")}
+              </Button>
+            </>
+          )}
           <div className="flex flex-wrap gap-2">
             <Button variant="ghost" onClick={again} disabled={busy || moving || !heard}>
               <RotateCcw size={16} aria-hidden /> {t("Say that again")}

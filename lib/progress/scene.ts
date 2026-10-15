@@ -895,6 +895,17 @@ export interface SentTurn {
    * `conceded`, and read only where the cascade reaches that beat.
    */
   readonly alsoDone?: readonly string[];
+  /**
+   * Whether the learner picked this turn off the lines the screen offered
+   * rather than typing it (`lib/scenes/picks.ts`). A picked line is read like
+   * any other, so the conversation goes on the same way, and it grades
+   * nothing: choosing the right sentence out of three is recognition, and a
+   * row saying the learner produced the word would be a recall that never
+   * happened, in the one table that is never repaired. The client's word,
+   * like `helped`, and a client that lies about it only withholds its own
+   * grades.
+   */
+  readonly picked?: boolean;
 }
 
 /** The `alsoDone` field off the wire: beat ids only, deduplicated, bounded. */
@@ -1217,7 +1228,14 @@ export async function finishRun(input: {
 
   const objectives = objectivesOf(scene, state);
   const outcome = outcomeOf(scene, state);
-  const grades = gradesFor(scene, state, draw?.card ?? null, context.lexicon);
+  /*
+    A BEAT ANSWERED BY PICKING GRADES NOTHING. The reading is the same and the
+    conversation went on the same way; what the log may not hold is a recall
+    of a sentence the learner chose rather than said (`SentTurn.picked`).
+  */
+  const pickedBeats = new Set(input.turns.filter((turn) => turn.picked).map((turn) => turn.beatId));
+  const grades = gradesFor(scene, state, draw?.card ?? null, context.lexicon)
+    .filter((grade) => !pickedBeats.has(grade.beatId));
   const locale = await localeFor(input.ownerId);
   const review = reviewOf(scene, state, locale);
 

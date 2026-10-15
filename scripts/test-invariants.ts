@@ -10680,7 +10680,10 @@ check("no screen writes a case's Latin name into a sentence", () => {
     for (const m of src.matchAll(/"([^"\n]*)"|'([^'\n]*)'|`([^`]*)`/g)) {
       // What a template interpolates is an expression rather than words: the
       // key `${word.lemma}-${illative.et}` is not a sentence about a case.
-      out.push((m[1] ?? m[2] ?? m[3] ?? "").replace(/\$\{[^}]*\}/g, " "));
+      out.push((m[1] ?? m[2] ?? m[3] ?? "").replace(/\$\{[^}]*\}/g, " ")
+        // A pick's slot names its case by key, `{from:ELATIVE}`, which is a
+        // placeholder filled off the dictionary and never shown as written.
+        .replace(/\{[a-z0-9]+:[A-Z_]+\}/g, " "));
     }
     // JSX text sits after a tag's own `>`, and `=>` is not one: without the
     // lookbehind this ran from an arrow function to the next comparison and
@@ -20258,16 +20261,18 @@ check("a learner who says they are lost is handed the word, never the question a
   /*
     NOBODY LEAVES A BEAT WITHOUT HAVING BEEN TOLD WHAT IT WANTED.
 
-    Two halves, and neither is the other. The character says the word on the
-    way past when they give up, so a beat never ends in silence; and the app
-    says, in its own voice and in English, what is being waited for once the
-    learner has missed twice, because the other side of a conversation cannot
-    explain itself and a learner watching it ask a third time and give up
-    reads that as the app having decided they are stupid.
+    Two halves, and neither is the other. The character hands the word over
+    where the learner said they were lost; and the app says, in its own voice
+    and in English, what is being waited for once the learner has missed
+    twice, because the other side of a conversation cannot explain itself and
+    a learner watching it ask a third time and give up reads that as the app
+    having decided they are stupid. The word is no longer blurted on the way
+    past a beat let go: `Pea?` to a stomach ache was read by every reviewer
+    as the other side saying a noun at nobody.
   */
   assert.match(
-    answering, /if \(input\.offer\) out\.push/,
-    "the other side gives up without saying the word it was waiting for",
+    answering, /if \(response === "help"\) \{\s*const word = input\.offer;/,
+    "a learner who says they are lost is no longer handed the word they were missing",
   );
   assert.match(
     answering, /coachFor\(beat, card(, [^)]*)?\)/,
@@ -20421,7 +20426,7 @@ check("a learner who says they are lost is handed the word, never the question a
     learner as having produced it.
   */
   assert.match(
-    turn, /\.map\(\(hit\) => \(negatedIn\(hit, text, beat, context\) \? null : hit\)\)/,
+    turn, /if \(!negatedIn\(first, text, beat, context, need\)\) return first;[\s\S]{0,400}return negatedIn\(again, text, beat, context, need\) \? null : again;/,
     "the marker credits a requirement met by a word the learner said no about, so a refusal reads "
     + "as the answer",
   );
@@ -20562,7 +20567,7 @@ check("the other side may volunteer something, and never says it twice", () => {
     arriving through another door.
   */
   assert.match(
-    reply, /const fresh = mine\.filter\(\(word\) => !theirs\.has\(word\)\);/,
+    reply, /const fresh = mine\.filter\(\(word\) => !theirs\.has\(word\)/,
     "the rotation may hand the learner their own word back",
   );
   assert.match(

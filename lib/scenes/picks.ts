@@ -74,9 +74,9 @@ export function literalOf(template: string): string {
  * the dictionary holds no form for the case it asks: withheld whole rather
  * than printed in the nominative, which would be Estonian nobody says.
  */
-export function buildPick(spec: PickSpec, card: RoleCard | null, lexicon: Lexicon): { et: string; en: string } | null {
+export function buildPick(template: PickSpec, card: RoleCard | null, lexicon: Lexicon): { et: string; en: string } | null {
   let missing = false;
-  const et = spec.et.replace(SLOT, (_, slot: string, grammCase?: string) => {
+  const et = template.et.replace(SLOT, (_, slot: string, grammCase?: string) => {
     const prop = card ? propBySlot(card, slot) : undefined;
     if (!prop?.value) { missing = true; return ""; }
     if (!grammCase) return prop.value;
@@ -86,7 +86,7 @@ export function buildPick(spec: PickSpec, card: RoleCard | null, lexicon: Lexico
     return form;
   });
   if (missing) return null;
-  const en = spec.en.replace(SLOT, (_, slot: string) => {
+  const en = template.en.replace(SLOT, (_, slot: string) => {
     const prop = card ? propBySlot(card, slot) : undefined;
     /*
       The sense the situation means where the scene narrowed it (`means`),
@@ -112,8 +112,8 @@ export function pickSpecsFor(scene: Pick<SceneSpec, "id" | "register">, beatId: 
 /** What the learner may pick to say on this beat, built off their card. Empty where nothing is written for it. */
 export function picksFor(scene: Pick<SceneSpec, "id" | "register">, beat: BeatSpec | null | undefined, card: RoleCard | null, lexicon: Lexicon): PickOption[] {
   if (!beat) return [];
-  return pickSpecsFor(scene, beat.id).flatMap((spec, n) => {
-    const built = buildPick(spec, card, lexicon);
+  return pickSpecsFor(scene, beat.id).flatMap((template, n) => {
+    const built = buildPick(template, card, lexicon);
     return built ? [{ id: `${beat.id}#${n}`, ...built }] : [];
   });
 }
