@@ -1481,14 +1481,25 @@ export function ReviewSession({
             deck can have plenty due and this round still have nothing to ask,
             and a screen saying every card is scheduled for later sends the
             learner off to check a deck that is fine. What is true is that
-            today's review is finished, and the way on is the module's own
-            bar underneath rather than an action here, which is why `Empty`
-            withholds one inside a step. Before the two branches below, since
-            both of them answer for somebody who walked here themselves.
+            today's review is finished.
+
+            AND THE WAY ON HAS TO BE DRAWN HERE. The copy said "on to the next
+            step" and drew nothing to press: the phone's bar goes at the foot
+            of a step's end, and a desktop has no bar at all, so the learner
+            was left reading an instruction with no control under it. `Empty`
+            only draws its `WayOut` when it is handed an action, and inside a
+            module `WayOut` swaps whatever it is given for the module's own
+            button, "Next, step 4: ..." or, because the review closes the
+            evening, "Finish today's module". The `ButtonLink` is therefore
+            never the thing on screen here; it is what makes `Empty` draw the
+            slot, and the honest fallback if the frame ever is not there.
+            Before the two branches below, since both of them answer for
+            somebody who walked here themselves.
           */
           <Empty
             title={t("That's today's review done")}
             body={t("You've been through every word today's module had for you. On to the next step.")}
+            action={<ButtonLink href="/course" variant="primary">{t("Open today's module")}</ButtonLink>}
           />
         ) : totalCards === 0 ? (
           <Empty
