@@ -6039,6 +6039,18 @@ verbs that pins the table on one evening does not meet it on the rotation the ne
 carries the table on its rotation: the drill after it stands in. Both asserted, and the rule that no
 pair repeats where the words allow another stands over every evening of the ladder unchanged.
 
+**And an A1 learner is never asked to write a sentence of their own.** A flash card read "Write a sentence
+with 'don't go'" over `minema`, which is a whole sentence from nothing, on the most irregular verb in the
+language, in the negative, in the first month. `build` was the last shape a word opened, so a beginner reached
+it by being right, which is the round punishing progress. The flash round takes a `beginner` flag now, drawn at
+`BUILD_FROM` through `mayWriteOwnSentence` so it cannot disagree with where ordering words starts: a beginner
+gets the gap, the heard sentence and the bare ask and no `build`, and a verb is asked in its six present persons
+and nothing harder (`beginnerSlot`), since the negative, the past, the conditional and the imperative are each a
+page of their own. The page reads the programme's level inside the module and the learner's own level anywhere
+else. Asserted in `scripts/invariants/a-beginner-never-writes-a-sentence.ts`. What this does not reach is the
+rounds a beginner can walk to from Practice that ask for a sentence (Say what you see, the workbook's written
+page), which are the learner's own difficulty to pick.
+
 **And then the same rule was asked of every evening of every level, because a beginner is not the
 only person who can be handed something nobody told them.** A2's first evening dealt a case sprint
 before any case page had been read, B1's first evening a conjugation table with the conditional in
