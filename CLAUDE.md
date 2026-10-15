@@ -6513,6 +6513,24 @@ answering one step and fixing one is a fault that shows on half the evenings. No
 anybody else: opened from the reference, from a card or from a search, each page is exactly what it
 was.
 
+**And the sentences under a point are about words the learner has met.** The topic page pins one or
+two attested sentences under each claim, chosen for how well they show it and for nothing about who
+is reading, and on the fourth evening of A1 they showed the present tense on `alustama` and `sööma`
+with the verb marked, to somebody who had met neither. It was reported from exactly there: the marked
+word is the one the sentence exists to show, so it is the one that has to be a word they hold, and a
+sentence of strangers teaches the strangers rather than the rule. Opened from a step, the page keeps
+only the pins whose marked word is a spelling the evenings have taught (`keepMet`), and a point left
+short is filled from a sentence recorded under one of the learner's own verbs, carrying the slot the
+point is about, simplest first and spread across verbs (`lib/course/pointExamples.ts`, the pure half;
+`lib/progress/moduleExamples.ts` reads). Nothing is written (ADR-005): every sentence is one a
+lexicographer recorded under that verb, every one carries the English the dictionary holds, and the
+sentences written for a beginner stay out, since that list of readers is closed. **Only a point whose
+claim is about the slot may be filled by it** (`FILLS_BY_SLOT`): any present-tense line shows "one
+ending each for I, you, we", and no such line shows "it covers the future too" or "built with to be",
+so those keep their pins and show nothing until the learner has met the verbs. Keyed by the point's own
+text like the pins, and the test fails on a key matching no point. The reference opened by hand is
+exactly what it was, and the case pages are not yet held to this.
+
 **It is a suggestion, not a track.** It is offered past the level the learner holds, and it is one
 setting to turn off. Off changes nothing else, and the work done the other way still counts toward a
 module the day it is turned back on.
