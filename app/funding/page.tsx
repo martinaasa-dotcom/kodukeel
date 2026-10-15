@@ -3,6 +3,7 @@ import { Legal, P, S } from "@/components/Legal";
 import { CostExplorer } from "./CostExplorer";
 import { rich } from "@/components/Rich";
 import { LocaleProvider } from "@/components/Locale";
+import { areaTable } from "@/lib/copy/i18n/tables";
 import { fill, tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
@@ -240,7 +241,14 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
         <P>
           {t("Move the slider. Nothing here is stored or sent anywhere. The math runs in your browser, using the same code the app itself uses to decide when to stop spending.")}
         </P>
-        <LocaleProvider locale={locale}>
+        {/*
+          The public area and no more of the language: every line the
+          calculator draws, its services, stages and assumptions included, is
+          translated there (lib/copy/i18n/areas/public.ts). Without the slice a
+          Russian reader downloaded the whole signed-in app's language to read
+          one calculator. scripts/test-locales.mjs names a line the slice misses.
+        */}
+        <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, ["public"])}>
           <CostExplorer />
         </LocaleProvider>
       </S>

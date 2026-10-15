@@ -330,6 +330,21 @@ async function entryPages(locale) {
     await page.goto(`${B}${path}`, { waitUntil: "networkidle", timeout: 60_000 });
     await page.waitForTimeout(400);
     check(`${path} hydrates without a mismatch`, thrown.length === 0, thrown.slice(0, 2).join(" · "));
+    /*
+      The cost calculator carries the public area as a slice rather than the
+      whole language, so a line the slice misses draws in English on the client
+      against the server's Russian, which the hydration check above names. Its
+      choices are pressed too, since a press redraws the bill in other words.
+    */
+    if (path.startsWith("/funding")) {
+      check(`${path} arrives without the whole ${locale} table`, tableLoads === 0, `${tableLoads} table chunk(s) loaded`);
+      const chips = page.locator("[role=radiogroup] [role=radio]");
+      const count = await chips.count();
+      for (let i = 0; i < Math.min(count, 6); i++) await chips.nth(i).click({ timeout: 5_000 }).catch(() => {});
+      await page.waitForTimeout(300);
+      check(`${path} draws its calculator again in ${locale} without the whole table`, count > 0 && tableLoads === 0 && thrown.length === 0,
+        `${count} choices, ${tableLoads} table chunk(s), ${thrown.slice(0, 1).join("")}`);
+    }
     if (path.startsWith("/welcome")) {
       check(`${path} arrives without the whole ${locale} table`, tableLoads === 0, `${tableLoads} table chunk(s) loaded`);
       // A press on the plan calculator asks for the rest of the language.
