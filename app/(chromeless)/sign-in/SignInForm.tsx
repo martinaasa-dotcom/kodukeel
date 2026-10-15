@@ -5,11 +5,23 @@ import Script from "next/script";
 import { Button } from "@/components/Button";
 import { Skeleton } from "@/components/ui";
 import { fillNodes } from "@/components/TemplateNodes";
-import { createClient } from "@/lib/supabase/client";
 import { safeNext } from "@/lib/auth/access";
 import { ssoDomainFor } from "@/lib/auth/sso";
 import { GSI_LOCALE, GSI_SCRIPT_SRC, hashNonce, randomNonce } from "@/lib/auth/googleIdentity";
 import { fill, tr, type Locale } from "@/lib/copy/locale";
+
+/*
+  THE AUTH CLIENT ARRIVES WHEN SOMEBODY PRESSES, NOT BEFORE THE PAGE PAINTS.
+
+  It was a static import, which put Supabase's whole client, about 250 KB of
+  script, on the path to this page's first paint: measured with Lighthouse's
+  phone profile on a hosted-mode build, the page's largest paint was 2.76 s
+  with the client imported up front, almost all of it script evaluated before
+  the paint (docs/38-third-batch.md, TB-18). Nothing on this screen needs the
+  client until a button is pressed, so it is imported then, and warmed once the
+  browser is idle so a press does not wait on the download.
+*/
+const supabaseClient = () => import("@/lib/supabase/client").then((m) => m.createClient());
 
 /**
  * The one shape of Google Identity Services this file reads. There is no
@@ -222,6 +234,18 @@ export function SignInForm({
   /** The width the button was last drawn at, so a resize knows to draw it again. */
   const drawnWidth = useRef<number | null>(null);
 
+  /* Warm the auth client once the page has painted and the browser is idle. */
+  useEffect(() => {
+    const warm = () => { void import("@/lib/supabase/client"); };
+    // Safari has no idle callback, so it waits a beat instead.
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(warm, { timeout: 4000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = setTimeout(warm, 1500);
+    return () => clearTimeout(id);
+  }, []);
+
   const ssoPolicy = useMemo(() => ({ domains: [...ssoDomains] }), [ssoDomains]);
   const sso = ssoDomains.length > 0;
   /** The provider this address would go to, recomputed as they type. */
@@ -255,7 +279,7 @@ export function SignInForm({
   async function signInWithGoogle() {
     setPending("google");
     setError(null);
-    const supabase = createClient();
+    const supabase = await supabaseClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: callbackUrl() },
@@ -270,7 +294,7 @@ export function SignInForm({
   async function signInWithGoogleIdToken(credential: string, nonce: string) {
     setPending("google");
     setError(null);
-    const supabase = createClient();
+    const supabase = await supabaseClient();
     const { error } = await supabase.auth.signInWithIdToken({
       provider: "google",
       token: credential,
@@ -454,7 +478,7 @@ export function SignInForm({
   async function signInWithSso(domain: string) {
     setPending("sso");
     setError(null);
-    const supabase = createClient();
+    const supabase = await supabaseClient();
     const { data, error } = await supabase.auth.signInWithSSO({
       domain,
       options: { redirectTo: callbackUrl() },
@@ -484,7 +508,7 @@ export function SignInForm({
     }
     setPending("email");
     setError(null);
-    const supabase = createClient();
+    const supabase = await supabaseClient();
     const { error } = await supabase.auth.signInWithOtp({
       email: address,
       options: { emailRedirectTo: callbackUrl() },

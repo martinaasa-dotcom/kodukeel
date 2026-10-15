@@ -23,7 +23,7 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { orderContextFor } from "@/lib/dict/wordOrder";
 import { ordinaryStarters } from "@/lib/dict/openers";
 import { firstParams } from "@/lib/ux/queryParam";
@@ -325,7 +325,7 @@ export default async function LessonPage({
         unitLevel={unit.level}
         initialSteps={steps}
         tokens={tokens}
-        canTranslate={resolveProvider() !== null}
+        canTranslate={offered("translate")}
         starred={[...starred]}
         part={index + 1}
         parts={lessons.length}

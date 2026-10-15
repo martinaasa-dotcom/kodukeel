@@ -62,6 +62,7 @@ const UNSET: Record<string, string> = {
   OPERATOR_NAME: "",
   OPERATOR_REGISTRY_CODE: "",
   OPERATOR_VAT_ID: "",
+  PAID_OFF: "",
   RESEARCH_TOKEN: "",
   RESEND_API_KEY: "",
   RESEND_WEBHOOK_SECRET: "",

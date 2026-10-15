@@ -7,7 +7,7 @@ import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
 import { sayLine } from "@/lib/estonian/sayIt";
 import { conjugationSlotFromFront } from "@/lib/srs/slots";
 import { glossSentences } from "@/lib/dict/glossed";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { isPhrase } from "@/lib/dict/pos";
 import {
   equivalentIn, firstSenses, meaningShown, meaningsShown, type MeaningPrefs,
@@ -166,7 +166,7 @@ function introFor(
       about. The default deployment has none, and then nothing is offered at
       all rather than offered and refused.
     */
-    canTranslate: resolveProvider() !== null,
+    canTranslate: offered("translate"),
     isPhrase: isPhrase(c.lexeme.pos),
     cefr: c.lexeme.cefr,
     firstCardEver,
@@ -346,7 +346,7 @@ function toReviewCard(
     choiceMeanings: null,
     sentenceEn: clozeSentenceEn(c),
     say: sayFor(c),
-    canTranslate: resolveProvider() !== null,
+    canTranslate: offered("translate"),
     // Filled in by `withNeighbours`, which reads every neighbour in one query.
     contrast: null,
     choices: null,

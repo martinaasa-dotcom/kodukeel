@@ -48,6 +48,8 @@ export const COACH_TEMPLATES = {
   card: "Tip: your card has it, under “{card}”. Just say that in Estonian.",
   question: "Tip: try asking them something. Any sentence ending in a question mark works.",
   negation: "Tip: try saying no.",
+  registerSina: "Tip: this one is asked the way you'd talk to a friend, with the informal you.",
+  registerTeie: "Tip: this one is asked politely, with the formal you.",
 } as const;
 
 /**
@@ -82,14 +84,24 @@ export function coachFor(
 ): string | null {
   for (const { need, index } of leafNeeds(beat.needs)) {
     if (met[index]) continue;
-    const said = hintFor(need, card);
+    const said = hintFor(need, card, beat.register);
     if (said) return said;
   }
   return null;
 }
 
-function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
+function hintFor(need: LeafRequirement, card: RoleCard | null, register?: "teie" | "sina"): string | null {
   switch (need.kind) {
+    /*
+      A BEAT WITH A REGISTER OF ITS OWN (`BeatSpec.register`) is asking for
+      that register, and a learner who used the other one got every word
+      right and cannot see why the turn did not land. Which "you" this person
+      gets, in English: the pronoun itself is the thing being practised.
+    */
+    case "register":
+      if (register === "sina") return COACH_TEMPLATES.registerSina;
+      if (register === "teie") return COACH_TEMPLATES.registerTeie;
+      return null;
     /*
       One word, named. Where the beat would take any of several, the first is
       its own head word, and saying "for example" is what keeps that honest:
@@ -144,8 +156,8 @@ function hintFor(need: LeafRequirement, card: RoleCard | null): string | null {
     case "negation":
       return COACH_TEMPLATES.negation;
     /*
-      Nothing for `register` or `any`. The first is a thing to notice rather
-      than a thing to be told mid-turn, and the second is a beat that cannot
+      Nothing for a scene-wide `register` or for `any`. The first is a thing to
+      notice rather than a thing to be told mid-turn, and the second is a beat that cannot
       be failed, so a learner stuck on one is stuck on something this cannot
       see and a confident sentence about it would be wrong.
     */

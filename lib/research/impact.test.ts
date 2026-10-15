@@ -4,6 +4,7 @@ import { MAX_LEARNER_SHARE, MIN_LEARNERS, MIN_REVIEWS } from "./corpus";
 import {
   figure,
   headcount,
+  impactListable,
   isWithheld,
   pooledRetention,
   summariseImpact,
@@ -198,5 +199,41 @@ describe("nothing about one person leaves the module", () => {
       cohorts: [],
     });
     expect(JSON.stringify(impact)).not.toContain("secret-owner");
+  });
+});
+
+describe("the public page lists itself once its headline clears, and not before", () => {
+  const learners = (people: number, recent: number): LearnerTotals[] =>
+    Array.from({ length: people }, (_, i) => ({
+      learner: `p${i}`,
+      reviews: 200,
+      recentReviews: recent,
+      studyHours: 4,
+      wordsKnown: 60,
+    }));
+  const impactOf = (people: number, recent: number) =>
+    summariseImpact({ generatedAt: NOW, windowDays: 30, learners: learners(people, recent), encounters: [], cohorts: [] });
+
+  it("withholds every figure and is not listed under the floors", () => {
+    const impact = impactOf(MIN_LEARNERS - 1, 20);
+    for (const reported of [
+      impact.learnersReached, impact.activeLearners, impact.reviewsAnswered, impact.studyTime,
+      impact.wordsLearned, impact.conversationsReported, impact.learnersWithConversation,
+    ]) expect(isWithheld(reported)).toBe(true);
+    expect(impact.retention.every((r) => r.pct === null)).toBe(true);
+    expect(impactListable(impact)).toBe(false);
+  });
+
+  it("shows the headcount and lists itself once enough people were active in the window", () => {
+    const impact = impactOf(MIN_LEARNERS, 20);
+    expect(isWithheld(impact.activeLearners)).toBe(false);
+    expect(impactListable(impact)).toBe(true);
+  });
+
+  it("stays unlisted while people were reached but too few were active lately", () => {
+    // Everybody has a long history and nobody answered anything in the window.
+    const impact = impactOf(MIN_LEARNERS * 2, 0);
+    expect(isWithheld(impact.learnersReached)).toBe(false);
+    expect(impactListable(impact)).toBe(false);
   });
 });

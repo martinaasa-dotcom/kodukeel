@@ -139,6 +139,34 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
     one starts at the rail and ends at the till, and both are the same room.
   */
   riidepood: { icon: "Shirt", setting: "shop" },
+  "uus-kolleeg": { icon: "Users", setting: "meeting" },
+  "abi-palumine": { icon: "HeartHandshake", setting: "street" },
+  ootamine: { icon: "CloudSun", setting: "street" },
+  kokkulepe: { icon: "CalendarCheck", setting: "home_phone" },
+  turul: { icon: "Scale", setting: "shop" },
+  bussipeatus: { icon: "Bus", setting: "street" },
+  raamatukogu: { icon: "Library", setting: "office" },
+  nadalavahetus: { icon: "Sunrise", setting: "meeting" },
+  hadaabi: { icon: "LifeBuoy", setting: "home_phone" },
+  pangas: { icon: "Landmark", setting: "office" },
+  perearst: { icon: "Stethoscope", setting: "clinic" },
+  tootukassa: { icon: "Briefcase", setting: "office" },
+  elamisluba: { icon: "Stamp", setting: "office" },
+  peretoetus: { icon: "MessageCircleQuestion", setting: "home_phone" },
+  lastevanemad: { icon: "GraduationCap", setting: "classroom" },
+  "tehniline-tugi": { icon: "MessageSquareWarning", setting: "home_phone" },
+  koosolek: { icon: "MessagesSquare", setting: "meeting" },
+  soovitus: { icon: "Camera", setting: "cafe" },
+  "sobra-mure": { icon: "Heart", setting: "cafe" },
+  palk: { icon: "TrendingUp", setting: "meeting" },
+  tagatisraha: { icon: "KeyRound", setting: "home_phone" },
+  "kolm-palvet": { icon: "MessagesSquare", setting: "cafe" },
+  kuulsin: { icon: "Megaphone", setting: "stairwell" },
+  "elanike-koosolek": { icon: "Users", setting: "meeting" },
+  graafik: { icon: "TrendingUp", setting: "meeting" },
+  raamatuklubi: { icon: "BookOpen", setting: "cafe" },
+  "eksam-b1": { icon: "GraduationCap", setting: "meeting" },
+  "eksam-b2": { icon: "Mic", setting: "meeting" },
 };
 
 /**
@@ -179,6 +207,10 @@ export function sceneryFor(sceneId: string): Scenery {
  */
 export const MOVES: Readonly<Record<string, Readonly<Record<string, Setting>>>> = {
   "poodi-piima": { inside: "shop", back: "walking" },
+  /* The stop, then the bus: the question about stops is asked of the driver. */
+  bussipeatus: { stops: "bus" },
+  /* The friend at the café, the manager at work, the official at a desk. */
+  "kolm-palvet": { manager: "meeting", official: "office" },
 };
 
 /** The room a beat moves into, where it moves you at all. */

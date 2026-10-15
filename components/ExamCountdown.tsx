@@ -73,7 +73,12 @@ export function ExamCountdownCard({ countdown, zone, className, locale }: {
           </span>
         </Ring>
         <div className="min-w-0 flex-1">
-          <p className="font-display text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--ink)" }}>
+          {/*
+            One step smaller on a phone: beside the ring the column is about
+            170px at 360, and "порозумітися" at the 2xl step needs 176, so the
+            Ukrainian name of a level was being broken across two lines.
+          */}
+          <p className="font-display text-xl font-bold leading-tight sm:text-2xl md:text-3xl" style={{ color: "var(--ink)" }}>
             {countdown.band}, {countdown.label}
           </p>
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>

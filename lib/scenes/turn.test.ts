@@ -461,6 +461,31 @@ describe("reading a turn", () => {
     expect(readTurn("I do not know what you mean", switched, widened).missing).toEqual([0]);
   });
 
+  /*
+    AND ON A BEAT WITH A REGISTER OF ITS OWN, THE REGISTER IS THE POINT. The
+    lenient reading above is for the curveball where the other side switches
+    to English; on a beat that asks the learner to speak to a friend, and then
+    to an official, any Estonian is not the answer: the pronoun or the verb's
+    person has to be the beat's, and the other one refuses it.
+  */
+  it("reads a beat's own register strictly: its pronoun or its person, never the other", () => {
+    const persons = new Map([["saama", new Map([["KndPrSg2", "saaksid"], ["KndPrPl2", "saaksite"], ["IndPrSg2", "saad"], ["IndPrPl2", "saate"]])]]);
+    const strict = context({
+      lexicon: { ...LEX, persons } as unknown as typeof LEX,
+      pronounForms: { teie: new Set(["teie", "te", "teid", "teile"]), sina: new Set(["sina", "sa", "sind", "sulle"]) },
+    });
+    const friend = beat({ id: "friend", register: "sina", needs: [{ kind: "register" }] });
+    const official = beat({ id: "official", register: "teie", needs: [{ kind: "register" }] });
+    expect(readTurn("Kas sa saaksid aidata?", friend, strict).missing).toEqual([]);
+    expect(readTurn("Saaksid aidata?", friend, strict).missing).toEqual([]);
+    expect(readTurn("Kas te saaksite aidata?", friend, strict).missing).toEqual([0]);
+    expect(readTurn("Kas te saaksite aidata?", official, strict).missing).toEqual([]);
+    expect(readTurn("Saaksite aidata?", official, strict).missing).toEqual([]);
+    expect(readTurn("Kas sa saaksid aidata?", official, strict).missing).toEqual([0]);
+    // Estonian with no pronoun and no person in it does not say which.
+    expect(readTurn("Palun aidata", official, strict).missing).toEqual([0]);
+  });
+
   it("never takes a request for English as the question a beat asked for", () => {
     const far = beat({ id: "far", goal: "Ask if it's far.", needs: [{ kind: "question" }] });
     for (const said of ["Do you speak English?", "Kas te räägite inglise keelt?"]) {

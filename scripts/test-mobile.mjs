@@ -20,7 +20,7 @@ import { join } from "node:path";
 const B = baseUrl();
 
 /** The widths of phones people are actually holding, plus the two breakpoints. */
-const PHONES = [360, 390, 430];
+const PHONES = [320, 360, 390, 430];
 const WIDE = [768, 1280];
 
 const browser = await launchChromium();
@@ -63,7 +63,7 @@ const browser = await launchChromium();
   part on the course page starts beside its number, and 40 more for the
   checks that no word breaks mid-letter at 320, 360 and 768.
 */
-const { check, done } = suite("The phone", { floor: 171 });
+const { check, done } = suite("The phone", { floor: 290 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -365,6 +365,46 @@ for (const path of TARGET_ROUTES) {
       .map(({ el, r }) => `${(el.textContent || el.getAttribute("aria-label") || "?").trim().slice(0, 20)} ${Math.round(r.width)}x${Math.round(r.height)}`),
   );
   check(`every target on ${path} clears 44px`, small.length === 0, small.join(", "));
+  await ctx.close();
+}
+
+// 6a — Reflow at 320 CSS pixels on every route (WCAG 1.4.10), which is what
+//      "400% zoom" means at a 1280 window. The body clips sideways, so a page
+//      that is too wide does not scroll, it cuts its own right edge off; the
+//      honest question is therefore whether anything is drawn past the edge of
+//      the window, not whether the document scrolls. An element inside a
+//      scroller of its own is excused, because a table of forms read across is
+//      the two-dimensional content the criterion exempts, and so is anything
+//      hidden from a reader or kept for a screen reader alone.
+for (const path of TARGET_ROUTES) {
+  const { ctx, page } = await open(320, 844, path);
+  await startRound(page, { waitMs: 400 }).catch(() => {});
+  const past = await page.evaluate(() => {
+    const vw = window.innerWidth;
+    const scrolled = (el) => {
+      for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+        const ox = getComputedStyle(a).overflowX;
+        if (ox === "auto" || ox === "scroll") return true;
+      }
+      return false;
+    };
+    /* Text kept for a screen reader alone is clipped to one pixel and never
+       drawn, wherever its own box would fall. */
+    const unseen = (el) => {
+      for (let a = el; a && a !== document.body; a = a.parentElement) {
+        const r = a.getBoundingClientRect();
+        if (a.classList.contains("sr-only") || (r.width <= 1 && getComputedStyle(a).overflow !== "visible")) return true;
+      }
+      return false;
+    };
+    return [...document.body.querySelectorAll("*")]
+      .filter((el) => !el.closest("[aria-hidden=true], script, style, svg *"))
+      .map((el) => ({ el, r: el.getBoundingClientRect() }))
+      .filter(({ el, r }) => r.width > 0 && r.height > 0 && (r.right > vw + 1 || r.left < -1) && !scrolled(el) && !unseen(el))
+      .map(({ el, r }) => `${el.tagName.toLowerCase()} "${(el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 20)}" ${Math.round(r.left)}..${Math.round(r.right)}`)
+      .slice(0, 4);
+  });
+  check(`nothing on ${path} is drawn past a 320px window`, past.length === 0, past.join(", "));
   await ctx.close();
 }
 

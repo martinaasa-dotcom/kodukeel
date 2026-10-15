@@ -1,7 +1,7 @@
 import { requireUserId } from "@/lib/auth/session";
 import { mapRound } from "@/lib/progress/map";
 import { practiceScope } from "@/lib/progress/moduleScope";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { BeforeYouStart } from "@/components/round/Briefing";
@@ -43,7 +43,7 @@ export default async function MapPage({
 
   return (
     <BeforeYouStart id="map" count={{ n: questions.length, noun: "word" }}>
-      <MapSession questions={questions} canTranslate={resolveProvider() !== null} />
+      <MapSession questions={questions} canTranslate={offered("translate")} />
     </BeforeYouStart>
   );
 }

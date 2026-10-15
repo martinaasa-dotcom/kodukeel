@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   TUTOR_FALLBACK_MODEL,
   billedOutput, completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, GRADER_MODELS,
-  openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
+  offered, openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
   SCENE_MODELS, sceneProviders, TUTOR_MODEL, TutorError,
   visionProviders, VISION_MODEL,
 } from "@/lib/tutor/provider";
@@ -1242,5 +1242,45 @@ describe("what the chain actually sends, hop by hop", () => {
       resolveProviders({ purpose: "tutor" }), "sys", [{ role: "user", content: "hi" }],
     )).rejects.toThrow();
     expect(seen).toEqual([]);
+  });
+});
+
+describe("a feature switched off with PAID_OFF", () => {
+  beforeEach(() => {
+    for (const key of PROVIDER_KEY_ENV) vi.stubEnv(key, "k");
+  });
+
+  it("composes no scene line while a key is set, so the scene plays from its bank", () => {
+    expect(sceneProviders().length).toBeGreaterThan(0);
+    vi.stubEnv("PAID_OFF", "scenes");
+    expect(sceneProviders()).toEqual([]);
+    expect(sceneProviders({ answering: true })).toEqual([]);
+    expect(offered("scenes")).toBe(false);
+    // The others are untouched.
+    expect(resolveProviders({ purpose: "tutor" }).length).toBeGreaterThan(0);
+    expect(resolveProviders({ purpose: "grader" }).length).toBeGreaterThan(0);
+    expect(visionProviders().length).toBeGreaterThan(0);
+  });
+
+  it("takes each of the five to the keyless path, and only that one", () => {
+    vi.stubEnv("PAID_OFF", "tutor");
+    expect(resolveProviders({ purpose: "tutor" })).toEqual([]);
+    expect(offered("tutor")).toBe(false);
+    vi.stubEnv("PAID_OFF", "grader");
+    expect(resolveProviders({ purpose: "grader" })).toEqual([]);
+    expect(offered("grader")).toBe(false);
+    // Translation rides the grader's chain, so it goes with it.
+    expect(offered("translate")).toBe(false);
+    vi.stubEnv("PAID_OFF", "scan");
+    expect(visionProviders()).toEqual([]);
+    expect(offered("scan")).toBe(false);
+    vi.stubEnv("PAID_OFF", "translate");
+    expect(offered("translate")).toBe(false);
+    expect(resolveProviders({ purpose: "grader" }).length).toBeGreaterThan(0);
+  });
+
+  it("never switches the general chain, which is what the privacy page lists", () => {
+    vi.stubEnv("PAID_OFF", "tutor,scenes,scan,grader,translate");
+    expect(resolveProviders().length).toBeGreaterThan(0);
   });
 });

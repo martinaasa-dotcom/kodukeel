@@ -497,9 +497,9 @@ export class Ledger {
    * `FORMS_PER_EVENING` a night, earliest taught first, so the verbs a
    * learner has had longest, which are the commonest ones, come first.
    */
-  showForms(): string[] {
+  showForms(limit: number = FORMS_PER_EVENING): string[] {
     if (!this.topics.has("imperfect")) return [];
-    const tonight = this.formsWaiting.slice(0, FORMS_PER_EVENING);
+    const tonight = this.formsWaiting.slice(0, limit);
     this.formsWaiting = this.formsWaiting.slice(tonight.length);
     for (const lemma of tonight) this.formsShown.add(lemma);
     return tonight;
@@ -676,7 +676,11 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
       const forms = (last && scene)
         || (!ladderEnd && (caseEvening || (days.at(-1)?.forms?.length ?? 0) > 0))
         ? []
-        : ledger.showForms();
+        /* The last evening of the ladder shows everything still waiting,
+           however many that is: there is no later evening for it to go to,
+           and a scene placed anywhere below moves the every-other-evening
+           cadence by one, which is enough to leave more than a handful. */
+        : ledger.showForms(ladderEnd ? Infinity : FORMS_PER_EVENING);
       const dealt = onThePage(
         onTheCase(
           rounds(

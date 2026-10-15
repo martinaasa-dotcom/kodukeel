@@ -17,7 +17,7 @@ import { PRONOUN_LEMMAS } from "@/lib/estonian/pronouns";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { caseAccuracy } from "@/lib/stats/history";
 import { shuffle } from "@/lib/random/shuffle";
-import { resolveProvider } from "@/lib/tutor/provider";
+import { offered } from "@/lib/tutor/provider";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { dayOrdinal } from "@/lib/random/dayHash";
 import { roundOf } from "@/lib/ux/again";
@@ -401,7 +401,7 @@ export default async function WorkbookPage({
         exercises={exercises}
         missed={requested && !exercises.some((e) => e.theme === requested) ? requested : null}
         themes={fillable.slice(0, THEME_CHOICES)}
-        canTranslate={resolveProvider() !== null}
+        canTranslate={offered("translate")}
       />
     </BeforeYouStart>
   );

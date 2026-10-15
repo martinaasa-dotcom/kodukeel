@@ -485,7 +485,15 @@ describe("what a day reads and where it goes", () => {
         if (!day.grammarCase) return;
         const taught = taughtBy(programme, day.index);
         if (!supportedRounds(programme.level, taught).includes("workbook")) return;
-        const before = at > 0 ? programme.days[at - 1]!.practice : [];
+        /*
+          What last night ran, not what it listed: a conversation evening keeps
+          its rotation's pair in `practice` and runs neither, since the talk
+          step stands in for the reading and both rounds. Read as having had
+          the workbook, it hid the case evening after every conversation from
+          this walk.
+        */
+        const prev = at > 0 ? programme.days[at - 1]! : undefined;
+        const before = prev && !prev.steps.some((s) => s.kind === "talk") ? prev.practice : [];
         if (before.includes("workbook")) return;
         walked += 1;
         expect(day.practice, `${day.id} reads ${day.grammarCase}`).toContain("workbook");
@@ -760,7 +768,9 @@ describe("what a day reads and where it goes", () => {
         // since the step shows the polite imperative beside the past.
         expect(readPast, day.id).toBe(true);
         expect(imperativeRead, day.id).toBe(true);
-        expect(forms.length, day.id).toBeLessThanOrEqual(FORMS_PER_EVENING);
+        // A handful, except on the ladder's last evening, which shows
+        // whatever is still waiting because no evening comes after it.
+        if (day !== DAYS.at(-1)!.day) expect(forms.length, day.id).toBeLessThanOrEqual(FORMS_PER_EVENING);
         expect(day.steps.some((s) => s.id === FORMS_STEP), day.id).toBe(true);
         // One round rather than two: the evening is the same fifteen minutes.
         expect(day.practice.length, day.id).toBe(1);

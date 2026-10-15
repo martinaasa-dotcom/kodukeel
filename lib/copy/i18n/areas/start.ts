@@ -235,8 +235,10 @@ export const START: Area = {
       "Ещё {units} уровня {level} и все остальные уровни открыты для вас в любой момент.",
     "Nothing here is locked in.": "Всё это можно поменять.",
     "Your first conversation": "Ваш первый разговор",
-    "{place}. Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one.":
-      "{place}. Когда выучите эти слова, сможете отрепетировать здесь именно этот разговор: вы печатаете свои реплики незнакомцу, которому что-то от вас нужно. А потом идите и поговорите по-настоящему.",
+    "Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one.":
+      "Когда выучите эти слова, сможете отрепетировать здесь именно этот разговор: вы печатаете свои реплики незнакомцу, которому что-то от вас нужно. А потом идите и поговорите по-настоящему.",
+    "How you’ll practice it": "Как это отрепетировать",
+    "The words, unit by unit": "Слова, раздел за разделом",
     "That’s {cards} to answer a day, not {goal} new ones, and on a course evening they’re part of the fifteen minutes. About nine in ten will be words you’ve already met, coming back just as you start to forget them. These {deck} take roughly {weeks} to work through this way. A faster setting really does get you through them sooner, but it makes every evening longer for the next year too. Pick the one you’d still open on a bad Wednesday.":
       "Ответить в день нужно на {cards}, а не на {goal} новых, и в вечер курса это входит в те самые пятнадцать минут. Примерно девять из десяти будут словами, которые вы уже встречали: они возвращаются как раз тогда, когда вы начинаете их забывать. В таком темпе на всю колоду ({deck}) уйдёт примерно {weeks}. Более быстрый режим и правда проведёт вас по ней быстрее, но и каждый вечер весь следующий год станет длиннее. Выберите тот, который вы откроете даже в неудачную среду.",
 
@@ -524,8 +526,10 @@ export const START: Area = {
       "Ще {units} рівня {level} і всі інші рівні відкриті для вас будь-коли.",
     "Nothing here is locked in.": "Усе це можна змінити.",
     "Your first conversation": "Ваша перша розмова",
-    "{place}. Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one.":
-      "{place}. Коли вивчите ці слова, зможете відрепетирувати тут саме цю розмову: ви друкуєте свої репліки незнайомцю, якому щось від вас треба. А потім ідіть і поговоріть по-справжньому.",
+    "Once you know these words, you can practice this exact conversation here, typing your side to a stranger who wants something from you. Then go and have the real one.":
+      "Коли вивчите ці слова, зможете відрепетирувати тут саме цю розмову: ви друкуєте свої репліки незнайомцю, якому щось від вас треба. А потім ідіть і поговоріть по-справжньому.",
+    "How you’ll practice it": "Як це відрепетирувати",
+    "The words, unit by unit": "Слова, розділ за розділом",
     "That’s {cards} to answer a day, not {goal} new ones, and on a course evening they’re part of the fifteen minutes. About nine in ten will be words you’ve already met, coming back just as you start to forget them. These {deck} take roughly {weeks} to work through this way. A faster setting really does get you through them sooner, but it makes every evening longer for the next year too. Pick the one you’d still open on a bad Wednesday.":
       "Відповісти на день треба на {cards}, а не на {goal} нових, і у вечір курсу це входить у ті самі п'ятнадцять хвилин. Приблизно дев'ять із десяти будуть словами, які ви вже зустрічали: вони повертаються саме тоді, коли ви починаєте їх забувати. У такому темпі на всю колоду ({deck}) піде приблизно {weeks}. Швидший режим і справді проведе вас через неї швидше, але й кожен вечір увесь наступний рік стане довшим. Виберіть той, який ви відкриєте навіть у невдалу середу.",
 

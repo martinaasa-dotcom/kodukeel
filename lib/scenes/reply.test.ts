@@ -1233,3 +1233,21 @@ describe("a line the learner has already heard twice", () => {
     expect(timesAnswered(turns, null)).toBe(0);
   });
 });
+
+describe("a learner who asks to hear it again on a turn that missed", () => {
+  /*
+    "Vabandust, mida?" on a beat it does not answer is a miss that asked a
+    question, so the line comes back as the answer to the question and the
+    question comes back as the move: the same sentence twice in one breath,
+    which the keyless transcripts printed on five of the first eleven scenes
+    played lost. Said once is the whole of the answer.
+  */
+  it("hears the line once, not twice", () => {
+    const heard = "Kus teil valutab?";
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "repeat", reading: "offtarget",
+      heard, line: NOTHING, tries: 1, aside: saidAgain(heard),
+    }));
+    expect(texts(lines).filter((text) => text === heard)).toHaveLength(1);
+  });
+});

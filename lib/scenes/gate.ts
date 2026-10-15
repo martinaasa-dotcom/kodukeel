@@ -216,6 +216,13 @@ export interface GateContext {
   /** Forms of the pronoun this scene's register forbids. */
   readonly wrongRegister: ReadonlySet<string>;
   /**
+   * Every form of each register's pronoun, so a beat that names a register of
+   * its own (`BeatSpec.register`) is held to that one rather than the scene's.
+   * Absent on a caller that never meets such a beat, and then the scene's
+   * `wrongRegister` stands for every beat, as it always did.
+   */
+  readonly pronounForms?: { readonly teie: ReadonlySet<string>; readonly sina: ReadonlySet<string> };
+  /**
    * The nominative of each personal pronoun, to the person a verb beside it
    * has to be in. `sa` and `sina` to `IndPrSg2`, and nothing else: an oblique
    * form is not a subject, so `sind` is deliberately absent and a line saying
@@ -501,7 +508,15 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   const stretched = [...new Set(tokens.filter((word) => !context.lexicon.forms.has(word) && !names.has(word)))];
   if (stretched.length > NEW_WORDS) failed.push("stretch");
 
-  if (tokens.some((word) => context.wrongRegister.has(word))) failed.push("register");
+  /*
+    The beat's own register where it names one, the scene's otherwise. A beat
+    `gateFor` has already stood the check down for (the other side switching
+    pronoun) carries no register of its own, so that exemption still holds.
+  */
+  const wrong = beat.register && context.pronounForms && context.wrongRegister.size > 0
+    ? context.pronounForms[beat.register === "teie" ? "sina" : "teie"]
+    : context.wrongRegister;
+  if (tokens.some((word) => wrong.has(word))) failed.push("register");
 
   if (governmentSuspect(tokens, context, text)) failed.push("government");
 

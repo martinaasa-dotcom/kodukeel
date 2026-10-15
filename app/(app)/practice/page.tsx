@@ -202,7 +202,7 @@ export default async function PracticePage() {
             ]}
             action={
               <ButtonLink href="/review" variant={ready > 0 ? "primary" : "secondary"} size="lg" className="whitespace-nowrap">
-                {ready > 0 ? tr(locale, "Review now") : tr(locale, "Nothing due, open it anyway")} <ArrowRight size={17} aria-hidden />
+                {ready > 0 ? tr(locale, "Review now") : tr(locale, "Open it anyway")} <ArrowRight size={17} aria-hidden />
               </ButtonLink>
             }
           />

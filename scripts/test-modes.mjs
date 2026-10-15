@@ -774,6 +774,10 @@ if ((await featured.count()) === 0) {
     const byX = new Map();
     for (const el of els) {
       const r = el.getBoundingClientRect();
+      /* A card that drew nothing (the good news in an hour with none) leaves
+         an `empty:hidden` wrapper with no box, whose rectangle sits at x 0
+         and would be counted as a third column: only cards on screen deal. */
+      if (r.width === 0 && r.height === 0) continue;
       const card = el.firstElementChild?.getBoundingClientRect();
       const row = byX.get(Math.round(r.left)) ?? { bottom: 0, tallest: 0, whole: true, fitsContent: true };
       row.bottom = Math.max(row.bottom, r.bottom + scrollY);

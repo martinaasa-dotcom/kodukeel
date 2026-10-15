@@ -234,6 +234,22 @@ describe("the gate", () => {
     expect(verdict.failed).toContain("register");
   });
 
+  /*
+    A BEAT CAN SPEAK IN A REGISTER OF ITS OWN. One scene asks the same favour
+    of a friend and then of an official, so the pronoun a line may use is the
+    beat's where the beat names one and the scene's everywhere else.
+  */
+  it("holds a line to its beat's own register where the beat names one", () => {
+    const both = context({ pronounForms: { teie: new Set(["teil", "teile"]), sina: new Set(["sul", "sinul"]) } });
+    const friend = beat({ register: "sina" });
+    const official = beat({ register: "teie" });
+    expect(runGate("Kas sul on valu?", friend, both).failed).not.toContain("register");
+    expect(runGate("Kas teil on valu?", friend, both).failed).toContain("register");
+    expect(runGate("Kas sul on valu?", official, both).failed).toContain("register");
+    // A beat that names none keeps the scene's own check.
+    expect(runGate("Kas sul on valu?", beat(), both).failed).toContain("register");
+  });
+
   it("reports every failure rather than the first", () => {
     /*
       §6 allows one retry with the failing words named, and a retry told about

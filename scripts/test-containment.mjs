@@ -217,6 +217,7 @@ const ROUTES = [
   "/class",
   "/tutor",
   "/scan",
+  "/read",
   "/suggestions",
   "/admin/suggestions",
   "/admin/errors",
@@ -246,7 +247,10 @@ const ROUTES = [
   "/help",
   "/teachers",
   "/pilots",
+  "/how-we-know",
+  "/curriculum",
   "/accessibility",
+  "/impact",
   "/offline",
 ];
 
@@ -583,9 +587,12 @@ async function screensToMake() {
     the other way round is skipped rather than measured as a not-found.
   */
   for (const path of classrooms ? classrooms.split(" ") : []) {
-    const poster = `${path}/poster`;
-    const status = await fetch(`${B}${poster}`, { redirect: "manual" }).then((r) => r.status).catch(() => 0);
-    if (status === 200) made.push(poster);
+    // And the term report beside it, which has the same owner-only answer and a table.
+    for (const sub of ["poster", "report"]) {
+      const route = `${path}/${sub}`;
+      const status = await fetch(`${B}${route}`, { redirect: "manual" }).then((r) => r.status).catch(() => 0);
+      if (status === 200) made.push(route);
+    }
   }
 
   /*

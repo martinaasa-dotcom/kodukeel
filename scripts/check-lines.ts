@@ -8,7 +8,7 @@
  * in `lib/scenes/gate.ts` against the scene's own word list and the drafter's
  * own refusals, and the verdict names what failed and which words the scene
  * cannot vouch for. Nothing is written: a line that passes goes into
- * `lib/scenes/bank.ts` by hand with `model: "authored"`, and `bank.test.ts`
+ * its scene's file under `lib/scenes/bank/` by hand with `model: "authored"`, and `bank.test.ts`
  * runs the same checks again on every run of the suite.
  *
  * This is the tool a native speaker uses to add or replace a line, and it

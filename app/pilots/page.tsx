@@ -3,12 +3,11 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Legal, P, S } from "@/components/Legal";
 import { resolveOperator } from "@/lib/legal/operator";
 import { shareCard } from "@/lib/progress/publicLocale";
-
-const DESCRIPTION = "What a Kodukeel pilot is, what it costs, what is asked of you and what happens to your people’s data.";
+import { PUBLIC_CARDS } from "@/lib/copy/publicCards";
 
 // Its own words where it is shared, rather than the landing page's pitch to a
 // learner, and English only, since the page is.
-export const metadata = { title: "Running a pilot", ...shareCard("en", "Running a pilot", DESCRIPTION, "/pilots") };
+export const metadata = { title: "Running a pilot", ...shareCard("en", "Running a pilot", PUBLIC_CARDS["/pilots"], "/pilots") };
 
 /*
   Whether the address at the foot is drawn is a fact about the deployment,

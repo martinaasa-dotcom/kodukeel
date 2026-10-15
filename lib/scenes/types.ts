@@ -264,6 +264,19 @@ export interface BeatSpec {
    */
   readonly says?: readonly SaysPart[];
   /**
+   * A REGISTER OF THIS BEAT'S OWN, WHERE THE SCENE'S DOES NOT HOLD FOR IT.
+   *
+   * A scene holds one register (`SceneSpec.register`), and one scene asks the
+   * same favour of a friend and then of an official, which is the whole of
+   * what `register`'s claim describes. Absent on every other beat, and then
+   * nothing reads it. Where it is set it does two things and no more: the
+   * gate holds this beat's lines to its pronoun (`runGate`), and a
+   * `{ kind: "register" }` requirement on it is read strictly, met by this
+   * register's pronoun or a second person verb in it and refused by the
+   * other one (`readTurn`), where on every other beat it takes any Estonian.
+   */
+  readonly register?: "teie" | "sina";
+  /**
    * What they say when the learner turns the offer down: a second offer.
    *
    * A person who hears "ei sobi" does not take it as the end of the
@@ -415,6 +428,17 @@ export interface SceneSpec {
   readonly units: readonly string[];
   /** What the other side calls you, and expects back. */
   readonly register: "teie" | "sina";
+  /**
+   * The state speaking exam this scene rehearses, where it rehearses one (D8).
+   *
+   * Practice and nothing else: the title ends in "(practice)", the role card
+   * says it is not the exam, and the debrief says so again and sends the
+   * learner to the Describe round for the picture part the real exam also
+   * has. It writes no `ExamSitting` and no `Assessment` row, any more than
+   * any other scene does, and `catalogue.test.ts` holds such a scene to `teie`
+   * and to the three curveballs an examiner can throw.
+   */
+  readonly examPractice?: "B1" | "B2";
   /** English, one line. Who the learner is today, and never themselves (§3). */
   readonly role: string;
   /** The facts the card hands them, which is what a `datum` requirement reads. */

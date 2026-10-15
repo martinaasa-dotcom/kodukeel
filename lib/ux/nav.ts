@@ -270,6 +270,11 @@ export const SECTIONS: NavSection[] = [
         keywords: "frequency common most used top 100 hundred subtitles corpus first learn order",
       },
       {
+        href: "/read", label: "Read a text", blurb: "Paste Estonian and read it with the dictionary under every word",
+        icon: "BookOpenText", tone: "sky", within: "/dictionary",
+        keywords: "read reading paste letter article message text gloss underline look up words",
+      },
+      {
         href: "/scan", label: "Scan a page", blurb: "Photograph a word list and turn it into cards",
         icon: "Camera", tone: "sky", within: "/dictionary",
         keywords: "camera photo picture ocr homework textbook handout import paper digitize digitize",

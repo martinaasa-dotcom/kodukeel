@@ -180,6 +180,15 @@ export function sceneLexicon(scene: SceneSpec, allowlist: Allowlist = "units"): 
   return buildLexicon(sceneEntries(scene, allowlist));
 }
 
+/** Every form of one register's pronoun, off the shipped dictionary. */
+function pronounFormsOf(lemma: "teie" | "sina"): ReadonlySet<string> {
+  const entry = byLemma.get(`${lemma}|PRONOUN`);
+  return new Set(entry ? formsOf(entry) : []);
+}
+
+/** Both registers' pronouns, for a beat that names one of its own (`BeatSpec.register`). */
+const PRONOUN_FORMS = { teie: pronounFormsOf("teie"), sina: pronounFormsOf("sina") };
+
 /** The pronoun forms a register forbids. One lookup, per the gate's third check. */
 export function wrongRegisterForms(scene: SceneSpec): ReadonlySet<string> {
   const forbidden = scene.register === "teie" ? ["sina"] : ["teie"];
@@ -372,7 +381,7 @@ export function gateContext(
   entries: readonly DictEntry[],
 ): GateContext {
   return {
-    lexicon, wrongRegister, governed: GOVERNED, caseOf: CASE_OF, questionWords: QUESTION_WORDS,
+    lexicon, wrongRegister, pronounForms: PRONOUN_FORMS, governed: GOVERNED, caseOf: CASE_OF, questionWords: QUESTION_WORDS,
     subjects: subjectsIn(entries),
     farewells: [...FAREWELLS.map(words), ...CLOSING_WORDS.map((word) => [word])],
     /*
