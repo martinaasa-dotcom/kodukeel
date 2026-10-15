@@ -964,6 +964,10 @@ export const TODAY: Area = {
     "около {minutes}",
   "Play a word game":
     "Сыграйте в словесную игру",
+  "An example round: the word for sun, two letters in place and three still to put in order.":
+    "Пример раунда: слово «солнце», две буквы уже на месте, три ещё нужно расставить.",
+  "sun":
+    "солнце",
   "An example board: three guesses, each circle marked {here}, {elsewhere} or {absent}.":
     "Пример поля: три попытки, у каждого кружка пометка: {here}, {elsewhere} или {absent}.",
   "Play {e1}":
@@ -1968,6 +1972,10 @@ export const TODAY: Area = {
     "близько {minutes}",
   "Play a word game":
     "Зіграйте в словесну гру",
+  "An example round: the word for sun, two letters in place and three still to put in order.":
+    "Приклад раунду: слово «сонце», дві літери вже на місці, три ще треба розставити.",
+  "sun":
+    "сонце",
   "An example board: three guesses, each circle marked {here}, {elsewhere} or {absent}.":
     "Приклад поля: три спроби, кожен кружок позначено: {here}, {elsewhere} або {absent}.",
   "Play {e1}":
