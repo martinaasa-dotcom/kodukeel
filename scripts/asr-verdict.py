@@ -370,6 +370,20 @@ def judge(frac=0.5):
         c, f, n = (sum(t[i] for t in tot.values()) for i in range(3))
         print(f"{room:9} sentences: caught {c}/{n} ({100 * c / n:.1f}%), false alarm {f}/{n} ({100 * f / n:.1f}%)   " +
               "  ".join(f"{k} {a}/{z} false {b}" for k, (a, b, z) in sorted(tot.items())))
+        # Single words: the minimal-pairs exercise. A clip of `text` is a right answer when the
+        # exercise asked for `text`, and a caught mistake when it asked for `partner`.
+        words_tot = [0, 0, 0]
+        for w in sets["words"]:
+            a, b = letters(w["text"]), letters(w["partner"])
+            ra = [margin(load_lp(f), a, b) for f in r["words"][w["text"]].values()]
+            rb = [margin(load_lp(f), a, b) for f in r["words"][w["partner"]].values()]
+            line = np.mean(ra) + frac * (np.mean(rb) - np.mean(ra))
+            m = margin(load_lp(room_file(w["file"], room, word=True)), a, b)
+            words_tot[1] += m > line          # asked for text, said text, judged partner: a false alarm
+            words_tot[0] += -m > -line        # asked for partner, said text, judged text: caught
+            words_tot[2] += 1
+        c, f, n = words_tot
+        print(f"{room:9} words:     caught {c}/{n} ({100 * c / n:.1f}%), false alarm {f}/{n} ({100 * f / n:.1f}%)")
 
 
 if __name__ == "__main__":
