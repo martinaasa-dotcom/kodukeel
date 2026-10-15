@@ -336,7 +336,7 @@ function Options({
   }, [chosen, onChoose, options.length]);
 
   return (
-    <div className="choice-grid">
+    <div className="flex flex-col gap-2">
       {options.map((option, i) => {
         const isAnswer = i === answer;
         const picked = chosen === i;
