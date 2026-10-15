@@ -8103,6 +8103,17 @@ waited for (it streams in behind a `Suspense` once the rest of Today has gone ou
 and absent rather than empty on an hour with nothing good. The joke's last line waits behind a tap, because a joke printed whole is a joke told
 badly, and the news card carries the best headline and up to two behind it for its own "Another one".
 
+**And a joke is drawn per visit, and neither card underlines unless the learner asked.** One joke a
+day sat on Today until midnight, and the operator asked for a new one every time somebody comes back
+or reloads: `jokesForThisVisit` draws a fresh handful on every render, and since the back button
+reuses the page the router kept, the card counts its own mounts in the tab and opens one further on,
+before the first paint. Both cards dotted every word the dictionary knew whatever
+`lib/ux/wordGloss.ts` said, which was reported by somebody who had turned it off, so `LinkedWords`
+takes `linked` as a required prop, Today hands both cards the setting, and the joke does not ask the
+dictionary at all where it is off. The dictionary's own headlines pass true, since there the words
+opening their entries is the point. Neither title carries an icon: a sun beside "Good news today" is
+the heading said twice.
+
 **And the order is the learner's, because a home page's reading order is a fact about the
 reader.** The shipped order is an argument and it is still the default, and it is not the only
 honest order: somebody in a class wants the homework first, somebody who plays the game every

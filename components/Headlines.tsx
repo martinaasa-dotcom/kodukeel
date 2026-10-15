@@ -38,7 +38,7 @@ export function Headlines({ headlines, host }: { headlines: ReadableHeadline[]; 
             className="rounded-[var(--r-lg)] border px-4 py-3 text-md leading-relaxed"
             style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
           >
-            <LinkedWords tokens={headline.tokens} />
+            <LinkedWords tokens={headline.tokens} linked />
           </li>
         ))}
       </ul>

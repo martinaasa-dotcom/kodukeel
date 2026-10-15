@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { isExactForm } from "@/lib/dict/forms";
 import { VOICES } from "@/lib/audio/voice";
-import { JOKES, jokeIndexFor, jokesFor, splitLine, voiceFor } from "./jokes";
+import { JOKES, jokesForVisit, splitLine, voiceFor } from "./jokes";
 
 /*
   THE NAMES, AND THE TWO WORDS A JOKE IS ABOUT. The forms list holds no
@@ -142,21 +142,23 @@ describe("the voice a line is read in", () => {
   });
 });
 
-describe("which joke today", () => {
-  it("does not repeat until every joke has been told", () => {
-    const seen = new Set<number>();
-    const start = Date.UTC(2026, 0, 1);
-    for (let d = 0; d < JOKES.length; d++) {
-      seen.add(jokeIndexFor(new Date(start + d * 86_400_000).toISOString().slice(0, 10)));
-    }
-    expect(seen.size).toBe(JOKES.length);
+describe("which jokes a visit draws", () => {
+  it("are all different, and as many as asked for", () => {
+    const drawn = jokesForVisit(8);
+    expect(drawn).toHaveLength(8);
+    expect(new Set(drawn).size).toBe(8);
+    for (const i of drawn) expect(JOKES[i]).toBeDefined();
   });
 
-  it("is the same all day, and the next ones never include it", () => {
-    expect(jokeIndexFor("2026-10-14")).toBe(jokeIndexFor("2026-10-14"));
-    const more = jokesFor("2026-10-14", 8);
-    expect(more).toHaveLength(8);
-    expect(more[0]).toBe(jokeIndexFor("2026-10-14"));
-    expect(new Set(more).size).toBe(8);
+  it("reaches every joke over enough visits, and opens on different ones", () => {
+    const opened = new Set<number>();
+    let seed = 1;
+    const random = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    for (let visit = 0; visit < JOKES.length * 20; visit++) opened.add(jokesForVisit(1, random)[0]!);
+    expect(opened.size).toBe(JOKES.length);
+  });
+
+  it("never asks for more jokes than there are", () => {
+    expect(jokesForVisit(JOKES.length + 5)).toHaveLength(JOKES.length);
   });
 });

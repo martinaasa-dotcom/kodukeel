@@ -54,7 +54,8 @@ import { stepCard, stepsIn } from "@/lib/course";
 import { HeroFan } from "@/components/HeroFan";
 import { JokeOfDayCard } from "@/components/JokeOfDay";
 import { GoodNewsSlot } from "@/components/GoodNewsSlot";
-import { jokesToday } from "@/lib/progress/jokeOfDay";
+import { jokesForThisVisit } from "@/lib/progress/jokeOfDay";
+import { wordGlossFrom } from "@/lib/ux/wordGloss";
 
 export async function generateMetadata() {
   return titleFor("Today");
@@ -126,7 +127,7 @@ export default async function TodayPage() {
     deckSnapshot(ownerId, now),
     readSettings(ownerId, [
       SETTING_KEYS.onboardedAt, SETTING_KEYS.displayName, SETTING_KEYS.cefrPlacement,
-      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget,
+      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget, SETTING_KEYS.wordGloss,
     ]),
     /*
       Which level the course opens at. It was read last, after everything else
@@ -247,6 +248,10 @@ export default async function TodayPage() {
   // The cards the learner hid in Settings: not dealt, and the two that cost a
   // read are not even asked for.
   const hiddenCards = hiddenSlotsFrom(settings[SETTING_KEYS.todayOrder]);
+  /* Whether the joke and the good news put the dictionary under their words,
+     which is the learner's own underline setting (lib/ux/wordGloss.ts) and
+     off unless they turned it on. */
+  const linked = wordGlossFrom(settings[SETTING_KEYS.wordGloss]) === "on";
   const [word, outside, ladder, jokes] = await Promise.all([
     shows(stage, "word") ? wordOfDay(ownerId, summary.dayKey, clock.startOfDay(now), placement, { forLevel: true }) : null,
     // Whether the day's question has been answered, and the month behind it,
@@ -265,13 +270,14 @@ export default async function TodayPage() {
       ? ladderPosition(ownerId, targetFrom(settings[SETTING_KEYS.goalTarget]))
       : null,
     /*
-      The joke, one of the two cards that ask nothing of anybody: a table and
-      one dictionary read, held for the day. The good news is not awaited here
+      The joke, one of the two cards that ask nothing of anybody: a table and,
+      where the underlines are on, one dictionary read. A new draw on every
+      visit, so coming back to Today or reloading it is another joke. The good news is not awaited here
       at all; it streams in on its own (`GoodNewsSlot`), because it is three
       feeds and a model and this page may not wait on somebody else's server
       for the one card that is a pleasure rather than the point.
     */
-    shows(stage, "joke") && !hiddenCards.has("joke") ? jokesToday(summary.dayKey) : null,
+    shows(stage, "joke") && !hiddenCards.has("joke") ? jokesForThisVisit({ linked }) : null,
   ]);
 
   const today = dateLine(now, clock.zone);
@@ -888,12 +894,13 @@ export default async function TodayPage() {
     Two cards that are there to make the morning a little better and teach a
     little on the way: a Juku joke out of `lib/collections/jokes.ts`, and one
     happy headline from ERR (and two behind it) picked by `lib/news/goodNews.ts`. Both put the
-    dictionary under every word, both are true on the first morning, and the
+    dictionary under every word where the learner turned the underlines on
+    (lib/ux/wordGloss.ts), both are true on the first morning, and the
     news card is simply absent on an hour it found nothing good to say.
   */
-  const jokeCard = jokes && jokes.length > 0 ? <JokeOfDayCard jokes={jokes} /> : null;
+  const jokeCard = jokes && jokes.length > 0 ? <JokeOfDayCard jokes={jokes} linked={linked} /> : null;
   const newsCard = shows(stage, "news") && !hiddenCards.has("news")
-    ? <Suspense fallback={null}><GoodNewsSlot /></Suspense>
+    ? <Suspense fallback={null}><GoodNewsSlot linked={linked} /></Suspense>
     : null;
 
   /*
