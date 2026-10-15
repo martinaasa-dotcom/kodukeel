@@ -45,6 +45,11 @@ const ENTRIES: DictEntry[] = [
   },
   { lemma: "Head aega!", pos: "PHRASE", cefr: "A1", parts: {}, usages: [] },
   {
+    lemma: "tahtma", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "tahtma", INF_DA: "tahta", PRES_1SG: "tahan", PAST_1SG: "tahtsin" },
+    usages: [],
+  },
+  {
     lemma: "hea", pos: "ADJECTIVE", cefr: "A1",
     parts: { NOM_SG: "hea", GEN_SG: "hea", PART_SG: "head", NOM_PL: "head", PART_PL: "häid", GEN_PL: "heade" },
     usages: [],
@@ -1250,6 +1255,17 @@ describe("a word the learner negated", () => {
     learner who wrote "Ei. Mul on valu." was answered as though they had said
     nothing.
   */
+  // "Mul ei ole tööd" says what is wrong; only wanting, suiting or being able turns a word down.
+  it("meets a word the beat names where the no states a problem rather than turning it down", () => {
+    expect(readTurn("mul ei ole valu", beat({ shape: "sentence" }), ctx).reading).toBe("complete");
+  });
+
+  it("passes over a negated word and reads the rest of the turn", () => {
+    const either = beat({ needs: [{ kind: "lemma", oneOf: ["valu", "kõrv"] }], shape: "sentence" });
+    const real = context({ negators: new Set(["ei", "mitte"]) });
+    expect(readTurn("kõrv, mitte valu", either, real).satisfiedBy).toEqual(["kõrv"]);
+  });
+
   it("meets it where the no is a sentence of its own before the yes", () => {
     for (const text of ["Ei. Mul on valu.", "Ei! Mul on valu", "Ma ei tea. Mul on valu."]) {
       expect(readTurn(text, beat({ shape: "sentence" }), ctx).reading, text).toBe("complete");

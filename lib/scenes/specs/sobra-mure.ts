@@ -35,6 +35,14 @@ const FRIENDS_WORRY: SceneSpec = {
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
       says: "The day they suggest.",
     },
+    /* A second day, for a learner who says the first will not do: a friend
+       who hears "I can't on Wednesday" offers another rather than asking the
+       same thing again. */
+    {
+      kind: "weekday", slot: "day2", theirs: true, differentFrom: "day",
+      oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
+      says: "The other day they suggest.",
+    },
   ],
   curveballs: ["interrupted", "misheard", "english"],
   beats: [
@@ -85,13 +93,19 @@ const FRIENDS_WORRY: SceneSpec = {
     },
     {
       id: "meet",
-      goal: "They'd like to meet again. Say yes to the day they suggest.",
+      goal: "They'd like to meet again. Say yes to the day they suggest, or say it doesn't suit.",
       they: "They thank you and ask if you could meet again on {day}.",
       move: "offer",
       topic: ["kohtuma", "päev"],
       says: [{ lemma: "kohtuma", verb: "IndPrPl1" }, { slot: "day", grammCase: "ADESSIVE" }],
+      counter: {
+        they: "They suggest {day2} instead.",
+        says: [{ lemma: "kohtuma", verb: "IndPrPl1" }, { slot: "day2", grammCase: "ADESSIVE" }],
+        replaces: [["day", "day2"]],
+      },
       needs: [{ kind: "anyOf", of: [
         { kind: "datum", slot: "day" },
+        { kind: "datum", slot: "day2" },
         { kind: "lemma", oneOf: ["jah", "hästi", "sobima", "kindlasti"] },
       ] }],
       required: true,

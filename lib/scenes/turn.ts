@@ -504,9 +504,24 @@ export function readTurn(
     closing beat the farewell's words are taken out before anything is matched.
   */
   const matching = beat.move === "close" ? spoken : withoutFarewells(spoken);
+  /*
+    A word the learner negated is passed over and the rest of the turn read
+    again, once: "Kodus on ta vihane, mitte kurb" found the card's `kurb`,
+    refused it for the `mitte`, and never looked at `vihane`, which is the
+    word the learner chose.
+  */
+  const reading = (need: Requirement) => {
+    if (asksWhich(need, text, matching, context)) return null;
+    const first = satisfies(need, text, matching, context, beat.register);
+    if (!negatedIn(first, text, beat, context, need)) return first;
+    if (!first || first === YES) return null;
+    const passed = new Set([first.word, ...(first.slip ? words(first.slip.said) : [])].map((w) => w.toLowerCase()));
+    const rest = matching.filter((word) => !passed.has(word));
+    const again = satisfies(need, text, rest, context, beat.register);
+    return negatedIn(again, text, beat, context, need) ? null : again;
+  };
   const found = beat.needs
-    .map((need) => (asksWhich(need, text, matching, context) ? null : satisfies(need, text, matching, context, beat.register)))
-    .map((hit) => (negatedIn(hit, text, beat, context) ? null : hit))
+    .map((need) => reading(need))
     .map((hit, i) => (asksForEnglish && hit === YES && beat.needs[i]?.kind === "question" ? null : hit));
   const met = found.map((hit) => hit !== null);
   const missing = met.flatMap((ok, i) => (ok ? [] : [i]));
@@ -1495,16 +1510,38 @@ function personSlip(
  * soovite piima?" takes `ei` as a whole answer, and reading a no there as a
  * turn that met nothing would be the app refusing the word it asked for.
  */
+/** The verbs whose negation turns an answer down rather than stating a problem. */
+const DECLINING = ["tahtma", "soovima", "sobima", "saama", "vajama"] as const;
+
 function negatedIn(
   hit: Hit | typeof YES | null,
   text: string,
   beat: BeatSpec,
   context: TurnContext,
+  need?: Requirement,
 ): boolean {
   if (!hit || hit === YES) return false;
   const takesNo = leafNeeds(beat.needs).some(({ need }) =>
     need.kind === "lemma" && need.oneOf.some((lemma) => context.negators.has(lemma.toLowerCase())));
   if (takesNo) return false;
+  /*
+    WHAT IS NEGATED DECIDES WHETHER THE ANSWER IS REFUSED. "Ma ei taha
+    piima" turns the milk down, and "Mul ei ole tööd" is somebody saying
+    what is wrong, which is the answer the job centre asked for; read the
+    same way, the second was refused in perfect Estonian, and so were "Ma ei
+    ole kindel" and "mul ei ole seda dokumenti". So a word the beat names in
+    any form is refused only where wanting, suiting or being able is what was
+    negated. A case or a value off the card stays strict, since "ma ei ole
+    poes" is not being in the shop. And a negated "suits" or "can" after the
+    word in its clause refuses it too: "Kolmapäeval ma ei saa" turns
+    Wednesday down, and was read as taking it.
+  */
+  const strict = need === undefined || need.kind === "case" || need.kind === "datum"
+    || (need.kind === "anyOf" && need.of.some((leaf) => leaf.kind === "case" || leaf.kind === "datum"));
+  const declining = new Set(DECLINING.flatMap((lemma) => {
+    const form = context.lexicon.persons.get(lemma)?.get("IndPrPs_");
+    return form ? [form] : [];
+  }));
   /*
     The learner's own spelling as well as the dictionary's, because a hit
     that came with a slip carries the form it was read as in `word`: looked
@@ -1517,7 +1554,15 @@ function negatedIn(
     const said = words(clause);
     const at = said.findIndex((word) => spelled.has(word));
     if (at < 0) continue;
-    if (said.slice(0, at).some((word) => context.negators.has(word))) return true;
+    const before = said.slice(0, at);
+    const negatedAt = before.findIndex((word) => context.negators.has(word));
+    if (negatedAt >= 0 && (strict || before.slice(negatedAt + 1).some((word) => declining.has(word)))) return true;
+    // A negator straight in front of the word negates the word itself: "vihane, mitte kurb".
+    if (at > 0 && context.negators.has(said[at - 1]!)) return true;
+    // "Kolmapäeval ma ei saa": the word first, then the negated verb that turns it down.
+    const after = said.slice(at + 1);
+    const no = after.findIndex((word) => context.negators.has(word));
+    if (no >= 0 && after.slice(no + 1).some((word) => declining.has(word))) return true;
   }
   return false;
 }
