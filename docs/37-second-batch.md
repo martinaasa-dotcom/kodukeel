@@ -114,18 +114,23 @@ If pages start returning 503, Postgres has stopped with your shell: start it aga
 
 "Done in #816" means built and tested there, and it is on main.
 
+This page arrived after the items were assigned, so the rows below are kept by the pull request that
+adds the page rather than by each item's own, which would have had nine pull requests editing nine
+neighbouring lines of one table. #829 is a fix found on the way, not an item: the workbook graded a
+bracket word copied out unchanged as a slip.
+
 | Item | Status |
 | --- | --- |
 | QW-1 to QW-9 | Done in #816. The branch ruleset for `main` is imported. |
-| SB-1 A join link and QR on the poster | Not started |
-| SB-2 A roster file | Not started |
-| SB-3 A `/teachers` page with a sample class | Not started |
-| SB-4 A `/pilots` page | Not started |
-| SB-5 A `/help` page and a status line | Not started |
-| SB-6 Spend alerts | Not started |
-| SB-7 Review export of new lines only | Not started |
-| SB-8 First run, steps 3 and 4 | Not started |
-| SB-9 Small cleanups | Not started |
+| SB-1 A join link and QR on the poster | Done in #823 |
+| SB-2 A roster file | Done in #825, stacked on #823 |
+| SB-3 A `/teachers` page with a sample class | Done in #830, stacked on #825 |
+| SB-4 A `/pilots` page | Done in #831, stacked on #830 |
+| SB-5 A `/help` page and a status line | Done in #832 |
+| SB-6 Spend alerts | Done in #827 |
+| SB-7 Review export of new lines only | Done in #824 |
+| SB-8 First run, steps 3 and 4 | Done in #828. Both steps still miss the 1,700px target at 390px; the pull request has the figures |
+| SB-9 Small cleanups | Done in #833. The Today flash did not reproduce in eight runs; `<html lang>` left alone |
 
 The 25-item plan these come from, for the record: item 4 (ship less JavaScript) and item 5 (first-run
 polish, first screen) are done in #816; items 2, 3, 6 and 8 are partly done by the QW items and by this
@@ -551,7 +556,23 @@ and SB-8.
 
 - Cause one error on production and confirm the mail arrives at an `ADMIN_EMAILS` address. A mail path
   never seen to work is the same as none.
-- Run PageSpeed on production now that #816 is deployed, to put real figures beside the local ones.
+- Run PageSpeed on production now that #816 is deployed, to put real figures beside the local ones. Done on
+  2026-10-14 at 23:14, Lighthouse 13 on PageSpeed Insights, one run each:
+
+  | Page | Form | Score | First paint | Largest paint | Blocking | Shift | Speed index |
+  | --- | --- | --- | --- | --- | --- | --- | --- |
+  | `/welcome` | Phone | 96 | 1.2 s | 2.7 s | 10 ms | 0 | 2.8 s |
+  | `/welcome` | Desktop | 99 | 0.3 s | 0.6 s | 60 ms | 0 | 1.0 s |
+  | `/sign-in` (from `/dictionary?q=tuba`) | Phone | 81 | 1.1 s | 5.1 s | 20 ms | 0.018 | 1.7 s |
+  | `/sign-in` (from `/dictionary?q=tuba`) | Desktop | 98 | 0.3 s | 0.9 s | 30 ms | 0.004 | 1.4 s |
+
+  Accessibility, best practices and search were 100 on all four. What the reports flag: render
+  blocking requests (540 ms on the phone landing page, 680 ms on the phone sign-in), 25 KiB of unused
+  script on the landing page against 150 KiB on sign-in, and on the phone sign-in a largest paint at
+  5.1 s with layout shift culprits named. The sign-in figure is the one to look at next: the page a
+  stranger meets after the landing page paints its largest element four times later than the landing
+  page does, and the extra script is most likely the Google sign-in button. It is not an item on this
+  page.
 
 ## 9. A brief to paste into a fresh session
 
