@@ -458,6 +458,28 @@ async function formsForCases(rows: CardRow[]): Promise<Map<string, HeldForms>> {
 }
 
 /**
+ * THE ROWS A SESSION CAN ACTUALLY ASK, WHICH IS NOT EVERY ROW IT WAS HANDED.
+ *
+ * A form is never asked bare: a card built before a case or a person of a
+ * verb was drilled in a sentence is read as the sentence the builder makes
+ * for it today, and one with no recorded sentence behind it is held back
+ * (lib/progress/formCards.ts). That drop is part of deciding what a sitting
+ * holds, so it is its own function rather than a step hidden inside
+ * `withChoices`: `./queue.ts` asks it before anything counts the queue, which
+ * is what lets Today print the number Review then fills. Idempotent, since an
+ * upgraded row is no longer bare, and free when nothing in the batch is.
+ */
+export async function askableRows(inputRows: CardRow[]): Promise<CardRow[]> {
+  const upgrades = await sentenceFronts(inputRows);
+  if (upgrades.size === 0) return inputRows;
+  return inputRows.flatMap((row): CardRow[] => {
+    if (!upgrades.has(row.id)) return [row];
+    const upgrade = upgrades.get(row.id);
+    return upgrade ? [{ ...row, front: upgrade.front, back: upgrade.back, hint: upgrade.hint, slot: upgrade.slot ?? row.slot }] : [];
+  });
+}
+
+/**
  * Maps the rows to cards, attaching multiple-choice options to the recognition
  * cards that get them.
  *
@@ -506,12 +528,7 @@ export async function withChoices(
     row, its schedule and its history are exactly as they were. See
     lib/progress/formCards.ts.
   */
-  const upgrades = await sentenceFronts(inputRows);
-  const rows = inputRows.flatMap((row): CardRow[] => {
-    if (!upgrades.has(row.id)) return [row];
-    const upgrade = upgrades.get(row.id);
-    return upgrade ? [{ ...row, front: upgrade.front, back: upgrade.back, hint: upgrade.hint, slot: upgrade.slot ?? row.slot }] : [];
-  });
+  const rows = await askableRows(inputRows);
   /*
     WHICH OF THESE WORDS ARE ALREADY FAVORITES, AND THE GLOSSED SENTENCE.
 

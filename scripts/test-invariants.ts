@@ -10057,7 +10057,7 @@ check("a card never answers the card before it", () => {
     order a lesson teaches them, because a first meeting is a teaching screen
     rather than a retrieval.
   */
-  const review = code("app/(app)/review/page.tsx");
+  const review = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
   assert.match(review, /spaceSiblings\(dueWithin,/, "the review queue no longer spaces a word's cards apart");
   assert.match(review, /inTeachingOrder\(fresh\)/, "new cards no longer arrive in teaching order");
 
@@ -10212,7 +10212,7 @@ check("a word the learner went and got is reachable, and the commonest lead", ()
   // scheduler: it renders the shared session like every other round (ADR-016).
   assert.match(round, /<ReviewSession/, "the lookups round grew a card runner of its own");
 
-  const review = code("app/(app)/review/page.tsx");
+  const review = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
   assert.match(
     review, /aroundFirst\(commonFirst\(/,
     "the new-card trickle no longer puts the commonest words of their kind first, "
@@ -16085,7 +16085,7 @@ check("a word chosen for a learner is banded by one table", () => {
     "lib/dict/suggest.ts",
     "app/(app)/review/pairs/page.tsx",
     "app/(app)/review/government/page.tsx",
-    "app/(app)/review/page.tsx",
+    "app/(app)/review/queue.ts",
   ];
   for (const file of readers) {
     assert.match(
@@ -21014,13 +21014,13 @@ check("learn teaches a word and practice drills it, never both at once", () => {
     "pastTheLadder names the ladder's states itself rather than reading the table",
   );
 
-  const review = code("app/(app)/review/page.tsx");
+  const review = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
   assert.match(
     review, /where: (?:\{ AND: \[)?dueWhere\(ownerId, now[,)]/,
     "the review queue reads its own due clause rather than the shared one",
   );
   assert.match(
-    review, /where: unseenWhere\(ownerId, now,/,
+    review, /(?:where: |\.\.\.)unseenWhere\(ownerId, now,/,
     "the review queue reads its own unseen clause rather than the shared one",
   );
 
@@ -23368,7 +23368,7 @@ check("a word enough people put aside is offered later, not rewritten", () => {
 
   // And the reach: the two places that decide which word somebody is taught
   // next. A raise nobody reads is a count nobody acts on.
-  for (const file of ["app/(app)/review/page.tsx", "lib/progress/learn.ts"]) {
+  for (const file of ["app/(app)/review/queue.ts", "lib/progress/learn.ts"]) {
     assert.match(
       code(file), /offeredBand\(/,
       `${file} bands a word by what the dictionary recorded rather than by what `
@@ -23520,7 +23520,7 @@ check("a derived step asks for no more evidence than the app can supply", () => 
     count and the round are not two readings that happen to agree.
   */
   assert.match(
-    code("app/(app)/review/page.tsx"), /roomFor\(dueWithin\.length\)/,
+    (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts")), /roomFor\(dueWithin\.length\)/,
     "the review queue measures room against the cards it read rather than the cards it shows",
   );
   assert.match(
@@ -23788,8 +23788,8 @@ check("every round a rotation can deal reads the module's scope off its address"
   }
   assert.ok(reads >= 11, `only ${reads} round pages read the scope; the table has more rounds than that`);
   // And the closing review reads it too, since it is the last step of every evening.
-  assert.match(code("app/(app)/review/page.tsx"), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
-  assert.match(code("app/(app)/review/page.tsx"), /reviewable\(/, "the closing review stopped holding a case card to the case pages read");
+  assert.match((code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts")), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
+  assert.match((code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts")), /reviewable\(/, "the closing review stopped holding a case card to the case pages read");
 });
 
 /*
@@ -23847,40 +23847,33 @@ check("nothing outside lib/course/scope.ts reads a scope's lists to answer the m
   teaching something.
 */
 check("the daily review introduces nothing the module has not taught", () => {
-  const page = code("app/(app)/review/page.tsx");
+  const page = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
   assert.match(
     page, /learnerScopeSoFar\(/,
     "the daily review reads the module only off its address, so nothing holds it on the path a learner actually opens",
   );
   assert.match(
-    page, /scope \? Promise\.resolve\(scope\) : learnerScopeSoFar\(/,
+    page, /const taught = scope \?\? await learnerScopeSoFar\(ownerId\)/,
     "the daily review no longer falls back to the learner's own standing when it was not opened from the module",
   );
-  /*
-    It is awaited in front of the due read now, which reverses what this check
-    used to hold: what is due is narrowed by what the module has taught, so the
-    read cannot start before the standing is known. Started beside the
-    settings read, so it costs one round trip rather than two.
-  */
+  // What is due is narrowed by what the module has taught, in the query.
   assert.match(
-    page, /const taughtFirst = await taughtPromise;[\s\S]*taughtWhere\(taughtFirst\)/,
+    page, /taughtWhere\(taught\)/,
     "the due read on the daily path is no longer narrowed to what the module has taught",
   );
   assert.match(
     page, /taught\?\.lemmas|taught\.lemmas/,
     "the new-card window stopped being narrowed to what the module has taught",
   );
+  // And every card, due or about to be introduced, is asked `reviewable`:
+  // review only repeats what the module has taught.
   assert.match(
-    page, /const introducible = \(card: CardRow\) => reviewable\(taught,/,
-    "a card about to be introduced is no longer asked whether the module has taught what it is made of",
+    page, /const allowed = \(card: CardRow\) => reviewable\(taught,/,
+    "a card is no longer asked whether the module has taught what it is made of",
   );
-  // And the due list is held to the standing too, which is the operator's
-  // reversal of "what is due is due whatever taught it": review only repeats
-  // what the module has taught (`reviewable`).
-  assert.match(
-    page, /const within = \(card: CardRow\) => reviewable\(taught,/,
-    "the due list is no longer held to what the module has taught",
-  );
+  assert.match(page, /rows\.filter\(allowed\)\)\)/, "the due list is no longer held to what the module has taught");
+  assert.match(page, /kept\.push\(\.\.\.rows\.filter\(allowed\)\)/,
+    "a card about to be introduced is no longer held to what the module has taught");
 });
 
 /*
@@ -23986,11 +23979,13 @@ check("the Learn ladder introduces nothing the module has not taught", () => {
   anywhere else on the page is a guard on a different query.
 */
 check("every card read on the review page asks about the Learn ladder", () => {
-  const src = code("app/(app)/review/page.tsx");
+  const src = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
   const blocks = src.split("prisma.card.findMany(").slice(1).map((b) => b.slice(0, 700));
   const guard = /\b(dueWhere|unseenWhere|notOnLadder|meetingFirst)\(ownerId/;
   const loose = blocks.filter((b) => !guard.test(b));
-  assert.ok(blocks.length >= 6, `only ${blocks.length} card reads found on the review page`);
+  // Five: the three drills, the due read and the unseen read, which now
+  // carries the in-band read as a parameter rather than a second query.
+  assert.ok(blocks.length >= 5, `only ${blocks.length} card reads found on the review page`);
   assert.deepEqual(
     loose.map((b) => b.slice(0, 80).replace(/\s+/g, " ")), [],
     "a card read on the review page names no Learn-ladder guard",

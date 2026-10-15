@@ -21,7 +21,7 @@ export default function theModuleAsksWhatItTaught({ check, code }: InvariantKit)
   });
 
   check("the module's closing round reads only taught words, and stops at MODULE_SESSION", () => {
-    const review = code("app/(app)/review/page.tsx");
+    const review = (code("app/(app)/review/page.tsx") + "\n" + code("app/(app)/review/queue.ts"));
     assert.match(review, /dueWhere\(ownerId, now, scope\?\.lemmas \?\? null\)/, "the review page reads the whole deck's due cards inside a module");
     assert.match(review, /scope \? queued\.slice\(0, MODULE_SESSION\)/, "the module's closing round is no longer capped");
     // The count the step keeps has to be drawn over the same narrowed read.
