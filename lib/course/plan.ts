@@ -229,6 +229,15 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
     take (course.test.ts refuses it). Every B1 unit after it is the evening of a
     later scene in the same batch, so per D6 this is the next free one.
   */
+  /*
+    Three more moved off the unit the brief named, each because course.test.ts
+    refused the placement, and each scene's own comment says why: `sobra-mure`
+    is on `kunst` (its sorry beat needs `probleemid`, taught later than the
+    unit named), `kuulsin` on `nominalisatsioon` (`kaudne` has one reading and
+    the scene evening would take it), and `eksam-b1` on `iseloom` (the second
+    evening of `liitverbid` is its only reading of aspect, and every later B1
+    unit already carries a scene).
+  */
   teadus: "nadalavahetus",
   "keha-ja-tervis": "hadaabi",
   "too-ja-raha": "pangas",

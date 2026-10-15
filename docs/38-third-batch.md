@@ -147,24 +147,24 @@ If pages start returning 503, Postgres has stopped with your shell: start it aga
 | Item | Status |
 | --- | --- |
 | SB-1 to SB-9 | Done in #822 to #833 |
-| TB-1 How we know | Not started |
-| TB-2 Curriculum alignment | Not started |
-| TB-3 End-of-term class report | Not started |
-| TB-4 Rest of the safety net | Not started |
-| TB-5 Accessibility evidence | Not started |
-| TB-6 `/impact` | Not started |
-| TB-7 Contributor guide and architecture map | Not started |
-| TB-8 Reading mode | Not started |
-| TB-9 Split the scene catalogue and bank | Not started |
-| TB-10 Wave A, everyday (8 scenes) | Not started |
-| TB-11 Wave B, essentials (3 scenes) | Not started |
-| TB-12 Wave C, offices (4 scenes) | Not started |
-| TB-13 Wave D, work and life (6 scenes) | Not started |
-| TB-14 Wave E, discussion (5 scenes) | Not started |
-| TB-15 Wave F, exam practice (2 scenes) | Not started |
-| TB-16 Share cards and small cleanups | Not started |
+| TB-1 How we know | Done (#852) |
+| TB-2 Curriculum alignment | Done (#852) |
+| TB-3 End-of-term class report | Done (#852) |
+| TB-4 Rest of the safety net | Done (#852) |
+| TB-5 Accessibility evidence | Done (#852) |
+| TB-6 `/impact` | Done (#852) |
+| TB-7 Contributor guide and architecture map | Done (#852) |
+| TB-8 Reading mode | Done (#852) |
+| TB-9 Split the scene catalogue and bank | Done (#852) |
+| TB-10 Wave A, everyday (8 scenes) | Done: uus-kolleeg, abi-palumine, ootamine, kokkulepe, turul, bussipeatus, raamatukogu, nadalavahetus (#852) |
+| TB-11 Wave B, essentials (3 scenes) | Done: hadaabi, pangas, perearst (#852) |
+| TB-12 Wave C, offices (4 scenes) | Done: tootukassa, elamisluba, peretoetus, lastevanemad (#852) |
+| TB-13 Wave D, work and life (6 scenes) | Done: tehniline-tugi, koosolek, soovitus, sobra-mure (on `kunst`), palk, tagatisraha (#852) |
+| TB-14 Wave E, discussion (5 scenes) | Done: kuulsin (on `nominalisatsioon`), elanike-koosolek, graafik, raamatuklubi, kolm-palvet (#852) |
+| TB-15 Wave F, exam practice (2 scenes) | Done: eksam-b1 (on `iseloom`), eksam-b2 (#852) |
+| TB-16 Share cards and small cleanups | Done (#852) |
 | TB-17 First run, step 4 | Not started |
-| TB-18 Sign-in on a phone | Not started |
+| TB-18 Sign-in on a phone | Done (#852); docs/15-performance.md says the largest paint did not move |
 
 For TB-10 to TB-15, write the scene ids done beside the row, for example "Done: uus-kolleeg (#851)".
 
