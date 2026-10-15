@@ -129,7 +129,7 @@ export function WordIntro({
         <FitText as="p" text={lemma} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
         {/* Read aloud on arrival: the first time a word is met is the one time
             hearing it is worth more than reading it. */}
-        <Speak text={lemma} autoplay={autoplay} />
+        <Speak text={lemma} autoplay={autoplay} spaceKey />
       </div>
       {/*
         THE MEANING IN THE LANGUAGE THE LEARNER THINKS IN LEADS, AND THE

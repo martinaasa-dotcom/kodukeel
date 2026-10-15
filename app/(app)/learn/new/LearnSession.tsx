@@ -739,7 +739,8 @@ export function LearnSession({
         if (isAdvanceKey(e)) { e.preventDefault(); carryOn(); }
         return;
       }
-      if (rung === "meet" && isAdvanceKey(e)) { e.preventDefault(); met(); }
+      /* Space plays the word on a first meeting; only Enter moves on. */
+      if (rung === "meet" && isAdvanceKey(e, true)) { e.preventDefault(); met(); }
       if (rung === "choice" && word?.choices) {
         const at = Number(e.key) - 1;
         const option = word.choices[at];
@@ -1062,7 +1063,7 @@ export function LearnSession({
             <>
               <div className="flex items-center gap-2">
                 <FitText as="p" text={word.lemma} lang="et" className="round-word font-bold tracking-tight" style={{ color: "var(--ink)" }} />
-                <Speak text={word.lemma} />
+                <Speak text={word.lemma} spaceKey={phase !== "feedback"} />
               </div>
               {word.choices ? (
                 <div className="mt-2 grid w-full max-w-md gap-2">
@@ -1476,7 +1477,7 @@ export function LearnSession({
               {/* The primary action sits on the right of the pair, where the
                   sprint already puts "Got it" and where a thumb and a reading
                   eye both end up. The claim is the quieter button beside it. */}
-              <Button variant="primary" size="lg" onClick={met} disabled={busy}>{t("Got it")}</Button>
+              <Button variant="primary" size="lg" onClick={met} disabled={busy}>{t("Got it")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap></Button>
             </>
           ) : null}
         </div>

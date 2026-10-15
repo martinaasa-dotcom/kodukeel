@@ -1398,7 +1398,10 @@ export function ReviewSession({
         return;
       }
 
-      if (isAdvanceKey(e)) {
+      /* A first meeting, and a multiple choice not yet answered, play the
+         word's own audio on Space (the cap beside the speaker says so), so
+         only Enter moves on from either. */
+      if (isAdvanceKey(e, ask === "intro" || (ask === "choice" && !chosen))) {
         // While the answer box has focus it owns both keys: a space belongs in
         // the answer, and Enter is the input's own "check this". React flushes
         // discrete events synchronously, so without this the *same* Enter would
@@ -1793,7 +1796,7 @@ export function ReviewSession({
                 sentence once the answer is in. Not just `CLOZE`: a `CASE_FORM`
                 or `CONJUGATION` front is a gap-fill sentence too now. */}
             {estonianSide(card.cardType, "front") && !isGap(card) && (
-              <Speak text={card.lemma ?? card.front} />
+              <Speak text={card.lemma ?? card.front} spaceKey={ask === "choice" && !chosen} />
             )}
           </div>
           )}

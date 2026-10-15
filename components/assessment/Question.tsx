@@ -1,5 +1,6 @@
 "use client";
 
+import { EnterKeyCap } from "@/components/KeyCaps";
 import { useEffect, useState } from "react";
 import { Check, Ear, X } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -185,6 +186,8 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             text={item.et}
             label={t("Play the Estonian")}
             size={26}
+            spaceKey={picked === null}
+            onPlay={() => setPlayed(true)}
             className="flex h-16 w-16 items-center justify-center rounded-full"
             style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
             onUnavailable={() => { setSilent(true); onNoAudio(); }}
@@ -292,7 +295,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             autoFocus
             onClick={() => onAnswer(picked === -1 ? { kind: "unsure" } : { kind: "picked", option: item.options[picked] ?? "" })}
           >
-            {t("Next question")}
+            {t("Next question")} <EnterKeyCap className="ml-1" />
           </Button>
         </>
         )}
@@ -432,7 +435,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
           </div>
           <p lang="et" className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>{item.et}</p>
           <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ kind: "typed", text: typed })}>
-            {t("Next question")}
+            {t("Next question")} <EnterKeyCap className="ml-1" />
           </Button>
         </>
         )}
@@ -509,7 +512,7 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
             <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.because}</p>
           )}
           <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ kind: "typed", text })}>
-            {t("Next question")}
+            {t("Next question")} <EnterKeyCap className="ml-1" />
           </Button>
         </>
         )}
@@ -571,6 +574,7 @@ export function SpeakQuestion({ item, onAnswer }: { item: SpeakItem; onAnswer: (
           text={item.et}
           label={t("Hear a native voice say it")}
           size={20}
+          spaceKey
           className="flex min-h-[44px] items-center gap-2 rounded-full px-4"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
         />

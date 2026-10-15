@@ -1,5 +1,6 @@
 "use client";
 
+import { EnterKeyCap } from "@/components/KeyCaps";
 import { createRef, useMemo, useRef, useState, type RefObject } from "react";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { Check, CircleAlert, Loader2 } from "lucide-react";
@@ -314,7 +315,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
             </div>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              {last ? t("Finish") : t("Next picture")}
+              {last ? t("Finish") : t("Next picture")} <EnterKeyCap className="ml-1" />
             </Button>
           )}
         </div>
