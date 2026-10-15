@@ -23988,7 +23988,7 @@ check("the Learn ladder introduces nothing the module has not taught", () => {
 check("every card read on the review page asks about the Learn ladder", () => {
   const src = code("app/(app)/review/page.tsx");
   const blocks = src.split("prisma.card.findMany(").slice(1).map((b) => b.slice(0, 700));
-  const guard = /\b(dueWhere|unseenWhere|notOnLadder|meetingFirst)\(ownerId/;
+  const guard = /\b(dueWhere|unseenWhere|notOnLadder|meetingFirst|tonightWhere)\(ownerId/;
   const loose = blocks.filter((b) => !guard.test(b));
   assert.ok(blocks.length >= 6, `only ${blocks.length} card reads found on the review page`);
   assert.deepEqual(
