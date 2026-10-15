@@ -749,7 +749,7 @@ reassurance, and each one says what hasn't been done in the same breath as what 
 | `docs/29-controls.md` | A map of the controls against ISO 27001 and SOC 2. It's a self-assessment, and it says so first. |
 | `docs/33-certification-readiness.md` | The gap analysis behind that map: every "Partial" and "Not done" turned into a piece of work with a size, a cost and a deliverable. |
 | `docs/23-impact.md` | What can honestly be claimed about usage, and the minimums that stop a small number being reported at all. |
-| `docs/30-pilots.md` | What a pilot is, what it costs, and what isn't ready yet. |
+| `/pilots` (summarised in `docs/30-pilots.md`) | What a pilot is, what it costs, and what isn't ready yet. |
 | `docs/31-grant-case.md` | The case a funding application would be built from, with every figure tied to the file or command behind it, and a list of what it can't claim. |
 | `docs/31-competitors.md` | Three other ways to learn Estonian, read from their own websites on a stated day and compared with Kodukeel row by row, with what closed each gap. |
 | `SECURITY.md` | Where to report a vulnerability. |
@@ -758,7 +758,7 @@ reassurance, and each one says what hasn't been done in the same breath as what 
 
 Three things you won't find, because they don't exist yet and claiming them would be the first
 thing a careful reader caught: a SOC 2 report, an ISO 27001 certificate, and an outside penetration
-test. There's also no reference customer to name yet. `docs/30-pilots.md` says so at the top rather
+test. There's also no reference customer to name yet. The `/pilots` page says so at the top rather
 than at the bottom.
 
 ## Commands

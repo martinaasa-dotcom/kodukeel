@@ -322,7 +322,7 @@ async function entryPages(locale) {
   const pages = [
     `/welcome/${locale}`, `/privacy?lang=${locale}`, `/terms?lang=${locale}`, `/trust?lang=${locale}`,
     `/accessibility?lang=${locale}`, `/funding?lang=${locale}`, `/state-exam?lang=${locale}`,
-    `/help?lang=${locale}`, `/sign-in?lang=${locale}`,
+    `/teachers?lang=${locale}`, `/help?lang=${locale}`, `/sign-in?lang=${locale}`,
   ];
   for (const path of pages) {
     thrown.length = 0;
@@ -348,6 +348,33 @@ async function entryPages(locale) {
       check(`${path} loads the whole ${locale} table once a demo is reached for`, tableLoads === 1, `${tableLoads} table chunk(s) loaded`);
       check(`${path} draws again in ${locale} without throwing`, thrown.length === 0, thrown.slice(0, 2).join(" · "));
     }
+  }
+  await ctx.close();
+}
+
+/**
+ * /teachers draws the class page's own roster over an invented class, signed
+ * out, in every language. What it may never draw is a real learner: the names
+ * in its roster rows are held against every display name a class in this
+ * database knows.
+ */
+async function teachersPage() {
+  const real = new Set((await prisma.classroomMember.findMany({ select: { displayName: true } })).map((m) => m.displayName));
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+  const page = await ctx.newPage();
+  for (const locale of ["en", ...LOCALES]) {
+    const path = locale === "en" ? "/teachers?lang=en" : `/teachers?lang=${locale}`;
+    const response = await page.goto(`${B}${path}`, { waitUntil: "load", timeout: 60_000 });
+    await page.locator("[data-sample-roster]").waitFor({ timeout: 15_000 }).catch(() => {});
+    check(`${path} answers signed out`, response?.status() === 200 && !page.url().includes("/sign-in"), `${response?.status()} at ${page.url()}`);
+    check(`${path} has one h1`, (await page.locator("h1").count()) === 1);
+    const heading = (await page.locator("#sample-class").textContent().catch(() => ""))?.trim() ?? "";
+    check(`${path} draws the sample class in ${locale}`, locale === "en" ? heading === "A sample class" : heading.length > 0 && heading !== "A sample class", heading);
+    const names = await page.locator("[data-sample-roster] li .block.text-base").allTextContents();
+    const shown = names.map((n) => n.trim()).filter(Boolean);
+    check(`${path} draws the eight invented learners`, shown.length === 8, `${shown.length} rows`);
+    const leaked = shown.filter((n) => real.has(n));
+    check(`${path} draws no real learner's name`, shown.length > 0 && leaked.length === 0, leaked.join(", "));
   }
   await ctx.close();
 }
@@ -409,6 +436,7 @@ try {
   for (const p of unmade) absent(40, `a row for ${p}, which scripts/test-containment.mjs makes before this in CI`);
   for (const locale of LOCALES) await entryPages(locale);
   await helpPage();
+  await teachersPage();
   for (const locale of LOCALES) {
     await setLocale(locale);
     for (const pass of PASSES) {

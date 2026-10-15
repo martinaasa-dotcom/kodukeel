@@ -7,6 +7,7 @@ import { firstNameOf } from "@/lib/auth/identity";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { cohortKind } from "@/lib/classroom/cohort";
+import { joinCodeFrom } from "@/lib/classroom/code";
 import { Card, Chip, Page, SectionTitle, Stack } from "@/components/ui";
 import { CreateClass, JoinClass } from "./ClassForms";
 import { localeFor, titleFor } from "@/lib/progress/locale";
@@ -28,8 +29,14 @@ export const dynamic = "force-dynamic";
  * a class is a view, never a copy — so joining one shares progress and nothing
  * else, and leaving takes the sharing away without touching a single card.
  */
-export default async function ClassIndexPage() {
+export default async function ClassIndexPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ join?: string | string[] }>;
+}) {
   const ownerId = await requireUserId();
+  // A join link from a poster carries the code; it fills the box and joins nobody.
+  const initialCode = joinCodeFrom((await searchParams).join);
 
   const [memberships, settings, learner, locale] = await Promise.all([
     prisma.classroomMember.findMany({
@@ -125,7 +132,7 @@ export default async function ClassIndexPage() {
             <section>
               <SectionTitle hint={t("students")}>{t("Join a class")}</SectionTitle>
               <Card tone="sky">
-                <JoinClass suggestedName={suggestedName} />
+                <JoinClass suggestedName={suggestedName} initialCode={initialCode} />
               </Card>
             </section>
 
