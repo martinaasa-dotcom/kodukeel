@@ -15,6 +15,7 @@ import { useHints } from "@/components/round/useHints";
 import { hintLadder } from "@/lib/questions/hints";
 import { caseByKey } from "@/lib/estonian/cases";
 import { Speak } from "@/components/Speak";
+import { EnterKeyCap } from "@/components/KeyCaps";
 import { StarWord } from "@/components/StarWord";
 import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
@@ -273,7 +274,12 @@ function Verdict({ ok, close, note }: { ok: boolean; close?: boolean; note?: str
   );
 }
 
-function Continue({ onNext, label = "Continue" }: { onNext: () => void; label?: string }) {
+function Continue({ onNext, label = "Continue", spaceFree = false }: {
+  onNext: () => void;
+  label?: string;
+  /** Space belongs to the audio on this step, so only Enter moves on. */
+  spaceFree?: boolean;
+}) {
   const t = useT();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -285,11 +291,11 @@ function Continue({ onNext, label = "Continue" }: { onNext: () => void; label?: 
         own Enter carries on instead, through `checkTyped`.
       */
       if (inEditable(e.target)) return;
-      if (isAdvanceKey(e)) { e.preventDefault(); onNext(); }
+      if (isAdvanceKey(e, spaceFree)) { e.preventDefault(); onNext(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onNext]);
+  }, [onNext, spaceFree]);
   return (
     /*
       The loud one. This is the only thing to press on the step it sits on, and
@@ -300,6 +306,7 @@ function Continue({ onNext, label = "Continue" }: { onNext: () => void; label?: 
     */
     <Button variant="primary" onClick={onNext} className="self-start">
       {t(label)} <ArrowRight size={15} aria-hidden />
+      <EnterKeyCap className="ml-1" />
     </Button>
   );
 }
@@ -537,7 +544,7 @@ function StepCard({
             isPhrase={step.isPhrase}
             cefr={unitLevel}
           />
-          <Continue onNext={onNext} label="Got it" />
+          <Continue onNext={onNext} spaceFree label="Got it" />
         </Card>
       );
 
@@ -547,12 +554,12 @@ function StepCard({
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("What does this mean?")}</span>
           <div className="flex flex-wrap items-center gap-3">
             <Et className="text-3xl">{step.lemma}</Et>
-            <Speak text={step.lemma} size={18} />
+            <Speak text={step.lemma} size={18} spaceKey />
           </div>
           <Options options={step.options} answer={step.answer} chosen={chosen} lang="en"
             onChoose={(i) => choose(i, step.answer, step.lemma, step.kind)} />
           {chosen !== null && <Verdict ok={chosen === step.answer} />}
-          {chosen !== null && <Continue onNext={onNext} />}
+          {chosen !== null && <Continue onNext={onNext} spaceFree />}
         </Card>
       );
 
@@ -578,13 +585,13 @@ function StepCard({
           <span className="flex items-center gap-2 text-sm" style={{ color: "var(--ink-3)" }}>
             <Ear size={15} aria-hidden /> {t("Listen, then choose what it means")}
           </span>
-          <Speak text={step.lemma} size={30} label={t("Play the word")} className="self-start p-3" />
+          <Speak text={step.lemma} size={30} label={t("Play the word")} className="self-start p-3" spaceKey />
           <Options options={step.options} answer={step.answer} chosen={chosen} lang="en"
             onChoose={(i) => choose(i, step.answer, step.lemma, step.kind)} />
           {chosen !== null && (
             <>
               <Verdict ok={chosen === step.answer} note={fill(t("It was {word}."), { word: quoted(step.lemma, locale) })} />
-              <Continue onNext={onNext} />
+              <Continue onNext={onNext} spaceFree />
             </>
           )}
         </Card>
@@ -604,6 +611,7 @@ function StepCard({
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.lemma, step.lemma, step.kind, [], step.kin)} className="self-start">
               {t("Check")}
+              <EnterKeyCap className="ml-1" />
             </Button>
           )}
           {checked && <Verdict ok={checked.ok} close={checked.close} note={checked.note} />}
@@ -694,6 +702,7 @@ function StepCard({
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)} className="self-start">
               {t("Check")}
+              <EnterKeyCap className="ml-1" />
             </Button>
           )}
           {checked && (
@@ -747,6 +756,7 @@ function StepCard({
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind, step.rivals)} className="self-start">
               {t("Check")}
+              <EnterKeyCap className="ml-1" />
             </Button>
           )}
           {checked && <Verdict ok={checked.ok} close={checked.close} note={checked.note} />}

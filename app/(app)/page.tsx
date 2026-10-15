@@ -45,6 +45,7 @@ import { SCENES } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
 import { sceneOfDay } from "@/lib/scenes/ofTheDay";
 import { SonadPreview } from "@/components/SonadPreview";
+import { TahedPreview } from "@/components/TahedPreview";
 import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
 import { localeFor, titleFor } from "@/lib/progress/locale";
@@ -860,9 +861,15 @@ export default async function TodayPage() {
     /practice, in the palette and at its own URL. Where the module has not yet
     taught enough words to build today's puzzle the card falls back to the round
     the first evenings deal, as it always did, and says so plainly.
+
+    That fall-back is Tähed, and it is what a beginner sees every morning of
+    their first week, so it carries an example round of its own
+    (`components/TahedPreview.tsx`) for the same reason Sõnad does.
   */
   const gameCard = featured.href === "/sonad" ? (
     <SonadPreview href={featured.href} why={t(featured.why)} locale={locale} />
+  ) : featured.href === PUZZLE_STAND_IN.href ? (
+    <TahedPreview href={featured.href} why={t(featured.why)} locale={locale} />
   ) : (
     <Card className="flex h-full flex-col">
       <SectionTitle>{t("Today’s game")}</SectionTitle>

@@ -121,7 +121,7 @@ to use a feature deserves to know a request leaves the app at all.
 **Conditional**, on the same key, because it is the same lookup: Ekilex carries no English on a
 reader key, so a word it answers for is then asked about at Wikimedia.
 
-**What it processes.** The same single word, asked for its English meaning, with no account attached.
+**What it processes.** The same single word, asked for its English meaning, with no account attached; and an English word somebody searched the dictionary for and the dictionary had nothing for, asked which Estonian word it is (`lib/dict/englishToEstonian.ts`), under the same Ekilex trigger.
 
 **Where established.** The Wikimedia Foundation is established in the United States. Outside the EEA.
 

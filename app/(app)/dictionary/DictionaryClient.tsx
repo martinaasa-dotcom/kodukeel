@@ -28,6 +28,7 @@ import { WordFun } from "@/components/WordFun";
 import { Examples } from "./Examples";
 import { DerivedVerbForms, WordForms } from "./Forms";
 import type { SearchHit } from "@/lib/dict/search";
+import type { Nearby, NearbyReason } from "@/lib/dict/nearby";
 import { AddWord, type WordDraft } from "./AddWord";
 import { Et } from "@/components/Et";
 import { StarWord } from "@/components/StarWord";
@@ -151,7 +152,7 @@ const VERB_PARTS = [
 ] as const;
 
 export function DictionaryClient({
-  initialQuery, hits, heard, known, knownAs, spellings, openedId, entry, matchedAs, suggestions, headlines, feedHost, starred, tutorReady, justFetched, canScan, glossLanguage,
+  initialQuery, hits, known, knownAs, nearby, typedEnglish, openedId, entry, matchedAs, suggestions, headlines, feedHost, starred, tutorReady, justFetched, canScan, glossLanguage,
 }: {
   initialQuery: string;
   /** Which language the learner asked for their meanings in. */
@@ -160,13 +161,6 @@ export function DictionaryClient({
   justFetched?: boolean;
   hits: SearchHit[];
   /**
-   * Words that sound like the query, when nothing matched it.
-   *
-   * Empty on every path but the dead end, because that is the only screen it
-   * has anything to say on. See `lib/estonian/sounds.ts`.
-   */
-  heard: string[];
-  /**
    * Whether Ekilex holds this word at all, from the 154,995-headword list.
    * True here means the word is real and this app simply has no entry for it,
    * which is a different sentence from "no such word".
@@ -174,8 +168,16 @@ export function DictionaryClient({
   known: boolean;
   /** The headwords the spelling is a form of, where it is one. Leads with itself where it is a headword. */
   knownAs: string[];
-  /** Spellings close enough to be worth offering, when it is not a word. */
-  spellings: string[];
+  /**
+   * What the dictionary has that is close to what was typed, when nothing
+   * matched it: the English in another shape, the Estonian a letter off or
+   * written the way it sounds, a part of the compound, or the Estonian a
+   * translation table gives for an English word. Empty on every path but the
+   * dead end. See `lib/dict/nearby.ts`.
+   */
+  nearby: Nearby[];
+  /** Whether the query was answered as English, so the add form files it as the meaning. */
+  typedEnglish: boolean;
   /**
    * Which of the hits is the one on screen. Usually the first, and not when a
    * link asked for another entry of the same lemma by name.
@@ -406,87 +408,50 @@ export function DictionaryClient({
       {initialQuery && hits.length === 0 && (
         <div className="flex flex-col gap-4">
           {/*
-            THREE DEAD ENDS THAT USED TO READ THE SAME.
+            THREE DEAD ENDS THAT USED TO READ THE SAME, AND A FOURTH THAT WAS
+            NEVER A DEAD END AT ALL.
 
             "Nothing found" was the answer to a misspelling, to an English word
             and to a perfectly ordinary Estonian word this app had no entry for.
-            The third is the one that was reported, and it is the one the app
-            was most wrong about: `uudishimulik` appears in Kodukeel's own copy,
-            and searching for it here said nothing found.
-
-            The forms list tells them apart. It knows only which spellings
-            exist and which word each is a form of, which is exactly enough.
+            The forms list tells the first and third apart. The fourth is a
+            word the dictionary *has*, under a gloss in another number or a
+            spelling a letter off, and the screen used to open a form for adding
+            it: `championship` against "championships" was reported from there.
+            So where anything close exists the screen leads with it, the way
+            Sõnaveeb answers a miss with what it thinks you meant, and adding
+            the word yourself waits behind "None of these?".
           */}
           <Empty
             title={known
               ? (knownAs[0] && knownAs[0] !== initialQuery.trim()
                 ? fill(t("{word} is a form of {lemmas}"), { word: initialQuery, lemmas: knownAs.slice(0, 3).join(", ") })
                 : fill(t("{word} is a real Estonian word"), { word: initialQuery }))
-              : fill(t("Nothing found for \"{query}\""), { query: initialQuery })}
+              : nearby[0]?.why === "translation"
+                ? fill(t("\"{query}\" in Estonian"), { query: initialQuery })
+                : nearby.length > 0
+                  ? fill(t("No exact match for \"{query}\""), { query: initialQuery })
+                  : fill(t("Nothing found for \"{query}\""), { query: initialQuery })}
             body={known
               ? t("We just don't have an entry for it yet. Add it below with its omastav and it's yours.")
-              : t("Check the spelling. If it's right, add the word yourself below, or tell us it's missing.")}
+              : nearby[0]?.why === "translation"
+                ? t("Open the one you meant and it's saved here for next time.")
+                : nearby.length > 0
+                ? t("But these are close. Is one of them the word you meant?")
+                : t("Check the spelling. If it's right, add the word yourself below, or tell us it's missing.")}
           />
 
-          {/*
-            Spellings, when it is not a word at all. Held behind `heard` in the
-            page, which knows which Estonian *sounds* a learner confuses and is
-            the better answer where it has one; this is the wider net, over
-            every headword rather than only the ones with entries.
-          */}
-          {spellings.length > 0 && (
-            <Card>
-              <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                {t("No word is spelled quite like that. Did you mean one of these?")}
-              </p>
-              <ul className="mt-3 flex flex-wrap gap-2">
-                {spellings.map((lemma) => (
-                  <li key={lemma}>
-                    <Link
-                      href={`/dictionary?q=${encodeURIComponent(lemma)}`}
-                      lang="et"
-                      className="press inline-flex items-center rounded-full px-3.5 py-2 text-base font-semibold transition-ui hover:-translate-y-px"
-                      style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-                    >
-                      {lemma}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
-          {/*
-            WHAT THEY MIGHT HAVE HEARD, BEFORE ANYTHING ELSE ON THIS SCREEN.
+          {nearby.length > 0 && <DidYouMean nearby={nearby} known={known} />}
 
-            Every other way out of this dead end assumes the learner can spell
-            the word. Nobody using this app has only read these words: somebody
-            who heard `poiss` writes "pois" and somebody who heard `padi`
-            writes "pati", and the search folds diacritics and case endings and
-            has nothing to say about either. It leads because it is the only
-            one that might mean they are not at a dead end at all.
-          */}
-          {heard.length > 0 && (
-            <Card>
-              <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                {t("Heard it rather than read it? Some Estonian sounds can be written two ways, so it might be one of these.")}
-              </p>
-              <ul className="mt-3 flex flex-wrap gap-2">
-                {heard.map((lemma) => (
-                  <li key={lemma}>
-                    <Link
-                      href={`/dictionary?q=${encodeURIComponent(lemma)}`}
-                      lang="et"
-                      className="press inline-flex items-center rounded-full px-3.5 py-2 text-base font-semibold transition-ui hover:-translate-y-px"
-                      style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-                    >
-                      {lemma}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </Card>
+          {nearby.length > 0 && !known && (
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+              {t("None of these? Add the word yourself, or tell us it's missing.")}
+            </p>
           )}
-          <AddWord initialLemma={initialQuery} />
+          <AddWord
+            initialLemma={typedEnglish ? "" : initialQuery}
+            initialTranslation={typedEnglish ? initialQuery : ""}
+            startOpen={nearby.length === 0}
+          />
           {/*
             A search that found nothing is the commonest dead end in the app,
             and until now it ended here. Adding the word yourself is the fix
@@ -495,16 +460,18 @@ export function DictionaryClient({
             word exists because they are holding it on a page in front of them.
           */}
           <div className="flex flex-col gap-2">
-            <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              {t("Sure it's a word? Tell us and somebody will look at adding it for everyone.")}
-            </p>
+            {nearby.length === 0 && (
+              <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                {t("Sure it's a word? Tell us and somebody will look at adding it for everyone.")}
+              </p>
+            )}
             <div>
               <SuggestFix
                 category="MISSING_WORD"
                 lemma={initialQuery}
                 trigger={`The dictionary found nothing for "${initialQuery}"`}
                 label={t("This word is missing")}
-                tone="loud"
+                tone={nearby.length > 0 ? undefined : "loud"}
               />
             </div>
           </div>
@@ -1208,5 +1175,53 @@ function AddToDeck({ entry }: { entry: EntryView }) {
         </Button>
       </div>
     </div>
+  );
+}
+
+/** Why a word is offered, in a few words. A reason is what makes six words a choice rather than a guess. */
+const REASON: Record<NearbyReason, string> = {
+  translation: "the Estonian for it",
+  english: "matches the English",
+  spelling: "spelled nearly the same",
+  sound: "sounds the same",
+  part: "part of that word",
+};
+
+/**
+ * WHAT THE DICTIONARY THINKS YOU MEANT.
+ *
+ * One row per word, each with its own English and the reason it is here, so
+ * somebody can tell which they wanted without opening six entries. A word
+ * only Ekilex holds has no English of ours yet, and carries the sense the
+ * translation table filed it under instead, or nothing; pressing it is an
+ * ordinary search, which fetches the entry.
+ */
+function DidYouMean({ nearby, known }: { nearby: Nearby[]; known: boolean }) {
+  const t = useT();
+  return (
+    <Card>
+      <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
+        {known ? t("Close to it in the dictionary") : t("Did you mean")}
+      </p>
+      <ul className="mt-3 flex flex-col gap-2" data-nearby="">
+        {nearby.map((item) => (
+          <li key={item.lemma}>
+            <Link
+              href={`/dictionary?q=${encodeURIComponent(item.lemma)}`}
+              data-nearby-why={item.why}
+              className="choice-btn flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-0.5 rounded-[var(--r)] border px-4 py-2.5"
+            >
+              <span lang="et" className="text-base font-semibold" style={{ color: "var(--accent-deep)" }}>
+                {item.lemma}
+              </span>
+              {item.gloss && (
+                <span className="min-w-0 text-sm" style={{ color: "var(--ink-2)" }}>{item.gloss}</span>
+              )}
+              <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{t(REASON[item.why])}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </Card>
   );
 }

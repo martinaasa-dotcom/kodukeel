@@ -45,6 +45,12 @@ export interface DeckSnapshot {
   knownCards: number;
   /** Lemmas with at least one card in the deck. */
   startedLemmas: Set<string>;
+  /**
+   * Lemmas the learner has actually been through: at least one card that is no
+   * longer unseen. `startedLemmas` is wider, since first run and "Add to deck"
+   * write a word's cards before anybody has been asked about it.
+   */
+  seenLemmas: Set<string>;
   /** Lemmas whose every card has reached the Known state. */
   knownLemmas: Set<string>;
 }
@@ -113,6 +119,7 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
   const entries = await lemmasByCardLexeme(cards.map((card) => card.lexemeId));
 
   const perLemma = new Map<string, { total: number; known: number }>();
+  const seenLemmas = new Set<string>();
   let newCount = 0;
   let learnCount = 0;
   let knownCards = 0;
@@ -137,6 +144,7 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
     const entry = perLemma.get(lemma) ?? { total: 0, known: 0 };
     entry.total++;
     if (card.state === KNOWN_STATE) entry.known++;
+    if (card.state !== 0) seenLemmas.add(lemma);
     perLemma.set(lemma, entry);
   }
 
@@ -146,6 +154,7 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
     newCount,
     knownCards,
     startedLemmas: new Set(perLemma.keys()),
+    seenLemmas,
     // Through the shared rule rather than a second copy of it, for the reason
     // written above `knownLemmasFrom`. The lemma comes from the same lookup the
     // loop above uses, since the card rows carry an id rather than a relation.
@@ -192,6 +201,7 @@ export async function pathWithProgress(ownerId: string, snapshot?: DeckSnapshot)
       ...unitProgress({
         availableLemmas: lemmas,
         startedLemmas: [...snap.startedLemmas],
+        seenLemmas: [...snap.seenLemmas],
         knownLemmas: [...snap.knownLemmas],
       }),
     };
