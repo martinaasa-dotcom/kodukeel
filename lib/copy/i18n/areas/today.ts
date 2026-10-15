@@ -364,6 +364,14 @@ export const TODAY: Area = {
     "Назовите вслух по-эстонски цену или этаж, на котором живёте, и попросите повторить.",
   "Ask for something politely with would: could I, would you.":
     "Попросите о чём-нибудь вежливо, в условном наклонении: не могли бы вы, можно было бы.",
+  "Ask an office what happens next and when, and stay in Estonian.":
+    "Спросите в учреждении, что будет дальше и когда, и не переходите на английский.",
+  "Read one official letter or notice and tell somebody what it asks of you.":
+    "Прочитайте одно официальное письмо или объявление и расскажите кому-нибудь, чего от вас в нём хотят.",
+  "Make one call to an office and give a reference number in Estonian.":
+    "Позвоните в одно учреждение и назовите номер дела по-эстонски.",
+  "Ask a teacher or a colleague one follow-up question rather than nodding.":
+    "Задайте учителю или коллеге один уточняющий вопрос, а не просто кивайте.",
   "Find out what number to call in an emergency, and say your address out loud in Estonian.":
     "Узнайте, по какому номеру звонить в экстренном случае, и произнесите свой адрес вслух по-эстонски.",
   "Ask at a bank or a counter what you need to bring, in Estonian.":
@@ -1382,6 +1390,22 @@ export const TODAY: Area = {
     "Назвіть уголос естонською ціну або поверх, на якому живете, і попросіть повторити.",
   "Ask for something politely with would: could I, would you.":
     "Попросіть про щось ввічливо, в умовному способі: чи не могли б ви, чи можна було б.",
+  "Ask an office what happens next and when, and stay in Estonian.":
+    "Запитайте в установі, що буде далі й коли, і не переходьте на англійську.",
+  "An office":
+    "Установа",
+  "Read one official letter or notice and tell somebody what it asks of you.":
+    "Прочитайте один офіційний лист чи оголошення і розкажіть комусь, чого від вас у ньому хочуть.",
+  "Home, an office":
+    "Удома, установа",
+  "Make one call to an office and give a reference number in Estonian.":
+    "Зателефонуйте в одну установу і назвіть номер справи естонською.",
+  "On the phone":
+    "Телефоном",
+  "Ask a teacher or a colleague one follow-up question rather than nodding.":
+    "Поставте вчителеві чи колезі одне уточнювальне запитання, а не просто кивайте.",
+  "A school, work":
+    "Школа, робота",
   "Find out what number to call in an emergency, and say your address out loud in Estonian.":
     "Дізнайтеся, за яким номером дзвонити в разі надзвичайної ситуації, і промовте свою адресу вголос естонською.",
   "Ask at a bank or a counter what you need to bring, in Estonian.":

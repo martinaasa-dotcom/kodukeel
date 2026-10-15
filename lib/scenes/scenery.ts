@@ -150,6 +150,10 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   hadaabi: { icon: "LifeBuoy", setting: "home_phone" },
   pangas: { icon: "Landmark", setting: "office" },
   perearst: { icon: "Stethoscope", setting: "clinic" },
+  tootukassa: { icon: "Briefcase", setting: "office" },
+  elamisluba: { icon: "Stamp", setting: "office" },
+  peretoetus: { icon: "MessageCircleQuestion", setting: "home_phone" },
+  lastevanemad: { icon: "GraduationCap", setting: "classroom" },
 };
 
 /**

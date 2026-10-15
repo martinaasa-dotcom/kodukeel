@@ -58,13 +58,17 @@ import WEEKEND from "./specs/nadalavahetus";
 import EMERGENCY from "./specs/hadaabi";
 import BANK from "./specs/pangas";
 import FAMILY_DOCTOR from "./specs/perearst";
+import UNEMPLOYMENT_FUND from "./specs/tootukassa";
+import RESIDENCE_PERMIT from "./specs/elamisluba";
+import FAMILY_BENEFIT from "./specs/peretoetus";
+import PARENTS_EVENING from "./specs/lastevanemad";
 
 export { FAREWELLS, REACTIONS, LOST, ASIDES, FEELINGS, FALLBACK_PHRASE, ASK_ENGLISH } from "./specs/shared";
 
 export const SCENES: readonly SceneSpec[] = [
   SHOP, DOCTOR, LANDLORD, COUNTER, CAFE, DIRECTIONS, TICKET,
   RESTAURANT, PHONE, NEIGHBOR, PHARMACY, COURSE, INTERVIEW, COMPLAINT, CLOTHES,
-  NEW_COLLEAGUE, ASKING_FOR_HELP, WAITING, ARRANGING, MARKET, BUS_STOP, LIBRARY, WEEKEND, EMERGENCY, BANK, FAMILY_DOCTOR,
+  NEW_COLLEAGUE, ASKING_FOR_HELP, WAITING, ARRANGING, MARKET, BUS_STOP, LIBRARY, WEEKEND, EMERGENCY, BANK, FAMILY_DOCTOR, UNEMPLOYMENT_FUND, RESIDENCE_PERMIT, FAMILY_BENEFIT, PARENTS_EVENING,
 ];
 
 export function sceneById(id: string): SceneSpec | undefined {

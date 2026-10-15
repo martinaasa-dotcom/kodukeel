@@ -131,6 +131,10 @@ export const ERRANDS: readonly Errand[] = [
   { id: "emergency", says: "Find out what number to call in an emergency, and say your address out loud in Estonian.", where: "Home", unit: "abi", scene: "hadaabi" },
   { id: "bring", says: "Ask at a bank or a counter what you need to bring, in Estonian.", where: "A bank, an office", unit: "linn-ja-teenused", scene: "pangas" },
   { id: "dose", says: "Ask how often to take something, and say it back.", where: "A doctor, a pharmacy", unit: "keha-ja-tervis", scene: "perearst" },
+  { id: "nextstep", says: "Ask an office what happens next and when, and stay in Estonian.", where: "An office", unit: "too-ja-raha", scene: "tootukassa" },
+  { id: "letter", says: "Read one official letter or notice and tell somebody what it asks of you.", where: "Home, an office", unit: "umbisikuline", scene: "elamisluba" },
+  { id: "reference", says: "Make one call to an office and give a reference number in Estonian.", where: "On the phone", unit: "suhtlemine", scene: "peretoetus" },
+  { id: "followup", says: "Ask a teacher or a colleague one follow-up question rather than nodding.", where: "A school, work", unit: "haridus", scene: "lastevanemad" },
 ];
 
 /**

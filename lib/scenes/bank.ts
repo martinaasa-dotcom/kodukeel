@@ -40,6 +40,10 @@ import nadalavahetus from "./bank/nadalavahetus";
 import hadaabi from "./bank/hadaabi";
 import pangas from "./bank/pangas";
 import perearst from "./bank/perearst";
+import TOOTUKASSA_LINES from "./bank/tootukassa";
+import ELAMISLUBA_LINES from "./bank/elamisluba";
+import PERETOETUS_LINES from "./bank/peretoetus";
+import LASTEVANEMAD_LINES from "./bank/lastevanemad";
 
 /** Every scene's prepared lines, one file a scene under `lib/scenes/bank/`, in scene order. */
 export const BANK: readonly ScriptedLine[] = [
@@ -69,4 +73,8 @@ export const BANK: readonly ScriptedLine[] = [
   ...hadaabi,
   ...pangas,
   ...perearst,
+  ...TOOTUKASSA_LINES,
+  ...ELAMISLUBA_LINES,
+  ...PERETOETUS_LINES,
+  ...LASTEVANEMAD_LINES,
 ];

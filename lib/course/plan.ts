@@ -233,6 +233,10 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   "keha-ja-tervis": "hadaabi",
   "too-ja-raha": "pangas",
   "des-vorm": "perearst",
+  majandus: "tootukassa",
+  umbisikuline: "elamisluba",
+  ajalugu: "peretoetus",
+  keskkond: "lastevanemad",
 };
 
 /**
