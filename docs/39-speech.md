@@ -23,6 +23,8 @@ its pair: that is the verdict a pronunciation feature would hand a learner who s
 | **TalTech `streaming-zipformer-large.et-en`** | **on device** | **2.7%** | **68/80** | **1** | **~160 MB int8** | **0.5** |
 | TalTech `whisper-large-v3-turbo-et-verbatim-2604` | server or high-end device | 1.9% | 73/80 | 0 | ~800 MB int8 | 10 |
 | TalTech `streaming-zipformer.et-en` (small) | on device | 4.7% | 53/80 | 3 | ~72 MB int8 | 0.4 |
+| TalTech `xls-r-300m-et` (wav2vec2, letter by letter) | on device, desktop | 3.0% | 75/80 | 1 | ~1.3 GB fp32, ~320 MB int8 | 2.2 |
+| TalTech `whisper-medium-et` | server | 3.8% | 64/80 | 5 | ~770 MB int8 | 7.6 |
 | Gemini 3.1 Pro (part of the set) | Google, paid | 1.4% | 22/27 | 5 | | 7.6 |
 | Gemini 3.8 Flash | Google, paid | 3.6 to 4.4% | 56 to 57/80 | 12 to 16 | | 3 |
 | Groq `whisper-large-v3` | Groq, paid | 20.1% | 50/80 | 5 | | 0.4 |
@@ -40,8 +42,13 @@ under it at 10 dB, which is a café or a classroom):
 | Zipformer large | 5.8% | 60/80 | 1 | 0.8 |
 | Whisper turbo verbatim | 5.5% | 55/80 | 3 | 9.4 |
 | Zipformer small | 7.7% | 66/80 | 0 | 0.7 |
+| `xls-r-300m-et` | 9.1% | 55/80 | 3 | 0.6 |
 
-The Zipformer large holds up as well as the Whisper model in noise and confuses fewer pairs. The
+The Zipformer large holds up as well as the Whisper model in noise and confuses fewer pairs.
+`xls-r-300m-et` is the opposite case: the best of every model at single contrast words in a quiet
+room (75 of 80), because it writes letters as it hears them with no sense of which words are likely,
+and the worst of these four in noise. That makes it a candidate for one job, SP-6's quiet "say one of
+the pair" exercise, and not for conversation. The
 small one confusing none in noise while confusing three in quiet is a sign of how small 80 words is
 as a sample, not of the small model being better: read pair counts under five as noise.
 
@@ -109,7 +116,7 @@ git cat-file -e origin/main:lib/speech/reconcile.ts 2>/dev/null \
 
 | # | Decision | Where it bites |
 | --- | --- | --- |
-| D1 | **The recognizer is TalTech's `streaming-zipformer-large.et-en`, int8, run on the learner's device through sherpa-onnx.** The small Zipformer is the fallback where a device cannot hold the large one (SP-0 measures where that line is). The Whisper verbatim model is a later, optional "second opinion" and not part of this batch. Pin the Hugging Face revision and the SHA-256 of every file. | SP-1, SP-10 |
+| D1 | **The recognizer is TalTech's `streaming-zipformer-large.et-en`, int8, run on the learner's device through sherpa-onnx.** The small Zipformer is the fallback where a device cannot hold the large one (SP-0 measures where that line is). The Whisper verbatim model is a later, optional "second opinion" and not part of this batch; so is `xls-r-300m-et`, which SP-0 measures on real voices as the possible engine for SP-6 alone. Pin the Hugging Face revision and the SHA-256 of every file. | SP-1, SP-10 |
 | D2 | **No audio leaves the device, and no audio is stored.** A clip lives in memory for the turn or the card and is released when it changes, which is `Recorder`'s rule today. Transcripts are stored only where typed text is stored already (a scene turn, an answer). No new recipient goes on `/privacy`. The one exception is SP-9's voice donation, which is its own consent, its own table and its own erasure. | Every item |
 | D3 | **Bars before features.** SP-0 measures real voices. A transcript is shown to learners only if correctly said test sentences are misheard under 8 percent of words. A contrast is judged (SP-6) only if a correctly said contrast word is heard as its partner under 2 percent of the time and a deliberately wrong one is caught at least 80 percent of the time. These are the operator's numbers to move; nobody else moves them. | SP-3 to SP-7 |
 | D4 | **Two transcripts, two jobs.** `heard` is decoded with no hotwords and no repair and is the only text any feedback about sounds may come from. `understood` is decoded with hotwords where SP-0 shows they help a learner's voice (off by default, section 3.2) and repaired against the dictionary (section 3.3), and is what a conversation advances on. They are computed from the same audio in one pass where the runtime allows, two where it does not. | SP-2, SP-3, SP-5 |
