@@ -130,11 +130,13 @@ def run():
             for name, fn in VARIANTS.items():
                 key = f"{model}|{name}|{r['file']}"
                 if key not in heard:
-                    models.setdefault(model, X.Zipformer(mid))
+                    if model not in models:
+                        models[model] = X.Zipformer(mid)
                     heard[key] = models[model].hear(fn(X.load(r["file"])), lead=0.5)["text"]
             key = f"{model}|continuous|{r['continuous']}"
             if key not in heard:
-                models.setdefault(model, X.Zipformer(mid))
+                if model not in models:
+                    models[model] = X.Zipformer(mid)
                 heard[key] = models[model].hear(X.load(r["continuous"]), lead=0.5)["text"]
         json.dump(heard, open(path, "w"), ensure_ascii=False)
         print(model, file=sys.stderr, flush=True)

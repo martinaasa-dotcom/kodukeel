@@ -151,9 +151,13 @@ def flags():
     data = []
     for room in ROOMS:
         heard = json.load(open(os.path.join(OUT, f"{room}.json")))
-        for r, h in zip(rows, heard):
+        small_path = os.path.join(OUT, f"small_{room}.json")
+        small = json.load(open(small_path)) if os.path.exists(small_path) else [None] * len(heard)
+        for r, h, s in zip(rows, heard, small):
+            second = set(X.words(s["text"])) if s else None
             for f in word_features(r["text"], h, forms):
                 f["voice"] = r["voice"]
+                f["agree"] = second is None or f["w"] in second
                 data.append(f)
     train_voices = set(X.VOICES[::2])
     train = [d for d in data if d["voice"] in train_voices]
@@ -169,7 +173,8 @@ def flags():
         print(f"  {name:44} flags {len(flagged):4}, catches {caught:4} of {wrong}: precision {100 * prec:5.1f}%, recall {100 * rec:5.1f}%, F1 {100 * f:5.1f}")
 
     def feats(d):
-        return [d["min"], d["mean"], np.log(d["n"]), np.log(d["len"]), 0.0 if d["real"] else 1.0, 1.0]
+        return [d["min"], d["mean"], np.log(d["n"]), np.log(d["len"]), 0.0 if d["real"] else 1.0,
+                0.0 if d["agree"] else 1.0, 1.0]
 
     # Logistic regression by plain gradient descent: six weights, nothing to ship but the weights.
     A = np.array([feats(d) for d in train])
@@ -182,9 +187,13 @@ def flags():
     judge("lowest log probability under -1.0", lambda d: d["min"] < -1.0)
     judge("not a word the forms list holds", lambda d: not d["real"])
     judge("either of those", lambda d: d["min"] < -1.0 or not d["real"])
+    judge("the small model heard something else", lambda d: not d["agree"])
+    judge("not a word, or the small model disagrees", lambda d: not d["real"] or not d["agree"])
+    judge("small disagrees and lowest under -0.5", lambda d: not d["agree"] and d["min"] < -0.5)
+    judge("small disagrees or lowest under -2.0", lambda d: not d["agree"] or d["min"] < -2.0)
     for cut in (0.3, 0.4, 0.5):
         judge(f"combined weights, chance over {cut}", lambda d, c=cut: 1 / (1 + np.exp(-np.dot(feats(d), w))) > c)
-    print("\n  weights (min, mean, log tokens, log letters, not a word, bias):", " ".join(f"{x:+.2f}" for x in w))
+    print("\n  weights (min, mean, log tokens, log letters, not a word, small disagrees, bias):", " ".join(f"{x:+.2f}" for x in w))
 
 
 if __name__ == "__main__":
