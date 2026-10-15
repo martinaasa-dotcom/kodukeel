@@ -178,7 +178,7 @@ def flags():
 
     def feats(d):
         return [d["min"], d["mean"], np.log(d["n"]), np.log(d["len"]), 0.0 if d["real"] else 1.0,
-                0.0 if d["agree"] else 1.0, 1.0]
+                0.0 if d["agree"] else 1.0, 0.0 if d["beam"] else 1.0, 1.0]
 
     # Logistic regression by plain gradient descent: six weights, nothing to ship but the weights.
     A = np.array([feats(d) for d in train])
@@ -197,9 +197,15 @@ def flags():
     judge("small disagrees or lowest under -2.0", lambda d: not d["agree"] or d["min"] < -2.0)
     judge("beam search on the large model disagrees", lambda d: not d["beam"])
     judge("beam disagrees and lowest under -0.5", lambda d: not d["beam"] and d["min"] < -0.5)
+    print("\n  two tiers a phone can run with one model, and with the small one beside it")
+    judge("sure: not a word, or beam disagrees", lambda d: not d["real"] or not d["beam"])
+    judge("maybe: lowest under -1.0, not already sure", lambda d: d["real"] and d["beam"] and d["min"] < -1.0)
+    judge("sure or maybe, one model", lambda d: not d["real"] or not d["beam"] or d["min"] < -1.0)
+    judge("maybe with the small model: small disagrees, not sure", lambda d: d["real"] and d["beam"] and not d["agree"])
+    judge("sure or maybe, two models", lambda d: not d["real"] or not d["beam"] or not d["agree"])
     for cut in (0.3, 0.4, 0.5):
         judge(f"combined weights, chance over {cut}", lambda d, c=cut: 1 / (1 + np.exp(-np.dot(feats(d), w))) > c)
-    print("\n  weights (min, mean, log tokens, log letters, not a word, small disagrees, bias):", " ".join(f"{x:+.2f}" for x in w))
+    print("\n  weights (min, mean, log tokens, log letters, not a word, small disagrees, beam disagrees, bias):", " ".join(f"{x:+.2f}" for x in w))
 
 
 if __name__ == "__main__":
