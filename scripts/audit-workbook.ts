@@ -61,7 +61,7 @@ for (const band of BANDS) {
     const word = {
       lexemeId: keyOf(r), lemma: r.lemma, translation: r.translation, pos: r.pos,
       semanticTypes: r.semanticTypes, forms: r.forms,
-      examples: [...(at <= 1 ? authoredFor(r.lemma) : []), ...usableExamples(recorded), ...(borrowed.get(keyOf(r)) ?? [])],
+      examples: [...(at <= 1 ? authoredFor(r.lemma, "SEED") : []), ...usableExamples(recorded), ...(borrowed.get(keyOf(r)) ?? [])],
     };
     for (const line of linesFor(word, OPEN, new Set(), { reach, limit: at })) {
       const theme = line.themes.find((t) => t !== "mixed") ?? "mixed";
@@ -83,7 +83,7 @@ for (const band of BANDS) {
   }
 }
 function word(item: SheetItem): string {
-  return authoredFor(item.cue).some((e) => e.et === item.sentence) ? "  (written for a beginner)" : "";
+  return authoredFor(item.cue, "SEED").some((e) => e.et === item.sentence) ? "  (written for a beginner)" : "";
 }
 
 const text = asJson ? JSON.stringify(records) : lines.join("\n");

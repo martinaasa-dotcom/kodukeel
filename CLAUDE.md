@@ -5510,8 +5510,7 @@ first evening is four words and the second is still five, so no day id moved. Th
 went too, and a second written row that used it (`Too mees elab siin.`) now says `See mees elab siin.`,
 which `npm run check:authored` found. **What was not reproduced is the gloss.** Nothing shipped glosses
 `too` as "bring", so a deployment showing that has a second `too` row older than the course, and written
-sentences are filed by lemma alone, which is how the pronoun's sentence reached it. Look for it with
-`SELECT id, pos, translation, provenance FROM "Lexeme" WHERE lemma = 'too'`.
+sentences are filed by lemma alone, which is how the pronoun's sentence reached it. It was found on 2026-10-15: a learner had added `too` by hand as "bring" (USER, part of speech OTHER, no forms), beside the seed's pronoun, and the pronoun's sentence reached it by lemma. So `authoredFor` takes the entry's provenance, required, and gives a USER or AI row nothing: the rows are written for the words the seed and Ekilex supplied, and `Lexeme` is unique on `(lemma, pos)`, so a spelling is not a word. The learner's row and its two cards are theirs and were left alone.
 
 **What is still outside the rule and is named rather than hidden**: dictation and the picture round
 stay in the A1 rotation and both put an attested sentence in front of a beginner, dictation asking

@@ -246,6 +246,7 @@ export default async function WorkbookPage({
 
   const lexemeSelect = {
     id: true, lemma: true, translation: true, pos: true, cefr: true, examples: true, semanticTypes: true,
+    provenance: true,
     // Ordered for the reason the flash round gives: a parallel form has to
     // be the same one on every load, since one is the answer shown.
     forms: { select: { formType: true, value: true, morphCode: true }, orderBy: { id: "asc" } },
@@ -297,7 +298,7 @@ export default async function WorkbookPage({
         // The word's own sentences, plainest first for a beginner's word, then
         // the ones lent from elsewhere in the dictionary (`lib/dict/borrow.ts`).
         examples: [
-          ...(beginner ? authoredFor(l.lemma) : []),
+          ...(beginner ? authoredFor(l.lemma, l.provenance) : []),
           ...usableExamples(parseExamples(l.examples), plainerFirst(l.cefr, reach)),
           ...(borrowed.get(l.id) ?? []),
         ],
