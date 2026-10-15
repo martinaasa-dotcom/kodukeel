@@ -530,5 +530,137 @@ def report():
             line(f"flag words under {cut}", f"flags {len(flagged)} of {len(toks)} words, catches {caught} of {wrong} wrong ones")
 
 
+# ------------------------------------------------------------------ round two
+
+"""
+What round one could not settle, or settled wrongly.
+
+- PACE. Stretching a clip with a phase vocoder adds the vocoder's own smear,
+  and round one measured that smear (64 percent at 1.2) rather than fast
+  speech. TartuNLP renders a sentence at another pace in its acoustic model,
+  which is a voice speaking slowly rather than a recording slowed down.
+- PAUSES. Word by word, whole words vanished: a streaming model carried
+  across long silences. What the app would do instead is cut at the pause
+  and hear each piece, so that is measured.
+- FAITHFULNESS. The Zipformer corrected nearly every mistake a sentence was
+  said with. A model that writes letters as it hears them, with no sense of
+  which words are likely, is the candidate for writing down what was said:
+  TalTech's xls-r-300m-et, the best of all models at single contrast words.
+- PADDING. A lead of silence helped and a long tail hurt; both together are
+  measured.
+"""
+
+
+def tartu_paced(text, voice, speed):
+    d = os.path.join(EXP, "tts-paced")
+    os.makedirs(d, exist_ok=True)
+    path = os.path.join(d, re.sub(r"[^\w]+", "_", f"{voice}_{speed}_{text}")[:120] + ".wav")
+    if not os.path.exists(path):
+        body = json.dumps({"text": text if re.search(r"[.!?]$", text) else text + ".", "speaker": voice, "speed": speed}).encode()
+        req = urllib.request.Request(TTS, data=body, headers={"content-type": "application/json"})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            open(path, "wb").write(r.read())
+        time.sleep(0.15)
+    return path
+
+
+def build2():
+    sets = json.load(open(os.path.join(EXP, "sets.json")))
+    twenty = base_sentences()[:20]
+    for speed in (0.7, 0.85, 1.25):
+        sets[f"pace{speed}"] = [{"text": t, "voice": "mari", "file": tartu_paced(t, "mari", speed)} for t in twenty]
+    json.dump(sets, open(os.path.join(EXP, "sets.json"), "w"), ensure_ascii=False)
+    print({k: len(v) for k, v in sets.items() if k.startswith("pace")}, file=sys.stderr)
+
+
+def segments(audio, gap=0.3, floor=0.01):
+    """Cut at every silence of `gap` seconds, as the app's endpointing would."""
+    frame = int(RATE * 0.02)
+    loud = [np.sqrt(np.mean(audio[i:i + frame] ** 2)) > floor for i in range(0, len(audio), frame)]
+    out, start, quiet = [], None, 0
+    for k, on in enumerate(loud):
+        if on:
+            if start is None:
+                start = k
+            quiet = 0
+        elif start is not None:
+            quiet += 1
+            if quiet * 0.02 >= gap:
+                out.append(audio[max(0, start * frame - frame * 5): (k - quiet + 5) * frame])
+                start, quiet = None, 0
+    if start is not None:
+        out.append(audio[max(0, start * frame - frame * 5):])
+    return out or [audio]
+
+
+class XLSR:
+    """TalTech's wav2vec2 model: letters as heard, greedy CTC, no language model."""
+
+    def __init__(self, model_id="TalTechNLP/xls-r-300m-et"):
+        import torch
+        from transformers import AutoModelForCTC, AutoProcessor
+        torch.set_num_threads(os.cpu_count() or 4)
+        self.torch = torch
+        self.proc = AutoProcessor.from_pretrained(model_id)
+        self.model = AutoModelForCTC.from_pretrained(model_id).eval()
+
+    def hear(self, audio):
+        inputs = self.proc(audio, sampling_rate=RATE, return_tensors="pt")
+        with self.torch.inference_mode():
+            logits = self.model(**inputs).logits
+        return {"text": self.proc.batch_decode(logits.argmax(-1))[0]}
+
+
+def run2():
+    sets = json.load(open(os.path.join(EXP, "sets.json")))
+    z = Zipformer()
+    for name in [k for k in sets if k.startswith("pace")]:
+        cached(f"greedy__{name}", lambda: [z.hear(load(r["file"])) for r in sets[name]])
+    cached("lead0.5tail0.8__clean", lambda: [z.hear(load(r["file"]), lead=0.5, tail=0.8) for r in sets["clean"]])
+    cached("lead0.5tail1.2__clean", lambda: [z.hear(load(r["file"]), lead=0.5, tail=1.2) for r in sets["clean"]])
+    cached("segmented__wordbyword", lambda: [
+        {"text": " ".join(z.hear(seg, lead=0.3)["text"] for seg in segments(load(r["file"])))} for r in sets["wordbyword"]])
+    x = XLSR()
+    for name in ("errors", "clean", "room:babble5", "room:phone", "voices"):
+        cached(f"xlsr__{name}", lambda: [x.hear(load(r["file"])) for r in sets[name]])
+        print("xlsr", name, file=sys.stderr)
+
+
+def report2():
+    sets = json.load(open(os.path.join(EXP, "sets.json")))
+    H = lambda name: json.load(open(os.path.join(EXP, "heard", name + ".json")))
+    have = lambda name: os.path.exists(os.path.join(EXP, "heard", name + ".json"))
+    pairs = lambda name, rows: [(r["text"], h["text"]) for r, h in zip(rows, H(name))]
+    line = lambda label, value: print(f"  {label:<48} {value}")
+    print("\nPACE, said at another speed by the voice itself (20 sentences, mari)")
+    for name in [k for k in sets if k.startswith("pace")]:
+        if have(f"greedy__{name}"):
+            line(name, f"{wer(pairs(f'greedy__{name}', sets[name])):5.1f}%")
+    print("\nPADDING (clean)")
+    for name in ("greedy__clean", "lead0.5__clean", "lead0.5tail0.8__clean", "lead0.5tail1.2__clean"):
+        if have(name):
+            line(name.split("__")[0], f"{wer(pairs(name, sets['clean'])):5.1f}%")
+    print("\nPAUSES, word by word")
+    for name in ("greedy__wordbyword", "segmented__wordbyword"):
+        if have(name):
+            line(name.split("__")[0], f"{wer(pairs(name, sets['wordbyword'])):5.1f}%")
+    print("\nFAITHFULNESS: xls-r-300m-et beside the Zipformer")
+    for name in ("clean", "room:babble5", "room:phone", "voices"):
+        if have(f"xlsr__{name}"):
+            line(f"{name}: Zipformer / xls-r", f"{wer(pairs(f'greedy__{name}', sets[name])):5.1f}% / {wer(pairs(f'xlsr__{name}', sets[name])):5.1f}%")
+    for model in ("greedy", "xlsr"):
+        if not have(f"{model}__errors"):
+            continue
+        tally = {}
+        for r, h in zip(sets["errors"], H(f"{model}__errors")):
+            hw = words(h["text"])
+            t = tally.setdefault(r["kind"], [0, 0, 0, 0])
+            t[3] += 1
+            t[0 if r["bad"] in hw else 1 if r["ok"] in hw else 2] += 1
+        for kind, (faithful, corrected, other, n) in tally.items():
+            line(f"{'Zipformer' if model == 'greedy' else 'xls-r'} {kind}", f"wrote the mistake {faithful}/{n}, corrected {corrected}/{n}, neither {other}/{n}")
+
+
 if __name__ == "__main__":
-    {"build": build, "run": run, "report": report}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
+    {"build": build, "run": run, "report": report, "build2": build2, "run2": run2, "report2": report2}[
+        sys.argv[1] if len(sys.argv) > 1 else "report"]()
